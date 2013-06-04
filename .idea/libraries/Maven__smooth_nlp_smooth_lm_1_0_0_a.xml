@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: smooth-nlp:smooth-lm:1.0.0-a">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/smooth-nlp/smooth-lm/1.0.0-a/smooth-lm-1.0.0-a.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/smooth-nlp/smooth-lm/1.0.0-a/smooth-lm-1.0.0-a-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/smooth-nlp/smooth-lm/1.0.0-a/smooth-lm-1.0.0-a-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

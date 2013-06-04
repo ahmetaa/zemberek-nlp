@@ -1,0 +1,120 @@
+package zemberek.morphology.parser;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import junit.framework.Assert;
+import org.hamcrest.MatcherAssert;
+import org.junit.Test;
+import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
+import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
+import zemberek.morphology.lexicon.tr.TurkishSuffixes;
+import zemberek.morphology.parser.MorphParse;
+import zemberek.morphology.parser.SimpleParser;
+
+import java.util.List;
+
+import static org.hamcrest.Matchers.equalTo;
+
+public class MorphParseTest {
+
+    TurkishSuffixes suffixProvider = new TurkishSuffixes();
+
+    @Test
+    public void parseTest1() {
+        String[] lines = {"ev", "kitap", "mavi [P:Adj]", "yirmi [P:Num,Card]"};
+        String[] testSet = {"evde", "kitabıma", "kitaplaşırız", "mavi", "yirmiye"};
+        String[] stemSet = {"ev", "kitab", "kitap", "mavi", "yirmi"};
+        String[] expected = {
+                "[(ev:ev) (Noun;A3sg+Pnon+Loc:de)]",
+                "[(kitap:kitab) (Noun;A3sg+P1sg:ım+Dat:a)]",
+                "[(kitap:kitap) (Noun;A3sg+Pnon+Nom)(Verb;Become:laş+Pos+Aor:ır+A1pl:ız)]",
+                "[(mavi:mavi) (Adj)]",
+                "[(yirmi:yirmi) (Num,Card)(Noun;A3sg+Pnon+Dat:ye)]"
+        };
+        String[] expectedNoSurface = {
+                "[(ev) (Noun;A3sg+Pnon+Loc)]",
+                "[(kitap) (Noun;A3sg+P1sg+Dat)]",
+                "[(kitap) (Noun;A3sg+Pnon+Nom)(Verb;Become+Pos+Aor+A1pl)]",
+                "[(mavi) (Adj)]",
+                "[(yirmi) (Num,Card)(Noun;A3sg+Pnon+Dat)]"
+
+        };
+        String[] expectedEmptyNoSurface = {
+                "[(ev) (Noun;Loc)]",
+                "[(kitap) (Noun;P1sg+Dat)]",
+                "[(kitap) (Noun)(Verb;Become+Aor+A1pl)]",
+                "[(mavi) (Adj)]",
+                "[(yirmi) (Num,Card)(Noun;Dat)]"
+
+        };
+        String[] expectedOflazer = {
+                "ev+Noun+A3sg+Pnon+Loc",
+                "kitap+Noun+A3sg+P1sg+Dat",
+                "kitap+Noun+A3sg+Pnon+Nom^DB+Verb+Become+Pos+Aor+A1pl",
+                "mavi+Adj",
+                "yirmi+Num+Card^DB+Noun+A3sg+Pnon+Dat"
+        };
+        SimpleParser parser = getParser(lines);
+        int i = 0;
+        for (String s : testSet) {
+            List<MorphParse> results = parser.parse(s);
+            MorphParse res = results.get(0);
+            Assert.assertEquals(stemSet[i], res.root);
+            Assert.assertEquals(expected[i], res.formatLong());
+            Assert.assertEquals(expectedNoSurface[i], res.formatNoSurface());
+            Assert.assertEquals(expectedOflazer[i], res.formatOflazer());
+            Assert.assertEquals(expectedEmptyNoSurface[i], res.formatNoEmpty());
+            i++;
+        }
+    }
+
+    @Test
+    public void igSurfaceTest() {
+        SimpleParser parser = getParser("kitap");
+        String[] testSet = {"kitabıma", "kitaplaşırız"};
+        String[] expected = {"ıma", "laşırız"};
+        int i = 0;
+        for (String s : testSet) {
+            List<MorphParse> results = parser.parse(s);
+            MorphParse res = results.get(0);
+            List<String> surfaces = Lists.newArrayList();
+            for (MorphParse.InflectionalGroup ig : res.inflectionalGroups) {
+                surfaces.add(ig.surfaceForm());
+            }
+            Assert.assertEquals(expected[i], Joiner.on("").join(surfaces));
+            i++;
+        }
+    }
+
+    @Test
+    public void stemTest() {
+        SimpleParser parser = getParser("kitap", "aramak", "mavi [P:Adj]");
+
+        String[] testSet = {"kitaplaşırız", "kitaba", "aradım", "aratagörün", "arattırın", "mavide"};
+
+        String[][] expected = {
+                {"kitap", "kitaplaş"},
+                {"kitap"},
+                {"ara"},
+                {"ara", "arat", "aratagör"},
+                {"ara", "arat", "arattır"},
+                {"mavi"}
+        };
+
+        int i = 0;
+        for (String s : testSet) {
+            List<MorphParse> results = parser.parse(s);
+            MorphParse res = results.get(0);
+            List<String> expStems = Lists.newArrayList(expected[i]);
+            MatcherAssert.assertThat(expStems, equalTo(res.getStems()));
+            i++;
+        }
+    }
+
+
+    private SimpleParser getParser(String... lines) {
+        DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
+        graph.addDictionaryItems(new TurkishDictionaryLoader(suffixProvider).load(lines));
+        return new SimpleParser(graph);
+    }
+}

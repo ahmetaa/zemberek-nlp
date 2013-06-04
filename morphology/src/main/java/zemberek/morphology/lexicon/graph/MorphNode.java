@@ -1,0 +1,70 @@
+package zemberek.morphology.lexicon.graph;
+
+
+import zemberek.core.lexicon.tr.PhoneticAttribute;
+import zemberek.core.lexicon.tr.PhoneticExpectation;
+
+import java.util.EnumSet;
+
+public abstract class MorphNode {
+    public final String surfaceForm;
+    public TerminationType termination = TerminationType.TERMINAL;
+    public EnumSet<PhoneticExpectation> expectations = EnumSet.noneOf(PhoneticExpectation.class);
+    public EnumSet<PhoneticAttribute> attributes = EnumSet.noneOf(PhoneticAttribute.class);
+    public SuffixData exclusiveSuffixData = new SuffixData();
+
+    protected MorphNode(String surfaceForm, TerminationType termination) {
+        this.surfaceForm = surfaceForm;
+        this.termination = termination;
+    }
+
+    protected MorphNode(
+            String surfaceForm,
+            TerminationType termination,
+            EnumSet<PhoneticAttribute> attributes,
+            EnumSet<PhoneticExpectation> expectations,
+            SuffixData suffixData
+    ) {
+        this.surfaceForm = surfaceForm;
+        this.termination = termination;
+        this.attributes = attributes;
+        this.expectations = expectations;
+        this.exclusiveSuffixData = suffixData;
+    }
+
+    protected MorphNode(
+            String surfaceForm,
+            TerminationType termination,
+            EnumSet<PhoneticAttribute> attributes,
+            EnumSet<PhoneticExpectation> expectations
+    ) {
+        this.surfaceForm = surfaceForm;
+        this.termination = termination;
+        this.attributes = attributes;
+        this.expectations = expectations;
+    }
+
+    protected MorphNode(
+            String surfaceForm,
+            EnumSet<PhoneticAttribute> attributes,
+            EnumSet<PhoneticExpectation> expectations
+    ) {
+        this.surfaceForm = surfaceForm;
+        this.attributes = attributes;
+        this.expectations = expectations;
+    }
+
+
+    public EnumSet<PhoneticExpectation> getExpectations() {
+        return expectations;
+    }
+
+    public boolean isNullMorpheme() {
+        return surfaceForm.length() == 0;
+    }
+
+    public void setTermination(TerminationType termination) {
+        this.termination = termination;
+    }
+}
+
