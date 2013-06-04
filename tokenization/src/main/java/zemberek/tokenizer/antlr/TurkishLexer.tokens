@@ -1,0 +1,13 @@
+NewLine=3
+Alphanumerical=11
+SpaceTab=2
+Unknown=13
+Number=5
+TurkishWord=7
+RomanNumeral=6
+AbbreviationWithDots=10
+Punctuation=12
+AllCapsWord=9
+TurkishWordWithApos=8
+PercentNumeral=4
+Abbreviation=1

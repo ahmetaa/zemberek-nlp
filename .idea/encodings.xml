@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/lexicon/PrimaryPos.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/lexicon/SecondaryPos.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/lexicon/tr/PhoneticAttribute.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/lexicon/tr/PhoneticExpectation.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/lexicon/tr/RootAttribute.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/structure/StringEnum.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/structure/StringEnumMap.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/structure/TurkicLetter.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/structure/TurkicSeq.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/structure/TurkishAlphabet.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/lang-id" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/morphology" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tokenization" charset="UTF-8" />
+  </component>
+</project>
+

@@ -1,0 +1,6 @@
+1:bir
+2:iki
+ 3:uc
+ # ignore
+  # 56:blabla ignore
+  4 : dort
