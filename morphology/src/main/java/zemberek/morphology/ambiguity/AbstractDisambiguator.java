@@ -4,7 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.LineProcessor;
-import smoothnlp.core.io.Strings;
+import zemberek.core.io.Strings;
 
 import java.io.IOException;
 import java.util.Iterator;
