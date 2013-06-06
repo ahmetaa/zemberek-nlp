@@ -1,0 +1,15 @@
+Main Developers:
+
+Ahmet Afşın Akın
+Mehmet Dündar Akın
+
+Contributors:
+
+Ali Ok (Morphology : Code, Dictionary, Project: Mavenization)
+Burak Bayram (Language identification: Code)
+Şeniz Demir, Lütfü Çakıl (Language identification: Training data preparation)
+Fatma Canan Girgin (Language identification: Testing)
+Hamza Kaya, Hakan Demir (Spell checker: Algorithm)
+Cemil Demir (Language Models: Theory)
+
+Please let us know if you are a contributor and your name is not listed here.
