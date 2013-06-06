@@ -12,4 +12,6 @@ Fatma Canan Girgin (Language identification: Testing)
 Hamza Kaya, Hakan Demir (Spell checker: Algorithm)
 Cemil Demir (Language Models: Theory)
 
+Some portions of the code is developed in Tübitak Bilgem Speech and Language Technologies Laboratory.
+
 Please let us know if you are a contributor and your name is not listed here.
