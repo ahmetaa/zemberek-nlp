@@ -19,7 +19,7 @@ public class CharNgramCountModel extends BaseCharNgramModel implements Serializa
         super(modelId, order);
         gramCounts = new Histogram[order + 1];
         for (int i = 0; i < gramCounts.length; i++) {
-            gramCounts[i] = new Histogram<String>();
+            gramCounts[i] = new Histogram<>();
         }
     }
 
@@ -47,15 +47,13 @@ public class CharNgramCountModel extends BaseCharNgramModel implements Serializa
      * @throws java.io.IOException
      */
     public static CharNgramCountModel load(InputStream is) throws IOException {
-        DataInputStream dis = null;
-        try {
-            dis = new DataInputStream(new BufferedInputStream(is));
+        try (DataInputStream dis = new DataInputStream(new BufferedInputStream(is))) {
             int order = dis.readInt();
             String modelId = dis.readUTF();
             Histogram<String>[] gramCounts = new Histogram[order + 1];
             for (int j = 1; j <= order; j++) {
                 int size = dis.readInt();
-                Histogram<String> countSet = new Histogram<String>(size);
+                Histogram<String> countSet = new Histogram<>(size * 2);
                 for (int i = 0; i < size; i++) {
                     String key = dis.readUTF();
                     countSet.add(key, dis.readInt());
@@ -64,8 +62,6 @@ public class CharNgramCountModel extends BaseCharNgramModel implements Serializa
 
             }
             return new CharNgramCountModel(modelId, order, gramCounts);
-        } finally {
-            Closeables.close(dis, true);
         }
     }
 
@@ -86,9 +82,7 @@ public class CharNgramCountModel extends BaseCharNgramModel implements Serializa
      * @throws java.io.IOException
      */
     public void save(File f) throws IOException {
-        DataOutputStream dos = null;
-        try {
-            dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(f)));
+        try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(f)))) {
             dos.writeInt(order);
             dos.writeUTF(id);
             for (int i = 1; i < gramCounts.length; i++) {
@@ -98,8 +92,6 @@ public class CharNgramCountModel extends BaseCharNgramModel implements Serializa
                     dos.writeInt(gramCounts[i].getCount(key));
                 }
             }
-        } finally {
-            Closeables.close(dos, true);
         }
     }
 
@@ -165,5 +157,15 @@ public class CharNgramCountModel extends BaseCharNgramModel implements Serializa
 
     public Iterable<String> getKeyIterator(int order) {
         return gramCounts[order];
+    }
+
+    public Iterable<String> getSortedKeyIterator(int order) {
+        return gramCounts[order].getSortedList();
+    }
+
+    public void dumpGrams(int order) {
+        for (String s : getSortedKeyIterator(order)) {
+            System.out.println(s + " : " + getCount(order, s));
+        }
     }
 }

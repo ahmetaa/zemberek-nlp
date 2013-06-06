@@ -10,7 +10,7 @@ public class MapBasedCharNgramLanguageModel extends BaseCharNgramModel implement
 
     private transient CharNgramCountModel gramCounts;
     GramLogProbData[] gramLogProbs;
-    public static double BACK_OFF = -5;
+    public static double BACK_OFF = -2;
 
     private static final long serialVersionUID = 0xDEADBEEFCAFEL;
 

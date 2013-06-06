@@ -19,12 +19,13 @@ import java.util.List;
  */
 public class CompressedCharNgramModel extends BaseCharNgramModel implements CharNgramLanguageModel {
 
+    public static final int UNK_CHAR_PENALTY = -10;
+    static final double BACK_OFF = -2;
     // all arrays below are 1 based
     Mphf[] mphfs;
     ProbData[] gramData;
-    DoubleLookup[] lookups;
 
-    static final double BACK_OFF = -5;
+    DoubleLookup[] lookups;
     static final int FINGER_PRINT_MASK = (1 << 16) - 1;
 
 
@@ -49,14 +50,12 @@ public class CompressedCharNgramModel extends BaseCharNgramModel implements Char
     public static void compress(MapBasedCharNgramLanguageModel model, File output) throws IOException {
         Mphf[] mphfs = new MultiLevelMphf[model.getOrder() + 1];
         DoubleLookup[] lookups = new DoubleLookup[model.getOrder() + 1];
-        DataOutputStream dos = null;
-        try {
-            dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(output)));
+        try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(output)))) {
             dos.writeInt(model.getOrder());
             dos.writeUTF(model.getId());
 
             for (int i = 1; i <= model.getOrder(); i++) {
-                Histogram<Double> histogram = new Histogram<Double>();
+                Histogram<Double> histogram = new Histogram<>();
                 histogram.add(model.gramLogProbs[i].values.values());
                 double[] lookup = new double[histogram.size()];
                 int j = 0;
@@ -76,7 +75,8 @@ public class CompressedCharNgramModel extends BaseCharNgramModel implements Char
                 for (final String key : keys) {
                     final int index = mphfs[i].get(key);
                     fingerprints[index] = MultiLevelMphf.hash(key, -1) & FINGER_PRINT_MASK;
-                    probabilityIndexes[index] = quantizer.getQuantizationIndex(model.gramLogProbs[i].values.get(key));
+                    probabilityIndexes[index] = quantizer.getQuantizationIndex(
+                            model.gramLogProbs[i].values.get(key));
                 }
 
                 lookups[i].save(dos);
@@ -87,11 +87,7 @@ public class CompressedCharNgramModel extends BaseCharNgramModel implements Char
                 }
                 mphfs[i].serialize(dos);
             }
-        } finally {
-            Closeables.close(dos, true);
         }
-
-
     }
 
     /**
@@ -102,7 +98,7 @@ public class CompressedCharNgramModel extends BaseCharNgramModel implements Char
      */
     public double gramProbability(String gram) {
         if (gram.length() == 0)
-            return -10;
+            return UNK_CHAR_PENALTY;
         if (gram.length() > order)
             throw new IllegalArgumentException("Gram size is larger than order! gramSize=" + gram.length() + " but order is:" + order);
         int o = gram.length();
@@ -125,18 +121,19 @@ public class CompressedCharNgramModel extends BaseCharNgramModel implements Char
     }
 
     public static CompressedCharNgramModel load(InputStream is) throws IOException {
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(is));
-        int order = dis.readInt();
-        String modelId = dis.readUTF();
-        MultiLevelMphf[] mphfs = new MultiLevelMphf[order + 1];
-        ProbData[] probDatas = new ProbData[order + 1];
-        DoubleLookup[] lookups = new DoubleLookup[order + 1];
-        for (int i = 1; i <= order; i++) {
-            lookups[i] = DoubleLookup.getLookup(dis);
-            probDatas[i] = new ProbData(dis);
-            mphfs[i] = MultiLevelMphf.deserialize(dis);
+        try (DataInputStream dis = new DataInputStream(new BufferedInputStream(is))) {
+            int order = dis.readInt();
+            String modelId = dis.readUTF();
+            MultiLevelMphf[] mphfs = new MultiLevelMphf[order + 1];
+            ProbData[] probDatas = new ProbData[order + 1];
+            DoubleLookup[] lookups = new DoubleLookup[order + 1];
+            for (int i = 1; i <= order; i++) {
+                lookups[i] = DoubleLookup.getLookup(dis);
+                probDatas[i] = new ProbData(dis);
+                mphfs[i] = MultiLevelMphf.deserialize(dis);
+            }
+            return new CompressedCharNgramModel(order, modelId, mphfs, probDatas, lookups);
         }
-        return new CompressedCharNgramModel(order, modelId, mphfs, probDatas, lookups);
     }
 
     public static CompressedCharNgramModel load(File file) throws IOException {

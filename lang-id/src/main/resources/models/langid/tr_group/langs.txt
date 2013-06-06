@@ -1,0 +1,1 @@
+az,de,en,ku,ky,tr,uz,unk

@@ -10,7 +10,7 @@ public enum Language {
     AR("Arabic"), AZ("Azeri"),
     BA("Bashkir"), BE("Belarusian"), BG("Bulgarian"), BS("Bosnian"),
     CA("Catalan"), CE("Chechen"), CK("Kurdish-Sorani"), CS("Czech"), CV("Chuvash"),
-    DA("Danish"), DE("German"), DIQ("Zazaki"),
+    DA("Danish"), DE("German"),
     EL("Greek"), EN("English"), EO("Esperanto"), ES("Spanish"), ET("Estonian"), EU("Basque"),
     FA("Persian"), FI("Finnish"), FR("French"),
     HE("Hebrew"), HI("Hindi"), HR("Croatian"), HU("Hungarian"), HY("Armenian"),

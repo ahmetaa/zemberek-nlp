@@ -61,7 +61,6 @@ public class SubtitleExtractor {
         }
     }
 
-    // TODO: use ARM blocks
     private void extractDir(File dir, File outDir) throws XMLStreamException, IOException {
         String name = dir.getName().toLowerCase();
         LinkedHashSet<String> all = Sets.newLinkedHashSet();

@@ -27,7 +27,7 @@ public class ConfusionTest {
 
     public void testAll() throws IOException {
 
-        int sliceLength = 100;
+        int sliceLength = 1000;
         int maxSliceCount = 1000;
         List<TestSet> sets = allSets(maxSliceCount, sliceLength);
         Set<String> languages = identifier.getLanguages();
@@ -39,17 +39,21 @@ public class ConfusionTest {
             int correctlyFound = 0;
             int correctAmount = 0;
             for (TestSet set : sets) {
+/*                if(!set.modelId.equals("tr"))
+                    continue;*/
                 totalCount += set.size();
-                Histogram<String> result = new Histogram<String>();
+                Histogram<String> result = new Histogram<>();
                 for (String s : set.testPieces) {
 /*
                     LanguageIdentifier.IdResult idResult = identifier.identifyFullConf(s);
                     result.add(idResult.id);
 */
-                    //String t = identifier.identifyWithSampling(s, 100);
-                    String t = identifier.identifyWithSampling(s, 100);
-                    //  if (set.modelId.equals(language) && !t.equals(language))
-                    //      System.out.println(s);
+                    String t = identifier.identify(s);
+                    if (set.modelId.equals(language) && !t.equals(language)) {
+                       /* if (identifier.containsLanguage(s, "tr", 100, -1))
+                            System.out.println("Has tr slice!");
+                        System.out.println(t + " " + s);*/
+                    }
                     result.add(t);
                     //result.add(identifier.identifyWithSampling(s,sliceLength));
                     //result.add(identifier.identifyWithSampling(s, 4));
@@ -58,7 +62,15 @@ public class ConfusionTest {
                     System.out.println("Lang test size:" + set.size());
                     correctlyFound = result.getCount(language);
                     correctAmount = set.size();
+                    List<String> sorted = result.getSortedList();
+                    for (String s : sorted) {
+                        System.out.println(s + " : " + result.getCount(s));
+                    }
                     continue;
+                } else {
+                    int fpcount = result.getCount(language);
+                    if (fpcount > 0)
+                        System.out.println(set.modelId + " " + fpcount);
                 }
                 falsePositives += result.getCount(language);
             }
@@ -69,39 +81,69 @@ public class ConfusionTest {
             System.out.println(String.format("Precision:%.2f ", (100d * correctlyFound / correctAmount)));
             System.out.println(String.format("Recall: %.2f", (100d * (totalCount - falsePositives) / totalCount)));
         }
-/*
+    }
 
-        for (int kk = 0; kk < 2; kk++) {
-            System.out.println("---------------------------------------------------------------------");
-            int validSets = 0;
-            int totalSize = 0;
-            double totalElapsed = 0d;
-            double totalSuccess = 0d;
+    public void testContains() throws IOException {
+
+        int sliceLength = 1000;
+        int maxSliceCount = 1000;
+        List<TestSet> sets = allSets(maxSliceCount, sliceLength);
+        Set<String> languages = identifier.getLanguages();
+        for (String language : languages) {
+            System.out.println(language);
+            Stopwatch sw = new Stopwatch().start();
+            int falsePositives = 0;
+            int totalCount = 0;
+            int correctlyFound = 0;
+            int correctAmount = 0;
             for (TestSet set : sets) {
-                if (!identifier.modelExists(set.modelId)) {
-                    //System.out.println("Model does not exist:" + set.modelId);
-                    continue;
-                }
-                validSets++;
-                System.out.println("Model: " + set.modelId);
-                Stopwatch sw = new Stopwatch().start();
-                CountingSet<String> result = test(set.testPieces);
-                System.out.println("Elapsed: " + sw.elapsed(TimeUnit.MILLISECONDS));
-                System.out.println("Size: " + set.size());
-                double successPercentage = 100d * result.getCount(set.modelId) / set.size();
-                totalSuccess += successPercentage;
-                System.out.println(String.format("hits:%.2f", successPercentage));
-                double elapsed = sw.elapsed(TimeUnit.MILLISECONDS);
-                totalElapsed += elapsed;
-                totalSize += set.size();
-                System.out.println("slice length:" + sliceLength);
-                System.out.println(String.format("%.2f", (1000d * set.size() / elapsed)));
-                System.out.println();
-            }
-            System.out.println("Mean speed:" + (1000d * totalSize / totalElapsed));
-            System.out.println("Mean success :" + (totalSuccess / validSets));
-        }*/
+/*                if(!set.modelId.equals("tr"))
+                    continue;*/
+                totalCount += set.size();
+                Histogram<String> result = new Histogram<>();
+                for (String s : set.testPieces) {
+/*
+                    LanguageIdentifier.IdResult idResult = identifier.identifyFullConf(s);
+                    result.add(idResult.id);
+*/
+                    //String t = identifier.identify(s, 100);
+                    //String t = identifier.identify(s);
+                    String t="tr";
 
+                    identifier.containsLanguage(s, "tr", 100, -1);
+
+                    if (set.modelId.equals(language) && !t.equals(language)) {
+                       /* if (identifier.containsLanguage(s, "tr", 100, -1))
+                            System.out.println("Has tr slice!");
+                        System.out.println(t + " " + s);*/
+                    }
+                    result.add(t);
+                    //result.add(identifier.identifyWithSampling(s,sliceLength));
+                    //result.add(identifier.identifyWithSampling(s, 4));
+                }
+                if (set.modelId.equals(language)) {
+                    System.out.println("Lang test size:" + set.size());
+                    correctlyFound = result.getCount(language);
+                    correctAmount = set.size();
+                    List<String> sorted = result.getSortedList();
+                    for (String s : sorted) {
+                        System.out.println(s + " : " + result.getCount(s));
+                    }
+                    continue;
+                } else {
+                    int fpcount = result.getCount(language);
+                    if (fpcount > 0)
+                        System.out.println(set.modelId + " " + fpcount);
+                }
+                falsePositives += result.getCount(language);
+            }
+            double elapsed = sw.elapsed(TimeUnit.MILLISECONDS);
+            System.out.println(String.format("Id per second: %.2f", (1000d * totalCount / elapsed)));
+            System.out.println("False positive count: " + falsePositives);
+            System.out.println("All: " + totalCount);
+            System.out.println(String.format("Precision:%.2f ", (100d * correctlyFound / correctAmount)));
+            System.out.println(String.format("Recall: %.2f", (100d * (totalCount - falsePositives) / totalCount)));
+        }
     }
 
     public List<String> slice(String chunk, int sliceCount, int sliceSize) {
@@ -163,10 +205,14 @@ public class ConfusionTest {
         String[] langs = {"tr", "en"};
         //String[]  langs = {"tr", "ar", "az", "hy", "bg", "en", "el", "ka", "ku", "fa", "de","fr","nl","diq"};
         // String[] langs = Language.allLanguages();
-        LanguageIdentifier identifier = LanguageIdentifier.generateFromCounts(/*new File("/home/kodlab/data/language-data/models/counts"), */langs);
+        //LanguageIdentifier identifier = LanguageIdentifier.generateFromCounts(new File("/home/kodlab/data/language-data/models/counts3"),Language.allLanguages());
+        LanguageIdentifier identifier = LanguageIdentifier.fromInternalModelGroup("tr_group");
+        //LanguageIdentifier identifier = LanguageIdentifier.fromInternalModelGroup("tr_group", langs);
+        //LanguageIdentifier identifier = LanguageIdentifier.generateFromCounts(Language.allLanguages());
         System.out.println("Model generation: " + sw.elapsed(TimeUnit.MILLISECONDS));
         ConfusionTest confusionTest = new ConfusionTest(identifier);
-        confusionTest.testAll();
+        //confusionTest.testAll();
+        confusionTest.testContains();
         // confusionTest.testOher();
     }
 

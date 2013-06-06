@@ -1,7 +1,6 @@
-package zemberek.langid;
+package zemberek.core.math;
 
 public class LogMath {
-
     private static final double[] logSumLookup = new double[30000];
     private static final double SCALE = 1000d;
 
