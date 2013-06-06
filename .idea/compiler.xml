@@ -27,6 +27,7 @@
         <module name="lang-id" />
         <module name="lm" />
         <module name="morphology" />
+        <module name="spelling" />
         <module name="tokenization" />
       </profile>
     </annotationProcessing>
@@ -36,6 +37,7 @@
       <module name="lang-id" target="1.7" />
       <module name="lm" target="1.7" />
       <module name="morphology" target="1.7" />
+      <module name="spelling" target="1.7" />
       <module name="tokenization" target="1.7" />
       <module name="zemberek-nlp" target="1.7" />
     </bytecodeTargetLevel>

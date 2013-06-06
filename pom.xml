@@ -15,6 +15,7 @@
         <module>tokenization</module>
         <module>hyphenation</module>
         <module>lm</module>
+        <module>spelling</module>
     </modules>
 
     <build>
