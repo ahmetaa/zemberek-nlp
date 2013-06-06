@@ -1,7 +1,6 @@
 package zemberek.langid.model;
 
 import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
 import zemberek.core.Histogram;
 import zemberek.core.hash.IntHashKeyProvider;
 import zemberek.core.hash.Mphf;
@@ -100,7 +99,8 @@ public class CompressedCharNgramModel extends BaseCharNgramModel implements Char
         if (gram.length() == 0)
             return UNK_CHAR_PENALTY;
         if (gram.length() > order)
-            throw new IllegalArgumentException("Gram size is larger than order! gramSize=" + gram.length() + " but order is:" + order);
+            throw new IllegalArgumentException("Gram size is larger than order! gramSize="
+                    + gram.length() + " but order is:" + order);
         int o = gram.length();
         int fingerPrint = MultiLevelMphf.hash(gram, -1);
         int hash = mphfs[o].get(gram, fingerPrint);

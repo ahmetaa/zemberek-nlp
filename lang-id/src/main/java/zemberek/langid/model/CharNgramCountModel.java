@@ -1,6 +1,5 @@
 package zemberek.langid.model;
 
-import com.google.common.io.Closeables;
 import zemberek.core.Histogram;
 
 import java.io.*;

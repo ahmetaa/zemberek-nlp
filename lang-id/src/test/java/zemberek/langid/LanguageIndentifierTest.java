@@ -1,14 +1,9 @@
 package zemberek.langid;
 
 import junit.framework.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
-import zemberek.core.io.Files;
-import zemberek.core.io.SimpleTextReader;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 public class LanguageIndentifierTest {
     @Test
