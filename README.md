@@ -3,31 +3,31 @@ zemberek-nlp
 
 Natural Language Processing library. Some modules are specifically developed for Turkish language.
 
-## Core
+### Core
 
 Core classes such as special Collection classes, Hash functions and helpers.
 
-## Morphology
+### Morphology
 
 Turkish morphological parsing, disambiguation and generation.
 
-## Spelling
+### Spelling
 
-Spell checker classes.
+Statistical Spell checker.
 
-## Tokenization
+### Tokenization
 
 Turkish Tokenization and sentence boundary detection. So far only rule based algorithms.
 
-## Hyphenation
+### Hyphenation
 
 Turkish syllabification and hyphenation.
 
-## Language modelling
+### Language modelling
 
 Language model compression
 
-## Language identification
+### Language identification
 
-Test based statistical language identification.
+Text based statistical language identification.
 
