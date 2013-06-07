@@ -1,9 +1,11 @@
 package zemberek.core.bits;
 
+import com.google.common.base.Stopwatch;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class SelectorTest {
 
@@ -40,20 +42,23 @@ public class SelectorTest {
 
     @Test
     public void performance() {
-        Random rnd = new Random();
-        final int size = 1000000;
+        Random rnd = new Random(0xbeefcafe);
+        final int size = 10000000;
         LongBitVector vector = new LongBitVector(size);
         for (int i = 0; i < size / 1.5d; i++) {
             vector.set(rnd.nextInt(size));
         }
-        long start = System.currentTimeMillis();
-        Selector selector = new Selector(vector);
-        System.out.println(System.currentTimeMillis() - start);
-        start = System.currentTimeMillis();
-        System.out.println("one count:" + selector.getOneCount());
-        for (int i = 1; i < selector.getOneCount(); i++) {
-            selector.select1(i);
+
+        for (int it = 0; it < 5; it++) {
+            Stopwatch sw = new Stopwatch().start();
+            Selector selector = new Selector(vector);
+            System.out.println("Selector generation time:" + sw.elapsed(TimeUnit.MILLISECONDS));
+            System.out.println("One count:" + selector.getOneCount());
+            sw.reset().start();
+            for (int i = 1; i < selector.getOneCount(); i++) {
+                selector.select1(i);
+            }
+            System.out.println("Selector select time:" + sw.elapsed(TimeUnit.MILLISECONDS));
         }
-        System.out.println(System.currentTimeMillis() - start);
     }
 }

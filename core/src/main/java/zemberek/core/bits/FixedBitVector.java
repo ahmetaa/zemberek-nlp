@@ -3,7 +3,7 @@ package zemberek.core.bits;
 /**
  * A fixed size bit vector. Size can be maximum 2^31-1
  */
-public class SmallFixedBitVector {
+public class  FixedBitVector {
     private int[] words;
     public final int length;
 
@@ -17,12 +17,26 @@ public class SmallFixedBitVector {
         }
     }
 
-    public SmallFixedBitVector(int length) {
+    public FixedBitVector(int length) {
         if(length<0)
             throw new IllegalArgumentException("Length cannot be negative. But it is:" + length);
         this.length = length;
         int wordCount = ((length + 31) >> 5);
         words = new int[wordCount];
+    }
+
+    /**
+     * retrieves the index of the last bit in the vector with the value of bitValue.
+     *
+     * @param bitValue value of the bit to search.
+     * @return the index of the last bit with the specified value. -1 if there is no such bit.
+     */
+    public int getLastBitIndex(boolean bitValue) {
+        for (int i = length - 1; i >= 0; i--) {
+            if (get(i) == bitValue)
+                return i;
+        }
+        return -1;
     }
 
     public boolean get(int n) {
@@ -90,9 +104,9 @@ public class SmallFixedBitVector {
      * @param bits bit string. It can contain space characters
      * @return bit vector equivalent.
      */
-    static SmallFixedBitVector fromBinaryString(String bits) {
+    static FixedBitVector fromBinaryString(String bits) {
         bits = bits.replaceAll("\\s+", "");
-        SmallFixedBitVector vector = new SmallFixedBitVector(bits.length());
+        FixedBitVector vector = new FixedBitVector(bits.length());
 
         for (int i = 0; i < bits.length(); i++) {
             if (bits.charAt(i) == '1')

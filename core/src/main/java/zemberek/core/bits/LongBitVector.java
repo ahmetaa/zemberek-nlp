@@ -340,7 +340,7 @@ public class LongBitVector {
      *
      * @param n bit index
      */
-    public void reset(long n) {
+    public void clear(long n) {
         words[(int) (n >>> 6)] &= longResetMasks[(int) (n & mod64Mask)];
     }
 
@@ -350,7 +350,7 @@ public class LongBitVector {
      *
      * @param n bit index array
      */
-    public void reset(long[] n) {
+    public void clear(long[] n) {
         for (long l : n) {
             words[(int) (l >>> 6)] &= longResetMasks[(int) (l & mod64Mask)];
         }

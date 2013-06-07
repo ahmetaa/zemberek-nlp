@@ -1,9 +1,12 @@
 package zemberek.core.bits;
 
+import com.google.common.base.Stopwatch;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
@@ -18,7 +21,6 @@ public class LongBitVectorTest {
     public void initializationOutOfBOund() {
         new LongBitVector(Integer.MAX_VALUE * 64L + 1L);
     }
-
 
     @Test
     public void getSetTest() {
@@ -74,7 +76,7 @@ public class LongBitVectorTest {
         LongBitVector vector = new LongBitVector(1000);
         vector.add(1000, true);
         for (long resetBit : resetBits) {
-            vector.reset(resetBit);
+            vector.clear(resetBit);
         }
 
         for (int i = 0; i < 1000; i++) {
@@ -143,6 +145,34 @@ public class LongBitVectorTest {
     }
 
     @Test
+    public void performanceTest() {
+        int itCount = 5;
+        Random rnd = new Random(0xbeefcafe);
+        final int size = 20000000;
+        int[] oneIndexes = new int[size];
+        int k = 0;
+        for (int i = 0; i < oneIndexes.length; i++) {
+            if (rnd.nextDouble() > 0.33) {
+                oneIndexes[k] = i;
+                k++;
+            }
+        }
+        Arrays.copyOf(oneIndexes, k);
+        LongBitVector vector = new LongBitVector(size);
+
+        for (int i = 0; i < itCount; i++) {
+            Stopwatch sw = new Stopwatch().start();
+            for (int oneIndex : oneIndexes) {
+                vector.set(oneIndex);
+            }
+            for (int oneIndex : oneIndexes) {
+                vector.clear(oneIndex);
+            }
+            System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
     public void getLongPiece() {
         LongBitVector vector = new LongBitVector(128);
         vector.add(128, false);
@@ -153,7 +183,7 @@ public class LongBitVectorTest {
         result = vector.getLong(62, 5);
         assertEquals("1101", Long.toBinaryString(result));
         vector.fill(true);
-        vector.reset(new long[]{63, 68});
+        vector.clear(new long[]{63, 68});
         assertEquals("101111011", Long.toBinaryString(vector.getLong(61, 9)));
         assertEquals("1", Long.toBinaryString(vector.getLong(61, 1)));
         assertEquals("0", Long.toBinaryString(vector.getLong(63, 1)));

@@ -42,4 +42,9 @@ public class LogMath {
             return dif >= 30d ? logB : logB + logSumLookup[(int) (dif * SCALE)];
         }
     }
+
+    public static double log2(double n) {
+        return Math.log(n) / LOG_TWO;
+    }
+
 }

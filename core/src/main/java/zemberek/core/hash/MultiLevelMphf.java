@@ -212,7 +212,7 @@ public class MultiLevelMphf implements Mphf {
                     if (j < bucket.keyIndexes.length) {
                         // we reset the occupied slots from bitvector.
                         for (int k = 0; k < j; k++) {
-                            bitVector.reset(slots[k]);
+                            bitVector.clear(slots[k]);
                         }
                         // We reached the HASH_SEED_LIMIT.
                         // We place a 0 for its hash index value to know later that bucket is left to secondary lookup.

@@ -1,15 +1,20 @@
 package zemberek.core.bits;
 
 
+import com.google.common.base.Stopwatch;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SmallFixedBitVectorTest {
+import java.util.Arrays;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+public class FixedBitVectorTest {
     @Test
     public void setGetLastBitIndex() {
         String s = "101100100 01110110 11001010 11110000 11010100";
         int len = s.replaceAll(" ", "").length();
-        SmallFixedBitVector vector = SmallFixedBitVector.fromBinaryString(s);
+        FixedBitVector vector = FixedBitVector.fromBinaryString(s);
 
         Assert.assertEquals(len, vector.length);
         Assert.assertTrue(vector.get(0));
@@ -31,7 +36,7 @@ public class SmallFixedBitVectorTest {
     @Test
     public void getSetClear() {
         for (int j = 1; j < 10_000_000; j = j * 2) {
-            SmallFixedBitVector vector = new SmallFixedBitVector(j);
+            FixedBitVector vector = new FixedBitVector(j);
             for (int i = 0; i < vector.length; i++) {
                 Assert.assertEquals(false, vector.get(i));
             }
@@ -53,7 +58,7 @@ public class SmallFixedBitVectorTest {
     @Test
     public void safeGetSetClear() {
         for (int j = 1; j < 10_000_000; j = j * 2) {
-            SmallFixedBitVector vector = new SmallFixedBitVector(j);
+            FixedBitVector vector = new FixedBitVector(j);
             for (int i = 0; i < vector.length; i++) {
                 Assert.assertEquals(false, vector.safeGet(i));
             }
@@ -74,20 +79,47 @@ public class SmallFixedBitVectorTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void safeGet() {
-        SmallFixedBitVector vector = new SmallFixedBitVector(10);
+        FixedBitVector vector = new FixedBitVector(10);
         vector.safeGet(10);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void safeSet() {
-        SmallFixedBitVector vector = new SmallFixedBitVector(10);
+        FixedBitVector vector = new FixedBitVector(10);
         vector.safeSet(10);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void safeClear() {
-        SmallFixedBitVector vector = new SmallFixedBitVector(10);
+        FixedBitVector vector = new FixedBitVector(10);
         vector.safeClear(10);
+    }
+
+    @Test
+    public void performanceTest() {
+        int itCount = 5;
+        Random rnd = new Random(0xbeefcafe);
+        final int size = 20000000;
+        int[] oneIndexes = new int[size];
+        int k = 0;
+        for (int i = 0; i < oneIndexes.length; i++) {
+            if (rnd.nextDouble() > 0.33) {
+                oneIndexes[k] = i;
+                k++;
+            }
+        }
+        FixedBitVector vector = new FixedBitVector(size);
+        Arrays.copyOf(oneIndexes, k);
+        for (int i = 0; i < itCount; i++) {
+            Stopwatch sw = new Stopwatch().start();
+            for (int oneIndex : oneIndexes) {
+                vector.set(oneIndex);
+            }
+            for (int oneIndex : oneIndexes) {
+                vector.clear(oneIndex);
+            }
+            System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));
+        }
     }
 
 

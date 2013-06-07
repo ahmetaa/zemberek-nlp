@@ -1,5 +1,7 @@
 package zemberek.core.bits;
 
+import zemberek.core.math.LogMath;
+
 /**
  * An implementation of select1 algorithm. It finds the n.th 1 bit index in a bit sequence.
  * This algorithm uses two lookup tables.
@@ -27,7 +29,7 @@ public class Selector {
             bigSegmentSize = 64;
             smallSegmentSize = 1;
         } else {
-            int log2n = (int) log2(oneCount);
+            int log2n = (int) LogMath.log2(oneCount);
             bigSegmentSize = log2n * log2n;
             smallSegmentSize = log2n;
         }
@@ -100,10 +102,6 @@ public class Selector {
                 oneCount++;
         }
         return start - 1;
-    }
-
-    private static double log2(double n) {
-        return Math.log(n) / Math.log(2);
     }
 
     long averageMemory() {
