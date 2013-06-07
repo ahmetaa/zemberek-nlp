@@ -8,7 +8,7 @@ Contributors:
 Ali Ok (Morphology : Code, Dictionary, Project: Mavenization)
 Burak Bayram (Language identification: Code)
 Şeniz Demir, Lütfü Çakıl (Language identification: Training data preparation)
-Fatma Canan Girgin (Language identification: Testing)
+Canan Girgin (Language identification: Testing)
 Hamza Kaya, Hakan Demir (Spell checker: Algorithm)
 Cemil Demir (Language Models: Theory)
 
