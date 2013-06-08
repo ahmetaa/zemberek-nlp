@@ -5,7 +5,7 @@ import java.util.Arrays;
 /**
  * A bucket that holds keys. It contains a small array for keys.
  */
-public class Bucket implements Comparable<Bucket> {
+class Bucket implements Comparable<Bucket> {
     static final int[] EMPTY = new int[0];
     public final int id;
     public int[] keyIndexes = EMPTY;

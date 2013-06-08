@@ -28,7 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * SimpleTextReader can be used reading text sources with ease.
  */
-public final class SimpleTextReader implements Closeable {
+public final class SimpleTextReader implements AutoCloseable {
 
     private final InputStream is;
     private final String encoding;
@@ -385,9 +385,7 @@ public final class SimpleTextReader implements Closeable {
 
     /**
      * returns an IterableLineReader. This is expecially useful to use in enhanced for loops.
-     * if all the elements are consumed, the resources will be closed automatically. However,
-     * it is suggested to close the IterableLineReader explicitly in a try-finally block using
-     * {@link smoothnlp.core.io.IOs#closeSilently} method.
+     * if all the elements are consumed, the resources will be closed automatically.
      *
      * @return a new IterableLineReader instance.
      * @throws java.io.IOException if file does not exist, or encoding is not supported.
@@ -415,17 +413,13 @@ public final class SimpleTextReader implements Closeable {
      */
     public long countLines() throws IOException {
         long i;
-        LineIterator li = null;
-        try {
-            li = getLineIterator();
+        try(LineIterator li = getLineIterator()) {
             i = 0;
             while (li.hasNext()) {
                 i++;
                 li.next();
             }
             return i;
-        } finally {
-            IOs.closeSilently(li);
         }
     }
 

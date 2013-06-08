@@ -1,5 +1,6 @@
 package zemberek.lm.compression;
 
+// TODO: Experimental
 public class DataInfo {
     public final int fpBits;
     public final int probBits;

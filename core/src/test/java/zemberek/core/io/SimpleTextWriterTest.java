@@ -56,20 +56,20 @@ public class SimpleTextWriterTest {
 
     @Test
     public void WriteStringKeepOpenTest() throws IOException {
-        SimpleTextWriter sfw = new SimpleTextWriter
+        try (SimpleTextWriter sfw = new SimpleTextWriter
                 .Builder(tmpFile)
                 .keepOpen()
-                .build();
-        sfw.write("Hello");
-        sfw.write("Merhaba");
-        sfw.write("");
-        sfw.write(null);
-        IOs.closeSilently(sfw);
+                .build()) {
+            sfw.write("Hello");
+            sfw.write("Merhaba");
+            sfw.write("");
+            sfw.write(null);
+        }
         Assert.assertEquals("HelloMerhaba", new SimpleTextReader(tmpFile).asString());
 
     }
 
-    @Test (expected = IOException.class)
+    @Test(expected = IOException.class)
     public void keepOpenExcepionTest() throws IOException {
         SimpleTextWriter sfw = new SimpleTextWriter
                 .Builder(tmpFile)
@@ -84,7 +84,7 @@ public class SimpleTextWriterTest {
         new SimpleTextWriter(tmpFile).writeLines(strs);
         List<String> read = new SimpleTextReader(tmpFile).asStringList();
         for (int i = 0; i < read.size(); i++) {
-            Assert.assertEquals( read.get(i), strs.get(i));
+            Assert.assertEquals(read.get(i), strs.get(i));
         }
     }
 }

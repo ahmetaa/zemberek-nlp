@@ -28,11 +28,11 @@ import java.util.Collection;
 /**
  * SimpleTextWriter is generally used for writing information to the files easily.
  * <p/>
- * This class will close the file interally after the operation is done by default.
+ * This class will close the file internally after the operation is done by default.
  * However, if it is initiated using the Builder and keepOpen() or static "keepOpen"
- * factories are used, Writer neeeds to be closed by calling close() preferrably in a try-finally block.
+ * factories are used, Writer needs to be defined in an ARM block.
  */
-public final class SimpleTextWriter implements Closeable {
+public final class SimpleTextWriter implements AutoCloseable {
 
     private final String encoding;
     private final boolean keepOpen;

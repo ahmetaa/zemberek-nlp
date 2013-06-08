@@ -89,7 +89,7 @@ public class IOs {
         try {
             checkNotNull(reader, "reader cannot be null");
             String s;
-            List<String> res = new ArrayList<String>();
+            List<String> res = new ArrayList<>();
             while ((s = reader.readLine()) != null)
                 res.add(s);
             return res;
@@ -114,7 +114,7 @@ public class IOs {
         try {
             checkNotNull(reader, "reader cannot be null");
             String s;
-            List<String> res = new ArrayList<String>();
+            List<String> res = new ArrayList<>();
             while ((s = reader.readLine()) != null) {
                 if (trim)
                     s = s.trim();

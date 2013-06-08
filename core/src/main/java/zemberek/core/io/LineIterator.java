@@ -35,20 +35,18 @@ import java.util.NoSuchElementException;
  * <p/>
  * The recommended usage pattern is:
  * <pre>
- * LineIterator it = new LineIterator(Files.getReader("filename", "UTF-8"));
- * try {
+ * ;
+ * try(LineIterator it = new LineIterator(Files.getReader("filename", "UTF-8"))) {
  *   while (it.hasNext()) {
  *     String line = it.next();
  *     /// do something with line
  *   }
- * } finally {
- *   it.close();
  * }
  * </pre>
  * <p/>
  * This class uses code from Apache commons io LineIterator class. however, it's behavior is slightly different.
  */
-public class LineIterator implements Iterator<String>, Closeable {
+public class LineIterator implements Iterator<String>, AutoCloseable {
 
     private final BufferedReader bufferedReader;
     /**

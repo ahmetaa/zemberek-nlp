@@ -81,29 +81,28 @@ public class SimpleTextReaderTest {
 
     @Test
     public void lineIteratorTest2() throws IOException {
-        LineIterator li = new SimpleTextReader(multi_line_text_file.getFile()).getLineIterator();
-        while (li.hasNext())
-            out.println(li.next().toUpperCase());
-        IOs.closeSilently(li);
-
+        try (LineIterator li = new SimpleTextReader(multi_line_text_file.getFile()).getLineIterator()) {
+            while (li.hasNext())
+                out.println(li.next().toUpperCase());
+        }
     }
 
     @Test
     public void lineIteratorWithConstraint() throws IOException {
-        LineIterator li = new SimpleTextReader
+        try (LineIterator li = new SimpleTextReader
                 .Builder(multi_line_text_file.getFile())
                 .ignoreWhiteSpaceLines()
                 .trim()
-                .build().getLineIterator();
+                .build().getLineIterator()) {
 
-        int i = 0;
-        while (li.hasNext()) {
-            String s = li.next();
-            if (i == 0) assertEquals(s, "uno");
-            if (i == 1) assertEquals(s, "dos");
-            i++;
+            int i = 0;
+            while (li.hasNext()) {
+                String s = li.next();
+                if (i == 0) assertEquals(s, "uno");
+                if (i == 1) assertEquals(s, "dos");
+                i++;
+            }
         }
-        IOs.closeSilently(li);
     }
 
 }

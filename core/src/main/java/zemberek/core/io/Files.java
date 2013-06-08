@@ -50,8 +50,10 @@ public class Files {
         }
     }
 
-    public static final Comparator<File> FILE_MODIFICATION_TIME_COMPARATOR_ASC = new FileModificationTimeComparatorAsc();
-    public static final Comparator<File> FILE_MODIFICATION_TIME_COMPARATOR_DESC = new FileModificationTimeComparatorDesc();
+    public static final Comparator<File> FILE_MODIFICATION_TIME_COMPARATOR_ASC =
+            new FileModificationTimeComparatorAsc();
+    public static final Comparator<File> FILE_MODIFICATION_TIME_COMPARATOR_DESC =
+            new FileModificationTimeComparatorDesc();
 
     public static Comparator<File> getNameSortingComparator(final Locale locale) {
         return new Comparator<File>() {

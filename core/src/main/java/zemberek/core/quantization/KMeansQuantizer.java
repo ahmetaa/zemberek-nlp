@@ -75,7 +75,7 @@ public class KMeansQuantizer implements Quantizer {
     private static KMeansQuantizer kMeans(double[] data, int clusterCount, int iterationCount) {
         double[] means = new double[clusterCount];
 
-        Map<Double, Integer> lookup = new HashMap<Double, Integer>();
+        Map<Double, Integer> lookup = new HashMap<>();
 
         int indexes[] = new int[data.length];
 
