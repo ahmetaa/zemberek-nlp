@@ -1,5 +1,6 @@
 package zemberek.lm.compression;
 
+import zemberek.core.math.LogMath;
 import zemberek.lm.LmVocabulary;
 import zemberek.core.hash.LargeNgramMphf;
 import zemberek.core.hash.Mphf;
@@ -251,20 +252,19 @@ public class SmoothLm {
     /**
      * Retrieves the dequantized log probability of an n-gram.
      *
-     * @param tokenIds token-id sequence. A token id is the unigram index value.
+     * @param wordIndexes token-index sequence. A word index is the unigram index value.
      * @return dequantized log probability of the n-gram. if n-gram does not exist, it returns LOG_ZERO
-     * @throws IllegalArgumentException if tokenId sequence length is zero or more than n value.
      */
-    public double getProbabilityValue(int... tokenIds) {
+    public double getProbabilityValue(int... wordIndexes) {
 
-        final int ng = tokenIds.length;
+        final int ng = wordIndexes.length;
         if (ng == 1) {
-            return unigramProbs[tokenIds[0]];
+            return unigramProbs[wordIndexes[0]];
         }
 
-        int quickHash = MultiLevelMphf.hash(tokenIds, -1);
+        int quickHash = MultiLevelMphf.hash(wordIndexes, -1);
 
-        int index = mphfs[ng].get(tokenIds, quickHash);
+        int index = mphfs[ng].get(wordIndexes, quickHash);
 
         if (ngramData[ng].checkFingerPrint(quickHash, index))
             return probabilityLookups[ng].get(ngramData[ng].getProbabilityRank(index));
@@ -276,23 +276,23 @@ public class SmoothLm {
     /**
      * Retrieves the dequantized backoff value of an n-gram.
      *
-     * @param tokenIds token-id sequence. A token id is the unigram index value.
-     * @return dequantized log back-off of the n-gram. if n-gram does not exist, it returns unknownBackoffPenalty value.     *
-     * @throws IllegalArgumentException if tokenId sequence length is zero or more than n value.
+     * @param wordIndexes word-index sequence. A word index is the unigram index value.
+     * @return dequantized log back-off value of the n-gram.
+     *         if n-gram does not exist, it returns unknownBackoffPenalty value.
      */
-    public double getBackoffValue(int... tokenIds) {
+    public double getBackoffValue(int... wordIndexes) {
         if (useStupidBackoff)
             return stupidBackoffLogAlpha;
-        final int ng = tokenIds.length;
+        final int ng = wordIndexes.length;
         if (ng == 1) {
-            return unigramBackoffs[tokenIds[0]];
+            return unigramBackoffs[wordIndexes[0]];
         }
-        final int quickHash = MultiLevelMphf.hash(tokenIds, -1);
+        final int quickHash = MultiLevelMphf.hash(wordIndexes, -1);
 
-        final int index = mphfs[ng].get(tokenIds, quickHash);
+        final int nGramIndex = mphfs[ng].get(wordIndexes, quickHash);
 
-        if (ngramData[ng].checkFingerPrint(quickHash, index))
-            return backoffLookups[ng].get(ngramData[ng].getBackoffRank(index));
+        if (ngramData[ng].checkFingerPrint(quickHash, nGramIndex))
+            return backoffLookups[ng].get(ngramData[ng].getBackoffRank(nGramIndex));
         else {
             return unknownBackoffPenalty;
         }
@@ -302,25 +302,25 @@ public class SmoothLm {
      * Calculates the dequantized probability value for an n-gram. If n-gram does not exist, it applies
      * backoff calculation.
      *
-     * @param tokenIds token-id sequence. A token id is the unigram index value.
+     * @param wordIndexes word index sequence. A word index is the unigram index value.
      * @return dequantized log backoff value of the n-gram. if there is no backoff value or n-gram does not exist,
      *         it returns LOG_ZERO. This mostly happens in the condition that words queried does not exist
      *         in the vocabulary.
-     * @throws IllegalArgumentException if tokenId sequence length is zero or more than n value.
+     * @throws IllegalArgumentException if wordIndexes sequence length is zero or more than n value.
      */
-    double getProbabilityRecursive(int... tokenIds) {
+    double getProbabilityRecursive(int... wordIndexes) {
 
-        if (tokenIds.length == 0 || tokenIds.length > order)
+        if (wordIndexes.length == 0 || wordIndexes.length > order)
             throw new IllegalArgumentException(
-                    "At least one or max Gram Count" + order + " tokens are required. But it is:" + tokenIds.length);
+                    "At least one or max Gram Count" + order + " tokens are required. But it is:" + wordIndexes.length);
 
         double result = 0;
-        double probability = getProbabilityValue(tokenIds);
+        double probability = getProbabilityValue(wordIndexes);
         if (probability == 0) { // if probability does not exist.
-            if (tokenIds.length == 1)
+            if (wordIndexes.length == 1)
                 return LOG_ZERO;
-            double backoffValue = useStupidBackoff ? stupidBackoffLogAlpha : getBackoffValue(head(tokenIds));
-            result = result + backoffValue + getProbabilityRecursive(tail(tokenIds));
+            double backoffValue = useStupidBackoff ? stupidBackoffLogAlpha : getBackoffValue(head(wordIndexes));
+            result = result + backoffValue + getProbabilityRecursive(tail(wordIndexes));
         } else {
             result = probability;
         }
@@ -338,25 +338,25 @@ public class SmoothLm {
      */
     public double getEncodedTrigramProbability(long encodedTrigram) {
         int fingerPrint = MultiLevelMphf.hash(encodedTrigram, 3, -1);
-        int index = mphfs[3].get(encodedTrigram, 3, fingerPrint);
+        int nGramIndex = mphfs[3].get(encodedTrigram, 3, fingerPrint);
         double result = 0;
-        if (ngramData[3].checkFingerPrint(fingerPrint, index)) { // if p(c|a,b) exist
-            return probabilityLookups[3].get(ngramData[3].getProbabilityRank(index));
+        if (ngramData[3].checkFingerPrint(fingerPrint, nGramIndex)) { // if p(c|a,b) exist
+            return probabilityLookups[3].get(ngramData[3].getProbabilityRank(nGramIndex));
         } else { // we back off to two grams. p(c|a,b) ~ b(a,b) + p(c|b)
             if (useStupidBackoff)
                 result += stupidBackoffLogAlpha;
             else {
                 fingerPrint = MultiLevelMphf.hash(encodedTrigram, 2, -1);
-                index = mphfs[2].get(encodedTrigram, 2, fingerPrint);
-                if (ngramData[2].checkFingerPrint(fingerPrint, index)) { // if backoff (a,b) exist
-                    result += backoffLookups[2].get(ngramData[2].getBackoffRank(index));
+                nGramIndex = mphfs[2].get(encodedTrigram, 2, fingerPrint);
+                if (ngramData[2].checkFingerPrint(fingerPrint, nGramIndex)) { // if backoff (a,b) exist
+                    result += backoffLookups[2].get(ngramData[2].getBackoffRank(nGramIndex));
                 } else result += unknownBackoffPenalty;
             }
             long encodedBigram = encodedTrigram >>> 21;
             fingerPrint = MultiLevelMphf.hash(encodedBigram, 2, -1);
-            index = mphfs[2].get(encodedBigram, 2, fingerPrint);
-            if (ngramData[2].checkFingerPrint(fingerPrint, index)) { // if p(b|c) exists
-                return result + probabilityLookups[2].get(ngramData[2].getProbabilityRank(index));
+            nGramIndex = mphfs[2].get(encodedBigram, 2, fingerPrint);
+            if (ngramData[2].checkFingerPrint(fingerPrint, nGramIndex)) { // if p(b|c) exists
+                return result + probabilityLookups[2].get(ngramData[2].getProbabilityRank(nGramIndex));
             } else { // p(b|c) ~ b(b) + p(c)
                 result += unigramProbs[((int) (encodedBigram >> 21))];
                 if (useStupidBackoff)
@@ -385,31 +385,31 @@ public class SmoothLm {
     /**
      * This is the non recursive log probability calculation. It is more complicated but faster.
      *
-     * @param tokens token array
+     * @param words word array
      * @return log probability.
      */
-    public double getProbability(String... tokens) {
-        return getProbability(vocabulary.indexOf(tokens));
+    public double getProbability(String... words) {
+        return getProbability(vocabulary.indexOf(words));
     }
 
     /**
      * This is the non recursive log probability calculation. It is more complicated but faster.
      *
-     * @param tokenIds token id array
+     * @param wordIndexes word index array
      * @return log probability.
      */
-    public double getProbability(int... tokenIds) {
-        int n = tokenIds.length;
+    public double getProbability(int... wordIndexes) {
+        int n = wordIndexes.length;
 
         if (n == 0 || n > order)
             throw new IllegalArgumentException(
-                    "At least one or max Gram Count" + order + " tokens are required. But it is:" + tokenIds.length);
+                    "At least one or max Gram Count" + order + " tokens are required. But it is:" + wordIndexes.length);
         if (n == 1)
-            return unigramProbs[tokenIds[0]];
+            return unigramProbs[wordIndexes[0]];
         if (n == 2) {
-            double prob = getProbabilityValue(tokenIds);
+            double prob = getProbabilityValue(wordIndexes);
             if (prob == LOG_ZERO) {
-                return unigramBackoffs[tokenIds[0]] + unigramProbs[tokenIds[1]];
+                return unigramBackoffs[wordIndexes[0]] + unigramProbs[wordIndexes[1]];
             } else {
                 return prob;
             }
@@ -419,29 +419,29 @@ public class SmoothLm {
         int gram = n;
         while (gram > 1) {
             // try to find P(N|begin..N-1)
-            int fingerPrint = MultiLevelMphf.hash(tokenIds, begin, n, -1);
-            int index = mphfs[gram].get(tokenIds, begin, n, fingerPrint);
-            if (!ngramData[gram].checkFingerPrint(fingerPrint, index)) { // if there is no probability value, back off to B(begin..N-1)
+            int fingerPrint = MultiLevelMphf.hash(wordIndexes, begin, n, -1);
+            int nGramIndex = mphfs[gram].get(wordIndexes, begin, n, fingerPrint);
+            if (!ngramData[gram].checkFingerPrint(fingerPrint, nGramIndex)) { // if there is no probability value, back off to B(begin..N-1)
                 if (useStupidBackoff) {
                     if (gram == 2)
-                        return result + unigramProbs[tokenIds[n - 1]] + stupidBackoffLogAlpha;
+                        return result + unigramProbs[wordIndexes[n - 1]] + stupidBackoffLogAlpha;
                     else
                         result += stupidBackoffLogAlpha;
                 } else {
                     // we are already backed off to unigrams because no bigram found. So we return only P(N)+B(N-1)
                     if (gram == 2) {
-                        return result + unigramProbs[tokenIds[n - 1]] + unigramBackoffs[tokenIds[begin]];
+                        return result + unigramProbs[wordIndexes[n - 1]] + unigramBackoffs[wordIndexes[begin]];
                     }
-                    fingerPrint = MultiLevelMphf.hash(tokenIds, begin, n - 1, -1);
-                    index = mphfs[gram - 1].get(tokenIds, begin, n - 1, fingerPrint);
-                    if (ngramData[gram - 1].checkFingerPrint(fingerPrint, index)) { //if backoff available, we add it to resutlt.
-                        result += backoffLookups[gram - 1].get(ngramData[gram - 1].getBackoffRank(index));
+                    fingerPrint = MultiLevelMphf.hash(wordIndexes, begin, n - 1, -1);
+                    nGramIndex = mphfs[gram - 1].get(wordIndexes, begin, n - 1, fingerPrint);
+                    if (ngramData[gram - 1].checkFingerPrint(fingerPrint, nGramIndex)) { //if backoff available, we add it to resutlt.
+                        result += backoffLookups[gram - 1].get(ngramData[gram - 1].getBackoffRank(nGramIndex));
                     } else
                         result += unknownBackoffPenalty;
                 }
             } else {
                 // we have found the P(N|begin..N-1) we return the accumulated result.
-                return result + probabilityLookups[gram].get(ngramData[gram].getProbabilityRank(index));
+                return result + probabilityLookups[gram].get(ngramData[gram].getProbabilityRank(nGramIndex));
             }
             begin++;
             gram = n - begin;
@@ -464,25 +464,25 @@ public class SmoothLm {
      * This method is used when calculating probability of an ngram sequence, how many times it backed off to lower order
      * n-gram calculations.
      *
-     * @param tokenIds n-gram index array
+     * @param wordIndexes n-gram index array
      * @return if no back-off, returns 0 if none of the n-grams exist (Except 1 gram), it returns order-1
      */
-    public int getBackoffCount(int... tokenIds) {
-        int n = tokenIds.length;
+    public int getBackoffCount(int... wordIndexes) {
+        int n = wordIndexes.length;
         if (n == 0 || n > order)
             throw new IllegalArgumentException(
-                    "At least one or " + order + " tokens are required. But it is:" + tokenIds.length);
+                    "At least one or " + order + " tokens are required. But it is:" + wordIndexes.length);
         if (n == 1) return 0;
-        if (n == 2) return getProbabilityValue(tokenIds) == LOG_ZERO ? 1 : 0;
+        if (n == 2) return getProbabilityValue(wordIndexes) == LOG_ZERO ? 1 : 0;
 
         int begin = 0;
         int backoffCount = 0;
         int gram = n;
         while (gram > 1) {
             // try to find P(N|begin..N-1)
-            int quickHash = MultiLevelMphf.hash(tokenIds, begin, n, -1);
-            int index = mphfs[gram].get(tokenIds, begin, n, quickHash);
-            if (!ngramData[gram].checkFingerPrint(quickHash, index)) { //  back off to B(begin..N-1)
+            int fingerPrint = MultiLevelMphf.hash(wordIndexes, begin, n, -1);
+            int nGramIndex = mphfs[gram].get(wordIndexes, begin, n, fingerPrint);
+            if (!ngramData[gram].checkFingerPrint(fingerPrint, nGramIndex)) { //  back off to B(begin..N-1)
                 backoffCount++;
             } else {
                 return backoffCount;
@@ -493,25 +493,25 @@ public class SmoothLm {
         return backoffCount;
     }
 
-    public String getPropabilityExpression(int... ids) {
-        int last = ids[ids.length - 1];
+    public String getPropabilityExpression(int... wordIndexes) {
+        int last = wordIndexes[wordIndexes.length - 1];
         StringBuilder sb = new StringBuilder("p(" + vocabulary.getWord(last));
-        if (ids.length > 1)
+        if (wordIndexes.length > 1)
             sb.append("|");
-        for (int j = 0; j < ids.length - 1; j++) {
-            sb.append(vocabulary.getWord(ids[j]));
-            if (j < ids.length - 2)
+        for (int j = 0; j < wordIndexes.length - 1; j++) {
+            sb.append(vocabulary.getWord(wordIndexes[j]));
+            if (j < wordIndexes.length - 2)
                 sb.append(",");
         }
         sb.append(")");
         return sb.toString();
     }
 
-    public String getBackoffExpression(int... ids) {
+    public String getBackoffExpression(int... wordIndexes) {
         StringBuilder sb = new StringBuilder("BO(");
-        for (int j = 0; j < ids.length; j++) {
-            sb.append(vocabulary.getWord(ids[j]));
-            if (j < ids.length - 1)
+        for (int j = 0; j < wordIndexes.length; j++) {
+            sb.append(vocabulary.getWord(wordIndexes[j]));
+            if (j < wordIndexes.length - 1)
                 sb.append(",");
         }
         sb.append(")");
@@ -521,22 +521,22 @@ public class SmoothLm {
     /**
      * It generates a single line String that explains the probability calculations.
      *
-     * @param tokenIds n-gram index array
+     * @param wordIndexes n-gram index array
      * @return explanation String.
      */
-    public String explain(int... tokenIds) {
-        return explain(new Explanation(), tokenIds).sb.toString();
+    public String explain(int... wordIndexes) {
+        return explain(new Explanation(), wordIndexes).sb.toString();
     }
 
-    private Explanation explain(Explanation exp, int... tokenIds) {
-        double probability = getProbabilityValue(tokenIds);
-        exp.sb.append(getPropabilityExpression(tokenIds));
+    private Explanation explain(Explanation exp, int... wordIndexes) {
+        double probability = getProbabilityValue(wordIndexes);
+        exp.sb.append(getPropabilityExpression(wordIndexes));
         if (probability == 0) { // if probability does not exist.
             exp.sb.append("=[");
-            double backOffValue = getBackoffValue(head(tokenIds));
-            String backOffStr = getBackoffExpression(head(tokenIds));
+            double backOffValue = getBackoffValue(head(wordIndexes));
+            String backOffStr = getBackoffExpression(head(wordIndexes));
             exp.sb.append(backOffStr).append("=").append(fmt(backOffValue)).append(" + ");
-            exp.score = exp.score + backOffValue + explain(exp, tail(tokenIds)).score;
+            exp.score = exp.score + backOffValue + explain(exp, tail(wordIndexes)).score;
             exp.sb.append("]");
         } else {
             exp.score = probability;
@@ -592,29 +592,7 @@ public class SmoothLm {
         for (int i = 0; i < unigramProbs.length; i++) {
             double p1 = unigramProbs[i] + logUnigramWeigth;
             double p2 = logUniformUnigramProbability + inverseLogUnigramWeigth;
-            unigramProbs[i] = logSumExact(p1, p2);
-        }
-    }
-
-    /**
-     * Exact calculation of log(a+b) using log(a) and log(b) with formula
-     * <p><b>log(a+b) = log(b) + log(1 + exp(log(b)-log(a)))</b> where log(b)>log(a)
-     *
-     * @param logA logarithm of A
-     * @param logB logarithm of B
-     * @return approximation of log(A+B)
-     */
-    private static double logSumExact(double logA, double logB) {
-        if (Double.isInfinite(logA))
-            return logB;
-        if (Double.isInfinite(logB))
-            return logA;
-        if (logA > logB) {
-            double dif = logA - logB;
-            return dif >= 30d ? logA : logA + Math.log(1 + Math.exp(-dif));
-        } else {
-            double dif = logB - logA;
-            return dif >= 30d ? logB : logB + Math.log(1 + Math.exp(-dif));
+            unigramProbs[i] = LogMath.logSum(p1, p2);
         }
     }
 
@@ -625,30 +603,5 @@ public class SmoothLm {
      */
     public double getLogBase() {
         return logBase;
-    }
-
-    private static class CacheEntry {
-        int fp;
-        int[] key;
-        double probability;
-        double backoff;
-    }
-
-    private static class Cache {
-        CacheEntry entries[];
-        final int mask;
-
-        public Cache(int i) {
-            entries = new CacheEntry[i];
-            mask = i - 1;
-        }
-
-        public CacheEntry check(int qhash) {
-            return entries[qhash & mask];
-        }
-
-        public void add(int qhash, int[] keys, double prob, double backoff) {
-
-        }
     }
 }

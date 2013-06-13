@@ -1,8 +1,9 @@
 package zemberek.lm;
 
 import java.io.*;
-import java.util.*;
-import java.util.logging.Logger;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class LmVocabulary {
     public static final String OUT_OF_VOCABULARY = "<OOV>";
@@ -106,7 +107,7 @@ public class LmVocabulary {
     /**
      * @param indexes word indexes
      * @return the Word representation of indexes. Such as for 2,3,4 it returns "foo bar zipf"
-     *         For unknown id's it uses UNKNOWN word syntax.
+     *         For unknown indexes it uses OUT_OF_VOCABULARY representation syntax.
      */
     public String getWordsString(int... indexes) {
         StringBuilder sb = new StringBuilder();
@@ -123,8 +124,8 @@ public class LmVocabulary {
     }
 
     public boolean containsAll(int... indexes) {
-        for (int id : indexes) {
-            if (!contains(id))
+        for (int index : indexes) {
+            if (!contains(index))
                 return false;
         }
         return true;
@@ -139,7 +140,7 @@ public class LmVocabulary {
      * @param g1 W1 Index
      * @param g2 W2 Index
      * @return The encoded long representation of a trigram. Structure:
-     *         [1 bit EMPTY][21 bit W2-ID][21 bit W1-ID][21 bit W0-ID]
+     *         [1 bit EMPTY][21 bit W2-IND][21 bit W1-IND][21 bit W0-IND]
      */
     public long encodeTrigram(int g0, int g1, int g2) {
         long encoded = g2;
@@ -150,7 +151,7 @@ public class LmVocabulary {
     /**
      * @param triGram trigram Indexes.
      * @return the encoded long representation of a trigram. Structure:
-     *         [1 bit EMPTY][21 bit W2-ID][21 bit W1-ID][21 bit W0-ID]
+     *         [1 bit EMPTY][21 bit W2-IND][21 bit W1-IND][21 bit W0-IND]
      */
     public long encodeTrigram(int... triGram) {
         if (triGram.length > 3)
@@ -166,16 +167,16 @@ public class LmVocabulary {
      *         if a word is unknown, -1 is returned as its vocabulary index.
      */
     public int[] indexOf(String... words) {
-        int[] ids = new int[words.length];
+        int[] indexes = new int[words.length];
         int i = 0;
         for (String word : words) {
             if (!vocabularyIndexMap.containsKey(word))
-                ids[i] = -1;
+                indexes[i] = -1;
             else
-                ids[i] = vocabularyIndexMap.get(word);
+                indexes[i] = vocabularyIndexMap.get(word);
             i++;
         }
-        return ids;
+        return indexes;
     }
 
     /**
