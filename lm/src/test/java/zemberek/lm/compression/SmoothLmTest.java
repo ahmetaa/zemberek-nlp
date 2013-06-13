@@ -83,8 +83,8 @@ public class SmoothLmTest {
     public void testVocabulary() throws IOException {
         SmoothLm lm = getTinyLm();
         LmVocabulary vocab = lm.getVocabulary();
-        Assert.assertEquals(1, vocab.getId("Ahmet"));
-        Assert.assertEquals(2, vocab.getId("elma"));
+        Assert.assertEquals(1, vocab.indexOf("Ahmet"));
+        Assert.assertEquals(2, vocab.indexOf("elma"));
         Assert.assertEquals("Ahmet", vocab.getWord(1));
         Assert.assertEquals("elma", vocab.getWord(2));
     }
@@ -94,19 +94,19 @@ public class SmoothLmTest {
         SmoothLm lm = getTinyLm();
         System.out.println(lm.info());
         LmVocabulary vocabulary = lm.getVocabulary();
-        int[] is = {vocabulary.getId("<s>")};
+        int[] is = {vocabulary.indexOf("<s>")};
         Assert.assertEquals(-1.716003, lm.getProbability(is), 0.0001);
         Assert.assertEquals(-1.716003, lm.getProbability(is), 0.0001);
         //<s> kedi
-        int[] is2 = {vocabulary.getId("<s>"), vocabulary.getId("kedi")};
+        int[] is2 = {vocabulary.indexOf("<s>"), vocabulary.indexOf("kedi")};
         Assert.assertEquals(-0.796249, lm.getProbability(is2), 0.0001);
         Assert.assertEquals(-0.796249, lm.getProbability(is2), 0.0001);
         //Ahmet dondurma yedi
-        int[] is3 = {vocabulary.getId("Ahmet"), vocabulary.getId("dondurma"), vocabulary.getId("yedi")};
+        int[] is3 = {vocabulary.indexOf("Ahmet"), vocabulary.indexOf("dondurma"), vocabulary.indexOf("yedi")};
         Assert.assertEquals(-0.602060, lm.getProbability(is3), 0.0001);
         Assert.assertEquals(-0.602060, lm.getProbability(is3), 0.0001);
 
-        long encoded = vocabulary.getTrigramAsLong(is3);
+        long encoded = vocabulary.encodeTrigram(is3);
         Assert.assertEquals(-0.602060, lm.getEncodedTrigramProbability(encoded), 0.0001);
     }
 
@@ -114,15 +114,15 @@ public class SmoothLmTest {
     public void testBackoffcount() throws IOException {
         SmoothLm lm = getTinyLm();
         LmVocabulary vocabulary = lm.getVocabulary();
-        int[] is = {vocabulary.getId("<s>")};
+        int[] is = {vocabulary.indexOf("<s>")};
         Assert.assertEquals(0, lm.getBackoffCount(is));
-        int[] is2 = vocabulary.getIds("<s>", "kedi");
+        int[] is2 = vocabulary.indexOf("<s>", "kedi");
         Assert.assertEquals(0, lm.getBackoffCount(is2));
-        int[] is3 = vocabulary.getIds("Ahmet", "dondurma","yedi");
+        int[] is3 = vocabulary.indexOf("Ahmet", "dondurma", "yedi");
         Assert.assertEquals(0, lm.getBackoffCount(is3));
-        int[] is4 = vocabulary.getIds("Ahmet", "yemez");
+        int[] is4 = vocabulary.indexOf("Ahmet", "yemez");
         Assert.assertEquals(1, lm.getBackoffCount(is4));
-        int[] is5 = vocabulary.getIds("Ahmet", "yemez","kırmızı");
+        int[] is5 = vocabulary.indexOf("Ahmet", "yemez", "kırmızı");
         Assert.assertEquals(2, lm.getBackoffCount(is5));
     }
 
@@ -130,17 +130,17 @@ public class SmoothLmTest {
     public void testExplain() throws IOException {
         SmoothLm lm = getTinyLm();
         LmVocabulary vocabulary = lm.getVocabulary();
-        int[] is = {vocabulary.getId("<s>")};
+        int[] is = {vocabulary.indexOf("<s>")};
         System.out.println(lm.explain(is));
         //<s> kedi
-        int[] is2 = vocabulary.getIds("<s>", "kedi");
+        int[] is2 = vocabulary.indexOf("<s>", "kedi");
         System.out.println(lm.explain(is2));
         //Ahmet dondurma yedi
-        int[] is3 = vocabulary.getIds("Ahmet", "dondurma","yedi");
+        int[] is3 = vocabulary.indexOf("Ahmet", "dondurma", "yedi");
         System.out.println(lm.explain(is3));
-        int[] is4 = vocabulary.getIds("Ahmet", "yemez");
+        int[] is4 = vocabulary.indexOf("Ahmet", "yemez");
         System.out.println(lm.explain(is4));
-        int[] is5 = vocabulary.getIds("Ahmet", "yemez","kırmızı");
+        int[] is5 = vocabulary.indexOf("Ahmet", "yemez", "kırmızı");
         System.out.println(lm.explain(is5));
     }
 
@@ -152,15 +152,15 @@ public class SmoothLmTest {
         System.out.println(lm.info());
         Assert.assertEquals(lm.getLogBase(), Math.E, 0.00001);
         LmVocabulary vocabulary = lm.getVocabulary();
-        int[] is = {vocabulary.getId("<s>")};
+        int[] is = {vocabulary.indexOf("<s>")};
         Assert.assertEquals(l(-1.716003), lm.getProbability(is), 0.0001);
         Assert.assertEquals(l(-1.716003), lm.getProbability(is), 0.0001);
         //<s> kedi
-        int[] is2 = {vocabulary.getId("<s>"), vocabulary.getId("kedi")};
+        int[] is2 = {vocabulary.indexOf("<s>"), vocabulary.indexOf("kedi")};
         Assert.assertEquals(l(-0.796249), lm.getProbability(is2), 0.0001);
         Assert.assertEquals(l(-0.796249), lm.getProbability(is2), 0.0001);
         //Ahmet dondurma yedi
-        int[] is3 = {vocabulary.getId("Ahmet"), vocabulary.getId("dondurma"), vocabulary.getId("yedi")};
+        int[] is3 = {vocabulary.indexOf("Ahmet"), vocabulary.indexOf("dondurma"), vocabulary.indexOf("yedi")};
         Assert.assertEquals(l(-0.602060), lm.getProbability(is3), 0.0001);
         Assert.assertEquals(l(-0.602060), lm.getProbability(is3), 0.0001);
     }
@@ -199,12 +199,12 @@ public class SmoothLmTest {
             for (int j = 0; j < tokens.length - order - 1; j++) {
                 String[] words = new String[order];
                 System.arraycopy(tokens, j, words, 0, order);
-                int[] indexes = lm.getVocabulary().getIds(words);
-                if (!lm.getVocabulary().checkIfAllValidId(indexes))
+                int[] indexes = lm.getVocabulary().indexOf(words);
+                if (!lm.getVocabulary().containsAll(indexes))
                     continue;
                 ids[i] = indexes;
                 if(order ==3)
-                    trigrams[i]=lm.getVocabulary().getTrigramAsLong(indexes);
+                    trigrams[i]=lm.getVocabulary().encodeTrigram(indexes);
                 i++;
                 if (i == gramCount)
                     break;
@@ -232,8 +232,8 @@ public class SmoothLmTest {
     public void testProbWithBackoff() throws IOException {
         SmoothLm lm = getTinyLm();
         LmVocabulary vocabulary = lm.getVocabulary();
-        int ahmet = vocabulary.getId("Ahmet");
-        int yemez = vocabulary.getId("yemez");
+        int ahmet = vocabulary.indexOf("Ahmet");
+        int yemez = vocabulary.indexOf("yemez");
         // p(yemez|ahmet) = p(yemez) + b(ahmet) if p(yemez|ahmet) does not exist.
         double expected = -1.414973 + -0.316824;
         Assert.assertEquals(expected, lm.getProbability(ahmet, yemez), 0.0001);
@@ -245,9 +245,9 @@ public class SmoothLmTest {
     public void testTrigramBackoff() throws IOException {
         SmoothLm lm = getTinyLm();
         LmVocabulary vocabulary = lm.getVocabulary();
-        int ahmet = vocabulary.getId("Ahmet");
-        int armut = vocabulary.getId("armut");
-        int kirmizi = vocabulary.getId("kırmızı");
+        int ahmet = vocabulary.indexOf("Ahmet");
+        int armut = vocabulary.indexOf("armut");
+        int kirmizi = vocabulary.indexOf("kırmızı");
         // p(kirmizi | Ahmet,armut) = b(ahmet, armut) + p(kırmızı|armut) if initial trigram prob does not exist.
         // if p(kırmızı|armut) also do not exist, we back off to b(ahmet, armut) + b(armut) + p(kırmızı)
         double backoffAhmetArmut = -0.124939;
@@ -258,7 +258,7 @@ public class SmoothLmTest {
         System.out.println("expected = " + expected);
         Assert.assertEquals(expected, lm.getProbability(ahmet, armut, kirmizi), 0.0001);
         Assert.assertEquals(expected, lm.getProbability(ahmet, armut, kirmizi), 0.0001);
-        Assert.assertEquals(expected, lm.getEncodedTrigramProbability(vocabulary.getTrigramAsLong(ahmet, armut, kirmizi)), 0.0001);
+        Assert.assertEquals(expected, lm.getEncodedTrigramProbability(vocabulary.encodeTrigram(ahmet, armut, kirmizi)), 0.0001);
         System.out.println(lm.explain(ahmet, armut, kirmizi));
     }
 

@@ -1,51 +1,86 @@
 package zemberek.lm;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.logging.Logger;
 
 public class LmVocabulary {
-    private final String[] vocabulary;
+    public static final String OUT_OF_VOCABULARY = "<OOV>";
+    private String[] vocabulary;
     private Map<String, Integer> vocabularyIndexMap = new HashMap<>();
 
-    public LmVocabulary(String[] vocabulary) {
+    /**
+     * Generates a vocabulary with given String array.
+     *
+     * @param vocabulary word array.
+     */
+    public LmVocabulary(String... vocabulary) {
         this.vocabulary = vocabulary;
-        generateMap(vocabulary);
+        generateMap();
     }
 
-    public LmVocabulary(RandomAccessFile raf, int vocabularySize) throws IOException {
-        vocabulary = new String[vocabularySize];
+    /**
+     * Generates a vocabulary with given String List.
+     *
+     * @param vocabulary word list.
+     */
+    public LmVocabulary(List<String> vocabulary) {
+        this.vocabulary = vocabulary.toArray(new String[vocabulary.size()]);
+        generateMap();
+    }
+
+    /**
+     * Generates a vocabulary from a binary RandomAccessFile. first integer read from the file pointer
+     * defines the vocabulary size. Rest is read in UTF. Constructor does not close the RandomAccessFile
+     *
+     * @param raf binary vocabulary RandomAccessFile
+     * @throws IOException
+     */
+    public LmVocabulary(RandomAccessFile raf) throws IOException {
+        vocabulary = new String[raf.readInt()];
         for (int i = 0; i < vocabulary.length; i++) {
             vocabulary[i] = raf.readUTF();
         }
-        generateMap(vocabulary);
+        generateMap();
     }
 
-    public LmVocabulary(DataInputStream dis, int vocabularySize) throws IOException {
-        vocabulary = new String[vocabularySize];
+    /**
+     * Generates a vocabulary from a binary DataInputStream. first integer read from the file pointer
+     * defines the vocabulary size. Rest is read in UTF. Constructor does not close the DataInputStream
+     *
+     * @param dis input stream to read the vocabulary data.
+     * @throws IOException
+     */
+    public LmVocabulary(DataInputStream dis) throws IOException {
+        loadVocabulary(dis);
+    }
+
+    private void loadVocabulary(DataInputStream dis) throws IOException {
+        vocabulary = new String[dis.readInt()];
         for (int i = 0; i < vocabulary.length; i++) {
             vocabulary[i] = dis.readUTF();
         }
-        generateMap(vocabulary);
+        generateMap();
     }
 
+    /**
+     * Generates a vocabulary from a binary vocabulary File. First integer in the file
+     * defines the vocabulary size. Rest is read in UTF.
+     *
+     * @throws IOException
+     */
     public LmVocabulary(File binaryVocabularyFile) throws IOException {
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(binaryVocabularyFile), 1000000));
-        int count = dis.readInt();
-        vocabulary = new String[count];
-        for (int i = 0; i < vocabulary.length; i++) {
-            vocabulary[i] = dis.readUTF();
+        try (DataInputStream dis = new DataInputStream(
+                new BufferedInputStream(new FileInputStream(binaryVocabularyFile)))) {
+            loadVocabulary(dis);
         }
-        generateMap(vocabulary);
-        dis.close();
     }
 
-    private void generateMap(String[] vocabulary) {
+    private void generateMap() {
         // construct vocabulary index lookup.
         for (int i = 0; i < vocabulary.length; i++) {
             if (vocabularyIndexMap.containsKey(vocabulary[i]))
-                System.out.println("Warning: Vocabulary has duplicate item:" + vocabulary[i]);
+                throw new IllegalStateException("Vocabulary has duplicate item: " + vocabulary[i]);
             else
                 vocabularyIndexMap.put(vocabulary[i], i);
         }
@@ -56,84 +91,81 @@ public class LmVocabulary {
     }
 
     public int size() {
-        return vocabulary.length;
+        return vocabularyIndexMap.size();
     }
-
 
     public String getWord(int index) {
         return vocabulary[index];
     }
 
-    public int getId(String word) {
+    public int indexOf(String word) {
         Integer k = vocabularyIndexMap.get(word);
         return k == null ? -1 : k;
     }
 
-    public String getAsSingleString(int... index) {
+    /**
+     * @param indexes word indexes
+     * @return the Word representation of indexes. Such as for 2,3,4 it returns "foo bar zipf"
+     *         For unknown id's it uses UNKNOWN word syntax.
+     */
+    public String getWordsString(int... indexes) {
         StringBuilder sb = new StringBuilder();
-        for (int i : index) {
-            if (isValid(i))
-                sb.append(vocabulary[i]).append(" ");
+        for (int i = 0; i < indexes.length; i++) {
+            int index = indexes[i];
+            if (contains(index))
+                sb.append(vocabulary[index]);
             else
-                sb.append("???").append(" ");
-        }
-        return sb.toString() + Arrays.toString(index);
-    }
-
-    public String getWordsString(int... index) {
-        StringBuilder sb = new StringBuilder();
-        for (int i : index) {
-            if (isValid(i))
-                sb.append(vocabulary[i]).append(" ");
-            else
-                sb.append("???").append(" ");
+                sb.append(OUT_OF_VOCABULARY);
+            if (i < indexes.length - 1)
+                sb.append(" ");
         }
         return sb.toString();
     }
 
-    public boolean checkIfAllValidId(int... ids) {
-        for (int id : ids) {
-            if (isValid(id))
+    public boolean containsAll(int... indexes) {
+        for (int id : indexes) {
+            if (!contains(id))
                 return false;
         }
         return true;
     }
 
-    public boolean isValid(int id) {
-        return id >= 0 && id < vocabulary.length;
+    public boolean contains(int index) {
+        return index >= 0 && index < vocabulary.length;
     }
 
-    public long getTrigramAsLong(int g0, int g1, int g2) {
+    /**
+     * @param g0 W0 Index
+     * @param g1 W1 Index
+     * @param g2 W2 Index
+     * @return The encoded long representation of a trigram. Structure:
+     *         [1 bit EMPTY][21 bit W2-ID][21 bit W1-ID][21 bit W0-ID]
+     */
+    public long encodeTrigram(int g0, int g1, int g2) {
         long encoded = g2;
         encoded = (encoded << 21) | g1;
         return (encoded << 21) | g0;
     }
 
-    public long getTrigramAsLong(int... grams) {
-        long encoded = grams[2];
-        encoded = (encoded << 21) | grams[1];
-        return (encoded << 21) | grams[0];
-    }
-
-    public long getAsLong(int... is3) {
-        if (is3.length > 3)
-            throw new IllegalArgumentException("Cannot generate long from order " + is3.length + " grams ");
-        long encoded = 0;
-        for (int i = 2; i >= 0; --i) {
-            encoded |= is3[i];
-            if (i > 0)
-                encoded = encoded << 21;
-        }
-        return encoded;
+    /**
+     * @param triGram trigram Indexes.
+     * @return the encoded long representation of a trigram. Structure:
+     *         [1 bit EMPTY][21 bit W2-ID][21 bit W1-ID][21 bit W0-ID]
+     */
+    public long encodeTrigram(int... triGram) {
+        if (triGram.length > 3)
+            throw new IllegalArgumentException("Cannot generate long from order " + triGram.length + " grams ");
+        long encoded = triGram[2];
+        encoded = (encoded << 21) | triGram[1];
+        return (encoded << 21) | triGram[0];
     }
 
     /**
-     * returns the vicabulary id array for a word array. if a word is unknown, -1 is returned as its vocabulary id.
-     *
      * @param words word array
-     * @return id array.
+     * @return the vocabulary index array for a word array.
+     *         if a word is unknown, -1 is returned as its vocabulary index.
      */
-    public int[] getIds(String... words) {
+    public int[] indexOf(String... words) {
         int[] ids = new int[words.length];
         int i = 0;
         for (String word : words) {
@@ -146,10 +178,32 @@ public class LmVocabulary {
         return ids;
     }
 
-    public byte[] toByteArray(int[] wordIds) {
-        byte[] bytes = new byte[wordIds.length * 4];
-        for (int k = 0; k < wordIds.length; k++) {
-            final int token = wordIds[k];
+    /**
+     * @param indexes word indexes.
+     * @return Words representations of the indexes. If an index is out of bounds, OUT_OF_VOCABULARY
+     *         representation is used.
+     */
+    public String[] getWords(int... indexes) {
+        String[] words = new String[indexes.length];
+        int k = 0;
+        for (int index : indexes) {
+            if (contains(index))
+                words[k++] = vocabulary[index];
+            else
+                words[k++] = OUT_OF_VOCABULARY;
+        }
+        return words;
+    }
+
+    /**
+     * @param indexes indexes.
+     * @return byte array representation of the word indexes. Each index is stored in 4 bytes big endian.
+     *         [W0-MSByte, .., W0-LSByte, W1-MSByte,...]
+     */
+    public byte[] toByteArray(int... indexes) {
+        byte[] bytes = new byte[indexes.length * 4];
+        for (int k = 0; k < indexes.length; k++) {
+            final int token = indexes[k];
             final int t = k * 4;
             bytes[t] = (byte) (token >>> 24);
             bytes[t + 1] = (byte) (token >>> 16 & 0xff);
