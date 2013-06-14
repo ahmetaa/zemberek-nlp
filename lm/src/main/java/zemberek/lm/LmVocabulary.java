@@ -162,7 +162,7 @@ public class LmVocabulary {
      * @return the vocabulary index array for a word array.
      *         if a word is unknown, -1 is returned as its vocabulary index.
      */
-    public int[] indexOf(String... words) {
+    public int[] toIndexes(String... words) {
         int[] indexes = new int[words.length];
         int i = 0;
         for (String word : words) {
@@ -180,7 +180,7 @@ public class LmVocabulary {
      * @return Words representations of the indexes. If an index is out of bounds, OUT_OF_VOCABULARY
      *         representation is used.
      */
-    public String[] getWords(int... indexes) {
+    public String[] toWords(int... indexes) {
         String[] words = new String[indexes.length];
         int k = 0;
         for (int index : indexes) {

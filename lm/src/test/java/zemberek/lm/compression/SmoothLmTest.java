@@ -116,13 +116,13 @@ public class SmoothLmTest {
         LmVocabulary vocabulary = lm.getVocabulary();
         int[] is = {vocabulary.indexOf("<s>")};
         Assert.assertEquals(0, lm.getBackoffCount(is));
-        int[] is2 = vocabulary.indexOf("<s>", "kedi");
+        int[] is2 = vocabulary.toIndexes("<s>", "kedi");
         Assert.assertEquals(0, lm.getBackoffCount(is2));
-        int[] is3 = vocabulary.indexOf("Ahmet", "dondurma", "yedi");
+        int[] is3 = vocabulary.toIndexes("Ahmet", "dondurma", "yedi");
         Assert.assertEquals(0, lm.getBackoffCount(is3));
-        int[] is4 = vocabulary.indexOf("Ahmet", "yemez");
+        int[] is4 = vocabulary.toIndexes("Ahmet", "yemez");
         Assert.assertEquals(1, lm.getBackoffCount(is4));
-        int[] is5 = vocabulary.indexOf("Ahmet", "yemez", "kırmızı");
+        int[] is5 = vocabulary.toIndexes("Ahmet", "yemez", "kırmızı");
         Assert.assertEquals(2, lm.getBackoffCount(is5));
     }
 
@@ -133,14 +133,14 @@ public class SmoothLmTest {
         int[] is = {vocabulary.indexOf("<s>")};
         System.out.println(lm.explain(is));
         //<s> kedi
-        int[] is2 = vocabulary.indexOf("<s>", "kedi");
+        int[] is2 = vocabulary.toIndexes("<s>", "kedi");
         System.out.println(lm.explain(is2));
         //Ahmet dondurma yedi
-        int[] is3 = vocabulary.indexOf("Ahmet", "dondurma", "yedi");
+        int[] is3 = vocabulary.toIndexes("Ahmet", "dondurma", "yedi");
         System.out.println(lm.explain(is3));
-        int[] is4 = vocabulary.indexOf("Ahmet", "yemez");
+        int[] is4 = vocabulary.toIndexes("Ahmet", "yemez");
         System.out.println(lm.explain(is4));
-        int[] is5 = vocabulary.indexOf("Ahmet", "yemez", "kırmızı");
+        int[] is5 = vocabulary.toIndexes("Ahmet", "yemez", "kırmızı");
         System.out.println(lm.explain(is5));
     }
 
@@ -199,7 +199,7 @@ public class SmoothLmTest {
             for (int j = 0; j < tokens.length - order - 1; j++) {
                 String[] words = new String[order];
                 System.arraycopy(tokens, j, words, 0, order);
-                int[] indexes = lm.getVocabulary().indexOf(words);
+                int[] indexes = lm.getVocabulary().toIndexes(words);
                 if (!lm.getVocabulary().containsAll(indexes))
                     continue;
                 ids[i] = indexes;

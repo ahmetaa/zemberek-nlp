@@ -389,7 +389,7 @@ public class SmoothLm {
      * @return log probability.
      */
     public double getProbability(String... words) {
-        return getProbability(vocabulary.indexOf(words));
+        return getProbability(vocabulary.toIndexes(words));
     }
 
     /**
@@ -457,7 +457,7 @@ public class SmoothLm {
      * @return if no back-off, returns 0 if none of the n-grams exist (Except 1 gram), it returns order-1
      */
     public int getBackoffCount(String... tokens) {
-        return getBackoffCount(vocabulary.indexOf(tokens));
+        return getBackoffCount(vocabulary.toIndexes(tokens));
     }
 
     /**

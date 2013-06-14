@@ -99,15 +99,15 @@ public class LmVocabularyTest {
     @Test
     public void toWordsTest() throws IOException {
         LmVocabulary vocabulary = new LmVocabulary("a", "b", "c", "d", "e");
-        Assert.assertArrayEquals(new String[]{"a", "e", "b"}, vocabulary.getWords(0, 4, 1));
-        Assert.assertArrayEquals(new String[]{"a", LmVocabulary.OUT_OF_VOCABULARY, "b"}, vocabulary.getWords(0, 5, 1));
+        Assert.assertArrayEquals(new String[]{"a", "e", "b"}, vocabulary.toWords(0, 4, 1));
+        Assert.assertArrayEquals(new String[]{"a", LmVocabulary.OUT_OF_VOCABULARY, "b"}, vocabulary.toWords(0, 5, 1));
     }
 
     @Test
     public void toIndexTest() throws IOException {
         LmVocabulary vocabulary = new LmVocabulary("a", "b", "c", "d", "e");
-        Assert.assertArrayEquals(new int[]{0,4,1}, vocabulary.indexOf("a", "e", "b"));
-        Assert.assertArrayEquals(new int[]{0,-1,1}, vocabulary.indexOf("a", "foo", "b"));
+        Assert.assertArrayEquals(new int[]{0,4,1}, vocabulary.toIndexes("a", "e", "b"));
+        Assert.assertArrayEquals(new int[]{0,-1,1}, vocabulary.toIndexes("a", "foo", "b"));
     }
 
 }
