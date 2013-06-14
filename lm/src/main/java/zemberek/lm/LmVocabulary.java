@@ -87,10 +87,6 @@ public class LmVocabulary {
         }
     }
 
-    public String[] getWordArray() throws IOException {
-        return vocabulary;
-    }
-
     public int size() {
         return vocabularyIndexMap.size();
     }

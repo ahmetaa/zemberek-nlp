@@ -316,7 +316,7 @@ public class SmoothLm {
 
         double result = 0;
         double probability = getProbabilityValue(wordIndexes);
-        if (probability == 0) { // if probability does not exist.
+        if (probability == LOG_ZERO) { // if probability does not exist.
             if (wordIndexes.length == 1)
                 return LOG_ZERO;
             double backoffValue = useStupidBackoff ? stupidBackoffLogAlpha : getBackoffValue(head(wordIndexes));
@@ -531,7 +531,7 @@ public class SmoothLm {
     private Explanation explain(Explanation exp, int... wordIndexes) {
         double probability = getProbabilityValue(wordIndexes);
         exp.sb.append(getPropabilityExpression(wordIndexes));
-        if (probability == 0) { // if probability does not exist.
+        if (probability == LOG_ZERO) { // if probability does not exist.
             exp.sb.append("=[");
             double backOffValue = getBackoffValue(head(wordIndexes));
             String backOffStr = getBackoffExpression(head(wordIndexes));
