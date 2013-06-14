@@ -99,8 +99,8 @@ public class LmVocabularyTest {
     @Test
     public void toWordsTest() throws IOException {
         LmVocabulary vocabulary = new LmVocabulary("a", "b", "c", "d", "e");
-        Assert.assertArrayEquals(new String[]{"a", "e", "b"}, vocabulary.getWords(0, 4, 2));
-        Assert.assertArrayEquals(new String[]{"a", LmVocabulary.OUT_OF_VOCABULARY, "b"}, vocabulary.getWords(0, 4, 5));
+        Assert.assertArrayEquals(new String[]{"a", "e", "b"}, vocabulary.getWords(0, 4, 1));
+        Assert.assertArrayEquals(new String[]{"a", LmVocabulary.OUT_OF_VOCABULARY, "b"}, vocabulary.getWords(0, 5, 1));
     }
 
     @Test
