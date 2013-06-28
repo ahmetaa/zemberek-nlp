@@ -146,7 +146,7 @@ public final class SimpleTextReader implements AutoCloseable {
         this.is = is;
         this.encoding = template._encoding;
 
-        List<Filter> filterz = new ArrayList<Filter>();
+        List<Filter> filterz = new ArrayList<>();
         if (template._ignoreWhiteSpaceLines) {
             filterz.add(StringFilters.PASS_ONLY_TEXT);
         }

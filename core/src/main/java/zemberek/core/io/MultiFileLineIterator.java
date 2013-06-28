@@ -15,12 +15,12 @@ public class MultiFileLineIterator implements Iterator<String> {
     private SimpleTextReader.Template template = new SimpleTextReader.Template();
 
     public MultiFileLineIterator(File... files) throws IOException {
-        this.files = new ArrayList<File>(Arrays.asList(files));
+        this.files = new ArrayList<>(Arrays.asList(files));
         currentIterator = template.generateReader(files[0]).getLineIterator();
     }
 
     public MultiFileLineIterator(SimpleTextReader.Template template, File... files) throws IOException {
-        this.files = new ArrayList<File>(Arrays.asList(files));
+        this.files = new ArrayList<>(Arrays.asList(files));
         currentIterator = template.generateReader(files[0]).getLineIterator();
         this.template = template;
     }
@@ -31,7 +31,7 @@ public class MultiFileLineIterator implements Iterator<String> {
     }
 
     public MultiFileLineIterator(SimpleTextReader.Template template, List<File> files) throws IOException {
-        this.files = new ArrayList<File>(files);
+        this.files = new ArrayList<>(files);
         this.template = template;
         currentIterator = template.generateReader(files.get(0)).getLineIterator();
     }

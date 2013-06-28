@@ -20,7 +20,7 @@ public class StringEnumMap<T extends StringEnum> {
 
     private StringEnumMap(Class<T> clazz) {
         this.clazz = clazz;
-        final ImmutableMap.Builder<String, T> mapBuilder = new ImmutableMap.Builder<String, T>();
+        final ImmutableMap.Builder<String, T> mapBuilder = new ImmutableMap.Builder<>();
         for (T senum : clazz.getEnumConstants()) {
             mapBuilder.put(senum.getStringForm(), senum);
         }

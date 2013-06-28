@@ -316,16 +316,6 @@ public class StringsTest {
     }
 
     @Test
-    public void testConcatWithStrings() {
-        assertEquals(concatWithString(" ", new String[]{"hello", "world"}), "hello world");
-        assertEquals(concatWithString("  ", new String[]{"hello", "world"}), "hello  world");
-        assertEquals(concatWithString("  ", new String[]{"", "world"}), "  world");
-        assertEquals(concatWithString("-", new String[]{"hello", "world", "!"}), "hello-world-!");
-        assertEquals(concatWithString("-", new String[]{}), "");
-        assertEquals(concatWithString("-", new String[]{"hello"}), "hello");
-    }
-
-    @Test
     public void testGrams() {
         assertArrayEquals(separateGrams("hello", 1), new String[]{"h", "e", "l", "l", "o"});
         assertArrayEquals(separateGrams("hello", 2), new String[]{"he", "el", "ll", "lo"});

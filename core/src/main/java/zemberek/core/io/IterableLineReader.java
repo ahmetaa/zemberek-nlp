@@ -28,7 +28,7 @@ import java.util.Iterator;
 /**
  * This class wraps a LineIterator. It is useful to use this in an enhanced for loop.
  */
-public class IterableLineReader implements Iterable<String>, Closeable {
+public class IterableLineReader implements Iterable<String>, AutoCloseable {
 
     private final BufferedReader bufferedReader;
     private boolean trim;

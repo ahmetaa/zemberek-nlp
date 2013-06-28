@@ -681,42 +681,6 @@ public final class Strings {
     }
 
     /**
-     * @param str
-     * @param collection
-     * @return
-     */
-    public static String concatWithString(String str, Collection<?> collection) {
-        if (collection == null) return null;
-        if (collection.isEmpty()) return EMPTY_STRING;
-        int i = 0;
-        StringBuilder sb = new StringBuilder();
-        for (Object o : collection) {
-            sb.append(o.toString());
-            if (i < collection.size() - 1) {
-                sb.append(str);
-            }
-            i++;
-        }
-        return sb.toString();
-    }
-
-    public static String concatWithString(String str, Object... objects) {
-        if (objects == null) return null;
-        if (objects.length == 0)
-            return EMPTY_STRING;
-        int i = 0;
-        StringBuilder sb = new StringBuilder();
-        for (Object o : objects) {
-            sb.append(o.toString());
-            if (i < objects.length - 1) {
-                sb.append(str);
-            }
-            i++;
-        }
-        return sb.toString();
-    }
-
-    /**
      * Generates 'gram' Strings from a given String. Such as,
      * </p>
      * <pre>
