@@ -16,7 +16,7 @@ public class SingleWordSpellChecker {
     Node root = new Node((char) 0);
 
     final double maxPenalty;
-    final boolean checkNearkeySubstitution;
+    final boolean checkNearKeySubstitution;
 
     static final double INSERTION_PENALTY = 1.0;
     static final double DELETION_PENALTY = 1.0;
@@ -64,17 +64,17 @@ public class SingleWordSpellChecker {
 
     public SingleWordSpellChecker(double maxPenalty) {
         this.maxPenalty = maxPenalty;
-        this.checkNearkeySubstitution = false;
+        this.checkNearKeySubstitution = false;
     }
 
     public SingleWordSpellChecker() {
         this.maxPenalty = 1.0;
-        this.checkNearkeySubstitution = false;
+        this.checkNearKeySubstitution = false;
     }
 
-    public SingleWordSpellChecker(double maxPenalty, boolean checkNearkeySubstitution) {
+    public SingleWordSpellChecker(double maxPenalty, boolean checkNearKeySubstitution) {
         this.maxPenalty = maxPenalty;
-        this.checkNearkeySubstitution = checkNearkeySubstitution;
+        this.checkNearKeySubstitution = checkNearKeySubstitution;
     }
 
     public static class Node {
@@ -184,7 +184,7 @@ public class SingleWordSpellChecker {
             for (Node childNode : hypothesis.node.getChildNodes()) {
 
                 double penalty = 0;
-                if (checkNearkeySubstitution) {
+                if (checkNearKeySubstitution) {
                     char nextChar = input.charAt(nextIndex);
                     if (childNode.chr != nextChar) {
                         String nearCharactersString = nearKeys.get(childNode.chr);

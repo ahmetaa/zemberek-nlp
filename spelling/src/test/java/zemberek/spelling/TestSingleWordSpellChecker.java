@@ -45,7 +45,7 @@ public class TestSingleWordSpellChecker {
             Assert.assertTrue(s, res.contains(expected));
         }
 
-        Set<String> transpositions = transpositions(expected, 1);
+        Set<String> transpositions = transpositions(expected);
         for (String s : transpositions) {
             DoubleValueSet<String> res = spellChecker.decode(s);
             Assert.assertEquals(s, 1, res.size());
@@ -107,7 +107,7 @@ public class TestSingleWordSpellChecker {
         return result;
     }
 
-    Set<String> transpositions(String input, int d) {
+    Set<String> transpositions(String input) {
         Set<String> result = new HashSet<>();
         for (int i = 0; i < input.length()-1; i++) {
             StringBuilder sb = new StringBuilder(input);
