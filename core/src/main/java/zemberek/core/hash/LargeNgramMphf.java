@@ -9,6 +9,7 @@ import java.io.*;
  */
 public class LargeNgramMphf implements Mphf {
 
+    private static final int DEFAULT_CHUNK_SIZE_IN_BITS = 22;
     final int maxBitMask;
     final int bucketMask;
     final int pageShift;
@@ -24,12 +25,18 @@ public class LargeNgramMphf implements Mphf {
         this.offsets = offsets;
     }
 
-    public static void main(String[] args) throws IOException {
-        LargeNgramMphf.generate(new File("/home/ahmetaa/data/lm/turkish/multi/2.gram"), 23);
+
+    /**
+     * Same as generate(File file, int chunkBits) but uses DEFAULT_CHUNK_SIZE_IN_BITS for chunk size.
+     * @param file binary key file
+     * @return generated LargeNgramMphf
+     */
+    public static LargeNgramMphf generate(File file) throws IOException {
+        return generate(file, DEFAULT_CHUNK_SIZE_IN_BITS);
     }
 
     /**
-     * Generates PHF from a binary integer key file. File needs to be in this structure:
+     * Generates MPHF from a binary integer key file. File needs to be in this structure:
      * int32 order (how many integers each key)
      * int32 amount of keys . Max is 2^31-1
      * int32... key1

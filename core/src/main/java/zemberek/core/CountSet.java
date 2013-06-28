@@ -13,12 +13,26 @@ public class CountSet<T> implements Iterable<T> {
 
     static final int INITIAL_SIZE = 8;
     static final double DEFAULT_LOAD_FACTOR = 0.5;
+
+    // This is the size-1 of the key and value array length. Array length is a value power of two
     private int modulo = INITIAL_SIZE - 1;
+
+    // Key array.
     T[] keys;
+
+    // Used for marking slots of deleted keys.
     private final T SENTINEL = (T) new Object();
-    int[] values;
+
+    // Carries count values.
+    int[] counts;
+
     int keyCount;
+
+    // When structure has this amount of keys, it expands the key and count arrays.
     int threshold = (int) (INITIAL_SIZE * DEFAULT_LOAD_FACTOR);
+
+    // Only used for debugging.
+    int collisionCount;
 
     public CountSet() {
         this(INITIAL_SIZE);
@@ -33,7 +47,7 @@ public class CountSet<T> implements Iterable<T> {
             size = 1 << (power + 1);
         }
         keys = (T[]) new Object[size];
-        values = new int[size];
+        counts = new int[size];
         threshold = (int) (size * DEFAULT_LOAD_FACTOR);
         modulo = size - 1;
     }
@@ -136,7 +150,7 @@ public class CountSet<T> implements Iterable<T> {
                 continue;
             }
             if (t.equals(key))
-                return values[slot];
+                return counts[slot];
             slot = nextProbe(slot, ++probeCount);
         }
     }
@@ -165,13 +179,13 @@ public class CountSet<T> implements Iterable<T> {
         int l = locate(key);
         if (l < 0) {
             l = -l - 1;
-            values[l] = amount;
+            counts[l] = amount;
             keys[l] = key;
             keyCount++;
-            return values[l];
+            return counts[l];
         } else {
-            values[l] += amount;
-            return values[l];
+            counts[l] += amount;
+            return counts[l];
         }
     }
 
@@ -184,13 +198,13 @@ public class CountSet<T> implements Iterable<T> {
     }
 
     private void expand() {
-        CountSet<T> h = new CountSet<>(values.length * 2);
+        CountSet<T> h = new CountSet<>(counts.length * 2);
         for (int i = 0; i < keys.length; i++) {
             if (keys[i] != null && keys[i] != SENTINEL)
-                h.set(keys[i], values[i]);
+                h.set(keys[i], counts[i]);
         }
         assert (h.keyCount == keyCount);
-        this.values = h.values;
+        this.counts = h.counts;
         this.keys = h.keys;
         this.keyCount = h.keyCount;
         this.modulo = h.modulo;
@@ -205,11 +219,11 @@ public class CountSet<T> implements Iterable<T> {
         }
         int loc = locate(key);
         if (loc >= 0) {
-            values[loc] = value;
+            counts[loc] = value;
         } else {
             loc = -loc - 1;
             keys[loc] = key;
-            values[loc] = value;
+            counts[loc] = value;
             keyCount++;
         }
     }
@@ -236,14 +250,14 @@ public class CountSet<T> implements Iterable<T> {
      * @return a clone of value array.
      */
     public int[] copyOfValues() {
-        return values.clone();
+        return counts.clone();
     }
 
     public List<Entry<T>> getAsEntryList() {
         List<Entry<T>> res = new ArrayList<>(keyCount);
         for (int i = 0; i < keys.length; i++) {
             if (keys[i] != null && keys[i] != SENTINEL)
-                res.add(new Entry<>(keys[i], values[i]));
+                res.add(new Entry<>(keys[i], counts[i]));
         }
         return res;
     }
@@ -276,7 +290,7 @@ public class CountSet<T> implements Iterable<T> {
             while (keys[i] == null || keys[i] == SENTINEL) {
                 i++;
             }
-            Entry<T> te = new Entry<>(keys[i], values[i]);
+            Entry<T> te = new Entry<>(keys[i], counts[i]);
             i++;
             k++;
             return te;

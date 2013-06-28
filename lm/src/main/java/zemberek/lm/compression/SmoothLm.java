@@ -1,5 +1,6 @@
 package zemberek.lm.compression;
 
+import zemberek.core.logging.Log;
 import zemberek.core.math.LogMath;
 import zemberek.lm.LmVocabulary;
 import zemberek.core.hash.LargeNgramMphf;
@@ -16,13 +17,11 @@ import java.util.logging.Logger;
  * This is a lossy model because for non existing n-grams it may return an existing n-gram probability value.
  * Probability of this happening depends on the fingerprint hash length. This value is determined during the model creation.
  * Regularly 8,16 or 24 bit fingerprints are used and false positive probability for an non existing n-gram is
- * 1/(2^fingerprint bit size).
+ * (probability of an n-gram does not exist in LM)*1/(2^fingerprint bit size).
  * SmoothLm also provides quantization for even more compactness. So probability and back-off values can be quantized to
  * 8, 16 or 24 bits.
  */
 public class SmoothLm {
-
-    Logger logger = Logger.getLogger("SmoothLm");
 
     public static final double DEFAULT_LOG_BASE = 10;
     public static final double DEFAULT_UNIGRAM_WEIGHT = 1;
@@ -55,6 +54,15 @@ public class SmoothLm {
     private double stupidBackoffLogAlpha;
     private double stupidBackoffAlpha;
 
+    /**
+     * Builder is used for instantiating the compressed language model.
+     * Default values:
+     * <p>Log Base = e
+     * <p>Unknown backoff penalty = 0
+     * <p>Default unigram weight = 1
+     * <p>Use Stupid Backoff = false
+     * <p>Stupid Backoff alpha value = 0.4
+     */
     public static class Builder {
         private double _logBase = DEFAULT_LOG_BASE;
         private double _unknownBackoffPenalty = DEFAULT_UNKNOWN_BACKOFF_PENALTY;
@@ -130,7 +138,7 @@ public class SmoothLm {
         this.stupidBackoffAlpha = stupidBackoffAlpha;
 
         if (logBase != DEFAULT_LOG_BASE) {
-            logger.info("Changing log base from " + DEFAULT_LOG_BASE + " to " + logBase);
+            Log.info("Changing log base from " + DEFAULT_LOG_BASE + " to " + logBase);
             changeLogBase(logBase);
             this.stupidBackoffLogAlpha = Math.log(stupidBackoffAlpha) / Math.log(logBase);
         } else {
@@ -140,30 +148,37 @@ public class SmoothLm {
         this.logBase = logBase;
 
         if (unigramWeight != DEFAULT_UNIGRAM_WEIGHT) {
-            logger.info("Applying unigram smoothing with unigram weight: " + unigramWeight);
+            Log.info("Applying unigram smoothing with unigram weight: " + unigramWeight);
             applyUnigramSmoothing(unigramWeight);
         }
 
         if (useStupidBackoff) {
-            logger.info("Lm will use stupid back off with alpha value: " + stupidBackoffAlpha);
+            Log.info("Lm will use stupid back off with alpha value: " + stupidBackoffAlpha);
         }
     }
 
+    /**
+     * Returns human readable information about the model.
+     */
     public String info() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("Order: %d%n", order));
+        sb.append(String.format("Order : %d%n", order));
 
         for (int i = 1; i < ngramData.length; i++) {
             GramDataArray gramDataArray = ngramData[i];
-            sb.append(String.format("%d Gram Count: %d%n", i, gramDataArray.count));
+            sb.append(String.format("%d Grams: Count= %d  Fingerprint Bits= %d  Probabilty Bits= %d  Back-off bits= %d%n",
+                    i,
+                    gramDataArray.count,
+                    gramDataArray.fpSize*8,
+                    gramDataArray.probSize*8,
+                    gramDataArray.backoffSize*8));
         }
-
-        sb.append(String.format("Log Base: %.2f%n", logBase));
-        sb.append(String.format("Unigram Weight: %.2f%n", unigramWeight));
+        sb.append(String.format("Log Base              : %.2f%n", logBase));
+        sb.append(String.format("Unigram Weight        : %.2f%n", unigramWeight));
         sb.append(String.format("Using Stupid Back-off?: %s%n", useStupidBackoff ? "Yes" : "No"));
         if (useStupidBackoff)
-            sb.append(String.format("Stupid Back-off Alpha Value: %.2f%n", stupidBackoffAlpha));
-        sb.append(String.format("Unknown Backoff N-gram penalty: %.2f%n", unknownBackoffPenalty));
+            sb.append(String.format("Stupid Back-off Alpha Value   : %.2f%n", stupidBackoffAlpha));
+        sb.append(String.format("Unknown Back-off N-gram penalty: %.2f%n", unknownBackoffPenalty));
         return sb.toString();
     }
 
@@ -244,7 +259,7 @@ public class SmoothLm {
         }
 
         // load vocabulary
-        vocabulary = new LmVocabulary(dis);
+        vocabulary = LmVocabulary.loadFromDataInputStream(dis);
 
         dis.close();
     }
@@ -493,7 +508,7 @@ public class SmoothLm {
         return backoffCount;
     }
 
-    public String getPropabilityExpression(int... wordIndexes) {
+    public String getProbabilityExpression(int... wordIndexes) {
         int last = wordIndexes[wordIndexes.length - 1];
         StringBuilder sb = new StringBuilder("p(" + vocabulary.getWord(last));
         if (wordIndexes.length > 1)
@@ -530,7 +545,7 @@ public class SmoothLm {
 
     private Explanation explain(Explanation exp, int... wordIndexes) {
         double probability = getProbabilityValue(wordIndexes);
-        exp.sb.append(getPropabilityExpression(wordIndexes));
+        exp.sb.append(getProbabilityExpression(wordIndexes));
         if (probability == LOG_ZERO) { // if probability does not exist.
             exp.sb.append("=[");
             double backOffValue = getBackoffValue(head(wordIndexes));
@@ -557,11 +572,11 @@ public class SmoothLm {
 
     /**
      * Changes the log base. Generally probabilities in language models are log10 based. But some applications uses their
-     * own log base. Such as Sphinx uses 1.0003 as their base, Makine decoder uses e.
+     * own log base. Such as Sphinx uses 1.0003 as their base, some other uses e.
      *
      * @param newBase new logBase
      */
-    public void changeLogBase(double newBase) {
+    private void changeLogBase(double newBase) {
         DoubleLookup.changeBase(unigramProbs, logBase, newBase);
         DoubleLookup.changeBase(unigramBackoffs, logBase, newBase);
         for (int i = 2; i < probabilityLookups.length; i++) {
@@ -592,7 +607,7 @@ public class SmoothLm {
         for (int i = 0; i < unigramProbs.length; i++) {
             double p1 = unigramProbs[i] + logUnigramWeigth;
             double p2 = logUniformUnigramProbability + inverseLogUnigramWeigth;
-            unigramProbs[i] = LogMath.logSum(p1, p2);
+            unigramProbs[i] = LogMath.logSumExact(p1, p2);
         }
     }
 

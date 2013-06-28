@@ -1,6 +1,7 @@
 package zemberek.core.math;
 
 public class LogMath {
+
     private static final double[] logSumLookup = new double[30000];
     private static final double SCALE = 1000d;
 
@@ -43,8 +44,111 @@ public class LogMath {
         }
     }
 
-    public static double log2(double n) {
-        return Math.log(n) / LOG_TWO;
+    /**
+     * Calculates approximate logSum of log values using the <code> logSum(logA,logB) </code>
+     *
+     * @param logValues log values to use in logSum calculation.
+     * @return <p>log(a+b) value approximation
+     */
+    public static double logSum(double... logValues) {
+        double result = LOG_ZERO;
+        for (double logValue : logValues) {
+            result = logSum(result, logValue);
+        }
+        return result;
     }
 
+    /**
+     * Exact calculation of log(a+b) using log(a) and log(b) with formula
+     * <p><b>log(a+b) = log(b) + log(1 + exp(log(b)-log(a)))</b> where log(b)>log(a)
+     *
+     * @param logA logarithm of A
+     * @param logB logarithm of B
+     * @return approximation of log(A+B)
+     */
+    public static double logSumExact(double logA, double logB) {
+        if (Double.isInfinite(logA))
+            return logB;
+        if (Double.isInfinite(logB))
+            return logA;
+        if (logA > logB) {
+            double dif = logA - logB;
+            return dif >= 30d ? logA : logA + Math.log(1 + Math.exp(-dif));
+        } else {
+            double dif = logB - logA;
+            return dif >= 30d ? logB : logB + Math.log(1 + Math.exp(-dif));
+        }
+    }
+
+    /**
+     * Calculates approximate logSum of log values using the <code> logSumExact(logA,logB) </code>
+     *
+     * @param logValues log values to use in logSum calculation.
+     * @return </p>log(a+b) value approximation
+     */
+    public static double logSumExact(double... logValues) {
+        double result = LOG_ZERO;
+        for (double logValue : logValues) {
+            result = logSumExact(result, logValue);
+        }
+        return result;
+    }
+
+    public static double linearToLog(double linear) {
+        if (linear == 0)
+            return LOG_ZERO;
+        return Math.log(linear);
+    }
+
+    public static double[] linearToLog(double... linear) {
+        double[] result = new double[linear.length];
+        for (int i = 0; i < linear.length; i++) {
+            result[i] = linearToLog(linear[i]);
+        }
+        return result;
+    }
+
+    public static void linearToLogInPlace(double... linear) {
+        for (int i = 0; i < linear.length; i++) {
+            linear[i] = linearToLog(linear[i]);
+        }
+    }
+
+    /**
+     * Calculates 2 base logarithm
+     *
+     * @param input value to calculate log
+     * @return 2 base logarithm of the input
+     */
+    public static double log2(double input) {
+        return Math.log(input) / LOG_TWO;
+    }
+
+    /**
+     * convert a value which is in log10 base to Log base.
+     *
+     * @param log10Value loog10 value.
+     * @return loge values
+     */
+    public static double log10ToLog(double log10Value) {
+        return log10Value * LOG_TEN;
+    }
+
+    private static final double SPHINX_4_LOG_BASE = 1.0001;
+    private static final double INVERSE_LOG_SPHINX_BASE = 1 / Math.log(SPHINX_4_LOG_BASE);
+
+    /**
+     * Converts a log value to Sphinx4 log base. Can be used for comparison.
+     *
+     * @param logValue value in natural logarithm
+     * @return value in Sphinx4 log base.
+     */
+    public static double toLogSphinx(double logValue) {
+        return logValue * INVERSE_LOG_SPHINX_BASE;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(toLogSphinx(-0.1));
+    }
 }
+

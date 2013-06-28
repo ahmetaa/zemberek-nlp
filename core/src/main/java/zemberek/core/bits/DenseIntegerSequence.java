@@ -38,7 +38,7 @@ public class DenseIntegerSequence {
     /**
      * Generates a compressed data structure for the given integer sequence.
      *
-     * @param sequence integer arrray to compress.
+     * @param sequence integer array to compress.
      */
     public DenseIntegerSequence(int[] sequence) {
         this.size = sequence.length;

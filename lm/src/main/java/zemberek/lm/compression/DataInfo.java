@@ -1,21 +1,43 @@
 package zemberek.lm.compression;
 
-// TODO: Experimental
+// TODO: experimental work.
 public class DataInfo {
+
+    // total amount ot finger print bits. fingerprint data starts from index 0.
     public final int fpBits;
+
+    // This represents the last byte right shift count to retrieve fp data from byte array.
+    // For example if fpBits is 13 int (int representation: MSB|---aaaaaabbbbbbbb|LSB )
+    // Then  it will be put to the byte array as : B0=|bbbbbbbb| B1=|aaaaaa---| So the fpLastByteRightShiftCount = 3
+    public final int fpLastByteRightShiftCount;
+
+    //The index of last byte that contains fingerprint data.
+    public final int fpEndByte;
+
     public final int probBits;
+
+    //The index of first byte that contains probability data.
+    public final int probStartByte;
+
+    // this defines amount of higher bits to truncate from the first byte of probability.
+    // Suppose first byte of the probability data is : |---ppppp| then mask needs to truncate most significant 3 bits.
+    public final int probFirstByteMask;
+
+    // This represents the amount of left shift required for getting the probability data from the last byte.
+    // public final int probLastByteRightShiftCount;
+
+    //The index of last byte that contains probability data.
+    public final int probEndByte;
+
     public final int backoffBits;
+
     public final int byteCount;
-    public final int fpByteCount;
-    public final int fpMask;
-    public final int probByteCount;
-    public final int probMask;
-    public final int backOffByteCount;
-    public final int backOffMask;
 
     DataInfo(int minfingerPrintBits, int probBits, int backoffBits) {
+
         this.probBits = probBits;
         this.backoffBits = backoffBits;
+
         int total = minfingerPrintBits + probBits + backoffBits;
         if (total % 8 != 0) {
             total = ((total / 8) + 1) * 8;
@@ -23,19 +45,25 @@ public class DataInfo {
         }
         this.fpBits = minfingerPrintBits;
         byteCount = (fpBits + probBits + backoffBits) / 8;
+        this.fpLastByteRightShiftCount = fpBits % 8;
 
-        fpByteCount = byteCount(fpBits);
-        fpMask = 1 << fpBits;
+        this.fpEndByte = fpBits / 8;
 
-        probByteCount = byteCount(probBits);
-        probMask = 1 << probBits;
+        if (fpLastByteRightShiftCount != 0) {
+            probStartByte = fpEndByte;
+            probFirstByteMask = 1 << (7 - fpLastByteRightShiftCount);
+        } else {
+            probStartByte = fpEndByte + 1;
+            probFirstByteMask = 0xff;
+        }
 
-        backOffByteCount = byteCount(backoffBits);
-        backOffMask = 1 << backoffBits;
-    }
+        int probLastByteEndBitIndex = (fpBits + probBits)%8;
 
-    static int byteCount(int bitCout) {
-        return (bitCout & 7) == 0 ? (bitCout / 8) : (bitCout / 8) + 1;
+
+        probEndByte = (fpBits + probBits) / 8;
+
+
+
     }
 
     static DataInfo fromCounts(int minfingerPrintBits, int probCount, int backoffCount) {
@@ -44,7 +72,12 @@ public class DataInfo {
         return new DataInfo(minfingerPrintBits, probBits, backoffBits);
     }
 
-    static DataInfo fromCountsAndExpectedBits(int minfingerPrintBits, int probCount, int probBitsDesired, int backoffCount, int backoffBitsDesired) {
+    static DataInfo fromCountsAndExpectedBits(
+            int minfingerPrintBits,
+            int probCount,
+            int probBitsDesired,
+            int backoffCount,
+            int backoffBitsDesired) {
         DataInfo initial = fromCounts(minfingerPrintBits, probCount, backoffCount);
         int bb = backoffBitsDesired;
         if (initial.backoffBits < bb)
@@ -69,13 +102,13 @@ public class DataInfo {
         return result;
     }
 
-    int getFp(byte[] data) {
-        int f = 0;
-        for (int i = 0; i < fpByteCount; i++) {
-            f = f | data[i];
-            f = f << 8;
-        }
-        return f & fpMask;
+    byte[] encode2(int fp, int prob, int backoff) {
+
+        byte[] arr = new byte[byteCount];
+
+        return arr;
+
+
     }
 
 
