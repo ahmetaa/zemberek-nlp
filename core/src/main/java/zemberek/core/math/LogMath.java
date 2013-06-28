@@ -133,22 +133,5 @@ public class LogMath {
     public static double log10ToLog(double log10Value) {
         return log10Value * LOG_TEN;
     }
-
-    private static final double SPHINX_4_LOG_BASE = 1.0001;
-    private static final double INVERSE_LOG_SPHINX_BASE = 1 / Math.log(SPHINX_4_LOG_BASE);
-
-    /**
-     * Converts a log value to Sphinx4 log base. Can be used for comparison.
-     *
-     * @param logValue value in natural logarithm
-     * @return value in Sphinx4 log base.
-     */
-    public static double toLogSphinx(double logValue) {
-        return logValue * INVERSE_LOG_SPHINX_BASE;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(toLogSphinx(-0.1));
-    }
 }
 
