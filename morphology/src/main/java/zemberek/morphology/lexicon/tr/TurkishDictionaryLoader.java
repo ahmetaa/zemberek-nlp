@@ -13,7 +13,10 @@ import smoothnlp.core.io.Strings;
 import zemberek.core.lexicon.PrimaryPos;
 import zemberek.core.lexicon.SecondaryPos;
 import zemberek.core.lexicon.tr.RootAttribute;
-import zemberek.core.structure.*;
+import zemberek.core.enums.*;
+import zemberek.core.turkish.TurkicLetter;
+import zemberek.core.turkish.TurkicSeq;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.*;
 
 import zemberek.morphology.structure.Turkish;
@@ -23,8 +26,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static zemberek.core.structure.TurkishAlphabet.L_l;
-import static zemberek.core.structure.TurkishAlphabet.L_r;
+import static zemberek.core.turkish.TurkishAlphabet.L_l;
+import static zemberek.core.turkish.TurkishAlphabet.L_r;
 
 public class TurkishDictionaryLoader {
 

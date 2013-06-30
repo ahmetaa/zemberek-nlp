@@ -1,4 +1,4 @@
-package zemberek.core.structure;
+package zemberek.core.enums;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;

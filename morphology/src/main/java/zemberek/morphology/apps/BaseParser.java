@@ -1,6 +1,6 @@
 package zemberek.morphology.apps;
 
-import zemberek.core.structure.TurkishAlphabet;
+import zemberek.core.turkish.TurkishAlphabet;
 
 import java.util.Locale;
 

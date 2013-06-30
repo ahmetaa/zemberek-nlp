@@ -5,8 +5,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import smoothnlp.core.io.SimpleTextReader;
 import smoothnlp.core.io.SimpleTextWriter;
-import zemberek.core.structure.TurkicSeq;
-import zemberek.core.structure.TurkishAlphabet;
+import zemberek.core.turkish.TurkicSeq;
+import zemberek.core.turkish.TurkishAlphabet;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package zemberek.core.structure;
+package zemberek.core.enums;
 
 public interface StringEnum<T extends Enum> {
 

@@ -1,8 +1,8 @@
 package zemberek.core.lexicon.tr;
 
 
-import zemberek.core.structure.StringEnum;
-import zemberek.core.structure.StringEnumMap;
+import zemberek.core.enums.StringEnum;
+import zemberek.core.enums.StringEnumMap;
 
 public enum PhoneticAttribute implements StringEnum<PhoneticAttribute> {
     LastLetterVowel("LLV"),

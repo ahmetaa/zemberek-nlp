@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import smoothnlp.core.io.IOs;
 import smoothnlp.core.io.KeyValueReader;
-import zemberek.core.structure.TurkishAlphabet;
+import zemberek.core.turkish.TurkishAlphabet;
 
 import java.io.IOException;
 import java.util.Arrays;

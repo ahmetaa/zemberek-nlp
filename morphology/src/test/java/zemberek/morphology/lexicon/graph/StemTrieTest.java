@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import zemberek.core.lexicon.PrimaryPos;
-import zemberek.core.structure.TurkishAlphabet;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 
 import java.util.List;

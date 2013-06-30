@@ -1,7 +1,7 @@
 package zemberek.core.lexicon.tr;
 
-import zemberek.core.structure.StringEnum;
-import zemberek.core.structure.StringEnumMap;
+import zemberek.core.enums.StringEnum;
+import zemberek.core.enums.StringEnumMap;
 
 /**
  * These represents attributes of morphemes.

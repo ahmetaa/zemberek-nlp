@@ -11,8 +11,8 @@ import smoothnlp.core.io.Strings;
 import zemberek.core.lexicon.PrimaryPos;
 import zemberek.core.lexicon.SecondaryPos;
 import zemberek.core.lexicon.tr.RootAttribute;
-import zemberek.core.structure.TurkicSeq;
-import zemberek.core.structure.TurkishAlphabet;
+import zemberek.core.turkish.TurkicSeq;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
 

@@ -1,9 +1,9 @@
 package zemberek.hyphenation;
 
 
-import zemberek.core.structure.TurkicLetter;
-import zemberek.core.structure.TurkicSeq;
-import zemberek.core.structure.TurkishAlphabet;
+import zemberek.core.turkish.TurkicLetter;
+import zemberek.core.turkish.TurkicSeq;
+import zemberek.core.turkish.TurkishAlphabet;
 
 import java.util.ArrayList;
 import java.util.Collections;

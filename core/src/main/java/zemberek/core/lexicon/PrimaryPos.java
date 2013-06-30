@@ -1,7 +1,7 @@
 package zemberek.core.lexicon;
 
-import zemberek.core.structure.StringEnum;
-import zemberek.core.structure.StringEnumMap;
+import zemberek.core.enums.StringEnum;
+import zemberek.core.enums.StringEnumMap;
 
 public enum PrimaryPos implements StringEnum<PrimaryPos> {
     Noun("Noun"),

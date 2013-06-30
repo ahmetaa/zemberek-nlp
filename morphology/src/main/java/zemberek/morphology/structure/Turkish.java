@@ -1,7 +1,7 @@
 package zemberek.morphology.structure;
 
 import smoothnlp.core.io.KeyValueReader;
-import zemberek.core.structure.TurkishAlphabet;
+import zemberek.core.turkish.TurkishAlphabet;
 
 import java.io.IOException;
 import java.text.Collator;

@@ -1,6 +1,6 @@
 package zemberek.morphology.lexicon.graph;
 
-import zemberek.core.structure.TurkishAlphabet;
+import zemberek.core.turkish.TurkishAlphabet;
 
 import java.util.ArrayList;
 import java.util.Arrays;

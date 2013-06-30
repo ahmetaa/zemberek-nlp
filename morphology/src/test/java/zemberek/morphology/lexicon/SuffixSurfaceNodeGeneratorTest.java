@@ -4,8 +4,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import zemberek.core.lexicon.tr.PhoneticAttribute;
 import zemberek.core.lexicon.tr.PhoneticExpectation;
-import zemberek.core.structure.TurkicSeq;
-import zemberek.core.structure.TurkishAlphabet;
+import zemberek.core.turkish.TurkicSeq;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.graph.SuffixData;
 import zemberek.morphology.lexicon.graph.SuffixSurfaceNode;
 

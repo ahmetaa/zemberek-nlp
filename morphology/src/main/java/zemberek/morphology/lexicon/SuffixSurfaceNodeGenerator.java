@@ -3,16 +3,16 @@ package zemberek.morphology.lexicon;
 import com.google.common.collect.Lists;
 import zemberek.core.lexicon.tr.PhoneticAttribute;
 import zemberek.core.lexicon.tr.PhoneticExpectation;
-import zemberek.core.structure.TurkicLetter;
-import zemberek.core.structure.TurkicSeq;
-import zemberek.core.structure.TurkishAlphabet;
+import zemberek.core.turkish.TurkicLetter;
+import zemberek.core.turkish.TurkicSeq;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.graph.SuffixData;
 import zemberek.morphology.lexicon.graph.SuffixSurfaceNode;
 import zemberek.morphology.lexicon.graph.TerminationType;
 import java.util.*;
 
 import static  zemberek.core.lexicon.tr.PhoneticAttribute.*;
-import static  zemberek.core.structure.TurkishAlphabet.*;
+import static zemberek.core.turkish.TurkishAlphabet.*;
 
 public class SuffixSurfaceNodeGenerator {
 
