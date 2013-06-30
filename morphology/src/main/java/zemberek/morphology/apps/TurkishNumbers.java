@@ -15,13 +15,11 @@ import static java.lang.String.valueOf;
 
 public class TurkishNumbers {
 
-    private static Map<String, Long> stringToNumber = new HashMap<String, Long>();
-    private static Map<Long, String> NUMBER_TABLE = new HashMap<Long, String>();
-    private static Map<String, String> ORDINAL_READING_TABLE = new HashMap<String, String>();
+    private static Map<String, Long> stringToNumber = new HashMap<>();
+    private static Map<Long, String> NUMBER_TABLE = new HashMap<>();
+    private static Map<String, String> ORDINAL_READING_TABLE = new HashMap<>();
 
     // fill the NUMBER_TABLE and stringToNumber map.
-    // we avoid using turkis characters directly because of encoding issues with different IDE's
-
     static {
         add(0, "sıfır");
         add(1, "bir");

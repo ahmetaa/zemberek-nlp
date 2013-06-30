@@ -8,6 +8,7 @@ import com.google.common.collect.Sets;
 import smoothnlp.core.io.SimpleTextReader;
 import smoothnlp.core.io.SimpleTextWriter;
 import smoothnlp.core.io.Strings;
+import zemberek.core.CountSet;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +26,7 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
 
     Model weights = new Model();
     Model averagedWeights = new Model();
-    CountMap counts = new CountMap();
+    CountSet<String> counts = new CountSet<>();
 
     Random random = new Random(1);
 
@@ -48,8 +49,8 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
                 ParseResult result = disambiguator.bestParse(sentence, false);
                 if (sentence.correctParse.equals(result.bestParse))
                     continue;
-                CountMap correctFeatures = disambiguator.extractFeatures(sentence.correctParse);
-                CountMap bestFeatures = disambiguator.extractFeatures(result.bestParse);
+                CountSet<String> correctFeatures = disambiguator.extractFeatures(sentence.correctParse);
+                CountSet<String> bestFeatures = disambiguator.extractFeatures(result.bestParse);
                 disambiguator.updateWeights(correctFeatures, bestFeatures, numExamples);
             }
             for (String key : disambiguator.averagedWeights) {
@@ -78,10 +79,10 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
         System.out.println("total:" + total + " hit=" + hit + String.format(" Accuracy:%f", (double) hit / total));
     }
 
-    private void updateWeights(CountMap correctFeatures, CountMap bestFeatures, int numExamples) {
+    private void updateWeights(CountSet<String> correctFeatures, CountSet<String> bestFeatures, int numExamples) {
         Set<String> keySet = Sets.newHashSet();
-        keySet.addAll(correctFeatures.data.keySet());
-        keySet.addAll(bestFeatures.data.keySet());
+        keySet.addAll(Lists.newArrayList(correctFeatures));
+        keySet.addAll(Lists.newArrayList(bestFeatures));
 
         for (String feat : keySet) {
             updateAverageWeights(numExamples, feat);
@@ -95,14 +96,14 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
 
     private void updateAverageWeights(int numExamples, String feat) {
         averagedWeights.put(feat, (averagedWeights.weight(feat) * counts.get(feat) + (numExamples - counts.get(feat)) * weights.weight(feat)) / numExamples);
-        counts.put(feat, numExamples);
+        counts.set(feat, numExamples);
     }
 
-    CountMap extractFeatures(List<String> parseSequence) {
+    CountSet<String> extractFeatures(List<String> parseSequence) {
         List<String> seq = Lists.newArrayList("<s>", "<s>");
         seq.addAll(parseSequence);
         seq.add("</s>");
-        CountMap featureModel = new CountMap();
+        CountSet<String> featureModel = new CountSet<>();
         for (int i = 2; i < seq.size(); i++) {
             List<String> trigram = Lists.newArrayList(
                     seq.get(i - 2),
@@ -114,7 +115,7 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
         return featureModel;
     }
 
-    void extractTrigramFeatures(List<String> trigram, CountMap feats) {
+    void extractTrigramFeatures(List<String> trigram, CountSet<String> feats) {
         WordParse w1 = new WordParse(trigram.get(0));
         WordParse w2 = new WordParse(trigram.get(1));
         WordParse w3 = new WordParse(trigram.get(2));
@@ -126,15 +127,15 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
         String ig3 = w3.allIgs;
 
         //feats.increment1(format("1:%s%s-%s%s-%s%s", r1, ig1, r2, ig2, r3, ig3));
-        feats.increment1(format("2:%s%s-%s%s", r1, ig2, r3, ig3));
-        feats.increment1(format("3:%s%s-%s%s", r2, ig2, r3, ig3));
-        feats.increment1(format("4:%s%s", r3, ig3));
+        feats.add(format("2:%s%s-%s%s", r1, ig2, r3, ig3));
+        feats.add(format("3:%s%s-%s%s", r2, ig2, r3, ig3));
+        feats.add(format("4:%s%s", r3, ig3));
         //feats.increment1(format("5:%s%s-%s", r2, ig2, ig3));
         //feats.increment1(format("6:%s%s-%s", r1, ig1, ig3));
         //feats.increment1(format("7:%s-%s-%s", r1, r2, r3));
         //feats.increment1(format("8:%s-%s", r1, r3));
-        feats.increment1(format("9:%s-%s", r2, r3));
-        feats.increment1(format("10:%s", r3));
+        feats.add(format("9:%s-%s", r2, r3));
+        feats.add(format("10:%s", r3));
         //feats.increment1(format("11:%s-%s-%s", ig1, ig2, ig3));
         //feats.increment1(format("12:%s-%s", ig1, ig3));
         //feats.increment1(format("13:%s-%s", ig2, ig3));
@@ -145,9 +146,9 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
         String ig3s[] = ig3.split("[ ]");
 
         for (String ig : ig3s) {
-            feats.increment1(format("15:%s-%s-%s", ig1s[ig1s.length - 1], ig2s[ig2s.length - 1], ig));
+            feats.add(format("15:%s-%s-%s", ig1s[ig1s.length - 1], ig2s[ig2s.length - 1], ig));
           //  feats.increment1(format("16:%s-%s", ig1s[ig1s.length - 1], ig));
-            feats.increment1(format("17:%s-%s", ig2s[ig2s.length - 1], ig));
+            feats.add(format("17:%s-%s", ig2s[ig2s.length - 1], ig));
            // feats.increment1(format("18:%s", ig));
         }
 
@@ -155,46 +156,14 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
 //            feats.increment1(format("19:%s-%s", ig3s[k], ig3s[k + 1]));
 
         for (int k = 0; k < ig3s.length; k++)
-            feats.increment1(format("20:%d-%s", k, ig3s[k]));
+            feats.add(format("20:%d-%s", k, ig3s[k]));
 
 //        if (Character.isUpperCase(r3.charAt(0)) && w3.igs.contains("Prop"))
 //            feats.increment1("21:PROPER");
 
-        feats.increment1(format("22:%d", ig3s.length));
+        feats.add(format("22:%d", ig3s.length));
 /*        if (w3.all.contains(".+Punc") && w3.igs.contains("Verb"))
             feats.increment1("23:ENDSVERB");*/
-
-    }
-
-    static class CountMap implements Iterable<String> {
-
-        Map<String, Integer> data = Maps.newHashMap();
-
-        int get(String key) {
-            return data.containsKey(key) ? data.get(key) : 0;
-        }
-
-        double increment1(String key) {
-            return increment(key, 1);
-        }
-
-        void put(String key, Integer value) {
-            this.data.put(key, value);
-        }
-
-        double increment(String key, int value) {
-            Integer val = data.get(key);
-            if (val == null) {
-                data.put(key, value);
-                return value;
-            } else data.put(key, val + value);
-            return val + value;
-        }
-
-        @Override
-        public Iterator<String> iterator() {
-            return data.keySet().iterator();
-        }
 
     }
 
@@ -330,7 +299,7 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
                             parse
                     );
 
-                    CountMap features = new CountMap();
+                    CountSet<String> features = new CountSet<>();
                     extractTrigramFeatures(trigram, features);
 
                     double trigramScore = 0;

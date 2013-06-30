@@ -145,7 +145,8 @@ public class TurkishAlphabetTest {
 
     @Test
     public void alphabetShouldNotHaveDuplicateChars() {
-        final HashMultiset<Character> lowerCaseChars = HashMultiset.create(Collections2.transform(Lists.newArrayList(TurkishAlphabet.TURKISH_LETTERS),
+        final HashMultiset<Character> lowerCaseChars = HashMultiset.create(
+                Collections2.transform(Lists.newArrayList(TurkishAlphabet.TURKISH_LETTERS),
                 new Function<TurkicLetter, Character>() {
                     @Override
                     public Character apply(TurkicLetter input) {
