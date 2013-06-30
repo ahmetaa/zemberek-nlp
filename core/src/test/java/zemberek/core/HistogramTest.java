@@ -109,45 +109,6 @@ public class HistogramTest {
 
     }
 
-
-    @Test
-    public void testPerfCS() throws IOException {
-        try (DataInputStream dis = new DataInputStream(new BufferedInputStream(
-                Resources.getResource("io/ja.count").openStream()))) {
-            int order = dis.readInt();
-            String modelId = dis.readUTF();
-            System.out.println(modelId);
-            CountingSet<String>[] gramCounts = new CountingSet[order + 1];
-            for (int j = 1; j <= order; j++) {
-                System.out.println("Order = " + j);
-                Stopwatch sw = new Stopwatch().start();
-                int size = dis.readInt();
-                CountingSet<String> countSet = new CountingSet<>(size * 2);
-                for (int i = 0; i < size; i++) {
-                    String key = dis.readUTF();
-                    countSet.add(key, dis.readInt());
-                }
-
-                System.out.println("Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
-                gramCounts[j] = countSet;
-            }
-
-            Map<String, Double> frequencyMap = new HashMap<>();
-            Stopwatch sw = new Stopwatch().start();
-            for (String s : gramCounts[3]) {
-                final String parentGram = s.substring(0, 2);
-                if (!gramCounts[2].contains(parentGram))
-                    continue;
-                int cnt = gramCounts[2].getCount(parentGram)+1;
-                double prob = Math.log((double) gramCounts[3].getCount(s) / (double) cnt);
-                frequencyMap.put(s, prob);
-            }
-            System.out.println("Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
-
-        }
-
-    }
-
     @Test
     public void testPerfMerge() throws IOException {
         Histogram<String> first  = new Histogram<>();
@@ -163,20 +124,6 @@ public class HistogramTest {
         System.out.println("Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
     }
 
-    @Test
-    public void testPerfMergeCountingSet() throws IOException {
-        CountingSet<String> first  = new CountingSet<>();
-        CountingSet<String> second  = new CountingSet<>();
-        Set<String> c1 = uniqueStrings(1000000, 5);
-        Set<String> c2 = uniqueStrings(1000000, 5);
-        Stopwatch sw = new Stopwatch().start();
-        first.add(c1);
-        second.add(c2);
-        System.out.println("Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
-        sw.reset().start();
-        first.add(second);
-        System.out.println("Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
-    }
     public Set<String> uniqueStrings(int amount, int stringLength) {
         Set<String> set = new HashSet<>(amount);
         Random r = new Random();
