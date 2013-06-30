@@ -8,9 +8,9 @@ import org.junit.Test;
 import smoothnlp.core.io.SimpleTextReader;
 import smoothnlp.core.io.SimpleTextWriter;
 import smoothnlp.core.io.Strings;
-import zemberek.core.lexicon.PrimaryPos;
-import zemberek.core.lexicon.SecondaryPos;
-import zemberek.core.lexicon.tr.RootAttribute;
+import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.SecondaryPos;
+import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.TurkicSeq;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
@@ -21,8 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static zemberek.core.lexicon.PrimaryPos.*;
-import static zemberek.core.lexicon.tr.RootAttribute.*;
+import static zemberek.core.turkish.PrimaryPos.*;
+import static zemberek.core.turkish.RootAttribute.*;
 
 public class TurkishDictionaryLoaderTest {
 

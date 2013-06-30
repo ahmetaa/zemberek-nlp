@@ -5,11 +5,11 @@
     <file url="file://$PROJECT_DIR$/core" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/enums/StringEnum.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/enums/StringEnumMap.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/lexicon/PrimaryPos.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/lexicon/SecondaryPos.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/lexicon/tr/PhoneticAttribute.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/lexicon/tr/PhoneticExpectation.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/lexicon/tr/RootAttribute.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/turkish/PhoneticAttribute.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/turkish/PhoneticExpectation.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/turkish/PrimaryPos.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/turkish/RootAttribute.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/turkish/SecondaryPos.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/turkish/TurkicLetter.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/turkish/TurkicSeq.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/turkish/TurkishAlphabet.java" charset="UTF-8" />

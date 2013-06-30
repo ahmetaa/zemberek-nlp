@@ -1,7 +1,7 @@
 package zemberek.morphology.lexicon.graph;
 
-import zemberek.core.lexicon.tr.PhoneticAttribute;
-import zemberek.core.lexicon.tr.PhoneticExpectation;
+import zemberek.core.turkish.PhoneticAttribute;
+import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.morphology.lexicon.SuffixForm;
 
 

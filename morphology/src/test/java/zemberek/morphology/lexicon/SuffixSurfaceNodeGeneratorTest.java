@@ -2,8 +2,8 @@ package zemberek.morphology.lexicon;
 
 import org.junit.Assert;
 import org.junit.Test;
-import zemberek.core.lexicon.tr.PhoneticAttribute;
-import zemberek.core.lexicon.tr.PhoneticExpectation;
+import zemberek.core.turkish.PhoneticAttribute;
+import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.TurkicSeq;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.graph.SuffixData;
@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import static zemberek.core.lexicon.tr.PhoneticAttribute.*;
+import static zemberek.core.turkish.PhoneticAttribute.*;
 
 public class SuffixSurfaceNodeGeneratorTest {
 

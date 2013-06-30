@@ -1,9 +1,9 @@
 package zemberek.morphology.lexicon.tr;
 
-import zemberek.core.lexicon.PrimaryPos;
-import zemberek.core.lexicon.tr.PhoneticAttribute;
-import zemberek.core.lexicon.tr.PhoneticExpectation;
-import zemberek.core.lexicon.tr.RootAttribute;
+import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.PhoneticAttribute;
+import zemberek.core.turkish.PhoneticExpectation;
+import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.TurkicLetter;
 import zemberek.core.turkish.TurkicSeq;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -16,7 +16,7 @@ import zemberek.morphology.lexicon.graph.TerminationType;
 
 import java.util.EnumSet;
 
-import static zemberek.core.lexicon.tr.RootAttribute.*;
+import static zemberek.core.turkish.RootAttribute.*;
 
 
 /**

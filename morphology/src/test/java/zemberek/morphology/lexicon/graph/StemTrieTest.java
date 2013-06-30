@@ -3,7 +3,7 @@ package zemberek.morphology.lexicon.graph;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
-import zemberek.core.lexicon.PrimaryPos;
+import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 

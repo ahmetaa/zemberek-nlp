@@ -1,7 +1,7 @@
 package zemberek.morphology.lexicon;
 
 
-import zemberek.core.lexicon.PrimaryPos;
+import zemberek.core.turkish.PrimaryPos;
 
 public class RootSuffix extends  Suffix {
 

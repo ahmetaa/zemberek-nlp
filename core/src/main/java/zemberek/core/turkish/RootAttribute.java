@@ -1,4 +1,4 @@
-package zemberek.core.lexicon.tr;
+package zemberek.core.turkish;
 
 import zemberek.core.enums.StringEnum;
 import zemberek.core.enums.StringEnumMap;

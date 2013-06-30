@@ -2,16 +2,14 @@ package zemberek.morphology.parser;
 
 import junit.framework.Assert;
 import org.junit.Test;
-import zemberek.core.lexicon.PrimaryPos;
-import zemberek.core.lexicon.tr.RootAttribute;
+import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.*;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.graph.DynamicSuffixProvider;
 import zemberek.morphology.lexicon.graph.SuffixData;
 import zemberek.morphology.lexicon.graph.TerminationType;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.SimpleParser;
 
 import java.util.ArrayList;
 import java.util.HashSet;

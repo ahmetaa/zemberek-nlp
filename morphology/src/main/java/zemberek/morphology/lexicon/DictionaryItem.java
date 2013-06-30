@@ -1,8 +1,8 @@
 package zemberek.morphology.lexicon;
 
-import zemberek.core.lexicon.PrimaryPos;
-import  zemberek.core.lexicon.SecondaryPos;
-import  zemberek.core.lexicon.tr.RootAttribute;
+import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.SecondaryPos;
+import zemberek.core.turkish.RootAttribute;
 
 import java.util.EnumSet;
 import java.util.Locale;

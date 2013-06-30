@@ -1,4 +1,4 @@
-package zemberek.core.lexicon.tr;
+package zemberek.core.turkish;
 
 public enum PhoneticExpectation {
     VowelStart,

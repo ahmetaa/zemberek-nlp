@@ -7,8 +7,8 @@ import zemberek.morphology.lexicon.SuffixForm;
 import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.SuffixSurfaceNodeGenerator;
 import zemberek.morphology.lexicon.tr.StemNodeGenerator;
-import zemberek.core.lexicon.tr.PhoneticAttribute;
-import zemberek.core.lexicon.tr.PhoneticExpectation;
+import zemberek.core.turkish.PhoneticAttribute;
+import zemberek.core.turkish.PhoneticExpectation;
 
 import java.util.HashSet;
 import java.util.List;

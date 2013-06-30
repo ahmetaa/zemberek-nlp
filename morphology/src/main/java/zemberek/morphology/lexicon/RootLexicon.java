@@ -1,7 +1,7 @@
 package zemberek.morphology.lexicon;
 
 import com.google.common.collect.*;
-import  zemberek.core.lexicon.PrimaryPos;
+import zemberek.core.turkish.PrimaryPos;
 
 import java.util.*;
 

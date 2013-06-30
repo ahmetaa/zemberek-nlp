@@ -6,8 +6,8 @@ import com.google.common.collect.Maps;
 import zemberek.morphology.lexicon.*;
 import zemberek.morphology.lexicon.graph.StemNode;
 import zemberek.morphology.lexicon.graph.SuffixSurfaceNode;
-import  zemberek.core.lexicon.PrimaryPos;
-import  zemberek.core.lexicon.SecondaryPos;
+import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.structure.StemAndEnding;
 
 import java.util.List;
