@@ -282,36 +282,4 @@ public class ArpaToSmoothLmConverter {
             fingerprintAsBytes(MultiLevelMphf.hash(key,-1) & fingerprintMask, res);
         }
     }
-
-    public static void main(String[] args) throws IOException {
-/*
-        ArpaToSmoothLmConverter converter = new ArpaToSmoothLmConverter(
-                new File("/home/ahmetaa/data/lm/smooth-test/lm1.arpa"),
-                new File("/home/ahmetaa/data/lm/smooth-test/lm1.slm"),
-                new File("/home/ahmetaa/data/lm/smooth-test/tmp"),
-                "utf-8");
-*/
-
-/*        ArpaToSmoothLmConverter converter = new ArpaToSmoothLmConverter(
-                new File("/home/ahmetaa/apps/lm/berkeleylm/berkeleylm-1.0.1/jar/kneserNeyFromText.arpa"),
-                new File("/home/ahmetaa/data/lm/smooth-test/lm-berk.slm"),
-                new File("/home/ahmetaa/data/lm/smooth-test/berk-tmp"),
-                "utf-8");*/
-
-        ArpaToSmoothLmConverter converter = new ArpaToSmoothLmConverter(
-                new File("/home/ahmetaa/data/lm/makine/news/lm.arpa"),
-                new File("/home/ahmetaa/data/lm/makine/news/lm.slm"),
-                new File("/home/ahmetaa/data/lm/makine/news/lm-tmp"),
-                "utf-8");
-/*
-        ArpaToSmoothLmConverter converter = new ArpaToSmoothLmConverter(
-                new File("test/data/ngram/100bin.arpa"),
-                new File("test/data/ngram/100bin.arpa"),
-                new File("testout/100bin.clm"),
-                new File("testout/100bin"),
-                "utf-8");
-*/
-        File dir = converter.generateUncompressed();
-        converter.convertLarge(dir, new NgramDataBlock(2, 2, 2), 22);
-    }
 }

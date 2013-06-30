@@ -146,9 +146,4 @@ public class DataInfo {
             probBits++;
         return probBits;
     }
-
-    public static void main(String[] args) {
-        System.out.println(fromCounts(10, 100000, 0));
-        System.out.println(fromCountsAndExpectedBits(10, 200, 4, 100, 10));
-    }
 }

@@ -189,27 +189,4 @@ public class BinningQuantizer implements Quantizer {
     public DoubleLookup getDequantizer() {
         return new DoubleLookup(means);
     }
-
-    public static void main(String[] args) {
-
-        int BAH = 10000;
-        int BIT = 8;
-        Random random = new Random();
-        double d[] = new double[BAH];
-        int c[] = new int[BAH];
-        for (int i = 0; i < BAH; i++) {
-            d[i] = i;
-            c[i] = random.nextInt(7) + 1;
-        }
-
-        BinningQuantizer bq1 = linearBinning(d, BIT);
-        System.out.println(bq1.calculateError(d, c));
-        System.out.println(bq1.calculateError(d));
-        BinningQuantizer bq2 = logCountBinning(d, c, BIT);
-        System.out.println(bq2.calculateError(d, c));
-        System.out.println(bq2.calculateError(d));
-        System.out.println(Arrays.toString(bq1.means));
-        System.out.println(Arrays.toString(bq2.means));
-
-    }
 }

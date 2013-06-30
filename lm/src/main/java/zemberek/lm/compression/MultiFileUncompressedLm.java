@@ -114,27 +114,6 @@ public class MultiFileUncompressedLm {
         return new File(dir, name);
     }
 
-    public static void main(String[] args) throws IOException {
-
-        // MultiFileUncompressedLm lm = new MultiFileUncompressedLm(new File("/home/ahmetaa/data/lm/kn/tmp"));
-        // lm.generateRankFiles(3, 10, QuantizerType.BINNING);
-
-
-/*
-        MultiFileUncompressedLm lm = generate(new File("/home/ahmetaa/data/lm/turkish/22kasim.lm"),
-                new File("/home/ahmetaa/data/lm/turkish/multi"), "utf-8");
-*/
-
-        //    MultiFileUncompressedLm lm = new MultiFileUncompressedLm(new File("/home/ahmetaa/data/lm/turkish/multi"));
-
-        MultiFileUncompressedLm lm = generate(new File("test/data/tiny.arpa"),
-                new File("/home/ahmetaa/data/lm/turkish/tiny"), "utf-8");
-
-        System.out.println(Arrays.toString(lm.counts));
-        lm.generateRankFiles(24, QuantizerType.BINNING);
-
-    }
-
     public void generateRankFiles(int i, int bit, QuantizerType quantizerType) throws IOException {
         if (bit > 24)
             throw new IllegalArgumentException("Cannot generate rank file larger than 24 bits but it is:" + bit);

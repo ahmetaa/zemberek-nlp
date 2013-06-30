@@ -91,8 +91,4 @@ public class InMemoryBigByteArray {
                         (d[pageIndex + 3] & 0xff));
     }
 
-    public static void main(String[] args) throws IOException {
-        InMemoryBigByteArray inMemoryBigByteArray = new InMemoryBigByteArray(new File("/home/ahmetaa/projects/scripts-java/tmp/1.prob.rank"));
-    }
-
 }
