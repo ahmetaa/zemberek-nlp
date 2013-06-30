@@ -6,7 +6,7 @@ import java.util.Arrays;
  * Splits a sentence to words from spaces. space or tab characters are used for breaking points. multiple space/tabs is ignored.
  * This is faster than Java's split operator.
  */
-public class WhiteSpaceTokenizer {
+public class SpaceTabTokenizer {
 
     static final String[] EMPTY_STRING_ARRAY = new String[0];
 
@@ -16,7 +16,9 @@ public class WhiteSpaceTokenizer {
         int start = 0;
         int end = 0;
         for (int i = 0; i < line.length(); i++) {
-            if (line.charAt(i) == ' ' || line.charAt(i) == '\t') {
+
+            final char c = line.charAt(i);
+            if (c == ' ' || c == '\t') {
                 if (i == start) {
                     start++;
                     end++;

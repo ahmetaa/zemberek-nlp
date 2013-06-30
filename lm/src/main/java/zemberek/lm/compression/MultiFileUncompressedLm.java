@@ -4,7 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
-import zemberek.core.WhiteSpaceTokenizer;
+import zemberek.core.SpaceTabTokenizer;
 import zemberek.core.quantization.DoubleLookup;
 import zemberek.core.quantization.Quantizer;
 import zemberek.core.quantization.QuantizerType;
@@ -217,7 +217,7 @@ public class MultiFileUncompressedLm {
         DataOutputStream backoffOs;
         int order;
         long start;
-        WhiteSpaceTokenizer tokenizer = new WhiteSpaceTokenizer();
+        SpaceTabTokenizer tokenizer = new SpaceTabTokenizer();
 
         ArpaToBinaryConverter(File dir) throws FileNotFoundException {
             this.dir = dir;

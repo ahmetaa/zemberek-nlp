@@ -6,7 +6,7 @@ import com.google.common.io.Resources;
 import junit.framework.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import zemberek.core.WhiteSpaceTokenizer;
+import zemberek.core.SpaceTabTokenizer;
 import zemberek.core.io.LineIterator;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.lm.FakeLm;
@@ -189,7 +189,7 @@ public class SmoothLmTest {
         int[][] ids = new int[gramCount][order];
         long[] trigrams = new long[gramCount];
         LineIterator li = SimpleTextReader.trimmingUTF8LineIterator(new File("/home/ahmetaa/data/lm/smoothnlp-test/corpus-lowercase_1000000_2000000"));
-        WhiteSpaceTokenizer tokenizer = new WhiteSpaceTokenizer();
+        SpaceTabTokenizer tokenizer = new SpaceTabTokenizer();
         int i = 0;
         while (i < gramCount) {
             String line = li.next();
