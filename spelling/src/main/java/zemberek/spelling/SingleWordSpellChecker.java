@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import zemberek.core.DoubleValueSet;
+import zemberek.core.logging.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -109,6 +110,26 @@ public class SingleWordSpellChecker {
 
         public void setWord(String word) {
             this.word = word;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Node node = (Node) o;
+
+            if (chr != node.chr) return false;
+            if (word != null ? !word.equals(node.word) : node.word != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = (int) chr;
+            result = 31 * result + (word != null ? word.hashCode() : 0);
+            return result;
         }
 
         @Override
@@ -245,24 +266,33 @@ public class SingleWordSpellChecker {
 
     void addHypothesis(DoubleValueSet<String> result, Hypothesis hypothesis) {
         String hypWord = hypothesis.node.word;
-        if (hypWord == null)
+        if (hypWord == null) {
+            if (Log.isDebug())
+                Log.info("No word in node:%s", hypothesis.toString());
             return;
+        }
         if (!result.contains(hypWord)) {
             result.set(hypWord, hypothesis.penalty);
+            if (Log.isDebug())
+                Log.info("%s hypotesis added first time:%s", hypWord, hypothesis.toString());
         } else if (result.get(hypWord) > hypothesis.penalty) {
             result.set(hypWord, hypothesis.penalty);
+            if (Log.isDebug())
+                Log.info("%s hypotesis updated:%s", hypWord, hypothesis.toString());
         }
     }
 
     DoubleValueSet<String> decode(String input) {
         Hypothesis hyp = new Hypothesis(null, root, 0, Operation.N_A);
-        DoubleValueSet<String> hypotheses = new DoubleValueSet<>(3);
+        DoubleValueSet<String> hypotheses = new DoubleValueSet<>();
         Set<Hypothesis> next = expand(hyp, input, hypotheses);
         while (true) {
             HashSet<Hypothesis> newHyps = new HashSet<>();
-            //System.out.println("-----");
+            if (Log.isDebug())
+                Log.info("-----------");
             for (Hypothesis hypothesis : next) {
-                //System.out.println(hypothesis);
+                if (Log.isDebug())
+                    Log.info("%s", hypothesis);
                 newHyps.addAll(expand(hypothesis, input, hypotheses));
             }
             if (newHyps.size() == 0)

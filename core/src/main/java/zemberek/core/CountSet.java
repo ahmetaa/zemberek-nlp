@@ -160,7 +160,7 @@ public class CountSet<T> implements Iterable<T> {
     }
 
     public boolean contains(T key) {
-        return locate(key) > 0;
+        return locate(key) >= 0;
     }
 
     /**

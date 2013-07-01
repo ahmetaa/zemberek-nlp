@@ -21,6 +21,8 @@ public final class Log {
 
     private static final ConcurrentMap<String, Logger> loggers = new ConcurrentHashMap<>();
 
+    static Level currentLevel = Level.INFO;
+
     static {
         Logger global = Logger.getLogger("");
         Handler[] handlers = global.getHandlers();
@@ -48,6 +50,28 @@ public final class Log {
         }
     }
 
+    public static void setLevel(Level level) {
+        synchronized (loggers) {
+            for (Logger logger : loggers.values()) {
+                logger.setLevel(level);
+            }
+            Logger.getLogger("").setLevel(level);
+        }
+        currentLevel = level;
+    }
+
+    public static boolean isDebug() {
+        return currentLevel == Level.FINE;
+    }
+
+    public static boolean isInfo() {
+        return currentLevel == Level.INFO;
+    }
+
+    public static boolean isWarning() {
+        return currentLevel == Level.WARNING;
+    }
+
     public static void debug(String message, Object... params) {
         log(Level.FINE, message, params);
     }
@@ -65,15 +89,11 @@ public final class Log {
     }
 
     public static void setInfo() {
-        for (Logger logger : loggers.values()) {
-            logger.setLevel(Level.INFO);
-        }
+       setLevel(Level.INFO);
     }
 
     public static void setDebug() {
-        for (Logger logger : loggers.values()) {
-            logger.setLevel(Level.FINE);
-        }
+        setLevel(Level.FINE);
     }
 
 
@@ -94,6 +114,7 @@ public final class Log {
         if (logger == null) {
             logger = Logger.getLogger(className);
             loggers.putIfAbsent(className, logger);
+            logger.setLevel(currentLevel);
         }
 
         if (logger.isLoggable(level)) {

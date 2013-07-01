@@ -3,6 +3,7 @@ package zemberek.spelling;
 import org.junit.Assert;
 import org.junit.Test;
 import zemberek.core.DoubleValueSet;
+import zemberek.core.logging.Log;
 
 import java.util.HashSet;
 import java.util.Random;
@@ -20,24 +21,20 @@ public class TestSingleWordSpellChecker {
 
         spellChecker.addWord("armut");
         spellChecker.addWord("ayva");
-        check1Distance(spellChecker,"armut");
+        check1Distance(spellChecker, "armut");
     }
 
     @Test
     public void singleWordDictionaryTest2() {
+        Log.setDebug();
         SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
-        spellChecker.addWord("çapa");
-        spellChecker.addWord("lapa");
         spellChecker.addWord("çapak");
         spellChecker.addWord("sapak");
         DoubleValueSet<String> result = spellChecker.decode("çapak");
         for (String s : result) {
             System.out.println(s + "-" + result.get(s));
         }
-
-
     }
-
 
     private void check1Distance(SingleWordSpellChecker spellChecker, String expected) {
         Set<String> randomDeleted = randomDelete(expected, 1);
@@ -71,7 +68,7 @@ public class TestSingleWordSpellChecker {
 
     @Test
     public void nearKeyCheck() {
-        SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1,true);
+        SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1, true);
         String vocabulary = "elma";
         spellChecker.addWord(vocabulary);
         Assert.assertTrue(spellChecker.decode(vocabulary).contains(vocabulary));
@@ -125,11 +122,11 @@ public class TestSingleWordSpellChecker {
 
     Set<String> transpositions(String input) {
         Set<String> result = new HashSet<>();
-        for (int i = 0; i < input.length()-1; i++) {
+        for (int i = 0; i < input.length() - 1; i++) {
             StringBuilder sb = new StringBuilder(input);
             char tmp = sb.charAt(i);
-            sb.setCharAt(i, sb.charAt(i+1));
-            sb.setCharAt(i+1, tmp);
+            sb.setCharAt(i, sb.charAt(i + 1));
+            sb.setCharAt(i + 1, tmp);
             result.add(sb.toString());
         }
         return result;
