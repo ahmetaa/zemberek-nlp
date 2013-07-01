@@ -5,9 +5,9 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
-import smoothnlp.core.io.SimpleTextWriter;
-import smoothnlp.lm.ArpaToSmoothLmConverter;
-import smoothnlp.lm.SmoothLm;
+import zemberek.core.io.SimpleTextWriter;
+import zemberek.lm.compression.ArpaToSmoothLmConverter;
+import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.parser.MorphParse;
 import zemberek.morphology.parser.SentenceMorphParse;
 
@@ -40,10 +40,10 @@ public class Z3ModelA extends Z3AbstractDisambiguator implements TurkishMorphDis
     public Z3ModelA(File rootLm, File igLm) throws IOException {
         this.rootLm = SmoothLm.builder(rootLm).build();
         this.igLm = SmoothLm.builder(igLm).build();
-        int beginSymbolId = this.rootLm.getVocabulary().getId("<s>");
-        int endSymbolId = this.rootLm.getVocabulary().getId("</s>");
-        int beginIgId = this.igLm.getVocabulary().getId(START_IG);
-        int endIgId = this.igLm.getVocabulary().getId(END_IG);
+        int beginSymbolId = this.rootLm.getVocabulary().getSentenceStartIndex();
+        int endSymbolId = this.rootLm.getVocabulary().getSentenceEndIndex();
+        int beginIgId = this.igLm.getVocabulary().indexOf(START_IG);
+        int endIgId = this.igLm.getVocabulary().indexOf(END_IG);
 
         startWord = new Ambiguous(new int[]{beginSymbolId}, new int[][]{{beginIgId}});
         endWord = new Ambiguous(new int[]{endSymbolId}, new int[][]{{endIgId}});
@@ -218,10 +218,10 @@ public class Z3ModelA extends Z3AbstractDisambiguator implements TurkishMorphDis
             int j = 0;
             for (MorphParse parse : entry.parses) {
                 String rootPart = parse.dictionaryItem.lemma;
-                roots[j] = rootLm.getVocabulary().getId(rootPart);
+                roots[j] = rootLm.getVocabulary().indexOf(rootPart);
                 igs[j] = new int[parse.inflectionalGroups.size()];
                 for (int k = 0; j < parse.inflectionalGroups.size(); k++) {
-                    igs[j][k] = igLm.getVocabulary().getId(parse.inflectionalGroups.get(k).formatNoSurface());
+                    igs[j][k] = igLm.getVocabulary().indexOf(parse.inflectionalGroups.get(k).formatNoSurface());
                 }
                 j++;
             }
@@ -244,10 +244,10 @@ public class Z3ModelA extends Z3AbstractDisambiguator implements TurkishMorphDis
             for (String parseStr : word.allParses) {
                 Z3WordParse parse = new Z3WordParse(parseStr);
                 String rootPart = parse.root;
-                roots[j] = rootLm.getVocabulary().getId(rootPart);
+                roots[j] = rootLm.getVocabulary().indexOf(rootPart);
                 igs[j] = new int[parse.igs.size()];
                 for (int k = 0;k < parse.igs.size(); k++) {
-                    igs[j][k] = igLm.getVocabulary().getId(parse.igs.get(k));
+                    igs[j][k] = igLm.getVocabulary().indexOf(parse.igs.get(k));
                 }
                 j++;
             }

@@ -1,0 +1,18 @@
+<s> Ahmet elma yedi </s>
+<s> Ahmet armut yedi </s>
+<s> Ahmet kırmızı elma yedi </s>
+<s> Ahmet sarı elma yedi </s>
+<s> Ahmet elma yemedi </s>
+<s> Hamza elma yemedi </s>
+<s> Hamza elma yemez </s>
+<s> Hamza armut yedi </s>
+<s> Ahmet sarı armut yedi </s>
+<s> Hamza dondurma yedi </s>
+<s> Hamza kırmızı dondurma yedi </s>
+<s> sarı dondurma yemedi </s>
+<s> Ahmet dondurma yedi </s>
+<s> kedi dondurma yedi </s>
+<s> kedi elma yemedi </s>
+<s> kedi elma yemez </s>
+<s> kedi armut yemez </s>
+<s> Ahmet kedi yemedi </s>

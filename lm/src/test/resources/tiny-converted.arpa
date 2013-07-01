@@ -1,0 +1,107 @@
+\data\
+ngram 1= 14
+ngram 2= 33
+ngram 3= 44
+
+
+
+\1-grams:
+-0.7383	</s>	0.0000
+-1.7160	<s>	-0.5763
+-0.8709	<unk>	0.0000
+-1.0628	Ahmet	-0.3168
+-1.2389	Hamza	-0.2888
+-1.3181	armut	-0.4929
+-1.2389	dondurma	-0.5898
+-1.0628	elma	-0.6179
+-1.2389	kedi	-0.2888
+-1.5399	kırmızı	-0.1919
+-1.4150	sarı	-0.1919
+-0.9756	yedi	-1.1919
+-1.2389	yemedi	-0.8909
+-1.4150	yemez	-0.6690
+
+
+\2-grams:
+-0.4555	<s>	Ahmet	-0.2264
+-0.6830	<s>	Hamza	-0.2041
+-0.7962	<s>	kedi	-0.2264
+-1.7694	<s>	sarı	0.0000
+-1.3502	Ahmet	armut	-0.1249
+-1.3502	Ahmet	dondurma	-0.1249
+-0.7705	Ahmet	elma	-0.1249
+-1.3502	Ahmet	kedi	-0.1249
+-1.3502	Ahmet	kırmızı	-0.1249
+-0.7705	Ahmet	sarı	-0.1249
+-1.1461	Hamza	armut	-0.1249
+-1.1461	Hamza	dondurma	-0.1249
+-0.5663	Hamza	elma	-0.1249
+-1.1461	Hamza	kırmızı	-0.1249
+-0.2297	armut	yedi	-0.1761
+-1.0492	armut	yemez	-0.1249
+-0.1730	dondurma	yedi	-0.3010
+-1.1461	dondurma	yemedi	-0.1249
+-0.5307	elma	yedi	-0.1761
+-0.5307	elma	yemedi	-0.1761
+-0.7705	elma	yemez	-0.3590
+-1.1461	kedi	armut	-0.1249
+-1.1461	kedi	dondurma	-0.1249
+-0.5663	kedi	elma	-0.1249
+-1.1461	kedi	yemedi	-0.1249
+-0.7482	kırmızı	dondurma	-0.1249
+-0.7482	kırmızı	elma	-0.1249
+-0.9243	sarı	armut	-0.1249
+-0.9243	sarı	dondurma	-0.1249
+-0.9243	sarı	elma	-0.1249
+-0.0289	yedi	</s>	0.0000
+-0.0598	yemedi	</s>	0.0000
+-0.1047	yemez	</s>	0.0000
+
+
+\3-grams:
+-1.5051	<s>	Ahmet	armut
+-1.5051	<s>	Ahmet	dondurma
+-0.8519	<s>	Ahmet	elma
+-1.5051	<s>	Ahmet	kedi
+-1.5051	<s>	Ahmet	kırmızı
+-0.8519	<s>	Ahmet	sarı
+-1.3010	<s>	Hamza	armut
+-1.3010	<s>	Hamza	dondurma
+-0.6478	<s>	Hamza	elma
+-1.3010	<s>	Hamza	kırmızı
+-1.2041	<s>	kedi	armut
+-1.2041	<s>	kedi	dondurma
+-0.5509	<s>	kedi	elma
+-0.6021	<s>	sarı	dondurma
+-0.6021	Ahmet	armut	yedi
+-0.6021	Ahmet	dondurma	yedi
+-0.9031	Ahmet	elma	yedi
+-0.9031	Ahmet	elma	yemedi
+-0.6021	Ahmet	kedi	yemedi
+-0.6021	Ahmet	kırmızı	elma
+-0.9031	Ahmet	sarı	armut
+-0.9031	Ahmet	sarı	elma
+-0.6021	Hamza	armut	yedi
+-0.6021	Hamza	dondurma	yedi
+-0.9031	Hamza	elma	yemedi
+-0.9031	Hamza	elma	yemez
+-0.6021	Hamza	kırmızı	dondurma
+-0.4771	armut	yedi	</s>
+-0.6021	armut	yemez	</s>
+-0.3010	dondurma	yedi	</s>
+-0.6021	dondurma	yemedi	</s>
+-0.4771	elma	yedi	</s>
+-0.4771	elma	yemedi	</s>
+-0.2499	elma	yemez	</s>
+-0.6021	kedi	armut	yemez
+-0.6021	kedi	dondurma	yedi
+-0.9031	kedi	elma	yemedi
+-0.9031	kedi	elma	yemez
+-0.6021	kedi	yemedi	</s>
+-0.6021	kırmızı	dondurma	yedi
+-0.6021	kırmızı	elma	yedi
+-0.6021	sarı	armut	yedi
+-0.6021	sarı	dondurma	yemedi
+-0.6021	sarı	elma	yedi
+
+\end

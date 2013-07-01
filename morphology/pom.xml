@@ -5,7 +5,7 @@
     <parent>
         <artifactId>zemberek-nlp</artifactId>
         <groupId>zemberek-nlp</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +15,12 @@
         <dependency>
             <groupId>zemberek-nlp</groupId>
             <artifactId>core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>zemberek-nlp</groupId>
+            <artifactId>lm</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.simpleframework</groupId>
@@ -26,16 +31,6 @@
             <groupId>edu.berkeley.nlp</groupId>
             <artifactId>berkeleylm</artifactId>
             <version>1.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>smooth-nlp</groupId>
-            <artifactId>smooth-lm</artifactId>
-            <version>1.0.0-a</version>
-        </dependency>
-        <dependency>
-            <groupId>smooth-nlp</groupId>
-            <artifactId>smooth-core</artifactId>
-            <version>1.0.0-a</version>
         </dependency>
     </dependencies>
 

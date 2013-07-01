@@ -1,0 +1,13 @@
+Ahmet 8
+armut 4
+dondurma 5
+elma 8
+Hamza 5
+sarı 3
+kırmızı 2
+yedi 10
+yemedi 5
+yemez 3
+<s> 18
+</s> 18
+kedi 5

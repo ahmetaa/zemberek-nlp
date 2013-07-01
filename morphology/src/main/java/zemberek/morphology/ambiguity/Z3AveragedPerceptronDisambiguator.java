@@ -1,9 +1,9 @@
 package zemberek.morphology.ambiguity;
 
 import com.google.common.collect.Maps;
-import smoothnlp.core.io.SimpleTextReader;
-import smoothnlp.core.io.SimpleTextWriter;
-import smoothnlp.core.io.Strings;
+import zemberek.core.io.SimpleTextReader;
+import zemberek.core.io.SimpleTextWriter;
+import zemberek.core.io.Strings;
 
 import java.io.File;
 import java.io.IOException;

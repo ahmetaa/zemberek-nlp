@@ -2,7 +2,7 @@ package zemberek.morphology.apps;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import smoothnlp.core.io.Files;
+import zemberek.core.io.Files;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.ambiguity.TurkishMorphDisambiguator;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;

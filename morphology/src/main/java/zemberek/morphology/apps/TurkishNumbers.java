@@ -1,8 +1,8 @@
 package zemberek.morphology.apps;
 
-import smoothnlp.core.io.IOs;
-import smoothnlp.core.io.KeyValueReader;
-import smoothnlp.core.io.Strings;
+import zemberek.core.io.IOs;
+import zemberek.core.io.KeyValueReader;
+import zemberek.core.io.Strings;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -30,7 +30,13 @@ public class SmoothLmTest {
         return SmoothLm.builder(getTinyLmFile()).build();
     }
 
-    URL tiny_arpa = Resources.getResource("tiny.arpa");
+    URL TINY_ARPA_URL = Resources.getResource("tiny.arpa");
+
+    File getTinyArpaFile() throws IOException {
+        File tmp = File.createTempFile("tiny","arpa");
+        Files.copy(Resources.newInputStreamSupplier(TINY_ARPA_URL), tmp);
+        return tmp;
+    }
 
     private File getTinyLmFile() throws IOException {
         File tmp = Files.createTempDir();
@@ -38,13 +44,10 @@ public class SmoothLmTest {
         final File lmFile = new File(tmpCompressed, "tiny.slm");
         if (!lmFile.exists()) {
             ArpaToSmoothLmConverter conveter = new ArpaToSmoothLmConverter(
-                    new File(tiny_arpa.getFile()),
+                    getTinyArpaFile(),
                     lmFile,
                     tmp);
             conveter.generateUncompressed();
-//            conveter.convertLarge(
-//                    new File("testout/tiny"),
-//                    new ArpaToSmoothLmConverter.NgramDataBlock(2, 2, 2), 8);
             conveter.convertSmall(
                     tmp,
                     new ArpaToSmoothLmConverter.NgramDataBlock(2, 2, 2));

@@ -2,8 +2,8 @@ package zemberek.morphology.phonetics;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import smoothnlp.core.io.IOs;
-import smoothnlp.core.io.KeyValueReader;
+import zemberek.core.io.IOs;
+import zemberek.core.io.KeyValueReader;
 import zemberek.core.turkish.TurkishAlphabet;
 
 import java.io.IOException;

@@ -9,9 +9,9 @@ import edu.berkeley.nlp.lm.ConfigOptions;
 import edu.berkeley.nlp.lm.StringWordIndexer;
 import edu.berkeley.nlp.lm.io.ArpaLmReader;
 import edu.berkeley.nlp.lm.io.LmReaders;
-import smoothnlp.core.io.SimpleTextWriter;
-import smoothnlp.lm.ArpaToSmoothLmConverter;
-import smoothnlp.lm.SmoothLm;
+import zemberek.core.io.SimpleTextWriter;
+import zemberek.lm.compression.ArpaToSmoothLmConverter;
+import zemberek.lm.compression.SmoothLm;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,10 +44,10 @@ public class MarkovModelDisambiguator extends AbstractDisambiguator {
     public MarkovModelDisambiguator(File rootLm, File igLm) throws IOException {
         this.rootLm = SmoothLm.builder(rootLm).build();
         this.igLm = SmoothLm.builder(igLm).build();
-        int beginSymbolId = this.rootLm.getVocabulary().getId("<s>");
-        int endSymbolId = this.rootLm.getVocabulary().getId("</s>");
-        int beginIgId = this.igLm.getVocabulary().getId(START_IG);
-        int endIgId = this.igLm.getVocabulary().getId(END_IG);
+        int beginSymbolId = this.rootLm.getVocabulary().indexOf("<s>");
+        int endSymbolId = this.rootLm.getVocabulary().indexOf("</s>");
+        int beginIgId = this.igLm.getVocabulary().indexOf(START_IG);
+        int endIgId = this.igLm.getVocabulary().indexOf(END_IG);
 
         startWord = new Ambiguous(new int[]{beginSymbolId}, new int[][]{{beginIgId}});
         endWord = new Ambiguous(new int[]{endSymbolId}, new int[][]{{endIgId}});
@@ -221,13 +221,13 @@ public class MarkovModelDisambiguator extends AbstractDisambiguator {
             for (String parseStr : word.allParses) {
                 WordParse parse = new WordParse(parseStr);
                 String rootPart = parse.root;
-                roots[j] = rootLm.getVocabulary().getId(rootPart);
+                roots[j] = rootLm.getVocabulary().indexOf(rootPart);
                 if (parse.igs.size() == 0)
                     igs[j] = new int[]{-1};
                 else {
                     igs[j] = new int[parse.igs.size()];
                     for (int k = 0; k < parse.igs.size(); k++) {
-                        igs[j][k] = igLm.getVocabulary().getId(parse.igs.get(k));
+                        igs[j][k] = igLm.getVocabulary().indexOf(parse.igs.get(k));
                     }
                 }
                 j++;

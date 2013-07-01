@@ -1,6 +1,6 @@
 package zemberek.morphology.structure;
 
-import smoothnlp.core.io.KeyValueReader;
+import zemberek.core.io.KeyValueReader;
 import zemberek.core.turkish.TurkishAlphabet;
 
 import java.io.IOException;

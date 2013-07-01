@@ -2,7 +2,7 @@ package zemberek.morphology.apps;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import smoothnlp.core.io.Strings;
+import zemberek.core.io.Strings;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.lexicon.DictionaryItem;

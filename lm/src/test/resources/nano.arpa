@@ -1,0 +1,22 @@
+
+\data\
+ngram 1= 4
+ngram 2= 3
+ngram 3= 2
+
+\1-grams:
+-1.716003 <s> -0.576253
+-1.062791 Ahmet -0.316824
+-1.062791 elma -0.617854
+-0.975641 yedi -1.191886
+
+\2-grams:
+-0.455510 <s> Ahmet -0.226396
+-0.770464 Ahmet elma -0.124939
+-0.530704 elma yedi -0.176091
+
+\3-grams:
+-0.851937 <s> Ahmet elma
+-0.903090 Ahmet elma yedi
+
+\end\

@@ -3,6 +3,7 @@ package zemberek.core;
 import com.google.common.base.Stopwatch;
 import com.google.common.io.Resources;
 import junit.framework.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedInputStream;
@@ -34,6 +35,7 @@ public class HistogramTest {
     }
 
     @Test
+    @Ignore("Requires external file.")
     public void testPerf() throws IOException {
         try (DataInputStream dis = new DataInputStream(new BufferedInputStream(
                 Resources.getResource("io/tr.count").openStream()))) {
@@ -71,6 +73,7 @@ public class HistogramTest {
 
 
     @Test
+    @Ignore("Requires external file.")
     public void testPerf22CS() throws IOException {
         try (DataInputStream dis = new DataInputStream(new BufferedInputStream(
                 Resources.getResource("io/ja.count").openStream()))) {

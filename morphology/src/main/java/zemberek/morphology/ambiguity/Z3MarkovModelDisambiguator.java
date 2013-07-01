@@ -10,10 +10,10 @@ import edu.berkeley.nlp.lm.ConfigOptions;
 import edu.berkeley.nlp.lm.StringWordIndexer;
 import edu.berkeley.nlp.lm.io.ArpaLmReader;
 import edu.berkeley.nlp.lm.io.LmReaders;
-import smoothnlp.core.io.SimpleTextWriter;
-import smoothnlp.core.io.Strings;
-import smoothnlp.lm.ArpaToSmoothLmConverter;
-import smoothnlp.lm.SmoothLm;
+import zemberek.core.io.SimpleTextWriter;
+import zemberek.core.io.Strings;
+import zemberek.lm.compression.ArpaToSmoothLmConverter;
+import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.parser.MorphParse;
 import zemberek.morphology.parser.SentenceMorphParse;
 
@@ -64,10 +64,10 @@ public class Z3MarkovModelDisambiguator extends Z3AbstractDisambiguator implemen
     }
 
     private void initialize() {
-        int beginSymbolId = this.rootLm.getVocabulary().getId("<s>");
-        int endSymbolId = this.rootLm.getVocabulary().getId("</s>");
-        int beginIgId = this.igLm.getVocabulary().getId(START_IG);
-        int endIgId = this.igLm.getVocabulary().getId(END_IG);
+        int beginSymbolId = this.rootLm.getVocabulary().getSentenceStartIndex();
+        int endSymbolId = this.rootLm.getVocabulary().getSentenceEndIndex();
+        int beginIgId = this.igLm.getVocabulary().indexOf(START_IG);
+        int endIgId = this.igLm.getVocabulary().indexOf(END_IG);
 
         startWord = new Ambiguous(new int[]{beginSymbolId}, new int[]{beginIgId});
         endWord = new Ambiguous(new int[]{endSymbolId}, new int[]{endIgId});
@@ -256,13 +256,13 @@ public class Z3MarkovModelDisambiguator extends Z3AbstractDisambiguator implemen
                     if (suffixPart.equals("A3sg+Pnon+Nom)"))
                         rootPart += (Strings.subStringUntilFirst(s, ";") + ")");
                 }
-                roots[j] = rootLm.getVocabulary().getId(rootPart);
+                roots[j] = rootLm.getVocabulary().indexOf(rootPart);
                 String igPart;
                 int igSize = parse.inflectionalGroups.size();
                 if (igSize > 1 && parse.inflectionalGroups.get(igSize - 2).suffixList.size() == 0) {
                     igPart = parse.inflectionalGroups.get(igSize - 2).formatNoSurface() + parse.getLastIg();
                 } else igPart = parse.getLastIg().formatNoSurface();
-                lastIgs[j] = igLm.getVocabulary().getId(igPart);
+                lastIgs[j] = igLm.getVocabulary().indexOf(igPart);
                 j++;
             }
             awords[i] = new Ambiguous(roots, lastIgs);
@@ -292,13 +292,13 @@ public class Z3MarkovModelDisambiguator extends Z3AbstractDisambiguator implemen
                     if (suffixPart.equals("A3sg+Pnon+Nom)"))
                         rootPart += (Strings.subStringUntilFirst(firstIg, ";") + ")");
                 }
-                roots[j] = rootLm.getVocabulary().getId(rootPart);
+                roots[j] = rootLm.getVocabulary().indexOf(rootPart);
                 String igPart;
                 int igSize = parse.igs.size();
                 if (igSize > 1 && !parse.igs.get(igSize - 2).contains(";")) {
                     igPart = parse.igs.get(igSize - 2) + parse.getLastIg();
                 } else igPart = parse.getLastIg();
-                lastIgs[j] = igLm.getVocabulary().getId(igPart);
+                lastIgs[j] = igLm.getVocabulary().indexOf(igPart);
                 j++;
             }
             awords[i] = new Ambiguous(roots, lastIgs);

@@ -1,0 +1,28 @@
+\data\
+ngram 1=6
+ngram 2=4
+ngram 3=3
+ngram 4=1
+
+\1-grams:
+-3.1180 the	-0.3301
+-3.8962 very -0.2256
+-3.2272 large -0.1010
+-3.2272 majority -0.1010
+-3.2272 amount	-0.1010
+-5.0 crap	-0.1010
+
+\2-grams:
+-0.9288 the very -0.0356
+-1.1201 very large -0.8495
+-0.2333 large majority -0.0821
+-1.1183 large amount -0.0310
+
+\3-grams:
+-0.8090 the very large -0.02
+-0.7090 very large majority -0.05
+-0.7090 very large amount -0.05
+
+\4-grams:
+-0.0190 the very large majority
+
