@@ -23,6 +23,22 @@ public class TestSingleWordSpellChecker {
         check1Distance(spellChecker,"armut");
     }
 
+    @Test
+    public void singleWordDictionaryTest2() {
+        SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
+        spellChecker.addWord("çapa");
+        spellChecker.addWord("lapa");
+        spellChecker.addWord("çapak");
+        spellChecker.addWord("sapak");
+        DoubleValueSet<String> result = spellChecker.decode("çapak");
+        for (String s : result) {
+            System.out.println(s + "-" + result.get(s));
+        }
+
+
+    }
+
+
     private void check1Distance(SingleWordSpellChecker spellChecker, String expected) {
         Set<String> randomDeleted = randomDelete(expected, 1);
         for (String s : randomDeleted) {
