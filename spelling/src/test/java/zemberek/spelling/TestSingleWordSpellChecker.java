@@ -28,11 +28,20 @@ public class TestSingleWordSpellChecker {
     public void singleWordDictionaryTest2() {
         Log.setDebug();
         SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
-        spellChecker.addWord("çak");
-        spellChecker.addWord("sak");
-        DoubleValueSet<String> result = spellChecker.decode("çak");
-        for (String s : result) {
-            System.out.println(s + "-" + result.get(s));
+        spellChecker.addWords("çak", "sak", "saka", "bak", "çaka", "çakal", "sakal");
+        DoubleValueSet<String> res1 = spellChecker.decode("çak");
+        Assert.assertEquals(4, res1.size());
+        assertContainsAll(res1, "çak", "sak", "bak", "çaka");
+        double delta = 0.0001;
+        Assert.assertEquals(0, res1.get("çak"), delta);
+        Assert.assertEquals(1, res1.get("sak"), delta);
+        Assert.assertEquals(1, res1.get("bak"), delta);
+        Assert.assertEquals(1, res1.get("çaka"), delta);
+    }
+
+    void assertContainsAll(DoubleValueSet<String> set, String... words) {
+        for (String word : words) {
+            Assert.assertTrue(set.contains(word));
         }
     }
 

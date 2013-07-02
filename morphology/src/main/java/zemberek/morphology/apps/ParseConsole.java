@@ -40,7 +40,7 @@ public class ParseConsole {
         //System.out.println(new MorphParse(token).formatOflazer());
         //System.out.println(new MorphParse(token).formatNoSurface());
         System.out.println(token.formatLong());
-        System.out.println(token.formatNoEmpty());
+        //System.out.println(token.formatNoEmpty());
 //                    System.out.println(new MorphParse(token).formatNoEmpty());
     }
 

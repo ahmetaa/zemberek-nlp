@@ -11,10 +11,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SingleWordSpellChecker {
 
-    Node root = new Node((char) 0);
+    private static final AtomicInteger nodeIndexCounter = new AtomicInteger(0);
+
+    Node root = new Node(nodeIndexCounter.getAndIncrement(), (char) 0);
 
     final double maxPenalty;
     final boolean checkNearKeySubstitution;
@@ -79,11 +82,13 @@ public class SingleWordSpellChecker {
     }
 
     public static class Node {
+        int index;
         char chr;
         Map<Character, Node> nodes = new HashMap<>(2);
         String word;
 
-        public Node(char chr) {
+        public Node(int index, char chr) {
+            this.index = index;
             this.chr = chr;
         }
 
@@ -102,7 +107,7 @@ public class SingleWordSpellChecker {
         public Node addChild(char c) {
             Node node = nodes.get(c);
             if (node == null) {
-                node = new Node(c);
+                node = new Node(nodeIndexCounter.getAndIncrement(), c);
             }
             nodes.put(c, node);
             return node;
@@ -116,20 +121,13 @@ public class SingleWordSpellChecker {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             Node node = (Node) o;
-
-            if (chr != node.chr) return false;
-            if (word != null ? !word.equals(node.word) : node.word != null) return false;
-
-            return true;
+            return index == node.index;
         }
 
         @Override
         public int hashCode() {
-            int result = (int) chr;
-            result = 31 * result + (word != null ? word.hashCode() : 0);
-            return result;
+            return index;
         }
 
         @Override
@@ -153,6 +151,12 @@ public class SingleWordSpellChecker {
     public void addWord(String word) {
         String clean = process(word);
         addChar(root, 0, clean, word);
+    }
+
+    public void addWords(String... words) {
+        for (String word : words) {
+            addWord(word);
+        }
     }
 
     public void buildDictionary(List<String> vocabulary) {
@@ -188,10 +192,8 @@ public class SingleWordSpellChecker {
                 if (nextIndex >= input.length() - 1) {
                     if (hyp.node.word != null)
                         addHypothesis(finished, hyp);
-                    else
-                        newHypotheses.add(hyp);
-                } else
-                    newHypotheses.add(hyp);
+                } // TODO: below line may produce unnecessary hypotheses.
+                newHypotheses.add(hyp);
             }
         } else if (hypothesis.node.word != null)
             addHypothesis(finished, hypothesis);
