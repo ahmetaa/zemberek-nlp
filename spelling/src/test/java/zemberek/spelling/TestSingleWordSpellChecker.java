@@ -29,14 +29,28 @@ public class TestSingleWordSpellChecker {
         Log.setDebug();
         SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
         spellChecker.addWords("çak", "sak", "saka", "bak", "çaka", "çakal", "sakal");
-        DoubleValueSet<String> res1 = spellChecker.decode("çak");
-        Assert.assertEquals(4, res1.size());
-        assertContainsAll(res1, "çak", "sak", "bak", "çaka");
+
+        DoubleValueSet<String> result = spellChecker.decode("çak");
+
+        Assert.assertEquals(4, result.size());
+        assertContainsAll(result, "çak", "sak", "bak", "çaka");
+
         double delta = 0.0001;
-        Assert.assertEquals(0, res1.get("çak"), delta);
-        Assert.assertEquals(1, res1.get("sak"), delta);
-        Assert.assertEquals(1, res1.get("bak"), delta);
-        Assert.assertEquals(1, res1.get("çaka"), delta);
+        Assert.assertEquals(0, result.get("çak"), delta);
+        Assert.assertEquals(1, result.get("sak"), delta);
+        Assert.assertEquals(1, result.get("bak"), delta);
+        Assert.assertEquals(1, result.get("çaka"), delta);
+
+        result = spellChecker.decode("çaka");
+
+        Assert.assertEquals(4, result.size());
+        assertContainsAll(result, "çaka", "saka", "çakal", "çak");
+
+        Assert.assertEquals(0, result.get("çaka"), delta);
+        Assert.assertEquals(1, result.get("saka"), delta);
+        Assert.assertEquals(1, result.get("çakal"), delta);
+        Assert.assertEquals(1, result.get("çak"), delta);
+
     }
 
     void assertContainsAll(DoubleValueSet<String> set, String... words) {
