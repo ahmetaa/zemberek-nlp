@@ -21,6 +21,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>zemberek-nlp</groupId>
+            <artifactId>core</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>antlr4-z3</groupId>
             <artifactId>antlr4-runtime</artifactId>
             <version>4.0.1z</version>

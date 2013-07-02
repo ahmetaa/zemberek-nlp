@@ -1,6 +1,6 @@
 package zemberek.morphology.external;
 
-import smoothnlp.core.io.Strings;
+import com.google.common.base.Joiner;
 
 import java.io.*;
 
@@ -13,7 +13,7 @@ public class ProcessRunner {
     }
 
     public void execute(ProcessBuilder pb) throws IOException, InterruptedException {
-        System.out.println(Strings.concatWithString(" ", pb.command()));
+        System.out.println(Joiner.on(" ").join(pb.command()));
         Process process = pb.redirectErrorStream(true).directory(processRoot).start();
         new AsyncPipe(process.getErrorStream(), System.err).start();
         new AsyncPipe(process.getInputStream(), System.out).start();
@@ -50,12 +50,12 @@ public class ProcessRunner {
     }
 
     public void execute(ProcessBuilder pb, InputStream is, OutputStream os) throws IOException, InterruptedException {
-        System.out.println(Strings.concatWithString(" ", pb.command()));
+        System.out.println(Joiner.on(" ").join(pb.command()));
         execute(pb.directory(processRoot).start(), is, os);
     }
 
     public void execute(ProcessBuilder pb, OutputStream os) throws IOException, InterruptedException {
-        System.out.println(Strings.concatWithString(" ", pb.command()));
+        System.out.println(Joiner.on(" ").join(pb.command()));
         execute(pb.directory(processRoot).start(), os);
     }
 

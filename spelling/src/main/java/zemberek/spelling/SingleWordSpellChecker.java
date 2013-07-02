@@ -268,17 +268,17 @@ public class SingleWordSpellChecker {
         String hypWord = hypothesis.node.word;
         if (hypWord == null) {
             if (Log.isDebug())
-                Log.info("No word in node:%s", hypothesis.toString());
+                Log.debug("No word in node:%s", hypothesis.toString());
             return;
         }
         if (!result.contains(hypWord)) {
             result.set(hypWord, hypothesis.penalty);
             if (Log.isDebug())
-                Log.info("%s hypotesis added first time:%s", hypWord, hypothesis.toString());
+                Log.debug("Hypotesis added:%s", hypothesis.toString());
         } else if (result.get(hypWord) > hypothesis.penalty) {
             result.set(hypWord, hypothesis.penalty);
             if (Log.isDebug())
-                Log.info("%s hypotesis updated:%s", hypWord, hypothesis.toString());
+                Log.debug("Hypotesis updated:%s", hypothesis.toString());
         }
     }
 
@@ -289,10 +289,10 @@ public class SingleWordSpellChecker {
         while (true) {
             HashSet<Hypothesis> newHyps = new HashSet<>();
             if (Log.isDebug())
-                Log.info("-----------");
+                Log.debug("-----------");
             for (Hypothesis hypothesis : next) {
                 if (Log.isDebug())
-                    Log.info("%s", hypothesis);
+                    Log.debug("%s", hypothesis);
                 newHyps.addAll(expand(hypothesis, input, hypotheses));
             }
             if (newHyps.size() == 0)

@@ -1,6 +1,7 @@
 package zemberek.tokenizer;
 
 import org.antlr.v4.runtime.*;
+import zemberek.core.logging.Log;
 import zemberek.tokenizer.antlr.TurkishLexer;
 
 import java.io.File;
@@ -8,15 +9,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * A wrapper for antlr generated lexer.
  */
 public class ZemberekLexer {
 
-    static final Logger logger = Logger.getLogger(ZemberekLexer.class.getName());
     boolean ignoreWhiteSpaces = true;
 
     private static final BaseErrorListener IGNORING_ERROR_LISTENER = new BaseErrorListener() {
@@ -31,7 +30,7 @@ public class ZemberekLexer {
         public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine,
                                 String msg, RecognitionException e) {
             // Just log the error.
-            logger.log(Level.WARNING, "Unknown token. Original error: " + msg);
+            Log.warn("Unknown token. Original error: ", msg);
         }
     };
 
@@ -52,6 +51,14 @@ public class ZemberekLexer {
         return getAllTokens(createTurkishLexer(inputStream));
     }
 
+    public List<String> tokenStrings(String input) {
+        List<String> tokenStrings = new ArrayList<>();
+        for (Token token : getAllTokens(createTurkishLexer(new ANTLRInputStream(input)))) {
+            tokenStrings.add(token.getText());
+        }
+        return tokenStrings;
+    }
+
     public Iterator<Token> getTokenIterator(String input) {
         ANTLRInputStream inputStream = new ANTLRInputStream(input);
         return new TokenIterator(createTurkishLexer(inputStream), ignoreWhiteSpaces);
@@ -70,7 +77,7 @@ public class ZemberekLexer {
     }
 
     private List<Token> getAllTokens(Lexer lexer) {
-        List<Token> tokens = new ArrayList<Token>();
+        List<Token> tokens = new ArrayList<>();
         for (Token token = lexer.nextToken();
              token.getType() != Token.EOF;
              token = lexer.nextToken()) {

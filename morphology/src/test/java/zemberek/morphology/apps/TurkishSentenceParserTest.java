@@ -1,10 +1,12 @@
 package zemberek.morphology.apps;
 
 import com.google.common.base.Stopwatch;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import smoothnlp.core.io.SimpleTextReader;
+import zemberek.core.io.SimpleTextReader;
+import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.parser.SentenceMorphParse;
 
 import java.io.File;
@@ -18,7 +20,14 @@ public class TurkishSentenceParserTest {
 
     @Before
     public void setUp() throws Exception {
-        parser = new TurkishSentenceParser(new File("res"));
+        TurkishMorphParser morphParser = TurkishMorphParser.newBuilder().addDefaultDictionaries().build();
+        parser = new TurkishSentenceParser(morphParser, new Z3MarkovModelDisambiguator());
+    }
+
+
+    @Test
+    public void tokenCountTest() {
+        Assert.assertEquals(6, parser.bestParse("15. yüzyılda, Türkiye'de yaşadı.").size());
     }
 
     @Test

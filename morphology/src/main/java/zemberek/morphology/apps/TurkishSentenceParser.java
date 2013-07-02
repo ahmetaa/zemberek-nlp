@@ -1,5 +1,6 @@
 package zemberek.morphology.apps;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import zemberek.core.io.Files;
@@ -10,6 +11,7 @@ import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.parser.MorphParse;
 import zemberek.morphology.parser.SentenceMorphParse;
 import zemberek.morphology.structure.Turkish;
+import zemberek.tokenizer.ZemberekLexer;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +22,7 @@ public class TurkishSentenceParser {
     private TurkishMorphParser morphParser;
     private UnidentifiedTokenParser unidentifiedTokenParser;
     private TurkishMorphDisambiguator disambiguator;
+    private ZemberekLexer lexer = new ZemberekLexer();
 
     /**
      * Generates a TurkishSentenceParser from a resource directory.
@@ -52,7 +55,9 @@ public class TurkishSentenceParser {
 
     }
 
-    public TurkishSentenceParser(TurkishMorphParser morphParser, TurkishMorphDisambiguator disambiguator) {
+    public TurkishSentenceParser(
+            TurkishMorphParser morphParser,
+            TurkishMorphDisambiguator disambiguator) {
         this.morphParser = morphParser;
         this.unidentifiedTokenParser = new UnidentifiedTokenParser(morphParser);
         this.disambiguator = disambiguator;
@@ -87,8 +92,8 @@ public class TurkishSentenceParser {
     }
 
     public String preProcess(String str) {
-        String quotesHyphensNormalzied = Turkish.normalizeQuotesHyphens(str);
-        return Turkish.separateBeginEndSymbolsFromSentence(quotesHyphensNormalzied);
+        String quotesHyphensNormalized = Turkish.normalizeQuotesHyphens(str);
+        return Joiner.on(" ").join(lexer.tokenStrings(quotesHyphensNormalized));
     }
 
     /**

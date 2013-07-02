@@ -23,15 +23,17 @@ public final class Log {
 
     static Level currentLevel = Level.INFO;
 
+    private static final Logger globalLogger = Logger.getLogger("");
+
     static {
-        Logger global = Logger.getLogger("");
-        Handler[] handlers = global.getHandlers();
+
+        Handler[] handlers = globalLogger.getHandlers();
         for (Handler handler : handlers) {
-            global.removeHandler(handler);
+            globalLogger.removeHandler(handler);
         }
         ConsoleHandler ch = new ConsoleHandler();
         ch.setFormatter(new CUSTOM_FORMAT());
-        global.addHandler(ch);
+        globalLogger.addHandler(ch);
         Thread.setDefaultUncaughtExceptionHandler(EXCEPTION_HANDLER);
     }
 
@@ -50,17 +52,24 @@ public final class Log {
         }
     }
 
-    public static void setLevel(Level level) {
+    private static void setLevel(Level level) {
         synchronized (loggers) {
             for (Logger logger : loggers.values()) {
                 logger.setLevel(level);
             }
-            Logger.getLogger("").setLevel(level);
+            globalLogger.setLevel(level);
+            for (Handler handler : globalLogger.getHandlers()) {
+                handler.setLevel(level);
+            }
         }
         currentLevel = level;
     }
 
     public static boolean isDebug() {
+        return currentLevel == Level.FINE;
+    }
+
+    public static boolean isTrace() {
         return currentLevel == Level.FINE;
     }
 
@@ -70,6 +79,10 @@ public final class Log {
 
     public static boolean isWarning() {
         return currentLevel == Level.WARNING;
+    }
+
+    public static void trace(String message, Object... params) {
+        log(Level.FINER, message, params);
     }
 
     public static void debug(String message, Object... params) {
@@ -89,13 +102,16 @@ public final class Log {
     }
 
     public static void setInfo() {
-       setLevel(Level.INFO);
+        setLevel(Level.INFO);
     }
 
     public static void setDebug() {
         setLevel(Level.FINE);
     }
 
+    public static void setTrace() {
+        setLevel(Level.FINE);
+    }
 
     static final CUSTOM_FORMAT formatter = new CUSTOM_FORMAT();
 
@@ -149,7 +165,7 @@ public final class Log {
 
     static {
         levelShortStringMap.put(Level.FINEST, "D");
-        levelShortStringMap.put(Level.FINER, "D");
+        levelShortStringMap.put(Level.FINER, "T");
         levelShortStringMap.put(Level.FINE, "D");
         levelShortStringMap.put(Level.CONFIG, "-");
         levelShortStringMap.put(Level.OFF, "-");
@@ -167,6 +183,13 @@ public final class Log {
         }
     }
 
+    private static String padIfNecessary(String name, int length) {
+        if (name.length() < length) {
+            return Strings.rightPad(name, length);
+        }
+        return name;
+    }
+
     private static class CUSTOM_FORMAT extends Formatter {
 
         @Override
@@ -174,14 +197,12 @@ public final class Log {
             synchronized (this) {
                 StringBuilder sb = new StringBuilder(levelShortStringMap.get(record.getLevel()));
                 sb.append("|").append(format.format(new Date())).append("|");
-                sb.append(shortenName(Strings.subStringAfterLast(record.getSourceClassName(), "."), 20)).append("|");
-                sb.append(shortenName(Strings.subStringAfterLast(record.getSourceMethodName(), "."), 20)).append("| ");
                 Object parameters[] = record.getParameters();
                 if (parameters == null || parameters.length == 0) {
-                    sb.append(record.getMessage());
+                    sb.append(padIfNecessary(record.getMessage(), 100));
                 } else {
                     try {
-                        sb.append(String.format(record.getMessage(), parameters));
+                        sb.append(padIfNecessary(String.format(record.getMessage(), parameters), 100));
                     } catch (IllegalFormatException e) {
                         sb.append("Log Format Error: ")
                                 .append(record.getMessage())
@@ -189,6 +210,11 @@ public final class Log {
                                 .append(Joiner.on(",").join(parameters));
                     }
                 }
+                sb.append("| ")
+                        .append(Strings.subStringAfterLast(record.getSourceClassName(), "."))
+                        .append("#");
+                sb.append(record.getSourceMethodName());
+
                 sb.append("\n");
                 return sb.toString();
             }

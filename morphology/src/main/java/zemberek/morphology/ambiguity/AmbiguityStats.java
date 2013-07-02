@@ -1,5 +1,6 @@
 package zemberek.morphology.ambiguity;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
@@ -10,6 +11,7 @@ import zemberek.morphology.apps.BaseParser;
 import zemberek.morphology.apps.TurkishMorphParser;
 import zemberek.morphology.parser.MorphParse;
 import zemberek.morphology.structure.Turkish;
+import zemberek.tokenizer.ZemberekLexer;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,18 +28,19 @@ import java.util.concurrent.TimeUnit;
 public class AmbiguityStats extends BaseParser {
 
     TurkishMorphParser parser;
+    ZemberekLexer lexer = new ZemberekLexer();
 
     public AmbiguityStats() throws IOException {
         parser = TurkishMorphParser.createWithDefaults();
     }
 
     public List<String> readAll(String filename) throws IOException {
-        List<String> lines = new ArrayList<String>();
+        List<String> lines = new ArrayList<>();
         File file = new File(filename);
         LineIterator it = SimpleTextReader.trimmingUTF8Reader(file).getLineIterator();
         while (it.hasNext()) {
             String quotesHyphensNormalzied = Turkish.normalizeQuotesHyphens(it.next());
-            lines.add(Turkish.separateBeginEndSymbolsFromSentence(quotesHyphensNormalzied));
+            lines.add(Joiner.on(" ").join(lexer.tokenStrings(quotesHyphensNormalzied)));
         }
         return lines;
     }
@@ -88,7 +91,7 @@ public class AmbiguityStats extends BaseParser {
 
     public void ambiguousGroupStats(String filename) throws IOException {
         List<String> lines = readAll(filename);
-        Histogram<String> uniques = new Histogram<String>(1000000);
+        Histogram<String> uniques = new Histogram<>(1000000);
         Map<String, Histogram<String>> ambiguityGroups = Maps.newHashMap();
         int total = 0;
         for (String line : lines) {
@@ -102,7 +105,7 @@ public class AmbiguityStats extends BaseParser {
                     uniques.add(key);
                     Histogram<String> members = ambiguityGroups.get(key);
                     if (members == null) {
-                        members = new Histogram<String>();
+                        members = new Histogram<>();
                         ambiguityGroups.put(key, members);
                     }
                     members.add(s);
@@ -143,7 +146,7 @@ public class AmbiguityStats extends BaseParser {
 
     public void ambiguousWordStats(String filename) throws IOException {
         List<String> lines = readAll(filename);
-        Histogram<String> uniques = new Histogram<String>(1000000);
+        Histogram<String> uniques = new Histogram<>(1000000);
         int total = 0;
         Splitter splitter = Splitter.on(" ").omitEmptyStrings().trimResults();
         for (String line : lines) {
@@ -175,7 +178,7 @@ public class AmbiguityStats extends BaseParser {
     }
 
     public void noParse(String... filename) throws IOException {
-        Histogram<String> uniques = new Histogram<String>(1000000);
+        Histogram<String> uniques = new Histogram<>(1000000);
         int total = 0;
         for (String file : filename) {
             List<String> lines = readAll(file);

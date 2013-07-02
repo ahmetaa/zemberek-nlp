@@ -28,9 +28,9 @@ public class TestSingleWordSpellChecker {
     public void singleWordDictionaryTest2() {
         Log.setDebug();
         SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
-        spellChecker.addWord("çapak");
-        spellChecker.addWord("sapak");
-        DoubleValueSet<String> result = spellChecker.decode("çapak");
+        spellChecker.addWord("çak");
+        spellChecker.addWord("sak");
+        DoubleValueSet<String> result = spellChecker.decode("çak");
         for (String s : result) {
             System.out.println(s + "-" + result.get(s));
         }

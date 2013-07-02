@@ -3,10 +3,10 @@ package zemberek.morphology.external;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import smoothnlp.core.io.LineIterator;
-import smoothnlp.core.io.SimpleTextReader;
-import smoothnlp.core.io.SimpleTextWriter;
-import smoothnlp.core.io.Strings;
+import zemberek.core.io.LineIterator;
+import zemberek.core.io.SimpleTextReader;
+import zemberek.core.io.SimpleTextWriter;
+import zemberek.core.io.Strings;
 
 import java.io.File;
 import java.io.FileOutputStream;

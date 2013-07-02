@@ -37,8 +37,8 @@ public class TurkishMorphParserTest {
                 new File("D:\\devl\\data\\1MSentences\\milliyet-sondakika_tokenized.txt")
         );
 
-        final LinkedList<String> words = new LinkedList<String>();
-        final HashSet<String> uniqueWords = new HashSet<String>();
+        final LinkedList<String> words = new LinkedList<>();
+        final HashSet<String> uniqueWords = new HashSet<>();
 
         for (File tokenizedFile : files) {
             final List<String> lines = Files.readLines(tokenizedFile, Charsets.UTF_8);

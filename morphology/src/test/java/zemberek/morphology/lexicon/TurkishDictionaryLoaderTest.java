@@ -5,9 +5,9 @@ import com.google.common.io.Resources;
 import junit.framework.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import smoothnlp.core.io.SimpleTextReader;
-import smoothnlp.core.io.SimpleTextWriter;
-import smoothnlp.core.io.Strings;
+import zemberek.core.io.SimpleTextReader;
+import zemberek.core.io.SimpleTextWriter;
+import zemberek.core.io.Strings;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.RootAttribute;
@@ -64,7 +64,6 @@ public class TurkishDictionaryLoaderTest {
         String last = Strings.subStringUntilFirst(itemStr[itemStr.length - 1], " ");
         return loader.load(itemStr).getMatchingItems(last).get(0);
     }
-
 
     @Test
     public void verbInferenceTest() {
@@ -180,7 +179,8 @@ public class TurkishDictionaryLoaderTest {
         }
 
         Locale tr = new Locale("tr");
-        List<String> allZ2 = SimpleTextReader.trimmingUTF8Reader(new File(Resources.getResource("tr/master-dictionary.dict").getFile())).asStringList();
+        List<String> allZ2 = SimpleTextReader.trimmingUTF8Reader(
+                new File(Resources.getResource("tr/master-dictionary.dict").getFile())).asStringList();
         for (String s : allZ2) {
             if (s.startsWith("#"))
                 continue;

@@ -57,22 +57,6 @@ public class Turkish {
 
     public static final Comparator<String> STRING_COMPARATOR_ASC = new TurkishStringComparator();
 
-    /**
-     * applies separateBeginEndSymbolsFromWord to each key in the input string.
-     * <p>examples:
-     * <p>'evet, "%15'i" kadar mi yoksa 12? -> ' evet , " %15'i " kadar mi yoksa 12 ?
-     *
-     * @param input input sentence.
-     * @return input sentence but symbols on the beginning and end sybols are separated.
-     */
-    public static String separateBeginEndSymbolsFromSentence(String input) {
-        StringBuilder sb = new StringBuilder(input.length() + 7);
-        for (String block : new TokenSequence(input).getTokens()) {
-            sb.append(separateBeginEndSymbolsFromWord(block)).append(" ");
-        }
-        return sb.toString().trim();
-    }
-
     static Pattern WORD_BEGIN_END_SEPARATOR = Pattern.compile("^([\\.,'\\\"\\(\\)\\[\\]{}:;*$]+|)(.+?)([:;\\)\\(\\[\\]{}'?!,.\\\"\\-*$]+|)$");
 
     /**

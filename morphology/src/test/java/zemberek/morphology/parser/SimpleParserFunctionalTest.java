@@ -4,8 +4,9 @@ import com.google.common.io.Resources;
 import junit.framework.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import smoothnlp.core.io.SimpleTextReader;
-import smoothnlp.core.io.SimpleTextWriter;
+
+import zemberek.core.io.SimpleTextReader;
+import zemberek.core.io.SimpleTextWriter;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
