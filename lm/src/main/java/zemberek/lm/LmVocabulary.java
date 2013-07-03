@@ -1,18 +1,18 @@
 package zemberek.lm;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.logging.Log;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class LmVocabulary {
     public static final String UNKNOWN_WORD = "<unk>";
     public static final String SENTENCE_START = "<s>";
     public static final String SENTENCE_END = "</s>";
-    private String[] vocabulary;
+    private List<String> vocabulary;
     private Map<String, Integer> vocabularyIndexMap = new HashMap<>();
 
     private int unknownWordIndex = -1;
@@ -25,8 +25,7 @@ public class LmVocabulary {
      * @param vocabulary word array.
      */
     public LmVocabulary(String... vocabulary) {
-        this.vocabulary = vocabulary;
-        generateMap();
+        generateMap(Lists.newArrayList(vocabulary));
     }
 
     /**
@@ -35,8 +34,8 @@ public class LmVocabulary {
      * @param vocabulary word list.
      */
     public LmVocabulary(List<String> vocabulary) {
-        this.vocabulary = vocabulary.toArray(new String[vocabulary.size()]);
-        generateMap();
+        //defensive copying
+        generateMap(Lists.newArrayList(vocabulary));
     }
 
     /**
@@ -47,11 +46,12 @@ public class LmVocabulary {
      * @throws IOException
      */
     private LmVocabulary(RandomAccessFile raf) throws IOException {
-        vocabulary = new String[raf.readInt()];
-        for (int i = 0; i < vocabulary.length; i++) {
-            vocabulary[i] = raf.readUTF();
+        List<String> words = new ArrayList<>();
+        int size = raf.readInt();
+        for (int i = 0; i < size; i++) {
+            words.add(raf.readUTF());
         }
-        generateMap();
+        generateMap(words);
     }
 
     /**
@@ -66,11 +66,12 @@ public class LmVocabulary {
     }
 
     private void loadVocabulary(DataInputStream dis) throws IOException {
-        vocabulary = new String[dis.readInt()];
-        for (int i = 0; i < vocabulary.length; i++) {
-            vocabulary[i] = dis.readUTF();
+        List<String> words = new ArrayList<>();
+        int size = dis.readInt();
+        for (int i = 0; i < size; i++) {
+            words.add(dis.readUTF());
         }
-        generateMap();
+        generateMap(words);
     }
 
     /**
@@ -93,7 +94,7 @@ public class LmVocabulary {
      * @param raf binary vocabulary RandomAccessFile
      * @throws IOException
      */
-    public static LmVocabulary loadFromRandomAcessFile(RandomAccessFile raf) throws IOException{
+    public static LmVocabulary loadFromRandomAcessFile(RandomAccessFile raf) throws IOException {
         return new LmVocabulary(raf);
     }
 
@@ -104,49 +105,62 @@ public class LmVocabulary {
      * @param dis input stream to read the vocabulary data.
      * @throws IOException
      */
-    public static LmVocabulary loadFromDataInputStream(DataInputStream dis) throws IOException{
+    public static LmVocabulary loadFromDataInputStream(DataInputStream dis) throws IOException {
         return new LmVocabulary(dis);
     }
 
     /**
      * Generates a vocabulary from a UTF8-encoded text file.
+     *
      * @param utfVocabularyFile input utf8 file to read vocabulary data.
-     * @return
+     * @return LMVocabulary instance.
      * @throws IOException
      */
-    public static LmVocabulary loadFromUtf8File(File utfVocabularyFile) throws IOException{
+    public static LmVocabulary loadFromUtf8File(File utfVocabularyFile) throws IOException {
         return new LmVocabulary(SimpleTextReader.trimmingUTF8Reader(utfVocabularyFile).asStringList());
     }
 
-    private void generateMap() {
-        // construct vocabulary index lookup.
-        for (int i = 0; i < vocabulary.length; i++) {
-            String word = vocabulary[i];
+    private static Set<String> SPECIAL_WORDS = Sets.newHashSet(SENTENCE_START, SENTENCE_END, UNKNOWN_WORD);
+
+    private void generateMap(List<String> words) {
+
+        List<String> finalVocabulary = Lists.newArrayList(SENTENCE_START, SENTENCE_END, UNKNOWN_WORD);
+        vocabularyIndexMap.put(SENTENCE_START, 0);
+        sentenceStartIndex = 0;
+        vocabularyIndexMap.put(SENTENCE_END, 1);
+        sentenceEndIndex = 1;
+        vocabularyIndexMap.put(UNKNOWN_WORD, 2);
+        unknownWordIndex = 2;
+        int index = 3;
+        for (int i = 0; i < words.size(); i++) {
+            String word = words.get(i);
+            String lowerCase = word.toLowerCase(Locale.ENGLISH);
+            if (SPECIAL_WORDS.contains(lowerCase)) {
+                if (!lowerCase.equals(word)) {
+                    Log.warn("Input contains special word %s but case does not match:%s. " +
+                            "%s form will be used.", lowerCase, word, lowerCase);
+                }
+                words.set(i, lowerCase);
+                continue;
+            }
             if (vocabularyIndexMap.containsKey(word)) {
                 Log.warn("Language model vocabulary has duplicate item: " + word);
             } else {
-                if (word.equalsIgnoreCase(UNKNOWN_WORD)) {
-                    unknownWordIndex = i;
-                    vocabularyIndexMap.put(UNKNOWN_WORD, i);
-                    vocabularyIndexMap.put(UNKNOWN_WORD.toUpperCase(), i);
-                } else if (word.equalsIgnoreCase(SENTENCE_START)) {
-                    sentenceStartIndex = i;
-                    vocabularyIndexMap.put(SENTENCE_START, i);
-                    vocabularyIndexMap.put(SENTENCE_START.toUpperCase(), i);
-                } else if (word.equalsIgnoreCase(SENTENCE_END)) {
-                    sentenceEndIndex = i;
-                    vocabularyIndexMap.put(SENTENCE_END, i);
-                    vocabularyIndexMap.put(SENTENCE_END.toUpperCase(), i);
-                } else
-                    vocabularyIndexMap.put(word, i);
+                vocabularyIndexMap.put(word, index);
+                finalVocabulary.add(word);
             }
+            index++;
         }
-        if (sentenceEndIndex == -1) {
-            Log.warn("Vocabulary does not contain sentence start word.");
+        if (!words.contains(SENTENCE_START)) {
+            Log.warn("Input vocabulary does not contain sentence start word <s>. It is added automatically.");
         }
-        if (sentenceStartIndex == -1) {
-            Log.warn("Vocabulary does not contain sentence end word.");
+        if (!words.contains(SENTENCE_END)) {
+            Log.warn("Input Vocabulary does not contain sentence end word </s>. It is added automatically.");
         }
+        if (!words.contains(UNKNOWN_WORD)) {
+            Log.info("Input Vocabulary does not contain unknown word token </unk>. It is added automatically.");
+        }
+        vocabulary = Collections.unmodifiableList(finalVocabulary);
     }
 
     public int size() {
@@ -155,19 +169,18 @@ public class LmVocabulary {
 
     /**
      * @param index Word for the index. if index is out of bounds, <UNK> is returned with warning.
-     *              Note that Vocabulary may contain <UNK> token as well.
      */
     public String getWord(int index) {
-        if (index < 0 || index >= vocabulary.length) {
+        if (index < 0 || index >= vocabulary.size()) {
             Log.warn("Out of bounds word index is used:" + index);
             return UNKNOWN_WORD;
         }
-        return vocabulary[index];
+        return vocabulary.get(index);
     }
 
     public int indexOf(String word) {
         Integer k = vocabularyIndexMap.get(word);
-        return k == null ? -1 : k;
+        return k == null ? unknownWordIndex : k;
     }
 
     public int getSentenceStartIndex() {
@@ -192,7 +205,7 @@ public class LmVocabulary {
         for (int i = 0; i < indexes.length; i++) {
             int index = indexes[i];
             if (contains(index))
-                sb.append(vocabulary[index]);
+                sb.append(vocabulary.get(index));
             else {
                 Log.warn("Out of bounds word index is used:" + index);
                 sb.append(UNKNOWN_WORD);
@@ -220,7 +233,7 @@ public class LmVocabulary {
      * @return true if index is within the Vocabulary boundaries.
      */
     public boolean contains(int index) {
-        return index >= 0 && index < vocabulary.length;
+        return index >= 0 && index < vocabulary.size();
     }
 
     /**
@@ -299,7 +312,7 @@ public class LmVocabulary {
         int k = 0;
         for (int index : indexes) {
             if (contains(index))
-                words[k++] = vocabulary[index];
+                words[k++] = vocabulary.get(index);
             else {
                 Log.warn("Out of bounds word index is used:" + index);
                 words[k++] = UNKNOWN_WORD;

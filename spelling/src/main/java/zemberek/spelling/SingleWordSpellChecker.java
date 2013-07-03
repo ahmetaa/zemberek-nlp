@@ -1,26 +1,20 @@
 package zemberek.spelling;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
-import com.google.common.base.Stopwatch;
 import zemberek.core.DoubleValueSet;
 import zemberek.core.logging.Log;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SingleWordSpellChecker {
 
     private static final AtomicInteger nodeIndexCounter = new AtomicInteger(0);
 
-    Node root = new Node(nodeIndexCounter.getAndIncrement(), (char) 0);
+    private Node root = new Node(nodeIndexCounter.getAndIncrement(), (char) 0);
 
-    final double maxPenalty;
-    final boolean checkNearKeySubstitution;
+    public final double maxPenalty;
+    public final boolean checkNearKeySubstitution;
 
     static final double INSERTION_PENALTY = 1.0;
     static final double DELETION_PENALTY = 1.0;
@@ -28,42 +22,80 @@ public class SingleWordSpellChecker {
     static final double NEAR_KEY_SUBSTITUTION_PENALTY = 0.5;
     static final double TRANSPOSITION_PENALTY = 1.0;
 
-    static Map<Character, String> nearKeys = new HashMap<>();
+    public Map<Character, String> nearKeyMap = new HashMap<>();
+    public static final Map<Character, String> TURKISH_FQ_NEAR_KEY_MAP = new HashMap<>();
+    public static final Map<Character, String> TURKISH_Q_NEAR_KEY_MAP = new HashMap<>();
 
     static {
-        nearKeys.put('a', "eüs");
-        nearKeys.put('b', "svn");
-        nearKeys.put('c', "vçx");
-        nearKeys.put('ç', "czö");
-        nearKeys.put('d', "orsf");
-        nearKeys.put('e', "iawr");
-        nearKeys.put('f', "gd");
-        nearKeys.put('g', "fğh");
-        nearKeys.put('ğ', "gıpü");
-        nearKeys.put('h', "npgj");
-        nearKeys.put('ğ', "gıpü");
-        nearKeys.put('ı', "ğou");
-        nearKeys.put('i', "ueş");
-        nearKeys.put('j', "öhk");
-        nearKeys.put('k', "tmjl");
-        nearKeys.put('l', "mykş");
-        nearKeys.put('m', "klnö");
-        nearKeys.put('n', "rhbm");
-        nearKeys.put('o', "ıdp");
-        nearKeys.put('ö', "jvmç");
-        nearKeys.put('p', "hqoğ");
-        nearKeys.put('r', "dnet");
-        nearKeys.put('s', "zbad");
-        nearKeys.put('ş', "yl");
-        nearKeys.put('t', "ükry");
-        nearKeys.put('u', "iyı");
-        nearKeys.put('ü', "atğ");
-        nearKeys.put('v', "öcb");
-        nearKeys.put('y', "lştu");
-        nearKeys.put('z', "çsx");
-        nearKeys.put('x', "wzc");
-        nearKeys.put('q', "pqw");
-        nearKeys.put('w', "qxe");
+        TURKISH_FQ_NEAR_KEY_MAP.put('a', "eüs");
+        TURKISH_FQ_NEAR_KEY_MAP.put('b', "svn");
+        TURKISH_FQ_NEAR_KEY_MAP.put('c', "vçx");
+        TURKISH_FQ_NEAR_KEY_MAP.put('ç', "czö");
+        TURKISH_FQ_NEAR_KEY_MAP.put('d', "orsf");
+        TURKISH_FQ_NEAR_KEY_MAP.put('e', "iawr");
+        TURKISH_FQ_NEAR_KEY_MAP.put('f', "gd");
+        TURKISH_FQ_NEAR_KEY_MAP.put('g', "fğh");
+        TURKISH_FQ_NEAR_KEY_MAP.put('ğ', "gıpü");
+        TURKISH_FQ_NEAR_KEY_MAP.put('h', "npgj");
+        TURKISH_FQ_NEAR_KEY_MAP.put('ğ', "gıpü");
+        TURKISH_FQ_NEAR_KEY_MAP.put('ı', "ğou");
+        TURKISH_FQ_NEAR_KEY_MAP.put('i', "ueş");
+        TURKISH_FQ_NEAR_KEY_MAP.put('j', "öhk");
+        TURKISH_FQ_NEAR_KEY_MAP.put('k', "tmjl");
+        TURKISH_FQ_NEAR_KEY_MAP.put('l', "mykş");
+        TURKISH_FQ_NEAR_KEY_MAP.put('m', "klnö");
+        TURKISH_FQ_NEAR_KEY_MAP.put('n', "rhbm");
+        TURKISH_FQ_NEAR_KEY_MAP.put('o', "ıdp");
+        TURKISH_FQ_NEAR_KEY_MAP.put('ö', "jvmç");
+        TURKISH_FQ_NEAR_KEY_MAP.put('p', "hqoğ");
+        TURKISH_FQ_NEAR_KEY_MAP.put('r', "dnet");
+        TURKISH_FQ_NEAR_KEY_MAP.put('s', "zbad");
+        TURKISH_FQ_NEAR_KEY_MAP.put('ş', "yli");
+        TURKISH_FQ_NEAR_KEY_MAP.put('t', "ükry");
+        TURKISH_FQ_NEAR_KEY_MAP.put('u', "iyı");
+        TURKISH_FQ_NEAR_KEY_MAP.put('ü', "atğ");
+        TURKISH_FQ_NEAR_KEY_MAP.put('v', "öcb");
+        TURKISH_FQ_NEAR_KEY_MAP.put('y', "lştu");
+        TURKISH_FQ_NEAR_KEY_MAP.put('z', "çsx");
+        TURKISH_FQ_NEAR_KEY_MAP.put('x', "wzc");
+        TURKISH_FQ_NEAR_KEY_MAP.put('q', "pqw");
+        TURKISH_FQ_NEAR_KEY_MAP.put('w', "qxe");
+    }
+
+    static {
+        TURKISH_Q_NEAR_KEY_MAP.put('a', "s");
+        TURKISH_Q_NEAR_KEY_MAP.put('b', "vn");
+        TURKISH_Q_NEAR_KEY_MAP.put('c', "vx");
+        TURKISH_Q_NEAR_KEY_MAP.put('ç', "ö");
+        TURKISH_Q_NEAR_KEY_MAP.put('d', "sf");
+        TURKISH_Q_NEAR_KEY_MAP.put('e', "wr");
+        TURKISH_Q_NEAR_KEY_MAP.put('f', "gd");
+        TURKISH_Q_NEAR_KEY_MAP.put('g', "fh");
+        TURKISH_Q_NEAR_KEY_MAP.put('ğ', "pü");
+        TURKISH_Q_NEAR_KEY_MAP.put('h', "gj");
+        TURKISH_Q_NEAR_KEY_MAP.put('ğ', "pü");
+        TURKISH_Q_NEAR_KEY_MAP.put('ı', "ou");
+        TURKISH_Q_NEAR_KEY_MAP.put('i', "ş");
+        TURKISH_Q_NEAR_KEY_MAP.put('j', "hk");
+        TURKISH_Q_NEAR_KEY_MAP.put('k', "jl");
+        TURKISH_Q_NEAR_KEY_MAP.put('l', "kş");
+        TURKISH_Q_NEAR_KEY_MAP.put('m', "nö");
+        TURKISH_Q_NEAR_KEY_MAP.put('n', "bm");
+        TURKISH_Q_NEAR_KEY_MAP.put('o', "ıp");
+        TURKISH_Q_NEAR_KEY_MAP.put('ö', "mç");
+        TURKISH_Q_NEAR_KEY_MAP.put('p', "oğ");
+        TURKISH_Q_NEAR_KEY_MAP.put('r', "et");
+        TURKISH_Q_NEAR_KEY_MAP.put('s', "ad");
+        TURKISH_Q_NEAR_KEY_MAP.put('ş', "li");
+        TURKISH_Q_NEAR_KEY_MAP.put('t', "ry");
+        TURKISH_Q_NEAR_KEY_MAP.put('u', "yı");
+        TURKISH_Q_NEAR_KEY_MAP.put('ü', "ğ");
+        TURKISH_Q_NEAR_KEY_MAP.put('v', "cb");
+        TURKISH_Q_NEAR_KEY_MAP.put('y', "tu");
+        TURKISH_Q_NEAR_KEY_MAP.put('z', "x");
+        TURKISH_Q_NEAR_KEY_MAP.put('x', "zc");
+        TURKISH_Q_NEAR_KEY_MAP.put('q', "w");
+        TURKISH_Q_NEAR_KEY_MAP.put('w', "qe");
     }
 
     public SingleWordSpellChecker(double maxPenalty) {
@@ -76,9 +108,10 @@ public class SingleWordSpellChecker {
         this.checkNearKeySubstitution = false;
     }
 
-    public SingleWordSpellChecker(double maxPenalty, boolean checkNearKeySubstitution) {
+    public SingleWordSpellChecker(double maxPenalty, Map<Character, String> nearKeyMap) {
         this.maxPenalty = maxPenalty;
-        this.checkNearKeySubstitution = checkNearKeySubstitution;
+        this.nearKeyMap = Collections.unmodifiableMap(nearKeyMap);
+        this.checkNearKeySubstitution = true;
     }
 
     public static class Node {
@@ -210,7 +243,7 @@ public class SingleWordSpellChecker {
                 if (checkNearKeySubstitution) {
                     char nextChar = input.charAt(nextIndex);
                     if (childNode.chr != nextChar) {
-                        String nearCharactersString = nearKeys.get(childNode.chr);
+                        String nearCharactersString = nearKeyMap.get(childNode.chr);
                         if (nearCharactersString != null && nearCharactersString.indexOf(nextChar) >= 0)
                             penalty = NEAR_KEY_SUBSTITUTION_PENALTY;
                         else penalty = SUBSTITUTION_PENALTY;
@@ -238,11 +271,9 @@ public class SingleWordSpellChecker {
         newHypotheses.add(hypothesis.getNewMoveForward(hypothesis.node, DELETION_PENALTY, Operation.DEL));
 
         // insertion
-
         for (Node childNode : hypothesis.node.getChildNodes()) {
             newHypotheses.add(hypothesis.getNew(childNode, INSERTION_PENALTY, Operation.INS));
         }
-
 
         // transposition
         if (nextIndex < input.length() - 1) {
@@ -266,7 +297,7 @@ public class SingleWordSpellChecker {
     }
 
 
-    void addHypothesis(DoubleValueSet<String> result, Hypothesis hypothesis) {
+    private void addHypothesis(DoubleValueSet<String> result, Hypothesis hypothesis) {
         String hypWord = hypothesis.node.word;
         if (hypWord == null) {
             if (Log.isDebug())
@@ -284,7 +315,7 @@ public class SingleWordSpellChecker {
         }
     }
 
-    DoubleValueSet<String> decode(String input) {
+    public DoubleValueSet<String> decode(String input) {
         Hypothesis hyp = new Hypothesis(null, root, 0, Operation.N_A);
         DoubleValueSet<String> hypotheses = new DoubleValueSet<>();
         Set<Hypothesis> next = expand(hyp, input, hypotheses);
@@ -399,39 +430,4 @@ public class SingleWordSpellChecker {
             return result;
         }
     }
-
-
-    public static void main(String[] args) throws IOException {
-        SingleWordSpellChecker dt = new SingleWordSpellChecker(1.4, true);
-        System.out.println("Loading vocabulary");
-        List<String> list = Files.readAllLines(new File("kelimeler").toPath(), Charsets.UTF_8);
-        System.out.println("Building tree");
-        dt.buildDictionary(list);
-        System.out.println("Tree is ready");
-
-        Random rnd = new Random(0xbeefcafe);
-        List<String> testSet = new ArrayList<>();
-
-        for (int i = 0; i < 1000; i++) {
-            testSet.add(list.get(rnd.nextInt(list.size())));
-        }
-
-        testSet.add("hipermaretleri");
-        Stopwatch sw = new Stopwatch().start();
-        int i = 0;
-        System.out.println(testSet.size());
-        for (String s : testSet) {
-            //System.out.println(s);
-            DoubleValueSet<String> res = dt.decode(dt.process(s));
-/*            for (String re : res) {
-                System.out.println(re + " " + res.getChild(re));
-            }*/
-            i = i + res.size();
-        }
-        System.out.println("elapsed " + sw.elapsed(TimeUnit.MILLISECONDS));
-
-        System.out.println(i);
-    }
-
-
 }
