@@ -57,10 +57,6 @@ public class TestSingleWordSpellChecker {
         Assert.assertEquals(1, result.get("çakal"), delta);
         Assert.assertEquals(1, result.get("çak"), delta);
 
-        Assert.assertEquals(0, res1.get("çak"), delta);
-        Assert.assertEquals(1, res1.get("sak"), delta);
-        Assert.assertEquals(1, res1.get("bak"), delta);
-        Assert.assertEquals(1, res1.get("çaka"), delta);
         Log.setInfo();
     }
 
