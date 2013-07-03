@@ -37,6 +37,7 @@ public class TestSingleWordSpellChecker {
         Assert.assertEquals(1, res1.get("sak"), delta);
         Assert.assertEquals(1, res1.get("bak"), delta);
         Assert.assertEquals(1, res1.get("çaka"), delta);
+        Log.setInfo();
     }
 
     void assertContainsAll(DoubleValueSet<String> set, String... words) {

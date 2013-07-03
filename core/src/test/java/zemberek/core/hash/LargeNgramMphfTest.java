@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 public class LargeNgramMphfTest {
     @Test
     public void NgramFileMPHFTest() throws IOException {
-        int[] gramCounts = {1, 2, 4, 8, 10, 100, 1000, 10000, 100000, 1000000, 5000000};
+        int[] gramCounts = {1, 2, 4, 8, 10, 100, 1000, 10000, 100000, 1000000};
         for (int gramCount : gramCounts) {
             System.out.println("Gram Count = " + gramCount);
             int order = 5;
@@ -25,7 +25,7 @@ public class LargeNgramMphfTest {
             File file = generateBinaryGramFile(order, gramCount, arr);
 
             Stopwatch sw = new Stopwatch().start();
-            LargeNgramMphf mphf = LargeNgramMphf.generate(file, 21);
+            LargeNgramMphf mphf = LargeNgramMphf.generate(file, 20);
             System.out.println("Generation time:" + sw.elapsed(TimeUnit.MILLISECONDS));
 /*            System.out.println("Bits per key=" + mphf.averageBitsPerKey(gramCount));
             System.out.println("Main failed key count:" + mphf.emptyHashIndexes.length);
@@ -39,7 +39,7 @@ public class LargeNgramMphfTest {
             System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));
 
             System.out.println("Verifying Results:");
-            Set<Integer> results = new HashSet<Integer>(gramCount);
+            Set<Integer> results = new HashSet<>(gramCount);
             for (int[] key : arr) {
                 int res = mphf.get(key);
                 Assert.assertTrue("unexpected result:" + res, res >= 0 && res < gramCount);

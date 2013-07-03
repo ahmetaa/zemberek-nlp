@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 public class MultiLevelMphfTest {
     @Test
     public void intKeys() throws IOException {
-        int[] limits = {1, 2, 10, 100, 1000, 50000, 100000, 1000000};
+        int[] limits = {1, 2, 10, 100, 1000, 50000, 100000};
         int arraySize = 5;
         for (int limit : limits) {
             System.out.println("Key amount: " + limit);
@@ -28,7 +28,7 @@ public class MultiLevelMphfTest {
 
     @Test
     public void stringKeys() throws IOException {
-        int[] limits = {1, 2, 10, 100, 1000, 50000, 100000, 1000000};
+        int[] limits = {1, 2, 10, 100, 1000, 50000, 100000};
         int strSize = 5;
         for (int limit : limits) {
             System.out.println("Key amount: " + limit);
