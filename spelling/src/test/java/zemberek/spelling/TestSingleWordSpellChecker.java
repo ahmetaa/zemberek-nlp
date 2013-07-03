@@ -1,18 +1,24 @@
 package zemberek.spelling;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Stopwatch;
+import com.google.common.io.Resources;
 import org.junit.Assert;
 import org.junit.Test;
 import zemberek.core.DoubleValueSet;
 import zemberek.core.logging.Log;
 
+import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class TestSingleWordSpellChecker {
 
     @Test
-    public void singleWordDictionaryTest() {
+    public void simpleDecodeTest() {
         SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
         String vocabulary = "elma";
         spellChecker.addWord(vocabulary);
@@ -25,7 +31,7 @@ public class TestSingleWordSpellChecker {
     }
 
     @Test
-    public void singleWordDictionaryTest2() {
+    public void multiWordDecodeTest() {
         Log.setDebug();
         SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
         spellChecker.addWords("çak", "sak", "saka", "bak", "çaka", "çakal", "sakal");
@@ -38,6 +44,21 @@ public class TestSingleWordSpellChecker {
         Assert.assertEquals(1, res1.get("bak"), delta);
         Assert.assertEquals(1, res1.get("çaka"), delta);
         Log.setInfo();
+    }
+
+    @Test
+    public void performanceTest() throws IOException {
+        List<String> words = Resources.readLines(Resources.getResource("10000"), Charsets.UTF_8);
+        SingleWordSpellChecker spellChecker = new SingleWordSpellChecker();
+        spellChecker.buildDictionary(words);
+        Stopwatch sw = new Stopwatch().start();
+        int solutionCount = 0;
+        for (String word : words) {
+            DoubleValueSet<String> result = spellChecker.decode(word);
+            solutionCount += result.size();
+        }
+        Log.info("Elapsed: " + sw.elapsed(TimeUnit.MILLISECONDS));
+        Log.info("Solution count:" + solutionCount);
     }
 
     void assertContainsAll(DoubleValueSet<String> set, String... words) {
@@ -78,7 +99,9 @@ public class TestSingleWordSpellChecker {
 
     @Test
     public void nearKeyCheck() {
-        SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1, true);
+        SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(
+                1,
+                SingleWordSpellChecker.TURKISH_Q_NEAR_KEY_MAP);
         String vocabulary = "elma";
         spellChecker.addWord(vocabulary);
         Assert.assertTrue(spellChecker.decode(vocabulary).contains(vocabulary));
