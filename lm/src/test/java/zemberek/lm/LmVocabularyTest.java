@@ -1,6 +1,7 @@
 package zemberek.lm;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import org.junit.Assert;
@@ -65,9 +66,11 @@ public class LmVocabularyTest {
 
     private void simpleCheck(LmVocabulary vocabulary) {
         Assert.assertTrue(vocabulary.size() == 5);
-        Assert.assertEquals("Hello World", vocabulary.getWordsString(3, 4));
-        Assert.assertEquals("Hello " + LmVocabulary.UNKNOWN_WORD, vocabulary.getWordsString(3, 2));
-        Assert.assertEquals(3, vocabulary.indexOf("Hello"));
+        Assert.assertEquals("Hello World",
+                vocabulary.getWordsString(vocabulary.toIndexes("Hello", "World")));
+        Assert.assertEquals("Hello " + LmVocabulary.UNKNOWN_WORD,
+                vocabulary.getWordsString(vocabulary.toIndexes("Hello", LmVocabulary.UNKNOWN_WORD)));
+        Assert.assertTrue(vocabulary.contains("Hello"));
         Assert.assertEquals(vocabulary.getUnknownWordIndex(), vocabulary.indexOf("Foo"));
     }
 
@@ -128,15 +131,21 @@ public class LmVocabularyTest {
     @Test
     public void toWordsTest() throws IOException {
         LmVocabulary vocabulary = new LmVocabulary("a", "b", "c", "d", "e");
-        Assert.assertArrayEquals(new String[]{"a", "e", "b"}, vocabulary.toWords(3, 4 + 3, 1 + 3));
-        Assert.assertArrayEquals(new String[]{"a", LmVocabulary.UNKNOWN_WORD, "b"}, vocabulary.toWords(3, 17, 1 + 3));
+        int[] indexes = vocabulary.toIndexes("a", "e", "b");
+        Assert.assertEquals("a e b", Joiner.on(" ").join(vocabulary.toWords(indexes)));
+        indexes = vocabulary.toIndexes("a", "e", "foo");
+        Assert.assertEquals("a e <unk>", Joiner.on(" ").join(vocabulary.toWords(indexes)));
     }
 
     @Test
     public void toIndexTest() throws IOException {
         LmVocabulary vocabulary = new LmVocabulary("a", "b", "c", "d", "e");
-        Assert.assertArrayEquals(new int[]{3, 4 + 3, 1 + 3}, vocabulary.toIndexes("a", "e", "b"));
-        Assert.assertArrayEquals(new int[]{3, vocabulary.getUnknownWordIndex(), 1 + 3}, vocabulary.toIndexes("a", "foo", "b"));
+
+        int[] indexes = {vocabulary.indexOf("a"), vocabulary.indexOf("e"), vocabulary.indexOf("b")};
+        Assert.assertArrayEquals(indexes, vocabulary.toIndexes("a", "e", "b"));
+
+        int[] indexes2 = {vocabulary.indexOf("a"), vocabulary.indexOf("<unk>"), vocabulary.indexOf("b")};
+        Assert.assertArrayEquals(indexes2, vocabulary.toIndexes("a", "foo", "b"));
     }
 
 }

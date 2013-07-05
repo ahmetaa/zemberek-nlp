@@ -5,6 +5,7 @@ import zemberek.core.hash.IntHashKeyProvider;
 import zemberek.core.hash.LargeNgramMphf;
 import zemberek.core.hash.Mphf;
 import zemberek.core.hash.MultiLevelMphf;
+import zemberek.core.logging.Log;
 import zemberek.core.quantization.QuantizerType;
 
 import java.io.*;
@@ -33,7 +34,7 @@ public class ArpaToSmoothLmConverter {
 
     public File generateUncompressed() throws IOException {
 
-        System.out.println("Generating binary uncompressed file from :" + arpaFile);
+        Log.info("Generating binary uncompressed file from :" + arpaFile);
 
         MultiFileUncompressedLm lm = MultiFileUncompressedLm.generate(arpaFile, tempDir, "utf-8");
 
@@ -50,7 +51,7 @@ public class ArpaToSmoothLmConverter {
 
     public void convert(File binaryLmDir, NgramDataBlock block, SmoothLm.MphfType type, int chunkBits) throws IOException {
 
-        System.out.println("Generating compressed language model.");
+        Log.info("Generating compressed language model.");
 
         MultiFileUncompressedLm lm = new MultiFileUncompressedLm(binaryLmDir);
 
@@ -64,7 +65,7 @@ public class ArpaToSmoothLmConverter {
 
         File[] phfFiles = new File[order + 1];
         for (int i = 2; i <= order; i++) {
-            System.out.println("Generating MPHF for " + i + "grams.");
+            Log.info("Generating MPHF for " + i + "grams.");
             Mphf mphf;
             if (type == SmoothLm.MphfType.LARGE)
                 mphf = LargeNgramMphf.generate(lm.getGramFile(i), chunkBits);
@@ -76,7 +77,7 @@ public class ArpaToSmoothLmConverter {
         }
 
         // generate header.
-        System.out.println("Writing header");
+        Log.info("Writing header");
         // write version and type info
         dos.writeInt(VERSION);
 
@@ -105,7 +106,7 @@ public class ArpaToSmoothLmConverter {
                 Files.copy(lm.getBackoffLookupFile(i), dos);
         }
 
-        System.out.println("Reordering probability data and saving it together with n-gram fingerprints");
+        Log.info("Reordering probability data and saving it together with n-gram fingerprints");
         for (int i = 1; i <= order; i++) {
             InMemoryBigByteArray probData = new InMemoryBigByteArray(lm.getProbRankFile(i));
             InMemoryBigByteArray backoffData = null;
@@ -128,7 +129,7 @@ public class ArpaToSmoothLmConverter {
                 else
                     reorderData = reorderIndexes(block, lm, i, MultiLevelMphf.deserialize(phfFiles[i]));
             }
-            System.out.println("Validating reordered index array:");
+            Log.info("Validating reordered index array for " + i + " grams.");
 
             validateIndexArray(reorderData.reorderedKeyIndexes);
 
@@ -166,14 +167,14 @@ public class ArpaToSmoothLmConverter {
 
         // append size of the Perfect hash and its content.
         if (phfFiles.length > 0)
-            System.out.println("Saving MPHF values.");
+            Log.info("Saving MPHF values.");
 
         for (int i = 2; i <= order; i++) {
             Files.copy(phfFiles[i], dos);
         }
 
         // save vocabulary
-        System.out.println("Saving vocabulary.");
+        Log.info("Saving vocabulary.");
         Files.copy(lm.getVocabularyFile(), dos);
 
         dos.close();
@@ -251,7 +252,7 @@ public class ArpaToSmoothLmConverter {
         }
 
         int fingerprint(int[] key) {
-            return MultiLevelMphf.hash(key,-1) & fingerprintMask;
+            return MultiLevelMphf.hash(key, -1) & fingerprintMask;
         }
 
         void fingerprintAsBytes(int fingerprint, byte[] res) {
@@ -279,7 +280,7 @@ public class ArpaToSmoothLmConverter {
         }
 
         void fingerprintAsBytes(int[] key, byte[] res) {
-            fingerprintAsBytes(MultiLevelMphf.hash(key,-1) & fingerprintMask, res);
+            fingerprintAsBytes(MultiLevelMphf.hash(key, -1) & fingerprintMask, res);
         }
     }
 }

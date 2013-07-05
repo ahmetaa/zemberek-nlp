@@ -1,13 +1,16 @@
 package zemberek.lm.compression;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import zemberek.core.SpaceTabTokenizer;
+import zemberek.core.logging.Log;
 import zemberek.core.quantization.DoubleLookup;
 import zemberek.core.quantization.Quantizer;
 import zemberek.core.quantization.QuantizerType;
+import zemberek.lm.LmVocabulary;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -117,12 +120,12 @@ public class MultiFileUncompressedLm {
     public void generateRankFiles(int i, int bit, QuantizerType quantizerType) throws IOException {
         if (bit > 24)
             throw new IllegalArgumentException("Cannot generate rank file larger than 24 bits but it is:" + bit);
-        System.out.println("Calculating probabilty rank values for :" + i + " Grams");
+        Log.info("Calculating probabilty rank values for :" + i + " Grams");
         File probFile = getProbFile(i);
         generateRankFile(bit, i, probFile, new File(dir, i + ".prob.rank"), quantizerType);
         if (i < counts.length - 1) {
             File backoffFile = getBackoffFile(i);
-            System.out.println("Calculating back-off rank values for :" + i + " Grams");
+            Log.info("Calculating back-off rank values for :" + i + " Grams");
             generateRankFile(bit, i, backoffFile, new File(dir, i + ".backoff.rank"), quantizerType);
         }
     }
@@ -131,24 +134,24 @@ public class MultiFileUncompressedLm {
         if (bit > 24)
             throw new IllegalArgumentException("Cannot generate rank file larger than 24 bits but it is:" + bit);
         for (int i = 1; i < counts.length; i++) {
-            System.out.println("Calculating probabilty rank values for :" + i + " Grams");
+            Log.info("Calculating probabilty lookup values for :" + i + " Grams");
             File probFile = getProbFile(i);
             generateRankFile(bit, i, probFile, new File(dir, i + ".prob.rank"), quantizerType);
             if (i < counts.length - 1) {
                 File backoffFile = getBackoffFile(i);
-                System.out.println("Calculating back-off rank values for :" + i + " Grams");
+                Log.info("Calculating lookup values for " + i + " Grams");
                 generateRankFile(bit, i, backoffFile, new File(dir, i + ".backoff.rank"), quantizerType);
             }
         }
     }
 
     private void generateRankFile(int bit, int i, File probFile, File rankFile, QuantizerType quantizerType) throws IOException {
-        try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(probFile), 100000));
-             DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(rankFile), 100000))) {
+        try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(probFile)));
+             DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(rankFile)))) {
             int count = dis.readInt();
             Quantizer quantizer = BinaryFloatFileReader.getQuantizer(probFile, bit, quantizerType);
             dos.writeInt(count);
-            System.out.println("Writing Ranked file for:" + i);
+            Log.info("Writing Rank file for " + i + " grams");
             int bytecount = (bit % 8 == 0 ? bit / 8 : bit / 8 + 1);
             if (bytecount == 0)
                 bytecount = 1;
@@ -171,10 +174,8 @@ public class MultiFileUncompressedLm {
                         break;
                 }
             }
-            System.out.println("Writing lookups for:" + i);
-
             DoubleLookup lookup = quantizer.getDequantizer();
-            System.out.println("Lookup size:" + lookup.getRange());
+            Log.info("Writing lookups for " + i + " grams. Size= " + lookup.getRange());
             lookup.save(new File(dir, probFile.getName() + ".lookup"));
 
         }
@@ -188,7 +189,7 @@ public class MultiFileUncompressedLm {
             throw new IllegalArgumentException("Cannot create directory:" + dir);
 
         long elapsedTime = Files.readLines(arpaFile, Charset.forName(encoding), new ArpaToBinaryConverter(dir));
-        System.out.println("generated in " + (double) elapsedTime / 1000d + " seconds");
+        Log.info("Multi file uncompressed binary model is generated in " + (double) elapsedTime / 1000d + " seconds");
         return new MultiFileUncompressedLm(dir);
     }
 
@@ -198,8 +199,7 @@ public class MultiFileUncompressedLm {
 
     private static class ArpaToBinaryConverter implements LineProcessor<Long> {
 
-        Map<String, Integer> unigramIdMap = new HashMap<String, Integer>();
-        List<String> vocabulary = new ArrayList<String>();
+        public static final int DEFAULT_UNKNOWN_PROBABILTY = -20;
         int ngramCounter = 0;
         int _n;
 
@@ -208,7 +208,7 @@ public class MultiFileUncompressedLm {
         }
 
         State state = State.BEGIN;
-        List<Integer> ngramCounts = new ArrayList<Integer>();
+        List<Integer> ngramCounts = new ArrayList<>();
         boolean started = false;
         File dir;
 
@@ -218,6 +218,10 @@ public class MultiFileUncompressedLm {
         int order;
         long start;
         SpaceTabTokenizer tokenizer = new SpaceTabTokenizer();
+        LmVocabulary.Builder vocabularyBuilder = new LmVocabulary.Builder();
+
+        // This will be generated after reading unigrams.
+        LmVocabulary lmVocabulary;
 
         ArpaToBinaryConverter(File dir) throws FileNotFoundException {
             this.dir = dir;
@@ -263,23 +267,12 @@ public class MultiFileUncompressedLm {
                         }
                         ngramCounts.add(count);
                     } else if (started) {
-
-                        order = ngramCounts.size();
-                        DataOutputStream infos = getDos("info");
-                        infos.writeInt(order);
-                        for (Integer ngramCount : ngramCounts) {
-                            infos.writeInt(ngramCount);
-                        }
-                        infos.close();
                         state = State.UNIGRAMS;
                         newGramStream(1);
                         newProbStream(1);
                         newBackoffStream(1);
-                        int i = 0;
-                        for (Integer count : ngramCounts) {
-                            System.out.println((++i) + "gram count:" + count);
-                        }
-                        System.out.println("Writing unigrams.");
+                        Log.info("Gram counts: " + Joiner.on(" ").join(ngramCounts));
+                        Log.info("Writing unigrams.");
                         _n++;
                     }
                     break;
@@ -298,16 +291,31 @@ public class MultiFileUncompressedLm {
                     if (tokens.length == 3)
                         logBackoff = Float.parseFloat(tokens[_n + 1]);
                     // write unigram id, log-probability and log-backoff value.
-                    gramOs.writeInt(ngramCounter);
+                    int wordIndex = vocabularyBuilder.add(word);
+                    gramOs.writeInt(wordIndex);
                     probOs.writeFloat(logProbability);
 
                     // if there are only ngrams, do not write backoff value.
                     if (ngramCounts.size() > 1)
                         backoffOs.writeFloat(logBackoff);
 
-                    unigramIdMap.put(word, ngramCounter++);
-                    vocabulary.add(word);
+                    ngramCounter++;
                     if (ngramCounter == ngramCounts.get(0)) {
+                        handleSpecialToken(LmVocabulary.SENTENCE_START);
+                        handleSpecialToken(LmVocabulary.SENTENCE_END);
+                        handleSpecialToken(LmVocabulary.UNKNOWN_WORD);
+                        lmVocabulary = vocabularyBuilder.generate();
+
+                        // we write info file after reading unigrams because we may add special tokens to unigrams
+                        // so count information may have been changed.
+                        order = ngramCounts.size();
+                        try (DataOutputStream infos = getDos("info")) {
+                            infos.writeInt(order);
+                            for (Integer ngramCount : ngramCounts) {
+                                infos.writeInt(ngramCount);
+                            }
+                        }
+
                         ngramCounter = 0;
                         state = State.NGRAMS;
                         _n++;
@@ -319,7 +327,7 @@ public class MultiFileUncompressedLm {
                             newProbStream(2);
                             if (order > 2)
                                 newBackoffStream(2);
-                            System.out.println("Writing 2-grams.");
+                            Log.info("Writing 2-grams.");
                         }
                     }
                     break;
@@ -332,7 +340,7 @@ public class MultiFileUncompressedLm {
                     logProbability = Float.parseFloat(tokens[0]);
 
                     for (int i = 0; i < _n; i++) {
-                        int id = unigramIdMap.get(tokens[i + 1]);
+                        int id = lmVocabulary.indexOf(tokens[i + 1]);
                         gramOs.writeInt(id);
                     }
 
@@ -346,8 +354,8 @@ public class MultiFileUncompressedLm {
                         backoffOs.writeFloat(logBackoff);
                     }
 
-                    if (ngramCounter % 500000 == 0)
-                        System.out.print(".");
+                    if (ngramCounter > 0 && ngramCounter % 500000 == 0)
+                        Log.info(ngramCounter + " grams are written so far.");
 
                     ngramCounter++;
                     if (ngramCounter == ngramCounts.get(_n - 1)) {
@@ -362,7 +370,7 @@ public class MultiFileUncompressedLm {
                             if (order > _n) {
                                 newBackoffStream(_n);
                             }
-                            System.out.println("\nWriting " + _n + "-grams.");
+                            Log.info("Writing " + _n + "-grams.");
                         }
                     }
                     break;
@@ -371,16 +379,25 @@ public class MultiFileUncompressedLm {
                     Closeables.close(gramOs, true);
                     Closeables.close(probOs, true);
                     Closeables.close(backoffOs, true);
-                    DataOutputStream voDo = getDos("vocab");
-                    voDo.writeInt(vocabulary.size());
-                    System.out.println("Writing vocabulary.");
-                    for (String w : vocabulary) {
-                        voDo.writeUTF(w);
-                    }
-                    voDo.close();
+                    Log.info("Writing model vocabulary.");
+                    lmVocabulary.saveBinary(new File(dir, "vocab"));
                     return false; // we are done.
             }
             return true;
+        }
+
+        // adds special token with default probability.
+        private void handleSpecialToken(String word) throws IOException {
+            if (vocabularyBuilder.indexOf(word) == -1) {
+                Log.warn("Special token " + word +
+                        " does not exist in model. It is added with default unknown probability: " +
+                        DEFAULT_UNKNOWN_PROBABILTY);
+                int index = vocabularyBuilder.add(word);
+                gramOs.writeInt(index);
+                probOs.writeFloat(DEFAULT_UNKNOWN_PROBABILTY);
+                if (ngramCounts.size() > 1)
+                    backoffOs.writeFloat(0);
+            }
         }
 
         private DataOutputStream getDos(String name) throws FileNotFoundException {

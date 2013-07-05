@@ -1,6 +1,7 @@
 package zemberek.lm.compression;
 
 import zemberek.core.Histogram;
+import zemberek.core.logging.Log;
 import zemberek.core.quantization.BinningQuantizer;
 import zemberek.core.quantization.KMeansQuantizer;
 import zemberek.core.quantization.Quantizer;
@@ -60,7 +61,6 @@ public class BinaryFloatFileReader {
         }
 
         public Quantizer getQuantizer(QuantizerType type) {
-            System.out.println("Unique value count:" + histogram.size());
             double[] lookup = new double[histogram.size()];
             int[] counts = new int[histogram.size()];
             int j = 0;
@@ -69,7 +69,7 @@ public class BinaryFloatFileReader {
                 counts[j] = histogram.getCount(key);
                 j++;
             }
-            System.out.println("Quantizing to " + bitCount + " bits");
+            Log.info("Quantizing " + histogram.size() + " values to 2^" + bitCount + " bits values.");
 
             switch (type) {
                 case BINNING:

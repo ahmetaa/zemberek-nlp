@@ -33,7 +33,7 @@ public class LmVocabulary {
      *
      * @param vocabulary word list.
      */
-    public LmVocabulary(List<String> vocabulary) {
+    public LmVocabulary(Collection<String> vocabulary) {
         //defensive copying
         generateMap(Lists.newArrayList(vocabulary));
     }
@@ -87,6 +87,20 @@ public class LmVocabulary {
         }
     }
 
+    public void saveBinary(File file) throws IOException {
+        try (DataOutputStream dos = new DataOutputStream(
+                new BufferedOutputStream(new FileOutputStream(file)))) {
+            saveBinary(dos);
+        }
+    }
+
+    public void saveBinary(DataOutputStream dos) throws IOException {
+        dos.writeInt(vocabulary.size());
+        for (String s : vocabulary) {
+            dos.writeUTF(s);
+        }
+    }
+
     /**
      * Generates a vocabulary from a binary RandomAccessFile. first integer read from the file pointer
      * defines the vocabulary size. Rest is read in UTF. The RandomAccessFile will not be closed by this method.
@@ -124,18 +138,12 @@ public class LmVocabulary {
 
     private void generateMap(List<String> words) {
 
-        List<String> finalVocabulary = Lists.newArrayList(SENTENCE_START, SENTENCE_END, UNKNOWN_WORD);
-        vocabularyIndexMap.put(SENTENCE_START, 0);
-        sentenceStartIndex = 0;
-        vocabularyIndexMap.put(SENTENCE_END, 1);
-        sentenceEndIndex = 1;
-        vocabularyIndexMap.put(UNKNOWN_WORD, 2);
-        unknownWordIndex = 2;
-        int index = 3;
+        List<String> finalVocabulary = Lists.newArrayList();
+
         for (int i = 0; i < words.size(); i++) {
             String word = words.get(i);
             String lowerCase = word.toLowerCase(Locale.ENGLISH);
-            if (SPECIAL_WORDS.contains(lowerCase)) {
+            if (SPECIAL_WORDS.contains(lowerCase) && !word.equals(lowerCase)) {
                 if (!lowerCase.equals(word)) {
                     Log.warn("Input contains special word %s but case does not match:%s. " +
                             "%s form will be used.", lowerCase, word, lowerCase);
@@ -146,18 +154,29 @@ public class LmVocabulary {
             if (vocabularyIndexMap.containsKey(word)) {
                 Log.warn("Language model vocabulary has duplicate item: " + word);
             } else {
-                vocabularyIndexMap.put(word, index);
+                vocabularyIndexMap.put(word, finalVocabulary.size());
                 finalVocabulary.add(word);
             }
-            index++;
         }
         if (!words.contains(SENTENCE_START)) {
+            int index = finalVocabulary.size();
+            vocabularyIndexMap.put(SENTENCE_START, index);
+            finalVocabulary.add(SENTENCE_START);
+            sentenceStartIndex = index;
             Log.warn("Input vocabulary does not contain sentence start word <s>. It is added automatically.");
         }
         if (!words.contains(SENTENCE_END)) {
+            int index = finalVocabulary.size();
+            vocabularyIndexMap.put(SENTENCE_END, index);
+            finalVocabulary.add(SENTENCE_END);
+            sentenceEndIndex = index;
             Log.warn("Input Vocabulary does not contain sentence end word </s>. It is added automatically.");
         }
         if (!words.contains(UNKNOWN_WORD)) {
+            int index = finalVocabulary.size();
+            vocabularyIndexMap.put(UNKNOWN_WORD, index);
+            finalVocabulary.add(UNKNOWN_WORD);
+            unknownWordIndex = index;
             Log.info("Input Vocabulary does not contain unknown word token </unk>. It is added automatically.");
         }
         vocabulary = Collections.unmodifiableList(finalVocabulary);
@@ -165,6 +184,36 @@ public class LmVocabulary {
 
     public int size() {
         return vocabularyIndexMap.size();
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        Map<String, Integer> map = new HashMap<>();
+        List<String> list = Lists.newArrayList();
+
+        public int add(String word) {
+            if (map.containsKey(word)) {
+                Log.warn("word already exist in vocabulary." + word);
+                return map.get(word);
+            } else {
+                map.put(word, list.size());
+                list.add(word);
+                return map.get(word);
+            }
+        }
+
+        public int indexOf(String key) {
+            if (map.containsKey(key))
+                return map.get(key);
+            else return -1;
+        }
+
+        public LmVocabulary generate() {
+            return new LmVocabulary(list);
+        }
     }
 
     /**
@@ -251,7 +300,7 @@ public class LmVocabulary {
 
     /**
      * @param word Word
-     * @return if vocabulary contains the word.
+     * @return if vocabulary contains the word. For special tokens, it always return true.
      */
     public boolean contains(String word) {
         return vocabularyIndexMap.containsKey(word);
