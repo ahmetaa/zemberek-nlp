@@ -271,7 +271,7 @@ public class MultiFileUncompressedLm {
                         newGramStream(1);
                         newProbStream(1);
                         newBackoffStream(1);
-                        Log.info("Gram counts: " + Joiner.on(" ").join(ngramCounts));
+                        Log.info("Gram counts in Arpa file: " + Joiner.on(" ").join(ngramCounts));
                         Log.info("Writing unigrams.");
                         _n++;
                     }
@@ -305,6 +305,7 @@ public class MultiFileUncompressedLm {
                         handleSpecialToken(LmVocabulary.SENTENCE_END);
                         handleSpecialToken(LmVocabulary.UNKNOWN_WORD);
                         lmVocabulary = vocabularyBuilder.generate();
+                        ngramCounts.set(0, lmVocabulary.size());
 
                         // we write info file after reading unigrams because we may add special tokens to unigrams
                         // so count information may have been changed.
