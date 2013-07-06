@@ -9,6 +9,7 @@ import zemberek.core.hash.MultiLevelMphf;
 import zemberek.core.quantization.DoubleLookup;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 /**
@@ -27,6 +28,7 @@ public class SmoothLm {
     public static final double DEFAULT_UNIGRAM_WEIGHT = 1;
     public static final double DEFAULT_UNKNOWN_BACKOFF_PENALTY = 0;
     public static final double DEFAULT_STUPID_BACKOFF_ALPHA = 0.4;
+    private static final double DEFAULT_UNKNOWN_TOKEN_PROBABILITY = -20;
 
     private final int version;
     private final int order;
@@ -169,9 +171,9 @@ public class SmoothLm {
             sb.append(String.format("%d Grams: Count= %d  Fingerprint Bits= %d  Probabilty Bits= %d  Back-off bits= %d%n",
                     i,
                     gramDataArray.count,
-                    gramDataArray.fpSize*8,
-                    gramDataArray.probSize*8,
-                    gramDataArray.backoffSize*8));
+                    gramDataArray.fpSize * 8,
+                    gramDataArray.probSize * 8,
+                    gramDataArray.backoffSize * 8));
         }
         sb.append(String.format("Log Base              : %.2f%n", logBase));
         sb.append(String.format("Unigram Weight        : %.2f%n", unigramWeight));
@@ -236,9 +238,10 @@ public class SmoothLm {
         }
 
         // we take the unigram probability data out to get rid of rank lookups for speed.
-        unigramProbs = new double[ngramData[1].count];
-        unigramBackoffs = new double[ngramData[1].count];
-        for (int i = 0; i < ngramData[1].count; i++) {
+        int unigramCount = ngramData[1].count;
+        unigramProbs = new double[unigramCount];
+        unigramBackoffs = new double[unigramCount];
+        for (int i = 0; i < unigramCount; i++) {
             final int probability = ngramData[1].getProbabilityRank(i);
             unigramProbs[i] = probabilityLookups[1].get(probability);
             final int backoff = ngramData[1].getBackoffRank(i);
@@ -260,6 +263,19 @@ public class SmoothLm {
 
         // load vocabulary
         vocabulary = LmVocabulary.loadFromDataInputStream(dis);
+
+        // in case special tokens that does not exist in the actual unigrams are added (such as <unk>)
+        // we adjust unigram data accordingly.
+        int vocabularySize = vocabulary.size();
+        if (vocabularySize > unigramCount) {
+            ngramData[1].count = vocabularySize;
+            unigramProbs = Arrays.copyOf(unigramProbs, vocabularySize);
+            unigramBackoffs = Arrays.copyOf(unigramBackoffs, vocabularySize);
+            for (int i = unigramCount; i < vocabularySize; i++) {
+                unigramProbs[i] = DEFAULT_UNKNOWN_TOKEN_PROBABILITY;
+                unigramBackoffs[i] = 0;
+            }
+        }
 
         dis.close();
     }
