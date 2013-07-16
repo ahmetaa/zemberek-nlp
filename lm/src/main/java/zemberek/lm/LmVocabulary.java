@@ -6,6 +6,7 @@ import zemberek.core.io.SimpleTextReader;
 import zemberek.core.logging.Log;
 
 import java.io.*;
+import java.text.Collator;
 import java.util.*;
 
 public class LmVocabulary {
@@ -33,8 +34,7 @@ public class LmVocabulary {
      *
      * @param vocabulary word list.
      */
-    public LmVocabulary(Collection<String> vocabulary) {
-        //defensive copying
+    public LmVocabulary(List<String> vocabulary) {
         generateMap(Lists.newArrayList(vocabulary));
     }
 
@@ -87,6 +87,12 @@ public class LmVocabulary {
         }
     }
 
+    /**
+     * Binary serialization of the vocabulary.
+     *
+     * @param file to serialize.
+     * @throws IOException
+     */
     public void saveBinary(File file) throws IOException {
         try (DataOutputStream dos = new DataOutputStream(
                 new BufferedOutputStream(new FileOutputStream(file)))) {
@@ -94,6 +100,12 @@ public class LmVocabulary {
         }
     }
 
+    /**
+     * Binary serialization of the vocabulary.
+     *
+     * @param dos output stream to serialize.
+     * @throws IOException
+     */
     public void saveBinary(DataOutputStream dos) throws IOException {
         dos.writeInt(vocabulary.size());
         for (String s : vocabulary) {
@@ -183,36 +195,89 @@ public class LmVocabulary {
     }
 
     public int size() {
-        return vocabularyIndexMap.size();
+        // Because we may have duplicate items in word list but not in map, we return the size of the list.
+        return vocabulary.size();
     }
 
+    /**
+     * Returns a mutable Builder class which can be used for generating an LmVocabulary object.
+     */
     public static Builder builder() {
         return new Builder();
     }
 
+    /**
+     * This class acts like a mutable vocabulary. It can be used for dynamically generating an LmVocabulary object.
+     */
     public static class Builder {
-        Map<String, Integer> map = new HashMap<>();
-        List<String> list = Lists.newArrayList();
+        private Map<String, Integer> map = new HashMap<>();
+        private List<String> tokens = Lists.newArrayList();
 
         public int add(String word) {
-            if (map.containsKey(word)) {
-                Log.warn("word already exist in vocabulary." + word);
-                return map.get(word);
+            int index = indexOf(word);
+            if (index != -1) {
+                return index;
             } else {
-                map.put(word, list.size());
-                list.add(word);
-                return map.get(word);
+                index = tokens.size();
+                map.put(word, index);
+                tokens.add(word);
+                return index;
             }
         }
 
+        int size() {
+            return tokens.size();
+        }
+
+        public void addAll(String... words) {
+            for (String word : words) {
+                add(word);
+            }
+        }
+
+        public void addAll(Iterable<String> words) {
+            for (String word : words) {
+                add(word);
+            }
+        }
+
+        /**
+         * @return index of input. -1 if input does not exist.
+         */
         public int indexOf(String key) {
             if (map.containsKey(key))
                 return map.get(key);
             else return -1;
         }
 
+        /**
+         * @return an unmodifiable copy of the words so far added.
+         */
+        public List<String> words() {
+            return Collections.unmodifiableList(tokens);
+        }
+
+        /**
+         * @return indexes of words when the words are alphabetically sorted according to the input locale.
+         */
+        public Iterable<Integer> alphabeticallySortedWordsIds(Locale locale) {
+            TreeMap<String, Integer> treeMap = new TreeMap<>(Collator.getInstance(locale));
+            treeMap.putAll(map);
+            return treeMap.values();
+        }
+
+        /**
+         * @return indexes of words when the words are alphabetically sorted according to EN locale.
+         */
+        public Iterable<Integer> alphabeticallySortedWordsIds() {
+            return new TreeMap<>(map).values();
+        }
+
+        /**
+         * @return Generated unmodifiable LmVocabulary
+         */
         public LmVocabulary generate() {
-            return new LmVocabulary(list);
+            return new LmVocabulary(tokens);
         }
     }
 
@@ -242,6 +307,20 @@ public class LmVocabulary {
 
     public int getUnknownWordIndex() {
         return unknownWordIndex;
+    }
+
+    /**
+     * @return indexes of words when the words are alphabetically sorted according to the input locale.
+     */
+    public Iterable<Integer> alphabeticallySortedWordsIds(Locale locale) {
+        return new TreeMap<String, Integer>(Collator.getInstance(locale)).values();
+    }
+
+    /**
+     * @return indexes of words when the words are alphabetically sorted according to the default locale.
+     */
+    public Iterable<Integer> alphabeticallySortedWordsIds() {
+        return new TreeMap<>(vocabularyIndexMap).values();
     }
 
     /**

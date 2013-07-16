@@ -3,8 +3,8 @@ package zemberek.core;
 import java.util.Arrays;
 
 /**
- * Splits a sentence to words from spaces. space or tab characters are used for breaking points. multiple space/tabs is ignored.
- * This is faster than Java's split operator.
+ * Splits a sentence to words from spaces or tabs. Multiple space/tabs are ignored.
+ * This class is slightly faster than using String split method.
  */
 public class SpaceTabTokenizer {
 
@@ -17,8 +17,7 @@ public class SpaceTabTokenizer {
         int end = 0;
         for (int i = 0; i < line.length(); i++) {
 
-            final char c = line.charAt(i);
-            if (c == ' ' || c == '\t') {
+            if (line.charAt(i) == ' ' || line.charAt(i) == '\t') {
                 if (i == start) {
                     start++;
                     end++;

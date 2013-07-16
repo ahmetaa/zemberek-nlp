@@ -185,8 +185,7 @@ public class MultiFileUncompressedLm {
         if (dir.exists() && !dir.isDirectory()) {
             throw new IllegalArgumentException(dir + " is not a directory!");
         }
-        if (!dir.exists() && !dir.mkdirs())
-            throw new IllegalArgumentException("Cannot create directory:" + dir);
+        else java.nio.file.Files.createDirectories(dir.toPath());
 
         long elapsedTime = Files.readLines(arpaFile, Charset.forName(encoding), new ArpaToBinaryConverter(dir));
         Log.info("Multi file uncompressed binary model is generated in " + (double) elapsedTime / 1000d + " seconds");

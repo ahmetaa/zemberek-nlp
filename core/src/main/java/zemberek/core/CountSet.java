@@ -109,7 +109,7 @@ public class CountSet<T> implements Iterable<T> {
     }
 
     /**
-     * Increments the count of the given object by 1.
+     * If key does not exist, it adds it with count value 1. Otherwise, it increments the count value by 1.
      *
      * @param key key
      * @return the new count value after increment
@@ -119,7 +119,8 @@ public class CountSet<T> implements Iterable<T> {
     }
 
     /**
-     * Increments the count of the given object by 1.
+     * Adds all keys in Iterable.
+     * If key does not exist, it adds it with count value 1. Otherwise, it increments the count value by 1.
      *
      * @param keys key
      */
@@ -130,7 +131,7 @@ public class CountSet<T> implements Iterable<T> {
     }
 
     /**
-     * Returns the count of the key.
+     * Returns the count of the key. If key does not exist, returns 0.
      *
      * @param key key
      * @return count of the key

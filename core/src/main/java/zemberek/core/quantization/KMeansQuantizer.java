@@ -41,7 +41,7 @@ public class KMeansQuantizer implements Quantizer {
             throw new IllegalArgumentException("Bit count cannot be less than 4 or larger than 24" + bits);
         int range = 1 << bits;
 
-        Map<Double, Integer> lookup = new HashMap<Double, Integer>();
+        Map<Double, Integer> lookup = new HashMap<>();
 
         final int dataLength = dataToQuantize.length;
         if (range >= dataLength) {

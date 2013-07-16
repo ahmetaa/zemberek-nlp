@@ -1,6 +1,7 @@
 package zemberek.tokenizer;
 
 import zemberek.core.CountSet;
+import zemberek.core.DoubleValueSet;
 import zemberek.core.io.SimpleTextReader;
 
 import java.io.File;
@@ -12,6 +13,7 @@ public class PerceptronSentenceBoundaryDetecor {
 
 
     String breakStr = ".!?";
+    DoubleValueSet<String> weights = new DoubleValueSet<>();
 
 
     void train(File trainFile) throws IOException {

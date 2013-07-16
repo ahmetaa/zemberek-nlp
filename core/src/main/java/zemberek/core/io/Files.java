@@ -270,7 +270,7 @@ public class Files {
         checkNotNull(rootDir, "File is null!");
         checkArgument(rootDir.isDirectory(), "i was expecting a directory..");
         checkArgument(rootDir.exists(), "Directory does not exist!.");
-        List<File> dirs = new ArrayList<File>();
+        List<File> dirs = new ArrayList<>();
         for (File dir : rootDir.listFiles()) {
             if (dir.isDirectory()) {
                 if (recurseSubDirs) {
@@ -311,9 +311,7 @@ public class Files {
      */
     public static void copyDirectory(File srcDir, File dstDir) throws IOException {
         if (srcDir.isDirectory()) {
-            if (!dstDir.exists()) {
-                dstDir.mkdir();
-            }
+            java.nio.file.Files.createDirectories(dstDir.toPath());
             String[] children = srcDir.list();
             for (String aChildren : children) {
                 copyDirectory(

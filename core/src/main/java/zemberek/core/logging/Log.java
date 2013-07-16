@@ -1,6 +1,7 @@
 package zemberek.core.logging;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import zemberek.core.io.Strings;
 
 import java.io.IOException;
@@ -15,6 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.*;
 
+/**
+ * A convenient Log class.
+ */
 public final class Log {
 
     public static final Thread.UncaughtExceptionHandler EXCEPTION_HANDLER = new ExceptionLoggerHandler();
@@ -33,6 +37,7 @@ public final class Log {
         }
         ConsoleHandler ch = new ConsoleHandler();
         ch.setFormatter(new CUSTOM_FORMAT());
+        ch.setLevel(currentLevel);
         globalLogger.addHandler(ch);
         Thread.setDefaultUncaughtExceptionHandler(EXCEPTION_HANDLER);
     }
@@ -65,27 +70,55 @@ public final class Log {
         currentLevel = level;
     }
 
+    /**
+     * @return true if Log is in debug level.
+     */
     public static boolean isDebug() {
         return currentLevel == Level.FINE;
     }
 
+    /**
+     * @return true if Log is in trace level.
+     */
     public static boolean isTrace() {
         return currentLevel == Level.FINE;
     }
 
+    /**
+     * @return true if Log is in info level.
+     */
     public static boolean isInfo() {
         return currentLevel == Level.INFO;
     }
 
-    public static boolean isWarning() {
+    /**
+     * @return true if Log is in warn level.
+     */
+    public static boolean isWarn() {
         return currentLevel == Level.WARNING;
     }
 
+    /**
+     * Trace level logging. This can be used for cases finer grained than debug level.
+     *
+     * @param message message to log. it can be in String.format(message) format.
+     * @param params  if message is formatted according to String.format() params should contain necessary arguments.
+     *                If last parameter is a throwable, it is handled specially.
+     */
     public static void trace(String message, Object... params) {
         log(Level.FINER, message, params);
     }
 
+    public static void trace(boolean condition, String message, Object... params) {
+        if (condition)
+            log(Level.FINER, message, params);
+    }
+
     public static void debug(String message, Object... params) {
+        log(Level.FINE, message, params);
+    }
+
+    public static void debug(boolean condition, String message, Object... params) {
         log(Level.FINE, message, params);
     }
 
@@ -93,12 +126,31 @@ public final class Log {
         log(Level.INFO, message, params);
     }
 
+    public static void info(boolean condition, String message, Object... params) {
+        if (condition)
+            log(Level.INFO, message, params);
+    }
+
     public static void warn(String message, Object... params) {
         log(Level.WARNING, message, params);
     }
 
+    public static void warn(boolean condition, String message, Object... params) {
+        if (condition)
+            log(Level.WARNING, message, params);
+    }
+
     public static void error(String message, Object... params) {
         log(Level.SEVERE, message, params);
+    }
+
+    public static void error(boolean condition, String message, Object... params) {
+        if (condition)
+            log(Level.SEVERE, message, params);
+    }
+
+    public static void setWarn() {
+        setLevel(Level.WARNING);
     }
 
     public static void setInfo() {
@@ -110,13 +162,14 @@ public final class Log {
     }
 
     public static void setTrace() {
-        setLevel(Level.FINE);
+        setLevel(Level.FINER);
     }
 
     static final CUSTOM_FORMAT formatter = new CUSTOM_FORMAT();
 
     public static void addFileHandler(Path path) throws IOException {
         final StreamHandler handler = new StreamHandler(Files.newOutputStream(path), formatter);
+        handler.setLevel(currentLevel);
         Logger.getLogger("").addHandler(handler);
     }
 
@@ -159,7 +212,7 @@ public final class Log {
         }
     }
 
-    static SimpleDateFormat format = new SimpleDateFormat("HH:MM:ss.SSS");
+    static SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS");
 
     static Map<Level, String> levelShortStringMap = new HashMap<>();
 
@@ -198,24 +251,40 @@ public final class Log {
                 StringBuilder sb = new StringBuilder(levelShortStringMap.get(record.getLevel()));
                 sb.append("|").append(format.format(new Date())).append("|");
                 Object parameters[] = record.getParameters();
-                if (parameters == null || parameters.length == 0) {
-                    sb.append(padIfNecessary(record.getMessage(), 100));
+
+                boolean multiLine = false;
+                if (record.getMessage().indexOf('\n') > 0)
+                    multiLine = true;
+
+                if (!multiLine) {
+                    if (parameters == null || parameters.length == 0) {
+                        sb.append(padIfNecessary(record.getMessage(), 100));
+                    } else {
+                        try {
+                            sb.append(padIfNecessary(String.format(record.getMessage(), parameters), 100));
+                        } catch (IllegalFormatException e) {
+                            sb.append("Log Format Error: ")
+                                    .append(record.getMessage())
+                                    .append(" With Parameters: ")
+                                    .append(Joiner.on(",").join(parameters));
+                        }
+                    }
+                    sb.append("| ")
+                            .append(Strings.subStringAfterLast(record.getSourceClassName(), "."))
+                            .append("#");
+                    sb.append(record.getSourceMethodName());
+
+                    sb.append("\n");
                 } else {
-                    try {
-                        sb.append(padIfNecessary(String.format(record.getMessage(), parameters), 100));
-                    } catch (IllegalFormatException e) {
-                        sb.append("Log Format Error: ")
-                                .append(record.getMessage())
-                                .append(" With Parameters: ")
-                                .append(Joiner.on(",").join(parameters));
+                    sb.append(" \u2193 |")
+                            .append(Strings.subStringAfterLast(record.getSourceClassName(), "."))
+                            .append("#");
+                    sb.append(record.getSourceMethodName());
+                    sb.append("\n");
+                    for(String s : Splitter.on("\n").split(record.getMessage())) {
+                        sb.append("    ").append(s).append("\n");
                     }
                 }
-                sb.append("| ")
-                        .append(Strings.subStringAfterLast(record.getSourceClassName(), "."))
-                        .append("#");
-                sb.append(record.getSourceMethodName());
-
-                sb.append("\n");
                 return sb.toString();
             }
         }

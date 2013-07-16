@@ -5,16 +5,34 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * A compact set structure for counting objects.
+ *
+ * @param <T>
+ */
 public class DoubleValueSet<T> implements Iterable<T> {
 
     static final int INITIAL_SIZE = 8;
     static final double DEFAULT_LOAD_FACTOR = 0.5;
+
+    // This is the size-1 of the key and value array length. Array length is a value power of two
     private int modulo = INITIAL_SIZE - 1;
+
+    // Key array.
     T[] keys;
+
+    // Used for marking slots of deleted keys.
     private final T SENTINEL = (T) new Object();
+
+    // Carries count values.
     double[] values;
+
     int keyCount;
+
+    // When structure has this amount of keys, it expands the key and count arrays.
     int threshold = (int) (INITIAL_SIZE * DEFAULT_LOAD_FACTOR);
+
+    // Only used for debugging.
     int collisionCount;
 
     public DoubleValueSet() {
@@ -106,7 +124,6 @@ public class DoubleValueSet<T> implements Iterable<T> {
      * Increments the count of the given object by 1.
      *
      * @param keys key
-     * @return the new count value after increment
      */
     public void addAll(Iterable<T> keys) {
         for (T t : keys) {
@@ -115,7 +132,7 @@ public class DoubleValueSet<T> implements Iterable<T> {
     }
 
     /**
-     * Returns the count of the key.
+     * Returns the count of the key. If key does not exist, returns 0.
      *
      * @param key key
      * @return count of the key

@@ -8,6 +8,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.*;
+import java.util.List;
+import java.util.Locale;
 
 public class LmVocabularyTest {
 
@@ -148,4 +150,26 @@ public class LmVocabularyTest {
         Assert.assertArrayEquals(indexes2, vocabulary.toIndexes("a", "foo", "b"));
     }
 
+    @Test
+    public void builderTest() throws IOException {
+        LmVocabulary.Builder builder = LmVocabulary.builder();
+        String[] words = {"elma", "çilek", "karpuz", "armut", "elma", "armut"};
+        for (String word : words) {
+            builder.add(word);
+        }
+        Assert.assertEquals(4, builder.size());
+        Assert.assertEquals(0, builder.indexOf("elma"));
+        Assert.assertEquals(1, builder.indexOf("çilek"));
+        Assert.assertEquals(2, builder.indexOf("karpuz"));
+        Assert.assertEquals(-1, builder.indexOf("mango"));
+
+        List<Integer> list = Lists.newArrayList(builder.alphabeticallySortedWordsIds());
+        Assert.assertEquals(Lists.newArrayList(3,0,2,1), list );
+
+        list = Lists.newArrayList(builder.alphabeticallySortedWordsIds(new Locale("tr")));
+        Assert.assertEquals(Lists.newArrayList(3,1,0,2), list );
+
+        LmVocabulary vocab = builder.generate();
+        Assert.assertEquals(7, vocab.size());
+    }
 }

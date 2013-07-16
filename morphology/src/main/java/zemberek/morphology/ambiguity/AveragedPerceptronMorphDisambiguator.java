@@ -95,7 +95,10 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
     }
 
     private void updateAverageWeights(int numExamples, String feat) {
-        averagedWeights.put(feat, (averagedWeights.weight(feat) * counts.get(feat) + (numExamples - counts.get(feat)) * weights.weight(feat)) / numExamples);
+        int featureCount = counts.get(feat);
+        averagedWeights.put(
+                feat,
+                (averagedWeights.weight(feat) * featureCount + (numExamples - featureCount) * weights.weight(feat)) / numExamples);
         counts.set(feat, numExamples);
     }
 

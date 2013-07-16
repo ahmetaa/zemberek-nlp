@@ -22,8 +22,6 @@ import java.util.regex.Pattern;
  */
 public class SimpleBackoffNgramModel implements NgramLanguageModel {
 
-    private static Logger logger = Logger.getLogger(SimpleBackoffNgramModel.class.getName());
-
     public final int order;
     private LmVocabulary vocabulary;
     private Map<NgramData, NgramProb> probabilities = new HashMap<>();

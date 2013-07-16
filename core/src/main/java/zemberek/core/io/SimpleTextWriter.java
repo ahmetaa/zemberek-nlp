@@ -100,7 +100,7 @@ public final class SimpleTextWriter implements AutoCloseable {
     }
 
     /**
-     * creates a one shot writer, meaning that writer will be closed automatically after any wrte method call.
+     * creates a one shot writer, meaning that writer will be closed automatically after any write method call.
      *
      * @param file file to write
      * @return a SimpleTextWriter

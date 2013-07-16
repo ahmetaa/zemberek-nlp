@@ -1,6 +1,7 @@
 package zemberek.core.hash;
 
 import zemberek.core.bits.LongBitVector;
+import zemberek.core.logging.Log;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -73,8 +74,10 @@ public class MultiLevelMphf implements Mphf {
         return hashLevelData.length;
     }
 
+    public static final int INITIAL_HASH_SEED = 0x811C9DC5;
+
     public static int hash(byte[] data, int seed) {
-        int d = seed > 0 ? seed : 0x811C9DC5;
+        int d = seed > 0 ? seed : INITIAL_HASH_SEED;
         for (int a : data) {
             d = (d ^ a) * 16777619;
         }
@@ -82,7 +85,7 @@ public class MultiLevelMphf implements Mphf {
     }
 
     public static int hash(int[] data, int seed) {
-        int d = seed > 0 ? seed : 0x811C9DC5;
+        int d = seed > 0 ? seed : INITIAL_HASH_SEED;
         for (int a : data) {
             d = (d ^ a) * 16777619;
         }
@@ -90,7 +93,7 @@ public class MultiLevelMphf implements Mphf {
     }
 
     public static int hash(String data, int seed) {
-        int d = seed > 0 ? seed : 0x811C9DC5;
+        int d = seed > 0 ? seed : INITIAL_HASH_SEED;
         for (int i = 0; i < data.length(); i++) {
             d = (d ^ data.charAt(i)) * 16777619;
         }
@@ -110,7 +113,7 @@ public class MultiLevelMphf implements Mphf {
      * @return hash value.
      */
     public static int hash(long gramData, int order, int seed) {
-        int d = seed > 0 ? seed : 0x811C9DC5;
+        int d = seed > 0 ? seed : INITIAL_HASH_SEED;
         for (int i = 0; i < order; i++) {
             int h = (int) (gramData & BIT_MASK_21);
             gramData = gramData >>> 21;
@@ -120,7 +123,7 @@ public class MultiLevelMphf implements Mphf {
     }
 
     public static int hash(int[] data, int begin, int end, int seed) {
-        int d = seed > 0 ? seed : 0x811C9DC5;
+        int d = seed > 0 ? seed : INITIAL_HASH_SEED;
         for (int i = begin; i < end; i++) {
             d = (d ^ data[i]) * 16777619;
         }
@@ -248,6 +251,9 @@ public class MultiLevelMphf implements Mphf {
             }
 
             int failedBucketAmount = (int) (failedKeyCount / averageKeysPerBucket);
+            if (Log.isDebug()) {
+                Log.debug("Failed key Count:%d " + failedKeyCount);
+            }
 
             // this is a worst case scenario. No empty slot find for any buckets and we are already using buckets where bucket Amount>=keyAmount
             // In this case we double the bucket size with the hope that it will have better bucket-key distribution.
