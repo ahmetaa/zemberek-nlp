@@ -13,7 +13,7 @@ import java.util.Set;
 /**
  * A Naive sentence splitter based on lexer's capabilities.
  */
-public class SimpleSentenceBoundaryDetector {
+public class SimpleSentenceBoundaryDetector implements SentenceBoundaryDetector {
     private ZemberekLexer lexer;
     private static Set<String> sentenceEnd = Sets.newHashSet(".", "!", "?", "...", ":");
 
@@ -24,6 +24,7 @@ public class SimpleSentenceBoundaryDetector {
         this.lexer = new ZemberekLexer(false);
     }
 
+    @Override
     public List<String> getSentences(String str) {
         return Lists.newArrayList(new SentenceIterator(lexer.getTokenIterator(str)));
     }

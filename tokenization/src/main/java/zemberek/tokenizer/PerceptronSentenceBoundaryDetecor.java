@@ -1,6 +1,5 @@
 package zemberek.tokenizer;
 
-import com.google.common.collect.Sets;
 import zemberek.core.DoubleValueSet;
 import zemberek.core.io.SimpleTextReader;
 
@@ -8,71 +7,83 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-//TODO: experimental work.
-public class PerceptronSentenceBoundaryDetecor {
-
+public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetector {
 
     public static final int SKIP_SPACE_FREQUENCY = 20;
     public static final String BOUNDARY_CHARS = ".!?";
     DoubleValueSet<String> weights = new DoubleValueSet<>();
 
-    void train(File trainFile) throws IOException {
+    public PerceptronSentenceBoundaryDetecor(DoubleValueSet<String> weights) {
+        this.weights = weights;
+    }
 
-        List<String> sentences = SimpleTextReader.trimmingUTF8Reader(trainFile).asStringList();
+    public static class Trainer {
+        File trainFile;
+        int iterationCount;
 
-        Set<Integer> indexSet = new LinkedHashSet<>();
-
-        Random rnd = new Random(1);
-        StringBuilder sb = new StringBuilder();
-        int boundaryIndexCounter = 0;
-        int sentenceCounter = 0;
-        for (String sentence : sentences) {
-            sb.append(sentence);
-            boundaryIndexCounter += sb.length() - 1;
-            indexSet.add(boundaryIndexCounter);
-            // in approximately every 20 sentences we skip adding a space between sentences.
-            if (rnd.nextInt(SKIP_SPACE_FREQUENCY) != 1 && sentenceCounter < sentences.size() - 1) {
-                sb.append(" ");
-            }
-            sentenceCounter++;
+        public Trainer(File trainFile, int iterationCount) {
+            this.trainFile = trainFile;
+            this.iterationCount = iterationCount;
         }
 
-        String joinedSentence = sb.toString();
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < joinedSentence.length(); j++) {
-                // skip if char cannot be a boundary char.
-                char chr = joinedSentence.charAt(j);
-                if (BOUNDARY_CHARS.indexOf(chr) < 0)
-                    continue;
-                List<String> features = extractFeatures(joinedSentence, j);
-                double score = 0;
-                for (String feature : features) {
-                    score += weights.get(feature);
+        public PerceptronSentenceBoundaryDetecor train() throws IOException {
+            DoubleValueSet<String> weights = new DoubleValueSet<>();
+            List<String> sentences = SimpleTextReader.trimmingUTF8Reader(trainFile).asStringList();
+
+            Set<Integer> indexSet = new LinkedHashSet<>();
+
+            Random rnd = new Random(1);
+            StringBuilder sb = new StringBuilder();
+            int boundaryIndexCounter = 0;
+            int sentenceCounter = 0;
+            for (String sentence : sentences) {
+                sb.append(sentence);
+                boundaryIndexCounter = sb.length() - 1;
+                indexSet.add(boundaryIndexCounter);
+                // in approximately every 20 sentences we skip adding a space between sentences.
+                if (rnd.nextInt(SKIP_SPACE_FREQUENCY) != 1 && sentenceCounter < sentences.size() - 1) {
+                    sb.append(" ");
                 }
-                int update = 0;
-                // if we found no-boundary but it is a boundary
-                if (score < 0 && indexSet.contains(j)) {
-                    update = 1;
-                }
-                // if we found boundary but it is not a boundary
-                if (score >= 0 && !indexSet.contains(j)) {
-                    update = -1;
-                }
-                if (update != 0) {
+                sentenceCounter++;
+            }
+
+            String joinedSentence = sb.toString();
+            for (int i = 0; i < iterationCount; i++) {
+
+                for (int j = 0; j < joinedSentence.length(); j++) {
+                    // skip if char cannot be a boundary char.
+                    char chr = joinedSentence.charAt(j);
+                    if (BOUNDARY_CHARS.indexOf(chr) < 0)
+                        continue;
+                    List<String> features = extractFeatures(joinedSentence, j);
+                    double score = 0;
                     for (String feature : features) {
-                        weights.incrementByAmount(feature, update);
+                        score += weights.get(feature);
+                    }
+                    int update = 0;
+                    // if we found no-boundary but it is a boundary
+                    if (score <= 0 && indexSet.contains(j)) {
+                        update = 1;
+                    }
+                    // if we found boundary but it is not a boundary
+                    else if (score > 0 && !indexSet.contains(j)) {
+                        update = -1;
+                    }
+                    if (update != 0) {
+                        for (String feature : features) {
+                            weights.incrementByAmount(feature, update);
+                            //System.out.println(feature + "=" + weights.get(feature));
+                        }
                     }
                 }
             }
-
-            for (String key : weights) {
-                System.out.println(key + ":" + weights.get(key));
-            }
-            System.out.println("-----------------------");
+            return new PerceptronSentenceBoundaryDetecor(weights);
         }
     }
 
-    List<String> findBoundaries(String doc) {
+
+    @Override
+    public List<String> getSentences(String doc) {
         List<String> sentences = new ArrayList<>();
         int begin = 0;
         for (int j = 0; j < doc.length(); j++) {
@@ -85,40 +96,15 @@ public class PerceptronSentenceBoundaryDetecor {
             for (String feature : features) {
                 score += weights.get(feature);
             }
-            if (score >= 0) {
-                sentences.add(doc.substring(begin, j).trim());
-                begin = j;
+            if (score > 0) {
+                sentences.add(doc.substring(begin, j + 1).trim());
+                begin = j + 1;
             }
         }
         return sentences;
     }
 
-    public void test(List<String> sentences) {
-        Random rnd = new Random(1);
-        StringBuilder sb = new StringBuilder();
-        int sentenceCounter = 0;
-        for (String sentence : sentences) {
-            sb.append(sentence);
-            // in approximately every 20 sentences we skip adding a space between sentences.
-            if (rnd.nextInt(SKIP_SPACE_FREQUENCY) != 1 && sentenceCounter < sentences.size() - 1) {
-                sb.append(" ");
-            }
-            sentenceCounter++;
-        }
-        String joinedSentence = sb.toString();
-        List<String> found = findBoundaries(joinedSentence);
-        Set<String> reference = Sets.newHashSet(sentences);
-        Set<String> foundSet = Sets.newHashSet(found);
-
-        int hit = 0;
-        for (String s : foundSet) {
-            if (reference.contains(s))
-                hit++;
-        }
-        System.out.println("Total=" + sentences.size() + " Hit=" + hit);
-    }
-
-    List<String> extractFeatures(String input, int pointer) {
+    private static List<String> extractFeatures(String input, int pointer) {
 
         List<String> features = new ArrayList<>();
         // 1 letter before and after
@@ -135,35 +121,86 @@ public class PerceptronSentenceBoundaryDetecor {
 
         features.add("1:" + firstLetter + secondLetter);
 
-        char firstMeta = getMetaChar(firstLetter);
-        char secondMeta = getMetaChar(secondLetter);
 
-        features.add("2:" + firstMeta + secondMeta);
+        features.add("2:" + getMetaChar(firstLetter) + getMetaChar(secondLetter));
+
+        String prev2 = "__";
+        if (pointer > 2)
+            prev2 = input.substring(pointer - 2, pointer);
+        String next2 = "__";
+        if (pointer < input.length() - 3)
+            next2 = input.substring(pointer + 1, pointer + 3);
+
+        features.add("3:" + prev2 + next2);
+
+        features.add("4:" + getMetaChars(prev2) + getMetaChars(next2));
+
+        int i = pointer - 1;
+        StringBuilder sb = new StringBuilder();
+        while (i > 0) {
+            char c = input.charAt(i);
+            if (c == ' ') {
+                break;
+            }
+            sb.append(c);
+            i--;
+        }
+
+        if (sb.length() > 0) {
+            int trimLength = 3;
+            if (sb.length() < trimLength) {
+                trimLength = sb.length();
+            }
+            features.add("5:" + sb.reverse().substring(0, trimLength));
+        }
+
+        i = pointer + 1;
+        sb = new StringBuilder();
+        while (i < input.length()) {
+            if (input.charAt(i) != ' ')
+                break;
+            i++;
+        }
+        while (i < input.length()) {
+            char c = input.charAt(i);
+            if (c == ' ') {
+                break;
+            }
+            sb.append(c);
+            i++;
+        }
+
+        if (sb.length() > 0) {
+            int trimLength = 3;
+            if (sb.length() < trimLength) {
+                trimLength = sb.length();
+            }
+            features.add("6:" + sb.substring(0, trimLength));
+        }
 
         return features;
 
     }
 
-    private char getMetaChar(char firstLetter) {
+    private static char getMetaChar(char letter) {
         char c;
-        if (Character.isUpperCase(firstLetter))
+        if (Character.isUpperCase(letter))
             c = 'C';
-        else if (Character.isLowerCase(firstLetter))
+        else if (Character.isLowerCase(letter))
             c = 'c';
-        else if (Character.isDigit(firstLetter))
+        else if (Character.isDigit(letter))
             c = 'd';
-        else if (Character.isWhitespace(firstLetter))
+        else if (Character.isWhitespace(letter))
             c = ' ';
         else c = '-';
         return c;
     }
 
-    public static void main(String[] args) throws IOException {
-        PerceptronSentenceBoundaryDetecor detecor = new PerceptronSentenceBoundaryDetecor();
-        detecor.train(
-                new File("/home/kodlab/projects/zemberek-nlp/tokenization/src/main/resources/tokenizer/Total.txt"));
-        detecor.test(SimpleTextReader.trimmingUTF8Reader(
-                new File("/home/kodlab/projects/zemberek-nlp/tokenization/src/main/resources/tokenizer/Test.txt")).asStringList());
+    private static String getMetaChars(String str) {
+        StringBuilder sb = new StringBuilder(str.length());
+        for (int i = 0; i < str.length(); i++) {
+            sb.append(getMetaChar(str.charAt(i)));
+        }
+        return sb.toString();
     }
-
 }
