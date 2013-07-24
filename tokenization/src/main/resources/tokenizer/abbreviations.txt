@@ -1044,3 +1044,9 @@ zm.:	Zamir
 ZMO:	Ziraat Mühendisleri Odası
 zool.:	Zooloji
 ZRV:	Zirve Üniversitesi
+San.: Sanayi
+Op.: Operatör
+TL.: Türk Lirası
+Tic.: Ticaret
+Şti.: Şirketi
+vek.: Vekili

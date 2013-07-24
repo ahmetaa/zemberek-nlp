@@ -18,10 +18,10 @@ public class SentenceBoundaryDetectorsComparison {
 
     public static void main(String[] args) throws IOException {
         List<String> testSentences = SimpleTextReader.trimmingUTF8Reader(
-                new File("/home/kodlab/projects/zemberek-nlp/tokenization/src/main/resources/tokenizer/Test.txt")).asStringList();
+                new File("/home/kodlab/projects/zemberek-nlp/tokenization/src/test/resources/tokenizer/Test.txt")).asStringList();
         Stopwatch sw = new Stopwatch().start();
         PerceptronSentenceBoundaryDetecor perceptron = new PerceptronSentenceBoundaryDetecor.Trainer(
-                new File("/home/kodlab/projects/zemberek-nlp/tokenization/src/main/resources/tokenizer/Total.txt"),
+                new File("/home/kodlab/projects/zemberek-nlp/tokenization/src/test/resources/tokenizer/Total.txt"),
                 2).train();
         System.out.println("Train Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
         test(testSentences, perceptron);
@@ -49,14 +49,17 @@ public class SentenceBoundaryDetectorsComparison {
     }
 
     private static void evaluate(List<String> sentences, List<String> found) {
-        Set<String> reference = Sets.newHashSet(sentences);
-        Set<String> foundSet = Sets.newHashSet(found);
+        Set<String> reference = Sets.newLinkedHashSet(sentences);
+        Set<String> foundSet = Sets.newLinkedHashSet(found);
 
         int hit = 0;
         for (String s : foundSet) {
-            if (reference.contains(s))
+            if (reference.contains(s)) {
                 hit++;
+                //System.out.println(s);
+            } else
+              System.out.println(s + " -");
         }
-        System.out.println("Total=" + sentences.size() + " Hit=" + hit);
+        System.out.println("Total=" + sentences.size() + " Hit=" + hit + " Precision:" + hit*100d/sentences.size());
     }
 }

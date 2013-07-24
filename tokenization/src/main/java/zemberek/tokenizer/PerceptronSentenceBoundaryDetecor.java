@@ -1,5 +1,9 @@
 package zemberek.tokenizer;
 
+import com.google.common.base.Charsets;
+import com.google.common.collect.Sets;
+import com.google.common.io.Resources;
+import org.antlr.v4.runtime.Token;
 import zemberek.core.DoubleValueSet;
 import zemberek.core.io.SimpleTextReader;
 
@@ -12,6 +16,27 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
     public static final int SKIP_SPACE_FREQUENCY = 20;
     public static final String BOUNDARY_CHARS = ".!?";
     DoubleValueSet<String> weights = new DoubleValueSet<>();
+
+    static Set<String> TurkishAbbreviationSet = new HashSet<>();
+    private static Locale localeTr = new Locale("tr");
+
+    static {
+        try {
+            for (String line : Resources.readLines(Resources.getResource("tokenizer/abbreviations.txt"), Charsets.UTF_8)) {
+                final int abbrEndIndex = line.indexOf(":");
+                if (abbrEndIndex > 0) {
+                    final String abbr = line.substring(0, abbrEndIndex);
+                    if (abbr.endsWith(".")) {
+                        TurkishAbbreviationSet.add(abbr);
+                        TurkishAbbreviationSet.add(abbr.toLowerCase(Locale.ENGLISH));
+                        TurkishAbbreviationSet.add(abbr.toLowerCase(localeTr));
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public PerceptronSentenceBoundaryDetecor(DoubleValueSet<String> weights) {
         this.weights = weights;
@@ -71,8 +96,9 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
                     }
                     if (update != 0) {
                         for (String feature : features) {
-                            weights.incrementByAmount(feature, update);
-                            //System.out.println(feature + "=" + weights.get(feature));
+                            double d = weights.incrementByAmount(feature, update);
+                            if (d == 0.0)
+                                weights.remove(feature);
                         }
                     }
                 }
@@ -80,7 +106,6 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
             return new PerceptronSentenceBoundaryDetecor(weights);
         }
     }
-
 
     @Override
     public List<String> getSentences(String doc) {
@@ -119,10 +144,12 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
         else
             secondLetter = '_';
 
-        features.add("1:" + firstLetter + secondLetter);
+        //features.add("1:" + firstLetter + secondLetter);
+        //features.add("1a:" + firstLetter);
+        //features.add("1b:" + secondLetter);
 
 
-        features.add("2:" + getMetaChar(firstLetter) + getMetaChar(secondLetter));
+        //features.add("2:" + getMetaChar(firstLetter) + getMetaChar(secondLetter));
 
         String prev2 = "__";
         if (pointer > 2)
@@ -131,10 +158,12 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
         if (pointer < input.length() - 3)
             next2 = input.substring(pointer + 1, pointer + 3);
 
-        features.add("3:" + prev2 + next2);
+        //features.add("3:" + prev2 + next2);
 
-        features.add("4:" + getMetaChars(prev2) + getMetaChars(next2));
+        //features.add("4:" + getMetaChars(prev2) + getMetaChars(next2));
+        //features.add("5:" + getMetaChars(prev2));
 
+        String currentWord;
         int i = pointer - 1;
         StringBuilder sb = new StringBuilder();
         while (i > 0) {
@@ -145,15 +174,18 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
             sb.append(c);
             i--;
         }
+        currentWord = sb.reverse().toString();
 
-        if (sb.length() > 0) {
+/*        if (currentWord.length() > 0) {
             int trimLength = 3;
             if (sb.length() < trimLength) {
                 trimLength = sb.length();
             }
-            features.add("5:" + sb.reverse().substring(0, trimLength));
-        }
+            features.add("5:" + currentWord.substring(0, trimLength));
+        }*/
 
+
+        String nextWord;
         i = pointer + 1;
         sb = new StringBuilder();
         while (i < input.length()) {
@@ -169,17 +201,58 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
             sb.append(c);
             i++;
         }
+        nextWord = sb.toString();
 
-        if (sb.length() > 0) {
+/*        if (nextWord.length() > 0) {
             int trimLength = 3;
             if (sb.length() < trimLength) {
                 trimLength = sb.length();
             }
-            features.add("6:" + sb.substring(0, trimLength));
+            features.add("6:" + nextWord.substring(0, trimLength));
+        }*/
+
+        features.add("7:" + Character.isUpperCase(firstLetter));
+        if (currentWord.length() > 0) {
+            features.add("8:" + currentWord);
+            features.add("9:" + getMetaChars(currentWord));
         }
+        String previousNoPunct = currentWord.replaceAll("[.]", "");
+        if (previousNoPunct.length() > 0)
+            features.add("10:" + getMetaChars(previousNoPunct));
 
+        if (previousNoPunct.length() > 0) {
+            boolean allUp = true;
+            for (char c : previousNoPunct.toCharArray()) {
+                if (!Character.isUpperCase(c))
+                    allUp = false;
+            }
+            features.add("11:" + allUp);
+        }
+        features.add("12:" + String.valueOf(numberOfChars(currentWord, '.')));
+        features.add("13:" + String.valueOf(TurkishAbbreviationSet.contains(currentWord + ".")));
+        features.add("14:" + String.valueOf(TurkishAbbreviationSet.contains(nextWord)));
+        features.add("15:" + String.valueOf(potentialWebSite(currentWord)));
         return features;
+    }
 
+
+    public static final Set<String> urlWords = Sets.newHashSet("http", "www", ".tr", ".edu", ".com", ".net", ".gov", ".org");
+
+    private static boolean potentialWebSite(String s) {
+        for (String urlWord : urlWords) {
+            if (s.contains(urlWord))
+                return true;
+        }
+        return false;
+    }
+
+    private static int numberOfChars(String s, char c) {
+        int result = 0;
+        for (char chr : s.toCharArray()) {
+            if (chr == c)
+                result++;
+        }
+        return result;
     }
 
     private static char getMetaChar(char letter) {

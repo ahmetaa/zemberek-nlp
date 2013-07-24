@@ -8,9 +8,11 @@ import java.io.IOException;
 public class LanguageIndentifierTest {
     @Test
     public void modelGroupTest() throws IOException {
-        LanguageIdentifier lid = LanguageIdentifier.fromInternalModelGroup("tr_group");
+        LanguageIdentifier lid = LanguageIdentifier.fromInternalModels();
         Assert.assertEquals("tr", lid.identify("merhaba dünya ve tüm gezegenler"));
-        Assert.assertEquals("en", lid.identify("hello world and all the planets"));
+        Assert.assertEquals("en", lid.identify("hello world and all the planets what is this?"));
+        Assert.assertEquals("fr", lid.identify("Bonjour tout le monde et toutes les planètes"));
+        Assert.assertEquals("az", lid.identify("Salam dünya və bütün planetlərin bu həqiqətən pis olur"));
     }
 
     @Test
