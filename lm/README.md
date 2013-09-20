@@ -15,6 +15,10 @@ Regularly 8,16 or 24 bit fingerprints are used and false positive probability fo
 SmoothLm also provides quantization for even more compactness. So probability and back-off values can be quantized to
 8, 16 or 24 bits.
 
+There are many alternatives for language model compression such as KenLm, RandLm and BerkeleyLm. SmoothLm
+provides equal or better compression ratio and comparable speed against them. SmoothLm and BerkeleyLm is implemented in Java
+so they are probably good choices for Java applications. Otherwise KenLm may be a better fit.
+
 ### Download Binaries
 
 [Google Drive](https://drive.google.com/?tab=mo&authuser=0#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8) Directory Includes Jar Files.
