@@ -15,6 +15,8 @@ import java.util.Arrays;
 /**
  * SmoothLm is a compressed, optionally quantized, randomized back-off n-gram language model.
  * It uses Minimal Perfect Hash functions for compression, This means actual n-gram values are not stored in the model.
+ * Implementation is similar with the systems described in Gutthrie and Hepple's
+ * 'Storing the Web in Memory: Space Efficient Language Models with Constant Time Retrieval (2010)' paper.
  * This is a lossy model because for non existing n-grams it may return an existing n-gram probability value.
  * Probability of this happening depends on the fingerprint hash length. This value is determined during the model creation.
  * Regularly 8,16 or 24 bit fingerprints are used and false positive probability for an non existing n-gram is
