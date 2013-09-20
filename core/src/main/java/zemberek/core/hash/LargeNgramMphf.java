@@ -73,7 +73,6 @@ public class LargeNgramMphf implements Mphf {
         int[] offsets = new int[splitter.pageCount];
         int total = 0;
         for (int i = 0; i < splitter.pageCount; i++) {
-            System.out.println("Generating MPHF for segment: " + i);
             final ByteGramProvider keySegment = splitter.getKeySegment(i);
             Log.debug("Segment key count: " + keySegment.keyAmount());
             Log.debug("Segment bucket ratio: " + ((double) keySegment.keyAmount() / (1 << bucketBits)));
