@@ -31,6 +31,7 @@ SmoothLm can only compress language models where for an order, n-gram amount is 
 SmoothLm can be generated from standard ARPA formatted language models. Suppose we have an arpa file named lm.arpa
 
 From Command Line:
+
     java -Xmx4G -cp [jar file with dependencies] zemberek.lm.app.ConvertToSmoothLm -arpaFile lm.arpa -smoothFile lm.smooth
 
 Generates the compressed model file lm.smooth. -Xmx4G parameter tells java virtual machine to use maximum 4Gbytes
