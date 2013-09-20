@@ -60,4 +60,15 @@ There are several parameters can be used during the instantiation.
 
 Here model probability and backoff values are converted to e and additional unigram smoothing is applied.
 
-After Language model is instantiated several methods are available.
+After Language model is instantiated several methods are available. Some Examples:
+
+    // Model information.
+    System.out.println(lm.info());
+    // convert words to indexes.
+    int[] wordIds = lm.getVocabulary().toIndexes("hello","world");
+    // gets probability of an n-gram. applies back-off if necessary
+    double probability = lm.getProbability(wordIds);
+    // explains how probability is calculated.
+    System.out.println(lm.explain(wordIds));
+
+
