@@ -1,6 +1,5 @@
 Language Modelling And Compression
 ============
-
 ### Language Model Compression: SmoothLm
 
 This library provides a language model library compression algorithm implementation.
@@ -15,6 +14,10 @@ Regularly 8,16 or 24 bit fingerprints are used and false positive probability fo
 (probability of an n-gram does not exist in LM)*1/(2^fingerprint bit size).
 SmoothLm also provides quantization for even more compactness. So probability and back-off values can be quantized to
 8, 16 or 24 bits.
+
+### Download Binaries
+
+[Google Drive](https://drive.google.com/?tab=mo&authuser=0#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8) Directory Includes Jar Files.
 
 #### Generating SmoothLm
 

@@ -35,6 +35,7 @@
                     <target>1.7</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
+                <version>3.0</version>
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -50,6 +51,7 @@
                         </goals>
                     </execution>
                 </executions>
+                <version>2.0.4</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
