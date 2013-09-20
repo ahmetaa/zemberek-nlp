@@ -25,7 +25,7 @@ Turkish syllabification and hyphenation.
 
 ### Language modelling
 
-Language model compression
+[Language model compression] (https://github.com/ahmetaa/zemberek-nlp/tree/master/lm)
 
 ### Language identification
 

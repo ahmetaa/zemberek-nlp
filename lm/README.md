@@ -75,10 +75,13 @@ After Language model is instantiated several methods are available. Some Example
 
     // Model information.
     System.out.println(lm.info());
+
     // convert words to indexes.
     int[] wordIds = lm.getVocabulary().toIndexes("hello","world");
+
     // gets probability of an n-gram. applies back-off if necessary
     double probability = lm.getProbability(wordIds);
+
     // explains how probability is calculated.
     System.out.println(lm.explain(wordIds));
 
