@@ -40,17 +40,13 @@ public class DoubleValueSet<T> implements Iterable<T> {
     }
 
     public DoubleValueSet(int size) {
-        size += (int) (size * (1 - DEFAULT_LOAD_FACTOR));
-        if (size < 2)
-            size = 2;
-        if ((size & (size - 1)) != 0) { // check for power of two
-            int power = (int) (Math.log(size) / Math.log(2));
-            size = 1 << (power + 1);
-        }
-        keys = (T[]) new Object[size];
-        values = new double[size];
-        threshold = (int) (size * DEFAULT_LOAD_FACTOR);
-        modulo = size - 1;
+        int k = INITIAL_SIZE;
+        while (k < size)
+            k <<= 1;
+        keys = (T[]) new Object[k];
+        values = new double[k];
+        threshold = (int) (k * DEFAULT_LOAD_FACTOR);
+        modulo = k - 1;
     }
 
     private int firstProbe(int hashCode) {

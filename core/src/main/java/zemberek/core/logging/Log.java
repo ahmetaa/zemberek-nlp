@@ -5,6 +5,7 @@ import com.google.common.base.Splitter;
 import zemberek.core.io.Strings;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -74,28 +75,32 @@ public final class Log {
      * @return true if Log is in debug level.
      */
     public static boolean isDebug() {
-        return currentLevel == Level.FINE;
+        return checkLevel(Level.FINE);
     }
 
     /**
      * @return true if Log is in trace level.
      */
     public static boolean isTrace() {
-        return currentLevel == Level.FINE;
+        return checkLevel(Level.FINER);
     }
 
     /**
      * @return true if Log is in info level.
      */
     public static boolean isInfo() {
-        return currentLevel == Level.INFO;
+        return checkLevel(Level.INFO);
     }
 
     /**
      * @return true if Log is in warn level.
      */
     public static boolean isWarn() {
-        return currentLevel == Level.WARNING;
+        return checkLevel(Level.WARNING);
+    }
+
+    private static boolean checkLevel(Level level) {
+        return currentLevel.intValue() <= level.intValue();
     }
 
     /**
@@ -119,7 +124,8 @@ public final class Log {
     }
 
     public static void debug(boolean condition, String message, Object... params) {
-        log(Level.FINE, message, params);
+        if (condition)
+            log(Level.FINE, message, params);
     }
 
     public static void info(String message, Object... params) {
@@ -167,8 +173,11 @@ public final class Log {
 
     static final CUSTOM_FORMAT formatter = new CUSTOM_FORMAT();
 
+    public static OutputStream fileStream;
+
     public static void addFileHandler(Path path) throws IOException {
-        final StreamHandler handler = new StreamHandler(Files.newOutputStream(path), formatter);
+        fileStream = Files.newOutputStream(path);
+        final StreamHandler handler = new StreamHandler(fileStream, formatter);
         handler.setLevel(currentLevel);
         Logger.getLogger("").addHandler(handler);
     }
@@ -217,7 +226,7 @@ public final class Log {
     static Map<Level, String> levelShortStringMap = new HashMap<>();
 
     static {
-        levelShortStringMap.put(Level.FINEST, "D");
+        levelShortStringMap.put(Level.FINEST, "-");
         levelShortStringMap.put(Level.FINER, "T");
         levelShortStringMap.put(Level.FINE, "D");
         levelShortStringMap.put(Level.CONFIG, "-");
@@ -281,7 +290,7 @@ public final class Log {
                             .append("#");
                     sb.append(record.getSourceMethodName());
                     sb.append("\n");
-                    for(String s : Splitter.on("\n").split(record.getMessage())) {
+                    for (String s : Splitter.on("\n").split(record.getMessage())) {
                         sb.append("    ").append(s).append("\n");
                     }
                 }

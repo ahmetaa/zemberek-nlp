@@ -61,6 +61,7 @@ public class BinaryFloatFileReader {
         }
 
         public Quantizer getQuantizer(QuantizerType type) {
+            Log.info("Unique value count:" + histogram.size());
             double[] lookup = new double[histogram.size()];
             int[] counts = new int[histogram.size()];
             int j = 0;
@@ -69,7 +70,7 @@ public class BinaryFloatFileReader {
                 counts[j] = histogram.getCount(key);
                 j++;
             }
-            Log.info("Quantizing " + histogram.size() + " values to 2^" + bitCount + " bits values.");
+            Log.info("Quantizing to " + bitCount + " bits");
 
             switch (type) {
                 case BINNING:

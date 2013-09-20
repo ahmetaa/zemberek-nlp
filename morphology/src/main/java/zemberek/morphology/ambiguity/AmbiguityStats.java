@@ -114,7 +114,7 @@ public class AmbiguityStats extends BaseParser {
         }
         System.out.println("Total: " + total);
         Stats st = new Stats(0.1);
-        st.allCounts = uniques.countAll();
+        st.allCounts = (int) uniques.totalCount();
         st.allUniques = uniques.size();
         for (String s : uniques.getSortedList()) {
             int count = uniques.getCount(s);
@@ -163,7 +163,7 @@ public class AmbiguityStats extends BaseParser {
         }
         System.out.println("Total: " + total);
         Stats st = new Stats(0.002);
-        st.allCounts = uniques.countAll();
+        st.allCounts = (int) uniques.totalCount();
         st.allUniques = uniques.size();
         for (String s : uniques.getSortedList()) {
             int count = uniques.getCount(s);
@@ -199,7 +199,7 @@ public class AmbiguityStats extends BaseParser {
             System.out.println("Total: " + total);
         }
         Stats st = new Stats(0.0002);
-        st.allCounts = uniques.countAll();
+        st.allCounts = (int) uniques.totalCount();
         st.allUniques = uniques.size();
         for (String s : uniques.getSortedList()) {
             int count = uniques.getCount(s);

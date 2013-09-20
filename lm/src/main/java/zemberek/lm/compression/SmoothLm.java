@@ -1,16 +1,16 @@
 package zemberek.lm.compression;
 
-import zemberek.core.logging.Log;
-import zemberek.core.math.LogMath;
-import zemberek.lm.LmVocabulary;
 import zemberek.core.hash.LargeNgramMphf;
 import zemberek.core.hash.Mphf;
 import zemberek.core.hash.MultiLevelMphf;
+import zemberek.core.logging.Log;
+import zemberek.core.math.LogMath;
 import zemberek.core.quantization.DoubleLookup;
+import zemberek.lm.LmVocabulary;
+import zemberek.lm.NgramLanguageModel;
 
 import java.io.*;
 import java.util.Arrays;
-import java.util.logging.Logger;
 
 /**
  * SmoothLm is a compressed, optionally quantized, randomized back-off n-gram language model.
@@ -22,13 +22,13 @@ import java.util.logging.Logger;
  * SmoothLm also provides quantization for even more compactness. So probability and back-off values can be quantized to
  * 8, 16 or 24 bits.
  */
-public class SmoothLm {
+public class SmoothLm implements NgramLanguageModel {
 
     public static final double DEFAULT_LOG_BASE = 10;
     public static final double DEFAULT_UNIGRAM_WEIGHT = 1;
     public static final double DEFAULT_UNKNOWN_BACKOFF_PENALTY = 0;
     public static final double DEFAULT_STUPID_BACKOFF_ALPHA = 0.4;
-    private static final double DEFAULT_UNKNOWN_TOKEN_PROBABILITY = -20;
+    public static final int DEFAULT_UNKNOWN_TOKEN_PROBABILITY = -20;
 
     private final int version;
     private final int order;
@@ -55,6 +55,12 @@ public class SmoothLm {
     private boolean useStupidBackoff = false;
     private double stupidBackoffLogAlpha;
     private double stupidBackoffAlpha;
+    private boolean countFalsePositives;
+
+    int falsePositiveCount;
+
+    // used for debug purposes for calculation false-positive ratio.
+    NgramIds ngramIds;
 
     /**
      * Builder is used for instantiating the compressed language model.
@@ -72,6 +78,7 @@ public class SmoothLm {
         private boolean _useStupidBackoff = false;
         private double _stupidBackoffAlpha = DEFAULT_STUPID_BACKOFF_ALPHA;
         private DataInputStream _dis;
+        private File _ngramIds;
 
         public Builder(InputStream is) {
             this._dis = new DataInputStream(new BufferedInputStream(is));
@@ -88,6 +95,11 @@ public class SmoothLm {
 
         public Builder unknownBackoffPenalty(double unknownPenalty) {
             this._unknownBackoffPenalty = unknownPenalty;
+            return this;
+        }
+
+        public Builder ngramKeyFilesDirectory(File dir) {
+            this._ngramIds = dir;
             return this;
         }
 
@@ -113,7 +125,8 @@ public class SmoothLm {
                     _unigramWeight,
                     _unknownBackoffPenalty,
                     _useStupidBackoff,
-                    _stupidBackoffAlpha);
+                    _stupidBackoffAlpha,
+                    _ngramIds);
         }
     }
 
@@ -131,7 +144,8 @@ public class SmoothLm {
             double unigramWeight,
             double unknownBackoffPenalty,
             boolean useStupidBackoff,
-            double stupidBackoffAlpha) throws IOException {
+            double stupidBackoffAlpha,
+            File ngramKeyFileDir) throws IOException {
         this(dis); // load the lm data.
         // Now apply necessary transformations and configurations
         this.unigramWeight = unigramWeight;
@@ -156,6 +170,14 @@ public class SmoothLm {
 
         if (useStupidBackoff) {
             Log.info("Lm will use stupid back off with alpha value: " + stupidBackoffAlpha);
+        }
+        if (ngramKeyFileDir != null) {
+            if (!ngramKeyFileDir.exists())
+                Log.warn("Ngram id file directory %s does not exist. Continue without loading.", ngramKeyFileDir);
+            else {
+                Log.info("Loading actual n-gram id data.");
+                this.ngramIds = new NgramIds(this.order, ngramKeyFileDir, mphfs);
+            }
         }
     }
 
@@ -186,22 +208,6 @@ public class SmoothLm {
 
     public static enum MphfType {
         SMALL, LARGE
-    }
-
-    public int getVersion() {
-        return version;
-    }
-
-    public int getOrder() {
-        return order;
-    }
-
-    public LmVocabulary getVocabulary() {
-        return vocabulary;
-    }
-
-    public int getGramCount(int n) {
-        return ngramData[n].count;
     }
 
     private SmoothLm(DataInputStream dis) throws IOException {
@@ -280,6 +286,48 @@ public class SmoothLm {
         dis.close();
     }
 
+    public int getVersion() {
+        return version;
+    }
+
+    @Override
+    public double getUnigramProbability(int id) {
+        return getProbability(id);
+    }
+
+    @Override
+    public int getOrder() {
+        return order;
+    }
+
+    @Override
+    public LmVocabulary getVocabulary() {
+        return vocabulary;
+    }
+
+    @Override
+    public int getGramCount(int n) {
+        return ngramData[n].count;
+    }
+
+    /**
+     * @return true if ngram exists in the lm.
+     *         if actual key data is loaded during the construction of the compressed lm, the value returned
+     *         by this function cannot be wrong. If not, the return value may be a false positive.
+     */
+    public boolean ngramExists(int... wordIndexes) {
+        final int order = wordIndexes.length;
+        if (order == 1) {
+            return wordIndexes[0] >= 0 && wordIndexes[0] < unigramProbs.length;
+        }
+        int quickHash = MultiLevelMphf.hash(wordIndexes, -1);
+        int index = mphfs[order].get(wordIndexes, quickHash);
+        if (ngramIds == null) {
+            return ngramData[order].checkFingerPrint(quickHash, index);
+        }
+        return ngramIds.exists(wordIndexes, index);
+    }
+
     /**
      * Retrieves the dequantized log probability of an n-gram.
      *
@@ -302,6 +350,16 @@ public class SmoothLm {
         else {
             return LOG_ZERO;
         }
+    }
+
+    private boolean isFalsePositive(int... wordIndexes) {
+        int length = wordIndexes.length;
+        if (length < 2)
+            return false;
+        int quickHash = MultiLevelMphf.hash(wordIndexes, -1);
+        int index = mphfs[length].get(wordIndexes, quickHash);
+        return ngramData[length].checkFingerPrint(quickHash, index) // fingerprint matches
+                && !ngramIds.exists(wordIndexes, index); // but not the exact keys.
     }
 
     /**
@@ -421,6 +479,36 @@ public class SmoothLm {
      */
     public double getProbability(String... words) {
         return getProbability(vocabulary.toIndexes(words));
+    }
+
+    /**
+     * For Debugging purposes only.
+     * Counts false positives generated from in an ngram.
+     *
+     * @param wordIndexes word index array
+     */
+    public void countFalsePositives(int... wordIndexes) {
+        if (wordIndexes.length == 0 || wordIndexes.length > order)
+            throw new IllegalArgumentException(
+                    "At least one or max Gram Count" + order + " tokens are required. But it is:" + wordIndexes.length);
+        if (wordIndexes.length == 1)
+            return;
+        if (isFalsePositive(wordIndexes)) {
+            this.falsePositiveCount++;
+        }
+        if (getProbability(wordIndexes) == LOG_ZERO) {
+            if (isFalsePositive(head(wordIndexes))) // check back-off false positive
+                falsePositiveCount++;
+            countFalsePositives(tail(wordIndexes));
+        }
+    }
+
+    public boolean ngramIdsAvailable() {
+        return ngramIds != null;
+    }
+
+    public int getFalsePositiveCount() {
+        return falsePositiveCount;
     }
 
     /**
@@ -635,4 +723,60 @@ public class SmoothLm {
     public double getLogBase() {
         return logBase;
     }
+
+    /**
+     * This class contains actual n-gram key information in flat arrays.
+     * This is only useful for debugging purposes to check the false-positive ration of the compressed LM
+     * It has a limitation that for an order, key_count*order value must be lower than Integer.MAX_VALUE.
+     * Otherwise it does not load the information.
+     */
+    static class NgramIds {
+        // flat arrays carrying actual ngram information.
+        int[][] ids;
+
+        NgramIds(int order, File idFileDir, Mphf[] mphfs) throws IOException {
+            ids = new int[order + 1][];
+            for (int i = 2; i <= order; i++) {
+                // TODO: check consistency of the file names.
+                File idFile = new File(idFileDir, i + ".gram");
+                Log.info("Loading from: " + idFile);
+                if (!idFile.exists()) {
+                    Log.warn("Cannot find n-gram id file " + idFile.getAbsolutePath());
+                    continue;
+                }
+                try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(idFile)))) {
+                    dis.readInt(); // skip order.
+                    int keyAmount = dis.readInt();
+                    if ((long) keyAmount * i > Integer.MAX_VALUE) {
+                        Log.warn("Cannot load key file as flat array. Too much index values.");
+                        continue;
+                    }
+                    ids[i] = new int[keyAmount * i];
+                    int[] data = new int[i];
+                    int k = 0;
+                    while (k < keyAmount) {
+                        // load the k.th gram ids and calculate mphf for that.
+                        for (int j = 0; j < i; ++j) {
+                            data[j] = dis.readInt();
+                        }
+                        int mphfIndex = mphfs[i].get(data);
+                        // put data to flat array with mphfIndex val.
+                        System.arraycopy(data, 0, ids[i], mphfIndex * i, i);
+                        k++;
+                    }
+                }
+            }
+        }
+
+        boolean exists(int[] indexes, int mphfIndex) {
+            int order = indexes.length;
+            int index = mphfIndex * order;
+            for (int i = 0; i < order; i++) {
+                if (ids[order][index + i] != indexes[i])
+                    return false;
+            }
+            return true;
+        }
+    }
+
 }

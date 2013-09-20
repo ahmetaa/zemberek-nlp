@@ -12,7 +12,7 @@ import edu.berkeley.nlp.lm.io.ArpaLmReader;
 import edu.berkeley.nlp.lm.io.LmReaders;
 import zemberek.core.io.SimpleTextWriter;
 import zemberek.core.io.Strings;
-import zemberek.lm.compression.ArpaToSmoothLmConverter;
+import zemberek.lm.apps.ConvertToSmoothLm;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.parser.MorphParse;
 import zemberek.morphology.parser.SentenceMorphParse;
@@ -74,9 +74,12 @@ public class Z3MarkovModelDisambiguator extends Z3AbstractDisambiguator implemen
     }
 
     public static void generateBinaryLm(File arpaFile, File binaryFile) throws IOException {
-        ArpaToSmoothLmConverter converter = new ArpaToSmoothLmConverter(arpaFile, binaryFile, Files.createTempDir());
-        File dir = converter.generateUncompressed();
-        converter.convertSmall(dir, new ArpaToSmoothLmConverter.NgramDataBlock(2, 1, 1));
+        new ConvertToSmoothLm().execute(
+                "-arpaFile",
+                arpaFile.getAbsolutePath(),
+                "-smoothFile",
+                binaryFile.getAbsolutePath(),
+                "-spaceUsage","16-8-8");
     }
 
     public static void generateArpaLm(File corpus, File arpaFile) {

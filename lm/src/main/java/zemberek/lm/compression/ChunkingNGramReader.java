@@ -1,6 +1,5 @@
 package zemberek.lm.compression;
 
-
 import zemberek.core.hash.ByteGramProvider;
 import zemberek.core.hash.IntHashKeyProvider;
 

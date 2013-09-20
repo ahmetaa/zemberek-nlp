@@ -22,4 +22,8 @@ public interface Mphf {
     void serialize(File file) throws IOException;
 
     void serialize(OutputStream os) throws IOException;
+
+    double averageBitsPerKey();
+
+    int size();
 }

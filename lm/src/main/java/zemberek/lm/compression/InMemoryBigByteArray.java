@@ -65,7 +65,7 @@ public class InMemoryBigByteArray {
         System.arraycopy(d, pageIndex, buff, 0, blockSize);
     }
 
-    public int getAsInt(int index) {
+    public int getInt(int index) {
         final int pageId = index >>> pageShift;
         final int pageIndex = (index & indexMask) * blockSize;
         byte[] d = data[pageId];
@@ -80,7 +80,7 @@ public class InMemoryBigByteArray {
         return -1;
     }
 
-    public float getAsFloat(int index) {
+    public float getFloat(int index) {
         final int pageId = index >>> pageShift;
         final int pageIndex = (index & indexMask) * blockSize;
         byte[] d = data[pageId];

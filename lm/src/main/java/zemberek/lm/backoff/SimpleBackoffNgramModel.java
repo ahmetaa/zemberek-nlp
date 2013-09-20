@@ -7,11 +7,11 @@ import com.google.common.io.LineProcessor;
 import zemberek.core.logging.Log;
 import zemberek.core.math.LogMath;
 import zemberek.lm.LmVocabulary;
+import zemberek.lm.NgramLanguageModel;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 /**
@@ -67,7 +67,7 @@ public class SimpleBackoffNgramModel implements NgramLanguageModel {
     }
 
     @Override
-    public double getUnigramProb(int id) {
+    public double getUnigramProbability(int id) {
         NgramData data = new NgramData(id);
         NgramProb res = probabilities.get(data);
         if (res == null)
@@ -103,8 +103,12 @@ public class SimpleBackoffNgramModel implements NgramLanguageModel {
         else return 0;
     }
 
+    public Iterator<NgramData> getAllIndexes() {
+        return probabilities.keySet().iterator();
+    }
+
     @Override
-    public double getNgramProb(int... ids) {
+    public double getProbability(int... ids) {
         for (int id : ids) {
             if (!vocabulary.contains(id))
                 throw new IllegalArgumentException("Unigram does not exist!" + vocabulary.getWordsString(id) + " with index:" + id);
@@ -115,7 +119,7 @@ public class SimpleBackoffNgramModel implements NgramLanguageModel {
             if (ids.length == 1)
                 return LogMath.LOG_ZERO;
             double backoffValue = getBackoffValue(head(ids));
-            result = result + backoffValue + getNgramProb(tail(ids));
+            result = result + backoffValue + getProbability(tail(ids));
         } else result = probability;
         return result;
     }
@@ -142,7 +146,7 @@ public class SimpleBackoffNgramModel implements NgramLanguageModel {
     }
 
     @Override
-    public int gramCount(int order) {
+    public int getGramCount(int order) {
         return counts.get(order - 1);
     }
 
@@ -151,7 +155,7 @@ public class SimpleBackoffNgramModel implements NgramLanguageModel {
         return vocabulary;
     }
 
-    private static class NgramData {
+    public static class NgramData {
         int[] indexes;
 
         private NgramData(int... indexes) {
@@ -175,6 +179,10 @@ public class SimpleBackoffNgramModel implements NgramLanguageModel {
         public String toString() {
             return Arrays.toString(indexes);
         }
+
+        public int[] getIndexes() {
+            return indexes;
+        }
     }
 
     private static class NgramProb {
@@ -192,6 +200,7 @@ public class SimpleBackoffNgramModel implements NgramLanguageModel {
         }
 
     }
+
     private static class ArpaLoader implements LineProcessor<SimpleBackoffNgramModel> {
 
         public static final int DEFAULT_UNKNOWN_PROBABILITY = -20;
@@ -289,9 +298,9 @@ public class SimpleBackoffNgramModel implements NgramLanguageModel {
                     lineCounter++;
 
                     if (lineCounter == ngramCounts.get(0)) {
-                        handleSpecialToken(LmVocabulary.SENTENCE_START);
-                        handleSpecialToken(LmVocabulary.SENTENCE_END);
-                        handleSpecialToken(LmVocabulary.UNKNOWN_WORD);
+                        handleSpecialToken("<unk>");
+                        handleSpecialToken("</s>");
+                        handleSpecialToken("<s>");
                         vocabulary = vocabularyBuilder.generate();
                         // update the ngram counts in case a special token is added.
                         ngramCounts.set(0, vocabulary.size());
@@ -356,5 +365,4 @@ public class SimpleBackoffNgramModel implements NgramLanguageModel {
             return new SimpleBackoffNgramModel(order, vocabulary, probabilities, ngramCounts, unigramWeight);
         }
     }
-
 }

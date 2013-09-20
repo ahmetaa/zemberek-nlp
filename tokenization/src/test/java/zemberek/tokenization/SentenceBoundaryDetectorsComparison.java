@@ -1,14 +1,17 @@
 package zemberek.tokenization;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import zemberek.core.io.SimpleTextReader;
+import zemberek.core.io.SimpleTextWriter;
 import zemberek.tokenizer.PerceptronSentenceBoundaryDetecor;
 import zemberek.tokenizer.SentenceBoundaryDetector;
 import zemberek.tokenizer.SimpleSentenceBoundaryDetector;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -17,14 +20,17 @@ import java.util.concurrent.TimeUnit;
 public class SentenceBoundaryDetectorsComparison {
 
     public static void main(String[] args) throws IOException {
+
         List<String> testSentences = SimpleTextReader.trimmingUTF8Reader(
-                new File("/home/kodlab/projects/zemberek-nlp/tokenization/src/test/resources/tokenizer/Test.txt")).asStringList();
+                new File("/home/kodlab/projects/zemberek-nlp/tokenization/src/test/resources/tokenizer/Sentence-Boundary-Test.txt")).asStringList();
         Stopwatch sw = new Stopwatch().start();
         PerceptronSentenceBoundaryDetecor perceptron = new PerceptronSentenceBoundaryDetecor.Trainer(
-                new File("/home/kodlab/projects/zemberek-nlp/tokenization/src/test/resources/tokenizer/Total.txt"),
-                2).train();
+                new File("/home/kodlab/projects/zemberek-nlp/tokenization/src/test/resources/tokenizer/Sentence-Boundary-Train.txt"),
+                //new File("/home/kodlab/projects/zemberek-nlp/tokenization/src/test/resources/tokenizer/Train(line-by-line).txt"),
+                3).train();
         System.out.println("Train Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
         test(testSentences, perceptron);
+
         SimpleSentenceBoundaryDetector ruleBased = new SimpleSentenceBoundaryDetector();
         test(testSentences, ruleBased);
     }

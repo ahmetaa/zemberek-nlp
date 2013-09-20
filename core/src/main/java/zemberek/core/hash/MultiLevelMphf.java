@@ -11,9 +11,11 @@ import java.util.List;
 /**
  * This is a Minimum Perfect Hash Function implementation (MPHF). A MPHF generates distinct integers for
  * a unique set of n keys in the range of [0,...,n-1]
- *
- * MultiLevelMphf can be considered as an improvement of MOS Algorithm II of
- * Fox, Heath, Chen, and Daoud's Practical minimal perfect hash functions for large databases [CACM 1992] paper.
+ * <p/>
+ * MultiLevelMphf can be considered as an improvement over MOS Algorithm II of
+ * Fox, Heath, Chen, and Daoud's Practical minimal perfect hash functions for large databases [CACM 1992]
+ * and MPHF structure defined in
+ * Belazzougui, Botelho and Dietzfelbinger's Hash, Displace and Compress (2009) papers.
  * <p/>
  * It is different in these aspects:
  * <p/>
@@ -28,8 +30,11 @@ import java.util.List;
  * <p/>
  * MOS implementation may fail to generate a MPHF. But MultiLevelMphf guarantees generation of MPHF.
  * <p/>
- * For same byte per key values, MultiLevelMPHF generates hash values orders of magnitude faster.
- * MultiLevelMPHF typically uses around 3.1-3.2 bits per key space.
+ * For same byte per key values, MultiLevelMPHF generates hash values orders of magnitude faster than MOS.
+ * </p>
+ * It is also different than Belazzougui et al.'s approach as it does not apply integer array compression.
+ * </p>
+ * MultiLevelMPHF typically uses around 3.1-3.2 bits memory per key.
  */
 public class MultiLevelMphf implements Mphf {
 
@@ -48,7 +53,7 @@ public class MultiLevelMphf implements Mphf {
         this.hashLevelData = hashLevelData;
     }
 
-    public int getSize() {
+    public int size() {
         return hashLevelData[0].keyAmount;
     }
 
@@ -442,7 +447,7 @@ public class MultiLevelMphf implements Mphf {
 
     /**
      * @return total bytes used for this structure.
-     * This is an average number and it adds 12 bytes per array as overhead
+     *         This is an average number and it adds 12 bytes per array as overhead
      */
     public long totalBytesUsed() {
         long result = 12; // array overhead

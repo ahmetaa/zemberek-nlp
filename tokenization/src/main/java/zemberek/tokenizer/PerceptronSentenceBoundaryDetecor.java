@@ -13,7 +13,7 @@ import java.util.*;
 
 public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetector {
 
-    public static final int SKIP_SPACE_FREQUENCY = 20;
+    public static final int SKIP_SPACE_FREQUENCY = 200000;
     public static final String BOUNDARY_CHARS = ".!?";
     DoubleValueSet<String> weights = new DoubleValueSet<>();
 
@@ -55,25 +55,28 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
             DoubleValueSet<String> weights = new DoubleValueSet<>();
             List<String> sentences = SimpleTextReader.trimmingUTF8Reader(trainFile).asStringList();
 
-            Set<Integer> indexSet = new LinkedHashSet<>();
-
-            Random rnd = new Random(1);
-            StringBuilder sb = new StringBuilder();
-            int boundaryIndexCounter = 0;
-            int sentenceCounter = 0;
-            for (String sentence : sentences) {
-                sb.append(sentence);
-                boundaryIndexCounter = sb.length() - 1;
-                indexSet.add(boundaryIndexCounter);
-                // in approximately every 20 sentences we skip adding a space between sentences.
-                if (rnd.nextInt(SKIP_SPACE_FREQUENCY) != 1 && sentenceCounter < sentences.size() - 1) {
-                    sb.append(" ");
-                }
-                sentenceCounter++;
-            }
-
-            String joinedSentence = sb.toString();
             for (int i = 0; i < iterationCount; i++) {
+                if (i != 0)
+                    Collections.shuffle(sentences);
+
+                Set<Integer> indexSet = new LinkedHashSet<>();
+
+                Random rnd = new Random(1);
+                StringBuilder sb = new StringBuilder();
+                int boundaryIndexCounter;
+                int sentenceCounter = 0;
+                for (String sentence : sentences) {
+                    sb.append(sentence);
+                    boundaryIndexCounter = sb.length() - 1;
+                    indexSet.add(boundaryIndexCounter);
+                    // in approximately every 20 sentences we skip adding a space between sentences.
+                    if (rnd.nextInt(SKIP_SPACE_FREQUENCY) != 1 && sentenceCounter < sentences.size() - 1) {
+                        sb.append(" ");
+                    }
+                    sentenceCounter++;
+                }
+
+                String joinedSentence = sb.toString();
 
                 for (int j = 0; j < joinedSentence.length(); j++) {
                     // skip if char cannot be a boundary char.
@@ -94,8 +97,8 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
                     else if (score > 0 && !indexSet.contains(j)) {
                         update = -1;
                     }
-                    if (update != 0) {
-                        for (String feature : features) {
+                    for (String feature : features) {
+                        if (update != 0) {
                             double d = weights.incrementByAmount(feature, update);
                             if (d == 0.0)
                                 weights.remove(feature);
@@ -133,39 +136,29 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
 
         List<String> features = new ArrayList<>();
         // 1 letter before and after
-        char firstLetter;
+        char previousLetter;
         if (pointer > 0)
-            firstLetter = input.charAt(pointer - 1);
+            previousLetter = input.charAt(pointer - 1);
         else
-            firstLetter = '_';
-        char secondLetter;
+            previousLetter = '_';
+        char nextLetter;
         if (pointer < input.length() - 1)
-            secondLetter = input.charAt(pointer + 1);
+            nextLetter = input.charAt(pointer + 1);
         else
-            secondLetter = '_';
-
-        //features.add("1:" + firstLetter + secondLetter);
-        //features.add("1a:" + firstLetter);
-        //features.add("1b:" + secondLetter);
-
-
-        //features.add("2:" + getMetaChar(firstLetter) + getMetaChar(secondLetter));
+            nextLetter = '_';
 
         String prev2 = "__";
         if (pointer > 2)
             prev2 = input.substring(pointer - 2, pointer);
         String next2 = "__";
-        if (pointer < input.length() - 3)
+        if (pointer < input.length() - 3) {
             next2 = input.substring(pointer + 1, pointer + 3);
-
-        //features.add("3:" + prev2 + next2);
-
-        //features.add("4:" + getMetaChars(prev2) + getMetaChars(next2));
-        //features.add("5:" + getMetaChars(prev2));
+        }
 
         String currentWord;
         int i = pointer - 1;
         StringBuilder sb = new StringBuilder();
+        sb.append(input.charAt(pointer));
         while (i > 0) {
             char c = input.charAt(i);
             if (c == ' ') {
@@ -176,14 +169,41 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
         }
         currentWord = sb.reverse().toString();
 
-/*        if (currentWord.length() > 0) {
+        if (currentWord.length() > 0) {
             int trimLength = 3;
             if (sb.length() < trimLength) {
                 trimLength = sb.length();
             }
             features.add("5:" + currentWord.substring(0, trimLength));
-        }*/
+            features.add("5a:" + currentWord.substring(currentWord.length()-trimLength, currentWord.length()));
+            features.add("8:" + currentWord);
+            features.add("9:" + getMetaChars(currentWord));
+/*            features.add("9a:" + getMetaChars(currentWord));
+            features.add("9b:" + getMetaChars(currentWord));
+            features.add("9c:" + getMetaChars(currentWord));*/
+            features.add("9d:" + Character.isUpperCase(currentWord.charAt(0)));
+            int dotIndex = currentWord.indexOf('.');
+            features.add("9e:" + String.valueOf(dotIndex<currentWord.length()-1));
+        }
 
+        String previousWord;
+        while (i >= 0) {
+            if (input.charAt(i) != ' ')
+                break;
+            --i;
+        }
+        sb = new StringBuilder();
+        while (i >= 0) {
+            char c = input.charAt(i);
+            if (c == ' ') {
+                break;
+            }
+            sb.append(c);
+            --i;
+        }
+        previousWord = sb.reverse().toString();
+        if (previousWord.length() > 0)
+            features.add("5c:" + getMetaChars(previousWord));
 
         String nextWord;
         i = pointer + 1;
@@ -203,35 +223,46 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
         }
         nextWord = sb.toString();
 
-/*        if (nextWord.length() > 0) {
+        if (nextWord.length() > 0) {
             int trimLength = 3;
             if (sb.length() < trimLength) {
                 trimLength = sb.length();
             }
             features.add("6:" + nextWord.substring(0, trimLength));
-        }*/
-
-        features.add("7:" + Character.isUpperCase(firstLetter));
-        if (currentWord.length() > 0) {
-            features.add("8:" + currentWord);
-            features.add("9:" + getMetaChars(currentWord));
         }
-        String previousNoPunct = currentWord.replaceAll("[.]", "");
-        if (previousNoPunct.length() > 0)
-            features.add("10:" + getMetaChars(previousNoPunct));
 
-        if (previousNoPunct.length() > 0) {
+        features.add("7:" + Character.isUpperCase(previousLetter));
+        String currentNoPunct = currentWord.replaceAll("[.]", "");
+        if (currentNoPunct.length() > 0)
+            features.add("10:" + getMetaChars(currentNoPunct));
+
+        if (currentNoPunct.length() > 0) {
             boolean allUp = true;
-            for (char c : previousNoPunct.toCharArray()) {
+            for (char c : currentNoPunct.toCharArray()) {
                 if (!Character.isUpperCase(c))
                     allUp = false;
             }
             features.add("11:" + allUp);
         }
+
         features.add("12:" + String.valueOf(numberOfChars(currentWord, '.')));
+        features.add("12a:" + String.valueOf(numberOfChars(currentWord, '.') == 2));
+        features.add("12b:" + String.valueOf(numberOfChars(currentWord, '.') == 3));
+        features.add("12c:" + String.valueOf(numberOfChars(previousWord, '.')));
+        features.add("12d:" + String.valueOf(numberOfChars(nextWord, '.')));
+        features.add("12e:" + String.valueOf(numberOfChars(nextWord, '.')==2));
         features.add("13:" + String.valueOf(TurkishAbbreviationSet.contains(currentWord + ".")));
         features.add("14:" + String.valueOf(TurkishAbbreviationSet.contains(nextWord)));
         features.add("15:" + String.valueOf(potentialWebSite(currentWord)));
+        features.add("16:" + String.valueOf(TurkishAbbreviationSet.contains(previousWord)));
+
+        features.add("1:" + previousLetter + nextLetter);
+        features.add("2:" + getMetaChar(previousLetter) + getMetaChar(nextLetter));
+        features.add("3:" + prev2 + next2);
+        features.add("3a:" + getMetaChars(prev2) + getMetaChars(next2));
+        //features.add("4:" + getMetaChars(prev2));
+
+
         return features;
     }
 
@@ -265,6 +296,8 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
             c = 'd';
         else if (Character.isWhitespace(letter))
             c = ' ';
+        else if (BOUNDARY_CHARS.indexOf(letter) >= 0)
+            c = 'P';
         else c = '-';
         return c;
     }

@@ -7,8 +7,8 @@ public class DataInfo {
     public final int fpBits;
 
     // This represents the last byte right shift count to retrieve fp data from byte array.
-    // For example if fpBits is 13 int (int representation: MSB|---aaaaaabbbbbbbb|LSB )
-    // Then  it will be put to the byte array as : B0=|bbbbbbbb| B1=|aaaaaa---| So the fpLastByteRightShiftCount = 3
+    // For example if fpBits is 13 int (int representation: MSB|---abcdefghijklmn|LSB )
+    // Then  it will be put to the byte array as : B0=|abcdefgh| B1=|ijklmn---| So the fpLastByteRightShiftCount = 3
     public final int fpLastByteRightShiftCount;
 
     //The index of last byte that contains fingerprint data.
@@ -20,7 +20,7 @@ public class DataInfo {
     public final int probStartByte;
 
     // this defines amount of higher bits to truncate from the first byte of probability.
-    // Suppose first byte of the probability data is : |---ppppp| then mask needs to truncate most significant 3 bits.
+    // Suppose first byte of the probability data is : |---abcde| then mask needs to truncate most significant 3 bits.
     public final int probFirstByteMask;
 
     // This represents the amount of left shift required for getting the probability data from the last byte.
@@ -57,11 +57,10 @@ public class DataInfo {
             probFirstByteMask = 0xff;
         }
 
-        int probLastByteEndBitIndex = (fpBits + probBits)%8;
+        int probLastByteEndBitIndex = (fpBits + probBits) % 8;
 
 
         probEndByte = (fpBits + probBits) / 8;
-
 
 
     }
@@ -145,5 +144,10 @@ public class DataInfo {
         if (!powerOfTwo(a))
             probBits++;
         return probBits;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(fromCounts(10, 100000, 0));
+        System.out.println(fromCountsAndExpectedBits(10, 200, 4, 100, 10));
     }
 }

@@ -18,16 +18,13 @@ public class SparseIntVector implements Iterable<SparseIntVector.TableEntry> {
     }
 
     public SparseIntVector(int size) {
-        if (size < 2)
-            size = 2;
-        if ((size & (size - 1)) != 0) { // check for power of two
-            int power = (int) (Math.log(size) / Math.log(2));
-            size = 1 << (power + 1);
-        }
-        keys = new int[size];
-        values = new int[size];
-        threshold = (int) (size * DEFAULT_LOAD_FACTOR);
-        modulo = size - 1;
+        int k = INITIAL_SIZE;
+        while (k < size)
+            k <<= 1;
+        keys = new int[k];
+        values = new int[k];
+        threshold = (int) (k * DEFAULT_LOAD_FACTOR);
+        modulo = k - 1;
     }
 
     private int hash(int key) {

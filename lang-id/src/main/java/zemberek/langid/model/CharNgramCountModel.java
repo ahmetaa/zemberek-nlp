@@ -151,7 +151,7 @@ public class CharNgramCountModel extends BaseCharNgramModel implements Serializa
     }
 
     public int totalCount(int order) {
-        return gramCounts[order].countAll();
+        return (int) gramCounts[order].totalCount();
     }
 
     public Iterable<String> getKeyIterator(int order) {

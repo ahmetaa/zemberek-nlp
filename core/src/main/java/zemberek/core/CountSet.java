@@ -12,7 +12,7 @@ import java.util.List;
 public class CountSet<T> implements Iterable<T> {
 
     static final int INITIAL_SIZE = 8;
-    static final double DEFAULT_LOAD_FACTOR = 0.5;
+    static final double DEFAULT_LOAD_FACTOR = 0.6;
 
     // This is the size-1 of the key and value array length. Array length is a value power of two
     private int modulo = INITIAL_SIZE - 1;
@@ -39,17 +39,13 @@ public class CountSet<T> implements Iterable<T> {
     }
 
     public CountSet(int size) {
-        size += (int) (size * (1 - DEFAULT_LOAD_FACTOR));
-        if (size < 2)
-            size = 2;
-        if ((size & (size - 1)) != 0) { // check for power of two
-            int power = (int) (Math.log(size) / Math.log(2));
-            size = 1 << (power + 1);
-        }
-        keys = (T[]) new Object[size];
-        counts = new int[size];
-        threshold = (int) (size * DEFAULT_LOAD_FACTOR);
-        modulo = size - 1;
+        int k = INITIAL_SIZE;
+        while (k < size)
+            k <<= 1;
+        keys = (T[]) new Object[k];
+        counts = new int[k];
+        threshold = (int) (k * DEFAULT_LOAD_FACTOR);
+        modulo = k - 1;
     }
 
     private int firstProbe(int hashCode) {

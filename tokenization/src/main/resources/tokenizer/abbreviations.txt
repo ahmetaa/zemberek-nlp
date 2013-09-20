@@ -1050,3 +1050,5 @@ TL.: Türk Lirası
 Tic.: Ticaret
 Şti.: Şirketi
 vek.: Vekili
+St.: Saint
+TL.: Türk Lirası

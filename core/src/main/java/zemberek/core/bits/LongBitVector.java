@@ -25,7 +25,6 @@ public class LongBitVector {
     private static final int[] intSetMasks = new int[32];
     private static final long[] cutMasks = new long[64];
 
-
     static {
         for (int i = 0; i < 64; i++) {
             longSetMasks[i] = 0x1L << i;

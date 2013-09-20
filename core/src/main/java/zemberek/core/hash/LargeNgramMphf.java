@@ -1,6 +1,7 @@
 package zemberek.core.hash;
 
 import com.google.common.io.Files;
+import zemberek.core.logging.Log;
 
 import java.io.*;
 
@@ -60,10 +61,10 @@ public class LargeNgramMphf implements Mphf {
     public static LargeNgramMphf generate(File file, int chunkBits) throws IOException {
         File tmp = Files.createTempDir();
         Splitter splitter = new Splitter(file, tmp, chunkBits);
-        System.out.println("Gram count: " + splitter.gramCount);
-        System.out.println("Segment count: " + splitter.pageCount);
-        System.out.println("Avrg segment size: " + (1 << splitter.pageBit));
-        System.out.println("Splitting: ");
+        Log.info("Gram count: " + splitter.gramCount);
+        Log.info("Segment count: " + splitter.pageCount);
+        Log.info("Avrg segment size: " + (1 << splitter.pageBit));
+        Log.info("Segmenting File...");
         splitter.split();
         int bucketBits = splitter.pageBit - 2;
         if (bucketBits <= 0)
@@ -74,16 +75,19 @@ public class LargeNgramMphf implements Mphf {
         for (int i = 0; i < splitter.pageCount; i++) {
             System.out.println("Generating MPHF for segment: " + i);
             final ByteGramProvider keySegment = splitter.getKeySegment(i);
-            System.out.println("Segment key count: " + keySegment.keyAmount());
-            System.out.println("Segment bucket ratio: " + ((double) keySegment.keyAmount() / (1 << bucketBits)));
+            Log.debug("Segment key count: " + keySegment.keyAmount());
+            Log.debug("Segment bucket ratio: " + ((double) keySegment.keyAmount() / (1 << bucketBits)));
             total += keySegment.keyAmount();
             MultiLevelMphf mphf = MultiLevelMphf.generate(keySegment);
-            System.out.println("Average bits per key: " + mphf.averageBitsPerKey());
+            Log.info("MPHF is generated for segment %d with %d keys. Average bits per key: %.3f",
+                    i,
+                    mphf.size(),
+                    mphf.averageBitsPerKey());
             mphfs[i] = mphf;
             if (i > 0)
-                offsets[i] = offsets[i - 1] + mphfs[i - 1].getSize();
+                offsets[i] = offsets[i - 1] + mphfs[i - 1].size();
         }
-        System.out.println("Total processed keys:" + total);
+        Log.debug("Total processed keys:" + total);
         int maxMask = (1 << splitter.maxBit) - 1;
         int bucketMask = (1 << bucketBits) - 1;
         return new LargeNgramMphf(maxMask, bucketMask, splitter.pageShift, mphfs, offsets);
@@ -113,14 +117,14 @@ public class LargeNgramMphf implements Mphf {
 
     @Override
     public int get(long encodedKey, int order, int fingerPrint) {
-        final int hash = MultiLevelMphf.hash(encodedKey, order,-1);
+        final int hash = MultiLevelMphf.hash(encodedKey, order, -1);
         final int pageIndex = (hash & maxBitMask) >>> pageShift;
         return mphfs[pageIndex].get(encodedKey, order, hash) + offsets[pageIndex];
     }
 
     @Override
     public int get(long encodedKey, int order) {
-        final int hash = MultiLevelMphf.hash(encodedKey, order,-1);
+        final int hash = MultiLevelMphf.hash(encodedKey, order, -1);
         final int pageIndex = (hash & maxBitMask) >>> pageShift;
         return mphfs[pageIndex].get(encodedKey, order, hash) + offsets[pageIndex];
     }
@@ -342,5 +346,23 @@ public class LargeNgramMphf implements Mphf {
             hashes[i] = MultiLevelMphf.deserialize(dis);
         }
         return new LargeNgramMphf(maxBitMask, bucketMask, pageShift, hashes, offsets);
+    }
+
+    @Override
+    public double averageBitsPerKey() {
+        double total = 0;
+        for (MultiLevelMphf mphf : mphfs) {
+            total = total + mphf.averageBitsPerKey();
+        }
+        return mphfs.length > 0 ? total / mphfs.length : 0;
+    }
+
+    @Override
+    public int size() {
+        int size = 0;
+        for (MultiLevelMphf mphf : mphfs) {
+            size += mphf.size();
+        }
+        return size;
     }
 }

@@ -10,7 +10,7 @@ import edu.berkeley.nlp.lm.StringWordIndexer;
 import edu.berkeley.nlp.lm.io.ArpaLmReader;
 import edu.berkeley.nlp.lm.io.LmReaders;
 import zemberek.core.io.SimpleTextWriter;
-import zemberek.lm.compression.ArpaToSmoothLmConverter;
+import zemberek.lm.apps.ConvertToSmoothLm;
 import zemberek.lm.compression.SmoothLm;
 
 import java.io.File;
@@ -54,9 +54,12 @@ public class MarkovModelDisambiguator extends AbstractDisambiguator {
     }
 
     public static void generateBinaryLm(File arpaFile, File binaryFile) throws IOException {
-        ArpaToSmoothLmConverter converter = new ArpaToSmoothLmConverter(arpaFile, binaryFile, Files.createTempDir());
-        File dir = converter.generateUncompressed();
-        converter.convertSmall(dir, new ArpaToSmoothLmConverter.NgramDataBlock(2, 2, 2));
+        new ConvertToSmoothLm().execute(
+                "-arpaFile",
+                arpaFile.getAbsolutePath(),
+                "-smoothFile",
+                binaryFile.getAbsolutePath(),
+                "-spaceUsage", "16-16-16");
     }
 
     public static void generateArpaLm(File corpus, File arpaFile) {

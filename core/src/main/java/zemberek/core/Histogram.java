@@ -6,8 +6,7 @@ import com.google.common.collect.Sets;
 import java.util.*;
 
 /**
- * A simple set like data structure for counting unique elements. not thread safe.
- * this is also useful for calculating histograms.
+ * A simple set like data structure for counting unique elements. Not thread safe.
  */
 public class Histogram<T extends Comparable> implements Iterable<T> {
 
@@ -265,8 +264,8 @@ public class Histogram<T extends Comparable> implements Iterable<T> {
      * @param to   to exclusive
      * @return total count of items those value is between "from" and "to"
      */
-    public int totalCount(int from, int to) {
-        int count = 0;
+    public long totalCount(int from, int to) {
+        long count = 0;
         for (int val : vector.copyOfValues()) {
             if (val >= from && val < to)
                 count += val;
@@ -345,7 +344,7 @@ public class Histogram<T extends Comparable> implements Iterable<T> {
      * @return count.
      */
     public double countPercent(int from, int to) {
-        return (totalCount(from, to) * 100d) / countAll();
+        return (totalCount(from, to) * 100d) / totalCount();
     }
 
     /**
@@ -368,6 +367,35 @@ public class Histogram<T extends Comparable> implements Iterable<T> {
         List<CountSet.Entry<T>> l = vector.getAsEntryList();
         Collections.sort(l);
         return l;
+    }
+
+    /**
+     * returns the Elements in a list sorted by count, descending..
+     *
+     * @return Elements in a list sorted by count, descending..
+     */
+    public List<T> getMostFrequent(int n) {
+        if (n > size())
+            n = size();
+        List<CountSet.Entry<T>> l = vector.getAsEntryList();
+        Collections.sort(l);
+        Collections.reverse(l);
+        List<T> result = new ArrayList<>();
+        for (CountSet.Entry<T> tEntry : l) {
+            result.add(tEntry.key);
+        }
+        return Lists.newArrayList(result.subList(0, n));
+    }
+
+    /**
+     * @return total count of the items in the input Iterable.
+     */
+    public long totalCount(Iterable<T> it) {
+        long count = 0;
+        for (T t : it) {
+            count += getCount(t);
+        }
+        return count;
     }
 
     /**
@@ -406,12 +434,8 @@ public class Histogram<T extends Comparable> implements Iterable<T> {
      *
      * @return sum of all item's count.
      */
-    public int countAll() {
-        int count = 0;
-        for (T t : getKeySet()) {
-            count += vector.get(t);
-        }
-        return count;
+    public long totalCount() {
+        return totalCount(this);
     }
 
     private class CountComparator implements Comparator<Map.Entry<T, Integer>> {

@@ -11,11 +11,13 @@ import zemberek.core.io.LineIterator;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.lm.FakeLm;
 import zemberek.lm.LmVocabulary;
+import zemberek.lm.backoff.SimpleBackoffNgramModel;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 public class SmoothLmTest {
@@ -41,19 +43,32 @@ public class SmoothLmTest {
     private File getTinyLmFile() throws IOException {
         File tmp = Files.createTempDir();
         tmp.deleteOnExit();
-        File tmpCompressed = Files.createTempDir();
-        final File lmFile = new File(tmpCompressed, "tiny.slm");
+        final File lmFile = new File(tmp, "tiny.slm");
         if (!lmFile.exists()) {
-            ArpaToSmoothLmConverter converter = new ArpaToSmoothLmConverter(
-                    getTinyArpaFile(),
-                    lmFile,
-                    tmp);
-            converter.generateUncompressed();
+            UncompressedToSmoothLmConverter converter = new UncompressedToSmoothLmConverter(lmFile, tmp);
             converter.convertSmall(
-                    tmp,
-                    new ArpaToSmoothLmConverter.NgramDataBlock(2, 2, 2));
+                    MultiFileUncompressedLm.generate(getTinyArpaFile(), tmp, "utf-8").getLmDir(),
+                    new UncompressedToSmoothLmConverter.NgramDataBlock(16, 16, 16));
         }
         return lmFile;
+    }
+
+    @Test
+    public void testNgramKeyExactMatch() throws IOException {
+        File lmDir = Files.createTempDir();
+        lmDir.deleteOnExit();
+        MultiFileUncompressedLm.generate(getTinyArpaFile(), lmDir, "utf-8").getLmDir();
+        final File lmFile = new File(lmDir, "tiny.slm");
+        UncompressedToSmoothLmConverter converter = new UncompressedToSmoothLmConverter(lmFile, lmDir);
+        converter.convertSmall(
+                lmDir,
+                new UncompressedToSmoothLmConverter.NgramDataBlock(16, 16, 16));
+        SmoothLm slm = SmoothLm.builder(lmFile).ngramKeyFilesDirectory(lmDir).build();
+        SimpleBackoffNgramModel model = SimpleBackoffNgramModel.fromArpa(getTinyArpaFile());
+        Iterator<SimpleBackoffNgramModel.NgramData> it = model.getAllIndexes();
+        while (it.hasNext()) {
+            Assert.assertTrue(slm.ngramExists(it.next().getIndexes()));
+        }
     }
 
     @Test
@@ -63,14 +78,15 @@ public class SmoothLmTest {
         final File lmFile = new File("/home/ahmetaa/data/lm/fake/fake.slm");
         if (!lmFile.exists()) {
             final File arpaFile = new File("/home/ahmetaa/data/lm/fake/fake.arpa");
+            File tmp = new File("/tmp");
             if (!arpaFile.exists()) {
                 FakeLm fakeLm = new FakeLm(order);
                 fakeLm.generateArpa(arpaFile);
             }
-            ArpaToSmoothLmConverter converter = new ArpaToSmoothLmConverter(
-                    arpaFile,
-                    lmFile, new File("/tmp"));
-            converter.convertSmall(converter.generateUncompressed(), new ArpaToSmoothLmConverter.NgramDataBlock(3, 3, 3));
+            UncompressedToSmoothLmConverter converter = new UncompressedToSmoothLmConverter(lmFile, tmp);
+            converter.convertSmall(
+                    MultiFileUncompressedLm.generate(arpaFile, tmp, "utf-8").dir,
+                    new UncompressedToSmoothLmConverter.NgramDataBlock(24, 24, 24));
         }
         SmoothLm lm = SmoothLm.builder(lmFile).build();
 
@@ -181,12 +197,13 @@ public class SmoothLmTest {
     public void testActualData() throws IOException {
         Stopwatch sw = new Stopwatch().start();
         File lmFile = new File("/home/ahmetaa/data/lm/smoothnlp-test/lm1.slm");
+        File tmp = new File("/tmp");
         if (!lmFile.exists()) {
             final File arpaFile = new File("/home/ahmetaa/data/lm/smoothnlp-test/lm1.arpa");
-            ArpaToSmoothLmConverter converter = new ArpaToSmoothLmConverter(
-                    arpaFile,
-                    lmFile, new File("/tmp"));
-            converter.convertLarge(new File("/tmp"), new ArpaToSmoothLmConverter.NgramDataBlock(2, 1, 1), 20);
+            UncompressedToSmoothLmConverter converter = new UncompressedToSmoothLmConverter(lmFile, tmp);
+            converter.convertLarge(
+                    MultiFileUncompressedLm.generate(arpaFile, tmp, "utf-8").dir,
+                    new UncompressedToSmoothLmConverter.NgramDataBlock(2, 1, 1), 20);
         }
         SmoothLm lm = SmoothLm.builder(lmFile).build();
         System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));
@@ -268,4 +285,14 @@ public class SmoothLmTest {
         System.out.println(lm.explain(ahmet, armut, kirmizi));
     }
 
+    @Test
+    @Ignore("Not an actual test.")
+    public void loadLargeLmAndPrintInfo() throws IOException {
+        SmoothLm lm = SmoothLm.builder(new File("/media/depo/data/asr/model/language/tr/makine-sf/lm.slm")).build();
+        System.out.println(lm.info());
+        System.out.println(lm.getVocabulary().size());
+        System.out.println(Arrays.toString(lm.counts));
+        System.out.println(lm.getVocabulary().indexOf("<UNK>"));
+        System.out.println(lm.getVocabulary().indexOf("<unk>"));
+    }
 }
