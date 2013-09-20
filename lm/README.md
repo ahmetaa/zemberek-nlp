@@ -3,4 +3,61 @@ Language Modelling And Compression
 
 ### Language Model Compression: SmoothLm
 
-This library provides a language model library compression algorithm implementation
+This library provides a language model library compression algorithm implementation.
+SmoothLm is a compressed, optionally quantized, randomized back-off n-gram language model.
+It uses Minimal Perfect Hash functions for compression, This means actual n-gram values are not stored in the model.
+Implementation is similar with the systems described in Gutthrie and Hepple's
+'Storing the Web in Memory: Space Efficient Language Models with Constant Time Retrieval (2010)' paper.
+
+This is a lossy model because for non existing n-grams it may return an existing n-gram probability value.
+Probability of this happening depends on the fingerprint hash length. This value is determined during the model creation.
+Regularly 8,16 or 24 bit fingerprints are used and false positive probability for an non existing n-gram is
+(probability of an n-gram does not exist in LM)*1/(2^fingerprint bit size).
+SmoothLm also provides quantization for even more compactness. So probability and back-off values can be quantized to
+8, 16 or 24 bits.
+
+#### Generating SmoothLm
+
+SmoothLm can be generated from standard ARPA formatted language models. Suppose we have an arpa file named lm.arpa
+
+From Command Line:
+    java -Xmx4G -cp [jar file with dependencies] zemberek.lm.app.ConvertToSmoothLm -arpaFile lm.arpa -smoothFile lm.smooth
+
+Generates the compressed model file lm.smooth. -Xmx4G parameter tells java virtual machine to use maximum 4Gbytes
+of memory. If model is very large, more heap needs to be used.
+
+Here are the parameters for this application:
+
+    Usage: java -cp "[CLASS-PATH]" zemberek.lm.apps.ConvertToSmoothLm -arpaFile FILE [-chunkBits N] [-logFile FILE] -smoothFile FILE [-spaceUsage VAL] [-tmpDir FILE] [-verbosity N]
+
+     -arpaFile FILE   : Arpa input file.
+     -chunkBits N     : Defines the size of chunks when compressing very large models. By default it is
+                        21 bits meaning that chunks of 2^21 n-grams are used. Value must be between 16
+                        to 31 (inclusive).
+     -logFile FILE    : Log output file.
+     -smoothFile FILE : SmoothLm output file.
+     -spaceUsage VAL  : How many bits of space to be used for fingerprint, probability and back-off
+                        values in the compressed language model. Value must be in x-y-z format. By
+                        default it is 16-16-16 which means all values will be 2 bytes (16 bits). Values
+                        must be an order of 8, maximum 32 is allowed.
+     -tmpDir FILE     : Temporary folder for intermediate files. Operating System's temporary dir with
+                        a random folder is used by default.
+     -verbosity N     : Verbosity level. 0-WARN 1-INFO 2-DEBUG 3-TRACE. Default level is 1
+
+#### Using SmoothLm
+
+Once SmoothLm file is generated, it can be accessed programmatically. SmoothLm does not provide a constructor.
+It can be instantiated with Builder pattern:
+
+    SmothLm lm = SmoothLm.builder(new File("lm.smooth")).build();
+
+There are several parameters can be used during the instantiation.
+
+    SmoothLm lm = SmoothLm.builder(new File("lm.smooth"))
+        .logBase(Math.E)
+        .unigramSmoothing(0.8)
+        .build();
+
+Here model probability and backoff values are converted to e and additional unigram smoothing is applied.
+
+After Language model is instantiated several methods are available.
