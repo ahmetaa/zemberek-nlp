@@ -1,6 +1,11 @@
 Language Modelling And Compression
 ============
-### Language Model Compression: SmoothLm
+
+## Download Binaries
+
+[Google Drive](https://drive.google.com/?tab=mo&authuser=0#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8) Directory Includes Jar Files.
+
+## Language Model Compression: SmoothLm
 
 This library provides a language model library compression algorithm implementation.
 SmoothLm is a compressed, optionally quantized, randomized back-off n-gram language model.
@@ -8,22 +13,20 @@ It uses Minimal Perfect Hash functions for compression, This means actual n-gram
 Implementation is similar with the systems described in Gutthrie and Hepple's
 'Storing the Web in Memory: Space Efficient Language Models with Constant Time Retrieval (2010)' paper.
 
-This is a lossy model because for non existing n-grams it may return an existing n-gram probability value.
+This is a lossy model because for non existing n-grams it may return an existing n-gram probability value (false positive).
 Probability of this happening depends on the fingerprint hash length. This value is determined during the model creation.
 Regularly 8,16 or 24 bit fingerprints are used and false positive probability for an non existing n-gram is
 (probability of an n-gram does not exist in LM)*1/(2^fingerprint bit size).
 SmoothLm also provides quantization for even more compactness. So probability and back-off values can be quantized to
 8, 16 or 24 bits.
 
-There are many alternatives for language model compression such as KenLm, RandLm and BerkeleyLm. SmoothLm
-provides equal or better compression ratio and comparable speed against them. SmoothLm and BerkeleyLm is implemented in Java
+There are many alternatives for language model compression such as KenLm, RandLm and BerkeleyLm. SmoothLm and BerkeleyLm are implemented in Java
 so they are probably good choices for Java applications. Otherwise KenLm may be a better fit.
 
-### Download Binaries
+### Limitations
+SmoothLm can only compress language models where for an order, n-gram amount is less than 2,147,483,648 (2^31-1)
 
-[Google Drive](https://drive.google.com/?tab=mo&authuser=0#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8) Directory Includes Jar Files.
-
-#### Generating SmoothLm
+### Generating SmoothLm
 
 SmoothLm can be generated from standard ARPA formatted language models. Suppose we have an arpa file named lm.arpa
 
@@ -51,7 +54,7 @@ Here are the parameters for this application:
                         a random folder is used by default.
      -verbosity N     : Verbosity level. 0-WARN 1-INFO 2-DEBUG 3-TRACE. Default level is 1
 
-#### Using SmoothLm
+### Using SmoothLm
 
 Once SmoothLm file is generated, it can be accessed programmatically. SmoothLm does not provide a constructor.
 It can be instantiated with Builder pattern:
