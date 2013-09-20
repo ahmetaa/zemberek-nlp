@@ -24,7 +24,9 @@ There are many alternatives for language model compression such as KenLm, RandLm
 so they are probably good choices for Java applications. Otherwise KenLm may be a better fit.
 
 ### Limitations
-SmoothLm can only compress language models where for an order, n-gram amount must be less than 2,147,483,648 (2^31-1)
+- SmoothLm can only compress language models where for an order, n-gram amount must be less than 2,147,483,648 (2^31-1)
+- SmoothLm requires Java 7.
+- SmoothLm loads all model data to memory. It does not work from disk. So it may not be convenient when there is limited amount of memory and language model is huge.
 
 ### Generating SmoothLm
 SmoothLm can be generated from standard ARPA formatted language models. There is a command line application class available for
@@ -61,8 +63,6 @@ Here are the parameters for the application:
 ### Using SmoothLm
 
 Once SmoothLm file is generated, it can be accessed programmatically.
-SmoothLm loads all model data to memory. It does not work from disk.
-So it may not be convenient when there is limited amount of memory and language model is huge.
 In those cases smaller spaceUsage parameters can be used.
 SmoothLm does not provide a constructor. It can be instantiated with Builder pattern:
 
