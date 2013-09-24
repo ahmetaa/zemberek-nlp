@@ -66,20 +66,20 @@ public class SimpleGenerator {
 
     private List<GenerationToken> getTokens(DictionaryItem item, List<Suffix> suffixes) {
         // find nodes for the dictionary item.
-        List<StemNode> nodeList = new ArrayList<StemNode>();
+        List<StemNode> nodeList = new ArrayList<>();
         if (singeStems.containsKey(item))
             nodeList.add(singeStems.get(item));
         else if (multiStems.containsKey(item))
             nodeList.addAll(multiStems.get(item));
 
         // generate starting tokens with suffix root nodes.
-        List<GenerationToken> initialTokens = new ArrayList<GenerationToken>(2);
+        List<GenerationToken> initialTokens = new ArrayList<>(2);
         for (StemNode candidate : nodeList) {
             initialTokens.add(new GenerationToken(candidate, suffixes));
         }
 
         // traverse suffix graph.
-        List<GenerationToken> result = new ArrayList<GenerationToken>(2);
+        List<GenerationToken> result = new ArrayList<>(2);
         traverseSuffixes(initialTokens, result);
         return result;
     }

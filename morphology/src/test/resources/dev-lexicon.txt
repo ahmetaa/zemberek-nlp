@@ -1,0 +1,197 @@
+## this is the development dictionary for Zemberek 3.
+## it includes actual lemmas with all possible POS types with tag sequences and corner cases.
+
+## Usage
+## lemma [P: pos1,pos2 ; A: attribute1, attribute2]
+
+## ------------------------------------------------------------------------------------------
+## Nouns.
+yok [A:Voicing]
+yok [A:NoVoicing ; Index:1; Ref:yok]
+## Main Pos info is optional.
+elma
+kahve [P: Noun]
+yapı
+gemi
+kano
+menü
+
+ay
+kemer
+ikiz
+katır
+balon
+köz
+kurum
+üzüm
+
+## infer Pos, Voicing Attribute. k->ğ
+kapak
+kitap
+ağaç
+yakıt
+
+## Fully written form.
+kepek [P: Noun; A: Voicing]
+
+## NoVoicing attribute is inferred because it is single syllable.
+küp
+
+## Fully written form.
+kek [P: Noun; A: NoVoicing]
+
+kap [A:Voicing]
+
+## Attribute InverseHarmony required. However, when there is InverseHarmony, NoVoicing attribute is added automatically.
+takat [A: InverseHarmony]
+
+## here writing NoVoicing is optional.
+saat [A: NoVoicing, InverseHarmony]
+
+## Attribute tag is required.
+ağız [A:LastVowelDrop]
+
+## Attribute tags are required.
+ret [A:Voicing, Doubling]
+
+## No tags are required. -nk end has voicing attribute k->g
+cenk
+
+## No tags are required. -og end has voicing attribute. g->ğ
+psikolog
+
+## Voicing tag was required. Because it is a single syllable word yet voicing applies. p->b
+harp [A: Voicing]
+
+## Tag required.
+nakit [A:LastVowelDrop]
+aciz [A:LastVowelDrop]
+vakit [A:LastVowelDrop, NoVoicing]
+lütuf [A: LastVowelDrop]
+
+## because verbs are also inferred from -mek -mak, here Pos info is required. But Voicing Attribute is optional
+sumak [P: Noun]
+yemek [P: Noun]
+
+## Proper nouns. both noun and Prop tags are optional.Prop attribute is inferred from first letter.
+Ankara
+Adana 
+Ağrı
+ağrı
+
+adem [P:Noun]
+âdem [P:Noun]
+Âdem [P:Prop]
+
+ad
+ad [A: Doubling, InverseHarmony; Index:1]
+
+bugün [P:Time;S:+Rel_kI,-Rel_ki]
+bugün [P:Adv]
+ben
+hükûmet [A:NoVoicing]
+
+zeytin
+yağ
+at
+kuyruk
+zeytinyağı [A:CompoundP3sg ; Roots:zeytin-yağ]
+atkuyruğu [A:CompoundP3sg ; Roots:at-kuyruk]
+
+su [RootSuffix:Noun_Su_Root]
+
+## ------------------------------------------------------------------------------------------
+## Adjectives
+## Pos info needs to be written, allways.
+
+kırmızı [P:Adj]
+arı [P:Adj]
+yavaş [P:Adj]
+temiz [P:Adj]
+acımasız [P:Adj]
+acımasız [P:Adv]
+
+şu [P:Adj,Demons]
+kaba [P:Adj]
+
+## ------------------------------------------------------------------------------------------
+## Numeral
+iki [P:Num]
+üç [P:Num]
+
+## ------------------------------------------------------------------------------------------
+## Adverbs
+## Pos info needs to be written, allways.
+
+ayrı [P:Adv]
+behemehâl [P:Adv]
+bugün [P:Adv, Time]
+
+## ------------------------------------------------------------------------------------------
+## Verbs
+## P:Verb info is inferred from -mek -mak suffix. So it is optional.
+
+atmak [A:Reciprocal]
+bakmak [A:Reciprocal]
+yapmak
+aramak
+acımak
+abartmak
+etmek [A:Voicing]
+yıkanmak [A:Reflexive]
+küfretmek [A:Voicing, Aorist_A]
+
+## Aor-I is required here. because normally Aorist suffix is generated as -Ar if verb is single syllable. but not in this case.
+almak [A:Aorist_I]
+
+kavurmak [A:LastVowelDrop]
+
+demek [A:Special]
+yemek [A:Special]
+
+gelmek [A:NonTransitive, Aorist_I]
+pişmek [A:NonTransitive]
+kapmak [A:Reciprocal]
+
+## ------------------------------------------------------------------------------------------
+## Interjection
+behey [P:Interj]
+a [P:Interj]
+
+## ------------------------------------------------------------------------------------------
+## Pronoun
+
+ben [P:Pron,Pers; A:Special]
+o [P:Pron]
+şu [P:Pron,Demons]
+
+## ------------------------------------------------------------------------------------------
+## Conjuction
+
+ama [P:Conj]
+fakat [P:Conj]
+ve [P:Conj]
+veya [P:Conj]
+ya [P:Conj]
+da [P:Conj]
+
+## ------------------------------------------------------------------------------------------
+## Determiner
+
+bir [P:Det]
+
+## ------------------------------------------------------------------------------------------
+## Post Positive
+
+rağmen [P:Postp]
+birlikte [P:Postp]
+
+
+## ------------------------------------------------------------------------------------------
+## Pronunciation
+AB [Pr:abe]
+z
+Google [Pr:gugıl]
+Google [Pr:gogıl; Index:1; Ref:Google]
+Washington [Pr:vaşington]
+Washington [Pr:voşingtın; Index:1; Ref:Washington]

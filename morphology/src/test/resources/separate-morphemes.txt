@@ -1,0 +1,4 @@
+kitaplara = kitap-lar-a
+kitabımızdandır = kitab-ımız-dan-dır
+ağacının = ağac-ın-ın, ağac-ı-nın
+gelemeyeceksen = gel-e-me-yecek-se-n
