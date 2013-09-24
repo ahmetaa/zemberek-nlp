@@ -3,9 +3,9 @@ package zemberek.core;
 import java.util.Arrays;
 
 /**
- * A hash map for Ngram ids
+ * A special map for Ngram ids and counts. It uses flat integer array for storing ngram ids.
  */
-public class NgramFlatMap {
+public class NgramCountMap {
 
     private static final int INITIAL_SIZE = 8;
     private static final double LOAD_FACTOR = 0.6;
@@ -25,11 +25,11 @@ public class NgramFlatMap {
     // When structure has this amount of keys, it expands the key and count arrays.
     int threshold = (int) (INITIAL_SIZE * LOAD_FACTOR);
 
-    public NgramFlatMap(int order) {
+    public NgramCountMap(int order) {
         this(order, INITIAL_SIZE);
     }
 
-    public NgramFlatMap(int order, int size) {
+    public NgramCountMap(int order, int size) {
         this.order = order;
         int k = INITIAL_SIZE;
         while (k < size)
@@ -46,7 +46,7 @@ public class NgramFlatMap {
         for (int a : keys) {
             d = (d ^ a) * 16777619;
         }
-        return (d & 0x7fffffff) & modulo;
+        return d & modulo;
     }
 
     public int size() {
@@ -152,7 +152,7 @@ public class NgramFlatMap {
     }
 
     private void expand() {
-        NgramFlatMap h = new NgramFlatMap(order, counts.length * 2);
+        NgramCountMap h = new NgramCountMap(order, counts.length * 2);
         for (int i = 0; i < counts.length; i++) {
             if (ids[i * order] >= 0) {
                 int k[] = new int[order];

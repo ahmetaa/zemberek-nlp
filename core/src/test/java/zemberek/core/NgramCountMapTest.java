@@ -9,12 +9,12 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public class NgramFlatMapTest {
+public class NgramCountMapTest {
 
     @Test
     public void getTest2() {
         int[][] data = {{5}, {1}, {7}, {9}, {10}, {123}};
-        NgramFlatMap map = new NgramFlatMap(1);
+        NgramCountMap map = new NgramCountMap(1);
         for (int[] ints : data) {
             map.put(ints, ints[0]);
         }
@@ -27,7 +27,7 @@ public class NgramFlatMapTest {
     @Test
     public void getTest3() {
         int[][] data = {{1}, {5}, {7}, {9}, {10}, {123}, {1}};
-        NgramFlatMap map = new NgramFlatMap(1);
+        NgramCountMap map = new NgramCountMap(1);
         for (int[] ints : data) {
             map.increment(ints);
         }
@@ -39,12 +39,12 @@ public class NgramFlatMapTest {
     @Test
     public void sortTest() {
         int[][] data = {{5}, {1}, {10}, {7}};
-        NgramFlatMap map = new NgramFlatMap(1);
+        NgramCountMap map = new NgramCountMap(1);
         for (int[] ints : data) {
             map.increment(ints);
         }
         Assert.assertEquals(4, map.size());
-        NgramFlatMap.NgramCount[] allSorted = map.getAllSorted();
+        NgramCountMap.NgramCount[] allSorted = map.getAllSorted();
         Assert.assertEquals(4, allSorted.length);
         Assert.assertTrue(Arrays.equals(allSorted[0].ids, new int[]{1}));
         Assert.assertTrue(Arrays.equals(allSorted[1].ids, new int[]{5}));
@@ -56,7 +56,7 @@ public class NgramFlatMapTest {
         int[] orders = {1, 2, 3, 4, 5, 6, 7};
         for (int order : orders) {
             for (int count : counts) {
-                NgramFlatMap map = new NgramFlatMap(order);
+                NgramCountMap map = new NgramCountMap(order);
                 int[][] randomKeys = randomKeys(order, count);
                 System.out.println();
                 for (int[] randomKey : randomKeys) {
@@ -88,7 +88,7 @@ public class NgramFlatMapTest {
         int[] orders = {2, 3, 4, 5};
         for (int order : orders) {
             for (int count : counts) {
-                NgramFlatMap map = new NgramFlatMap(order);
+                NgramCountMap map = new NgramCountMap(order);
                 System.out.println("Order:" + order + " Count=" + count);
                 int[][] randomKeys = randomKeys(order, count);
                 Stopwatch sw = new Stopwatch().start();
@@ -105,7 +105,7 @@ public class NgramFlatMapTest {
                 System.out.println("get = " + sw.elapsed(TimeUnit.MILLISECONDS));
 
                 sw.reset().start();
-                NgramFlatMap.NgramCount[] grams = map.getAllSorted();
+                NgramCountMap.NgramCount[] grams = map.getAllSorted();
                 System.out.println("get sorted = " + sw.elapsed(TimeUnit.MILLISECONDS));
                 System.out.println(grams.length);
 
