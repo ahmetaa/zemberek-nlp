@@ -346,7 +346,7 @@ public class LmVocabulary {
     }
 
     public Iterable<String> words() {
-        return words();
+        return vocabulary;
     }
 
     public Iterable<String> wordsSorted() {

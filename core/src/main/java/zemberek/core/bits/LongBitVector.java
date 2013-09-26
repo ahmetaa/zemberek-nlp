@@ -62,7 +62,7 @@ public class LongBitVector {
         if (size < 0 || size > words.length * 64)
             throw new IllegalArgumentException("Cannot create vector with size:" + size);
         this.size = size;
-        this.words = words;
+        this.words = words.clone();
         this.capacityInterval = 7;
     }
 
@@ -134,7 +134,7 @@ public class LongBitVector {
      * @return word array.
      */
     public long[] getLongArray() {
-        return words;
+        return words.clone();
     }
 
     // TODO: can be optimized for almost filled with 1 vectors.
