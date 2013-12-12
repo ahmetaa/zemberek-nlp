@@ -63,7 +63,6 @@ Here are the parameters for the application:
 ### Using SmoothLm
 
 Once SmoothLm file is generated, it can be accessed programmatically.
-In those cases smaller spaceUsage parameters can be used.
 SmoothLm does not provide a constructor. It can be instantiated with Builder pattern:
 
     SmothLm lm = SmoothLm.builder(new File("lm.smooth")).build();
