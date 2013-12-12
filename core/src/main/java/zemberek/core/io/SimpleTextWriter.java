@@ -53,7 +53,7 @@ public final class SimpleTextWriter implements AutoCloseable {
         public Builder(String fileName) throws IOException {
             Preconditions.checkNotNull(fileName, "File name cannot be null..");
             _encoding = Charset.defaultCharset().name();
-            _os = new FileOutputStream(fileName);
+            _os = new BufferedOutputStream(new FileOutputStream(fileName));
             this._writer = IOs.getBufferedWriter(_os, _encoding);
         }
 
@@ -67,7 +67,7 @@ public final class SimpleTextWriter implements AutoCloseable {
         public Builder(File file) throws IOException {
             Preconditions.checkNotNull(file, "File name cannot be null..");
             _encoding = Charset.defaultCharset().name();
-            _os = new FileOutputStream(file);
+            _os = new BufferedOutputStream(new FileOutputStream(file));
             this._writer = IOs.getBufferedWriter(_os, _encoding);
         }
 
@@ -182,7 +182,7 @@ public final class SimpleTextWriter implements AutoCloseable {
      */
     public SimpleTextWriter(String fileName, String encoding) throws IOException {
         Preconditions.checkNotNull(fileName, "File name cannot be null..");
-        this.os = new FileOutputStream(fileName);
+        this.os = new BufferedOutputStream(new FileOutputStream(fileName));
         this.writer = IOs.getBufferedWriter(os, encoding);
         this.encoding = encoding;
         keepOpen = false;
@@ -200,8 +200,8 @@ public final class SimpleTextWriter implements AutoCloseable {
      */
     public SimpleTextWriter(File file, String encoding) throws IOException {
         Preconditions.checkNotNull(file, "File cannot be null..");
-        this.os = new FileOutputStream(file);
-        this.writer = IOs.getBufferedWriter(os,encoding);
+        this.os = new BufferedOutputStream(new FileOutputStream(file));
+        this.writer = IOs.getBufferedWriter(os, encoding);
         this.encoding = encoding;
         keepOpen = false;
     }
@@ -237,7 +237,7 @@ public final class SimpleTextWriter implements AutoCloseable {
      *
      * @param lines : lines to write, null entries produce blank lines
      * @return returns the current instance. keep in mind that if instance is not constructed
-     *         with keepopen, chaining other write methods will throw an exception.
+     * with keepopen, chaining other write methods will throw an exception.
      * @throws java.io.IOException if an I/O error occurs
      */
     public SimpleTextWriter writeLines(Collection<String> lines) throws IOException {
@@ -255,7 +255,7 @@ public final class SimpleTextWriter implements AutoCloseable {
      *
      * @param lines : lines to write, null entries produce blank lines
      * @return returns the current instance. keep in mind that if instance is not constructed
-     *         with keepopen, chaining other write methods will throw an exception.
+     * with keepopen, chaining other write methods will throw an exception.
      * @throws java.io.IOException if an I/O error occurs
      */
     public SimpleTextWriter writeLines(String... lines) throws IOException {
@@ -267,7 +267,7 @@ public final class SimpleTextWriter implements AutoCloseable {
      *
      * @param objects : lines to write, null entries produce blank lines
      * @return returns the current instance. keep in mind that if instance is not constructed
-     *         with keepopen, chaining other write methods will throw an exception.
+     * with keepopen, chaining other write methods will throw an exception.
      * @throws java.io.IOException if an I/O error occurs
      */
     public SimpleTextWriter writeToStringLines(Collection<?> objects) throws IOException {
@@ -285,12 +285,12 @@ public final class SimpleTextWriter implements AutoCloseable {
      *
      * @param s : string to write.
      * @return returns the current instance. keep in mind that if instance is not constructed
-     *         with keepOpen(), chaining other write methods will throw an exception.
+     * with keepOpen(), chaining other write methods will throw an exception.
      * @throws java.io.IOException if an I/O error occurs
      */
     public SimpleTextWriter write(String s) throws IOException {
         try {
-            if(s==null || s.length()==0)
+            if (s == null || s.length() == 0)
                 return this;
             writer.write(s);
             return this;
@@ -305,7 +305,7 @@ public final class SimpleTextWriter implements AutoCloseable {
      *
      * @param s : string to write.
      * @return returns the current instance. keep in mind that if instance is not constructed
-     *         with keepOpen(), chaining other write methods will throw an exception.
+     * with keepOpen(), chaining other write methods will throw an exception.
      * @throws java.io.IOException if an I/O error occurs
      */
     public SimpleTextWriter writeLine(String s) throws IOException {
@@ -327,7 +327,7 @@ public final class SimpleTextWriter implements AutoCloseable {
      *
      * @param obj : object to write.
      * @return returns the current instance. keep in mind that if instance is not constructed
-     *         with keepOpen(), chaining other write methods will throw an exception.
+     * with keepOpen(), chaining other write methods will throw an exception.
      * @throws java.io.IOException if an I/O error occurs
      */
     public SimpleTextWriter writeLine(Object obj) throws IOException {

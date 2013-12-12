@@ -42,7 +42,7 @@ public final class SimpleTextReader implements AutoCloseable {
 
         public Builder(String fileName) throws IOException {
             checkNotNull(fileName, "File name cannot be null..");
-            this._is = new FileInputStream(fileName);
+            this._is = new BufferedInputStream(new FileInputStream(fileName));
         }
 
         public Builder(InputStream is) {
@@ -52,7 +52,7 @@ public final class SimpleTextReader implements AutoCloseable {
 
         public Builder(File file) throws IOException {
             checkNotNull(file, "File name cannot be null..");
-            this._is = new FileInputStream(file);
+            this._is = new BufferedInputStream(new FileInputStream(file));
         }
 
         public Builder encoding(String encoding) {
@@ -128,11 +128,11 @@ public final class SimpleTextReader implements AutoCloseable {
         }
 
         public SimpleTextReader generateReader(String fileName) throws IOException {
-            return new SimpleTextReader(new FileInputStream(fileName), this);
+            return new SimpleTextReader(new BufferedInputStream(new FileInputStream(fileName)), this);
         }
 
         public SimpleTextReader generateReader(File file) throws IOException {
-            return new SimpleTextReader(new FileInputStream(file), this);
+            return new SimpleTextReader(new BufferedInputStream(new FileInputStream(file)), this);
         }
 
         public Template trim() {
@@ -188,14 +188,14 @@ public final class SimpleTextReader implements AutoCloseable {
      */
     public SimpleTextReader(File file) throws IOException {
         checkNotNull(file, "File name cannot be null..");
-        this.is = new FileInputStream(file);
+        this.is = new BufferedInputStream(new FileInputStream(file));
         encoding = Charset.defaultCharset().name();
         this.template = new Template(encoding);
     }
 
     public SimpleTextReader(File file, String encoding) throws IOException {
         checkNotNull(file, "File name cannot be null..");
-        this.is = new FileInputStream(file);
+        this.is = new BufferedInputStream(new FileInputStream(file));
         if (encoding == null)
             this.encoding = Charset.defaultCharset().name();
         else
@@ -205,14 +205,14 @@ public final class SimpleTextReader implements AutoCloseable {
 
     public SimpleTextReader(String fileName) throws IOException {
         checkNotNull(fileName, "File name cannot be null..");
-        this.is = new FileInputStream(fileName);
+        this.is = new BufferedInputStream(new FileInputStream(fileName));
         encoding = Charset.defaultCharset().name();
         this.template = new Template(encoding);
     }
 
     public SimpleTextReader(String fileName, String encoding) throws IOException {
         checkNotNull(fileName, "File name cannot be null..");
-        this.is = new FileInputStream(fileName);
+        this.is = new BufferedInputStream(new FileInputStream(fileName));
         if (encoding == null)
             this.encoding = Charset.defaultCharset().name();
         else
@@ -413,7 +413,7 @@ public final class SimpleTextReader implements AutoCloseable {
      */
     public long countLines() throws IOException {
         long i;
-        try(LineIterator li = getLineIterator()) {
+        try (LineIterator li = getLineIterator()) {
             i = 0;
             while (li.hasNext()) {
                 i++;

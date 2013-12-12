@@ -86,7 +86,7 @@ public class DictionaryItem {
 
     private String generateId(String lemma, PrimaryPos pos, SecondaryPos spos, int index) {
         StringBuilder sb = new StringBuilder(lemma).append("_").append(pos.shortForm);
-        if (spos != null  && spos != SecondaryPos.None) {
+        if (spos != null && spos != SecondaryPos.None) {
             sb.append("_").append(spos.shortForm);
         }
         if (index > 0)
@@ -165,19 +165,19 @@ public class DictionaryItem {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("[" + lemma + "]" + " Pos:" + primaryPos.shortForm);
+        StringBuilder sb = new StringBuilder(lemma + " " + "[P:" + primaryPos.shortForm);
         if (secondaryPos != SecondaryPos.None)
             sb.append(", ").append(secondaryPos.shortForm);
-        if (!attrs.isEmpty()) {
-            sb.append(" A:");
+        if (attrs.isEmpty())
+            sb.append("]");
+        else
             printAttributes(sb, attrs);
-        }
         return sb.toString();
     }
 
     private void printAttributes(StringBuilder sb, EnumSet<RootAttribute> attrs) {
         if (!attrs.isEmpty())
-            sb.append("[");
+            sb.append("; A:");
         else return;
         int i = 0;
         for (RootAttribute attribute : attrs) {

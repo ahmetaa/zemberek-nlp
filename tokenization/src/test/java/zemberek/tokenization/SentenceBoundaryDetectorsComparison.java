@@ -27,7 +27,7 @@ public class SentenceBoundaryDetectorsComparison {
         PerceptronSentenceBoundaryDetecor perceptron = new PerceptronSentenceBoundaryDetecor.Trainer(
                 new File("/home/kodlab/projects/zemberek-nlp/tokenization/src/test/resources/tokenizer/Sentence-Boundary-Train.txt"),
                 //new File("/home/kodlab/projects/zemberek-nlp/tokenization/src/test/resources/tokenizer/Train(line-by-line).txt"),
-                3).train();
+                2).train();
         System.out.println("Train Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
         test(testSentences, perceptron);
 

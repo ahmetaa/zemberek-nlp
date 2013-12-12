@@ -36,7 +36,9 @@ public class SimpleTextWriterTest {
     @Before
     public void before() {
         tmpDir = com.google.common.io.Files.createTempDir();
+        tmpDir.deleteOnExit();
         tmpFile = new File(tmpDir, "jcaki.txt");
+        tmpFile.deleteOnExit();
     }
 
     @After

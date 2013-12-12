@@ -19,6 +19,7 @@ import zemberek.morphology.lexicon.tr.TurkishSuffixes;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 import static zemberek.core.turkish.PrimaryPos.*;
@@ -172,7 +173,7 @@ public class TurkishDictionaryLoaderTest {
 
         RootLexicon items = loader.load(new File(Resources.getResource("tr/master-dictionary.dict").getFile()));
         TurkishAlphabet alphabet = new TurkishAlphabet();
-        Set<String> masterVoicing = new HashSet<String>();
+        Set<String> masterVoicing = new HashSet<>();
         for (DictionaryItem item : items) {
             if (item.attrs.contains(NoVoicing))
                 masterVoicing.add(item.lemma);
@@ -248,11 +249,22 @@ public class TurkishDictionaryLoaderTest {
     @Test
     @Ignore("Not a unit test")
     public void shouldPrintItemsInDevlDictionary() throws IOException {
-        RootLexicon items = new TurkishDictionaryLoader(new TurkishSuffixes()).load(new File(Resources.getResource("dev-dictionary.txt").getFile()));
+        RootLexicon items = new TurkishDictionaryLoader(new TurkishSuffixes()).load(new File(Resources.getResource("dev-lexicon.txt").getFile()));
         for (DictionaryItem item : items) {
             System.out.println(item);
         }
     }
+
+    @Test
+    @Ignore("Not a unit test")
+    public void saveFullAttributes() throws IOException {
+        RootLexicon items = TurkishDictionaryLoader.loadDefaultDictionaries(new TurkishSuffixes());
+        PrintWriter p = new PrintWriter(new File("dictionary-all-attributes.txt"), "utf-8");
+        for (DictionaryItem item : items) {
+            p.println(item.toString());
+        }
+    }
+
 
     private static ItemAttrPair testPair(String s, RootAttribute... attrs) {
         return new ItemAttrPair(s, EnumSet.copyOf(Arrays.asList(attrs)));
