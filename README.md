@@ -1,7 +1,7 @@
 zemberek-nlp
 ============
-
-Natural Language Processing library. Some modules are specifically developed for Turkish language.
+Here is the the new home of the Zemberek project.  
+Zemberek-nlp is a Natural Language Processing library. Some modules are specifically developed for Turkish language.
 
 ### Core
 
