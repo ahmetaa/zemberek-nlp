@@ -35,4 +35,4 @@ Text based statistical language identification.
 Please refer to contributors.txt file.
 
 Portions of this code has been developed in Tübitak BİLGEM Speech and Language Technologies Laboratory.
-![Bilgem Logo](https://github.com/ahmetaa/zemberek-nlp/tree/master/docs/images/bilgem-logo.png)
+![Bilgem Logo](https://github.com/ahmetaa/zemberek-nlp/blob/master/docs/images/bilgem-logo.png)
