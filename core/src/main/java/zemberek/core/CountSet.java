@@ -31,8 +31,6 @@ public class CountSet<T> implements Iterable<T> {
     // When structure has this amount of keys, it expands the key and count arrays.
     int threshold = (int) (INITIAL_SIZE * DEFAULT_LOAD_FACTOR);
 
-    // Only used for debugging.
-    int collisionCount;
 
     public CountSet() {
         this(INITIAL_SIZE);
@@ -134,7 +132,7 @@ public class CountSet<T> implements Iterable<T> {
      */
     public int get(T key) {
         if (key == null)
-            throw new IllegalArgumentException("Key cannot be null. But it is:" + key);
+            throw new IllegalArgumentException("Key cannot be null.");
         int probeCount = 0;
         int slot = firstProbe(hash(key));
         while (true) {
@@ -169,7 +167,7 @@ public class CountSet<T> implements Iterable<T> {
      */
     public int incrementByAmount(T key, int amount) {
         if (key == null)
-            throw new IllegalArgumentException("Key cannot be null. But it is:" + key);
+            throw new IllegalArgumentException("Key cannot be null");
         if (keyCount == threshold) {
             expand();
         }
@@ -210,7 +208,7 @@ public class CountSet<T> implements Iterable<T> {
 
     public void set(T key, int value) {
         if (key == null)
-            throw new IllegalArgumentException("Key cannot be null. But it is:" + key);
+            throw new IllegalArgumentException("Key cannot be null.");
         if (keyCount == threshold) {
             expand();
         }
@@ -332,16 +330,16 @@ public class CountSet<T> implements Iterable<T> {
 
     public static class Entry<T> implements Comparable<Entry<T>> {
         public final T key;
-        public final int value;
+        public final int count;
 
-        public Entry(T key, int value) {
+        public Entry(T key, int count) {
             this.key = key;
-            this.value = value;
+            this.count = count;
         }
 
         @Override
         public int compareTo(Entry<T> o) {
-            return Integer.compare(value, o.value);
+            return Integer.compare(o.count, count);
         }
     }
 }

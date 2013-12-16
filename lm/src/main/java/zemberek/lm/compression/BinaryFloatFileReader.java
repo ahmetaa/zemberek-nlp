@@ -34,15 +34,16 @@ public class BinaryFloatFileReader {
 
     public static Quantizer getQuantizer(File file, int bitCount, QuantizerType quantizerType) throws IOException {
         BinaryFloatFileReader reader = new BinaryFloatFileReader(file);
-        DataInputStream dis = reader.getStream();
-        dis.skipBytes(4); // skip the count.
-        LookupCalculator lookupCalc = new LookupCalculator(bitCount);
-        for (int i = 0; i < reader.count; i++) {
-            double d = dis.readFloat();
-            lookupCalc.add(d);
-        }
+        try (DataInputStream dis = reader.getStream()) {
+            dis.skipBytes(4); // skip the count.
+            LookupCalculator lookupCalc = new LookupCalculator(bitCount);
+            for (int i = 0; i < reader.count; i++) {
+                double d = dis.readFloat();
+                lookupCalc.add(d);
+            }
         dis.close();
-        return lookupCalc.getQuantizer(quantizerType);
+            return lookupCalc.getQuantizer(quantizerType);
+        }
     }
 
     private static class LookupCalculator {
@@ -65,7 +66,7 @@ public class BinaryFloatFileReader {
             double[] lookup = new double[histogram.size()];
             int[] counts = new int[histogram.size()];
             int j = 0;
-            for (Double key : histogram) {
+            for (double key : histogram) {
                 lookup[j] = key;
                 counts[j] = histogram.getCount(key);
                 j++;

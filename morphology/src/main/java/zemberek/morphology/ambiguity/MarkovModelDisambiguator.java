@@ -76,7 +76,7 @@ public class MarkovModelDisambiguator extends AbstractDisambiguator {
         System.out.println("Amount of sentences in test set:" + testSet.sentences.size());
         System.out.println("Amount of tokens in test set:" + testSet.tokenCount());
         int hit = 0, total = 0;
-        Stopwatch sw = new Stopwatch().start();
+        Stopwatch sw = Stopwatch.createStarted();
         Random r = new Random(5);
         for (SentenceData sentence : testSet.sentences) {
             for (WordData word : sentence.words) {

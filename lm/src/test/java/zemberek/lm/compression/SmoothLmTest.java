@@ -195,7 +195,7 @@ public class SmoothLmTest {
     @Test
     @Ignore
     public void testActualData() throws IOException {
-        Stopwatch sw = new Stopwatch().start();
+        Stopwatch sw = Stopwatch.createStarted();
         File lmFile = new File("/home/ahmetaa/data/lm/smoothnlp-test/lm1.slm");
         File tmp = new File("/tmp");
         if (!lmFile.exists()) {

@@ -50,7 +50,7 @@ public class TurkishSentenceParserTest {
          System.out.println(entry.input + " kök=" + entry.parses.get(0).stem);
      }*/
         List<String> sentences = SimpleTextReader.trimmingUTF8Reader(ntvmsnbcCorpus).asStringList();
-        Stopwatch sw = new Stopwatch().start();
+        Stopwatch sw = Stopwatch.createStarted();
         int wc = 0;
         for (String sentence : sentences) {
             SentenceMorphParse parse = parser.parse(sentence);

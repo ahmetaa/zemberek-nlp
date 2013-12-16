@@ -262,7 +262,7 @@ public class CountSetTest {
             keyVals[i][0] = r.nextInt(500000);
             keyVals[i][1] = r.nextInt(5000) + 1;
         }
-        Stopwatch sw = new Stopwatch().start();
+        Stopwatch sw = Stopwatch.createStarted();
         for (int j = 0; j < itCount; j++) {
 
             HashMap<Integer, Integer> map = new HashMap<>();
@@ -295,7 +295,7 @@ public class CountSetTest {
 
 
         CountSet<Integer> countTable = new CountSet<>();
-        sw = new Stopwatch().start();
+        sw = Stopwatch.createStarted();
 
         for (int j = 0; j < itCount; j++) {
 
@@ -320,7 +320,7 @@ public class CountSetTest {
     @Test
     public void perfStrings() {
         for (int i = 0; i < 5; i++) {
-            Stopwatch sw = new Stopwatch().start();
+            Stopwatch sw = Stopwatch.createStarted();
             Set<String> strings = uniqueStrings(100000, 7);
             System.out.println(strings.size() + " : " + sw.elapsed(TimeUnit.MILLISECONDS));
             sw.reset().start();

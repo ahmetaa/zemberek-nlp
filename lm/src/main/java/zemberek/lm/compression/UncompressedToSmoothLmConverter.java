@@ -36,8 +36,11 @@ public class UncompressedToSmoothLmConverter {
         convert(binaryUncompressedLmDir, block, SmoothLm.MphfType.LARGE, oneBasedMphfFiles, chunkBits);
     }
 
-    private void convert(File binaryUncompressedLmDir, NgramDataBlock block,
-                         SmoothLm.MphfType type, File[] oneBasedMphfFiles, int chunkBits) throws IOException {
+    private void convert(File binaryUncompressedLmDir,
+                         NgramDataBlock block,
+                         SmoothLm.MphfType type,
+                         File[] oneBasedMphfFiles,
+                         int chunkBits) throws IOException {
 
         Log.info("Generating compressed language model.");
 
@@ -96,8 +99,9 @@ public class UncompressedToSmoothLmConverter {
             Files.copy(lm.getProbabilityLookupFile(i), dos);
         }
         for (int i = 1; i <= order; i++) {
-            if (i < order)
+            if (i < order) {
                 Files.copy(lm.getBackoffLookupFile(i), dos);
+            }
         }
 
         Log.info("Reordering probability data and saving it together with n-gram fingerprints");
@@ -118,21 +122,24 @@ public class UncompressedToSmoothLmConverter {
                 }
                 reorderData = new ReorderData(reorderedIndexes, new int[0]);
             } else {
-                if (type == SmoothLm.MphfType.LARGE)
+                if (type == SmoothLm.MphfType.LARGE) {
                     reorderData = reorderIndexes(block, lm, i, LargeNgramMphf.deserialize(phfFiles[i]));
-                else
+                } else {
                     reorderData = reorderIndexes(block, lm, i, MultiLevelMphf.deserialize(phfFiles[i]));
+                }
             }
             Log.info("Validating reordered index array for order: %d", i);
 
             validateIndexArray(reorderData.reorderedKeyIndexes);
 
             int fingerPrintSize = block.fingerPrintSize;
-            if (i == 1)
+            if (i == 1) {
                 fingerPrintSize = 0;
+            }
             int backOffSize = block.backoffSize;
-            if (i == order)
+            if (i == order) {
                 backOffSize = 0;
+            }
 
             dos.writeInt(gramCount);
             dos.writeInt(fingerPrintSize);

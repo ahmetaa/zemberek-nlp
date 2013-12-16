@@ -32,7 +32,7 @@ public class MultiLevelMphfTest {
         int strSize = 5;
         for (int limit : limits) {
             System.out.println("Key amount: " + limit);
-            Stopwatch sw = new Stopwatch().start();
+            Stopwatch sw = Stopwatch.createStarted();
             StringHashKeyProvider provider = new StringHashKeyProvider(uniqueStrings(limit, strSize));
             System.out.println("Generation:" + sw.elapsed(TimeUnit.MILLISECONDS));
             generateAndTest(provider);

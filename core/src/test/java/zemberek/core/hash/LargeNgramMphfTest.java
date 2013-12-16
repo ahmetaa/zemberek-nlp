@@ -24,7 +24,7 @@ public class LargeNgramMphfTest {
             }
             File file = generateBinaryGramFile(order, gramCount, arr);
 
-            Stopwatch sw = new Stopwatch().start();
+            Stopwatch sw = Stopwatch.createStarted();
             LargeNgramMphf mphf = LargeNgramMphf.generate(file, 20);
             System.out.println("Generation time:" + sw.elapsed(TimeUnit.MILLISECONDS));
 /*            System.out.println("Bits per key=" + mphf.averageBitsPerKey(gramCount));

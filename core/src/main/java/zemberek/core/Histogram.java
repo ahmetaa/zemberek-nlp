@@ -8,7 +8,7 @@ import java.util.*;
 /**
  * A simple set like data structure for counting unique elements. Not thread safe.
  */
-public class Histogram<T extends Comparable> implements Iterable<T> {
+public class Histogram<T> implements Iterable<T> {
 
     private final CountSet<T> vector;
 
@@ -139,7 +139,7 @@ public class Histogram<T extends Comparable> implements Iterable<T> {
     }
 
     /**
-     * returns the first of items sorted by natural order.
+     * returns the first of items sorted by frequency descending.
      * if count is larger than size complete list is returned.
      *
      * @param count amount of items to be fetched.
@@ -186,7 +186,7 @@ public class Histogram<T extends Comparable> implements Iterable<T> {
     public SortedMap<Integer, Integer> sortedCountMap() {
         SparseIntVector cs = new SparseIntVector(vector.size());
         for (CountSet.Entry<T> entry : vector.iterableEntries()) {
-            cs.increment(entry.value);
+            cs.increment(entry.count);
         }
         TreeMap<Integer, Integer> map = new TreeMap<>();
         for (SparseIntVector.TableEntry entry : cs) {
@@ -235,7 +235,6 @@ public class Histogram<T extends Comparable> implements Iterable<T> {
      * removes an item.
      *
      * @param t item to removed.
-     * @return count of the item before it is removed (if it exits). -1 otherwise.
      */
     public void remove(T t) {
         vector.remove(t);
@@ -348,13 +347,15 @@ public class Histogram<T extends Comparable> implements Iterable<T> {
     }
 
     /**
-     * returns the Elements in a list sorted by count, descending..
+     * returns the Elements in a list sorted by count, descending.
      *
-     * @return Elements in a list sorted by count, descending..
+     * @return Elements in a list sorted by count, descending.
      */
     public List<T> getSortedList() {
-        List<T> l = Lists.newArrayList(vector);
-        Collections.sort(l);
+        List<T> l = Lists.newArrayListWithCapacity(vector.size());
+        for(CountSet.Entry<T> entry : getSortedEntryList()) {
+            l.add(entry.key);
+        }
         return l;
     }
 
@@ -379,7 +380,6 @@ public class Histogram<T extends Comparable> implements Iterable<T> {
             n = size();
         List<CountSet.Entry<T>> l = vector.getAsEntryList();
         Collections.sort(l);
-        Collections.reverse(l);
         List<T> result = new ArrayList<>();
         for (CountSet.Entry<T> tEntry : l) {
             result.add(tEntry.key);
@@ -401,7 +401,7 @@ public class Histogram<T extends Comparable> implements Iterable<T> {
     /**
      * returns the Elements in a list sorted by the given comparator..
      *
-     * @param comp a Comarator of T
+     * @param comp a Comparator of T
      * @return Elements in a list sorted by the given comparator..
      */
     public List<T> getSortedList(Comparator<T> comp) {

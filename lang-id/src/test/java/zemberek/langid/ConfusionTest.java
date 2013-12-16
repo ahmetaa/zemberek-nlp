@@ -33,7 +33,7 @@ public class ConfusionTest {
         Set<String> languages = identifier.getLanguages();
         for (String language : languages) {
             System.out.println(language);
-            Stopwatch sw = new Stopwatch().start();
+            Stopwatch sw = Stopwatch.createStarted();
             int falsePositives = 0;
             int totalCount = 0;
             int correctlyFound = 0;
@@ -91,7 +91,7 @@ public class ConfusionTest {
         Set<String> languages = identifier.getLanguages();
         for (String language : languages) {
             System.out.println(language);
-            Stopwatch sw = new Stopwatch().start();
+            Stopwatch sw = Stopwatch.createStarted();
             int falsePositives = 0;
             int totalCount = 0;
             int correctlyFound = 0;
@@ -200,7 +200,7 @@ public class ConfusionTest {
     }
 
     public static void main(String[] args) throws Exception {
-        Stopwatch sw = new Stopwatch().start();
+        Stopwatch sw = Stopwatch.createStarted();
 //        LanguageIdentifier identifier = LanguageIdentifier.fromCompressedModelsDir(new File("/home/kodlab/data/language-data/models/compressed"));
         String[] langs = {"tr", "en"};
         //String[]  langs = {"tr", "ar", "az", "hy", "bg", "en", "el", "ka", "ku", "fa", "de","fr","nl","diq"};

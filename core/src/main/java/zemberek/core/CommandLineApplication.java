@@ -6,7 +6,6 @@ import org.kohsuke.args4j.Option;
 import zemberek.core.io.Words;
 import zemberek.core.logging.Log;
 
-
 import java.io.File;
 
 /**
@@ -58,32 +57,33 @@ public abstract class CommandLineApplication {
      */
     public void execute(String... args) {
         CmdLineParser parser = new CmdLineParser(this);
-        Log.info("Application is running with arguments: " + Joiner.on(" ").join(args));
         try {
             parser.parseArgument(args);
-            Log.info("Verbosity Level: %d" , verbosity);
+            if(logFile!=null) {
+                com.google.common.io.Files.createParentDirs(logFile);
+                Log.addFileHandler(logFile.toPath());
+                Log.info("Application log is being recorded to %s file.", logFile.getAbsolutePath());
+            }
+            Log.info("Application is running with arguments: " + Joiner.on(" ").join(args));
             switch (verbosity) {
                 case 0:
+                    Log.info("Verbosity level is %d (WARNING).", verbosity);
                     Log.setWarn();
                     break;
                 case 1:
-                    Log.info("Log level is set to INFO.");
+                    Log.info("Verbosity level is %d (INFO).", verbosity);
                     Log.setInfo();
                     break;
                 case 2:
-                    Log.info("Log level is set to DEBUG.");
+                    Log.info("Verbosity level is %d (DEBUG).", verbosity);
                     Log.setDebug();
                     break;
                 case 3:
-                    Log.info("Log level is set to TRACE.");
+                    Log.info("Verbosity level is %d (TRACE).", verbosity);
                     Log.setTrace();
                     break;
                 default:
                     Log.warn("Undefined verbosity level: " + verbosity + ". INFO level will be used.");
-            }
-            if(logFile!=null) {
-                Log.addFileHandler(logFile.toPath());
-                Log.debug("Application log is being recorded to %s file.", logFile);
             }
             run();
         } catch (Exception e) {

@@ -50,7 +50,7 @@ public class SelectorTest {
         }
 
         for (int it = 0; it < 5; it++) {
-            Stopwatch sw = new Stopwatch().start();
+            Stopwatch sw = Stopwatch.createStarted();
             Selector selector = new Selector(vector);
             System.out.println("Selector generation time:" + sw.elapsed(TimeUnit.MILLISECONDS));
             System.out.println("One count:" + selector.getOneCount());

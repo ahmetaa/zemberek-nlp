@@ -225,7 +225,7 @@ public class TurkishNumbers {
      * @return same list with strings where connected number strings are separated.
      */
     public static List<String> seperateConnectedNumbers(List<String> inputSequence) {
-        List<String> output = new ArrayList<String>(inputSequence.size());
+        List<String> output = new ArrayList<>(inputSequence.size());
         for (String s : inputSequence) {
             if (stringToNumber.containsKey(s)) {
                 output.add(valueOf(stringToNumber.get(s)));
@@ -245,7 +245,7 @@ public class TurkishNumbers {
      */
     public static List<String> seperateConnectedNumbers(String input) {
         StringBuilder str = new StringBuilder();
-        List<String> words = new ArrayList<String>(2);
+        List<String> words = new ArrayList<>(2);
         boolean numberFound = false;
         for (int i = 0; i < input.toCharArray().length; i++) {
             str.append(input.toCharArray()[i]);

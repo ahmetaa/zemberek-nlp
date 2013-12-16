@@ -22,6 +22,7 @@ import com.google.common.base.Preconditions;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -38,6 +39,17 @@ public final class SimpleTextWriter implements AutoCloseable {
     private final boolean keepOpen;
     private final BufferedWriter writer;
     private final OutputStream os;
+    private boolean addNewLineBeforeClose;
+
+
+    public static Builder builder(File file) throws IOException {
+        return new Builder(file);
+    }
+
+    public static Builder utf8Builder(File file) throws IOException {
+        return new Builder(file).encoding("UTF-8");
+    }
+
 
     /**
      * This class provides a flexible way of constructing a SimpleFileWriter instance. Caller can set the encoding, if write
@@ -49,6 +61,7 @@ public final class SimpleTextWriter implements AutoCloseable {
         private boolean _keepOpen;
         private BufferedWriter _writer;
         private OutputStream _os;
+        private boolean _addNewLineBeforeClose;
 
         public Builder(String fileName) throws IOException {
             Preconditions.checkNotNull(fileName, "File name cannot be null..");
@@ -78,13 +91,18 @@ public final class SimpleTextWriter implements AutoCloseable {
             return this;
         }
 
+        public Builder addNewLineBeforClose() {
+            _addNewLineBeforeClose = true;
+            return this;
+        }
+
         public Builder keepOpen() {
             this._keepOpen = true;
             return this;
         }
 
         public SimpleTextWriter build() {
-            return new SimpleTextWriter(_writer, _os, _encoding, _keepOpen);
+            return new SimpleTextWriter(_writer, _os, _encoding, _keepOpen, _addNewLineBeforeClose);
         }
     }
 
@@ -138,11 +156,13 @@ public final class SimpleTextWriter implements AutoCloseable {
             BufferedWriter writer,
             OutputStream os,
             String encoding,
-            boolean keepOpen) {
+            boolean keepOpen,
+            boolean addNewLineBeforeClose) {
         this.writer = writer;
         this.os = os;
         this.encoding = encoding;
         this.keepOpen = keepOpen;
+        this.addNewLineBeforeClose = addNewLineBeforeClose;
     }
 
     /**
@@ -365,6 +385,8 @@ public final class SimpleTextWriter implements AutoCloseable {
      * @throws java.io.IOException
      */
     public void close() throws IOException {
+        if (addNewLineBeforeClose)
+            writer.newLine();
         writer.flush();
         IOs.closeSilently(writer);
     }

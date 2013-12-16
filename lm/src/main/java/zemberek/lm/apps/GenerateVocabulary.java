@@ -1,21 +1,18 @@
 package zemberek.lm.apps;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.kohsuke.args4j.Option;
 import zemberek.core.CommandLineApplication;
 import zemberek.core.Histogram;
 import zemberek.core.SpaceTabTokenizer;
+import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.SimpleTextWriter;
 import zemberek.core.logging.Log;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.text.Collator;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class GenerateVocabulary extends CommandLineApplication {
 
@@ -24,8 +21,19 @@ public class GenerateVocabulary extends CommandLineApplication {
             required = true)
     File corpus;
 
+    @Option(name = "-include",
+            usage = "A file that contains a word per line. All words in this file will be added to vocabulary.",
+            required = false)
+    File includeFile;
+
+    @Option(name = "-exclude",
+            usage = "A file that contains a word per line. All words in this file will be removed from vocabulary.",
+            required = false)
+    File excludeFile;
+
     @Option(name = "-top",
-            usage = "Size of the resulting vocabulary. Most frequent n words will be kept.")
+            usage = "Size of the resulting vocabulary. Most frequent n words will be kept. " +
+                    "However, if include and exclude words are defined, they will be processed after top operation.")
     int top = -1;
 
     @Option(name = "-outFile",
@@ -54,6 +62,18 @@ public class GenerateVocabulary extends CommandLineApplication {
         if (top < -1 || top == 0)
             throw new IllegalArgumentException("Illegal value for n: " + top);
 
+        Set<String> wordsToInclude = getWordsFromFile(includeFile);
+        Log.info("Amount of words to include using include file: %d", wordsToInclude.size());
+        Set<String> wordsToExclude = getWordsFromFile(excludeFile);
+        Log.info("Amount of words to exclude using exclude file: %d", wordsToExclude.size());
+
+        Set<String> intersection = Sets.newHashSet(wordsToExclude);
+        intersection.retainAll(wordsToInclude);
+
+        if (intersection.size() != 0) {
+            Log.warn("There are matching words in both include and exclude files: " + intersection.toString());
+        }
+
         Collator collator = Collator.getInstance(Locale.ENGLISH);
         if (sortLocale != null) {
             collator = Collator.getInstance(new Locale(sortLocale));
@@ -78,17 +98,36 @@ public class GenerateVocabulary extends CommandLineApplication {
             if (top >= histogram.size())
                 top = histogram.size();
             else Log.info("Top %d words will be used.", top);
-            List<String> result = histogram.getMostFrequent(top);
-            Log.info("Coverage: %.3f", 100d * ((double) histogram.totalCount(result)) / histogram.totalCount());
+
+            List<String> mostFrequent = histogram.getMostFrequent(top);
+            Log.info("Coverage: %.3f", 100d * ((double) histogram.totalCount(mostFrequent)) / histogram.totalCount());
+
+            LinkedHashSet<String> resultSet = Sets.newLinkedHashSet(mostFrequent);
+            resultSet.addAll(wordsToInclude);
+            resultSet.removeAll(wordsToExclude);
+
+            List<String> result = Lists.newArrayList(resultSet);
+            Log.info("Total size of vocabulary: %d", result.size());
             if (ordered) {
                 Log.info("Sorting file with word order.");
                 Collections.sort(result, collator);
             }
             com.google.common.io.Files.createParentDirs(outFile);
             Log.info("Saving to vocabulary file: %s", outFile);
-            SimpleTextWriter.oneShotUTF8Writer(outFile).writeLines(result);
+            SimpleTextWriter.utf8Builder(outFile).addNewLineBeforClose().build().writeLines(result);
             Log.info("Done.");
         }
+    }
+
+    private Set<String> getWordsFromFile(File file) throws IOException {
+        if (file != null) {
+            if (!file.exists())
+                throw new IllegalArgumentException("Can not find the include file: " + file);
+            if (!file.isFile()) {
+                throw new IllegalArgumentException("Include file is not a file: " + file);
+            }
+            return Sets.newHashSet(SimpleTextReader.trimmingUTF8Reader(file).asStringList());
+        } else return Collections.emptySet();
     }
 
     public static void main(String[] args) {

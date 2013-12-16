@@ -111,7 +111,7 @@ public class FixedBitVectorTest {
         FixedBitVector vector = new FixedBitVector(size);
         Arrays.copyOf(oneIndexes, k);
         for (int i = 0; i < itCount; i++) {
-            Stopwatch sw = new Stopwatch().start();
+            Stopwatch sw = Stopwatch.createStarted();
             for (int oneIndex : oneIndexes) {
                 vector.set(oneIndex);
             }

@@ -12,6 +12,8 @@ import zemberek.lm.NgramLanguageModel;
 import java.io.*;
 import java.util.Arrays;
 
+import static zemberek.core.math.LogMath.LOG_ZERO;
+
 /**
  * SmoothLm is a compressed, optionally quantized, randomized back-off n-gram language model.
  * It uses Minimal Perfect Hash functions for compression, This means actual n-gram values are not stored in the model.
@@ -58,6 +60,8 @@ public class SmoothLm implements NgramLanguageModel {
     private double stupidBackoffLogAlpha;
     private double stupidBackoffAlpha;
     private boolean countFalsePositives;
+
+    LookupCache cache;
 
     int falsePositiveCount;
 
@@ -245,7 +249,7 @@ public class SmoothLm implements NgramLanguageModel {
             ngramData[i] = new GramDataArray(dis);
         }
 
-        // we take the unigram probability data out to get rid of rank lookups for speed.
+        // we take the unigram probability data out to get rid of rank look-ups for speed.
         int unigramCount = ngramData[1].count;
         unigramProbs = new double[unigramCount];
         unigramBackoffs = new double[unigramCount];
@@ -513,6 +517,17 @@ public class SmoothLm implements NgramLanguageModel {
         return falsePositiveCount;
     }
 
+    public double getProbability(LookupCache cache, int... wordIndexes) {
+        double cacheValue = cache.check(wordIndexes);
+        if (cacheValue != LOG_ZERO)
+            return cacheValue;
+        else {
+            final double prob = getProbability(wordIndexes);
+            cache.set(wordIndexes, prob);
+            return prob;
+        }
+    }
+
     /**
      * This is the non recursive log probability calculation. It is more complicated but faster.
      *
@@ -778,6 +793,78 @@ public class SmoothLm implements NgramLanguageModel {
                     return false;
             }
             return true;
+        }
+    }
+
+    /**
+     * This is a simple cache that may be useful if ngram queries exhibit strong temporal locality.
+     * This cache may return false positives. Probability of a false positive is about 1/(2^32)
+     * it contains two cache-size arrays one for hash value, other for probability.
+     * system calculates two hash values from n-gram indexes when an attempt for a cache check.
+     * slot hash is used for locating the current check-hash location.
+     * it checks if calculated check-hash is equal to the one in the slot.
+     * if it is a hit it returns the probability. If it is a miss, it returns LOG_ZERO as probability.
+     */
+    public static class LookupCache {
+        final int[] hashes;
+        final double[] probabilities;
+        final int modulo;
+        public static final int DEFAULT_LOOKUP_CACHE_SIZE = 1 << 14;
+
+        /**
+         * Generates a cache with 2^14 slots.
+         */
+        public LookupCache() {
+            this(DEFAULT_LOOKUP_CACHE_SIZE);
+        }
+
+        /**
+         * Generates a cache where slotSize is the maximum power of two less than the size.
+         */
+        public LookupCache(int size) {
+            int k = size < DEFAULT_LOOKUP_CACHE_SIZE ? 2 : DEFAULT_LOOKUP_CACHE_SIZE;
+            while (k < size) {
+                k <<= 1;
+            }
+            modulo = k - 1;
+            hashes = new int[k];
+            probabilities = new double[k];
+        }
+
+        static final int SLOT_SEED = 0xBEEFCAFE;
+        static final int CHECK_SEED = 0xDEADBEEF;
+
+        /**
+         * @return Probability value if data was already in the cache. LogMath.LOG_ZERO otherwise.
+         *         This cache may return false positives. Probability of a false positive is about 1/(2^32)
+         */
+        public double check(int[] data) {
+            int slotHash = SLOT_SEED;
+            int checkHash = CHECK_SEED;
+            for (int a : data) {
+                slotHash = (slotHash ^ a) * 16777619;
+                checkHash = (checkHash ^ a) * 0x3a8f057b;
+            }
+            slotHash = slotHash & modulo;
+            if (hashes[slotHash] == checkHash) {
+                return probabilities[slotHash];
+            } else
+                return LOG_ZERO;
+        }
+
+        /**
+         * Sets the input data's hash and probability value.
+         */
+        public void set(int[] data, double prob) {
+            int slotHash = SLOT_SEED;
+            int checkHash = CHECK_SEED;
+            for (int a : data) {
+                slotHash = (slotHash ^ a) * 16777619;
+                checkHash = (checkHash ^ a) * 0x3a8f057b;
+            }
+            slotHash = slotHash & modulo;
+            hashes[slotHash] = checkHash;
+            probabilities[slotHash] = prob;
         }
     }
 

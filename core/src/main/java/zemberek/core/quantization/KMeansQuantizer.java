@@ -1,6 +1,7 @@
 package zemberek.core.quantization;
 
 import com.google.common.primitives.Ints;
+import zemberek.core.math.DoubleArrays;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,7 +19,7 @@ public class KMeansQuantizer implements Quantizer {
 
     double data[];
     double sorted[];
-    Map<Double, Integer> lookup = new HashMap<Double, Integer>();
+    Map<Double, Integer> lookup = new HashMap<>();
     final int range;
 
     private KMeansQuantizer(double[] data, int range, Map<Double, Integer> lookup) {
@@ -27,6 +28,11 @@ public class KMeansQuantizer implements Quantizer {
         this.lookup = lookup;
         this.sorted = data.clone();
         Arrays.sort(sorted);
+    }
+
+
+    public static KMeansQuantizer generateFromRawData(float[] dataToQuantize, int bits) {
+        return generateFromRawData(DoubleArrays.convert(dataToQuantize), bits);
     }
 
     /**

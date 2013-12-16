@@ -417,7 +417,7 @@ public class SparseIntVectorTest {
             keyVals[i][0] = r.nextInt(500000);
             keyVals[i][1] = r.nextInt(5000) + 1;
         }
-        Stopwatch sw = new Stopwatch().start();
+        Stopwatch sw = Stopwatch.createStarted();
         for (int j = 0; j < itCount; j++) {
 
             HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
@@ -450,7 +450,7 @@ public class SparseIntVectorTest {
 
 
         SparseIntVector countTable = new SparseIntVector();
-        sw = new Stopwatch().start();
+        sw = Stopwatch.createStarted();
 
         for (int j = 0; j < itCount; j++) {
 

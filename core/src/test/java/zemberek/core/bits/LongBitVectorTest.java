@@ -161,7 +161,7 @@ public class LongBitVectorTest {
         LongBitVector vector = new LongBitVector(size);
 
         for (int i = 0; i < itCount; i++) {
-            Stopwatch sw = new Stopwatch().start();
+            Stopwatch sw = Stopwatch.createStarted();
             for (int oneIndex : oneIndexes) {
                 vector.set(oneIndex);
             }

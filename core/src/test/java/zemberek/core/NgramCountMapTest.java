@@ -91,7 +91,7 @@ public class NgramCountMapTest {
                 NgramCountMap map = new NgramCountMap(order);
                 System.out.println("Order:" + order + " Count=" + count);
                 int[][] randomKeys = randomKeys(order, count);
-                Stopwatch sw = new Stopwatch().start();
+                Stopwatch sw = Stopwatch.createStarted();
                 System.out.println();
                 for (int[] randomKey : randomKeys) {
                     map.put(randomKey, randomKey[0]);

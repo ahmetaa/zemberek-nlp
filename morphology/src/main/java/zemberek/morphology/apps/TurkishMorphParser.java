@@ -77,7 +77,7 @@ public class TurkishMorphParser extends BaseParser {
         }
 
         public TurkishMorphParser build() throws IOException {
-            Stopwatch sw = new Stopwatch().start();
+            Stopwatch sw = Stopwatch.createStarted();
             _parser = getMorphParser(_lines);
             logger.log(Level.INFO, "Parser ready: " + sw.elapsed(TimeUnit.MILLISECONDS) + "ms.");
             if (_cacheLines.size() > 0) {

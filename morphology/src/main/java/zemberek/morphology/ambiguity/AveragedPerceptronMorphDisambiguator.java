@@ -63,7 +63,7 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
     public void test(File testFile) throws IOException {
         DataSet testSet = com.google.common.io.Files.readLines(testFile, Charsets.UTF_8, new DataSetLoader());
         int hit = 0, total = 0;
-        Stopwatch sw = new Stopwatch().start();
+        Stopwatch sw = Stopwatch.createStarted();
         for (SentenceData sentence : testSet.sentences) {
             ParseResult result = bestParse(sentence, true);
             int i = 0;

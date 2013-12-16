@@ -1,6 +1,7 @@
 package zemberek.core.quantization;
 
 import com.google.common.primitives.Doubles;
+import zemberek.core.math.DoubleArrays;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,7 +14,7 @@ import java.util.Random;
  */
 public class BinningQuantizer implements Quantizer {
 
-    Map<Double, Integer> lookup = new HashMap<Double, Integer>();
+    Map<Double, Integer> lookup = new HashMap<>();
     double[] means;
 
     public BinningQuantizer(Map<Double, Integer> lookup, double[] means) {
@@ -41,11 +42,15 @@ public class BinningQuantizer implements Quantizer {
         return totalError;
     }
 
+    public static BinningQuantizer linearBinning(float[] dataToQuantize, int bits) {
+        return linearBinning(DoubleArrays.convert(dataToQuantize), bits);
+    }
+
     public static BinningQuantizer linearBinning(double[] dataToQuantize, int bits) {
         checkRange(bits);
         final int dataLength = dataToQuantize.length;
         int range = 1 << bits;
-        Map<Double, Integer> lookup = new HashMap<Double, Integer>(dataToQuantize.length);
+        Map<Double, Integer> lookup = new HashMap<>(dataToQuantize.length);
         double means[] = new double[range];
         if (range >= dataLength) {
             means = new double[dataLength];
@@ -91,10 +96,14 @@ public class BinningQuantizer implements Quantizer {
             throw new IllegalArgumentException("Bit count cannot be less than 4 or larger than 24" + bits);
     }
 
+    public static BinningQuantizer logCountBinning(float[] dataToQuantize, int counts[], int bits) {
+        return logCountBinning(DoubleArrays.convert(dataToQuantize), counts, bits);
+    }
+
     public static BinningQuantizer logCountBinning(double[] dataToQuantize, int counts[], int bits) {
         checkRange(bits);
         int range = 1 << bits;
-        Map<Double, Integer> lookup = new HashMap<Double, Integer>(dataToQuantize.length);
+        Map<Double, Integer> lookup = new HashMap<>(dataToQuantize.length);
         final int dataLength = dataToQuantize.length;
         double means[] = new double[range];
 

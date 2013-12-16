@@ -31,6 +31,16 @@ public class TestSingleWordSpellChecker {
     }
 
     @Test
+    public void simpleDecodeTest2() {
+        SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
+        spellChecker.addWords("apple", "apples");
+        DoubleValueSet<String> res = spellChecker.decode("apple");
+        for (String re : res) {
+            System.out.println(re);
+        }
+    }
+
+    @Test
     public void multiWordDecodeTest() {
         Log.setDebug();
         SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
@@ -65,7 +75,7 @@ public class TestSingleWordSpellChecker {
         List<String> words = Resources.readLines(Resources.getResource("10000"), Charsets.UTF_8);
         SingleWordSpellChecker spellChecker = new SingleWordSpellChecker();
         spellChecker.buildDictionary(words);
-        Stopwatch sw = new Stopwatch().start();
+        Stopwatch sw = Stopwatch.createStarted();
         int solutionCount = 0;
         for (String word : words) {
             DoubleValueSet<String> result = spellChecker.decode(word);

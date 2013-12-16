@@ -1,6 +1,7 @@
 package zemberek.core;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import junit.framework.Assert;
 import org.junit.Ignore;
@@ -35,6 +36,33 @@ public class HistogramTest {
     }
 
     @Test
+    public void testSortedByCount() {
+        Histogram<String> histogram = new Histogram<>();
+        histogram.add("Apple", "Pear", "Apple", "Apple", "Grape", "Pear");
+        List<String> sortedByCount = histogram.getSortedList();
+        Assert.assertEquals(Lists.newArrayList("Apple", "Pear", "Grape"), sortedByCount);
+
+        sortedByCount = histogram.getMostFrequent(1); // top 1
+        Assert.assertEquals(Lists.newArrayList("Apple"), sortedByCount);
+        sortedByCount = histogram.getMostFrequent(2); // top 2
+        Assert.assertEquals(Lists.newArrayList("Apple","Pear"), sortedByCount);
+        sortedByCount = histogram.getMostFrequent(5); // top 5 should return all list
+        Assert.assertEquals(Lists.newArrayList("Apple","Pear","Grape"), sortedByCount);
+    }
+
+    @Test
+    public void testAddHistogram() {
+        Histogram<String> histogram = new Histogram<>();
+        histogram.add("Apple", "Pear", "Apple", "Apple", "Grape", "Pear");
+        Histogram<String> histogram2 = new Histogram<>();
+        histogram2.add("Apple", "Mango", "Apple", "Grape");
+        histogram.add(histogram2);
+        Assert.assertEquals(5, histogram.getCount("Apple"));
+        Assert.assertEquals(1, histogram.getCount("Mango"));
+        Assert.assertEquals(2, histogram.getCount("Grape"));
+    }
+
+    @Test
     @Ignore("Requires external file.")
     public void testPerf() throws IOException {
         try (DataInputStream dis = new DataInputStream(new BufferedInputStream(
@@ -45,7 +73,7 @@ public class HistogramTest {
             Histogram<String>[] gramCounts = new Histogram[order + 1];
             for (int j = 1; j <= order; j++) {
                 System.out.println("Order = " + j);
-                Stopwatch sw = new Stopwatch().start();
+                Stopwatch sw = Stopwatch.createStarted();
                 int size = dis.readInt();
                 Histogram<String> countSet = new Histogram<>(size * 2);
                 for (int i = 0; i < size; i++) {
@@ -58,7 +86,7 @@ public class HistogramTest {
             }
 
             Map<String, Double> frequencyMap = new HashMap<>();
-            Stopwatch sw = new Stopwatch().start();
+            Stopwatch sw = Stopwatch.createStarted();
             for (String s : gramCounts[3]) {
                 final String parentGram = s.substring(0, 2);
                 if (!gramCounts[2].contains(parentGram))
@@ -83,7 +111,7 @@ public class HistogramTest {
             CountSet<String>[] gramCounts = new CountSet[order + 1];
             for (int j = 1; j <= order; j++) {
                 System.out.println("Order = " + j);
-                Stopwatch sw = new Stopwatch().start();
+                Stopwatch sw = Stopwatch.createStarted();
                 int size = dis.readInt();
                 CountSet<String> countSet = new CountSet<>(size * 2);
                 for (int i = 0; i < size; i++) {
@@ -97,7 +125,7 @@ public class HistogramTest {
             }
 
             Map<String, Double> frequencyMap = new HashMap<>();
-            Stopwatch sw = new Stopwatch().start();
+            Stopwatch sw = Stopwatch.createStarted();
             for (String s : gramCounts[3]) {
                 final String parentGram = s.substring(0, 2);
                 if (!gramCounts[2].contains(parentGram))
@@ -118,7 +146,7 @@ public class HistogramTest {
         Histogram<String> second  = new Histogram<>();
         Set<String> c1 = uniqueStrings(1000000, 5);
         Set<String> c2 = uniqueStrings(1000000, 5);
-        Stopwatch sw = new Stopwatch().start();
+        Stopwatch sw = Stopwatch.createStarted();
         first.add(c1);
         second.add(c2);
         System.out.println("Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));

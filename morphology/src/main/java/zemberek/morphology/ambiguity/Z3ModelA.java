@@ -61,7 +61,7 @@ public class Z3ModelA extends Z3AbstractDisambiguator implements TurkishMorphDis
     public void test(File testFile) throws IOException {
         DataSet testSet = Files.readLines(testFile, Charsets.UTF_8, new DataSetLoader());
         int hit = 0, total = 0;
-        Stopwatch sw = new Stopwatch().start();
+        Stopwatch sw = Stopwatch.createStarted();
         Random r = new Random(5);
         for (SentenceData sentence : testSet.sentences) {
             for (Z3WordData word : sentence.words) {

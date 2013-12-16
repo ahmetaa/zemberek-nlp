@@ -220,7 +220,7 @@ public class MultiFileUncompressedLm {
 
         DataOutputStream gramOs;
         DataOutputStream probOs;
-        DataOutputStream backoffOs;
+        DataOutputStream backoOffs;
         int order;
         long start;
         SpaceTabTokenizer tokenizer = new SpaceTabTokenizer();
@@ -230,6 +230,7 @@ public class MultiFileUncompressedLm {
         LmVocabulary lmVocabulary;
 
         ArpaToBinaryConverter(File dir) throws FileNotFoundException {
+            Log.info("Generating multi file uncompressed language model from Arpa file in directory: %s", dir.getAbsolutePath());
             this.dir = dir;
             start = System.currentTimeMillis();
         }
@@ -250,10 +251,10 @@ public class MultiFileUncompressedLm {
         }
 
         private void newBackoffStream(int n) throws IOException {
-            if (backoffOs != null)
-                backoffOs.close();
-            backoffOs = getDos(n + BACKOFF_FILE_SUFFIX);
-            backoffOs.writeInt(ngramCounts.get(n - 1));
+            if (backoOffs != null)
+                backoOffs.close();
+            backoOffs = getDos(n + BACKOFF_FILE_SUFFIX);
+            backoOffs.writeInt(ngramCounts.get(n - 1));
         }
 
         public boolean processLine(String s) throws IOException {
@@ -303,7 +304,7 @@ public class MultiFileUncompressedLm {
 
                     // if there are only ngrams, do not write backoff value.
                     if (ngramCounts.size() > 1)
-                        backoffOs.writeFloat(logBackoff);
+                        backoOffs.writeFloat(logBackoff);
 
                     ngramCounter++;
                     if (ngramCounter == ngramCounts.get(0)) {
@@ -358,7 +359,7 @@ public class MultiFileUncompressedLm {
                         logBackoff = 0;
                         if (tokens.length == _n + 2)
                             logBackoff = Float.parseFloat(tokens[_n + 1]);
-                        backoffOs.writeFloat(logBackoff);
+                        backoOffs.writeFloat(logBackoff);
                     }
 
                     if (ngramCounter > 0 && ngramCounter % 1000000 == 0)
@@ -385,7 +386,7 @@ public class MultiFileUncompressedLm {
                 case VOCABULARY:
                     Closeables.close(gramOs, true);
                     Closeables.close(probOs, true);
-                    Closeables.close(backoffOs, true);
+                    Closeables.close(backoOffs, true);
                     Log.info("Writing model vocabulary.");
                     lmVocabulary.saveBinary(new File(dir, VOCAB_FILE_NAME));
                     return false; // we are done.
@@ -403,7 +404,7 @@ public class MultiFileUncompressedLm {
                 gramOs.writeInt(index);
                 probOs.writeFloat(DEFAULT_UNKNOWN_PROBABILTY);
                 if (ngramCounts.size() > 1)
-                    backoffOs.writeFloat(0);
+                    backoOffs.writeFloat(0);
             }
         }
 

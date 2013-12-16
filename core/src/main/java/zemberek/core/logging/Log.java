@@ -119,6 +119,10 @@ public final class Log {
             log(Level.FINER, message, params);
     }
 
+    public static void trace(Object object) {
+            log(Level.FINER, object.toString());
+    }
+
     public static void debug(String message, Object... params) {
         log(Level.FINE, message, params);
     }
@@ -126,6 +130,10 @@ public final class Log {
     public static void debug(boolean condition, String message, Object... params) {
         if (condition)
             log(Level.FINE, message, params);
+    }
+
+    public static void debug(Object object) {
+        log(Level.FINE, object.toString());
     }
 
     public static void info(String message, Object... params) {
@@ -137,6 +145,10 @@ public final class Log {
             log(Level.INFO, message, params);
     }
 
+    public static void info(Object object) {
+        log(Level.INFO, object.toString());
+    }
+
     public static void warn(String message, Object... params) {
         log(Level.WARNING, message, params);
     }
@@ -146,6 +158,10 @@ public final class Log {
             log(Level.WARNING, message, params);
     }
 
+    public static void warn(Object object) {
+        log(Level.WARNING, object.toString());
+    }
+
     public static void error(String message, Object... params) {
         log(Level.SEVERE, message, params);
     }
@@ -153,6 +169,10 @@ public final class Log {
     public static void error(boolean condition, String message, Object... params) {
         if (condition)
             log(Level.SEVERE, message, params);
+    }
+
+    public static void error(Object object) {
+        log(Level.SEVERE, object.toString());
     }
 
     public static void setWarn() {
