@@ -31,3 +31,8 @@ Turkish syllabification and hyphenation.
 
 Text based statistical language identification.
 
+### Acknowledgements
+Please refer to contributors.txt file.
+
+Portions of this code has been developed in Tübitak BİLGEM Speech and Language Technologies Laboratory.
+![Bilgem Logo](https://github.com/ahmetaa/zemberek-nlp/tree/docs/images/bilgem-logo.png)
