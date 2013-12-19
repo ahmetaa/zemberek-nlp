@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
 import zemberek.core.io.SimpleTextReader;
+import zemberek.core.logging.Log;
 import zemberek.core.math.LogMath;
 import zemberek.langid.model.*;
 
@@ -13,13 +14,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class LanguageIdentifier {
 
     public static final int ELIMINATION_SAMPLE_STEP = 20;
-    static Logger logger = Logger.getLogger(LanguageIdentifier.class.getName());
 
     public final int order;
     private Map<String, CharNgramLanguageModel> models = Maps.newHashMap();
@@ -133,7 +132,7 @@ public class LanguageIdentifier {
             modelFileMap.put(langStr, file);
         }
         // generate models for required models on the fly.
-        logger.info("Generating models for:" + Arrays.toString(languages));
+        Log.info("Generating models for:" + Arrays.toString(languages));
 
         for (String language : languages) {
             String l = language.toLowerCase();
@@ -144,12 +143,12 @@ public class LanguageIdentifier {
                 modelMap.put(l, lm);
                 modelFileMap.remove(l);
             } else {
-                logger.warning("Cannot find count model file for language " + language);
+                Log.warn("Cannot find count model file for language " + language);
             }
         }
         // generate garbage model from the remaining files if any left.
         if (!modelFileMap.isEmpty()) {
-            logger.info("Generating garbage model from remaining count models.");
+            Log.info("Generating garbage model from remaining count models.");
             CharNgramCountModel garbageModel = new CharNgramCountModel("unk", order);
             for (File file : modelFileMap.values()) {
                 garbageModel.merge(CharNgramCountModel.load(file));

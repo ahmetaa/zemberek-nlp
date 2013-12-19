@@ -8,8 +8,6 @@ import org.junit.Test;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
-import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.SimpleParser;
 
 import java.util.List;
 
@@ -87,10 +85,11 @@ public class MorphParseTest {
     }
 
     @Test
-    public void stemTest() {
-        SimpleParser parser = getParser("kitap", "aramak", "mavi [P:Adj]");
+    public void getLemmasTest() {
+        SimpleParser parser = getParser("kitap", "aramak", "mavi [P:Adj]", "leh", "dekorasyon", "yapmak");
 
-        String[] testSet = {"kitaplaşırız", "kitaba", "aradım", "aratagörün", "arattırın", "mavide"};
+        String[] testSet = {"kitaplaşırız", "kitaba", "aradım", "aratagörün", "arattırın", "mavide",
+                "lehimeydi", "dekorasyonundaki", "yapacağı"};
 
         String[][] expected = {
                 {"kitap", "kitaplaş"},
@@ -98,7 +97,10 @@ public class MorphParseTest {
                 {"ara"},
                 {"ara", "arat", "aratagör"},
                 {"ara", "arat", "arattır"},
-                {"mavi"}
+                {"mavi"},
+                {"leh", "lehimeydi"},
+                {"dekorasyon", "dekorasyonundaki"},
+                {"yap", "yapacak"}
         };
 
         int i = 0;
@@ -106,7 +108,29 @@ public class MorphParseTest {
             List<MorphParse> results = parser.parse(s);
             MorphParse res = results.get(0);
             List<String> expStems = Lists.newArrayList(expected[i]);
-            MatcherAssert.assertThat(expStems, equalTo(res.getStems()));
+            MatcherAssert.assertThat(res.getLemmas(), equalTo(expStems));
+            i++;
+        }
+    }
+
+    @Test
+    public void getStemsTest() {
+        SimpleParser parser = getParser("kitap", "yapmak");
+
+        String[] testSet = {"kitaplaşırız", "kitaba"};
+
+        String[][] expected = {
+                {"kitap", "kitaplaş"},
+                {"kitab"},
+                {"yap", "yapacağ"}
+        };
+
+        int i = 0;
+        for (String s : testSet) {
+            List<MorphParse> results = parser.parse(s);
+            MorphParse res = results.get(0);
+            List<String> expStems = Lists.newArrayList(expected[i]);
+            MatcherAssert.assertThat(res.getStems(), equalTo(expStems));
             i++;
         }
     }

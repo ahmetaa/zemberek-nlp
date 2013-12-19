@@ -189,12 +189,14 @@ public class LmVocabulary {
         }
         unknownWordIndex = vocabularyIndexMap.get(unknownWord);
         if (sentenceStartIndex == -1) {
+            sentenceStart = "<s>";
             cleanVocab.add(sentenceStart);
             vocabularyIndexMap.put(sentenceStart, indexCounter++);
             Log.warn("Vocabulary does not contain sentence start token, it is added explicitly.");
         }
         sentenceStartIndex = vocabularyIndexMap.get(sentenceStart);
         if (sentenceEndIndex == -1) {
+            sentenceEnd = "</s>";
             cleanVocab.add(sentenceEnd);
             vocabularyIndexMap.put(sentenceEnd, indexCounter);
             Log.warn("Vocabulary does not contain sentence end token, it is added explicitly.");
@@ -365,7 +367,7 @@ public class LmVocabulary {
     /**
      * @param indexes word indexes
      * @return the Word representation of indexes. Such as for 2,3,4 it returns "foo bar zipf"
-     *         For unknown indexes it uses <unk>.
+     * For unknown indexes it uses <unk>.
      */
     public String getWordsString(int... indexes) {
         StringBuilder sb = new StringBuilder();
@@ -429,7 +431,7 @@ public class LmVocabulary {
      * @param g1 W1 Index
      * @param g2 W2 Index
      * @return The encoded long representation of a trigram. Structure:
-     *         [1 bit EMPTY][21 bit W2-IND][21 bit W1-IND][21 bit W0-IND]
+     * [1 bit EMPTY][21 bit W2-IND][21 bit W1-IND][21 bit W0-IND]
      */
     public long encodeTrigram(int g0, int g1, int g2) {
         long encoded = g2;
@@ -440,7 +442,7 @@ public class LmVocabulary {
     /**
      * @param triGram trigram Indexes.
      * @return the encoded long representation of a trigram. Structure:
-     *         [1 bit EMPTY][21 bit W2-IND][21 bit W1-IND][21 bit W0-IND]
+     * [1 bit EMPTY][21 bit W2-IND][21 bit W1-IND][21 bit W0-IND]
      */
     public long encodeTrigram(int... triGram) {
         if (triGram.length > 3)
@@ -453,8 +455,8 @@ public class LmVocabulary {
     /**
      * @param words word array
      * @return the vocabulary index array for a word array.
-     *         if a word is unknown, index of <UNK> is used is returned as its vocabulary index.
-     *         This value can be -1.
+     * if a word is unknown, index of <UNK> is used is returned as its vocabulary index.
+     * This value can be -1.
      */
     public int[] toIndexes(String... words) {
         int[] indexes = new int[words.length];
@@ -472,7 +474,7 @@ public class LmVocabulary {
     /**
      * @param indexes word indexes.
      * @return Words representations of the indexes. If an index is out of bounds, <UNK>
-     *         representation is used. Note that Vocabulary may contain an <UNK> word in it.
+     * representation is used. Note that Vocabulary may contain an <UNK> word in it.
      */
     public String[] toWords(int... indexes) {
         String[] words = new String[indexes.length];

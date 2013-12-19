@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class representes a single morphological parse of a word.
+ * This class represents a single morphological parse of a word.
  * It contains the DictionaryItem of the word, the stem and a list of inflectional groups.
  * Every MorphParse must have at least one Inflectional group element in it .
  * First inflectional group element contains the primary and secondary Pos of the Dictionary item.
@@ -145,7 +145,16 @@ public class MorphParse {
         }
     }
 
-    public StemAndEnding getSplitted() {
+    /**
+     * Splits the parse into stem and ending. Such as:
+     * "kitaplar" -> "kitap-lar"
+     * "kitabımdaki" -> "kitab-ımdaki"
+     * "kitap" -> "kitap-"
+     *
+     * @return a StemAndEnding instance carrying stem and ending.
+     * If ending has no surface content empty string is used.
+     */
+    public StemAndEnding getStemAndEndıng() {
         StringBuilder sb = new StringBuilder();
         for (InflectionalGroup ig : inflectionalGroups) {
             for (SuffixData data : ig.suffixList) {
@@ -155,21 +164,38 @@ public class MorphParse {
         return new StemAndEnding(root, sb.toString());
     }
 
-    public String getLemma(String input) {
+    /**
+     * Returns the dictionary form of the root.
+     * Such as:
+     * "gördüm"->"görmek"
+     * "kitaplar"->"kitap"
+     */
+    public String getLemma() {
         return dictionaryItem.lemma;
     }
 
-    public List<String> getStemSurfaces() {
+    /**
+     * Returns surface forms list of all root and derivational roots of a parse.
+     * Examples:
+     * "kitaplar"  ->["kitap"]
+     * "kitabım"   ->["kitab"]
+     * "kitaplaşır"->["kitap", "kitaplaş"]
+     * "kavrulduk" -> ["kavr","arat","arattır","arattıragör"]
+     */
+    public List<String> getStems() {
         List<String> stems = Lists.newArrayListWithCapacity(2);
-        stems.add(dictionaryItem.root);
+        stems.add(root);
         String previousStem = stems.get(0);
         if (inflectionalGroups.size() > 1) {
+            previousStem = previousStem + inflectionalGroups.get(0).surfaceForm();
             for (int i = 1; i < inflectionalGroups.size(); i++) {
                 InflectionalGroup ig = inflectionalGroups.get(i);
-                String firstSuffixSurface = ig.suffixList.get(0).surface;
-                if (firstSuffixSurface.length() > 0) {
-                    String stem = previousStem + firstSuffixSurface;
-                    stems.add(stem);
+                SuffixData suffixData = ig.suffixList.get(0);
+                if (suffixData.surface.length() > 0) {
+                    String surface = suffixData.surface;
+                    String stem = previousStem + surface;
+                    if (!stems.contains(stem))
+                        stems.add(stem);
                 }
                 previousStem = previousStem + ig.surfaceForm();
             }
@@ -177,21 +203,32 @@ public class MorphParse {
         return stems;
     }
 
-    public List<String> getStems() {
+    /**
+     * Returns list of all root and derivational roots of a parse.
+     * Examples:
+     * "kitaplar"  ->["kitap"]
+     * "kitabım"   ->["kitap"]
+     * "kitaplaşır"->["kitap", "kitaplaş"]
+     * "kitaplaş"  ->["kitap", "kitaplaş"]
+     * "arattıragörür" -> ["ara","arat","arattır","arattıragör"]
+     */
+    public List<String> getLemmas() {
         List<String> stems = Lists.newArrayListWithCapacity(2);
         stems.add(dictionaryItem.root);
         String previousStem = stems.get(0);
         if (inflectionalGroups.size() > 1) {
+            previousStem = previousStem + inflectionalGroups.get(0).surfaceForm();
             for (int i = 1; i < inflectionalGroups.size(); i++) {
                 InflectionalGroup ig = inflectionalGroups.get(i);
                 SuffixData suffixData = ig.suffixList.get(0);
                 if (suffixData.surface.length() > 0) {
                     String surface = suffixData.surface;
-                    if(suffixData.lex.endsWith("~k")) {
-                        surface = surface.substring(0,surface.length()-1)+"k";
+                    if (suffixData.lex.endsWith("~k")) {
+                        surface = surface.substring(0, surface.length() - 1) + "k";
                     }
                     String stem = previousStem + surface;
-                    stems.add(stem);
+                    if (!stems.contains(stem))
+                        stems.add(stem);
                 }
                 previousStem = previousStem + ig.surfaceForm();
             }

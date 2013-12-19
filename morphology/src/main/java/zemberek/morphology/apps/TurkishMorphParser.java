@@ -5,6 +5,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import zemberek.core.io.SimpleTextReader;
+import zemberek.core.logging.Log;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
@@ -18,8 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Turkish Morphological Parser finds all possible parses for a Turkish word.
@@ -29,7 +28,6 @@ public class TurkishMorphParser extends BaseParser {
     static String DEFAULT_FREQUENT_WORDS_FILE_PATH = "tr/top-20K-words.txt";
     static int DEFAULT_CACHE_SIZE = 5000;
 
-    private static final Logger logger = Logger.getLogger(TurkishMorphParser.class.getName());
     private MorphParser parser;
     private SimpleMorphCache cache;
 
@@ -71,7 +69,7 @@ public class TurkishMorphParser extends BaseParser {
                     _cacheLines = words;
             } catch (IOException e) {
                 // We just log the error, cache is not essential.
-                logger.log(Level.WARNING, "Error loading frequent words file " + fileName + " with reason: " + e.getMessage() + ". Caching will not be applied.");
+                Log.warn("Error loading frequent words file " + fileName + " with reason: " + e.getMessage() + ". Caching will not be applied.");
             }
             return this;
         }
@@ -79,10 +77,10 @@ public class TurkishMorphParser extends BaseParser {
         public TurkishMorphParser build() throws IOException {
             Stopwatch sw = Stopwatch.createStarted();
             _parser = getMorphParser(_lines);
-            logger.log(Level.INFO, "Parser ready: " + sw.elapsed(TimeUnit.MILLISECONDS) + "ms.");
+            Log.info("Parser ready: " + sw.elapsed(TimeUnit.MILLISECONDS) + "ms.");
             if (_cacheLines.size() > 0) {
                 _cache = new SimpleMorphCache(_parser, _cacheLines);
-                logger.log(Level.INFO, "Cache ready: " + sw.elapsed(TimeUnit.MILLISECONDS) + "ms.");
+                Log.info("Cache ready: " + sw.elapsed(TimeUnit.MILLISECONDS) + "ms.");
             }
             return new TurkishMorphParser(_parser, _cache);
         }
