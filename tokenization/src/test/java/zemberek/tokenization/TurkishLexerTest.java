@@ -5,19 +5,16 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.junit.Assert;
 import org.junit.Test;
+import zemberek.core.logging.Log;
 import zemberek.tokenizer.antlr.TurkishLexer;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class TurkishLexerTest {
 
-    static final Logger logger = Logger.getLogger(TurkishLexerTest.class.getName());
-
     private void dumpTokens(List<Token> tokens) {
         for (Token token : tokens) {
-            logger.log(Level.FINE, token.getText());
+            Log.debug(token.getText());
         }
     }
 
@@ -59,7 +56,7 @@ public class TurkishLexerTest {
             if (token.getType() != TurkishLexer.SpaceTab)
                 sb.append(token.getText()).append(" ");
         }
-        return sb.deleteCharAt(sb.length()-1).toString();
+        return sb.deleteCharAt(sb.length() - 1).toString();
     }
 
     private void matchToken(String input, String... expectedTokens) {

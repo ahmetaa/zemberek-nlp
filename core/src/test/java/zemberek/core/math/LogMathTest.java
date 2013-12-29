@@ -2,6 +2,7 @@ package zemberek.core.math;
 
 import com.google.common.base.Stopwatch;
 import junit.framework.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -68,6 +69,7 @@ public class LogMathTest {
     }
 
     @Test
+    @Ignore("Not a unit test")
     public void logSumPerf() throws IOException {
         double[] loga = new double[50000];
         double[] logb = new double[50000];

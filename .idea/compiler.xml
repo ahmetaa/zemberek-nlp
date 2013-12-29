@@ -24,10 +24,8 @@
         <processorPath useClasspath="true" />
         <module name="core" />
         <module name="hyphenation" />
-        <module name="lang-id" />
         <module name="lm" />
         <module name="morphology" />
-        <module name="spelling" />
         <module name="tokenization" />
       </profile>
     </annotationProcessing>

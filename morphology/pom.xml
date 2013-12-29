@@ -15,17 +15,17 @@
         <dependency>
             <groupId>zemberek-nlp</groupId>
             <artifactId>core</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>zemberek-nlp</groupId>
             <artifactId>tokenization</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>zemberek-nlp</groupId>
             <artifactId>lm</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>org.simpleframework</groupId>

@@ -117,7 +117,7 @@ public class MorphParseTest {
     public void getStemsTest() {
         SimpleParser parser = getParser("kitap", "yapmak");
 
-        String[] testSet = {"kitaplaşırız", "kitaba"};
+        String[] testSet = {"kitaplaşırız", "kitaba", "yapacağı"};
 
         String[][] expected = {
                 {"kitap", "kitaplaş"},

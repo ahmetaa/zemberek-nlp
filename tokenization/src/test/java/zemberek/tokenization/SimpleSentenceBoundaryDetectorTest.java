@@ -10,11 +10,8 @@ import zemberek.tokenizer.SimpleSentenceBoundaryDetector;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class SimpleSentenceBoundaryDetectorTest {
-
-    static final Logger logger = Logger.getLogger(SimpleSentenceBoundaryDetectorTest.class.getName());
 
     private String markBoundaries(String input) {
         SimpleSentenceBoundaryDetector splitter = new SimpleSentenceBoundaryDetector();

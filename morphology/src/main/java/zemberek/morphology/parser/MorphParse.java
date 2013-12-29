@@ -180,7 +180,7 @@ public class MorphParse {
      * "kitaplar"  ->["kitap"]
      * "kitabım"   ->["kitab"]
      * "kitaplaşır"->["kitap", "kitaplaş"]
-     * "kavrulduk" -> ["kavr","arat","arattır","arattıragör"]
+     * "kavrulduk" -> ["kavr","kavrul"]
      */
     public List<String> getStems() {
         List<String> stems = Lists.newArrayListWithCapacity(2);
