@@ -12,13 +12,13 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: zemberek-nlp:core:1.0.0-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="core" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:15.0" level="project" />
     <orderEntry type="library" name="Maven: args4j:args4j:2.0.25" level="project" />
     <orderEntry type="module" module-name="tokenization" />
     <orderEntry type="library" name="Maven: antlr4-z3:antlr4-runtime:4.0.1z" level="project" />
     <orderEntry type="library" name="Maven: org.abego.treelayout:org.abego.treelayout.core:1.0.1" level="project" />
-    <orderEntry type="library" name="Maven: zemberek-nlp:lm:1.0.0-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="lm" />
     <orderEntry type="library" name="Maven: org.simpleframework:simple-xml:2.5.3" level="project" />
     <orderEntry type="library" name="Maven: stax:stax-api:1.0.1" level="project" />
     <orderEntry type="library" name="Maven: stax:stax:1.2.0" level="project" />
