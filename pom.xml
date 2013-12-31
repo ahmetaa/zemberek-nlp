@@ -24,6 +24,7 @@
     </distributionManagement>
 
     <build>
+        <finalName>zemberek-${project.artifactId}-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -51,39 +52,51 @@
                 </executions>
                 <version>2.0.4</version>
             </plugin>
-<!--            <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.1</version>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>copy-artifact</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <shadedArtifactAttached>true</shadedArtifactAttached>
-                            <shadedClassifierName>with-dependencies</shadedClassifierName>
-                            <artifactSet>
-                                <excludes>
-                                    <exclude>junit:junit</exclude>
-                                    <exclude>jmock:*</exclude>
-                                    <exclude>*:xml-apis</exclude>
-                                    <exclude>org.apache.maven:lib:tests</exclude>
-                                </excludes>
-                            </artifactSet>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>${project.artifactId}</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>${project.packaging}</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>../dependencies</outputDirectory>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>../dependencies</outputDirectory>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <excludeGroupIds>
+                                junit,org.hamcrest,org.mockito,org.powermock,${project.groupId}
+                            </excludeGroupIds>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>sources</goal>
+                        </goals>
+                    </execution>
                 </executions>
-            </plugin>-->
+            </plugin>
         </plugins>
-        <extensions>
-            <extension>
-                <groupId>org.jvnet.wagon-svn</groupId>
-                <artifactId>wagon-svn</artifactId>
-                <version>1.12</version>
-            </extension>
-        </extensions>
     </build>
 
     <dependencies>

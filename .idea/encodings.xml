@@ -14,10 +14,8 @@
     <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/turkish/TurkicSeq.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/core/src/main/java/zemberek/core/turkish/TurkishAlphabet.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/hyphenation" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/lang-id" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/lm" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/morphology" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/spelling" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/tokenization" charset="UTF-8" />
   </component>
 </project>

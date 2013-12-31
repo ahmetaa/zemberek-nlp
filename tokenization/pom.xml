@@ -23,7 +23,7 @@
         <dependency>
             <groupId>zemberek-nlp</groupId>
             <artifactId>core</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>antlr4-z3</groupId>

@@ -15,22 +15,17 @@
         <dependency>
             <groupId>zemberek-nlp</groupId>
             <artifactId>core</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>zemberek-nlp</groupId>
             <artifactId>tokenization</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>zemberek-nlp</groupId>
             <artifactId>lm</artifactId>
-            <version>${version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.simpleframework</groupId>
-            <artifactId>simple-xml</artifactId>
-            <version>2.5.3</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>edu.berkeley.nlp</groupId>

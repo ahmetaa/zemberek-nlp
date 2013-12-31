@@ -15,7 +15,7 @@
         <dependency>
             <groupId>zemberek-nlp</groupId>
             <artifactId>core</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
