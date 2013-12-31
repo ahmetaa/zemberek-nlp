@@ -30,6 +30,9 @@ And dependecies (For example morphology):
 [Zemberek-NLP-Distributions] (https://github.com/ahmetaa/zemberek-nlp-distributions) page has versions and
 separate module and dependent jars.
 
+Alternatively there is a public [Google docs page] (https://drive.google.com/#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8)
+for distributions downloads.
+
 ### Examples
 
 [Turkish-nlp-examples] (https://github.com/ahmetaa/turkish-nlp-examples)
@@ -44,6 +47,7 @@ Core classes such as special Collection classes, Hash functions and helpers.
 ### Morphology
 
 Turkish morphological parsing, disambiguation and generation.
+[Morphology Documentation] (https://github.com/ahmetaa/zemberek-nlp/tree/master/morphology)
 
 ### Tokenization
 
