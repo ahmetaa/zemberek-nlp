@@ -1,9 +1,11 @@
-zemberek-nlp
+Zemberek-NLP
 ============
 Here is the the new home of the Zemberek project.  
-Zemberek-nlp is a Natural Language Processing library. Some modules are specifically developed for Turkish language.
+Zemberek-NLP is a Natural Language Processing library. Some modules are specifically developed for Turkish language.
 
-### Maven Usage
+## Usage
+
+### Maven
 
 Add this to pom.xml file
 
@@ -37,6 +39,15 @@ for distributions downloads.
 
 [Turkish-nlp-examples] (https://github.com/ahmetaa/turkish-nlp-examples)
 contains a maven java project with small usage examples.
+
+## Known Issues and Limitations
+- Project requires Java 7.
+- Currently word and sentence parse module operations generates parse graph with each initialization.
+So each run in the system takes some seconds. We will fix it in the next version with fast serialization of the parse graph.
+- Morphological parsing does not work for some obvious and frequent words.
+- Morphological disambiguation is working less accurate then expected (Not very usable).
+- Morphological generation may not work for some obvious Stem-Suffix combinations.
+- Please see issues section for further issues and feel free to create new ones.
 
 ## Modules
 
