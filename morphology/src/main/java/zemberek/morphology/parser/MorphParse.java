@@ -204,7 +204,7 @@ public class MorphParse {
     }
 
     /**
-     * Returns list of all root and derivational roots of a parse.
+     * Returns list of all lemmas of a parse. 
      * Examples:
      * "kitaplar"  ->["kitap"]
      * "kitabım"   ->["kitap"]
@@ -213,9 +213,9 @@ public class MorphParse {
      * "arattıragörür" -> ["ara","arat","arattır","arattıragör"]
      */
     public List<String> getLemmas() {
-        List<String> stems = Lists.newArrayListWithCapacity(2);
-        stems.add(dictionaryItem.root);
-        String previousStem = stems.get(0);
+        List<String> lemmas = Lists.newArrayListWithCapacity(2);
+        lemmas.add(dictionaryItem.root);
+        String previousStem = root;
         if (inflectionalGroups.size() > 1) {
             previousStem = previousStem + inflectionalGroups.get(0).surfaceForm();
             for (int i = 1; i < inflectionalGroups.size(); i++) {
@@ -227,13 +227,13 @@ public class MorphParse {
                         surface = surface.substring(0, surface.length() - 1) + "k";
                     }
                     String stem = previousStem + surface;
-                    if (!stems.contains(stem))
-                        stems.add(stem);
+                    if (!lemmas.contains(stem))
+                        lemmas.add(stem);
                 }
                 previousStem = previousStem + ig.surfaceForm();
             }
         }
-        return stems;
+        return lemmas;
     }
 
     public MorphParse(StemNode stemNode, List<SuffixSurfaceNode> suffixSurfaceNodes) {

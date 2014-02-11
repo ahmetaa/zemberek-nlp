@@ -88,11 +88,12 @@ public class MorphParseTest {
     public void getLemmasTest() {
         SimpleParser parser = getParser("kitap", "aramak", "mavi [P:Adj]", "leh", "dekorasyon", "yapmak");
 
-        String[] testSet = {"kitaplaşırız", "kitaba", "aradım", "aratagörün", "arattırın", "mavide",
-                "lehimeydi", "dekorasyonundaki", "yapacağı"};
+        String[] testSet = {"kitaplaşırız", "kitabımızsa", "kitaba", "aradım", "aratagörün", "arattırın", "mavide",
+                "lehimeydi", "dekorasyonundaki", "yapacağı", "yapacağınaysa"};
 
         String[][] expected = {
                 {"kitap", "kitaplaş"},
+                {"kitap", "kitabımızsa"},
                 {"kitap"},
                 {"ara"},
                 {"ara", "arat", "aratagör"},
@@ -100,7 +101,8 @@ public class MorphParseTest {
                 {"mavi"},
                 {"leh", "lehimeydi"},
                 {"dekorasyon", "dekorasyonundaki"},
-                {"yap", "yapacak"}
+                {"yap", "yapacak"},
+                {"yap", "yapacak","yapacağınaysa"}
         };
 
         int i = 0;
