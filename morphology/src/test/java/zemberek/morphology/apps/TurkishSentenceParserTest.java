@@ -20,7 +20,7 @@ public class TurkishSentenceParserTest {
 
     @Before
     public void setUp() throws Exception {
-        TurkishMorphParser morphParser = TurkishMorphParser.newBuilder().addDefaultDictionaries().build();
+        TurkishMorphParser morphParser = TurkishMorphParser.builder().addDefaultDictionaries().build();
         parser = new TurkishSentenceParser(morphParser, new Z3MarkovModelDisambiguator());
     }
 

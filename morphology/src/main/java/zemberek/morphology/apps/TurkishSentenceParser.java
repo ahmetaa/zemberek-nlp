@@ -41,7 +41,7 @@ public class TurkishSentenceParser {
         System.out.println("Loading Dictionaries:" + dicFiles.toString());
         if (dicFiles.size() == 0)
             throw new IllegalArgumentException("At least one dictionary file is required. (with txt extension)");
-        morphParser = TurkishMorphParser.newBuilder().addTextDictFiles(dicFiles.toArray(new File[dicFiles.size()])).build();
+        morphParser = TurkishMorphParser.builder().addTextDictFiles(dicFiles.toArray(new File[dicFiles.size()])).build();
         System.out.println("Morph Parser Generated.");
         this.unidentifiedTokenParser = new UnidentifiedTokenParser(morphParser);
         File rootSmoothLm = new File(dataDir, "root-lm.z3.slm");

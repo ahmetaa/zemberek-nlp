@@ -10,10 +10,9 @@ public class UnidentifiedTokenParserTest {
 
     @Test
     public void shouldCreateUnidentifiedTokenParserSuccessfully() throws IOException {
-//        TurkishMorphParser parser = TurkishMorphParser.fromDefaultDictionaries();
-        TurkishMorphParser parser = null;
+        TurkishMorphParser parser = TurkishMorphParser.createWithDefaults();
         UnidentifiedTokenParser uiParser = new UnidentifiedTokenParser(parser);
-        List<MorphParse> results = uiParser.parse("Gazi");
+        List<MorphParse> results = uiParser.parse("İstanbul'un");
         for (MorphParse result : results) {
             System.out.println(result);
         }

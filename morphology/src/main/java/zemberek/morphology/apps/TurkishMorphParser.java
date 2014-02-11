@@ -103,11 +103,12 @@ public class TurkishMorphParser extends BaseParser {
         return new TurkishMorphParserBuilder().addDefaultDictionaries().addDefaultCache().build();
     }
 
-    public static TurkishMorphParserBuilder newBuilder() {
+    public static TurkishMorphParserBuilder builder() {
         return new TurkishMorphParserBuilder();
     }
 
     public List<MorphParse> parse(String word) {
+        word = normalize(word);
         if (cache != null) {
             List<MorphParse> result = cache.parse(word);
             return result != null ? result : parser.parse(word);

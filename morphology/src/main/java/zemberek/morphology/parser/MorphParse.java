@@ -204,7 +204,7 @@ public class MorphParse {
     }
 
     /**
-     * Returns list of all lemmas of a parse. 
+     * Returns list of all lemmas of a parse.
      * Examples:
      * "kitaplar"  ->["kitap"]
      * "kitabım"   ->["kitap"]
