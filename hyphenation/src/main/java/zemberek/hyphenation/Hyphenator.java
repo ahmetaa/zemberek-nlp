@@ -7,7 +7,7 @@ public interface Hyphenator {
 
     /**
      * Finds the splitting index of a word for a space constraint.
-     * if <code>spaceAvaliable</code>
+     * if <code>spaceAvailable</code>
      * is smaller than the length of the string, it will return word's length. if it is not possible to
      * fit first syllable to the <code>spaceAvailable</code> it will return -1.
      * <p>Example for Turkish:
