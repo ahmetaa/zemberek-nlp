@@ -37,6 +37,7 @@ public class MorphParse {
             this.lex = lex;
         }
 
+        @Override
         public String toString() {
             if (surface.length() > 0)
                 return suffix.id + ":" + surface;
@@ -154,7 +155,7 @@ public class MorphParse {
      * @return a StemAndEnding instance carrying stem and ending.
      * If ending has no surface content empty string is used.
      */
-    public StemAndEnding getStemAndEndıng() {
+    public StemAndEnding getStemAndEnding() {
         StringBuilder sb = new StringBuilder();
         for (InflectionalGroup ig : inflectionalGroups) {
             for (SuffixData data : ig.suffixList) {
