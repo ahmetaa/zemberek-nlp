@@ -30,6 +30,7 @@ public class SimpleMorphCache {
         return result;
     }
 
+    @Override
     public String toString() {
         return "Hits: " + hit + " Miss: " + miss + " Hit ratio: %" + (hit / (double)(hit + miss) * 100);
     }
