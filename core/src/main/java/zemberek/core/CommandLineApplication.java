@@ -1,6 +1,7 @@
 package zemberek.core;
 
 import com.google.common.base.Joiner;
+import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import zemberek.core.io.Words;
@@ -14,12 +15,18 @@ import java.io.File;
 public abstract class CommandLineApplication {
 
     @Option(name = "-verbosity",
+            aliases = {"-v"},
             usage = "Verbosity level. 0-WARN 1-INFO 2-DEBUG 3-TRACE. Default level is 1")
     public int verbosity = 1;
 
     @Option(name = "-logFile",
             usage = "Log output file.")
     public File logFile;
+
+    @Option(name = "-showHelp",
+            aliases = {"-help"},
+            usage = "Shows help information.")
+    public boolean showHelp = false;
 
     /**
      * This is called when application is failed.
@@ -33,6 +40,17 @@ public abstract class CommandLineApplication {
         parser.setUsageWidth(100);
         System.err.println("Error: " + e.getMessage());
         System.err.println();
+        showHelp(parser, doc);
+        if (!(e instanceof CmdLineException)) {
+            System.err.println("Stack Trace:");
+            e.printStackTrace(System.err);
+        } else {
+            System.err.println("Parameter Error: " + e.getMessage());
+        }
+        System.exit(-1);
+    }
+
+    protected void showHelp(CmdLineParser parser, String doc) {
         if (doc != null && doc.length() > 0)
             System.err.println(Words.wrap(doc, 100));
         System.err.print("Usage: java -cp \"[CLASS-PATH]\" " + this.getClass().getName());
@@ -41,9 +59,6 @@ public abstract class CommandLineApplication {
         System.err.println();
         parser.printUsage(System.err);
         System.err.println();
-        System.err.println("Stack Trace:");
-        e.printStackTrace(System.err);
-        System.exit(-1);
     }
 
     protected void fail(CmdLineParser parser, Exception e) {
@@ -59,7 +74,10 @@ public abstract class CommandLineApplication {
         CmdLineParser parser = new CmdLineParser(this);
         try {
             parser.parseArgument(args);
-            if(logFile!=null) {
+            if (showHelp) {
+                showHelp(parser, getDescription());
+            }
+            if (logFile != null) {
                 com.google.common.io.Files.createParentDirs(logFile);
                 Log.addFileHandler(logFile.toPath());
                 Log.info("Application log is being recorded to %s file.", logFile.getAbsolutePath());

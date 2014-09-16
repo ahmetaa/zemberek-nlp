@@ -420,7 +420,7 @@ public class SparseIntVectorTest {
         Stopwatch sw = Stopwatch.createStarted();
         for (int j = 0; j < itCount; j++) {
 
-            HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+            HashMap<Integer, Integer> map = new HashMap<>();
 
             for (int[] keyVal : keyVals) {
                 map.put(keyVal[0], keyVal[1]);

@@ -6,6 +6,7 @@ import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import zemberek.core.logging.Log;
 import zemberek.core.math.LogMath;
+import zemberek.lm.BaseLanguageModel;
 import zemberek.lm.LmVocabulary;
 import zemberek.lm.NgramLanguageModel;
 
@@ -20,10 +21,8 @@ import java.util.regex.Pattern;
  * <p/>
  * aaa,cd
  */
-public class SimpleBackoffNgramModel implements NgramLanguageModel {
+public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramLanguageModel {
 
-    public final int order;
-    private LmVocabulary vocabulary;
     private Map<NgramData, NgramProb> probabilities = new HashMap<>();
     private List<Integer> counts = new ArrayList<>(5);
     public final double unigramWeight;
@@ -34,8 +33,7 @@ public class SimpleBackoffNgramModel implements NgramLanguageModel {
             Map<NgramData, NgramProb> probabilities,
             List<Integer> counts,
             double unigramWeight) {
-        this.order = order;
-        this.vocabulary = vocabulary;
+        super(order, vocabulary);
         this.probabilities = probabilities;
         this.counts = counts;
         this.unigramWeight = unigramWeight;
@@ -76,15 +74,8 @@ public class SimpleBackoffNgramModel implements NgramLanguageModel {
             return res.prob;
     }
 
-    @Override
     public double getLogBase() {
         return Math.E;
-    }
-
-    // TODO implement
-    @Override
-    public String explain(int... tokenIds) {
-        throw new UnsupportedOperationException();
     }
 
     private double getProbabilityValue(int... ids) {
@@ -124,20 +115,14 @@ public class SimpleBackoffNgramModel implements NgramLanguageModel {
         return result;
     }
 
-    private int[] head(int[] arr) {
-        if (arr.length == 1)
-            return new int[0];
-        int[] head = new int[arr.length - 1];
-        System.arraycopy(arr, 0, head, 0, arr.length - 1);
-        return head;
+    @Override
+    public double getTriGramProbability(int id0, int id1, int id2) {
+        return getProbability(id0, id1, id2);
     }
 
-    private int[] tail(int[] arr) {
-        if (arr.length == 1)
-            return new int[0];
-        int[] head = new int[arr.length - 1];
-        System.arraycopy(arr, 1, head, 0, arr.length - 1);
-        return head;
+    @Override
+    public double getTriGramProbability(int id0, int id1, int id2, int fingerPrint) {
+        return getProbability(id0, id1, id2);
     }
 
     @Override
@@ -145,7 +130,6 @@ public class SimpleBackoffNgramModel implements NgramLanguageModel {
         return order;
     }
 
-    @Override
     public int getGramCount(int order) {
         return counts.get(order - 1);
     }
@@ -288,7 +272,7 @@ public class SimpleBackoffNgramModel implements NgramLanguageModel {
                         // approach is taken from Sphinx-4
                         double p1 = logProbability + logUnigramWeigth;
                         double p2 = logUniformUnigramProbability + inverseLogUnigramWeigth;
-                        logProbability = LogMath.logSum(p1, p2);
+                        logProbability = LogMath.LOG_SUM.lookup(p1, p2);
                     }
                     String word = it.next();
                     double logBackoff = 0;

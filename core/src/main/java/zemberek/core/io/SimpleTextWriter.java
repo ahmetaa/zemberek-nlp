@@ -24,7 +24,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Arrays;
-import java.util.Collection;
 
 /**
  * SimpleTextWriter is generally used for writing information to the files easily.
@@ -287,7 +286,7 @@ public final class SimpleTextWriter implements AutoCloseable {
      *
      * @param objects : lines to write, null entries produce blank lines
      * @return returns the current instance. keep in mind that if instance is not constructed
-     * with keepopen, chaining other write methods will throw an exception.
+     *         with keepopen, chaining other write methods will throw an exception.
      * @throws java.io.IOException if an I/O error occurs
      */
     public SimpleTextWriter writeToStringLines(Collection<?> objects) throws IOException {
@@ -305,7 +304,7 @@ public final class SimpleTextWriter implements AutoCloseable {
      *
      * @param s : string to write.
      * @return returns the current instance. keep in mind that if instance is not constructed
-     * with keepOpen(), chaining other write methods will throw an exception.
+     *         with keepOpen(), chaining other write methods will throw an exception.
      * @throws java.io.IOException if an I/O error occurs
      */
     public SimpleTextWriter write(String s) throws IOException {
@@ -325,7 +324,7 @@ public final class SimpleTextWriter implements AutoCloseable {
      *
      * @param s : string to write.
      * @return returns the current instance. keep in mind that if instance is not constructed
-     * with keepOpen(), chaining other write methods will throw an exception.
+     *         with keepOpen(), chaining other write methods will throw an exception.
      * @throws java.io.IOException if an I/O error occurs
      */
     public SimpleTextWriter writeLine(String s) throws IOException {
@@ -347,7 +346,7 @@ public final class SimpleTextWriter implements AutoCloseable {
      *
      * @param obj : object to write.
      * @return returns the current instance. keep in mind that if instance is not constructed
-     * with keepOpen(), chaining other write methods will throw an exception.
+     *         with keepOpen(), chaining other write methods will throw an exception.
      * @throws java.io.IOException if an I/O error occurs
      */
     public SimpleTextWriter writeLine(Object obj) throws IOException {

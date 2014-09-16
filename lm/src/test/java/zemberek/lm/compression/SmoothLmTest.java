@@ -9,6 +9,8 @@ import org.junit.Test;
 import zemberek.core.SpaceTabTokenizer;
 import zemberek.core.io.LineIterator;
 import zemberek.core.io.SimpleTextReader;
+import zemberek.core.logging.Log;
+import zemberek.lm.BaseLanguageModel;
 import zemberek.lm.FakeLm;
 import zemberek.lm.LmVocabulary;
 import zemberek.lm.backoff.SimpleBackoffNgramModel;
@@ -36,6 +38,7 @@ public class SmoothLmTest {
 
     File getTinyArpaFile() throws IOException {
         File tmp = File.createTempFile("tiny", ".arpa");
+        Log.info("Temporary test Arpa model file %s", tmp);
         Files.copy(Resources.newInputStreamSupplier(TINY_ARPA_URL), tmp);
         return tmp;
     }
@@ -44,6 +47,7 @@ public class SmoothLmTest {
         File tmp = Files.createTempDir();
         tmp.deleteOnExit();
         final File lmFile = new File(tmp, "tiny.slm");
+        Log.info("Temporary test compressed model file %s", lmFile);
         if (!lmFile.exists()) {
             UncompressedToSmoothLmConverter converter = new UncompressedToSmoothLmConverter(lmFile, tmp);
             converter.convertSmall(
@@ -75,9 +79,9 @@ public class SmoothLmTest {
     @Ignore("Requires external data")
     public void testBigFakeLm() throws IOException {
         int order = 4;
-        final File lmFile = new File("/home/ahmetaa/data/lm/fake/fake.slm");
+        final File lmFile = new File("/media/depo/data/lm/fake/fake.slm");
         if (!lmFile.exists()) {
-            final File arpaFile = new File("/home/ahmetaa/data/lm/fake/fake.arpa");
+            final File arpaFile = new File("/media/depo/data/lm/fake/fake.arpa");
             File tmp = new File("/tmp");
             if (!arpaFile.exists()) {
                 FakeLm fakeLm = new FakeLm(order);
@@ -128,9 +132,6 @@ public class SmoothLmTest {
         int[] is3 = {vocabulary.indexOf("Ahmet"), vocabulary.indexOf("dondurma"), vocabulary.indexOf("yedi")};
         Assert.assertEquals(-0.602060, lm.getProbabilityValue(is3), 0.0001);
         Assert.assertEquals(-0.602060, lm.getProbability(is3), 0.0001);
-
-        long encoded = vocabulary.encodeTrigram(is3);
-        Assert.assertEquals(-0.602060, lm.getEncodedTrigramProbability(encoded), 0.0001);
     }
 
     @Test
@@ -242,15 +243,6 @@ public class SmoothLmTest {
         }
         System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));
         System.out.println("tr = " + tr);
-        sw.reset().start();
-        tr = 0;
-        for (long id : trigrams) {
-            tr += lm.getEncodedTrigramProbability(id);
-        }
-        System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));
-        System.out.println("tr = " + tr);
-
-
     }
 
     @Test
@@ -280,9 +272,38 @@ public class SmoothLmTest {
 
         double expected = backoffAhmetArmut + backoffArmut + probKirmizi;
         System.out.println("expected = " + expected);
-        Assert.assertEquals(expected, lm.getProbability(ahmet, armut, kirmizi), 0.0001);
-        Assert.assertEquals(expected, lm.getEncodedTrigramProbability(vocabulary.encodeTrigram(ahmet, armut, kirmizi)), 0.0001);
         System.out.println(lm.explain(ahmet, armut, kirmizi));
+        Assert.assertEquals(expected, lm.getProbability(ahmet, armut, kirmizi), 0.0001);
+        Assert.assertEquals(expected, lm.getTriGramProbability(ahmet, armut, kirmizi), 0.0001);
+    }
+
+    @Test
+    public void testStupifBackoff() throws IOException {
+        SmoothLm lm = SmoothLm.builder(getTinyLmFile()).useStupidBackoff().build();
+        LmVocabulary vocabulary = lm.getVocabulary();
+        int ahmet = vocabulary.indexOf("Ahmet");
+        int armut = vocabulary.indexOf("armut");
+        int kirmizi = vocabulary.indexOf("kırmızı");
+        // p(kirmizi | Ahmet,armut) = b(ahmet, armut) + p(kırmızı|armut) if initial trigram prob does not exist.
+        // if p(kırmızı|armut) also do not exist, we back off to b(ahmet, armut) + b(armut) + p(kırmızı)
+        double probKirmizi = -1.539912;
+        double expected = lm.getStupidBackoffLogAlpha() + lm.getStupidBackoffLogAlpha() + probKirmizi;
+        System.out.println("expected = " + expected);
+        System.out.println(lm.explain(ahmet, armut, kirmizi));
+        Assert.assertEquals(expected, lm.getProbability(ahmet, armut, kirmizi), 0.0001);
+    }
+
+    @Test
+    public void cacheTest() throws IOException {
+        SmoothLm lm = getTinyLm();
+        BaseLanguageModel.LookupCache cache = new BaseLanguageModel.LookupCache(lm);
+        int[] is3 = lm.getVocabulary().toIndexes("Ahmet", "dondurma", "yedi");
+        Assert.assertEquals(lm.getProbability(is3), cache.check(is3), 0.0001);
+        Assert.assertEquals(lm.getProbability(is3), cache.check(is3), 0.0001);
+
+        BaseLanguageModel.LookupCache cache2 = new BaseLanguageModel.LookupCache(lm);
+        Assert.assertEquals(lm.getProbability(is3), cache2.check(is3), 0.0001);
+        Assert.assertEquals(lm.getProbability(is3), cache2.check(is3), 0.0001);
     }
 
     @Test

@@ -172,4 +172,21 @@ public class LmVocabularyTest {
         LmVocabulary vocab = builder.generate();
         Assert.assertEquals(7, vocab.size());
     }
+
+    @Test
+    public void containsAffixesTest() throws IOException {
+        LmVocabulary vocabulary = new LmVocabulary("a", "_b", "c", "d", "e");
+        Assert.assertTrue(vocabulary.containsSuffix());
+        vocabulary = new LmVocabulary("a", "-b", "c", "d", "e");
+        Assert.assertTrue(vocabulary.containsSuffix());
+        vocabulary = new LmVocabulary("a-", "-b", "c", "d", "e");
+        Assert.assertTrue(vocabulary.containsPrefix());
+        vocabulary = new LmVocabulary("a_", "b", "c", "d", "e");
+        Assert.assertTrue(vocabulary.containsPrefix());
+        vocabulary = new LmVocabulary("a", "b", "c", "d", "e");
+        Assert.assertFalse(vocabulary.containsSuffix());
+        Assert.assertFalse(vocabulary.containsPrefix());
+    }
+
+
 }

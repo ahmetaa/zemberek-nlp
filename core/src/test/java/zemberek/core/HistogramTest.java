@@ -3,7 +3,7 @@ package zemberek.core;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -45,9 +45,9 @@ public class HistogramTest {
         sortedByCount = histogram.getMostFrequent(1); // top 1
         Assert.assertEquals(Lists.newArrayList("Apple"), sortedByCount);
         sortedByCount = histogram.getMostFrequent(2); // top 2
-        Assert.assertEquals(Lists.newArrayList("Apple","Pear"), sortedByCount);
+        Assert.assertEquals(Lists.newArrayList("Apple", "Pear"), sortedByCount);
         sortedByCount = histogram.getMostFrequent(5); // top 5 should return all list
-        Assert.assertEquals(Lists.newArrayList("Apple","Pear","Grape"), sortedByCount);
+        Assert.assertEquals(Lists.newArrayList("Apple", "Pear", "Grape"), sortedByCount);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class HistogramTest {
                 final String parentGram = s.substring(0, 2);
                 if (!gramCounts[2].contains(parentGram))
                     continue;
-                int cnt = gramCounts[2].getCount(parentGram)+1;
+                int cnt = gramCounts[2].getCount(parentGram) + 1;
                 double prob = Math.log((double) gramCounts[3].getCount(s) / (double) cnt);
                 frequencyMap.put(s, prob);
             }
@@ -130,7 +130,7 @@ public class HistogramTest {
                 final String parentGram = s.substring(0, 2);
                 if (!gramCounts[2].contains(parentGram))
                     continue;
-                int cnt = gramCounts[2].get(parentGram)+1;
+                int cnt = gramCounts[2].get(parentGram) + 1;
                 double prob = Math.log((double) gramCounts[3].get(s) / (double) cnt);
                 frequencyMap.put(s, prob);
             }
@@ -142,8 +142,8 @@ public class HistogramTest {
 
     @Test
     public void testPerfMerge() throws IOException {
-        Histogram<String> first  = new Histogram<>();
-        Histogram<String> second  = new Histogram<>();
+        Histogram<String> first = new Histogram<>();
+        Histogram<String> second = new Histogram<>();
         Set<String> c1 = uniqueStrings(1000000, 5);
         Set<String> c2 = uniqueStrings(1000000, 5);
         Stopwatch sw = Stopwatch.createStarted();

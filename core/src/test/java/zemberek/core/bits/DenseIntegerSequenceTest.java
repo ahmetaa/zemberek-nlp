@@ -9,13 +9,13 @@ public class DenseIntegerSequenceTest {
 
     @Test
     public void extremumValues() {
-        int[] testArray = {0,1,7,232,655,-2323,Integer.MAX_VALUE, Integer.MIN_VALUE, 0,2,5};
+        int[] testArray = {0, 1, 7, 232, 655, -2323, Integer.MAX_VALUE, Integer.MIN_VALUE, 0, 2, 5};
         generateAndCheck(testArray);
     }
 
     @Test
     public void smallArryas() {
-        generateAndCheck(0,1);
+        generateAndCheck(0, 1);
         generateAndCheck(1);
         generateAndCheck(-1);
     }
@@ -23,7 +23,7 @@ public class DenseIntegerSequenceTest {
     private void generateAndCheck(int... testArray) {
         DenseIntegerSequence sequence = new DenseIntegerSequence(testArray);
         for (int i = 0; i < testArray.length; i++) {
-            Assert.assertEquals(testArray[i],sequence.get(i));
+            Assert.assertEquals(testArray[i], sequence.get(i));
         }
     }
 
@@ -36,15 +36,15 @@ public class DenseIntegerSequenceTest {
         }
         long start = System.currentTimeMillis();
         DenseIntegerSequence sequence = new DenseIntegerSequence(testArray);
-        System.out.println("Dense sequence generation time:" + (System.currentTimeMillis()-start));
+        System.out.println("Dense sequence generation time:" + (System.currentTimeMillis() - start));
         for (int i = 0; i < testArray.length; i++) {
-            Assert.assertEquals(testArray[i],sequence.get(i));
+            Assert.assertEquals(testArray[i], sequence.get(i));
         }
         start = System.currentTimeMillis();
         for (int i = 0; i < testArray.length; i++) {
             sequence.get(i);
         }
-        System.out.println("Access time for 100.000 get:" + (System.currentTimeMillis()-start));
+        System.out.println("Access time for 100.000 get:" + (System.currentTimeMillis() - start));
     }
 
 }

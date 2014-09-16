@@ -2,113 +2,29 @@ package zemberek.core.math;
 
 public class LogMath {
 
-    private static final double[] logSumLookup = new double[30000];
-    private static final float[] logSumLookupFloat = new float[10000];
-    private static final double SCALE = 1000d;
-    private static final double SCALE_FLOAT = 1000f;
-
     public static final double LOG_ZERO = -Math.log(Double.MAX_VALUE);
     public static final double LOG_ONE = 0;
     public static final double LOG_TEN = Math.log(10);
     public static final double LOG_TWO = Math.log(2);
+    public static final double INVERSE_LOG_TWO = 1 / Math.log(2);
 
     public static final float LOG_ZERO_FLOAT = (float) -Math.log(Float.MAX_VALUE);
     public static final float LOG_ONE_FLOAT = 0;
     public static final float LOG_TEN_FLOAT = (float) Math.log(10);
     public static final float LOG_TWO_FLOAT = (float) Math.log(2);
 
+    // Double value log sum lookup base Math.E
+    public static final LogSumLookup LOG_SUM = new LogSumLookup(Math.E);
+    // Float value log sum lookup base Math.E
+    public static final LogSumLookupFloat LOG_SUM_FLOAT = new LogSumLookupFloat(Math.E);
+
+    // Double value linear to Log value converter for base Math.E
+    public static final LinearToLogConverter LINEAR_TO_LOG = new LinearToLogConverter(Math.E);
+    // Float value linear to Log value converter for base Math.E
+    public static final LinearToLogConverterFloat LINEAR_TO_LOG_FLOAT = new LinearToLogConverterFloat(Math.E);
 
     // do not allow instantiation
     private LogMath() {
-    }
-
-    // initialization of the log-sum lookup. it populates an array with arr[i] = log(1+exp(-i/SCALE))
-    static {
-        for (int i = 0; i < logSumLookup.length; i++) {
-            logSumLookup[i] = Math.log(1.0 + Math.exp((double) -i / SCALE));
-        }
-    }
-
-
-    // initialization of the log-sum lookup. it populates an array with arr[i] = log(1+exp(-i/SCALE))
-    static {
-        for (int i = 0; i < logSumLookupFloat.length; i++) {
-            logSumLookupFloat[i] = (float) Math.log(1.0 + Math.exp((double) -i / SCALE));
-        }
-    }
-
-    /**
-     * Calculates an approximation of log(a+b) when log(a) and log(b) are given using the formula
-     * <p><b>log(a+b) = log(b) + log(1 + exp(log(a)-log(b)))</b> where log(b)>log(a)
-     * <p>This method is an approximation because it uses a lookup table for <b>log(1 + exp(log(b)-log(a)))</b> part
-     * <p>This is useful for log-probabilities where values vary between -30 < log(p) <= 0
-     * <p>if difference between values is larger than 20 (which means sum of the numbers will be very close to the larger
-     * value in linear domain) large value is returned instead of the logSum calculation because effect of the other
-     * value is negligible
-     *
-     * @param logA logarithm of A
-     * @param logB logarithm of B
-     * @return approximation of log(A+B)
-     */
-    public static float logSum(float logA, float logB) {
-        if (logA > logB) {
-            final float dif = logA - logB; // logA-logB because during lookup calculation dif is multiplied with -1
-            return dif >= 10d ? logA : logA + logSumLookupFloat[(int) (dif * SCALE_FLOAT)];
-        } else {
-            final float dif = logB - logA;
-            return dif >= 10d ? logB : logB + logSumLookupFloat[(int) (dif * SCALE_FLOAT)];
-        }
-    }
-
-    /**
-     * Calculates approximate logSum of log values using the <code> logSum(logA,logB) </code>
-     *
-     * @param logValues log values to use in logSum calculation.
-     * @return <p>log(a+b) value approximation
-     */
-    public static float logSum(float... logValues) {
-        float result = LOG_ZERO_FLOAT;
-        for (float logValue : logValues) {
-            result = logSum(result, logValue);
-        }
-        return result;
-    }
-
-    /**
-     * Calculates an approximation of log(a+b) when log(a) and log(b) are given using the formula
-     * <p><b>log(a+b) = log(b) + log(1 + exp(log(a)-log(b)))</b> where log(b)>log(a)
-     * <p>This method is an approximation because it uses a lookup table for <b>log(1 + exp(log(b)-log(a)))</b> part
-     * <p>This is useful for log-probabilities where values vary between -30 < log(p) <= 0
-     * <p>if difference between values is larger than 20 (which means sum of the numbers will be very close to the larger
-     * value in linear domain) large value is returned instead of the logSum calculation because effect of the other
-     * value is negligible
-     *
-     * @param logA logarithm of A
-     * @param logB logarithm of B
-     * @return approximation of log(A+B)
-     */
-    public static double logSum(double logA, double logB) {
-        if (logA > logB) {
-            final double dif = logA - logB; // logA-logB because during lookup calculation dif is multiplied with -1
-            return dif >= 30d ? logA : logA + logSumLookup[(int) (dif * SCALE)];
-        } else {
-            final double dif = logB - logA;
-            return dif >= 30d ? logB : logB + logSumLookup[(int) (dif * SCALE)];
-        }
-    }
-
-    /**
-     * Calculates approximate logSum of log values using the <code> logSum(logA,logB) </code>
-     *
-     * @param logValues log values to use in logSum calculation.
-     * @return <p>log(a+b) value approximation
-     */
-    public static double logSum(double... logValues) {
-        double result = LOG_ZERO;
-        for (double logValue : logValues) {
-            result = logSum(result, logValue);
-        }
-        return result;
     }
 
     /**
@@ -119,7 +35,7 @@ public class LogMath {
      * @param logB logarithm of B
      * @return approximation of log(A+B)
      */
-    public static double logSumExact(double logA, double logB) {
+    public static double logSum(double logA, double logB) {
         if (Double.isInfinite(logA))
             return logB;
         if (Double.isInfinite(logB))
@@ -134,57 +50,231 @@ public class LogMath {
     }
 
     /**
-     * Calculates approximate logSum of log values using the <code> logSumExact(logA,logB) </code>
+     * Exact calculation of log10(a+b) using log10(a) and log10(b) with formula
+     * <p><b>log10(a+b) = log10(b) + log10(1 + 10^(log(b)-log(a)))</b> where log(b)>log(a)
+     *
+     * @param log10A 10 base logarithm of A
+     * @param log10B 10 base logarithm of B
+     * @return approximation of log(A+B)
+     */
+    public static double logSum10(double log10A, double log10B) {
+        if (Double.isInfinite(log10A))
+            return log10B;
+        if (Double.isInfinite(log10B))
+            return log10A;
+        if (log10A > log10B) {
+            double dif = log10A - log10B;
+            return dif >= 30d ? log10A : log10A + Math.log10(1 + Math.pow(10, -dif));
+        } else {
+            double dif = log10B - log10A;
+            return dif >= 30d ? log10B : log10B + Math.log10(1 + Math.pow(10, -dif));
+        }
+    }
+
+    /**
+     * Calculates exact logSum of log values using the <code> logSum(logA,logB) </code>
      *
      * @param logValues log values to use in logSum calculation.
      * @return </p>log(a+b) value approximation
      */
-    public static double logSumExact(double... logValues) {
+    public static double logSum(double... logValues) {
         double result = LOG_ZERO;
         for (double logValue : logValues) {
-            result = logSumExact(result, logValue);
+            result = logSum(result, logValue);
         }
         return result;
     }
 
-    public static double linearToLog(double linear) {
-        if (linear == 0)
-            return LOG_ZERO;
-        return Math.log(linear);
-    }
+    /**
+     * A lookup structure for approximate logSum calculation.
+     */
+    public static class LogSumLookupFloat {
+        public static final float DEFAULT_SCALE = 1000f;
+        public static final int DEFAULT_LOOKUP_SIZE = 5000;
 
-    public static double[] linearToLog(double... linear) {
-        double[] result = new double[linear.length];
-        for (int i = 0; i < linear.length; i++) {
-            result[i] = linearToLog(linear[i]);
+        private final float[] lookup;
+        public final float scale;
+
+        public LogSumLookupFloat(double base) {
+            this(base, DEFAULT_LOOKUP_SIZE, DEFAULT_SCALE);
         }
-        return result;
-    }
 
-    public static void linearToLogInPlace(double... linear) {
-        for (int i = 0; i < linear.length; i++) {
-            linear[i] = linearToLog(linear[i]);
+        public LogSumLookupFloat(double base, int lookupSize, float scale) {
+            this.scale = scale;
+            this.lookup = new float[lookupSize];
+            for (int i = 0; i < lookup.length; i++) {
+                lookup[i] = (float) log(base, 1.0 + Math.pow(base, (double) -i / scale));
+            }
+        }
+
+        /**
+         * Calculates an approximation of log(a+b) when log(a) and log(b) are given using the formula
+         * <p><b>log(a+b) = log(b) + log(1 + exp(log(a)-log(b)))</b> where log(b)>log(a)
+         * <p>This method is an approximation because it uses a lookup table for <b>log(1 + exp(log(b)-log(a)))</b> part
+         * <p>This is useful for log-probabilities where values vary between -30 < log(p) <= 0
+         * <p>if difference between values is larger than 20 (which means sum of the numbers will be very close to the larger
+         * value in linear domain) large value is returned instead of the logSum calculation because effect of the other
+         * value is negligible
+         *
+         * @param logA logarithm of A
+         * @param logB logarithm of B
+         * @return approximation of log(A+B)
+         */
+        public float lookup(float logA, float logB) {
+            if (logA > logB) {
+                final float dif = logA - logB; // logA-logB because during lookup calculation dif is multiplied with -1
+                return dif >= 5f ? logA : logA + lookup[(int) (dif * scale)];
+            } else {
+                final float dif = logB - logA;
+                return dif >= 5f ? logB : logB + lookup[(int) (dif * scale)];
+            }
+        }
+
+        /**
+         * Calculates approximate logSum of log values using the <code> logSum(logA,logB) </code>
+         *
+         * @param logValues log values to use in logSum calculation.
+         * @return <p>log(a+b) value approximation
+         */
+        public float lookup(float... logValues) {
+            float result = LOG_ZERO_FLOAT;
+            for (float logValue : logValues) {
+                result = lookup(result, logValue);
+            }
+            return result;
         }
     }
 
-    public static float linearToLog(float linear) {
-        if (linear == 0)
-            return LOG_ZERO_FLOAT;
-        return (float) Math.log(linear);
+
+    /**
+     * A lookup structure for approximate logSum calculation.
+     */
+    public static class LogSumLookup {
+        public static final double DEFAULT_SCALE = 1000d;
+        public static final int DEFAULT_LOOKUP_SIZE = 20000;
+
+        private final double[] lookup;
+        public final double scale;
+
+        public LogSumLookup(double base) {
+            this(base, DEFAULT_LOOKUP_SIZE, DEFAULT_SCALE);
+        }
+
+        public LogSumLookup(double base, int lookupSize, double scale) {
+            this.scale = scale;
+            this.lookup = new double[lookupSize];
+            for (int i = 0; i < lookup.length; i++) {
+                lookup[i] = log(base, 1.0 + Math.pow(base, (double) -i / scale));
+            }
+        }
+
+        /**
+         * Calculates an approximation of log(a+b) when log(a) and log(b) are given using the formula
+         * <p><b>log(a+b) = log(b) + log(1 + exp(log(a)-log(b)))</b> where log(b)>log(a)
+         * <p>This method is an approximation because it uses a lookup table for <b>log(1 + exp(log(b)-log(a)))</b> part
+         * <p>This is useful for log-probabilities where values vary between -30 < log(p) <= 0
+         * <p>if difference between values is larger than 20 (which means sum of the numbers will be very close to the larger
+         * value in linear domain) large value is returned instead of the logSum calculation because effect of the other
+         * value is negligible
+         *
+         * @param logA logarithm of A
+         * @param logB logarithm of B
+         * @return approximation of log(A+B)
+         */
+        public double lookup(double logA, double logB) {
+            if (logA > logB) {
+                final double dif = logA - logB; // logA-logB because during lookup calculation dif is multiplied with -1
+                return dif >= 20d ? logA : logA + lookup[(int) (dif * scale)];
+            } else {
+                final double dif = logB - logA;
+                return dif >= 20d ? logB : logB + lookup[(int) (dif * scale)];
+            }
+        }
+
+        /**
+         * Calculates approximate logSum of log values using the <code> logSum(logA,logB) </code>
+         *
+         * @param logValues log values to use in logSum calculation.
+         * @return <p>log(a+b) value approximation
+         */
+        public double lookup(double... logValues) {
+            double result = LOG_ZERO;
+            for (double logValue : logValues) {
+                result = lookup(result, logValue);
+            }
+            return result;
+        }
     }
 
-    public static float[] linearToLog(float... linear) {
-        float[] result = new float[linear.length];
-        for (int i = 0; i < linear.length; i++) {
-            result[i] = linearToLog(linear[i]);
+    /**
+     * A converter class for converting linear values log values.
+     */
+    public static class LinearToLogConverter {
+        public final double inverseLogBase;
+
+        public LinearToLogConverter(double base) {
+            if (base == 0)
+                throw new IllegalArgumentException("Base of the logarithm cannot be zero.");
+            this.inverseLogBase = (float) (1 / Math.log(base));
         }
-        return result;
+
+        public double convert(double linear) {
+            return Math.log(linear) * inverseLogBase;
+        }
+
+        public double[] convert(double... linear) {
+            double[] result = new double[linear.length];
+            for (int i = 0; i < linear.length; i++) {
+                result[i] = convert(linear[i]);
+            }
+            return result;
+        }
+
+        public void convertInPlace(double... linear) {
+            for (int i = 0; i < linear.length; i++) {
+                linear[i] = convert(linear[i]);
+            }
+        }
     }
 
-    public static void linearToLogInPlace(float... linear) {
-        for (int i = 0; i < linear.length; i++) {
-            linear[i] = linearToLog(linear[i]);
+
+    /**
+     * A converter class for converting linear values log values.
+     */
+    public static class LinearToLogConverterFloat {
+
+        public final float inverseLogOfBase;
+
+        public LinearToLogConverterFloat(double base) {
+            if (base == 0)
+                throw new IllegalArgumentException("Base of the logarithm cannot be zero.");
+            this.inverseLogOfBase = (float) (1 / Math.log(base));
         }
+
+        public float convert(float linear) {
+            return (float) Math.log(linear) * inverseLogOfBase;
+        }
+
+        public float[] convert(float... linear) {
+            float[] result = new float[linear.length];
+            for (int i = 0; i < linear.length; i++) {
+                result[i] = convert(linear[i]);
+            }
+            return result;
+        }
+
+        public void convertInPlace(float... linear) {
+            for (int i = 0; i < linear.length; i++) {
+                linear[i] = convert(linear[i]);
+            }
+        }
+    }
+
+    /**
+     * Calculates logarithm in any base.
+     */
+    public static double log(double base, double val) {
+        return Math.log(val) / Math.log(base);
     }
 
     /**
@@ -194,7 +284,7 @@ public class LogMath {
      * @return 2 base logarithm of the input
      */
     public static double log2(double input) {
-        return Math.log(input) / LOG_TWO;
+        return Math.log(input) * INVERSE_LOG_TWO;
     }
 
     /**
@@ -206,5 +296,17 @@ public class LogMath {
     public static double log10ToLog(double log10Value) {
         return log10Value * LOG_TEN;
     }
-}
 
+    private static final double SPHINX_4_LOG_BASE = 1.0001;
+    private static final double INVERSE_LOG_SPHINX_BASE = 1 / Math.log(SPHINX_4_LOG_BASE);
+
+    /**
+     * Converts a log value to Sphinx4 log base. Can be used for comparison.
+     *
+     * @param logValue value in natural logarithm
+     * @return value in Sphinx4 log base.
+     */
+    public static double toLogSphinx(double logValue) {
+        return logValue * INVERSE_LOG_SPHINX_BASE;
+    }
+}

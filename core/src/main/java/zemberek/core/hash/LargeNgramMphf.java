@@ -26,9 +26,9 @@ public class LargeNgramMphf implements Mphf {
         this.offsets = offsets;
     }
 
-
     /**
      * Same as generate(File file, int chunkBits) but uses DEFAULT_CHUNK_SIZE_IN_BITS for chunk size.
+     *
      * @param file binary key file
      * @return generated LargeNgramMphf
      */
@@ -103,6 +103,16 @@ public class LargeNgramMphf implements Mphf {
         return mphfs[pageIndex].get(ngram, hash) + offsets[pageIndex];
     }
 
+    public int get(int g1, int g2, int g3, int hash) {
+        final int pageIndex = (hash & maxBitMask) >>> pageShift;
+        return mphfs[pageIndex].get(g1,g2,g3, hash) + offsets[pageIndex];
+    }
+
+    public int get(int g1, int g2, int hash) {
+        final int pageIndex = (hash & maxBitMask) >>> pageShift;
+        return mphfs[pageIndex].get(g1,g2,hash) + offsets[pageIndex];
+    }
+
     public int get(String ngram) {
         final int hash = MultiLevelMphf.hash(ngram, -1);
         final int pageIndex = (hash & maxBitMask) >>> pageShift;
@@ -112,20 +122,6 @@ public class LargeNgramMphf implements Mphf {
     public int get(String ngram, int hash) {
         final int pageIndex = (hash & maxBitMask) >>> pageShift;
         return mphfs[pageIndex].get(ngram, hash) + offsets[pageIndex];
-    }
-
-    @Override
-    public int get(long encodedKey, int order, int fingerPrint) {
-        final int hash = MultiLevelMphf.hash(encodedKey, order, -1);
-        final int pageIndex = (hash & maxBitMask) >>> pageShift;
-        return mphfs[pageIndex].get(encodedKey, order, hash) + offsets[pageIndex];
-    }
-
-    @Override
-    public int get(long encodedKey, int order) {
-        final int hash = MultiLevelMphf.hash(encodedKey, order, -1);
-        final int pageIndex = (hash & maxBitMask) >>> pageShift;
-        return mphfs[pageIndex].get(encodedKey, order, hash) + offsets[pageIndex];
     }
 
     public int get(int[] ngram, int begin, int end, int hash) {

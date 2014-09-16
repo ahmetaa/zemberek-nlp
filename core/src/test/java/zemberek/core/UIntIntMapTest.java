@@ -1,7 +1,7 @@
 package zemberek.core;
 
 import com.google.common.base.Stopwatch;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -32,20 +32,19 @@ public class UIntIntMapTest {
     @Test
     public void removeTest() {
         UIntIntMap map = new UIntIntMap();
-        map = new UIntIntMap();
         for (int i = 0; i < 100000; i++) {
             map.put(i, i + 1);
         }
-        for (int i = 0; i < 100000; i+=3) {
+        for (int i = 0; i < 100000; i += 3) {
             map.remove(i);
         }
-        for (int i = 0; i < 100000; i+=3) {
+        for (int i = 0; i < 100000; i += 3) {
             Assert.assertTrue(!map.containsKey(i));
         }
         for (int i = 0; i < 100000; i++) {
             map.put(i, i + 1);
         }
-        for (int i = 0; i < 100000; i+=3) {
+        for (int i = 0; i < 100000; i += 3) {
             Assert.assertTrue(map.containsKey(i));
         }
     }

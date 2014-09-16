@@ -28,6 +28,7 @@ public class DoubleValueSet<T> implements Iterable<T> {
     double[] values;
 
     int keyCount;
+    int removeCount;
 
     // When structure has this amount of keys, it expands the key and count arrays.
     int threshold = (int) (INITIAL_SIZE * DEFAULT_LOAD_FACTOR);
@@ -167,7 +168,7 @@ public class DoubleValueSet<T> implements Iterable<T> {
     public double incrementByAmount(T key, double amount) {
         if (key == null)
             throw new IllegalArgumentException("Key cannot be null. But it is:" + key);
-        if (keyCount == threshold) {
+        if (keyCount + removeCount == threshold) {
             expand();
         }
         int l = locate(key);
@@ -189,6 +190,7 @@ public class DoubleValueSet<T> implements Iterable<T> {
             return;
         keys[k] = SENTINEL; // mark deletion
         keyCount--;
+        removeCount++;
     }
 
     private void expand() {
@@ -203,12 +205,13 @@ public class DoubleValueSet<T> implements Iterable<T> {
         this.keyCount = h.keyCount;
         this.modulo = h.modulo;
         this.threshold = h.threshold;
+        this.removeCount = 0;
     }
 
     public void set(T key, double value) {
         if (key == null)
             throw new IllegalArgumentException("Key cannot be null. But it is:" + key);
-        if (keyCount == threshold) {
+        if (keyCount + removeCount == threshold) {
             expand();
         }
         int loc = locate(key);

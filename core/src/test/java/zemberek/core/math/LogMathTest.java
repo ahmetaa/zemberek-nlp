@@ -1,7 +1,7 @@
 package zemberek.core.math;
 
 import com.google.common.base.Stopwatch;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -20,10 +20,12 @@ public class LogMathTest {
             bLinear[i] = aLinear[i];
         }
 
+        LogMath.LogSumLookup logSumE = LogMath.LOG_SUM;
+
         for (double a : aLinear) {
             for (double b : bLinear) {
                 double logSumExpected = Math.log(a + b);
-                Assert.assertEquals(logSumExpected, LogMath.logSum(Math.log(a), Math.log(b)), 0.001);
+                Assert.assertEquals(logSumExpected, logSumE.lookup(Math.log(a), Math.log(b)), 0.001);
             }
         }
     }
@@ -41,10 +43,10 @@ public class LogMathTest {
         for (float a : aLinear) {
             for (float b : bLinear) {
                 float logSumExpected = (float) Math.log(a + b);
-                Assert.assertEquals(logSumExpected, LogMath.logSum(Math.log(a), Math.log(b)), 0.001);
+                Assert.assertEquals(logSumExpected, LogMath.LOG_SUM.lookup(Math.log(a), Math.log(b)), 0.001);
             }
         }
-    }    
+    }
 
     @Test
     public void logSumExactTest() throws IOException {
@@ -60,10 +62,10 @@ public class LogMathTest {
 
         for (double a : aLinear) {
             for (double b : bLinear) {
-                double logSumExact = LogMath.logSumExact(Math.log(a), Math.log(b));
+                double logSumExact = LogMath.logSum(Math.log(a), Math.log(b));
                 Assert.assertEquals("a=" + a + " b=" + b + " lin=" + Math.log(a + b),
                         logSumExact,
-                        LogMath.logSum(Math.log(a), Math.log(b)), 0.001);
+                        LogMath.LOG_SUM.lookup(Math.log(a), Math.log(b)), 0.001);
             }
         }
     }
@@ -71,8 +73,8 @@ public class LogMathTest {
     @Test
     @Ignore("Not a unit test")
     public void logSumPerf() throws IOException {
-        double[] loga = new double[50000];
-        double[] logb = new double[50000];
+        double[] loga = new double[15000];
+        double[] logb = new double[15000];
 
         int j = 0;
         for (int i = 0; i < logb.length; i++) {
@@ -84,14 +86,14 @@ public class LogMathTest {
         Stopwatch sw = Stopwatch.createStarted();
         for (double a : loga) {
             for (double b : logb) {
-                LogMath.logSumExact(a, b);
+                LogMath.logSum(a, b);
             }
         }
         System.out.println("Exact: " + sw.elapsed(TimeUnit.MILLISECONDS));
         sw.reset().start();
         for (double a : loga) {
             for (double b : logb) {
-                LogMath.logSum(a, b);
+                LogMath.LOG_SUM.lookup(a, b);
             }
         }
         System.out.println("Lookup: " + sw.elapsed(TimeUnit.MILLISECONDS));
@@ -121,8 +123,8 @@ public class LogMathTest {
         for (int i = 0; i < logA.length; i++) {
             double la = logA[i];
             double lb = logA[logA.length - i - 1];
-            double exact = LogMath.logSumExact(la, lb);
-            double approx = LogMath.logSum(la, lb);
+            double exact = LogMath.logSum(la, lb);
+            double approx = LogMath.LOG_SUM.lookup(la, lb);
             double error = Math.abs(exact - approx);
             if (error > maxError) {
                 maxError = error;
@@ -161,8 +163,8 @@ public class LogMathTest {
         for (int i = 0; i < logA.length; i++) {
             float la = logA[i];
             float lb = logA[logA.length - i - 1];
-            float exact = (float) LogMath.logSumExact(la, lb);
-            float approx = LogMath.logSum(la, lb);
+            float exact = (float) LogMath.logSum(la, lb);
+            float approx = LogMath.LOG_SUM_FLOAT.lookup(la, lb);
             float error = Math.abs(exact - approx);
             if (error > maxError) {
                 maxError = error;
@@ -176,12 +178,26 @@ public class LogMathTest {
         Assert.assertTrue(maxError < 0.0005);
         System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));
         sw.stop();
-    }    
-    
+    }
+
+    @Test
+    public void testSphinx4Log() {
+        Assert.assertEquals(23027, (int) LogMath.toLogSphinx(Math.log(10)));
+    }
+
     @Test
     public void testLog2() {
         Assert.assertEquals(2, (int) LogMath.log2(4));
         Assert.assertEquals(3, (int) LogMath.log2(8));
         Assert.assertEquals(-1, (int) LogMath.log2(0.5));
+    }
+
+    @Test
+    public void linearToLogTest() {
+        LogMath.LinearToLogConverter converter = new LogMath.LinearToLogConverter(Math.E);
+        Assert.assertEquals(Math.log(2), converter.convert(2), 0.00000001d);
+        converter = new LogMath.LinearToLogConverter(10d);
+        Assert.assertEquals(Math.log10(2), converter.convert(2), 0.00000001d);
+
     }
 }

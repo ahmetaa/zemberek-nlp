@@ -1,7 +1,8 @@
 package zemberek.core;
 
 import com.google.common.base.Stopwatch;
-import junit.framework.Assert;
+import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -254,6 +255,7 @@ public class CountSetTest {
     }
 
     @Test
+    @Ignore("Not a unit test")
     public void perf() {
         Random r = new Random();
         int[][] keyVals = new int[100000][2];
@@ -318,6 +320,7 @@ public class CountSetTest {
     }
 
     @Test
+    @Ignore("Not a unit test")
     public void perfStrings() {
         for (int i = 0; i < 5; i++) {
             Stopwatch sw = Stopwatch.createStarted();

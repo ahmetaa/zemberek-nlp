@@ -36,10 +36,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class IOs {
 
-    private static final int BYTE_BUFFER_SIZE = 1 << 16;
+    private static final int BYTE_BUFFER_SIZE = 1 << 20;
 
     public static final String LINE_SEPARATOR;
-    public static final int CHAR_BUFFER_SIZE = 1 << 16;
+    public static final int CHAR_BUFFER_SIZE = 1 << 20;
 
     static {
         // avoid security issues
