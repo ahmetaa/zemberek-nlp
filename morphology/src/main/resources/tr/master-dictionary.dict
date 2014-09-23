@@ -8948,7 +8948,7 @@ grafolog
 grafoloji
 grafolojik [P:Adj]
 grafometre
-gram
+gram [Pr:gıram]
 gramaj
 gramatikal [A:InverseHarmony]
 gramatikal [P:Adj]
@@ -16049,6 +16049,7 @@ mızmız [P:Adj]
 mızrak
 mızrap
 mi
+mi [P:Ques]
 miat
 mibzer
 miçel
@@ -17030,7 +17031,7 @@ müsabık [P:Adj]
 müsademe
 müsadere
 müsadif [P:Adj]
-müsait [P:Adj]
+müsait [P:Adj; A:NoVoicing]
 müsakkafat [A:NoVoicing, Plural]
 müsamaha
 müsamahakâr [P:Adj]

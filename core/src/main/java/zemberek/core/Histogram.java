@@ -174,6 +174,12 @@ public class Histogram<T> implements Iterable<T> {
         return removeCount;
     }
 
+    public void removeAll(Iterable<T> iterable) {
+        for (T t : iterable) {
+            vector.remove(t);
+        }
+    }
+
     /**
      * this method returns a TreeMap that has :
      * - keys are the counts of the items which has same "counts" in the Counting set. For example if Set includes

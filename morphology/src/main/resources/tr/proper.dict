@@ -172,7 +172,7 @@ Asurca
 Asurca [P:Adj]
 Asurî [A:NoQuote]
 Asya
-Aşkabat
+Aşkabat [A:NoVoicing]
 Aşkale
 At
 Atabey
@@ -263,7 +263,7 @@ Batman
 Battalgazi
 Bavyera
 Bavyeralı
-Bayat
+Bayat [A:NoVoicing]
 Bayburt
 Bayındır
 Baykan
@@ -325,7 +325,7 @@ Bosnalı
 Boşnak
 Boşnakça
 Boşnakça [P:Adj]
-Boyabat
+Boyabat [A:NoVoicing]
 Bozcaada
 Bozdoğan
 Bozkır
@@ -543,11 +543,11 @@ Dicle
 Digor
 Dikili
 Dikmen
-Dimyat
+Dimyat [A:NoVoicing]
 Dinar
 Divanhane
 Divanıhümayun
-Divanımuhasebat
+Divanımuhasebat [A:NoVoicing]
 Divriği
 Diyadin
 Diyarbakır
@@ -581,7 +581,7 @@ Düziçi [P:Noun, Prop; A:NounConsInsert_n]
 Düzköy
 Dy
 Ebucehil
-Eceabat
+Eceabat [A:NoVoicing]
 Edi
 Edirne
 Edremit
@@ -675,7 +675,7 @@ Fenikeli
 Ferizli
 Fethiye
 Fındıklı
-Fırat
+Fırat [A:NoVoicing]
 Filipinler
 Filipinli
 Filistin
@@ -1816,7 +1816,7 @@ Togo
 Tohar
 Toharca
 Toharca [P:Adj]
-Tokat
+Tokat [A:NoVoicing]
 Tomarza
 Tonya
 Tophane
@@ -1961,7 +1961,7 @@ Yıldırım
 Yıldızeli [A:CompoundP3sg, NounConsInsert_n; Roots:yıldız-el]
 Yıva
 Yomra
-Yozgat
+Yozgat [A:NoVoicing]
 Yörük [A:NoQuote]
 Yugoslav
 Yugoslavya
@@ -1987,7 +1987,7 @@ Zile
 Zirkonyum
 Zn
 Zodyak
-Zonguldak
+Zonguldak [A:NoVoicing]
 Zr
 Zühal
 Zühre
