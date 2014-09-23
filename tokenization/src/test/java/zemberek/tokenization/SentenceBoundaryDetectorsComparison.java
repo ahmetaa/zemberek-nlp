@@ -18,15 +18,17 @@ public class SentenceBoundaryDetectorsComparison {
 
     public static void main(String[] args) throws IOException {
         List<String> testSentences = SimpleTextReader.trimmingUTF8Reader(
-                new File("tokenization/src/test/resources/tokenizer/Test.txt")).asStringList();
+                new File("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Test.txt")).asStringList();
         Stopwatch sw = Stopwatch.createStarted();
         PerceptronSentenceBoundaryDetecor perceptron = new PerceptronSentenceBoundaryDetecor.Trainer(
-                new File("tokenization/src/test/resources/tokenizer/Total.txt"),
-                2).train();
+                new File("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Train.txt"),
+                3).train();
         System.out.println("Train Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
         test(testSentences, perceptron);
+
+        System.out.println(" \n---------------- Rule Based ------------------\n");
         SimpleSentenceBoundaryDetector ruleBased = new SimpleSentenceBoundaryDetector();
-       // test(testSentences, ruleBased);
+        test(testSentences, ruleBased);
     }
 
     public static void test(List<String> sentences, SentenceBoundaryDetector detector) {
@@ -44,7 +46,7 @@ public class SentenceBoundaryDetectorsComparison {
         String joinedSentence = sb.toString();
         Stopwatch sw = Stopwatch.createStarted();
         List<String> found = detector.getSentences(joinedSentence);
-        System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));
+        System.out.println("Test Elapsed: " + sw.elapsed(TimeUnit.MILLISECONDS));
         evaluate(sentences, found);
     }
 
