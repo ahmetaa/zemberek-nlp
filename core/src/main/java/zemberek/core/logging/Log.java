@@ -13,8 +13,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.IllegalFormatException;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.logging.*;
 
 /**
@@ -24,22 +22,16 @@ public final class Log {
 
     public static final Thread.UncaughtExceptionHandler EXCEPTION_HANDLER = new ExceptionLoggerHandler();
 
-    private static final ConcurrentMap<String, Logger> loggers = new ConcurrentHashMap<>();
-
     static Level currentLevel = Level.INFO;
 
-    private static final Logger globalLogger = Logger.getLogger("");
+    private static final Logger logger = Logger.getLogger("zemberek-logger");
 
     static {
-
-        Handler[] handlers = globalLogger.getHandlers();
-        for (Handler handler : handlers) {
-            globalLogger.removeHandler(handler);
-        }
+        logger.setUseParentHandlers(false);
         ConsoleHandler ch = new ConsoleHandler();
         ch.setFormatter(new CUSTOM_FORMAT());
         ch.setLevel(currentLevel);
-        globalLogger.addHandler(ch);
+        logger.addHandler(ch);
         Thread.setDefaultUncaughtExceptionHandler(EXCEPTION_HANDLER);
     }
 
@@ -49,7 +41,7 @@ public final class Log {
     private static class ExceptionLoggerHandler implements Thread.UncaughtExceptionHandler {
         @Override
         public void uncaughtException(Thread t, Throwable e) {
-            Log.error("Exception occured in thread :" + t.getName());
+            Log.error("Exception occurred in thread :" + t.getName());
             Log.error(e.toString());
             for (StackTraceElement stackTraceElement : e.getStackTrace()) {
                 Log.error("  " + stackTraceElement.toString());
@@ -59,14 +51,9 @@ public final class Log {
     }
 
     private static void setLevel(Level level) {
-        synchronized (loggers) {
-            for (Logger logger : loggers.values()) {
-                logger.setLevel(level);
-            }
-            globalLogger.setLevel(level);
-            for (Handler handler : globalLogger.getHandlers()) {
-                handler.setLevel(level);
-            }
+        logger.setLevel(level);
+        for (Handler handler : logger.getHandlers()) {
+            handler.setLevel(level);
         }
         currentLevel = level;
     }
@@ -120,7 +107,7 @@ public final class Log {
     }
 
     public static void trace(Object object) {
-            log(Level.FINER, object.toString());
+        log(Level.FINER, object.toString());
     }
 
     public static void debug(String message, Object... params) {
@@ -206,14 +193,6 @@ public final class Log {
         final int stackPositionOfCaller = 2;
         StackTraceElement caller = new Throwable().getStackTrace()[stackPositionOfCaller];
         String className = caller.getClassName();
-        Logger logger;
-
-        logger = loggers.get(className);
-        if (logger == null) {
-            logger = Logger.getLogger(className);
-            loggers.putIfAbsent(className, logger);
-            logger.setLevel(currentLevel);
-        }
 
         if (logger.isLoggable(level)) {
             String formattedMessage;

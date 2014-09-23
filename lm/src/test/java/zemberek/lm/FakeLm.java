@@ -78,7 +78,7 @@ public class FakeLm {
     }
 
     public void validate(FakeGram[] grams) {
-        Set<String> set = new HashSet<String>(grams.length);
+        Set<String> set = new HashSet<>(grams.length);
         for (FakeGram gram : grams) {
             String s = Joiner.on(" ").join(gram.vals);
             if (set.contains(s))
@@ -86,7 +86,6 @@ public class FakeLm {
             set.add(s);
         }
     }
-
 
     public void generateArpa(File fileName) throws IOException {
         System.out.println("unigrams = " + unigrams.length);

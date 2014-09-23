@@ -9,11 +9,11 @@ public interface Mphf {
 
     int get(int[] key, int hash);
 
-    int get(long encodedKey, int order, int hash);
-
-    int get(long encodedKey, int order);
-
     int get(String key);
+
+    int get(int k0, int k1, int k2, int initialHash);
+
+    int get(int k0, int k1, int initialHash);
 
     int get(String key, int hash);
 

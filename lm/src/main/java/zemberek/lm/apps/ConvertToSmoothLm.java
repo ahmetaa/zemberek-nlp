@@ -50,7 +50,7 @@ public class ConvertToSmoothLm extends CommandLineApplication {
     private int[] spaceUsage = new int[3];
 
     @Override
-    protected String getDescription() {
+    public String getDescription() {
         return "This application generates a compressed binary language model (Smooth-Lm).";
     }
 

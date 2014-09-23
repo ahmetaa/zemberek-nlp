@@ -38,6 +38,7 @@ import java.util.List;
  */
 public class MultiLevelMphf implements Mphf {
 
+    public static final int HASH_MULTIPLIER = 16777619;
     final HashIndexes[] hashLevelData;
 
     public static MultiLevelMphf generate(IntHashKeyProvider keyProvider) {
@@ -84,7 +85,7 @@ public class MultiLevelMphf implements Mphf {
     public static int hash(byte[] data, int seed) {
         int d = seed > 0 ? seed : INITIAL_HASH_SEED;
         for (int a : data) {
-            d = (d ^ a) * 16777619;
+            d = (d ^ a) * HASH_MULTIPLIER;
         }
         return d & 0x7fffffff;
     }
@@ -92,15 +93,30 @@ public class MultiLevelMphf implements Mphf {
     public static int hash(int[] data, int seed) {
         int d = seed > 0 ? seed : INITIAL_HASH_SEED;
         for (int a : data) {
-            d = (d ^ a) * 16777619;
+            d = (d ^ a) * HASH_MULTIPLIER;
         }
+        return d & 0x7fffffff;
+    }
+
+    public static int hash(int d0, int d1, int d2, int seed) {
+        int d = seed > 0 ? seed : INITIAL_HASH_SEED;
+        d = (d ^ d0) * HASH_MULTIPLIER;
+        d = (d ^ d1) * HASH_MULTIPLIER;
+        d = (d ^ d2) * HASH_MULTIPLIER;
+        return d & 0x7fffffff;
+    }
+
+    public static int hash(int d0, int d1, int seed) {
+        int d = seed > 0 ? seed : INITIAL_HASH_SEED;
+        d = (d ^ d0) * HASH_MULTIPLIER;
+        d = (d ^ d1) * HASH_MULTIPLIER;
         return d & 0x7fffffff;
     }
 
     public static int hash(String data, int seed) {
         int d = seed > 0 ? seed : INITIAL_HASH_SEED;
         for (int i = 0; i < data.length(); i++) {
-            d = (d ^ data.charAt(i)) * 16777619;
+            d = (d ^ data.charAt(i)) * HASH_MULTIPLIER;
         }
         return d & 0x7fffffff;
     }
@@ -122,7 +138,7 @@ public class MultiLevelMphf implements Mphf {
         for (int i = 0; i < order; i++) {
             int h = (int) (gramData & BIT_MASK_21);
             gramData = gramData >>> 21;
-            d = (d ^ h) * 16777619;
+            d = (d ^ h) * HASH_MULTIPLIER;
         }
         return d & 0x7fffffff;
     }
@@ -130,7 +146,7 @@ public class MultiLevelMphf implements Mphf {
     public static int hash(int[] data, int begin, int end, int seed) {
         int d = seed > 0 ? seed : INITIAL_HASH_SEED;
         for (int i = begin; i < end; i++) {
-            d = (d ^ data[i]) * 16777619;
+            d = (d ^ data[i]) * HASH_MULTIPLIER;
         }
         return d & 0x7fffffff;
     }
@@ -317,18 +333,46 @@ public class MultiLevelMphf implements Mphf {
 
     /**
      * @param key         int array representation of the key.
-     * @param fingerPrint sometimes initial hash value for MPHF calculation is already calculated.
+     * @param initialHash sometimes initial hash value for MPHF calculation is already calculated.
      *                    So this value is used instead of re-calculation.
      * @return minimal perfect hash value for the given input. returning number is between [0-keycount] keycount excluded.
      */
-    public int get(int[] key, int fingerPrint) {
+    public int get(int[] key, int initialHash) {
         for (int i = 0; i < hashLevelData.length; i++) {
-            final int seed = hashLevelData[i].getSeed(fingerPrint);
+            final int seed = hashLevelData[i].getSeed(initialHash);
             if (seed != 0) {
                 if (i == 0) {
                     return hash(key, seed) % hashLevelData[0].keyAmount;
                 } else {
                     return hashLevelData[i - 1].failedIndexes[hash(key, seed) % hashLevelData[i].keyAmount];
+                }
+            }
+        }
+        throw new IllegalStateException("Cannot be here.");
+    }
+
+    public int get(int k0, int k1, int k2, int initialHash) {
+        for (int i = 0; i < hashLevelData.length; i++) {
+            final int seed = hashLevelData[i].getSeed(initialHash);
+            if (seed != 0) {
+                if (i == 0) {
+                    return hash(k0, k1, k2, seed) % hashLevelData[0].keyAmount;
+                } else {
+                    return hashLevelData[i - 1].failedIndexes[hash(k0, k1, k2, seed) % hashLevelData[i].keyAmount];
+                }
+            }
+        }
+        throw new IllegalStateException("Cannot be here.");
+    }
+
+    public int get(int k0, int k1, int initialHash) {
+        for (int i = 0; i < hashLevelData.length; i++) {
+            final int seed = hashLevelData[i].getSeed(initialHash);
+            if (seed != 0) {
+                if (i == 0) {
+                    return hash(k0, k1, seed) % hashLevelData[0].keyAmount;
+                } else {
+                    return hashLevelData[i - 1].failedIndexes[hash(k0, k1, seed) % hashLevelData[i].keyAmount];
                 }
             }
         }
@@ -345,13 +389,13 @@ public class MultiLevelMphf implements Mphf {
 
     /**
      * @param key         byte array representation of the key.
-     * @param fingerPrint sometimes initial hash value for MPHF calculation is already calculated.
+     * @param initialHash sometimes initial hash value for MPHF calculation is already calculated.
      *                    So this value is used instead of re-calculation.
      * @return minimal perfect hash value for the given input. returning number is between [0-keycount] keycount excluded.
      */
-    public int get(byte[] key, int fingerPrint) {
+    public int get(byte[] key, int initialHash) {
         for (int i = 0; i < hashLevelData.length; i++) {
-            final int seed = hashLevelData[i].getSeed(fingerPrint);
+            final int seed = hashLevelData[i].getSeed(initialHash);
             if (seed != 0) {
                 if (i == 0) {
                     return hash(key, seed) % hashLevelData[0].keyAmount;
@@ -373,13 +417,13 @@ public class MultiLevelMphf implements Mphf {
 
     /**
      * @param key         the key.
-     * @param fingerPrint sometimes initial hash value for MPHF calculation is already calculated. So this value is used instead of re-calculation.
+     * @param initialHash sometimes initial hash value for MPHF calculation is already calculated. So this value is used instead of re-calculation.
      *                    This provides a small performance enhancement.
      * @return minimal perfect hash value for the given input. returning number is between [0-keycount] keycount excluded.
      */
-    public int get(String key, int fingerPrint) {
+    public int get(String key, int initialHash) {
         for (int i = 0; i < hashLevelData.length; i++) {
-            final int seed = hashLevelData[i].getSeed(fingerPrint);
+            final int seed = hashLevelData[i].getSeed(initialHash);
             if (seed != 0) {
                 if (i == 0) {
                     return hash(key, seed) % hashLevelData[0].keyAmount;
@@ -392,48 +436,14 @@ public class MultiLevelMphf implements Mphf {
     }
 
     /**
-     * @param encodedKey  Key as long number. 21 bit int values are embedded to a long number.
-     * @param fingerPrint sometimes initial hash value for MPHF calculation is already calculated. So this value is used instead of re-calculation.
-     *                    This provides a small performance enhancement.
-     *                    Structure for order=3: [1bit empty][gram-3][gram-2][gram-1]
-     *                    Structure for order=2: [22bit empty][gram-2][gram-1]
-     * @return minimal perfect hash value for the given input. returning number is between [0-keycount) keycount excluded.
-     */
-    @Override
-    public int get(long encodedKey, int order, int fingerPrint) {
-        for (int i = 0; i < hashLevelData.length; i++) {
-            final int seed = hashLevelData[i].getSeed(fingerPrint);
-            if (seed != 0) {
-                if (i == 0) {
-                    return hash(encodedKey, order, seed) % hashLevelData[0].keyAmount;
-                } else {
-                    return hashLevelData[i - 1].failedIndexes[hash(encodedKey, order, seed) % hashLevelData[i].keyAmount];
-                }
-            }
-        }
-        throw new IllegalStateException("Cannot be here.");
-    }
-
-    /**
-     * @param encodedKey Key as long number. 21 bit int values are embedded to a long number.
-     *                   Structure for order=3: [1bit empty][gram-3][gram-2][gram-1]
-     *                   Structure for order=2: [22bit empty][gram-2][gram-1]
-     * @return minimal perfect hash value for the given input. returning number is between [0-keycount) keycount excluded.
-     */
-    @Override
-    public int get(long encodedKey, int order) {
-        return get(encodedKey, order, hash(encodedKey, order, -1));
-    }
-
-    /**
      * @param key         int array representation of the key.
-     * @param fingerPrint sometimes initial hash value for MPHF calculation is already calculated. So this value is used instead of re-calculation.
+     * @param initialHash sometimes initial hash value for MPHF calculation is already calculated. So this value is used instead of re-calculation.
      *                    This provides a small performance enhancement.
      * @return minimal perfect hash value for the given input. returning number is between [0-keycount] keycount excluded.
      */
-    public int get(int[] key, int begin, int end, int fingerPrint) {
+    public int get(int[] key, int begin, int end, int initialHash) {
         for (int i = 0; i < hashLevelData.length; i++) {
-            final int seed = hashLevelData[i].getSeed(fingerPrint);
+            final int seed = hashLevelData[i].getSeed(initialHash);
             if (seed != 0) {
                 if (i == 0) {
                     return hash(key, begin, end, seed) % hashLevelData[0].keyAmount;

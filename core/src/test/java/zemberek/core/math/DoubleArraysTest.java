@@ -1,8 +1,9 @@
 package zemberek.core.math;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.*;
 import java.util.Arrays;
 
 public class DoubleArraysTest {
@@ -24,8 +25,8 @@ public class DoubleArraysTest {
         double[] da1 = {1, 2, 0, -1, -30};
         double[] da2 = {-0.5, -1, 0, 0.5, 15};
         DoubleArrays.addToFirstScaled(da1, da2, 2);
-        Assert.assertEquals(DoubleArrays.max(da1), 0d);
-        Assert.assertEquals(DoubleArrays.min(da1), 0d);
+        Assert.assertEquals(DoubleArrays.max(da1), 0d, 0.0001);
+        Assert.assertEquals(DoubleArrays.min(da1), 0d, 0.0001);
     }
 
     @Test
@@ -94,7 +95,7 @@ public class DoubleArraysTest {
     public void testAddToAll() {
         double[] da = {1, 2, 0, -1, -3};
         double[] expected = {2, 3, 1, 0, -2};
-        DoubleArrays.addToAll(da,1);
+        DoubleArrays.addToAll(da, 1);
         Assert.assertTrue(Arrays.equals(expected, da));
     }
 
@@ -143,7 +144,7 @@ public class DoubleArraysTest {
         for (double[] i : da) {
             int j = 0;
             for (double ii : i) {
-                Assert.assertEquals(da2[k][j++], ii);
+                Assert.assertEquals(da2[k][j++], ii, 0.0001);
             }
             k++;
         }
@@ -203,14 +204,14 @@ public class DoubleArraysTest {
         double[] da = {1, 2, 4.5, -2, 4};
         double[] da2 = {1, 1, 2.5, 5, -15.2};
         Assert.assertTrue(inDelta(DoubleArrays.absoluteDifference(da, da2), new double[]{0, 1, 2, 7, 19.2}));
-        Assert.assertEquals(DoubleArrays.absoluteSumOfDifferences(da, da2), 29.2);
+        Assert.assertEquals(DoubleArrays.absoluteSumOfDifferences(da, da2), 29.2, 0.0001);
     }
 
     @Test
     public void testVariance() {
         double[] da = {0, 2, 4};
-        Assert.assertEquals(DoubleArrays.variance(da), 4d);
-        Assert.assertEquals(DoubleArrays.standardDeviation(da), 2d);
+        Assert.assertEquals(DoubleArrays.variance(da), 4d, 0.0001);
+        Assert.assertEquals(DoubleArrays.standardDeviation(da), 2d, 0.0001);
     }
 
     @Test
@@ -284,8 +285,8 @@ public class DoubleArraysTest {
     public void testNormalize16bitLittleEndian() {
         byte[] ba = {0x10, 0x71, 0x18, 0x54};
         double[] da = DoubleArrays.normalize16bitLittleEndian(ba);
-        Assert.assertEquals(da[0] * Short.MAX_VALUE, 28944d);
-        Assert.assertEquals(da[1] * Short.MAX_VALUE, 21528d);
+        Assert.assertEquals(da[0] * Short.MAX_VALUE, 28944d, 0.0001);
+        Assert.assertEquals(da[1] * Short.MAX_VALUE, 21528d, 0.0001);
 
         byte[] ba2 = DoubleArrays.denormalize16BitLittleEndian(da);
         Assert.assertEquals(ba2[0], 0x10);
@@ -297,7 +298,7 @@ public class DoubleArraysTest {
 
         byte[] ba4 = {(byte) 0xCC, (byte) 0xAB};
         da = DoubleArrays.normalize16bitLittleEndian(ba4);
-        Assert.assertEquals(da[0] * Short.MIN_VALUE, 21556d);
+        Assert.assertEquals(da[0] * Short.MIN_VALUE, 21556d, 0.0001);
     }
 
     @Test
@@ -345,5 +346,49 @@ public class DoubleArraysTest {
             }
         }
         return true;
+    }
+
+    @Test
+    public void testSerialization1D() throws IOException {
+        serialization1D(new double[]{0.2, -0.4, 0.6});
+        serialization1D(new double[]{0.256});
+        serialization1D(new double[]{});
+    }
+
+    @Test
+    public void testSerialization2D() throws IOException {
+        serialization2D(new double[][]{{0.2}, {-0.4}, {0.6}});
+        serialization2D(new double[][]{{0.2, 1}, {-0.4, 2}, {0.6, 3}});
+        serialization2D(new double[][]{{0.2, 1}, {-0.4}, {0.6, 3, 6}});
+        serialization2D(new double[][]{{}, {}, {0.6, 3, 6}});
+        serialization2D(new double[][]{{}, {}, {}});
+    }
+
+    private void serialization1D(double[] da) throws IOException {
+        File f = File.createTempFile("blah", "foo");
+        f.deleteOnExit();
+        try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(f))) {
+            DoubleArrays.serialize(dos, da);
+        }
+
+        try (DataInputStream dis = new DataInputStream(new FileInputStream(f))) {
+            double[] read = DoubleArrays.deserialize(dis);
+            Assert.assertTrue(DoubleArrays.arrayEquals(da, read));
+        }
+    }
+
+    private void serialization2D(double[][] da) throws IOException {
+        File f = File.createTempFile("blah", "foo");
+        f.deleteOnExit();
+        try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(f))) {
+            DoubleArrays.serialize(dos, da);
+        }
+
+        try (DataInputStream dis = new DataInputStream(new FileInputStream(f))) {
+            double[][] read = DoubleArrays.deserialize2d(dis);
+            for (int i = 0; i < read.length; i++) {
+                Assert.assertTrue(DoubleArrays.arrayEquals(da[i], read[i]));
+            }
+        }
     }
 }

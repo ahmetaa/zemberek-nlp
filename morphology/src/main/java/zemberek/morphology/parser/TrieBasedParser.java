@@ -26,7 +26,7 @@ public class TrieBasedParser implements MorphParser {
         List<ParseToken> initialTokens = Lists.newArrayList();
         for (StemNode candidate : candidates) {
             String rest = input.substring(candidate.surfaceForm.length());
-            initialTokens.add(new ParseToken(candidate, Lists.<SuffixSurfaceNode>newArrayList(candidate.getSuffixRootSurfaceNode()), rest));
+            initialTokens.add(new ParseToken(candidate, Lists.newArrayList(candidate.getSuffixRootSurfaceNode()), rest));
         }
 
         // traverse suffix graph.

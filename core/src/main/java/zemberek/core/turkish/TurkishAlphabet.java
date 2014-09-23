@@ -174,12 +174,12 @@ public class TurkishAlphabet {
     }
 
     protected static final ImmutableMap<TurkicLetter, TurkicLetter> devoicingMap = new ImmutableMap.Builder<TurkicLetter, TurkicLetter>()
-        .put(L_b, L_p)
-        .put(L_c, L_cc)
-        .put(L_d, L_t)
-        .put(L_g, L_k)
-        .put(L_gg, L_k)
-        .build();
+            .put(L_b, L_p)
+            .put(L_c, L_cc)
+            .put(L_d, L_t)
+            .put(L_g, L_k)
+            .put(L_gg, L_k)
+            .build();
 
     public TurkicLetter devoice(TurkicLetter l) {
         return devoicingMap.get(l);
@@ -233,7 +233,7 @@ public class TurkishAlphabet {
      */
     public int getAlphabeticIndex(char c) {
         if (!isValid(c))
-            throw new IllegalArgumentException("unexpected char:" + c + " code:" + (int)c);
+            throw new IllegalArgumentException("unexpected char:" + c + " code:" + (int) c);
         return TURKISH_ALPHABET_INDEXES[c];
     }
 
@@ -300,6 +300,32 @@ public class TurkishAlphabet {
         if (!isValid(c))
             throw new IllegalArgumentException("unexpected char:" + c);
         return ASCII_EQUIVALENT_LETTER_LOOKUP[getAlphabeticIndex(c) - 1];
+    }
+
+    public TurkicLetter aHarmony(TurkicLetter vowel) {
+        if (vowel.isConsonant()) {
+            throw new IllegalArgumentException("letter is not a vowel");
+        }
+        return vowel.isFrontal() ? L_e : L_a;
+    }
+
+    public TurkicLetter iHarmony(TurkicLetter vowel) {
+        if (vowel.isConsonant()) {
+            throw new IllegalArgumentException("letter is not a vowel");
+        }
+        if (!vowel.isFrontal()) {
+            return vowel.isRounded() ? L_u : L_ii;
+        } else {
+            return vowel.isRounded() ? L_uu : L_i;
+        }
+    }
+
+    public boolean compatibleForAHarmony(TurkicLetter source, TurkicLetter target) {
+        return aHarmony(source)==target;
+    }
+
+    public boolean compatibleForIHarmony(TurkicLetter source, TurkicLetter target) {
+        return iHarmony(source)==target;
     }
 
     /**

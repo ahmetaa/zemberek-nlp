@@ -1,14 +1,14 @@
 package zemberek.core;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class LookupSetTest {
 
     @Test
     public void addTest() {
-        Foo f1 = new Foo("abc",1);
-        Foo f2 = new Foo("abc",2);
+        Foo f1 = new Foo("abc", 1);
+        Foo f2 = new Foo("abc", 2);
 
         LookupSet<Foo> fooSet = new LookupSet<>();
         Assert.assertTrue(fooSet.add(f1));
@@ -17,8 +17,8 @@ public class LookupSetTest {
 
     @Test
     public void lookupTest() {
-        Foo f1 = new Foo("abc",1);
-        Foo f2 = new Foo("abc",2);
+        Foo f1 = new Foo("abc", 1);
+        Foo f2 = new Foo("abc", 2);
 
         LookupSet<Foo> fooSet = new LookupSet<>();
         Assert.assertNull(fooSet.lookup(f1));
@@ -33,7 +33,7 @@ public class LookupSetTest {
 
     @Test
     public void getOrAddTest() {
-        Foo f1 = new Foo("abc",1);
+        Foo f1 = new Foo("abc", 1);
         Foo f2 = new Foo("abc",2);
 
         LookupSet<Foo> fooSet = new LookupSet<>();
@@ -43,8 +43,8 @@ public class LookupSetTest {
 
     @Test
     public void removeTest() {
-        Foo f1 = new Foo("abc",1);
-        Foo f2 = new Foo("abc",2);
+        Foo f1 = new Foo("abc", 1);
+        Foo f2 = new Foo("abc", 2);
 
         LookupSet<Foo> fooSet = new LookupSet<>();
         Assert.assertEquals(1, fooSet.getOrAdd(f1).b);

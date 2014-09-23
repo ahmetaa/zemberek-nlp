@@ -9,6 +9,9 @@ import java.text.Collator;
 import java.util.*;
 
 public class LmVocabulary {
+    public static final String DEFAULT_SENTENCE_BEGIN_MARKER = "<s>";
+    public static final String DEFAULT_SENTENCE_END_MARKER = "</s>";
+    public static final String DEFAULT_UNKNOWN_WORD = "<unk>";
     private String unknownWord;
     private String sentenceStart;
     private String sentenceEnd;
@@ -155,21 +158,21 @@ public class LmVocabulary {
                 Log.warn("Language model vocabulary has duplicate item: " + word);
                 continue;
             }
-            if (word.equalsIgnoreCase("<unk>")) {
+            if (word.equalsIgnoreCase(DEFAULT_UNKNOWN_WORD)) {
                 if (unknownWordIndex != -1)
                     Log.warn("Unknown word was already defined as %s but another matching token exist in the input vocabulary: %s", unknownWord, word);
                 else {
                     unknownWord = word;
                     unknownWordIndex = indexCounter;
                 }
-            } else if (word.equalsIgnoreCase("<s>")) {
+            } else if (word.equalsIgnoreCase(DEFAULT_SENTENCE_BEGIN_MARKER)) {
                 if (sentenceStartIndex != -1)
                     Log.warn("Sentence start index was already defined as %s but another matching token exist in the input vocabulary: %s", sentenceStart, word);
                 else {
                     sentenceStart = word;
                     sentenceStartIndex = indexCounter;
                 }
-            } else if (word.equalsIgnoreCase("</s>")) {
+            } else if (word.equalsIgnoreCase(DEFAULT_SENTENCE_END_MARKER)) {
                 if (sentenceEndIndex != -1)
                     Log.warn("Sentence end index was already defined as %s but another matching token exist in the input vocabulary: %s", sentenceEnd, word);
                 else {
@@ -182,21 +185,21 @@ public class LmVocabulary {
             indexCounter++;
         }
         if (unknownWordIndex == -1) {
-            unknownWord = "<unk>";
+            unknownWord = DEFAULT_UNKNOWN_WORD;
             cleanVocab.add(unknownWord);
             vocabularyIndexMap.put(unknownWord, indexCounter++);
             Log.warn("Necessary special token " + unknownWord + " was not found in the vocabulary, it is added explicitly");
         }
         unknownWordIndex = vocabularyIndexMap.get(unknownWord);
         if (sentenceStartIndex == -1) {
-            sentenceStart = "<s>";
+            sentenceStart = DEFAULT_SENTENCE_BEGIN_MARKER;
             cleanVocab.add(sentenceStart);
             vocabularyIndexMap.put(sentenceStart, indexCounter++);
             Log.warn("Vocabulary does not contain sentence start token, it is added explicitly.");
         }
         sentenceStartIndex = vocabularyIndexMap.get(sentenceStart);
         if (sentenceEndIndex == -1) {
-            sentenceEnd = "</s>";
+            sentenceEnd = DEFAULT_SENTENCE_END_MARKER;
             cleanVocab.add(sentenceEnd);
             vocabularyIndexMap.put(sentenceEnd, indexCounter);
             Log.warn("Vocabulary does not contain sentence end token, it is added explicitly.");
@@ -209,6 +212,37 @@ public class LmVocabulary {
         // Because we may have duplicate items in word list but not in map, we return the size of the list.
         return vocabulary.size();
     }
+
+    public boolean containsUnknown(int... gramIds) {
+        for (int gramId : gramIds) {
+            if (gramId < 0 || gramId >= vocabulary.size() || gramId == unknownWordIndex)
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * returns true if any word in vocabulary starts with `_` or `-`
+     */
+    public boolean containsSuffix() {
+        for (String s : vocabulary) {
+            if (s.startsWith("_") || s.startsWith("-"))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * returns true if any word in vocabulary ends with `_` or `-`
+     */
+    public boolean containsPrefix() {
+        for (String s : vocabulary) {
+            if (s.endsWith("_") || s.endsWith("-"))
+                return true;
+        }
+        return false;
+    }
+
 
     /**
      * Returns a mutable Builder class which can be used for generating an LmVocabulary object.
@@ -240,16 +274,18 @@ public class LmVocabulary {
             return tokens.size();
         }
 
-        public void addAll(String... words) {
+        public Builder addAll(String... words) {
             for (String word : words) {
                 add(word);
             }
+            return this;
         }
 
-        public void addAll(Iterable<String> words) {
+        public Builder addAll(Iterable<String> words) {
             for (String word : words) {
                 add(word);
             }
+            return this;
         }
 
         /**
@@ -348,7 +384,7 @@ public class LmVocabulary {
     }
 
     public Iterable<String> words() {
-        return vocabulary;
+        return this.vocabulary;
     }
 
     public Iterable<String> wordsSorted() {

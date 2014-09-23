@@ -1,5 +1,8 @@
 package zemberek.core.math;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 
 import static java.lang.Math.abs;
@@ -618,4 +621,37 @@ public class DoubleArrays {
         double sum = sum(data);
         scaleInPlace(data, 1d / sum);
     }
+
+    public static void serialize(DataOutputStream dos, double[] data) throws IOException {
+        dos.writeInt(data.length);
+        for (double v : data) {
+            dos.writeDouble(v);
+        }
+    }
+
+    public static void serialize(DataOutputStream dos, double[][] data) throws IOException {
+        dos.writeInt(data.length);
+        for (double[] doubles : data) {
+            serialize(dos, doubles);
+        }
+    }
+
+    public static double[] deserialize(DataInputStream dis) throws IOException {
+        int amount = dis.readInt();
+        double[] result = new double[amount];
+        for (int i = 0; i < amount; i++) {
+            result[i] = dis.readDouble();
+        }
+        return result;
+    }
+
+    public static double[][] deserialize2d(DataInputStream dis) throws IOException {
+        int amount = dis.readInt();
+        double[][] result = new double[amount][];
+        for (int i = 0; i < amount; i++) {
+            result[i] = deserialize(dis);
+        }
+        return result;
+    }
+
 }

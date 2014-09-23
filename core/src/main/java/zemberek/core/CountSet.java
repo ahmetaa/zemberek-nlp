@@ -27,6 +27,7 @@ public class CountSet<T> implements Iterable<T> {
     int[] counts;
 
     int keyCount;
+    int removeCount;
 
     // When structure has this amount of keys, it expands the key and count arrays.
     int threshold = (int) (INITIAL_SIZE * DEFAULT_LOAD_FACTOR);
@@ -168,7 +169,7 @@ public class CountSet<T> implements Iterable<T> {
     public int incrementByAmount(T key, int amount) {
         if (key == null)
             throw new IllegalArgumentException("Key cannot be null");
-        if (keyCount == threshold) {
+        if (keyCount + removeCount == threshold) {
             expand();
         }
         int l = locate(key);
@@ -190,6 +191,7 @@ public class CountSet<T> implements Iterable<T> {
             return;
         keys[k] = SENTINEL; // mark deletion
         keyCount--;
+        removeCount++;
     }
 
     private void expand() {
@@ -204,12 +206,13 @@ public class CountSet<T> implements Iterable<T> {
         this.keyCount = h.keyCount;
         this.modulo = h.modulo;
         this.threshold = h.threshold;
+        this.removeCount = 0;
     }
 
     public void set(T key, int value) {
         if (key == null)
             throw new IllegalArgumentException("Key cannot be null.");
-        if (keyCount == threshold) {
+        if (keyCount + removeCount == threshold) {
             expand();
         }
         int loc = locate(key);

@@ -50,10 +50,8 @@ public class Files {
         }
     }
 
-    public static final Comparator<File> FILE_MODIFICATION_TIME_COMPARATOR_ASC =
-            new FileModificationTimeComparatorAsc();
-    public static final Comparator<File> FILE_MODIFICATION_TIME_COMPARATOR_DESC =
-            new FileModificationTimeComparatorDesc();
+    public static final Comparator<File> FILE_MODIFICATION_TIME_COMPARATOR_ASC = new FileModificationTimeComparatorAsc();
+    public static final Comparator<File> FILE_MODIFICATION_TIME_COMPARATOR_DESC = new FileModificationTimeComparatorDesc();
 
     public static Comparator<File> getNameSortingComparator(final Locale locale) {
         return new Comparator<File>() {
@@ -64,10 +62,27 @@ public class Files {
         };
     }
 
+    public static Comparator<File> getAbsolutePathSortingComparator(final Locale locale) {
+        return new Comparator<File>() {
+            public int compare(File file, File file1) {
+                Collator coll = Collator.getInstance(locale);
+                return coll.compare(file.getAbsolutePath(), file1.getAbsolutePath());
+            }
+        };
+    }
+
     public static Comparator<File> getNameSortingComparator() {
         return new Comparator<File>() {
             public int compare(File file, File file1) {
                 return file.getName().compareToIgnoreCase(file1.getName());
+            }
+        };
+    }
+
+    public static Comparator<File> getAbsolutePathSortingComparator() {
+        return new Comparator<File>() {
+            public int compare(File file, File file1) {
+                return file.getAbsolutePath().compareToIgnoreCase(file1.getAbsolutePath());
             }
         };
     }

@@ -10,6 +10,7 @@ public class SparseDoubleVector implements Iterable<SparseDoubleVector.TableEntr
     int[] keys;
     double[] values;
     int keyCount;
+    int removeCount;
     int threshold = (int) (INITIAL_SIZE * DEFAULT_LOAD_FACTOR);
 
     public SparseDoubleVector() {
@@ -100,7 +101,7 @@ public class SparseDoubleVector implements Iterable<SparseDoubleVector.TableEntr
     public double incrementByAmount(int key, double amount) {
         if (key < 0)
             throw new IllegalArgumentException("Key cannot be negative. But it is:" + key);
-        if (keyCount == threshold) {
+        if (keyCount + removeCount == threshold) {
             expand();
         }
         int l = locate(key);
@@ -115,6 +116,7 @@ public class SparseDoubleVector implements Iterable<SparseDoubleVector.TableEntr
             if (values[l] == 0) {
                 keyCount--;
                 keys[l] = -1; // mark deletion
+                removeCount++;
             }
             return values[l];
         }
@@ -127,6 +129,7 @@ public class SparseDoubleVector implements Iterable<SparseDoubleVector.TableEntr
         values[k] = 0;
         keys[k] = -1; // mark deletion
         keyCount--;
+        removeCount++;
     }
 
     private void expand() {
@@ -142,6 +145,7 @@ public class SparseDoubleVector implements Iterable<SparseDoubleVector.TableEntr
         this.keyCount = h.keyCount;
         this.modulo = h.modulo;
         this.threshold = h.threshold;
+        this.removeCount = 0;
     }
 
     public void set(int key, double value) {
@@ -151,7 +155,7 @@ public class SparseDoubleVector implements Iterable<SparseDoubleVector.TableEntr
             remove(key);
             return;
         }
-        if (keyCount == threshold) {
+        if (keyCount + removeCount == threshold) {
             expand();
         }
         int loc = locate(key);

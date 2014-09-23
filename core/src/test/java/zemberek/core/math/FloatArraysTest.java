@@ -1,8 +1,9 @@
 package zemberek.core.math;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.*;
 import java.util.Arrays;
 
 public class FloatArraysTest {
@@ -24,8 +25,8 @@ public class FloatArraysTest {
         float[] da1 = {1, 2, 0, -1, -30};
         float[] da2 = {-0.5f, -1, 0, 0.5f, 15};
         FloatArrays.addToFirstScaled(da1, da2, 2);
-        Assert.assertEquals(FloatArrays.max(da1), 0f);
-        Assert.assertEquals(FloatArrays.min(da1), 0f);
+        Assert.assertEquals(FloatArrays.max(da1), 0f, 0.0001);
+        Assert.assertEquals(FloatArrays.min(da1), 0f, 0.0001);
     }
 
     @Test
@@ -135,7 +136,7 @@ public class FloatArraysTest {
         for (float[] i : da) {
             int j = 0;
             for (float ii : i) {
-                Assert.assertEquals(da2[k][j++], ii);
+                Assert.assertEquals(da2[k][j++], ii, 0.0001);
             }
             k++;
         }
@@ -186,14 +187,14 @@ public class FloatArraysTest {
         float[] da = {1, 2, 4.5f, -2, 4};
         float[] da2 = {1, 1, 2.5f, 5, -15.2f};
         Assert.assertTrue(inDelta(FloatArrays.absoluteDifference(da, da2), new float[]{0, 1, 2, 7, 19.2f}));
-        Assert.assertEquals(FloatArrays.absoluteSumOfDifferences(da, da2), 29.2f);
+        Assert.assertEquals(FloatArrays.absoluteSumOfDifferences(da, da2), 29.2f, 0.0001);
     }
 
     @Test
     public void testVariance() {
         float[] da = {0, 2, 4};
-        Assert.assertEquals(FloatArrays.variance(da), 4f);
-        Assert.assertEquals(FloatArrays.standardDeviation(da), 2f);
+        Assert.assertEquals(FloatArrays.variance(da), 4f, 0.0001);
+        Assert.assertEquals(FloatArrays.standardDeviation(da), 2f, 0.0001);
     }
 
     @Test
@@ -232,7 +233,7 @@ public class FloatArraysTest {
     public void testAddToAll() {
         float[] da = {1, 2, 0, -1, -3};
         float[] expected = {2, 3, 1, 0, -2};
-        FloatArrays.addToAll(da,1);
+        FloatArrays.addToAll(da, 1);
         Assert.assertTrue(Arrays.equals(expected, da));
     }
 
@@ -275,8 +276,8 @@ public class FloatArraysTest {
     public void testNormalize16bitLittleEndian() {
         byte[] ba = {0x10, 0x71, 0x18, 0x54};
         float[] da = FloatArrays.normalize16bitLittleEndian(ba);
-        Assert.assertEquals(da[0] * Short.MAX_VALUE, 28944f);
-        Assert.assertEquals(da[1] * Short.MAX_VALUE, 21528f);
+        Assert.assertEquals(da[0] * Short.MAX_VALUE, 28944f, 0.0001);
+        Assert.assertEquals(da[1] * Short.MAX_VALUE, 21528f, 0.0001);
 
         byte[] ba2 = FloatArrays.denormalize16BitLittleEndian(da);
         Assert.assertEquals(ba2[0], 0x10);
@@ -297,6 +298,16 @@ public class FloatArraysTest {
         int[] ia = FloatArrays.toUnsignedInteger(da, 6);
         Assert.assertEquals((int) (0.2f * 3.0f), ia[0]);
         Assert.assertEquals((int) (-0.4f * 3.0f), ia[1]);
+    }
+
+    @Test
+    public void testFormat() {
+        float[] da = {0.2f, -0.45f, 0.6f};
+        Assert.assertEquals("0.2 -0.4 0.6", FloatArrays.format(1, " ", da));
+        Assert.assertEquals("0.20 -0.45 0.60", FloatArrays.format(2, " ", da));
+        Assert.assertEquals("0.20, -0.45, 0.60", FloatArrays.format(2, ", ", da));
+        Assert.assertEquals("0.20-0.450.60", FloatArrays.format(2, "", da));
+        Assert.assertEquals("0.2   -0.4  0.6", FloatArrays.format(5, 1, " ", da));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -337,5 +348,49 @@ public class FloatArraysTest {
         }
         return true;
     }
-    
+
+    @Test
+    public void testSerialization1D() throws IOException {
+        serialization1D(new float[]{0.2f, -0.4f, 0.6f});
+        serialization1D(new float[]{0.256f});
+        serialization1D(new float[]{});
+    }
+
+    @Test
+    public void testSerialization2D() throws IOException {
+        serialization2D(new float[][]{{0.2f}, {-0.4f}, {0.6f}});
+        serialization2D(new float[][]{{0.2f, 1f}, {-0.4f, 2}, {0.6f, 3}});
+        serialization2D(new float[][]{{0.2f, 1f}, {-0.4f}, {0.6f, 3, 6}});
+        serialization2D(new float[][]{{}, {}, {0.6f, 3, 6}});
+        serialization2D(new float[][]{{}, {}, {}});
+    }
+
+    private void serialization1D(float[] da) throws IOException {
+        File f = File.createTempFile("blah", "foo");
+        f.deleteOnExit();
+        try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(f))) {
+            FloatArrays.serialize(dos, da);
+        }
+
+        try (DataInputStream dis = new DataInputStream(new FileInputStream(f))) {
+            float[] read = FloatArrays.deserialize(dis);
+            Assert.assertTrue(FloatArrays.arrayEquals(da, read));
+        }
+    }
+
+    private void serialization2D(float[][] da) throws IOException {
+        File f = File.createTempFile("blah", "foo");
+        f.deleteOnExit();
+        try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(f))) {
+            FloatArrays.serialize(dos, da);
+        }
+
+        try (DataInputStream dis = new DataInputStream(new FileInputStream(f))) {
+            float[][] read = FloatArrays.deserialize2d(dis);
+            for (int i = 0; i < read.length; i++) {
+                Assert.assertTrue(FloatArrays.arrayEquals(da[i], read[i]));
+            }
+        }
+    }
+
 }

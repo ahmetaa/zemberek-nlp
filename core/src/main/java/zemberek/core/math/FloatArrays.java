@@ -1,5 +1,8 @@
 package zemberek.core.math;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 
 import static java.lang.Math.abs;
@@ -192,16 +195,16 @@ public class FloatArrays {
         if (max < 1) {
             throw new IllegalArgumentException("Maximum int value must be positive. But it is:" + max);
         }
-        int[] iarr = new int[input.length];
-        float divider = (float) ((double)max / 2.0);
+        int[] arr = new int[input.length];
+        float divider = (float) ((double) max / 2.0);
         for (int i = 0; i < input.length; i++) {
             float d = input[i];
             if (d < -1.0 || d > 1.0) {
                 throw new IllegalArgumentException("Array value should be between -1.0 and 1.0. But it is: " + d);
             }
-            iarr[i] = (int) (input[i] * divider);
+            arr[i] = (int) (input[i] * divider);
         }
-        return iarr;
+        return arr;
     }
 
     /**
@@ -220,6 +223,36 @@ public class FloatArrays {
             }
         }
         return max;
+    }
+
+    /**
+     * Formats a float array as string.
+     */
+    public static String format(int fractionDigits, float... input) {
+        return format(fractionDigits, " ", input);
+    }
+
+    public static String format(int fractionDigits, String delimiter, float... input) {
+        StringBuilder sb = new StringBuilder();
+        String formatStr = "%." + fractionDigits + "f";
+        int i = 0;
+        for (float v : input) {
+            sb.append(String.format(formatStr, v));
+            if (i++ < input.length - 1) sb.append(delimiter);
+        }
+        return sb.toString();
+    }
+
+    public static String format(int rightPad, int fractionDigits, String delimiter, float... input) {
+        StringBuilder sb = new StringBuilder();
+        String formatStr = "%." + fractionDigits + "f";
+        int i = 0;
+        for (float v : input) {
+            String num = String.format(formatStr, v);
+            sb.append(String.format("%-" + rightPad + "s", num));
+            if (i++ < input.length - 1) sb.append(delimiter);
+        }
+        return sb.toString().trim();
     }
 
     /**
@@ -342,7 +375,7 @@ public class FloatArrays {
      *
      * @param first  first vector.
      * @param second second vector
-     * @param scale scale factor for second
+     * @param scale  scale factor for second
      */
     public static void addToFirstScaled(float[] first, float[] second, float scale) {
         validateArrays(first, second);
@@ -370,11 +403,11 @@ public class FloatArrays {
     }
 
     /**
-     * substracts two float vector.
+     * Subtracts two float vector.
      *
      * @param a1 first vector.
      * @param a2 second vector
-     * @return substraction result
+     * @return Subtraction result
      */
     public static float[] subtract(float[] a1, float[] a2) {
         validateArrays(a1, a2);
@@ -554,7 +587,7 @@ public class FloatArrays {
         float sigmaSquare = 0;
         float mean = mean(input);
         for (float a : input) {
-            final float meanDiff = a - mean;
+            float meanDiff = a - mean;
             sigmaSquare += meanDiff * meanDiff;
         }
         return sigmaSquare / (input.length - 1);
@@ -574,7 +607,7 @@ public class FloatArrays {
      */
     public static boolean containsNaN(float[] a) {
         for (float v : a) {
-            if (Double.isNaN(v))
+            if (Float.isNaN(v))
                 return true;
         }
         return false;
@@ -601,7 +634,7 @@ public class FloatArrays {
      */
     public static void nonZeroFloorInPlace(float[] data, float floor) {
         for (int i = 0; i < data.length; i++) {
-            if (data[i] != 0.0 && data[i] < floor) {
+            if (data[i] != 0.0f && data[i] < floor) {
                 data[i] = floor;
             }
         }
@@ -616,5 +649,36 @@ public class FloatArrays {
         float sum = sum(data);
         scaleInPlace(data, 1f / sum);
     }
-    
+
+    public static void serialize(DataOutputStream dos, float[] data) throws IOException {
+        dos.writeInt(data.length);
+        for (float v : data) {
+            dos.writeFloat(v);
+        }
+    }
+
+    public static void serialize(DataOutputStream dos, float[][] data) throws IOException {
+        dos.writeInt(data.length);
+        for (float[] floats : data) {
+            serialize(dos, floats);
+        }
+    }
+
+    public static float[] deserialize(DataInputStream dis) throws IOException {
+        int amount = dis.readInt();
+        float[] result = new float[amount];
+        for (int i = 0; i < amount; i++) {
+            result[i] = dis.readFloat();
+        }
+        return result;
+    }
+
+    public static float[][] deserialize2d(DataInputStream dis) throws IOException {
+        int amount = dis.readInt();
+        float[][] result = new float[amount][];
+        for (int i = 0; i < amount; i++) {
+            result[i] = deserialize(dis);
+        }
+        return result;
+    }
 }
