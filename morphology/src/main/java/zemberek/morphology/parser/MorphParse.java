@@ -51,6 +51,31 @@ public class MorphParse {
         this.inflectionalGroups = inflectionalGroups;
     }
 
+    /**
+     * Returns the pronunciation of the parse. İt is usually the input of this parse.
+     */
+    public String getPronunciation() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(dictionaryItem.pronunciation);
+        for (InflectionalGroup inflectionalGroup : inflectionalGroups) {
+            sb.append(inflectionalGroup.surfaceForm());
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Generates the input that produces this parse.
+     */
+    public String getSurfaceForm() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(root);
+        for (InflectionalGroup inflectionalGroup : inflectionalGroups) {
+            sb.append(inflectionalGroup.surfaceForm());
+        }
+        return sb.toString();
+    }
+
+
     public PrimaryPos getPos() {
         return inflectionalGroups.get(inflectionalGroups.size() - 1).pos;
     }

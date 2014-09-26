@@ -45,7 +45,7 @@ public abstract class TextSegmenter {
         List<String> results = new ArrayList<>(2);
         LinkedList<String> buffer = new LinkedList<>();
         split(textToSegment, 0, 1, buffer, results, false);
-        if (results.size() == 1)
+        if (results.size() > 0)
             return results.get(0);
         else return null;
     }
@@ -63,7 +63,10 @@ public abstract class TextSegmenter {
             if (check(sub)) {
                 if (end == full.length()) {
                     if (buffer.size() < maxTokenCount) {
-                        results.add(Joiner.on(" ").join(buffer) + " " + sub);
+                        if (buffer.size() == 0)
+                            results.add(sub);
+                        else
+                            results.add(Joiner.on(" ").join(buffer) + " " + sub);
                         if (findSingle) {
                             return;
                         }
@@ -96,6 +99,10 @@ public abstract class TextSegmenter {
 
         public WordSetSegmenter(Collection<String> words) {
             this.words = new HashSet<>(words);
+        }
+
+        public WordSetSegmenter(String... words) {
+            this.words = new HashSet<>(Arrays.asList(words));
         }
 
         @Override

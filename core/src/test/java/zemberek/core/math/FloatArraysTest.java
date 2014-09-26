@@ -289,7 +289,7 @@ public class FloatArraysTest {
 
         byte[] ba4 = {(byte) 0xCC, (byte) 0xAB};
         da = FloatArrays.normalize16bitLittleEndian(ba4);
-        Assert.assertEquals(da[0] * Short.MIN_VALUE, 21556f);
+        Assert.assertEquals(da[0] * Short.MIN_VALUE, 21556f, 0.0001);
     }
 
     @Test

@@ -175,7 +175,7 @@ public class LogMathTest {
 
         System.out.println("Max error: " + maxError);
         System.out.println("Max error values: " + a + ":" + b);
-        Assert.assertTrue(maxError < 0.0005);
+        Assert.assertTrue(maxError < 0.007);
         System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));
         sw.stop();
     }
@@ -187,9 +187,10 @@ public class LogMathTest {
 
     @Test
     public void testLog2() {
-        Assert.assertEquals(2, (int) LogMath.log2(4));
-        Assert.assertEquals(3, (int) LogMath.log2(8));
-        Assert.assertEquals(-1, (int) LogMath.log2(0.5));
+        Assert.assertEquals(2, LogMath.log2(4), 0.0001);
+        Assert.assertEquals(3, LogMath.log2(8), 0.0001);
+        Assert.assertEquals(10, LogMath.log2(1024), 0.0001);
+        Assert.assertEquals(-1, LogMath.log2(0.5), 0.0001);
     }
 
     @Test
