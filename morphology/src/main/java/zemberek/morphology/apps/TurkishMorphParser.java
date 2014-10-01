@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.logging.Log;
+import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
@@ -31,27 +32,48 @@ public class TurkishMorphParser extends BaseParser {
     private MorphParser parser;
     private SimpleMorphCache cache;
 
+
     public static class TurkishMorphParserBuilder {
         MorphParser _parser;
         SimpleMorphCache _cache;
-        List<String> _lines = Lists.newArrayList();
         List<String> _cacheLines = Lists.newArrayList();
+        SuffixProvider suffixProvider = new TurkishSuffixes();
+        RootLexicon lexicon = new RootLexicon();
 
         public TurkishMorphParserBuilder addDefaultDictionaries() throws IOException {
-            return addTextDictResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.toArray(new String[TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.size()]));
+            return addTextDictResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.toArray(
+                    new String[TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.size()]));
         }
 
         public TurkishMorphParserBuilder addTextDictFiles(File... dictionaryFiles) throws IOException {
             for (File file : dictionaryFiles) {
-                _lines.addAll(SimpleTextReader.trimmingUTF8Reader(file).asStringList());
+                lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(file));
+            }
+            return this;
+        }
+
+        public TurkishMorphParserBuilder removeDictFiles(File... dictionaryFiles) throws IOException {
+            for (File file : dictionaryFiles) {
+                lexicon.removeAll(new TurkishDictionaryLoader(suffixProvider).load(file));
             }
             return this;
         }
 
         public TurkishMorphParserBuilder addTextDictResources(String... resources) throws IOException {
             for (String resource : resources) {
-                _lines.addAll(Resources.readLines(Resources.getResource(resource), Charsets.UTF_8));
+                List<String> lines = Resources.readLines(Resources.getResource(resource), Charsets.UTF_8);
+                lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(lines));
             }
+            return this;
+        }
+
+        public TurkishMorphParserBuilder removeItems(Iterable<String> dictionaryString) throws IOException {
+            lexicon.removeAll(new TurkishDictionaryLoader(suffixProvider).load(dictionaryString));
+            return this;
+        }
+
+        public TurkishMorphParserBuilder removeAllLemmas(Iterable<String> lemmas) throws IOException {
+            lexicon.removeAllLemmas(lemmas);
             return this;
         }
 
@@ -76,7 +98,9 @@ public class TurkishMorphParser extends BaseParser {
 
         public TurkishMorphParser build() throws IOException {
             Stopwatch sw = Stopwatch.createStarted();
-            _parser = getMorphParser(_lines);
+            DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
+            graph.addDictionaryItems(lexicon);
+            _parser = new SimpleParser(graph);
             Log.info("Parser ready: " + sw.elapsed(TimeUnit.MILLISECONDS) + "ms.");
             if (_cacheLines.size() > 0) {
                 _cache = new SimpleMorphCache(_parser, _cacheLines);
@@ -84,14 +108,6 @@ public class TurkishMorphParser extends BaseParser {
             }
             return new TurkishMorphParser(_parser, _cache);
         }
-    }
-
-    private static MorphParser getMorphParser(List<String> lines) {
-        SuffixProvider suffixProvider = new TurkishSuffixes();
-        RootLexicon lexicon = new TurkishDictionaryLoader(suffixProvider).load(lines);
-        DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
-        graph.addDictionaryItems(lexicon);
-        return new SimpleParser(graph);
     }
 
     private TurkishMorphParser(MorphParser parser, SimpleMorphCache cache) {

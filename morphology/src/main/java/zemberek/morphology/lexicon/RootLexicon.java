@@ -45,6 +45,30 @@ public class RootLexicon implements Iterable<DictionaryItem> {
         else return Lists.newArrayList(items);
     }
 
+    public void remove(DictionaryItem item) {
+        itemMap.removeAll(item.id);
+        idMap.remove(item.id);
+        itemSet.remove(item);
+    }
+
+    public void removeAllLemmas(String lemma) {
+        for(DictionaryItem item: getMatchingItems(lemma)) {
+            remove(item);
+        }
+    }
+
+    public void removeAllLemmas(Iterable<String> lemmas) {
+        for(String lemma: lemmas) {
+            removeAllLemmas(lemma);
+        }
+    }
+
+    public void removeAll(Iterable<DictionaryItem> items) {
+        for(DictionaryItem item: items) {
+            remove(item);
+        }
+    }
+
     public DictionaryItem getItemById(String id) {
         return idMap.get(id);
     }

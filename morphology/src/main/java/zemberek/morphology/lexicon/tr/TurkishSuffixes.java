@@ -570,7 +570,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
         Noun2VerbCopular.indirectConnections.add(A1sg_yIm, A2sg_sIn, A3sg_Verb_TEMPLATE, A1pl_yIz, A2pl_sInIz, Cop_dIr);
 
         Adj2Noun.connections.add(Noun_TEMPLATE.connections);
-        Adj2Noun.indirectConnections.add(Noun_Default.indirectConnections).remove(Noun2VerbCopular, FitFor_lIk, Related_sAl, Become_lAs, JustLike_ImsI, JustLike_msI, Equ_cA, Equ_ncA);
+        Adj2Noun.indirectConnections.add(Noun_Default.indirectConnections).remove(/*Noun2VerbCopular,*/ FitFor_lIk, Related_sAl, Become_lAs, JustLike_ImsI, JustLike_msI, Equ_cA, Equ_ncA);
 
         //TODO: Too much suffix for Postp.
         Postp2Noun.connections.add(Noun_TEMPLATE.connections);

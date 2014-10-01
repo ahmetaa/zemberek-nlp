@@ -10,6 +10,7 @@ import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.Strings;
+import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.RootAttribute;
@@ -83,7 +84,7 @@ public class TurkishDictionaryLoader {
         }
     }
 
-    public RootLexicon load(List<String> dictionaryLines) {
+    public RootLexicon load(Iterable<String> dictionaryLines) {
         TextLexiconProcessor processor = new TextLexiconProcessor(suffixProvider);
         for (String s : dictionaryLines) {
             try {
@@ -219,7 +220,7 @@ public class TurkishDictionaryLoader {
                         referenceId = referenceId + "_Noun";
                     DictionaryItem refItem = rootLexicon.getItemById(referenceId);
                     if (refItem == null)
-                        System.out.println("Cannot find reference item id " + referenceId);
+                        Log.warn("Cannot find reference item id " + referenceId);
                     DictionaryItem item = getItem(lateEntry);
                     item.referenceItem = refItem;
                     rootLexicon.add(item);

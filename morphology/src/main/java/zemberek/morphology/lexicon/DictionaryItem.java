@@ -175,6 +175,10 @@ public class DictionaryItem {
         return sb.toString();
     }
 
+    public boolean hasDifferentPronunciation() {
+        return !pronunciation.equals(root);
+    }
+
     private void printAttributes(StringBuilder sb, EnumSet<RootAttribute> attrs) {
         if (!attrs.isEmpty())
             sb.append("; A:");

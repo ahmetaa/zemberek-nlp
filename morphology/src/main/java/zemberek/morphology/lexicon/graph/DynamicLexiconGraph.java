@@ -2,6 +2,7 @@ package zemberek.morphology.lexicon.graph;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import zemberek.core.logging.Log;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.SuffixForm;
 import zemberek.morphology.lexicon.SuffixProvider;
@@ -69,7 +70,7 @@ public class DynamicLexiconGraph {
                 stemNodes.add(stem);
             } else {
                 // duplicate stem!
-                System.out.println("Stem Node:" + stem + " already exist.");
+                Log.warn("Stem Node:" + stem + " already exist.");
             }
         }
         return stems;
