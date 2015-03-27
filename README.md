@@ -1,7 +1,7 @@
 Zemberek-NLP
 ============
 
-** !!!! Important Notice: I have stopped working with the project indefinitely.!!!! **
+**!!!! Important Notice: I have stopped working with the project indefinitely. !!!!**
 
 Here is the the new home of the Zemberek project.  
 Zemberek-NLP is a Natural Language Processing library. Some modules are specifically developed for Turkish language.
