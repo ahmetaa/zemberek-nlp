@@ -113,8 +113,8 @@ public class StemNodeGenerator {
         if (dicItem.hasAttribute(RootAttribute.Special))
             return handleSpecialStems(dicItem);
 
-        TurkicSeq modifiedSeq = new TurkicSeq(dicItem.root, alphabet);
-        EnumSet<PhoneticAttribute> originalAttrs = calculateAttributes(dicItem.root);
+        TurkicSeq modifiedSeq = new TurkicSeq(dicItem.pronunciation, alphabet);
+        EnumSet<PhoneticAttribute> originalAttrs = calculateAttributes(dicItem.pronunciation);
         EnumSet<PhoneticAttribute> modifiedAttrs = originalAttrs.clone();
         EnumSet<PhoneticExpectation> originalExpectations = EnumSet.noneOf(PhoneticExpectation.class);
         EnumSet<PhoneticExpectation> modifiedExpectations = EnumSet.noneOf(PhoneticExpectation.class);
