@@ -531,14 +531,15 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
                 .add(Rel_kI);
 
         // TODO: check below
-        DemonsPron_TEMPLATE.connections.add(A3sg_TEMPLATE, A3pl_nlAr);
+        DemonsPron_TEMPLATE.connections.add(A3sg_TEMPLATE, A3pl_nlAr, A1pl_TEMPLATE);
         DemonsPron_TEMPLATE.indirectConnections.add(With_lI, Inst_ylA, Without_sIz, Acc_nI, Dat_nA, Loc_ndA, Gen_nIn, Nom_TEMPLATE,
                 Abl_ndAn, Cop_dIr, Pron2Verb, Cop_dIr, PastCop_ydI, NarrCop_ymIs, CondCop_ysA, While_ken, A3pl_lAr).add(Pnon_TEMPLATE).add(Noun2Verb, Noun2VerbCopular);
 
         DemonsPron_Default.copyConnections(DemonsPron_TEMPLATE);
         QuesPron_Default.copyConnections(DemonsPron_TEMPLATE);
+        // TODO: birbiri, birbirimizi problematic
         QuantPron_Default.copyConnections(DemonsPron_TEMPLATE).connections.add(A3pl_lAr);
-        QuantPron_Default.indirectConnections.add(P3sg_sI,P3pl_I).remove(P3sg_sI,P3sg_yI);
+        QuantPron_Default.indirectConnections.add(P3sg_sI,P3pl_I,P1pl_ImIz).remove(P3sg_sI,P3sg_yI);
         PersPron_Default.copyConnections(DemonsPron_TEMPLATE);
         ReflexPron_Default.copyConnections(DemonsPron_TEMPLATE);
         ReflexPron_Default.indirectConnections.add(Dat_nA, P3sg_sI);
@@ -1080,7 +1081,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
         A2pl_ler.connections.add(Pnon_TEMPLATE);
         A2pl_ler.indirectConnections.add(Pnon_TEMPLATE.allConnections().remove(A3pl_Verb_lAr, A3pl_lAr, A3pl_sInlAr));
 
-        A1pl_TEMPLATE.connections.add(Pnon_TEMPLATE);
+        A1pl_TEMPLATE.connections.add(Pnon_TEMPLATE,P1pl_ImIz);
         A1pl_TEMPLATE.indirectConnections.add(Pnon_TEMPLATE.allConnections());
         A1pl_ler.connections.add(Pnon_TEMPLATE);
         A1pl_ler.indirectConnections.add(Pnon_TEMPLATE.allConnections().remove(A3pl_Verb_lAr, A3pl_lAr, A3pl_sInlAr));
