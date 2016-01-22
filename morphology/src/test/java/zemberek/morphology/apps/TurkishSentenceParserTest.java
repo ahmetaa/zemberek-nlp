@@ -38,15 +38,15 @@ public class TurkishSentenceParserTest {
     }
 
     private void doParseSentencesInCorpus(File ntvmsnbcCorpus) throws IOException {
-    /* SentenceMorphParse parseCached = parser.parseCached("Turgut Özal'ın ölüm raporu ile ilgili flaş bir gelişme.");
-     parseCached.dump();
+    /* SentenceMorphParse parse = parser.parseCached("Turgut Özal'ın ölüm raporu ile ilgili flaş bir gelişme.");
+     parse.dump();
      System.out.println("After disambiguation:");
-     parser.disambiguate(parseCached);
-     parseCached.dump();
-     for (SentenceMorphParse.Entry entry : parseCached) {
+     parser.disambiguate(parse);
+     parse.dump();
+     for (SentenceMorphParse.Entry entry : parse) {
          System.out.println(entry.input + "=" + entry.parses.get(0));
      }
-     for (SentenceMorphParse.Entry entry : parseCached) {
+     for (SentenceMorphParse.Entry entry : parse) {
          System.out.println(entry.input + " kök=" + entry.parses.get(0).stem);
      }*/
         List<String> sentences = SimpleTextReader.trimmingUTF8Reader(ntvmsnbcCorpus).asStringList();
@@ -57,7 +57,7 @@ public class TurkishSentenceParserTest {
             wc += parse.size();
             parser.disambiguate(parse);
             // System.out.println(sentence);
-            // parseCached.dump();
+            // parse.dump();
         }
         System.out.println(wc);
         System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));

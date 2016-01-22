@@ -97,10 +97,10 @@ public class TurkishSentenceParser {
     }
 
     /**
-     * Returns the best parseCached of a sentence.
+     * Returns the best parse of a sentence.
      *
      * @param sentence sentence
-     * @return best parseCached.
+     * @return best parse.
      */
     public List<MorphParse> bestParse(String sentence) {
         SentenceMorphParse parse = parse(sentence);

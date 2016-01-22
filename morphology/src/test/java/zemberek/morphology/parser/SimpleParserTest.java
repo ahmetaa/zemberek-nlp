@@ -87,7 +87,7 @@ public class SimpleParserTest {
             List<MorphParse> results = parser.parse(word);
             if (results.size() == 0)
                 parser.dump(word);
-            Assert.assertTrue("No parseCached for:" + word, results.size() > 0);
+            Assert.assertTrue("No parse for:" + word, results.size() > 0);
             for (MorphParse result : results) {
                 System.out.println(word + "= " + result.formatLong());
             }
@@ -98,14 +98,14 @@ public class SimpleParserTest {
         SimpleParser parser = new SimpleParser(graph);
 
         List<MorphParse> results = parser.parse(word);
-        Assert.assertTrue("Cannot parseCached:" + word, results.size() > 0);
+        Assert.assertTrue("Cannot parse:" + word, results.size() > 0);
 
         Set<String> parseStrins = new HashSet<String>();
         for (MorphParse result : results) {
             parseStrins.add(result.formatLong());
         }
         for (String parse : parses) {
-            Assert.assertTrue("Cannot parseCached: parseCached for:" + word, parseStrins.contains(parse));
+            Assert.assertTrue("Cannot parse: parse for:" + word, parseStrins.contains(parse));
         }
     }
 
@@ -113,7 +113,7 @@ public class SimpleParserTest {
         SimpleParser parser = new SimpleParser(graph);
         for (String word : words) {
             List<MorphParse> results = parser.parse(word);
-            Assert.assertTrue("Unexpected parseCached for:" + word + " parseCached:" + results, results.size() == 0);
+            Assert.assertTrue("Unexpected parse for:" + word + " parse:" + results, results.size() == 0);
         }
     }
 

@@ -47,7 +47,7 @@ public class TurkishSuffixesTest {
         tester.assertUnParseable("göbeğ");
     }
 
-    // TODO:  "zeytinyağlılarım" gives two identical parseCached wordParseList.
+    // TODO:  "zeytinyağlılarım" gives two identical parse wordParseList.
     @Test
     public void testCompounds() {
         Tester tester = new Tester("zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
@@ -62,7 +62,7 @@ public class TurkishSuffixesTest {
         tester.assertUnParseable("atkuyruğlarım", "atkuyruk");
     }
 
-    //TODO elmalidir should have single parseCached
+    //TODO elmalidir should have single parse
     @Test
     public void testWithAndWithout() {
         Tester tester = new Tester("elma", "kitap","Ankara");
@@ -154,7 +154,7 @@ public class TurkishSuffixesTest {
         Tester tester = new Tester("armut");
         tester.assertHasParses("armutçuk", "armutçuğu", "armutcağız", "armutcağızı");
         tester.assertUnParseable("armutçuğ", "armutçukcuk", "armutçukcağız", "armutcağızcık");
-        // TODO: check oflazer parseCached "babacım = baba+Noun+A3sg+Pnon+Nom^DB+Noun+Dim+A3sg+P1sg+Nom
+        // TODO: check oflazer parse "babacım = baba+Noun+A3sg+Pnon+Nom^DB+Noun+Dim+A3sg+P1sg+Nom
     }
 
     @Test
@@ -453,7 +453,7 @@ public class TurkishSuffixesTest {
                 List<MorphParse> results = parser.parse(word);
                 if (results.size() == 0)
                     parser.dump(word);
-                Assert.assertTrue("No parseCached for:" + word, results.size() > 0);
+                Assert.assertTrue("No parse for:" + word, results.size() > 0);
                 for (MorphParse result : results) {
                     System.out.println(word + "= " + result.formatLong());
                 }
@@ -464,7 +464,7 @@ public class TurkishSuffixesTest {
             SimpleParser parser = new SimpleParser(graph);
             for (String word : words) {
                 List<MorphParse> results = parser.parse(word);
-                Assert.assertTrue("Unexpected parseCached for:" + word + " parseCached:" + results, results.size() == 0);
+                Assert.assertTrue("Unexpected parse for:" + word + " parse:" + results, results.size() == 0);
             }
         }
 
@@ -473,7 +473,7 @@ public class TurkishSuffixesTest {
             for (String word : words) {
                 List<MorphParse> results = parser.parse(word);
                 for (MorphParse result : results) {
-                    Assert.assertFalse(word + " parseCached should not contain suffix:" + suffix.id + " parseCached:" + results,
+                    Assert.assertFalse(word + " parse should not contain suffix:" + suffix.id + " parse:" + results,
                             result.containsSuffix(suffix));
                 }
             }

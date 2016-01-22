@@ -272,7 +272,7 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
      * Calculates the best path using Viterbi decoding.
      * @param sentence sentece with ambiguous wrods.
      * @param useAveragedWeights if true, average weights are used for scoring, else, normal weights are used.
-     * @return best parseCached sequence and its score.
+     * @return best parse sequence and its score.
      */
     ParseResult bestParse(SentenceData sentence, boolean useAveragedWeights) {
 

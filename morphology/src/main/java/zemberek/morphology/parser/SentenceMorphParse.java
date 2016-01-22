@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Represents morphological parseCached of a sentence.
+ * Represents morphological parse of a sentence.
  */
 public class SentenceMorphParse implements Iterable<SentenceMorphParse.Entry> {
     private List<Entry> parseEntries = Lists.newArrayList();
