@@ -19,7 +19,7 @@ public class MorphParseTest {
 
     @Test
     public void parseTest1() {
-        String[] lines = {"ev", "kitap", "mavi [P:Adj]", "yirmi [P:Num,Card]"};
+        String[] dictionary = {"simit","ev", "kitap", "mavi [P:Adj]", "yirmi [P:Num,Card]"};
         String[] testSet = {"evde", "kitabıma", "kitaplaşırız", "mavi", "yirmiye"};
         String[] stemSet = {"ev", "kitab", "kitap", "mavi", "yirmi"};
         String[] expected = {
@@ -52,7 +52,7 @@ public class MorphParseTest {
                 "mavi+Adj",
                 "yirmi+Num+Card^DB+Noun+A3sg+Pnon+Dat"
         };
-        SimpleParser parser = getParser(lines);
+        SimpleParser parser = getParser(dictionary);
         int i = 0;
         for (String s : testSet) {
             List<MorphParse> results = parser.parse(s);

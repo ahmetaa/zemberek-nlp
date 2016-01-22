@@ -453,7 +453,6 @@ public class TurkishDictionaryLoader {
             }
             return esd;
         }
-
     }
 
     public static enum Digit {

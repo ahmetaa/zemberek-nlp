@@ -17,6 +17,8 @@ import zemberek.morphology.parser.SimpleParser;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -48,9 +50,11 @@ public class TurkishWordParserGenerator extends BaseParser {
         }
 
         public TurkishMorphParserBuilder addTextDictFiles(File... dictionaryFiles) throws IOException {
+            List<String> lines = new ArrayList<>();
             for (File file : dictionaryFiles) {
-                lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(file));
+                lines.addAll(Files.readAllLines(file.toPath()));
             }
+            lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(lines));
             return this;
         }
 
@@ -62,10 +66,11 @@ public class TurkishWordParserGenerator extends BaseParser {
         }
 
         public TurkishMorphParserBuilder addTextDictResources(String... resources) throws IOException {
+            List<String> lines = new ArrayList<>();
             for (String resource : resources) {
-                List<String> lines = Resources.readLines(Resources.getResource(resource), Charsets.UTF_8);
-                lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(lines));
+                lines.addAll(Resources.readLines(Resources.getResource(resource), Charsets.UTF_8));
             }
+            lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(lines));
             return this;
         }
 
