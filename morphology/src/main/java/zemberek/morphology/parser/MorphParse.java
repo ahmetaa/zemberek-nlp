@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class represents a single morphological parse of a word.
+ * This class represents a single morphological parseCached of a word.
  * It contains the DictionaryItem of the word, the stem and a list of inflectional groups.
  * Every MorphParse must have at least one Inflectional group element in it .
  * First inflectional group element contains the primary and secondary Pos of the Dictionary item.
@@ -52,7 +52,7 @@ public class MorphParse {
     }
 
     /**
-     * Returns the pronunciation of the parse. İt is usually the input of this parse.
+     * Returns the pronunciation of the parseCached. İt is usually the input of this parseCached.
      */
     public String getPronunciation() {
         StringBuilder sb = new StringBuilder();
@@ -64,7 +64,7 @@ public class MorphParse {
     }
 
     /**
-     * Generates the input that produces this parse.
+     * Generates the input that produces this parseCached.
      */
     public String getSurfaceForm() {
         StringBuilder sb = new StringBuilder();
@@ -172,7 +172,7 @@ public class MorphParse {
     }
 
     /**
-     * Splits the parse into stem and ending. Such as:
+     * Splits the parseCached into stem and ending. Such as:
      * "kitaplar" -> "kitap-lar"
      * "kitabımdaki" -> "kitab-ımdaki"
      * "kitap" -> "kitap-"
@@ -201,7 +201,7 @@ public class MorphParse {
     }
 
     /**
-     * Returns surface forms list of all root and derivational roots of a parse.
+     * Returns surface forms list of all root and derivational roots of a parseCached.
      * Examples:
      * "kitaplar"  ->["kitap"]
      * "kitabım"   ->["kitab"]
@@ -230,7 +230,7 @@ public class MorphParse {
     }
 
     /**
-     * Returns list of all lemmas of a parse.
+     * Returns list of all lemmas of a parseCached.
      * Examples:
      * "kitaplar"  ->["kitap"]
      * "kitabım"   ->["kitap"]

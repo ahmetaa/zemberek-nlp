@@ -8,7 +8,7 @@ import zemberek.core.Histogram;
 import zemberek.core.io.LineIterator;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.morphology.apps.BaseParser;
-import zemberek.morphology.apps.TurkishMorphParser;
+import zemberek.morphology.apps.TurkishWordParserGenerator;
 import zemberek.morphology.parser.MorphParse;
 import zemberek.morphology.structure.Turkish;
 import zemberek.tokenizer.ZemberekLexer;
@@ -27,11 +27,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class AmbiguityStats extends BaseParser {
 
-    TurkishMorphParser parser;
+    TurkishWordParserGenerator parser;
     ZemberekLexer lexer = new ZemberekLexer();
 
     public AmbiguityStats() throws IOException {
-        parser = TurkishMorphParser.createWithDefaults();
+        parser = TurkishWordParserGenerator.createWithDefaults();
     }
 
     public List<String> readAll(String filename) throws IOException {
@@ -96,7 +96,7 @@ public class AmbiguityStats extends BaseParser {
         int total = 0;
         for (String line : lines) {
             for (String s : splitter.split(line)) {
-                List<MorphParse> results = parser.parse(normalize(s));
+                List<MorphParse> results = parser.parseCached(normalize(s));
                 if (++total % 50000 == 0) {
                     System.out.println("Processed: " + total);
                 }
@@ -151,7 +151,7 @@ public class AmbiguityStats extends BaseParser {
         Splitter splitter = Splitter.on(" ").omitEmptyStrings().trimResults();
         for (String line : lines) {
             for (String s : splitter.split(line)) {
-                List<MorphParse> results = parser.parse(normalize(s));
+                List<MorphParse> results = parser.parseCached(normalize(s));
                 total++;
                 if (total % 50000 == 0) {
                     System.out.println("Processed: " + total);
@@ -185,7 +185,7 @@ public class AmbiguityStats extends BaseParser {
             Splitter splitter = Splitter.on(" ").omitEmptyStrings().trimResults();
             for (String line : lines) {
                 for (String s : splitter.split(line)) {
-                    List<MorphParse> results = parser.parse(normalize(s));
+                    List<MorphParse> results = parser.parseCached(normalize(s));
                     total++;
                     if (total % 50000 == 0) {
                         System.out.println("Processed: " + total);

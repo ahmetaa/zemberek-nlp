@@ -696,7 +696,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
         Verb_Yi.connections.add(Pos_EMPTY, Verb2Verb);
         Verb_Yi.indirectConnections.add(Opt_yA, Fut_yAcAk, FutPart_yAcAk_2Adj, When_yIncA, AfterDoing_yIp, Abil_yA,
                 Abil_yAbil/*, Recip_yIs*/, Inf3_yIs, FeelLike_yAsI_2Adj, PresPart_yAn, KeepDoing_yAgor, KeepDoing2_yAdur,
-                FeelLike_yAsI_2Adj, UnableToDo_yAmAdAn, Verb2Adv);
+                FeelLike_yAsI_2Adj, UnableToDo_yAmAdAn, Verb2Adv, Verb2Adj, Verb2NounPart, Verb2AdjPart, Verb2VerbAbility);
 
 
         // modification rule does not apply for some suffixes for "demek". like deyip, not diyip

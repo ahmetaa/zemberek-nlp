@@ -39,7 +39,7 @@ public class DisambiguatorPreprocessor {
                     sentenceStarted = true;
                 }
                 if (punctuations.contains(word)) {
-                    // because analyser i use does not parse punctuations. i do it myself.
+                    // because analyser i use does not parseCached punctuations. i do it myself.
                     parses.add(word + "\t" + word + "\t+Punc");
                 } else if (!line.endsWith("?"))
                     parses.add(line);
@@ -87,7 +87,7 @@ public class DisambiguatorPreprocessor {
                     sentenceStarted = true;
                 }
                 if (punctuations.contains(word)) {
-                    // because analyser i use does not parse punctuations. i do it myself.
+                    // because analyser i use does not parseCached punctuations. i do it myself.
                     parses.add(word + "\t" + word + "\t+Punc");
                 } else if (!line.endsWith("?"))
                     parses.add(line);
@@ -117,7 +117,7 @@ public class DisambiguatorPreprocessor {
 
     private String processParses(List<String> parses) {
         if (parses.size() == 0)
-            throw new IllegalArgumentException("Zero parse result is not acceptable.");
+            throw new IllegalArgumentException("Zero parseCached result is not acceptable.");
         String word = Strings.subStringUntilFirst(parses.get(0), "\t");
         StringBuilder sb = new StringBuilder(word).append(" ");
         for (String parse : parses) {

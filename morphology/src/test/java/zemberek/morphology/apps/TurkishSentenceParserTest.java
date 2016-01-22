@@ -20,7 +20,7 @@ public class TurkishSentenceParserTest {
 
     @Before
     public void setUp() throws Exception {
-        TurkishMorphParser morphParser = TurkishMorphParser.builder().addDefaultDictionaries().build();
+        TurkishWordParserGenerator morphParser = TurkishWordParserGenerator.builder().addDefaultDictionaries().build();
         parser = new TurkishSentenceParser(morphParser, new Z3MarkovModelDisambiguator());
     }
 
@@ -38,15 +38,15 @@ public class TurkishSentenceParserTest {
     }
 
     private void doParseSentencesInCorpus(File ntvmsnbcCorpus) throws IOException {
-    /* SentenceMorphParse parse = parser.parse("Turgut Özal'ın ölüm raporu ile ilgili flaş bir gelişme.");
-     parse.dump();
+    /* SentenceMorphParse parseCached = parser.parseCached("Turgut Özal'ın ölüm raporu ile ilgili flaş bir gelişme.");
+     parseCached.dump();
      System.out.println("After disambiguation:");
-     parser.disambiguate(parse);
-     parse.dump();
-     for (SentenceMorphParse.Entry entry : parse) {
+     parser.disambiguate(parseCached);
+     parseCached.dump();
+     for (SentenceMorphParse.Entry entry : parseCached) {
          System.out.println(entry.input + "=" + entry.parses.get(0));
      }
-     for (SentenceMorphParse.Entry entry : parse) {
+     for (SentenceMorphParse.Entry entry : parseCached) {
          System.out.println(entry.input + " kök=" + entry.parses.get(0).stem);
      }*/
         List<String> sentences = SimpleTextReader.trimmingUTF8Reader(ntvmsnbcCorpus).asStringList();
@@ -57,7 +57,7 @@ public class TurkishSentenceParserTest {
             wc += parse.size();
             parser.disambiguate(parse);
             // System.out.println(sentence);
-            // parse.dump();
+            // parseCached.dump();
         }
         System.out.println(wc);
         System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));

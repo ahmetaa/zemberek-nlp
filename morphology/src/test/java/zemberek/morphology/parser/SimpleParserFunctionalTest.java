@@ -36,7 +36,7 @@ public class SimpleParserFunctionalTest {
     public void parseableTest(MorphParser parser) throws IOException {
         List<String> parseables = SimpleTextReader.trimmingUTF8Reader(PARSEABLES_FILE).asStringList();
         for (String parseable : parseables) {
-            Assert.assertTrue("Could not parse valid word:" + parseable, parser.parse(parseable).size() > 0);
+            Assert.assertTrue("Could not parseCached valid word:" + parseable, parser.parse(parseable).size() > 0);
         }
     }
 

@@ -4,9 +4,8 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import zemberek.core.io.SimpleTextReader;
 import zemberek.core.logging.Log;
-import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.generator.SimpleGenerator;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
@@ -24,17 +23,20 @@ import java.util.concurrent.TimeUnit;
 /**
  * Turkish Morphological Parser finds all possible parses for a Turkish word.
  */
-public class TurkishMorphParser extends BaseParser {
+public class TurkishWordParserGenerator extends BaseParser {
 
     static String DEFAULT_FREQUENT_WORDS_FILE_PATH = "tr/top-20K-words.txt";
     static int DEFAULT_CACHE_SIZE = 5000;
 
     private MorphParser parser;
+    private SimpleGenerator generator;
     private SimpleMorphCache cache;
-
+    private RootLexicon lexicon;
+    private DynamicLexiconGraph graph;
 
     public static class TurkishMorphParserBuilder {
         MorphParser _parser;
+        SimpleGenerator _generator;
         SimpleMorphCache _cache;
         List<String> _cacheLines = Lists.newArrayList();
         SuffixProvider suffixProvider = new TurkishSuffixes();
@@ -96,26 +98,35 @@ public class TurkishMorphParser extends BaseParser {
             return this;
         }
 
-        public TurkishMorphParser build() throws IOException {
+        public TurkishWordParserGenerator build() throws IOException {
             Stopwatch sw = Stopwatch.createStarted();
             DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
             graph.addDictionaryItems(lexicon);
             _parser = new SimpleParser(graph);
+            _generator = new SimpleGenerator(graph);
             Log.info("Parser ready: " + sw.elapsed(TimeUnit.MILLISECONDS) + "ms.");
             if (_cacheLines.size() > 0) {
                 _cache = new SimpleMorphCache(_parser, _cacheLines);
                 Log.info("Cache ready: " + sw.elapsed(TimeUnit.MILLISECONDS) + "ms.");
             }
-            return new TurkishMorphParser(_parser, _cache);
+            return new TurkishWordParserGenerator(_parser, _generator, lexicon, graph, _cache);
         }
     }
 
-    private TurkishMorphParser(MorphParser parser, SimpleMorphCache cache) {
+    private TurkishWordParserGenerator(
+            MorphParser parser,
+            SimpleGenerator generator,
+            RootLexicon lexicon,
+            DynamicLexiconGraph graph,
+            SimpleMorphCache cache) {
         this.parser = parser;
+        this.generator = generator;
+        this.lexicon = lexicon;
         this.cache = cache;
+        this.graph = graph;
     }
 
-    public static TurkishMorphParser createWithDefaults() throws IOException {
+    public static TurkishWordParserGenerator createWithDefaults() throws IOException {
         return new TurkishMorphParserBuilder().addDefaultDictionaries().addDefaultCache().build();
     }
 
@@ -123,7 +134,23 @@ public class TurkishMorphParser extends BaseParser {
         return new TurkishMorphParserBuilder();
     }
 
-    public List<MorphParse> parse(String word) {
+    public MorphParser getParser() {
+        return parser;
+    }
+
+    public SimpleGenerator getGenerator() {
+        return generator;
+    }
+
+    public RootLexicon getLexicon() {
+        return lexicon;
+    }
+
+    public DynamicLexiconGraph getGraph() {
+        return graph;
+    }
+
+    public List<MorphParse> parseCached(String word) {
         word = normalize(word);
         if (cache != null) {
             List<MorphParse> result = cache.parse(word);
@@ -131,5 +158,4 @@ public class TurkishMorphParser extends BaseParser {
         }
         return parser.parse(word);
     }
-
 }

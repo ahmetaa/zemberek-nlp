@@ -19,7 +19,7 @@ import java.util.List;
 
 public class TurkishSentenceParser {
 
-    private TurkishMorphParser morphParser;
+    private TurkishWordParserGenerator morphParser;
     private UnidentifiedTokenParser unidentifiedTokenParser;
     private TurkishMorphDisambiguator disambiguator;
     private ZemberekLexer lexer = new ZemberekLexer();
@@ -41,7 +41,7 @@ public class TurkishSentenceParser {
         System.out.println("Loading Dictionaries:" + dicFiles.toString());
         if (dicFiles.size() == 0)
             throw new IllegalArgumentException("At least one dictionary file is required. (with txt extension)");
-        morphParser = TurkishMorphParser.builder().addTextDictFiles(dicFiles.toArray(new File[dicFiles.size()])).build();
+        morphParser = TurkishWordParserGenerator.builder().addTextDictFiles(dicFiles.toArray(new File[dicFiles.size()])).build();
         System.out.println("Morph Parser Generated.");
         this.unidentifiedTokenParser = new UnidentifiedTokenParser(morphParser);
         File rootSmoothLm = new File(dataDir, "root-lm.z3.slm");
@@ -56,7 +56,7 @@ public class TurkishSentenceParser {
     }
 
     public TurkishSentenceParser(
-            TurkishMorphParser morphParser,
+            TurkishWordParserGenerator morphParser,
             TurkishMorphDisambiguator disambiguator) {
         this.morphParser = morphParser;
         this.unidentifiedTokenParser = new UnidentifiedTokenParser(morphParser);
@@ -68,7 +68,7 @@ public class TurkishSentenceParser {
         String preprocessed = preProcess(sentence);
         for (String s : Splitter.on(" ").omitEmptyStrings().trimResults().split(preprocessed)) {
             String normalized = morphParser.normalize(s); // TODO: may cause problem for some foreign words.
-            List<MorphParse> res = morphParser.parse(normalized);
+            List<MorphParse> res = morphParser.parseCached(normalized);
             if (res.size() == 0 || (Character.isUpperCase(s.charAt(0)) && !hasProperParse(res)))
                 res.addAll(unidentifiedTokenParser.parse(s));
             if (res.size() == 0) {
@@ -97,10 +97,10 @@ public class TurkishSentenceParser {
     }
 
     /**
-     * Returns the best parse of a sentence.
+     * Returns the best parseCached of a sentence.
      *
      * @param sentence sentence
-     * @return best parse.
+     * @return best parseCached.
      */
     public List<MorphParse> bestParse(String sentence) {
         SentenceMorphParse parse = parse(sentence);

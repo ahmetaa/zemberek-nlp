@@ -43,7 +43,7 @@ public class SimpleGeneratorTest {
                     if (re.equals(parseable))
                         found = true;
                 }
-                Assert.assertTrue("Error in:" + parseable + " with parse:" + parseResult, found);
+                Assert.assertTrue("Error in:" + parseable + " with parseCached:" + parseResult, found);
             }
         }
     }

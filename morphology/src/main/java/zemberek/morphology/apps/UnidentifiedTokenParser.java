@@ -23,10 +23,10 @@ import java.util.regex.Matcher;
 public class UnidentifiedTokenParser extends BaseParser {
     SimpleParser parser;
     DynamicLexiconGraph graph;
-    TurkishMorphParser turkishParser;
+    TurkishWordParserGenerator turkishParser;
 
 
-    public UnidentifiedTokenParser(TurkishMorphParser turkishParser) {
+    public UnidentifiedTokenParser(TurkishWordParserGenerator turkishParser) {
         this.turkishParser = turkishParser;
         // generate a parser with an empty graph.
         SuffixProvider suffixProvider = new TurkishSuffixes();
@@ -127,7 +127,7 @@ public class UnidentifiedTokenParser extends BaseParser {
                     toParse = "dörd" + se.ending;
                 else
                     toParse = lemma + se.ending;
-                List<MorphParse> res = turkishParser.parse(toParse);
+                List<MorphParse> res = turkishParser.parseCached(toParse);
                 for (MorphParse re : res) {
                     if (re.dictionaryItem.primaryPos != PrimaryPos.Numeral)
                         continue;

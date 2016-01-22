@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  * Computers and the Humanities 36: 381–410, 2002." paper.
  * This is the exact implementation of the Model-A system described in the paper.
  * Model-A basically uses 3-gram root and multiplication of current IG's (Inflectional Group) with previous two last IG probabilities.
- * A simple Viterbi decoding is utilized for finding the best parse.
+ * A simple Viterbi decoding is utilized for finding the best parseCached.
  * Kneser-Ney Lm generation is done with BerkeleyLm library
  * Language model compression and fast random access is provided via SmoothLm library.
  */
@@ -147,7 +147,7 @@ public class MarkovModelDisambiguator extends AbstractDisambiguator {
         Hypothesis[] hypotheses = {Hypothesis.EMPTY_HYPOTHESIS};
         for (int i = 2; i < ambiguousSeq.length; i++) { // we skip the two <s> words.
             Ambiguous word = ambiguousSeq[i];
-            // there is exactly parse amount of live Hypothesis at a time
+            // there is exactly parseCached amount of live Hypothesis at a time
             Hypothesis[] newHypotheses = new Hypothesis[word.size()];
             for (int parseIndex = 0; parseIndex < word.size(); parseIndex++) {
                 double bestScore = Double.NEGATIVE_INFINITY;
@@ -179,7 +179,7 @@ public class MarkovModelDisambiguator extends AbstractDisambiguator {
             }
             hypotheses = newHypotheses;
         }
-        // find the best parse index sequence using backtracking
+        // find the best parseCached index sequence using backtracking
         int[] result = new int[ambiguousSeq.length - 3];
         int j = result.length - 1;
         Hypothesis h = hypotheses[0].previous; // the hypothesıs before the </s>

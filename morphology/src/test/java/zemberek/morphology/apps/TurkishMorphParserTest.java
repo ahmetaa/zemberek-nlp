@@ -18,8 +18,8 @@ public class TurkishMorphParserTest {
 
     @Test
     public void shouldCreateTurkishMorphParserSuccessfully() throws IOException {
-        TurkishMorphParser parser = TurkishMorphParser.builder().addDefaultDictionaries().build();
-        List<MorphParse> results = parser.parse("kedicik");
+        TurkishWordParserGenerator parser = TurkishWordParserGenerator.builder().addDefaultDictionaries().build();
+        List<MorphParse> results = parser.parseCached("kedicik");
         for (MorphParse result : results) {
             System.out.println(result.formatNoEmpty());
             System.out.println(result.formatLong());
@@ -53,13 +53,13 @@ public class TurkishMorphParserTest {
         System.out.println("Number of unique words : " + uniqueWords.size());
         System.out.println("======================");
 
-        final TurkishMorphParser parser = TurkishMorphParser.builder().addDefaultDictionaries().addDefaultCache().build();
+        final TurkishWordParserGenerator parser = TurkishWordParserGenerator.builder().addDefaultDictionaries().addDefaultCache().build();
 
         final Stopwatch stopWatch = new Stopwatch();
         stopWatch.start();
         int i = 0;
         for (String word : words) {
-            parser.parse(word);
+            parser.parseCached(word);
             if (++i % 500 == 0)
                 System.out.println("Finished " + i);
         }

@@ -98,7 +98,8 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
         int featureCount = counts.get(feat);
         averagedWeights.put(
                 feat,
-                (averagedWeights.weight(feat) * featureCount + (numExamples - featureCount) * weights.weight(feat)) / numExamples);
+                (averagedWeights.weight(feat) * featureCount + (numExamples - featureCount) * weights.weight(feat))
+                        / numExamples);
         counts.set(feat, numExamples);
     }
 
@@ -271,9 +272,10 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
      * Calculates the best path using Viterbi decoding.
      * @param sentence sentece with ambiguous wrods.
      * @param useAveragedWeights if true, average weights are used for scoring, else, normal weights are used.
-     * @return best parse sequence and its score.
+     * @return best parseCached sequence and its score.
      */
     ParseResult bestParse(SentenceData sentence, boolean useAveragedWeights) {
+
         sentence.words.add(WordData.SENTENCE_END);
         Map<StateId, Integer> stateIds = Maps.newHashMap();
         Map<Integer, State> bestPath = Maps.newHashMap();

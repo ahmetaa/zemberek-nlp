@@ -10,7 +10,7 @@ public class UnidentifiedTokenParserTest {
 
     @Test
     public void shouldCreateUnidentifiedTokenParserSuccessfully() throws IOException {
-        TurkishMorphParser parser = TurkishMorphParser.createWithDefaults();
+        TurkishWordParserGenerator parser = TurkishWordParserGenerator.createWithDefaults();
         UnidentifiedTokenParser uiParser = new UnidentifiedTokenParser(parser);
         List<MorphParse> results = uiParser.parse("İstanbul'un");
         for (MorphParse result : results) {

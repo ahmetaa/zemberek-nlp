@@ -8,8 +8,8 @@ import java.util.List;
 
 public class ZemberekNlpTest {
     public static void main(String[] args) throws IOException {
-        TurkishMorphParser parser = TurkishMorphParser.createWithDefaults();
-        List<MorphParse> parses = parser.parse("öğrencilerden");
+        TurkishWordParserGenerator parser = TurkishWordParserGenerator.createWithDefaults();
+        List<MorphParse> parses = parser.parseCached("öğrencilerden");
         for (MorphParse parse : parses) {
             System.out.println(parse.formatLong());
         }

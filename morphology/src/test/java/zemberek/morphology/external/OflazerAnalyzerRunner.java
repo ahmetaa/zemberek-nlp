@@ -100,7 +100,7 @@ public class OflazerAnalyzerRunner {
     }
 
     public static void extractRootsFromParse(File input, File output) throws IOException {
-        System.out.println("Extracting root words from parse list");
+        System.out.println("Extracting root words from parseCached list");
         TurkishAlphabet alphabet = new TurkishAlphabet();
         List<String> all = SimpleTextReader.trimmingUTF8Reader(input).asStringList();
         Set<String> roots = Sets.newHashSet();
@@ -127,7 +127,7 @@ public class OflazerAnalyzerRunner {
             "Ratio", "Distribution", "Time", "Prop", "DemonsP", "QuesP", "ReflexP", "PersP", "QuantP");
 
     public static void extractDictItems(File input, File output) throws IOException {
-        System.out.println("Extracting dict items from parse list");
+        System.out.println("Extracting dict items from parseCached list");
         TurkishAlphabet alphabet = new TurkishAlphabet();
         List<String> all = SimpleTextReader.trimmingUTF8Reader(input).asStringList();
         Set<String> roots = Sets.newHashSet();
@@ -223,9 +223,9 @@ public class OflazerAnalyzerRunner {
                 new File("/home/kodlab/apps/nlp/oflazer/bin/tfeaturesulx.fst")).
                 parseSentences(
                         new File(expRoot, "oflazer-mismatch.txt"),
-                        new File(expRoot, "oflazer-mismatch.parse.txt")
+                        new File(expRoot, "oflazer-mismatch.parseCached.txt")
                 );
-        cleanUnparseables(new File(expRoot, "oflazer-mismatch.parse.txt"),
+        cleanUnparseables(new File(expRoot, "oflazer-mismatch.parseCached.txt"),
                 new File(expRoot, "oflazer-regular-clean.tr.txt"));
         extractDictItems(new File(expRoot, "oflazer-regular-clean.tr.txt"),
                 new File(Resources.getResource("tr/oflazer-roots.txt").getFile()));*/
