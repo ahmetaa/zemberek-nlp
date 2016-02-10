@@ -1,0 +1,7 @@
+elma
+armut
+a
+kitap
+damak [P:Noun]
+kk
+Ankara
