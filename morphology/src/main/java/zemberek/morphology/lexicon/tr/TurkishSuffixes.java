@@ -562,7 +562,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
 
         Noun2Noun.connections.add(Dim_cIk, Dim2_cAgIz, Agt_cI, Ness_lIk);
 
-        Noun2Adj.connections.add(With_lI, Without_sIz, JustLike_msI, JustLike_ImsI, Rel_ki, Rel_kI, Related_sAl, FitFor_lIk);
+        Noun2Adj.connections.add(With_lI, Without_sIz, JustLike_msI, Rel_ki, Rel_kI, Related_sAl, FitFor_lIk);
 
         Noun2Verb.connections.add(Become_lAs /*, Acquire_lAn*/);
 
