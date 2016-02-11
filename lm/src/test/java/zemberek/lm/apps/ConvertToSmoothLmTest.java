@@ -16,7 +16,7 @@ public class ConvertToSmoothLmTest {
 
     File getTinyArpaFile() throws IOException {
         File tmp = File.createTempFile("tiny", ".arpa");
-        Files.copy(Resources.newInputStreamSupplier(TINY_ARPA_URL), tmp);
+        Files.copy(new File(TINY_ARPA_URL.getFile()), tmp);
         return tmp;
     }
 

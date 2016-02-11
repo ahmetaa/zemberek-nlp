@@ -20,10 +20,9 @@ public class TurkishSentenceParserTest {
 
     @Before
     public void setUp() throws Exception {
-        TurkishWordParserGenerator morphParser = TurkishWordParserGenerator.builder().addDefaultDictionaries().build();
+        TurkishWordParserGenerator morphParser = TurkishWordParserGenerator.createWithDefaults();
         parser = new TurkishSentenceParser(morphParser, new Z3MarkovModelDisambiguator());
     }
-
 
     @Test
     public void tokenCountTest() {
@@ -33,34 +32,28 @@ public class TurkishSentenceParserTest {
     @Test
     @Ignore("To be executed manually, not within continuous build.")
     public void shouldParseSentencesInNTVMSNBCCorpus() throws IOException {
-        final File ntvmsnbcCorpus = new File("/home/kodlab/apps/nlp/sak/ntvmsnbc.txt");
-        doParseSentencesInCorpus(ntvmsnbcCorpus);
+        final File corpus = new File("/home/kodlab/data/2014-mt-txt/dunya100k");
+        doParseSentencesInCorpus(corpus);
     }
 
     private void doParseSentencesInCorpus(File ntvmsnbcCorpus) throws IOException {
-    /* SentenceMorphParse parse = parser.parseCached("Turgut Özal'ın ölüm raporu ile ilgili flaş bir gelişme.");
-     parse.dump();
-     System.out.println("After disambiguation:");
-     parser.disambiguate(parse);
-     parse.dump();
-     for (SentenceMorphParse.Entry entry : parse) {
-         System.out.println(entry.input + "=" + entry.parses.get(0));
-     }
-     for (SentenceMorphParse.Entry entry : parse) {
-         System.out.println(entry.input + " kök=" + entry.parses.get(0).stem);
-     }*/
         List<String> sentences = SimpleTextReader.trimmingUTF8Reader(ntvmsnbcCorpus).asStringList();
         Stopwatch sw = Stopwatch.createStarted();
-        int wc = 0;
+        long wc = 0;
+        int s = 0;
         for (String sentence : sentences) {
             SentenceMorphParse parse = parser.parse(sentence);
             wc += parse.size();
             parser.disambiguate(parse);
-            // System.out.println(sentence);
-            // parse.dump();
+            s++;
+            if (s % 10000 == 0) {
+                System.out.println(s);
+                System.out.println(sw.elapsed(TimeUnit.MILLISECONDS) / 1000d);
+            }
         }
-        System.out.println(wc);
-        System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));
+        System.out.println("Word count" + wc);
+        System.out.println("Elapsed Time" + sw.elapsed(TimeUnit.MILLISECONDS));
+        System.out.println("Parse and disambiguate per second " + (wc * 1000d) / (sw.elapsed(TimeUnit.MILLISECONDS)));
     }
 
 }

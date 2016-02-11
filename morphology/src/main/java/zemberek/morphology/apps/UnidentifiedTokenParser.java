@@ -127,11 +127,11 @@ public class UnidentifiedTokenParser extends BaseParser {
                     toParse = "dörd" + se.ending;
                 else
                     toParse = lemma + se.ending;
-                List<MorphParse> res = turkishParser.parseCached(toParse);
+                List<MorphParse> res = turkishParser.getParser().parse(toParse);
                 for (MorphParse re : res) {
                     if (re.dictionaryItem.primaryPos != PrimaryPos.Numeral)
                         continue;
-                    re.dictionaryItem = new DictionaryItem(se.stem, se.stem, lemma, PrimaryPos.Numeral, digit.spos);
+                    re.dictionaryItem = new DictionaryItem(se.stem, se.stem, s+lemma, PrimaryPos.Numeral, digit.spos);
                     re.root = se.stem;
                     results.add(re);
                 }

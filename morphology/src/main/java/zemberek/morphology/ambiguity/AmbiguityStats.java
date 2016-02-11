@@ -96,7 +96,7 @@ public class AmbiguityStats extends BaseParser {
         int total = 0;
         for (String line : lines) {
             for (String s : splitter.split(line)) {
-                List<MorphParse> results = parser.parseCached(normalize(s));
+                List<MorphParse> results = parser.getParser().parse(normalize(s));
                 if (++total % 50000 == 0) {
                     System.out.println("Processed: " + total);
                 }
@@ -151,7 +151,7 @@ public class AmbiguityStats extends BaseParser {
         Splitter splitter = Splitter.on(" ").omitEmptyStrings().trimResults();
         for (String line : lines) {
             for (String s : splitter.split(line)) {
-                List<MorphParse> results = parser.parseCached(normalize(s));
+                List<MorphParse> results =  parser.getParser().parse(normalize(s));
                 total++;
                 if (total % 50000 == 0) {
                     System.out.println("Processed: " + total);
@@ -185,7 +185,7 @@ public class AmbiguityStats extends BaseParser {
             Splitter splitter = Splitter.on(" ").omitEmptyStrings().trimResults();
             for (String line : lines) {
                 for (String s : splitter.split(line)) {
-                    List<MorphParse> results = parser.parseCached(normalize(s));
+                    List<MorphParse> results =  parser.getParser().parse(normalize(s));
                     total++;
                     if (total % 50000 == 0) {
                         System.out.println("Processed: " + total);
@@ -214,8 +214,7 @@ public class AmbiguityStats extends BaseParser {
 
     public static void main(String[] args) throws IOException {
         AmbiguityStats parser = new AmbiguityStats();
-        Stopwatch w = new Stopwatch();
-        w.start();
+        Stopwatch w = Stopwatch.createStarted();
         //parser.ambiguousWordStats("File with turkish sentences");
         //parser.ambiguousGroupStats("File with turkish sentences");
         System.out.println(w.elapsed(TimeUnit.MILLISECONDS) + " ms.");

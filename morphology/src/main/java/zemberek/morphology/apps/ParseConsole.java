@@ -1,5 +1,8 @@
 package zemberek.morphology.apps;
 
+import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.SecondaryPos;
+import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
@@ -46,6 +49,8 @@ public class ParseConsole {
 
     protected SimpleParser createSimpleParser() throws IOException {
         DynamicLexiconGraph graph = createLexiconGraph();
+        DictionaryItem item = new DictionaryItem("tweetlemek", "tweetle", "tivitle", PrimaryPos.Verb, SecondaryPos.None);
+        graph.addDictionaryItem(item);
         //graph.stats();
         return new SimpleParser(graph);
     }

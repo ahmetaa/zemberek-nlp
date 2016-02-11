@@ -455,7 +455,7 @@ public class TurkishDictionaryLoader {
         }
     }
 
-    public static enum Digit {
+    public enum Digit {
         CARDINAL("#", "^[+\\-]?\\d+$", SecondaryPos.Cardinal),
         ORDINAL("#.", "^[+\\-]?[0-9]+[.]$", SecondaryPos.Ordinal),
         RANGE("#-#", "^[+\\-]?[0-9]+-[0-9]+$", SecondaryPos.Range),

@@ -2,10 +2,15 @@ package zemberek.morphology.apps;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Stopwatch;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import zemberek.core.logging.Log;
+import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.generator.SimpleGenerator;
+import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
@@ -19,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -27,20 +33,18 @@ import java.util.concurrent.TimeUnit;
  */
 public class TurkishWordParserGenerator extends BaseParser {
 
-    static String DEFAULT_FREQUENT_WORDS_FILE_PATH = "tr/top-20K-words.txt";
-    static int DEFAULT_CACHE_SIZE = 5000;
-
     private MorphParser parser;
     private SimpleGenerator generator;
-    private SimpleMorphCache cache;
     private RootLexicon lexicon;
     private DynamicLexiconGraph graph;
+    private UnidentifiedTokenParser unidentifiedTokenParser;
+
+    private LoadingCache<String, List<MorphParse>> cache;
+    private SimpleMorphCache morphCache;
 
     public static class TurkishMorphParserBuilder {
         MorphParser _parser;
         SimpleGenerator _generator;
-        SimpleMorphCache _cache;
-        List<String> _cacheLines = Lists.newArrayList();
         SuffixProvider suffixProvider = new TurkishSuffixes();
         RootLexicon lexicon = new RootLexicon();
 
@@ -84,25 +88,6 @@ public class TurkishWordParserGenerator extends BaseParser {
             return this;
         }
 
-        public TurkishMorphParserBuilder addDefaultCache() {
-            return addCache(DEFAULT_FREQUENT_WORDS_FILE_PATH, DEFAULT_CACHE_SIZE);
-        }
-
-        // limit = 0 for all.
-        public TurkishMorphParserBuilder addCache(String fileName, int limit) {
-            try {
-                List<String> words = Resources.readLines(Resources.getResource(fileName), Charsets.UTF_8);
-                if (limit > 0)
-                    _cacheLines.addAll(words.subList(0, limit));
-                else
-                    _cacheLines = words;
-            } catch (IOException e) {
-                // We just log the error, cache is not essential.
-                Log.warn("Error loading frequent words file " + fileName + " with reason: " + e.getMessage() + ". Caching will not be applied.");
-            }
-            return this;
-        }
-
         public TurkishWordParserGenerator build() throws IOException {
             Stopwatch sw = Stopwatch.createStarted();
             DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
@@ -110,29 +95,61 @@ public class TurkishWordParserGenerator extends BaseParser {
             _parser = new SimpleParser(graph);
             _generator = new SimpleGenerator(graph);
             Log.info("Parser ready: " + sw.elapsed(TimeUnit.MILLISECONDS) + "ms.");
-            if (_cacheLines.size() > 0) {
-                _cache = new SimpleMorphCache(_parser, _cacheLines);
-                Log.info("Cache ready: " + sw.elapsed(TimeUnit.MILLISECONDS) + "ms.");
-            }
-            return new TurkishWordParserGenerator(_parser, _generator, lexicon, graph, _cache);
+            return new TurkishWordParserGenerator(_parser, _generator, lexicon, graph);
         }
+    }
+
+    private void generateCaches() {
+        this.cache = CacheBuilder.newBuilder()
+                .maximumSize(50000)
+                .concurrencyLevel(1)
+                .initialCapacity(20000)
+                .build(new CacheLoader<String, List<MorphParse>>() {
+                    @Override
+                    public List<MorphParse> load(String s) {
+                        if (s.length() == 0)
+                            return Collections.emptyList();
+                        List<MorphParse> res = parser.parse(s);
+                        if (res.size() == 0 || (Character.isUpperCase(s.charAt(0)) && !containsProperNounParse(res))) {
+                            res.addAll(unidentifiedTokenParser.parse(s));
+                        }
+                        if (res.size() == 0) {
+                            res.add(new MorphParse(DictionaryItem.UNKNOWN, s, Lists.newArrayList(MorphParse.InflectionalGroup.UNKNOWN)));
+                        }
+                        return res;
+                    }
+                });
+        try {
+            List<String> words = Resources.readLines(Resources.getResource("tr/top-20K-words.txt"), Charsets.UTF_8);
+            morphCache = new SimpleMorphCache(parser, words);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean containsProperNounParse(List<MorphParse> results) {
+        for (MorphParse res : results) {
+            if (res.dictionaryItem.secondaryPos == SecondaryPos.ProperNoun)
+                return true;
+        }
+        return false;
     }
 
     private TurkishWordParserGenerator(
             MorphParser parser,
             SimpleGenerator generator,
             RootLexicon lexicon,
-            DynamicLexiconGraph graph,
-            SimpleMorphCache cache) {
+            DynamicLexiconGraph graph) {
         this.parser = parser;
         this.generator = generator;
         this.lexicon = lexicon;
-        this.cache = cache;
         this.graph = graph;
+        this.unidentifiedTokenParser = new UnidentifiedTokenParser(this);
+        generateCaches();
     }
 
     public static TurkishWordParserGenerator createWithDefaults() throws IOException {
-        return new TurkishMorphParserBuilder().addDefaultDictionaries().addDefaultCache().build();
+        return new TurkishMorphParserBuilder().addDefaultDictionaries().build();
     }
 
     public static TurkishMorphParserBuilder builder() {
@@ -141,6 +158,24 @@ public class TurkishWordParserGenerator extends BaseParser {
 
     public MorphParser getParser() {
         return parser;
+    }
+
+    /**
+     * Normalizes the input word and parses it. If word cannot be parsed following occurs:
+     * - if input is a number, system tries to parse it by creating a number DictionaryEntry.
+     * - if input starts with a capital letter, or contains ['] adds a Dictionary entry as a proper noun.
+     * - if above options does not generate a result, it generates an UNKNOWN dictionary entry and returns a parse with it.
+     *
+     * @param word input word.
+     * @return MorphParse list.
+     */
+    public List<MorphParse> parse(String word) {
+        String s = normalize(word); // TODO: may cause problem for some foreign words.
+        List<MorphParse> res = morphCache.parse(s);
+        if (res == null) {
+            res = cache.getUnchecked(s);
+        }
+        return res;
     }
 
     public SimpleGenerator getGenerator() {
@@ -153,14 +188,5 @@ public class TurkishWordParserGenerator extends BaseParser {
 
     public DynamicLexiconGraph getGraph() {
         return graph;
-    }
-
-    public List<MorphParse> parseCached(String word) {
-        word = normalize(word);
-        if (cache != null) {
-            List<MorphParse> result = cache.parse(word);
-            return result != null ? result : parser.parse(word);
-        }
-        return parser.parse(word);
     }
 }

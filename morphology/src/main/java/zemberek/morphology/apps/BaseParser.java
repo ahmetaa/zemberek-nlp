@@ -16,6 +16,8 @@ public abstract class BaseParser {
         for (char c : input.toCharArray()) {
             if (alphabet.isValid(c))
                 sb.append(c);
+            else
+                sb.append("?");
         }
         return sb.toString();
     }

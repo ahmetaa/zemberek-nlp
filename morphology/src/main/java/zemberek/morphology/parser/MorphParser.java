@@ -4,6 +4,6 @@ import java.util.List;
 
 public interface MorphParser {
 
-    public List<MorphParse> parse(String input);
+    List<MorphParse> parse(String input);
 
 }

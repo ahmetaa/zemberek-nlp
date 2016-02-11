@@ -7,7 +7,6 @@ import zemberek.core.io.Files;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.ambiguity.TurkishMorphDisambiguator;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
-import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.parser.MorphParse;
 import zemberek.morphology.parser.SentenceMorphParse;
 import zemberek.morphology.structure.Turkish;
@@ -17,10 +16,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class TurkishSentenceParser {
+public class TurkishSentenceParser extends BaseParser {
 
-    private TurkishWordParserGenerator morphParser;
-    private UnidentifiedTokenParser unidentifiedTokenParser;
+    private TurkishWordParserGenerator turkishParser;
     private TurkishMorphDisambiguator disambiguator;
     private ZemberekLexer lexer = new ZemberekLexer();
 
@@ -41,9 +39,9 @@ public class TurkishSentenceParser {
         System.out.println("Loading Dictionaries:" + dicFiles.toString());
         if (dicFiles.size() == 0)
             throw new IllegalArgumentException("At least one dictionary file is required. (with txt extension)");
-        morphParser = TurkishWordParserGenerator.builder().addTextDictFiles(dicFiles.toArray(new File[dicFiles.size()])).build();
+        turkishParser = TurkishWordParserGenerator.builder().addTextDictFiles(dicFiles.toArray(new File[dicFiles.size()])).build();
         System.out.println("Morph Parser Generated.");
-        this.unidentifiedTokenParser = new UnidentifiedTokenParser(morphParser);
+
         File rootSmoothLm = new File(dataDir, "root-lm.z3.slm");
         File igSmoothLm = new File(dataDir, "ig-lm.z3.slm");
         if (!rootSmoothLm.exists())
@@ -52,14 +50,12 @@ public class TurkishSentenceParser {
             throw new IllegalArgumentException("Cannot find suffix model in " + dataDir);
         disambiguator = new Z3MarkovModelDisambiguator(rootSmoothLm, igSmoothLm);
         System.out.println("Morph Disambiguator Generated.");
-
     }
 
     public TurkishSentenceParser(
-            TurkishWordParserGenerator morphParser,
+            TurkishWordParserGenerator turkishParser,
             TurkishMorphDisambiguator disambiguator) {
-        this.morphParser = morphParser;
-        this.unidentifiedTokenParser = new UnidentifiedTokenParser(morphParser);
+        this.turkishParser = turkishParser;
         this.disambiguator = disambiguator;
     }
 
@@ -67,19 +63,13 @@ public class TurkishSentenceParser {
         SentenceMorphParse sentenceParse = new SentenceMorphParse();
         String preprocessed = preProcess(sentence);
         for (String s : Splitter.on(" ").omitEmptyStrings().trimResults().split(preprocessed)) {
-            String normalized = morphParser.normalize(s); // TODO: may cause problem for some foreign words.
-            List<MorphParse> res = morphParser.parseCached(normalized);
-            if (res.size() == 0 || (Character.isUpperCase(s.charAt(0)) && !hasProperParse(res)))
-                res.addAll(unidentifiedTokenParser.parse(s));
-            if (res.size() == 0) {
-                res.add(new MorphParse(DictionaryItem.UNKNOWN, normalized, Lists.newArrayList(MorphParse.InflectionalGroup.UNKNOWN)));
-            }
-            sentenceParse.addParse(s, res);
+            List<MorphParse> parses = turkishParser.parse(s);
+            sentenceParse.addParse(s, parses);
         }
         return sentenceParse;
     }
 
-    private boolean hasProperParse(List<MorphParse> results) {
+    private boolean containsProperNounParse(List<MorphParse> results) {
         for (MorphParse res : results) {
             if (res.dictionaryItem.secondaryPos == SecondaryPos.ProperNoun)
                 return true;

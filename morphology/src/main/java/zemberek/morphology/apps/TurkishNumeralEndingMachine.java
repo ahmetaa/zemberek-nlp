@@ -3,11 +3,11 @@ package zemberek.morphology.apps;
 /**
  * This class is used for finding the last word of a number.
  * such as 123 returns "üç"(3) whereas it returns "yüz"(100) for 12300
- * It uses a simle state machine that processes the input backwards.
+ * It uses a simple state machine that processes the input backwards.
  */
 public class TurkishNumeralEndingMachine {
 
-    private static enum StateId {
+    private enum StateId {
         ROOT(""), ERROR(""),
         SIFIR("sıfır"), BIR("bir"), IKI("iki"), UC("üç"), DORT("dört"), BES("beş"), ALTI("altı"), YEDI("yedi"), SEKIZ("sekiz"), DOKUZ("dokuz"),
         ON("on"), YIRMI("yirmi"), OTUZ("otuz"), KIRK("kırk"), ELLI("elli"), ALTMIS("altmış"), YETMIS("yetmiş"), SEKSEN("seksen"), DOKSAN("doksan"),
