@@ -178,8 +178,12 @@ public class TurkishWordParserGenerator extends BaseParser {
         return res;
     }
 
-    public void invalidateCache() {
+    public void invalidateAllCache() {
         cache.invalidateAll();
+    }
+
+    public void invalidateCache(String input) {
+        cache.invalidate(input);
     }
 
     public SimpleGenerator getGenerator() {
