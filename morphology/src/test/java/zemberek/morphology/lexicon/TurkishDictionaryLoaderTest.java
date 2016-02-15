@@ -138,14 +138,14 @@ public class TurkishDictionaryLoaderTest {
         for (String s : voicing) {
             DictionaryItem item = loader.loadFromString(s);
             Assert.assertEquals(Noun, item.primaryPos);
-            Assert.assertEquals("error in:" + s, EnumSet.of(RootAttribute.Voicing), item.attrs);
+            Assert.assertEquals("error in:" + s, EnumSet.of(RootAttribute.Voicing), item.attributes);
         }
 
         String[] novoicing = {"kek", "top", "kulp", "takat [A:NoVoicing]"};
         for (String s : novoicing) {
             DictionaryItem item = loader.loadFromString(s);
             Assert.assertEquals(Noun, item.primaryPos);
-            Assert.assertEquals("error in:" + s, EnumSet.of(NoVoicing), item.attrs);
+            Assert.assertEquals("error in:" + s, EnumSet.of(NoVoicing), item.attributes);
         }
     }
 
@@ -161,7 +161,7 @@ public class TurkishDictionaryLoaderTest {
         for (ItemAttrPair pair : testList) {
             DictionaryItem item = loader.loadFromString(pair.str);
             Assert.assertEquals(Noun, item.primaryPos);
-            Assert.assertEquals("error in:" + pair.str, pair.attrs, item.attrs);
+            Assert.assertEquals("error in:" + pair.str, pair.attrs, item.attributes);
         }
     }
 
@@ -175,7 +175,7 @@ public class TurkishDictionaryLoaderTest {
         TurkishAlphabet alphabet = new TurkishAlphabet();
         Set<String> masterVoicing = new HashSet<>();
         for (DictionaryItem item : items) {
-            if (item.attrs.contains(NoVoicing))
+            if (item.attributes.contains(NoVoicing))
                 masterVoicing.add(item.lemma);
         }
 

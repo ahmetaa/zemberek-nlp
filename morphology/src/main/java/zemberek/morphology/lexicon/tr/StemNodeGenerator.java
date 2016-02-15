@@ -69,7 +69,7 @@ public class StemNodeGenerator {
 
     public boolean hasModifierAttribute(DictionaryItem item) {
         for (RootAttribute attr : modifiers) {
-            if (item.attrs.contains(attr))
+            if (item.attributes.contains(attr))
                 return true;
         }
         return false;
@@ -119,7 +119,7 @@ public class StemNodeGenerator {
         EnumSet<PhoneticExpectation> originalExpectations = EnumSet.noneOf(PhoneticExpectation.class);
         EnumSet<PhoneticExpectation> modifiedExpectations = EnumSet.noneOf(PhoneticExpectation.class);
 
-        for (RootAttribute attribute : dicItem.attrs) {
+        for (RootAttribute attribute : dicItem.attributes) {
 
             // generate other boundary attributes and modified root state.
             switch (attribute) {

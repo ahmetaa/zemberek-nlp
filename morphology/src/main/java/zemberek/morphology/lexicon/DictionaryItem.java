@@ -42,7 +42,7 @@ public class DictionaryItem {
     /**
      * Attributes that this item carries. Such as voicing or vowel drop.
      */
-    public final EnumSet<RootAttribute> attrs;
+    public final EnumSet<RootAttribute> attributes;
 
     /**
      * Pronunciations of the item. TODO: This should be converted to an actual 'Pronunciation' item
@@ -69,14 +69,14 @@ public class DictionaryItem {
                           String pronunciation,
                           PrimaryPos primaryPos,
                           SecondaryPos secondaryPos,
-                          EnumSet<RootAttribute> attrs,
+                          EnumSet<RootAttribute> attributes,
                           ExclusiveSuffixData suffixData,
                           SuffixForm specialRootSuffix) {
         this.pronunciation = pronunciation;
         this.lemma = lemma;
         this.primaryPos = primaryPos;
         this.secondaryPos = secondaryPos;
-        this.attrs = attrs;
+        this.attributes = attributes;
         this.suffixData = suffixData;
         this.root = root;
         this.specialRootSuffix = specialRootSuffix;
@@ -99,7 +99,7 @@ public class DictionaryItem {
                           String pronunciation,
                           PrimaryPos primaryPos,
                           SecondaryPos secondaryPos,
-                          EnumSet<RootAttribute> attrs,
+                          EnumSet<RootAttribute> attributes,
                           ExclusiveSuffixData suffixData,
                           SuffixForm specialRootSuffix,
                           int index) {
@@ -107,7 +107,7 @@ public class DictionaryItem {
         this.lemma = lemma;
         this.primaryPos = primaryPos;
         this.secondaryPos = secondaryPos;
-        this.attrs = attrs;
+        this.attributes = attributes;
         this.suffixData = suffixData;
         this.root = root;
         this.specialRootSuffix = specialRootSuffix;
@@ -119,7 +119,7 @@ public class DictionaryItem {
                           String root,
                           PrimaryPos primaryPos,
                           SecondaryPos secondaryPos,
-                          EnumSet<RootAttribute> attrs,
+                          EnumSet<RootAttribute> attributes,
                           ExclusiveSuffixData suffixData,
                           SuffixForm specialRootSuffix) {
         this.lemma = lemma;
@@ -127,7 +127,7 @@ public class DictionaryItem {
         this.primaryPos = primaryPos;
         this.secondaryPos = secondaryPos;
         this.suffixData = suffixData;
-        this.attrs = attrs;
+        this.attributes = attributes;
         this.root = root;
         this.specialRootSuffix = specialRootSuffix;
         this.index = 0;
@@ -143,14 +143,14 @@ public class DictionaryItem {
         this.pronunciation = pronunciation;
         this.primaryPos = primaryPos;
         this.secondaryPos = secondaryPos;
-        this.attrs = EnumSet.noneOf(RootAttribute.class);
+        this.attributes = EnumSet.noneOf(RootAttribute.class);
         this.root = root;
         this.index = 0;
         this.id = generateId(lemma, primaryPos, secondaryPos, 0);
     }
 
     public boolean hasAttribute(RootAttribute attribute) {
-        return attrs.contains(attribute);
+        return attributes.contains(attribute);
     }
 
     public static Locale TURKISH_LOCALE = new Locale("tr");
@@ -168,10 +168,10 @@ public class DictionaryItem {
         StringBuilder sb = new StringBuilder(lemma + " " + "[P:" + primaryPos.shortForm);
         if (secondaryPos != SecondaryPos.None)
             sb.append(", ").append(secondaryPos.shortForm);
-        if (attrs.isEmpty())
+        if (attributes.isEmpty())
             sb.append("]");
         else
-            printAttributes(sb, attrs);
+            printAttributes(sb, attributes);
         return sb.toString();
     }
 

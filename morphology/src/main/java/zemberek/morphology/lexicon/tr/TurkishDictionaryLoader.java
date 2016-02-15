@@ -244,12 +244,12 @@ public class TurkishDictionaryLoader {
                     DictionaryItem refItem;
                     if (refItems.size() > 0) {
                         refItem = refItems.get(0); // grab the first Dictionary item matching to kuyruk. We will use it's attributes.
-                        attrSet = refItem.attrs.clone();
+                        attrSet = refItem.attributes.clone();
                     } else {
                         attrSet = morphemicAttributes(null, root, posInfo);
                     }
                     attrSet.add(RootAttribute.CompoundP3sgRoot);
-                    if (item.attrs.contains(RootAttribute.Ext))
+                    if (item.attributes.contains(RootAttribute.Ext))
                         attrSet.add(RootAttribute.Ext);
 
                     int index = 0;

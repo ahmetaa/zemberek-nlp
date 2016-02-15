@@ -47,23 +47,19 @@ public class UnidentifiedTokenParser extends BaseParser {
             String pron = guessPronunciation(stem);
             DictionaryItem itemProp = new DictionaryItem(Turkish.capitalize(stem), stem, pron, PrimaryPos.Noun, SecondaryPos.ProperNoun);
             String toParse = stem + ending;
-            StemNode[] nodes = graph.addDictionaryItem(itemProp);
-            parser.addNodes(nodes);
+            graph.addDictionaryItem(itemProp);
             List<MorphParse> properResults = parser.parse(toParse);
-            graph.removeStemNodes(nodes);
-            parser.removeStemNodes(nodes);
+            graph.removeDictionaryItem(itemProp);
             results.addAll(properResults);
 
         } else if (Character.isUpperCase(word.charAt(0))) {
             String normalized = normalize(word);
             String pron = guessPronunciation(normalized);
             DictionaryItem itemProp = new DictionaryItem(Turkish.capitalize(normalized), normalized, pron, PrimaryPos.Noun, SecondaryPos.ProperNoun);
-            StemNode[] nodes = graph.addDictionaryItem(itemProp);
-            parser.addNodes(nodes);
+            graph.addDictionaryItem(itemProp);
             //TODO eliminate gross code duplication
             List<MorphParse> properResults = parser.parse(normalized);
-            graph.removeStemNodes(nodes);
-            parser.removeStemNodes(nodes);
+            graph.removeDictionaryItem(itemProp);
             results.addAll(properResults);
         }
         return results;
@@ -131,7 +127,7 @@ public class UnidentifiedTokenParser extends BaseParser {
                 for (MorphParse re : res) {
                     if (re.dictionaryItem.primaryPos != PrimaryPos.Numeral)
                         continue;
-                    re.dictionaryItem = new DictionaryItem(se.stem, se.stem, s+lemma, PrimaryPos.Numeral, digit.spos);
+                    re.dictionaryItem = new DictionaryItem(se.stem, se.stem, s + lemma, PrimaryPos.Numeral, digit.spos);
                     re.root = se.stem;
                     results.add(re);
                 }

@@ -232,7 +232,7 @@ public class SimpleParserTest {
 
         void getForNoun(DictionaryItem item, SuffixData original, SuffixData modified) {
 
-            for (RootAttribute attribute : item.attrs) {
+            for (RootAttribute attribute : item.attributes) {
                 switch (attribute) {
                     case CompoundP3sg:
                         original.add(Noun_Comp_P3sg.allConnections());

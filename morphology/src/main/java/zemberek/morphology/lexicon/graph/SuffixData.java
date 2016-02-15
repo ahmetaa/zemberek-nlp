@@ -5,7 +5,7 @@ import zemberek.morphology.lexicon.SuffixForm;
 import java.util.*;
 
 public class SuffixData implements Iterable<SuffixForm> {
-    private Set<SuffixForm> set = new HashSet<SuffixForm>();
+    private Set<SuffixForm> set = new HashSet<>();
     private BitSet bitSet = new BitSet();
 
     public SuffixData(Set<SuffixForm> forms) {

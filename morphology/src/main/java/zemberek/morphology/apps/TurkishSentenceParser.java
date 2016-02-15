@@ -69,14 +69,6 @@ public class TurkishSentenceParser extends BaseParser {
         return sentenceParse;
     }
 
-    private boolean containsProperNounParse(List<MorphParse> results) {
-        for (MorphParse res : results) {
-            if (res.dictionaryItem.secondaryPos == SecondaryPos.ProperNoun)
-                return true;
-        }
-        return false;
-    }
-
     public void disambiguate(SentenceMorphParse parseResult) {
         disambiguator.disambiguate(parseResult);
     }

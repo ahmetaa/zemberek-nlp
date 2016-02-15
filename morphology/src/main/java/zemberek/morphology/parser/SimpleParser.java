@@ -1,82 +1,31 @@
 package zemberek.morphology.parser;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.graph.StemNode;
 import zemberek.morphology.lexicon.graph.SuffixSurfaceNode;
 import zemberek.morphology.lexicon.graph.TerminationType;
 
 import java.util.List;
-import java.util.Map;
 
 public class SimpleParser implements MorphParser {
 
     DynamicLexiconGraph graph;
-    ArrayListMultimap<String, StemNode> multiStems = ArrayListMultimap.create(1000, 2);
-    Map<String, StemNode> singeStems = Maps.newHashMap();
 
     public SimpleParser(DynamicLexiconGraph graph) {
         this.graph = graph;
-        for (StemNode stemNode : graph.getStemNodes()) {
-            addStemNode(stemNode);
-        }
-    }
-
-    private void addStemNode(StemNode stemNode) {
-        final String surfaceForm = stemNode.surfaceForm;
-        if (multiStems.containsKey(surfaceForm)) {
-            multiStems.put(surfaceForm, stemNode);
-        } else if (singeStems.containsKey(surfaceForm)) {
-            multiStems.put(surfaceForm, singeStems.get(surfaceForm));
-            singeStems.remove(surfaceForm);
-            multiStems.put(surfaceForm, stemNode);
-        } else
-            singeStems.put(surfaceForm, stemNode);
-    }
-
-    private void removeStemNode(StemNode stemNode) {
-        final String surfaceForm = stemNode.surfaceForm;
-        if (multiStems.containsKey(surfaceForm)) {
-            multiStems.remove(surfaceForm, stemNode);
-        } else if (singeStems.containsKey(surfaceForm)) {
-            singeStems.remove(surfaceForm);
-        }
-    }
-
-    private boolean containsNode(StemNode node) {
-        return multiStems.containsEntry(node.surfaceForm, node) || singeStems.containsKey(node.surfaceForm);
-    }
-
-    public void addNodes(StemNode... nodes) {
-        for (StemNode node : nodes) {
-            if (!containsNode(node))
-                addStemNode(node);
-        }
-    }
-
-    public void removeStemNodes(StemNode... nodes) {
-        for (StemNode node : nodes) {
-
-            removeStemNode(node);
-        }
     }
 
     public List<MorphParse> parse(String input) {
         // get stem candidates.
-        List<StemNode> candidates = Lists.newArrayList();
+        List<StemNode> candidates = Lists.newArrayListWithCapacity(3);
         for (int i = 1; i <= input.length(); i++) {
             String stem = input.substring(0, i);
-            if (singeStems.containsKey(stem)) {
-                candidates.add(singeStems.get(stem));
-            } else if (multiStems.containsKey(stem)) {
-                candidates.addAll(multiStems.get(stem));
-            }
+            candidates.addAll(graph.getMatchingStemNodes(stem));
         }
 
         // generate starting tokens with suffix root nodes.
-        List<ParseToken> initialTokens = Lists.newArrayList();
+        List<ParseToken> initialTokens = Lists.newArrayListWithCapacity(3);
         for (StemNode candidate : candidates) {
             String rest = input.substring(candidate.surfaceForm.length());
             initialTokens.add(new ParseToken(candidate, Lists.newArrayList(candidate.getSuffixRootSurfaceNode()), rest));
@@ -122,11 +71,7 @@ public class SimpleParser implements MorphParser {
         List<StemNode> candidates = Lists.newArrayList();
         for (int i = 1; i <= input.length(); i++) {
             String stem = input.substring(0, i);
-            if (singeStems.containsKey(stem)) {
-                candidates.add(singeStems.get(stem));
-            } else if (multiStems.containsKey(stem)) {
-                candidates.addAll(multiStems.get(stem));
-            }
+            candidates.addAll(graph.getMatchingStemNodes(stem));
         }
         System.out.println("  Stem Nodes:");
         for (StemNode candidate : candidates) {

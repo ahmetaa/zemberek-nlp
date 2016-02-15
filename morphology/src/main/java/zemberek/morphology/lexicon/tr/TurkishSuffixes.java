@@ -1277,12 +1277,12 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
     private void getForVerb(DictionaryItem item, SuffixData original, SuffixData modified) {
         original.add(Verb_TEMPLATE.allConnections().remove(Caus_t));
         modified.add(Verb_TEMPLATE.allConnections().remove(Caus_t));
-        for (RootAttribute attribute :  item.attrs) {
+        for (RootAttribute attribute :  item.attributes) {
             switch (attribute) {
                 case Aorist_A:
                     original.add(Aor_Ar, AorPart_Ar_2Adj);
                     original.remove(Aor_Ir, AorPart_Ir_2Adj);
-                    if (!item.attrs.contains(RootAttribute.ProgressiveVowelDrop)) {
+                    if (!item.attributes.contains(RootAttribute.ProgressiveVowelDrop)) {
                         modified.add(Aor_Ar, AorPart_Ar_2Adj);
                         modified.remove(Aor_Ir, AorPart_Ir_2Adj);
                     }
@@ -1290,7 +1290,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
                 case Aorist_I:
                     original.add(Aor_Ir, AorPart_Ir_2Adj);
                     original.remove(Aor_Ar, AorPart_Ar_2Adj);
-                    if (!item.attrs.contains(RootAttribute.ProgressiveVowelDrop)) {
+                    if (!item.attributes.contains(RootAttribute.ProgressiveVowelDrop)) {
                         modified.add(Aor_Ir, AorPart_Ir_2Adj);
                         modified.remove(Aor_Ar, AorPart_Ar_2Adj);
                     }
@@ -1330,7 +1330,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
                 case Causative_t:
                     original.remove(Caus_tIr);
                     original.add(Caus_t);
-                    if (!item.attrs.contains(RootAttribute.ProgressiveVowelDrop)) {
+                    if (!item.attributes.contains(RootAttribute.ProgressiveVowelDrop)) {
                         modified.remove(Caus_tIr);
                         modified.add(Caus_t);
                     }
