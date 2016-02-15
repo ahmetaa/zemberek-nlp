@@ -44,7 +44,7 @@ for distributions downloads.
 contains a maven java project with small usage examples.
 
 ## Known Issues and Limitations
-- Project requires Java 7.
+- Project requires Java 8.
 - Currently word and sentence parse module operations generates parse graph with each initialization.
 So each run in the system takes some seconds. We will fix it in the next version with fast serialization of the parse graph.
 - Morphological parsing does not work for some obvious and frequent words.
