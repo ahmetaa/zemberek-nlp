@@ -3,7 +3,7 @@ package zemberek.core.turkish;
 import zemberek.core.enums.StringEnum;
 import zemberek.core.enums.StringEnumMap;
 
-public enum PrimaryPos implements StringEnum<PrimaryPos> {
+public enum PrimaryPos implements StringEnum {
     Noun("Noun"),
     Adjective("Adj"),
     Adverb("Adv"),

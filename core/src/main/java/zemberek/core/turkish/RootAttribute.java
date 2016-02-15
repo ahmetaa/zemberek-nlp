@@ -8,14 +8,17 @@ import zemberek.core.enums.StringEnumMap;
  */
 public enum RootAttribute implements StringEnum {
     // verb related
-    Aorist_I, Aorist_A,
+    Aorist_I,
+    Aorist_A,
     ProgressiveVowelDrop,
     Passive_In,
     Causative_t,
 
     // phonetic
-    Voicing, NoVoicing,
-    InverseHarmony, Doubling,
+    Voicing,
+    NoVoicing,
+    InverseHarmony,
+    Doubling,
 
     // noun related
     LastVowelDrop,
@@ -33,7 +36,12 @@ public enum RootAttribute implements StringEnum {
     Compound,
     Reflexive,
     Reciprocal,
-    Ext;
+
+    // for items that are not in official TDK dictionary
+    Ext,
+
+    // for items that are added to system during runtime
+    Runtime;
 
     int index;
 

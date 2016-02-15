@@ -1,6 +1,6 @@
 package zemberek.core.enums;
 
-public interface StringEnum<T extends Enum> {
+public interface StringEnum {
 
     String getStringForm();
 }

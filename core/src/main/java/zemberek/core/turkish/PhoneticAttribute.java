@@ -4,7 +4,7 @@ package zemberek.core.turkish;
 import zemberek.core.enums.StringEnum;
 import zemberek.core.enums.StringEnumMap;
 
-public enum PhoneticAttribute implements StringEnum<PhoneticAttribute> {
+public enum PhoneticAttribute implements StringEnum {
     LastLetterVowel("LLV"),
     LastLetterConsonant("LLC"),
 

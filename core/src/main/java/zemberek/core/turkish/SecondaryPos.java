@@ -4,7 +4,7 @@ package zemberek.core.turkish;
 import zemberek.core.enums.StringEnum;
 import zemberek.core.enums.StringEnumMap;
 
-public enum SecondaryPos implements StringEnum<SecondaryPos> {
+public enum SecondaryPos implements StringEnum {
     Demonstrative("Demons"),
     Time("Time"),
     Quantitive("Quant"),
