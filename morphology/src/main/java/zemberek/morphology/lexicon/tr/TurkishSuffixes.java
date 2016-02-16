@@ -146,8 +146,8 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
     public SuffixForm Become_lAs = getForm(Become, "lAş");
     public SuffixForm Become_Adj_lAs = getForm("Become_Adj_lAs", Become, "lAş");
 
-/*    public Suffix Acquire = new Suffix("Acquire");
-    public SuffixForm Acquire_lAn = getForm(Acquire, "lAn");*/
+    public Suffix Acquire = new Suffix("Acquire");
+    public SuffixForm Acquire_lAn = getForm(Acquire, "lAn");
 
     public Suffix JustLike = new Suffix("JustLike");
     public SuffixForm JustLike_ImsI = getForm(JustLike, "ImsI"); // udunumsu
@@ -516,7 +516,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
                 .add(A1sg_m, A2sg_n, A3sg_TEMPLATE, A1pl_k, A2pl_nIz, A3pl_lAr)
                 .add(Dat_nA, Loc_ndA, Abl_ndAn, Acc_nI, Equ_ncA)
                 .add(Dim_cIk, Dim2_cAgIz, With_lI, Without_sIz, Agt_cI, JustLike_msI, JustLike_ImsI, Ness_lIk, Related_sAl, FitFor_lIk)
-                .add(Become_lAs, /*Acquire_lAn,*/ Pres_TEMPLATE)
+                .add(Become_lAs, Acquire_lAn, Pres_TEMPLATE)
                 .add(Noun2Noun, Noun2Adj, Noun2Verb, Noun2VerbCopular);
 
         // default noun suffix form. we remove some suffixes so that words like araba-na (dative)
@@ -564,7 +564,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
 
         Noun2Adj.connections.add(With_lI, Without_sIz, JustLike_msI, Rel_ki, Rel_kI, Related_sAl, FitFor_lIk);
 
-        Noun2Verb.connections.add(Become_lAs /*, Acquire_lAn*/);
+        Noun2Verb.connections.add(Become_lAs , Acquire_lAn);
 
         Noun2VerbCopular.connections.add(Pres_TEMPLATE, PastCop_ydI, NarrCop_ymIs, CondCop_ysA, While_ken);
         Noun2VerbCopular.indirectConnections.add(A1sg_m, A2sg_n, A3sg_Verb_TEMPLATE, A1pl_k, A2pl_nIz, A3pl_Verb_lAr);
@@ -581,12 +581,12 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
 
         Adj2Adv.connections.add(Ly_cA);
 
-        Adj2Verb.connections.add(Become_Adj_lAs/*, Acquire_lAn*/).add(COPULAR_FORMS);
+        Adj2Verb.connections.add(Become_Adj_lAs, Acquire_lAn).add(COPULAR_FORMS);
 
         Num2Adj.connections.add(Quite_cA, JustLike_Adj_ImsI, JustLike_Adj_msI);
         Num2Noun.connections.add(Adj2Noun.connections);
         Num2Noun.indirectConnections.add(Adj2Noun.indirectConnections).remove(FitFor_lIk);
-        Num2Verb.connections.add(Become_Adj_lAs/*, Acquire_lAn*/).add(COPULAR_FORMS);
+        Num2Verb.connections.add(Become_Adj_lAs, Acquire_lAn).add(COPULAR_FORMS);
 
         Adv2Noun.connections.add(A3sg_TEMPLATE);
         Adv2Noun.indirectConnections.add(Pnon_TEMPLATE, Dat_yA);
@@ -883,8 +883,8 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
         Become_lAs.connections.add(Verb_TEMPLATE.connections);
         Become_lAs.indirectConnections.add(Verb_TEMPLATE.indirectConnections).remove(Caus_t, Pass_In, Pass_InIl);
 
-        //Acquire_lAn.connections.add(Verb_TEMPLATE.connections);
-        //Acquire_lAn.indirectConnections.add(Verb_TEMPLATE.indirectConnections).remove(Caus_t, Pass_In, Pass_InIl);
+        Acquire_lAn.connections.add(Verb_TEMPLATE.connections);
+        Acquire_lAn.indirectConnections.add(Verb_TEMPLATE.indirectConnections).remove(Caus_t, Pass_In, Pass_InIl);
 
         Become_Adj_lAs.connections.add(Verb_TEMPLATE.connections);
         Become_Adj_lAs.indirectConnections.add(Verb_TEMPLATE.indirectConnections).remove(Caus_t, Pass_In, Pass_InIl);
@@ -1145,7 +1145,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
                 PersPron_Siz, PersPron_BanSan, PersPron_Biz, PersPron_O, PersPron_Sen, PersPron_BenSen, PersPron_Ben,
 
                 Ness_lIk, FitFor_lIk,
-                Become_lAs, Become_Adj_lAs, /*Acquire_lAn,*/
+                Become_lAs, Become_Adj_lAs, Acquire_lAn,
                 JustLike_ImsI, JustLike_msI, Related_sAl,
                 Aor_Ir, Aor_Ar, Aor_z, Des_sA,
                 Aor_EMPTY, AorPart_Ar_2Adj, AorPart_Ir_2Adj, AorPart_z_2Adj,
