@@ -195,3 +195,4 @@ Google [Pr:gugıl]
 Google [Pr:gogıl; Index:1; Ref:Google]
 Washington [Pr:vaşington]
 Washington [Pr:voşingtın; Index:1; Ref:Washington]
+İstanbul

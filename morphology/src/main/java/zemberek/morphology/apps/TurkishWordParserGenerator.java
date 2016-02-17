@@ -37,6 +37,7 @@ public class TurkishWordParserGenerator extends BaseParser {
     private SimpleGenerator generator;
     private RootLexicon lexicon;
     private DynamicLexiconGraph graph;
+    private SuffixProvider suffixProvider;
     private UnidentifiedTokenParser unidentifiedTokenParser;
 
     private LoadingCache<String, List<MorphParse>> cache;
@@ -95,7 +96,7 @@ public class TurkishWordParserGenerator extends BaseParser {
             _parser = new SimpleParser(graph);
             _generator = new SimpleGenerator(graph);
             Log.info("Parser ready: " + sw.elapsed(TimeUnit.MILLISECONDS) + "ms.");
-            return new TurkishWordParserGenerator(_parser, _generator, lexicon, graph);
+            return new TurkishWordParserGenerator(_parser, _generator, lexicon, graph, suffixProvider);
         }
     }
 
@@ -110,7 +111,7 @@ public class TurkishWordParserGenerator extends BaseParser {
                         if (s.length() == 0)
                             return Collections.emptyList();
                         List<MorphParse> res = parser.parse(s);
-                        if (res.size() == 0 || (Character.isUpperCase(s.charAt(0)) && !containsProperNounParse(res))) {
+                        if (res.size() == 0) {
                             res.addAll(unidentifiedTokenParser.parse(s));
                         }
                         if (res.size() == 0) {
@@ -139,12 +140,14 @@ public class TurkishWordParserGenerator extends BaseParser {
             MorphParser parser,
             SimpleGenerator generator,
             RootLexicon lexicon,
-            DynamicLexiconGraph graph) {
+            DynamicLexiconGraph graph,
+            SuffixProvider suffixProvider) {
         this.parser = parser;
         this.generator = generator;
         this.lexicon = lexicon;
         this.graph = graph;
         this.unidentifiedTokenParser = new UnidentifiedTokenParser(this);
+        this.suffixProvider=suffixProvider;
         generateCaches();
     }
 
@@ -196,5 +199,9 @@ public class TurkishWordParserGenerator extends BaseParser {
 
     public DynamicLexiconGraph getGraph() {
         return graph;
+    }
+
+    public SuffixProvider getSuffixProvider() {
+        return suffixProvider;
     }
 }
