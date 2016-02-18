@@ -36,15 +36,17 @@ public class TurkishDictionaryLoader {
             new File(Resources.getResource("tr/master-dictionary.dict").getFile()),
             new File(Resources.getResource("tr/secondary-dictionary.dict").getFile()),
             new File(Resources.getResource("tr/non-tdk.dict").getFile()),
-            new File(Resources.getResource("tr/proper.dict").getFile())
+            new File(Resources.getResource("tr/proper.dict").getFile()),
+            new File(Resources.getResource("tr/proper-from-corpus.dict").getFile())
     );
 
     public static final List<String> DEFAULT_DICTIONARY_RESOURCES = ImmutableList.of(
             "tr/master-dictionary.dict",
             "tr/secondary-dictionary.dict",
             "tr/non-tdk.dict",
-            "tr/proper.dict"
-    );
+            "tr/proper.dict",
+            "tr/proper-from-corpus.dict"
+            );
 
     SuffixProvider suffixProvider;
 

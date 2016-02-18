@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import zemberek.core.io.Strings;
 import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.SuffixProvider;
@@ -45,6 +46,7 @@ public class UnidentifiedTokenParser extends BaseParser {
             String ending = normalize(se.ending);
             String pron = guessPronunciation(stem);
             DictionaryItem itemProp = new DictionaryItem(Turkish.capitalize(stem), stem, pron, PrimaryPos.Noun, SecondaryPos.ProperNoun);
+            itemProp.attributes.add(RootAttribute.Runtime);
             String toParse = stem + ending;
             graph.addDictionaryItem(itemProp);
             List<MorphParse> properResults = parser.parse(toParse);
@@ -55,6 +57,7 @@ public class UnidentifiedTokenParser extends BaseParser {
             String normalized = normalize(word);
             String pron = guessPronunciation(normalized);
             DictionaryItem itemProp = new DictionaryItem(Turkish.capitalize(normalized), normalized, pron, PrimaryPos.Noun, SecondaryPos.ProperNoun);
+            itemProp.attributes.add(RootAttribute.Runtime);
             graph.addDictionaryItem(itemProp);
             //TODO eliminate gross code duplication
             List<MorphParse> properResults = parser.parse(normalized);

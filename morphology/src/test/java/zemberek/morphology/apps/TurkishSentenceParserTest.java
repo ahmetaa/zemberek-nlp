@@ -49,14 +49,10 @@ public class TurkishSentenceParserTest {
         int s = 0;
         Histogram<String> unknownStuff = new Histogram<>();
         for (String sentence : sentences) {
-            if(sentence.contains("ağaçlandırılacağından")||sentence.contains("Ağaçlandırılacağından"))
-                System.out.println();
             SentenceMorphParse parse = parser.parse(sentence);
             for (SentenceMorphParse.Entry entry : parse) {
                 List<MorphParse> parses = entry.parses;
                 for (MorphParse morphParse : parses) {
-                    if(morphParse.getSurfaceForm().equals("ağaçlandırılacağından"))
-                        System.out.println();
                     if (morphParse.dictionaryItem == DictionaryItem.UNKNOWN) {
 /*
                         if(parses.size()>1)
