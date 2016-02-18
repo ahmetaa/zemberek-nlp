@@ -104,7 +104,7 @@ public class TurkishDictionaryLoader {
         return new TurkishDictionaryLoader(suffixProvider).load(lines);
     }
 
-    static enum MetaDataId implements StringEnum {
+    enum MetaDataId implements StringEnum {
         POS("P"),
         ATTRIBUTES("A"),
         REF_ID("Ref"),

@@ -1,10 +1,9 @@
-package zemberek.morphology.apps;
+package zemberek.morphology.parser.tr;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import zemberek.core.io.Files;
-import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.ambiguity.TurkishMorphDisambiguator;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.parser.MorphParse;

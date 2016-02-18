@@ -4,7 +4,6 @@ import com.google.common.io.Resources;
 import junit.framework.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.SimpleTextWriter;
 import zemberek.morphology.lexicon.RootLexicon;
@@ -12,17 +11,13 @@ import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
-import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.MorphParser;
-import zemberek.morphology.parser.SimpleParser;
-import zemberek.morphology.parser.TrieBasedParser;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.Collator;
 import java.util.*;
 
-public class SimpleParserFunctionalTest {
+public class WordParserFunctionalTest {
 
     public static final File PARSEABLES_FILE = new File(Resources.getResource("parseable.txt").getFile());
     public static final File DEV_LEXICON_FILE = new File(Resources.getResource("dev-lexicon.txt").getFile());
@@ -43,10 +38,10 @@ public class SimpleParserFunctionalTest {
     @Test
     public void simpleParse() throws IOException {
         DynamicLexiconGraph graph = getLexiconGraph(DEV_LEXICON_FILE);
-        SimpleParser simpleParser = new SimpleParser(graph);
+        WordParser wordParser = new WordParser(graph);
         List<String> parseables = SimpleTextReader.trimmingUTF8Reader(PARSEABLES_FILE).asStringList();
         for (String parseable : parseables) {
-            List<MorphParse> results = simpleParser.parse(parseable);
+            List<MorphParse> results = wordParser.parse(parseable);
             if (results.size() > 0) {
                 //System.out.print(parseable + " : ");
                 for (MorphParse parseResult : results) {
@@ -56,15 +51,10 @@ public class SimpleParserFunctionalTest {
 
             } else {
                 System.out.println("ERROR:" + parseable);
-                simpleParser.dump(parseable);
+                wordParser.dump(parseable);
             }
             //Assert.assertTrue("Could not parses valid word:" + parseable, parser.parses(parseable).size() > 0);
         }
-    }
-
-    @Test
-    public void trieBasedParseable() throws IOException {
-        parseableTest(trieParser(DEV_LEXICON_FILE));
     }
 
     @Test
@@ -74,7 +64,7 @@ public class SimpleParserFunctionalTest {
 
     @Test
     public void unparseableTest() throws IOException {
-        SimpleParser parser = simpleParser(DEV_LEXICON_FILE);
+        WordParser parser = simpleParser(DEV_LEXICON_FILE);
         List<String> unparseables = SimpleTextReader.trimmingUTF8Reader(UNPARSEABLES_FILE).asStringList();
         for (String wrong : unparseables) {
             Assert.assertTrue("Parses invalid word:" + wrong, parser.parse(wrong).size() == 0);
@@ -114,7 +104,7 @@ public class SimpleParserFunctionalTest {
         System.out.println("word list loaded");
         SimpleTextWriter stw = SimpleTextWriter.keepOpenUTF8Writer(new File(Resources.getResource("unknowns.txt").getFile()));
         System.out.println("Initial number of Suffix Form Sets: " + suffixes.getFormCount());
-        SimpleParser parser = simpleParser(MASTER_DICTIONARY_FILE, SECONDARY_DICTIONARY_FILE);
+        WordParser parser = simpleParser(MASTER_DICTIONARY_FILE, SECONDARY_DICTIONARY_FILE);
         System.out.println("Total number of Suffix Form Sets After Adding Stems: " + suffixes.getFormCount());
         System.out.println("Total number of Suffix nodes: " + parser.graph.totalSuffixNodeCount());
         System.out.println("Total number of Stem nodes: " + parser.graph.totalStemNodeCount());
@@ -145,7 +135,7 @@ public class SimpleParserFunctionalTest {
         System.out.println("word list loaded");
         SimpleTextWriter stw = SimpleTextWriter.keepOpenUTF8Writer(OFLAZER_MISMATCH_FILE);
         System.out.println("Initial number of Suffix Form Sets: " + suffixes.getFormCount());
-        SimpleParser parser = simpleParser(
+        WordParser parser = simpleParser(
                 MASTER_DICTIONARY_FILE,
                 SECONDARY_DICTIONARY_FILE,
                 NON_TDK_DICT_FILE);
@@ -181,7 +171,7 @@ public class SimpleParserFunctionalTest {
     public void generateSuffixSurfaceForms() throws IOException {
         Set<String> surfaceForms = new HashSet<String>();
         List<String> allWords = SimpleTextReader.trimmingUTF8Reader(Z2_VOCAB_FILE).asStringList();
-        SimpleParser parser = simpleParser(MASTER_DICTIONARY_FILE, SECONDARY_DICTIONARY_FILE);
+        WordParser parser = simpleParser(MASTER_DICTIONARY_FILE, SECONDARY_DICTIONARY_FILE);
         for (String word : allWords) {
             List<MorphParse> results = parser.parse(word);
             for (MorphParse result : results) {
@@ -198,14 +188,9 @@ public class SimpleParserFunctionalTest {
     }
 
 
-    private SimpleParser simpleParser(File... dictionary) throws IOException {
+    private WordParser simpleParser(File... dictionary) throws IOException {
         DynamicLexiconGraph graph = getLexiconGraph(dictionary);
-        return new SimpleParser(graph);
-    }
-
-    private TrieBasedParser trieParser(File dictionary) throws IOException {
-        DynamicLexiconGraph graph = getLexiconGraph(dictionary);
-        return new TrieBasedParser(graph);
+        return new WordParser(graph);
     }
 
     static TurkishSuffixes suffixes = new TurkishSuffixes();

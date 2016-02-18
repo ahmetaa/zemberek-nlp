@@ -1,4 +1,4 @@
-package zemberek.morphology.apps;
+package zemberek.morphology.parser.tr;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Stopwatch;
@@ -6,6 +6,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.SecondaryPos;
@@ -18,13 +19,14 @@ import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
 import zemberek.morphology.parser.MorphParse;
 import zemberek.morphology.parser.MorphParser;
-import zemberek.morphology.parser.SimpleParser;
+import zemberek.morphology.parser.WordParser;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -40,8 +42,8 @@ public class TurkishWordParserGenerator extends BaseParser {
     private SuffixProvider suffixProvider;
     private UnidentifiedTokenParser unidentifiedTokenParser;
 
-    private LoadingCache<String, List<MorphParse>> cache;
-    private SimpleMorphCache morphCache;
+    private LoadingCache<String, List<MorphParse>> dynamicCache;
+    private StaticMorphCache staticCache;
 
     public static class TurkishMorphParserBuilder {
         MorphParser _parser;
@@ -93,7 +95,7 @@ public class TurkishWordParserGenerator extends BaseParser {
             Stopwatch sw = Stopwatch.createStarted();
             DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
             graph.addDictionaryItems(lexicon);
-            _parser = new SimpleParser(graph);
+            _parser = new WordParser(graph);
             _generator = new SimpleGenerator(graph);
             Log.info("Parser ready: " + sw.elapsed(TimeUnit.MILLISECONDS) + "ms.");
             return new TurkishWordParserGenerator(_parser, _generator, lexicon, graph, suffixProvider);
@@ -101,7 +103,7 @@ public class TurkishWordParserGenerator extends BaseParser {
     }
 
     private void generateCaches() {
-        this.cache = CacheBuilder.newBuilder()
+        this.dynamicCache = CacheBuilder.newBuilder()
                 .maximumSize(50000)
                 .concurrencyLevel(1)
                 .initialCapacity(20000)
@@ -122,7 +124,7 @@ public class TurkishWordParserGenerator extends BaseParser {
                 });
         try {
             List<String> words = Resources.readLines(Resources.getResource("tr/top-20K-words.txt"), Charsets.UTF_8);
-            morphCache = new SimpleMorphCache(parser, words);
+            staticCache = new StaticMorphCache(parser, words);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -174,19 +176,19 @@ public class TurkishWordParserGenerator extends BaseParser {
      */
     public List<MorphParse> parse(String word) {
         String s = normalize(word); // TODO: may cause problem for some foreign words.
-        List<MorphParse> res = morphCache.parse(s);
+        List<MorphParse> res = staticCache.parse(s);
         if (res == null) {
-            res = cache.getUnchecked(s);
+            res = dynamicCache.getUnchecked(s);
         }
         return res;
     }
 
     public void invalidateAllCache() {
-        cache.invalidateAll();
+        dynamicCache.invalidateAll();
     }
 
     public void invalidateCache(String input) {
-        cache.invalidate(input);
+        dynamicCache.invalidate(input);
     }
 
     public SimpleGenerator getGenerator() {
@@ -203,5 +205,33 @@ public class TurkishWordParserGenerator extends BaseParser {
 
     public SuffixProvider getSuffixProvider() {
         return suffixProvider;
+    }    
+
+    static class StaticMorphCache {
+        private final HashMap<String, List<MorphParse>> cache;
+        private long hit = 0;
+        private long miss = 0;
+
+        public StaticMorphCache(MorphParser parser, List<String> wordList) throws IOException {
+            cache = Maps.newHashMapWithExpectedSize(5000);
+            for (String s : wordList) {
+                cache.put(s, parser.parse(s));
+            }
+        }
+
+        public List<MorphParse> parse(String s) {
+            List<MorphParse> result = cache.get(s);
+            if (result != null) {
+                hit++;
+            } else {
+                miss++;
+            }
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "Hits: " + hit + " Miss: " + miss + " Hit ratio: %" + (hit / (double)(hit + miss) * 100);
+        }
     }
 }

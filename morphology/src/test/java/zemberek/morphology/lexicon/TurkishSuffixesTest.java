@@ -6,7 +6,7 @@ import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
 import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.SimpleParser;
+import zemberek.morphology.parser.WordParser;
 
 
 import java.util.ArrayList;
@@ -448,7 +448,7 @@ public class TurkishSuffixesTest {
         }
 
         void assertHasParses(String... words) {
-            SimpleParser parser = new SimpleParser(graph);
+            WordParser parser = new WordParser(graph);
             for (String word : words) {
                 List<MorphParse> results = parser.parse(word);
                 if (results.size() == 0)
@@ -461,7 +461,7 @@ public class TurkishSuffixesTest {
         }
 
         void assertUnParseable(String... words) {
-            SimpleParser parser = new SimpleParser(graph);
+            WordParser parser = new WordParser(graph);
             for (String word : words) {
                 List<MorphParse> results = parser.parse(word);
                 Assert.assertTrue("Unexpected parse for:" + word + " parse:" + results, results.size() == 0);
@@ -469,7 +469,7 @@ public class TurkishSuffixesTest {
         }
 
         void assertUnParseable(Suffix suffix, String... words) {
-            SimpleParser parser = new SimpleParser(graph);
+            WordParser parser = new WordParser(graph);
             for (String word : words) {
                 List<MorphParse> results = parser.parse(word);
                 for (MorphParse result : results) {

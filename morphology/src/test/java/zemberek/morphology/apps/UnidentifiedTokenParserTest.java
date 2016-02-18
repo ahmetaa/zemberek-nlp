@@ -4,6 +4,8 @@ import com.google.common.collect.Sets;
 import junit.framework.Assert;
 import org.junit.Test;
 import zemberek.morphology.parser.MorphParse;
+import zemberek.morphology.parser.tr.TurkishWordParserGenerator;
+import zemberek.morphology.parser.tr.UnidentifiedTokenParser;
 
 import java.io.IOException;
 import java.util.HashSet;

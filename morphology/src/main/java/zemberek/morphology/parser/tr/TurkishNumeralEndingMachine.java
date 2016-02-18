@@ -1,4 +1,4 @@
-package zemberek.morphology.apps;
+package zemberek.morphology.parser.tr;
 
 /**
  * This class is used for finding the last word of a number.

@@ -52,7 +52,7 @@ public class MorphParseTest {
                 "mavi+Adj",
                 "yirmi+Num+Card^DB+Noun+A3sg+Pnon+Dat"
         };
-        SimpleParser parser = getParser(dictionary);
+        WordParser parser = getParser(dictionary);
         int i = 0;
         for (String s : testSet) {
             List<MorphParse> results = parser.parse(s);
@@ -68,7 +68,7 @@ public class MorphParseTest {
 
     @Test
     public void igSurfaceTest() {
-        SimpleParser parser = getParser("kitap");
+        WordParser parser = getParser("kitap");
         String[] testSet = {"kitabıma", "kitaplaşırız"};
         String[] expected = {"ıma", "laşırız"};
         int i = 0;
@@ -86,7 +86,7 @@ public class MorphParseTest {
 
     @Test
     public void getLemmasTest() {
-        SimpleParser parser = getParser("kitap", "aramak", "mavi [P:Adj]", "leh", "dekorasyon", "yapmak");
+        WordParser parser = getParser("kitap", "aramak", "mavi [P:Adj]", "leh", "dekorasyon", "yapmak");
 
         String[] testSet = {"kitaplaşırız", "kitabımızsa", "kitaba", "aradım", "aratagörün", "arattırın", "mavide",
                 "lehimeydi", "dekorasyonundaki", "yapacağı", "yapacağınaysa"};
@@ -117,7 +117,7 @@ public class MorphParseTest {
 
     @Test
     public void getStemsTest() {
-        SimpleParser parser = getParser("kitap", "yapmak");
+        WordParser parser = getParser("kitap", "yapmak");
 
         String[] testSet = {"kitaplaşırız", "kitaba", "yapacağı"};
 
@@ -138,9 +138,9 @@ public class MorphParseTest {
     }
 
 
-    private SimpleParser getParser(String... lines) {
+    private WordParser getParser(String... lines) {
         DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
         graph.addDictionaryItems(new TurkishDictionaryLoader(suffixProvider).load(lines));
-        return new SimpleParser(graph);
+        return new WordParser(graph);
     }
 }

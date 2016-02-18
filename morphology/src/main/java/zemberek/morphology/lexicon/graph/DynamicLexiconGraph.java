@@ -27,7 +27,8 @@ public class DynamicLexiconGraph {
 
     private Map<SuffixForm, Set<SuffixSurfaceNode>> suffixFormMap = Maps.newConcurrentMap();
 
-    // required for parsing. These were in SimpleParser before.
+    // required for parsing. These were in WordParser before.
+    // TODO: this mechanism should be an abstraction that can also use a StemTrie
     ArrayListMultimap<String, StemNode> multiStems = ArrayListMultimap.create(1000, 2);
     Map<String, StemNode> singeStems = Maps.newHashMap();
 

@@ -1,4 +1,4 @@
-package zemberek.morphology.apps;
+package zemberek.morphology.parser.tr;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -8,11 +8,10 @@ import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
-import zemberek.morphology.lexicon.graph.StemNode;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
 import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.SimpleParser;
+import zemberek.morphology.parser.WordParser;
 import zemberek.morphology.structure.StemAndEnding;
 import zemberek.morphology.structure.Turkish;
 
@@ -21,7 +20,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 public class UnidentifiedTokenParser extends BaseParser {
-    SimpleParser parser;
+    WordParser parser;
     DynamicLexiconGraph graph;
     TurkishWordParserGenerator turkishParser;
 
@@ -31,7 +30,7 @@ public class UnidentifiedTokenParser extends BaseParser {
         // generate a parser with an empty graph.
         SuffixProvider suffixProvider = new TurkishSuffixes();
         this.graph = new DynamicLexiconGraph(suffixProvider);
-        this.parser = new SimpleParser(graph);
+        this.parser = new WordParser(graph);
     }
 
     public List<MorphParse> parse(String word) {

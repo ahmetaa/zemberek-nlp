@@ -1,4 +1,4 @@
-package zemberek.morphology.apps;
+package zemberek.morphology.parser.tr;
 
 import zemberek.core.io.IOs;
 import zemberek.core.io.KeyValueReader;

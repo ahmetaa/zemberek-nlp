@@ -5,8 +5,6 @@ import org.junit.Test;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
-import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.SimpleParser;
 
 
 import java.util.List;
@@ -23,7 +21,7 @@ public class CompoundWordsTest {
     }
 
     private void applyTest(String[] lines, String[] testSet) {
-        SimpleParser parser = getParser(lines);
+        WordParser parser = getParser(lines);
         for (String s : testSet) {
             List<MorphParse> parseResults = parser.parse(s);
             if (parseResults.size() == 0)
@@ -33,7 +31,7 @@ public class CompoundWordsTest {
     }
 
     private void applyFalseTest(String[] lines, String[] testSet) {
-        SimpleParser parser = getParser(lines);
+        WordParser parser = getParser(lines);
         for (String s : testSet) {
             List<MorphParse> parseResults = parser.parse(s);
             Assert.assertTrue(s, parseResults.size() == 0);
@@ -59,9 +57,9 @@ public class CompoundWordsTest {
         applyFalseTest(lines, falseSet);
     }
 
-    private SimpleParser getParser(String... lines) {
+    private WordParser getParser(String... lines) {
         DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
         graph.addDictionaryItems(new TurkishDictionaryLoader(suffixProvider).load(lines));
-        return new SimpleParser(graph);
+        return new WordParser(graph);
     }
 }

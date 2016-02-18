@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class SimpleParserTest {
+public class WordParserTest {
 
     @Test
     public void testVoicing() {
@@ -82,7 +82,7 @@ public class SimpleParserTest {
     }
 
     private void assertHasParses(DynamicLexiconGraph graph, String... words) {
-        SimpleParser parser = new SimpleParser(graph);
+        WordParser parser = new WordParser(graph);
         for (String word : words) {
             List<MorphParse> results = parser.parse(word);
             if (results.size() == 0)
@@ -95,7 +95,7 @@ public class SimpleParserTest {
     }
 
     private void assertLongParses(DynamicLexiconGraph graph, String word, String... parses) {
-        SimpleParser parser = new SimpleParser(graph);
+        WordParser parser = new WordParser(graph);
 
         List<MorphParse> results = parser.parse(word);
         Assert.assertTrue("Cannot parse:" + word, results.size() > 0);
@@ -110,7 +110,7 @@ public class SimpleParserTest {
     }
 
     private void assertUnParseable(DynamicLexiconGraph graph, String... words) {
-        SimpleParser parser = new SimpleParser(graph);
+        WordParser parser = new WordParser(graph);
         for (String word : words) {
             List<MorphParse> results = parser.parse(word);
             Assert.assertTrue("Unexpected parse for:" + word + " parse:" + results, results.size() == 0);

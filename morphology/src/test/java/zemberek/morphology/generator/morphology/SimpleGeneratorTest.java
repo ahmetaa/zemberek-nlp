@@ -16,7 +16,7 @@ import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
 import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.SimpleParser;
+import zemberek.morphology.parser.WordParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class SimpleGeneratorTest {
     @Test
     public void regenerateTest() throws IOException {
         DynamicLexiconGraph graph = getLexicon();
-        SimpleParser parser = new SimpleParser(graph);
+        WordParser parser = new WordParser(graph);
         SimpleGenerator generator = new SimpleGenerator(graph);
         List<String> parseables = SimpleTextReader.trimmingUTF8Reader(new File(Resources.getResource("parseable.txt").getFile())).asStringList();
         for (String parseable : parseables) {
@@ -51,7 +51,7 @@ public class SimpleGeneratorTest {
     @Test
     public void regenerateTest2() throws IOException {
         DynamicLexiconGraph graph = getLexicon();
-        SimpleParser parser = new SimpleParser(graph);
+        WordParser parser = new WordParser(graph);
         SimpleGenerator generator = new SimpleGenerator(graph);
         String word = "elmada";
         List<MorphParse> parseResults = parser.parse(word);
@@ -65,7 +65,7 @@ public class SimpleGeneratorTest {
     @Test
     public void regenerateTest3() throws IOException {
         DynamicLexiconGraph graph = getLexicon();
-        SimpleParser parser = new SimpleParser(graph);
+        WordParser parser = new WordParser(graph);
         SimpleGenerator generator = new SimpleGenerator(graph);
         String word = "elmada";
         List<MorphParse> parseResults = parser.parse(word);
@@ -82,7 +82,7 @@ public class SimpleGeneratorTest {
     @Test
     public void morphemeGenerationTest() throws IOException {
         DynamicLexiconGraph graph = getLexicon();
-        SimpleParser parser = new SimpleParser(graph);
+        WordParser parser = new WordParser(graph);
         SimpleGenerator generator = new SimpleGenerator(graph);
         List<String> testLines = SimpleTextReader.trimmingUTF8Reader(new File(Resources.getResource("separate-morphemes.txt").getFile())).asStringList();
         ArrayListMultimap<String, String> results = ArrayListMultimap.create(100, 2);
@@ -104,7 +104,7 @@ public class SimpleGeneratorTest {
     @Ignore("Performance Test")
     public void speedTest() throws IOException {
         DynamicLexiconGraph graph = getLexicon();
-        SimpleParser parser = new SimpleParser(graph);
+        WordParser parser = new WordParser(graph);
         SimpleGenerator generator = new SimpleGenerator(graph);
         List<String> parseables = SimpleTextReader.trimmingUTF8Reader(new File(Resources.getResource("parseable.txt").getFile())).asStringList();
         List<MorphParse> parses = new ArrayList<MorphParse>();

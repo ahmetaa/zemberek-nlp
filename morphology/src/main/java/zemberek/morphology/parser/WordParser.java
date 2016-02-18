@@ -8,11 +8,11 @@ import zemberek.morphology.lexicon.graph.TerminationType;
 
 import java.util.List;
 
-public class SimpleParser implements MorphParser {
+public class WordParser implements MorphParser {
 
     DynamicLexiconGraph graph;
 
-    public SimpleParser(DynamicLexiconGraph graph) {
+    public WordParser(DynamicLexiconGraph graph) {
         this.graph = graph;
     }
 

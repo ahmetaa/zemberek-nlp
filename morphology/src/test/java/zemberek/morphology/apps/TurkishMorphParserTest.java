@@ -8,6 +8,7 @@ import com.google.common.io.Files;
 import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.morphology.parser.MorphParse;
+import zemberek.morphology.parser.tr.TurkishWordParserGenerator;
 
 import java.io.File;
 import java.io.IOException;

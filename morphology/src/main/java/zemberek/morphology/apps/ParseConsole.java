@@ -9,7 +9,7 @@ import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
 import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.SimpleParser;
+import zemberek.morphology.parser.WordParser;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.Scanner;
 public class ParseConsole {
 
     public void doit() throws IOException {
-        SimpleParser parser = createSimpleParser();
+        WordParser parser = createSimpleParser();
         String input;
         System.out.println("Enter word:");
         Scanner sc = new Scanner(System.in);
@@ -47,12 +47,10 @@ public class ParseConsole {
 //                    System.out.println(new MorphParse(token).formatNoEmpty());
     }
 
-    protected SimpleParser createSimpleParser() throws IOException {
+    protected WordParser createSimpleParser() throws IOException {
         DynamicLexiconGraph graph = createLexiconGraph();
-        DictionaryItem item = new DictionaryItem("tweetlemek", "tweetle", "tivitle", PrimaryPos.Verb, SecondaryPos.None);
-        graph.addDictionaryItem(item);
         //graph.stats();
-        return new SimpleParser(graph);
+        return new WordParser(graph);
     }
 
     protected DynamicLexiconGraph createLexiconGraph() throws IOException {

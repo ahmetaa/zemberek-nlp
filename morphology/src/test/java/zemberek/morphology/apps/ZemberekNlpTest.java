@@ -2,6 +2,8 @@ package zemberek.morphology.apps;
 
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.parser.MorphParse;
+import zemberek.morphology.parser.tr.TurkishSentenceParser;
+import zemberek.morphology.parser.tr.TurkishWordParserGenerator;
 
 import java.io.IOException;
 import java.util.List;
