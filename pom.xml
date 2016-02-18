@@ -19,7 +19,7 @@
     <distributionManagement>
         <repository>
             <id>local-repo-clone</id>
-            <url>file:///home/afsina/projects/maven-repo</url>
+            <url>file://${user.home}/projects/maven-repo</url>
         </repository>
     </distributionManagement>
 
