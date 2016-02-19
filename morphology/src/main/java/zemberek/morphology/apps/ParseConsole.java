@@ -1,9 +1,6 @@
 package zemberek.morphology.apps;
 
 import zemberek.core.turkish.RootAttribute;
-import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.lexicon.SuffixProvider;
-import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.parser.MorphParse;
 import zemberek.morphology.parser.WordParser;
 import zemberek.morphology.parser.tr.TurkishWordParserGenerator;
@@ -14,7 +11,7 @@ import java.util.Scanner;
 
 public class ParseConsole {
 
-    public void doit() throws IOException {
+    public void run() throws IOException {
         TurkishWordParserGenerator parser = TurkishWordParserGenerator.createWithDefaults();
         String input;
         System.out.println("Enter word:");
@@ -40,12 +37,8 @@ public class ParseConsole {
         System.out.println(token.formatLong() + runtime);
     }
 
-    protected RootLexicon createRootLexicon(SuffixProvider suffixProvider) throws IOException {
-        return TurkishDictionaryLoader.loadDefaultDictionaries(suffixProvider);
-    }
-
     public static void main(String[] args) throws IOException {
         // to test the development lexicon, use ParseConsoleTest
-        new ParseConsole().doit();
+        new ParseConsole().run();
     }
 }
