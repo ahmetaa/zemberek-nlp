@@ -11,8 +11,7 @@ import java.util.Scanner;
 
 public class ParseConsole {
 
-    public void run() throws IOException {
-        TurkishWordParserGenerator parser = TurkishWordParserGenerator.createWithDefaults();
+    public void run(TurkishWordParserGenerator parser) throws IOException {
         String input;
         System.out.println("Enter word:");
         Scanner sc = new Scanner(System.in);
@@ -39,6 +38,6 @@ public class ParseConsole {
 
     public static void main(String[] args) throws IOException {
         // to test the development lexicon, use ParseConsoleTest
-        new ParseConsole().run();
+        new ParseConsole().run(TurkishWordParserGenerator.createWithDefaults());
     }
 }
