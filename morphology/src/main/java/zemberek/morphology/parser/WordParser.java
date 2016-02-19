@@ -10,7 +10,7 @@ import java.util.List;
 
 public class WordParser implements MorphParser {
 
-    DynamicLexiconGraph graph;
+    public final DynamicLexiconGraph graph;
 
     public WordParser(DynamicLexiconGraph graph) {
         this.graph = graph;
@@ -38,17 +38,17 @@ public class WordParser implements MorphParser {
     }
 
     private void traverseSuffixes(List<ParseToken> current, List<MorphParse> completed) {
-        List<ParseToken> newtokens = Lists.newArrayList();
+        List<ParseToken> newTokens = Lists.newArrayList();
         for (ParseToken token : current) {
             boolean matchFound = false;
             for (SuffixSurfaceNode successor : token.currentSurfaceNode.getSuccessors()) {
                 if (token.rest.startsWith(successor.surfaceForm)) {
                     if (token.rest.length() > 0) {
-                        newtokens.add(token.getCopy(successor));
+                        newTokens.add(token.getCopy(successor));
                         matchFound = true;
                     } else {
                         if (successor.termination != TerminationType.NON_TERMINAL) {
-                            newtokens.add(token.getCopy(successor));
+                            newTokens.add(token.getCopy(successor));
                             matchFound = true;
                         }
                     }
@@ -57,12 +57,14 @@ public class WordParser implements MorphParser {
                 }
             }
             if (!matchFound) {
-                if (token.rest.length() == 0 && token.terminal)
+                if (token.rest.length() == 0 && token.terminal) {
                     completed.add(token.getResult());
+                }
             }
         }
-        if (!newtokens.isEmpty())
-            traverseSuffixes(newtokens, completed);
+        if (!newTokens.isEmpty()) {
+            traverseSuffixes(newTokens, completed);
+        }
     }
 
     public void dump(String input) {
