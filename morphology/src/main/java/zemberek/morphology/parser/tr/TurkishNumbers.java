@@ -208,7 +208,7 @@ public class TurkishNumbers {
      * @return same as input but string representations of numbers are replaced with numbers.
      */
     public static List<String> replaceNumberStrings(List<String> inputSequence) {
-        List<String> output = new ArrayList<String>(inputSequence.size());
+        List<String> output = new ArrayList<>(inputSequence.size());
         for (String s : inputSequence) {
             if (stringToNumber.containsKey(s))
                 output.add(valueOf(stringToNumber.get(s)));
