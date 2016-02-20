@@ -12,7 +12,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class LoadProperNouns {
 
@@ -25,6 +27,7 @@ public class LoadProperNouns {
 
         Histogram<String> histogram = new Histogram<>();
 
+        Set<String> ignore = new HashSet<>(Files.readAllLines(Paths.get("morphology/src/main/resources/tr/proper-ignore")));
 
         for (String line : lines) {
             if (line.startsWith("_"))
@@ -36,6 +39,10 @@ public class LoadProperNouns {
             String word = Strings.subStringUntilFirst(line, " ");
             int count = Integer.parseInt(Strings.subStringAfterFirst(line, " "));
             word = Turkish.capitalize(word.substring(1));
+
+            if (ignore.contains(word))
+                continue;
+
             List<MorphParse> parses = parserGenerator.parse(word);
             boolean found = false;
             for (MorphParse parse : parses) {
@@ -52,10 +59,11 @@ public class LoadProperNouns {
             if (word.length() < 4)
                 continue;
 
+
             histogram.add(word, count);
         }
 
-        histogram.removeSmaller(180);
+        histogram.removeSmaller(175);
         try (PrintWriter pw = new PrintWriter("proper")) {
             histogram.getSortedList(Turkish.STRING_COMPARATOR_ASC).forEach(pw::println);
         }
