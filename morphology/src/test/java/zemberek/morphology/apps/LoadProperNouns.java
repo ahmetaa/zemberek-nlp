@@ -63,7 +63,7 @@ public class LoadProperNouns {
             histogram.add(word, count);
         }
 
-        histogram.removeSmaller(175);
+        histogram.removeSmaller(170);
         try (PrintWriter pw = new PrintWriter("proper")) {
             histogram.getSortedList(Turkish.STRING_COMPARATOR_ASC).forEach(pw::println);
         }
