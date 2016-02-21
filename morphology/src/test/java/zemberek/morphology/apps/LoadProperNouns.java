@@ -40,6 +40,9 @@ public class LoadProperNouns {
             int count = Integer.parseInt(Strings.subStringAfterFirst(line, " "));
             word = Turkish.capitalize(word.substring(1));
 
+            if(count<50)
+                continue;
+
             if (ignore.contains(word))
                 continue;
 
@@ -63,7 +66,7 @@ public class LoadProperNouns {
             histogram.add(word, count);
         }
 
-        histogram.removeSmaller(170);
+        histogram.removeSmaller(165);
         try (PrintWriter pw = new PrintWriter("proper")) {
             histogram.getSortedList(Turkish.STRING_COMPARATOR_ASC).forEach(pw::println);
         }
