@@ -76,7 +76,7 @@ public class Words {
             return null;
         }
         if (newLineStr == null) {
-            newLineStr = Systems.LINE_SEPARATOR;
+            newLineStr = System.getProperty("line.separator");
         }
         if (wrapLength < 1) {
             wrapLength = 1;
