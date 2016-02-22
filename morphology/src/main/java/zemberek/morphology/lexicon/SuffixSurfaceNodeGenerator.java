@@ -188,7 +188,7 @@ public class SuffixSurfaceNodeGenerator {
 
     TurkishAlphabet alphabet = new TurkishAlphabet();
 
-    private static enum TokenType {
+    private enum TokenType {
         I_WOVEL,
         A_WOVEL,
         DEVOICE_FIRST,

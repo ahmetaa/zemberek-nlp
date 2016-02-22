@@ -24,7 +24,7 @@ public class Turkish {
     static {
         try {
             turkishLetterProns = new KeyValueReader("=", "##").loadFromStream(
-                    Turkish.class.getResourceAsStream("/tr/phonetics/turkish-letter-turkish-pron.txt"), "utf-8");
+                    Turkish.class.getResourceAsStream("/tr/phonetics/turkish-letter-pronunciation.txt"), "utf-8");
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
         }
