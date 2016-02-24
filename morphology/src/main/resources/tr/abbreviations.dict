@@ -6,14 +6,13 @@ A3
 A4
 Aa
 Aaa
-Ab
+Ab [pr:abe]
 Abb
 Abc
 Abe
 Abs
 Ace
 Aç
-Açe
 Add
 Ae
 Aek
@@ -22,7 +21,6 @@ Afm
 Afp
 Agb
 Age
-Ahh
 Ahl
 Air
 Ak
@@ -31,13 +29,11 @@ Akm
 Akp
 Ale
 All
-Alp
 Als
 Amb
 Amd
 Amg
 Amr
-Amy
 And
 Anf
 Ang
@@ -49,10 +45,8 @@ Aö
 Aöf
 Ap
 Apk
-Apo
 App
 Are
-Ash
 Aso
 Aş
 Atb
@@ -100,7 +94,6 @@ Bmc
 Bmd
 Bmw
 Bnp
-Bob
 Boi
 Boj
 Boo
@@ -143,19 +136,17 @@ Chi
 Cho
 Chp
 Cı
-Cıa
+Cıa [Pr:siyayey]
 Ci
 Ck
 Cm
 Cmk
 Cmr
 Cng
-Cnn
+Cnn [Pr:siyenen]
 Cnr
-Co2
-Cok
-Cox
-Cpu
+Co2 [Pr:coiki]
+Cpu [Pr:sipiyu]
 Crr
 Cso
 Csu
@@ -167,7 +158,6 @@ Cv
 Cy
 Cyy
 Ç
-Çad
 Çed
 Çev
 Çhd
@@ -181,7 +171,6 @@ Dap
 Das
 Daş
 Dax
-Day
 Db
 Dbp
 Dc
@@ -219,7 +208,7 @@ Dp
 Dpb
 Dpt
 Dpü
-Dr
+Dr [Pr:doktor]
 Ds
 Dsg
 Dsi
@@ -238,35 +227,22 @@ Dyo
 Dyp
 Dz
 E
-Ea
-Eb
 Ebk
-Ec
 Ecb
 Eco
-Eç
-Ed
 Eds
 Edu
-Ee
 Eee
-Ef
 Eft
-Eg
 Egm
 Egs
-Ei
 Eib
 Eit
-Ek
 Ekg
 Ekk
 Emı
 Emo
 End
-Eo
-Eö
-Ep
 Era
 Erü
 Esa
@@ -276,11 +252,9 @@ Etö
 Ets
 Etü
 Eur
-Eü
 Eva
 Evo
 Ex
-Ey
 F
 F1 [pr:febir]
 F16 [pr:feonaltı]
@@ -288,33 +262,19 @@ Fao
 Fat
 Fb
 Fbı
-Fc
-Fç
-Fd
 Fda
 Fdp
 Fdt
 Fed
-Ff
-Fg
 Fıa
-Fk
 Fkö
 Flo
 Fly
-Fm
-Fn
-Fo
 For
-Fox
-Fp
 Fps
 Fry
-Fs
 Fsb
 Fsm
-Ft
-Fy
 G
 G2 [pr:geiki]
 G20 [pr:geyirmi]
@@ -324,7 +284,6 @@ G8 [pr:gesekiz]
 Gal
 Gap
 Gas
-Gay
 Gb
 Gbt
 Gc
@@ -334,22 +293,17 @@ Get
 Gfk
 Gg
 Ghz
-Gi
 Gib
 Gih
 Gik
 Gil
-Gk
 Gli
-Gm
 Gmk
 Gn
 Gns
 Go
-God
 Gop
 Gö
-Gök
 Gp
 Gps
 Gpu
@@ -361,11 +315,7 @@ Gss
 Gt
 Gto
 Gu
-Gun
-Gus
-Guy
 Gü
-Güç
 Gy
 Gye
 Gyo
@@ -374,8 +324,6 @@ H
 Haa
 Hai
 Hb
-Hc
-Hç
 Hd
 Hdd
 Hdl
@@ -390,8 +338,6 @@ Hı
 Hıv
 Hi
 Hk
-Hm
-Hmm
 Hms
 Hni
 Hot
@@ -421,8 +367,6 @@ Ie
 Iea
 If
 Ifc
-Iı
-Iıı
 Ike
 Iki
 Il
@@ -487,9 +431,6 @@ Jfk
 Ji
 Jim
 Jin
-Jj
-Jk
-Jo
 Joe
 Joo
 Jos
@@ -551,8 +492,6 @@ Lcw
 Ldl
 Le
 Led
-Lee
-Lem
 Leo
 Les
 Lex
@@ -664,7 +603,6 @@ Nev
 New
 Nfc
 Ng
-Nil
 Nk
 Nm
 Noa
@@ -770,15 +708,11 @@ Rg
 Rım
 Ri
 Ria
-Rio
 Rk
 Ro
-Rob
-Rod
 Roj
 Ron
 Ros
-Roy
 Rp
 Rpg
 Rs
@@ -804,7 +738,6 @@ Sdp
 Sdü
 Sea
 Seo
-Sex
 Sg
 Sgk
 Sh
@@ -1056,5 +989,4 @@ Z
 Zap
 Zdf
 Zec
-Zin
-Zoe
+

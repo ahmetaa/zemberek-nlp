@@ -38,7 +38,7 @@ public class TurkishSentenceParserTest {
     @Test
     @Ignore("To be executed manually, not within continuous build.")
     public void shouldParseSentencesInNTVMSNBCCorpus() throws IOException {
-        final File corpus = new File("/home/kodlab/data/2014-mt-txt/dunya100k");
+        final File corpus = new File("/home/kodlab/data/2014-mt-txt/dunya");
         doParseSentencesInCorpus(corpus);
     }
 
@@ -54,10 +54,6 @@ public class TurkishSentenceParserTest {
                 List<MorphParse> parses = entry.parses;
                 for (MorphParse morphParse : parses) {
                     if (morphParse.dictionaryItem == DictionaryItem.UNKNOWN) {
-/*
-                        if(parses.size()>1)
-                            System.out.println("huh");
-*/
                         unknownStuff.add(morphParse.getSurfaceForm());
                     }
                 }
