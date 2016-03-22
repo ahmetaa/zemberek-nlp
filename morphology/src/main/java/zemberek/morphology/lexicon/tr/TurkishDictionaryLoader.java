@@ -32,15 +32,6 @@ import static zemberek.core.turkish.TurkishAlphabet.L_r;
 
 public class TurkishDictionaryLoader {
 
-    public static final List<File> DEFAULT_DICTIONARY_FILES = ImmutableList.of(
-            new File(Resources.getResource("tr/master-dictionary.dict").getFile()),
-            new File(Resources.getResource("tr/secondary-dictionary.dict").getFile()),
-            new File(Resources.getResource("tr/non-tdk.dict").getFile()),
-            new File(Resources.getResource("tr/proper.dict").getFile()),
-            new File(Resources.getResource("tr/proper-from-corpus.dict").getFile()),
-            new File(Resources.getResource("tr/abbreviations.dict").getFile())
-    );
-
     public static final List<String> DEFAULT_DICTIONARY_RESOURCES = ImmutableList.of(
             "tr/master-dictionary.dict",
             "tr/secondary-dictionary.dict",
@@ -101,6 +92,14 @@ public class TurkishDictionaryLoader {
     }
 
     public static RootLexicon loadDefaultDictionaries(final SuffixProvider suffixProvider) throws IOException {
+        final List<File> DEFAULT_DICTIONARY_FILES = ImmutableList.of(
+                new File(Resources.getResource("tr/master-dictionary.dict").getFile()),
+                new File(Resources.getResource("tr/secondary-dictionary.dict").getFile()),
+                new File(Resources.getResource("tr/non-tdk.dict").getFile()),
+                new File(Resources.getResource("tr/proper.dict").getFile()),
+                new File(Resources.getResource("tr/proper-from-corpus.dict").getFile()),
+                new File(Resources.getResource("tr/abbreviations.dict").getFile())
+        );
         List<String> lines = Lists.newArrayList();
         for (File file : DEFAULT_DICTIONARY_FILES) {
             lines.addAll(SimpleTextReader.trimmingUTF8Reader(file).asStringList());
