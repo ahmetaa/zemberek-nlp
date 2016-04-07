@@ -1,6 +1,7 @@
 package zemberek.morphology.lexicon;
 
 import com.google.common.collect.*;
+import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 
 import java.util.*;
@@ -22,12 +23,14 @@ public class RootLexicon implements Iterable<DictionaryItem> {
 
     public void add(DictionaryItem item) {
         if (itemSet.contains(item)) {
-            throw new IllegalArgumentException("Duplicated item:" + item);
+            Log.warn("Duplicated item:" + item);
+            return;
+        }
+        if (idMap.containsKey(item.id)) {
+            Log.warn("Duplicated item id of:" + item + " with " + idMap.get(item.id));
+            return;
         }
         this.itemSet.add(item);
-        if (idMap.containsKey(item.id)) {
-            throw new IllegalArgumentException("Duplicated item id of:" + item + " with " + idMap.get(item.id));
-        }
         idMap.put(item.id, item);
         itemMap.put(item.lemma, item);
     }
