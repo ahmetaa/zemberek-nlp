@@ -35,7 +35,7 @@ public class UnidentifiedTokenParser extends BaseParser {
     }
 
     public List<MorphParse> parse(String word) {
-        List<MorphParse> results = Lists.newArrayList();
+        List<MorphParse> results = Lists.newArrayListWithCapacity(2);
         if (!Strings.containsNone(word, "0123456789")) {
             results = parseNumeral(word);
             return results;
@@ -47,12 +47,11 @@ public class UnidentifiedTokenParser extends BaseParser {
             String pron = guessPronunciation(stem);
             DictionaryItem itemProp = new DictionaryItem(Turkish.capitalize(stem), stem, pron, PrimaryPos.Noun, SecondaryPos.ProperNoun);
             itemProp.attributes.add(RootAttribute.Runtime);
-            String toParse = stem + ending;
             graph.addDictionaryItem(itemProp);
+            String toParse = stem + ending;
             List<MorphParse> properResults = parser.parse(toParse);
             graph.removeDictionaryItem(itemProp);
             results.addAll(properResults);
-
         } else if (Character.isUpperCase(word.charAt(0))) {
             String normalized = normalize(word);
             String pron = guessPronunciation(normalized);

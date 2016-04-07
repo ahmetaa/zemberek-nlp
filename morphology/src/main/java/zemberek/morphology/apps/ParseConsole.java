@@ -1,5 +1,6 @@
 package zemberek.morphology.apps;
 
+import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.parser.MorphParse;
 import zemberek.morphology.parser.WordParser;
@@ -19,7 +20,7 @@ public class ParseConsole {
         while (!input.equals("exit") && !input.equals("quit")) {
 
             List<MorphParse> tokens = parser.parse(input);
-            if (tokens.size() == 0) {
+            if (tokens.size() == 0 || (tokens.size()==1 && tokens.get(0).dictionaryItem.primaryPos== PrimaryPos.Unknown)) {
                 System.out.println("cannot be parsed");
                 if (parser.getParser() instanceof WordParser) {
                     ((WordParser) parser.getParser()).dump(input);

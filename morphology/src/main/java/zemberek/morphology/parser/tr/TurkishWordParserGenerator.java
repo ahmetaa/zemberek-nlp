@@ -8,6 +8,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
+import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.generator.SimpleGenerator;
@@ -20,6 +21,7 @@ import zemberek.morphology.lexicon.tr.TurkishSuffixes;
 import zemberek.morphology.parser.MorphParse;
 import zemberek.morphology.parser.MorphParser;
 import zemberek.morphology.parser.WordParser;
+import zemberek.morphology.structure.StemAndEnding;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +31,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Turkish Morphological Parser finds all possible parses for a Turkish word.
@@ -107,26 +110,49 @@ public class TurkishWordParserGenerator extends BaseParser {
                 .maximumSize(50000)
                 .concurrencyLevel(1)
                 .initialCapacity(20000)
-                .build(new CacheLoader<String, List<MorphParse>>() {
-                    @Override
-                    public List<MorphParse> load(String s) {
-                        if (s.length() == 0)
-                            return Collections.emptyList();
-                        List<MorphParse> res = parser.parse(s);
-                        if (res.size() == 0) {
-                            res.addAll(unidentifiedTokenParser.parse(s));
-                        }
-                        if (res.size() == 0) {
-                            res.add(new MorphParse(DictionaryItem.UNKNOWN, s, Lists.newArrayList(MorphParse.InflectionalGroup.UNKNOWN)));
-                        }
-                        return res;
-                    }
-                });
+                .build(new MorphParseCacheLoader());
         try {
             List<String> words = Resources.readLines(Resources.getResource("tr/top-20K-words.txt"), Charsets.UTF_8);
             staticCache = new StaticMorphCache(parser, words);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private class MorphParseCacheLoader extends CacheLoader<String, List<MorphParse>> {
+        @Override
+        public List<MorphParse> load(String s) throws Exception {
+            if (s.length() == 0)
+                return Collections.emptyList();
+            List<MorphParse> res = parser.parse(s);
+            if (res.size() == 0) {
+                res.addAll(quoteParseCheck(s));
+            }
+            if(res.size()==0) {
+                res.addAll(unidentifiedTokenParser.parse(s));
+            }
+            if (res.size() == 0) {
+                res.add(new MorphParse(DictionaryItem.UNKNOWN, s, Lists.newArrayList(MorphParse.InflectionalGroup.UNKNOWN)));
+            }
+            return res;
+        }
+
+        public List<MorphParse> quoteParseCheck(String word) {
+            List<MorphParse> results = new ArrayList<>(2);
+
+            if (word.contains("'")) {
+
+                StemAndEnding se = new StemAndEnding(Strings.subStringUntilFirst(word, "'"), Strings.subStringAfterFirst(word, "'"));
+                String stem = normalize(se.stem);
+
+                String withoutQuote = word.replaceAll("'", "");
+
+                List<MorphParse> noQuotesParses = parser.parse(withoutQuote);
+                results.addAll(noQuotesParses.stream()
+                        .filter(noQuotesParse -> noQuotesParse.getStems().contains(stem))
+                        .collect(Collectors.toList()));
+            }
+            return results;
         }
     }
 
@@ -149,7 +175,7 @@ public class TurkishWordParserGenerator extends BaseParser {
         this.lexicon = lexicon;
         this.graph = graph;
         this.unidentifiedTokenParser = new UnidentifiedTokenParser(this);
-        this.suffixProvider=suffixProvider;
+        this.suffixProvider = suffixProvider;
         generateCaches();
     }
 
@@ -205,7 +231,7 @@ public class TurkishWordParserGenerator extends BaseParser {
 
     public SuffixProvider getSuffixProvider() {
         return suffixProvider;
-    }    
+    }
 
     static class StaticMorphCache {
         private final HashMap<String, List<MorphParse>> cache;
@@ -231,7 +257,7 @@ public class TurkishWordParserGenerator extends BaseParser {
 
         @Override
         public String toString() {
-            return "Hits: " + hit + " Miss: " + miss + " Hit ratio: %" + (hit / (double)(hit + miss) * 100);
+            return "Hits: " + hit + " Miss: " + miss + " Hit ratio: %" + (hit / (double) (hit + miss) * 100);
         }
     }
 }

@@ -30,7 +30,7 @@ public class DynamicLexiconGraph {
     // required for parsing. These were in WordParser before.
     // TODO: this mechanism should be an abstraction that can also use a StemTrie
     ArrayListMultimap<String, StemNode> multiStems = ArrayListMultimap.create(1000, 2);
-    Map<String, StemNode> singeStems = Maps.newHashMap();
+    Map<String, StemNode> singleStems = Maps.newHashMap();
 
     public DynamicLexiconGraph(SuffixProvider suffixProvider) {
         this.suffixProvider = suffixProvider;
@@ -41,12 +41,12 @@ public class DynamicLexiconGraph {
         final String surfaceForm = stemNode.surfaceForm;
         if (multiStems.containsKey(surfaceForm)) {
             multiStems.put(surfaceForm, stemNode);
-        } else if (singeStems.containsKey(surfaceForm)) {
-            multiStems.put(surfaceForm, singeStems.get(surfaceForm));
-            singeStems.remove(surfaceForm);
+        } else if (singleStems.containsKey(surfaceForm)) {
+            multiStems.put(surfaceForm, singleStems.get(surfaceForm));
+            singleStems.remove(surfaceForm);
             multiStems.put(surfaceForm, stemNode);
         } else {
-            singeStems.put(surfaceForm, stemNode);
+            singleStems.put(surfaceForm, stemNode);
         }
         stemNodes.add(stemNode);
     }
@@ -55,16 +55,16 @@ public class DynamicLexiconGraph {
         final String surfaceForm = stemNode.surfaceForm;
         if (multiStems.containsKey(surfaceForm)) {
             multiStems.remove(surfaceForm, stemNode);
-        } else if (singeStems.containsKey(surfaceForm)) {
-            singeStems.remove(surfaceForm);
+        } else if (singleStems.containsKey(surfaceForm)) {
+            singleStems.remove(surfaceForm);
         }
         stemNodes.remove(stemNode);
     }
 
     public List<StemNode> getMatchingStemNodes(String stem) {
 
-        if (singeStems.containsKey(stem)) {
-            return Lists.newArrayList(singeStems.get(stem));
+        if (singleStems.containsKey(stem)) {
+            return Lists.newArrayList(singleStems.get(stem));
         } else if (multiStems.containsKey(stem)) {
             return Lists.newArrayList(multiStems.get(stem));
         } else
@@ -72,7 +72,7 @@ public class DynamicLexiconGraph {
     }
 
     private boolean containsNode(StemNode node) {
-        return multiStems.containsEntry(node.surfaceForm, node) || singeStems.containsKey(node.surfaceForm);
+        return multiStems.containsEntry(node.surfaceForm, node) || singleStems.containsKey(node.surfaceForm);
     }
 
     private void addNodes(StemNode... nodes) {

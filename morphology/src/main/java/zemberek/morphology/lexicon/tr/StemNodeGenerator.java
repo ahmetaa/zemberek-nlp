@@ -142,10 +142,16 @@ public class StemNodeGenerator {
                     modifiedExpectations.add(PhoneticExpectation.VowelStart);
                     break;
                 case LastVowelDrop:
-                    modifiedSeq.delete(modifiedSeq.length() - 2);
-                    if (!dicItem.primaryPos.equals(PrimaryPos.Verb))
-                        originalExpectations.add(PhoneticExpectation.ConsonantStart);
-                    modifiedExpectations.add(PhoneticExpectation.VowelStart);
+                    if (modifiedSeq.lastLetter().isVowel()) {
+                        modifiedSeq.delete(modifiedSeq.length() - 1);
+                        modifiedExpectations.add(PhoneticExpectation.ConsonantStart);
+                    } else {
+                        modifiedSeq.delete(modifiedSeq.length() - 2);
+                        if (!dicItem.primaryPos.equals(PrimaryPos.Verb)) {
+                            originalExpectations.add(PhoneticExpectation.ConsonantStart);
+                        }
+                        modifiedExpectations.add(PhoneticExpectation.VowelStart);
+                    }
                     break;
                 case InverseHarmony:
                     originalAttrs.add(PhoneticAttribute.LastVowelFrontal);

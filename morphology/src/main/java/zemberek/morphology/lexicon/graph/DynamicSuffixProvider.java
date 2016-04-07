@@ -111,8 +111,9 @@ public abstract class DynamicSuffixProvider implements SuffixProvider {
         }
 
         SuffixData allConnections = formSet.allConnections();
-        List<SuffixForm> templateFormsToRemove = new ArrayList<SuffixForm>();
-        List<SuffixForm> nullFormsToRegister = new ArrayList<SuffixForm>();
+
+        List<SuffixForm> templateFormsToRemove = new ArrayList<>();
+        List<SuffixForm> nullFormsToRegister = new ArrayList<>();
         for (SuffixForm connection : formSet.connections) {
             if (connection instanceof SuffixFormTemplate) {
                 NullSuffixForm nullForm =

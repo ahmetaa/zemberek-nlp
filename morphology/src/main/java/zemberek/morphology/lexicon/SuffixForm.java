@@ -44,6 +44,10 @@ public class SuffixForm {
         return new SuffixData(indirectConnections, connections);
     }
 
+    public SuffixData allConnectionsUnique() {
+        return new SuffixData(indirectConnections, connections);
+    }
+
     public SuffixForm(int index, Suffix suffix, String generation, TerminationType terminationType) {
         this.index = index;
         this.id = suffix.id + "_" + generation;
@@ -91,10 +95,11 @@ public class SuffixForm {
         if (!generation.equals(that.generation)) return false;
         if (!suffix.equals(that.suffix)) return false;
 
+        if (terminationType != that.terminationType) return false;
+
         if (!connections.equals(that.connections)) return false;
         if (!indirectConnections.equals(that.indirectConnections)) return false;
 
-        if (terminationType != that.terminationType) return false;
 
         return true;
     }

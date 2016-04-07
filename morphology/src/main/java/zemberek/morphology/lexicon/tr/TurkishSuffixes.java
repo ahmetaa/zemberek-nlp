@@ -473,7 +473,6 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
     public SuffixFormTemplate PersPron_BanSan = getTemplate("PersPron_BanSan", PersPronRoot);
     public DerivationalSuffixTemplate Pron2Verb = getDerivationalTemplate("Pron2Verb", VerbRoot, TerminationType.NON_TERMINAL);
 
-
     public SuffixFormTemplate DemonsPron_TEMPLATE = getTemplate("DemonsPron_TEMPLATE", DemonsPronRoot);
     public NullSuffixForm DemonsPron_Default = getNull("DemonsPron_Default", DemonsPron_TEMPLATE);
 
@@ -533,10 +532,11 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
         // TODO: check below
         DemonsPron_TEMPLATE.connections.add(A3sg_TEMPLATE, A3pl_nlAr, A1pl_TEMPLATE);
         DemonsPron_TEMPLATE.indirectConnections.add(With_lI, Inst_ylA, Without_sIz, Acc_nI, Dat_nA, Loc_ndA, Gen_nIn, Nom_TEMPLATE,
-                Abl_ndAn, Cop_dIr, Pron2Verb, Cop_dIr, PastCop_ydI, NarrCop_ymIs, CondCop_ysA, While_ken, A3pl_lAr).add(Pnon_TEMPLATE).add(Noun2Verb, Noun2VerbCopular);
-
+                Abl_ndAn, Cop_dIr, Pron2Verb, PastCop_ydI, NarrCop_ymIs, CondCop_ysA, While_ken, A3pl_lAr)
+                .add(Pnon_TEMPLATE)
+                .add(Noun2Verb, Noun2VerbCopular);
         DemonsPron_Default.copyConnections(DemonsPron_TEMPLATE);
-        QuesPron_Default.copyConnections(DemonsPron_TEMPLATE);
+
         // TODO: birbiri, birbirimizi problematic
         QuantPron_Default.copyConnections(DemonsPron_TEMPLATE).connections.add(A3pl_lAr);
         QuantPron_Default.indirectConnections.add(P3sg_sI,P3pl_I,P1pl_ImIz).remove(P3sg_sI,P3sg_yI);
@@ -548,10 +548,13 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
         Pron2Verb.connections.add(Noun2VerbCopular.connections);
         Pron2Verb.indirectConnections.add(Noun2VerbCopular.indirectConnections);
 
-        Ques_Template.connections.add(Pres_TEMPLATE, NarrCop_ymIs, PastCop_ydI );
-        Ques_Template.indirectConnections.add(A1sg_yIm, A2sg_sIn, A3sg_Verb_TEMPLATE, A1pl_yIz, A1pl_yIz, A2pl_sInIz);
+
+        Ques_Template.connections.add( A3sg_TEMPLATE, A3pl_lAr);
+        Ques_Template.indirectConnections.add(Pron2Verb, A3sg_Verb_TEMPLATE, A1pl_yIz, A2pl_sInIz, Pnon_TEMPLATE,
+                Abl_dAn, A1sg_yIm, A2sg_sIn);
 
         Ques_Default.copyConnections(Ques_Template);
+
 
         Numeral_Template.connections.add(Noun_TEMPLATE.connections);
         Numeral_Template.connections.add(Num2Noun, Num2Adj, Num2Adv, Num2Verb);
