@@ -121,14 +121,16 @@ public class TurkishWordParserGenerator extends BaseParser {
 
     private class MorphParseCacheLoader extends CacheLoader<String, List<MorphParse>> {
         @Override
-        public List<MorphParse> load(String s) throws Exception {
+        public List<MorphParse> load(String word) throws Exception {
+            String s = normalize(word); // TODO: this may cause problem for some foreign words.
             if (s.length() == 0)
                 return Collections.emptyList();
             List<MorphParse> res = parser.parse(s);
             if (res.size() == 0) {
                 res.addAll(quoteParseCheck(s));
             }
-            if(res.size()==0) {
+            if (res.size() == 0) {
+                invalidateCache(s);
                 res.addAll(unidentifiedTokenParser.parse(s));
             }
             if (res.size() == 0) {
@@ -154,14 +156,6 @@ public class TurkishWordParserGenerator extends BaseParser {
             }
             return results;
         }
-    }
-
-    private boolean containsProperNounParse(List<MorphParse> results) {
-        for (MorphParse res : results) {
-            if (res.dictionaryItem.secondaryPos == SecondaryPos.ProperNoun)
-                return true;
-        }
-        return false;
     }
 
     private TurkishWordParserGenerator(
@@ -201,20 +195,21 @@ public class TurkishWordParserGenerator extends BaseParser {
      * @return MorphParse list.
      */
     public List<MorphParse> parse(String word) {
-        String s = normalize(word); // TODO: may cause problem for some foreign words.
-        List<MorphParse> res = staticCache.parse(s);
+        List<MorphParse> res = staticCache.parse(word);
         if (res == null) {
-            res = dynamicCache.getUnchecked(s);
+            res = dynamicCache.getUnchecked(word);
         }
         return res;
     }
 
     public void invalidateAllCache() {
         dynamicCache.invalidateAll();
+        staticCache.removeAll();
     }
 
     public void invalidateCache(String input) {
         dynamicCache.invalidate(input);
+        staticCache.remove(input);
     }
 
     public SimpleGenerator getGenerator() {
@@ -228,6 +223,15 @@ public class TurkishWordParserGenerator extends BaseParser {
     public DynamicLexiconGraph getGraph() {
         return graph;
     }
+
+    /**
+     * Adds one or more dictionary items. Adding new dictionary items invalidates all caches.
+     */
+    public void addDictionaryItems(DictionaryItem... item) {
+        this.graph.addDictionaryItems(item);
+        invalidateAllCache();
+    }
+
 
     public SuffixProvider getSuffixProvider() {
         return suffixProvider;
@@ -243,6 +247,18 @@ public class TurkishWordParserGenerator extends BaseParser {
             for (String s : wordList) {
                 cache.put(s, parser.parse(s));
             }
+        }
+
+        public void put(String key, List<MorphParse> parses) {
+            this.cache.put(key, parses);
+        }
+
+        public void remove(String key) {
+            this.cache.remove(key);
+        }
+
+        public void removeAll() {
+            cache.clear();
         }
 
         public List<MorphParse> parse(String s) {
