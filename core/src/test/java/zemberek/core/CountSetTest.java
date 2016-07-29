@@ -31,6 +31,7 @@ public class CountSetTest {
             table.set(String.valueOf(i), i + 1);
             Assert.assertEquals(i + 1, table.size());
         }
+
         table = new CountSet<>();
         for (int i = 0; i < 1000; i++) {
             table.set(String.valueOf(i), i + 1);
@@ -78,7 +79,7 @@ public class CountSetTest {
         Assert.assertEquals(0, v.get(19));
         Assert.assertEquals(13, v.get(35));
 
-        v.add(35);
+        v.increment(35);
         Assert.assertEquals(2, v.keyCount);
         Assert.assertEquals(14, v.get(35));
 
@@ -86,7 +87,7 @@ public class CountSetTest {
         Assert.assertEquals(1, v.keyCount);
         v.set(19, 5);
         Assert.assertEquals(2, v.keyCount);
-        v.add(35);
+        v.increment(35);
         Assert.assertEquals(3, v.keyCount);
 
         Assert.assertEquals(1, v.get(35));
@@ -124,18 +125,18 @@ public class CountSetTest {
     public void incremenTest() {
         CountSet<Integer> table = new CountSet<>();
 
-        int res = table.add(1);
+        int res = table.increment(1);
         Assert.assertEquals(1, res);
         Assert.assertEquals(1, table.get(1));
 
         table.set(1, 2);
-        res = table.add(1);
+        res = table.increment(1);
         Assert.assertEquals(3, res);
         Assert.assertEquals(3, table.get(1));
 
         table = new CountSet<>();
         for (int i = 0; i < 1000; i++) {
-            res = table.add(1);
+            res = table.increment(1);
             Assert.assertEquals(i + 1, res);
             Assert.assertEquals(i + 1, table.get(1));
             Assert.assertEquals(1, table.size());
@@ -224,7 +225,7 @@ public class CountSetTest {
                         }
                         break;
                     case 2:
-                        siv.add(key);
+                        siv.increment(key);
                         if (!exist)
                             kc++;
                         break;
@@ -309,7 +310,7 @@ public class CountSetTest {
             }
 
             for (int[] keyVal : keyVals) {
-                countTable.add(keyVal[0]);
+                countTable.increment(keyVal[0]);
             }
 
             for (int[] keyVal : keyVals) {
@@ -328,7 +329,7 @@ public class CountSetTest {
             System.out.println(strings.size() + " : " + sw.elapsed(TimeUnit.MILLISECONDS));
             sw.reset().start();
             CountSet<String> cs = new CountSet<>();
-            cs.addAll(strings);
+            cs.incrementAll(strings);
             System.out.println("Count Add : " + sw.elapsed(TimeUnit.MILLISECONDS));
         }
     }

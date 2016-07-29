@@ -10,7 +10,6 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
-import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.generator.SimpleGenerator;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;

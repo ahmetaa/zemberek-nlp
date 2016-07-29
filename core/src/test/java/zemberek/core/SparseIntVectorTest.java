@@ -1,7 +1,7 @@
 package zemberek.core;
 
 import com.google.common.base.Stopwatch;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -404,7 +404,7 @@ public class SparseIntVectorTest {
                         break;
                 }
             }
-            System.out.println(i+" Calculated=" + kc + " Actual=" + siv.keyCount);
+            System.out.println(i + " Calculated=" + kc + " Actual=" + siv.keyCount);
         }
     }
 

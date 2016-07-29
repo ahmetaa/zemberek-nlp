@@ -2,24 +2,22 @@ package zemberek.core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-public class UIntIntMap extends UIntKeyHashBase {
+public class UIntMap<T> extends UIntKeyHashBase {
+    private T[] values;
 
-    private int[] values;
-
-    public UIntIntMap() {
+    public UIntMap() {
         this(INITIAL_SIZE);
     }
 
-    public UIntIntMap(int size) {
+    public UIntMap(int size) {
         int k = INITIAL_SIZE;
         while (k < size)
             k <<= 1;
         keys = new int[k];
         Arrays.fill(keys, -1);
-        values = new int[k];
+        values = (T[]) new Object[k];
         threshold = (int) (k * LOAD_FACTOR);
         modulo = k - 1;
     }
@@ -30,7 +28,7 @@ public class UIntIntMap extends UIntKeyHashBase {
      * @param key key
      * @return count of the key
      */
-    public int get(int key) {
+    public T get(int key) {
         if (key < 0) {
             throw new IllegalArgumentException("Key cannot be negative: " + key);
         }
@@ -39,7 +37,7 @@ public class UIntIntMap extends UIntKeyHashBase {
         while (true) {
             final int t = keys[slot];
             if (t == EMPTY) {
-                return 0;
+                return null;
             }
             if (t == DELETED) {
                 slot = nextProbe(slot, ++probeCount);
@@ -57,7 +55,7 @@ public class UIntIntMap extends UIntKeyHashBase {
     }
 
     private void expand() {
-        UIntIntMap h = new UIntIntMap(values.length * 2);
+        UIntMap<T> h = new UIntMap<>(values.length * 2);
         for (int i = 0; i < keys.length; i++) {
             if (keys[i] >= 0) {
                 h.put(keys[i], values[i]);
@@ -75,7 +73,7 @@ public class UIntIntMap extends UIntKeyHashBase {
     /**
      * puts `key` with `value`. if `key` already exists, it overwrites its value with `value`
      */
-    public void put(int key, int value) {
+    public void put(int key, T value) {
         if (key < 0) {
             throw new IllegalArgumentException("Key cannot be negative: " + key);
         }
@@ -93,41 +91,41 @@ public class UIntIntMap extends UIntKeyHashBase {
         }
     }
 
-    /**
-     * if `key` exists, increments it's value with `amount`. if `key` does not exist,
-     * it creates it with the value `amount`.
-     * returns the `key`'s value after the increment operation.
-     */
-    public int increment(int key, int amount) {
-        if (key < 0) {
-            throw new IllegalArgumentException("Key cannot be negative: " + key);
+    public List<T> getValues() {
+        List<T> result = new ArrayList<>();
+        for (int i = 0; i < keys.length; i++) {
+            int key = keys[i];
+            if(key>=0) {
+                result.add(values[i]);
+            }
         }
-        if (keyCount == threshold) {
-            expand();
-        }
-        int loc = locate(key);
-        if (loc >= 0) {
-            values[loc] += amount;
-            return values[loc];
-        } else {
-            loc = -loc - 1;
-            keys[loc] = key;
-            values[loc] = amount;
-            keyCount++;
-            return amount;
-        }
+        return result;
     }
 
     /**
      * returns the keys sorted ascending.
      */
-    public List<Integer> getKeysSorted() {
-        List<Integer> keyList = new ArrayList<>();
+    public int[] getKeysSorted() {
+        int[] sorted = new int[keyCount];
+        int c =0;
         for (int key : keys) {
             if (key >= 0)
-                keyList.add(key);
+                sorted[c++]=key;
         }
-        Collections.sort(keyList);
-        return keyList;
+        Arrays.sort(sorted);
+        return sorted;
     }
+
+    /**
+     * returns the keys sorted ascending.
+     */
+    public List<T> getValuesSortedByKey() {
+        int[] sortedKeys = getKeysSorted();
+        List<T> result = new ArrayList<>(sortedKeys.length);
+        for (int sortedKey : sortedKeys) {
+            result.add(values[sortedKey]);
+        }
+        return result;
+    }
+
 }

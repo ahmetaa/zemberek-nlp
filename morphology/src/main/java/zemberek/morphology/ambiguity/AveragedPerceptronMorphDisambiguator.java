@@ -131,15 +131,15 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
         String ig3 = w3.allIgs;
 
         //feats.increment1(format("1:%s%s-%s%s-%s%s", r1, ig1, r2, ig2, r3, ig3));
-        feats.add(format("2:%s%s-%s%s", r1, ig2, r3, ig3));
-        feats.add(format("3:%s%s-%s%s", r2, ig2, r3, ig3));
-        feats.add(format("4:%s%s", r3, ig3));
+        feats.increment(format("2:%s%s-%s%s", r1, ig2, r3, ig3));
+        feats.increment(format("3:%s%s-%s%s", r2, ig2, r3, ig3));
+        feats.increment(format("4:%s%s", r3, ig3));
         //feats.increment1(format("5:%s%s-%s", r2, ig2, ig3));
         //feats.increment1(format("6:%s%s-%s", r1, ig1, ig3));
         //feats.increment1(format("7:%s-%s-%s", r1, r2, r3));
         //feats.increment1(format("8:%s-%s", r1, r3));
-        feats.add(format("9:%s-%s", r2, r3));
-        feats.add(format("10:%s", r3));
+        feats.increment(format("9:%s-%s", r2, r3));
+        feats.increment(format("10:%s", r3));
         //feats.increment1(format("11:%s-%s-%s", ig1, ig2, ig3));
         //feats.increment1(format("12:%s-%s", ig1, ig3));
         //feats.increment1(format("13:%s-%s", ig2, ig3));
@@ -150,9 +150,9 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
         String ig3s[] = ig3.split("[ ]");
 
         for (String ig : ig3s) {
-            feats.add(format("15:%s-%s-%s", ig1s[ig1s.length - 1], ig2s[ig2s.length - 1], ig));
+            feats.increment(format("15:%s-%s-%s", ig1s[ig1s.length - 1], ig2s[ig2s.length - 1], ig));
           //  feats.increment1(format("16:%s-%s", ig1s[ig1s.length - 1], ig));
-            feats.add(format("17:%s-%s", ig2s[ig2s.length - 1], ig));
+            feats.increment(format("17:%s-%s", ig2s[ig2s.length - 1], ig));
            // feats.increment1(format("18:%s", ig));
         }
 
@@ -160,12 +160,12 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
 //            feats.increment1(format("19:%s-%s", ig3s[k], ig3s[k + 1]));
 
         for (int k = 0; k < ig3s.length; k++)
-            feats.add(format("20:%d-%s", k, ig3s[k]));
+            feats.increment(format("20:%d-%s", k, ig3s[k]));
 
 //        if (Character.isUpperCase(r3.charAt(0)) && w3.igs.contains("Prop"))
 //            feats.increment1("21:PROPER");
 
-        feats.add(format("22:%d", ig3s.length));
+        feats.increment(format("22:%d", ig3s.length));
 /*        if (w3.all.contains(".+Punc") && w3.igs.contains("Verb"))
             feats.increment1("23:ENDSVERB");*/
 

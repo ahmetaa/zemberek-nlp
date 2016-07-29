@@ -5,50 +5,23 @@ import java.util.Iterator;
 import java.util.List;
 
 
-/**
- * A compact set structure for counting objects.
- *
- * @param <T>
- */
-public class CountSet<T> extends HashBase<T> implements Iterable<T> {
+public class FloatValueMap<T> extends HashBase<T> implements Iterable<T> {
 
     // Carries count values.
-    int[] counts;
+    private float[] values;
 
-    public CountSet() {
+    public FloatValueMap() {
         this(INITIAL_SIZE);
     }
 
-    public CountSet(int size) {
+    public FloatValueMap(int size) {
         int k = INITIAL_SIZE;
         while (k < size)
             k <<= 1;
         keys = (T[]) new Object[k];
-        counts = new int[k];
+        values = new float[k];
         threshold = (int) (k * DEFAULT_LOAD_FACTOR);
         modulo = k - 1;
-    }
-
-    /**
-     * If key does not exist, it adds it with count value 1. Otherwise, it increments the count value by 1.
-     *
-     * @param key key
-     * @return the new count value after increment
-     */
-    public int increment(T key) {
-        return incrementByAmount(key, 1);
-    }
-
-    /**
-     * Adds all keys in Iterable.
-     * If key does not exist, it adds it with count value 1. Otherwise, it increments the count value by 1.
-     *
-     * @param keys key
-     */
-    public void incrementAll(Iterable<T> keys) {
-        for (T t : keys) {
-            incrementByAmount(t, 1);
-        }
     }
 
     /**
@@ -57,7 +30,7 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
      * @param key key
      * @return count of the key
      */
-    public int get(T key) {
+    public float get(T key) {
         if (key == null)
             throw new IllegalArgumentException("Key cannot be null.");
         int probeCount = 0;
@@ -72,13 +45,9 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
                 continue;
             }
             if (t.equals(key))
-                return counts[slot];
+                return values[slot];
             slot = nextProbe(slot, ++probeCount);
         }
-    }
-
-    public int decrement(T key) {
-        return incrementByAmount(key, -1);
     }
 
     /**
@@ -88,7 +57,7 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
      * @param amount amount to increment
      * @return incremented value
      */
-    public int incrementByAmount(T key, int amount) {
+    public float incrementByAmount(T key, float amount) {
         if (key == null)
             throw new IllegalArgumentException("Key cannot be null.");
         if (keyCount + removeCount == threshold) {
@@ -97,24 +66,24 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
         int l = locate(key);
         if (l < 0) {
             l = -l - 1;
-            counts[l] = amount;
+            values[l] = amount;
             keys[l] = key;
             keyCount++;
-            return counts[l];
+            return values[l];
         } else {
-            counts[l] += amount;
-            return counts[l];
+            values[l] += amount;
+            return values[l];
         }
     }
 
     private void expand() {
-        CountSet<T> h = new CountSet<>(counts.length * 2);
+        FloatValueMap<T> h = new FloatValueMap<>(values.length * 2);
         for (int i = 0; i < keys.length; i++) {
             if (keys[i] != null && keys[i] != TOMB_STONE)
-                h.set(keys[i], counts[i]);
+                h.set(keys[i], values[i]);
         }
         assert (h.keyCount == keyCount);
-        this.counts = h.counts;
+        this.values = h.values;
         this.keys = h.keys;
         this.keyCount = h.keyCount;
         this.modulo = h.modulo;
@@ -122,7 +91,12 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
         this.removeCount = 0;
     }
 
-    public void set(T key, int value) {
+    /**
+     * Sets the key with the value. If there is a matching key, it overwrites it (key and the value).
+     * @param key key
+     * @param value value
+     */
+    public void set(T key, float value) {
         if (key == null)
             throw new IllegalArgumentException("Key cannot be null.");
         if (keyCount + removeCount == threshold) {
@@ -130,27 +104,33 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
         }
         int loc = locate(key);
         if (loc >= 0) {
-            counts[loc] = value;
+            keys[loc] = key;
+            values[loc] = value;
         } else {
             loc = -loc - 1;
             keys[loc] = key;
-            counts[loc] = value;
+            values[loc] = value;
             keyCount++;
         }
     }
 
-    /**
-     * @return a clone of value array.
-     */
-    public int[] copyOfValues() {
-        return counts.clone();
+    public float[] values() {
+        float[] result = new float[size()];
+        int j = 0;
+        for (int i = 0; i < keys.length; i++) {
+            T key = keys[i];
+            if(key!=null && key!=TOMB_STONE) {
+                result[j++] = values[i];
+            }
+        }
+        return result;
     }
 
     public List<Entry<T>> getAsEntryList() {
         List<Entry<T>> res = new ArrayList<>(keyCount);
         for (int i = 0; i < keys.length; i++) {
             if (keys[i] != null && keys[i] != TOMB_STONE)
-                res.add(new Entry<>(keys[i], counts[i]));
+                res.add(new Entry<>(keys[i], values[i]));
         }
         return res;
     }
@@ -178,7 +158,7 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
             while (keys[i] == null || keys[i] == TOMB_STONE) {
                 i++;
             }
-            Entry<T> te = new Entry<>(keys[i], counts[i]);
+            Entry<T> te = new Entry<>(keys[i], values[i]);
             i++;
             k++;
             return te;
@@ -192,20 +172,16 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
 
     public static class Entry<T> implements Comparable<Entry<T>> {
         public final T key;
-        public final int count;
+        public final float value;
 
-        public Entry(T key, int count) {
+        public Entry(T key, float value) {
             this.key = key;
-            this.count = count;
+            this.value = value;
         }
 
         @Override
         public int compareTo(Entry<T> o) {
-            return Integer.compare(o.count, count);
-        }
-
-        public String toString() {
-            return key.toString() + ":" + count;
+            return Double.compare(value, o.value);
         }
     }
 }

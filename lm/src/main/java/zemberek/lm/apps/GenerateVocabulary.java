@@ -99,7 +99,7 @@ public class GenerateVocabulary extends CommandLineApplication {
                 top = histogram.size();
             else Log.info("Top %d words will be used.", top);
 
-            List<String> mostFrequent = histogram.getMostFrequent(top);
+            List<String> mostFrequent = histogram.getTop(top);
             Log.info("Coverage: %.3f", 100d * ((double) histogram.totalCount(mostFrequent)) / histogram.totalCount());
 
             LinkedHashSet<String> resultSet = Sets.newLinkedHashSet(mostFrequent);

@@ -3,7 +3,7 @@ package zemberek.tokenizer;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
-import zemberek.core.DoubleValueSet;
+import zemberek.core.DoubleValueMap;
 import zemberek.core.io.SimpleTextReader;
 
 import java.io.File;
@@ -14,7 +14,7 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
 
     public static final int SKIP_SPACE_FREQUENCY = 50;
     public static final String BOUNDARY_CHARS = ".!?";
-    DoubleValueSet<String> weights = new DoubleValueSet<>();
+    DoubleValueMap<String> weights = new DoubleValueMap<>();
 
     static Set<String> TurkishAbbreviationSet = new HashSet<>();
     private static Locale localeTr = new Locale("tr");
@@ -37,7 +37,7 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
         }
     }
 
-    public PerceptronSentenceBoundaryDetecor(DoubleValueSet<String> weights) {
+    public PerceptronSentenceBoundaryDetecor(DoubleValueMap<String> weights) {
         this.weights = weights;
     }
 
@@ -51,7 +51,7 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
         }
 
         public PerceptronSentenceBoundaryDetecor train() throws IOException {
-            DoubleValueSet<String> weights = new DoubleValueSet<>();
+            DoubleValueMap<String> weights = new DoubleValueMap<>();
             List<String> sentences = SimpleTextReader.trimmingUTF8Reader(trainFile).asStringList();
 
 /*

@@ -42,11 +42,11 @@ public class HistogramTest {
         List<String> sortedByCount = histogram.getSortedList();
         Assert.assertEquals(Lists.newArrayList("Apple", "Pear", "Grape"), sortedByCount);
 
-        sortedByCount = histogram.getMostFrequent(1); // top 1
+        sortedByCount = histogram.getTop(1); // top 1
         Assert.assertEquals(Lists.newArrayList("Apple"), sortedByCount);
-        sortedByCount = histogram.getMostFrequent(2); // top 2
+        sortedByCount = histogram.getTop(2); // top 2
         Assert.assertEquals(Lists.newArrayList("Apple", "Pear"), sortedByCount);
-        sortedByCount = histogram.getMostFrequent(5); // top 5 should return all list
+        sortedByCount = histogram.getTop(5); // top 5 should return all list
         Assert.assertEquals(Lists.newArrayList("Apple", "Pear", "Grape"), sortedByCount);
     }
 

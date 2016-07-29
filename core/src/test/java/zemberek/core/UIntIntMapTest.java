@@ -2,7 +2,6 @@ package zemberek.core;
 
 import com.google.common.base.Stopwatch;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -50,7 +49,7 @@ public class UIntIntMapTest {
     }
 
     @Test
-    @Ignore("Not a unit test")
+    //@Ignore("Not a unit test")
     public void perf() {
         Random r = new Random();
         int[][] keyVals = new int[1000000][2];
@@ -73,7 +72,7 @@ public class UIntIntMapTest {
             }
 
             for (int[] keyVal : keyVals) {
-                if(map.containsKey(keyVal[0]))
+                if (map.containsKey(keyVal[0]))
                     map.remove(keyVal[0]);
             }
         }
@@ -92,11 +91,11 @@ public class UIntIntMapTest {
                 countTable.get(keyVal[0]);
             }
             for (int[] keyVal : keyVals) {
-                if(countTable.containsKey(keyVal[0]))
+                if (countTable.containsKey(keyVal[0]))
                     countTable.remove(keyVal[0]);
             }
         }
-        System.out.println("Count Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
+        System.out.println("Uint Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
     }
 
 }

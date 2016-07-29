@@ -1,9 +1,13 @@
 package zemberek.core.math;
 
+import com.google.common.base.Splitter;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
@@ -122,9 +126,9 @@ public class DoubleArrays {
      * @param bytez  input byte array
      * @param amount input, size of the byte array
      * @return double array inncluding the normalized double value of each byte elements as Little-Endian representation
-     *         For 0xABCD:
-     *         Big-Endian Rep.-->0xABCD
-     *         Little-Endian Rep-->0xCDBA
+     * For 0xABCD:
+     * Big-Endian Rep.-->0xABCD
+     * Little-Endian Rep-->0xCDBA
      */
     public static double[] normalize16bitLittleEndian(byte[] bytez, int amount) {
         if ((amount & 1) != 0) {
@@ -629,12 +633,26 @@ public class DoubleArrays {
         }
     }
 
+    public static void serializeRaw(DataOutputStream dos, double[] data) throws IOException {
+        for (double v : data) {
+            dos.writeDouble(v);
+        }
+    }
+
+
     public static void serialize(DataOutputStream dos, double[][] data) throws IOException {
         dos.writeInt(data.length);
         for (double[] doubles : data) {
             serialize(dos, doubles);
         }
     }
+
+    public static void serializeRaw(DataOutputStream dos, double[][] data) throws IOException {
+        for (double[] doubles : data) {
+            serializeRaw(dos, doubles);
+        }
+    }
+
 
     public static double[] deserialize(DataInputStream dis) throws IOException {
         int amount = dis.readInt();
@@ -645,6 +663,20 @@ public class DoubleArrays {
         return result;
     }
 
+    public static double[] deserializeRaw(DataInputStream dis, int amount) throws IOException {
+        double[] result = new double[amount];
+        for (int i = 0; i < amount; i++) {
+            result[i] = dis.readDouble();
+        }
+        return result;
+    }
+
+    public static void deserializeRaw(DataInputStream dis, double[] result) throws IOException {
+        for (int i = 0; i < result.length; i++) {
+            result[i] = dis.readDouble();
+        }
+    }
+
     public static double[][] deserialize2d(DataInputStream dis) throws IOException {
         int amount = dis.readInt();
         double[][] result = new double[amount][];
@@ -652,6 +684,82 @@ public class DoubleArrays {
             result[i] = deserialize(dis);
         }
         return result;
+    }
+
+    public static void deserialize2DRaw(DataInputStream dis, double[][] result) throws IOException {
+        for (double[] row : result) {
+            deserializeRaw(dis, row);
+        }
+    }
+
+    public static double[][] clone2D(double[][] result) throws IOException {
+        double[][] arr = new double[result.length][];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = result[i].clone();
+        }
+        return arr;
+    }
+
+
+    public static double[] fromString(String str, String delimiter) {
+        List<String> tokens = Splitter.on(delimiter).trimResults().omitEmptyStrings().splitToList(str);
+        double[] result = new double[tokens.size()];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = Float.parseFloat(tokens.get(i));
+        }
+        return result;
+    }
+
+    /**
+     * Formats a float array as string using English Locale.
+     */
+    public static String format(double... input) {
+        return format(10, 3, " ", input);
+    }
+
+    /**
+     * Formats a float array as string using English Locale.
+     */
+    public static String format(int fractionDigits, String delimiter, double... input) {
+        StringBuilder sb = new StringBuilder();
+        String formatStr = "%." + fractionDigits + "f";
+        int i = 0;
+        for (double v : input) {
+            sb.append(String.format(Locale.ENGLISH, formatStr, v));
+            if (i++ < input.length - 1) sb.append(delimiter);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Formats a float array as string using English Locale.
+     */
+    public static String format(int rightPad, int fractionDigits, String delimiter, double... input) {
+        StringBuilder sb = new StringBuilder();
+        String formatStr = "%." + fractionDigits + "f";
+        int i = 0;
+        for (double v : input) {
+            String num = String.format(formatStr, v);
+            sb.append(String.format(Locale.ENGLISH, "%-" + rightPad + "s", num));
+            if (i++ < input.length - 1) sb.append(delimiter);
+        }
+        return sb.toString().trim();
+    }
+
+
+    public static double[] reduceFractionDigits(double[] arr, int digitCount) {
+        if (digitCount < 1 || digitCount > 10) {
+            throw new IllegalArgumentException("Digit count cannot be less than 1 or more than 10");
+        }
+        double[] newArr = new double[arr.length];
+        int powerOfTen = (int) Math.pow(10, digitCount);
+        for (int i = 0; i < arr.length; i++) {
+            double val = arr[i] * powerOfTen;
+            val = Math.round(val);
+            val = val / powerOfTen;
+            newArr[i] = val;
+        }
+        return newArr;
     }
 
 }

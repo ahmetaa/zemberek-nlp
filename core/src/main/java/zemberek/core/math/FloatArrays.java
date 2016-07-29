@@ -1,15 +1,24 @@
 package zemberek.core.math;
 
+import com.google.common.base.Splitter;
+import zemberek.core.io.SimpleTextReader;
+import zemberek.core.text.Regexps;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
 
 public class FloatArrays {
     public static final float[] ZERO_LENGTH_ARRAY = new float[0];
+    public static final float[][] ZERO_LENGTH_MATRIX = new float[0][0];
 
     // do not allow instantiation
     private FloatArrays() {
@@ -120,10 +129,10 @@ public class FloatArrays {
     /**
      * @param bytez  input byte array
      * @param amount input, size of the byte array
-     * @return float array inncluding the normalized float value of each byte elements as Little-Endian representation
-     *         For 0xABCD:
-     *         Big-Endian Rep.-->0xABCD
-     *         Little-Endian Rep-->0xCDBA
+     * @return float array including the normalized float value of each byte elements as Little-Endian representation
+     * For 0xABCD:
+     * Big-Endian Rep.-->0xABCD
+     * Little-Endian Rep-->0xCDBA
      */
     public static float[] normalize16bitLittleEndian(byte[] bytez, int amount) {
         if ((amount & 1) != 0) {
@@ -208,6 +217,27 @@ public class FloatArrays {
     }
 
     /**
+     * Converts to an integer array. if values are outside of the given boundaries, throws Exception.
+     */
+    public static int[] toInteger(float[] input, int min, int max) {
+        validateArray(input);
+        int[] result = new int[input.length];
+        int i = 0;
+        for (float v : input) {
+            if (!Float.isFinite(v) || Float.isNaN(v)) {
+                throw new IllegalStateException("Value" + v + " cannot be converted.");
+            }
+            if (v < min || v > max) {
+                throw new IllegalStateException("Value" + v + "is outside of min-max boundaries.");
+            }
+            result[i] = (int) v;
+            i++;
+        }
+        return result;
+    }
+
+
+    /**
      * finds the maximum value of an array.
      *
      * @param input input array
@@ -226,30 +256,79 @@ public class FloatArrays {
     }
 
     /**
-     * Formats a float array as string.
+     * Trims the values of an array against a minimum and maximum value.
+     *
+     * @param input input array
+     * @throws IllegalArgumentException if array is empty or null.
+     */
+    public static void trimValues(float[] input, float minVal, float maxVal) {
+        validateArray(input);
+        for (int i = 0; i < input.length; i++) {
+            if (input[i] < minVal) {
+                input[i] = minVal;
+            } else if (input[i] > maxVal) {
+                input[i] = maxVal;
+            }
+        }
+    }
+
+    /**
+     * Finds the maximum absolute value of an array.
+     *
+     * @param input input array
+     * @return maximum absolute value.
+     * @throws IllegalArgumentException if array is empty or null.
+     */
+    public static float absMax(float... input) {
+        validateArray(input);
+        float max = Math.abs(input[0]);
+        for (int i = 1; i < input.length; i++) {
+            float abs = Math.abs(input[i]);
+            if (abs > max) {
+                max = abs;
+            }
+        }
+        return max;
+    }
+
+    /**
+     * Formats a float array as string using English Locale.
+     */
+    public static String format(float... input) {
+        return format(10, 3, " ", input);
+    }
+
+    /**
+     * Formats a float array as string using English Locale.
      */
     public static String format(int fractionDigits, float... input) {
         return format(fractionDigits, " ", input);
     }
 
+    /**
+     * Formats a float array as string using English Locale.
+     */
     public static String format(int fractionDigits, String delimiter, float... input) {
         StringBuilder sb = new StringBuilder();
         String formatStr = "%." + fractionDigits + "f";
         int i = 0;
         for (float v : input) {
-            sb.append(String.format(formatStr, v));
+            sb.append(String.format(Locale.ENGLISH, formatStr, v));
             if (i++ < input.length - 1) sb.append(delimiter);
         }
         return sb.toString();
     }
 
+    /**
+     * Formats a float array as string using English Locale.
+     */
     public static String format(int rightPad, int fractionDigits, String delimiter, float... input) {
         StringBuilder sb = new StringBuilder();
         String formatStr = "%." + fractionDigits + "f";
         int i = 0;
         for (float v : input) {
             String num = String.format(formatStr, v);
-            sb.append(String.format("%-" + rightPad + "s", num));
+            sb.append(String.format(Locale.ENGLISH, "%-" + rightPad + "s", num));
             if (i++ < input.length - 1) sb.append(delimiter);
         }
         return sb.toString().trim();
@@ -268,6 +347,26 @@ public class FloatArrays {
         for (int i = 1; i < input.length; i++) {
             if (input[i] < min) {
                 min = input[i];
+            }
+        }
+        return min;
+    }
+
+
+    /**
+     * Finds the minimum absolute value of an array.
+     *
+     * @param input input array
+     * @return minimum value.
+     * @throws IllegalArgumentException if array is empty or null.
+     */
+    public static float absMin(float... input) {
+        validateArray(input);
+        float min = Math.abs(input[0]);
+        for (int i = 1; i < input.length; i++) {
+            float abs = Math.abs(input[i]);
+            if (abs < min) {
+                min = abs;
             }
         }
         return min;
@@ -614,6 +713,18 @@ public class FloatArrays {
     }
 
     /**
+     * @param a input float array
+     * @return true if array includes at least one Not-a-Number (NaN) or infinite value, false otherwise
+     */
+    public static boolean containsNanOrInfinite(float[] a) {
+        for (float v : a) {
+            if (Float.isNaN(v) || !Float.isFinite(v))
+                return true;
+        }
+        return false;
+    }
+
+    /**
      * replaces the elements smaller than minValue with the minValue
      *
      * @param var      input float array
@@ -650,6 +761,15 @@ public class FloatArrays {
         scaleInPlace(data, 1f / sum);
     }
 
+    public static float[] fromString(String str, String delimiter) {
+        List<String> tokens = Splitter.on(delimiter).trimResults().omitEmptyStrings().splitToList(str);
+        float[] result = new float[tokens.size()];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = Float.parseFloat(tokens.get(i));
+        }
+        return result;
+    }
+
     public static void serialize(DataOutputStream dos, float[] data) throws IOException {
         dos.writeInt(data.length);
         for (float v : data) {
@@ -657,12 +777,26 @@ public class FloatArrays {
         }
     }
 
+    public static void serializeRaw(DataOutputStream dos, float[] data) throws IOException {
+        for (float v : data) {
+            dos.writeFloat(v);
+        }
+    }
+
+
     public static void serialize(DataOutputStream dos, float[][] data) throws IOException {
         dos.writeInt(data.length);
         for (float[] floats : data) {
             serialize(dos, floats);
         }
     }
+
+    public static void serializeRaw(DataOutputStream dos, float[][] data) throws IOException {
+        for (float[] floats : data) {
+            serializeRaw(dos, floats);
+        }
+    }
+
 
     public static float[] deserialize(DataInputStream dis) throws IOException {
         int amount = dis.readInt();
@@ -673,6 +807,20 @@ public class FloatArrays {
         return result;
     }
 
+    public static float[] deserializeRaw(DataInputStream dis, int amount) throws IOException {
+        float[] result = new float[amount];
+        for (int i = 0; i < amount; i++) {
+            result[i] = dis.readFloat();
+        }
+        return result;
+    }
+
+    public static void deserializeRaw(DataInputStream dis, float[] result) throws IOException {
+        for (int i = 0; i < result.length; i++) {
+            result[i] = dis.readFloat();
+        }
+    }
+
     public static float[][] deserialize2d(DataInputStream dis) throws IOException {
         int amount = dis.readInt();
         float[][] result = new float[amount][];
@@ -681,4 +829,73 @@ public class FloatArrays {
         }
         return result;
     }
+
+    public static void deserialize2DRaw(DataInputStream dis, float[][] result) throws IOException {
+        for (float[] row : result) {
+            deserializeRaw(dis, row);
+        }
+    }
+
+    public static float[][] clone2D(float[][] result) throws IOException {
+        float[][] arr = new float[result.length][];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = result[i].clone();
+        }
+        return arr;
+    }
+
+    public static float[] toVector(float[][] matrix) {
+        if (matrix.length == 0)
+            return ZERO_LENGTH_ARRAY;
+        int dimension = matrix[0].length;
+        if (dimension == 0)
+            return ZERO_LENGTH_ARRAY;
+        float[] result = new float[matrix.length * dimension];
+        for (int i = 0; i < matrix.length; i++) {
+            float[] floats = matrix[i];
+            if (floats.length != dimension) {
+                throw new IllegalStateException("Unexpected array size.");
+            }
+            System.arraycopy(floats, 0, result, i * dimension, dimension);
+        }
+        return result;
+    }
+
+    public static float[][] toMatrix(float[] vector, int dimension) {
+        if (vector.length == 0) {
+            return ZERO_LENGTH_MATRIX;
+        }
+        if (dimension <= 0) {
+            throw new IllegalArgumentException("Dimension must be a positive number.");
+        }
+        int vectorCount = vector.length / dimension;
+        if (vectorCount * dimension != vector.length) {
+            throw new IllegalStateException("vector length is not a factor of dimension.");
+        }
+        float[][] result = new float[vectorCount][dimension];
+        for (int i = 0; i < vectorCount; i++) {
+            System.arraycopy(vector, i * dimension, result[i], 0, dimension);
+        }
+        return result;
+    }
+
+    public static final Pattern FEATURE_LINES_PATTERN = Pattern.compile("(?:\\[)(.+?)(?:\\])", Pattern.DOTALL | Pattern.MULTILINE);
+
+    /**
+     * loads float array from file with format:
+     * [1 2 3]
+     * [4 5 6]
+     */
+    public static float[][] loadFromText(File input) throws IOException {
+        String wholeThing = new SimpleTextReader(input, "UTF-8").asString();
+        List<String> featureBlocks = Regexps.firstGroupMatches(FEATURE_LINES_PATTERN, wholeThing);
+        float[][] result = new float[featureBlocks.size()][];
+        int i = 0;
+        for (String featureBlock : featureBlocks) {
+            result[i] = FloatArrays.fromString(featureBlock, " ");
+            i++;
+        }
+        return result;
+    }
+
 }

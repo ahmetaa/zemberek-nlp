@@ -1,9 +1,8 @@
 package zemberek.core;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import java.util.*;
+import java.util.stream.Collectors;
+
 
 /**
  * A simple set like data structure for counting unique elements. Not thread safe.
@@ -76,9 +75,7 @@ public class Histogram<T> implements Iterable<T> {
 
         if (collection == null)
             throw new NullPointerException("collection cannot be null");
-        for (T t : collection) {
-            add(t);
-        }
+        collection.forEach(this::add);
     }
 
     /**
@@ -86,7 +83,8 @@ public class Histogram<T> implements Iterable<T> {
      *
      * @param array an array of elements to add.
      */
-    public void add(T... array) {
+    @SafeVarargs
+    public final void add(T... array) {
         if (array == null)
             throw new NullPointerException("array cannot be null");
         for (T t : array) {
@@ -109,7 +107,7 @@ public class Histogram<T> implements Iterable<T> {
      * @param t element
      * @param c count value which will override the current count value.
      */
-    public void replace(T t, int c) {
+    public void set(T t, int c) {
         if (t == null)
             throw new NullPointerException("Element cannot be null");
         if (c < 0)
@@ -139,18 +137,17 @@ public class Histogram<T> implements Iterable<T> {
     }
 
     /**
-     * returns the first of items sorted by frequency descending.
-     * if count is larger than size complete list is returned.
+     * returns the Elements in a list sorted by count, descending..
      *
-     * @param count amount of items to be fetched.
-     * @return returns the sub sorted list.
+     * @return Elements in a list sorted by count, descending..
      */
-    public List<T> getFirstSorted(int count) {
-        if (count < 0)
-            throw new IllegalArgumentException("count cannot be negative.");
-        if (count > this.size())
-            count = this.size();
-        return getSortedList().subList(0, count);
+    public List<T> getTop(int n) {
+        if (n > size())
+            n = size();
+        List<CountSet.Entry<T>> l = vector.getAsEntryList();
+        Collections.sort(l);
+        List<T> result = l.stream().map(e -> e.key).collect(Collectors.toList());
+        return new ArrayList<>(result.subList(0, n));
     }
 
     /**
@@ -168,9 +165,7 @@ public class Histogram<T> implements Iterable<T> {
                 removeCount++;
             }
         }
-        for (T t : toRemove) {
-            vector.remove(t);
-        }
+        toRemove.forEach(vector::remove);
         return removeCount;
     }
 
@@ -216,9 +211,7 @@ public class Histogram<T> implements Iterable<T> {
                 removeCount++;
             }
         }
-        for (T t : toRemove) {
-            vector.remove(t);
-        }
+        toRemove.forEach(vector::remove);
         return removeCount;
     }
 
@@ -279,9 +272,9 @@ public class Histogram<T> implements Iterable<T> {
     }
 
     /**
-     * returns the max value.
+     * returns the max count value.
      *
-     * @return the max value in the set if set is emtpty, 0 is returned.
+     * @return the max value in the set if set is empty, 0 is returned.
      */
     public int maxValue() {
         int max = 0;
@@ -293,7 +286,7 @@ public class Histogram<T> implements Iterable<T> {
     }
 
     /**
-     * returns the min value.
+     * returns the min count value.
      *
      * @return the min value in the set, if set is empty, Integer.MAX_VALUE is returned.
      */
@@ -358,10 +351,8 @@ public class Histogram<T> implements Iterable<T> {
      * @return Elements in a list sorted by count, descending.
      */
     public List<T> getSortedList() {
-        List<T> l = Lists.newArrayListWithCapacity(vector.size());
-        for(CountSet.Entry<T> entry : getSortedEntryList()) {
-            l.add(entry.key);
-        }
+        List<T> l = new ArrayList<>(vector.size());
+        l.addAll(getSortedEntryList().stream().map(entry -> entry.key).collect(Collectors.toList()));
         return l;
     }
 
@@ -381,17 +372,10 @@ public class Histogram<T> implements Iterable<T> {
      *
      * @return Elements in a list sorted by count, descending..
      */
-    public List<T> getMostFrequent(int n) {
-        if (n > size())
-            n = size();
-        List<CountSet.Entry<T>> l = vector.getAsEntryList();
-        Collections.sort(l);
-        List<T> result = new ArrayList<>();
-        for (CountSet.Entry<T> tEntry : l) {
-            result.add(tEntry.key);
-        }
-        return Lists.newArrayList(result.subList(0, n));
+    public List<CountSet.Entry<T>> getEntryList() {
+        return vector.getAsEntryList();
     }
+
 
     /**
      * @return total count of the items in the input Iterable.
@@ -407,24 +391,14 @@ public class Histogram<T> implements Iterable<T> {
     /**
      * returns the Elements in a list sorted by the given comparator..
      *
-     * @param comp a Comparator of T
+     * @param comp a Comarator of T
      * @return Elements in a list sorted by the given comparator..
      */
     public List<T> getSortedList(Comparator<T> comp) {
-        List<T> l = Lists.newArrayList(vector);
+        List<T> l = new ArrayList<>(vector.getKeyList());
         Collections.sort(l, comp);
         return l;
     }
-
-    /**
-     * returns elements in a set.
-     *
-     * @return a set containing the elements.
-     */
-    public Set<T> getKeySet() {
-        return Sets.newHashSet(vector);
-    }
-
 
     /**
      * returns an iterator for elements.
@@ -442,6 +416,10 @@ public class Histogram<T> implements Iterable<T> {
      */
     public long totalCount() {
         return totalCount(this);
+    }
+
+    public Set<T> getKeySet() {
+        return vector.getKeys();
     }
 
     private class CountComparator implements Comparator<Map.Entry<T, Integer>> {
