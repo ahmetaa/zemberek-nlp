@@ -12,7 +12,7 @@ public class GenerationToken {
     StemNode stemNode;
     SuffixSurfaceNode currentSurfaceNode;
     List<Suffix> nodesLeft;
-    List<String> formList = new ArrayList<String>();
+    List<String> formList = new ArrayList<>();
     boolean terminal;
 
     public GenerationToken(StemNode stemNode, List<Suffix> nodesLeft) {
@@ -27,7 +27,11 @@ public class GenerationToken {
         return nodesLeft.get(0);
     }
 
-    public GenerationToken(StemNode stemNode, SuffixSurfaceNode currentSurfaceNode, List<Suffix> nodesLeft, List<String> formList, boolean terminal) {
+    public GenerationToken(StemNode stemNode,
+                           SuffixSurfaceNode currentSurfaceNode,
+                           List<Suffix> nodesLeft,
+                           List<String> formList,
+                           boolean terminal) {
         this.stemNode = stemNode;
         this.currentSurfaceNode = currentSurfaceNode;
         this.nodesLeft = nodesLeft;
@@ -54,7 +58,7 @@ public class GenerationToken {
                 break;
         }
         List<Suffix> hist = nodesLeft.subList(1, nodesLeft.size());
-        List<String> formList = new ArrayList<String>(this.formList);
+        List<String> formList = new ArrayList<>(this.formList);
         formList.add(surfaceNode.surfaceForm);
         return new GenerationToken(stemNode, surfaceNode, hist, formList, t);
     }
@@ -69,7 +73,7 @@ public class GenerationToken {
                 t = false;
                 break;
         }
-        return new GenerationToken(stemNode, surfaceNode, new ArrayList<Suffix>(nodesLeft), formList, t);
+        return new GenerationToken(stemNode, surfaceNode, new ArrayList<>(nodesLeft), formList, t);
     }
 
 }

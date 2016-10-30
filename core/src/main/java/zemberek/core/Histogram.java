@@ -1,5 +1,11 @@
 package zemberek.core;
 
+import zemberek.core.logging.Log;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,6 +26,28 @@ public class Histogram<T> implements Iterable<T> {
         for (T t : countMap.keySet()) {
             this.vector.incrementByAmount(t, countMap.get(t));
         }
+    }
+
+    public static Histogram<String> loadFromUtf8File(Path path, char delimiter)
+            throws IOException {
+        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+        Histogram<String> result = new Histogram<>(lines.size());
+        int cnt = 0;
+        for (String s : lines) {
+            int index = s.indexOf(delimiter);
+            if (index < 0) {
+                throw new IllegalStateException("Bad histogram line = " + s);
+            }
+            String item = s.substring(0, index);
+            String countStr = s.substring(index+1);
+            int count = Integer.parseInt(countStr);
+            result.add(item, count);
+            if(cnt%100000==0) {
+                Log.debug("%d of %d processed.", cnt, lines.size());
+            }
+            cnt++;
+        }
+        return result;
     }
 
     public Histogram() {
