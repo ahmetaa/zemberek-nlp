@@ -3,6 +3,7 @@ package zemberek.morphology.apps;
 import org.junit.Test;
 import zemberek.core.Histogram;
 import zemberek.core.turkish.PrimaryPos;
+import zemberek.morphology.external.OflazerAnalyzerRunner;
 import zemberek.morphology.lexicon.NullSuffixForm;
 import zemberek.morphology.lexicon.SuffixForm;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
@@ -11,6 +12,7 @@ import zemberek.morphology.parser.tr.TurkishWordParserGenerator;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,8 +60,16 @@ public class ZemberekNlpScripts {
                 }
                 c++;
             }
-
         }
+    }
+
+    @Test
+    public void parseLargeVocabularyOflazer() throws IOException {
+        Path oflazerToolsRoot = Paths.get("/media/depo/data/aaa/nlp/nlp-tools/Morphological-Analyzer/Turkish-Oflazer-Linux64");
+        OflazerAnalyzerRunner runner = new OflazerAnalyzerRunner(
+                oflazerToolsRoot.toFile(), oflazerToolsRoot.resolve("tfeaturesulx.fst").toFile());
+        Path wordFile = Paths.get("/media/depo/data/aaa/vocab.all");
+        runner.parseSentences(wordFile.toFile(), Paths.get("/media/depo/data/aaa/out/oflazer").toFile());
     }
 
 
