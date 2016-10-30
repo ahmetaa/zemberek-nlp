@@ -3,7 +3,7 @@ package zemberek.morphology.apps;
 import org.junit.Test;
 import zemberek.morphology.lexicon.NullSuffixForm;
 import zemberek.morphology.lexicon.SuffixForm;
-import zemberek.morphology.parser.tr.TurkishWordParserGenerator;
+import zemberek.morphology.lexicon.tr.TurkishSuffixes;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,10 +16,9 @@ public class ZemberekNlpScripts {
 
     @Test
     public void generateSuffixNames() throws IOException {
-        TurkishWordParserGenerator parser = TurkishWordParserGenerator.createWithDefaults();
+        TurkishSuffixes suffixes = new TurkishSuffixes();
         List<SuffixForm> forms = new ArrayList<>();
-
-        for (SuffixForm form : parser.getSuffixProvider().getAllForms()) {
+        for (SuffixForm form : suffixes.getAllForms()) {
             if (form instanceof NullSuffixForm) {
                 continue;
             }
@@ -29,4 +28,7 @@ public class ZemberekNlpScripts {
         List<String> result = forms.stream().map(s -> s.id).collect(Collectors.toList());
         Files.write(Paths.get("suffix-list"), result);
     }
+
+
+
 }
