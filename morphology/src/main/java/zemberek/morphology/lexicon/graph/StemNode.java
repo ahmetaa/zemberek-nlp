@@ -4,7 +4,6 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.morphology.lexicon.DictionaryItem;
 
-
 import java.util.EnumSet;
 
 public class StemNode extends MorphNode {
@@ -12,7 +11,10 @@ public class StemNode extends MorphNode {
     DictionaryItem dictionaryItem;
     SuffixSurfaceNode suffixRootSurfaceNode;
 
-    protected StemNode(String form, DictionaryItem dictionaryItem, SuffixSurfaceNode suffixRootSurfaceNode, TerminationType termination) {
+    protected StemNode(String form,
+                       DictionaryItem dictionaryItem,
+                       SuffixSurfaceNode suffixRootSurfaceNode,
+                       TerminationType termination) {
         super(form, termination);
         this.dictionaryItem = dictionaryItem;
         this.suffixRootSurfaceNode = suffixRootSurfaceNode;
@@ -31,7 +33,10 @@ public class StemNode extends MorphNode {
                     DictionaryItem dictionaryItem,
                     TerminationType termination,
                     EnumSet<PhoneticAttribute> phoneticAttributes) {
-        super(surfaceForm, termination, phoneticAttributes, EnumSet.noneOf(PhoneticExpectation.class));
+        super(surfaceForm,
+                termination,
+                phoneticAttributes,
+                EnumSet.noneOf(PhoneticExpectation.class));
         this.dictionaryItem = dictionaryItem;
     }
 
@@ -43,8 +48,12 @@ public class StemNode extends MorphNode {
         this.dictionaryItem = dictionaryItem;
     }
 
-    public StemNode(String surfaceForm, DictionaryItem dictionaryItem, TerminationType termination) {
-        super(surfaceForm, termination, EnumSet.noneOf(PhoneticAttribute.class), EnumSet.noneOf(PhoneticExpectation.class));
+    public StemNode(String surfaceForm,
+                    DictionaryItem dictionaryItem,
+                    TerminationType termination) {
+        super(surfaceForm, termination,
+                EnumSet.noneOf(PhoneticAttribute.class),
+                EnumSet.noneOf(PhoneticExpectation.class));
         this.dictionaryItem = dictionaryItem;
     }
 
