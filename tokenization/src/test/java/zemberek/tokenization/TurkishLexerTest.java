@@ -113,6 +113,59 @@ public class TurkishLexerTest {
     }
 
     @Test
+    public void testTokenBoundaries() {
+        List<Token> tokens = getTokens("bir av. geldi.");
+        Token t0 = tokens.get(0);
+        Assert.assertEquals("bir", t0.getText());
+        Assert.assertEquals(0, t0.getStartIndex());
+        Assert.assertEquals(2, t0.getStopIndex());
+        Assert.assertEquals(0, t0.getTokenIndex());
+        Assert.assertEquals(0, t0.getCharPositionInLine());
+
+        Token t1 = tokens.get(1);
+        Assert.assertEquals(" ", t1.getText());
+        Assert.assertEquals(3, t1.getStartIndex());
+        Assert.assertEquals(3, t1.getStopIndex());
+        Assert.assertEquals(1, t1.getTokenIndex());
+        Assert.assertEquals(3, t1.getCharPositionInLine());
+
+        Token t2 = tokens.get(2);
+        Assert.assertEquals("av.", t2.getText());
+        Assert.assertEquals(4, t2.getStartIndex());
+        Assert.assertEquals(6, t2.getStopIndex());
+        Assert.assertEquals(2, t2.getTokenIndex());
+        Assert.assertEquals(4, t2.getCharPositionInLine());
+
+        Token t3 = tokens.get(3);
+        Assert.assertEquals(" ", t3.getText());
+        Assert.assertEquals(7, t3.getStartIndex());
+        Assert.assertEquals(7, t3.getStopIndex());
+        Assert.assertEquals(3, t3.getTokenIndex());
+        Assert.assertEquals(7, t3.getCharPositionInLine());
+
+        Token t4 = tokens.get(4);
+        Assert.assertEquals("geldi", t4.getText());
+        Assert.assertEquals(8, t4.getStartIndex());
+        Assert.assertEquals(12, t4.getStopIndex());
+        Assert.assertEquals(4, t4.getTokenIndex());
+        Assert.assertEquals(8, t4.getCharPositionInLine());
+
+        Token t5 = tokens.get(5);
+        Assert.assertEquals(".", t5.getText());
+        Assert.assertEquals(13, t5.getStartIndex());
+        Assert.assertEquals(13, t5.getStopIndex());
+        Assert.assertEquals(5, t5.getTokenIndex());
+        Assert.assertEquals(13, t5.getCharPositionInLine());
+    }
+
+    @Test
+    public void testAbbreviations2() {
+        matchSentences(
+                "Prof. Dr. Ahmet'e git! dedi Av. Mehmet.",
+                "Prof. Dr. Ahmet'e git ! dedi Av. Mehmet .");
+    }
+
+    @Test
     public void testPunctuation() {
         matchSentences(".,!:;$%\"\'()[]{}&@", ". , ! : ; $ % \" \' ( ) [ ] { } & @");
         matchToken("...", "...");
