@@ -75,11 +75,13 @@ public class TurkishWordParserGenerator extends BaseParser {
         }
 
         public TurkishMorphParserBuilder addTextDictResources(String... resources) throws IOException {
+            Log.info("Loading dictionaries.");
             List<String> lines = new ArrayList<>();
             for (String resource : resources) {
                 lines.addAll(Resources.readLines(Resources.getResource(resource), Charsets.UTF_8));
             }
             lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(lines));
+            Log.info("Lexicon Generated.");
             return this;
         }
 

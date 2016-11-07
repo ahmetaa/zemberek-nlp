@@ -193,7 +193,7 @@ Dhl
 Dia
 Die
 Dj
-Dk
+dk [Pr:dakika; Ref:dakika_Noun_Time]
 Dlh
 Dm
 Dna
@@ -208,7 +208,7 @@ Dp
 Dpb
 Dpt
 Dpü
-Dr [Pr:doktor]
+Dr [Pr:doktor;Ref:doktor]
 Ds
 Dsg
 Dsi
@@ -299,7 +299,7 @@ Gik
 Gil
 Gli
 Gmk
-Gmsh [A:Ext;Pr:gesemehe,gesemeha]
+gmsh [A:Ext;Pr:gesemehe,gesemeha]
 Gn
 Gns
 Go
@@ -308,6 +308,7 @@ Gö
 Gp
 Gps
 Gpu
+gr [Pr:gram; Index:1; Ref:gram]
 Gru
 Gs
 Gsm [Pr:ciesem]

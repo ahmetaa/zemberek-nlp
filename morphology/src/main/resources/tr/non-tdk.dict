@@ -526,7 +526,7 @@ budunbilimsel [A:Ext]
 bufalo [A:Ext]
 buğdaypası [A:CompoundP3sg, Ext; Roots:buğday-pas]
 bulaşım [A:Ext]
-buldog [A:Ext]
+buldog [A:Ext,NoVoicing]
 buluğ [A:Ext]
 bulunç [A:Ext]
 bulyon [A:Ext]
@@ -604,7 +604,7 @@ cüzam [A:Ext]
 çavuşüzümü [A:CompoundP3sg, Ext; Roots:çavuş-üzüm]
 çayırotu [A:CompoundP3sg, Ext; Roots:çayır-ot]
 çedar [A:Ext]
-çekap [A:Ext]
+çekap [A:Ext,NoVoicing]
 çekimsemek [A:Ext]
 çekirgekuşu [A:CompoundP3sg, Ext; Roots:çekirge-kuş]
 çelenç [A:Ext]
@@ -3357,6 +3357,23 @@ anneannemler [A:Ext]
 görümcemler [A:Ext]
 eltimler [A:Ext]
 kaynanamlar [A:Ext]
+eniştemler [A:Ext]
+
+annenler [A:Ext]
+babanlar [A:Ext]
+amcanlar [A:Ext]
+dayınlar [A:Ext]
+teyzenler [A:Ext]
+dedenler [A:Ext]
+halanlar [A:Ext]
+ninenler [A:Ext]
+babaannenler [A:Ext]
+anneannenler [A:Ext]
+görümcenler [A:Ext]
+eltinler [A:Ext]
+kaynananlar [A:Ext]
+eniştenler [A:Ext]
+
 
 Hm [P:Interj]
 Hmm [P:Interj]
@@ -3390,7 +3407,6 @@ frak [A:Ext; Index:1; Ref:frak]
 fuhuş [A:Ext; Index:1; Ref:fuhuş]
 gardrop
 gasp [A:Ext,NoVoicing; Index:1; Ref:gasp]
-gr [Pr:gram; Index:1; Ref:gram]
 gsmh [Pr:gesemeha]
 gugıllamak
 hayın [A:Ext; Index:1; Ref:hain_Adj]
@@ -3408,3 +3424,16 @@ uydurukça
 uyumlamak
 vahlamak
 yekdiğeri
+zalimane [P:Adj]
+ziyade
+allegro
+alolaşmak
+basamaklamak
+başmakçı
+beğendi
+bitti
+dolaylamak
+döküşmek
+düzüşmek
+eğişmek
+envanterlemek
