@@ -150,6 +150,26 @@ public class TurkishDictionaryLoaderTest {
     }
 
     @Test
+    public void referenceTest1() {
+        TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
+        String[] ref = {"ad", "ad [A:Doubling,InverseHarmony]", "soy", "soyadı [A:CompoundP3sg; Roots:soy-ad]"};
+        RootLexicon lexicon = loader.load(ref);
+        DictionaryItem item = lexicon.getItemById("soyadı_Noun");
+        Assert.assertNotNull(item);
+        Assert.assertFalse(item.attributes.contains(RootAttribute.Doubling));
+    }
+
+    @Test
+    public void referenceTest2() {
+        TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
+        String[] ref = {"ad", "ad [A:Doubling,InverseHarmony;Index:1]", "soy", "soyadı [A:CompoundP3sg; Roots:soy-ad]"};
+        RootLexicon lexicon = loader.load(ref);
+        DictionaryItem item = lexicon.getItemById("soyadı_Noun");
+        Assert.assertNotNull(item);
+        Assert.assertFalse(item.attributes.contains(RootAttribute.Doubling));
+    }
+
+    @Test
     public void nounAttributesTest() {
         TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
 

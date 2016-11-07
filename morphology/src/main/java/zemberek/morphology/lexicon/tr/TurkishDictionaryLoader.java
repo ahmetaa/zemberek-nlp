@@ -8,18 +8,13 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
+import zemberek.core.enums.StringEnum;
+import zemberek.core.enums.StringEnumMap;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
-import zemberek.core.turkish.PrimaryPos;
-import zemberek.core.turkish.SecondaryPos;
-import zemberek.core.turkish.RootAttribute;
-import zemberek.core.enums.*;
-import zemberek.core.turkish.TurkicLetter;
-import zemberek.core.turkish.TurkicSeq;
-import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.core.turkish.*;
 import zemberek.morphology.lexicon.*;
-
 import zemberek.morphology.structure.Turkish;
 
 import java.io.File;
@@ -39,7 +34,7 @@ public class TurkishDictionaryLoader {
             "tr/proper.dict",
             "tr/proper-from-corpus.dict",
             "tr/abbreviations.dict"
-            );
+    );
 
     SuffixProvider suffixProvider;
 
@@ -246,6 +241,8 @@ public class TurkishDictionaryLoader {
                     EnumSet<RootAttribute> attrSet;
                     DictionaryItem refItem;
                     if (refItems.size() > 0) {
+                        // use the item with lowest index value.
+                        refItems.sort((a, b) -> Integer.compare(a.index, b.index));
                         refItem = refItems.get(0); // grab the first Dictionary item matching to kuyruk. We will use it's attributes.
                         attrSet = refItem.attributes.clone();
                     } else {
