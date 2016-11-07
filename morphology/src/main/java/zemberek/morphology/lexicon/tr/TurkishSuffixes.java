@@ -893,6 +893,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
         Become_Adj_lAs.indirectConnections.add(Verb_TEMPLATE.indirectConnections).remove(Caus_t, Pass_In, Pass_InIl);
 
         Quite_cA.connections.add(Adj_TEMPLATE.connections);
+        Quite_cA.indirectConnections.add(Adj_TEMPLATE.indirectConnections);
 
         Ly_cA.connections.add(Adv_TEMPLATE.connections);
 
