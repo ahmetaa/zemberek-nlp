@@ -1315,8 +1315,8 @@ Manyas
 Mardin
 Marksçı [A:NoQuote]
 Marksçı [P:Adj]
-Marksist [A:NoQuote]
-Marksist [P:Adj]
+Marksist [A:NoQuote,NoVoicing]
+Marksist [P:Adj; A:NoVoicing]
 Marksizm [A:NoQuote]
 Marmara
 Marmaris
