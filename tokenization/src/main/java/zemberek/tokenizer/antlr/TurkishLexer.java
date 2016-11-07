@@ -89,7 +89,13 @@ public class TurkishLexer extends Lexer {
 	      builder.append('.');
 	      String abbrev = builder.toString();
 	      if (abbreviations!= null && abbreviations.contains(abbrev)) {
-	         return new CommonToken(Abbreviation, abbrev);
+			  CommonToken commonToken = new CommonToken(Abbreviation, abbrev);
+			  commonToken.setStartIndex(next.getStartIndex());
+			  commonToken.setStopIndex(next2.getStopIndex());
+			  commonToken.setTokenIndex(next.getTokenIndex());
+			  commonToken.setCharPositionInLine(next.getCharPositionInLine());
+			  commonToken.setLine(next.getLine());
+			  return commonToken;
 	      }
 	    }
 	    queue.offer(next2);
