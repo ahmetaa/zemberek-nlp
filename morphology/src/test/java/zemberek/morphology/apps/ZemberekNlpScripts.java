@@ -103,14 +103,14 @@ public class ZemberekNlpScripts {
         Path inPath = DATA_PATH.resolve("out").resolve("oflazer-parses.txt");
         List<String> lines = Files.readAllLines(inPath, StandardCharsets.UTF_8);
         Log.info("Loaded.");
-        List<String> accepted = new ArrayList<>(lines.size() / 5);
+        LinkedHashSet<String> accepted = new LinkedHashSet<>(lines.size() / 5);
         for (String line : lines) {
             if (line.trim().length()==0 || line.endsWith("+?")) {
                 continue;
             }
             accepted.add(line.substring(0, line.indexOf('\t')));
         }
-        sortAndSave(DATA_PATH.resolve("out").resolve("oflazer-parsed-words.txt"), accepted);
+        sortAndSave(DATA_PATH.resolve("out").resolve("oflazer-parsed-words.txt"), new ArrayList<>(accepted));
     }
 
     @Test
@@ -119,7 +119,8 @@ public class ZemberekNlpScripts {
         List<String> zemberekAll =
                 Files.readAllLines(inPath.resolve("zemberek-parsed-words.txt"));
         Log.info("Zemberek Loaded.");
-        LinkedHashSet<String> onlyOflazer = new LinkedHashSet<>(Files.readAllLines(inPath.resolve("oflazer-parsed-words.txt")));
+        LinkedHashSet<String> onlyOflazer =
+                new LinkedHashSet<>(Files.readAllLines(inPath.resolve("oflazer-parsed-words.txt")));
         Log.info("Oflazer Loaded.");
         zemberekAll.forEach(onlyOflazer::remove);
         Log.info("Writing.");
@@ -134,7 +135,8 @@ public class ZemberekNlpScripts {
                 Files.readAllLines(dir.resolve("oflazer-parsed-words.txt"));
         Log.info("Oflazer Loaded.");
 
-        LinkedHashSet<String> onlyZemberek = new LinkedHashSet<>(Files.readAllLines(dir.resolve("zemberek-parsed-words.txt")));
+        LinkedHashSet<String> onlyZemberek =
+                new LinkedHashSet<>(Files.readAllLines(dir.resolve("zemberek-parsed-words.txt")));
         Log.info("Zemberek Loaded.");
 
         oflazerAll.forEach(onlyZemberek::remove);

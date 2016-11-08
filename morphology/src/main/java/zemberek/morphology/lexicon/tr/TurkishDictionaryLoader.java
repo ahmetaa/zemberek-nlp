@@ -414,6 +414,7 @@ public class TurkishDictionaryLoader {
                     // if a noun or adjective has more than one syllable and last letter is a stop consonant, add voicing.
                     if (sequence.vowelCount() > 1
                             && last.isStopConsonant()
+                            && posData.secondaryPos!=SecondaryPos.ProperNoun
                             && !attributes.contains(RootAttribute.NoVoicing)
                             && !attributes.contains(RootAttribute.InverseHarmony)) {
                         attributes.add(RootAttribute.Voicing);

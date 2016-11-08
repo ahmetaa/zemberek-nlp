@@ -964,7 +964,7 @@ ampermetre
 amperölçer
 ampir
 ampirik [P:Adj]
-ampirist [P:Adj]
+ampirist [P:Adj;A:NoVoicing]
 ampirizm
 amplifikatör
 ampul [A:InverseHarmony]
@@ -1142,7 +1142,6 @@ ansızın [P:Adv]
 ansiklopedi
 ansiklopedik [P:Adj]
 ansiklopedist [A:NoVoicing]
-ansiklopedist [P:Adj]
 ant [A:Voicing]
 antagonist [A:NoVoicing]
 antagonizm
@@ -1167,7 +1166,7 @@ antijen
 antik [P:Adj]
 antika
 antika [P:Adj]
-antikapitalist [P:Adj]
+antikapitalist [P:Adj;A:NoVoicing]
 antikapitalizm
 antikatot [A:Voicing]
 antikite
@@ -2573,7 +2572,7 @@ baytar
 baz
 baz [P:Adj]
 baza
-bazal [P:Adj; A:InverseHarmony]
+bazal [P:Adj]
 bazalt [A:NoVoicing]
 bazen [P:Adv]
 bazı [P:Adj]
@@ -2730,7 +2729,7 @@ bellik
 belsoğukluğu
 bembeyaz [P:Adj]
 bembeyaz [P:Adv]
-bemol
+bemol [A:InverseHarmony]
 ben
 ben [P:Pron,Pers ;A:Special]
 benbenci [P:Adj]
@@ -2768,7 +2767,7 @@ benzeşmek
 benzeti
 benzetim
 benzin
-benzol [A:Doubling]
+benzol [A:InverseHarmony]
 beraat [A:NoVoicing, InverseHarmony]
 beraatızimmet [A:NoVoicing]
 beraber [P:Adj]
@@ -2825,7 +2824,7 @@ bertmek
 berzah
 besalet [A:NoVoicing]
 besbedava [P:Adj]
-besbelli [P:Adv]
+besbelli [P:Adj]
 besbeter [P:Adj]
 beserek
 besi
@@ -3183,7 +3182,7 @@ bitelge
 bitevi [P:Adv]
 biteviye [P:Adv]
 bitey
-bitik [P:Adj; A:NoVoicing]
+bitik [P:Adj]
 bitim
 bitirim [P:Adj]
 bitirimhane
@@ -3482,7 +3481,7 @@ böylecene [P:Adv]
 böylelikle [P:Adv]
 böylesine [P:Adj]
 braket [A:NoVoicing]
-brakisefal [P:Adj]
+brakisefal [P:Adj;A:InverseHarmony]
 branda
 branş
 bravo [P:Interj]
@@ -4461,7 +4460,7 @@ cüzzam
 çay
 çayan
 çaydanlık
-çayevi
+çayevi [A:CompoundP3sg; Roots:çay-ev]
 çayhane
 çayır
 çayırgüzeli [A:CompoundP3sg; Roots:çayır-güzel]
@@ -6594,15 +6593,15 @@ ege
 egemen [P:Adj]
 eglog
 ego
-egoist [P:Adj]
+egoist [P:Adj;A:NoVoicing]
 egoizm
 egosantrik [P:Adj]
-egosantrist [P:Adj]
+egosantrist [P:Adj;A:NoVoicing]
 egosantrizm
 egotizm
 egzama
 egzersiz
-egzistansiyalist [P:Adj]
+egzistansiyalist [P:Adj;A:NoVoicing]
 egzistansiyalizm
 egzogami
 egzomorfizm
@@ -6743,7 +6742,7 @@ ekspoze
 ekspozisyon
 ekspres
 ekspres [P:Adj]
-ekspresyonist [P:Adj]
+ekspresyonist [P:Adj;A:NoVoicing]
 ekspresyonizm
 ekstra [P:Adj]
 ekstra [P:Adv]
@@ -6921,6 +6920,7 @@ emilim
 emin
 emin [P:Adj]
 emir [A:LastVowelDrop]
+emir [Index:1]
 emirber
 emirname
 emisyon
@@ -6939,7 +6939,7 @@ empermeabl [P:Adj]
 emperyalist [P:Adj; A:NoVoicing]
 emperyalizm
 empoze [P:Adj; A:NoSuffix]
-empresyonist [P:Adj]
+empresyonist [P:Adj;A:NoVoicing]
 empresyonizm
 emprezaryo
 emprime
@@ -7002,7 +7002,6 @@ enfiye
 enflamasyon
 enflasyon
 enflasyonist [A:NoVoicing]
-enflasyonist [P:Adj]
 enflüanza
 enformasyon
 enformatik
@@ -7052,7 +7051,7 @@ entelekya
 enteresan [P:Adj]
 enterfon
 enternasyonal [A:InverseHarmony]
-enternasyonalist [P:Adj]
+enternasyonalist [P:Adj;A:NoVoicing]
 enternasyonalizm
 enterne [P:Adj]
 entertip [A:NoVoicing]
@@ -7525,7 +7524,7 @@ fantastik [P:Adj]
 fantazya
 fantezi
 fantezi [P:Adj]
-fantezist [P:Adj]
+fantezist [P:Adj;A:NoVoicing]
 fanti
 fantom
 fanus
@@ -7584,7 +7583,6 @@ faşist [A:NoVoicing]
 faşizan [P:Adj]
 faşizm
 fatalist [A:NoVoicing]
-fatalist [P:Adj]
 fatalite
 fatalizm
 fatih [P:Adj]
@@ -7708,7 +7706,7 @@ fertik [P:Interj]
 feryat
 ferz
 fes
-fesahat
+fesahat [A:InverseHarmony]
 fesat
 fesat [P:Adj]
 feshetmek [A:Voicing, Aorist_A]
@@ -7896,8 +7894,7 @@ filtrelemek
 filum
 filvaki [P:Adv]
 final [A:InverseHarmony]
-finalist [A:NoVoicing]
-finalist [P:Adj]
+finalist [P:Adj;A:NoVoicing]
 finalizm
 finans
 finansal [P:Adj]
@@ -8056,8 +8053,7 @@ form
 forma
 formaldehit [A:NoVoicing]
 formalık [P:Adj]
-formalist [A:NoVoicing]
-formalist [P:Adj]
+formalist [P:Adj;A:NoVoicing]
 formalite
 formalizm
 formasyon
@@ -8180,8 +8176,7 @@ fulâr
 fule
 fulya
 funda
-fundamentalist [A:NoVoicing]
-fundamentalist [P:Adj]
+fundamentalist [P:Adj; A:NoVoicing]
 fundamentalizm
 furgon
 furya
@@ -8205,8 +8200,7 @@ füsun
 füsunkâr [P:Adj]
 fütuhat [A:NoVoicing]
 fütur
-fütürist [A:NoVoicing]
-fütürist [P:Adj]
+fütürist [P:Adj;A:NoVoicing]
 fütürizm
 fütüroloji
 fütüvvet
@@ -9773,8 +9767,7 @@ hedeflemek
 heder
 hedik
 hediye
-hedonist [A:NoVoicing]
-hedonist [P:Adj]
+hedonist [P:Adj;A:NoVoicing]
 hedonizm
 hegemonya
 hekim
@@ -10294,8 +10287,7 @@ hülasa [P:Adv]
 hülasaten [P:Adv]
 hülle
 hülya
-hümanist [A:NoVoicing]
-hümanist [P:Adj]
+hümanist [P:Adj;A:NoVoicing]
 hümanizm
 hümanizma
 hümayun
@@ -10582,8 +10574,7 @@ ide
 idea
 ideal [A:InverseHarmony]
 ideal [P:Adj]
-idealist [A:NoVoicing]
-idealist [P:Adj]
+idealist [P:Adj;A:NoVoicing]
 idealize [P:Adj]
 idealizm
 idefiks
@@ -10935,8 +10926,7 @@ incizap
 inç
 indeks
 indekslemek
-indeterminist [A:NoVoicing]
-indeterminist [P:Adj]
+indeterminist [P:Adj;A:NoVoicing]
 indeterminizm
 indî
 indifa
@@ -13505,8 +13495,7 @@ koledok
 kolej
 koleksiyon
 kolektif [P:Adj]
-kolektivist [A:NoVoicing]
-kolektivist [P:Adj]
+kolektivist [P:Adj;A:NoVoicing]
 kolektivizm
 kolektör
 kolemanit [A:NoVoicing]
@@ -15411,8 +15400,7 @@ matematik
 matematik [P:Adj]
 matematisyen
 materyal [A:InverseHarmony]
-materyalist [A:NoVoicing]
-materyalist [P:Adj]
+materyalist [P:Adj;A:NoVoicing]
 materyalizm
 matine
 matiz
@@ -17777,7 +17765,7 @@ nutuk [A:LastVowelDrop,NoVoicing]
 nü [P:Adj]
 nüans
 nübüvvet [A:NoVoicing]
-nüdist [P:Adj]
+nüdist [P:Adj;A:NoVoicing]
 nüfus
 nüfuz
 nüfuzkâr [P:Adj]
@@ -17810,7 +17798,7 @@ obezite
 obje
 objektif
 objektif [P:Adj]
-objektivist [P:Adj]
+objektivist [P:Adj;A:NoVoicing]
 objektivite
 objektivizm
 obruk
@@ -18013,7 +18001,7 @@ optik [P:Adj]
 optimal [P:Adj]
 optimetri
 optimist [A:NoVoicing]
-optimist [P:Adj]
+optimist [P:Adj;A:NoVoicing]
 optimizasyon
 optimizm
 optimum [P:Adj]
@@ -18586,8 +18574,7 @@ panoramik [P:Adj]
 pansiyon
 pansiyoner
 pansuman
-panteist [A:NoVoicing]
-panteist [P:Adj]
+panteist [P:Adj;A:NoVoicing]
 panteizm
 panteon
 panter
@@ -19002,8 +18989,7 @@ pes [P:Adj]
 pes [P:Interj]
 pesek
 peseta
-pesimist [A:NoVoicing]
-pesimist [P:Adj]
+pesimist [P:Adj;A:NoVoicing]
 pesimizm
 peso
 pespaye [P:Adj]
@@ -19252,8 +19238,7 @@ pli
 plise
 pliyosen
 plonjon
-plüralist [A:NoVoicing]
-plüralist [P:Adj]
+plüralist [P:Adj;A:NoVoicing]
 plüralizm
 plütokrasi
 plütonyum
@@ -19304,8 +19289,7 @@ polip
 polis
 polisaj
 polisiye [P:Adj]
-politeist [A:NoVoicing]
-politeist [P:Adj]
+politeist [P:Adj;A:NoVoicing]
 politeizm
 politik [P:Adj]
 politika
@@ -19368,7 +19352,7 @@ postane
 poster
 postiş
 postmodern [P:Adj]
-postmodernist [P:Adj]
+postmodernist [P:Adj;A:NoVoicing]
 postmodernizm
 postnişin
 postrestant [A:NoVoicing]
@@ -19399,8 +19383,7 @@ poyrazlamak
 poz
 pozisyon
 pozitif [P:Adj]
-pozitivist [A:NoVoicing]
-pozitivist [P:Adj]
+pozitivist [P:Adj;A:NoVoicing]
 pozitivizm
 poziton
 pozitonyum
@@ -19422,8 +19405,7 @@ pötikare
 pötikare [P:Adj]
 prafa
 pragmatik [P:Adj]
-pragmatist [A:NoVoicing]
-pragmatist [P:Adj]
+pragmatist [P:Adj;A:NoVoicing]
 pragmatizm
 pranga
 prangalamak
@@ -19758,8 +19740,7 @@ rastlamak
 rastlantı
 rasyo
 rasyon
-rasyonalist [A:NoVoicing]
-rasyonalist [P:Adj]
+rasyonalist [P:Adj;A:NoVoicing]
 rasyonalite
 rasyonalizasyon
 rasyonalizm
@@ -19786,8 +19767,7 @@ re
 reaksiyon
 reaktif
 reaktör
-realist [A:NoVoicing]
-realist [P:Adj]
+realist [P:Adj;A:NoVoicing]
 realite
 realizasyon
 realizm
@@ -19830,7 +19810,7 @@ refika
 refleks
 reflektör
 reform
-reformist [P:Adj]
+reformist [P:Adj;A:NoVoicing]
 reftiye
 refüj
 regaip
@@ -20201,8 +20181,7 @@ sadıkane [P:Adv]
 sadır [A:LastVowelDrop]
 sâdır [P:Adj]
 sadik [P:Adj]
-sadist [A:NoVoicing]
-sadist [P:Adj]
+sadist [P:Adj;A:NoVoicing]
 sadizm
 sadrazam
 saf [P:Adj]
@@ -20863,8 +20842,7 @@ semazen
 semazenbaşı [A:CompoundP3sg; Roots:semazen-baş]
 sembol [A:InverseHarmony]
 sembolik [P:Adj]
-sembolist [A:NoVoicing]
-sembolist [P:Adj]
+sembolist [P:Adj;A:NoVoicing]
 sembolizm
 semen
 semender
@@ -21494,8 +21472,7 @@ siyek
 siyenit
 siyer
 siymek
-siyonist [A:NoVoicing]
-siyonist [P:Adj]
+siyonist [P:Adj;A:NoVoicing]
 siyonizm
 siz [P:Pron, Pers ; RootSuffix:PersPron_Siz]
 skala
@@ -21530,8 +21507,7 @@ sof
 sof [P:Adj]
 sofa
 sofî [P:Adj]
-sofist [A:NoVoicing]
-sofist [P:Adj]
+sofist [P:Adj;A:NoVoicing]
 sofistik [P:Adj]
 sofistike [P:Adj]
 sofiyane
@@ -21572,8 +21548,7 @@ solak
 solaryum
 solfej
 solgun [P:Adj]
-solidarist [A:NoVoicing]
-solidarist [P:Adj]
+solidarist [P:Adj;A:NoVoicing]
 solidarizm
 solipsizm
 solist [A:NoVoicing]
@@ -21869,8 +21844,7 @@ striknin
 striptiz
 stronsiyum
 strüktür
-strüktüralist [A:NoVoicing]
-strüktüralist [P:Adj]
+strüktüralist [P:Adj;A:NoVoicing]
 strüktüralizm
 strüktürel [P:Adj]
 stüdyo
@@ -22102,13 +22076,11 @@ sürmek
 sürmelemek
 sürmeli [P:Adj]
 sürmenaj
-sürnatüralist [A:NoVoicing]
-sürnatüralist [P:Adj]
+sürnatüralist [P:Adj;A:NoVoicing]
 sürnatüralizm
 sürpriz
 sürre
-sürrealist [A:NoVoicing]
-sürrealist [P:Adj]
+sürrealist [P:Adj;A:NoVoicing]
 sürrealite
 sürrealizm
 sürsat [A:NoVoicing]
@@ -23390,7 +23362,7 @@ tehlike
 tehyiç
 tehzil
 tein
-teist [P:Adj]
+teist [P:Adj;A:NoVoicing]
 teizm
 tek
 tek [P:Adv]
@@ -24997,7 +24969,7 @@ uzviyet [A:NoVoicing]
 üşütük [P:Adj]
 ütmek
 ütopik [P:Adj]
-ütopist [P:Adj]
+ütopist [P:Adj;A:NoVoicing]
 ütopya
 ütü
 ütülemek
