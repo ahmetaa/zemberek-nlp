@@ -22,7 +22,7 @@ public class MarkovModelTests {
         File rootArpaLm = new File(workDir, "root-lm.z3.arpa");
         File igArpaLm = new File(workDir, "ig-lm.z3.arpa");
 
-        LmGenerator generator = new LmGenerator(3);
+        LmGenerator generator = new LmGenerator(new File("../bin/lm/lmplz").toPath(), 3);
         generator.generateArpaLm(rootCorpus, rootArpaLm);
         generator.generateArpaLm(igCorpus, igArpaLm);
 
@@ -51,7 +51,7 @@ public class MarkovModelTests {
         File rootArpaLm = new File(workDir, "root-lm.z3.arpa");
         File igArpaLm = new File(workDir, "ig-lm.z3.arpa");
 
-        LmGenerator generator = new LmGenerator(3);
+        LmGenerator generator = new LmGenerator(new File("../bin/lm/lmplz").toPath(), 3);
         generator.generateArpaLm(rootCorpus, rootArpaLm);
         generator.generateArpaLm(igCorpus, igArpaLm);
 

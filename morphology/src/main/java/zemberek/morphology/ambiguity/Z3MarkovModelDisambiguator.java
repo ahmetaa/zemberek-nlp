@@ -6,10 +6,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
-import edu.berkeley.nlp.lm.ConfigOptions;
-import edu.berkeley.nlp.lm.StringWordIndexer;
-import edu.berkeley.nlp.lm.io.ArpaLmReader;
-import edu.berkeley.nlp.lm.io.LmReaders;
 import zemberek.core.io.SimpleTextWriter;
 import zemberek.core.io.Strings;
 import zemberek.lm.apps.ConvertToSmoothLm;
@@ -80,15 +76,6 @@ public class Z3MarkovModelDisambiguator extends Z3AbstractDisambiguator implemen
                 "-smoothFile",
                 binaryFile.getAbsolutePath(),
                 "-spaceUsage","16-8-8");
-    }
-
-    public static void generateArpaLm(File corpus, File arpaFile) {
-        final StringWordIndexer wordIndexer = new StringWordIndexer();
-        wordIndexer.setStartSymbol(ArpaLmReader.START_SYMBOL);
-        wordIndexer.setEndSymbol(ArpaLmReader.END_SYMBOL);
-        wordIndexer.setUnkSymbol(ArpaLmReader.UNK_SYMBOL);
-        LmReaders.createKneserNeyLmFromTextFiles(
-                Arrays.asList(corpus.getAbsolutePath()), wordIndexer, 3, arpaFile, new ConfigOptions());
     }
 
     public void test(File testFile) throws IOException {

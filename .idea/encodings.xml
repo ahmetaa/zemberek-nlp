@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dependency" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/hyphenation" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/lm" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/morphology" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tokenization" charset="UTF-8" />
+  </component>
+</project>

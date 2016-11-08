@@ -5,17 +5,12 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
-import edu.berkeley.nlp.lm.ConfigOptions;
-import edu.berkeley.nlp.lm.StringWordIndexer;
-import edu.berkeley.nlp.lm.io.ArpaLmReader;
-import edu.berkeley.nlp.lm.io.LmReaders;
 import zemberek.core.io.SimpleTextWriter;
 import zemberek.lm.apps.ConvertToSmoothLm;
 import zemberek.lm.compression.SmoothLm;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -60,15 +55,6 @@ public class MarkovModelDisambiguator extends AbstractDisambiguator {
                 "-smoothFile",
                 binaryFile.getAbsolutePath(),
                 "-spaceUsage", "16-16-16");
-    }
-
-    public static void generateArpaLm(File corpus, File arpaFile) {
-        final StringWordIndexer wordIndexer = new StringWordIndexer();
-        wordIndexer.setStartSymbol(ArpaLmReader.START_SYMBOL);
-        wordIndexer.setEndSymbol(ArpaLmReader.END_SYMBOL);
-        wordIndexer.setUnkSymbol(ArpaLmReader.UNK_SYMBOL);
-        LmReaders.createKneserNeyLmFromTextFiles(
-                Arrays.asList(corpus.getAbsolutePath()), wordIndexer, 3, arpaFile, new ConfigOptions());
     }
 
     public void test(File testFile) throws IOException {

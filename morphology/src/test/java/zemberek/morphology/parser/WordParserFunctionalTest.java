@@ -21,11 +21,11 @@ public class WordParserFunctionalTest {
 
     public static final File PARSEABLES_FILE = new File(Resources.getResource("parseable.txt").getFile());
     public static final File DEV_LEXICON_FILE = new File(Resources.getResource("dev-lexicon.txt").getFile());
-    public static final File UNPARSEABLES_FILE = new File(Resources.getResource("unparseable.txt").getFile());
+//    public static final File UNPARSEABLES_FILE = new File(Resources.getResource("unparseable.txt").getFile());
     public static final File MASTER_DICTIONARY_FILE = new File(Resources.getResource("tr/master-dictionary.dict").getFile());
     public static final File SECONDARY_DICTIONARY_FILE = new File(Resources.getResource("tr/secondary-dictionary.dict").getFile());
-    public static final File OFLAZER_MISMATCH_FILE = new File(Resources.getResource("misc/oflazer-mismatch.txt").getFile());
-    public static final File Z2_VOCAB_FILE = new File(Resources.getResource("z2-vocab.tr.7z").getFile());
+//  public static final File OFLAZER_MISMATCH_FILE = new File(Resources.getResource("misc/oflazer-mismatch.txt").getFile());
+//  public static final File Z2_VOCAB_FILE = new File(Resources.getResource("z2-vocab.tr.7z").getFile());
     public static final File NON_TDK_DICT_FILE = new File(Resources.getResource("tr/non-tdk.dict").getFile());
 
     public void parseableTest(MorphParser parser) throws IOException {
@@ -45,7 +45,7 @@ public class WordParserFunctionalTest {
             if (results.size() > 0) {
                 //System.out.print(parseable + " : ");
                 for (MorphParse parseResult : results) {
-                    // System.out.print(parseResult.asOflazerFormat() + "   ");
+                    System.out.println( parseable +" -> " + parseResult.formatOflazer() + "   ");
                 }
                 //System.out.println();
 
@@ -62,7 +62,7 @@ public class WordParserFunctionalTest {
         parseableTest(simpleParser(DEV_LEXICON_FILE));
     }
 
-    @Test
+/*    @Test
     public void unparseableTest() throws IOException {
         WordParser parser = simpleParser(DEV_LEXICON_FILE);
         List<String> unparseables = SimpleTextReader.trimmingUTF8Reader(UNPARSEABLES_FILE).asStringList();
@@ -70,6 +70,7 @@ public class WordParserFunctionalTest {
             Assert.assertTrue("Parses invalid word:" + wrong, parser.parse(wrong).size() == 0);
         }
     }
+*/
 
     @Test
     @Ignore("Performance Test")
@@ -86,7 +87,7 @@ public class WordParserFunctionalTest {
                 }
                 if (i == 0) {
                     for (MorphParse result : results) {
-                        System.out.println(s + " = " + result.formatLong());
+                        //System.out.println(s + " = " + result.formatLong());
                     }
                 }
             }
@@ -96,7 +97,7 @@ public class WordParserFunctionalTest {
         System.out.println("Speed:" + (iteration * 1000 * parseables.size() / elapsed) + " words/second");
     }
 
-    @Test
+/*    @Test
     @Ignore("Not a unit Test")
     public void z2Comparison() throws IOException {
         List<String> allWords = SimpleTextReader.trimmingUTF8Reader(
@@ -125,9 +126,9 @@ public class WordParserFunctionalTest {
         System.out.println("Total words:" + allWords.size());
         System.out.println("Passed words:" + pass);
         System.out.println("Ratio=%" + ((double) pass * 100 / allWords.size()));
-    }
+    }*/
 
-    @Test
+/*    @Test
     @Ignore("Not a unit Test")
     public void oflazerComparison() throws IOException {
         List<String> allWords = SimpleTextReader.trimmingUTF8Reader(
@@ -164,9 +165,9 @@ public class WordParserFunctionalTest {
         System.out.println("Total words:" + allWords.size());
         System.out.println("Passed words:" + pass);
         System.out.println("Ratio=%" + ((double) pass * 100 / allWords.size()));
-    }
+    }*/
 
-    @Test
+/*    @Test
     @Ignore("Not a unit Test")
     public void generateSuffixSurfaceForms() throws IOException {
         Set<String> surfaceForms = new HashSet<String>();
@@ -185,7 +186,7 @@ public class WordParserFunctionalTest {
         List<String> lst = new ArrayList<String>(surfaceForms);
         Collections.sort(lst, Collator.getInstance(new Locale("tr")));
         SimpleTextWriter.oneShotUTF8Writer(new File(Resources.getResource("suffix-surface.txt").getFile())).writeLines(lst);
-    }
+    }*/
 
 
     private WordParser simpleParser(File... dictionary) throws IOException {

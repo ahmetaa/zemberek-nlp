@@ -62,7 +62,7 @@ public class WordParserTest {
 
     @Test
     public void testCompoundsVoicing() {
-        DynamicLexiconGraph graph = getLexiconGraph("atkuyruğu [A:CompoundP3sg, Voicing ; Roots:at-kuyruk]");
+        DynamicLexiconGraph graph = getLexiconGraph("at [A:NoVoicing]","kuyruk","atkuyruğu [A:CompoundP3sg; Roots:at-kuyruk]");
         assertHasParses(graph, "atkuyruğu", "atkuyruklarım", "atkuyrukçuk");
         assertUnParseable(graph, "atkuyruğlarım", "atkuyruk");
     }
@@ -137,7 +137,7 @@ public class WordParserTest {
         SuffixFormTemplate A3sg_TEMPLATE = getTemplate("A3sg_TEMPLATE", new Suffix("A3sg"));
         SuffixForm A3pl_lAr = getForm(new Suffix("A3pl"), "lAr");
         SuffixForm A3pl_Comp_lAr = getForm("A3pl_Comp_lAr", new Suffix("A3pl"), "lAr", TerminationType.NON_TERMINAL); //zeytinyağlarımız
-        Suffix Noun_Root = new Suffix("Noun");
+        RootSuffix Noun_Root = new RootSuffix("Noun", PrimaryPos.Noun);
         SuffixFormTemplate Noun_TEMPLATE = getTemplate("Noun_TEMPLATE", Noun_Root);
         SuffixForm Noun_Default = getNull("Noun_Default", Noun_TEMPLATE);
         SuffixFormTemplate Noun_Deriv = getTemplate("Noun2Noun", Noun_Root, TerminationType.NON_TERMINAL);

@@ -7,13 +7,14 @@
     <groupId>zemberek-nlp</groupId>
     <artifactId>zemberek-nlp</artifactId>
     <packaging>pom</packaging>
-    <version>0.9.2</version>
+    <version>0.9.3</version>
     <modules>
         <module>core</module>
         <module>morphology</module>
         <module>tokenization</module>
         <module>hyphenation</module>
         <module>lm</module>
+        <module>dependency</module>
     </modules>
 
     <distributionManagement>

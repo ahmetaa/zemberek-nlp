@@ -44,10 +44,6 @@ public class StringsTest {
         assertFalse(allHasText("fg", " ", "hyh"));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testAllHasTextExceptionNPE() {
-        allHasText(null);
-    }
 
     @Test(expected = IllegalArgumentException.class)
     public void testIfAllHasTextExceptionIAE() {
