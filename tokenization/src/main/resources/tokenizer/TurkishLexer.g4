@@ -5,7 +5,7 @@
 lexer grammar TurkishLexer;
 
 @header {
-package zemberek3.shared.tokenizer.zemberek.antlr;
+package zemberek.tokenizer.antlr;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
@@ -92,14 +92,14 @@ fragment TurkishLetters
 fragment TurkishLettersCapital
     : [A-Z\u00c7\u011e\u0130\u00d6\u015e\u00dc\u00c2\u00ce\u00db];
 
+fragment TurkishLettersAll
+    : [a-zA-Z\u00e7\u011f\u0131\u00f6\u015f\u00fc\u00e2\u00ee\u00fb\u00c7\u011e\u0130\u00d6\u015e\u00dc\u00c2\u00ce\u00db];
+
 fragment AllTurkishAlphanumerical
     : [0-9a-zA-Z\u00e7\u011f\u0131\u00f6\u015f\u00fc\u00e2\u00ee\u00fb\u00c7\u011e\u0130\u00d6\u015e\u00dc\u00c2\u00ce\u00db\-];
 
 // 'lerin
-fragment AposAndSuffix: '\'' TurkishLetters+;
-
-// 'LERIN
-fragment AposAndSuffixCapital: '\'' TurkishLettersCapital+;
+fragment AposAndSuffix: '\'' TurkishLettersAll+;
 
 SpaceTab
     : [ \t]+;
@@ -125,38 +125,30 @@ fragment Integer
 fragment Exp
     : [Ee] [+\-]? Integer ;
 
+TimeHours
+    : [0-2] [0-9] ':' [0-5] [0-9] AposAndSuffix? ;
+
 // Roman numbers:
 RomanNumeral
-    : ('I'|'II'|'III'|'IV'|'V'|'VI'|'VII'|'VIII'|'IX') '.'?;
+    : ('I'|'II'|'III'|'IV'|'V'|'VI'|'VII'|'VIII'|'IX') '.'? AposAndSuffix? ;
+
+// I.B.M.
+AbbreviationWithDots
+    : (TurkishLettersCapital '.')+ TurkishLettersCapital? AposAndSuffix?;
 
 // Merhaba kedi
-TurkishWord 
-    : TurkishLettersCapital? TurkishLetters+;
+TurkishWord
+    : TurkishLettersAll+;
 
 // Ahmet'in
 TurkishWordWithApos
-    : TurkishLettersCapital TurkishLetters+ AposAndSuffix;
+    : AllTurkishAlphanumerical+ AposAndSuffix?;
 
-// Abbreviations and All Caps words, could be an abbreviation or header.
-// Should be checked with dictionary.
-// NATO TBMM'NE IDO'nun etc.
-AllCapsWord
-    : TurkishLettersCapital+ (AposAndSuffixCapital? | AposAndSuffix?);
-
-// I.B.M.
-AbbreviationWithDots 
-    : (TurkishLettersCapital '.')+ TurkishLettersCapital? (AposAndSuffixCapital? | AposAndSuffix?);
-
-// Need to match anything with a dot and post process it to check if 
-// it is actually an abbreviation: prof. vs.
-// WordWithDot : TurkishLetters+ '.';
-
-// Alpha numerical words F16 H1N1 etc.
-Alphanumerical
-    : (AllTurkishAlphanumerical)+ (AposAndSuffixCapital? | AposAndSuffix?);
-
-Punctuation 
+Punctuation
     :  '...' | '(!)' | '(?)'| [.,!?%$&*+@\\:;\-\"\'\(\)\[\]\{\}];
+
+UnknownWord: (~[ \t.,!?%$&*+@\\:;\-\"\(\)\[\]\{\}])+;
 
 // Catch all remaining as Unknown.
 Unknown : .+? ;
+

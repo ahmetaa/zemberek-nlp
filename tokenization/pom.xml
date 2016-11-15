@@ -11,14 +11,6 @@
 
     <artifactId>tokenization</artifactId>
 
-    <repositories>
-        <repository>
-            <id>ahmetaa-repo-antlr4</id>
-            <name>ahmetaa Maven Repo on Github</name>
-            <url>https://github.com/ahmetaa/maven-repo/raw/master</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>zemberek-nlp</groupId>
@@ -26,9 +18,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>antlr4-z3</groupId>
+            <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
-            <version>4.0.1z</version>
+            <version>4.5.3</version>
         </dependency>
     </dependencies>
 </project>

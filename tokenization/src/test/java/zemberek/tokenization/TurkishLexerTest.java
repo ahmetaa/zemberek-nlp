@@ -89,7 +89,9 @@ public class TurkishLexerTest {
 
     @Test
     public void testAlphaNumerical() {
-        matchSentences("F-16'yı, (H1N1) H1N1'den.", "F-16'yı , ( H1N1 ) H1N1'den .");
+        matchSentences(
+                "F-16'yı, (H1N1) H1N1'den.",
+                "F-16'yı , ( H1N1 ) H1N1'den .");
     }
 
 
@@ -166,6 +168,26 @@ public class TurkishLexerTest {
     }
 
     @Test
+    public void testCapitalLettersAfterQuotesIssue64() {
+        matchSentences("Ankaraya.", "Ankaraya .");
+        matchSentences("Ankara'ya.", "Ankara'ya .");
+        matchSentences("ANKARA'ya.", "ANKARA'ya .");
+        matchSentences("ANKARA'YA.", "ANKARA'YA .");
+        matchSentences("Ankara'YA.", "Ankara'YA .");
+        matchSentences("Ankara'Ya.", "Ankara'Ya .");
+    }
+
+    @Test
+    public void testUnknownWord1() {
+        matchSentences("زنبورك", "زنبورك");
+    }
+
+    @Test
+    public void testDotInMiddle() {
+        matchSentences("Ali.gel.", "Ali . gel .");
+    }
+
+    @Test
     public void testPunctuation() {
         matchSentences(".,!:;$%\"\'()[]{}&@", ". , ! : ; $ % \" \' ( ) [ ] { } & @");
         matchToken("...", "...");
@@ -182,9 +204,18 @@ public class TurkishLexerTest {
     }
 
     @Test
-    public void testUnknown() {
-        matchToken("~", TurkishLexer.Unknown, "~");
-        //matchToken("AaAa", TurkishLexer.Unknown, "AaAa");
+    public void testUnknownWord() {
+        matchToken("L'Oréal", TurkishLexer.UnknownWord, "L'Oréal");
     }
+
+    @Test
+    public void testTimeToken() {
+        matchSentences(
+                "Saat, 10:20 ile 00:59 arasinda.",
+                "Saat , 10:20 ile 00:59 arasinda .");
+        matchToken("10:20", TurkishLexer.TimeHours, "10:20");
+
+    }
+
 
 }
