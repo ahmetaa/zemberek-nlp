@@ -1,26 +1,34 @@
 package zemberek.morphology.apps;
 
+import com.google.common.base.Stopwatch;
+import org.antlr.v4.runtime.Token;
 import org.junit.Test;
 import zemberek.core.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
+import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.external.OflazerAnalyzerRunner;
 import zemberek.morphology.lexicon.NullSuffixForm;
 import zemberek.morphology.lexicon.SuffixForm;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
 import zemberek.morphology.parser.MorphParse;
+import zemberek.morphology.parser.tr.TurkishSentenceParser;
 import zemberek.morphology.parser.tr.TurkishWordParserGenerator;
+import zemberek.tokenizer.ZemberekLexer;
+import zemberek.tokenizer.antlr.TurkishLexer;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.Collator;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class ZemberekNlpScripts {
@@ -105,7 +113,7 @@ public class ZemberekNlpScripts {
         Log.info("Loaded.");
         LinkedHashSet<String> accepted = new LinkedHashSet<>(lines.size() / 5);
         for (String line : lines) {
-            if (line.trim().length()==0 || line.endsWith("+?")) {
+            if (line.trim().length() == 0 || line.endsWith("+?")) {
                 continue;
             }
             accepted.add(line.substring(0, line.indexOf('\t')));
@@ -167,7 +175,70 @@ public class ZemberekNlpScripts {
         histogram.removeSmaller(10);
 
         Files.write(dir.resolve("no-parse-freq.txt"), histogram.getSortedList());
-        Files.write(dir.resolve("no-parse-tr.txt"), histogram.getSortedList((a,b)->collTr.compare(a,b)));
+        Files.write(dir.resolve("no-parse-tr.txt"), histogram.getSortedList((a, b) -> collTr.compare(a, b)));
+    }
+
+    @Test
+    public void generatorTest() throws IOException {
+
+        TurkishWordParserGenerator parser = TurkishWordParserGenerator.createWithDefaults();
+        List<MorphParse> result = parser.parse("besiciliği");
+        MorphParse first = result.get(0);
+        System.out.println(first.inflectionalGroups);
+    }
+
+    @Test
+    public void performance() throws IOException {
+        List<String> lines = Files.readAllLines(
+                Paths.get("/media/depo/data/aaa/corpora/dunya.100k"));
+        TurkishWordParserGenerator parser = TurkishWordParserGenerator.createWithDefaults();
+        TurkishSentenceParser sentenceParser = new TurkishSentenceParser(parser, new Z3MarkovModelDisambiguator());
+        System.out.println(parser.getLexicon().size() + " words.");
+
+        long tokenCount = 0;
+        long tokenCountNoPunct = 0;
+        ZemberekLexer lexer = new ZemberekLexer();
+        for (String line : lines) {
+            List<Token> tokens = lexer.tokenizeAll(line);
+            tokenCount += tokens.stream().filter(s ->
+                    (s.getType() != TurkishLexer.SpaceTab)).count();
+            tokenCountNoPunct += tokens.stream().filter(s ->
+                    (s.getType() != TurkishLexer.Punctuation && s.getType() != TurkishLexer.SpaceTab)).count();
+        }
+        System.out.println("tokenCount = " + tokenCount);
+        System.out.println("tokenCountNoPunct = " + tokenCountNoPunct);
+
+        Stopwatch clock = Stopwatch.createStarted();
+        for (String line : lines) {
+            try {
+                sentenceParser.parse(line);
+            } catch (Exception e) {
+                System.out.println(line);
+                e.printStackTrace();
+            }
+        }
+        long elapsed = clock.elapsed(TimeUnit.MILLISECONDS);
+
+        System.out.println(elapsed);
+        System.out.println("Analysis speed = " + tokenCount * 1000d / elapsed);
+        System.out.println("Analysis speed no punct = " + tokenCountNoPunct * 1000d / elapsed);
+
+        parser.invalidateAllCache();
+        clock.reset().start();
+        for (String line : lines) {
+            try {
+                sentenceParser.bestParse(line);
+            } catch (Exception e) {
+                System.out.println(line);
+                e.printStackTrace();
+            }
+        }
+        elapsed = clock.elapsed(TimeUnit.MILLISECONDS);
+        System.out.println(elapsed);
+        System.out.println("Analysis + Disambiguation speed = " + tokenCount * 1000d / elapsed);
+        System.out.println("Analysis + Disambiguation speed no punct = " + tokenCountNoPunct * 1000d / elapsed);
+
+
     }
 
 }

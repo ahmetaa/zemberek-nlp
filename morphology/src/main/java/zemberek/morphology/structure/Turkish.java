@@ -57,7 +57,8 @@ public class Turkish {
 
     public static final Comparator<String> STRING_COMPARATOR_ASC = new TurkishStringComparator();
 
-    static Pattern WORD_BEGIN_END_SEPARATOR = Pattern.compile("^([\\.,'\\\"\\(\\)\\[\\]{}:;*$]+|)(.+?)([:;\\)\\(\\[\\]{}'?!,.\\\"\\-*$]+|)$");
+    static Pattern WORD_BEGIN_END_SEPARATOR =
+            Pattern.compile("^([.,'\"()\\[\\]{}:;*$]+|)(.+?)([:;)(\\[\\]{}'?!,.\"\\-*$]+|)$");
 
     /**
      * TODO: should not separate dot symbols from numbers.
@@ -79,7 +80,11 @@ public class Turkish {
             return input;
         }
         StringBuilder sb = new StringBuilder(input.length() + 3);
-        sb.append(matcher.group(1)).append(" ").append(matcher.group(2)).append(" ").append(matcher.group(3));
+        sb.append(matcher.group(1))
+                .append(" ")
+                .append(matcher.group(2))
+                .append(" ")
+                .append(matcher.group(3));
         return sb.toString().trim();
     }
 

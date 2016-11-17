@@ -147,7 +147,7 @@ TurkishWordWithApos
 Punctuation
     :  '...' | '(!)' | '(?)'| [.,!?%$&*+@\\:;\-\"\'\(\)\[\]\{\}];
 
-UnknownWord: (~[ \t.,!?%$&*+@\\:;\-\"\(\)\[\]\{\}])+;
+UnknownWord: (~[ '\t.,!?%$&*+@\\:;\-\"\(\)\[\]\{\}])+;
 
 // Catch all remaining as Unknown.
 Unknown : .+? ;
