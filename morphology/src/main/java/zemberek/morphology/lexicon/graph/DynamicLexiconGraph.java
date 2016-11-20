@@ -1,9 +1,6 @@
 package zemberek.morphology.lexicon.graph;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import zemberek.core.logging.Log;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.SuffixForm;
@@ -56,7 +53,7 @@ public class DynamicLexiconGraph {
         if (multiStems.containsKey(surfaceForm)) {
             multiStems.remove(surfaceForm, stemNode);
         } else if (singleStems.containsKey(surfaceForm)
-                && singleStems.get(surfaceForm).equals(stemNode)) {
+                && singleStems.get(surfaceForm).getDictionaryItem().equals(stemNode.dictionaryItem)) {
             singleStems.remove(surfaceForm);
         }
         stemNodes.remove(stemNode);
