@@ -48,7 +48,7 @@ public class ZemberekNlpScripts {
         Files.write(Paths.get("suffix-list"), result);
     }
 
-    static Path DATA_PATH = Paths.get("/home/afsina/data/nlp");
+    static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
 
     @Test
     public void parseLargeVocabularyZemberek() throws IOException {
@@ -89,7 +89,7 @@ public class ZemberekNlpScripts {
         }
     }
 
-    static Path NLP_TOOLS_PATH = Paths.get("/home/afsina/apps/nlp/nlp-tools");
+    static Path NLP_TOOLS_PATH = Paths.get("/home/ahmetaa/apps/nlp/tools");
     static Path OFLAZER_ANALYZER_PATH = NLP_TOOLS_PATH.resolve("Morphological-Analyzer/Turkish-Oflazer-Linux64");
 
     @Test
@@ -119,6 +119,21 @@ public class ZemberekNlpScripts {
             accepted.add(line.substring(0, line.indexOf('\t')));
         }
         sortAndSave(DATA_PATH.resolve("out").resolve("oflazer-parsed-words.txt"), new ArrayList<>(accepted));
+    }
+
+    @Test
+    public void extractPostpDataFromOflazerAnalysisResult() throws IOException {
+        Path inPath = DATA_PATH.resolve("out").resolve("oflazer-parses.txt");
+        List<String> lines = Files.readAllLines(inPath, StandardCharsets.UTF_8);
+        Log.info("Loaded.");
+        LinkedHashSet<String> accepted = new LinkedHashSet<>(lines.size() / 50);
+        for (String line : lines) {
+            if (line.trim().length() == 0 || line.endsWith("+?") || !line.contains("Postp")) {
+                continue;
+            }
+            accepted.add(line);
+        }
+        sortAndSave(DATA_PATH.resolve("out").resolve("oflazer-potp-words.txt"), new ArrayList<>(accepted));
     }
 
     @Test

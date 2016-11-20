@@ -22,7 +22,16 @@ public enum SecondaryPos implements StringEnum {
     Real("Real"),
     Distribution("Dist"),
     Clock("Clock"),
-    Date("Date");
+    Date("Date"),
+
+    // Below POS information is for Oflazer compatibility.
+    // They indicate that words before Post positive words should end with certain suffixes.
+    PCDat("PCDat"),
+    PCAcc("PCAcc"),
+    PCIns("PCIns"),
+    PCNom("PCNom"),
+    PCGen("PCGen"),
+    PCAbl("PCAbl");
 
 
     public String shortForm;

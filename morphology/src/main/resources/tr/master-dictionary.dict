@@ -421,8 +421,7 @@ aidiyet [A:NoVoicing]
 aile
 ailecek [P:Adv]
 ailevi [P:Adj]
-ait [P:Adj]
-ait [P:Postp; A:NoVoicing]
+ait [P:Postp,PCDat; A:NoVoicing]
 ajan
 ajanda
 ajans
@@ -1606,7 +1605,7 @@ aş
 aşağı
 aşağı [P:Adj]
 aşağı [P:Adv]
-aşağı [P:Postp]
+aşağı [P:Postp,PCAbl]
 aşağılamak
 aşağısamak
 aşama
@@ -1650,7 +1649,7 @@ aşiyan
 aşk
 aşkefza
 aşkın [P:Adj]
-aşkın [P:Postp]
+aşkın [P:Postp,PCAcc]
 aşmak
 aşoz
 aşure
@@ -1689,8 +1688,7 @@ ateşin [P:Adj]
 ateşkes
 ateşlemek
 ateşperest [P:Adj; A:NoVoicing]
-atfen [P:Adv]
-atfen [P:Postp]
+atfen [P:Postp,PCDat]
 atfetmek [A:Voicing, Aorist_A]
 atıf [A:LastVowelDrop]
 atıfet [A:NoVoicing]
@@ -1906,6 +1904,7 @@ ayyaş [P:Adj]
 ayyuk [A:NoVoicing]
 az [P:Adj]
 az [P:Adv]
+az [P:Postp,PCAbl]
 aza
 azade [P:Adj]
 azade [P:Adv]
@@ -2409,7 +2408,7 @@ başıbozuk [P:Adj]
 başıkabak
 başimam
 başka [P:Adj]
-başka [P:Postp]
+başka [P:Postp,PCAbl]
 başkafiye
 başkahraman
 başkalaşım
@@ -2772,7 +2771,7 @@ beraat [A:NoVoicing, InverseHarmony]
 beraatızimmet [A:NoVoicing]
 beraber [P:Adj]
 beraber [P:Adv]
-beraber [P:Postp]
+beraber [P:Postp,PCIns]
 beraberinde [P:Adv]
 berat [A:NoVoicing]
 berbat [P:Adj; A:NoVoicing]
@@ -2798,7 +2797,7 @@ berhava [P:Adj]
 berhayat [P:Adj; A:NoVoicing]
 berhudar [P:Adj]
 beri [P:Adj]
-beri [P:Postp]
+beri [P:Postp,PCAbl]
 beribenzer [P:Adj]
 beriberi
 beriki [P:Adj]
@@ -3052,7 +3051,7 @@ bileşke
 bileşmek
 bilet [A:NoVoicing]
 bilezik
-bilfarz [P:Postp]
+bilfarz [P:Adv]
 bilfiil [P:Adv]
 bilge [P:Adj]
 bilgi
@@ -3095,8 +3094,7 @@ bilvasıta [P:Adv]
 bilye
 bilyon
 bina
-binaen [P:Adv]
-binaen [P:Postp]
+binaen [P:Postp,PCDat]
 binaenaleyh [P:Adv]
 bînamaz
 binbaşı
@@ -3155,8 +3153,7 @@ birleşik [P:Adj]
 birleşim
 birleşmek
 birlik
-birlikte [P:Adv]
-birlikte [P:Postp]
+birlikte [P:Postp,PCIns]
 birliktelik
 birsam
 birtakım [P:Adj]
@@ -3399,7 +3396,7 @@ boynuzluteke
 boyoz
 boyun [A:LastVowelDrop]
 boyuna [P:Adv]
-boyunca [P:Adv]
+boyunca [P:Postp,PCNom]
 boyunduruk
 boyut [A:NoVoicing]
 boz
@@ -4889,7 +4886,7 @@ cüzzam
 çok [P:Adj; A:Voicing]
 çok [P:Adv]
 çok [P:Det]
-çok [P:Postp]
+çok [P:Postp,PCAbl]
 çokal
 çokbilmiş [P:Adj]
 çokbilmiş [P:Adv]
@@ -5046,8 +5043,7 @@ daim [P:Adj]
 daim [P:Adv]
 daima [P:Adv]
 daimî [P:Adj]
-dair [P:Adj]
-dair [P:Postp]
+dair [P:Postp,PCDat]
 daire
 dairevi [P:Adj]
 dakik [P:Adj]
@@ -5311,8 +5307,7 @@ değersiz [P:Adj]
 değgin [P:Adj]
 değil
 değim
-değin
-değin [P:Postp]
+değin [P:Postp,PCDat]
 değini
 değinmek
 değinti
@@ -5355,8 +5350,7 @@ dejavu
 dejenerasyon
 dejenere [P:Adj]
 dek
-dek [P:Adj]
-dek [P:Postp]
+dek [P:Postp,PCDat]
 dekadan
 dekagram
 dekalitre
@@ -5500,7 +5494,7 @@ denklem
 denklemek
 denktaş [P:Adj]
 denli [P:Adj]
-denli [P:Postp]
+denli [P:Adv]
 densimetre
 densiz [P:Adj]
 denşirmek
@@ -5535,7 +5529,7 @@ derdest [P:Adj; A:NoVoicing]
 dere
 derebeyi [A:CompoundP3sg; Roots:dere-bey]
 derece
-derece [P:Postp]
+derece [P:Adv]
 derecelemek
 dereke
 dereotu
@@ -5715,7 +5709,7 @@ dış
 dış [P:Adj]
 dışarı
 dışarı [P:Adv]
-dışarı [P:Postp]
+dışarı [P:Postp,PCAbl]
 dışarılık
 dışarısı
 dışarlık
@@ -5985,8 +5979,7 @@ diyarıgurbet [A:NoVoicing]
 diyastaz
 diyastol
 diyatome
-diye [P:Adv]
-diye [P:Postp]
+diye [P:Postp,PCNom]
 diyet [A:NoVoicing]
 diyetetik
 diyetisyen
@@ -6049,8 +6042,7 @@ doğrama
 doğramak
 doğru
 doğru [P:Adj]
-doğru [P:Adv]
-doğru [P:Postp]
+doğru [P:Postp,PCDat]
 doğrudan [P:Adj]
 doğrudan [P:Adv]
 doğrulamak
@@ -6112,9 +6104,7 @@ dolaşık [P:Adj]
 dolaşım
 dolaşmak
 dolay
-dolayı [P:Adj]
-dolayı [P:Adv]
-dolayı [P:Postp]
+dolayı [P:Postp,PCAbl]
 dolayısıyla [P:Adv]
 dolgu
 dolgun [P:Adj]
@@ -7395,10 +7385,8 @@ evropiyum
 evsaf
 evsemek
 evsin
-evvel [P:Adj]
-evvel [P:Adv]
 evvel [P:Noun, Time; S:+Rel_ki]
-evvel [P:Postp]
+evvel [P:Postp,PCAbl]
 evvelâ [P:Adj]
 evvelden [P:Adv]
 evvelemirde [P:Adv]
@@ -7606,6 +7594,7 @@ fazilet [A:NoVoicing]
 faziletkâr [P:Adj]
 fazla [P:Adj]
 fazla [P:Adv]
+fazla [P:Postp,PCAbl]
 fazladan [P:Adv]
 fe
 fecaat [A:InverseHarmony]
@@ -8362,6 +8351,7 @@ gayret [A:NoVoicing]
 gayretkeş [P:Adj]
 gayrı [P:Adj]
 gayrı [P:Adv]
+gayrı [P:Postp,PCAbl]
 gayri [P:Adv]
 gayriahlâkî
 gayriaklî
@@ -8453,6 +8443,7 @@ gecikmek
 geciktirim
 geç [P:Adj]
 geç [P:Adv]
+geçe [P:Postp,PCNom]
 geçek
 geçen [P:Adj]
 geçende [P:Adv]
@@ -8674,8 +8665,8 @@ gıyabî [P:Adj]
 gıyap
 gıybet [A:NoVoicing]
 gıygıy
-gibi [P:Adv]
-gibi [P:Postp]
+gibi [P:Postp,PCGen]
+gibi [P:Postp,PCNom]
 gicişmek
 gideğen
 gider
@@ -8845,8 +8836,7 @@ gönüldaş
 gönye
 gönyelemek
 gördek
-göre [P:Adv]
-göre [P:Postp]
+göre [P:Postp,PCDat]
 görece [P:Adj]
 göreli [P:Adj]
 görelik
@@ -10100,8 +10090,7 @@ hiş [P:Interj]
 hişt [P:Interj]
 hit
 hitabe
-hitaben [P:Adv]
-hitaben [P:Postp]
+hitaben [P:Postp,PCDat]
 hitabet [A:NoVoicing]
 hitam
 hitan
@@ -10304,8 +10293,7 @@ hür [P:Adj]
 hür [P:Adv]
 hürle
 hürmet [A:NoVoicing]
-hürmeten [P:Adv]
-hürmeten [P:Postp]
+hürmeten [P:Postp,PCDat]
 hürmetkâr [P:Adj]
 hürmetkârane [P:Adv]
 hürriyet [A:NoVoicing]
@@ -10537,7 +10525,8 @@ içgörü
 içgüdü
 içiiş
 içim
-için [P:Postp]
+için [P:Postp,PCNom]
+için [P:Postp,PCGen]
 içinde [P:Adv]
 içindekiler
 içirik
@@ -10747,13 +10736,13 @@ ilânıaşk [A:NoVoicing]
 ilânihaye
 ilarya
 ilâve
-ilâveten [P:Postp]
+ilâveten [P:Postp,PCDat]
 ilbay
 ilca
 ilçe
 ilçebay
 ile [P:Conj]
-ile [P:Postp]
+ile [P:Postp,PCNom]
 ilelebet [P:Adv]
 ilenç
 ilenmek
@@ -10788,8 +10777,7 @@ ilişik
 ilişik [P:Adj]
 ilişken
 ilişki
-ilişkin [P:Adj]
-ilişkin [P:Postp]
+ilişkin [P:Postp,PCDat]
 ilişmek
 ilk [P:Adj]
 ilkah
@@ -11132,7 +11120,8 @@ isabet [A:NoVoicing]
 isaf
 isal [A:InverseHarmony]
 isale
-ise [P:Postp]
+## TODO: ise is not an Adverb.
+ise [P:Adv]
 isfendan
 isfendan [P:Adj]
 ishal [A:InverseHarmony]
@@ -11261,8 +11250,7 @@ istimna
 istimrar
 istimzaç
 istinabe
-istinaden [P:Adv]
-istinaden [P:Postp]
+istinaden [P:Postp,PCDat]
 istinaf
 istinas
 istinat
@@ -11327,7 +11315,7 @@ işmar
 işporta
 işret [A:NoVoicing]
 iştah
-işte [P:Postp]
+işte [P:Adv]
 işteş
 iştial [A:InverseHarmony]
 iştigal [A:InverseHarmony]
@@ -11336,6 +11324,7 @@ iştihar
 iştikak [A:NoVoicing]
 iştira
 iştirak [A:InverseHarmony]
+iştiraken [P:Postp,PCDat]
 iştiyak [A:NoVoicing]
 işve
 işveren
@@ -11357,15 +11346,14 @@ iterbiyum
 itfa
 itfaiye
 ithaf
-ithafen [P:Adv]
-ithafen [P:Postp]
+ithafen [P:Postp,PCDat]
 ithal [A:InverseHarmony]
 ithalat [A:NoVoicing]
 itham
 ithamname
 iti
 itibar
-itibaren [P:Adv]
+itibaren [P:Postp,PCAbl]
 itibarıyla [P:Adv]
 itibarî
 itidal [A:InverseHarmony]
@@ -11423,8 +11411,7 @@ izabe
 izaç
 izafe
 izafet [A:NoVoicing]
-izafeten [P:Adv]
-izafeten [P:Postp]
+izafeten [P:Postp,PCDat]
 izafî [P:Adj]
 izafiye
 izafiyet [A:NoVoicing]
@@ -11621,7 +11608,10 @@ kaçkın
 kaçmak
 kaçta [P:Adv]
 kadana
-kadar [P:Postp]
+kadar
+kadar [P:Postp,PCDat]
+kadar [P:Postp,PCNom]
+kadar [P:Postp,PCGen]
 kadastro
 kadastrolamak
 kadavra
@@ -11755,8 +11745,8 @@ kakum
 kâkül
 kâküllü [P:Adj]
 kal
-kala [P:Adv]
-kala [P:Postp]
+kala
+kala [P:Postp,PCNom]
 kalaazar
 kalaba
 kalabalık
@@ -12306,11 +12296,11 @@ karstik [P:Adj]
 karşı
 karşı [P:Adj]
 karşı [P:Adv]
-karşı [P:Postp]
+karşı [P:Postp,PCDat]
 karşılamak
 karşılaşmak [A:Reciprocal]
 karşılık
-karşın [P:Postp]
+karşın [P:Postp,PCDat]
 karşıt [A:NoVoicing]
 karşıt [P:Adj]
 karşıtlamak
@@ -12742,7 +12732,6 @@ kelifit [A:NoVoicing]
 kelik
 kelime
 kelle
-kelli [P:Postp]
 keloğlan
 kem [P:Adj]
 kemakân [P:Adv]
@@ -15038,8 +15027,7 @@ mahrum [P:Adj]
 mahrumiyet [A:NoVoicing]
 mahrut [A:NoVoicing]
 mahrutî [P:Adj]
-mahsuben [P:Adv]
-mahsuben [P:Postp]
+mahsuben [P:Postp,PCDat]
 mahsul [A:InverseHarmony]
 mahsulât [A:NoVoicing]
 mahsuldar [P:Adj]
@@ -16555,8 +16543,7 @@ mujik
 mukaar [P:Adj]
 mukabele
 mukabil [P:Adj]
-mukabil [P:Adv]
-mukabil [P:Postp]
+mukabil [P:Postp,PCDat]
 mukaddem [P:Adj]
 mukaddema [P:Adv]
 mukaddeme
@@ -17141,8 +17128,7 @@ müteaddi [P:Adj]
 müteaddit [P:Adj]
 müteaffin [P:Adj]
 müteahhit
-müteakiben [P:Adv]
-müteakiben [P:Postp]
+müteakiben [P:Postp,PCAcc]
 müteakip [P:Adj]
 mütealiye
 müteallik [A:NoVoicing]
@@ -17444,7 +17430,7 @@ naz
 nazal [P:Adj]
 nazar
 nazaran [P:Adv]
-nazaran [P:Postp]
+nazaran [P:Postp,PCDat]
 nazarıdikkat [A:NoVoicing, InverseHarmony]
 nazarıitibar
 nazarında [P:Adv]
@@ -18327,7 +18313,7 @@ ozuga
 önayak
 önce [P:Adv]
 önce [P:Noun, Time; S:+Rel_ki]
-önce [P:Postp]
+önce [P:Postp,PCAbl]
 önceden [P:Adv]
 öncel
 öncelemek
@@ -18399,8 +18385,7 @@ ozuga
 öşür [A:LastVowelDrop]
 ötanazi
 öte
-öte [P:Adj]
-öte [P:Postp]
+öte [P:Postp,PCAbl]
 öteberi
 öteki [P:Adj]
 öteki [P:Pron]
@@ -18412,7 +18397,7 @@ ozuga
 ötümlü [P:Adj]
 ötümsüz [P:Adj]
 ötürmek
-ötürü [P:Adv]
+ötürü [P:Postp,PCAbl]
 ötürük
 ötüşmek
 öveç
@@ -19665,7 +19650,7 @@ rafya [P:Adj]
 ragbi
 rağbet [A:NoVoicing]
 rağm
-rağmen [P:Postp]
+rağmen [P:Postp,PCDat]
 rahat [P:Adj; A:NoVoicing]
 rahatlamak
 rahatlıkla [P:Adv]
@@ -21598,7 +21583,7 @@ sonlamak
 sonlu [P:Adj]
 sonra [P:Adv]
 sonra [P:Noun, Time; S:+Rel_ki]
-sonra [P:Postp]
+sonra [P:Postp,PCAbl]
 sonradan [P:Adv]
 sonsuz [P:Adj]
 sonuç
@@ -22814,6 +22799,7 @@ takaza
 takbih
 takdim
 takdir
+takdirde [P:Postp,PCNom]
 takdiriilâhî
 takdirkâr [P:Adj]
 takdirname
@@ -22835,7 +22821,7 @@ takırtı
 takışmak
 takibat [A:NoVoicing]
 takiben [P:Adv]
-takiben [P:Postp]
+takiben [P:Postp,PCAcc]
 takigraf
 takim
 takimetre
@@ -23564,7 +23550,6 @@ temren
 temrin
 temriye
 temsil
-temsil [P:Postp]
 temsilen [P:Adv]
 temsilî [P:Adj]
 temyiz
@@ -24772,8 +24757,7 @@ uyanık [P:Adj]
 uyanmak
 uyarı
 uyarım
-uyarınca [P:Adv]
-uyarınca [P:Postp]
+uyarınca [P:Postp,PCNom]
 uyarlaç
 uyarlamak
 uyarmak
@@ -24982,8 +24966,7 @@ uzviyet [A:NoVoicing]
 üzengi
 üzengilemek
 üzenti
-üzere [P:Adv]
-üzere [P:Postp]
+üzere [P:Postp,PCNom]
 üzeri
 üzerinde [P:Adv]
 üzerine [P:Adv]
@@ -24991,7 +24974,7 @@ uzviyet [A:NoVoicing]
 üzgün [P:Adj]
 üzme
 üzmek
-üzre [P:Postp]
+üzre [P:Postp,PCNom]
 üzülmek
 üzüm
 üzünç
@@ -25416,7 +25399,6 @@ vüsat [A:InverseHarmony]
 vüzera
 ya [P:Conj]
 ya [P:Interj]
-ya [P:Postp]
 yaba
 yabalamak
 yaban [P:Adj]
@@ -25562,7 +25544,7 @@ yamyam [P:Adj]
 yamyassı [P:Adv]
 yamyaş [P:Adj]
 yan
-yan [P:Adj]
+yana [P:Postp,PCAbl]
 yanak
 yanal [P:Adj]
 yanardağ
@@ -25585,6 +25567,7 @@ yanılsama
 yanıltı
 yanıltmaç
 yanında [P:Adv]
+yanısıra [P:Postp,PCGen]
 yanışölçer
 yanıt [A:NoVoicing]
 yanıtlamak
@@ -26067,7 +26050,7 @@ yoğuşmak
 yok [P:Adj; A:NoVoicing ; Index:1]
 yok [P:Adj; A:Voicing]
 yok [P:Conj]
-yok [P:Postp]
+yok [P:Adv]
 yoklamak
 yokoğluyok
 yoksa [P:Conj]
@@ -26118,8 +26101,7 @@ yosuncul [P:Adj]
 yoz [P:Adj]
 yön
 yöndeş [P:Adj]
-yönelik [P:Adj]
-yönelik [P:Postp]
+yönelik [P:Postp,PCDat]
 yönelim
 yönelmek
 yönelteç
@@ -26145,7 +26127,7 @@ yuhalamak
 yukaç
 yukarı
 yukarı [P:Adj]
-yukarı [P:Postp]
+yukarı [P:Postp,PCAbl]
 yulaf
 yular
 yuma
