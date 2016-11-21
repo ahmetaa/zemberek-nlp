@@ -7,9 +7,9 @@ import com.google.common.collect.Maps;
 import zemberek.core.Histogram;
 import zemberek.core.io.LineIterator;
 import zemberek.core.io.SimpleTextReader;
-import zemberek.morphology.parser.tr.BaseParser;
-import zemberek.morphology.parser.tr.TurkishWordParserGenerator;
-import zemberek.morphology.parser.MorphParse;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.tr.BaseParser;
+import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.morphology.structure.Turkish;
 import zemberek.tokenizer.ZemberekLexer;
 
@@ -27,11 +27,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class AmbiguityStats extends BaseParser {
 
-    TurkishWordParserGenerator parser;
+    TurkishMorphology parser;
     ZemberekLexer lexer = new ZemberekLexer();
 
     public AmbiguityStats() throws IOException {
-        parser = TurkishWordParserGenerator.createWithDefaults();
+        parser = TurkishMorphology.createWithDefaults();
     }
 
     public List<String> readAll(String filename) throws IOException {
@@ -96,7 +96,7 @@ public class AmbiguityStats extends BaseParser {
         int total = 0;
         for (String line : lines) {
             for (String s : splitter.split(line)) {
-                List<MorphParse> results = parser.getParser().parse(normalize(s));
+                List<WordAnalysis> results = parser.getWordAnalyzer().analyze(normalize(s));
                 if (++total % 50000 == 0) {
                     System.out.println("Processed: " + total);
                 }
@@ -135,7 +135,7 @@ public class AmbiguityStats extends BaseParser {
         st.dump();
     }
 
-    private String generateKeyFromParse(List<MorphParse> results) {
+    private String generateKeyFromParse(List<WordAnalysis> results) {
         StringBuilder key = new StringBuilder();
         for (int i = 0; i < results.size(); i++) {
             key.append(results.get(i).formatOnlyIgs());
@@ -151,7 +151,7 @@ public class AmbiguityStats extends BaseParser {
         Splitter splitter = Splitter.on(" ").omitEmptyStrings().trimResults();
         for (String line : lines) {
             for (String s : splitter.split(line)) {
-                List<MorphParse> results =  parser.getParser().parse(normalize(s));
+                List<WordAnalysis> results =  parser.getWordAnalyzer().analyze(normalize(s));
                 total++;
                 if (total % 50000 == 0) {
                     System.out.println("Processed: " + total);
@@ -185,7 +185,7 @@ public class AmbiguityStats extends BaseParser {
             Splitter splitter = Splitter.on(" ").omitEmptyStrings().trimResults();
             for (String line : lines) {
                 for (String s : splitter.split(line)) {
-                    List<MorphParse> results =  parser.getParser().parse(normalize(s));
+                    List<WordAnalysis> results =  parser.getWordAnalyzer().analyze(normalize(s));
                     total++;
                     if (total % 50000 == 0) {
                         System.out.println("Processed: " + total);

@@ -2,10 +2,7 @@ package zemberek.morphology.apps;
 
 import com.google.common.io.Resources;
 import org.junit.Ignore;
-import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.lexicon.SuffixProvider;
-import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.morphology.parser.tr.TurkishWordParserGenerator;
+import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +15,7 @@ public class ParseConsoleTest {
 
     public static void main(String[] args) throws IOException {
         new ParseConsole().run(
-                TurkishWordParserGenerator
+                TurkishMorphology
                         .builder()
                         .addTextDictFiles(new File(Resources.getResource("dev-lexicon.txt").getFile()))
                         .build()

@@ -9,10 +9,10 @@ import zemberek.core.Histogram;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.lexicon.DictionaryItem;
-import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.SentenceMorphParse;
-import zemberek.morphology.parser.tr.TurkishSentenceParser;
-import zemberek.morphology.parser.tr.TurkishWordParserGenerator;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.SentenceAnalysis;
+import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
+import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,14 +20,14 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class TurkishSentenceParserTest {
+public class TurkishSentenceAnalyzerTest {
 
-    TurkishSentenceParser parser;
+    TurkishSentenceAnalyzer parser;
 
     @Before
     public void setUp() throws Exception {
-        TurkishWordParserGenerator morphParser = TurkishWordParserGenerator.createWithDefaults();
-        parser = new TurkishSentenceParser(morphParser, new Z3MarkovModelDisambiguator());
+        TurkishMorphology morphParser = TurkishMorphology.createWithDefaults();
+        parser = new TurkishSentenceAnalyzer(morphParser, new Z3MarkovModelDisambiguator());
     }
 
     @Test
@@ -49,12 +49,12 @@ public class TurkishSentenceParserTest {
         int s = 0;
         Histogram<String> unknownStuff = new Histogram<>();
         for (String sentence : sentences) {
-            SentenceMorphParse parse = parser.parse(sentence);
-            for (SentenceMorphParse.Entry entry : parse) {
-                List<MorphParse> parses = entry.parses;
-                for (MorphParse morphParse : parses) {
-                    if (morphParse.dictionaryItem == DictionaryItem.UNKNOWN) {
-                        unknownStuff.add(morphParse.getSurfaceForm());
+            SentenceAnalysis parse = parser.parse(sentence);
+            for (SentenceAnalysis.Entry entry : parse) {
+                List<WordAnalysis> parses = entry.parses;
+                for (WordAnalysis wordAnalysis : parses) {
+                    if (wordAnalysis.dictionaryItem == DictionaryItem.UNKNOWN) {
+                        unknownStuff.add(wordAnalysis.getSurfaceForm());
                     }
                 }
             }

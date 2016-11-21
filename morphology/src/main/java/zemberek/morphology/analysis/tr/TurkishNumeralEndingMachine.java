@@ -1,4 +1,4 @@
-package zemberek.morphology.parser.tr;
+package zemberek.morphology.analysis.tr;
 
 /**
  * This class is used for finding the last word of a number.
@@ -9,9 +9,29 @@ public class TurkishNumeralEndingMachine {
 
     private enum StateId {
         ROOT(""), ERROR(""),
-        SIFIR("sıfır"), BIR("bir"), IKI("iki"), UC("üç"), DORT("dört"), BES("beş"), ALTI("altı"), YEDI("yedi"), SEKIZ("sekiz"), DOKUZ("dokuz"),
-        ON("on"), YIRMI("yirmi"), OTUZ("otuz"), KIRK("kırk"), ELLI("elli"), ALTMIS("altmış"), YETMIS("yetmiş"), SEKSEN("seksen"), DOKSAN("doksan"),
-        YUZ("yüz"), BIN("bin"), MILYON("milyon"), MILYAR("milyar");
+        SIFIR("sıfır"),
+        BIR("bir"),
+        IKI("iki"),
+        UC("üç"),
+        DORT("dört"),
+        BES("beş"),
+        ALTI("altı"),
+        YEDI("yedi"),
+        SEKIZ("sekiz"),
+        DOKUZ("dokuz"),
+        ON("on"),
+        YIRMI("yirmi"),
+        OTUZ("otuz"),
+        KIRK("kırk"),
+        ELLI("elli"),
+        ALTMIS("altmış"),
+        YETMIS("yetmiş"),
+        SEKSEN("seksen"),
+        DOKSAN("doksan"),
+        YUZ("yüz"),
+        BIN("bin"),
+        MILYON("milyon"),
+        MILYAR("milyar");
 
         String lemma;
 
@@ -21,14 +41,28 @@ public class TurkishNumeralEndingMachine {
     }
 
     private State[] states1 = {
-            new State(StateId.SIFIR), new State(StateId.BIR), new State(StateId.IKI), new State(StateId.UC),
-            new State(StateId.DORT), new State(StateId.BES), new State(StateId.ALTI), new State(StateId.YEDI),
-            new State(StateId.SEKIZ), new State(StateId.DOKUZ)};
+            new State(StateId.SIFIR),
+            new State(StateId.BIR),
+            new State(StateId.IKI),
+            new State(StateId.UC),
+            new State(StateId.DORT),
+            new State(StateId.BES),
+            new State(StateId.ALTI),
+            new State(StateId.YEDI),
+            new State(StateId.SEKIZ),
+            new State(StateId.DOKUZ)};
 
     private State[] states10 = {
             null,
-            new State(StateId.ON), new State(StateId.YIRMI), new State(StateId.OTUZ), new State(StateId.KIRK), new State(StateId.ELLI),
-            new State(StateId.ALTMIS), new State(StateId.YETMIS), new State(StateId.SEKSEN), new State(StateId.DOKSAN)};
+            new State(StateId.ON),
+            new State(StateId.YIRMI),
+            new State(StateId.OTUZ),
+            new State(StateId.KIRK),
+            new State(StateId.ELLI),
+            new State(StateId.ALTMIS),
+            new State(StateId.YETMIS),
+            new State(StateId.SEKSEN),
+            new State(StateId.DOKSAN)};
 
     private State SIFIR = new State(StateId.SIFIR);
 

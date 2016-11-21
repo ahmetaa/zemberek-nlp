@@ -10,13 +10,12 @@ import zemberek.core.io.SimpleTextWriter;
 import zemberek.core.io.Strings;
 import zemberek.lm.apps.ConvertToSmoothLm;
 import zemberek.lm.compression.SmoothLm;
-import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.SentenceMorphParse;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.SentenceAnalysis;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -199,14 +198,14 @@ public class Z3MarkovModelDisambiguator extends Z3AbstractDisambiguator implemen
     }
 
     @Override
-    public void disambiguate(SentenceMorphParse sentenceParse) {
+    public void disambiguate(SentenceAnalysis sentenceParse) {
         Ambiguous[] ambiguousSeq = getAmbiguousSequence(sentenceParse);
         int[] bestSequence = bestSequence(ambiguousSeq);
         for (int i = 0; i < bestSequence.length; i++) {
-            List<MorphParse> results = sentenceParse.getParses(i);
+            List<WordAnalysis> results = sentenceParse.getParses(i);
             if (results.size() == 1)
                 continue;
-            MorphParse tmp = results.get(0);
+            WordAnalysis tmp = results.get(0);
             results.set(0, results.get(bestSequence[i]));
             results.set(bestSequence[i], tmp);
         }
@@ -226,18 +225,18 @@ public class Z3MarkovModelDisambiguator extends Z3AbstractDisambiguator implemen
         }
     }
 
-    public Ambiguous[] getAmbiguousSequence(SentenceMorphParse sentence) {
+    public Ambiguous[] getAmbiguousSequence(SentenceAnalysis sentence) {
         Ambiguous[] awords = new Ambiguous[sentence.size() + 3];
         awords[0] = startWord;
         awords[1] = startWord;
         int i = 2;
-        for (SentenceMorphParse.Entry entry : sentence) {
+        for (SentenceAnalysis.Entry entry : sentence) {
             int[] roots = new int[entry.parses.size()];
             int[] lastIgs = new int[entry.parses.size()];
             int j = 0;
-            for (MorphParse parse : entry.parses) {
+            for (WordAnalysis parse : entry.parses) {
                 String rootPart = parse.dictionaryItem.lemma;
-                MorphParse.InflectionalGroup firstIg = parse.inflectionalGroups.get(0);
+                WordAnalysis.InflectionalGroup firstIg = parse.inflectionalGroups.get(0);
                 if (firstIg.suffixList.size() == 0)
                     rootPart += firstIg.formatNoSurface();
                 else {

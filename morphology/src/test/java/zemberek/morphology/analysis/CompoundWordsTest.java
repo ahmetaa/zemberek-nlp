@@ -1,4 +1,4 @@
-package zemberek.morphology.parser;
+package zemberek.morphology.analysis;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,9 +21,9 @@ public class CompoundWordsTest {
     }
 
     private void applyTest(String[] lines, String[] testSet) {
-        WordParser parser = getParser(lines);
+        WordAnalyzer parser = getParser(lines);
         for (String s : testSet) {
-            List<MorphParse> parseResults = parser.parse(s);
+            List<WordAnalysis> parseResults = parser.analyze(s);
             if (parseResults.size() == 0)
                 parser.dump(s);
             Assert.assertTrue(s, parseResults.size() > 0);
@@ -31,9 +31,9 @@ public class CompoundWordsTest {
     }
 
     private void applyFalseTest(String[] lines, String[] testSet) {
-        WordParser parser = getParser(lines);
+        WordAnalyzer parser = getParser(lines);
         for (String s : testSet) {
-            List<MorphParse> parseResults = parser.parse(s);
+            List<WordAnalysis> parseResults = parser.analyze(s);
             Assert.assertTrue(s, parseResults.size() == 0);
         }
     }
@@ -57,9 +57,9 @@ public class CompoundWordsTest {
         applyFalseTest(lines, falseSet);
     }
 
-    private WordParser getParser(String... lines) {
+    private WordAnalyzer getParser(String... lines) {
         DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
         graph.addDictionaryItems(new TurkishDictionaryLoader(suffixProvider).load(lines));
-        return new WordParser(graph);
+        return new WordAnalyzer(graph);
     }
 }

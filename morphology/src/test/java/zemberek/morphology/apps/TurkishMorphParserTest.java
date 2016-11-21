@@ -7,8 +7,8 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import org.junit.Ignore;
 import org.junit.Test;
-import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.tr.TurkishWordParserGenerator;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,9 +19,9 @@ public class TurkishMorphParserTest {
 
     @Test
     public void shouldCreateTurkishMorphParserSuccessfully() throws IOException {
-        TurkishWordParserGenerator parser = TurkishWordParserGenerator.builder().addDefaultDictionaries().build();
-        List<MorphParse> results = parser.getParser().parse("kedicik");
-        for (MorphParse result : results) {
+        TurkishMorphology parser = TurkishMorphology.builder().addDefaultDictionaries().build();
+        List<WordAnalysis> results = parser.getWordAnalyzer().analyze("kedicik");
+        for (WordAnalysis result : results) {
             System.out.println(result.formatNoEmpty());
             System.out.println(result.formatLong());
         }
@@ -54,12 +54,12 @@ public class TurkishMorphParserTest {
         System.out.println("Number of unique words : " + uniqueWords.size());
         System.out.println("======================");
 
-        final TurkishWordParserGenerator parser = TurkishWordParserGenerator.builder().addDefaultDictionaries().build();
+        final TurkishMorphology parser = TurkishMorphology.builder().addDefaultDictionaries().build();
 
         final Stopwatch stopWatch = Stopwatch.createStarted();
         int i = 0;
         for (String word : words) {
-            parser.getParser().parse(word);
+            parser.getWordAnalyzer().analyze(word);
             if (++i % 500 == 0)
                 System.out.println("Finished " + i);
         }

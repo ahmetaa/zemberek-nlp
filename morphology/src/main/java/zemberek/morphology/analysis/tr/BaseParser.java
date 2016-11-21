@@ -1,4 +1,4 @@
-package zemberek.morphology.parser.tr;
+package zemberek.morphology.analysis.tr;
 
 import zemberek.core.turkish.TurkishAlphabet;
 

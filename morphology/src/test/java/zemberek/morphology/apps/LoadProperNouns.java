@@ -4,8 +4,8 @@ import zemberek.core.Histogram;
 import zemberek.core.io.Strings;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.tr.TurkishWordParserGenerator;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.morphology.structure.Turkish;
 
 import java.io.IOException;
@@ -20,7 +20,7 @@ public class LoadProperNouns {
 
     public static void main(String[] args) throws IOException {
 
-        TurkishWordParserGenerator parserGenerator = TurkishWordParserGenerator.createWithDefaults();
+        TurkishMorphology parserGenerator = TurkishMorphology.createWithDefaults();
 
         List<String> lines = Files.readAllLines(
                 Paths.get("/home/afsina/Downloads/documents-export-2016-02-17/vocabulary-proper-full.tr.txt"));
@@ -46,9 +46,9 @@ public class LoadProperNouns {
             if (ignore.contains(word))
                 continue;
 
-            List<MorphParse> parses = parserGenerator.parse(word);
+            List<WordAnalysis> parses = parserGenerator.analyze(word);
             boolean found = false;
-            for (MorphParse parse : parses) {
+            for (WordAnalysis parse : parses) {
                 if (parse.dictionaryItem.secondaryPos.equals(SecondaryPos.ProperNoun) &&
                         !parse.dictionaryItem.hasAttribute(RootAttribute.Runtime)) {
                     found = true;

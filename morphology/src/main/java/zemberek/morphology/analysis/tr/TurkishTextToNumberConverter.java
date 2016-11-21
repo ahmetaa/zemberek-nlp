@@ -1,4 +1,4 @@
-package zemberek.morphology.parser.tr;
+package zemberek.morphology.analysis.tr;
 
 /**
  * Converts a number from text form to digit form for turkish

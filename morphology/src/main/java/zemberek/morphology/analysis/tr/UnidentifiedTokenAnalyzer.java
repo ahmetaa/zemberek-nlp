@@ -1,4 +1,4 @@
-package zemberek.morphology.parser.tr;
+package zemberek.morphology.analysis.tr;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -11,8 +11,8 @@ import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
-import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.WordParser;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.WordAnalyzer;
 import zemberek.morphology.structure.StemAndEnding;
 import zemberek.morphology.structure.Turkish;
 
@@ -20,46 +20,58 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-public class UnidentifiedTokenParser extends BaseParser {
-    WordParser parser;
+public class UnidentifiedTokenAnalyzer extends BaseParser {
+    WordAnalyzer parser;
     DynamicLexiconGraph graph;
-    TurkishWordParserGenerator turkishParser;
+    TurkishMorphology turkishParser;
 
 
-    public UnidentifiedTokenParser(TurkishWordParserGenerator turkishParser) {
+    public UnidentifiedTokenAnalyzer(TurkishMorphology turkishParser) {
         this.turkishParser = turkishParser;
         // generate a parser with an empty graph.
         SuffixProvider suffixProvider = new TurkishSuffixes();
         this.graph = new DynamicLexiconGraph(suffixProvider);
-        this.parser = new WordParser(graph);
+        this.parser = new WordAnalyzer(graph);
     }
 
-    public List<MorphParse> parse(String word) {
-        List<MorphParse> results = Lists.newArrayListWithCapacity(2);
+    public List<WordAnalysis> parse(String word) {
+        List<WordAnalysis> results = Lists.newArrayListWithCapacity(2);
         if (!Strings.containsNone(word, "0123456789")) {
             results = parseNumeral(word);
             return results;
         }
         if (word.contains("'")) {
-            StemAndEnding se = new StemAndEnding(Strings.subStringUntilFirst(word, "'"), Strings.subStringAfterFirst(word, "'"));
+            StemAndEnding se = new StemAndEnding(
+                    Strings.subStringUntilFirst(word, "'"),
+                    Strings.subStringAfterFirst(word, "'"));
             String stem = normalize(se.stem);
             String ending = normalize(se.ending);
             String pron = guessPronunciation(stem);
-            DictionaryItem itemProp = new DictionaryItem(Turkish.capitalize(stem), stem, pron, PrimaryPos.Noun, SecondaryPos.ProperNoun);
+            DictionaryItem itemProp = new DictionaryItem(
+                    Turkish.capitalize(stem),
+                    stem,
+                    pron,
+                    PrimaryPos.Noun,
+                    SecondaryPos.ProperNoun);
             itemProp.attributes.add(RootAttribute.Runtime);
             graph.addDictionaryItem(itemProp);
             String toParse = stem + ending;
-            List<MorphParse> properResults = parser.parse(toParse);
+            List<WordAnalysis> properResults = parser.analyze(toParse);
             graph.removeDictionaryItem(itemProp);
             results.addAll(properResults);
         } else if (Character.isUpperCase(word.charAt(0))) {
             String normalized = normalize(word);
             String pron = guessPronunciation(normalized);
-            DictionaryItem itemProp = new DictionaryItem(Turkish.capitalize(normalized), normalized, pron, PrimaryPos.Noun, SecondaryPos.ProperNoun);
+            DictionaryItem itemProp = new DictionaryItem(
+                    Turkish.capitalize(normalized),
+                    normalized,
+                    pron,
+                    PrimaryPos.Noun,
+                    SecondaryPos.ProperNoun);
             itemProp.attributes.add(RootAttribute.Runtime);
             graph.addDictionaryItem(itemProp);
             //TODO eliminate gross code duplication
-            List<MorphParse> properResults = parser.parse(normalized);
+            List<WordAnalysis> properResults = parser.analyze(normalized);
             graph.removeDictionaryItem(itemProp);
             results.addAll(properResults);
         }
@@ -106,7 +118,7 @@ public class UnidentifiedTokenParser extends BaseParser {
         }
     }
 
-    public List<MorphParse> parseNumeral(String s) {
+    public List<WordAnalysis> parseNumeral(String s) {
 
         StemAndEnding se = getFromNumeral(s);
         String lemma;
@@ -115,7 +127,7 @@ public class UnidentifiedTokenParser extends BaseParser {
             lemma = numeralEndingMachine.find(ss);
             lemma = ordinalMap.get(lemma);
         } else lemma = numeralEndingMachine.find(se.stem);
-        List<MorphParse> results = Lists.newArrayListWithCapacity(1);
+        List<WordAnalysis> results = Lists.newArrayListWithCapacity(1);
         for (TurkishDictionaryLoader.Digit digit : TurkishDictionaryLoader.Digit.values()) {
             Matcher m = digit.pattern.matcher(se.stem);
             if (m.find()) {
@@ -124,8 +136,8 @@ public class UnidentifiedTokenParser extends BaseParser {
                     toParse = "dörd" + se.ending;
                 else
                     toParse = lemma + se.ending;
-                List<MorphParse> res = turkishParser.getParser().parse(toParse);
-                for (MorphParse re : res) {
+                List<WordAnalysis> res = turkishParser.getWordAnalyzer().analyze(toParse);
+                for (WordAnalysis re : res) {
                     if (re.dictionaryItem.primaryPos != PrimaryPos.Numeral)
                         continue;
                     re.dictionaryItem = new DictionaryItem(se.stem, se.stem, s + lemma, PrimaryPos.Numeral, digit.spos);

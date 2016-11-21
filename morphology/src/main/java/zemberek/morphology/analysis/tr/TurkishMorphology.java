@@ -1,4 +1,4 @@
-package zemberek.morphology.parser.tr;
+package zemberek.morphology.analysis.tr;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Stopwatch;
@@ -17,9 +17,8 @@ import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
-import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.MorphParser;
-import zemberek.morphology.parser.WordParser;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.WordAnalyzer;
 import zemberek.morphology.structure.StemAndEnding;
 
 import java.io.File;
@@ -35,20 +34,20 @@ import java.util.stream.Collectors;
 /**
  * Turkish Morphological Parser finds all possible parses for a Turkish word.
  */
-public class TurkishWordParserGenerator extends BaseParser {
+public class TurkishMorphology extends BaseParser {
 
-    private MorphParser parser;
+    private WordAnalyzer wordAnalyzer;
     private SimpleGenerator generator;
     private RootLexicon lexicon;
     private DynamicLexiconGraph graph;
     private SuffixProvider suffixProvider;
-    private UnidentifiedTokenParser unidentifiedTokenParser;
+    private UnidentifiedTokenAnalyzer unidentifiedTokenAnalyzer;
 
-    private LoadingCache<String, List<MorphParse>> dynamicCache;
+    private LoadingCache<String, List<WordAnalysis>> dynamicCache;
     private StaticMorphCache staticCache;
 
     public static class TurkishMorphParserBuilder {
-        MorphParser _parser;
+        WordAnalyzer _parser;
         SimpleGenerator _generator;
         SuffixProvider suffixProvider = new TurkishSuffixes();
         RootLexicon lexicon = new RootLexicon();
@@ -95,14 +94,14 @@ public class TurkishWordParserGenerator extends BaseParser {
             return this;
         }
 
-        public TurkishWordParserGenerator build() throws IOException {
+        public TurkishMorphology build() throws IOException {
             Stopwatch sw = Stopwatch.createStarted();
             DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
             graph.addDictionaryItems(lexicon);
-            _parser = new WordParser(graph);
+            _parser = new WordAnalyzer(graph);
             _generator = new SimpleGenerator(graph);
             Log.info("Parser ready: " + sw.elapsed(TimeUnit.MILLISECONDS) + "ms.");
-            return new TurkishWordParserGenerator(_parser, _generator, lexicon, graph, suffixProvider);
+            return new TurkishMorphology(_parser, _generator, lexicon, graph, suffixProvider);
         }
     }
 
@@ -114,43 +113,48 @@ public class TurkishWordParserGenerator extends BaseParser {
                 .build(new MorphParseCacheLoader());
         try {
             List<String> words = Resources.readLines(Resources.getResource("tr/top-20K-words.txt"), Charsets.UTF_8);
-            staticCache = new StaticMorphCache(parser, words);
+            staticCache = new StaticMorphCache(wordAnalyzer, words);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private class MorphParseCacheLoader extends CacheLoader<String, List<MorphParse>> {
+    private class MorphParseCacheLoader extends CacheLoader<String, List<WordAnalysis>> {
         @Override
-        public List<MorphParse> load(String word) throws Exception {
+        public List<WordAnalysis> load(String word) throws Exception {
             String s = normalize(word); // TODO: this may cause problem for some foreign words.
             if (s.length() == 0)
                 return Collections.emptyList();
-            List<MorphParse> res = parser.parse(s);
+            List<WordAnalysis> res = wordAnalyzer.analyze(s);
             if (res.size() == 0) {
                 res.addAll(quoteParseCheck(s));
             }
             if (res.size() == 0) {
                 invalidateCache(s);
-                res.addAll(unidentifiedTokenParser.parse(s));
+                res.addAll(unidentifiedTokenAnalyzer.parse(s));
             }
             if (res.size() == 0) {
-                res.add(new MorphParse(DictionaryItem.UNKNOWN, s, Lists.newArrayList(MorphParse.InflectionalGroup.UNKNOWN)));
+                res.add(new WordAnalysis(
+                        DictionaryItem.UNKNOWN,
+                        s,
+                        Lists.newArrayList(WordAnalysis.InflectionalGroup.UNKNOWN)));
             }
             return res;
         }
 
-        public List<MorphParse> quoteParseCheck(String word) {
-            List<MorphParse> results = new ArrayList<>(2);
+        public List<WordAnalysis> quoteParseCheck(String word) {
+            List<WordAnalysis> results = new ArrayList<>(2);
 
             if (word.contains("'")) {
 
-                StemAndEnding se = new StemAndEnding(Strings.subStringUntilFirst(word, "'"), Strings.subStringAfterFirst(word, "'"));
+                StemAndEnding se = new StemAndEnding(
+                        Strings.subStringUntilFirst(word, "'"),
+                        Strings.subStringAfterFirst(word, "'"));
                 String stem = normalize(se.stem);
 
                 String withoutQuote = word.replaceAll("'", "");
 
-                List<MorphParse> noQuotesParses = parser.parse(withoutQuote);
+                List<WordAnalysis> noQuotesParses = wordAnalyzer.analyze(withoutQuote);
                 results.addAll(noQuotesParses.stream()
                         .filter(noQuotesParse -> noQuotesParse.getStems().contains(stem))
                         .collect(Collectors.toList()));
@@ -159,22 +163,22 @@ public class TurkishWordParserGenerator extends BaseParser {
         }
     }
 
-    private TurkishWordParserGenerator(
-            MorphParser parser,
+    private TurkishMorphology(
+            WordAnalyzer parser,
             SimpleGenerator generator,
             RootLexicon lexicon,
             DynamicLexiconGraph graph,
             SuffixProvider suffixProvider) {
-        this.parser = parser;
+        this.wordAnalyzer = parser;
         this.generator = generator;
         this.lexicon = lexicon;
         this.graph = graph;
-        this.unidentifiedTokenParser = new UnidentifiedTokenParser(this);
+        this.unidentifiedTokenAnalyzer = new UnidentifiedTokenAnalyzer(this);
         this.suffixProvider = suffixProvider;
         generateCaches();
     }
 
-    public static TurkishWordParserGenerator createWithDefaults() throws IOException {
+    public static TurkishMorphology createWithDefaults() throws IOException {
         return new TurkishMorphParserBuilder().addDefaultDictionaries().build();
     }
 
@@ -182,21 +186,21 @@ public class TurkishWordParserGenerator extends BaseParser {
         return new TurkishMorphParserBuilder();
     }
 
-    public MorphParser getParser() {
-        return parser;
+    public WordAnalyzer getWordAnalyzer() {
+        return wordAnalyzer;
     }
 
     /**
-     * Normalizes the input word and parses it. If word cannot be parsed following occurs:
+     * Normalizes the input word and analyses it. If word cannot be parsed following occurs:
      * - if input is a number, system tries to parse it by creating a number DictionaryEntry.
      * - if input starts with a capital letter, or contains ['] adds a Dictionary entry as a proper noun.
      * - if above options does not generate a result, it generates an UNKNOWN dictionary entry and returns a parse with it.
      *
      * @param word input word.
-     * @return MorphParse list.
+     * @return WordAnalysis list.
      */
-    public List<MorphParse> parse(String word) {
-        List<MorphParse> res = staticCache.parse(word);
+    public List<WordAnalysis> analyze(String word) {
+        List<WordAnalysis> res = staticCache.get(word);
         if (res == null) {
             res = dynamicCache.getUnchecked(word);
         }
@@ -239,18 +243,18 @@ public class TurkishWordParserGenerator extends BaseParser {
     }
 
     static class StaticMorphCache {
-        private final HashMap<String, List<MorphParse>> cache;
+        private final HashMap<String, List<WordAnalysis>> cache;
         private long hit = 0;
         private long miss = 0;
 
-        public StaticMorphCache(MorphParser parser, List<String> wordList) throws IOException {
+        public StaticMorphCache(WordAnalyzer parser, List<String> wordList) throws IOException {
             cache = Maps.newHashMapWithExpectedSize(5000);
             for (String s : wordList) {
-                cache.put(s, parser.parse(s));
+                cache.put(s, parser.analyze(s));
             }
         }
 
-        public void put(String key, List<MorphParse> parses) {
+        public void put(String key, List<WordAnalysis> parses) {
             this.cache.put(key, parses);
         }
 
@@ -262,8 +266,8 @@ public class TurkishWordParserGenerator extends BaseParser {
             cache.clear();
         }
 
-        public List<MorphParse> parse(String s) {
-            List<MorphParse> result = cache.get(s);
+        public List<WordAnalysis> get(String s) {
+            List<WordAnalysis> result = cache.get(s);
             if (result != null) {
                 hit++;
             } else {

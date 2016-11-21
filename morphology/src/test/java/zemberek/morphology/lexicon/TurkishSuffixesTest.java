@@ -5,8 +5,8 @@ import org.junit.Test;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
-import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.WordParser;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.WordAnalyzer;
 
 
 import java.util.ArrayList;
@@ -448,31 +448,31 @@ public class TurkishSuffixesTest {
         }
 
         void assertHasParses(String... words) {
-            WordParser parser = new WordParser(graph);
+            WordAnalyzer parser = new WordAnalyzer(graph);
             for (String word : words) {
-                List<MorphParse> results = parser.parse(word);
+                List<WordAnalysis> results = parser.analyze(word);
                 if (results.size() == 0)
                     parser.dump(word);
                 Assert.assertTrue("No parse for:" + word, results.size() > 0);
-                for (MorphParse result : results) {
+                for (WordAnalysis result : results) {
                     System.out.println(word + "= " + result.formatLong());
                 }
             }
         }
 
         void assertUnParseable(String... words) {
-            WordParser parser = new WordParser(graph);
+            WordAnalyzer parser = new WordAnalyzer(graph);
             for (String word : words) {
-                List<MorphParse> results = parser.parse(word);
+                List<WordAnalysis> results = parser.analyze(word);
                 Assert.assertTrue("Unexpected parse for:" + word + " parse:" + results, results.size() == 0);
             }
         }
 
         void assertUnParseable(Suffix suffix, String... words) {
-            WordParser parser = new WordParser(graph);
+            WordAnalyzer parser = new WordAnalyzer(graph);
             for (String word : words) {
-                List<MorphParse> results = parser.parse(word);
-                for (MorphParse result : results) {
+                List<WordAnalysis> results = parser.analyze(word);
+                for (WordAnalysis result : results) {
                     Assert.assertFalse(word + " parse should not contain suffix:" + suffix.id + " parse:" + results,
                             result.containsSuffix(suffix));
                 }

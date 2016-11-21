@@ -8,8 +8,8 @@ import com.google.common.io.Files;
 import zemberek.core.io.SimpleTextWriter;
 import zemberek.lm.apps.ConvertToSmoothLm;
 import zemberek.lm.compression.SmoothLm;
-import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.SentenceMorphParse;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.SentenceAnalysis;
 
 import java.io.File;
 import java.io.IOException;
@@ -183,14 +183,14 @@ public class Z3ModelA extends Z3AbstractDisambiguator implements TurkishMorphDis
     }
 
     @Override
-    public void disambiguate(SentenceMorphParse sentenceParse) {
+    public void disambiguate(SentenceAnalysis sentenceParse) {
         Ambiguous[] ambiguousSeq = getAmbiguousSequence(sentenceParse);
         int[] bestSequence = bestSequence(ambiguousSeq);
         for (int i = 0; i < bestSequence.length; i++) {
-            List<MorphParse> results = sentenceParse.getParses(i);
+            List<WordAnalysis> results = sentenceParse.getParses(i);
             if (results.size() == 1)
                 continue;
-            MorphParse tmp = results.get(0);
+            WordAnalysis tmp = results.get(0);
             results.set(0, results.get(bestSequence[i]));
             results.set(bestSequence[i], tmp);
         }
@@ -210,16 +210,16 @@ public class Z3ModelA extends Z3AbstractDisambiguator implements TurkishMorphDis
         }
     }
 
-    public Ambiguous[] getAmbiguousSequence(SentenceMorphParse sentence) {
+    public Ambiguous[] getAmbiguousSequence(SentenceAnalysis sentence) {
         Ambiguous[] awords = new Ambiguous[sentence.size() + 3];
         awords[0] = startWord;
         awords[1] = startWord;
         int i = 2;
-        for (SentenceMorphParse.Entry entry : sentence) {
+        for (SentenceAnalysis.Entry entry : sentence) {
             int[] roots = new int[entry.parses.size()];
             int[][] igs = new int[entry.parses.size()][];
             int j = 0;
-            for (MorphParse parse : entry.parses) {
+            for (WordAnalysis parse : entry.parses) {
                 String rootPart = parse.dictionaryItem.lemma;
                 roots[j] = rootLm.getVocabulary().indexOf(rootPart);
                 igs[j] = new int[parse.inflectionalGroups.size()];

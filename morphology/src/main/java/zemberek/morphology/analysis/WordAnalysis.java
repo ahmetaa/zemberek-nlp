@@ -1,4 +1,4 @@
-package zemberek.morphology.parser;
+package zemberek.morphology.analysis;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -16,11 +16,11 @@ import java.util.Map;
 /**
  * This class represents a single morphological parse of a word.
  * It contains the DictionaryItem of the word, the stem and a list of inflectional groups.
- * Every MorphParse must have at least one Inflectional group element in it .
+ * Every WordAnalysis must have at least one Inflectional group element in it .
  * First inflectional group element contains the primary and secondary Pos of the Dictionary item.
  * Last Inflectional group defines the pos of the word in general.
  */
-public class MorphParse {
+public class WordAnalysis {
 
     public DictionaryItem dictionaryItem;
     public String root;
@@ -45,7 +45,7 @@ public class MorphParse {
         }
     }
 
-    public MorphParse(DictionaryItem dictionaryItem, String root, List<InflectionalGroup> inflectionalGroups) {
+    public WordAnalysis(DictionaryItem dictionaryItem, String root, List<InflectionalGroup> inflectionalGroups) {
         this.dictionaryItem = dictionaryItem;
         this.root = root;
         this.inflectionalGroups = inflectionalGroups;
@@ -262,7 +262,7 @@ public class MorphParse {
         return lemmas;
     }
 
-    public MorphParse(StemNode stemNode, List<SuffixSurfaceNode> suffixSurfaceNodes) {
+    public WordAnalysis(StemNode stemNode, List<SuffixSurfaceNode> suffixSurfaceNodes) {
         this.dictionaryItem = stemNode.getDictionaryItem();
         this.root = stemNode.surfaceForm;
 
@@ -291,8 +291,13 @@ public class MorphParse {
                 }
 
             } else {
-                if (!(suffixNode.getSuffixForm().getSuffix() instanceof RootSuffix))
-                    ig.suffixList.add(new SuffixData(suffixNode.getSuffixForm().suffix, suffixNode.surfaceForm, suffixNode.getSuffixForm().generation));
+                if (!(suffixNode.getSuffixForm().getSuffix() instanceof RootSuffix)) {
+                    SuffixData suffixData = new SuffixData(
+                            suffixNode.getSuffixForm().suffix,
+                            suffixNode.surfaceForm,
+                            suffixNode.getSuffixForm().generation);
+                    ig.suffixList.add(suffixData);
+                }
             }
             j++;
         }

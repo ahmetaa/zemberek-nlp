@@ -1,4 +1,4 @@
-package zemberek.morphology.parser;
+package zemberek.morphology.analysis;
 
 import junit.framework.Assert;
 import org.junit.Test;
@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class WordParserTest {
+public class WordAnalyzerTest {
 
     @Test
     public void testVoicing() {
@@ -82,26 +82,26 @@ public class WordParserTest {
     }
 
     private void assertHasParses(DynamicLexiconGraph graph, String... words) {
-        WordParser parser = new WordParser(graph);
+        WordAnalyzer parser = new WordAnalyzer(graph);
         for (String word : words) {
-            List<MorphParse> results = parser.parse(word);
+            List<WordAnalysis> results = parser.analyze(word);
             if (results.size() == 0)
                 parser.dump(word);
             Assert.assertTrue("No parse for:" + word, results.size() > 0);
-            for (MorphParse result : results) {
+            for (WordAnalysis result : results) {
                 System.out.println(word + "= " + result.formatLong());
             }
         }
     }
 
     private void assertLongParses(DynamicLexiconGraph graph, String word, String... parses) {
-        WordParser parser = new WordParser(graph);
+        WordAnalyzer parser = new WordAnalyzer(graph);
 
-        List<MorphParse> results = parser.parse(word);
+        List<WordAnalysis> results = parser.analyze(word);
         Assert.assertTrue("Cannot parse:" + word, results.size() > 0);
 
         Set<String> parseStrins = new HashSet<String>();
-        for (MorphParse result : results) {
+        for (WordAnalysis result : results) {
             parseStrins.add(result.formatLong());
         }
         for (String parse : parses) {
@@ -110,9 +110,9 @@ public class WordParserTest {
     }
 
     private void assertUnParseable(DynamicLexiconGraph graph, String... words) {
-        WordParser parser = new WordParser(graph);
+        WordAnalyzer parser = new WordAnalyzer(graph);
         for (String word : words) {
-            List<MorphParse> results = parser.parse(word);
+            List<WordAnalysis> results = parser.analyze(word);
             Assert.assertTrue("Unexpected parse for:" + word + " parse:" + results, results.size() == 0);
         }
     }

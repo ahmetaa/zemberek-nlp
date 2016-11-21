@@ -1,7 +1,7 @@
 package zemberek.morphology.ambiguity;
 
-import zemberek.morphology.parser.SentenceMorphParse;
+import zemberek.morphology.analysis.SentenceAnalysis;
 
 public interface TurkishMorphDisambiguator {
-    void disambiguate(SentenceMorphParse sentenceParse);
+    void disambiguate(SentenceAnalysis sentenceParse);
 }

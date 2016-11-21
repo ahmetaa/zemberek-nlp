@@ -11,9 +11,9 @@ import zemberek.morphology.external.OflazerAnalyzerRunner;
 import zemberek.morphology.lexicon.NullSuffixForm;
 import zemberek.morphology.lexicon.SuffixForm;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
-import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.tr.TurkishSentenceParser;
-import zemberek.morphology.parser.tr.TurkishWordParserGenerator;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
+import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.tokenizer.ZemberekLexer;
 import zemberek.tokenizer.antlr.TurkishLexer;
 
@@ -56,14 +56,14 @@ public class ZemberekNlpScripts {
         Path outDir = DATA_PATH.resolve("out");
         Files.createDirectories(outDir);
 
-        TurkishWordParserGenerator parser = TurkishWordParserGenerator.createWithDefaults();
+        TurkishMorphology parser = TurkishMorphology.createWithDefaults();
         System.out.println("Loading histogram.");
         Histogram<String> histogram = Histogram.loadFromUtf8File(wordFreqFile, ' ');
         List<String> accepted = new ArrayList<>(histogram.size() / 3);
 
         int c = 0;
         for (String s : histogram) {
-            List<MorphParse> parses = parser.parse(s);
+            List<WordAnalysis> parses = parser.analyze(s);
             if (parses.size() > 0 &&
                     parses.get(0).dictionaryItem.primaryPos != PrimaryPos.Unknown) {
                 accepted.add(s);
@@ -196,9 +196,9 @@ public class ZemberekNlpScripts {
     @Test
     public void generatorTest() throws IOException {
 
-        TurkishWordParserGenerator parser = TurkishWordParserGenerator.createWithDefaults();
-        List<MorphParse> result = parser.parse("besiciliği");
-        MorphParse first = result.get(0);
+        TurkishMorphology parser = TurkishMorphology.createWithDefaults();
+        List<WordAnalysis> result = parser.analyze("besiciliği");
+        WordAnalysis first = result.get(0);
         System.out.println(first.inflectionalGroups);
     }
 
@@ -206,8 +206,8 @@ public class ZemberekNlpScripts {
     public void performance() throws IOException {
         List<String> lines = Files.readAllLines(
                 Paths.get("/media/depo/data/aaa/corpora/dunya.100k"));
-        TurkishWordParserGenerator parser = TurkishWordParserGenerator.createWithDefaults();
-        TurkishSentenceParser sentenceParser = new TurkishSentenceParser(parser, new Z3MarkovModelDisambiguator());
+        TurkishMorphology parser = TurkishMorphology.createWithDefaults();
+        TurkishSentenceAnalyzer sentenceParser = new TurkishSentenceAnalyzer(parser, new Z3MarkovModelDisambiguator());
         System.out.println(parser.getLexicon().size() + " words.");
 
         long tokenCount = 0;

@@ -1,4 +1,4 @@
-package zemberek.morphology.parser;
+package zemberek.morphology.analysis;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
 
-public class MorphParseTest {
+public class WordAnalysisTest {
 
     TurkishSuffixes suffixProvider = new TurkishSuffixes();
 
@@ -52,11 +52,11 @@ public class MorphParseTest {
                 "mavi+Adj",
                 "yirmi+Num+Card^DB+Noun+A3sg+Pnon+Dat"
         };
-        WordParser parser = getParser(dictionary);
+        WordAnalyzer parser = getParser(dictionary);
         int i = 0;
         for (String s : testSet) {
-            List<MorphParse> results = parser.parse(s);
-            MorphParse res = results.get(0);
+            List<WordAnalysis> results = parser.analyze(s);
+            WordAnalysis res = results.get(0);
             Assert.assertEquals(stemSet[i], res.root);
             Assert.assertEquals(expected[i], res.formatLong());
             Assert.assertEquals(expectedNoSurface[i], res.formatNoSurface());
@@ -68,15 +68,15 @@ public class MorphParseTest {
 
     @Test
     public void igSurfaceTest() {
-        WordParser parser = getParser("kitap");
+        WordAnalyzer parser = getParser("kitap");
         String[] testSet = {"kitabıma", "kitaplaşırız"};
         String[] expected = {"ıma", "laşırız"};
         int i = 0;
         for (String s : testSet) {
-            List<MorphParse> results = parser.parse(s);
-            MorphParse res = results.get(0);
+            List<WordAnalysis> results = parser.analyze(s);
+            WordAnalysis res = results.get(0);
             List<String> surfaces = Lists.newArrayList();
-            for (MorphParse.InflectionalGroup ig : res.inflectionalGroups) {
+            for (WordAnalysis.InflectionalGroup ig : res.inflectionalGroups) {
                 surfaces.add(ig.surfaceForm());
             }
             Assert.assertEquals(expected[i], Joiner.on("").join(surfaces));
@@ -86,7 +86,7 @@ public class MorphParseTest {
 
     @Test
     public void getLemmasTest() {
-        WordParser parser = getParser("kitap", "aramak", "mavi [P:Adj]", "leh", "dekorasyon", "yapmak");
+        WordAnalyzer parser = getParser("kitap", "aramak", "mavi [P:Adj]", "leh", "dekorasyon", "yapmak");
 
         String[] testSet = {"kitaplaşırız", "kitabımızsa", "kitaba", "aradım", "aratagörün", "arattırın", "mavide",
                 "lehimeydi", "dekorasyonundaki", "yapacağı", "yapacağınaysa"};
@@ -107,8 +107,8 @@ public class MorphParseTest {
 
         int i = 0;
         for (String s : testSet) {
-            List<MorphParse> results = parser.parse(s);
-            MorphParse res = results.get(0);
+            List<WordAnalysis> results = parser.analyze(s);
+            WordAnalysis res = results.get(0);
             List<String> expStems = Lists.newArrayList(expected[i]);
             MatcherAssert.assertThat(res.getLemmas(), equalTo(expStems));
             i++;
@@ -117,7 +117,7 @@ public class MorphParseTest {
 
     @Test
     public void getStemsTest() {
-        WordParser parser = getParser("kitap", "yapmak");
+        WordAnalyzer parser = getParser("kitap", "yapmak");
 
         String[] testSet = {"kitaplaşırız", "kitaba", "yapacağı"};
 
@@ -129,8 +129,8 @@ public class MorphParseTest {
 
         int i = 0;
         for (String s : testSet) {
-            List<MorphParse> results = parser.parse(s);
-            MorphParse res = results.get(0);
+            List<WordAnalysis> results = parser.analyze(s);
+            WordAnalysis res = results.get(0);
             List<String> expStems = Lists.newArrayList(expected[i]);
             MatcherAssert.assertThat(res.getStems(), equalTo(expStems));
             i++;
@@ -138,9 +138,9 @@ public class MorphParseTest {
     }
 
 
-    private WordParser getParser(String... lines) {
+    private WordAnalyzer getParser(String... lines) {
         DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
         graph.addDictionaryItems(new TurkishDictionaryLoader(suffixProvider).load(lines));
-        return new WordParser(graph);
+        return new WordAnalyzer(graph);
     }
 }

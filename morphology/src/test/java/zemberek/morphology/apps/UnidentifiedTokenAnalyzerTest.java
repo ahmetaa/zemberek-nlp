@@ -3,22 +3,22 @@ package zemberek.morphology.apps;
 import com.google.common.collect.Sets;
 import junit.framework.Assert;
 import org.junit.Test;
-import zemberek.morphology.parser.MorphParse;
-import zemberek.morphology.parser.tr.TurkishWordParserGenerator;
-import zemberek.morphology.parser.tr.UnidentifiedTokenParser;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.tr.TurkishMorphology;
+import zemberek.morphology.analysis.tr.UnidentifiedTokenAnalyzer;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 
-public class UnidentifiedTokenParserTest {
+public class UnidentifiedTokenAnalyzerTest {
 
     @Test
     public void shouldCreateUnidentifiedTokenParserSuccessfully() throws IOException {
-        TurkishWordParserGenerator parser = TurkishWordParserGenerator.createWithDefaults();
-        UnidentifiedTokenParser uiParser = new UnidentifiedTokenParser(parser);
-        List<MorphParse> results = uiParser.parse("Ankara'ya");
-        for (MorphParse result : results) {
+        TurkishMorphology parser = TurkishMorphology.createWithDefaults();
+        UnidentifiedTokenAnalyzer uiParser = new UnidentifiedTokenAnalyzer(parser);
+        List<WordAnalysis> results = uiParser.parse("Ankara'ya");
+        for (WordAnalysis result : results) {
             System.out.println(result);
         }
     }
@@ -29,17 +29,17 @@ public class UnidentifiedTokenParserTest {
                 "[(İstanbul:istanbul) (Noun,Prop;A3sg+P2sg:un+Nom)]",
                 "[(İstanbul:istanbul) (Noun,Prop;A3sg+Pnon+Gen:un)]");
 
-        TurkishWordParserGenerator parser = TurkishWordParserGenerator.builder().addTextDictResources("dev-lexicon.txt").build();
-        UnidentifiedTokenParser uiParser = new UnidentifiedTokenParser(parser);
-        List<MorphParse> results = uiParser.parse("İstanbul'un");
+        TurkishMorphology parser = TurkishMorphology.builder().addTextDictResources("dev-lexicon.txt").build();
+        UnidentifiedTokenAnalyzer uiParser = new UnidentifiedTokenAnalyzer(parser);
+        List<WordAnalysis> results = uiParser.parse("İstanbul'un");
         Assert.assertEquals(2, results.size());
-        for (MorphParse result : results) {
+        for (WordAnalysis result : results) {
             Assert.assertTrue(expected.contains(result.formatLong()));
         }
 
         results = uiParser.parse("istanbul'un");
         Assert.assertEquals(2, results.size());
-        for (MorphParse result : results) {
+        for (WordAnalysis result : results) {
             Assert.assertTrue(expected.contains(result.formatLong()));
         }
 
