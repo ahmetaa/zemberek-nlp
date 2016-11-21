@@ -191,13 +191,14 @@ public class StemNodeGenerator {
 
         TurkishSuffixes turkishSuffixes = (TurkishSuffixes) suffixProvider;
         String id = item.getId();
-        StemNode[] stems;
-        EnumSet<PhoneticAttribute> attrs = calculateAttributes(item.root);
+
 
         if (id.equals("yemek_Verb")) {
+            StemNode[] stems;
             stems = new StemNode[3];
             stems[0] = new StemNode("ye", item, TerminationType.TERMINAL, calculateAttributes(item.root));
             stems[0].exclusiveSuffixData.add(turkishSuffixes.Verb_Ye.allConnections());
+            EnumSet<PhoneticAttribute> attrs = calculateAttributes(item.root);
             attrs.remove(PhoneticAttribute.LastLetterVowel);
             attrs.add(PhoneticAttribute.LastLetterConsonant);
             stems[1] = new StemNode("y", item, TerminationType.NON_TERMINAL, attrs, EnumSet.noneOf(PhoneticExpectation.class));
@@ -206,10 +207,11 @@ public class StemNodeGenerator {
             stems[2].exclusiveSuffixData.add(turkishSuffixes.Verb_Yi.allConnections());
             return stems;
         } else if (id.equals("demek_Verb")) {
+            StemNode[] stems;
             stems = new StemNode[3];
             stems[0] = new StemNode("de", item, TerminationType.TERMINAL, calculateAttributes(item.root));
             stems[0].exclusiveSuffixData.add(turkishSuffixes.Verb_De.allConnections());
-            attrs = calculateAttributes(item.root);
+            EnumSet<PhoneticAttribute> attrs = calculateAttributes(item.root);
             attrs.remove(PhoneticAttribute.LastLetterVowel);
             attrs.add(PhoneticAttribute.LastLetterConsonant);
             stems[1] = new StemNode("d", item, TerminationType.NON_TERMINAL, attrs, EnumSet.noneOf(PhoneticExpectation.class));
@@ -218,6 +220,7 @@ public class StemNodeGenerator {
             stems[2].exclusiveSuffixData.add(turkishSuffixes.Verb_Di.allConnections());
             return stems;
         } else if (id.equals("ben_Pron_Pers") || id.equals("sen_Pron_Pers")) {
+            StemNode[] stems;
             stems = new StemNode[2];
             stems[0] = new StemNode(item.root, item, TerminationType.TERMINAL, calculateAttributes(item.root));
             stems[0].exclusiveSuffixData.add(turkishSuffixes.PersPron_BenSen.allConnections());

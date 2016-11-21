@@ -712,7 +712,8 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
 
         Verb_Di.connections.add(Pos_EMPTY, Verb2Verb);
         Verb_Di.indirectConnections.add(Opt_yA, Fut_yAcAk, FutPart_yAcAk_2Adj, Abil_yA, Abil_yAbil, PresPart_yAn,
-                PresPart_yAn, KeepDoing_yAgor, KeepDoing2_yAdur, FeelLike_yAsI_2Adj, UnableToDo_yAmAdAn, Verb2Adv);
+                PresPart_yAn, KeepDoing_yAgor, KeepDoing2_yAdur, FeelLike_yAsI_2Adj, UnableToDo_yAmAdAn, Verb2Adv,
+                Verb2Adj, Verb2NounPart, Verb2AdjPart, Verb2VerbAbility);
 
         //---------------------------- Noun -----------------------------------------------------------------------
 
@@ -1110,7 +1111,8 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
         PersPron_Siz.indirectConnections.add(A2pl_ler.allConnections());
         registerForms(
                 Noun_TEMPLATE, Verb_TEMPLATE, Adj_TEMPLATE, Adv_TEMPLATE, Numeral_Template, Postp_Template, Dup_Template,
-                PersPron_TEMPLATE, DemonsPron_TEMPLATE, ReflexPron_TEMPLATE, Det_Template, QuantPron_TEMPLATE, Conj_Template, Ques_Template, QuesPron_TEMPLATE, Punc_Template,
+                PersPron_TEMPLATE, DemonsPron_TEMPLATE, ReflexPron_TEMPLATE, Det_Template, QuantPron_TEMPLATE,
+                Conj_Template, Ques_Template, QuesPron_TEMPLATE, Punc_Template,
 
                 Noun2Adj, Noun2Noun, Noun2Verb, Noun2VerbCopular,
                 Adj2Adj, Adj2Adv, Adj2Noun, Adj2Verb,
