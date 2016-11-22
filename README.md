@@ -38,11 +38,8 @@ And dependecies (For example morphology):
 
 Jar distributions may not be the latest versions. You can generate jar files with maven. 
 
-[Zemberek-NLP-Distributions] (https://github.com/ahmetaa/zemberek-nlp-distributions) page has versions and
+[Google docs page] (https://drive.google.com/#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8) page has versions and
 separate module and dependent jars.
-
-Alternatively there is a public [Google docs page] (https://drive.google.com/#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8)
-for distributions downloads.
 
 ### Examples
 
