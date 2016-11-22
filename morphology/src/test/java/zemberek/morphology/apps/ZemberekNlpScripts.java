@@ -7,6 +7,7 @@ import zemberek.core.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
+import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.external.OflazerAnalyzerRunner;
 import zemberek.morphology.lexicon.NullSuffixForm;
 import zemberek.morphology.lexicon.SuffixForm;
@@ -226,7 +227,7 @@ public class ZemberekNlpScripts {
         Stopwatch clock = Stopwatch.createStarted();
         for (String line : lines) {
             try {
-                sentenceParser.parse(line);
+                sentenceParser.analyze(line);
             } catch (Exception e) {
                 System.out.println(line);
                 e.printStackTrace();
@@ -252,8 +253,44 @@ public class ZemberekNlpScripts {
         System.out.println(elapsed);
         System.out.println("Analysis + Disambiguation speed = " + tokenCount * 1000d / elapsed);
         System.out.println("Analysis + Disambiguation speed no punct = " + tokenCountNoPunct * 1000d / elapsed);
+    }
 
+    @Test
+    public void testWordAnalysis() throws IOException {
+        TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+        List<WordAnalysis> results = morphology.analyze("besiciliğe");
+        for (WordAnalysis result : results) {
+            System.out.println(result.formatLong());
+            System.out.println("\tStems = " + result.getStems());
+            System.out.println("\tLemmas = " + result.getLemmas());
+        }
+    }
 
+    @Test
+    public void testSentenceAnalysis() throws IOException {
+        TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+        Z3MarkovModelDisambiguator disambiguator = new Z3MarkovModelDisambiguator();
+        TurkishSentenceAnalyzer analyzer = new TurkishSentenceAnalyzer(morphology, disambiguator);
+
+        String sentence = "Kırmızı kalemi al.";
+        System.out.println("Sentence  = " + sentence);
+        SentenceAnalysis analysis = analyzer.analyze(sentence);
+
+        System.out.println("Before disambiguation.");
+        writeParseResult(analysis);
+
+        System.out.println("\nAfter disambiguation.");
+        analyzer.disambiguate(analysis);
+        writeParseResult(analysis);
+    }
+
+    private void writeParseResult(SentenceAnalysis analysis) {
+        for (SentenceAnalysis.Entry entry : analysis) {
+            System.out.println("Word = " + entry.input);
+            for (WordAnalysis w : entry.parses) {
+                System.out.println(w.formatLong());
+            }
+        }
     }
 
 }

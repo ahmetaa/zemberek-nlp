@@ -49,7 +49,7 @@ public class TurkishSentenceAnalyzerTest {
         int s = 0;
         Histogram<String> unknownStuff = new Histogram<>();
         for (String sentence : sentences) {
-            SentenceAnalysis parse = parser.parse(sentence);
+            SentenceAnalysis parse = parser.analyze(sentence);
             for (SentenceAnalysis.Entry entry : parse) {
                 List<WordAnalysis> parses = entry.parses;
                 for (WordAnalysis wordAnalysis : parses) {

@@ -58,7 +58,7 @@ public class TurkishSentenceAnalyzer extends BaseParser {
         this.disambiguator = disambiguator;
     }
 
-    public SentenceAnalysis parse(String sentence) {
+    public SentenceAnalysis analyze(String sentence) {
         SentenceAnalysis sentenceParse = new SentenceAnalysis();
         String preprocessed = preProcess(sentence);
         for (String s : Splitter.on(" ").omitEmptyStrings().trimResults().split(preprocessed)) {
@@ -84,7 +84,7 @@ public class TurkishSentenceAnalyzer extends BaseParser {
      * @return best parse.
      */
     public List<WordAnalysis> bestParse(String sentence) {
-        SentenceAnalysis parse = parse(sentence);
+        SentenceAnalysis parse = analyze(sentence);
         disambiguate(parse);
         List<WordAnalysis> bestParse = Lists.newArrayListWithCapacity(parse.size());
         for (SentenceAnalysis.Entry entry : parse) {

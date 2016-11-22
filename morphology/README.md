@@ -5,29 +5,14 @@ Turkish Morphology and Disambiguation
 
 ### Example
 
-    public class ParseWords {
+Finds all morphological analyses of word "kalemin"
 
-        TurkishMorphParser parser;
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    List<WordAnalysis> results = morphology.analyze("kalemin");
+    results.forEach(s -> System.out.println(s.formatLong()));
+    
+    Output:
 
-        public ParseWords(TurkishMorphParser parser) {
-            this.parser = parser;
-        }
-
-        public void parse(String word) {
-            System.out.println("Word = " + word);
-            List<MorphParse> parses = parser.parse(word);
-            for (MorphParse parse : parses) {
-                System.out.println(parse.formatLong());
-            }
-        }
-
-        public static void main(String[] args) throws IOException {
-            TurkishMorphParser parser = TurkishMorphParser.createWithDefaults();
-            new ParseWords(parser).parse("kalemin");
-        }
-    }
-
-    Word = kalemin
     [(kale:kale) (Noun;A3sg+P1sg:m+Gen:in)]
     [(Kale:kale) (Noun,Prop;A3sg+P1sg:m+Gen:in)]
     [(kalem:kalem) (Noun;A3sg+Pnon+Gen:in)]
@@ -35,33 +20,18 @@ Turkish Morphology and Disambiguation
 
 ### Stemming and Lemmatization Example
 
-    public class StemmingAndLemmatization {
-        TurkishMorphParser parser;
+Finds all morphological analyses, stems and lemmas of word "kitabımızsa"
 
-        public StemmingAndLemmatization(TurkishMorphParser parser) {
-            this.parser = parser;
-        }
-
-        public void parse(String word) {
-            System.out.println("Word = " + word);
-
-            System.out.println("Parses: ");
-            List<MorphParse> parses = parser.parse(word);
-            for (MorphParse parse : parses) {
-                System.out.println(parse.formatLong());
-                System.out.println("\tStems = " + parse.getStems());
-                System.out.println("\tLemmas = " + parse.getLemmas());
-            }
-        }
-
-        public static void main(String[] args) throws IOException {
-            TurkishMorphParser parser = TurkishMorphParser.createWithDefaults();
-            new StemmingAndLemmatization(parser).parse("kitabımızsa");
-        }
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    List<WordAnalysis> results = morphology.analyze("kitabımızsa");
+    for (WordAnalysis result : results) {
+        System.out.println(result.formatLong());
+        System.out.println("\tStems = " + result.getStems());
+        System.out.println("\tLemmas = " + result.getLemmas());
     }
+    
+    Output:
 
-    Word = kitabımızsa
-    Parses:
     [(kitap:kitab) (Noun;A3sg+P1pl:ımız+Nom)(Verb;Cond:sa+A3sg)]
         Stems = [kitab, kitabımızsa]
         Lemmas = [kitap, kitapımızsa]
@@ -72,45 +42,30 @@ Turkish Morphology and Disambiguation
 
 ### Example
 
-    public class DisambiguateSentences {
+    @Test
+    public void testSentenceAnalysis() throws IOException {
+        TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+        Z3MarkovModelDisambiguator disambiguator = new Z3MarkovModelDisambiguator();
+        TurkishSentenceAnalyzer analyzer = new TurkishSentenceAnalyzer(morphology, disambiguator);
 
-        TurkishSentenceParser sentenceParser;
+        String sentence = "Kırmızı kalemi al.";
+        System.out.println("Sentence  = " + sentence);
+        SentenceAnalysis analysis = analyzer.analyze(sentence);
 
-        public DisambiguateSentences(TurkishSentenceParser sentenceParser) {
-            this.sentenceParser = sentenceParser;
-        }
+        System.out.println("Before disambiguation.");
+        writeParseResult(analysis);
 
-        void parseAndDisambiguate(String sentence) {
-            System.out.println("Sentence  = " + sentence);
-            SentenceMorphParse sentenceParse = sentenceParser.parse(sentence);
+        System.out.println("\nAfter disambiguation.");
+        analyzer.disambiguate(analysis);
+        writeParseResult(analysis);
+    }
 
-            System.out.println("Before disambiguation.");
-            writeParseResult(sentenceParse);
-
-            System.out.println("\nAfter disambiguation.");
-            sentenceParser.disambiguate(sentenceParse);
-            writeParseResult(sentenceParse);
-
-        }
-
-        private void writeParseResult(SentenceMorphParse sentenceParse) {
-            for (SentenceMorphParse.Entry entry : sentenceParse) {
-                System.out.println("Word = " + entry.input);
-                for (MorphParse parse : entry.parses) {
-                    System.out.println(parse.formatLong());
-                }
+    private void writeParseResult(SentenceAnalysis analysis) {
+        for (SentenceAnalysis.Entry entry : analysis) {
+            System.out.println("Word = " + entry.input);
+            for (WordAnalysis w : entry.parses) {
+                System.out.println(w.formatLong());
             }
-        }
-
-        public static void main(String[] args) throws IOException {
-            TurkishMorphParser morphParser = TurkishMorphParser.createWithDefaults();
-            Z3MarkovModelDisambiguator disambiguator = new Z3MarkovModelDisambiguator();
-            TurkishSentenceParser sentenceParser = new TurkishSentenceParser(
-                    morphParser,
-                    disambiguator
-            );
-            new DisambiguateSentences(sentenceParser)
-                    .parseAndDisambiguate("Kırmızı kalemi al.");
         }
     }
 
@@ -120,38 +75,40 @@ Turkish Morphology and Disambiguation
     [(kırmızı:kırmızı) (Adj)]
     [(kırmız:kırmız) (Noun;A3sg+Pnon+Acc:ı)]
     [(kırmız:kırmız) (Noun;A3sg+P3sg:ı+Nom)]
+    [(Kırmız:kırmız) (Noun,Prop;A3sg+Pnon+Acc:ı)]
+    [(Kırmız:kırmız) (Noun,Prop;A3sg+P3sg:ı+Nom)]
     [(kırmızı:kırmızı) (Noun;A3sg+Pnon+Nom)]
-    [(Kırmızı:kırmızı) (Noun,Prop;A3sg+Pnon+Nom)]
     Word = kalemi
-    [(Kale:kale) (Noun,Prop;A3sg+P1sg:m+Acc:i)]
     [(kale:kale) (Noun;A3sg+P1sg:m+Acc:i)]
-    [(kalem:kalem) (Noun;A3sg+P3sg:i+Nom)]
+    [(Kale:kale) (Noun,Prop;A3sg+P1sg:m+Acc:i)]
     [(kalem:kalem) (Noun;A3sg+Pnon+Acc:i)]
+    [(kalem:kalem) (Noun;A3sg+P3sg:i+Nom)]
     Word = al
     [(al:al) (Adj)]
-    [(Al:al) (Noun,Prop;A3sg+Pnon+Nom)]
-    [(almak:al) (Verb;Pos+Imp+A2sg)]
     [(al:al) (Noun;A3sg+Pnon+Nom)]
+    [(almak:al) (Verb;Pos+Imp+A2sg)]
+    [(Al:al) (Noun,Prop;A3sg+Pnon+Nom)]
     Word = .
     [(.:.) (Punc)]
-
+    
     After disambiguation.
     Word = Kırmızı
     [(kırmızı:kırmızı) (Adj)]
     [(kırmız:kırmız) (Noun;A3sg+Pnon+Acc:ı)]
     [(kırmız:kırmız) (Noun;A3sg+P3sg:ı+Nom)]
+    [(Kırmız:kırmız) (Noun,Prop;A3sg+Pnon+Acc:ı)]
+    [(Kırmız:kırmız) (Noun,Prop;A3sg+P3sg:ı+Nom)]
     [(kırmızı:kırmızı) (Noun;A3sg+Pnon+Nom)]
-    [(Kırmızı:kırmızı) (Noun,Prop;A3sg+Pnon+Nom)]
     Word = kalemi
     [(kalem:kalem) (Noun;A3sg+P3sg:i+Nom)]
-    [(kale:kale) (Noun;A3sg+P1sg:m+Acc:i)]
     [(Kale:kale) (Noun,Prop;A3sg+P1sg:m+Acc:i)]
     [(kalem:kalem) (Noun;A3sg+Pnon+Acc:i)]
+    [(kale:kale) (Noun;A3sg+P1sg:m+Acc:i)]
     Word = al
     [(almak:al) (Verb;Pos+Imp+A2sg)]
-    [(Al:al) (Noun,Prop;A3sg+Pnon+Nom)]
-    [(al:al) (Adj)]
     [(al:al) (Noun;A3sg+Pnon+Nom)]
+    [(al:al) (Adj)]
+    [(Al:al) (Noun,Prop;A3sg+Pnon+Nom)]
     Word = .
     [(.:.) (Punc)]
 
