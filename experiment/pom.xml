@@ -10,6 +10,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>experiment</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>zemberek-nlp</groupId>
+            <artifactId>core</artifactId>
+            <version>0.9.3</version>
+        </dependency>
+        <dependency>
+            <groupId>zemberek-nlp</groupId>
+            <artifactId>morphology</artifactId>
+            <version>0.9.3</version>
+        </dependency>
+    </dependencies>
 
 
 </project>
