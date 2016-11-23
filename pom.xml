@@ -15,6 +15,7 @@
         <module>hyphenation</module>
         <module>lm</module>
         <module>dependency</module>
+        <module>experiment</module>
     </modules>
 
     <distributionManagement>

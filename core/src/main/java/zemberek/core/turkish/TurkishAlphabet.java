@@ -3,6 +3,7 @@ package zemberek.core.turkish;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 import static zemberek.core.turkish.TurkicLetter.builder;
 
@@ -11,6 +12,8 @@ import static zemberek.core.turkish.TurkicLetter.builder;
  * TurkishAlphabet only contains small case letters.
  */
 public class TurkishAlphabet {
+
+    static final Locale TR = new Locale("tr");
 
     // Turkish specific characters.
     public static final char C_CC = '\u00c7'; // Ç
@@ -344,5 +347,17 @@ public class TurkishAlphabet {
             indexes[i] = (byte) getAlphabeticIndex(s.charAt(i));
         }
         return indexes;
+    }
+
+    public String normalize(String input) {
+        StringBuilder sb = new StringBuilder(input.length());
+        input = input.toLowerCase(TR);
+        for (char c : input.toCharArray()) {
+            if (isValid(c))
+                sb.append(c);
+            else
+                sb.append("?");
+        }
+        return sb.toString();
     }
 }

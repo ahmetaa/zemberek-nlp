@@ -209,6 +209,20 @@ public class TurkishLexerTest {
         matchSentences("[Ali]{gel}", "[ Ali ] { gel }");
     }
 
+    @Test
+    public void testTokenizeDoubleQuote() {
+        matchSentences("\"Soner\"'e boyle dedi", "\" Soner \" ' e boyle dedi");
+        matchSentences("Hey \"Ali\" gel.", "Hey \" Ali \" gel .");
+        matchSentences("\"Soner boyle dedi\"", "\" Soner boyle dedi \"");
+    }
+
+    @Test
+    public void testNewline() {
+        matchSentences("Hey \nAli naber\n", "Hey \n Ali naber \n");
+        matchSentences("Hey\n\r \n\rAli\n \n\n \n naber\n", "Hey \n \r \n \r Ali \n \n \n \n naber \n");
+    }
+
+
     //TODO: failing.
     @Test
     @Ignore

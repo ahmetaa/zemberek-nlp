@@ -104,7 +104,7 @@ fragment AposAndSuffix: '\'' TurkishLettersAll+;
 SpaceTab
     : [ \t]+;
 NewLine
-    : [\n\r]+;
+    : [\n\r];
 
 PercentNumeral
     : '%' Number;
@@ -147,7 +147,7 @@ TurkishWordWithApos
 Punctuation
     :  '...' | '(!)' | '(?)'| [.,!?%$&*+@\\:;\-\"\'\(\)\[\]\{\}];
 
-UnknownWord: (~[ '\t.,!?%$&*+@\\:;\-\"\(\)\[\]\{\}])+;
+UnknownWord: (~[ \n\r'\t.,!?%$&*+@\\:;\-\"\(\)\[\]\{\}])+;
 
 // Catch all remaining as Unknown.
 Unknown : .+? ;
