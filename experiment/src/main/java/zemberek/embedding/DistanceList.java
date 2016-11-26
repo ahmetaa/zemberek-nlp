@@ -1,19 +1,22 @@
 package zemberek.embedding;
 
 import zemberek.core.logging.Log;
+import zemberek.lm.LmVocabulary;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.concurrent.*;
 
 public class DistanceList {
-    public final String source;
-    List<WordDistance> distances;
 
-    public DistanceList(String source, List<WordDistance> distList) {
+    public final String source;
+    Distance[] distances;
+
+    public DistanceList(String source, Distance[] distList) {
         this.source = source;
         this.distances = distList;
     }
@@ -46,13 +49,13 @@ public class DistanceList {
                         continue;
 
                     pw.println(unit.vector.word + " --------------------- ");
-                    List<WordDistance> distList = new ArrayList<>(unit.distQueue);
+                    List<Distance> distList = new ArrayList<>(unit.distQueue);
                     Collections.sort(distList);
                     Collections.reverse(distList);
                     if (distList.size() == 0) {
                         Log.warn("No distance for %s", unit.vector.word);
                     }
-                    for (WordDistance dist : distList) {
+                    for (Distance dist : distList) {
                         pw.println(String.valueOf(dist));
                     }
                 }
@@ -67,45 +70,91 @@ public class DistanceList {
     public static void saveDistanceListBin(
             Path vectorFile,
             Path outFile,
+            Path vocabFile,
             int distanceAmount,
             int blockSize,
             int threadSize) throws Exception {
+        Log.info("Loading vectors.");
         List<WordVector> wordVectors = WordVector.loadFromBinary(vectorFile);
 
+        Log.info("Writing vocabulary.");
+        // write vocabulary.
+        List<String> words = new ArrayList<>(wordVectors.size());
+        wordVectors.forEach(s -> words.add(s.word));
+        LmVocabulary vocabulary = new LmVocabulary(words);
+        vocabulary.saveBinary(vocabFile.toFile());
+
+        Log.info("Calculating distances.");
         // create a thread pool executor
         ExecutorService es = Executors.newFixedThreadPool(threadSize);
         CompletionService<List<BlockUnit>> completionService = new ExecutorCompletionService<>(es);
 
+        int blockCounter = 0;
         for (int i = 0; i < wordVectors.size(); i += blockSize) {
             int endIndex = i + blockSize >= wordVectors.size() ? wordVectors.size() : i + blockSize;
             completionService.submit(new BlockDistanceTask(wordVectors, distanceAmount, blockSize, i, endIndex));
+            blockCounter++;
         }
         es.shutdown();
+        List<DistanceList> distancesToWrite = new ArrayList<>(wordVectors.size());
+        int i = 0;
+        while (i < blockCounter) {
+            List<BlockUnit> units = completionService.take().get();
+            for (BlockUnit unit : units) {
+                String source = unit.vector.word;
+                List<Distance> distList = new ArrayList<>(unit.distQueue);
+                Collections.sort(distList);
+                Collections.reverse(distList);
+                distancesToWrite.add(new DistanceList(source, distList.toArray(new Distance[distList.size()])));
+            }
+            i++;
+            if ((i * blockSize % 10) == 0) {
+                Log.info("%d of %d completed", i * blockSize, wordVectors.size());
+            }
+        }
 
+        Log.info("Writing.");
         try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outFile.toFile())))) {
             dos.writeInt(wordVectors.size());
             dos.writeInt(distanceAmount);
-            int i = 0;
-            while (i < wordVectors.size() / blockSize) {
-                List<BlockUnit> units = completionService.take().get();
-                for (BlockUnit unit : units) {
-                    dos.writeUTF(unit.vector.word);
-                    List<WordDistance> distList = new ArrayList<>(unit.distQueue);
-                    Collections.sort(distList);
-                    Collections.reverse(distList);
-                    for (WordDistance dist : distList) {
-                        dos.writeUTF(dist.v.word);
-                        dos.writeFloat(dist.distance);
-                    }
+            for (DistanceList w : distancesToWrite) {
+                dos.writeInt(vocabulary.indexOf(w.source));
+                for (Distance token : w.distances) {
+                    dos.writeInt(vocabulary.indexOf(token.word));
+                    dos.writeFloat(token.distance);
                 }
-                i++;
-                if ((i * blockSize % 10) == 0) {
-                    Log.info("%d completed", i * blockSize);
-                }
-
             }
         }
     }
+
+    public static class Distance implements Comparable<Distance> {
+        public final String word;
+        public final float distance;
+
+        public Distance(String word, float distance) {
+            this.word = word;
+            this.distance = distance;
+        }
+
+        public String toString() {
+            return word + " " + distance;
+        }
+
+        @Override
+        public int compareTo(Distance o) {
+            return Float.compare(distance, o.distance);
+        }
+    }
+
+    private static class BlockUnit {
+        public final WordVector vector;
+        PriorityQueue<Distance> distQueue = new PriorityQueue<>();
+
+        public BlockUnit(WordVector vector) {
+            this.vector = vector;
+        }
+    }
+
 
     private static class BlockDistanceTask implements Callable<List<BlockUnit>> {
 
@@ -115,7 +164,7 @@ public class DistanceList {
         int blockBeginIndex;
         int endIndex;
 
-        public BlockDistanceTask(
+        private BlockDistanceTask(
                 List<WordVector> wordVectors,
                 int distanceAmount,
                 int blockSize,
@@ -140,18 +189,18 @@ public class DistanceList {
                 for (BlockUnit unit : units) {
                     for (int j = k; j < end; j++) {
                         WordVector v = wordVectors.get(j);
-                        if (v == unit.vector)
+                        // skip self.
+                        if (v == unit.vector) {
                             continue;
-                        if (v.word.startsWith("_") || v.word.startsWith("^"))
-                            continue;
+                        }
                         float distance = unit.vector.cosDistance(v);
-                        if (unit.distQueue.size() < distanceAmount)
-                            unit.distQueue.add(new WordDistance(v, distance));
-                        else {
-                            WordDistance weakest = unit.distQueue.peek();
+                        if (unit.distQueue.size() < distanceAmount) {
+                            unit.distQueue.add(new Distance(v.word, distance));
+                        } else {
+                            Distance weakest = unit.distQueue.peek();
                             if (weakest.distance < distance) {
                                 unit.distQueue.remove();
-                                unit.distQueue.add(new WordDistance(v, distance));
+                                unit.distQueue.add(new Distance(v.word, distance));
                             }
                         }
                     }
@@ -162,33 +211,35 @@ public class DistanceList {
     }
 
 
-    public static List<DistanceList> readFromBinary(Path binFile) throws IOException {
+    public static List<DistanceList> readFromBinary(Path binFile, Path vocabFile) throws IOException {
+        LmVocabulary vocabulary = LmVocabulary.loadFromBinary(vocabFile.toFile());
         try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(binFile.toFile()), 100000))) {
             int wordSize = in.readInt();
             int vectorSize = in.readInt();
-            List<DistanceList> distLists = new ArrayList<>();
+            List<DistanceList> distLists = new ArrayList<>(wordSize);
             for (int i = 0; i < wordSize; i++) {
-                String s = in.readUTF();
-                List<WordDistance> dists = new ArrayList<>();
-                for (int j = 0; j < (vectorSize); j++) {
-                    String word = in.readUTF();
+                String s = vocabulary.getWord(in.readInt());
+                Distance[] distances = new Distance[vectorSize];
+                for (int j = 0; j < vectorSize; j++) {
+                    String word = vocabulary.getWord(in.readInt());
                     Float f = in.readFloat();
-                    dists.add(new WordDistance(new WordVector(word), f));
+                    distances[j] = new Distance(word, f);
                 }
-                Log.info("%d completed", i);
-                distLists.add(new DistanceList(s, dists));
+                if (i % 10000 == 0)
+                    Log.info("%d completed", i);
+                distLists.add(new DistanceList(s, distances));
             }
             return distLists;
         }
     }
 
 
-    public static void writeToTxt(Path in, Path out, int size) throws IOException {
+    public static void writeToTxt(Path in, Path vocab, Path out, int size) throws IOException {
         try (PrintWriter pw = new PrintWriter(out.toFile())) {
-            for (DistanceList distList : DistanceList.readFromBinary(in)) {
+            for (DistanceList distList : DistanceList.readFromBinary(in, vocab)) {
                 pw.println(distList.source);
                 for (int k = 0; k < size; k++) {
-                    pw.println(distList.distances.get(k));
+                    pw.println(distList.distances[k]);
                 }
             }
         }

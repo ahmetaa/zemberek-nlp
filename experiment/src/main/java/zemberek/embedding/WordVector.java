@@ -51,7 +51,11 @@ public class WordVector {
     public static List<WordVector> readFromText(Path txtFile) throws IOException {
         List<WordVector> words = new ArrayList<>();
         List<String> lines = Files.readAllLines(txtFile);
+        int lineCount = 0;
         for (String line : lines) {
+            if (lineCount++ == 0) { // skip first line.
+                continue;
+            }
             line = line.trim();
             int index = line.indexOf(' ');
             String word = line.substring(0, index);
