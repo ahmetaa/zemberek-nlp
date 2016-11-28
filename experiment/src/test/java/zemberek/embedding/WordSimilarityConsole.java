@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class WordSimilarityConsole {
 
@@ -13,10 +14,10 @@ public class WordSimilarityConsole {
         Path vectorFile = Paths.get("/media/depo/data/aaa/corpora/model-large-min10.vec");
         Path binVectorFile = Paths.get("/media/depo/data/aaa/corpora/model-large-min10.vec.bin");
 //        convertToBinary(vectorFile, binVectorFile);
-        Path distanceListBin = Paths.get("/media/depo/data/aaa/corpora/distance-large-min10.bin");
-        Path vocabFile = Paths.get("/media/depo/data/aaa/corpora/vocab-large-min10.bin");
+        Path distanceListBin = Paths.get("/home/ahmetaa/data/vector/distance-large-min10.bin");
+        Path vocabFile = Paths.get("/home/ahmetaa/data/vector/vocab-large-min10.bin");
 
-/*        DistanceList.saveDistanceListBin(
+/*        WordDistances.saveDistanceListBin(
                 binVectorFile,
                 distanceListBin,
                 vocabFile,
@@ -29,25 +30,21 @@ public class WordSimilarityConsole {
 
     public void run(Path distanceListBinaryFile, Path vocabFile) throws IOException {
         System.out.println("Loading from " + distanceListBinaryFile);
-        List<DistanceList> list = DistanceList.readFromBinary(distanceListBinaryFile, vocabFile);
-        Map<String, DistanceList> map = new HashMap<>(list.size());
-        list.forEach(s -> map.put(s.source, s));
+        DistanceList experiment = DistanceList.readFromBinary(distanceListBinaryFile, vocabFile);
         String input;
         System.out.println("Enter word:");
         Scanner sc = new Scanner(System.in);
         input = sc.nextLine();
         while (!input.equals("exit") && !input.equals("quit")) {
-            if (!map.containsKey(input)) {
+            if (!experiment.containsWord(input)) {
                 Log.info(input + " cannot be found.");
                 input = sc.nextLine();
                 continue;
             }
-            DistanceList distances = map.get(input);
+            List<WordDistances.Distance> distances = experiment.getDistance(input);
 
-            List<String> dist = new ArrayList<>(distances.distances.length);
-            for(DistanceList.Distance d : distances.distances) {
-                dist.add(d.word);
-            }
+            List<String> dist = new ArrayList<>(distances.size());
+            dist.addAll(distances.stream().map(d -> d.word).collect(Collectors.toList()));
             System.out.println(String.join(" ", dist));
 
             input = sc.nextLine();
