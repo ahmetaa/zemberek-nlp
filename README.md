@@ -36,8 +36,6 @@ And dependecies (For example morphology):
 
 ### Jar distributions
 
-Jar distributions may not be the latest versions. You can generate jar files with maven. 
-
 [Google docs page] (https://drive.google.com/#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8) page has versions and
 separate module and dependent jars.
 

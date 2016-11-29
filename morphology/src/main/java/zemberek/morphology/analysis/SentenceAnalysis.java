@@ -23,6 +23,10 @@ public class SentenceAnalysis implements Iterable<SentenceAnalysis.Entry> {
         return parseEntries.get(index).parses;
     }
 
+    public String getInput(int index) {
+        return parseEntries.get(index).input;
+    }
+
     public Entry getEntry(int index) {
         return parseEntries.get(index);
     }

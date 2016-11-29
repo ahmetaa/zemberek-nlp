@@ -38,7 +38,7 @@ public class TurkishSentenceAnalyzer extends BaseParser {
         System.out.println("Loading Dictionaries:" + dicFiles.toString());
         if (dicFiles.size() == 0)
             throw new IllegalArgumentException("At least one dictionary file is required. (with txt extension)");
-        turkishParser = TurkishMorphology.builder().addTextDictFiles(dicFiles.toArray(new File[dicFiles.size()])).build();
+        turkishParser = TurkishMorphology.builder().addTextDictionaries(dicFiles.toArray(new File[dicFiles.size()])).build();
         System.out.println("Morph Parser Generated.");
 
         File rootSmoothLm = new File(dataDir, "root-lm.z3.slm");

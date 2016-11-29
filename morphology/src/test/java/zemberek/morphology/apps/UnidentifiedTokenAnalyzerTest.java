@@ -29,7 +29,7 @@ public class UnidentifiedTokenAnalyzerTest {
                 "[(İstanbul:istanbul) (Noun,Prop;A3sg+P2sg:un+Nom)]",
                 "[(İstanbul:istanbul) (Noun,Prop;A3sg+Pnon+Gen:un)]");
 
-        TurkishMorphology parser = TurkishMorphology.builder().addTextDictResources("dev-lexicon.txt").build();
+        TurkishMorphology parser = TurkishMorphology.builder().addTextDictionaryResources("dev-lexicon.txt").build();
         UnidentifiedTokenAnalyzer uiParser = new UnidentifiedTokenAnalyzer(parser);
         List<WordAnalysis> results = uiParser.parse("İstanbul'un");
         Assert.assertEquals(2, results.size());

@@ -53,15 +53,20 @@ public class TurkishMorphology extends BaseParser {
         RootLexicon lexicon = new RootLexicon();
 
         public TurkishMorphParserBuilder addDefaultDictionaries() throws IOException {
-            return addTextDictResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.toArray(
+            return addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.toArray(
                     new String[TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.size()]));
         }
 
-        public TurkishMorphParserBuilder addTextDictFiles(File... dictionaryFiles) throws IOException {
+        public TurkishMorphParserBuilder addTextDictionaries(File... dictionaryFiles) throws IOException {
             List<String> lines = new ArrayList<>();
             for (File file : dictionaryFiles) {
                 lines.addAll(Files.readAllLines(file.toPath()));
             }
+            lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(lines));
+            return this;
+        }
+
+        public TurkishMorphParserBuilder addDictionaryLines(String... lines) throws IOException {
             lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(lines));
             return this;
         }
@@ -73,7 +78,7 @@ public class TurkishMorphology extends BaseParser {
             return this;
         }
 
-        public TurkishMorphParserBuilder addTextDictResources(String... resources) throws IOException {
+        public TurkishMorphParserBuilder addTextDictionaryResources(String... resources) throws IOException {
             Log.info("Loading dictionaries.");
             List<String> lines = new ArrayList<>();
             for (String resource : resources) {

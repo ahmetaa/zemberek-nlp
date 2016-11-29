@@ -103,4 +103,68 @@ public class Turkish {
                 .replaceAll("[\u0096\u0097–]", "-");
     }
 
+    public static String toAscii(String input) {
+        StringBuilder sb = new StringBuilder(input.length());
+        for (char c : input.toCharArray()) {
+            switch (c) {
+                case 'ç':
+                    sb.append('c');
+                    break;
+                case 'ğ':
+                    sb.append('g');
+                    break;
+                case 'ı':
+                    sb.append('i');
+                    break;
+                case 'ö':
+                    sb.append('o');
+                    break;
+                case 'ş':
+                    sb.append('s');
+                    break;
+                case 'ü':
+                    sb.append('u');
+                    break;
+                case 'Ç':
+                    sb.append('C');
+                    break;
+                case 'Ğ':
+                    sb.append('G');
+                    break;
+                case 'İ':
+                    sb.append('I');
+                    break;
+                case 'Ö':
+                    sb.append('O');
+                    break;
+                case 'Ş':
+                    sb.append('S');
+                    break;
+                case 'Ü':
+                    sb.append('U');
+                    break;
+                case TurkishAlphabet.a_CIRC:
+                    sb.append('a');
+                    break;
+                case TurkishAlphabet.A_CIRC:
+                    sb.append('A');
+                    break;
+                case TurkishAlphabet.i_CIRC:
+                    sb.append('i');
+                    break;
+                case TurkishAlphabet.I_CIRC:
+                    sb.append('İ');
+                    break;
+                case TurkishAlphabet.u_CIRC:
+                    sb.append('u');
+                    break;
+                case TurkishAlphabet.U_CIRC:
+                    sb.append('U');
+                    break;
+                default:
+                    sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
 }

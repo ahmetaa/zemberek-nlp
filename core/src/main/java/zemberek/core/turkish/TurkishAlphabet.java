@@ -324,11 +324,11 @@ public class TurkishAlphabet {
     }
 
     public boolean compatibleForAHarmony(TurkicLetter source, TurkicLetter target) {
-        return aHarmony(source)==target;
+        return aHarmony(source) == target;
     }
 
     public boolean compatibleForIHarmony(TurkicLetter source, TurkicLetter target) {
-        return iHarmony(source)==target;
+        return iHarmony(source) == target;
     }
 
     /**
@@ -357,6 +357,36 @@ public class TurkishAlphabet {
                 sb.append(c);
             else
                 sb.append("?");
+        }
+        return sb.toString();
+    }
+
+    public String normalizeCircumflex(String input) {
+        StringBuilder sb = new StringBuilder(input.length());
+        input = input.toLowerCase(TR);
+        for (char c : input.toCharArray()) {
+            switch (c) {
+                case A_CIRC:
+                    sb.append("A");
+                    break;
+                case a_CIRC:
+                    sb.append("a");
+                    break;
+                case I_CIRC:
+                    sb.append("İ");
+                    break;
+                case i_CIRC:
+                    sb.append("i");
+                    break;
+                case U_CIRC:
+                    sb.append("U");
+                    break;
+                case u_CIRC:
+                    sb.append("u");
+                    break;
+                default:
+                    sb.append(c);
+            }
         }
         return sb.toString();
     }

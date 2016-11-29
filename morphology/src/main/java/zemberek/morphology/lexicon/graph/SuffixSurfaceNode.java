@@ -12,7 +12,7 @@ import java.util.Set;
 public class SuffixSurfaceNode extends MorphNode {
 
     SuffixForm suffixForm;
-    Set<SuffixSurfaceNode> successors = new HashSet<SuffixSurfaceNode>(1);
+    Set<SuffixSurfaceNode> successors = new HashSet<>(1);
 
     public SuffixSurfaceNode(
             SuffixForm suffixForm,

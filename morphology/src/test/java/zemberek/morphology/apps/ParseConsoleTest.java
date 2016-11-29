@@ -17,7 +17,7 @@ public class ParseConsoleTest {
         new ParseConsole().run(
                 TurkishMorphology
                         .builder()
-                        .addTextDictFiles(new File(Resources.getResource("dev-lexicon.txt").getFile()))
+                        .addTextDictionaries(new File(Resources.getResource("dev-lexicon.txt").getFile()))
                         .build()
         );
     }
