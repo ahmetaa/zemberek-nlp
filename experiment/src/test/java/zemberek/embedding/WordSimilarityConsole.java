@@ -14,8 +14,8 @@ public class WordSimilarityConsole {
         Path vectorFile = Paths.get("/media/depo/data/aaa/corpora/model-large-min10.vec");
         Path binVectorFile = Paths.get("/media/depo/data/aaa/corpora/model-large-min10.vec.bin");
 //        convertToBinary(vectorFile, binVectorFile);
-        Path distanceListBin = Paths.get("/home/ahmetaa/data/vector/distance-large-min10.bin");
-        Path vocabFile = Paths.get("/home/ahmetaa/data/vector/vocab-large-min10.bin");
+        Path distanceListBin = Paths.get("/media/depo/data/aaa/corpora/distance-large-min10.bin");
+        Path vocabFile = Paths.get("/media/depo/data/aaa/corpora/vocab-large-min10.bin");
 
 /*        WordDistances.saveDistanceListBin(
                 binVectorFile,

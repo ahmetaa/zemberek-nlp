@@ -96,10 +96,10 @@ public class DistanceList {
 
     public static void main(String[] args) throws IOException {
         DistanceList experiment = DistanceList.readFromBinary(
-                Paths.get("/home/ahmetaa/data/vector/distance-large-min10.bin"),
-                Paths.get("/home/ahmetaa/data/vector/vocab-large-min10.bin"));
+                Paths.get("/media/depo/data/aaa/corpora/distance-large-min10.bin"),
+                Paths.get("/media/depo/data/aaa/corpora/vocab-large-min10.bin"));
         Log.info("Writing");
-        experiment.saveReduced(Paths.get("/home/ahmetaa/data/vector/distance-10.bin"),10);
+        experiment.saveReduced(Paths.get("/media/depo/data/aaa/corpora/distance-10.bin"),10);
 
     }
 
