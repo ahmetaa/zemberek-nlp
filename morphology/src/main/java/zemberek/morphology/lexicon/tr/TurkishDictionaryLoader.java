@@ -33,7 +33,8 @@ public class TurkishDictionaryLoader {
             "tr/non-tdk.dict",
             "tr/proper.dict",
             "tr/proper-from-corpus.dict",
-            "tr/abbreviations.dict"
+            "tr/abbreviations.dict",
+            "tr/locations-tr.dict"
     );
 
     SuffixProvider suffixProvider;

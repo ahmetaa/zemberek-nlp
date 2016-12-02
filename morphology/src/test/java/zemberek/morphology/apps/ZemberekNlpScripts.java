@@ -8,13 +8,13 @@ import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.analysis.SentenceAnalysis;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.tr.TurkishMorphology;
+import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
 import zemberek.morphology.external.OflazerAnalyzerRunner;
 import zemberek.morphology.lexicon.NullSuffixForm;
 import zemberek.morphology.lexicon.SuffixForm;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.tokenizer.ZemberekLexer;
 import zemberek.tokenizer.antlr.TurkishLexer;
 
@@ -209,10 +209,12 @@ public class ZemberekNlpScripts {
                 Paths.get("/media/depo/data/aaa/corpora/dunya.100k"));
         TurkishMorphology parser = TurkishMorphology.createWithDefaults();
         TurkishSentenceAnalyzer sentenceParser = new TurkishSentenceAnalyzer(parser, new Z3MarkovModelDisambiguator());
-        System.out.println(parser.getLexicon().size() + " words.");
+        System.out.println(lines.size() + " lines will be processed.");
+        System.out.println("Dictionary has " + parser.getLexicon().size() + " items.");
 
         long tokenCount = 0;
         long tokenCountNoPunct = 0;
+        Stopwatch clock = Stopwatch.createStarted();
         ZemberekLexer lexer = new ZemberekLexer();
         for (String line : lines) {
             List<Token> tokens = lexer.tokenizeAll(line);
@@ -221,10 +223,18 @@ public class ZemberekNlpScripts {
             tokenCountNoPunct += tokens.stream().filter(s ->
                     (s.getType() != TurkishLexer.Punctuation && s.getType() != TurkishLexer.SpaceTab)).count();
         }
-        System.out.println("tokenCount = " + tokenCount);
-        System.out.println("tokenCountNoPunct = " + tokenCountNoPunct);
+        long elapsed = clock.elapsed(TimeUnit.MILLISECONDS);
+        System.out.println("Elapsed Time = " + elapsed);
+        System.out.println("Token Count = " + tokenCount);
+        System.out.println("Token Count (No Punctuation) = " + tokenCountNoPunct);
+        System.out.println("Tokenization Speed = "
+                + tokenCount * 1000d / elapsed + " tokens/sec");
+        System.out.println("Tokenization Speed (No Punctuation) = "
+                + tokenCountNoPunct * 1000d / elapsed + " tokens/sec");
+        System.out.println();
+        System.out.println("Sentence word analysis test:");
 
-        Stopwatch clock = Stopwatch.createStarted();
+        clock.reset().start();
         for (String line : lines) {
             try {
                 sentenceParser.analyze(line);
@@ -233,12 +243,12 @@ public class ZemberekNlpScripts {
                 e.printStackTrace();
             }
         }
-        long elapsed = clock.elapsed(TimeUnit.MILLISECONDS);
-
-        System.out.println(elapsed);
-        System.out.println("Analysis speed = " + tokenCount * 1000d / elapsed);
-        System.out.println("Analysis speed no punct = " + tokenCountNoPunct * 1000d / elapsed);
-
+        elapsed = clock.elapsed(TimeUnit.MILLISECONDS);
+        System.out.println("Elapsed Time = " + elapsed);
+        System.out.println("Tokenization + Analysis speed = " + tokenCount * 1000d / elapsed + " tokens/sec");
+        System.out.println("Tokenization + Analysis speed (no punctuation) = " + tokenCountNoPunct * 1000d / elapsed + " tokens/sec");
+        System.out.println();
+        System.out.println("Disambiguation Test:");
         parser.invalidateAllCache();
         clock.reset().start();
         for (String line : lines) {
@@ -250,9 +260,10 @@ public class ZemberekNlpScripts {
             }
         }
         elapsed = clock.elapsed(TimeUnit.MILLISECONDS);
-        System.out.println(elapsed);
-        System.out.println("Analysis + Disambiguation speed = " + tokenCount * 1000d / elapsed);
-        System.out.println("Analysis + Disambiguation speed no punct = " + tokenCountNoPunct * 1000d / elapsed);
+        System.out.println("Elapsed Time = " + elapsed);
+        System.out.println("Tokenization + Analysis + Disambiguation speed = " + tokenCount * 1000d / elapsed + " tokens/sec");
+        System.out.println("Tokenization + Analysis + Disambiguation speed (no punctuation) = "
+                + tokenCountNoPunct * 1000d / elapsed + " tokens/sec");
     }
 
     @Test

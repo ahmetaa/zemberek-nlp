@@ -43,10 +43,10 @@ public class Turkish {
         return sb.toString();
     }
 
-    public static String capitalize(String lowerCase) {
-        if (lowerCase.length() == 0)
-            return lowerCase;
-        return lowerCase.substring(0, 1).toUpperCase(LOCALE) + lowerCase.substring(1);
+    public static String capitalize(String word) {
+        if (word.length() == 0)
+            return word;
+        return word.substring(0, 1).toUpperCase(LOCALE) + word.substring(1).toLowerCase(LOCALE);
     }
 
     private static class TurkishStringComparator implements Comparator<String> {
