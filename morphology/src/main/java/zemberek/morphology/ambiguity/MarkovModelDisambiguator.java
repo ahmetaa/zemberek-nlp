@@ -6,7 +6,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import zemberek.core.io.SimpleTextWriter;
-import zemberek.lm.apps.ConvertToSmoothLm;
+import zemberek.lm.apps.CompressLm;
 import zemberek.lm.compression.SmoothLm;
 
 import java.io.File;
@@ -49,10 +49,10 @@ public class MarkovModelDisambiguator extends AbstractDisambiguator {
     }
 
     public static void generateBinaryLm(File arpaFile, File binaryFile) throws IOException {
-        new ConvertToSmoothLm().execute(
-                "-arpaFile",
+        new CompressLm().execute(
+                "-in",
                 arpaFile.getAbsolutePath(),
-                "-smoothFile",
+                "-out",
                 binaryFile.getAbsolutePath(),
                 "-spaceUsage", "16-16-16");
     }

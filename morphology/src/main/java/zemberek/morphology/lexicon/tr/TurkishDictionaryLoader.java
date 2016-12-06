@@ -360,8 +360,7 @@ public class TurkishDictionaryLoader {
                 //  if (!posData.primaryPos.equals(PrimaryPos.Punctuation))
                 inferMorphemicAttributes(word, posData, attributesList);
             } else {
-                for (String s : Splitter.on(",").split(data)) {
-                    s = s.trim();
+                for (String s : Splitter.on(",").trimResults().split(data)) {
                     if (!RootAttribute.converter().enumExists(s))
                         throw new RuntimeException("Unrecognized attribute data [" + s + "] in data chunk :[" + data + "]");
                     RootAttribute rootAttribute = RootAttribute.converter().getEnum(s);

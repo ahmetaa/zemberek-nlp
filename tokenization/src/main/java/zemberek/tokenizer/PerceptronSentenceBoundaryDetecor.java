@@ -3,7 +3,7 @@ package zemberek.tokenizer;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
-import zemberek.core.DoubleValueMap;
+import zemberek.core.collections.DoubleValueMap;
 import zemberek.core.io.SimpleTextReader;
 
 import java.io.File;

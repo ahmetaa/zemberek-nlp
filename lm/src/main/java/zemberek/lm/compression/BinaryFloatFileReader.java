@@ -1,6 +1,6 @@
 package zemberek.lm.compression;
 
-import zemberek.core.Histogram;
+import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.quantization.BinningQuantizer;
 import zemberek.core.quantization.KMeansQuantizer;
@@ -40,6 +40,9 @@ public class BinaryFloatFileReader {
             for (int i = 0; i < reader.count; i++) {
                 double d = dis.readFloat();
                 lookupCalc.add(d);
+                if (Log.isDebug() && i % 500000 == 0) {
+                    Log.debug("Values added to value histogram = %d", i);
+                }
             }
             return lookupCalc.getQuantizer(quantizerType);
         }

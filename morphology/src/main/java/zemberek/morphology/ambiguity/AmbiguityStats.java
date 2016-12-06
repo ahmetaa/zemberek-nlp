@@ -4,7 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
-import zemberek.core.Histogram;
+import zemberek.core.collections.Histogram;
 import zemberek.core.io.LineIterator;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.morphology.analysis.WordAnalysis;

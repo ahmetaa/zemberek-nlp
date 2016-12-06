@@ -103,6 +103,36 @@ public class Turkish {
                 .replaceAll("[\u0096\u0097–]", "-");
     }
 
+    public static String normalizeCircumflex(String input) {
+        StringBuilder sb = new StringBuilder(input.length());
+        input = input.toLowerCase(LOCALE);
+        for (char c : input.toCharArray()) {
+            switch (c) {
+                case 'Â':
+                    sb.append("A");
+                    break;
+                case 'â':
+                    sb.append("a");
+                    break;
+                case 'Î':
+                    sb.append("İ");
+                    break;
+                case 'î':
+                    sb.append("i");
+                    break;
+                case 'Û':
+                    sb.append("U");
+                    break;
+                case 'û':
+                    sb.append("u");
+                    break;
+                default:
+                    sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
     public static String toAscii(String input) {
         StringBuilder sb = new StringBuilder(input.length());
         for (char c : input.toCharArray()) {

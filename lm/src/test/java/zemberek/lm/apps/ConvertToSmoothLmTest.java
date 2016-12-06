@@ -2,7 +2,9 @@ package zemberek.lm.apps;
 
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
-import junit.framework.Assert;
+
+import org.junit.Assert;
+
 import org.junit.Test;
 import zemberek.lm.compression.SmoothLm;
 
@@ -25,7 +27,7 @@ public class ConvertToSmoothLmTest {
         File arpaFile = getTinyArpaFile();
         File sm = new File(System.currentTimeMillis() + "-test-lm.smooth");
         sm.deleteOnExit();
-        new ConvertToSmoothLm().execute(
+        new CompressLm().execute(
                 "-arpaFile",
                 arpaFile.getAbsolutePath(),
                 "-smoothFile",

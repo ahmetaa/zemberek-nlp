@@ -2,18 +2,21 @@ package zemberek.lm.compression;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.io.*;
+import com.google.common.io.Closeables;
 import com.google.common.io.Files;
+import com.google.common.io.LineProcessor;
 import zemberek.core.SpaceTabTokenizer;
 import zemberek.core.logging.Log;
 import zemberek.core.quantization.DoubleLookup;
 import zemberek.core.quantization.Quantizer;
 import zemberek.core.quantization.QuantizerType;
+import zemberek.core.text.TextConverter;
 import zemberek.lm.LmVocabulary;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is a multiple file representation of an uncompressed backoff language model.
@@ -27,17 +30,17 @@ import java.util.*;
  * <p/>int32 order
  * <p/>int32 count
  * <p/>int32... id[0,..,n]
- * <p/>
+ * <p>
  * <p/>[n].prob
  * <p/>int32 count
  * <p/>float32 prob
  * <p/>....
- * <p/>
+ * <p>
  * <p/>[n].backoff
  * <p/>int32 count
  * <p/>float32 prob
  * <p/>....
- * <p/>
+ * <p>
  * <p/>vocab
  * <p/>int32 count
  * <p/>UTF-8... word0...n
@@ -152,13 +155,13 @@ public class MultiFileUncompressedLm {
         }
     }
 
-    private void generateRankFile(int bit, int i, File probFile, File rankFile, QuantizerType quantizerType) throws IOException {
+    private void generateRankFile(int bit, int currentOrder, File probFile, File rankFile, QuantizerType quantizerType) throws IOException {
         try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(probFile)));
              DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(rankFile)))) {
             int count = dis.readInt();
             Quantizer quantizer = BinaryFloatFileReader.getQuantizer(probFile, bit, quantizerType);
             dos.writeInt(count);
-            Log.info("Writing Rank file for " + i + " grams");
+            Log.info("Writing Rank file for " + currentOrder + " grams");
             int bytecount = (bit % 8 == 0 ? bit / 8 : bit / 8 + 1);
             if (bytecount == 0)
                 bytecount = 1;
@@ -183,19 +186,35 @@ public class MultiFileUncompressedLm {
             }
 
             DoubleLookup lookup = quantizer.getDequantizer();
-            Log.info("Writing lookups for " + i + " grams. Size= " + lookup.getRange());
+            Log.info("Writing lookups for " + currentOrder + " grams. Size= " + lookup.getRange());
             lookup.save(new File(dir, probFile.getName() + ".lookup"));
 
         }
     }
 
-    public static MultiFileUncompressedLm generate(File arpaFile, File dir, String encoding) throws IOException {
+    public static MultiFileUncompressedLm generate(
+            File arpaFile,
+            File dir,
+            String encoding,
+            int fractionDigits) throws IOException {
+        return generate(arpaFile, dir, encoding, fractionDigits, null);
+    }
+
+    public static MultiFileUncompressedLm generate(
+            File arpaFile,
+            File dir,
+            String encoding,
+            int fractionDigits,
+            TextConverter transformer) throws IOException {
         if (dir.exists() && !dir.isDirectory()) {
             throw new IllegalArgumentException(dir + " is not a directory!");
         } else java.nio.file.Files.createDirectories(dir.toPath());
 
-        long elapsedTime = Files.readLines(arpaFile, Charset.forName(encoding), new ArpaToBinaryConverter(dir));
+        long elapsedTime = Files.readLines(arpaFile, Charset.forName(encoding), new ArpaToBinaryConverter(dir, fractionDigits, transformer));
         Log.info("Multi file uncompressed binary model is generated in " + (double) elapsedTime / 1000d + " seconds");
+        if (!new File(dir, INFO_FILE_NAME).exists()) {
+            throw new IllegalStateException("Arpa file " + arpaFile + " cannot be parsed. Possibly incorrectly formatted or empty file is supplied.");
+        }
         return new MultiFileUncompressedLm(dir);
     }
 
@@ -208,6 +227,8 @@ public class MultiFileUncompressedLm {
         public static final int DEFAULT_UNKNOWN_PROBABILTY = -20;
         int ngramCounter = 0;
         int _n;
+
+        double fractionMultiplier;
 
         enum State {
             BEGIN, UNIGRAMS, NGRAMS, VOCABULARY
@@ -228,11 +249,23 @@ public class MultiFileUncompressedLm {
 
         // This will be generated after reading unigrams.
         LmVocabulary lmVocabulary;
+        TextConverter textConverter;
 
-        ArpaToBinaryConverter(File dir) throws FileNotFoundException {
+
+        ArpaToBinaryConverter(File dir, int fractionDigitCount, TextConverter textConverter) throws FileNotFoundException {
             Log.info("Generating multi file uncompressed language model from Arpa file in directory: %s", dir.getAbsolutePath());
             this.dir = dir;
+            if (fractionDigitCount >= 0) {
+                fractionMultiplier = Math.pow(10, fractionDigitCount);
+            } else fractionMultiplier = 0;
+            this.textConverter = textConverter;
             start = System.currentTimeMillis();
+        }
+
+        private float reduceFraction(float input) {
+            if (fractionMultiplier != 0) {
+                return (float) (Math.round(input * fractionMultiplier) / fractionMultiplier);
+            } else return input;
         }
 
         private void newGramStream(int n) throws IOException {
@@ -295,16 +328,18 @@ public class MultiFileUncompressedLm {
 
                     String word = tokens[1];
                     float logBackoff = 0;
-                    if (tokens.length == 3)
+                    if (tokens.length == 3) {
                         logBackoff = Float.parseFloat(tokens[_n + 1]);
+                    }
                     // write unigram id, log-probability and log-backoff value.
                     int wordIndex = vocabularyBuilder.add(word);
                     gramOs.writeInt(wordIndex);
-                    probOs.writeFloat(logProbability);
+                    probOs.writeFloat(reduceFraction(logProbability));
 
                     // if there are only ngrams, do not write backoff value.
-                    if (ngramCounts.size() > 1)
-                        backoOffs.writeFloat(logBackoff);
+                    if (ngramCounts.size() > 1) {
+                        backoOffs.writeFloat(reduceFraction(logBackoff));
+                    }
 
                     ngramCounter++;
                     if (ngramCounter == ngramCounts.get(0)) {
@@ -312,6 +347,7 @@ public class MultiFileUncompressedLm {
                         handleSpecialToken("</s>");
                         handleSpecialToken("<s>");
                         lmVocabulary = vocabularyBuilder.generate();
+
                         ngramCounts.set(0, lmVocabulary.size());
 
                         // we write info file after reading unigrams because we may add special tokens to unigrams
@@ -354,12 +390,12 @@ public class MultiFileUncompressedLm {
 
                     // probabilities
 
-                    probOs.writeFloat(logProbability);
+                    probOs.writeFloat(reduceFraction(logProbability));
                     if (_n < ngramCounts.size()) {
                         logBackoff = 0;
                         if (tokens.length == _n + 2)
                             logBackoff = Float.parseFloat(tokens[_n + 1]);
-                        backoOffs.writeFloat(logBackoff);
+                        backoOffs.writeFloat(reduceFraction(logBackoff));
                     }
 
                     if (ngramCounter > 0 && ngramCounter % 1000000 == 0)
@@ -388,6 +424,9 @@ public class MultiFileUncompressedLm {
                     Closeables.close(probOs, true);
                     Closeables.close(backoOffs, true);
                     Log.info("Writing model vocabulary.");
+                    if (textConverter != null) {
+                        lmVocabulary = new LmVocabulary.Builder().addAll(lmVocabulary.words()).generateDecoded(textConverter);
+                    }
                     lmVocabulary.saveBinary(new File(dir, VOCAB_FILE_NAME));
                     return false; // we are done.
             }

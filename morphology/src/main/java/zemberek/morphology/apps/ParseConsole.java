@@ -3,7 +3,6 @@ package zemberek.morphology.apps;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.WordAnalyzer;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 import java.io.IOException;
@@ -20,11 +19,9 @@ public class ParseConsole {
         while (!input.equals("exit") && !input.equals("quit")) {
 
             List<WordAnalysis> tokens = parser.analyze(input);
-            if (tokens.size() == 0 || (tokens.size()==1 && tokens.get(0).dictionaryItem.primaryPos== PrimaryPos.Unknown)) {
+            if (tokens.size() == 0 || (tokens.size() == 1 && tokens.get(0).dictionaryItem.primaryPos == PrimaryPos.Unknown)) {
                 System.out.println("cannot be parsed");
-                if (parser.getWordAnalyzer() instanceof WordAnalyzer) {
-                    ((WordAnalyzer) parser.getWordAnalyzer()).dump(input);
-                }
+                parser.getWordAnalyzer().dump(input);
             } else {
                 tokens.forEach(this::printMorphParse);
             }
@@ -35,10 +32,12 @@ public class ParseConsole {
     protected void printMorphParse(WordAnalysis token) {
         String runtime = token.dictionaryItem.hasAttribute(RootAttribute.Runtime) ? " [Not in dictionary]" : "";
         System.out.println(token.formatLong() + runtime);
+        System.out.println(token.formatOflazer() + runtime);
     }
 
     public static void main(String[] args) throws IOException {
         // to test the development lexicon, use ParseConsoleTest
-        new ParseConsole().run(TurkishMorphology.createWithDefaults());
+        TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+        new ParseConsole().run(morphology);
     }
 }

@@ -57,10 +57,11 @@ public class DataInfo {
             probFirstByteMask = 0xff;
         }
 
-        int probLastByteEndBitIndex = (fpBits + probBits) % 8;
+        int probLastByteEndBitIndex = (fpBits + probBits)%8;
 
 
         probEndByte = (fpBits + probBits) / 8;
+
 
 
     }
@@ -109,7 +110,6 @@ public class DataInfo {
 
 
     }
-
 
     @Override
     public String toString() {

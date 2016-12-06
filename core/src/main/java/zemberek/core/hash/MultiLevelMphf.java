@@ -1,6 +1,6 @@
 package zemberek.core.hash;
 
-import zemberek.core.bits.LongBitVector;
+import zemberek.core.collections.LongBitVector;
 import zemberek.core.logging.Log;
 
 import java.io.*;
@@ -477,7 +477,7 @@ public class MultiLevelMphf implements Mphf {
      * A custom serializer.
      *
      * @param file file to serialize data.
-     * @throws java.io.IOException if an error occurs during file access.
+     * @throws IOException if an error occurs during file access.
      */
     public void serialize(File file) throws IOException {
         BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(file), 1000000);
@@ -509,7 +509,7 @@ public class MultiLevelMphf implements Mphf {
      * <p/>int 0
      *
      * @param os stream to serialize data.
-     * @throws java.io.IOException if an error occurs during file access.
+     * @throws IOException if an error occurs during file access.
      */
     public void serialize(OutputStream os) throws IOException {
         DataOutputStream dos = new DataOutputStream(os);
@@ -531,7 +531,7 @@ public class MultiLevelMphf implements Mphf {
      * @param file file that contains serialized data.
      * @param skip amoutn to skip
      * @return a new FastMinimalPerfectHash object.
-     * @throws java.io.IOException if an error occurs during file access.
+     * @throws IOException if an error occurs during file access.
      */
     public static MultiLevelMphf deserialize(File file, long skip) throws IOException {
         try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(file), 100000))) {
@@ -547,7 +547,7 @@ public class MultiLevelMphf implements Mphf {
      *
      * @param file file that contains serialized data.
      * @return a new FastMinimalPerfectHash object.
-     * @throws java.io.IOException if an error occurs during file access.
+     * @throws IOException if an error occurs during file access.
      */
     public static MultiLevelMphf deserialize(File file) throws IOException {
         return deserialize(file, 0);
@@ -558,7 +558,7 @@ public class MultiLevelMphf implements Mphf {
      *
      * @param dis DataInputStream that contains serialized data.
      * @return a new ChdPerfectHash object.
-     * @throws java.io.IOException if an error occurs during stream access.
+     * @throws IOException if an error occurs during stream access.
      */
     public static MultiLevelMphf deserialize(DataInputStream dis) throws IOException {
         int levelCount = dis.readInt();

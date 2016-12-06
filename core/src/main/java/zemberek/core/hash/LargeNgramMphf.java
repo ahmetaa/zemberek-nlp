@@ -56,7 +56,7 @@ public class LargeNgramMphf implements Mphf {
      *
      * @param file binary key file
      * @return LargeNgramMphf fro the keys in the file
-     * @throws java.io.IOException If an error occurs during file access.
+     * @throws IOException If an error occurs during file access.
      */
     public static LargeNgramMphf generate(File file, int chunkBits) throws IOException {
         File tmp = Files.createTempDir();
@@ -270,7 +270,7 @@ public class LargeNgramMphf implements Mphf {
      * A custom serializer.
      *
      * @param file file to serialize data.
-     * @throws java.io.IOException if an error occurs during file access.
+     * @throws IOException if an error occurs during file access.
      */
     public void serialize(File file) throws IOException {
         serialize(new BufferedOutputStream(new FileOutputStream(file), 1000000));
@@ -297,7 +297,7 @@ public class LargeNgramMphf implements Mphf {
      * @param file file that contains serialized data.
      * @param skip amoutn to skip
      * @return a new FastMinimalPerfectHash object.
-     * @throws java.io.IOException if an error occurs during file access.
+     * @throws IOException if an error occurs during file access.
      */
     public static LargeNgramMphf deserialize(File file, long skip) throws IOException {
         try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(file), 1000000))) {
@@ -313,7 +313,7 @@ public class LargeNgramMphf implements Mphf {
      *
      * @param file file that contains serialized data.
      * @return a new FastMinimalPerfectHash object.
-     * @throws java.io.IOException if an error occurs during file access.
+     * @throws IOException if an error occurs during file access.
      */
     public static LargeNgramMphf deserialize(File file) throws IOException {
         return deserialize(file, 0);
@@ -324,7 +324,7 @@ public class LargeNgramMphf implements Mphf {
      *
      * @param dis DataInputStream that contains serialized data.
      * @return a new ChdPerfectHash object.
-     * @throws java.io.IOException if an error occurs during stream access.
+     * @throws IOException if an error occurs during stream access.
      */
     public static LargeNgramMphf deserialize(DataInputStream dis) throws IOException {
         int maxBitMask = dis.readInt();

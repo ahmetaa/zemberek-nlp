@@ -3,7 +3,7 @@ package zemberek.morphology.apps;
 import com.google.common.base.Stopwatch;
 import org.antlr.v4.runtime.Token;
 import org.junit.Test;
-import zemberek.core.Histogram;
+import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
@@ -269,7 +269,7 @@ public class ZemberekNlpScripts {
     @Test
     public void testWordAnalysis() throws IOException {
         TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-        List<WordAnalysis> results = morphology.analyze("besiciliğe");
+        List<WordAnalysis> results = morphology.analyze("phpye");
         for (WordAnalysis result : results) {
             System.out.println(result.formatLong());
             System.out.println("\tStems = " + result.getStems());

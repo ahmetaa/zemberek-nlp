@@ -366,22 +366,22 @@ public class TurkishAlphabet {
         input = input.toLowerCase(TR);
         for (char c : input.toCharArray()) {
             switch (c) {
-                case A_CIRC:
+                case 'Â':
                     sb.append("A");
                     break;
-                case a_CIRC:
+                case 'â':
                     sb.append("a");
                     break;
-                case I_CIRC:
+                case 'Î':
                     sb.append("İ");
                     break;
-                case i_CIRC:
+                case 'î':
                     sb.append("i");
                     break;
-                case U_CIRC:
+                case 'Û':
                     sb.append("U");
                     break;
-                case u_CIRC:
+                case 'û':
                     sb.append("u");
                     break;
                 default:

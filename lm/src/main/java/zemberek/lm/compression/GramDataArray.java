@@ -6,7 +6,7 @@ import java.io.IOException;
 public class GramDataArray {
     int count; // gram count
 
-    int blockSize; // defindes the size of the key data. Such as if 3 bytes FP, 2 bytes Prob , 2 Bytes Backoff blockSize = 7
+    int blockSize; // defines the size of the key data. Such as if 3 bytes FP, 2 bytes Prob , 2 Bytes Backoff blockSize = 7
     final int pageShift; // for getting the page index value this amount of left shift is used. page index value resides on higher bits.
     final int indexMask; // used for obtaining the actual index of the key block.
     byte[][] data; // holds the actual data. [page count][page length * block size ] bytes

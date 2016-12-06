@@ -1,6 +1,6 @@
 package zemberek.morphology.apps;
 
-import zemberek.core.Histogram;
+import zemberek.core.collections.Histogram;
 import zemberek.core.io.Strings;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;

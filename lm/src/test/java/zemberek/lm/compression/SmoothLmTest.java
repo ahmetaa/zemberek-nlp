@@ -3,7 +3,7 @@ package zemberek.lm.compression;
 import com.google.common.base.Stopwatch;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.SpaceTabTokenizer;
@@ -51,7 +51,7 @@ public class SmoothLmTest {
         if (!lmFile.exists()) {
             UncompressedToSmoothLmConverter converter = new UncompressedToSmoothLmConverter(lmFile, tmp);
             converter.convertSmall(
-                    MultiFileUncompressedLm.generate(getTinyArpaFile(), tmp, "utf-8").getLmDir(),
+                    MultiFileUncompressedLm.generate(getTinyArpaFile(), tmp, "utf-8",4).getLmDir(),
                     new UncompressedToSmoothLmConverter.NgramDataBlock(16, 16, 16));
         }
         return lmFile;
@@ -61,7 +61,7 @@ public class SmoothLmTest {
     public void testNgramKeyExactMatch() throws IOException {
         File lmDir = Files.createTempDir();
         lmDir.deleteOnExit();
-        MultiFileUncompressedLm.generate(getTinyArpaFile(), lmDir, "utf-8").getLmDir();
+        MultiFileUncompressedLm.generate(getTinyArpaFile(), lmDir, "utf-8",4).getLmDir();
         final File lmFile = new File(lmDir, "tiny.slm");
         UncompressedToSmoothLmConverter converter = new UncompressedToSmoothLmConverter(lmFile, lmDir);
         converter.convertSmall(
@@ -79,9 +79,9 @@ public class SmoothLmTest {
     @Ignore("Requires external data")
     public void testBigFakeLm() throws IOException {
         int order = 4;
-        final File lmFile = new File("/media/depo/data/lm/fake/fake.slm");
+        final File lmFile = new File("/media/ahmetaa/depo/data/lm/fake/fake.slm");
         if (!lmFile.exists()) {
-            final File arpaFile = new File("/media/depo/data/lm/fake/fake.arpa");
+            final File arpaFile = new File("/media/ahmetaa/depo/data/lm/fake/fake.arpa");
             File tmp = new File("/tmp");
             if (!arpaFile.exists()) {
                 FakeLm fakeLm = new FakeLm(order);
@@ -89,7 +89,7 @@ public class SmoothLmTest {
             }
             UncompressedToSmoothLmConverter converter = new UncompressedToSmoothLmConverter(lmFile, tmp);
             converter.convertSmall(
-                    MultiFileUncompressedLm.generate(arpaFile, tmp, "utf-8").dir,
+                    MultiFileUncompressedLm.generate(arpaFile, tmp, "utf-8",4).dir,
                     new UncompressedToSmoothLmConverter.NgramDataBlock(24, 24, 24));
         }
         SmoothLm lm = SmoothLm.builder(lmFile).build();
@@ -203,7 +203,7 @@ public class SmoothLmTest {
             final File arpaFile = new File("/home/ahmetaa/data/lm/smoothnlp-test/lm1.arpa");
             UncompressedToSmoothLmConverter converter = new UncompressedToSmoothLmConverter(lmFile, tmp);
             converter.convertLarge(
-                    MultiFileUncompressedLm.generate(arpaFile, tmp, "utf-8").dir,
+                    MultiFileUncompressedLm.generate(arpaFile, tmp, "utf-8",4).dir,
                     new UncompressedToSmoothLmConverter.NgramDataBlock(2, 1, 1), 20);
         }
         SmoothLm lm = SmoothLm.builder(lmFile).build();
@@ -298,12 +298,21 @@ public class SmoothLmTest {
         SmoothLm lm = getTinyLm();
         BaseLanguageModel.LookupCache cache = new BaseLanguageModel.LookupCache(lm);
         int[] is3 = lm.getVocabulary().toIndexes("Ahmet", "dondurma", "yedi");
-        Assert.assertEquals(lm.getProbability(is3), cache.check(is3), 0.0001);
-        Assert.assertEquals(lm.getProbability(is3), cache.check(is3), 0.0001);
+        Assert.assertEquals(lm.getProbability(is3), cache.get(is3), 0.0001);
+        Assert.assertEquals(lm.getProbability(is3), cache.get(is3), 0.0001);
 
         BaseLanguageModel.LookupCache cache2 = new BaseLanguageModel.LookupCache(lm);
-        Assert.assertEquals(lm.getProbability(is3), cache2.check(is3), 0.0001);
-        Assert.assertEquals(lm.getProbability(is3), cache2.check(is3), 0.0001);
+        Assert.assertEquals(lm.getProbability(is3), cache2.get(is3), 0.0001);
+        Assert.assertEquals(lm.getProbability(is3), cache2.get(is3), 0.0001);
+    }
+
+
+    @Test
+    public void ngramExistTest() throws IOException {
+        SmoothLm lm = getTinyLm();
+        Assert.assertTrue(lm.ngramExists(lm.getVocabulary().toIndexes("Ahmet","elma")));
+        Assert.assertTrue(lm.ngramExists(lm.getVocabulary().toIndexes("elma")));
+        Assert.assertFalse(lm.ngramExists(lm.getVocabulary().toIndexes("elma","Ahmet")));
     }
 
     @Test

@@ -217,7 +217,7 @@ public class UncompressedToSmoothLmConverter {
      * @param _order current order of language model
      * @param mphf   MPH function
      * @return reordered key indexes and those keys fingerprint values.
-     * @throws java.io.IOException
+     * @throws IOException
      */
     private ReorderData reorderIndexes(NgramDataBlock block, MultiFileUncompressedLm lm, int _order, Mphf mphf) throws IOException {
         ChunkingNGramReader reader = new ChunkingNGramReader(lm.getGramFile(_order), _order, 1000000);

@@ -2,11 +2,14 @@ package zemberek.lm;
 
 import com.google.common.collect.Lists;
 import zemberek.core.io.SimpleTextReader;
+import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextConverter;
 
 import java.io.*;
 import java.text.Collator;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class LmVocabulary {
     public static final String DEFAULT_SENTENCE_BEGIN_MARKER = "<s>";
@@ -326,6 +329,22 @@ public class LmVocabulary {
         public LmVocabulary generate() {
             return new LmVocabulary(tokens);
         }
+
+        public LmVocabulary generateDecoded(TextConverter converter) {
+            List<String> newTokens = new ArrayList<>();
+            for (String token : tokens) {
+                if (Strings.containsNone(token, "</>")) {
+                    newTokens.add(converter.decode(token));
+                } else {
+                    newTokens.add(token);
+                }
+            }
+            if (this.tokens.size() != newTokens.size()) {
+                throw new IllegalStateException("After vocabulary text conversion, token sizes does not match!");
+            }
+            this.tokens = newTokens;
+            return generate();
+        }
     }
 
     /**
@@ -397,6 +416,20 @@ public class LmVocabulary {
         List<String> sorted = new ArrayList<>(vocabulary);
         Collections.sort(sorted, Collator.getInstance(locale));
         return sorted;
+    }
+
+    /**
+     * Generates a new LmVocabulary instance that contains words that exist in both `v1` and `v2`
+     * There is no guarantee that new vocabulary indexes will match with v1 or v2.
+     */
+    public static LmVocabulary intersect(LmVocabulary v1, LmVocabulary v2) {
+        HashSet<String> ls = new HashSet<>(v1.vocabulary);
+        List<String> intersection = new ArrayList<>(Math.min(v1.size(), v2.size()));
+        intersection.addAll(new HashSet<>(v2.vocabulary)
+                .stream()
+                .filter(ls::contains)
+                .collect(Collectors.toList()));
+        return new LmVocabulary(intersection);
     }
 
 
@@ -503,6 +536,42 @@ public class LmVocabulary {
             } else
                 indexes[i] = vocabularyIndexMap.get(word);
             i++;
+        }
+        return indexes;
+    }
+
+    /**
+     * @param history and current word.
+     * @return the vocabulary index array for a word array.
+     * if a word is unknown, index of <UNK> is used is returned as its vocabulary index.
+     * This value can be -1.
+     */
+    public int[] toIndexes(String[] history, String word) {
+        int[] indexes = new int[history.length + 1];
+        for (int j = 0; j <= history.length; j++) {
+            String s = j < history.length ? history[j] : word;
+            if (!vocabularyIndexMap.containsKey(s)) {
+                indexes[j] = unknownWordIndex;
+            } else
+                indexes[j] = vocabularyIndexMap.get(s);
+        }
+        return indexes;
+    }
+
+    /**
+     * word index history and current word.
+     * @return the vocabulary index array for a word array.
+     * if a word is unknown, index of <UNK> is used is returned as its vocabulary index.
+     * This value can be -1.
+     */
+    public int[] toIndexes(int[] history, String word) {
+        int[] indexes = new int[history.length + 1];
+        for (int j = 0; j <= history.length; j++) {
+            int index = j < history.length ? history[j] : indexOf(word);
+            if (!contains(index)) {
+                indexes[j] = unknownWordIndex;
+            } else
+                indexes[j] = index;
         }
         return indexes;
     }

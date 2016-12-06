@@ -1,7 +1,7 @@
 package zemberek.morphology.analysis;
 
 import com.google.common.io.Resources;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.io.SimpleTextReader;

@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 /**
  * Simple Back-off N-gram model that loads an ARPA file.
  * This class is not designed for compactness or speed but it can be used for validation and debugging.
- * <p/>
+ * <p>
  * aaa,cd
  */
 public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramLanguageModel {
@@ -45,9 +45,9 @@ public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramL
      *
      * @param arpaModel     arpa model file
      * @param unigramWeigth unigram weight. in the moethod code there is explanation about it.
-     * @throws java.io.IOException if things go wrong when accessing the arpa file.
+     * @throws IOException if things go wrong when accessing the arpa file.
      */
-    public static SimpleBackoffNgramModel fromArpa(File arpaModel, double unigramWeigth) throws IOException {
+    public static SimpleBackoffNgramModel fromArpa(File arpaModel, float unigramWeigth) throws IOException {
         if (unigramWeigth < 0 || unigramWeigth > 1)
             throw new IllegalArgumentException("Unigram weight must be between 0 and 1 but it is:" + unigramWeigth);
         ArpaLoader converter = new ArpaLoader(unigramWeigth);
@@ -58,14 +58,14 @@ public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramL
      * Constructs a back-off language model from an Arpa file. No unigram weight is applied.
      *
      * @param arpaModel arpa model file
-     * @throws java.io.IOException if things go wrong when accessing the file.
+     * @throws IOException if things go wrong when accessing the file.
      */
     public static SimpleBackoffNgramModel fromArpa(File arpaModel) throws IOException {
-        return fromArpa(arpaModel, 1.0);
+        return fromArpa(arpaModel, 1.0f);
     }
 
     @Override
-    public double getUnigramProbability(int id) {
+    public float getUnigramProbability(int id) {
         NgramData data = new NgramData(id);
         NgramProb res = probabilities.get(data);
         if (res == null)
@@ -74,19 +74,30 @@ public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramL
             return res.prob;
     }
 
+    @Override
+    public boolean ngramExists(int... wordIndexes) {
+        if (wordIndexes.length < 1 || wordIndexes.length > order - 1) {
+            throw new IllegalArgumentException("Amount of tokens must be between 1 and " +
+                    order + " But it is " + wordIndexes.length);
+        }
+        NgramData data = new NgramData(wordIndexes);
+        NgramProb res = probabilities.get(data);
+        return res != null;
+    }
+
     public double getLogBase() {
         return Math.E;
     }
 
-    private double getProbabilityValue(int... ids) {
+    private float getProbabilityValue(int... ids) {
         NgramData data = new NgramData(ids);
         NgramProb res = probabilities.get(data);
         if (res != null)
             return res.prob;
-        else return LogMath.LOG_ZERO;
+        else return LogMath.LOG_ZERO_FLOAT;
     }
 
-    private double getBackoffValue(int... ids) {
+    private float getBackoffValue(int... ids) {
         NgramData data = new NgramData(ids);
         NgramProb res = probabilities.get(data);
         if (res != null)
@@ -99,29 +110,29 @@ public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramL
     }
 
     @Override
-    public double getProbability(int... ids) {
+    public float getProbability(int... ids) {
         for (int id : ids) {
             if (!vocabulary.contains(id))
                 throw new IllegalArgumentException("Unigram does not exist!" + vocabulary.getWordsString(id) + " with index:" + id);
         }
-        double result = 0;
-        double probability = getProbabilityValue(ids);
-        if (probability == LogMath.LOG_ZERO) { // if probability does not exist.
+        float result = 0;
+        float probability = getProbabilityValue(ids);
+        if (probability == LogMath.LOG_ZERO_FLOAT) { // if probability does not exist.
             if (ids.length == 1)
-                return LogMath.LOG_ZERO;
-            double backoffValue = getBackoffValue(head(ids));
+                return LogMath.LOG_ZERO_FLOAT;
+            float backoffValue = getBackoffValue(head(ids));
             result = result + backoffValue + getProbability(tail(ids));
         } else result = probability;
         return result;
     }
 
     @Override
-    public double getTriGramProbability(int id0, int id1, int id2) {
+    public float getTriGramProbability(int id0, int id1, int id2) {
         return getProbability(id0, id1, id2);
     }
 
     @Override
-    public double getTriGramProbability(int id0, int id1, int id2, int fingerPrint) {
+    public float getTriGramProbability(int id0, int id1, int id2, int fingerPrint) {
         return getProbability(id0, id1, id2);
     }
 
@@ -170,10 +181,10 @@ public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramL
     }
 
     private static class NgramProb {
-        double prob;
-        double backoff;
+        float prob;
+        float backoff;
 
-        private NgramProb(double prob, double backoff) {
+        private NgramProb(float prob, float backoff) {
             this.prob = prob;
             this.backoff = backoff;
         }
@@ -196,10 +207,10 @@ public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramL
         int _n;
         int order;
 
-        double logUniformUnigramProbability;
-        double logUnigramWeigth;
-        double inverseLogUnigramWeigth;
-        double unigramWeight;
+        float logUniformUnigramProbability;
+        float logUnigramWeigth;
+        float inverseLogUnigramWeigth;
+        float unigramWeight;
 
         enum State {
             BEGIN, UNIGRAMS, NGRAMS
@@ -211,11 +222,11 @@ public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramL
 
         long start;
 
-        ArpaLoader(double unigramWeight) {
+        ArpaLoader(float unigramWeight) {
             this.unigramWeight = unigramWeight;
             start = System.currentTimeMillis();
-            logUnigramWeigth = Math.log(unigramWeight);
-            inverseLogUnigramWeigth = Math.log(1 - unigramWeight);
+            logUnigramWeigth = (float) Math.log(unigramWeight);
+            inverseLogUnigramWeigth = (float) Math.log(1 - unigramWeight);
         }
 
         private final Pattern SPLIT_PATTERN = Pattern.compile("\\s+");
@@ -248,7 +259,7 @@ public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramL
                             Log.info((++i) + "gram count:" + count);
                         }
                         Log.info("Processing unigrams.");
-                        logUniformUnigramProbability = -Math.log(ngramCounts.get(0)); // log(1/#count) = -log(#count)
+                        logUniformUnigramProbability = (float) -Math.log(ngramCounts.get(0)); // log(1/#count) = -log(#count)
                         _n++;
                     }
                     break;
@@ -260,7 +271,7 @@ public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramL
                     }
                     Iterator<String> it = Splitter.on(SPLIT_PATTERN).split(clean).iterator();
                     // parse probabilty
-                    double logProbability = LogMath.log10ToLog(Double.parseDouble(it.next()));
+                    float logProbability = (float) LogMath.log10ToLog(Double.parseDouble(it.next()));
                     if (unigramWeight < 1) {
                         // apply uni-gram weight. This applies smoothing to unigrams. As lowering high probabilities and
                         // adding gain to small probabilities.
@@ -270,13 +281,13 @@ public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramL
                         // this converts to log(p(w1)*uw + uniformProb*(1-uw) ) which is calculated with log probabilities
                         // a = log(p(w1)) + log(uw) and b = -log(#unigram)+log(1-uw) applying logsum(a,b)
                         // approach is taken from Sphinx-4
-                        double p1 = logProbability + logUnigramWeigth;
-                        double p2 = logUniformUnigramProbability + inverseLogUnigramWeigth;
-                        logProbability = LogMath.LOG_SUM.lookup(p1, p2);
+                        float p1 = logProbability + logUnigramWeigth;
+                        float p2 = logUniformUnigramProbability + inverseLogUnigramWeigth;
+                        logProbability = LogMath.LOG_SUM_FLOAT.lookup(p1, p2);
                     }
                     String word = it.next();
-                    double logBackoff = 0;
-                    if (it.hasNext()) logBackoff = LogMath.log10ToLog(Double.parseDouble(it.next()));
+                    float logBackoff = 0;
+                    if (it.hasNext()) logBackoff = (float) LogMath.log10ToLog(Double.parseDouble(it.next()));
                     int index = vocabularyBuilder.add(word);
                     probabilities.put(new NgramData(index), new NgramProb(logProbability, logBackoff));
                     lineCounter++;
@@ -303,7 +314,7 @@ public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramL
                         break;
                     }
                     Iterator<String> it2 = Splitter.on(SPLIT_PATTERN).split(clean).iterator();
-                    logProbability = LogMath.log10ToLog(Double.parseDouble(it2.next()));
+                    logProbability = (float) LogMath.log10ToLog(Double.parseDouble(it2.next()));
 
                     int[] ids = new int[_n];
                     for (int i = 0; i < _n; i++) {
@@ -313,7 +324,7 @@ public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramL
                     logBackoff = 0;
                     if (_n < ngramCounts.size()) {
                         if (it2.hasNext())
-                            logBackoff = LogMath.log10ToLog(Double.parseDouble(it2.next()));
+                            logBackoff = (float) LogMath.log10ToLog(Double.parseDouble(it2.next()));
                     }
 
                     probabilities.put(new NgramData(ids), new NgramProb(logProbability, logBackoff));

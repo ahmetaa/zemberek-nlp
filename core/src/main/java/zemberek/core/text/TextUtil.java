@@ -4,10 +4,17 @@ package zemberek.core.text;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class TextUtil {
 
@@ -131,5 +138,34 @@ public class TextUtil {
         }
         return (d * 1d) / s.length();
     }
+
+    public static final Splitter SPACE_SPLITTER = Splitter.on(" ").omitEmptyStrings().trimResults();
+
+    public static String loadUtfAsString(Path filePath) throws IOException {
+        return String.join("\n", Files.readAllLines(filePath, StandardCharsets.UTF_8));
+    }
+
+    public static List<String> loadLines(Path path) throws IOException {
+        return Files.readAllLines(path, StandardCharsets.UTF_8)
+                .stream()
+                .filter(s -> s.trim().length() > 0)
+                .collect(Collectors.toList());
+    }
+
+    public static Path createTempFile(String content) throws IOException {
+        return createTempFile(Collections.singletonList(content));
+    }
+
+    public static Path createTempFile(String... content) throws IOException {
+        return createTempFile(Arrays.asList(content));
+    }
+
+    public static Path createTempFile(List<String> content) throws IOException {
+        Path temp = Files.createTempFile("tmp", ".tmp");
+        temp.toFile().deleteOnExit();
+        Files.write(temp, content, StandardCharsets.UTF_8);
+        return temp;
+    }
+
 
 }

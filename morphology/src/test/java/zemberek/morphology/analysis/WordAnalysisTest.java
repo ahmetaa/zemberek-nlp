@@ -2,7 +2,7 @@ package zemberek.morphology.analysis;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;

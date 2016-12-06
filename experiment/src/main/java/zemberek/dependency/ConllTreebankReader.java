@@ -3,7 +3,7 @@ package zemberek.dependency;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
-import zemberek.core.Histogram;
+import zemberek.core.collections.Histogram;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.SimpleTextWriter;
 

@@ -2,7 +2,7 @@ package zemberek.morphology.lexicon;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.io.SimpleTextReader;

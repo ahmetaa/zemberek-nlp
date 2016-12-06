@@ -5,7 +5,7 @@ import zemberek.core.hash.Mphf;
 import zemberek.core.hash.MultiLevelMphf;
 import zemberek.core.logging.Log;
 import zemberek.core.math.LogMath;
-import zemberek.core.quantization.DoubleLookup;
+import zemberek.core.quantization.FloatLookup;
 import zemberek.lm.BaseLanguageModel;
 import zemberek.lm.LmVocabulary;
 import zemberek.lm.NgramLanguageModel;
@@ -13,7 +13,8 @@ import zemberek.lm.NgramLanguageModel;
 import java.io.*;
 import java.util.Arrays;
 
-import static zemberek.core.math.LogMath.LOG_ZERO;
+import static java.lang.String.format;
+import static java.util.Locale.ENGLISH;
 
 /**
  * SmoothLm is a compressed, optionally quantized, randomized back-off n-gram language model.
@@ -29,33 +30,33 @@ import static zemberek.core.math.LogMath.LOG_ZERO;
  */
 public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
 
-    public static final double DEFAULT_LOG_BASE = 10;
-    public static final double DEFAULT_UNIGRAM_WEIGHT = 1;
-    public static final double DEFAULT_UNKNOWN_BACKOFF_PENALTY = 0;
-    public static final double DEFAULT_STUPID_BACKOFF_ALPHA = 0.4f;
+    public static final float DEFAULT_LOG_BASE = 10;
+    public static final float DEFAULT_UNIGRAM_WEIGHT = 1;
+    public static final float DEFAULT_UNKNOWN_BACKOFF_PENALTY = 0;
+    public static final float DEFAULT_STUPID_BACKOFF_ALPHA = 0.4f;
     public static final int DEFAULT_UNKNOWN_TOKEN_PROBABILITY = -20;
 
     private final int version;
 
     private final Mphf[] mphfs;
 
-    private final DoubleLookup[] probabilityLookups;
-    private final DoubleLookup[] backoffLookups;
+    private final FloatLookup[] probabilityLookups;
+    private final FloatLookup[] backoffLookups;
     private final GramDataArray[] ngramData;
 
-    private double[] unigramProbs;
-    private double[] unigramBackoffs;
+    private float[] unigramProbs;
+    private float[] unigramBackoffs;
 
     int[] counts;
 
     MphfType type;
 
-    private double logBase;
-    private double unigramWeight;
-    private double unknownBackoffPenalty;
+    private float logBase;
+    private float unigramWeight;
+    private float unknownBackoffPenalty;
     private boolean useStupidBackoff = false;
-    private double stupidBackoffLogAlpha;
-    private double stupidBackoffAlpha;
+    private float stupidBackoffLogAlpha;
+    private float stupidBackoffAlpha;
     private boolean countFalsePositives;
 
     int falsePositiveCount;
@@ -73,11 +74,11 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
      * <p>Stupid Backoff alpha value = 0.4
      */
     public static class Builder {
-        private double _logBase = DEFAULT_LOG_BASE;
-        private double _unknownBackoffPenalty = DEFAULT_UNKNOWN_BACKOFF_PENALTY;
-        private double _unigramWeight = DEFAULT_UNIGRAM_WEIGHT;
+        private float _logBase = DEFAULT_LOG_BASE;
+        private float _unknownBackoffPenalty = DEFAULT_UNKNOWN_BACKOFF_PENALTY;
+        private float _unigramWeight = DEFAULT_UNIGRAM_WEIGHT;
         private boolean _useStupidBackoff = false;
-        private double _stupidBackoffAlpha = DEFAULT_STUPID_BACKOFF_ALPHA;
+        private float _stupidBackoffAlpha = DEFAULT_STUPID_BACKOFF_ALPHA;
         private DataInputStream _dis;
         private File _ngramIds;
 
@@ -90,12 +91,12 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
         }
 
         public Builder logBase(double logBase) {
-            this._logBase = logBase;
+            this._logBase = (float) logBase;
             return this;
         }
 
         public Builder unknownBackoffPenalty(double unknownPenalty) {
-            this._unknownBackoffPenalty = unknownPenalty;
+            this._unknownBackoffPenalty = (float) unknownPenalty;
             return this;
         }
 
@@ -105,7 +106,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
         }
 
         public Builder unigramWeight(double weight) {
-            this._unigramWeight = weight;
+            this._unigramWeight = (float) weight;
             return this;
         }
 
@@ -114,8 +115,13 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
             return this;
         }
 
+        public Builder useStupidBackoff(boolean useStupidBackoff) {
+            this._useStupidBackoff = useStupidBackoff;
+            return this;
+        }
+
         public Builder stupidBackoffAlpha(double alphaValue) {
-            this._stupidBackoffAlpha = alphaValue;
+            this._stupidBackoffAlpha = (float) alphaValue;
             return this;
         }
 
@@ -141,11 +147,11 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
 
     private SmoothLm(
             DataInputStream dis,
-            double logBase,
-            double unigramWeight,
-            double unknownBackoffPenalty,
+            float logBase,
+            float unigramWeight,
+            float unknownBackoffPenalty,
             boolean useStupidBackoff,
-            double stupidBackoffAlpha,
+            float stupidBackoffAlpha,
             File ngramKeyFileDir) throws IOException {
         this(dis); // load the lm data.
         // Now apply necessary transformations and configurations
@@ -155,22 +161,22 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
         this.stupidBackoffAlpha = stupidBackoffAlpha;
 
         if (logBase != DEFAULT_LOG_BASE) {
-            Log.info("Changing log base from " + DEFAULT_LOG_BASE + " to " + logBase);
+            Log.debug("Changing log base from " + DEFAULT_LOG_BASE + " to " + logBase);
             changeLogBase(logBase);
-            this.stupidBackoffLogAlpha = Math.log(stupidBackoffAlpha) / Math.log(logBase);
+            this.stupidBackoffLogAlpha = (float) (Math.log(stupidBackoffAlpha) / Math.log(logBase));
         } else {
-            this.stupidBackoffLogAlpha = Math.log(stupidBackoffAlpha) / Math.log(DEFAULT_LOG_BASE);
+            this.stupidBackoffLogAlpha = (float) (Math.log(stupidBackoffAlpha) / Math.log(DEFAULT_LOG_BASE));
         }
 
         this.logBase = logBase;
 
         if (unigramWeight != DEFAULT_UNIGRAM_WEIGHT) {
-            Log.info("Applying unigram smoothing with unigram weight: " + unigramWeight);
+            Log.debug("Applying unigram smoothing with unigram weight: " + unigramWeight);
             applyUnigramSmoothing(unigramWeight);
         }
 
         if (useStupidBackoff) {
-            Log.info("Lm will use stupid back off with alpha value: " + stupidBackoffAlpha);
+            Log.debug("Lm will use stupid back off with alpha value: " + stupidBackoffAlpha);
         }
         if (ngramKeyFileDir != null) {
             if (!ngramKeyFileDir.exists())
@@ -187,27 +193,27 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
      */
     public String info() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("Order : %d%n", order));
+        sb.append(format(ENGLISH, "Order : %d%n", order));
 
         for (int i = 1; i < ngramData.length; i++) {
             GramDataArray gramDataArray = ngramData[i];
             if (i == 1) {
-                sb.append(String.format("1 Grams: Count= %d%n", unigramProbs.length));
+                sb.append(format(ENGLISH, "1 Grams: Count= %d%n", unigramProbs.length));
                 continue;
             }
-            sb.append(String.format("%d Grams: Count= %d  Fingerprint Bits= %d  Probabilty Bits= %d  Back-off bits= %d%n",
+            sb.append(format(ENGLISH, "%d Grams: Count= %d  Fingerprint Bits= %d  Probabilty Bits= %d  Back-off bits= %d%n",
                     i,
                     gramDataArray.count,
                     gramDataArray.fpSize * 8,
                     gramDataArray.probSize * 8,
                     gramDataArray.backoffSize * 8));
         }
-        sb.append(String.format("Log Base              : %.2f%n", logBase));
-        sb.append(String.format("Unigram Weight        : %.2f%n", unigramWeight));
-        sb.append(String.format("Using Stupid Back-off?: %s%n", useStupidBackoff ? "Yes" : "No"));
+        sb.append(format(ENGLISH, "Log Base              : %.2f%n", logBase));
+        sb.append(format(ENGLISH, "Unigram Weight        : %.2f%n", unigramWeight));
+        sb.append(format(ENGLISH, "Using Stupid Back-off?: %s%n", useStupidBackoff ? "Yes" : "No"));
         if (useStupidBackoff)
-            sb.append(String.format("Stupid Back-off Alpha Value   : %.2f%n", stupidBackoffAlpha));
-        sb.append(String.format("Unknown Back-off N-gram penalty: %.2f%n", unknownBackoffPenalty));
+            sb.append(format(ENGLISH, "Stupid Back-off Alpha Value   : %.2f%n", stupidBackoffAlpha));
+        sb.append(format(ENGLISH, "Unknown Back-off N-gram penalty: %.2f%n", unknownBackoffPenalty));
         return sb.toString();
     }
 
@@ -228,7 +234,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
         else
             type = MphfType.LARGE;
 
-        this.logBase = dis.readDouble();
+        this.logBase = (float) dis.readDouble();
         this.order = dis.readInt();
 
         counts = new int[order + 1];
@@ -237,14 +243,16 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
         }
 
         // probability lookups
-        probabilityLookups = new DoubleLookup[order + 1];
+        probabilityLookups = new FloatLookup[order + 1];
         for (int i = 1; i <= order; i++) {
-            probabilityLookups[i] = DoubleLookup.getLookup(dis);
+            // because we serialize values as doubles
+            probabilityLookups[i] = FloatLookup.getLookupFromDouble(dis);
         }
         // backoff lookups
-        backoffLookups = new DoubleLookup[order + 1];
+        backoffLookups = new FloatLookup[order + 1];
         for (int i = 1; i < order; i++) {
-            backoffLookups[i] = DoubleLookup.getLookup(dis);
+            // because we serialize values as doubles
+            backoffLookups[i] = FloatLookup.getLookupFromDouble(dis);
         }
 
         //load fingerprint, probability and backoff data.
@@ -255,8 +263,8 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
 
         // we take the unigram probability data out to get rid of rank look-ups for speed.
         int unigramCount = ngramData[1].count;
-        unigramProbs = new double[unigramCount];
-        unigramBackoffs = new double[unigramCount];
+        unigramProbs = new float[unigramCount];
+        unigramBackoffs = new float[unigramCount];
         for (int i = 0; i < unigramCount; i++) {
             final int probability = ngramData[1].getProbabilityRank(i);
             unigramProbs[i] = probabilityLookups[1].get(probability);
@@ -301,7 +309,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
     }
 
     @Override
-    public double getUnigramProbability(int id) {
+    public float getUnigramProbability(int id) {
         return getProbability(id);
     }
 
@@ -346,7 +354,12 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
      * if actual key data is loaded during the construction of the compressed lm, the value returned
      * by this function cannot be wrong. If not, the return value may be a false positive.
      */
+    @Override
     public boolean ngramExists(int... wordIndexes) {
+        if (wordIndexes.length < 1 || wordIndexes.length > order - 1) {
+            throw new IllegalArgumentException("Amount of tokens must be between 1 and " +
+                    order + " But it is " + wordIndexes.length);
+        }
         final int order = wordIndexes.length;
         if (order == 1) {
             return wordIndexes[0] >= 0 && wordIndexes[0] < unigramProbs.length;
@@ -379,7 +392,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
         if (ngramData[ng].checkFingerPrint(quickHash, index))
             return probabilityLookups[ng].get(ngramData[ng].getProbabilityRank(index));
         else {
-            return LOG_ZERO;
+            return LogMath.LOG_ZERO;
         }
     }
 
@@ -390,7 +403,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
      * @param w1 token-index 1.
      * @return dequantized log probability of the n-gram. if n-gram does not exist, it returns LOG_ZERO
      */
-    public double getBigramProbabilityValue(int w0, int w1) {
+    public float getBigramProbabilityValue(int w0, int w1) {
 
         int quickHash = MultiLevelMphf.hash(w0, w1, -1);
 
@@ -399,7 +412,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
         if (ngramData[2].checkFingerPrint(quickHash, index))
             return probabilityLookups[2].get(ngramData[2].getProbabilityRank(index));
         else {
-            return LOG_ZERO;
+            return LogMath.LOG_ZERO_FLOAT;
         }
     }
 
@@ -446,7 +459,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
      * @return dequantized log back-off value of the n-gram.
      * if n-gram does not exist, it returns unknownBackoffPenalty value.
      */
-    public double getBigramBackoffValue(int w0, int w1) {
+    public float getBigramBackoffValue(int w0, int w1) {
         if (useStupidBackoff)
             return stupidBackoffLogAlpha;
         final int quickHash = MultiLevelMphf.hash(w0, w1, -1);
@@ -478,9 +491,9 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
 
         double result = 0;
         double probability = getProbabilityValue(wordIndexes);
-        if (probability == LOG_ZERO) { // if probability does not exist.
+        if (probability == LogMath.LOG_ZERO) { // if probability does not exist.
             if (wordIndexes.length == 1)
-                return LOG_ZERO;
+                return LogMath.LOG_ZERO;
             double backoffValue = useStupidBackoff ? stupidBackoffLogAlpha : getBackoffValue(head(wordIndexes));
             result = result + backoffValue + getProbabilityRecursive(tail(wordIndexes));
         } else {
@@ -514,7 +527,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
         if (isFalsePositive(wordIndexes)) {
             this.falsePositiveCount++;
         }
-        if (getProbability(wordIndexes) == LOG_ZERO) {
+        if (getProbability(wordIndexes) == LogMath.LOG_ZERO) {
             if (isFalsePositive(head(wordIndexes))) // check back-off false positive
                 falsePositiveCount++;
             countFalsePositives(tail(wordIndexes));
@@ -535,7 +548,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
      * @param wordIndexes word index array
      * @return log probability.
      */
-    public double getProbability(int... wordIndexes) {
+    public float getProbability(int... wordIndexes) {
         int n = wordIndexes.length;
 
         switch (n) {
@@ -549,7 +562,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
                 break;
         }
         int begin = 0;
-        double result = 0;
+        float result = 0;
         int gram = n;
         while (gram > 1) {
             // try to find P(N|begin..N-1)
@@ -582,9 +595,9 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
         return result;
     }
 
-    public double getBigramProbability(int w0, int w1) {
-        double prob = getBigramProbabilityValue(w0, w1);
-        if (prob == LOG_ZERO) {
+    public float getBigramProbability(int w0, int w1) {
+        float prob = getBigramProbabilityValue(w0, w1);
+        if (prob == LogMath.LOG_ZERO_FLOAT) {
             if (useStupidBackoff)
                 return stupidBackoffLogAlpha + unigramProbs[w1];
             else
@@ -600,7 +613,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
      * @param w2 token-index 2.
      * @return log probability.
      */
-    public double getTriGramProbability(int w0, int w1, int w2) {
+    public float getTriGramProbability(int w0, int w1, int w2) {
         int fingerPrint = MultiLevelMphf.hash(w0, w1, w2, -1);
         return getTriGramProbability(w0, w1, w2, fingerPrint);
     }
@@ -611,7 +624,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
      * @param w2 token-index 2.
      * @return log probability.
      */
-    public double getTriGramProbability(int w0, int w1, int w2, int fingerPrint) {
+    public float getTriGramProbability(int w0, int w1, int w2, int fingerPrint) {
         int nGramIndex = mphfs[3].get(w0, w1, w2, fingerPrint);
         if (!ngramData[3].checkFingerPrint(fingerPrint, nGramIndex)) { //3 gram does not exist.
             return getBigramBackoffValue(w0, w1) + getBigramProbability(w1, w2);
@@ -621,7 +634,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
     /**
      * @return log probability.
      */
-    public double getTriGramProbability(int... w) {
+    public float getTriGramProbability(int... w) {
         int fingerPrint = MultiLevelMphf.hash(w, -1);
         int nGramIndex = mphfs[3].get(w, fingerPrint);
         if (!ngramData[3].checkFingerPrint(fingerPrint, nGramIndex)) { //3 gram does not exist.
@@ -653,7 +666,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
             throw new IllegalArgumentException(
                     "At least one or " + order + " tokens are required. But it is:" + wordIndexes.length);
         if (n == 1) return 0;
-        if (n == 2) return getProbabilityValue(wordIndexes) == LOG_ZERO ? 1 : 0;
+        if (n == 2) return getProbabilityValue(wordIndexes) == LogMath.LOG_ZERO ? 1 : 0;
 
         int begin = 0;
         int backoffCount = 0;
@@ -686,7 +699,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
     private Explanation explain(Explanation exp, int... wordIndexes) {
         double probability = getProbabilityValue(wordIndexes);
         exp.sb.append(getProbabilityExpression(wordIndexes));
-        if (probability == LOG_ZERO) { // if probability does not exist.
+        if (probability == LogMath.LOG_ZERO) { // if probability does not exist.
             exp.sb.append("=[");
             double backOffValue = getBackoffValue(head(wordIndexes));
             String backOffStr = getBackoffExpression(head(wordIndexes));
@@ -707,7 +720,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
 
 
     private String fmt(double d) {
-        return String.format("%.3f", d);
+        return format(ENGLISH, "%.3f", d);
     }
 
     /**
@@ -717,14 +730,14 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
      * @param newBase new logBase
      */
     private void changeLogBase(double newBase) {
-        DoubleLookup.changeBase(unigramProbs, logBase, newBase);
-        DoubleLookup.changeBase(unigramBackoffs, logBase, newBase);
+        FloatLookup.changeBase(unigramProbs, logBase, newBase);
+        FloatLookup.changeBase(unigramBackoffs, logBase, newBase);
         for (int i = 2; i < probabilityLookups.length; i++) {
             probabilityLookups[i].changeBase(logBase, newBase);
             if (i < probabilityLookups.length - 1)
                 backoffLookups[i].changeBase(logBase, newBase);
         }
-        this.logBase = newBase;
+        this.logBase = (float) newBase;
     }
 
     /**
@@ -747,7 +760,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
         for (int i = 0; i < unigramProbs.length; i++) {
             double p1 = unigramProbs[i] + logUnigramWeigth;
             double p2 = logUniformUnigramProbability + inverseLogUnigramWeigth;
-            unigramProbs[i] = LogMath.logSum(p1, p2);
+            unigramProbs[i] = (float) LogMath.logSum(p1, p2);
         }
     }
 

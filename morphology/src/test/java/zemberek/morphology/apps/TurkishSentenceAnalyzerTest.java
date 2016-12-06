@@ -5,7 +5,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import zemberek.core.Histogram;
+import zemberek.core.collections.Histogram;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.lexicon.DictionaryItem;

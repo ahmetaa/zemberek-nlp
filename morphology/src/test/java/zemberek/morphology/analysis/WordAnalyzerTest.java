@@ -1,6 +1,6 @@
 package zemberek.morphology.analysis;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;

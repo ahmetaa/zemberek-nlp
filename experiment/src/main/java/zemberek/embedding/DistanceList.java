@@ -1,6 +1,6 @@
 package zemberek.embedding;
 
-import zemberek.core.UIntMap;
+import zemberek.core.collections.UIntMap;
 import zemberek.core.logging.Log;
 import zemberek.lm.LmVocabulary;
 
@@ -52,7 +52,7 @@ public class DistanceList {
                 new BufferedOutputStream(new FileOutputStream(outFile.toFile())))) {
             dos.writeInt(distanceMap.size());
             dos.writeInt(count);
-            int[] keysSorted = distanceMap.getKeysSorted();
+            int[] keysSorted = distanceMap.getKeyArraySorted();
             for (int i = 0; i < keysSorted.length; i++) {
                 dos.writeInt(keysSorted[i]);
                 _Distance distance = distanceMap.get(keysSorted[i]);

@@ -45,4 +45,14 @@ public class ByteArrayLoader {
             return d;
         }
     }
+
+    public float[] getAllFloatsFromDouble(int amount) throws IOException {
+        try (DataInputStream dis = getDataInputStream()) {
+            float[] d = new float[amount];
+            for (int i = 0; i < amount; i++) {
+                d[i] = (float) dis.readDouble();
+            }
+            return d;
+        }
+    }
 }

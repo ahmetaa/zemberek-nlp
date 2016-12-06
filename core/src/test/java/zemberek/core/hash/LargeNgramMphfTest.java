@@ -2,7 +2,7 @@ package zemberek.core.hash;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.io.Files;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.*;

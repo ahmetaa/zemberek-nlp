@@ -206,7 +206,7 @@ public class WordAnalysis {
      * "kitaplar"  ->["kitap"]
      * "kitabım"   ->["kitab"]
      * "kitaplaşır"->["kitap", "kitaplaş"]
-     * "kavrulduk" -> ["kavr","kavrul"]
+     * "kavrulduk" ->["kavr","kavrul"]
      */
     public List<String> getStems() {
         List<String> stems = Lists.newArrayListWithCapacity(2);

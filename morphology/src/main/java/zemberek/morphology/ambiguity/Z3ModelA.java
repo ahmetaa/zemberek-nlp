@@ -6,7 +6,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import zemberek.core.io.SimpleTextWriter;
-import zemberek.lm.apps.ConvertToSmoothLm;
+import zemberek.lm.apps.CompressLm;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.SentenceAnalysis;
@@ -50,10 +50,10 @@ public class Z3ModelA extends Z3AbstractDisambiguator implements TurkishMorphDis
     }
 
     public static void generateBinaryLm(File arpaFile, File binaryFile) throws IOException {
-        new ConvertToSmoothLm().execute(
-                "-arpaFile",
+        new CompressLm().execute(
+                "-in",
                 arpaFile.getAbsolutePath(),
-                "-smoothFile",
+                "-out",
                 binaryFile.getAbsolutePath(),
                 "-spaceUsage", "16-8-8");
     }

@@ -1,6 +1,6 @@
 package zemberek.morphology.lexicon.graph;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import zemberek.morphology.lexicon.*;
 

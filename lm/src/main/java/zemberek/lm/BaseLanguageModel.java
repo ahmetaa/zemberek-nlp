@@ -26,10 +26,10 @@ public abstract class BaseLanguageModel {
      * Cache stores key values so it does not produce false positives by itself. However underlying lm may do.
      */
     public static class LookupCache {
-        final double[] probabilities;
+        final float[] probabilities;
         final int[][] keys;
         final int modulo;
-        public static final int DEFAULT_LOOKUP_CACHE_SIZE = 1 << 16;
+        public static final int DEFAULT_LOOKUP_CACHE_SIZE = 1 << 17;
         NgramLanguageModel model;
         int hit;
         int miss;
@@ -51,7 +51,7 @@ public abstract class BaseLanguageModel {
                 k <<= 1;
             }
             modulo = k - 1;
-            probabilities = new double[k];
+            probabilities = new float[k];
             keys = new int[k][model.getOrder()];
         }
 
@@ -60,15 +60,16 @@ public abstract class BaseLanguageModel {
          * Otherwise it calculates the probability using the model reference inside and returns the value.
          * Overrides the previous keys and probability value.
          */
-        public double check(int[] data) {
-            int fastHash = MultiLevelMphf.hash(data, -1);
+        public float get(int[] data) {
+            int fastHash = MultiLevelMphf.hash(data,-1);
             int slotHash = fastHash & modulo;
             if (Arrays.equals(data, keys[slotHash])) {
                 hit++;
                 return probabilities[slotHash];
             } else {
                 miss++;
-                double probability = data.length == 3 ? model.getTriGramProbability(data[0], data[1], data[2], fastHash) : model.getProbability(data);
+                float probability = data.length == 3 ?
+                        model.getTriGramProbability(data[0], data[1], data[2], fastHash) : model.getProbability(data);
                 probabilities[slotHash] = probability;
                 System.arraycopy(data, 0, keys[slotHash], 0, data.length);
                 return probability;
@@ -110,6 +111,7 @@ public abstract class BaseLanguageModel {
         sb.append(")");
         return sb.toString();
     }
+
 
     public String getProbabilityExpression(int... wordIndexes) {
         int last = wordIndexes[wordIndexes.length - 1];
