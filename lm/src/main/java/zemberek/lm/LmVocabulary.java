@@ -7,6 +7,7 @@ import zemberek.core.logging.Log;
 import zemberek.core.text.TextConverter;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.text.Collator;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -91,6 +92,16 @@ public class LmVocabulary {
                 new BufferedInputStream(new FileInputStream(binaryVocabularyFile)))) {
             return new LmVocabulary(dis);
         }
+    }
+
+    /**
+     * Generates a vocabulary from a binary vocabulary File. First integer in the file
+     * defines the vocabulary size. Rest is read in UTF.
+     *
+     * @throws IOException
+     */
+    public static LmVocabulary loadFromBinary(Path binaryVocabularyFilePath) throws IOException {
+        return loadFromBinary(binaryVocabularyFilePath.toFile());
     }
 
     /**
@@ -191,21 +202,21 @@ public class LmVocabulary {
             unknownWord = DEFAULT_UNKNOWN_WORD;
             cleanVocab.add(unknownWord);
             vocabularyIndexMap.put(unknownWord, indexCounter++);
-            Log.warn("Necessary special token " + unknownWord + " was not found in the vocabulary, it is added explicitly");
+            Log.debug("Necessary special token " + unknownWord + " was not found in the vocabulary, it is added explicitly");
         }
         unknownWordIndex = vocabularyIndexMap.get(unknownWord);
         if (sentenceStartIndex == -1) {
             sentenceStart = DEFAULT_SENTENCE_BEGIN_MARKER;
             cleanVocab.add(sentenceStart);
             vocabularyIndexMap.put(sentenceStart, indexCounter++);
-            Log.warn("Vocabulary does not contain sentence start token, it is added explicitly.");
+            Log.debug("Vocabulary does not contain sentence start token, it is added explicitly.");
         }
         sentenceStartIndex = vocabularyIndexMap.get(sentenceStart);
         if (sentenceEndIndex == -1) {
             sentenceEnd = DEFAULT_SENTENCE_END_MARKER;
             cleanVocab.add(sentenceEnd);
             vocabularyIndexMap.put(sentenceEnd, indexCounter);
-            Log.warn("Vocabulary does not contain sentence end token, it is added explicitly.");
+            Log.debug("Vocabulary does not contain sentence end token, it is added explicitly.");
         }
         sentenceEndIndex = vocabularyIndexMap.get(sentenceEnd);
         vocabulary = Collections.unmodifiableList(cleanVocab);
@@ -560,6 +571,7 @@ public class LmVocabulary {
 
     /**
      * word index history and current word.
+     *
      * @return the vocabulary index array for a word array.
      * if a word is unknown, index of <UNK> is used is returned as its vocabulary index.
      * This value can be -1.

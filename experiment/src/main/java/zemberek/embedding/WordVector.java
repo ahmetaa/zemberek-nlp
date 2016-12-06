@@ -16,7 +16,6 @@ public class WordVector {
     public WordVector(String word, float[] vector) {
         this.word = word;
         this.vector = vector;
-
         float sum = 0;
         for (float v : vector) {
             sum += v * v;
@@ -48,7 +47,7 @@ public class WordVector {
         }
     }
 
-    public static List<WordVector> readFromText(Path txtFile) throws IOException {
+    public static List<WordVector> loadFromText(Path txtFile) throws IOException {
         List<WordVector> words = new ArrayList<>();
         List<String> lines = Files.readAllLines(txtFile);
         int lineCount = 0;
@@ -83,7 +82,7 @@ public class WordVector {
         try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(binFile.toFile())))) {
             int wordSize = in.readInt();
             int vectorSize = in.readInt();
-            List<WordVector> words = new ArrayList<>();
+            List<WordVector> words = new ArrayList<>(wordSize);
             for (int i = 0; i < wordSize; i++) {
                 String s = in.readUTF();
                 float[] v = FloatArrays.deserializeRaw(in, vectorSize);
@@ -93,5 +92,4 @@ public class WordVector {
 
         }
     }
-
 }

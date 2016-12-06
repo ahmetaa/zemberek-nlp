@@ -53,7 +53,7 @@ public class WordSimilarityConsole {
 
 
     private static void convertToBinary(Path vectorFile, Path binVectorFile) throws IOException {
-        List<WordVector> vectors = WordVector.readFromText(vectorFile);
+        List<WordVector> vectors = WordVector.loadFromText(vectorFile);
         Log.info("Text vector file %s Loaded.", vectorFile);
         WordVector.writeAsBinary(vectors, binVectorFile);
         Log.info("Binary file %s saved.", binVectorFile);
