@@ -3001,7 +3001,7 @@ bidat [A:InverseHarmony]
 bidayet [A:NoVoicing]
 bide
 bidon
-bienal [P:Adv; A:InverseHarmony]
+bienal [A:InverseHarmony]
 biftek
 bigâne [P:Adj]
 bigudi
@@ -15890,7 +15890,7 @@ metroloji
 metrolojik [P:Adj]
 metronom
 metropol [A:InverseHarmony]
-metropolit
+metropolit [A:NoVoicing]
 metropoliten [P:Adj]
 metroseksüel [P:Adj]
 metrûk [A:InverseHarmony]
@@ -17887,6 +17887,7 @@ olasıya [P:Adv]
 olay
 olçum
 oldubitti
+oldukça [P:Adv]
 oldurgan [P:Adj]
 ole [P:Interj]
 olefin
@@ -20244,7 +20245,7 @@ sahte [P:Adj]
 sahtekâr [P:Adj]
 sahtiyan
 sahur
-saik
+saik [A:NoVoicing]
 saika
 sair [P:Adj]
 sairfilmenam [P:Adj]
@@ -20722,7 +20723,7 @@ sefire
 sefirikebir
 segâh
 segman
-segment
+segment [A:NoVoicing]
 seğirdim
 seğirmek
 seğmen
@@ -21962,7 +21963,7 @@ sübjektivite
 sübjektivizm
 süblime
 süblimleşmek
-sübut
+sübut [A:NoVoicing]
 sübvanse
 sübvansiyon
 sübyan

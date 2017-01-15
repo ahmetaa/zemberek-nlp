@@ -1758,8 +1758,6 @@ sonraki [P:Adj]
 yarınki [P:Adj]
 
 ########################################## some pronouns and pronoun-like words and words that are infections of them
-bana [P:Pron]
-bende
 bizden
 bundan
 bunlar [P:Pron]
@@ -1788,7 +1786,6 @@ ortada [P:Adj]
 ortada [P:Adv]
 öbürü [P:Pron,Quant]
 ötekisi [P:Pron]
-sana [P:Pron]
 şundan
 şunlar [P:Pron]
 şurada [P:Adv]
@@ -2255,16 +2252,13 @@ affetmişsin
 ayırt
 bakındı [P:Interj]
 belası
-cc
-canım
+cc [Pr:cece]
 cızılda
 cızıldama
-devletle [P:Adv]
 eprime
-he
+he [P:Interj]
 ## following has Noun and Adj compound form already. I couldn't understand why it also has non-compound adj form.
 nasılsınız
 tıkır
 uzatmayalım
-zor [P:Interj]
 zorunluluk
