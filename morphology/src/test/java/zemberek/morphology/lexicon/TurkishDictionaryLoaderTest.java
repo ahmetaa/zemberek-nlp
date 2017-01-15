@@ -105,6 +105,22 @@ public class TurkishDictionaryLoaderTest {
     }
 
     @Test
+    public void properNounsShouldNotHaveVoicingAutomaticallyTest() {
+        TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
+        DictionaryItem item = loader.loadFromString("Tokat");
+        Assert.assertEquals("tokat", item.root);
+        Assert.assertEquals(Noun, item.primaryPos);
+        Assert.assertEquals(SecondaryPos.ProperNoun, item.secondaryPos);
+        Assert.assertFalse(item.hasAttribute(RootAttribute.Voicing));
+
+        item = loader.loadFromString("Dink");
+        Assert.assertEquals("dink", item.root);
+        Assert.assertEquals(Noun, item.primaryPos);
+        Assert.assertEquals(SecondaryPos.ProperNoun, item.secondaryPos);
+        Assert.assertFalse(item.hasAttribute(RootAttribute.Voicing));
+    }
+
+    @Test
     public void specialSuffixRoot() {
         TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
         DictionaryItem item = loader.loadFromString("su [P:Noun ; RootSuffix:Noun_Su_Root ]");
