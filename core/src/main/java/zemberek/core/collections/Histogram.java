@@ -31,16 +31,22 @@ public class Histogram<T> implements Iterable<T> {
         vector = new CountSet<>();
     }
 
+    /**
+     * Loads a String Histogram from a file. Counts are supposedly delimited with `delimiter` character.
+     * @param path file path
+     * @param delimiter delimiter
+     * @return a Histogram.
+     */
     public static Histogram<String> loadFromUtf8File(Path path, char delimiter) throws IOException {
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
         Histogram<String> result = new Histogram<>(lines.size());
         for (String s : lines) {
             int index = s.indexOf(delimiter);
-            if (index < 0) {
+            if (index <= 0) {
                 throw new IllegalStateException("Bad histogram line = " + s);
             }
             String item = s.substring(0, index);
-            String countStr = s.substring(index);
+            String countStr = s.substring(index+1);
             int count = Integer.parseInt(countStr);
             result.add(item, count);
         }
