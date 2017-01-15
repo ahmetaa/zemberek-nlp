@@ -34,7 +34,7 @@ public class Histogram<T> implements Iterable<T> {
     public static Histogram<String> loadFromUtf8File(Path path, char delimiter) throws IOException {
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
         Histogram<String> result = new Histogram<>(lines.size());
-        for (String s : result) {
+        for (String s : lines) {
             int index = s.indexOf(delimiter);
             if (index < 0) {
                 throw new IllegalStateException("Bad histogram line = " + s);
