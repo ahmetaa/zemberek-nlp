@@ -414,13 +414,14 @@ public class TurkishDictionaryLoader {
                     // if a noun or adjective has more than one syllable and last letter is a stop consonant, add voicing.
                     if (sequence.vowelCount() > 1
                             && last.isStopConsonant()
-                            && posData.secondaryPos!=SecondaryPos.ProperNoun
+                            && posData.secondaryPos != SecondaryPos.ProperNoun
                             && !attributes.contains(RootAttribute.NoVoicing)
                             && !attributes.contains(RootAttribute.InverseHarmony)) {
                         attributes.add(RootAttribute.Voicing);
                     }
                     if (word.endsWith("nk") || word.endsWith("og")) {
-                        if (!attributes.contains(RootAttribute.NoVoicing))
+                        if (!attributes.contains(RootAttribute.NoVoicing)
+                                && posData.secondaryPos != SecondaryPos.ProperNoun)
                             attributes.add(RootAttribute.Voicing);
                     } else if (sequence.vowelCount() < 2 && !attributes.contains(RootAttribute.Voicing))
                         attributes.add(RootAttribute.NoVoicing);
