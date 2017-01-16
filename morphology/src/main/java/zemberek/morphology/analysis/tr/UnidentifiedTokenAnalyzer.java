@@ -46,11 +46,11 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
                     Strings.subStringAfterFirst(word, "'"));
             String stem = normalize(se.stem);
             String ending = normalize(se.ending);
-            String pron = guessPronunciation(stem);
+            String pronunciation = guessPronunciation(stem);
             DictionaryItem itemProp = new DictionaryItem(
                     Turkish.capitalize(stem),
                     stem,
-                    pron,
+                    pronunciation,
                     PrimaryPos.Noun,
                     SecondaryPos.ProperNoun);
             itemProp.attributes.add(RootAttribute.Runtime);
@@ -61,11 +61,11 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
             results.addAll(properResults);
         } else if (Character.isUpperCase(word.charAt(0))) {
             String normalized = normalize(word);
-            String pron = guessPronunciation(normalized);
+            String pronunciation = guessPronunciation(normalized);
             DictionaryItem itemProp = new DictionaryItem(
                     Turkish.capitalize(normalized),
                     normalized,
-                    pron,
+                    pronunciation,
                     PrimaryPos.Noun,
                     SecondaryPos.ProperNoun);
             itemProp.attributes.add(RootAttribute.Runtime);

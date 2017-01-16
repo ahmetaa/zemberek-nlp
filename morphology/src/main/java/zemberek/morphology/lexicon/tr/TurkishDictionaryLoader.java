@@ -243,7 +243,7 @@ public class TurkishDictionaryLoader {
                     DictionaryItem refItem;
                     if (refItems.size() > 0) {
                         // use the item with lowest index value.
-                        refItems.sort((a, b) -> Integer.compare(a.index, b.index));
+                        refItems.sort(Comparator.comparingInt(a -> a.index));
                         refItem = refItems.get(0); // grab the first Dictionary item matching to kuyruk. We will use it's attributes.
                         attrSet = refItem.attributes.clone();
                     } else {
@@ -280,10 +280,13 @@ public class TurkishDictionaryLoader {
 
             String pronunciation = data.metaData.get(MetaDataId.PRONUNCIATION);
             if (pronunciation == null) {
-                if (new TurkicSeq(cleanWord, alphabet).hasVowel())
+                if (new TurkicSeq(cleanWord, alphabet).hasVowel()) {
                     pronunciation = cleanWord;
-                else
+                } else {
                     pronunciation = Turkish.inferPronunciation(cleanWord);
+                }
+            } else {
+                pronunciation = pronunciation.toLowerCase(Turkish.LOCALE);
             }
 
             EnumSet<RootAttribute> attributes = morphemicAttributes(data.metaData.get(MetaDataId.ATTRIBUTES), pronunciation, posInfo);

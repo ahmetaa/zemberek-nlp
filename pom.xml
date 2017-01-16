@@ -15,6 +15,7 @@
         <module>hyphenation</module>
         <module>lm</module>
         <module>experiment</module>
+        <module>langid</module>
     </modules>
 
     <distributionManagement>

@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
       <module fileurl="file://$PROJECT_DIR$/experiment/experiment.iml" filepath="$PROJECT_DIR$/experiment/experiment.iml" />
       <module fileurl="file://$PROJECT_DIR$/hyphenation/hyphenation.iml" filepath="$PROJECT_DIR$/hyphenation/hyphenation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/langid/langid.iml" filepath="$PROJECT_DIR$/langid/langid.iml" />
       <module fileurl="file://$PROJECT_DIR$/lm/lm.iml" filepath="$PROJECT_DIR$/lm/lm.iml" />
       <module fileurl="file://$PROJECT_DIR$/morphology/morphology.iml" filepath="$PROJECT_DIR$/morphology/morphology.iml" />
       <module fileurl="file://$PROJECT_DIR$/tokenization/tokenization.iml" filepath="$PROJECT_DIR$/tokenization/tokenization.iml" />

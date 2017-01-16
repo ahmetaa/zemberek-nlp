@@ -1,9 +1,13 @@
 CHANGE LOG
 ==========
 
+## 0.9.4
+
+- Re-introduce lang-id module.
+
 ## 0.9.3
 
-- Improved morphological analysis coverage by cross checking with Oflazer-Analyzer. For this, a list of more than 7 million words is created from a 2 billion word corpora. Then a list of words that can be analyzed only by Oflazer-Analyzer is generated and Zemberek is fixed as much possible.  
+- Improved morphological analysis coverage by cross checking with Oflazer-Analyzer. For this, a list of more than 7 million words are extracted from a 2 billion word corpora. Then a list of words that can be analyzed only by Oflazer-Analyzer is generated and Zemberek is fixed as much possible.  
 - Breaking change: zemberek.morphology.parse package is now zemberek.morphology.analysis [67] (https://github.com/ahmetaa/zemberek-nlp/issues/67)
 - Breaking change: Several classes are renamed.  
    TurkishWordParserGenerator -> TurkishMorphology  

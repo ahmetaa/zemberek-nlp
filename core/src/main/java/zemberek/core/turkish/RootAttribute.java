@@ -16,6 +16,9 @@ public enum RootAttribute implements StringEnum {
 
     // phonetic
     Voicing,
+    // NoVoicing attribute is only used for explicitly marking a word in the dictionary
+    // that should not have automatic Voicing attribute. So after a DictionaryItem is created
+    // it does not need NoVoicing attribute after all.
     NoVoicing,
     InverseHarmony,
     Doubling,
