@@ -3,6 +3,7 @@ package zemberek.core.text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,6 +65,25 @@ public class Regexps {
 
     public static Pattern defaultPattern(String regexp) {
         return Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+    }
+
+    /**
+     * checks the matches if they exist as a key in the map. if it exists, replaces the match with the "Value" in the map.
+     *
+     * @param m   matcher.
+     * @param map map to replace matches with values.
+     * @return String after the replacement.
+     */
+    public static String replaceMap(Matcher m, Map<String, String> map) {
+        StringBuffer buffer = new StringBuffer();
+        while (m.find()) {
+            String match = m.group();
+            if (map.containsKey(match)) {
+                m.appendReplacement(buffer, map.get(match));
+            }
+        }
+        m.appendTail(buffer);
+        return buffer.toString();
     }
 
 }

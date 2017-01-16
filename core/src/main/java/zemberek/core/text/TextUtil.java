@@ -2,16 +2,18 @@ package zemberek.core.text;
 
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
+import zemberek.core.io.IOs;
+import zemberek.core.io.KeyValueReader;
+import zemberek.core.logging.Log;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -117,7 +119,7 @@ public class TextUtil {
         return (d * 1d) / s.length();
     }
 
-    static Pattern DIGIT = Pattern.compile("\\d+",Pattern.DOTALL);
+    static Pattern DIGIT = Pattern.compile("\\d+", Pattern.DOTALL);
 
     public static boolean containsDigit(String s) {
         return DIGIT.matcher(s).find();
@@ -167,5 +169,147 @@ public class TextUtil {
         return temp;
     }
 
+    private static Map<String, String> HTML_STRING_TO_CHAR_MAP_FULL = new HashMap<>();
+    private static Map<String, String> HTML_STRING_TO_CHAR_MAP_COMMON = new HashMap<>();
+    private static Map<Character, Character> SPECIAL_CHAR_TO_SIMPLE = new HashMap<>();
 
+    static {
+        initializeHtmlCharMap(HTML_STRING_TO_CHAR_MAP_FULL, "zemberek/core/text/html-char-map-full.txt");
+        initializeHtmlCharMap(HTML_STRING_TO_CHAR_MAP_COMMON, "zemberek/core/text/html-char-map-common.txt");
+        initializeToSimplifiedChars();
+    }
+
+    private static void initializeHtmlCharMap(Map<String, String> map, String resource) {
+        try {
+            InputStream stream = IOs.getClassPathResourceAsStream(resource);
+            Map<String, String> fullMap = new KeyValueReader(":", "!")
+                    .loadFromStream(stream, "utf-8");
+            for (String key : fullMap.keySet()) {
+                String value = fullMap.get(key);
+                if (value.length() != 0) {
+                    if (value.length() > 1)
+                        throw new IllegalArgumentException("I was expecting a single or no character but:" + value);
+                    map.put("&" + key + ";", value);
+                }
+            }
+            // add nbrsp manually.
+            map.put("&nbsp;", " ");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void initializeToSimplifiedChars() {
+        try {
+            Map<String, String> fullMap = new KeyValueReader(":", "#")
+                    .loadFromStream(IOs.getClassPathResourceAsStream("zemberek/core/text/special-char-to-simple-char.txt"), "utf-8");
+            for (String key : fullMap.keySet()) {
+                SPECIAL_CHAR_TO_SIMPLE.put(key.charAt(0), fullMap.get(key).charAt(0));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static Pattern AMPERSAND_PATTERN = Pattern.compile("&[^ ]{2,6};");
+
+    /**
+     * replaces all special html Strings such as(&....; or &#dddd;) with their original characters.
+     *
+     * @param input input which may contain html specific strings.
+     * @return cleaned input.
+     */
+    public static String convertAmpresandStrings(String input) {
+        return Regexps.replaceMap(AMPERSAND_PATTERN.matcher(input), HTML_STRING_TO_CHAR_MAP_FULL);
+    }
+
+    /**
+     * This method removes all &....; type strings form html.
+     *
+     * @param input input String
+     * @return cleaned input.
+     */
+    public static String removeAmpresandStrings(String input) {
+        // remove rest.
+        Matcher m = AMPERSAND_PATTERN.matcher(input);
+        StringBuffer buffer = new StringBuffer();
+        while (m.find()) {
+            String match = m.group();
+            if (match.length() < 8) {
+                m.appendReplacement(buffer, "");
+            }
+        }
+        m.appendTail(buffer);
+        return buffer.toString();
+    }
+
+    public static Pattern HTML_TAG_CONTENT_PATTERN = Regexps.defaultPattern("<[^>]+>");
+    public static Pattern HTML_COMMENT_CONTENT_PATTERN = Regexps.defaultPattern("<!--.+?-->");
+
+    /**
+     * @param input input String
+     * @return input, all html comment and tags are cleaned.
+     */
+    public static String cleanHtmlTagsAndComments(String input) {
+        return HTML_TAG_CONTENT_PATTERN.matcher(HTML_COMMENT_CONTENT_PATTERN.matcher(input).replaceAll("")).replaceAll("");
+    }
+
+    public static String cleanAllHtmlRelated(String input) {
+        return cleanHtmlTagsAndComments(removeAmpresandStrings(convertAmpresandStrings(input)));
+    }
+
+    public static Pattern HTML_NEWLINE_PATTERN =
+            Regexps.defaultPattern("•|\u8286|<strong>|</strong>|</p>|<p>|</br>|<br />|<br>|</span>|<span>|<li>|</li>|<b>|</b>");
+
+    /**
+     * it replaces several paragraph html tags with desired String.
+     *
+     * @param input       input String.
+     * @param replacement replacement.
+     * @return content, new line html tags are replaced with a given string.
+     */
+    public static String generateLineBreaksFromHtmlTags(String input, String replacement) {
+        return HTML_NEWLINE_PATTERN.matcher(input).replaceAll(replacement);
+    }
+
+    static Pattern HTML_BODY = Regexps.defaultPattern("<body.+?</body>");
+    static Pattern SCRIPT = Regexps.defaultPattern("<script.+?</script>");
+
+    public static String getHtmlBody(String html) {
+        Preconditions.checkNotNull(html, "input cannot be null.");
+        return Regexps.firstMatch(HTML_BODY, html);
+    }
+
+    public static String cleanScripts(String html) {
+        Preconditions.checkNotNull(html, "input cannot be null.");
+        return SCRIPT.matcher(html).replaceAll(" ");
+    }
+
+
+    public static final String HTML_START = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+    public static final String META_CHARSET_UTF8 = "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>";
+    static Pattern HTML_META_CONTENT_TAG = Regexps.defaultPattern("<meta http-equiv=\"content-type\".+?>");
+
+    /**
+     * it generates an HTML only containing bare head and meta tags with utf-8 charset. and body content.
+     * it also eliminates all script tags.
+     *
+     * @param htmlToReduce html file to reduce.
+     * @return reduced html file. charset is set to utf-8.
+     */
+    public static String reduceHtmlFixedUTF8Charset(String htmlToReduce) {
+        return HTML_START + "<html><head>" + META_CHARSET_UTF8 + "</head>\n" +
+                cleanScripts(getHtmlBody(htmlToReduce)) + "</html>";
+    }
+
+    public static String reduceHtml(String htmlToReduce) {
+        String htmlBody = getHtmlBody(htmlToReduce);
+        if(htmlBody==null) {
+            Log.warn("Cannot get html body. ");
+            return htmlToReduce;
+        }
+        List<String> parts = Regexps.allMatches(HTML_META_CONTENT_TAG, htmlToReduce);
+        return HTML_START + "<html><head>" + Joiner.on(" ").join(parts) +
+                "</head>\n" + cleanScripts(htmlBody) + "</html>";
+    }
 }

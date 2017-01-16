@@ -1,6 +1,9 @@
 package zemberek.embedding;
 
 import zemberek.core.logging.Log;
+import zemberek.core.turkish.PrimaryPos;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -28,7 +31,12 @@ public class WordSimilarityConsole {
         new WordSimilarityConsole().run(distanceListBin, vocabFile);
     }
 
+
+
     public void run(Path distanceListBinaryFile, Path vocabFile) throws IOException {
+
+        TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+
         System.out.println("Loading from " + distanceListBinaryFile);
         DistanceList experiment = DistanceList.readFromBinary(distanceListBinaryFile, vocabFile);
         String input;
@@ -47,6 +55,14 @@ public class WordSimilarityConsole {
             dist.addAll(distances.stream().map(d -> d.word).collect(Collectors.toList()));
             System.out.println(String.join(" ", dist));
 
+            List<String> noParse = new ArrayList<>();
+            for (String s : dist) {
+                List<WordAnalysis> tokens = morphology.analyze(s);
+                if(tokens.size() == 0 || (tokens.size() == 1 && tokens.get(0).dictionaryItem.primaryPos == PrimaryPos.Unknown)) {
+                    noParse.add(s);
+                }
+            }
+            System.out.println(String.join(" ", noParse));
             input = sc.nextLine();
         }
     }

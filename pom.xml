@@ -7,13 +7,14 @@
     <groupId>zemberek-nlp</groupId>
     <artifactId>zemberek-nlp</artifactId>
     <packaging>pom</packaging>
-    <version>0.9.3</version>
+    <version>0.9.4</version>
     <modules>
         <module>core</module>
         <module>morphology</module>
         <module>tokenization</module>
         <module>hyphenation</module>
         <module>lm</module>
+        <module>all</module>
         <module>experiment</module>
         <module>langid</module>
     </modules>
@@ -88,6 +89,9 @@
                             <excludeGroupIds>
                                 junit,org.hamcrest,org.mockito,org.powermock,${project.groupId}
                             </excludeGroupIds>
+                            <excludeArtifactIds>
+                                all
+                            </excludeArtifactIds>
                         </configuration>
                     </execution>
                     <execution>

@@ -54,3 +54,4 @@ $=dolar
 ¥=yen
 £=paund
 €=avro
+₺=tele
