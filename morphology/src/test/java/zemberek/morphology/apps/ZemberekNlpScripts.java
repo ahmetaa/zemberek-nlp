@@ -25,10 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.Collator;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -44,7 +41,7 @@ public class ZemberekNlpScripts {
             }
             forms.add(form);
         }
-        forms.sort((a, b) -> a.getId().compareTo(b.getId()));
+        forms.sort(Comparator.comparing(SuffixForm::getId));
         List<String> result = forms.stream().map(s -> s.id).collect(Collectors.toList());
         Files.write(Paths.get("suffix-list"), result);
     }
@@ -192,6 +189,26 @@ public class ZemberekNlpScripts {
 
         Files.write(dir.resolve("no-parse-freq.txt"), histogram.getSortedList());
         Files.write(dir.resolve("no-parse-tr.txt"), histogram.getSortedList((a, b) -> collTr.compare(a, b)));
+    }
+
+    @Test
+    public void frequentUnknownZemberek() throws IOException {
+
+        Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
+
+        System.out.println("Loading histogram.");
+        Histogram<String> histogram = Histogram.loadFromUtf8File(wordFreqFile, ' ');
+
+        Path dir = DATA_PATH.resolve("out");
+        List<String> zemberekAll =
+                Files.readAllLines(dir.resolve("zemberek-parsed-words.txt"));
+
+        histogram.removeAll(zemberekAll);
+
+        histogram.removeSmaller(10);
+
+        Files.write(dir.resolve("no-parse-zemberek-freq.txt"), histogram.getSortedList());
+        Files.write(dir.resolve("no-parse-zemberek-tr.txt"), histogram.getSortedList((a, b) -> collTr.compare(a, b)));
     }
 
     @Test
