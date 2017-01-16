@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
 import zemberek.core.collections.DoubleValueMap;
+import zemberek.core.collections.UIntSet;
 import zemberek.core.io.SimpleTextReader;
 
 import java.io.File;
@@ -15,6 +16,7 @@ public class PerceptronSentenceBoundaryDetecor_ implements SentenceBoundaryDetec
     public static final int SKIP_SPACE_FREQUENCY = 50;
     public static final String BOUNDARY_CHARS = ".!?";
     DoubleValueMap<String> weights = new DoubleValueMap<>();
+
 
     static Set<String> TurkishAbbreviationSet = new HashSet<>();
     private static Locale localeTr = new Locale("tr");
@@ -53,12 +55,8 @@ public class PerceptronSentenceBoundaryDetecor_ implements SentenceBoundaryDetec
         public PerceptronSentenceBoundaryDetecor_ train() throws IOException {
             DoubleValueMap<String> weights = new DoubleValueMap<>();
             List<String> sentences = SimpleTextReader.trimmingUTF8Reader(trainFile).asStringList();
-
-/*
-                if (i > 0)
-                    Collections.shuffle(sentences);
-*/
-            Set<Integer> indexSet = new LinkedHashSet<>();
+            DoubleValueMap<String> averages = new DoubleValueMap<>();
+            UIntSet indexSet = new UIntSet();
             Random rnd = new Random(1);
             StringBuilder sb = new StringBuilder();
             int boundaryIndexCounter = 0;
@@ -74,14 +72,17 @@ public class PerceptronSentenceBoundaryDetecor_ implements SentenceBoundaryDetec
                 sentenceCounter++;
             }
 
+            int updateCount = 0;
+
             String joinedSentence = sb.toString();
             for (int i = 0; i < iterationCount; i++) {
 
                 for (int j = 0; j < joinedSentence.length(); j++) {
                     // skip if char cannot be a boundary char.
                     char chr = joinedSentence.charAt(j);
-                    if (BOUNDARY_CHARS.indexOf(chr) < 0)
+                    if (BOUNDARY_CHARS.indexOf(chr) < 0) {
                         continue;
+                    }
                     List<String> features = extractFeatures(joinedSentence, j);
                     double score = 0;
                     for (String feature : features) {
@@ -96,18 +97,30 @@ public class PerceptronSentenceBoundaryDetecor_ implements SentenceBoundaryDetec
                     else if (score > 0 && !indexSet.contains(j)) {
                         update = -1;
                     }
+                    updateCount++;
                     if (update != 0) {
                         for (String feature : features) {
                             double d = weights.incrementByAmount(feature, update);
-                            if (d == 0.0)
+                            if (d == 0.0) {
                                 weights.remove(feature);
+                            }
+                            d = averages.incrementByAmount(feature, updateCount*update);
+                            if (d == 0.0) {
+                                averages.remove(feature);
+                            }
                         }
                     }
                 }
             }
+            for (String key : weights) {
+                weights.set(key, weights.get(key) - averages.get(key)*1d / updateCount);
+            }
+
             return new PerceptronSentenceBoundaryDetecor_(weights);
         }
     }
+
+
 
     @Override
     public List<String> getSentences(String doc) {
