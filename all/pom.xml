@@ -73,6 +73,11 @@
         </dependency>
         <dependency>
             <groupId>zemberek-nlp</groupId>
+            <artifactId>normalization</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>zemberek-nlp</groupId>
             <artifactId>lang-id</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -17,6 +17,7 @@
         <module>all</module>
         <module>experiment</module>
         <module>langid</module>
+        <module>normalization</module>
     </modules>
 
     <distributionManagement>
