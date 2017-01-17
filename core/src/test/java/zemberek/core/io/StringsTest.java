@@ -57,11 +57,6 @@ public class StringsTest {
         assertFalse(allNullOrEmpty(" ", "", ""));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testAllEmptyExceptionNPE() {
-        allNullOrEmpty(null);
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void testAllEmptyExceptionIAE() {
         allNullOrEmpty();

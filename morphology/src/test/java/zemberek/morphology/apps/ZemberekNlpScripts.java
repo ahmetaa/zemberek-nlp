@@ -283,7 +283,7 @@ public class ZemberekNlpScripts {
         System.out.println();
 
         System.out.println("Disambiguation Test:");
-        analyzer.invalidateAllCache();
+        analyzer.invalidateDynamicCache();
         clock.reset().start();
         for (String line : lines) {
             try {

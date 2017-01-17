@@ -3,7 +3,7 @@
   <parent>
     <artifactId>zemberek-nlp</artifactId>
     <groupId>zemberek-nlp</groupId>
-    <version>0.9.4</version>
+    <version>0.9.4-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>all</artifactId>
@@ -57,8 +57,8 @@
     </dependency>
     <dependency>
       <groupId>junit</groupId>
-      <artifactId>junit-dep</artifactId>
-      <version>4.11</version>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>

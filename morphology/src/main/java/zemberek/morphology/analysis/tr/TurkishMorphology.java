@@ -24,10 +24,7 @@ import zemberek.morphology.structure.StemAndEnding;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -101,7 +98,7 @@ public class TurkishMorphology extends BaseParser {
         }
 
         public TurkishMorphParserBuilder addTextDictionaryResources(String... resources) throws IOException {
-            Log.info("Loading dictionaries.");
+            Log.info("Loading resources :%n%s" , String.join("\n", Arrays.asList(resources)));
             List<String> lines = new ArrayList<>();
             for (String resource : resources) {
                 lines.addAll(Resources.readLines(Resources.getResource(resource), Charsets.UTF_8));
@@ -262,15 +259,10 @@ public class TurkishMorphology extends BaseParser {
     }
 
 
-    public void invalidateAllCache() {
+    public void invalidateDynamicCache() {
         if (useDynamicCache) {
             dynamicCache.invalidateAll();
         }
-/*
-        if (useStaticCache) {
-            staticCache.removeAll();
-        }
-*/
     }
 
     public void invalidateCache(String input) {
@@ -299,7 +291,7 @@ public class TurkishMorphology extends BaseParser {
      */
     public synchronized void addDictionaryItems(DictionaryItem... item) {
         this.graph.addDictionaryItems(item);
-        invalidateAllCache();
+        invalidateDynamicCache();
     }
 
     public SuffixProvider getSuffixProvider() {
