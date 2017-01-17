@@ -2,11 +2,10 @@ package zemberek.tokenization;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Sets;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TokenSequence;
-import zemberek.tokenizer.PerceptronSentenceBoundaryDetecor_;
+import zemberek.tokenizer.PerceptronSentenceBoundaryDetecor;
 import zemberek.tokenizer.SentenceBoundaryDetector;
 import zemberek.tokenizer.SimpleSentenceBoundaryDetector;
 
@@ -23,7 +22,7 @@ public class SentenceBoundaryDetectorsComparison {
         List<String> testSentences = SimpleTextReader.trimmingUTF8Reader(
                 new File("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Test.txt")).asStringList();
         Stopwatch sw = Stopwatch.createStarted();
-        PerceptronSentenceBoundaryDetecor_ perceptron = new PerceptronSentenceBoundaryDetecor_.Trainer(
+        PerceptronSentenceBoundaryDetecor perceptron = new PerceptronSentenceBoundaryDetecor.Trainer(
                 new File("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Train.txt"),
                 5).train();
         System.out.println("Train Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
@@ -44,7 +43,7 @@ public class SentenceBoundaryDetectorsComparison {
         for (String sentence : sentences) {
             sb.append(sentence);
             // in approximately every 20 sentences we skip adding a space between sentences.
-            if (rnd.nextInt(PerceptronSentenceBoundaryDetecor_.SKIP_SPACE_FREQUENCY) != 1 && sentenceCounter < sentences.size() - 1) {
+            if (rnd.nextInt(PerceptronSentenceBoundaryDetecor.SKIP_SPACE_FREQUENCY) != 1 && sentenceCounter < sentences.size() - 1) {
                 sb.append(" ");
             }
             sentenceCounter++;

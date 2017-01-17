@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class PerceptronSentenceBoundaryDetecor_ implements SentenceBoundaryDetector {
+public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetector {
 
     public static final int SKIP_SPACE_FREQUENCY = 50;
     public static final String BOUNDARY_CHARS = ".!?";
@@ -39,7 +39,7 @@ public class PerceptronSentenceBoundaryDetecor_ implements SentenceBoundaryDetec
         }
     }
 
-    public PerceptronSentenceBoundaryDetecor_(DoubleValueMap<String> weights) {
+    public PerceptronSentenceBoundaryDetecor(DoubleValueMap<String> weights) {
         this.weights = weights;
     }
 
@@ -52,7 +52,7 @@ public class PerceptronSentenceBoundaryDetecor_ implements SentenceBoundaryDetec
             this.iterationCount = iterationCount;
         }
 
-        public PerceptronSentenceBoundaryDetecor_ train() throws IOException {
+        public PerceptronSentenceBoundaryDetecor train() throws IOException {
             DoubleValueMap<String> weights = new DoubleValueMap<>();
             List<String> sentences = SimpleTextReader.trimmingUTF8Reader(trainFile).asStringList();
             DoubleValueMap<String> averages = new DoubleValueMap<>();
@@ -116,7 +116,7 @@ public class PerceptronSentenceBoundaryDetecor_ implements SentenceBoundaryDetec
                 weights.set(key, weights.get(key) - averages.get(key)*1d / updateCount);
             }
 
-            return new PerceptronSentenceBoundaryDetecor_(weights);
+            return new PerceptronSentenceBoundaryDetecor(weights);
         }
     }
 

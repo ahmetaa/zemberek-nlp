@@ -18,11 +18,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>zemberek-nlp</groupId>
-            <artifactId>morphology</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
             <version>4.5.3</version>
