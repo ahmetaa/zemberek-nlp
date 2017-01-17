@@ -17,7 +17,7 @@ import java.util.List;
 
 public class TurkishSentenceAnalyzer extends BaseParser {
 
-    private TurkishMorphology turkishParser;
+    private TurkishMorphology turkishMorphology;
     private TurkishMorphDisambiguator disambiguator;
     private ZemberekLexer lexer = new ZemberekLexer();
 
@@ -38,7 +38,7 @@ public class TurkishSentenceAnalyzer extends BaseParser {
         System.out.println("Loading Dictionaries:" + dicFiles.toString());
         if (dicFiles.size() == 0)
             throw new IllegalArgumentException("At least one dictionary file is required. (with txt extension)");
-        turkishParser = TurkishMorphology.builder().addTextDictionaries(dicFiles.toArray(new File[dicFiles.size()])).build();
+        turkishMorphology = TurkishMorphology.builder().addTextDictionaries(dicFiles.toArray(new File[dicFiles.size()])).build();
         System.out.println("Morph Parser Generated.");
 
         File rootSmoothLm = new File(dataDir, "root-lm.z3.slm");
@@ -52,9 +52,9 @@ public class TurkishSentenceAnalyzer extends BaseParser {
     }
 
     public TurkishSentenceAnalyzer(
-            TurkishMorphology turkishParser,
+            TurkishMorphology turkishMorphology,
             TurkishMorphDisambiguator disambiguator) {
-        this.turkishParser = turkishParser;
+        this.turkishMorphology = turkishMorphology;
         this.disambiguator = disambiguator;
     }
 
@@ -62,7 +62,7 @@ public class TurkishSentenceAnalyzer extends BaseParser {
         SentenceAnalysis sentenceParse = new SentenceAnalysis();
         String preprocessed = preProcess(sentence);
         for (String s : Splitter.on(" ").omitEmptyStrings().trimResults().split(preprocessed)) {
-            List<WordAnalysis> parses = turkishParser.analyze(s);
+            List<WordAnalysis> parses = turkishMorphology.analyze(s);
             sentenceParse.addParse(s, parses);
         }
         return sentenceParse;

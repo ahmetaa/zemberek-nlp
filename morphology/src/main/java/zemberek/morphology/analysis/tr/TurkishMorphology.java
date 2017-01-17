@@ -10,6 +10,8 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.WordAnalyzer;
 import zemberek.morphology.generator.SimpleGenerator;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
@@ -17,8 +19,6 @@ import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.WordAnalyzer;
 import zemberek.morphology.structure.StemAndEnding;
 
 import java.io.File;
@@ -46,11 +46,18 @@ public class TurkishMorphology extends BaseParser {
     private LoadingCache<String, List<WordAnalysis>> dynamicCache;
     private StaticMorphCache staticCache;
 
+    private boolean useDynamicCache = true;
+    private boolean useUnidentifiedTokenAnalyzer = true;
+    private boolean useStaticCache = true;
+
     public static class TurkishMorphParserBuilder {
-        WordAnalyzer _parser;
+        WordAnalyzer _analyzer;
         SimpleGenerator _generator;
         SuffixProvider suffixProvider = new TurkishSuffixes();
         RootLexicon lexicon = new RootLexicon();
+        private boolean useDynamicCache = true;
+        private boolean useUnidentifiedTokenAnalyzer = true;
+        private boolean useStaticCache = true;
 
         public TurkishMorphParserBuilder addDefaultDictionaries() throws IOException {
             return addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.toArray(
@@ -75,6 +82,21 @@ public class TurkishMorphology extends BaseParser {
             for (File file : dictionaryFiles) {
                 lexicon.removeAll(new TurkishDictionaryLoader(suffixProvider).load(file));
             }
+            return this;
+        }
+
+        public TurkishMorphParserBuilder doNotUseDynamicCache() {
+            useDynamicCache = false;
+            return this;
+        }
+
+        public TurkishMorphParserBuilder doNotUseStaticCache() {
+            useStaticCache = false;
+            return this;
+        }
+
+        public TurkishMorphParserBuilder doNotUseUnidentifiedTokenAnalyzer() {
+            useUnidentifiedTokenAnalyzer = false;
             return this;
         }
 
@@ -103,83 +125,51 @@ public class TurkishMorphology extends BaseParser {
             Stopwatch sw = Stopwatch.createStarted();
             DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
             graph.addDictionaryItems(lexicon);
-            _parser = new WordAnalyzer(graph);
+            _analyzer = new WordAnalyzer(graph);
             _generator = new SimpleGenerator(graph);
             Log.info("Parser ready: " + sw.elapsed(TimeUnit.MILLISECONDS) + "ms.");
-            return new TurkishMorphology(_parser, _generator, lexicon, graph, suffixProvider);
+            return new TurkishMorphology(this, graph);
         }
     }
 
     private void generateCaches() {
-        this.dynamicCache = CacheBuilder.newBuilder()
-                .maximumSize(50000)
-                .concurrencyLevel(1)
-                .initialCapacity(20000)
-                .build(new MorphParseCacheLoader());
-        try {
-            List<String> words = Resources.readLines(Resources.getResource("tr/top-20K-words.txt"), Charsets.UTF_8);
-            staticCache = new StaticMorphCache(wordAnalyzer, words);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (useDynamicCache) {
+            this.dynamicCache = CacheBuilder.newBuilder()
+                    .maximumSize(60000)
+                    .concurrencyLevel(1)
+                    .initialCapacity(30000)
+                    .build(new MorphParseCacheLoader());
+        }
+        if (useStaticCache) {
+            try {
+                List<String> words = Resources.readLines(Resources.getResource("tr/top-20K-words.txt"), Charsets.UTF_8);
+                staticCache = new StaticMorphCache(wordAnalyzer, words);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     private class MorphParseCacheLoader extends CacheLoader<String, List<WordAnalysis>> {
         @Override
         public List<WordAnalysis> load(String word) throws Exception {
-            String s = normalize(word); // TODO: this may cause problem for some foreign words.
-            if (s.length() == 0)
-                return Collections.emptyList();
-            List<WordAnalysis> res = wordAnalyzer.analyze(s);
-            if (res.size() == 0) {
-                res.addAll(quoteParseCheck(s));
-            }
-            if (res.size() == 0) {
-                invalidateCache(s);
-                res.addAll(unidentifiedTokenAnalyzer.parse(s));
-            }
-            if (res.size() == 0) {
-                res.add(new WordAnalysis(
-                        DictionaryItem.UNKNOWN,
-                        s,
-                        Lists.newArrayList(WordAnalysis.InflectionalGroup.UNKNOWN)));
-            }
-            return res;
-        }
-
-        public List<WordAnalysis> quoteParseCheck(String word) {
-            List<WordAnalysis> results = new ArrayList<>(2);
-
-            if (word.contains("'")) {
-
-                StemAndEnding se = new StemAndEnding(
-                        Strings.subStringUntilFirst(word, "'"),
-                        Strings.subStringAfterFirst(word, "'"));
-                String stem = normalize(se.stem);
-
-                String withoutQuote = word.replaceAll("'", "");
-
-                List<WordAnalysis> noQuotesParses = wordAnalyzer.analyze(withoutQuote);
-                results.addAll(noQuotesParses.stream()
-                        .filter(noQuotesParse -> noQuotesParse.getStems().contains(stem))
-                        .collect(Collectors.toList()));
-            }
-            return results;
+            return TurkishMorphology.this.analyzeWithoutCache(word);
         }
     }
 
     private TurkishMorphology(
-            WordAnalyzer parser,
-            SimpleGenerator generator,
-            RootLexicon lexicon,
-            DynamicLexiconGraph graph,
-            SuffixProvider suffixProvider) {
-        this.wordAnalyzer = parser;
-        this.generator = generator;
-        this.lexicon = lexicon;
+            TurkishMorphParserBuilder builder, DynamicLexiconGraph graph) {
+        this.wordAnalyzer = builder._analyzer;
+        this.generator = builder._generator;
+        this.lexicon = builder.lexicon;
         this.graph = graph;
-        this.unidentifiedTokenAnalyzer = new UnidentifiedTokenAnalyzer(this);
-        this.suffixProvider = suffixProvider;
+        if (builder.useUnidentifiedTokenAnalyzer) {
+            this.unidentifiedTokenAnalyzer = new UnidentifiedTokenAnalyzer(this);
+        }
+        this.suffixProvider = builder.suffixProvider;
+        this.useDynamicCache = builder.useDynamicCache;
+        this.useStaticCache = builder.useStaticCache;
+        this.useUnidentifiedTokenAnalyzer = builder.useUnidentifiedTokenAnalyzer;
         generateCaches();
     }
 
@@ -205,21 +195,87 @@ public class TurkishMorphology extends BaseParser {
      * @return WordAnalysis list.
      */
     public List<WordAnalysis> analyze(String word) {
-        List<WordAnalysis> res = staticCache.get(word);
-        if (res == null) {
-            res = dynamicCache.getUnchecked(word);
+        if (useStaticCache) {
+            List<WordAnalysis> result = staticCache.get(word);
+            if (result != null) {
+                return result;
+            }
+        }
+        if (useDynamicCache) {
+            return dynamicCache.getUnchecked(word);
+        } else {
+            return analyzeWithoutCache(word);
+        }
+    }
+
+    /**
+     * Normalizes the input word and analyses it. If word cannot be parsed following occurs:
+     * - if input is a number, system tries to parse it by creating a number DictionaryEntry.
+     * - if input starts with a capital letter, or contains ['] adds a Dictionary entry as a proper noun.
+     * - if above options does not generate a result, it generates an UNKNOWN dictionary entry and returns a parse with it.
+     *
+     * @param word input word.
+     * @return WordAnalysis list.
+     */
+    public List<WordAnalysis> analyzeWithoutCache(String word) {
+        String s = normalize(word); // TODO: this may cause problem for some foreign words.
+        if (s.length() == 0) {
+            return Collections.emptyList();
+        }
+        List<WordAnalysis> res = wordAnalyzer.analyze(s);
+        if (res.size() == 0) {
+            res.addAll(analyzeWordsWithSingleQuote(s));
+        }
+        if (res.size() == 0 && useUnidentifiedTokenAnalyzer) {
+            invalidateCache(s);
+            res.addAll(unidentifiedTokenAnalyzer.parse(s));
+        }
+        if (res.size() == 0) {
+            res.add(new WordAnalysis(
+                    DictionaryItem.UNKNOWN,
+                    s,
+                    Lists.newArrayList(WordAnalysis.InflectionalGroup.UNKNOWN)));
         }
         return res;
     }
 
+    private List<WordAnalysis> analyzeWordsWithSingleQuote(String word) {
+        List<WordAnalysis> results = new ArrayList<>(2);
+
+        if (word.contains("'")) {
+
+            StemAndEnding se = new StemAndEnding(
+                    Strings.subStringUntilFirst(word, "'"),
+                    Strings.subStringAfterFirst(word, "'"));
+            String stem = normalize(se.stem);
+
+            String withoutQuote = word.replaceAll("'", "");
+
+            List<WordAnalysis> noQuotesParses = wordAnalyzer.analyze(withoutQuote);
+            results.addAll(noQuotesParses.stream()
+                    .filter(noQuotesParse -> noQuotesParse.getStems().contains(stem))
+                    .collect(Collectors.toList()));
+        }
+        return results;
+    }
+
+
     public void invalidateAllCache() {
-        dynamicCache.invalidateAll();
-        staticCache.removeAll();
+        if (useDynamicCache) {
+            dynamicCache.invalidateAll();
+        }
+        if (useStaticCache) {
+            staticCache.removeAll();
+        }
     }
 
     public void invalidateCache(String input) {
-        dynamicCache.invalidate(input);
-        staticCache.remove(input);
+        if (useDynamicCache) {
+            dynamicCache.invalidate(input);
+        }
+        if (useStaticCache) {
+            staticCache.remove(input);
+        }
     }
 
     public SimpleGenerator getGenerator() {
@@ -237,11 +293,10 @@ public class TurkishMorphology extends BaseParser {
     /**
      * Adds one or more dictionary items. Adding new dictionary items invalidates all caches.
      */
-    public void addDictionaryItems(DictionaryItem... item) {
+    public synchronized void addDictionaryItems(DictionaryItem... item) {
         this.graph.addDictionaryItems(item);
         invalidateAllCache();
     }
-
 
     public SuffixProvider getSuffixProvider() {
         return suffixProvider;

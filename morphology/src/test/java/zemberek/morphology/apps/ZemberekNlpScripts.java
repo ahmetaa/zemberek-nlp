@@ -87,8 +87,8 @@ public class ZemberekNlpScripts {
         }
     }
 
-    static Path NLP_TOOLS_PATH = Paths.get("/home/ahmetaa/apps/nlp/tools");
-    static Path OFLAZER_ANALYZER_PATH = NLP_TOOLS_PATH.resolve("Morphological-Analyzer/Turkish-Oflazer-Linux64");
+    private static Path NLP_TOOLS_PATH = Paths.get("/home/ahmetaa/apps/nlp/tools");
+    private static Path OFLAZER_ANALYZER_PATH = NLP_TOOLS_PATH.resolve("Morphological-Analyzer/Turkish-Oflazer-Linux64");
 
     @Test
     public void parseLargeVocabularyOflazer() throws IOException {
@@ -213,7 +213,6 @@ public class ZemberekNlpScripts {
 
     @Test
     public void generatorTest() throws IOException {
-
         TurkishMorphology parser = TurkishMorphology.createWithDefaults();
         List<WordAnalysis> result = parser.analyze("besiciliği");
         WordAnalysis first = result.get(0);
@@ -224,10 +223,18 @@ public class ZemberekNlpScripts {
     public void performance() throws IOException {
         List<String> lines = Files.readAllLines(
                 Paths.get("/media/depo/data/aaa/corpora/dunya.100k"));
-        TurkishMorphology parser = TurkishMorphology.createWithDefaults();
-        TurkishSentenceAnalyzer sentenceParser = new TurkishSentenceAnalyzer(parser, new Z3MarkovModelDisambiguator());
+
+        TurkishMorphology analyzer = TurkishMorphology.builder()
+                .addDefaultDictionaries()
+//                .doNotUseDynamicCache()
+                .doNotUseStaticCache()
+                .build();
+
+        TurkishSentenceAnalyzer sentenceAnalyzer =
+                new TurkishSentenceAnalyzer(analyzer, new Z3MarkovModelDisambiguator());
+
         System.out.println(lines.size() + " lines will be processed.");
-        System.out.println("Dictionary has " + parser.getLexicon().size() + " items.");
+        System.out.println("Dictionary has " + analyzer.getLexicon().size() + " items.");
 
         long tokenCount = 0;
         long tokenCountNoPunct = 0;
@@ -250,11 +257,12 @@ public class ZemberekNlpScripts {
                 + tokenCountNoPunct * 1000d / elapsed + " tokens/sec");
         System.out.println();
         System.out.println("Sentence word analysis test:");
-
+        int counter = 0;
         clock.reset().start();
         for (String line : lines) {
             try {
-                sentenceParser.analyze(line);
+                SentenceAnalysis res = sentenceAnalyzer.analyze(line);
+                counter += res.size(); // for preventing VM optimizations.
             } catch (Exception e) {
                 System.out.println(line);
                 e.printStackTrace();
@@ -262,15 +270,18 @@ public class ZemberekNlpScripts {
         }
         elapsed = clock.elapsed(TimeUnit.MILLISECONDS);
         System.out.println("Elapsed Time = " + elapsed);
-        System.out.println("Tokenization + Analysis speed = " + tokenCount * 1000d / elapsed + " tokens/sec");
-        System.out.println("Tokenization + Analysis speed (no punctuation) = " + tokenCountNoPunct * 1000d / elapsed + " tokens/sec");
+        System.out.println("Tokenization + Analysis speed = "
+                + tokenCount * 1000d / elapsed + " tokens/sec");
+        System.out.println("Tokenization + Analysis speed (no punctuation) = "
+                + tokenCountNoPunct * 1000d / elapsed + " tokens/sec");
         System.out.println();
         System.out.println("Disambiguation Test:");
-        parser.invalidateAllCache();
+        analyzer.invalidateAllCache();
         clock.reset().start();
         for (String line : lines) {
             try {
-                sentenceParser.bestParse(line);
+                List<WordAnalysis> results = sentenceAnalyzer.bestParse(line);
+                counter += results.size(); // for preventing VM optimizations.
             } catch (Exception e) {
                 System.out.println(line);
                 e.printStackTrace();
@@ -278,9 +289,11 @@ public class ZemberekNlpScripts {
         }
         elapsed = clock.elapsed(TimeUnit.MILLISECONDS);
         System.out.println("Elapsed Time = " + elapsed);
-        System.out.println("Tokenization + Analysis + Disambiguation speed = " + tokenCount * 1000d / elapsed + " tokens/sec");
+        System.out.println("Tokenization + Analysis + Disambiguation speed = "
+                + tokenCount * 1000d / elapsed + " tokens/sec");
         System.out.println("Tokenization + Analysis + Disambiguation speed (no punctuation) = "
                 + tokenCountNoPunct * 1000d / elapsed + " tokens/sec");
+        System.out.println(counter);
     }
 
     @Test
