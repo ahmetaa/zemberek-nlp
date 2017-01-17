@@ -4,8 +4,11 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
 import zemberek.core.io.SimpleTextReader;
+import zemberek.core.logging.Log;
+import zemberek.core.text.TokenSequence;
 import zemberek.tokenizer.PerceptronSentenceBoundaryDetecor_;
 import zemberek.tokenizer.SentenceBoundaryDetector;
+import zemberek.tokenizer.SimpleSentenceBoundaryDetector;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,15 +25,15 @@ public class SentenceBoundaryDetectorsComparison {
         Stopwatch sw = Stopwatch.createStarted();
         PerceptronSentenceBoundaryDetecor_ perceptron = new PerceptronSentenceBoundaryDetecor_.Trainer(
                 new File("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Train.txt"),
-                3).train();
+                5).train();
         System.out.println("Train Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
 //        test(testSentences, perceptron);
-        evaluate(testSentences, perceptron);
+        evaluate2(testSentences, perceptron);
 
         System.out.println(" \n---------------- Rule Based ------------------\n");
-        //SimpleSentenceBoundaryDetector ruleBased = new SimpleSentenceBoundaryDetector();
+        SimpleSentenceBoundaryDetector ruleBased = new SimpleSentenceBoundaryDetector();
 //        test(testSentences, ruleBased);
-        //evaluate(testSentences, ruleBased);
+        evaluate2(testSentences, ruleBased);
 
     }
 
@@ -50,68 +53,86 @@ public class SentenceBoundaryDetectorsComparison {
         Stopwatch sw = Stopwatch.createStarted();
         List<String> found = detector.getSentences(joinedSentence);
         System.out.println("Test Elapsed: " + sw.elapsed(TimeUnit.MILLISECONDS));
-        evaluate(sentences, found);
+        //evaluate(sentences, found);
     }
 
-    private static void evaluate(List<String> sentences, List<String> found) {
-        Set<String> reference = Sets.newLinkedHashSet(sentences);
-        Set<String> foundSet = Sets.newLinkedHashSet(found);
+    public static void evaluate2(List<String> referenceSentences, SentenceBoundaryDetector detector) throws IOException {
 
-        int hit = 0;
-        for (String s : foundSet) {
-            if (reference.contains(s)) {
-                hit++;
-                //System.out.println(s);
-            } else
-                System.out.println(s + " -");
+        // Sanitize
+        referenceSentences = referenceSentences.stream().map(String::trim).collect(Collectors.toList());
+        String joinedSentence = Joiner.on(" ").join(referenceSentences);
+        Stopwatch sw = Stopwatch.createStarted();
+        List<String> foundSentences = detector.getSentences(joinedSentence);
+        Log.info("Segmentation Elapsed: %d ms", sw.elapsed(TimeUnit.MILLISECONDS));
+
+        // separate each boundary token with space in all sentences.
+        List<String> separatedSource = new ArrayList<>();
+        for (String sentence : referenceSentences) {
+            separatedSource.add(sentence
+                    .replaceAll("[.]", " . ")
+                    .replaceAll("[?]", " ? ")
+                    .replaceAll("[!]", " ! ")
+                    .replaceAll("\\s+", " ")
+                    .trim());
         }
-        System.out.println("Total=" + sentences.size() + " Hit=" + hit + " Precision:" + hit * 100d / sentences.size());
-    }
 
-    //todo (aaa): this does not work correctly.
-    public static void evaluate(List<String> sentences, SentenceBoundaryDetector detector) throws IOException {
-
-        sentences = sentences.stream().map(String::trim).collect(Collectors.toList());
+        List<String> separatedHypotheses = new ArrayList<>();
+        for (String sentence : foundSentences) {
+            separatedHypotheses.add(sentence
+                    .replaceAll("[.]", " . ")
+                    .replaceAll("[?]", " ? ")
+                    .replaceAll("[!]", " ! ")
+                    .replaceAll("\\s+", " ")
+                    .trim());
+        }
 
         Set<Integer> refBoundaries = new LinkedHashSet<>();
         int j = 0;
-        for (String sentence : sentences) {
-            j = j + sentence.length() + 1;
+        for (String sentence : separatedSource) {
+            TokenSequence seq = new TokenSequence(sentence);
+            j = j + seq.size();
             refBoundaries.add(j);
         }
-        String joinedSentence = Joiner.on(" ").join(sentences);
-        Stopwatch sw = Stopwatch.createStarted();
-        List<String> found = detector.getSentences(joinedSentence);
 
         Set<Integer> foundBoundaries = new LinkedHashSet<>();
         int k = 0;
-        for (String s : found) {
-            k = k + s.length() + 1;
+        for (String s : separatedHypotheses) {
+            TokenSequence seq = new TokenSequence(s);
+            k = k + seq.size();
             foundBoundaries.add(k);
         }
 
         try (PrintWriter pw = new PrintWriter(new File("segments"))) {
-            found.forEach(pw::println);
+            foundSentences.forEach(pw::println);
         }
 
-        System.out.println("Test Elapsed: " + sw.elapsed(TimeUnit.MILLISECONDS));
-
+        Log.info("Evaluation result for boundary matches.");
+        Log.info("Actual sentence count = %d , Found sentence count = %d", referenceSentences.size(), foundSentences.size());
         Set<Integer> truePositives = new HashSet<>(refBoundaries);
         truePositives.retainAll(foundBoundaries);
         Set<Integer> falsePositives = new HashSet<>(foundBoundaries);
         falsePositives.removeAll(refBoundaries);
         double precision = truePositives.size() * 1d / (truePositives.size() + falsePositives.size());
-        System.out.println("Precision = " + precision);
+        Log.info("Precision = %.4f", precision);
         double recall = truePositives.size() * 1d / refBoundaries.size();
-        System.out.println("Recall    = " + recall);
+        Log.info("Recall    = %.4f" , recall);
         double f = 2 * precision * recall / (precision + recall);
-        System.out.println("F         = " + f);
+        Log.info("F         = %.4f", f);
 
         Set<Integer> insertions = new HashSet<>(foundBoundaries);
         insertions.removeAll(refBoundaries);
         Set<Integer> deletions = new HashSet<>(refBoundaries);
         deletions.removeAll(foundBoundaries);
 
-        System.out.println("NIST error rate = " + (deletions.size() + insertions.size()) * 100d / refBoundaries.size());
+        Log.info("NIST error rate = %.4f",
+                (deletions.size() + insertions.size()) * 100d / refBoundaries.size());
+
+        HashSet<String> matchingSentences = new HashSet<>(foundSentences);
+        matchingSentences.retainAll(referenceSentences);
+        Log.info("Amount of exactly matching sentences = %d in %d (%.4f)",
+                matchingSentences.size(),
+                referenceSentences.size(),
+                matchingSentences.size() * 100d / referenceSentences.size());
     }
+
 }
