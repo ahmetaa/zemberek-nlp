@@ -226,8 +226,7 @@ public class ZemberekNlpScripts {
 
         TurkishMorphology analyzer = TurkishMorphology.builder()
                 .addDefaultDictionaries()
-//                .doNotUseDynamicCache()
-                .doNotUseStaticCache()
+            //    .doNotUseCache()
                 .build();
 
         TurkishSentenceAnalyzer sentenceAnalyzer =

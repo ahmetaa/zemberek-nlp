@@ -6,7 +6,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
@@ -26,7 +25,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -44,20 +42,17 @@ public class TurkishMorphology extends BaseParser {
     private UnidentifiedTokenAnalyzer unidentifiedTokenAnalyzer;
 
     private LoadingCache<String, List<WordAnalysis>> dynamicCache;
-    private StaticMorphCache staticCache;
 
-    private boolean useDynamicCache = true;
+    private boolean useCache = true;
     private boolean useUnidentifiedTokenAnalyzer = true;
-    private boolean useStaticCache = true;
 
     public static class TurkishMorphParserBuilder {
         WordAnalyzer _analyzer;
         SimpleGenerator _generator;
         SuffixProvider suffixProvider = new TurkishSuffixes();
         RootLexicon lexicon = new RootLexicon();
-        private boolean useDynamicCache = true;
+        private boolean useCache = true;
         private boolean useUnidentifiedTokenAnalyzer = true;
-        private boolean useStaticCache = true;
 
         public TurkishMorphParserBuilder addDefaultDictionaries() throws IOException {
             return addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.toArray(
@@ -85,13 +80,8 @@ public class TurkishMorphology extends BaseParser {
             return this;
         }
 
-        public TurkishMorphParserBuilder doNotUseDynamicCache() {
-            useDynamicCache = false;
-            return this;
-        }
-
-        public TurkishMorphParserBuilder doNotUseStaticCache() {
-            useStaticCache = false;
+        public TurkishMorphParserBuilder doNotUseCache() {
+            useCache = false;
             return this;
         }
 
@@ -133,20 +123,12 @@ public class TurkishMorphology extends BaseParser {
     }
 
     private void generateCaches() {
-        if (useDynamicCache) {
+        if (useCache) {
             this.dynamicCache = CacheBuilder.newBuilder()
                     .maximumSize(60000)
                     .concurrencyLevel(1)
                     .initialCapacity(30000)
                     .build(new MorphParseCacheLoader());
-        }
-        if (useStaticCache) {
-            try {
-                List<String> words = Resources.readLines(Resources.getResource("tr/top-20K-words.txt"), Charsets.UTF_8);
-                staticCache = new StaticMorphCache(wordAnalyzer, words);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -167,8 +149,7 @@ public class TurkishMorphology extends BaseParser {
             this.unidentifiedTokenAnalyzer = new UnidentifiedTokenAnalyzer(this);
         }
         this.suffixProvider = builder.suffixProvider;
-        this.useDynamicCache = builder.useDynamicCache;
-        this.useStaticCache = builder.useStaticCache;
+        this.useCache = builder.useCache;
         this.useUnidentifiedTokenAnalyzer = builder.useUnidentifiedTokenAnalyzer;
         generateCaches();
     }
@@ -195,13 +176,7 @@ public class TurkishMorphology extends BaseParser {
      * @return WordAnalysis list.
      */
     public List<WordAnalysis> analyze(String word) {
-        if (useStaticCache) {
-            List<WordAnalysis> result = staticCache.get(word);
-            if (result != null) {
-                return result;
-            }
-        }
-        if (useDynamicCache) {
+        if (useCache) {
             return dynamicCache.getUnchecked(word);
         } else {
             return analyzeWithoutCache(word);
@@ -261,20 +236,14 @@ public class TurkishMorphology extends BaseParser {
 
 
     public void invalidateAllCache() {
-        if (useDynamicCache) {
+        if (useCache) {
             dynamicCache.invalidateAll();
-        }
-        if (useStaticCache) {
-            staticCache.removeAll();
         }
     }
 
     public void invalidateCache(String input) {
-        if (useDynamicCache) {
+        if (useCache) {
             dynamicCache.invalidate(input);
-        }
-        if (useStaticCache) {
-            staticCache.remove(input);
         }
     }
 
@@ -300,45 +269,5 @@ public class TurkishMorphology extends BaseParser {
 
     public SuffixProvider getSuffixProvider() {
         return suffixProvider;
-    }
-
-    static class StaticMorphCache {
-        private final HashMap<String, List<WordAnalysis>> cache;
-        private long hit = 0;
-        private long miss = 0;
-
-        public StaticMorphCache(WordAnalyzer parser, List<String> wordList) throws IOException {
-            cache = Maps.newHashMapWithExpectedSize(5000);
-            for (String s : wordList) {
-                cache.put(s, parser.analyze(s));
-            }
-        }
-
-        public void put(String key, List<WordAnalysis> parses) {
-            this.cache.put(key, parses);
-        }
-
-        public void remove(String key) {
-            this.cache.remove(key);
-        }
-
-        public void removeAll() {
-            cache.clear();
-        }
-
-        public List<WordAnalysis> get(String s) {
-            List<WordAnalysis> result = cache.get(s);
-            if (result != null) {
-                hit++;
-            } else {
-                miss++;
-            }
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "Hits: " + hit + " Miss: " + miss + " Hit ratio: %" + (hit / (double) (hit + miss) * 100);
-        }
     }
 }
