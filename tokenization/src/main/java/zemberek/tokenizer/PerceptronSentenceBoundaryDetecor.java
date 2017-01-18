@@ -5,16 +5,16 @@ import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
 import zemberek.core.collections.DoubleValueMap;
 import zemberek.core.collections.UIntSet;
-import zemberek.core.io.SimpleTextReader;
+import zemberek.core.text.TextUtil;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
 public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetector {
 
     public static final int SKIP_SPACE_FREQUENCY = 50;
-    public static final String BOUNDARY_CHARS = ".!?";
+    public static final String BOUNDARY_CHARS = ".!?:";
     DoubleValueMap<String> weights = new DoubleValueMap<>();
 
 
@@ -44,17 +44,17 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
     }
 
     public static class Trainer {
-        File trainFile;
+        Path trainFile;
         int iterationCount;
 
-        public Trainer(File trainFile, int iterationCount) {
+        public Trainer(Path trainFile, int iterationCount) {
             this.trainFile = trainFile;
             this.iterationCount = iterationCount;
         }
 
         public PerceptronSentenceBoundaryDetecor train() throws IOException {
             DoubleValueMap<String> weights = new DoubleValueMap<>();
-            List<String> sentences = SimpleTextReader.trimmingUTF8Reader(trainFile).asStringList();
+            List<String> sentences = TextUtil.loadLinesWithText(trainFile);
             DoubleValueMap<String> averages = new DoubleValueMap<>();
             UIntSet indexSet = new UIntSet();
             Random rnd = new Random(1);
@@ -119,8 +119,6 @@ public class PerceptronSentenceBoundaryDetecor implements SentenceBoundaryDetect
             return new PerceptronSentenceBoundaryDetecor(weights);
         }
     }
-
-
 
     @Override
     public List<String> getSentences(String doc) {

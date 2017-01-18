@@ -143,11 +143,11 @@ public class TextUtil {
 
     public static final Splitter SPACE_SPLITTER = Splitter.on(" ").omitEmptyStrings().trimResults();
 
-    public static String loadUtfAsString(Path filePath) throws IOException {
+    public static String loadUtf8AsString(Path filePath) throws IOException {
         return String.join("\n", Files.readAllLines(filePath, StandardCharsets.UTF_8));
     }
 
-    public static List<String> loadLines(Path path) throws IOException {
+    public static List<String> loadLinesWithText(Path path) throws IOException {
         return Files.readAllLines(path, StandardCharsets.UTF_8)
                 .stream()
                 .filter(s -> s.trim().length() > 0)

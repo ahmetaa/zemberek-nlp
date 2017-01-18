@@ -47,7 +47,7 @@ public class TurkishMorphology extends BaseParser {
     private boolean useUnidentifiedTokenAnalyzer = true;
     private boolean useStaticCache = true;
 
-    public static class TurkishMorphParserBuilder {
+    public static class Builder {
         WordAnalyzer _analyzer;
         SimpleGenerator _generator;
         SuffixProvider suffixProvider = new TurkishSuffixes();
@@ -56,12 +56,12 @@ public class TurkishMorphology extends BaseParser {
         private boolean useUnidentifiedTokenAnalyzer = true;
         private boolean useStaticCache = true;
 
-        public TurkishMorphParserBuilder addDefaultDictionaries() throws IOException {
+        public Builder addDefaultDictionaries() throws IOException {
             return addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.toArray(
                     new String[TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.size()]));
         }
 
-        public TurkishMorphParserBuilder addTextDictionaries(File... dictionaryFiles) throws IOException {
+        public Builder addTextDictionaries(File... dictionaryFiles) throws IOException {
             List<String> lines = new ArrayList<>();
             for (File file : dictionaryFiles) {
                 lines.addAll(Files.readAllLines(file.toPath()));
@@ -70,34 +70,34 @@ public class TurkishMorphology extends BaseParser {
             return this;
         }
 
-        public TurkishMorphParserBuilder addDictionaryLines(String... lines) throws IOException {
+        public Builder addDictionaryLines(String... lines) throws IOException {
             lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(lines));
             return this;
         }
 
-        public TurkishMorphParserBuilder removeDictFiles(File... dictionaryFiles) throws IOException {
+        public Builder removeDictFiles(File... dictionaryFiles) throws IOException {
             for (File file : dictionaryFiles) {
                 lexicon.removeAll(new TurkishDictionaryLoader(suffixProvider).load(file));
             }
             return this;
         }
 
-        public TurkishMorphParserBuilder doNotUseDynamicCache() {
+        public Builder doNotUseDynamicCache() {
             useDynamicCache = false;
             return this;
         }
 
-        public TurkishMorphParserBuilder doNotUseStaticCache() {
+        public Builder doNotUseStaticCache() {
             useStaticCache = false;
             return this;
         }
 
-        public TurkishMorphParserBuilder doNotUseUnidentifiedTokenAnalyzer() {
+        public Builder doNotUseUnidentifiedTokenAnalyzer() {
             useUnidentifiedTokenAnalyzer = false;
             return this;
         }
 
-        public TurkishMorphParserBuilder addTextDictionaryResources(String... resources) throws IOException {
+        public Builder addTextDictionaryResources(String... resources) throws IOException {
             Log.info("Loading resources :%n%s" , String.join("\n", Arrays.asList(resources)));
             List<String> lines = new ArrayList<>();
             for (String resource : resources) {
@@ -108,12 +108,12 @@ public class TurkishMorphology extends BaseParser {
             return this;
         }
 
-        public TurkishMorphParserBuilder removeItems(Iterable<String> dictionaryString) throws IOException {
+        public Builder removeItems(Iterable<String> dictionaryString) throws IOException {
             lexicon.removeAll(new TurkishDictionaryLoader(suffixProvider).load(dictionaryString));
             return this;
         }
 
-        public TurkishMorphParserBuilder removeAllLemmas(Iterable<String> lemmas) throws IOException {
+        public Builder removeAllLemmas(Iterable<String> lemmas) throws IOException {
             lexicon.removeAllLemmas(lemmas);
             return this;
         }
@@ -138,6 +138,7 @@ public class TurkishMorphology extends BaseParser {
                     .build(new MorphParseCacheLoader());
         }
         if (useStaticCache) {
+            Log.info("Generating static cache.");
             try {
                 List<String> words = Resources.readLines(Resources.getResource("tr/top-20K-words.txt"), Charsets.UTF_8);
                 staticCache = new StaticMorphCache(wordAnalyzer, words);
@@ -155,7 +156,7 @@ public class TurkishMorphology extends BaseParser {
     }
 
     private TurkishMorphology(
-            TurkishMorphParserBuilder builder, DynamicLexiconGraph graph) {
+            Builder builder, DynamicLexiconGraph graph) {
         this.wordAnalyzer = builder._analyzer;
         this.generator = builder._generator;
         this.lexicon = builder.lexicon;
@@ -168,14 +169,15 @@ public class TurkishMorphology extends BaseParser {
         this.useStaticCache = builder.useStaticCache;
         this.useUnidentifiedTokenAnalyzer = builder.useUnidentifiedTokenAnalyzer;
         generateCaches();
+        Log.info("Initialization complete.");
     }
 
     public static TurkishMorphology createWithDefaults() throws IOException {
-        return new TurkishMorphParserBuilder().addDefaultDictionaries().build();
+        return new Builder().addDefaultDictionaries().build();
     }
 
-    public static TurkishMorphParserBuilder builder() {
-        return new TurkishMorphParserBuilder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     public WordAnalyzer getWordAnalyzer() {

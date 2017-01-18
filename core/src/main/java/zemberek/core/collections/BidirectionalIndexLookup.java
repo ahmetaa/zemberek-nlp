@@ -20,7 +20,7 @@ public class BidirectionalIndexLookup<T> {
         if (!path.toFile().exists()) {
             throw new IllegalArgumentException("File " + path + " does not exist.");
         }
-        List<String> lines = TextUtil.loadLines(path);
+        List<String> lines = TextUtil.loadLinesWithText(path);
         UIntValueMap<String> indexLookup = new UIntValueMap<>(lines.size());
         UIntMap<String> wordLookup = new UIntMap<>(lines.size());
         for (String line : lines) {

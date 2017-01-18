@@ -2,8 +2,8 @@ package zemberek.tokenization;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
-import zemberek.core.io.SimpleTextReader;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextUtil;
 import zemberek.core.text.TokenSequence;
 import zemberek.tokenizer.PerceptronSentenceBoundaryDetecor;
 import zemberek.tokenizer.SentenceBoundaryDetector;
@@ -12,6 +12,8 @@ import zemberek.tokenizer.SimpleSentenceBoundaryDetector;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -19,17 +21,24 @@ import java.util.stream.Collectors;
 public class SentenceBoundaryDetectorsComparison {
 
     public static void main(String[] args) throws IOException {
-        List<String> testSentences = SimpleTextReader.trimmingUTF8Reader(
-                new File("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Test.txt")).asStringList();
+
+        Path train = Paths.get("/home/ahmetaa/data/nlp/corpora/train-300k");
+        //Path train = Paths.get("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Train.txt");
+        //Path test = Paths.get("/home/ahmetaa/data/nlp/corpora/test-5k");
+        Path test = Paths.get("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Test.txt");
+
+        List<String> testSentences = TextUtil.loadLinesWithText(test);
         Stopwatch sw = Stopwatch.createStarted();
+
+        Log.info(" \n---------------- Perceptron ------------------\n");
+
         PerceptronSentenceBoundaryDetecor perceptron = new PerceptronSentenceBoundaryDetecor.Trainer(
-                new File("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Train.txt"),
-                5).train();
-        System.out.println("Train Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
+                train, 3).train();
+        Log.info("Train Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
 //        test(testSentences, perceptron);
         evaluate2(testSentences, perceptron);
 
-        System.out.println(" \n---------------- Rule Based ------------------\n");
+        Log.info(" \n---------------- Rule Based ------------------\n");
         SimpleSentenceBoundaryDetector ruleBased = new SimpleSentenceBoundaryDetector();
 //        test(testSentences, ruleBased);
         evaluate2(testSentences, ruleBased);
@@ -71,6 +80,7 @@ public class SentenceBoundaryDetectorsComparison {
                     .replaceAll("[.]", " . ")
                     .replaceAll("[?]", " ? ")
                     .replaceAll("[!]", " ! ")
+                    .replaceAll("[:]", " : ")
                     .replaceAll("\\s+", " ")
                     .trim());
         }
@@ -81,6 +91,7 @@ public class SentenceBoundaryDetectorsComparison {
                     .replaceAll("[.]", " . ")
                     .replaceAll("[?]", " ? ")
                     .replaceAll("[!]", " ! ")
+                    .replaceAll("[:]", " : ")
                     .replaceAll("\\s+", " ")
                     .trim());
         }
@@ -114,7 +125,7 @@ public class SentenceBoundaryDetectorsComparison {
         double precision = truePositives.size() * 1d / (truePositives.size() + falsePositives.size());
         Log.info("Precision = %.4f", precision);
         double recall = truePositives.size() * 1d / refBoundaries.size();
-        Log.info("Recall    = %.4f" , recall);
+        Log.info("Recall    = %.4f", recall);
         double f = 2 * precision * recall / (precision + recall);
         Log.info("F         = %.4f", f);
 
