@@ -132,11 +132,9 @@ public class TurkishMorphology extends BaseParser {
     private void generateCaches() {
         if (useDynamicCache) {
             this.dynamicCache = CacheBuilder.newBuilder()
-                    .maximumSize(60000)
-                    .concurrencyLevel(1)
-                    .weakKeys()
-                    .weakValues()
-                    .initialCapacity(30000)
+                    .maximumSize(100000)
+                    .concurrencyLevel(4)
+                    .initialCapacity(50000)
                     .build(new MorphParseCacheLoader());
         }
         if (useStaticCache) {
@@ -227,7 +225,7 @@ public class TurkishMorphology extends BaseParser {
         }
         if (res.size() == 0 && useUnidentifiedTokenAnalyzer) {
             invalidateCache(s);
-            res.addAll(unidentifiedTokenAnalyzer.parse(s));
+            res.addAll(unidentifiedTokenAnalyzer.analyze(s));
         }
         if (res.size() == 0) {
             res.add(new WordAnalysis(

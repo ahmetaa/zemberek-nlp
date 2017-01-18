@@ -29,20 +29,32 @@ public class WordVectorLookup {
         int wordIndex;
         float[] array;
 
-        public Vector(int wordIndex, float[] array) {
+        Vector(int wordIndex, float[] array) {
             this.wordIndex = wordIndex;
             this.array = array;
         }
+
+        public int getWordIndex() {
+            return wordIndex;
+        }
+
+        public float[] getArray() {
+            return array;
+        }
     }
 
-    public static WordVectorLookup loadFromText(Path txtFile) throws IOException {
+    public Iterable<Vector> getVectors() {
+        return vectors.getValues();
+    }
+
+    public static WordVectorLookup loadFromText(Path txtFile, boolean skipFirstLine) throws IOException {
 
         List<String> lines = Files.readAllLines(txtFile);
         // generate vocabulary
         LmVocabulary.Builder builder = new LmVocabulary.Builder();
         int lineCount = 0;
         for (String line : lines) {
-            if (lineCount++ == 0) { // skip first line.
+            if (lineCount++ == 0 && skipFirstLine) { // skip first line.
                 continue;
             }
             int index = line.indexOf(' ');
@@ -55,7 +67,7 @@ public class WordVectorLookup {
         lineCount = 0;
 
         for (String line : lines) {
-            if (lineCount++ == 0) { // skip first line.
+            if (lineCount++ == 0 && skipFirstLine) { // skip first line.
                 continue;
             }
             line = line.trim();
@@ -142,9 +154,7 @@ public class WordVectorLookup {
                 buffer.position(blockCounter * blockSize);
             }
         }
-
         return new WordVectorLookup(vocabulary, vectors);
-
     }
 
     public float[] getVector(String word) {
@@ -155,16 +165,34 @@ public class WordVectorLookup {
         return vocabulary.contains(word);
     }
 
+    public int getDimension() {
+        return dimension;
+    }
+
     public static void main(String[] args) throws IOException {
 
+
         WordVectorLookup lookup = WordVectorLookup.loadFromText(
-                Paths.get("/media/depo/data/aaa/corpora/model-large-min10.vec")
+                Paths.get("/media/depo/data/akbis/data/ner/word_embedding/vectors_all_lowercase_w_5.txt"),
+                false
         );
-        Path out = Paths.get("/media/depo/data/aaa/corpora/foo");
+
+
+/*
+        WordVectorLookup lookup = WordVectorLookup.loadFromText(
+                Paths.get("/media/depo/data/aaa/corpora/model.vec"),
+                true
+        );
+*/
+
+        //Path out = Paths.get("/media/depo/data/aaa/corpora/foo");
+        Path out = Paths.get("/media/depo/data/akbis/data/ner/word_embedding");
         lookup.saveToFolder(out);
         Stopwatch sw = Stopwatch.createStarted();
-        loadFromBinaryFast(out.resolve("word-vectors.bin"), out.resolve("vocabulary.bin"));
+        WordVectorLookup lookup1 = loadFromBinaryFast(out.resolve("word-vectors.bin"), out.resolve("vocabulary.bin"));
         Log.info(sw.elapsed(TimeUnit.MILLISECONDS));
+
+
     }
 
 }

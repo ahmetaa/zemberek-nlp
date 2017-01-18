@@ -14,27 +14,28 @@ import java.util.*;
 
 public class DynamicLexiconGraph {
 
-    private Map<SuffixSurfaceNode, SuffixSurfaceNode> rootSuffixNodeMap = Maps.newHashMap();
-    Set<StemNode> stemNodes = Sets.newHashSet();
+    private Map<SuffixSurfaceNode, SuffixSurfaceNode> rootSuffixNodeMap = Maps.newConcurrentMap();
+    private Set<StemNode> stemNodes = Sets.newConcurrentHashSet();
 
-    StemNodeGenerator stemNodeGenerator;
-    SuffixSurfaceNodeGenerator suffixSurfaceNodeGenerator = new SuffixSurfaceNodeGenerator();
+    private StemNodeGenerator stemNodeGenerator;
+    private SuffixSurfaceNodeGenerator suffixSurfaceNodeGenerator =
+            new SuffixSurfaceNodeGenerator();
 
-    final SuffixProvider suffixProvider;
+    private final SuffixProvider suffixProvider;
 
     private Map<SuffixForm, Set<SuffixSurfaceNode>> suffixFormMap = Maps.newConcurrentMap();
 
     // required for parsing. These were in WordParser before.
     // TODO: this mechanism should be an abstraction that can also use a StemTrie
-    ArrayListMultimap<String, StemNode> multiStems = ArrayListMultimap.create(1000, 2);
-    Map<String, StemNode> singleStems = Maps.newHashMap();
+    private ArrayListMultimap<String, StemNode> multiStems = ArrayListMultimap.create(1000, 2);
+    private Map<String, StemNode> singleStems = Maps.newConcurrentMap();
 
     public DynamicLexiconGraph(SuffixProvider suffixProvider) {
         this.suffixProvider = suffixProvider;
         this.stemNodeGenerator = new StemNodeGenerator(suffixProvider);
     }
 
-    private void addStemNode(StemNode stemNode) {
+    private synchronized void addStemNode(StemNode stemNode) {
         final String surfaceForm = stemNode.surfaceForm;
         if (multiStems.containsKey(surfaceForm)) {
             multiStems.put(surfaceForm, stemNode);
@@ -48,7 +49,7 @@ public class DynamicLexiconGraph {
         stemNodes.add(stemNode);
     }
 
-    private void removeStemNode(StemNode stemNode) {
+    private synchronized void removeStemNode(StemNode stemNode) {
         final String surfaceForm = stemNode.surfaceForm;
         if (multiStems.containsKey(surfaceForm)) {
             multiStems.remove(surfaceForm, stemNode);

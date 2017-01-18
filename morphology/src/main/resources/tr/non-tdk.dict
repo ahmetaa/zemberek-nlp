@@ -2879,7 +2879,7 @@ tanyeli [A:CompoundP3sg, Ext; Roots:tan-yel]
 tanyeri [A:CompoundP3sg, Ext; Roots:tan-yer]
 tapınç [A:Ext]
 taralı [P:Adj; A:Ext]
-tarhiyat [A:Ext]
+tarhiyat [A:Ext,NoVoicing]
 tarımbilim [A:Ext]
 tarihdışı [A:CompoundP3sg, Ext; Roots:tarih-dış]
 tarihöncesi [A:CompoundP3sg, Ext; Roots:tarih-önce]
@@ -3440,7 +3440,6 @@ envanterlemek
 konjonktürel [P:Adj]
 mental [P:Adj; A:InverseHarmony]
 folik [A:NoSuffix]
-tarhiyat
 ecrimisil
 takdiren [P:Adj]
 itirazen [P:Adj]
@@ -3481,7 +3480,6 @@ minimalist
 baklagil
 endorfin
 risotto
-blender [pr:bılendır]
 kardiyo  [A:NoSuffix]
 straplez
 fastfood [pr:fastfud]

@@ -222,13 +222,14 @@ public class ZemberekNlpScripts {
     @Test
     public void performance() throws IOException {
         List<String> lines = Files.readAllLines(
-                //        Paths.get("/media/depo/data/aaa/corpora/dunya.100k")
-                Paths.get("/media/depo/data/aaa/corpora/subtitle-1M")
+                Paths.get("/media/depo/data/aaa/corpora/dunya.100k")
+                //Paths.get("/media/depo/data/aaa/corpora/subtitle-1M")
         );
 
         TurkishMorphology analyzer = TurkishMorphology.builder()
                 .addDefaultDictionaries()
                 //.doNotUseUnidentifiedTokenAnalyzer()
+                //.doNotUseStaticCache()
                 .build();
 
         TurkishSentenceAnalyzer sentenceAnalyzer =
@@ -344,4 +345,60 @@ public class ZemberekNlpScripts {
         }
     }
 
+    @Test
+    public void memoryStressTest() throws IOException {
+        List<String> words = Files.readAllLines(Paths.get("dunya"));
+        TurkishMorphology parser = TurkishMorphology.createWithDefaults();
+
+        int c = 0;
+        for (int i = 0; i < 100; i++) {
+            Stopwatch sw = Stopwatch.createStarted();
+            for (String s : words) {
+                List<WordAnalysis> parses = parser.analyze(s);
+                c += parses.size();
+            }
+            Log.info(sw.elapsed(TimeUnit.MILLISECONDS));
+        }
+
+        System.out.println(c);
+    }
+
+
+    @Test
+    public void generateWords() throws IOException {
+        getStrings();
+    }
+
+
+    @Test
+    public void disambiguationMemoryTest() throws IOException {
+        List<String> lines = Files.readAllLines(Paths.get("/media/depo/data/aaa/corpora/dunya.100k"));
+        TurkishMorphology parser = TurkishMorphology.createWithDefaults();
+        TurkishSentenceAnalyzer sentenceAnalyzer = new TurkishSentenceAnalyzer(parser,
+                new Z3MarkovModelDisambiguator());
+
+        int k = 0;
+        for (int i = 0; i < 100; i++) {
+            Stopwatch sw = Stopwatch.createStarted();
+            for (String line : lines) {
+                k += sentenceAnalyzer.bestParse(line).size();
+            }
+            System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));
+        }
+        System.out.println(k);
+    }
+
+
+    private LinkedHashSet<String> getStrings() throws IOException {
+        List<String> lines = Files.readAllLines(Paths.get("/media/depo/data/aaa/corpora/dunya.500k"));
+        LinkedHashSet<String> words = new LinkedHashSet<>();
+        ZemberekLexer lexer = new ZemberekLexer();
+        for (String line : lines) {
+            words.addAll(lexer.tokenStrings(line));
+        }
+        Log.info("Line count = %d", lines.size());
+        Log.info("Unique word count = %d", words.size());
+        Files.write(Paths.get("dunya"), words);
+        return words;
+    }
 }

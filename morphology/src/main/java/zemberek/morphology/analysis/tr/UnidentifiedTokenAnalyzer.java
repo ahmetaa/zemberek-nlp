@@ -34,7 +34,7 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
         this.parser = new WordAnalyzer(graph);
     }
 
-    public List<WordAnalysis> parse(String word) {
+    public synchronized List<WordAnalysis> analyze(String word) {
         List<WordAnalysis> results = Lists.newArrayListWithCapacity(2);
         if (!Strings.containsNone(word, "0123456789")) {
             results = parseNumeral(word);

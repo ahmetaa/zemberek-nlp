@@ -17,7 +17,7 @@ public class UnidentifiedTokenAnalyzerTest {
     public void shouldCreateUnidentifiedTokenParserSuccessfully() throws IOException {
         TurkishMorphology parser = TurkishMorphology.createWithDefaults();
         UnidentifiedTokenAnalyzer uiParser = new UnidentifiedTokenAnalyzer(parser);
-        List<WordAnalysis> results = uiParser.parse("Ankara'ya");
+        List<WordAnalysis> results = uiParser.analyze("Ankara'ya");
         for (WordAnalysis result : results) {
             System.out.println(result);
         }
@@ -31,36 +31,36 @@ public class UnidentifiedTokenAnalyzerTest {
 
         TurkishMorphology parser = TurkishMorphology.builder().addTextDictionaryResources("dev-lexicon.txt").build();
         UnidentifiedTokenAnalyzer uiParser = new UnidentifiedTokenAnalyzer(parser);
-        List<WordAnalysis> results = uiParser.parse("İstanbul'un");
+        List<WordAnalysis> results = uiParser.analyze("İstanbul'un");
         Assert.assertEquals(2, results.size());
         for (WordAnalysis result : results) {
             Assert.assertTrue(expected.contains(result.formatLong()));
         }
 
-        results = uiParser.parse("istanbul'un");
+        results = uiParser.analyze("istanbul'un");
         Assert.assertEquals(2, results.size());
         for (WordAnalysis result : results) {
             Assert.assertTrue(expected.contains(result.formatLong()));
         }
 
-        results = uiParser.parse("Ankara'ya");
+        results = uiParser.analyze("Ankara'ya");
         Assert.assertEquals(1, results.size());
         Assert.assertEquals("[(Ankara:ankara) (Noun,Prop;A3sg+Pnon+Dat:ya)]", results.get(0).formatLong());
 
-        results = uiParser.parse("ankara'ya");
+        results = uiParser.analyze("ankara'ya");
         Assert.assertEquals(1, results.size());
         Assert.assertEquals("[(Ankara:ankara) (Noun,Prop;A3sg+Pnon+Dat:ya)]", results.get(0).formatLong());
 
         // Karaman does not exist in dictionary
-        results = uiParser.parse("Karaman");
+        results = uiParser.analyze("Karaman");
         Assert.assertEquals(1, results.size());
         Assert.assertEquals("[(Karaman:karaman) (Noun,Prop;A3sg+Pnon+Nom)]", results.get(0).formatLong());
 
-        results = uiParser.parse("karaman'a");
+        results = uiParser.analyze("karaman'a");
         Assert.assertEquals(1, results.size());
         Assert.assertEquals("[(Karaman:karaman) (Noun,Prop;A3sg+Pnon+Dat:a)]", results.get(0).formatLong());
 
-        results = uiParser.parse("karaman");
+        results = uiParser.analyze("karaman");
         Assert.assertEquals(0, results.size());
     }
 

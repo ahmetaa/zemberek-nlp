@@ -27,14 +27,14 @@ public class WordAnalyzer {
         }
 
         // generate starting tokens with suffix root nodes.
-        List<Token> initialTokens = Lists.newArrayListWithCapacity(3);
+        List<Token> initialTokens = Lists.newArrayListWithCapacity(5);
         for (StemNode candidate : candidates) {
             String rest = input.substring(candidate.surfaceForm.length());
             initialTokens.add(new Token(candidate, Lists.newArrayList(candidate.getSuffixRootSurfaceNode()), rest));
         }
 
         // traverse suffix graph.
-        List<WordAnalysis> result = Lists.newArrayList();
+        List<WordAnalysis> result = Lists.newArrayListWithCapacity(3);
         traverseSuffixes(initialTokens, result);
         return result;
     }
