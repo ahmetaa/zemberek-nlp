@@ -168,31 +168,4 @@ public class WordVectorLookup {
     public int getDimension() {
         return dimension;
     }
-
-    public static void main(String[] args) throws IOException {
-
-
-        WordVectorLookup lookup = WordVectorLookup.loadFromText(
-                Paths.get("/media/depo/data/akbis/data/ner/word_embedding/vectors_all_lowercase_w_5.txt"),
-                false
-        );
-
-
-/*
-        WordVectorLookup lookup = WordVectorLookup.loadFromText(
-                Paths.get("/media/depo/data/aaa/corpora/model.vec"),
-                true
-        );
-*/
-
-        //Path out = Paths.get("/media/depo/data/aaa/corpora/foo");
-        Path out = Paths.get("/media/depo/data/akbis/data/ner/word_embedding");
-        lookup.saveToFolder(out);
-        Stopwatch sw = Stopwatch.createStarted();
-        WordVectorLookup lookup1 = loadFromBinaryFast(out.resolve("word-vectors.bin"), out.resolve("vocabulary.bin"));
-        Log.info(sw.elapsed(TimeUnit.MILLISECONDS));
-
-
-    }
-
 }

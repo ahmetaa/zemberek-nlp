@@ -230,6 +230,7 @@ public class ZemberekNlpScripts {
                 .addDefaultDictionaries()
                 //.doNotUseUnidentifiedTokenAnalyzer()
                 //.doNotUseStaticCache()
+                //.doNotUseDynamicCache()
                 .build();
 
         TurkishSentenceAnalyzer sentenceAnalyzer =
