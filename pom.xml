@@ -16,7 +16,7 @@
         <module>lm</module>
         <module>all</module>
         <module>experiment</module>
-        <module>langid</module>
+        <module>lang-id</module>
         <module>normalization</module>
     </modules>
 
