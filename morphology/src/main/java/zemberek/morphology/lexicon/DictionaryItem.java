@@ -199,7 +199,7 @@ public class DictionaryItem {
 
         DictionaryItem that = (DictionaryItem) o;
 
-        return id.equals(that.index);
+        return id.equals(that.id);
     }
 
     @Override
