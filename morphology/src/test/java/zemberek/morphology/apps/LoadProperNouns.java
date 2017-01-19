@@ -54,7 +54,7 @@ public class LoadProperNouns {
                     found = true;
                 }
             }
-            parserGenerator.invalidateCache(word);
+            parserGenerator.invalidateCacheForWord(word);
 
             if (found)
                 continue;

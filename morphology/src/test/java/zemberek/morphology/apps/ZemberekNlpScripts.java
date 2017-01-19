@@ -222,15 +222,14 @@ public class ZemberekNlpScripts {
     @Test
     public void performance() throws IOException {
         List<String> lines = Files.readAllLines(
-                Paths.get("/media/depo/data/aaa/corpora/dunya.100k")
+                Paths.get("/home/ahmetaa/data/nlp/corpora/dunya.100k")
                 //Paths.get("/media/depo/data/aaa/corpora/subtitle-1M")
         );
 
         TurkishMorphology analyzer = TurkishMorphology.builder()
                 .addDefaultDictionaries()
                 //.disableUnidentifiedTokenAnalyzer()
-                //.disableStaticCache()
-                //.disableDynamicCache()
+                //.disableCache()
                 .build();
 
         TurkishSentenceAnalyzer sentenceAnalyzer =
@@ -279,13 +278,10 @@ public class ZemberekNlpScripts {
                 , tokenCount * 1000d / elapsed));
         System.out.println(String.format("Tokenization + Analysis speed (no punctuation) = %.1f tokens/sec"
                 , tokenCountNoPunct * 1000d / elapsed));
-        if (analyzer.getStaticCache() != null) {
-            System.out.println("Static Cache = " + analyzer.getStaticCache().toString());
-        }
         System.out.println();
 
         System.out.println("Disambiguation Test:");
-        analyzer.invalidateDynamicCache();
+        analyzer.invalidateAllCache();
         clock.reset().start();
         for (String line : lines) {
             try {
@@ -302,9 +298,6 @@ public class ZemberekNlpScripts {
                 , tokenCount * 1000d / elapsed));
         System.out.println(String.format("Tokenization + Analysis + Disambiguation speed (no punctuation) = %.1f tokens/sec"
                 , tokenCountNoPunct * 1000d / elapsed));
-        if (analyzer.getStaticCache() != null) {
-            System.out.println("Static Cache = " + analyzer.getStaticCache().toString());
-        }
         System.out.println(counter);
     }
 

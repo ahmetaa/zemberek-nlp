@@ -74,7 +74,7 @@ public class Z3MarkovModelDisambiguator extends Z3AbstractDisambiguator implemen
                 arpaFile.getAbsolutePath(),
                 "-out",
                 binaryFile.getAbsolutePath(),
-                "-spaceUsage","16-8-8");
+                "-spaceUsage", "16-8-8");
     }
 
     public void test(File testFile) throws IOException {
@@ -200,6 +200,7 @@ public class Z3MarkovModelDisambiguator extends Z3AbstractDisambiguator implemen
     @Override
     public void disambiguate(SentenceAnalysis sentenceParse) {
         Ambiguous[] ambiguousSeq = getAmbiguousSequence(sentenceParse);
+
         int[] bestSequence = bestSequence(ambiguousSeq);
         for (int i = 0; i < bestSequence.length; i++) {
             List<WordAnalysis> results = sentenceParse.getParses(i);
