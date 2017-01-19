@@ -1,6 +1,7 @@
 package zemberek.morphology.analysis;
 
 import com.google.common.collect.Lists;
+import zemberek.core.collections.CountSet;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.graph.StemNode;
@@ -35,11 +36,17 @@ public class WordAnalyzer {
 
         // traverse suffix graph.
         List<WordAnalysis> result = Lists.newArrayListWithCapacity(3);
+
         traverseSuffixes(initialTokens, result);
         return result;
     }
 
     private void traverseSuffixes(List<Token> current, List<WordAnalysis> completed) {
+
+        if (current.size() > 50) {
+            current = pruneCyclicPaths(current);
+        }
+
         List<Token> newTokens = Lists.newArrayList();
         for (Token token : current) {
             boolean matchFound = false;
@@ -97,6 +104,9 @@ public class WordAnalyzer {
     }
 
     private void dumpTraverse(List<Token> current, List<WordAnalysis> completed) {
+        if (current.size() > 50) {
+            current = pruneCyclicPaths(current);
+        }
         List<Token> newtokens = Lists.newArrayList();
         for (Token token : current) {
             boolean matchFound = false;
@@ -125,6 +135,27 @@ public class WordAnalyzer {
         }
         if (!newtokens.isEmpty())
             dumpTraverse(newtokens, completed);
+    }
+
+    private static final int MAX_REPEATING_SUFFIX_TYPE_COUNT = 3;
+
+    // for preventing excessive branching during search, we remove paths that has more than 3 repeating suffix forms.
+    private List<Token> pruneCyclicPaths(List<Token> tokens) {
+        List<Token> result = new ArrayList<>();
+        for (Token token : tokens) {
+            boolean remove = false;
+            CountSet<String> typeCounts = new CountSet<>(10);
+            for (SuffixSurfaceNode node : token.surfaceNodeHistory) {
+                if (typeCounts.increment(node.getSuffixForm().id) > MAX_REPEATING_SUFFIX_TYPE_COUNT) {
+                    remove = true;
+                    break;
+                }
+            }
+            if (!remove) {
+                result.add(token);
+            }
+        }
+        return result;
     }
 
     static class Token {
