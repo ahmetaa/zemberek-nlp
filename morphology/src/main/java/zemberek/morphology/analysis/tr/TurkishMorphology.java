@@ -75,24 +75,24 @@ public class TurkishMorphology extends BaseParser {
             return this;
         }
 
-        public Builder removeDictFiles(File... dictionaryFiles) throws IOException {
+        public Builder removeDictionaryFiles(File... dictionaryFiles) throws IOException {
             for (File file : dictionaryFiles) {
                 lexicon.removeAll(new TurkishDictionaryLoader(suffixProvider).load(file));
             }
             return this;
         }
 
-        public Builder doNotUseDynamicCache() {
+        public Builder disableDynamicCache() {
             useDynamicCache = false;
             return this;
         }
 
-        public Builder doNotUseStaticCache() {
+        public Builder disableStaticCache() {
             useStaticCache = false;
             return this;
         }
 
-        public Builder doNotUseUnidentifiedTokenAnalyzer() {
+        public Builder disableUnidentifiedTokenAnalyzer() {
             useUnidentifiedTokenAnalyzer = false;
             return this;
         }
