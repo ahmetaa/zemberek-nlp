@@ -1,4 +1,3 @@
-// Generated from /home/yusuf/projects/zemberek-nlp/tokenization/src/main/resources/tokenizer/TurkishLexer.g4 by ANTLR 4.5.3
 package zemberek.tokenizer.antlr;
 
 import com.google.common.base.Charsets;
@@ -10,6 +9,7 @@ import org.antlr.v4.runtime.atn.ATNDeserializer;
 import org.antlr.v4.runtime.atn.LexerATNSimulator;
 import org.antlr.v4.runtime.atn.PredictionContextCache;
 import org.antlr.v4.runtime.dfa.DFA;
+import org.antlr.v4.runtime.dfa.DFAState;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -137,7 +137,8 @@ public class TurkishLexer extends Lexer {
 
 	public TurkishLexer(CharStream input) {
 		super(input);
-		_interp = new LexerATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
+		_interp = new CustomLexerATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
+		//_interp = new LexerATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 
 	@Override
