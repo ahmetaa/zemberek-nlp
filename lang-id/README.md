@@ -24,7 +24,7 @@ Will return the identified language code. In this case, "tr" should return. This
 This case only 50 samples from the document is collected and scored. There is even a faster method. But using method below
  only makes sense if there are more than 10 models. 
   
-    lid.identify(inputString, 50);  
+    lid.identifyFast(inputString, 50);  
 
 But if only identifying a small amount of languages is
  required, and their models are available library can be instantiated as 
