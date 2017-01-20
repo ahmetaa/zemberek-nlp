@@ -5,12 +5,15 @@ Mehmet Dündar Akın
 
 Contributors:
 
-Ali Ok (Morphology : Code, Dictionary, Project: Mavenization)
-Cemil Demir (Language Modelling, Log Math)
-Ertuğrul Yılmaz (Core, Language Modelling : Code and Testing)
-Hamza Kaya (Algorithms)
-Tuğba Pamay (Sentence Boundary Detection: Algorithm and features)
-
-Some parts of the code is developed in Tübitak Bilgem Speech and Language Technologies Laboratory.
+Ali Ok
+Ayça Müge Sevinç
+Cemil Demir
+Ertuğrul Yılmaz
+Hamza Kaya
+Lütfü Çakıl
+Serkan Kaba
+Şeniz Demir
+Soner Altın
+Tuğba Pamay
 
 Please let us know if you are a contributor and your name is not listed here.

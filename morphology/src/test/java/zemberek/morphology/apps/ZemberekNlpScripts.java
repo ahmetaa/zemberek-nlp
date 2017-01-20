@@ -3,6 +3,9 @@ package zemberek.morphology.apps;
 import com.google.common.base.Stopwatch;
 import org.antlr.v4.runtime.Token;
 import org.junit.Test;
+import zemberek.core.IndexedItem;
+import zemberek.core.StringInt;
+import zemberek.core.collections.CountSet;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
@@ -46,7 +49,7 @@ public class ZemberekNlpScripts {
         Files.write(Paths.get("suffix-list"), result);
     }
 
-    static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
+    static Path DATA_PATH = Paths.get("/media/depo/data/aaa");
 
     @Test
     public void parseLargeVocabularyZemberek() throws IOException {
@@ -222,7 +225,7 @@ public class ZemberekNlpScripts {
     @Test
     public void performance() throws IOException {
         List<String> lines = Files.readAllLines(
-                Paths.get("/home/ahmetaa/data/nlp/corpora/dunya.100k")
+                Paths.get("/media/depo/data/aaa/corpora/dunya.100k")
                 //Paths.get("/media/depo/data/aaa/corpora/subtitle-1M")
         );
 
