@@ -21,7 +21,7 @@ Will return the identified language code. In this case, "tr" should return. This
   
     lid.identify(inputString, 50);
 
-This case only 50 samples from the document is collected and scored. There is even a faster method. But using method below
+In this case only 50 samples from the document is collected and scored. There is even a faster method. But using method below
  only makes sense if there are more than 10 models. 
   
     lid.identifyFast(inputString, 50);  
@@ -50,7 +50,7 @@ with 20, 50 and 100 character lengths.
 | TR   |  0.9590  | 0.9767   |  0.9953  |  0.9953  |  0.9980   |  0.9988   |
 | EN   |  0.9496  | 0.9799   |  0.9944  |  0.9958  |  0.9972   |  0.9985   |
 
-Not: These numbers will likely to change after 1.0 release.
+Note: These numbers will likely to change after 1.0 release.
 
 ## Speed
 
@@ -61,4 +61,4 @@ For a two model identification test speed numbers are:
 |-------|---------------|---------------|----------------|
 | Speed (Docs per sec.) | 130,000  | 52,000  |  26,200  |
 
-Not: These numbers will likely to change after 1.0 release.
+Note: These numbers will likely to change after 1.0 release.
