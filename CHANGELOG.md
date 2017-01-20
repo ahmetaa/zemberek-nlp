@@ -9,13 +9,13 @@ CHANGE LOG
 - Added an experiment module. This module will be used for experimental features.
 - Dictionary fixes.
 - Added city, village and district names.
-- System can generates full jar containing all zemberek modules.
+- System can generate full jar containing all zemberek modules.
 - Speed up Antlr based tokenizer. Now it is three times faster again. [89] (https://github.com/ahmetaa/zemberek-nlp/issues/89)
 - TurkishMorphology can be configured for not using cache and UnidentifiedTokenAnaysis.
 - Eliminate static cache from TurkishMorphology [86] (https://github.com/ahmetaa/zemberek-nlp/issues/86)
-- Some inputs may cause excessive hypothesis generation during analysis [88] (https://github.com/ahmetaa/zemberek-nlp/issues/88)
-- Proper Nouns ending -nk or -og should not have Voicing attribute automatically. [83] (https://github.com/ahmetaa/zemberek-nlp/issues/83)
-- "foo \nabc" should be tokenized as "foo \n abc" [69] (https://github.com/ahmetaa/zemberek-nlp/issues/83)
+- Fix: Some inputs may cause excessive hypothesis generation during analysis [88] (https://github.com/ahmetaa/zemberek-nlp/issues/88)
+- Fix: Proper Nouns ending -nk or -og should not have Voicing attribute automatically. [83] (https://github.com/ahmetaa/zemberek-nlp/issues/83)
+- Fix: "foo \nabc" should be tokenized as "foo \n abc" [69] (https://github.com/ahmetaa/zemberek-nlp/issues/83)
 - There are some name changes.
   TurkishMorphology.TurkishMorphParserBuilder -> TurkishMorphology.Builder
   UnidentifiedTokenAnalyzer parse -> analyze  
