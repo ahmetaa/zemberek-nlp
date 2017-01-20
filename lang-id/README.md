@@ -29,8 +29,8 @@ This case only 50 samples from the document is collected and scored. There is ev
 There is also a method for checking if only a part of the text contains a specified language.
 
     String input = "merhaba dünya ve tüm gezegenler Hola mundo y todos los planetas";
-    lid.containsLanguage(input, "tr", 20));  // returns true
-    lid.containsLanguage(input, "es", 20));  // returns true    
+    lid.containsLanguage(input, "tr", 20);  // returns true
+    lid.containsLanguage(input, "es", 20);  // returns true    
 
 But if only identifying a small amount of languages is
  required, and their models are available library can be instantiated as 
