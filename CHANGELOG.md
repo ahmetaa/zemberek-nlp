@@ -3,15 +3,15 @@ CHANGE LOG
 
 ## 0.10.0
 
-- Fixed a bad memory leak caused my not removing elements from a Map structure. [87] (https://github.com/ahmetaa/zemberek-nlp/issues/87)
-- TurkishMorphology can be configured for not using cache and UnidentifiedTokenAnaysis.
+- Fixed a memory leak. Previous versions may suffer from this under heavy load. [87] (https://github.com/ahmetaa/zemberek-nlp/issues/87)
 - Re-introduce lang-id module. This provides a simple language identification API.
-- Add normalization module. So far it only provides fast Levenshtein distance dictionary matching.
+- Added normalization module. So far it only provides fast Levenshtein distance dictionary matching.
+- Added an experiment module. This module will be used for experimental features.
 - Dictionary fixes.
 - Added city, village and district names.
 - System can generates full jar containing all zemberek modules.
-- Added an experiment module. This module will be used for experimental features.
-- Speedup Antlr based tokenizer. Now it is three times faster again. [89] (https://github.com/ahmetaa/zemberek-nlp/issues/89)
+- Speed up Antlr based tokenizer. Now it is three times faster again. [89] (https://github.com/ahmetaa/zemberek-nlp/issues/89)
+- TurkishMorphology can be configured for not using cache and UnidentifiedTokenAnaysis.
 - Eliminate static cache from TurkishMorphology [86] (https://github.com/ahmetaa/zemberek-nlp/issues/86)
 - Some inputs may cause excessive hypothesis generation during analysis [88] (https://github.com/ahmetaa/zemberek-nlp/issues/88)
 - Proper Nouns ending -nk or -og should not have Voicing attribute automatically. [83] (https://github.com/ahmetaa/zemberek-nlp/issues/83)

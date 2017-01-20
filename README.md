@@ -41,6 +41,8 @@ And dependecies (For example morphology):
 [Google docs page] (https://drive.google.com/#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8) page has versions and
 separate module and dependent jars.
 
+There is also a single jar file containing all zemberek modules available there.
+
 ### Examples
 
 [Turkish-nlp-examples] (https://github.com/ahmetaa/turkish-nlp-examples)
