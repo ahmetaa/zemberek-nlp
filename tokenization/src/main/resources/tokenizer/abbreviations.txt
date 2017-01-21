@@ -1052,3 +1052,5 @@ Tic.: Ticaret
 vek.: Vekili
 St.: Saint
 TL.: Türk Lirası
+Öğr.:  Öğr.
+Gör.: Gör.

@@ -5,7 +5,7 @@ import com.google.common.base.Stopwatch;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextUtil;
 import zemberek.core.text.TokenSequence;
-import zemberek.tokenizer.PerceptronSentenceBoundaryDetecor;
+import zemberek.tokenizer.PerceptronSentenceBoundaryDetector;
 import zemberek.tokenizer.SentenceBoundaryDetector;
 import zemberek.tokenizer.SimpleSentenceBoundaryDetector;
 
@@ -22,9 +22,10 @@ public class SentenceBoundaryDetectorsComparison {
 
     public static void main(String[] args) throws IOException {
 
-        Path train = Paths.get("/home/ahmetaa/data/nlp/corpora/train-300k");
-        //Path train = Paths.get("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Train.txt");
-        //Path test = Paths.get("/home/ahmetaa/data/nlp/corpora/test-5k");
+        //Path train = Paths.get("/home/ahmetaa/data/nlp/corpora/train-soner-300k");
+        Path train = Paths.get("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Train.txt");
+        //Path test = Paths.get("/home/ahmetaa/data/nlp/corpora/test-soner-5k");
+        //Path test = Paths.get("tokenization/src/test/resources/tokenizer/small-sentence-text.txt");
         Path test = Paths.get("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Test.txt");
 
         List<String> testSentences = TextUtil.loadLinesWithText(test);
@@ -32,8 +33,9 @@ public class SentenceBoundaryDetectorsComparison {
 
         Log.info(" \n---------------- Perceptron ------------------\n");
 
-        PerceptronSentenceBoundaryDetecor perceptron = new PerceptronSentenceBoundaryDetecor.Trainer(
-                train, 3).train();
+        PerceptronSentenceBoundaryDetector perceptron = new PerceptronSentenceBoundaryDetector.Trainer(
+                train, 5).train();
+        perceptron.saveBinary(Paths.get("sentence-boundary.model"));
         Log.info("Train Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
 //        test(testSentences, perceptron);
         evaluate2(testSentences, perceptron);
@@ -41,7 +43,7 @@ public class SentenceBoundaryDetectorsComparison {
         Log.info(" \n---------------- Rule Based ------------------\n");
         SimpleSentenceBoundaryDetector ruleBased = new SimpleSentenceBoundaryDetector();
 //        test(testSentences, ruleBased);
-        evaluate2(testSentences, ruleBased);
+      //  evaluate2(testSentences, ruleBased);
 
     }
 
@@ -52,7 +54,7 @@ public class SentenceBoundaryDetectorsComparison {
         for (String sentence : sentences) {
             sb.append(sentence);
             // in approximately every 20 sentences we skip adding a space between sentences.
-            if (rnd.nextInt(PerceptronSentenceBoundaryDetecor.SKIP_SPACE_FREQUENCY) != 1 && sentenceCounter < sentences.size() - 1) {
+            if (rnd.nextInt(PerceptronSentenceBoundaryDetector.SKIP_SPACE_FREQUENCY) != 1 && sentenceCounter < sentences.size() - 1) {
                 sb.append(" ");
             }
             sentenceCounter++;
@@ -67,8 +69,9 @@ public class SentenceBoundaryDetectorsComparison {
     public static void evaluate2(List<String> referenceSentences, SentenceBoundaryDetector detector) throws IOException {
 
         // Sanitize
-        referenceSentences = referenceSentences.stream().map(String::trim).collect(Collectors.toList());
+        referenceSentences = referenceSentences.stream().map(s->s.replaceAll("\\s+"," ").trim()).collect(Collectors.toList());
         String joinedSentence = Joiner.on(" ").join(referenceSentences);
+        joinedSentence  = joinedSentence.replaceAll("…","...");
         Stopwatch sw = Stopwatch.createStarted();
         List<String> foundSentences = detector.getSentences(joinedSentence);
         Log.info("Segmentation Elapsed: %d ms", sw.elapsed(TimeUnit.MILLISECONDS));
