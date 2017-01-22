@@ -2,7 +2,10 @@ package zemberek.tokenization;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
+
+import org.junit.Test;
 import zemberek.core.logging.Log;
+import zemberek.core.text.Regexps;
 import zemberek.core.text.TextUtil;
 import zemberek.core.text.TokenSequence;
 import zemberek.tokenizer.PerceptronSentenceBoundaryDetector;
@@ -12,10 +15,12 @@ import zemberek.tokenizer.SimpleSentenceBoundaryDetector;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class SentenceBoundaryDetectorsComparison {
@@ -25,6 +30,7 @@ public class SentenceBoundaryDetectorsComparison {
         //Path train = Paths.get("/home/ahmetaa/data/nlp/corpora/train-soner-300k");
         Path train = Paths.get("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Train.txt");
         //Path test = Paths.get("/home/ahmetaa/data/nlp/corpora/test-soner-5k");
+        //Path test = Paths.get("/home/ahmetaa/data/nlp/corpora/dunya.100k");
         //Path test = Paths.get("tokenization/src/test/resources/tokenizer/small-sentence-text.txt");
         Path test = Paths.get("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Test.txt");
 
@@ -69,9 +75,8 @@ public class SentenceBoundaryDetectorsComparison {
     public static void evaluate2(List<String> referenceSentences, SentenceBoundaryDetector detector) throws IOException {
 
         // Sanitize
-        referenceSentences = referenceSentences.stream().map(s->s.replaceAll("\\s+"," ").trim()).collect(Collectors.toList());
+        referenceSentences = referenceSentences.stream().map(s->s.replaceAll("\\s+"," ").replaceAll("…","...").trim()).collect(Collectors.toList());
         String joinedSentence = Joiner.on(" ").join(referenceSentences);
-        joinedSentence  = joinedSentence.replaceAll("…","...");
         Stopwatch sw = Stopwatch.createStarted();
         List<String> foundSentences = detector.getSentences(joinedSentence);
         Log.info("Segmentation Elapsed: %d ms", sw.elapsed(TimeUnit.MILLISECONDS));
@@ -83,7 +88,6 @@ public class SentenceBoundaryDetectorsComparison {
                     .replaceAll("[.]", " . ")
                     .replaceAll("[?]", " ? ")
                     .replaceAll("[!]", " ! ")
-                    .replaceAll("[:]", " : ")
                     .replaceAll("\\s+", " ")
                     .trim());
         }
@@ -94,7 +98,6 @@ public class SentenceBoundaryDetectorsComparison {
                     .replaceAll("[.]", " . ")
                     .replaceAll("[?]", " ? ")
                     .replaceAll("[!]", " ! ")
-                    .replaceAll("[:]", " : ")
                     .replaceAll("\\s+", " ")
                     .trim());
         }
@@ -146,6 +149,15 @@ public class SentenceBoundaryDetectorsComparison {
                 matchingSentences.size(),
                 referenceSentences.size(),
                 matchingSentences.size() * 100d / referenceSentences.size());
+    }
+
+
+    @Test
+    public void autoGenerate() throws IOException {
+        Pattern p = Pattern.compile("[ ][a-zA-ZişüğıöçÜĞİŞÇÖİ0-9.,]\\.+[ ]");
+        List<String> input = Files.readAllLines(Paths.get("/home/ahmetaa/projects/zemberek-nlp/segments"));
+        List<String> foo = input.stream().filter(s-> Regexps.matchesAny(p, s) && s.length()<150).collect(Collectors.toList());
+        Files.write(Paths.get("candidate"), foo);
     }
 
 }

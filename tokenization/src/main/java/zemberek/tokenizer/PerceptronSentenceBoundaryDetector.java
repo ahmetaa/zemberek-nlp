@@ -15,8 +15,8 @@ import java.util.*;
 public class PerceptronSentenceBoundaryDetector implements SentenceBoundaryDetector {
 
     public static final int SKIP_SPACE_FREQUENCY = 50;
-    public static final String BOUNDARY_CHARS = ".!?";
-    DoubleValueMap<String> weights = new DoubleValueMap<>();
+    static final String BOUNDARY_CHARS = ".!?";
+    private DoubleValueMap<String> weights = new DoubleValueMap<>();
 
 
     static Set<String> TurkishAbbreviationSet = new HashSet<>();
