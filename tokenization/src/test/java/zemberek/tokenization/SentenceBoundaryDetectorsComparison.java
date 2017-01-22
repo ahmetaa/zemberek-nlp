@@ -8,9 +8,9 @@ import zemberek.core.logging.Log;
 import zemberek.core.text.Regexps;
 import zemberek.core.text.TextUtil;
 import zemberek.core.text.TokenSequence;
-import zemberek.tokenizer.PerceptronSentenceBoundaryDetector;
-import zemberek.tokenizer.SentenceBoundaryDetector;
-import zemberek.tokenizer.SimpleSentenceBoundaryDetector;
+import zemberek.tokenizer.PerceptronSentenceExtractor;
+import zemberek.tokenizer.SentenceExtractor;
+import zemberek.tokenizer.LexerSentenceExtractor;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,46 +39,46 @@ public class SentenceBoundaryDetectorsComparison {
 
         Log.info(" \n---------------- Perceptron ------------------\n");
 
-        PerceptronSentenceBoundaryDetector perceptron = new PerceptronSentenceBoundaryDetector.Trainer(
+        PerceptronSentenceExtractor perceptron = new PerceptronSentenceExtractor.Trainer(
                 train, 5).train();
-        perceptron.saveBinary(Paths.get("sentence-boundary.model"));
+        perceptron.saveBinary(Paths.get("sentence-boundary-model.bin"));
         Log.info("Train Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
 //        test(testSentences, perceptron);
         evaluate2(testSentences, perceptron);
 
         Log.info(" \n---------------- Rule Based ------------------\n");
-        SimpleSentenceBoundaryDetector ruleBased = new SimpleSentenceBoundaryDetector();
+        LexerSentenceExtractor ruleBased = new LexerSentenceExtractor();
 //        test(testSentences, ruleBased);
       //  evaluate2(testSentences, ruleBased);
 
     }
 
-    public static void test(List<String> sentences, SentenceBoundaryDetector detector) {
+    public static void test(List<String> sentences, SentenceExtractor detector) {
         Random rnd = new Random(1);
         StringBuilder sb = new StringBuilder();
         int sentenceCounter = 0;
         for (String sentence : sentences) {
             sb.append(sentence);
             // in approximately every 20 sentences we skip adding a space between sentences.
-            if (rnd.nextInt(PerceptronSentenceBoundaryDetector.SKIP_SPACE_FREQUENCY) != 1 && sentenceCounter < sentences.size() - 1) {
+            if (rnd.nextInt(PerceptronSentenceExtractor.SKIP_SPACE_FREQUENCY) != 1 && sentenceCounter < sentences.size() - 1) {
                 sb.append(" ");
             }
             sentenceCounter++;
         }
         String joinedSentence = sb.toString();
         Stopwatch sw = Stopwatch.createStarted();
-        List<String> found = detector.getSentences(joinedSentence);
+        List<String> found = detector.extract(joinedSentence);
         System.out.println("Test Elapsed: " + sw.elapsed(TimeUnit.MILLISECONDS));
         //evaluate(sentences, found);
     }
 
-    public static void evaluate2(List<String> referenceSentences, SentenceBoundaryDetector detector) throws IOException {
+    public static void evaluate2(List<String> referenceSentences, SentenceExtractor detector) throws IOException {
 
         // Sanitize
         referenceSentences = referenceSentences.stream().map(s->s.replaceAll("\\s+"," ").replaceAll("…","...").trim()).collect(Collectors.toList());
         String joinedSentence = Joiner.on(" ").join(referenceSentences);
         Stopwatch sw = Stopwatch.createStarted();
-        List<String> foundSentences = detector.getSentences(joinedSentence);
+        List<String> foundSentences = detector.extract(joinedSentence);
         Log.info("Segmentation Elapsed: %d ms", sw.elapsed(TimeUnit.MILLISECONDS));
 
         // separate each boundary token with space in all sentences.
@@ -140,12 +140,12 @@ public class SentenceBoundaryDetectorsComparison {
         Set<Integer> deletions = new HashSet<>(refBoundaries);
         deletions.removeAll(foundBoundaries);
 
-        Log.info("NIST error rate = %.4f",
+        Log.info("NIST error rate = %.4f%%",
                 (deletions.size() + insertions.size()) * 100d / refBoundaries.size());
 
         HashSet<String> matchingSentences = new HashSet<>(foundSentences);
         matchingSentences.retainAll(referenceSentences);
-        Log.info("Amount of exactly matching sentences = %d in %d (%.4f)",
+        Log.info("Amount of exactly matching sentences = %d in %d (%.4f%%)",
                 matchingSentences.size(),
                 referenceSentences.size(),
                 matchingSentences.size() * 100d / referenceSentences.size());

@@ -12,7 +12,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
 
-public class PerceptronSentenceBoundaryDetector implements SentenceBoundaryDetector {
+public class PerceptronSentenceExtractor implements SentenceExtractor {
 
     public static final int SKIP_SPACE_FREQUENCY = 50;
     static final String BOUNDARY_CHARS = ".!?";
@@ -37,7 +37,7 @@ public class PerceptronSentenceBoundaryDetector implements SentenceBoundaryDetec
         }
     }
 
-    private PerceptronSentenceBoundaryDetector(DoubleValueMap<String> weights) {
+    private PerceptronSentenceExtractor(DoubleValueMap<String> weights) {
         this.weights = weights;
     }
 
@@ -51,15 +51,26 @@ public class PerceptronSentenceBoundaryDetector implements SentenceBoundaryDetec
         }
     }
 
-    public static PerceptronSentenceBoundaryDetector loadFromBinary(Path file) throws IOException {
+    public static PerceptronSentenceExtractor loadFromBinaryFile(Path file) throws IOException {
         try (DataInputStream dis = IOUtil.getDataInputStream(file)) {
-            int size = dis.readInt();
-            DoubleValueMap<String> features = new DoubleValueMap<>((int) (size * 1.5));
-            for (int i = 0; i < size; i++) {
-                features.set(dis.readUTF(), dis.readDouble());
-            }
-            return new PerceptronSentenceBoundaryDetector(features);
+            return load(dis);
         }
+    }
+
+    public static PerceptronSentenceExtractor loadFromResources() throws IOException {
+        try (DataInputStream dis = IOUtil.getDataInputStream(
+                Resources.getResource("tokenizer/sentence-boundary-model.bin").openStream())) {
+            return load(dis);
+        }
+    }
+
+    private static PerceptronSentenceExtractor load(DataInputStream dis) throws IOException {
+        int size = dis.readInt();
+        DoubleValueMap<String> features = new DoubleValueMap<>((int) (size * 1.5));
+        for (int i = 0; i < size; i++) {
+            features.set(dis.readUTF(), dis.readDouble());
+        }
+        return new PerceptronSentenceExtractor(features);
     }
 
 
@@ -72,7 +83,7 @@ public class PerceptronSentenceBoundaryDetector implements SentenceBoundaryDetec
             this.iterationCount = iterationCount;
         }
 
-        public PerceptronSentenceBoundaryDetector train() throws IOException {
+        public PerceptronSentenceExtractor train() throws IOException {
             DoubleValueMap<String> weights = new DoubleValueMap<>();
             List<String> sentences = TextUtil.loadLinesWithText(trainFile);
             DoubleValueMap<String> averages = new DoubleValueMap<>();
@@ -140,7 +151,7 @@ public class PerceptronSentenceBoundaryDetector implements SentenceBoundaryDetec
                 weights.set(key, weights.get(key) - averages.get(key) * 1d / updateCount);
             }
 
-            return new PerceptronSentenceBoundaryDetector(weights);
+            return new PerceptronSentenceExtractor(weights);
         }
     }
 
@@ -237,6 +248,7 @@ public class PerceptronSentenceBoundaryDetector implements SentenceBoundaryDetec
                     || TurkishAbbreviationSet.contains(leftChunkUntilBoundary)
                     || (leftChunkUntilBoundary.length() == 1)
                     || BOUNDARY_CHARS.indexOf(nextLetter) >= 0
+                    || nextLetter == '\''
                     || potentialWebSite(currentWord);
         }
 
@@ -289,22 +301,29 @@ public class PerceptronSentenceBoundaryDetector implements SentenceBoundaryDetec
                     features.add("11d:true");
                 }
             }
-
             return features;
         }
-
     }
 
     @Override
-    public List<String> getSentences(String doc) {
+    public List<String> extract(List<String> paragraphs) {
+        List<String> result = new ArrayList<>();
+        for(String paragraph : paragraphs) {
+            result.addAll(extract(paragraph));
+        }
+        return result;
+    }
+
+    @Override
+    public List<String> extract(String paragraph) {
         List<String> sentences = new ArrayList<>();
         int begin = 0;
-        for (int j = 0; j < doc.length(); j++) {
+        for (int j = 0; j < paragraph.length(); j++) {
             // skip if char cannot be a boundary char.
-            char chr = doc.charAt(j);
+            char chr = paragraph.charAt(j);
             if (BOUNDARY_CHARS.indexOf(chr) < 0)
                 continue;
-            BoundaryData boundaryData = new BoundaryData(doc, j);
+            BoundaryData boundaryData = new BoundaryData(paragraph, j);
             if (boundaryData.nonBoundaryCheck()) {
                 continue;
             }
@@ -314,40 +333,27 @@ public class PerceptronSentenceBoundaryDetector implements SentenceBoundaryDetec
                 score += weights.get(feature);
             }
             if (score > 0) {
-                sentences.add(doc.substring(begin, j + 1).trim());
+                sentences.add(paragraph.substring(begin, j + 1).trim());
                 begin = j + 1;
             }
+        }
+
+        if (begin < paragraph.length()) {
+            String remaining = paragraph.substring(begin, paragraph.length()).trim();
+            sentences.add(remaining);
         }
         return sentences;
     }
 
-    private static final Set<String> urlWords =
-            Sets.newHashSet("http", "html", "www", ".tr", ".edu", ".com", ".net", ".gov", ".org", "@");
+    private static final Set<String> webWords =
+            Sets.newHashSet("http:", ".html", "www", ".tr", ".edu", ".com", ".net", ".gov", ".org", "@");
 
     private static boolean potentialWebSite(String s) {
-        for (String urlWord : urlWords) {
+        for (String urlWord : webWords) {
             if (s.contains(urlWord))
                 return true;
         }
         return false;
-    }
-
-    private static int numberOfLetters(String s) {
-        int result = 0;
-        for (char chr : s.toCharArray()) {
-            if (Character.isAlphabetic(chr))
-                result++;
-        }
-        return result;
-    }
-
-    private static int numberOfCapitalLetters(String s) {
-        int result = 0;
-        for (char chr : s.toCharArray()) {
-            if (Character.isUpperCase(chr))
-                result++;
-        }
-        return result;
     }
 
     private static String lowerCaseVowels = "aeıioöuüâîû";

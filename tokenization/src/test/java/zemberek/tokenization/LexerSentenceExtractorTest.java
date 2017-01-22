@@ -6,16 +6,16 @@ import com.google.common.io.Resources;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import zemberek.tokenizer.SimpleSentenceBoundaryDetector;
+import zemberek.tokenizer.LexerSentenceExtractor;
 
 import java.io.IOException;
 import java.util.List;
 
-public class SimpleSentenceBoundaryDetectorTest {
+public class LexerSentenceExtractorTest {
 
     private String markBoundaries(String input) {
-        SimpleSentenceBoundaryDetector splitter = new SimpleSentenceBoundaryDetector();
-        List<String> list = splitter.getSentences(input);
+        LexerSentenceExtractor splitter = new LexerSentenceExtractor();
+        List<String> list = splitter.extract(input);
         return Joiner.on("|").join(list);
     }
 
@@ -45,8 +45,8 @@ public class SimpleSentenceBoundaryDetectorTest {
         List<String> lines = Resources.readLines(
                 Resources.getResource("tokenizer/sentence-boundary-text.txt"), Charsets.UTF_8);
         String all = Joiner.on(" ").join(lines);
-        SimpleSentenceBoundaryDetector detector = new SimpleSentenceBoundaryDetector();
-        List<String> result = detector.getSentences(all);
+        LexerSentenceExtractor detector = new LexerSentenceExtractor();
+        List<String> result = detector.extract(all);
         for (String s : result) {
             System.out.println(s);
         }

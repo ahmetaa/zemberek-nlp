@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.Token;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -13,20 +14,29 @@ import java.util.Set;
 /**
  * A Naive sentence splitter based on lexer's capabilities.
  */
-public class SimpleSentenceBoundaryDetector implements SentenceBoundaryDetector {
+public class LexerSentenceExtractor implements SentenceExtractor {
     private ZemberekLexer lexer;
     private static Set<String> sentenceEnd = Sets.newHashSet(".", "!", "?", "...", ":");
 
     /**
      * Generates a Lexer inside that does tokenizes white spaces along with others.
      */
-    public SimpleSentenceBoundaryDetector() {
+    public LexerSentenceExtractor() {
         this.lexer = new ZemberekLexer(false);
     }
 
     @Override
-    public List<String> getSentences(String str) {
-        return Lists.newArrayList(new SentenceIterator(lexer.getTokenIterator(str)));
+    public List<String> extract(String paragraph) {
+        return Lists.newArrayList(new SentenceIterator(lexer.getTokenIterator(paragraph)));
+    }
+
+    @Override
+    public List<String> extract(List<String> paragraphs) {
+        List<String> result = new ArrayList<>();
+        for (String paragraph : paragraphs) {
+            result.addAll(extract(paragraph));
+        }
+        return result;
     }
 
     public List<String> getSentences(File file) throws IOException {

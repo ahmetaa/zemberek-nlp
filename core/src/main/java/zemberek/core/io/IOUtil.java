@@ -10,6 +10,10 @@ public class IOUtil {
         return new DataInputStream(new BufferedInputStream(Files.newInputStream(path)));
     }
 
+    public static DataInputStream getDataInputStream(InputStream is) throws IOException {
+        return new DataInputStream(new BufferedInputStream(is));
+    }
+
     public static DataOutputStream getDataOutputStream(Path path) throws IOException {
         return new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(path)));
     }
