@@ -3,7 +3,7 @@ package zemberek.tokenizer;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
-import zemberek.core.collections.DoubleValueMap;
+import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.UIntSet;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
@@ -18,7 +18,7 @@ import java.util.*;
 public class TurkishSentenceExtractor implements SentenceExtractor {
 
     static final String BOUNDARY_CHARS = ".!?";
-    private DoubleValueMap<String> weights = new DoubleValueMap<>();
+    private FloatValueMap<String> weights = new FloatValueMap<>();
 
 
     static Set<String> TurkishAbbreviationSet = new HashSet<>();
@@ -39,7 +39,7 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
         }
     }
 
-    private TurkishSentenceExtractor(DoubleValueMap<String> weights) {
+    private TurkishSentenceExtractor(FloatValueMap<String> weights) {
         this.weights = weights;
     }
 
@@ -48,7 +48,7 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
             dos.writeInt(weights.size());
             for (String feature : weights) {
                 dos.writeUTF(feature);
-                dos.writeDouble(weights.get(feature));
+                dos.writeFloat(weights.get(feature));
             }
         }
     }
@@ -68,9 +68,9 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
 
     private static TurkishSentenceExtractor load(DataInputStream dis) throws IOException {
         int size = dis.readInt();
-        DoubleValueMap<String> features = new DoubleValueMap<>((int) (size * 1.5));
+        FloatValueMap<String> features = new FloatValueMap<>((int) (size * 1.5));
         for (int i = 0; i < size; i++) {
-            features.set(dis.readUTF(), dis.readDouble());
+            features.set(dis.readUTF(), dis.readFloat());
         }
         return new TurkishSentenceExtractor(features);
     }
@@ -125,9 +125,9 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
         private static Locale Turkish = new Locale("tr");
 
         public TurkishSentenceExtractor train() throws IOException {
-            DoubleValueMap<String> weights = new DoubleValueMap<>();
+            FloatValueMap<String> weights = new FloatValueMap<>();
             List<String> sentences = TextUtil.loadLinesWithText(builder.trainFile);
-            DoubleValueMap<String> averages = new DoubleValueMap<>();
+            FloatValueMap<String> averages = new FloatValueMap<>();
 
             Random rnd = new Random(1);
 
@@ -174,7 +174,7 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
                         continue;
                     }
                     List<String> features = boundaryData.extractFeatures();
-                    double score = 0;
+                    float score = 0;
                     for (String feature : features) {
                         score += weights.get(feature);
                     }
@@ -203,7 +203,7 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
                 }
             }
             for (String key : weights) {
-                weights.set(key, weights.get(key) - averages.get(key) * 1d / updateCount);
+                weights.set(key, weights.get(key) - averages.get(key) * 1f / updateCount);
             }
 
             return new TurkishSentenceExtractor(weights);

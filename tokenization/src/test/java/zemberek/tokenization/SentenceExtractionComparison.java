@@ -58,7 +58,7 @@ public class SentenceExtractionComparison {
 
         SentenceDetectorME sentenceDetector;
 
-        public OpenNlpAdapter(Path modelPath) throws IOException {
+        OpenNlpAdapter(Path modelPath) throws IOException {
             SentenceModel model = new SentenceModel(modelPath.toFile());
             this.sentenceDetector = new SentenceDetectorME(model);
         }
