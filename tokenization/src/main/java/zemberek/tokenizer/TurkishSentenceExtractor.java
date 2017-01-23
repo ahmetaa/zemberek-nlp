@@ -6,15 +6,17 @@ import com.google.common.io.Resources;
 import zemberek.core.collections.DoubleValueMap;
 import zemberek.core.collections.UIntSet;
 import zemberek.core.io.IOUtil;
+import zemberek.core.logging.Log;
 import zemberek.core.text.TextUtil;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
-public class PerceptronSentenceExtractor implements SentenceExtractor {
+public class TurkishSentenceExtractor implements SentenceExtractor {
 
-    public static final int SKIP_SPACE_FREQUENCY = 50;
     static final String BOUNDARY_CHARS = ".!?";
     private DoubleValueMap<String> weights = new DoubleValueMap<>();
 
@@ -37,7 +39,7 @@ public class PerceptronSentenceExtractor implements SentenceExtractor {
         }
     }
 
-    private PerceptronSentenceExtractor(DoubleValueMap<String> weights) {
+    private TurkishSentenceExtractor(DoubleValueMap<String> weights) {
         this.weights = weights;
     }
 
@@ -51,62 +53,115 @@ public class PerceptronSentenceExtractor implements SentenceExtractor {
         }
     }
 
-    public static PerceptronSentenceExtractor loadFromBinaryFile(Path file) throws IOException {
+    public static TurkishSentenceExtractor loadFromBinaryFile(Path file) throws IOException {
         try (DataInputStream dis = IOUtil.getDataInputStream(file)) {
             return load(dis);
         }
     }
 
-    public static PerceptronSentenceExtractor loadFromResources() throws IOException {
+    public static TurkishSentenceExtractor fromInternalModel() throws IOException {
         try (DataInputStream dis = IOUtil.getDataInputStream(
                 Resources.getResource("tokenizer/sentence-boundary-model.bin").openStream())) {
             return load(dis);
         }
     }
 
-    private static PerceptronSentenceExtractor load(DataInputStream dis) throws IOException {
+    private static TurkishSentenceExtractor load(DataInputStream dis) throws IOException {
         int size = dis.readInt();
         DoubleValueMap<String> features = new DoubleValueMap<>((int) (size * 1.5));
         for (int i = 0; i < size; i++) {
             features.set(dis.readUTF(), dis.readDouble());
         }
-        return new PerceptronSentenceExtractor(features);
+        return new TurkishSentenceExtractor(features);
     }
 
-
-    public static class Trainer {
+    public static class TrainerBuilder {
         Path trainFile;
-        int iterationCount;
+        int iterationCount = 5;
+        int skipSpaceFrequency = 20;
+        int lowerCaseFirstLetterFrequency = 20;
+        boolean shuffleInput = false;
 
-        public Trainer(Path trainFile, int iterationCount) {
+        public TrainerBuilder(Path trainFile) {
             this.trainFile = trainFile;
-            this.iterationCount = iterationCount;
         }
 
-        public PerceptronSentenceExtractor train() throws IOException {
+        public TrainerBuilder iterationCount(int count) {
+            this.iterationCount = count;
+            return this;
+        }
+
+        public TrainerBuilder shuffleSentences() {
+            this.shuffleInput = true;
+            return this;
+        }
+
+        public TrainerBuilder iteratiskipSpaceFrequencyonCount(int count) {
+            this.skipSpaceFrequency = skipSpaceFrequency;
+            return this;
+        }
+
+        public TrainerBuilder lowerCaseFirstLetterFrequency(int count) {
+            this.lowerCaseFirstLetterFrequency = lowerCaseFirstLetterFrequency;
+            return this;
+        }
+
+        public Trainer build() {
+            return new Trainer(this);
+        }
+    }
+
+    public static class Trainer {
+        private TrainerBuilder builder;
+
+        public static TrainerBuilder builder(Path trainFile) {
+            return new TrainerBuilder(trainFile);
+        }
+
+        private Trainer(TrainerBuilder builder) {
+            this.builder = builder;
+        }
+
+        private static Locale Turkish = new Locale("tr");
+
+        public TurkishSentenceExtractor train() throws IOException {
             DoubleValueMap<String> weights = new DoubleValueMap<>();
-            List<String> sentences = TextUtil.loadLinesWithText(trainFile);
+            List<String> sentences = TextUtil.loadLinesWithText(builder.trainFile);
             DoubleValueMap<String> averages = new DoubleValueMap<>();
-            UIntSet indexSet = new UIntSet();
+
             Random rnd = new Random(1);
-            StringBuilder sb = new StringBuilder();
-            int boundaryIndexCounter = 0;
-            int sentenceCounter = 0;
-            for (String sentence : sentences) {
-                sb.append(sentence);
-                boundaryIndexCounter = sb.length() - 1;
-                indexSet.add(boundaryIndexCounter);
-                // in some sentences we skip adding a space between sentences.
-                if (rnd.nextInt(SKIP_SPACE_FREQUENCY) != 1 && sentenceCounter < sentences.size() - 1) {
-                    sb.append(" ");
-                }
-                sentenceCounter++;
-            }
 
             int updateCount = 0;
 
-            String joinedSentence = sb.toString();
-            for (int i = 0; i < iterationCount; i++) {
+            for (int i = 0; i < builder.iterationCount; i++) {
+
+                Log.info("Iteration = %d", i + 1);
+
+                UIntSet indexSet = new UIntSet();
+                StringBuilder sb = new StringBuilder();
+                int boundaryIndexCounter;
+                int sentenceCounter = 0;
+                if (builder.shuffleInput) {
+                    Collections.shuffle(sentences);
+                }
+                for (String sentence : sentences) {
+                    if (sentence.trim().length() == 0) {
+                        continue;
+                    }
+                    // sometimes make first letter of the sentence lower case.
+                    if (rnd.nextInt(builder.lowerCaseFirstLetterFrequency) == 0) {
+                        sentence = sentence.substring(0, 1).toLowerCase(Turkish) + sentence.substring(1);
+                    }
+                    sb.append(sentence);
+                    boundaryIndexCounter = sb.length() - 1;
+                    indexSet.add(boundaryIndexCounter);
+                    // in some sentences we skip adding a space between sentences.
+                    if (rnd.nextInt(builder.skipSpaceFrequency) != 1 && sentenceCounter < sentences.size() - 1) {
+                        sb.append(" ");
+                    }
+                    sentenceCounter++;
+                }
+                String joinedSentence = sb.toString();
 
                 for (int j = 0; j < joinedSentence.length(); j++) {
                     // skip if char cannot be a boundary char.
@@ -151,7 +206,7 @@ public class PerceptronSentenceExtractor implements SentenceExtractor {
                 weights.set(key, weights.get(key) - averages.get(key) * 1d / updateCount);
             }
 
-            return new PerceptronSentenceExtractor(weights);
+            return new TurkishSentenceExtractor(weights);
         }
     }
 
@@ -177,11 +232,17 @@ public class PerceptronSentenceExtractor implements SentenceExtractor {
             nextTwoLetters = pointer < input.length() - 3 ? input.substring(pointer + 1, pointer + 3) : "__";
 
             int previousSpace = findBackwardsSpace(input, pointer);
+            if (previousSpace < 0) {
+                previousSpace = 0;
+            }
             leftChunk = "";
             if (previousSpace >= 0) {
                 leftChunk = input.substring(previousSpace, pointer);
             }
             int previousBoundaryOrSpace = findBackwardsSpaceOrChar(input, pointer, '.');
+            if (previousBoundaryOrSpace < 0) {
+                previousBoundaryOrSpace = 0;
+            }
             leftChunkUntilBoundary = previousBoundaryOrSpace == previousSpace ?
                     leftChunk : input.substring(previousBoundaryOrSpace, pointer);
 
@@ -308,7 +369,7 @@ public class PerceptronSentenceExtractor implements SentenceExtractor {
     @Override
     public List<String> extract(List<String> paragraphs) {
         List<String> result = new ArrayList<>();
-        for(String paragraph : paragraphs) {
+        for (String paragraph : paragraphs) {
             result.addAll(extract(paragraph));
         }
         return result;
@@ -333,7 +394,10 @@ public class PerceptronSentenceExtractor implements SentenceExtractor {
                 score += weights.get(feature);
             }
             if (score > 0) {
-                sentences.add(paragraph.substring(begin, j + 1).trim());
+                String sentence = paragraph.substring(begin, j + 1).trim();
+                if (sentence.length() > 0) {
+                    sentences.add(sentence);
+                }
                 begin = j + 1;
             }
         }
