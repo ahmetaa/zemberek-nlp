@@ -20,7 +20,6 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
     static final String BOUNDARY_CHARS = ".!?";
     private FloatValueMap<String> weights = new FloatValueMap<>();
 
-
     static Set<String> TurkishAbbreviationSet = new HashSet<>();
     private static Locale localeTr = new Locale("tr");
 
@@ -41,6 +40,49 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
 
     private TurkishSentenceExtractor(FloatValueMap<String> weights) {
         this.weights = weights;
+    }
+
+    @Override
+    public List<String> extract(List<String> paragraphs) {
+        List<String> result = new ArrayList<>();
+        for (String paragraph : paragraphs) {
+            result.addAll(extract(paragraph));
+        }
+        return result;
+    }
+
+    @Override
+    public List<String> extract(String paragraph) {
+        List<String> sentences = new ArrayList<>();
+        int begin = 0;
+        for (int j = 0; j < paragraph.length(); j++) {
+            // skip if char cannot be a boundary char.
+            char chr = paragraph.charAt(j);
+            if (BOUNDARY_CHARS.indexOf(chr) < 0)
+                continue;
+            BoundaryData boundaryData = new BoundaryData(paragraph, j);
+            if (boundaryData.nonBoundaryCheck()) {
+                continue;
+            }
+            List<String> features = boundaryData.extractFeatures();
+            double score = 0;
+            for (String feature : features) {
+                score += weights.get(feature);
+            }
+            if (score > 0) {
+                String sentence = paragraph.substring(begin, j + 1).trim();
+                if (sentence.length() > 0) {
+                    sentences.add(sentence);
+                }
+                begin = j + 1;
+            }
+        }
+
+        if (begin < paragraph.length()) {
+            String remaining = paragraph.substring(begin, paragraph.length()).trim();
+            sentences.add(remaining);
+        }
+        return sentences;
     }
 
     public void saveBinary(Path path) throws IOException {
@@ -96,7 +138,7 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
             return this;
         }
 
-        public TrainerBuilder iteratiskipSpaceFrequencyonCount(int count) {
+        public TrainerBuilder skipSpaceFrequencyonCount(int count) {
             this.skipSpaceFrequency = skipSpaceFrequency;
             return this;
         }
@@ -210,7 +252,7 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
         }
     }
 
-    private static class BoundaryData {
+    static class BoundaryData {
         char currentChar;
         char previousLetter;
         char nextLetter;
@@ -348,7 +390,8 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
             if (currentWordNoPunctuation.length() > 0) {
                 boolean allUp = true;
                 boolean allDigit = true;
-                for (char c : currentWordNoPunctuation.toCharArray()) {
+                for (int j = 0; j < currentWordNoPunctuation.length(); j++) {
+                    char c = currentWordNoPunctuation.charAt(j);
                     if (!Character.isUpperCase(c))
                         allUp = false;
                     if (!Character.isDigit(c))
@@ -364,49 +407,6 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
             }
             return features;
         }
-    }
-
-    @Override
-    public List<String> extract(List<String> paragraphs) {
-        List<String> result = new ArrayList<>();
-        for (String paragraph : paragraphs) {
-            result.addAll(extract(paragraph));
-        }
-        return result;
-    }
-
-    @Override
-    public List<String> extract(String paragraph) {
-        List<String> sentences = new ArrayList<>();
-        int begin = 0;
-        for (int j = 0; j < paragraph.length(); j++) {
-            // skip if char cannot be a boundary char.
-            char chr = paragraph.charAt(j);
-            if (BOUNDARY_CHARS.indexOf(chr) < 0)
-                continue;
-            BoundaryData boundaryData = new BoundaryData(paragraph, j);
-            if (boundaryData.nonBoundaryCheck()) {
-                continue;
-            }
-            List<String> features = boundaryData.extractFeatures();
-            double score = 0;
-            for (String feature : features) {
-                score += weights.get(feature);
-            }
-            if (score > 0) {
-                String sentence = paragraph.substring(begin, j + 1).trim();
-                if (sentence.length() > 0) {
-                    sentences.add(sentence);
-                }
-                begin = j + 1;
-            }
-        }
-
-        if (begin < paragraph.length()) {
-            String remaining = paragraph.substring(begin, paragraph.length()).trim();
-            sentences.add(remaining);
-        }
-        return sentences;
     }
 
     private static final Set<String> webWords =

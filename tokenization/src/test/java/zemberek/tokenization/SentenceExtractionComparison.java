@@ -185,7 +185,8 @@ public class SentenceExtractionComparison {
 
         SentenceModel model;
         new DictionaryBuilderTool().run(
-                new String[]{"-inputFile",
+                new String[]{
+                        "-inputFile",
                         abbrvFile.getAbsolutePath(),
                         "-outputFile",
                         abbrvOut.getAbsolutePath(),
