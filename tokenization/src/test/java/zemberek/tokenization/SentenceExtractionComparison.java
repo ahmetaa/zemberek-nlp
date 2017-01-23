@@ -32,12 +32,10 @@ public class SentenceExtractionComparison {
         Path test = Paths.get("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Test.txt");
 
         List<String> testSentences = TextUtil.loadLinesWithText(test);
-        Stopwatch sw = Stopwatch.createStarted();
 
         Log.info(" \n---------------- Zemberek ------------------\n");
 
         TurkishSentenceExtractor extractor = TurkishSentenceExtractor.fromInternalModel();
-        Log.info("Train Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
         evaluate(testSentences, extractor);
 
         Log.info(" \n---------------- OpenNlp ------------------\n");
