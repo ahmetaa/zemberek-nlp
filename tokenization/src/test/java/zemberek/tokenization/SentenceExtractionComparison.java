@@ -137,11 +137,11 @@ public class SentenceExtractionComparison {
         Set<Integer> falsePositives = new HashSet<>(foundBoundaries);
         falsePositives.removeAll(refBoundaries);
         double precision = truePositives.size() * 1d / (truePositives.size() + falsePositives.size());
-        Log.info("Precision      = %.4f", precision);
+        Log.info("Precision       = %.4f", precision);
         double recall = truePositives.size() * 1d / refBoundaries.size();
-        Log.info("Recall         = %.4f", recall);
+        Log.info("Recall          = %.4f", recall);
         double f = 2 * precision * recall / (precision + recall);
-        Log.info("F              = %.4f", f);
+        Log.info("F               = %.4f", f);
 
         Set<Integer> insertions = new HashSet<>(foundBoundaries);
         insertions.removeAll(refBoundaries);
@@ -197,9 +197,7 @@ public class SentenceExtractionComparison {
 
         model = SentenceDetectorME.train("tr", sampleStream, factory, TrainingParameters.defaultParams());
 
-
-        OutputStream modelOut = null;
-        modelOut = new BufferedOutputStream(
+        OutputStream modelOut = new BufferedOutputStream(
                 new FileOutputStream(new File("/media/depo/data/aaa/nlp/sentence.bin")));
         model.serialize(modelOut);
     }
