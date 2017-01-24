@@ -1,20 +1,22 @@
 package zemberek.morphology.apps;
 
+import com.google.common.base.Splitter;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.Token;
 import org.junit.Test;
-import zemberek.core.IndexedItem;
-import zemberek.core.StringInt;
-import zemberek.core.collections.CountSet;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
 import zemberek.morphology.external.OflazerAnalyzerRunner;
+import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.NullSuffixForm;
 import zemberek.morphology.lexicon.SuffixForm;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
@@ -49,7 +51,23 @@ public class ZemberekNlpScripts {
         Files.write(Paths.get("suffix-list"), result);
     }
 
-    static Path DATA_PATH = Paths.get("/media/depo/data/aaa");
+    //static Path DATA_PATH = Paths.get("/media/depo/data/aaa");
+    private static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
+
+    @Test
+    public void createZemberekVocabulary() throws IOException {
+        Path outDir = DATA_PATH.resolve("out");
+        Files.createDirectories(outDir);
+        TurkishMorphology parser = TurkishMorphology.createWithDefaults();
+
+        List<String> vocab = new ArrayList<>(parser.getLexicon().size());
+        for (DictionaryItem item : parser.getLexicon()) {
+            vocab.add(item.lemma);
+        }
+        vocab.sort(collTr::compare);
+        Files.write(outDir.resolve("zemberek.vocab"), vocab);
+    }
+
 
     @Test
     public void parseLargeVocabularyZemberek() throws IOException {
@@ -78,8 +96,7 @@ public class ZemberekNlpScripts {
         sortAndSave(outDir.resolve("zemberek-parsed-words.txt"), accepted);
     }
 
-    static Collator collTr = Collator.getInstance(new Locale("tr"));
-
+    private static Collator collTr = Collator.getInstance(new Locale("tr"));
 
     private void sortAndSave(Path outPath, List<String> accepted) throws IOException {
         Log.info("Sorting %d words.", accepted.size());
@@ -99,7 +116,8 @@ public class ZemberekNlpScripts {
         OflazerAnalyzerRunner runner = new OflazerAnalyzerRunner(
                 OFLAZER_ANALYZER_PATH.toFile(), OFLAZER_ANALYZER_PATH.resolve("tfeaturesulx.fst").toFile());
 
-        Path wordFile = DATA_PATH.resolve("vocab.all");
+        //Path wordFile = DATA_PATH.resolve("vocab.all");
+        Path wordFile = DATA_PATH.resolve("vocab-corpus-and-zemberek");
         Path outDir = DATA_PATH.resolve("out");
         Files.createDirectories(outDir);
 
@@ -123,18 +141,65 @@ public class ZemberekNlpScripts {
     }
 
     @Test
-    public void extractPostpDataFromOflazerAnalysisResult() throws IOException {
+    public void reduceOflazerAnalysisResult() throws IOException {
         Path inPath = DATA_PATH.resolve("out").resolve("oflazer-parses.txt");
         List<String> lines = Files.readAllLines(inPath, StandardCharsets.UTF_8);
         Log.info("Loaded.");
-        LinkedHashSet<String> accepted = new LinkedHashSet<>(lines.size() / 50);
+        LinkedHashSet<String> accepted = new LinkedHashSet<>(lines.size() / 5);
         for (String line : lines) {
-            if (line.trim().length() == 0 || line.endsWith("+?") || !line.contains("Postp")) {
+            if (line.trim().length() == 0 || line.endsWith("+?")) {
                 continue;
             }
-            accepted.add(line);
+            accepted.add(line.trim());
         }
-        sortAndSave(DATA_PATH.resolve("out").resolve("oflazer-potp-words.txt"), new ArrayList<>(accepted));
+        sortAndSave(DATA_PATH.resolve("out").resolve("oflazer-analyses.txt"), new ArrayList<>(accepted));
+    }
+
+    @Test
+    public void extractTypesFromOflazerAnalysis() throws IOException {
+        Path inPath = DATA_PATH.resolve("out").resolve("oflazer-analyses.txt");
+        List<String> lines = Files.readAllLines(inPath, StandardCharsets.UTF_8);
+        Log.info("Loaded.");
+        LinkedHashMultimap<String, String> map = LinkedHashMultimap.create(10, 10000);
+
+        Set<String> secondaryPosKeys = SecondaryPos.converter().getKeysSet();
+
+        for (String line : lines) {
+            if (line.trim().length() == 0 || line.endsWith("+?")) {
+                continue;
+            }
+            List<String> parts = Splitter.on("\t").omitEmptyStrings().trimResults().splitToList(line);
+
+            // output sometimes combines root and morph part.
+            if (parts.size() < 3) {
+                int plusIndex = parts.get(1).indexOf("+");
+                String value = parts.get(1).substring(0, plusIndex);
+                String morph = parts.get(1).substring(plusIndex + 1);
+                parts = Lists.newArrayList(parts.get(0), value, morph);
+            }
+
+            String value = parts.get(1);
+            List<String> morphs = Splitter.on("+").omitEmptyStrings().trimResults().splitToList(parts.get(2));
+
+            String primaryPos = morphs.get(0).replaceAll("\\^DB", "");
+            String secondaryPos = morphs.size() > 1 && secondaryPosKeys.contains(morphs.get(1).replaceAll("\\^DB", ""))
+                    ? morphs.get(1).replaceAll("\\^DB", "") : "";
+
+            String key = secondaryPos.length() == 0 ? primaryPos : primaryPos + "," + secondaryPos;
+
+            map.put(key, value);
+        }
+        Path path = DATA_PATH.resolve("out").resolve("dictionary-from-analysis.txt");
+        try (PrintWriter pw = new PrintWriter(path.toFile(), StandardCharsets.UTF_8.name())) {
+            for (String key : map.keySet()) {
+                List<String> values = new ArrayList<>(map.get(key));
+                values.sort(collTr::compare);
+                for (String value : values) {
+                    pw.println(value + " " + key);
+                }
+                pw.println();
+            }
+        }
     }
 
     @Test

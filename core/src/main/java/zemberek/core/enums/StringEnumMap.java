@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * This is a convenience class for enums that also are represented with strings.
@@ -50,6 +51,10 @@ public class StringEnumMap<T extends StringEnum> {
         if (res == null)
             throw new IllegalArgumentException("Cannot find a representation of :" + s + " for enum class:" + clazz.getName());
         return res;
+    }
+
+    public Set<String> getKeysSet() {
+        return map.keySet();
     }
 
     public Collection<T> getEnums(Collection<String> strings) {
