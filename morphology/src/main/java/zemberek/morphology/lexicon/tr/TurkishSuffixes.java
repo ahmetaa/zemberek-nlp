@@ -469,8 +469,10 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
     public NullSuffixForm PersPron_O = getNull("PersPron_O", PersPron_TEMPLATE);
     public NullSuffixForm PersPron_Biz = getNull("PersPron_Biz", PersPron_TEMPLATE);
     public NullSuffixForm PersPron_Siz = getNull("PersPron_Siz", PersPron_TEMPLATE);
-    public SuffixFormTemplate PersPron_BenSen = getTemplate("PersPron_BenSen", PersPronRoot);
+
     public SuffixFormTemplate PersPron_BanSan = getTemplate("PersPron_BanSan", PersPronRoot);
+
+
     public DerivationalSuffixTemplate Pron2Verb = getDerivationalTemplate("Pron2Verb", VerbRoot, TerminationType.NON_TERMINAL);
 
     public SuffixFormTemplate DemonsPron_TEMPLATE = getTemplate("DemonsPron_TEMPLATE", DemonsPronRoot);
@@ -540,6 +542,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
         // TODO: birbiri, birbirimizi problematic
         QuantPron_Default.copyConnections(DemonsPron_TEMPLATE).connections.add(A3pl_lAr);
         QuantPron_Default.indirectConnections.add(P3sg_sI,P3pl_I,P1pl_ImIz).remove(P3sg_sI,P3sg_yI);
+
         PersPron_Default.copyConnections(DemonsPron_TEMPLATE);
         ReflexPron_Default.copyConnections(DemonsPron_TEMPLATE);
         ReflexPron_Default.indirectConnections.add(Dat_nA, P3sg_sI);
@@ -1080,6 +1083,8 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
 
         Opt_yA.connections.add(A3sg_Verb_TEMPLATE, A1sg_yIm, A2sg_sIn, A1pl_lIm, A2pl_sInIz, A3pl_Verb_lAr).add(COPULAR_FORMS);
 
+        A1sg_TEMPLATE.connections.add(Pnon_TEMPLATE).remove(POSSESSIVE_FORMS).add(P1sg_Im);
+        A1sg_TEMPLATE.indirectConnections.add(CASE_FORMS).add(Pnon_TEMPLATE).add(Noun2Verb, Noun2VerbCopular);
 
         A2pl_TEMPLATE.connections.add(Pnon_TEMPLATE);
         A2pl_TEMPLATE.indirectConnections.add(Pnon_TEMPLATE.allConnections());
@@ -1097,6 +1102,9 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
 
         PersPron_Ben.connections.add(A1sg_TEMPLATE);
         PersPron_Ben.indirectConnections.add(PersPron_TEMPLATE.indirectConnections);
+
+        PersPron_BanSan.connections.add(A1sg_TEMPLATE);
+        PersPron_BanSan.indirectConnections.add(PersPron_TEMPLATE.indirectConnections).remove(CASE_FORMS).add(Dat_yA);
 
         PersPron_Sen.connections.add(A2sg_TEMPLATE);
         PersPron_Sen.indirectConnections.add(PersPron_TEMPLATE.indirectConnections);
@@ -1148,7 +1156,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
 
                 Num2Noun, Num2Adj, Num2Adv, Num2Verb,
 
-                PersPron_Siz, PersPron_BanSan, PersPron_Biz, PersPron_O, PersPron_Sen, PersPron_BenSen, PersPron_Ben,
+                PersPron_Siz, PersPron_BanSan, PersPron_Biz, PersPron_O, PersPron_Sen, PersPron_Ben,
 
                 Ness_lIk, FitFor_lIk,
                 Become_lAs, Become_Adj_lAs, Acquire_lAn,
@@ -1170,7 +1178,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
                 KeepDoing_yAgor, KeepDoing2_yAdur, EverSince_yAgel, Start_yAkoy,
                 Almost_yAyAz, Hastily_yIver, Stay_yAkal, Inf1_mAk, Inf2_mA, Inf3_yIs, Ly_cA,
                 Quite_cA, Equ_cA, Equ_ncA, UntilDoing_yAsIyA,
-                A3pl_Comp_lAr, Interj_Template, Verb_Prog_Drop, PersPron_BenSen, PersPron_BanSan,
+                A3pl_Comp_lAr, Interj_Template, Verb_Prog_Drop,
                 Ordinal_IncI, Grouping_sAr);
     }
 
@@ -1250,6 +1258,10 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
                 case Pronoun:
                     if (item.secondaryPos == SecondaryPos.Demonstrative)
                         template = DemonsPron_TEMPLATE;
+                    else if (item.secondaryPos == SecondaryPos.Quantitive)
+                        template = QuantPron_TEMPLATE;
+                    else if (item.secondaryPos == SecondaryPos.Question)
+                        template = QuesPron_TEMPLATE;
                     else
                         return PersPron_TEMPLATE;
                     break;

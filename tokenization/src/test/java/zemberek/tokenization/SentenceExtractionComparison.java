@@ -160,7 +160,7 @@ public class SentenceExtractionComparison {
     }
 
     public static void findCandidateTrainingSentences() throws IOException {
-        Pattern p = Pattern.compile("[ ][a-zA-ZişüğıöçÜĞİŞÇÖİ0-9.,][\\.!?]+[ ]");
+        Pattern p = Pattern.compile("[ ][a-zA-ZişüğıöçÜĞÖİŞÇ0-9,.'\\-%]+[.!?]+[ ]");
         List<String> input = Files.readAllLines(Paths.get("/media/depo/data/aaa/nlp/sentences/k/2017-01-04"));
         TurkishSentenceExtractor extractor = TurkishSentenceExtractor.fromInternalModel();
         List<String> extracted = extractor.extract(input);

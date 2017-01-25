@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.Token;
 import org.junit.Test;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
@@ -36,6 +37,12 @@ import java.util.stream.Collectors;
 
 public class ZemberekNlpScripts {
 
+    private static Path DATA_PATH = Paths.get("/media/depo/data/aaa");
+    //private static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
+    private static Path NLP_TOOLS_PATH = Paths.get("/home/ahmetaa/apps/nlp/tools");
+    private static Path OFLAZER_ANALYZER_PATH = NLP_TOOLS_PATH.resolve("Morphological-Analyzer/Turkish-Oflazer-Linux64");
+
+
     @Test
     public void generateSuffixNames() throws IOException {
         TurkishSuffixes suffixes = new TurkishSuffixes();
@@ -51,8 +58,6 @@ public class ZemberekNlpScripts {
         Files.write(Paths.get("suffix-list"), result);
     }
 
-    //static Path DATA_PATH = Paths.get("/media/depo/data/aaa");
-    private static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
 
     @Test
     public void createZemberekVocabulary() throws IOException {
@@ -106,9 +111,6 @@ public class ZemberekNlpScripts {
             accepted.forEach(pw::println);
         }
     }
-
-    private static Path NLP_TOOLS_PATH = Paths.get("/home/ahmetaa/apps/nlp/tools");
-    private static Path OFLAZER_ANALYZER_PATH = NLP_TOOLS_PATH.resolve("Morphological-Analyzer/Turkish-Oflazer-Linux64");
 
     @Test
     public void parseLargeVocabularyOflazer() throws IOException {
@@ -203,6 +205,34 @@ public class ZemberekNlpScripts {
     }
 
     @Test
+    public void findZemberekMissingOrDifferent() throws IOException {
+        Path path = DATA_PATH.resolve("out");
+        LinkedHashSet<String> oSet =
+                new LinkedHashSet<>(TextUtil.loadLinesWithText(path.resolve("dictionary-from-analysis.txt"))
+                        .stream()
+                        .filter(s -> !s.contains("Prop")).collect(Collectors.toList()));
+
+        TurkishMorphology parser = TurkishMorphology.createWithDefaults();
+        List<String> zemberekTypes = new ArrayList<>(parser.getLexicon().size());
+        for (DictionaryItem item : parser.getLexicon()) {
+            String lemma = item.primaryPos == PrimaryPos.Verb ? item.lemma.replaceAll("mek$|mak$", "") : item.lemma;
+            String primaryString = item.primaryPos == PrimaryPos.Adverb ? "Adverb" : item.primaryPos.shortForm;
+            String pos = item.secondaryPos == null
+                    || item.secondaryPos == SecondaryPos.Unknown
+                    || item.secondaryPos == SecondaryPos.None ?
+                    primaryString : primaryString + "," + item.secondaryPos.shortForm;
+            zemberekTypes.add(lemma + " " + pos);
+        }
+        zemberekTypes.sort(collTr::compare);
+        Files.write(path.resolve("found-in-zemberek"), zemberekTypes);
+        LinkedHashSet<String> zSet = new LinkedHashSet<>(zemberekTypes);
+
+        oSet.removeAll(zSet);
+        Files.write(path.resolve("not-found-in-zemberek"), oSet);
+    }
+
+
+    @Test
     public void generateOnlyOflazer() throws IOException {
         Path inPath = DATA_PATH.resolve("out");
         List<String> zemberekAll =
@@ -260,7 +290,7 @@ public class ZemberekNlpScripts {
     }
 
     @Test
-    public void frequentUnknownZemberek() throws IOException {
+    public void unknownZemberek() throws IOException {
 
         Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
 
@@ -268,12 +298,15 @@ public class ZemberekNlpScripts {
         Histogram<String> histogram = Histogram.loadFromUtf8File(wordFreqFile, ' ');
 
         Path dir = DATA_PATH.resolve("out");
+
+        Log.info("Loading parseable.");
         List<String> zemberekAll =
                 Files.readAllLines(dir.resolve("zemberek-parsed-words.txt"));
 
         histogram.removeAll(zemberekAll);
 
-        histogram.removeSmaller(10);
+        //histogram.removeSmaller(10);
+        Log.info("Saving.");
 
         Files.write(dir.resolve("no-parse-zemberek-freq.txt"), histogram.getSortedList());
         Files.write(dir.resolve("no-parse-zemberek-tr.txt"), histogram.getSortedList((a, b) -> collTr.compare(a, b)));
@@ -463,4 +496,71 @@ public class ZemberekNlpScripts {
         Files.write(Paths.get("dunya"), words);
         return words;
     }
+
+    @Test
+    public void parseLargeVocabularyZemberekForMorfessor() throws IOException {
+        Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
+        Path outDir = DATA_PATH.resolve("out");
+        Files.createDirectories(outDir);
+
+        TurkishMorphology parser = TurkishMorphology.createWithDefaults();
+        System.out.println("Loading histogram.");
+        Histogram<String> histogram = Histogram.loadFromUtf8File(wordFreqFile, ' ');
+        histogram.removeSmaller(1000);
+        List<String> accepted = new ArrayList<>(histogram.size());
+
+        int c = 0;
+        for (String s : histogram) {
+            s = s.trim();
+            if (s.length() < 4) {
+                continue;
+            }
+            List<WordAnalysis> parses = parser.analyze(s);
+            if (parses.size() > 0 &&
+                    parses.get(0).dictionaryItem.primaryPos != PrimaryPos.Unknown) {
+                LinkedHashSet<String> k = new LinkedHashSet<>(2);
+                for (WordAnalysis parse : parses) {
+                    if (parse.dictionaryItem.lemma.length() > 1) {
+                        String str = parse.root + " " + String.join(" ", parse.suffixSurfaceList()).replaceAll("[ ]+", " ").trim();
+                        k.add(str);
+                    }
+                }
+
+                String join = String.join(", ", k).trim();
+                if (!s.equals(join) && join.length() > 2) {
+                    accepted.add(s + " " + join);
+                }
+            }
+            if (c > 0 && c % 10000 == 0) {
+                System.out.println("Processed = " + c);
+            }
+            c++;
+        }
+        sortAndSave(outDir.resolve("morfessor-annotation.txt"), accepted);
+    }
+
+    @Test
+    public void generateMorfessorData() throws IOException {
+        Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
+        Path outDir = DATA_PATH.resolve("out");
+        System.out.println("Loading histogram.");
+        Histogram<String> histogram = Histogram.loadFromUtf8File(wordFreqFile, ' ');
+        histogram.removeSmaller(50);
+
+        try (
+                PrintWriter pw = new PrintWriter("/media/depo/data/aaa/morfessor.list");
+                PrintWriter pw2 = new PrintWriter("/media/depo/data/aaa/morfessor.list.freq")
+        ) {
+            for (String s : histogram) {
+                pw.println(s);
+/*                int reduced= (int) LogMath.log(1.005, histogram.getCount(s)-49);
+                if(reduced==0) {
+                    reduced+=1;
+                }*/
+                pw2.println(histogram.getCount(s) + " " + s);
+            }
+        }
+    }
+
+
 }

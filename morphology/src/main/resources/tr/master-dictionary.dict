@@ -2575,8 +2575,8 @@ baza
 bazal [P:Adj]
 bazalt [A:NoVoicing]
 bazen [P:Adv]
-bazı [P:Adj]
-bazı [P:Adv]
+bazı [P:Det]
+bazı [P:Pron,Quant]
 bazısı [P:Pron]
 bazidiyospor
 bazik [P:Adj]
@@ -3125,7 +3125,7 @@ birazcık [P:Adj]
 birazcık [P:Adv]
 birazdan [P:Adv]
 birbiri [P:Pron, Quant]
-birçoğu [P:Pron]
+birçoğu [P:Pron,Quant]
 birçok [P:Adj]
 birçok [P:Det]
 birden [P:Adv]
@@ -3157,7 +3157,7 @@ birlik
 birlikte [P:Postp,PCIns]
 birliktelik
 birsam
-birtakım [P:Adj]
+birtakım [P:Pron,Quant]
 birtakım [P:Det]
 birun
 biryan
@@ -5307,6 +5307,7 @@ değerli [P:Adj]
 değersiz [P:Adj]
 değgin [P:Adj]
 değil
+değil [P:Conj]
 değim
 değin [P:Postp,PCDat]
 değini
@@ -8561,11 +8562,12 @@ gerdek
 gerdel
 gereç
 gereğince [P:Adv]
-gerek
+gerek [P:Conj]
 gerek [P:Adj]
 gerekçe
 gerekçelemek
 gerekli [P:Adj]
+gerekse [P:Conj]
 gerekmek
 gereksemek
 gereksinim
@@ -9420,6 +9422,7 @@ hanek [A:NoVoicing]
 hanende
 hangar
 hangi [P:Adj]
+hangi [P:Pron,Ques]
 hanım [P:Adj]
 hanımanne
 hanımefendi
@@ -9827,15 +9830,17 @@ hengâme
 hentbol
 henüz [P:Adv]
 hep [P:Adv]
+hep [P:Pron,Quant]
 hepatit [A:NoVoicing]
 hepatoloji
 hepatolojik [P:Adj]
 hepçil [P:Adj]
-hepsi [P:Pron]
+hepsi [P:Pron,Quant]
 hepten [P:Adv]
 hepyek [A:NoVoicing]
 her [P:Adj]
 her [P:Det]
+herbiri [P:Pron,Quant]
 hercaî
 hercümerç [P:Adj]
 herek
@@ -9956,7 +9961,7 @@ hicviye
 hiç
 hiç [P:Adv]
 hiçbir [P:Det]
-hiçbiri [P:Pron]
+hiçbiri [P:Pron,Quant]
 hiçlemek
 hiçten [P:Adj]
 hiçten [P:Adv]
@@ -11589,6 +11594,7 @@ kabza
 kabzetmek [A:Voicing, Aorist_A]
 kabzımal
 kaç [P:Num]
+kaç [P:Pron,Ques]
 kaçak
 kaçak [P:Adj]
 kaçamak [P:Adj]
@@ -11691,6 +11697,7 @@ kağnı
 kağşak [P:Adj]
 kağşamak
 kâh [P:Adv]
+kâh [P:Conj]
 kahhar [P:Adj]
 kahır [A:LastVowelDrop]
 kâhil [P:Adj]
@@ -15148,7 +15155,7 @@ malumattar [P:Adj]
 malya
 malzeme
 mama
-mamafih [P:Adv]
+mamafih [P:Conj]
 mamaliga
 mambo
 mamelek
@@ -17452,7 +17459,8 @@ nazire
 nazmen [P:Adv]
 ne [P:Adj]
 ne [P:Adv]
-ne [P:Pron]
+ne [P:Conj]
+ne [P:Pron,Ques]
 nebat [A:NoVoicing]
 nebatat [A:NoVoicing, Plural]
 nebatî [P:Adj]
@@ -17529,7 +17537,7 @@ neozoik [P:Adj]
 nepotist
 nepotizm
 neptünyum
-nere
+nere [P:Pron,Ques]
 neredeyse [P:Adv]
 nergis
 neritik [P:Adj]
@@ -18226,6 +18234,7 @@ ozonür
 ozuga
 öbek
 öbür [P:Adj]
+öbür [P:Pron,Quant]
 öbürkü [P:Pron,Quant]
 öcü
 öç [A:Voicing]
@@ -22594,7 +22603,7 @@ süzüntü
 şöylesine [P:Adv]
 şu [P:Adj]
 şu [P:Pron, Demons]
-şu [P:Pron]
+şu [P:Det]
 şua
 şuara
 şubara
@@ -24519,6 +24528,7 @@ tül
 tül [P:Adj]
 tülbent
 tüm [P:Adj]
+tüm [P:Det]
 tümamiral [A:InverseHarmony]
 tümbek
 tümce
@@ -24534,6 +24544,7 @@ tümleşik [P:Adj]
 tümör
 tümsek
 tümselmek
+tümü [P:Pron,Quant]
 tümür
 tün
 tünaydın [P:Interj]

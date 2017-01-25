@@ -103,7 +103,7 @@ public class DistanceBasedStemmer {
                         continue;
                     }*/
                     score += distance(s, distance.word);
-                    if (k++ == 5) {
+                    if (k++ == 10) {
                         break;
                     }
                 }
@@ -132,10 +132,10 @@ public class DistanceBasedStemmer {
     }
 
     public static void main(String[] args) throws IOException {
-        Path root = Paths.get("/home/ahmetaa/data/vector");
-        Path binVectorFile = root.resolve("model-large-min10.vec.bin");
-        Path vocabFile = root.resolve("vocab-large-min10.bin");
-        Path distanceFile = root.resolve("distance-10.bin");
+        Path root = Paths.get("/media/depo/data/aaa/corpora");
+        Path binVectorFile = root.resolve("model-large-min5-dim50.vec.bin");
+        Path vocabFile = root.resolve("vocab-large-min5-dim50.bin");
+        Path distanceFile = root.resolve("distance-large-min5-dim50.bin");
         DistanceBasedStemmer experiment = DistanceBasedStemmer.load(binVectorFile, distanceFile, vocabFile);
         String input;
         System.out.println("Enter sentence:");

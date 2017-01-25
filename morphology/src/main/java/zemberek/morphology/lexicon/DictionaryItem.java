@@ -1,8 +1,8 @@
 package zemberek.morphology.lexicon;
 
 import zemberek.core.turkish.PrimaryPos;
-import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.RootAttribute;
+import zemberek.core.turkish.SecondaryPos;
 
 import java.util.EnumSet;
 import java.util.Locale;
@@ -147,6 +147,10 @@ public class DictionaryItem {
         this.root = root;
         this.index = 0;
         this.id = generateId(lemma, primaryPos, secondaryPos, 0);
+    }
+
+    public boolean isUnknown() {
+        return this == UNKNOWN;
     }
 
     public boolean hasAttribute(RootAttribute attribute) {

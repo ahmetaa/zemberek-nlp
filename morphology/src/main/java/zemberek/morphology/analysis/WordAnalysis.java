@@ -3,13 +3,15 @@ package zemberek.morphology.analysis;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.RootAttribute;
+import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.lexicon.*;
 import zemberek.morphology.lexicon.graph.StemNode;
 import zemberek.morphology.lexicon.graph.SuffixSurfaceNode;
-import zemberek.core.turkish.PrimaryPos;
-import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.structure.StemAndEnding;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -82,6 +84,14 @@ public class WordAnalysis {
 
     public InflectionalGroup getLastIg() {
         return inflectionalGroups.get(inflectionalGroups.size() - 1);
+    }
+
+    public boolean isUnknown() {
+        return dictionaryItem.isUnknown();
+    }
+
+    public boolean isRuntime() {
+        return dictionaryItem.hasAttribute(RootAttribute.Runtime);
     }
 
     public static class InflectionalGroup {
@@ -170,6 +180,17 @@ public class WordAnalysis {
             return formatLong();
         }
     }
+
+    public List<String> suffixSurfaceList() {
+        List<String> result = new ArrayList<>();
+        for (InflectionalGroup ig : inflectionalGroups) {
+            for (SuffixData sd : ig.suffixList) {
+                result.add(sd.surface);
+            }
+        }
+        return result;
+    }
+
 
     /**
      * Splits the parse into stem and ending. Such as:
