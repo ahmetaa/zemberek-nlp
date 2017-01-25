@@ -34,4 +34,8 @@ public enum PrimaryPos implements StringEnum {
     public String getStringForm() {
         return shortForm;
     }
+
+    public static boolean exists(String stringForm) {
+        return shortFormToPosMap.enumExists(stringForm);
+    }
 }

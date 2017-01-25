@@ -11,6 +11,8 @@ import zemberek.core.logging.Log;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
+import zemberek.core.turkish.TurkicSeq;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
@@ -20,7 +22,9 @@ import zemberek.morphology.external.OflazerAnalyzerRunner;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.NullSuffixForm;
 import zemberek.morphology.lexicon.SuffixForm;
+import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
+import zemberek.morphology.structure.Turkish;
 import zemberek.tokenizer.ZemberekLexer;
 import zemberek.tokenizer.antlr.TurkishLexer;
 
@@ -37,8 +41,8 @@ import java.util.stream.Collectors;
 
 public class ZemberekNlpScripts {
 
-    private static Path DATA_PATH = Paths.get("/media/depo/data/aaa");
-    //private static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
+    //private static Path DATA_PATH = Paths.get("/media/depo/data/aaa");
+    private static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
     private static Path NLP_TOOLS_PATH = Paths.get("/home/ahmetaa/apps/nlp/tools");
     private static Path OFLAZER_ANALYZER_PATH = NLP_TOOLS_PATH.resolve("Morphological-Analyzer/Turkish-Oflazer-Linux64");
 
@@ -81,7 +85,7 @@ public class ZemberekNlpScripts {
         Files.createDirectories(outDir);
 
         TurkishMorphology parser = TurkishMorphology.createWithDefaults();
-        System.out.println("Loading histogram.");
+        Log.info("Loading histogram.");
         Histogram<String> histogram = Histogram.loadFromUtf8File(wordFreqFile, ' ');
         List<String> accepted = new ArrayList<>(histogram.size() / 3);
 
@@ -93,7 +97,7 @@ public class ZemberekNlpScripts {
                 accepted.add(s);
             }
             if (c > 0 && c % 10000 == 0) {
-                System.out.println("Processed = " + c);
+                Log.info("Processed = " + c);
             }
             c++;
         }
@@ -157,6 +161,8 @@ public class ZemberekNlpScripts {
         sortAndSave(DATA_PATH.resolve("out").resolve("oflazer-analyses.txt"), new ArrayList<>(accepted));
     }
 
+    static TurkishAlphabet alphabet = new TurkishAlphabet();
+
     @Test
     public void extractTypesFromOflazerAnalysis() throws IOException {
         Path inPath = DATA_PATH.resolve("out").resolve("oflazer-analyses.txt");
@@ -187,10 +193,22 @@ public class ZemberekNlpScripts {
             String secondaryPos = morphs.size() > 1 && secondaryPosKeys.contains(morphs.get(1).replaceAll("\\^DB", ""))
                     ? morphs.get(1).replaceAll("\\^DB", "") : "";
 
-            String key = secondaryPos.length() == 0 ? primaryPos : primaryPos + "," + secondaryPos;
+            if (primaryPos.equals("Verb")) {
+                TurkicSeq seq = new TurkicSeq(value, alphabet);
+                if (seq.lastVowel().isFrontal()) {
+                    value = value + "mek";
+                } else {
+                    value = value + "mak";
+                }
+            }
+            if (primaryPos.equals("Adverb")) {
+                primaryPos = "Adv";
+            }
 
+            String key = secondaryPos.length() == 0 ? "[P:" + primaryPos + "]" : "[P:" + primaryPos + "," + secondaryPos + "]";
             map.put(key, value);
         }
+
         Path path = DATA_PATH.resolve("out").resolve("dictionary-from-analysis.txt");
         try (PrintWriter pw = new PrintWriter(path.toFile(), StandardCharsets.UTF_8.name())) {
             for (String key : map.keySet()) {
@@ -215,13 +233,21 @@ public class ZemberekNlpScripts {
         TurkishMorphology parser = TurkishMorphology.createWithDefaults();
         List<String> zemberekTypes = new ArrayList<>(parser.getLexicon().size());
         for (DictionaryItem item : parser.getLexicon()) {
-            String lemma = item.primaryPos == PrimaryPos.Verb ? item.lemma.replaceAll("mek$|mak$", "") : item.lemma;
-            String primaryString = item.primaryPos == PrimaryPos.Adverb ? "Adverb" : item.primaryPos.shortForm;
+            String lemma = /*item.primaryPos == PrimaryPos.Verb ? item.lemma.replaceAll("mek$|mak$", "") : */item.lemma;
+            lemma = Turkish.normalizeCircumflex(lemma);
+            String primaryString = /*item.primaryPos == PrimaryPos.Adverb ? "Adverb" :*/ item.primaryPos.shortForm;
             String pos = item.secondaryPos == null
                     || item.secondaryPos == SecondaryPos.Unknown
                     || item.secondaryPos == SecondaryPos.None ?
-                    primaryString : primaryString + "," + item.secondaryPos.shortForm;
+                    "[P:" + primaryString + "]" : "[P:" + primaryString + "," + item.secondaryPos.shortForm + "]";
             zemberekTypes.add(lemma + " " + pos);
+            if(pos.equals("[P:Noun]")) {
+                zemberekTypes.add(lemma + " [P:Adj]");
+            }
+            if(pos.equals("[P:Adj]")) {
+                zemberekTypes.add(lemma + " [P:Noun]");
+            }
+
         }
         zemberekTypes.sort(collTr::compare);
         Files.write(path.resolve("found-in-zemberek"), zemberekTypes);
@@ -271,7 +297,7 @@ public class ZemberekNlpScripts {
 
         Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
 
-        System.out.println("Loading histogram.");
+        Log.info("Loading histogram.");
         Histogram<String> histogram = Histogram.loadFromUtf8File(wordFreqFile, ' ');
 
         Path dir = DATA_PATH.resolve("out");
@@ -294,7 +320,7 @@ public class ZemberekNlpScripts {
 
         Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
 
-        System.out.println("Loading histogram.");
+        Log.info("Loading histogram.");
         Histogram<String> histogram = Histogram.loadFromUtf8File(wordFreqFile, ' ');
 
         Path dir = DATA_PATH.resolve("out");
@@ -317,7 +343,7 @@ public class ZemberekNlpScripts {
         TurkishMorphology parser = TurkishMorphology.createWithDefaults();
         List<WordAnalysis> result = parser.analyze("besiciliği");
         WordAnalysis first = result.get(0);
-        System.out.println(first.inflectionalGroups);
+        Log.info(first.inflectionalGroups);
     }
 
     @Test
@@ -336,8 +362,8 @@ public class ZemberekNlpScripts {
         TurkishSentenceAnalyzer sentenceAnalyzer =
                 new TurkishSentenceAnalyzer(analyzer, new Z3MarkovModelDisambiguator());
 
-        System.out.println(lines.size() + " lines will be processed.");
-        System.out.println("Dictionary has " + analyzer.getLexicon().size() + " items.");
+        Log.info(lines.size() + " lines will be processed.");
+        Log.info("Dictionary has " + analyzer.getLexicon().size() + " items.");
 
         long tokenCount = 0;
         long tokenCountNoPunct = 0;
@@ -353,15 +379,15 @@ public class ZemberekNlpScripts {
                     .count();
         }
         long elapsed = clock.elapsed(TimeUnit.MILLISECONDS);
-        System.out.println("Elapsed Time = " + elapsed);
-        System.out.println("Token Count = " + tokenCount);
-        System.out.println("Token Count (No Punctuation) = " + tokenCountNoPunct);
-        System.out.println(String.format("Tokenization Speed = %.1f tokens/sec",
-                tokenCount * 1000d / elapsed));
-        System.out.println(String.format("Tokenization Speed (No Punctuation) = %.1f tokens/sec ",
-                tokenCountNoPunct * 1000d / elapsed));
-        System.out.println();
-        System.out.println("Sentence word analysis test:");
+        Log.info("Elapsed Time = " + elapsed);
+        Log.info("Token Count = " + tokenCount);
+        Log.info("Token Count (No Punctuation) = " + tokenCountNoPunct);
+        Log.info("Tokenization Speed = %.1f tokens/sec",
+                tokenCount * 1000d / elapsed);
+        Log.info("Tokenization Speed (No Punctuation) = %.1f tokens/sec ",
+                tokenCountNoPunct * 1000d / elapsed);
+        Log.info("");
+        Log.info("Sentence word analysis test:");
         int counter = 0;
         clock.reset().start();
         for (String line : lines) {
@@ -369,19 +395,19 @@ public class ZemberekNlpScripts {
                 SentenceAnalysis res = sentenceAnalyzer.analyze(line);
                 counter += res.size(); // for preventing VM optimizations.
             } catch (Exception e) {
-                System.out.println(line);
+                Log.info(line);
                 e.printStackTrace();
             }
         }
         elapsed = clock.elapsed(TimeUnit.MILLISECONDS);
-        System.out.println("Elapsed Time = " + elapsed);
-        System.out.println(String.format("Tokenization + Analysis speed = %.1f tokens/sec"
-                , tokenCount * 1000d / elapsed));
-        System.out.println(String.format("Tokenization + Analysis speed (no punctuation) = %.1f tokens/sec"
-                , tokenCountNoPunct * 1000d / elapsed));
-        System.out.println();
+        Log.info("Elapsed Time = " + elapsed);
+        Log.info("Tokenization + Analysis speed = %.1f tokens/sec"
+                , tokenCount * 1000d / elapsed);
+        Log.info("Tokenization + Analysis speed (no punctuation) = %.1f tokens/sec"
+                , tokenCountNoPunct * 1000d / elapsed);
+        Log.info("");
 
-        System.out.println("Disambiguation Test:");
+        Log.info("Disambiguation Test:");
         analyzer.invalidateAllCache();
         clock.reset().start();
         for (String line : lines) {
@@ -389,17 +415,17 @@ public class ZemberekNlpScripts {
                 List<WordAnalysis> results = sentenceAnalyzer.bestParse(line);
                 counter += results.size(); // for preventing VM optimizations.
             } catch (Exception e) {
-                System.out.println(line);
+                Log.info(line);
                 e.printStackTrace();
             }
         }
         elapsed = clock.elapsed(TimeUnit.MILLISECONDS);
-        System.out.println("Elapsed Time = " + elapsed);
-        System.out.println(String.format("Tokenization + Analysis + Disambiguation speed = %.1f tokens/sec"
-                , tokenCount * 1000d / elapsed));
-        System.out.println(String.format("Tokenization + Analysis + Disambiguation speed (no punctuation) = %.1f tokens/sec"
-                , tokenCountNoPunct * 1000d / elapsed));
-        System.out.println(counter);
+        Log.info("Elapsed Time = " + elapsed);
+        Log.info("Tokenization + Analysis + Disambiguation speed = %.1f tokens/sec"
+                , tokenCount * 1000d / elapsed);
+        Log.info("Tokenization + Analysis + Disambiguation speed (no punctuation) = %.1f tokens/sec"
+                , tokenCountNoPunct * 1000d / elapsed);
+        Log.info(counter);
     }
 
     @Test
@@ -407,9 +433,9 @@ public class ZemberekNlpScripts {
         TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
         List<WordAnalysis> results = morphology.analyze("phpye");
         for (WordAnalysis result : results) {
-            System.out.println(result.formatLong());
-            System.out.println("\tStems = " + result.getStems());
-            System.out.println("\tLemmas = " + result.getLemmas());
+            Log.info(result.formatLong());
+            Log.info("\tStems = " + result.getStems());
+            Log.info("\tLemmas = " + result.getLemmas());
         }
     }
 
@@ -420,22 +446,22 @@ public class ZemberekNlpScripts {
         TurkishSentenceAnalyzer analyzer = new TurkishSentenceAnalyzer(morphology, disambiguator);
 
         String sentence = "Kırmızı kalemi al.";
-        System.out.println("Sentence  = " + sentence);
+        Log.info("Sentence  = " + sentence);
         SentenceAnalysis analysis = analyzer.analyze(sentence);
 
-        System.out.println("Before disambiguation.");
+        Log.info("Before disambiguation.");
         writeParseResult(analysis);
 
-        System.out.println("\nAfter disambiguation.");
+        Log.info("\nAfter disambiguation.");
         analyzer.disambiguate(analysis);
         writeParseResult(analysis);
     }
 
     private void writeParseResult(SentenceAnalysis analysis) {
         for (SentenceAnalysis.Entry entry : analysis) {
-            System.out.println("Word = " + entry.input);
+            Log.info("Word = " + entry.input);
             for (WordAnalysis w : entry.parses) {
-                System.out.println(w.formatLong());
+                Log.info(w.formatLong());
             }
         }
     }
@@ -455,7 +481,7 @@ public class ZemberekNlpScripts {
             Log.info(sw.elapsed(TimeUnit.MILLISECONDS));
         }
 
-        System.out.println(c);
+        Log.info(c);
     }
 
 
@@ -478,9 +504,9 @@ public class ZemberekNlpScripts {
             for (String line : lines) {
                 k += sentenceAnalyzer.bestParse(line).size();
             }
-            System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));
+            Log.info(sw.elapsed(TimeUnit.MILLISECONDS));
         }
-        System.out.println(k);
+        Log.info(k);
     }
 
 
@@ -504,7 +530,7 @@ public class ZemberekNlpScripts {
         Files.createDirectories(outDir);
 
         TurkishMorphology parser = TurkishMorphology.createWithDefaults();
-        System.out.println("Loading histogram.");
+        Log.info("Loading histogram.");
         Histogram<String> histogram = Histogram.loadFromUtf8File(wordFreqFile, ' ');
         histogram.removeSmaller(1000);
         List<String> accepted = new ArrayList<>(histogram.size());
@@ -532,7 +558,7 @@ public class ZemberekNlpScripts {
                 }
             }
             if (c > 0 && c % 10000 == 0) {
-                System.out.println("Processed = " + c);
+                Log.info("Processed = " + c);
             }
             c++;
         }
@@ -543,7 +569,7 @@ public class ZemberekNlpScripts {
     public void generateMorfessorData() throws IOException {
         Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
         Path outDir = DATA_PATH.resolve("out");
-        System.out.println("Loading histogram.");
+        Log.info("Loading histogram.");
         Histogram<String> histogram = Histogram.loadFromUtf8File(wordFreqFile, ' ');
         histogram.removeSmaller(50);
 
@@ -561,6 +587,5 @@ public class ZemberekNlpScripts {
             }
         }
     }
-
 
 }

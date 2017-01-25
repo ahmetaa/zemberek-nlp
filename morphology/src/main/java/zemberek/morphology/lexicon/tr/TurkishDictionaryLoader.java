@@ -318,17 +318,37 @@ public class TurkishDictionaryLoader {
             } else {
                 PrimaryPos primaryPos = null;
                 SecondaryPos secondaryPos = null;
-                for (String s : Splitter.on(",").trimResults().split(posStr)) {
-                    if (PrimaryPos.converter().enumExists(s)) {
-                        if (primaryPos != null && !SecondaryPos.converter().enumExists(s))
+                List<String> tokens = Splitter.on(",").trimResults().splitToList(posStr);
+
+                if (tokens.size() > 2) {
+                    throw new RuntimeException("Only two POS tokens are allowed in data chunk:" + posStr);
+                }
+
+                for (String token : tokens) {
+                    if (!PrimaryPos.exists(token) && !SecondaryPos.exists(token)) {
+                        throw new RuntimeException("Unrecognized pos data [" + token + "] in data chunk:" + posStr);
+                    }
+                }
+
+                // Ques POS causes some trouble here. Because it is defined in both primary and secondary pos.
+                for (String token : tokens) {
+
+                    if (PrimaryPos.exists(token)) {
+                        if (primaryPos == null) {
+                            primaryPos = PrimaryPos.converter().getEnum(token);
+                            continue;
+                        } else if (!SecondaryPos.exists(token)) {
                             throw new RuntimeException("Multiple primary pos in data chunk:" + posStr);
-                        else primaryPos = PrimaryPos.converter().getEnum(s);
-                    } else if (SecondaryPos.converter().enumExists(s)) {
-                        if (secondaryPos != null && !PrimaryPos.converter().enumExists(s))
+                        }
+                    }
+
+                    if (SecondaryPos.exists(token)) {
+                        if (secondaryPos == null) {
+                            secondaryPos = SecondaryPos.converter().getEnum(token);
+                        } else if (!PrimaryPos.exists(token)) {
                             throw new RuntimeException("Multiple secondary pos in data chunk:" + posStr);
-                        else secondaryPos = SecondaryPos.converter().getEnum(s);
-                    } else
-                        throw new RuntimeException("Unrecognized pos data [" + s + "] in data chunk:" + posStr);
+                        }
+                    }
                 }
                 if (primaryPos == null) {
                     primaryPos = inferPrimaryPos(word);

@@ -46,6 +46,10 @@ public enum SecondaryPos implements StringEnum {
         return shortFormToPosMap;
     }
 
+    public static boolean exists(String stringForm) {
+        return shortFormToPosMap.enumExists(stringForm);
+    }
+
     public String getStringForm() {
         return shortForm;
     }
