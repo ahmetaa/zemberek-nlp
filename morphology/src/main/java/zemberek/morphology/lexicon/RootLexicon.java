@@ -10,9 +10,9 @@ import java.util.*;
  * This is the collection of all Dictionary Items.
  */
 public class RootLexicon implements Iterable<DictionaryItem> {
-    Multimap<String, DictionaryItem> itemMap = HashMultimap.create();
-    Map<String, DictionaryItem> idMap = Maps.newHashMap();
-    Set<DictionaryItem> itemSet = Sets.newLinkedHashSet();
+    private Multimap<String, DictionaryItem> itemMap = HashMultimap.create();
+    private Map<String, DictionaryItem> idMap = Maps.newHashMap();
+    private Set<DictionaryItem> itemSet = Sets.newLinkedHashSet();
 
     public RootLexicon(List<DictionaryItem> dictionaryItems) {
         itemSet.addAll(dictionaryItems);
@@ -49,7 +49,7 @@ public class RootLexicon implements Iterable<DictionaryItem> {
     }
 
     public void remove(DictionaryItem item) {
-        itemMap.removeAll(item.id);
+        itemMap.get(item.lemma).remove(item);
         idMap.remove(item.id);
         itemSet.remove(item);
     }

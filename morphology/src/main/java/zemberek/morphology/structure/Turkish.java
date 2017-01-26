@@ -1,6 +1,7 @@
 package zemberek.morphology.structure;
 
 import zemberek.core.io.KeyValueReader;
+import zemberek.core.logging.Log;
 import zemberek.core.turkish.TurkishAlphabet;
 
 import java.io.IOException;
@@ -37,7 +38,7 @@ public class Turkish {
             if (turkishLetterProns.containsKey(str))
                 sb.append(turkishLetterProns.get(str));
             else {
-                System.out.println("Cannot identify character " + str + " in pronunciation of :[" + w + "]");
+                Log.warn("Cannot identify character " + str + " in pronunciation of :[" + w + "]");
             }
         }
         return sb.toString();
