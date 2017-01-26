@@ -303,10 +303,12 @@ public class TurkishDictionaryLoader {
         }
 
         String generateRoot(String word, PosInfo posInfo) {
-            if (posInfo.primaryPos == PrimaryPos.Punctuation)
+            if (posInfo.primaryPos == PrimaryPos.Punctuation) {
                 return word;
-            if (posInfo.primaryPos == PrimaryPos.Verb)
+            }
+            if (posInfo.primaryPos == PrimaryPos.Verb) {
                 word = word.substring(0, word.length() - 3); // erase -mek -mak
+            }
             word = word.toLowerCase(locale).replaceAll("â", "a").replaceAll("î", "i").replaceAll("\u00e2", "u");
             return word.replaceAll("[\\-']", "");
         }
@@ -362,9 +364,9 @@ public class TurkishDictionaryLoader {
         }
 
         private PrimaryPos inferPrimaryPos(String word) {
-            if (Character.isUpperCase(word.charAt(0)))
+            if (Character.isUpperCase(word.charAt(0))) {
                 return PrimaryPos.Noun;
-            else if (word.endsWith("mek") || word.endsWith("mak")) {
+            } else if (word.length() > 3 && (word.endsWith("mek") || word.endsWith("mak"))) {
                 return PrimaryPos.Verb;
             } else {
                 return PrimaryPos.Noun;
