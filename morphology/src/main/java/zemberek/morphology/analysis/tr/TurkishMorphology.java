@@ -51,7 +51,6 @@ public class TurkishMorphology extends BaseParser {
         RootLexicon lexicon = new RootLexicon();
         private boolean useDynamicCache = true;
         private boolean useUnidentifiedTokenAnalyzer = true;
-        private boolean useStaticCache = true;
 
         public Builder addDefaultDictionaries() throws IOException {
             return addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.toArray(
@@ -90,7 +89,7 @@ public class TurkishMorphology extends BaseParser {
         }
 
         public Builder addTextDictionaryResources(String... resources) throws IOException {
-            Log.info("Loading resources :%n%s" , String.join("\n", Arrays.asList(resources)));
+            Log.info("Loading resources :%n%s", String.join("\n", Arrays.asList(resources)));
             List<String> lines = new ArrayList<>();
             for (String resource : resources) {
                 lines.addAll(Resources.readLines(Resources.getResource(resource), Charsets.UTF_8));
@@ -121,7 +120,7 @@ public class TurkishMorphology extends BaseParser {
         }
     }
 
-    private void generateCaches() {
+    private void generateCache() {
         if (useDynamicCache) {
             this.dynamicCache = CacheBuilder.newBuilder()
                     .maximumSize(100000)
@@ -143,6 +142,11 @@ public class TurkishMorphology extends BaseParser {
         this.wordAnalyzer = builder._analyzer;
         this.generator = builder._generator;
         this.lexicon = builder.lexicon;
+        if (lexicon.size() == 0) {
+            Log.warn("TurkishMorphology object is being instantiated without any dictionary items.");
+        } else {
+            Log.info("Total number dictionary items = %d", lexicon.size());
+        }
         this.graph = graph;
         if (builder.useUnidentifiedTokenAnalyzer) {
             this.unidentifiedTokenAnalyzer = new UnidentifiedTokenAnalyzer(this);
@@ -150,7 +154,7 @@ public class TurkishMorphology extends BaseParser {
         this.suffixProvider = builder.suffixProvider;
         this.useDynamicCache = builder.useDynamicCache;
         this.useUnidentifiedTokenAnalyzer = builder.useUnidentifiedTokenAnalyzer;
-        generateCaches();
+        generateCache();
         Log.info("Initialization complete.");
     }
 
