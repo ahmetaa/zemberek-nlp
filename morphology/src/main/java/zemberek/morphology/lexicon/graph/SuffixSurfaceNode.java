@@ -4,7 +4,6 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.morphology.lexicon.SuffixForm;
 
-
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,7 +43,7 @@ public class SuffixSurfaceNode extends MorphNode {
         return attributes;
     }
 
-    public SuffixSurfaceNode addSuccNode(SuffixSurfaceNode form) {
+    public SuffixSurfaceNode addSuccessorNode(SuffixSurfaceNode form) {
         this.successors.add(form);
         return this;
     }

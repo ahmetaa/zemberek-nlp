@@ -1,20 +1,24 @@
 package zemberek.morphology.lexicon.graph;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import zemberek.core.collections.FastLookupSet;
 import zemberek.core.logging.Log;
+import zemberek.core.turkish.PhoneticAttribute;
+import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.SuffixForm;
 import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.SuffixSurfaceNodeGenerator;
 import zemberek.morphology.lexicon.tr.StemNodeGenerator;
-import zemberek.core.turkish.PhoneticAttribute;
-import zemberek.core.turkish.PhoneticExpectation;
 
 import java.util.*;
 
 public class DynamicLexiconGraph {
 
-    private Map<SuffixSurfaceNode, SuffixSurfaceNode> rootSuffixNodeMap = Maps.newConcurrentMap();
+    private FastLookupSet<SuffixSurfaceNode> rootSuffixLookup = new FastLookupSet<>();
     private Set<StemNode> stemNodes = Sets.newConcurrentHashSet();
 
     private StemNodeGenerator stemNodeGenerator;
@@ -104,8 +108,9 @@ public class DynamicLexiconGraph {
 
         StemNode[] stems = stemNodeGenerator.generate(item);
         for (StemNode stem : stems) {
-            connectStemNode(stem);
-            addStemNode(stem);
+            if (connectStemNode(stem)) {
+                addStemNode(stem);
+            }
         }
     }
 
@@ -114,20 +119,23 @@ public class DynamicLexiconGraph {
         removeStemNodes(stems);
     }
 
-    private void connectStemNode(StemNode stem) {
+    private boolean connectStemNode(StemNode stem) {
         if (!stemNodes.contains(stem)) {
             SuffixSurfaceNode rootSuffixSurfaceNode = getRootSuffixNode(stem);
-            if (!rootSuffixNodeMap.containsKey(rootSuffixSurfaceNode)) {
+            // check if it already exist. If it exists, use the existing one or add the new one.
+            if (!rootSuffixLookup.contains(rootSuffixSurfaceNode)) {
                 generateNodeConnections(rootSuffixSurfaceNode);
             }
-            // check if it already exist. If it exists, use the existing one or add the new one.
-            rootSuffixSurfaceNode = addOrRetrieveExisting(rootSuffixSurfaceNode);
+            rootSuffixSurfaceNode = rootSuffixLookup.getOrAdd(rootSuffixSurfaceNode);
+
             // connect stem to suffix root node.
             stem.suffixRootSurfaceNode = rootSuffixSurfaceNode;
             stemNodes.add(stem);
+            return true;
         } else {
             // duplicate stem!
             Log.warn("Stem Node:" + stem + " already exist.");
+            return false;
         }
     }
 
@@ -147,12 +155,6 @@ public class DynamicLexiconGraph {
         return stemNodes;
     }
 
-    private SuffixSurfaceNode addOrRetrieveExisting(SuffixSurfaceNode surfaceNodeToCheck) {
-        if (!rootSuffixNodeMap.containsKey(surfaceNodeToCheck)) {
-            rootSuffixNodeMap.put(surfaceNodeToCheck, surfaceNodeToCheck);
-            return surfaceNodeToCheck;
-        } else return rootSuffixNodeMap.get(surfaceNodeToCheck);
-    }
 
     public SuffixSurfaceNode getRootSuffixNode(StemNode node) {
         SuffixForm set = suffixProvider.getRootSet(node.dictionaryItem, node.exclusiveSuffixData);
@@ -200,7 +202,7 @@ public class DynamicLexiconGraph {
                     recurse = true;
                 }
                 surfaceNodeInSuccessor = addOrReturnExisting(successiveForm, surfaceNodeInSuccessor);
-                surfaceNode.addSuccNode(surfaceNodeInSuccessor);
+                surfaceNode.addSuccessorNode(surfaceNodeInSuccessor);
                 if (recurse) {
                     generateNodeConnections(surfaceNodeInSuccessor);
                 }

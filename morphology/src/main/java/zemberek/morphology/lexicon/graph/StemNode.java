@@ -11,15 +11,6 @@ public class StemNode extends MorphNode {
     DictionaryItem dictionaryItem;
     SuffixSurfaceNode suffixRootSurfaceNode;
 
-    protected StemNode(String form,
-                       DictionaryItem dictionaryItem,
-                       SuffixSurfaceNode suffixRootSurfaceNode,
-                       TerminationType termination) {
-        super(form, termination);
-        this.dictionaryItem = dictionaryItem;
-        this.suffixRootSurfaceNode = suffixRootSurfaceNode;
-    }
-
     public StemNode(String surfaceForm,
                     DictionaryItem dictionaryItem,
                     TerminationType termination,
@@ -81,13 +72,16 @@ public class StemNode extends MorphNode {
 
         StemNode stemNode = (StemNode) o;
 
+        if (!surfaceForm.equals(stemNode.surfaceForm)) return false;
         if (!dictionaryItem.equals(stemNode.dictionaryItem)) return false;
-        if (suffixRootSurfaceNode != null ? !suffixRootSurfaceNode.equals(stemNode.suffixRootSurfaceNode) : stemNode.suffixRootSurfaceNode != null)
+/*
+        if (suffixRootSurfaceNode != null ? !suffixRootSurfaceNode.equals(stemNode.suffixRootSurfaceNode) : stemNode.suffixRootSurfaceNode != null) {
             return false;
+        }
+*/
         if (!attributes.equals(stemNode.attributes)) return false;
         if (!exclusiveSuffixData.equals(stemNode.exclusiveSuffixData)) return false;
         if (!expectations.equals(stemNode.expectations)) return false;
-        if (!surfaceForm.equals(stemNode.surfaceForm)) return false;
         if (termination != stemNode.termination) return false;
 
         return true;
@@ -96,7 +90,7 @@ public class StemNode extends MorphNode {
     @Override
     public int hashCode() {
         int result = dictionaryItem.hashCode();
-        result = 31 * result + (suffixRootSurfaceNode != null ? suffixRootSurfaceNode.hashCode() : 0);
+//        result = 31 * result + (suffixRootSurfaceNode != null ? suffixRootSurfaceNode.hashCode() : 0);
         result = 31 * result + termination.hashCode();
         result = 31 * result + expectations.hashCode();
         result = 31 * result + attributes.hashCode();

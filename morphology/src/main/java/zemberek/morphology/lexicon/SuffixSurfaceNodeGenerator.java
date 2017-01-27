@@ -9,6 +9,8 @@ import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.graph.SuffixData;
 import zemberek.morphology.lexicon.graph.SuffixSurfaceNode;
 import zemberek.morphology.lexicon.graph.TerminationType;
+import zemberek.morphology.structure.Turkish;
+
 import java.util.*;
 
 import static zemberek.core.turkish.PhoneticAttribute.*;
@@ -28,13 +30,20 @@ public class SuffixSurfaceNodeGenerator {
             EnumSet<PhoneticAttribute> attrs,
             EnumSet<PhoneticExpectation> expectations,
             SuffixData suffixData,
-            SuffixForm set) {
+            SuffixForm suffixForm) {
 
-        List<SuffixToken> tokenList = Lists.newArrayList(new SuffixStringTokenizer(set.generation));
+        List<SuffixToken> tokenList = Lists.newArrayList(new SuffixStringTokenizer(suffixForm.generation));
 
         // zero length token
         if (tokenList.size() == 0) {
-            return Lists.newArrayList(new SuffixSurfaceNode(set, "", attrs.clone(), expectations.clone(), suffixData, set.terminationType));
+            return Lists.newArrayList(
+                    new SuffixSurfaceNode(
+                            suffixForm,
+                            "",
+                            attrs.clone(),
+                            expectations.clone(),
+                            suffixData,
+                            suffixForm.terminationType));
         }
 
         List<SuffixSurfaceNode> forms = new ArrayList<SuffixSurfaceNode>(1);
@@ -48,7 +57,7 @@ public class SuffixSurfaceNodeGenerator {
                 case LETTER:
                     seq.append(token.letter);
                     if (index == tokenList.size() - 1) {
-                        forms.add(new SuffixSurfaceNode(set, seq.toString(), defineMorphemicAttributes(seq, attrs), set.terminationType));
+                        forms.add(new SuffixSurfaceNode(suffixForm, seq.toString(), defineMorphemicAttributes(seq, attrs), suffixForm.terminationType));
                     }
                     break;
 
@@ -66,10 +75,10 @@ public class SuffixSurfaceNodeGenerator {
                     seq.append(lA);
                     if (index == tokenList.size() - 1)
                         forms.add(new SuffixSurfaceNode(
-                                set,
+                                suffixForm,
                                 seq.toString(),
                                 defineMorphemicAttributes(seq, attrs),
-                                set.terminationType));
+                                suffixForm.terminationType));
                     break;
 
                 case I_WOVEL:
@@ -88,7 +97,7 @@ public class SuffixSurfaceNodeGenerator {
                         throw new IllegalArgumentException("Cannot generate I form!");
                     seq.append(li);
                     if (index == tokenList.size() - 1)
-                        forms.add(new SuffixSurfaceNode(set, seq.toString(), defineMorphemicAttributes(seq, attrs), set.terminationType));
+                        forms.add(new SuffixSurfaceNode(suffixForm, seq.toString(), defineMorphemicAttributes(seq, attrs), suffixForm.terminationType));
                     break;
 
                 case APPEND:
@@ -97,23 +106,23 @@ public class SuffixSurfaceNodeGenerator {
                     }
                     if (index == tokenList.size() - 1)
                         forms.add(new SuffixSurfaceNode(
-                                set,
+                                suffixForm,
                                 seq.toString(),
                                 defineMorphemicAttributes(seq, attrs),
-                                set.terminationType));
+                                suffixForm.terminationType));
                     break;
 
                 case DEVOICE_FIRST:
                     TurkicLetter ld = token.letter;
                     if (formAttrs.contains(LastLetterVoiceless))
-                        ld = alphabet.devoice(token.letter);
+                        ld = Turkish.Alphabet.devoice(token.letter);
                     seq.append(ld);
                     if (index == tokenList.size() - 1)
                         forms.add(new SuffixSurfaceNode(
-                                set,
+                                suffixForm,
                                 seq.toString(),
                                 defineMorphemicAttributes(seq, attrs),
-                                set.terminationType));
+                                suffixForm.terminationType));
                     break;
 
                 case VOICE_LAST:
@@ -121,15 +130,15 @@ public class SuffixSurfaceNodeGenerator {
                     seq.append(ld);
                     if (index == tokenList.size() - 1) {
                         forms.add(new SuffixSurfaceNode(
-                                set,
+                                suffixForm,
                                 seq.toString(),
                                 defineMorphemicAttributes(seq, attrs),
                                 EnumSet.of(PhoneticExpectation.ConsonantStart),
                                 suffixData,
-                                set.terminationType));
-                        seq.changeLast(alphabet.voice(token.letter));
+                                suffixForm.terminationType));
+                        seq.changeLast(Turkish.Alphabet.voice(token.letter));
                         forms.add(new SuffixSurfaceNode(
-                                set,
+                                suffixForm,
                                 seq.toString(),
                                 defineMorphemicAttributes(seq, attrs),
                                 EnumSet.of(PhoneticExpectation.VowelStart),
@@ -185,8 +194,6 @@ public class SuffixSurfaceNodeGenerator {
     EnumSet<PhoneticAttribute> defineMorphemicAttributes(TurkicSeq seq) {
         return defineMorphemicAttributes(seq, EnumSet.noneOf(PhoneticAttribute.class));
     }
-
-    TurkishAlphabet alphabet = new TurkishAlphabet();
 
     private enum TokenType {
         I_WOVEL,
@@ -244,20 +251,20 @@ public class SuffixSurfaceNodeGenerator {
                     } else if (cNext == 'A') {
                         return new SuffixToken(TokenType.A_WOVEL, TurkicLetter.UNDEFINED, true);
                     } else {
-                        return new SuffixToken(TokenType.APPEND, alphabet.getLetter(cNext));
+                        return new SuffixToken(TokenType.APPEND, Turkish.Alphabet.getLetter(cNext));
                     }
                 case '>':
                     pointer++;
-                    return new SuffixToken(TokenType.DEVOICE_FIRST, alphabet.getLetter(cNext));
+                    return new SuffixToken(TokenType.DEVOICE_FIRST, Turkish.Alphabet.getLetter(cNext));
                 case '~':
                     pointer++;
-                    return new SuffixToken(TokenType.VOICE_LAST, alphabet.getLetter(cNext));
+                    return new SuffixToken(TokenType.VOICE_LAST, Turkish.Alphabet.getLetter(cNext));
                 case 'I':
                     return new SuffixToken(TokenType.I_WOVEL, TurkicLetter.UNDEFINED);
                 case 'A':
                     return new SuffixToken(TokenType.A_WOVEL, TurkicLetter.UNDEFINED);
                 default:
-                    return new SuffixToken(TokenType.LETTER, alphabet.getLetter(c));
+                    return new SuffixToken(TokenType.LETTER, Turkish.Alphabet.getLetter(c));
 
             }
         }

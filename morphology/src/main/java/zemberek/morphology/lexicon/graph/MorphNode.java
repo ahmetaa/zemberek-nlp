@@ -66,5 +66,6 @@ public abstract class MorphNode {
     public void setTermination(TerminationType termination) {
         this.termination = termination;
     }
+
 }
 

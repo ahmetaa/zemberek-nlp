@@ -1,9 +1,12 @@
 package zemberek.core.collections;
 
+import com.google.common.base.Joiner;
+
 import java.util.*;
 
 /**
  * Linear probing Hash base class.
+ *
  * @param <T>
  */
 public abstract class HashBase<T> {
@@ -127,6 +130,7 @@ public abstract class HashBase<T> {
 
     /**
      * an iterator for keys.
+     *
      * @return key iterator
      */
     public Iterator<T> iterator() {
@@ -162,6 +166,7 @@ public abstract class HashBase<T> {
 
     /**
      * keys in a list
+     *
      * @return list of keys
      */
     public List<T> getKeyList() {
@@ -175,6 +180,7 @@ public abstract class HashBase<T> {
 
     /**
      * get keys in a set.
+     *
      * @return keys
      */
     public Set<T> getKeys() {
@@ -186,4 +192,7 @@ public abstract class HashBase<T> {
         return res;
     }
 
+    public String toString() {
+        return "[ Size = " + size() + " Keys = " + Joiner.on(", ").join(this.iterator()) + "]";
+    }
 }

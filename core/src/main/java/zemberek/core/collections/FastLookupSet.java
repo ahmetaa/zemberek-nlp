@@ -101,5 +101,4 @@ public class FastLookupSet<T> extends HashBase<T> implements Iterable<T> {
             return key;
         }
     }
-
 }

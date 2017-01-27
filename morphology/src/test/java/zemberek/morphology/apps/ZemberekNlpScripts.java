@@ -2,8 +2,10 @@ package zemberek.morphology.apps;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import org.antlr.v4.runtime.Token;
 import org.junit.Test;
 import zemberek.core.collections.Histogram;
@@ -41,8 +43,8 @@ import java.util.stream.Collectors;
 
 public class ZemberekNlpScripts {
 
-    //private static Path DATA_PATH = Paths.get("/media/depo/data/aaa");
-    private static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
+    private static Path DATA_PATH = Paths.get("/media/depo/data/aaa");
+    //private static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
     private static Path NLP_TOOLS_PATH = Paths.get("/home/ahmetaa/apps/nlp/tools");
     private static Path OFLAZER_ANALYZER_PATH = NLP_TOOLS_PATH.resolve("Morphological-Analyzer/Turkish-Oflazer-Linux64");
 
@@ -73,7 +75,7 @@ public class ZemberekNlpScripts {
         for (DictionaryItem item : parser.getLexicon()) {
             vocab.add(item.lemma);
         }
-        vocab.sort(collTr::compare);
+        vocab.sort(turkishCollator::compare);
         Files.write(outDir.resolve("zemberek.vocab"), vocab);
     }
 
@@ -105,11 +107,11 @@ public class ZemberekNlpScripts {
         sortAndSave(outDir.resolve("zemberek-parsed-words.txt"), accepted);
     }
 
-    private static Collator collTr = Collator.getInstance(new Locale("tr"));
+    private static Collator turkishCollator = Collator.getInstance(new Locale("tr"));
 
     private void sortAndSave(Path outPath, List<String> accepted) throws IOException {
         Log.info("Sorting %d words.", accepted.size());
-        accepted.sort(collTr::compare);
+        accepted.sort(turkishCollator::compare);
         Log.info("Writing.");
         try (PrintWriter pw = new PrintWriter(outPath.toFile(), "utf-8")) {
             accepted.forEach(pw::println);
@@ -213,7 +215,7 @@ public class ZemberekNlpScripts {
         try (PrintWriter pw = new PrintWriter(path.toFile(), StandardCharsets.UTF_8.name())) {
             for (String key : map.keySet()) {
                 List<String> values = new ArrayList<>(map.get(key));
-                values.sort(collTr::compare);
+                values.sort(turkishCollator::compare);
                 for (String value : values) {
                     pw.println(value + " " + key);
                 }
@@ -241,15 +243,15 @@ public class ZemberekNlpScripts {
                     || item.secondaryPos == SecondaryPos.None ?
                     "[P:" + primaryString + "]" : "[P:" + primaryString + "," + item.secondaryPos.shortForm + "]";
             zemberekTypes.add(lemma + " " + pos);
-            if(pos.equals("[P:Noun]")) {
+            if (pos.equals("[P:Noun]")) {
                 zemberekTypes.add(lemma + " [P:Adj]");
             }
-            if(pos.equals("[P:Adj]")) {
+            if (pos.equals("[P:Adj]")) {
                 zemberekTypes.add(lemma + " [P:Noun]");
             }
 
         }
-        zemberekTypes.sort(collTr::compare);
+        zemberekTypes.sort(turkishCollator::compare);
         Files.write(path.resolve("found-in-zemberek"), zemberekTypes);
         LinkedHashSet<String> zSet = new LinkedHashSet<>(zemberekTypes);
 
@@ -312,7 +314,7 @@ public class ZemberekNlpScripts {
         histogram.removeSmaller(10);
 
         Files.write(dir.resolve("no-parse-freq.txt"), histogram.getSortedList());
-        Files.write(dir.resolve("no-parse-tr.txt"), histogram.getSortedList((a, b) -> collTr.compare(a, b)));
+        Files.write(dir.resolve("no-parse-tr.txt"), histogram.getSortedList((a, b) -> turkishCollator.compare(a, b)));
     }
 
     @Test
@@ -335,8 +337,106 @@ public class ZemberekNlpScripts {
         Log.info("Saving.");
 
         Files.write(dir.resolve("no-parse-zemberek-freq.txt"), histogram.getSortedList());
-        Files.write(dir.resolve("no-parse-zemberek-tr.txt"), histogram.getSortedList((a, b) -> collTr.compare(a, b)));
+        Files.write(dir.resolve("no-parse-zemberek-tr.txt"), histogram.getSortedList((a, b) -> turkishCollator.compare(a, b)));
     }
+
+
+    @Test
+    public void guessRootsWithHeuristics() throws IOException {
+
+        Path wordFreqFile = DATA_PATH.resolve("out/no-parse-zemberek-freq.txt");
+        Log.info("Loading histogram.");
+        List<String> words = Files.readAllLines(wordFreqFile);
+
+        TurkishDictionaryLoader dictionaryLoader = new TurkishDictionaryLoader();
+        //dictionaryLoader.load("elma");
+        TurkishMorphology morphology =
+                TurkishMorphology.builder().addDictionaryLines("elma").disableCache().build();
+
+        Multimap<String, String> res = HashMultimap.create(100000, 3);
+
+        int c = 0;
+        for (String s : words) {
+            if (s.length() < 4) {
+                continue;
+            }
+            if (!Turkish.Alphabet.hasVowel(s)) {
+                continue;
+            }
+
+            for (int i = 2; i < s.length(); i++) {
+                String candidateRoot = s.substring(0, i + 1);
+                if (!Turkish.Alphabet.hasVowel(candidateRoot)) {
+                    continue;
+                }
+                List<DictionaryItem> items = new ArrayList<>(3);
+
+                items.add(dictionaryLoader.loadFromString(candidateRoot)); //assumes noun.
+                items.add(dictionaryLoader.loadFromString(candidateRoot + " [P:Verb]")); //assumes noun.
+                char last = candidateRoot.charAt(candidateRoot.length() - 1);
+                if (i < s.length() - 1) {
+                    char next = s.charAt(candidateRoot.length());
+                    if (Turkish.Alphabet.isVowel(next)) {
+                        String f = "";
+                        if (last == 'b') {
+                            f = candidateRoot.substring(0, candidateRoot.length() - 1) + 'p';
+                        } else if (last == 'c') {
+                            f = candidateRoot.substring(0, candidateRoot.length() - 1) + 'ç';
+                        } else if (last == 'ğ') {
+                            f = candidateRoot.substring(0, candidateRoot.length() - 1) + 'k';
+                        }
+                        if (last == 'd') {
+                            f = candidateRoot.substring(0, candidateRoot.length() - 1) + 't';
+                        }
+                        if (f.length() > 0) {
+                            items.add(dictionaryLoader.loadFromString(f));
+                        }
+                    }
+                }
+                for (DictionaryItem item : items) {
+                    morphology.getGraph().addDictionaryItems(item);
+                    List<WordAnalysis> analyze = morphology.analyze(s);
+                    for (WordAnalysis wordAnalysis : analyze) {
+                        if (!wordAnalysis.isUnknown()) {
+                            res.put(candidateRoot, s);
+                        }
+                    }
+                    morphology.getGraph().removeDictionaryItem(item);
+                }
+
+            }
+            if (++c % 10000 == 0) {
+                Log.info(c);
+            }
+            if (c == 100000) {
+                break;
+            }
+        }
+
+        Log.info("Writing.");
+        try (PrintWriter pw1 = new PrintWriter(DATA_PATH.resolve("out/root-candidates-words").toFile());
+             PrintWriter pw2 = new PrintWriter(DATA_PATH.resolve("out/root-candidates-vocabulary").toFile())) {
+            for (String root : res.keySet()) {
+                Collection<String> vals = res.get(root);
+                if (vals.size() < 2) {
+                    continue;
+                }
+                List<String> wl = new ArrayList<>(vals);
+                wl.sort(turkishCollator::compare);
+                pw1.println(root + " : " + String.join(", ", vals));
+                pw2.println(root);
+            }
+        }
+
+    }
+
+    @Test
+    public void sortAndSaveAgain() throws IOException {
+        List<String> lines = Files.readAllLines(DATA_PATH.resolve("out/root-candidates-words"));
+        lines.sort(turkishCollator::compare);
+        Files.write(DATA_PATH.resolve("out/root-candidates-words.sorted"), lines);
+    }
+
 
     @Test
     public void generatorTest() throws IOException {
@@ -563,29 +663,6 @@ public class ZemberekNlpScripts {
             c++;
         }
         sortAndSave(outDir.resolve("morfessor-annotation.txt"), accepted);
-    }
-
-    @Test
-    public void generateMorfessorData() throws IOException {
-        Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
-        Path outDir = DATA_PATH.resolve("out");
-        Log.info("Loading histogram.");
-        Histogram<String> histogram = Histogram.loadFromUtf8File(wordFreqFile, ' ');
-        histogram.removeSmaller(50);
-
-        try (
-                PrintWriter pw = new PrintWriter("/media/depo/data/aaa/morfessor.list");
-                PrintWriter pw2 = new PrintWriter("/media/depo/data/aaa/morfessor.list.freq")
-        ) {
-            for (String s : histogram) {
-                pw.println(s);
-/*                int reduced= (int) LogMath.log(1.005, histogram.getCount(s)-49);
-                if(reduced==0) {
-                    reduced+=1;
-                }*/
-                pw2.println(histogram.getCount(s) + " " + s);
-            }
-        }
     }
 
 }

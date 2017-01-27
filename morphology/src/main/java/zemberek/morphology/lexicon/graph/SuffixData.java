@@ -114,11 +114,11 @@ public class SuffixData implements Iterable<SuffixForm> {
 
     public SuffixData retain(Collection<SuffixForm> coll) {
         set.retainAll(coll);
-        BitSet bset = new BitSet();
+        BitSet bitSet = new BitSet();
         for (SuffixForm suffixForm : coll) {
-            bset.set(suffixForm.index);
+            bitSet.set(suffixForm.index);
         }
-        bitSet.and(bset);
+        this.bitSet.and(bitSet);
         return this;
     }
 

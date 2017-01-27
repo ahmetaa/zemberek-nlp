@@ -306,7 +306,7 @@ public class TurkishDictionaryLoader {
             if (posInfo.primaryPos == PrimaryPos.Punctuation) {
                 return word;
             }
-            if (posInfo.primaryPos == PrimaryPos.Verb) {
+            if (posInfo.primaryPos == PrimaryPos.Verb &&  word.length()>3 && (word.endsWith("mek") || word.endsWith("mak"))) {
                 word = word.substring(0, word.length() - 3); // erase -mek -mak
             }
             word = word.toLowerCase(locale).replaceAll("â", "a").replaceAll("î", "i").replaceAll("\u00e2", "u");
