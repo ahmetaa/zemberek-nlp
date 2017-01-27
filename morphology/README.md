@@ -58,8 +58,8 @@ For analyzing a word, *analyze* method is used. it returns a list of *WordAnalys
         Is Runtime? false        
         Analysis = [(UNK:fofofo) (Unk,Unk;Unkown)]   
    
- - There are some words, their roots do not exist in dictionary but they are analyzed anyway. Such as nubers or 
-   proper nouns that starts with capital letters and contain a single quote. 
+ - There are some words, their roots do not exist in dictionary but they are analyzed anyway. Such as numbers or 
+   proper nouns that start with capital letters and contain a single quote. 
    Users can disable this behavior by calling disableUnidentifiedAnalyzer() method while building TurkishMorphology object. 
    
    Consider examples "Matsumo'ya" and "153'ü".
