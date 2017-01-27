@@ -3,7 +3,94 @@ Turkish Morphology and Disambiguation
 
 ## Morphology
 
-### Example
+This module provides basic Turkish morphological analysis and generation. Analysis can be done in word and sentence level.
+ For word level analysis and generation, TurkishMorphology class is used. By default, class is instantiated as follows:
+ 
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+     
+After this, Turkish suffix graph is generated, internal dictionaries are loaded and they are connected to related graph 
+ nodes. Because creation of this object takes time and consumes memory, 
+ a single instance should ne used throughout the life of an application.
+  
+  You can add your own dictionaries or remove existing items during creation of the TurkishMorphology class. For example, you have
+  a dictionary file *my-dictionary.txt* in this form:
+  
+    show 
+    relaks [P:Adj]
+    gugıllamak
+    Hepsiburada
+    
+    
+TurkishMorhology class provides a Builder pattern based instantiation mechanism. So, for example
+using above file an object can be created as:
+  
+    TurkishMorphology analyzer = TurkishMorphology.builder()
+            .addDefaultDictionaries()
+            .addTextDictionaries(new File("my-dictionary.txt"))
+            .build();
+  
+There are other options available for building the object.
+Turkish morphology class contain a built in cache, so in time analysis speed will get faster. There 
+is an option to disable the cache if builder mechanism is used.  
+
+For analyzing a word, *analyze* method is used. it returns a list of *WordAnalysis* objects.
+ There are several things user should be aware of.
+ 
+ - Returning list is never empty.
+ - If a word cannot be parsed, list will contain 1 item. You can identify those words by checking if getPos() method returns PrimaryPos.Unknown or 
+   with isUnknown() method (after V0.11.0). Example:
+   
+        Input = fofofo
+        Result size = 1
+        Result DictioanyItem = UNK [P:Unk, Unk]
+        Analysis = [(UNK:fofofo) (Unk,Unk;Unkown)]   
+   
+ - There are some words, their roots do not exist in dictionary but they are analyzed anyway. Such as nubers or 
+   proper nouns that starts with capital letters and contain a single quote. 
+   Users can disable this behavior by calling disableUnidentifiedAnalyzer() method while building TurkishMorphology object. 
+   
+   Consider examples "Matsumo'ya" and "153'ü".
+   System will temporarily generate DictionaryItem objects for "Matsumo" and "153" and try to parse the words.
+   If successful, returning WordAnalysis objects will have that temporary DictionaryItem object in it.
+    User can check if DictionaryItem is generated temporarily by checking isRuntime() 
+    method of returning WordAnalysis objects (>0.11.0)
+   or checking if that DictionaryItem object's root Attributes  contain "RootAttribute.Runtime". 
+   
+        TurkishMorphology parser = TurkishMorphology.createWithDefaults();
+        String input = "Matsumo'ya";
+        List<WordAnalysis> result = parser.analyze(input);
+        System.out.println("Input = " + input);
+        System.out.println("Result size = " + result.size());
+        WordAnalysis analysis = result.get(0);
+        System.out.println("Result DictioanyItem = " + analysis.dictionaryItem);
+        result.forEach(s-> System.out.println("Analysis = "  + s.formatLong()));
+        
+        Output:
+
+        Input = Matsumo'ya
+        Result size = 1
+        Result DictioanyItem = Matsumo [P:Noun, Prop; A:Runtime]
+        Anaysis = [(Matsumo:matsumo) (Noun,Prop;A3sg+Pnon+Dat:ya)]
+           
+        For 153'ü
+
+        Input = 153'ü
+        Result size = 2
+        Result DictioanyItem = 153 [P:Num, Card]
+        Analysis = [(153:153) (Num,Card)(Noun;A3sg+P3sg:ü+Nom)]
+        Analysis = [(153:153) (Num,Card)(Noun;A3sg+Pnon+Acc:ü)]           
+
+ - Even if input is lower case and without an apostrophe ['], result may contain Proper noun analyses. 
+ Analyzer does not care about punctuation rules. User may decide if this is a valid analysis with post processing.
+ In future versions this behavior may change or some helper functionality will be added.
+   Apostrophe is only checked for unknown proper nouns. 
+  
+        Input = ankaradan
+        Result size = 1
+        Result DictioanyItem = Ankara [P:Noun, Prop]
+        Analysis = [(Ankara:ankara) (Noun,Prop;A3sg+Pnon+Abl:dan)]  
+
+### Examples
 
 Finds all morphological analyses of word "kalemin"
 

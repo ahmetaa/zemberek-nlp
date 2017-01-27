@@ -1,6 +1,7 @@
 package zemberek.morphology.analysis.tr;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -23,6 +24,7 @@ import zemberek.morphology.structure.StemAndEnding;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -44,6 +46,9 @@ public class TurkishMorphology extends BaseParser {
     private boolean useDynamicCache = true;
     private boolean useUnidentifiedTokenAnalyzer = true;
 
+    private static final int DEFAULT_INITIAL_CACHE_SIZE = 50_000;
+    private static final int DEFAULT_MAX_CACHE_SIZE = 100_000;
+
     public static class Builder {
         WordAnalyzer _analyzer;
         SimpleGenerator _generator;
@@ -51,6 +56,8 @@ public class TurkishMorphology extends BaseParser {
         RootLexicon lexicon = new RootLexicon();
         private boolean useDynamicCache = true;
         private boolean useUnidentifiedTokenAnalyzer = true;
+        private int initialCacheSize = DEFAULT_INITIAL_CACHE_SIZE;
+        private int maxCacheSize = DEFAULT_MAX_CACHE_SIZE;
 
         public Builder addDefaultDictionaries() throws IOException {
             return addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.toArray(
@@ -66,6 +73,13 @@ public class TurkishMorphology extends BaseParser {
             return this;
         }
 
+        public Builder addTextDictionaries(Path... dictionaryPaths) throws IOException {
+            for (Path dictionaryPath : dictionaryPaths) {
+                addTextDictionaries(dictionaryPath.toFile());
+            }
+            return this;
+        }
+
         public Builder addDictionaryLines(String... lines) throws IOException {
             lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(lines));
             return this;
@@ -75,6 +89,16 @@ public class TurkishMorphology extends BaseParser {
             for (File file : dictionaryFiles) {
                 lexicon.removeAll(new TurkishDictionaryLoader(suffixProvider).load(file));
             }
+            return this;
+        }
+
+        public Builder cacheParameters(int initialSize, int maxSize) {
+            Preconditions.checkArgument(initialSize >= 0 && initialSize <= 1_000_000,
+                    "Initial cache size must be between 0 and 1 million. But it is %d", initialSize);
+            Preconditions.checkArgument(maxSize > initialSize,
+                    "Max cache max size must be more than initial size %d. But it is %d", initialSize, maxSize);
+            this.initialCacheSize = initialSize;
+            this.maxCacheSize = maxSize;
             return this;
         }
 
@@ -89,7 +113,7 @@ public class TurkishMorphology extends BaseParser {
         }
 
         public Builder addTextDictionaryResources(String... resources) throws IOException {
-            Log.info("Loading resources :%n%s", String.join("\n", Arrays.asList(resources)));
+            Log.info("Dictionaries :%s", String.join(", ", Arrays.asList(resources)));
             List<String> lines = new ArrayList<>();
             for (String resource : resources) {
                 lines.addAll(Resources.readLines(Resources.getResource(resource), Charsets.UTF_8));
@@ -110,22 +134,20 @@ public class TurkishMorphology extends BaseParser {
         }
 
         public TurkishMorphology build() throws IOException {
-            Stopwatch sw = Stopwatch.createStarted();
             DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
             graph.addDictionaryItems(lexicon);
             _analyzer = new WordAnalyzer(graph);
             _generator = new SimpleGenerator(graph);
-            Log.info("Parser ready: " + sw.elapsed(TimeUnit.MILLISECONDS) + "ms.");
             return new TurkishMorphology(this, graph);
         }
     }
 
-    private void generateCache() {
+    private void generateCache(int initialSize, int maxSize) {
         if (useDynamicCache) {
             this.dynamicCache = CacheBuilder.newBuilder()
-                    .maximumSize(100000)
+                    .maximumSize(maxSize)
                     .concurrencyLevel(4)
-                    .initialCapacity(50000)
+                    .initialCapacity(initialSize)
                     .build(new MorphParseCacheLoader());
         }
     }
@@ -154,7 +176,7 @@ public class TurkishMorphology extends BaseParser {
         this.suffixProvider = builder.suffixProvider;
         this.useDynamicCache = builder.useDynamicCache;
         this.useUnidentifiedTokenAnalyzer = builder.useUnidentifiedTokenAnalyzer;
-        generateCache();
+        generateCache(builder.initialCacheSize, builder.maxCacheSize);
         Log.info("Initialization complete.");
     }
 

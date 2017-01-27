@@ -94,13 +94,18 @@ public class WordAnalysis {
         return dictionaryItem.hasAttribute(RootAttribute.Runtime);
     }
 
+    public DictionaryItem getDictionaryItem() {
+        return dictionaryItem;
+    }
+
     public static class InflectionalGroup {
-        public List<SuffixData> suffixList = Lists.newArrayList();
+        public List<SuffixData> suffixList = Lists.newArrayListWithCapacity(3);
         public PrimaryPos pos;
         public SecondaryPos spos;
 
         public static InflectionalGroup UNKNOWN = new InflectionalGroup(
-                Lists.newArrayList(new SuffixData(Suffix.UNKNOWN, "", "")), PrimaryPos.Unknown, SecondaryPos.Unknown);
+                Lists.newArrayList(
+                        new SuffixData(Suffix.UNKNOWN, "", "")), PrimaryPos.Unknown, SecondaryPos.Unknown);
 
         public InflectionalGroup(List<SuffixData> suffixList, PrimaryPos pos, SecondaryPos spos) {
             this.suffixList = suffixList;

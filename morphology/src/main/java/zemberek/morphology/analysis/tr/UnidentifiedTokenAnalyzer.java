@@ -138,9 +138,16 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
                     toParse = lemma + se.ending;
                 List<WordAnalysis> res = turkishParser.getWordAnalyzer().analyze(toParse);
                 for (WordAnalysis re : res) {
-                    if (re.dictionaryItem.primaryPos != PrimaryPos.Numeral)
+                    if (re.dictionaryItem.primaryPos != PrimaryPos.Numeral) {
                         continue;
-                    re.dictionaryItem = new DictionaryItem(se.stem, se.stem, s + lemma, PrimaryPos.Numeral, digit.spos);
+                    }
+                    re.dictionaryItem = new DictionaryItem(
+                            se.stem,
+                            se.stem,
+                            s + lemma,
+                            PrimaryPos.Numeral,
+                            digit.spos);
+                    re.dictionaryItem.attributes.add(RootAttribute.Runtime);
                     re.root = se.stem;
                     results.add(re);
                 }
