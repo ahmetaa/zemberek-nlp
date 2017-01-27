@@ -10,7 +10,7 @@ This module provides basic Turkish morphological analysis and generation. Analys
      
 After this, Turkish suffix graph is generated, internal dictionaries are loaded and they are connected to related graph 
  nodes. Because creation of this object takes time and consumes memory, 
- a single instance should ne used throughout the life of an application.
+ a single instance should be used throughout the life of an application.
   
   You can add your own dictionaries or remove existing items during creation of the TurkishMorphology class. For example, you have
   a dictionary file *my-dictionary.txt* in this form:
@@ -20,9 +20,9 @@ After this, Turkish suffix graph is generated, internal dictionaries are loaded 
     gugıllamak
     Hepsiburada
     
-    
-TurkishMorhology class provides a Builder pattern based instantiation mechanism. So, for example
-using above file an object can be created as:
+Dictionary rules are explained here: // TODO //
+
+For adding this dictionary, builder mechanism is used for instantiation:
   
     TurkishMorphology analyzer = TurkishMorphology.builder()
             .addDefaultDictionaries()
@@ -38,11 +38,24 @@ For analyzing a word, *analyze* method is used. it returns a list of *WordAnalys
  
  - Returning list is never empty.
  - If a word cannot be parsed, list will contain 1 item. You can identify those words by checking if getPos() method returns PrimaryPos.Unknown or 
-   with isUnknown() method (after V0.11.0). Example:
+   with isUnknown() method (after 0.11.0). Example:
    
+        TurkishMorphology parser = TurkishMorphology.createWithDefaults();
+        String input = "fofofo";
+        List<WordAnalysis> result = parser.analyze(input);
+        System.out.println("Input = " + input);
+        System.out.println("Result size = " + result.size());
+        WordAnalysis analysis = result.get(0);
+        System.out.println("Result DictioanyItem = " + analysis.dictionaryItem);
+        System.out.println("Is Unknown? " + analysis.isUnknown());
+        System.out.println("Is Runtime? " + analysis.isRuntime());        
+        result.forEach(s-> System.out.println("Analysis = "  + s.formatLong()));
+
         Input = fofofo
-        Result size = 1
+        Result size = 1        
         Result DictioanyItem = UNK [P:Unk, Unk]
+        Is Unknown? true
+        Is Runtime? false        
         Analysis = [(UNK:fofofo) (Unk,Unk;Unkown)]   
    
  - There are some words, their roots do not exist in dictionary but they are analyzed anyway. Such as nubers or 
@@ -53,23 +66,17 @@ For analyzing a word, *analyze* method is used. it returns a list of *WordAnalys
    System will temporarily generate DictionaryItem objects for "Matsumo" and "153" and try to parse the words.
    If successful, returning WordAnalysis objects will have that temporary DictionaryItem object in it.
     User can check if DictionaryItem is generated temporarily by checking isRuntime() 
-    method of returning WordAnalysis objects (>0.11.0)
+    method of returning WordAnalysis objects (After 0.11.0)
    or checking if that DictionaryItem object's root Attributes  contain "RootAttribute.Runtime". 
    
-        TurkishMorphology parser = TurkishMorphology.createWithDefaults();
-        String input = "Matsumo'ya";
-        List<WordAnalysis> result = parser.analyze(input);
-        System.out.println("Input = " + input);
-        System.out.println("Result size = " + result.size());
-        WordAnalysis analysis = result.get(0);
-        System.out.println("Result DictioanyItem = " + analysis.dictionaryItem);
-        result.forEach(s-> System.out.println("Analysis = "  + s.formatLong()));
         
-        Output:
+        Output for Matsumo'ya:
 
         Input = Matsumo'ya
         Result size = 1
         Result DictioanyItem = Matsumo [P:Noun, Prop; A:Runtime]
+        Is Unknown? false
+        Is Runtime? true      
         Anaysis = [(Matsumo:matsumo) (Noun,Prop;A3sg+Pnon+Dat:ya)]
            
         For 153'ü
@@ -77,6 +84,8 @@ For analyzing a word, *analyze* method is used. it returns a list of *WordAnalys
         Input = 153'ü
         Result size = 2
         Result DictioanyItem = 153 [P:Num, Card]
+        Is Unknown? false
+        Is Runtime? true     
         Analysis = [(153:153) (Num,Card)(Noun;A3sg+P3sg:ü+Nom)]
         Analysis = [(153:153) (Num,Card)(Noun;A3sg+Pnon+Acc:ü)]           
 
@@ -88,6 +97,8 @@ For analyzing a word, *analyze* method is used. it returns a list of *WordAnalys
         Input = ankaradan
         Result size = 1
         Result DictioanyItem = Ankara [P:Noun, Prop]
+        Is Unknown? false
+        Is Runtime? false     
         Analysis = [(Ankara:ankara) (Noun,Prop;A3sg+Pnon+Abl:dan)]  
 
 ### Examples
