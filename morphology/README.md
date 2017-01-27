@@ -3,6 +3,8 @@ Turkish Morphology and Disambiguation
 
 ## Morphology
 
+### Creating TurkishMorphology object
+
 This module provides basic Turkish morphological analysis and generation. Analysis can be done in word and sentence level.
  For word level analysis and generation, TurkishMorphology class is used. By default, class is instantiated as follows:
  
@@ -32,6 +34,8 @@ For adding this dictionary, builder mechanism is used for instantiation:
 There are other options available for building the object.
 Turkish morphology class contain a built in cache, so in time analysis speed will get faster. There 
 is an option to disable the cache if builder mechanism is used.  
+
+### Single word morphological analysis
 
 For analyzing a word, *analyze* method is used. it returns a list of *WordAnalysis* objects.
  There are several things user should be aware of.
