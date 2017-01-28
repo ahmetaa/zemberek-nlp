@@ -15,6 +15,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
+/**
+ * This class is used for extracting sentences from paragraphs.
+ * For making boundary decisions it uses a combination of rules and a binary averaged perceptron model.
+ * It only breaks from [.!?] symbols.
+ * It does not break from line break characters. Therefore input should not contain line breaks.
+ */
 public class TurkishSentenceExtractor implements SentenceExtractor {
 
     static final String BOUNDARY_CHARS = ".!?";
@@ -26,11 +32,10 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
     static {
         try {
             for (String line : Resources.readLines(Resources.getResource("tokenizer/abbreviations.txt"), Charsets.UTF_8)) {
-                final int abbrEndIndex = line.indexOf(":");
-                if (abbrEndIndex > 0) {
-                    final String abbr = line.substring(0, abbrEndIndex);
-                    TurkishAbbreviationSet.add(abbr.replaceAll("\\.$", ""));
-                    TurkishAbbreviationSet.add(abbr.toLowerCase(localeTr).replaceAll("\\.$", ""));
+                if (line.trim().length() > 0) {
+                    final String abbr = line.trim().replaceAll("\\s+",""); // erase spaces
+                    TurkishAbbreviationSet.add(abbr.replaceAll("\\.$", "")); // erase last dot amd add.
+                    TurkishAbbreviationSet.add(abbr.toLowerCase(localeTr).replaceAll("\\.$", "")); // lowercase and add.
                 }
             }
         } catch (IOException e) {
@@ -83,6 +88,10 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
             sentences.add(remaining);
         }
         return sentences;
+    }
+
+    public char[] getBoundaryCharacters() {
+        return BOUNDARY_CHARS.toCharArray();
     }
 
     public void saveBinary(Path path) throws IOException {

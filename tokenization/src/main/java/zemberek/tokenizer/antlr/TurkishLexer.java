@@ -6,10 +6,8 @@ import com.google.common.io.Resources;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.ATN;
 import org.antlr.v4.runtime.atn.ATNDeserializer;
-import org.antlr.v4.runtime.atn.LexerATNSimulator;
 import org.antlr.v4.runtime.atn.PredictionContextCache;
 import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.dfa.DFAState;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -85,9 +83,8 @@ public class TurkishLexer extends Lexer {
 	static {
 	    try {
 	        for(String line: Resources.readLines(Resources.getResource("tokenizer/abbreviations.txt"),Charsets.UTF_8)) {
-	            final int abbrEndIndex = line.indexOf(":");
-	            if (abbrEndIndex > 0) {
-	                final String abbr = line.substring(0, abbrEndIndex);
+				if (line.trim().length() > 0) {
+					final String abbr = line.trim().replaceAll("\\s+",""); // erase spaces
 	                if (abbr.endsWith(".")) {
 	                    abbreviations.add(abbr);
 	                    abbreviations.add(abbr.toLowerCase(Locale.ENGLISH));

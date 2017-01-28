@@ -66,8 +66,8 @@ For analyzing a word, *analyze* method is used. it returns a list of *WordAnalys
    proper nouns that start with capital letters and contain a single quote. 
    Users can disable this behavior by calling disableUnidentifiedAnalyzer() method while building TurkishMorphology object. 
    
-   Consider examples "Matsumo'ya" and "153'ü".
-   System will temporarily generate DictionaryItem objects for "Matsumo" and "153" and try to parse the words.
+   Consider examples "Matsumoto'ya" and "153'ü".
+   System will temporarily generate DictionaryItem objects for "Matsumoto" and "153" and try to parse the words.
    If successful, returning WordAnalysis objects will have that temporary DictionaryItem object in it.
     User can check if DictionaryItem is generated temporarily by checking isRuntime() 
     method of returning WordAnalysis objects (After 0.11.0)
@@ -76,12 +76,12 @@ For analyzing a word, *analyze* method is used. it returns a list of *WordAnalys
         
         Output for Matsumo'ya:
 
-        Input = Matsumo'ya
+        Input = Matsumoto'ya
         Result size = 1
-        Result DictioanyItem = Matsumo [P:Noun, Prop; A:Runtime]
+        Result DictioanyItem = Matsumoto [P:Noun, Prop; A:Runtime]
         Is Unknown? false
         Is Runtime? true      
-        Anaysis = [(Matsumo:matsumo) (Noun,Prop;A3sg+Pnon+Dat:ya)]
+        Anaysis = [(Matsumoto:matsumoto) (Noun,Prop;A3sg+Pnon+Dat:ya)]
            
         For 153'ü
 

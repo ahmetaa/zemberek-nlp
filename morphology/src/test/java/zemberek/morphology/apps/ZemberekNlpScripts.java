@@ -449,7 +449,8 @@ public class ZemberekNlpScripts {
     @Test
     public void performance() throws IOException {
         List<String> lines = Files.readAllLines(
-                Paths.get("/media/depo/data/aaa/corpora/dunya.100k")
+                //Paths.get("/media/depo/data/aaa/corpora/dunya.100k")
+                Paths.get("/home/ahmetaa/data/nlp/corpora/dunya.100k")
                 //Paths.get("/media/depo/data/aaa/corpora/subtitle-1M")
         );
 
