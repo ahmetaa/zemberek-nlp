@@ -74,6 +74,7 @@ Maven artifact id = morphology
 ### Tokenization
 
 Turkish Tokenization and sentence boundary detection. So far only rule based algorithms.
+[Tokenization Documentation] (https://github.com/ahmetaa/zemberek-nlp/tree/master/tokenization)
 
 Maven artifact id = tokenization
 
