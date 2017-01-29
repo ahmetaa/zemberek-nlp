@@ -21,9 +21,9 @@ public class TokenizationComparison {
         );
 
         Log.info("------- Turkish Tokenizer -------");
-        run(new TurkishTokenizer(),lines);
+        run(TurkishTokenizer.fromInternalModel(), lines);
         Log.info("------- Antlr Lexer Tokenizer -------");
-        run(new ZemberekLexer(),lines);
+        run(new ZemberekLexer(), lines);
     }
 
     private void run(Tokenizer tokenizer, List<String> lines) {
