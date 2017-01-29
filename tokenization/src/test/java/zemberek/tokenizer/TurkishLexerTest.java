@@ -1,4 +1,4 @@
-package zemberek.tokenization;
+package zemberek.tokenizer;
 
 import com.google.common.base.Stopwatch;
 import org.antlr.v4.runtime.ANTLRInputStream;

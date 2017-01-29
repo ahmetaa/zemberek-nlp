@@ -1,4 +1,4 @@
-package zemberek.tokenization;
+package zemberek.tokenizer;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
@@ -12,8 +12,6 @@ import zemberek.core.logging.Log;
 import zemberek.core.text.Regexps;
 import zemberek.core.text.TextUtil;
 import zemberek.core.text.TokenSequence;
-import zemberek.tokenizer.SentenceExtractor;
-import zemberek.tokenizer.TurkishSentenceExtractor;
 
 import java.io.*;
 import java.nio.charset.Charset;

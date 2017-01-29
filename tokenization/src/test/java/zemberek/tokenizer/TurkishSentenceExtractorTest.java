@@ -1,11 +1,9 @@
-package zemberek.tokenization;
+package zemberek.tokenizer;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import org.junit.Assert;
 import org.junit.Test;
-import zemberek.tokenizer.TurkishSentenceExtractor;
-import zemberek.tokenizer.SentenceExtractor;
 
 import java.io.IOException;
 import java.util.List;

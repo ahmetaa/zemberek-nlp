@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * A wrapper for antlr generated lexer.
  */
-public class ZemberekLexer {
+public class ZemberekLexer implements Tokenizer {
 
     boolean ignoreWhiteSpaces = true;
 
