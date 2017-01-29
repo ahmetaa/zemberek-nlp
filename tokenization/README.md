@@ -34,7 +34,7 @@ by dividing total amount of boundary errors to sentence size.
 |            | Precision| Recall   | NIST Error| Correct Sentences | Speed Sentences/s| Model Size |
 |------------|----------|----------|-----------|-------------------|------------------|------------|
 | Zemberek   |  0.9990  | 0.9974   |  0.3653%  |  99.37%           |  29030           |  10.1 KB   |
-| OpenNLP    |  0.9871  | 0.9979   |  1.5136%  |  99.38%           |  23084           |  3.3 MB    |
+| OpenNLP    |  0.9871  | 0.9979   |  1.5136%  |  98.38%           |  23084           |  3.3 MB    |
 
 Test is run in a 2.3 Ghz AMD FX-8320, Ubuntu Linux 16.04 LTS
 
