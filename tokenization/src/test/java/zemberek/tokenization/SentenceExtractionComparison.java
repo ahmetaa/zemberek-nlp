@@ -39,7 +39,7 @@ public class SentenceExtractionComparison {
         evaluate(testSentences, extractor);
 
         Log.info(" \n---------------- OpenNlp ------------------\n");
-        SentenceExtractor openNlpAdapter = new OpenNlpAdapter(Paths.get("/media/depo/data/aaa/nlp/tr-sent.bin"));
+        SentenceExtractor openNlpAdapter = new OpenNlpAdapter(Paths.get("/home/ahmetaa/Downloads/tr-sent.bin"));
         evaluate(testSentences, openNlpAdapter);
     }
 
@@ -90,7 +90,9 @@ public class SentenceExtractionComparison {
         // Extract sentences.
         Stopwatch sw = Stopwatch.createStarted();
         List<String> foundSentences = detector.extract(joinedSentence);
-        Log.info("Extraction Elapsed: %d ms", sw.elapsed(TimeUnit.MILLISECONDS));
+        long elapsed = sw.elapsed(TimeUnit.MILLISECONDS);
+        Log.info("Extraction Elapsed: %d ms", elapsed);
+        Log.info("Speed: %.2f sentences per second", referenceSentences.size() *1000d / elapsed);
 
         // ---- Evaluation ------
         // separate each boundary token with space in all sentences.

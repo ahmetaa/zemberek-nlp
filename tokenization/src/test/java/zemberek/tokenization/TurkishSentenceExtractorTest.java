@@ -69,6 +69,8 @@ public class TurkishSentenceExtractorTest {
 
     @Test
     public void testSimpleSentence() throws IOException {
+        Assert.assertEquals("Merhaba!|Bugün 2. köprü Fsm.'de trafik vardı.|değil mi?",
+                markBoundaries("Merhaba! Bugün 2. köprü Fsm.'de trafik vardı.değil mi?"));
         Assert.assertEquals("Prof. Dr. Veli Zambur %2.5 lik enflasyon oranini begenmemis!",
                 markBoundaries("Prof. Dr. Veli Zambur %2.5 lik enflasyon oranini begenmemis!"));
         Assert.assertEquals("Ali gel.",
