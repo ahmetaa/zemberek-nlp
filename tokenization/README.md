@@ -26,17 +26,19 @@ We compared our system with Maximum Entropy based OpenNlp
 [SentenceDetector] (https://opennlp.apache.org/documentation/1.7.0/manual/opennlp.html#tools.sentdetect) for performance and speed.
  TurkishSentenceExtractor was trained with 8300 sentences.  OpenNLP model was
  trained with a very large but somewhat noisy data. We did try training it with our training data but results were worse.
- Test set contains 1916 sentences and many of them contains numbers with dot characters.
+ Test set contains 1916 sentences and many of them contains numbers with dot characters. 
 
 Precision and Recall values are calculated for correct/incorrect boundaries. NIST error rate is calculated 
-by dividing total amount of boundary errors to sentence size.
+by dividing total amount of boundary errors to sentence count.
 
 |            | Precision| Recall   | NIST Error| Correct Sentences | Speed Sentences/s| Model Size |
 |------------|----------|----------|-----------|-------------------|------------------|------------|
 | Zemberek   |  0.9990  | 0.9974   |  0.3653%  |  99.37%           |  29030           |  10.1 KB   |
 | OpenNLP    |  0.9871  | 0.9979   |  1.5136%  |  98.38%           |  23084           |  3.3 MB    |
 
-Test is run in a 2.3 Ghz AMD FX-8320, Ubuntu Linux 16.04 LTS
+Test platform: 2.3 Ghz AMD FX-8320, Ubuntu Linux 16.04 LTS
+
+Both systems work quite well for this test set. Probably if OpenNlp system contained the rule based mechanism, it would give equivalent results. 
 
 Open NLP model is provided by @sonerx
 
