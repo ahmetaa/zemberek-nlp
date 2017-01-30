@@ -2,13 +2,12 @@ package zemberek.morphology.analysis.tr;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Stopwatch;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.CacheStats;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.WordAnalyzer;
@@ -25,8 +24,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -43,7 +44,7 @@ public class TurkishMorphology extends BaseParser {
 
     private LoadingCache<String, List<WordAnalysis>> dynamicCache;
 
-    private boolean useDynamicCache = true;
+    private boolean useCache = true;
     private boolean useUnidentifiedTokenAnalyzer = true;
 
     private static final int DEFAULT_INITIAL_CACHE_SIZE = 50_000;
@@ -143,10 +144,11 @@ public class TurkishMorphology extends BaseParser {
     }
 
     private void generateCache(int initialSize, int maxSize) {
-        if (useDynamicCache) {
+        if (useCache) {
             this.dynamicCache = CacheBuilder.newBuilder()
                     .maximumSize(maxSize)
                     .concurrencyLevel(4)
+                    .recordStats()
                     .initialCapacity(initialSize)
                     .build(new MorphParseCacheLoader());
         }
@@ -174,7 +176,7 @@ public class TurkishMorphology extends BaseParser {
             this.unidentifiedTokenAnalyzer = new UnidentifiedTokenAnalyzer(this);
         }
         this.suffixProvider = builder.suffixProvider;
-        this.useDynamicCache = builder.useDynamicCache;
+        this.useCache = builder.useDynamicCache;
         this.useUnidentifiedTokenAnalyzer = builder.useUnidentifiedTokenAnalyzer;
         generateCache(builder.initialCacheSize, builder.maxCacheSize);
         Log.info("Initialization complete.");
@@ -202,7 +204,8 @@ public class TurkishMorphology extends BaseParser {
      * @return WordAnalysis list.
      */
     public List<WordAnalysis> analyze(String word) {
-        if (useDynamicCache) {
+        stats.inputCount++;
+        if (useCache) {
             return dynamicCache.getUnchecked(word);
         } else {
             return analyzeWithoutCache(word);
@@ -218,21 +221,27 @@ public class TurkishMorphology extends BaseParser {
      * @param word input word.
      * @return WordAnalysis list.
      */
-    public List<WordAnalysis> analyzeWithoutCache(String word) {
+    private List<WordAnalysis> analyzeWithoutCache(String word) {
         String s = normalize(word); // TODO: this may cause problem for some foreign words.
         if (s.length() == 0) {
             return Collections.emptyList();
         }
         List<WordAnalysis> res = wordAnalyzer.analyze(s);
+        stats.wordAnalyzerCallCount++;
+
         if (res.size() == 0) {
-            res.addAll(analyzeWordsWithSingleQuote(s));
+            res = analyzeWordsWithApostrophe(s);
+            stats.analyzeWordsWithApostropheCallCount++;
         }
+
         if (res.size() == 0 && useUnidentifiedTokenAnalyzer) {
-            invalidateCacheForWord(s);
-            res.addAll(unidentifiedTokenAnalyzer.analyze(s));
+            res = unidentifiedTokenAnalyzer.analyze(s);
+            stats.unidentifiedTokenAnalyzerCallCount++;
         }
+
         if (res.size() == 0) {
-            res.add(new WordAnalysis(
+            stats.unknownTokenGenerationCount++;
+            res = Collections.singletonList(new WordAnalysis(
                     DictionaryItem.UNKNOWN,
                     s,
                     Lists.newArrayList(WordAnalysis.InflectionalGroup.UNKNOWN)));
@@ -240,34 +249,43 @@ public class TurkishMorphology extends BaseParser {
         return res;
     }
 
-    private List<WordAnalysis> analyzeWordsWithSingleQuote(String word) {
-        List<WordAnalysis> results = new ArrayList<>(2);
+    private List<WordAnalysis> analyzeWordsWithApostrophe(String word) {
 
-        if (word.contains("'")) {
+        int index = word.indexOf('\'');
 
-            StemAndEnding se = new StemAndEnding(
-                    Strings.subStringUntilFirst(word, "'"),
-                    Strings.subStringAfterFirst(word, "'"));
+        if (index >= 0) {
+
+            if (index == 0 || index == word.length() - 1) {
+                return Collections.emptyList();
+            }
+
+            StemAndEnding se = new StemAndEnding(word.substring(0, index), word.substring(index + 1));
             String stem = normalize(se.stem);
 
             String withoutQuote = word.replaceAll("'", "");
 
             List<WordAnalysis> noQuotesParses = wordAnalyzer.analyze(withoutQuote);
-            results.addAll(noQuotesParses.stream()
+            if (noQuotesParses.size() == 0) {
+                return Collections.emptyList();
+            }
+
+            return noQuotesParses.stream()
                     .filter(noQuotesParse -> noQuotesParse.getStems().contains(stem))
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
         }
-        return results;
+
     }
 
     public void invalidateAllCache() {
-        if (useDynamicCache) {
+        if (useCache) {
             dynamicCache.invalidateAll();
         }
     }
 
     public void invalidateCacheForWord(String input) {
-        if (useDynamicCache) {
+        if (useCache) {
             dynamicCache.invalidate(input);
         }
     }
@@ -294,6 +312,37 @@ public class TurkishMorphology extends BaseParser {
 
     public SuffixProvider getSuffixProvider() {
         return suffixProvider;
+    }
+
+
+    private Stats stats = new Stats();
+
+    private static class Stats {
+        long inputCount;
+        long wordAnalyzerCallCount;
+        long analyzeWordsWithApostropheCallCount;
+        long unidentifiedTokenAnalyzerCallCount;
+        long unknownTokenGenerationCount;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (useCache) {
+            sb.append("Cache stats:\n");
+            CacheStats stats = dynamicCache.stats();
+            sb.append("Hit rate: " + stats.hitRate());
+            sb.append(" Average load penalty: " + stats.averageLoadPenalty());
+            sb.append(" Eviction count: " + stats.evictionCount());
+        }
+
+        sb.append("\nCount stats:\n");
+        sb.append("Input count: " + stats.inputCount);
+        sb.append(" Word Analyzer calls: " + stats.wordAnalyzerCallCount);
+        sb.append(" Word With Apost. calls: " + stats.analyzeWordsWithApostropheCallCount);
+        sb.append(" Unidentified Token calls: " + stats.unidentifiedTokenAnalyzerCallCount);
+        sb.append(" Unknown token generation: " + stats.unknownTokenGenerationCount);
+        return sb.toString();
     }
 
 }

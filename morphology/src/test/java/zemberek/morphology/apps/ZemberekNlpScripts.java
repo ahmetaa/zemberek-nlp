@@ -449,8 +449,8 @@ public class ZemberekNlpScripts {
     @Test
     public void performance() throws IOException {
         List<String> lines = Files.readAllLines(
-                //Paths.get("/media/depo/data/aaa/corpora/dunya.100k")
-                Paths.get("/home/ahmetaa/data/nlp/corpora/dunya.100k")
+                Paths.get("/media/depo/data/aaa/corpora/dunya.100k")
+                //Paths.get("/home/ahmetaa/data/nlp/corpora/dunya.100k")
                 //Paths.get("/media/depo/data/aaa/corpora/subtitle-1M")
         );
 
@@ -506,7 +506,9 @@ public class ZemberekNlpScripts {
                 , tokenCount * 1000d / elapsed);
         Log.info("Tokenization + Analysis speed (no punctuation) = %.1f tokens/sec"
                 , tokenCountNoPunct * 1000d / elapsed);
+        Log.info(analyzer.toString());
         Log.info("");
+
 
         Log.info("Disambiguation Test:");
         analyzer.invalidateAllCache();
@@ -520,6 +522,7 @@ public class ZemberekNlpScripts {
                 e.printStackTrace();
             }
         }
+        
         elapsed = clock.elapsed(TimeUnit.MILLISECONDS);
         Log.info("Elapsed Time = " + elapsed);
         Log.info("Tokenization + Analysis + Disambiguation speed = %.1f tokens/sec"
@@ -570,7 +573,12 @@ public class ZemberekNlpScripts {
     @Test
     public void memoryStressTest() throws IOException {
         List<String> words = Files.readAllLines(Paths.get("dunya"));
-        TurkishMorphology parser = TurkishMorphology.createWithDefaults();
+        TurkishMorphology parser = TurkishMorphology
+                .builder()
+                .addDefaultDictionaries()
+                //.disableCache()
+                //.disableUnidentifiedTokenAnalyzer()
+                .build();
 
         int c = 0;
         for (int i = 0; i < 100; i++) {
@@ -580,6 +588,7 @@ public class ZemberekNlpScripts {
                 c += parses.size();
             }
             Log.info(sw.elapsed(TimeUnit.MILLISECONDS));
+            Log.info(parser.toString());
         }
 
         Log.info(c);

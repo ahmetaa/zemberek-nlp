@@ -1,7 +1,5 @@
 package zemberek.tokenizer;
 
-import com.google.common.base.Charsets;
-import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.UIntSet;
@@ -10,7 +8,6 @@ import zemberek.core.logging.Log;
 import zemberek.core.text.TextUtil;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
@@ -21,27 +18,9 @@ import java.util.*;
  * It only breaks from [.!?] symbols.
  * It does not break from line break characters. Therefore input should not contain line breaks.
  */
-public class TurkishSentenceExtractor implements SentenceExtractor {
+public class TurkishSentenceExtractor extends PerceptronSegmenter implements SentenceExtractor {
 
     static final String BOUNDARY_CHARS = ".!?";
-    private FloatValueMap<String> weights = new FloatValueMap<>();
-
-    static Set<String> TurkishAbbreviationSet = new HashSet<>();
-    private static Locale localeTr = new Locale("tr");
-
-    static {
-        try {
-            for (String line : Resources.readLines(Resources.getResource("tokenizer/abbreviations.txt"), Charsets.UTF_8)) {
-                if (line.trim().length() > 0) {
-                    final String abbr = line.trim().replaceAll("\\s+",""); // erase spaces
-                    TurkishAbbreviationSet.add(abbr.replaceAll("\\.$", "")); // erase last dot amd add.
-                    TurkishAbbreviationSet.add(abbr.toLowerCase(localeTr).replaceAll("\\.$", "")); // lowercase and add.
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     private TurkishSentenceExtractor(FloatValueMap<String> weights) {
         this.weights = weights;
@@ -94,36 +73,17 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
         return BOUNDARY_CHARS.toCharArray();
     }
 
-    public void saveBinary(Path path) throws IOException {
-        try (DataOutputStream dos = IOUtil.getDataOutputStream(path)) {
-            dos.writeInt(weights.size());
-            for (String feature : weights) {
-                dos.writeUTF(feature);
-                dos.writeFloat(weights.get(feature));
-            }
-        }
-    }
-
     public static TurkishSentenceExtractor loadFromBinaryFile(Path file) throws IOException {
         try (DataInputStream dis = IOUtil.getDataInputStream(file)) {
-            return load(dis);
+            return new TurkishSentenceExtractor(load(dis));
         }
     }
 
     public static TurkishSentenceExtractor fromInternalModel() throws IOException {
         try (DataInputStream dis = IOUtil.getDataInputStream(
                 Resources.getResource("tokenizer/sentence-boundary-model.bin").openStream())) {
-            return load(dis);
+            return new TurkishSentenceExtractor(load(dis));
         }
-    }
-
-    private static TurkishSentenceExtractor load(DataInputStream dis) throws IOException {
-        int size = dis.readInt();
-        FloatValueMap<String> features = new FloatValueMap<>((int) (size * 1.5));
-        for (int i = 0; i < size; i++) {
-            features.set(dis.readUTF(), dis.readFloat());
-        }
-        return new TurkishSentenceExtractor(features);
     }
 
     public static class TrainerBuilder {
@@ -356,11 +316,11 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
         }
 
         boolean nonBoundaryCheck() {
-            return TurkishAbbreviationSet.contains(currentWord)
-                    || TurkishAbbreviationSet.contains(leftChunkUntilBoundary)
-                    || (leftChunkUntilBoundary.length() == 1)
-                    || BOUNDARY_CHARS.indexOf(nextLetter) >= 0
+            return (leftChunkUntilBoundary.length() == 1)
                     || nextLetter == '\''
+                    || BOUNDARY_CHARS.indexOf(nextLetter) >= 0
+                    || TurkishAbbreviationSet.contains(currentWord)
+                    || TurkishAbbreviationSet.contains(leftChunkUntilBoundary)
                     || potentialWebSite(currentWord);
         }
 
@@ -418,51 +378,5 @@ public class TurkishSentenceExtractor implements SentenceExtractor {
         }
     }
 
-    private static final Set<String> webWords =
-            Sets.newHashSet("http:", ".html", "www", ".tr", ".edu", ".com", ".net", ".gov", ".org", "@");
 
-    private static boolean potentialWebSite(String s) {
-        for (String urlWord : webWords) {
-            if (s.contains(urlWord))
-                return true;
-        }
-        return false;
-    }
-
-    private static String lowerCaseVowels = "aeıioöuüâîû";
-    private static String upperCaseVowels = "AEIİOÖUÜÂÎÛ";
-
-    private static char getMetaChar(char letter) {
-        char c;
-        if (Character.isUpperCase(letter)) {
-            c = upperCaseVowels.indexOf(letter) > 0 ? 'V' : 'C';
-        } else if (Character.isLowerCase(letter)) {
-            c = lowerCaseVowels.indexOf(letter) > 0 ? 'v' : 'c';
-        } else if (Character.isDigit(letter))
-            c = 'd';
-        else if (Character.isWhitespace(letter))
-            c = ' ';
-        else if (letter == '.' || letter == '!' || letter == '?')
-            return letter;
-        else c = '-';
-        return c;
-    }
-
-    private static boolean containsVowel(String input) {
-        for (int i = 0; i < input.length(); i++) {
-            char c = input.charAt(i);
-            if (lowerCaseVowels.indexOf(c) > 0 || upperCaseVowels.indexOf(c) > 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static String getMetaChars(String str) {
-        StringBuilder sb = new StringBuilder(str.length());
-        for (int i = 0; i < str.length(); i++) {
-            sb.append(getMetaChar(str.charAt(i)));
-        }
-        return sb.toString();
-    }
 }

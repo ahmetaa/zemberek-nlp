@@ -6,16 +6,17 @@ import zemberek.core.io.Strings;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.WordAnalyzer;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.WordAnalyzer;
 import zemberek.morphology.structure.StemAndEnding;
 import zemberek.morphology.structure.Turkish;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -35,15 +36,16 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
     }
 
     public synchronized List<WordAnalysis> analyze(String word) {
-        List<WordAnalysis> results = Lists.newArrayListWithCapacity(2);
         if (!Strings.containsNone(word, "0123456789")) {
-            results = parseNumeral(word);
-            return results;
+            return parseNumeral(word);
         }
-        if (word.contains("'")) {
-            StemAndEnding se = new StemAndEnding(
-                    Strings.subStringUntilFirst(word, "'"),
-                    Strings.subStringAfterFirst(word, "'"));
+        int index = word.indexOf('\'');
+        if (index >= 0) {
+
+            if (index == 0 || index == word.length() - 1) {
+                return Collections.emptyList();
+            }
+            StemAndEnding se = new StemAndEnding(word.substring(0, index), word.substring(index + 1));
             String stem = normalize(se.stem);
             String ending = normalize(se.ending);
             String pronunciation = guessPronunciation(stem);
@@ -58,7 +60,7 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
             String toParse = stem + ending;
             List<WordAnalysis> properResults = parser.analyze(toParse);
             graph.removeDictionaryItem(itemProp);
-            results.addAll(properResults);
+            return properResults;
         } else if (Character.isUpperCase(word.charAt(0))) {
             String normalized = normalize(word);
             String pronunciation = guessPronunciation(normalized);
@@ -73,17 +75,17 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
             //TODO eliminate gross code duplication
             List<WordAnalysis> properResults = parser.analyze(normalized);
             graph.removeDictionaryItem(itemProp);
-            results.addAll(properResults);
+            return properResults;
         }
-        return results;
+        return Collections.emptyList();
     }
 
     private String guessPronunciation(String stem) {
-        String pron = stem;
         if (!Turkish.Alphabet.hasVowel(stem)) {
-            pron = Turkish.inferPronunciation(stem);
+            return Turkish.inferPronunciation(stem);
+        } else {
+            return stem;
         }
-        return pron;
     }
 
     public StemAndEnding getFromNumeral(String s) {

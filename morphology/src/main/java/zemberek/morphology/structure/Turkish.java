@@ -1,5 +1,6 @@
 package zemberek.morphology.structure;
 
+import zemberek.core.collections.UIntMap;
 import zemberek.core.io.KeyValueReader;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -20,12 +21,20 @@ public class Turkish {
     public static final TurkishAlphabet Alphabet = new TurkishAlphabet();
     public static final Collator COLLATOR = Collator.getInstance(LOCALE);
 
-    static Map<String, String> turkishLetterProns;
+    static UIntMap<String> turkishLetterProns  = new UIntMap<>();
 
     static {
         try {
-            turkishLetterProns = new KeyValueReader("=", "##").loadFromStream(
-                    Turkish.class.getResourceAsStream("/tr/phonetics/turkish-letter-pronunciation.txt"), "utf-8");
+            Map<String, String> map = new KeyValueReader("=", "##")
+                    .loadFromStream(
+                            Turkish.class.getResourceAsStream("/tr/phonetics/turkish-letter-pronunciation.txt"), "utf-8");
+            for (String s : map.keySet()) {
+                if (s.length() != 1) {
+                    Log.warn("1 Character keys are expected. But it is : %s", s);
+                }
+                turkishLetterProns.put(s.charAt(0), map.get(s));
+            }
+
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -33,12 +42,13 @@ public class Turkish {
 
     public static String inferPronunciation(String w) {
         StringBuilder sb = new StringBuilder();
-        for (char c : w.toCharArray()) {
-            String str = String.valueOf(c);
-            if (turkishLetterProns.containsKey(str))
-                sb.append(turkishLetterProns.get(str));
+        for (int i = 0; i < w.length(); i++) {
+            char c = w.charAt(i);
+            if (turkishLetterProns.containsKey(c)) {
+                sb.append(turkishLetterProns.get(c));
+            }
             else {
-                Log.warn("Cannot identify character " + str + " in pronunciation of :[" + w + "]");
+                Log.warn("Cannot identify character " + String.valueOf(c) + " in pronunciation of :[" + w + "]");
             }
         }
         return sb.toString();
