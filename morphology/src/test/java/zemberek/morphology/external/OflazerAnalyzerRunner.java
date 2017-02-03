@@ -101,7 +101,7 @@ public class OflazerAnalyzerRunner {
 
     public static void extractRootsFromParse(File input, File output) throws IOException {
         System.out.println("Extracting root words from parse list");
-        TurkishAlphabet alphabet = new TurkishAlphabet();
+        TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
         List<String> all = SimpleTextReader.trimmingUTF8Reader(input).asStringList();
         Set<String> roots = Sets.newHashSet();
         for (String s : all) {
@@ -128,7 +128,7 @@ public class OflazerAnalyzerRunner {
 
     public static void extractDictItems(File input, File output) throws IOException {
         System.out.println("Extracting dict items from parse list");
-        TurkishAlphabet alphabet = new TurkishAlphabet();
+        TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
         List<String> all = SimpleTextReader.trimmingUTF8Reader(input).asStringList();
         Set<String> roots = Sets.newHashSet();
         for (String s : all) {

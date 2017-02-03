@@ -61,6 +61,7 @@ public class SuffixSurfaceNode extends MorphNode {
         if (!surfaceForm.equals(that.surfaceForm)) return false;
         if (!attributes.equals(that.attributes)) return false;
         if (!expectations.equals(that.expectations)) return false;
+        //TODO: equals uses suffixFormId but not the hashCode.
         if (!suffixForm.getId().equals(that.suffixForm.getId())) return false;
         if (!exclusiveSuffixData.equals(that.exclusiveSuffixData)) return false;
         if (!termination.equals(that.termination)) return false;

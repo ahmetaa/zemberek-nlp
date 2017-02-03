@@ -74,11 +74,6 @@ public class StemNode extends MorphNode {
 
         if (!surfaceForm.equals(stemNode.surfaceForm)) return false;
         if (!dictionaryItem.equals(stemNode.dictionaryItem)) return false;
-/*
-        if (suffixRootSurfaceNode != null ? !suffixRootSurfaceNode.equals(stemNode.suffixRootSurfaceNode) : stemNode.suffixRootSurfaceNode != null) {
-            return false;
-        }
-*/
         if (!attributes.equals(stemNode.attributes)) return false;
         if (!exclusiveSuffixData.equals(stemNode.exclusiveSuffixData)) return false;
         if (!expectations.equals(stemNode.expectations)) return false;
@@ -90,7 +85,6 @@ public class StemNode extends MorphNode {
     @Override
     public int hashCode() {
         int result = dictionaryItem.hashCode();
-//        result = 31 * result + (suffixRootSurfaceNode != null ? suffixRootSurfaceNode.hashCode() : 0);
         result = 31 * result + termination.hashCode();
         result = 31 * result + expectations.hashCode();
         result = 31 * result + attributes.hashCode();

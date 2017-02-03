@@ -44,7 +44,10 @@ public enum RootAttribute implements StringEnum {
     Ext,
 
     // for items that are added to system during runtime
-    Runtime;
+    Runtime,
+
+    //For dummy items.
+    Dummy;
 
     int index;
 

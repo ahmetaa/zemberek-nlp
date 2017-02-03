@@ -14,7 +14,7 @@ public class TurkishAlphabetTest {
 
     @Test
     public void getLetterByChar() {
-        TurkishAlphabet alphabet = new TurkishAlphabet();
+        TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
         Assert.assertEquals(alphabet.getLetter('c'), TurkishAlphabet.L_c);
         Assert.assertEquals(alphabet.getLetter('a'), TurkishAlphabet.L_a);
         Assert.assertEquals(alphabet.getLetter('w'), TurkishAlphabet.L_w);
@@ -26,7 +26,7 @@ public class TurkishAlphabetTest {
 
     @Test
     public void getLetterByIndex() {
-        TurkishAlphabet alphabet = new TurkishAlphabet();
+        TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
         Assert.assertEquals(alphabet.getLetter(4), TurkishAlphabet.L_cc);
         Assert.assertEquals(alphabet.getLetter(1), TurkishAlphabet.L_a);
         Assert.assertEquals(alphabet.getLetter(3), TurkishAlphabet.L_c);
@@ -37,7 +37,7 @@ public class TurkishAlphabetTest {
 
     @Test
     public void getAlphabeticIndex() {
-        TurkishAlphabet alphabet = new TurkishAlphabet();
+        TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
         Assert.assertEquals(alphabet.getAlphabeticIndex('a'), 1);
         Assert.assertEquals(alphabet.getAlphabeticIndex('c'), 3);
         Assert.assertEquals(alphabet.getAlphabeticIndex('z'), 29);
@@ -48,7 +48,7 @@ public class TurkishAlphabetTest {
 
     @Test
     public void getCharByAlphabeticIndex() {
-        TurkishAlphabet alphabet = new TurkishAlphabet();
+        TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
         Assert.assertEquals(alphabet.getCharByAlphabeticIndex(1), 'a');
         Assert.assertEquals(alphabet.getCharByAlphabeticIndex(3), 'c');
         Assert.assertEquals(alphabet.getCharByAlphabeticIndex(29), 'z');
@@ -59,7 +59,7 @@ public class TurkishAlphabetTest {
 
     @Test
     public void getAsciiEquivalentLetter() {
-        TurkishAlphabet alphabet = new TurkishAlphabet();
+        TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
         Assert.assertEquals(alphabet.getAsciiEquivalentLetter(TurkishAlphabet.L_a), TurkishAlphabet.L_a);
         Assert.assertEquals(alphabet.getAsciiEquivalentLetter(TurkishAlphabet.L_x), TurkishAlphabet.L_x);
         Assert.assertEquals(alphabet.getAsciiEquivalentLetter(TurkishAlphabet.L_cc), TurkishAlphabet.L_c);
@@ -72,7 +72,7 @@ public class TurkishAlphabetTest {
 
     @Test
     public void getasciiEquivalentLetterByChar() {
-        TurkishAlphabet alphabet = new TurkishAlphabet();
+        TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
         Assert.assertEquals(alphabet.getAsciEquivalentLetter('a'), TurkishAlphabet.L_a);
         Assert.assertEquals(alphabet.getAsciEquivalentLetter('x'), TurkishAlphabet.L_x);
         Assert.assertEquals(alphabet.getAsciEquivalentLetter(TurkishAlphabet.C_cc), TurkishAlphabet.L_c);
@@ -85,7 +85,7 @@ public class TurkishAlphabetTest {
 
     @Test
     public void asciiEqual() {
-        TurkishAlphabet alphabet = new TurkishAlphabet();
+        TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
         Assert.assertTrue(alphabet.asciiEqual('a', 'a'));
         Assert.assertTrue(alphabet.asciiEqual('x', 'x'));
         Assert.assertTrue(alphabet.asciiEqual(TurkishAlphabet.C_gg, 'g'));
@@ -100,7 +100,7 @@ public class TurkishAlphabetTest {
 
     @Test
     public void getAsciiEquivalentChar() {
-        TurkishAlphabet alphabet = new TurkishAlphabet();
+        TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
         Assert.assertEquals(alphabet.getAsciiEquivalentChar('a'), 'a');
         Assert.assertEquals(alphabet.getAsciiEquivalentChar('x'), 'x');
         Assert.assertEquals(alphabet.getAsciiEquivalentChar(TurkishAlphabet.C_gg), 'g');
@@ -114,7 +114,7 @@ public class TurkishAlphabetTest {
 
     @Test
     public void isVowelTest() {
-        TurkishAlphabet alphabet = new TurkishAlphabet();
+        TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
         String vowels = "aeiuüıoöâîû";
         for (char c : vowels.toCharArray()) {
             Assert.assertTrue(alphabet.isVowel(c));
@@ -127,7 +127,7 @@ public class TurkishAlphabetTest {
 
     @Test
     public void vowelCountTest() {
-        TurkishAlphabet alphabet = new TurkishAlphabet();
+        TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
         String[] entries = {"a", "aa", "", "bb", "bebaba"};
         int[] expCounts = {1, 2, 0, 0, 3};
         int i = 0;
@@ -138,7 +138,7 @@ public class TurkishAlphabetTest {
 
     @Test
     public void toIndexes() {
-        TurkishAlphabet alphabet = new TurkishAlphabet();
+        TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
         byte[] expected = {1, 2, 3};
         Assert.assertArrayEquals(expected, alphabet.toByteIndexes("abc"));
     }

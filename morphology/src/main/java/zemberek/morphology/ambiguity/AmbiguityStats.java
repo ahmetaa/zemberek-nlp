@@ -7,8 +7,8 @@ import com.google.common.collect.Maps;
 import zemberek.core.collections.Histogram;
 import zemberek.core.io.LineIterator;
 import zemberek.core.io.SimpleTextReader;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.tr.BaseParser;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.morphology.structure.Turkish;
 import zemberek.tokenizer.ZemberekLexer;
@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author mdakin@gmail.com
  */
-public class AmbiguityStats extends BaseParser {
+public class AmbiguityStats {
 
     TurkishMorphology parser;
     ZemberekLexer lexer = new ZemberekLexer();
@@ -96,7 +96,8 @@ public class AmbiguityStats extends BaseParser {
         int total = 0;
         for (String line : lines) {
             for (String s : splitter.split(line)) {
-                List<WordAnalysis> results = parser.getWordAnalyzer().analyze(normalize(s));
+                List<WordAnalysis> results = parser.getWordAnalyzer().analyze(
+                        TurkishAlphabet.INSTANCE.normalize(s));
                 if (++total % 50000 == 0) {
                     System.out.println("Processed: " + total);
                 }
@@ -151,7 +152,8 @@ public class AmbiguityStats extends BaseParser {
         Splitter splitter = Splitter.on(" ").omitEmptyStrings().trimResults();
         for (String line : lines) {
             for (String s : splitter.split(line)) {
-                List<WordAnalysis> results =  parser.getWordAnalyzer().analyze(normalize(s));
+                List<WordAnalysis> results =  parser.getWordAnalyzer().analyze(
+                        TurkishAlphabet.INSTANCE.normalize(s));
                 total++;
                 if (total % 50000 == 0) {
                     System.out.println("Processed: " + total);
@@ -185,7 +187,8 @@ public class AmbiguityStats extends BaseParser {
             Splitter splitter = Splitter.on(" ").omitEmptyStrings().trimResults();
             for (String line : lines) {
                 for (String s : splitter.split(line)) {
-                    List<WordAnalysis> results =  parser.getWordAnalyzer().analyze(normalize(s));
+                    List<WordAnalysis> results =  parser.getWordAnalyzer().analyze(
+                            TurkishAlphabet.INSTANCE.normalize(s));
                     total++;
                     if (total % 50000 == 0) {
                         System.out.println("Processed: " + total);

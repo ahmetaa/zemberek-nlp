@@ -15,6 +15,16 @@ public class TurkishAlphabet {
 
     static final Locale TR = new Locale("tr");
 
+    private enum Singleton {
+        Instance;
+        TurkishAlphabet alphabet = new TurkishAlphabet();
+    }
+
+    private TurkishAlphabet() {
+    }
+
+    public static TurkishAlphabet INSTANCE = Singleton.Instance.alphabet;
+
     // Turkish specific characters.
     public static final char C_CC = '\u00c7'; // Ç
     public static final char C_cc = '\u00e7'; // ç
@@ -390,4 +400,70 @@ public class TurkishAlphabet {
         }
         return sb.toString();
     }
+
+    public static String toAscii(String input) {
+        StringBuilder sb = new StringBuilder(input.length());
+        for (char c : input.toCharArray()) {
+            switch (c) {
+                case 'ç':
+                    sb.append('c');
+                    break;
+                case 'ğ':
+                    sb.append('g');
+                    break;
+                case 'ı':
+                    sb.append('i');
+                    break;
+                case 'ö':
+                    sb.append('o');
+                    break;
+                case 'ş':
+                    sb.append('s');
+                    break;
+                case 'ü':
+                    sb.append('u');
+                    break;
+                case 'Ç':
+                    sb.append('C');
+                    break;
+                case 'Ğ':
+                    sb.append('G');
+                    break;
+                case 'İ':
+                    sb.append('I');
+                    break;
+                case 'Ö':
+                    sb.append('O');
+                    break;
+                case 'Ş':
+                    sb.append('S');
+                    break;
+                case 'Ü':
+                    sb.append('U');
+                    break;
+                case TurkishAlphabet.a_CIRC:
+                    sb.append('a');
+                    break;
+                case TurkishAlphabet.A_CIRC:
+                    sb.append('A');
+                    break;
+                case TurkishAlphabet.i_CIRC:
+                    sb.append('i');
+                    break;
+                case TurkishAlphabet.I_CIRC:
+                    sb.append('İ');
+                    break;
+                case TurkishAlphabet.u_CIRC:
+                    sb.append('u');
+                    break;
+                case TurkishAlphabet.U_CIRC:
+                    sb.append('U');
+                    break;
+                default:
+                    sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
 }

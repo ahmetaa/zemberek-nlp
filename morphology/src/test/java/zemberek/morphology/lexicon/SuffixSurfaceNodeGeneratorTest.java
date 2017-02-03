@@ -18,7 +18,7 @@ import static zemberek.core.turkish.PhoneticAttribute.*;
 
 public class SuffixSurfaceNodeGeneratorTest {
 
-    static TurkishAlphabet alphabet = new TurkishAlphabet();
+    static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
 
     @Test
     public void suffixFormAHarmonyTest() {

@@ -208,7 +208,7 @@ public class TurkishDictionaryLoaderTest {
         TurkishDictionaryLoader loader = new TurkishDictionaryLoader(sp);
 
         RootLexicon items = loader.load(new File(Resources.getResource("tr/master-dictionary.dict").getFile()));
-        TurkishAlphabet alphabet = new TurkishAlphabet();
+        TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
         Set<String> masterVoicing = new HashSet<>();
         for (DictionaryItem item : items) {
             if (item.attributes.contains(NoVoicing))

@@ -163,7 +163,7 @@ public class ZemberekNlpScripts {
         sortAndSave(DATA_PATH.resolve("out").resolve("oflazer-analyses.txt"), new ArrayList<>(accepted));
     }
 
-    static TurkishAlphabet alphabet = new TurkishAlphabet();
+    static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
 
     @Test
     public void extractTypesFromOflazerAnalysis() throws IOException {
@@ -236,7 +236,7 @@ public class ZemberekNlpScripts {
         List<String> zemberekTypes = new ArrayList<>(parser.getLexicon().size());
         for (DictionaryItem item : parser.getLexicon()) {
             String lemma = /*item.primaryPos == PrimaryPos.Verb ? item.lemma.replaceAll("mek$|mak$", "") : */item.lemma;
-            lemma = Turkish.normalizeCircumflex(lemma);
+            lemma = TurkishAlphabet.INSTANCE.normalizeCircumflex(lemma);
             String primaryString = /*item.primaryPos == PrimaryPos.Adverb ? "Adverb" :*/ item.primaryPos.shortForm;
             String pos = item.secondaryPos == null
                     || item.secondaryPos == SecondaryPos.Unknown
@@ -449,8 +449,8 @@ public class ZemberekNlpScripts {
     @Test
     public void performance() throws IOException {
         List<String> lines = Files.readAllLines(
-                Paths.get("/media/depo/data/aaa/corpora/dunya.100k")
-                //Paths.get("/home/ahmetaa/data/nlp/corpora/dunya.100k")
+                //Paths.get("/media/depo/data/aaa/corpora/dunya.100k")
+                Paths.get("/home/ahmetaa/data/nlp/corpora/dunya.100k")
                 //Paths.get("/media/depo/data/aaa/corpora/subtitle-1M")
         );
 

@@ -62,7 +62,7 @@ public class DistanceBasedStemmer {
     }
 
     static Locale TR = new Locale("tr");
-    static TurkishAlphabet alphabet = new TurkishAlphabet();
+    static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
 
     static String normalize(String input) {
         String s = alphabet.normalize(input.toLowerCase(TR).replaceAll("'", ""));

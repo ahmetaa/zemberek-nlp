@@ -14,7 +14,7 @@ import java.util.List;
 public class StemTrie {
 
     Node root = new Node();
-    static TurkishAlphabet alphabet = new TurkishAlphabet();
+    static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
 
     public void add(StemNode stem) {
         if (stem == null) {

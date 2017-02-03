@@ -58,8 +58,6 @@ public class DictionaryItem {
 
     public DictionaryItem referenceItem;
 
-    public boolean dummy = false;
-
     public int index;
 
     public static final DictionaryItem UNKNOWN = new DictionaryItem("UNK", "UNK", "UNK", PrimaryPos.Unknown, SecondaryPos.Unknown);

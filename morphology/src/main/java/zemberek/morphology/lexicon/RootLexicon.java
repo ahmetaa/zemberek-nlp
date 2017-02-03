@@ -10,7 +10,7 @@ import java.util.*;
  * This is the collection of all Dictionary Items.
  */
 public class RootLexicon implements Iterable<DictionaryItem> {
-    private Multimap<String, DictionaryItem> itemMap = HashMultimap.create();
+    private Multimap<String, DictionaryItem> itemMap = HashMultimap.create(100000,1);
     private Map<String, DictionaryItem> idMap = Maps.newHashMap();
     private Set<DictionaryItem> itemSet = Sets.newLinkedHashSet();
 

@@ -149,7 +149,7 @@ public class TurkishDictionaryLoader {
         RootLexicon rootLexicon = new RootLexicon();
         List<LineData> lateEntries = Lists.newArrayList();
         SuffixProvider suffixProvider;
-        static final TurkishAlphabet alphabet = new TurkishAlphabet();
+        static final TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
 
         TextLexiconProcessor(SuffixProvider suffixProvider) {
             this.suffixProvider = suffixProvider;
@@ -258,7 +258,7 @@ public class TurkishDictionaryLoader {
                         index = 1;
                     // generate a fake lemma for atkuyruk, use kuyruk's attributes.
                     DictionaryItem fakeRoot = new DictionaryItem(root, root, root, item.primaryPos, item.secondaryPos, attrSet, null, null, index);
-                    fakeRoot.dummy = true;
+                    fakeRoot.attributes.add(RootAttribute.Dummy);
                     fakeRoot.referenceItem = item;
                     rootLexicon.add(fakeRoot);
                 }
@@ -309,7 +309,7 @@ public class TurkishDictionaryLoader {
             if (posInfo.primaryPos == PrimaryPos.Verb &&  word.length()>3 && (word.endsWith("mek") || word.endsWith("mak"))) {
                 word = word.substring(0, word.length() - 3); // erase -mek -mak
             }
-            word = word.toLowerCase(locale).replaceAll("â", "a").replaceAll("î", "i").replaceAll("\u00e2", "u");
+            word = word.toLowerCase(locale).replaceAll("â", "a").replaceAll("î", "i").replaceAll("û", "u");
             return word.replaceAll("[\\-']", "");
         }
 

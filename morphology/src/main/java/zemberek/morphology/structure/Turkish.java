@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  */
 public class Turkish {
     public static final Locale LOCALE = new Locale("tr");
-    public static final TurkishAlphabet Alphabet = new TurkishAlphabet();
+    public static final TurkishAlphabet Alphabet = TurkishAlphabet.INSTANCE;
     public static final Collator COLLATOR = Collator.getInstance(LOCALE);
 
     static UIntMap<String> turkishLetterProns  = new UIntMap<>();
@@ -112,100 +112,5 @@ public class Turkish {
                 .replaceAll("[\u201C\u201D\u00BB\u00AB\u2033\u0093\u0094]|''", "\"")
                 .replaceAll("[\u0091\u0092\u2032´`’‘]", "'")
                 .replaceAll("[\u0096\u0097–]", "-");
-    }
-
-    public static String normalizeCircumflex(String input) {
-        StringBuilder sb = new StringBuilder(input.length());
-        input = input.toLowerCase(LOCALE);
-        for (char c : input.toCharArray()) {
-            switch (c) {
-                case 'Â':
-                    sb.append("A");
-                    break;
-                case 'â':
-                    sb.append("a");
-                    break;
-                case 'Î':
-                    sb.append("İ");
-                    break;
-                case 'î':
-                    sb.append("i");
-                    break;
-                case 'Û':
-                    sb.append("U");
-                    break;
-                case 'û':
-                    sb.append("u");
-                    break;
-                default:
-                    sb.append(c);
-            }
-        }
-        return sb.toString();
-    }
-
-    public static String toAscii(String input) {
-        StringBuilder sb = new StringBuilder(input.length());
-        for (char c : input.toCharArray()) {
-            switch (c) {
-                case 'ç':
-                    sb.append('c');
-                    break;
-                case 'ğ':
-                    sb.append('g');
-                    break;
-                case 'ı':
-                    sb.append('i');
-                    break;
-                case 'ö':
-                    sb.append('o');
-                    break;
-                case 'ş':
-                    sb.append('s');
-                    break;
-                case 'ü':
-                    sb.append('u');
-                    break;
-                case 'Ç':
-                    sb.append('C');
-                    break;
-                case 'Ğ':
-                    sb.append('G');
-                    break;
-                case 'İ':
-                    sb.append('I');
-                    break;
-                case 'Ö':
-                    sb.append('O');
-                    break;
-                case 'Ş':
-                    sb.append('S');
-                    break;
-                case 'Ü':
-                    sb.append('U');
-                    break;
-                case TurkishAlphabet.a_CIRC:
-                    sb.append('a');
-                    break;
-                case TurkishAlphabet.A_CIRC:
-                    sb.append('A');
-                    break;
-                case TurkishAlphabet.i_CIRC:
-                    sb.append('i');
-                    break;
-                case TurkishAlphabet.I_CIRC:
-                    sb.append('İ');
-                    break;
-                case TurkishAlphabet.u_CIRC:
-                    sb.append('u');
-                    break;
-                case TurkishAlphabet.U_CIRC:
-                    sb.append('U');
-                    break;
-                default:
-                    sb.append(c);
-            }
-        }
-        return sb.toString();
     }
 }

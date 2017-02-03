@@ -6,6 +6,7 @@ import zemberek.core.io.Strings;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.WordAnalyzer;
 import zemberek.morphology.lexicon.DictionaryItem;
@@ -46,8 +47,8 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
                 return Collections.emptyList();
             }
             StemAndEnding se = new StemAndEnding(word.substring(0, index), word.substring(index + 1));
-            String stem = normalize(se.stem);
-            String ending = normalize(se.ending);
+            String stem = TurkishAlphabet.INSTANCE.normalize(se.stem);
+            String ending = TurkishAlphabet.INSTANCE.normalize(se.ending);
             String pronunciation = guessPronunciation(stem);
             DictionaryItem itemProp = new DictionaryItem(
                     Turkish.capitalize(stem),
@@ -62,7 +63,7 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
             graph.removeDictionaryItem(itemProp);
             return properResults;
         } else if (Character.isUpperCase(word.charAt(0))) {
-            String normalized = normalize(word);
+            String normalized = TurkishAlphabet.INSTANCE.normalize(word);
             String pronunciation = guessPronunciation(normalized);
             DictionaryItem itemProp = new DictionaryItem(
                     Turkish.capitalize(normalized),
@@ -134,7 +135,7 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
             Matcher m = digit.pattern.matcher(se.stem);
             if (m.find()) {
                 String toParse;
-                if (se.ending.length() > 0 && lemma.equals("dört") && alphabet.isVowel(se.ending.charAt(0)))
+                if (se.ending.length() > 0 && lemma.equals("dört") && TurkishAlphabet.INSTANCE.isVowel(se.ending.charAt(0)))
                     toParse = "dörd" + se.ending;
                 else
                     toParse = lemma + se.ending;

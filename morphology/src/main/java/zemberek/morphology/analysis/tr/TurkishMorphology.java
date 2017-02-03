@@ -9,6 +9,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import zemberek.core.logging.Log;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.WordAnalyzer;
 import zemberek.morphology.generator.SimpleGenerator;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 /**
  * Turkish Morphological Parser finds all possible parses for a Turkish word.
  */
-public class TurkishMorphology extends BaseParser {
+public class TurkishMorphology {
 
     private WordAnalyzer wordAnalyzer;
     private SimpleGenerator generator;
@@ -222,7 +223,7 @@ public class TurkishMorphology extends BaseParser {
      * @return WordAnalysis list.
      */
     private List<WordAnalysis> analyzeWithoutCache(String word) {
-        String s = normalize(word); // TODO: this may cause problem for some foreign words.
+        String s = TurkishAlphabet.INSTANCE.normalize(word); // TODO: this may cause problem for some foreign words.
         if (s.length() == 0) {
             return Collections.emptyList();
         }
@@ -260,7 +261,7 @@ public class TurkishMorphology extends BaseParser {
             }
 
             StemAndEnding se = new StemAndEnding(word.substring(0, index), word.substring(index + 1));
-            String stem = normalize(se.stem);
+            String stem = TurkishAlphabet.INSTANCE.normalize(se.stem);
 
             String withoutQuote = word.replaceAll("'", "");
 

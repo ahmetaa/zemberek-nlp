@@ -24,7 +24,7 @@ import static zemberek.core.turkish.RootAttribute.*;
  */
 public class StemNodeGenerator {
 
-    TurkishAlphabet alphabet = new TurkishAlphabet();
+    TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
     SuffixProvider suffixProvider;
 
     public StemNodeGenerator(SuffixProvider suffixProvider) {

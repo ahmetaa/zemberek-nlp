@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class StrictTurkishSyllableParser implements SyllableParser {
 
-    private final TurkishAlphabet alphabet = new TurkishAlphabet();
+    private final TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
 
     /**
      * Returns the syllables as a String List. if word cannot be parsed, an empty list is returned.

@@ -13,23 +13,19 @@ public abstract class MorphNode {
     public EnumSet<PhoneticAttribute> attributes = EnumSet.noneOf(PhoneticAttribute.class);
     public SuffixData exclusiveSuffixData = new SuffixData();
 
-    protected MorphNode(String surfaceForm, TerminationType termination) {
-        this.surfaceForm = surfaceForm;
-        this.termination = termination;
-    }
 
     protected MorphNode(
             String surfaceForm,
             TerminationType termination,
             EnumSet<PhoneticAttribute> attributes,
             EnumSet<PhoneticExpectation> expectations,
-            SuffixData suffixData
+            SuffixData exclusiveSuffixData
     ) {
         this.surfaceForm = surfaceForm;
         this.termination = termination;
         this.attributes = attributes;
         this.expectations = expectations;
-        this.exclusiveSuffixData = suffixData;
+        this.exclusiveSuffixData = exclusiveSuffixData;
     }
 
     protected MorphNode(
@@ -53,7 +49,6 @@ public abstract class MorphNode {
         this.attributes = attributes;
         this.expectations = expectations;
     }
-
 
     public EnumSet<PhoneticExpectation> getExpectations() {
         return expectations;

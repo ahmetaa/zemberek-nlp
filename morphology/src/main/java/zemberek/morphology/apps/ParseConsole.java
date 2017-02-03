@@ -1,11 +1,20 @@
 package zemberek.morphology.apps;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
+import zemberek.morphology.lexicon.RootLexicon;
+import zemberek.morphology.lexicon.SuffixProvider;
+import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
+import zemberek.morphology.lexicon.tr.TurkishSuffixes;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -35,9 +44,30 @@ public class ParseConsole {
         System.out.println(token.formatOflazer() + runtime);
     }
 
+    public static RootLexicon addTextDictionaryResources(SuffixProvider suffixProvider, String... resources) throws IOException {
+        RootLexicon lexicon = new RootLexicon();
+        Log.info("Dictionaries :%s", String.join(", ", Arrays.asList(resources)));
+        List<String> lines = new ArrayList<>();
+        for (String resource : resources) {
+            lines.addAll(Resources.readLines(Resources.getResource(resource), Charsets.UTF_8));
+        }
+        lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(lines));
+        Log.info("Lexicon Generated.");
+        return lexicon;
+    }
+
+
     public static void main(String[] args) throws IOException {
+        TurkishSuffixes suffixes = new TurkishSuffixes();
+        RootLexicon lexicon = addTextDictionaryResources(suffixes,
+                TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.toArray(
+                new String[TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.size()]));
+        System.out.println(lexicon.size());
+        Scanner sc = new Scanner(System.in);
+        sc.nextLine();
         // to test the development lexicon, use ParseConsoleTest
-        TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-        new ParseConsole().run(morphology);
+        //TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+        //morphology.getGraph().stats();
+        //new ParseConsole().run(morphology);
     }
 }

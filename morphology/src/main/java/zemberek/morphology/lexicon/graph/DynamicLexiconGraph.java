@@ -27,7 +27,7 @@ public class DynamicLexiconGraph {
 
     private final SuffixProvider suffixProvider;
 
-    private Map<SuffixForm, Set<SuffixSurfaceNode>> suffixFormMap = Maps.newConcurrentMap();
+    private Map<SuffixForm, FastLookupSet<SuffixSurfaceNode>> suffixFormMap = Maps.newConcurrentMap();
 
     // required for parsing. These were in WordParser before.
     // TODO: this mechanism should be an abstraction that can also use a StemTrie
@@ -221,7 +221,7 @@ public class DynamicLexiconGraph {
     }
 
     private boolean nodeExists(SuffixForm set, SuffixSurfaceNode newSurfaceNode) {
-        Set<SuffixSurfaceNode> surfaceNodes = suffixFormMap.get(set);
+        FastLookupSet<SuffixSurfaceNode> surfaceNodes = suffixFormMap.get(set);
         return surfaceNodes != null && surfaceNodes.contains(newSurfaceNode);
     }
 
@@ -236,26 +236,18 @@ public class DynamicLexiconGraph {
         int nodeCount = 0;
         for (SuffixForm form : suffixFormMap.keySet()) {
             System.out.println(form.toString());
-            Set<SuffixSurfaceNode> surfaceNodes = suffixFormMap.get(form);
+            FastLookupSet<SuffixSurfaceNode> surfaceNodes = suffixFormMap.get(form);
             nodeCount += surfaceNodes.size();
         }
         System.out.println("SuffixSurfaceNode count:" + nodeCount);
     }
 
-    public SuffixSurfaceNode addOrReturnExisting(SuffixForm set, SuffixSurfaceNode newSurfaceNode) {
+    private SuffixSurfaceNode addOrReturnExisting(SuffixForm suffixForm, SuffixSurfaceNode newSurfaceNode) {
 
-        if (!suffixFormMap.containsKey(set)) {
-            suffixFormMap.put(set, new HashSet<>());
+        if (!suffixFormMap.containsKey(suffixForm)) {
+            suffixFormMap.put(suffixForm, new FastLookupSet<>());
         }
-        Set<SuffixSurfaceNode> surfaceNodes = suffixFormMap.get(set);
-        if (!surfaceNodes.contains(newSurfaceNode)) {
-            surfaceNodes.add(newSurfaceNode);
-            return newSurfaceNode;
-        }
-        for (SuffixSurfaceNode surfaceNode : surfaceNodes) {
-            if (surfaceNode.equals(newSurfaceNode))
-                return surfaceNode;
-        }
-        throw new IllegalStateException("Cannot be here. Set: " + set.id + " Node:" + newSurfaceNode.dump());
+        FastLookupSet<SuffixSurfaceNode> surfaceNodes = suffixFormMap.get(suffixForm);
+        return surfaceNodes.getOrAdd(newSurfaceNode);
     }
 }

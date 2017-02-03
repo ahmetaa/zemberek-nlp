@@ -5,7 +5,8 @@ import zemberek.morphology.lexicon.SuffixForm;
 import java.util.*;
 
 public class SuffixData implements Iterable<SuffixForm> {
-    private Set<SuffixForm> set = new HashSet<>();
+
+    private Set<SuffixForm> suffixForms = new HashSet<>();
     private BitSet bitSet = new BitSet();
 
     public SuffixData(Set<SuffixForm> forms) {
@@ -17,11 +18,11 @@ public class SuffixData implements Iterable<SuffixForm> {
     }
 
     public int size() {
-        return set.size();
+        return suffixForms.size();
     }
 
-    public Set<SuffixForm> getSet() {
-        return set;
+    public Set<SuffixForm> getSuffixForms() {
+        return suffixForms;
     }
 
     public SuffixData(SuffixData... suffixDatas) {
@@ -36,11 +37,11 @@ public class SuffixData implements Iterable<SuffixForm> {
     }
 
     public boolean isEmpty() {
-        return set.isEmpty();
+        return suffixForms.isEmpty();
     }
 
     public SuffixData clear() {
-        this.set.clear();
+        this.suffixForms.clear();
         this.bitSet.clear();
         return this;
     }
@@ -69,12 +70,12 @@ public class SuffixData implements Iterable<SuffixForm> {
     }
 
     private void _addForm(SuffixForm suff) {
-        set.add(suff);
+        suffixForms.add(suff);
         bitSet.set(suff.index);
     }
 
     private void _removeForm(SuffixForm suff) {
-        set.remove(suff);
+        suffixForms.remove(suff);
         bitSet.clear(suff.index);
     }
 
@@ -96,13 +97,13 @@ public class SuffixData implements Iterable<SuffixForm> {
 
     public SuffixData remove(SuffixData... datas) {
         for (SuffixData data : datas) {
-            remove(data.set);
+            remove(data.suffixForms);
         }
         return this;
     }
 
     public SuffixData copy() {
-        return new SuffixData(set);
+        return new SuffixData(suffixForms);
     }
 
     public SuffixData remove(Collection<SuffixForm> it) {
@@ -113,7 +114,7 @@ public class SuffixData implements Iterable<SuffixForm> {
     }
 
     public SuffixData retain(Collection<SuffixForm> coll) {
-        set.retainAll(coll);
+        suffixForms.retainAll(coll);
         BitSet bitSet = new BitSet();
         for (SuffixForm suffixForm : coll) {
             bitSet.set(suffixForm.index);
@@ -123,7 +124,7 @@ public class SuffixData implements Iterable<SuffixForm> {
     }
 
     public SuffixData retain(SuffixData data) {
-        retain(data.set);
+        retain(data.suffixForms);
         return this;
     }
 
@@ -146,6 +147,6 @@ public class SuffixData implements Iterable<SuffixForm> {
 
     @Override
     public Iterator<SuffixForm> iterator() {
-        return set.iterator();
+        return suffixForms.iterator();
     }
 }

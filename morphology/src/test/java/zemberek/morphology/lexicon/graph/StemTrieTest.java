@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 public class StemTrieTest {
 
     private static Random r = new Random(0xCAFEDEADBEEFL);
-    private static TurkishAlphabet alphabet = new TurkishAlphabet();
+    private static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
     private StemTrie lt;
 
     @Before
