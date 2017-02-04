@@ -10,13 +10,8 @@ public class UIntValueMap<T> extends HashBase<T> implements Iterable<T> {
     }
 
     public UIntValueMap(int size) {
-        int k = INITIAL_SIZE;
-        while (k < size)
-            k <<= 1;
-        keys = (T[]) new Object[k];
-        values = new int[k];
-        threshold = (int) (k * DEFAULT_LOAD_FACTOR);
-        modulo = k - 1;
+        super(size);
+        values = new int[keys.length];
     }
 
     /**
@@ -62,7 +57,8 @@ public class UIntValueMap<T> extends HashBase<T> implements Iterable<T> {
 
     /**
      * Sets the key with the value. If there is a matching key, it overwrites it (key and the value).
-     * @param key key
+     *
+     * @param key   key
      * @param value value
      */
     public void put(T key, int value) {
@@ -88,7 +84,7 @@ public class UIntValueMap<T> extends HashBase<T> implements Iterable<T> {
         int j = 0;
         for (int i = 0; i < keys.length; i++) {
             T key = keys[i];
-            if(key!=null && key!=TOMB_STONE) {
+            if (key != null && key != TOMB_STONE) {
                 result[j++] = values[i];
             }
         }

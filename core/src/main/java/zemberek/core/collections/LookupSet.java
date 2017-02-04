@@ -1,22 +1,20 @@
 package zemberek.core.collections;
 
-public class FastLookupSet<T> extends HashBase<T> implements Iterable<T> {
+/**
+ * A Set-like data structure that allows looking up if an equivalent instance exists in it.
+ */
+public class LookupSet<T> extends HashBase<T> implements Iterable<T> {
 
-    public FastLookupSet() {
+    public LookupSet() {
         this(INITIAL_SIZE);
     }
 
-    public FastLookupSet(int size) {
-        int k = INITIAL_SIZE;
-        while (k < size)
-            k <<= 1;
-        keys = (T[]) new Object[k];
-        threshold = (int) (k * DEFAULT_LOAD_FACTOR);
-        modulo = k - 1;
+    public LookupSet(int size) {
+        super(size);
     }
 
     private void expand() {
-        FastLookupSet<T> h = new FastLookupSet<>(keys.length * 2);
+        LookupSet<T> h = new LookupSet<>(keys.length * 2);
         for (T key : keys) {
             if (key != null && key != TOMB_STONE) {
                 h.set(key);
@@ -68,6 +66,12 @@ public class FastLookupSet<T> extends HashBase<T> implements Iterable<T> {
         }
     }
 
+    /**
+     * If there is an equivalent object, it does nothing and returns false.
+     * Otherwise it adds the item to set and returns true.
+     *
+     * @param key input
+     */
     public boolean add(T key) {
         if (key == null)
             throw new IllegalArgumentException("Key cannot be null.");
@@ -85,6 +89,11 @@ public class FastLookupSet<T> extends HashBase<T> implements Iterable<T> {
         }
     }
 
+    /**
+     * If there is an equivalent object, returns it. Otherwise adds it and returns the input.
+     *
+     * @param key input.
+     */
     public T getOrAdd(T key) {
         if (key == null)
             throw new IllegalArgumentException("Key cannot be null.");

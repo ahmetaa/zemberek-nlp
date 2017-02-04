@@ -12,20 +12,15 @@ import java.util.List;
 public class CountSet<T> extends HashBase<T> implements Iterable<T> {
 
     // Carries count values.
-    int[] counts;
+    private int[] counts;
 
     public CountSet() {
         this(INITIAL_SIZE);
     }
 
     public CountSet(int size) {
-        int k = INITIAL_SIZE;
-        while (k < size)
-            k <<= 1;
-        keys = (T[]) new Object[k];
-        counts = new int[k];
-        threshold = (int) (k * DEFAULT_LOAD_FACTOR);
-        modulo = k - 1;
+        super(size);
+        counts = new int[keys.length];
     }
 
     /**

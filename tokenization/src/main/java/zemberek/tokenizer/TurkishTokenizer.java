@@ -110,7 +110,7 @@ class TurkishTokenizer implements Tokenizer {
             }
             if (chr < boundaryDesicionLookup.length && boundaryDesicionLookup.get(chr)) {
                 // TODO: make it work.
-                if (weights.get("foo") > 0) {
+                if (weights.get("foo") < 0) {
                     if (tokenBegin < j) {
                         tokens.add(new Span(tokenBegin, j));
                     }

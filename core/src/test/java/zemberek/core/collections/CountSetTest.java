@@ -14,9 +14,22 @@ import java.util.concurrent.TimeUnit;
 public class CountSetTest {
     @Test
     public void constructorTest() {
-        CountSet table = new CountSet();
-        Assert.assertEquals(0, table.size());
+        CountSet set = new CountSet();
+        Assert.assertEquals(0, set.size());
+        set = new CountSet(1);
+        Assert.assertEquals(0, set.size());
     }
+
+    @Test
+    public void constructorTest2() {
+        CountSet<String> set = new CountSet<>(1);
+        set.increment("foo");
+        Assert.assertEquals(1, set.size());
+        set.remove("foo");
+        Assert.assertEquals(0, set.size());
+        Assert.assertFalse(set.contains("foo"));
+    }
+
 
     @Test
     public void putTest() {
@@ -328,13 +341,13 @@ public class CountSetTest {
             Set<String> strings = uniqueStrings(100000, 7);
             System.out.println(strings.size() + " : " + sw.elapsed(TimeUnit.MILLISECONDS));
             sw.reset().start();
-            CountSet<String> cs = new CountSet<>();
+            CountSet<String> cs = new CountSet<>(strings.size());
             cs.incrementAll(strings);
             System.out.println("Count Add : " + sw.elapsed(TimeUnit.MILLISECONDS));
         }
     }
 
-    public Set<String> uniqueStrings(int amount, int stringLength) {
+    private Set<String> uniqueStrings(int amount, int stringLength) {
         Set<String> set = new HashSet<>(amount);
         Random r = new Random();
         while (set.size() < amount) {

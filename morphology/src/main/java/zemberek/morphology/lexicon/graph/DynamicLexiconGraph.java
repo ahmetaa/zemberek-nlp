@@ -4,7 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import zemberek.core.collections.FastLookupSet;
+import zemberek.core.collections.LookupSet;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
@@ -18,7 +18,7 @@ import java.util.*;
 
 public class DynamicLexiconGraph {
 
-    private FastLookupSet<SuffixSurfaceNode> rootSuffixLookup = new FastLookupSet<>();
+    private LookupSet<SuffixSurfaceNode> rootSuffixLookup = new LookupSet<>();
     private Set<StemNode> stemNodes = Sets.newConcurrentHashSet();
 
     private StemNodeGenerator stemNodeGenerator;
@@ -27,7 +27,7 @@ public class DynamicLexiconGraph {
 
     private final SuffixProvider suffixProvider;
 
-    private Map<SuffixForm, FastLookupSet<SuffixSurfaceNode>> suffixFormMap = Maps.newConcurrentMap();
+    private Map<SuffixForm, LookupSet<SuffixSurfaceNode>> suffixFormMap = Maps.newConcurrentMap();
 
     // required for parsing. These were in WordParser before.
     // TODO: this mechanism should be an abstraction that can also use a StemTrie
@@ -221,7 +221,7 @@ public class DynamicLexiconGraph {
     }
 
     private boolean nodeExists(SuffixForm set, SuffixSurfaceNode newSurfaceNode) {
-        FastLookupSet<SuffixSurfaceNode> surfaceNodes = suffixFormMap.get(set);
+        LookupSet<SuffixSurfaceNode> surfaceNodes = suffixFormMap.get(set);
         return surfaceNodes != null && surfaceNodes.contains(newSurfaceNode);
     }
 
@@ -236,7 +236,7 @@ public class DynamicLexiconGraph {
         int nodeCount = 0;
         for (SuffixForm form : suffixFormMap.keySet()) {
             System.out.println(form.toString());
-            FastLookupSet<SuffixSurfaceNode> surfaceNodes = suffixFormMap.get(form);
+            LookupSet<SuffixSurfaceNode> surfaceNodes = suffixFormMap.get(form);
             nodeCount += surfaceNodes.size();
         }
         System.out.println("SuffixSurfaceNode count:" + nodeCount);
@@ -245,9 +245,9 @@ public class DynamicLexiconGraph {
     private SuffixSurfaceNode addOrReturnExisting(SuffixForm suffixForm, SuffixSurfaceNode newSurfaceNode) {
 
         if (!suffixFormMap.containsKey(suffixForm)) {
-            suffixFormMap.put(suffixForm, new FastLookupSet<>());
+            suffixFormMap.put(suffixForm, new LookupSet<>(4));
         }
-        FastLookupSet<SuffixSurfaceNode> surfaceNodes = suffixFormMap.get(suffixForm);
+        LookupSet<SuffixSurfaceNode> surfaceNodes = suffixFormMap.get(suffixForm);
         return surfaceNodes.getOrAdd(newSurfaceNode);
     }
 }

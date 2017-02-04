@@ -10,7 +10,7 @@ public class LookupSetTest {
         Foo f1 = new Foo("abc", 1);
         Foo f2 = new Foo("abc", 2);
 
-        FastLookupSet<Foo> fooSet = new FastLookupSet<>();
+        LookupSet<Foo> fooSet = new LookupSet<>();
         Assert.assertTrue(fooSet.add(f1));
         Assert.assertFalse(fooSet.add(f2));
     }
@@ -20,7 +20,7 @@ public class LookupSetTest {
         Foo f1 = new Foo("abc", 1);
         Foo f2 = new Foo("abc", 2);
 
-        FastLookupSet<Foo> fooSet = new FastLookupSet<>();
+        LookupSet<Foo> fooSet = new LookupSet<>();
         Assert.assertNull(fooSet.lookup(f1));
         Assert.assertNull(fooSet.lookup(f2));
         fooSet.add(f1);
@@ -36,7 +36,7 @@ public class LookupSetTest {
         Foo f1 = new Foo("abc", 1);
         Foo f2 = new Foo("abc",2);
 
-        FastLookupSet<Foo> fooSet = new FastLookupSet<>();
+        LookupSet<Foo> fooSet = new LookupSet<>();
         Assert.assertEquals(1, fooSet.getOrAdd(f1).b);
         Assert.assertEquals(1, fooSet.getOrAdd(f2).b);
     }
@@ -46,7 +46,7 @@ public class LookupSetTest {
         Foo f1 = new Foo("abc", 1);
         Foo f2 = new Foo("abc", 2);
 
-        FastLookupSet<Foo> fooSet = new FastLookupSet<>();
+        LookupSet<Foo> fooSet = new LookupSet<>();
         Assert.assertEquals(1, fooSet.getOrAdd(f1).b);
         Assert.assertEquals(1, fooSet.getOrAdd(f2).b);
         Assert.assertEquals(1, fooSet.remove(f2).b);

@@ -35,7 +35,7 @@ public abstract class UIntKeyHashBase {
     }
 
     public UIntKeyHashBase(int size) {
-        int k = INITIAL_SIZE;
+        int k = 2;
         while (k < size)
             k <<= 1;
         keys = new int[k];

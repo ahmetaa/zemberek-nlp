@@ -15,13 +15,8 @@ public class FloatValueMap<T> extends HashBase<T> implements Iterable<T> {
     }
 
     public FloatValueMap(int size) {
-        int k = INITIAL_SIZE;
-        while (k < size)
-            k <<= 1;
-        keys = (T[]) new Object[k];
-        values = new float[k];
-        threshold = (int) (k * DEFAULT_LOAD_FACTOR);
-        modulo = k - 1;
+        super(size);
+        values = new float[keys.length];
     }
 
     /**

@@ -11,7 +11,7 @@ import java.util.*;
  */
 public abstract class HashBase<T> {
 
-    static final int INITIAL_SIZE = 8;
+    static final int INITIAL_SIZE = 4;
     static final double DEFAULT_LOAD_FACTOR = 0.65;
 
     // This is the size-1 of the key and value array length. Array length is a value power of two
@@ -21,13 +21,25 @@ public abstract class HashBase<T> {
     protected T[] keys;
 
     // Used for marking slots of deleted keys.
-    protected final T TOMB_STONE = (T) new Object();
+    static final Object TOMB_STONE = new Object();
 
     int keyCount;
     int removeCount;
 
     // When structure has this amount of keys, it expands the key and count arrays.
     int threshold = (int) (INITIAL_SIZE * DEFAULT_LOAD_FACTOR);
+
+    HashBase(int size) {
+        if (size < 1) {
+            throw new IllegalArgumentException("Size must be a positive value. But it is " + size);
+        }
+        int k = 1;
+        while (k < size)
+            k <<= 1;
+        keys = (T[]) new Object[k];
+        threshold = (int) (k * DEFAULT_LOAD_FACTOR);
+        modulo = k - 1;
+    }
 
     protected int firstProbe(int hashCode) {
         return hashCode & modulo;
@@ -94,7 +106,7 @@ public abstract class HashBase<T> {
         if (k < 0)
             return null;
         T removed = keys[k];
-        keys[k] = TOMB_STONE; // mark deletion
+        keys[k] = (T) TOMB_STONE; // mark deletion
         keyCount--;
         removeCount++;
         return removed;
