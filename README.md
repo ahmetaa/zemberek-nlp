@@ -3,7 +3,7 @@ Zemberek-NLP
 
 Here is the the new home of the Zemberek project. 
 Zemberek-NLP provides basic Natural Language Processing tools for Turkish text.
-Code and API is not compatible with earlier versions.
+Code and API is not compatible with the previously known Zemberek2 project. 
 Please note that **all code and APIs are subject to change drastically until version 1.0.0**
 
 Latest version is 0.10.0 (January 20th 2017)
