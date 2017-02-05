@@ -2,6 +2,7 @@ package zemberek.core.collections;
 
 import com.google.common.base.Stopwatch;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.collections.LongBitVector;
 
@@ -146,6 +147,7 @@ public class LongBitVectorTest {
     }
 
     @Test
+    @Ignore("Not a test.")
     public void performanceTest() {
         int itCount = 5;
         Random rnd = new Random(0xbeefcafe);

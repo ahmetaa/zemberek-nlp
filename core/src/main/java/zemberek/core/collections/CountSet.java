@@ -102,18 +102,13 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
     }
 
     private void expand() {
-        CountSet<T> h = new CountSet<>(counts.length * 2);
+        CountSet<T> h = new CountSet<>(newSize());
         for (int i = 0; i < keys.length; i++) {
             if (keys[i] != null && keys[i] != TOMB_STONE)
                 h.set(keys[i], counts[i]);
         }
-        assert (h.keyCount == keyCount);
+        expandCopyParameters(h);
         this.counts = h.counts;
-        this.keys = h.keys;
-        this.keyCount = h.keyCount;
-        this.modulo = h.modulo;
-        this.threshold = h.threshold;
-        this.removeCount = 0;
     }
 
     public void set(T key, int value) {

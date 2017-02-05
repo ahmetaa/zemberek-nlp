@@ -3,6 +3,10 @@ package zemberek.core.collections;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A map like structure that has unsigned integer keys and T values.
+ * @param <T>
+ */
 public class UIntMap<T> extends UIntKeyHashBase {
     private T[] values;
 
@@ -54,13 +58,8 @@ public class UIntMap<T> extends UIntKeyHashBase {
                 h.put(keys[i], values[i]);
             }
         }
-        assert (h.keyCount == keyCount);
+        copyParameters(h);
         this.values = h.values;
-        this.keys = h.keys;
-        this.keyCount = h.keyCount;
-        this.modulo = h.modulo;
-        this.threshold = h.threshold;
-        this.removeCount = 0;
     }
 
     /**

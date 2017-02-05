@@ -106,18 +106,13 @@ public class DoubleValueMap<T> extends HashBase<T> implements Iterable<T> {
     }
 
     private void expand() {
-        DoubleValueMap<T> h = new DoubleValueMap<>(values.length * 2);
+        DoubleValueMap<T> h = new DoubleValueMap<>(newSize());
         for (int i = 0; i < keys.length; i++) {
             if (keys[i] != null && keys[i] != TOMB_STONE)
                 h.set(keys[i], values[i]);
         }
-        assert (h.keyCount == keyCount);
+        expandCopyParameters(h);
         this.values = h.values;
-        this.keys = h.keys;
-        this.keyCount = h.keyCount;
-        this.modulo = h.modulo;
-        this.threshold = h.threshold;
-        this.removeCount = 0;
     }
 
     /**

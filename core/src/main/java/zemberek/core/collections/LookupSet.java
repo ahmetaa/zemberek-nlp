@@ -14,18 +14,13 @@ public class LookupSet<T> extends HashBase<T> implements Iterable<T> {
     }
 
     private void expand() {
-        LookupSet<T> h = new LookupSet<>(keys.length * 2);
+        LookupSet<T> h = new LookupSet<>(newSize());
         for (T key : keys) {
             if (key != null && key != TOMB_STONE) {
                 h.set(key);
             }
         }
-        assert (h.keyCount == keyCount);
-        this.keys = h.keys;
-        this.keyCount = h.keyCount;
-        this.modulo = h.modulo;
-        this.threshold = h.threshold;
-        this.removeCount = 0;
+        expandCopyParameters(h);
     }
 
     /**

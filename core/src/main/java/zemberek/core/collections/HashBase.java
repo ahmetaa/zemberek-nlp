@@ -12,10 +12,10 @@ import java.util.*;
 public abstract class HashBase<T> {
 
     static final int INITIAL_SIZE = 4;
-    static final double DEFAULT_LOAD_FACTOR = 0.65;
+    private static final double DEFAULT_LOAD_FACTOR = 0.7;
 
     // This is the size-1 of the key and value array length. Array length is a value power of two
-    protected int modulo = INITIAL_SIZE - 1;
+    int modulo = INITIAL_SIZE - 1;
 
     // Key array.
     protected T[] keys;
@@ -39,6 +39,22 @@ public abstract class HashBase<T> {
         keys = (T[]) new Object[k];
         threshold = (int) (k * DEFAULT_LOAD_FACTOR);
         modulo = k - 1;
+    }
+
+    void expandCopyParameters(HashBase<T> h) {
+        assert (h.keyCount == keyCount);
+        this.keys = h.keys;
+        this.modulo = h.modulo;
+        this.threshold = h.threshold;
+        this.removeCount = 0;
+    }
+
+    int newSize() {
+        long size = keys.length * 2L;
+        if(size > Integer.MAX_VALUE) {
+            throw new IllegalStateException("Too many items in collection " + this.getClass());
+        }
+        return (int) size;
     }
 
     protected int firstProbe(int hashCode) {

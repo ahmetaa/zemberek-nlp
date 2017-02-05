@@ -29,9 +29,13 @@ public class LongUIntMap {
     }
 
     public LongUIntMap(int size) {
-        int k = INITIAL_SIZE;
-        while (k < size)
+        if (size < 1) {
+            throw new IllegalArgumentException("Size must be a positive value. But it is " + size);
+        }
+        int k = 1;
+        while (k < size) {
             k <<= 1;
+        }
         keys = new long[k];
         values = new int[k];
         Arrays.fill(values, -1);
@@ -201,8 +205,8 @@ public class LongUIntMap {
         long[] keys = new long[size()];
         int j = 0;
         for (int i = 0; i < keys.length; i++) {
-            if(values[i]!=EMPTY_VALUE || values[i]!=DELETED_VALUE) {
-                keys[j++]=keys[i];
+            if (values[i] != EMPTY_VALUE || values[i] != DELETED_VALUE) {
+                keys[j++] = keys[i];
             }
         }
         return keys;

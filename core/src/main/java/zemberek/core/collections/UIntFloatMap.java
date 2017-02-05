@@ -47,19 +47,14 @@ public class UIntFloatMap extends UIntKeyHashBase {
     }
 
     private void expand() {
-        UIntFloatMap h = new UIntFloatMap(values.length * 2);
+        UIntFloatMap h = new UIntFloatMap(newSize());
         for (int i = 0; i < keys.length; i++) {
             if (keys[i] >= 0) {
                 h.put(keys[i], values[i]);
             }
         }
-        assert (h.keyCount == keyCount);
+        copyParameters(h);
         this.values = h.values;
-        this.keys = h.keys;
-        this.keyCount = h.keyCount;
-        this.modulo = h.modulo;
-        this.threshold = h.threshold;
-        this.removeCount = 0;
     }
 
     /**

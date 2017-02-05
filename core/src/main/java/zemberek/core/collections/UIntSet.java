@@ -10,23 +10,18 @@ public class UIntSet extends UIntKeyHashBase {
         super(size);
     }
 
-    public boolean  contains(int key) {
+    public boolean contains(int key) {
         return locate(key) >= 0;
     }
 
     private void expand() {
-        UIntSet h = new UIntSet(keys.length * 2);
+        UIntSet h = new UIntSet(newSize());
         for (int key : keys) {
             if (key >= 0) {
                 h.add(key);
             }
         }
-        assert (h.keyCount == keyCount);
-        this.keys = h.keys;
-        this.keyCount = h.keyCount;
-        this.modulo = h.modulo;
-        this.threshold = h.threshold;
-        this.removeCount = 0;
+        copyParameters(h);
     }
 
     /**

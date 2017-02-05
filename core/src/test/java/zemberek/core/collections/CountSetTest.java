@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class CountSetTest {
+
     @Test
     public void constructorTest() {
         CountSet set = new CountSet();
@@ -337,9 +338,11 @@ public class CountSetTest {
     @Ignore("Not a unit test")
     public void perfStrings() {
         for (int i = 0; i < 5; i++) {
-            Stopwatch sw = Stopwatch.createStarted();
             Set<String> strings = uniqueStrings(100000, 7);
-            System.out.println(strings.size() + " : " + sw.elapsed(TimeUnit.MILLISECONDS));
+            Stopwatch sw = Stopwatch.createStarted();
+            Set<String> newSet = new HashSet<>(strings);
+            System.out.println("Java Set : " + sw.elapsed(TimeUnit.MILLISECONDS));
+            System.out.println("Size  = " + newSet.size());
             sw.reset().start();
             CountSet<String> cs = new CountSet<>(strings.size());
             cs.incrementAll(strings);

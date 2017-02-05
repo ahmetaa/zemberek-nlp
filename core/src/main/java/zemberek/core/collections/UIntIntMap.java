@@ -42,19 +42,14 @@ public class UIntIntMap extends UIntKeyHashBase {
     }
 
     private void expand() {
-        UIntIntMap h = new UIntIntMap(values.length * 2);
+        UIntIntMap h = new UIntIntMap(newSize());
         for (int i = 0; i < keys.length; i++) {
             if (keys[i] >= 0) {
                 h.put(keys[i], values[i]);
             }
         }
-        assert (h.keyCount == keyCount);
+        copyParameters(h);
         this.values = h.values;
-        this.keys = h.keys;
-        this.keyCount = h.keyCount;
-        this.modulo = h.modulo;
-        this.threshold = h.threshold;
-        this.removeCount = 0;
     }
 
     /**

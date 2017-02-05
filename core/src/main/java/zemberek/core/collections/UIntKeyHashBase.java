@@ -10,10 +10,10 @@ import java.util.List;
  */
 public abstract class UIntKeyHashBase {
 
-    protected static final int INITIAL_SIZE = 8;
-    protected static final double LOAD_FACTOR = 0.7;
-    protected static final int EMPTY = -1;
-    protected static final int DELETED = -2;
+    protected static final int INITIAL_SIZE = 4;
+    private static final double LOAD_FACTOR = 0.7;
+    static final int EMPTY = -1;
+    static final int DELETED = -2;
 
     // Array length is a value power of two, so we can use x & modulo instead of
     // x % size to calculate the slot
@@ -34,8 +34,11 @@ public abstract class UIntKeyHashBase {
         return (previousIndex + probeCount) & modulo;
     }
 
-    public UIntKeyHashBase(int size) {
-        int k = 2;
+    UIntKeyHashBase(int size) {
+        if (size < 1) {
+            throw new IllegalArgumentException("Size must be a positive value. But it is " + size);
+        }
+        int k = 1;
         while (k < size)
             k <<= 1;
         keys = new int[k];
@@ -80,6 +83,22 @@ public abstract class UIntKeyHashBase {
         keys[k] = DELETED;
         keyCount--;
         removeCount++;
+    }
+
+    void copyParameters(UIntKeyHashBase h) {
+        assert (h.keyCount == keyCount);
+        this.keys = h.keys;
+        this.modulo = h.modulo;
+        this.threshold = h.threshold;
+        this.removeCount = 0;
+    }
+
+    int newSize() {
+        long size = keys.length * 2L;
+        if(size > Integer.MAX_VALUE) {
+            throw new IllegalStateException("Too many items in collection " + this.getClass());
+        }
+        return (int) size;
     }
 
     public int size() {

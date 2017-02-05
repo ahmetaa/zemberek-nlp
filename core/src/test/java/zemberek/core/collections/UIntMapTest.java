@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class UIntMapTest {
     @Test
     public void getTest() {
-        UIntMap<String> map = new UIntMap<>();
+        UIntMap<String> map = new UIntMap<>(1);
         map.put(1, "2");
         Assert.assertEquals("2", map.get(1));
         Assert.assertNull(map.get(2));
@@ -30,7 +30,7 @@ public class UIntMapTest {
 
     @Test
     public void stressTest() {
-        UIntMap<String> map = new UIntMap<>();
+        UIntMap<String> map = new UIntMap<>(1);
         int size = 100000;
         for (int i = 0; i < size; i++) {
             map.put(i, String.valueOf(i + 1));

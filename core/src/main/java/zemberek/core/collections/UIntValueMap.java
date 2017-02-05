@@ -41,18 +41,13 @@ public class UIntValueMap<T> extends HashBase<T> implements Iterable<T> {
     }
 
     private void expand() {
-        UIntValueMap<T> h = new UIntValueMap<>(values.length * 2);
+        UIntValueMap<T> h = new UIntValueMap<>(newSize());
         for (int i = 0; i < keys.length; i++) {
             if (keys[i] != null && keys[i] != TOMB_STONE)
                 h.put(keys[i], values[i]);
         }
-        assert (h.keyCount == keyCount);
+        expandCopyParameters(h);
         this.values = h.values;
-        this.keys = h.keys;
-        this.keyCount = h.keyCount;
-        this.modulo = h.modulo;
-        this.threshold = h.threshold;
-        this.removeCount = 0;
     }
 
     /**
