@@ -1,12 +1,12 @@
 Zemberek-NLP
 ============
 
-Here is the the new home of the Zemberek project.
-Zemberek-NLP is a Natural Language Processing library that provides basic NLP tools for processing Turkish text.
+Here is the the new home of the Zemberek project. 
+Zemberek-NLP provides basic Natural Language Processing tools for Turkish text.
+Code and API is not compatible with earlier versions.
+Please note that **all code and APIs are subject to change drastically until version 1.0.0**
 
 Latest version is 0.10.0 (January 20th 2017)
-
-All code and API's are subject to change drastically until version 1.0.0 
 
 ## FAQ 
 
@@ -41,70 +41,69 @@ And dependecies (For example morphology):
 [Google docs page] (https://drive.google.com/#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8) page has versions and
 separate module and dependent jars.
 
-There is also a single jar file containing all zemberek modules available there.
+There is also a single jar file containing all zemberek modules available. Other dependencies (Like Guava) can be found there as well.
 
 ### Examples
 
 [Turkish-nlp-examples] (https://github.com/ahmetaa/turkish-nlp-examples)
 contains a maven java project with small usage examples.
 
-## Known Issues and Limitations
-- Project requires Java 8.
-- Currently word and sentence parse module operations generates parse graph with each initialization.
-So each run in the system takes some seconds. We will fix it in the next version with fast serialization of the parse graph.
-- Morphological parsing does not work for some obvious and frequent words.
-- Morphological disambiguation is working less accurate then expected.
-- Morphological generation may not work for some obvious Stem-Suffix combinations.
-- Please see issues section for further issues and feel free to create new ones.
-
 ## Modules
 
 ### Core (core)
 
 Core classes such as special Collection classes, Hash functions and helpers.
-Maven artifact id = core
+
+Maven artifact id : **core**
 
 ### Morphology (morphology)
 
-Turkish morphological parsing, disambiguation and generation.
-[Morphology Documentation] (https://github.com/ahmetaa/zemberek-nlp/tree/master/morphology)
+Turkish morphological parsing, disambiguation and generation. [Documentation] (https://github.com/ahmetaa/zemberek-nlp/tree/master/morphology)
 
-Maven artifact id = morphology
+Maven artifact id : **morphology**
 
 ### Tokenization
 
-Turkish Tokenization and sentence boundary detection. So far only rule based algorithms.
-[Tokenization Documentation] (https://github.com/ahmetaa/zemberek-nlp/tree/master/tokenization)
+Turkish Tokenization and sentence boundary detection. So far only rule based algorithms. [Documentation] (https://github.com/ahmetaa/zemberek-nlp/tree/master/tokenization)
 
-Maven artifact id = tokenization
+Maven artifact id : **tokenization**
 
 ### Hyphenation
 
 Turkish syllabification and hyphenation.
 
-Maven artifact id = hyphenation
+Maven artifact id : **hyphenation**
 
 ### Language Identification.
 
-[Textual language identification.] (https://github.com/ahmetaa/zemberek-nlp/tree/master/lang-id)
+Allows fast identification of text language. [Documentation] (https://github.com/ahmetaa/zemberek-nlp/tree/master/lang-id)
 
-Maven artifact id = lang-id
+Maven artifact id : **lang-id**
 
 ### Language modelling
 
-For now only provides a language compression implementation.
+Only provides a language compression implementation. [Documentation] (https://github.com/ahmetaa/zemberek-nlp/tree/master/lm)
 
-[Language model compression] (https://github.com/ahmetaa/zemberek-nlp/tree/master/lm)
-
-Maven artifact id = lm
+Maven artifact id : **lm**
 
 ### Normalization
 
-So far only provides fast edit-distance dictionary matching.
+**Not yet finished**
+So far only provides fast edit-distance dictionary matching. [Documentation.] (https://github.com/ahmetaa/zemberek-nlp/tree/master/normalization)
 
-Maven artifact id = normalization
+Maven artifact id : **normalization**
+
+## Known Issues and Limitations
+- Project requires Java 8.
+- Currently word and sentence parse module operations generates parse graph with each initialization.
+So each run in the system takes some seconds. 
+- Morphological parsing does not work for some obvious and frequent words.
+- Morphological disambiguation is working less accurate then expected.
+- Morphological generation may not work for some obvious Stem-Suffix combinations.
+- Please see issues section for further issues and feel free to create new ones.
+
+## License
+Code is licensed under Apache License, Version 2.0
 
 ## Acknowledgements
 Please refer to contributors.txt file.
-
-Portions of this code has been developed in Tübitak BİLGEM's Speech and Language Technologies Laboratory.
