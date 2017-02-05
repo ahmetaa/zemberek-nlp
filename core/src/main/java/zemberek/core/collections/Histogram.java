@@ -23,7 +23,7 @@ public class Histogram<T> implements Iterable<T> {
     public Histogram(Map<T, Integer> countMap) {
         this.vector = new CountSet<>(countMap.size());
         for (T t : countMap.keySet()) {
-            this.vector.incrementByAmount(t, countMap.get(t));
+            this.vector.set(t, countMap.get(t));
         }
     }
 
