@@ -50,15 +50,15 @@ contains a maven java project with small usage examples.
 
 ## Modules
 
-### Core (core)
+### Core
 
 Core classes such as special Collection classes, Hash functions and helpers.
 
 Maven artifact id : **core**
 
-### Morphology (morphology)
+### Morphology
 
-Turkish morphological parsing, disambiguation and generation. [Documentation] (https://github.com/ahmetaa/zemberek-nlp/tree/master/morphology)
+Turkish morphological analysis, disambiguation and generation. [Documentation] (https://github.com/ahmetaa/zemberek-nlp/tree/master/morphology)
 
 Maven artifact id : **morphology**
 
@@ -88,7 +88,7 @@ Maven artifact id : **lm**
 
 ### Normalization
 
-**Not yet finished**
+**Not yet finished.**
 So far only provides fast edit-distance dictionary matching. [Documentation.] (https://github.com/ahmetaa/zemberek-nlp/tree/master/normalization)
 
 Maven artifact id : **normalization**
