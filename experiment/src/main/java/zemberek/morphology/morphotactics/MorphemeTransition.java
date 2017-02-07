@@ -18,7 +18,6 @@ public class MorphemeTransition {
 
     @Override
     public String toString() {
-        return id;
+        return "[" + id + ":" + from.id + "->" + to.id + "]";
     }
-
 }
