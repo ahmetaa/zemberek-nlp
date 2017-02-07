@@ -4,82 +4,146 @@ public class TurkishMorphotactics {
 
     //-------------- Morphemes ------------------------
 
-    Morpheme noun = morpheme("Noun");
+    Morpheme noun = new Morpheme("Noun");
 
-    // case suffixes
+    // Number-Person agreement.
 
-    Morpheme nom = morpheme("Nom");
-    Morpheme dat = morpheme("Dat");
+    // Third person singular suffix. "elma = apple"
+    Morpheme a3sg = new Morpheme("A3sg");
+    // Third person plural suffix. "elma-lar = apples"
+    Morpheme a3pl = new Morpheme("A3pl");
 
-    // possessive
+    // Possessive
 
-    Morpheme pnon = morpheme("Pnon");
-    Morpheme p1sg = morpheme("P1sg");
-    Morpheme p3sg = morpheme("P3sg");
+    // No possession suffix. This is not a real morpheme but adds information to analysis. "elma = apple"
+    Morpheme pnon = new Morpheme("Pnon");
+    // First person singular possession suffix.  "elma-m = my apple"
+    Morpheme p1sg = new Morpheme("P1sg");
+    // Third person singular possession suffix. "elma-sı = his/her apple"
+    Morpheme p3sg = new Morpheme("P3sg");
 
-    // Number-Person agreement
+    // Case suffixes
 
-    Morpheme a3sg = morpheme("A3sg");
-    Morpheme a1pl = morpheme("A1pl");
+    // Nominal case suffix. It has no surface form (no letters). "elma = apple"
+    Morpheme nom = new Morpheme("Nom");
+    // Dative case suffix. "elmaya = to apple"
+    Morpheme dat = new Morpheme("Dat");
 
     //-------------- States ------------------------
+    // _ST = Terminal state _SnT = Non Terminal State.
 
-    MorphemeState nounS = state(noun);
-
-    // case suffixes
-
-    MorphemeState nomS = state(nom);
-    MorphemeState datS = state(dat);
-
-    // possessive
-
-    MorphemeState pnonS = state(pnon);
-    MorphemeState p1sgS = state(p1sg);
-    MorphemeState p3sgS = state(p3sg);
+    MorphemeState noun_SnT = MorphemeState.nonTerminal("noun_SnT", noun);
 
     // Number-Person agreement
 
-    MorphemeState a3sgS = state(a3sg);
-    MorphemeState a1plS = state(a1pl);
+    MorphemeState a3sg_SnT = MorphemeState.nonTerminal("a3sg_SnT", a3sg);
+    MorphemeState a3pl_SnT = MorphemeState.nonTerminal("a3pl_SnT", a3pl);
 
-    // ------------- Transitions ---------------------------------
+    // possessive
 
-    MorphemeTransition nounS_a3sgS_eps = transition(nounS, a3sgS, ""); // ev-ε-?-?
+    MorphemeState pnon_SnT = MorphemeState.nonTerminal("pnon_SnT", pnon);
+    MorphemeState p1sg_SnT = MorphemeState.nonTerminal("p1sg_SnT", p1sg);
+    MorphemeState p3sg_SnT = MorphemeState.nonTerminal("p3sg_SnT", p3sg);
 
-    MorphemeTransition a3sgS_pnonS_eps = transition(a3sgS, pnonS, ""); // ev-ε-ε-?
-    MorphemeTransition a3sgS_p1sgS_Im = transition(a3sgS, p1sgS, "+Im"); //ev-ε-im oda-ε-m
-    MorphemeTransition a3sgS_p1sgS_yum = transition(a3sgS, p1sgS, "yum"); //su-ε-yum. Only for "su"
-    MorphemeTransition a3sgS_p3sgS_sI = transition(a3sgS, p3sgS, "+sI"); //ev-ε-i oda-ε-sı
+    // case suffixes
 
-    MorphemeTransition a1plS_pnonS_lAr = transition(a1plS, pnonS, "lAr"); // ev-ler-ε-?
-    MorphemeTransition a1plS_p1sgS_Im = transition(a1plS, p1sgS, "Im"); //ev-ler-im oda-lar-ım
-    MorphemeTransition a1plS_p3sgS_I = transition(a1plS, p3sgS, "I"); //ev-ler-i oda-lar-ı
+    MorphemeState nom_ST = MorphemeState.terminal("nom_ST", nom);
+    MorphemeState nom_SnT = MorphemeState.nonTerminal("nom_SnT", nom);
+    MorphemeState dat_ST = MorphemeState.terminal("dat_ST", dat);
 
-    MorphemeTransition pnonS_nomS_eps = transition(pnonS, nomS, ""); //ev-?-ε-ε (ev, evler)
-    MorphemeTransition pnonS_datS_yA = transition(pnonS, datS, "+yA"); //ev-?-ε-e (eve, evlere)
-    MorphemeTransition pnonS_datS_eps = transition(pnonS, datS, ""); //içeri-ε-ε (Only for some words)
+    /**
+     * Turkish Nouns always have Noun-Person-Possession-Case morphemes.
+     * Even there are no suffix characters.
+     * elma -> Noun:elma - A3sg:ε - Pnon:ε - Nom:ε (Third person singular, No possession, Nominal Case)
+     */
+    public void addNounTransitions() {
 
-    MorphemeTransition p1sgS_nomS_eps = transition(p1sgS, nomS, ""); //ev-?-im-ε (evim, evlerim)
-    MorphemeTransition p1sgS_datS_yA = transition(p1sgS, datS, "A"); //ev-?-im-e (evime, evlerime)
+        // ev-ε-?-?
+        noun_SnT.newTransition(a3sg_SnT).empty().build();
 
-    MorphemeTransition p3sgS_nomS_eps = transition(p3sgS, nomS, ""); //ev-?-i-ε (evi, evleri)
-    MorphemeTransition p3sgS_datS_yA = transition(p3sgS, datS, "+nA"); //ev-?-i-ne (evine, evlerine)
+        // ev-ler-?-?. Rejects inputs like "kitab-lar, burn-lar"
+        noun_SnT.newTransition(a3pl_SnT)
+                .surfaceTemplate("lAr")
+                .addRule(Rules.rejectAny("vowel-expecting"))
+                .build();
 
-    private static MorphemeState state(String id, Morpheme morpheme) {
-        return new MorphemeState(id, morpheme);
+        // ev-ε-ε-?
+        a3sg_SnT.newTransition(pnon_SnT).empty().build();
+
+        // ev-ε-im oda-ε-m
+        a3sg_SnT.newTransition(p1sg_SnT)
+                .surfaceTemplate("+Im")
+                .addRule(Rules.rejectOnly("su-root"))
+                .build();
+
+        // su-ε-yum. Only for "su"
+        a3sg_SnT.newTransition(p1sg_SnT)
+                .surfaceTemplate("+yum")
+                .addRule(Rules.allowOnly("su-root"))
+                .build();
+
+        // ev-ε-i oda-ε-sı
+        a3sg_SnT.newTransition(p3sg_SnT)
+                .surfaceTemplate("+sI")
+                .addRule(Rules.rejectOnly("su-root"))
+                .build();
+
+        // su-ε-yu. Only for "su"
+        a3sg_SnT.newTransition(p3sg_SnT)
+                .surfaceTemplate("yu")
+                .addRule(Rules.allowOnly("su-root"))
+                .build();
+
+        // ev-ler-ε-?
+        a3pl_SnT.newTransition(pnon_SnT).empty().build();
+
+        // ev-ler-im-?
+        a3pl_SnT.newTransition(p1sg_SnT).surfaceTemplate("Im").build();
+
+        // ev-ler-i oda-lar-ı
+        a3pl_SnT.newTransition(pnon_SnT).surfaceTemplate("I").build();
+
+        // ev-?-ε-ε (ev, evler)
+        pnon_SnT.newTransition(nom_ST)
+                .empty()
+                .addRule(Rules.rejectAny("vowel-expecting"))
+                .build();
+
+        // This is for blocking inputs like "kitab". Here because nominal case state is non terminal (nom_SnT)
+        // analysis path will fail.
+        pnon_SnT.newTransition(nom_SnT)
+                .empty()
+                .addRule(Rules.allowOnly("vowel-expecting"))
+                .build();
+
+        // ev-?-ε-e (eve, evlere)
+        pnon_SnT.newTransition(dat_ST).surfaceTemplate("+yA").build();
+
+        // This transition is for words like "içeri" or "dışarı". Those words implicitly contains Dative suffix.
+        // it is also possible to add explicit dative suffix to those words.
+        pnon_SnT.newTransition(dat_ST)
+                .empty()
+                .addRule(Rules.allowOnly("implicit-dative"))
+                .build();
+
+        // ev-?-im-ε (evim, evlerim)
+        p1sg_SnT.newTransition(nom_ST).empty().build();
+
+        // ev-?-im-e (evime, evlerime)
+        p1sg_SnT.newTransition(dat_ST).surfaceTemplate("A").build();
+
+        //ev-?-i-ε (evi, evleri)
+        p3sg_SnT.newTransition(nom_SnT).empty().build();
+
+        p3sg_SnT.newTransition(dat_ST).surfaceTemplate("+nA").build();
     }
 
-    private static MorphemeState state(Morpheme morpheme) {
-        return new MorphemeState(morpheme.id + "S", morpheme);
+    public TurkishMorphotactics() {
+        addNounTransitions();
     }
 
-
-    private static Morpheme morpheme(String id) {
-        return new Morpheme(id);
-    }
-
-    private static MorphemeTransition transition(MorphemeState from, MorphemeState to, String format) {
-        return new MorphemeTransition(from, to, format);
+    public static void main(String[] args) {
+        TurkishMorphotactics tm = new TurkishMorphotactics();
     }
 
 }
