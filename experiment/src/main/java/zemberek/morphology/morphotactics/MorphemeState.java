@@ -6,11 +6,13 @@ import java.util.List;
 
 public class MorphemeState {
 
-    String id;
+    final Morpheme morpheme;
+    final String id;
     List<MorphemeTransition> outgoing = new ArrayList<>();
     List<MorphemeTransition> incoming = new ArrayList<>();
 
-    public MorphemeState(String id) {
+    public MorphemeState(String id, Morpheme morpheme) {
+        this.morpheme = morpheme;
         this.id = id;
     }
 
