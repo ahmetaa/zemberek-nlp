@@ -3,6 +3,7 @@ package zemberek.core.collections;
 
 import com.google.common.base.Stopwatch;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -96,6 +97,7 @@ public class FixedBitVectorTest {
     }
 
     @Test
+    @Ignore("Not a test.")
     public void performanceTest() {
         int itCount = 5;
         Random rnd = new Random(0xbeefcafe);
