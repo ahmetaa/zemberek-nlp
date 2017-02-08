@@ -32,24 +32,24 @@ public class TurkishMorphotactics {
     //-------------- States ------------------------
     // _ST = Terminal state _SnT = Non Terminal State.
 
-    MorphemeState noun_SnT = MorphemeState.nonTerminal("noun_SnT", noun);
+    LexicalState noun_SnT = LexicalState.nonTerminal("noun_SnT", noun);
 
     // Number-Person agreement
 
-    MorphemeState a3sg_SnT = MorphemeState.nonTerminal("a3sg_SnT", a3sg);
-    MorphemeState a3pl_SnT = MorphemeState.nonTerminal("a3pl_SnT", a3pl);
+    LexicalState a3sg_SnT = LexicalState.nonTerminal("a3sg_SnT", a3sg);
+    LexicalState a3pl_SnT = LexicalState.nonTerminal("a3pl_SnT", a3pl);
 
     // Possessive
 
-    MorphemeState pnon_SnT = MorphemeState.nonTerminal("pnon_SnT", pnon);
-    MorphemeState p1sg_SnT = MorphemeState.nonTerminal("p1sg_SnT", p1sg);
-    MorphemeState p3sg_SnT = MorphemeState.nonTerminal("p3sg_SnT", p3sg);
+    LexicalState pnon_SnT = LexicalState.nonTerminal("pnon_SnT", pnon);
+    LexicalState p1sg_SnT = LexicalState.nonTerminal("p1sg_SnT", p1sg);
+    LexicalState p3sg_SnT = LexicalState.nonTerminal("p3sg_SnT", p3sg);
 
     // Case suffixes
 
-    MorphemeState nom_ST = MorphemeState.terminal("nom_ST", nom);
-    MorphemeState nom_SnT = MorphemeState.nonTerminal("nom_SnT", nom);
-    MorphemeState dat_ST = MorphemeState.terminal("dat_ST", dat);
+    LexicalState nom_ST = LexicalState.terminal("nom_ST", nom);
+    LexicalState nom_SnT = LexicalState.nonTerminal("nom_SnT", nom);
+    LexicalState dat_ST = LexicalState.terminal("dat_ST", dat);
 
     /**
      * Turkish Nouns always have Noun-Person-Possession-Case morphemes.
