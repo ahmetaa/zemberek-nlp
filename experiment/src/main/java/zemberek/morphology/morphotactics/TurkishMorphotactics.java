@@ -29,6 +29,11 @@ public class TurkishMorphotactics {
     // Dative case suffix. "elmaya = to apple"
     Morpheme dat = new Morpheme("Dat");
 
+    // Derivation suffixes
+
+    // Diminutive suffix. Noun to Noun conversion. "elmacık = small apple, poor apple"
+    Morpheme dim = new Morpheme("Dim");
+
     //-------------- States ------------------------
     // _ST = Terminal state _SnT = Non Terminal State.
 
@@ -45,11 +50,15 @@ public class TurkishMorphotactics {
     LexicalState p1sg_SnT = LexicalState.nonTerminal("p1sg_SnT", p1sg);
     LexicalState p3sg_SnT = LexicalState.nonTerminal("p3sg_SnT", p3sg);
 
-    // Case suffixes
+    // Case
 
     LexicalState nom_ST = LexicalState.terminal("nom_ST", nom);
     LexicalState nom_SnT = LexicalState.nonTerminal("nom_SnT", nom);
     LexicalState dat_ST = LexicalState.terminal("dat_ST", dat);
+
+    // Derivation
+
+    LexicalState dim_SnT = LexicalState.nonTerminal("dim_SnT", dim);
 
     /**
      * Turkish Nouns always have Noun-Person-Possession-Case morphemes.
@@ -109,6 +118,14 @@ public class TurkishMorphotactics {
                 .addRule(Rules.rejectAny("vowel-expecting"))
                 .build();
 
+        // ev-ε-ε-ε-cik (evcik)
+        // TODO: add morpheme rules.
+        pnon_SnT.newTransition(dim_SnT)
+                .surfaceTemplate(">cI~k")
+                .addRule(Rules.rejectAny("vowel-expecting"))
+                .build();
+
+
         // This is for blocking inputs like "kitab". Here because nominal case state is non terminal (nom_SnT)
         // analysis path will fail.
         pnon_SnT.newTransition(nom_SnT)
@@ -137,6 +154,9 @@ public class TurkishMorphotactics {
 
         //ev-?-i-ε (evine, evlerine)
         p3sg_SnT.newTransition(dat_ST).surfaceTemplate("nA").build();
+
+
+
     }
 
     public TurkishMorphotactics() {
