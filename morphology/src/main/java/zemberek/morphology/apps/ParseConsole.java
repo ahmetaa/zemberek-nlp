@@ -58,16 +58,9 @@ public class ParseConsole {
 
 
     public static void main(String[] args) throws IOException {
-        TurkishSuffixes suffixes = new TurkishSuffixes();
-        RootLexicon lexicon = addTextDictionaryResources(suffixes,
-                TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.toArray(
-                new String[TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.size()]));
-        System.out.println(lexicon.size());
-        Scanner sc = new Scanner(System.in);
-        sc.nextLine();
         // to test the development lexicon, use ParseConsoleTest
-        //TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+        TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
         //morphology.getGraph().stats();
-        //new ParseConsole().run(morphology);
+        new ParseConsole().run(morphology);
     }
 }

@@ -6,16 +6,15 @@ import zemberek.core.logging.Log;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Transition {
+public class LexicalTransition {
 
-    MorphemeState from;
-    MorphemeState to;
+    LexicalState from;
+    LexicalState to;
     // this string represents the possible surface forms for this transition.
-    // there
     String surfaceTemplate;
     Set<Rule> rules;
 
-    private Transition(Builder builder) {
+    private LexicalTransition(Builder builder) {
         Preconditions.checkNotNull(builder.from);
         Preconditions.checkNotNull(builder.to);
         Preconditions.checkNotNull(builder.surfaceTemplate);
@@ -32,12 +31,12 @@ public class Transition {
     }
 
     public static class Builder {
-        MorphemeState from;
-        MorphemeState to;
+        LexicalState from;
+        LexicalState to;
         String surfaceTemplate;
         Set<Rule> rules = new HashSet<>();
 
-        public Builder from(MorphemeState from) {
+        public Builder from(LexicalState from) {
             checkIfDefined(this.from, "from");
             this.from = from;
             return this;
@@ -49,7 +48,7 @@ public class Transition {
                     "[%s = %s] is already defined.", name, o);
         }
 
-        public Builder to(MorphemeState to) {
+        public Builder to(LexicalState to) {
             checkIfDefined(this.to, "to");
             this.to = to;
             return this;
@@ -82,8 +81,8 @@ public class Transition {
             return this;
         }
 
-        Transition build() {
-            return new Transition(this);
+        LexicalTransition build() {
+            return new LexicalTransition(this);
         }
     }
 
