@@ -39,13 +39,13 @@ public class TurkishMorphotactics {
     MorphemeState a3sg_SnT = MorphemeState.nonTerminal("a3sg_SnT", a3sg);
     MorphemeState a3pl_SnT = MorphemeState.nonTerminal("a3pl_SnT", a3pl);
 
-    // possessive
+    // Possessive
 
     MorphemeState pnon_SnT = MorphemeState.nonTerminal("pnon_SnT", pnon);
     MorphemeState p1sg_SnT = MorphemeState.nonTerminal("p1sg_SnT", p1sg);
     MorphemeState p3sg_SnT = MorphemeState.nonTerminal("p3sg_SnT", p3sg);
 
-    // case suffixes
+    // Case suffixes
 
     MorphemeState nom_ST = MorphemeState.terminal("nom_ST", nom);
     MorphemeState nom_SnT = MorphemeState.nonTerminal("nom_SnT", nom);
@@ -120,7 +120,7 @@ public class TurkishMorphotactics {
         pnon_SnT.newTransition(dat_ST).surfaceTemplate("+yA").build();
 
         // This transition is for words like "içeri" or "dışarı". Those words implicitly contains Dative suffix.
-        // it is also possible to add explicit dative suffix to those words.
+        // it is also possible to add explicit dative suffix to those words such as "içeri-ye".
         pnon_SnT.newTransition(dat_ST)
                 .empty()
                 .addRule(Rules.allowOnly("implicit-dative"))
@@ -135,7 +135,8 @@ public class TurkishMorphotactics {
         //ev-?-i-ε (evi, evleri)
         p3sg_SnT.newTransition(nom_SnT).empty().build();
 
-        p3sg_SnT.newTransition(dat_ST).surfaceTemplate("+nA").build();
+        //ev-?-i-ε (evine, evlerine)
+        p3sg_SnT.newTransition(dat_ST).surfaceTemplate("nA").build();
     }
 
     public TurkishMorphotactics() {
