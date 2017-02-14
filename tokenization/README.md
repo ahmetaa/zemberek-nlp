@@ -23,7 +23,7 @@ After that, three methods can be used for extracting sentences from a paragraph,
     
 If input contains line breaks, fromDocument() method should be used.
 fromParagraph() method will not split sentences from
- line breaks. fromDocument() method will first split input from line breaks to sentences
+ line breaks. fromDocument() method will first split input from line breaks to paragraphs
  then call fromParagraphs() internally.
  
     String input = "Merhaba\nNasılsınız?";
