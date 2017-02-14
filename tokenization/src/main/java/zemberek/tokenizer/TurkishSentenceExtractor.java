@@ -1,5 +1,6 @@
 package zemberek.tokenizer;
 
+import com.google.common.base.Splitter;
 import com.google.common.io.Resources;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.UIntSet;
@@ -11,33 +12,61 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * This class is used for extracting sentences from paragraphs.
  * For making boundary decisions it uses a combination of rules and a binary averaged perceptron model.
  * It only breaks from [.!?] symbols.
  * It does not break from line break characters. Therefore input should not contain line breaks.
+ * <p>
+ * Use the static DEFAULT singleton for the TurkishSentenceExtractor instance that uses the extraction model.
  */
-public class TurkishSentenceExtractor extends PerceptronSegmenter implements SentenceExtractor {
+public class TurkishSentenceExtractor extends PerceptronSegmenter {
 
     static final String BOUNDARY_CHARS = ".!?";
+
+    /**
+     * A singleton instance that is generated from the default internal model.
+     */
+    public static final TurkishSentenceExtractor DEFAULT = Singleton.Instance.extractor;
+
+    private enum Singleton {
+        Instance;
+        TurkishSentenceExtractor extractor;
+
+        Singleton() {
+            try {
+                extractor = fromDefaultModel();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     private TurkishSentenceExtractor(FloatValueMap<String> weights) {
         this.weights = weights;
     }
 
-    @Override
-    public List<String> extract(List<String> paragraphs) {
+    /**
+     * Extracts sentences from a list if paragraph strings.
+     * This method does not split from line breaks assuming paragraphs do not contain line breaks.
+     * <p>
+     * If content contains line breaks, use {@link #fromDocument(String)}
+     *
+     * @param paragraphs a String List representing multiple paragraphs.
+     * @return a list of String representing sentences.
+     */
+    public List<String> fromParagraphs(Collection<String> paragraphs) {
         List<String> result = new ArrayList<>();
         for (String paragraph : paragraphs) {
-            result.addAll(extract(paragraph));
+            result.addAll(fromParagraph(paragraph));
         }
         return result;
     }
 
-    @Override
-    public List<String> extract(String paragraph) {
-        List<String> sentences = new ArrayList<>();
+    private List<Span> extractToSpans(String paragraph) {
+        List<Span> spans = new ArrayList<>();
         int begin = 0;
         for (int j = 0; j < paragraph.length(); j++) {
             // skip if char cannot be a boundary char.
@@ -54,19 +83,57 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter implements Sen
                 score += weights.get(feature);
             }
             if (score > 0) {
-                String sentence = paragraph.substring(begin, j + 1).trim();
-                if (sentence.length() > 0) {
-                    sentences.add(sentence);
+                Span span = new Span(begin, j + 1);
+                if (span.length() > 0) {
+                    spans.add(span);
                 }
                 begin = j + 1;
             }
         }
 
         if (begin < paragraph.length()) {
-            String remaining = paragraph.substring(begin, paragraph.length()).trim();
-            sentences.add(remaining);
+            Span span = new Span(begin, paragraph.length());
+            if (span.length() > 0) {
+                spans.add(span);
+            }
+        }
+        return spans;
+    }
+
+    /**
+     * Extracts sentences from a paragraph string. This method does not split from line breaks assuming paragraphs
+     * do not contain line breaks.
+     * <p>
+     * If content contains line breaks, use {@link #fromDocument(String)}
+     *
+     * @param paragraph a String representing a paragraph of text.
+     * @return a list of String representing sentences.
+     */
+    public List<String> fromParagraph(String paragraph) {
+        List<Span> spans = extractToSpans(paragraph);
+        List<String> sentences = new ArrayList<>(spans.size());
+        for (Span span : spans) {
+            String sentence = span.getSubstring(paragraph).trim();
+            if (sentence.length() > 0) {
+                sentences.add(sentence);
+            }
         }
         return sentences;
+    }
+
+    private static final Pattern LINE_BREAK_PATTERN = Pattern.compile("[\n\r]+");
+
+    /**
+     * Extracts sentences from a string that represents a document text.
+     * This method first splits the String from line breaks to paragraphs. After that it calls
+     * {@link #fromParagraphs(Collection)} for extracting sentences from multiple paragraphs.
+     *
+     * @param document a String List representing a complete document's text content.
+     * @return a list of String representing sentences.
+     */
+    public List<String> fromDocument(String document) {
+        List<String> lines = Splitter.on(LINE_BREAK_PATTERN).splitToList(document);
+        return fromParagraphs(lines);
     }
 
     public char[] getBoundaryCharacters() {
@@ -79,7 +146,7 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter implements Sen
         }
     }
 
-    public static TurkishSentenceExtractor fromInternalModel() throws IOException {
+    private static TurkishSentenceExtractor fromDefaultModel() throws IOException {
         try (DataInputStream dis = IOUtil.getDataInputStream(
                 Resources.getResource("tokenizer/sentence-boundary-model.bin").openStream())) {
             return new TurkishSentenceExtractor(load(dis));

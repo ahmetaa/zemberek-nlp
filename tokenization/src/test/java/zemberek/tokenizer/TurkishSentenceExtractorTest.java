@@ -15,8 +15,8 @@ public class TurkishSentenceExtractorTest {
     }
 
     @Test
-    public void initializationShouldNotThrowException() throws IOException {
-        SentenceExtractor extractor = TurkishSentenceExtractor.fromInternalModel();
+    public void singletonAccessShouldNotThrowException() throws IOException {
+        TurkishSentenceExtractor.DEFAULT.fromParagraph("hello");
     }
 
     @Test
@@ -24,8 +24,7 @@ public class TurkishSentenceExtractorTest {
         String test = "Merhaba Dünya.| Nasılsın?";
         List<String> expected = getSentences(test);
 
-        SentenceExtractor extractor = TurkishSentenceExtractor.fromInternalModel();
-        Assert.assertEquals(expected, extractor.extract(test.replace("|", "")));
+        Assert.assertEquals(expected, TurkishSentenceExtractor.DEFAULT.fromParagraph(test.replace("|", "")));
     }
 
     @Test
@@ -33,57 +32,69 @@ public class TurkishSentenceExtractorTest {
         String test = "Merhaba Dünya.";
         List<String> expected = getSentences(test);
 
-        SentenceExtractor extractor = TurkishSentenceExtractor.fromInternalModel();
-        Assert.assertEquals(expected, extractor.extract(test.replace("|", "")));
+        Assert.assertEquals(expected, TurkishSentenceExtractor.DEFAULT.fromParagraph(test.replace("|", "")));
     }
 
     @Test
-    public void shouldExtractSentencesSecondDoesNotendWithDot() throws IOException {
+    public void shouldExtractSentencesSecondDoesNotEndWithDot() throws IOException {
         String test = "Merhaba Dünya.| Nasılsın";
         List<String> expected = getSentences(test);
 
-        SentenceExtractor extractor = TurkishSentenceExtractor.fromInternalModel();
-        Assert.assertEquals(expected, extractor.extract(test.replace("|", "")));
+        Assert.assertEquals(expected, TurkishSentenceExtractor.DEFAULT.fromParagraph(test.replace("|", "")));
     }
 
     @Test
     public void shouldReturnDotForDot() throws IOException {
         List<String> expected = getSentences(".");
-        SentenceExtractor extractor = TurkishSentenceExtractor.fromInternalModel();
-        Assert.assertEquals(expected, extractor.extract("."));
+        Assert.assertEquals(expected, TurkishSentenceExtractor.DEFAULT.fromParagraph("."));
     }
 
     @Test
     public void shouldReturn0ForEmpty() throws IOException {
-        SentenceExtractor extractor = TurkishSentenceExtractor.fromInternalModel();
-        Assert.assertEquals(0, extractor.extract("").size());
+        Assert.assertEquals(0, TurkishSentenceExtractor.DEFAULT.fromParagraph("").size());
     }
 
-    private String markBoundaries(String input) throws IOException {
-        SentenceExtractor extractor = TurkishSentenceExtractor.fromInternalModel();
-        List<String> list = extractor.extract(input);
+    @Test
+    public void extractFromDocument() throws IOException {
+        Assert.assertEquals("Merhaba!|Bugün 2. köprü Fsm.'de trafik vardı.|değil mi?",
+                markBoundariesDocument("Merhaba!\n Bugün 2. köprü Fsm.'de trafik vardı.değil mi?\n"));
+        Assert.assertEquals("Ali|gel.",
+                markBoundariesDocument("Ali\n\n\rgel.\n"));
+        Assert.assertEquals("Ali gel.|Merhaba|Ne haber?",
+                markBoundariesDocument("\n\nAli gel. Merhaba\n\rNe haber?"));
+
+    }
+
+    private String markBoundariesDocument(String input) throws IOException {
+        List<String> list = TurkishSentenceExtractor.DEFAULT.fromDocument(input);
+        return Joiner.on("|").join(list);
+    }
+
+
+    private String markBoundariesParagraph(String input) throws IOException {
+        List<String> list = TurkishSentenceExtractor.DEFAULT.fromParagraph(input);
         return Joiner.on("|").join(list);
     }
 
     @Test
     public void testSimpleSentence() throws IOException {
         Assert.assertEquals("Merhaba!|Bugün 2. köprü Fsm.'de trafik vardı.|değil mi?",
-                markBoundaries("Merhaba! Bugün 2. köprü Fsm.'de trafik vardı.değil mi?"));
+                markBoundariesParagraph("Merhaba! Bugün 2. köprü Fsm.'de trafik vardı.değil mi?"));
         Assert.assertEquals("Prof. Dr. Veli Zambur %2.5 lik enflasyon oranini begenmemis!",
-                markBoundaries("Prof. Dr. Veli Zambur %2.5 lik enflasyon oranini begenmemis!"));
+                markBoundariesParagraph("Prof. Dr. Veli Zambur %2.5 lik enflasyon oranini begenmemis!"));
         Assert.assertEquals("Ali gel.",
-                markBoundaries("Ali gel."));
+                markBoundariesParagraph("Ali gel."));
         Assert.assertEquals("Ali gel.|Okul acildi!",
-                markBoundaries("Ali gel. Okul acildi!"));
+                markBoundariesParagraph("Ali gel. Okul acildi!"));
         Assert.assertEquals("Ali gel.|Okul acildi!",
-                markBoundaries("Ali gel. Okul acildi!"));
+                markBoundariesParagraph("Ali gel. Okul acildi!"));
         Assert.assertEquals("Ali gel...|Okul acildi.",
-                markBoundaries("Ali gel... Okul acildi."));
+                markBoundariesParagraph("Ali gel... Okul acildi."));
         Assert.assertEquals("Tam 1.000.000 papeli cebe atmislar...",
-                markBoundaries("Tam 1.000.000 papeli cebe atmislar..."));
+                markBoundariesParagraph("Tam 1.000.000 papeli cebe atmislar..."));
         Assert.assertEquals("16. yüzyılda?|Dr. Av. Blah'a gitmiş.",
-                markBoundaries("16. yüzyılda? Dr. Av. Blah'a gitmiş."));
+                markBoundariesParagraph("16. yüzyılda? Dr. Av. Blah'a gitmiş."));
         Assert.assertEquals("Ali gel.|Okul açıldı...|sınavda 2. oldum.",
-                markBoundaries("Ali gel. Okul açıldı... sınavda 2. oldum."));
+                markBoundariesParagraph("Ali gel. Okul açıldı... sınavda 2. oldum."));
     }
 }

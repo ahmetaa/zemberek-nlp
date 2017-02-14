@@ -33,11 +33,10 @@ public class SentenceExtractionComparison {
 
         Log.info(" \n---------------- Zemberek ------------------\n");
 
-        TurkishSentenceExtractor extractor = TurkishSentenceExtractor.fromInternalModel();
-        evaluate(testSentences, extractor);
+        evaluate(testSentences, new TurkishSentenceExtractorAdapter());
 
         Log.info(" \n---------------- OpenNlp ------------------\n");
-        SentenceExtractor openNlpAdapter = new OpenNlpAdapter(Paths.get("/home/ahmetaa/Downloads/tr-sent.bin"));
+        SentenceExtractor openNlpAdapter = new OpenNlpAdapter(Paths.get("/media/depo/data/aaa/tr-sent.bin"));
         evaluate(testSentences, openNlpAdapter);
     }
 
@@ -51,6 +50,28 @@ public class SentenceExtractionComparison {
                 .train();
         extractor.saveBinary(Paths.get("tokenization/src/main/resources/tokenizer/sentence-boundary-model.bin"));
     }
+
+    interface SentenceExtractor {
+        List<String> extract(String paragraph);
+
+        List<String> extract(List<String> paragraphs);
+    }
+
+    static class TurkishSentenceExtractorAdapter implements SentenceExtractor {
+
+        TurkishSentenceExtractor sentenceDetector = TurkishSentenceExtractor.DEFAULT;
+
+        @Override
+        public List<String> extract(String paragraph) {
+            return sentenceDetector.fromParagraph(paragraph);
+        }
+
+        @Override
+        public List<String> extract(List<String> paragraphs) {
+            return sentenceDetector.fromParagraphs(paragraphs);
+        }
+    }
+
 
     static class OpenNlpAdapter implements SentenceExtractor {
 
@@ -90,7 +111,7 @@ public class SentenceExtractionComparison {
         List<String> foundSentences = detector.extract(joinedSentence);
         long elapsed = sw.elapsed(TimeUnit.MILLISECONDS);
         Log.info("Extraction Elapsed: %d ms", elapsed);
-        Log.info("Speed: %.2f sentences per second", referenceSentences.size() *1000d / elapsed);
+        Log.info("Speed: %.2f sentences per second", referenceSentences.size() * 1000d / elapsed);
 
         // ---- Evaluation ------
         // separate each boundary token with space in all sentences.
@@ -162,8 +183,8 @@ public class SentenceExtractionComparison {
     public static void findCandidateTrainingSentences() throws IOException {
         Pattern p = Pattern.compile("[ ][a-zA-ZişüğıöçÜĞÖİŞÇ0-9,.'\\-%]+[.!?]+[ ]");
         List<String> input = Files.readAllLines(Paths.get("/media/depo/data/aaa/nlp/sentences/k/2017-01-04"));
-        TurkishSentenceExtractor extractor = TurkishSentenceExtractor.fromInternalModel();
-        List<String> extracted = extractor.extract(input);
+        TurkishSentenceExtractor extractor = TurkishSentenceExtractor.DEFAULT;
+        List<String> extracted = extractor.fromParagraphs(input);
         List<String> foo = extracted
                 .stream()
                 .filter(s -> Regexps.matchesAny(p, s) && s.length() < 150)

@@ -5,20 +5,32 @@ Turkish Tokenization
 
 ### Usage
 
-Zemberek provides a mechanism for extracting sentences from a paragraph of text. This is usually the first step
- for an NLP application. TurkishSentenceExtractor class is used for this. This class uses 
+Zemberek provides a mechanism for extracting sentences from text. This is usually the first step
+ for an NLP application. TurkishSentenceExtractor class is used for this purpose. This class uses 
  a combination of simple rules and a Binary Averaged Perceptron model for finding 
- sentence boundaries. Here is how to instantiate the class:
+ sentence boundaries. For default behavior, a singleton instance is provided:
  
-    TurkishSentenceExtractor extractor = TurkishSentenceExtractor.fromInternalModel();
+    TurkishSentenceExtractor extractor = TurkishSentenceExtractor.DEFAULT;
 
-After that, two methods can be used for extracting sentences from a paragraph or a list
-     of paragraphs:
+After that, three methods can be used for extracting sentences from a paragraph, a list
+     of paragraphs or a String representing a document.
+      For extracting sentences from a paragraph :
 
     String input = "Merhaba! Bugün 2. köprü Fsm.'de trafik vardı.değil mi?";     
-    List<String> sentences = extractor.extract(input);
+    List<String> sentences = extractor.fromParagraph(input);
 
     sentences -> "Merhaba!", "Bugün 2. köprü Fsm.'de trafik vardı.", "değil mi?"
+    
+If input contains line breaks, fromDocument() method should be used.
+fromParagraph() method will not split sentences from
+ line breaks. fromDocument() method will first split input from line breaks to paragraphs
+ then call fromParagraphs() internally.
+ 
+    String input = "Merhaba\nNasılsınız?";
+    List<String> sentences = extractor.fromDocument(input);        
+    
+    sentences -> "Merhaba", "Nasılsınız?"    
+ 
 
 ### Performance and speed
 
@@ -44,12 +56,10 @@ Open NLP model is provided by @sonerx
 
 ### Notes
 
-Sentence extractor;
-
-- only splits from [.!?] characters,
-- does not split from line breaks so input should not contain it,
-- will not split if a sentence ends with an abbreviation or a number,
-- will split narration sentences such as [Ali "topu at." dedi.]
+- Extracting from paragraphs only splits from [.!?] characters.
+- fromDocument method also splits from line breaks.
+- Class will not split if a sentence ends with an abbreviation or a number,
+- Narration sentences such as [Ali "topu at." dedi.] will be split.
 
 ## Word Tokenization
 
