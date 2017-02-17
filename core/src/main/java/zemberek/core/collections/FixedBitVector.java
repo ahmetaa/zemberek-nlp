@@ -18,7 +18,7 @@ public class FixedBitVector {
     }
 
     public FixedBitVector(int length) {
-        if(length<0)
+        if (length < 0)
             throw new IllegalArgumentException("Length cannot be negative. But it is:" + length);
         this.length = length;
         int wordCount = ((length + 31) >> 5);
@@ -67,7 +67,7 @@ public class FixedBitVector {
     public int numberOfNewOneBitCount(FixedBitVector other) {
         int total = 0;
         for (int i = 0; i < this.length; i++) {
-            if(!this.get(i) && other.get(i)) {
+            if (!this.get(i) && other.get(i)) {
                 total++;
             }
         }
@@ -77,7 +77,7 @@ public class FixedBitVector {
     public int differentBitCount(FixedBitVector other) {
         int total = 0;
         for (int i = 0; i < this.length; i++) {
-            if(this.get(i) != other.get(i)) {
+            if (this.get(i) != other.get(i)) {
                 total++;
             }
         }

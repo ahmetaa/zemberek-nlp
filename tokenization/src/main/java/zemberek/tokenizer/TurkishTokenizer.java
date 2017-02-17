@@ -36,17 +36,6 @@ class TurkishTokenizer extends PerceptronSegmenter implements Tokenizer {
         this.weights = weights;
     }
 
-    static class Span {
-
-        final int start;
-        final int end;
-
-        public Span(int start, int end) {
-            this.start = start;
-            this.end = end;
-        }
-    }
-
     private static Locale tr = new Locale("tr");
 
     private static final String TurkishLowerCase = "abcçdefgğhıijklmnoöprsştuüvyzxwq";
@@ -78,7 +67,7 @@ class TurkishTokenizer extends PerceptronSegmenter implements Tokenizer {
     }
 
     private List<Span> tokenizeSpan(String sentence) {
-        List<Span> tokens = new ArrayList<>();
+        List<Span> spans = new ArrayList<>();
 
         int tokenBegin = 0;
 
@@ -87,7 +76,7 @@ class TurkishTokenizer extends PerceptronSegmenter implements Tokenizer {
             char chr = sentence.charAt(j);
             if (Character.isWhitespace(chr)) {
                 if (tokenBegin < j) {
-                    tokens.add(new Span(tokenBegin, j));
+                    spans.add(new Span(tokenBegin, j));
                 }
                 tokenBegin = j;
                 continue;
@@ -95,33 +84,39 @@ class TurkishTokenizer extends PerceptronSegmenter implements Tokenizer {
             if (chr < singleTokenLookup.length && singleTokenLookup.get(chr)) {
                 // add previous token if available.
                 if (tokenBegin < j) {
-                    tokens.add(new Span(tokenBegin, j));
+                    spans.add(new Span(tokenBegin, j));
                 }
                 // add single symbol token.
-                tokens.add(new Span(j, j + 1));
+                spans.add(new Span(j, j + 1));
                 tokenBegin = j + 1;
                 continue;
             }
             if (chr < boundaryDesicionLookup.length && boundaryDesicionLookup.get(chr)) {
                 // TODO: make it work.
-                if (weights.get("foo") < 0) {
-                    if (tokenBegin < j) {
-                        tokens.add(new Span(tokenBegin, j));
+                BoundaryData data = new BoundaryData(sentence, j);
+                List<String> features = data.extractFeatures();
+                double score=0;
+                for (String feature : features) {
+                    score += weights.get(feature);
+                }
+                if (score > 0) {
+                    if (sentence.length() > 0) {
+                        spans.add(new Span(tokenBegin, j));
                     }
-                    tokenBegin = j;
+                    tokenBegin = j + 1;
                 }
             }
         }
         // add remaining token.
         if (tokenBegin < sentence.length()) {
-            tokens.add(new Span(tokenBegin, sentence.length()));
+            spans.add(new Span(tokenBegin, sentence.length()));
         }
-        return tokens;
+        return spans;
     }
 
     private List<String> tokenize(String sentence) {
-        List<String> tokens = new ArrayList<>();
         List<Span> spans = tokenizeSpan(sentence);
+        List<String> tokens = new ArrayList<>(spans.size());
         for (Span span : spans) {
             tokens.add(sentence.substring(span.start, span.end));
         }

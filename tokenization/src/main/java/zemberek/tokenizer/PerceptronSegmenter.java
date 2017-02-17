@@ -14,7 +14,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-public abstract class PerceptronSegmenter {
+abstract class PerceptronSegmenter {
+
     FloatValueMap<String> weights = new FloatValueMap<>();
 
     static Set<String> TurkishAbbreviationSet = new HashSet<>();
