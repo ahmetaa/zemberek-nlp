@@ -34,6 +34,10 @@ public class TurkishMorphotactics {
     // Diminutive suffix. Noun to Noun conversion. "elmacık = small apple, poor apple"
     Morpheme dim = new Morpheme("Dim");
 
+    // This will be used for some states that do not have actual morphemes.
+    Morpheme empty = new Morpheme("Empty");
+
+
     //-------------- States ------------------------
     // _ST = Terminal state _SnT = Non Terminal State.
 
@@ -137,7 +141,8 @@ public class TurkishMorphotactics {
         pnon_SnT.newTransition(dat_ST).surfaceTemplate("+yA").build();
 
         // This transition is for words like "içeri" or "dışarı". Those words implicitly contains Dative suffix.
-        // it is also possible to add explicit dative suffix to those words such as "içeri-ye".
+        // But It is also possible to add explicit dative suffix to those words such as "içeri-ye".
+
         pnon_SnT.newTransition(dat_ST)
                 .empty()
                 .addRule(Rules.allowOnly("implicit-dative"))
