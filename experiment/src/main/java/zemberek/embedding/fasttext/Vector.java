@@ -25,11 +25,25 @@ public class Vector {
         FloatArrays.scale(data_, a);
     }
 
-    public void addRow(Matrix A, int i, float a) {
+
+    void addRow(Matrix A, int i) {
+        assert(i >= 0);
+        assert(i < A.m_);
+        assert(m_ == A.n_);
+        for (int j = 0; j < A.n_; j++) {
+            data_[j] += A.data_[i * A.n_ + j];
+        }
+    }
+
+    void addRow(Matrix A, int i, float a) {
+        assert(i >= 0);
+        assert(i < A.m_);
+        assert(m_ == A.n_);
         for (int j = 0; j < A.n_; j++) {
             data_[j] += a * A.data_[i * A.n_ + j];
         }
     }
+
 
     public void mul(Matrix A, Vector vec) {
         for (int i = 0; i < m_; i++) {
