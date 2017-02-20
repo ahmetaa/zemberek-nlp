@@ -1,5 +1,7 @@
 package zemberek.embedding.fasttext;
 
+import zemberek.core.collections.DynamicIntArray;
+
 import java.util.*;
 
 public class Model {
@@ -46,8 +48,8 @@ public class Model {
     List<Integer> negatives = new ArrayList<>();
     int negpos;
     // used for hierarchical softmax:
-    List<List<Integer>> paths = new ArrayList<>();
-    List<List<Boolean>> codes = new ArrayList<>();
+    List<DynamicIntArray> paths = new ArrayList<>();
+    List<DynamicIntArray> codes = new ArrayList<>();
     Node[] tree;
 
     static final int NEGATIVE_TABLE_SIZE = 10000000;
@@ -108,10 +110,10 @@ public class Model {
     float hierarchicalSoftmax(int target, float lr) {
         float loss = 0.0f;
         grad_.zero();
-        List<Boolean> binaryCode = codes.get(target);
-        List<Integer> pathToRoot = paths.get(target);
+        DynamicIntArray binaryCode = codes.get(target);
+        DynamicIntArray pathToRoot = paths.get(target);
         for (int i = 0; i < pathToRoot.size(); i++) {
-            loss += binaryLogistic(pathToRoot.get(i), binaryCode.get(i), lr);
+            loss += binaryLogistic(pathToRoot.get(i), binaryCode.get(i) == 1, lr);
         }
         return loss;
     }
@@ -148,14 +150,13 @@ public class Model {
     }
 
     void computeHidden(int[] input, Vector hidden) {
-        assert(hidden.size() == hsz_);
+        assert (hidden.size() == hsz_);
         hidden.zero();
         for (int i : input) {
             hidden.addRow(wi_, i);
         }
         hidden.mul(1.0f / input.length);
     }
-
 
 
     void predict(int[] input, int k,
@@ -302,12 +303,12 @@ public class Model {
             tree[mini[1]].binary = true;
         }
         for (int i = 0; i < osz_; i++) {
-            List<Integer> path = new ArrayList<>();
-            List<Boolean> code = new ArrayList<>();
+            DynamicIntArray path = new DynamicIntArray();
+            DynamicIntArray code = new DynamicIntArray();
             int j = i;
             while (tree[j].parent != -1) {
                 path.add(tree[j].parent - osz_);
-                code.add(tree[j].binary);
+                code.add(tree[j].binary ? 1 : 0);
                 j = tree[j].parent;
             }
             paths.add(path);

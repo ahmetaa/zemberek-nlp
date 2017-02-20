@@ -139,12 +139,7 @@ public class Dictionary {
     // TODO: hash algorithm is slightly different. original uses unsigned integers
     // and loops through bytes.
     int hash(String str) {
-        int h = 0x811C_9DC5;
-        for (int i = 0; i < str.length(); i++) {
-            h = h ^ str.charAt(i);
-            h = h * 16777619;
-        }
-        return h & 0x7fff_ffff;
+        return hash(str, 0, str.length());
     }
 
     int hash(String str, int start, int end) {

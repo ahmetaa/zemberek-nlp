@@ -29,6 +29,14 @@ public class DynamicIntArray {
         size++;
     }
 
+    public void addAll(int[] arr) {
+        if (size + arr.length >= data.length) {
+            expand(arr.length);
+        }
+        System.arraycopy(arr, 0, data, size, arr.length);
+        size += arr.length;
+    }
+
     public int get(int index) {
         return data[index];
     }
@@ -58,13 +66,21 @@ public class DynamicIntArray {
     }
 
     private void expand() {
-        if (size == Integer.MAX_VALUE) {
+        expand(0);
+    }
+
+    public boolean isempty() {
+        return size == 0;
+    }
+
+    private void expand(int offset) {
+        if (size + offset >= Integer.MAX_VALUE) {
             throw new IllegalStateException("List size exceeded positive integer limit.");
         }
-        long newSize = size * 2L;
+        long newSize = size * 2L + offset;
         if (newSize > Integer.MAX_VALUE) {
             size = Integer.MAX_VALUE;
         }
-        data = Arrays.copyOf(data, size * 2);
+        data = Arrays.copyOf(data, (int) newSize);
     }
 }
