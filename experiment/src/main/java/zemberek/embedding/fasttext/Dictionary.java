@@ -304,7 +304,7 @@ public class Dictionary {
         }
     }
 
-    static SpaceTabTokenizer tokenizer = new SpaceTabTokenizer();
+    private static SpaceTabTokenizer tokenizer = new SpaceTabTokenizer();
 
     int getLine(
             String line,
@@ -313,9 +313,6 @@ public class Dictionary {
             Random random) {
 
         int ntokens = 0;
-        words = new DynamicIntArray();
-        labels = new DynamicIntArray();
-
         String[] tokens = tokenizer.split(line);
 
         for (String token : tokens) {
