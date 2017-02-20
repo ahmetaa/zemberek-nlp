@@ -75,7 +75,7 @@ public class BlockTextIterator implements Iterator<List<String>>, AutoCloseable 
         if (br != null) {
             int blockCounter = 0;
             String line;
-            currentBlock = new ArrayList<>();
+            currentBlock = new ArrayList<>(blockSize);
             while (blockCounter < blockSize) {
                 try {
                     line = br.readLine();

@@ -1,16 +1,20 @@
 package zemberek.embedding.fasttext;
 
 import zemberek.core.SpaceTabTokenizer;
+import zemberek.core.collections.DynamicIntArray;
+import zemberek.core.collections.Histogram;
+import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextIterator;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class Dictionary {
-
-    int id_type;
 
     public static final int TYPE_WORD = 0;
     public static final int TYPE_LABEL = 1;
@@ -45,6 +49,7 @@ public class Dictionary {
         nlabels_ = 0;
         ntokens_ = 0;
         word2int_ = new int[MAX_VOCAB_SIZE];
+        words_ = new ArrayList<>(1_000_000);
         Arrays.fill(word2int_, -1);
     }
 
@@ -61,19 +66,23 @@ public class Dictionary {
     }
 
     void add(String w) {
+        addWithCount(w, 1);
+    }
+
+    void addWithCount(String w, int count) {
         int h = find(w);
-        ntokens_++;
+        ntokens_ += count;
         // if this is an empty slot. add a new entry.
         if (word2int_[h] == -1) {
             Entry e = new Entry();
             e.word = w;
-            e.count = 1;
+            e.count = count;
             e.type = (w.startsWith(args_.label)) ? TYPE_LABEL : TYPE_WORD;
             words_.add(e);
             word2int_[h] = size_++;
         } else {
             // or increment the count.
-            words_.get(word2int_[h]).count++;
+            words_.get(word2int_[h]).count += count;
         }
     }
 
@@ -162,9 +171,8 @@ public class Dictionary {
      * ere, erek, erek_
      * rek, rek_,
      * ek_
-     *
+     * <p>
      * If wordId is not -1, wordId value is added to result[0]
-
      */
     int[] computeNgrams(String word, int wordId) {
 
@@ -180,11 +188,11 @@ public class Dictionary {
 
         int[] result;
         int counter;
-        if(wordId==-1) {
+        if (wordId == -1) {
             result = new int[size];
             counter = 0;
         } else {
-            result = new int[size+1];
+            result = new int[size + 1];
             result[0] = wordId;
             counter = 1;
         }
@@ -203,37 +211,141 @@ public class Dictionary {
 
     void initNgrams() {
         for (int i = 0; i < size_; i++) {
-            String  word = BOW + words_.get(i).word + EOW;
+            String word = BOW + words_.get(i).word + EOW;
             // adds the wordId to the n-grams as well.
             words_.get(i).subwords = computeNgrams(word, i);
         }
     }
 
-    void readFromFile(Path file) throws IOException {
+    static Dictionary readFromFile(Path file, Args args) throws IOException {
+
+        Log.info("Initialize dictionary and histograms.");
+        Dictionary dictionary = new Dictionary(args);
+        Histogram<String> wordCounts = new Histogram<>(1_000_000);
+        Histogram<String> labelCounts = new Histogram<>(100_000);
+
+        Log.info("Loading text.");
         BlockTextIterator iterator = new BlockTextIterator(file, 100_000);
         SpaceTabTokenizer tokenizer = new SpaceTabTokenizer();
-        while(iterator.hasNext()) {
+
+        int blockCounter = 1;
+
+        while (iterator.hasNext()) {
             List<String> lines = iterator.next();
             for (String line : lines) {
-                for(String word: tokenizer.split(line)) {
-                    add(word);
+                for (String word : tokenizer.split(line)) {
+                    if (word.startsWith(args.label)) {
+                        labelCounts.add(word);
+                    } else {
+                        wordCounts.add(word);
+                    }
                 }
             }
+            Log.info("Lines read: %d (thousands) ", blockCounter * 100);
+            blockCounter++;
         }
-        //TODO: finish.
-        //threshold(args_.minCount, args_.minCountLabel);
-        //initTableDiscard();
-        initNgrams();
+        Log.info("Word count = %d , Label count = %d", wordCounts.size(), labelCounts.size());
+        Log.info("Removing word and labels with small counts. Min word = %d, Min Label = %d",
+                args.minCount, args.minCountLabel);
+        // now we have the histograms. Remove based on count.
+        wordCounts.removeSmaller(args.minCount);
+        labelCounts.removeSmaller(args.minCountLabel);
+        Log.info("Word count = %d , Label count = %d", wordCounts.size(), labelCounts.size());
+        Log.info("Sort and add words and labels to dictionary.");
+        // add all, sort by count. first words, then labels.
+        for (String word : wordCounts.getSortedList()) {
+            dictionary.addWithCount(word, wordCounts.getCount(word));
+        }
+        for (String label : labelCounts.getSortedList()) {
+            dictionary.addWithCount(label, wordCounts.getCount(label));
+        }
+        dictionary.nwords_ = wordCounts.size();
+        dictionary.nlabels_ = labelCounts.size();
+        dictionary.size_ = dictionary.nwords_ + dictionary.nlabels_;
+        if (dictionary.size_ == 0) {
+            throw new IllegalStateException("Empty vocabulary.");
+        }
+        dictionary.initTableDiscard();
+        Log.info("Adding n-grams.");
+        dictionary.initNgrams();
+        Log.info("Done.");
+        return dictionary;
     }
 
-    public static void main(String[] args) {
+    void initTableDiscard() {
+        pdiscard_ = new float[size_];
+        for (int i = 0; i < size_; i++) {
+            float f = ((float) words_.get(i).count) / ntokens_;
+            pdiscard_[i] = (float) (Math.sqrt(args_.t / f) + args_.t / f);
+        }
+    }
+
+    int[] getCounts(int entry_type) {
+        int[] counts = entry_type == TYPE_WORD ? new int[nwords_] : new int[nlabels_];
+        int c = 0;
+        for (Entry entry : words_) {
+            if (entry.type == entry_type) {
+                counts[c] = entry.count;
+            }
+            c++;
+        }
+        return counts;
+    }
+
+    //TODO: change to java style.
+    void addNgrams(DynamicIntArray line, int n) {
+        int line_size = line.size();
+        for (int i = 0; i < line_size; i++) {
+            long h = line.get(i);
+            for (int j = i + 1; j < line_size && j < i + n; j++) {
+                h = h * 116049371 + line.get(j);
+                line.add((int) (nwords_ + (h % args_.bucket)));
+            }
+        }
+    }
+
+    static SpaceTabTokenizer tokenizer = new SpaceTabTokenizer();
+
+    int getLine(
+            String line,
+            DynamicIntArray words,
+            DynamicIntArray labels,
+            Random random) {
+
+        int ntokens = 0;
+        words = new DynamicIntArray();
+        labels = new DynamicIntArray();
+
+        String[] tokens = tokenizer.split(line);
+
+        for (String token : tokens) {
+            int wid = getId(token);
+            if (wid < 0) continue;
+            int type = getType(wid);
+            ntokens++;
+            if (type == TYPE_WORD && !discard(wid, random.nextFloat())) {
+                words.add(wid);
+            }
+            if (type == TYPE_LABEL) {
+                labels.add(wid - nwords_);
+            }
+            if (words.size() > MAX_LINE_SIZE && args_.model != Args.model_name.sup) {
+                break;
+            }
+        }
+        return ntokens;
+    }
+
+    String getLabel(int lid) {
+        assert (lid >= 0);
+        assert (lid < nlabels_);
+        return words_.get(lid + nwords_).word;
+    }
+
+    public static void main(String[] args) throws IOException {
         Args argz = new Args();
-        argz.minn = 3;
-        argz.maxn = 6;
-        argz.bucket = 20_000_000;
-        Dictionary dictionary = new Dictionary(argz);
-        dictionary.computeNgrams("_zebe_",-1);
+        Path path = Paths.get("/media/data/aaa/corpora/corpus-10M.txt");
+        Dictionary dictionary = readFromFile(path, argz);
     }
-
 
 }
