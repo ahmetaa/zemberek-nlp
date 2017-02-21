@@ -290,7 +290,7 @@ public class Dictionary {
         return counts;
     }
 
-    //TODO: change to java style.
+    //adds word level n-grams. for n=1 means uni-grams, no value is returned.
     void addNgrams(IntVector line, int n) {
         int line_size = line.size();
         for (int i = 0; i < line_size; i++) {

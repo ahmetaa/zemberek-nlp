@@ -42,8 +42,8 @@ public class Model {
     private int osz_;
     private float loss_;
     private long nexamples_;
-    private float[] t_sigmoid;
-    private float[] t_log;
+    private static float[] t_sigmoid;
+    private static float[] t_log;
     // used for negative sampling:
     private List<Integer> negatives = new ArrayList<>();
     private int negpos;
@@ -58,7 +58,12 @@ public class Model {
     private static final int MAX_SIGMOID = 8;
     private static final int LOG_TABLE_SIZE = 512;
 
-    Random random = new Random();
+    Random random;
+
+    static {
+        initLog();
+        initSigmoid();
+    }
 
     Model(Matrix wi,
           Matrix wo,
@@ -77,15 +82,15 @@ public class Model {
         negpos = 0;
         loss_ = 0.0f;
         nexamples_ = 1;
-        initSigmoid();
-        initLog();
     }
 
     float binaryLogistic(int target, boolean label, float lr) {
         float score = sigmoid(wo_.dotRow(hidden_, target));
         float alpha = lr * (label ? 1f : 0f - score);
         grad_.addRow(wo_, target, alpha);
-        wo_.addRow(hidden_, target, alpha);
+        synchronized (this) {
+            wo_.addRow(hidden_, target, alpha);
+        }
         if (label) {
             return -log(score);
         } else {
@@ -144,7 +149,9 @@ public class Model {
             float label = (i == target) ? 1.0f : 0.0f;
             float alpha = lr * (label - output_.data_[i]);
             grad_.addRow(wo_, i, alpha);
-            wo_.addRow(hidden_, i, alpha);
+            synchronized (this) {
+                wo_.addRow(hidden_, i, alpha);
+            }
         }
         return -log(output_.data_[target]);
     }
@@ -232,8 +239,10 @@ public class Model {
         if (args_.model == Args.model_name.sup) {
             grad_.mul(1.0f / input.length);
         }
-        for (int i : input) {
-            wi_.addRow(grad_, i, 1.0f);
+        synchronized (this) {
+            for (int i : input) {
+                wi_.addRow(grad_, i, 1.0f);
+            }
         }
     }
 
@@ -319,7 +328,7 @@ public class Model {
         return loss_ / nexamples_;
     }
 
-    void initSigmoid() {
+    static void initSigmoid() {
         t_sigmoid = new float[SIGMOID_TABLE_SIZE + 1];
         for (int i = 0; i < SIGMOID_TABLE_SIZE + 1; i++) {
             float x = i * 2f * MAX_SIGMOID / SIGMOID_TABLE_SIZE - MAX_SIGMOID;
@@ -327,7 +336,7 @@ public class Model {
         }
     }
 
-    void initLog() {
+    static void initLog() {
         t_log = new float[LOG_TABLE_SIZE + 1];
         for (int i = 0; i < LOG_TABLE_SIZE + 1; i++) {
             float x = (i + 1e-5f) / LOG_TABLE_SIZE;
@@ -353,6 +362,4 @@ public class Model {
             return t_sigmoid[i];
         }
     }
-
-
 }

@@ -73,18 +73,18 @@ public class Args {
 
     void save(DataOutputStream out) throws IOException {
         out.writeInt(dim);
-        out.writeInt((ws));
-        out.writeInt((epoch));
-        out.writeInt((minCount));
-        out.writeInt((neg));
-        out.writeInt((wordNgrams));
-        out.writeInt((loss.index));
-        out.writeInt((model.index));
-        out.writeInt((bucket));
-        out.writeInt((minn));
-        out.writeInt((maxn));
-        out.writeInt((lrUpdateRate));
-        out.writeDouble((t));
+        out.writeInt(ws);
+        out.writeInt(epoch);
+        out.writeInt(minCount);
+        out.writeInt(neg);
+        out.writeInt(wordNgrams);
+        out.writeInt(loss.index);
+        out.writeInt(model.index);
+        out.writeInt(bucket);
+        out.writeInt(minn);
+        out.writeInt(maxn);
+        out.writeInt(lrUpdateRate);
+        out.writeDouble(t);
     }
 
     static Args load(DataInputStream in) throws IOException {

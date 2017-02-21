@@ -24,35 +24,35 @@ public class FastText {
 
     private Stopwatch stopwatch;
 
-    // TODO: change to java style. return a vector.
-    void getVector(Vector vec, String word) {
+
+    // Sums all word and ngram vectors for a word and normalizes it.
+    Vector getVector(String word) {
         int[] ngrams = dict_.getNgrams(word);
-        vec.zero();  //TODO: may not be necessary.
+        Vector vec = new Vector(args_.dim);
         for (int i : ngrams) {
-            // TODO: this is curious. why add the bucket hash values?
             vec.addRow(input_, i);
         }
         if (ngrams.length > 0) {
             vec.mul(1.0f / ngrams.length);
         }
+        return vec;
     }
 
     void saveVectors() throws IOException {
         Path out = Paths.get(args_.output + ".vec");
         try (PrintWriter pw = new PrintWriter(out.toFile(), "utf-8")) {
             pw.println(dict_.nwords() + " " + args_.dim);
-            Vector vec = new Vector(args_.dim);
             for (int i = 0; i < dict_.nwords(); i++) {
                 String word = dict_.getWord(i);
-                getVector(vec, word);
-                pw.println(word + " " + vec.asString());
+                Vector vector = getVector(word);
+                pw.println(word + " " + vector.asString());
             }
         }
     }
 
     void saveModel() throws IOException {
-        Path outout = Paths.get(args_.output + ".bin");
-        try (DataOutputStream dos = IOUtil.getDataOutputStream(outout)) {
+        Path output = Paths.get(args_.output + ".bin");
+        try (DataOutputStream dos = IOUtil.getDataOutputStream(output)) {
             args_.save(dos);
             dict_.save(dos);
             input_.save(dos);
