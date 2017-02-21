@@ -2,7 +2,11 @@ package zemberek.embedding.fasttext;
 
 import zemberek.core.math.FloatArrays;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Vector {
     float[] data_;
@@ -27,18 +31,18 @@ public class Vector {
 
 
     void addRow(Matrix A, int i) {
-        assert(i >= 0);
-        assert(i < A.m_);
-        assert(m_ == A.n_);
+        assert (i >= 0);
+        assert (i < A.m_);
+        assert (m_ == A.n_);
         for (int j = 0; j < A.n_; j++) {
             data_[j] += A.data_[i * A.n_ + j];
         }
     }
 
     void addRow(Matrix A, int i, float a) {
-        assert(i >= 0);
-        assert(i < A.m_);
-        assert(m_ == A.n_);
+        assert (i >= 0);
+        assert (i < A.m_);
+        assert (m_ == A.n_);
         for (int j = 0; j < A.n_; j++) {
             data_[j] += a * A.data_[i * A.n_ + j];
         }
@@ -64,6 +68,14 @@ public class Vector {
             }
         }
         return argmax;
+    }
+
+    public String asString() {
+        List<String> values = new ArrayList<>(data_.length);
+        for (float v : data_) {
+            values.add(String.format("%.5f", v));
+        }
+        return String.join(" ", values);
     }
 
 }

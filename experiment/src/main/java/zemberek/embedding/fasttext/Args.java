@@ -1,5 +1,9 @@
 package zemberek.embedding.fasttext;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 public class Args {
     String input;
     String test;
@@ -66,5 +70,53 @@ public class Args {
         pretrainedVectors = "";
     }
 
+
+    void save(DataOutputStream out) throws IOException {
+        out.writeInt(dim);
+        out.writeInt((ws));
+        out.writeInt((epoch));
+        out.writeInt((minCount));
+        out.writeInt((neg));
+        out.writeInt((wordNgrams));
+        out.writeInt((loss.index));
+        out.writeInt((model.index));
+        out.writeInt((bucket));
+        out.writeInt((minn));
+        out.writeInt((maxn));
+        out.writeInt((lrUpdateRate));
+        out.writeDouble((t));
+    }
+
+    static Args load(DataInputStream in) throws IOException {
+        Args args = new Args();
+        args.dim = in.readInt();
+        args.ws = in.readInt();
+        args.epoch = in.readInt();
+        args.minCount = in.readInt();
+        args.neg = in.readInt();
+        args.wordNgrams = in.readInt();
+        int loss = in.readInt();
+        if (loss == loss_name.hs.index) {
+            args.loss = loss_name.hs;
+        } else if (loss == loss_name.ns.index) {
+            args.loss = loss_name.ns;
+        } else if (loss == loss_name.softmax.index) {
+            args.loss = loss_name.softmax;
+        } else throw new IllegalStateException("Unknown loss type.");
+        int model = in.readInt();
+        if (model == model_name.cbow.index) {
+            args.model = model_name.cbow;
+        } else if (model == model_name.sg.index) {
+            args.model = model_name.sg;
+        } else if (model == model_name.sup.index) {
+            args.model = model_name.sup;
+        } else throw new IllegalStateException("Unknown model type.");
+        args.bucket = in.readInt();
+        args.minn = in.readInt();
+        args.maxn = in.readInt();
+        args.lrUpdateRate = in.readInt();
+        args.t = in.readDouble();
+        return args;
+    }
 
 }

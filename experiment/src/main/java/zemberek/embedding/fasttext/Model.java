@@ -1,6 +1,6 @@
 package zemberek.embedding.fasttext;
 
-import zemberek.core.collections.DynamicIntArray;
+import zemberek.core.collections.IntVector;
 
 import java.util.*;
 
@@ -10,7 +10,7 @@ public class Model {
         int parent;
         int left;
         int right;
-        int count;
+        long count; // TODO: this can be an int.
         boolean binary;
     }
 
@@ -31,32 +31,32 @@ public class Model {
         }
     }
 
-    Matrix wi_;
-    Matrix wo_;
-    Args args_;
-    Vector hidden_;
-    Vector output_;
-    Vector grad_;
-    int hsz_;
-    int isz_;
-    int osz_;
-    float loss_;
-    int nexamples_;
-    float[] t_sigmoid;
-    float[] t_log;
+    private Matrix wi_;
+    private Matrix wo_;
+    private Args args_;
+    private Vector hidden_;
+    private Vector output_;
+    private Vector grad_;
+    private int hsz_;
+    private int isz_;
+    private int osz_;
+    private float loss_;
+    private long nexamples_;
+    private float[] t_sigmoid;
+    private float[] t_log;
     // used for negative sampling:
-    List<Integer> negatives = new ArrayList<>();
-    int negpos;
+    private List<Integer> negatives = new ArrayList<>();
+    private int negpos;
     // used for hierarchical softmax:
-    List<DynamicIntArray> paths = new ArrayList<>();
-    List<DynamicIntArray> codes = new ArrayList<>();
-    Node[] tree;
+    private List<IntVector> paths = new ArrayList<>();
+    private List<IntVector> codes = new ArrayList<>();
+    private Node[] tree;
 
-    static final int NEGATIVE_TABLE_SIZE = 10000000;
+    private static final int NEGATIVE_TABLE_SIZE = 10000000;
 
-    static final int SIGMOID_TABLE_SIZE = 512;
-    static final int MAX_SIGMOID = 8;
-    static final int LOG_TABLE_SIZE = 512;
+    private static final int SIGMOID_TABLE_SIZE = 512;
+    private static final int MAX_SIGMOID = 8;
+    private static final int LOG_TABLE_SIZE = 512;
 
     Random random = new Random();
 
@@ -110,8 +110,8 @@ public class Model {
     float hierarchicalSoftmax(int target, float lr) {
         float loss = 0.0f;
         grad_.zero();
-        DynamicIntArray binaryCode = codes.get(target);
-        DynamicIntArray pathToRoot = paths.get(target);
+        IntVector binaryCode = codes.get(target);
+        IntVector pathToRoot = paths.get(target);
         for (int i = 0; i < pathToRoot.size(); i++) {
             loss += binaryLogistic(pathToRoot.get(i), binaryCode.get(i) == 1, lr);
         }
@@ -237,7 +237,7 @@ public class Model {
         }
     }
 
-    void setTargetCounts(int[] counts) {
+    void setTargetCounts(long[] counts) {
         assert (counts.length == osz_);
         if (args_.loss == Args.loss_name.ns) {
             initTableNegatives(counts);
@@ -248,9 +248,9 @@ public class Model {
     }
 
 
-    void initTableNegatives(int[] counts) {
+    void initTableNegatives(long[] counts) {
         float z = 0.0f;
-        for (int count : counts) {
+        for (long count : counts) {
             z += (float) Math.pow(count, 0.5);
         }
         for (int i = 0; i < counts.length; i++) {
@@ -271,14 +271,13 @@ public class Model {
         return negative;
     }
 
-    void buildTree(int[] counts) {
+    void buildTree(long[] counts) {
         tree = new Node[2 * osz_ - 1];
         for (int i = 0; i < 2 * osz_ - 1; i++) {
             tree[i].parent = -1;
             tree[i].left = -1;
             tree[i].right = -1;
-            // TODO: below was 1e15
-            tree[i].count = Integer.MAX_VALUE;
+            tree[i].count = (long) 1e15;
             tree[i].binary = false;
         }
         for (int i = 0; i < osz_; i++) {
@@ -303,8 +302,8 @@ public class Model {
             tree[mini[1]].binary = true;
         }
         for (int i = 0; i < osz_; i++) {
-            DynamicIntArray path = new DynamicIntArray();
-            DynamicIntArray code = new DynamicIntArray();
+            IntVector path = new IntVector();
+            IntVector code = new IntVector();
             int j = i;
             while (tree[j].parent != -1) {
                 path.add(tree[j].parent - osz_);
@@ -315,7 +314,6 @@ public class Model {
             codes.add(code);
         }
     }
-
 
     float getLoss() {
         return loss_ / nexamples_;

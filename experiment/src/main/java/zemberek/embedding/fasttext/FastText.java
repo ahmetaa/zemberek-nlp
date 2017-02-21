@@ -1,10 +1,12 @@
 package zemberek.embedding.fasttext;
 
 import com.google.common.base.Stopwatch;
-import zemberek.core.collections.DynamicIntArray;
+import zemberek.core.collections.IntVector;
+import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,14 +15,14 @@ import java.util.PriorityQueue;
 import java.util.concurrent.TimeUnit;
 
 public class FastText {
-    Args args_;
-    Dictionary dict_;
-    Matrix input_;
-    Matrix output_;
-    Model model_;
-    int tokenCount;
+    private Args args_;
+    private Dictionary dict_;
+    private Matrix input_;
+    private Matrix output_;
+    private Model model_;
+    private int tokenCount;
 
-    Stopwatch stopwatch;
+    private Stopwatch stopwatch;
 
     // TODO: change to java style. return a vector.
     void getVector(Vector vec, String word) {
@@ -35,6 +37,47 @@ public class FastText {
         }
     }
 
+    void saveVectors() throws IOException {
+        Path out = Paths.get(args_.output + ".vec");
+        try (PrintWriter pw = new PrintWriter(out.toFile(), "utf-8")) {
+            pw.println(dict_.nwords() + " " + args_.dim);
+            Vector vec = new Vector(args_.dim);
+            for (int i = 0; i < dict_.nwords(); i++) {
+                String word = dict_.getWord(i);
+                getVector(vec, word);
+                pw.println(word + " " + vec.asString());
+            }
+        }
+    }
+
+    void saveModel() throws IOException {
+        Path outout = Paths.get(args_.output + ".bin");
+        try (DataOutputStream dos = IOUtil.getDataOutputStream(outout)) {
+            args_.save(dos);
+            dict_.save(dos);
+            input_.save(dos);
+            output_.save(dos);
+        }
+    }
+
+    void loadModel(Path path) throws IOException {
+        try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
+            loadModel(dis);
+        }
+    }
+
+    void loadModel(DataInputStream dis) throws IOException {
+        args_ = Args.load(dis);
+        dict_ = Dictionary.load(dis, args_);
+        input_ = Matrix.load(dis);
+        output_ = Matrix.load(dis);
+        model_ = new Model(input_, output_, args_, 0);
+        if (args_.model == Args.model_name.sup) {
+            model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_LABEL));
+        } else {
+            model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_WORD));
+        }
+    }
 
     void printInfo(float progress, float loss) {
         float t = stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000f;
@@ -64,7 +107,7 @@ public class FastText {
     void cbow(Model model, float lr, int[] line) {
         for (int w = 0; w < line.length; w++) {
             int boundary = model.random.nextInt(args_.ws - 1) + 1; // [1..args.ws]
-            DynamicIntArray bow = new DynamicIntArray();
+            IntVector bow = new IntVector();
             for (int c = -boundary; c <= boundary; c++) {
                 if (c != 0 && w + c >= 0 && w + c < line.length) {
                     int[] ngrams = dict_.getNgrams(line[w + c]);
@@ -100,8 +143,8 @@ public class FastText {
     // TODO: signature is different in original. original has a stream and a list of predictions
     // this one returns the predictions and input is a string representing a line.
     List<ScoreStringPair> predict(String line, int k) {
-        DynamicIntArray words = new DynamicIntArray();
-        DynamicIntArray labels = new DynamicIntArray();
+        IntVector words = new IntVector();
+        IntVector labels = new IntVector();
         dict_.getLine(line, words, labels, model_.random);
         dict_.addNgrams(words, args_.wordNgrams);
         if (words.isempty()) {
@@ -135,12 +178,12 @@ public class FastText {
         long localTokenCount = 0;
         while (tokenCount < args_.epoch * ntokens) {
             //TODO: those are reused in the original. emptied in getLine()
-            DynamicIntArray line = new DynamicIntArray();
-            DynamicIntArray labels = new DynamicIntArray();
+            IntVector line = new IntVector();
+            IntVector labels = new IntVector();
 
             float progress = (float) tokenCount / (args_.epoch * ntokens);
             float lr = (float) args_.lr * (1.0f - progress);
-            localTokenCount += dict_.getLine(/* TODO: fix this ifs*/"" , line, labels, model.random);
+            localTokenCount += dict_.getLine(/* TODO: fix this ifs*/"", line, labels, model.random);
             if (args_.model == Args.model_name.sup) {
                 dict_.addNgrams(line, args_.wordNgrams);
                 supervised(model, lr, line.copyOf(), labels.copyOf());

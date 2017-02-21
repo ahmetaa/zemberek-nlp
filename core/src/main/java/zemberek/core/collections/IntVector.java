@@ -5,16 +5,16 @@ import java.util.Arrays;
 /**
  * A simple integer array backed list like structure
  */
-public class DynamicIntArray {
+public class IntVector {
     private static final int DEFAULT_INITIAL_CAPACITY = 7;
     private int[] data;
     private int size = 0;
 
-    public DynamicIntArray() {
+    public IntVector() {
         data = new int[DEFAULT_INITIAL_CAPACITY];
     }
 
-    public DynamicIntArray(int initialCapacity) {
+    public IntVector(int initialCapacity) {
         if (initialCapacity < 0) {
             throw new IllegalArgumentException("Initial capacity must be positive. But it is " + initialCapacity);
         }

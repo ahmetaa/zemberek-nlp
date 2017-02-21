@@ -5,25 +5,25 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-public class DynamicIntArrayTest {
+public class IntVectorTest {
 
     @Test
     public void testConstructor() {
-        DynamicIntArray darray = new DynamicIntArray();
+        IntVector darray = new IntVector();
         Assert.assertEquals(0, darray.size());
         Assert.assertEquals(7, darray.capacity());
     }
 
     @Test
     public void testConstructor2() {
-        DynamicIntArray darray = new DynamicIntArray(1);
+        IntVector darray = new IntVector(1);
         Assert.assertEquals(0, darray.size());
         Assert.assertEquals(1, darray.capacity());
     }
 
     @Test
     public void testAdd() {
-        DynamicIntArray darray = new DynamicIntArray();
+        IntVector darray = new IntVector();
         for (int i = 0; i < 10000; i++) {
             darray.add(i);
         }
@@ -36,7 +36,7 @@ public class DynamicIntArrayTest {
     @Test
     public void testAddAll() {
         int[] d1 = {2, 4, 5, 17, -1, -2, 5, -123};
-        DynamicIntArray darray = new DynamicIntArray();
+        IntVector darray = new IntVector();
         darray.addAll(d1);
         Assert.assertEquals(8, darray.size());
         Assert.assertArrayEquals(d1, darray.copyOf());
@@ -49,7 +49,7 @@ public class DynamicIntArrayTest {
 
     @Test
     public void testTrimToSize() {
-        DynamicIntArray darray = new DynamicIntArray();
+        IntVector darray = new IntVector();
         for (int i = 0; i < 10000; i++) {
             darray.add(i);
         }

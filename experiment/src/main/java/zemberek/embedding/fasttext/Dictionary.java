@@ -1,11 +1,14 @@
 package zemberek.embedding.fasttext;
 
 import zemberek.core.SpaceTabTokenizer;
-import zemberek.core.collections.DynamicIntArray;
+import zemberek.core.collections.IntVector;
 import zemberek.core.collections.Histogram;
+import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextIterator;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,28 +19,28 @@ import java.util.Random;
 
 public class Dictionary {
 
-    public static final int TYPE_WORD = 0;
-    public static final int TYPE_LABEL = 1;
+    static final int TYPE_WORD = 0;
+    static final int TYPE_LABEL = 1;
 
-    static final int MAX_VOCAB_SIZE = 10_000_000;
-    static final int MAX_LINE_SIZE = 1024;
+    private static final int MAX_VOCAB_SIZE = 10_000_000;
+    private static final int MAX_LINE_SIZE = 1024;
 
-    Args args_;
-    int[] word2int_;
-    List<Entry> words_;
-    float[] pdiscard_;
-    int size_;
-    int nwords_;
-    int nlabels_;
-    long ntokens_;
+    private Args args_;
+    private int[] word2int_;
+    private List<Entry> words_;
+    private float[] pdiscard_;
+    private int size_;
+    private int nwords_;
+    private int nlabels_;
+    private long ntokens_;
 
     static String EOS = "</s>";
-    static String BOW = "<";
-    static String EOW = ">";
+    private static String BOW = "<";
+    private static String EOW = ">";
 
     public static class Entry {
         String word;
-        int count;
+        long count; // TODO: can be int.
         int type;
         int[] subwords;
     }
@@ -52,7 +55,6 @@ public class Dictionary {
         words_ = new ArrayList<>(1_000_000);
         Arrays.fill(word2int_, -1);
     }
-
 
     /**
      * This looks like a linear probing hash table.
@@ -136,7 +138,7 @@ public class Dictionary {
         return words_.get(id).word;
     }
 
-    // TODO: hash algorithm is slightly different. original uses unsigned integers
+    // Hash algorithm is slightly different. original uses unsigned integers
     // and loops through bytes.
     int hash(String str) {
         return hash(str, 0, str.length());
@@ -167,6 +169,7 @@ public class Dictionary {
      * rek, rek_,
      * ek_
      * <p>
+     * TODO: for agglutinative languages, consider only adding suffixes.
      * If wordId is not -1, wordId value is added to result[0]
      */
     int[] computeNgrams(String word, int wordId) {
@@ -275,8 +278,8 @@ public class Dictionary {
         }
     }
 
-    int[] getCounts(int entry_type) {
-        int[] counts = entry_type == TYPE_WORD ? new int[nwords_] : new int[nlabels_];
+    long[] getCounts(int entry_type) {
+        long[] counts = entry_type == TYPE_WORD ? new long[nwords_] : new long[nlabels_];
         int c = 0;
         for (Entry entry : words_) {
             if (entry.type == entry_type) {
@@ -288,7 +291,7 @@ public class Dictionary {
     }
 
     //TODO: change to java style.
-    void addNgrams(DynamicIntArray line, int n) {
+    void addNgrams(IntVector line, int n) {
         int line_size = line.size();
         for (int i = 0; i < line_size; i++) {
             long h = line.get(i);
@@ -303,8 +306,8 @@ public class Dictionary {
 
     int getLine(
             String line,
-            DynamicIntArray words,
-            DynamicIntArray labels,
+            IntVector words,
+            IntVector labels,
             Random random) {
 
         int ntokens = 0;
@@ -334,10 +337,50 @@ public class Dictionary {
         return words_.get(lid + nwords_).word;
     }
 
+    void save(DataOutputStream out) throws IOException {
+        out.writeInt(size_);
+        out.writeInt(nwords_);
+        out.writeInt(nlabels_);
+        out.writeLong(ntokens_);
+        for (int i = 0; i < size_; i++) {
+            Entry e = words_.get(i);
+            out.writeUTF(e.word);
+            out.writeLong(e.count);
+            out.writeInt(e.type);
+        }
+    }
+
+    static Dictionary load(DataInputStream dis, Args args) throws IOException {
+
+        Dictionary dict = new Dictionary(args);
+
+        dict.size_ = dis.readInt();
+        dict.nwords_ = dis.readInt();
+        dict.nlabels_ = dis.readInt();
+        dict.ntokens_ = dis.readLong();
+        for (int i = 0; i < dict.size_; i++) {
+            Entry e = new Entry();
+            e.word = dis.readUTF();
+            e.count = dis.readLong();
+            e.type = dis.readInt();
+            dict.words_.add(e);
+            dict.word2int_[dict.find(e.word)] = i;
+        }
+        dict.initTableDiscard();
+        dict.initNgrams();
+        return dict;
+    }
+
     public static void main(String[] args) throws IOException {
         Args argz = new Args();
-        Path path = Paths.get("/media/data/aaa/corpora/corpus-10M.txt");
+        Path path = Paths.get("/media/data/aaa/corpora/corpus-1M.txt");
         Dictionary dictionary = readFromFile(path, argz);
+        try (DataOutputStream foo = IOUtil.getDataOutputStream(Paths.get("foo"))) {
+            dictionary.save(foo);
+        }
+        try (DataInputStream dis = IOUtil.getDataInputStream(Paths.get("foo"))) {
+            Dictionary dictionary1 = Dictionary.load(dis, new Args());
+        }
     }
 
 }
