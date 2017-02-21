@@ -80,7 +80,7 @@ Allows fast identification of text language. [Documentation] (https://github.com
 
 Maven artifact id : **lang-id**
 
-### Language modelling
+### Language modeling
 
 Only provides a language compression implementation. [Documentation] (https://github.com/ahmetaa/zemberek-nlp/tree/master/lm)
 
