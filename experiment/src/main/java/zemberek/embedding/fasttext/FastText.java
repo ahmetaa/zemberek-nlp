@@ -1,18 +1,19 @@
 package zemberek.embedding.fasttext;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.io.Files;
 import zemberek.core.collections.IntVector;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
+import zemberek.core.text.BlockTextLoader;
+import zemberek.core.text.TextIO;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class FastText {
     private Args args_;
@@ -23,7 +24,6 @@ public class FastText {
     private int tokenCount;
 
     private Stopwatch stopwatch;
-
 
     // Sums all word and ngram vectors for a word and normalizes it.
     Vector getVector(String word) {
@@ -161,53 +161,72 @@ public class FastText {
         return result;
     }
 
-    void trainThread(int threadId) {
+    private class TrainTask implements Callable<Model> {
 
-        //std::ifstream ifs(args_->input);
-        //utils::seek(ifs, threadId * utils::size(ifs) / args_->thread);
+        int threadId;
+        Path input;
+        int startCharIndex;
 
-
-        Model model = new Model(input_, output_, args_, threadId);
-        if (args_.model == Args.model_name.sup) {
-            model.setTargetCounts(dict_.getCounts(Dictionary.TYPE_LABEL));
-        } else {
-            model.setTargetCounts(dict_.getCounts(Dictionary.TYPE_WORD));
+        public TrainTask(int threadId, Path input, int startCharIndex) {
+            this.threadId = threadId;
+            this.input = input;
+            this.startCharIndex = startCharIndex;
         }
 
-        long ntokens = dict_.ntokens();
-        long localTokenCount = 0;
-        while (tokenCount < args_.epoch * ntokens) {
-            //TODO: those are reused in the original. emptied in getLine()
-            IntVector line = new IntVector();
-            IntVector labels = new IntVector();
-
-            float progress = (float) tokenCount / (args_.epoch * ntokens);
-            float lr = (float) args_.lr * (1.0f - progress);
-            localTokenCount += dict_.getLine(/* TODO: fix this ifs*/"", line, labels, model.random);
+        @Override
+        public Model call() throws Exception {
+            Model model = new Model(input_, output_, args_, threadId);
             if (args_.model == Args.model_name.sup) {
-                dict_.addNgrams(line, args_.wordNgrams);
-                supervised(model, lr, line.copyOf(), labels.copyOf());
-            } else if (args_.model == Args.model_name.cbow) {
-                cbow(model, lr, line.copyOf());
-            } else if (args_.model == Args.model_name.sg) {
-                skipgram(model, lr, line.copyOf());
+                model.setTargetCounts(dict_.getCounts(Dictionary.TYPE_LABEL));
+            } else {
+                model.setTargetCounts(dict_.getCounts(Dictionary.TYPE_WORD));
             }
-            if (localTokenCount > args_.lrUpdateRate) {
-                tokenCount += localTokenCount;
-                localTokenCount = 0;
-                if (threadId == 0 && args_.verbose > 1) {
-                    printInfo(progress, model.getLoss());
+
+            long ntokens = dict_.ntokens();
+            long localTokenCount = 0;
+            BlockTextLoader loader = new BlockTextLoader(input, StandardCharsets.UTF_8, 1000);
+            Iterator<List<String>> it = loader.iteratorFromCharIndex(startCharIndex);
+
+            while (true) {
+                while (it.hasNext()) {
+                    List<String> lines = it.next();
+                    for (String lineStr : lines) {
+                        //TODO: those are reused in the original. emptied in getLine()
+                        IntVector line = new IntVector();
+                        IntVector labels = new IntVector();
+
+                        float progress = (float) tokenCount / (args_.epoch * ntokens);
+                        float lr = (float) args_.lr * (1.0f - progress);
+                        localTokenCount += dict_.getLine(lineStr, line, labels, model.random);
+                        if (args_.model == Args.model_name.sup) {
+                            dict_.addNgrams(line, args_.wordNgrams);
+                            supervised(model, lr, line.copyOf(), labels.copyOf());
+                        } else if (args_.model == Args.model_name.cbow) {
+                            cbow(model, lr, line.copyOf());
+                        } else if (args_.model == Args.model_name.sg) {
+                            skipgram(model, lr, line.copyOf());
+                        }
+                        if (localTokenCount > args_.lrUpdateRate) {
+                            tokenCount += localTokenCount;
+                            localTokenCount = 0;
+                            if (threadId == 0 && args_.verbose > 1) {
+                                printInfo(progress, model.getLoss());
+                            }
+                        }
+                        if (tokenCount >= args_.epoch * ntokens) {
+                            if (threadId == 0 && args_.verbose > 0) {
+                                printInfo(1.0f, model.getLoss());
+                            }
+                            return model;
+                        }
+                    }
                 }
+                it = loader.iterator();
             }
         }
-        if (threadId == 0 && args_.verbose > 0) {
-            printInfo(1.0f, model.getLoss());
-        }
-        //ifs.close();
     }
 
-
-    void train(Args args) throws IOException {
+    void train(Args args) throws Exception {
         args_ = args;
         if (args_.input.equals("-")) {
             // manage expectations
@@ -232,19 +251,40 @@ public class FastText {
 
         stopwatch = Stopwatch.createStarted();
         tokenCount = 0;
-/*        std::vector<std::thread> threads;
-        for (int32_t i = 0; i < args_->thread; i++) {
-            threads.push_back(std::thread([=]() { trainThread(i); }));
-        }
-        for (auto it = threads.begin(); it != threads.end(); ++it) {
-            it->join();
-        }
-        model_ = std::make_shared<Model>(input_, output_, args_, 0);
 
+        ExecutorService es = Executors.newFixedThreadPool(args_.thread);
+        CompletionService<Model> completionService = new ExecutorCompletionService<>(es);
+        Path input = Paths.get(args_.input);
+        Log.info("Counting chars..");
+        long charCount = TextIO.charCount(input, StandardCharsets.UTF_8);
+        Log.info("Training started.");
+        for (int i = 0; i < args_.thread; i++) {
+            completionService.submit(new TrainTask(i, input, (int) (i * charCount / args_.thread)));
+        }
+        es.shutdown();
+
+        int c = 0;
+        while (c < args_.thread) {
+            completionService.take().get();
+            c++;
+        }
+        Log.info("Training finished.");
+        model_ = new Model(input_, output_, args_, 0);
+        Log.info("Saving model.");
         saveModel();
-        if (args_->model != model_name::sup) {
+        if (args_.model != Args.model_name.sup) {
+            Log.info("Saving vectors.");
             saveVectors();
-        }*/
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        Args argz = new Args();
+        argz.thread = 1;
+        argz.input = "/home/ahmetaa/data/nlp/corpora/dunya-20k";
+        argz.output = "/home/ahmetaa/data/nlp/corpora/dunya-20k-fasttext";
+        FastText fastText = new FastText();
+        fastText.train(argz);
     }
 
 

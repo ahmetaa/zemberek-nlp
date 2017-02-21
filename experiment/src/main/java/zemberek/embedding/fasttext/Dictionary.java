@@ -5,7 +5,7 @@ import zemberek.core.collections.IntVector;
 import zemberek.core.collections.Histogram;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
-import zemberek.core.text.BlockTextIterator;
+import zemberek.core.text.BlockTextLoader;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -223,13 +223,12 @@ public class Dictionary {
         Histogram<String> labelCounts = new Histogram<>(100_000);
 
         Log.info("Loading text.");
-        BlockTextIterator iterator = new BlockTextIterator(file, 100_000);
+        BlockTextLoader loader = new BlockTextLoader(file, 100_000);
         SpaceTabTokenizer tokenizer = new SpaceTabTokenizer();
 
         int blockCounter = 1;
 
-        while (iterator.hasNext()) {
-            List<String> lines = iterator.next();
+        for (List<String> lines : loader) {
             for (String line : lines) {
                 for (String word : tokenizer.split(line)) {
                     if (word.startsWith(args.label)) {
