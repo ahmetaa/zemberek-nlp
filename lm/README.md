@@ -1,4 +1,4 @@
-Language Modeling And Compression
+Language Modelling And Compression
 ============
 
 ## Language Model Compression: SmoothLm
