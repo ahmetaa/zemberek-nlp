@@ -1,6 +1,7 @@
 package zemberek.core.collections;
 
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * A simple integer array backed list like structure
@@ -59,6 +60,19 @@ public class IntVector {
 
     public int[] copyOf() {
         return Arrays.copyOf(data, size);
+    }
+
+    public void shuffle(Random random) {
+        for (int i = size - 1; i > 0; i--) {
+            int index = random.nextInt(i + 1);
+            int d = data[index];
+            data[index] = data[i];
+            data[i] = d;
+        }
+    }
+
+    public void shuffle() {
+        shuffle(new Random());
     }
 
     public void trimToSize() {

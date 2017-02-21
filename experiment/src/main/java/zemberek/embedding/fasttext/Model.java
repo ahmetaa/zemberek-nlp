@@ -45,7 +45,7 @@ public class Model {
     private static float[] t_sigmoid;
     private static float[] t_log;
     // used for negative sampling:
-    private List<Integer> negatives = new ArrayList<>();
+    private int[] negatives;
     private int negpos;
     // used for hierarchical softmax:
     private List<IntVector> paths = new ArrayList<>();
@@ -258,6 +258,7 @@ public class Model {
 
 
     void initTableNegatives(long[] counts) {
+        IntVector vec = new IntVector(counts.length*10);
         float z = 0.0f;
         for (long count : counts) {
             z += (float) Math.pow(count, 0.5);
@@ -265,17 +266,18 @@ public class Model {
         for (int i = 0; i < counts.length; i++) {
             float c = (float) Math.pow(counts[i], 0.5);
             for (int j = 0; j < c * NEGATIVE_TABLE_SIZE / z; j++) {
-                negatives.add(i);
+                vec.add(i);
             }
         }
-        Collections.shuffle(negatives, random);
+        vec.shuffle(random);
+        negatives = vec.copyOf();
     }
 
     int getNegative(int target) {
         int negative;
         do {
-            negative = negatives.get(negpos);
-            negpos = (negpos + 1) % negatives.size();
+            negative = negatives[negpos];
+            negpos = (negpos + 1) % negatives.length;
         } while (target == negative);
         return negative;
     }
