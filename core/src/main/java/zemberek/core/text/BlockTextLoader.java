@@ -44,8 +44,9 @@ public class BlockTextLoader implements Iterable<List<String>> {
             if (k != charIndex) {
                 throw new IllegalStateException("Cannot skip " + charIndex + " skip returned " + k);
             }
-            // ignore current line, as it may be truncated.
-            reader.readLine();
+            if (charIndex != 0) { // skip first line
+                reader.readLine();
+            }
             return new TextIterator(reader);
         } catch (IOException e) {
             e.printStackTrace();

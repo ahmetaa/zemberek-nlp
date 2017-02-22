@@ -45,7 +45,7 @@ public class Dictionary {
         int[] subwords;
     }
 
-    Dictionary(Args args) {
+    private Dictionary(Args args) {
         args_ = args;
         size_ = 0;
         nwords_ = 0;
@@ -59,7 +59,7 @@ public class Dictionary {
     /**
      * This looks like a linear probing hash table.
      */
-    int find(String w) {
+    private int find(String w) {
         int h = hash(w) % MAX_VOCAB_SIZE;
         while (word2int_[h] != -1 && (!words_.get(word2int_[h]).word.equals(w))) {
             h = (h + 1) % MAX_VOCAB_SIZE;
@@ -71,9 +71,8 @@ public class Dictionary {
         addWithCount(w, 1);
     }
 
-    void addWithCount(String w, int count) {
+    private void addWithCount(String w, int count) {
         int h = find(w);
-        ntokens_ += count;
         // if this is an empty slot. add a new entry.
         if (word2int_[h] == -1) {
             Entry e = new Entry();
@@ -114,7 +113,7 @@ public class Dictionary {
         return computeNgrams(BOW + word + EOW, i);
     }
 
-    boolean discard(int id, float rand) {
+    private boolean discard(int id, float rand) {
         assert (id >= 0);
         assert (id < nwords_);
         if (args_.model == Args.model_name.sup) return false;
@@ -140,11 +139,11 @@ public class Dictionary {
 
     // Hash algorithm is slightly different. original uses unsigned integers
     // and loops through bytes.
-    int hash(String str) {
+    private int hash(String str) {
         return hash(str, 0, str.length());
     }
 
-    int hash(String str, int start, int end) {
+    private int hash(String str, int start, int end) {
         int h = 0x811C_9DC5;
         for (int i = start; i < end; i++) {
             h = h ^ str.charAt(i);
@@ -172,7 +171,7 @@ public class Dictionary {
      * TODO: for agglutinative languages, consider only adding suffixes.
      * If wordId is not -1, wordId value is added to result[0]
      */
-    int[] computeNgrams(String word, int wordId) {
+    private int[] computeNgrams(String word, int wordId) {
 
         if (word.length() < args_.minn) {
             return new int[0];
@@ -207,7 +206,7 @@ public class Dictionary {
         return result;
     }
 
-    void initNgrams() {
+    private void initNgrams() {
         for (int i = 0; i < size_; i++) {
             String word = BOW + words_.get(i).word + EOW;
             // adds the wordId to the n-grams as well.
@@ -230,7 +229,9 @@ public class Dictionary {
 
         for (List<String> lines : loader) {
             for (String line : lines) {
-                for (String word : tokenizer.split(line)) {
+                List<String> split = tokenizer.splitToList(line);
+                split.add(EOS);
+                for (String word : split) {
                     if (word.startsWith(args.label)) {
                         labelCounts.add(word);
                     } else {
@@ -245,6 +246,7 @@ public class Dictionary {
         Log.info("Removing word and labels with small counts. Min word = %d, Min Label = %d",
                 args.minCount, args.minCountLabel);
         // now we have the histograms. Remove based on count.
+        dictionary.ntokens_ = wordCounts.totalCount() + labelCounts.totalCount();
         wordCounts.removeSmaller(args.minCount);
         labelCounts.removeSmaller(args.minCountLabel);
         Log.info("Word count = %d , Label count = %d", wordCounts.size(), labelCounts.size());
@@ -254,7 +256,7 @@ public class Dictionary {
             dictionary.addWithCount(word, wordCounts.getCount(word));
         }
         for (String label : labelCounts.getSortedList()) {
-            dictionary.addWithCount(label, wordCounts.getCount(label));
+            dictionary.addWithCount(label, labelCounts.getCount(label));
         }
         dictionary.nwords_ = wordCounts.size();
         dictionary.nlabels_ = labelCounts.size();
@@ -269,7 +271,7 @@ public class Dictionary {
         return dictionary;
     }
 
-    void initTableDiscard() {
+    private void initTableDiscard() {
         pdiscard_ = new float[size_];
         for (int i = 0; i < size_; i++) {
             float f = ((float) words_.get(i).count) / ntokens_;
@@ -310,13 +312,15 @@ public class Dictionary {
             Random random) {
 
         int ntokens = 0;
-        String[] tokens = tokenizer.split(line);
+        List<String> tokens = tokenizer.splitToList(line);
+        tokens.add(EOS);
 
         for (String token : tokens) {
             int wid = getId(token);
             if (wid < 0) continue;
             int type = getType(wid);
             ntokens++;
+            //TODO: consider caching random.nextFloat
             if (type == TYPE_WORD && !discard(wid, random.nextFloat())) {
                 words.add(wid);
             }
@@ -369,17 +373,4 @@ public class Dictionary {
         dict.initNgrams();
         return dict;
     }
-
-    public static void main(String[] args) throws IOException {
-        Args argz = new Args();
-        Path path = Paths.get("/media/data/aaa/corpora/corpus-1M.txt");
-        Dictionary dictionary = readFromFile(path, argz);
-        try (DataOutputStream foo = IOUtil.getDataOutputStream(Paths.get("foo"))) {
-            dictionary.save(foo);
-        }
-        try (DataInputStream dis = IOUtil.getDataInputStream(Paths.get("foo"))) {
-            Dictionary dictionary1 = Dictionary.load(dis, new Args());
-        }
-    }
-
 }

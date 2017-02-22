@@ -26,8 +26,8 @@ public class Model {
 
         @Override
         public int compareTo(Pair o) {
-            //TODO: check below
-            return Float.compare(this.first, o.first);
+            // descending.
+            return Float.compare(o.first, first);
         }
     }
 
@@ -84,7 +84,7 @@ public class Model {
         nexamples_ = 1;
     }
 
-    float binaryLogistic(int target, boolean label, float lr) {
+    private float binaryLogistic(int target, boolean label, float lr) {
         float score = sigmoid(wo_.dotRow(hidden_, target));
         float alpha = lr * (label ? 1f : 0f - score);
         grad_.addRow(wo_, target, alpha);
@@ -98,7 +98,7 @@ public class Model {
         }
     }
 
-    float negativeSampling(int target, float lr) {
+    private float negativeSampling(int target, float lr) {
         float loss = 0.0f;
         grad_.zero();
         for (int n = 0; n <= args_.neg; n++) {
@@ -112,7 +112,7 @@ public class Model {
     }
 
 
-    float hierarchicalSoftmax(int target, float lr) {
+    private float hierarchicalSoftmax(int target, float lr) {
         float loss = 0.0f;
         grad_.zero();
         IntVector binaryCode = codes.get(target);
@@ -123,7 +123,7 @@ public class Model {
         return loss;
     }
 
-    void computeOutputSoftmax(Vector hidden, Vector output) {
+    private void computeOutputSoftmax(Vector hidden, Vector output) {
         output.mul(wo_, hidden);
         float max = output.data_[0], z = 0.0f;
         for (int i = 0; i < osz_; i++) {
@@ -138,11 +138,11 @@ public class Model {
         }
     }
 
-    void computeOutputSoftmax() {
+    private void computeOutputSoftmax() {
         computeOutputSoftmax(hidden_, output_);
     }
 
-    float softmax(int target, float lr) {
+    private float softmax(int target, float lr) {
         grad_.zero();
         computeOutputSoftmax();
         for (int i = 0; i < osz_; i++) {
@@ -156,7 +156,7 @@ public class Model {
         return -log(output_.data_[target]);
     }
 
-    void computeHidden(int[] input, Vector hidden) {
+    private void computeHidden(int[] input, Vector hidden) {
         assert (hidden.size() == hsz_);
         hidden.zero();
         for (int i : input) {
@@ -166,28 +166,34 @@ public class Model {
     }
 
 
-    void predict(int[] input, int k,
-                 PriorityQueue<Pair> heap,
-                 Vector hidden, Vector output) {
+    private static final Comparator<Pair> PAIR_COMPARATOR =
+            (l, r) -> l.first > r.first ? 1 : 0;
+
+    List<Pair> predict(int[] input,
+                 int k,
+                 Vector hidden,
+                 Vector output) {
         assert (k > 0);
-        //heap.reserve(k + 1);
         computeHidden(input, hidden);
+        PriorityQueue<Pair> heap = new PriorityQueue<>(k+1, PAIR_COMPARATOR);
         if (args_.loss == Args.loss_name.hs) {
             dfs(k, 2 * osz_ - 2, 0.0f, heap, hidden);
         } else {
             findKBest(k, heap, hidden, output);
         }
-        // TODO: write below if necessary.
-        //std::sort_heap(heap.begin(), heap.end(), comparePairs);
+        List<Pair> result = new ArrayList<>(heap);
+        Collections.sort(result);
+        return  result;
     }
 
-    void predict(int[] input, int k,
-                 PriorityQueue<Pair> heap) {
-        predict(input, k, heap, hidden_, output_);
+    List<Pair> predict(int[] input, int k) {
+        return predict(input, k, hidden_, output_);
     }
 
-    void findKBest(int k, PriorityQueue<Pair> heap,
-                   Vector hidden, Vector output) {
+    private void findKBest(int k,
+                           PriorityQueue<Pair> heap,
+                           Vector hidden,
+                           Vector output) {
         computeOutputSoftmax(hidden, output);
         for (int i = 0; i < osz_; i++) {
             if (heap.size() == k && log(output.data_[i]) < heap.peek().first) {
@@ -201,9 +207,11 @@ public class Model {
     }
 
     //todo: check here.
-    void dfs(int k, int node, float score,
-             PriorityQueue<Pair> heap,
-             Vector hidden) {
+    private void dfs(int k,
+                     int node,
+                     float score,
+                     PriorityQueue<Pair> heap,
+                     Vector hidden) {
         if (heap.size() == k && score < heap.peek().first) {
             return;
         }
@@ -256,8 +264,7 @@ public class Model {
         }
     }
 
-
-    void initTableNegatives(long[] counts) {
+    private void initTableNegatives(long[] counts) {
         IntVector vec = new IntVector(counts.length*10);
         float z = 0.0f;
         for (long count : counts) {
@@ -273,7 +280,7 @@ public class Model {
         negatives = vec.copyOf();
     }
 
-    int getNegative(int target) {
+    private int getNegative(int target) {
         int negative;
         do {
             negative = negatives[negpos];
@@ -282,7 +289,7 @@ public class Model {
         return negative;
     }
 
-    void buildTree(long[] counts) {
+    private void buildTree(long[] counts) {
         tree = new Node[2 * osz_ - 1];
         for (int i = 0; i < 2 * osz_ - 1; i++) {
             tree[i].parent = -1;
@@ -330,7 +337,7 @@ public class Model {
         return loss_ / nexamples_;
     }
 
-    static void initSigmoid() {
+    private static void initSigmoid() {
         t_sigmoid = new float[SIGMOID_TABLE_SIZE + 1];
         for (int i = 0; i < SIGMOID_TABLE_SIZE + 1; i++) {
             float x = i * 2f * MAX_SIGMOID / SIGMOID_TABLE_SIZE - MAX_SIGMOID;
@@ -338,7 +345,7 @@ public class Model {
         }
     }
 
-    static void initLog() {
+    private static void initLog() {
         t_log = new float[LOG_TABLE_SIZE + 1];
         for (int i = 0; i < LOG_TABLE_SIZE + 1; i++) {
             float x = (i + 1e-5f) / LOG_TABLE_SIZE;
@@ -346,7 +353,7 @@ public class Model {
         }
     }
 
-    float log(float x) {
+    private float log(float x) {
         if (x > 1.0f) {
             return 0.0f;
         }
@@ -354,7 +361,7 @@ public class Model {
         return t_log[i];
     }
 
-    float sigmoid(float x) {
+    private float sigmoid(float x) {
         if (x < -MAX_SIGMOID) {
             return 0.0f;
         } else if (x > MAX_SIGMOID) {

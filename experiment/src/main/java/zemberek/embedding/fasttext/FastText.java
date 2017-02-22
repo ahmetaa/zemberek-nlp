@@ -1,7 +1,6 @@
 package zemberek.embedding.fasttext;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.io.Files;
 import zemberek.core.collections.IntVector;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
@@ -14,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class FastText {
     private Args args_;
@@ -21,12 +21,12 @@ public class FastText {
     private Matrix input_;
     private Matrix output_;
     private Model model_;
-    private int tokenCount;
+    private AtomicLong tokenCount;
 
     private Stopwatch stopwatch;
 
     // Sums all word and ngram vectors for a word and normalizes it.
-    Vector getVector(String word) {
+    private Vector getVector(String word) {
         int[] ngrams = dict_.getNgrams(word);
         Vector vec = new Vector(args_.dim);
         for (int i : ngrams) {
@@ -38,7 +38,7 @@ public class FastText {
         return vec;
     }
 
-    void saveVectors() throws IOException {
+    private void saveVectors() throws IOException {
         Path out = Paths.get(args_.output + ".vec");
         try (PrintWriter pw = new PrintWriter(out.toFile(), "utf-8")) {
             pw.println(dict_.nwords() + " " + args_.dim);
@@ -50,7 +50,7 @@ public class FastText {
         }
     }
 
-    void saveModel() throws IOException {
+    private void saveModel() throws IOException {
         Path output = Paths.get(args_.output + ".bin");
         try (DataOutputStream dos = IOUtil.getDataOutputStream(output)) {
             args_.save(dos);
@@ -66,7 +66,7 @@ public class FastText {
         }
     }
 
-    void loadModel(DataInputStream dis) throws IOException {
+    private void loadModel(DataInputStream dis) throws IOException {
         args_ = Args.load(dis);
         dict_ = Dictionary.load(dis, args_);
         input_ = Matrix.load(dis);
@@ -79,9 +79,9 @@ public class FastText {
         }
     }
 
-    void printInfo(float progress, float loss) {
+    private void printInfo(float progress, float loss) {
         float t = stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000f;
-        float wst = (float) tokenCount / t;
+        float wst = (float) tokenCount.get() / t;
         float lr = (float) (args_.lr * (1.0f - progress));
         int eta = (int) (t / progress * (1 - progress) / args_.thread);
         int etah = eta / 3600;
@@ -96,15 +96,15 @@ public class FastText {
                 etam);
     }
 
-    void supervised(Model model, float lr,
-                    int[] line,
-                    int[] labels) {
+    private void supervised(Model model, float lr,
+                            int[] line,
+                            int[] labels) {
         if (labels.length == 0 || line.length == 0) return;
         int i = model.random.nextInt(labels.length - 1);
         model.update(line, labels[i], lr);
     }
 
-    void cbow(Model model, float lr, int[] line) {
+    private void cbow(Model model, float lr, int[] line) {
         for (int w = 0; w < line.length; w++) {
             int boundary = model.random.nextInt(args_.ws - 1) + 1; // [1..args.ws]
             IntVector bow = new IntVector();
@@ -118,7 +118,7 @@ public class FastText {
         }
     }
 
-    void skipgram(Model model, float lr, int[] line) {
+    private void skipgram(Model model, float lr, int[] line) {
         for (int w = 0; w < line.length; w++) {
             int boundary = model.random.nextInt(args_.ws - 1) + 1; // [1..args.ws]
             int[] ngrams = dict_.getNgrams(line[w]);
@@ -152,8 +152,7 @@ public class FastText {
         }
         Vector hidden = new Vector(args_.dim);
         Vector output = new Vector(dict_.nlabels());
-        PriorityQueue<Model.Pair> modelPredictions = new PriorityQueue<>();
-        model_.predict(words.copyOf(), k, modelPredictions, hidden, output);
+        List<Model.Pair> modelPredictions = model_.predict(words.copyOf(), k, hidden, output);
         List<ScoreStringPair> result = new ArrayList<>(modelPredictions.size());
         for (Model.Pair pair : modelPredictions) {
             result.add(new ScoreStringPair(pair.first, dict_.getLabel(pair.second)));
@@ -167,7 +166,7 @@ public class FastText {
         Path input;
         int startCharIndex;
 
-        public TrainTask(int threadId, Path input, int startCharIndex) {
+        TrainTask(int threadId, Path input, int startCharIndex) {
             this.threadId = threadId;
             this.input = input;
             this.startCharIndex = startCharIndex;
@@ -186,16 +185,16 @@ public class FastText {
             long localTokenCount = 0;
             BlockTextLoader loader = new BlockTextLoader(input, StandardCharsets.UTF_8, 1000);
             Iterator<List<String>> it = loader.iteratorFromCharIndex(startCharIndex);
-
+            float progress = 0f;
             while (true) {
                 while (it.hasNext()) {
                     List<String> lines = it.next();
                     for (String lineStr : lines) {
-                        //TODO: those are reused in the original. emptied in getLine()
-                        IntVector line = new IntVector();
+
+                        IntVector line = new IntVector(10);
                         IntVector labels = new IntVector();
 
-                        float progress = (float) tokenCount / (args_.epoch * ntokens);
+                        progress = (float) tokenCount.get() / (args_.epoch * ntokens);
                         float lr = (float) args_.lr * (1.0f - progress);
                         localTokenCount += dict_.getLine(lineStr, line, labels, model.random);
                         if (args_.model == Args.model_name.sup) {
@@ -207,18 +206,18 @@ public class FastText {
                             skipgram(model, lr, line.copyOf());
                         }
                         if (localTokenCount > args_.lrUpdateRate) {
-                            tokenCount += localTokenCount;
+                            tokenCount.getAndAdd(localTokenCount);
                             localTokenCount = 0;
-                            if (threadId == 0 && args_.verbose > 1) {
-                                printInfo(progress, model.getLoss());
-                            }
                         }
-                        if (tokenCount >= args_.epoch * ntokens) {
+                        if (tokenCount.get() >= args_.epoch * ntokens) {
                             if (threadId == 0 && args_.verbose > 0) {
                                 printInfo(1.0f, model.getLoss());
                             }
                             return model;
                         }
+                    }
+                    if (threadId == 0 && args_.verbose > 1) {
+                        printInfo(progress, model.getLoss());
                     }
                 }
                 it = loader.iterator();
@@ -226,7 +225,7 @@ public class FastText {
         }
     }
 
-    void train(Args args) throws Exception {
+    private void train(Args args) throws Exception {
         args_ = args;
         if (args_.input.equals("-")) {
             // manage expectations
@@ -250,7 +249,7 @@ public class FastText {
         }
 
         stopwatch = Stopwatch.createStarted();
-        tokenCount = 0;
+        tokenCount = new AtomicLong(0);
 
         ExecutorService es = Executors.newFixedThreadPool(args_.thread);
         CompletionService<Model> completionService = new ExecutorCompletionService<>(es);
@@ -281,8 +280,9 @@ public class FastText {
     public static void main(String[] args) throws Exception {
         Args argz = new Args();
         argz.thread = 1;
-        argz.input = "/home/ahmetaa/data/nlp/corpora/dunya-20k";
-        argz.output = "/home/ahmetaa/data/nlp/corpora/dunya-20k-fasttext";
+        argz.bucket = 500_000;
+        argz.input = "/media/data/aaa/corpora/corpus-100k.txt";
+        argz.output = "/media/data/aaa/corpora/corpus-100k-fasttext";
         FastText fastText = new FastText();
         fastText.train(argz);
     }
