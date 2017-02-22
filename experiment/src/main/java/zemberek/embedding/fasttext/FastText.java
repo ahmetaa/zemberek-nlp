@@ -106,7 +106,7 @@ public class FastText {
 
     private void cbow(Model model, float lr, int[] line) {
         for (int w = 0; w < line.length; w++) {
-            int boundary = model.random.nextInt(args_.ws - 1) + 1; // [1..args.ws]
+            int boundary = model.random.nextInt(args_.ws) + 1; // [1..args.ws]
             IntVector bow = new IntVector();
             for (int c = -boundary; c <= boundary; c++) {
                 if (c != 0 && w + c >= 0 && w + c < line.length) {
@@ -120,7 +120,7 @@ public class FastText {
 
     private void skipgram(Model model, float lr, int[] line) {
         for (int w = 0; w < line.length; w++) {
-            int boundary = model.random.nextInt(args_.ws - 1) + 1; // [1..args.ws]
+            int boundary = model.random.nextInt(args_.ws) + 1; // [1..args.ws]
             int[] ngrams = dict_.getNgrams(line[w]);
             for (int c = -boundary; c <= boundary; c++) {
                 if (c != 0 && w + c >= 0 && w + c < line.length) {
@@ -191,7 +191,7 @@ public class FastText {
                     List<String> lines = it.next();
                     for (String lineStr : lines) {
 
-                        IntVector line = new IntVector(10);
+                        IntVector line = new IntVector(15);
                         IntVector labels = new IntVector();
 
                         progress = (float) tokenCount.get() / (args_.epoch * ntokens);
@@ -220,6 +220,7 @@ public class FastText {
                         printInfo(progress, model.getLoss());
                     }
                 }
+                // start from the beginning again.
                 it = loader.iterator();
             }
         }
@@ -280,9 +281,11 @@ public class FastText {
     public static void main(String[] args) throws Exception {
         Args argz = new Args();
         argz.thread = 1;
-        argz.bucket = 500_000;
+        argz.bucket = 1;
+        argz.minn = 100;
+        argz.maxn = 100;
         argz.input = "/media/data/aaa/corpora/corpus-100k.txt";
-        argz.output = "/media/data/aaa/corpora/corpus-100k-fasttext";
+        argz.output = "/media/data/aaa/corpora/corpus-100k-fasttext2";
         FastText fastText = new FastText();
         fastText.train(argz);
     }

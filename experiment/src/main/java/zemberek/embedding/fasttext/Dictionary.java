@@ -1,9 +1,8 @@
 package zemberek.embedding.fasttext;
 
 import zemberek.core.SpaceTabTokenizer;
-import zemberek.core.collections.IntVector;
 import zemberek.core.collections.Histogram;
-import zemberek.core.io.IOUtil;
+import zemberek.core.collections.IntVector;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
 
@@ -11,7 +10,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -144,9 +142,11 @@ public class Dictionary {
     }
 
     private int hash(String str, int start, int end) {
+        //TODO: make it char based after the fix
+        String sub = str.substring(start, end);
         int h = 0x811C_9DC5;
-        for (int i = start; i < end; i++) {
-            h = h ^ str.charAt(i);
+        for (byte b : sub.getBytes()) {
+            h = h ^ (int) b;
             h = h * 16777619;
         }
         return h & 0x7fff_ffff;
@@ -173,10 +173,6 @@ public class Dictionary {
      */
     private int[] computeNgrams(String word, int wordId) {
 
-        if (word.length() < args_.minn) {
-            return new int[0];
-        }
-
         int endGram = args_.maxn < word.length() ? args_.maxn : word.length();
         int size = 0;
         for (int i = args_.minn; i <= endGram; i++) {
@@ -192,6 +188,10 @@ public class Dictionary {
             result = new int[size + 1];
             result[0] = wordId;
             counter = 1;
+        }
+
+        if (word.length() < args_.minn) {
+            return result;
         }
 
         for (int i = 0; i <= word.length() - args_.minn; i++) {

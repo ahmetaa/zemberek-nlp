@@ -86,7 +86,7 @@ public class Model {
 
     private float binaryLogistic(int target, boolean label, float lr) {
         float score = sigmoid(wo_.dotRow(hidden_, target));
-        float alpha = lr * (label ? 1f : 0f - score);
+        float alpha = lr * ((label ? 1f : 0f) - score);
         grad_.addRow(wo_, target, alpha);
         synchronized (this) {
             wo_.addRow(hidden_, target, alpha);
