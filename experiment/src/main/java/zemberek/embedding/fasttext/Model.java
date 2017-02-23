@@ -88,13 +88,11 @@ public class Model {
         float score = sigmoid(wo_.dotRow(hidden_, target));
         float alpha = lr * ((label ? 1f : 0f) - score);
         grad_.addRow(wo_, target, alpha);
-        synchronized (this) {
-            wo_.addRow(hidden_, target, alpha);
-        }
+        wo_.addRow(hidden_, target, alpha);
         if (label) {
             return -log(score);
         } else {
-            return -log(1.0f - score);
+            return -log((float) (1.0 - score));
         }
     }
 
@@ -149,9 +147,7 @@ public class Model {
             float label = (i == target) ? 1.0f : 0.0f;
             float alpha = lr * (label - output_.data_[i]);
             grad_.addRow(wo_, i, alpha);
-            synchronized (this) {
-                wo_.addRow(hidden_, i, alpha);
-            }
+            wo_.addRow(hidden_, i, alpha);
         }
         return -log(output_.data_[target]);
     }
@@ -162,20 +158,19 @@ public class Model {
         for (int i : input) {
             hidden.addRow(wi_, i);
         }
-        hidden.mul(1.0f / input.length);
+        hidden.mul((float) (1.0 / input.length));
     }
 
-
     private static final Comparator<Pair> PAIR_COMPARATOR =
-            (l, r) -> l.first > r.first ? 1 : 0;
+            (l, r) -> Float.compare(l.first, r.first);
 
     List<Pair> predict(int[] input,
-                 int k,
-                 Vector hidden,
-                 Vector output) {
+                       int k,
+                       Vector hidden,
+                       Vector output) {
         assert (k > 0);
         computeHidden(input, hidden);
-        PriorityQueue<Pair> heap = new PriorityQueue<>(k+1, PAIR_COMPARATOR);
+        PriorityQueue<Pair> heap = new PriorityQueue<>(k + 1, PAIR_COMPARATOR);
         if (args_.loss == Args.loss_name.hs) {
             dfs(k, 2 * osz_ - 2, 0.0f, heap, hidden);
         } else {
@@ -183,7 +178,7 @@ public class Model {
         }
         List<Pair> result = new ArrayList<>(heap);
         Collections.sort(result);
-        return  result;
+        return result;
     }
 
     List<Pair> predict(int[] input, int k) {
@@ -223,9 +218,8 @@ public class Model {
             }
             return;
         }
-
         float f = sigmoid(wo_.dotRow(hidden, node - osz_));
-        dfs(k, tree[node].left, score + log(1.0f - f), heap, hidden);
+        dfs(k, tree[node].left, score + log((float) (1.0 - f)), heap, hidden);
         dfs(k, tree[node].right, score + log(f), heap, hidden);
     }
 
@@ -245,12 +239,11 @@ public class Model {
         nexamples_ += 1;
 
         if (args_.model == Args.model_name.sup) {
-            grad_.mul(1.0f / input.length);
+            grad_.mul((float) (1.0 / input.length));
         }
-        synchronized (this) {
-            for (int i : input) {
-                wi_.addRow(grad_, i, 1.0f);
-            }
+
+        for (int i : input) {
+            wi_.addRow(grad_, i, 1.0f);
         }
     }
 
@@ -265,7 +258,7 @@ public class Model {
     }
 
     private void initTableNegatives(long[] counts) {
-        IntVector vec = new IntVector(counts.length*10);
+        IntVector vec = new IntVector(counts.length * 10);
         float z = 0.0f;
         for (long count : counts) {
             z += (float) Math.pow(count, 0.5);
@@ -341,7 +334,7 @@ public class Model {
         t_sigmoid = new float[SIGMOID_TABLE_SIZE + 1];
         for (int i = 0; i < SIGMOID_TABLE_SIZE + 1; i++) {
             float x = i * 2f * MAX_SIGMOID / SIGMOID_TABLE_SIZE - MAX_SIGMOID;
-            t_sigmoid[i] = 1.0f / (1.0f + (float) Math.exp(-x));
+            t_sigmoid[i] = (float) (1.0d / (1.0d + (float) Math.exp(-x)));
         }
     }
 

@@ -14,23 +14,22 @@ import java.util.stream.Collectors;
 public class WordSimilarityConsole {
 
     public static void main(String[] args) throws Exception {
-        Path vectorFile = Paths.get("/media/depo/data/aaa/corpora/model-large-min5-dim50.vec");
-        Path binVectorFile = Paths.get("/media/depo/data/aaa/corpora/model-large-min5-dim50.vec.bin");
-//        convertToBinary(vectorFile, binVectorFile);
+        //String name = "/media/data/aaa/corpora/corpus-1M-f-java";
+        String name = "/media/data/aaa/corpora/corpus-1M-fcpp";
+        Path vectorFile = Paths.get(name+".vec");
+        Path binVectorFile = Paths.get(name+".vec.bin");
+        convertToBinary(vectorFile, binVectorFile);
 
-        Path distanceListBin = Paths.get("/media/depo/data/aaa/corpora/distance-large-min5-dim50.bin");
-        Path vocabFile = Paths.get("/media/depo/data/aaa/corpora/vocab-large-min5-dim50.bin");
+        Path distanceListBin = Paths.get(name+".dist");
+        Path vocabFile = Paths.get(name+"vocab");
 
-
-/*
         WordDistances.saveDistanceListBin(
                 binVectorFile,
                 distanceListBin,
                 vocabFile,
                 10,
                 50,
-                24);
-*/
+                8);
 
         new WordSimilarityConsole().run(distanceListBin, vocabFile);
     }

@@ -2,17 +2,15 @@ package zemberek.embedding.fasttext;
 
 import zemberek.core.math.FloatArrays;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Vector {
+class Vector {
     float[] data_;
     int m_;
 
-    public Vector(int m_) {
+    Vector(int m_) {
         this.data_ = new float[m_];
         this.m_ = m_;
     }
@@ -21,11 +19,11 @@ public class Vector {
         return data_.length;
     }
 
-    public void zero() {
+    void zero() {
         Arrays.fill(data_, 0);
     }
 
-    public void mul(float a) {
+    void mul(float a) {
         FloatArrays.scale(data_, a);
     }
 
@@ -34,27 +32,33 @@ public class Vector {
         assert (i >= 0);
         assert (i < A.m_);
         assert (m_ == A.n_);
+        A.readLock(i);
         for (int j = 0; j < A.n_; j++) {
-            data_[j] += A.data_[i * A.n_ + j];
+            data_[j] += A.data_[i][j];
         }
+        A.readUnlock(i);
     }
 
     void addRow(Matrix A, int i, float a) {
         assert (i >= 0);
         assert (i < A.m_);
         assert (m_ == A.n_);
+        A.readLock(i);
         for (int j = 0; j < A.n_; j++) {
-            data_[j] += a * A.data_[i * A.n_ + j];
+            data_[j] += a * A.data_[i][j];
         }
+        A.readUnlock(i);
     }
 
 
-    public void mul(Matrix A, Vector vec) {
+    void mul(Matrix A, Vector vec) {
         for (int i = 0; i < m_; i++) {
             data_[i] = 0.0f;
+            A.readLock(i);
             for (int j = 0; j < A.n_; j++) {
-                data_[i] += A.data_[i * A.n_ + j] * vec.data_[j];
+                data_[i] += A.data_[i][j] * vec.data_[j];
             }
+            A.readUnlock(i);
         }
     }
 
@@ -70,10 +74,10 @@ public class Vector {
         return argmax;
     }
 
-    public String asString() {
+    String asString() {
         List<String> values = new ArrayList<>(data_.length);
         for (float v : data_) {
-            values.add(String.format("%.5f", v));
+            values.add(String.format("%.6f", v));
         }
         return String.join(" ", values);
     }

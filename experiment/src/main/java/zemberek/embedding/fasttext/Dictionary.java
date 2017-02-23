@@ -1,7 +1,6 @@
 package zemberek.embedding.fasttext;
 
 import zemberek.core.SpaceTabTokenizer;
-import zemberek.core.collections.Histogram;
 import zemberek.core.collections.IntVector;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
@@ -10,10 +9,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Dictionary {
 
@@ -72,6 +69,7 @@ public class Dictionary {
     private void addWithCount(String w, int count) {
         int h = find(w);
         // if this is an empty slot. add a new entry.
+        ntokens_ += count;
         if (word2int_[h] == -1) {
             Entry e = new Entry();
             e.word = w;
@@ -168,7 +166,6 @@ public class Dictionary {
      * rek, rek_,
      * ek_
      * <p>
-     * TODO: for agglutinative languages, consider only adding suffixes.
      * If wordId is not -1, wordId value is added to result[0]
      */
     private int[] computeNgrams(String word, int wordId) {
@@ -214,12 +211,11 @@ public class Dictionary {
         }
     }
 
-    static Dictionary readFromFile(Path file, Args args) throws IOException {
+
+    static Dictionary readFromFile(Path file, final Args args) throws IOException {
 
         Log.info("Initialize dictionary and histograms.");
         Dictionary dictionary = new Dictionary(args);
-        Histogram<String> wordCounts = new Histogram<>(1_000_000);
-        Histogram<String> labelCounts = new Histogram<>(100_000);
 
         Log.info("Loading text.");
         BlockTextLoader loader = new BlockTextLoader(file, 100_000);
@@ -232,40 +228,43 @@ public class Dictionary {
                 List<String> split = tokenizer.splitToList(line);
                 split.add(EOS);
                 for (String word : split) {
-                    if (word.startsWith(args.label)) {
-                        labelCounts.add(word);
-                    } else {
-                        wordCounts.add(word);
-                    }
+                    dictionary.addWithCount(word, 1);
                 }
             }
             Log.info("Lines read: %d (thousands) ", blockCounter * 100);
             blockCounter++;
         }
-        Log.info("Word count = %d , Label count = %d", wordCounts.size(), labelCounts.size());
+        Log.info("Word + Label count = %d", dictionary.words_.size());
         Log.info("Removing word and labels with small counts. Min word = %d, Min Label = %d",
                 args.minCount, args.minCountLabel);
         // now we have the histograms. Remove based on count.
-        dictionary.ntokens_ = wordCounts.totalCount() + labelCounts.totalCount();
-        wordCounts.removeSmaller(args.minCount);
-        labelCounts.removeSmaller(args.minCountLabel);
-        Log.info("Word count = %d , Label count = %d", wordCounts.size(), labelCounts.size());
-        Log.info("Sort and add words and labels to dictionary.");
-        // add all, sort by count. first words, then labels.
-        for (String word : wordCounts.getSortedList()) {
-            dictionary.addWithCount(word, wordCounts.getCount(word));
+        dictionary.words_.sort((e1, e2) -> {
+            if (e1.type != e2.type)
+                return Integer.compare(e1.type, e2.type);
+            else return Long.compare(e2.count, e1.count);
+        });
+
+        LinkedHashSet<Entry> all = new LinkedHashSet<>(dictionary.words_);
+        List<Entry> toRemove = dictionary.words_
+                .stream()
+                .filter(s -> (s.type == TYPE_WORD && s.count < args.minCount ||
+                        s.type == TYPE_LABEL && s.count < args.minCountLabel))
+                .collect(Collectors.toList());
+        all.removeAll(toRemove);
+        dictionary.words_ = new ArrayList<>(all);
+        dictionary.size_ = 0;
+        dictionary.nwords_ = 0;
+        dictionary.nlabels_ = 0;
+        Arrays.fill(dictionary.word2int_, -1);
+        for (Entry e : dictionary.words_) {
+            int i = dictionary.find(e.word);
+            dictionary.word2int_[i] = dictionary.size_++;
+            if (e.type == TYPE_WORD) dictionary.nwords_++;
+            if (e.type == TYPE_LABEL) dictionary.nlabels_++;
         }
-        for (String label : labelCounts.getSortedList()) {
-            dictionary.addWithCount(label, labelCounts.getCount(label));
-        }
-        dictionary.nwords_ = wordCounts.size();
-        dictionary.nlabels_ = labelCounts.size();
-        dictionary.size_ = dictionary.nwords_ + dictionary.nlabels_;
-        if (dictionary.size_ == 0) {
-            throw new IllegalStateException("Empty vocabulary.");
-        }
+        Log.info("Word count = %d , Label count = %d", dictionary.nwords(), dictionary.nlabels());
         dictionary.initTableDiscard();
-        Log.info("Adding n-grams.");
+        Log.info("Adding character n-grams for words.");
         dictionary.initNgrams();
         Log.info("Done.");
         return dictionary;

@@ -190,13 +190,21 @@ public class FastText {
                 while (it.hasNext()) {
                     List<String> lines = it.next();
                     for (String lineStr : lines) {
-
+                        if (tokenCount.get() >= args_.epoch * ntokens) {
+                            if (threadId == 0 && args_.verbose > 0) {
+                                printInfo(1.0f, model.getLoss());
+                            }
+                            return model;
+                        }
                         IntVector line = new IntVector(15);
                         IntVector labels = new IntVector();
-
-                        progress = (float) tokenCount.get() / (args_.epoch * ntokens);
-                        float lr = (float) args_.lr * (1.0f - progress);
-                        localTokenCount += dict_.getLine(lineStr, line, labels, model.random);
+                        int wcount = dict_.getLine(lineStr, line, labels, model.random);
+                        if(wcount == 0) {
+                            continue;
+                        }
+                        localTokenCount += wcount;
+                        progress = (float) ((1.0 * tokenCount.get()) / (args_.epoch * ntokens));
+                        float lr = (float) (args_.lr * (1.0 - progress));
                         if (args_.model == Args.model_name.sup) {
                             dict_.addNgrams(line, args_.wordNgrams);
                             supervised(model, lr, line.copyOf(), labels.copyOf());
@@ -208,12 +216,6 @@ public class FastText {
                         if (localTokenCount > args_.lrUpdateRate) {
                             tokenCount.getAndAdd(localTokenCount);
                             localTokenCount = 0;
-                        }
-                        if (tokenCount.get() >= args_.epoch * ntokens) {
-                            if (threadId == 0 && args_.verbose > 0) {
-                                printInfo(1.0f, model.getLoss());
-                            }
-                            return model;
                         }
                     }
                     if (threadId == 0 && args_.verbose > 1) {
@@ -281,11 +283,13 @@ public class FastText {
     public static void main(String[] args) throws Exception {
         Args argz = new Args();
         argz.thread = 1;
-        argz.bucket = 1;
-        argz.minn = 100;
-        argz.maxn = 100;
-        argz.input = "/media/data/aaa/corpora/corpus-100k.txt";
-        argz.output = "/media/data/aaa/corpora/corpus-100k-fasttext2";
+        argz.epoch = 5;
+        argz.dim = 100;
+        argz.bucket = 1_000_000;
+        argz.minn = 3;
+        argz.maxn = 5;
+        argz.input = "/media/data/aaa/corpora/corpus-1M.txt";
+        argz.output = "/media/data/aaa/corpora/corpus-1M-f-ngram-java";
         FastText fastText = new FastText();
         fastText.train(argz);
     }
