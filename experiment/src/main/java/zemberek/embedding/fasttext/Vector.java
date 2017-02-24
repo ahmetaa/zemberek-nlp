@@ -24,7 +24,7 @@ class Vector {
     }
 
     void mul(float a) {
-        FloatArrays.scale(data_, a);
+        FloatArrays.scaleInPlace(data_, a);
     }
 
 
