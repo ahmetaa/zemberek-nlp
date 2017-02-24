@@ -9,6 +9,7 @@ import zemberek.core.text.TextIO;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -140,6 +141,49 @@ public class FastText {
         }
     }
 
+    void test(Path in, int k) throws IOException {
+        int nexamples = 0, nlabels = 0;
+        double precision = 0.0;
+        String lineStr;
+        BufferedReader reader = Files.newBufferedReader(in, StandardCharsets.UTF_8);
+        while ((lineStr = reader.readLine()) != null) {
+            IntVector line = new IntVector(), labels = new IntVector();
+            dict_.getLine(lineStr, line, labels, model_.random);
+            dict_.addNgrams(line, args_.wordNgrams);
+            if (labels.size() > 0 && line.size() > 0) {
+                List<Model.Pair> modelPredictions = model_.predict(line.copyOf(), k);
+                for (Model.Pair pair : modelPredictions) {
+                    if (labels.contains(pair.second)) {
+                        precision += 1.0;
+                    }
+                }
+                nexamples++;
+                nlabels += labels.size();
+            }
+        }
+        Log.info("P@%d: %.3f  R@%d: %.3f  Number of examples = %d",
+                k, precision / (k * nexamples),
+                k, precision / nlabels,
+                nexamples);
+    }
+
+    Vector textVectors(List<String> paragraph) {
+        Vector vec = new Vector(args_.dim);
+        for (String s : paragraph) {
+            IntVector line = new IntVector(), labels = new IntVector();
+            dict_.getLine(s, line, labels, model_.random);
+            if (line.size() == 0) {
+                continue;
+            }
+            dict_.addNgrams(line, args_.wordNgrams);
+            for (int i : line.copyOf()) {
+                vec.addRow(input_, i);
+            }
+            vec.mul((float) (1.0 / line.size()));
+        }
+        return vec;
+    }
+
     // TODO: signature is different in original. original has a stream and a list of predictions
     // this one returns the predictions and input is a string representing a line.
     List<ScoreStringPair> predict(String line, int k) {
@@ -199,7 +243,7 @@ public class FastText {
                         IntVector line = new IntVector(15);
                         IntVector labels = new IntVector();
                         int wcount = dict_.getLine(lineStr, line, labels, model.random);
-                        if(wcount == 0) {
+                        if (wcount == 0) {
                             continue;
                         }
                         localTokenCount += wcount;
@@ -260,6 +304,7 @@ public class FastText {
         Log.info("Counting chars..");
         long charCount = TextIO.charCount(input, StandardCharsets.UTF_8);
         Log.info("Training started.");
+        Stopwatch sw = Stopwatch.createStarted();
         for (int i = 0; i < args_.thread; i++) {
             completionService.submit(new TrainTask(i, input, (int) (i * charCount / args_.thread)));
         }
@@ -270,7 +315,8 @@ public class FastText {
             completionService.take().get();
             c++;
         }
-        Log.info("Training finished.");
+        Log.info("Training finished in %.1f seconds.",
+                sw.elapsed(TimeUnit.MILLISECONDS) / 1000d);
         model_ = new Model(input_, output_, args_, 0);
         Log.info("Saving model.");
         saveModel();
@@ -282,12 +328,14 @@ public class FastText {
 
     public static void main(String[] args) throws Exception {
         Args argz = new Args();
-        argz.thread = 1;
+        argz.thread = 20;
+        argz.model = Args.model_name.cbow;
         argz.epoch = 5;
+        argz.wordNgrams = 2;
         argz.dim = 100;
         argz.bucket = 1_000_000;
         argz.minn = 3;
-        argz.maxn = 5;
+        argz.maxn = 6;
         argz.input = "/media/data/aaa/corpora/corpus-1M.txt";
         argz.output = "/media/data/aaa/corpora/corpus-1M-f-ngram-java";
         FastText fastText = new FastText();

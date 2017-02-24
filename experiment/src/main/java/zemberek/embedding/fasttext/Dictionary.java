@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Dictionary {
+class Dictionary {
 
     static final int TYPE_WORD = 0;
     static final int TYPE_LABEL = 1;

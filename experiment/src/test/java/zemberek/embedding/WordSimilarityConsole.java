@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 public class WordSimilarityConsole {
 
     public static void main(String[] args) throws Exception {
-        //String name = "/media/data/aaa/corpora/corpus-1M-f-java";
-        String name = "/media/data/aaa/corpora/corpus-1M-fcpp";
+        String name = "/media/data/aaa/corpora/corpus-1M-f-ngram-java";
+        //String name = "/media/data/aaa/corpora/corpus-100k-fcpp";
         Path vectorFile = Paths.get(name+".vec");
         Path binVectorFile = Paths.get(name+".vec.bin");
         convertToBinary(vectorFile, binVectorFile);
@@ -27,14 +27,12 @@ public class WordSimilarityConsole {
                 binVectorFile,
                 distanceListBin,
                 vocabFile,
-                10,
+                20,
                 50,
-                8);
+                20);
 
         new WordSimilarityConsole().run(distanceListBin, vocabFile);
     }
-
-
 
     public void run(Path distanceListBinaryFile, Path vocabFile) throws IOException {
 

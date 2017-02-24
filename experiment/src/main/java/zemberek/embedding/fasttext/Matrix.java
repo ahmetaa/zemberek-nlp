@@ -12,41 +12,61 @@ class Matrix {
     int n_;
     float[][] data_;
     private ReadWriteLock[] locks;
+    // for activating row level locking functionality, set this to true.
+    private boolean useLocks = false;
 
     private Matrix(int m_, int n_, float[] data_) {
+        this(m_, n_, data_, false);
+    }
+
+    private Matrix(int m_, int n_, float[] data_, boolean useLocks) {
         this.m_ = m_;
         this.n_ = n_;
         this.data_ = new float[m_][n_];
         for (int i = 0; i < m_; i++) {
             System.arraycopy(data_, i * n_, this.data_[i], 0, n_);
         }
+        this.useLocks = useLocks;
     }
+
 
     Matrix(int m_, int n_) {
         this.m_ = m_;
         this.n_ = n_;
         this.data_ = new float[m_][n_];
-        locks = new ReentrantReadWriteLock[m_];
+        if (useLocks) {
+            locks = new ReentrantReadWriteLock[m_];
+        }
         for (int i = 0; i < m_; i++) {
             this.data_[i] = new float[n_];
-            locks[i] = new ReentrantReadWriteLock();
+            if (useLocks) {
+                locks[i] = new ReentrantReadWriteLock();
+            }
         }
     }
 
     final void writeLock(int i) {
-        locks[i].writeLock().lock();
+        if (useLocks) {
+            locks[i].writeLock().lock();
+        }
     }
 
     final void writeUnlock(int i) {
-        locks[i].writeLock().unlock();
+        if (useLocks) {
+            locks[i].writeLock().unlock();
+        }
     }
 
     final void readLock(int i) {
-        locks[i].readLock().lock();
+        if (useLocks) {
+            locks[i].readLock().lock();
+        }
     }
 
     final void readUnlock(int i) {
-        locks[i].readLock().unlock();
+        if (useLocks) {
+            locks[i].readLock().unlock();
+        }
     }
 
     void uniform(float a) {
@@ -88,6 +108,15 @@ class Matrix {
                 dos.writeFloat(data_[i][j]);
             }
         }
+    }
+
+    void printRow(String s, int i, int amount) {
+        int n = amount > n_ ? n_ : amount;
+        System.out.print(s + "[" + i + "] = ");
+        for (int k = 0; k < n; k++) {
+            System.out.print(String.format("%.4f ", data_[i][k]));
+        }
+        System.out.println();
     }
 
     static Matrix load(DataInputStream dis) throws IOException {

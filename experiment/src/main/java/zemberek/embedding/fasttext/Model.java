@@ -4,7 +4,7 @@ import zemberek.core.collections.IntVector;
 
 import java.util.*;
 
-public class Model {
+class Model {
 
     static class Node {
         int parent;

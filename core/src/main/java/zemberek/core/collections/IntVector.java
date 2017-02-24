@@ -71,6 +71,15 @@ public class IntVector {
         }
     }
 
+    public boolean contains(int i) {
+        for (int j = 0; j < size; j++) {
+            if (data[j] == i) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void shuffle() {
         shuffle(new Random());
     }
