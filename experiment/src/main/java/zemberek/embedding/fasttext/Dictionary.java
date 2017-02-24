@@ -284,8 +284,8 @@ class Dictionary {
         for (Entry entry : words_) {
             if (entry.type == entry_type) {
                 counts[c] = entry.count;
+                c++;
             }
-            c++;
         }
         return counts;
     }

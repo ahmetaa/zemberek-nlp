@@ -78,6 +78,7 @@ public class FastText {
         } else {
             model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_WORD));
         }
+        Log.info("Model loaded.");
     }
 
     private void printInfo(float progress, float loss) {
@@ -101,7 +102,7 @@ public class FastText {
                             int[] line,
                             int[] labels) {
         if (labels.length == 0 || line.length == 0) return;
-        int i = model.random.nextInt(labels.length - 1);
+        int i = model.random.nextInt(labels.length);
         model.update(line, labels[i], lr);
     }
 
@@ -326,7 +327,35 @@ public class FastText {
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    static void dbpediaTest() throws Exception {
+        String output = "/media/data/aaa/fasttext/out/dbpedia";
+        Path modelFilePath = Paths.get(output + ".bin");
+        Args argz = new Args();
+        argz.thread = 8;
+        argz.model = Args.model_name.sup;
+        argz.epoch = 5;
+        argz.wordNgrams = 2;
+        argz.minCount = 1;
+        argz.lr = 0.1;
+        argz.dim = 10;
+        argz.bucket = 10_000_000;
+        argz.minn = 3;
+        argz.maxn = 6;
+        argz.input = "/media/data/aaa/fasttext/dbpedia.train";
+        argz.output = output;
+
+        Path testFilePath = Paths.get("/media/data/aaa/fasttext/dbpedia.test");
+
+        FastText fastText = new FastText();
+        if (modelFilePath.toFile().exists()) {
+            fastText.loadModel(IOUtil.getDataInputStream(modelFilePath));
+        } else {
+            fastText.train(argz);
+        }
+        fastText.test(testFilePath, 1);
+    }
+
+    private static void cbow() throws Exception {
         Args argz = new Args();
         argz.thread = 20;
         argz.model = Args.model_name.cbow;
@@ -340,6 +369,11 @@ public class FastText {
         argz.output = "/media/data/aaa/corpora/corpus-1M-f-ngram-java";
         FastText fastText = new FastText();
         fastText.train(argz);
+    }
+
+    public static void main(String[] args) throws Exception {
+        //cbow();
+        dbpediaTest();
     }
 
 

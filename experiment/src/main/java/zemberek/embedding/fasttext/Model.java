@@ -170,7 +170,7 @@ class Model {
                        Vector output) {
         assert (k > 0);
         computeHidden(input, hidden);
-        PriorityQueue<Pair> heap = new PriorityQueue<>(k + 1, PAIR_COMPARATOR);
+        PriorityQueue<Pair> heap = new PriorityQueue<>(k+1,PAIR_COMPARATOR);
         if (args_.loss == Args.loss_name.hs) {
             dfs(k, 2 * osz_ - 2, 0.0f, heap, hidden);
         } else {
@@ -194,7 +194,7 @@ class Model {
             if (heap.size() == k && log(output.data_[i]) < heap.peek().first) {
                 continue;
             }
-            heap.add(new Pair(output.data_[i], i));
+            heap.add(new Pair(log(output.data_[i]), i));
             if (heap.size() > k) {
                 heap.remove();
             }
