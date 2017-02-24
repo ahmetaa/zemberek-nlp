@@ -6,11 +6,11 @@ import java.util.*;
 
 class Model {
 
-    static class Node {
+    private static class Node {
         int parent;
         int left;
         int right;
-        long count; // TODO: this can be an int.
+        long count;
         boolean binary;
     }
 
@@ -58,7 +58,7 @@ class Model {
     private static final int MAX_SIGMOID = 8;
     private static final int LOG_TABLE_SIZE = 512;
 
-    Random random;
+    private Random rng;
 
     static {
         initLog();
@@ -72,7 +72,7 @@ class Model {
         hidden_ = new Vector(args.dim);
         output_ = new Vector(wo.m_);
         grad_ = new Vector(args.dim);
-        random = new Random(seed);
+        rng = new Random(seed);
         wi_ = wi;
         wo_ = wo;
         args_ = args;
@@ -82,6 +82,10 @@ class Model {
         negpos = 0;
         loss_ = 0.0f;
         nexamples_ = 1;
+    }
+
+    Random getRng() {
+        return rng;
     }
 
     private float binaryLogistic(int target, boolean label, float lr) {
@@ -269,7 +273,7 @@ class Model {
                 vec.add(i);
             }
         }
-        vec.shuffle(random);
+        vec.shuffle(rng);
         negatives = vec.copyOf();
     }
 
@@ -283,7 +287,7 @@ class Model {
     }
 
     private void buildTree(long[] counts) {
-        tree = new Node[2 * osz_ - 1];
+        tree = Arrays.copyOf(tree, 2 * osz_ - 1);
         for (int i = 0; i < 2 * osz_ - 1; i++) {
             tree[i].parent = -1;
             tree[i].left = -1;

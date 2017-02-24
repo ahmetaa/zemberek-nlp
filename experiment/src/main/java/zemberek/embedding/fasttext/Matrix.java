@@ -13,62 +13,75 @@ class Matrix {
     float[][] data_;
     private ReadWriteLock[] locks;
     // for activating row level locking functionality, set this to true.
-    private boolean useLocks = false;
+    private boolean enableLocks = false;
 
     private Matrix(int m_, int n_, float[] data_) {
         this(m_, n_, data_, false);
     }
 
-    private Matrix(int m_, int n_, float[] data_, boolean useLocks) {
+    private Matrix(int m_, int n_, float[] data_, boolean enableLocks) {
         this.m_ = m_;
         this.n_ = n_;
         this.data_ = new float[m_][n_];
         for (int i = 0; i < m_; i++) {
             System.arraycopy(data_, i * n_, this.data_[i], 0, n_);
         }
-        this.useLocks = useLocks;
+        this.enableLocks = enableLocks;
     }
 
 
-    Matrix(int m_, int n_) {
+    /**
+     * Generates a matrix that hs n_ columns and m_ rows.
+     */
+    Matrix(int m_, int n_, boolean enableLocks) {
+        this.enableLocks = enableLocks;
         this.m_ = m_;
         this.n_ = n_;
         this.data_ = new float[m_][n_];
-        if (useLocks) {
+        if (enableLocks) {
             locks = new ReentrantReadWriteLock[m_];
         }
         for (int i = 0; i < m_; i++) {
             this.data_[i] = new float[n_];
-            if (useLocks) {
+            if (enableLocks) {
                 locks[i] = new ReentrantReadWriteLock();
             }
         }
     }
 
+    /**
+     * Locks the [i]th row for writing.
+     */
     final void writeLock(int i) {
-        if (useLocks) {
+        if (enableLocks) {
             locks[i].writeLock().lock();
         }
     }
 
+    /**
+     * Unlocks the [i]th row from write operations.
+     */
     final void writeUnlock(int i) {
-        if (useLocks) {
+        if (enableLocks) {
             locks[i].writeLock().unlock();
         }
     }
 
     final void readLock(int i) {
-        if (useLocks) {
+        if (enableLocks) {
             locks[i].readLock().lock();
         }
     }
 
     final void readUnlock(int i) {
-        if (useLocks) {
+        if (enableLocks) {
             locks[i].readLock().unlock();
         }
     }
 
+    /**
+     * Fills the Matrix with uniform random numbers in [-a a] range.
+     */
     void uniform(float a) {
         Random random = new Random(1);
         for (int i = 0; i < m_; i++) {
@@ -79,6 +92,10 @@ class Matrix {
         }
     }
 
+    /**
+     * Sums the [a]*values of Vector [vec] to the [i].th row of the Matrix.
+     * If locks are enabled, access to the row is thread safe.
+     */
     void addRow(Vector vec, int i, float a) {
         writeLock(i);
         for (int j = 0; j < n_; j++) {
@@ -87,6 +104,10 @@ class Matrix {
         writeUnlock(i);
     }
 
+    /**
+     * Calculates dot product of Vector [vec] and [i]th row.
+     * If locks are enabled, access to the row is thread safe.
+     */
     float dotRow(Vector vec, int i) {
         assert (i >= 0);
         assert (i < m_);
@@ -100,6 +121,9 @@ class Matrix {
         return d;
     }
 
+    /**
+     * Saves values to binary stream [dos]
+     */
     void save(DataOutputStream dos) throws IOException {
         dos.writeInt(m_);
         dos.writeInt(n_);
@@ -119,6 +143,9 @@ class Matrix {
         System.out.println();
     }
 
+    /**
+     * loads the values from binary stream [dis] and instantiates the matrix.
+     */
     static Matrix load(DataInputStream dis) throws IOException {
         int m_ = dis.readInt();
         int n_ = dis.readInt();

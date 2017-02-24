@@ -106,7 +106,7 @@ class Dictionary {
         if (i >= 0) {
             return getNgrams(i);
         }
-        return computeNgrams(BOW + word + EOW, i);
+        return characterNgrams(BOW + word + EOW, i);
     }
 
     private boolean discard(int id, float rand) {
@@ -133,22 +133,28 @@ class Dictionary {
         return words_.get(id).word;
     }
 
-    // Hash algorithm is slightly different. original uses unsigned integers
-    // and loops through bytes.
     private int hash(String str) {
         return hash(str, 0, str.length());
     }
 
-    private int hash(String str, int start, int end) {
-        //TODO: make it char based after the fix
-        String sub = str.substring(start, end);
+    private int hash(byte[] bytes) {
         int h = 0x811C_9DC5;
-        for (byte b : sub.getBytes()) {
+        for (byte b : bytes) {
             h = h ^ (int) b;
             h = h * 16777619;
         }
         return h & 0x7fff_ffff;
     }
+
+    private int hash(String str, int start, int end) {
+        int h = 0x811C_9DC5;
+        for (int i = start; i<end; i++) {
+            h = h ^ str.charAt(i);
+            h = h * 16777619;
+        }
+        return h & 0x7fff_ffff;
+    }
+
 
     /**
      * this algorithm is also slightly different than the original.
@@ -168,7 +174,7 @@ class Dictionary {
      * <p>
      * If wordId is not -1, wordId value is added to result[0]
      */
-    private int[] computeNgrams(String word, int wordId) {
+    private int[] characterNgrams(String word, int wordId) {
 
         int endGram = args_.maxn < word.length() ? args_.maxn : word.length();
         int size = 0;
@@ -207,7 +213,7 @@ class Dictionary {
         for (int i = 0; i < size_; i++) {
             String word = BOW + words_.get(i).word + EOW;
             // adds the wordId to the n-grams as well.
-            words_.get(i).subwords = computeNgrams(word, i);
+            words_.get(i).subwords = characterNgrams(word, i);
         }
     }
 

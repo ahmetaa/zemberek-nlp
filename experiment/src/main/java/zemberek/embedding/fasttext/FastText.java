@@ -102,13 +102,13 @@ public class FastText {
                             int[] line,
                             int[] labels) {
         if (labels.length == 0 || line.length == 0) return;
-        int i = model.random.nextInt(labels.length);
+        int i = model.getRng().nextInt(labels.length);
         model.update(line, labels[i], lr);
     }
 
     private void cbow(Model model, float lr, int[] line) {
         for (int w = 0; w < line.length; w++) {
-            int boundary = model.random.nextInt(args_.ws) + 1; // [1..args.ws]
+            int boundary = model.getRng().nextInt(args_.ws) + 1; // [1..args.ws]
             IntVector bow = new IntVector();
             for (int c = -boundary; c <= boundary; c++) {
                 if (c != 0 && w + c >= 0 && w + c < line.length) {
@@ -122,7 +122,7 @@ public class FastText {
 
     private void skipgram(Model model, float lr, int[] line) {
         for (int w = 0; w < line.length; w++) {
-            int boundary = model.random.nextInt(args_.ws) + 1; // [1..args.ws]
+            int boundary = model.getRng().nextInt(args_.ws) + 1; // [1..args.ws]
             int[] ngrams = dict_.getNgrams(line[w]);
             for (int c = -boundary; c <= boundary; c++) {
                 if (c != 0 && w + c >= 0 && w + c < line.length) {
@@ -149,7 +149,7 @@ public class FastText {
         BufferedReader reader = Files.newBufferedReader(in, StandardCharsets.UTF_8);
         while ((lineStr = reader.readLine()) != null) {
             IntVector line = new IntVector(), labels = new IntVector();
-            dict_.getLine(lineStr, line, labels, model_.random);
+            dict_.getLine(lineStr, line, labels, model_.getRng());
             dict_.addNgrams(line, args_.wordNgrams);
             if (labels.size() > 0 && line.size() > 0) {
                 List<Model.Pair> modelPredictions = model_.predict(line.copyOf(), k);
@@ -172,7 +172,7 @@ public class FastText {
         Vector vec = new Vector(args_.dim);
         for (String s : paragraph) {
             IntVector line = new IntVector(), labels = new IntVector();
-            dict_.getLine(s, line, labels, model_.random);
+            dict_.getLine(s, line, labels, model_.getRng());
             if (line.size() == 0) {
                 continue;
             }
@@ -185,12 +185,10 @@ public class FastText {
         return vec;
     }
 
-    // TODO: signature is different in original. original has a stream and a list of predictions
-    // this one returns the predictions and input is a string representing a line.
     List<ScoreStringPair> predict(String line, int k) {
         IntVector words = new IntVector();
         IntVector labels = new IntVector();
-        dict_.getLine(line, words, labels, model_.random);
+        dict_.getLine(line, words, labels, model_.getRng());
         dict_.addNgrams(words, args_.wordNgrams);
         if (words.isempty()) {
             return Collections.emptyList();
@@ -243,7 +241,7 @@ public class FastText {
                         }
                         IntVector line = new IntVector(15);
                         IntVector labels = new IntVector();
-                        int wcount = dict_.getLine(lineStr, line, labels, model.random);
+                        int wcount = dict_.getLine(lineStr, line, labels, model.getRng());
                         if (wcount == 0) {
                             continue;
                         }
@@ -286,14 +284,14 @@ public class FastText {
             //TODO: implement this.
             //loadVectors(args_->pretrainedVectors);
         } else {
-            input_ = new Matrix(dict_.nwords() + args_.bucket, args_.dim);
+            input_ = new Matrix(dict_.nwords() + args_.bucket, args_.dim, false);
             input_.uniform(1.0f / args_.dim);
         }
 
         if (args_.model == Args.model_name.sup) {
-            output_ = new Matrix(dict_.nlabels(), args_.dim);
+            output_ = new Matrix(dict_.nlabels(), args_.dim, false);
         } else {
-            output_ = new Matrix(dict_.nwords(), args_.dim);
+            output_ = new Matrix(dict_.nwords(), args_.dim, false);
         }
 
         stopwatch = Stopwatch.createStarted();
@@ -328,7 +326,7 @@ public class FastText {
     }
 
     static void dbpediaTest() throws Exception {
-        String output = "/media/data/aaa/fasttext/out/dbpedia";
+        String output = "/home/ahmetaa/data/vector/fasttext/dbpedia";
         Path modelFilePath = Paths.get(output + ".bin");
         Args argz = new Args();
         argz.thread = 8;
@@ -338,13 +336,13 @@ public class FastText {
         argz.minCount = 1;
         argz.lr = 0.1;
         argz.dim = 10;
-        argz.bucket = 10_000_000;
+        argz.bucket = 5_000_000;
         argz.minn = 3;
         argz.maxn = 6;
-        argz.input = "/media/data/aaa/fasttext/dbpedia.train";
+        argz.input = "/home/ahmetaa/projects/fastText/data/dbpedia.train";
         argz.output = output;
 
-        Path testFilePath = Paths.get("/media/data/aaa/fasttext/dbpedia.test");
+        Path testFilePath = Paths.get("/home/ahmetaa/projects/fastText/data/dbpedia.test");
 
         FastText fastText = new FastText();
         if (modelFilePath.toFile().exists()) {

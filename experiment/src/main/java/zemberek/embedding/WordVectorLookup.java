@@ -1,9 +1,7 @@
 package zemberek.embedding;
 
-import com.google.common.base.Stopwatch;
 import zemberek.core.collections.UIntMap;
 import zemberek.core.io.IOUtil;
-import zemberek.core.logging.Log;
 import zemberek.core.math.FloatArrays;
 import zemberek.lm.LmVocabulary;
 
@@ -15,9 +13,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class WordVectorLookup {
 
