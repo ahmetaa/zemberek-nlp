@@ -24,7 +24,7 @@ public class FastTextTest {
         FastText fastText;
 
         if (modelPath.toFile().exists()) {
-            fastText = FastText.loadModel(modelPath);
+            fastText = FastText.load(modelPath);
         } else {
             Args argz = new Args();
             argz.thread = 8;

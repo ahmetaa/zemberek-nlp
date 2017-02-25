@@ -29,7 +29,7 @@ class Dictionary {
     private int nlabels_;
     private long ntokens_;
 
-    static String EOS = "</s>";
+    private static String EOS = "</s>";
     private static String BOW = "<";
     private static String EOW = ">";
 
@@ -112,7 +112,6 @@ class Dictionary {
     private boolean discard(int id, float rand) {
         assert (id >= 0);
         assert (id < nwords_);
-        if (args_.model == Args.model_name.sup) return false;
         return rand > pdiscard_[id];
     }
 
@@ -326,8 +325,10 @@ class Dictionary {
             int type = getType(wid);
             ntokens++;
             //TODO: consider caching random.nextFloat
-            if (type == TYPE_WORD && !discard(wid, random.nextFloat())) {
-                words.add(wid);
+            if (type == TYPE_WORD) {
+                if (args_.model == Args.model_name.sup || !discard(wid, random.nextFloat())) {
+                    words.add(wid);
+                }
             }
             if (type == TYPE_LABEL) {
                 labels.add(wid - nwords_);

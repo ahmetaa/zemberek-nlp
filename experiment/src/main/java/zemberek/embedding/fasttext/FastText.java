@@ -62,13 +62,13 @@ public class FastText {
         }
     }
 
-    static FastText loadModel(Path path) throws IOException {
+    static FastText load(Path path) throws IOException {
         try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
-            return loadModel(dis);
+            return load(dis);
         }
     }
 
-    static FastText loadModel(DataInputStream dis) throws IOException {
+    static FastText load(DataInputStream dis) throws IOException {
         Args args_ = Args.load(dis);
         Dictionary dict_ = Dictionary.load(dis, args_);
         Matrix input_ = Matrix.load(dis);
