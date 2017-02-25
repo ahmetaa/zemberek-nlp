@@ -90,10 +90,5 @@ public class WebCorpus {
             }
         }
     }
-
-    public static void main(String[] args) throws IOException {
-        WebCorpus corpus = WebCorpus.loadFromText("k",Paths.get("/media/disk2/corpora/clean/www.karar.com/2017-01-04"));
-        corpus.save(Paths.get("/media/depo/data/aaa/nlp/sentences"), true);
-    }
 }
 

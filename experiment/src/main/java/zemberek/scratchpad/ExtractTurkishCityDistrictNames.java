@@ -29,7 +29,7 @@ public class ExtractTurkishCityDistrictNames {
         List<String> lines = Files.readAllLines(input, StandardCharsets.UTF_8);
         int i = 0;
         for (String line : lines) {
-            if(i==0) { // skip first line.
+            if (i == 0) { // skip first line.
                 i++;
                 continue;
             }
@@ -66,7 +66,7 @@ public class ExtractTurkishCityDistrictNames {
         all.addAll(districts);
         all.addAll(villages);
 
-        try (PrintWriter pw = new PrintWriter(output.toFile()+".all", "utf-8")) {
+        try (PrintWriter pw = new PrintWriter(output.toFile() + ".all", "utf-8")) {
             all.stream().sorted(Turkish.STRING_COMPARATOR_ASC).forEach(pw::println);
         }
     }
@@ -75,12 +75,12 @@ public class ExtractTurkishCityDistrictNames {
         data.stream().sorted(Turkish.STRING_COMPARATOR_ASC).forEach(pw::println);
     }
 
-    static Set<String> avoid = Sets.newHashSet("MAH.", "OSB", "OSB.","MEZRASI", "KÖYÜ", "MERKEZKÖYLER");
+    static Set<String> avoid = Sets.newHashSet("MAH.", "OSB", "OSB.", "MEZRASI", "KÖYÜ", "MERKEZKÖYLER");
 
 
     public static List<String> clean(String in) {
         in = in.replaceAll("[-()]", " ").replaceAll("^\\.|[/\\\\]", "").trim();
-        in = in.replaceAll("OSB "," OSB ");
+        in = in.replaceAll("OSB ", " OSB ");
         List<String> words = Splitter.on(' ').trimResults().omitEmptyStrings().splitToList(in);
         List<String> result = new ArrayList<>();
         for (final String word : words) {
@@ -128,10 +128,8 @@ public class ExtractTurkishCityDistrictNames {
         }
         System.out.println("Total amount to remove = " + toRemove.size());
         list.removeAll(toRemove);
-        try(PrintWriter pw = new PrintWriter(out.toFile(), "utf-8")) {
+        try (PrintWriter pw = new PrintWriter(out.toFile(), "utf-8")) {
             list.forEach(pw::println);
         }
     }
-
-
 }

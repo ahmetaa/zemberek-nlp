@@ -152,7 +152,7 @@ public class OflazerAnalyzerRunner {
                 }
                 data.append(root);
                 if (!pos.equals("Noun") && !pos.equals("Verb")) {
-                    if(pos.equals("Adverb"))
+                    if (pos.equals("Adverb"))
                         pos = "Adv";
                     data.append(" [P:").append(pos);
                     if (secPos.length() > 1)
@@ -186,50 +186,5 @@ public class OflazerAnalyzerRunner {
         ArrayList<String> sorted = Lists.newArrayList(words);
         Collections.sort(sorted, ctr);
         SimpleTextWriter.oneShotUTF8Writer(output).writeLines(sorted);
-    }
-
-    public static void main(String[] args) throws IOException {
-        new OflazerAnalyzerRunner(
-                new File("/home/kodlab/apps/nlp/oflazer/bin"),
-                new File("/home/kodlab/apps/nlp/oflazer/bin/tfeaturesulx.fst")).
-                parseSentences(
-                        new File("/home/kodlab/data/lm/unknowns/all-regular.tr.txt"),
-                        new File("/home/kodlab/data/lm/unknowns/oflazer-z3.txt")
-                );
-        cleanUnparseables(new File("/home/kodlab/data/lm/unknowns/oflazer-z3.txt"),
-                new File("/home/kodlab/data/lm/unknowns/oflazer-z3-clean.txt"));
-        matchLines(new File("/home/kodlab/data/lm/unknowns/oflazer-z3-clean.txt"),
-                new File("/home/kodlab/data/lm/unknowns/oflazer-z3-clean.txt"),"Recip");
-
-/*        File expRoot = new File("/home/kodlab/data/lm/unknowns");
-        new OflazerAnalyzerRunner(
-                new File("/home/kodlab/apps/nlp/oflazer/bin"),
-                new File("/home/kodlab/apps/nlp/oflazer/bin/tfeaturesulx.fst")).
-                parseSentences(
-                        new File(expRoot, "all-regular.tr.txt"),
-                        new File(expRoot, "oflazer-regular.tr.txt")
-                );
-        cleanUnparseables(new File(expRoot, "oflazer-regular.tr.txt"),
-                new File(expRoot, "oflazer-regular-clean.tr.txt"));
-        extractWords(new File(expRoot, "oflazer-regular-clean.tr.txt"),
-                new File(expRoot, "oflazer-regular-words.tr.txt"));
-        extractRootsFromParse(new File(expRoot, "oflazer-regular-clean.tr.txt"),
-                new File(expRoot, "oflazer-regular-roots.tr.txt"));*/
-
-
-/*        File expRoot = new File("/home/kodlab/data/lm/unknowns");
-        new OflazerAnalyzerRunner(
-                new File("/home/kodlab/apps/nlp/oflazer/bin"),
-                new File("/home/kodlab/apps/nlp/oflazer/bin/tfeaturesulx.fst")).
-                parseSentences(
-                        new File(expRoot, "oflazer-mismatch.txt"),
-                        new File(expRoot, "oflazer-mismatch.parse.txt")
-                );
-        cleanUnparseables(new File(expRoot, "oflazer-mismatch.parse.txt"),
-                new File(expRoot, "oflazer-regular-clean.tr.txt"));
-        extractDictItems(new File(expRoot, "oflazer-regular-clean.tr.txt"),
-                new File(Resources.getResource("tr/oflazer-roots.txt").getFile()));*/
-
-
     }
 }

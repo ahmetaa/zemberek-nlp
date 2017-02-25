@@ -7,6 +7,7 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.antlr.v4.runtime.Token;
+import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
@@ -50,6 +51,7 @@ public class ZemberekNlpScripts {
 
 
     @Test
+    @Ignore("Not a Test.")
     public void generateSuffixNames() throws IOException {
         TurkishSuffixes suffixes = new TurkishSuffixes();
         List<SuffixForm> forms = new ArrayList<>();
@@ -66,6 +68,7 @@ public class ZemberekNlpScripts {
 
 
     @Test
+    @Ignore("Not a Test.")
     public void createZemberekVocabulary() throws IOException {
         Path outDir = DATA_PATH.resolve("out");
         Files.createDirectories(outDir);
@@ -81,6 +84,7 @@ public class ZemberekNlpScripts {
 
 
     @Test
+    @Ignore("Not a Test.")
     public void parseLargeVocabularyZemberek() throws IOException {
         Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
         Path outDir = DATA_PATH.resolve("out");
@@ -119,6 +123,7 @@ public class ZemberekNlpScripts {
     }
 
     @Test
+    @Ignore("Not a Test.")
     public void parseLargeVocabularyOflazer() throws IOException {
 
         OflazerAnalyzerRunner runner = new OflazerAnalyzerRunner(
@@ -134,6 +139,7 @@ public class ZemberekNlpScripts {
     }
 
     @Test
+    @Ignore("Not a Test.")
     public void extractFromOflazerAnalysisResult() throws IOException {
         Path inPath = DATA_PATH.resolve("out").resolve("oflazer-parses.txt");
         List<String> lines = Files.readAllLines(inPath, StandardCharsets.UTF_8);
@@ -149,6 +155,7 @@ public class ZemberekNlpScripts {
     }
 
     @Test
+    @Ignore("Not a Test.")
     public void reduceOflazerAnalysisResult() throws IOException {
         Path inPath = DATA_PATH.resolve("out").resolve("oflazer-parses.txt");
         List<String> lines = Files.readAllLines(inPath, StandardCharsets.UTF_8);
@@ -166,6 +173,7 @@ public class ZemberekNlpScripts {
     static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
 
     @Test
+    @Ignore("Not a Test.")
     public void extractTypesFromOflazerAnalysis() throws IOException {
         Path inPath = DATA_PATH.resolve("out").resolve("oflazer-analyses.txt");
         List<String> lines = Files.readAllLines(inPath, StandardCharsets.UTF_8);
@@ -225,6 +233,7 @@ public class ZemberekNlpScripts {
     }
 
     @Test
+    @Ignore("Not a Test.")
     public void findZemberekMissingOrDifferent() throws IOException {
         Path path = DATA_PATH.resolve("out");
         LinkedHashSet<String> oSet =
@@ -261,6 +270,7 @@ public class ZemberekNlpScripts {
 
 
     @Test
+    @Ignore("Not a Test.")
     public void generateOnlyOflazer() throws IOException {
         Path inPath = DATA_PATH.resolve("out");
         List<String> zemberekAll =
@@ -276,6 +286,7 @@ public class ZemberekNlpScripts {
     }
 
     @Test
+    @Ignore("Not a Test.")
     public void generateOnlyZemberek() throws IOException {
         Path dir = DATA_PATH.resolve("out");
         List<String> oflazerAll =
@@ -295,6 +306,7 @@ public class ZemberekNlpScripts {
     }
 
     @Test
+    @Ignore("Not a Test.")
     public void frequentUnknown() throws IOException {
 
         Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
@@ -318,6 +330,7 @@ public class ZemberekNlpScripts {
     }
 
     @Test
+    @Ignore("Not a Test.")
     public void unknownZemberek() throws IOException {
 
         Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
@@ -342,6 +355,7 @@ public class ZemberekNlpScripts {
 
 
     @Test
+    @Ignore("Not a Test.")
     public void guessRootsWithHeuristics() throws IOException {
 
         Path wordFreqFile = DATA_PATH.resolve("out/no-parse-zemberek-freq.txt");
@@ -431,6 +445,7 @@ public class ZemberekNlpScripts {
     }
 
     @Test
+    @Ignore("Not a Test.")
     public void sortAndSaveAgain() throws IOException {
         List<String> lines = Files.readAllLines(DATA_PATH.resolve("out/root-candidates-words"));
         lines.sort(turkishCollator::compare);
@@ -439,6 +454,7 @@ public class ZemberekNlpScripts {
 
 
     @Test
+    @Ignore("Not a Test.")
     public void generatorTest() throws IOException {
         TurkishMorphology parser = TurkishMorphology.createWithDefaults();
         List<WordAnalysis> result = parser.analyze("besiciliği");
@@ -447,6 +463,7 @@ public class ZemberekNlpScripts {
     }
 
     @Test
+    @Ignore("Not a Test.")
     public void performance() throws IOException {
         List<String> lines = Files.readAllLines(
                 //Paths.get("/media/depo/data/aaa/corpora/dunya.100k")
@@ -533,6 +550,7 @@ public class ZemberekNlpScripts {
     }
 
     @Test
+    @Ignore("Not a Test.")
     public void testWordAnalysis() throws IOException {
         TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
         List<WordAnalysis> results = morphology.analyze("phpye");
@@ -544,6 +562,7 @@ public class ZemberekNlpScripts {
     }
 
     @Test
+    @Ignore("Not a Test.")
     public void testSentenceAnalysis() throws IOException {
         TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
         Z3MarkovModelDisambiguator disambiguator = new Z3MarkovModelDisambiguator();
@@ -571,6 +590,7 @@ public class ZemberekNlpScripts {
     }
 
     @Test
+    @Ignore("Not a Test.")
     public void memoryStressTest() throws IOException {
         List<String> words = Files.readAllLines(Paths.get("dunya"));
         TurkishMorphology parser = TurkishMorphology
@@ -596,12 +616,14 @@ public class ZemberekNlpScripts {
 
 
     @Test
+    @Ignore("Not a Test.")
     public void generateWords() throws IOException {
         getStrings();
     }
 
 
     @Test
+    @Ignore("Not a Test.")
     public void disambiguationMemoryTest() throws IOException {
         List<String> lines = Files.readAllLines(Paths.get("/media/depo/data/aaa/corpora/dunya.100k"));
         TurkishMorphology parser = TurkishMorphology.createWithDefaults();
@@ -634,6 +656,7 @@ public class ZemberekNlpScripts {
     }
 
     @Test
+    @Ignore("Not a Test.")
     public void parseLargeVocabularyZemberekForMorfessor() throws IOException {
         Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
         Path outDir = DATA_PATH.resolve("out");

@@ -1,21 +1,45 @@
 package zemberek.morphology.external;
 
-import com.google.common.io.Resources;
+import org.kohsuke.args4j.Option;
+import zemberek.core.CommandLineApplication;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class YuretTureDisambiguatorRunner {
-    File runnerRoot;
-    ProcessRunner processRunner;
+public class YuretTureDisambiguatorRunner extends CommandLineApplication {
 
-    public YuretTureDisambiguatorRunner(File runnerRoot) {
-        this.runnerRoot = runnerRoot;
-        processRunner = new ProcessRunner(runnerRoot);
+    @Option(name = "-root",
+            required = true,
+            usage = "Root of the Disambiguation script developed by Yuret et al.")
+    public File root;
+
+    @Option(name = "-in",
+            required = true,
+            usage = "Input Text File.")
+    public File inputFile;
+
+    @Option(name = "-out",
+            required = true,
+            usage = "Output Text File.")
+    public File outputFile;
+
+    @Override
+    protected String getDescription() {
+        return "Disambiguates morphological analysis results using Greedy prepent al";
     }
 
-    public void disambiguate(File ambigiousFile, File out) throws IOException {
+    @Override
+    protected void run() throws Exception {
+        disambiguate(inputFile, outputFile);
+    }
+
+    public static void main(String[] args) {
+        new YuretTureDisambiguatorRunner().execute(args);
+    }
+
+    private void disambiguate(File ambigiousFile, File out) throws IOException {
+        ProcessRunner processRunner = new ProcessRunner(root);
         try {
             processRunner.pipe(null, new FileOutputStream(out),
                     new ProcessBuilder("cat", ambigiousFile.getAbsolutePath()),
@@ -27,12 +51,5 @@ public class YuretTureDisambiguatorRunner {
             System.err.append("Operation interrupted unexpectedly.\n");
             e.printStackTrace();
         }
-    }
-
-    public static void main(String[] args) throws IOException {
-        YuretTureDisambiguatorRunner yr = new YuretTureDisambiguatorRunner(
-                new File("/home/ahmetaa/apps/nlp-tools/Morphological-Disambiguator/Turkish-Yuret-Ture")
-        );
-        yr.disambiguate(new File(Resources.getResource("abc.txt").getFile()), new File(Resources.getResource("def.txt").getFile()));
     }
 }

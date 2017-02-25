@@ -11,8 +11,10 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -25,6 +27,11 @@ public class FastText {
     private AtomicLong tokenCount;
 
     private Stopwatch stopwatch;
+
+    public FastText(Args args_, Dictionary dict_) {
+        this.args_ = args_;
+        this.dict_ = dict_;
+    }
 
     // Sums all word and ngram vectors for a word and normalizes it.
     private Vector getVector(String word) {
@@ -39,9 +46,8 @@ public class FastText {
         return vec;
     }
 
-    private void saveVectors() throws IOException {
-        Path out = Paths.get(args_.output + ".vec");
-        try (PrintWriter pw = new PrintWriter(out.toFile(), "utf-8")) {
+    void saveVectors(Path outFilePath) throws IOException {
+        try (PrintWriter pw = new PrintWriter(outFilePath.toFile(), "utf-8")) {
             pw.println(dict_.nwords() + " " + args_.dim);
             for (int i = 0; i < dict_.nwords(); i++) {
                 String word = dict_.getWord(i);
@@ -51,9 +57,8 @@ public class FastText {
         }
     }
 
-    private void saveModel() throws IOException {
-        Path output = Paths.get(args_.output + ".bin");
-        try (DataOutputStream dos = IOUtil.getDataOutputStream(output)) {
+    void saveModel(Path outFilePath) throws IOException {
+        try (DataOutputStream dos = IOUtil.getDataOutputStream(outFilePath)) {
             args_.save(dos);
             dict_.save(dos);
             input_.save(dos);
@@ -271,14 +276,11 @@ public class FastText {
         }
     }
 
-    private void train(Args args) throws Exception {
-        args_ = args;
-        if (args_.input.equals("-")) {
-            // manage expectations
-            Log.error("Cannot use stdin for training!");
-            System.exit(-1);
-        }
-        dict_ = Dictionary.readFromFile(Paths.get(args.input), args);
+    /**
+     * Trains a model for the input. It generates input and output matrixes.
+     * @param input
+     */
+    void train(Path input) throws Exception {
 
         if (args_.pretrainedVectors.length() != 0) {
             //TODO: implement this.
@@ -299,7 +301,6 @@ public class FastText {
 
         ExecutorService es = Executors.newFixedThreadPool(args_.thread);
         CompletionService<Model> completionService = new ExecutorCompletionService<>(es);
-        Path input = Paths.get(args_.input);
         Log.info("Counting chars..");
         long charCount = TextIO.charCount(input, StandardCharsets.UTF_8);
         Log.info("Training started.");
@@ -317,62 +318,6 @@ public class FastText {
         Log.info("Training finished in %.1f seconds.",
                 sw.elapsed(TimeUnit.MILLISECONDS) / 1000d);
         model_ = new Model(input_, output_, args_, 0);
-        Log.info("Saving model.");
-        saveModel();
-        if (args_.model != Args.model_name.sup) {
-            Log.info("Saving vectors.");
-            saveVectors();
-        }
     }
-
-    static void dbpediaTest() throws Exception {
-        String output = "/home/ahmetaa/data/vector/fasttext/dbpedia";
-        Path modelFilePath = Paths.get(output + ".bin");
-        Args argz = new Args();
-        argz.thread = 8;
-        argz.model = Args.model_name.sup;
-        argz.epoch = 5;
-        argz.wordNgrams = 2;
-        argz.minCount = 1;
-        argz.lr = 0.1;
-        argz.dim = 10;
-        argz.bucket = 5_000_000;
-        argz.minn = 3;
-        argz.maxn = 6;
-        argz.input = "/home/ahmetaa/projects/fastText/data/dbpedia.train";
-        argz.output = output;
-
-        Path testFilePath = Paths.get("/home/ahmetaa/projects/fastText/data/dbpedia.test");
-
-        FastText fastText = new FastText();
-        if (modelFilePath.toFile().exists()) {
-            fastText.loadModel(IOUtil.getDataInputStream(modelFilePath));
-        } else {
-            fastText.train(argz);
-        }
-        fastText.test(testFilePath, 1);
-    }
-
-    private static void cbow() throws Exception {
-        Args argz = new Args();
-        argz.thread = 20;
-        argz.model = Args.model_name.cbow;
-        argz.epoch = 5;
-        argz.wordNgrams = 2;
-        argz.dim = 100;
-        argz.bucket = 1_000_000;
-        argz.minn = 3;
-        argz.maxn = 6;
-        argz.input = "/media/data/aaa/corpora/corpus-1M.txt";
-        argz.output = "/media/data/aaa/corpora/corpus-1M-f-ngram-java";
-        FastText fastText = new FastText();
-        fastText.train(argz);
-    }
-
-    public static void main(String[] args) throws Exception {
-        //cbow();
-        dbpediaTest();
-    }
-
 
 }

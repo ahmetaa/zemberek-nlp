@@ -5,9 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class Args {
-    String input;
-    String test;
-    String output;
+
     double lr;
     int lrUpdateRate;
     int dim;
