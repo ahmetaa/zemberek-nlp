@@ -21,16 +21,12 @@ import java.util.concurrent.atomic.AtomicLong;
 public class FastText {
     private Args args_;
     private Dictionary dict_;
-    private Matrix input_;
-    private Matrix output_;
     private Model model_;
-    private AtomicLong tokenCount;
 
-    private Stopwatch stopwatch;
-
-    public FastText(Args args_, Dictionary dict_) {
+    private FastText(Args args_, Dictionary dict_, Model model) {
         this.args_ = args_;
         this.dict_ = dict_;
+        this.model_ = model;
     }
 
     // Sums all word and ngram vectors for a word and normalizes it.
@@ -38,7 +34,7 @@ public class FastText {
         int[] ngrams = dict_.getNgrams(word);
         Vector vec = new Vector(args_.dim);
         for (int i : ngrams) {
-            vec.addRow(input_, i);
+            vec.addRow(model_.wi_, i);
         }
         if (ngrams.length > 0) {
             vec.mul(1.0f / ngrams.length);
@@ -61,80 +57,30 @@ public class FastText {
         try (DataOutputStream dos = IOUtil.getDataOutputStream(outFilePath)) {
             args_.save(dos);
             dict_.save(dos);
-            input_.save(dos);
-            output_.save(dos);
+            model_.wi_.save(dos);
+            model_.wo_.save(dos);
         }
     }
 
-    void loadModel(Path path) throws IOException {
+    static FastText loadModel(Path path) throws IOException {
         try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
-            loadModel(dis);
+            return loadModel(dis);
         }
     }
 
-    private void loadModel(DataInputStream dis) throws IOException {
-        args_ = Args.load(dis);
-        dict_ = Dictionary.load(dis, args_);
-        input_ = Matrix.load(dis);
-        output_ = Matrix.load(dis);
-        model_ = new Model(input_, output_, args_, 0);
+    static FastText loadModel(DataInputStream dis) throws IOException {
+        Args args_ = Args.load(dis);
+        Dictionary dict_ = Dictionary.load(dis, args_);
+        Matrix input_ = Matrix.load(dis);
+        Matrix output_ = Matrix.load(dis);
+        Model model_ = new Model(input_, output_, args_, 0);
         if (args_.model == Args.model_name.sup) {
             model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_LABEL));
         } else {
             model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_WORD));
         }
         Log.info("Model loaded.");
-    }
-
-    private void printInfo(float progress, float loss) {
-        float t = stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000f;
-        float wst = (float) tokenCount.get() / t;
-        float lr = (float) (args_.lr * (1.0f - progress));
-        int eta = (int) (t / progress * (1 - progress) / args_.thread);
-        int etah = eta / 3600;
-        int etam = (eta - etah * 3600) / 60;
-
-        Log.info("Progress: %.1f%% words/sec/thread: %.1f lr: %.6f loss:%.6f eta %d h %d m",
-                100 * progress,
-                wst,
-                lr,
-                loss,
-                etah,
-                etam);
-    }
-
-    private void supervised(Model model, float lr,
-                            int[] line,
-                            int[] labels) {
-        if (labels.length == 0 || line.length == 0) return;
-        int i = model.getRng().nextInt(labels.length);
-        model.update(line, labels[i], lr);
-    }
-
-    private void cbow(Model model, float lr, int[] line) {
-        for (int w = 0; w < line.length; w++) {
-            int boundary = model.getRng().nextInt(args_.ws) + 1; // [1..args.ws]
-            IntVector bow = new IntVector();
-            for (int c = -boundary; c <= boundary; c++) {
-                if (c != 0 && w + c >= 0 && w + c < line.length) {
-                    int[] ngrams = dict_.getNgrams(line[w + c]);
-                    bow.addAll(ngrams);
-                }
-            }
-            model.update(bow.copyOf(), line[w], lr);
-        }
-    }
-
-    private void skipgram(Model model, float lr, int[] line) {
-        for (int w = 0; w < line.length; w++) {
-            int boundary = model.getRng().nextInt(args_.ws) + 1; // [1..args.ws]
-            int[] ngrams = dict_.getNgrams(line[w]);
-            for (int c = -boundary; c <= boundary; c++) {
-                if (c != 0 && w + c >= 0 && w + c < line.length) {
-                    model.update(ngrams, line[w + c], lr);
-                }
-            }
-        }
+        return new FastText(args_, dict_, model_);
     }
 
     static class ScoreStringPair {
@@ -183,7 +129,7 @@ public class FastText {
             }
             dict_.addNgrams(line, args_.wordNgrams);
             for (int i : line.copyOf()) {
-                vec.addRow(input_, i);
+                vec.addRow(model_.wi_, i);
             }
             vec.mul((float) (1.0 / line.size()));
         }
@@ -208,28 +154,96 @@ public class FastText {
         return result;
     }
 
-    private class TrainTask implements Callable<Model> {
+    private static class TrainTask implements Callable<Model> {
 
         int threadId;
         Path input;
         int startCharIndex;
+        Stopwatch stopwatch;
+        AtomicLong tokenCount;
+        Model model;
+        Dictionary dictionary;
+        Args args_;
 
-        TrainTask(int threadId, Path input, int startCharIndex) {
+        TrainTask(int threadId,
+                  Path input,
+                  int startCharIndex,
+                  Model model,
+                  Stopwatch stopwatch,
+                  Dictionary dictionary,
+                  Args args_,
+                  AtomicLong tokenCount) {
             this.threadId = threadId;
             this.input = input;
             this.startCharIndex = startCharIndex;
+            this.model = model;
+            this.stopwatch = stopwatch;
+            this.tokenCount = tokenCount;
+            this.dictionary = dictionary;
+            this.args_ = args_;
+        }
+
+        private void printInfo(float progress, float loss) {
+            float t = stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000f;
+            float wst = (float) tokenCount.get() / t;
+            float lr = (float) (args_.lr * (1.0f - progress));
+            int eta = (int) (t / progress * (1 - progress) / args_.thread);
+            int etah = eta / 3600;
+            int etam = (eta - etah * 3600) / 60;
+
+            Log.info("Progress: %.1f%% words/sec/thread: %.0f lr: %.6f loss:%.6f eta %dh%dm",
+                    100 * progress,
+                    wst,
+                    lr,
+                    loss,
+                    etah,
+                    etam);
+        }
+
+        private void supervised(Model model, float lr,
+                                int[] line,
+                                int[] labels) {
+            if (labels.length == 0 || line.length == 0) return;
+            int i = model.getRng().nextInt(labels.length);
+            model.update(line, labels[i], lr);
+        }
+
+        private void cbow(Model model, float lr, int[] line) {
+            for (int w = 0; w < line.length; w++) {
+                int boundary = model.getRng().nextInt(args_.ws) + 1; // [1..args.ws]
+                IntVector bow = new IntVector();
+                for (int c = -boundary; c <= boundary; c++) {
+                    if (c != 0 && w + c >= 0 && w + c < line.length) {
+                        int[] ngrams = dictionary.getNgrams(line[w + c]);
+                        bow.addAll(ngrams);
+                    }
+                }
+                model.update(bow.copyOf(), line[w], lr);
+            }
+        }
+
+        private void skipgram(Model model, float lr, int[] line) {
+            for (int w = 0; w < line.length; w++) {
+                int boundary = model.getRng().nextInt(args_.ws) + 1; // [1..args.ws]
+                int[] ngrams = dictionary.getNgrams(line[w]);
+                for (int c = -boundary; c <= boundary; c++) {
+                    if (c != 0 && w + c >= 0 && w + c < line.length) {
+                        model.update(ngrams, line[w + c], lr);
+                    }
+                }
+            }
         }
 
         @Override
         public Model call() throws Exception {
-            Model model = new Model(input_, output_, args_, threadId);
+
             if (args_.model == Args.model_name.sup) {
-                model.setTargetCounts(dict_.getCounts(Dictionary.TYPE_LABEL));
+                model.setTargetCounts(dictionary.getCounts(Dictionary.TYPE_LABEL));
             } else {
-                model.setTargetCounts(dict_.getCounts(Dictionary.TYPE_WORD));
+                model.setTargetCounts(dictionary.getCounts(Dictionary.TYPE_WORD));
             }
 
-            long ntokens = dict_.ntokens();
+            long ntokens = dictionary.ntokens();
             long localTokenCount = 0;
             BlockTextLoader loader = new BlockTextLoader(input, StandardCharsets.UTF_8, 1000);
             Iterator<List<String>> it = loader.iteratorFromCharIndex(startCharIndex);
@@ -246,7 +260,7 @@ public class FastText {
                         }
                         IntVector line = new IntVector(15);
                         IntVector labels = new IntVector();
-                        int wcount = dict_.getLine(lineStr, line, labels, model.getRng());
+                        int wcount = dictionary.getLine(lineStr, line, labels, model.getRng());
                         if (wcount == 0) {
                             continue;
                         }
@@ -254,7 +268,7 @@ public class FastText {
                         progress = (float) ((1.0 * tokenCount.get()) / (args_.epoch * ntokens));
                         float lr = (float) (args_.lr * (1.0 - progress));
                         if (args_.model == Args.model_name.sup) {
-                            dict_.addNgrams(line, args_.wordNgrams);
+                            dictionary.addNgrams(line, args_.wordNgrams);
                             supervised(model, lr, line.copyOf(), labels.copyOf());
                         } else if (args_.model == Args.model_name.cbow) {
                             cbow(model, lr, line.copyOf());
@@ -277,11 +291,13 @@ public class FastText {
     }
 
     /**
-     * Trains a model for the input. It generates input and output matrixes.
-     * @param input
+     * Trains a model for the input, returns a FastText instance.
      */
-    void train(Path input) throws Exception {
+    static FastText train(Path input, Args args_) throws Exception {
 
+        Dictionary dict_ = Dictionary.readFromFile(input, args_);
+
+        Matrix input_ = null;
         if (args_.pretrainedVectors.length() != 0) {
             //TODO: implement this.
             //loadVectors(args_->pretrainedVectors);
@@ -290,14 +306,17 @@ public class FastText {
             input_.uniform(1.0f / args_.dim);
         }
 
+        Matrix output_;
         if (args_.model == Args.model_name.sup) {
             output_ = new Matrix(dict_.nlabels(), args_.dim, false);
         } else {
             output_ = new Matrix(dict_.nwords(), args_.dim, false);
         }
 
-        stopwatch = Stopwatch.createStarted();
-        tokenCount = new AtomicLong(0);
+        Model model_ = new Model(input_, output_, args_, 0);
+
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        AtomicLong tokenCount = new AtomicLong(0);
 
         ExecutorService es = Executors.newFixedThreadPool(args_.thread);
         CompletionService<Model> completionService = new ExecutorCompletionService<>(es);
@@ -306,7 +325,19 @@ public class FastText {
         Log.info("Training started.");
         Stopwatch sw = Stopwatch.createStarted();
         for (int i = 0; i < args_.thread; i++) {
-            completionService.submit(new TrainTask(i, input, (int) (i * charCount / args_.thread)));
+            // Here a model per thread is generated. It uses references to global model's input and output matrices.
+            // AFAIK, original Fasttext does not care about thread safety of those matrices.
+            Model threadModel = new Model(model_, i);
+
+            completionService.submit(new TrainTask(
+                    i,
+                    input,
+                    (int) (i * charCount / args_.thread),
+                    threadModel,
+                    stopwatch,
+                    dict_,
+                    args_,
+                    tokenCount));
         }
         es.shutdown();
 
@@ -317,7 +348,8 @@ public class FastText {
         }
         Log.info("Training finished in %.1f seconds.",
                 sw.elapsed(TimeUnit.MILLISECONDS) / 1000d);
-        model_ = new Model(input_, output_, args_, 0);
+
+        return new FastText(args_, dict_, model_);
     }
 
 }

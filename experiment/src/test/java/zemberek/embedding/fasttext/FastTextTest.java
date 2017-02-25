@@ -17,29 +17,28 @@ public class FastTextTest {
     @Ignore("Not an actual Test.")
     public void dbpediaClassificationTest() throws Exception {
 
-        Args argz = new Args();
-        argz.thread = 8;
-        argz.model = Args.model_name.sup;
-        argz.epoch = 5;
-        argz.wordNgrams = 2;
-        argz.minCount = 1;
-        argz.lr = 0.1;
-        argz.dim = 10;
-        argz.bucket = 5_000_000;
-        argz.minn = 3;
-        argz.maxn = 6;
-
         Path inputRoot = Paths.get("/home/ahmetaa/projects/fastText/data");
         Path trainFile = inputRoot.resolve("dbpedia.train");
         Path modelPath = Paths.get("/home/ahmetaa/data/vector/fasttext/dbpedia.bin");
 
-        Dictionary dictionary = Dictionary.readFromFile(trainFile, argz);
-        FastText fastText = new FastText(argz, dictionary);
+        FastText fastText;
 
         if (modelPath.toFile().exists()) {
-            fastText.loadModel(modelPath);
+            fastText = FastText.loadModel(modelPath);
         } else {
-            fastText.train(trainFile);
+            Args argz = new Args();
+            argz.thread = 8;
+            argz.model = Args.model_name.sup;
+            argz.epoch = 5;
+            argz.wordNgrams = 2;
+            argz.minCount = 1;
+            argz.lr = 0.1;
+            argz.dim = 10;
+            argz.bucket = 5_000_000;
+            argz.minn = 3;
+            argz.maxn = 6;
+
+            fastText = FastText.train(trainFile, argz);
             fastText.saveModel(modelPath);
         }
 
@@ -66,12 +65,9 @@ public class FastTextTest {
 
         Path input = Paths.get("/home/ahmetaa/data/nlp/corpora/corpus-100k.txt");
 
-        Dictionary dictionary = Dictionary.readFromFile(input, argz);
-        FastText fastText = new FastText(argz, dictionary);
-
         Path outRoot = Paths.get("/home/ahmetaa/data/vector/fasttext");
 
-        fastText.train(input);
+        FastText fastText = FastText.train(input, argz);
         Path vectorFile = outRoot.resolve("100k-skipgram.vec");
         Log.info("Saving vectors to %s", vectorFile);
         fastText.saveVectors(vectorFile);

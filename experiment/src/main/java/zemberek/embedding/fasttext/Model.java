@@ -31,8 +31,8 @@ class Model {
         }
     }
 
-    private Matrix wi_;
-    private Matrix wo_;
+    Matrix wi_;
+    Matrix wo_;
     private Args args_;
     private Vector hidden_;
     private Vector output_;
@@ -82,6 +82,11 @@ class Model {
         negpos = 0;
         loss_ = 0.0f;
         nexamples_ = 1;
+    }
+
+    Model(Model model,
+          int seed) {
+        this(model.wi_, model.wo_, model.args_, seed);
     }
 
     Random getRng() {
@@ -174,7 +179,7 @@ class Model {
                        Vector output) {
         assert (k > 0);
         computeHidden(input, hidden);
-        PriorityQueue<Pair> heap = new PriorityQueue<>(k+1,PAIR_COMPARATOR);
+        PriorityQueue<Pair> heap = new PriorityQueue<>(k + 1, PAIR_COMPARATOR);
         if (args_.loss == Args.loss_name.hs) {
             dfs(k, 2 * osz_ - 2, 0.0f, heap, hidden);
         } else {
