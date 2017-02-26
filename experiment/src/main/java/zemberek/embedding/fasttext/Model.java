@@ -34,9 +34,7 @@ class Model {
     Matrix wi_;
     Matrix wo_;
     private Args args_;
-    private Vector hidden_;
     private Vector output_;
-    private Vector grad_;
     private int hsz_;
     private int isz_;
     private int osz_;
@@ -69,9 +67,7 @@ class Model {
           Matrix wo,
           Args args,
           int seed) {
-        hidden_ = new Vector(args.dim);
         output_ = new Vector(wo.m_);
-        grad_ = new Vector(args.dim);
         rng = new Random(seed);
         wi_ = wi;
         wo_ = wo;
@@ -93,11 +89,11 @@ class Model {
         return rng;
     }
 
-    private float binaryLogistic(int target, boolean label, float lr) {
-        float score = sigmoid(wo_.dotRow(hidden_, target));
+    private float binaryLogistic(Vector grad, Vector hidden, int target, boolean label, float lr) {
+        float score = sigmoid(wo_.dotRow(hidden, target));
         float alpha = lr * ((label ? 1f : 0f) - score);
-        grad_.addRow(wo_, target, alpha);
-        wo_.addRow(hidden_, target, alpha);
+        grad.addRow(wo_, target, alpha);
+        wo_.addRow(hidden, target, alpha);
         if (label) {
             return -log(score);
         } else {
@@ -105,27 +101,24 @@ class Model {
         }
     }
 
-    private float negativeSampling(int target, float lr) {
+    private float negativeSampling(Vector grad, Vector hidden, int target, float lr) {
         float loss = 0.0f;
-        grad_.zero();
         for (int n = 0; n <= args_.neg; n++) {
             if (n == 0) {
-                loss += binaryLogistic(target, true, lr);
+                loss += binaryLogistic(grad, hidden, target, true, lr);
             } else {
-                loss += binaryLogistic(getNegative(target), false, lr);
+                loss += binaryLogistic(grad, hidden, getNegative(target), false, lr);
             }
         }
         return loss;
     }
 
-
-    private float hierarchicalSoftmax(int target, float lr) {
+    private float hierarchicalSoftmax(Vector grad_, Vector hidden, int target, float lr) {
         float loss = 0.0f;
-        grad_.zero();
         IntVector binaryCode = codes.get(target);
         IntVector pathToRoot = paths.get(target);
         for (int i = 0; i < pathToRoot.size(); i++) {
-            loss += binaryLogistic(pathToRoot.get(i), binaryCode.get(i) == 1, lr);
+            loss += binaryLogistic(grad_, hidden, pathToRoot.get(i), binaryCode.get(i) == 1, lr);
         }
         return loss;
     }
@@ -145,13 +138,8 @@ class Model {
         }
     }
 
-    private void computeOutputSoftmax() {
+    private float softmax(Vector grad_, Vector hidden_, int target, float lr) {
         computeOutputSoftmax(hidden_, output_);
-    }
-
-    private float softmax(int target, float lr) {
-        grad_.zero();
-        computeOutputSoftmax();
         for (int i = 0; i < osz_; i++) {
             float label = (i == target) ? 1.0f : 0.0f;
             float alpha = lr * (label - output_.data_[i]);
@@ -161,24 +149,22 @@ class Model {
         return -log(output_.data_[target]);
     }
 
-    private void computeHidden(int[] input, Vector hidden) {
-        assert (hidden.size() == hsz_);
-        hidden.zero();
+    Vector computeHidden(int[] input) {
+        Vector hidden = new Vector(hsz_);
         for (int i : input) {
             hidden.addRow(wi_, i);
         }
         hidden.mul((float) (1.0 / input.length));
+        return hidden;
     }
 
     private static final Comparator<Pair> PAIR_COMPARATOR =
             (l, r) -> Float.compare(l.first, r.first);
 
-    List<Pair> predict(int[] input,
-                       int k,
+    List<Pair> predict(int k,
                        Vector hidden,
                        Vector output) {
         assert (k > 0);
-        computeHidden(input, hidden);
         PriorityQueue<Pair> heap = new PriorityQueue<>(k + 1, PAIR_COMPARATOR);
         if (args_.loss == Args.loss_name.hs) {
             dfs(k, 2 * osz_ - 2, 0.0f, heap, hidden);
@@ -191,7 +177,8 @@ class Model {
     }
 
     List<Pair> predict(int[] input, int k) {
-        return predict(input, k, hidden_, output_);
+        Vector hidden_ = computeHidden(input);
+        return predict(k, hidden_, output_);
     }
 
     private void findKBest(int k,
@@ -237,13 +224,14 @@ class Model {
         assert (target >= 0);
         assert (target < osz_);
         if (input.length == 0) return;
-        computeHidden(input, hidden_);
+        Vector hidden_ = computeHidden(input);
+        Vector grad_ = new Vector(hsz_);
         if (args_.loss == Args.loss_name.ns) {
-            loss_ += negativeSampling(target, lr);
+            loss_ += negativeSampling(grad_, hidden_, target, lr);
         } else if (args_.loss == Args.loss_name.hs) {
-            loss_ += hierarchicalSoftmax(target, lr);
+            loss_ += hierarchicalSoftmax(grad_, hidden_, target, lr);
         } else {
-            loss_ += softmax(target, lr);
+            loss_ += softmax(grad_, hidden_, target, lr);
         }
         nexamples_ += 1;
 

@@ -29,6 +29,7 @@ public class FastTextTest {
             Args argz = new Args();
             argz.thread = 8;
             argz.model = Args.model_name.sup;
+            argz.threadSafe = false;
             argz.epoch = 5;
             argz.wordNgrams = 2;
             argz.minCount = 1;
@@ -43,6 +44,7 @@ public class FastTextTest {
         }
 
         Path testFile = inputRoot.resolve("dbpedia.test");
+        Log.info("Testing started.");
         fastText.test(testFile, 1);
     }
 

@@ -147,7 +147,7 @@ class Dictionary {
 
     private int hash(String str, int start, int end) {
         int h = 0x811C_9DC5;
-        for (int i = start; i<end; i++) {
+        for (int i = start; i < end; i++) {
             h = h ^ str.charAt(i);
             h = h * 16777619;
         }
@@ -324,7 +324,6 @@ class Dictionary {
             if (wid < 0) continue;
             int type = getType(wid);
             ntokens++;
-            //TODO: consider caching random.nextFloat
             if (type == TYPE_WORD) {
                 if (args_.model == Args.model_name.sup || !discard(wid, random.nextFloat())) {
                     words.add(wid);

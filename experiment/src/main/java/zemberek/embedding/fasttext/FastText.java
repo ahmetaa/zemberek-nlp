@@ -144,9 +144,9 @@ public class FastText {
         if (words.isempty()) {
             return Collections.emptyList();
         }
-        Vector hidden = new Vector(args_.dim);
         Vector output = new Vector(dict_.nlabels());
-        List<Model.Pair> modelPredictions = model_.predict(words.copyOf(), k, hidden, output);
+        Vector hidden = model_.computeHidden(words.copyOf());
+        List<Model.Pair> modelPredictions = model_.predict( k, hidden, output);
         List<ScoreStringPair> result = new ArrayList<>(modelPredictions.size());
         for (Model.Pair pair : modelPredictions) {
             result.add(new ScoreStringPair(pair.first, dict_.getLabel(pair.second)));
@@ -291,7 +291,8 @@ public class FastText {
     }
 
     /**
-     * Trains a model for the input, returns a FastText instance.
+     * Trains a model for the input with given arguments, returns a FastText instance.
+     * Input can be a text corpus, or a corpus with text and labels.
      */
     static FastText train(Path input, Args args_) throws Exception {
 
@@ -302,15 +303,15 @@ public class FastText {
             //TODO: implement this.
             //loadVectors(args_->pretrainedVectors);
         } else {
-            input_ = new Matrix(dict_.nwords() + args_.bucket, args_.dim, false);
+            input_ = new Matrix(dict_.nwords() + args_.bucket, args_.dim, args_.threadSafe);
             input_.uniform(1.0f / args_.dim);
         }
 
         Matrix output_;
         if (args_.model == Args.model_name.sup) {
-            output_ = new Matrix(dict_.nlabels(), args_.dim, false);
+            output_ = new Matrix(dict_.nlabels(), args_.dim, args_.threadSafe);
         } else {
-            output_ = new Matrix(dict_.nwords(), args_.dim, false);
+            output_ = new Matrix(dict_.nwords(), args_.dim, args_.threadSafe);
         }
 
         Model model_ = new Model(input_, output_, args_, 0);

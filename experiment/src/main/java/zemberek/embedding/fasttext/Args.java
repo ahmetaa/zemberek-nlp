@@ -17,6 +17,7 @@ public class Args {
     int wordNgrams;
     loss_name loss;
     model_name model;
+    boolean threadSafe;
     int bucket;
     int minn;
     int maxn;
@@ -58,6 +59,7 @@ public class Args {
         loss = loss_name.ns;
         model = model_name.sg;
         bucket = 2000000;
+        threadSafe = false;
         minn = 3;
         maxn = 6;
         thread = 4;
