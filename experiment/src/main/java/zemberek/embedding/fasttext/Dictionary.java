@@ -132,11 +132,11 @@ class Dictionary {
         return words_.get(id).word;
     }
 
-    private int hash(String str) {
+    private static int hash(String str) {
         return hash(str, 0, str.length());
     }
 
-    private int hash(byte[] bytes) {
+    private static int hash(byte[] bytes) {
         int h = 0x811C_9DC5;
         for (byte b : bytes) {
             h = h ^ (int) b;
@@ -145,7 +145,7 @@ class Dictionary {
         return h & 0x7fff_ffff;
     }
 
-    private int hash(String str, int start, int end) {
+    private static int hash(String str, int start, int end) {
         int h = 0x811C_9DC5;
         for (int i = start; i < end; i++) {
             h = h ^ str.charAt(i);
@@ -173,39 +173,117 @@ class Dictionary {
      * <p>
      * If wordId is not -1, wordId value is added to result[0]
      */
-    private int[] characterNgrams(String word, int wordId) {
+    static class CharacterNgramHashProvider implements SubWordHashProvider {
+        int minn;
+        int maxn;
 
-        int endGram = args_.maxn < word.length() ? args_.maxn : word.length();
-        int size = 0;
-        for (int i = args_.minn; i <= endGram; i++) {
-            size += (word.length() - i + 1);
+        CharacterNgramHashProvider(int minn, int maxn) {
+            this.minn = minn;
+            this.maxn = maxn;
         }
 
-        int[] result;
-        int counter;
-        if (wordId == -1) {
-            result = new int[size];
-            counter = 0;
-        } else {
-            result = new int[size + 1];
-            result[0] = wordId;
-            counter = 1;
-        }
+        @Override
+        public int[] getHashes(String word, int wordId) {
 
-        if (word.length() < args_.minn) {
+            int endGram = maxn < word.length() ? maxn : word.length();
+            int size = 0;
+            for (int i = minn; i <= endGram; i++) {
+                size += (word.length() - i + 1);
+            }
+
+            int[] result;
+            int counter;
+            if (wordId == -1) {
+                result = new int[size];
+                counter = 0;
+            } else {
+                result = new int[size + 1];
+                result[0] = wordId;
+                counter = 1;
+            }
+
+            if (word.length() < minn) {
+                return result;
+            }
+
+            for (int i = 0; i <= word.length() - minn; i++) {
+                int n = minn;
+                while (i + n <= word.length() && n <= endGram) {
+                    result[counter] = hash(word, i, i + n);
+                    n++;
+                    counter++;
+                }
+            }
             return result;
         }
+    }
 
-        for (int i = 0; i <= word.length() - args_.minn; i++) {
-            int n = args_.minn;
-            while (i + n <= word.length() && n <= endGram) {
-                int hash = hash(word, i, i + n) % args_.bucket;
-                result[counter] = nwords_ + hash;
-                n++;
-                counter++;
+    static class EmptySubwordHashProvider implements SubWordHashProvider {
+
+        @Override
+        public int[] getHashes(String word, int wordId) {
+            if (wordId == -1) {
+                return new int[0];
+            } else {
+                int[] result = new int[1];
+                result[0] = wordId;
+                return result;
             }
         }
-        return result;
+    }
+
+    static class SuffixPrefixHashProvider implements SubWordHashProvider {
+        int minn;
+        int maxn;
+
+        SuffixPrefixHashProvider(int minn, int maxn) {
+            this.minn = minn;
+            this.maxn = maxn;
+        }
+
+        @Override
+        public int[] getHashes(String word, int wordId) {
+
+            int endGram = maxn < word.length() ? maxn : word.length();
+            int size = (endGram - minn) * 2;
+
+            int[] result;
+            int counter;
+            if (wordId == -1) {
+                result = new int[size];
+                counter = 0;
+            } else {
+                result = new int[size + 1];
+                result[0] = wordId;
+                counter = 1;
+            }
+
+            if (word.length() < minn) {
+                return result;
+            }
+
+            // prefixes
+            for (int i = minn; i < endGram; i++) {
+                result[counter] = hash(word, 0, i);
+                counter++;
+            }
+            // suffixes
+            for (int i = word.length() - endGram + 1; i <= word.length() - minn; i++) {
+                result[counter] = hash(word, i, word.length());
+                counter++;
+            }
+
+            return result;
+        }
+    }
+
+    private int[] characterNgrams(String word, int wordId) {
+        int[] hashes = args_.subWordHashProvider.getHashes(word, wordId);
+        for (int i = 0; i < hashes.length; i++) {
+            hashes[i] = (hashes[i] % args_.bucket) + nwords_;
+        }
+        return hashes;
+
     }
 
     private void initNgrams() {
@@ -295,8 +373,8 @@ class Dictionary {
         return counts;
     }
 
-    //adds word level n-grams. for n=1 means uni-grams, no value is returned.
-    void addNgrams(IntVector line, int n) {
+    //adds word level n-grams hash values to input word index Vector. n=1 means uni-grams, no value is added.
+    void addWordNgramHashes(IntVector line, int n) {
         int line_size = line.size();
         for (int i = 0; i < line_size; i++) {
             long h = line.get(i);

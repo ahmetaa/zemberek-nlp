@@ -42,9 +42,11 @@ class Model {
     private long nexamples_;
     private static float[] t_sigmoid;
     private static float[] t_log;
+
     // used for negative sampling:
     private int[] negatives;
     private int negpos;
+
     // used for hierarchical softmax:
     private List<IntVector> paths = new ArrayList<>();
     private List<IntVector> codes = new ArrayList<>();
@@ -80,8 +82,7 @@ class Model {
         nexamples_ = 1;
     }
 
-    Model(Model model,
-          int seed) {
+    Model(Model model, int seed) {
         this(model.wi_, model.wo_, model.args_, seed);
     }
 

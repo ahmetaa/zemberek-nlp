@@ -1,5 +1,6 @@
 package zemberek.embedding;
 
+import zemberek.core.collections.UIntFloatMap;
 import zemberek.core.collections.UIntMap;
 import zemberek.core.io.IOUtil;
 import zemberek.core.math.FloatArrays;
@@ -13,7 +14,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.*;
 
 public class WordVectorLookup {
 
@@ -23,19 +24,79 @@ public class WordVectorLookup {
 
     public static class Vector {
         int wordIndex;
-        float[] array;
+        float[] data;
 
-        Vector(int wordIndex, float[] array) {
+        Vector(int wordIndex, float[] vector) {
             this.wordIndex = wordIndex;
-            this.array = array;
+            this.data = vector;
         }
 
         public int getWordIndex() {
             return wordIndex;
         }
 
-        public float[] getArray() {
-            return array;
+        public float[] getData() {
+            return data;
+        }
+
+        float c() {
+            float sum = 0;
+            for (float v : data) {
+                sum += v * v;
+            }
+            return (float) Math.sqrt(sum);
+        }
+    }
+
+    public static class DistanceMatcher {
+        private UIntFloatMap cMap;
+        WordVectorLookup lookup;
+
+        public DistanceMatcher(WordVectorLookup lookup) {
+            this.lookup = lookup;
+            this.cMap = new UIntFloatMap(lookup.vectors.size());
+            for (int i : lookup.vectors.getKeyArray()) {
+                cMap.put(i, lookup.vectors.get(i).c());
+            }
+        }
+
+        float cosDistance(Vector v1, Vector v2) {
+            float sum = 0;
+            for (int i = 0; i < v1.data.length; i++) {
+                sum += (v1.data[i] * v2.data[i]);
+            }
+            return sum / (cMap.get(v1.wordIndex) * cMap.get(v1.wordIndex));
+        }
+
+        public List<WordDistances.Distance> nearestK(String word, int k) {
+            if (!lookup.vocabulary.contains(word)) {
+                return Collections.emptyList();
+            }
+            int index = lookup.vocabulary.indexOf(word);
+            Vector v = lookup.vectors.get(index);
+
+            PriorityQueue<WordDistances.Distance> queue = new PriorityQueue<>(k * 2);
+
+            for (Vector other : lookup.vectors.getValues()) {
+                // skip self.
+                if (v == other) {
+                    continue;
+                }
+                float distance = cosDistance(v, other);
+                if (queue.size() < k) {
+                    queue.add(new WordDistances.Distance(lookup.vocabulary.getWord(other.wordIndex), distance));
+                } else {
+                    WordDistances.Distance weakest = queue.peek();
+                    if (weakest.distance < distance) {
+                        queue.remove();
+                        queue.add(new WordDistances.Distance(lookup.vocabulary.getWord(other.wordIndex), distance));
+                    }
+                }
+            }
+
+            ArrayList<WordDistances.Distance> result = new ArrayList<>(queue);
+            Collections.sort(result);
+            return result;
         }
     }
 
@@ -77,15 +138,15 @@ public class WordVectorLookup {
         return new WordVectorLookup(vocabulary, vectors);
     }
 
-    public void saveToFolder(Path out) throws IOException {
+    public void saveToFolder(Path out, String id) throws IOException {
         Files.createDirectories(out);
-        vocabulary.saveBinary(out.resolve("vocabulary.bin").toFile());
-        try (DataOutputStream dos = IOUtil.getDataOutputStream(out.resolve("word-vectors.bin"))) {
+        vocabulary.saveBinary(out.resolve(id + ".vocab").toFile());
+        try (DataOutputStream dos = IOUtil.getDataOutputStream(out.resolve(id + ".vec.bin"))) {
             dos.writeInt(vectors.size());
             dos.writeInt(dimension);
             for (Vector ve : vectors.getValuesSortedByKey()) {
                 dos.writeInt(ve.wordIndex);
-                FloatArrays.serializeRaw(dos, ve.array);
+                FloatArrays.serializeRaw(dos, ve.data);
             }
         }
     }
@@ -93,7 +154,7 @@ public class WordVectorLookup {
     private WordVectorLookup(LmVocabulary vocabulary, UIntMap<Vector> vectors) {
         this.vocabulary = vocabulary;
         this.vectors = vectors;
-        this.dimension = vectors.get(0).array.length;
+        this.dimension = vectors.get(0).data.length;
     }
 
     private WordVectorLookup(LmVocabulary vocabulary, Vector[] vectorArray) {
@@ -102,7 +163,7 @@ public class WordVectorLookup {
         for (Vector vector : vectorArray) {
             vectors.put(vector.wordIndex, vector);
         }
-        this.dimension = vectors.get(0).array.length;
+        this.dimension = vectors.get(0).data.length;
     }
 
     public static WordVectorLookup loadFromBinaryFast(Path vectorFile, Path vocabularyFile) throws IOException {
@@ -154,7 +215,7 @@ public class WordVectorLookup {
     }
 
     public float[] getVector(String word) {
-        return vectors.get(vocabulary.indexOf(word)).array;
+        return vectors.get(vocabulary.indexOf(word)).data;
     }
 
     public boolean containsWord(String word) {

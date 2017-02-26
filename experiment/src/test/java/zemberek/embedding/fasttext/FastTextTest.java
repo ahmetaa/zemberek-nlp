@@ -35,9 +35,7 @@ public class FastTextTest {
             argz.minCount = 1;
             argz.lr = 0.1;
             argz.dim = 10;
-            argz.bucket = 5_000_000;
-            argz.minn = 3;
-            argz.maxn = 6;
+            argz.bucket = 10_000_000;
 
             fastText = FastText.train(trainFile, argz);
             fastText.saveModel(modelPath);
@@ -58,19 +56,21 @@ public class FastTextTest {
         Args argz = new Args();
         argz.thread = 8;
         argz.model = Args.model_name.sg;
-        argz.epoch = 5;
+        argz.epoch = 10;
         argz.wordNgrams = 1;
-        argz.dim = 100;
-        argz.bucket = 1_000_000;
+        argz.dim = 150;
+        argz.bucket = 2_000_000;
         argz.minn = 3;
         argz.maxn = 6;
+        //argz.subWordHashProvider = new Dictionary.EmptySubwordHashProvider();
+        argz.subWordHashProvider = new Dictionary.CharacterNgramHashProvider(argz.minn, argz.maxn);
 
-        Path input = Paths.get("/home/ahmetaa/data/nlp/corpora/corpus-100k.txt");
+        Path input = Paths.get("/home/ahmetaa/data/nlp/corpora/corpus-1M.txt");
 
         Path outRoot = Paths.get("/home/ahmetaa/data/vector/fasttext");
 
         FastText fastText = FastText.train(input, argz);
-        Path vectorFile = outRoot.resolve("100k-skipgram.vec");
+        Path vectorFile = outRoot.resolve("1M-skipgram.vec");
         Log.info("Saving vectors to %s", vectorFile);
         fastText.saveVectors(vectorFile);
     }

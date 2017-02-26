@@ -71,6 +71,7 @@ public class FastText {
     static FastText load(DataInputStream dis) throws IOException {
         Args args_ = Args.load(dis);
         Dictionary dict_ = Dictionary.load(dis, args_);
+        Log.info("Loading Matrices.");
         Matrix input_ = Matrix.load(dis);
         Matrix output_ = Matrix.load(dis);
         Model model_ = new Model(input_, output_, args_, 0);
@@ -101,7 +102,7 @@ public class FastText {
         while ((lineStr = reader.readLine()) != null) {
             IntVector line = new IntVector(), labels = new IntVector();
             dict_.getLine(lineStr, line, labels, model_.getRng());
-            dict_.addNgrams(line, args_.wordNgrams);
+            dict_.addWordNgramHashes(line, args_.wordNgrams);
             if (labels.size() > 0 && line.size() > 0) {
                 List<Model.Pair> modelPredictions = model_.predict(line.copyOf(), k);
                 for (Model.Pair pair : modelPredictions) {
@@ -127,7 +128,7 @@ public class FastText {
             if (line.size() == 0) {
                 continue;
             }
-            dict_.addNgrams(line, args_.wordNgrams);
+            dict_.addWordNgramHashes(line, args_.wordNgrams);
             for (int i : line.copyOf()) {
                 vec.addRow(model_.wi_, i);
             }
@@ -140,7 +141,7 @@ public class FastText {
         IntVector words = new IntVector();
         IntVector labels = new IntVector();
         dict_.getLine(line, words, labels, model_.getRng());
-        dict_.addNgrams(words, args_.wordNgrams);
+        dict_.addWordNgramHashes(words, args_.wordNgrams);
         if (words.isempty()) {
             return Collections.emptyList();
         }
@@ -267,8 +268,9 @@ public class FastText {
                         localTokenCount += wcount;
                         progress = (float) ((1.0 * tokenCount.get()) / (args_.epoch * ntokens));
                         float lr = (float) (args_.lr * (1.0 - progress));
+
                         if (args_.model == Args.model_name.sup) {
-                            dictionary.addNgrams(line, args_.wordNgrams);
+                            dictionary.addWordNgramHashes(line, args_.wordNgrams);
                             supervised(model, lr, line.copyOf(), labels.copyOf());
                         } else if (args_.model == Args.model_name.cbow) {
                             cbow(model, lr, line.copyOf());

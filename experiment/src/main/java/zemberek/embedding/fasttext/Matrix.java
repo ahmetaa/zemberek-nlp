@@ -3,6 +3,8 @@ package zemberek.embedding.fasttext;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.Random;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -127,11 +129,13 @@ class Matrix {
     void save(DataOutputStream dos) throws IOException {
         dos.writeInt(m_);
         dos.writeInt(n_);
+        byte[] b = new byte[m_ * n_ * 4];
+        ByteBuffer buffer = ByteBuffer.wrap(b);
+        FloatBuffer fb = buffer.asFloatBuffer();
         for (int i = 0; i < m_; i++) {
-            for (int j = 0; j < n_; j++) {
-                dos.writeFloat(data_[i][j]);
-            }
+            fb.put(data_[i]);
         }
+        dos.write(b);
     }
 
     void printRow(String s, int i, int amount) {
@@ -149,10 +153,12 @@ class Matrix {
     static Matrix load(DataInputStream dis) throws IOException {
         int m_ = dis.readInt();
         int n_ = dis.readInt();
+        byte[] b = new byte[m_ * n_ * 4];
+        dis.readFully(b);
+        ByteBuffer buf = ByteBuffer.wrap(b);
+        FloatBuffer f = buf.asFloatBuffer();
         float[] data = new float[m_ * n_];
-        for (int i = 0; i < data.length; i++) {
-            data[i] = dis.readFloat();
-        }
+        f.get(data);
         return new Matrix(m_, n_, data);
     }
 

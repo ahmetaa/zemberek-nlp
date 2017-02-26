@@ -26,6 +26,7 @@ public class Args {
     String label;
     int verbose;
     String pretrainedVectors;
+    SubWordHashProvider subWordHashProvider;
 
     enum model_name {
         cbow(1), sg(2), sup(3);
@@ -68,6 +69,7 @@ public class Args {
         label = "__label__";
         verbose = 2;
         pretrainedVectors = "";
+        subWordHashProvider = new Dictionary.CharacterNgramHashProvider(minn, maxn);
     }
 
 

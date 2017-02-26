@@ -37,6 +37,15 @@ public class IntVectorTest {
     public void testAddAll() {
         int[] d1 = {2, 4, 5, 17, -1, -2, 5, -123};
         IntVector darray = new IntVector();
+        IntVector i = new IntVector(d1);
+        darray.addAll(i);
+        Assert.assertEquals(i, darray);
+    }
+
+    @Test
+    public void testAddAllVector() {
+        int[] d1 = {2, 4, 5, 17, -1, -2, 5, -123};
+        IntVector darray = new IntVector();
         darray.addAll(d1);
         Assert.assertEquals(8, darray.size());
         Assert.assertArrayEquals(d1, darray.copyOf());
@@ -46,6 +55,7 @@ public class IntVectorTest {
         Assert.assertEquals(-123, darray.get(15));
         Assert.assertArrayEquals(d1, Arrays.copyOfRange(darray.copyOf(), 8, 16));
     }
+
 
     @Test
     public void testTrimToSize() {
