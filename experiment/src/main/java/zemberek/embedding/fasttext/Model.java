@@ -207,9 +207,6 @@ class Model {
         if (heap.size() == k && score < heap.peek().first) {
             return;
         }
-        if (node > tree.length) {
-            System.out.println();
-        }
         if (tree[node].left == -1 && tree[node].right == -1) {
             heap.add(new Pair(score, node));
             if (heap.size() > k) {
