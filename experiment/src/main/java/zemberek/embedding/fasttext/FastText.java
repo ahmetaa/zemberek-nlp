@@ -70,6 +70,11 @@ public class FastText {
 
     static FastText load(DataInputStream dis) throws IOException {
         Args args_ = Args.load(dis);
+        if (args_.minn != 0) {
+            args_.subWordHashProvider = new Dictionary.CharacterNgramHashProvider(args_.minn, args_.maxn);
+        } else {
+            args_.subWordHashProvider = new Dictionary.EmptySubwordHashProvider();
+        }
         Dictionary dict_ = Dictionary.load(dis, args_);
         Log.info("Loading Matrices.");
         Matrix input_ = Matrix.load(dis);
@@ -147,7 +152,7 @@ public class FastText {
         }
         Vector output = new Vector(dict_.nlabels());
         Vector hidden = model_.computeHidden(words.copyOf());
-        List<Model.Pair> modelPredictions = model_.predict( k, hidden, output);
+        List<Model.Pair> modelPredictions = model_.predict(k, hidden, output);
         List<ScoreStringPair> result = new ArrayList<>(modelPredictions.size());
         for (Model.Pair pair : modelPredictions) {
             result.add(new ScoreStringPair(pair.first, dict_.getLabel(pair.second)));
@@ -317,6 +322,11 @@ public class FastText {
         }
 
         Model model_ = new Model(input_, output_, args_, 0);
+        if (args_.model == Args.model_name.sup) {
+            model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_LABEL));
+        } else {
+            model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_WORD));
+        }
 
         Stopwatch stopwatch = Stopwatch.createStarted();
         AtomicLong tokenCount = new AtomicLong(0);

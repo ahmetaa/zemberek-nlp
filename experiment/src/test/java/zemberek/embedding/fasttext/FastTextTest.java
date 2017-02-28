@@ -26,9 +26,10 @@ public class FastTextTest {
         if (modelPath.toFile().exists()) {
             fastText = FastText.load(modelPath);
         } else {
-            Args argz = new Args();
-            argz.thread = 8;
+            Args argz = Args.forSupervised();
+            argz.thread = 4;
             argz.model = Args.model_name.sup;
+            argz.loss = Args.loss_name.softmax;
             argz.threadSafe = false;
             argz.epoch = 5;
             argz.wordNgrams = 2;
@@ -53,16 +54,13 @@ public class FastTextTest {
     @Test
     @Ignore("Not an actual Test.")
     public void skipgram() throws Exception {
-        Args argz = new Args();
+        Args argz = Args.forWordVectors(Args.model_name.sg);
         argz.thread = 8;
-        argz.model = Args.model_name.sg;
         argz.epoch = 10;
-        argz.wordNgrams = 1;
         argz.dim = 150;
         argz.bucket = 2_000_000;
         argz.minn = 3;
         argz.maxn = 6;
-        //argz.subWordHashProvider = new Dictionary.EmptySubwordHashProvider();
         argz.subWordHashProvider = new Dictionary.CharacterNgramHashProvider(argz.minn, argz.maxn);
 
         Path input = Paths.get("/home/ahmetaa/data/nlp/corpora/corpus-1M.txt");

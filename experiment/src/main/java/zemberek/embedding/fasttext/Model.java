@@ -207,7 +207,9 @@ class Model {
         if (heap.size() == k && score < heap.peek().first) {
             return;
         }
-
+        if (node > tree.length) {
+            System.out.println();
+        }
         if (tree[node].left == -1 && tree[node].right == -1) {
             heap.add(new Pair(score, node));
             if (heap.size() > k) {
@@ -281,8 +283,9 @@ class Model {
     }
 
     private void buildTree(long[] counts) {
-        tree = Arrays.copyOf(tree, 2 * osz_ - 1);
+        tree = new Node[2 * osz_ - 1];
         for (int i = 0; i < 2 * osz_ - 1; i++) {
+            tree[i] = new Node();
             tree[i].parent = -1;
             tree[i].left = -1;
             tree[i].right = -1;

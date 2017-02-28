@@ -48,30 +48,48 @@ public class Args {
         }
     }
 
-    Args() {
-        lr = 0.05;
+    private Args() {
         dim = 100;
         ws = 5;
         epoch = 5;
         minCount = 5;
         minCountLabel = 0;
         neg = 5;
-        wordNgrams = 1;
-        loss = loss_name.ns;
-        model = model_name.sg;
         bucket = 2000000;
         threadSafe = false;
-        minn = 3;
-        maxn = 6;
-        thread = 4;
+        thread = 8;
         lrUpdateRate = 100;
         t = 1e-4;
         label = "__label__";
         verbose = 2;
         pretrainedVectors = "";
-        subWordHashProvider = new Dictionary.CharacterNgramHashProvider(minn, maxn);
     }
 
+    static Args forWordVectors(model_name modelName) {
+        Args args = new Args();
+        args.minn = 3;
+        args.maxn = 6;
+        args.subWordHashProvider =
+                new Dictionary.CharacterNgramHashProvider(args.minn, args.maxn);
+        args.lr = 0.05;
+        args.loss = loss_name.ns;
+        args.model = modelName;
+        args.wordNgrams = 1;
+        return args;
+    }
+
+    static Args forSupervised() {
+        Args args = new Args();
+        args.minn = 0;
+        args.maxn = 0;
+        args.subWordHashProvider =
+                new Dictionary.EmptySubwordHashProvider();
+        args.lr = 0.1;
+        args.loss = loss_name.softmax;
+        args.model = model_name.sup;
+        args.wordNgrams = 2;
+        return args;
+    }
 
     void save(DataOutputStream out) throws IOException {
         out.writeInt(dim);
