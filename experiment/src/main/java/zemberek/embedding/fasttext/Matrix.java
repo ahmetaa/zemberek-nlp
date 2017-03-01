@@ -21,6 +21,13 @@ class Matrix {
         this(m_, n_, data_, false);
     }
 
+    private Matrix(int m_, int n_, float[][] data_, boolean enableLocks) {
+        this.m_ = m_;
+        this.n_ = n_;
+        this.data_ = data_;
+        this.enableLocks = enableLocks;
+    }
+
     private Matrix(int m_, int n_, float[] data_, boolean enableLocks) {
         this.m_ = m_;
         this.n_ = n_;
@@ -129,13 +136,33 @@ class Matrix {
     void save(DataOutputStream dos) throws IOException {
         dos.writeInt(m_);
         dos.writeInt(n_);
-        byte[] b = new byte[m_ * n_ * 4];
-        ByteBuffer buffer = ByteBuffer.wrap(b);
-        FloatBuffer fb = buffer.asFloatBuffer();
-        for (int i = 0; i < m_; i++) {
-            fb.put(data_[i]);
+
+        int blockSize = n_ * 4;
+
+        int block = 100_000 * blockSize;
+        long totalByte = (long) m_ * blockSize;
+        if (block > totalByte) {
+            block = (int) totalByte;
         }
-        dos.write(b);
+        int start = 0;
+        int end = block / blockSize;
+        int blockCounter = 1;
+        while (start < m_) {
+            byte[] b = new byte[block];
+            ByteBuffer buffer = ByteBuffer.wrap(b);
+            FloatBuffer fb = buffer.asFloatBuffer();
+            for (int i = start; i < end; i++) {
+                fb.put(data_[i]);
+            }
+            dos.write(b);
+            blockCounter++;
+            start = end;
+            end = (block / blockSize) * blockCounter;
+            if (end > m_) {
+                end = m_;
+                block = (end - start) * blockSize;
+            }
+        }
     }
 
     void printRow(String s, int i, int amount) {
@@ -153,13 +180,38 @@ class Matrix {
     static Matrix load(DataInputStream dis) throws IOException {
         int m_ = dis.readInt();
         int n_ = dis.readInt();
-        byte[] b = new byte[m_ * n_ * 4];
-        dis.readFully(b);
-        ByteBuffer buf = ByteBuffer.wrap(b);
-        FloatBuffer f = buf.asFloatBuffer();
-        float[] data = new float[m_ * n_];
-        f.get(data);
-        return new Matrix(m_, n_, data);
+        float[][] data = new float[m_][n_];
+
+        int blockSize = n_ * 4;
+
+        int block = 100_000 * blockSize;
+        long totalByte = (long) m_ * blockSize;
+        if (block > totalByte) {
+            block = (int) totalByte;
+        }
+        int start = 0;
+        int end = block / blockSize;
+        int blockCounter = 1;
+        while (start < m_) {
+            byte[] b = new byte[block];
+            dis.readFully(b);
+            ByteBuffer buffer = ByteBuffer.wrap(b);
+            FloatBuffer fb = buffer.asFloatBuffer();
+            float[] tmp = new float[block / 4];
+            fb.get(tmp);
+
+            for (int k = 0; k < tmp.length / n_; k++) {
+                System.arraycopy(tmp, k * n_, data[k + start], 0, n_);
+            }
+            blockCounter++;
+            start = end;
+            end = (block / blockSize) * blockCounter;
+            if (end > m_) {
+                end = m_;
+                block = (end - start) * blockSize;
+            }
+        }
+        return new Matrix(m_, n_, data, false);
     }
 
 }

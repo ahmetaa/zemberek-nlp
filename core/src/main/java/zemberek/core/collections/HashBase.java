@@ -51,7 +51,7 @@ public abstract class HashBase<T> {
 
     int newSize() {
         long size = keys.length * 2L;
-        if(size > Integer.MAX_VALUE) {
+        if (size > Integer.MAX_VALUE) {
             throw new IllegalStateException("Too many items in collection " + this.getClass());
         }
         return (int) size;
@@ -69,27 +69,28 @@ public abstract class HashBase<T> {
         return key.hashCode();
     }
 
-    /*
+    /**
      * locate operation does the following:
      * - finds the slot
      * - if there was a deleted key before (key[slot]==TOMB_STONE) and pointer is not set yet (pointer==-1) pointer is set to this
-     *   slot index and index is incremented.
-     *   This is necessary for the following problem.
-     *   Suppose we add key "foo" first then key "bar" with key collision. first one is put to slotindex=1 and the other one is
-     *   located to slot=2. Then we remove the key "foo". Now if we do not use the TOMB_STONE, and want to access the value of key "bar".
-     *   we would get "2" because slot will be 1 and key does not exist there.
-     *   that is why we use a TOMB_STONE object for marking deleted slots. So when getting a value we pass the deleted slots. And when we insert,
-     *   we use the first deleted slot if any.
+     * slot index and index is incremented.
+     * This is necessary for the following problem.
+     * Suppose we add key "foo" first then key "bar" with key collision. first one is put to slotindex=1 and the other one is
+     * located to slot=2. Then we remove the key "foo". Now if we do not use the TOMB_STONE, and want to access the value of key "bar".
+     * we would get "2" because slot will be 1 and key does not exist there.
+     * that is why we use a TOMB_STONE object for marking deleted slots. So when getting a value we pass the deleted slots. And when we insert,
+     * we use the first deleted slot if any.
+     * <pre>
      *    Key Val  Key Val  Key Val
      *     0   0    0   0    0   0
      *     foo 2    foo 2    TOMB_STONE  2
      *     0   0    bar 3    bar 3
      *     0   0    0   0    0   0
+     * </pre>
      * - if there was no deleted key in that slot, check the value. if value is null then we can put our key here. However,
-     *   we cannot return the slot value immediately. if pointer value is set, we use it as the vacant index. we do not use
-     *   the slot or the pointer value itself. we use negative of it, pointing the key does not exist in this list. Also we
-     *   return -slot-1 or -pointer-1 to avoid the 0 index problem.
-     *
+     * we cannot return the slot value immediately. if pointer value is set, we use it as the vacant index. we do not use
+     * the slot or the pointer value itself. we use negative of it, pointing the key does not exist in this list. Also we
+     * return -slot-1 or -pointer-1 to avoid the 0 index problem.
      */
     protected int locate(T key) {
         int probeCount = 0;

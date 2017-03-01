@@ -97,6 +97,11 @@ public class FastText {
             this.score = score;
             this.string = string;
         }
+
+        @Override
+        public String toString() {
+            return string + " : " + score;
+        }
     }
 
     void test(Path in, int k) throws IOException {
@@ -110,11 +115,21 @@ public class FastText {
             dict_.addWordNgramHashes(line, args_.wordNgrams);
             if (labels.size() > 0 && line.size() > 0) {
                 List<Model.Pair> modelPredictions = model_.predict(line.copyOf(), k);
+
                 for (Model.Pair pair : modelPredictions) {
                     if (labels.contains(pair.second)) {
                         precision += 1.0;
                     }
                 }
+                List<ScoreStringPair> result = new ArrayList<>(modelPredictions.size());
+                for (Model.Pair pair : modelPredictions) {
+                    result.add(new ScoreStringPair(pair.first, dict_.getLabel(pair.second)));
+                }
+                System.out.println(lineStr);
+                for (ScoreStringPair scoreStringPair : result) {
+                    System.out.println(scoreStringPair);
+                }
+
                 nexamples++;
                 nlabels += labels.size();
             }
@@ -333,7 +348,6 @@ public class FastText {
 
         ExecutorService es = Executors.newFixedThreadPool(args_.thread);
         CompletionService<Model> completionService = new ExecutorCompletionService<>(es);
-        Log.info("Counting chars..");
         long charCount = TextIO.charCount(input, StandardCharsets.UTF_8);
         Log.info("Training started.");
         Stopwatch sw = Stopwatch.createStarted();
