@@ -5,9 +5,10 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * A compact set structure for counting objects.
- *
- * @param <T>
+ * A memory efficient and fast set like data structure for counting objects.
+ * Count values can be between Integer.MIN_VALUE and Integer.MAX_VALUE.
+ * Methods do not check for overflow or underflow.
+ * Class is not thread safe.
  */
 public class CountSet<T> extends HashBase<T> implements Iterable<T> {
 
@@ -65,12 +66,19 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
                 slot = nextProbe(slot, ++probeCount);
                 continue;
             }
-            if (t.equals(key))
+            if (t.equals(key)) {
                 return counts[slot];
+            }
             slot = nextProbe(slot, ++probeCount);
         }
     }
 
+    /**
+     * Decrements the objects count.
+     *
+     * @param key
+     * @return
+     */
     public int decrement(T key) {
         return incrementByAmount(key, -1);
     }
@@ -132,7 +140,15 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
      * @return a clone of value array.
      */
     public int[] copyOfValues() {
-        return counts.clone();
+        int[] result = new int[keyCount];
+        int k = 0;
+        for (int i = 0; i < keys.length; i++) {
+            if (keys[i] != null && keys[i] != TOMB_STONE) {
+                result[k] = counts[i];
+                k++;
+            }
+        }
+        return result;
     }
 
     public List<Entry<T>> getAsEntryList() {

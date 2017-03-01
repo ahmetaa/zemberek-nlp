@@ -5,10 +5,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class CountSetTest {
@@ -212,6 +209,32 @@ public class CountSetTest {
         for (int i = 0; i < 1000; i++) {
             Assert.assertEquals(i + 1, table.get(i));
         }
+    }
+
+    @Test
+    public void copyOfValuesTest() {
+        CountSet<String> set = new CountSet<>();
+        for (int i = 0; i < 1000; i++) {
+            set.set(String.valueOf(i), i + 1);
+        }
+        int[] values = set.copyOfValues();
+        Assert.assertEquals(1000, values.length);
+        Arrays.sort(values);
+        for (int i = 0; i < 1000; i++) {
+            Assert.assertEquals(i + 1, values[i]);
+        }
+
+        set.remove("768");
+        set.remove("0");
+        set.remove("999");
+
+        values = set.copyOfValues();
+        Assert.assertEquals(997, values.length);
+        Arrays.sort(values);
+
+        Assert.assertTrue(Arrays.binarySearch(values, 769) < 0);
+        Assert.assertTrue(Arrays.binarySearch(values, 1) < 0);
+        Assert.assertTrue(Arrays.binarySearch(values, 1000) < 0);
     }
 
     @Test
