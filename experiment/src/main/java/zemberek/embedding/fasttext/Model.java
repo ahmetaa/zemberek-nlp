@@ -14,18 +14,18 @@ class Model {
         boolean binary;
     }
 
-    static class Pair implements Comparable<Pair> {
+    static class FloatIntPair implements Comparable<FloatIntPair> {
 
         final float first;
         final int second;
 
-        Pair(float first, int second) {
+        FloatIntPair(float first, int second) {
             this.first = first;
             this.second = second;
         }
 
         @Override
-        public int compareTo(Pair o) {
+        public int compareTo(FloatIntPair o) {
             // descending.
             return Float.compare(o.first, first);
         }
@@ -159,31 +159,31 @@ class Model {
         return hidden;
     }
 
-    private static final Comparator<Pair> PAIR_COMPARATOR =
+    private static final Comparator<FloatIntPair> PAIR_COMPARATOR =
             (l, r) -> Float.compare(l.first, r.first);
 
-    List<Pair> predict(int k,
-                       Vector hidden,
-                       Vector output) {
+    List<FloatIntPair> predict(int k,
+                               Vector hidden,
+                               Vector output) {
         assert (k > 0);
-        PriorityQueue<Pair> heap = new PriorityQueue<>(k + 1, PAIR_COMPARATOR);
+        PriorityQueue<FloatIntPair> heap = new PriorityQueue<>(k + 1, PAIR_COMPARATOR);
         if (args_.loss == Args.loss_name.hs) {
             dfs(k, 2 * osz_ - 2, 0.0f, heap, hidden);
         } else {
             findKBest(k, heap, hidden, output);
         }
-        List<Pair> result = new ArrayList<>(heap);
+        List<FloatIntPair> result = new ArrayList<>(heap);
         Collections.sort(result);
         return result;
     }
 
-    List<Pair> predict(int[] input, int k) {
+    List<FloatIntPair> predict(int[] input, int k) {
         Vector hidden_ = computeHidden(input);
         return predict(k, hidden_, output_);
     }
 
     private void findKBest(int k,
-                           PriorityQueue<Pair> heap,
+                           PriorityQueue<FloatIntPair> heap,
                            Vector hidden,
                            Vector output) {
         computeOutputSoftmax(hidden, output);
@@ -191,7 +191,7 @@ class Model {
             if (heap.size() == k && log(output.data_[i]) < heap.peek().first) {
                 continue;
             }
-            heap.add(new Pair(log(output.data_[i]), i));
+            heap.add(new FloatIntPair(log(output.data_[i]), i));
             if (heap.size() > k) {
                 heap.remove();
             }
@@ -202,14 +202,14 @@ class Model {
     private void dfs(int k,
                      int node,
                      float score,
-                     PriorityQueue<Pair> heap,
+                     PriorityQueue<FloatIntPair> heap,
                      Vector hidden) {
         if (heap.size() == k && score < heap.peek().first) {
             return;
         }
 
         if (tree[node].left == -1 && tree[node].right == -1) {
-            heap.add(new Pair(score, node));
+            heap.add(new FloatIntPair(score, node));
             if (heap.size() > k) {
                 heap.remove();
             }

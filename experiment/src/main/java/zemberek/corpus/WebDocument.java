@@ -17,11 +17,12 @@ public class WebDocument {
     String crawlDate;
     String labelString;
     String category;
+    String title;
 
     List<String> lines = new ArrayList<>();
 
-    public WebDocument(String source, String id, List<String> lines, String url,
-                       String crawlDate, String labels, String category) {
+    public WebDocument(String source, String id, String title, List<String> lines, String url,
+                String crawlDate, String labels, String category) {
         this.source = source;
         this.id = id;
         this.lines = lines;
@@ -29,10 +30,11 @@ public class WebDocument {
         this.crawlDate = crawlDate;
         this.labelString = labels;
         this.category = category;
+        this.title = title;
     }
 
     public String getDocumentHeader() {
-        return "<doc id=\"" + id + "\" source=\"" + source + "\" crawl-date=\"" + crawlDate +
+        return "<doc id=\"" + id + "\" source=\"" + source + "\" title=\"" + title + "\" crawl-date=\"" + crawlDate +
                 "\" labels=\"" + labelString + "\" category=\"" + category + "\">";
     }
 
@@ -40,6 +42,7 @@ public class WebDocument {
         return new WebDocument(
                 this.source,
                 this.id,
+                "",
                 Collections.emptyList(),
                 this.url,
                 "", "", "");
@@ -57,11 +60,17 @@ public class WebDocument {
         return Splitter.on(",").omitEmptyStrings().trimResults().splitToList(labelString);
     }
 
+    public String getTitle() {
+        return title;
+    }
+
     static Pattern sourcePattern = Pattern.compile("(source=\")(.+?)(\")");
     static Pattern urlPattern = Pattern.compile("(id=\")(.+?)(\")");
     static Pattern crawlDatePattern = Pattern.compile("(crawl-date=\")(.+?)(\")");
     static Pattern labelPattern = Pattern.compile("(labels=)(.+?)(\")");
     static Pattern categoryPattern = Pattern.compile("(category=)(.+?)(\")");
+    static Pattern titlePattern = Pattern.compile("(title=)(.+?)(\")");
+
 
     public static WebDocument fromText(String meta, List<String> pageData) {
 
@@ -71,24 +80,26 @@ public class WebDocument {
         String crawlDate = Regexps.firstMatch(crawlDatePattern, meta, 2);
         String labels = Regexps.firstMatch(labelPattern, meta, 2).replace('\"', ' ').trim();
         String category = Regexps.firstMatch(categoryPattern, meta, 2).replace('\"', ' ').trim();
+        String title = Regexps.firstMatch(titlePattern, meta, 2).replace('\"', ' ').trim();
+
 
         int i = source.lastIndexOf("/");
         if (i >= 0 && i < source.length()) {
             source = source.substring(i + 1);
         }
-        return new WebDocument(source, id, pageData, url, crawlDate, labels, category);
+        return new WebDocument(source, id, title, pageData, url, crawlDate, labels, category);
     }
 
     public long contentHash() {
-        return com.google.common.hash.Hashing.murmur3_128().hashUnencodedChars(content()).asLong();
+        return com.google.common.hash.Hashing.murmur3_128().hashUnencodedChars(getContent()).asLong();
     }
 
-    public String content() {
+    public String getContent() {
         return Joiner.on("\n").join(lines);
     }
 
     public WebDocument copy(Collection<String> reduced) {
-        return new WebDocument(this.source, this.id, new ArrayList<>(reduced), this.url, this.crawlDate, this.labelString, this.category);
+        return new WebDocument(this.source, this.id, this.title, new ArrayList<>(reduced), this.url, this.crawlDate, this.labelString, this.category);
     }
 
     @Override
@@ -99,7 +110,18 @@ public class WebDocument {
         WebDocument page = (WebDocument) o;
 
         return page.contentHash() == this.contentHash();
+    }
 
+    public String getSource() {
+        return source;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getUrl() {
+        return url;
     }
 
     @Override

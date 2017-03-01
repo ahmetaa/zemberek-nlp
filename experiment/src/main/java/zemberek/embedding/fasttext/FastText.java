@@ -1,6 +1,7 @@
 package zemberek.embedding.fasttext;
 
 import com.google.common.base.Stopwatch;
+import zemberek.core.ScoredItem;
 import zemberek.core.collections.IntVector;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
@@ -89,21 +90,6 @@ public class FastText {
         return new FastText(args_, dict_, model_);
     }
 
-    static class ScoreStringPair {
-        final float score;
-        final String string;
-
-        ScoreStringPair(float score, String string) {
-            this.score = score;
-            this.string = string;
-        }
-
-        @Override
-        public String toString() {
-            return string + " : " + score;
-        }
-    }
-
     void test(Path in, int k) throws IOException {
         int nexamples = 0, nlabels = 0;
         double precision = 0.0;
@@ -114,22 +100,13 @@ public class FastText {
             dict_.getLine(lineStr, line, labels, model_.getRng());
             dict_.addWordNgramHashes(line, args_.wordNgrams);
             if (labels.size() > 0 && line.size() > 0) {
-                List<Model.Pair> modelPredictions = model_.predict(line.copyOf(), k);
+                List<Model.FloatIntPair> modelPredictions = model_.predict(line.copyOf(), k);
 
-                for (Model.Pair pair : modelPredictions) {
+                for (Model.FloatIntPair pair : modelPredictions) {
                     if (labels.contains(pair.second)) {
                         precision += 1.0;
                     }
                 }
-                List<ScoreStringPair> result = new ArrayList<>(modelPredictions.size());
-                for (Model.Pair pair : modelPredictions) {
-                    result.add(new ScoreStringPair(pair.first, dict_.getLabel(pair.second)));
-                }
-                System.out.println(lineStr);
-                for (ScoreStringPair scoreStringPair : result) {
-                    System.out.println(scoreStringPair);
-                }
-
                 nexamples++;
                 nlabels += labels.size();
             }
@@ -157,7 +134,7 @@ public class FastText {
         return vec;
     }
 
-    List<ScoreStringPair> predict(String line, int k) {
+    List<ScoredItem<String>> predict(String line, int k) {
         IntVector words = new IntVector();
         IntVector labels = new IntVector();
         dict_.getLine(line, words, labels, model_.getRng());
@@ -167,10 +144,10 @@ public class FastText {
         }
         Vector output = new Vector(dict_.nlabels());
         Vector hidden = model_.computeHidden(words.copyOf());
-        List<Model.Pair> modelPredictions = model_.predict(k, hidden, output);
-        List<ScoreStringPair> result = new ArrayList<>(modelPredictions.size());
-        for (Model.Pair pair : modelPredictions) {
-            result.add(new ScoreStringPair(pair.first, dict_.getLabel(pair.second)));
+        List<Model.FloatIntPair> modelPredictions = model_.predict(k, hidden, output);
+        List<ScoredItem<String>> result = new ArrayList<>(modelPredictions.size());
+        for (Model.FloatIntPair pair : modelPredictions) {
+            result.add(new ScoredItem<>(dict_.getLabel(pair.second),pair.first));
         }
         return result;
     }

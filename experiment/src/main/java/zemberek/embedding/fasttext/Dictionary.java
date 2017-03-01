@@ -311,6 +311,9 @@ class Dictionary {
                 List<String> split = tokenizer.splitToList(line);
                 split.add(EOS);
                 for (String word : split) {
+                    if (word.startsWith("#")) {
+                        continue;
+                    }
                     dictionary.addWithCount(word, 1);
                 }
             }
@@ -398,6 +401,9 @@ class Dictionary {
         tokens.add(EOS);
 
         for (String token : tokens) {
+            if (token.startsWith("#")) {
+                continue;
+            }
             int wid = getId(token);
             if (wid < 0) continue;
             int type = getType(wid);
