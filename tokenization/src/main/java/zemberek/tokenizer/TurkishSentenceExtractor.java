@@ -17,8 +17,7 @@ import java.util.regex.Pattern;
 /**
  * This class is used for extracting sentences from paragraphs.
  * For making boundary decisions it uses a combination of rules and a binary averaged perceptron model.
- * It only breaks from [.!?] symbols.
- * It does not break from line break characters. Therefore input should not contain line breaks.
+ * It only breaks paragraphs from [.!?] symbols.
  * <p>
  * Use the static DEFAULT singleton for the TurkishSentenceExtractor instance that uses the extraction model.
  */

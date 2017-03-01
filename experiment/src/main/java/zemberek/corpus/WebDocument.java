@@ -18,11 +18,12 @@ public class WebDocument {
     String labelString;
     String category;
     String title;
+    long hash;
 
     List<String> lines = new ArrayList<>();
 
     public WebDocument(String source, String id, String title, List<String> lines, String url,
-                String crawlDate, String labels, String category) {
+                       String crawlDate, String labels, String category) {
         this.source = source;
         this.id = id;
         this.lines = lines;
@@ -31,6 +32,15 @@ public class WebDocument {
         this.labelString = labels;
         this.category = category;
         this.title = title;
+        this.hash = contentHash();
+    }
+
+    public int contentLength() {
+        int total = 0;
+        for (String line : lines) {
+            total += line.length();
+        }
+        return total;
     }
 
     public String getDocumentHeader() {
@@ -71,6 +81,9 @@ public class WebDocument {
     static Pattern categoryPattern = Pattern.compile("(category=)(.+?)(\")");
     static Pattern titlePattern = Pattern.compile("(title=)(.+?)(\")");
 
+    private static String getAttribute(String str) {
+        return str == null ? "" : str.replace('\"', ' ').trim();
+    }
 
     public static WebDocument fromText(String meta, List<String> pageData) {
 
@@ -78,10 +91,10 @@ public class WebDocument {
         String id = url.replaceAll("http://|https://", "");
         String source = Regexps.firstMatch(sourcePattern, meta, 2);
         String crawlDate = Regexps.firstMatch(crawlDatePattern, meta, 2);
-        String labels = Regexps.firstMatch(labelPattern, meta, 2).replace('\"', ' ').trim();
-        String category = Regexps.firstMatch(categoryPattern, meta, 2).replace('\"', ' ').trim();
-        String title = Regexps.firstMatch(titlePattern, meta, 2).replace('\"', ' ').trim();
+        String labels =  getAttribute(Regexps.firstMatch(labelPattern, meta, 2));
 
+        String category = getAttribute(Regexps.firstMatch(categoryPattern, meta, 2));
+        String title = getAttribute(Regexps.firstMatch(titlePattern, meta, 2));
 
         int i = source.lastIndexOf("/");
         if (i >= 0 && i < source.length()) {
@@ -90,16 +103,30 @@ public class WebDocument {
         return new WebDocument(source, id, title, pageData, url, crawlDate, labels, category);
     }
 
-    public long contentHash() {
-        return com.google.common.hash.Hashing.murmur3_128().hashUnencodedChars(getContent()).asLong();
+    private long contentHash() {
+
+        long hash = 0x811C_9DC5;
+        for (String line : lines) {
+            hash = hash ^ com.google.common.hash.Hashing.murmur3_128().hashUnencodedChars(line).asLong();
+        }
+        return hash;
     }
 
-    public String getContent() {
+    public long getHash() {
+        return hash;
+    }
+
+    public String getContentAsString() {
         return Joiner.on("\n").join(lines);
     }
 
-    public WebDocument copy(Collection<String> reduced) {
-        return new WebDocument(this.source, this.id, this.title, new ArrayList<>(reduced), this.url, this.crawlDate, this.labelString, this.category);
+    public List<String> getLines() {
+        return lines;
+    }
+
+    public void setContent(List<String> lines) {
+        this.lines = lines;
+        this.hash = contentHash();
     }
 
     @Override

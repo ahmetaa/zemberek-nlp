@@ -16,6 +16,7 @@ public class WordVector {
     public WordVector(String word, float[] vector) {
         this.word = word;
         this.vector = vector;
+
         float sum = 0;
         for (float v : vector) {
             sum += v * v;

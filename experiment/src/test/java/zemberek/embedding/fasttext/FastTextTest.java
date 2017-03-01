@@ -154,7 +154,7 @@ public class FastTextTest {
 
                 pw.println("id = " + id);
                 pw.println();
-                pw.println(doc.getContent().replaceAll("[\n\r]+", "\n"));
+                pw.println(doc.getContentAsString().replaceAll("[\n\r]+", "\n"));
                 pw.println();
                 pw.println("Actual Labels = " + String.join(", ", doc.getLabels()));
                 pw.println("Predictions   = " + String.join(", ", predictedLabels));
@@ -174,7 +174,7 @@ public class FastTextTest {
             boolean useRoots) throws IOException {
         WebCorpus corpus = new WebCorpus("www.cnnturk.com", "labeled");
         corpus.addDocuments(WebCorpus.loadDocuments(input));
-        List<String> set = new ArrayList<>(corpus.count());
+        List<String> set = new ArrayList<>(corpus.documentCount());
 
         ZemberekLexer lexer = new ZemberekLexer(true);
 
@@ -190,18 +190,18 @@ public class FastTextTest {
         Log.info("All label count = %d", labelCounts.size());
         labelCounts.removeSmaller(5);
         Log.info("Reduced label count = %d", labelCounts.size());
-        Log.info("Extracting data from %d documents ", corpus.count());
+        Log.info("Extracting data from %d documents ", corpus.documentCount());
         int c = 0;
 
         Set<Long> contentHash = new HashSet<>();
 
         for (WebDocument document : corpus.getPages()) {
-            Long hash = document.contentHash();
+            Long hash = document.getHash();
             if (contentHash.contains(hash)) {
                 continue;
             }
             contentHash.add(hash);
-            String content = document.getContent();
+            String content = document.getContentAsString();
             List<Token> docTokens = lexer.tokenizeAll(content);
 
             List<String> labelTags = new ArrayList<>();
@@ -257,7 +257,7 @@ public class FastTextTest {
             set.add("#" + document.getId() + " " + labelStr + " " + join.replaceAll("[']", "").toLowerCase(Turkish.LOCALE));
 
             if (c++ % 1000 == 0) {
-                Log.info("%d of %d processed.", c, corpus.count());
+                Log.info("%d of %d processed.", c, corpus.documentCount());
             }
         }
 
@@ -359,7 +359,7 @@ public class FastTextTest {
     private void generateCatSets(Path input, Path train, Path test, boolean useOnlyTitle) throws IOException {
         WebCorpus corpus = new WebCorpus("www.cnnturk.com", "category");
         corpus.addDocuments(WebCorpus.loadDocuments(input));
-        List<String> set = new ArrayList<>(corpus.count());
+        List<String> set = new ArrayList<>(corpus.documentCount());
 
         ZemberekLexer lexer = new ZemberekLexer(true);
 
@@ -376,12 +376,12 @@ public class FastTextTest {
         categoryCounts.removeSmaller(50);
         Log.info("Reduced label count = %d", categoryCounts.size());
 
-        Log.info("Extracting data from %d documents ", corpus.count());
+        Log.info("Extracting data from %d documents ", corpus.documentCount());
         int c = 0;
         Set<Long> contentHash = new HashSet<>();
 
         for (WebDocument document : corpus.getPages()) {
-            Long hash = document.contentHash();
+            Long hash = document.getHash();
             if (contentHash.contains(hash)) {
                 continue;
             }
@@ -393,7 +393,7 @@ public class FastTextTest {
                 continue;
             }
 
-            String content = document.getContent();
+            String content = document.getContentAsString();
             String title = document.getTitle();
 
             List<Token> docTokens = useOnlyTitle ? lexer.tokenizeAll(title) : lexer.tokenizeAll(content);
@@ -421,7 +421,7 @@ public class FastTextTest {
             }
             set.add("#" + document.getId() + " " + String.join(" ", reduced));
             if (c++ % 1000 == 0) {
-                Log.info("%d of %d processed.", c, corpus.count());
+                Log.info("%d of %d processed.", c, corpus.documentCount());
             }
         }
 
@@ -438,7 +438,7 @@ public class FastTextTest {
             Log.info("Adding %s", file);
             List<WebDocument> doc = WebCorpus.loadDocuments(file);
             List<WebDocument> labeled = doc.stream()
-                    .filter(s -> s.getLabelString().length() > 0 && s.getContent().length() > 200)
+                    .filter(s -> s.getLabelString().length() > 0 && s.getContentAsString().length() > 200)
                     .collect(Collectors.toList());
             corpus.addDocuments(labeled);
         }
@@ -455,12 +455,11 @@ public class FastTextTest {
             Log.info("Adding %s", file);
             List<WebDocument> doc = WebCorpus.loadDocuments(file);
             List<WebDocument> labeled = doc.stream()
-                    .filter(s -> s.getCategory().length() > 0 && s.getContent().length() > 200)
+                    .filter(s -> s.getCategory().length() > 0 && s.getContentAsString().length() > 200)
                     .collect(Collectors.toList());
             corpus.addDocuments(labeled);
         }
         Log.info("Total amount of files = %d", corpus.getPages().size());
         corpus.save(categoryFile, false);
     }
-
 }

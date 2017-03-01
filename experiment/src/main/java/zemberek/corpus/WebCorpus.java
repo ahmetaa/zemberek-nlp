@@ -48,11 +48,16 @@ public class WebCorpus {
     }
 
     public void addDocuments(Collection<WebDocument> documents) {
-        pages.addAll(documents);
         for (WebDocument document : documents) {
-            lookup.put(document.getId(), document);
+            addDocument(document);
         }
     }
+
+    public void addDocument(WebDocument document) {
+        pages.add(document);
+        lookup.put(document.getId(), document);
+    }
+
 
     public static List<WebDocument> loadDocuments(Path corpusFile) throws IOException {
         List<String> allLines = Files.readAllLines(corpusFile, StandardCharsets.UTF_8);
@@ -65,7 +70,7 @@ public class WebCorpus {
             String meta = textConsumer.current();
             textConsumer.advance();
             List<String> pageData = textConsumer.moveUntil(s -> s.startsWith("</doc>"));
-            textConsumer.moveUntil(s->s.startsWith("<doc"));
+            textConsumer.moveUntil(s -> s.startsWith("<doc"));
             WebDocument e = WebDocument.fromText(meta, pageData);
             if (e != null) {
                 pages.add(e);
@@ -74,7 +79,7 @@ public class WebCorpus {
         return pages;
     }
 
-    public int count() {
+    public int documentCount() {
         return pages.size();
     }
 
@@ -120,7 +125,7 @@ public class WebCorpus {
                 if (!onlyContent) {
                     p.println(page.getDocumentHeader());
                 }
-                p.println(page.getContent());
+                p.println(page.getContentAsString());
                 if (!onlyContent) {
                     p.println("</doc>");
                 }
