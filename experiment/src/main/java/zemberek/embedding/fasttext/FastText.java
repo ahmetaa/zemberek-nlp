@@ -134,6 +134,21 @@ public class FastText {
         return vec;
     }
 
+    Vector textVector(String s) {
+        Vector vec = new Vector(args_.dim);
+        IntVector line = new IntVector(), labels = new IntVector();
+        dict_.getLine(s, line, labels, model_.getRng());
+        dict_.addWordNgramHashes(line, args_.wordNgrams);
+        if (line.size() == 0) {
+            return vec;
+        }
+        for (int i : line.copyOf()) {
+            vec.addRow(model_.wi_, i);
+        }
+        vec.mul((float) (1.0 / line.size()));
+        return vec;
+    }
+
     List<ScoredItem<String>> predict(String line, int k) {
         IntVector words = new IntVector();
         IntVector labels = new IntVector();
@@ -147,7 +162,7 @@ public class FastText {
         List<Model.FloatIntPair> modelPredictions = model_.predict(k, hidden, output);
         List<ScoredItem<String>> result = new ArrayList<>(modelPredictions.size());
         for (Model.FloatIntPair pair : modelPredictions) {
-            result.add(new ScoredItem<>(dict_.getLabel(pair.second),pair.first));
+            result.add(new ScoredItem<>(dict_.getLabel(pair.second), pair.first));
         }
         return result;
     }

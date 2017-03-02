@@ -5,7 +5,6 @@ import com.google.common.base.Splitter;
 import zemberek.core.text.Regexps;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -91,7 +90,7 @@ public class WebDocument {
         String id = url.replaceAll("http://|https://", "");
         String source = Regexps.firstMatch(sourcePattern, meta, 2);
         String crawlDate = Regexps.firstMatch(crawlDatePattern, meta, 2);
-        String labels =  getAttribute(Regexps.firstMatch(labelPattern, meta, 2));
+        String labels = getAttribute(Regexps.firstMatch(labelPattern, meta, 2));
 
         String category = getAttribute(Regexps.firstMatch(categoryPattern, meta, 2));
         String title = getAttribute(Regexps.firstMatch(titlePattern, meta, 2));
@@ -104,12 +103,8 @@ public class WebDocument {
     }
 
     private long contentHash() {
-
-        long hash = 0x811C_9DC5;
-        for (String line : lines) {
-            hash = hash ^ com.google.common.hash.Hashing.murmur3_128().hashUnencodedChars(line).asLong();
-        }
-        return hash;
+        String contentNoSpaces = String.join(" ", lines).replaceAll("\\s+", "");
+        return com.google.common.hash.Hashing.murmur3_128().hashUnencodedChars(contentNoSpaces).asLong();
     }
 
     public long getHash() {

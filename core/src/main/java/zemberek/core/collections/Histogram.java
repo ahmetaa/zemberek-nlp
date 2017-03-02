@@ -33,7 +33,8 @@ public class Histogram<T> implements Iterable<T> {
 
     /**
      * Loads a String Histogram from a file. Counts are supposedly delimited with `delimiter` character.
-     * @param path file path
+     *
+     * @param path      file path
      * @param delimiter delimiter
      * @return a Histogram.
      */
@@ -46,7 +47,7 @@ public class Histogram<T> implements Iterable<T> {
                 throw new IllegalStateException("Bad histogram line = " + s);
             }
             String item = s.substring(0, index);
-            String countStr = s.substring(index+1);
+            String countStr = s.substring(index + 1);
             int count = Integer.parseInt(countStr);
             result.add(item, count);
         }
@@ -140,6 +141,17 @@ public class Histogram<T> implements Iterable<T> {
         if (c < 0)
             throw new IllegalArgumentException("Element count cannot be negative.");
         vector.set(t, c);
+    }
+
+    public int decrementIfPositive(T t) {
+        if (t == null)
+            throw new NullPointerException("Element cannot be null");
+        int c = vector.get(t);
+        if (c > 0) {
+            return vector.decrement(t);
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -246,7 +258,7 @@ public class Histogram<T> implements Iterable<T> {
      * @param items item to removed.
      */
     public void removeAll(Iterable<T> items) {
-        for(T t: items) {
+        for (T t : items) {
             vector.remove(t);
         }
     }
