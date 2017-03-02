@@ -2,7 +2,7 @@ package zemberek.core.collections;
 
 public class UIntValueMap<T> extends HashBase<T> implements Iterable<T> {
 
-    // Carries count values.
+    // Carries unsigned integer values.
     private int[] values;
 
     public UIntValueMap() {

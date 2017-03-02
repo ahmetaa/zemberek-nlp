@@ -4,6 +4,7 @@ package zemberek.core.collections;
 public class UIntFloatMap extends UIntKeyHashBase {
 
     private float[] values;
+    private float noKeyValue = 0;
 
     public UIntFloatMap() {
         this(INITIAL_SIZE);
@@ -14,11 +15,18 @@ public class UIntFloatMap extends UIntKeyHashBase {
         values = new float[keys.length];
     }
 
+    public UIntFloatMap(int size, float noKeyValue) {
+        super(size);
+        values = new float[keys.length];
+        this.noKeyValue = noKeyValue;
+    }
+
     /**
-     * Returns the value for the key. If key does not exist, returns NaN.
+     * Returns the value for the key. If key does not exist, returns [noKeyValue].
+     * If value is not defined during instantiation, it is 0
      *
      * @param key key
-     * @return count of the key
+     * @return float value associated with the unsigned integer key.
      */
     public float get(int key) {
         if (key < 0) {
@@ -29,7 +37,7 @@ public class UIntFloatMap extends UIntKeyHashBase {
         while (true) {
             final int t = keys[slot];
             if (t == EMPTY) {
-                return Float.NaN;
+                return noKeyValue;
             }
             if (t == DELETED) {
                 slot = nextProbe(slot, ++probeCount);
