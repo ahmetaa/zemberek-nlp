@@ -88,7 +88,7 @@ public class SingleWordSpellCheckerTest {
         long start = System.currentTimeMillis();
         int solutionCount = 0;
         for (String word : words) {
-            FloatValueMap<String> result = spellChecker.decode(word);
+            List<String> result = spellChecker.getSuggestionsSorted(word);
             solutionCount += result.size();
         }
         System.out.println("Elapsed: " + (System.currentTimeMillis() - start));

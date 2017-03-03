@@ -9,22 +9,15 @@ import java.util.stream.Collectors;
 
 public class SingleWordSpellChecker {
 
-    private static final AtomicInteger nodeIndexCounter = new AtomicInteger(0);
-
-    public final float maxPenalty;
-    public final boolean checkNearKeySubstitution;
-
-    private Graph graph = new Graph();
-
+    public static final Map<Character, String> TURKISH_FQ_NEAR_KEY_MAP = new HashMap<>();
+    public static final Map<Character, String> TURKISH_Q_NEAR_KEY_MAP = new HashMap<>();
     static final float INSERTION_PENALTY = 1;
     static final float DELETION_PENALTY = 1;
     static final float SUBSTITUTION_PENALTY = 1;
     static final float NEAR_KEY_SUBSTITUTION_PENALTY = 0.5f;
     static final float TRANSPOSITION_PENALTY = 1;
-
-    public Map<Character, String> nearKeyMap = new HashMap<>();
-    public static final Map<Character, String> TURKISH_FQ_NEAR_KEY_MAP = new HashMap<>();
-    public static final Map<Character, String> TURKISH_Q_NEAR_KEY_MAP = new HashMap<>();
+    private static final AtomicInteger nodeIndexCounter = new AtomicInteger(0);
+    private static final Locale tr = new Locale("tr");
 
     static {
         TURKISH_FQ_NEAR_KEY_MAP.put('a', "eüs");
@@ -98,11 +91,10 @@ public class SingleWordSpellChecker {
         TURKISH_Q_NEAR_KEY_MAP.put('w', "qe");
     }
 
-    static class Builder {
-        float maxPenalty;
-        boolean checkNearKeySubstitution;
-        Map<Character, String> nearKeyMap;
-    }
+    public final float maxPenalty;
+    public final boolean checkNearKeySubstitution;
+    public Map<Character, String> nearKeyMap = new HashMap<>();
+    private Graph graph = new Graph();
 
     public SingleWordSpellChecker(float maxPenalty) {
         this.maxPenalty = maxPenalty;
@@ -173,23 +165,14 @@ public class SingleWordSpellChecker {
     }
 
 
-    private class Graph {
-        Node root = new Node(nodeIndexCounter.getAndIncrement(), (char) 0);
+    enum Operation {
+        NE, INS, DEL, SUB, TR, N_A
+    }
 
-        public void addWord(String word) {
-            add(root, 0, word, word);
-        }
-
-        private Node add(Node currentNode, int index, String word, String actual) {
-            char c = word.charAt(index);
-            Node child = currentNode.addChild(c);
-            if (index == word.length() - 1) {
-                child.word = actual;
-                return child;
-            }
-            index++;
-            return add(child, index, word, actual);
-        }
+    static class Builder {
+        float maxPenalty;
+        boolean checkNearKeySubstitution;
+        Map<Character, String> nearKeyMap;
     }
 
     public static class Node {
@@ -197,6 +180,7 @@ public class SingleWordSpellChecker {
         char chr;
         UIntMap<Node> nodes = new UIntMap<>(2);
         String word;
+        CharMatcher matcher;
 
         Node(int index, char chr) {
             this.index = index;
@@ -246,141 +230,16 @@ public class SingleWordSpellChecker {
                 characters[i] = (char) keys[i];
             }
             Arrays.sort(characters);
-            if (nodes.size() > 0)
+            if (nodes.size() > 0) {
                 sb.append(" children=").append(Arrays.toString(characters));
-            if (word != null)
+            }
+            if (word != null) {
                 sb.append(" word=").append(word);
+            }
             sb.append("]");
             return sb.toString();
         }
     }
-
-
-    private static final Locale tr = new Locale("tr");
-
-    private class Decoder {
-        FloatValueMap<String> finished = new FloatValueMap<>(4);
-
-        public FloatValueMap<String> decode(String input) {
-            Hypothesis hyp = new Hypothesis(null, graph.root, 0, Operation.N_A);
-
-            Set<Hypothesis> next = expand(hyp, input);
-            while (true) {
-                HashSet<Hypothesis> newHyps = new HashSet<>();
-                for (Hypothesis hypothesis : next) {
-                    newHyps.addAll(expand(hypothesis, input));
-                }
-                if (newHyps.size() == 0)
-                    break;
-                next = newHyps;
-            }
-            return finished;
-        }
-
-        private Set<Hypothesis> expand(
-                Hypothesis hypothesis,
-                String input) {
-
-            Set<Hypothesis> newHypotheses = new HashSet<>();
-
-            int nextIndex = hypothesis.index + 1;
-
-            char nextChar = nextIndex < input.length() ? input.charAt(nextIndex) : 0;
-
-            // no-error
-            if (nextIndex < input.length()) {
-                if (hypothesis.node.hasChild(nextChar)) {
-                    Hypothesis hyp = hypothesis.getNewMoveForward(
-                            hypothesis.node.getChild(nextChar),
-                            0,
-                            Operation.NE);
-                    if (nextIndex >= input.length() - 1) {
-                        if (hyp.node.word != null)
-                            addHypothesis(hyp);
-                    }
-                    newHypotheses.add(hyp);
-                }
-            } else if (hypothesis.node.word != null) {
-                addHypothesis(hypothesis);
-            }
-
-            // we don't need to explore further if we reached to max penalty
-            if (hypothesis.penalty >= maxPenalty)
-                return newHypotheses;
-
-            // substitution
-            if (nextIndex < input.length()) {
-                for (Node childNode : hypothesis.node.getChildNodes()) {
-
-                    float penalty = 0;
-                    if (checkNearKeySubstitution) {
-                        if (childNode.chr != nextChar) {
-                            String nearCharactersString = nearKeyMap.get(childNode.chr);
-                            if (nearCharactersString != null && nearCharactersString.indexOf(nextChar) >= 0)
-                                penalty = NEAR_KEY_SUBSTITUTION_PENALTY;
-                            else penalty = SUBSTITUTION_PENALTY;
-                        }
-                    } else penalty = SUBSTITUTION_PENALTY;
-
-                    if (penalty > 0 && hypothesis.penalty + penalty <= maxPenalty) {
-                        Hypothesis hyp = hypothesis.getNewMoveForward(
-                                childNode,
-                                penalty,
-                                Operation.SUB);
-                        if (nextIndex == input.length() - 1) {
-                            if (hyp.node.word != null)
-                                addHypothesis(hyp);
-                        } else
-                            newHypotheses.add(hyp);
-                    }
-                }
-            }
-
-            if (hypothesis.penalty + DELETION_PENALTY > maxPenalty)
-                return newHypotheses;
-
-            // deletion
-            newHypotheses.add(hypothesis.getNewMoveForward(hypothesis.node, DELETION_PENALTY, Operation.DEL));
-
-            // insertion
-            for (Node childNode : hypothesis.node.getChildNodes()) {
-                newHypotheses.add(hypothesis.getNew(childNode, INSERTION_PENALTY, Operation.INS));
-            }
-
-            // transposition
-            if (nextIndex < input.length() - 1) {
-                char transpose = input.charAt(nextIndex + 1);
-                Node nextNode = hypothesis.node.getChild(transpose);
-                if (hypothesis.node.hasChild(transpose) && nextNode.hasChild(nextChar)) {
-                    Hypothesis hyp = hypothesis.getNew(
-                            nextNode.getChild(nextChar),
-                            TRANSPOSITION_PENALTY,
-                            nextIndex + 1,
-                            Operation.TR);
-                    if (nextIndex == input.length() - 1) {
-                        if (hyp.node.word != null)
-                            addHypothesis(hyp);
-                    } else
-                        newHypotheses.add(hyp);
-                }
-            }
-            return newHypotheses;
-        }
-
-        private void addHypothesis(Hypothesis hypothesis) {
-            String hypWord = hypothesis.node.word;
-            if (hypWord == null) {
-                return;
-            }
-            if (!finished.contains(hypWord)) {
-                finished.set(hypWord, hypothesis.penalty);
-            } else if (finished.get(hypWord) > hypothesis.penalty) {
-                finished.set(hypWord, hypothesis.penalty);
-            }
-        }
-
-    }
-
 
     public static class ScoredString implements Comparable<ScoredString> {
         final String s;
@@ -420,10 +279,6 @@ public class SingleWordSpellChecker {
         }
     }
 
-    enum Operation {
-        NE, INS, DEL, SUB, TR, N_A
-    }
-
     static class Hypothesis implements Comparable<Hypothesis> {
         Operation operation = Operation.N_A;
         Hypothesis previous;
@@ -439,6 +294,14 @@ public class SingleWordSpellChecker {
             this.operation = operation;
         }
 
+        Hypothesis(Hypothesis previous, Node node, float penalty, int index, Operation operation) {
+            this.previous = previous;
+            this.node = node;
+            this.penalty = penalty;
+            this.index = index;
+            this.operation = operation;
+        }
+
         String backTrack() {
             StringBuilder sb = new StringBuilder();
             Hypothesis p = previous;
@@ -448,14 +311,6 @@ public class SingleWordSpellChecker {
                 p = p.previous;
             }
             return sb.reverse().toString();
-        }
-
-        Hypothesis(Hypothesis previous, Node node, float penalty, int index, Operation operation) {
-            this.previous = previous;
-            this.node = node;
-            this.penalty = penalty;
-            this.index = index;
-            this.operation = operation;
         }
 
         Hypothesis getNew(Node node, float penaltyToAdd, Operation operation) {
@@ -514,5 +369,156 @@ public class SingleWordSpellChecker {
             result = 31 * result + index;
             return result;
         }
+    }
+
+    private class Graph {
+        Node root = new Node(nodeIndexCounter.getAndIncrement(), (char) 0);
+
+        public void addWord(String word) {
+            add(root, 0, word, word);
+        }
+
+        private Node add(Node currentNode, int index, String word, String actual) {
+            char c = word.charAt(index);
+            Node child = currentNode.addChild(c);
+            if (index == word.length() - 1) {
+                child.word = actual;
+                return child;
+            }
+            index++;
+            return add(child, index, word, actual);
+        }
+    }
+
+    private interface CharMatcher {
+        boolean matches(char c);
+        int[] candidates(char c);
+    }
+
+    private class Decoder {
+        FloatValueMap<String> finished = new FloatValueMap<>(4);
+        CharMatcher matcher;
+
+
+        public FloatValueMap<String> decode(String input) {
+            Hypothesis hyp = new Hypothesis(null, graph.root, 0, Operation.N_A);
+
+            Set<Hypothesis> next = expand(hyp, input);
+            while (true) {
+                HashSet<Hypothesis> newHyps = new HashSet<>();
+                for (Hypothesis hypothesis : next) {
+                    newHyps.addAll(expand(hypothesis, input));
+                }
+                if (newHyps.size() == 0)
+                    break;
+                next = newHyps;
+            }
+            return finished;
+        }
+
+        private Set<Hypothesis> expand(Hypothesis hypothesis, String input) {
+
+            Set<Hypothesis> newHypotheses = new HashSet<>();
+
+            int nextIndex = hypothesis.index + 1;
+
+            char nextChar = nextIndex < input.length() ? input.charAt(nextIndex) : 0;
+
+            // no-error
+            if (nextIndex < input.length()) {
+                if (hypothesis.node.hasChild(nextChar)) {
+                    Hypothesis hyp = hypothesis.getNewMoveForward(
+                            hypothesis.node.getChild(nextChar),
+                            0,
+                            Operation.NE);
+                    if (nextIndex >= input.length() - 1) {
+                        if (hyp.node.word != null) {
+                            addHypothesis(hyp);
+                        }
+                    }
+                    newHypotheses.add(hyp);
+                }
+            } else if (hypothesis.node.word != null) {
+                addHypothesis(hypothesis);
+            }
+
+            // we don't need to explore further if we reached to max penalty
+            if (hypothesis.penalty >= maxPenalty) {
+                return newHypotheses;
+            }
+
+            // substitution
+            if (nextIndex < input.length()) {
+                for (Node childNode : hypothesis.node.getChildNodes()) {
+
+                    float penalty = 0;
+                    if (checkNearKeySubstitution) {
+                        if (childNode.chr != nextChar) {
+                            String nearCharactersString = nearKeyMap.get(childNode.chr);
+                            if (nearCharactersString != null && nearCharactersString.indexOf(nextChar) >= 0)
+                                penalty = NEAR_KEY_SUBSTITUTION_PENALTY;
+                            else penalty = SUBSTITUTION_PENALTY;
+                        }
+                    } else penalty = SUBSTITUTION_PENALTY;
+
+                    if (penalty > 0 && hypothesis.penalty + penalty <= maxPenalty) {
+                        Hypothesis hyp = hypothesis.getNewMoveForward(
+                                childNode,
+                                penalty,
+                                Operation.SUB);
+                        if (nextIndex == input.length() - 1) {
+                            if (hyp.node.word != null)
+                                addHypothesis(hyp);
+                        } else
+                            newHypotheses.add(hyp);
+                    }
+                }
+            }
+
+            if (hypothesis.penalty + DELETION_PENALTY > maxPenalty) {
+                return newHypotheses;
+            }
+
+            // deletion
+            newHypotheses.add(hypothesis.getNewMoveForward(hypothesis.node, DELETION_PENALTY, Operation.DEL));
+
+            // insertion
+            for (Node childNode : hypothesis.node.getChildNodes()) {
+                newHypotheses.add(hypothesis.getNew(childNode, INSERTION_PENALTY, Operation.INS));
+            }
+
+            // transposition
+            if (nextIndex < input.length() - 1) {
+                char transpose = input.charAt(nextIndex + 1);
+                Node nextNode = hypothesis.node.getChild(transpose);
+                if (hypothesis.node.hasChild(transpose) && nextNode.hasChild(nextChar)) {
+                    Hypothesis hyp = hypothesis.getNew(
+                            nextNode.getChild(nextChar),
+                            TRANSPOSITION_PENALTY,
+                            nextIndex + 1,
+                            Operation.TR);
+                    if (nextIndex == input.length() - 1) {
+                        if (hyp.node.word != null)
+                            addHypothesis(hyp);
+                    } else {
+                        newHypotheses.add(hyp);
+                    }
+                }
+            }
+            return newHypotheses;
+        }
+
+        private void addHypothesis(Hypothesis hypothesis) {
+            String hypWord = hypothesis.node.word;
+            if (hypWord == null) {
+                return;
+            }
+            if (!finished.contains(hypWord)) {
+                finished.set(hypWord, hypothesis.penalty);
+            } else if (finished.get(hypWord) > hypothesis.penalty) {
+                finished.set(hypWord, hypothesis.penalty);
+            }
+        }
+
     }
 }
