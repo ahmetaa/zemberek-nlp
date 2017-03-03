@@ -33,6 +33,17 @@ public class Span {
         return end - start;
     }
 
+    public int middleValue() {
+        return end + (end - start) / 2;
+    }
+
+    /**
+     * Generates another Span with values offset+start and offset+end
+     */
+    public Span copy(int offset) {
+        return new Span(offset + start, offset + end);
+    }
+
     /**
      * Returns a substring from the input value represented with this span.
      * For example, for input "abcdefg" span(begin=1 , end=3) represents "bc"

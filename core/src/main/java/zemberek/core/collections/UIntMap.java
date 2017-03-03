@@ -1,13 +1,15 @@
 package zemberek.core.collections;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
  * A map like structure that has unsigned integer keys and T values.
+ *
  * @param <T>
  */
-public class UIntMap<T> extends UIntKeyHashBase {
+public class UIntMap<T> extends UIntKeyHashBase implements Iterable<T> {
     private T[] values;
 
     public UIntMap() {
@@ -94,8 +96,42 @@ public class UIntMap<T> extends UIntKeyHashBase {
         return result;
     }
 
+    @Override
+    public Iterator<T> iterator() {
+        return new ValueIterator();
+    }
+
+    private class ValueIterator implements Iterator<T> {
+
+        int keyCounter = 0;
+        int counter = 0;
+        T item;
+
+        @Override
+        public boolean hasNext() {
+            if (counter == keyCount) {
+                return false;
+            }
+            while (true) {
+                if (keys[keyCounter] >= 0) {
+                    keyCounter++;
+                    break;
+                }
+                keyCounter++;
+            }
+            item = values[keyCounter-1];
+            counter++;
+            return true;
+        }
+
+        @Override
+        public T next() {
+            return item;
+        }
+    }
+
     /**
-     * returns the keys sorted ascending.
+     * returns the values sorted ascending.
      */
     public List<T> getValuesSortedByKey() {
         int[] sortedKeys = getKeyArraySorted();

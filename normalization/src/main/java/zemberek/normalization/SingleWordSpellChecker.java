@@ -11,10 +11,10 @@ public class SingleWordSpellChecker {
 
     private static final AtomicInteger nodeIndexCounter = new AtomicInteger(0);
 
-    private Node root = new Node(nodeIndexCounter.getAndIncrement(), (char) 0);
-
     public final float maxPenalty;
     public final boolean checkNearKeySubstitution;
+
+    private Graph graph = new Graph();
 
     static final float INSERTION_PENALTY = 1;
     static final float DELETION_PENALTY = 1;
@@ -98,6 +98,12 @@ public class SingleWordSpellChecker {
         TURKISH_Q_NEAR_KEY_MAP.put('w', "qe");
     }
 
+    static class Builder {
+        float maxPenalty;
+        boolean checkNearKeySubstitution;
+        Map<Character, String> nearKeyMap;
+    }
+
     public SingleWordSpellChecker(float maxPenalty) {
         this.maxPenalty = maxPenalty;
         this.checkNearKeySubstitution = false;
@@ -114,40 +120,108 @@ public class SingleWordSpellChecker {
         this.checkNearKeySubstitution = true;
     }
 
+    private String process(String str) {
+        return str.toLowerCase(tr).replace("['.]", "");
+    }
+
+
+    public void addWord(String word) {
+        graph.addWord(process(word));
+    }
+
+
+    public void addWords(String... words) {
+        for (String word : words) {
+            graph.addWord(process(word));
+        }
+    }
+
+    public void buildDictionary(List<String> vocabulary) {
+        for (String s : vocabulary) {
+            graph.addWord(process(s));
+        }
+    }
+
+    /**
+     * Returns suggestions sorted by penalty.
+     */
+    public List<ScoredString> getSuggestionsWithScores(String input) {
+        Decoder decoder = new Decoder();
+        FloatValueMap<String> results = decoder.decode(input);
+
+        List<ScoredString> res = new ArrayList<>(results.size());
+        for (String result : results) {
+            res.add(new ScoredString(result, results.get(result)));
+        }
+        Collections.sort(res);
+        return res;
+    }
+
+    public FloatValueMap<String> decode(String input) {
+        return new Decoder().decode(input);
+    }
+
+    public List<String> getSuggestions(String input) {
+        return new Decoder().decode(input).getKeyList();
+    }
+
+    public List<String> getSuggestionsSorted(String input) {
+        List<ScoredString> s = getSuggestionsWithScores(input);
+        List<String> result = new ArrayList<>(s.size());
+        result.addAll(s.stream().map(s1 -> s1.s).collect(Collectors.toList()));
+        return result;
+    }
+
+
+    private class Graph {
+        Node root = new Node(nodeIndexCounter.getAndIncrement(), (char) 0);
+
+        public void addWord(String word) {
+            add(root, 0, word, word);
+        }
+
+        private Node add(Node currentNode, int index, String word, String actual) {
+            char c = word.charAt(index);
+            Node child = currentNode.addChild(c);
+            if (index == word.length() - 1) {
+                child.word = actual;
+                return child;
+            }
+            index++;
+            return add(child, index, word, actual);
+        }
+    }
+
     public static class Node {
         int index;
         char chr;
         UIntMap<Node> nodes = new UIntMap<>(2);
         String word;
 
-        public Node(int index, char chr) {
+        Node(int index, char chr) {
             this.index = index;
             this.chr = chr;
         }
 
-        public Iterable<Node> getChildNodes() {
-            return nodes.getValues();
+        Iterable<Node> getChildNodes() {
+            return nodes;
         }
 
-        public boolean hasChild(char c) {
+        boolean hasChild(char c) {
             return nodes.containsKey(c);
         }
 
-        public Node getChild(char c) {
+        Node getChild(char c) {
             return nodes.get(c);
         }
 
-        public Node addChild(char c) {
+        Node addChild(char c) {
             Node node = nodes.get(c);
             if (node == null) {
                 node = new Node(nodeIndexCounter.getAndIncrement(), c);
             }
             nodes.put(c, node);
             return node;
-        }
-
-        public void setWord(String word) {
-            this.word = word;
         }
 
         @Override
@@ -181,179 +255,132 @@ public class SingleWordSpellChecker {
         }
     }
 
+
     private static final Locale tr = new Locale("tr");
 
-    public String process(String str) {
-        return str.toLowerCase(tr).replace("['.]", "");
-    }
+    private class Decoder {
+        FloatValueMap<String> finished = new FloatValueMap<>(4);
 
-    public void addWord(String word) {
-        String clean = process(word);
-        addChar(root, 0, clean, word);
-    }
+        public FloatValueMap<String> decode(String input) {
+            Hypothesis hyp = new Hypothesis(null, graph.root, 0, Operation.N_A);
 
-    public void addWords(String... words) {
-        for (String word : words) {
-            addWord(word);
-        }
-    }
-
-    public void buildDictionary(List<String> vocabulary) {
-        for (String s : vocabulary) {
-            addWord(s);
-        }
-    }
-
-    private Node addChar(Node currentNode, int index, String word, String actual) {
-        char c = word.charAt(index);
-        Node child = currentNode.addChild(c);
-        if (index == word.length() - 1) {
-            child.word = actual;
-            return child;
-        }
-        index++;
-        return addChar(child, index, word, actual);
-    }
-
-    private Set<Hypothesis> expand(Hypothesis hypothesis, String input, FloatValueMap<String> finished) {
-
-        Set<Hypothesis> newHypotheses = new HashSet<>();
-
-        int nextIndex = hypothesis.index + 1;
-
-        // no-error
-        if (nextIndex < input.length()) {
-            if (hypothesis.node.hasChild(input.charAt(nextIndex))) {
-                Hypothesis hyp = hypothesis.getNewMoveForward(
-                        hypothesis.node.getChild(input.charAt(nextIndex)),
-                        0,
-                        Operation.NE);
-                if (nextIndex >= input.length() - 1) {
-                    if (hyp.node.word != null)
-                        addHypothesis(finished, hyp);
-                } // TODO: below line may produce unnecessary hypotheses.
-                newHypotheses.add(hyp);
+            Set<Hypothesis> next = expand(hyp, input);
+            while (true) {
+                HashSet<Hypothesis> newHyps = new HashSet<>();
+                for (Hypothesis hypothesis : next) {
+                    newHyps.addAll(expand(hypothesis, input));
+                }
+                if (newHyps.size() == 0)
+                    break;
+                next = newHyps;
             }
-        } else if (hypothesis.node.word != null)
-            addHypothesis(finished, hypothesis);
+            return finished;
+        }
 
-        // we don't need to explore further if we reached to max penalty
-        if (hypothesis.penalty >= maxPenalty)
-            return newHypotheses;
+        private Set<Hypothesis> expand(
+                Hypothesis hypothesis,
+                String input) {
 
-        // substitution
-        if (nextIndex < input.length()) {
-            for (Node childNode : hypothesis.node.getChildNodes()) {
+            Set<Hypothesis> newHypotheses = new HashSet<>();
 
-                float penalty = 0;
-                if (checkNearKeySubstitution) {
-                    char nextChar = input.charAt(nextIndex);
-                    if (childNode.chr != nextChar) {
-                        String nearCharactersString = nearKeyMap.get(childNode.chr);
-                        if (nearCharactersString != null && nearCharactersString.indexOf(nextChar) >= 0)
-                            penalty = NEAR_KEY_SUBSTITUTION_PENALTY;
-                        else penalty = SUBSTITUTION_PENALTY;
-                    }
-                } else penalty = SUBSTITUTION_PENALTY;
+            int nextIndex = hypothesis.index + 1;
 
-                if (penalty > 0 && hypothesis.penalty + penalty <= maxPenalty) {
+            char nextChar = nextIndex < input.length() ? input.charAt(nextIndex) : 0;
+
+            // no-error
+            if (nextIndex < input.length()) {
+                if (hypothesis.node.hasChild(nextChar)) {
                     Hypothesis hyp = hypothesis.getNewMoveForward(
-                            childNode,
-                            penalty,
-                            Operation.SUB);
+                            hypothesis.node.getChild(nextChar),
+                            0,
+                            Operation.NE);
+                    if (nextIndex >= input.length() - 1) {
+                        if (hyp.node.word != null)
+                            addHypothesis(hyp);
+                    }
+                    newHypotheses.add(hyp);
+                }
+            } else if (hypothesis.node.word != null) {
+                addHypothesis(hypothesis);
+            }
+
+            // we don't need to explore further if we reached to max penalty
+            if (hypothesis.penalty >= maxPenalty)
+                return newHypotheses;
+
+            // substitution
+            if (nextIndex < input.length()) {
+                for (Node childNode : hypothesis.node.getChildNodes()) {
+
+                    float penalty = 0;
+                    if (checkNearKeySubstitution) {
+                        if (childNode.chr != nextChar) {
+                            String nearCharactersString = nearKeyMap.get(childNode.chr);
+                            if (nearCharactersString != null && nearCharactersString.indexOf(nextChar) >= 0)
+                                penalty = NEAR_KEY_SUBSTITUTION_PENALTY;
+                            else penalty = SUBSTITUTION_PENALTY;
+                        }
+                    } else penalty = SUBSTITUTION_PENALTY;
+
+                    if (penalty > 0 && hypothesis.penalty + penalty <= maxPenalty) {
+                        Hypothesis hyp = hypothesis.getNewMoveForward(
+                                childNode,
+                                penalty,
+                                Operation.SUB);
+                        if (nextIndex == input.length() - 1) {
+                            if (hyp.node.word != null)
+                                addHypothesis(hyp);
+                        } else
+                            newHypotheses.add(hyp);
+                    }
+                }
+            }
+
+            if (hypothesis.penalty + DELETION_PENALTY > maxPenalty)
+                return newHypotheses;
+
+            // deletion
+            newHypotheses.add(hypothesis.getNewMoveForward(hypothesis.node, DELETION_PENALTY, Operation.DEL));
+
+            // insertion
+            for (Node childNode : hypothesis.node.getChildNodes()) {
+                newHypotheses.add(hypothesis.getNew(childNode, INSERTION_PENALTY, Operation.INS));
+            }
+
+            // transposition
+            if (nextIndex < input.length() - 1) {
+                char transpose = input.charAt(nextIndex + 1);
+                Node nextNode = hypothesis.node.getChild(transpose);
+                if (hypothesis.node.hasChild(transpose) && nextNode.hasChild(nextChar)) {
+                    Hypothesis hyp = hypothesis.getNew(
+                            nextNode.getChild(nextChar),
+                            TRANSPOSITION_PENALTY,
+                            nextIndex + 1,
+                            Operation.TR);
                     if (nextIndex == input.length() - 1) {
                         if (hyp.node.word != null)
-                            addHypothesis(finished, hyp);
+                            addHypothesis(hyp);
                     } else
                         newHypotheses.add(hyp);
                 }
             }
-        }
-
-        if (hypothesis.penalty + DELETION_PENALTY > maxPenalty)
             return newHypotheses;
-
-        // deletion
-        newHypotheses.add(hypothesis.getNewMoveForward(hypothesis.node, DELETION_PENALTY, Operation.DEL));
-
-        // insertion
-        for (Node childNode : hypothesis.node.getChildNodes()) {
-            newHypotheses.add(hypothesis.getNew(childNode, INSERTION_PENALTY, Operation.INS));
         }
 
-        // transposition
-        if (nextIndex < input.length() - 1) {
-            char transpose = input.charAt(nextIndex + 1);
-            Node nextNode = hypothesis.node.getChild(transpose);
-            char nextChar = input.charAt(nextIndex);
-            if (hypothesis.node.hasChild(transpose) && nextNode.hasChild(nextChar)) {
-                Hypothesis hyp = hypothesis.getNew(
-                        nextNode.getChild(nextChar),
-                        TRANSPOSITION_PENALTY,
-                        nextIndex + 1,
-                        Operation.TR);
-                if (nextIndex == input.length() - 1) {
-                    if (hyp.node.word != null)
-                        addHypothesis(finished, hyp);
-                } else
-                    newHypotheses.add(hyp);
+        private void addHypothesis(Hypothesis hypothesis) {
+            String hypWord = hypothesis.node.word;
+            if (hypWord == null) {
+                return;
+            }
+            if (!finished.contains(hypWord)) {
+                finished.set(hypWord, hypothesis.penalty);
+            } else if (finished.get(hypWord) > hypothesis.penalty) {
+                finished.set(hypWord, hypothesis.penalty);
             }
         }
-        return newHypotheses;
+
     }
 
-    private void addHypothesis(FloatValueMap<String> result, Hypothesis hypothesis) {
-        String hypWord = hypothesis.node.word;
-        if (hypWord == null) {
-            return;
-        }
-        if (!result.contains(hypWord)) {
-            result.set(hypWord, hypothesis.penalty);
-        } else if (result.get(hypWord) > hypothesis.penalty) {
-            result.set(hypWord, hypothesis.penalty);
-        }
-    }
-
-    public FloatValueMap<String> decode(String input) {
-        Hypothesis hyp = new Hypothesis(null, root, 0, Operation.N_A);
-        FloatValueMap<String> hypotheses = new FloatValueMap<>();
-        Set<Hypothesis> next = expand(hyp, input, hypotheses);
-        while (true) {
-            HashSet<Hypothesis> newHyps = new HashSet<>();
-            for (Hypothesis hypothesis : next) {
-                newHyps.addAll(expand(hypothesis, input, hypotheses));
-            }
-            if (newHyps.size() == 0)
-                break;
-            next = newHyps;
-        }
-        return hypotheses;
-    }
-
-    /**
-     * Returns suggestions sorted by penalty.
-     */
-    public List<ScoredString> getSuggestionsWithScores(String input) {
-        FloatValueMap<String> results = decode(input);
-
-        List<ScoredString> res = new ArrayList<>(results.size());
-        for (String result : results) {
-            res.add(new ScoredString(result, results.get(result)));
-        }
-        Collections.sort(res);
-        return res;
-    }
-
-    public List<String> getSuggestions(String input) {
-        return decode(input).getKeyList();
-    }
-
-    public List<String> getSuggestionsSorted(String input) {
-        List<ScoredString> s = getSuggestionsWithScores(input);
-        List<String> result = new ArrayList<>(s.size());
-        result.addAll(s.stream().map(s1 -> s1.s).collect(Collectors.toList()));
-        return result;
-    }
 
     public static class ScoredString implements Comparable<ScoredString> {
         final String s;

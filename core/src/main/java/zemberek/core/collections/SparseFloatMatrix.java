@@ -7,11 +7,15 @@ public class SparseFloatMatrix {
     public final int n; // columns
 
     public SparseFloatMatrix(int m, int n) {
+        this(m, n, 2);
+    }
+
+    public SparseFloatMatrix(int m, int n, int initialColumnSize) {
         this.m = m;
         this.n = n;
         this.rows = new UIntFloatMap[m];
         for (int i = 0; i < m; i++) {
-            rows[i] = new UIntFloatMap(2, 0);
+            rows[i] = new UIntFloatMap(initialColumnSize, 0);
         }
     }
 

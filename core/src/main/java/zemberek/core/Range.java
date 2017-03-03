@@ -5,13 +5,15 @@ import com.google.common.primitives.Ints;
 
 /**
  * Defines an integer range.
+ * TODO: move Span from tokenization package to here and elimninate this.
  */
 public class Range implements Comparable<Range> {
     public final int from;
     public final int to;
 
     public Range(int from, int to) {
-        Preconditions.checkArgument(from < to, "Range start cannot be larger than end. But start=" + from + "end=" + to);
+        Preconditions.checkArgument(from < to,
+                "Range start cannot be larger than end. But start=" + from + "end=" + to);
         this.to = to;
         this.from = from;
     }
