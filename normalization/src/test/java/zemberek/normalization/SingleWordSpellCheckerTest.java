@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SingleWordSpellCheckerTest {
 
@@ -48,6 +49,22 @@ public class SingleWordSpellCheckerTest {
             System.out.println(re.s);
         }
     }
+
+    @Test
+    public void asciiTolerantTest() {
+        SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
+        spellChecker.addWords("şıra", "sıra", "kömür");
+        SingleWordSpellChecker.CharMatcher matcher = SingleWordSpellChecker.ASCII_TOLERANT_MATCHER;
+        List<SingleWordSpellChecker.ScoredString> res = spellChecker.getSuggestionsWithScores("komur", matcher);
+        Assert.assertEquals(1, res.size());
+        Assert.assertEquals("kömür", res.get(0).s);
+
+        res = spellChecker.getSuggestionsWithScores("sıra", matcher);
+        Assert.assertEquals(2, res.size());
+        assertContainsAll(res, "sıra", "şıra");
+
+    }
+
 
     @Test
     public void multiWordDecodeTest() {
@@ -95,7 +112,15 @@ public class SingleWordSpellCheckerTest {
         System.out.println("Solution count:" + solutionCount);
     }
 
-    void assertContainsAll(FloatValueMap<String> set, String... words) {
+    private void assertContainsAll(FloatValueMap<String> set, String... words) {
+        for (String word : words) {
+            Assert.assertTrue(set.contains(word));
+        }
+    }
+
+    private void assertContainsAll(List<SingleWordSpellChecker.ScoredString> list, String... words) {
+        Set<String> set = new HashSet<>();
+        set.addAll(list.stream().map(s1 -> s1.s).collect(Collectors.toList()));
         for (String word : words) {
             Assert.assertTrue(set.contains(word));
         }

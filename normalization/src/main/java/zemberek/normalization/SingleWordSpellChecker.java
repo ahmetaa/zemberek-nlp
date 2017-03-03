@@ -139,6 +139,10 @@ public class SingleWordSpellChecker {
      */
     public List<ScoredString> getSuggestionsWithScores(String input) {
         Decoder decoder = new Decoder();
+        return getMatches(input, decoder);
+    }
+
+    private List<ScoredString> getMatches(String input, Decoder decoder) {
         FloatValueMap<String> results = decoder.decode(input);
 
         List<ScoredString> res = new ArrayList<>(results.size());
@@ -149,9 +153,15 @@ public class SingleWordSpellChecker {
         return res;
     }
 
+    public List<ScoredString> getSuggestionsWithScores(String input, CharMatcher matcher) {
+        Decoder decoder = new Decoder(matcher);
+        return getMatches(input, decoder);
+    }
+
     public FloatValueMap<String> decode(String input) {
         return new Decoder().decode(input);
     }
+
 
     public List<String> getSuggestions(String input) {
         return new Decoder().decode(input).getKeyList();
@@ -164,15 +174,8 @@ public class SingleWordSpellChecker {
         return result;
     }
 
-
     enum Operation {
         NE, INS, DEL, SUB, TR, N_A
-    }
-
-    static class Builder {
-        float maxPenalty;
-        boolean checkNearKeySubstitution;
-        Map<Character, String> nearKeyMap;
     }
 
     public static class Node {
@@ -180,7 +183,6 @@ public class SingleWordSpellChecker {
         char chr;
         UIntMap<Node> nodes = new UIntMap<>(2);
         String word;
-        CharMatcher matcher;
 
         Node(int index, char chr) {
             this.index = index;
@@ -390,17 +392,64 @@ public class SingleWordSpellChecker {
         }
     }
 
-    private interface CharMatcher {
-        boolean matches(char c);
-        int[] candidates(char c);
+    public interface CharMatcher {
+        char[] matches(char c);
     }
+
+    private static class DeasciifierMatcher implements CharMatcher {
+
+        static final char[] C = {'c', 'ç'};
+        static final char[] G = {'g', 'ğ'};
+        static final char[] I = {'ı', 'i'};
+        static final char[] O = {'o', 'ö'};
+        static final char[] S = {'s', 'ş'};
+        static final char[] U = {'u', 'ü'};
+
+        @Override
+        public char[] matches(char c) {
+            switch (c) {
+                case 'c':
+                    return C;
+                case 'g':
+                    return G;
+                case 'i':
+                case 'ı':
+                    return I;
+                case 's':
+                    return S;
+                case 'o':
+                    return O;
+                case 'u':
+                    return U;
+                default:
+                    return new char[]{c};
+            }
+        }
+    }
+
+    public  static class ExactMatcher implements CharMatcher {
+        @Override
+        public char[] matches(char c) {
+            return new char[]{c};
+        }
+    }
+
+    private static ExactMatcher EXACT_MATCHER = new ExactMatcher();
+    public static DeasciifierMatcher ASCII_TOLERANT_MATCHER = new DeasciifierMatcher();
 
     private class Decoder {
         FloatValueMap<String> finished = new FloatValueMap<>(4);
         CharMatcher matcher;
 
+        Decoder() {
+            this(EXACT_MATCHER);
+        }
 
-        public FloatValueMap<String> decode(String input) {
+        Decoder(CharMatcher matcher) {
+            this.matcher = matcher;
+        }
+
+        FloatValueMap<String> decode(String input) {
             Hypothesis hyp = new Hypothesis(null, graph.root, 0, Operation.N_A);
 
             Set<Hypothesis> next = expand(hyp, input);
@@ -426,17 +475,20 @@ public class SingleWordSpellChecker {
 
             // no-error
             if (nextIndex < input.length()) {
-                if (hypothesis.node.hasChild(nextChar)) {
-                    Hypothesis hyp = hypothesis.getNewMoveForward(
-                            hypothesis.node.getChild(nextChar),
-                            0,
-                            Operation.NE);
-                    if (nextIndex >= input.length() - 1) {
-                        if (hyp.node.word != null) {
-                            addHypothesis(hyp);
+                char[] cc = matcher.matches(nextChar);
+                for (char c : cc) {
+                    if (hypothesis.node.hasChild(c)) {
+                        Hypothesis h = hypothesis.getNewMoveForward(
+                                hypothesis.node.getChild(c),
+                                0,
+                                Operation.NE);
+                        if (nextIndex >= input.length() - 1) {
+                            if (h.node.word != null) {
+                                addHypothesis(h);
+                            }
                         }
+                        newHypotheses.add(h);
                     }
-                    newHypotheses.add(hyp);
                 }
             } else if (hypothesis.node.word != null) {
                 addHypothesis(hypothesis);
@@ -455,11 +507,15 @@ public class SingleWordSpellChecker {
                     if (checkNearKeySubstitution) {
                         if (childNode.chr != nextChar) {
                             String nearCharactersString = nearKeyMap.get(childNode.chr);
-                            if (nearCharactersString != null && nearCharactersString.indexOf(nextChar) >= 0)
+                            if (nearCharactersString != null && nearCharactersString.indexOf(nextChar) >= 0) {
                                 penalty = NEAR_KEY_SUBSTITUTION_PENALTY;
-                            else penalty = SUBSTITUTION_PENALTY;
+                            } else {
+                                penalty = SUBSTITUTION_PENALTY;
+                            }
                         }
-                    } else penalty = SUBSTITUTION_PENALTY;
+                    } else {
+                        penalty = SUBSTITUTION_PENALTY;
+                    }
 
                     if (penalty > 0 && hypothesis.penalty + penalty <= maxPenalty) {
                         Hypothesis hyp = hypothesis.getNewMoveForward(
@@ -467,10 +523,12 @@ public class SingleWordSpellChecker {
                                 penalty,
                                 Operation.SUB);
                         if (nextIndex == input.length() - 1) {
-                            if (hyp.node.word != null)
+                            if (hyp.node.word != null) {
                                 addHypothesis(hyp);
-                        } else
+                            }
+                        } else {
                             newHypotheses.add(hyp);
+                        }
                     }
                 }
             }
@@ -490,18 +548,25 @@ public class SingleWordSpellChecker {
             // transposition
             if (nextIndex < input.length() - 1) {
                 char transpose = input.charAt(nextIndex + 1);
-                Node nextNode = hypothesis.node.getChild(transpose);
-                if (hypothesis.node.hasChild(transpose) && nextNode.hasChild(nextChar)) {
-                    Hypothesis hyp = hypothesis.getNew(
-                            nextNode.getChild(nextChar),
-                            TRANSPOSITION_PENALTY,
-                            nextIndex + 1,
-                            Operation.TR);
-                    if (nextIndex == input.length() - 1) {
-                        if (hyp.node.word != null)
-                            addHypothesis(hyp);
-                    } else {
-                        newHypotheses.add(hyp);
+                char[] tt = matcher.matches(transpose);
+                for (char t : tt) {
+                    Node nextNode = hypothesis.node.getChild(t);
+                    char[] cc = matcher.matches(nextChar);
+                    for (char c : cc) {
+                        if (hypothesis.node.hasChild(t) && nextNode.hasChild(c)) {
+                            Hypothesis hyp = hypothesis.getNew(
+                                    nextNode.getChild(c),
+                                    TRANSPOSITION_PENALTY,
+                                    nextIndex + 1,
+                                    Operation.TR);
+                            if (nextIndex == input.length() - 1) {
+                                if (hyp.node.word != null) {
+                                    addHypothesis(hyp);
+                                }
+                            } else {
+                                newHypotheses.add(hyp);
+                            }
+                        }
                     }
                 }
             }
