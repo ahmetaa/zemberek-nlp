@@ -56,6 +56,7 @@ public class CategoryPredictionExperiment {
         FastText fastText;
 
         if (modelPath.toFile().exists()) {
+            Log.info("Reusing existing model %s", modelPath);
             fastText = FastText.load(modelPath);
         } else {
             Args argz = Args.forSupervised();
@@ -109,11 +110,11 @@ public class CategoryPredictionExperiment {
 
     private void generateSets(Path input, Path train, Path test, boolean useOnlyTitle) throws IOException {
         WebCorpus corpus = new WebCorpus("category", "category");
+        Log.info("Loading corpus from %s", input);
         corpus.addDocuments(WebCorpus.loadDocuments(input));
         List<String> set = new ArrayList<>(corpus.documentCount());
 
         ZemberekLexer lexer = new ZemberekLexer(true);
-
 
         Histogram<String> categoryCounts = new Histogram<>();
         for (WebDocument document : corpus.getPages()) {
@@ -154,12 +155,12 @@ public class CategoryPredictionExperiment {
             for (Token token : docTokens) {
                 if (
                         token.getType() == TurkishLexer.PercentNumeral ||
-                        token.getType() == TurkishLexer.Number ||
-                        token.getType() == TurkishLexer.Punctuation ||
-                        token.getType() == TurkishLexer.RomanNumeral ||
-                        token.getType() == TurkishLexer.TimeHours ||
-                        token.getType() == TurkishLexer.UnknownWord ||
-                        token.getType() == TurkishLexer.Unknown) {
+                                token.getType() == TurkishLexer.Number ||
+                                token.getType() == TurkishLexer.Punctuation ||
+                                token.getType() == TurkishLexer.RomanNumeral ||
+                                token.getType() == TurkishLexer.TimeHours ||
+                                token.getType() == TurkishLexer.UnknownWord ||
+                                token.getType() == TurkishLexer.Unknown) {
                     continue;
                 }
                 String tokenStr = token.getText();
