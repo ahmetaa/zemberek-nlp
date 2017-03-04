@@ -6,6 +6,11 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.corpus.WebCorpus;
 import zemberek.corpus.WebDocument;
+import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
+import zemberek.morphology.analysis.SentenceAnalysis;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.analysis.tr.TurkishMorphology;
+import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
 import zemberek.morphology.structure.Turkish;
 import zemberek.tokenizer.ZemberekLexer;
 import zemberek.tokenizer.antlr.TurkishLexer;
@@ -51,7 +56,8 @@ public class CategoryPredictionExperiment {
         Path predictionPath = experimentRoot.resolve("category.predictions");
         extractCategoryDocuments(rawCorpusRoot, corpusPath);
         boolean useOnlyTitles = true;
-        generateSets(corpusPath, train, test, useOnlyTitles);
+        boolean useLemmas = true;
+        generateSets(corpusPath, train, test, useOnlyTitles, useLemmas);
 
         FastText fastText;
 
@@ -64,7 +70,7 @@ public class CategoryPredictionExperiment {
             argz.model = Args.model_name.sup;
             argz.loss = Args.loss_name.softmax;
             argz.threadSafe = false;
-            argz.epoch = 50;
+            argz.epoch = 100;
             argz.wordNgrams = 2;
             argz.minCount = 0;
             argz.lr = 0.2;
@@ -108,7 +114,17 @@ public class CategoryPredictionExperiment {
         Log.info("Done.");
     }
 
-    private void generateSets(Path input, Path train, Path test, boolean useOnlyTitle) throws IOException {
+    private void generateSets(
+            Path input,
+            Path train,
+            Path test,
+            boolean useOnlyTitle,
+            boolean useRoots) throws IOException {
+
+        TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+
+        TurkishSentenceAnalyzer analyzer = new TurkishSentenceAnalyzer(morphology, new Z3MarkovModelDisambiguator());
+
         WebCorpus corpus = new WebCorpus("category", "category");
         Log.info("Loading corpus from %s", input);
         corpus.addDocuments(WebCorpus.loadDocuments(input));
@@ -125,7 +141,7 @@ public class CategoryPredictionExperiment {
         }
 
         Log.info("All category count = %d", categoryCounts.size());
-        categoryCounts.removeSmaller(50);
+        categoryCounts.removeSmaller(20);
         Log.info("Reduced label count = %d", categoryCounts.size());
 
         Log.info("Extracting data from %d documents ", corpus.documentCount());
@@ -147,7 +163,7 @@ public class CategoryPredictionExperiment {
 
             String category = document.getCategory();
             if (categoryCounts.contains(category)) {
-                reduced.add("__label__" + document.getCategory().replaceAll("[ ]+", "_").toLowerCase(Turkish.LOCALE));
+                category = "__label__" + document.getCategory().replaceAll("[ ]+", "_").toLowerCase(Turkish.LOCALE);
             } else {
                 continue;
             }
@@ -164,9 +180,32 @@ public class CategoryPredictionExperiment {
                     continue;
                 }
                 String tokenStr = token.getText();
-                reduced.add(tokenStr.replaceAll("[']", "").toLowerCase(Turkish.LOCALE));
+                reduced.add(tokenStr);
             }
-            set.add("#" + document.getId() + " " + String.join(" ", reduced));
+
+            String join = String.join(" ", reduced);
+
+            if (useRoots) {
+                SentenceAnalysis analysis = analyzer.analyze(join);
+                analyzer.disambiguate(analysis);
+                List<String> res = new ArrayList<>();
+                for (SentenceAnalysis.Entry e : analysis) {
+                    WordAnalysis best = e.parses.get(0);
+                    if (best.isUnknown()) {
+                        res.add(e.input);
+                        continue;
+                    }
+                    List<String> lemmas = best.getLemmas();
+                    if (lemmas.size() == 0) {
+                        continue;
+                    }
+                    res.add(lemmas.get(lemmas.size() - 1));
+                }
+                join = String.join(" ", res);
+            }
+
+            set.add("#" + document.getId() + " " + category + " " + join.replaceAll("[']", "").toLowerCase(Turkish.LOCALE));
+
             if (c++ % 1000 == 0) {
                 Log.info("%d of %d processed.", c, corpus.documentCount());
             }
