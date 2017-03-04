@@ -15,7 +15,7 @@ public abstract class HashBase<T> {
     private static final double DEFAULT_LOAD_FACTOR = 0.7;
 
     // This is the size-1 of the key and value array length. Array length is a value power of two
-    int modulo = INITIAL_SIZE - 1;
+    private int modulo = INITIAL_SIZE - 1;
 
     // Key array.
     protected T[] keys;
@@ -39,6 +39,11 @@ public abstract class HashBase<T> {
         keys = (T[]) new Object[k];
         threshold = (int) (k * DEFAULT_LOAD_FACTOR);
         modulo = k - 1;
+    }
+
+    final boolean hasValidKey(int i) {
+        final T key = keys[i];
+        return key != null && key != TOMB_STONE;
     }
 
     void expandCopyParameters(HashBase<T> h) {
@@ -178,7 +183,7 @@ public abstract class HashBase<T> {
 
         @Override
         public T next() {
-            while (keys[i] == null || keys[i] == TOMB_STONE) {
+            while (!hasValidKey(i)) {
                 i++;
             }
             T key = keys[i];
@@ -212,11 +217,12 @@ public abstract class HashBase<T> {
      *
      * @return keys
      */
-    public Set<T> getKeys() {
+    public Set<T> getKeySet() {
         Set<T> res = new HashSet<>(keyCount);
         for (T key : keys) {
-            if (key != null && key != TOMB_STONE)
+            if (key != null && key != TOMB_STONE) {
                 res.add(key);
+            }
         }
         return res;
     }

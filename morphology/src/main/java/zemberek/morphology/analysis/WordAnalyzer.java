@@ -1,7 +1,7 @@
 package zemberek.morphology.analysis;
 
 import com.google.common.collect.Lists;
-import zemberek.core.collections.CountSet;
+import zemberek.core.collections.IntValueMap;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.graph.StemNode;
@@ -144,9 +144,9 @@ public class WordAnalyzer {
         List<Token> result = new ArrayList<>();
         for (Token token : tokens) {
             boolean remove = false;
-            CountSet<String> typeCounts = new CountSet<>(10);
+            IntValueMap<String> typeCounts = new IntValueMap<>(10);
             for (SuffixSurfaceNode node : token.surfaceNodeHistory) {
-                if (typeCounts.increment(node.getSuffixForm().id) > MAX_REPEATING_SUFFIX_TYPE_COUNT) {
+                if (typeCounts.addOrIncrement(node.getSuffixForm().id) > MAX_REPEATING_SUFFIX_TYPE_COUNT) {
                     remove = true;
                     break;
                 }

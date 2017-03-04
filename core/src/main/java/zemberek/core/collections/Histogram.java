@@ -14,21 +14,21 @@ import java.util.stream.Collectors;
  */
 public class Histogram<T> implements Iterable<T> {
 
-    private final CountSet<T> vector;
+    private final UIntValueMap<T> map;
 
     public Histogram(int initialSize) {
-        vector = new CountSet<>(initialSize);
+        map = new UIntValueMap<>(initialSize);
     }
 
     public Histogram(Map<T, Integer> countMap) {
-        this.vector = new CountSet<>(countMap.size());
+        this.map = new UIntValueMap<>(countMap.size());
         for (T t : countMap.keySet()) {
-            this.vector.set(t, countMap.get(t));
+            this.map.put(t, countMap.get(t));
         }
     }
 
     public Histogram() {
-        vector = new CountSet<>();
+        map = new UIntValueMap<>();
     }
 
     /**
@@ -74,11 +74,7 @@ public class Histogram<T> implements Iterable<T> {
      * @throws NullPointerException if element is null.
      */
     public int add(T t, int count) {
-        if (t == null)
-            throw new NullPointerException("Element cannot be null");
-        if (count < 0)
-            throw new IllegalArgumentException("Element count cannot be negative.");
-        return vector.incrementByAmount(t, count);
+        return map.incrementByAmount(t, count);
     }
 
     /**
@@ -126,7 +122,7 @@ public class Histogram<T> implements Iterable<T> {
      * @return element count.
      */
     public int size() {
-        return vector.size();
+        return map.size();
     }
 
     /**
@@ -136,19 +132,15 @@ public class Histogram<T> implements Iterable<T> {
      * @param c count value which will override the current count value.
      */
     public void set(T t, int c) {
-        if (t == null)
-            throw new NullPointerException("Element cannot be null");
-        if (c < 0)
-            throw new IllegalArgumentException("Element count cannot be negative.");
-        vector.set(t, c);
+        map.put(t, c);
     }
 
     public int decrementIfPositive(T t) {
         if (t == null)
             throw new NullPointerException("Element cannot be null");
-        int c = vector.get(t);
+        int c = map.get(t);
         if (c > 0) {
-            return vector.decrement(t);
+            return map.decrement(t);
         } else {
             return 0;
         }
@@ -161,7 +153,8 @@ public class Histogram<T> implements Iterable<T> {
      * @return count of the element. if element does not exist, 0
      */
     public int getCount(T t) {
-        return vector.get(t);
+        int i = map.get(t);
+        return i < 0 ? 0 : i;
     }
 
 
@@ -172,7 +165,7 @@ public class Histogram<T> implements Iterable<T> {
      * @return if element exists.
      */
     public boolean contains(T t) {
-        return vector.contains(t);
+        return map.contains(t);
     }
 
     /**
@@ -183,7 +176,7 @@ public class Histogram<T> implements Iterable<T> {
     public List<T> getTop(int n) {
         if (n > size())
             n = size();
-        List<CountSet.Entry<T>> l = vector.getAsEntryList();
+        List<IntValueMap.Entry<T>> l = map.getAsEntryList();
         Collections.sort(l);
         List<T> result = l.stream().map(e -> e.key).collect(Collectors.toList());
         return Lists.newArrayList(result.subList(0, n));
@@ -198,13 +191,13 @@ public class Histogram<T> implements Iterable<T> {
     public int removeSmaller(int minCount) {
         Set<T> toRemove = new HashSet<>();
         int removeCount = 0;
-        for (T key : vector) {
-            if (vector.get(key) < minCount) {
+        for (T key : map) {
+            if (map.get(key) < minCount) {
                 toRemove.add(key);
                 removeCount++;
             }
         }
-        toRemove.forEach(vector::remove);
+        toRemove.forEach(map::remove);
         return removeCount;
     }
 
@@ -218,13 +211,13 @@ public class Histogram<T> implements Iterable<T> {
     public int removeLarger(int maxCount) {
         Set<T> toRemove = new HashSet<>();
         int removeCount = 0;
-        for (T key : vector) {
-            if (vector.get(key) > maxCount) {
+        for (T key : map) {
+            if (map.get(key) > maxCount) {
                 toRemove.add(key);
                 removeCount++;
             }
         }
-        toRemove.forEach(vector::remove);
+        toRemove.forEach(map::remove);
         return removeCount;
     }
 
@@ -235,12 +228,7 @@ public class Histogram<T> implements Iterable<T> {
      * @return count.
      */
     public int sizeSmaller(int amount) {
-        int count = 0;
-        for (int val : vector.copyOfValues()) {
-            if (val < amount)
-                count++;
-        }
-        return count;
+        return map.sizeSmaller(amount);
     }
 
     /**
@@ -249,7 +237,7 @@ public class Histogram<T> implements Iterable<T> {
      * @param t item to removed.
      */
     public void remove(T t) {
-        vector.remove(t);
+        map.remove(t);
     }
 
     /**
@@ -259,7 +247,7 @@ public class Histogram<T> implements Iterable<T> {
      */
     public void removeAll(Iterable<T> items) {
         for (T t : items) {
-            vector.remove(t);
+            map.remove(t);
         }
     }
 
@@ -270,28 +258,18 @@ public class Histogram<T> implements Iterable<T> {
      * @return count.
      */
     public int sizeLarger(int amount) {
-        int count = 0;
-        for (int val : vector.copyOfValues()) {
-            if (val > amount)
-                count++;
-        }
-        return count;
+        return map.sizeLarger(amount);
     }
 
     /**
-     * total count items those value is between "from" and "to"
+     * total count of items those value is between "minValue" and "maxValue"
      *
-     * @param from from inclusive
-     * @param to   to exclusive
-     * @return total count of items those value is between "from" and "to"
+     * @param minValue minValue inclusive
+     * @param maxValue maxValue inclusive
+     * @return total count of items those value is between "minValue" and "maxValue"
      */
-    public long totalCount(int from, int to) {
-        long count = 0;
-        for (int val : vector.copyOfValues()) {
-            if (val >= from && val < to)
-                count += val;
-        }
-        return count;
+    public long totalCount(int minValue, int maxValue) {
+        return map.sumOfValues(minValue, maxValue);
     }
 
     /**
@@ -300,12 +278,7 @@ public class Histogram<T> implements Iterable<T> {
      * @return the max value in the set if set is empty, 0 is returned.
      */
     public int maxValue() {
-        int max = 0;
-        for (int val : vector.copyOfValues()) {
-            if (val > max)
-                max = val;
-        }
-        return max;
+        return map.maxValue();
     }
 
     /**
@@ -314,12 +287,7 @@ public class Histogram<T> implements Iterable<T> {
      * @return the min value in the set, if set is empty, Integer.MAX_VALUE is returned.
      */
     public int minValue() {
-        int min = 0;
-        for (int val : vector.copyOfValues()) {
-            if (val < min)
-                min = val;
-        }
-        return min;
+        return map.minValue();
     }
 
     /**
@@ -328,10 +296,10 @@ public class Histogram<T> implements Iterable<T> {
      * @param value the value for the keys
      * @return the list of elements whose count is equal to "value"
      */
-    public List<T> getItemsForValue(int value) {
+    public List<T> getItemsWithCount(int value) {
         List<T> keys = new ArrayList<>();
-        for (T key : vector) {
-            if (vector.get(key) == value) {
+        for (T key : map) {
+            if (map.get(key) == value) {
                 keys.add(key);
             }
         }
@@ -339,33 +307,32 @@ public class Histogram<T> implements Iterable<T> {
     }
 
     /**
-     * returns the list of elements whose count is from "from" to "to" ("to" exclusive)
+     * Returns the list of elements whose count is between "min" and "max" (both inclusive)
      *
-     * @param from form
-     * @param to   to
-     * @return the list of elements whose count is from "from" to "to" ("to" exclusive)
+     * @param min min
+     * @param max max
+     * @return Returns the list of elements whose count is between "min" and "max" (both inclusive)
      */
-    public List<T> getItemsForValue(int from, int to) {
+    public List<T> getItemsWithCount(int min, int max) {
         List<T> keys = new ArrayList<>();
-        for (T key : vector) {
-            int value = vector.get(key);
-            if (value >= from && value < to) {
+        for (T key : map) {
+            int value = map.get(key);
+            if (value >= min && value <= max) {
                 keys.add(key);
             }
         }
         return keys;
     }
 
-
     /**
-     * counts the items those count is smaller than amount
+     * Percentage of total count of [min-max] to total counts.
      *
-     * @param from from
-     * @param to   to
+     * @param min min (inclusive)
+     * @param max max (inclusive)
      * @return count.
      */
-    public double countPercent(int from, int to) {
-        return (totalCount(from, to) * 100d) / totalCount();
+    public double countPercent(int min, int max) {
+        return (totalCount(min, max) * 100d) / totalCount();
     }
 
     /**
@@ -374,7 +341,7 @@ public class Histogram<T> implements Iterable<T> {
      * @return Elements in a list sorted by count, descending.
      */
     public List<T> getSortedList() {
-        List<T> l = Lists.newArrayListWithCapacity(vector.size());
+        List<T> l = Lists.newArrayListWithCapacity(map.size());
         l.addAll(getSortedEntryList().stream().map(entry -> entry.key).collect(Collectors.toList()));
         return l;
     }
@@ -384,8 +351,8 @@ public class Histogram<T> implements Iterable<T> {
      *
      * @return Elements in a list sorted by count, descending..
      */
-    public List<CountSet.Entry<T>> getSortedEntryList() {
-        List<CountSet.Entry<T>> l = vector.getAsEntryList();
+    public List<IntValueMap.Entry<T>> getSortedEntryList() {
+        List<IntValueMap.Entry<T>> l = map.getAsEntryList();
         Collections.sort(l);
         return l;
     }
@@ -395,8 +362,8 @@ public class Histogram<T> implements Iterable<T> {
      *
      * @return Elements in a list sorted by count, descending..
      */
-    public List<CountSet.Entry<T>> getEntryList() {
-        return vector.getAsEntryList();
+    public List<IntValueMap.Entry<T>> getEntryList() {
+        return map.getAsEntryList();
     }
 
 
@@ -418,8 +385,8 @@ public class Histogram<T> implements Iterable<T> {
      * @return Elements in a list sorted by the given comparator..
      */
     public List<T> getSortedList(Comparator<T> comp) {
-        List<T> l = Lists.newArrayList(vector);
-        Collections.sort(l, comp);
+        List<T> l = Lists.newArrayList(map);
+        l.sort(comp);
         return l;
     }
 
@@ -429,7 +396,7 @@ public class Histogram<T> implements Iterable<T> {
      * @return a set containing the elements.
      */
     public Set<T> getKeySet() {
-        return vector.getKeys();
+        return map.getKeySet();
     }
 
 
@@ -439,7 +406,7 @@ public class Histogram<T> implements Iterable<T> {
      * @return returns an iterator for elements.
      */
     public Iterator<T> iterator() {
-        return vector.iterator();
+        return map.iterator();
     }
 
     /**
@@ -448,7 +415,7 @@ public class Histogram<T> implements Iterable<T> {
      * @return sum of all item's count.
      */
     public long totalCount() {
-        return totalCount(this);
+        return map.sumOfValues();
     }
 
     private class CountComparator implements Comparator<Map.Entry<T, Integer>> {

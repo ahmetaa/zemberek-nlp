@@ -81,7 +81,7 @@ public class LongUIntMap {
      * If key does not exist, it adds it with count value 1. Otherwise, it increments the count value by 1.
      *
      * @param key key
-     * @return the new count value after increment
+     * @return the new count value after addOrIncrement
      */
     public int increment(long key) {
         return incrementByAmount(key, 1);
@@ -120,10 +120,10 @@ public class LongUIntMap {
     }
 
     /**
-     * increment the value by "amount". If value does not exist, it a applies set() operation.
+     * addOrIncrement the value by "amount". If value does not exist, it a applies set() operation.
      *
      * @param key    key
-     * @param amount amount to increment
+     * @param amount amount to addOrIncrement
      * @return incremented value
      */
     public int incrementByAmount(long key, int amount) {

@@ -46,10 +46,10 @@ public class FloatValueMap<T> extends HashBase<T> implements Iterable<T> {
     }
 
     /**
-     * increment the value by "amount". If value does not exist, it a applies set() operation.
+     * addOrIncrement the value by "amount". If value does not exist, it a applies set() operation.
      *
      * @param key    key
-     * @param amount amount to increment
+     * @param amount amount to addOrIncrement
      * @return incremented value
      */
     public float incrementByAmount(T key, float amount) {
@@ -74,7 +74,7 @@ public class FloatValueMap<T> extends HashBase<T> implements Iterable<T> {
     private void expand() {
         FloatValueMap<T> h = new FloatValueMap<>(newSize());
         for (int i = 0; i < keys.length; i++) {
-            if (keys[i] != null && keys[i] != TOMB_STONE)
+            if (hasValidKey(i))
                 h.set(keys[i], values[i]);
         }
         expandCopyParameters(h);
@@ -108,8 +108,7 @@ public class FloatValueMap<T> extends HashBase<T> implements Iterable<T> {
         float[] result = new float[size()];
         int j = 0;
         for (int i = 0; i < keys.length; i++) {
-            T key = keys[i];
-            if(key!=null && key!=TOMB_STONE) {
+            if(hasValidKey(i)) {
                 result[j++] = values[i];
             }
         }
@@ -119,7 +118,7 @@ public class FloatValueMap<T> extends HashBase<T> implements Iterable<T> {
     public List<Entry<T>> getAsEntryList() {
         List<Entry<T>> res = new ArrayList<>(keyCount);
         for (int i = 0; i < keys.length; i++) {
-            if (keys[i] != null && keys[i] != TOMB_STONE)
+            if (hasValidKey(i))
                 res.add(new Entry<>(keys[i], values[i]));
         }
         return res;
@@ -145,7 +144,7 @@ public class FloatValueMap<T> extends HashBase<T> implements Iterable<T> {
 
         @Override
         public Entry<T> next() {
-            while (keys[i] == null || keys[i] == TOMB_STONE) {
+            while (!hasValidKey(i)) {
                 i++;
             }
             Entry<T> te = new Entry<>(keys[i], values[i]);

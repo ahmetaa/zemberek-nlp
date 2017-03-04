@@ -5,7 +5,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import zemberek.core.collections.CountSet;
+import zemberek.core.collections.IntValueMap;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.SimpleTextWriter;
 import zemberek.core.io.Strings;
@@ -26,7 +26,7 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
 
     Model weights = new Model();
     Model averagedWeights = new Model();
-    CountSet<String> counts = new CountSet<>();
+    IntValueMap<String> counts = new IntValueMap<>();
 
     Random random = new Random(1);
 
@@ -49,8 +49,8 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
                 ParseResult result = disambiguator.bestParse(sentence, false);
                 if (sentence.correctParse.equals(result.bestParse))
                     continue;
-                CountSet<String> correctFeatures = disambiguator.extractFeatures(sentence.correctParse);
-                CountSet<String> bestFeatures = disambiguator.extractFeatures(result.bestParse);
+                IntValueMap<String> correctFeatures = disambiguator.extractFeatures(sentence.correctParse);
+                IntValueMap<String> bestFeatures = disambiguator.extractFeatures(result.bestParse);
                 disambiguator.updateWeights(correctFeatures, bestFeatures, numExamples);
             }
             for (String key : disambiguator.averagedWeights) {
@@ -79,7 +79,7 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
         System.out.println("total:" + total + " hit=" + hit + String.format(" Accuracy:%f", (double) hit / total));
     }
 
-    private void updateWeights(CountSet<String> correctFeatures, CountSet<String> bestFeatures, int numExamples) {
+    private void updateWeights(IntValueMap<String> correctFeatures, IntValueMap<String> bestFeatures, int numExamples) {
         Set<String> keySet = Sets.newHashSet();
         keySet.addAll(Lists.newArrayList(correctFeatures));
         keySet.addAll(Lists.newArrayList(bestFeatures));
@@ -100,14 +100,14 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
                 feat,
                 (averagedWeights.weight(feat) * featureCount + (numExamples - featureCount) * weights.weight(feat))
                         / numExamples);
-        counts.set(feat, numExamples);
+        counts.put(feat, numExamples);
     }
 
-    CountSet<String> extractFeatures(List<String> parseSequence) {
+    IntValueMap<String> extractFeatures(List<String> parseSequence) {
         List<String> seq = Lists.newArrayList("<s>", "<s>");
         seq.addAll(parseSequence);
         seq.add("</s>");
-        CountSet<String> featureModel = new CountSet<>();
+        IntValueMap<String> featureModel = new IntValueMap<>();
         for (int i = 2; i < seq.size(); i++) {
             List<String> trigram = Lists.newArrayList(
                     seq.get(i - 2),
@@ -119,7 +119,7 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
         return featureModel;
     }
 
-    void extractTrigramFeatures(List<String> trigram, CountSet<String> feats) {
+    void extractTrigramFeatures(List<String> trigram, IntValueMap<String> feats) {
         WordParse w1 = new WordParse(trigram.get(0));
         WordParse w2 = new WordParse(trigram.get(1));
         WordParse w3 = new WordParse(trigram.get(2));
@@ -131,15 +131,15 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
         String ig3 = w3.allIgs;
 
         //feats.increment1(format("1:%s%s-%s%s-%s%s", r1, ig1, r2, ig2, r3, ig3));
-        feats.increment(format("2:%s%s-%s%s", r1, ig2, r3, ig3));
-        feats.increment(format("3:%s%s-%s%s", r2, ig2, r3, ig3));
-        feats.increment(format("4:%s%s", r3, ig3));
+        feats.addOrIncrement(format("2:%s%s-%s%s", r1, ig2, r3, ig3));
+        feats.addOrIncrement(format("3:%s%s-%s%s", r2, ig2, r3, ig3));
+        feats.addOrIncrement(format("4:%s%s", r3, ig3));
         //feats.increment1(format("5:%s%s-%s", r2, ig2, ig3));
         //feats.increment1(format("6:%s%s-%s", r1, ig1, ig3));
         //feats.increment1(format("7:%s-%s-%s", r1, r2, r3));
         //feats.increment1(format("8:%s-%s", r1, r3));
-        feats.increment(format("9:%s-%s", r2, r3));
-        feats.increment(format("10:%s", r3));
+        feats.addOrIncrement(format("9:%s-%s", r2, r3));
+        feats.addOrIncrement(format("10:%s", r3));
         //feats.increment1(format("11:%s-%s-%s", ig1, ig2, ig3));
         //feats.increment1(format("12:%s-%s", ig1, ig3));
         //feats.increment1(format("13:%s-%s", ig2, ig3));
@@ -150,9 +150,9 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
         String ig3s[] = ig3.split("[ ]");
 
         for (String ig : ig3s) {
-            feats.increment(format("15:%s-%s-%s", ig1s[ig1s.length - 1], ig2s[ig2s.length - 1], ig));
+            feats.addOrIncrement(format("15:%s-%s-%s", ig1s[ig1s.length - 1], ig2s[ig2s.length - 1], ig));
           //  feats.increment1(format("16:%s-%s", ig1s[ig1s.length - 1], ig));
-            feats.increment(format("17:%s-%s", ig2s[ig2s.length - 1], ig));
+            feats.addOrIncrement(format("17:%s-%s", ig2s[ig2s.length - 1], ig));
            // feats.increment1(format("18:%s", ig));
         }
 
@@ -160,12 +160,12 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
 //            feats.increment1(format("19:%s-%s", ig3s[k], ig3s[k + 1]));
 
         for (int k = 0; k < ig3s.length; k++)
-            feats.increment(format("20:%d-%s", k, ig3s[k]));
+            feats.addOrIncrement(format("20:%d-%s", k, ig3s[k]));
 
 //        if (Character.isUpperCase(r3.charAt(0)) && w3.igs.contains("Prop"))
 //            feats.increment1("21:PROPER");
 
-        feats.increment(format("22:%d", ig3s.length));
+        feats.addOrIncrement(format("22:%d", ig3s.length));
 /*        if (w3.all.contains(".+Punc") && w3.igs.contains("Verb"))
             feats.increment1("23:ENDSVERB");*/
 
@@ -304,7 +304,7 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
                             parse
                     );
 
-                    CountSet<String> features = new CountSet<>();
+                    IntValueMap<String> features = new IntValueMap<>();
                     extractTrigramFeatures(trigram, features);
 
                     double trigramScore = 0;

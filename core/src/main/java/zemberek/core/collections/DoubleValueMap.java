@@ -27,7 +27,7 @@ public class DoubleValueMap<T> extends HashBase<T> implements Iterable<T> {
      * If key does not exist, it adds it with count value 1. Otherwise, it increments the count value by 1.
      *
      * @param key key
-     * @return the new count value after increment
+     * @return the new count value after addOrIncrement
      */
     public double increment(T key) {
         return incrementByAmount(key, 1);
@@ -80,10 +80,10 @@ public class DoubleValueMap<T> extends HashBase<T> implements Iterable<T> {
     }
 
     /**
-     * increment the value by "amount". If value does not exist, it a applies set() operation.
+     * addOrIncrement the value by "amount". If value does not exist, it a applies set() operation.
      *
      * @param key    key
-     * @param amount amount to increment
+     * @param amount amount to addOrIncrement
      * @return incremented value
      */
     public double incrementByAmount(T key, double amount) {
@@ -108,7 +108,7 @@ public class DoubleValueMap<T> extends HashBase<T> implements Iterable<T> {
     private void expand() {
         DoubleValueMap<T> h = new DoubleValueMap<>(newSize());
         for (int i = 0; i < keys.length; i++) {
-            if (keys[i] != null && keys[i] != TOMB_STONE)
+            if (hasValidKey(i))
                 h.set(keys[i], values[i]);
         }
         expandCopyParameters(h);
@@ -143,8 +143,7 @@ public class DoubleValueMap<T> extends HashBase<T> implements Iterable<T> {
         double[] result = new double[size()];
         int j = 0;
         for (int i = 0; i < keys.length; i++) {
-            T key = keys[i];
-            if(key!=null && key!=TOMB_STONE) {
+            if (hasValidKey(i)) {
                 result[j++] = values[i];
             }
         }
@@ -154,7 +153,7 @@ public class DoubleValueMap<T> extends HashBase<T> implements Iterable<T> {
     public List<Entry<T>> getAsEntryList() {
         List<Entry<T>> res = new ArrayList<>(keyCount);
         for (int i = 0; i < keys.length; i++) {
-            if (keys[i] != null && keys[i] != TOMB_STONE)
+            if (hasValidKey(i))
                 res.add(new Entry<>(keys[i], values[i]));
         }
         return res;
@@ -180,7 +179,7 @@ public class DoubleValueMap<T> extends HashBase<T> implements Iterable<T> {
 
         @Override
         public Entry<T> next() {
-            while (keys[i] == null || keys[i] == TOMB_STONE) {
+            while (!hasValidKey(i)) {
                 i++;
             }
             Entry<T> te = new Entry<>(keys[i], values[i]);

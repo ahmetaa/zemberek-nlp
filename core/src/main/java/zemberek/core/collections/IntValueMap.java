@@ -5,32 +5,32 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * A memory efficient and fast set like data structure for counting objects.
- * Count values can be between Integer.MIN_VALUE and Integer.MAX_VALUE.
+ * A memory efficient and fast set like data structure with Integer values.
+ * Values can be between Integer.MIN_VALUE and Integer.MAX_VALUE.
  * Methods do not check for overflow or underflow.
  * Class is not thread safe.
  */
-public class CountSet<T> extends HashBase<T> implements Iterable<T> {
+public class IntValueMap<T> extends HashBase<T> implements Iterable<T> {
 
     // Carries count values.
-    private int[] counts;
+    private int[] values;
 
-    public CountSet() {
+    public IntValueMap() {
         this(INITIAL_SIZE);
     }
 
-    public CountSet(int size) {
+    public IntValueMap(int size) {
         super(size);
-        counts = new int[keys.length];
+        values = new int[keys.length];
     }
 
     /**
      * If key does not exist, it adds it with count value 1. Otherwise, it increments the count value by 1.
      *
      * @param key key
-     * @return the new count value after increment
+     * @return the new value after addOrIncrement
      */
-    public int increment(T key) {
+    public int addOrIncrement(T key) {
         return incrementByAmount(key, 1);
     }
 
@@ -40,7 +40,7 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
      *
      * @param keys key
      */
-    public void incrementAll(Iterable<T> keys) {
+    public void addOrIncrementAll(Iterable<T> keys) {
         for (T t : keys) {
             incrementByAmount(t, 1);
         }
@@ -67,7 +67,7 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
                 continue;
             }
             if (t.equals(key)) {
-                return counts[slot];
+                return values[slot];
             }
             slot = nextProbe(slot, ++probeCount);
         }
@@ -76,18 +76,18 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
     /**
      * Decrements the objects count.
      *
-     * @param key
-     * @return
+     * @param key key
+     * @return value after decrement.
      */
     public int decrement(T key) {
         return incrementByAmount(key, -1);
     }
 
     /**
-     * increment the value by "amount". If value does not exist, it a applies set() operation.
+     * addOrIncrement the value by "amount". If value does not exist, it a applies set() operation.
      *
      * @param key    key
-     * @param amount amount to increment
+     * @param amount amount to addOrIncrement
      * @return incremented value
      */
     public int incrementByAmount(T key, int amount) {
@@ -99,27 +99,28 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
         int l = locate(key);
         if (l < 0) {
             l = -l - 1;
-            counts[l] = amount;
+            values[l] = amount;
             keys[l] = key;
             keyCount++;
-            return counts[l];
+            return values[l];
         } else {
-            counts[l] += amount;
-            return counts[l];
+            values[l] += amount;
+            return values[l];
         }
     }
 
     private void expand() {
-        CountSet<T> h = new CountSet<>(newSize());
+        IntValueMap<T> h = new IntValueMap<>(newSize());
         for (int i = 0; i < keys.length; i++) {
-            if (keys[i] != null && keys[i] != TOMB_STONE)
-                h.set(keys[i], counts[i]);
+            if (hasValidKey(i)) {
+                h.put(keys[i], values[i]);
+            }
         }
         expandCopyParameters(h);
-        this.counts = h.counts;
+        this.values = h.values;
     }
 
-    public void set(T key, int value) {
+    public void put(T key, int value) {
         if (key == null)
             throw new IllegalArgumentException("Key cannot be null.");
         if (keyCount + removeCount == threshold) {
@@ -127,11 +128,11 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
         }
         int loc = locate(key);
         if (loc >= 0) {
-            counts[loc] = value;
+            values[loc] = value;
         } else {
             loc = -loc - 1;
             keys[loc] = key;
-            counts[loc] = value;
+            values[loc] = value;
             keyCount++;
         }
     }
@@ -143,8 +144,8 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
         int[] result = new int[keyCount];
         int k = 0;
         for (int i = 0; i < keys.length; i++) {
-            if (keys[i] != null && keys[i] != TOMB_STONE) {
-                result[k] = counts[i];
+            if (hasValidKey(i)) {
+                result[k] = values[i];
                 k++;
             }
         }
@@ -154,8 +155,8 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
     public List<Entry<T>> getAsEntryList() {
         List<Entry<T>> res = new ArrayList<>(keyCount);
         for (int i = 0; i < keys.length; i++) {
-            if (keys[i] != null && keys[i] != TOMB_STONE)
-                res.add(new Entry<>(keys[i], counts[i]));
+            if (hasValidKey(i))
+                res.add(new Entry<>(keys[i], values[i]));
         }
         return res;
     }
@@ -180,10 +181,10 @@ public class CountSet<T> extends HashBase<T> implements Iterable<T> {
 
         @Override
         public Entry<T> next() {
-            while (keys[i] == null || keys[i] == TOMB_STONE) {
+            while (!hasValidKey(i)) {
                 i++;
             }
-            Entry<T> te = new Entry<>(keys[i], counts[i]);
+            Entry<T> te = new Entry<>(keys[i], values[i]);
             i++;
             k++;
             return te;

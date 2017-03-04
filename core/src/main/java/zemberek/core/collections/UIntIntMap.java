@@ -76,7 +76,7 @@ public class UIntIntMap extends UIntKeyHashBase {
     /**
      * if `key` exists, increments it's value with `amount`. if `key` does not exist,
      * it creates it with the value `amount`.
-     * returns the `key`'s value after the increment operation.
+     * returns the `key`'s value after the addOrIncrement operation.
      */
     public int increment(int key, int amount) {
         if (key < 0) {
