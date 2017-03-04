@@ -146,7 +146,6 @@ public class DocumentSimilarityExperiment {
         }
     }
 
-
     public void generateVectorModel(Path input, Path modelFile) throws Exception {
         Args argz = Args.forWordVectors(Args.model_name.sg);
         argz.thread = 16;

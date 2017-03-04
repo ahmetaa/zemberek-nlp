@@ -26,6 +26,23 @@ public class WebCorpus {
         }
     }
 
+    //TODO: this may be lossy.
+    public WebCorpus copyNoDuplicates() {
+        Set<Long> hashes = new HashSet<>();
+        WebCorpus noDup = new WebCorpus(this.source, this.id);
+        for (WebDocument doc : pages) {
+            if (hashes.contains(doc.getHash())) {
+                continue;
+            }
+            if (doc.contentLength() < 50) {
+                continue;
+            }
+            hashes.add(doc.getHash());
+            noDup.addDocument(doc);
+        }
+        return noDup;
+    }
+
     public WebDocument getDocument(String id) {
         return lookup.get(id);
     }
