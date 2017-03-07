@@ -12,7 +12,6 @@
         <module>core</module>
         <module>morphology</module>
         <module>tokenization</module>
-        <module>hyphenation</module>
         <module>lm</module>
         <module>all</module>
         <module>experiment</module>

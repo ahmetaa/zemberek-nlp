@@ -16,6 +16,16 @@
             <artifactId>core</artifactId>
             <version>${parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>zemberek-nlp</groupId>
+            <artifactId>tokenization</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>zemberek-nlp</groupId>
+            <artifactId>morphology</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
     </dependencies>
 
 

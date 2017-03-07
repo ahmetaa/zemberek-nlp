@@ -1,4 +1,4 @@
-package zemberek.hyphenation;
+package zemberek.core.turkish.hyphenation;
 
 import java.util.List;
 

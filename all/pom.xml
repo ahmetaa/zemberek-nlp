@@ -86,11 +86,6 @@
             <artifactId>morphology</artifactId>
             <version>${parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>zemberek-nlp</groupId>
-            <artifactId>hyphenation</artifactId>
-            <version>${parent.version}</version>
-        </dependency>
     </dependencies>
 
 </project>
