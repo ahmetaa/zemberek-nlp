@@ -114,8 +114,11 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
     static Map<String, String> ordinalMap = Maps.newHashMap();
 
     static {
-        String[] cardinals = "sıfır,bir,iki,üç,dört,beş,altı,yedi,sekiz,dokuz,on,yirmi,otuz,kırk,elli,altmış,yetmiş,seksen,doksan,yüz,bin,milyon,milyar,trilyon,katrilyon".split("[,]");
-        String[] ordinals = "sıfırıncı,birinci,ikinci,üçüncü,dördüncü,beşinci,altıncı,yedinci,sekizinci,dokuzuncu,onuncu,yirminci,otuzuncu,kırkıncı,ellinci,altmışıncı,yetmişinci,sekseninci,doksanıncı,yüzüncü,bininci,milyonuncu,milyarıncı,trilyonuncu,katrilyonuncu".split("[,]");
+        String[] cardinals = ("sıfır,bir,iki,üç,dört,beş,altı,yedi,sekiz,dokuz,on,yirmi,otuz,kırk,elli," +
+                "altmış,yetmiş,seksen,doksan,yüz,bin,milyon,milyar,trilyon,katrilyon").split("[,]");
+        String[] ordinals = ("sıfırıncı,birinci,ikinci,üçüncü,dördüncü,beşinci,altıncı,yedinci,sekizinci,dokuzuncu," +
+                "onuncu,yirminci,otuzuncu,kırkıncı,ellinci,altmışıncı,yetmişinci,sekseninci,doksanıncı,yüzüncü," +
+                "bininci,milyonuncu,milyarıncı,trilyonuncu,katrilyonuncu").split("[,]");
         for (int i = 0; i < cardinals.length; i++) {
             ordinalMap.put(cardinals[i], ordinals[i]);
         }

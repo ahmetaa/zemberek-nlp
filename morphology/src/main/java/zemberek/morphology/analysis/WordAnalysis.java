@@ -69,14 +69,8 @@ public class WordAnalysis {
      * Generates the input that produces this parse.
      */
     public String getSurfaceForm() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(root);
-        for (InflectionalGroup inflectionalGroup : inflectionalGroups) {
-            sb.append(inflectionalGroup.surfaceForm());
-        }
-        return sb.toString();
+        return root + getEnding();
     }
-
 
     public PrimaryPos getPos() {
         return inflectionalGroups.get(inflectionalGroups.size() - 1).pos;
@@ -196,7 +190,6 @@ public class WordAnalysis {
         return result;
     }
 
-
     /**
      * Splits the parse into stem and ending. Such as:
      * "kitaplar" -> "kitap-lar"
@@ -207,13 +200,29 @@ public class WordAnalysis {
      * If ending has no surface content empty string is used.
      */
     public StemAndEnding getStemAndEnding() {
+        return new StemAndEnding(root, getEnding());
+    }
+
+    /**
+     * Returns the suffix letters. Such as:
+     * "kitaplar" -> "lar"
+     * "kitabımdaki" -> "ımdaki"
+     * "kitap" -> ""
+     *
+     * @return letters in suffixes. Empty is there is no suffix surface form.
+     */
+    public String getEnding() {
         StringBuilder sb = new StringBuilder();
         for (InflectionalGroup ig : inflectionalGroups) {
             for (SuffixData data : ig.suffixList) {
                 sb.append(data.surface);
             }
         }
-        return new StemAndEnding(root, sb.toString());
+        return sb.toString();
+    }
+
+    public String getRoot() {
+        return root;
     }
 
     /**
@@ -359,7 +368,7 @@ public class WordAnalysis {
         return suffixes;
     }
 
-    static Map<String, String> oflazerTable = Maps.newHashMap();
+    private static Map<String, String> oflazerTable = Maps.newHashMap();
 
     static {
         oflazerTable.put("Inst", "Ins");
