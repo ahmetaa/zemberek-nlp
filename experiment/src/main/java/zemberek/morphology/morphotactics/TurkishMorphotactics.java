@@ -78,6 +78,7 @@ public class TurkishMorphotactics {
         noun_SnT.newTransition(a3pl_SnT)
                 .surfaceTemplate("lAr")
                 .addRule(Rules.rejectAny("vowel-expecting"))
+                .addRule(Rules.rejectAny("dim-suffix"))
                 .build();
 
         // ev-ε-ε-?
@@ -129,6 +130,16 @@ public class TurkishMorphotactics {
                 .addRule(Rules.rejectAny("vowel-expecting"))
                 .build();
 
+        pnon_SnT.newTransition(dim_SnT)
+                .surfaceTemplate("caI~k")
+                .addRule(Rules.rejectAny("vowel-expecting"))
+                .build();
+
+        // connect to the noun root. Reject dim suffix after this point.
+        dim_SnT.newTransition(noun_SnT)
+                .empty()
+                .addRule(Rules.rejectAny("dim-suffix"))
+                .build();
 
         // This is for blocking inputs like "kitab". Here because nominal case state is non terminal (nom_SnT)
         // analysis path will fail.
@@ -142,7 +153,6 @@ public class TurkishMorphotactics {
 
         // This transition is for words like "içeri" or "dışarı". Those words implicitly contains Dative suffix.
         // But It is also possible to add explicit dative suffix to those words such as "içeri-ye".
-
         pnon_SnT.newTransition(dat_ST)
                 .empty()
                 .addRule(Rules.allowOnly("implicit-dative"))
@@ -159,8 +169,6 @@ public class TurkishMorphotactics {
 
         //ev-?-i-ε (evine, evlerine)
         p3sg_SnT.newTransition(dat_ST).surfaceTemplate("nA").build();
-
-
 
     }
 

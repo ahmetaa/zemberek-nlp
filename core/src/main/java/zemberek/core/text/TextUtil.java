@@ -154,6 +154,10 @@ public class TextUtil {
                 .collect(Collectors.toList());
     }
 
+    public static String escapeQuotesApostrpohes(String input) {
+        return input.replaceAll("\"", "&quot;").replaceAll("'", "&apos;");
+    }
+
     public static Path createTempFile(String content) throws IOException {
         return createTempFile(Collections.singletonList(content));
     }
@@ -304,7 +308,7 @@ public class TextUtil {
 
     public static String reduceHtml(String htmlToReduce) {
         String htmlBody = getHtmlBody(htmlToReduce);
-        if(htmlBody==null) {
+        if (htmlBody == null) {
             Log.warn("Cannot get html body. ");
             return htmlToReduce;
         }

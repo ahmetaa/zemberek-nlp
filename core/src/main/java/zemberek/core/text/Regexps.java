@@ -68,7 +68,8 @@ public class Regexps {
     }
 
     /**
-     * checks the matches if they exist as a key in the map. if it exists, replaces the match with the "Value" in the map.
+     * checks the matches if they exist as a key in the map.
+     * if it exists, replaces the match with the "value" in the map.
      *
      * @param m   matcher.
      * @param map map to replace matches with values.
@@ -84,6 +85,17 @@ public class Regexps {
         }
         m.appendTail(buffer);
         return buffer.toString();
+    }
+
+    public static final Pattern WHITE_SPACE_PATTERN = Pattern.compile("\\s+");
+
+    public static List<String> getMatchesForGroup(String str, Pattern pattern, int groupIndex) {
+        List<String> result = new ArrayList<>();
+        Matcher m = pattern.matcher(str);
+        while (m.find()) {
+            result.add(m.group(groupIndex));
+        }
+        return result;
     }
 
 }
