@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static zemberek.embedding.fasttext.FastTextTest.saveSets;
+import static zemberek.embedding.fasttext.AutomaticLabelingExperiment.saveSets;
 
 public class CategoryPredictionExperiment {
 
@@ -70,11 +70,11 @@ public class CategoryPredictionExperiment {
             argz.model = Args.model_name.sup;
             argz.loss = Args.loss_name.softmax;
             argz.threadSafe = false;
-            argz.epoch = 100;
+            argz.epoch = 50;
             argz.wordNgrams = 2;
             argz.minCount = 0;
             argz.lr = 0.2;
-            argz.dim = 50;
+            argz.dim = 100;
             argz.bucket = 5_000_000;
 
             fastText = FastText.train(train, argz);
@@ -213,7 +213,7 @@ public class CategoryPredictionExperiment {
 
         Log.info("Generate train and test set.");
 
-        saveSets(train, test, set);
+        saveSets(train, test, new LinkedHashSet<>(set));
     }
 
     private void extractCategoryDocuments(Path root, Path categoryFile) throws IOException {
@@ -222,6 +222,9 @@ public class CategoryPredictionExperiment {
         files.sort(Comparator.comparing(Path::toString));
         WebCorpus corpus = new WebCorpus("category", "category");
         for (Path file : files) {
+            if (file.toFile().isDirectory()) {
+                continue;
+            }
             Log.info("Adding %s", file);
             List<WebDocument> doc = WebCorpus.loadDocuments(file);
             List<WebDocument> labeled = doc.stream()
