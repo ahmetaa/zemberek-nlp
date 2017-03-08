@@ -109,9 +109,9 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
         return new StemAndEnding(s.substring(0, cutPoint), s.substring(cutPoint));
     }
 
-    TurkishNumeralEndingMachine numeralEndingMachine = new TurkishNumeralEndingMachine();
+    private TurkishNumeralEndingMachine numeralEndingMachine = new TurkishNumeralEndingMachine();
 
-    static Map<String, String> ordinalMap = Maps.newHashMap();
+    private static Map<String, String> ordinalMap = Maps.newHashMap();
 
     static {
         String[] cardinals = ("sıfır,bir,iki,üç,dört,beş,altı,yedi,sekiz,dokuz,on,yirmi,otuz,kırk,elli," +
@@ -132,7 +132,9 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
             String ss = se.stem.substring(0, se.stem.length() - 1);
             lemma = numeralEndingMachine.find(ss);
             lemma = ordinalMap.get(lemma);
-        } else lemma = numeralEndingMachine.find(se.stem);
+        } else {
+            lemma = numeralEndingMachine.find(se.stem);
+        }
         List<WordAnalysis> results = Lists.newArrayListWithCapacity(1);
         for (TurkishDictionaryLoader.Digit digit : TurkishDictionaryLoader.Digit.values()) {
             Matcher m = digit.pattern.matcher(se.stem);
@@ -152,7 +154,7 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
                             se.stem,
                             s + lemma,
                             PrimaryPos.Numeral,
-                            digit.spos);
+                            digit.secondaryPos);
                     re.dictionaryItem.attributes.add(RootAttribute.Runtime);
                     re.root = se.stem;
                     results.add(re);

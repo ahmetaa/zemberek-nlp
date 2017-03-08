@@ -47,7 +47,10 @@ public enum RootAttribute implements StringEnum {
     Runtime,
 
     //For dummy items.
-    Dummy;
+    Dummy,
+
+    //For abbreviations. TODO: consider making this a POS
+    Abbreviation;
 
     int index;
 

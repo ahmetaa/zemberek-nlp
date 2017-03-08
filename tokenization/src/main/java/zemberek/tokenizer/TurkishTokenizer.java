@@ -19,7 +19,7 @@ import java.util.Locale;
 
 /**
  * Extracts tokens from sentences.
- * TODO: finish this.
+ * TODO: Not yet finished.
  */
 class TurkishTokenizer extends PerceptronSegmenter implements Tokenizer {
 
@@ -41,30 +41,13 @@ class TurkishTokenizer extends PerceptronSegmenter implements Tokenizer {
     private static final String TurkishLowerCase = "abcçdefgğhıijklmnoöprsştuüvyzxwq";
     private static final String TurkishUpperCase = TurkishLowerCase.toUpperCase(tr);
 
-    private static final String boundaryDesicionChars = "'+-./:@&";
+    private static final String boundaryDecisionChars = "'+-./:@&";
 
     private static final String singleTokenChars = "!\"#$%()*+,-./:;<=>?@[\\]^_{|}~¡¢£¤¥¦§¨©ª«¬®¯" +
             "°±²³´µ¶·¸¹º»¼½¾¿";
 
-    private static FixedBitVector singleTokenLookup = generateBitLookup(singleTokenChars);
-    private static FixedBitVector boundaryDesicionLookup = generateBitLookup(boundaryDesicionChars);
-
-    private static FixedBitVector generateBitLookup(String characters) {
-
-        int max = 0;
-        for (char c : characters.toCharArray()) {
-            if (c > max) {
-                max = c;
-            }
-        }
-
-        FixedBitVector result = new FixedBitVector(max + 1);
-        for (char c : characters.toCharArray()) {
-            result.set(c);
-        }
-
-        return result;
-    }
+    private static FixedBitVector singleTokenLookup = TextUtil.generateBitLookup(singleTokenChars);
+    private static FixedBitVector boundaryDecisionLookup = TextUtil.generateBitLookup(boundaryDecisionChars);
 
     private List<Span> tokenizeSpan(String sentence) {
         List<Span> spans = new ArrayList<>();
@@ -91,7 +74,7 @@ class TurkishTokenizer extends PerceptronSegmenter implements Tokenizer {
                 tokenBegin = j + 1;
                 continue;
             }
-            if (chr < boundaryDesicionLookup.length && boundaryDesicionLookup.get(chr)) {
+            if (chr < boundaryDecisionLookup.length && boundaryDecisionLookup.get(chr)) {
                 // TODO: make it work.
                 BoundaryData data = new BoundaryData(sentence, j);
                 List<String> features = data.extractFeatures();
@@ -218,7 +201,7 @@ class TurkishTokenizer extends PerceptronSegmenter implements Tokenizer {
                     for (int j = 0; j < sentence.length(); j++) {
                         // skip if char cannot be a boundary char.
                         char chr = sentence.charAt(j);
-                        if (chr < boundaryDesicionLookup.length && boundaryDesicionLookup.get(chr)) {
+                        if (chr < boundaryDecisionLookup.length && boundaryDecisionLookup.get(chr)) {
                             continue;
                         }
 

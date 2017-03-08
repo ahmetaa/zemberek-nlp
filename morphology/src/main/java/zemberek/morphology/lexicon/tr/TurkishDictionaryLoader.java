@@ -494,12 +494,12 @@ public class TurkishDictionaryLoader {
 
         public String lemma;
         public Pattern pattern;
-        public SecondaryPos spos;
+        public SecondaryPos secondaryPos;
 
-        Digit(String lemma, String patternStr, SecondaryPos spos) {
+        Digit(String lemma, String patternStr, SecondaryPos secondaryPos) {
             this.lemma = lemma;
             this.pattern = Pattern.compile(patternStr);
-            this.spos = spos;
+            this.secondaryPos = secondaryPos;
         }
     }
 

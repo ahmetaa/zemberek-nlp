@@ -4,6 +4,7 @@ package zemberek.core.text;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
+import zemberek.core.collections.FixedBitVector;
 import zemberek.core.io.IOs;
 import zemberek.core.io.KeyValueReader;
 import zemberek.core.logging.Log;
@@ -19,6 +20,21 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class TextUtil {
+
+    public static FixedBitVector generateBitLookup(String characters) {
+        int max = 0;
+        for (char c : characters.toCharArray()) {
+            if (c > max) {
+                max = c;
+            }
+        }
+
+        FixedBitVector result = new FixedBitVector(max + 1);
+        for (char c : characters.toCharArray()) {
+            result.set(c);
+        }
+        return result;
+    }
 
     /**
      * #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
