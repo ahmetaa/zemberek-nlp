@@ -44,11 +44,10 @@ import java.util.stream.Collectors;
 
 public class ZemberekNlpScripts {
 
-    private static Path DATA_PATH = Paths.get("/media/depo/data/aaa");
-    //private static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
+    //private static Path DATA_PATH = Paths.get("/media/depo/data/aaa");
+    private static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
     private static Path NLP_TOOLS_PATH = Paths.get("/home/ahmetaa/apps/nlp/tools");
     private static Path OFLAZER_ANALYZER_PATH = NLP_TOOLS_PATH.resolve("Morphological-Analyzer/Turkish-Oflazer-Linux64");
-
 
     @Test
     @Ignore("Not a Test.")
@@ -120,6 +119,19 @@ public class ZemberekNlpScripts {
         try (PrintWriter pw = new PrintWriter(outPath.toFile(), "utf-8")) {
             accepted.forEach(pw::println);
         }
+    }
+
+    @Test
+    @Ignore("Not a Test.")
+    public void getFrequentZemberek() throws IOException {
+        int min = 30;
+        Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
+        Path outDir = DATA_PATH.resolve("out");
+        Log.info("Loading histogram.");
+        Histogram<String> histogram = Histogram.loadFromUtf8File(wordFreqFile, ' ');
+        List<String> all = TextUtil.loadLinesWithText(outDir.resolve("zemberek-parsed-words.txt"));
+        List<String> result = all.stream().filter(s -> histogram.getCount(s) >= min).collect(Collectors.toList());
+        sortAndSave(outDir.resolve("zemberek-parsed-words-min" + min + ".txt"), result);
     }
 
     @Test
@@ -539,7 +551,7 @@ public class ZemberekNlpScripts {
                 e.printStackTrace();
             }
         }
-        
+
         elapsed = clock.elapsed(TimeUnit.MILLISECONDS);
         Log.info("Elapsed Time = " + elapsed);
         Log.info("Tokenization + Analysis + Disambiguation speed = %.1f tokens/sec"
