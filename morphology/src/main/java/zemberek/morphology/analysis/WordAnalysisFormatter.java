@@ -78,7 +78,7 @@ public class WordAnalysisFormatter {
                 return !proper;
             case UPPER_CASE:
             case TITLE_CASE:
-            case MIXED_CASE:
+            case DEFAULT_CASE:
                 return true;
             case UPPER_CASE_ROOT_LOWER_CASE_ENDING:
                 return proper;

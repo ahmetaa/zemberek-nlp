@@ -1,5 +1,6 @@
 package zemberek.embedding.fasttext;
 
+import com.google.common.base.Stopwatch;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.Histogram;
@@ -22,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class AutomaticLabelingExperiment {
@@ -61,8 +63,8 @@ public class AutomaticLabelingExperiment {
 
         TurkishSentenceAnalyzer analyzer = new TurkishSentenceAnalyzer(morphology, new Z3MarkovModelDisambiguator());
         //extractLabeledDocuments(rawCorpusRoot, corpusPath);
-        Set<String> set = generateSetForLabelExperiment(corpusPath, analyzer, true);
-        saveSets(train, test, set);
+        //Set<String> set = generateSetForLabelExperiment(corpusPath, analyzer, true);
+        //saveSets(train, test, set);
 
         FastText fastText;
 
@@ -71,12 +73,12 @@ public class AutomaticLabelingExperiment {
             fastText = FastText.load(modelPath);
         } else {
             Args argz = Args.forSupervised();
-            argz.thread = 16;
+            argz.thread = 20;
             argz.loss = Args.loss_name.hs;
             argz.threadSafe = false;
             argz.epoch = 100;
             argz.wordNgrams = 2;
-            argz.minCount = 10;
+            argz.minCount = 20;
             argz.lr = 0.25;
             argz.dim = 200;
             argz.bucket = 5_000_000;
@@ -90,6 +92,7 @@ public class AutomaticLabelingExperiment {
 
         Log.info("Testing started.");
         List<String> testLines = Files.readAllLines(test, StandardCharsets.UTF_8);
+        Stopwatch sw = Stopwatch.createStarted();
         try (PrintWriter pw = new PrintWriter(predictionPath.toFile(), "utf-8")) {
             for (String testLine : testLines) {
                 String id = testLine.substring(0, testLine.indexOf(' ')).substring(1);
@@ -112,7 +115,7 @@ public class AutomaticLabelingExperiment {
                 pw.println();
             }
         }
-        Log.info("Done.");
+        Log.info("Done. in %d ms.", sw.elapsed(TimeUnit.MILLISECONDS));
     }
 
     Set<String> generateSetForLabelExperiment(
@@ -209,7 +212,7 @@ public class AutomaticLabelingExperiment {
             set.add("#" + document.getId() + " " + labelStr + " " + join.replaceAll("[']", "").toLowerCase(Turkish.LOCALE));
 
             if (c++ % 1000 == 0) {
-                Log.info("%d of %d processed.", c, corpus.documentCount());
+                Log.info("%d processed.", c);
             }
         }
         Log.info("Generate train and test set.");
@@ -219,7 +222,7 @@ public class AutomaticLabelingExperiment {
 
     static void saveSets(Path train, Path test, Set<String> set) throws IOException {
 
-        String[] sources = {"cnnturk.com", "dunya.com", "t24.com", "yenisafak.com"};
+        String[] sources = {"cnnturk.com", "dunya.com", "iha.com", "ntv.com", "t24.com", "yenisafak.com"};
         List<String> testSet = new ArrayList<>();
         for (String source : sources) {
             int i = 0;
