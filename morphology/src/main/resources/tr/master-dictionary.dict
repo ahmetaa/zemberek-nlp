@@ -75,6 +75,7 @@ aborjin
 abosa [P:Interj]
 abra
 abrakadabra
+abrakadabralamak
 abramak
 abraş
 abraş [P:Adj]
@@ -2419,6 +2420,7 @@ başkan
 başkarakter
 başkası [P:Pron]
 başkâtip
+başkemancı
 başkent [A:NoVoicing]
 başkesit
 başkilise
@@ -2443,6 +2445,7 @@ başmubassır
 başmuharrir
 başmurakıp
 başmüdür
+başmüezzin
 başmüfettiş
 başmühendis
 başmürettip
@@ -2472,7 +2475,7 @@ baştanımaz [P:Adj]
 baştankara
 baştarda
 başteknisyen
-başucu
+başucu [A:CompoundP3sg; Roots:baş-uç]
 başuzman
 başülke
 başüstü
@@ -3617,6 +3620,7 @@ burjuva [P:Adj]
 burjuvazi
 burkmak
 burkuk [P:Adj]
+burkuntu
 burlesk [A:NoVoicing]
 burma
 burma [P:Adj]
@@ -3729,7 +3733,7 @@ büyükanne
 büyükbaba
 büyükbaş
 büyüksemek
-büyükşehir
+büyükşehir [A:CompoundP3sg; Roots:büyük-şehir]
 büyülemek
 büyülteç
 büyültmek
@@ -3865,6 +3869,7 @@ cebrî [P:Adj]
 cebrinefis
 cebrinefs
 cebriye
+cedelleşmek
 cedit [P:Adj]
 cedre
 cefa
@@ -3898,7 +3903,7 @@ cemadat [A:NoVoicing]
 cemal [A:InverseHarmony]
 ceman [P:Adv]
 cemaziyülâhır
-cemaziyülevvel
+cemaziyelevvel
 cembiye
 cemetmek [A:Voicing, Aorist_A]
 cemevi [A:CompoundP3sg; Roots:cem-ev]
@@ -4108,6 +4113,8 @@ cim
 cima
 cimbakuka [P:Adj]
 cimcime
+cimcik
+cimciklemek
 cimri [P:Adj]
 cin
 cinai [P:Adj]
@@ -7804,6 +7811,7 @@ fıtrat [A:NoVoicing]
 fıtraten [P:Adv]
 fıtrî
 fıtriye
+fıttırmak
 fiber
 fiberglas
 fibrin
@@ -7928,6 +7936,7 @@ fiş
 fişe
 fişek
 fişekhane
+fişeklemek
 fişka
 fişlemek
 fit
@@ -8192,10 +8201,12 @@ fütuhat [A:NoVoicing]
 fütur
 fütürist [P:Adj;A:NoVoicing]
 fütürizm
+fütürolog
 fütüroloji
 fütüvvet
 füze
 füzeatar
+füzelemek
 füzen
 füzesavar
 füzyometre
@@ -8324,6 +8335,7 @@ gasıp
 gasil [A:LastVowelDrop]
 gasilhane
 gasletmek [A:Voicing, Aorist_A]
+gasbetmek [A:Voicing, Aorist_A]
 gasp [A:Voicing]
 gassal [A:InverseHarmony]
 gastrit [A:NoVoicing]
@@ -8931,6 +8943,7 @@ grado
 grafik
 grafiker
 grafit [A:NoVoicing]
+grafiti
 grafolog
 grafoloji
 grafolojik [P:Adj]
@@ -11657,6 +11670,7 @@ kadit
 kadit [P:Adj]
 kadmiyum
 kadraj
+kadrajlamak
 kadran
 kadrat [A:NoVoicing]
 kadril
@@ -15213,6 +15227,7 @@ manita
 manivelâ
 mankafa [P:Adj]
 manken
+mankurt [P:Adj]
 manolya
 manometre
 mansap
@@ -15234,6 +15249,7 @@ mantin
 mantinota
 mantis
 manto
+mantolamak
 manuel
 manuel [P:Adj]
 manüel
@@ -17236,6 +17252,7 @@ müttefikan [P:Adv]
 müttehiden [P:Adv]
 müttehit [P:Adj]
 müvekkil
+müvekkile
 müvellidülhumuza
 müvellidülma
 müverrih
@@ -17406,7 +17423,7 @@ nasihat [A:InverseHarmony]
 nasihatname
 nasip
 nasir
-naspetmek [A:Voicing, Aorist_A]
+nasbetmek [A:Voicing, Aorist_A]
 nasyonalist [A:NoVoicing; A:NoVoicing]
 nasyonalizm
 naşi [P:Adv]
@@ -17430,6 +17447,7 @@ natürizm
 natürmort
 navçağan
 navigasyon
+navigatör
 navlun
 naylon
 naylon [P:Adj]
@@ -17510,6 +17528,7 @@ nekes [P:Adj]
 nekre [P:Adj]
 nekroloji
 nekrotik [P:Adj]
+nekrofil [P:Adj]
 nekroz
 nektar
 neler
@@ -17524,6 +17543,8 @@ nemölçer
 nemrut [P:Adj]
 nene
 neodim
+neofaşist [A:NoVoicing]
+neofaşizm
 neojen
 neojen [P:Adj]
 neoklasik [P:Adj]
@@ -18749,6 +18770,7 @@ patavatsız [P:Adj]
 paten
 patent [A:NoVoicing]
 patentlemek
+paternalizm
 patetik [P:Adj]
 patır [P:Dup]
 patırdamak
@@ -19252,6 +19274,7 @@ pohpoh
 pohpohlamak
 poker
 pokus [P:Dup]
+polar
 polargı
 polarimetre
 polarimetri
@@ -19326,7 +19349,7 @@ porsuk
 porsuk [P:Adj]
 porsumak
 portakal
-portal
+portal [A:InverseHarmony]
 portatif [P:Adj]
 portbagaj
 portbebe
@@ -19457,7 +19480,7 @@ prodüktör
 profesör
 profesyonel [P:Adj]
 profil
-profiterol
+profiterol [A:InverseHarmony]
 proforma
 program
 programlamak
@@ -20105,7 +20128,7 @@ rüya
 rüyet [A:NoVoicing]
 rüzgâr
 rüzgâraltı
-rüzgârgülü
+rüzgârgülü [A:CompoundP3sg; Roots:rüzgâr-gül]
 rüzgârlamak
 rüzgârölçer
 saadet [A:NoVoicing]
@@ -20199,6 +20222,7 @@ safra
 safran
 safsata
 saftirik [P:Adj]
+saftorik [P:Adj]
 sagar
 sagu
 sağ [P:Adj]
@@ -20342,6 +20366,7 @@ salgın
 salgın [P:Adj]
 salhane
 salı
+salım
 salık
 salıncak
 salınım
@@ -20372,6 +20397,7 @@ salon
 saloz [P:Adj]
 salpa [P:Adj]
 salpak [P:Adj]
+salsa
 salt [P:Adj]
 salta
 saltanat [A:NoVoicing]
@@ -20812,7 +20838,7 @@ selofan
 selofan [P:Adj]
 seloteyp
 selp [A:Voicing]
-selülit [A:Voicing]
+selülit [A:NoVoicing]
 selüloit
 selüloz
 selüloz [P:Adj]
@@ -21875,7 +21901,7 @@ sugeçirmez
 suhulet [A:NoVoicing]
 suhunet
 suibriği [A:CompoundP3sg; Roots:su-ibrik]
-suikast [A:InverseHarmony]
+suikast [A:NoVoicing]
 suiniyet [A:NoVoicing]
 suistimal [A:InverseHarmony]
 suizan [A:Doubling]
@@ -22183,7 +22209,7 @@ süzüntü
 şakketmek [A:Voicing, Aorist_A]
 şaklaban
 şaklamak
-şakrak [P:Adj]
+şakrak [P:Adj;A:NoVoicing]
 şakrak [P:Adv]
 şakramak
 şakşak
@@ -22448,6 +22474,7 @@ süzüntü
 şık [P:Adj]
 şıkır [P:Dup]
 şıkırdamak
+şıklatmak
 şıkırtı
 şıkşık
 şıldır [P:Dup]
@@ -23140,7 +23167,7 @@ tava
 tava [P:Adj]
 tavaf
 tavan
-tavassut
+tavassut [A:NoVoicing]
 tavattun
 tavazzuh
 taverna
@@ -23332,7 +23359,7 @@ tefrika
 tefrika [P:Adj]
 tefriş
 tefrişat [A:NoVoicing]
-tefrit
+tefrit [A:NoVoicing]
 tefsir
 teftih
 teftiş

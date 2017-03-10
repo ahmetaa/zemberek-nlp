@@ -611,7 +611,8 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
 
         Verb2AdjPart.connections.add(PastPart_dIk_2Adj, NarrPart_mIs_2Adj, FutPart_yAcAk_2Adj, AorPart_Ar_2Adj, AorPart_Ir_2Adj, AorPart_z_2Adj, PresPart_yAn);
 
-        Verb2Adv.connections.add(When_yIncA, SinceDoing_yAlI, UnableToDo_yAmAdAn, ByDoing_yArAk, WithoutDoing_mAdAn, WithoutDoing2_mAksIzIn)
+        Verb2Adv.connections.add(When_yIncA, SinceDoing_yAlI, UnableToDo_yAmAdAn, ByDoing_yArAk,
+                WithoutDoing_mAdAn, WithoutDoing2_mAksIzIn)
                 .add(InsteadOfDoing_mAktAnsA, AsLongAs_dIkcA, AfterDoing_yIp, AsIf_cAsInA);
 
         Verb2Adj.connections.add(When_yIncA, FeelLike_yAsI_2Adj, Agt_yIcI_2Adj);
@@ -938,13 +939,16 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
 */
 
         Pass_nIl.connections.add(Verb_TEMPLATE.connections);
-        Pass_nIl.indirectConnections.add(Verb_TEMPLATE.indirectConnections).remove(Caus_t, Caus_tIr, Pass_nIl, Pass_InIl, Pass_In);
+        Pass_nIl.indirectConnections.add(Verb_TEMPLATE.indirectConnections)
+                .remove(Caus_t, Caus_tIr, Pass_nIl, Pass_InIl, Pass_In);
 
         Pass_In.connections.add(Verb_TEMPLATE.connections);
-        Pass_In.indirectConnections.add(Verb_TEMPLATE.indirectConnections).remove(Caus_t, Caus_tIr, Pass_nIl, Pass_InIl, Pass_In);
+        Pass_In.indirectConnections.add(Verb_TEMPLATE.indirectConnections)
+                .remove(Caus_t, Caus_tIr, Pass_nIl, Pass_InIl, Pass_In);
 
         Pass_InIl.connections.add(Verb_TEMPLATE.connections);
-        Pass_InIl.indirectConnections.add(Verb_TEMPLATE.indirectConnections).remove(Caus_t, Caus_tIr, Pass_nIl, Pass_InIl, Pass_In);
+        Pass_InIl.indirectConnections.add(Verb_TEMPLATE.indirectConnections)
+                .remove(Caus_t, Caus_tIr, Pass_nIl, Pass_InIl, Pass_In);
 
         Prog_Iyor.connections.add(A3sg_Verb_TEMPLATE, A1sg_yIm, A2sg_sIn, A1pl_yIz, A2pl_sInIz, A3pl_Verb_lAr).add(COPULAR_FORMS);
 
@@ -978,7 +982,9 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
 
         // Oflazer suggests only with A3pl. I think A3sg is also possible.
         FutPart_yAcAk_2Noun.connections.add(A3pl_lAr, A3sg_TEMPLATE);
-        FutPart_yAcAk_2Noun.indirectConnections.add(POSSESSIVE_FORMS/*, CASE_FORMS*/);
+        // TODO: for allowing "yapacağa". But removing Noun2Verb does not work such as "yapacağaymış" false positive.
+        FutPart_yAcAk_2Noun.indirectConnections.add(POSSESSIVE_FORMS).add(Dat_yA)
+                .remove(Noun2Verb, Noun2VerbCopular);
 
         PastPart_dIk_2Adj.connections.add(POSSESSIVE_FORMS);
         PastPart_dIk_2Adj.indirectConnections.add(POSSESSIVE_FORMS).remove(CASE_FORMS);
