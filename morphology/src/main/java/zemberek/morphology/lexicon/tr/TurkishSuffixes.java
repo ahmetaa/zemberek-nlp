@@ -847,13 +847,10 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
         Dat_nA.indirectConnections.add(Noun2VerbCopular.allConnections());
 
         Dat_yA.connections.add(Noun2VerbCopular);
-        Dat_yA.indirectConnections.add(Noun2VerbCopular.allConnections());
+        Dat_yA.indirectConnections.add(Noun2VerbCopular.allConnections()).remove(A3pl_lAr, A3pl_Verb_lAr, A3pl_Verb_lAr_After_Tense);
 
         Gen_nIn.connections.add(Noun2VerbCopular, Noun2Adj);
         Gen_nIn.indirectConnections.add(Noun2VerbCopular.allConnections()).add(Noun2Adj.connections);
-
-        Dat_yA.connections.add(Noun2VerbCopular);
-        Dat_yA.indirectConnections.add(Noun2VerbCopular.allConnections());
 
         Abl_dAn.connections.add(Noun2VerbCopular);
         Abl_dAn.indirectConnections.add(Noun2VerbCopular.allConnections());
