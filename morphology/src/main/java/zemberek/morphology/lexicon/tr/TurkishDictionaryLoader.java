@@ -71,7 +71,8 @@ public class TurkishDictionaryLoader {
             }
             return processor.getResult();
         } catch (Exception e) {
-            throw new LexiconException("Cannot parse lines [" + Arrays.toString(dictionaryLines) + "] with reason: " + e.getMessage());
+            throw new LexiconException("Cannot parse lines [" + Arrays.toString(dictionaryLines) + "] with reason: "
+                    + e.getMessage());
         }
     }
 

@@ -1,15 +1,24 @@
 package zemberek.normalization;
 
+import com.google.common.base.Stopwatch;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class TurkishSpellCheckerTest {
 
     @Test
-    public void checkProperNouns() throws IOException {
+    public void checkProperNounsTest() throws IOException {
         TurkishMorphology morphology = TurkishMorphology.builder()
                 .addDictionaryLines("Ankara", "Iphone [Pr:ayfon]", "Google [Pr:gugıl]").build();
         TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
@@ -27,19 +36,39 @@ public class TurkishSpellCheckerTest {
         }
     }
 
-    //TODO: check for ordinals, percentages etc.
+    //TODO: check for ordinals.
     @Test
-    public void formatNumbers() throws IOException {
-        TurkishMorphology morphology = TurkishMorphology.builder().build();
+    public void formatNumbersTest() throws IOException {
+        TurkishMorphology morphology = TurkishMorphology.builder()
+                .addDictionaryLines("bir [P:Num]", "dört [P:Num;A:Voicing]", "üç [P:Num]", "beş [P:Num]").build();
 
         TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
 
-        String[] inputs = {"1'e", "4'ten", "123'ü", "12,5'ten"};
+        String[] inputs = {
+                "1'e", "4'ten", "123'ü", "12,5'ten",
+                "1'E", "4'TEN", "123'Ü", "12,5'TEN",
+                "%1", "%1'i", "%1,3'ü",
+        };
 
         for (String input : inputs) {
             Assert.assertTrue("Fail at " + input, spellChecker.check(input));
         }
     }
 
+    @Test
+    @Ignore("Slow test. Uses actual data.")
+    public void suggestWordTest() throws IOException, URISyntaxException {
+        TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+        TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
+        Stopwatch sw = Stopwatch.createStarted();
 
+        Path r = Paths.get(ClassLoader.getSystemResource("10000_frequent_turkish_word").toURI());
+        List<String> words = Files.readAllLines(r, StandardCharsets.UTF_8);
+        int c = 0;
+        for (String word : words) {
+            List<String> suggestions = spellChecker.suggestForWord(word);
+            c += suggestions.size();
+        }
+        System.out.println("Elapsed = " + sw.elapsed(TimeUnit.MILLISECONDS));
+    }
 }

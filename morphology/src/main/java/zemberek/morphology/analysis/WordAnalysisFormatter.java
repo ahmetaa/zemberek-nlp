@@ -87,8 +87,6 @@ public class WordAnalysisFormatter {
         }
     }
 
-    //TODO: write tests.
-
     /**
      * Guesses the current case type of the word.
      * for example,
@@ -103,7 +101,7 @@ public class WordAnalysisFormatter {
      * "A1"        -> CaseType.UPPER_CASE
      *
      * @param input input word
-     * @return
+     * @return guessed CaseType
      */
     public CaseType guessCase(String input) {
         boolean firstLetterUpperCase = false;
