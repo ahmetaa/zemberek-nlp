@@ -18,8 +18,7 @@ import java.util.Set;
 /**
  * This is a data structure that can be used for spell checking purposes.
  * This is a graph consist of two trie data structures. One for stems, other for endings.
- * Stem leaf nodes are connected to both stem root and the ending graph root.
- * Ending roots are only connected to stem roots. Transitions to stem roots allows separating connected words.
+ * Stem leaf nodes are connected to the ending graph root.
  */
 public class StemEndingGraph {
 
