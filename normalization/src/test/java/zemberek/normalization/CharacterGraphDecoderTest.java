@@ -6,6 +6,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.FloatValueMap;
+import zemberek.core.logging.Log;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 import java.io.IOException;
@@ -270,7 +271,7 @@ public class CharacterGraphDecoderTest {
         CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(graph.stemGraph);
         List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("yüzdüm");
         for (ScoredItem<String> re : res) {
-            System.out.println(re.item);
+            Log.info(re.item);
         }
     }
 }

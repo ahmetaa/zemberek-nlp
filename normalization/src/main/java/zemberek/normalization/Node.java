@@ -15,10 +15,10 @@ class Node {
     private Node[] emptyNodes = null;
     private int type;
 
-    public static final  int TYPE_EMPTY = 0;
-    public static final  int TYPE_WORD = 1;
-    public static final  int TYPE_ENDING = 2;
-    public static final  int TYPE_GRAPH_ROOT = 3;
+    public static final int TYPE_EMPTY = 0;
+    public static final int TYPE_WORD = 1;
+    public static final int TYPE_ENDING = 2;
+    public static final int TYPE_GRAPH_ROOT = 3;
 
     Node(int index, char chr, int type) {
         this.index = index;
@@ -62,11 +62,14 @@ class Node {
     }
 
     boolean hasChild(char c) {
-        if(emptyNodes==null) {
-            return nodes.containsKey(c);
+        if (hasImmediateChild(c)) {
+            return true;
+        }
+        if (emptyNodes == null) {
+            return false;
         }
         for (Node node : emptyNodes) {
-            if(node.hasImmediateChild(c)) {
+            if (node.hasImmediateChild(c)) {
                 return true;
             }
         }
@@ -77,7 +80,7 @@ class Node {
         return nodes.get(c);
     }
 
-    void addIfChildExists(char c, List<Node> nodeList) {
+    private void addIfChildExists(char c, List<Node> nodeList) {
         Node child = this.nodes.get(c);
         if (child != null) {
             nodeList.add(child);
@@ -107,14 +110,6 @@ class Node {
             }
         }
         return children;
-    }
-
-    boolean connect(Node node) {
-        if (!nodes.containsKey(node.chr)) {
-            nodes.put(node.chr, node);
-            return true;
-        }
-        return false;
     }
 
     boolean connectEmpty(Node node) {

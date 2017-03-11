@@ -187,11 +187,11 @@ class CharacterGraphDecoder {
 
     static class Hypothesis implements Comparable<Hypothesis> {
         Operation operation = Operation.N_A;
-        String word;
-        Hypothesis previous;
+        int charIndex;
         Node node;
         float penalty;
-        int charIndex;
+        String word;
+        Hypothesis previous;
 
         Hypothesis(Hypothesis previous, Node node, float penalty, Operation operation, String word) {
             this.previous = previous;
@@ -215,8 +215,9 @@ class CharacterGraphDecoder {
             StringBuilder sb = new StringBuilder();
             Hypothesis p = previous;
             while (p.node.chr != 0) {
-                if (p.node != p.previous.node)
+                if (p.node != p.previous.node) {
                     sb.append(p.node.chr);
+                }
                 p = p.previous;
             }
             return sb.reverse().toString();
@@ -277,20 +278,17 @@ class CharacterGraphDecoder {
             Hypothesis that = (Hypothesis) o;
 
             if (charIndex != that.charIndex) return false;
-            if (Double.compare(that.penalty, penalty) != 0) return false;
+            if (Float.compare(that.penalty, penalty) != 0) return false;
             if (!node.equals(that.node)) return false;
-
-            return true;
+            return word != null ? word.equals(that.word) : that.word == null;
         }
 
         @Override
         public int hashCode() {
-            int result;
-            long temp;
-            result = node.hashCode();
-            temp = Double.doubleToLongBits(penalty);
-            result = 31 * result + (int) (temp ^ (temp >>> 32));
-            result = 31 * result + charIndex;
+            int result = charIndex;
+            result = 31 * result + node.hashCode();
+            result = 31 * result + (penalty != +0.0f ? Float.floatToIntBits(penalty) : 0);
+            result = 31 * result + (word != null ? word.hashCode() : 0);
             return result;
         }
     }
@@ -359,7 +357,8 @@ class CharacterGraphDecoder {
             while (true) {
                 HashSet<Hypothesis> newHyps = new HashSet<>();
                 for (Hypothesis hypothesis : next) {
-                    newHyps.addAll(expand(hypothesis, input));
+                    Set<Hypothesis> expand = expand(hypothesis, input);
+                    newHyps.addAll(expand);
                 }
                 if (newHyps.size() == 0) {
                     break;
