@@ -16,20 +16,38 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * This builds a graph that can be used for spell checking purposes.
- * Graph actually consist of two trie data structures. One for stems, other for endings.
+ * This is a data structure that can be used for spell checking purposes.
+ * This is a graph consist of two trie data structures. One for stems, other for endings.
  * Stem leaf nodes are connected to both stem root and the ending graph root.
  * Ending roots are only connected to stem roots. Transitions to stem roots allows separating connected words.
  */
-public class StemEndingGraphBuilder {
+public class StemEndingGraph {
 
     CharacterGraph stemGraph;
-    CharacterGraph endingGraph;
+    private CharacterGraph endingGraph;
 
     private TurkishMorphology morphology;
 
-    public StemEndingGraphBuilder(TurkishMorphology morphology) {
+    public StemEndingGraph(TurkishMorphology morphology) throws IOException {
         this.morphology = morphology;
+        List<String> endings = Files.readAllLines(
+                new File(Resources.getResource("endings").getFile()).toPath());
+        this.endingGraph = generateEndingGraph(endings);
+        this.stemGraph = generateStemGraph();
+        Set<Node> stemWordNodes = stemGraph.getAllNodes(n -> n.word != null);
+        for (Node node : stemWordNodes) {
+            node.connectEmpty(endingGraph.getRoot());
+        }
+    }
+
+    StemEndingGraph(TurkishMorphology morphology, List<String> endings) throws IOException {
+        this.morphology = morphology;
+        this.endingGraph = generateEndingGraph(endings);
+        this.stemGraph = generateStemGraph();
+        Set<Node> leafNodes = stemGraph.getAllNodes(n -> n.word != null);
+        for (Node leafNode : leafNodes) {
+            leafNode.connectEmpty(endingGraph.getRoot());
+        }
     }
 
     List<String> getEndingsFromVocabulary(List<String> words) {
@@ -52,7 +70,7 @@ public class StemEndingGraphBuilder {
     private CharacterGraph generateEndingGraph(List<String> endings) {
         CharacterGraph graph = new CharacterGraph();
         for (String ending : endings) {
-            graph.addWord(ending);
+            graph.addWord("_"+ending);
         }
         return graph;
     }
@@ -69,23 +87,10 @@ public class StemEndingGraphBuilder {
         return stemGraph;
     }
 
-
-    void build() throws IOException {
-        List<String> endings = Files.readAllLines(
-                new File(Resources.getResource("endings").getFile()).toPath());
-        CharacterGraph endingGraph = generateEndingGraph(endings);
-        CharacterGraph stems = generateStemGraph();
-        Set<Node> leafNodes = stems.getAllNodes(n -> n.word != null);
-        for (Node leafNode : leafNodes) {
-            leafNode.connect(endingGraph.getRoot());
-        }
-    }
-
-
     public static void main(String[] args) throws IOException {
         TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-        StemEndingGraphBuilder graphBuilder = new StemEndingGraphBuilder(morphology);
-        graphBuilder.build();
+        StemEndingGraph graph = new StemEndingGraph(morphology);
+
     }
 
 

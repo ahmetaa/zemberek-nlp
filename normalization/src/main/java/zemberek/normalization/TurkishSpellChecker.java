@@ -1,33 +1,27 @@
 package zemberek.normalization;
 
-import com.google.common.io.Resources;
-import zemberek.core.logging.Log;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.WordAnalysisFormatter;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
 
 public class TurkishSpellChecker {
 
-    TurkishMorphology turkishMorphology;
+    TurkishMorphology morphology;
     WordAnalysisFormatter formatter = new WordAnalysisFormatter();
-    CharacterGraphDecoder distanceMatcher = new CharacterGraphDecoder(1);
+    CharacterGraphDecoder decoder;
 
-    public TurkishSpellChecker(TurkishMorphology turkishMorphology) throws IOException {
-        this.turkishMorphology = turkishMorphology;
-        List<String> vocab = Files.readAllLines(
-                new File(Resources.getResource("zemberek-parsed-words-min10.txt").getFile()).toPath());
-        Log.info("Spell checker vocab size = %d", vocab.size());
-        distanceMatcher.buildDictionary(vocab);
+    public TurkishSpellChecker(TurkishMorphology morphology) throws IOException {
+        this.morphology = morphology;
+        StemEndingGraph graph = new StemEndingGraph(morphology);
+        decoder = new CharacterGraphDecoder(graph.stemGraph);
     }
 
     public boolean check(String input) {
-        List<WordAnalysis> analyses = turkishMorphology.analyze(input);
+        List<WordAnalysis> analyses = morphology.analyze(input);
         WordAnalysisFormatter.CaseType caseType = formatter.guessCase(input);
         for (WordAnalysis analysis : analyses) {
             if (analysis.isUnknown()) {
@@ -50,10 +44,11 @@ public class TurkishSpellChecker {
             caseType = WordAnalysisFormatter.CaseType.DEFAULT_CASE;
         }
         String normalized = TurkishAlphabet.INSTANCE.normalize(word);
-        List<String> strings = distanceMatcher.getSuggestionsSorted(normalized);
+        List<String> strings = decoder.getSuggestionsSorted(normalized);
+
         Set<String> results = new LinkedHashSet<>(strings.size());
         for (String string : strings) {
-            List<WordAnalysis> analyses = turkishMorphology.analyze(string);
+            List<WordAnalysis> analyses = morphology.analyze(string);
             for (WordAnalysis analysis : analyses) {
                 if (analysis.isUnknown()) {
                     continue;

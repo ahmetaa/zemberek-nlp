@@ -6,7 +6,7 @@ import zemberek.core.collections.FloatValueMap;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CharacterGraphDecoder {
+class CharacterGraphDecoder {
 
     public static final Map<Character, String> TURKISH_FQ_NEAR_KEY_MAP = new HashMap<>();
     public static final Map<Character, String> TURKISH_Q_NEAR_KEY_MAP = new HashMap<>();
@@ -107,6 +107,12 @@ public class CharacterGraphDecoder {
         this.checkNearKeySubstitution = false;
     }
 
+    public CharacterGraphDecoder(CharacterGraph graph) {
+        this.graph = graph;
+        this.maxPenalty = 1;
+        this.checkNearKeySubstitution = false;
+    }
+
     public CharacterGraphDecoder(float maxPenalty, Map<Character, String> nearKeyMap) {
         this.maxPenalty = maxPenalty;
         this.nearKeyMap = Collections.unmodifiableMap(nearKeyMap);
@@ -181,25 +187,28 @@ public class CharacterGraphDecoder {
 
     static class Hypothesis implements Comparable<Hypothesis> {
         Operation operation = Operation.N_A;
+        String word;
         Hypothesis previous;
         Node node;
         float penalty;
-        int index;
+        int charIndex;
 
-        Hypothesis(Hypothesis previous, Node node, float penalty, Operation operation) {
+        Hypothesis(Hypothesis previous, Node node, float penalty, Operation operation, String word) {
             this.previous = previous;
             this.node = node;
             this.penalty = penalty;
-            this.index = -1;
+            this.charIndex = -1;
             this.operation = operation;
+            this.word = word;
         }
 
-        Hypothesis(Hypothesis previous, Node node, float penalty, int index, Operation operation) {
+        Hypothesis(Hypothesis previous, Node node, float penalty, int charIndex, Operation operation, String word) {
             this.previous = previous;
             this.node = node;
             this.penalty = penalty;
-            this.index = index;
+            this.charIndex = charIndex;
             this.operation = operation;
+            this.word = word;
         }
 
         String backTrack() {
@@ -213,20 +222,32 @@ public class CharacterGraphDecoder {
             return sb.reverse().toString();
         }
 
+        void appendWord(String word) {
+            if (this.word == null) {
+                this.word = word;
+            } else {
+                if (word.startsWith("_")) {
+                    this.word = this.word + word.substring(1);
+                } else {
+                    this.word = word;
+                }
+            }
+        }
+
         Hypothesis getNew(Node node, float penaltyToAdd, Operation operation) {
-            return new Hypothesis(this, node, this.penalty + penaltyToAdd, index, operation);
+            return new Hypothesis(this, node, this.penalty + penaltyToAdd, charIndex, operation, this.word);
         }
 
         Hypothesis getNewMoveForward(Node node, float penaltyToAdd, Operation operation) {
-            return new Hypothesis(this, node, this.penalty + penaltyToAdd, index + 1, operation);
+            return new Hypothesis(this, node, this.penalty + penaltyToAdd, charIndex + 1, operation, this.word);
         }
 
         Hypothesis getNew(Node node, float penaltyToAdd, int index, Operation operation) {
-            return new Hypothesis(this, node, this.penalty + penaltyToAdd, index, operation);
+            return new Hypothesis(this, node, this.penalty + penaltyToAdd, index, operation, this.word);
         }
 
         Hypothesis getNew(float penaltyToAdd, Operation operation) {
-            return new Hypothesis(this, this.node, this.penalty + penaltyToAdd, index, operation);
+            return new Hypothesis(this, this.node, this.penalty + penaltyToAdd, charIndex, operation, this.word);
         }
 
         @Override
@@ -240,7 +261,7 @@ public class CharacterGraphDecoder {
                     "previous=" + backTrack() + " " + previous.operation +
                     ", node=" + node +
                     ", penalty=" + penalty +
-                    ", index=" + index +
+                    ", index=" + charIndex +
                     ", OP=" + operation.name() +
                     '}';
         }
@@ -252,7 +273,7 @@ public class CharacterGraphDecoder {
 
             Hypothesis that = (Hypothesis) o;
 
-            if (index != that.index) return false;
+            if (charIndex != that.charIndex) return false;
             if (Double.compare(that.penalty, penalty) != 0) return false;
             if (!node.equals(that.node)) return false;
 
@@ -266,7 +287,7 @@ public class CharacterGraphDecoder {
             result = node.hashCode();
             temp = Double.doubleToLongBits(penalty);
             result = 31 * result + (int) (temp ^ (temp >>> 32));
-            result = 31 * result + index;
+            result = 31 * result + charIndex;
             return result;
         }
     }
@@ -317,7 +338,7 @@ public class CharacterGraphDecoder {
     public static DeasciifierMatcher ASCII_TOLERANT_MATCHER = new DeasciifierMatcher();
 
     private class Decoder {
-        FloatValueMap<String> finished = new FloatValueMap<>(4);
+        FloatValueMap<String> finished = new FloatValueMap<>(8);
         CharMatcher matcher;
 
         Decoder() {
@@ -329,7 +350,7 @@ public class CharacterGraphDecoder {
         }
 
         FloatValueMap<String> decode(String input) {
-            Hypothesis hyp = new Hypothesis(null, graph.getRoot(), 0, Operation.N_A);
+            Hypothesis hyp = new Hypothesis(null, graph.getRoot(), 0, Operation.N_A, null);
 
             Set<Hypothesis> next = expand(hyp, input);
             while (true) {
@@ -337,8 +358,9 @@ public class CharacterGraphDecoder {
                 for (Hypothesis hypothesis : next) {
                     newHyps.addAll(expand(hypothesis, input));
                 }
-                if (newHyps.size() == 0)
+                if (newHyps.size() == 0) {
                     break;
+                }
                 next = newHyps;
             }
             return finished;
@@ -348,25 +370,27 @@ public class CharacterGraphDecoder {
 
             Set<Hypothesis> newHypotheses = new HashSet<>();
 
-            int nextIndex = hypothesis.index + 1;
-
+            // get next character for this hypothesis.
+            int nextIndex = hypothesis.charIndex + 1;
             char nextChar = nextIndex < input.length() ? input.charAt(nextIndex) : 0;
 
-            // no-error
+            // no-error. Hypothesis moves forward to the exact matching child nodes.
             if (nextIndex < input.length()) {
+
+                // there can be more than one matching character, depending on the matcher.
                 char[] cc = matcher.matches(nextChar);
-                for (char c : cc) {
-                    if (hypothesis.node.hasChild(c)) {
-                        Hypothesis h = hypothesis.getNewMoveForward(
-                                hypothesis.node.getChild(c),
-                                0,
-                                Operation.NE);
-                        if (nextIndex >= input.length() - 1) {
-                            if (h.node.word != null) {
-                                addHypothesis(h);
-                            }
+                // because there can be empty connections, there can be more than 1 matching child nodes per character.
+                for (Node child : hypothesis.node.getChildList(cc)) {
+
+                    Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NE);
+                    if (child.word != null) {
+                        h.appendWord(child.word);
+                    }
+                    newHypotheses.add(h);
+                    if (nextIndex >= input.length() - 1) {
+                        if (h.node.word != null) {
+                            addHypothesis(h);
                         }
-                        newHypotheses.add(h);
                     }
                 }
             } else if (hypothesis.node.word != null) {
@@ -379,13 +403,14 @@ public class CharacterGraphDecoder {
             }
 
             // substitution
-            if (nextIndex < input.length()) {
-                for (Node childNode : hypothesis.node.getChildNodeIterable()) {
+            List<Node> allChildNodes = hypothesis.node.getAllChildNodes();
 
+            if (nextIndex < input.length()) {
+                for (Node child : allChildNodes) {
                     float penalty = 0;
                     if (checkNearKeySubstitution) {
-                        if (childNode.chr != nextChar) {
-                            String nearCharactersString = nearKeyMap.get(childNode.chr);
+                        if (child.chr != nextChar) {
+                            String nearCharactersString = nearKeyMap.get(child.chr);
                             if (nearCharactersString != null && nearCharactersString.indexOf(nextChar) >= 0) {
                                 penalty = NEAR_KEY_SUBSTITUTION_PENALTY;
                             } else {
@@ -397,16 +422,19 @@ public class CharacterGraphDecoder {
                     }
 
                     if (penalty > 0 && hypothesis.penalty + penalty <= maxPenalty) {
-                        Hypothesis hyp = hypothesis.getNewMoveForward(
-                                childNode,
+                        Hypothesis h = hypothesis.getNewMoveForward(
+                                child,
                                 penalty,
                                 Operation.SUB);
+                        if (child.word != null) {
+                            h.appendWord(child.word);
+                        }
                         if (nextIndex == input.length() - 1) {
-                            if (hyp.node.word != null) {
-                                addHypothesis(hyp);
+                            if (h.node.word != null) {
+                                addHypothesis(h);
                             }
                         } else {
-                            newHypotheses.add(hyp);
+                            newHypotheses.add(h);
                         }
                     }
                 }
@@ -420,30 +448,42 @@ public class CharacterGraphDecoder {
             newHypotheses.add(hypothesis.getNewMoveForward(hypothesis.node, DELETION_PENALTY, Operation.DEL));
 
             // insertion
-            for (Node childNode : hypothesis.node.getChildNodeIterable()) {
-                newHypotheses.add(hypothesis.getNew(childNode, INSERTION_PENALTY, Operation.INS));
+            for (Node child : allChildNodes) {
+                Hypothesis h = hypothesis.getNew(child, INSERTION_PENALTY, Operation.INS);
+                if (child.word != null) {
+                    h.appendWord(child.word);
+                }
+                newHypotheses.add(h);
             }
 
             // transposition
-            if (nextIndex < input.length() - 1) {
+            // TODO: make length check parametric.
+            if (input.length() > 3 && nextIndex < input.length() - 1) {
                 char transpose = input.charAt(nextIndex + 1);
                 char[] tt = matcher.matches(transpose);
+                char[] cc = matcher.matches(nextChar);
                 for (char t : tt) {
-                    Node nextNode = hypothesis.node.getChild(t);
-                    char[] cc = matcher.matches(nextChar);
-                    for (char c : cc) {
-                        if (hypothesis.node.hasChild(t) && nextNode.hasChild(c)) {
-                            Hypothesis hyp = hypothesis.getNew(
-                                    nextNode.getChild(c),
-                                    TRANSPOSITION_PENALTY,
-                                    nextIndex + 1,
-                                    Operation.TR);
-                            if (nextIndex == input.length() - 1) {
-                                if (hyp.node.word != null) {
-                                    addHypothesis(hyp);
+                    List<Node> nextNodes = hypothesis.node.getChildList(t);
+                    for (Node nextNode : nextNodes) {
+                        for (char c : cc) {
+                            if (hypothesis.node.hasChild(t) && nextNode.hasChild(c)) {
+                                for (Node n : nextNode.getChildList(c)) {
+                                    Hypothesis h = hypothesis.getNew(
+                                            n,
+                                            TRANSPOSITION_PENALTY,
+                                            nextIndex + 1,
+                                            Operation.TR);
+                                    if (n.word != null) {
+                                        h.appendWord(n.word);
+                                    }
+                                    if (nextIndex == input.length() - 1) {
+                                        if (h.node.word != null) {
+                                            addHypothesis(h);
+                                        }
+                                    } else {
+                                        newHypotheses.add(h);
+                                    }
                                 }
-                            } else {
-                                newHypotheses.add(hyp);
                             }
                         }
                     }
@@ -453,7 +493,7 @@ public class CharacterGraphDecoder {
         }
 
         private void addHypothesis(Hypothesis hypothesis) {
-            String hypWord = hypothesis.node.word;
+            String hypWord = hypothesis.word;
             if (hypWord == null) {
                 return;
             }

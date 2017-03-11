@@ -45,7 +45,6 @@ class CharacterGraph {
         return nodes;
     }
 
-
     private void walk(Node current, Set<Node> nodes, Predicate<Node> predicate) {
         if (nodes.contains(current)) {
             return;
@@ -53,7 +52,7 @@ class CharacterGraph {
         if (predicate.test(current)) {
             nodes.add(current);
         }
-        for (Node node : current.getChildNodes()) {
+        for (Node node : current.getImmediateChildNodes()) {
             walk(node, nodes, predicate);
         }
     }

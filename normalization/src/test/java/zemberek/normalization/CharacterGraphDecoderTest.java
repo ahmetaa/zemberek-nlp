@@ -1,11 +1,14 @@
 package zemberek.normalization;
 
+import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.FloatValueMap;
+import zemberek.morphology.analysis.tr.TurkishMorphology;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,13 +22,22 @@ import java.util.stream.Collectors;
 public class CharacterGraphDecoderTest {
 
     @Test
+    public void transpositionTest() {
+        CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(1);
+        String vocabulary = "elma";
+        spellChecker.addWord(vocabulary);
+        List<String> suggestions = spellChecker.getSuggestions("emla");
+        Assert.assertEquals(1, suggestions.size());
+        Assert.assertEquals("elma", suggestions.get(0));
+    }
+
+    @Test
     public void simpleDecodeTest() {
         CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(1);
         String vocabulary = "elma";
         spellChecker.addWord(vocabulary);
         Assert.assertTrue(spellChecker.decode(vocabulary).contains(vocabulary));
         check1Distance(spellChecker, "elma");
-
         spellChecker.addWord("armut");
         spellChecker.addWord("ayva");
         check1Distance(spellChecker, "armut");
@@ -103,21 +115,24 @@ public class CharacterGraphDecoderTest {
         Assert.assertEquals(1, result.get("saka"), delta);
         Assert.assertEquals(1, result.get("çakal"), delta);
         Assert.assertEquals(1, result.get("çak"), delta);
-
     }
 
     @Test
     @Ignore("Not a unit test.")
     public void performanceTest() throws Exception {
-        Path r = Paths.get(ClassLoader.getSystemResource("10000_frequent_turkish_word").toURI());
+        Path r = Paths.get(ClassLoader.getSystemResource("zemberek-parsed-words-min30.txt").toURI());
         List<String> words = Files.readAllLines(r, StandardCharsets.UTF_8);
         CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(1);
         spellChecker.buildDictionary(words);
         long start = System.currentTimeMillis();
         int solutionCount = 0;
+        int c = 0;
         for (String word : words) {
             List<String> result = spellChecker.getSuggestionsSorted(word);
             solutionCount += result.size();
+            if (c++ > 20000) {
+                break;
+            }
         }
         System.out.println("Elapsed: " + (System.currentTimeMillis() - start));
         System.out.println("Solution count:" + solutionCount);
@@ -235,5 +250,41 @@ public class CharacterGraphDecoderTest {
         return result;
     }
 
+    @Test
+    public void stemEndingTest1() throws IOException {
+        TurkishMorphology morphology = TurkishMorphology.builder().addDictionaryLines("bakmak", "gelmek").build();
+        List<String> endings = Lists.newArrayList("acak", "ecek");
+        StemEndingGraph graph = new StemEndingGraph(morphology, endings);
+        CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(graph.stemGraph);
+        List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("bakcaak");
+        for (ScoredItem<String> re : res) {
+            System.out.println(re.item);
+        }
+    }
+
+
+    @Test
+    public void stemEndingTest2() throws IOException {
+        TurkishMorphology morphology = TurkishMorphology.builder().addDictionaryLines("üzmek", "yüz", "güz").build();
+        List<String> endings = Lists.newArrayList("düm");
+        StemEndingGraph graph = new StemEndingGraph(morphology, endings);
+        CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(graph.stemGraph);
+        List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("yüz");
+        for (ScoredItem<String> re : res) {
+            System.out.println(re.item);
+        }
+    }
+
+    @Test
+    public void stemEndingTest3() throws IOException {
+        TurkishMorphology morphology = TurkishMorphology.builder().addDictionaryLines("b", "br").build();
+        List<String> endings = Lists.newArrayList("fffff");
+        StemEndingGraph graph = new StemEndingGraph(morphology, endings);
+        CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(graph.stemGraph);
+        List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("bir");
+        for (ScoredItem<String> re : res) {
+            System.out.println(re.item);
+        }
+    }
 
 }
