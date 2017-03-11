@@ -1,5 +1,7 @@
 package zemberek.core;
 
+import java.util.Comparator;
+
 /**
  * Represents an object attached with a double score.
  *
@@ -13,6 +15,8 @@ public class ScoredItem<T> implements Comparable<ScoredItem> {
         this.item = item;
         this.score = score;
     }
+
+    public static final Comparator<ScoredItem<String>> STRING_COMP_DESCENDING = Comparator.comparingDouble(a -> a.score);
 
     @Override
     public int compareTo(ScoredItem o) {

@@ -110,6 +110,25 @@ public class ZemberekNlpScripts {
         sortAndSave(outDir.resolve("zemberek-parsed-words.txt"), accepted);
     }
 
+    @Test
+    @Ignore("Not a Test.")
+    public void failedWordTestIssue124() throws IOException {
+        Path failPath = DATA_PATH.resolve("fails.txt");
+        Set<String> words = new HashSet<>(Files.readAllLines(failPath, StandardCharsets.UTF_8));
+
+        List<String> accepted = new ArrayList<>();
+        TurkishMorphology parser = TurkishMorphology.createWithDefaults();
+        for (String s : words) {
+            List<WordAnalysis> parses = parser.analyze(s);
+            if (parses.size() > 0 &&
+                    !parses.get(0).isUnknown()) {
+                accepted.add(s);
+            }
+        }
+        Log.info("Word count = %d Found = %d Not Found = %d", words.size(), accepted.size(), words.size()-accepted.size());
+    }
+
+
     private static Collator turkishCollator = Collator.getInstance(new Locale("tr"));
 
     private void sortAndSave(Path outPath, List<String> accepted) throws IOException {

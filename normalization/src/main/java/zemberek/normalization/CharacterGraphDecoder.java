@@ -1,13 +1,12 @@
 package zemberek.normalization;
 
+import zemberek.core.ScoredItem;
 import zemberek.core.collections.FloatValueMap;
-import zemberek.core.collections.UIntMap;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class SingleWordSpellChecker {
+public class CharacterGraphDecoder {
 
     public static final Map<Character, String> TURKISH_FQ_NEAR_KEY_MAP = new HashMap<>();
     public static final Map<Character, String> TURKISH_Q_NEAR_KEY_MAP = new HashMap<>();
@@ -16,11 +15,10 @@ public class SingleWordSpellChecker {
     static final float SUBSTITUTION_PENALTY = 1;
     static final float NEAR_KEY_SUBSTITUTION_PENALTY = 0.5f;
     static final float TRANSPOSITION_PENALTY = 1;
-    private static final AtomicInteger nodeIndexCounter = new AtomicInteger(0);
     private static final Locale tr = new Locale("tr");
 
     static {
-        Map<Character, String> map =TURKISH_FQ_NEAR_KEY_MAP; 
+        Map<Character, String> map = TURKISH_FQ_NEAR_KEY_MAP;
         map.put('a', "eüs");
         map.put('b', "svn");
         map.put('c', "vçx");
@@ -57,7 +55,7 @@ public class SingleWordSpellChecker {
     }
 
     static {
-        Map<Character, String> map =TURKISH_Q_NEAR_KEY_MAP;
+        Map<Character, String> map = TURKISH_Q_NEAR_KEY_MAP;
 
         map.put('a', "s");
         map.put('b', "vn");
@@ -97,19 +95,19 @@ public class SingleWordSpellChecker {
     public final float maxPenalty;
     public final boolean checkNearKeySubstitution;
     public Map<Character, String> nearKeyMap = new HashMap<>();
-    private Graph graph = new Graph();
+    private CharacterGraph graph = new CharacterGraph();
 
-    public SingleWordSpellChecker(float maxPenalty) {
+    public CharacterGraphDecoder(float maxPenalty) {
         this.maxPenalty = maxPenalty;
         this.checkNearKeySubstitution = false;
     }
 
-    public SingleWordSpellChecker() {
+    public CharacterGraphDecoder() {
         this.maxPenalty = 1;
         this.checkNearKeySubstitution = false;
     }
 
-    public SingleWordSpellChecker(float maxPenalty, Map<Character, String> nearKeyMap) {
+    public CharacterGraphDecoder(float maxPenalty, Map<Character, String> nearKeyMap) {
         this.maxPenalty = maxPenalty;
         this.nearKeyMap = Collections.unmodifiableMap(nearKeyMap);
         this.checkNearKeySubstitution = true;
@@ -140,23 +138,23 @@ public class SingleWordSpellChecker {
     /**
      * Returns suggestions sorted by penalty.
      */
-    public List<ScoredString> getSuggestionsWithScores(String input) {
+    public List<ScoredItem<String>> getSuggestionsWithScores(String input) {
         Decoder decoder = new Decoder();
         return getMatches(input, decoder);
     }
 
-    private List<ScoredString> getMatches(String input, Decoder decoder) {
+    private List<ScoredItem<String>> getMatches(String input, Decoder decoder) {
         FloatValueMap<String> results = decoder.decode(input);
 
-        List<ScoredString> res = new ArrayList<>(results.size());
+        List<ScoredItem<String>> res = new ArrayList<>(results.size());
         for (String result : results) {
-            res.add(new ScoredString(result, results.get(result)));
+            res.add(new ScoredItem<>(result, results.get(result)));
         }
-        Collections.sort(res);
+        res.sort(ScoredItem.STRING_COMP_DESCENDING);
         return res;
     }
 
-    public List<ScoredString> getSuggestionsWithScores(String input, CharMatcher matcher) {
+    public List<ScoredItem<String>> getSuggestionsWithScores(String input, CharMatcher matcher) {
         Decoder decoder = new Decoder(matcher);
         return getMatches(input, decoder);
     }
@@ -171,117 +169,14 @@ public class SingleWordSpellChecker {
     }
 
     public List<String> getSuggestionsSorted(String input) {
-        List<ScoredString> s = getSuggestionsWithScores(input);
+        List<ScoredItem<String>> s = getSuggestionsWithScores(input);
         List<String> result = new ArrayList<>(s.size());
-        result.addAll(s.stream().map(s1 -> s1.s).collect(Collectors.toList()));
+        result.addAll(s.stream().map(s1 -> s1.item).collect(Collectors.toList()));
         return result;
     }
 
     enum Operation {
         NE, INS, DEL, SUB, TR, N_A
-    }
-
-    public static class Node {
-        int index;
-        char chr;
-        UIntMap<Node> nodes = new UIntMap<>(2);
-        String word;
-
-        Node(int index, char chr) {
-            this.index = index;
-            this.chr = chr;
-        }
-
-        Iterable<Node> getChildNodes() {
-            return nodes;
-        }
-
-        boolean hasChild(char c) {
-            return nodes.containsKey(c);
-        }
-
-        Node getChild(char c) {
-            return nodes.get(c);
-        }
-
-        Node addChild(char c) {
-            Node node = nodes.get(c);
-            if (node == null) {
-                node = new Node(nodeIndexCounter.getAndIncrement(), c);
-            }
-            nodes.put(c, node);
-            return node;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Node node = (Node) o;
-            return index == node.index;
-        }
-
-        @Override
-        public int hashCode() {
-            return index;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder("[" + chr);
-            char[] characters = new char[nodes.size()];
-            int[] keys = nodes.getKeyArray();
-            for (int i = 0; i < characters.length; i++) {
-                characters[i] = (char) keys[i];
-            }
-            Arrays.sort(characters);
-            if (nodes.size() > 0) {
-                sb.append(" children=").append(Arrays.toString(characters));
-            }
-            if (word != null) {
-                sb.append(" word=").append(word);
-            }
-            sb.append("]");
-            return sb.toString();
-        }
-    }
-
-    public static class ScoredString implements Comparable<ScoredString> {
-        final String s;
-        final float penalty;
-
-        public ScoredString(String s, float penalty) {
-            this.s = s;
-            this.penalty = penalty;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            ScoredString result = (ScoredString) o;
-
-            if (Float.compare(result.penalty, penalty) != 0) return false;
-            if (!s.equals(result.s)) return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result;
-            long temp;
-            result = s.hashCode();
-            temp = Float.floatToIntBits(penalty);
-            result = 31 * result + (int) (temp ^ (temp >>> 32));
-            return result;
-        }
-
-        @Override
-        public int compareTo(ScoredString o) {
-            return Float.compare(penalty, o.penalty);
-        }
     }
 
     static class Hypothesis implements Comparable<Hypothesis> {
@@ -376,25 +271,6 @@ public class SingleWordSpellChecker {
         }
     }
 
-    private class Graph {
-        Node root = new Node(nodeIndexCounter.getAndIncrement(), (char) 0);
-
-        public void addWord(String word) {
-            add(root, 0, word, word);
-        }
-
-        private Node add(Node currentNode, int index, String word, String actual) {
-            char c = word.charAt(index);
-            Node child = currentNode.addChild(c);
-            if (index == word.length() - 1) {
-                child.word = actual;
-                return child;
-            }
-            index++;
-            return add(child, index, word, actual);
-        }
-    }
-
     public interface CharMatcher {
         char[] matches(char c);
     }
@@ -430,7 +306,7 @@ public class SingleWordSpellChecker {
         }
     }
 
-    public  static class ExactMatcher implements CharMatcher {
+    public static class ExactMatcher implements CharMatcher {
         @Override
         public char[] matches(char c) {
             return new char[]{c};
@@ -453,7 +329,7 @@ public class SingleWordSpellChecker {
         }
 
         FloatValueMap<String> decode(String input) {
-            Hypothesis hyp = new Hypothesis(null, graph.root, 0, Operation.N_A);
+            Hypothesis hyp = new Hypothesis(null, graph.getRoot(), 0, Operation.N_A);
 
             Set<Hypothesis> next = expand(hyp, input);
             while (true) {
@@ -504,7 +380,7 @@ public class SingleWordSpellChecker {
 
             // substitution
             if (nextIndex < input.length()) {
-                for (Node childNode : hypothesis.node.getChildNodes()) {
+                for (Node childNode : hypothesis.node.getChildNodeIterable()) {
 
                     float penalty = 0;
                     if (checkNearKeySubstitution) {
@@ -544,7 +420,7 @@ public class SingleWordSpellChecker {
             newHypotheses.add(hypothesis.getNewMoveForward(hypothesis.node, DELETION_PENALTY, Operation.DEL));
 
             // insertion
-            for (Node childNode : hypothesis.node.getChildNodes()) {
+            for (Node childNode : hypothesis.node.getChildNodeIterable()) {
                 newHypotheses.add(hypothesis.getNew(childNode, INSERTION_PENALTY, Operation.INS));
             }
 

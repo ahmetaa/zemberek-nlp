@@ -3,6 +3,7 @@ package zemberek.normalization;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import zemberek.core.ScoredItem;
 import zemberek.core.collections.FloatValueMap;
 
 import java.nio.charset.StandardCharsets;
@@ -15,11 +16,11 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SingleWordSpellCheckerTest {
+public class CharacterGraphDecoderTest {
 
     @Test
     public void simpleDecodeTest() {
-        SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
+        CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(1);
         String vocabulary = "elma";
         spellChecker.addWord(vocabulary);
         Assert.assertTrue(spellChecker.decode(vocabulary).contains(vocabulary));
@@ -32,7 +33,7 @@ public class SingleWordSpellCheckerTest {
 
     @Test
     public void simpleDecodeTest2() {
-        SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
+        CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(1);
         spellChecker.addWords("apple", "apples");
         FloatValueMap<String> res = spellChecker.decode("apple");
         for (String re : res) {
@@ -42,22 +43,32 @@ public class SingleWordSpellCheckerTest {
 
     @Test
     public void simpleDecodeTest3() {
-        SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
+        CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(1);
         spellChecker.addWords("apple", "apples");
-        List<SingleWordSpellChecker.ScoredString> res = spellChecker.getSuggestionsWithScores("apple");
-        for (SingleWordSpellChecker.ScoredString re : res) {
-            System.out.println(re.s);
+        List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("apple");
+        for (ScoredItem<String> re : res) {
+            System.out.println(re.item);
         }
     }
 
     @Test
+    public void sortedResultSet() {
+        CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(1);
+        spellChecker.addWords("apple", "apples", "app", "foo");
+        List<String> res = spellChecker.getSuggestionsSorted("apple");
+        Assert.assertEquals(2, res.size());
+        Assert.assertEquals("apple", res.get(0));
+        Assert.assertEquals("apples", res.get(1));
+    }
+
+    @Test
     public void asciiTolerantTest() {
-        SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
+        CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(1);
         spellChecker.addWords("şıra", "sıra", "kömür");
-        SingleWordSpellChecker.CharMatcher matcher = SingleWordSpellChecker.ASCII_TOLERANT_MATCHER;
-        List<SingleWordSpellChecker.ScoredString> res = spellChecker.getSuggestionsWithScores("komur", matcher);
+        CharacterGraphDecoder.CharMatcher matcher = CharacterGraphDecoder.ASCII_TOLERANT_MATCHER;
+        List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("komur", matcher);
         Assert.assertEquals(1, res.size());
-        Assert.assertEquals("kömür", res.get(0).s);
+        Assert.assertEquals("kömür", res.get(0).item);
 
         res = spellChecker.getSuggestionsWithScores("sıra", matcher);
         Assert.assertEquals(2, res.size());
@@ -69,7 +80,7 @@ public class SingleWordSpellCheckerTest {
     @Test
     public void multiWordDecodeTest() {
 
-        SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
+        CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(1);
         spellChecker.addWords("çak", "sak", "saka", "bak", "çaka", "çakal", "sakal");
 
         FloatValueMap<String> result = spellChecker.decode("çak");
@@ -100,7 +111,7 @@ public class SingleWordSpellCheckerTest {
     public void performanceTest() throws Exception {
         Path r = Paths.get(ClassLoader.getSystemResource("10000_frequent_turkish_word").toURI());
         List<String> words = Files.readAllLines(r, StandardCharsets.UTF_8);
-        SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
+        CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(1);
         spellChecker.buildDictionary(words);
         long start = System.currentTimeMillis();
         int solutionCount = 0;
@@ -118,15 +129,15 @@ public class SingleWordSpellCheckerTest {
         }
     }
 
-    private void assertContainsAll(List<SingleWordSpellChecker.ScoredString> list, String... words) {
+    private void assertContainsAll(List<ScoredItem<String>> list, String... words) {
         Set<String> set = new HashSet<>();
-        set.addAll(list.stream().map(s1 -> s1.s).collect(Collectors.toList()));
+        set.addAll(list.stream().map(s1 -> s1.item).collect(Collectors.toList()));
         for (String word : words) {
             Assert.assertTrue(set.contains(word));
         }
     }
 
-    private void check1Distance(SingleWordSpellChecker spellChecker, String expected) {
+    private void check1Distance(CharacterGraphDecoder spellChecker, String expected) {
         Set<String> randomDeleted = randomDelete(expected, 1);
         for (String s : randomDeleted) {
             FloatValueMap<String> res = spellChecker.decode(s);
@@ -158,9 +169,9 @@ public class SingleWordSpellCheckerTest {
 
     @Test
     public void nearKeyCheck() {
-        SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(
+        CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(
                 1,
-                SingleWordSpellChecker.TURKISH_Q_NEAR_KEY_MAP);
+                CharacterGraphDecoder.TURKISH_Q_NEAR_KEY_MAP);
         String vocabulary = "elma";
         spellChecker.addWord(vocabulary);
         Assert.assertTrue(spellChecker.decode(vocabulary).contains(vocabulary));

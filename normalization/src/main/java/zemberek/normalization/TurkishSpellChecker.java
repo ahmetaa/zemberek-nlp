@@ -16,7 +16,7 @@ public class TurkishSpellChecker {
 
     TurkishMorphology turkishMorphology;
     WordAnalysisFormatter formatter = new WordAnalysisFormatter();
-    SingleWordSpellChecker distanceMatcher = new SingleWordSpellChecker(1);
+    CharacterGraphDecoder distanceMatcher = new CharacterGraphDecoder(1);
 
     public TurkishSpellChecker(TurkishMorphology turkishMorphology) throws IOException {
         this.turkishMorphology = turkishMorphology;
@@ -63,10 +63,5 @@ public class TurkishSpellChecker {
             }
         }
         return new ArrayList<>(results);
-    }
-
-    public static void main(String[] args) throws IOException {
-        TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-        new TurkishSpellChecker(morphology);
     }
 }
