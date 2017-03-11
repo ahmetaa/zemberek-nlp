@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 class CharacterGraph {
 
     private static final AtomicInteger nodeIndexCounter = new AtomicInteger(0);
-    private Node root = new Node(nodeIndexCounter.getAndIncrement(), (char) 0);
+    private Node root = new Node(nodeIndexCounter.getAndIncrement(), (char) 0, Node.TYPE_GRAPH_ROOT);
 
     boolean isRoot(Node node) {
         return node == root;
@@ -18,19 +18,18 @@ class CharacterGraph {
         return root;
     }
 
-    public Node addWord(String word) {
-        return add(root, 0, word, word);
+    public Node addWord(String word, int type) {
+        return add(root, 0, word, type);
     }
 
-    private Node add(Node currentNode, int index, String word, String actual) {
+    private Node add(Node currentNode, int index, String word, int type) {
         char c = word.charAt(index);
-        Node child = currentNode.addChild(nodeIndexCounter.getAndIncrement(), c);
         if (index == word.length() - 1) {
-            child.word = actual;
-            return child;
+            return currentNode.addChild(nodeIndexCounter.getAndIncrement(), c, type, word);
         }
+        Node child = currentNode.addChild(nodeIndexCounter.getAndIncrement(), c, Node.TYPE_EMPTY);
         index++;
-        return add(child, index, word, actual);
+        return add(child, index, word, type);
     }
 
     public Set<Node> getAllNodes() {

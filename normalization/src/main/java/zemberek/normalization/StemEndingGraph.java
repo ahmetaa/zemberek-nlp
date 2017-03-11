@@ -69,7 +69,7 @@ public class StemEndingGraph {
     private CharacterGraph generateEndingGraph(List<String> endings) {
         CharacterGraph graph = new CharacterGraph();
         for (String ending : endings) {
-            graph.addWord("_"+ending);
+            graph.addWord(ending, Node.TYPE_ENDING);
         }
         return graph;
     }
@@ -81,16 +81,8 @@ public class StemEndingGraph {
             if (stemNode.surfaceForm.length() == 0) {
                 continue;
             }
-            stemGraph.addWord(stemNode.surfaceForm);
+            stemGraph.addWord(stemNode.surfaceForm, Node.TYPE_WORD);
         }
         return stemGraph;
     }
-
-    public static void main(String[] args) throws IOException {
-        TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-        StemEndingGraph graph = new StemEndingGraph(morphology);
-
-    }
-
-
 }

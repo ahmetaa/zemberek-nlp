@@ -12,11 +12,29 @@ class Node {
     char chr;
     private UIntMap<Node> nodes = new UIntMap<>(2);
     String word;
-    Node[] emptyNodes = null;
+    private Node[] emptyNodes = null;
+    private int type;
 
-    Node(int index, char chr) {
+    public static final  int TYPE_EMPTY = 0;
+    public static final  int TYPE_WORD = 1;
+    public static final  int TYPE_ENDING = 2;
+    public static final  int TYPE_GRAPH_ROOT = 3;
+
+    Node(int index, char chr, int type) {
         this.index = index;
         this.chr = chr;
+        this.type = type;
+    }
+
+    Node(int index, char chr, int type, String word) {
+        this.index = index;
+        this.chr = chr;
+        this.type = type;
+        this.word = word;
+    }
+
+    public int getType() {
+        return type;
     }
 
     Iterable<Node> getChildNodeIterable() {
@@ -54,7 +72,6 @@ class Node {
         }
         return false;
     }
-
 
     Node getImmediateChild(char c) {
         return nodes.get(c);
@@ -120,14 +137,24 @@ class Node {
         return emptyNodes;
     }
 
-    Node addChild(int index, char c) {
+    Node addChild(int index, char c, int type) {
         Node node = nodes.get(c);
         if (node == null) {
-            node = new Node(index, c);
+            node = new Node(index, c, type);
         }
         nodes.put(c, node);
         return node;
     }
+
+    Node addChild(int index, char c, int type, String word) {
+        Node node = nodes.get(c);
+        if (node == null) {
+            node = new Node(index, c, type, word);
+        }
+        nodes.put(c, node);
+        return node;
+    }
+
 
     @Override
     public boolean equals(Object o) {

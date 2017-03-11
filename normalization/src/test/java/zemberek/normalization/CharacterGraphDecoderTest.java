@@ -262,29 +262,15 @@ public class CharacterGraphDecoderTest {
         }
     }
 
-
     @Test
     public void stemEndingTest2() throws IOException {
         TurkishMorphology morphology = TurkishMorphology.builder().addDictionaryLines("üzmek", "yüz", "güz").build();
         List<String> endings = Lists.newArrayList("düm");
         StemEndingGraph graph = new StemEndingGraph(morphology, endings);
         CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(graph.stemGraph);
-        List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("yüz");
+        List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("yüzdüm");
         for (ScoredItem<String> re : res) {
             System.out.println(re.item);
         }
     }
-
-    @Test
-    public void stemEndingTest3() throws IOException {
-        TurkishMorphology morphology = TurkishMorphology.builder().addDictionaryLines("b", "br").build();
-        List<String> endings = Lists.newArrayList("fffff");
-        StemEndingGraph graph = new StemEndingGraph(morphology, endings);
-        CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(graph.stemGraph);
-        List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("bir");
-        for (ScoredItem<String> re : res) {
-            System.out.println(re.item);
-        }
-    }
-
 }

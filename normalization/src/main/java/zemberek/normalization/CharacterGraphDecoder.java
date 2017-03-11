@@ -125,19 +125,19 @@ class CharacterGraphDecoder {
 
 
     public void addWord(String word) {
-        graph.addWord(process(word));
+        graph.addWord(process(word), Node.TYPE_WORD);
     }
 
 
     public void addWords(String... words) {
         for (String word : words) {
-            graph.addWord(process(word));
+            graph.addWord(process(word), Node.TYPE_WORD);
         }
     }
 
     public void buildDictionary(List<String> vocabulary) {
         for (String s : vocabulary) {
-            graph.addWord(process(s));
+            graph.addWord(process(s), Node.TYPE_WORD);
         }
     }
 
@@ -222,14 +222,17 @@ class CharacterGraphDecoder {
             return sb.reverse().toString();
         }
 
-        void appendWord(String word) {
+        void appendWord(Node node) {
+            if (node.word == null) {
+                return;
+            }
             if (this.word == null) {
-                this.word = word;
+                this.word = node.word;
             } else {
-                if (word.startsWith("_")) {
-                    this.word = this.word + word.substring(1);
+                if (node.getType() == Node.TYPE_ENDING) {
+                    this.word = this.word + node.word;
                 } else {
-                    this.word = word;
+                    this.word = node.word;
                 }
             }
         }
@@ -383,9 +386,8 @@ class CharacterGraphDecoder {
                 for (Node child : hypothesis.node.getChildList(cc)) {
 
                     Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NE);
-                    if (child.word != null) {
-                        h.appendWord(child.word);
-                    }
+                    h.appendWord(child);
+
                     newHypotheses.add(h);
                     if (nextIndex >= input.length() - 1) {
                         if (h.node.word != null) {
@@ -426,9 +428,7 @@ class CharacterGraphDecoder {
                                 child,
                                 penalty,
                                 Operation.SUB);
-                        if (child.word != null) {
-                            h.appendWord(child.word);
-                        }
+                        h.appendWord(child);
                         if (nextIndex == input.length() - 1) {
                             if (h.node.word != null) {
                                 addHypothesis(h);
@@ -450,9 +450,7 @@ class CharacterGraphDecoder {
             // insertion
             for (Node child : allChildNodes) {
                 Hypothesis h = hypothesis.getNew(child, INSERTION_PENALTY, Operation.INS);
-                if (child.word != null) {
-                    h.appendWord(child.word);
-                }
+                h.appendWord(child);
                 newHypotheses.add(h);
             }
 
@@ -473,9 +471,7 @@ class CharacterGraphDecoder {
                                             TRANSPOSITION_PENALTY,
                                             nextIndex + 1,
                                             Operation.TR);
-                                    if (n.word != null) {
-                                        h.appendWord(n.word);
-                                    }
+                                    h.appendWord(n);
                                     if (nextIndex == input.length() - 1) {
                                         if (h.node.word != null) {
                                             addHypothesis(h);
