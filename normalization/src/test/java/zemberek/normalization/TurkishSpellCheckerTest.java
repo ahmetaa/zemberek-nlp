@@ -4,6 +4,9 @@ import com.google.common.base.Stopwatch;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import zemberek.core.logging.Log;
+import zemberek.lm.NgramLanguageModel;
+import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 import java.io.IOException;
@@ -60,15 +63,19 @@ public class TurkishSpellCheckerTest {
     public void suggestWordTest() throws IOException, URISyntaxException {
         TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
         TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
-        Stopwatch sw = Stopwatch.createStarted();
+
+        Path lmPath = Paths.get(ClassLoader.getSystemResource("lm-unigram.slm").toURI());
+        NgramLanguageModel lm = SmoothLm.builder(lmPath.toFile()).build();
 
         Path r = Paths.get(ClassLoader.getSystemResource("10000_frequent_turkish_word").toURI());
+
         List<String> words = Files.readAllLines(r, StandardCharsets.UTF_8);
         int c = 0;
+        Stopwatch sw = Stopwatch.createStarted();
         for (String word : words) {
-            List<String> suggestions = spellChecker.suggestForWord(word);
+            List<String> suggestions = spellChecker.suggestForWord(word, lm);
             c += suggestions.size();
         }
-        System.out.println("Elapsed = " + sw.elapsed(TimeUnit.MILLISECONDS));
+        Log.info("Elapsed = %d count = %d ", sw.elapsed(TimeUnit.MILLISECONDS), c);
     }
 }

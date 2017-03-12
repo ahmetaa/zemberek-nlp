@@ -264,12 +264,14 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
         // we take the unigram probability data out to get rid of rank look-ups for speed.
         int unigramCount = ngramData[1].count;
         unigramProbs = new float[unigramCount];
-        unigramBackoffs = new float[unigramCount];
+        unigramBackoffs = order > 1 ? new float[unigramCount] : new float[0];
         for (int i = 0; i < unigramCount; i++) {
             final int probability = ngramData[1].getProbabilityRank(i);
             unigramProbs[i] = probabilityLookups[1].get(probability);
-            final int backoff = ngramData[1].getBackoffRank(i);
-            unigramBackoffs[i] = backoffLookups[1].get(backoff);
+            if (order > 1) {
+                final int backoff = ngramData[1].getBackoffRank(i);
+                unigramBackoffs[i] = backoffLookups[1].get(backoff);
+            }
         }
 
         // load MPHFs

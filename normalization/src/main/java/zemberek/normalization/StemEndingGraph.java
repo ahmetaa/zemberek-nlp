@@ -2,6 +2,7 @@ package zemberek.normalization;
 
 import com.google.common.io.Resources;
 import zemberek.core.collections.Histogram;
+import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
@@ -78,7 +79,8 @@ public class StemEndingGraph {
         CharacterGraph stemGraph = new CharacterGraph();
         DynamicLexiconGraph lexiconGraph = morphology.getGraph();
         for (StemNode stemNode : lexiconGraph.getStemNodes()) {
-            if (stemNode.surfaceForm.length() == 0) {
+            if (stemNode.surfaceForm.length() == 0 ||
+                    stemNode.getDictionaryItem().primaryPos == PrimaryPos.Punctuation) {
                 continue;
             }
             stemGraph.addWord(stemNode.surfaceForm, Node.TYPE_WORD);

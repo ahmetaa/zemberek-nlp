@@ -2,6 +2,7 @@ package zemberek.normalization;
 
 import zemberek.core.ScoredItem;
 import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.lm.DummyLanguageModel;
 import zemberek.lm.NgramLanguageModel;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.WordAnalysisFormatter;
@@ -40,15 +41,17 @@ public class TurkishSpellChecker {
         return false;
     }
 
-    public List<String> suggestForWord(String word) {
+    public List<String> suggestForWord(String word, NgramLanguageModel languageModel) {
+        String normalized = TurkishAlphabet.INSTANCE.normalize(word);
+        List<String> strings = decoder.getSuggestionsSorted(normalized);
+
+        strings = rankWithUnigramProbability(strings, languageModel);
+
         WordAnalysisFormatter.CaseType caseType = formatter.guessCase(word);
         if (caseType == WordAnalysisFormatter.CaseType.MIXED_CASE ||
                 caseType == WordAnalysisFormatter.CaseType.LOWER_CASE) {
             caseType = WordAnalysisFormatter.CaseType.DEFAULT_CASE;
         }
-        String normalized = TurkishAlphabet.INSTANCE.normalize(word);
-        List<String> strings = decoder.getSuggestionsSorted(normalized);
-
         Set<String> results = new LinkedHashSet<>(strings.size());
         for (String string : strings) {
             List<WordAnalysis> analyses = morphology.analyze(string);
@@ -61,6 +64,13 @@ public class TurkishSpellChecker {
             }
         }
         return new ArrayList<>(results);
+
+    }
+
+    private static final NgramLanguageModel DUMMY_LM = new DummyLanguageModel();
+
+    public List<String> suggestForWord(String word) {
+        return suggestForWord(word, DUMMY_LM);
     }
 
     public List<String> rankWithUnigramProbability(List<String> strings, NgramLanguageModel lm) {

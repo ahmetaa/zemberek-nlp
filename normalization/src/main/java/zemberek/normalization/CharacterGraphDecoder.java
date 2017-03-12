@@ -191,24 +191,27 @@ class CharacterGraphDecoder {
         Node node;
         float penalty;
         String word;
+        String ending;
         Hypothesis previous;
 
-        Hypothesis(Hypothesis previous, Node node, float penalty, Operation operation, String word) {
+        Hypothesis(Hypothesis previous, Node node, float penalty, Operation operation, String word, String ending) {
             this.previous = previous;
             this.node = node;
             this.penalty = penalty;
             this.charIndex = -1;
             this.operation = operation;
             this.word = word;
+            this.ending = ending;
         }
 
-        Hypothesis(Hypothesis previous, Node node, float penalty, int charIndex, Operation operation, String word) {
+        Hypothesis(Hypothesis previous, Node node, float penalty, int charIndex, Operation operation, String word, String ending) {
             this.previous = previous;
             this.node = node;
             this.penalty = penalty;
             this.charIndex = charIndex;
             this.operation = operation;
             this.word = word;
+            this.ending = ending;
         }
 
         String backTrack() {
@@ -223,35 +226,37 @@ class CharacterGraphDecoder {
             return sb.reverse().toString();
         }
 
+        String getContent() {
+            String w = word == null ? "" : word;
+            String e = ending == null ? "" : ending;
+            return w + e;
+        }
+
         void appendWord(Node node) {
             if (node.word == null) {
                 return;
             }
-            if (this.word == null) {
+            if (node.getType() == Node.TYPE_WORD) {
                 this.word = node.word;
-            } else {
-                if (node.getType() == Node.TYPE_ENDING) {
-                    this.word = this.word + node.word;
-                } else {
-                    this.word = node.word;
-                }
+            } else if (node.getType() == Node.TYPE_ENDING) {
+                this.ending = node.word;
             }
         }
 
         Hypothesis getNew(Node node, float penaltyToAdd, Operation operation) {
-            return new Hypothesis(this, node, this.penalty + penaltyToAdd, charIndex, operation, this.word);
+            return new Hypothesis(this, node, this.penalty + penaltyToAdd, charIndex, operation, this.word, this.ending);
         }
 
         Hypothesis getNewMoveForward(Node node, float penaltyToAdd, Operation operation) {
-            return new Hypothesis(this, node, this.penalty + penaltyToAdd, charIndex + 1, operation, this.word);
+            return new Hypothesis(this, node, this.penalty + penaltyToAdd, charIndex + 1, operation, this.word, this.ending);
         }
 
         Hypothesis getNew(Node node, float penaltyToAdd, int index, Operation operation) {
-            return new Hypothesis(this, node, this.penalty + penaltyToAdd, index, operation, this.word);
+            return new Hypothesis(this, node, this.penalty + penaltyToAdd, index, operation, this.word, this.ending);
         }
 
         Hypothesis getNew(float penaltyToAdd, Operation operation) {
-            return new Hypothesis(this, this.node, this.penalty + penaltyToAdd, charIndex, operation, this.word);
+            return new Hypothesis(this, this.node, this.penalty + penaltyToAdd, charIndex, operation, this.word, this.ending);
         }
 
         @Override
@@ -280,7 +285,8 @@ class CharacterGraphDecoder {
             if (charIndex != that.charIndex) return false;
             if (Float.compare(that.penalty, penalty) != 0) return false;
             if (!node.equals(that.node)) return false;
-            return word != null ? word.equals(that.word) : that.word == null;
+            if (word != null ? !word.equals(that.word) : that.word != null) return false;
+            return ending != null ? ending.equals(that.ending) : that.ending == null;
         }
 
         @Override
@@ -289,6 +295,7 @@ class CharacterGraphDecoder {
             result = 31 * result + node.hashCode();
             result = 31 * result + (penalty != +0.0f ? Float.floatToIntBits(penalty) : 0);
             result = 31 * result + (word != null ? word.hashCode() : 0);
+            result = 31 * result + (ending != null ? ending.hashCode() : 0);
             return result;
         }
     }
@@ -351,7 +358,7 @@ class CharacterGraphDecoder {
         }
 
         FloatValueMap<String> decode(String input) {
-            Hypothesis hyp = new Hypothesis(null, graph.getRoot(), 0, Operation.N_A, null);
+            Hypothesis hyp = new Hypothesis(null, graph.getRoot(), 0, Operation.N_A, null, null);
 
             Set<Hypothesis> next = expand(hyp, input);
             while (true) {
@@ -488,10 +495,7 @@ class CharacterGraphDecoder {
         }
 
         private void addHypothesis(Hypothesis hypothesis) {
-            String hypWord = hypothesis.word;
-            if (hypWord == null) {
-                return;
-            }
+            String hypWord = hypothesis.getContent();
             if (!finished.contains(hypWord)) {
                 finished.set(hypWord, hypothesis.penalty);
             } else if (finished.get(hypWord) > hypothesis.penalty) {
