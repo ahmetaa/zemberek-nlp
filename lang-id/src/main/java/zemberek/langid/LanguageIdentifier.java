@@ -498,7 +498,7 @@ public class LanguageIdentifier {
         return new IdResult(modelIdArray[best], Math.exp(scores[best] - totalScore));
     }
 
-    private static Pattern removeCharsPattern = Pattern.compile("[0-9\"#$%^&*\\(\\)_+\\-=/\\|\\\\<>\\{}\\[\\];:,]", Pattern.DOTALL | Pattern.MULTILINE);
+    private static Pattern removeCharsPattern = Pattern.compile("[0-9\"#$%^&*()_+\\-=/|\\\\<>{}\\[\\];:,]", Pattern.DOTALL | Pattern.MULTILINE);
     private static Pattern whiteSpacePattern = Pattern.compile("\\s+", Pattern.DOTALL | Pattern.MULTILINE);
 
     /**

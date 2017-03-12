@@ -257,10 +257,9 @@ public class CharacterGraphDecoderTest {
         List<String> endings = Lists.newArrayList("acak", "ecek");
         StemEndingGraph graph = new StemEndingGraph(morphology, endings);
         CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(graph.stemGraph);
-        List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("bakcaak");
-        for (ScoredItem<String> re : res) {
-            System.out.println(re.item);
-        }
+        List<String> res = spellChecker.getSuggestions("bakcaak");
+        Assert.assertEquals(1, res.size());
+        Assert.assertEquals("bakacak", res.get(0));
     }
 
     @Test
@@ -270,8 +269,7 @@ public class CharacterGraphDecoderTest {
         StemEndingGraph graph = new StemEndingGraph(morphology, endings);
         CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(graph.stemGraph);
         List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("yüzdüm");
-        for (ScoredItem<String> re : res) {
-            Log.info(re.item);
-        }
+        Assert.assertEquals(3, res.size());
+        assertContainsAll(res, "yüzdüm", "üzdüm", "güzdüm");
     }
 }

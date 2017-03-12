@@ -1,12 +1,15 @@
 package zemberek.normalization;
 
+import zemberek.core.ScoredItem;
 import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.lm.NgramLanguageModel;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.WordAnalysisFormatter;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TurkishSpellChecker {
 
@@ -58,5 +61,15 @@ public class TurkishSpellChecker {
             }
         }
         return new ArrayList<>(results);
+    }
+
+    public List<String> rankWithUnigramProbability(List<String> strings, NgramLanguageModel lm) {
+        List<ScoredItem<String>> results = new ArrayList<>(strings.size());
+        for (String string : strings) {
+            int wordIndex = lm.getVocabulary().indexOf(string);
+            results.add(new ScoredItem<>(string, lm.getUnigramProbability(wordIndex)));
+        }
+        results.sort(ScoredItem.STRING_COMP_DESCENDING);
+        return results.stream().map(s -> s.item).collect(Collectors.toList());
     }
 }

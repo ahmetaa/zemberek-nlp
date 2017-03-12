@@ -15,10 +15,10 @@ class Node {
     private Node[] emptyNodes = null;
     private int type;
 
-    public static final int TYPE_EMPTY = 0;
-    public static final int TYPE_WORD = 1;
-    public static final int TYPE_ENDING = 2;
-    public static final int TYPE_GRAPH_ROOT = 3;
+    static final int TYPE_EMPTY = 0;
+    static final int TYPE_WORD = 1;
+    static final int TYPE_ENDING = 2;
+    static final int TYPE_GRAPH_ROOT = 3;
 
     Node(int index, char chr, int type) {
         this.index = index;
