@@ -236,7 +236,7 @@ class CharacterGraphDecoder {
             return w + e;
         }
 
-        void appendWord(Node node) {
+        void setWord(Node node) {
             if (node.word == null) {
                 return;
             }
@@ -396,7 +396,7 @@ class CharacterGraphDecoder {
                 for (Node child : hypothesis.node.getChildList(cc)) {
 
                     Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NE);
-                    h.appendWord(child);
+                    h.setWord(child);
 
                     newHypotheses.add(h);
                     if (nextIndex >= input.length() - 1) {
@@ -438,7 +438,7 @@ class CharacterGraphDecoder {
                                 child,
                                 penalty,
                                 Operation.SUB);
-                        h.appendWord(child);
+                        h.setWord(child);
                         if (nextIndex == input.length() - 1) {
                             if (h.node.word != null) {
                                 addHypothesis(h);
@@ -460,7 +460,7 @@ class CharacterGraphDecoder {
             // insertion
             for (Node child : allChildNodes) {
                 Hypothesis h = hypothesis.getNew(child, INSERTION_PENALTY, Operation.INS);
-                h.appendWord(child);
+                h.setWord(child);
                 newHypotheses.add(h);
             }
 
@@ -481,7 +481,7 @@ class CharacterGraphDecoder {
                                             TRANSPOSITION_PENALTY,
                                             nextIndex + 1,
                                             Operation.TR);
-                                    h.appendWord(n);
+                                    h.setWord(n);
                                     if (nextIndex == input.length() - 1) {
                                         if (h.node.word != null) {
                                             addHypothesis(h);
