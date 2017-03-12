@@ -43,7 +43,7 @@ public class TurkishSpellChecker {
 
     public List<String> suggestForWord(String word, NgramLanguageModel languageModel) {
         String normalized = TurkishAlphabet.INSTANCE.normalize(word);
-        List<String> strings = decoder.getSuggestionsSorted(normalized);
+        List<String> strings = decoder.getSuggestions(normalized);
 
         strings = rankWithUnigramProbability(strings, languageModel);
 
@@ -71,6 +71,10 @@ public class TurkishSpellChecker {
 
     public List<String> suggestForWord(String word) {
         return suggestForWord(word, DUMMY_LM);
+    }
+
+    public CharacterGraphDecoder getDecoder() {
+        return decoder;
     }
 
     public List<String> rankWithUnigramProbability(List<String> strings, NgramLanguageModel lm) {

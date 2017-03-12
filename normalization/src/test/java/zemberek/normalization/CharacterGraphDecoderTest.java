@@ -272,4 +272,14 @@ public class CharacterGraphDecoderTest {
         Assert.assertEquals(3, res.size());
         assertContainsAll(res, "yüzdüm", "üzdüm", "güzdüm");
     }
+
+    @Test
+    public void stemEndingTest3() throws IOException {
+        TurkishMorphology morphology = TurkishMorphology.builder().addDictionaryLines("o", "ol", "ola").build();
+        List<String> endings = Lists.newArrayList("arak","acak");
+        StemEndingGraph graph = new StemEndingGraph(morphology, endings);
+        CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(graph.stemGraph);
+        List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("olarak");
+        assertContainsAll(res, "olarak", "olacak","olaarak");
+    }
 }

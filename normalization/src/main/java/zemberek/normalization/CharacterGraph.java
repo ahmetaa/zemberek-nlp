@@ -56,4 +56,10 @@ class CharacterGraph {
         }
     }
 
+    boolean wordExists(String w, int type) {
+        HashSet<Node> nodes = new HashSet<>();
+        walk(root, nodes, node -> node.word!=null && node.word.equals(w) && node.getType() == type);
+        return nodes.size() > 0;
+    }
+
 }

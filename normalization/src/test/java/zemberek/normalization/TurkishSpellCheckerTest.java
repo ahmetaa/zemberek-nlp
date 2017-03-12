@@ -77,5 +77,6 @@ public class TurkishSpellCheckerTest {
             c += suggestions.size();
         }
         Log.info("Elapsed = %d count = %d ", sw.elapsed(TimeUnit.MILLISECONDS), c);
+
     }
 }

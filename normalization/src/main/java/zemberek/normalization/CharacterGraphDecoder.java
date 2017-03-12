@@ -119,6 +119,10 @@ class CharacterGraphDecoder {
         this.checkNearKeySubstitution = true;
     }
 
+    public CharacterGraph getGraph() {
+        return graph;
+    }
+
     private String process(String str) {
         return str.toLowerCase(tr).replace("['.]", "");
     }

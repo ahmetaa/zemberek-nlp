@@ -136,8 +136,8 @@ class Node {
         Node node = nodes.get(c);
         if (node == null) {
             node = new Node(index, c, type);
+            nodes.put(c, node);
         }
-        nodes.put(c, node);
         return node;
     }
 
@@ -145,8 +145,11 @@ class Node {
         Node node = nodes.get(c);
         if (node == null) {
             node = new Node(index, c, type, word);
+            nodes.put(c, node);
+        } else {
+            node.word = word;
+            node.type = type;
         }
-        nodes.put(c, node);
         return node;
     }
 
