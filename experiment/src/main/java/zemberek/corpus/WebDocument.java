@@ -3,9 +3,11 @@ package zemberek.corpus;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import zemberek.core.text.Regexps;
+import zemberek.core.text.TextUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -40,6 +42,11 @@ public class WebDocument {
             total += line.length();
         }
         return total;
+    }
+
+    public void removeDuplicateLines() {
+        lines = new ArrayList<>(new LinkedHashSet<>(lines));
+        contentHash();
     }
 
     public String getDocumentHeader() {
@@ -80,26 +87,27 @@ public class WebDocument {
     static Pattern categoryPattern = Pattern.compile("(category=)(.+?)(\")");
     static Pattern titlePattern = Pattern.compile("(title=)(.+?)(\")");
 
-    private static String getAttribute(String str) {
-        return str == null ? "" : str.replace('\"', ' ').trim();
-    }
-
     public static WebDocument fromText(String meta, List<String> pageData) {
 
         String url = Regexps.firstMatch(urlPattern, meta, 2);
         String id = url.replaceAll("http://|https://", "");
         String source = Regexps.firstMatch(sourcePattern, meta, 2);
         String crawlDate = Regexps.firstMatch(crawlDatePattern, meta, 2);
-        String labels = getAttribute(Regexps.firstMatch(labelPattern, meta, 2));
-
-        String category = getAttribute(Regexps.firstMatch(categoryPattern, meta, 2));
-        String title = getAttribute(Regexps.firstMatch(titlePattern, meta, 2));
+        String labels = getAttribute(labelPattern, meta);
+        String category = getAttribute(categoryPattern, meta);
+        String title = getAttribute(titlePattern, meta);
 
         int i = source.lastIndexOf("/");
         if (i >= 0 && i < source.length()) {
             source = source.substring(i + 1);
         }
         return new WebDocument(source, id, title, pageData, url, crawlDate, labels, category);
+    }
+
+    private static String getAttribute(Pattern pattern, String content) {
+        String str = Regexps.firstMatch(pattern, content, 2);
+        str = str == null ? "" : str.replace('\"', ' ').trim();
+        return TextUtil.convertAmpresandStrings(str);
     }
 
     private long contentHash() {

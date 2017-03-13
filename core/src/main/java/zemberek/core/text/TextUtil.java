@@ -21,6 +21,52 @@ import java.util.stream.Collectors;
 
 public class TextUtil {
 
+    public static List<String> getElementChunks(String allContent, String elementName) {
+        elementName = elementName.trim().replaceAll("<>", "");
+        Pattern p = Pattern.compile("(<" + elementName + ")" + "(.+?)" + "(</" + elementName + ">)",
+                Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        return Regexps.allMatches(p, allContent);
+    }
+
+    public static List<String> getSingleLineElementData(String allContent, String elementName) {
+        elementName = elementName.trim().replaceAll("<>", "");
+        Pattern p = Pattern.compile("(<" + elementName + ")" + "(.+?)" + "(>)",
+                Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        return Regexps.allMatches(p, allContent);
+    }
+
+    /**
+     * returns a map with attributes of an xml line. For example if [content] is `<Foo a="one" b="two">` and [element]
+     * is `Foo` it returns [a:one b:two] Map. It only check the first match in the content.
+     */
+    public static Map<String, String> getAttributes(String content, String elementName) {
+        elementName = elementName.trim();
+        Pattern p = Pattern.compile("(<" + elementName + ")" + "(.+?)" + "(>)",
+                Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        String elementLine = Regexps.firstMatch(p, content);
+
+        Map<String, String> attributes = new HashMap<>();
+        if (elementLine == null)
+            return attributes;
+
+        Pattern attributePattern = Pattern.compile("(\\w+)([ ]*=[ ]*\")(.+?)(\")"); // catches all xml attributes in a line.
+
+        Matcher m = attributePattern.matcher(elementLine);
+        while (m.find()) {
+            attributes.put(m.group(1), m.group(3));
+        }
+        return attributes;
+    }
+
+    /**
+     * returns a map with attributes of an xml line. For example if [content] is `<Foo a="one" b="two">`
+     * it returns [a:one b:two] Map. It only checks the first match in the content.
+     */
+    public static Map<String, String> getAttributes(String content) {
+        return getAttributes(content, "");
+    }
+
+
     public static FixedBitVector generateBitLookup(String characters) {
         int max = 0;
         for (char c : characters.toCharArray()) {

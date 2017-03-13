@@ -3,6 +3,7 @@ package zemberek.core.collections;
 import com.google.common.collect.Lists;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,6 +53,26 @@ public class Histogram<T> implements Iterable<T> {
             result.add(item, count);
         }
         return result;
+    }
+
+    public void saveSortedByCounts(Path path, String delimiter)
+            throws IOException {
+        try (PrintWriter pw = new PrintWriter(path.toFile(), StandardCharsets.UTF_8.name())) {
+            List<T> sorted = getSortedList();
+            for (T t : sorted) {
+                pw.println(t + delimiter + getCount(t));
+            }
+        }
+    }
+
+    public void saveSortedByKeys(Path path, String delimiter, Comparator<T> comparator)
+            throws IOException {
+        try (PrintWriter pw = new PrintWriter(path.toFile(), StandardCharsets.UTF_8.name())) {
+            List<T> sorted = getSortedList(comparator);
+            for (T t : sorted) {
+                pw.println(t + delimiter + getCount(t));
+            }
+        }
     }
 
     /**
