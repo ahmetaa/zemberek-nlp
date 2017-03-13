@@ -59,14 +59,31 @@ public class TurkishSpellCheckerTest {
     }
 
     @Test
-    @Ignore("Slow test. Uses actual data.")
-    public void suggestWordTest() throws IOException, URISyntaxException {
+    @Ignore("Slow. Uses actual data.")
+    public void suggestWordPerformanceStemEnding() throws IOException, URISyntaxException {
         TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
         TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
 
+        run(spellChecker);
+    }
+
+    @Test
+    @Ignore("Slow. Uses actual data.")
+    public void suggestWordPerformanceWord() throws IOException, URISyntaxException {
+        TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+        CharacterGraph graph = new CharacterGraph();
+        Path r = Paths.get(ClassLoader.getSystemResource("zemberek-parsed-words-min10.txt").toURI());
+        List<String> words = Files.readAllLines(r, StandardCharsets.UTF_8);
+        words.forEach(s -> graph.addWord(s, Node.TYPE_WORD));
+        TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology, graph);
+
+        run(spellChecker);
+    }
+
+    private void run(TurkishSpellChecker spellChecker) throws URISyntaxException, IOException {
         Log.info("Node count = %d", spellChecker.decoder.getGraph().getAllNodes().size());
         Log.info("Node count with single connection= %d",
-                spellChecker.decoder.getGraph().getAllNodes(a->a.getAllChildNodes().size()==1).size());
+                spellChecker.decoder.getGraph().getAllNodes(a -> a.getAllChildNodes().size() == 1).size());
 
         Path lmPath = Paths.get(ClassLoader.getSystemResource("lm-unigram.slm").toURI());
         NgramLanguageModel lm = SmoothLm.builder(lmPath.toFile()).build();
@@ -81,6 +98,5 @@ public class TurkishSpellCheckerTest {
             c += suggestions.size();
         }
         Log.info("Elapsed = %d count = %d ", sw.elapsed(TimeUnit.MILLISECONDS), c);
-
     }
 }

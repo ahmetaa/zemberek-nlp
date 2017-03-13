@@ -24,6 +24,12 @@ public class TurkishSpellChecker {
         decoder = new CharacterGraphDecoder(graph.stemGraph);
     }
 
+    public TurkishSpellChecker(TurkishMorphology morphology,
+                               CharacterGraph graph) throws IOException {
+        this.morphology = morphology;
+        decoder = new CharacterGraphDecoder(graph);
+    }
+
     public boolean check(String input) {
         List<WordAnalysis> analyses = morphology.analyze(input);
         WordAnalysisFormatter.CaseType caseType = formatter.guessCase(input);
