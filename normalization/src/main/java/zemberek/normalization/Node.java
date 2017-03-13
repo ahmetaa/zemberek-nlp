@@ -12,7 +12,7 @@ class Node {
     char chr;
     private UIntMap<Node> nodes = new UIntMap<>(2);
     String word;
-    private Node[] emptyNodes = null;
+    private Node[] epsilonNodes = null;
     private int type;
 
     static final int TYPE_EMPTY = 0;
@@ -37,7 +37,7 @@ class Node {
         return type;
     }
 
-    Iterable<Node> getChildNodeIterable() {
+    Iterable<Node> getImmediateChildNodeIterable() {
         return nodes;
     }
 
@@ -47,15 +47,18 @@ class Node {
 
     List<Node> getAllChildNodes() {
         List<Node> nodeList = nodes.getValues();
-        if (emptyNodes == null) {
+        if (epsilonNodes == null) {
             return nodeList;
         }
-        for (Node emptyNode : emptyNodes) {
+        for (Node emptyNode : epsilonNodes) {
             nodeList.addAll(emptyNode.getImmediateChildNodes());
         }
         return nodeList;
     }
 
+    boolean hasEpsilonConnection() {
+        return epsilonNodes != null;
+    }
 
     boolean hasImmediateChild(char c) {
         return nodes.containsKey(c);
@@ -65,10 +68,10 @@ class Node {
         if (hasImmediateChild(c)) {
             return true;
         }
-        if (emptyNodes == null) {
+        if (epsilonNodes == null) {
             return false;
         }
-        for (Node node : emptyNodes) {
+        for (Node node : epsilonNodes) {
             if (node.hasImmediateChild(c)) {
                 return true;
             }
@@ -88,11 +91,11 @@ class Node {
     }
 
     List<Node> getChildList(char[] charArray) {
-        List<Node> children = new ArrayList<>(1);
+        List<Node> children = new ArrayList<>(charArray.length+1);
         for (char c : charArray) {
             addIfChildExists(c, children);
-            if (emptyNodes != null) {
-                for (Node emptyNode : emptyNodes) {
+            if (epsilonNodes != null) {
+                for (Node emptyNode : epsilonNodes) {
                     emptyNode.addIfChildExists(c, children);
                 }
             }
@@ -102,34 +105,34 @@ class Node {
 
 
     List<Node> getChildList(char c) {
-        List<Node> children = new ArrayList<>(1);
+        List<Node> children = new ArrayList<>(2);
         addIfChildExists(c, children);
-        if (emptyNodes != null) {
-            for (Node emptyNode : emptyNodes) {
+        if (epsilonNodes != null) {
+            for (Node emptyNode : epsilonNodes) {
                 emptyNode.addIfChildExists(c, children);
             }
         }
         return children;
     }
 
-    boolean connectEmpty(Node node) {
-        if (emptyNodes == null) {
-            emptyNodes = new Node[1];
-            emptyNodes[0] = node;
+    boolean connectEpsilon(Node node) {
+        if (epsilonNodes == null) {
+            epsilonNodes = new Node[1];
+            epsilonNodes[0] = node;
         } else {
-            for (Node n : emptyNodes) {
+            for (Node n : epsilonNodes) {
                 if (n.equals(node)) {
                     return false;
                 }
             }
-            emptyNodes = Arrays.copyOf(emptyNodes, emptyNodes.length + 1);
-            emptyNodes[emptyNodes.length - 1] = node;
+            epsilonNodes = Arrays.copyOf(epsilonNodes, epsilonNodes.length + 1);
+            epsilonNodes[epsilonNodes.length - 1] = node;
         }
         return true;
     }
 
-    public Node[] getEmptyNodes() {
-        return emptyNodes;
+    public Node[] getEpsilonNodes() {
+        return epsilonNodes;
     }
 
     Node addChild(int index, char c, int type) {

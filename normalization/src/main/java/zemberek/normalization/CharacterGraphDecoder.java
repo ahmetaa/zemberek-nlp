@@ -393,15 +393,33 @@ class CharacterGraphDecoder {
                 // there can be more than one matching character, depending on the matcher.
                 char[] cc = matcher.matches(nextChar);
                 // because there can be empty connections, there can be more than 1 matching child nodes per character.
-                for (Node child : hypothesis.node.getChildList(cc)) {
+                if(hypothesis.node.hasEpsilonConnection()) {
+                    for (Node child : hypothesis.node.getChildList(cc)) {
 
-                    Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NE);
-                    h.setWord(child);
+                        Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NE);
+                        h.setWord(child);
 
-                    newHypotheses.add(h);
-                    if (nextIndex >= input.length() - 1) {
-                        if (h.node.word != null) {
-                            addHypothesis(h);
+                        newHypotheses.add(h);
+                        if (nextIndex >= input.length() - 1) {
+                            if (h.node.word != null) {
+                                addHypothesis(h);
+                            }
+                        }
+                    }
+                } else {
+                    for (char c : cc) {
+                        Node child = hypothesis.node.getImmediateChild(c);
+                        if(child==null) {
+                            continue;
+                        }
+                        Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NE);
+                        h.setWord(child);
+
+                        newHypotheses.add(h);
+                        if (nextIndex >= input.length() - 1) {
+                            if (h.node.word != null) {
+                                addHypothesis(h);
+                            }
                         }
                     }
                 }
@@ -414,10 +432,13 @@ class CharacterGraphDecoder {
                 return newHypotheses;
             }
 
-            // substitution
-            List<Node> allChildNodes = hypothesis.node.getAllChildNodes();
+            // For reducing List creation. IF there is no epsilon connection, retrieve the
+            // internal data structure iterator.
+            Iterable<Node> allChildNodes = hypothesis.node.hasEpsilonConnection() ?
+                    hypothesis.node.getAllChildNodes() : hypothesis.node.getImmediateChildNodeIterable();
 
             if (nextIndex < input.length()) {
+                // substitution
                 for (Node child : allChildNodes) {
                     float penalty = 0;
                     if (checkNearKeySubstitution) {

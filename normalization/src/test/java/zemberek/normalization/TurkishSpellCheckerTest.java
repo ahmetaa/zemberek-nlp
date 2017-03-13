@@ -64,6 +64,10 @@ public class TurkishSpellCheckerTest {
         TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
         TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
 
+        Log.info("Node count = %d", spellChecker.decoder.getGraph().getAllNodes().size());
+        Log.info("Node count with single connection= %d",
+                spellChecker.decoder.getGraph().getAllNodes(a->a.getAllChildNodes().size()==1).size());
+
         Path lmPath = Paths.get(ClassLoader.getSystemResource("lm-unigram.slm").toURI());
         NgramLanguageModel lm = SmoothLm.builder(lmPath.toFile()).build();
 

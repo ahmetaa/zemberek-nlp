@@ -36,7 +36,7 @@ public class StemEndingGraph {
         this.stemGraph = generateStemGraph();
         Set<Node> stemWordNodes = stemGraph.getAllNodes(n -> n.word != null);
         for (Node node : stemWordNodes) {
-            node.connectEmpty(endingGraph.getRoot());
+            node.connectEpsilon(endingGraph.getRoot());
         }
     }
 
@@ -46,7 +46,7 @@ public class StemEndingGraph {
         this.stemGraph = generateStemGraph();
         Set<Node> leafNodes = stemGraph.getAllNodes(n -> n.word != null);
         for (Node leafNode : leafNodes) {
-            leafNode.connectEmpty(endingGraph.getRoot());
+            leafNode.connectEpsilon(endingGraph.getRoot());
         }
     }
 
