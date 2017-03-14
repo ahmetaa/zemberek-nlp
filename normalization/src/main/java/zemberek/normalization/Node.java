@@ -91,7 +91,7 @@ class Node {
     }
 
     List<Node> getChildList(char[] charArray) {
-        List<Node> children = new ArrayList<>(charArray.length+1);
+        List<Node> children = new ArrayList<>(charArray.length + 1);
         for (char c : charArray) {
             addIfChildExists(c, children);
             if (epsilonNodes != null) {

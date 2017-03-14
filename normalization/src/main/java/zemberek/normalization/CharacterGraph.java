@@ -3,6 +3,8 @@ package zemberek.normalization;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 class CharacterGraph {
@@ -56,9 +58,22 @@ class CharacterGraph {
         }
     }
 
+    private void walk(Node current, Set<Node> nodes, Consumer<Node> consumer) {
+        if (nodes.contains(current)) {
+            return;
+        }
+        consumer.accept(current);
+        nodes.add(current);
+
+        for (Node node : current.getImmediateChildNodes()) {
+            walk(node, nodes, consumer);
+        }
+    }
+
+
     boolean wordExists(String w, int type) {
         HashSet<Node> nodes = new HashSet<>();
-        walk(root, nodes, node -> node.word!=null && node.word.equals(w) && node.getType() == type);
+        walk(root, nodes, node -> node.word != null && node.word.equals(w) && node.getType() == type);
         return nodes.size() > 0;
     }
 

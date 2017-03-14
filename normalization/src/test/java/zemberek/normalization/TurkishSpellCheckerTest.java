@@ -63,7 +63,6 @@ public class TurkishSpellCheckerTest {
     public void suggestWordPerformanceStemEnding() throws IOException, URISyntaxException {
         TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
         TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
-
         run(spellChecker);
     }
 
