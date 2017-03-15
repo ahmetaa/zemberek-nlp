@@ -1,6 +1,7 @@
 package zemberek.normalization;
 
 import com.google.common.base.Stopwatch;
+import opennlp.tools.languagemodel.LanguageModel;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -10,12 +11,14 @@ import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class TurkishSpellCheckerTest {
@@ -60,32 +63,30 @@ public class TurkishSpellCheckerTest {
 
     @Test
     @Ignore("Slow. Uses actual data.")
-    public void suggestWordPerformanceStemEnding() throws IOException, URISyntaxException {
+    public void suggestWordPerformanceStemEnding() throws Exception {
         TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
         TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
-        run(spellChecker);
+        NgramLanguageModel lm = getLm("lm-unigram.slm");
+        run(spellChecker, lm);
     }
 
     @Test
     @Ignore("Slow. Uses actual data.")
-    public void suggestWordPerformanceWord() throws IOException, URISyntaxException {
+    public void suggestWordPerformanceWord() throws Exception {
         TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
         CharacterGraph graph = new CharacterGraph();
         Path r = Paths.get(ClassLoader.getSystemResource("zemberek-parsed-words-min10.txt").toURI());
         List<String> words = Files.readAllLines(r, StandardCharsets.UTF_8);
         words.forEach(s -> graph.addWord(s, Node.TYPE_WORD));
         TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology, graph);
-
-        run(spellChecker);
+        NgramLanguageModel lm = getLm("lm-unigram.slm");
+        run(spellChecker, lm);
     }
 
-    private void run(TurkishSpellChecker spellChecker) throws URISyntaxException, IOException {
+    private void run(TurkishSpellChecker spellChecker, NgramLanguageModel lm) throws Exception {
         Log.info("Node count = %d", spellChecker.decoder.getGraph().getAllNodes().size());
         Log.info("Node count with single connection= %d",
                 spellChecker.decoder.getGraph().getAllNodes(a -> a.getAllChildNodes().size() == 1).size());
-
-        Path lmPath = Paths.get(ClassLoader.getSystemResource("lm-unigram.slm").toURI());
-        NgramLanguageModel lm = SmoothLm.builder(lmPath.toFile()).build();
 
         Path r = Paths.get(ClassLoader.getSystemResource("10000_frequent_turkish_word").toURI());
 
@@ -97,5 +98,64 @@ public class TurkishSpellCheckerTest {
             c += suggestions.size();
         }
         Log.info("Elapsed = %d count = %d ", sw.elapsed(TimeUnit.MILLISECONDS), c);
+    }
+
+    private NgramLanguageModel getLm(String resource) throws Exception {
+        Path lmPath = Paths.get(ClassLoader.getSystemResource(resource).toURI());
+        return SmoothLm.builder(lmPath.toFile()).build();
+    }
+
+    @Test
+    @Ignore("Slow. Uses actual data.")
+    public void runSentence() throws Exception {
+        TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+        TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
+        NgramLanguageModel lm = getLm("lm-bigram.slm");
+        Path testInput = Paths.get(ClassLoader.getSystemResource("spell-checker-test-small.txt").toURI());
+        List<String> sentences = Files.readAllLines(testInput, StandardCharsets.UTF_8);
+        try(PrintWriter pw = new PrintWriter("bigram-test-result.txt")) {
+            for (String sentence : sentences) {
+                pw.println(sentence);
+                List<String> input = TurkishSpellChecker.tokenizeForSpelling(sentence);
+                for (int i = 0; i < input.size(); i++) {
+                    String left = i == 0 ? null : input.get(i - 1);
+                    String right = i == input.size() - 1 ? null : input.get(i + 1);
+                    String word = input.get(i);
+                    String deformed = applyDeformation(word);
+                    List<String> res = spellChecker.suggestForWord(deformed, left, right, lm);
+                    pw.println(String.format("%s %s[%s] %s -> %s", left, deformed, word, right, res.toString()));
+                }
+                pw.println();
+            }
+        }
+    }
+
+    private static Random random = new Random(1);
+
+    private static String applyDeformation(String word) {
+        if (word.length() < 3) {
+            return word;
+        }
+        int deformation = random.nextInt(4);
+        StringBuilder sb = new StringBuilder(word);
+        switch (deformation) {
+            case 0: // substitution
+                int start = random.nextInt(sb.length());
+                sb.replace(start, start + 1, "x");
+                return sb.toString();
+            case 1: // insertion
+                sb.insert(random.nextInt(sb.length() + 1), "x");
+                return sb.toString();
+            case 2: // deletion
+                sb.deleteCharAt(random.nextInt(sb.length()));
+                return sb.toString();
+            case 3: // transposition
+                int i = random.nextInt(sb.length() - 2);
+                char tmp = sb.charAt(i);
+                sb.setCharAt(i, sb.charAt(i + 1));
+                sb.setCharAt(i + 1, tmp);
+                return sb.toString();
+        }
+        return word;
     }
 }

@@ -53,7 +53,7 @@ public class EliminateDuplicates {
                     .collect(Collectors.toList());
             corpus.addDocuments(labeled);
         }
-        Log.info("Total amount of files = %d", corpus.getPages().size());
+        Log.info("Total amount of files = %d", corpus.getDocuments().size());
         WebCorpus noDuplicates = corpus.copyNoDuplicates();
         Log.info("Corpus size = %d, After removing duplicates = %d",
                 corpus.documentCount(),

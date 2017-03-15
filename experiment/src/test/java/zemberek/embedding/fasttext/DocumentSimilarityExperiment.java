@@ -233,7 +233,7 @@ public class DocumentSimilarityExperiment {
             }
             Log.info("Total doc count = %d Duplicate count= %d", corpus.documentCount(), duplicateCount);
         }
-        Log.info("Total amount of files = %d", corpus.getPages().size());
+        Log.info("Total amount of files = %d", corpus.getDocuments().size());
         corpus.save(target, false);
     }
 

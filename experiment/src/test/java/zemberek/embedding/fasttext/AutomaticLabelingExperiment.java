@@ -141,7 +141,7 @@ public class AutomaticLabelingExperiment {
         Log.info("Extracting data.");
 
         Histogram<String> labelCounts = new Histogram<>();
-        for (WebDocument document : corpus.getPages()) {
+        for (WebDocument document : corpus.getDocuments()) {
             List<String> labels = document.getLabels();
             List<String> lowerCase = labels.stream().
                     filter(s -> s.length() > 1)
@@ -160,7 +160,7 @@ public class AutomaticLabelingExperiment {
 
         Set<Long> contentHash = new HashSet<>();
 
-        for (WebDocument document : corpus.getPages()) {
+        for (WebDocument document : corpus.getDocuments()) {
             Long hash = document.getHash();
             if (contentHash.contains(hash)) {
                 continue;
@@ -283,7 +283,7 @@ public class AutomaticLabelingExperiment {
                     .collect(Collectors.toList());
             corpus.addDocuments(labeled);
         }
-        Log.info("Total amount of files = %d", corpus.getPages().size());
+        Log.info("Total amount of files = %d", corpus.getDocuments().size());
         WebCorpus noDuplicates = corpus.copyNoDuplicates();
         Log.info("Corpus size = %d, After removing duplicates = %d",
                 corpus.documentCount(),

@@ -21,6 +21,11 @@
             <artifactId>morphology</artifactId>
             <version>${parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>zemberek-nlp</groupId>
+            <artifactId>normalization</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
     </dependencies>
 
 

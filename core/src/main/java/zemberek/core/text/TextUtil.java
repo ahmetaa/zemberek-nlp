@@ -35,6 +35,8 @@ public class TextUtil {
         return Regexps.allMatches(p, allContent);
     }
 
+    private static Pattern attributePattern =
+            Pattern.compile("([\\w\\-]+)([ ]*=[ ]*\")(.+?)(\")"); // catches all xml attributes in a line.
     /**
      * returns a map with attributes of an xml line. For example if [content] is `<Foo a="one" b="two">` and [element]
      * is `Foo` it returns [a:one b:two] Map. It only check the first match in the content.
@@ -46,10 +48,9 @@ public class TextUtil {
         String elementLine = Regexps.firstMatch(p, content);
 
         Map<String, String> attributes = new HashMap<>();
-        if (elementLine == null)
+        if (elementLine == null) {
             return attributes;
-
-        Pattern attributePattern = Pattern.compile("(\\w+)([ ]*=[ ]*\")(.+?)(\")"); // catches all xml attributes in a line.
+        }
 
         Matcher m = attributePattern.matcher(elementLine);
         while (m.find()) {

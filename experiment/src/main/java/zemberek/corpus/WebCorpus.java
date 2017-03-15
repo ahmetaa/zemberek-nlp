@@ -60,7 +60,7 @@ public class WebCorpus {
         return id;
     }
 
-    public List<WebDocument> getPages() {
+    public List<WebDocument> getDocuments() {
         return pages;
     }
 

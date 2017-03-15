@@ -487,7 +487,7 @@ class CharacterGraphDecoder {
 
             // transposition
             // TODO: make length check parametric.
-            if (input.length() > 3 && nextIndex < input.length() - 1) {
+            if (input.length() > 2 && nextIndex < input.length() - 1) {
                 char transpose = input.charAt(nextIndex + 1);
                 char[] tt = matcher.matches(transpose);
                 char[] cc = matcher.matches(nextChar);

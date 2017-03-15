@@ -133,7 +133,7 @@ public class CategoryPredictionExperiment {
         ZemberekLexer lexer = new ZemberekLexer(true);
 
         Histogram<String> categoryCounts = new Histogram<>();
-        for (WebDocument document : corpus.getPages()) {
+        for (WebDocument document : corpus.getDocuments()) {
             String category = document.getCategory();
             if (category.length() > 0) {
                 categoryCounts.add(category);
@@ -147,7 +147,7 @@ public class CategoryPredictionExperiment {
         Log.info("Extracting data from %d documents ", corpus.documentCount());
         int c = 0;
 
-        for (WebDocument document : corpus.getPages()) {
+        for (WebDocument document : corpus.getDocuments()) {
             if (document.getCategory().length() == 0) {
                 continue;
             }
@@ -232,7 +232,7 @@ public class CategoryPredictionExperiment {
                     .collect(Collectors.toList());
             corpus.addDocuments(labeled);
         }
-        Log.info("Total amount of files = %d", corpus.getPages().size());
+        Log.info("Total amount of files = %d", corpus.getDocuments().size());
         WebCorpus noDuplicates = corpus.copyNoDuplicates();
         Log.info("Corpus size = %d, After removing duplicates = %d",
                 corpus.documentCount(),

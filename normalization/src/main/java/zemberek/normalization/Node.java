@@ -51,7 +51,9 @@ class Node {
             return nodeList;
         }
         for (Node emptyNode : epsilonNodes) {
-            nodeList.addAll(emptyNode.getImmediateChildNodes());
+            for(Node n: emptyNode.nodes) {
+                nodeList.add(n);
+            }
         }
         return nodeList;
     }
@@ -155,7 +157,6 @@ class Node {
         }
         return node;
     }
-
 
     @Override
     public boolean equals(Object o) {
