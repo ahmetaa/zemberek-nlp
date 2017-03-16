@@ -3371,69 +3371,69 @@ ayçiçek [A:Ext]
 kanola [A:Ext]
 dışılık [A:Ext]
 
-abadan
+abadan [A:Ext]
 abur
 acemlale [A:CompoundP3sg, Ext; Roots:acem-lale]
-Acıağaç
+Acıağaç [A:Ext]
 acıçiğdem [A:CompoundP3sg, Ext; Roots:acı-çiğdem]
-acışmak
+acışmak [A:Ext]
 acıyonca [A:CompoundP3sg, Ext; Roots:acı-yonca]
 çıtır [P:Adj]
-çileşmek
-çitişmek
+çileşmek [A:Ext]
+çitişmek [A:Ext]
 çobanyıldızı [A:CompoundP3sg; Roots:çoban-yıldız]
-derişim
-pin
-sikişmek
-eyleşmek
+derişim [A:Ext]
+pin [A:Ext]
+sikişmek [A:Ext]
+eyleşmek [A:Ext]
 fazlacana [P:Adj; A:Ext]
 folklor [A:Ext,InverseHarmony; Index:1; Ref:folklor]
-forte
+forte [A:Ext]
 frak [A:Ext; Index:1; Ref:frak]
 fuhuş [A:Ext; Index:1; Ref:fuhuş]
-gardrop
+gardrop [A:Ext]
 gasp [A:Ext,NoVoicing; Index:1; Ref:gasp]
 gsmh [Pr:gesemeha]
 gugıllamak
 hayın [A:Ext; Index:1; Ref:hain_Adj]
-ılışmak
+ılışmak [A:Ext]
 istirahat [A:Ext; Index:1; Ref:istirahat]
 kitlemek [A:Ext; Index:1; Ref:kilitlemek_Verb]
 mahkumiyet [A:Ext; Index:1; Ref:mahkûmiyet]
 mahlukat [A:Ext; Index:1; Ref:mahlûkat]
-mıncıklaşmak
-somutlamak
-şipşaklamak
-trollemek
+mıncıklaşmak [A:Ext]
+somutlamak [A:Ext]
+şipşaklamak [A:Ext]
+trollemek [A:Ext]
 tuluat [A:Ext; Index:1; Ref:tulûat]
-uydurukça
-uyumlamak
-vahlamak
-yekdiğeri
+uydurukça [A:Ext]
+uyumlamak [A:Ext]
+vahlamak [A:Ext]
+yekdiğeri [A:Ext]
 zalimane [P:Adj]
-ziyade
-allegro
-alolaşmak
-basamaklamak
-başmakçı
-beğendi
-bitti
-dolaylamak
-döküşmek
-düzüşmek
-eğişmek
-envanterlemek
-konjonktürel [P:Adj]
-mental [P:Adj; A:InverseHarmony]
-folik [A:NoSuffix]
-ecrimisil
+ziyade [A:Ext]
+allegro [A:Ext]
+alolaşmak [A:Ext]
+basamaklamak [A:Ext]
+başmakçı [A:Ext]
+beğendi [A:Ext]
+bitti [A:Ext]
+dolaylamak [A:Ext]
+döküşmek [A:Ext]
+düzüşmek [A:Ext]
+eğişmek [A:Ext]
+envanterlemek [A:Ext]
+konjonktürel [P:Adj;A:Ext]
+mental [P:Adj; A:InverseHarmony,Ext]
+folik [A:NoSuffix,Ext]
+ecrimisil [A:Ext]
 takdiren [P:Adj]
 itirazen [P:Adj]
 teminen [A:NoSuffix]
-botoks
+botoks [A:Ext]
 istihbari [P:Adj]
 regl [A:NoSuffix]
-Pitbull
+Pitbull [A:Ext]
 aleyküm [A:NoSuffix]
 ampute [P:Adj]
 koleksiyoner
@@ -3515,3 +3515,19 @@ zimmetlemek
 andıçlamak
 buzlamak
 detoks
+cukkalamak
+çuvaldızlamak
+deterjanlamak
+alevlemek
+dripling [A:NoVoicing]
+fırtlamak
+fosforlamak
+fönlemek
+fullemek
+jölelemek
+kilobayt [A:NoVoicing]
+kolajlamak
+kolilemek
+okeylemek
+patinajlamak
+veresiye

@@ -114,18 +114,28 @@ public class ZemberekNlpScripts {
     @Ignore("Not a Test.")
     public void failedWordTestIssue124() throws IOException {
         Path failPath = DATA_PATH.resolve("fails.txt");
-        Set<String> words = new HashSet<>(Files.readAllLines(failPath, StandardCharsets.UTF_8));
+        LinkedHashSet<String> words = new LinkedHashSet<>(Files.readAllLines(failPath, StandardCharsets.UTF_8));
 
-        List<String> accepted = new ArrayList<>();
+        LinkedHashSet<String> accepted = new LinkedHashSet<>();
         TurkishMorphology parser = TurkishMorphology.createWithDefaults();
         for (String s : words) {
             List<WordAnalysis> parses = parser.analyze(s);
-            if (parses.size() > 0 &&
-                    !parses.get(0).isUnknown()) {
+            for (WordAnalysis parse : parses) {
+                if (parse.isUnknown() || parse.isRuntime()) {
+                    continue;
+                }
                 accepted.add(s);
             }
         }
-        Log.info("Word count = %d Found = %d Not Found = %d", words.size(), accepted.size(), words.size()-accepted.size());
+        for (String s : accepted) {
+            words.remove(s);
+        }
+        Path failReduced = DATA_PATH.resolve("fails-reduced.txt");
+        try (PrintWriter pw = new PrintWriter(failReduced.toFile(), "utf-8")) {
+            words.forEach(pw::println);
+        }
+
+        Log.info("Word count = %d Found = %d Not Found = %d", words.size(), accepted.size(), words.size() - accepted.size());
     }
 
 

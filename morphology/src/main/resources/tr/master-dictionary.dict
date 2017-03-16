@@ -3182,6 +3182,7 @@ bitek [P:Adj]
 bitelge
 bitevi [P:Adv]
 biteviye [P:Adv]
+biteviyelik
 bitey
 bitik [P:Adj]
 bitim
@@ -4320,6 +4321,7 @@ cüzzam
 çalım
 çalımlamak
 çalıntı [P:Adj]
+çalışım
 çalışkan [P:Adj]
 çalışmak
 çalıştay
@@ -4745,7 +4747,7 @@ cüzzam
 çıvmak
 çıyan
 çıyan [P:Adj]
-çiçek
+çiçek [A:CompoundP3sg; Roots:çiçek-ev]
 çiçeklemek
 çiçeksever [P:Adj]
 çiçeksimek
@@ -5026,6 +5028,7 @@ dağınık [P:Adj]
 dağıntı
 dağıtık [P:Adj]
 dağıtım
+dağıtımevi [A:CompoundP3sg; Roots:dağıtım-ev]
 dağıtmak
 daği
 dağlağı
@@ -5606,7 +5609,7 @@ desister
 deskriptif [P:Adj]
 despot [A:NoVoicing]
 despot [P:Adj]
-despotik [P:Adv]
+despotik [P:Adj;A:NoVoicing]
 despotizm
 dessas [P:Adj]
 destan
@@ -5779,7 +5782,7 @@ dikey [P:Adv]
 dikgen [P:Adj]
 dikili [P:Adj]
 dikim
-dikimevi
+dikimevi [A:CompoundP3sg; Roots:dikim-ev]
 dikimhane
 dikine [P:Adv]
 dikiş
@@ -5808,7 +5811,7 @@ dilatometre
 dilaver
 dilbaz [P:Adj]
 dilber
-dilberdudağı
+dilberdudağı [A:CompoundP3sg; Roots:dilber-dudak]
 dildaş
 dilek
 dilekçe
@@ -6875,7 +6878,7 @@ elmasiye
 elmastıraş
 elmastıraş [P:Adj]
 elmek [P:Noun]
-eloğlu
+eloğlu [A:CompoundP3sg; Roots:el-oğul]
 elöpen
 elti
 eltieltiyeküstü
@@ -7176,7 +7179,7 @@ ertelemek
 erteletim
 ertesi [P:Adj]
 ervah
-erzak
+erzak [A:NoVoicing]
 erzel [P:Adj]
 es
 esame [A:Plural]
@@ -7440,7 +7443,7 @@ ezoterik [P:Adj]
 fa
 faal [P:Adj; A:InverseHarmony]
 faaliyet [A:NoVoicing]
-fabl [A:InverseHarmony]
+fabl
 fabrika
 fabrikasyon [P:Adj]
 fabrikatör
@@ -8837,6 +8840,7 @@ gömüt [A:NoVoicing]
 gön
 gönç [P:Adj]
 gönder
+gönderge
 gönderi
 gönderim
 göndermek
@@ -10273,7 +10277,6 @@ hutbe
 hutut
 huy
 huylanmak
-huzme
 huzur
 huzurevi [A:CompoundP3sg; Roots:huzur-ev]
 hüccet [A:NoVoicing]
@@ -10328,7 +10331,7 @@ hüsnüniyet [A:NoVoicing]
 hüsnütelâkki
 hüsnüteveccüh
 hüsnüyusuf
-hüsnüzan
+hüsnüzan [A:Doubling]
 hüsran
 hüsün [A:LastVowelDrop]
 hüthüt
@@ -10337,6 +10340,7 @@ hüveyda [P:Adj]
 hüviyet [A:NoVoicing]
 hüzün [A:LastVowelDrop]
 hüzzam
+hüzme
 ığıl
 ığrıp
 ıh [P:Interj]
@@ -11077,6 +11081,7 @@ ipnotize
 ipnotizma
 ipnoz
 ipotek
+ipoteklemek
 ipsiz [P:Adj]
 iptal [A:InverseHarmony]
 iptida
@@ -11521,7 +11526,7 @@ jeosantrik [P:Adj]
 jeosantrizm
 jeosenklinal [A:InverseHarmony]
 jeosismik [P:Adj]
-jeotermal [P:Adj]
+jeotermal [P:Adj;A:InverseHarmony]
 jeotermi
 jeotermik [P:Adj]
 jeotropizma
@@ -11534,6 +11539,7 @@ jigolo
 jikle
 jile
 jilet [A:NoVoicing]
+jiletlemek
 jimnastik
 jinekolog
 jinekoloji
@@ -11553,7 +11559,7 @@ jönprömiye
 judo
 jul [A:InverseHarmony]
 jurnal [A:InverseHarmony]
-jurnallemek
+jurnallemek [A:InverseHarmony]
 juro
 jübile
 jüpon
@@ -12112,6 +12118,7 @@ karaciğer
 karaçalı
 karaçam
 karaçayır
+karadelik
 karadul
 karadut [A:NoVoicing]
 karafa
@@ -14901,6 +14908,7 @@ lümpen
 lümpen [P:Adj]
 lünet
 lüp
+lüpletmek
 lüpten [P:Adv]
 lütesyum
 lütfen [P:Adv]
@@ -15107,6 +15115,7 @@ maki
 makina
 makine
 makinist [A:NoVoicing]
+makosen
 makro [P:Adj]
 makroekonomi
 makroekonomik [P:Adj]
@@ -15524,6 +15533,7 @@ mecnunane [P:Adv]
 mecra
 mecruh [P:Adj]
 meczup
+mezcetmek [A:Voicing, Aorist_A]
 meç
 meçhul [P:Adj; A:InverseHarmony]
 meçhulât [A:NoVoicing]
@@ -15565,6 +15575,7 @@ megafon
 megahertz
 megaloman
 megalomani
+megapol [A:InverseHarmony]
 megastar
 megaton
 megavat [A:NoVoicing]
@@ -16610,6 +16621,7 @@ mulâj
 multimedya
 multimilyoner [P:Adj]
 multipleks [P:Adj]
+multivizyon
 mum
 mumaileyh
 mumhane
@@ -17796,6 +17808,7 @@ nükûl
 nükul [A:InverseHarmony]
 nümayiş
 nümayişkâr [P:Adj]
+nümismat [A:NoVoicing]
 nüsha
 nüsha [P:Adj]
 nütasyon
@@ -18598,7 +18611,7 @@ pantograf
 pantolon
 pantomim
 pantufla
-panzehir
+panzehir [A:LastVowelDrop]
 panzer
 papa
 papağan
@@ -19306,6 +19319,7 @@ polinom [P:Adj]
 polip
 polis
 polisaj
+polisevi [A:CompoundP3sg; Roots:polis-ev]
 polisiye [P:Adj]
 politeist [P:Adj;A:NoVoicing]
 politeizm
@@ -21068,6 +21082,7 @@ seyelân
 seyfiye
 seyir [A:LastVowelDrop]
 seyirci
+seyirtmek
 seyis
 seyishane
 seyit
@@ -25076,7 +25091,7 @@ vakur [P:Adj]
 vakvak [A:NoVoicing]
 vakvaklamak
 vale
-valf
+valf [A:InverseHarmony]
 vali
 valide
 valiz
