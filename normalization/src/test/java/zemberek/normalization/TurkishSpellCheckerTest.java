@@ -1,7 +1,7 @@
 package zemberek.normalization;
 
 import com.google.common.base.Stopwatch;
-import opennlp.tools.languagemodel.LanguageModel;
+import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -12,7 +12,6 @@ import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -72,6 +71,23 @@ public class TurkishSpellCheckerTest {
 
     @Test
     @Ignore("Slow. Uses actual data.")
+    public void suggestWord1() throws Exception {
+        TurkishMorphology morphology = TurkishMorphology.builder().addDictionaryLines("Türkiye", "Bayram").build();
+        List<String> endings = Lists.newArrayList("ında", "de");
+        StemEndingGraph graph = new StemEndingGraph(morphology, endings);
+        TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology, graph.stemGraph);
+        NgramLanguageModel lm = getLm("lm-unigram.slm");
+        check(spellChecker, lm,"Türkiye'de", "Türkiye'de");
+        // TODO: "Bayramı'nda" fails.
+    }
+
+    private void check(TurkishSpellChecker spellChecker, NgramLanguageModel lm, String input, String expected) throws Exception {
+        List<String> res = spellChecker.suggestForWord(input, lm);
+        Assert.assertTrue(res.contains(expected));
+    }
+
+    @Test
+    @Ignore("Slow. Uses actual data.")
     public void suggestWordPerformanceWord() throws Exception {
         TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
         CharacterGraph graph = new CharacterGraph();
@@ -113,7 +129,7 @@ public class TurkishSpellCheckerTest {
         NgramLanguageModel lm = getLm("lm-bigram.slm");
         Path testInput = Paths.get(ClassLoader.getSystemResource("spell-checker-test-small.txt").toURI());
         List<String> sentences = Files.readAllLines(testInput, StandardCharsets.UTF_8);
-        try(PrintWriter pw = new PrintWriter("bigram-test-result.txt")) {
+        try (PrintWriter pw = new PrintWriter("bigram-test-result.txt")) {
             for (String sentence : sentences) {
                 pw.println(sentence);
                 List<String> input = TurkishSpellChecker.tokenizeForSpelling(sentence);

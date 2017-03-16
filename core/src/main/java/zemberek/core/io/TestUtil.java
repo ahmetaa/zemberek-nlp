@@ -1,10 +1,12 @@
 package zemberek.core.io;
 
+import zemberek.core.ScoredItem;
+import zemberek.core.collections.FloatValueMap;
+
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TestUtil {
 
@@ -31,4 +33,25 @@ public class TestUtil {
         return temp;
     }
 
+    @SafeVarargs
+    public static <T> boolean containsAll(FloatValueMap<T> set, T... items) {
+        for (T item : items) {
+            if (!set.contains(item)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @SafeVarargs
+    public static <T> boolean containsAll(List<ScoredItem<T>> list, T... items) {
+        Set<T> set = new HashSet<>();
+        set.addAll(list.stream().map(s1 -> s1.item).collect(Collectors.toList()));
+        for (T item : items) {
+            if (!set.contains(item)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

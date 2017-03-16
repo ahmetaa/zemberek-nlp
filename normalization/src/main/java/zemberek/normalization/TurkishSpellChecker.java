@@ -59,7 +59,7 @@ public class TurkishSpellChecker {
     }
 
     private List<String> getUnrankedSuggestions(String word) {
-        String normalized = TurkishAlphabet.INSTANCE.normalize(word);
+        String normalized = TurkishAlphabet.INSTANCE.normalize(word).replaceAll("'", "");
         List<String> strings = decoder.getSuggestions(normalized);
 
         WordAnalysisFormatter.CaseType caseType = formatter.guessCase(word);

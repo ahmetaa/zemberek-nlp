@@ -6,7 +6,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.FloatValueMap;
-import zemberek.core.logging.Log;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 import java.io.IOException;
@@ -276,10 +275,20 @@ public class CharacterGraphDecoderTest {
     @Test
     public void stemEndingTest3() throws IOException {
         TurkishMorphology morphology = TurkishMorphology.builder().addDictionaryLines("o", "ol", "ola").build();
-        List<String> endings = Lists.newArrayList("arak","acak");
+        List<String> endings = Lists.newArrayList("arak", "acak");
         StemEndingGraph graph = new StemEndingGraph(morphology, endings);
         CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(graph.stemGraph);
         List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("olarak");
-        assertContainsAll(res, "olarak", "olacak","olaarak");
+        assertContainsAll(res, "olarak", "olacak", "olaarak");
+    }
+
+    @Test
+    public void stemEndingTest() throws IOException {
+        TurkishMorphology morphology = TurkishMorphology.builder().addDictionaryLines("Türkiye", "Bayram").build();
+        List<String> endings = Lists.newArrayList("ında", "de");
+        StemEndingGraph graph = new StemEndingGraph(morphology, endings);
+        CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(graph.stemGraph);
+        List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("türkiyede");
+        assertContainsAll(res, "türkiyede");
     }
 }
