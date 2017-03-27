@@ -43,8 +43,10 @@ public class TurkishSpellChecker {
             if (analysis.isUnknown()) {
                 continue;
             }
+            String apostrophe = getApostrophe(input);
+
             if (formatter.canBeFormatted(analysis, caseType)) {
-                String formatted = formatter.formatToCase(analysis, caseType);
+                String formatted = formatter.formatToCase(analysis, caseType, apostrophe);
                 if (input.equals(formatted)) {
                     return true;
                 }
@@ -53,13 +55,23 @@ public class TurkishSpellChecker {
         return false;
     }
 
+    private String getApostrophe(String input) {
+        String apostrophe;
+        if (input.indexOf('’') > 0) {
+            apostrophe = "’";
+        } else {
+            apostrophe = "'";
+        }
+        return apostrophe;
+    }
+
     public List<String> suggestForWord(String word, NgramLanguageModel lm) {
         List<String> unRanked = getUnrankedSuggestions(word);
         return rankWithUnigramProbability(unRanked, lm);
     }
 
     private List<String> getUnrankedSuggestions(String word) {
-        String normalized = TurkishAlphabet.INSTANCE.normalize(word).replaceAll("'", "");
+        String normalized = TurkishAlphabet.INSTANCE.normalize(word).replaceAll("'’", "");
         List<String> strings = decoder.getSuggestions(normalized);
 
         WordAnalysisFormatter.CaseType caseType = formatter.guessCase(word);
@@ -74,7 +86,7 @@ public class TurkishSpellChecker {
                 if (analysis.isUnknown()) {
                     continue;
                 }
-                String formatted = formatter.formatToCase(analysis, caseType);
+                String formatted = formatter.formatToCase(analysis, caseType, getApostrophe(word));
                 results.add(formatted);
             }
         }

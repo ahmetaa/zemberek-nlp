@@ -154,8 +154,9 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
 
     public static class TrainerBuilder {
         Path trainFile;
-        int iterationCount = 5;
+        int iterationCount = 20;
         int skipSpaceFrequency = 20;
+        float learningRate = 0.1f;
         int lowerCaseFirstLetterFrequency = 20;
         boolean shuffleInput = false;
 
@@ -175,6 +176,11 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
 
         public TrainerBuilder skipSpaceFrequencyonCount(int count) {
             this.skipSpaceFrequency = skipSpaceFrequency;
+            return this;
+        }
+
+        public TrainerBuilder learningRate(float learningRate) {
+            this.learningRate = learningRate;
             return this;
         }
 
@@ -232,7 +238,7 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
                     sb.append(sentence);
                     boundaryIndexCounter = sb.length() - 1;
                     indexSet.add(boundaryIndexCounter);
-                    // in some sentences we skip adding a space between sentences.
+                    // in some sentences skip adding a space between sentences.
                     if (rnd.nextInt(builder.skipSpaceFrequency) != 1 && sentenceCounter < sentences.size() - 1) {
                         sb.append(" ");
                     }
@@ -255,14 +261,14 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
                     for (String feature : features) {
                         score += weights.get(feature);
                     }
-                    int update = 0;
+                    float update = 0;
                     // if we found no-boundary but it is a boundary
                     if (score <= 0 && indexSet.contains(j)) {
-                        update = 1;
+                        update = builder.learningRate;
                     }
                     // if we found boundary but it is not a boundary
                     else if (score > 0 && !indexSet.contains(j)) {
-                        update = -1;
+                        update = -builder.learningRate;
                     }
                     updateCount++;
                     if (update != 0) {

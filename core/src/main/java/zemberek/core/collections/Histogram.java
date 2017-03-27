@@ -2,6 +2,8 @@ package zemberek.core.collections;
 
 import com.google.common.collect.Lists;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
@@ -75,6 +77,27 @@ public class Histogram<T> implements Iterable<T> {
         }
     }
 
+    public static void serializeStringHistogram(Histogram<String> h, DataOutputStream dos) throws IOException {
+        dos.writeInt(h.size());
+        for (String key : h.map) {
+            dos.writeUTF(key);
+            dos.writeInt(h.getCount(key));
+        }
+    }
+
+    public static Histogram<String> deserializeStringHistogram(DataInputStream dis) throws IOException {
+        int size = dis.readInt();
+        if (size < 0) {
+            throw new IllegalStateException("Cannot deserialize String histogram. Count value is negative : " + size);
+        }
+        Histogram<String> result = new Histogram<>(size);
+        for (int i = 0; i < size; i++) {
+            result.set(dis.readUTF(), dis.readInt());
+        }
+        return result;
+    }
+
+
     /**
      * adds an element. and increments it's count.
      *
@@ -109,6 +132,10 @@ public class Histogram<T> implements Iterable<T> {
         for (T t : otherSet) {
             add(t, otherSet.getCount(t));
         }
+    }
+
+    public T lookup(T item) {
+        return map.lookup(item);
     }
 
     /**

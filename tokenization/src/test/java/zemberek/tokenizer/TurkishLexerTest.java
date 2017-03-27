@@ -31,12 +31,13 @@ public class TurkishLexerTest {
         // Remove the <EOF> token.
         tokens.remove(tokens.size() - 1);
         dumpTokens(tokens);
-        Assert.assertEquals("Token count is not equal to expected Token count. ",
+        Assert.assertEquals("Token count is not equal to expected Token count for input " + input,
                 expectedTokens.length, tokens.size());
         int i = 0;
         for (String expectedToken : expectedTokens) {
             Token token = tokens.get(i);
-            Assert.assertEquals(expectedToken, token.getText());
+            Assert.assertEquals(expectedToken + " is not equal to " + token.getText(),
+                    expectedToken, token.getText());
             if (tokenType != -1) {
                 Assert.assertEquals(tokenType, token.getType());
             }
@@ -219,7 +220,8 @@ public class TurkishLexerTest {
     @Test
     public void testNewline() {
         matchSentences("Hey \nAli naber\n", "Hey \n Ali naber \n");
-        matchSentences("Hey\n\r \n\rAli\n \n\n \n naber\n", "Hey \n \r \n \r Ali \n \n \n \n naber \n");
+        matchSentences("Hey\n\r \n\rAli\n \n\n \n naber\n",
+                "Hey \n \r \n \r Ali \n \n \n \n naber \n");
     }
 
 
@@ -239,16 +241,60 @@ public class TurkishLexerTest {
     }
 
     @Test
-    @Ignore ("Not an actual test. Requires external data.")
+    public void testDateToken() {
+        matchSentences(
+                "1/1/2011 02.12.1998'de.",
+                "1/1/2011 02.12.1998'de .");
+        matchToken("1/1/2011", TurkishLexer.Date, "1/1/2011");
+        matchToken("02.12.1998'de", TurkishLexer.Date, "02.12.1998'de");
+    }
+
+    @Test
+    public void testEmoticonToken() {
+        String[] emoticons = {
+                ":)", ":-)", ":-]", ":D", ":-D", "8-)", ";)", ";‑)", ":(", ":-(",
+                ":'(", ":‑/", ":/", ":^)", "¯\\_(ツ)_/¯", "O_o", "o_O", "O_O", "\\o/"
+        };
+        for (String s : emoticons) {
+            matchToken(s, TurkishLexer.Emoticon, s);
+        }
+    }
+
+    @Test
+    public void testUrl() {
+        String[] urls = {
+                "http://www.fo.bar",
+                "https://www.fo.baz.zip",
+                "www.fo.tar.kar",
+                "www.fo.bar"
+        };
+        for (String s : urls) {
+            matchToken(s, TurkishLexer.URL, s);
+        }
+    }
+
+    @Test
+    public void testEmail() {
+        String[] urls = {
+                "fo@bar.baz",
+                "fo.bar@bar.baz"
+        };
+        for (String s : urls) {
+            matchToken(s, TurkishLexer.Email, s);
+        }
+    }
+
+    @Test
+    @Ignore("Not an actual test. Requires external data.")
     public void performance() throws IOException {
         // load a hundred thousand lines.
         List<String> lines = Files.readAllLines(
-                Paths.get("/media/depo/data/aaa/corpora/dunya.100k"));
+                Paths.get("/media/data/aaa/corpora/dunya.100k"));
         Stopwatch clock = Stopwatch.createStarted();
         long tokenCount = 0;
         for (String line : lines) {
             List<Token> tokens = getTokens(line);
-            tokenCount +=  tokens.stream().filter(s ->
+            tokenCount += tokens.stream().filter(s ->
                     (s.getType() != TurkishLexer.SpaceTab)).count();
         }
         long elapsed = clock.elapsed(TimeUnit.MILLISECONDS);

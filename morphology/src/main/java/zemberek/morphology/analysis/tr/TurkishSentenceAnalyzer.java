@@ -4,11 +4,11 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import zemberek.core.io.Files;
+import zemberek.core.text.TextUtil;
 import zemberek.morphology.ambiguity.TurkishMorphDisambiguator;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.SentenceAnalysis;
-import zemberek.morphology.structure.Turkish;
 import zemberek.tokenizer.ZemberekLexer;
 
 import java.io.File;
@@ -73,7 +73,7 @@ public class TurkishSentenceAnalyzer extends BaseParser {
     }
 
     public String preProcess(String str) {
-        String quotesHyphensNormalized = Turkish.normalizeQuotesHyphens(str);
+        String quotesHyphensNormalized = TextUtil.normalizeQuotesHyphens(str);
         return Joiner.on(" ").join(lexer.tokenStrings(quotesHyphensNormalized));
     }
 

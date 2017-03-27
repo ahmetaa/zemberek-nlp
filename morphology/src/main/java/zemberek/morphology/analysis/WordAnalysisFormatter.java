@@ -15,11 +15,11 @@ public class WordAnalysisFormatter {
      *
      * @return formatted word analysis.
      */
-    public String format(WordAnalysis analysis) {
+    public String format(WordAnalysis analysis, String apostrophe) {
         DictionaryItem item = analysis.dictionaryItem;
         if (apostropheRequired(analysis)) {
             String ending = analysis.getEnding();
-            return ending.length() > 0 ? item.lemma + "'" + analysis.getEnding() : item.lemma;
+            return ending.length() > 0 ? item.lemma + apostrophe + analysis.getEnding() : item.lemma;
         } else {
             return analysis.getSurfaceForm();
         }
@@ -29,7 +29,6 @@ public class WordAnalysisFormatter {
         DictionaryItem item = analysis.dictionaryItem;
         return item.secondaryPos == SecondaryPos.ProperNoun
                 || (item.primaryPos == PrimaryPos.Numeral && item.hasAttribute(RootAttribute.Runtime))
-                || item.secondaryPos == SecondaryPos.Time
                 || item.secondaryPos == SecondaryPos.Date;
     }
 
@@ -43,8 +42,8 @@ public class WordAnalysisFormatter {
      * @param type     case type.
      * @return formatted result or empty string.
      */
-    public String formatToCase(WordAnalysis analysis, CaseType type) {
-        String formatted = format(analysis);
+    public String formatToCase(WordAnalysis analysis, CaseType type, String apostrophe) {
+        String formatted = format(analysis, apostrophe);
         switch (type) {
             case DEFAULT_CASE:
                 return formatted;
@@ -61,7 +60,7 @@ public class WordAnalysisFormatter {
                     return lemmaUpper;
                 }
                 if (apostropheRequired(analysis)) {
-                    return lemmaUpper + "'" + ending;
+                    return lemmaUpper + apostrophe + ending;
                 } else {
                     return lemmaUpper + ending;
                 }

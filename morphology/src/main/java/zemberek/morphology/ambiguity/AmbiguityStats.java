@@ -7,10 +7,10 @@ import com.google.common.collect.Maps;
 import zemberek.core.collections.Histogram;
 import zemberek.core.io.LineIterator;
 import zemberek.core.io.SimpleTextReader;
+import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
-import zemberek.morphology.structure.Turkish;
 import zemberek.tokenizer.ZemberekLexer;
 
 import java.io.File;
@@ -39,7 +39,7 @@ public class AmbiguityStats {
         File file = new File(filename);
         LineIterator it = SimpleTextReader.trimmingUTF8Reader(file).getLineIterator();
         while (it.hasNext()) {
-            String quotesHyphensNormalzied = Turkish.normalizeQuotesHyphens(it.next());
+            String quotesHyphensNormalzied = TextUtil.normalizeQuotesHyphens(it.next());
             lines.add(Joiner.on(" ").join(lexer.tokenStrings(quotesHyphensNormalzied)));
         }
         return lines;

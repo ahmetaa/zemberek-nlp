@@ -1,6 +1,7 @@
 package zemberek.core.turkish;
 
 import com.google.common.collect.ImmutableMap;
+import zemberek.core.text.TextUtil;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -361,7 +362,7 @@ public class TurkishAlphabet {
 
     public String normalize(String input) {
         StringBuilder sb = new StringBuilder(input.length());
-        input = input.toLowerCase(TR);
+        input = TextUtil.normalizeApostrophes(input.toLowerCase(TR));
         for (char c : input.toCharArray()) {
             if (isValid(c))
                 sb.append(c);

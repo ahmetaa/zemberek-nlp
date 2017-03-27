@@ -12,6 +12,7 @@ import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,6 +54,22 @@ public class TurkishSpellCheckerTest {
                 "1'e", "4'ten", "123'ü", "12,5'ten",
                 "1'E", "4'TEN", "123'Ü", "12,5'TEN",
                 "%1", "%1'i", "%1,3'ü",
+        };
+
+        for (String input : inputs) {
+            Assert.assertTrue("Fail at " + input, spellChecker.check(input));
+        }
+    }
+
+    @Test
+    public void apostropheTest() throws IOException {
+        TurkishMorphology morphology = TurkishMorphology.builder()
+                .addDictionaryLines("zaman [P:Noun, Time]").build();
+
+        TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
+
+        String[] inputs = {
+                "zamanda"
         };
 
         for (String input : inputs) {
@@ -104,7 +121,8 @@ public class TurkishSpellCheckerTest {
         Log.info("Node count with single connection= %d",
                 spellChecker.decoder.getGraph().getAllNodes(a -> a.getAllChildNodes().size() == 1).size());
 
-        Path r = Paths.get(ClassLoader.getSystemResource("10000_frequent_turkish_word").toURI());
+        URI uri = ClassLoader.getSystemResource("10000_frequent_turkish_word").toURI();
+        Path r = Paths.get(uri);
 
         List<String> words = Files.readAllLines(r, StandardCharsets.UTF_8);
         int c = 0;

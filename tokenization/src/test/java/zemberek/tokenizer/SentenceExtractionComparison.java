@@ -27,6 +27,8 @@ public class SentenceExtractionComparison {
 
     public static void main(String[] args) throws IOException {
 
+        trainZemberekSentenceExtractor();
+
         Path test = Paths.get("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Test.txt");
 
         List<String> testSentences = TextUtil.loadLinesWithText(test);
@@ -36,7 +38,7 @@ public class SentenceExtractionComparison {
         evaluate(testSentences, new TurkishSentenceExtractorAdapter());
 
         Log.info(" \n---------------- OpenNlp ------------------\n");
-        SentenceExtractor openNlpAdapter = new OpenNlpAdapter(Paths.get("/media/depo/data/aaa/tr-sent.bin"));
+        SentenceExtractor openNlpAdapter = new OpenNlpAdapter(Paths.get("/home/ahmetaa/data/nlp/tr-sent.bin"));
         evaluate(testSentences, openNlpAdapter);
     }
 
@@ -44,7 +46,8 @@ public class SentenceExtractionComparison {
         Path train = Paths.get("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Train.txt");
         TurkishSentenceExtractor extractor = TurkishSentenceExtractor.Trainer
                 .builder(train)
-                .iterationCount(7)
+                .iterationCount(10)
+                .learningRate(0.1f)
                 .shuffleSentences()
                 .build()
                 .train();

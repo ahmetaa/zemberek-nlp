@@ -4747,7 +4747,8 @@ cüzzam
 çıvmak
 çıyan
 çıyan [P:Adj]
-çiçek [A:CompoundP3sg; Roots:çiçek-ev]
+çiçek
+çiçekevi [A:CompoundP3sg; Roots:çiçek-ev]
 çiçeklemek
 çiçeksever [P:Adj]
 çiçeksimek
@@ -7160,7 +7161,7 @@ erkeçsakalı [A:CompoundP3sg; Roots:erkeç-sakal]
 erkek
 erkek [P:Adj]
 erkekçil [P:Adj]
-erkekevi
+erkekevi [A:CompoundP3sg; Roots:erkek-ev]
 erken [P:Adv]
 erken [P:Noun, Time; S:+Rel_ki]
 erkenden [P:Adv]
@@ -12789,7 +12790,8 @@ kemre
 kemrelemek
 kenar
 kenarortay
-kendi [P:Pron, Reflex]
+kendi
+## kendi [P:Pron, Reflex] TODO: fix this.
 kendigelen [P:Adj]
 kendiliğinden [P:Adj]
 kendiliğinden [P:Adv]

@@ -5,8 +5,6 @@
 lexer grammar TurkishLexer;
 
 @header {
-package zemberek.tokenizer.antlr;
-
 import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
@@ -27,9 +25,8 @@ private static Locale localeTr = new Locale("tr");
 static {
     try {
         for(String line: Resources.readLines(Resources.getResource("tokenizer/abbreviations.txt"),Charsets.UTF_8)) {
-            final int abbrEndIndex = line.indexOf(":");
-            if (abbrEndIndex > 0) {
-                final String abbr = line.substring(0, abbrEndIndex);
+            if (line.trim().length() > 0) {
+                final String abbr = line.trim().replaceAll("\\s+",""); // erase spaces
                 if (abbr.endsWith(".")) {
                     abbreviations.add(abbr);
                     abbreviations.add(abbr.toLowerCase(Locale.ENGLISH));
@@ -41,6 +38,7 @@ static {
         e.printStackTrace();
     }
 }
+
 
 @Override
 public Token nextToken() {
@@ -87,30 +85,41 @@ fragment Digit: [0-9];
 
 // Letters
 fragment TurkishLetters
-    : [a-z\u00e7\u011f\u0131\u00f6\u015f\u00fc\u00e2\u00ee\u00fb];
+    : [a-zçğıöşüâîû];
 
 fragment TurkishLettersCapital
-    : [A-Z\u00c7\u011e\u0130\u00d6\u015e\u00dc\u00c2\u00ce\u00db];
+    : [A-ZÇĞİÖŞÜÂÎÛ];
 
 fragment TurkishLettersAll
-    : [a-zA-Z\u00e7\u011f\u0131\u00f6\u015f\u00fc\u00e2\u00ee\u00fb\u00c7\u011e\u0130\u00d6\u015e\u00dc\u00c2\u00ce\u00db];
+    : [a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ];
 
 fragment AllTurkishAlphanumerical
-    : [0-9a-zA-Z\u00e7\u011f\u0131\u00f6\u015f\u00fc\u00e2\u00ee\u00fb\u00c7\u011e\u0130\u00d6\u015e\u00dc\u00c2\u00ce\u00db\-];
+    : [0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ-];
+
+fragment Apostrophe: ('\''|'’');
+
+fragment DoubleQuote: ('"'|'”'|'“'|'»'|'«');
 
 // 'lerin
-fragment AposAndSuffix: '\'' TurkishLettersAll+;
+fragment AposAndSuffix: Apostrophe TurkishLettersAll+;
 
 SpaceTab
     : [ \t]+;
 NewLine
     : [\n\r];
 
+TimeHours
+    : [0-2][0-9] (':'|'.') [0-5][0-9] AposAndSuffix? ;
+
+Date
+    :([0-3]?[0-9] '.' [0-1]?[0-9] '.' ([1][7-9][0-9][0-9]|[2][0][0-9][0-9]) AposAndSuffix?)|
+    ([0-3]?[0-9] '/' [0-1]?[0-9] '/' ([1][7-9][0-9][0-9]|[2][0][0-9][0-9]) AposAndSuffix?);
+
 PercentNumeral
     : '%' Number;
 
 Number
-    : [+\-]? Integer [.\,] Integer Exp? AposAndSuffix? // -1.35, 1.35E-9, 3,1'e
+    : [+\-]? Integer [.,] Integer Exp? AposAndSuffix? // -1.35, 1.35E-9, 3,1'e
     | [+\-]? Integer Exp AposAndSuffix?     // 1e10 -3e4 1e10'dur
     | [+\-]? Integer AposAndSuffix?         // -3, 45
     | (Integer '.')+ Integer AposAndSuffix? // 1.000.000 
@@ -125,8 +134,21 @@ fragment Integer
 fragment Exp
     : [Ee] [+\-]? Integer ;
 
-TimeHours
-    : [0-2] [0-9] ':' [0-5] [0-9] AposAndSuffix? ;
+URL :
+    ('http://'|'https://')? 'www.' (AllTurkishAlphanumerical+ '.' AllTurkishAlphanumerical+)+;
+
+Email
+    :AllTurkishAlphanumerical+ '.'? AllTurkishAlphanumerical+ '@'
+    (AllTurkishAlphanumerical+ '.' AllTurkishAlphanumerical+)+ ;
+
+HashTag: '#' AllTurkishAlphanumerical+ '#'?;
+
+Mention: '@' AllTurkishAlphanumerical+;
+
+// Only a subset.
+Emoticon
+    : ':)'|':-)'|':-]'|':D'|':-D'|'8-)'|';)'|';‑)'|':('|':-('|':\'('
+    |':‑/'|':/'|':^)'|'¯\\_(ツ)_/¯'|'O_o'|'o_O'|'O_O'|'\\o/';
 
 // Roman numbers:
 RomanNumeral
@@ -145,9 +167,12 @@ TurkishWordWithApos
     : AllTurkishAlphanumerical+ AposAndSuffix?;
 
 Punctuation
-    :  '...' | '(!)' | '(?)'| [.,!?%$&*+@\\:;\-\"\'\(\)\[\]\{\}];
+    :  Apostrophe | DoubleQuote | '…' | '...' | '(!)' | '(?)'| [.,!?%$&*+@:;]
+    | '\\' | '-'  | '(' | ')' | '[' | ']' | '{' | '}';
 
-UnknownWord: (~[ \n\r'\t.,!?%$&*+@\\:;\-\"\(\)\[\]\{\}])+;
+UnknownWord
+    : ~([ \n\r\t.,!?%$&*+@:;] | '\'' | '’' | '"' | '”' | '“' | '»' | '«'
+    |'\\' | '-' |'(' | ')' | '[' | ']' | '{' | '}')+;
 
 // Catch all remaining as Unknown.
 Unknown : .+? ;

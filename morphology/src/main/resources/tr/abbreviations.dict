@@ -227,7 +227,7 @@ Dyo
 Dyp
 Dz
 E
-Ebk [Pr:ebeka]
+EBK [Pr:ebeka]
 Ecb
 Eco
 Eds
@@ -442,10 +442,8 @@ Jos
 Joy
 Jp
 Jr
-Ju
 Jun
 K
-Ka
 Kaf
 Kai
 Kb
@@ -649,7 +647,7 @@ Op
 Opr
 Or
 Ork
-Osb
+OSB [pr:osebe]
 Osd
 Oş
 Out
@@ -915,7 +913,6 @@ V8 [pr:vesekiz]
 Val
 Vb
 Vcd
-Ve
 Vfb
 Vı
 Vıı
@@ -1002,4 +999,9 @@ Zdf
 Zec
 Epdk [pr:epedeka]
 vd [pr:vede]
+m² [pr:metrekare]
+km² [pr:kilometrekare]
+cm² [pr:santimetrekare]
+Alm. [pr:almanca]
+İng. [pr:ingilizce]
 

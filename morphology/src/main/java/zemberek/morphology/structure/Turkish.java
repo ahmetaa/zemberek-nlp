@@ -21,7 +21,7 @@ public class Turkish {
     public static final TurkishAlphabet Alphabet = TurkishAlphabet.INSTANCE;
     public static final Collator COLLATOR = Collator.getInstance(LOCALE);
 
-    static UIntMap<String> turkishLetterProns  = new UIntMap<>();
+    static UIntMap<String> turkishLetterProns = new UIntMap<>();
 
     static {
         try {
@@ -46,8 +46,7 @@ public class Turkish {
             char c = w.charAt(i);
             if (turkishLetterProns.containsKey(c)) {
                 sb.append(turkishLetterProns.get(c));
-            }
-            else {
+            } else {
                 Log.warn("Cannot identify character " + String.valueOf(c) + " in pronunciation of :[" + w + "]");
             }
         }
@@ -97,20 +96,5 @@ public class Turkish {
                 .append(" ")
                 .append(matcher.group(3));
         return sb.toString().trim();
-    }
-
-    /**
-     * This method converts different single and double quote symbols to a unified form.
-     * also it reduces two connected single quotes to a one double quote.
-     *
-     * @param input input string.
-     * @return cleaned input string.
-     */
-    public static String normalizeQuotesHyphens(String input) {
-        // rdquo, ldquo, laquo, raquo, Prime sybols in unicode.
-        return input
-                .replaceAll("[\u201C\u201D\u00BB\u00AB\u2033\u0093\u0094]|''", "\"")
-                .replaceAll("[\u0091\u0092\u2032´`’‘]", "'")
-                .replaceAll("[\u0096\u0097–]", "-");
     }
 }

@@ -15,6 +15,8 @@ import zemberek.morphology.lexicon.SuffixSurfaceNodeGenerator;
 import zemberek.morphology.lexicon.tr.StemNodeGenerator;
 
 import java.util.*;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DynamicLexiconGraph {
 
@@ -34,43 +36,61 @@ public class DynamicLexiconGraph {
     private ArrayListMultimap<String, StemNode> multiStems = ArrayListMultimap.create(1000, 2);
     private Map<String, StemNode> singleStems = Maps.newConcurrentMap();
 
+    //TODO: check the lock mechanism
+    private ReadWriteLock lock = new ReentrantReadWriteLock();
+
     public DynamicLexiconGraph(SuffixProvider suffixProvider) {
         this.suffixProvider = suffixProvider;
         this.stemNodeGenerator = new StemNodeGenerator(suffixProvider);
     }
 
     private synchronized void addStemNode(StemNode stemNode) {
-        final String surfaceForm = stemNode.surfaceForm;
-        if (multiStems.containsKey(surfaceForm)) {
-            multiStems.put(surfaceForm, stemNode);
-        } else if (singleStems.containsKey(surfaceForm)) {
-            multiStems.put(surfaceForm, singleStems.get(surfaceForm));
-            singleStems.remove(surfaceForm);
-            multiStems.put(surfaceForm, stemNode);
-        } else {
-            singleStems.put(surfaceForm, stemNode);
+        lock.writeLock().lock();
+        try {
+            final String surfaceForm = stemNode.surfaceForm;
+            if (multiStems.containsKey(surfaceForm)) {
+                multiStems.put(surfaceForm, stemNode);
+            } else if (singleStems.containsKey(surfaceForm)) {
+                multiStems.put(surfaceForm, singleStems.get(surfaceForm));
+                singleStems.remove(surfaceForm);
+                multiStems.put(surfaceForm, stemNode);
+            } else {
+                singleStems.put(surfaceForm, stemNode);
+            }
+            stemNodes.add(stemNode);
+        } finally {
+            lock.writeLock().unlock();
         }
-        stemNodes.add(stemNode);
     }
 
     private synchronized void removeStemNode(StemNode stemNode) {
-        final String surfaceForm = stemNode.surfaceForm;
-        if (multiStems.containsKey(surfaceForm)) {
-            multiStems.remove(surfaceForm, stemNode);
-        } else if (singleStems.containsKey(surfaceForm)
-                && singleStems.get(surfaceForm).getDictionaryItem().equals(stemNode.dictionaryItem)) {
-            singleStems.remove(surfaceForm);
+        lock.writeLock().lock();
+        try {
+            final String surfaceForm = stemNode.surfaceForm;
+            if (multiStems.containsKey(surfaceForm)) {
+                multiStems.remove(surfaceForm, stemNode);
+            } else if (singleStems.containsKey(surfaceForm)
+                    && singleStems.get(surfaceForm).getDictionaryItem().equals(stemNode.dictionaryItem)) {
+                singleStems.remove(surfaceForm);
+            }
+            stemNodes.remove(stemNode);
+        } finally {
+            lock.writeLock().unlock();
         }
-        stemNodes.remove(stemNode);
     }
 
     public List<StemNode> getMatchingStemNodes(String stem) {
-        if (singleStems.containsKey(stem)) {
-            return Lists.newArrayList(singleStems.get(stem));
-        } else if (multiStems.containsKey(stem)) {
-            return Lists.newArrayList(multiStems.get(stem));
-        } else {
-            return Collections.emptyList();
+        lock.readLock().lock();
+        try {
+            if (singleStems.containsKey(stem)) {
+                return Lists.newArrayList(singleStems.get(stem));
+            } else if (multiStems.containsKey(stem)) {
+                return Lists.newArrayList(multiStems.get(stem));
+            } else {
+                return Collections.emptyList();
+            }
+        } finally {
+            lock.readLock().unlock();
         }
     }
 
@@ -80,8 +100,9 @@ public class DynamicLexiconGraph {
 
     private void addNodes(StemNode... nodes) {
         for (StemNode node : nodes) {
-            if (!containsNode(node))
+            if (!containsNode(node)) {
                 addStemNode(node);
+            }
         }
     }
 
@@ -115,8 +136,13 @@ public class DynamicLexiconGraph {
     }
 
     public void removeDictionaryItem(DictionaryItem item) {
-        StemNode[] stems = stemNodeGenerator.generate(item);
-        removeStemNodes(stems);
+        lock.writeLock().lock();
+        try {
+            StemNode[] stems = stemNodeGenerator.generate(item);
+            removeStemNodes(stems);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     private boolean connectStemNode(StemNode stem) {

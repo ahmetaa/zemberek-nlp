@@ -116,6 +116,17 @@ public class TextUtil {
     }
 
 
+    /**
+     * This method converts different apostrophe symbols to a unified form.
+     *
+     * @param input input string.
+     * @return cleaned input string.
+     */
+    public static String normalizeApostrophes(String input) {
+        // rdquo, ldquo, laquo, raquo, Prime sybols in unicode.
+        return input.replaceAll("[\u0091\u0092\u2032´`’‘]", "'");
+    }
+
     public static int countChars(String s, char c) {
         int cnt = 0;
         for (int i = 0; i < s.length(); i++) {

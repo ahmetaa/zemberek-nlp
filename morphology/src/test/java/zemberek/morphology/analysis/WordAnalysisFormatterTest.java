@@ -23,7 +23,7 @@ public class WordAnalysisFormatterTest {
         for (String input : inputs) {
             List<WordAnalysis> results = morphology.analyze(input);
             for (WordAnalysis result : results) {
-                Assert.assertEquals(input, formatter.format(result));
+                Assert.assertEquals(input, formatter.format(result,"'"));
             }
         }
     }
@@ -43,7 +43,7 @@ public class WordAnalysisFormatterTest {
             List<WordAnalysis> results = morphology.analyze(input);
             for (WordAnalysis result : results) {
                 if (result.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun) {
-                    Assert.assertEquals(expected[i], formatter.format(result));
+                    Assert.assertEquals(expected[i], formatter.format(result,"'"));
                 }
             }
             i++;
@@ -65,7 +65,7 @@ public class WordAnalysisFormatterTest {
             List<WordAnalysis> results = morphology.analyze(input);
             for (WordAnalysis result : results) {
                 if (result.getDictionaryItem().primaryPos == PrimaryPos.Numeral) {
-                    Assert.assertEquals(expected[i], formatter.format(result));
+                    Assert.assertEquals(expected[i], formatter.format(result,"'"));
                 }
             }
             i++;
@@ -112,7 +112,7 @@ public class WordAnalysisFormatterTest {
         for (String input : inputs) {
             List<WordAnalysis> results = morphology.analyze(input);
             for (WordAnalysis result : results) {
-                Assert.assertEquals(expected[i], formatter.formatToCase(result, caseType));
+                Assert.assertEquals(expected[i], formatter.formatToCase(result, caseType,"'"));
             }
             i++;
         }
