@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Extracts tokens from sentences.
+ * A Trainable tokenizer.
  * TODO: Not yet finished.
  */
 class TurkishTokenizer extends PerceptronSegmenter implements Tokenizer {

@@ -122,6 +122,17 @@ public class TurkishLexerTest {
     }
 
     @Test
+    public void testApostrophes() {
+        matchToken("foo'f", "foo'f");
+        matchToken("foo’f", "foo’f");
+        matchSentences("’foo", "’ foo");
+        matchSentences("’’foo’", "’ ’ foo ’");
+        matchSentences("'foo'", "' foo '");
+        matchSentences("'foo'fo", "' foo'fo");
+        matchSentences("‘foo'fo’", "‘ foo'fo ’");
+    }
+
+    @Test
     public void testTokenBoundaries() {
         List<Token> tokens = getTokens("bir av. geldi.");
         Token t0 = tokens.get(0);
@@ -237,7 +248,13 @@ public class TurkishLexerTest {
         matchSentences(
                 "Saat, 10:20 ile 00:59 arasinda.",
                 "Saat , 10:20 ile 00:59 arasinda .");
-        matchToken("10:20", TurkishLexer.TimeHours, "10:20");
+        matchToken("10:20", TurkishLexer.Time, "10:20");
+    }
+
+    @Test
+    public void testTimeTokenSeconds() {
+        matchToken("10:20:53", TurkishLexer.Time, "10:20:53");
+        matchToken("10.20.00'da", TurkishLexer.Time, "10.20.00'da");
     }
 
     @Test
@@ -266,7 +283,19 @@ public class TurkishLexerTest {
                 "http://www.fo.bar",
                 "https://www.fo.baz.zip",
                 "www.fo.tar.kar",
-                "www.fo.bar"
+                "www.fo.bar",
+                "http://www.foo.net/showthread.php?134628-ucreti",
+        };
+        for (String s : urls) {
+            matchToken(s, TurkishLexer.URL, s);
+        }
+    }
+
+    @Test
+    public void testUrl2() {
+        String[] urls = {
+                "https://www.google.com.tr/search?q=bla+foo&oq=blah+net&aqs=chrome.0.0l6",
+                "https://www.google.com.tr/search?q=bla+foo&oq=blah+net&aqs=chrome.0.0l6.5486j0j4&sourceid=chrome&ie=UTF-8"
         };
         for (String s : urls) {
             matchToken(s, TurkishLexer.URL, s);

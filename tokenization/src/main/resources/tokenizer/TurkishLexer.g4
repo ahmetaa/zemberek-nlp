@@ -108,12 +108,12 @@ SpaceTab
 NewLine
     : [\n\r];
 
-TimeHours
-    : [0-2][0-9] (':'|'.') [0-5][0-9] AposAndSuffix? ;
+Time
+    : [0-2][0-9] (':'|'.') [0-5][0-9] ((':'|'.') [0-5][0-9])? AposAndSuffix? ;
 
 Date
-    :([0-3]?[0-9] '.' [0-1]?[0-9] '.' ([1][7-9][0-9][0-9]|[2][0][0-9][0-9]) AposAndSuffix?)|
-    ([0-3]?[0-9] '/' [0-1]?[0-9] '/' ([1][7-9][0-9][0-9]|[2][0][0-9][0-9]) AposAndSuffix?);
+    :([0-3]?[0-9] '.' [0-1]?[0-9] '.' ([1][7-9][0-9][0-9]|[2][0][0-9][0-9]|[0-9][0-9]) AposAndSuffix?)|
+    ([0-3]?[0-9] '/' [0-1]?[0-9] '/' ([1][7-9][0-9][0-9]|[2][0][0-9][0-9]|[0-9][0-9]) AposAndSuffix?);
 
 PercentNumeral
     : '%' Number;
@@ -134,18 +134,24 @@ fragment Integer
 fragment Exp
     : [Ee] [+\-]? Integer ;
 
+fragment URLFragment
+    : [0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ\\-_]+;
+fragment URLFragmentWithDot
+    :'.'[0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ\\-_/?&+;=]+;
+
 URL :
-    ('http://'|'https://')? 'www.' (AllTurkishAlphanumerical+ '.' AllTurkishAlphanumerical+)+;
+    ('http://'|'https://')? 'www.' URLFragment URLFragmentWithDot+;
 
 Email
     :AllTurkishAlphanumerical+ '.'? AllTurkishAlphanumerical+ '@'
     (AllTurkishAlphanumerical+ '.' AllTurkishAlphanumerical+)+ ;
 
-HashTag: '#' AllTurkishAlphanumerical+ '#'?;
+HashTag: '#' AllTurkishAlphanumerical+;
 
 Mention: '@' AllTurkishAlphanumerical+;
 
 // Only a subset.
+// TODO: Add more, also consider Emoji tokens.
 Emoticon
     : ':)'|':-)'|':-]'|':D'|':-D'|'8-)'|';)'|';‑)'|':('|':-('|':\'('
     |':‑/'|':/'|':^)'|'¯\\_(ツ)_/¯'|'O_o'|'o_O'|'O_O'|'\\o/';
@@ -167,11 +173,11 @@ TurkishWordWithApos
     : AllTurkishAlphanumerical+ AposAndSuffix?;
 
 Punctuation
-    :  Apostrophe | DoubleQuote | '…' | '...' | '(!)' | '(?)'| [.,!?%$&*+@:;]
+    :  Apostrophe | DoubleQuote | '‘' | '…' | '...' | '(!)' | '(?)'| [.,!?%$&*+@:;]
     | '\\' | '-'  | '(' | ')' | '[' | ']' | '{' | '}';
 
 UnknownWord
-    : ~([ \n\r\t.,!?%$&*+@:;] | '\'' | '’' | '"' | '”' | '“' | '»' | '«'
+    : ~([ \n\r\t.,!?%$&*+@:;] | '\'' | '’' | '‘' | '"' | '”' | '“' | '»' | '«'
     |'\\' | '-' |'(' | ')' | '[' | ']' | '{' | '}')+;
 
 // Catch all remaining as Unknown.
