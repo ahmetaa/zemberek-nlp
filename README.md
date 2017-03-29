@@ -58,38 +58,31 @@ Maven artifact id : **core**
 
 ### Morphology
 
-Turkish morphological analysis, disambiguation and generation. [Documentation](https://github.com/ahmetaa/zemberek-nlp/tree/master/morphology)
+Turkish morphological analysis, disambiguation and generation. [Documentation](morphology)
 
 Maven artifact id : **morphology**
 
 ### Tokenization
 
-Turkish Tokenization and sentence boundary detection. So far only rule based algorithms. [Documentation](https://github.com/ahmetaa/zemberek-nlp/tree/master/tokenization)
+Turkish Tokenization and sentence boundary detection. [Documentation](tokenization)
 
 Maven artifact id : **tokenization**
 
-### Hyphenation
-
-Turkish syllabification and hyphenation.
-
-Maven artifact id : **hyphenation**
-
 ### Language Identification.
 
-Allows fast identification of text language. [Documentation](https://github.com/ahmetaa/zemberek-nlp/tree/master/lang-id)
+Allows fast identification of text language. [Documentation](lang-id)
 
 Maven artifact id : **lang-id**
 
 ### Language modeling
 
-Only provides a language compression implementation. [Documentation](https://github.com/ahmetaa/zemberek-nlp/tree/master/lm)
+Only provides a language compression implementation. [Documentation](lm)
 
 Maven artifact id : **lm**
 
 ### Normalization
 
-**Not yet finished.**
-So far only provides fast edit-distance dictionary matching. [Documentation.](https://github.com/ahmetaa/zemberek-nlp/tree/master/normalization)
+Provides a spell checker and formatter. [Documentation.](normalization)
 
 Maven artifact id : **normalization**
 
