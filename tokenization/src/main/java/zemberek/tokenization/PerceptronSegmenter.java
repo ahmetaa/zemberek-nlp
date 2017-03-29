@@ -1,4 +1,4 @@
-package zemberek.tokenizer;
+package zemberek.tokenization;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
@@ -23,7 +23,7 @@ abstract class PerceptronSegmenter {
 
     static {
         try {
-            for (String line : Resources.readLines(Resources.getResource("tokenizer/abbreviations.txt"), Charsets.UTF_8)) {
+            for (String line : Resources.readLines(Resources.getResource("tokenization/abbreviations.txt"), Charsets.UTF_8)) {
                 if (line.trim().length() > 0) {
                     final String abbr = line.trim().replaceAll("\\s+",""); // erase spaces
                     TurkishAbbreviationSet.add(abbr.replaceAll("\\.$", "")); // erase last dot amd add.

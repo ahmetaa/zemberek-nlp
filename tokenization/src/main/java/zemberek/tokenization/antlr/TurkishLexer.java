@@ -1,5 +1,4 @@
-// Generated from /home/cemil/projects/zemberek5/tokenization/src/main/resources/tokenizer/TurkishLexer.g4 by ANTLR 4.6
-package zemberek.tokenizer.antlr;
+package zemberek.tokenization.antlr;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
@@ -7,7 +6,6 @@ import com.google.common.io.Resources;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.ATN;
 import org.antlr.v4.runtime.atn.ATNDeserializer;
-import org.antlr.v4.runtime.atn.LexerATNSimulator;
 import org.antlr.v4.runtime.atn.PredictionContextCache;
 import org.antlr.v4.runtime.dfa.DFA;
 
@@ -23,30 +21,30 @@ public class TurkishLexer extends Lexer {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		Abbreviation=1, SpaceTab=2, NewLine=3, Time=4, Date=5, PercentNumeral=6, 
-		Number=7, URL=8, Email=9, HashTag=10, Mention=11, Emoticon=12, RomanNumeral=13, 
-		AbbreviationWithDots=14, TurkishWord=15, TurkishWordWithApos=16, Punctuation=17, 
+		Abbreviation=1, SpaceTab=2, NewLine=3, Time=4, Date=5, PercentNumeral=6,
+		Number=7, URL=8, Email=9, HashTag=10, Mention=11, Emoticon=12, RomanNumeral=13,
+		AbbreviationWithDots=14, Word=15, WordWithApostrophe=16, Punctuation=17,
 		UnknownWord=18, Unknown=19;
 	public static String[] modeNames = {
 		"DEFAULT_MODE"
 	};
 
 	public static final String[] ruleNames = {
-		"Digit", "TurkishLetters", "TurkishLettersCapital", "TurkishLettersAll", 
-		"AllTurkishAlphanumerical", "Apostrophe", "DoubleQuote", "AposAndSuffix", 
-		"SpaceTab", "NewLine", "Time", "Date", "PercentNumeral", "Number", "Integer", 
-		"Exp", "URLFragment", "URLFragmentWithDot", "URL", "Email", "HashTag", 
-		"Mention", "Emoticon", "RomanNumeral", "AbbreviationWithDots", "TurkishWord", 
-		"TurkishWordWithApos", "Punctuation", "UnknownWord", "Unknown"
+		"Digit", "TurkishLetters", "TurkishLettersCapital", "TurkishLettersAll",
+		"AllTurkishAlphanumerical", "Apostrophe", "DoubleQuote", "AposAndSuffix",
+		"SpaceTab", "NewLine", "Time", "Date", "PercentNumeral", "Number", "Integer",
+		"Exp", "URLFragment", "URLFragmentWithDot", "URL", "Email", "HashTag",
+		"Mention", "Emoticon", "RomanNumeral", "AbbreviationWithDots", "Word",
+		"WordWithApostrophe", "Punctuation", "UnknownWord", "Unknown"
 	};
 
 	private static final String[] _LITERAL_NAMES = {
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
-		null, "Abbreviation", "SpaceTab", "NewLine", "Time", "Date", "PercentNumeral", 
-		"Number", "URL", "Email", "HashTag", "Mention", "Emoticon", "RomanNumeral", 
-		"AbbreviationWithDots", "TurkishWord", "TurkishWordWithApos", "Punctuation", 
-		"UnknownWord", "Unknown"
+		null, "Abbreviation", "SpaceTab", "NewLine", "Time", "Date", "PercentNumeral",
+		"Number", "URL", "Email", "HashTag", "Mention", "Emoticon", "RomanNumeral",
+		"AbbreviationWithDots", "Word", "WordWithApostrophe", "Punctuation", "UnknownWord",
+		"Unknown"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -88,7 +86,7 @@ public class TurkishLexer extends Lexer {
 
 	static {
 	    try {
-	        for(String line: Resources.readLines(Resources.getResource("tokenizer/abbreviations.txt"),Charsets.UTF_8)) {
+	        for(String line: Resources.readLines(Resources.getResource("tokenization/abbreviations.txt"),Charsets.UTF_8)) {
 	            if (line.trim().length() > 0) {
 	                final String abbr = line.trim().replaceAll("\\s+",""); // erase spaces
 	                if (abbr.endsWith(".")) {
@@ -113,7 +111,7 @@ public class TurkishLexer extends Lexer {
 
 	    Token next = super.nextToken();
 
-	    if(next.getType() != TurkishWord) {
+	    if(next.getType() != Word) {
 	      return next;
 	    }
 

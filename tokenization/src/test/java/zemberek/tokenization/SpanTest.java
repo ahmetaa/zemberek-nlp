@@ -1,4 +1,4 @@
-package zemberek.tokenizer;
+package zemberek.tokenization;
 
 import org.junit.Assert;
 import org.junit.Test;

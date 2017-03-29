@@ -9,7 +9,7 @@ import zemberek.morphology.ambiguity.TurkishMorphDisambiguator;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.SentenceAnalysis;
-import zemberek.tokenizer.ZemberekLexer;
+import zemberek.tokenization.TurkishTokenizer;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +19,7 @@ public class TurkishSentenceAnalyzer extends BaseParser {
 
     private TurkishMorphology turkishMorphology;
     private TurkishMorphDisambiguator disambiguator;
-    private ZemberekLexer lexer = new ZemberekLexer();
+    private TurkishTokenizer lexer = TurkishTokenizer.DEFAULT;
 
     /**
      * Generates a TurkishSentenceAnalyzer from a resource directory.
@@ -74,7 +74,7 @@ public class TurkishSentenceAnalyzer extends BaseParser {
 
     public String preProcess(String str) {
         String quotesHyphensNormalized = TextUtil.normalizeQuotesHyphens(str);
-        return Joiner.on(" ").join(lexer.tokenStrings(quotesHyphensNormalized));
+        return Joiner.on(" ").join(lexer.tokenizeToStrings(quotesHyphensNormalized));
     }
 
     /**

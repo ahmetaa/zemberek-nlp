@@ -24,7 +24,7 @@ private static Locale localeTr = new Locale("tr");
 
 static {
     try {
-        for(String line: Resources.readLines(Resources.getResource("tokenizer/abbreviations.txt"),Charsets.UTF_8)) {
+        for(String line: Resources.readLines(Resources.getResource("tokenization/abbreviations.txt"),Charsets.UTF_8)) {
             if (line.trim().length() > 0) {
                 final String abbr = line.trim().replaceAll("\\s+",""); // erase spaces
                 if (abbr.endsWith(".")) {
@@ -165,11 +165,11 @@ AbbreviationWithDots
     : (TurkishLettersCapital '.')+ TurkishLettersCapital? AposAndSuffix?;
 
 // Merhaba kedi
-TurkishWord
+Word
     : TurkishLettersAll+;
 
 // Ahmet'in
-TurkishWordWithApos
+WordWithApostrophe
     : AllTurkishAlphanumerical+ AposAndSuffix?;
 
 Punctuation

@@ -2,9 +2,9 @@ package zemberek.morphology.morphotactics;
 
 import com.google.common.base.Preconditions;
 import zemberek.core.logging.Log;
+import zemberek.core.turkish.TurkishAlphabet;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class LexicalTransition {
 
@@ -12,18 +12,29 @@ public class LexicalTransition {
     LexicalState to;
     // this string represents the possible surface forms for this transition.
     String surfaceTemplate;
-    Set<Rule> rules;
+    Set<Rule> rules = new HashSet<>(2);
 
     private LexicalTransition(Builder builder) {
         Preconditions.checkNotNull(builder.from);
         Preconditions.checkNotNull(builder.to);
-        Preconditions.checkNotNull(builder.surfaceTemplate);
         this.from = builder.from;
         this.to = builder.to;
-        this.surfaceTemplate = builder.surfaceTemplate;
+        this.surfaceTemplate = builder.surfaceTemplate == null ? "" : builder.surfaceTemplate;
         this.rules = builder.rules;
+        this.rules.addAll(rulesFromTemplate(this.surfaceTemplate));
         from.addOutgoing(this);
         to.addIncoming(this);
+    }
+
+    private List<Rule> rulesFromTemplate(String template) {
+        if (template == null || template.length() == 0) {
+            return Collections.emptyList();
+        }
+        List<Rule> rules = new ArrayList<>(1);
+        if (template.startsWith(">") || !TurkishAlphabet.INSTANCE.isVowel(template.charAt(0))) {
+            rules.add(Rules.rejectAny(RuleNames.WovelExpecting));
+        }
+        return rules;
     }
 
     public Builder builder() {

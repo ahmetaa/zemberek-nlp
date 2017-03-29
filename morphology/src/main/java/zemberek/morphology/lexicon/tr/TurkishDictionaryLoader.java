@@ -206,7 +206,7 @@ public class TurkishDictionaryLoader {
                 else
                     lateEntries.add(lineData);
             } catch (Exception e) {
-                System.out.println("Exception in line:" + line);
+                Log.info("Exception in line:" + line);
                 throw new IOException(e);
             }
             return true;
@@ -281,7 +281,10 @@ public class TurkishDictionaryLoader {
 
             String pronunciation = data.metaData.get(MetaDataId.PRONUNCIATION);
             if (pronunciation == null) {
-                if (new TurkicSeq(cleanWord, alphabet).hasVowel()) {
+                if (posInfo.primaryPos == PrimaryPos.Punctuation) {
+                    //TODO: what to do with pronunciations of punctuations? For now we give them a generic one.
+                    pronunciation = "a";
+                } else if (new TurkicSeq(cleanWord, alphabet).hasVowel()) {
                     pronunciation = cleanWord;
                 } else {
                     pronunciation = Turkish.inferPronunciation(cleanWord);
@@ -307,7 +310,7 @@ public class TurkishDictionaryLoader {
             if (posInfo.primaryPos == PrimaryPos.Punctuation) {
                 return word;
             }
-            if (posInfo.primaryPos == PrimaryPos.Verb &&  word.length()>3 && (word.endsWith("mek") || word.endsWith("mak"))) {
+            if (posInfo.primaryPos == PrimaryPos.Verb && word.length() > 3 && (word.endsWith("mek") || word.endsWith("mak"))) {
                 word = word.substring(0, word.length() - 3); // erase -mek -mak
             }
             word = word.toLowerCase(locale).replaceAll("â", "a").replaceAll("î", "i").replaceAll("û", "u");

@@ -2,8 +2,8 @@ package zemberek.corpus;
 
 import zemberek.core.logging.Log;
 import zemberek.normalization.TurkishSpellChecker;
-import zemberek.tokenizer.TurkishSentenceExtractor;
-import zemberek.tokenizer.ZemberekLexer;
+import zemberek.tokenization.TurkishSentenceExtractor;
+import zemberek.tokenization.TurkishTokenizer;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,6 +15,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class SpellingCorpusProducer {
+
+    public static void main(String[] args) throws IOException {
+        Path rawRoot = Paths.get("/home/ahmetaa/data/text/news-corpus");
+        Path sentenceRoot = Paths.get("/home/ahmetaa/data/text/news-sentences");
+        Path corpus = Paths.get("/home/ahmetaa/data/text/spelling-corpus");
+        extractSentencesFromDir(rawRoot, sentenceRoot);
+        extractTokenCorpusFromDir(sentenceRoot, corpus);
+    }
 
     void extractSentences(Path input, Path output) throws IOException {
 
@@ -45,7 +53,7 @@ public class SpellingCorpusProducer {
     }
 
     void generateCorpus(List<Path> sentenceCorpusPaths, Path output) throws IOException {
-        ZemberekLexer lexer = new ZemberekLexer(true);
+        TurkishTokenizer lexer = TurkishTokenizer.DEFAULT;
         try (PrintWriter pw = new PrintWriter(output.toFile(), "utf-8")) {
             for (Path input : sentenceCorpusPaths) {
                 WebCorpus wc = getWebCorpus(input);
@@ -60,14 +68,6 @@ public class SpellingCorpusProducer {
                 }
             }
         }
-    }
-
-    public static void main(String[] args) throws IOException {
-        Path rawRoot = Paths.get("/home/ahmetaa/data/text/news-corpus");
-        Path sentenceRoot = Paths.get("/home/ahmetaa/data/text/news-sentences");
-        Path corpus = Paths.get("/home/ahmetaa/data/text/spelling-corpus");
-        extractSentencesFromDir(rawRoot, sentenceRoot);
-        extractTokenCorpusFromDir(sentenceRoot, corpus);
     }
 
     private static void extractSentencesFromDir(Path rawRoot, Path sentenceRoot) throws IOException {

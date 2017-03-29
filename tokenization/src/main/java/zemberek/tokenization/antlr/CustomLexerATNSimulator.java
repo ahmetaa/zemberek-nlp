@@ -1,4 +1,4 @@
-package zemberek.tokenizer.antlr;
+package zemberek.tokenization.antlr;
 
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.atn.ATN;

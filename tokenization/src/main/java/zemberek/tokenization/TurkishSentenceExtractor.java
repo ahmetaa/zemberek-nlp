@@ -1,4 +1,4 @@
-package zemberek.tokenizer;
+package zemberek.tokenization;
 
 import com.google.common.base.Splitter;
 import com.google.common.io.Resources;
@@ -147,7 +147,7 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
 
     private static TurkishSentenceExtractor fromDefaultModel() throws IOException {
         try (DataInputStream dis = IOUtil.getDataInputStream(
-                Resources.getResource("tokenizer/sentence-boundary-model.bin").openStream())) {
+                Resources.getResource("tokenization/sentence-boundary-model.bin").openStream())) {
             return new TurkishSentenceExtractor(load(dis));
         }
     }

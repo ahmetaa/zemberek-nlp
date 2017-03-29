@@ -1,4 +1,4 @@
-package zemberek.tokenizer;
+package zemberek.tokenization;
 
 /**
  * Represents a segment from a sequence of data.

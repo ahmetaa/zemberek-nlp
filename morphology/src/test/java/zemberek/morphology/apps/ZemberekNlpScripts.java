@@ -28,8 +28,8 @@ import zemberek.morphology.lexicon.SuffixForm;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
 import zemberek.morphology.structure.Turkish;
-import zemberek.tokenizer.ZemberekLexer;
-import zemberek.tokenizer.antlr.TurkishLexer;
+import zemberek.tokenization.TurkishTokenizer;
+import zemberek.tokenization.antlr.TurkishLexer;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -527,9 +527,9 @@ public class ZemberekNlpScripts {
         long tokenCount = 0;
         long tokenCountNoPunct = 0;
         Stopwatch clock = Stopwatch.createStarted();
-        ZemberekLexer lexer = new ZemberekLexer();
+        TurkishTokenizer lexer = TurkishTokenizer.DEFAULT;
         for (String line : lines) {
-            List<Token> tokens = lexer.tokenizeAll(line);
+            List<Token> tokens = lexer.tokenize(line);
             tokenCount += tokens.stream()
                     .filter(s -> (s.getType() != TurkishLexer.SpaceTab))
                     .count();
@@ -686,9 +686,9 @@ public class ZemberekNlpScripts {
     private LinkedHashSet<String> getStrings() throws IOException {
         List<String> lines = Files.readAllLines(Paths.get("/media/depo/data/aaa/corpora/dunya.500k"));
         LinkedHashSet<String> words = new LinkedHashSet<>();
-        ZemberekLexer lexer = new ZemberekLexer();
+        TurkishTokenizer lexer = TurkishTokenizer.DEFAULT;
         for (String line : lines) {
-            words.addAll(lexer.tokenStrings(line));
+            words.addAll(lexer.tokenizeToStrings(line));
         }
         Log.info("Line count = %d", lines.size());
         Log.info("Unique word count = %d", words.size());

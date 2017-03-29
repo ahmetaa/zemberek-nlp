@@ -1,4 +1,4 @@
-package zemberek.tokenizer;
+package zemberek.tokenization;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
@@ -29,7 +29,7 @@ public class SentenceExtractionComparison {
 
         trainZemberekSentenceExtractor();
 
-        Path test = Paths.get("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Test.txt");
+        Path test = Paths.get("tokenization/src/test/resources/tokenization/Sentence-Boundary-Test.txt");
 
         List<String> testSentences = TextUtil.loadLinesWithText(test);
 
@@ -43,7 +43,7 @@ public class SentenceExtractionComparison {
     }
 
     static void trainZemberekSentenceExtractor() throws IOException {
-        Path train = Paths.get("tokenization/src/test/resources/tokenizer/Sentence-Boundary-Train.txt");
+        Path train = Paths.get("tokenization/src/test/resources/tokenization/Sentence-Boundary-Train.txt");
         TurkishSentenceExtractor extractor = TurkishSentenceExtractor.Trainer
                 .builder(train)
                 .iterationCount(10)
@@ -51,7 +51,7 @@ public class SentenceExtractionComparison {
                 .shuffleSentences()
                 .build()
                 .train();
-        extractor.saveBinary(Paths.get("tokenization/src/main/resources/tokenizer/sentence-boundary-model.bin"));
+        extractor.saveBinary(Paths.get("tokenization/src/main/resources/tokenization/sentence-boundary-model.bin"));
     }
 
     interface SentenceExtractor {
@@ -200,7 +200,7 @@ public class SentenceExtractionComparison {
         Charset charset = Charset.forName("UTF-8");
         ObjectStream<String> lineStream =
                 new PlainTextByLineStream(() -> new FileInputStream(
-                        Paths.get("src/test/resources/tokenizer/Sentence-Boundary-Train.txt").toFile()),
+                        Paths.get("src/test/resources/tokenization/Sentence-Boundary-Train.txt").toFile()),
                         charset);
         ObjectStream<SentenceSample> sampleStream = new SentenceSampleStream(lineStream);
 

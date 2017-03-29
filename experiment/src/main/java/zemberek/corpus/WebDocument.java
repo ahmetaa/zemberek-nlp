@@ -23,8 +23,14 @@ public class WebDocument {
 
     List<String> lines = new ArrayList<>();
 
-    public WebDocument(String source, String id, String title, List<String> lines, String url,
-                       String crawlDate, String labels, String category) {
+    public WebDocument(String source,
+                       String id,
+                       String title,
+                       List<String> lines,
+                       String url,
+                       String crawlDate,
+                       String labels,
+                       String category) {
         this.source = source;
         this.id = id;
         this.lines = lines;

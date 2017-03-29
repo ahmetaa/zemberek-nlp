@@ -1,45 +1,56 @@
 package zemberek.morphology.morphotactics;
 
+import static zemberek.morphology.morphotactics.Rules.allowOnly;
+import static zemberek.morphology.morphotactics.Rules.rejectAny;
+import static zemberek.morphology.morphotactics.Rules.rejectOnly;
+
 public class TurkishMorphotactics {
+
+    //-------------- Morpheme Groups ------------------
+    // These only carries some semantic information and may be useful for debugging purposes.
+    // Names are similar to the ones used in Ali Ok's TRNLTK project.
+
+    MorphemeGroup nounRoot = new MorphemeGroup("NOUN_ROOT");
+    MorphemeGroup nounAgreement = new MorphemeGroup("NOUN_AGREEMENT");
+    MorphemeGroup nounPossession = new MorphemeGroup("NOUN_POSSESSION");
+    MorphemeGroup nounCase = new MorphemeGroup("NOUN_CASE");
+    MorphemeGroup nounNounDerivation = new MorphemeGroup("NOUN_NOUN_DERIVATION");
 
     //-------------- Morphemes ------------------------
 
-    Morpheme noun = new Morpheme("Noun");
+    Morpheme noun = new Morpheme("Noun", nounRoot);
 
     // Number-Person agreement.
 
     // Third person singular suffix. "elma = apple"
-    Morpheme a3sg = new Morpheme("A3sg");
+    Morpheme a3sg = new Morpheme("A3sg", nounAgreement);
     // Third person plural suffix. "elma-lar = apples"
-    Morpheme a3pl = new Morpheme("A3pl");
+    Morpheme a3pl = new Morpheme("A3pl", nounAgreement);
 
     // Possessive
 
     // No possession suffix. This is not a real morpheme but adds information to analysis. "elma = apple"
-    Morpheme pnon = new Morpheme("Pnon");
+    Morpheme pnon = new Morpheme("Pnon", nounPossession);
     // First person singular possession suffix.  "elma-m = my apple"
-    Morpheme p1sg = new Morpheme("P1sg");
+    Morpheme p1sg = new Morpheme("P1sg", nounPossession);
     // Third person singular possession suffix. "elma-sı = his/her apple"
-    Morpheme p3sg = new Morpheme("P3sg");
+    Morpheme p3sg = new Morpheme("P3sg", nounPossession);
 
     // Case suffixes
 
     // Nominal case suffix. It has no surface form (no letters). "elma = apple"
-    Morpheme nom = new Morpheme("Nom");
+    Morpheme nom = new Morpheme("Nom", nounCase);
     // Dative case suffix. "elmaya = to apple"
-    Morpheme dat = new Morpheme("Dat");
+    Morpheme dat = new Morpheme("Dat", nounCase);
 
     // Derivation suffixes
 
     // Diminutive suffix. Noun to Noun conversion. "elmacık = small apple, poor apple"
-    Morpheme dim = new Morpheme("Dim");
-
-    // This will be used for some states that do not have actual morphemes.
-    Morpheme empty = new Morpheme("Empty");
-
+    Morpheme dim = new Morpheme("Dim", nounNounDerivation);
 
     //-------------- States ------------------------
     // _ST = Terminal state _SnT = Non Terminal State.
+    // A terminal state means that a walk in the graph can end there.
 
     LexicalState noun_SnT = LexicalState.nonTerminal("noun_SnT", noun);
 
@@ -77,8 +88,7 @@ public class TurkishMorphotactics {
         // ev-ler-?-?. Rejects inputs like "kitab-lar, burn-lar"
         noun_SnT.newTransition(a3pl_SnT)
                 .surfaceTemplate("lAr")
-                .addRule(Rules.rejectAny("vowel-expecting"))
-                .addRule(Rules.rejectAny("dim-suffix"))
+                .addRule(rejectAny("dim-suffix"))
                 .build();
 
         // ev-ε-ε-?
@@ -87,25 +97,25 @@ public class TurkishMorphotactics {
         // ev-ε-im oda-ε-m
         a3sg_SnT.newTransition(p1sg_SnT)
                 .surfaceTemplate("+Im")
-                .addRule(Rules.rejectOnly("su-root"))
+                .addRule(rejectOnly("su-root"))
                 .build();
 
         // su-ε-yum. Only for "su"
         a3sg_SnT.newTransition(p1sg_SnT)
-                .surfaceTemplate("+yum")
-                .addRule(Rules.allowOnly("su-root"))
+                .surfaceTemplate("yum")
+                .addRule(allowOnly("su-root"))
                 .build();
 
         // ev-ε-i oda-ε-sı
         a3sg_SnT.newTransition(p3sg_SnT)
                 .surfaceTemplate("+sI")
-                .addRule(Rules.rejectOnly("su-root"))
+                .addRule(rejectOnly("su-root"))
                 .build();
 
         // su-ε-yu. Only for "su"
         a3sg_SnT.newTransition(p3sg_SnT)
                 .surfaceTemplate("yu")
-                .addRule(Rules.allowOnly("su-root"))
+                .addRule(allowOnly("su-root"))
                 .build();
 
         // ev-ler-ε-?
@@ -119,33 +129,28 @@ public class TurkishMorphotactics {
 
         // ev-?-ε-ε (ev, evler)
         pnon_SnT.newTransition(nom_ST)
-                .empty()
-                .addRule(Rules.rejectAny("vowel-expecting"))
                 .build();
 
         // ev-ε-ε-ε-cik (evcik)
         // TODO: add morpheme rules.
-        pnon_SnT.newTransition(dim_SnT)
+        nom_ST.newTransition(dim_SnT)
                 .surfaceTemplate(">cI~k")
-                .addRule(Rules.rejectAny("vowel-expecting"))
                 .build();
 
-        pnon_SnT.newTransition(dim_SnT)
-                .surfaceTemplate("caI~k")
-                .addRule(Rules.rejectAny("vowel-expecting"))
+        // ev-ε-ε-ε-ceğiz (evceğiz)
+        nom_ST.newTransition(dim_SnT)
+                .surfaceTemplate("cAğIz")
                 .build();
 
         // connect to the noun root. Reject dim suffix after this point.
         dim_SnT.newTransition(noun_SnT)
-                .empty()
-                .addRule(Rules.rejectAny("dim-suffix"))
+                .addRule(rejectAny("dim-suffix"))
                 .build();
 
         // This is for blocking inputs like "kitab". Here because nominal case state is non terminal (nom_SnT)
         // analysis path will fail.
         pnon_SnT.newTransition(nom_SnT)
-                .empty()
-                .addRule(Rules.allowOnly("vowel-expecting"))
+                .addRule(allowOnly(RuleNames.WovelExpecting))
                 .build();
 
         // ev-?-ε-e (eve, evlere)
@@ -154,18 +159,17 @@ public class TurkishMorphotactics {
         // This transition is for words like "içeri" or "dışarı". Those words implicitly contains Dative suffix.
         // But It is also possible to add explicit dative suffix to those words such as "içeri-ye".
         pnon_SnT.newTransition(dat_ST)
-                .empty()
-                .addRule(Rules.allowOnly("implicit-dative"))
+                .addRule(allowOnly(RuleNames.ImplicitDative))
                 .build();
 
         // ev-?-im-ε (evim, evlerim)
-        p1sg_SnT.newTransition(nom_ST).empty().build();
+        p1sg_SnT.newTransition(nom_ST).build();
 
         // ev-?-im-e (evime, evlerime)
         p1sg_SnT.newTransition(dat_ST).surfaceTemplate("A").build();
 
         //ev-?-i-ε (evi, evleri)
-        p3sg_SnT.newTransition(nom_SnT).empty().build();
+        p3sg_SnT.newTransition(nom_SnT).build();
 
         //ev-?-i-ε (evine, evlerine)
         p3sg_SnT.newTransition(dat_ST).surfaceTemplate("nA").build();

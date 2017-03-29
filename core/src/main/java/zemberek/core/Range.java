@@ -5,7 +5,7 @@ import com.google.common.primitives.Ints;
 
 /**
  * Defines an integer range.
- * TODO: move Span from tokenization package to here and elimninate this.
+ * TODO: move Span from tokenizer package to here and elimninate this.
  */
 public class Range implements Comparable<Range> {
     public final int from;

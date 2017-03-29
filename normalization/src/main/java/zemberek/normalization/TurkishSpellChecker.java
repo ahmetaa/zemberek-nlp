@@ -1,5 +1,6 @@
 package zemberek.normalization;
 
+import com.google.common.io.Resources;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.ScoredItem;
 import zemberek.core.logging.Log;
@@ -7,13 +8,15 @@ import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.lm.DummyLanguageModel;
 import zemberek.lm.LmVocabulary;
 import zemberek.lm.NgramLanguageModel;
+import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.WordAnalysisFormatter;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.morphology.structure.Turkish;
-import zemberek.tokenizer.ZemberekLexer;
-import zemberek.tokenizer.antlr.TurkishLexer;
+import zemberek.tokenization.TurkishTokenizer;
+import zemberek.tokenization.antlr.TurkishLexer;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,11 +26,14 @@ public class TurkishSpellChecker {
     TurkishMorphology morphology;
     WordAnalysisFormatter formatter = new WordAnalysisFormatter();
     CharacterGraphDecoder decoder;
+    NgramLanguageModel unigramModel;
 
     public TurkishSpellChecker(TurkishMorphology morphology) throws IOException {
         this.morphology = morphology;
         StemEndingGraph graph = new StemEndingGraph(morphology);
         decoder = new CharacterGraphDecoder(graph.stemGraph);
+        File lmFile = new File(Resources.getResource("lm-unigram.slm").getFile());
+        unigramModel = SmoothLm.builder(lmFile).build();
     }
 
     public TurkishSpellChecker(TurkishMorphology morphology,
@@ -71,7 +77,7 @@ public class TurkishSpellChecker {
     }
 
     private List<String> getUnrankedSuggestions(String word) {
-        String normalized = TurkishAlphabet.INSTANCE.normalize(word).replaceAll("'’", "");
+        String normalized = TurkishAlphabet.INSTANCE.normalize(word).replaceAll("['’]", "");
         List<String> strings = decoder.getSuggestions(normalized);
 
         WordAnalysisFormatter.CaseType caseType = formatter.guessCase(word);
@@ -145,7 +151,7 @@ public class TurkishSpellChecker {
     private static final NgramLanguageModel DUMMY_LM = new DummyLanguageModel();
 
     public List<String> suggestForWord(String word) {
-        return suggestForWord(word, DUMMY_LM);
+        return suggestForWord(word, unigramModel);
     }
 
     public CharacterGraphDecoder getDecoder() {
@@ -163,10 +169,10 @@ public class TurkishSpellChecker {
         return results.stream().map(s -> s.item).collect(Collectors.toList());
     }
 
-    static final ZemberekLexer lexer = new ZemberekLexer(true);
+    private static final TurkishTokenizer lexer = TurkishTokenizer.DEFAULT;
 
     public static List<String> tokenizeForSpelling(String sentence) {
-        List<Token> tokens = lexer.tokenizeAll(sentence);
+        List<Token> tokens = lexer.tokenize(sentence);
         List<String> result = new ArrayList<>(tokens.size());
         for (Token token : tokens) {
             if (token.getType() == TurkishLexer.Unknown ||
@@ -175,9 +181,9 @@ public class TurkishSpellChecker {
                 continue;
             }
             String w = token.getText();
-            if (token.getType() == TurkishLexer.TurkishWord) {
+            if (token.getType() == TurkishLexer.Word) {
                 w = w.toLowerCase(Turkish.LOCALE);
-            } else if (token.getType() == TurkishLexer.TurkishWordWithApos) {
+            } else if (token.getType() == TurkishLexer.WordWithApostrophe) {
                 w = Turkish.capitalize(w);
             }
             result.add(w);

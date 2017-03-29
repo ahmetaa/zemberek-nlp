@@ -1,4 +1,4 @@
-package zemberek.tokenizer;
+package zemberek.tokenization;
 
 
 import com.google.common.io.Resources;
@@ -21,18 +21,18 @@ import java.util.Locale;
  * A Trainable tokenizer.
  * TODO: Not yet finished.
  */
-class TurkishTokenizer extends PerceptronSegmenter implements Tokenizer {
+class TrainableTokenizer extends PerceptronSegmenter {
 
     private FloatValueMap<String> weights = new FloatValueMap<>();
 
-    public static TurkishTokenizer fromInternalModel() throws IOException {
+    public static TrainableTokenizer fromInternalModel() throws IOException {
         try (DataInputStream dis = IOUtil.getDataInputStream(
-                Resources.getResource("tokenizer/sentence-boundary-model.bin").openStream())) {
-            return new TurkishTokenizer(load(dis));
+                Resources.getResource("tokenization/sentence-boundary-model.bin").openStream())) {
+            return new TrainableTokenizer(load(dis));
         }
     }
 
-    private TurkishTokenizer(FloatValueMap<String> weights) {
+    private TrainableTokenizer(FloatValueMap<String> weights) {
         this.weights = weights;
     }
 
@@ -106,9 +106,7 @@ class TurkishTokenizer extends PerceptronSegmenter implements Tokenizer {
         return tokens;
     }
 
-
-    @Override
-    public List<String> tokenStrings(String input) {
+    public List<String> tokenizeToStrings(String input) {
         return tokenize(input);
     }
 
@@ -162,7 +160,7 @@ class TurkishTokenizer extends PerceptronSegmenter implements Tokenizer {
 
         private static Locale Turkish = new Locale("tr");
 
-        public TurkishTokenizer train() throws IOException {
+        public TrainableTokenizer train() throws IOException {
             FloatValueMap<String> weights = new FloatValueMap<>();
             List<String> sentences = TextUtil.loadLinesWithText(builder.trainFile);
             FloatValueMap<String> averages = new FloatValueMap<>();
@@ -243,7 +241,7 @@ class TurkishTokenizer extends PerceptronSegmenter implements Tokenizer {
                 weights.set(key, weights.get(key) - averages.get(key) * 1f / updateCount);
             }
 
-            return new TurkishTokenizer(weights);
+            return new TrainableTokenizer(weights);
         }
 
     }

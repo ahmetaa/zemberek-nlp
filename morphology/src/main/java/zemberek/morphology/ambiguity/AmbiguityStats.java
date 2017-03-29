@@ -11,7 +11,7 @@ import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
-import zemberek.tokenizer.ZemberekLexer;
+import zemberek.tokenization.TurkishTokenizer;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 public class AmbiguityStats {
 
     TurkishMorphology parser;
-    ZemberekLexer lexer = new ZemberekLexer();
+    TurkishTokenizer lexer = TurkishTokenizer.DEFAULT;
 
     public AmbiguityStats() throws IOException {
         parser = TurkishMorphology.createWithDefaults();
@@ -40,7 +40,7 @@ public class AmbiguityStats {
         LineIterator it = SimpleTextReader.trimmingUTF8Reader(file).getLineIterator();
         while (it.hasNext()) {
             String quotesHyphensNormalzied = TextUtil.normalizeQuotesHyphens(it.next());
-            lines.add(Joiner.on(" ").join(lexer.tokenStrings(quotesHyphensNormalzied)));
+            lines.add(Joiner.on(" ").join(lexer.tokenizeToStrings(quotesHyphensNormalzied)));
         }
         return lines;
     }
