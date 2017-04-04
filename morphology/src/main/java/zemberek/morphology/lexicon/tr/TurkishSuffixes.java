@@ -612,7 +612,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
         Verb2AdjPart.connections.add(PastPart_dIk_2Adj, NarrPart_mIs_2Adj, FutPart_yAcAk_2Adj, AorPart_Ar_2Adj, AorPart_Ir_2Adj, AorPart_z_2Adj, PresPart_yAn);
 
         Verb2Adv.connections.add(When_yIncA, SinceDoing_yAlI, UnableToDo_yAmAdAn, ByDoing_yArAk,
-                WithoutDoing_mAdAn, WithoutDoing2_mAksIzIn)
+                WithoutDoing_mAdAn, WithoutDoing2_mAksIzIn, While_ken)
                 .add(InsteadOfDoing_mAktAnsA, AsLongAs_dIkcA, AfterDoing_yIp, AsIf_cAsInA);
 
         Verb2Adj.connections.add(When_yIncA, FeelLike_yAsI_2Adj, Agt_yIcI_2Adj);
@@ -761,7 +761,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
         A2pl_sInIz.connections.add(Cop_dIr, Verb2Adv);
         A2pl_sInIz.indirectConnections.add(AsIf_cAsInA);
         A3pl_Verb_lAr.connections.add(Narr_mIs, Past_dI, Cond_sA, Cop_dIr, Verb2Adv);
-        A3pl_Verb_lAr.indirectConnections.add(AsIf_cAsInA);
+        A3pl_Verb_lAr.indirectConnections.add(AsIf_cAsInA, While_ken);
 
         Dim_cIk.connections.add(Noun_Default.connections);
         Dim_cIk.indirectConnections.add(Noun_Default.allConnections().add(Noun2VerbCopular).remove(Dim_cIk, Dim2_cAgIz));
