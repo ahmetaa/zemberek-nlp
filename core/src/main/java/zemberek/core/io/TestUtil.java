@@ -54,4 +54,24 @@ public class TestUtil {
         }
         return true;
     }
+
+
+    public static Set<String> uniqueStrings(int amount, int stringLength) {
+        return uniqueStrings(amount, stringLength, -1);
+    }
+
+    public static Set<String> uniqueStrings(int amount, int stringLength, int randomSeed) {
+        Set<String> set = new HashSet<>(amount);
+
+        Random r = randomSeed == -1 ? new Random() : new Random(randomSeed);
+        while (set.size() < amount) {
+            StringBuilder sb = new StringBuilder(stringLength);
+            for (int i = 0; i < stringLength; i++) {
+                sb.append((char) (r.nextInt(32) + 'a'));
+            }
+            set.add(sb.toString());
+        }
+        return set;
+    }
+
 }

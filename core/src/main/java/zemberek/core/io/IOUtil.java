@@ -18,6 +18,10 @@ public class IOUtil {
         return new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(path)));
     }
 
+    public static BufferedOutputStream geBufferedOutputStream(Path path) throws IOException {
+        return new BufferedOutputStream(Files.newOutputStream(path));
+    }
+
     public static DataInputStream getDataInputStream(Path path, int bufferSize) throws IOException {
         if (bufferSize <= 0)
             throw new IllegalArgumentException("Buffer size must be positive. But it is :" + bufferSize);

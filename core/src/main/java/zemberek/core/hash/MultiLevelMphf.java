@@ -4,6 +4,7 @@ import zemberek.core.collections.LongBitVector;
 import zemberek.core.logging.Log;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -457,7 +458,7 @@ public class MultiLevelMphf implements Mphf {
 
     /**
      * @return total bytes used for this structure.
-     *         This is an average number and it adds 12 bytes per array as overhead
+     * This is an average number and it adds 12 bytes per array as overhead
      */
     public long totalBytesUsed() {
         long result = 12; // array overhead
@@ -480,9 +481,13 @@ public class MultiLevelMphf implements Mphf {
      * @throws IOException if an error occurs during file access.
      */
     public void serialize(File file) throws IOException {
-        BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(file), 1000000);
-        serialize(os);
-        os.close();
+        serialize(file.toPath());
+    }
+
+    public void serialize(Path path) throws IOException {
+        try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(path.toFile()), 1000000)) {
+            serialize(os);
+        }
     }
 
     /**
@@ -529,7 +534,7 @@ public class MultiLevelMphf implements Mphf {
      * A custom deserializer.
      *
      * @param file file that contains serialized data.
-     * @param skip amoutn to skip
+     * @param skip amount to skip
      * @return a new FastMinimalPerfectHash object.
      * @throws IOException if an error occurs during file access.
      */

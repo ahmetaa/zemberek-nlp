@@ -5,7 +5,8 @@
     <parent>
         <artifactId>zemberek-nlp</artifactId>
         <groupId>zemberek-nlp</groupId>
-        <version>0.11.0-SNAPSHOT</version>
+        <version>${main.version}</version>
+
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -19,11 +20,16 @@
         <dependency>
             <groupId>zemberek-nlp</groupId>
             <artifactId>morphology</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>zemberek-nlp</groupId>
             <artifactId>normalization</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>zemberek-nlp</groupId>
+            <artifactId>tokenization</artifactId>
             <version>${parent.version}</version>
         </dependency>
     </dependencies>

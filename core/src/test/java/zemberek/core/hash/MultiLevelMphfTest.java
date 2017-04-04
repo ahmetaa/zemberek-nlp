@@ -3,6 +3,7 @@ package zemberek.core.hash;
 import com.google.common.base.Stopwatch;
 import org.junit.Assert;
 import org.junit.Test;
+import zemberek.core.io.TestUtil;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -33,7 +34,7 @@ public class MultiLevelMphfTest {
         for (int limit : limits) {
             System.out.println("Key amount: " + limit);
             Stopwatch sw = Stopwatch.createStarted();
-            StringHashKeyProvider provider = new StringHashKeyProvider(uniqueStrings(limit, strSize));
+            StringHashKeyProvider provider = new StringHashKeyProvider(TestUtil.uniqueStrings(limit, strSize));
             System.out.println("Generation:" + sw.elapsed(TimeUnit.MILLISECONDS));
             generateAndTest(provider);
         }
@@ -61,19 +62,6 @@ public class MultiLevelMphfTest {
         for (int i = 0; i < keyAmount; i++) {
             Assert.assertTrue(i + ":" + values[i], results.add(values[i]));
         }
-    }
-
-    public Set<String> uniqueStrings(int amount, int stringLength) {
-        Set<String> set = new HashSet<>(amount);
-        Random r = new Random();
-        while (set.size() < amount) {
-            StringBuilder sb = new StringBuilder(stringLength);
-            for (int i = 0; i < stringLength; i++) {
-                sb.append((char) (r.nextInt(32) + 'a'));
-            }
-            set.add(sb.toString());
-        }
-        return set;
     }
 
 }

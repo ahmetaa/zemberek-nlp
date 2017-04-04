@@ -1,12 +1,11 @@
 Zemberek-NLP
 ============
 
-Here is the the new home of the Zemberek project. 
-Zemberek-NLP provides basic Natural Language Processing tools for Turkish text.
+Zemberek-NLP provides basic Natural Language Processing tools for Turkish.
 Code and API is **not** compatible with the old [Zemberek2](https://github.com/ahmetaa/zemberek) project. 
 Please note that **all code and APIs are subject to change drastically until version 1.0.0**
 
-Latest version is 0.10.0 (January 20th 2017)
+Latest version is 0.10.0 (January 20th 2017). ([Change Log](CHANGELOG.md))
 
 ## FAQ 
 
@@ -38,10 +37,12 @@ And dependecies (For example morphology):
 
 ### Jar distributions
 
-[Google docs page](https://drive.google.com/#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8) page has versions and
-separate module and dependent jars.
+[Google docs page](https://drive.google.com/#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8) page 
+contains jar files for different versions. 
 
-There is also a single jar file containing all zemberek modules available. Other dependencies (Like Guava) can be found there as well.
+**module-jars** folder contain all zemberek modules as separate jar files.  
+**zemberek-all-VERSION.jar** contains all zemberek modules. 
+**dependencies** folder contains other dependencies suchas Google Guava.
 
 ### Examples
 
@@ -76,13 +77,13 @@ Maven artifact id : **lang-id**
 
 ### Language modeling
 
-Only provides a language compression implementation. [Documentation](lm)
+Provides a language compression algorithm. [Documentation](lm)
 
 Maven artifact id : **lm**
 
 ### Normalization
 
-Provides a spell checker and formatter. [Documentation.](normalization)
+Provides spell checker and suggestion functions. [Documentation.](normalization)
 
 Maven artifact id : **normalization**
 

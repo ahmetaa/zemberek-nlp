@@ -23,6 +23,11 @@ public class DoubleValueMap<T> extends HashBase<T> implements Iterable<T> {
         values = new double[keys.length];
     }
 
+    private DoubleValueMap(DoubleValueMap<T> other, T[] keys, double[] values) {
+        super(other, keys);
+        this.values = values;
+    }
+
     /**
      * If key does not exist, it adds it with count value 1. Otherwise, it increments the count value by 1.
      *
@@ -108,8 +113,9 @@ public class DoubleValueMap<T> extends HashBase<T> implements Iterable<T> {
     private void expand() {
         DoubleValueMap<T> h = new DoubleValueMap<>(newSize());
         for (int i = 0; i < keys.length; i++) {
-            if (hasValidKey(i))
+            if (hasValidKey(i)) {
                 h.set(keys[i], values[i]);
+            }
         }
         expandCopyParameters(h);
         this.values = h.values;
@@ -157,6 +163,10 @@ public class DoubleValueMap<T> extends HashBase<T> implements Iterable<T> {
                 res.add(new Entry<>(keys[i], values[i]));
         }
         return res;
+    }
+
+    public DoubleValueMap<T> copy() {
+        return new DoubleValueMap<>(this, keys.clone(), values.clone());
     }
 
     public Iterator<Entry<T>> entryIterator() {

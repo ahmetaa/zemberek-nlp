@@ -41,6 +41,14 @@ public abstract class HashBase<T> {
         modulo = k - 1;
     }
 
+    protected HashBase(HashBase<T> other, T[] keys) {
+        this.keys = keys;
+        this.threshold = other.threshold;
+        this.modulo = other.modulo;
+        this.keyCount = other.keyCount;
+        this.removeCount = other.removeCount;
+    }
+
     final boolean hasValidKey(int i) {
         final T key = keys[i];
         return key != null && key != TOMB_STONE;

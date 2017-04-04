@@ -7,7 +7,8 @@
     <groupId>zemberek-nlp</groupId>
     <artifactId>zemberek-nlp</artifactId>
     <packaging>pom</packaging>
-    <version>0.11.0-SNAPSHOT</version>
+    <version>${main.version}</version>
+
     <modules>
         <module>core</module>
         <module>morphology</module>
@@ -153,6 +154,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <main.version>0.11.0</main.version>
     </properties>
 
 </project>

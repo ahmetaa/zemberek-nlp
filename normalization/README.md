@@ -33,11 +33,11 @@ Output will be
 
 Currently Zemberek provides a simple suggestion mechanism.
 
-For getting suggestions for incorrect words:
+For getting suggestions for incorrect words suggestForWord method can be used:
 
     String[] words = {"okuyablirim", "tartısıyor", "Ankar'ada", "knlıca"};
     for (String word : words) {
-        System.out.println(word + " = " + spellChecker.check(word));
+        System.out.println(word + " = " + spellChecker.suggestForWord(word));
     } 
     
 Will give these suggestions:
@@ -46,13 +46,21 @@ Will give these suggestions:
     tartısıyor = [tartışıyor, tartılıyor, tartınıyor]
     Ankar'ada = [Ankara'da, Ankara'ya, Ankara'dan, Ankaray'da, Ankara'ma, Antara'da, Ankara'ca, Cankara'da, Anakarada, Ankara'na, Angara'da, Ankara'mda, Ankara'nda, Ankaray'a]
     knlıca = [Kanlıca, kanlıca, In'lıca, kılıca, anlıca, Kanlı'ca, kınlıca, kalıca]
+
+If user provides a higher order language model (bi-gram models are sufficient) and context words, ranking of the suggestions may improve. Method below is used for this. 
+
+    public List<String> suggestForWord(
+                String word,
+                String leftContext,
+                String rightContext,
+                NgramLanguageModel lm)
     
 ### Limitations
 
  - It only may correct for 1 insertion, 1 deletion, 1 substitution and 1 transposition errors.
- - It ranks the results with an internal unigram language model. 
- But if user provides a bi-gram model, ranking may improve.
+ - It ranks the results with an internal unigram language model.
  - There is no deasciifier.
  - It does not correct numbers, dates and times.
  - There may be junk results.
- - It is not so fast. Probably will suggest for around 500-1000 words/second.
+ - For shorter words, there will be a lot of suggestions (sometimes >50 ).
+ - Suggestion function is not so fast (Around 500-1000 words/second).

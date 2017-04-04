@@ -5,7 +5,8 @@
     <parent>
         <artifactId>zemberek-nlp</artifactId>
         <groupId>zemberek-nlp</groupId>
-        <version>0.11.0-SNAPSHOT</version>
+        <version>${main.version}</version>
+
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
