@@ -43,7 +43,7 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
             </plugin>
-            <plugin>
+            <!--<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <executions>
@@ -55,7 +55,7 @@
                     </execution>
                 </executions>
                 <version>2.0.4</version>
-            </plugin>
+            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>

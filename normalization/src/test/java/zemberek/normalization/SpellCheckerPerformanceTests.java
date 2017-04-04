@@ -3,6 +3,7 @@ package zemberek.normalization;
 import com.google.common.base.Stopwatch;
 import com.google.common.io.Resources;
 import org.antlr.v4.runtime.Token;
+import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
@@ -20,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 public class SpellCheckerPerformanceTests {
 
     @Test
+    @Ignore(value = "Not a test.")
     public void correctWordFindingTest() throws Exception {
         TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
         TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);

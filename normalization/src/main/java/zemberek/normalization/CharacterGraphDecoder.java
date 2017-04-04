@@ -160,7 +160,7 @@ class CharacterGraphDecoder {
         for (String result : results) {
             res.add(new ScoredItem<>(result, results.get(result)));
         }
-        res.sort(ScoredItem.STRING_COMP_DESCENDING);
+        res.sort((a, b) -> Float.compare(a.score, b.score));
         return res;
     }
 
@@ -393,7 +393,7 @@ class CharacterGraphDecoder {
                 // there can be more than one matching character, depending on the matcher.
                 char[] cc = matcher.matches(nextChar);
                 // because there can be empty connections, there can be more than 1 matching child nodes per character.
-                if(hypothesis.node.hasEpsilonConnection()) {
+                if (hypothesis.node.hasEpsilonConnection()) {
                     for (Node child : hypothesis.node.getChildList(cc)) {
 
                         Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NE);
@@ -409,7 +409,7 @@ class CharacterGraphDecoder {
                 } else {
                     for (char c : cc) {
                         Node child = hypothesis.node.getImmediateChild(c);
-                        if(child==null) {
+                        if (child == null) {
                             continue;
                         }
                         Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NE);
