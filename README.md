@@ -5,7 +5,7 @@ Zemberek-NLP provides basic Natural Language Processing tools for Turkish.
 Code and API is **not** compatible with the old [Zemberek2](https://github.com/ahmetaa/zemberek) project. 
 Please note that **all code and APIs are subject to change drastically until version 1.0.0**
 
-Latest version is 0.10.0 (January 20th 2017). ([Change Log](CHANGELOG.md))
+Latest version is 0.10.0 (January 20th 2017). [Change Log](CHANGELOG.md)
 
 ## FAQ 
 
@@ -25,7 +25,7 @@ Add this to pom.xml file
         </repository>
     </repositories>
 
-And dependecies (For example morphology):
+And dependencies (For example morphology):
 
     <dependencies>
         <dependency>
@@ -40,9 +40,8 @@ And dependecies (For example morphology):
 [Google docs page](https://drive.google.com/#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8) page 
 contains jar files for different versions. 
 
-**module-jars** folder contain all zemberek modules as separate jar files.  
-**zemberek-all-VERSION.jar** contains all zemberek modules. 
-**dependencies** folder contains other dependencies suchas Google Guava.
+[**module-jars**] folder contain all zemberek modules as separate jar files. 
+[**zemberek-all-VERSION.jar**] contains all zemberek modules. [**dependencies**] folder contains other dependencies suchas Google Guava.
 
 ### Examples
 
@@ -83,7 +82,7 @@ Maven artifact id : **lm**
 
 ### Normalization
 
-Provides spell checker and suggestion functions. [Documentation.](normalization)
+Provides spell checker and suggestion functions. [Documentation](normalization)
 
 Maven artifact id : **normalization**
 
