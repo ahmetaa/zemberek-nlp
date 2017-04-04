@@ -1,7 +1,7 @@
 CHANGE LOG
 ==========
 
-## 0.11.0 (Not Yet Released)
+## 0.11.0
 
 #### Tokenization
 We made a lot of changes in Tokenization module. Some of them are breaking changes.
