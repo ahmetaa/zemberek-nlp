@@ -10,9 +10,8 @@ import zemberek.morphology.lexicon.graph.StemNode;
 import zemberek.morphology.structure.StemAndEnding;
 import zemberek.morphology.structure.Turkish;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 
@@ -30,8 +29,9 @@ public class StemEndingGraph {
 
     public StemEndingGraph(TurkishMorphology morphology) throws IOException {
         this.morphology = morphology;
-        List<String> endings = Files.readAllLines(
-                new File(Resources.getResource("endings").getFile()).toPath());
+        List<String> endings =
+                Resources.readLines(
+                        Resources.getResource("endings"), StandardCharsets.UTF_8);
         this.endingGraph = generateEndingGraph(endings);
         this.stemGraph = generateStemGraph();
         Set<Node> stemWordNodes = stemGraph.getAllNodes(n -> n.word != null);

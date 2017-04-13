@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+## 0.11.1
+
+TurkishSpellChecker now can load internal resources correctly.
+
 ## 0.11.0
 
 #### Tokenization
@@ -58,7 +62,7 @@ We have started a new morphotactics work in experiment module. But it is not yet
 - TurkishMorphology can be configured for not using cache and UnidentifiedTokenAnaysis.
 - Eliminate static cache from TurkishMorphology [86](https://github.com/ahmetaa/zemberek-nlp/issues/86)
 - Fix: Some inputs may cause excessive hypothesis generation during analysis [88](https://github.com/ahmetaa/zemberek-nlp/issues/88)
-- Fix: Proper Nouns ending -nk or -og should not have Voicing attribute automatically.[83] (https://github.com/ahmetaa/zemberek-nlp/issues/83)
+- Fix: Proper Nouns ending -nk or -og should not have Voicing attribute automatically.[83](https://github.com/ahmetaa/zemberek-nlp/issues/83)
 - Fix: "foo \nabc" should be tokenized as "foo \n abc" [69](https://github.com/ahmetaa/zemberek-nlp/issues/83)
 - There are some name changes.
   TurkishMorphology.TurkishMorphParserBuilder -> TurkishMorphology.Builder

@@ -18,6 +18,7 @@ import zemberek.tokenization.antlr.TurkishLexer;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,8 +33,9 @@ public class TurkishSpellChecker {
         this.morphology = morphology;
         StemEndingGraph graph = new StemEndingGraph(morphology);
         decoder = new CharacterGraphDecoder(graph.stemGraph);
-        File lmFile = new File(Resources.getResource("lm-unigram.slm").getFile());
-        unigramModel = SmoothLm.builder(lmFile).build();
+        try (InputStream is = Resources.getResource("lm-unigram.slm").openStream()) {
+            unigramModel = SmoothLm.builder(is).build();
+        }
     }
 
     public TurkishSpellChecker(TurkishMorphology morphology,
