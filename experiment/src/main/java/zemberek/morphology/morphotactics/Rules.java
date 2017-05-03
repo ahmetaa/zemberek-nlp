@@ -13,6 +13,10 @@ public class Rules {
         return new AllowAny(keys);
     }
 
+    public static Rule mandatory(String key) {
+        return new Mandatory(key);
+    }
+
     public static Rule rejectOnly(String key) {
         return new RejectOnly(key);
     }
@@ -26,6 +30,20 @@ public class Rules {
         String key;
 
         public AllowOnly(String key) {
+            this.key = key;
+        }
+
+        @Override
+        public boolean canPass(GraphVisitor visitor) {
+            return visitor.containsKey(key);
+        }
+    }
+
+    public static class Mandatory implements Rule {
+
+        String key;
+
+        public Mandatory(String key) {
             this.key = key;
         }
 
@@ -53,7 +71,6 @@ public class Rules {
             return false;
         }
     }
-
 
     public static class RejectOnly implements Rule {
 
@@ -87,6 +104,5 @@ public class Rules {
             return true;
         }
     }
-
 
 }
