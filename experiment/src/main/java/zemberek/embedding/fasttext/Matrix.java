@@ -131,6 +131,85 @@ class Matrix {
     }
 
     /**
+     * Multiplies values in rows of the matrix with values of `nums`.
+     * nums should have a value for each row to be multiplied.
+     * If value in `nums` is zero, no multiplication is applied for the row.
+     *
+     * @param nums values to multiply.
+     * @param ib   begin row index.
+     * @param ie   end row index. if -1, it is assumed row count `m_`
+     */
+    void multiplyRow(Vector nums, int ib, int ie) {
+        if (ie == -1) {
+            ie = m_;
+        }
+        assert (ie <= nums.size());
+        for (int i = ib; i < ie; i++) {
+            float n = nums.data_[i - ib];
+            readLock(i);
+            if (n != 0) {
+                for (int j = 0; j < n_; j++) {
+                    data_[i][j] *= n;
+                }
+            }
+            readUnlock(i);
+        }
+    }
+
+    /**
+     * Divides values in rows of the matrix to values of `nums`.
+     * nums should have a value for each row to be multiplied.
+     * If value in `nums` is zero, no division is applied for the row.
+     *
+     * @param denoms denominator values.
+     * @param ib     begin row index.
+     * @param ie     end row index. if -1, it is assumed row count `m_`
+     */
+    void divideRow(Vector denoms, int ib, int ie) {
+        if (ie == -1) {
+            ie = m_;
+        }
+        assert (ie <= denoms.size());
+        for (int i = ib; i < ie; i++) {
+            float n = denoms.data_[i - ib];
+            readLock(i);
+            if (n != 0) {
+                for (int j = 0; j < n_; j++) {
+                    data_[i][j] /= n;
+                }
+            }
+            readUnlock(i);
+        }
+    }
+
+    /**
+     * Calculates L2 Norm value of a row. Which is the
+     * Square root of  sum of squares of all row values.
+     * @param i row index.
+     * @return Square root of  sum of squares of all row values.
+     */
+    float l2NormRow(int i) {
+        float norm = 0f;
+        for (int j = 0; j < n_; j++) {
+            float v = data_[i][j];
+            norm += v * v;
+        }
+        return (float) Math.sqrt(norm);
+    }
+
+    /**
+     * Fills the norm vector with l2 norm values of the rows.
+     * @param norms norm vector to fill.
+     */
+    void l2NormRow(Vector norms) {
+        assert (norms.size() == m_);
+        for(int i = 0; i<m_; i++) {
+            norms.data_[i] = l2NormRow(i);
+        }
+    }
+
+
+    /**
      * Saves values to binary stream [dos]
      */
     void save(DataOutputStream dos) throws IOException {
