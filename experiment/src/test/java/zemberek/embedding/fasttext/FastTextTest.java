@@ -17,9 +17,9 @@ public class FastTextTest {
     @Ignore("Not an actual Test.")
     public void dbpediaClassificationTest() throws Exception {
 
-        Path inputRoot = Paths.get("/home/ahmetaa/projects/fastText/data");
+        Path inputRoot = Paths.get("/media/data/aaa/fasttext");
         Path trainFile = inputRoot.resolve("dbpedia.train");
-        Path modelPath = Paths.get("/home/ahmetaa/data/vector/fasttext/dbpedia.bin");
+        Path modelPath = Paths.get("/media/data/aaa/fasttext/dbpedia.model.bin");
 
         FastText fastText;
 
@@ -28,15 +28,12 @@ public class FastTextTest {
         } else {
             Args argz = Args.forSupervised();
             argz.thread = 4;
-            argz.model = Args.model_name.sup;
-            argz.loss = Args.loss_name.softmax;
-            argz.threadSafe = false;
             argz.epoch = 5;
             argz.wordNgrams = 2;
             argz.minCount = 1;
             argz.lr = 0.1;
-            argz.dim = 10;
-            argz.bucket = 10_000_000;
+            argz.dim = 64;
+            argz.bucket = 5_000_000;
 
             fastText = FastText.train(trainFile, argz);
             fastText.saveModel(modelPath);

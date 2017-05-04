@@ -5,16 +5,16 @@
     <parent>
         <artifactId>zemberek-nlp</artifactId>
         <groupId>zemberek-nlp</groupId>
-        <version>0.11.1</version>
+        <version>0.12.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>tokenization</artifactId>
+    <artifactId>zemberek-tokenization</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>zemberek-nlp</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>zemberek-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

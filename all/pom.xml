@@ -5,11 +5,11 @@
     <parent>
         <artifactId>zemberek-nlp</artifactId>
         <groupId>zemberek-nlp</groupId>
-        <version>0.11.1</version>
+        <version>0.12.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>all</artifactId>
+    <artifactId>zemberek-all</artifactId>
 
     <build>
         <plugins>
@@ -53,37 +53,37 @@
     <dependencies>
         <dependency>
             <groupId>zemberek-nlp</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>zemberek-core</artifactId>
             <version>${parent.version}</version>
         </dependency>
         <dependency>
             <groupId>zemberek-nlp</groupId>
-            <artifactId>tokenization</artifactId>
+            <artifactId>zemberek-tokenization</artifactId>
             <version>${parent.version}</version>
         </dependency>
         <dependency>
             <groupId>zemberek-nlp</groupId>
-            <artifactId>lm</artifactId>
+            <artifactId>zemberek-lm</artifactId>
             <version>${parent.version}</version>
         </dependency>
         <dependency>
             <groupId>zemberek-nlp</groupId>
-            <artifactId>experiment</artifactId>
+            <artifactId>zemberek-experiment</artifactId>
             <version>${parent.version}</version>
         </dependency>
         <dependency>
             <groupId>zemberek-nlp</groupId>
-            <artifactId>normalization</artifactId>
+            <artifactId>zemberek-normalization</artifactId>
             <version>${parent.version}</version>
         </dependency>
         <dependency>
             <groupId>zemberek-nlp</groupId>
-            <artifactId>lang-id</artifactId>
+            <artifactId>zemberek-lang-id</artifactId>
             <version>${parent.version}</version>
         </dependency>
         <dependency>
             <groupId>zemberek-nlp</groupId>
-            <artifactId>morphology</artifactId>
+            <artifactId>zemberek-morphology</artifactId>
             <version>${parent.version}</version>
         </dependency>
     </dependencies>
