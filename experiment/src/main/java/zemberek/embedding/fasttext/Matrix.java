@@ -160,10 +160,6 @@ class Matrix {
         }
     }
 
-    void divideRow(Vector denoms) {
-        divideRow(denoms, 0, -1);
-    }
-
     /**
      * Divides values in rows of the matrix to values of `nums`.
      * nums should have a value for each row to be multiplied.
@@ -207,8 +203,7 @@ class Matrix {
     }
 
     /**
-     * Fills the norm vector with l2 norm values of the rows.
-     *
+     * Fills the `norms` vector with l2 norm values of the rows.
      * @param norms norm vector to fill.
      */
     void l2NormRow(Vector norms) {
