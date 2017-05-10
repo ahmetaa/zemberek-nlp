@@ -28,37 +28,31 @@ class Vector {
     }
 
 
-    void addRow(Matrix A, int i) {
+    void addRow(Matrix_ A, int i) {
         assert (i >= 0);
         assert (i < A.m_);
         assert (m_ == A.n_);
-        A.readLock(i);
         for (int j = 0; j < A.n_; j++) {
-            data_[j] += A.data_[i][j];
+            data_[j] += A.at(i, j);
         }
-        A.readUnlock(i);
     }
 
-    void addRow(Matrix A, int i, float a) {
+    void addRow(Matrix_ A, int i, float a) {
         assert (i >= 0);
         assert (i < A.m_);
         assert (m_ == A.n_);
-        A.readLock(i);
         for (int j = 0; j < A.n_; j++) {
-            data_[j] += a * A.data_[i][j];
+            data_[j] += a * A.at(i, j);
         }
-        A.readUnlock(i);
     }
 
 
-    void mul(Matrix A, Vector vec) {
+    void mul(Matrix_ A, Vector vec) {
         for (int i = 0; i < m_; i++) {
             data_[i] = 0.0f;
-            A.readLock(i);
             for (int j = 0; j < A.n_; j++) {
-                data_[i] += A.data_[i][j] * vec.data_[j];
+                data_[i] += A.at(i,j) * vec.data_[j];
             }
-            A.readUnlock(i);
         }
     }
 

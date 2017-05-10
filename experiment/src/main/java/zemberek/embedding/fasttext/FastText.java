@@ -78,8 +78,8 @@ public class FastText {
         }
         Dictionary dict_ = Dictionary.load(dis, args_);
         Log.info("Loading Matrices.");
-        Matrix input_ = Matrix.load(dis);
-        Matrix output_ = Matrix.load(dis);
+        Matrix_ input_ = Matrix_.load(dis);
+        Matrix_ output_ = Matrix_.load(dis);
         Model model_ = new Model(input_, output_, args_, 0);
         if (args_.model == Args.model_name.sup) {
             model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_LABEL));
@@ -313,20 +313,20 @@ public class FastText {
 
         Dictionary dict_ = Dictionary.readFromFile(input, args_);
 
-        Matrix input_ = null;
+        Matrix_ input_ = null;
         if (args_.pretrainedVectors.length() != 0) {
             //TODO: implement this.
             //loadVectors(args_->pretrainedVectors);
         } else {
-            input_ = new Matrix(dict_.nwords() + args_.bucket, args_.dim, args_.threadSafe);
+            input_ = new Matrix_(dict_.nwords() + args_.bucket, args_.dim);
             input_.uniform(1.0f / args_.dim);
         }
 
-        Matrix output_;
+        Matrix_ output_;
         if (args_.model == Args.model_name.sup) {
-            output_ = new Matrix(dict_.nlabels(), args_.dim, args_.threadSafe);
+            output_ = new Matrix_(dict_.nlabels(), args_.dim);
         } else {
-            output_ = new Matrix(dict_.nwords(), args_.dim, args_.threadSafe);
+            output_ = new Matrix_(dict_.nwords(), args_.dim);
         }
 
         Model model_ = new Model(input_, output_, args_, 0);

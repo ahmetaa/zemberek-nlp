@@ -2,6 +2,9 @@ package zemberek.embedding.fasttext;
 
 import zemberek.core.collections.IntVector;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -24,9 +27,27 @@ public class ProductQuantizer {
 
     Random rng;
 
+    public ProductQuantizer() {
+    }
+
     // used for mimicking pointer arithmetic.
-    private static class FArray {
+    ProductQuantizer(int dim, int dsub) {
+        this.dim_ = dim;
+        this.nsubq_ = dim / dsub;
+        dsub_ = dsub;
+        centroids_ = new FArray(new float[dim * ksub_]);
+        rng = new Random(seed_);
+        lastdsub_ = dim_ % dsub;
+        if (lastdsub_ == 0) {
+            lastdsub_ = dsub_;
+        } else {
+            nsubq_++;
+        }
+    }
+
+    static class FArray {
         int pointer;
+
         float[] data;
 
         FArray(float[] data) {
@@ -62,19 +83,14 @@ public class ProductQuantizer {
         void divide(int i, float value) {
             data[pointer + i] /= value;
         }
-
-
-        void increment(int offset) {
-            pointer += offset;
-        }
-
         FArray ref(int offset) {
             return new FArray(pointer + offset, this.data);
         }
-    }
 
-    private static class BArray {
+    }
+    static class BArray {
         int pointer;
+
         byte[] data;
 
         BArray(byte[] data) {
@@ -94,12 +110,12 @@ public class ProductQuantizer {
         void set(int i, byte value) {
             data[pointer + i] = value;
         }
-
         BArray ref(int offset) {
             return new BArray(pointer + offset, this.data);
         }
-    }
 
+
+    }
 
     float distL2(FArray x, FArray y, int d) {
         float dist = 0;
@@ -108,20 +124,6 @@ public class ProductQuantizer {
             dist += tmp * tmp;
         }
         return dist;
-    }
-
-    ProductQuantizer(int dim, int dsub) {
-        this.dim_ = dim;
-        this.nsubq_ = dim / dsub;
-        dsub_ = dsub;
-        centroids_ = new FArray(new float[dim * ksub_]);
-        rng = new Random(seed_);
-        lastdsub_ = dim_ % dsub;
-        if (lastdsub_ == 0) {
-            lastdsub_ = dsub_;
-        } else {
-            nsubq_++;
-        }
     }
 
     // TODO: Original code has two metohds for this, one const other not.
@@ -312,5 +314,25 @@ public class ProductQuantizer {
         }
     }
 
+    void save(DataOutputStream dos) throws IOException {
+        dos.writeInt(dim_);
+        dos.writeInt(nsubq_);
+        dos.writeInt(dsub_);
+        dos.writeInt(lastdsub_);
+        for (int i = 0; i < centroids_.data.length; i++) {
+            dos.writeFloat(centroids_.data[i]);
+        }
+    }
 
+    void load(DataInputStream dis) throws IOException {
+        dim_ = dis.readInt();
+        nsubq_ = dis.readInt();
+        dsub_ = dis.readInt();
+        lastdsub_ = dis.readInt();
+        float[] centroidData = new float[dim_ * ksub_];
+        for (int i = 0; i < centroidData.length; i++) {
+            centroidData[i] = dis.readFloat();
+        }
+        centroids_ = new FArray(centroidData);
+    }
 }

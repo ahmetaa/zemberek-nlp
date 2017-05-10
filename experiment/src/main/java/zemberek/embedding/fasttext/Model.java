@@ -31,8 +31,8 @@ class Model {
         }
     }
 
-    Matrix wi_;
-    Matrix wo_;
+    Matrix_ wi_;
+    Matrix_ wo_;
     private Args args_;
     private Vector output_;
     private int hsz_;
@@ -65,8 +65,8 @@ class Model {
         initSigmoid();
     }
 
-    Model(Matrix wi,
-          Matrix wo,
+    Model(Matrix_ wi,
+          Matrix_ wo,
           Args args,
           int seed) {
         output_ = new Vector(wo.m_);

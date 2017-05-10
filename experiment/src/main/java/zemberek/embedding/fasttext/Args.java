@@ -28,6 +28,12 @@ public class Args {
     String pretrainedVectors;
     SubWordHashProvider subWordHashProvider;
 
+    boolean qout = false;
+    boolean retrain = false;
+    boolean qnorm = false;
+    int cutoff = 0;
+    int dsub = 2;
+
     enum model_name {
         cbow(1), sg(2), sup(3);
 

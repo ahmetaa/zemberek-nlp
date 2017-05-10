@@ -2,6 +2,7 @@ package zemberek.embedding.fasttext;
 
 import zemberek.core.SpaceTabTokenizer;
 import zemberek.core.collections.IntVector;
+import zemberek.core.collections.UIntIntMap;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
 
@@ -28,6 +29,8 @@ class Dictionary {
     private int nwords_;
     private int nlabels_;
     private long ntokens_;
+    private int pruneidx_size_ = -1;
+    private UIntIntMap pruneidx_ = new UIntIntMap();
 
     private static String EOS = "</s>";
     private static String BOW = "<";
@@ -74,13 +77,17 @@ class Dictionary {
             Entry e = new Entry();
             e.word = w;
             e.count = count;
-            e.type = (w.startsWith(args_.label)) ? TYPE_LABEL : TYPE_WORD;
+            e.type = getType(w);
             words_.add(e);
             word2int_[h] = size_++;
         } else {
             // or increment the count.
             words_.get(word2int_[h]).count += count;
         }
+    }
+
+    private int getType(String w) {
+        return (w.startsWith(args_.label)) ? TYPE_LABEL : TYPE_WORD;
     }
 
     int nwords() {
@@ -434,11 +441,16 @@ class Dictionary {
         out.writeInt(nwords_);
         out.writeInt(nlabels_);
         out.writeLong(ntokens_);
+        out.writeInt(pruneidx_size_);
         for (int i = 0; i < size_; i++) {
             Entry e = words_.get(i);
             out.writeUTF(e.word);
             out.writeLong(e.count);
             out.writeInt(e.type);
+        }
+        for (int key : pruneidx_.getKeyArray()) {
+            out.writeInt(key);
+            out.writeInt(pruneidx_.get(key));
         }
     }
 
@@ -450,6 +462,7 @@ class Dictionary {
         dict.nwords_ = dis.readInt();
         dict.nlabels_ = dis.readInt();
         dict.ntokens_ = dis.readLong();
+        dict.pruneidx_size_ = dis.readInt();
         for (int i = 0; i < dict.size_; i++) {
             Entry e = new Entry();
             e.word = dis.readUTF();
@@ -457,6 +470,11 @@ class Dictionary {
             e.type = dis.readInt();
             dict.words_.add(e);
             dict.word2int_[dict.find(e.word)] = i;
+        }
+        for (int i = 0; i < dict.pruneidx_size_; i++) {
+            int first = dis.readInt();
+            int second = dis.readInt();
+            dict.pruneidx_.put(first, second);
         }
         dict.initTableDiscard();
         dict.initNgrams();
