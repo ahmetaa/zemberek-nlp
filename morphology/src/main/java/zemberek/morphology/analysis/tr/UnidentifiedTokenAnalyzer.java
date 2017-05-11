@@ -37,6 +37,9 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
     }
 
     public synchronized List<WordAnalysis> analyze(String word) {
+        if (word.contains("?")) {
+            return Collections.emptyList();
+        }
         if (!Strings.containsNone(word, "0123456789")) {
             return parseNumeral(word);
         }
@@ -125,7 +128,6 @@ public class UnidentifiedTokenAnalyzer extends BaseParser {
     }
 
     public List<WordAnalysis> parseNumeral(String s) {
-
         StemAndEnding se = getFromNumeral(s);
         String lemma;
         if (se.stem.endsWith(".")) {
