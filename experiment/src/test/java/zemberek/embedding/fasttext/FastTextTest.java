@@ -32,7 +32,7 @@ public class FastTextTest {
             argz.wordNgrams = 2;
             argz.minCount = 1;
             argz.lr = 0.1;
-            argz.dim = 64;
+            argz.dim = 10;
             argz.bucket = 5_000_000;
 
             fastText = FastText.train(trainFile, argz);
