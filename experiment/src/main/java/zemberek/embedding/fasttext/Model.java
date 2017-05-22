@@ -1,7 +1,11 @@
 package zemberek.embedding.fasttext;
 
 import zemberek.core.collections.IntVector;
+import zemberek.core.logging.Log;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
 class Model {
@@ -33,6 +37,10 @@ class Model {
 
     Matrix_ wi_;
     Matrix_ wo_;
+
+    QMatrix qwi_;
+    QMatrix qwo_;
+
     private Args args_;
     private Vector output_;
     private int hsz_;
@@ -51,6 +59,8 @@ class Model {
     private List<IntVector> paths = new ArrayList<>();
     private List<IntVector> codes = new ArrayList<>();
     private Node[] tree;
+
+    boolean quant_;
 
     private static final int NEGATIVE_TABLE_SIZE = 10000000;
 
@@ -84,6 +94,51 @@ class Model {
 
     Model(Model model, int seed) {
         this(model.wi_, model.wo_, model.args_, seed);
+    }
+
+    static Model load(DataInputStream dis, Args args_) throws IOException {
+
+        Log.info("Loading Matrices.");
+        boolean quant_input = dis.readBoolean();
+
+        Matrix_ input_;
+        Matrix_ output_;
+        QMatrix qInput_ = null;
+        QMatrix qOutput_ = null;
+
+        if (quant_input) {
+            qInput_ = new QMatrix();
+            qInput_.load(dis);
+            input_ = new Matrix_(); // empty
+        } else {
+            input_ = Matrix_.load(dis);
+        }
+
+        //TODO: I dont like this. we should not override Args value like this.
+        args_.qout = dis.readBoolean();
+
+        if (quant_input && args_.qout) {
+            qOutput_ = new QMatrix();
+            qOutput_.load(dis);
+            output_ = new Matrix_(); // empty
+        } else {
+            output_ = Matrix_.load(dis);
+        }
+
+
+        Model model_ = new Model(input_, output_, args_, 0);
+        model_.quant_ = quant_input;
+        model_.setQuantizePointer(qInput_, qOutput_, args_.qout);
+
+        return model_;
+    }
+
+    void setQuantizePointer(QMatrix qwi, QMatrix qwo, boolean qout) {
+        qwi_ = qwi;
+        qwo_ = qwo;
+        if (qout) {
+            osz_ = qwo_.getM();
+        }
     }
 
     Random getRng() {
@@ -125,7 +180,11 @@ class Model {
     }
 
     private void computeOutputSoftmax(Vector hidden, Vector output) {
-        output.mul(wo_, hidden);
+        if (quant_ && args_.qout) {
+            output.mul(qwo_, hidden);
+        } else {
+            output.mul(wo_, hidden);
+        }
         float max = output.data_[0], z = 0.0f;
         for (int i = 0; i < osz_; i++) {
             max = Math.max(output.data_[i], max);
@@ -153,7 +212,11 @@ class Model {
     Vector computeHidden(int[] input) {
         Vector hidden = new Vector(hsz_);
         for (int i : input) {
-            hidden.addRow(wi_, i);
+            if (quant_) {
+                hidden.addRow(qwi_, i);
+            } else {
+                hidden.addRow(wi_, i);
+            }
         }
         hidden.mul((float) (1.0 / input.length));
         return hidden;
@@ -215,7 +278,13 @@ class Model {
             }
             return;
         }
-        float f = sigmoid(wo_.dotRow(hidden, node - osz_));
+        float f;
+        if (quant_ && args_.qout) {
+            f = sigmoid(qwo_.dotRow(hidden, node - osz_));
+        } else {
+            f = sigmoid(wo_.dotRow(hidden, node - osz_));
+        }
+
         dfs(k, tree[node].left, score + log((float) (1.0 - f)), heap, hidden);
         dfs(k, tree[node].right, score + log(f), heap, hidden);
     }

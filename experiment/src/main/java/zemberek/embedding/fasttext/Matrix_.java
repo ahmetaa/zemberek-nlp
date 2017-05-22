@@ -28,6 +28,12 @@ public class Matrix_ {
         this.data_ = new float[m_ * n_];
     }
 
+    Matrix_() {
+        this.m_ = 0;
+        this.n_ = 0;
+        this.data_ = null;
+    }
+
     /**
      * Fills the Matrix with uniform random numbers in [-a a] range.
      */
@@ -151,7 +157,6 @@ public class Matrix_ {
             norms.data_[i] = l2NormRow(i);
         }
     }
-
 
     /**
      * Saves values to binary stream [dos]

@@ -32,7 +32,7 @@ class Dictionary {
     private int pruneidx_size_ = -1;
     private UIntIntMap pruneidx_ = new UIntIntMap();
 
-    private static String EOS = "</s>";
+    static String EOS = "</s>";
     private static String BOW = "<";
     private static String EOW = ">";
 

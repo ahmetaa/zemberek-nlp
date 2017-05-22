@@ -142,6 +142,13 @@ public class Args {
         args.maxn = in.readInt();
         args.lrUpdateRate = in.readInt();
         args.t = in.readDouble();
+
+        if (args.minn != 0) {
+            args.subWordHashProvider = new Dictionary.CharacterNgramHashProvider(args.minn, args.maxn);
+        } else {
+            args.subWordHashProvider = new Dictionary.EmptySubwordHashProvider();
+        }
+
         return args;
     }
 

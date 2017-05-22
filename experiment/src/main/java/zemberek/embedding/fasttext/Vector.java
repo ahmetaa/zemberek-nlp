@@ -46,6 +46,10 @@ class Vector {
         }
     }
 
+    void addRow(QMatrix A, int i) {
+        assert(i >= 0);
+        A.addToVector(this, i);
+    }
 
     void mul(Matrix_ A, Vector vec) {
         for (int i = 0; i < m_; i++) {
@@ -53,6 +57,14 @@ class Vector {
             for (int j = 0; j < A.n_; j++) {
                 data_[i] += A.at(i,j) * vec.data_[j];
             }
+        }
+    }
+
+    void mul(QMatrix A, Vector vec) {
+        assert(A.getM() == m_);
+        assert(A.getN() == vec.m_);
+        for (int i = 0; i < m_; i++) {
+            data_[i] = A.dotRow(vec, i);
         }
     }
 

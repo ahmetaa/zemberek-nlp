@@ -2,6 +2,7 @@ package zemberek.embedding.fasttext;
 
 import zemberek.core.collections.IntVector;
 
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,9 +11,10 @@ import java.util.Random;
 
 public class ProductQuantizer {
 
-    int nbits_ = 8;
+    //TODO: original is 8 bits but because byte is signed, for now make it 7
+    int nbits_ = 7;
     int ksub_ = 1 << nbits_;
-    int max_points_per_cluster_ = 256;
+    int max_points_per_cluster_ = 128;
     int max_points_ = max_points_per_cluster_ * ksub_;
     int seed_ = 1234;
     int niter_ = 25;
@@ -113,9 +115,9 @@ public class ProductQuantizer {
         BArray ref(int offset) {
             return new BArray(pointer + offset, this.data);
         }
-
-
     }
+
+
 
     float distL2(FArray x, FArray y, int d) {
         float dist = 0;
@@ -164,7 +166,6 @@ public class ProductQuantizer {
                     x.ref(i * d), centroids, codes.ref(i), d);
         }
     }
-
 
     void MStep(FArray x0,
                FArray centroids,
@@ -238,7 +239,7 @@ public class ProductQuantizer {
                     "Matrix too small for quantization, must have > 256 rows. But it is " + n);
         }
         IntVector perm = new IntVector(n);
-        for (int i = 0; i < perm.size(); i++) {
+        for (int i = 0; i < n; i++) {
             perm.set(i, i);
         }
         int d = dsub_;

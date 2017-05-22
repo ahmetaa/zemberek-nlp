@@ -45,6 +45,42 @@ public class FastTextTest {
     }
 
     /**
+     * Runs the dbpedia classification task.
+     * run with -Xms8G or more.
+     */
+    @Test
+    @Ignore("Not an actual Test.")
+    public void quantizationTest() throws Exception {
+
+        Path inputRoot = Paths.get("/home/ahmetaa/projects/fastText/data");
+        Path trainFile = inputRoot.resolve("train.10k");
+        Path modelPath = inputRoot.resolve("10k.model.bin");
+        Path quantizedModelPath = inputRoot.resolve("10k.model.qbin");
+        Path testFile = inputRoot.resolve("dbpedia.test");
+
+        Args argz = Args.forSupervised();
+        argz.thread = 4;
+        argz.epoch = 5;
+        argz.wordNgrams = 2;
+        argz.minCount = 1;
+        argz.lr = 0.1;
+        argz.dim = 32;
+        argz.bucket = 5_000_000;
+
+        FastText fastText = FastText.train(trainFile, argz);
+        fastText.saveModel(modelPath);
+        Log.info("Testing started.");
+        fastText.test(testFile, 1);
+        FastText loaded = FastText.load(modelPath);
+        loaded.test(testFile, 1);
+        argz.qnorm = true;
+        FastText quantized = fastText.quantize(modelPath, argz);
+        quantized.saveModel(quantizedModelPath);
+        Log.info("Testing started.");
+        quantized.test(testFile, 1);
+    }
+
+    /**
      * Generates word vectors using skip-gram model.
      * run with -Xms8G or more.
      */

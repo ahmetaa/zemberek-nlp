@@ -12,10 +12,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -24,10 +21,16 @@ public class FastText {
     private Dictionary dict_;
     private Model model_;
 
+    boolean quant_ = false; // TODO: this can be removed because it already exists in Model
+
+    public static final int FASTTEXT_VERSION = 11;
+    public static final int FASTTEXT_FILEFORMAT_MAGIC_INT32 = 793712314;
+
     private FastText(Args args_, Dictionary dict_, Model model) {
         this.args_ = args_;
         this.dict_ = dict_;
         this.model_ = model;
+        quant_ = model.quant_;
     }
 
     // Sums all word and ngram vectors for a word and normalizes it.
@@ -54,33 +57,82 @@ public class FastText {
         }
     }
 
+    void saveOutput(Path outPath) throws IOException {
+        try (PrintWriter pw = new PrintWriter(outPath.toFile(), "utf-8")) {
+            pw.println(dict_.nwords() + " " + args_.dim);
+            for (int i = 0; i < dict_.nwords(); i++) {
+                String word = dict_.getWord(i);
+                Vector vector = new Vector(args_.dim);
+                vector.addRow(model_.wo_, i);
+                pw.println(word + " " + vector.asString());
+            }
+        }
+    }
+
+    static boolean checkModel(Path in) throws IOException {
+        try (DataInputStream dis = IOUtil.getDataInputStream(in)) {
+            int magic = dis.readInt();
+            if (magic != FASTTEXT_FILEFORMAT_MAGIC_INT32) {
+                return false;
+            }
+            int version = dis.readInt();
+            if (version != FASTTEXT_VERSION) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static boolean checkModel(DataInputStream dis) throws IOException {
+        int magic = dis.readInt();
+        if (magic != FASTTEXT_FILEFORMAT_MAGIC_INT32) {
+            return false;
+        }
+        int version = dis.readInt();
+        if (version != FASTTEXT_VERSION) {
+            return false;
+        }
+        return true;
+    }
+
+    void signModel(DataOutputStream dos) throws IOException {
+        dos.writeInt(FASTTEXT_FILEFORMAT_MAGIC_INT32);
+        dos.writeInt(FASTTEXT_VERSION);
+    }
+
     void saveModel(Path outFilePath) throws IOException {
         try (DataOutputStream dos = IOUtil.getDataOutputStream(outFilePath)) {
+            signModel(dos);
             args_.save(dos);
             dict_.save(dos);
-            model_.wi_.save(dos);
-            model_.wo_.save(dos);
+            dos.writeBoolean(quant_);
+            if (quant_) {
+                model_.qwi_.save(dos);
+            } else {
+                model_.wi_.save(dos);
+            }
+            dos.writeBoolean(args_.qout);
+            if (quant_ && args_.qout) {
+                model_.qwo_.save(dos);
+            } else {
+                model_.wo_.save(dos);
+            }
         }
     }
 
     static FastText load(Path path) throws IOException {
         try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
+            if (!checkModel(dis)) {
+                throw new IllegalStateException("Model file has wrong file format.");
+            }
             return load(dis);
         }
     }
 
     static FastText load(DataInputStream dis) throws IOException {
         Args args_ = Args.load(dis);
-        if (args_.minn != 0) {
-            args_.subWordHashProvider = new Dictionary.CharacterNgramHashProvider(args_.minn, args_.maxn);
-        } else {
-            args_.subWordHashProvider = new Dictionary.EmptySubwordHashProvider();
-        }
         Dictionary dict_ = Dictionary.load(dis, args_);
-        Log.info("Loading Matrices.");
-        Matrix_ input_ = Matrix_.load(dis);
-        Matrix_ output_ = Matrix_.load(dis);
-        Model model_ = new Model(input_, output_, args_, 0);
+        Model model_ = Model.load(dis, args_);
         if (args_.model == Args.model_name.sup) {
             model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_LABEL));
         } else {
@@ -89,6 +141,68 @@ public class FastText {
         Log.info("Model loaded.");
         return new FastText(args_, dict_, model_);
     }
+
+    FastText quantize(Path path, Args qargs) throws IOException {
+        try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
+            if (!checkModel(dis)) {
+                throw new IllegalStateException("Model file has wrong file format.");
+            }
+            return quantize(dis, qargs);
+        }
+    }
+
+    static class L2NormData {
+        int index;
+        float l2Norm;
+    }
+
+    int[] selectEmbeddings(int cutoff) {
+        Matrix_ input_ = model_.wi_;
+        L2NormData[] normIndexes = new L2NormData[input_.m_ - 1];
+        int eosid = dict_.getId(Dictionary.EOS);
+        int k = 0;
+        for (int i = 0; i < input_.m_; i++) {
+            if (i == eosid) {
+                continue;
+            }
+            normIndexes[k].l2Norm = input_.l2NormRow(i);
+            normIndexes[k].index = i;
+            k++;
+        }
+        Arrays.sort(normIndexes,
+                (a, b) -> Float.compare(normIndexes[a.index].l2Norm, normIndexes[b.index].l2Norm));
+        int[] result = new int[cutoff - 1];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = normIndexes[i].index;
+        }
+        // add EOS explicitly.
+        result[cutoff] = eosid;
+        return result;
+    }
+
+    FastText quantize(DataInputStream dis, Args qargs) throws IOException {
+        Args args_ = Args.load(dis);
+        Dictionary dict_ = Dictionary.load(dis, args_);
+        Model model_ = Model.load(dis, args_);
+        if (args_.model == Args.model_name.sup) {
+            model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_LABEL));
+        } else {
+            model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_WORD));
+        }
+
+        args_.qout = qargs.qout;
+        //TODO: add  cutoff operations later.
+
+        model_.qwi_ = new QMatrix(model_.wi_, qargs.dsub, qargs.qnorm);
+
+        if (args_.qout) {
+            model_.qwo_ = new QMatrix(model_.wo_, 2, qargs.qnorm);
+        }
+
+        model_.quant_ = true;
+        return new FastText(args_, dict_, model_);
+    }
+
 
     void test(Path in, int k) throws IOException {
         int nexamples = 0, nlabels = 0;

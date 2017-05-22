@@ -74,6 +74,17 @@ public class QMatrix {
         pq_.addcode(x, new ProductQuantizer.BArray(codes_), t, norm);
     }
 
+    float dotRow(Vector vec, int i) {
+        assert (i >= 0);
+        assert (i < m_);
+        assert (vec.size() == n_);
+        float norm = 1;
+        if (qnorm_) {
+            norm = npq_.get_centroids(0, norm_codes_[i]).get(0);
+        }
+        return pq_.mulcode(vec, new ProductQuantizer.BArray(codes_), i, norm);
+    }
+
     int getM() {
         return m_;
     }
