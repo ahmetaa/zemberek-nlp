@@ -8,7 +8,8 @@
 ## Nouns.
 yok [A:Voicing]
 yok [A:NoVoicing ; Index:1; Ref:yok]
-## Main Pos info is optional.
+
+## Main Pos info is optional for nouns and verbs.
 elma
 kahve [P: Noun]
 yapı
