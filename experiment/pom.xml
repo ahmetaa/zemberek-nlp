@@ -32,6 +32,11 @@
             <artifactId>zemberek-tokenization</artifactId>
             <version>${parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>zemberek-nlp</groupId>
+            <artifactId>zemberek-lang-id</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
     </dependencies>
 
 

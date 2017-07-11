@@ -1,0 +1,1 @@
+This classes and related data are copied from [Turkish Deasciifier for Java](https://github.com/ahmetb/turkish-deasciifier-java) 
