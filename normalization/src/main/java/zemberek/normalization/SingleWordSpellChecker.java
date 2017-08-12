@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class SingleWordSpellChecker {
+public class SingleWordSpellChecker implements NormalizationDecoder<String> {
 
     private static final AtomicInteger nodeIndexCounter = new AtomicInteger(0);
 

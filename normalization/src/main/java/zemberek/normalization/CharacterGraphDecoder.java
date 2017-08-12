@@ -6,7 +6,7 @@ import zemberek.core.collections.FloatValueMap;
 import java.util.*;
 import java.util.stream.Collectors;
 
-class CharacterGraphDecoder {
+class CharacterGraphDecoder implements NormalizationDecoder<String>{
 
     public static final Map<Character, String> TURKISH_FQ_NEAR_KEY_MAP = new HashMap<>();
     public static final Map<Character, String> TURKISH_Q_NEAR_KEY_MAP = new HashMap<>();

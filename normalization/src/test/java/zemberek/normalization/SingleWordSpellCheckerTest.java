@@ -21,11 +21,11 @@ public class SingleWordSpellCheckerTest {
         String vocabulary = "elma";
         spellChecker.addWord(vocabulary);
         Assert.assertTrue(spellChecker.decode(vocabulary).contains(vocabulary));
-        check1Distance(spellChecker, "elma");
+        NormalizationTestUtils.check1Distance(spellChecker, "elma");
 
         spellChecker.addWord("armut");
         spellChecker.addWord("ayva");
-        check1Distance(spellChecker, "armut");
+        NormalizationTestUtils.check1Distance(spellChecker, "armut");
     }
 
     @Test
@@ -99,36 +99,6 @@ public class SingleWordSpellCheckerTest {
         }
     }
 
-    private void check1Distance(SingleWordSpellChecker spellChecker, String expected) {
-        Set<String> randomDeleted = randomDelete(expected, 1);
-        for (String s : randomDeleted) {
-            FloatValueMap<String> res = spellChecker.decode(s);
-            Assert.assertEquals(s, 1, res.size());
-            Assert.assertTrue(s, res.contains(expected));
-        }
-
-        Set<String> randomInserted = randomInsert(expected, 1);
-        for (String s : randomInserted) {
-            FloatValueMap<String> res = spellChecker.decode(s);
-            Assert.assertEquals(s, 1, res.size());
-            Assert.assertTrue(s, res.contains(expected));
-        }
-
-        Set<String> randomSubstitute = randomSubstitute(expected, 1);
-        for (String s : randomSubstitute) {
-            FloatValueMap<String> res = spellChecker.decode(s);
-            Assert.assertEquals(s, 1, res.size());
-            Assert.assertTrue(s, res.contains(expected));
-        }
-
-        Set<String> transpositions = transpositions(expected);
-        for (String s : transpositions) {
-            FloatValueMap<String> res = spellChecker.decode(s);
-            Assert.assertEquals(s, 1, res.size());
-            Assert.assertTrue(s, res.contains(expected));
-        }
-    }
-
     @Test
     public void nearKeyCheck() {
         SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(
@@ -145,56 +115,6 @@ public class SingleWordSpellCheckerTest {
         Assert.assertTrue(res2.contains("elma"));
         Assert.assertTrue(res1.get("elma") < res2.get("elma"));
 
-    }
-
-    Set<String> randomDelete(String input, int d) {
-        Set<String> result = new HashSet<>();
-        Random r = new Random(0xbeef);
-        for (int i = 0; i < 100; i++) {
-            StringBuilder sb = new StringBuilder(input);
-            for (int j = 0; j < d; j++)
-                sb.deleteCharAt(r.nextInt(sb.length()));
-            result.add(sb.toString());
-        }
-        return result;
-    }
-
-    Set<String> randomInsert(String input, int d) {
-        Set<String> result = new HashSet<>();
-        Random r = new Random(0xbeef);
-        for (int i = 0; i < 100; i++) {
-            StringBuilder sb = new StringBuilder(input);
-            for (int j = 0; j < d; j++)
-                sb.insert(r.nextInt(sb.length() + 1), "x");
-            result.add(sb.toString());
-        }
-        return result;
-    }
-
-    Set<String> randomSubstitute(String input, int d) {
-        Set<String> result = new HashSet<>();
-        Random r = new Random(0xbeef);
-        for (int i = 0; i < 100; i++) {
-            StringBuilder sb = new StringBuilder(input);
-            for (int j = 0; j < d; j++) {
-                int start = r.nextInt(sb.length());
-                sb.replace(start, start + 1, "x");
-            }
-            result.add(sb.toString());
-        }
-        return result;
-    }
-
-    Set<String> transpositions(String input) {
-        Set<String> result = new HashSet<>();
-        for (int i = 0; i < input.length() - 1; i++) {
-            StringBuilder sb = new StringBuilder(input);
-            char tmp = sb.charAt(i);
-            sb.setCharAt(i, sb.charAt(i + 1));
-            sb.setCharAt(i + 1, tmp);
-            result.add(sb.toString());
-        }
-        return result;
     }
 
 
