@@ -8,8 +8,6 @@ import java.util.Random;
 import java.util.Set;
 
 /**
- * Created by mayata on 13/08/17.
- * <p>
  * Utils class for testing, handles some common code used among testing classes.
  */
 public class NormalizationTestUtils {
