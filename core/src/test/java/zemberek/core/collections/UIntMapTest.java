@@ -29,6 +29,18 @@ public class UIntMapTest {
     }
 
     @Test
+    public void testTroubleNumbers() {
+        int[] troubleNumbers = {14, 1, 30, 31, 4, 21, 8, 37, 39};
+
+        UIntMap<String> map = new UIntMap<>();
+        for (int number : troubleNumbers) {
+            map.put(number, String.valueOf(number));
+        }
+        map.put(15, "15");
+        Assert.assertEquals("15", map.get(15));
+    }
+
+    @Test
     public void stressTest() {
         UIntMap<String> map = new UIntMap<>(1);
         int size = 100000;
@@ -68,7 +80,7 @@ public class UIntMapTest {
     public void getValuesTest() {
         UIntMap<String> map = new UIntMap<>();
         int size = 1000;
-        List<String> expected= new ArrayList<>();
+        List<String> expected = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             String value = String.valueOf(i + 1);
             map.put(i, value);
@@ -80,12 +92,12 @@ public class UIntMapTest {
     @Test
     public void getValuesTest2() {
         UIntMap<String> map = new UIntMap<>();
-        map.put(1,"a");
-        map.put(5,"b");
-        map.put(12345,"a");
+        map.put(1, "a");
+        map.put(5, "b");
+        map.put(12345, "a");
         List<String> values = map.getValues();
         Collections.sort(values);
-        List<String> expected = Lists.newArrayList("a","a","b");
+        List<String> expected = Lists.newArrayList("a", "a", "b");
         Assert.assertEquals(expected, values);
     }
 

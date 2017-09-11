@@ -49,7 +49,8 @@ public abstract class UIntKeyHashBase {
 
     protected int locate(int key) {
         int probeCount = 0;
-        int slot = firstProbe(key);
+        int firstProbe = firstProbe(key);
+        int slot = firstProbe;
         int pointer = -1;
         while (true) {
             final int k = keys[slot];
@@ -60,12 +61,13 @@ public abstract class UIntKeyHashBase {
                 if (pointer < 0) {
                     pointer = slot;
                 }
-                slot = nextProbe(slot, ++probeCount);
+                slot = nextProbe(firstProbe, ++probeCount);
                 continue;
             }
-            if (k == key)
+            if (k == key) {
                 return slot;
-            slot = nextProbe(slot, ++probeCount);
+            }
+            slot = nextProbe(firstProbe, ++probeCount);
         }
     }
 

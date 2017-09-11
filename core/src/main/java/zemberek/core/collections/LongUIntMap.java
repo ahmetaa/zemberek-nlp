@@ -57,7 +57,8 @@ public class LongUIntMap {
 
     private int locate(long key) {
         int probeCount = 0;
-        int slot = firstProbe(hash(key));
+        int firstProbe = firstProbe(hash(key));
+        int slot = firstProbe;
         int pointer = -1;
         while (true) {
             final int t = values[slot];
@@ -68,12 +69,13 @@ public class LongUIntMap {
                 if (pointer < 0) {
                     pointer = slot;
                 }
-                slot = nextProbe(slot, ++probeCount);
+                slot = nextProbe(firstProbe, ++probeCount);
                 continue;
             }
-            if (key == keys[slot])
+            if (key == keys[slot]) {
                 return slot;
-            slot = nextProbe(slot, ++probeCount);
+            }
+            slot = nextProbe(firstProbe, ++probeCount);
         }
     }
 
@@ -95,19 +97,20 @@ public class LongUIntMap {
      */
     public int get(long key) {
         int probeCount = 0;
-        int slot = firstProbe(hash(key));
+        int firstProbe = firstProbe(hash(key));
+        int slot = firstProbe;
         while (true) {
             final int t = values[slot];
             if (t == EMPTY_VALUE) {
                 return -1;
             }
             if (t == DELETED_VALUE) {
-                slot = nextProbe(slot, ++probeCount);
+                slot = nextProbe(firstProbe, ++probeCount);
                 continue;
             }
             if (keys[slot] == key)
                 return values[slot];
-            slot = nextProbe(slot, ++probeCount);
+            slot = nextProbe(firstProbe, ++probeCount);
         }
     }
 

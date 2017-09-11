@@ -107,7 +107,8 @@ public abstract class HashBase<T> {
      */
     protected int locate(T key) {
         int probeCount = 0;
-        int slot = firstProbe(hash(key));
+        int firstProbe = firstProbe(hash(key));
+        int slot = firstProbe;
         int pointer = -1;
         while (true) {
             final T t = keys[slot];
@@ -118,12 +119,13 @@ public abstract class HashBase<T> {
                 if (pointer < 0) {
                     pointer = slot;
                 }
-                slot = nextProbe(slot, ++probeCount);
+                slot = nextProbe(firstProbe, ++probeCount);
                 continue;
             }
-            if (t.equals(key))
+            if (t.equals(key)) {
                 return slot;
-            slot = nextProbe(slot, ++probeCount);
+            }
+            slot = nextProbe(firstProbe, ++probeCount);
         }
     }
 

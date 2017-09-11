@@ -14,7 +14,7 @@ import java.util.List;
  * a unique set of n keys in the range of [0,...,n-1]
  * <p/>
  * MultiLevelMphf can be considered as an improvement over MOS Algorithm II of
- * Fox, Heath, Chen, and Daoud's Practical minimal perfect hash functions for large databases [CACM 1992]
+ * Fox, Heath, Chen, and Daoud's Practical minimal perfect hash `functions for large databases [CACM 1992]
  * and MPHF structure defined in
  * Belazzougui, Botelho and Dietzfelbinger's Hash, Displace and Compress (2009) papers.
  * <p/>
