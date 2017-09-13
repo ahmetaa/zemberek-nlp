@@ -1,6 +1,7 @@
 package zemberek.core.collections;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,22 +28,20 @@ public class UIntValueMap<T> extends HashBase<T> implements Iterable<T> {
     public int get(T key) {
         if (key == null)
             throw new IllegalArgumentException("Key cannot be null.");
-        int probeCount = 0;
-        int firstProbe = firstProbe(hash(key));
-        int slot = firstProbe;
+        int slot = firstProbe(hash(key));
         while (true) {
             final T t = keys[slot];
             if (t == null) {
                 return -1;
             }
             if (t == TOMB_STONE) {
-                slot = nextProbe(firstProbe, ++probeCount);
+                slot = nextProbe(slot + 1);
                 continue;
             }
             if (t.equals(key)) {
                 return values[slot];
             }
-            slot = nextProbe(firstProbe, ++probeCount);
+            slot = nextProbe(slot + 1);
         }
     }
 

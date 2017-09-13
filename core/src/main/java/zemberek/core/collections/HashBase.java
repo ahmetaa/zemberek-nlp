@@ -74,8 +74,8 @@ public abstract class HashBase<T> {
         return hashCode & modulo;
     }
 
-    protected int nextProbe(int previousIndex, int probeCount) {
-        return (previousIndex + probeCount) & modulo;
+    protected int nextProbe(int index) {
+        return index & modulo;
     }
 
     protected int hash(T key) {
@@ -85,14 +85,14 @@ public abstract class HashBase<T> {
     /**
      * locate operation does the following:
      * - finds the slot
-     * - if there was a deleted key before (key[slot]==TOMB_STONE) and pointer is not set yet (pointer==-1) pointer is set to this
-     * slot index and index is incremented.
+     * - if there was a deleted key before (key[slot]==TOMB_STONE) and pointer is not set yet (pointer==-1)
+     * pointer is set to this slot index and index is incremented.
      * This is necessary for the following problem.
-     * Suppose we add key "foo" first then key "bar" with key collision. first one is put to slotindex=1 and the other one is
-     * located to slot=2. Then we remove the key "foo". Now if we do not use the TOMB_STONE, and want to access the value of key "bar".
-     * we would get "2" because slot will be 1 and key does not exist there.
-     * that is why we use a TOMB_STONE object for marking deleted slots. So when getting a value we pass the deleted slots. And when we insert,
-     * we use the first deleted slot if any.
+     * Suppose we add key "foo" first then key "bar" with key collision. first one is put to slotindex=1 and the other
+     * one is located to slot=2. Then we remove the key "foo". Now if we do not use the TOMB_STONE, and want to access
+     * the value of key "bar". We would get "2" because slot will be 1 and key does not exist there.
+     * that is why we use a TOMB_STONE object for marking deleted slots. So when getting a value we pass the deleted slots.
+     * And when we insert, we use the first deleted slot if any.
      * <pre>
      *    Key Val  Key Val  Key Val
      *     0   0    0   0    0   0
@@ -106,9 +106,7 @@ public abstract class HashBase<T> {
      * return -slot-1 or -pointer-1 to avoid the 0 index problem.
      */
     protected int locate(T key) {
-        int probeCount = 0;
-        int firstProbe = firstProbe(hash(key));
-        int slot = firstProbe;
+        int slot = firstProbe(hash(key));
         int pointer = -1;
         while (true) {
             final T t = keys[slot];
@@ -117,15 +115,15 @@ public abstract class HashBase<T> {
             }
             if (t == TOMB_STONE) {
                 if (pointer < 0) {
-                    pointer = slot;
+                    pointer = slot; // marking the first deleted slot.
                 }
-                slot = nextProbe(firstProbe, ++probeCount);
+                slot = nextProbe(slot+1);
                 continue;
             }
             if (t.equals(key)) {
                 return slot;
             }
-            slot = nextProbe(firstProbe, ++probeCount);
+            slot = nextProbe(slot+1);
         }
     }
 

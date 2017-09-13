@@ -55,22 +55,20 @@ public class IntValueMap<T> extends HashBase<T> implements Iterable<T> {
     public int get(T key) {
         if (key == null)
             throw new IllegalArgumentException("Key cannot be null.");
-        int probeCount = 0;
-        int firstProbe = firstProbe(hash(key));
-        int slot = firstProbe;
+        int slot = firstProbe(hash(key));
         while (true) {
             final T t = keys[slot];
             if (t == null) {
                 return 0;
             }
             if (t == TOMB_STONE) {
-                slot = nextProbe(firstProbe, ++probeCount);
+                slot = nextProbe(slot+1);
                 continue;
             }
             if (t.equals(key)) {
                 return values[slot];
             }
-            slot = nextProbe(firstProbe, ++probeCount);
+            slot = nextProbe(slot+1);
         }
     }
 

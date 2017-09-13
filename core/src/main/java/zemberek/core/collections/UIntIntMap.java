@@ -23,22 +23,20 @@ public class UIntIntMap extends UIntKeyHashBase {
         if (key < 0) {
             throw new IllegalArgumentException("Key cannot be negative: " + key);
         }
-        int probeCount = 0;
-        int firstProbe = firstProbe(key);
-        int slot = firstProbe;
+        int slot = firstProbe(key);
         while (true) {
             final int t = keys[slot];
             if (t == EMPTY) {
                 return 0;
             }
             if (t == DELETED) {
-                slot = nextProbe(firstProbe, ++probeCount);
+                slot = nextProbe(slot+1);
                 continue;
             }
             if (t == key) {
                 return values[slot];
             }
-            slot = nextProbe(firstProbe, ++probeCount);
+            slot = nextProbe(slot+1);
         }
     }
 

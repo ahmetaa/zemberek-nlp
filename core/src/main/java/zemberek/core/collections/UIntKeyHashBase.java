@@ -30,8 +30,8 @@ public abstract class UIntKeyHashBase {
         return hashCode & modulo;
     }
 
-    protected int nextProbe(int previousIndex, int probeCount) {
-        return (previousIndex + probeCount) & modulo;
+    protected int nextProbe(int index) {
+        return index & modulo;
     }
 
     UIntKeyHashBase(int size) {
@@ -48,9 +48,8 @@ public abstract class UIntKeyHashBase {
     }
 
     protected int locate(int key) {
-        int probeCount = 0;
-        int firstProbe = firstProbe(key);
-        int slot = firstProbe;
+
+        int slot = firstProbe(key);
         int pointer = -1;
         while (true) {
             final int k = keys[slot];
@@ -61,13 +60,13 @@ public abstract class UIntKeyHashBase {
                 if (pointer < 0) {
                     pointer = slot;
                 }
-                slot = nextProbe(firstProbe, ++probeCount);
+                slot = nextProbe(slot+1);
                 continue;
             }
             if (k == key) {
                 return slot;
             }
-            slot = nextProbe(firstProbe, ++probeCount);
+            slot = nextProbe(slot+1);
         }
     }
 
