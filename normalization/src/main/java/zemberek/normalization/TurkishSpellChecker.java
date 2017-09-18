@@ -16,7 +16,6 @@ import zemberek.morphology.structure.Turkish;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -171,10 +170,10 @@ public class TurkishSpellChecker {
         return results.stream().map(s -> s.item).collect(Collectors.toList());
     }
 
-    private static final TurkishTokenizer lexer = TurkishTokenizer.DEFAULT;
+    private static final TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
 
     public static List<String> tokenizeForSpelling(String sentence) {
-        List<Token> tokens = lexer.tokenize(sentence);
+        List<Token> tokens = tokenizer.tokenize(sentence);
         List<String> result = new ArrayList<>(tokens.size());
         for (Token token : tokens) {
             if (token.getType() == TurkishLexer.Unknown ||

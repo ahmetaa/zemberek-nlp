@@ -49,25 +49,24 @@ public Token nextToken() {
 
     Token next = super.nextToken();
 
-    if(next.getType() != TurkishWord) {
+    if(next.getType() != Word) {
       return next;
     }
 
-    StringBuilder builder = new StringBuilder(next.getText());
-
     Token next2 = super.nextToken();
     if (next2.getType() == Punctuation && next2.getText().equals(".")) {
-      builder.append('.');
-      String abbrev = builder.toString();
-      if (abbreviations!= null && abbreviations.contains(abbrev)) {
-		  CommonToken commonToken = new CommonToken(Abbreviation, abbrev);
-		  commonToken.setStartIndex(next.getStartIndex());
-		  commonToken.setStopIndex(next2.getStopIndex());
-		  commonToken.setTokenIndex(next.getTokenIndex());
-		  commonToken.setCharPositionInLine(next.getCharPositionInLine());
-		  commonToken.setLine(next.getLine());
-		  return commonToken;
-      }
+        StringBuilder builder = new StringBuilder(next.getText());
+        builder.append('.');
+        String abbrev = builder.toString();
+        if (abbreviations!= null && abbreviations.contains(abbrev)) {
+            CommonToken commonToken = new CommonToken(Abbreviation, abbrev);
+            commonToken.setStartIndex(next.getStartIndex());
+            commonToken.setStopIndex(next2.getStopIndex());
+            commonToken.setTokenIndex(next.getTokenIndex());
+            commonToken.setCharPositionInLine(next.getCharPositionInLine());
+            commonToken.setLine(next.getLine());
+            return commonToken;
+        }
     }
     queue.offer(next2);
     return next;

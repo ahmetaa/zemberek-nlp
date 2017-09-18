@@ -19,7 +19,8 @@ import java.util.regex.Pattern;
  * For making boundary decisions it uses a combination of rules and a binary averaged perceptron model.
  * It only breaks paragraphs from [.!?] symbols.
  * <p>
- * Use the static DEFAULT singleton for the TurkishSentenceExtractor instance that uses the extraction model.
+ * Use the static DEFAULT singleton for the TurkishSentenceExtractor instance that uses
+ * the internal extraction model.
  */
 public class TurkishSentenceExtractor extends PerceptronSegmenter {
 
@@ -318,10 +319,8 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
             if (previousSpace < 0) {
                 previousSpace = 0;
             }
-            leftChunk = "";
-            if (previousSpace >= 0) {
-                leftChunk = input.substring(previousSpace, pointer);
-            }
+            leftChunk = input.substring(previousSpace, pointer);
+
             int previousBoundaryOrSpace = findBackwardsSpaceOrChar(input, pointer, '.');
             if (previousBoundaryOrSpace < 0) {
                 previousBoundaryOrSpace = 0;
