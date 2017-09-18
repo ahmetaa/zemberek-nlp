@@ -55,9 +55,7 @@ public Token nextToken() {
 
     Token next2 = super.nextToken();
     if (next2.getType() == Punctuation && next2.getText().equals(".")) {
-        StringBuilder builder = new StringBuilder(next.getText());
-        builder.append('.');
-        String abbrev = builder.toString();
+        String abbrev = next.getText() + ".";
         if (abbreviations!= null && abbreviations.contains(abbrev)) {
             CommonToken commonToken = new CommonToken(Abbreviation, abbrev);
             commonToken.setStartIndex(next.getStartIndex());
