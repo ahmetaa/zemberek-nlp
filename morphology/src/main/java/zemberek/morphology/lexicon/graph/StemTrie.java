@@ -1,6 +1,6 @@
 package zemberek.morphology.lexicon.graph;
 
-import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.core.collections.IntMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,8 +13,7 @@ import java.util.List;
  */
 public class StemTrie {
 
-    Node root = new Node();
-    static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+    private Node root = new Node();
 
     public void add(StemNode stem) {
         if (stem == null) {
@@ -59,9 +58,9 @@ public class StemTrie {
                         break;
                     }
                     Node newNode = new Node(stem, Arrays.copyOf(node.fragment, fragmentSplitIndex));
+                    node.trimLeft(fragmentSplitIndex);
                     newNode.addChild(node);
                     previousNode.addChild(newNode);
-                    node.trimLeft(fragmentSplitIndex);
                     break;
                 }
                 // Case:
@@ -118,11 +117,11 @@ public class StemTrie {
         Node node = root;
         int index = 0;
         String s = "";
-        List<StemNode> objects = new ArrayList<StemNode>();
+        List<StemNode> objects = new ArrayList<>();
         while (index < input.length()) {
             node = node.getChildNode(input.charAt(index));
             if (node == null) break;
-            String nodeString = node.getString();
+            String nodeString = node.getFragment();
             s += nodeString;
             if (input.startsWith(s) && node.hasObject()) {
                 objects.addAll(node.stems);
@@ -134,9 +133,8 @@ public class StemTrie {
 
     public static class Node {
         private char[] fragment;
-        int index;
-        private ArrayList<Node> children;
         private ArrayList<StemNode> stems;
+        private IntMap<Node> children_;
 
         public Node() {
         }
@@ -146,23 +144,17 @@ public class StemTrie {
             setFragment(fragment);
         }
 
-        public void setAlphabeticIndex() {
-            this.index = alphabet.getAlphabeticIndex(fragment[0]);
-        }
-
         public void trimLeft(int i) {
-            this.fragment = getSuffix(fragment, i);
-            setAlphabeticIndex();
+            setFragment(getSuffix(fragment, i));
         }
 
         public void setFragment(char[] fragment) {
             this.fragment = fragment;
-            setAlphabeticIndex();
         }
 
         public void addStem(StemNode s) {
             if (stems == null) {
-                stems = new ArrayList<StemNode>(1);
+                stems = new ArrayList<>(1);
             }
             if (!stems.contains(s)) {
                 stems.add(s);
@@ -170,71 +162,27 @@ public class StemTrie {
         }
 
         public void addChild(Node node) {
-            if (children == null) {
-                children = new ArrayList<Node>(2);
+            if (children_ == null) {
+                children_ = new IntMap<>(2);
             }
-            int pos = getChildIndex(node.index);
-            if (pos < 0) {
-                children.add(-(pos + 1), node);
-            } else {
-                children.set(pos, node);
-            }
+            children_.put(node.getChar(), node);
         }
 
-        // Search based on index values of children Node array. 
-        // Returns index of node if it already exists,
-        // -(pos +1) position to insert, if no element exist with given index 
-        private int getChildIndex(int index) {
-            if (children == null || children.size() == 0) {
-                return -1;
-            }
-            int size = children.size();
-            // Linear search if element count is smaller than a threshold.
-            if (size < 7) {
-                int i = 0;
-                for (; i < size && children.get(i).index < index; i++) ;
-                if (i == size) return -(size + 1);
-                return children.get(i).index == index ? i : -(i + 1);
-            }
-            // Apply binary search if child count is big.
-            int low = 0;
-            int high = size - 1;
-            while (low <= high) {
-                int mid = (low + high) >> 1;
-                Node midNode = children.get(mid);
-                if (midNode.index < index) {
-                    low = mid + 1;
-                } else if (midNode.index > index) {
-                    high = mid - 1;
-                } else {
-                    return mid;
-                }
-            }
-            return -(low + 1);
-        }
-
-        public String getString() {
+        public String getFragment() {
             return fragment == null ? "#" : new String(fragment);
         }
 
         public Node getChildNode(char c) {
-            int childIndex = getChildIndex(alphabet.getAlphabeticIndex(c));
-            if (childIndex >= 0) {
-                return children.get(childIndex);
-            }
-            return null;
-        }
-
-        public Node[] getAllChildNodes() {
-            return children.toArray(new Node[children.size()]);
+            if (children_ == null) return null;
+            return children_.get(c);
         }
 
         @Override
         public String toString() {
-            String s = getString() + " : ";
-            if (children != null) {
+            String s = getFragment() + " : ";
+            if (children_ != null) {
                 s += "( ";
-                for (Node node : children) {
+                for (Node node : children_.getValues()) {
                     if (node != null) {
                         s += node.getChar() + " ";
                     }
@@ -270,8 +218,8 @@ public class StemTrie {
                 indentChars[i] = ' ';
             b.append(indentChars).append(this.toString());
             b.append("\n");
-            if (children != null) {
-                for (Node subNode : this.children) {
+            if (children_ != null) {
+                for (Node subNode : this.children_.getValues()) {
                     if (subNode != null) {
                         subNode.toDeepString(b, level + 1);
                     }
