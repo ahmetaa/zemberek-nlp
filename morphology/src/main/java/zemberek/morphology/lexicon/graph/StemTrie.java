@@ -115,20 +115,23 @@ public class StemTrie {
 
     public List<StemNode> getMatchingStems(String input) {
         Node node = root;
-        int index = 0;
-        String s = "";
-        List<StemNode> objects = new ArrayList<>();
-        while (index < input.length()) {
-            node = node.getChildNode(input.charAt(index));
-            if (node == null) break;
-            String nodeString = node.getFragment();
-            s += nodeString;
-            if (input.startsWith(s) && node.hasObject()) {
-                objects.addAll(node.stems);
+        int i = 0;
+        List<StemNode> stems = new ArrayList<>();
+        while(i < input.length()) {
+            node = node.getChildNode(input.charAt(i));
+            // if there are no child node with input char, break
+            if (node == null) {
+                break;
             }
-            index += nodeString.length();
+            char[] fragment = node.fragment;
+            int j = 0;
+            // Compare fragment and input.
+            while (j < fragment.length && i < input.length() && fragment[j++] == input.charAt(i++));
+            if (i <= input.length() && node.hasStem()) {
+                stems.addAll(node.stems);
+            }
         }
-        return objects;
+        return stems;
     }
 
     public static class Node {
@@ -238,7 +241,7 @@ public class StemTrie {
             return b.toString();
         }
 
-        public boolean hasObject() {
+        public boolean hasStem() {
             return (stems != null && stems.size() > 0);
         }
 

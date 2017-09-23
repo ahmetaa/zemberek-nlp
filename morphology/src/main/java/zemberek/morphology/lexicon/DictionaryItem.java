@@ -168,9 +168,9 @@ public class DictionaryItem {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(lemma + " " + "[P:" + primaryPos.shortForm);
-        if (secondaryPos != SecondaryPos.None)
+        if (secondaryPos != null && secondaryPos != SecondaryPos.None)
             sb.append(", ").append(secondaryPos.shortForm);
-        if (attributes.isEmpty())
+        if (attributes != null && attributes.isEmpty())
             sb.append("]");
         else
             printAttributes(sb, attributes);
@@ -182,7 +182,7 @@ public class DictionaryItem {
     }
 
     private void printAttributes(StringBuilder sb, EnumSet<RootAttribute> attrs) {
-        if (!attrs.isEmpty())
+        if (attrs !=null && !attrs.isEmpty())
             sb.append("; A:");
         else return;
         int i = 0;

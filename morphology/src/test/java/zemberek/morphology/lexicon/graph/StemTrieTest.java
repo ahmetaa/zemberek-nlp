@@ -46,16 +46,14 @@ public class StemTrieTest {
     private void checkNodesExist(List<StemNode> nodes) {
         for (StemNode node : nodes) {
             List<StemNode> stems = lt.getMatchingStems(node.surfaceForm);
-            assertFalse(stems.isEmpty());
-            assertTrue(stems.contains(node));
+            assertTrue(" Should have contained: " + node, stems.contains(node));
         }
     }
 
     private void checkNodesMatches(String prefix, List<StemNode> nodes) {
         List<StemNode> stems = lt.getMatchingStems(prefix);
         for (StemNode node : stems) {
-            assertEquals(nodes.size(), stems.size());
-            assertTrue(stems.contains(node));
+            assertTrue("Should have contained: " + node, stems.contains(node));
         }
     }
 	
@@ -105,7 +103,23 @@ public class StemTrieTest {
         checkNodesMatches("elma", createNodes("el", "elma"));
         checkNodesMatches("el", createNodes("el"));
         checkNodesMatches("elmas", createNodes("el", "elma", "elmas"));
-	}
+        checkNodesMatches("elmaslar", createNodes("el", "elma", "elmas"));
+    }
+
+    @Test
+    public void stemsForLongerInputs() {
+        List<StemNode> nodes = createNodes("el", "elmas", "elma", "ela");
+        addStemNodes(nodes);
+        System.out.println(lt);
+        checkNodesExist(nodes);
+        checkNodesMatches("e", createNodes());
+        checkNodesMatches("el", createNodes("el"));
+        checkNodesMatches("elif", createNodes("el"));
+        checkNodesMatches("ela", createNodes("el", "ela"));
+        checkNodesMatches("elastik", createNodes("el", "ela"));
+        checkNodesMatches("elmas", createNodes("el", "elma", "elmas"));
+        checkNodesMatches("elmaslar", createNodes("el", "elma", "elmas"));
+    }
 
     @Test
     public void stemsSharingPartialPrefix1() {
