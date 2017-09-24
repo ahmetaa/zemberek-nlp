@@ -80,6 +80,56 @@ public class StemTrie {
         }
     }
 
+    public void remove(StemNode stem) {
+        Node node = walkToNode(stem.surfaceForm);
+        if (node != null && node.hasStem()) {
+            node.stems.remove(stem);
+        }
+    }
+
+    private Node walkToNode(String input) {
+        Node node = root;
+        int i = 0;
+        while(i < input.length()) {
+            node = node.getChildNode(input.charAt(i));
+            // if there are no child node with input char, break
+            if (node == null) {
+                break;
+            }
+            char[] fragment = node.fragment;
+            int j = 0;
+            // Compare fragment and input.
+            while (j < fragment.length && i < input.length() && fragment[j++] == input.charAt(i++));
+        }
+        return node;
+    }
+
+    public String toString() {
+        return root != null ? root.dump() : "";
+    }
+
+    // TODO: Make this use walktoNode method as well.
+    public List<StemNode> getMatchingStems(String input) {
+        Node node = root;
+        int i = 0;
+        List<StemNode> stems = new ArrayList<>();
+        while(i < input.length()) {
+            node = node.getChildNode(input.charAt(i));
+            // if there are no child node with input char, break
+            if (node == null) {
+                break;
+            }
+            char[] fragment = node.fragment;
+            int j = 0;
+            // Compare fragment and input.
+            while (j < fragment.length && i < input.length() && fragment[j++] == input.charAt(i++));
+            if (j == fragment.length && i <= input.length() && node.hasStem()) {
+                stems.addAll(node.stems);
+            }
+        }
+        return stems;
+    }
+
     /**
      * Finds the last position of common chars for 2 char arrays relative to a given index.
      *
@@ -109,35 +159,10 @@ public class StemTrie {
         return res;
     }
 
-    public String toString() {
-        return root != null ? root.dump() : "";
-    }
-
-    public List<StemNode> getMatchingStems(String input) {
-        Node node = root;
-        int i = 0;
-        List<StemNode> stems = new ArrayList<>();
-        while(i < input.length()) {
-            node = node.getChildNode(input.charAt(i));
-            // if there are no child node with input char, break
-            if (node == null) {
-                break;
-            }
-            char[] fragment = node.fragment;
-            int j = 0;
-            // Compare fragment and input.
-            while (j < fragment.length && i < input.length() && fragment[j++] == input.charAt(i++));
-            if (i <= input.length() && node.hasStem()) {
-                stems.addAll(node.stems);
-            }
-        }
-        return stems;
-    }
-
     public static class Node {
         private char[] fragment;
         private ArrayList<StemNode> stems;
-        private IntMap<Node> children_;
+        private IntMap<Node> children;
 
         public Node() {
         }
@@ -165,10 +190,10 @@ public class StemTrie {
         }
 
         public void addChild(Node node) {
-            if (children_ == null) {
-                children_ = new IntMap<>(2);
+            if (children == null) {
+                children = new IntMap<>(2);
             }
-            children_.put(node.getChar(), node);
+            children.put(node.getChar(), node);
         }
 
         public String getFragment() {
@@ -176,16 +201,16 @@ public class StemTrie {
         }
 
         public Node getChildNode(char c) {
-            if (children_ == null) return null;
-            return children_.get(c);
+            if (children == null) return null;
+            return children.get(c);
         }
 
         @Override
         public String toString() {
             String s = getFragment() + " : ";
-            if (children_ != null) {
+            if (children != null) {
                 s += "( ";
-                for (Node node : children_.getValues()) {
+                for (Node node : children.getValues()) {
                     if (node != null) {
                         s += node.getChar() + " ";
                     }
@@ -221,8 +246,8 @@ public class StemTrie {
                 indentChars[i] = ' ';
             b.append(indentChars).append(this.toString());
             b.append("\n");
-            if (children_ != null) {
-                for (Node subNode : this.children_.getValues()) {
+            if (children != null) {
+                for (Node subNode : this.children.getValues()) {
                     if (subNode != null) {
                         subNode.toDeepString(b, level + 1);
                     }

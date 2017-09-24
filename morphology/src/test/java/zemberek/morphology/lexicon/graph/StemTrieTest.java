@@ -10,7 +10,8 @@ import zemberek.morphology.lexicon.DictionaryItem;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class StemTrieTest {
 
@@ -52,7 +53,7 @@ public class StemTrieTest {
 
     private void checkNodesMatches(String prefix, List<StemNode> nodes) {
         List<StemNode> stems = lt.getMatchingStems(prefix);
-        for (StemNode node : stems) {
+        for (StemNode node : nodes) {
             assertTrue("Should have contained: " + node, stems.contains(node));
         }
     }
@@ -110,7 +111,6 @@ public class StemTrieTest {
     public void stemsForLongerInputs() {
         List<StemNode> nodes = createNodes("el", "elmas", "elma", "ela");
         addStemNodes(nodes);
-        System.out.println(lt);
         checkNodesExist(nodes);
         checkNodesMatches("e", createNodes());
         checkNodesMatches("el", createNodes("el"));
@@ -119,6 +119,24 @@ public class StemTrieTest {
         checkNodesMatches("elastik", createNodes("el", "ela"));
         checkNodesMatches("elmas", createNodes("el", "elma", "elmas"));
         checkNodesMatches("elmaslar", createNodes("el", "elma", "elmas"));
+    }
+
+    @Test
+    public void removeStems() {
+        List<StemNode> nodes = createNodes("el", "elmas", "elma", "ela");
+        addStemNodes(nodes);
+        checkNodesExist(nodes);
+        checkNodesMatches("el", createNodes("el"));
+        // Remove el
+        checkNodesMatches("el", createNodes());
+        // Remove elmas
+        lt.remove(nodes.get(1));
+        checkNodesMatches("elmas", createNodes());
+        checkNodesMatches("e", createNodes());
+        checkNodesMatches("ela", createNodes( "ela"));
+        checkNodesMatches("elastik", createNodes( "ela"));
+        checkNodesMatches("elmas", createNodes("el", "elma"));
+        checkNodesMatches("elmaslar", createNodes("el", "elma"));
     }
 
     @Test
