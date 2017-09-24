@@ -5,6 +5,7 @@ import zemberek.core.collections.IntMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * StemTrie is a simple compact trie that holds stems
@@ -81,13 +82,18 @@ public class StemTrie {
     }
 
     public void remove(StemNode stem) {
-        Node node = walkToNode(stem.surfaceForm);
+        Node node = walkToNode(stem.surfaceForm, null);
         if (node != null && node.hasStem()) {
             node.stems.remove(stem);
         }
     }
 
-    private Node walkToNode(String input) {
+    public boolean hasStem(StemNode stem) {
+        Node node = walkToNode(stem.surfaceForm, null);
+        return  (node != null && node.hasStem());
+    }
+
+    private Node walkToNode(String input, Consumer<Node> nodeCallback) {
         Node node = root;
         int i = 0;
         while(i < input.length()) {
@@ -100,34 +106,26 @@ public class StemTrie {
             int j = 0;
             // Compare fragment and input.
             while (j < fragment.length && i < input.length() && fragment[j++] == input.charAt(i++));
+            if (nodeCallback != null) {
+                if (j == fragment.length && i <= input.length() && node.hasStem()) {
+                    nodeCallback.accept(node);
+                }
+            }
         }
         return node;
     }
 
-    public String toString() {
-        return root != null ? root.dump() : "";
+    public List<StemNode> getMatchingStems(String input) {
+        List<StemNode> stems = new ArrayList<>();
+        walkToNode(input, (node) -> {
+            if (node.hasStem()) {
+                stems.addAll(node.stems);
+            }});
+        return stems;
     }
 
-    // TODO: Make this use walktoNode method as well.
-    public List<StemNode> getMatchingStems(String input) {
-        Node node = root;
-        int i = 0;
-        List<StemNode> stems = new ArrayList<>();
-        while(i < input.length()) {
-            node = node.getChildNode(input.charAt(i));
-            // if there are no child node with input char, break
-            if (node == null) {
-                break;
-            }
-            char[] fragment = node.fragment;
-            int j = 0;
-            // Compare fragment and input.
-            while (j < fragment.length && i < input.length() && fragment[j++] == input.charAt(i++));
-            if (j == fragment.length && i <= input.length() && node.hasStem()) {
-                stems.addAll(node.stems);
-            }
-        }
-        return stems;
+    public String toString() {
+        return root != null ? root.dump() : "";
     }
 
     /**
@@ -164,23 +162,22 @@ public class StemTrie {
         private ArrayList<StemNode> stems;
         private IntMap<Node> children;
 
-        public Node() {
-        }
+        Node() {}
 
-        public Node(StemNode s, char[] fragment) {
+        Node(StemNode s, char[] fragment) {
             addStem(s);
             setFragment(fragment);
         }
 
-        public void trimLeft(int i) {
+        void trimLeft(int i) {
             setFragment(getSuffix(fragment, i));
         }
 
-        public void setFragment(char[] fragment) {
+        void setFragment(char[] fragment) {
             this.fragment = fragment;
         }
 
-        public void addStem(StemNode s) {
+        void addStem(StemNode s) {
             if (stems == null) {
                 stems = new ArrayList<>(1);
             }
@@ -189,25 +186,21 @@ public class StemTrie {
             }
         }
 
-        public void addChild(Node node) {
+        void addChild(Node node) {
             if (children == null) {
                 children = new IntMap<>(2);
             }
             children.put(node.getChar(), node);
         }
 
-        public String getFragment() {
-            return fragment == null ? "#" : new String(fragment);
-        }
-
-        public Node getChildNode(char c) {
+        Node getChildNode(char c) {
             if (children == null) return null;
             return children.get(c);
         }
 
         @Override
         public String toString() {
-            String s = getFragment() + " : ";
+            String s = fragment == null ? "#" : new String(fragment);
             if (children != null) {
                 s += "( ";
                 for (Node node : children.getValues()) {
@@ -266,7 +259,7 @@ public class StemTrie {
             return b.toString();
         }
 
-        public boolean hasStem() {
+        boolean hasStem() {
             return (stems != null && stems.size() > 0);
         }
 
