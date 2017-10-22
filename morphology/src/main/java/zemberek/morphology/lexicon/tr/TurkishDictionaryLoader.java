@@ -27,6 +27,10 @@ import static zemberek.core.turkish.TurkishAlphabet.L_r;
 
 public class TurkishDictionaryLoader {
 
+    private static final Splitter METADATA_SPLITTER = Splitter.on(";").trimResults().omitEmptyStrings();
+    private static final Splitter POS_SPLITTER = Splitter.on(".").trimResults();
+    private static final Splitter MORPHEMIC_ATTR_SPLITTER = Splitter.on(",").trimResults();
+
     public static final List<String> DEFAULT_DICTIONARY_RESOURCES = ImmutableList.of(
             "tr/master-dictionary.dict",
             "tr/secondary-dictionary.dict",
@@ -127,23 +131,52 @@ public class TurkishDictionaryLoader {
         }
     }
 
+    // A simple class that holds raw word and metadata information. Represents a single line in dictionary.
     static class LineData {
-        String word;
-        EnumMap<MetaDataId, String> metaData = Maps.newEnumMap(MetaDataId.class);
+        final String word;
+        final EnumMap<MetaDataId, String> metaData;
 
-        LineData(String word, EnumMap<MetaDataId, String> metaData) {
-            this.word = word;
-            this.metaData = metaData;
+        LineData(String line) {
+            this.word = Strings.subStringUntilFirst(line, " ");
+            if (word.length() == 0)
+                throw new LexiconException("Line " + line + " has no word data!");
+            this.metaData = readMetadata(line);
         }
 
-        LineData(String word) {
-            this.word = word;
+        EnumMap<MetaDataId, String> readMetadata(String line) {
+            String meta = line.substring(word.length()).trim();
+            // No metadata defines, return.
+            if (meta.isEmpty()) {
+                return null;
+            }
+            // Check brackets.
+            if (!meta.startsWith("[") || !meta.endsWith("]")) {
+                throw new LexiconException("Malformed metadata, missing brackets. Should be: [metadata]. Line: " + line);
+            }
+            // Strip brackets.
+            meta = meta.substring(1, meta.length() - 1);
+            EnumMap<MetaDataId, String> metadataIds = Maps.newEnumMap(MetaDataId.class);
+            for (String chunk : METADATA_SPLITTER.split(meta)) {
+                if (!chunk.contains(":"))
+                    throw new LexiconException("Line " + line + " has malformed meta-data chunk" + chunk + " it should have a ':' symbol.");
+                String tokenIdStr = Strings.subStringUntilFirst(chunk, ":");
+                if (!MetaDataId.toEnum.enumExists(tokenIdStr))
+                    throw new LexiconException("Line " + line + " has malformed meta-data chunk" + chunk + " unknown chunk id:" + tokenIdStr);
+                MetaDataId id = MetaDataId.toEnum.getEnum(tokenIdStr);
+                String chunkData = Strings.subStringAfterFirst(chunk, ":");
+                if (chunkData.length() == 0) {
+                    throw new LexiconException("Line " + line + " has malformed meta-data chunk" + chunk + " no chunk data available");
+                }
+                metadataIds.put(id, chunkData);
+            }
+            return metadataIds;
         }
 
         boolean containsMetaData(MetaDataId metaDataId) {
-            return metaData.containsKey(metaDataId);
+            return metaData!= null && metaData.containsKey(metaDataId);
         }
     }
+
 
     static class TextLexiconProcessor implements LineProcessor<RootLexicon> {
 
@@ -161,45 +194,12 @@ public class TurkishDictionaryLoader {
             this.suffixProvider = suffixProvider;
         }
 
-        /**
-         * Extract tokens from the line. further processing is required as it only finds the raw word and mata data chunks.
-         */
-        LineData getTokens(String line) {
-            EnumMap<MetaDataId, String> meta = Maps.newEnumMap(MetaDataId.class);
-
-            String word = Strings.subStringUntilFirst(line, " ");
-            if (word.length() == 0)
-                throw new LexiconException("Line " + line + " has no word data!");
-
-            String metaData = line.substring(word.length()).trim();
-            if (metaData.length() == 0)
-                return new LineData(word, meta);
-            if (!metaData.startsWith("[") || !metaData.endsWith("]"))
-                throw new LexiconException("Line " + line + " has malformed meta-data. It is missing start or end brackets.");
-
-            metaData = metaData.substring(1, metaData.length() - 1);
-            for (String chunk : Splitter.on(";").trimResults().omitEmptyStrings().split(metaData)) {
-                if (!chunk.contains(":"))
-                    throw new LexiconException("Line " + line + " has malformed meta-data chunk" + chunk + " it should have a ':' symbol.");
-                String tokenIdStr = Strings.subStringUntilFirst(chunk, ":");
-                if (!MetaDataId.toEnum.enumExists(tokenIdStr))
-                    throw new LexiconException("Line " + line + " has malformed meta-data chunk" + chunk + " unknown chunk id:" + tokenIdStr);
-                MetaDataId id = MetaDataId.toEnum.getEnum(tokenIdStr);
-                String chunkData = Strings.subStringAfterFirst(chunk, ":");
-                if (chunkData.length() == 0) {
-                    throw new LexiconException("Line " + line + " has malformed meta-data chunk" + chunk + " no chunk data available");
-                }
-                meta.put(id, chunkData);
-            }
-            return new LineData(word, meta);
-        }
-
         public boolean processLine(String line) throws IOException {
             line = line.trim();
             if (line.length() == 0 || line.startsWith("##"))
                 return true;
             try {
-                LineData lineData = getTokens(line);
+                LineData lineData = new LineData(line);
                 // if a line contains references to other lines, we add them to lexicon later.
                 if (!lineData.containsMetaData(MetaDataId.REF_ID) && !lineData.containsMetaData(MetaDataId.ROOTS))
                     rootLexicon.add(getItem(lineData));
@@ -310,10 +310,16 @@ public class TurkishDictionaryLoader {
             if (posInfo.primaryPos == PrimaryPos.Punctuation) {
                 return word;
             }
-            if (posInfo.primaryPos == PrimaryPos.Verb && word.length() > 3 && (word.endsWith("mek") || word.endsWith("mak"))) {
-                word = word.substring(0, word.length() - 3); // erase -mek -mak
+            // Strip -mek -mak from verbs.
+            if (posInfo.primaryPos == PrimaryPos.Verb && isVerb(word)) {
+                word = word.substring(0, word.length() - 3);
             }
-            word = word.toLowerCase(locale).replaceAll("â", "a").replaceAll("î", "i").replaceAll("û", "u");
+            // Remove diacritics.
+            word = word.toLowerCase(locale)
+                .replaceAll("â", "a")
+                .replaceAll("î", "i")
+                .replaceAll("û", "u");
+            // Remove dashes
             return word.replaceAll("[\\-']", "");
         }
 
@@ -324,7 +330,7 @@ public class TurkishDictionaryLoader {
             } else {
                 PrimaryPos primaryPos = null;
                 SecondaryPos secondaryPos = null;
-                List<String> tokens = Splitter.on(",").trimResults().splitToList(posStr);
+                List<String> tokens = POS_SPLITTER.splitToList(posStr);
 
                 if (tokens.size() > 2) {
                     throw new RuntimeException("Only two POS tokens are allowed in data chunk:" + posStr);
@@ -356,6 +362,7 @@ public class TurkishDictionaryLoader {
                         }
                     }
                 }
+                // If there are no primary or secondary pos defined, try to infer them.
                 if (primaryPos == null) {
                     primaryPos = inferPrimaryPos(word);
                 }
@@ -368,13 +375,11 @@ public class TurkishDictionaryLoader {
         }
 
         private PrimaryPos inferPrimaryPos(String word) {
-            if (Character.isUpperCase(word.charAt(0))) {
-                return PrimaryPos.Noun;
-            } else if (word.length() > 3 && (word.endsWith("mek") || word.endsWith("mak"))) {
-                return PrimaryPos.Verb;
-            } else {
-                return PrimaryPos.Noun;
-            }
+            return isVerb(word) ? PrimaryPos.Verb : PrimaryPos.Noun;
+        }
+
+        private boolean isVerb(String word) {
+            return word.length() > 3 && (word.endsWith("mek") || word.endsWith("mak"));
         }
 
         private SecondaryPos inferSecondaryPos(String word) {
@@ -389,7 +394,7 @@ public class TurkishDictionaryLoader {
                 //  if (!posData.primaryPos.equals(PrimaryPos.Punctuation))
                 inferMorphemicAttributes(word, posData, attributesList);
             } else {
-                for (String s : Splitter.on(",").trimResults().split(data)) {
+                for (String s : MORPHEMIC_ATTR_SPLITTER.split(data)) {
                     if (!RootAttribute.converter().enumExists(s))
                         throw new RuntimeException("Unrecognized attribute data [" + s + "] in data chunk :[" + data + "]");
                     RootAttribute rootAttribute = RootAttribute.converter().getEnum(s);
