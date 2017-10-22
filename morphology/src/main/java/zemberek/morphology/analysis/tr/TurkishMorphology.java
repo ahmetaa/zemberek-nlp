@@ -184,6 +184,7 @@ public class TurkishMorphology {
     }
 
     public static TurkishMorphology createWithDefaults() throws IOException {
+        Log.info("Started.");
         return new Builder().addDefaultDictionaries().build();
     }
 

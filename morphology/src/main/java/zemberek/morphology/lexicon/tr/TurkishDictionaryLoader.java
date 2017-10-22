@@ -28,7 +28,7 @@ import static zemberek.core.turkish.TurkishAlphabet.L_r;
 public class TurkishDictionaryLoader {
 
     private static final Splitter METADATA_SPLITTER = Splitter.on(";").trimResults().omitEmptyStrings();
-    private static final Splitter POS_SPLITTER = Splitter.on(".").trimResults();
+    private static final Splitter POS_SPLITTER = Splitter.on(",").trimResults();
     private static final Splitter MORPHEMIC_ATTR_SPLITTER = Splitter.on(",").trimResults();
 
     public static final List<String> DEFAULT_DICTIONARY_RESOURCES = ImmutableList.of(
@@ -134,13 +134,17 @@ public class TurkishDictionaryLoader {
     // A simple class that holds raw word and metadata information. Represents a single line in dictionary.
     static class LineData {
         final String word;
-        final EnumMap<MetaDataId, String> metaData;
+        private final EnumMap<MetaDataId, String> metaData;
 
         LineData(String line) {
             this.word = Strings.subStringUntilFirst(line, " ");
             if (word.length() == 0)
                 throw new LexiconException("Line " + line + " has no word data!");
             this.metaData = readMetadata(line);
+        }
+
+        String getMetaData(MetaDataId id) {
+            return metaData==null ? null : metaData.get(id);
         }
 
         EnumMap<MetaDataId, String> readMetadata(String line) {
@@ -173,7 +177,7 @@ public class TurkishDictionaryLoader {
         }
 
         boolean containsMetaData(MetaDataId metaDataId) {
-            return metaData!= null && metaData.containsKey(metaDataId);
+            return metaData != null && metaData.containsKey(metaDataId);
         }
     }
 
@@ -215,7 +219,7 @@ public class TurkishDictionaryLoader {
         public RootLexicon getResult() {
             for (LineData lateEntry : lateEntries) {
                 if (lateEntry.containsMetaData(MetaDataId.REF_ID)) {
-                    String referenceId = lateEntry.metaData.get(MetaDataId.REF_ID);
+                    String referenceId = lateEntry.getMetaData(MetaDataId.REF_ID);
                     if (!referenceId.contains("_"))
                         referenceId = referenceId + "_Noun";
                     DictionaryItem refItem = rootLexicon.getItemById(referenceId);
@@ -226,13 +230,13 @@ public class TurkishDictionaryLoader {
                     rootLexicon.add(item);
                 }
                 if (lateEntry.containsMetaData(MetaDataId.ROOTS)) { // this is a compound lemma with P3sg in it. Such as atkuyruğu
-                    PosInfo posInfo = getPosData(lateEntry.metaData.get(MetaDataId.POS), lateEntry.word);
+                    PosInfo posInfo = getPosData(lateEntry.getMetaData(MetaDataId.POS), lateEntry.word);
                     DictionaryItem item = rootLexicon.getItemById(lateEntry.word + "_" + posInfo.primaryPos.shortForm);
                     if (item == null) {
                         item = getItem(lateEntry); // we generate an item and add it.
                         rootLexicon.add(item);
                     }
-                    String r = lateEntry.metaData.get(MetaDataId.ROOTS); // at-kuyruk
+                    String r = lateEntry.getMetaData(MetaDataId.ROOTS); // at-kuyruk
                     String root = r.replaceAll("-", ""); // atkuyruk
 
                     if (r.contains("-")) { // r = kuyruk
@@ -268,18 +272,19 @@ public class TurkishDictionaryLoader {
         }
 
         DictionaryItem getItem(LineData data) {
-            PosInfo posInfo = getPosData(data.metaData.get(MetaDataId.POS), data.word);
+            PosInfo posInfo = getPosData(data.getMetaData(MetaDataId.POS), data.word);
             String cleanWord = generateRoot(data.word, posInfo);
 
-            String indexStr = data.metaData.get(MetaDataId.INDEX);
+            String indexStr = data.getMetaData(MetaDataId.INDEX);
             int index = 0;
-            if (indexStr != null)
+            if (indexStr != null) {
                 index = Integer.parseInt(indexStr);
+            }
 
-            ExclusiveSuffixData suffixData = getSuffixData(data.metaData.get(MetaDataId.SUFFIX));
-            SuffixForm specialRoot = getSpecialRootSuffix(data.metaData.get(MetaDataId.ROOT_SUFFIX));
+            ExclusiveSuffixData suffixData = getSuffixData(data.getMetaData(MetaDataId.SUFFIX));
+            SuffixForm specialRoot = getSpecialRootSuffix(data.getMetaData(MetaDataId.ROOT_SUFFIX));
 
-            String pronunciation = data.metaData.get(MetaDataId.PRONUNCIATION);
+            String pronunciation = data.getMetaData(MetaDataId.PRONUNCIATION);
             if (pronunciation == null) {
                 if (posInfo.primaryPos == PrimaryPos.Punctuation) {
                     //TODO: what to do with pronunciations of punctuations? For now we give them a generic one.
@@ -293,7 +298,11 @@ public class TurkishDictionaryLoader {
                 pronunciation = pronunciation.toLowerCase(Turkish.LOCALE);
             }
 
-            EnumSet<RootAttribute> attributes = morphemicAttributes(data.metaData.get(MetaDataId.ATTRIBUTES), pronunciation, posInfo);
+            EnumSet<RootAttribute> attributes = morphemicAttributes(
+                    data.getMetaData(MetaDataId.ATTRIBUTES),
+                    pronunciation,
+                    posInfo);
+
             return new DictionaryItem(
                     data.word,
                     cleanWord,
@@ -316,9 +325,9 @@ public class TurkishDictionaryLoader {
             }
             // Remove diacritics.
             word = word.toLowerCase(locale)
-                .replaceAll("â", "a")
-                .replaceAll("î", "i")
-                .replaceAll("û", "u");
+                    .replaceAll("â", "a")
+                    .replaceAll("î", "i")
+                    .replaceAll("û", "u");
             // Remove dashes
             return word.replaceAll("[\\-']", "");
         }
