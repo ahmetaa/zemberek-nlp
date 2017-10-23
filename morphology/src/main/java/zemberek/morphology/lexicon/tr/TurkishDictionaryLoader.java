@@ -182,6 +182,7 @@ public class TurkishDictionaryLoader {
     }
 
 
+    static final Pattern DASH_QUOTE_MATCHER = Pattern.compile("[\\-']");
     static class TextLexiconProcessor implements LineProcessor<RootLexicon> {
 
         RootLexicon rootLexicon = new RootLexicon();
@@ -325,11 +326,11 @@ public class TurkishDictionaryLoader {
             }
             // Remove diacritics.
             word = word.toLowerCase(locale)
-                    .replaceAll("â", "a")
-                    .replaceAll("î", "i")
-                    .replaceAll("û", "u");
+                    .replace('â', 'a')
+                    .replace('î', 'i')
+                    .replace('û', 'u');
             // Remove dashes
-            return word.replaceAll("[\\-']", "");
+            return DASH_QUOTE_MATCHER.matcher(word).replaceAll("");
         }
 
         PosInfo getPosData(String posStr, String word) {
