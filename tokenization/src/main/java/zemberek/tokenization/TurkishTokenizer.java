@@ -126,34 +126,30 @@ public class TurkishTokenizer {
 
 
     public List<Token> tokenize(File file) throws IOException {
-        ANTLRInputStream inputStream = new ANTLRFileStream(file.getAbsolutePath());
-        return getAllTokens(lexerInstance(inputStream));
+        return getAllTokens(lexerInstance(CharStreams.fromPath(file.toPath())));
     }
 
     public List<Token> tokenize(String input) {
-        ANTLRInputStream inputStream = new ANTLRInputStream(input);
-        return getAllTokens(lexerInstance(inputStream));
+        return getAllTokens(lexerInstance(CharStreams.fromString(input)));
     }
 
     public List<String> tokenizeToStrings(String input) {
         List<String> tokenStrings = new ArrayList<>();
-        for (Token token : getAllTokens(lexerInstance(new ANTLRInputStream(input)))) {
+        for (Token token : tokenize(input)) {
             tokenStrings.add(token.getText());
         }
         return tokenStrings;
     }
 
     public Iterator<Token> getTokenIterator(String input) {
-        ANTLRInputStream inputStream = new ANTLRInputStream(input);
-        return new TokenIterator(this, lexerInstance(inputStream));
+        return new TokenIterator(this, lexerInstance(CharStreams.fromString(input)));
     }
 
     public Iterator<Token> getTokenIterator(File file) throws IOException {
-        ANTLRInputStream inputStream = new ANTLRFileStream(file.getAbsolutePath());
-        return new TokenIterator(this, lexerInstance(inputStream));
+        return new TokenIterator(this, lexerInstance(CharStreams.fromPath(file.toPath())));
     }
 
-    private static TurkishLexer lexerInstance(ANTLRInputStream inputStream) {
+    private static TurkishLexer lexerInstance(CharStream inputStream) {
         TurkishLexer lexer = new TurkishLexer(inputStream);
         lexer.removeErrorListeners();
         lexer.addErrorListener(IGNORING_ERROR_LISTENER);
