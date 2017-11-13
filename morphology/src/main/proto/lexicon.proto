@@ -1,8 +1,11 @@
 syntax = "proto3";
 
+option java_package = "zemberek.morphology.lexicon.proto";
+option java_outer_classname = "LexiconProto";
+
 // Keep in synnc with zemberek.core.turkish.PrimaryPos
 enum PrimaryPos {
-  Unknown = 0;
+  PrimaryPos_Unknown = 0;
   Noun = 1;
   Adjective = 2;
   Adverb = 3;
@@ -20,24 +23,23 @@ enum PrimaryPos {
 
 // Keep in synnc with zemberek.core.turkish.SecondaryPos
 enum SecondaryPos {
-  Unknown = 0;
+  SecondaryPos_Unknown = 0;
   Demonstrative = 1;
   Time = 2;
   Quantitative = 3;
-  Question = 4;
-  ProperNoun = 5;
-  Personal = 6;
-  Reflexive = 7;
-  None = 8;
-  Ordinal = 9;
-  Cardinal = 10;
-  Percentage = 11;
-  Ratio = 12;
-  Range = 13;
-  Real = 14;
-  Distribution = 15;
-  Clock = 16;
-  Date = 17;
+  ProperNoun = 4;
+  Personal = 5;
+  Reflexive = 6;
+  None = 7;
+  Ordinal = 8;
+  Cardinal = 9;
+  Percentage = 10;
+  Ratio = 11;
+  Range = 12;
+  Real = 13;
+  Distribution = 14;
+  Clock = 15;
+  Date = 16;
 
   // Below POS information is for compatibility with K. Oflazer's notation.
   // They indicate that words before Post positive words should end with certain suffixes.
@@ -51,7 +53,7 @@ enum SecondaryPos {
 
 // Keep in sync with zemberek.core.turkish.RootAttribute
 enum RootAttribute {
-  Unknown = 0;
+  RootAttribute_Unknown = 0;
   Aorist_I = 1;
   Aorist_A = 2;
   ProgressiveVowelDrop =3;
@@ -81,7 +83,7 @@ enum RootAttribute {
   NonTransitive = 17;
   CompoundP3sgRoot = 18;
   Compound = 19;
-  Reflexive = 20;
+  Reflexive_v = 20;
   Reciprocal = 21;
 
   // for items that are not in official TDK dictionary
@@ -97,11 +99,6 @@ enum RootAttribute {
   Abbreviation = 25;
 }
 
-enum SemanticAttribute {
-  Unknown = 0;
-  Location = 1;
-}
-
 message DictionaryItem {
   string lemma = 1;
   string root = 2;
@@ -109,7 +106,6 @@ message DictionaryItem {
   PrimaryPos primary_pos = 4;
   SecondaryPos secondary_pos = 5;
   repeated RootAttribute root_attributes = 6;
-  repeated SemanticAttribute semantic_attributes = 7;
 }
 
 message Dictionary {

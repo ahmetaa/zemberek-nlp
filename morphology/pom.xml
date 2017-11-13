@@ -27,19 +27,9 @@
             <artifactId>zemberek-lm</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>${protobuf.version}</version>
-        </dependency>
     </dependencies>
 
     <properties>
-        <!-- protobuf paths -->
-        <protobuf.input.directory>${project.basedir}/src/main/resources/proto</protobuf.input.directory>
-        <protobuf.output.directory>${project.build.directory}/generated-sources</protobuf.output.directory>
-        <protobuf.version>3.4.0</protobuf.version>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.test.skip>true</maven.test.skip>
     </properties>
