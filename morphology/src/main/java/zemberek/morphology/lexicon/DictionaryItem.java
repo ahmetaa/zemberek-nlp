@@ -49,11 +49,6 @@ public class DictionaryItem {
      */
     public final String pronunciation;
 
-    /**
-     * If this item has special Suffix information. Such as only a special form of a suffix may follow this Item.
-     */
-    public ExclusiveSuffixData suffixData;
-
     public SuffixForm specialRootSuffix;
 
     public DictionaryItem referenceItem;
@@ -68,14 +63,12 @@ public class DictionaryItem {
                           PrimaryPos primaryPos,
                           SecondaryPos secondaryPos,
                           EnumSet<RootAttribute> attributes,
-                          ExclusiveSuffixData suffixData,
                           SuffixForm specialRootSuffix) {
         this.pronunciation = pronunciation;
         this.lemma = lemma;
         this.primaryPos = primaryPos;
         this.secondaryPos = secondaryPos;
         this.attributes = attributes;
-        this.suffixData = suffixData;
         this.root = root;
         this.specialRootSuffix = specialRootSuffix;
         this.index = 0;
@@ -98,7 +91,6 @@ public class DictionaryItem {
                           PrimaryPos primaryPos,
                           SecondaryPos secondaryPos,
                           EnumSet<RootAttribute> attributes,
-                          ExclusiveSuffixData suffixData,
                           SuffixForm specialRootSuffix,
                           int index) {
         this.pronunciation = pronunciation;
@@ -106,7 +98,6 @@ public class DictionaryItem {
         this.primaryPos = primaryPos;
         this.secondaryPos = secondaryPos;
         this.attributes = attributes;
-        this.suffixData = suffixData;
         this.root = root;
         this.specialRootSuffix = specialRootSuffix;
         this.index = index;
@@ -118,13 +109,11 @@ public class DictionaryItem {
                           PrimaryPos primaryPos,
                           SecondaryPos secondaryPos,
                           EnumSet<RootAttribute> attributes,
-                          ExclusiveSuffixData suffixData,
                           SuffixForm specialRootSuffix) {
         this.lemma = lemma;
         this.pronunciation = root;
         this.primaryPos = primaryPos;
         this.secondaryPos = secondaryPos;
-        this.suffixData = suffixData;
         this.attributes = attributes;
         this.root = root;
         this.specialRootSuffix = specialRootSuffix;

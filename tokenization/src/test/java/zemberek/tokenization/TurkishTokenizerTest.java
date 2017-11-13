@@ -295,6 +295,7 @@ public class TurkishTokenizerTest {
                 "www.fo.tar.kar",
                 "www.fo.bar",
                 "http://www.foo.net/showthread.php?134628-ucreti",
+                "http://www.foo.net/showthread.php?1-34--628-ucreti+",
         };
         for (String s : urls) {
             matchToken(t, s, TurkishLexer.URL, s);
@@ -334,9 +335,9 @@ public class TurkishTokenizerTest {
         TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
 
         // load a hundred thousand lines.
-        List<String> lines = Files.readAllLines(
-                Paths.get("/home/ahmetaa/data/nlp/corpora/dunya.100k"));
         for (int it = 0; it < 5; it++) {
+            List<String> lines = Files.readAllLines(
+                    Paths.get("/media/aaa/Data/aaa/corpora/dunya.100k"));
             Stopwatch clock = Stopwatch.createStarted();
             long tokenCount = 0;
             for (String line : lines) {
