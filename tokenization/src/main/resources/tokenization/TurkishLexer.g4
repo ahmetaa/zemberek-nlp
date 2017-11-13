@@ -132,9 +132,9 @@ fragment Exp
     : [Ee] [+\-]? Integer ;
 
 fragment URLFragment
-    : [0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ\\-_]+;
+    : [0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ\-_]+;
 fragment URLFragmentWithDot
-    :'.'[0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ\\-_/?&+;=]+;
+    :'.'[0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ\-_/?&+;=]+;
 
 URL :
     ('http://'|'https://')? 'www.' URLFragment URLFragmentWithDot+;
