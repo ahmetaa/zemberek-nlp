@@ -131,23 +131,6 @@ public class TurkishDictionaryLoaderTest {
     }
 
     @Test
-    public void suffixDataTest() {
-        DictionaryItem item = getItem("ben [P:Pron; S: +A1sg_TEMPLATE]");
-        Assert.assertEquals(Pronoun, item.primaryPos);
-        Assert.assertNotNull(item.suffixData);
-        Assert.assertTrue(!item.suffixData.accepts.isEmpty());
-        Assert.assertTrue(item.suffixData.rejects.isEmpty());
-        Assert.assertTrue(item.suffixData.onlyAccepts.isEmpty());
-
-        item = getItem("ben [P:Pron; S: -A1sg_m, -A1sg_+yIm, +A1sg_TEMPLATE, +Dim_>cI~k]");
-        Assert.assertTrue(item.suffixData.rejects.contains(suffixProvider.A1sg_m));
-        Assert.assertTrue(item.suffixData.rejects.contains(suffixProvider.A1sg_yIm));
-        Assert.assertTrue(item.suffixData.accepts.contains(suffixProvider.A1sg_TEMPLATE));
-        Assert.assertTrue(item.suffixData.accepts.contains(suffixProvider.Dim_cIk));
-    }
-
-
-    @Test
     public void nounVoicingTest() {
         TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
         String[] voicing = {"kabak", "kabak [A:Voicing]", "psikolog", "havuç", "turp [A:Voicing]", "galip", "nohut", "cenk", "kükürt"};

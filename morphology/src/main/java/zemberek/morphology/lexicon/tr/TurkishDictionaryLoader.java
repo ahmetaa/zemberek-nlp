@@ -144,7 +144,7 @@ public class TurkishDictionaryLoader {
         }
 
         String getMetaData(MetaDataId id) {
-            return metaData==null ? null : metaData.get(id);
+            return metaData == null ? null : metaData.get(id);
         }
 
         EnumMap<MetaDataId, String> readMetadata(String line) {
@@ -183,6 +183,7 @@ public class TurkishDictionaryLoader {
 
 
     static final Pattern DASH_QUOTE_MATCHER = Pattern.compile("[\\-']");
+
     static class TextLexiconProcessor implements LineProcessor<RootLexicon> {
 
         RootLexicon rootLexicon = new RootLexicon();
@@ -263,7 +264,15 @@ public class TurkishDictionaryLoader {
                     if (rootLexicon.getItemById(root + "_" + item.primaryPos.shortForm) != null)
                         index = 1;
                     // generate a fake lemma for atkuyruk, use kuyruk's attributes.
-                    DictionaryItem fakeRoot = new DictionaryItem(root, root, root, item.primaryPos, item.secondaryPos, attrSet, null, null, index);
+                    DictionaryItem fakeRoot = new DictionaryItem(
+                            root,
+                            root,
+                            root,
+                            item.primaryPos,
+                            item.secondaryPos,
+                            attrSet,
+                            null,
+                            index);
                     fakeRoot.attributes.add(RootAttribute.Dummy);
                     fakeRoot.referenceItem = item;
                     rootLexicon.add(fakeRoot);
@@ -282,7 +291,6 @@ public class TurkishDictionaryLoader {
                 index = Integer.parseInt(indexStr);
             }
 
-            ExclusiveSuffixData suffixData = getSuffixData(data.getMetaData(MetaDataId.SUFFIX));
             SuffixForm specialRoot = getSpecialRootSuffix(data.getMetaData(MetaDataId.ROOT_SUFFIX));
 
             String pronunciation = data.getMetaData(MetaDataId.PRONUNCIATION);
@@ -311,7 +319,6 @@ public class TurkishDictionaryLoader {
                     posInfo.primaryPos,
                     posInfo.secondaryPos,
                     attributes,
-                    suffixData,
                     specialRoot,
                     index);
         }
@@ -473,32 +480,6 @@ public class TurkishDictionaryLoader {
             }
         }
 
-        private ExclusiveSuffixData getSuffixData(String data) {
-            if (data == null)
-                return null;
-            ExclusiveSuffixData esd = new ExclusiveSuffixData();
-            for (String token : Splitter.on(',').omitEmptyStrings().trimResults().split(data)) {
-                if (token.length() < 2)
-                    throw new LexiconException("Unexepected Suffix token in data chunk: " + data);
-                String suffixId = token.substring(1);
-                SuffixForm form = suffixProvider.getSuffixFormById(suffixId);
-                if (form == null)
-                    throw new LexiconException("Cannot identify Suffix Form id:" + suffixId + " in data chunk:" + data);
-
-                switch (token.charAt(0)) {
-                    case '+':
-                        esd.accepts.add(form);
-                        break;
-                    case '-':
-                        esd.rejects.add(form);
-                        break;
-                    case '*':
-                        esd.onlyAccepts.add(form);
-                        break;
-                }
-            }
-            return esd;
-        }
     }
 
     public enum Digit {
