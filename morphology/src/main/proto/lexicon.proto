@@ -22,12 +22,12 @@ enum PrimaryPos {
   Punctuation = 13;
 }
 
-// Keep in synnc with zemberek.core.turkish.SecondaryPos
+// Keep in sync with zemberek.core.turkish.SecondaryPos
 enum SecondaryPos {
   SecondaryPos_Unknown = 0;
   Demonstrative = 1;
   Time = 2;
-  Quantitative = 3;
+  Quantitive = 3;
   ProperNoun = 4;
   Personal = 5;
   Reflexive = 6;

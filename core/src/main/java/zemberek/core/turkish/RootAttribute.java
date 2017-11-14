@@ -50,7 +50,8 @@ public enum RootAttribute implements StringEnum {
     Dummy,
 
     //For abbreviations. TODO: consider making this a POS
-    Abbreviation;
+    Abbreviation,
+    Unknown;
 
     int index;
 

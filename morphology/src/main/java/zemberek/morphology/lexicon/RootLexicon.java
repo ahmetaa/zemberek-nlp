@@ -41,6 +41,10 @@ public class RootLexicon implements Iterable<DictionaryItem> {
         }
     }
 
+    public Collection<DictionaryItem> getAllItems() {
+        return itemMap.values();
+    }
+
     public List<DictionaryItem> getMatchingItems(String lemma) {
         Collection<DictionaryItem> items = itemMap.get(lemma);
         if (items == null)

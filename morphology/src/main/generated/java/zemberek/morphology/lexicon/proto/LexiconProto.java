@@ -213,9 +213,9 @@ public final class LexiconProto {
      */
     Time(2),
     /**
-     * <code>Quantitative = 3;</code>
+     * <code>Quantitive = 3;</code>
      */
-    Quantitative(3),
+    Quantitive(3),
     /**
      * <code>ProperNoun = 4;</code>
      */
@@ -313,9 +313,9 @@ public final class LexiconProto {
      */
     public static final int Time_VALUE = 2;
     /**
-     * <code>Quantitative = 3;</code>
+     * <code>Quantitive = 3;</code>
      */
-    public static final int Quantitative_VALUE = 3;
+    public static final int Quantitive_VALUE = 3;
     /**
      * <code>ProperNoun = 4;</code>
      */
@@ -420,7 +420,7 @@ public final class LexiconProto {
         case 0: return SecondaryPos_Unknown;
         case 1: return Demonstrative;
         case 2: return Time;
-        case 3: return Quantitative;
+        case 3: return Quantitive;
         case 4: return ProperNoun;
         case 5: return Personal;
         case 6: return Reflexive;
