@@ -27,6 +27,13 @@
         </repository>
     </distributionManagement>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <protobuf.input.directory>${project.basedir}/src/main/proto</protobuf.input.directory>
+        <protobuf.output.directory.java>${project.basedir}/src/main/generated/java</protobuf.output.directory.java>
+        <protobuf.version>3.4.0</protobuf.version>
+    </properties>
+
     <profiles>
         <profile>
             <id>production</id>
@@ -125,6 +132,7 @@
                         <version>0.5.1</version>
                         <configuration>
                             <protocExecutable>/usr/local/bin/protoc</protocExecutable>
+                            <outputDirectory>${protobuf.output.directory.java}</outputDirectory>
                         </configuration>
                         <executions>
                             <execution>
@@ -135,6 +143,27 @@
                             </execution>
                         </executions>
                     </plugin>
+
+                  <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <executions>
+                      <execution>
+                        <id>gensources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                          <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                          <sources>
+                            <source>${protobuf.output.directory.java}</source>
+                          </sources>
+                        </configuration>
+                      </execution>
+                    </executions>
+                  </plugin>
+
                 </plugins>
             </build>
         </profile>
@@ -193,12 +222,5 @@
             </snapshots>
         </repository>
     </repositories>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <protobuf.input.directory>${project.basedir}/src/main/resources/proto</protobuf.input.directory>
-        <protobuf.output.directory>${project.build.directory}/generated-sources</protobuf.output.directory>
-        <protobuf.version>3.4.0</protobuf.version>
-    </properties>
 
 </project>
