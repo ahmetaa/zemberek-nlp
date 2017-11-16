@@ -69,7 +69,7 @@ public enum RootAttribute implements StringEnum {
     // ağız → ağz-a, burun → burn-um, zehir → zehr-e.
     //
     // Some words have this property optionally. Both omuz → omuz-a, omz-a are valid. Sometimes different meaning of the
-    // words effect the outcome such as oğul-u and oğl-u. In first case means "bee son", second means ""
+    // words effect the outcome such as oğul-u and oğl-u. In first case o[ul means "group of bees", second means "son".
     //
     // Some verbs obeys this rule. kavur → kavr-ul. But it only happens for passive suffix. It does not apply to other
     // suffixes. Such as kavur→kavur-acak, not kavur-kavracak
