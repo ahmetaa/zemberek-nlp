@@ -8,7 +8,7 @@ import zemberek.core.enums.StringEnumMap;
  */
 public enum RootAttribute implements StringEnum {
 
-    // Generally Present tense positive (Aorist) suffix has the form [Ir]; such as gel-ir, bul-ur, kapat-ır.
+    // Generally Present tense (Aorist) suffix has the form [Ir]; such as gel-ir, bul-ur, kapat-ır.
     // But for most verbs with single syllable and compound verbs it forms as [Ar].
     // Such as yap-ar, yet-er, hapsed-er. There are exceptions for this case, such as "var-ır".
     // Below two represents the attributes for clearing the ambiguity. These attributes does not modify the root form.
@@ -45,14 +45,14 @@ public enum RootAttribute implements StringEnum {
     // It also applies to some verbs: et→ed-ecek. But for verb roots, only ‘t’ endings are voiced.
     // And most suffixes: elma-cık→elma-cığ-ı, yap-acak→yap-acağ-ım.
     //
-    // When a word ends with ‘nk‘, then ‘k’ changes to ‘g’ instead of ‘ğ’. cenk→ceng-e, çelenk→çeleng-i
+    // When a word ends with ‘nk‘, then ‘k’ changes to ‘g’ instead of ‘ğ’. cenk → ceng-e, çelenk → çeleng-i
     //
-    // For some loan words, g-ğ change occurs. psikolog→psikoloğ-a
+    // For some loan words, g-ğ change occurs. psikolog → psikoloğ-a
     //
     // Usually if the word has only one syllable, rule does not apply. Such as turp → turp-u, kat → kat-a, kek → kek-e,
     // küp → küp-üm. But this rule has some exceptions as well: harp → harb-e
     //
-    // Some multi syllable load words also does not obey this rule. Such as taksirat → taksirat-ı, kapat → kapat-ın
+    // Some multi syllable words also do not obey this rule. Such as taksirat → taksirat-ı, kapat → kapat-ın
     Voicing,
 
     // NoVoicing attribute is only used for explicitly marking a word in the dictionary
@@ -61,28 +61,34 @@ public enum RootAttribute implements StringEnum {
     NoVoicing,
 
     // For some loan words, suffix vowel harmony rules does not apply. This usually happens in some loan words.
+    // Such as saat-ler and alkol-ü
     InverseHarmony,
 
+    // When a suffix that starts with a vowel is added to some words, last letter is doubled.
+    // Such as hat → hat-tı
+    // If last letter is also changed by the appended suffix, transformed letter is repeated.
+    // Such as ret → red-di
     Doubling,
 
     // Last vowel before the last consonant drops in some words when a suffix starting with a vowel is appended.
     // ağız → ağz-a, burun → burn-um, zehir → zehr-e.
     //
     // Some words have this property optionally. Both omuz → omuz-a, omz-a are valid. Sometimes different meaning of the
-    // words effect the outcome such as oğul-u and oğl-u. In first case o[ul means "group of bees", second means "son".
+    // words effect the outcome such as oğul-u and oğl-u. In first case "oğul" means "group of bees", second means "son".
     //
     // Some verbs obeys this rule. kavur → kavr-ul. But it only happens for passive suffix. It does not apply to other
     // suffixes. Such as kavur→kavur-acak, not kavur-kavracak
     //
     // In spoken conversation, some vowels are dropped too but those are grammatically incorrect. Such as
-    // içeri→içeri-de (not ‘içerde’), dışarı→dışarı-da (not ‘dışarda’)
+    // içeri → içeri-de (not ‘içerde’), dışarı → dışarı-da (not ‘dışarda’)
     //
     // When a vowel is dropped, the form of the suffix to be appended is determined by the original form of the word,
     // not the form after vowel is dropped. Such as nakit → nakd-e, lütuf → lütf-un. If we were to apply the vowel
     // harmony rule after the vowel is dropped, it would be nakit → nakd-a and lütuf → lütf-ün, which are not correct.
     LastVowelDrop,
 
-    // This is for marking compound words that ends with genitive suffix [+sI]. Such as aşevi, balkabağı, zeytinyağı.
+    // This is for marking compound words that ends with third person possesive  suffix P3sg [+sI].
+    // Such as aşevi, balkabağı, zeytinyağı.
     // These compound words already contains a suffix so their handling is different than other words. For example
     // some suffixes changes the for of the root. Such as zeytinyağı → zeytinyağ-lar-ı atkuyruğu → atkuyruklu
     CompoundP3sg,
@@ -107,10 +113,26 @@ public enum RootAttribute implements StringEnum {
     // quote is used as a separator. Such as "Türkçenin"
     NoQuote,
 
+    // Some verbs cannot get Causative suffixes. Such as gelmek.
+    // TODO: although this is used in the code, no annotation is used in dictionaries.
     NonTransitive,
+
+    // Some compound nouns cannot be used in root form. For example zeytinyağı -> zeytinyağ. For preventing
+    // false positives this attribute is added to the zeytinyağ form of the word. So that representing state cannot
+    // be terminal.
+    // This is added automatically.
     CompoundP3sgRoot,
+
+    // TODO: not used
     Compound,
+
+    // This is for marking reflexive verbs. Reflexive suffix [+In] can only be added to some verbs.
+    // TODO: This is defined but not used in morphotactics.
     Reflexive,
+
+    // This is for marking reflexive verbs. Reciprocal suffix [+Iş, +yIş] can only be added to some verbs.
+    // TODO: Reciprocal suffix is commented out in morphotactics and reciprocal verbs are added with suffixes.
+    // Such as boğuşmak [A:Reciprocal]
     Reciprocal,
 
     // for items that are not in official TDK dictionary
