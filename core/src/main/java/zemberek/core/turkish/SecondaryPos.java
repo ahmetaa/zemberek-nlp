@@ -5,15 +5,15 @@ import zemberek.core.enums.StringEnum;
 import zemberek.core.enums.StringEnumMap;
 
 public enum SecondaryPos implements StringEnum {
-    Demonstrative("Demons"),
+    DemonstrativePron("Demons"),
     Time("Time"),
-    Quantitive("Quant"),
-    Question("Ques"),
+    QuantitivePron("Quant"),
+    QuestionPron("Ques"),
     ProperNoun("Prop"),
-    Personal("Pers"),
-    Reflexive("Reflex"),
+    PersonalPron("Pers"),
+    ReflexivePron("Reflex"),
     None("None"),
-    Unknown("Unk"),
+    UnknownSec("Unk"),
     Ordinal("Ord"),
     Cardinal("Card"),
     Percentage("Percent"),

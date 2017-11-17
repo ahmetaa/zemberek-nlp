@@ -36,6 +36,10 @@ public class WordAnalysisFormatterTest {
         String[] inputs = {"ankarada", "ıphonumun", "googledan", "Iphone", "Google", "Googlesa"};
         String[] expected = {"Ankara'da", "Iphone'umun", "Google'dan", "Iphone", "Google", "Google'sa"};
 
+        check(morphology, inputs, expected);
+    }
+
+    private void check(TurkishMorphology morphology, String[] inputs, String[] expected) {
         WordAnalysisFormatter formatter = new WordAnalysisFormatter();
 
         int i = 0;
@@ -43,12 +47,25 @@ public class WordAnalysisFormatterTest {
             List<WordAnalysis> results = morphology.analyze(input);
             for (WordAnalysis result : results) {
                 if (result.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun) {
-                    Assert.assertEquals(expected[i], formatter.format(result,"'"));
+                    String format = formatter.format(result, "'");
+                    Assert.assertEquals(expected[i], format);
                 }
             }
             i++;
         }
     }
+
+    @Test
+    public void formatKnownProperNounsNoQuote() throws IOException {
+        TurkishMorphology morphology = TurkishMorphology.builder()
+                .addDictionaryLines("Blah [A:NoQuote]").build();
+
+        String[] inputs = {"blaha","Blahta"};
+        String[] expected = {"Blaha","Blahta"};
+
+        check(morphology, inputs, expected);
+    }
+
 
     @Test
     public void formatNumerals() throws IOException {

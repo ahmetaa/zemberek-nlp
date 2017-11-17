@@ -99,7 +99,7 @@ public class WordAnalysis {
 
         public static InflectionalGroup UNKNOWN = new InflectionalGroup(
                 Lists.newArrayList(
-                        new SuffixData(Suffix.UNKNOWN, "", "")), PrimaryPos.Unknown, SecondaryPos.Unknown);
+                        new SuffixData(Suffix.UNKNOWN, "", "")), PrimaryPos.Unknown, SecondaryPos.UnknownSec);
 
         public InflectionalGroup(List<SuffixData> suffixList, PrimaryPos pos, SecondaryPos spos) {
             this.suffixList = suffixList;

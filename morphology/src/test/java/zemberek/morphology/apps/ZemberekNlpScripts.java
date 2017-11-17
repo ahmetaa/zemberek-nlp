@@ -289,7 +289,7 @@ public class ZemberekNlpScripts {
             lemma = TurkishAlphabet.INSTANCE.normalizeCircumflex(lemma);
             String primaryString = /*item.primaryPos == PrimaryPos.Adverb ? "Adverb" :*/ item.primaryPos.shortForm;
             String pos = item.secondaryPos == null
-                    || item.secondaryPos == SecondaryPos.Unknown
+                    || item.secondaryPos == SecondaryPos.UnknownSec
                     || item.secondaryPos == SecondaryPos.None ?
                     "[P:" + primaryString + "]" : "[P:" + primaryString + "," + item.secondaryPos.shortForm + "]";
             zemberekTypes.add(lemma + " " + pos);

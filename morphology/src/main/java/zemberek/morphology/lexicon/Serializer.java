@@ -88,7 +88,7 @@ public class Serializer {
         dictionaryItem.getRoot(),
         dictionaryItem.getPronunciation(),
         primaryPosConverter.convertBack(dictionaryItem.getPrimaryPos(), PrimaryPos.Unknown),
-        secondaryPosConverter.convertBack(dictionaryItem.getSecondaryPos(), SecondaryPos.Unknown),
+        secondaryPosConverter.convertBack(dictionaryItem.getSecondaryPos(), SecondaryPos.UnknownSec),
         !rootAttributes.isEmpty() ? EnumSet.copyOf(rootAttributes) : null,
         null);
   }

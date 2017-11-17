@@ -17,17 +17,24 @@ public class WordAnalysisFormatter {
      */
     public String format(WordAnalysis analysis, String apostrophe) {
         DictionaryItem item = analysis.dictionaryItem;
+        String ending = analysis.getEnding();
         if (apostropheRequired(analysis)) {
-            String ending = analysis.getEnding();
-            return ending.length() > 0 ? item.lemma + apostrophe + analysis.getEnding() : item.lemma;
+            return ending.length() > 0 ? item.lemma + apostrophe + ending : item.lemma;
         } else {
-            return analysis.getSurfaceForm();
+            // because NoQuote is only used in Proper nouns, we can use the lemma. Otherwise root form is used
+            // because it may be different than DictionaryItem. For example lemma is `kitap` but root in analysis is
+            // `kitab`
+            if (item.attributes.contains(RootAttribute.NoQuote)) {
+                return item.lemma + ending;
+            } else {
+                return analysis.getRoot() + ending;
+            }
         }
     }
 
     private boolean apostropheRequired(WordAnalysis analysis) {
         DictionaryItem item = analysis.dictionaryItem;
-        return item.secondaryPos == SecondaryPos.ProperNoun
+        return (item.secondaryPos == SecondaryPos.ProperNoun && !item.attributes.contains(RootAttribute.NoQuote))
                 || (item.primaryPos == PrimaryPos.Numeral && item.hasAttribute(RootAttribute.Runtime))
                 || item.secondaryPos == SecondaryPos.Date;
     }

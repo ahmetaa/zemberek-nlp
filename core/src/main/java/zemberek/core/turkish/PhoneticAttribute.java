@@ -28,7 +28,7 @@ public enum PhoneticAttribute implements StringEnum {
     LastLetterVoiceless("LLVless"),
 
     // Turkish voiced consonants are [b, c, d, g, ğ, h, j, l, m, n, r, v, y, z]
-    LastLetterVoiced("LLV"),
+    LastLetterVoiced("LLVo"),
 
     // Turkish Voiceless stop consonants are: [ç, k, p, t]. Voiced stop consonants are [b, c, d, g, ğ]
     LastLetterVoicelessStop("LLVlessStop"),

@@ -1230,13 +1230,13 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
                     return Dup_Default;
                 case Pronoun:
                     switch (item.secondaryPos) {
-                        case Demonstrative:
+                        case DemonstrativePron:
                             return DemonsPron_Default;
-                        case Quantitive:
+                        case QuantitivePron:
                             return QuantPron_Default;
-                        case Question:
+                        case QuestionPron:
                             return QuesPron_Default;
-                        case Reflexive:
+                        case ReflexivePron:
                             return ReflexPron_Default;
                         default:
                             return PersPron_Default;
@@ -1260,11 +1260,11 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
                     template = Postp_Template;
                     break;
                 case Pronoun:
-                    if (item.secondaryPos == SecondaryPos.Demonstrative)
+                    if (item.secondaryPos == SecondaryPos.DemonstrativePron)
                         template = DemonsPron_TEMPLATE;
-                    else if (item.secondaryPos == SecondaryPos.Quantitive)
+                    else if (item.secondaryPos == SecondaryPos.QuantitivePron)
                         template = QuantPron_TEMPLATE;
-                    else if (item.secondaryPos == SecondaryPos.Question)
+                    else if (item.secondaryPos == SecondaryPos.QuestionPron)
                         template = QuesPron_TEMPLATE;
                     else
                         return PersPron_TEMPLATE;
@@ -1334,10 +1334,6 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
                 case ProgressiveVowelDrop:
                     original.remove(Prog_Iyor);
                     modified.clear().add(Pos_EMPTY, Prog_Iyor);
-                    break;
-                case NonTransitive:
-                    original.remove(Caus_t, Caus_tIr);
-                    modified.remove(Caus_t, Caus_tIr);
                     break;
                 case Reflexive:
                     original.add(Reflex_In);

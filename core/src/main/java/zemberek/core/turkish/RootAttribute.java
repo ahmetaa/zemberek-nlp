@@ -98,33 +98,27 @@ public enum RootAttribute implements StringEnum {
     Special,
 
     // No suffix can be appended to this.
-    // TODO: this is not yet used.
+    // TODO: this is not yet used. But some words are marked in dictionary.
     NoSuffix,
 
     // It contains plural meaning implicitly so adding an external plural suffix is erroneous.
     // This usually applies to arabic loan words. Such as ulema, hayvanat et.
-    // TODO: this is not yet used.
+    // TODO: this is not yet used. But some words are marked in dictionary.
     Plural,
 
-    // TODO: Not sure about this. This is not yet used.
+    // Some Compound words adds `n` instead of `y` when used with some suffixes. Such as `Boğaziçi-ne` not `Boğaziçi-ye`
+    // TODO: this is not yet used. But some words are marked in dictionary.
     NounConsInsert_n,
 
     // This attribute is used for formatting a word. If this is used, when a suffix is added to a Proper noun, no single
-    // quote is used as a separator. Such as "Türkçenin"
+    // quote is used as a separator. Such as "Türkçenin" not "Türkçe'nin"
     NoQuote,
-
-    // Some verbs cannot get Causative suffixes. Such as gelmek.
-    // TODO: although this is used in the code, no annotation is used in dictionaries.
-    NonTransitive,
 
     // Some compound nouns cannot be used in root form. For example zeytinyağı -> zeytinyağ. For preventing
     // false positives this attribute is added to the zeytinyağ form of the word. So that representing state cannot
     // be terminal.
     // This is added automatically.
     CompoundP3sgRoot,
-
-    // TODO: not used
-    Compound,
 
     // This is for marking reflexive verbs. Reflexive suffix [+In] can only be added to some verbs.
     // TODO: This is defined but not used in morphotactics.
@@ -141,11 +135,10 @@ public enum RootAttribute implements StringEnum {
     // for items that are added to system during runtime
     Runtime,
 
-    //For dummy items.
+    //For dummy items. Those are created when processing compound items.
     Dummy,
 
-    //For abbreviations. TODO: consider making this a POS
-    Abbreviation,
+    // This is used for temporary DictionaryItems created for words that cannot be analyzed.
     Unknown;
 
     int index;

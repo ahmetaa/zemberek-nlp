@@ -55,7 +55,7 @@ public class DictionaryItem {
 
     public int index;
 
-    public static final DictionaryItem UNKNOWN = new DictionaryItem("UNK", "UNK", "UNK", PrimaryPos.Unknown, SecondaryPos.Unknown);
+    public static final DictionaryItem UNKNOWN = new DictionaryItem("UNK", "UNK", "UNK", PrimaryPos.Unknown, SecondaryPos.UnknownSec);
 
     public DictionaryItem(String lemma,
                           String root,
