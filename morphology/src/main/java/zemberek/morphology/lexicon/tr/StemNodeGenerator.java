@@ -104,7 +104,7 @@ public class StemNodeGenerator {
                 attrs.add(PhoneticAttribute.LastLetterVoicelessStop);
             }
         } else
-            attrs.add(PhoneticAttribute.LastLetterNotVoiceless);
+            attrs.add(PhoneticAttribute.LastLetterVoiced);
         return attrs;
     }
 
@@ -192,7 +192,6 @@ public class StemNodeGenerator {
         TurkishSuffixes turkishSuffixes = (TurkishSuffixes) suffixProvider;
         String id = item.getId();
 
-
         if (id.equals("yemek_Verb")) {
             StemNode[] stems;
             stems = new StemNode[3];
@@ -226,8 +225,7 @@ public class StemNodeGenerator {
                 stems[0] = new StemNode(item.root, item, TerminationType.TERMINAL, calculateAttributes(item.root));
                 stems[0].exclusiveSuffixData.add(turkishSuffixes.PersPron_Ben.allConnections());
                 stems[1] = new StemNode("ban", item, TerminationType.NON_TERMINAL, calculateAttributes("ban"));
-            }
-            else {
+            } else {
                 stems[0] = new StemNode(item.root, item, TerminationType.TERMINAL, calculateAttributes(item.root));
                 stems[0].exclusiveSuffixData.add(turkishSuffixes.PersPron_Sen.allConnections());
                 stems[1] = new StemNode("san", item, TerminationType.NON_TERMINAL, calculateAttributes("san"));

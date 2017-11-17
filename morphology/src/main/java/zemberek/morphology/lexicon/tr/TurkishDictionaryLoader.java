@@ -423,12 +423,15 @@ public class TurkishDictionaryLoader {
         }
 
         private SuffixForm getSpecialRootSuffix(String data) {
-            if (data == null)
+            if (data == null) {
                 return null;
+            }
             SuffixForm s = suffixProvider.getSuffixFormById(data);
-            if (s == null)
+            if (s == null) {
                 throw new LexiconException("Cannot identify special Form id:" + data + " in data chunk:[" + data + "]");
-            else return suffixProvider.getSuffixFormById(data);
+            } else {
+                return s;
+            }
         }
 
         static Locale locale = new Locale("tr");
@@ -456,8 +459,9 @@ public class TurkishDictionaryLoader {
                     if (last == L_l) {
                         attributes.add(RootAttribute.Passive_In);
                     }
-                    if (last.isVowel() || (last == L_l || last == L_r) && sequence.vowelCount() > 1)
+                    if (last.isVowel() || (last == L_l || last == L_r) && sequence.vowelCount() > 1) {
                         attributes.add(RootAttribute.Causative_t);
+                    }
                     break;
                 case Noun:
                 case Adjective:
