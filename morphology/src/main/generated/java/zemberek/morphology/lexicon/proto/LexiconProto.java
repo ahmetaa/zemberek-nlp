@@ -193,7 +193,7 @@ public final class LexiconProto {
 
   /**
    * <pre>
-   * Keep in synnc with zemberek.core.turkish.SecondaryPos
+   * Keep in sync with zemberek.core.turkish.SecondaryPos
    * </pre>
    *
    * Protobuf enum {@code SecondaryPos}
@@ -205,69 +205,73 @@ public final class LexiconProto {
      */
     SecondaryPos_Unknown(0),
     /**
-     * <code>Demonstrative = 1;</code>
+     * <code>DemonstrativePron = 1;</code>
      */
-    Demonstrative(1),
+    DemonstrativePron(1),
     /**
      * <code>Time = 2;</code>
      */
     Time(2),
     /**
-     * <code>Quantitive = 3;</code>
+     * <code>QuantitivePron = 3;</code>
      */
-    Quantitive(3),
+    QuantitivePron(3),
     /**
-     * <code>ProperNoun = 4;</code>
+     * <code>QuestionPron = 4;</code>
      */
-    ProperNoun(4),
+    QuestionPron(4),
     /**
-     * <code>Personal = 5;</code>
+     * <code>ProperNoun = 5;</code>
      */
-    Personal(5),
+    ProperNoun(5),
     /**
-     * <code>Reflexive = 6;</code>
+     * <code>PersonalPron = 6;</code>
      */
-    Reflexive(6),
+    PersonalPron(6),
     /**
-     * <code>None = 7;</code>
+     * <code>ReflexivePron = 7;</code>
      */
-    None(7),
+    ReflexivePron(7),
     /**
-     * <code>Ordinal = 8;</code>
+     * <code>None = 8;</code>
      */
-    Ordinal(8),
+    None(8),
     /**
-     * <code>Cardinal = 9;</code>
+     * <code>Ordinal = 9;</code>
      */
-    Cardinal(9),
+    Ordinal(9),
     /**
-     * <code>Percentage = 10;</code>
+     * <code>Cardinal = 10;</code>
      */
-    Percentage(10),
+    Cardinal(10),
     /**
-     * <code>Ratio = 11;</code>
+     * <code>Percentage = 11;</code>
      */
-    Ratio(11),
+    Percentage(11),
     /**
-     * <code>Range = 12;</code>
+     * <code>Ratio = 12;</code>
      */
-    Range(12),
+    Ratio(12),
     /**
-     * <code>Real = 13;</code>
+     * <code>Range = 13;</code>
      */
-    Real(13),
+    Range(13),
     /**
-     * <code>Distribution = 14;</code>
+     * <code>Real = 14;</code>
      */
-    Distribution(14),
+    Real(14),
     /**
-     * <code>Clock = 15;</code>
+     * <code>Distribution = 15;</code>
      */
-    Clock(15),
+    Distribution(15),
     /**
-     * <code>Date = 16;</code>
+     * <code>Clock = 16;</code>
      */
-    Date(16),
+    Clock(16),
+    /**
+     * <code>Date = 17;</code>
+     */
+    Date(17),
     /**
      * <pre>
      * Below POS information is for compatibility with K. Oflazer's notation.
@@ -305,69 +309,73 @@ public final class LexiconProto {
      */
     public static final int SecondaryPos_Unknown_VALUE = 0;
     /**
-     * <code>Demonstrative = 1;</code>
+     * <code>DemonstrativePron = 1;</code>
      */
-    public static final int Demonstrative_VALUE = 1;
+    public static final int DemonstrativePron_VALUE = 1;
     /**
      * <code>Time = 2;</code>
      */
     public static final int Time_VALUE = 2;
     /**
-     * <code>Quantitive = 3;</code>
+     * <code>QuantitivePron = 3;</code>
      */
-    public static final int Quantitive_VALUE = 3;
+    public static final int QuantitivePron_VALUE = 3;
     /**
-     * <code>ProperNoun = 4;</code>
+     * <code>QuestionPron = 4;</code>
      */
-    public static final int ProperNoun_VALUE = 4;
+    public static final int QuestionPron_VALUE = 4;
     /**
-     * <code>Personal = 5;</code>
+     * <code>ProperNoun = 5;</code>
      */
-    public static final int Personal_VALUE = 5;
+    public static final int ProperNoun_VALUE = 5;
     /**
-     * <code>Reflexive = 6;</code>
+     * <code>PersonalPron = 6;</code>
      */
-    public static final int Reflexive_VALUE = 6;
+    public static final int PersonalPron_VALUE = 6;
     /**
-     * <code>None = 7;</code>
+     * <code>ReflexivePron = 7;</code>
      */
-    public static final int None_VALUE = 7;
+    public static final int ReflexivePron_VALUE = 7;
     /**
-     * <code>Ordinal = 8;</code>
+     * <code>None = 8;</code>
      */
-    public static final int Ordinal_VALUE = 8;
+    public static final int None_VALUE = 8;
     /**
-     * <code>Cardinal = 9;</code>
+     * <code>Ordinal = 9;</code>
      */
-    public static final int Cardinal_VALUE = 9;
+    public static final int Ordinal_VALUE = 9;
     /**
-     * <code>Percentage = 10;</code>
+     * <code>Cardinal = 10;</code>
      */
-    public static final int Percentage_VALUE = 10;
+    public static final int Cardinal_VALUE = 10;
     /**
-     * <code>Ratio = 11;</code>
+     * <code>Percentage = 11;</code>
      */
-    public static final int Ratio_VALUE = 11;
+    public static final int Percentage_VALUE = 11;
     /**
-     * <code>Range = 12;</code>
+     * <code>Ratio = 12;</code>
      */
-    public static final int Range_VALUE = 12;
+    public static final int Ratio_VALUE = 12;
     /**
-     * <code>Real = 13;</code>
+     * <code>Range = 13;</code>
      */
-    public static final int Real_VALUE = 13;
+    public static final int Range_VALUE = 13;
     /**
-     * <code>Distribution = 14;</code>
+     * <code>Real = 14;</code>
      */
-    public static final int Distribution_VALUE = 14;
+    public static final int Real_VALUE = 14;
     /**
-     * <code>Clock = 15;</code>
+     * <code>Distribution = 15;</code>
      */
-    public static final int Clock_VALUE = 15;
+    public static final int Distribution_VALUE = 15;
     /**
-     * <code>Date = 16;</code>
+     * <code>Clock = 16;</code>
      */
-    public static final int Date_VALUE = 16;
+    public static final int Clock_VALUE = 16;
+    /**
+     * <code>Date = 17;</code>
+     */
+    public static final int Date_VALUE = 17;
     /**
      * <pre>
      * Below POS information is for compatibility with K. Oflazer's notation.
@@ -418,22 +426,23 @@ public final class LexiconProto {
     public static SecondaryPos forNumber(int value) {
       switch (value) {
         case 0: return SecondaryPos_Unknown;
-        case 1: return Demonstrative;
+        case 1: return DemonstrativePron;
         case 2: return Time;
-        case 3: return Quantitive;
-        case 4: return ProperNoun;
-        case 5: return Personal;
-        case 6: return Reflexive;
-        case 7: return None;
-        case 8: return Ordinal;
-        case 9: return Cardinal;
-        case 10: return Percentage;
-        case 11: return Ratio;
-        case 12: return Range;
-        case 13: return Real;
-        case 14: return Distribution;
-        case 15: return Clock;
-        case 16: return Date;
+        case 3: return QuantitivePron;
+        case 4: return QuestionPron;
+        case 5: return ProperNoun;
+        case 6: return PersonalPron;
+        case 7: return ReflexivePron;
+        case 8: return None;
+        case 9: return Ordinal;
+        case 10: return Cardinal;
+        case 11: return Percentage;
+        case 12: return Ratio;
+        case 13: return Range;
+        case 14: return Real;
+        case 15: return Distribution;
+        case 16: return Clock;
+        case 17: return Date;
         case 50: return PCDat;
         case 51: return PCAcc;
         case 52: return PCIns;
@@ -499,20 +508,10 @@ public final class LexiconProto {
      */
     Causative_t(5),
     /**
-     * <pre>
-     * phonetic
-     * </pre>
-     *
      * <code>Voicing = 6;</code>
      */
     Voicing(6),
     /**
-     * <pre>
-     * NoVoicing attribute is only used for explicitly marking a word in the dictionary
-     * that should not have automatic Voicing attribute. So after a DictionaryItem is created
-     * it does not need NoVoicing attribute after all.
-     * </pre>
-     *
      * <code>NoVoicing = 7;</code>
      */
     NoVoicing(7),
@@ -525,10 +524,6 @@ public final class LexiconProto {
      */
     Doubling(9),
     /**
-     * <pre>
-     * noun related
-     * </pre>
-     *
      * <code>LastVowelDrop = 10;</code>
      */
     LastVowelDrop(10),
@@ -537,10 +532,6 @@ public final class LexiconProto {
      */
     CompoundP3sg(11),
     /**
-     * <pre>
-     * other
-     * </pre>
-     *
      * <code>Special = 12;</code>
      */
     Special(12),
@@ -561,57 +552,29 @@ public final class LexiconProto {
      */
     NoQuote(16),
     /**
-     * <code>NonTransitive = 17;</code>
+     * <code>CompoundP3sgRoot = 17;</code>
      */
-    NonTransitive(17),
+    CompoundP3sgRoot(17),
     /**
-     * <code>CompoundP3sgRoot = 18;</code>
+     * <code>Reflexive = 18;</code>
      */
-    CompoundP3sgRoot(18),
+    Reflexive(18),
     /**
-     * <code>Compound = 19;</code>
+     * <code>Reciprocal = 19;</code>
      */
-    Compound(19),
+    Reciprocal(19),
     /**
-     * <code>Reflexive_v = 20;</code>
+     * <code>Ext = 20;</code>
      */
-    Reflexive_v(20),
+    Ext(20),
     /**
-     * <code>Reciprocal = 21;</code>
+     * <code>Runtime = 21;</code>
      */
-    Reciprocal(21),
+    Runtime(21),
     /**
-     * <pre>
-     * for items that are not in official TDK dictionary
-     * </pre>
-     *
-     * <code>Ext = 22;</code>
+     * <code>Dummy = 22;</code>
      */
-    Ext(22),
-    /**
-     * <pre>
-     * for items that are added to system during runtime
-     * </pre>
-     *
-     * <code>Runtime = 23;</code>
-     */
-    Runtime(23),
-    /**
-     * <pre>
-     *For dummy items.
-     * </pre>
-     *
-     * <code>Dummy = 24;</code>
-     */
-    Dummy(24),
-    /**
-     * <pre>
-     *For abbreviations. TODO: consider making this a POS
-     * </pre>
-     *
-     * <code>Abbreviation = 25;</code>
-     */
-    Abbreviation(25),
+    Dummy(22),
     UNRECOGNIZED(-1),
     ;
 
@@ -640,20 +603,10 @@ public final class LexiconProto {
      */
     public static final int Causative_t_VALUE = 5;
     /**
-     * <pre>
-     * phonetic
-     * </pre>
-     *
      * <code>Voicing = 6;</code>
      */
     public static final int Voicing_VALUE = 6;
     /**
-     * <pre>
-     * NoVoicing attribute is only used for explicitly marking a word in the dictionary
-     * that should not have automatic Voicing attribute. So after a DictionaryItem is created
-     * it does not need NoVoicing attribute after all.
-     * </pre>
-     *
      * <code>NoVoicing = 7;</code>
      */
     public static final int NoVoicing_VALUE = 7;
@@ -666,10 +619,6 @@ public final class LexiconProto {
      */
     public static final int Doubling_VALUE = 9;
     /**
-     * <pre>
-     * noun related
-     * </pre>
-     *
      * <code>LastVowelDrop = 10;</code>
      */
     public static final int LastVowelDrop_VALUE = 10;
@@ -678,10 +627,6 @@ public final class LexiconProto {
      */
     public static final int CompoundP3sg_VALUE = 11;
     /**
-     * <pre>
-     * other
-     * </pre>
-     *
      * <code>Special = 12;</code>
      */
     public static final int Special_VALUE = 12;
@@ -702,57 +647,29 @@ public final class LexiconProto {
      */
     public static final int NoQuote_VALUE = 16;
     /**
-     * <code>NonTransitive = 17;</code>
+     * <code>CompoundP3sgRoot = 17;</code>
      */
-    public static final int NonTransitive_VALUE = 17;
+    public static final int CompoundP3sgRoot_VALUE = 17;
     /**
-     * <code>CompoundP3sgRoot = 18;</code>
+     * <code>Reflexive = 18;</code>
      */
-    public static final int CompoundP3sgRoot_VALUE = 18;
+    public static final int Reflexive_VALUE = 18;
     /**
-     * <code>Compound = 19;</code>
+     * <code>Reciprocal = 19;</code>
      */
-    public static final int Compound_VALUE = 19;
+    public static final int Reciprocal_VALUE = 19;
     /**
-     * <code>Reflexive_v = 20;</code>
+     * <code>Ext = 20;</code>
      */
-    public static final int Reflexive_v_VALUE = 20;
+    public static final int Ext_VALUE = 20;
     /**
-     * <code>Reciprocal = 21;</code>
+     * <code>Runtime = 21;</code>
      */
-    public static final int Reciprocal_VALUE = 21;
+    public static final int Runtime_VALUE = 21;
     /**
-     * <pre>
-     * for items that are not in official TDK dictionary
-     * </pre>
-     *
-     * <code>Ext = 22;</code>
+     * <code>Dummy = 22;</code>
      */
-    public static final int Ext_VALUE = 22;
-    /**
-     * <pre>
-     * for items that are added to system during runtime
-     * </pre>
-     *
-     * <code>Runtime = 23;</code>
-     */
-    public static final int Runtime_VALUE = 23;
-    /**
-     * <pre>
-     *For dummy items.
-     * </pre>
-     *
-     * <code>Dummy = 24;</code>
-     */
-    public static final int Dummy_VALUE = 24;
-    /**
-     * <pre>
-     *For abbreviations. TODO: consider making this a POS
-     * </pre>
-     *
-     * <code>Abbreviation = 25;</code>
-     */
-    public static final int Abbreviation_VALUE = 25;
+    public static final int Dummy_VALUE = 22;
 
 
     public final int getNumber() {
@@ -790,15 +707,12 @@ public final class LexiconProto {
         case 14: return Plural;
         case 15: return NounConsInsert_n;
         case 16: return NoQuote;
-        case 17: return NonTransitive;
-        case 18: return CompoundP3sgRoot;
-        case 19: return Compound;
-        case 20: return Reflexive_v;
-        case 21: return Reciprocal;
-        case 22: return Ext;
-        case 23: return Runtime;
-        case 24: return Dummy;
-        case 25: return Abbreviation;
+        case 17: return CompoundP3sgRoot;
+        case 18: return Reflexive;
+        case 19: return Reciprocal;
+        case 20: return Ext;
+        case 21: return Runtime;
+        case 22: return Dummy;
         default: return null;
       }
     }
@@ -897,6 +811,11 @@ public final class LexiconProto {
      * <code>repeated .RootAttribute root_attributes = 6;</code>
      */
     int getRootAttributesValue(int index);
+
+    /**
+     * <code>int32 index = 7;</code>
+     */
+    int getIndex();
   }
   /**
    * Protobuf type {@code DictionaryItem}
@@ -1242,6 +1161,29 @@ public final class LexiconProto {
       }
     }
 
+    public static final int INDEX_FIELD_NUMBER = 7;
+    private int index_;
+    /**
+     * <code>int32 index = 7;</code>
+     */
+    public int getIndex() {
+      return index_;
+    }
+    /**
+     * <code>int32 index = 7;</code>
+     */
+    private void setIndex(int value) {
+      
+      index_ = value;
+    }
+    /**
+     * <code>int32 index = 7;</code>
+     */
+    private void clearIndex() {
+      
+      index_ = 0;
+    }
+
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
@@ -1266,6 +1208,9 @@ public final class LexiconProto {
       }
       for (int i = 0; i < rootAttributes_.size(); i++) {
         output.writeEnumNoTag(rootAttributes_.getInt(i));
+      }
+      if (index_ != 0) {
+        output.writeInt32(7, index_);
       }
       unknownFields.writeTo(output);
     }
@@ -1306,6 +1251,10 @@ public final class LexiconProto {
           size += com.google.protobuf.CodedOutputStream
             .computeUInt32SizeNoTag(dataSize);
         }rootAttributesMemoizedSerializedSize = dataSize;
+      }
+      if (index_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(7, index_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
@@ -1692,6 +1641,29 @@ public final class LexiconProto {
         return this;
       }
 
+      /**
+       * <code>int32 index = 7;</code>
+       */
+      public int getIndex() {
+        return instance.getIndex();
+      }
+      /**
+       * <code>int32 index = 7;</code>
+       */
+      public Builder setIndex(int value) {
+        copyOnWrite();
+        instance.setIndex(value);
+        return this;
+      }
+      /**
+       * <code>int32 index = 7;</code>
+       */
+      public Builder clearIndex() {
+        copyOnWrite();
+        instance.clearIndex();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:DictionaryItem)
     }
     @java.lang.SuppressWarnings({"unchecked", "fallthrough"})
@@ -1724,6 +1696,8 @@ public final class LexiconProto {
           primaryPos_ = visitor.visitInt(primaryPos_ != 0, primaryPos_,    other.primaryPos_ != 0, other.primaryPos_);
           secondaryPos_ = visitor.visitInt(secondaryPos_ != 0, secondaryPos_,    other.secondaryPos_ != 0, other.secondaryPos_);
           rootAttributes_= visitor.visitIntList(rootAttributes_, other.rootAttributes_);
+          index_ = visitor.visitInt(index_ != 0, index_,
+              other.index_ != 0, other.index_);
           if (visitor == com.google.protobuf.GeneratedMessageLite.MergeFromVisitor
               .INSTANCE) {
             bitField0_ |= other.bitField0_;
@@ -1798,6 +1772,11 @@ public final class LexiconProto {
                     rootAttributes_.addInt(input.readEnum());
                   }
                   input.popLimit(oldLimit);
+                  break;
+                }
+                case 56: {
+
+                  index_ = input.readInt32();
                   break;
                 }
               }

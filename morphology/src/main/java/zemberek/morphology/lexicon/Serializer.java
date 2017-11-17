@@ -69,6 +69,7 @@ public class Serializer {
   private static LexiconProto.DictionaryItem convertToProto(DictionaryItem item) {
     LexiconProto.DictionaryItem.Builder builder = LexiconProto.DictionaryItem.newBuilder()
         .setLemma(item.lemma)
+        .setIndex(item.index)
         .setPrimaryPos(primaryPosConverter.convertTo(item.primaryPos, LexiconProto.PrimaryPos.PrimaryPos_Unknown));
     String lowercaseLemma = item.lemma.toLowerCase();
     if (item.root != null && !item.root.equals(lowercaseLemma)) {
@@ -103,9 +104,10 @@ public class Serializer {
         primaryPosConverter.convertBack(item.getPrimaryPos(), PrimaryPos.Unknown),
         item.getSecondaryPos() == LexiconProto.SecondaryPos.SecondaryPos_Unknown
             ? SecondaryPos.None
-            : secondaryPosConverter.convertBack(item.getSecondaryPos(), SecondaryPos.Unknown),
+            : secondaryPosConverter.convertBack(item.getSecondaryPos(), SecondaryPos.UnknownSec),
         !rootAttributes.isEmpty() ? EnumSet.copyOf(rootAttributes) : null,
-        null);
+        null,
+        item.getIndex());
   }
 
   static class SimpleEnumConverter <E extends Enum<E>, P extends Enum<P>> {

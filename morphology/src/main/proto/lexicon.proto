@@ -25,22 +25,23 @@ enum PrimaryPos {
 // Keep in sync with zemberek.core.turkish.SecondaryPos
 enum SecondaryPos {
   SecondaryPos_Unknown = 0;
-  Demonstrative = 1;
+  DemonstrativePron = 1;
   Time = 2;
-  Quantitive = 3;
-  ProperNoun = 4;
-  Personal = 5;
-  Reflexive = 6;
-  None = 7;
-  Ordinal = 8;
-  Cardinal = 9;
-  Percentage = 10;
-  Ratio = 11;
-  Range = 12;
-  Real = 13;
-  Distribution = 14;
-  Clock = 15;
-  Date = 16;
+  QuantitivePron = 3;
+  QuestionPron = 4;
+  ProperNoun = 5;
+  PersonalPron = 6;
+  ReflexivePron = 7;
+  None = 8;
+  Ordinal = 9;
+  Cardinal = 10;
+  Percentage = 11;
+  Ratio = 12;
+  Range = 13;
+  Real = 14;
+  Distribution = 15;
+  Clock = 16;
+  Date = 17;
 
   // Below POS information is for compatibility with K. Oflazer's notation.
   // They indicate that words before Post positive words should end with certain suffixes.
@@ -60,44 +61,23 @@ enum RootAttribute {
   ProgressiveVowelDrop =3;
   Passive_In = 4;
   Causative_t = 5;
-
-  // phonetic
   Voicing =  6;
-  // NoVoicing attribute is only used for explicitly marking a word in the dictionary
-  // that should not have automatic Voicing attribute. So after a DictionaryItem is created
-  // it does not need NoVoicing attribute after all.
   NoVoicing = 7;
   InverseHarmony = 8;
   Doubling = 9;
-
-  // noun related
   LastVowelDrop = 10;
   CompoundP3sg = 11;
-
-  // other
   Special = 12;
   NoSuffix = 13;
   Plural = 14;
-
   NounConsInsert_n = 15;
   NoQuote = 16;
-  NonTransitive = 17;
-  CompoundP3sgRoot = 18;
-  Compound = 19;
-  Reflexive_v = 20;
-  Reciprocal = 21;
-
-  // for items that are not in official TDK dictionary
-  Ext = 22;
-
-  // for items that are added to system during runtime
-  Runtime = 23;
-
-  //For dummy items.
-  Dummy = 24;
-
-  //For abbreviations. TODO: consider making this a POS
-  Abbreviation = 25;
+  CompoundP3sgRoot = 17;
+  Reflexive = 18;
+  Reciprocal = 19;
+  Ext = 20;
+  Runtime = 21;
+  Dummy = 22;
 }
 
 message DictionaryItem {
@@ -107,6 +87,7 @@ message DictionaryItem {
   PrimaryPos primary_pos = 4;
   SecondaryPos secondary_pos = 5;
   repeated RootAttribute root_attributes = 6;
+  int32 index = 7;
 }
 
 message Dictionary {

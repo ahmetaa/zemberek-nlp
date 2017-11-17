@@ -5,6 +5,7 @@ import zemberek.core.enums.StringEnum;
 import zemberek.core.enums.StringEnumMap;
 
 public enum SecondaryPos implements StringEnum {
+    UnknownSec("Unk"),
     DemonstrativePron("Demons"),
     Time("Time"),
     QuantitivePron("Quant"),
@@ -13,7 +14,6 @@ public enum SecondaryPos implements StringEnum {
     PersonalPron("Pers"),
     ReflexivePron("Reflex"),
     None("None"),
-    UnknownSec("Unk"),
     Ordinal("Ord"),
     Cardinal("Card"),
     Percentage("Percent"),
@@ -32,7 +32,6 @@ public enum SecondaryPos implements StringEnum {
     PCNom("PCNom"),
     PCGen("PCGen"),
     PCAbl("PCAbl");
-
 
     public String shortForm;
 
