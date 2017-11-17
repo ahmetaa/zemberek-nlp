@@ -1,11 +1,10 @@
 package zemberek.morphology.lexicon;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -38,19 +37,24 @@ public class Serializer {
     bos.write(dictionary.toByteArray());
     bos.close();
 
-    long startTime = System.currentTimeMillis();
-    File f2 = new File("lexicon.bin");
-    BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f2));
-    Dictionary readDictionary = Dictionary.parseFrom(bis);
-    long t = System.currentTimeMillis();
-    Log.info("Dictionary loaded in %d ms.", (t - startTime));
+    long start = System.currentTimeMillis();
+    byte[] serialized = Files.readAllBytes(new File("lexicon.bin").toPath());
+    long end = System.currentTimeMillis();
+    Log.info("Dictionary loaded in %d ms.", (end - start));
+
+    start = System.currentTimeMillis();
+    Dictionary readDictionary = Dictionary.parseFrom(serialized);
+    end = System.currentTimeMillis();
+    Log.info("Dictionary deserialized in %d ms.", (end - start));
     System.out.println("Total size of read dictionary: " + readDictionary.getSerializedSize());
+
+    start = System.currentTimeMillis();
     RootLexicon loadedLexicon = new RootLexicon();
     for (LexiconProto.DictionaryItem item : readDictionary.getItemsList()) {
       loadedLexicon.add(convertToDictionaryItem(item));
     }
-    long t2 = System.currentTimeMillis();
-    Log.info("RootLexicon generated in %d ms.", (t2 - t));
+    end = System.currentTimeMillis();
+    Log.info("RootLexicon generated in %d ms.", (end - start));
   }
 
   static SimpleEnumConverter<PrimaryPos, LexiconProto.PrimaryPos> primaryPosConverter =
@@ -62,33 +66,44 @@ public class Serializer {
   static SimpleEnumConverter<RootAttribute, LexiconProto.RootAttribute> rootAttributeConverter =
       SimpleEnumConverter.createConverter(RootAttribute.class, LexiconProto.RootAttribute.class);
 
-  private static LexiconProto.DictionaryItem convertToProto(DictionaryItem dictionaryItem) {
-    return LexiconProto.DictionaryItem.newBuilder()
-        .setLemma(dictionaryItem.lemma)
-        .setRoot(dictionaryItem.root)
-        .setPronunciation(dictionaryItem.pronunciation)
-        .setPrimaryPos(primaryPosConverter.convertTo(
-            dictionaryItem.primaryPos, LexiconProto.PrimaryPos.PrimaryPos_Unknown))
-        .setSecondaryPos(secondaryPosConverter.convertTo(
-            dictionaryItem.secondaryPos, LexiconProto.SecondaryPos.SecondaryPos_Unknown))
-        .addAllRootAttributes(dictionaryItem.attributes
-            .stream()
-            .map((attribute) ->
-                rootAttributeConverter.convertTo(attribute, LexiconProto.RootAttribute.RootAttribute_Unknown))
-            .collect(Collectors.toList()))
-        .build();
+  private static LexiconProto.DictionaryItem convertToProto(DictionaryItem item) {
+    LexiconProto.DictionaryItem.Builder builder = LexiconProto.DictionaryItem.newBuilder()
+        .setLemma(item.lemma)
+        .setPrimaryPos(primaryPosConverter.convertTo(item.primaryPos, LexiconProto.PrimaryPos.PrimaryPos_Unknown));
+    String lowercaseLemma = item.lemma.toLowerCase();
+    if (item.root != null && !item.root.equals(lowercaseLemma)) {
+      builder.setRoot(item.root);
+    }
+    if (item.pronunciation != null && !item.pronunciation.equals(lowercaseLemma)) {
+      builder.setPronunciation(item.pronunciation);
+    }
+    if (item.secondaryPos != null && item.secondaryPos != SecondaryPos.None) {
+      builder.setSecondaryPos(secondaryPosConverter.convertTo(
+          item.secondaryPos, LexiconProto.SecondaryPos.SecondaryPos_Unknown));
+    }
+    if (item.attributes != null && !item.attributes.isEmpty()) {
+        builder.addAllRootAttributes(item.attributes
+          .stream()
+          .map((attribute) ->
+              rootAttributeConverter.convertTo(attribute, LexiconProto.RootAttribute.RootAttribute_Unknown))
+          .collect(Collectors.toList()));
+    }
+    return builder.build();
   }
 
-  private static DictionaryItem convertToDictionaryItem(LexiconProto.DictionaryItem dictionaryItem) {
+  private static DictionaryItem convertToDictionaryItem(LexiconProto.DictionaryItem item) {
     List<RootAttribute> rootAttributes = new ArrayList<>();
-    for (LexiconProto.RootAttribute rootAttribute : dictionaryItem.getRootAttributesList()) {
+    for (LexiconProto.RootAttribute rootAttribute : item.getRootAttributesList()) {
       rootAttributes.add(rootAttributeConverter.convertBack(rootAttribute, RootAttribute.Unknown));
     }
-    return new DictionaryItem(dictionaryItem.getLemma(),
-        dictionaryItem.getRoot(),
-        dictionaryItem.getPronunciation(),
-        primaryPosConverter.convertBack(dictionaryItem.getPrimaryPos(), PrimaryPos.Unknown),
-        secondaryPosConverter.convertBack(dictionaryItem.getSecondaryPos(), SecondaryPos.Unknown),
+    String lowercaseLemma = item.getLemma().toLowerCase();
+    return new DictionaryItem(item.getLemma(),
+        item.getRoot().isEmpty() ? lowercaseLemma : item.getRoot(),
+        item.getPronunciation().isEmpty() ? lowercaseLemma : item.getPronunciation(),
+        primaryPosConverter.convertBack(item.getPrimaryPos(), PrimaryPos.Unknown),
+        item.getSecondaryPos() == LexiconProto.SecondaryPos.SecondaryPos_Unknown
+            ? SecondaryPos.None
+            : secondaryPosConverter.convertBack(item.getSecondaryPos(), SecondaryPos.Unknown),
         !rootAttributes.isEmpty() ? EnumSet.copyOf(rootAttributes) : null,
         null);
   }
