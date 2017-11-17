@@ -5,7 +5,6 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.TurkicLetter;
 import zemberek.core.turkish.TurkicSeq;
-import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.graph.SuffixData;
 import zemberek.morphology.lexicon.graph.SuffixSurfaceNode;
 import zemberek.morphology.lexicon.graph.TerminationType;
@@ -187,7 +186,7 @@ public class SuffixSurfaceNodeGenerator {
                 attrs.add(PhoneticAttribute.LastLetterVoicelessStop);
             }
         } else
-            attrs.add(PhoneticAttribute.LastLetterNotVoiceless);
+            attrs.add(PhoneticAttribute.LastLetterVoiced);
         return attrs;
     }
 

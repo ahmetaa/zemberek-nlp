@@ -104,7 +104,7 @@ public class StemNodeGenerator {
                 attrs.add(PhoneticAttribute.LastLetterVoicelessStop);
             }
         } else
-            attrs.add(PhoneticAttribute.LastLetterNotVoiceless);
+            attrs.add(PhoneticAttribute.LastLetterVoiced);
         return attrs;
     }
 
