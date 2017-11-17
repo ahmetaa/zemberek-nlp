@@ -1,6 +1,9 @@
 package zemberek.morphology.analysis;
 
 import com.google.common.io.Resources;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -11,54 +14,52 @@ import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.lexicon.tr.TurkishSuffixes;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-
 public class WordAnalyzerFunctionalTest {
 
-    public static final File PARSEABLES_FILE = new File(Resources.getResource("parseable.txt").getFile());
-    public static final File DEV_LEXICON_FILE = new File(Resources.getResource("dev-lexicon.txt").getFile());
-//    public static final File UNPARSEABLES_FILE = new File(Resources.getResource("unparseable.txt").getFile());
-    public static final File MASTER_DICTIONARY_FILE = new File(Resources.getResource("tr/master-dictionary.dict").getFile());
-    public static final File SECONDARY_DICTIONARY_FILE = new File(Resources.getResource("tr/secondary-dictionary.dict").getFile());
-//  public static final File OFLAZER_MISMATCH_FILE = new File(Resources.getResource("misc/oflazer-mismatch.txt").getFile());
+  public static final File PARSEABLES_FILE = new File(
+      Resources.getResource("parseable.txt").getFile());
+  public static final File DEV_LEXICON_FILE = new File(
+      Resources.getResource("dev-lexicon.txt").getFile());
+  //    public static final File UNPARSEABLES_FILE = new File(Resources.getResource("unparseable.txt").getFile());
+  public static final File MASTER_DICTIONARY_FILE = new File(
+      Resources.getResource("tr/master-dictionary.dict").getFile());
+  public static final File SECONDARY_DICTIONARY_FILE = new File(
+      Resources.getResource("tr/secondary-dictionary.dict").getFile());
+  //  public static final File OFLAZER_MISMATCH_FILE = new File(Resources.getResource("misc/oflazer-mismatch.txt").getFile());
 //  public static final File Z2_VOCAB_FILE = new File(Resources.getResource("z2-vocab.tr.7z").getFile());
-    public static final File NON_TDK_DICT_FILE = new File(Resources.getResource("tr/non-tdk.dict").getFile());
+  public static final File NON_TDK_DICT_FILE = new File(
+      Resources.getResource("tr/non-tdk.dict").getFile());
+  static TurkishSuffixes suffixes = new TurkishSuffixes();
 
-    public void parseableTest(WordAnalyzer parser) throws IOException {
-        List<String> parseables = SimpleTextReader.trimmingUTF8Reader(PARSEABLES_FILE).asStringList();
-        for (String parseable : parseables) {
-            Assert.assertTrue("Could not parse valid word:" + parseable, parser.analyze(parseable).size() > 0);
+  public void parseableTest(WordAnalyzer parser) throws IOException {
+    List<String> parseables = SimpleTextReader.trimmingUTF8Reader(PARSEABLES_FILE).asStringList();
+    for (String parseable : parseables) {
+      Assert.assertTrue("Could not parse valid word:" + parseable,
+          parser.analyze(parseable).size() > 0);
+    }
+  }
+
+  @Test
+  public void simpleParse() throws IOException {
+    DynamicLexiconGraph graph = getLexiconGraph(DEV_LEXICON_FILE);
+    WordAnalyzer wordAnalyzer = new WordAnalyzer(graph);
+    List<String> parseables = SimpleTextReader.trimmingUTF8Reader(PARSEABLES_FILE).asStringList();
+    for (String parseable : parseables) {
+      List<WordAnalysis> results = wordAnalyzer.analyze(parseable);
+      if (results.size() > 0) {
+        //System.out.print(parseable + " : ");
+        for (WordAnalysis parseResult : results) {
+          System.out.println(parseable + " -> " + parseResult.formatOflazer() + "   ");
         }
-    }
+        //System.out.println();
 
-    @Test
-    public void simpleParse() throws IOException {
-        DynamicLexiconGraph graph = getLexiconGraph(DEV_LEXICON_FILE);
-        WordAnalyzer wordAnalyzer = new WordAnalyzer(graph);
-        List<String> parseables = SimpleTextReader.trimmingUTF8Reader(PARSEABLES_FILE).asStringList();
-        for (String parseable : parseables) {
-            List<WordAnalysis> results = wordAnalyzer.analyze(parseable);
-            if (results.size() > 0) {
-                //System.out.print(parseable + " : ");
-                for (WordAnalysis parseResult : results) {
-                    System.out.println( parseable +" -> " + parseResult.formatOflazer() + "   ");
-                }
-                //System.out.println();
-
-            } else {
-                System.out.println("ERROR:" + parseable);
-                wordAnalyzer.dump(parseable);
-            }
-            //Assert.assertTrue("Could not parses valid word:" + parseable, parser.parses(parseable).size() > 0);
-        }
+      } else {
+        System.out.println("ERROR:" + parseable);
+        wordAnalyzer.dump(parseable);
+      }
+      //Assert.assertTrue("Could not parses valid word:" + parseable, parser.parses(parseable).size() > 0);
     }
-
-    @Test
-    public void simpleParserParseable() throws IOException {
-        parseableTest(simpleParser(DEV_LEXICON_FILE));
-    }
+  }
 
 /*    @Test
     public void unparseableTest() throws IOException {
@@ -70,30 +71,10 @@ public class WordAnalyzerFunctionalTest {
     }
 */
 
-    @Test
-    @Ignore("Performance Test")
-    public void speedTest() throws IOException {
-        WordAnalyzer parser = simpleParser(DEV_LEXICON_FILE);
-        List<String> parseables = SimpleTextReader.trimmingUTF8Reader(PARSEABLES_FILE).asStringList();
-        long start = System.currentTimeMillis();
-        final long iteration = 1000;
-        for (int i = 0; i < iteration; i++) {
-            for (String s : parseables) {
-                List<WordAnalysis> results = parser.analyze(s);
-                for (WordAnalysis result : results) {
-                    result.formatLong();
-                }
-                if (i == 0) {
-                    for (WordAnalysis result : results) {
-                        //System.out.println(s + " = " + result.formatLong());
-                    }
-                }
-            }
-        }
-        long elapsed = System.currentTimeMillis() - start;
-        System.out.println("Elapsed:" + elapsed + " ms.");
-        System.out.println("Speed:" + (iteration * 1000 * parseables.size() / elapsed) + " words/second");
-    }
+  @Test
+  public void simpleParserParseable() throws IOException {
+    parseableTest(simpleParser(DEV_LEXICON_FILE));
+  }
 
 /*    @Test
     @Ignore("Not a unit Test")
@@ -186,22 +167,45 @@ public class WordAnalyzerFunctionalTest {
         SimpleTextWriter.oneShotUTF8Writer(new File(Resources.getResource("suffix-surface.txt").getFile())).writeLines(lst);
     }*/
 
-
-    private WordAnalyzer simpleParser(File... dictionary) throws IOException {
-        DynamicLexiconGraph graph = getLexiconGraph(dictionary);
-        return new WordAnalyzer(graph);
-    }
-
-    static TurkishSuffixes suffixes = new TurkishSuffixes();
-
-    private DynamicLexiconGraph getLexiconGraph(File... dictionaries) throws IOException {
-        SuffixProvider suffixProvider = suffixes;
-        RootLexicon lexicon = new RootLexicon();
-        for (File dictionary : dictionaries) {
-            new TurkishDictionaryLoader(suffixProvider).loadInto(lexicon, dictionary);
+  @Test
+  @Ignore("Performance Test")
+  public void speedTest() throws IOException {
+    WordAnalyzer parser = simpleParser(DEV_LEXICON_FILE);
+    List<String> parseables = SimpleTextReader.trimmingUTF8Reader(PARSEABLES_FILE).asStringList();
+    long start = System.currentTimeMillis();
+    final long iteration = 1000;
+    for (int i = 0; i < iteration; i++) {
+      for (String s : parseables) {
+        List<WordAnalysis> results = parser.analyze(s);
+        for (WordAnalysis result : results) {
+          result.formatLong();
         }
-        DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
-        graph.addDictionaryItems(lexicon);
-        return graph;
+        if (i == 0) {
+          for (WordAnalysis result : results) {
+            //System.out.println(s + " = " + result.formatLong());
+          }
+        }
+      }
     }
+    long elapsed = System.currentTimeMillis() - start;
+    System.out.println("Elapsed:" + elapsed + " ms.");
+    System.out
+        .println("Speed:" + (iteration * 1000 * parseables.size() / elapsed) + " words/second");
+  }
+
+  private WordAnalyzer simpleParser(File... dictionary) throws IOException {
+    DynamicLexiconGraph graph = getLexiconGraph(dictionary);
+    return new WordAnalyzer(graph);
+  }
+
+  private DynamicLexiconGraph getLexiconGraph(File... dictionaries) throws IOException {
+    SuffixProvider suffixProvider = suffixes;
+    RootLexicon lexicon = new RootLexicon();
+    for (File dictionary : dictionaries) {
+      new TurkishDictionaryLoader(suffixProvider).loadInto(lexicon, dictionary);
+    }
+    DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
+    graph.addDictionaryItems(lexicon);
+    return graph;
+  }
 }

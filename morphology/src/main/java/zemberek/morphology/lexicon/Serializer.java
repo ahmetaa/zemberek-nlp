@@ -22,6 +22,13 @@ import zemberek.morphology.lexicon.proto.LexiconProto.Dictionary;
 
 public class Serializer {
 
+  static SimpleEnumConverter<PrimaryPos, LexiconProto.PrimaryPos> primaryPosConverter =
+      SimpleEnumConverter.createConverter(PrimaryPos.class, LexiconProto.PrimaryPos.class);
+  static SimpleEnumConverter<SecondaryPos, LexiconProto.SecondaryPos> secondaryPosConverter =
+      SimpleEnumConverter.createConverter(SecondaryPos.class, LexiconProto.SecondaryPos.class);
+  static SimpleEnumConverter<RootAttribute, LexiconProto.RootAttribute> rootAttributeConverter =
+      SimpleEnumConverter.createConverter(RootAttribute.class, LexiconProto.RootAttribute.class);
+
   public static void main(String[] args) throws IOException {
 
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
@@ -57,20 +64,12 @@ public class Serializer {
     Log.info("RootLexicon generated in %d ms.", (end - start));
   }
 
-  static SimpleEnumConverter<PrimaryPos, LexiconProto.PrimaryPos> primaryPosConverter =
-     SimpleEnumConverter.createConverter(PrimaryPos.class, LexiconProto.PrimaryPos.class);
-
-  static SimpleEnumConverter<SecondaryPos, LexiconProto.SecondaryPos> secondaryPosConverter =
-      SimpleEnumConverter.createConverter(SecondaryPos.class, LexiconProto.SecondaryPos.class);
-
-  static SimpleEnumConverter<RootAttribute, LexiconProto.RootAttribute> rootAttributeConverter =
-      SimpleEnumConverter.createConverter(RootAttribute.class, LexiconProto.RootAttribute.class);
-
   private static LexiconProto.DictionaryItem convertToProto(DictionaryItem item) {
     LexiconProto.DictionaryItem.Builder builder = LexiconProto.DictionaryItem.newBuilder()
         .setLemma(item.lemma)
         .setIndex(item.index)
-        .setPrimaryPos(primaryPosConverter.convertTo(item.primaryPos, LexiconProto.PrimaryPos.PrimaryPos_Unknown));
+        .setPrimaryPos(primaryPosConverter
+            .convertTo(item.primaryPos, LexiconProto.PrimaryPos.PrimaryPos_Unknown));
     String lowercaseLemma = item.lemma.toLowerCase();
     if (item.root != null && !item.root.equals(lowercaseLemma)) {
       builder.setRoot(item.root);
@@ -83,10 +82,11 @@ public class Serializer {
           item.secondaryPos, LexiconProto.SecondaryPos.SecondaryPos_Unknown));
     }
     if (item.attributes != null && !item.attributes.isEmpty()) {
-        builder.addAllRootAttributes(item.attributes
+      builder.addAllRootAttributes(item.attributes
           .stream()
           .map((attribute) ->
-              rootAttributeConverter.convertTo(attribute, LexiconProto.RootAttribute.RootAttribute_Unknown))
+              rootAttributeConverter
+                  .convertTo(attribute, LexiconProto.RootAttribute.RootAttribute_Unknown))
           .collect(Collectors.toList()));
     }
     return builder.build();
@@ -110,7 +110,8 @@ public class Serializer {
         item.getIndex());
   }
 
-  static class SimpleEnumConverter <E extends Enum<E>, P extends Enum<P>> {
+  static class SimpleEnumConverter<E extends Enum<E>, P extends Enum<P>> {
+
     Map<String, P> conversionFromEToP = new HashMap<>();
     Map<String, E> conversionFromPToE = new HashMap<>();
 
@@ -120,26 +121,8 @@ public class Serializer {
       this.conversionFromPToE = conversionFromPToE;
     }
 
-    public P convertTo (E en, P defaultEnum) {
-      P pEnum = conversionFromEToP.get(en.name());
-      if (pEnum == null) {
-        Log.warn("Could not map from Enum %s Returning default", en.name());
-        return defaultEnum;
-      }
-      return pEnum;
-    }
-
-    public E convertBack (P en, E defaultEnum) {
-      E eEnum = conversionFromPToE.get(en.name());
-      if (eEnum == null) {
-        Log.warn("Could not map from Enum %s Returning default", en.name());
-        return defaultEnum;
-      }
-      return eEnum;
-    }
-
-    public static  <E extends Enum<E>, P extends Enum<P>> SimpleEnumConverter<E, P>
-        createConverter(Class<E> enumType, Class<P> otherEnumType) {
+    public static <E extends Enum<E>, P extends Enum<P>> SimpleEnumConverter<E, P>
+    createConverter(Class<E> enumType, Class<P> otherEnumType) {
       Map<String, E> namesMapE = createEnumNameMap(enumType);
       Map<String, P> namesMapP = createEnumNameMap(otherEnumType);
 
@@ -147,7 +130,7 @@ public class Serializer {
       Map<String, E> conversionFromPToE = new HashMap<>();
       for (Entry<String, E> entry : namesMapE.entrySet()) {
         if (namesMapP.containsKey(entry.getKey())) {
-            conversionFromEToP.put(entry.getKey(), namesMapP.get(entry.getKey()));
+          conversionFromEToP.put(entry.getKey(), namesMapP.get(entry.getKey()));
         }
       }
       for (Entry<String, P> entry : namesMapP.entrySet()) {
@@ -163,9 +146,27 @@ public class Serializer {
       Map<String, E> nameToEnum = new HashMap<>();
       // put Enums in map by name
       for (E enumElement : EnumSet.allOf(enumType)) {
-           nameToEnum.put(enumElement.name(), enumElement);
+        nameToEnum.put(enumElement.name(), enumElement);
       }
       return nameToEnum;
+    }
+
+    public P convertTo(E en, P defaultEnum) {
+      P pEnum = conversionFromEToP.get(en.name());
+      if (pEnum == null) {
+        Log.warn("Could not map from Enum %s Returning default", en.name());
+        return defaultEnum;
+      }
+      return pEnum;
+    }
+
+    public E convertBack(P en, E defaultEnum) {
+      E eEnum = conversionFromPToE.get(en.name());
+      if (eEnum == null) {
+        Log.warn("Could not map from Enum %s Returning default", en.name());
+        return defaultEnum;
+      }
+      return eEnum;
     }
   }
 

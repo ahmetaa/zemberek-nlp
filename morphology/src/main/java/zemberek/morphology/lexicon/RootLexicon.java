@@ -1,107 +1,120 @@
 package zemberek.morphology.lexicon;
 
-import com.google.common.collect.*;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
-
-import java.util.*;
 
 /**
  * This is the collection of all Dictionary Items.
  */
 public class RootLexicon implements Iterable<DictionaryItem> {
-    private Multimap<String, DictionaryItem> itemMap = HashMultimap.create(100000,1);
-    private Map<String, DictionaryItem> idMap = Maps.newHashMap();
-    private Set<DictionaryItem> itemSet = Sets.newLinkedHashSet();
 
-    public RootLexicon(List<DictionaryItem> dictionaryItems) {
-        itemSet.addAll(dictionaryItems);
-    }
+  private Multimap<String, DictionaryItem> itemMap = HashMultimap.create(100000, 1);
+  private Map<String, DictionaryItem> idMap = Maps.newHashMap();
+  private Set<DictionaryItem> itemSet = Sets.newLinkedHashSet();
 
-    public RootLexicon() {
-    }
+  public RootLexicon(List<DictionaryItem> dictionaryItems) {
+    itemSet.addAll(dictionaryItems);
+  }
 
-    public void add(DictionaryItem item) {
-        if (itemSet.contains(item)) {
-            Log.warn("Duplicated item:" + item);
-            return;
-        }
-        if (idMap.containsKey(item.id)) {
-            Log.warn("Duplicated item id of:" + item + " with " + idMap.get(item.id));
-            return;
-        }
-        this.itemSet.add(item);
-        idMap.put(item.id, item);
-        itemMap.put(item.lemma, item);
-    }
+  public RootLexicon() {
+  }
 
-    public void addAll(Iterable<DictionaryItem>items) {
-        for(DictionaryItem item : items) {
-            add(item);
-        }
+  public void add(DictionaryItem item) {
+    if (itemSet.contains(item)) {
+      Log.warn("Duplicated item:" + item);
+      return;
     }
+    if (idMap.containsKey(item.id)) {
+      Log.warn("Duplicated item id of:" + item + " with " + idMap.get(item.id));
+      return;
+    }
+    this.itemSet.add(item);
+    idMap.put(item.id, item);
+    itemMap.put(item.lemma, item);
+  }
 
-    public Collection<DictionaryItem> getAllItems() {
-        return itemMap.values();
+  public void addAll(Iterable<DictionaryItem> items) {
+    for (DictionaryItem item : items) {
+      add(item);
     }
+  }
 
-    public List<DictionaryItem> getMatchingItems(String lemma) {
-        Collection<DictionaryItem> items = itemMap.get(lemma);
-        if (items == null)
-            return Collections.emptyList();
-        else return Lists.newArrayList(items);
-    }
+  public Collection<DictionaryItem> getAllItems() {
+    return itemMap.values();
+  }
 
-    public void remove(DictionaryItem item) {
-        itemMap.get(item.lemma).remove(item);
-        idMap.remove(item.id);
-        itemSet.remove(item);
+  public List<DictionaryItem> getMatchingItems(String lemma) {
+    Collection<DictionaryItem> items = itemMap.get(lemma);
+    if (items == null) {
+      return Collections.emptyList();
+    } else {
+      return Lists.newArrayList(items);
     }
+  }
 
-    public void removeAllLemmas(String lemma) {
-        for(DictionaryItem item: getMatchingItems(lemma)) {
-            remove(item);
-        }
-    }
+  public void remove(DictionaryItem item) {
+    itemMap.get(item.lemma).remove(item);
+    idMap.remove(item.id);
+    itemSet.remove(item);
+  }
 
-    public void removeAllLemmas(Iterable<String> lemmas) {
-        for(String lemma: lemmas) {
-            removeAllLemmas(lemma);
-        }
+  public void removeAllLemmas(String lemma) {
+    for (DictionaryItem item : getMatchingItems(lemma)) {
+      remove(item);
     }
+  }
 
-    public void removeAll(Iterable<DictionaryItem> items) {
-        for(DictionaryItem item: items) {
-            remove(item);
-        }
+  public void removeAllLemmas(Iterable<String> lemmas) {
+    for (String lemma : lemmas) {
+      removeAllLemmas(lemma);
     }
+  }
 
-    public DictionaryItem getItemById(String id) {
-        return idMap.get(id);
+  public void removeAll(Iterable<DictionaryItem> items) {
+    for (DictionaryItem item : items) {
+      remove(item);
     }
+  }
 
-    public List<DictionaryItem> getMatchingItems(String lemma, PrimaryPos pos) {
-        Collection<DictionaryItem> items = itemMap.get(lemma);
-        if (items == null)
-            return Collections.emptyList();
-        List<DictionaryItem> matches = Lists.newArrayListWithCapacity(1);
-        for (DictionaryItem item : items) {
-            if(item.primaryPos==pos)
-              matches.add(item);
-        }
-        return matches;
-    }
+  public DictionaryItem getItemById(String id) {
+    return idMap.get(id);
+  }
 
-    public boolean isEmpty() {
-        return itemSet.isEmpty();
+  public List<DictionaryItem> getMatchingItems(String lemma, PrimaryPos pos) {
+    Collection<DictionaryItem> items = itemMap.get(lemma);
+    if (items == null) {
+      return Collections.emptyList();
     }
+    List<DictionaryItem> matches = Lists.newArrayListWithCapacity(1);
+    for (DictionaryItem item : items) {
+      if (item.primaryPos == pos) {
+        matches.add(item);
+      }
+    }
+    return matches;
+  }
 
-    public int size() {
-        return itemSet.size();
-    }
+  public boolean isEmpty() {
+    return itemSet.isEmpty();
+  }
 
-    @Override
-    public Iterator<DictionaryItem> iterator() {
-        return itemSet.iterator();
-    }
+  public int size() {
+    return itemSet.size();
+  }
+
+  @Override
+  public Iterator<DictionaryItem> iterator() {
+    return itemSet.iterator();
+  }
 }

@@ -4,12 +4,12 @@ import zemberek.morphology.lexicon.graph.SuffixData;
 
 public interface SuffixProvider {
 
-    SuffixForm getSuffixFormById(String suffixId);
+  SuffixForm getSuffixFormById(String suffixId);
 
-    Iterable<SuffixForm> getAllForms();
+  Iterable<SuffixForm> getAllForms();
 
-    SuffixData[] defineSuccessorSuffixes(DictionaryItem item);
+  SuffixData[] defineSuccessorSuffixes(DictionaryItem item);
 
-    SuffixForm getRootSet(DictionaryItem item, SuffixData successors);
+  SuffixForm getRootSet(DictionaryItem item, SuffixData successors);
 
 }
