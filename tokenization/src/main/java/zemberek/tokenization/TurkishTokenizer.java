@@ -8,11 +8,9 @@ import java.util.List;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.Lexer;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
-import zemberek.core.logging.Log;
 import zemberek.tokenization.antlr.TurkishLexer;
 
 
@@ -27,31 +25,9 @@ public class TurkishTokenizer {
       .acceptAll()
       .ignoreTypes(TurkishLexer.NewLine, TurkishLexer.SpaceTab)
       .build();
-  private static final BaseErrorListener IGNORING_ERROR_LISTENER = new BaseErrorListener() {
-    @Override
-    public void syntaxError(
-        Recognizer<?, ?> recognizer,
-        Object offendingSymbol,
-        int line,
-        int charPositionInLine,
-        String msg,
-        RecognitionException e) {
-      Log.warn("Unknown token. Original error: %s ", msg);
-      // Do nothing.
-    }
-  };
-  private static final BaseErrorListener LOGGING_ERROR_LISTENER = new BaseErrorListener() {
-    @Override
-    public void syntaxError(Recognizer<?, ?> recognizer,
-        Object offendingSymbol,
-        int line,
-        int charPositionInLine,
-        String msg,
-        RecognitionException e) {
-      // Just log the error.
-      Log.warn("Unknown token. Original error: %s ", msg);
-    }
-  };
+
+  private static final BaseErrorListener IGNORING_ERROR_LISTENER = new ConsoleErrorListener();
+
   private long acceptedTypeBits;
 
   private TurkishTokenizer(long acceptedTypeBits) {

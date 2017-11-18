@@ -18,10 +18,10 @@ public enum PhoneticAttribute implements StringEnum {
   // Back vowels are: [a, ı, o, u]
   LastVowelBack("LVB"),
 
-  // Rounded wovels are: [o, u, ö, ü]
+  // Rounded vowels are: [o, u, ö, ü]
   LastVowelRounded("LVR"),
 
-  // Unrounded wovels are: [a, e, ı, i]
+  // Unrounded vowels are: [a, e, ı, i]
   LastVowelUnrounded("LVuR"),
 
   // Turkish voiceless consonants are [ç, f, h, k, p, s, ş, t]
