@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>zemberek-nlp</artifactId>
-        <groupId>zemberek-nlp</groupId>
-        <version>0.12.0</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>zemberek-nlp</artifactId>
+    <groupId>zemberek-nlp</groupId>
+    <version>0.12.0</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>zemberek-normalization</artifactId>
-    <dependencies>
-        <dependency>
-            <groupId>zemberek-nlp</groupId>
-            <artifactId>zemberek-core</artifactId>
-            <version>${parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>zemberek-nlp</groupId>
-            <artifactId>zemberek-tokenization</artifactId>
-            <version>${parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>zemberek-nlp</groupId>
-            <artifactId>zemberek-morphology</artifactId>
-            <version>${parent.version}</version>
-        </dependency>
-    </dependencies>
+  <artifactId>zemberek-normalization</artifactId>
+  <dependencies>
+    <dependency>
+      <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-core</artifactId>
+      <version>${parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-tokenization</artifactId>
+      <version>${parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-morphology</artifactId>
+      <version>${parent.version}</version>
+    </dependency>
+  </dependencies>
 
 
 </project>
