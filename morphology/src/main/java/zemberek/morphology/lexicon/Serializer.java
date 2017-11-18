@@ -1,10 +1,14 @@
 package zemberek.morphology.lexicon;
 
+import com.google.common.io.ByteStreams;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -29,8 +33,44 @@ public class Serializer {
   static SimpleEnumConverter<RootAttribute, LexiconProto.RootAttribute> rootAttributeConverter =
       SimpleEnumConverter.createConverter(RootAttribute.class, LexiconProto.RootAttribute.class);
 
-  public static void main(String[] args) throws IOException {
+  public static RootLexicon loadFromResources(String resourcePathString) throws IOException {
+    try (InputStream is = Serializer.class.getResourceAsStream(resourcePathString)) {
+      byte[] bytes = ByteStreams.toByteArray(is);
+      return getDictionaryItems(bytes);
+    }
+  }
 
+  public static RootLexicon load(Path path) throws IOException {
+    byte[] bytes = Files.readAllBytes(path);
+    return getDictionaryItems(bytes);
+  }
+
+  public static void createDefaultDictionary(Path path) throws IOException {
+    TurkishMorphology morphology = TurkishMorphology.builder().addDefaultDictionaries().build();
+    save(morphology.getLexicon(), path);
+  }
+
+  private static RootLexicon getDictionaryItems(byte[] bytes)
+      throws IOException {
+    Dictionary readDictionary = Dictionary.parseFrom(bytes);
+    RootLexicon loadedLexicon = new RootLexicon();
+    for (LexiconProto.DictionaryItem item : readDictionary.getItemsList()) {
+      loadedLexicon.add(convertToDictionaryItem(item));
+    }
+    return loadedLexicon;
+  }
+
+  public static void save(RootLexicon lexicon, Path outPath) throws IOException {
+
+    Dictionary.Builder builder = Dictionary.newBuilder();
+    for (DictionaryItem item : lexicon.getAllItems()) {
+      builder.addItems(convertToProto(item));
+    }
+    Dictionary dictionary = builder.build();
+    Files.write(outPath, dictionary.toByteArray(), StandardOpenOption.CREATE_NEW);
+  }
+
+  public static void main(String[] args) throws IOException {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     RootLexicon lexicon = morphology.getLexicon();
     Dictionary.Builder builder = Dictionary.newBuilder();
@@ -105,7 +145,7 @@ public class Serializer {
         item.getSecondaryPos() == LexiconProto.SecondaryPos.SecondaryPos_Unknown
             ? SecondaryPos.None
             : secondaryPosConverter.convertBack(item.getSecondaryPos(), SecondaryPos.UnknownSec),
-        !rootAttributes.isEmpty() ? EnumSet.copyOf(rootAttributes) : null,
+        !rootAttributes.isEmpty() ? EnumSet.copyOf(rootAttributes) : EnumSet.noneOf(RootAttribute.class),
         null,
         item.getIndex());
   }

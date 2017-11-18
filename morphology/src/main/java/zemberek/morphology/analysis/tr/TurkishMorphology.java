@@ -2,6 +2,7 @@ package zemberek.morphology.analysis.tr;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.CacheStats;
@@ -10,12 +11,14 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -24,6 +27,7 @@ import zemberek.morphology.analysis.WordAnalyzer;
 import zemberek.morphology.generator.SimpleGenerator;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
+import zemberek.morphology.lexicon.Serializer;
 import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
@@ -37,6 +41,7 @@ public class TurkishMorphology {
 
   private static final int DEFAULT_INITIAL_CACHE_SIZE = 50_000;
   private static final int DEFAULT_MAX_CACHE_SIZE = 100_000;
+  public static final String TR_LEXICON_BIN = "/tr/lexicon.bin";
   private WordAnalyzer wordAnalyzer;
   private SimpleGenerator generator;
   private RootLexicon lexicon;
@@ -69,9 +74,21 @@ public class TurkishMorphology {
     Log.info("Initialization complete.");
   }
 
+  public static void main(String[] args) throws IOException {
+    TurkishMorphology.createWithDefaults();
+  }
+
   public static TurkishMorphology createWithDefaults() throws IOException {
     Log.info("Started.");
-    return new Builder().addDefaultDictionaries().build();
+    InputStream is = Serializer.class.getResourceAsStream(TR_LEXICON_BIN);
+    if (is != null) {
+      Log.info("Loading from binary dictionary.");
+      return new Builder().addDefaultBinaryDictionary().build();
+    } else {
+      Log.info("Binary dictionary does not exist. Loading from text dictionaries.");
+      return new Builder().addDefaultDictionaries().build();
+    }
+
   }
 
   public static Builder builder() {
@@ -247,6 +264,18 @@ public class TurkishMorphology {
     private int initialCacheSize = DEFAULT_INITIAL_CACHE_SIZE;
     private int maxCacheSize = DEFAULT_MAX_CACHE_SIZE;
 
+    public Builder addBinaryDictionary(Path dictionaryPath) throws IOException {
+      lexicon.addAll(Serializer.load(dictionaryPath).getAllItems());
+      return this;
+    }
+
+    public Builder addDefaultBinaryDictionary() throws IOException {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      lexicon.addAll(Serializer.loadFromResources("/tr/lexicon.bin").getAllItems());
+      Log.info("Binary dictionary loaded in %d ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+      return this;
+    }
+
     public Builder addDefaultDictionaries() throws IOException {
       return addTextDictionaryResources(
           TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.toArray(
@@ -324,8 +353,10 @@ public class TurkishMorphology {
     }
 
     public TurkishMorphology build() throws IOException {
+      Stopwatch stopwatch = Stopwatch.createStarted();
       DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
       graph.addDictionaryItems(lexicon);
+      Log.info("Graph is generated in %d ms.", stopwatch.elapsed(TimeUnit.MILLISECONDS));
       _analyzer = new WordAnalyzer(graph);
       _generator = new SimpleGenerator(graph);
       return new TurkishMorphology(this, graph);
