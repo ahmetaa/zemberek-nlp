@@ -7,7 +7,7 @@ import zemberek.morphology.lexicon.RootLexicon;
  */
 public class InterpretingAnalyzer {
 
-    RootLexicon lexicon;
+  RootLexicon lexicon;
 
 
 }
