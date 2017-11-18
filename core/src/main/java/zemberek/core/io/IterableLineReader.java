@@ -21,7 +21,6 @@
 package zemberek.core.io;
 
 import java.io.BufferedReader;
-import java.io.Closeable;
 import java.io.Reader;
 import java.util.Iterator;
 
@@ -30,33 +29,35 @@ import java.util.Iterator;
  */
 public class IterableLineReader implements Iterable<String>, AutoCloseable {
 
-    private final BufferedReader bufferedReader;
-    private boolean trim;
-    private Filter filters[] = new Filter[0];
+  private final BufferedReader bufferedReader;
+  private boolean trim;
+  private Filter filters[] = new Filter[0];
 
-    public IterableLineReader(Reader reader) {
-        if (reader instanceof BufferedReader)
-            this.bufferedReader = (BufferedReader) reader;
-        else
-            this.bufferedReader = new BufferedReader(reader);
-
+  public IterableLineReader(Reader reader) {
+    if (reader instanceof BufferedReader) {
+      this.bufferedReader = (BufferedReader) reader;
+    } else {
+      this.bufferedReader = new BufferedReader(reader);
     }
 
-    public IterableLineReader(Reader reader, boolean trim, Filter[] filters) {
-        if (reader instanceof BufferedReader)
-            this.bufferedReader = (BufferedReader) reader;
-        else
-            this.bufferedReader = new BufferedReader(reader);
-        this.filters = filters;
-        this.trim = trim;
+  }
 
+  public IterableLineReader(Reader reader, boolean trim, Filter[] filters) {
+    if (reader instanceof BufferedReader) {
+      this.bufferedReader = (BufferedReader) reader;
+    } else {
+      this.bufferedReader = new BufferedReader(reader);
     }
+    this.filters = filters;
+    this.trim = trim;
 
-    public void close() {
-        IOs.closeSilently(bufferedReader);
-    }
+  }
 
-    public Iterator<String> iterator() {
-        return new LineIterator(bufferedReader, trim, filters);
-    }
+  public void close() {
+    IOs.closeSilently(bufferedReader);
+  }
+
+  public Iterator<String> iterator() {
+    return new LineIterator(bufferedReader, trim, filters);
+  }
 }

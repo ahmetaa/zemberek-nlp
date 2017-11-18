@@ -7,38 +7,39 @@ import java.util.function.Predicate;
 //TODO (aaa): needs better design. add tests.
 public class TextConsumer {
 
-    List<String> content;
-    int cursor = 0;
+  List<String> content;
+  int cursor = 0;
 
-    public TextConsumer(List<String> content) {
-        this.content = content;
-    }
+  public TextConsumer(List<String> content) {
+    this.content = content;
+  }
 
-    public List<String> moveUntil(Predicate<String> predicate) {
-        List<String> consumed = new ArrayList<>();
+  public List<String> moveUntil(Predicate<String> predicate) {
+    List<String> consumed = new ArrayList<>();
 
-        while (!finished()) {
-            String line = content.get(cursor);
-            if (predicate.test(line)) {
-                return consumed;
-            }
-            consumed.add(line);
-            cursor++;
-        }
-
+    while (!finished()) {
+      String line = content.get(cursor);
+      if (predicate.test(line)) {
         return consumed;
+      }
+      consumed.add(line);
+      cursor++;
     }
 
-    public boolean finished() {
-        return cursor >= content.size();
-    }
+    return consumed;
+  }
 
-    public String current() {
-        return content.get(cursor);
-    }
+  public boolean finished() {
+    return cursor >= content.size();
+  }
 
-    public void advance() {
-        if (!finished())
-            cursor++;
+  public String current() {
+    return content.get(cursor);
+  }
+
+  public void advance() {
+    if (!finished()) {
+      cursor++;
     }
+  }
 }

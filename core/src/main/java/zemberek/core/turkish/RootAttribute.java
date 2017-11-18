@@ -157,14 +157,13 @@ public enum RootAttribute implements StringEnum {
   // This is used for temporary DictionaryItems created for words that cannot be analyzed.
   Unknown;
 
+  private static StringEnumMap<RootAttribute> shortFormToPosMap = StringEnumMap
+      .get(RootAttribute.class);
   int index;
 
   RootAttribute() {
     this.index = this.ordinal();
   }
-
-  private static StringEnumMap<RootAttribute> shortFormToPosMap = StringEnumMap
-      .get(RootAttribute.class);
 
   public static StringEnumMap<RootAttribute> converter() {
     return shortFormToPosMap;

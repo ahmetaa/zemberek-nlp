@@ -4,17 +4,17 @@ import com.google.common.primitives.Ints;
 
 class IntKeyProvider implements HashKeyProvider {
 
-    final int[] arr;
+  final int[] arr;
 
-    IntKeyProvider(int[] arr) {
-        this.arr = arr;
-    }
+  IntKeyProvider(int[] arr) {
+    this.arr = arr;
+  }
 
-    public byte[] getKeyAsBytes(int index) {
-        return Ints.toByteArray(arr[index]);
-    }
+  public byte[] getKeyAsBytes(int index) {
+    return Ints.toByteArray(arr[index]);
+  }
 
-    public int keyAmount() {
-        return arr.length;
-    }
+  public int keyAmount() {
+    return arr.length;
+  }
 }

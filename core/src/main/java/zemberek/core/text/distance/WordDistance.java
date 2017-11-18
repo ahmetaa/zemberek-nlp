@@ -7,16 +7,17 @@ import zemberek.core.text.TokenSequence;
  */
 public class WordDistance implements StringDistance {
 
-    @Override
-    public int sourceSize(TokenSequence sourceSequence) {
-        return sourceSequence.size();
-    }
+  @Override
+  public int sourceSize(TokenSequence sourceSequence) {
+    return sourceSequence.size();
+  }
 
-    @Override
-    public double distance(String token1, String token2) {
-        if (token1.equals(token2))
-            return 0;
-        else
-            return 1;
+  @Override
+  public double distance(String token1, String token2) {
+    if (token1.equals(token2)) {
+      return 0;
+    } else {
+      return 1;
     }
+  }
 }

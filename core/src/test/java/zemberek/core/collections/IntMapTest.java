@@ -12,7 +12,7 @@ public class IntMapTest {
   @Test
   public void initializesCorrectly() {
     // Check first 1K initial sizes.
-    for (int i=1; i < 1000; i++ ) {
+    for (int i = 1; i < 1000; i++) {
       IntMap<String> im = new IntMap<>(i);
       checkSize(im, 0);
     }
@@ -36,14 +36,14 @@ public class IntMapTest {
   @Test
   public void expandsCorrectly() {
     // Create maps with different sizes and add size * 10 elements to each.
-    for (int i=1; i < 100; i++ ) {
+    for (int i = 1; i < 100; i++) {
       IntMap<String> im = new IntMap<>(i);
       // Insert i * 10 elements to each and confirm sizes
       int elements = i * 10;
-      for (int j=0; j< elements; j++) {
+      for (int j = 0; j < elements; j++) {
         im.put(j, "" + j);
       }
-      for (int j=0; j< elements; j++) {
+      for (int j = 0; j < elements; j++) {
         Assert.assertEquals(im.get(j), "" + j);
       }
       checkSize(im, elements);
@@ -53,13 +53,13 @@ public class IntMapTest {
   @Test
   public void putAddsAndUpdatesElementsCorrectly() {
     int span = 100;
-    for (int i=0; i<span; i++) {
+    for (int i = 0; i < span; i++) {
       IntMap<String> im = new IntMap<>();
       checkSpanInsertions(im, -i, i);
     }
     // Do the same, this time overwrite values as well
     IntMap<String> im = new IntMap<>();
-    for (int i=0; i<span; i++) {
+    for (int i = 0; i < span; i++) {
       checkSpanInsertions(im, -i, i);
       checkSpanInsertions(im, -i, i);
       checkSpanInsertions(im, -i, i);
@@ -71,7 +71,7 @@ public class IntMapTest {
     List<int[]> fuzzLists = TestUtils.createFuzzingLists();
     for (int[] arr : fuzzLists) {
       IntMap<String> im = new IntMap<>();
-      for (int i=0; i<arr.length; i++) {
+      for (int i = 0; i < arr.length; i++) {
         im.put(arr[i], "" + arr[i]);
         assertEquals(im.get(arr[i]), "" + arr[i]);
       }
@@ -79,7 +79,7 @@ public class IntMapTest {
 
     IntMap<String> im = new IntMap<>();
     for (int[] arr : fuzzLists) {
-      for (int i=0; i<arr.length; i++) {
+      for (int i = 0; i < arr.length; i++) {
         im.put(arr[i], "" + arr[i]);
         assertEquals(im.get(arr[i]), "" + arr[i]);
       }
@@ -109,10 +109,10 @@ public class IntMapTest {
       assertEquals(im.get(i), "" + i);
     }
     // Check outside of span values do not exist in the map
-    for (int i = spanStart - 1, idx=0; idx < 100; i--, idx++) {
+    for (int i = spanStart - 1, idx = 0; idx < 100; i--, idx++) {
       Assert.assertNull(im.get(i));
     }
-    for (int i = spanEnd + 1, idx=0; idx < 100; i++, idx++) {
+    for (int i = spanEnd + 1, idx = 0; idx < 100; i++, idx++) {
       Assert.assertNull(im.get(i));
     }
   }

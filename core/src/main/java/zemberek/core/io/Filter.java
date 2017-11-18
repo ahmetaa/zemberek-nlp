@@ -21,5 +21,6 @@
 package zemberek.core.io;
 
 interface Filter<T> {
-    boolean canPass(T t);
+
+  boolean canPass(T t);
 }

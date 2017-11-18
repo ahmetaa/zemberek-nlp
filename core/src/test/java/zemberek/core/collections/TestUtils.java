@@ -24,7 +24,7 @@ public class TestUtils {
       int size = r.nextInt(maxListSize) + 1;
       int[] arr = new int[size * 2];
       int idx = 0;
-      for (int j = 0; j< arr.length; j++) {
+      for (int j = 0; j < arr.length; j++) {
         arr[idx++] = j - size;
       }
       shuffle(arr);
@@ -48,8 +48,7 @@ public class TestUtils {
   public static void shuffle(int[] array) {
     int index, temp;
     Random random = new Random(0xCAFEBABE);
-    for (int i = array.length - 1; i > 0; i--)
-    {
+    for (int i = array.length - 1; i > 0; i--) {
       index = random.nextInt(i + 1);
       temp = array[index];
       array[index] = array[i];

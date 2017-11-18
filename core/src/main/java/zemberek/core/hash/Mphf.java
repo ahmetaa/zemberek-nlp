@@ -5,25 +5,26 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public interface Mphf {
-    int get(int[] key);
 
-    int get(int[] key, int hash);
+  int get(int[] key);
 
-    int get(String key);
+  int get(int[] key, int hash);
 
-    int get(int k0, int k1, int k2, int initialHash);
+  int get(String key);
 
-    int get(int k0, int k1, int initialHash);
+  int get(int k0, int k1, int k2, int initialHash);
 
-    int get(String key, int hash);
+  int get(int k0, int k1, int initialHash);
 
-    int get(int[] ngram, int begin, int end, int hash);
+  int get(String key, int hash);
 
-    void serialize(File file) throws IOException;
+  int get(int[] ngram, int begin, int end, int hash);
 
-    void serialize(OutputStream os) throws IOException;
+  void serialize(File file) throws IOException;
 
-    double averageBitsPerKey();
+  void serialize(OutputStream os) throws IOException;
 
-    int size();
+  double averageBitsPerKey();
+
+  int size();
 }
