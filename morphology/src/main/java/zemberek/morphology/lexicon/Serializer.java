@@ -34,8 +34,11 @@ public class Serializer {
       SimpleEnumConverter.createConverter(RootAttribute.class, LexiconProto.RootAttribute.class);
 
   public static RootLexicon loadFromResources(String resourcePathString) throws IOException {
+    long start = System.currentTimeMillis();
     try (InputStream is = Serializer.class.getResourceAsStream(resourcePathString)) {
       byte[] bytes = ByteStreams.toByteArray(is);
+      long end = System.currentTimeMillis();
+      Log.info("Binary lexicon read from resource in %d ms.", (end - start));
       return getDictionaryItems(bytes);
     }
   }
@@ -52,16 +55,18 @@ public class Serializer {
 
   private static RootLexicon getDictionaryItems(byte[] bytes)
       throws IOException {
+    long start = System.currentTimeMillis();
     Dictionary readDictionary = Dictionary.parseFrom(bytes);
     RootLexicon loadedLexicon = new RootLexicon();
     for (LexiconProto.DictionaryItem item : readDictionary.getItemsList()) {
       loadedLexicon.add(convertToDictionaryItem(item));
     }
+    long end = System.currentTimeMillis();
+    Log.info("Root lexicon created in %d ms.", (end - start));
     return loadedLexicon;
   }
 
   public static void save(RootLexicon lexicon, Path outPath) throws IOException {
-
     Dictionary.Builder builder = Dictionary.newBuilder();
     for (DictionaryItem item : lexicon.getAllItems()) {
       builder.addItems(convertToProto(item));

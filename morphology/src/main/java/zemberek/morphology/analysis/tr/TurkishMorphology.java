@@ -271,7 +271,7 @@ public class TurkishMorphology {
 
     public Builder addDefaultBinaryDictionary() throws IOException {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      lexicon.addAll(Serializer.loadFromResources("/tr/lexicon.bin").getAllItems());
+      lexicon = Serializer.loadFromResources("/tr/lexicon.bin");
       Log.info("Binary dictionary loaded in %d ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
       return this;
     }
