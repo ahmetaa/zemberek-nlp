@@ -479,7 +479,7 @@ public class TurkishSuffixesTest {
 
     Tester(String... words) {
       synchronized (this) {
-        List<DictionaryItem> items = getItems(words, suffixProvider);
+        List<DictionaryItem> items = getItems(words);
         graph = new DynamicLexiconGraph(suffixProvider);
         graph.addDictionaryItems(items);
       }
@@ -520,9 +520,9 @@ public class TurkishSuffixesTest {
       }
     }
 
-    private List<DictionaryItem> getItems(String[] lines, SuffixProvider suffixProvider) {
-      TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
-      List<DictionaryItem> items = new ArrayList<DictionaryItem>();
+    private List<DictionaryItem> getItems(String[] lines) {
+      TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
+      List<DictionaryItem> items = new ArrayList<>();
       for (String line : lines) {
         items.add(loader.loadFromString(line));
       }

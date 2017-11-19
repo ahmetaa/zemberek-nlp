@@ -202,7 +202,7 @@ public class WordAnalyzerFunctionalTest {
     SuffixProvider suffixProvider = suffixes;
     RootLexicon lexicon = new RootLexicon();
     for (File dictionary : dictionaries) {
-      new TurkishDictionaryLoader(suffixProvider).loadInto(lexicon, dictionary);
+      new TurkishDictionaryLoader().loadInto(lexicon, dictionary);
     }
     DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
     graph.addDictionaryItems(lexicon);

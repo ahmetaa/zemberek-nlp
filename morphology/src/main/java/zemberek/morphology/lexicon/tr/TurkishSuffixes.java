@@ -1224,9 +1224,6 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
 
   @Override
   public SuffixForm getRootSet(DictionaryItem item, SuffixData suffixConstraint) {
-    if (item.specialRootSuffix != null) {
-      return item.specialRootSuffix;
-    }
     if (suffixConstraint.isEmpty()) {
       switch (item.primaryPos) {
         case Noun:

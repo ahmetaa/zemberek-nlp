@@ -1,10 +1,10 @@
 package zemberek.morphology.lexicon;
 
 import java.util.EnumSet;
-import java.util.Locale;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
+import zemberek.morphology.structure.Turkish;
 
 /**
  * DictionaryItem represents an entity from a dictionary.
@@ -13,7 +13,7 @@ public class DictionaryItem {
 
   public static final DictionaryItem UNKNOWN = new DictionaryItem("UNK", "UNK", "UNK",
       PrimaryPos.Unknown, SecondaryPos.UnknownSec);
-  public static Locale TURKISH_LOCALE = new Locale("tr");
+
   /**
    * the exact surface form of the item used in dictionary.
    */
@@ -39,14 +39,16 @@ public class DictionaryItem {
    * Pronunciations of the item. TODO: This should be converted to an actual 'Pronunciation' item
    */
   public final String pronunciation;
+
   /**
    * This is the unique ID of the item.
    * It is generated from Pos and lemma. If there are multiple items with same POS and Lemma
    * user needs to add an index for distinction. Structure of the ID: lemma_POS or lemma_POS_index
    */
   public String id;
-  public SuffixForm specialRootSuffix;
+
   public DictionaryItem referenceItem;
+
   public int index;
 
   public DictionaryItem(String lemma,
@@ -54,15 +56,13 @@ public class DictionaryItem {
       String pronunciation,
       PrimaryPos primaryPos,
       SecondaryPos secondaryPos,
-      EnumSet<RootAttribute> attributes,
-      SuffixForm specialRootSuffix) {
+      EnumSet<RootAttribute> attributes) {
     this.pronunciation = pronunciation;
     this.lemma = lemma;
     this.primaryPos = primaryPos;
     this.secondaryPos = secondaryPos;
     this.attributes = attributes;
     this.root = root;
-    this.specialRootSuffix = specialRootSuffix;
     this.index = 0;
     this.id = generateId(lemma, primaryPos, secondaryPos, 0);
   }
@@ -73,7 +73,6 @@ public class DictionaryItem {
       PrimaryPos primaryPos,
       SecondaryPos secondaryPos,
       EnumSet<RootAttribute> attributes,
-      SuffixForm specialRootSuffix,
       int index) {
     this.pronunciation = pronunciation;
     this.lemma = lemma;
@@ -81,7 +80,6 @@ public class DictionaryItem {
     this.secondaryPos = secondaryPos;
     this.attributes = attributes;
     this.root = root;
-    this.specialRootSuffix = specialRootSuffix;
     this.index = index;
     this.id = generateId(lemma, primaryPos, secondaryPos, index);
   }
@@ -90,15 +88,13 @@ public class DictionaryItem {
       String root,
       PrimaryPos primaryPos,
       SecondaryPos secondaryPos,
-      EnumSet<RootAttribute> attributes,
-      SuffixForm specialRootSuffix) {
+      EnumSet<RootAttribute> attributes) {
     this.lemma = lemma;
     this.pronunciation = root;
     this.primaryPos = primaryPos;
     this.secondaryPos = secondaryPos;
     this.attributes = attributes;
     this.root = root;
-    this.specialRootSuffix = specialRootSuffix;
     this.index = 0;
     this.id = generateId(lemma, primaryPos, secondaryPos, 0);
   }
@@ -138,7 +134,7 @@ public class DictionaryItem {
   }
 
   public String normalizedLemma() {
-    return lemma.toLowerCase(TURKISH_LOCALE);
+    return lemma.toLowerCase(Turkish.LOCALE);
   }
 
   public String getId() {

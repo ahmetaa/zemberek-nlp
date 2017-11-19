@@ -18,15 +18,14 @@ import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 
 public class ParseConsole {
 
-  public static RootLexicon addTextDictionaryResources(SuffixProvider suffixProvider,
-      String... resources) throws IOException {
+  public static RootLexicon addTextDictionaryResources(String... resources) throws IOException {
     RootLexicon lexicon = new RootLexicon();
     Log.info("Dictionaries :%s", String.join(", ", Arrays.asList(resources)));
     List<String> lines = new ArrayList<>();
     for (String resource : resources) {
       lines.addAll(Resources.readLines(Resources.getResource(resource), Charsets.UTF_8));
     }
-    lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(lines));
+    lexicon.addAll(new TurkishDictionaryLoader().load(lines));
     Log.info("Lexicon Generated.");
     return lexicon;
   }

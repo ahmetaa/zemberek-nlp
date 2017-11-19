@@ -35,15 +35,13 @@ import zemberek.morphology.lexicon.tr.TurkishSuffixes;
 
 public class TurkishDictionaryLoaderTest {
 
-  TurkishSuffixes suffixProvider = new TurkishSuffixes();
-
   private static ItemAttrPair testPair(String s, RootAttribute... attrs) {
     return new ItemAttrPair(s, EnumSet.copyOf(Arrays.asList(attrs)));
   }
 
   @Test
   public void loadNounsFromFileTest() throws IOException {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
+    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
     RootLexicon items = loader
         .load(new File(Resources.getResource("test-lexicon-nouns.txt").getFile()));
 
@@ -67,12 +65,12 @@ public class TurkishDictionaryLoaderTest {
   }
 
   public DictionaryItem getItem(String itemStr) {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
+    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
     return loader.loadFromString(itemStr);
   }
 
   public DictionaryItem getLastItem(String... itemStr) {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
+    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
     String last = Strings.subStringUntilFirst(itemStr[itemStr.length - 1], " ");
     return loader.load(itemStr).getMatchingItems(last).get(0);
   }
@@ -102,7 +100,7 @@ public class TurkishDictionaryLoaderTest {
 
   @Test
   public void voicingInferenceTest() {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
+    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
     DictionaryItem item = loader.loadFromString("aort [A:NoVoicing]");
     Assert.assertEquals("aort", item.root);
     Assert.assertEquals(Noun, item.primaryPos);
@@ -118,7 +116,7 @@ public class TurkishDictionaryLoaderTest {
 
   @Test
   public void properNounsShouldNotHaveVoicingAutomaticallyTest() {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
+    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
     DictionaryItem item = loader.loadFromString("Tokat");
     Assert.assertEquals("tokat", item.root);
     Assert.assertEquals(Noun, item.primaryPos);
@@ -133,18 +131,8 @@ public class TurkishDictionaryLoaderTest {
   }
 
   @Test
-  public void specialSuffixRoot() {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
-    DictionaryItem item = loader.loadFromString("su [P:Noun ; RootSuffix:Noun_Su_Root ]");
-    Assert.assertEquals("su", item.root);
-    Assert.assertEquals(Noun, item.primaryPos);
-    Assert.assertNotNull(item.specialRootSuffix);
-    Assert.assertEquals(suffixProvider.getSuffixFormById("Noun_Su_Root"), item.specialRootSuffix);
-  }
-
-  @Test
   public void nounVoicingTest() {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
+    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
     String[] voicing = {"kabak", "kabak [A:Voicing]", "psikolog", "havuç", "turp [A:Voicing]",
         "galip", "nohut", "cenk", "kükürt"};
     for (String s : voicing) {
@@ -163,7 +151,7 @@ public class TurkishDictionaryLoaderTest {
 
   @Test
   public void referenceTest1() {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
+    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
     String[] ref = {"ad", "ad [A:Doubling,InverseHarmony]", "soy",
         "soyadı [A:CompoundP3sg; Roots:soy-ad]"};
     RootLexicon lexicon = loader.load(ref);
@@ -174,7 +162,7 @@ public class TurkishDictionaryLoaderTest {
 
   @Test
   public void referenceTest2() {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
+    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
     String[] ref = {"ad", "ad [A:Doubling,InverseHarmony;Index:1]", "soy",
         "soyadı [A:CompoundP3sg; Roots:soy-ad]"};
     RootLexicon lexicon = loader.load(ref);
@@ -185,7 +173,7 @@ public class TurkishDictionaryLoaderTest {
 
   @Test
   public void nounAttributesTest() {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
+    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
 
     List<ItemAttrPair> testList = Lists.newArrayList(
         testPair("takat [A:NoVoicing, InverseHarmony]", NoVoicing, InverseHarmony),
@@ -202,8 +190,7 @@ public class TurkishDictionaryLoaderTest {
   @Test
   @Ignore("Not a unit Test. Only loads the master dictionary.")
   public void masterDictionaryLoadTest() throws IOException {
-    SuffixProvider sp = new TurkishSuffixes();
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader(sp);
+    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
 
     RootLexicon items = loader
         .load(new File(Resources.getResource("tr/master-dictionary.dict").getFile()));
@@ -293,7 +280,7 @@ public class TurkishDictionaryLoaderTest {
   @Test
   @Ignore("Not a unit test")
   public void shouldPrintItemsInDevlDictionary() throws IOException {
-    RootLexicon items = new TurkishDictionaryLoader(new TurkishSuffixes())
+    RootLexicon items = new TurkishDictionaryLoader()
         .load(new File(Resources.getResource("dev-lexicon.txt").getFile()));
     for (DictionaryItem item : items) {
       System.out.println(item);
@@ -303,7 +290,7 @@ public class TurkishDictionaryLoaderTest {
   @Test
   @Ignore("Not a unit test")
   public void saveFullAttributes() throws IOException {
-    RootLexicon items = TurkishDictionaryLoader.loadDefaultDictionaries(new TurkishSuffixes());
+    RootLexicon items = TurkishDictionaryLoader.loadDefaultDictionaries();
     PrintWriter p = new PrintWriter(new File("dictionary-all-attributes.txt"), "utf-8");
     for (DictionaryItem item : items) {
       p.println(item.toString());

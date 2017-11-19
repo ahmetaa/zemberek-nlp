@@ -1,0 +1,4 @@
+# Line below contains dictionary item ids and root suffix names.
+# During graph generation those items are connected to related root suffix nodes.
+
+su_Noun Noun_Su_Root

@@ -58,7 +58,7 @@ public class CompoundWordsTest {
 
   private WordAnalyzer getParser(String... lines) {
     DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
-    graph.addDictionaryItems(new TurkishDictionaryLoader(suffixProvider).load(lines));
+    graph.addDictionaryItems(new TurkishDictionaryLoader().load(lines));
     return new WordAnalyzer(graph);
   }
 }

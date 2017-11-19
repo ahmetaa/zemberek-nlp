@@ -287,7 +287,7 @@ public class TurkishMorphology {
       for (File file : dictionaryFiles) {
         lines.addAll(Files.readAllLines(file.toPath()));
       }
-      lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(lines));
+      lexicon.addAll(new TurkishDictionaryLoader().load(lines));
       return this;
     }
 
@@ -299,13 +299,13 @@ public class TurkishMorphology {
     }
 
     public Builder addDictionaryLines(String... lines) throws IOException {
-      lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(lines));
+      lexicon.addAll(new TurkishDictionaryLoader().load(lines));
       return this;
     }
 
     public Builder removeDictionaryFiles(File... dictionaryFiles) throws IOException {
       for (File file : dictionaryFiles) {
-        lexicon.removeAll(new TurkishDictionaryLoader(suffixProvider).load(file));
+        lexicon.removeAll(new TurkishDictionaryLoader().load(file));
       }
       return this;
     }
@@ -337,13 +337,13 @@ public class TurkishMorphology {
       for (String resource : resources) {
         lines.addAll(Resources.readLines(Resources.getResource(resource), Charsets.UTF_8));
       }
-      lexicon.addAll(new TurkishDictionaryLoader(suffixProvider).load(lines));
+      lexicon.addAll(new TurkishDictionaryLoader().load(lines));
       Log.info("Lexicon Generated.");
       return this;
     }
 
     public Builder removeItems(Iterable<String> dictionaryString) throws IOException {
-      lexicon.removeAll(new TurkishDictionaryLoader(suffixProvider).load(dictionaryString));
+      lexicon.removeAll(new TurkishDictionaryLoader().load(dictionaryString));
       return this;
     }
 

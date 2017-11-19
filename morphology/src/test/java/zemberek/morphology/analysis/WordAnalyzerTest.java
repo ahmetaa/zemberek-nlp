@@ -85,7 +85,7 @@ public class WordAnalyzerTest {
 
   private DynamicLexiconGraph getLexiconGraph(String... words) {
     SuffixProvider suffixProvider = new NounSuffixes();
-    List<DictionaryItem> items = getItems(words, suffixProvider);
+    List<DictionaryItem> items = getItems(words);
     DynamicLexiconGraph graph = new DynamicLexiconGraph(suffixProvider);
     graph.addDictionaryItems(items);
     return graph;
@@ -128,8 +128,8 @@ public class WordAnalyzerTest {
     }
   }
 
-  private List<DictionaryItem> getItems(String[] lines, SuffixProvider suffixProvider) {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixProvider);
+  private List<DictionaryItem> getItems(String[] lines) {
+    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
     List<DictionaryItem> items = new ArrayList<DictionaryItem>();
     for (String line : lines) {
       items.add(loader.loadFromString(line));

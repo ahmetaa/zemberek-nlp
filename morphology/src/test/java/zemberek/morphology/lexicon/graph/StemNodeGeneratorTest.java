@@ -23,7 +23,7 @@ public class StemNodeGeneratorTest {
   }
 
   private DictionaryItem getDictionaryItem(String line) {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader(suffixes);
+    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
     return loader.loadFromString(line);
   }
 

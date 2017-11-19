@@ -146,7 +146,6 @@ public class Serializer {
             ? SecondaryPos.None
             : secondaryPosConverter.convertBack(item.getSecondaryPos(), SecondaryPos.UnknownSec),
         !rootAttributes.isEmpty() ? EnumSet.copyOf(rootAttributes) : EnumSet.noneOf(RootAttribute.class),
-        null,
         item.getIndex());
   }
 

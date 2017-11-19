@@ -35,7 +35,6 @@ import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.LexiconException;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.lexicon.SuffixForm;
 import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.structure.Turkish;
 
@@ -55,17 +54,8 @@ public class TurkishDictionaryLoader {
       .omitEmptyStrings();
   private static final Splitter POS_SPLITTER = Splitter.on(",").trimResults();
   private static final Splitter MORPHEMIC_ATTR_SPLITTER = Splitter.on(",").trimResults();
-  SuffixProvider suffixProvider;
 
-  public TurkishDictionaryLoader(SuffixProvider suffixProvider) {
-    this.suffixProvider = suffixProvider;
-  }
-
-  public TurkishDictionaryLoader() {
-    this.suffixProvider = new TurkishSuffixes();
-  }
-
-  public static RootLexicon loadDefaultDictionaries(final SuffixProvider suffixProvider)
+  public static RootLexicon loadDefaultDictionaries()
       throws IOException {
     final List<File> DEFAULT_DICTIONARY_FILES = ImmutableList.of(
         new File(Resources.getResource("tr/master-dictionary.dict").getFile()),
@@ -79,16 +69,16 @@ public class TurkishDictionaryLoader {
     for (File file : DEFAULT_DICTIONARY_FILES) {
       lines.addAll(SimpleTextReader.trimmingUTF8Reader(file).asStringList());
     }
-    return new TurkishDictionaryLoader(suffixProvider).load(lines);
+    return new TurkishDictionaryLoader().load(lines);
   }
 
   public RootLexicon load(File input) throws IOException {
-    return Files.readLines(input, Charsets.UTF_8, new TextLexiconProcessor(suffixProvider));
+    return Files.readLines(input, Charsets.UTF_8, new TextLexiconProcessor());
   }
 
   public RootLexicon loadInto(RootLexicon lexicon, File input) throws IOException {
     return Files
-        .readLines(input, Charsets.UTF_8, new TextLexiconProcessor(lexicon, suffixProvider));
+        .readLines(input, Charsets.UTF_8, new TextLexiconProcessor(lexicon));
   }
 
   public DictionaryItem loadFromString(String dictionaryLine) {
@@ -100,7 +90,7 @@ public class TurkishDictionaryLoader {
   }
 
   public RootLexicon load(String... dictionaryLines) {
-    TextLexiconProcessor processor = new TextLexiconProcessor(suffixProvider);
+    TextLexiconProcessor processor = new TextLexiconProcessor();
     try {
       for (String s : dictionaryLines) {
         processor.processLine(s);
@@ -114,7 +104,7 @@ public class TurkishDictionaryLoader {
   }
 
   public RootLexicon load(Iterable<String> dictionaryLines) {
-    TextLexiconProcessor processor = new TextLexiconProcessor(suffixProvider);
+    TextLexiconProcessor processor = new TextLexiconProcessor();
     for (String s : dictionaryLines) {
       try {
         processor.processLine(s);
@@ -130,7 +120,6 @@ public class TurkishDictionaryLoader {
     ATTRIBUTES("A"),
     REF_ID("Ref"),
     ROOTS("Roots"),
-    ROOT_SUFFIX("RootSuffix"),
     PRONUNCIATION("Pr"),
     SUFFIX("S"),
     INDEX("Index");
@@ -236,15 +225,12 @@ public class TurkishDictionaryLoader {
     static Locale locale = new Locale("tr");
     RootLexicon rootLexicon = new RootLexicon();
     List<LineData> lateEntries = Lists.newArrayList();
-    SuffixProvider suffixProvider;
 
-    TextLexiconProcessor(SuffixProvider suffixProvider) {
-      this.suffixProvider = suffixProvider;
+    public TextLexiconProcessor() {
     }
 
-    public TextLexiconProcessor(RootLexicon lexicon, SuffixProvider suffixProvider) {
+    public TextLexiconProcessor(RootLexicon lexicon) {
       rootLexicon = lexicon;
-      this.suffixProvider = suffixProvider;
     }
 
     public boolean processLine(String line) throws IOException {
@@ -329,7 +315,6 @@ public class TurkishDictionaryLoader {
               item.primaryPos,
               item.secondaryPos,
               attrSet,
-              null,
               index);
           fakeRoot.attributes.add(RootAttribute.Dummy);
           fakeRoot.referenceItem = item;
@@ -348,8 +333,6 @@ public class TurkishDictionaryLoader {
       if (indexStr != null) {
         index = Integer.parseInt(indexStr);
       }
-
-      SuffixForm specialRoot = getSpecialRootSuffix(data.getMetaData(MetaDataId.ROOT_SUFFIX));
 
       String pronunciation = data.getMetaData(MetaDataId.PRONUNCIATION);
       if (pronunciation == null) {
@@ -377,7 +360,6 @@ public class TurkishDictionaryLoader {
           posInfo.primaryPos,
           posInfo.secondaryPos,
           attributes,
-          specialRoot,
           index);
     }
 
@@ -483,19 +465,6 @@ public class TurkishDictionaryLoader {
         inferMorphemicAttributes(word, posData, attributesList);
       }
       return EnumSet.copyOf(attributesList);
-    }
-
-    private SuffixForm getSpecialRootSuffix(String data) {
-      if (data == null) {
-        return null;
-      }
-      SuffixForm s = suffixProvider.getSuffixFormById(data);
-      if (s == null) {
-        throw new LexiconException(
-            "Cannot identify special Form id:" + data + " in data chunk:[" + data + "]");
-      } else {
-        return s;
-      }
     }
 
     private void inferMorphemicAttributes(

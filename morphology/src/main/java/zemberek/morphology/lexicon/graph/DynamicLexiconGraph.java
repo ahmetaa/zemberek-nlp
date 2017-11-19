@@ -4,7 +4,9 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +14,7 @@ import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import zemberek.core.collections.LookupSet;
+import zemberek.core.io.KeyValueReader;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
@@ -30,6 +33,7 @@ public class DynamicLexiconGraph {
   private SuffixSurfaceNodeGenerator suffixSurfaceNodeGenerator =
       new SuffixSurfaceNodeGenerator();
   private Map<SuffixForm, LookupSet<SuffixSurfaceNode>> suffixFormMap = Maps.newConcurrentMap();
+  private Map<String, SuffixForm> specialRootMap = new HashMap<>();
 
   // required for parsing. These were in WordParser before.
   // TODO: this mechanism should be an abstraction that can also use a StemTrie
@@ -42,6 +46,26 @@ public class DynamicLexiconGraph {
   public DynamicLexiconGraph(SuffixProvider suffixProvider) {
     this.suffixProvider = suffixProvider;
     this.stemNodeGenerator = new StemNodeGenerator(suffixProvider);
+
+    String specialRootSuffixResource = "/tr/special-dictionary-item-root-suffix-data";
+    try {
+      Map<String, String> map = new KeyValueReader(" ", "#")
+          .loadFromStream(
+              DynamicLexiconGraph.class
+                  .getResourceAsStream(specialRootSuffixResource), "utf-8");
+      for (String s : map.keySet()) {
+        SuffixForm suffix = suffixProvider.getSuffixFormById(map.get(s));
+        if (suffix == null) {
+          throw new IllegalArgumentException(
+              "Cannot identify special Suffix id:" + map.get(s) + " for dictionary item [" + s
+                  + "]");
+        }
+        specialRootMap.put(s, suffix);
+      }
+    } catch (IOException e) {
+      throw new RuntimeException("Cannot load resource: " + specialRootSuffixResource, e);
+    }
+
   }
 
   private synchronized void addStemNode(StemNode stemNode) {
@@ -147,7 +171,9 @@ public class DynamicLexiconGraph {
 
   private boolean connectStemNode(StemNode stem) {
     if (!stemNodes.contains(stem)) {
+
       SuffixSurfaceNode rootSuffixSurfaceNode = getRootSuffixNode(stem);
+
       // check if it already exist. If it exists, use the existing one or add the new one.
       if (!rootSuffixLookup.contains(rootSuffixSurfaceNode)) {
         generateNodeConnections(rootSuffixSurfaceNode);
@@ -183,10 +209,14 @@ public class DynamicLexiconGraph {
 
 
   public SuffixSurfaceNode getRootSuffixNode(StemNode node) {
-    SuffixForm set = suffixProvider.getRootSet(node.dictionaryItem, node.exclusiveSuffixData);
+
+    SuffixForm rootSuffix = specialRootMap.containsKey(node.dictionaryItem.id) ?
+        specialRootMap.get(node.dictionaryItem.id) :
+        suffixProvider.getRootSet(node.dictionaryItem, node.exclusiveSuffixData);
+
     // construct a new suffix node.
     return new SuffixSurfaceNode(
-        set,
+        rootSuffix,
         "",
         node.attributes,
         node.expectations,

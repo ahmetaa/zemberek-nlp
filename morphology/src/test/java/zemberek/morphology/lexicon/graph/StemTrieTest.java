@@ -24,8 +24,7 @@ public class StemTrieTest {
   }
 
   private StemNode createStemNode(String surfaceForm) {
-    DictionaryItem di = new DictionaryItem(surfaceForm, surfaceForm, PrimaryPos.Noun, null, null,
-        null);
+    DictionaryItem di = new DictionaryItem(surfaceForm, surfaceForm, PrimaryPos.Noun, null,  null);
     return new StemNode(surfaceForm, di, TerminationType.TERMINAL);
   }
 
