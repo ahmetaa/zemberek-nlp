@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -58,11 +59,26 @@ public class Serializer {
     long start = System.currentTimeMillis();
     Dictionary readDictionary = Dictionary.parseFrom(bytes);
     RootLexicon loadedLexicon = new RootLexicon();
+    // some items contains references to other items. We need to apply this
+    // link after creating the lexicon.
+    Map<String, String> referenceItemIdMap = new HashMap<>();
     for (LexiconProto.DictionaryItem item : readDictionary.getItemsList()) {
-      loadedLexicon.add(convertToDictionaryItem(item));
+      DictionaryItem actual = convertToDictionaryItem(item);
+      loadedLexicon.add(actual);
+      if (item.getReference() != null && !item.getReference().isEmpty()) {
+        referenceItemIdMap.put(actual.id, item.getReference());
+      }
     }
+
+    for (String itemId : referenceItemIdMap.keySet()) {
+      DictionaryItem item = loadedLexicon.getItemById(itemId);
+      DictionaryItem ref = loadedLexicon.getItemById(referenceItemIdMap.get(itemId));
+      item.setReferenceItem(ref);
+    }
+
     long end = System.currentTimeMillis();
     Log.info("Root lexicon created in %d ms.", (end - start));
+
     return loadedLexicon;
   }
 
@@ -72,10 +88,15 @@ public class Serializer {
       builder.addItems(convertToProto(item));
     }
     Dictionary dictionary = builder.build();
-    Files.write(outPath, dictionary.toByteArray(), StandardOpenOption.CREATE_NEW);
+    Files.write(outPath, dictionary.toByteArray(), StandardOpenOption.WRITE);
   }
 
   public static void main(String[] args) throws IOException {
+    createDefaultDictionary(Paths.get("morphology/src/main/resources/tr/lexicon.bin"));
+    //serializeDeserializeTest();
+  }
+
+  private static void serializeDeserializeTest() throws IOException {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     RootLexicon lexicon = morphology.getLexicon();
     Dictionary.Builder builder = Dictionary.newBuilder();
@@ -134,6 +155,9 @@ public class Serializer {
                   .convertTo(attribute, LexiconProto.RootAttribute.RootAttribute_Unknown))
           .collect(Collectors.toList()));
     }
+    if (item.getReferenceItem() != null) {
+      builder.setReference(item.getReferenceItem().id);
+    }
     return builder.build();
   }
 
@@ -150,7 +174,8 @@ public class Serializer {
         item.getSecondaryPos() == LexiconProto.SecondaryPos.SecondaryPos_Unknown
             ? SecondaryPos.None
             : secondaryPosConverter.convertBack(item.getSecondaryPos(), SecondaryPos.UnknownSec),
-        !rootAttributes.isEmpty() ? EnumSet.copyOf(rootAttributes) : EnumSet.noneOf(RootAttribute.class),
+        !rootAttributes.isEmpty() ? EnumSet.copyOf(rootAttributes)
+            : EnumSet.noneOf(RootAttribute.class),
         item.getIndex());
   }
 

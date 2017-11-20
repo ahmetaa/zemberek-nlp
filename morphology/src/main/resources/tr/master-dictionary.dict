@@ -461,7 +461,7 @@ akamet [A:NoVoicing]
 akar
 akarca
 akaret [A:NoVoicing]
-akarsu [RootSuffix:Noun_Su_Root]
+akarsu
 akaryakıt [A:NoVoicing]
 akasma
 akasya
@@ -590,7 +590,7 @@ aksoğan
 akson
 aksona
 aksöğüt
-aksu [RootSuffix:Noun_Su_Root]
+aksu
 aksuna
 aksungur
 aksülamel
@@ -3245,7 +3245,7 @@ biyoşimi
 biyotit [A:NoVoicing]
 biyotop [A:NoVoicing]
 biz
-biz [P:Pron,Pers; RootSuffix:PersPron_Biz]
+biz [P:Pron,Pers]
 bizar [P:Adv]
 bizatihi [P:Adv]
 bizcileyin [P:Adv]
@@ -21520,7 +21520,7 @@ siyer
 siymek
 siyonist [P:Adj;A:NoVoicing]
 siyonizm
-siz [P:Pron, Pers ; RootSuffix:PersPron_Siz]
+siz [P:Pron, Pers]
 skala
 skandal
 skandiyum
@@ -21894,7 +21894,7 @@ strüktüralist [P:Adj;A:NoVoicing]
 strüktüralizm
 strüktürel [P:Adj]
 stüdyo
-su [RootSuffix:Noun_Su_Root]
+su
 sual [A:InverseHarmony]
 suare
 subasar

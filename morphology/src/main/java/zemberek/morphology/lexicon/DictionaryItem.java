@@ -47,7 +47,7 @@ public class DictionaryItem {
    */
   public String id;
 
-  public DictionaryItem referenceItem;
+  private DictionaryItem referenceItem;
 
   public int index;
 
@@ -123,6 +123,14 @@ public class DictionaryItem {
       sb.append("_").append(index);
     }
     return sb.toString();
+  }
+
+  public DictionaryItem getReferenceItem() {
+    return referenceItem;
+  }
+
+  public void setReferenceItem(DictionaryItem referenceItem) {
+    this.referenceItem = referenceItem;
   }
 
   public boolean isUnknown() {

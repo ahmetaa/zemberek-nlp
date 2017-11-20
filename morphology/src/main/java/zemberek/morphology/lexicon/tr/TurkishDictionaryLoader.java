@@ -266,7 +266,7 @@ public class TurkishDictionaryLoader {
             Log.warn("Cannot find reference item id " + referenceId);
           }
           DictionaryItem item = getItem(lateEntry);
-          item.referenceItem = refItem;
+          item.setReferenceItem(refItem);
           rootLexicon.add(item);
         }
         if (lateEntry.containsMetaData(
@@ -317,7 +317,7 @@ public class TurkishDictionaryLoader {
               attrSet,
               index);
           fakeRoot.attributes.add(RootAttribute.Dummy);
-          fakeRoot.referenceItem = item;
+          fakeRoot.setReferenceItem(item);
           rootLexicon.add(fakeRoot);
         }
       }

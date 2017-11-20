@@ -84,10 +84,11 @@ message DictionaryItem {
   string lemma = 1;
   string root = 2;
   string pronunciation = 3;
-  PrimaryPos primary_pos = 4;
-  SecondaryPos secondary_pos = 5;
-  repeated RootAttribute root_attributes = 6;
-  int32 index = 7;
+  string reference = 4;
+  PrimaryPos primary_pos = 5;
+  SecondaryPos secondary_pos = 6;
+  repeated RootAttribute root_attributes = 7;
+  int32 index = 8;
 }
 
 message Dictionary {

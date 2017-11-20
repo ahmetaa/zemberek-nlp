@@ -4,17 +4,10 @@
 package zemberek.morphology.lexicon.proto;
 
 public final class LexiconProto {
-
-  static {
-  }
-
-  private LexiconProto() {
-  }
-
+  private LexiconProto() {}
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistryLite registry) {
   }
-
   /**
    * <pre>
    * Keep in synnc with zemberek.core.turkish.PrimaryPos
@@ -80,7 +73,8 @@ public final class LexiconProto {
      * <code>Punctuation = 13;</code>
      */
     Punctuation(13),
-    UNRECOGNIZED(-1),;
+    UNRECOGNIZED(-1),
+    ;
 
     /**
      * <code>PrimaryPos_Unknown = 0;</code>
@@ -138,17 +132,10 @@ public final class LexiconProto {
      * <code>Punctuation = 13;</code>
      */
     public static final int Punctuation_VALUE = 13;
-    private static final com.google.protobuf.Internal.EnumLiteMap<
-        PrimaryPos> internalValueMap =
-        new com.google.protobuf.Internal.EnumLiteMap<PrimaryPos>() {
-          public PrimaryPos findValueByNumber(int number) {
-            return PrimaryPos.forNumber(number);
-          }
-        };
-    private final int value;
 
-    private PrimaryPos(int value) {
-      this.value = value;
+
+    public final int getNumber() {
+      return value;
     }
 
     /**
@@ -161,50 +148,40 @@ public final class LexiconProto {
 
     public static PrimaryPos forNumber(int value) {
       switch (value) {
-        case 0:
-          return PrimaryPos_Unknown;
-        case 1:
-          return Noun;
-        case 2:
-          return Adjective;
-        case 3:
-          return Adverb;
-        case 4:
-          return Conjunction;
-        case 5:
-          return Interjection;
-        case 6:
-          return Verb;
-        case 7:
-          return Pronoun;
-        case 8:
-          return Numeral;
-        case 9:
-          return Determiner;
-        case 10:
-          return PostPositive;
-        case 11:
-          return Question;
-        case 12:
-          return Duplicator;
-        case 13:
-          return Punctuation;
-        default:
-          return null;
+        case 0: return PrimaryPos_Unknown;
+        case 1: return Noun;
+        case 2: return Adjective;
+        case 3: return Adverb;
+        case 4: return Conjunction;
+        case 5: return Interjection;
+        case 6: return Verb;
+        case 7: return Pronoun;
+        case 8: return Numeral;
+        case 9: return Determiner;
+        case 10: return PostPositive;
+        case 11: return Question;
+        case 12: return Duplicator;
+        case 13: return Punctuation;
+        default: return null;
       }
     }
 
     public static com.google.protobuf.Internal.EnumLiteMap<PrimaryPos>
-    internalGetValueMap() {
+        internalGetValueMap() {
       return internalValueMap;
     }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        PrimaryPos> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<PrimaryPos>() {
+            public PrimaryPos findValueByNumber(int number) {
+              return PrimaryPos.forNumber(number);
+            }
+          };
 
-    public final int getNumber() {
-      if (this == UNRECOGNIZED) {
-        throw new java.lang.IllegalArgumentException(
-            "Can't get the number of an unknown enum value.");
-      }
-      return value;
+    private final int value;
+
+    private PrimaryPos(int value) {
+      this.value = value;
     }
 
     // @@protoc_insertion_point(enum_scope:PrimaryPos)
@@ -320,7 +297,8 @@ public final class LexiconProto {
      * <code>PCAbl = 55;</code>
      */
     PCAbl(55),
-    UNRECOGNIZED(-1),;
+    UNRECOGNIZED(-1),
+    ;
 
     /**
      * <code>SecondaryPos_Unknown = 0;</code>
@@ -423,17 +401,10 @@ public final class LexiconProto {
      * <code>PCAbl = 55;</code>
      */
     public static final int PCAbl_VALUE = 55;
-    private static final com.google.protobuf.Internal.EnumLiteMap<
-        SecondaryPos> internalValueMap =
-        new com.google.protobuf.Internal.EnumLiteMap<SecondaryPos>() {
-          public SecondaryPos findValueByNumber(int number) {
-            return SecondaryPos.forNumber(number);
-          }
-        };
-    private final int value;
 
-    private SecondaryPos(int value) {
-      this.value = value;
+
+    public final int getNumber() {
+      return value;
     }
 
     /**
@@ -446,70 +417,50 @@ public final class LexiconProto {
 
     public static SecondaryPos forNumber(int value) {
       switch (value) {
-        case 0:
-          return SecondaryPos_Unknown;
-        case 1:
-          return DemonstrativePron;
-        case 2:
-          return Time;
-        case 3:
-          return QuantitivePron;
-        case 4:
-          return QuestionPron;
-        case 5:
-          return ProperNoun;
-        case 6:
-          return PersonalPron;
-        case 7:
-          return ReflexivePron;
-        case 8:
-          return None;
-        case 9:
-          return Ordinal;
-        case 10:
-          return Cardinal;
-        case 11:
-          return Percentage;
-        case 12:
-          return Ratio;
-        case 13:
-          return Range;
-        case 14:
-          return Real;
-        case 15:
-          return Distribution;
-        case 16:
-          return Clock;
-        case 17:
-          return Date;
-        case 50:
-          return PCDat;
-        case 51:
-          return PCAcc;
-        case 52:
-          return PCIns;
-        case 53:
-          return PCNom;
-        case 54:
-          return PCGen;
-        case 55:
-          return PCAbl;
-        default:
-          return null;
+        case 0: return SecondaryPos_Unknown;
+        case 1: return DemonstrativePron;
+        case 2: return Time;
+        case 3: return QuantitivePron;
+        case 4: return QuestionPron;
+        case 5: return ProperNoun;
+        case 6: return PersonalPron;
+        case 7: return ReflexivePron;
+        case 8: return None;
+        case 9: return Ordinal;
+        case 10: return Cardinal;
+        case 11: return Percentage;
+        case 12: return Ratio;
+        case 13: return Range;
+        case 14: return Real;
+        case 15: return Distribution;
+        case 16: return Clock;
+        case 17: return Date;
+        case 50: return PCDat;
+        case 51: return PCAcc;
+        case 52: return PCIns;
+        case 53: return PCNom;
+        case 54: return PCGen;
+        case 55: return PCAbl;
+        default: return null;
       }
     }
 
     public static com.google.protobuf.Internal.EnumLiteMap<SecondaryPos>
-    internalGetValueMap() {
+        internalGetValueMap() {
       return internalValueMap;
     }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        SecondaryPos> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<SecondaryPos>() {
+            public SecondaryPos findValueByNumber(int number) {
+              return SecondaryPos.forNumber(number);
+            }
+          };
 
-    public final int getNumber() {
-      if (this == UNRECOGNIZED) {
-        throw new java.lang.IllegalArgumentException(
-            "Can't get the number of an unknown enum value.");
-      }
-      return value;
+    private final int value;
+
+    private SecondaryPos(int value) {
+      this.value = value;
     }
 
     // @@protoc_insertion_point(enum_scope:SecondaryPos)
@@ -616,7 +567,8 @@ public final class LexiconProto {
      * <code>Dummy = 22;</code>
      */
     Dummy(22),
-    UNRECOGNIZED(-1),;
+    UNRECOGNIZED(-1),
+    ;
 
     /**
      * <code>RootAttribute_Unknown = 0;</code>
@@ -710,17 +662,10 @@ public final class LexiconProto {
      * <code>Dummy = 22;</code>
      */
     public static final int Dummy_VALUE = 22;
-    private static final com.google.protobuf.Internal.EnumLiteMap<
-        RootAttribute> internalValueMap =
-        new com.google.protobuf.Internal.EnumLiteMap<RootAttribute>() {
-          public RootAttribute findValueByNumber(int number) {
-            return RootAttribute.forNumber(number);
-          }
-        };
-    private final int value;
 
-    private RootAttribute(int value) {
-      this.value = value;
+
+    public final int getNumber() {
+      return value;
     }
 
     /**
@@ -733,68 +678,49 @@ public final class LexiconProto {
 
     public static RootAttribute forNumber(int value) {
       switch (value) {
-        case 0:
-          return RootAttribute_Unknown;
-        case 1:
-          return Aorist_I;
-        case 2:
-          return Aorist_A;
-        case 3:
-          return ProgressiveVowelDrop;
-        case 4:
-          return Passive_In;
-        case 5:
-          return Causative_t;
-        case 6:
-          return Voicing;
-        case 7:
-          return NoVoicing;
-        case 8:
-          return InverseHarmony;
-        case 9:
-          return Doubling;
-        case 10:
-          return LastVowelDrop;
-        case 11:
-          return CompoundP3sg;
-        case 12:
-          return Special;
-        case 13:
-          return NoSuffix;
-        case 14:
-          return Plural;
-        case 15:
-          return NounConsInsert_n;
-        case 16:
-          return NoQuote;
-        case 17:
-          return CompoundP3sgRoot;
-        case 18:
-          return Reflexive;
-        case 19:
-          return Reciprocal;
-        case 20:
-          return Ext;
-        case 21:
-          return Runtime;
-        case 22:
-          return Dummy;
-        default:
-          return null;
+        case 0: return RootAttribute_Unknown;
+        case 1: return Aorist_I;
+        case 2: return Aorist_A;
+        case 3: return ProgressiveVowelDrop;
+        case 4: return Passive_In;
+        case 5: return Causative_t;
+        case 6: return Voicing;
+        case 7: return NoVoicing;
+        case 8: return InverseHarmony;
+        case 9: return Doubling;
+        case 10: return LastVowelDrop;
+        case 11: return CompoundP3sg;
+        case 12: return Special;
+        case 13: return NoSuffix;
+        case 14: return Plural;
+        case 15: return NounConsInsert_n;
+        case 16: return NoQuote;
+        case 17: return CompoundP3sgRoot;
+        case 18: return Reflexive;
+        case 19: return Reciprocal;
+        case 20: return Ext;
+        case 21: return Runtime;
+        case 22: return Dummy;
+        default: return null;
       }
     }
 
     public static com.google.protobuf.Internal.EnumLiteMap<RootAttribute>
-    internalGetValueMap() {
+        internalGetValueMap() {
       return internalValueMap;
     }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        RootAttribute> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<RootAttribute>() {
+            public RootAttribute findValueByNumber(int number) {
+              return RootAttribute.forNumber(number);
+            }
+          };
 
-    public final int getNumber() {
-      if (this == UNRECOGNIZED) {
-        throw new java.lang.IllegalArgumentException(
-            "Can't get the number of an unknown enum value.");
-      }
-      return value;
+    private final int value;
+
+    private RootAttribute(int value) {
+      this.value = value;
     }
 
     // @@protoc_insertion_point(enum_scope:RootAttribute)
@@ -805,282 +731,576 @@ public final class LexiconProto {
       com.google.protobuf.MessageLiteOrBuilder {
 
     /**
-     * <code>string lemma = 1;</code>
+     * <code>optional string lemma = 1;</code>
      */
     java.lang.String getLemma();
-
     /**
-     * <code>string lemma = 1;</code>
+     * <code>optional string lemma = 1;</code>
      */
     com.google.protobuf.ByteString
-    getLemmaBytes();
+        getLemmaBytes();
 
     /**
-     * <code>string root = 2;</code>
+     * <code>optional string root = 2;</code>
      */
     java.lang.String getRoot();
-
     /**
-     * <code>string root = 2;</code>
+     * <code>optional string root = 2;</code>
      */
     com.google.protobuf.ByteString
-    getRootBytes();
+        getRootBytes();
 
     /**
-     * <code>string pronunciation = 3;</code>
+     * <code>optional string pronunciation = 3;</code>
      */
     java.lang.String getPronunciation();
-
     /**
-     * <code>string pronunciation = 3;</code>
+     * <code>optional string pronunciation = 3;</code>
      */
     com.google.protobuf.ByteString
-    getPronunciationBytes();
+        getPronunciationBytes();
 
     /**
-     * <code>.PrimaryPos primary_pos = 4;</code>
+     * <code>optional string reference = 4;</code>
+     */
+    java.lang.String getReference();
+    /**
+     * <code>optional string reference = 4;</code>
+     */
+    com.google.protobuf.ByteString
+        getReferenceBytes();
+
+    /**
+     * <code>optional .PrimaryPos primary_pos = 5;</code>
      */
     int getPrimaryPosValue();
-
     /**
-     * <code>.PrimaryPos primary_pos = 4;</code>
+     * <code>optional .PrimaryPos primary_pos = 5;</code>
      */
     zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos getPrimaryPos();
 
     /**
-     * <code>.SecondaryPos secondary_pos = 5;</code>
+     * <code>optional .SecondaryPos secondary_pos = 6;</code>
      */
     int getSecondaryPosValue();
-
     /**
-     * <code>.SecondaryPos secondary_pos = 5;</code>
+     * <code>optional .SecondaryPos secondary_pos = 6;</code>
      */
     zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos getSecondaryPos();
 
     /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
      */
     java.util.List<zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute> getRootAttributesList();
-
     /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
      */
     int getRootAttributesCount();
-
     /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
      */
     zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute getRootAttributes(int index);
-
     /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
      */
     java.util.List<java.lang.Integer>
     getRootAttributesValueList();
-
     /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
      */
     int getRootAttributesValue(int index);
 
     /**
-     * <code>int32 index = 7;</code>
+     * <code>optional int32 index = 8;</code>
      */
     int getIndex();
   }
-
-  public interface DictionaryOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:Dictionary)
-      com.google.protobuf.MessageLiteOrBuilder {
-
-    /**
-     * <code>int64 generation_timestamp = 1;</code>
-     */
-    long getGenerationTimestamp();
-
-    /**
-     * <pre>
-     * Human readable.
-     * </pre>
-     *
-     * <code>string generation_time = 2;</code>
-     */
-    java.lang.String getGenerationTime();
-
-    /**
-     * <pre>
-     * Human readable.
-     * </pre>
-     *
-     * <code>string generation_time = 2;</code>
-     */
-    com.google.protobuf.ByteString
-    getGenerationTimeBytes();
-
-    /**
-     * <code>string name = 3;</code>
-     */
-    java.lang.String getName();
-
-    /**
-     * <code>string name = 3;</code>
-     */
-    com.google.protobuf.ByteString
-    getNameBytes();
-
-    /**
-     * <pre>
-     * Original sources;
-     * </pre>
-     *
-     * <code>repeated string sources = 4;</code>
-     */
-    java.util.List<java.lang.String>
-    getSourcesList();
-
-    /**
-     * <pre>
-     * Original sources;
-     * </pre>
-     *
-     * <code>repeated string sources = 4;</code>
-     */
-    int getSourcesCount();
-
-    /**
-     * <pre>
-     * Original sources;
-     * </pre>
-     *
-     * <code>repeated string sources = 4;</code>
-     */
-    java.lang.String getSources(int index);
-
-    /**
-     * <pre>
-     * Original sources;
-     * </pre>
-     *
-     * <code>repeated string sources = 4;</code>
-     */
-    com.google.protobuf.ByteString
-    getSourcesBytes(int index);
-
-    /**
-     * <pre>
-     * For debugging etc.
-     * </pre>
-     *
-     * <code>bool ignore = 5;</code>
-     */
-    boolean getIgnore();
-
-    /**
-     * <code>repeated .DictionaryItem items = 6;</code>
-     */
-    java.util.List<zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem>
-    getItemsList();
-
-    /**
-     * <code>repeated .DictionaryItem items = 6;</code>
-     */
-    zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem getItems(int index);
-
-    /**
-     * <code>repeated .DictionaryItem items = 6;</code>
-     */
-    int getItemsCount();
-  }
-
-  public interface MasterDictionaryOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:MasterDictionary)
-      com.google.protobuf.MessageLiteOrBuilder {
-
-    /**
-     * <code>repeated .Dictionary dictionaries = 1;</code>
-     */
-    java.util.List<zemberek.morphology.lexicon.proto.LexiconProto.Dictionary>
-    getDictionariesList();
-
-    /**
-     * <code>repeated .Dictionary dictionaries = 1;</code>
-     */
-    zemberek.morphology.lexicon.proto.LexiconProto.Dictionary getDictionaries(int index);
-
-    /**
-     * <code>repeated .Dictionary dictionaries = 1;</code>
-     */
-    int getDictionariesCount();
-  }
-
   /**
    * Protobuf type {@code DictionaryItem}
    */
-  public static final class DictionaryItem extends
+  public  static final class DictionaryItem extends
       com.google.protobuf.GeneratedMessageLite<
           DictionaryItem, DictionaryItem.Builder> implements
       // @@protoc_insertion_point(message_implements:DictionaryItem)
       DictionaryItemOrBuilder {
-
-    public static final int LEMMA_FIELD_NUMBER = 1;
-    public static final int ROOT_FIELD_NUMBER = 2;
-    public static final int PRONUNCIATION_FIELD_NUMBER = 3;
-    public static final int PRIMARY_POS_FIELD_NUMBER = 4;
-    public static final int SECONDARY_POS_FIELD_NUMBER = 5;
-    public static final int ROOT_ATTRIBUTES_FIELD_NUMBER = 6;
-    public static final int INDEX_FIELD_NUMBER = 7;
-    private static final com.google.protobuf.Internal.ListAdapter.Converter<
-        java.lang.Integer, zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute> rootAttributes_converter_ =
-        new com.google.protobuf.Internal.ListAdapter.Converter<
-            java.lang.Integer, zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute>() {
-          public zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute convert(
-              java.lang.Integer from) {
-            zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute result = zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute
-                .forNumber(from);
-            return result == null
-                ? zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute.UNRECOGNIZED
-                : result;
-          }
-        };
-    // @@protoc_insertion_point(class_scope:DictionaryItem)
-    private static final zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem DEFAULT_INSTANCE;
-    private static volatile com.google.protobuf.Parser<DictionaryItem> PARSER;
-
-    static {
-      DEFAULT_INSTANCE = new DictionaryItem();
-      DEFAULT_INSTANCE.makeImmutable();
-    }
-
-    private int bitField0_;
-    private java.lang.String lemma_;
-    private java.lang.String root_;
-    private java.lang.String pronunciation_;
-    private int primaryPos_;
-    private int secondaryPos_;
-    private com.google.protobuf.Internal.IntList rootAttributes_;
-    private int rootAttributesMemoizedSerializedSize;
-    private int index_;
-
     private DictionaryItem() {
       lemma_ = "";
       root_ = "";
       pronunciation_ = "";
+      reference_ = "";
       rootAttributes_ = emptyIntList();
     }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
+    private int bitField0_;
+    public static final int LEMMA_FIELD_NUMBER = 1;
+    private java.lang.String lemma_;
+    /**
+     * <code>optional string lemma = 1;</code>
+     */
+    public java.lang.String getLemma() {
+      return lemma_;
+    }
+    /**
+     * <code>optional string lemma = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getLemmaBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(lemma_);
+    }
+    /**
+     * <code>optional string lemma = 1;</code>
+     */
+    private void setLemma(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      lemma_ = value;
+    }
+    /**
+     * <code>optional string lemma = 1;</code>
+     */
+    private void clearLemma() {
+      
+      lemma_ = getDefaultInstance().getLemma();
+    }
+    /**
+     * <code>optional string lemma = 1;</code>
+     */
+    private void setLemmaBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      
+      lemma_ = value.toStringUtf8();
     }
 
-    public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
+    public static final int ROOT_FIELD_NUMBER = 2;
+    private java.lang.String root_;
+    /**
+     * <code>optional string root = 2;</code>
+     */
+    public java.lang.String getRoot() {
+      return root_;
+    }
+    /**
+     * <code>optional string root = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getRootBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(root_);
+    }
+    /**
+     * <code>optional string root = 2;</code>
+     */
+    private void setRoot(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      root_ = value;
+    }
+    /**
+     * <code>optional string root = 2;</code>
+     */
+    private void clearRoot() {
+      
+      root_ = getDefaultInstance().getRoot();
+    }
+    /**
+     * <code>optional string root = 2;</code>
+     */
+    private void setRootBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      
+      root_ = value.toStringUtf8();
+    }
+
+    public static final int PRONUNCIATION_FIELD_NUMBER = 3;
+    private java.lang.String pronunciation_;
+    /**
+     * <code>optional string pronunciation = 3;</code>
+     */
+    public java.lang.String getPronunciation() {
+      return pronunciation_;
+    }
+    /**
+     * <code>optional string pronunciation = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getPronunciationBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(pronunciation_);
+    }
+    /**
+     * <code>optional string pronunciation = 3;</code>
+     */
+    private void setPronunciation(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      pronunciation_ = value;
+    }
+    /**
+     * <code>optional string pronunciation = 3;</code>
+     */
+    private void clearPronunciation() {
+      
+      pronunciation_ = getDefaultInstance().getPronunciation();
+    }
+    /**
+     * <code>optional string pronunciation = 3;</code>
+     */
+    private void setPronunciationBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      
+      pronunciation_ = value.toStringUtf8();
+    }
+
+    public static final int REFERENCE_FIELD_NUMBER = 4;
+    private java.lang.String reference_;
+    /**
+     * <code>optional string reference = 4;</code>
+     */
+    public java.lang.String getReference() {
+      return reference_;
+    }
+    /**
+     * <code>optional string reference = 4;</code>
+     */
+    public com.google.protobuf.ByteString
+        getReferenceBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(reference_);
+    }
+    /**
+     * <code>optional string reference = 4;</code>
+     */
+    private void setReference(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      reference_ = value;
+    }
+    /**
+     * <code>optional string reference = 4;</code>
+     */
+    private void clearReference() {
+      
+      reference_ = getDefaultInstance().getReference();
+    }
+    /**
+     * <code>optional string reference = 4;</code>
+     */
+    private void setReferenceBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      
+      reference_ = value.toStringUtf8();
+    }
+
+    public static final int PRIMARY_POS_FIELD_NUMBER = 5;
+    private int primaryPos_;
+    /**
+     * <code>optional .PrimaryPos primary_pos = 5;</code>
+     */
+    public int getPrimaryPosValue() {
+      return primaryPos_;
+    }
+    /**
+     * <code>optional .PrimaryPos primary_pos = 5;</code>
+     */
+    public zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos getPrimaryPos() {
+      zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos result = zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos.forNumber(primaryPos_);
+      return result == null ? zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos.UNRECOGNIZED : result;
+    }
+    /**
+     * <code>optional .PrimaryPos primary_pos = 5;</code>
+     */
+    private void setPrimaryPosValue(int value) {
+        primaryPos_ = value;
+    }
+    /**
+     * <code>optional .PrimaryPos primary_pos = 5;</code>
+     */
+    private void setPrimaryPos(zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      
+      primaryPos_ = value.getNumber();
+    }
+    /**
+     * <code>optional .PrimaryPos primary_pos = 5;</code>
+     */
+    private void clearPrimaryPos() {
+      
+      primaryPos_ = 0;
+    }
+
+    public static final int SECONDARY_POS_FIELD_NUMBER = 6;
+    private int secondaryPos_;
+    /**
+     * <code>optional .SecondaryPos secondary_pos = 6;</code>
+     */
+    public int getSecondaryPosValue() {
+      return secondaryPos_;
+    }
+    /**
+     * <code>optional .SecondaryPos secondary_pos = 6;</code>
+     */
+    public zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos getSecondaryPos() {
+      zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos result = zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos.forNumber(secondaryPos_);
+      return result == null ? zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos.UNRECOGNIZED : result;
+    }
+    /**
+     * <code>optional .SecondaryPos secondary_pos = 6;</code>
+     */
+    private void setSecondaryPosValue(int value) {
+        secondaryPos_ = value;
+    }
+    /**
+     * <code>optional .SecondaryPos secondary_pos = 6;</code>
+     */
+    private void setSecondaryPos(zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      
+      secondaryPos_ = value.getNumber();
+    }
+    /**
+     * <code>optional .SecondaryPos secondary_pos = 6;</code>
+     */
+    private void clearSecondaryPos() {
+      
+      secondaryPos_ = 0;
+    }
+
+    public static final int ROOT_ATTRIBUTES_FIELD_NUMBER = 7;
+    private com.google.protobuf.Internal.IntList rootAttributes_;
+    private static final com.google.protobuf.Internal.ListAdapter.Converter<
+        java.lang.Integer, zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute> rootAttributes_converter_ =
+            new com.google.protobuf.Internal.ListAdapter.Converter<
+                java.lang.Integer, zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute>() {
+              public zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute convert(java.lang.Integer from) {
+                zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute result = zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute.forNumber(from);
+                return result == null ? zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute.UNRECOGNIZED : result;
+              }
+            };
+    /**
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
+     */
+    public java.util.List<zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute> getRootAttributesList() {
+      return new com.google.protobuf.Internal.ListAdapter<
+          java.lang.Integer, zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute>(rootAttributes_, rootAttributes_converter_);
+    }
+    /**
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
+     */
+    public int getRootAttributesCount() {
+      return rootAttributes_.size();
+    }
+    /**
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
+     */
+    public zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute getRootAttributes(int index) {
+      return rootAttributes_converter_.convert(rootAttributes_.getInt(index));
+    }
+    /**
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
+     */
+    public java.util.List<java.lang.Integer>
+    getRootAttributesValueList() {
+      return rootAttributes_;
+    }
+    /**
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
+     */
+    public int getRootAttributesValue(int index) {
+      return rootAttributes_.getInt(index);
+    }
+    private void ensureRootAttributesIsMutable() {
+      if (!rootAttributes_.isModifiable()) {
+        rootAttributes_ =
+            com.google.protobuf.GeneratedMessageLite.mutableCopy(rootAttributes_);
+      }
+    }
+    /**
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
+     */
+    private void setRootAttributes(
+        int index, zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      ensureRootAttributesIsMutable();
+      rootAttributes_.setInt(index, value.getNumber());
+    }
+    /**
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
+     */
+    private void addRootAttributes(zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      ensureRootAttributesIsMutable();
+      rootAttributes_.addInt(value.getNumber());
+    }
+    /**
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
+     */
+    private void addAllRootAttributes(
+        java.lang.Iterable<? extends zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute> values) {
+      ensureRootAttributesIsMutable();
+      for (zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute value : values) {
+        rootAttributes_.addInt(value.getNumber());
+      }
+    }
+    /**
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
+     */
+    private void clearRootAttributes() {
+      rootAttributes_ = emptyIntList();
+    }
+    /**
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
+     */
+    private void setRootAttributesValue(
+        int index, int value) {
+      ensureRootAttributesIsMutable();
+      rootAttributes_.setInt(index, value);
+    }
+    /**
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
+     */
+    private void addRootAttributesValue(int value) {
+      ensureRootAttributesIsMutable();
+      rootAttributes_.addInt(value);
+    }
+    /**
+     * <code>repeated .RootAttribute root_attributes = 7;</code>
+     */
+    private void addAllRootAttributesValue(
+        java.lang.Iterable<java.lang.Integer> values) {
+      ensureRootAttributesIsMutable();
+      for (int value : values) {
+        rootAttributes_.addInt(value);
+      }
+    }
+
+    public static final int INDEX_FIELD_NUMBER = 8;
+    private int index_;
+    /**
+     * <code>optional int32 index = 8;</code>
+     */
+    public int getIndex() {
+      return index_;
+    }
+    /**
+     * <code>optional int32 index = 8;</code>
+     */
+    private void setIndex(int value) {
+      
+      index_ = value;
+    }
+    /**
+     * <code>optional int32 index = 8;</code>
+     */
+    private void clearIndex() {
+      
+      index_ = 0;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (!lemma_.isEmpty()) {
+        output.writeString(1, getLemma());
+      }
+      if (!root_.isEmpty()) {
+        output.writeString(2, getRoot());
+      }
+      if (!pronunciation_.isEmpty()) {
+        output.writeString(3, getPronunciation());
+      }
+      if (!reference_.isEmpty()) {
+        output.writeString(4, getReference());
+      }
+      if (primaryPos_ != zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos.PrimaryPos_Unknown.getNumber()) {
+        output.writeEnum(5, primaryPos_);
+      }
+      if (secondaryPos_ != zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos.SecondaryPos_Unknown.getNumber()) {
+        output.writeEnum(6, secondaryPos_);
+      }
+      for (int i = 0; i < rootAttributes_.size(); i++) {
+        output.writeEnum(7, rootAttributes_.getInt(i));
+      }
+      if (index_ != 0) {
+        output.writeInt32(8, index_);
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!lemma_.isEmpty()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(1, getLemma());
+      }
+      if (!root_.isEmpty()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(2, getRoot());
+      }
+      if (!pronunciation_.isEmpty()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(3, getPronunciation());
+      }
+      if (!reference_.isEmpty()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(4, getReference());
+      }
+      if (primaryPos_ != zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos.PrimaryPos_Unknown.getNumber()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(5, primaryPos_);
+      }
+      if (secondaryPos_ != zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos.SecondaryPos_Unknown.getNumber()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(6, secondaryPos_);
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < rootAttributes_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeEnumSizeNoTag(rootAttributes_.getInt(i));
+        }
+        size += dataSize;
+        size += 1 * rootAttributes_.size();
+      }
+      if (index_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(8, index_);
+      }
+      memoizedSerializedSize = size;
+      return size;
     }
 
     public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem parseFrom(
@@ -1089,7 +1309,6 @@ public final class LexiconProto {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-
     public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1097,14 +1316,11 @@ public final class LexiconProto {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem parseFrom(
-        byte[] data)
+    public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-
     public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1112,14 +1328,11 @@ public final class LexiconProto {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem parseFrom(
-        java.io.InputStream input)
+    public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, input);
     }
-
     public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1127,27 +1340,22 @@ public final class LexiconProto {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, input, extensionRegistry);
     }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem parseDelimitedFrom(
-        java.io.InputStream input)
+    public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return parseDelimitedFrom(DEFAULT_INSTANCE, input);
     }
-
     public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
     }
-
     public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, input);
     }
-
     public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1159,483 +1367,377 @@ public final class LexiconProto {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-
-    public static Builder newBuilder(
-        zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem prototype) {
+    public static Builder newBuilder(zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
 
-    public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    public static com.google.protobuf.Parser<DictionaryItem> parser() {
-      return DEFAULT_INSTANCE.getParserForType();
-    }
-
     /**
-     * <code>string lemma = 1;</code>
+     * Protobuf type {@code DictionaryItem}
      */
-    public java.lang.String getLemma() {
-      return lemma_;
-    }
-
-    /**
-     * <code>string lemma = 1;</code>
-     */
-    private void setLemma(
-        java.lang.String value) {
-      if (value == null) {
-        throw new NullPointerException();
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem, Builder> implements
+        // @@protoc_insertion_point(builder_implements:DictionaryItem)
+        zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItemOrBuilder {
+      // Construct using zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
       }
 
-      lemma_ = value;
-    }
 
-    /**
-     * <code>string lemma = 1;</code>
-     */
-    public com.google.protobuf.ByteString
-    getLemmaBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(lemma_);
-    }
-
-    /**
-     * <code>string lemma = 1;</code>
-     */
-    private void setLemmaBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-        throw new NullPointerException();
+      /**
+       * <code>optional string lemma = 1;</code>
+       */
+      public java.lang.String getLemma() {
+        return instance.getLemma();
       }
-      checkByteStringIsUtf8(value);
-
-      lemma_ = value.toStringUtf8();
-    }
-
-    /**
-     * <code>string lemma = 1;</code>
-     */
-    private void clearLemma() {
-
-      lemma_ = getDefaultInstance().getLemma();
-    }
-
-    /**
-     * <code>string root = 2;</code>
-     */
-    public java.lang.String getRoot() {
-      return root_;
-    }
-
-    /**
-     * <code>string root = 2;</code>
-     */
-    private void setRoot(
-        java.lang.String value) {
-      if (value == null) {
-        throw new NullPointerException();
+      /**
+       * <code>optional string lemma = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getLemmaBytes() {
+        return instance.getLemmaBytes();
+      }
+      /**
+       * <code>optional string lemma = 1;</code>
+       */
+      public Builder setLemma(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setLemma(value);
+        return this;
+      }
+      /**
+       * <code>optional string lemma = 1;</code>
+       */
+      public Builder clearLemma() {
+        copyOnWrite();
+        instance.clearLemma();
+        return this;
+      }
+      /**
+       * <code>optional string lemma = 1;</code>
+       */
+      public Builder setLemmaBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setLemmaBytes(value);
+        return this;
       }
 
-      root_ = value;
-    }
-
-    /**
-     * <code>string root = 2;</code>
-     */
-    public com.google.protobuf.ByteString
-    getRootBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(root_);
-    }
-
-    /**
-     * <code>string root = 2;</code>
-     */
-    private void setRootBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-        throw new NullPointerException();
+      /**
+       * <code>optional string root = 2;</code>
+       */
+      public java.lang.String getRoot() {
+        return instance.getRoot();
       }
-      checkByteStringIsUtf8(value);
-
-      root_ = value.toStringUtf8();
-    }
-
-    /**
-     * <code>string root = 2;</code>
-     */
-    private void clearRoot() {
-
-      root_ = getDefaultInstance().getRoot();
-    }
-
-    /**
-     * <code>string pronunciation = 3;</code>
-     */
-    public java.lang.String getPronunciation() {
-      return pronunciation_;
-    }
-
-    /**
-     * <code>string pronunciation = 3;</code>
-     */
-    private void setPronunciation(
-        java.lang.String value) {
-      if (value == null) {
-        throw new NullPointerException();
+      /**
+       * <code>optional string root = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getRootBytes() {
+        return instance.getRootBytes();
+      }
+      /**
+       * <code>optional string root = 2;</code>
+       */
+      public Builder setRoot(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setRoot(value);
+        return this;
+      }
+      /**
+       * <code>optional string root = 2;</code>
+       */
+      public Builder clearRoot() {
+        copyOnWrite();
+        instance.clearRoot();
+        return this;
+      }
+      /**
+       * <code>optional string root = 2;</code>
+       */
+      public Builder setRootBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setRootBytes(value);
+        return this;
       }
 
-      pronunciation_ = value;
-    }
-
-    /**
-     * <code>string pronunciation = 3;</code>
-     */
-    public com.google.protobuf.ByteString
-    getPronunciationBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(pronunciation_);
-    }
-
-    /**
-     * <code>string pronunciation = 3;</code>
-     */
-    private void setPronunciationBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-        throw new NullPointerException();
+      /**
+       * <code>optional string pronunciation = 3;</code>
+       */
+      public java.lang.String getPronunciation() {
+        return instance.getPronunciation();
       }
-      checkByteStringIsUtf8(value);
-
-      pronunciation_ = value.toStringUtf8();
-    }
-
-    /**
-     * <code>string pronunciation = 3;</code>
-     */
-    private void clearPronunciation() {
-
-      pronunciation_ = getDefaultInstance().getPronunciation();
-    }
-
-    /**
-     * <code>.PrimaryPos primary_pos = 4;</code>
-     */
-    public int getPrimaryPosValue() {
-      return primaryPos_;
-    }
-
-    /**
-     * <code>.PrimaryPos primary_pos = 4;</code>
-     */
-    private void setPrimaryPosValue(int value) {
-      primaryPos_ = value;
-    }
-
-    /**
-     * <code>.PrimaryPos primary_pos = 4;</code>
-     */
-    public zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos getPrimaryPos() {
-      zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos result = zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos
-          .forNumber(primaryPos_);
-      return result == null ? zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos.UNRECOGNIZED
-          : result;
-    }
-
-    /**
-     * <code>.PrimaryPos primary_pos = 4;</code>
-     */
-    private void setPrimaryPos(zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos value) {
-      if (value == null) {
-        throw new NullPointerException();
+      /**
+       * <code>optional string pronunciation = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getPronunciationBytes() {
+        return instance.getPronunciationBytes();
+      }
+      /**
+       * <code>optional string pronunciation = 3;</code>
+       */
+      public Builder setPronunciation(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setPronunciation(value);
+        return this;
+      }
+      /**
+       * <code>optional string pronunciation = 3;</code>
+       */
+      public Builder clearPronunciation() {
+        copyOnWrite();
+        instance.clearPronunciation();
+        return this;
+      }
+      /**
+       * <code>optional string pronunciation = 3;</code>
+       */
+      public Builder setPronunciationBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setPronunciationBytes(value);
+        return this;
       }
 
-      primaryPos_ = value.getNumber();
-    }
-
-    /**
-     * <code>.PrimaryPos primary_pos = 4;</code>
-     */
-    private void clearPrimaryPos() {
-
-      primaryPos_ = 0;
-    }
-
-    /**
-     * <code>.SecondaryPos secondary_pos = 5;</code>
-     */
-    public int getSecondaryPosValue() {
-      return secondaryPos_;
-    }
-
-    /**
-     * <code>.SecondaryPos secondary_pos = 5;</code>
-     */
-    private void setSecondaryPosValue(int value) {
-      secondaryPos_ = value;
-    }
-
-    /**
-     * <code>.SecondaryPos secondary_pos = 5;</code>
-     */
-    public zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos getSecondaryPos() {
-      zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos result = zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos
-          .forNumber(secondaryPos_);
-      return result == null
-          ? zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos.UNRECOGNIZED : result;
-    }
-
-    /**
-     * <code>.SecondaryPos secondary_pos = 5;</code>
-     */
-    private void setSecondaryPos(
-        zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos value) {
-      if (value == null) {
-        throw new NullPointerException();
+      /**
+       * <code>optional string reference = 4;</code>
+       */
+      public java.lang.String getReference() {
+        return instance.getReference();
+      }
+      /**
+       * <code>optional string reference = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getReferenceBytes() {
+        return instance.getReferenceBytes();
+      }
+      /**
+       * <code>optional string reference = 4;</code>
+       */
+      public Builder setReference(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setReference(value);
+        return this;
+      }
+      /**
+       * <code>optional string reference = 4;</code>
+       */
+      public Builder clearReference() {
+        copyOnWrite();
+        instance.clearReference();
+        return this;
+      }
+      /**
+       * <code>optional string reference = 4;</code>
+       */
+      public Builder setReferenceBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setReferenceBytes(value);
+        return this;
       }
 
-      secondaryPos_ = value.getNumber();
+      /**
+       * <code>optional .PrimaryPos primary_pos = 5;</code>
+       */
+      public int getPrimaryPosValue() {
+        return instance.getPrimaryPosValue();
+      }
+      /**
+       * <code>optional .PrimaryPos primary_pos = 5;</code>
+       */
+      public Builder setPrimaryPosValue(int value) {
+        copyOnWrite();
+        instance.setPrimaryPosValue(value);
+        return this;
+      }
+      /**
+       * <code>optional .PrimaryPos primary_pos = 5;</code>
+       */
+      public zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos getPrimaryPos() {
+        return instance.getPrimaryPos();
+      }
+      /**
+       * <code>optional .PrimaryPos primary_pos = 5;</code>
+       */
+      public Builder setPrimaryPos(zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos value) {
+        copyOnWrite();
+        instance.setPrimaryPos(value);
+        return this;
+      }
+      /**
+       * <code>optional .PrimaryPos primary_pos = 5;</code>
+       */
+      public Builder clearPrimaryPos() {
+        copyOnWrite();
+        instance.clearPrimaryPos();
+        return this;
+      }
+
+      /**
+       * <code>optional .SecondaryPos secondary_pos = 6;</code>
+       */
+      public int getSecondaryPosValue() {
+        return instance.getSecondaryPosValue();
+      }
+      /**
+       * <code>optional .SecondaryPos secondary_pos = 6;</code>
+       */
+      public Builder setSecondaryPosValue(int value) {
+        copyOnWrite();
+        instance.setSecondaryPosValue(value);
+        return this;
+      }
+      /**
+       * <code>optional .SecondaryPos secondary_pos = 6;</code>
+       */
+      public zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos getSecondaryPos() {
+        return instance.getSecondaryPos();
+      }
+      /**
+       * <code>optional .SecondaryPos secondary_pos = 6;</code>
+       */
+      public Builder setSecondaryPos(zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos value) {
+        copyOnWrite();
+        instance.setSecondaryPos(value);
+        return this;
+      }
+      /**
+       * <code>optional .SecondaryPos secondary_pos = 6;</code>
+       */
+      public Builder clearSecondaryPos() {
+        copyOnWrite();
+        instance.clearSecondaryPos();
+        return this;
+      }
+
+      /**
+       * <code>repeated .RootAttribute root_attributes = 7;</code>
+       */
+      public java.util.List<zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute> getRootAttributesList() {
+        return instance.getRootAttributesList();
+      }
+      /**
+       * <code>repeated .RootAttribute root_attributes = 7;</code>
+       */
+      public int getRootAttributesCount() {
+        return instance.getRootAttributesCount();
+      }
+      /**
+       * <code>repeated .RootAttribute root_attributes = 7;</code>
+       */
+      public zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute getRootAttributes(int index) {
+        return instance.getRootAttributes(index);
+      }
+      /**
+       * <code>repeated .RootAttribute root_attributes = 7;</code>
+       */
+      public Builder setRootAttributes(
+          int index, zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute value) {
+        copyOnWrite();
+        instance.setRootAttributes(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .RootAttribute root_attributes = 7;</code>
+       */
+      public Builder addRootAttributes(zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute value) {
+        copyOnWrite();
+        instance.addRootAttributes(value);
+        return this;
+      }
+      /**
+       * <code>repeated .RootAttribute root_attributes = 7;</code>
+       */
+      public Builder addAllRootAttributes(
+          java.lang.Iterable<? extends zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute> values) {
+        copyOnWrite();
+        instance.addAllRootAttributes(values);  return this;
+      }
+      /**
+       * <code>repeated .RootAttribute root_attributes = 7;</code>
+       */
+      public Builder clearRootAttributes() {
+        copyOnWrite();
+        instance.clearRootAttributes();
+        return this;
+      }
+      /**
+       * <code>repeated .RootAttribute root_attributes = 7;</code>
+       */
+      public java.util.List<java.lang.Integer>
+      getRootAttributesValueList() {
+        return java.util.Collections.unmodifiableList(
+            instance.getRootAttributesValueList());
+      }
+      /**
+       * <code>repeated .RootAttribute root_attributes = 7;</code>
+       */
+      public int getRootAttributesValue(int index) {
+        return instance.getRootAttributesValue(index);
+      }
+      /**
+       * <code>repeated .RootAttribute root_attributes = 7;</code>
+       */
+      public Builder setRootAttributesValue(
+          int index, int value) {
+        copyOnWrite();
+        instance.setRootAttributesValue(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .RootAttribute root_attributes = 7;</code>
+       */
+      public Builder addRootAttributesValue(int value) {
+        instance.addRootAttributesValue(value);
+        return this;
+      }
+      /**
+       * <code>repeated .RootAttribute root_attributes = 7;</code>
+       */
+      public Builder addAllRootAttributesValue(
+          java.lang.Iterable<java.lang.Integer> values) {
+        copyOnWrite();
+        instance.addAllRootAttributesValue(values);
+        return this;
+      }
+
+      /**
+       * <code>optional int32 index = 8;</code>
+       */
+      public int getIndex() {
+        return instance.getIndex();
+      }
+      /**
+       * <code>optional int32 index = 8;</code>
+       */
+      public Builder setIndex(int value) {
+        copyOnWrite();
+        instance.setIndex(value);
+        return this;
+      }
+      /**
+       * <code>optional int32 index = 8;</code>
+       */
+      public Builder clearIndex() {
+        copyOnWrite();
+        instance.clearIndex();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:DictionaryItem)
     }
-
-    /**
-     * <code>.SecondaryPos secondary_pos = 5;</code>
-     */
-    private void clearSecondaryPos() {
-
-      secondaryPos_ = 0;
-    }
-
-    /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
-     */
-    public java.util.List<zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute> getRootAttributesList() {
-      return new com.google.protobuf.Internal.ListAdapter<
-          java.lang.Integer, zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute>(
-          rootAttributes_, rootAttributes_converter_);
-    }
-
-    /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
-     */
-    public int getRootAttributesCount() {
-      return rootAttributes_.size();
-    }
-
-    /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
-     */
-    public zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute getRootAttributes(
-        int index) {
-      return rootAttributes_converter_.convert(rootAttributes_.getInt(index));
-    }
-
-    /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
-     */
-    public java.util.List<java.lang.Integer>
-    getRootAttributesValueList() {
-      return rootAttributes_;
-    }
-
-    /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
-     */
-    public int getRootAttributesValue(int index) {
-      return rootAttributes_.getInt(index);
-    }
-
-    private void ensureRootAttributesIsMutable() {
-      if (!rootAttributes_.isModifiable()) {
-        rootAttributes_ =
-            com.google.protobuf.GeneratedMessageLite.mutableCopy(rootAttributes_);
-      }
-    }
-
-    /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
-     */
-    private void setRootAttributes(
-        int index, zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute value) {
-      if (value == null) {
-        throw new NullPointerException();
-      }
-      ensureRootAttributesIsMutable();
-      rootAttributes_.setInt(index, value.getNumber());
-    }
-
-    /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
-     */
-    private void addRootAttributes(
-        zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute value) {
-      if (value == null) {
-        throw new NullPointerException();
-      }
-      ensureRootAttributesIsMutable();
-      rootAttributes_.addInt(value.getNumber());
-    }
-
-    /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
-     */
-    private void addAllRootAttributes(
-        java.lang.Iterable<? extends zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute> values) {
-      ensureRootAttributesIsMutable();
-      for (zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute value : values) {
-        rootAttributes_.addInt(value.getNumber());
-      }
-    }
-
-    /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
-     */
-    private void clearRootAttributes() {
-      rootAttributes_ = emptyIntList();
-    }
-
-    /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
-     */
-    private void setRootAttributesValue(
-        int index, int value) {
-      ensureRootAttributesIsMutable();
-      rootAttributes_.setInt(index, value);
-    }
-
-    /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
-     */
-    private void addRootAttributesValue(int value) {
-      ensureRootAttributesIsMutable();
-      rootAttributes_.addInt(value);
-    }
-
-    /**
-     * <code>repeated .RootAttribute root_attributes = 6;</code>
-     */
-    private void addAllRootAttributesValue(
-        java.lang.Iterable<java.lang.Integer> values) {
-      ensureRootAttributesIsMutable();
-      for (int value : values) {
-        rootAttributes_.addInt(value);
-      }
-    }
-
-    /**
-     * <code>int32 index = 7;</code>
-     */
-    public int getIndex() {
-      return index_;
-    }
-
-    /**
-     * <code>int32 index = 7;</code>
-     */
-    private void setIndex(int value) {
-
-      index_ = value;
-    }
-
-    /**
-     * <code>int32 index = 7;</code>
-     */
-    private void clearIndex() {
-
-      index_ = 0;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-        throws java.io.IOException {
-      getSerializedSize();
-      if (!lemma_.isEmpty()) {
-        output.writeString(1, getLemma());
-      }
-      if (!root_.isEmpty()) {
-        output.writeString(2, getRoot());
-      }
-      if (!pronunciation_.isEmpty()) {
-        output.writeString(3, getPronunciation());
-      }
-      if (primaryPos_
-          != zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos.PrimaryPos_Unknown
-          .getNumber()) {
-        output.writeEnum(4, primaryPos_);
-      }
-      if (secondaryPos_
-          != zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos.SecondaryPos_Unknown
-          .getNumber()) {
-        output.writeEnum(5, secondaryPos_);
-      }
-      if (getRootAttributesList().size() > 0) {
-        output.writeUInt32NoTag(50);
-        output.writeUInt32NoTag(rootAttributesMemoizedSerializedSize);
-      }
-      for (int i = 0; i < rootAttributes_.size(); i++) {
-        output.writeEnumNoTag(rootAttributes_.getInt(i));
-      }
-      if (index_ != 0) {
-        output.writeInt32(7, index_);
-      }
-      unknownFields.writeTo(output);
-    }
-
-    public int getSerializedSize() {
-      int size = memoizedSerializedSize;
-      if (size != -1) {
-        return size;
-      }
-
-      size = 0;
-      if (!lemma_.isEmpty()) {
-        size += com.google.protobuf.CodedOutputStream
-            .computeStringSize(1, getLemma());
-      }
-      if (!root_.isEmpty()) {
-        size += com.google.protobuf.CodedOutputStream
-            .computeStringSize(2, getRoot());
-      }
-      if (!pronunciation_.isEmpty()) {
-        size += com.google.protobuf.CodedOutputStream
-            .computeStringSize(3, getPronunciation());
-      }
-      if (primaryPos_
-          != zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos.PrimaryPos_Unknown
-          .getNumber()) {
-        size += com.google.protobuf.CodedOutputStream
-            .computeEnumSize(4, primaryPos_);
-      }
-      if (secondaryPos_
-          != zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos.SecondaryPos_Unknown
-          .getNumber()) {
-        size += com.google.protobuf.CodedOutputStream
-            .computeEnumSize(5, secondaryPos_);
-      }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < rootAttributes_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
-              .computeEnumSizeNoTag(rootAttributes_.getInt(i));
-        }
-        size += dataSize;
-        if (!getRootAttributesList().isEmpty()) {
-          size += 1;
-          size += com.google.protobuf.CodedOutputStream
-              .computeUInt32SizeNoTag(dataSize);
-        }
-        rootAttributesMemoizedSerializedSize = dataSize;
-      }
-      if (index_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-            .computeInt32Size(7, index_);
-      }
-      size += unknownFields.getSerializedSize();
-      memoizedSerializedSize = size;
-      return size;
-    }
-
-    @java.lang.SuppressWarnings({"unchecked", "fallthrough"})
-    protected final java.lang.Object dynamicMethod(
+    protected final Object dynamicMethod(
         com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
-        java.lang.Object arg0, java.lang.Object arg1) {
+        Object arg0, Object arg1) {
       switch (method) {
         case NEW_MUTABLE_INSTANCE: {
           return new zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem();
@@ -1659,12 +1761,11 @@ public final class LexiconProto {
               !other.root_.isEmpty(), other.root_);
           pronunciation_ = visitor.visitString(!pronunciation_.isEmpty(), pronunciation_,
               !other.pronunciation_.isEmpty(), other.pronunciation_);
-          primaryPos_ = visitor
-              .visitInt(primaryPos_ != 0, primaryPos_, other.primaryPos_ != 0, other.primaryPos_);
-          secondaryPos_ = visitor
-              .visitInt(secondaryPos_ != 0, secondaryPos_, other.secondaryPos_ != 0,
-                  other.secondaryPos_);
-          rootAttributes_ = visitor.visitIntList(rootAttributes_, other.rootAttributes_);
+          reference_ = visitor.visitString(!reference_.isEmpty(), reference_,
+              !other.reference_.isEmpty(), other.reference_);
+          primaryPos_ = visitor.visitInt(primaryPos_ != 0, primaryPos_,    other.primaryPos_ != 0, other.primaryPos_);
+          secondaryPos_ = visitor.visitInt(secondaryPos_ != 0, secondaryPos_,    other.secondaryPos_ != 0, other.secondaryPos_);
+          rootAttributes_= visitor.visitIntList(rootAttributes_, other.rootAttributes_);
           index_ = visitor.visitInt(index_ != 0, index_,
               other.index_ != 0, other.index_);
           if (visitor == com.google.protobuf.GeneratedMessageLite.MergeFromVisitor
@@ -1687,42 +1788,48 @@ public final class LexiconProto {
                   done = true;
                   break;
                 default: {
-                  if (!parseUnknownField(tag, input)) {
+                  if (!input.skipField(tag)) {
                     done = true;
                   }
                   break;
                 }
                 case 10: {
-                  java.lang.String s = input.readStringRequireUtf8();
+                  String s = input.readStringRequireUtf8();
 
                   lemma_ = s;
                   break;
                 }
                 case 18: {
-                  java.lang.String s = input.readStringRequireUtf8();
+                  String s = input.readStringRequireUtf8();
 
                   root_ = s;
                   break;
                 }
                 case 26: {
-                  java.lang.String s = input.readStringRequireUtf8();
+                  String s = input.readStringRequireUtf8();
 
                   pronunciation_ = s;
                   break;
                 }
-                case 32: {
-                  int rawValue = input.readEnum();
+                case 34: {
+                  String s = input.readStringRequireUtf8();
 
-                  primaryPos_ = rawValue;
+                  reference_ = s;
                   break;
                 }
                 case 40: {
                   int rawValue = input.readEnum();
 
-                  secondaryPos_ = rawValue;
+                  primaryPos_ = rawValue;
                   break;
                 }
                 case 48: {
+                  int rawValue = input.readEnum();
+
+                  secondaryPos_ = rawValue;
+                  break;
+                }
+                case 56: {
                   if (!rootAttributes_.isModifiable()) {
                     rootAttributes_ =
                         com.google.protobuf.GeneratedMessageLite.mutableCopy(rootAttributes_);
@@ -1730,20 +1837,20 @@ public final class LexiconProto {
                   rootAttributes_.addInt(input.readEnum());
                   break;
                 }
-                case 50: {
+                case 58: {
                   if (!rootAttributes_.isModifiable()) {
                     rootAttributes_ =
                         com.google.protobuf.GeneratedMessageLite.mutableCopy(rootAttributes_);
                   }
                   int length = input.readRawVarint32();
                   int oldLimit = input.pushLimit(length);
-                  while (input.getBytesUntilLimit() > 0) {
+                  while(input.getBytesUntilLimit() > 0) {
                     rootAttributes_.addInt(input.readEnum());
                   }
                   input.popLimit(oldLimit);
                   break;
                 }
-                case 56: {
+                case 64: {
 
                   index_ = input.readInt32();
                   break;
@@ -1759,13 +1866,11 @@ public final class LexiconProto {
           } finally {
           }
         }
-        // fall through
         case GET_DEFAULT_INSTANCE: {
           return DEFAULT_INSTANCE;
         }
         case GET_PARSER: {
-          if (PARSER == null) {
-            synchronized (zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.class) {
+          if (PARSER == null) {    synchronized (zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.class) {
               if (PARSER == null) {
                 PARSER = new DefaultInstanceBasedParser(DEFAULT_INSTANCE);
               }
@@ -1777,651 +1882,61 @@ public final class LexiconProto {
       throw new UnsupportedOperationException();
     }
 
-    /**
-     * Protobuf type {@code DictionaryItem}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageLite.Builder<
-            zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem, Builder> implements
-        // @@protoc_insertion_point(builder_implements:DictionaryItem)
-        zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItemOrBuilder {
 
-      // Construct using zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.newBuilder()
-      private Builder() {
-        super(DEFAULT_INSTANCE);
-      }
-
-
-      /**
-       * <code>string lemma = 1;</code>
-       */
-      public java.lang.String getLemma() {
-        return instance.getLemma();
-      }
-
-      /**
-       * <code>string lemma = 1;</code>
-       */
-      public Builder setLemma(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setLemma(value);
-        return this;
-      }
-
-      /**
-       * <code>string lemma = 1;</code>
-       */
-      public com.google.protobuf.ByteString
-      getLemmaBytes() {
-        return instance.getLemmaBytes();
-      }
-
-      /**
-       * <code>string lemma = 1;</code>
-       */
-      public Builder setLemmaBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setLemmaBytes(value);
-        return this;
-      }
-
-      /**
-       * <code>string lemma = 1;</code>
-       */
-      public Builder clearLemma() {
-        copyOnWrite();
-        instance.clearLemma();
-        return this;
-      }
-
-      /**
-       * <code>string root = 2;</code>
-       */
-      public java.lang.String getRoot() {
-        return instance.getRoot();
-      }
-
-      /**
-       * <code>string root = 2;</code>
-       */
-      public Builder setRoot(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setRoot(value);
-        return this;
-      }
-
-      /**
-       * <code>string root = 2;</code>
-       */
-      public com.google.protobuf.ByteString
-      getRootBytes() {
-        return instance.getRootBytes();
-      }
-
-      /**
-       * <code>string root = 2;</code>
-       */
-      public Builder setRootBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setRootBytes(value);
-        return this;
-      }
-
-      /**
-       * <code>string root = 2;</code>
-       */
-      public Builder clearRoot() {
-        copyOnWrite();
-        instance.clearRoot();
-        return this;
-      }
-
-      /**
-       * <code>string pronunciation = 3;</code>
-       */
-      public java.lang.String getPronunciation() {
-        return instance.getPronunciation();
-      }
-
-      /**
-       * <code>string pronunciation = 3;</code>
-       */
-      public Builder setPronunciation(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setPronunciation(value);
-        return this;
-      }
-
-      /**
-       * <code>string pronunciation = 3;</code>
-       */
-      public com.google.protobuf.ByteString
-      getPronunciationBytes() {
-        return instance.getPronunciationBytes();
-      }
-
-      /**
-       * <code>string pronunciation = 3;</code>
-       */
-      public Builder setPronunciationBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setPronunciationBytes(value);
-        return this;
-      }
-
-      /**
-       * <code>string pronunciation = 3;</code>
-       */
-      public Builder clearPronunciation() {
-        copyOnWrite();
-        instance.clearPronunciation();
-        return this;
-      }
-
-      /**
-       * <code>.PrimaryPos primary_pos = 4;</code>
-       */
-      public int getPrimaryPosValue() {
-        return instance.getPrimaryPosValue();
-      }
-
-      /**
-       * <code>.PrimaryPos primary_pos = 4;</code>
-       */
-      public Builder setPrimaryPosValue(int value) {
-        copyOnWrite();
-        instance.setPrimaryPosValue(value);
-        return this;
-      }
-
-      /**
-       * <code>.PrimaryPos primary_pos = 4;</code>
-       */
-      public zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos getPrimaryPos() {
-        return instance.getPrimaryPos();
-      }
-
-      /**
-       * <code>.PrimaryPos primary_pos = 4;</code>
-       */
-      public Builder setPrimaryPos(
-          zemberek.morphology.lexicon.proto.LexiconProto.PrimaryPos value) {
-        copyOnWrite();
-        instance.setPrimaryPos(value);
-        return this;
-      }
-
-      /**
-       * <code>.PrimaryPos primary_pos = 4;</code>
-       */
-      public Builder clearPrimaryPos() {
-        copyOnWrite();
-        instance.clearPrimaryPos();
-        return this;
-      }
-
-      /**
-       * <code>.SecondaryPos secondary_pos = 5;</code>
-       */
-      public int getSecondaryPosValue() {
-        return instance.getSecondaryPosValue();
-      }
-
-      /**
-       * <code>.SecondaryPos secondary_pos = 5;</code>
-       */
-      public Builder setSecondaryPosValue(int value) {
-        copyOnWrite();
-        instance.setSecondaryPosValue(value);
-        return this;
-      }
-
-      /**
-       * <code>.SecondaryPos secondary_pos = 5;</code>
-       */
-      public zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos getSecondaryPos() {
-        return instance.getSecondaryPos();
-      }
-
-      /**
-       * <code>.SecondaryPos secondary_pos = 5;</code>
-       */
-      public Builder setSecondaryPos(
-          zemberek.morphology.lexicon.proto.LexiconProto.SecondaryPos value) {
-        copyOnWrite();
-        instance.setSecondaryPos(value);
-        return this;
-      }
-
-      /**
-       * <code>.SecondaryPos secondary_pos = 5;</code>
-       */
-      public Builder clearSecondaryPos() {
-        copyOnWrite();
-        instance.clearSecondaryPos();
-        return this;
-      }
-
-      /**
-       * <code>repeated .RootAttribute root_attributes = 6;</code>
-       */
-      public java.util.List<zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute> getRootAttributesList() {
-        return instance.getRootAttributesList();
-      }
-
-      /**
-       * <code>repeated .RootAttribute root_attributes = 6;</code>
-       */
-      public int getRootAttributesCount() {
-        return instance.getRootAttributesCount();
-      }
-
-      /**
-       * <code>repeated .RootAttribute root_attributes = 6;</code>
-       */
-      public zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute getRootAttributes(
-          int index) {
-        return instance.getRootAttributes(index);
-      }
-
-      /**
-       * <code>repeated .RootAttribute root_attributes = 6;</code>
-       */
-      public Builder setRootAttributes(
-          int index, zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute value) {
-        copyOnWrite();
-        instance.setRootAttributes(index, value);
-        return this;
-      }
-
-      /**
-       * <code>repeated .RootAttribute root_attributes = 6;</code>
-       */
-      public Builder addRootAttributes(
-          zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute value) {
-        copyOnWrite();
-        instance.addRootAttributes(value);
-        return this;
-      }
-
-      /**
-       * <code>repeated .RootAttribute root_attributes = 6;</code>
-       */
-      public Builder addAllRootAttributes(
-          java.lang.Iterable<? extends zemberek.morphology.lexicon.proto.LexiconProto.RootAttribute> values) {
-        copyOnWrite();
-        instance.addAllRootAttributes(values);
-        return this;
-      }
-
-      /**
-       * <code>repeated .RootAttribute root_attributes = 6;</code>
-       */
-      public Builder clearRootAttributes() {
-        copyOnWrite();
-        instance.clearRootAttributes();
-        return this;
-      }
-
-      /**
-       * <code>repeated .RootAttribute root_attributes = 6;</code>
-       */
-      public java.util.List<java.lang.Integer>
-      getRootAttributesValueList() {
-        return java.util.Collections.unmodifiableList(
-            instance.getRootAttributesValueList());
-      }
-
-      /**
-       * <code>repeated .RootAttribute root_attributes = 6;</code>
-       */
-      public int getRootAttributesValue(int index) {
-        return instance.getRootAttributesValue(index);
-      }
-
-      /**
-       * <code>repeated .RootAttribute root_attributes = 6;</code>
-       */
-      public Builder setRootAttributesValue(
-          int index, int value) {
-        copyOnWrite();
-        instance.setRootAttributesValue(index, value);
-        return this;
-      }
-
-      /**
-       * <code>repeated .RootAttribute root_attributes = 6;</code>
-       */
-      public Builder addRootAttributesValue(int value) {
-        instance.addRootAttributesValue(value);
-        return this;
-      }
-
-      /**
-       * <code>repeated .RootAttribute root_attributes = 6;</code>
-       */
-      public Builder addAllRootAttributesValue(
-          java.lang.Iterable<java.lang.Integer> values) {
-        copyOnWrite();
-        instance.addAllRootAttributesValue(values);
-        return this;
-      }
-
-      /**
-       * <code>int32 index = 7;</code>
-       */
-      public int getIndex() {
-        return instance.getIndex();
-      }
-
-      /**
-       * <code>int32 index = 7;</code>
-       */
-      public Builder setIndex(int value) {
-        copyOnWrite();
-        instance.setIndex(value);
-        return this;
-      }
-
-      /**
-       * <code>int32 index = 7;</code>
-       */
-      public Builder clearIndex() {
-        copyOnWrite();
-        instance.clearIndex();
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:DictionaryItem)
-    }
-  }
-
-  /**
-   * Protobuf type {@code Dictionary}
-   */
-  public static final class Dictionary extends
-      com.google.protobuf.GeneratedMessageLite<
-          Dictionary, Dictionary.Builder> implements
-      // @@protoc_insertion_point(message_implements:Dictionary)
-      DictionaryOrBuilder {
-
-    public static final int GENERATION_TIMESTAMP_FIELD_NUMBER = 1;
-    public static final int GENERATION_TIME_FIELD_NUMBER = 2;
-    public static final int NAME_FIELD_NUMBER = 3;
-    public static final int SOURCES_FIELD_NUMBER = 4;
-    public static final int IGNORE_FIELD_NUMBER = 5;
-    public static final int ITEMS_FIELD_NUMBER = 6;
-    // @@protoc_insertion_point(class_scope:Dictionary)
-    private static final zemberek.morphology.lexicon.proto.LexiconProto.Dictionary DEFAULT_INSTANCE;
-    private static volatile com.google.protobuf.Parser<Dictionary> PARSER;
-
+    // @@protoc_insertion_point(class_scope:DictionaryItem)
+    private static final zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new Dictionary();
+      DEFAULT_INSTANCE = new DictionaryItem();
       DEFAULT_INSTANCE.makeImmutable();
     }
 
-    private int bitField0_;
-    private long generationTimestamp_;
-    private java.lang.String generationTime_;
-    private java.lang.String name_;
-    private com.google.protobuf.Internal.ProtobufList<java.lang.String> sources_;
-    private boolean ignore_;
-    private com.google.protobuf.Internal.ProtobufList<zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem> items_;
-    private Dictionary() {
-      generationTime_ = "";
-      name_ = "";
-      sources_ = com.google.protobuf.GeneratedMessageLite.emptyProtobufList();
-      items_ = emptyProtobufList();
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(
-        java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseDelimitedFrom(
-        java.io.InputStream input)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-
-    public static Builder newBuilder(
-        zemberek.morphology.lexicon.proto.LexiconProto.Dictionary prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary getDefaultInstance() {
+    public static zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    public static com.google.protobuf.Parser<Dictionary> parser() {
+    private static volatile com.google.protobuf.Parser<DictionaryItem> PARSER;
+
+    public static com.google.protobuf.Parser<DictionaryItem> parser() {
       return DEFAULT_INSTANCE.getParserForType();
     }
+  }
+
+  public interface DictionaryOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:Dictionary)
+      com.google.protobuf.MessageLiteOrBuilder {
 
     /**
-     * <code>int64 generation_timestamp = 1;</code>
+     * <code>optional int64 generation_timestamp = 1;</code>
      */
-    public long getGenerationTimestamp() {
-      return generationTimestamp_;
-    }
-
-    /**
-     * <code>int64 generation_timestamp = 1;</code>
-     */
-    private void setGenerationTimestamp(long value) {
-
-      generationTimestamp_ = value;
-    }
-
-    /**
-     * <code>int64 generation_timestamp = 1;</code>
-     */
-    private void clearGenerationTimestamp() {
-
-      generationTimestamp_ = 0L;
-    }
+    long getGenerationTimestamp();
 
     /**
      * <pre>
      * Human readable.
      * </pre>
      *
-     * <code>string generation_time = 2;</code>
+     * <code>optional string generation_time = 2;</code>
      */
-    public java.lang.String getGenerationTime() {
-      return generationTime_;
-    }
-
+    java.lang.String getGenerationTime();
     /**
      * <pre>
      * Human readable.
      * </pre>
      *
-     * <code>string generation_time = 2;</code>
+     * <code>optional string generation_time = 2;</code>
      */
-    private void setGenerationTime(
-        java.lang.String value) {
-      if (value == null) {
-        throw new NullPointerException();
-      }
-
-      generationTime_ = value;
-    }
+    com.google.protobuf.ByteString
+        getGenerationTimeBytes();
 
     /**
-     * <pre>
-     * Human readable.
-     * </pre>
-     *
-     * <code>string generation_time = 2;</code>
+     * <code>optional string name = 3;</code>
      */
-    public com.google.protobuf.ByteString
-    getGenerationTimeBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(generationTime_);
-    }
-
+    java.lang.String getName();
     /**
-     * <pre>
-     * Human readable.
-     * </pre>
-     *
-     * <code>string generation_time = 2;</code>
+     * <code>optional string name = 3;</code>
      */
-    private void setGenerationTimeBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-        throw new NullPointerException();
-      }
-      checkByteStringIsUtf8(value);
-
-      generationTime_ = value.toStringUtf8();
-    }
-
-    /**
-     * <pre>
-     * Human readable.
-     * </pre>
-     *
-     * <code>string generation_time = 2;</code>
-     */
-    private void clearGenerationTime() {
-
-      generationTime_ = getDefaultInstance().getGenerationTime();
-    }
-
-    /**
-     * <code>string name = 3;</code>
-     */
-    public java.lang.String getName() {
-      return name_;
-    }
-
-    /**
-     * <code>string name = 3;</code>
-     */
-    private void setName(
-        java.lang.String value) {
-      if (value == null) {
-        throw new NullPointerException();
-      }
-
-      name_ = value;
-    }
-
-    /**
-     * <code>string name = 3;</code>
-     */
-    public com.google.protobuf.ByteString
-    getNameBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(name_);
-    }
-
-    /**
-     * <code>string name = 3;</code>
-     */
-    private void setNameBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-        throw new NullPointerException();
-      }
-      checkByteStringIsUtf8(value);
-
-      name_ = value.toStringUtf8();
-    }
-
-    /**
-     * <code>string name = 3;</code>
-     */
-    private void clearName() {
-
-      name_ = getDefaultInstance().getName();
-    }
+    com.google.protobuf.ByteString
+        getNameBytes();
 
     /**
      * <pre>
@@ -2430,10 +1945,295 @@ public final class LexiconProto {
      *
      * <code>repeated string sources = 4;</code>
      */
-    public java.util.List<java.lang.String> getSourcesList() {
-      return sources_;
+    java.util.List<String>
+        getSourcesList();
+    /**
+     * <pre>
+     * Original sources;
+     * </pre>
+     *
+     * <code>repeated string sources = 4;</code>
+     */
+    int getSourcesCount();
+    /**
+     * <pre>
+     * Original sources;
+     * </pre>
+     *
+     * <code>repeated string sources = 4;</code>
+     */
+    java.lang.String getSources(int index);
+    /**
+     * <pre>
+     * Original sources;
+     * </pre>
+     *
+     * <code>repeated string sources = 4;</code>
+     */
+    com.google.protobuf.ByteString
+        getSourcesBytes(int index);
+
+    /**
+     * <pre>
+     * For debugging etc.
+     * </pre>
+     *
+     * <code>optional bool ignore = 5;</code>
+     */
+    boolean getIgnore();
+
+    /**
+     * <code>repeated .DictionaryItem items = 6;</code>
+     */
+    java.util.List<zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem> 
+        getItemsList();
+    /**
+     * <code>repeated .DictionaryItem items = 6;</code>
+     */
+    zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem getItems(int index);
+    /**
+     * <code>repeated .DictionaryItem items = 6;</code>
+     */
+    int getItemsCount();
+  }
+  /**
+   * Protobuf type {@code Dictionary}
+   */
+  public  static final class Dictionary extends
+      com.google.protobuf.GeneratedMessageLite<
+          Dictionary, Dictionary.Builder> implements
+      // @@protoc_insertion_point(message_implements:Dictionary)
+      DictionaryOrBuilder {
+    private Dictionary() {
+      generationTime_ = "";
+      name_ = "";
+      sources_ = com.google.protobuf.GeneratedMessageLite.emptyProtobufList();
+      items_ = emptyProtobufList();
+    }
+    /**
+     * Protobuf enum {@code Dictionary.Creator}
+     */
+    public enum Creator
+        implements com.google.protobuf.Internal.EnumLite {
+      /**
+       * <code>Unknown = 0;</code>
+       */
+      Unknown(0),
+      /**
+       * <code>Robot = 1;</code>
+       */
+      Robot(1),
+      /**
+       * <code>Manual = 2;</code>
+       */
+      Manual(2),
+      UNRECOGNIZED(-1),
+      ;
+
+      /**
+       * <code>Unknown = 0;</code>
+       */
+      public static final int Unknown_VALUE = 0;
+      /**
+       * <code>Robot = 1;</code>
+       */
+      public static final int Robot_VALUE = 1;
+      /**
+       * <code>Manual = 2;</code>
+       */
+      public static final int Manual_VALUE = 2;
+
+
+      public final int getNumber() {
+        return value;
+      }
+
+      /**
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
+      public static Creator valueOf(int value) {
+        return forNumber(value);
+      }
+
+      public static Creator forNumber(int value) {
+        switch (value) {
+          case 0: return Unknown;
+          case 1: return Robot;
+          case 2: return Manual;
+          default: return null;
+        }
+      }
+
+      public static com.google.protobuf.Internal.EnumLiteMap<Creator>
+          internalGetValueMap() {
+        return internalValueMap;
+      }
+      private static final com.google.protobuf.Internal.EnumLiteMap<
+          Creator> internalValueMap =
+            new com.google.protobuf.Internal.EnumLiteMap<Creator>() {
+              public Creator findValueByNumber(int number) {
+                return Creator.forNumber(number);
+              }
+            };
+
+      private final int value;
+
+      private Creator(int value) {
+        this.value = value;
+      }
+
+      // @@protoc_insertion_point(enum_scope:Dictionary.Creator)
     }
 
+    private int bitField0_;
+    public static final int GENERATION_TIMESTAMP_FIELD_NUMBER = 1;
+    private long generationTimestamp_;
+    /**
+     * <code>optional int64 generation_timestamp = 1;</code>
+     */
+    public long getGenerationTimestamp() {
+      return generationTimestamp_;
+    }
+    /**
+     * <code>optional int64 generation_timestamp = 1;</code>
+     */
+    private void setGenerationTimestamp(long value) {
+      
+      generationTimestamp_ = value;
+    }
+    /**
+     * <code>optional int64 generation_timestamp = 1;</code>
+     */
+    private void clearGenerationTimestamp() {
+      
+      generationTimestamp_ = 0L;
+    }
+
+    public static final int GENERATION_TIME_FIELD_NUMBER = 2;
+    private java.lang.String generationTime_;
+    /**
+     * <pre>
+     * Human readable.
+     * </pre>
+     *
+     * <code>optional string generation_time = 2;</code>
+     */
+    public java.lang.String getGenerationTime() {
+      return generationTime_;
+    }
+    /**
+     * <pre>
+     * Human readable.
+     * </pre>
+     *
+     * <code>optional string generation_time = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getGenerationTimeBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(generationTime_);
+    }
+    /**
+     * <pre>
+     * Human readable.
+     * </pre>
+     *
+     * <code>optional string generation_time = 2;</code>
+     */
+    private void setGenerationTime(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      generationTime_ = value;
+    }
+    /**
+     * <pre>
+     * Human readable.
+     * </pre>
+     *
+     * <code>optional string generation_time = 2;</code>
+     */
+    private void clearGenerationTime() {
+      
+      generationTime_ = getDefaultInstance().getGenerationTime();
+    }
+    /**
+     * <pre>
+     * Human readable.
+     * </pre>
+     *
+     * <code>optional string generation_time = 2;</code>
+     */
+    private void setGenerationTimeBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      
+      generationTime_ = value.toStringUtf8();
+    }
+
+    public static final int NAME_FIELD_NUMBER = 3;
+    private java.lang.String name_;
+    /**
+     * <code>optional string name = 3;</code>
+     */
+    public java.lang.String getName() {
+      return name_;
+    }
+    /**
+     * <code>optional string name = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getNameBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(name_);
+    }
+    /**
+     * <code>optional string name = 3;</code>
+     */
+    private void setName(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      name_ = value;
+    }
+    /**
+     * <code>optional string name = 3;</code>
+     */
+    private void clearName() {
+      
+      name_ = getDefaultInstance().getName();
+    }
+    /**
+     * <code>optional string name = 3;</code>
+     */
+    private void setNameBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      
+      name_ = value.toStringUtf8();
+    }
+
+    public static final int SOURCES_FIELD_NUMBER = 4;
+    private com.google.protobuf.Internal.ProtobufList<String> sources_;
+    /**
+     * <pre>
+     * Original sources;
+     * </pre>
+     *
+     * <code>repeated string sources = 4;</code>
+     */
+    public java.util.List<String> getSourcesList() {
+      return sources_;
+    }
     /**
      * <pre>
      * Original sources;
@@ -2444,7 +2244,6 @@ public final class LexiconProto {
     public int getSourcesCount() {
       return sources_.size();
     }
-
     /**
      * <pre>
      * Original sources;
@@ -2455,7 +2254,6 @@ public final class LexiconProto {
     public java.lang.String getSources(int index) {
       return sources_.get(index);
     }
-
     /**
      * <pre>
      * Original sources;
@@ -2464,18 +2262,16 @@ public final class LexiconProto {
      * <code>repeated string sources = 4;</code>
      */
     public com.google.protobuf.ByteString
-    getSourcesBytes(int index) {
+        getSourcesBytes(int index) {
       return com.google.protobuf.ByteString.copyFromUtf8(
           sources_.get(index));
     }
-
     private void ensureSourcesIsMutable() {
       if (!sources_.isModifiable()) {
         sources_ =
             com.google.protobuf.GeneratedMessageLite.mutableCopy(sources_);
-      }
+       }
     }
-
     /**
      * <pre>
      * Original sources;
@@ -2486,12 +2282,11 @@ public final class LexiconProto {
     private void setSources(
         int index, java.lang.String value) {
       if (value == null) {
-        throw new NullPointerException();
-      }
-      ensureSourcesIsMutable();
+    throw new NullPointerException();
+  }
+  ensureSourcesIsMutable();
       sources_.set(index, value);
     }
-
     /**
      * <pre>
      * Original sources;
@@ -2502,12 +2297,11 @@ public final class LexiconProto {
     private void addSources(
         java.lang.String value) {
       if (value == null) {
-        throw new NullPointerException();
-      }
-      ensureSourcesIsMutable();
+    throw new NullPointerException();
+  }
+  ensureSourcesIsMutable();
       sources_.add(value);
     }
-
     /**
      * <pre>
      * Original sources;
@@ -2521,7 +2315,6 @@ public final class LexiconProto {
       com.google.protobuf.AbstractMessageLite.addAll(
           values, sources_);
     }
-
     /**
      * <pre>
      * Original sources;
@@ -2532,7 +2325,6 @@ public final class LexiconProto {
     private void clearSources() {
       sources_ = com.google.protobuf.GeneratedMessageLite.emptyProtobufList();
     }
-
     /**
      * <pre>
      * Original sources;
@@ -2543,77 +2335,75 @@ public final class LexiconProto {
     private void addSourcesBytes(
         com.google.protobuf.ByteString value) {
       if (value == null) {
-        throw new NullPointerException();
-      }
-      checkByteStringIsUtf8(value);
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
       ensureSourcesIsMutable();
       sources_.add(value.toStringUtf8());
     }
 
+    public static final int IGNORE_FIELD_NUMBER = 5;
+    private boolean ignore_;
     /**
      * <pre>
      * For debugging etc.
      * </pre>
      *
-     * <code>bool ignore = 5;</code>
+     * <code>optional bool ignore = 5;</code>
      */
     public boolean getIgnore() {
       return ignore_;
     }
-
     /**
      * <pre>
      * For debugging etc.
      * </pre>
      *
-     * <code>bool ignore = 5;</code>
+     * <code>optional bool ignore = 5;</code>
      */
     private void setIgnore(boolean value) {
-
+      
       ignore_ = value;
     }
-
     /**
      * <pre>
      * For debugging etc.
      * </pre>
      *
-     * <code>bool ignore = 5;</code>
+     * <code>optional bool ignore = 5;</code>
      */
     private void clearIgnore() {
-
+      
       ignore_ = false;
     }
 
+    public static final int ITEMS_FIELD_NUMBER = 6;
+    private com.google.protobuf.Internal.ProtobufList<zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem> items_;
     /**
      * <code>repeated .DictionaryItem items = 6;</code>
      */
     public java.util.List<zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem> getItemsList() {
       return items_;
     }
-
     /**
      * <code>repeated .DictionaryItem items = 6;</code>
      */
-    public java.util.List<? extends zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItemOrBuilder>
-    getItemsOrBuilderList() {
+    public java.util.List<? extends zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItemOrBuilder> 
+        getItemsOrBuilderList() {
       return items_;
     }
-
     /**
      * <code>repeated .DictionaryItem items = 6;</code>
      */
     public int getItemsCount() {
       return items_.size();
     }
-
     /**
      * <code>repeated .DictionaryItem items = 6;</code>
      */
     public zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem getItems(int index) {
       return items_.get(index);
     }
-
     /**
      * <code>repeated .DictionaryItem items = 6;</code>
      */
@@ -2621,12 +2411,11 @@ public final class LexiconProto {
         int index) {
       return items_.get(index);
     }
-
     private void ensureItemsIsMutable() {
       if (!items_.isModifiable()) {
         items_ =
             com.google.protobuf.GeneratedMessageLite.mutableCopy(items_);
-      }
+       }
     }
 
     /**
@@ -2640,17 +2429,14 @@ public final class LexiconProto {
       ensureItemsIsMutable();
       items_.set(index, value);
     }
-
     /**
      * <code>repeated .DictionaryItem items = 6;</code>
      */
     private void setItems(
-        int index,
-        zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.Builder builderForValue) {
+        int index, zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.Builder builderForValue) {
       ensureItemsIsMutable();
       items_.set(index, builderForValue.build());
     }
-
     /**
      * <code>repeated .DictionaryItem items = 6;</code>
      */
@@ -2661,7 +2447,6 @@ public final class LexiconProto {
       ensureItemsIsMutable();
       items_.add(value);
     }
-
     /**
      * <code>repeated .DictionaryItem items = 6;</code>
      */
@@ -2673,7 +2458,6 @@ public final class LexiconProto {
       ensureItemsIsMutable();
       items_.add(index, value);
     }
-
     /**
      * <code>repeated .DictionaryItem items = 6;</code>
      */
@@ -2682,17 +2466,14 @@ public final class LexiconProto {
       ensureItemsIsMutable();
       items_.add(builderForValue.build());
     }
-
     /**
      * <code>repeated .DictionaryItem items = 6;</code>
      */
     private void addItems(
-        int index,
-        zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.Builder builderForValue) {
+        int index, zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.Builder builderForValue) {
       ensureItemsIsMutable();
       items_.add(index, builderForValue.build());
     }
-
     /**
      * <code>repeated .DictionaryItem items = 6;</code>
      */
@@ -2702,14 +2483,12 @@ public final class LexiconProto {
       com.google.protobuf.AbstractMessageLite.addAll(
           values, items_);
     }
-
     /**
      * <code>repeated .DictionaryItem items = 6;</code>
      */
     private void clearItems() {
       items_ = emptyProtobufList();
     }
-
     /**
      * <code>repeated .DictionaryItem items = 6;</code>
      */
@@ -2719,7 +2498,7 @@ public final class LexiconProto {
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
-        throws java.io.IOException {
+                        throws java.io.IOException {
       if (generationTimestamp_ != 0L) {
         output.writeInt64(1, generationTimestamp_);
       }
@@ -2738,54 +2517,496 @@ public final class LexiconProto {
       for (int i = 0; i < items_.size(); i++) {
         output.writeMessage(6, items_.get(i));
       }
-      unknownFields.writeTo(output);
     }
 
     public int getSerializedSize() {
       int size = memoizedSerializedSize;
-      if (size != -1) {
-        return size;
-      }
+      if (size != -1) return size;
 
       size = 0;
       if (generationTimestamp_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
-            .computeInt64Size(1, generationTimestamp_);
+          .computeInt64Size(1, generationTimestamp_);
       }
       if (!generationTime_.isEmpty()) {
         size += com.google.protobuf.CodedOutputStream
-            .computeStringSize(2, getGenerationTime());
+          .computeStringSize(2, getGenerationTime());
       }
       if (!name_.isEmpty()) {
         size += com.google.protobuf.CodedOutputStream
-            .computeStringSize(3, getName());
+          .computeStringSize(3, getName());
       }
       {
         int dataSize = 0;
         for (int i = 0; i < sources_.size(); i++) {
           dataSize += com.google.protobuf.CodedOutputStream
-              .computeStringSizeNoTag(sources_.get(i));
+            .computeStringSizeNoTag(sources_.get(i));
         }
         size += dataSize;
         size += 1 * getSourcesList().size();
       }
       if (ignore_ != false) {
         size += com.google.protobuf.CodedOutputStream
-            .computeBoolSize(5, ignore_);
+          .computeBoolSize(5, ignore_);
       }
       for (int i = 0; i < items_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(6, items_.get(i));
+          .computeMessageSize(6, items_.get(i));
       }
-      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
-    @java.lang.SuppressWarnings({"unchecked", "fallthrough"})
-    protected final java.lang.Object dynamicMethod(
+    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(zemberek.morphology.lexicon.proto.LexiconProto.Dictionary prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+
+    /**
+     * Protobuf type {@code Dictionary}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          zemberek.morphology.lexicon.proto.LexiconProto.Dictionary, Builder> implements
+        // @@protoc_insertion_point(builder_implements:Dictionary)
+        zemberek.morphology.lexicon.proto.LexiconProto.DictionaryOrBuilder {
+      // Construct using zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>optional int64 generation_timestamp = 1;</code>
+       */
+      public long getGenerationTimestamp() {
+        return instance.getGenerationTimestamp();
+      }
+      /**
+       * <code>optional int64 generation_timestamp = 1;</code>
+       */
+      public Builder setGenerationTimestamp(long value) {
+        copyOnWrite();
+        instance.setGenerationTimestamp(value);
+        return this;
+      }
+      /**
+       * <code>optional int64 generation_timestamp = 1;</code>
+       */
+      public Builder clearGenerationTimestamp() {
+        copyOnWrite();
+        instance.clearGenerationTimestamp();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Human readable.
+       * </pre>
+       *
+       * <code>optional string generation_time = 2;</code>
+       */
+      public java.lang.String getGenerationTime() {
+        return instance.getGenerationTime();
+      }
+      /**
+       * <pre>
+       * Human readable.
+       * </pre>
+       *
+       * <code>optional string generation_time = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getGenerationTimeBytes() {
+        return instance.getGenerationTimeBytes();
+      }
+      /**
+       * <pre>
+       * Human readable.
+       * </pre>
+       *
+       * <code>optional string generation_time = 2;</code>
+       */
+      public Builder setGenerationTime(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setGenerationTime(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Human readable.
+       * </pre>
+       *
+       * <code>optional string generation_time = 2;</code>
+       */
+      public Builder clearGenerationTime() {
+        copyOnWrite();
+        instance.clearGenerationTime();
+        return this;
+      }
+      /**
+       * <pre>
+       * Human readable.
+       * </pre>
+       *
+       * <code>optional string generation_time = 2;</code>
+       */
+      public Builder setGenerationTimeBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setGenerationTimeBytes(value);
+        return this;
+      }
+
+      /**
+       * <code>optional string name = 3;</code>
+       */
+      public java.lang.String getName() {
+        return instance.getName();
+      }
+      /**
+       * <code>optional string name = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        return instance.getNameBytes();
+      }
+      /**
+       * <code>optional string name = 3;</code>
+       */
+      public Builder setName(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setName(value);
+        return this;
+      }
+      /**
+       * <code>optional string name = 3;</code>
+       */
+      public Builder clearName() {
+        copyOnWrite();
+        instance.clearName();
+        return this;
+      }
+      /**
+       * <code>optional string name = 3;</code>
+       */
+      public Builder setNameBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setNameBytes(value);
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Original sources;
+       * </pre>
+       *
+       * <code>repeated string sources = 4;</code>
+       */
+      public java.util.List<String>
+          getSourcesList() {
+        return java.util.Collections.unmodifiableList(
+            instance.getSourcesList());
+      }
+      /**
+       * <pre>
+       * Original sources;
+       * </pre>
+       *
+       * <code>repeated string sources = 4;</code>
+       */
+      public int getSourcesCount() {
+        return instance.getSourcesCount();
+      }
+      /**
+       * <pre>
+       * Original sources;
+       * </pre>
+       *
+       * <code>repeated string sources = 4;</code>
+       */
+      public java.lang.String getSources(int index) {
+        return instance.getSources(index);
+      }
+      /**
+       * <pre>
+       * Original sources;
+       * </pre>
+       *
+       * <code>repeated string sources = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getSourcesBytes(int index) {
+        return instance.getSourcesBytes(index);
+      }
+      /**
+       * <pre>
+       * Original sources;
+       * </pre>
+       *
+       * <code>repeated string sources = 4;</code>
+       */
+      public Builder setSources(
+          int index, java.lang.String value) {
+        copyOnWrite();
+        instance.setSources(index, value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Original sources;
+       * </pre>
+       *
+       * <code>repeated string sources = 4;</code>
+       */
+      public Builder addSources(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.addSources(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Original sources;
+       * </pre>
+       *
+       * <code>repeated string sources = 4;</code>
+       */
+      public Builder addAllSources(
+          java.lang.Iterable<java.lang.String> values) {
+        copyOnWrite();
+        instance.addAllSources(values);
+        return this;
+      }
+      /**
+       * <pre>
+       * Original sources;
+       * </pre>
+       *
+       * <code>repeated string sources = 4;</code>
+       */
+      public Builder clearSources() {
+        copyOnWrite();
+        instance.clearSources();
+        return this;
+      }
+      /**
+       * <pre>
+       * Original sources;
+       * </pre>
+       *
+       * <code>repeated string sources = 4;</code>
+       */
+      public Builder addSourcesBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.addSourcesBytes(value);
+        return this;
+      }
+
+      /**
+       * <pre>
+       * For debugging etc.
+       * </pre>
+       *
+       * <code>optional bool ignore = 5;</code>
+       */
+      public boolean getIgnore() {
+        return instance.getIgnore();
+      }
+      /**
+       * <pre>
+       * For debugging etc.
+       * </pre>
+       *
+       * <code>optional bool ignore = 5;</code>
+       */
+      public Builder setIgnore(boolean value) {
+        copyOnWrite();
+        instance.setIgnore(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * For debugging etc.
+       * </pre>
+       *
+       * <code>optional bool ignore = 5;</code>
+       */
+      public Builder clearIgnore() {
+        copyOnWrite();
+        instance.clearIgnore();
+        return this;
+      }
+
+      /**
+       * <code>repeated .DictionaryItem items = 6;</code>
+       */
+      public java.util.List<zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem> getItemsList() {
+        return java.util.Collections.unmodifiableList(
+            instance.getItemsList());
+      }
+      /**
+       * <code>repeated .DictionaryItem items = 6;</code>
+       */
+      public int getItemsCount() {
+        return instance.getItemsCount();
+      }/**
+       * <code>repeated .DictionaryItem items = 6;</code>
+       */
+      public zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem getItems(int index) {
+        return instance.getItems(index);
+      }
+      /**
+       * <code>repeated .DictionaryItem items = 6;</code>
+       */
+      public Builder setItems(
+          int index, zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem value) {
+        copyOnWrite();
+        instance.setItems(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .DictionaryItem items = 6;</code>
+       */
+      public Builder setItems(
+          int index, zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.Builder builderForValue) {
+        copyOnWrite();
+        instance.setItems(index, builderForValue);
+        return this;
+      }
+      /**
+       * <code>repeated .DictionaryItem items = 6;</code>
+       */
+      public Builder addItems(zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem value) {
+        copyOnWrite();
+        instance.addItems(value);
+        return this;
+      }
+      /**
+       * <code>repeated .DictionaryItem items = 6;</code>
+       */
+      public Builder addItems(
+          int index, zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem value) {
+        copyOnWrite();
+        instance.addItems(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .DictionaryItem items = 6;</code>
+       */
+      public Builder addItems(
+          zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.Builder builderForValue) {
+        copyOnWrite();
+        instance.addItems(builderForValue);
+        return this;
+      }
+      /**
+       * <code>repeated .DictionaryItem items = 6;</code>
+       */
+      public Builder addItems(
+          int index, zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.Builder builderForValue) {
+        copyOnWrite();
+        instance.addItems(index, builderForValue);
+        return this;
+      }
+      /**
+       * <code>repeated .DictionaryItem items = 6;</code>
+       */
+      public Builder addAllItems(
+          java.lang.Iterable<? extends zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem> values) {
+        copyOnWrite();
+        instance.addAllItems(values);
+        return this;
+      }
+      /**
+       * <code>repeated .DictionaryItem items = 6;</code>
+       */
+      public Builder clearItems() {
+        copyOnWrite();
+        instance.clearItems();
+        return this;
+      }
+      /**
+       * <code>repeated .DictionaryItem items = 6;</code>
+       */
+      public Builder removeItems(int index) {
+        copyOnWrite();
+        instance.removeItems(index);
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:Dictionary)
+    }
+    protected final Object dynamicMethod(
         com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
-        java.lang.Object arg0, java.lang.Object arg1) {
+        Object arg0, Object arg1) {
       switch (method) {
         case NEW_MUTABLE_INSTANCE: {
           return new zemberek.morphology.lexicon.proto.LexiconProto.Dictionary();
@@ -2810,10 +3031,10 @@ public final class LexiconProto {
               !other.generationTime_.isEmpty(), other.generationTime_);
           name_ = visitor.visitString(!name_.isEmpty(), name_,
               !other.name_.isEmpty(), other.name_);
-          sources_ = visitor.visitList(sources_, other.sources_);
+          sources_= visitor.visitList(sources_, other.sources_);
           ignore_ = visitor.visitBoolean(ignore_ != false, ignore_,
               other.ignore_ != false, other.ignore_);
-          items_ = visitor.visitList(items_, other.items_);
+          items_= visitor.visitList(items_, other.items_);
           if (visitor == com.google.protobuf.GeneratedMessageLite.MergeFromVisitor
               .INSTANCE) {
             bitField0_ |= other.bitField0_;
@@ -2834,7 +3055,7 @@ public final class LexiconProto {
                   done = true;
                   break;
                 default: {
-                  if (!parseUnknownField(tag, input)) {
+                  if (!input.skipField(tag)) {
                     done = true;
                   }
                   break;
@@ -2845,19 +3066,19 @@ public final class LexiconProto {
                   break;
                 }
                 case 18: {
-                  java.lang.String s = input.readStringRequireUtf8();
+                  String s = input.readStringRequireUtf8();
 
                   generationTime_ = s;
                   break;
                 }
                 case 26: {
-                  java.lang.String s = input.readStringRequireUtf8();
+                  String s = input.readStringRequireUtf8();
 
                   name_ = s;
                   break;
                 }
                 case 34: {
-                  java.lang.String s = input.readStringRequireUtf8();
+                  String s = input.readStringRequireUtf8();
                   if (!sources_.isModifiable()) {
                     sources_ =
                         com.google.protobuf.GeneratedMessageLite.mutableCopy(sources_);
@@ -2876,9 +3097,7 @@ public final class LexiconProto {
                         com.google.protobuf.GeneratedMessageLite.mutableCopy(items_);
                   }
                   items_.add(
-                      input.readMessage(
-                          zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.parser(),
-                          extensionRegistry));
+                      input.readMessage(zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.parser(), extensionRegistry));
                   break;
                 }
               }
@@ -2892,13 +3111,11 @@ public final class LexiconProto {
           } finally {
           }
         }
-        // fall through
         case GET_DEFAULT_INSTANCE: {
           return DEFAULT_INSTANCE;
         }
         case GET_PARSER: {
-          if (PARSER == null) {
-            synchronized (zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.class) {
+          if (PARSER == null) {    synchronized (zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.class) {
               if (PARSER == null) {
                 PARSER = new DefaultInstanceBasedParser(DEFAULT_INSTANCE);
               }
@@ -2910,503 +3127,43 @@ public final class LexiconProto {
       throw new UnsupportedOperationException();
     }
 
-    /**
-     * Protobuf enum {@code Dictionary.Creator}
-     */
-    public enum Creator
-        implements com.google.protobuf.Internal.EnumLite {
-      /**
-       * <code>Unknown = 0;</code>
-       */
-      Unknown(0),
-      /**
-       * <code>Robot = 1;</code>
-       */
-      Robot(1),
-      /**
-       * <code>Manual = 2;</code>
-       */
-      Manual(2),
-      UNRECOGNIZED(-1),;
 
-      /**
-       * <code>Unknown = 0;</code>
-       */
-      public static final int Unknown_VALUE = 0;
-      /**
-       * <code>Robot = 1;</code>
-       */
-      public static final int Robot_VALUE = 1;
-      /**
-       * <code>Manual = 2;</code>
-       */
-      public static final int Manual_VALUE = 2;
-      private static final com.google.protobuf.Internal.EnumLiteMap<
-          Creator> internalValueMap =
-          new com.google.protobuf.Internal.EnumLiteMap<Creator>() {
-            public Creator findValueByNumber(int number) {
-              return Creator.forNumber(number);
-            }
-          };
-      private final int value;
-
-      private Creator(int value) {
-        this.value = value;
-      }
-
-      /**
-       * @deprecated Use {@link #forNumber(int)} instead.
-       */
-      @java.lang.Deprecated
-      public static Creator valueOf(int value) {
-        return forNumber(value);
-      }
-
-      public static Creator forNumber(int value) {
-        switch (value) {
-          case 0:
-            return Unknown;
-          case 1:
-            return Robot;
-          case 2:
-            return Manual;
-          default:
-            return null;
-        }
-      }
-
-      public static com.google.protobuf.Internal.EnumLiteMap<Creator>
-      internalGetValueMap() {
-        return internalValueMap;
-      }
-
-      public final int getNumber() {
-        if (this == UNRECOGNIZED) {
-          throw new java.lang.IllegalArgumentException(
-              "Can't get the number of an unknown enum value.");
-        }
-        return value;
-      }
-
-      // @@protoc_insertion_point(enum_scope:Dictionary.Creator)
+    // @@protoc_insertion_point(class_scope:Dictionary)
+    private static final zemberek.morphology.lexicon.proto.LexiconProto.Dictionary DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new Dictionary();
+      DEFAULT_INSTANCE.makeImmutable();
     }
 
-    /**
-     * Protobuf type {@code Dictionary}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageLite.Builder<
-            zemberek.morphology.lexicon.proto.LexiconProto.Dictionary, Builder> implements
-        // @@protoc_insertion_point(builder_implements:Dictionary)
-        zemberek.morphology.lexicon.proto.LexiconProto.DictionaryOrBuilder {
+    public static zemberek.morphology.lexicon.proto.LexiconProto.Dictionary getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
 
-      // Construct using zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.newBuilder()
-      private Builder() {
-        super(DEFAULT_INSTANCE);
-      }
+    private static volatile com.google.protobuf.Parser<Dictionary> PARSER;
 
-
-      /**
-       * <code>int64 generation_timestamp = 1;</code>
-       */
-      public long getGenerationTimestamp() {
-        return instance.getGenerationTimestamp();
-      }
-
-      /**
-       * <code>int64 generation_timestamp = 1;</code>
-       */
-      public Builder setGenerationTimestamp(long value) {
-        copyOnWrite();
-        instance.setGenerationTimestamp(value);
-        return this;
-      }
-
-      /**
-       * <code>int64 generation_timestamp = 1;</code>
-       */
-      public Builder clearGenerationTimestamp() {
-        copyOnWrite();
-        instance.clearGenerationTimestamp();
-        return this;
-      }
-
-      /**
-       * <pre>
-       * Human readable.
-       * </pre>
-       *
-       * <code>string generation_time = 2;</code>
-       */
-      public java.lang.String getGenerationTime() {
-        return instance.getGenerationTime();
-      }
-
-      /**
-       * <pre>
-       * Human readable.
-       * </pre>
-       *
-       * <code>string generation_time = 2;</code>
-       */
-      public Builder setGenerationTime(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setGenerationTime(value);
-        return this;
-      }
-
-      /**
-       * <pre>
-       * Human readable.
-       * </pre>
-       *
-       * <code>string generation_time = 2;</code>
-       */
-      public com.google.protobuf.ByteString
-      getGenerationTimeBytes() {
-        return instance.getGenerationTimeBytes();
-      }
-
-      /**
-       * <pre>
-       * Human readable.
-       * </pre>
-       *
-       * <code>string generation_time = 2;</code>
-       */
-      public Builder setGenerationTimeBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setGenerationTimeBytes(value);
-        return this;
-      }
-
-      /**
-       * <pre>
-       * Human readable.
-       * </pre>
-       *
-       * <code>string generation_time = 2;</code>
-       */
-      public Builder clearGenerationTime() {
-        copyOnWrite();
-        instance.clearGenerationTime();
-        return this;
-      }
-
-      /**
-       * <code>string name = 3;</code>
-       */
-      public java.lang.String getName() {
-        return instance.getName();
-      }
-
-      /**
-       * <code>string name = 3;</code>
-       */
-      public Builder setName(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setName(value);
-        return this;
-      }
-
-      /**
-       * <code>string name = 3;</code>
-       */
-      public com.google.protobuf.ByteString
-      getNameBytes() {
-        return instance.getNameBytes();
-      }
-
-      /**
-       * <code>string name = 3;</code>
-       */
-      public Builder setNameBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setNameBytes(value);
-        return this;
-      }
-
-      /**
-       * <code>string name = 3;</code>
-       */
-      public Builder clearName() {
-        copyOnWrite();
-        instance.clearName();
-        return this;
-      }
-
-      /**
-       * <pre>
-       * Original sources;
-       * </pre>
-       *
-       * <code>repeated string sources = 4;</code>
-       */
-      public java.util.List<java.lang.String>
-      getSourcesList() {
-        return java.util.Collections.unmodifiableList(
-            instance.getSourcesList());
-      }
-
-      /**
-       * <pre>
-       * Original sources;
-       * </pre>
-       *
-       * <code>repeated string sources = 4;</code>
-       */
-      public int getSourcesCount() {
-        return instance.getSourcesCount();
-      }
-
-      /**
-       * <pre>
-       * Original sources;
-       * </pre>
-       *
-       * <code>repeated string sources = 4;</code>
-       */
-      public java.lang.String getSources(int index) {
-        return instance.getSources(index);
-      }
-
-      /**
-       * <pre>
-       * Original sources;
-       * </pre>
-       *
-       * <code>repeated string sources = 4;</code>
-       */
-      public com.google.protobuf.ByteString
-      getSourcesBytes(int index) {
-        return instance.getSourcesBytes(index);
-      }
-
-      /**
-       * <pre>
-       * Original sources;
-       * </pre>
-       *
-       * <code>repeated string sources = 4;</code>
-       */
-      public Builder setSources(
-          int index, java.lang.String value) {
-        copyOnWrite();
-        instance.setSources(index, value);
-        return this;
-      }
-
-      /**
-       * <pre>
-       * Original sources;
-       * </pre>
-       *
-       * <code>repeated string sources = 4;</code>
-       */
-      public Builder addSources(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.addSources(value);
-        return this;
-      }
-
-      /**
-       * <pre>
-       * Original sources;
-       * </pre>
-       *
-       * <code>repeated string sources = 4;</code>
-       */
-      public Builder addAllSources(
-          java.lang.Iterable<java.lang.String> values) {
-        copyOnWrite();
-        instance.addAllSources(values);
-        return this;
-      }
-
-      /**
-       * <pre>
-       * Original sources;
-       * </pre>
-       *
-       * <code>repeated string sources = 4;</code>
-       */
-      public Builder clearSources() {
-        copyOnWrite();
-        instance.clearSources();
-        return this;
-      }
-
-      /**
-       * <pre>
-       * Original sources;
-       * </pre>
-       *
-       * <code>repeated string sources = 4;</code>
-       */
-      public Builder addSourcesBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.addSourcesBytes(value);
-        return this;
-      }
-
-      /**
-       * <pre>
-       * For debugging etc.
-       * </pre>
-       *
-       * <code>bool ignore = 5;</code>
-       */
-      public boolean getIgnore() {
-        return instance.getIgnore();
-      }
-
-      /**
-       * <pre>
-       * For debugging etc.
-       * </pre>
-       *
-       * <code>bool ignore = 5;</code>
-       */
-      public Builder setIgnore(boolean value) {
-        copyOnWrite();
-        instance.setIgnore(value);
-        return this;
-      }
-
-      /**
-       * <pre>
-       * For debugging etc.
-       * </pre>
-       *
-       * <code>bool ignore = 5;</code>
-       */
-      public Builder clearIgnore() {
-        copyOnWrite();
-        instance.clearIgnore();
-        return this;
-      }
-
-      /**
-       * <code>repeated .DictionaryItem items = 6;</code>
-       */
-      public java.util.List<zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem> getItemsList() {
-        return java.util.Collections.unmodifiableList(
-            instance.getItemsList());
-      }
-
-      /**
-       * <code>repeated .DictionaryItem items = 6;</code>
-       */
-      public int getItemsCount() {
-        return instance.getItemsCount();
-      }
-
-      /**
-       * <code>repeated .DictionaryItem items = 6;</code>
-       */
-      public zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem getItems(int index) {
-        return instance.getItems(index);
-      }
-
-      /**
-       * <code>repeated .DictionaryItem items = 6;</code>
-       */
-      public Builder setItems(
-          int index, zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem value) {
-        copyOnWrite();
-        instance.setItems(index, value);
-        return this;
-      }
-
-      /**
-       * <code>repeated .DictionaryItem items = 6;</code>
-       */
-      public Builder setItems(
-          int index,
-          zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.Builder builderForValue) {
-        copyOnWrite();
-        instance.setItems(index, builderForValue);
-        return this;
-      }
-
-      /**
-       * <code>repeated .DictionaryItem items = 6;</code>
-       */
-      public Builder addItems(zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem value) {
-        copyOnWrite();
-        instance.addItems(value);
-        return this;
-      }
-
-      /**
-       * <code>repeated .DictionaryItem items = 6;</code>
-       */
-      public Builder addItems(
-          int index, zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem value) {
-        copyOnWrite();
-        instance.addItems(index, value);
-        return this;
-      }
-
-      /**
-       * <code>repeated .DictionaryItem items = 6;</code>
-       */
-      public Builder addItems(
-          zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.Builder builderForValue) {
-        copyOnWrite();
-        instance.addItems(builderForValue);
-        return this;
-      }
-
-      /**
-       * <code>repeated .DictionaryItem items = 6;</code>
-       */
-      public Builder addItems(
-          int index,
-          zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem.Builder builderForValue) {
-        copyOnWrite();
-        instance.addItems(index, builderForValue);
-        return this;
-      }
-
-      /**
-       * <code>repeated .DictionaryItem items = 6;</code>
-       */
-      public Builder addAllItems(
-          java.lang.Iterable<? extends zemberek.morphology.lexicon.proto.LexiconProto.DictionaryItem> values) {
-        copyOnWrite();
-        instance.addAllItems(values);
-        return this;
-      }
-
-      /**
-       * <code>repeated .DictionaryItem items = 6;</code>
-       */
-      public Builder clearItems() {
-        copyOnWrite();
-        instance.clearItems();
-        return this;
-      }
-
-      /**
-       * <code>repeated .DictionaryItem items = 6;</code>
-       */
-      public Builder removeItems(int index) {
-        copyOnWrite();
-        instance.removeItems(index);
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:Dictionary)
+    public static com.google.protobuf.Parser<Dictionary> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
     }
   }
 
+  public interface MasterDictionaryOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:MasterDictionary)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>repeated .Dictionary dictionaries = 1;</code>
+     */
+    java.util.List<zemberek.morphology.lexicon.proto.LexiconProto.Dictionary> 
+        getDictionariesList();
+    /**
+     * <code>repeated .Dictionary dictionaries = 1;</code>
+     */
+    zemberek.morphology.lexicon.proto.LexiconProto.Dictionary getDictionaries(int index);
+    /**
+     * <code>repeated .Dictionary dictionaries = 1;</code>
+     */
+    int getDictionariesCount();
+  }
   /**
    * <pre>
    * Maybe not needed.
@@ -3414,162 +3171,41 @@ public final class LexiconProto {
    *
    * Protobuf type {@code MasterDictionary}
    */
-  public static final class MasterDictionary extends
+  public  static final class MasterDictionary extends
       com.google.protobuf.GeneratedMessageLite<
           MasterDictionary, MasterDictionary.Builder> implements
       // @@protoc_insertion_point(message_implements:MasterDictionary)
       MasterDictionaryOrBuilder {
-
-    public static final int DICTIONARIES_FIELD_NUMBER = 1;
-    // @@protoc_insertion_point(class_scope:MasterDictionary)
-    private static final zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary DEFAULT_INSTANCE;
-    private static volatile com.google.protobuf.Parser<MasterDictionary> PARSER;
-
-    static {
-      DEFAULT_INSTANCE = new MasterDictionary();
-      DEFAULT_INSTANCE.makeImmutable();
-    }
-
-    private com.google.protobuf.Internal.ProtobufList<zemberek.morphology.lexicon.proto.LexiconProto.Dictionary> dictionaries_;
-
     private MasterDictionary() {
       dictionaries_ = emptyProtobufList();
     }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
-        byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
-        java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseDelimitedFrom(
-        java.io.InputStream input)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-
-    public static Builder newBuilder(
-        zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-
-    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    public static com.google.protobuf.Parser<MasterDictionary> parser() {
-      return DEFAULT_INSTANCE.getParserForType();
-    }
-
+    public static final int DICTIONARIES_FIELD_NUMBER = 1;
+    private com.google.protobuf.Internal.ProtobufList<zemberek.morphology.lexicon.proto.LexiconProto.Dictionary> dictionaries_;
     /**
      * <code>repeated .Dictionary dictionaries = 1;</code>
      */
     public java.util.List<zemberek.morphology.lexicon.proto.LexiconProto.Dictionary> getDictionariesList() {
       return dictionaries_;
     }
-
     /**
      * <code>repeated .Dictionary dictionaries = 1;</code>
      */
-    public java.util.List<? extends zemberek.morphology.lexicon.proto.LexiconProto.DictionaryOrBuilder>
-    getDictionariesOrBuilderList() {
+    public java.util.List<? extends zemberek.morphology.lexicon.proto.LexiconProto.DictionaryOrBuilder> 
+        getDictionariesOrBuilderList() {
       return dictionaries_;
     }
-
     /**
      * <code>repeated .Dictionary dictionaries = 1;</code>
      */
     public int getDictionariesCount() {
       return dictionaries_.size();
     }
-
     /**
      * <code>repeated .Dictionary dictionaries = 1;</code>
      */
     public zemberek.morphology.lexicon.proto.LexiconProto.Dictionary getDictionaries(int index) {
       return dictionaries_.get(index);
     }
-
     /**
      * <code>repeated .Dictionary dictionaries = 1;</code>
      */
@@ -3577,12 +3213,11 @@ public final class LexiconProto {
         int index) {
       return dictionaries_.get(index);
     }
-
     private void ensureDictionariesIsMutable() {
       if (!dictionaries_.isModifiable()) {
         dictionaries_ =
             com.google.protobuf.GeneratedMessageLite.mutableCopy(dictionaries_);
-      }
+       }
     }
 
     /**
@@ -3596,17 +3231,14 @@ public final class LexiconProto {
       ensureDictionariesIsMutable();
       dictionaries_.set(index, value);
     }
-
     /**
      * <code>repeated .Dictionary dictionaries = 1;</code>
      */
     private void setDictionaries(
-        int index,
-        zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.Builder builderForValue) {
+        int index, zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.Builder builderForValue) {
       ensureDictionariesIsMutable();
       dictionaries_.set(index, builderForValue.build());
     }
-
     /**
      * <code>repeated .Dictionary dictionaries = 1;</code>
      */
@@ -3617,7 +3249,6 @@ public final class LexiconProto {
       ensureDictionariesIsMutable();
       dictionaries_.add(value);
     }
-
     /**
      * <code>repeated .Dictionary dictionaries = 1;</code>
      */
@@ -3629,7 +3260,6 @@ public final class LexiconProto {
       ensureDictionariesIsMutable();
       dictionaries_.add(index, value);
     }
-
     /**
      * <code>repeated .Dictionary dictionaries = 1;</code>
      */
@@ -3638,17 +3268,14 @@ public final class LexiconProto {
       ensureDictionariesIsMutable();
       dictionaries_.add(builderForValue.build());
     }
-
     /**
      * <code>repeated .Dictionary dictionaries = 1;</code>
      */
     private void addDictionaries(
-        int index,
-        zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.Builder builderForValue) {
+        int index, zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.Builder builderForValue) {
       ensureDictionariesIsMutable();
       dictionaries_.add(index, builderForValue.build());
     }
-
     /**
      * <code>repeated .Dictionary dictionaries = 1;</code>
      */
@@ -3658,14 +3285,12 @@ public final class LexiconProto {
       com.google.protobuf.AbstractMessageLite.addAll(
           values, dictionaries_);
     }
-
     /**
      * <code>repeated .Dictionary dictionaries = 1;</code>
      */
     private void clearDictionaries() {
       dictionaries_ = emptyProtobufList();
     }
-
     /**
      * <code>repeated .Dictionary dictionaries = 1;</code>
      */
@@ -3675,33 +3300,213 @@ public final class LexiconProto {
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
-        throws java.io.IOException {
+                        throws java.io.IOException {
       for (int i = 0; i < dictionaries_.size(); i++) {
         output.writeMessage(1, dictionaries_.get(i));
       }
-      unknownFields.writeTo(output);
     }
 
     public int getSerializedSize() {
       int size = memoizedSerializedSize;
-      if (size != -1) {
-        return size;
-      }
+      if (size != -1) return size;
 
       size = 0;
       for (int i = 0; i < dictionaries_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(1, dictionaries_.get(i));
+          .computeMessageSize(1, dictionaries_.get(i));
       }
-      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
-    @java.lang.SuppressWarnings({"unchecked", "fallthrough"})
-    protected final java.lang.Object dynamicMethod(
+    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+
+    /**
+     * <pre>
+     * Maybe not needed.
+     * </pre>
+     *
+     * Protobuf type {@code MasterDictionary}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary, Builder> implements
+        // @@protoc_insertion_point(builder_implements:MasterDictionary)
+        zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionaryOrBuilder {
+      // Construct using zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>repeated .Dictionary dictionaries = 1;</code>
+       */
+      public java.util.List<zemberek.morphology.lexicon.proto.LexiconProto.Dictionary> getDictionariesList() {
+        return java.util.Collections.unmodifiableList(
+            instance.getDictionariesList());
+      }
+      /**
+       * <code>repeated .Dictionary dictionaries = 1;</code>
+       */
+      public int getDictionariesCount() {
+        return instance.getDictionariesCount();
+      }/**
+       * <code>repeated .Dictionary dictionaries = 1;</code>
+       */
+      public zemberek.morphology.lexicon.proto.LexiconProto.Dictionary getDictionaries(int index) {
+        return instance.getDictionaries(index);
+      }
+      /**
+       * <code>repeated .Dictionary dictionaries = 1;</code>
+       */
+      public Builder setDictionaries(
+          int index, zemberek.morphology.lexicon.proto.LexiconProto.Dictionary value) {
+        copyOnWrite();
+        instance.setDictionaries(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .Dictionary dictionaries = 1;</code>
+       */
+      public Builder setDictionaries(
+          int index, zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.Builder builderForValue) {
+        copyOnWrite();
+        instance.setDictionaries(index, builderForValue);
+        return this;
+      }
+      /**
+       * <code>repeated .Dictionary dictionaries = 1;</code>
+       */
+      public Builder addDictionaries(zemberek.morphology.lexicon.proto.LexiconProto.Dictionary value) {
+        copyOnWrite();
+        instance.addDictionaries(value);
+        return this;
+      }
+      /**
+       * <code>repeated .Dictionary dictionaries = 1;</code>
+       */
+      public Builder addDictionaries(
+          int index, zemberek.morphology.lexicon.proto.LexiconProto.Dictionary value) {
+        copyOnWrite();
+        instance.addDictionaries(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .Dictionary dictionaries = 1;</code>
+       */
+      public Builder addDictionaries(
+          zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.Builder builderForValue) {
+        copyOnWrite();
+        instance.addDictionaries(builderForValue);
+        return this;
+      }
+      /**
+       * <code>repeated .Dictionary dictionaries = 1;</code>
+       */
+      public Builder addDictionaries(
+          int index, zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.Builder builderForValue) {
+        copyOnWrite();
+        instance.addDictionaries(index, builderForValue);
+        return this;
+      }
+      /**
+       * <code>repeated .Dictionary dictionaries = 1;</code>
+       */
+      public Builder addAllDictionaries(
+          java.lang.Iterable<? extends zemberek.morphology.lexicon.proto.LexiconProto.Dictionary> values) {
+        copyOnWrite();
+        instance.addAllDictionaries(values);
+        return this;
+      }
+      /**
+       * <code>repeated .Dictionary dictionaries = 1;</code>
+       */
+      public Builder clearDictionaries() {
+        copyOnWrite();
+        instance.clearDictionaries();
+        return this;
+      }
+      /**
+       * <code>repeated .Dictionary dictionaries = 1;</code>
+       */
+      public Builder removeDictionaries(int index) {
+        copyOnWrite();
+        instance.removeDictionaries(index);
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:MasterDictionary)
+    }
+    protected final Object dynamicMethod(
         com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
-        java.lang.Object arg0, java.lang.Object arg1) {
+        Object arg0, Object arg1) {
       switch (method) {
         case NEW_MUTABLE_INSTANCE: {
           return new zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary();
@@ -3719,7 +3524,7 @@ public final class LexiconProto {
         case VISIT: {
           Visitor visitor = (Visitor) arg0;
           zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary other = (zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary) arg1;
-          dictionaries_ = visitor.visitList(dictionaries_, other.dictionaries_);
+          dictionaries_= visitor.visitList(dictionaries_, other.dictionaries_);
           if (visitor == com.google.protobuf.GeneratedMessageLite.MergeFromVisitor
               .INSTANCE) {
           }
@@ -3739,7 +3544,7 @@ public final class LexiconProto {
                   done = true;
                   break;
                 default: {
-                  if (!parseUnknownField(tag, input)) {
+                  if (!input.skipField(tag)) {
                     done = true;
                   }
                   break;
@@ -3750,9 +3555,7 @@ public final class LexiconProto {
                         com.google.protobuf.GeneratedMessageLite.mutableCopy(dictionaries_);
                   }
                   dictionaries_.add(
-                      input.readMessage(
-                          zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.parser(),
-                          extensionRegistry));
+                      input.readMessage(zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.parser(), extensionRegistry));
                   break;
                 }
               }
@@ -3766,13 +3569,11 @@ public final class LexiconProto {
           } finally {
           }
         }
-        // fall through
         case GET_DEFAULT_INSTANCE: {
           return DEFAULT_INSTANCE;
         }
         case GET_PARSER: {
-          if (PARSER == null) {
-            synchronized (zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary.class) {
+          if (PARSER == null) {    synchronized (zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary.class) {
               if (PARSER == null) {
                 PARSER = new DefaultInstanceBasedParser(DEFAULT_INSTANCE);
               }
@@ -3784,139 +3585,27 @@ public final class LexiconProto {
       throw new UnsupportedOperationException();
     }
 
-    /**
-     * <pre>
-     * Maybe not needed.
-     * </pre>
-     *
-     * Protobuf type {@code MasterDictionary}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageLite.Builder<
-            zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary, Builder> implements
-        // @@protoc_insertion_point(builder_implements:MasterDictionary)
-        zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionaryOrBuilder {
 
-      // Construct using zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary.newBuilder()
-      private Builder() {
-        super(DEFAULT_INSTANCE);
-      }
-
-
-      /**
-       * <code>repeated .Dictionary dictionaries = 1;</code>
-       */
-      public java.util.List<zemberek.morphology.lexicon.proto.LexiconProto.Dictionary> getDictionariesList() {
-        return java.util.Collections.unmodifiableList(
-            instance.getDictionariesList());
-      }
-
-      /**
-       * <code>repeated .Dictionary dictionaries = 1;</code>
-       */
-      public int getDictionariesCount() {
-        return instance.getDictionariesCount();
-      }
-
-      /**
-       * <code>repeated .Dictionary dictionaries = 1;</code>
-       */
-      public zemberek.morphology.lexicon.proto.LexiconProto.Dictionary getDictionaries(int index) {
-        return instance.getDictionaries(index);
-      }
-
-      /**
-       * <code>repeated .Dictionary dictionaries = 1;</code>
-       */
-      public Builder setDictionaries(
-          int index, zemberek.morphology.lexicon.proto.LexiconProto.Dictionary value) {
-        copyOnWrite();
-        instance.setDictionaries(index, value);
-        return this;
-      }
-
-      /**
-       * <code>repeated .Dictionary dictionaries = 1;</code>
-       */
-      public Builder setDictionaries(
-          int index,
-          zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.Builder builderForValue) {
-        copyOnWrite();
-        instance.setDictionaries(index, builderForValue);
-        return this;
-      }
-
-      /**
-       * <code>repeated .Dictionary dictionaries = 1;</code>
-       */
-      public Builder addDictionaries(
-          zemberek.morphology.lexicon.proto.LexiconProto.Dictionary value) {
-        copyOnWrite();
-        instance.addDictionaries(value);
-        return this;
-      }
-
-      /**
-       * <code>repeated .Dictionary dictionaries = 1;</code>
-       */
-      public Builder addDictionaries(
-          int index, zemberek.morphology.lexicon.proto.LexiconProto.Dictionary value) {
-        copyOnWrite();
-        instance.addDictionaries(index, value);
-        return this;
-      }
-
-      /**
-       * <code>repeated .Dictionary dictionaries = 1;</code>
-       */
-      public Builder addDictionaries(
-          zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.Builder builderForValue) {
-        copyOnWrite();
-        instance.addDictionaries(builderForValue);
-        return this;
-      }
-
-      /**
-       * <code>repeated .Dictionary dictionaries = 1;</code>
-       */
-      public Builder addDictionaries(
-          int index,
-          zemberek.morphology.lexicon.proto.LexiconProto.Dictionary.Builder builderForValue) {
-        copyOnWrite();
-        instance.addDictionaries(index, builderForValue);
-        return this;
-      }
-
-      /**
-       * <code>repeated .Dictionary dictionaries = 1;</code>
-       */
-      public Builder addAllDictionaries(
-          java.lang.Iterable<? extends zemberek.morphology.lexicon.proto.LexiconProto.Dictionary> values) {
-        copyOnWrite();
-        instance.addAllDictionaries(values);
-        return this;
-      }
-
-      /**
-       * <code>repeated .Dictionary dictionaries = 1;</code>
-       */
-      public Builder clearDictionaries() {
-        copyOnWrite();
-        instance.clearDictionaries();
-        return this;
-      }
-
-      /**
-       * <code>repeated .Dictionary dictionaries = 1;</code>
-       */
-      public Builder removeDictionaries(int index) {
-        copyOnWrite();
-        instance.removeDictionaries(index);
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:MasterDictionary)
+    // @@protoc_insertion_point(class_scope:MasterDictionary)
+    private static final zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new MasterDictionary();
+      DEFAULT_INSTANCE.makeImmutable();
     }
+
+    public static zemberek.morphology.lexicon.proto.LexiconProto.MasterDictionary getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<MasterDictionary> PARSER;
+
+    public static com.google.protobuf.Parser<MasterDictionary> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
+
+  static {
   }
 
   // @@protoc_insertion_point(outer_class_scope)
