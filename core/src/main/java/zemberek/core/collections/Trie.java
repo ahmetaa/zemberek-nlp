@@ -87,7 +87,7 @@ public class Trie<T> {
     }
   }
 
-  public boolean hasStem(String s, T item) {
+  public boolean hasItem(String s, T item) {
     Node node = walkToNode(s, null);
     return (node != null && node.hasItem());
   }
@@ -179,18 +179,18 @@ public class Trie<T> {
       this.fragment = fragment;
     }
 
-    void addItem(T s) {
+    void addItem(T item) {
       if (items == null) {
-        items = new ArrayList<>(1);
+        items = new ArrayList<>(2);
       }
-      if (!items.contains(s)) {
-        items.add(s);
+      if (!items.contains(item)) {
+        items.add(item);
       }
     }
 
     void addChild(Node node) {
       if (children == null) {
-        children = new IntMap<>(2);
+        children = new IntMap<>(8);
       }
       children.put(node.getChar(), node);
     }

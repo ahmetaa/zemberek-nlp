@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import org.junit.Before;
@@ -42,6 +43,11 @@ public class TrieTest {
     @Override
     public int hashCode() {
       return Objects.hashCode(surfaceForm, payload);
+    }
+
+    @Override
+    public String toString() {
+      return surfaceForm;
     }
   }
 
@@ -182,15 +188,16 @@ public class TrieTest {
 
   @Test
   public void testBigNumberOfBigWords() {
-    List<String> words = generateRandomWords(1000);
-    List<Item> items = Lists.newArrayList();
+    List<String> words = generateRandomWords(10000);
+    Trie<Item> testTrie = new Trie<>();
+    List<Item> items = new ArrayList<>();
     for (String s : words) {
       Item item = new Item(s, "s: " + s);
-      lt.add(item.surfaceForm, item);
+      testTrie.add(item.surfaceForm, item);
       items.add(item);
     }
     for (Item item : items) {
-      List<Item> res = lt.getMatchingItems(item.surfaceForm);
+      List<Item> res = testTrie.getMatchingItems(item.surfaceForm);
       assertTrue(res.contains(item));
       assertTrue(res.get(res.size() - 1).surfaceForm.equals(item.surfaceForm));
       for (Item n : res) {
