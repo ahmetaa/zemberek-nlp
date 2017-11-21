@@ -1,19 +1,134 @@
-package zemberek.morphology.lexicon.graph;
+package zemberek.core.collections;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
-import zemberek.core.collections.IntMap;
 
 /**
- * StemTrie is a simple compact trie that holds stems
+ * A simple compact trie.
  *
  * @author mdakin@gmail.com
  */
-public class StemTrie {
+public class Trie<T> {
 
   private Node root = new Node();
+
+  public void add(String s, T item) {
+    if (item == null) {
+      throw new NullPointerException("Input key can not be null");
+    }
+    char[] chars = s.toCharArray();
+    Node node = root;
+    Node previousNode;
+    // i holds the char index for input
+    int i = 0;
+    // fragmentSplitIndex is the index of the last fragment
+    int fragmentSplitIndex;
+    // While we still have chars left on the input, or no child marked with s[i]
+    // is found in subnodes
+    while (node != null) {
+      previousNode = node;
+      node = node.getChildNode(chars[i]);
+      // Cases:
+      // root <- foo ==> root-foo*
+      // or
+      // root-foo* <- bar ==> root-foo*
+      //                         \-bar*
+      // or
+      // root-foo* <- foobar ==> foor-foo*-bar*
+      if (node == null) {
+        previousNode.addChild(new Node(item, getSuffix(chars, i)));
+        return;
+      } else {
+        fragmentSplitIndex = getSplitPoint(chars, i, node.fragment);
+        i += fragmentSplitIndex;
+        // Case:
+        // root-foobar* <- foo ==> root-foo*-bar*
+        // or
+        // root-fo-obar* <-foo ==> root-fo-o*-bar*
+        //        \-x*                    \-x*
+        // or Homonym:
+        // root-foo* <-- foo ==> root-foo**
+        if (i == chars.length) {
+          // Homonym
+          if (fragmentSplitIndex == node.fragment.length) {
+            node.addItem(item);
+            break;
+          }
+          Node newNode = new Node(item, Arrays.copyOf(node.fragment, fragmentSplitIndex));
+          node.trimLeft(fragmentSplitIndex);
+          newNode.addChild(node);
+          previousNode.addChild(newNode);
+          break;
+        }
+        // Case:
+        // root-foobar* <- foxes ==> root-fo-obar*
+        //                                  \-xes*
+        if (i < chars.length && fragmentSplitIndex < node.fragment.length) {
+          Node node1 = new Node();
+          node1.setFragment(Arrays.copyOf(node.fragment, fragmentSplitIndex)); // fo
+          previousNode.addChild(node1);
+          node.trimLeft(fragmentSplitIndex); // obar
+          node1.addChild(node);
+          Node node2 = new Node(item, getSuffix(chars, i)); //xes
+          node1.addChild(node2);
+          break;
+        }
+      }
+    }
+  }
+
+  // Remove does not apply compaction, just removes the item from node.
+  public void remove(String s, T item) {
+    Node node = walkToNode(s, null);
+    if (node != null && node.hasItem()) {
+      node.items.remove(item);
+    }
+  }
+
+  public boolean hasStem(String s, T item) {
+    Node node = walkToNode(s, null);
+    return (node != null && node.hasItem());
+  }
+
+  public List<T> getMatchingItems(String input) {
+    List<T> items = new ArrayList<>();
+    walkToNode(input, (node) -> {
+      if (node.hasItem()) {
+        items.addAll(node.items);
+      }
+    });
+    return items;
+  }
+
+  public String toString() {
+    return root != null ? root.dump() : "";
+  }
+
+  private Node walkToNode(String input, Consumer<Node> nodeCallback) {
+    Node node = root;
+    int i = 0;
+    while (i < input.length()) {
+      node = node.getChildNode(input.charAt(i));
+      // if there are no child node with input char, break
+      if (node == null) {
+        break;
+      }
+      char[] fragment = node.fragment;
+      int j = 0;
+      // Compare fragment and input.
+      while (j < fragment.length && i < input.length() && fragment[j++] == input.charAt(i++)) {
+
+      }
+      if (nodeCallback != null) {
+        if (j == fragment.length && i <= input.length() && node.hasItem()) {
+          nodeCallback.accept(node);
+        }
+      }
+    }
+    return node;
+  }
 
   /**
    * Finds the last position of common chars for 2 char arrays relative to a given index.
@@ -42,132 +157,17 @@ public class StemTrie {
     return res;
   }
 
-  public void add(StemNode stem) {
-    if (stem == null) {
-      throw new NullPointerException("Input key can not be null");
-    }
-    char[] chars = stem.surfaceForm.toCharArray();
-    Node node = root;
-    Node previousNode;
-    // i holds the char index for input
-    int i = 0;
-    // fragmentSplitIndex is the index of the last fragment
-    int fragmentSplitIndex;
-    // While we still have chars left on the input, or no child marked with s[i]
-    // is found in subnodes
-    while (node != null) {
-      previousNode = node;
-      node = node.getChildNode(chars[i]);
-      // Cases:
-      // root <- foo ==> root-foo*
-      // or
-      // root-foo* <- bar ==> root-foo*
-      //                         \-bar*
-      // or
-      // root-foo* <- foobar ==> foor-foo*-bar*
-      if (node == null) {
-        previousNode.addChild(new Node(stem, getSuffix(chars, i)));
-        return;
-      } else {
-        fragmentSplitIndex = getSplitPoint(chars, i, node.fragment);
-        i += fragmentSplitIndex;
-        // Case:
-        // root-foobar* <- foo ==> root-foo*-bar*
-        // or
-        // root-fo-obar* <-foo ==> root-fo-o*-bar*
-        //        \-x*                    \-x*
-        // or Homonym:
-        // root-foo* <-- foo ==> root-foo**
-        if (i == chars.length) {
-          // Homonym
-          if (fragmentSplitIndex == node.fragment.length) {
-            node.addStem(stem);
-            break;
-          }
-          Node newNode = new Node(stem, Arrays.copyOf(node.fragment, fragmentSplitIndex));
-          node.trimLeft(fragmentSplitIndex);
-          newNode.addChild(node);
-          previousNode.addChild(newNode);
-          break;
-        }
-        // Case:
-        // root-foobar* <- foxes ==> root-fo-obar*
-        //                                  \-xes*
-        if (i < chars.length && fragmentSplitIndex < node.fragment.length) {
-          Node node1 = new Node();
-          node1.setFragment(Arrays.copyOf(node.fragment, fragmentSplitIndex)); // fo
-          previousNode.addChild(node1);
-          node.trimLeft(fragmentSplitIndex); // obar
-          node1.addChild(node);
-          Node node2 = new Node(stem, getSuffix(chars, i)); //xes
-          node1.addChild(node2);
-          break;
-        }
-      }
-    }
-  }
-
-  public void remove(StemNode stem) {
-    Node node = walkToNode(stem.surfaceForm, null);
-    if (node != null && node.hasStem()) {
-      node.stems.remove(stem);
-    }
-  }
-
-  public boolean hasStem(StemNode stem) {
-    Node node = walkToNode(stem.surfaceForm, null);
-    return (node != null && node.hasStem());
-  }
-
-  private Node walkToNode(String input, Consumer<Node> nodeCallback) {
-    Node node = root;
-    int i = 0;
-    while (i < input.length()) {
-      node = node.getChildNode(input.charAt(i));
-      // if there are no child node with input char, break
-      if (node == null) {
-        break;
-      }
-      char[] fragment = node.fragment;
-      int j = 0;
-      // Compare fragment and input.
-      while (j < fragment.length && i < input.length() && fragment[j++] == input.charAt(i++)) {
-        ;
-      }
-      if (nodeCallback != null) {
-        if (j == fragment.length && i <= input.length() && node.hasStem()) {
-          nodeCallback.accept(node);
-        }
-      }
-    }
-    return node;
-  }
-
-  public List<StemNode> getMatchingStems(String input) {
-    List<StemNode> stems = new ArrayList<>();
-    walkToNode(input, (node) -> {
-      if (node.hasStem()) {
-        stems.addAll(node.stems);
-      }
-    });
-    return stems;
-  }
-
-  public String toString() {
-    return root != null ? root.dump() : "";
-  }
-
-  public static class Node {
+  public static class Node<T> {
 
     private char[] fragment;
-    private ArrayList<StemNode> stems;
+    private List<T> items;
     private IntMap<Node> children;
 
     Node() {
     }
 
-    Node(StemNode s, char[] fragment) {
-      addStem(s);
+    Node(T s, char[] fragment) {
+      addItem(s);
       setFragment(fragment);
     }
 
@@ -179,12 +179,12 @@ public class StemTrie {
       this.fragment = fragment;
     }
 
-    void addStem(StemNode s) {
-      if (stems == null) {
-        stems = new ArrayList<>(1);
+    void addItem(T s) {
+      if (items == null) {
+        items = new ArrayList<>(1);
       }
-      if (!stems.contains(s)) {
-        stems.add(s);
+      if (!items.contains(s)) {
+        items.add(s);
       }
     }
 
@@ -216,9 +216,9 @@ public class StemTrie {
       } else {
         s += "";
       }
-      if (stems != null) {
-        for (StemNode stem : stems) {
-          s += " [" + stem.surfaceForm + "]";
+      if (items != null) {
+        for (T item : items) {
+          s += " [" + item + "]";
         }
       }
       return s;
@@ -264,8 +264,8 @@ public class StemTrie {
       return b.toString();
     }
 
-    boolean hasStem() {
-      return (stems != null && stems.size() > 0);
+    boolean hasItem() {
+      return (items != null && items.size() > 0);
     }
 
   }
