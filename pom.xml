@@ -18,6 +18,7 @@
     <module>experiment</module>
     <module>lang-id</module>
     <module>normalization</module>
+    <module>examples</module>
   </modules>
 
   <distributionManagement>
