@@ -114,7 +114,6 @@ public class ExtractTurkishCityDistrictNames {
     System.out.println("Total amount of lines = " + list.size());
     TurkishMorphology morphology = TurkishMorphology.builder().addTextDictionaryResources(
         "tr/master-dictionary.dict",
-        "tr/secondary-dictionary.dict",
         "tr/non-tdk.dict",
         "tr/proper.dict",
         "tr/proper-from-corpus.dict",

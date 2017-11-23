@@ -72,11 +72,11 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
 
   public Suffix P3pl = new Suffix("P3pl");
   public SuffixForm P3pl_lArI = getForm(P3pl, "lArI");
+  public SuffixForm P3pl_I = getForm(P3pl, "I"); // araba-lar-ı
   public final SuffixForm[] POSSESSIVE_FORMS = {Pnon_TEMPLATE, P1sg_Im, P2sg_In, P3sg_sI, P1pl_ImIz,
       P2pl_InIz, P3pl_lArI};
 
   // -------------- Number-Person agreement --------------------
-  public SuffixForm P3pl_I = getForm(P3pl, "I"); // araba-lar-ı
   public Suffix A1sg = new Suffix("A1sg");
   public SuffixForm A1sg_yIm = getForm(A1sg, "+yIm"); // gel-e-yim
   public SuffixForm A1sg_m = getForm(A1sg, "m"); // gel-se-m

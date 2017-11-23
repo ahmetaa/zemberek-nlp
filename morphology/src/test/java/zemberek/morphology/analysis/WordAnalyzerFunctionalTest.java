@@ -23,8 +23,6 @@ public class WordAnalyzerFunctionalTest {
   //    public static final File UNPARSEABLES_FILE = new File(Resources.getResource("unparseable.txt").getFile());
   public static final File MASTER_DICTIONARY_FILE = new File(
       Resources.getResource("tr/master-dictionary.dict").getFile());
-  public static final File SECONDARY_DICTIONARY_FILE = new File(
-      Resources.getResource("tr/secondary-dictionary.dict").getFile());
   //  public static final File OFLAZER_MISMATCH_FILE = new File(Resources.getResource("misc/oflazer-mismatch.txt").getFile());
 //  public static final File Z2_VOCAB_FILE = new File(Resources.getResource("z2-vocab.tr.7z").getFile());
   public static final File NON_TDK_DICT_FILE = new File(

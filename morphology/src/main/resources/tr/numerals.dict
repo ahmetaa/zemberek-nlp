@@ -1,7 +1,8 @@
 ########################################## card numerals
 altı [P:Num, Card]
+altmış [P:Num,Card]
 beş [P:Num, Card]
-bin
+bin [P:Num, Card]
 bir [P:Num, Card]
 doksan [P:Num, Card]
 dokuz [P:Num, Card]
@@ -22,16 +23,12 @@ trilyon [P:Num, Card]
 yedi [P:Num, Card]
 yetmiş [P:Num, Card]
 yirmi [P:Num, Card]
-yüz
+yüz [P:Num, Card]
 
 ########################################## dist and ord numerals
 altıncı [P:Num,Ord]
 altışar [P:Num,Dist]
-altmış [P:Num]
 altmışar [P:Num,Dist]
-atmış [P:Num]
-atmışar [P:Num,Dist]
-atmışıncı [P:Num,Ord]
 beşer [P:Num,Dist]
 beşinci [P:Num,Ord]
 biner [P:Num,Dist]
@@ -81,10 +78,6 @@ yüzer [P:Num,Dist]
 yüzüncü [P:Num,Ord]
 
 ########################################## some numbers not marked as number
-altmış [P:Adj]
-altmışıncı [P:Adj]
-altıncı
-atmış
 beşinci [P:Adj]
 bin [P:Adj]
 birinci
