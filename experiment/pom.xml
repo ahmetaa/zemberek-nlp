@@ -13,6 +13,12 @@
   <artifactId>zemberek-experiment</artifactId>
   <dependencies>
     <dependency>
+      <!-- jsoup HTML parser library @ https://jsoup.org/ -->
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.11.2</version>
+    </dependency>
+    <dependency>
       <groupId>zemberek-nlp</groupId>
       <artifactId>zemberek-core</artifactId>
       <version>${project.parent.version}</version>

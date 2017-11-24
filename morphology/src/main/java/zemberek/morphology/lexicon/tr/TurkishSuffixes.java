@@ -116,7 +116,7 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
       "lAr"); // gel-ecek-ler
   public SuffixForm A3pl_Verb_lAr = getForm("A3pl_Verb_lAr", A3pl, "lAr"); // gel-ecek-ler
 
-  // ------------ derivatioonal ----------------------
+  // ------------ derivation ----------------------
   public SuffixForm A3pl_Comp_lAr = getForm("A3pl_Comp_lAr", A3pl, "lAr",
       TerminationType.NON_TERMINAL); //zeytinyağlarımız
   public SuffixForm A3pl_sInlAr = getForm(A3pl, "sInlAr"); // gel-sinler
