@@ -2,6 +2,7 @@ package zemberek.scratchpad;
 
 import java.util.HashSet;
 import java.util.Set;
+import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.morphology.lexicon.DictionaryItem;
@@ -48,7 +49,10 @@ public class DictionaryOperations {
       if (lemma.length() < minLength) {
         continue;
       }
-      set.add(lemma.toLowerCase(Turkish.LOCALE));
+      if (item.primaryPos == PrimaryPos.Punctuation) {
+        continue;
+      }
+      set.add(lemma);
     }
     List<String> list = new ArrayList<>(set);
     list.sort(Turkish.STRING_COMPARATOR_ASC);
@@ -56,7 +60,8 @@ public class DictionaryOperations {
   }
 
   public static void main(String[] args) throws IOException {
-    matchingLines("P:Det", Paths.get("det.txt"));
+    saveLemmas(1);
+    //matchingLines("P:Det", Paths.get("det.txt"));
   }
 
 }

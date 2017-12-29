@@ -88,12 +88,12 @@ public class Serializer {
       builder.addItems(convertToProto(item));
     }
     Dictionary dictionary = builder.build();
-    Files.write(outPath, dictionary.toByteArray(), StandardOpenOption.WRITE);
+    Files.write(outPath, dictionary.toByteArray(), StandardOpenOption.CREATE);
   }
 
   public static void main(String[] args) throws IOException {
     createDefaultDictionary(Paths.get("morphology/src/main/resources/tr/lexicon.bin"));
-    //serializeDeserializeTest();
+    serializeDeserializeTest();
   }
 
   private static void serializeDeserializeTest() throws IOException {

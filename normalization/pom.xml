@@ -14,17 +14,17 @@
     <dependency>
       <groupId>zemberek-nlp</groupId>
       <artifactId>zemberek-core</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>zemberek-nlp</groupId>
       <artifactId>zemberek-tokenization</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>zemberek-nlp</groupId>
       <artifactId>zemberek-morphology</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
   </dependencies>
 

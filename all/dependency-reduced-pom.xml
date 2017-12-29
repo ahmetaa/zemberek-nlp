@@ -3,10 +3,10 @@
   <parent>
     <artifactId>zemberek-nlp</artifactId>
     <groupId>zemberek-nlp</groupId>
-    <version>0.11.1</version>
+    <version>0.12.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>all</artifactId>
+  <artifactId>zemberek-all</artifactId>
   <build>
     <plugins>
       <plugin>
@@ -84,6 +84,12 @@
       <artifactId>opennlp-tools</artifactId>
       <version>1.7.0</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <version>3.4.0</version>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 </project>
