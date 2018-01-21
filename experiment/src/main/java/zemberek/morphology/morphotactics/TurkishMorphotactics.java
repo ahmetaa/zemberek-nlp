@@ -91,9 +91,7 @@ public class TurkishMorphotactics {
     noun_SnT.transition(a3sg_SnT).add();
 
     // ev-ler-?-?.
-    noun_SnT.transition(a3pl_SnT, "lAr")
-        .addRule(rejectAny("dim-suffix"))
-        .add();
+    noun_SnT.transition(a3pl_SnT, "lAr").add();
 
     // ev-ε-ε-?
     a3sg_SnT.transition(pnon_SnT).add();
@@ -128,12 +126,14 @@ public class TurkishMorphotactics {
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains dim suffix.
     nom_ST.transition(dim_SnT, ">cI~k")
-        .addRule(rejectAny("dim-suffix"))
+        .addRule(rejectAny("dim-suffix")) // do not allow repetition.
+        .addRule(Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
         .add();
 
     // ev-ε-ε-ε-ceğiz (evceğiz)
     nom_ST.transition(dim_SnT, "cAğIz")
         .addRule(rejectAny("dim-suffix"))
+        .addRule(Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
         .add();
 
     // connect dim to the noun root.
@@ -149,7 +149,7 @@ public class TurkishMorphotactics {
     pnon_SnT.transition(dat_ST).surfaceTemplate("+yA").add();
 
     // This transition is for words like "içeri" or "dışarı". Those words implicitly contains Dative suffix.
-    // But It is also possible to add explicit dative suffix to those words such as "içeri-ye".
+    // But It is also possible to add dative suffix +yA to those words such as "içeri-ye".
     pnon_SnT.transition(dat_ST)
         .addRule(allowOnly(RuleNames.ImplicitDative))
         .add();
@@ -165,10 +165,6 @@ public class TurkishMorphotactics {
 
     //ev-?-i-ε (evine, evlerine)
     p3sg_SnT.transition(dat_ST, "nA").add();
-
-  }
-
-  public void addDictionaryItem(DictionaryItem item) {
 
   }
 

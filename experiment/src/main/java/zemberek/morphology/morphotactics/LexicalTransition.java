@@ -15,7 +15,7 @@ public class LexicalTransition {
   LexicalState to;
   // this string represents the possible surface forms for this transition.
   String surfaceTemplate;
-  Set<Rule> rules = new HashSet<>(2);
+  Set<Rule> rules;
 
   private LexicalTransition(Builder builder) {
     Preconditions.checkNotNull(builder.from);

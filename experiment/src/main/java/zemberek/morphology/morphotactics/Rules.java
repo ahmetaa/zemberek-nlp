@@ -9,6 +9,11 @@ public class Rules {
     return new AllowOnly(key);
   }
 
+  public static Rule allowTailSequence(String... keys) {
+    return new AllowOnlySequence(keys);
+  }
+
+
   public static Rule allowAny(String... keys) {
     return new AllowAny(keys);
   }
@@ -23,6 +28,20 @@ public class Rules {
 
   public static Rule rejectAny(String... keys) {
     return new RejectAny(keys);
+  }
+
+  public static class AllowOnlySequence implements Rule {
+
+    List<String> tailKeys;
+
+    public AllowOnlySequence(String... keys) {
+      this.tailKeys = Arrays.asList(keys);
+    }
+
+    @Override
+    public boolean canPass(GraphVisitor visitor) {
+      return visitor.containsTailSequence(tailKeys);
+    }
   }
 
   public static class AllowOnly implements Rule {

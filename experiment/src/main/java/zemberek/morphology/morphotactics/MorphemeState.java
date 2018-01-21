@@ -10,7 +10,7 @@ public class MorphemeState {
   final String id;
   Set<MorphemeTransition> outgoing = new HashSet<>(2);
   Set<MorphemeTransition> incoming = new HashSet<>(2);
-  boolean terminal = false;
+  boolean terminal;
 
   public MorphemeState(String id, Morpheme morpheme, boolean terminal) {
     this.morpheme = morpheme;
