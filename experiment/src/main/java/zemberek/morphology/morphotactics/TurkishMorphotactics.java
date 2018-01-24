@@ -127,13 +127,15 @@ public class TurkishMorphotactics {
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains dim suffix.
     nom_ST.transition(dim_SnT, ">cI~k")
         .addRule(rejectAny("dim-suffix")) // do not allow repetition.
-        .addRule(Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
+        .addRule(
+            Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
         .add();
 
     // ev-ε-ε-ε-ceğiz (evceğiz)
     nom_ST.transition(dim_SnT, "cAğIz")
         .addRule(rejectAny("dim-suffix"))
-        .addRule(Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
+        .addRule(
+            Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
         .add();
 
     // connect dim to the noun root.
@@ -166,6 +168,15 @@ public class TurkishMorphotactics {
     //ev-?-i-ε (evine, evlerine)
     p3sg_SnT.transition(dat_ST, "nA").add();
 
+  }
+
+  public MorphemeState getRootState(DictionaryItem dictionaryItem) {
+    switch (dictionaryItem.primaryPos) {
+      case Noun:
+        return noun_SnT;
+      default:
+        return noun_SnT;
+    }
   }
 
 }
