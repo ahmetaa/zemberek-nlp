@@ -52,8 +52,8 @@ public class WordAnalyzer {
     for (Token token : current) {
       boolean matchFound = false;
       for (SuffixSurfaceNode successor : token.currentSurfaceNode.getSuccessors()) {
-        if (token.rest.startsWith(successor.surfaceForm)) {
-          if (token.rest.length() > 0) {
+        if (token.tail.startsWith(successor.surfaceForm)) {
+          if (token.tail.length() > 0) {
             newTokens.add(token.getCopy(successor));
             matchFound = true;
           } else {
@@ -67,7 +67,7 @@ public class WordAnalyzer {
         }
       }
       if (!matchFound) {
-        if (token.rest.length() == 0 && token.terminal) {
+        if (token.tail.length() == 0 && token.terminal) {
           completed.add(token.getResult());
         }
       }
@@ -113,10 +113,10 @@ public class WordAnalyzer {
     for (Token token : current) {
       boolean matchFound = false;
       for (SuffixSurfaceNode successor : token.currentSurfaceNode.getSuccessors()) {
-        if (token.rest.startsWith(successor.surfaceForm)) {
+        if (token.tail.startsWith(successor.surfaceForm)) {
           System.out.println(successor.getSuffixForm().getId());
           final Token copy = token.getCopy(successor);
-          if (token.rest.length() > 0) {
+          if (token.tail.length() > 0) {
             newtokens.add(copy);
             matchFound = true;
           } else {
@@ -128,7 +128,7 @@ public class WordAnalyzer {
         }
       }
       if (!matchFound) {
-        if (token.rest.length() == 0 && token.terminal) {
+        if (token.tail.length() == 0 && token.terminal) {
           completed.add(token.getResult());
         } else {
           System.out.println("Failed:" + token.getResult());
@@ -164,26 +164,26 @@ public class WordAnalyzer {
     StemNode stemNode;
     SuffixSurfaceNode currentSurfaceNode;
     List<SuffixSurfaceNode> surfaceNodeHistory;
-    String rest;
+    String tail;
     boolean terminal = false;
 
-    public Token(StemNode stemNode, List<SuffixSurfaceNode> surfaceNodeHistory, String rest) {
+    public Token(StemNode stemNode, List<SuffixSurfaceNode> surfaceNodeHistory, String tail) {
       this.stemNode = stemNode;
       this.currentSurfaceNode = stemNode.getSuffixRootSurfaceNode();
       this.surfaceNodeHistory = surfaceNodeHistory;
-      this.rest = rest;
+      this.tail = tail;
       this.terminal = stemNode.termination == TerminationType.TERMINAL;
     }
 
     Token(StemNode stemNode,
         SuffixSurfaceNode suffixSurfaceNode,
         List<SuffixSurfaceNode> surfaceNodeHistory,
-        String rest,
+        String tail,
         boolean terminal) {
       this.stemNode = stemNode;
       this.currentSurfaceNode = stemNode.getSuffixRootSurfaceNode();
       this.surfaceNodeHistory = surfaceNodeHistory;
-      this.rest = rest;
+      this.tail = tail;
       this.terminal = terminal;
       this.currentSurfaceNode = suffixSurfaceNode;
     }
@@ -196,8 +196,8 @@ public class WordAnalyzer {
       return getDictionaryItem().lemma;
     }
 
-    public String getRest() {
-      return rest;
+    public String getTail() {
+      return tail;
     }
 
     public SuffixSurfaceNode getCurrentSurfaceNode() {
@@ -221,7 +221,7 @@ public class WordAnalyzer {
       ArrayList<SuffixSurfaceNode> hist = new ArrayList<>(surfaceNodeHistory);
       hist.add(surfaceNode);
       return new Token(stemNode, surfaceNode, hist,
-          rest.substring(surfaceNode.surfaceForm.length()), t);
+          tail.substring(surfaceNode.surfaceForm.length()), t);
     }
 
     @Override

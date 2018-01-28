@@ -3,11 +3,16 @@ package zemberek.morphology.analyzer;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
+import zemberek.morphology.lexicon.graph.SuffixSurfaceNode;
+import zemberek.morphology.lexicon.graph.TerminationType;
+import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.morphotactics.GraphVisitor;
 import zemberek.morphology.morphotactics.StemTransition;
 import zemberek.morphology.morphotactics.SuffixTransition;
@@ -34,6 +39,7 @@ public class InterpretingAnalyzer {
     this.lexicon = lexicon;
     generator = new StemTransitionGenerator(morphotactics);
     graphVisitor = new SimpleGraphVisitor();
+    generateStemTransitions();
   }
 
   private void generateStemTransitions() {
@@ -77,7 +83,26 @@ public class InterpretingAnalyzer {
       candidates.addAll(getMatchingStemTransitions(stem));
     }
 
+    List<SearchPath> paths = new ArrayList<>();
+
+    for (StemTransition candidate : candidates) {
+      String rest = input.substring(candidate.surface.length());
+      paths.add(new SearchPath(candidate, rest));
+    }
+
     return null;
+  }
+
+
+  private void traverseSuffixes(List<SearchPath> current, List<WordAnalysis> completed) {
+
+    List<SearchPath> newTokens = Lists.newArrayList();
+    for (SearchPath token : current) {
+      
+    }
+    if (!newTokens.isEmpty()) {
+      traverseSuffixes(newTokens, completed);
+    }
   }
 
   static class SimpleGraphVisitor implements GraphVisitor {
@@ -94,18 +119,28 @@ public class InterpretingAnalyzer {
   }
 
 
-  static class Token {
+  static class SearchPath {
 
     // carries the initial transition.
     StemTransition stemTransition;
 
     SuffixTransition currentSuffixTransition;
 
-    List<SuffixTransition> history;
+    List<SuffixTransition> history = new ArrayList<>();
 
     // remaining letters to parse.
-    String rest;
+    String tail;
 
+    public SearchPath(StemTransition stemTransition, String tail) {
+      this.stemTransition = stemTransition;
+      this.tail = tail;
+    }
+  }
+
+  public static void main(String[] args) {
+    RootLexicon loader = new TurkishDictionaryLoader().load("elma");
+    InterpretingAnalyzer analyzer = new InterpretingAnalyzer(loader);
+    analyzer.analyze("elmalar");
   }
 
 
