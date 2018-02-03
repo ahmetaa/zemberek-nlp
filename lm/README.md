@@ -40,7 +40,7 @@ and backoff values to 256 values and usually application performance is not effe
 
 Here are the parameters for the application:
 
-    Usage: java -cp "[CLASS-PATH]" zemberek.lm.apps.ConvertToSmoothLm -arpaFile FILE [-chunkBits N] [-logFile FILE] -smoothFile FILE [-spaceUsage VAL] [-tmpDir FILE] [-verbosity N]
+    Usage: java -cp "[CLASS-PATH]" zemberek.lm.apps.CompressLm -arpaFile FILE [-chunkBits N] [-logFile FILE] -smoothFile FILE [-spaceUsage VAL] [-tmpDir FILE] [-verbosity N]
 
      -in FILE         : Arpa input file.
      -chunkBits N     : Defines the size of chunks when compressing very large models. By default it is
