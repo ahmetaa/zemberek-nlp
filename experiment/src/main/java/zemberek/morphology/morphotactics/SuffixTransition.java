@@ -17,7 +17,10 @@ public class SuffixTransition extends MorphemeTransition {
 
   // this string represents the possible surface forms for this transition.
   public final String surfaceTemplate;
+
   private List<SuffixTemplateToken> tokenList;
+
+  // TODO: this can be a list.
   Set<Rule> rules;
 
   private SuffixTransition(Builder builder) {

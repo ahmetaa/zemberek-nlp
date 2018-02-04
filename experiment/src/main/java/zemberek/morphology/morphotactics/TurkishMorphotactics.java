@@ -129,13 +129,15 @@ public class TurkishMorphotactics {
         .add();
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains dim suffix.
+    // There are two almost identical suffix transitions with templates ">cI~k" and ">cI!ğ"
+    // This was necessary for some simplification during analysis. This way there will be only one
+    // surface form will be generated per transition.
     nom_ST.transition(dim_SnT, ">cI~k")
         .addRule(rejectAny("dim-suffix")) // do not allow repetition.
         .addRule(
             Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
         .add();
 
-    // ev-ε-ε-ε-ciğ- (evciğe). Disallow this path if visitor contains dim suffix.
     nom_SnT.transition(dim_SnT, ">cI!ğ")
         .addRule(rejectAny("dim-suffix")) // do not allow repetition.
         .addRule(
