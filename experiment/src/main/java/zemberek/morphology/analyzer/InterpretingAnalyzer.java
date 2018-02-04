@@ -11,7 +11,6 @@ import java.util.Map;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.TurkishLetterSequence;
-import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateToken;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.TemplateTokenType;
 import zemberek.morphology.lexicon.DictionaryItem;
@@ -95,21 +94,30 @@ public class InterpretingAnalyzer {
       paths.add(new SearchPath(candidate, head, tail));
     }
 
-    return null;
+    List<AnalysisResult> results = new ArrayList<>(3);
+    search(paths, results);
+    return results;
   }
 
 
-  private void traverseSuffixes(List<SearchPath> current, List<WordAnalysis> completed) {
+  private void search(List<SearchPath> current, List<AnalysisResult> completed) {
 
-    List<SearchPath> newTokens = Lists.newArrayList();
+    List<SearchPath> allNewPaths = Lists.newArrayList();
     for (SearchPath path : current) {
-      List<MorphemeTransition> transitions = path.currentState.getOutgoing();
-
-
+      if (path.tail.length() == 0 && path.terminal) {
+        AnalysisResult analysis = new AnalysisResult(
+            path.stemTransition.item,
+            path.stemTransition.surface,
+            path.history);
+        completed.add(analysis);
+        continue;
+      }
+      List<SearchPath> newPaths = advance(path);
+      allNewPaths.addAll(newPaths);
     }
 
-    if (!newTokens.isEmpty()) {
-      traverseSuffixes(newTokens, completed);
+    if (!allNewPaths.isEmpty()) {
+      search(allNewPaths, completed);
     }
   }
 
@@ -163,12 +171,12 @@ public class InterpretingAnalyzer {
         EnumSet<PhoneticAttribute> phoneticAttributes,
         EnumSet<PhoneticExpectation> phoneticExpectations
     ) {
-      boolean t = surfaceNode.lexicalForm.to.terminal;
+      boolean t = surfaceNode.lexicalTransition.to.terminal;
       ArrayList<MorphemeSurfaceForm> hist = new ArrayList<>(history);
       hist.add(surfaceNode);
       String newHead = head + surfaceNode.surface;
       String newTail = tail.substring(surfaceNode.surface.length());
-      return new SearchPath(newHead, newTail, stemTransition, surfaceNode.lexicalForm.to,
+      return new SearchPath(newHead, newTail, stemTransition, surfaceNode.lexicalTransition.to,
           hist, phoneticAttributes, phoneticExpectations, t);
     }
 
@@ -187,7 +195,6 @@ public class InterpretingAnalyzer {
     // for all transitions generate new Paths for matching transitions.
     List<SearchPath> newPaths = new ArrayList<>(2);
     for (MorphemeTransition transition : path.currentState.getOutgoing()) {
-      // TODO: this is very slow, notmally it is possible to see if a new path object
       // is necessary to create by checking the tail and surface.
       SuffixTransition suffixTransition = (SuffixTransition) transition;
 
@@ -207,6 +214,7 @@ public class InterpretingAnalyzer {
         continue;
       }
 
+      // TODO: early return is possible
       TurkishLetterSequence seq = MorphemeSurfaceForm.generate(tokenList, path.phoneticAttributes);
 
       String surface = seq.toString();
@@ -215,6 +223,8 @@ public class InterpretingAnalyzer {
       if (!path.tail.startsWith(surface)) {
         continue;
       }
+
+      //TODO: if tail is equal to surface, no need to calculate attributes.
 
       MorphemeSurfaceForm surfaceTransition = new MorphemeSurfaceForm(surface, suffixTransition);
       SuffixTemplateToken lastToken = tokenList.get(tokenList.size() - 1);
@@ -237,7 +247,10 @@ public class InterpretingAnalyzer {
   public static void main(String[] args) {
     RootLexicon loader = new TurkishDictionaryLoader().load("elma");
     InterpretingAnalyzer analyzer = new InterpretingAnalyzer(loader);
-    analyzer.analyze("elmalar");
+    List<AnalysisResult> results = analyzer.analyze("elmalar");
+    for (AnalysisResult result : results) {
+      System.out.println(result);
+    }
   }
 
 

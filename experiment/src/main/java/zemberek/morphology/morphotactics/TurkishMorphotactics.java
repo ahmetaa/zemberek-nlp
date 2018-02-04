@@ -96,8 +96,8 @@ public class TurkishMorphotactics {
     // ev-ε-ε-?
     a3sg_SnT.transition(pnon_SnT).add();
 
-    // ev-ε-im oda-ε-m
-    a3sg_SnT.transition(p1sg_SnT, "+Im").add();
+    // ev-ε-im oda-ε-m TODO: consider +Im template.
+    a3sg_SnT.transition(p1sg_SnT, "Im").add();
 
     // su-ε-yum. Only for "su"
     a3sg_SnT.transition(p1sg_SnT, "yum")
@@ -126,6 +126,13 @@ public class TurkishMorphotactics {
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains dim suffix.
     nom_ST.transition(dim_SnT, ">cI~k")
+        .addRule(rejectAny("dim-suffix")) // do not allow repetition.
+        .addRule(
+            Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
+        .add();
+
+    // ev-ε-ε-ε-ciğ- (evciğe). Disallow this path if visitor contains dim suffix.
+    nom_SnT.transition(dim_SnT, ">cI!ğ")
         .addRule(rejectAny("dim-suffix")) // do not allow repetition.
         .addRule(
             Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.

@@ -24,62 +24,30 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import zemberek.core.turkish.PhoneticAttribute;
-import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.TurkicLetter;
 import zemberek.core.turkish.TurkishLetterSequence;
-import zemberek.morphology.analyzer.InterpretingAnalyzer.SearchPath;
 import zemberek.morphology.morphotactics.MorphemeTransition;
 import zemberek.morphology.morphotactics.SuffixTransition;
 
 public class MorphemeSurfaceForm {
 
   public final String surface;
-  public final MorphemeTransition lexicalForm;
+  public final MorphemeTransition lexicalTransition;
 
-  public MorphemeSurfaceForm(String surface, SuffixTransition lexicalForm) {
+  public MorphemeSurfaceForm(String surface, SuffixTransition suffixTransition) {
     this.surface = surface;
-    this.lexicalForm = lexicalForm;
+    this.lexicalTransition = suffixTransition;
   }
 
-  public static SearchPath generateForAnalysis(
-      SearchPath path,
-      SuffixTransition transition) {
-
-    List<SuffixTemplateToken> tokenList = transition.getTokenList();
-
-    // epsilon.
-    if (tokenList.size() == 0) {
-      return path.getCopy(
-          new MorphemeSurfaceForm("", transition),
-          path.phoneticAttributes,
-          path.phoneticExpectations);
-    }
-
-    // if tail is empty, no need to check further.
-    if (path.tail.isEmpty()) {
-      return null;
-    }
-
-    TurkishLetterSequence seq = generate(tokenList, path.phoneticAttributes);
-
-    MorphemeSurfaceForm surface = new MorphemeSurfaceForm(seq.toString(), transition);
-    SuffixTemplateToken lastToken = tokenList.get(tokenList.size() - 1);
-    EnumSet<PhoneticExpectation> phoneticExpectations = EnumSet.noneOf(PhoneticExpectation.class);
-    if (lastToken.type == TemplateTokenType.LAST_VOICED) {
-      phoneticExpectations = EnumSet.of(PhoneticExpectation.ConsonantStart);
-    } else if (lastToken.type == TemplateTokenType.LAST_NOT_VOICED) {
-      phoneticExpectations = EnumSet.of(PhoneticExpectation.VowelStart);
-    }
-    return path.getCopy(
-        surface,
-        defineMorphemicAttributes(seq, path.phoneticAttributes),
-        phoneticExpectations);
+  @Override
+  public String toString() {
+    return  lexicalTransition.to.id + ":" + surface ;
   }
 
   public static TurkishLetterSequence generate(
       List<SuffixTemplateToken> tokens,
       EnumSet<PhoneticAttribute> phoneticAttributes) {
-    // generation of forms. normally only one form is generated. But in situations like cI~k, two Forms are generated.
+
     TurkishLetterSequence seq = new TurkishLetterSequence();
     int index = 0;
     for (SuffixTemplateToken token : tokens) {
@@ -103,6 +71,7 @@ public class MorphemeSurfaceForm {
             throw new IllegalArgumentException("Cannot generate A form!");
           }
           seq.append(lA);
+          break;
 
         case I_WOVEL:
           if (index == 0 && phoneticAttributes.contains(LastLetterVowel)) {
@@ -267,13 +236,15 @@ public class MorphemeSurfaceForm {
           }
         case '>':
           pointer++;
-          return new SuffixTemplateToken(TemplateTokenType.DEVOICE_FIRST, Alphabet.getLetter(cNext));
+          return new SuffixTemplateToken(TemplateTokenType.DEVOICE_FIRST,
+              Alphabet.getLetter(cNext));
         case '~':
           pointer++;
           return new SuffixTemplateToken(TemplateTokenType.LAST_VOICED, Alphabet.getLetter(cNext));
         case '!':
           pointer++;
-          return new SuffixTemplateToken(TemplateTokenType.LAST_NOT_VOICED, Alphabet.getLetter(cNext));
+          return new SuffixTemplateToken(TemplateTokenType.LAST_NOT_VOICED,
+              Alphabet.getLetter(cNext));
         case 'I':
           return new SuffixTemplateToken(TemplateTokenType.I_WOVEL, TurkicLetter.UNDEFINED);
         case 'A':

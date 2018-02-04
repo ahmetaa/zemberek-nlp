@@ -9,15 +9,24 @@ public class AnalysisResult {
   DictionaryItem dictionaryItem;
   String root;
 
-  List<SurfaceMorpheme> morphemes;
+  List<MorphemeSurfaceForm> morphemes;
 
 
   public AnalysisResult(
       DictionaryItem dictionaryItem,
       String root,
-      List<SurfaceMorpheme> morphemes) {
+      List<MorphemeSurfaceForm> morphemes) {
     this.dictionaryItem = dictionaryItem;
     this.root = root;
     this.morphemes = morphemes;
+  }
+
+  @Override
+  public String toString() {
+    return "AnalysisResult{" +
+        "dictionaryItem=" + dictionaryItem +
+        ", root='" + root + '\'' +
+        ", morphemes=" + morphemes +
+        '}';
   }
 }
