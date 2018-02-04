@@ -28,10 +28,9 @@ import zemberek.core.io.Strings;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.core.turkish.TurkicSeq;
+import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.morphology.lexicon.tr.TurkishSuffixes;
 
 public class TurkishDictionaryLoaderTest {
 
@@ -212,7 +211,7 @@ public class TurkishDictionaryLoaderTest {
       String clean = Strings.subStringUntilFirst(s.trim(), " ").toLowerCase(tr)
           .replaceAll("[\\-']", "");
       if (s.contains("Adj") && !s.contains("Compound") && !s.contains("PropNoun")) {
-        TurkicSeq seq = new TurkicSeq(clean, alphabet);
+        TurkishLetterSequence seq = new TurkishLetterSequence(clean, alphabet);
         if (seq.vowelCount() > 1 && seq.lastLetter().isStopConsonant() && !s.contains("Vo") && !s
             .contains("VowDrop")) {
           if (!masterVoicing.contains(clean)) {

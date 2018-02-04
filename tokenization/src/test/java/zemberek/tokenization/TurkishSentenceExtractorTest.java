@@ -99,4 +99,16 @@ public class TurkishSentenceExtractorTest {
     Assert.assertEquals("Ali gel.|Okul açıldı...|sınavda 2. oldum.",
         markBoundariesParagraph("Ali gel. Okul açıldı... sınavda 2. oldum."));
   }
+
+
+
+
+  @Test
+  public void shouldReturn0ForEmptyff() throws IOException {
+    List<String> sentences = TurkishSentenceExtractor.DEFAULT.fromParagraph(
+        "Merhaba Ali Kaan. Nasılsın? Bugün hava çok güzel! Dr. Ahmet dün buradaydı. A. K. Akın da geldi.");
+    for (String sentence : sentences) {
+      System.out.println(sentence);
+    }
+  }
 }

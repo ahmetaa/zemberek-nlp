@@ -5,13 +5,12 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.morphology.lexicon.DictionaryItem;
 
-public class StemTransition {
+public class StemTransition extends MorphemeTransition {
 
   public final String surface;
   public final DictionaryItem item;
   EnumSet<PhoneticAttribute> phoneticAttributes;
   EnumSet<PhoneticExpectation> phoneticExpectations;
-  MorphemeState toState;
 
   public StemTransition(
       String surface,
@@ -23,6 +22,15 @@ public class StemTransition {
     this.item = item;
     this.phoneticAttributes = phoneticAttributes;
     this.phoneticExpectations = phoneticExpectations;
-    this.toState = toState;
+    this.to = toState;
   }
+
+  public EnumSet<PhoneticAttribute> getPhoneticAttributes() {
+    return phoneticAttributes;
+  }
+
+  public EnumSet<PhoneticExpectation> getPhoneticExpectations() {
+    return phoneticExpectations;
+  }
+
 }

@@ -27,7 +27,7 @@ import java.util.NoSuchElementException;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.TurkicLetter;
-import zemberek.core.turkish.TurkicSeq;
+import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.morphology.lexicon.graph.SuffixData;
 import zemberek.morphology.lexicon.graph.SuffixSurfaceNode;
 import zemberek.morphology.lexicon.graph.TerminationType;
@@ -67,7 +67,7 @@ public class SuffixSurfaceNodeGenerator {
     List<SuffixSurfaceNode> forms = new ArrayList<SuffixSurfaceNode>(1);
 
     // generation of forms. normally only one form is generated. But in situations like cI~k, two Forms are generated.
-    TurkicSeq seq = new TurkicSeq();
+    TurkishLetterSequence seq = new TurkishLetterSequence();
     int index = 0;
     for (SuffixToken token : tokenList) {
       EnumSet<PhoneticAttribute> formAttrs = defineMorphemicAttributes(seq, attrs);
@@ -183,7 +183,7 @@ public class SuffixSurfaceNodeGenerator {
   }
 
   // in suffix, defining morphemic attributes is straight forward.
-  EnumSet<PhoneticAttribute> defineMorphemicAttributes(TurkicSeq seq,
+  EnumSet<PhoneticAttribute> defineMorphemicAttributes(TurkishLetterSequence seq,
       EnumSet<PhoneticAttribute> predecessorAttrs) {
     if (seq.length() == 0) {
       return EnumSet.copyOf(predecessorAttrs);
@@ -228,7 +228,7 @@ public class SuffixSurfaceNodeGenerator {
     return attrs;
   }
 
-  EnumSet<PhoneticAttribute> defineMorphemicAttributes(TurkicSeq seq) {
+  EnumSet<PhoneticAttribute> defineMorphemicAttributes(TurkishLetterSequence seq) {
     return defineMorphemicAttributes(seq, EnumSet.noneOf(PhoneticAttribute.class));
   }
 

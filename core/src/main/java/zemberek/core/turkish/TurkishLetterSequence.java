@@ -3,19 +3,19 @@ package zemberek.core.turkish;
 import java.util.Arrays;
 
 /**
- * <code>TurkicSeq</code> represents a sequence of <code>Letter</code>s. It is mutable and not
+ * <code>TurkishLetterSequence</code> represents a sequence of <code>Letter</code>s. It is mutable and not
  * Thread safe. should be used for intermediate operations, not as storage.
  */
-public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
+public class TurkishLetterSequence implements CharSequence, Comparable<TurkishLetterSequence> {
 
-  public static final TurkicSeq EMPTY_SEQ = new TurkicSeq(0);
+  public static final TurkishLetterSequence EMPTY_SEQ = new TurkishLetterSequence(0);
   private TurkicLetter[] letters;
   private int size = 0;
 
   /**
    * default constructor. Creates an array with  7 letter reference.
    */
-  public TurkicSeq() {
+  public TurkishLetterSequence() {
     letters = new TurkicLetter[7];
   }
 
@@ -24,7 +24,7 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
    *
    * @param capacity baslangic olusan TurkicLetter[] boyu
    */
-  public TurkicSeq(int capacity) {
+  public TurkishLetterSequence(int capacity) {
     letters = new TurkicLetter[capacity];
   }
 
@@ -38,7 +38,7 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
    * @param capacity baslangic olusan TurkicLetter[] boyu
    * @param alphabet ilgili alphabet
    */
-  public TurkicSeq(String str, TurkishAlphabet alphabet, int capacity) {
+  public TurkishLetterSequence(String str, TurkishAlphabet alphabet, int capacity) {
     if (capacity < str.length()) {
       capacity = str.length();
     }
@@ -56,7 +56,7 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
    * @param str ornek alincak String
    * @param alphabet ilgili alphabet
    */
-  public TurkicSeq(String str, TurkishAlphabet alphabet) {
+  public TurkishLetterSequence(String str, TurkishAlphabet alphabet) {
     size = str.length();
     letters = new TurkicLetter[size];
     for (int i = 0; i < size; i++) {
@@ -68,9 +68,9 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
    * Copy-Constructor. gelen harf dizisi ile ayni icerige sahip olacak sekilde TurkicLetter dizisi
    * olusturur.
    *
-   * @param sequence ornek alinacak TurkicSeq
+   * @param sequence ornek alinacak TurkishLetterSequence
    */
-  public TurkicSeq(TurkicSeq sequence) {
+  public TurkishLetterSequence(TurkishLetterSequence sequence) {
     size = sequence.length();
     letters = new TurkicLetter[size];
     System.arraycopy(sequence.letters, 0, letters, 0, size);
@@ -81,7 +81,7 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
    *
    * @param sequence kopyalancak TurkicLetter dizisi.
    */
-  private TurkicSeq(TurkicLetter[] sequence) {
+  private TurkishLetterSequence(TurkicLetter[] sequence) {
     size = sequence.length;
     letters = new TurkicLetter[size];
     System.arraycopy(sequence, 0, letters, 0, size);
@@ -127,7 +127,7 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
    * ic metod. harf dizisinin boyutu yetersiz geldiginde "ek" miktarinda daha fazla yere sahip yeni
    * dizi olusturulup icerik yeni diziye kopyalanir.
    *
-   * @param ek eklenecek TurkicSeq miktari.
+   * @param ek eklenecek TurkishLetterSequence miktari.
    */
   private void adjustCapacity(int ek) {
     TurkicLetter[] newSeq = new TurkicLetter[letters.length + ek];
@@ -150,7 +150,7 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
    * @param harf eklenecek harf
    * @return this
    */
-  public TurkicSeq append(TurkicLetter harf) {
+  public TurkishLetterSequence append(TurkicLetter harf) {
     if (size == letters.length) {
       adjustCapacity(3);
     }
@@ -188,7 +188,7 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
    * @param hdizi ulanacak harf dizisi.
    * @return this.
    */
-  public TurkicSeq append(TurkicSeq hdizi) {
+  public TurkishLetterSequence append(TurkishLetterSequence hdizi) {
     int hboy = hdizi.length();
     if (size + hboy > letters.length) {
       adjustCapacity(hboy);
@@ -207,7 +207,7 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
    * @param sequence eklenecek harf dizisi
    * @return this.
    */
-  public TurkicSeq append(int index, TurkicSeq sequence) {
+  public TurkishLetterSequence append(int index, TurkishLetterSequence sequence) {
     if (index < 0 || index > size) {
       throw new ArrayIndexOutOfBoundsException(
           "indeks degeri:" + index + " fakat harf dizi boyu:" + size);
@@ -230,17 +230,17 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
     return this;
   }
 
-  public TurkicSeq araDizi(int bas, int son) {
+  public TurkishLetterSequence araDizi(int bas, int son) {
     if (son < bas) {
       return null;
     }
     TurkicLetter[] yeniHarfler = new TurkicLetter[son - bas];
     System.arraycopy(letters, bas, yeniHarfler, 0, son - bas);
-    return new TurkicSeq(yeniHarfler);
+    return new TurkishLetterSequence(yeniHarfler);
   }
 
   /**
-   * verilen pozisyondaki harfi dondurur. icerigi "kedi" olan TurkicSeq icin harf(1) e dondurur.
+   * verilen pozisyondaki harfi dondurur. icerigi "kedi" olan TurkishLetterSequence icin harf(1) e dondurur.
    *
    * @param i TurkicLetter index.
    * @return TurkicLetter from given index i.
@@ -309,11 +309,11 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof TurkicSeq)) {
+    if (!(o instanceof TurkishLetterSequence)) {
       return false;
     }
 
-    final TurkicSeq harfDizisi = (TurkicSeq) o;
+    final TurkishLetterSequence harfDizisi = (TurkishLetterSequence) o;
     if (size != harfDizisi.size) {
       return false;
     }
@@ -325,7 +325,7 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
     return true;
   }
 
-  public boolean startsWith(TurkicSeq ls) {
+  public boolean startsWith(TurkishLetterSequence ls) {
     if (ls.size > size) {
       return false;
     }
@@ -374,7 +374,7 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
   /**
    * son harfi siler. eger harf yoksa hicbir etki yapmaz.
    */
-  public TurkicSeq eraseLast() {
+  public TurkishLetterSequence eraseLast() {
     if (size > 0) {
       size--;
     }
@@ -390,7 +390,7 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
    * @param index silinecek harf pozisyonu
    * @return dizinin kendisi.
    */
-  public TurkicSeq delete(int index) {
+  public TurkishLetterSequence delete(int index) {
     validateIndex(index);
     if (index == size - 1) {
       size--;
@@ -408,7 +408,7 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
    * @param harfSayisi silinecek harf miktari
    * @return dizinin kendisi
    */
-  public TurkicSeq delete(int index, int harfSayisi) {
+  public TurkishLetterSequence delete(int index, int harfSayisi) {
     validateIndex(index);
     if (index + harfSayisi > size) {
       harfSayisi = size - index;
@@ -473,7 +473,7 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
    * @return 'kedi'.compareTo('kedi') -> 0 'kedi'.compareTo('ke')  -> 2 (boy farki)
    * 'kedi'.compareTo('kedm') -> -4 (i->m alphabettik sira farki) 'kedi'.compareTo(null) -> 1
    */
-  public int compareTo(TurkicSeq o) {
+  public int compareTo(TurkishLetterSequence o) {
     if (o == null) {
       return 1;
     }
@@ -535,7 +535,7 @@ public class TurkicSeq implements CharSequence, Comparable<TurkicSeq> {
     return letters[index].charValue();
   }
 
-  public TurkicSeq subSequence(int start, int end) {
+  public TurkishLetterSequence subSequence(int start, int end) {
     return araDizi(start, end);
   }
 

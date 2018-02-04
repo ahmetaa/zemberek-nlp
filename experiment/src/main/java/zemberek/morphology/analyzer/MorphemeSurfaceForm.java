@@ -16,9 +16,8 @@ import static zemberek.core.turkish.TurkishAlphabet.L_i;
 import static zemberek.core.turkish.TurkishAlphabet.L_ii;
 import static zemberek.core.turkish.TurkishAlphabet.L_u;
 import static zemberek.core.turkish.TurkishAlphabet.L_uu;
+import static zemberek.morphology.structure.Turkish.Alphabet;
 
-import com.google.common.collect.Lists;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -27,62 +26,71 @@ import java.util.NoSuchElementException;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.TurkicLetter;
-import zemberek.core.turkish.TurkicSeq;
-import zemberek.morphology.lexicon.SuffixForm;
-import zemberek.morphology.lexicon.graph.SuffixData;
-import zemberek.morphology.lexicon.graph.SuffixSurfaceNode;
-import zemberek.morphology.lexicon.graph.TerminationType;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.TurkishLetterSequence;
+import zemberek.morphology.analyzer.InterpretingAnalyzer.SearchPath;
+import zemberek.morphology.morphotactics.MorphemeTransition;
+import zemberek.morphology.morphotactics.SuffixTransition;
 
-public class SuffixSurfaceNodeGenerator {
+public class MorphemeSurfaceForm {
 
-  public SuffixSurfaceNode getEmptyNode(
-      EnumSet<PhoneticAttribute> attrs,
-      EnumSet<PhoneticExpectation> expectations,
-      SuffixData suffixData,
-      SuffixForm set) {
-    return generate(attrs, expectations, suffixData, set).get(0);
+  public final String surface;
+  public final MorphemeTransition lexicalForm;
+
+  public MorphemeSurfaceForm(String surface, SuffixTransition lexicalForm) {
+    this.surface = surface;
+    this.lexicalForm = lexicalForm;
   }
 
-  public List<SuffixSurfaceNode> generate(
-      EnumSet<PhoneticAttribute> attrs,
-      EnumSet<PhoneticExpectation> expectations,
-      SuffixData suffixData,
-      SuffixForm suffixForm) {
+  public static SearchPath generateForAnalysis(
+      SearchPath path,
+      SuffixTransition transition) {
 
-    List<SuffixToken> tokenList = Lists
-        .newArrayList(new SuffixStringTokenizer(suffixForm.generation));
+    List<SuffixTemplateToken> tokenList = transition.getTokenList();
 
-    // zero length token
+    // epsilon.
     if (tokenList.size() == 0) {
-      return Lists.newArrayList(
-          new SuffixSurfaceNode(
-              suffixForm,
-              "",
-              attrs.clone(),
-              expectations.clone(),
-              suffixData,
-              suffixForm.terminationType));
+      return path.getCopy(
+          new MorphemeSurfaceForm("", transition),
+          path.phoneticAttributes,
+          path.phoneticExpectations);
     }
 
-    List<SuffixSurfaceNode> forms = new ArrayList<>(1);
+    // if tail is empty, no need to check further.
+    if (path.tail.isEmpty()) {
+      return null;
+    }
 
+    TurkishLetterSequence seq = generate(tokenList, path.phoneticAttributes);
+
+    MorphemeSurfaceForm surface = new MorphemeSurfaceForm(seq.toString(), transition);
+    SuffixTemplateToken lastToken = tokenList.get(tokenList.size() - 1);
+    EnumSet<PhoneticExpectation> phoneticExpectations = EnumSet.noneOf(PhoneticExpectation.class);
+    if (lastToken.type == TemplateTokenType.LAST_VOICED) {
+      phoneticExpectations = EnumSet.of(PhoneticExpectation.ConsonantStart);
+    } else if (lastToken.type == TemplateTokenType.LAST_NOT_VOICED) {
+      phoneticExpectations = EnumSet.of(PhoneticExpectation.VowelStart);
+    }
+    return path.getCopy(
+        surface,
+        defineMorphemicAttributes(seq, path.phoneticAttributes),
+        phoneticExpectations);
+  }
+
+  public static TurkishLetterSequence generate(
+      List<SuffixTemplateToken> tokens,
+      EnumSet<PhoneticAttribute> phoneticAttributes) {
     // generation of forms. normally only one form is generated. But in situations like cI~k, two Forms are generated.
-    TurkicSeq seq = new TurkicSeq();
+    TurkishLetterSequence seq = new TurkishLetterSequence();
     int index = 0;
-    for (SuffixToken token : tokenList) {
-      EnumSet<PhoneticAttribute> formAttrs = defineMorphemicAttributes(seq, attrs);
+    for (SuffixTemplateToken token : tokens) {
+      EnumSet<PhoneticAttribute> formAttrs = defineMorphemicAttributes(seq, phoneticAttributes);
       switch (token.type) {
         case LETTER:
           seq.append(token.letter);
-          if (index == tokenList.size() - 1) {
-            forms.add(new SuffixSurfaceNode(suffixForm, seq.toString(),
-                defineMorphemicAttributes(seq, attrs), suffixForm.terminationType));
-          }
           break;
 
         case A_WOVEL:
-          if (index == 0 && attrs.contains(LastLetterVowel)) {
+          if (index == 0 && phoneticAttributes.contains(LastLetterVowel)) {
             break;
           }
           TurkicLetter lA = TurkicLetter.UNDEFINED;
@@ -95,17 +103,9 @@ public class SuffixSurfaceNodeGenerator {
             throw new IllegalArgumentException("Cannot generate A form!");
           }
           seq.append(lA);
-          if (index == tokenList.size() - 1) {
-            forms.add(new SuffixSurfaceNode(
-                suffixForm,
-                seq.toString(),
-                defineMorphemicAttributes(seq, attrs),
-                suffixForm.terminationType));
-          }
-          break;
 
         case I_WOVEL:
-          if (index == 0 && attrs.contains(LastLetterVowel)) {
+          if (index == 0 && phoneticAttributes.contains(LastLetterVowel)) {
             break;
           }
           TurkicLetter li = TurkicLetter.UNDEFINED;
@@ -122,69 +122,39 @@ public class SuffixSurfaceNodeGenerator {
             throw new IllegalArgumentException("Cannot generate I form!");
           }
           seq.append(li);
-          if (index == tokenList.size() - 1) {
-            forms.add(new SuffixSurfaceNode(suffixForm, seq.toString(),
-                defineMorphemicAttributes(seq, attrs), suffixForm.terminationType));
-          }
           break;
 
         case APPEND:
           if (formAttrs.contains(LastLetterVowel)) {
             seq.append(token.letter);
           }
-          if (index == tokenList.size() - 1) {
-            forms.add(new SuffixSurfaceNode(
-                suffixForm,
-                seq.toString(),
-                defineMorphemicAttributes(seq, attrs),
-                suffixForm.terminationType));
-          }
           break;
 
         case DEVOICE_FIRST:
           TurkicLetter ld = token.letter;
           if (formAttrs.contains(LastLetterVoiceless)) {
-            ld = Turkish.Alphabet.devoice(token.letter);
+            ld = Alphabet.devoice(token.letter);
           }
           seq.append(ld);
-          if (index == tokenList.size() - 1) {
-            forms.add(new SuffixSurfaceNode(
-                suffixForm,
-                seq.toString(),
-                defineMorphemicAttributes(seq, attrs),
-                suffixForm.terminationType));
-          }
           break;
 
-        case VOICE_LAST:
+        case LAST_VOICED:
+        case LAST_NOT_VOICED:
           ld = token.letter;
           seq.append(ld);
-          if (index == tokenList.size() - 1) {
-            forms.add(new SuffixSurfaceNode(
-                suffixForm,
-                seq.toString(),
-                defineMorphemicAttributes(seq, attrs),
-                EnumSet.of(PhoneticExpectation.ConsonantStart),
-                suffixData,
-                suffixForm.terminationType));
-            seq.changeLast(Turkish.Alphabet.voice(token.letter));
-            forms.add(new SuffixSurfaceNode(
-                suffixForm,
-                seq.toString(),
-                defineMorphemicAttributes(seq, attrs),
-                EnumSet.of(PhoneticExpectation.VowelStart),
-                suffixData,
-                TerminationType.NON_TERMINAL));
-          }
           break;
       }
       index++;
     }
-    return forms;
+    return seq;
+
   }
 
+
   // in suffix, defining morphemic attributes is straight forward.
-  EnumSet<PhoneticAttribute> defineMorphemicAttributes(TurkicSeq seq,
+  // TODO: move this to somewhere more general.
+  public static EnumSet<PhoneticAttribute> defineMorphemicAttributes(
+      TurkishLetterSequence seq,
       EnumSet<PhoneticAttribute> predecessorAttrs) {
     if (seq.length() == 0) {
       return EnumSet.copyOf(predecessorAttrs);
@@ -229,43 +199,45 @@ public class SuffixSurfaceNodeGenerator {
     return attrs;
   }
 
-  EnumSet<PhoneticAttribute> defineMorphemicAttributes(TurkicSeq seq) {
+  EnumSet<PhoneticAttribute> defineMorphemicAttributes(TurkishLetterSequence seq) {
     return defineMorphemicAttributes(seq, EnumSet.noneOf(PhoneticAttribute.class));
   }
 
-  private enum TokenType {
+  public enum TemplateTokenType {
     I_WOVEL,
     A_WOVEL,
     DEVOICE_FIRST,
-    VOICE_LAST,
+    //VOICE_LAST,
+    LAST_VOICED,
+    LAST_NOT_VOICED,
     APPEND,
     LETTER
   }
 
-  private static class SuffixToken {
+  public static class SuffixTemplateToken {
 
-    TokenType type;
+    TemplateTokenType type;
     TurkicLetter letter;
     boolean append = false;
 
-    private SuffixToken(TokenType type, TurkicLetter letter) {
+    private SuffixTemplateToken(TemplateTokenType type, TurkicLetter letter) {
       this.type = type;
       this.letter = letter;
     }
 
-    private SuffixToken(TokenType type, TurkicLetter letter, boolean append) {
+    private SuffixTemplateToken(TemplateTokenType type, TurkicLetter letter, boolean append) {
       this.type = type;
       this.letter = letter;
       this.append = append;
     }
   }
 
-  class SuffixStringTokenizer implements Iterator<SuffixToken> {
+  public static class SuffixTemplateTokenizer implements Iterator<SuffixTemplateToken> {
 
     private final String generationWord;
     private int pointer;
 
-    public SuffixStringTokenizer(String generationWord) {
+    public SuffixTemplateTokenizer(String generationWord) {
       this.generationWord = generationWord;
     }
 
@@ -273,7 +245,7 @@ public class SuffixSurfaceNodeGenerator {
       return generationWord != null && pointer < generationWord.length();
     }
 
-    public SuffixToken next() {
+    public SuffixTemplateToken next() {
       if (!hasNext()) {
         throw new NoSuchElementException("no elements left!");
       }
@@ -287,24 +259,27 @@ public class SuffixSurfaceNodeGenerator {
         case '+':
           pointer++;
           if (cNext == 'I') {
-            return new SuffixToken(TokenType.I_WOVEL, TurkicLetter.UNDEFINED, true);
+            return new SuffixTemplateToken(TemplateTokenType.I_WOVEL, TurkicLetter.UNDEFINED, true);
           } else if (cNext == 'A') {
-            return new SuffixToken(TokenType.A_WOVEL, TurkicLetter.UNDEFINED, true);
+            return new SuffixTemplateToken(TemplateTokenType.A_WOVEL, TurkicLetter.UNDEFINED, true);
           } else {
-            return new SuffixToken(TokenType.APPEND, Turkish.Alphabet.getLetter(cNext));
+            return new SuffixTemplateToken(TemplateTokenType.APPEND, Alphabet.getLetter(cNext));
           }
         case '>':
           pointer++;
-          return new SuffixToken(TokenType.DEVOICE_FIRST, Turkish.Alphabet.getLetter(cNext));
+          return new SuffixTemplateToken(TemplateTokenType.DEVOICE_FIRST, Alphabet.getLetter(cNext));
         case '~':
           pointer++;
-          return new SuffixToken(TokenType.VOICE_LAST, Turkish.Alphabet.getLetter(cNext));
+          return new SuffixTemplateToken(TemplateTokenType.LAST_VOICED, Alphabet.getLetter(cNext));
+        case '!':
+          pointer++;
+          return new SuffixTemplateToken(TemplateTokenType.LAST_NOT_VOICED, Alphabet.getLetter(cNext));
         case 'I':
-          return new SuffixToken(TokenType.I_WOVEL, TurkicLetter.UNDEFINED);
+          return new SuffixTemplateToken(TemplateTokenType.I_WOVEL, TurkicLetter.UNDEFINED);
         case 'A':
-          return new SuffixToken(TokenType.A_WOVEL, TurkicLetter.UNDEFINED);
+          return new SuffixTemplateToken(TemplateTokenType.A_WOVEL, TurkicLetter.UNDEFINED);
         default:
-          return new SuffixToken(TokenType.LETTER, Turkish.Alphabet.getLetter(c));
+          return new SuffixTemplateToken(TemplateTokenType.LETTER, Alphabet.getLetter(c));
 
       }
     }

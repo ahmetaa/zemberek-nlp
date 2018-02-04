@@ -15,7 +15,7 @@ import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.TurkicLetter;
-import zemberek.core.turkish.TurkicSeq;
+import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.LexiconException;
@@ -82,10 +82,10 @@ public class StemNodeGenerator {
   }
 
   private EnumSet<PhoneticAttribute> calculateAttributes(String input) {
-    return calculateAttributes(new TurkicSeq(input, alphabet));
+    return calculateAttributes(new TurkishLetterSequence(input, alphabet));
   }
 
-  private EnumSet<PhoneticAttribute> calculateAttributes(TurkicSeq sequence) {
+  private EnumSet<PhoneticAttribute> calculateAttributes(TurkishLetterSequence sequence) {
     EnumSet<PhoneticAttribute> attrs = EnumSet.noneOf(PhoneticAttribute.class);
     // general phonetic attributes.
     if (sequence.vowelCount() > 0) {
@@ -124,7 +124,7 @@ public class StemNodeGenerator {
       return handleSpecialStems(dicItem);
     }
 
-    TurkicSeq modifiedSeq = new TurkicSeq(dicItem.pronunciation, alphabet);
+    TurkishLetterSequence modifiedSeq = new TurkishLetterSequence(dicItem.pronunciation, alphabet);
     EnumSet<PhoneticAttribute> originalAttrs = calculateAttributes(dicItem.pronunciation);
     EnumSet<PhoneticAttribute> modifiedAttrs = originalAttrs.clone();
     EnumSet<PhoneticExpectation> originalExpectations = EnumSet.noneOf(PhoneticExpectation.class);
