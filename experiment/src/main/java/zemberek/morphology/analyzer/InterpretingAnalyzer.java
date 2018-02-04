@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateToken;
@@ -16,8 +15,6 @@ import zemberek.morphology.analyzer.MorphemeSurfaceForm.TemplateTokenType;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.morphology.morphotactics.GraphVisitor;
-import zemberek.morphology.morphotactics.MorphemeState;
 import zemberek.morphology.morphotactics.MorphemeTransition;
 import zemberek.morphology.morphotactics.StemTransition;
 import zemberek.morphology.morphotactics.SuffixTransition;
@@ -121,86 +118,25 @@ public class InterpretingAnalyzer {
     }
   }
 
-  static class SearchPath implements GraphVisitor {
-
-    // letters that have been parsed.
-    String head;
-
-    // letters to parse.
-    String tail;
-
-    // carries the initial transition. Normally this is not necessary bur here we have it for
-    // a small optimization.
-    StemTransition stemTransition;
-
-    MorphemeState currentState;
-
-    List<MorphemeSurfaceForm> history = new ArrayList<>();
-
-    EnumSet<PhoneticAttribute> phoneticAttributes;
-    EnumSet<PhoneticExpectation> phoneticExpectations;
-
-    boolean terminal = false;
-
-    public SearchPath(StemTransition stemTransition, String head, String tail) {
-      this.stemTransition = stemTransition;
-      this.terminal = stemTransition.to.terminal;
-      this.currentState = stemTransition.to;
-      this.phoneticAttributes = stemTransition.getPhoneticAttributes().clone();
-      this.phoneticExpectations = stemTransition.getPhoneticExpectations().clone();
-      this.head = head;
-      this.tail = tail;
-    }
-
-    public SearchPath(String head, String tail,
-        StemTransition stemTransition, MorphemeState currentState,
-        List<MorphemeSurfaceForm> history,
-        EnumSet<PhoneticAttribute> phoneticAttributes,
-        EnumSet<PhoneticExpectation> phoneticExpectations, boolean terminal) {
-      this.head = head;
-      this.tail = tail;
-      this.stemTransition = stemTransition;
-      this.currentState = currentState;
-      this.history = history;
-      this.phoneticAttributes = phoneticAttributes;
-      this.phoneticExpectations = phoneticExpectations;
-      this.terminal = terminal;
-    }
-
-    SearchPath getCopy(MorphemeSurfaceForm surfaceNode,
-        EnumSet<PhoneticAttribute> phoneticAttributes,
-        EnumSet<PhoneticExpectation> phoneticExpectations
-    ) {
-      boolean t = surfaceNode.lexicalTransition.to.terminal;
-      ArrayList<MorphemeSurfaceForm> hist = new ArrayList<>(history);
-      hist.add(surfaceNode);
-      String newHead = head + surfaceNode.surface;
-      String newTail = tail.substring(surfaceNode.surface.length());
-      return new SearchPath(newHead, newTail, stemTransition, surfaceNode.lexicalTransition.to,
-          hist, phoneticAttributes, phoneticExpectations, t);
-    }
-
-    @Override
-    public boolean containsKey(String key) {
-      return false;
-    }
-
-    @Override
-    public boolean containsTailSequence(List<String> keys) {
-      return false;
-    }
-  }
-
   private List<SearchPath> advance(SearchPath path) {
+
     // for all transitions generate new Paths for matching transitions.
     List<SearchPath> newPaths = new ArrayList<>(2);
+
+    // for all outgoing transitions.
+
     for (MorphemeTransition transition : path.currentState.getOutgoing()) {
-      // is necessary to create by checking the tail and surface.
+
       SuffixTransition suffixTransition = (SuffixTransition) transition;
 
       List<SuffixTemplateToken> tokenList = suffixTransition.getTokenList();
 
-      // epsilon transition. Add and continue.
+      // check rules.
+      if (!suffixTransition.canPass(path)) {
+        continue;
+      }
+
+      // epsilon transition. Add and continue. Use existing attributes.
       if (tokenList.size() == 0) {
         newPaths.add(path.getCopy(
             new MorphemeSurfaceForm("", suffixTransition),
@@ -209,7 +145,7 @@ public class InterpretingAnalyzer {
         continue;
       }
 
-      // if tail is empty and this transition is not empty, no need to check further.
+      // if tail is empty, since this transitions surface is not empty now, no need to check further.
       if (path.tail.isEmpty()) {
         continue;
       }

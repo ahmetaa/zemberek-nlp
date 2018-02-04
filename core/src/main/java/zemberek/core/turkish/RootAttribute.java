@@ -154,6 +154,11 @@ public enum RootAttribute implements StringEnum {
   //For dummy items. Those are created when processing compound items.
   Dummy,
 
+
+  // -------------- Experimental attributes.
+  ImplicitDative,
+
+
   // This is used for temporary DictionaryItems created for words that cannot be analyzed.
   Unknown;
 

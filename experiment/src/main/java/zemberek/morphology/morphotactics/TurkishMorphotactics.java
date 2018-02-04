@@ -4,6 +4,8 @@ import static zemberek.morphology.morphotactics.Rules.allowOnly;
 import static zemberek.morphology.morphotactics.Rules.mandatory;
 import static zemberek.morphology.morphotactics.Rules.rejectAny;
 
+import zemberek.core.turkish.PhoneticExpectation;
+import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
 
 public class TurkishMorphotactics {
@@ -122,7 +124,9 @@ public class TurkishMorphotactics {
     a3pl_SnT.transition(p3sg_SnT, "I").add();
 
     // ev-?-ε-ε (ev, evler)
-    pnon_SnT.transition(nom_ST).add();
+    pnon_SnT.transition(nom_ST)
+        .addRule(Rules.rejectIfContains(PhoneticExpectation.VowelStart))
+        .add();
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains dim suffix.
     nom_ST.transition(dim_SnT, ">cI~k")
@@ -151,7 +155,7 @@ public class TurkishMorphotactics {
     // This is for blocking inputs like "kitab". Here because nominal case state is non terminal (nom_SnT)
     // analysis path will fail.
     pnon_SnT.transition(nom_SnT)
-        .addRule(allowOnly(RuleNames.WovelExpecting))
+        .addRule(Rules.allowOnly(PhoneticExpectation.VowelStart))
         .add();
 
     // ev-?-ε-e (eve, evlere)
@@ -160,7 +164,7 @@ public class TurkishMorphotactics {
     // This transition is for words like "içeri" or "dışarı". Those words implicitly contains Dative suffix.
     // But It is also possible to add dative suffix +yA to those words such as "içeri-ye".
     pnon_SnT.transition(dat_ST)
-        .addRule(allowOnly(RuleNames.ImplicitDative))
+        .addRule(Rules.allowOnly(RootAttribute.ImplicitDative))
         .add();
 
     // ev-?-im-ε (evim, evlerim)

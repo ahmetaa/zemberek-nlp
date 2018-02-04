@@ -1,7 +1,9 @@
 package zemberek.morphology.morphotactics;
 
+import zemberek.morphology.analyzer.SearchPath;
+
 public interface Rule {
 
   // rule is accepted.
-  boolean canPass(GraphVisitor visitor);
+  boolean canPass(SearchPath visitor);
 }

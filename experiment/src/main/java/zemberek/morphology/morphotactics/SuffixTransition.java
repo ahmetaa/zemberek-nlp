@@ -11,13 +11,14 @@ import zemberek.core.logging.Log;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateToken;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateTokenizer;
+import zemberek.morphology.analyzer.SearchPath;
 
 public class SuffixTransition extends MorphemeTransition {
 
   // this string represents the possible surface forms for this transition.
   public final String surfaceTemplate;
   private List<SuffixTemplateToken> tokenList;
-  Set<Rule> rules = new HashSet<>(2);
+  Set<Rule> rules;
 
   private SuffixTransition(Builder builder) {
     Preconditions.checkNotNull(builder.from);
@@ -30,6 +31,15 @@ public class SuffixTransition extends MorphemeTransition {
     this.tokenList = Lists
         .newArrayList(new SuffixTemplateTokenizer(this.surfaceTemplate));
 
+  }
+
+  public boolean canPass(SearchPath path) {
+    for (Rule rule : rules) {
+      if(!rule.canPass(path)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private void connect() {
