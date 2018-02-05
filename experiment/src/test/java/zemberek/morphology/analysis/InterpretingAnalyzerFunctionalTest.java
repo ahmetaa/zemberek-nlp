@@ -25,14 +25,21 @@ public class InterpretingAnalyzerFunctionalTest {
     return false;
   }
 
+  void printResults(List<AnalysisResult> results) {
+    for (AnalysisResult result : results) {
+      System.out.println("Parse result = " + result);
+    }
+  }
 
   @Test
   public void shouldParse_1() {
     List<AnalysisResult> results = getAnalyzer("elma").analyze("elmalar");
+    printResults(results);
     Assert.assertEquals(1, results.size());
     AnalysisResult first = results.get(0);
-    System.out.println("Parse result = " + first);
+
     Assert.assertEquals("elma_Noun", first.getDictionaryItem().id);
+    Assert.assertEquals("elma", first.root);
     Assert.assertTrue(containsMorpheme(first, "A3pl"));
   }
 
@@ -40,9 +47,10 @@ public class InterpretingAnalyzerFunctionalTest {
   public void implicitDative_1() {
     List<AnalysisResult> results = getAnalyzer("içeri [A:ImplicitDative]")
         .analyze("içeri");
+    printResults(results);
     Assert.assertEquals(2, results.size());
     AnalysisResult first = results.get(1);
-    System.out.println("Parse result = " + first);
+
     Assert.assertEquals("içeri_Noun", first.getDictionaryItem().id);
     Assert.assertEquals("içeri", first.root);
     Assert.assertTrue(containsMorpheme(first, "Dat"));

@@ -1,6 +1,7 @@
 package zemberek.morphology.analyzer;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import zemberek.morphology.lexicon.DictionaryItem;
 
 public class AnalysisResult {
@@ -35,10 +36,13 @@ public class AnalysisResult {
 
   @Override
   public String toString() {
-    return "AnalysisResult{" +
-        "dictionaryItem=" + dictionaryItem +
-        ", root='" + root + '\'' +
-        ", morphemes=" + morphemes +
-        '}';
+    StringBuilder sb = new StringBuilder();
+    sb.append("[");
+    sb.append(dictionaryItem.lemma).append(":").append(root).append(" + ");
+    String morphemeStr =
+        String.join(" + ", morphemes.stream()
+            .map(MorphemeSurfaceForm::toString)
+            .collect(Collectors.toList()));
+    return sb.toString() + morphemeStr + "]";
   }
 }
