@@ -6,14 +6,11 @@ import zemberek.morphology.lexicon.DictionaryItem;
 
 public class AnalysisResult {
 
-  // TODO: should contain raw input.
-
   // TODO: these two may be part of the [morphemes] list.
   public final DictionaryItem dictionaryItem;
   public final String root;
 
   List<MorphemeSurfaceForm> morphemes;
-
 
   public AnalysisResult(
       DictionaryItem dictionaryItem,

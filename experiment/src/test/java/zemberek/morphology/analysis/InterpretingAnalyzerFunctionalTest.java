@@ -26,7 +26,7 @@ public class InterpretingAnalyzerFunctionalTest {
     return false;
   }
 
-  void printAndSort(String input, List<AnalysisResult> results) {
+  private void printAndSort(String input, List<AnalysisResult> results) {
     results.sort(Comparator.comparing(AnalysisResult::toString));
     for (AnalysisResult result : results) {
       System.out.println(input + " = " + result);

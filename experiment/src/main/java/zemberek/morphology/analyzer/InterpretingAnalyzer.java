@@ -74,7 +74,6 @@ public class InterpretingAnalyzer {
     }
   }
 
-
   public List<AnalysisResult> analyze(String input) {
     // get stem candidates.
     List<StemTransition> candidates = Lists.newArrayListWithCapacity(3);

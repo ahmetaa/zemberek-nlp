@@ -7,7 +7,6 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
-import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.morphology.morphotactics.MorphemeState;
 import zemberek.morphology.morphotactics.StemTransition;
 
@@ -115,6 +114,7 @@ public class SearchPath {
   }
 
   public boolean hasDictionaryItem(DictionaryItem item) {
+    // TODO: for performance, probably it is safe to check references only.
     return item.equals(stemTransition.item);
   }
 
