@@ -1,6 +1,5 @@
 package zemberek.morphology.morphotactics;
 
-import static zemberek.morphology.morphotactics.Rules.allowOnly;
 import static zemberek.morphology.morphotactics.Rules.mandatory;
 import static zemberek.morphology.morphotactics.Rules.rejectAny;
 
@@ -124,33 +123,6 @@ public class TurkishMorphotactics {
         .addRule(Rules.rejectIfContains(PhoneticExpectation.VowelStart))
         .add();
 
-    // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains dim suffix.
-    // There are two almost identical suffix transitions with templates ">cI~k" and ">cI!ğ"
-    // This was necessary for some simplification during analysis. This way there will be only one
-    // surface form generated per transition.
-    nom_ST.transition(dim_SnT, ">cI~k")
-        .addRule(rejectAny("dim-suffix")) // do not allow repetition.
-        .addRule(
-            Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
-        .add();
-
-    nom_SnT.transition(dim_SnT, ">cI!ğ")
-        .addRule(rejectAny("dim-suffix")) // do not allow repetition.
-        .addRule(
-            Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
-        .add();
-
-    // ev-ε-ε-ε-ceğiz (evceğiz)
-    // TODO: consider making this a separate morpheme.
-    nom_ST.transition(dim_SnT, "cAğIz")
-        .addRule(rejectAny("dim-suffix"))
-        .addRule(
-            Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
-        .add();
-
-    // connect dim to the noun root.
-    dim_SnT.transition(noun_SnT).add();
-
     // This is for blocking inputs like "kitab". Here because nominal case state is non terminal (nom_SnT)
     // analysis path will fail.
     pnon_SnT.transition(nom_SnT)
@@ -177,6 +149,33 @@ public class TurkishMorphotactics {
 
     //ev-?-i-ε (evine, evlerine)
     p3sg_SnT.transition(dat_ST, "nA").add();
+
+    // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains dim suffix.
+    // There are two almost identical suffix transitions with templates ">cI~k" and ">cI!ğ"
+    // This was necessary for some simplification during analysis. This way there will be only one
+    // surface form generated per transition.
+    nom_ST.transition(dim_SnT, ">cI~k")
+        .addRule(rejectAny("dim-suffix")) // do not allow repetition.
+        .addRule(
+            Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
+        .add();
+
+    nom_SnT.transition(dim_SnT, ">cI!ğ")
+        .addRule(rejectAny("dim-suffix")) // do not allow repetition.
+        .addRule(
+            Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
+        .add();
+
+    // ev-ε-ε-ε-ceğiz (evceğiz)
+    // TODO: consider making this a separate morpheme.
+    nom_ST.transition(dim_SnT, "cAğIz")
+        .addRule(rejectAny("dim-suffix"))
+        .addRule(
+            Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
+        .add();
+
+    // connect dim to the noun root.
+    dim_SnT.transition(noun_SnT).add();
 
   }
 

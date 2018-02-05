@@ -1,5 +1,6 @@
 package zemberek.morphology.analysis;
 
+import java.util.Comparator;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,16 +26,18 @@ public class InterpretingAnalyzerFunctionalTest {
     return false;
   }
 
-  void printResults(List<AnalysisResult> results) {
+  void printAndSort(String input, List<AnalysisResult> results) {
+    results.sort(Comparator.comparing(AnalysisResult::toString));
     for (AnalysisResult result : results) {
-      System.out.println("Parse result = " + result);
+      System.out.println(input + " = " + result);
     }
   }
 
   @Test
   public void shouldParse_1() {
-    List<AnalysisResult> results = getAnalyzer("elma").analyze("elmalar");
-    printResults(results);
+    String in = "elmalar";
+    List<AnalysisResult> results = getAnalyzer("elma").analyze(in);
+    printAndSort(in, results);
     Assert.assertEquals(1, results.size());
     AnalysisResult first = results.get(0);
 
@@ -45,15 +48,40 @@ public class InterpretingAnalyzerFunctionalTest {
 
   @Test
   public void implicitDative_1() {
+    String in = "içeri";
     List<AnalysisResult> results = getAnalyzer("içeri [A:ImplicitDative]")
-        .analyze("içeri");
-    printResults(results);
+        .analyze(in);
+    printAndSort(in, results);
     Assert.assertEquals(2, results.size());
-    AnalysisResult first = results.get(1);
+    AnalysisResult first = results.get(0);
 
     Assert.assertEquals("içeri_Noun", first.getDictionaryItem().id);
     Assert.assertEquals("içeri", first.root);
     Assert.assertTrue(containsMorpheme(first, "Dat"));
+  }
+
+
+  @Test
+  public void voicing_1() {
+    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
+    String in = "kitabım";
+    List<AnalysisResult> results = analyzer.analyze(in);
+    printAndSort(in, results);
+    Assert.assertEquals(1, results.size());
+    AnalysisResult first = results.get(0);
+
+    Assert.assertEquals("kitap", first.getDictionaryItem().lemma);
+    Assert.assertEquals("kitab", first.root);
+    Assert.assertTrue(containsMorpheme(first, "P1sg"));
+  }
+
+  @Test
+  public void voicing_2() {
+    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
+    String in = "kitab";
+    List<AnalysisResult> results = analyzer.analyze("kitab");
+    printAndSort(in, results);
+    Assert.assertEquals(0, results.size());
   }
 
 

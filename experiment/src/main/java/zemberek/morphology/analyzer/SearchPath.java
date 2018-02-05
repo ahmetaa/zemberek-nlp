@@ -81,7 +81,7 @@ public class SearchPath {
   }
 
   public boolean containsPhoneticExpectation(PhoneticExpectation expectation) {
-    return stemTransition.item.attributes.contains(expectation);
+    return phoneticExpectations.contains(expectation);
   }
 
   public boolean containsTailSequence(List<String> keys) {

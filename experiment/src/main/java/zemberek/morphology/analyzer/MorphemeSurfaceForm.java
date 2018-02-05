@@ -41,7 +41,7 @@ public class MorphemeSurfaceForm {
 
   @Override
   public String toString() {
-    return lexicalTransition.to.morpheme.id + ":" + (surface.isEmpty() ? "ε" : surface);
+    return lexicalTransition.to.id + ":" + (surface.isEmpty() ? "ε" : surface);
   }
 
   public static TurkishLetterSequence generate(
