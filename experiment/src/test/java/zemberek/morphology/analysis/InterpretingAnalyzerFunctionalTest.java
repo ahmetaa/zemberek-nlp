@@ -95,5 +95,24 @@ public class InterpretingAnalyzerFunctionalTest {
     Assert.assertTrue(containsMorpheme(first, "Dim"));
   }
 
+  public void shouldNotPass(InterpretingAnalyzer analyzer, String... words) {
+    for (String word : words) {
+      List<AnalysisResult> results = analyzer.analyze(word);
+      if (results.size() != 0) {
+        printAndSort(word, results);
+        Assert.fail(word + " is expected to fail but passed.");
+      }
+    }
+  }
+
+  @Test
+  public void noun2NounIncorrect_1() {
+    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
+    shouldNotPass(analyzer,
+        "kitapçığ", "kitapcık", "kitaplarcık", "kitabımcık",
+        "kitaptacık", "kitapçıkçık", "kitapçıklarcık"
+    );
+  }
+
 
 }
