@@ -36,13 +36,12 @@ public class AnalysisResult {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("[");
-    sb.append(dictionaryItem.lemma).append(":").append(root).append(" + ");
+    String sb = "[" +
+        dictionaryItem.lemma + ":" + root + " + ";
     String morphemeStr =
         String.join(" + ", morphemes.stream()
             .map(MorphemeSurfaceForm::toString)
             .collect(Collectors.toList()));
-    return sb.toString() + morphemeStr + "]";
+    return sb + morphemeStr + "]";
   }
 }
