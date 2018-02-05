@@ -11,6 +11,7 @@ import zemberek.core.text.TextUtil;
  * Contains Turkish Letters, Turkish Letter equivalent chars, several helper methods.
  * TurkishAlphabet only contains small case letters.
  */
+// TODO: document or fix. many methods only work for lowercase input.
 public class TurkishAlphabet {
 
   // Turkish specific characters.

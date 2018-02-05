@@ -1,16 +1,12 @@
 package zemberek.morphology.morphotactics;
 
-import java.util.Arrays;
-import java.util.List;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.RootAttribute;
+import zemberek.morphology.analyzer.MorphemeSurfaceForm;
 import zemberek.morphology.analyzer.SearchPath;
+import zemberek.morphology.lexicon.DictionaryItem;
 
 public class Rules {
-
-  public static Rule allowOnly(String key) {
-    return new AllowOnly(key);
-  }
 
   public static Rule allowOnly(RootAttribute attribute) {
     return new AllowOnlyRootAttribute(attribute);
@@ -20,121 +16,23 @@ public class Rules {
     return new AllowOnlyIfContainsPhoneticExpectation(expectation);
   }
 
-  public static Rule allowTailSequence(String... keys) {
-    return new AllowOnlySequence(keys);
-  }
-
-  public static Rule mandatory(String key) {
-    return new Mandatory(key);
-  }
-
-  public static Rule rejectAny(String... keys) {
-    return new RejectAny(keys);
+  public static Rule allowOnly(DictionaryItem item) {
+    return new AllowDictionaryItem(item);
   }
 
   public static Rule rejectIfContains(PhoneticExpectation expectation) {
     return new RejectIfContainsPhoneticExpectation(expectation);
   }
 
-  public static class AllowOnlySequence implements Rule {
-
-    List<String> tailKeys;
-
-    public AllowOnlySequence(String... keys) {
-      this.tailKeys = Arrays.asList(keys);
-    }
-
-    @Override
-    public boolean canPass(SearchPath visitor) {
-      return visitor.containsTailSequence(tailKeys);
-    }
-  }
-
-  public static class AllowOnly implements Rule {
-
-    String key;
-
-    public AllowOnly(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean canPass(SearchPath visitor) {
-      return visitor.containsKey(key);
-    }
-  }
-
-  public static class Mandatory implements Rule {
-
-    String key;
-
-    public Mandatory(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean canPass(SearchPath visitor) {
-      return visitor.containsKey(key);
-    }
-  }
-
-  public static class AllowAny implements Rule {
-
-    List<String> keys;
-
-    public AllowAny(String... keys) {
-      this.keys = Arrays.asList(keys);
-    }
-
-    @Override
-    public boolean canPass(SearchPath visitor) {
-      for (String key : keys) {
-        if (visitor.containsKey(key)) {
-          return true;
-        }
-      }
-      return false;
-    }
-  }
-
-  public static class RejectOnly implements Rule {
-
-    String key;
-
-    RejectOnly(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean canPass(SearchPath visitor) {
-      return !visitor.containsKey(key);
-    }
-  }
-
-  public static class RejectAny implements Rule {
-
-    List<String> keys;
-
-    RejectAny(String... keys) {
-      this.keys = Arrays.asList(keys);
-    }
-
-    @Override
-    public boolean canPass(SearchPath visitor) {
-      for (String key : keys) {
-        if (visitor.containsKey(key)) {
-          return false;
-        }
-      }
-      return true;
-    }
+  public static Rule rejectIfContains(DictionaryItem item) {
+    return new RejectDictionaryItem(item);
   }
 
   private static class AllowOnlyRootAttribute implements Rule {
 
     RootAttribute attribute;
 
-    public AllowOnlyRootAttribute(RootAttribute attribute) {
+    AllowOnlyRootAttribute(RootAttribute attribute) {
       this.attribute = attribute;
     }
 
@@ -144,13 +42,11 @@ public class Rules {
     }
   }
 
-
   private static class AllowOnlyIfContainsPhoneticExpectation implements Rule {
 
     PhoneticExpectation expectation;
 
-    public AllowOnlyIfContainsPhoneticExpectation(
-        PhoneticExpectation expectation) {
+    AllowOnlyIfContainsPhoneticExpectation(PhoneticExpectation expectation) {
       this.expectation = expectation;
     }
 
@@ -160,26 +56,11 @@ public class Rules {
     }
   }
 
-  private static class RejectIfContainsRootAttribute implements Rule {
-
-    RootAttribute attribute;
-
-    public RejectIfContainsRootAttribute(
-        RootAttribute attribute) {
-    }
-
-    @Override
-    public boolean canPass(SearchPath visitor) {
-      return !visitor.containsRootAttribute(attribute);
-    }
-  }
-
   private static class RejectIfContainsPhoneticExpectation implements Rule {
 
     PhoneticExpectation expectation;
 
-    public RejectIfContainsPhoneticExpectation(
-        PhoneticExpectation expectation) {
+    RejectIfContainsPhoneticExpectation(PhoneticExpectation expectation) {
       this.expectation = expectation;
     }
 
@@ -188,5 +69,47 @@ public class Rules {
       return !visitor.containsPhoneticExpectation(expectation);
     }
   }
+
+  private static class AllowDictionaryItem implements Rule {
+
+    DictionaryItem item;
+
+    AllowDictionaryItem(DictionaryItem item) {
+      this.item = item;
+    }
+
+    @Override
+    public boolean canPass(SearchPath visitor) {
+      return item != null && visitor.hasDictionaryItem(item);
+    }
+  }
+
+  private static class RejectDictionaryItem implements Rule {
+
+    DictionaryItem item;
+
+    RejectDictionaryItem(DictionaryItem item) {
+      this.item = item;
+    }
+
+    @Override
+    public boolean canPass(SearchPath visitor) {
+      return item == null || !visitor.hasDictionaryItem(item);
+    }
+  }
+
+  public static class RejectIfHasAnySuffixSurface implements Rule {
+
+    @Override
+    public boolean canPass(SearchPath visitor) {
+      for (MorphemeSurfaceForm form : visitor.getHistory()) {
+        if (!form.surface.isEmpty()) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
 
 }

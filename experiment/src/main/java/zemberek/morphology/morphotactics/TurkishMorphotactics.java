@@ -1,11 +1,9 @@
 package zemberek.morphology.morphotactics;
 
-import static zemberek.morphology.morphotactics.Rules.mandatory;
-import static zemberek.morphology.morphotactics.Rules.rejectAny;
-
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.lexicon.RootLexicon;
 
 public class TurkishMorphotactics {
 
@@ -73,7 +71,10 @@ public class TurkishMorphotactics {
 
   MorphemeState dim_SnT = MorphemeState.nonTerminal("dim_SnT", dim);
 
-  public TurkishMorphotactics() {
+  private RootLexicon lexicon;
+
+  public TurkishMorphotactics(RootLexicon lexicon) {
+    this.lexicon = lexicon;
     addNounTransitions();
   }
 
@@ -93,20 +94,25 @@ public class TurkishMorphotactics {
     // ev-ε-ε-?
     a3sg_SnT.transition(pnon_SnT).add();
 
-    // ev-ε-im oda-ε-m TODO: consider +Im template.
-    a3sg_SnT.transition(p1sg_SnT, "Im").add();
+    DictionaryItem suRoot = lexicon.getItemById("su_Noun");
+    // ev-ε-im oda-ε-m
+    a3sg_SnT.transition(p1sg_SnT, "Im")
+        .addRule(Rules.rejectIfContains(suRoot))
+        .add();
 
     // su-ε-yum. Only for "su"
     a3sg_SnT.transition(p1sg_SnT, "yum")
-        .addRule(mandatory("su-root"))
+        .addRule(Rules.allowOnly(suRoot))
         .add();
 
     // ev-ε-i oda-ε-sı
-    a3sg_SnT.transition(p3sg_SnT, "+sI").add();
+    a3sg_SnT.transition(p3sg_SnT, "+sI")
+        .addRule(Rules.rejectIfContains(suRoot))
+        .add();
 
     // su-ε-yu. Only for "su"
     a3sg_SnT.transition(p3sg_SnT, "yu")
-        .addRule(mandatory("su-root"))
+        .addRule(Rules.allowOnly(suRoot))
         .add();
 
     // ev-ler-ε-?
@@ -154,24 +160,21 @@ public class TurkishMorphotactics {
     // There are two almost identical suffix transitions with templates ">cI~k" and ">cI!ğ"
     // This was necessary for some simplification during analysis. This way there will be only one
     // surface form generated per transition.
+
+    // do not allow repetition and only empty suffixes can come before.
     nom_ST.transition(dim_SnT, ">cI~k")
-        .addRule(rejectAny("dim-suffix")) // do not allow repetition.
-        .addRule(
-            Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
+        .addRule(new Rules.RejectIfHasAnySuffixSurface())
         .add();
 
+    // do not allow repetition and only empty suffixes can come before.
     nom_SnT.transition(dim_SnT, ">cI!ğ")
-        .addRule(rejectAny("dim-suffix")) // do not allow repetition.
-        .addRule(
-            Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
+        .addRule(new Rules.RejectIfHasAnySuffixSurface())
         .add();
 
     // ev-ε-ε-ε-ceğiz (evceğiz)
     // TODO: consider making this a separate morpheme.
     nom_ST.transition(dim_SnT, "cAğIz")
-        .addRule(rejectAny("dim-suffix"))
-        .addRule(
-            Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
+        .addRule(new Rules.RejectIfHasAnySuffixSurface())
         .add();
 
     // connect dim to the noun root.

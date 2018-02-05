@@ -79,9 +79,20 @@ public class InterpretingAnalyzerFunctionalTest {
   public void voicing_2() {
     InterpretingAnalyzer analyzer = getAnalyzer("kitap");
     String in = "kitab";
-    List<AnalysisResult> results = analyzer.analyze("kitab");
+    List<AnalysisResult> results = analyzer.analyze(in);
     printAndSort(in, results);
     Assert.assertEquals(0, results.size());
+  }
+
+  @Test
+  public void noun2Noun_1() {
+    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
+    String in = "kitapçık";
+    List<AnalysisResult> results = analyzer.analyze(in);
+    printAndSort(in, results);
+    Assert.assertEquals(1, results.size());
+    AnalysisResult first = results.get(0);
+    Assert.assertTrue(containsMorpheme(first, "Dim"));
   }
 
 

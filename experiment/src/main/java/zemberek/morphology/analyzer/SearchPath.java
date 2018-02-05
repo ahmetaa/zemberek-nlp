@@ -6,6 +6,8 @@ import java.util.List;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.RootAttribute;
+import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.morphology.morphotactics.MorphemeState;
 import zemberek.morphology.morphotactics.StemTransition;
 
@@ -72,8 +74,36 @@ public class SearchPath {
         hist, phoneticAttributes, phoneticExpectations, t);
   }
 
-  public boolean containsKey(String key) {
-    return false;
+  public String getHead() {
+    return head;
+  }
+
+  public String getTail() {
+    return tail;
+  }
+
+  public StemTransition getStemTransition() {
+    return stemTransition;
+  }
+
+  public MorphemeState getCurrentState() {
+    return currentState;
+  }
+
+  public EnumSet<PhoneticAttribute> getPhoneticAttributes() {
+    return phoneticAttributes;
+  }
+
+  public EnumSet<PhoneticExpectation> getPhoneticExpectations() {
+    return phoneticExpectations;
+  }
+
+  public boolean isTerminal() {
+    return terminal;
+  }
+
+  public List<MorphemeSurfaceForm> getHistory() {
+    return history;
   }
 
   public boolean containsRootAttribute(RootAttribute attribute) {
@@ -84,7 +114,8 @@ public class SearchPath {
     return phoneticExpectations.contains(expectation);
   }
 
-  public boolean containsTailSequence(List<String> keys) {
-    return false;
+  public boolean hasDictionaryItem(DictionaryItem item) {
+    return item.equals(stemTransition.item);
   }
+
 }

@@ -29,6 +29,7 @@ import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.morphology.morphotactics.MorphemeTransition;
 import zemberek.morphology.morphotactics.SuffixTransition;
 
+// TODO: find a better name. Move some methods outside.
 public class MorphemeSurfaceForm {
 
   public final String surface;
@@ -51,57 +52,53 @@ public class MorphemeSurfaceForm {
     TurkishLetterSequence seq = new TurkishLetterSequence();
     int index = 0;
     for (SuffixTemplateToken token : tokens) {
-      EnumSet<PhoneticAttribute> formAttrs = defineMorphemicAttributes(seq, phoneticAttributes);
+      EnumSet<PhoneticAttribute> attrs = defineMorphemicAttributes(seq, phoneticAttributes);
       switch (token.type) {
         case LETTER:
           seq.append(token.letter);
           break;
 
         case A_WOVEL:
+          // TODO: document line below.
           if (index == 0 && phoneticAttributes.contains(LastLetterVowel)) {
             break;
           }
-          TurkicLetter lA = TurkicLetter.UNDEFINED;
-          if (formAttrs.contains(LastVowelBack)) {
-            lA = L_a;
-          } else if (formAttrs.contains(LastVowelFrontal)) {
-            lA = L_e;
-          }
-          if (lA == TurkicLetter.UNDEFINED) {
+          if (attrs.contains(LastVowelBack)) {
+            seq.append(L_a);
+          } else if (attrs.contains(LastVowelFrontal)) {
+            seq.append(L_e);
+          } else {
             throw new IllegalArgumentException("Cannot generate A form!");
           }
-          seq.append(lA);
           break;
 
         case I_WOVEL:
+          // TODO: document line below.
           if (index == 0 && phoneticAttributes.contains(LastLetterVowel)) {
             break;
           }
-          TurkicLetter li = TurkicLetter.UNDEFINED;
-          if (formAttrs.containsAll(Arrays.asList(LastVowelBack, LastVowelRounded))) {
-            li = L_u;
-          } else if (formAttrs.containsAll(Arrays.asList(LastVowelBack, LastVowelUnrounded))) {
-            li = L_ii;
-          } else if (formAttrs.containsAll(Arrays.asList(LastVowelFrontal, LastVowelRounded))) {
-            li = L_uu;
-          } else if (formAttrs.containsAll(Arrays.asList(LastVowelFrontal, LastVowelUnrounded))) {
-            li = L_i;
-          }
-          if (li == TurkicLetter.UNDEFINED) {
+          if (attrs.contains(LastVowelFrontal) && attrs.contains(LastVowelUnrounded)) {
+            seq.append(L_i);
+          } else if (attrs.contains(LastVowelBack) && attrs.contains(LastVowelUnrounded)) {
+            seq.append(L_ii);
+          } else if (attrs.contains(LastVowelBack) && attrs.contains(LastVowelRounded)) {
+            seq.append(L_u);
+          } else if (attrs.contains(LastVowelFrontal) && attrs.contains(LastVowelRounded)) {
+            seq.append(L_uu);
+          } else {
             throw new IllegalArgumentException("Cannot generate I form!");
           }
-          seq.append(li);
           break;
 
         case APPEND:
-          if (formAttrs.contains(LastLetterVowel)) {
+          if (attrs.contains(LastLetterVowel)) {
             seq.append(token.letter);
           }
           break;
 
         case DEVOICE_FIRST:
           TurkicLetter ld = token.letter;
-          if (formAttrs.contains(LastLetterVoiceless)) {
+          if (attrs.contains(LastLetterVoiceless)) {
             ld = Alphabet.devoice(token.letter);
           }
           seq.append(ld);
@@ -122,6 +119,9 @@ public class MorphemeSurfaceForm {
 
   // in suffix, defining morphemic attributes is straight forward.
   // TODO: move this to somewhere more general.
+  private static final List<PhoneticAttribute> NO_VOWEL_ATTRIBUTES = Arrays
+      .asList(LastLetterConsonant, FirstLetterConsonant, HasNoVowel);
+
   public static EnumSet<PhoneticAttribute> defineMorphemicAttributes(
       TurkishLetterSequence seq,
       EnumSet<PhoneticAttribute> predecessorAttrs) {
@@ -153,7 +153,7 @@ public class MorphemeSurfaceForm {
     } else {
       // we transfer vowel attributes from the predecessor attributes.
       attrs = EnumSet.copyOf(predecessorAttrs);
-      attrs.addAll(Arrays.asList(LastLetterConsonant, FirstLetterConsonant, HasNoVowel));
+      attrs.addAll(NO_VOWEL_ATTRIBUTES);
       attrs.remove(LastLetterVowel);
     }
     if (seq.lastLetter().isVoiceless()) {

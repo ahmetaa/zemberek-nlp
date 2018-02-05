@@ -13,6 +13,7 @@ import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateToken;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateTokenizer;
 import zemberek.morphology.analyzer.SearchPath;
+import zemberek.morphology.structure.Turkish;
 
 public class SuffixTransition extends MorphemeTransition {
 
@@ -56,7 +57,8 @@ public class SuffixTransition extends MorphemeTransition {
       return Collections.emptyList();
     }
     List<Rule> rules = new ArrayList<>(1);
-    if (template.startsWith(">") || !TurkishAlphabet.INSTANCE.isVowel(template.charAt(0))) {
+    String lower = template.toLowerCase(Turkish.LOCALE);
+    if (template.startsWith(">") || !TurkishAlphabet.INSTANCE.isVowel(lower.charAt(0))) {
       rules.add(Rules.rejectIfContains(PhoneticExpectation.VowelStart));
     }
     return rules;

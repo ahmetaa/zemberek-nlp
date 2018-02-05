@@ -29,7 +29,7 @@ public class InterpretingAnalyzer {
 
   StemTransitionGenerator generator;
 
-  TurkishMorphotactics morphotactics = new TurkishMorphotactics();
+  TurkishMorphotactics morphotactics;
 
   // TODO: this mechanism should be an abstraction that can also use a Trie
   private ArrayListMultimap<String, StemTransition> multiStems = ArrayListMultimap.create(1000, 2);
@@ -37,6 +37,7 @@ public class InterpretingAnalyzer {
 
   public InterpretingAnalyzer(RootLexicon lexicon) {
     this.lexicon = lexicon;
+    morphotactics = new TurkishMorphotactics(lexicon);
     generator = new StemTransitionGenerator(morphotactics);
     generateStemTransitions();
   }
