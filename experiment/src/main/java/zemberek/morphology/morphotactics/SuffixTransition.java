@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import zemberek.core.logging.Log;
+import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateToken;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateTokenizer;
@@ -38,7 +39,7 @@ public class SuffixTransition extends MorphemeTransition {
 
   public boolean canPass(SearchPath path) {
     for (Rule rule : rules) {
-      if(!rule.canPass(path)) {
+      if (!rule.canPass(path)) {
         return false;
       }
     }
@@ -56,7 +57,7 @@ public class SuffixTransition extends MorphemeTransition {
     }
     List<Rule> rules = new ArrayList<>(1);
     if (template.startsWith(">") || !TurkishAlphabet.INSTANCE.isVowel(template.charAt(0))) {
-      rules.add(Rules.rejectAny(RuleNames.WovelExpecting));
+      rules.add(Rules.rejectIfContains(PhoneticExpectation.VowelStart));
     }
     return rules;
   }

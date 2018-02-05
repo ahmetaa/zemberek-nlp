@@ -78,10 +78,6 @@ public class TurkishMorphotactics {
     addNounTransitions();
   }
 
-  public static void main(String[] args) {
-    TurkishMorphotactics tm = new TurkishMorphotactics();
-  }
-
   /**
    * Turkish Nouns always have Noun-Person-Possession-Case morphemes. Even there are no suffix
    * characters. elma -> Noun:elma - A3sg:ε - Pnon:ε - Nom:ε (Third person singular, No possession,
@@ -131,7 +127,7 @@ public class TurkishMorphotactics {
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains dim suffix.
     // There are two almost identical suffix transitions with templates ">cI~k" and ">cI!ğ"
     // This was necessary for some simplification during analysis. This way there will be only one
-    // surface form will be generated per transition.
+    // surface form generated per transition.
     nom_ST.transition(dim_SnT, ">cI~k")
         .addRule(rejectAny("dim-suffix")) // do not allow repetition.
         .addRule(
@@ -145,6 +141,7 @@ public class TurkishMorphotactics {
         .add();
 
     // ev-ε-ε-ε-ceğiz (evceğiz)
+    // TODO: consider making this a separate morpheme.
     nom_ST.transition(dim_SnT, "cAğIz")
         .addRule(rejectAny("dim-suffix"))
         .addRule(

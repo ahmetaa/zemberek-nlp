@@ -9,6 +9,10 @@ import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.morphotactics.MorphemeState;
 import zemberek.morphology.morphotactics.StemTransition;
 
+/**
+ * This class represents a path in morphotactics graph. During analysis many SearchPaths
+ * are created and surviving paths are used for generating analysis results.
+ */
 public class SearchPath {
 
   // letters that have been parsed.

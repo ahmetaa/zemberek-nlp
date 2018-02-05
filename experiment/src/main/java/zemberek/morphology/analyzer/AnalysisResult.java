@@ -6,8 +6,8 @@ import zemberek.morphology.lexicon.DictionaryItem;
 public class AnalysisResult {
 
   // TODO: these two may be part of the [morphemes] list.
-  DictionaryItem dictionaryItem;
-  String root;
+  public final DictionaryItem dictionaryItem;
+  public final String root;
 
   List<MorphemeSurfaceForm> morphemes;
 
@@ -19,6 +19,18 @@ public class AnalysisResult {
     this.dictionaryItem = dictionaryItem;
     this.root = root;
     this.morphemes = morphemes;
+  }
+
+  public DictionaryItem getDictionaryItem() {
+    return dictionaryItem;
+  }
+
+  public String getRoot() {
+    return root;
+  }
+
+  public List<MorphemeSurfaceForm> getMorphemes() {
+    return morphemes;
   }
 
   @Override

@@ -74,7 +74,7 @@ public class InterpretingAnalyzer {
   }
 
 
-  List<AnalysisResult> analyze(String input) {
+  public List<AnalysisResult> analyze(String input) {
     // get stem candidates.
     List<StemTransition> candidates = Lists.newArrayListWithCapacity(3);
     for (int i = 1; i <= input.length(); i++) {
@@ -178,16 +178,5 @@ public class InterpretingAnalyzer {
     }
     return newPaths;
   }
-
-
-  public static void main(String[] args) {
-    RootLexicon loader = new TurkishDictionaryLoader().load("elma");
-    InterpretingAnalyzer analyzer = new InterpretingAnalyzer(loader);
-    List<AnalysisResult> results = analyzer.analyze("elmalar");
-    for (AnalysisResult result : results) {
-      System.out.println(result);
-    }
-  }
-
 
 }

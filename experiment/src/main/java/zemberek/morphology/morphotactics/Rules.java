@@ -24,25 +24,12 @@ public class Rules {
     return new AllowOnlySequence(keys);
   }
 
-
-  public static Rule allowAny(String... keys) {
-    return new AllowAny(keys);
-  }
-
   public static Rule mandatory(String key) {
     return new Mandatory(key);
   }
 
-  public static Rule rejectOnly(String key) {
-    return new RejectOnly(key);
-  }
-
   public static Rule rejectAny(String... keys) {
     return new RejectAny(keys);
-  }
-
-  public static Rule rejectIfContains(RootAttribute attribute) {
-    return new RejectIfContainsRootAttribute(attribute);
   }
 
   public static Rule rejectIfContains(PhoneticExpectation expectation) {
