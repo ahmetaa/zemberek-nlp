@@ -14,7 +14,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
-import zemberek.core.turkish.TurkicSeq;
+import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.graph.SuffixData;
 import zemberek.morphology.lexicon.graph.SuffixSurfaceNode;
@@ -144,7 +144,7 @@ public class SuffixSurfaceNodeGeneratorTest {
     SuffixSurfaceNodeGenerator sfg = new SuffixSurfaceNodeGenerator();
     for (Triple triple : triples) {
       SuffixSurfaceNode form = getFirstNodeNoExpectatios(sfg,
-          sfg.defineMorphemicAttributes(new TurkicSeq(triple.predecessor, alphabet)),
+          sfg.defineMorphemicAttributes(new TurkishLetterSequence(triple.predecessor, alphabet)),
           triple.generationWord);
       Assert.assertEquals("Error in:" + triple, triple.expectedSurface, form.surfaceForm);
     }

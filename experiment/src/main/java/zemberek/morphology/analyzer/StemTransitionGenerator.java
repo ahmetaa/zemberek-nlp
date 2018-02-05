@@ -1,4 +1,4 @@
-package zemberek.morphology.lexicon.tr;
+package zemberek.morphology.analyzer;
 
 import static zemberek.core.turkish.RootAttribute.CompoundP3sg;
 import static zemberek.core.turkish.RootAttribute.CompoundP3sgRoot;
@@ -9,7 +9,9 @@ import static zemberek.core.turkish.RootAttribute.ProgressiveVowelDrop;
 import static zemberek.core.turkish.RootAttribute.Special;
 import static zemberek.core.turkish.RootAttribute.Voicing;
 
+import com.google.common.collect.Lists;
 import java.util.EnumSet;
+import java.util.List;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.PrimaryPos;
@@ -19,19 +21,19 @@ import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.LexiconException;
-import zemberek.morphology.lexicon.SuffixProvider;
-import zemberek.morphology.lexicon.graph.StemNode;
-import zemberek.morphology.lexicon.graph.SuffixData;
-import zemberek.morphology.lexicon.graph.TerminationType;
+import zemberek.morphology.morphotactics.StemTransition;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
 
 /**
  * This class generates StemNode objects from Dictionary Items. Generated Nodes are not connected.
  */
-public class StemNodeGenerator {
+public class StemTransitionGenerator {
 
   TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
-  SuffixProvider suffixProvider;
+
+  TurkishMorphotactics morphotactics;
+
   EnumSet<RootAttribute> modifiers = EnumSet.of(
       Doubling,
       LastVowelDrop,
@@ -43,36 +45,36 @@ public class StemNodeGenerator {
       CompoundP3sgRoot
   );
 
-  public StemNodeGenerator(SuffixProvider suffixProvider) {
-    this.suffixProvider = suffixProvider;
+  public StemTransitionGenerator(TurkishMorphotactics morphotactics) {
+    this.morphotactics = morphotactics;
   }
 
   /**
-   * Generates StemNode objects from the dictionary item.
-   * <p>Most of the time a single StemNode is generated.
+   * Generates StemTransition objects from the dictionary item. <p>Most of the time a single
+   * StemNode is generated.
    *
    * @param item DictionaryItem
-   * @return one or more StemNode objects.
+   * @return one or more StemTransition objects.
    */
-  public StemNode[] generate(DictionaryItem item) {
+  public List<StemTransition> generate(DictionaryItem item) {
     if (hasModifierAttribute(item)) {
       return generateModifiedRootNodes(item);
     } else {
-      SuffixData[] roots = suffixProvider.defineSuccessorSuffixes(item);
       EnumSet<PhoneticAttribute> phoneticAttributes = calculateAttributes(item.pronunciation);
-      StemNode stemNode = new StemNode(
+      StemTransition transition = new StemTransition(
           item.root,
           item,
-          TerminationType.TERMINAL,
           phoneticAttributes,
-          EnumSet.noneOf(PhoneticExpectation.class));
-      stemNode.exclusiveSuffixData = roots[0];
-      return new StemNode[]{stemNode};
+          EnumSet.noneOf(PhoneticExpectation.class),
+          morphotactics.getRootState(item)
+      );
+
+      return Lists.newArrayList(transition);
     }
   }
 
 
-  public boolean hasModifierAttribute(DictionaryItem item) {
+  private boolean hasModifierAttribute(DictionaryItem item) {
     for (RootAttribute attr : modifiers) {
       if (item.attributes.contains(attr)) {
         return true;
@@ -118,10 +120,10 @@ public class StemNodeGenerator {
     return attrs;
   }
 
-  private StemNode[] generateModifiedRootNodes(DictionaryItem dicItem) {
+  private List<StemTransition> generateModifiedRootNodes(DictionaryItem dicItem) {
 
     if (dicItem.hasAttribute(RootAttribute.Special)) {
-      return handleSpecialStems(dicItem);
+      // TODO: handleSpecialStems like ben demek etc.
     }
 
     TurkishLetterSequence modifiedSeq = new TurkishLetterSequence(dicItem.pronunciation, alphabet);
@@ -182,83 +184,22 @@ public class StemNodeGenerator {
       }
     }
 
-    StemNode original = new StemNode(dicItem.root, dicItem, originalAttrs, originalExpectations);
-    StemNode modified = new StemNode(modifiedSeq.toString(), dicItem, modifiedAttrs,
-        modifiedExpectations);
+    StemTransition original = new StemTransition(
+        dicItem.root,
+        dicItem,
+        originalAttrs,
+        originalExpectations,
+        morphotactics.getRootState(dicItem));
 
-    SuffixData[] roots = suffixProvider.defineSuccessorSuffixes(dicItem);
+    StemTransition modified = new StemTransition(
+        modifiedSeq.toString(),
+        dicItem,
+        modifiedAttrs,
+        modifiedExpectations,
+        morphotactics.getRootState(dicItem));
+    //TODO: if both are equal, return only one.
 
-    original.exclusiveSuffixData = roots[0];
-    modified.exclusiveSuffixData = roots[1];
-    if (original.equals(modified)) {
-      return new StemNode[]{original};
-    }
-
-    modified.setTermination(TerminationType.NON_TERMINAL);
-    if (dicItem.hasAttribute(RootAttribute.CompoundP3sgRoot)) {
-      original.setTermination(TerminationType.NON_TERMINAL);
-    }
-    return new StemNode[]{original, modified};
+    return Lists.newArrayList(original, modified);
   }
 
-  // handle special words such as demek-diyecek , beni-bana
-  private StemNode[] handleSpecialStems(DictionaryItem item) {
-
-    TurkishSuffixes turkishSuffixes = (TurkishSuffixes) suffixProvider;
-    String id = item.getId();
-
-    if (id.equals("yemek_Verb")) {
-      StemNode[] stems;
-      stems = new StemNode[3];
-      stems[0] = new StemNode("ye", item, TerminationType.TERMINAL, calculateAttributes(item.root));
-      stems[0].exclusiveSuffixData.add(turkishSuffixes.Verb_Ye.allConnections());
-      EnumSet<PhoneticAttribute> attrs = calculateAttributes(item.root);
-      attrs.remove(PhoneticAttribute.LastLetterVowel);
-      attrs.add(PhoneticAttribute.LastLetterConsonant);
-      stems[1] = new StemNode("y", item, TerminationType.NON_TERMINAL, attrs,
-          EnumSet.noneOf(PhoneticExpectation.class));
-      stems[1].exclusiveSuffixData.add(turkishSuffixes.Verb_De_Ye_Prog.allConnections());
-      stems[2] = new StemNode("yi", item, TerminationType.NON_TERMINAL,
-          calculateAttributes(item.root));
-      stems[2].exclusiveSuffixData.add(turkishSuffixes.Verb_Yi.allConnections());
-      return stems;
-    } else if (id.equals("demek_Verb")) {
-      StemNode[] stems;
-      stems = new StemNode[3];
-      stems[0] = new StemNode("de", item, TerminationType.TERMINAL, calculateAttributes(item.root));
-      stems[0].exclusiveSuffixData.add(turkishSuffixes.Verb_De.allConnections());
-      EnumSet<PhoneticAttribute> attrs = calculateAttributes(item.root);
-      attrs.remove(PhoneticAttribute.LastLetterVowel);
-      attrs.add(PhoneticAttribute.LastLetterConsonant);
-      stems[1] = new StemNode("d", item, TerminationType.NON_TERMINAL, attrs,
-          EnumSet.noneOf(PhoneticExpectation.class));
-      stems[1].exclusiveSuffixData.add(turkishSuffixes.Verb_De_Ye_Prog.allConnections());
-      stems[2] = new StemNode("di", item, TerminationType.NON_TERMINAL,
-          calculateAttributes(item.root));
-      stems[2].exclusiveSuffixData.add(turkishSuffixes.Verb_Di.allConnections());
-      return stems;
-    } else if (id.equals("ben_Pron_Pers") || id.equals("sen_Pron_Pers")) {
-      StemNode[] stems;
-      stems = new StemNode[2];
-      if (item.lemma.equals("ben")) {
-        stems[0] = new StemNode(item.root, item, TerminationType.TERMINAL,
-            calculateAttributes(item.root));
-        stems[0].exclusiveSuffixData.add(turkishSuffixes.PersPron_Ben.allConnections());
-        stems[1] = new StemNode("ban", item, TerminationType.NON_TERMINAL,
-            calculateAttributes("ban"));
-      } else {
-        stems[0] = new StemNode(item.root, item, TerminationType.TERMINAL,
-            calculateAttributes(item.root));
-        stems[0].exclusiveSuffixData.add(turkishSuffixes.PersPron_Sen.allConnections());
-        stems[1] = new StemNode("san", item, TerminationType.NON_TERMINAL,
-            calculateAttributes("san"));
-      }
-      stems[1].exclusiveSuffixData.add(turkishSuffixes.PersPron_BanSan);
-      return stems;
-    } else {
-
-      throw new IllegalArgumentException(
-          "Lexicon Item with special stem change cannot be handled:" + item);
-    }
-  }
 }

@@ -4,6 +4,8 @@ import static zemberek.morphology.morphotactics.Rules.allowOnly;
 import static zemberek.morphology.morphotactics.Rules.mandatory;
 import static zemberek.morphology.morphotactics.Rules.rejectAny;
 
+import zemberek.core.turkish.PhoneticExpectation;
+import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
 
 public class TurkishMorphotactics {
@@ -91,15 +93,13 @@ public class TurkishMorphotactics {
     noun_SnT.transition(a3sg_SnT).add();
 
     // ev-ler-?-?.
-    noun_SnT.transition(a3pl_SnT, "lAr")
-        .addRule(rejectAny("dim-suffix"))
-        .add();
+    noun_SnT.transition(a3pl_SnT, "lAr").add();
 
     // ev-ε-ε-?
     a3sg_SnT.transition(pnon_SnT).add();
 
-    // ev-ε-im oda-ε-m
-    a3sg_SnT.transition(p1sg_SnT, "+Im").add();
+    // ev-ε-im oda-ε-m TODO: consider +Im template.
+    a3sg_SnT.transition(p1sg_SnT, "Im").add();
 
     // su-ε-yum. Only for "su"
     a3sg_SnT.transition(p1sg_SnT, "yum")
@@ -124,16 +124,31 @@ public class TurkishMorphotactics {
     a3pl_SnT.transition(p3sg_SnT, "I").add();
 
     // ev-?-ε-ε (ev, evler)
-    pnon_SnT.transition(nom_ST).add();
+    pnon_SnT.transition(nom_ST)
+        .addRule(Rules.rejectIfContains(PhoneticExpectation.VowelStart))
+        .add();
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains dim suffix.
+    // There are two almost identical suffix transitions with templates ">cI~k" and ">cI!ğ"
+    // This was necessary for some simplification during analysis. This way there will be only one
+    // surface form will be generated per transition.
     nom_ST.transition(dim_SnT, ">cI~k")
-        .addRule(rejectAny("dim-suffix"))
+        .addRule(rejectAny("dim-suffix")) // do not allow repetition.
+        .addRule(
+            Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
+        .add();
+
+    nom_SnT.transition(dim_SnT, ">cI!ğ")
+        .addRule(rejectAny("dim-suffix")) // do not allow repetition.
+        .addRule(
+            Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
         .add();
 
     // ev-ε-ε-ε-ceğiz (evceğiz)
     nom_ST.transition(dim_SnT, "cAğIz")
         .addRule(rejectAny("dim-suffix"))
+        .addRule(
+            Rules.allowTailSequence("a3sg", "pnon", "nom")) // only this tail sequence is allowed.
         .add();
 
     // connect dim to the noun root.
@@ -142,16 +157,16 @@ public class TurkishMorphotactics {
     // This is for blocking inputs like "kitab". Here because nominal case state is non terminal (nom_SnT)
     // analysis path will fail.
     pnon_SnT.transition(nom_SnT)
-        .addRule(allowOnly(RuleNames.WovelExpecting))
+        .addRule(Rules.allowOnly(PhoneticExpectation.VowelStart))
         .add();
 
     // ev-?-ε-e (eve, evlere)
     pnon_SnT.transition(dat_ST).surfaceTemplate("+yA").add();
 
     // This transition is for words like "içeri" or "dışarı". Those words implicitly contains Dative suffix.
-    // But It is also possible to add explicit dative suffix to those words such as "içeri-ye".
+    // But It is also possible to add dative suffix +yA to those words such as "içeri-ye".
     pnon_SnT.transition(dat_ST)
-        .addRule(allowOnly(RuleNames.ImplicitDative))
+        .addRule(Rules.allowOnly(RootAttribute.ImplicitDative))
         .add();
 
     // ev-?-im-ε (evim, evlerim)
@@ -168,8 +183,13 @@ public class TurkishMorphotactics {
 
   }
 
-  public void addDictionaryItem(DictionaryItem item) {
-
+  public MorphemeState getRootState(DictionaryItem dictionaryItem) {
+    switch (dictionaryItem.primaryPos) {
+      case Noun:
+        return noun_SnT;
+      default:
+        return noun_SnT;
+    }
   }
 
 }

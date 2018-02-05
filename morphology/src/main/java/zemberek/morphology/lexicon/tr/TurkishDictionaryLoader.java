@@ -30,7 +30,7 @@ import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.TurkicLetter;
-import zemberek.core.turkish.TurkicSeq;
+import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.LexiconException;
@@ -336,7 +336,7 @@ public class TurkishDictionaryLoader {
         if (posInfo.primaryPos == PrimaryPos.Punctuation) {
           //TODO: what to do with pronunciations of punctuations? For now we give them a generic one.
           pronunciation = "a";
-        } else if (new TurkicSeq(cleanWord, alphabet).hasVowel()) {
+        } else if (new TurkishLetterSequence(cleanWord, alphabet).hasVowel()) {
           pronunciation = cleanWord;
         } else {
           pronunciation = Turkish.inferPronunciation(cleanWord);
@@ -468,7 +468,7 @@ public class TurkishDictionaryLoader {
         String word,
         PosInfo posData,
         Set<RootAttribute> attributes) {
-      TurkicSeq sequence = new TurkicSeq(word.toLowerCase(locale), alphabet);
+      TurkishLetterSequence sequence = new TurkishLetterSequence(word.toLowerCase(locale), alphabet);
       final TurkicLetter last = sequence.lastLetter();
       switch (posData.primaryPos) {
         case Verb:

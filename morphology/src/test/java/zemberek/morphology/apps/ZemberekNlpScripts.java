@@ -30,7 +30,7 @@ import zemberek.core.logging.Log;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.core.turkish.TurkicSeq;
+import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.analysis.SentenceAnalysis;
@@ -253,7 +253,7 @@ public class ZemberekNlpScripts {
               ? morphs.get(1).replaceAll("\\^DB", "") : "";
 
       if (primaryPos.equals("Verb")) {
-        TurkicSeq seq = new TurkicSeq(value, alphabet);
+        TurkishLetterSequence seq = new TurkishLetterSequence(value, alphabet);
         if (seq.lastVowel().isFrontal()) {
           value = value + "mek";
         } else {

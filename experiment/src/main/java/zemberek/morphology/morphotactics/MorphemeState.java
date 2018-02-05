@@ -1,16 +1,18 @@
 package zemberek.morphology.morphotactics;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import zemberek.core.logging.Log;
 
 public class MorphemeState {
 
-  final Morpheme morpheme;
-  final String id;
-  Set<MorphemeTransition> outgoing = new HashSet<>(2);
-  Set<MorphemeTransition> incoming = new HashSet<>(2);
-  boolean terminal = false;
+  public final Morpheme morpheme;
+  public final String id;
+  List<MorphemeTransition> outgoing = new ArrayList<>(2);
+  List<MorphemeTransition> incoming = new ArrayList<>(2);
+  public boolean terminal;
 
   public MorphemeState(String id, Morpheme morpheme, boolean terminal) {
     this.morpheme = morpheme;
@@ -58,5 +60,13 @@ public class MorphemeState {
   @Override
   public String toString() {
     return "[" + id + ":" + morpheme.id + "]";
+  }
+
+  public List<MorphemeTransition> getOutgoing() {
+    return outgoing;
+  }
+
+  public List<MorphemeTransition> getIncoming() {
+    return incoming;
   }
 }

@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.SimpleTextWriter;
-import zemberek.core.turkish.TurkicSeq;
+import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.core.turkish.TurkishAlphabet;
 
 /**
@@ -79,7 +79,7 @@ public class OflazerAnalyzerRunner {
         root = iterator.next();
         String pos = iterator.next();
         if (pos.equals("Verb")) {
-          if (new TurkicSeq(root, alphabet).lastVowel().isFrontal()) {
+          if (new TurkishLetterSequence(root, alphabet).lastVowel().isFrontal()) {
             root = root + "mek";
           } else {
             root = root + "mak";
@@ -115,7 +115,7 @@ public class OflazerAnalyzerRunner {
           }
         }
         if (pos.equals("Verb")) {
-          if (new TurkicSeq(root, alphabet).lastVowel().isFrontal()) {
+          if (new TurkishLetterSequence(root, alphabet).lastVowel().isFrontal()) {
             root = root + "mek";
           } else {
             root = root + "mak";

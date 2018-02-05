@@ -1,6 +1,7 @@
 package zemberek.morphology.morphotactics;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -8,12 +9,19 @@ import java.util.List;
 import java.util.Set;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateToken;
+import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateTokenizer;
+import zemberek.morphology.analyzer.SearchPath;
 
 public class SuffixTransition extends MorphemeTransition {
 
   // this string represents the possible surface forms for this transition.
-  String surfaceTemplate;
-  Set<Rule> rules = new HashSet<>(2);
+  public final String surfaceTemplate;
+
+  private List<SuffixTemplateToken> tokenList;
+
+  // TODO: this can be a list.
+  Set<Rule> rules;
 
   private SuffixTransition(Builder builder) {
     Preconditions.checkNotNull(builder.from);
@@ -23,6 +31,18 @@ public class SuffixTransition extends MorphemeTransition {
     this.surfaceTemplate = builder.surfaceTemplate == null ? "" : builder.surfaceTemplate;
     this.rules = builder.rules;
     this.rules.addAll(rulesFromTemplate(this.surfaceTemplate));
+    this.tokenList = Lists
+        .newArrayList(new SuffixTemplateTokenizer(this.surfaceTemplate));
+
+  }
+
+  public boolean canPass(SearchPath path) {
+    for (Rule rule : rules) {
+      if(!rule.canPass(path)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private void connect() {
@@ -107,4 +127,11 @@ public class SuffixTransition extends MorphemeTransition {
     }
   }
 
+  public List<SuffixTemplateToken> getTokenList() {
+    return tokenList;
+  }
+
+  public Set<Rule> getRules() {
+    return rules;
+  }
 }

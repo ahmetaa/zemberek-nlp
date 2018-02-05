@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import zemberek.core.turkish.TurkicLetter;
-import zemberek.core.turkish.TurkicSeq;
+import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.core.turkish.TurkishAlphabet;
 
 /**
@@ -26,7 +26,7 @@ public class StrictTurkishSyllableParser implements SyllableParser {
    * @return syllables as string list. if there is no syllables, an empty list.
    */
   public List<String> parse(String input) {
-    TurkicSeq sequence = new TurkicSeq(input, alphabet);
+    TurkishLetterSequence sequence = new TurkishLetterSequence(input, alphabet);
     List<String> list = new ArrayList<String>();
     while (input.length() > 0) {
       int index = letterCountForLastSyllable(sequence);
@@ -47,11 +47,11 @@ public class StrictTurkishSyllableParser implements SyllableParser {
    * words that starts with [tr-,st-,pr-] or ends with [-trak] Foreign letter words also cannot be
    * processed.
    *
-   * @param seq: TurkicSeq object.
+   * @param seq: TurkishLetterSequence object.
    * @return Size of the last syllable. It can be 1,2,3 or 4. Returns -1 if syllable rules are not
    * met.
    */
-  private int letterCountForLastSyllable(TurkicSeq seq) {
+  private int letterCountForLastSyllable(TurkishLetterSequence seq) {
 
     final int length = seq.length();
     TurkicLetter current = seq.getLetter(length - 1);

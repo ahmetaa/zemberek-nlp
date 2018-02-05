@@ -73,4 +73,13 @@ public class LanguageIndentifierTest {
     Assert.assertFalse(lid.getLanguages().contains("ar"));
   }
 
+  @Test
+  public void t() throws IOException {
+    LanguageIdentifier lid = LanguageIdentifier.fromInternalModels();
+    //System.out.println(lid.identify("Merhaba benim adım ali kaan"));
+    //System.out.println(lid.identify("Hello this is a pencil"));
+    // System.out.println(lid.identify("これは鉛筆です"));
+    System.out.println(lid.identify("这是一个铅笔"));
+  }
+
 }
