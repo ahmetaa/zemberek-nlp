@@ -76,12 +76,9 @@ public class InterpretingAnalyzerFunctionalTest {
   }
 
   @Test
-  public void voicing_2() {
+  public void voicingIncorrect_1() {
     InterpretingAnalyzer analyzer = getAnalyzer("kitap");
-    String in = "kitab";
-    List<AnalysisResult> results = analyzer.analyze(in);
-    printAndSort(in, results);
-    Assert.assertEquals(0, results.size());
+    shouldNotPass(analyzer,"kitapım", "kitab", "kitabcık", "kitapa", "kitablar" );
   }
 
   @Test

@@ -22,8 +22,7 @@ public class SuffixTransition extends MorphemeTransition {
 
   private List<SuffixTemplateToken> tokenList;
 
-  // TODO: this can be a list.
-  Set<Rule> rules;
+  List<Rule> rules;
 
   private SuffixTransition(Builder builder) {
     Preconditions.checkNotNull(builder.from);
@@ -52,6 +51,7 @@ public class SuffixTransition extends MorphemeTransition {
     to.addIncoming(this);
   }
 
+  // these rules are added automatically for not crowding the SuffixTransition definitions,
   private List<Rule> rulesFromTemplate(String template) {
     if (template == null || template.length() == 0) {
       return Collections.emptyList();
@@ -60,6 +60,9 @@ public class SuffixTransition extends MorphemeTransition {
     String lower = template.toLowerCase(Turkish.LOCALE);
     if (template.startsWith(">") || !TurkishAlphabet.INSTANCE.isVowel(lower.charAt(0))) {
       rules.add(Rules.rejectIfContains(PhoneticExpectation.VowelStart));
+    }
+    if (template.startsWith("+") || TurkishAlphabet.INSTANCE.isVowel(lower.charAt(0))) {
+      rules.add(Rules.rejectIfContains(PhoneticExpectation.ConsonantStart));
     }
     return rules;
   }
@@ -77,7 +80,7 @@ public class SuffixTransition extends MorphemeTransition {
     MorphemeState from;
     MorphemeState to;
     String surfaceTemplate;
-    Set<Rule> rules = new HashSet<>();
+    List<Rule> rules = new ArrayList<>(2);
 
     public Builder from(MorphemeState from) {
       checkIfDefined(this.from, "from");
@@ -134,7 +137,7 @@ public class SuffixTransition extends MorphemeTransition {
     return tokenList;
   }
 
-  public Set<Rule> getRules() {
+  public List<Rule> getRules() {
     return rules;
   }
 }
