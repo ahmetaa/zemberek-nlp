@@ -101,19 +101,22 @@ public class InterpretingAnalyzer {
 
         // Creates new paths with outgoing and matching transitions.
         List<SearchPath> newPaths = advance(path);
-        if (debugData != null && newPaths.isEmpty()) {
-          debugData.failedPaths.add(path);
-        }
         allNewPaths.addAll(newPaths);
+
         if (debugData != null) {
+          if(newPaths.isEmpty()) {
+            debugData.failedPaths.add(path);
+          }
           debugData.paths.addAll(newPaths);
         }
       }
       current = allNewPaths;
     }
+
     if (debugData != null) {
       debugData.results.addAll(result);
     }
+    
     return result;
   }
 
