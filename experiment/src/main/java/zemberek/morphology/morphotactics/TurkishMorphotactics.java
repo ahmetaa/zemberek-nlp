@@ -69,7 +69,7 @@ public class TurkishMorphotactics {
 
   // Derivation
 
-  MorphemeState dim_SnT = MorphemeState.nonTerminal("dim_SnT", dim);
+  MorphemeState dim_SnT = MorphemeState.nonTerminalDerivative("dim_SnT", dim);
 
   private RootLexicon lexicon;
 

@@ -2,7 +2,6 @@ package zemberek.morphology.morphotactics;
 
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.RootAttribute;
-import zemberek.morphology.analyzer.MorphemeSurfaceForm;
 import zemberek.morphology.analyzer.SearchPath;
 import zemberek.morphology.lexicon.DictionaryItem;
 
@@ -38,6 +37,7 @@ public class Rules {
 
     @Override
     public boolean canPass(SearchPath visitor) {
+      // normally this should also check if visitor has no derivation.
       return visitor.containsRootAttribute(attribute);
     }
   }
@@ -80,6 +80,7 @@ public class Rules {
 
     @Override
     public boolean canPass(SearchPath visitor) {
+      // normally this should also check if visitor has no derivation.
       return item != null && visitor.hasDictionaryItem(item);
     }
   }
@@ -94,6 +95,7 @@ public class Rules {
 
     @Override
     public boolean canPass(SearchPath visitor) {
+      // normally this should also check if visitor has no derivation.
       return item == null || !visitor.hasDictionaryItem(item);
     }
   }
@@ -102,12 +104,7 @@ public class Rules {
 
     @Override
     public boolean canPass(SearchPath visitor) {
-      for (MorphemeSurfaceForm form : visitor.getHistory()) {
-        if (!form.surface.isEmpty()) {
-          return false;
-        }
-      }
-      return true;
+      return !visitor.containsSuffixWithSurface();
     }
   }
 

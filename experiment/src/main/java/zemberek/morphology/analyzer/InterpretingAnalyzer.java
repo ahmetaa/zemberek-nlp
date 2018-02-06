@@ -14,7 +14,6 @@ import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateToken;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.TemplateTokenType;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.morphotactics.MorphemeTransition;
 import zemberek.morphology.morphotactics.StemTransition;
 import zemberek.morphology.morphotactics.SuffixTransition;
@@ -88,7 +87,7 @@ public class InterpretingAnalyzer {
       int length = candidate.surface.length();
       String head = input.substring(0, length);
       String tail = input.substring(length);
-      paths.add(new SearchPath(candidate, head, tail));
+      paths.add(SearchPath.initialPath(candidate, head, tail));
     }
 
     List<AnalysisResult> results = new ArrayList<>(3);
@@ -101,11 +100,11 @@ public class InterpretingAnalyzer {
 
     List<SearchPath> allNewPaths = Lists.newArrayList();
     for (SearchPath path : current) {
-      if (path.tail.length() == 0 && path.terminal) {
+      if (path.tail.length() == 0 && path.isTerminal()) {
         AnalysisResult analysis = new AnalysisResult(
             path.stemTransition.item,
             path.stemTransition.surface,
-            path.history);
+            path.suffixes);
         completed.add(analysis);
         continue;
       }
@@ -131,6 +130,11 @@ public class InterpretingAnalyzer {
 
       List<SuffixTemplateToken> tokenList = suffixTransition.getTokenList();
 
+      // if tail is empty and this transitions surface is not empty, no need to check.
+      if (path.tail.isEmpty() && tokenList.size() > 0) {
+        continue;
+      }
+
       // check rules.
       if (!suffixTransition.canPass(path)) {
         continue;
@@ -142,11 +146,6 @@ public class InterpretingAnalyzer {
             new MorphemeSurfaceForm("", suffixTransition),
             path.phoneticAttributes,
             path.phoneticExpectations));
-        continue;
-      }
-
-      // if tail is empty, since this transitions surface is not empty now, no need to check further.
-      if (path.tail.isEmpty()) {
         continue;
       }
 

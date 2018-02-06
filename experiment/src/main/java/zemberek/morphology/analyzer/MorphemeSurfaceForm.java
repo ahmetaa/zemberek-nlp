@@ -73,7 +73,7 @@ public class MorphemeSurfaceForm {
           break;
 
         case I_WOVEL:
-          // TODO: document line below.
+          // TODO: document line below. With templates like +Im this would not be necessary
           if (index == 0 && phoneticAttributes.contains(LastLetterVowel)) {
             break;
           }
@@ -201,6 +201,7 @@ public class MorphemeSurfaceForm {
     }
   }
 
+  // TODO: consider making templates like "+Im" possible.
   public static class SuffixTemplateTokenizer implements Iterator<SuffixTemplateToken> {
 
     private final String generationWord;

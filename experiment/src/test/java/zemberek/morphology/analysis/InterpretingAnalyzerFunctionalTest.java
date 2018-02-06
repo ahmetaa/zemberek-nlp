@@ -108,9 +108,9 @@ public class InterpretingAnalyzerFunctionalTest {
   @Test
   public void noun2NounIncorrect_1() {
     InterpretingAnalyzer analyzer = getAnalyzer("kitap");
-    shouldNotPass(analyzer,
-        "kitapçığ", "kitapcık", "kitaplarcık", "kitabımcık",
-        "kitaptacık", "kitapçıkçık", "kitapçıklarcık"
+    shouldNotPass(analyzer,"kitaplarcık", "kitapçıklarcık",
+        "kitapçığ", "kitapcık", "kitabımcık",
+        "kitaptacık", "kitapçıkçık"
     );
   }
 

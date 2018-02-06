@@ -1,32 +1,41 @@
 package zemberek.morphology.morphotactics;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import zemberek.core.logging.Log;
 
 public class MorphemeState {
 
-  public final Morpheme morpheme;
   public final String id;
+  public final Morpheme morpheme;
   List<MorphemeTransition> outgoing = new ArrayList<>(2);
   List<MorphemeTransition> incoming = new ArrayList<>(2);
-  public boolean terminal;
+  public boolean terminal = false;
+  public boolean derivative = false;
 
-  public MorphemeState(String id, Morpheme morpheme, boolean terminal) {
+  public MorphemeState(String id, Morpheme morpheme, boolean terminal, boolean derivative) {
     this.morpheme = morpheme;
     this.id = id;
     this.terminal = terminal;
+    this.derivative = derivative;
   }
 
   public static MorphemeState terminal(String id, Morpheme morpheme) {
-    return new MorphemeState(id, morpheme, true);
+    return new MorphemeState(id, morpheme, true, false);
   }
 
   public static MorphemeState nonTerminal(String id, Morpheme morpheme) {
-    return new MorphemeState(id, morpheme, false);
+    return new MorphemeState(id, morpheme, false, false);
   }
+
+  public static MorphemeState terminalDerivative(String id, Morpheme morpheme) {
+    return new MorphemeState(id, morpheme, true, true);
+  }
+
+  public static MorphemeState nonTerminalDerivative(String id, Morpheme morpheme) {
+    return new MorphemeState(id, morpheme, false, true);
+  }
+
 
   public MorphemeState addOutgoing(SuffixTransition... suffixTransitions) {
     for (SuffixTransition suffixTransition : suffixTransitions) {
