@@ -30,8 +30,9 @@ public class InterpretingAnalyzer {
 
   TurkishMorphotactics morphotactics;
 
-  // TODO: this mechanism should be an abstraction that can also use a Trie
-  private ArrayListMultimap<String, StemTransition> multiStems = ArrayListMultimap.create(1000, 2);
+  // TODO: Move this to somewhere else. Also this mechanism should be an abstraction that can also use a Trie
+  private ArrayListMultimap<String, StemTransition> multiStems =
+      ArrayListMultimap.create(1000, 2);
   private Map<String, StemTransition> singleStems = Maps.newConcurrentMap();
 
   public InterpretingAnalyzer(RootLexicon lexicon) {
@@ -41,39 +42,8 @@ public class InterpretingAnalyzer {
     generateStemTransitions();
   }
 
-  private void generateStemTransitions() {
-    for (DictionaryItem item : lexicon) {
-      List<StemTransition> transitions = generator.generate(item);
-      for (StemTransition transition : transitions) {
-        addStemTransition(transition);
-      }
-    }
-  }
-
-  private synchronized void addStemTransition(StemTransition stemTransition) {
-    final String surfaceForm = stemTransition.surface;
-    if (multiStems.containsKey(surfaceForm)) {
-      multiStems.put(surfaceForm, stemTransition);
-    } else if (singleStems.containsKey(surfaceForm)) {
-      multiStems.put(surfaceForm, singleStems.get(surfaceForm));
-      singleStems.remove(surfaceForm);
-      multiStems.put(surfaceForm, stemTransition);
-    } else {
-      singleStems.put(surfaceForm, stemTransition);
-    }
-  }
-
-  public List<StemTransition> getMatchingStemTransitions(String stem) {
-    if (singleStems.containsKey(stem)) {
-      return Lists.newArrayList(singleStems.get(stem));
-    } else if (multiStems.containsKey(stem)) {
-      return Lists.newArrayList(multiStems.get(stem));
-    } else {
-      return Collections.emptyList();
-    }
-  }
-
   public List<AnalysisResult> analyze(String input) {
+
     // get stem candidates.
     List<StemTransition> candidates = Lists.newArrayListWithCapacity(3);
     for (int i = 1; i <= input.length(); i++) {
@@ -81,8 +51,8 @@ public class InterpretingAnalyzer {
       candidates.addAll(getMatchingStemTransitions(stem));
     }
 
+    // generate initial search paths.
     List<SearchPath> paths = new ArrayList<>();
-
     for (StemTransition candidate : candidates) {
       int length = candidate.surface.length();
       String head = input.substring(0, length);
@@ -91,15 +61,22 @@ public class InterpretingAnalyzer {
     }
 
     List<AnalysisResult> results = new ArrayList<>(3);
+    // search graph. All correct results will be accumulated in [results] list.
     search(paths, results);
     return results;
   }
 
 
+  // searches through morphotactics graph recursively.
   private void search(List<SearchPath> current, List<AnalysisResult> completed) {
 
+    // new Paths are generated with matching transitions.
     List<SearchPath> allNewPaths = Lists.newArrayList();
+
     for (SearchPath path : current) {
+
+      // if there is no more letters to consume and path can be terminated, we accept this
+      // path as a correct result.
       if (path.tail.length() == 0 && path.isTerminal()) {
         AnalysisResult analysis = new AnalysisResult(
             path.stemTransition.item,
@@ -108,22 +85,25 @@ public class InterpretingAnalyzer {
         completed.add(analysis);
         continue;
       }
+
+      // Creates new paths with outgoing and matching transitions.
       List<SearchPath> newPaths = advance(path);
       allNewPaths.addAll(newPaths);
     }
 
+    // If there are no more new Paths to check, return.
     if (!allNewPaths.isEmpty()) {
       search(allNewPaths, completed);
     }
   }
 
+  // for all allowed outgoing transitions generates new Paths.
+  // Rules are used for checking if a transition is allowed.
   private List<SearchPath> advance(SearchPath path) {
 
-    // for all transitions generate new Paths for matching transitions.
     List<SearchPath> newPaths = new ArrayList<>(2);
 
     // for all outgoing transitions.
-
     for (MorphemeTransition transition : path.currentState.getOutgoing()) {
 
       SuffixTransition suffixTransition = (SuffixTransition) transition;
@@ -176,6 +156,39 @@ public class InterpretingAnalyzer {
       newPaths.add(p);
     }
     return newPaths;
+  }
+
+
+  private void generateStemTransitions() {
+    for (DictionaryItem item : lexicon) {
+      List<StemTransition> transitions = generator.generate(item);
+      for (StemTransition transition : transitions) {
+        addStemTransition(transition);
+      }
+    }
+  }
+
+  private synchronized void addStemTransition(StemTransition stemTransition) {
+    final String surfaceForm = stemTransition.surface;
+    if (multiStems.containsKey(surfaceForm)) {
+      multiStems.put(surfaceForm, stemTransition);
+    } else if (singleStems.containsKey(surfaceForm)) {
+      multiStems.put(surfaceForm, singleStems.get(surfaceForm));
+      singleStems.remove(surfaceForm);
+      multiStems.put(surfaceForm, stemTransition);
+    } else {
+      singleStems.put(surfaceForm, stemTransition);
+    }
+  }
+
+  public List<StemTransition> getMatchingStemTransitions(String stem) {
+    if (singleStems.containsKey(stem)) {
+      return Lists.newArrayList(singleStems.get(stem));
+    } else if (multiStems.containsKey(stem)) {
+      return Lists.newArrayList(multiStems.get(stem));
+    } else {
+      return Collections.emptyList();
+    }
   }
 
 }

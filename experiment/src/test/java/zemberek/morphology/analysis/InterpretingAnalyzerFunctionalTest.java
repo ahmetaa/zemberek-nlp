@@ -12,12 +12,12 @@ import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 
 public class InterpretingAnalyzerFunctionalTest {
 
-  public static InterpretingAnalyzer getAnalyzer(String... dictionaryLines) {
+  private static InterpretingAnalyzer getAnalyzer(String... dictionaryLines) {
     RootLexicon loader = new TurkishDictionaryLoader().load(dictionaryLines);
     return new InterpretingAnalyzer(loader);
   }
 
-  public boolean containsMorpheme(AnalysisResult result, String morphemeName) {
+  private boolean containsMorpheme(AnalysisResult result, String morphemeName) {
     for (MorphemeSurfaceForm forms : result.getMorphemes()) {
       if (forms.lexicalTransition.to.morpheme.id.equalsIgnoreCase(morphemeName)) {
         return true;
