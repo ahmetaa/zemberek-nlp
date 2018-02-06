@@ -3,6 +3,7 @@ package zemberek.morphology.analyzer;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.RootAttribute;
@@ -49,8 +50,11 @@ public class SearchPath {
         stemTransition.to.terminal);
   }
 
-  private SearchPath(String head, String tail,
-      StemTransition stemTransition, MorphemeState currentState,
+  private SearchPath(
+      String head,
+      String tail,
+      StemTransition stemTransition,
+      MorphemeState currentState,
       List<MorphemeSurfaceForm> suffixes,
       EnumSet<PhoneticAttribute> phoneticAttributes,
       EnumSet<PhoneticExpectation> phoneticExpectations, boolean terminal) {
@@ -66,8 +70,7 @@ public class SearchPath {
 
   SearchPath getCopy(MorphemeSurfaceForm surfaceNode,
       EnumSet<PhoneticAttribute> phoneticAttributes,
-      EnumSet<PhoneticExpectation> phoneticExpectations
-  ) {
+      EnumSet<PhoneticExpectation> phoneticExpectations) {
     boolean t = surfaceNode.lexicalTransition.to.terminal;
     ArrayList<MorphemeSurfaceForm> hist = new ArrayList<>(suffixes);
     hist.add(surfaceNode);
@@ -85,6 +88,15 @@ public class SearchPath {
     path.containsSuffixWithSurface = containsSuffixWithSurface || !surfaceNode.surface.isEmpty();
     path.containsDerivation = containsDerivation || surfaceNode.lexicalTransition.to.derivative;
     return path;
+  }
+
+  public String toString() {
+    String rootStr = stemTransition.item.id + ":" + stemTransition.surface;
+    String morphemeStr =
+        String.join(" + ", suffixes.stream()
+            .map(MorphemeSurfaceForm::toString)
+            .collect(Collectors.toList()));
+    return "[(" + rootStr + ")(" + head + "-" + tail + ") " + morphemeStr + "]";
   }
 
   public String getHead() {

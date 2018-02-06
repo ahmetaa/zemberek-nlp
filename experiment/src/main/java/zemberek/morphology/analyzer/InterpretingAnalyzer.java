@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import zemberek.core.logging.Log;
@@ -67,10 +68,8 @@ public class InterpretingAnalyzer {
       paths.add(SearchPath.initialPath(candidate, head, tail));
     }
 
-    List<AnalysisResult> results = new ArrayList<>(3);
-    // search graph. All correct results will be accumulated in [results] list.
-    search(paths, results);
-    return results;
+    // search graph.
+    return search(paths, debugData);
   }
 
   public List<AnalysisResult> analyze(String input) {
@@ -79,33 +78,43 @@ public class InterpretingAnalyzer {
 
 
   // searches through morphotactics graph recursively.
-  private void search(List<SearchPath> current, List<AnalysisResult> completed) {
+  private List<AnalysisResult> search(List<SearchPath> current, AnalysisDebugData debugData) {
 
+    List<AnalysisResult> result = new ArrayList<>(3);
     // new Paths are generated with matching transitions.
-    List<SearchPath> allNewPaths = Lists.newArrayList();
+    while (current.size() > 0) {
 
-    for (SearchPath path : current) {
+      List<SearchPath> allNewPaths = Lists.newArrayList();
 
-      // if there is no more letters to consume and path can be terminated, we accept this
-      // path as a correct result.
-      if (path.tail.length() == 0 && path.isTerminal()) {
-        AnalysisResult analysis = new AnalysisResult(
-            path.stemTransition.item,
-            path.stemTransition.surface,
-            path.suffixes);
-        completed.add(analysis);
-        continue;
+      for (SearchPath path : current) {
+
+        // if there is no more letters to consume and path can be terminated, we accept this
+        // path as a correct result.
+        if (path.tail.length() == 0 && path.isTerminal()) {
+          AnalysisResult analysis = new AnalysisResult(
+              path.stemTransition.item,
+              path.stemTransition.surface,
+              path.suffixes);
+          result.add(analysis);
+          continue;
+        }
+
+        // Creates new paths with outgoing and matching transitions.
+        List<SearchPath> newPaths = advance(path);
+        if (debugData != null && newPaths.isEmpty()) {
+          debugData.failedPaths.add(path);
+        }
+        allNewPaths.addAll(newPaths);
+        if (debugData != null) {
+          debugData.paths.addAll(newPaths);
+        }
       }
-
-      // Creates new paths with outgoing and matching transitions.
-      List<SearchPath> newPaths = advance(path);
-      allNewPaths.addAll(newPaths);
+      current = allNewPaths;
     }
-
-    // If there are no more new Paths to check, return.
-    if (!allNewPaths.isEmpty()) {
-      search(allNewPaths, completed);
+    if (debugData != null) {
+      debugData.results.addAll(result);
     }
+    return result;
   }
 
   // for all allowed outgoing transitions generates new Paths.
@@ -205,12 +214,27 @@ public class InterpretingAnalyzer {
 
     String input;
     List<StemTransition> candidateStemTransitions = new ArrayList<>();
+    List<SearchPath> paths = new ArrayList<>();
+    LinkedHashSet<SearchPath> failedPaths = new LinkedHashSet<>();
+    List<AnalysisResult> results = new ArrayList<>();
 
     public void dumpToConsole() {
       Log.info("Input = %s", input);
       Log.info("Stem Candidate Transitions: ");
       for (StemTransition c : candidateStemTransitions) {
         Log.info("  %s", c.debugForm());
+      }
+      Log.info("All paths:");
+      for (SearchPath path : paths) {
+        if (failedPaths.contains(path)) {
+          Log.info("  %s *", path);
+        } else {
+          Log.info("  %s", path);
+        }
+      }
+      Log.info("Results:");
+      for (AnalysisResult result : results) {
+        Log.info("  %s", result);
       }
     }
   }

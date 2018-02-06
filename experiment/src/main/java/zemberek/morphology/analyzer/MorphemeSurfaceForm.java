@@ -29,7 +29,8 @@ import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.morphology.morphotactics.MorphemeTransition;
 import zemberek.morphology.morphotactics.SuffixTransition;
 
-// TODO: find a better name. Move some methods outside.
+// TODO: find a better name. Move some methods outside. Also this should probably hold a state,
+// not a transition.
 public class MorphemeSurfaceForm {
 
   public final String surface;

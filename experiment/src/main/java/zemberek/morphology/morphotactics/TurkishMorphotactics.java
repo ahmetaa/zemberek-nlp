@@ -87,29 +87,24 @@ public class TurkishMorphotactics {
 
     // ev-ε-?-?
     noun_SnT.transition(a3sg_SnT).add();
-
     // ev-ler-?-?.
     noun_SnT.transition(a3pl_SnT, "lAr").add();
 
     // ev-ε-ε-?
     a3sg_SnT.transition(pnon_SnT).add();
-
     DictionaryItem suRoot = lexicon.getItemById("su_Noun");
     // ev-ε-im oda-ε-m
     a3sg_SnT.transition(p1sg_SnT, "Im")
         .addRule(Rules.rejectIfContains(suRoot))
         .add();
-
     // su-ε-yum. Only for "su"
     a3sg_SnT.transition(p1sg_SnT, "yum")
         .addRule(Rules.allowOnly(suRoot))
         .add();
-
     // ev-ε-i oda-ε-sı
     a3sg_SnT.transition(p3sg_SnT, "+sI")
         .addRule(Rules.rejectIfContains(suRoot))
         .add();
-
     // su-ε-yu. Only for "su"
     a3sg_SnT.transition(p3sg_SnT, "yu")
         .addRule(Rules.allowOnly(suRoot))
@@ -117,10 +112,8 @@ public class TurkishMorphotactics {
 
     // ev-ler-ε-?
     a3pl_SnT.transition(pnon_SnT).add();
-
     // ev-ler-im-?
     a3pl_SnT.transition(p1sg_SnT, "Im").add();
-
     // ev-ler-i oda-lar-ı
     a3pl_SnT.transition(p3sg_SnT, "I").add();
 
@@ -128,16 +121,13 @@ public class TurkishMorphotactics {
     pnon_SnT.transition(nom_ST)
         .addRule(Rules.rejectIfContains(PhoneticExpectation.VowelStart))
         .add();
-
     // This is for blocking inputs like "kitab". Here because nominal case state is non terminal (nom_SnT)
     // analysis path will fail.
     pnon_SnT.transition(nom_SnT)
         .addRule(Rules.allowOnly(PhoneticExpectation.VowelStart))
         .add();
-
     // ev-?-ε-e (eve, evlere)
     pnon_SnT.transition(dat_ST).surfaceTemplate("+yA").add();
-
     // This transition is for words like "içeri" or "dışarı". Those words implicitly contains Dative suffix.
     // But It is also possible to add dative suffix +yA to those words such as "içeri-ye".
     pnon_SnT.transition(dat_ST)
@@ -146,13 +136,11 @@ public class TurkishMorphotactics {
 
     // ev-?-im-ε (evim, evlerim)
     p1sg_SnT.transition(nom_ST).add();
-
     // ev-?-im-e (evime, evlerime)
     p1sg_SnT.transition(dat_ST, "A").add();
 
     //ev-?-i-ε (evi, evleri)
     p3sg_SnT.transition(nom_SnT).add();
-
     //ev-?-i-ε (evine, evlerine)
     p3sg_SnT.transition(dat_ST, "nA").add();
 
@@ -165,8 +153,6 @@ public class TurkishMorphotactics {
     nom_ST.transition(dim_SnT, ">cI~k")
         .addRule(new Rules.RejectIfHasAnySuffixSurface())
         .add();
-
-    // do not allow repetition and only empty suffixes can come before.
     nom_SnT.transition(dim_SnT, ">cI!ğ")
         .addRule(new Rules.RejectIfHasAnySuffixSurface())
         .add();

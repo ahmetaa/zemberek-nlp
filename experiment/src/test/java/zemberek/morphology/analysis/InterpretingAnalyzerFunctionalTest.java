@@ -96,7 +96,7 @@ public class InterpretingAnalyzerFunctionalTest {
   @Test
   public void analysisWithDebug() {
     InterpretingAnalyzer analyzer = getAnalyzer("elma", "el", "elmas");
-    String in = "elması";
+    String in = "elmalara";
     AnalysisDebugData debug = new AnalysisDebugData();
     List<AnalysisResult> results = analyzer.analyze(in, debug);
     debug.dumpToConsole();
@@ -117,8 +117,8 @@ public class InterpretingAnalyzerFunctionalTest {
   @Test
   public void noun2NounIncorrect_1() {
     InterpretingAnalyzer analyzer = getAnalyzer("kitap");
-    shouldNotPass(analyzer, "kitaplarcık", "kitapçıklarcık",
-        "kitapçığ", "kitapcık", "kitabımcık",
+    shouldNotPass(analyzer,
+        "kitaplarcık", "kitapçıklarcık", "kitapçığ", "kitapcık", "kitabımcık",
         "kitaptacık", "kitapçıkçık"
     );
   }
