@@ -46,12 +46,12 @@ public class MorphemeSurfaceForm {
   }
 
   public static TurkishLetterSequence generate(
-      List<SuffixTemplateToken> tokens,
+      SuffixTransition transition,
       EnumSet<PhoneticAttribute> phoneticAttributes) {
 
     TurkishLetterSequence seq = new TurkishLetterSequence();
     int index = 0;
-    for (SuffixTemplateToken token : tokens) {
+    for (SuffixTemplateToken token : transition.getTokenList()) {
       EnumSet<PhoneticAttribute> attrs = defineMorphemicAttributes(seq, phoneticAttributes);
       switch (token.type) {
         case LETTER:

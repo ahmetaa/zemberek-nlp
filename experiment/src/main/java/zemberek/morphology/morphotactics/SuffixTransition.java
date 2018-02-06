@@ -137,6 +137,18 @@ public class SuffixTransition extends MorphemeTransition {
     return tokenList;
   }
 
+  public boolean hasSurfaceForm() {
+    return tokenList.size() > 0;
+  }
+
+  public SuffixTemplateToken getLastTemplateToken() {
+    if (tokenList.size() == 0) {
+      return null;
+    } else {
+      return tokenList.get(tokenList.size() - 1);
+    }
+  }
+
   public List<Rule> getRules() {
     return rules;
   }

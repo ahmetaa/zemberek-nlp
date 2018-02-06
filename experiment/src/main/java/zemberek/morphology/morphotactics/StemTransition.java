@@ -33,4 +33,13 @@ public class StemTransition extends MorphemeTransition {
     return phoneticExpectations;
   }
 
+  public String debugForm() {
+    return "[(Dict:" + item.toString() + "):" + surface +
+        " → " + to.toString() + "]";
+  }
+
+  @Override
+  public String toString() {
+    return debugForm();
+  }
 }

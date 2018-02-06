@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateToken;
@@ -42,13 +43,19 @@ public class InterpretingAnalyzer {
     generateStemTransitions();
   }
 
-  public List<AnalysisResult> analyze(String input) {
+
+  public List<AnalysisResult> analyze(String input, AnalysisDebugData debugData) {
 
     // get stem candidates.
     List<StemTransition> candidates = Lists.newArrayListWithCapacity(3);
     for (int i = 1; i <= input.length(); i++) {
       String stem = input.substring(0, i);
       candidates.addAll(getMatchingStemTransitions(stem));
+    }
+
+    if (debugData != null) {
+      debugData.input = input;
+      debugData.candidateStemTransitions.addAll(candidates);
     }
 
     // generate initial search paths.
@@ -64,6 +71,10 @@ public class InterpretingAnalyzer {
     // search graph. All correct results will be accumulated in [results] list.
     search(paths, results);
     return results;
+  }
+
+  public List<AnalysisResult> analyze(String input) {
+    return analyze(input, null);
   }
 
 
@@ -108,10 +119,8 @@ public class InterpretingAnalyzer {
 
       SuffixTransition suffixTransition = (SuffixTransition) transition;
 
-      List<SuffixTemplateToken> tokenList = suffixTransition.getTokenList();
-
       // if tail is empty and this transitions surface is not empty, no need to check.
-      if (path.tail.isEmpty() && tokenList.size() > 0) {
+      if (path.tail.isEmpty() && suffixTransition.hasSurfaceForm()) {
         continue;
       }
 
@@ -121,7 +130,7 @@ public class InterpretingAnalyzer {
       }
 
       // epsilon transition. Add and continue. Use existing attributes.
-      if (tokenList.size() == 0) {
+      if (!suffixTransition.hasSurfaceForm()) {
         newPaths.add(path.getCopy(
             new MorphemeSurfaceForm("", suffixTransition),
             path.phoneticAttributes,
@@ -130,7 +139,9 @@ public class InterpretingAnalyzer {
       }
 
       // TODO: early return is possible
-      TurkishLetterSequence seq = MorphemeSurfaceForm.generate(tokenList, path.phoneticAttributes);
+      TurkishLetterSequence seq = MorphemeSurfaceForm.generate(
+          suffixTransition,
+          path.phoneticAttributes);
 
       String surface = seq.toString();
 
@@ -142,7 +153,7 @@ public class InterpretingAnalyzer {
       //TODO: if tail is equal to surface, no need to calculate attributes.
 
       MorphemeSurfaceForm surfaceTransition = new MorphemeSurfaceForm(surface, suffixTransition);
-      SuffixTemplateToken lastToken = tokenList.get(tokenList.size() - 1);
+      SuffixTemplateToken lastToken = suffixTransition.getLastTemplateToken();
       EnumSet<PhoneticExpectation> phoneticExpectations = EnumSet.noneOf(PhoneticExpectation.class);
       if (lastToken.type == TemplateTokenType.LAST_VOICED) {
         phoneticExpectations = EnumSet.of(PhoneticExpectation.ConsonantStart);
@@ -157,7 +168,6 @@ public class InterpretingAnalyzer {
     }
     return newPaths;
   }
-
 
   private void generateStemTransitions() {
     for (DictionaryItem item : lexicon) {
@@ -188,6 +198,20 @@ public class InterpretingAnalyzer {
       return Lists.newArrayList(multiStems.get(stem));
     } else {
       return Collections.emptyList();
+    }
+  }
+
+  public static class AnalysisDebugData {
+
+    String input;
+    List<StemTransition> candidateStemTransitions = new ArrayList<>();
+
+    public void dumpToConsole() {
+      Log.info("Input = %s", input);
+      Log.info("Stem Candidate Transitions: ");
+      for (StemTransition c : candidateStemTransitions) {
+        Log.info("  %s", c.debugForm());
+      }
     }
   }
 

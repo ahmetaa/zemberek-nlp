@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import zemberek.morphology.analyzer.AnalysisResult;
 import zemberek.morphology.analyzer.InterpretingAnalyzer;
+import zemberek.morphology.analyzer.InterpretingAnalyzer.AnalysisDebugData;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
@@ -78,7 +79,7 @@ public class InterpretingAnalyzerFunctionalTest {
   @Test
   public void voicingIncorrect_1() {
     InterpretingAnalyzer analyzer = getAnalyzer("kitap");
-    shouldNotPass(analyzer,"kitapım", "kitab", "kitabcık", "kitapa", "kitablar" );
+    shouldNotPass(analyzer, "kitapım", "kitab", "kitabcık", "kitapa", "kitablar");
   }
 
   @Test
@@ -91,6 +92,17 @@ public class InterpretingAnalyzerFunctionalTest {
     AnalysisResult first = results.get(0);
     Assert.assertTrue(containsMorpheme(first, "Dim"));
   }
+
+  @Test
+  public void analysisWithDebug() {
+    InterpretingAnalyzer analyzer = getAnalyzer("elma", "el", "elmas");
+    String in = "elması";
+    AnalysisDebugData debug = new AnalysisDebugData();
+    List<AnalysisResult> results = analyzer.analyze(in, debug);
+    debug.dumpToConsole();
+    printAndSort(in, results);
+  }
+
 
   public void shouldNotPass(InterpretingAnalyzer analyzer, String... words) {
     for (String word : words) {
@@ -105,7 +117,7 @@ public class InterpretingAnalyzerFunctionalTest {
   @Test
   public void noun2NounIncorrect_1() {
     InterpretingAnalyzer analyzer = getAnalyzer("kitap");
-    shouldNotPass(analyzer,"kitaplarcık", "kitapçıklarcık",
+    shouldNotPass(analyzer, "kitaplarcık", "kitapçıklarcık",
         "kitapçığ", "kitapcık", "kitabımcık",
         "kitaptacık", "kitapçıkçık"
     );
