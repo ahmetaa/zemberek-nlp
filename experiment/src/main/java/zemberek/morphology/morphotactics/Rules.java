@@ -44,6 +44,11 @@ public class Rules {
       // normally this should also check if visitor has no derivation.
       return visitor.containsRootAttribute(attribute);
     }
+
+    @Override
+    public String toString() {
+      return "AllowOnlyRootAttribute{" + attribute + '}';
+    }
   }
 
   private static class RejectIfContainsRootAttribute implements Rule {
@@ -58,6 +63,11 @@ public class Rules {
     public boolean canPass(SearchPath visitor) {
       // normally this should also check if visitor has no derivation.
       return !visitor.containsRootAttribute(attribute);
+    }
+
+    @Override
+    public String toString() {
+      return "RejectIfContainsRootAttribute{" + attribute + '}';
     }
   }
 
@@ -74,6 +84,11 @@ public class Rules {
     public boolean canPass(SearchPath visitor) {
       return visitor.getPhoneticAttributes().contains(attribute);
     }
+
+    @Override
+    public String toString() {
+      return "AllowOnlyIfContainsPhoneticAttribute{" + attribute + '}';
+    }
   }
 
   private static class RejectIfContainsPhoneticAttribute implements Rule {
@@ -87,6 +102,11 @@ public class Rules {
     @Override
     public boolean canPass(SearchPath visitor) {
       return !visitor.getPhoneticAttributes().contains(attribute);
+    }
+
+    @Override
+    public String toString() {
+      return "RejectIfContainsPhoneticAttribute{" + attribute + '}';
     }
   }
 
@@ -103,6 +123,11 @@ public class Rules {
       // normally this should also check if visitor has no derivation.
       return item != null && visitor.hasDictionaryItem(item);
     }
+
+    @Override
+    public String toString() {
+      return "AllowDictionaryItem{" + item + '}';
+    }
   }
 
   private static class RejectDictionaryItem implements Rule {
@@ -118,6 +143,11 @@ public class Rules {
       // normally this should also check if visitor has no derivation.
       return item == null || !visitor.hasDictionaryItem(item);
     }
+
+    @Override
+    public String toString() {
+      return "RejectDictionaryItem{" + item + '}';
+    }
   }
 
   public static class RejectIfHasAnySuffixSurface implements Rule {
@@ -125,6 +155,11 @@ public class Rules {
     @Override
     public boolean canPass(SearchPath visitor) {
       return !visitor.containsSuffixWithSurface();
+    }
+
+    @Override
+    public String toString() {
+      return "RejectIfHasAnySuffixSurface{}";
     }
   }
 

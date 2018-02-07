@@ -70,7 +70,9 @@ public class SuffixTransition extends MorphemeTransition {
   }
 
   public String toString() {
-    return "[" + from.id + "->" + to.id + "|" + surfaceTemplate + "]";
+    return "[" + from.id + "→" + to.id +
+        (surfaceTemplate.isEmpty() ? "" : (":" + surfaceTemplate))
+        + "]";
   }
 
   public static class Builder {
