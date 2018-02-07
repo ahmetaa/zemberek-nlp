@@ -10,7 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import zemberek.core.logging.Log;
-import zemberek.core.turkish.PhoneticExpectation;
+import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateToken;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.TemplateTokenType;
@@ -145,8 +145,7 @@ public class InterpretingAnalyzer {
       if (!suffixTransition.hasSurfaceForm()) {
         newPaths.add(path.getCopy(
             new MorphemeSurfaceForm("", suffixTransition),
-            path.phoneticAttributes,
-            path.phoneticExpectations));
+            path.phoneticAttributes));
         continue;
       }
 
@@ -166,16 +165,19 @@ public class InterpretingAnalyzer {
 
       MorphemeSurfaceForm surfaceTransition = new MorphemeSurfaceForm(surface, suffixTransition);
       SuffixTemplateToken lastToken = suffixTransition.getLastTemplateToken();
-      EnumSet<PhoneticExpectation> phoneticExpectations = EnumSet.noneOf(PhoneticExpectation.class);
+
+      EnumSet<PhoneticAttribute> attributes = MorphemeSurfaceForm
+          .defineMorphemicAttributes(seq, path.phoneticAttributes);
+
       if (lastToken.type == TemplateTokenType.LAST_VOICED) {
-        phoneticExpectations = EnumSet.of(PhoneticExpectation.ConsonantStart);
+        attributes.add(PhoneticAttribute.ExpectsConsonant);
       } else if (lastToken.type == TemplateTokenType.LAST_NOT_VOICED) {
-        phoneticExpectations = EnumSet.of(PhoneticExpectation.VowelStart);
+        attributes.add(PhoneticAttribute.ExpectsVowel);
       }
+
       SearchPath p = path.getCopy(
           surfaceTransition,
-          MorphemeSurfaceForm.defineMorphemicAttributes(seq, path.phoneticAttributes),
-          phoneticExpectations);
+          attributes);
       newPaths.add(p);
     }
     return newPaths;

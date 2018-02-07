@@ -1,6 +1,6 @@
 package zemberek.morphology.morphotactics;
 
-import zemberek.core.turkish.PhoneticExpectation;
+import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.analyzer.SearchPath;
 import zemberek.morphology.lexicon.DictionaryItem;
@@ -11,16 +11,16 @@ public class Rules {
     return new AllowOnlyRootAttribute(attribute);
   }
 
-  public static Rule allowOnly(PhoneticExpectation expectation) {
-    return new AllowOnlyIfContainsPhoneticExpectation(expectation);
+  public static Rule allowOnly(PhoneticAttribute attribute) {
+    return new AllowOnlyIfContainsPhoneticAttribute(attribute);
   }
 
   public static Rule allowOnly(DictionaryItem item) {
     return new AllowDictionaryItem(item);
   }
 
-  public static Rule rejectIfContains(PhoneticExpectation expectation) {
-    return new RejectIfContainsPhoneticExpectation(expectation);
+  public static Rule rejectIfContains(PhoneticAttribute attribute) {
+    return new RejectIfContainsPhoneticAttribute(attribute);
   }
 
   public static Rule rejectIfContains(DictionaryItem item) {
@@ -42,31 +42,31 @@ public class Rules {
     }
   }
 
-  private static class AllowOnlyIfContainsPhoneticExpectation implements Rule {
+  private static class AllowOnlyIfContainsPhoneticAttribute implements Rule {
 
-    PhoneticExpectation expectation;
+    PhoneticAttribute attribute;
 
-    AllowOnlyIfContainsPhoneticExpectation(PhoneticExpectation expectation) {
-      this.expectation = expectation;
+    public AllowOnlyIfContainsPhoneticAttribute(PhoneticAttribute attribute) {
+      this.attribute = attribute;
     }
 
     @Override
     public boolean canPass(SearchPath visitor) {
-      return visitor.containsPhoneticExpectation(expectation);
+      return visitor.getPhoneticAttributes().contains(attribute);
     }
   }
 
-  private static class RejectIfContainsPhoneticExpectation implements Rule {
+  private static class RejectIfContainsPhoneticAttribute implements Rule {
 
-    PhoneticExpectation expectation;
+    PhoneticAttribute attribute;
 
-    RejectIfContainsPhoneticExpectation(PhoneticExpectation expectation) {
-      this.expectation = expectation;
+    RejectIfContainsPhoneticAttribute(PhoneticAttribute attribute) {
+      this.attribute = attribute;
     }
 
     @Override
     public boolean canPass(SearchPath visitor) {
-      return !visitor.containsPhoneticExpectation(expectation);
+      return !visitor.getPhoneticAttributes().contains(attribute);
     }
   }
 

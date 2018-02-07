@@ -36,7 +36,13 @@ public enum PhoneticAttribute implements StringEnum {
   FirstLetterVowel("FLV"),
   FirstLetterConsonant("FLC"),
 
-  HasNoVowel("NoVow");
+  HasNoVowel("NoVow"),
+
+  // ---- experimental -----
+
+  ExpectsVowel("EV"),
+  ExpectsConsonant("EC")
+  ;
 
   private final static StringEnumMap<PhoneticAttribute> shortFormToPosMap = StringEnumMap
       .get(PhoneticAttribute.class);

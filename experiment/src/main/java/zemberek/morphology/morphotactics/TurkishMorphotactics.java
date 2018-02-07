@@ -1,5 +1,6 @@
 package zemberek.morphology.morphotactics;
 
+import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
@@ -119,12 +120,12 @@ public class TurkishMorphotactics {
 
     // ev-?-ε-ε (ev, evler)
     pnon_SnT.transition(nom_ST)
-        .addRule(Rules.rejectIfContains(PhoneticExpectation.VowelStart))
+        .addRule(Rules.rejectIfContains(PhoneticAttribute.ExpectsVowel))
         .add();
     // This is for blocking inputs like "kitab". Here because nominal case state is non terminal (nom_SnT)
     // analysis path will fail.
     pnon_SnT.transition(nom_SnT)
-        .addRule(Rules.allowOnly(PhoneticExpectation.VowelStart))
+        .addRule(Rules.allowOnly(PhoneticAttribute.ExpectsVowel))
         .add();
     // ev-?-ε-e (eve, evlere)
     pnon_SnT.transition(dat_ST).surfaceTemplate("+yA").add();

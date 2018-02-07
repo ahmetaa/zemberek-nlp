@@ -17,8 +17,8 @@ import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.TurkicLetter;
-import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.LexiconException;
 import zemberek.morphology.morphotactics.StemTransition;
@@ -65,7 +65,6 @@ public class StemTransitionGenerator {
           item.root,
           item,
           phoneticAttributes,
-          EnumSet.noneOf(PhoneticExpectation.class),
           morphotactics.getRootState(item)
       );
 
@@ -129,8 +128,6 @@ public class StemTransitionGenerator {
     TurkishLetterSequence modifiedSeq = new TurkishLetterSequence(dicItem.pronunciation, alphabet);
     EnumSet<PhoneticAttribute> originalAttrs = calculateAttributes(dicItem.pronunciation);
     EnumSet<PhoneticAttribute> modifiedAttrs = originalAttrs.clone();
-    EnumSet<PhoneticExpectation> originalExpectations = EnumSet.noneOf(PhoneticExpectation.class);
-    EnumSet<PhoneticExpectation> modifiedExpectations = EnumSet.noneOf(PhoneticExpectation.class);
 
     for (RootAttribute attribute : dicItem.attributes) {
 
@@ -147,24 +144,24 @@ public class StemTransitionGenerator {
           }
           modifiedSeq.changeLetter(modifiedSeq.length() - 1, modifiedLetter);
           modifiedAttrs.remove(PhoneticAttribute.LastLetterVoicelessStop);
-          originalExpectations.add(PhoneticExpectation.ConsonantStart);
-          modifiedExpectations.add(PhoneticExpectation.VowelStart);
+          originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
+          modifiedAttrs.add(PhoneticAttribute.ExpectsVowel);
           break;
         case Doubling:
           modifiedSeq.append(modifiedSeq.lastLetter());
-          originalExpectations.add(PhoneticExpectation.ConsonantStart);
-          modifiedExpectations.add(PhoneticExpectation.VowelStart);
+          originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
+          modifiedAttrs.add(PhoneticAttribute.ExpectsVowel);
           break;
         case LastVowelDrop:
           if (modifiedSeq.lastLetter().isVowel()) {
             modifiedSeq.delete(modifiedSeq.length() - 1);
-            modifiedExpectations.add(PhoneticExpectation.ConsonantStart);
+            modifiedAttrs.add(PhoneticAttribute.ExpectsConsonant);
           } else {
             modifiedSeq.delete(modifiedSeq.length() - 2);
             if (!dicItem.primaryPos.equals(PrimaryPos.Verb)) {
-              originalExpectations.add(PhoneticExpectation.ConsonantStart);
+              originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
             }
-            modifiedExpectations.add(PhoneticExpectation.VowelStart);
+            modifiedAttrs.add(PhoneticAttribute.ExpectsVowel);
           }
           break;
         case InverseHarmony:
@@ -188,14 +185,12 @@ public class StemTransitionGenerator {
         dicItem.root,
         dicItem,
         originalAttrs,
-        originalExpectations,
         morphotactics.getRootState(dicItem));
 
     StemTransition modified = new StemTransition(
         modifiedSeq.toString(),
         dicItem,
         modifiedAttrs,
-        modifiedExpectations,
         morphotactics.getRootState(dicItem));
     //TODO: if both are equal, return only one.
 

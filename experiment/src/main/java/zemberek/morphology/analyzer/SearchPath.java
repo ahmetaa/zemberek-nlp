@@ -5,7 +5,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PhoneticAttribute;
-import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.morphotactics.MorphemeState;
@@ -32,7 +31,6 @@ public class SearchPath {
   List<MorphemeSurfaceForm> suffixes;
 
   EnumSet<PhoneticAttribute> phoneticAttributes;
-  EnumSet<PhoneticExpectation> phoneticExpectations;
 
   private boolean terminal = false;
   private boolean containsDerivation = false;
@@ -46,7 +44,6 @@ public class SearchPath {
         stemTransition.to,
         new ArrayList<>(3),
         stemTransition.getPhoneticAttributes().clone(),
-        stemTransition.getPhoneticExpectations().clone(),
         stemTransition.to.terminal);
   }
 
@@ -57,20 +54,18 @@ public class SearchPath {
       MorphemeState currentState,
       List<MorphemeSurfaceForm> suffixes,
       EnumSet<PhoneticAttribute> phoneticAttributes,
-      EnumSet<PhoneticExpectation> phoneticExpectations, boolean terminal) {
+      boolean terminal) {
     this.head = head;
     this.tail = tail;
     this.stemTransition = stemTransition;
     this.currentState = currentState;
     this.suffixes = suffixes;
     this.phoneticAttributes = phoneticAttributes;
-    this.phoneticExpectations = phoneticExpectations;
     this.terminal = terminal;
   }
 
   SearchPath getCopy(MorphemeSurfaceForm surfaceNode,
-      EnumSet<PhoneticAttribute> phoneticAttributes,
-      EnumSet<PhoneticExpectation> phoneticExpectations) {
+      EnumSet<PhoneticAttribute> phoneticAttributes) {
     boolean t = surfaceNode.lexicalTransition.to.terminal;
     ArrayList<MorphemeSurfaceForm> hist = new ArrayList<>(suffixes);
     hist.add(surfaceNode);
@@ -83,7 +78,6 @@ public class SearchPath {
         surfaceNode.lexicalTransition.to,
         hist,
         phoneticAttributes,
-        phoneticExpectations,
         t);
     path.containsSuffixWithSurface = containsSuffixWithSurface || !surfaceNode.surface.isEmpty();
     path.containsDerivation = containsDerivation || surfaceNode.lexicalTransition.to.derivative;
@@ -119,10 +113,6 @@ public class SearchPath {
     return phoneticAttributes;
   }
 
-  public EnumSet<PhoneticExpectation> getPhoneticExpectations() {
-    return phoneticExpectations;
-  }
-
   public boolean isTerminal() {
     return terminal;
   }
@@ -141,10 +131,6 @@ public class SearchPath {
 
   public boolean containsRootAttribute(RootAttribute attribute) {
     return stemTransition.item.attributes.contains(attribute);
-  }
-
-  public boolean containsPhoneticExpectation(PhoneticExpectation expectation) {
-    return phoneticExpectations.contains(expectation);
   }
 
   public boolean hasDictionaryItem(DictionaryItem item) {

@@ -4,11 +4,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import zemberek.core.logging.Log;
-import zemberek.core.turkish.PhoneticExpectation;
+import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateToken;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateTokenizer;
@@ -59,10 +57,10 @@ public class SuffixTransition extends MorphemeTransition {
     List<Rule> rules = new ArrayList<>(1);
     String lower = template.toLowerCase(Turkish.LOCALE);
     if (template.startsWith(">") || !TurkishAlphabet.INSTANCE.isVowel(lower.charAt(0))) {
-      rules.add(Rules.rejectIfContains(PhoneticExpectation.VowelStart));
+      rules.add(Rules.rejectIfContains(PhoneticAttribute.ExpectsVowel));
     }
     if (template.startsWith("+") || TurkishAlphabet.INSTANCE.isVowel(lower.charAt(0))) {
-      rules.add(Rules.rejectIfContains(PhoneticExpectation.ConsonantStart));
+      rules.add(Rules.rejectIfContains(PhoneticAttribute.ExpectsConsonant));
     }
     return rules;
   }
