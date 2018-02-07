@@ -87,9 +87,18 @@ public class TurkishMorphotactics {
   public void addNounTransitions() {
 
     // ev-ε-?-?
-    noun_SnT.transition(a3sg_SnT).add();
+    noun_SnT.transition(a3sg_SnT)
+        .addRule(Rules.rejectIfContains(RootAttribute.ImplicitPlural))
+        .add();
+
     // ev-ler-?-?.
-    noun_SnT.transition(a3pl_SnT, "lAr").add();
+    noun_SnT.transition(a3pl_SnT, "lAr")
+        .addRule(Rules.rejectIfContains(RootAttribute.ImplicitPlural))
+        .add();
+
+    noun_SnT.transition(a3pl_SnT)
+        .addRule(Rules.allowOnly(RootAttribute.ImplicitPlural))
+        .add();
 
     // ev-ε-ε-?
     a3sg_SnT.transition(pnon_SnT).add();

@@ -61,6 +61,19 @@ public class InterpretingAnalyzerFunctionalTest {
     Assert.assertTrue(containsMorpheme(first, "Dat"));
   }
 
+  @Test
+  public void implicitPLural_1() {
+    String in = "hayvanat";
+    List<AnalysisResult> results = getAnalyzer(
+        "hayvanat [A:ImplicitPlural]")
+        .analyze(in);
+    printAndSort(in, results);
+    Assert.assertEquals(1, results.size());
+    AnalysisResult first = results.get(0);
+
+    Assert.assertTrue(containsMorpheme(first, "A3pl"));
+  }
+
 
   @Test
   public void voicing_1() {
@@ -102,7 +115,6 @@ public class InterpretingAnalyzerFunctionalTest {
     debug.dumpToConsole();
     printAndSort(in, results);
   }
-
 
   public void shouldNotPass(InterpretingAnalyzer analyzer, String... words) {
     for (String word : words) {

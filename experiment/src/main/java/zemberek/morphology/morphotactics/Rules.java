@@ -23,6 +23,10 @@ public class Rules {
     return new RejectIfContainsPhoneticAttribute(attribute);
   }
 
+  public static Rule rejectIfContains(RootAttribute attribute) {
+    return new RejectIfContainsRootAttribute(attribute);
+  }
+
   public static Rule rejectIfContains(DictionaryItem item) {
     return new RejectDictionaryItem(item);
   }
@@ -41,6 +45,22 @@ public class Rules {
       return visitor.containsRootAttribute(attribute);
     }
   }
+
+  private static class RejectIfContainsRootAttribute implements Rule {
+
+    RootAttribute attribute;
+
+    RejectIfContainsRootAttribute(RootAttribute attribute) {
+      this.attribute = attribute;
+    }
+
+    @Override
+    public boolean canPass(SearchPath visitor) {
+      // normally this should also check if visitor has no derivation.
+      return !visitor.containsRootAttribute(attribute);
+    }
+  }
+
 
   private static class AllowOnlyIfContainsPhoneticAttribute implements Rule {
 
