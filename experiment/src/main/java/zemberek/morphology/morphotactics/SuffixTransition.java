@@ -37,7 +37,7 @@ public class SuffixTransition extends MorphemeTransition {
 
   public boolean canPass(SearchPath path) {
     for (Rule rule : rules) {
-      if (!rule.canPass(path)) {
+      if (!rule.check(path)) {
         return false;
       }
     }

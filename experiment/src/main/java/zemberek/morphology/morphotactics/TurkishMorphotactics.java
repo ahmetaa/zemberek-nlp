@@ -130,11 +130,14 @@ public class TurkishMorphotactics {
     // ev-?-ε-ε (ev, evler)
     pnon_SnT.transition(nom_ST)
         .addRule(Rules.rejectIfContains(PhoneticAttribute.ExpectsVowel))
+       // .addRule(Rules.rejectIfContains(RootAttribute.CompoundP3sgRoot))
         .add();
-    // This is for blocking inputs like "kitab". Here because nominal case state is non terminal (nom_SnT)
-    // analysis path will fail.
+
+    // This transition is for not allowing inputs like "kitab" or "zeytinyağ".
+    // They will fail because nominal case state is non terminal (nom_SnT)
     pnon_SnT.transition(nom_SnT)
         .addRule(Rules.allowOnly(PhoneticAttribute.ExpectsVowel))
+      //  .addRule(Rules.allowOnly(RootAttribute.CompoundP3sgRoot))
         .add();
     // ev-?-ε-e (eve, evlere)
     pnon_SnT.transition(dat_ST).surfaceTemplate("+yA").add();

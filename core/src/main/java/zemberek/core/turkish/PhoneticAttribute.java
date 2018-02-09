@@ -41,7 +41,7 @@ public enum PhoneticAttribute implements StringEnum {
   // ---- experimental -----
 
   ExpectsVowel("EV"),
-  ExpectsConsonant("EC")
+  ExpectsConsonant("EC"),
   ;
 
   private final static StringEnumMap<PhoneticAttribute> shortFormToPosMap = StringEnumMap

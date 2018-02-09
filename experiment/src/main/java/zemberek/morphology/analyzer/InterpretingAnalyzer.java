@@ -37,8 +37,6 @@ public class InterpretingAnalyzer {
 
   RootLexicon lexicon;
 
-  StemTransitionGenerator generator;
-
   TurkishMorphotactics morphotactics;
 
   // TODO: Move this to somewhere else. Also this mechanism should be an abstraction that can also use a Trie
@@ -49,8 +47,7 @@ public class InterpretingAnalyzer {
   public InterpretingAnalyzer(RootLexicon lexicon) {
     this.lexicon = lexicon;
     morphotactics = new TurkishMorphotactics(lexicon);
-    generator = new StemTransitionGenerator(morphotactics);
-    generateStemTransitions();
+    generateStemTransitions(morphotactics);
   }
 
 
@@ -160,7 +157,7 @@ public class InterpretingAnalyzer {
 
       if (debugData != null) {
         for (Rule rule : suffixTransition.getRules()) {
-          if (!rule.canPass(path)) {
+          if (!rule.check(path)) {
             debugData.rejectedTransitions.put(
                 path,
                 new RejectedTransition("Rule → " + rule.toString(), suffixTransition));
@@ -221,7 +218,8 @@ public class InterpretingAnalyzer {
     return newPaths;
   }
 
-  private void generateStemTransitions() {
+  private void generateStemTransitions(TurkishMorphotactics morphotactics) {
+    StemTransitionGenerator generator = new StemTransitionGenerator(morphotactics);
     for (DictionaryItem item : lexicon) {
       List<StemTransition> transitions = generator.generate(item);
       for (StemTransition transition : transitions) {

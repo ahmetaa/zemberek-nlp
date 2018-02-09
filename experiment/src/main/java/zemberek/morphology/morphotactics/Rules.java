@@ -40,7 +40,7 @@ public class Rules {
     }
 
     @Override
-    public boolean canPass(SearchPath visitor) {
+    public boolean check(SearchPath visitor) {
       // normally this should also check if visitor has no derivation.
       return visitor.containsRootAttribute(attribute);
     }
@@ -60,7 +60,7 @@ public class Rules {
     }
 
     @Override
-    public boolean canPass(SearchPath visitor) {
+    public boolean check(SearchPath visitor) {
       // normally this should also check if visitor has no derivation.
       return !visitor.containsRootAttribute(attribute);
     }
@@ -81,7 +81,7 @@ public class Rules {
     }
 
     @Override
-    public boolean canPass(SearchPath visitor) {
+    public boolean check(SearchPath visitor) {
       return visitor.getPhoneticAttributes().contains(attribute);
     }
 
@@ -100,7 +100,7 @@ public class Rules {
     }
 
     @Override
-    public boolean canPass(SearchPath visitor) {
+    public boolean check(SearchPath visitor) {
       return !visitor.getPhoneticAttributes().contains(attribute);
     }
 
@@ -119,7 +119,7 @@ public class Rules {
     }
 
     @Override
-    public boolean canPass(SearchPath visitor) {
+    public boolean check(SearchPath visitor) {
       // normally this should also check if visitor has no derivation.
       return item != null && visitor.hasDictionaryItem(item);
     }
@@ -139,7 +139,7 @@ public class Rules {
     }
 
     @Override
-    public boolean canPass(SearchPath visitor) {
+    public boolean check(SearchPath visitor) {
       // normally this should also check if visitor has no derivation.
       return item == null || !visitor.hasDictionaryItem(item);
     }
@@ -153,7 +153,7 @@ public class Rules {
   public static class RejectIfHasAnySuffixSurface implements Rule {
 
     @Override
-    public boolean canPass(SearchPath visitor) {
+    public boolean check(SearchPath visitor) {
       return !visitor.containsSuffixWithSurface();
     }
 
@@ -162,6 +162,5 @@ public class Rules {
       return "RejectIfHasAnySuffixSurface{}";
     }
   }
-
 
 }
