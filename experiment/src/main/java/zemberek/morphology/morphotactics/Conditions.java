@@ -5,7 +5,7 @@ import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.analyzer.SearchPath;
 import zemberek.morphology.lexicon.DictionaryItem;
 
-public class Conditions {
+class Conditions {
 
   public static Condition contains(RootAttribute attribute) {
     return new ContainsRootAttribute(attribute);
@@ -19,7 +19,7 @@ public class Conditions {
     return new ContainsDictionaryItem(item);
   }
 
-  private static class ContainsRootAttribute implements Condition {
+  private static class ContainsRootAttribute extends AbstractCondition {
 
     RootAttribute attribute;
 
@@ -39,7 +39,7 @@ public class Conditions {
     }
   }
 
-  private static class ContainsPhoneticAttribute implements Condition {
+  private static class ContainsPhoneticAttribute extends AbstractCondition {
 
     PhoneticAttribute attribute;
 
@@ -58,7 +58,7 @@ public class Conditions {
     }
   }
 
-  private static class ContainsDictionaryItem implements Condition {
+  private static class ContainsDictionaryItem extends AbstractCondition {
 
     DictionaryItem item;
 
@@ -78,11 +78,11 @@ public class Conditions {
     }
   }
 
-  public static class hasAnySuffixSurface implements Condition {
+  public static class hasAnySuffixSurface extends AbstractCondition {
 
     @Override
     public boolean check(SearchPath visitor) {
-      return !visitor.containsSuffixWithSurface();
+      return visitor.containsSuffixWithSurface();
     }
 
     @Override
@@ -90,4 +90,19 @@ public class Conditions {
       return "hasAnySuffixSurface{}";
     }
   }
+
+  public static class NotCondition extends AbstractCondition {
+
+    Condition condition;
+
+    public NotCondition(Condition condition) {
+      this.condition = condition;
+    }
+
+    @Override
+    public boolean check(SearchPath visitor) {
+      return !condition.check(visitor);
+    }
+  }
+
 }

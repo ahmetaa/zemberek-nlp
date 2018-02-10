@@ -1,5 +1,7 @@
 package zemberek.morphology.morphotactics;
 
+import static zemberek.morphology.morphotactics.Conditions.contains;
+
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.RootAttribute;
@@ -88,16 +90,16 @@ public class TurkishMorphotactics {
 
     // ev-ε-?-?
     noun_SnT.transition(a3sg_SnT)
-        .addRule(Rules.rejectIfContains(RootAttribute.ImplicitPlural))
+        .setCondition(contains(RootAttribute.ImplicitPlural).not())
         .add();
 
     // ev-ler-?-?.
     noun_SnT.transition(a3pl_SnT, "lAr")
-        .addRule(Rules.rejectIfContains(RootAttribute.ImplicitPlural))
+        .setCondition(contains(RootAttribute.ImplicitPlural).not())
         .add();
 
     noun_SnT.transition(a3pl_SnT)
-        .addRule(Rules.allowOnly(RootAttribute.ImplicitPlural))
+        .setCondition(contains(RootAttribute.ImplicitPlural))
         .add();
 
     // ev-ε-ε-?
@@ -105,19 +107,19 @@ public class TurkishMorphotactics {
     DictionaryItem suRoot = lexicon.getItemById("su_Noun");
     // ev-ε-im oda-ε-m
     a3sg_SnT.transition(p1sg_SnT, "Im")
-        .addRule(Rules.rejectIfContains(suRoot))
+        .setCondition(contains(suRoot).not())
         .add();
     // su-ε-yum. Only for "su"
     a3sg_SnT.transition(p1sg_SnT, "yum")
-        .addRule(Rules.allowOnly(suRoot))
+        .setCondition(contains(suRoot))
         .add();
     // ev-ε-i oda-ε-sı
     a3sg_SnT.transition(p3sg_SnT, "+sI")
-        .addRule(Rules.rejectIfContains(suRoot))
+        .setCondition(contains(suRoot).not())
         .add();
     // su-ε-yu. Only for "su"
     a3sg_SnT.transition(p3sg_SnT, "yu")
-        .addRule(Rules.allowOnly(suRoot))
+        .setCondition(contains(suRoot))
         .add();
 
     // ev-ler-ε-?
@@ -129,22 +131,22 @@ public class TurkishMorphotactics {
 
     // ev-?-ε-ε (ev, evler)
     pnon_SnT.transition(nom_ST)
-        .addRule(Rules.rejectIfContains(PhoneticAttribute.ExpectsVowel))
-       // .addRule(Rules.rejectIfContains(RootAttribute.CompoundP3sgRoot))
+        .setCondition(contains(RootAttribute.CompoundP3sgRoot).not()
+            .and(contains(PhoneticAttribute.ExpectsVowel).not()))
         .add();
 
     // This transition is for not allowing inputs like "kitab" or "zeytinyağ".
     // They will fail because nominal case state is non terminal (nom_SnT)
     pnon_SnT.transition(nom_SnT)
-        .addRule(Rules.allowOnly(PhoneticAttribute.ExpectsVowel))
-      //  .addRule(Rules.allowOnly(RootAttribute.CompoundP3sgRoot))
+        .setCondition(contains(RootAttribute.CompoundP3sgRoot)
+            .and(contains(PhoneticAttribute.ExpectsVowel)))
         .add();
     // ev-?-ε-e (eve, evlere)
     pnon_SnT.transition(dat_ST).surfaceTemplate("+yA").add();
     // This transition is for words like "içeri" or "dışarı". Those words implicitly contains Dative suffix.
     // But It is also possible to add dative suffix +yA to those words such as "içeri-ye".
     pnon_SnT.transition(dat_ST)
-        .addRule(Rules.allowOnly(RootAttribute.ImplicitDative))
+        .setCondition(contains(RootAttribute.ImplicitDative))
         .add();
 
     // ev-?-im-ε (evim, evlerim)
@@ -164,16 +166,16 @@ public class TurkishMorphotactics {
 
     // do not allow repetition and only empty suffixes can come before.
     nom_ST.transition(dim_SnT, ">cI~k")
-        .addRule(new Rules.RejectIfHasAnySuffixSurface())
+        .setCondition(new Conditions.hasAnySuffixSurface().not())
         .add();
     nom_SnT.transition(dim_SnT, ">cI!ğ")
-        .addRule(new Rules.RejectIfHasAnySuffixSurface())
+        .setCondition(new Conditions.hasAnySuffixSurface().not())
         .add();
 
     // ev-ε-ε-ε-ceğiz (evceğiz)
     // TODO: consider making this a separate morpheme.
     nom_ST.transition(dim_SnT, "cAğIz")
-        .addRule(new Rules.RejectIfHasAnySuffixSurface())
+        .setCondition(new Conditions.hasAnySuffixSurface().not())
         .add();
 
     // connect dim to the noun root.

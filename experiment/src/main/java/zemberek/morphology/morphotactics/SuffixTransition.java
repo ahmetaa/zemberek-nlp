@@ -20,7 +20,7 @@ public class SuffixTransition extends MorphemeTransition {
 
   private List<SuffixTemplateToken> tokenList;
 
-  List<Rule> rules;
+  Condition condition;
 
   private SuffixTransition(Builder builder) {
     Preconditions.checkNotNull(builder.from);
@@ -28,20 +28,18 @@ public class SuffixTransition extends MorphemeTransition {
     this.from = builder.from;
     this.to = builder.to;
     this.surfaceTemplate = builder.surfaceTemplate == null ? "" : builder.surfaceTemplate;
-    this.rules = builder.rules;
-    this.rules.addAll(rulesFromTemplate(this.surfaceTemplate));
+    this.condition = builder.condition;
+    conditionsFromTemplate(this.surfaceTemplate);
     this.tokenList = Lists
         .newArrayList(new SuffixTemplateTokenizer(this.surfaceTemplate));
 
   }
 
   public boolean canPass(SearchPath path) {
-    for (Rule rule : rules) {
-      if (!rule.check(path)) {
-        return false;
-      }
+    if (condition == null) {
+      return true;
     }
-    return true;
+    return condition.check(path);
   }
 
   private void connect() {
@@ -49,20 +47,27 @@ public class SuffixTransition extends MorphemeTransition {
     to.addIncoming(this);
   }
 
-  // these rules are added automatically for not crowding the SuffixTransition definitions,
-  private List<Rule> rulesFromTemplate(String template) {
+  // adds vowel-consonant expectation related conditions automatically.
+  // TODO: consider moving this to morphotactics somehow.
+  private void conditionsFromTemplate(String template) {
     if (template == null || template.length() == 0) {
-      return Collections.emptyList();
+      return;
     }
-    List<Rule> rules = new ArrayList<>(1);
     String lower = template.toLowerCase(Turkish.LOCALE);
+    Condition c = null;
     if (template.startsWith(">") || !TurkishAlphabet.INSTANCE.isVowel(lower.charAt(0))) {
-      rules.add(Rules.rejectIfContains(PhoneticAttribute.ExpectsVowel));
+      c = Conditions.contains(PhoneticAttribute.ExpectsVowel).not();
     }
     if (template.startsWith("+") || TurkishAlphabet.INSTANCE.isVowel(lower.charAt(0))) {
-      rules.add(Rules.rejectIfContains(PhoneticAttribute.ExpectsConsonant));
+      c = Conditions.contains(PhoneticAttribute.ExpectsConsonant).not();
     }
-    return rules;
+    if (c != null) {
+      if (condition == null) {
+        condition = c;
+      } else {
+        condition = condition.and(c);
+      }
+    }
   }
 
   public Builder builder() {
@@ -80,7 +85,7 @@ public class SuffixTransition extends MorphemeTransition {
     MorphemeState from;
     MorphemeState to;
     String surfaceTemplate;
-    List<Rule> rules = new ArrayList<>(2);
+    Condition condition;
 
     public Builder from(MorphemeState from) {
       checkIfDefined(this.from, "from");
@@ -100,18 +105,11 @@ public class SuffixTransition extends MorphemeTransition {
       return this;
     }
 
-    public Builder addRule(Rule rule) {
-      if (rules.contains(rule)) {
-        Log.warn("Transition already contains rule: %s", rule);
+    public Builder setCondition(Condition _condition) {
+      if (condition != null) {
+        Log.warn("Condition was already set.");
       }
-      rules.add(rule);
-      return this;
-    }
-
-    public Builder addRules(Rule... rules) {
-      for (Rule rule : rules) {
-        addRule(rule);
-      }
+      this.condition = _condition;
       return this;
     }
 
@@ -149,7 +147,4 @@ public class SuffixTransition extends MorphemeTransition {
     }
   }
 
-  public List<Rule> getRules() {
-    return rules;
-  }
 }

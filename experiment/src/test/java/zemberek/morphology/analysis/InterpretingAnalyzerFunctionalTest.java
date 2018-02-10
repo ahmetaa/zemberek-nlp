@@ -121,6 +121,9 @@ public class InterpretingAnalyzerFunctionalTest {
       List<AnalysisResult> results = analyzer.analyze(word);
       if (results.size() != 0) {
         printAndSort(word, results);
+        AnalysisDebugData debugData = new AnalysisDebugData();
+        analyzer.analyze(word, debugData);
+        debugData.dumpToConsole();
         Assert.fail(word + " is expected to fail but passed.");
       }
     }

@@ -24,8 +24,8 @@ import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateToken;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.TemplateTokenType;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
+import zemberek.morphology.morphotactics.Condition;
 import zemberek.morphology.morphotactics.MorphemeTransition;
-import zemberek.morphology.morphotactics.Rule;
 import zemberek.morphology.morphotactics.StemTransition;
 import zemberek.morphology.morphotactics.SuffixTransition;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
@@ -156,13 +156,13 @@ public class InterpretingAnalyzer {
       }
 
       if (debugData != null) {
-        for (Rule rule : suffixTransition.getRules()) {
-          if (!rule.check(path)) {
-            debugData.rejectedTransitions.put(
-                path,
-                new RejectedTransition("Rule → " + rule.toString(), suffixTransition));
-            break;
-          }
+        //TODO: Not working yet. Collect all failed conditions.
+        List<Condition> failedConditions = new ArrayList<>();
+        for(Condition condition : failedConditions) {
+          debugData.rejectedTransitions.put(
+              path,
+              new RejectedTransition("Condition → " + condition.toString(), suffixTransition));
+          break;
         }
       }
 
