@@ -1,9 +1,9 @@
 package zemberek.morphology.morphotactics;
 
 import static zemberek.morphology.morphotactics.Conditions.contains;
+import static zemberek.morphology.morphotactics.Conditions.notContains;
 
 import zemberek.core.turkish.PhoneticAttribute;
-import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
@@ -90,14 +90,16 @@ public class TurkishMorphotactics {
 
     // ev-ε-?-?
     noun_SnT.transition(a3sg_SnT)
-        .setCondition(contains(RootAttribute.ImplicitPlural).not())
+        .setCondition(notContains(RootAttribute.ImplicitPlural))
         .add();
 
-    // ev-ler-?-?.
+    // ev-ler-?-?. Do not allow [`hayvanatlar`, `zeytinyağılar`]
     noun_SnT.transition(a3pl_SnT, "lAr")
-        .setCondition(contains(RootAttribute.ImplicitPlural).not())
+        .setCondition(notContains(RootAttribute.ImplicitPlural)
+            .and(notContains(RootAttribute.CompoundP3sg)))
         .add();
 
+    // Allow only implicit plural `hayvanat`.
     noun_SnT.transition(a3pl_SnT)
         .setCondition(contains(RootAttribute.ImplicitPlural))
         .add();
@@ -107,7 +109,7 @@ public class TurkishMorphotactics {
     DictionaryItem suRoot = lexicon.getItemById("su_Noun");
     // ev-ε-im oda-ε-m
     a3sg_SnT.transition(p1sg_SnT, "Im")
-        .setCondition(contains(suRoot).not())
+        .setCondition(notContains(suRoot))
         .add();
     // su-ε-yum. Only for "su"
     a3sg_SnT.transition(p1sg_SnT, "yum")
@@ -115,7 +117,7 @@ public class TurkishMorphotactics {
         .add();
     // ev-ε-i oda-ε-sı
     a3sg_SnT.transition(p3sg_SnT, "+sI")
-        .setCondition(contains(suRoot).not())
+        .setCondition(notContains(suRoot))
         .add();
     // su-ε-yu. Only for "su"
     a3sg_SnT.transition(p3sg_SnT, "yu")
@@ -123,16 +125,18 @@ public class TurkishMorphotactics {
         .add();
 
     // ev-ler-ε-?
-    a3pl_SnT.transition(pnon_SnT).add();
+    a3pl_SnT.transition(pnon_SnT)
+        .setCondition(notContains(RootAttribute.CompoundP3sg))
+        .add();
     // ev-ler-im-?
     a3pl_SnT.transition(p1sg_SnT, "Im").add();
     // ev-ler-i oda-lar-ı
     a3pl_SnT.transition(p3sg_SnT, "I").add();
 
-    // ev-?-ε-ε (ev, evler)
+    // ev-?-ε-ε (ev, evler). Not allow "zeytinyağlar"
     pnon_SnT.transition(nom_ST)
-        .setCondition(contains(RootAttribute.CompoundP3sgRoot).not()
-            .and(contains(PhoneticAttribute.ExpectsVowel).not()))
+        .setCondition(notContains(RootAttribute.CompoundP3sgRoot)
+            .and(notContains(PhoneticAttribute.ExpectsVowel)))
         .add();
 
     // This transition is for not allowing inputs like "kitab" or "zeytinyağ".
@@ -141,8 +145,16 @@ public class TurkishMorphotactics {
         .setCondition(contains(RootAttribute.CompoundP3sgRoot)
             .and(contains(PhoneticAttribute.ExpectsVowel)))
         .add();
-    // ev-?-ε-e (eve, evlere)
-    pnon_SnT.transition(dat_ST).surfaceTemplate("+yA").add();
+
+    // ev-?-ε-e (eve, evlere). Not allow "zetinyağı-ya"
+    pnon_SnT.transition(dat_ST).surfaceTemplate("+yA")
+        .setCondition(notContains(RootAttribute.CompoundP3sg))
+        .add();
+    // zeytinyağı-ε-ε-na
+    pnon_SnT.transition(dat_ST).surfaceTemplate("+nA")
+        .setCondition(contains(RootAttribute.CompoundP3sg))
+        .add();
+
     // This transition is for words like "içeri" or "dışarı". Those words implicitly contains Dative suffix.
     // But It is also possible to add dative suffix +yA to those words such as "içeri-ye".
     pnon_SnT.transition(dat_ST)

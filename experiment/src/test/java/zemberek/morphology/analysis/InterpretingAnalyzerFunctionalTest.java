@@ -1,38 +1,14 @@
 package zemberek.morphology.analysis;
 
-import java.util.Comparator;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import zemberek.morphology.analyzer.AnalysisResult;
 import zemberek.morphology.analyzer.InterpretingAnalyzer;
 import zemberek.morphology.analyzer.InterpretingAnalyzer.AnalysisDebugData;
-import zemberek.morphology.analyzer.MorphemeSurfaceForm;
-import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 
-public class InterpretingAnalyzerFunctionalTest {
+public class InterpretingAnalyzerFunctionalTest extends InterpretingAnalyzerTestBase {
 
-  private static InterpretingAnalyzer getAnalyzer(String... dictionaryLines) {
-    RootLexicon loader = new TurkishDictionaryLoader().load(dictionaryLines);
-    return new InterpretingAnalyzer(loader);
-  }
-
-  private boolean containsMorpheme(AnalysisResult result, String morphemeName) {
-    for (MorphemeSurfaceForm forms : result.getMorphemes()) {
-      if (forms.lexicalTransition.to.morpheme.id.equalsIgnoreCase(morphemeName)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private void printAndSort(String input, List<AnalysisResult> results) {
-    results.sort(Comparator.comparing(AnalysisResult::toString));
-    for (AnalysisResult result : results) {
-      System.out.println(input + " = " + result);
-    }
-  }
 
   @Test
   public void shouldParse_1() {
@@ -114,19 +90,6 @@ public class InterpretingAnalyzerFunctionalTest {
     List<AnalysisResult> results = analyzer.analyze(in, debug);
     debug.dumpToConsole();
     printAndSort(in, results);
-  }
-
-  public void shouldNotPass(InterpretingAnalyzer analyzer, String... words) {
-    for (String word : words) {
-      List<AnalysisResult> results = analyzer.analyze(word);
-      if (results.size() != 0) {
-        printAndSort(word, results);
-        AnalysisDebugData debugData = new AnalysisDebugData();
-        analyzer.analyze(word, debugData);
-        debugData.dumpToConsole();
-        Assert.fail(word + " is expected to fail but passed.");
-      }
-    }
   }
 
   @Test

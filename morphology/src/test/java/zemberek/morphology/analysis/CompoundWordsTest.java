@@ -14,7 +14,7 @@ public class CompoundWordsTest {
   @Test
   public void parseTest1() {
     String[] lines = {"yağ", "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]"};
-    String[] testSet = {"zeytinyağlı", "zeytinyağıdır", "zeytinyağım"};
+    String[] testSet = {"zeytinyağı", "zeytinyağlı", "zeytinyağıdır", "zeytinyağım"};
     applyTest(lines, testSet);
   }
 

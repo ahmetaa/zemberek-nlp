@@ -10,6 +10,7 @@ import static zemberek.core.turkish.RootAttribute.Special;
 import static zemberek.core.turkish.RootAttribute.Voicing;
 
 import com.google.common.collect.Lists;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import zemberek.core.turkish.PhoneticAttribute;
@@ -192,8 +193,10 @@ public class StemTransitionGenerator {
         dicItem,
         modifiedAttrs,
         morphotactics.getRootState(dicItem));
-    //TODO: if both are equal, return only one.
 
+    if(original.equals(modified)) {
+      return Collections.singletonList(original);
+    }
     return Lists.newArrayList(original, modified);
   }
 

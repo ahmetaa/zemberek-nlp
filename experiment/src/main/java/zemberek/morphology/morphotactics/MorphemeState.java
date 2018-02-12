@@ -61,7 +61,6 @@ public class MorphemeState {
     return new SuffixTransition.Builder().from(this).to(to);
   }
 
-
   public SuffixTransition.Builder transition(MorphemeState to, String template) {
     return new SuffixTransition.Builder().surfaceTemplate(template).from(this).to(to);
   }

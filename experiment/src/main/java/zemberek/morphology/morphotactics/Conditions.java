@@ -19,6 +19,21 @@ class Conditions {
     return new ContainsDictionaryItem(item);
   }
 
+
+  public static Condition notContains(RootAttribute attribute) {
+    return new ContainsRootAttribute(attribute).not();
+  }
+
+  public static Condition notContains(PhoneticAttribute attribute) {
+    return new ContainsPhoneticAttribute(attribute).not();
+  }
+
+  public static Condition notContains(DictionaryItem item) {
+    return new ContainsDictionaryItem(item).not();
+  }
+
+
+
   private static class ContainsRootAttribute extends AbstractCondition {
 
     RootAttribute attribute;
