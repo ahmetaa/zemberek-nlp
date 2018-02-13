@@ -53,7 +53,7 @@ public class TurkishMorphotactics {
   MorphemeState root_SnT = MorphemeState.nonTerminal("root_Snt", root);
 
   MorphemeState noun_SnT = MorphemeState.nonTerminal("noun_SnT", noun);
-  MorphemeState nounCompound_SnT = MorphemeState.nonTerminal("nounCompound_SnT", noun);
+  MorphemeState nounCompoundRoot_SnT = MorphemeState.nonTerminal("nounCompoundRoot_SnT", noun);
 
   // Number-Person agreement
 
@@ -93,106 +93,90 @@ public class TurkishMorphotactics {
   public void addNounTransitions() {
 
     // ev-ε-?-?
-    noun_SnT.transition(a3sg_SnT)
-        .setCondition(notContains(RootAttribute.ImplicitPlural))
-        .add();
+    noun_SnT.addEmpty(a3sg_SnT, notContains(RootAttribute.ImplicitPlural));
 
     // ev-ler-?-?.
-    noun_SnT.transition(a3pl_SnT, "lAr")
-        .setCondition(notContains(RootAttribute.ImplicitPlural))
-        .add();
+    noun_SnT.add(
+        a3pl_SnT, "lAr",
+        notContains(RootAttribute.ImplicitPlural));
 
     // Allow only implicit plural `hayvanat`.
-    noun_SnT.transition(a3pl_SnT)
-        .setCondition(contains(RootAttribute.ImplicitPlural))
-        .add();
+    noun_SnT.addEmpty(a3pl_SnT, contains(RootAttribute.ImplicitPlural));
 
-    // for compound roots like "zeytinyağı-" generate two transitions
-    // Noun--(ε)--> a3sgCompound --(ε)--> pNon_SnT
-    nounCompound_SnT.transition(a3sgCompound_SnT)
-        .setCondition(contains(RootAttribute.CompoundP3sg))
-        .add();
-    a3sgCompound_SnT.transition(pnon_SnT)
-        .add();
+    // for compound roots like "zeytinyağ-" generate two transitions
+    // NounCompound--(ε)--> a3sgCompound --(ε)--> pNon_SnT
+    nounCompoundRoot_SnT.addEmpty(
+        a3sgCompound_SnT,
+        contains(RootAttribute.CompoundP3sgRoot));
+
+    a3sgCompound_SnT.addEmpty(pnon_SnT);
 
     // for compound roots like "zeytinyağ-lar-ı" generate two transition
-    // Noun--(lAr)--> a3plCompound --(I)--> p3sg_SnT
-    nounCompound_SnT.transition(a3plCompound_SnT, "lar")
-        .setCondition(contains(RootAttribute.CompoundP3sgRoot))
-        .add();
-    a3plCompound_SnT.transition(p3sg_SnT, "I")
-        .add();
+    // NounCompound--(lAr)--> a3plCompound --(I)--> p3sg_SnT
+    nounCompoundRoot_SnT.add(
+        a3plCompound_SnT,
+        "lar",
+        contains(RootAttribute.CompoundP3sgRoot));
+
+    a3plCompound_SnT
+        .add(p3sg_SnT, "I")
+        .add(p1sg_SnT, "Im");
 
     // ev-ε-ε-?
-    a3sg_SnT.transition(pnon_SnT)
-        .add();
+    a3sg_SnT.addEmpty(pnon_SnT);
 
     DictionaryItem suRoot = lexicon.getItemById("su_Noun");
     // ev-ε-im oda-ε-m
-    a3sg_SnT.transition(p1sg_SnT, "Im")
-        .setCondition(notContains(suRoot))
-        .add();
+    a3sg_SnT.add(p1sg_SnT, "Im", notContains(suRoot));
+
     // su-ε-yum. Only for "su"
-    a3sg_SnT.transition(p1sg_SnT, "yum")
-        .setCondition(contains(suRoot))
-        .add();
+    a3sg_SnT.add(p1sg_SnT, "yum", contains(suRoot));
+
     // ev-ε-i oda-ε-sı
-    a3sg_SnT.transition(p3sg_SnT, "+sI")
-        .setCondition(notContains(suRoot))
-        .add();
+    a3sg_SnT.add(p3sg_SnT, "+sI", notContains(suRoot));
+
+    // "zeytinyağı" has two analyses. Pnon and P3sg.
+    a3sg_SnT.addEmpty(p3sg_SnT, contains(RootAttribute.CompoundP3sg));
+
     // su-ε-yu. Only for "su"
-    a3sg_SnT.transition(p3sg_SnT, "yu")
-        .setCondition(contains(suRoot))
-        .add();
+    a3sg_SnT.add(p3sg_SnT, "yu", contains(suRoot));
 
     // ev-ler-ε-?
-    a3pl_SnT.transition(pnon_SnT)
-        .setCondition(notContains(RootAttribute.CompoundP3sg))
-        .add();
-    // ev-ler-im-?
-    a3pl_SnT.transition(p1sg_SnT, "Im")
-        .add();
-    // ev-ler-i oda-lar-ı
-    a3pl_SnT.transition(p3sg_SnT, "I")
-        .add();
+    a3pl_SnT.addEmpty(pnon_SnT, notContains(RootAttribute.CompoundP3sg));
 
-    // ev-?-ε-ε (ev, evler). Not allow "zeytinyağlar"
-    pnon_SnT.transition(nom_ST)
-        .setCondition(notContains(RootAttribute.CompoundP3sgRoot)
-            .and(notContains(PhoneticAttribute.ExpectsVowel)))
-        .add();
+    // ev-ler-im-?
+    a3pl_SnT.add(p1sg_SnT, "Im");
+    // ev-ler-i oda-lar-ı
+
+    a3pl_SnT.add(p3sg_SnT, "I");
+
+    // ev-?-ε-ε (ev, evler).
+    pnon_SnT.addEmpty(nom_ST, notContains(PhoneticAttribute.ExpectsVowel));
 
     // This transition is for not allowing inputs like "kitab" or "zeytinyağ".
     // They will fail because nominal case state is non terminal (nom_SnT)
-    pnon_SnT.transition(nom_SnT)
-        .setCondition(contains(RootAttribute.CompoundP3sgRoot)
-            .and(contains(PhoneticAttribute.ExpectsVowel)))
-        .add();
+    pnon_SnT.addEmpty(nom_SnT,
+        contains(RootAttribute.CompoundP3sgRoot).or(contains(PhoneticAttribute.ExpectsVowel)));
 
-    // ev-?-ε-e (eve, evlere). Not allow "zetinyağı-ya" or "balkabak-"
-    pnon_SnT.transition(dat_ST).surfaceTemplate("+yA")
-        .setCondition(notContains(RootAttribute.CompoundP3sg))
-        .add();
+    // ev-?-ε-e (eve, evlere). Not allow "zetinyağı-ya"
+    pnon_SnT.add(dat_ST, "+yA", notContains(RootAttribute.CompoundP3sg));
+
     // zeytinyağı-ε-ε-na
-    pnon_SnT.transition(dat_ST).surfaceTemplate("+nA")
-        .setCondition(contains(RootAttribute.CompoundP3sg))
-        .add();
+    pnon_SnT.add(dat_ST, "+nA", contains(RootAttribute.CompoundP3sg));
 
     // This transition is for words like "içeri" or "dışarı". Those words implicitly contains Dative suffix.
     // But It is also possible to add dative suffix +yA to those words such as "içeri-ye".
-    pnon_SnT.transition(dat_ST)
-        .setCondition(contains(RootAttribute.ImplicitDative))
-        .add();
+    pnon_SnT.addEmpty(dat_ST, contains(RootAttribute.ImplicitDative));
 
     // ev-?-im-ε (evim, evlerim)
-    p1sg_SnT.transition(nom_ST).add();
+    p1sg_SnT.addEmpty(nom_ST);
     // ev-?-im-e (evime, evlerime)
-    p1sg_SnT.transition(dat_ST, "A").add();
+    p1sg_SnT.add(dat_ST, "A");
 
     //ev-?-i-ε (evi, evleri)
-    p3sg_SnT.transition(nom_ST).add();
+    p3sg_SnT.addEmpty(nom_ST);
     //ev-?-i-ε (evine, evlerine)
-    p3sg_SnT.transition(dat_ST, "nA").add();
+    p3sg_SnT.add(dat_ST, "nA");
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains dim suffix.
     // There are two almost identical suffix transitions with templates ">cI~k" and ">cI!ğ"
@@ -200,30 +184,24 @@ public class TurkishMorphotactics {
     // surface form generated per transition.
 
     // do not allow repetition and only empty suffixes can come before.
-    nom_ST.transition(dim_SnT, ">cI~k")
-        .setCondition(new HasAnySuffixSurface().not())
-        .add();
-    nom_SnT.transition(dim_SnT, ">cI!ğ")
-        .setCondition(new HasAnySuffixSurface().not())
-        .add();
+    nom_ST.add(dim_SnT, ">cI~k", new HasAnySuffixSurface().not());
+
+    nom_SnT.add(dim_SnT, ">cI!ğ", new HasAnySuffixSurface().not());
 
     // ev-ε-ε-ε-ceğiz (evceğiz)
     // TODO: consider making this a separate morpheme.
-    nom_ST.transition(dim_SnT, "cAğIz")
-        .setCondition(new HasAnySuffixSurface().not())
-        .add();
+    nom_ST.add(dim_SnT, "cAğIz", new HasAnySuffixSurface().not());
 
     // connect dim to the noun root.
-    dim_SnT.transition(noun_SnT).add();
+    dim_SnT.addEmpty(noun_SnT);
 
   }
 
   public MorphemeState getRootState(DictionaryItem dictionaryItem) {
     switch (dictionaryItem.primaryPos) {
       case Noun:
-        if (dictionaryItem.hasAttribute(RootAttribute.CompoundP3sg) ||
-            dictionaryItem.hasAttribute(RootAttribute.CompoundP3sgRoot)) {
-          return nounCompound_SnT;
+        if (dictionaryItem.hasAttribute(RootAttribute.CompoundP3sgRoot)) {
+          return nounCompoundRoot_SnT;
         } else {
           return noun_SnT;
         }

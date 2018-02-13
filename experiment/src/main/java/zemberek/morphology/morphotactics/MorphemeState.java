@@ -65,6 +65,31 @@ public class MorphemeState {
     return new SuffixTransition.Builder().surfaceTemplate(template).from(this).to(to);
   }
 
+  public MorphemeState add(MorphemeState to, String template, Condition condition) {
+    new SuffixTransition.Builder().surfaceTemplate(template)
+        .setCondition(condition)
+        .from(this).to(to).build();
+    return this;
+  }
+
+  public MorphemeState addEmpty(MorphemeState to, Condition condition) {
+    new SuffixTransition.Builder().setCondition(condition)
+        .from(this).to(to).build();
+    return this;
+  }
+
+  public MorphemeState add(MorphemeState to, String template) {
+    new SuffixTransition.Builder().surfaceTemplate(template)
+        .from(this).to(to).build();
+    return this;
+  }
+
+  public MorphemeState addEmpty(MorphemeState to) {
+    new SuffixTransition.Builder().from(this).to(to).build();
+    return this;
+  }
+
+
   @Override
   public String toString() {
     return "[" + id + ":" + morpheme.id + "]";

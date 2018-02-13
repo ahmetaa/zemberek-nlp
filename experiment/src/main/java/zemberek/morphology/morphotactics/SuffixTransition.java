@@ -124,10 +124,17 @@ public class SuffixTransition extends MorphemeTransition {
     }
 
     // generates a transition and connects it.
-    public SuffixTransition add() {
+    public SuffixTransition build() {
       SuffixTransition transition = new SuffixTransition(this);
       transition.connect();
       return transition;
+    }
+
+    // generates a transition and connects it.
+    public MorphemeState add() {
+      SuffixTransition transition = new SuffixTransition(this);
+      transition.connect();
+      return transition.from;
     }
   }
 

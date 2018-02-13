@@ -17,10 +17,7 @@ public class InterpretingAnalyzerCompoundTest extends InterpretingAnalyzerTestBa
     String in = "zeytinyağı";
     List<AnalysisResult> results = analyzer.analyze(in);
     printAndSort(in, results);
-    Assert.assertEquals(1, results.size());
-    AnalysisResult first = results.get(0);
-    Assert.assertTrue(containsMorpheme(first, "Nom"));
-    Assert.assertTrue(containsMorpheme(first, "Pnon"));
+    Assert.assertEquals(2, results.size());
   }
 
   @Test
@@ -62,7 +59,7 @@ public class InterpretingAnalyzerCompoundTest extends InterpretingAnalyzerTestBa
         "zeytin",
         "yağ",
         "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
-    shouldPass(analyzer, "zeytinyağı", "zeytinyağına");
+    shouldPass(analyzer, "zeytinyağı", "zeytinyağına", "zeytinyağım", "zeytinyağlarıma");
   }
 
   @Test
