@@ -32,7 +32,13 @@ class Conditions {
     return new ContainsDictionaryItem(item).not();
   }
 
+  public static Condition lastMorphemeIs(Morpheme morpheme) {
+    return new LastMorphemeIs(morpheme);
+  }
 
+  public static Condition lastMorphemeIsNot(Morpheme morpheme) {
+    return new LastMorphemeIs(morpheme).not();
+  }
 
   private static class ContainsRootAttribute extends AbstractCondition {
 
@@ -44,7 +50,7 @@ class Conditions {
 
     @Override
     public boolean check(SearchPath visitor) {
-      // normally this should also check if visitor has no derivation.
+      // TODO: maybe this should also check if visitor has no derivation.
       return visitor.containsRootAttribute(attribute);
     }
 
@@ -83,7 +89,7 @@ class Conditions {
 
     @Override
     public boolean check(SearchPath visitor) {
-      // normally this should also check if visitor has no derivation.
+      // TODO: maybe this should also check if visitor has no derivation.
       return item != null && visitor.hasDictionaryItem(item);
     }
 
@@ -93,7 +99,7 @@ class Conditions {
     }
   }
 
-  public static class hasAnySuffixSurface extends AbstractCondition {
+  public static class HasAnySuffixSurface extends AbstractCondition {
 
     @Override
     public boolean check(SearchPath visitor) {
@@ -102,7 +108,26 @@ class Conditions {
 
     @Override
     public String toString() {
-      return "hasAnySuffixSurface{}";
+      return "HasAnySuffixSurface{}";
+    }
+  }
+
+  public static class LastMorphemeIs extends AbstractCondition {
+
+    Morpheme morpheme;
+
+    public LastMorphemeIs(Morpheme morpheme) {
+      this.morpheme = morpheme;
+    }
+
+    @Override
+    public boolean check(SearchPath visitor) {
+      return visitor.getCurrentState().morpheme.equals(morpheme);
+    }
+
+    @Override
+    public String toString() {
+      return "LastMorphemeIs{}";
     }
   }
 

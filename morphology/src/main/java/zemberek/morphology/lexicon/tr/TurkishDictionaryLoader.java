@@ -305,6 +305,7 @@ public class TurkishDictionaryLoader {
             index = 1;
           }
           // generate a fake lemma for atkuyruk, use kuyruk's attributes.
+          // But do not allow voicing.
           DictionaryItem fakeRoot = new DictionaryItem(
               root,
               root,
@@ -314,6 +315,7 @@ public class TurkishDictionaryLoader {
               attrSet,
               index);
           fakeRoot.attributes.add(RootAttribute.Dummy);
+          fakeRoot.attributes.remove(RootAttribute.Voicing);
           fakeRoot.setReferenceItem(item);
           rootLexicon.add(fakeRoot);
         }

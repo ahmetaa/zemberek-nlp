@@ -7,6 +7,7 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
+import zemberek.morphology.morphotactics.Conditions.HasAnySuffixSurface;
 
 public class TurkishMorphotactics {
 
@@ -57,6 +58,7 @@ public class TurkishMorphotactics {
 
   MorphemeState a3sg_SnT = MorphemeState.nonTerminal("a3sg_SnT", a3sg);
   MorphemeState a3pl_SnT = MorphemeState.nonTerminal("a3pl_SnT", a3pl);
+  MorphemeState a3plCompound_SnT = MorphemeState.nonTerminal("a3plCompound_SnT", a3pl);
 
   // Possessive
 
@@ -104,8 +106,18 @@ public class TurkishMorphotactics {
         .setCondition(contains(RootAttribute.ImplicitPlural))
         .add();
 
+    // for compound roots like "zeytinyağ-lar-ı" generate two transition
+    // Noun--(lAr)--> a3plCompound --(I)--> p3sg_SnT
+    noun_SnT.transition(a3plCompound_SnT)
+        .setCondition(contains(RootAttribute.CompoundP3sgRoot))
+        .add();
+    a3plCompound_SnT.transition(p3sg_SnT,"I")
+        .add();
+
     // ev-ε-ε-?
-    a3sg_SnT.transition(pnon_SnT).add();
+    a3sg_SnT.transition(pnon_SnT)
+        .add();
+
     DictionaryItem suRoot = lexicon.getItemById("su_Noun");
     // ev-ε-im oda-ε-m
     a3sg_SnT.transition(p1sg_SnT, "Im")
@@ -129,9 +141,11 @@ public class TurkishMorphotactics {
         .setCondition(notContains(RootAttribute.CompoundP3sg))
         .add();
     // ev-ler-im-?
-    a3pl_SnT.transition(p1sg_SnT, "Im").add();
+    a3pl_SnT.transition(p1sg_SnT, "Im")
+        .add();
     // ev-ler-i oda-lar-ı
-    a3pl_SnT.transition(p3sg_SnT, "I").add();
+    a3pl_SnT.transition(p3sg_SnT, "I")
+        .add();
 
     // ev-?-ε-ε (ev, evler). Not allow "zeytinyağlar"
     pnon_SnT.transition(nom_ST)
@@ -146,7 +160,7 @@ public class TurkishMorphotactics {
             .and(contains(PhoneticAttribute.ExpectsVowel)))
         .add();
 
-    // ev-?-ε-e (eve, evlere). Not allow "zetinyağı-ya"
+    // ev-?-ε-e (eve, evlere). Not allow "zetinyağı-ya" or "atkuyruk-"
     pnon_SnT.transition(dat_ST).surfaceTemplate("+yA")
         .setCondition(notContains(RootAttribute.CompoundP3sg))
         .add();
@@ -178,16 +192,16 @@ public class TurkishMorphotactics {
 
     // do not allow repetition and only empty suffixes can come before.
     nom_ST.transition(dim_SnT, ">cI~k")
-        .setCondition(new Conditions.hasAnySuffixSurface().not())
+        .setCondition(new HasAnySuffixSurface().not())
         .add();
     nom_SnT.transition(dim_SnT, ">cI!ğ")
-        .setCondition(new Conditions.hasAnySuffixSurface().not())
+        .setCondition(new HasAnySuffixSurface().not())
         .add();
 
     // ev-ε-ε-ε-ceğiz (evceğiz)
     // TODO: consider making this a separate morpheme.
     nom_ST.transition(dim_SnT, "cAğIz")
-        .setCondition(new Conditions.hasAnySuffixSurface().not())
+        .setCondition(new HasAnySuffixSurface().not())
         .add();
 
     // connect dim to the noun root.
