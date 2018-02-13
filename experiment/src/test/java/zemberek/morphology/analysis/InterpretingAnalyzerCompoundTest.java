@@ -6,7 +6,7 @@ import org.junit.Test;
 import zemberek.morphology.analyzer.AnalysisResult;
 import zemberek.morphology.analyzer.InterpretingAnalyzer;
 
-public class InterpretingAnalyzerCompoundTest extends InterpretingAnalyzerTestBase{
+public class InterpretingAnalyzerCompoundTest extends InterpretingAnalyzerTestBase {
 
   @Test
   public void CompoundP3sg_1() {
@@ -26,10 +26,10 @@ public class InterpretingAnalyzerCompoundTest extends InterpretingAnalyzerTestBa
   @Test
   public void CompoundP3sg_2() {
     InterpretingAnalyzer analyzer = getAnalyzer(
-        "at",
-        "kuyruk",
-        "atkuyruğu [A:CompoundP3sg; Roots:at-kuyruk]");
-    String in = "atkuyruğuna";
+        "bal",
+        "kabak",
+        "balkabağı [A:CompoundP3sg; Roots:bal-kabak]");
+    String in = "balkabağına";
     List<AnalysisResult> results = analyzer.analyze(in);
     printAndSort(in, results);
     Assert.assertEquals(1, results.size());
@@ -48,12 +48,30 @@ public class InterpretingAnalyzerCompoundTest extends InterpretingAnalyzerTestBa
   }
 
   @Test
+  public void CompoundP3sg_Incorrect2() {
+    InterpretingAnalyzer analyzer = getAnalyzer(
+        "bal",
+        "kabak",
+        "balkabağı [A:CompoundP3sg; Roots:bal-kabak]");
+    shouldNotPass(analyzer, "balkabak", "balkabağa", "balkabakta", "balkabaktan");
+  }
+
+  @Test
   public void CompoundP3sg_Correct() {
     InterpretingAnalyzer analyzer = getAnalyzer(
         "zeytin",
         "yağ",
         "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
     shouldPass(analyzer, "zeytinyağı", "zeytinyağına");
+  }
+
+  @Test
+  public void CompoundP3sg_Correct2() {
+    InterpretingAnalyzer analyzer = getAnalyzer(
+        "bal",
+        "kabak",
+        "balkabağı [A:CompoundP3sg; Roots:bal-kabak]");
+    shouldPass(analyzer, 1, "balkabağı", "balkabakları");
   }
 
 }

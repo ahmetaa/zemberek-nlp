@@ -8,7 +8,7 @@ abstract class AbstractCondition implements Condition {
 
   @Override
   public Condition and(Condition other) {
-    return DSL.and(this, other);
+    return Conditions.and(this, other);
   }
 
   @Override
@@ -18,7 +18,7 @@ abstract class AbstractCondition implements Condition {
 
   @Override
   public Condition or(Condition other) {
-    return DSL.or(this, other);
+    return Conditions.or(this, other);
   }
 
   @Override

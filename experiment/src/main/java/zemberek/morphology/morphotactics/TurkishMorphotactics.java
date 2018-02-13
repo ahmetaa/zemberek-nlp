@@ -160,7 +160,7 @@ public class TurkishMorphotactics {
             .and(contains(PhoneticAttribute.ExpectsVowel)))
         .add();
 
-    // ev-?-ε-e (eve, evlere). Not allow "zetinyağı-ya" or "atkuyruk-"
+    // ev-?-ε-e (eve, evlere). Not allow "zetinyağı-ya" or "balkabak-"
     pnon_SnT.transition(dat_ST).surfaceTemplate("+yA")
         .setCondition(notContains(RootAttribute.CompoundP3sg))
         .add();
@@ -181,7 +181,7 @@ public class TurkishMorphotactics {
     p1sg_SnT.transition(dat_ST, "A").add();
 
     //ev-?-i-ε (evi, evleri)
-    p3sg_SnT.transition(nom_SnT).add();
+    p3sg_SnT.transition(nom_ST).add();
     //ev-?-i-ε (evine, evlerine)
     p3sg_SnT.transition(dat_ST, "nA").add();
 

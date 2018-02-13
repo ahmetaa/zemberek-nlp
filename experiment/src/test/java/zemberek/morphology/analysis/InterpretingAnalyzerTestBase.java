@@ -69,5 +69,19 @@ public class InterpretingAnalyzerTestBase {
     }
   }
 
+  void shouldPass(InterpretingAnalyzer analyzer, int solutionCount, String... words) {
+    for (String word : words) {
+      List<AnalysisResult> results = analyzer.analyze(word);
+      if (results.size() !=solutionCount) {
+        printAndSort(word, results);
+        AnalysisDebugData debugData = new AnalysisDebugData();
+        analyzer.analyze(word, debugData);
+        debugData.dumpToConsole();
+        Assert.fail(word + " is expected to pass with solution count " + solutionCount +
+            " but failed with solution count " + results.size());
+      }
+    }
+  }
+
 
 }
