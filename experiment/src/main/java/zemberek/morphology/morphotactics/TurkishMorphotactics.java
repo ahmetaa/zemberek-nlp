@@ -53,10 +53,12 @@ public class TurkishMorphotactics {
   MorphemeState root_SnT = MorphemeState.nonTerminal("root_Snt", root);
 
   MorphemeState noun_SnT = MorphemeState.nonTerminal("noun_SnT", noun);
+  MorphemeState nounCompound_SnT = MorphemeState.nonTerminal("nounCompound_SnT", noun);
 
   // Number-Person agreement
 
   MorphemeState a3sg_SnT = MorphemeState.nonTerminal("a3sg_SnT", a3sg);
+  MorphemeState a3sgCompound_SnT = MorphemeState.nonTerminal("a3sgCompound_SnT", a3sg);
   MorphemeState a3pl_SnT = MorphemeState.nonTerminal("a3pl_SnT", a3pl);
   MorphemeState a3plCompound_SnT = MorphemeState.nonTerminal("a3plCompound_SnT", a3pl);
 
@@ -95,10 +97,9 @@ public class TurkishMorphotactics {
         .setCondition(notContains(RootAttribute.ImplicitPlural))
         .add();
 
-    // ev-ler-?-?. Do not allow [`hayvanatlar`, `zeytinyağılar`]
+    // ev-ler-?-?.
     noun_SnT.transition(a3pl_SnT, "lAr")
-        .setCondition(notContains(RootAttribute.ImplicitPlural)
-            .and(notContains(RootAttribute.CompoundP3sg)))
+        .setCondition(notContains(RootAttribute.ImplicitPlural))
         .add();
 
     // Allow only implicit plural `hayvanat`.
@@ -106,12 +107,20 @@ public class TurkishMorphotactics {
         .setCondition(contains(RootAttribute.ImplicitPlural))
         .add();
 
+    // for compound roots like "zeytinyağı-" generate two transitions
+    // Noun--(ε)--> a3sgCompound --(ε)--> pNon_SnT
+    nounCompound_SnT.transition(a3sgCompound_SnT)
+        .setCondition(contains(RootAttribute.CompoundP3sg))
+        .add();
+    a3sgCompound_SnT.transition(pnon_SnT)
+        .add();
+
     // for compound roots like "zeytinyağ-lar-ı" generate two transition
     // Noun--(lAr)--> a3plCompound --(I)--> p3sg_SnT
-    noun_SnT.transition(a3plCompound_SnT)
+    nounCompound_SnT.transition(a3plCompound_SnT, "lar")
         .setCondition(contains(RootAttribute.CompoundP3sgRoot))
         .add();
-    a3plCompound_SnT.transition(p3sg_SnT,"I")
+    a3plCompound_SnT.transition(p3sg_SnT, "I")
         .add();
 
     // ev-ε-ε-?
@@ -212,7 +221,12 @@ public class TurkishMorphotactics {
   public MorphemeState getRootState(DictionaryItem dictionaryItem) {
     switch (dictionaryItem.primaryPos) {
       case Noun:
-        return noun_SnT;
+        if (dictionaryItem.hasAttribute(RootAttribute.CompoundP3sg) ||
+            dictionaryItem.hasAttribute(RootAttribute.CompoundP3sgRoot)) {
+          return nounCompound_SnT;
+        } else {
+          return noun_SnT;
+        }
       default:
         return noun_SnT;
     }
