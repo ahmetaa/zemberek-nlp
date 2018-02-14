@@ -1,0 +1,14 @@
+is "balkabakçık" correct?
+
+"balkabaklılar" -> current mechanism will fail. After derivation, some root attributes should be
+removed. Check this after implementing Noun-->lI--->Adj work.
+
+imlicitPlural and implicitDative etc. attributes should be added to master dictionary items.
+
+annemler, annenler etc can be resoved with implicitPlural, ImplicitP1sg and ImplicitP2sg attributes.
+
+Currently we do not add root "Noun" state to the SearchPath. We should.
+
+
+
+
