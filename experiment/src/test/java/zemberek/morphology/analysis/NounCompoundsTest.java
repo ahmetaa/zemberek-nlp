@@ -6,7 +6,7 @@ import zemberek.morphology.analyzer.InterpretingAnalyzer;
 public class NounCompoundsTest extends AnalyzerTestBase {
 
   @Test
-  public void Incorrect1() {
+  public void incorrect1() {
     InterpretingAnalyzer analyzer = getAnalyzer(
         "zeytin",
         "yağ",
@@ -15,7 +15,7 @@ public class NounCompoundsTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void Incorrect2() {
+  public void incorrect2() {
     InterpretingAnalyzer analyzer = getAnalyzer(
         "bal",
         "kabak",
@@ -24,7 +24,7 @@ public class NounCompoundsTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void ExpectsResult() {
+  public void expectsResult() {
     InterpretingAnalyzer analyzer = getAnalyzer(
         "zeytin",
         "yağ",
@@ -33,7 +33,7 @@ public class NounCompoundsTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void ExpectsSingleResult() {
+  public void expectsSingleResult() {
     InterpretingAnalyzer analyzer = getAnalyzer(
         "bal",
         "kabak",

@@ -9,14 +9,21 @@ import zemberek.morphology.analyzer.InterpretingAnalyzer;
 public class FamilyMemberWordsTest extends AnalyzerTestBase {
 
   @Test
-  public void OnlyIncorrect1() {
+  public void onlyIncorrect1() {
     InterpretingAnalyzer analyzer = getAnalyzer(
         "annemler [A:ImplicitPlural,ImplicitP1sg,FamilyMember]");
     shouldNotPass(analyzer, "annemlerler", "annemlerim");
   }
 
   @Test
-  public void ExpectsAccusativeNotPossesive3sg() {
+  public void expectsSingleResult() {
+    InterpretingAnalyzer analyzer = getAnalyzer(
+        "annemler [A:ImplicitPlural,ImplicitP1sg,FamilyMember]");
+    shouldPass(analyzer, 1, "annemler", "annemlere", "annemleri");
+  }
+
+  @Test
+  public void expectsAccusativeNotPossesive3sg() {
     InterpretingAnalyzer analyzer = getAnalyzer(
         "annemler [A:ImplicitPlural,ImplicitP1sg,FamilyMember]");
     String in = "annemleri";
