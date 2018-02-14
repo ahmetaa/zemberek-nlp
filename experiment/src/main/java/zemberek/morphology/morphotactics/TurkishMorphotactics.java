@@ -1,5 +1,6 @@
 package zemberek.morphology.morphotactics;
 
+import static zemberek.morphology.morphotactics.Conditions.and;
 import static zemberek.morphology.morphotactics.Conditions.contains;
 import static zemberek.morphology.morphotactics.Conditions.notContains;
 
@@ -39,6 +40,8 @@ public class TurkishMorphotactics {
   Morpheme nom = new Morpheme("Nom");
   // Dative case suffix. "elmaya = to apple"
   Morpheme dat = new Morpheme("Dat");
+  // Accusative case suffix. "elmayı = ~the apple"
+  Morpheme acc = new Morpheme("Acc");
 
   // Derivation suffixes
 
@@ -73,6 +76,7 @@ public class TurkishMorphotactics {
   MorphemeState nom_ST = MorphemeState.terminal("nom_ST", nom);
   MorphemeState nom_SnT = MorphemeState.nonTerminal("nom_SnT", nom);
   MorphemeState dat_ST = MorphemeState.terminal("dat_ST", dat);
+  MorphemeState acc_ST = MorphemeState.terminal("gen_ST", acc);
 
   // Derivation
 
@@ -122,18 +126,20 @@ public class TurkishMorphotactics {
         .add(p3sg_SnT, "I")
         .add(p1sg_SnT, "Im");
 
-    // ev-ε-ε-?
-    a3sg_SnT.addEmpty(pnon_SnT);
+    // ev-ε-ε-? Reject "annemler" etc.
+    a3sg_SnT.addEmpty(pnon_SnT, notContains(RootAttribute.FamilyMember));
 
     DictionaryItem suRoot = lexicon.getItemById("su_Noun");
     // ev-ε-im oda-ε-m
-    a3sg_SnT.add(p1sg_SnT, "Im", notContains(suRoot));
+    a3sg_SnT.add(p1sg_SnT, "Im",
+        notContains(suRoot).and(notContains(RootAttribute.FamilyMember)));
 
     // su-ε-yum. Only for "su"
     a3sg_SnT.add(p1sg_SnT, "yum", contains(suRoot));
 
     // ev-ε-i oda-ε-sı
-    a3sg_SnT.add(p3sg_SnT, "+sI", notContains(suRoot));
+    a3sg_SnT.add(p3sg_SnT, "+sI",
+        notContains(suRoot).and(notContains(RootAttribute.FamilyMember)));
 
     // "zeytinyağı" has two analyses. Pnon and P3sg.
     a3sg_SnT.addEmpty(p3sg_SnT, contains(RootAttribute.CompoundP3sg));
@@ -142,16 +148,20 @@ public class TurkishMorphotactics {
     a3sg_SnT.add(p3sg_SnT, "yu", contains(suRoot));
 
     // ev-ler-ε-?
-    a3pl_SnT.addEmpty(pnon_SnT, notContains(RootAttribute.CompoundP3sg));
+    a3pl_SnT.addEmpty(pnon_SnT, notContains(RootAttribute.FamilyMember));
 
     // ev-ler-im-?
-    a3pl_SnT.add(p1sg_SnT, "Im");
-    // ev-ler-i oda-lar-ı
+    a3pl_SnT.add(p1sg_SnT, "Im",notContains(RootAttribute.FamilyMember));
+    // for words like "annemler".
+    a3pl_SnT.addEmpty(p1sg_SnT, contains(RootAttribute.ImplicitP1sg));
 
-    a3pl_SnT.add(p3sg_SnT, "I");
+    // ev-ler-i oda-lar-ı
+    a3pl_SnT.add(p3sg_SnT, "I",notContains(RootAttribute.FamilyMember));
 
     // ev-?-ε-ε (ev, evler).
-    pnon_SnT.addEmpty(nom_ST, notContains(PhoneticAttribute.ExpectsVowel));
+    pnon_SnT.addEmpty(nom_ST,
+        notContains(PhoneticAttribute.ExpectsVowel).
+            and(notContains(RootAttribute.FamilyMember)));
 
     // This transition is for not allowing inputs like "kitab" or "zeytinyağ".
     // They will fail because nominal case state is non terminal (nom_SnT)
@@ -164,6 +174,13 @@ public class TurkishMorphotactics {
     // zeytinyağı-ε-ε-na
     pnon_SnT.add(dat_ST, "+nA", contains(RootAttribute.CompoundP3sg));
 
+    // ev-?-ε-e (ev-i, ev-ler-i, e-vim-i). Not allow "zetinyağı-yı"
+    pnon_SnT.add(acc_ST, "+yI", notContains(RootAttribute.CompoundP3sg));
+
+    // zeytinyağı-ε-ε-nı
+    pnon_SnT.add(acc_ST, "+nI", contains(RootAttribute.CompoundP3sg));
+
+
     // This transition is for words like "içeri" or "dışarı". Those words implicitly contains Dative suffix.
     // But It is also possible to add dative suffix +yA to those words such as "içeri-ye".
     pnon_SnT.addEmpty(dat_ST, contains(RootAttribute.ImplicitDative));
@@ -172,11 +189,15 @@ public class TurkishMorphotactics {
     p1sg_SnT.addEmpty(nom_ST);
     // ev-?-im-e (evime, evlerime)
     p1sg_SnT.add(dat_ST, "A");
+    // ev-?-im-i (ev-i, ev-ler-i, e-vim-i).
+    p1sg_SnT.add(acc_ST, "I");
 
     //ev-?-i-ε (evi, evleri)
     p3sg_SnT.addEmpty(nom_ST);
     //ev-?-i-ε (evine, evlerine)
     p3sg_SnT.add(dat_ST, "nA");
+    //ev-?-i-ε (ev-i-ni, ev-ler-i-ni)
+    p3sg_SnT.add(acc_ST, "nI");
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains dim suffix.
     // There are two almost identical suffix transitions with templates ">cI~k" and ">cI!ğ"
@@ -189,7 +210,6 @@ public class TurkishMorphotactics {
     nom_SnT.add(dim_SnT, ">cI!ğ", new HasAnySuffixSurface().not());
 
     // ev-ε-ε-ε-ceğiz (evceğiz)
-    // TODO: consider making this a separate morpheme.
     nom_ST.add(dim_SnT, "cAğIz", new HasAnySuffixSurface().not());
 
     // connect dim to the noun root.

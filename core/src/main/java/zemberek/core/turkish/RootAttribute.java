@@ -158,6 +158,8 @@ public enum RootAttribute implements StringEnum {
   // -------------- Experimental attributes.
   ImplicitDative,
   ImplicitPlural,
+  ImplicitP1sg,
+  FamilyMember, // annemler etc.
 
 
   // This is used for temporary DictionaryItems created for words that cannot be analyzed.

@@ -6,9 +6,16 @@ removed. Check this after implementing Noun-->lI--->Adj work.
 imlicitPlural and implicitDative etc. attributes should be added to master dictionary items.
 
 annemler, annenler etc can be resoved with implicitPlural, ImplicitP1sg and ImplicitP2sg attributes.
+However, for making morphotactics work easier, A third property (FamilyMember?) can be added.
 
 Currently we do not add root "Noun" state to the SearchPath. We should.
 
+Consider adding Conditions.containsAny() and Conditions.containsNone() for a group of conditions.
 
+Instead of using "su" in Morphotactics, A "RootGroup" identifier can be used. Same exceptions
+may apply to "akarsu" as well. Or, groups can be Sets of Dictionary objects. So that Conditions.containsAny
+etc can be used.
+
+Consider making "-cağız" a separate morpheme. Not Dim.
 
 

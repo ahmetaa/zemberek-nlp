@@ -10,7 +10,7 @@ import zemberek.morphology.analyzer.MorphemeSurfaceForm;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 
-public class InterpretingAnalyzerTestBase {
+public class AnalyzerTestBase {
 
 
   static InterpretingAnalyzer getAnalyzer(String... dictionaryLines) {
