@@ -7,7 +7,7 @@ import zemberek.morphology.analyzer.AnalysisResult;
 import zemberek.morphology.analyzer.InterpretingAnalyzer;
 import zemberek.morphology.analyzer.InterpretingAnalyzer.AnalysisDebugData;
 
-public class NounsTest extends AnalyzerTestBase {
+public class SimpleNounsTest extends AnalyzerTestBase {
 
 
   @Test

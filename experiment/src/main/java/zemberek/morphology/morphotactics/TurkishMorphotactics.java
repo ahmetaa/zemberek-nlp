@@ -49,12 +49,15 @@ public class TurkishMorphotactics {
   // Diminutive suffix. Noun to Noun conversion. "elmacık = small apple, poor apple"
   Morpheme dim = new Morpheme("Dim");
 
-  //-------------- States ------------------------
+
+  //-------------- States ----------------------------
   // _ST = Terminal state _SnT = Non Terminal State.
   // A terminal state means that a walk in the graph can end there.
 
   // root of the graph.
   MorphemeState root_SnT = MorphemeState.nonTerminal("root_Snt", root);
+
+  //-------------- Noun States ------------------------
 
   MorphemeState noun_SnT = MorphemeState.nonTerminal("noun_SnT", noun);
   MorphemeState nounCompoundRoot_SnT = MorphemeState.nonTerminal("nounCompoundRoot_SnT", noun);
@@ -84,11 +87,17 @@ public class TurkishMorphotactics {
 
   MorphemeState dim_SnT = MorphemeState.nonTerminalDerivative("dim_SnT", dim);
 
+  //-------------- Adjective States ------------------------
+
+  MorphemeState adj_ST = MorphemeState.terminal("adj_ST", adj);
+
+
   private RootLexicon lexicon;
 
   public TurkishMorphotactics(RootLexicon lexicon) {
     this.lexicon = lexicon;
     connectNounStates();
+    connectAdjectiveStates();
   }
 
   /**
@@ -220,6 +229,12 @@ public class TurkishMorphotactics {
 
   }
 
+  private void connectAdjectiveStates() {
+
+
+  }
+
+
   public MorphemeState getRootState(DictionaryItem dictionaryItem) {
     switch (dictionaryItem.primaryPos) {
       case Noun:
@@ -228,6 +243,8 @@ public class TurkishMorphotactics {
         } else {
           return noun_SnT;
         }
+      case Adjective:
+        return adj_ST;
       default:
         return noun_SnT;
     }
