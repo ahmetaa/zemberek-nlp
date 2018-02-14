@@ -11,7 +11,8 @@ public class NounCompoundsTest extends AnalyzerTestBase {
         "zeytin",
         "yağ",
         "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
-    shouldNotPass(analyzer, "zeytinyağ", "zeytinyağıya", "zeytinyağılar", "zeytinyağlar");
+    shouldNotPass(analyzer, "zeytinyağ", "zeytinyağıya", "zeytinyağılar", "zeytinyağlar"
+        , "zeytinyağya", "zeytinyağna", "zeytinyağda", "zeytinyağdan");
   }
 
   @Test
@@ -33,12 +34,23 @@ public class NounCompoundsTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void mustHaveTwoResults() {
+    InterpretingAnalyzer analyzer = getAnalyzer(
+        "zeytin",
+        "yağ",
+        "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
+
+    shouldPass(analyzer, 2, "zeytinyağı");
+  }
+
+
+  @Test
   public void expectsSingleResult() {
     InterpretingAnalyzer analyzer = getAnalyzer(
         "bal",
         "kabak",
         "balkabağı [A:CompoundP3sg; Roots:bal-kabak]");
-    shouldPass(analyzer, 1, "balkabağı", "balkabakları");
+    shouldPass(analyzer, "balkabağı", "balkabakları", "balkabağına");
   }
 
 }

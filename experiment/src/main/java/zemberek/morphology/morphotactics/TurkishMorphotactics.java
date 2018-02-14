@@ -1,6 +1,5 @@
 package zemberek.morphology.morphotactics;
 
-import static zemberek.morphology.morphotactics.Conditions.and;
 import static zemberek.morphology.morphotactics.Conditions.contains;
 import static zemberek.morphology.morphotactics.Conditions.notContains;
 
@@ -17,6 +16,8 @@ public class TurkishMorphotactics {
   Morpheme root = new Morpheme("Root");
 
   Morpheme noun = new Morpheme("Noun");
+
+  Morpheme adj = new Morpheme("Adj");
 
   // Number-Person agreement.
 
@@ -68,6 +69,7 @@ public class TurkishMorphotactics {
   // Possessive
 
   MorphemeState pnon_SnT = MorphemeState.nonTerminal("pnon_SnT", pnon);
+  MorphemeState pnonCompound_SnT = MorphemeState.nonTerminal("pnonCompound_SnT", pnon);
   MorphemeState p1sg_SnT = MorphemeState.nonTerminal("p1sg_SnT", p1sg);
   MorphemeState p3sg_SnT = MorphemeState.nonTerminal("p3sg_SnT", p3sg);
 
@@ -76,7 +78,7 @@ public class TurkishMorphotactics {
   MorphemeState nom_ST = MorphemeState.terminal("nom_ST", nom);
   MorphemeState nom_SnT = MorphemeState.nonTerminal("nom_SnT", nom);
   MorphemeState dat_ST = MorphemeState.terminal("dat_ST", dat);
-  MorphemeState acc_ST = MorphemeState.terminal("gen_ST", acc);
+  MorphemeState acc_ST = MorphemeState.terminal("acc_ST", acc);
 
   // Derivation
 
@@ -86,7 +88,7 @@ public class TurkishMorphotactics {
 
   public TurkishMorphotactics(RootLexicon lexicon) {
     this.lexicon = lexicon;
-    addNounTransitions();
+    connectNounStates();
   }
 
   /**
@@ -94,29 +96,30 @@ public class TurkishMorphotactics {
    * characters. elma -> Noun:elma - A3sg:ε - Pnon:ε - Nom:ε (Third person singular, No possession,
    * Nominal Case)
    */
-  public void addNounTransitions() {
+  public void connectNounStates() {
 
     // ev-ε-?-?
     noun_SnT.addEmpty(a3sg_SnT, notContains(RootAttribute.ImplicitPlural));
 
     // ev-ler-?-?.
-    noun_SnT.add(
-        a3pl_SnT, "lAr",
-        notContains(RootAttribute.ImplicitPlural));
+    noun_SnT.add(a3pl_SnT, "lAr",
+        notContains(RootAttribute.ImplicitPlural)
+            .and(notContains(RootAttribute.CompoundP3sg)));
 
     // Allow only implicit plural `hayvanat`.
     noun_SnT.addEmpty(a3pl_SnT, contains(RootAttribute.ImplicitPlural));
 
     // for compound roots like "zeytinyağ-" generate two transitions
-    // NounCompound--(ε)--> a3sgCompound --(ε)--> pNon_SnT
+    // NounCompound--(ε)--> a3sgCompound --(ε)--> pNonCompound_SnT --> Nom_SnT
     nounCompoundRoot_SnT.addEmpty(
         a3sgCompound_SnT,
         contains(RootAttribute.CompoundP3sgRoot));
 
-    a3sgCompound_SnT.addEmpty(pnon_SnT);
+    a3sgCompound_SnT.addEmpty(pnonCompound_SnT);
+    pnonCompound_SnT.addEmpty(nom_SnT);
 
     // for compound roots like "zeytinyağ-lar-ı" generate two transition
-    // NounCompound--(lAr)--> a3plCompound --(I)--> p3sg_SnT
+    // NounCompound--(lAr)--> a3plCompound ---> p3sg_SnT, P1sg etc.
     nounCompoundRoot_SnT.add(
         a3plCompound_SnT,
         "lar",
@@ -151,16 +154,17 @@ public class TurkishMorphotactics {
     a3pl_SnT.addEmpty(pnon_SnT, notContains(RootAttribute.FamilyMember));
 
     // ev-ler-im-?
-    a3pl_SnT.add(p1sg_SnT, "Im",notContains(RootAttribute.FamilyMember));
+    a3pl_SnT.add(p1sg_SnT, "Im", notContains(RootAttribute.FamilyMember));
     // for words like "annemler".
     a3pl_SnT.addEmpty(p1sg_SnT, contains(RootAttribute.ImplicitP1sg));
 
     // ev-ler-i oda-lar-ı
-    a3pl_SnT.add(p3sg_SnT, "I",notContains(RootAttribute.FamilyMember));
+    a3pl_SnT.add(p3sg_SnT, "I", notContains(RootAttribute.FamilyMember));
 
     // ev-?-ε-ε (ev, evler).
     pnon_SnT.addEmpty(nom_ST,
         notContains(PhoneticAttribute.ExpectsVowel).
+            and(notContains(RootAttribute.CompoundP3sgRoot)).
             and(notContains(RootAttribute.FamilyMember)));
 
     // This transition is for not allowing inputs like "kitab" or "zeytinyağ".
@@ -179,7 +183,6 @@ public class TurkishMorphotactics {
 
     // zeytinyağı-ε-ε-nı
     pnon_SnT.add(acc_ST, "+nI", contains(RootAttribute.CompoundP3sg));
-
 
     // This transition is for words like "içeri" or "dışarı". Those words implicitly contains Dative suffix.
     // But It is also possible to add dative suffix +yA to those words such as "içeri-ye".
