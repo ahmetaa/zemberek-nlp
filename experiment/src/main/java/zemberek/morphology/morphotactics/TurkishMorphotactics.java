@@ -3,11 +3,14 @@ package zemberek.morphology.morphotactics;
 import static zemberek.morphology.morphotactics.Conditions.contains;
 import static zemberek.morphology.morphotactics.Conditions.notContains;
 
+import javafx.geometry.Pos;
 import zemberek.core.turkish.PhoneticAttribute;
+import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.Conditions.HasAnySuffixSurface;
+import zemberek.morphology.morphotactics.Conditions.RootPosIs;
 
 public class TurkishMorphotactics {
 
@@ -15,9 +18,9 @@ public class TurkishMorphotactics {
 
   Morpheme root = new Morpheme("Root");
 
-  Morpheme noun = new Morpheme("Noun");
+  Morpheme noun = new Morpheme("Noun", PrimaryPos.Noun);
 
-  Morpheme adj = new Morpheme("Adj");
+  Morpheme adj = new Morpheme("Adj", PrimaryPos.Adjective);
 
   // Number-Person agreement.
 
@@ -176,9 +179,10 @@ public class TurkishMorphotactics {
 
     // ev-?-ε-ε (ev, evler).
     pnon_SnT.addEmpty(nom_ST,
-        notContains(PhoneticAttribute.ExpectsVowel).
-            and(notContains(RootAttribute.CompoundP3sgRoot)).
-            and(notContains(RootAttribute.FamilyMember)));
+        notContains(PhoneticAttribute.ExpectsVowel)
+            .and(notContains(RootAttribute.CompoundP3sgRoot))
+            .and(notContains(RootAttribute.FamilyMember))
+            .and(new RootPosIs(PrimaryPos.Adjective).not()));
 
     // This transition is for not allowing inputs like "kitab" or "zeytinyağ".
     // They will fail because nominal case state is non terminal (nom_SnT)

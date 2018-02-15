@@ -9,7 +9,7 @@ import zemberek.morphology.analyzer.InterpretingAnalyzer;
 public class NounAdjectiveDerivationTest extends AnalyzerTestBase {
 
   @Test
-  public void noun2Noun_1() {
+  public void withTest() {
     InterpretingAnalyzer analyzer = getAnalyzer("meyve");
     String in = "meyveli";
     List<AnalysisResult> results = analyzer.analyze(in);
@@ -18,6 +18,8 @@ public class NounAdjectiveDerivationTest extends AnalyzerTestBase {
     Assert.assertTrue(lastMorphemeIs(results.get(0), "Adj"));
     Assert.assertTrue(containsMorpheme(results.get(0), "with"));
   }
+
+
 
 
 }

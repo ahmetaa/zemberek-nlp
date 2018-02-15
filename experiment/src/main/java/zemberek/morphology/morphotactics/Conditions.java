@@ -6,6 +6,7 @@ import static zemberek.morphology.morphotactics.Operator.OR;
 
 import java.util.Collection;
 import zemberek.core.turkish.PhoneticAttribute;
+import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.analyzer.SearchPath;
 import zemberek.morphology.lexicon.DictionaryItem;
@@ -188,6 +189,20 @@ class Conditions {
     @Override
     public boolean check(SearchPath visitor) {
       return !condition.check(visitor);
+    }
+  }
+
+  public static class RootPosIs extends AbstractCondition {
+
+    PrimaryPos pos;
+
+    public RootPosIs(PrimaryPos pos) {
+      this.pos = pos;
+    }
+
+    @Override
+    public boolean check(SearchPath visitor) {
+      return pos == visitor.getStemTransition().item.primaryPos;
     }
   }
 

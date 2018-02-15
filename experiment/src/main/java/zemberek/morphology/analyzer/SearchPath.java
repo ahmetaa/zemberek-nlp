@@ -5,8 +5,10 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PhoneticAttribute;
+import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.morphology.morphotactics.MorphemeState;
 import zemberek.morphology.morphotactics.StemTransition;
 

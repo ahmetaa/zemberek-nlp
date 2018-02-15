@@ -12,4 +12,10 @@ public class AdjectivesTest extends AnalyzerTestBase {
     shouldPass(analyzer, 1, "mavi");
   }
 
+  @Test
+  public void incorrect1() {
+    InterpretingAnalyzer analyzer = getAnalyzer("meyve");
+    shouldNotPass(analyzer, "meyvelili");
+  }
+
 }
