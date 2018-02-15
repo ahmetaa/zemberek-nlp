@@ -46,6 +46,11 @@ public class MorphemeSurfaceForm {
     return lexicalTransition.to.id + ":" + (surface.isEmpty() ? "ε" : surface);
   }
 
+  public String toMorphemeString() {
+    return lexicalTransition.to.morpheme.id + ":" + (surface.isEmpty() ? "ε" : surface);
+  }
+
+
   public static TurkishLetterSequence generate(
       SuffixTransition transition,
       EnumSet<PhoneticAttribute> phoneticAttributes) {

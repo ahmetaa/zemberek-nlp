@@ -71,16 +71,6 @@ public class SimpleNounsTest extends AnalyzerTestBase {
     shouldNotPass(analyzer, "kitapım", "kitab", "kitabcık", "kitapa", "kitablar");
   }
 
-  @Test
-  public void noun2Noun_1() {
-    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
-    String in = "kitapçık";
-    List<AnalysisResult> results = analyzer.analyze(in);
-    printAndSort(in, results);
-    Assert.assertEquals(1, results.size());
-    AnalysisResult first = results.get(0);
-    Assert.assertTrue(containsMorpheme(first, "Dim"));
-  }
 
   @Test
   public void analysisWithDebug() {

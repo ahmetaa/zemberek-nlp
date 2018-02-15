@@ -48,7 +48,7 @@ public class TurkishMorphotactics {
 
   // Diminutive suffix. Noun to Noun conversion. "elmacık = small apple, poor apple"
   Morpheme dim = new Morpheme("Dim");
-
+  Morpheme with = new Morpheme("With");
 
   //-------------- States ----------------------------
   // _ST = Terminal state _SnT = Non Terminal State.
@@ -87,10 +87,14 @@ public class TurkishMorphotactics {
 
   MorphemeState dim_SnT = MorphemeState.nonTerminalDerivative("dim_SnT", dim);
 
+  MorphemeState with_SnT = MorphemeState.nonTerminalDerivative("with_SnT", with);
+
   //-------------- Adjective States ------------------------
 
   MorphemeState adj_ST = MorphemeState.terminal("adj_ST", adj);
 
+  //-------------- Conditions ------------------------------
+  static final Condition HAS_NO_SURFACE = new HasAnySuffixSurface().not();
 
   private RootLexicon lexicon;
 
@@ -217,20 +221,25 @@ public class TurkishMorphotactics {
     // surface form generated per transition.
 
     // do not allow repetition and only empty suffixes can come before.
-    nom_ST.add(dim_SnT, ">cI~k", new HasAnySuffixSurface().not());
+    nom_ST.add(dim_SnT, ">cI~k", HAS_NO_SURFACE);
 
-    nom_SnT.add(dim_SnT, ">cI!ğ", new HasAnySuffixSurface().not());
+    nom_SnT.add(dim_SnT, ">cI!ğ", HAS_NO_SURFACE);
 
     // ev-ε-ε-ε-ceğiz (evceğiz)
-    nom_ST.add(dim_SnT, "cAğIz", new HasAnySuffixSurface().not());
+    nom_ST.add(dim_SnT, "cAğIz", HAS_NO_SURFACE);
 
     // connect dim to the noun root.
     dim_SnT.addEmpty(noun_SnT);
 
+    // meyve-li
+    nom_ST.add(with_SnT, "lI", HAS_NO_SURFACE);
+    // connect With to Adjective root.
+    with_SnT.addEmpty(adj_ST);
+
+
   }
 
   private void connectAdjectiveStates() {
-
 
   }
 

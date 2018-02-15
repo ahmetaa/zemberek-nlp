@@ -27,6 +27,15 @@ public class AnalyzerTestBase {
     return false;
   }
 
+  boolean lastMorphemeIs(AnalysisResult result, String morphemeName) {
+    List<MorphemeSurfaceForm> morphemes = result.getMorphemes();
+    if (morphemes.size() == 0) {
+      return false;
+    }
+    MorphemeSurfaceForm last = morphemes.get(morphemes.size() - 1);
+    return last.lexicalTransition.to.morpheme.id.equalsIgnoreCase(morphemeName);
+  }
+
   public boolean notContains(AnalysisResult result, String morphemeName) {
     for (MorphemeSurfaceForm forms : result.getMorphemes()) {
       if (forms.lexicalTransition.to.morpheme.id.equalsIgnoreCase(morphemeName)) {
@@ -39,7 +48,7 @@ public class AnalyzerTestBase {
   void printAndSort(String input, List<AnalysisResult> results) {
     results.sort(Comparator.comparing(AnalysisResult::toString));
     for (AnalysisResult result : results) {
-      System.out.println(input + " = " + result);
+      System.out.println(input + " = " + result + " = " + result.shortForm());
     }
   }
 
@@ -72,7 +81,7 @@ public class AnalyzerTestBase {
   void shouldPass(InterpretingAnalyzer analyzer, int solutionCount, String... words) {
     for (String word : words) {
       List<AnalysisResult> results = analyzer.analyze(word);
-      if (results.size() !=solutionCount) {
+      if (results.size() != solutionCount) {
         printAndSort(word, results);
         AnalysisDebugData debugData = new AnalysisDebugData();
         analyzer.analyze(word, debugData);

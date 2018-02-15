@@ -43,4 +43,14 @@ public class AnalysisResult {
             .collect(Collectors.toList()));
     return sb + morphemeStr + "]";
   }
+
+  public String shortForm() {
+    String sb = "[" +
+        dictionaryItem.lemma + ":" + root + " + ";
+    String morphemeStr =
+        String.join(" + ", morphemes.stream()
+            .map(MorphemeSurfaceForm::toMorphemeString)
+            .collect(Collectors.toList()));
+    return sb + morphemeStr + "]";
+  }
 }
