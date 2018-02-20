@@ -74,6 +74,8 @@ public class AnalyzerTestBase {
         analyzer.analyze(word, debugData);
         debugData.dumpToConsole();
         Assert.fail(word + " is expected to pass but failed.");
+      } else {
+        printAndSort(word, results);
       }
     }
   }
@@ -88,6 +90,8 @@ public class AnalyzerTestBase {
         debugData.dumpToConsole();
         Assert.fail(word + " is expected to pass with solution count " + solutionCount +
             " but failed with solution count " + results.size());
+      } else {
+        printAndSort(word, results);
       }
     }
   }

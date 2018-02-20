@@ -19,4 +19,13 @@ public class NounNounDerivationTest extends AnalyzerTestBase {
     Assert.assertTrue(containsMorpheme(first, "Dim"));
   }
 
+
+  @Test
+  public void noun2NounIncorrect_1() {
+    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
+    shouldNotPass(analyzer,
+        "kitaplarcık", "kitapçıklarcık", "kitapçığ", "kitapcık", "kitabımcık",
+        "kitaptacık", "kitapçıkçık", "kitabcığ", "kitabçığ", "kitabçık", "kitapçığ"
+    );
+  }
 }

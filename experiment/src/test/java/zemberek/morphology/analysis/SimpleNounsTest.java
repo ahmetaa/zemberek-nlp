@@ -82,14 +82,6 @@ public class SimpleNounsTest extends AnalyzerTestBase {
     printAndSort(in, results);
   }
 
-  @Test
-  public void noun2NounIncorrect_1() {
-    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
-    shouldNotPass(analyzer,
-        "kitaplarcık", "kitapçıklarcık", "kitapçığ", "kitapcık", "kitabımcık",
-        "kitaptacık", "kitapçıkçık"
-    );
-  }
 
 
 }

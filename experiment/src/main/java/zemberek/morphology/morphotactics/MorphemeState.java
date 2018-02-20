@@ -10,30 +10,74 @@ public class MorphemeState {
   public final Morpheme morpheme;
   List<MorphemeTransition> outgoing = new ArrayList<>(2);
   List<MorphemeTransition> incoming = new ArrayList<>(2);
-  public boolean terminal = false;
-  public boolean derivative = false;
+  public final boolean terminal;
+  public final boolean derivative;
+  public final boolean posRoot;
 
-  public MorphemeState(String id, Morpheme morpheme, boolean terminal, boolean derivative) {
+  public MorphemeState(
+      String id,
+      Morpheme morpheme,
+      boolean terminal,
+      boolean derivative,
+      boolean posRoot) {
     this.morpheme = morpheme;
     this.id = id;
     this.terminal = terminal;
     this.derivative = derivative;
+    this.posRoot = posRoot;
+  }
+
+  public static Builder builder(String id, Morpheme morpheme) {
+    return new Builder(id, morpheme);
+  }
+
+  static class Builder {
+
+    final String _id;
+    final Morpheme _morpheme;
+    private boolean _terminal = false;
+    private boolean _derivative = false;
+    private boolean _posRoot = false;
+
+    public Builder(String _id, Morpheme _morpheme) {
+      this._id = _id;
+      this._morpheme = _morpheme;
+    }
+
+    public Builder terminal() {
+      this._terminal = true;
+      return this;
+    }
+
+    public Builder derivative() {
+      this._derivative = true;
+      return this;
+    }
+
+    public Builder posRoot() {
+      this._posRoot = true;
+      return this;
+    }
+
+    public MorphemeState build() {
+      return new MorphemeState(_id, _morpheme, _terminal, _derivative, _posRoot);
+    }
   }
 
   public static MorphemeState terminal(String id, Morpheme morpheme) {
-    return new MorphemeState(id, morpheme, true, false);
+    return builder(id, morpheme).terminal().build();
   }
 
   public static MorphemeState nonTerminal(String id, Morpheme morpheme) {
-    return new MorphemeState(id, morpheme, false, false);
+    return builder(id, morpheme).build();
   }
 
   public static MorphemeState terminalDerivative(String id, Morpheme morpheme) {
-    return new MorphemeState(id, morpheme, true, true);
+    return builder(id, morpheme).terminal().derivative().build();
   }
 
   public static MorphemeState nonTerminalDerivative(String id, Morpheme morpheme) {
-    return new MorphemeState(id, morpheme, false, true);
+    return builder(id, morpheme).derivative().build();
   }
 
 
@@ -101,5 +145,9 @@ public class MorphemeState {
 
   public List<MorphemeTransition> getIncoming() {
     return incoming;
+  }
+
+  public void addOutgoingTransitions(MorphemeState state) {
+    this.outgoing.addAll(state.outgoing);
   }
 }

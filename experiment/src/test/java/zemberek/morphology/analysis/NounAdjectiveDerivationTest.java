@@ -19,7 +19,10 @@ public class NounAdjectiveDerivationTest extends AnalyzerTestBase {
     Assert.assertTrue(containsMorpheme(results.get(0), "with"));
   }
 
-
-
+  @Test
+  public void incorrect1() {
+    InterpretingAnalyzer analyzer = getAnalyzer("meyve");
+    shouldNotPass(analyzer, "meyvelili");
+  }
 
 }

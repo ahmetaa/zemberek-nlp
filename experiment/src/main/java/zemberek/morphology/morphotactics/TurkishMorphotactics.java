@@ -1,16 +1,16 @@
 package zemberek.morphology.morphotactics;
 
 import static zemberek.morphology.morphotactics.Conditions.contains;
-import static zemberek.morphology.morphotactics.Conditions.notContains;
+import static zemberek.morphology.morphotactics.Conditions.notContain;
+import static zemberek.morphology.morphotactics.MorphemeState.builder;
 
-import javafx.geometry.Pos;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.morphotactics.Conditions.HasAnySuffixSurface;
-import zemberek.morphology.morphotactics.Conditions.RootPosIs;
+import zemberek.morphology.morphotactics.Conditions.CurrentInflectionalGroupEmpty;
+import zemberek.morphology.morphotactics.Conditions.PreviousNonEmptyMorphemeIs;
 
 public class TurkishMorphotactics {
 
@@ -51,7 +51,11 @@ public class TurkishMorphotactics {
 
   // Diminutive suffix. Noun to Noun conversion. "elmacık = small apple, poor apple"
   Morpheme dim = new Morpheme("Dim");
+  // With suffix. Noun to Adjective conversion. "elmalı = with apple"
   Morpheme with = new Morpheme("With");
+
+  // Zero derivation
+  Morpheme zero = new Morpheme("Zero");
 
   //-------------- States ----------------------------
   // _ST = Terminal state _SnT = Non Terminal State.
@@ -62,8 +66,8 @@ public class TurkishMorphotactics {
 
   //-------------- Noun States ------------------------
 
-  MorphemeState noun_SnT = MorphemeState.nonTerminal("noun_SnT", noun);
-  MorphemeState nounCompoundRoot_SnT = MorphemeState.nonTerminal("nounCompoundRoot_SnT", noun);
+  MorphemeState noun_SnT = builder("noun_SnT", noun).posRoot().build();
+  MorphemeState nounCompoundRoot_SnT = builder("nounCompoundRoot_SnT", noun).posRoot().build();
 
   // Number-Person agreement
 
@@ -83,6 +87,7 @@ public class TurkishMorphotactics {
 
   MorphemeState nom_ST = MorphemeState.terminal("nom_ST", nom);
   MorphemeState nom_SnT = MorphemeState.nonTerminal("nom_SnT", nom);
+
   MorphemeState dat_ST = MorphemeState.terminal("dat_ST", dat);
   MorphemeState acc_ST = MorphemeState.terminal("acc_ST", acc);
 
@@ -92,12 +97,13 @@ public class TurkishMorphotactics {
 
   MorphemeState with_SnT = MorphemeState.nonTerminalDerivative("with_SnT", with);
 
+  MorphemeState adj2NounZero_SnT = MorphemeState.nonTerminalDerivative("adj2NounZero_SnT", zero);
+
   //-------------- Adjective States ------------------------
 
   MorphemeState adj_ST = MorphemeState.terminal("adj_ST", adj);
 
   //-------------- Conditions ------------------------------
-  static final Condition HAS_NO_SURFACE = new HasAnySuffixSurface().not();
 
   private RootLexicon lexicon;
 
@@ -115,12 +121,12 @@ public class TurkishMorphotactics {
   public void connectNounStates() {
 
     // ev-ε-?-?
-    noun_SnT.addEmpty(a3sg_SnT, notContains(RootAttribute.ImplicitPlural));
+    noun_SnT.addEmpty(a3sg_SnT, notContain(RootAttribute.ImplicitPlural));
 
     // ev-ler-?-?.
     noun_SnT.add(a3pl_SnT, "lAr",
-        notContains(RootAttribute.ImplicitPlural)
-            .and(notContains(RootAttribute.CompoundP3sg)));
+        notContain(RootAttribute.ImplicitPlural)
+            .and(notContain(RootAttribute.CompoundP3sg)));
 
     // Allow only implicit plural `hayvanat`.
     noun_SnT.addEmpty(a3pl_SnT, contains(RootAttribute.ImplicitPlural));
@@ -146,19 +152,19 @@ public class TurkishMorphotactics {
         .add(p1sg_SnT, "Im");
 
     // ev-ε-ε-? Reject "annemler" etc.
-    a3sg_SnT.addEmpty(pnon_SnT, notContains(RootAttribute.FamilyMember));
+    a3sg_SnT.addEmpty(pnon_SnT, notContain(RootAttribute.FamilyMember));
 
     DictionaryItem suRoot = lexicon.getItemById("su_Noun");
     // ev-ε-im oda-ε-m
     a3sg_SnT.add(p1sg_SnT, "Im",
-        notContains(suRoot).and(notContains(RootAttribute.FamilyMember)));
+        notContain(suRoot).and(notContain(RootAttribute.FamilyMember)));
 
     // su-ε-yum. Only for "su"
     a3sg_SnT.add(p1sg_SnT, "yum", contains(suRoot));
 
     // ev-ε-i oda-ε-sı
     a3sg_SnT.add(p3sg_SnT, "+sI",
-        notContains(suRoot).and(notContains(RootAttribute.FamilyMember)));
+        notContain(suRoot).and(notContain(RootAttribute.FamilyMember)));
 
     // "zeytinyağı" has two analyses. Pnon and P3sg.
     a3sg_SnT.addEmpty(p3sg_SnT, contains(RootAttribute.CompoundP3sg));
@@ -167,36 +173,36 @@ public class TurkishMorphotactics {
     a3sg_SnT.add(p3sg_SnT, "yu", contains(suRoot));
 
     // ev-ler-ε-?
-    a3pl_SnT.addEmpty(pnon_SnT, notContains(RootAttribute.FamilyMember));
+    a3pl_SnT.addEmpty(pnon_SnT, notContain(RootAttribute.FamilyMember));
 
     // ev-ler-im-?
-    a3pl_SnT.add(p1sg_SnT, "Im", notContains(RootAttribute.FamilyMember));
+    a3pl_SnT.add(p1sg_SnT, "Im", notContain(RootAttribute.FamilyMember));
     // for words like "annemler".
     a3pl_SnT.addEmpty(p1sg_SnT, contains(RootAttribute.ImplicitP1sg));
 
     // ev-ler-i oda-lar-ı
-    a3pl_SnT.add(p3sg_SnT, "I", notContains(RootAttribute.FamilyMember));
+    a3pl_SnT.add(p3sg_SnT, "I", notContain(RootAttribute.FamilyMember));
 
     // ev-?-ε-ε (ev, evler).
     pnon_SnT.addEmpty(nom_ST,
-        notContains(PhoneticAttribute.ExpectsVowel)
-            .and(notContains(RootAttribute.CompoundP3sgRoot))
-            .and(notContains(RootAttribute.FamilyMember))
-            .and(new RootPosIs(PrimaryPos.Adjective).not()));
+        notContain(PhoneticAttribute.ExpectsVowel)
+            .and(notContain(RootAttribute.CompoundP3sgRoot))
+            .and(notContain(RootAttribute.FamilyMember)));
 
     // This transition is for not allowing inputs like "kitab" or "zeytinyağ".
     // They will fail because nominal case state is non terminal (nom_SnT)
     pnon_SnT.addEmpty(nom_SnT,
-        contains(RootAttribute.CompoundP3sgRoot).or(contains(PhoneticAttribute.ExpectsVowel)));
+        contains(RootAttribute.CompoundP3sgRoot)
+            .or(contains(PhoneticAttribute.ExpectsVowel)));
 
     // ev-?-ε-e (eve, evlere). Not allow "zetinyağı-ya"
-    pnon_SnT.add(dat_ST, "+yA", notContains(RootAttribute.CompoundP3sg));
+    pnon_SnT.add(dat_ST, "+yA", notContain(RootAttribute.CompoundP3sg));
 
     // zeytinyağı-ε-ε-na
     pnon_SnT.add(dat_ST, "+nA", contains(RootAttribute.CompoundP3sg));
 
     // ev-?-ε-e (ev-i, ev-ler-i, e-vim-i). Not allow "zetinyağı-yı"
-    pnon_SnT.add(acc_ST, "+yI", notContains(RootAttribute.CompoundP3sg));
+    pnon_SnT.add(acc_ST, "+yI", notContain(RootAttribute.CompoundP3sg));
 
     // zeytinyağı-ε-ε-nı
     pnon_SnT.add(acc_ST, "+nI", contains(RootAttribute.CompoundP3sg));
@@ -219,31 +225,37 @@ public class TurkishMorphotactics {
     //ev-?-i-ε (ev-i-ni, ev-ler-i-ni)
     p3sg_SnT.add(acc_ST, "nI");
 
-    // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains dim suffix.
+    // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains any non empty surface suffix.
     // There are two almost identical suffix transitions with templates ">cI~k" and ">cI!ğ"
     // This was necessary for some simplification during analysis. This way there will be only one
     // surface form generated per transition.
-
-    // do not allow repetition and only empty suffixes can come before.
-    nom_ST.add(dim_SnT, ">cI~k", HAS_NO_SURFACE);
-
-    nom_SnT.add(dim_SnT, ">cI!ğ", HAS_NO_SURFACE);
+    nom_ST.add(dim_SnT, ">cI~k", Conditions.HAS_NO_SURFACE);
+    nom_ST.add(dim_SnT, ">cI!ğ", Conditions.HAS_NO_SURFACE);
 
     // ev-ε-ε-ε-ceğiz (evceğiz)
-    nom_ST.add(dim_SnT, "cAğIz", HAS_NO_SURFACE);
+    nom_ST.add(dim_SnT, "cAğIz", Conditions.HAS_NO_SURFACE);
 
     // connect dim to the noun root.
     dim_SnT.addEmpty(noun_SnT);
 
     // meyve-li
-    nom_ST.add(with_SnT, "lI", HAS_NO_SURFACE);
+    nom_ST.add(with_SnT, "lI",
+        new CurrentInflectionalGroupEmpty().and(
+            new PreviousNonEmptyMorphemeIs(with_SnT).not()));
     // connect With to Adjective root.
     with_SnT.addEmpty(adj_ST);
-
 
   }
 
   private void connectAdjectiveStates() {
+
+    // zero morpheme derivation. Words like "yeşil-i" requires Adj to Noun conversion.
+    // Since noun suffixes are not derivational a "Zero" morpheme is used for this.
+    // It has a HAS_TAIL condition because empty Noun derivation
+    // Adj->(A3sg+Pnon+Nom) is not allowed.
+    adj_ST.addEmpty(adj2NounZero_SnT, Conditions.HAS_TAIL);
+
+    adj2NounZero_SnT.addEmpty(noun_SnT);
 
   }
 

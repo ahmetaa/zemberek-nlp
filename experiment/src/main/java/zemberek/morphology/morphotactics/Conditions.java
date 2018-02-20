@@ -5,13 +5,19 @@ import static zemberek.morphology.morphotactics.Operator.AND;
 import static zemberek.morphology.morphotactics.Operator.OR;
 
 import java.util.Collection;
+import java.util.List;
 import zemberek.core.turkish.PhoneticAttribute;
-import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
+import zemberek.morphology.analyzer.MorphemeSurfaceForm;
 import zemberek.morphology.analyzer.SearchPath;
 import zemberek.morphology.lexicon.DictionaryItem;
 
 class Conditions {
+
+  public static final Condition HAS_TAIL = new HasTail();
+  public static final Condition HAS_NO_TAIL = new HasNoTail();
+  static final Condition HAS_NO_SURFACE = new HasAnySuffixSurface().not();
+
 
   public static Condition contains(RootAttribute attribute) {
     return new ContainsRootAttribute(attribute);
@@ -26,15 +32,15 @@ class Conditions {
   }
 
 
-  public static Condition notContains(RootAttribute attribute) {
+  public static Condition notContain(RootAttribute attribute) {
     return new ContainsRootAttribute(attribute).not();
   }
 
-  public static Condition notContains(PhoneticAttribute attribute) {
+  public static Condition notContain(PhoneticAttribute attribute) {
     return new ContainsPhoneticAttribute(attribute).not();
   }
 
-  public static Condition notContains(DictionaryItem item) {
+  public static Condition notContain(DictionaryItem item) {
     return new ContainsDictionaryItem(item).not();
   }
 
@@ -159,6 +165,64 @@ class Conditions {
     }
   }
 
+  public static class HasTail extends AbstractCondition {
+
+    @Override
+    public boolean check(SearchPath visitor) {
+      return !visitor.getTail().isEmpty();
+    }
+
+    @Override
+    public String toString() {
+      return "HasTail{}";
+    }
+  }
+
+  public static class HasNoTail extends AbstractCondition {
+
+    @Override
+    public boolean check(SearchPath visitor) {
+      return visitor.getTail().isEmpty();
+    }
+
+    @Override
+    public String toString() {
+      return "HasNoTail{}";
+    }
+  }
+
+
+  public static class ContainsTailSequence extends AbstractCondition {
+
+    Morpheme[] morphemes;
+
+    public ContainsTailSequence(Morpheme... morphemes) {
+      this.morphemes = morphemes;
+    }
+
+    @Override
+    public boolean check(SearchPath visitor) {
+      List<MorphemeSurfaceForm> forms = visitor.getSuffixes();
+      if (forms.size() < morphemes.length) {
+        return false;
+      }
+      int i = 0;
+      int j = forms.size() - morphemes.length;
+      while (i < morphemes.length) {
+        if (morphemes[i++] != forms.get(j++).lexicalTransition.to.morpheme) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+
+    @Override
+    public String toString() {
+      return "ContainsTailSequence{}";
+    }
+  }
+
   public static class LastMorphemeIs extends AbstractCondition {
 
     Morpheme morpheme;
@@ -192,17 +256,70 @@ class Conditions {
     }
   }
 
-  public static class RootPosIs extends AbstractCondition {
+  public static class LastDerivationIs extends AbstractCondition {
 
-    PrimaryPos pos;
+    MorphemeState state;
 
-    public RootPosIs(PrimaryPos pos) {
-      this.pos = pos;
+    public LastDerivationIs(MorphemeState state) {
+      this.state = state;
     }
 
     @Override
     public boolean check(SearchPath visitor) {
-      return pos == visitor.getStemTransition().item.primaryPos;
+      List<MorphemeSurfaceForm> suffixes = visitor.getSuffixes();
+      for (int i = suffixes.size() - 1; i > 1; i--) {
+        MorphemeSurfaceForm sf = suffixes.get(i);
+        if (sf.lexicalTransition.to.derivative) {
+          return sf.lexicalTransition.to == state;
+        }
+      }
+      return false;
+    }
+  }
+
+  public static class PreviousNonEmptyMorphemeIs extends AbstractCondition {
+
+    MorphemeState state;
+
+    public PreviousNonEmptyMorphemeIs(MorphemeState state) {
+      this.state = state;
+    }
+
+    @Override
+    public boolean check(SearchPath visitor) {
+      List<MorphemeSurfaceForm> suffixes = visitor.getSuffixes();
+      for (int i = suffixes.size() - 1; i > 1; i--) {
+        MorphemeSurfaceForm sf = suffixes.get(i);
+        if (sf.surface.isEmpty()) {
+          continue;
+        }
+        return sf.lexicalTransition.to == state;
+      }
+      return false;
+    }
+  }
+
+  public static class CurrentInflectionalGroupEmpty extends AbstractCondition {
+
+    @Override
+    public boolean check(SearchPath visitor) {
+      List<MorphemeSurfaceForm> suffixes = visitor.getSuffixes();
+      for (int i = suffixes.size() - 1; i > 1; i--) {
+        MorphemeSurfaceForm sf = suffixes.get(i);
+        MorphemeState to = sf.lexicalTransition.to;
+        if (to.derivative || to.posRoot) {
+          return true;
+        }
+        if(!sf.surface.isEmpty()) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    @Override
+    public String toString() {
+      return "CurrentInflectionalGroupEmpty{}";
     }
   }
 

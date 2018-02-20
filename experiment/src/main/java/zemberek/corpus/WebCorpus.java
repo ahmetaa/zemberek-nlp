@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -154,6 +155,14 @@ public class WebCorpus {
         }
       }
     }
+  }
+
+  public static void main(String[] args) throws IOException {
+    List<WebDocument> list  = WebCorpus.loadDocuments(Paths.get("/home/ahmetaa/data/text/news-corpus/www.cnnturk.com.corpus"));
+    WebCorpus c = new WebCorpus("foo","bar");
+    c.addDocuments(list);
+    c = c.copyNoDuplicates();
+    c.save(Paths.get("/home/ahmetaa/data/text/news-corpus/www.cnnturk.com.txt"), true);
   }
 
 }
