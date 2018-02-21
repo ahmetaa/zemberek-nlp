@@ -77,23 +77,23 @@ public class CombinedCondition extends AbstractCondition {
   }
 
   @Override
-  public boolean check(SearchPath path) {
+  public boolean accept(SearchPath path) {
     if (conditions.size() == 0) {
       return true;
     }
     if (conditions.size() == 1) {
-      return conditions.get(0).check(path);
+      return conditions.get(0).accept(path);
     }
     if (operator == Operator.AND) {
       for (Condition condition : conditions) {
-        if (!condition.check(path)) {
+        if (!condition.accept(path)) {
           return false;
         }
       }
       return true;
     } else {
       for (Condition condition : conditions) {
-        if (condition.check(path)) {
+        if (condition.accept(path)) {
           return true;
         }
       }

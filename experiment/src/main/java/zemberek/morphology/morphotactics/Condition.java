@@ -4,7 +4,7 @@ import zemberek.morphology.analyzer.SearchPath;
 
 public interface Condition {
 
-  boolean check(SearchPath path);
+  boolean accept(SearchPath path);
 
   Condition and(Condition other);
 

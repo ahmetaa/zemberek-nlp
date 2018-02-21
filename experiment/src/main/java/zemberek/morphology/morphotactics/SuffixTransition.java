@@ -2,8 +2,6 @@ package zemberek.morphology.morphotactics;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticAttribute;
@@ -39,7 +37,7 @@ public class SuffixTransition extends MorphemeTransition {
     if (condition == null) {
       return true;
     }
-    return condition.check(path);
+    return condition.accept(path);
   }
 
   private void connect() {

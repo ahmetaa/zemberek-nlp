@@ -4,7 +4,7 @@ import zemberek.morphology.analyzer.SearchPath;
 
 abstract class AbstractCondition implements Condition {
 
-  public abstract boolean check(SearchPath path);
+  public abstract boolean accept(SearchPath path);
 
   @Override
   public Condition and(Condition other) {

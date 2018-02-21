@@ -102,7 +102,7 @@ class Conditions {
     }
 
     @Override
-    public boolean check(SearchPath visitor) {
+    public boolean accept(SearchPath visitor) {
       // TODO: maybe this should also check if visitor has no derivation.
       return visitor.containsRootAttribute(attribute);
     }
@@ -122,7 +122,7 @@ class Conditions {
     }
 
     @Override
-    public boolean check(SearchPath visitor) {
+    public boolean accept(SearchPath visitor) {
       return visitor.getPhoneticAttributes().contains(attribute);
     }
 
@@ -141,7 +141,7 @@ class Conditions {
     }
 
     @Override
-    public boolean check(SearchPath visitor) {
+    public boolean accept(SearchPath visitor) {
       // TODO: maybe this should also check if visitor has no derivation.
       return item != null && visitor.hasDictionaryItem(item);
     }
@@ -155,7 +155,7 @@ class Conditions {
   public static class HasAnySuffixSurface extends AbstractCondition {
 
     @Override
-    public boolean check(SearchPath visitor) {
+    public boolean accept(SearchPath visitor) {
       return visitor.containsSuffixWithSurface();
     }
 
@@ -168,7 +168,7 @@ class Conditions {
   public static class HasTail extends AbstractCondition {
 
     @Override
-    public boolean check(SearchPath visitor) {
+    public boolean accept(SearchPath visitor) {
       return !visitor.getTail().isEmpty();
     }
 
@@ -181,7 +181,7 @@ class Conditions {
   public static class HasNoTail extends AbstractCondition {
 
     @Override
-    public boolean check(SearchPath visitor) {
+    public boolean accept(SearchPath visitor) {
       return visitor.getTail().isEmpty();
     }
 
@@ -201,7 +201,7 @@ class Conditions {
     }
 
     @Override
-    public boolean check(SearchPath visitor) {
+    public boolean accept(SearchPath visitor) {
       List<MorphemeSurfaceForm> forms = visitor.getMorphemes();
       if (forms.size() < morphemes.length) {
         return false;
@@ -232,7 +232,7 @@ class Conditions {
     }
 
     @Override
-    public boolean check(SearchPath visitor) {
+    public boolean accept(SearchPath visitor) {
       return visitor.getCurrentState().morpheme.equals(morpheme);
     }
 
@@ -251,8 +251,8 @@ class Conditions {
     }
 
     @Override
-    public boolean check(SearchPath visitor) {
-      return !condition.check(visitor);
+    public boolean accept(SearchPath visitor) {
+      return !condition.accept(visitor);
     }
   }
 
@@ -265,7 +265,7 @@ class Conditions {
     }
 
     @Override
-    public boolean check(SearchPath visitor) {
+    public boolean accept(SearchPath visitor) {
       List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
       for (int i = suffixes.size() - 1; i > 1; i--) {
         MorphemeSurfaceForm sf = suffixes.get(i);
@@ -286,7 +286,7 @@ class Conditions {
     }
 
     @Override
-    public boolean check(SearchPath visitor) {
+    public boolean accept(SearchPath visitor) {
       List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
       for (int i = suffixes.size() - 1; i > 1; i--) {
         MorphemeSurfaceForm sf = suffixes.get(i);
@@ -302,7 +302,7 @@ class Conditions {
   public static class CurrentInflectionalGroupEmpty extends AbstractCondition {
 
     @Override
-    public boolean check(SearchPath visitor) {
+    public boolean accept(SearchPath visitor) {
       List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
       for (int i = suffixes.size() - 1; i > 1; i--) {
         MorphemeSurfaceForm sf = suffixes.get(i);
