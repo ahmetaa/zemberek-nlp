@@ -98,10 +98,7 @@ public class InterpretingAnalyzer {
         // path as a correct result.
         if (path.tail.length() == 0) {
           if (path.isTerminal()) {
-            AnalysisResult analysis = new AnalysisResult(
-                path.stemTransition.item,
-                path.stemTransition.surface,
-                path.suffixes);
+            AnalysisResult analysis = new AnalysisResult(path);
             result.add(analysis);
             if (debugData != null) {
               debugData.finishedPaths.add(path);
@@ -158,7 +155,7 @@ public class InterpretingAnalyzer {
       if (debugData != null) {
         //TODO: Not working yet. Collect all failed conditions.
         List<Condition> failedConditions = new ArrayList<>();
-        for(Condition condition : failedConditions) {
+        for (Condition condition : failedConditions) {
           debugData.rejectedTransitions.put(
               path,
               new RejectedTransition("Condition → " + condition.toString(), suffixTransition));

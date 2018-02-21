@@ -5,10 +5,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PhoneticAttribute;
-import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
-import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.morphology.morphotactics.MorphemeState;
 import zemberek.morphology.morphotactics.StemTransition;
 
@@ -24,13 +22,9 @@ public class SearchPath {
   // letters to parse.
   String tail;
 
-  // carries the initial transition. Normally this is not necessary bur here we have it for
-  // a small optimization.
-  StemTransition stemTransition;
-
   MorphemeState currentState;
 
-  List<MorphemeSurfaceForm> suffixes;
+  List<MorphemeSurfaceForm> morphemes;
 
   EnumSet<PhoneticAttribute> phoneticAttributes;
 
@@ -39,12 +33,14 @@ public class SearchPath {
   private boolean containsSuffixWithSurface = false;
 
   public static SearchPath initialPath(StemTransition stemTransition, String head, String tail) {
+    List<MorphemeSurfaceForm> morphemes = new ArrayList<>(4);
+    MorphemeSurfaceForm root = new MorphemeSurfaceForm(stemTransition.surface, stemTransition);
+    morphemes.add(root);
     return new SearchPath(
         head,
         tail,
-        stemTransition,
         stemTransition.to,
-        new ArrayList<>(3),
+        morphemes,
         stemTransition.getPhoneticAttributes().clone(),
         stemTransition.to.terminal);
   }
@@ -52,47 +48,46 @@ public class SearchPath {
   private SearchPath(
       String head,
       String tail,
-      StemTransition stemTransition,
       MorphemeState currentState,
-      List<MorphemeSurfaceForm> suffixes,
+      List<MorphemeSurfaceForm> morphemes,
       EnumSet<PhoneticAttribute> phoneticAttributes,
       boolean terminal) {
     this.head = head;
     this.tail = tail;
-    this.stemTransition = stemTransition;
     this.currentState = currentState;
-    this.suffixes = suffixes;
+    this.morphemes = morphemes;
     this.phoneticAttributes = phoneticAttributes;
     this.terminal = terminal;
   }
 
-  SearchPath getCopy(MorphemeSurfaceForm surfaceNode,
+  SearchPath getCopy(
+      MorphemeSurfaceForm surfaceNode,
       EnumSet<PhoneticAttribute> phoneticAttributes) {
-    boolean t = surfaceNode.lexicalTransition.to.terminal;
-    ArrayList<MorphemeSurfaceForm> hist = new ArrayList<>(suffixes);
+
+    boolean t = surfaceNode.morphemeState.terminal;
+    ArrayList<MorphemeSurfaceForm> hist = new ArrayList<>(morphemes);
     hist.add(surfaceNode);
     String newHead = head + surfaceNode.surface;
     String newTail = tail.substring(surfaceNode.surface.length());
     SearchPath path = new SearchPath(
         newHead,
         newTail,
-        stemTransition,
-        surfaceNode.lexicalTransition.to,
+        surfaceNode.morphemeState,
         hist,
         phoneticAttributes,
         t);
     path.containsSuffixWithSurface = containsSuffixWithSurface || !surfaceNode.surface.isEmpty();
-    path.containsDerivation = containsDerivation || surfaceNode.lexicalTransition.to.derivative;
+    path.containsDerivation = containsDerivation || surfaceNode.morphemeState.derivative;
     return path;
   }
 
   public String toString() {
-    String rootStr = stemTransition.item.id + ":" + stemTransition.surface;
+    StemTransition st = getStemTransition();
     String morphemeStr =
-        String.join(" + ", suffixes.stream()
+        String.join(" + ", morphemes.stream()
             .map(MorphemeSurfaceForm::toString)
             .collect(Collectors.toList()));
-    return "[(" + rootStr + ")(" + head + "-" + tail + ") " + morphemeStr + "]";
+    return "[(" + st.item.id + ")(" + head + "-" + tail + ") " + morphemeStr + "]";
   }
 
   public String getHead() {
@@ -104,7 +99,7 @@ public class SearchPath {
   }
 
   public StemTransition getStemTransition() {
-    return stemTransition;
+    return (StemTransition) morphemes.get(0).lexicalTransition;
   }
 
   public MorphemeState getCurrentState() {
@@ -119,8 +114,8 @@ public class SearchPath {
     return terminal;
   }
 
-  public List<MorphemeSurfaceForm> getSuffixes() {
-    return suffixes;
+  public List<MorphemeSurfaceForm> getMorphemes() {
+    return morphemes;
   }
 
   public boolean containsDerivation() {
@@ -132,12 +127,12 @@ public class SearchPath {
   }
 
   public boolean containsRootAttribute(RootAttribute attribute) {
-    return stemTransition.item.attributes.contains(attribute);
+    return getStemTransition().item.attributes.contains(attribute);
   }
 
   public boolean hasDictionaryItem(DictionaryItem item) {
     // TODO: for performance, probably it is safe to check references only.
-    return item.equals(stemTransition.item);
+    return item.equals(getStemTransition().item);
   }
 
 }

@@ -3,6 +3,7 @@ package zemberek.morphology.analyzer;
 import java.util.List;
 import java.util.stream.Collectors;
 import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.morphotactics.StemTransition;
 
 public class AnalysisResult {
 
@@ -12,13 +13,11 @@ public class AnalysisResult {
 
   List<MorphemeSurfaceForm> morphemes;
 
-  public AnalysisResult(
-      DictionaryItem dictionaryItem,
-      String root,
-      List<MorphemeSurfaceForm> morphemes) {
-    this.dictionaryItem = dictionaryItem;
-    this.root = root;
-    this.morphemes = morphemes;
+  public AnalysisResult(SearchPath searchPath) {
+    StemTransition st = searchPath.getStemTransition();
+    this.dictionaryItem = st.item;
+    this.root = st.surface;
+    this.morphemes = searchPath.getMorphemes();
   }
 
   public DictionaryItem getDictionaryItem() {
@@ -35,22 +34,16 @@ public class AnalysisResult {
 
   @Override
   public String toString() {
-    String sb = "[" +
-        dictionaryItem.lemma + ":" + root + " + ";
-    String morphemeStr =
+    return "[" +
         String.join(" + ", morphemes.stream()
             .map(MorphemeSurfaceForm::toString)
-            .collect(Collectors.toList()));
-    return sb + morphemeStr + "]";
+            .collect(Collectors.toList())) + "]";
   }
 
   public String shortForm() {
-    String sb = "[" +
-        dictionaryItem.lemma + ":" + root + " + ";
-    String morphemeStr =
+    return "[" +
         String.join(" + ", morphemes.stream()
             .map(MorphemeSurfaceForm::toMorphemeString)
-            .collect(Collectors.toList()));
-    return sb + morphemeStr + "]";
+            .collect(Collectors.toList())) + "]";
   }
 }

@@ -26,30 +26,37 @@ import java.util.NoSuchElementException;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.TurkicLetter;
 import zemberek.core.turkish.TurkishLetterSequence;
+import zemberek.morphology.morphotactics.MorphemeState;
 import zemberek.morphology.morphotactics.MorphemeTransition;
 import zemberek.morphology.morphotactics.SuffixTransition;
 
-// TODO: find a better name. Move some methods outside. Also this should probably hold a state,
+// TODO: find a better name. Move some methods outside.
 // not a transition.
 public class MorphemeSurfaceForm {
 
   public final String surface;
+  // TODO: this can be removed if SearchPath contains StemTransition.
   public final MorphemeTransition lexicalTransition;
+  public final MorphemeState morphemeState;
 
-  public MorphemeSurfaceForm(String surface, SuffixTransition suffixTransition) {
+  public MorphemeSurfaceForm(String surface, MorphemeTransition transition) {
     this.surface = surface;
-    this.lexicalTransition = suffixTransition;
+    this.lexicalTransition = transition;
+    this.morphemeState = transition.to;
   }
 
   @Override
   public String toString() {
-    return lexicalTransition.to.id + ":" + (surface.isEmpty() ? "ε" : surface);
+    return surfaceString() + morphemeState.id;
   }
 
   public String toMorphemeString() {
-    return lexicalTransition.to.morpheme.id + ":" + (surface.isEmpty() ? "ε" : surface);
+    return surfaceString() + morphemeState.morpheme.id;
   }
 
+  private String surfaceString() {
+    return surface.isEmpty() ? "" : surface+":";
+  }
 
   public static TurkishLetterSequence generate(
       SuffixTransition transition,

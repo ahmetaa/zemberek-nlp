@@ -202,14 +202,14 @@ class Conditions {
 
     @Override
     public boolean check(SearchPath visitor) {
-      List<MorphemeSurfaceForm> forms = visitor.getSuffixes();
+      List<MorphemeSurfaceForm> forms = visitor.getMorphemes();
       if (forms.size() < morphemes.length) {
         return false;
       }
       int i = 0;
       int j = forms.size() - morphemes.length;
       while (i < morphemes.length) {
-        if (morphemes[i++] != forms.get(j++).lexicalTransition.to.morpheme) {
+        if (morphemes[i++] != forms.get(j++).morphemeState.morpheme) {
           return false;
         }
       }
@@ -266,11 +266,11 @@ class Conditions {
 
     @Override
     public boolean check(SearchPath visitor) {
-      List<MorphemeSurfaceForm> suffixes = visitor.getSuffixes();
+      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
       for (int i = suffixes.size() - 1; i > 1; i--) {
         MorphemeSurfaceForm sf = suffixes.get(i);
-        if (sf.lexicalTransition.to.derivative) {
-          return sf.lexicalTransition.to == state;
+        if (sf.morphemeState.derivative) {
+          return sf.morphemeState == state;
         }
       }
       return false;
@@ -287,13 +287,13 @@ class Conditions {
 
     @Override
     public boolean check(SearchPath visitor) {
-      List<MorphemeSurfaceForm> suffixes = visitor.getSuffixes();
+      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
       for (int i = suffixes.size() - 1; i > 1; i--) {
         MorphemeSurfaceForm sf = suffixes.get(i);
         if (sf.surface.isEmpty()) {
           continue;
         }
-        return sf.lexicalTransition.to == state;
+        return sf.morphemeState == state;
       }
       return false;
     }
@@ -303,11 +303,10 @@ class Conditions {
 
     @Override
     public boolean check(SearchPath visitor) {
-      List<MorphemeSurfaceForm> suffixes = visitor.getSuffixes();
+      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
       for (int i = suffixes.size() - 1; i > 1; i--) {
         MorphemeSurfaceForm sf = suffixes.get(i);
-        MorphemeState to = sf.lexicalTransition.to;
-        if (to.derivative || to.posRoot) {
+        if (sf.morphemeState.derivative || sf.morphemeState.posRoot) {
           return true;
         }
         if(!sf.surface.isEmpty()) {
