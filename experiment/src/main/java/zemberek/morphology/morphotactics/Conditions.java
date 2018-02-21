@@ -4,8 +4,11 @@ import static java.util.Arrays.asList;
 import static zemberek.morphology.morphotactics.Operator.AND;
 import static zemberek.morphology.morphotactics.Operator.OR;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm;
@@ -17,6 +20,8 @@ class Conditions {
   public static final Condition HAS_TAIL = new HasTail();
   public static final Condition HAS_NO_TAIL = new HasNoTail();
   static final Condition HAS_NO_SURFACE = new HasAnySuffixSurface().not();
+  static final Condition CURRENT_GROUP_EMPTY = new CurrentInflectionalGroupEmpty();
+  static final Condition CURRENT_GROUP_NOT_EMPTY = new CurrentInflectionalGroupEmpty().not();
 
 
   public static Condition contains(RootAttribute attribute) {
@@ -267,7 +272,7 @@ class Conditions {
     @Override
     public boolean accept(SearchPath visitor) {
       List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
-      for (int i = suffixes.size() - 1; i > 1; i--) {
+      for (int i = suffixes.size() - 1; i > 0; i--) {
         MorphemeSurfaceForm sf = suffixes.get(i);
         if (sf.morphemeState.derivative) {
           return sf.morphemeState == state;
@@ -288,7 +293,7 @@ class Conditions {
     @Override
     public boolean accept(SearchPath visitor) {
       List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
-      for (int i = suffixes.size() - 1; i > 1; i--) {
+      for (int i = suffixes.size() - 1; i > 0; i--) {
         MorphemeSurfaceForm sf = suffixes.get(i);
         if (sf.surface.isEmpty()) {
           continue;
@@ -299,12 +304,37 @@ class Conditions {
     }
   }
 
+  public static class ContainsAnyAfterDerivation extends AbstractCondition {
+
+    Set<MorphemeState> states;
+
+    public ContainsAnyAfterDerivation(MorphemeState... states) {
+      this.states = new HashSet<>(states.length);
+      this.states.addAll(Arrays.asList(states));
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
+      for (int i = suffixes.size() - 1; i > 0; i--) {
+        MorphemeSurfaceForm sf = suffixes.get(i);
+        if (sf.morphemeState.derivative || sf.morphemeState.posRoot) {
+          return false;
+        }
+        if(states.contains(sf.morphemeState)) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+
   public static class CurrentInflectionalGroupEmpty extends AbstractCondition {
 
     @Override
     public boolean accept(SearchPath visitor) {
       List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
-      for (int i = suffixes.size() - 1; i > 1; i--) {
+      for (int i = suffixes.size() - 1; i > 0; i--) {
         MorphemeSurfaceForm sf = suffixes.get(i);
         if (sf.morphemeState.derivative || sf.morphemeState.posRoot) {
           return true;

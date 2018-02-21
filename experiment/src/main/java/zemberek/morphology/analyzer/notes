@@ -18,6 +18,9 @@ Should we remove words that exist in TDK with `-li` suffix? "zehirli, sulu" etc.
 
 We may not need `head` in SearchPath
 
+Noun->Zero Verb derivation correct and false positive tests -> elmalarımdı elmamdım elmandım elmamdır.
+how about implicitplural derivation etc?
+
 ----
 
 annemler, annenler etc can be resoved with implicitPlural, ImplicitP1sg and ImplicitP2sg attributes.

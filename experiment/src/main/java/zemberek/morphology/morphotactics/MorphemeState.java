@@ -133,7 +133,6 @@ public class MorphemeState {
     return this;
   }
 
-
   @Override
   public String toString() {
     return "[" + id + ":" + morpheme.id + "]";

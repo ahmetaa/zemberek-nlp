@@ -3,12 +3,16 @@ package zemberek.morphology.morphotactics;
 import static zemberek.morphology.morphotactics.Conditions.contains;
 import static zemberek.morphology.morphotactics.Conditions.notContain;
 import static zemberek.morphology.morphotactics.MorphemeState.builder;
+import static zemberek.morphology.morphotactics.MorphemeState.nonTerminal;
+import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivative;
+import static zemberek.morphology.morphotactics.MorphemeState.terminal;
 
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
+import zemberek.morphology.morphotactics.Conditions.ContainsAnyAfterDerivation;
 import zemberek.morphology.morphotactics.Conditions.CurrentInflectionalGroupEmpty;
 import zemberek.morphology.morphotactics.Conditions.PreviousNonEmptyMorphemeIs;
 
@@ -16,53 +20,64 @@ public class TurkishMorphotactics {
 
   //-------------- Morphemes ------------------------
 
-  Morpheme root = new Morpheme("Root");
+  Morpheme root = new Morpheme("Root", "Root");
 
-  Morpheme noun = new Morpheme("Noun", PrimaryPos.Noun);
+  Morpheme noun = new Morpheme("Noun", "Noun", PrimaryPos.Noun);
 
-  Morpheme adj = new Morpheme("Adj", PrimaryPos.Adjective);
+  Morpheme adj = new Morpheme("Adjective", "Adj", PrimaryPos.Adjective);
+
+  Morpheme verb = new Morpheme("Verb", "Verb", PrimaryPos.Verb);
 
   // Number-Person agreement.
 
+  Morpheme a1sg = new Morpheme("FirstPersonSingular", "A1sg");
   // Third person singular suffix. "elma = apple"
-  Morpheme a3sg = new Morpheme("A3sg");
+  Morpheme a3sg = new Morpheme("ThirdPersonSingular", "A3sg");
   // Third person plural suffix. "elma-lar = apples"
-  Morpheme a3pl = new Morpheme("A3pl");
+  Morpheme a3pl = new Morpheme("ThirdPersonPlural", "A3pl");
 
   // Possessive
 
   // No possession suffix. This is not a real morpheme but adds information to analysis. "elma = apple"
-  Morpheme pnon = new Morpheme("Pnon");
+  Morpheme pnon = new Morpheme("NoPosession", "Pnon");
   // First person singular possession suffix.  "elma-m = my apple"
-  Morpheme p1sg = new Morpheme("P1sg");
+  Morpheme p1sg = new Morpheme("FirstPersonSingularPosessive", "P1sg");
   // Third person singular possession suffix. "elma-sı = his/her apple"
-  Morpheme p3sg = new Morpheme("P3sg");
+  Morpheme p3sg = new Morpheme("ThirdPersonSingularPossesive", "P3sg");
 
   // Case suffixes
 
   // Nominal case suffix. It has no surface form (no letters). "elma = apple"
-  Morpheme nom = new Morpheme("Nom");
+  Morpheme nom = new Morpheme("Nominal", "Nom");
   // Dative case suffix. "elmaya = to apple"
-  Morpheme dat = new Morpheme("Dat");
+  Morpheme dat = new Morpheme("Dative", "Dat");
   // Accusative case suffix. "elmayı = ~the apple"
-  Morpheme acc = new Morpheme("Acc");
+  Morpheme acc = new Morpheme("Accusative", "Acc");
 
   // Derivation suffixes
 
   // Diminutive suffix. Noun to Noun conversion. "elmacık = small apple, poor apple"
-  Morpheme dim = new Morpheme("Dim");
+  Morpheme dim = new Morpheme("Diminutive", "Dim");
   // With suffix. Noun to Adjective conversion. "elmalı = with apple"
-  Morpheme with = new Morpheme("With");
+  Morpheme with = new Morpheme("With", "With");
 
   // Zero derivation
-  Morpheme zero = new Morpheme("Zero");
+  Morpheme zero = new Morpheme("Zero", "Zero");
+
+
+  // Present Tense
+  Morpheme pres = new Morpheme("PresentTense", "Pres");
+  Morpheme past = new Morpheme("PastTense", "Past");
+
+  // Verb specific
+  Morpheme cop = new Morpheme("Copula", "Cop");
 
   //-------------- States ----------------------------
   // _ST = Terminal state _SnT = Non Terminal State.
   // A terminal state means that a walk in the graph can end there.
 
   // root of the graph.
-  MorphemeState root_SnT = MorphemeState.nonTerminal("root_Snt", root);
+  MorphemeState root_SnT = nonTerminal("root_Snt", root);
 
   //-------------- Noun States ------------------------
 
@@ -71,37 +86,49 @@ public class TurkishMorphotactics {
 
   // Number-Person agreement
 
-  MorphemeState a3sg_SnT = MorphemeState.nonTerminal("a3sg_SnT", a3sg);
-  MorphemeState a3sgCompound_SnT = MorphemeState.nonTerminal("a3sgCompound_SnT", a3sg);
-  MorphemeState a3pl_SnT = MorphemeState.nonTerminal("a3pl_SnT", a3pl);
-  MorphemeState a3plCompound_SnT = MorphemeState.nonTerminal("a3plCompound_SnT", a3pl);
+  MorphemeState a3sg_SnT = nonTerminal("a3sg_SnT", a3sg);
+  MorphemeState a3sgCompound_SnT = nonTerminal("a3sgCompound_SnT", a3sg);
+  MorphemeState a3pl_SnT = nonTerminal("a3pl_SnT", a3pl);
+  MorphemeState a3plCompound_SnT = nonTerminal("a3plCompound_SnT", a3pl);
 
   // Possessive
 
-  MorphemeState pnon_SnT = MorphemeState.nonTerminal("pnon_SnT", pnon);
-  MorphemeState pnonCompound_SnT = MorphemeState.nonTerminal("pnonCompound_SnT", pnon);
-  MorphemeState p1sg_SnT = MorphemeState.nonTerminal("p1sg_SnT", p1sg);
-  MorphemeState p3sg_SnT = MorphemeState.nonTerminal("p3sg_SnT", p3sg);
+  MorphemeState pnon_SnT = nonTerminal("pnon_SnT", pnon);
+  MorphemeState pnonCompound_SnT = nonTerminal("pnonCompound_SnT", pnon);
+  MorphemeState p1sg_SnT = nonTerminal("p1sg_SnT", p1sg);
+  MorphemeState p3sg_SnT = nonTerminal("p3sg_SnT", p3sg);
 
   // Case
 
-  MorphemeState nom_ST = MorphemeState.terminal("nom_ST", nom);
-  MorphemeState nom_SnT = MorphemeState.nonTerminal("nom_SnT", nom);
+  MorphemeState nom_ST = terminal("nom_ST", nom);
+  MorphemeState nom_SnT = nonTerminal("nom_SnT", nom);
 
-  MorphemeState dat_ST = MorphemeState.terminal("dat_ST", dat);
-  MorphemeState acc_ST = MorphemeState.terminal("acc_ST", acc);
+  MorphemeState dat_ST = terminal("dat_ST", dat);
+  MorphemeState acc_ST = terminal("acc_ST", acc);
 
   // Derivation
 
-  MorphemeState dim_SnT = MorphemeState.nonTerminalDerivative("dim_SnT", dim);
+  MorphemeState dim_SnT = nonTerminalDerivative("dim_SnT", dim);
 
-  MorphemeState with_SnT = MorphemeState.nonTerminalDerivative("with_SnT", with);
+  MorphemeState with_SnT = nonTerminalDerivative("with_SnT", with);
 
-  MorphemeState adj2NounZero_SnT = MorphemeState.nonTerminalDerivative("adj2NounZero_SnT", zero);
+  MorphemeState nounZeroDeriv_SnT = nonTerminalDerivative("nounZeroDeriv_SnT", zero);
 
   //-------------- Adjective States ------------------------
 
-  MorphemeState adj_ST = MorphemeState.terminal("adj_ST", adj);
+  MorphemeState adj_ST = terminal("adj_ST", adj);
+
+  MorphemeState adjZeroDeriv_SnT = nonTerminalDerivative("adjZeroDeriv_SnT", zero);
+
+  //-------------- Adjective-Noun connected Verb States ------------------------
+
+  MorphemeState nVerb_SnT = builder("NVerb_SnT", verb).posRoot().build();
+  MorphemeState nPresent_SnT = nonTerminal("NPresent_SnT", pres);
+  MorphemeState nPast_SnT = nonTerminal("NPast_SnT", past);
+  MorphemeState nA1sg_ST = terminal("NA1sg_ST", a1sg);
+  MorphemeState nA3sg_ST = terminal("NA3sg_ST", a3sg);
+  MorphemeState nA3sg_SnT = terminal("NA3sg_SnT", a3sg);
+  MorphemeState nCop_ST = terminal("NCop_ST", cop);
 
   //-------------- Conditions ------------------------------
 
@@ -111,6 +138,7 @@ public class TurkishMorphotactics {
     this.lexicon = lexicon;
     connectNounStates();
     connectAdjectiveStates();
+    connectVerbAfterNounAdjStates();
   }
 
   /**
@@ -238,6 +266,18 @@ public class TurkishMorphotactics {
     // connect dim to the noun root.
     dim_SnT.addEmpty(noun_SnT);
 
+    //TODO: this fails for "elmalarıydı"
+    Condition noVerbDerivationMorphemes = new ContainsAnyAfterDerivation(a3pl_SnT).not();
+    // here we do not allow an adjective to pass here.
+    // such as, adj->zero->noun->ε-ε-ε->zero->Verb is not acceptable because there is already a
+    // adj->zero->Verb path.
+    nom_ST.addEmpty(nounZeroDeriv_SnT, Conditions.HAS_TAIL
+        .and(noVerbDerivationMorphemes)
+        .andNot(Conditions.CURRENT_GROUP_EMPTY.and(
+            new Conditions.LastDerivationIs(adjZeroDeriv_SnT))));
+
+    nounZeroDeriv_SnT.addEmpty(nVerb_SnT);
+
     // meyve-li
     nom_ST.add(with_SnT, "lI",
         new CurrentInflectionalGroupEmpty().and(
@@ -253,9 +293,37 @@ public class TurkishMorphotactics {
     // Since noun suffixes are not derivational a "Zero" morpheme is used for this.
     // It has a HAS_TAIL condition because empty Noun derivation
     // Adj->(A3sg+Pnon+Nom) is not allowed.
-    adj_ST.addEmpty(adj2NounZero_SnT, Conditions.HAS_TAIL);
+    adj_ST.addEmpty(adjZeroDeriv_SnT, Conditions.HAS_TAIL);
 
-    adj2NounZero_SnT.addEmpty(noun_SnT);
+    adjZeroDeriv_SnT.addEmpty(noun_SnT);
+
+    adjZeroDeriv_SnT.addEmpty(nVerb_SnT);
+  }
+
+  private void connectVerbAfterNounAdjStates() {
+
+    //elma-..-ε-yım
+    nVerb_SnT.addEmpty(nPresent_SnT);
+
+    // elma-ydı, çorap-tı
+    nVerb_SnT.add(nPast_SnT, "+y>dI");
+
+    // elma-yım
+    nPresent_SnT.add(nA1sg_ST, "+yIm");
+    // elma-ε-ε-dır non termınal.
+    nPresent_SnT.addEmpty(nA3sg_SnT);
+
+    // elma-ydı-m
+    nPast_SnT.add(nA1sg_ST, "m");
+    // elma-ydı-ε
+    nPast_SnT.addEmpty(nA3sg_ST);
+
+    Condition noCopulaMorphemes = new ContainsAnyAfterDerivation(nPast_SnT).not();
+
+    //elma-yım-dır
+    nA1sg_ST.add(nCop_ST, "dIr", noCopulaMorphemes);
+
+    nA3sg_SnT.add(nCop_ST, ">dIr", noCopulaMorphemes);
 
   }
 
