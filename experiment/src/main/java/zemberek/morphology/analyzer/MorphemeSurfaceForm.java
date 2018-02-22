@@ -45,6 +45,10 @@ public class MorphemeSurfaceForm {
     this.morphemeState = transition.to;
   }
 
+  public boolean isDerivationalOrRoot() {
+    return morphemeState.derivative || morphemeState.posRoot;
+  }
+
   @Override
   public String toString() {
     return surfaceString() + morphemeState.id;

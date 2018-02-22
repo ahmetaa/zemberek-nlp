@@ -12,8 +12,8 @@ import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.morphotactics.Conditions.ContainsAnyAfterDerivation;
-import zemberek.morphology.morphotactics.Conditions.CurrentInflectionalGroupEmpty;
+import zemberek.morphology.morphotactics.Conditions.CurrentGroupContains;
+import zemberek.morphology.morphotactics.Conditions.NoSurfaceAfterDerivation;
 import zemberek.morphology.morphotactics.Conditions.PreviousNonEmptyMorphemeIs;
 
 public class TurkishMorphotactics {
@@ -266,22 +266,24 @@ public class TurkishMorphotactics {
     // connect dim to the noun root.
     dim_SnT.addEmpty(noun_SnT);
 
-    //TODO: this fails for "elmalarıydı"
-    Condition noVerbDerivationMorphemes = new ContainsAnyAfterDerivation(a3pl_SnT).not();
     // here we do not allow an adjective to pass here.
     // such as, adj->zero->noun->ε-ε-ε->zero->Verb is not acceptable because there is already a
     // adj->zero->Verb path.
-    nom_ST.addEmpty(nounZeroDeriv_SnT, Conditions.HAS_TAIL
-        .and(noVerbDerivationMorphemes)
+    Condition noun2VerbZeroDerivationCondition = Conditions.HAS_TAIL
         .andNot(Conditions.CURRENT_GROUP_EMPTY.and(
-            new Conditions.LastDerivationIs(adjZeroDeriv_SnT))));
+            new Conditions.LastDerivationIs(adjZeroDeriv_SnT)));
+    nom_ST.addEmpty(nounZeroDeriv_SnT, noun2VerbZeroDerivationCondition);
+
+    // elma-ya-yım elma-ya-ydı
+    dat_ST.addEmpty(nounZeroDeriv_SnT, noun2VerbZeroDerivationCondition);
 
     nounZeroDeriv_SnT.addEmpty(nVerb_SnT);
 
     // meyve-li
     nom_ST.add(with_SnT, "lI",
-        new CurrentInflectionalGroupEmpty().and(
+        new NoSurfaceAfterDerivation().and(
             new PreviousNonEmptyMorphemeIs(with_SnT).not()));
+
     // connect With to Adjective root.
     with_SnT.addEmpty(adj_ST);
 
@@ -309,7 +311,8 @@ public class TurkishMorphotactics {
     nVerb_SnT.add(nPast_SnT, "+y>dI");
 
     // elma-yım
-    nPresent_SnT.add(nA1sg_ST, "+yIm");
+    nPresent_SnT.add(nA1sg_ST, "+yIm",
+        notContain(RootAttribute.FamilyMember));
     // elma-ε-ε-dır non termınal.
     nPresent_SnT.addEmpty(nA3sg_SnT);
 
@@ -318,12 +321,13 @@ public class TurkishMorphotactics {
     // elma-ydı-ε
     nPast_SnT.addEmpty(nA3sg_ST);
 
-    Condition noCopulaMorphemes = new ContainsAnyAfterDerivation(nPast_SnT).not();
+    // for not allowing "elma-ydı-m-dır"
+    Condition rejectNoCopula = new CurrentGroupContains(nPast_SnT).not();
 
     //elma-yım-dır
-    nA1sg_ST.add(nCop_ST, "dIr", noCopulaMorphemes);
+    nA1sg_ST.add(nCop_ST, "dIr", rejectNoCopula);
 
-    nA3sg_SnT.add(nCop_ST, ">dIr", noCopulaMorphemes);
+    nA3sg_SnT.add(nCop_ST, ">dIr", rejectNoCopula);
 
   }
 

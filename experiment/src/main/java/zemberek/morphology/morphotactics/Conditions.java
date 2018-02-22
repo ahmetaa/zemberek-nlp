@@ -20,8 +20,8 @@ class Conditions {
   public static final Condition HAS_TAIL = new HasTail();
   public static final Condition HAS_NO_TAIL = new HasNoTail();
   static final Condition HAS_NO_SURFACE = new HasAnySuffixSurface().not();
-  static final Condition CURRENT_GROUP_EMPTY = new CurrentInflectionalGroupEmpty();
-  static final Condition CURRENT_GROUP_NOT_EMPTY = new CurrentInflectionalGroupEmpty().not();
+  static final Condition CURRENT_GROUP_EMPTY = new NoSurfaceAfterDerivation();
+  static final Condition CURRENT_GROUP_NOT_EMPTY = new NoSurfaceAfterDerivation().not();
 
 
   public static Condition contains(RootAttribute attribute) {
@@ -304,11 +304,13 @@ class Conditions {
     }
   }
 
-  public static class ContainsAnyAfterDerivation extends AbstractCondition {
+  // Checks if any of the "MorphemeState" in "states" exist in current Inflectional Group.
+  // If previous group starts after a derivation, derivation MorphemeState is also checked.
+  public static class CurrentGroupContains extends AbstractCondition {
 
     Set<MorphemeState> states;
 
-    public ContainsAnyAfterDerivation(MorphemeState... states) {
+    public CurrentGroupContains(MorphemeState... states) {
       this.states = new HashSet<>(states.length);
       this.states.addAll(Arrays.asList(states));
     }
@@ -318,28 +320,69 @@ class Conditions {
       List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
       for (int i = suffixes.size() - 1; i > 0; i--) {
         MorphemeSurfaceForm sf = suffixes.get(i);
-        if (sf.morphemeState.derivative || sf.morphemeState.posRoot) {
-          return false;
-        }
-        if(states.contains(sf.morphemeState)) {
+        if (states.contains(sf.morphemeState)) {
           return true;
+        }
+        if (sf.morphemeState.derivative) {
+          return false;
         }
       }
       return false;
     }
   }
 
-  public static class CurrentInflectionalGroupEmpty extends AbstractCondition {
+  // Checks if any of the "MorphemeState" in "states" exist in previous Inflectional Group.
+  // If previous group starts after a derivation, derivation MorphemeState is also checked.
+  public static class PreviousGroupContains extends AbstractCondition {
+
+    Set<MorphemeState> states;
+
+    public PreviousGroupContains(MorphemeState... states) {
+      this.states = new HashSet<>(states.length);
+      this.states.addAll(Arrays.asList(states));
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
+
+      int lastIndex = suffixes.size() - 1;
+      MorphemeSurfaceForm sf = suffixes.get(lastIndex);
+      // go back until a transition that is connected to a derivative morpheme.
+      while (!sf.morphemeState.derivative) {
+        lastIndex--;
+        if (lastIndex == 0) { // there is no previous group. return early.
+          return false;
+        }
+        sf = suffixes.get(lastIndex);
+      }
+
+      for (int i = lastIndex - 1; i > 0; i--) {
+        sf = suffixes.get(i);
+        if (states.contains(sf.morphemeState)) {
+          return true;
+        }
+        if (sf.morphemeState.derivative) { //could not found the morpheme in this group.
+          return false;
+        }
+      }
+      return false;
+    }
+  }
+
+  // No letters are consumed after derivation occurred.This does not include the transition
+  // that caused derivation.
+  public static class NoSurfaceAfterDerivation extends AbstractCondition {
 
     @Override
     public boolean accept(SearchPath visitor) {
       List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
       for (int i = suffixes.size() - 1; i > 0; i--) {
         MorphemeSurfaceForm sf = suffixes.get(i);
-        if (sf.morphemeState.derivative || sf.morphemeState.posRoot) {
+        if (sf.morphemeState.derivative) {
           return true;
         }
-        if(!sf.surface.isEmpty()) {
+        if (!sf.surface.isEmpty()) {
           return false;
         }
       }
@@ -348,7 +391,7 @@ class Conditions {
 
     @Override
     public String toString() {
-      return "CurrentInflectionalGroupEmpty{}";
+      return "NoSurfaceAfterDerivation{}";
     }
   }
 
