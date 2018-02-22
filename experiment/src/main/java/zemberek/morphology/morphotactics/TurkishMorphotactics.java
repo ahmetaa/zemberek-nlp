@@ -2,6 +2,7 @@ package zemberek.morphology.morphotactics;
 
 import static zemberek.morphology.morphotactics.Conditions.contains;
 import static zemberek.morphology.morphotactics.Conditions.notContain;
+import static zemberek.morphology.morphotactics.Conditions.rootIs;
 import static zemberek.morphology.morphotactics.MorphemeState.builder;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminal;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivative;
@@ -192,20 +193,20 @@ public class TurkishMorphotactics {
     DictionaryItem suRoot = lexicon.getItemById("su_Noun");
     // ev-ε-im oda-ε-m
     a3sg_SnT.add(p1sg_SnT, "Im",
-        notContain(suRoot).and(notContain(RootAttribute.FamilyMember)));
+        Conditions.rootIsNot(suRoot).and(notContain(RootAttribute.FamilyMember)));
 
     // su-ε-yum. Only for "su"
-    a3sg_SnT.add(p1sg_SnT, "yum", Conditions.rootIs(suRoot));
+    a3sg_SnT.add(p1sg_SnT, "yum", rootIs(suRoot));
 
     // ev-ε-i oda-ε-sı
     a3sg_SnT.add(p3sg_SnT, "+sI",
-        notContain(suRoot).and(notContain(RootAttribute.FamilyMember)));
+        Conditions.rootIsNot(suRoot).and(notContain(RootAttribute.FamilyMember)));
 
     // "zeytinyağı" has two analyses. Pnon and P3sg.
     a3sg_SnT.addEmpty(p3sg_SnT, contains(RootAttribute.CompoundP3sg));
 
     // su-ε-yu. Only for "su"
-    a3sg_SnT.add(p3sg_SnT, "yu", Conditions.rootIs(suRoot));
+    a3sg_SnT.add(p3sg_SnT, "yu", rootIs(suRoot));
 
     // ev-ler-ε-?
     a3pl_SnT.addEmpty(pnon_SnT, notContain(RootAttribute.FamilyMember));
@@ -320,7 +321,7 @@ public class TurkishMorphotactics {
     // So we connect it to a separate root state "nVerbDegil" instead of Verb
 
     DictionaryItem degilRoot = lexicon.getItemById("değil_Verb");
-    nVerbDegil_SnT.addEmpty(nNeg_SnT, Conditions.rootIs(degilRoot));
+    nVerbDegil_SnT.addEmpty(nNeg_SnT, rootIs(degilRoot));
     // copy transitions from nVerb_snT
     nNeg_SnT.addOutgoingTransitions(nVerb_SnT);
 
@@ -330,7 +331,7 @@ public class TurkishMorphotactics {
     // elma-ε-ε-dır to non terminal A3sg. We do not allow ending with A3sg from empty Present tense.
     nPresent_SnT.addEmpty(nA3sg_SnT);
     // we allow `değil` to end with terminal A3sg from Present tense.
-    nPresent_SnT.addEmpty(nA3sg_ST, Conditions.rootIs(degilRoot));
+    nPresent_SnT.addEmpty(nA3sg_ST, rootIs(degilRoot));
 
     // elma-ydı-m
     nPast_SnT.add(nA1sg_ST, "m");

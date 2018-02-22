@@ -33,7 +33,7 @@ class Conditions {
   }
 
   public static Condition rootIs(DictionaryItem item) {
-    return new ContainsDictionaryItem(item);
+    return new DictionaryItemIs(item);
   }
 
   public static Condition notContain(RootAttribute attribute) {
@@ -44,8 +44,8 @@ class Conditions {
     return new ContainsPhoneticAttribute(attribute).not();
   }
 
-  public static Condition notContain(DictionaryItem item) {
-    return new ContainsDictionaryItem(item).not();
+  public static Condition rootIsNot(DictionaryItem item) {
+    return new DictionaryItemIs(item).not();
   }
 
   public static Condition lastMorphemeIs(Morpheme morpheme) {
@@ -136,11 +136,11 @@ class Conditions {
     }
   }
 
-  private static class ContainsDictionaryItem extends AbstractCondition {
+  private static class DictionaryItemIs extends AbstractCondition {
 
     DictionaryItem item;
 
-    ContainsDictionaryItem(DictionaryItem item) {
+    DictionaryItemIs(DictionaryItem item) {
       this.item = item;
     }
 
@@ -152,7 +152,7 @@ class Conditions {
 
     @Override
     public String toString() {
-      return "ContainsDictionaryItem{" + item + '}';
+      return "DictionaryItemIs{" + item + '}';
     }
   }
 
