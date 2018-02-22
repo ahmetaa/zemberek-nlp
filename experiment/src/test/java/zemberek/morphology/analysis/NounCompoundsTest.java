@@ -11,7 +11,7 @@ public class NounCompoundsTest extends AnalyzerTestBase {
         "zeytin",
         "yağ",
         "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
-    shouldNotPass(analyzer, "zeytinyağ", "zeytinyağıya", "zeytinyağılar", "zeytinyağlar"
+    expectFail(analyzer, "zeytinyağ", "zeytinyağıya", "zeytinyağılar", "zeytinyağlar"
         , "zeytinyağya", "zeytinyağna", "zeytinyağda", "zeytinyağdan");
   }
 
@@ -21,7 +21,7 @@ public class NounCompoundsTest extends AnalyzerTestBase {
         "bal",
         "kabak",
         "balkabağı [A:CompoundP3sg; Roots:bal-kabak]");
-    shouldNotPass(analyzer, "balkabak", "balkabağa", "balkabakta", "balkabaktan");
+    expectFail(analyzer, "balkabak", "balkabağa", "balkabakta", "balkabaktan");
   }
 
   @Test
@@ -30,7 +30,7 @@ public class NounCompoundsTest extends AnalyzerTestBase {
         "zeytin",
         "yağ",
         "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
-    shouldPass(analyzer, "zeytinyağı", "zeytinyağına", "zeytinyağım", "zeytinyağlarıma");
+    expectSuccess(analyzer, "zeytinyağı", "zeytinyağına", "zeytinyağım", "zeytinyağlarıma");
   }
 
   @Test
@@ -39,7 +39,7 @@ public class NounCompoundsTest extends AnalyzerTestBase {
         "bal",
         "kabak",
         "balkabağı [A:CompoundP3sg; Roots:bal-kabak]");
-    shouldPass(analyzer, "balkabağı", "balkabakları", "balkabağına");
+    expectSuccess(analyzer, "balkabağı", "balkabakları", "balkabağına");
   }
 
   @Test
@@ -49,7 +49,7 @@ public class NounCompoundsTest extends AnalyzerTestBase {
         "yağ",
         "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
 
-    shouldPass(analyzer, 2, "zeytinyağı");
+    expectSuccess(analyzer, 2, "zeytinyağı");
   }
 
 }

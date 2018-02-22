@@ -22,7 +22,7 @@ public class NounAdjectiveDerivationTest extends AnalyzerTestBase {
   @Test
   public void incorrect1() {
     InterpretingAnalyzer analyzer = getAnalyzer("meyve");
-    shouldNotPass(analyzer, "meyvelili");
+    expectFail(analyzer, "meyvelili");
   }
 
 }

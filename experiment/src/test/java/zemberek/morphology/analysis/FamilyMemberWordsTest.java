@@ -12,14 +12,14 @@ public class FamilyMemberWordsTest extends AnalyzerTestBase {
   public void onlyIncorrect1() {
     InterpretingAnalyzer analyzer = getAnalyzer(
         "annemler [A:ImplicitPlural,ImplicitP1sg,FamilyMember]");
-    shouldNotPass(analyzer, "annemlerler", "annemlerim");
+    expectFail(analyzer, "annemlerler", "annemlerim");
   }
 
   @Test
   public void expectsSingleResult() {
     InterpretingAnalyzer analyzer = getAnalyzer(
         "annemler [A:ImplicitPlural,ImplicitP1sg,FamilyMember]");
-    shouldPass(analyzer, 1, "annemler", "annemlere", "annemleri");
+    expectSuccess(analyzer, 1, "annemler", "annemlere", "annemleri");
   }
 
   @Test

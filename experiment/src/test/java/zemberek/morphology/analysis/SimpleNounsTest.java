@@ -68,7 +68,7 @@ public class SimpleNounsTest extends AnalyzerTestBase {
   @Test
   public void voicingIncorrect_1() {
     InterpretingAnalyzer analyzer = getAnalyzer("kitap");
-    shouldNotPass(analyzer, "kitapım", "kitab", "kitabcık", "kitapa", "kitablar");
+    expectFail(analyzer, "kitapım", "kitab", "kitabcık", "kitapa", "kitablar");
   }
 
 

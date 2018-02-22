@@ -41,9 +41,17 @@ public class AnalysisResult {
   }
 
   public String shortForm() {
-    return "[" +
+    return
         String.join(" + ", morphemes.stream()
             .map(MorphemeSurfaceForm::toMorphemeString)
-            .collect(Collectors.toList())) + "]";
+            .collect(Collectors.toList()));
   }
+
+  public String lexicalForm() {
+    return
+        String.join(" + ", morphemes.stream()
+            .map(s->s.morphemeState.morpheme.id)
+            .collect(Collectors.toList()));
+  }
+
 }

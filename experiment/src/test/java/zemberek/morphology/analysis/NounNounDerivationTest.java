@@ -23,7 +23,7 @@ public class NounNounDerivationTest extends AnalyzerTestBase {
   @Test
   public void noun2NounIncorrect_1() {
     InterpretingAnalyzer analyzer = getAnalyzer("kitap");
-    shouldNotPass(analyzer,
+    expectFail(analyzer,
         "kitaplarcık", "kitapçıklarcık", "kitapçığ", "kitapcık", "kitabımcık",
         "kitaptacık", "kitapçıkçık", "kitabcığ", "kitabçığ", "kitabçık", "kitapçığ"
     );

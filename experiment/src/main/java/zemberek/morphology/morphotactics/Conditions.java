@@ -32,10 +32,9 @@ class Conditions {
     return new ContainsPhoneticAttribute(attribute);
   }
 
-  public static Condition contains(DictionaryItem item) {
+  public static Condition rootIs(DictionaryItem item) {
     return new ContainsDictionaryItem(item);
   }
-
 
   public static Condition notContain(RootAttribute attribute) {
     return new ContainsRootAttribute(attribute).not();
@@ -170,6 +169,7 @@ class Conditions {
     }
   }
 
+  // accepts if visitor has letters to consume.
   public static class HasTail extends AbstractCondition {
 
     @Override

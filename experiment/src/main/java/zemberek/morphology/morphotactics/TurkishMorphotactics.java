@@ -72,6 +72,9 @@ public class TurkishMorphotactics {
   // Verb specific
   Morpheme cop = new Morpheme("Copula", "Cop");
 
+  // Negative Verb
+  Morpheme neg = new Morpheme("Negative", "Neg");
+
   //-------------- States ----------------------------
   // _ST = Terminal state _SnT = Non Terminal State.
   // A terminal state means that a walk in the graph can end there.
@@ -123,12 +126,16 @@ public class TurkishMorphotactics {
   //-------------- Adjective-Noun connected Verb States ------------------------
 
   MorphemeState nVerb_SnT = builder("NVerb_SnT", verb).posRoot().build();
+  MorphemeState nVerbDegil_SnT = builder("NVerbDegil_SnT", verb).posRoot().build();
+
   MorphemeState nPresent_SnT = nonTerminal("NPresent_SnT", pres);
   MorphemeState nPast_SnT = nonTerminal("NPast_SnT", past);
   MorphemeState nA1sg_ST = terminal("NA1sg_ST", a1sg);
   MorphemeState nA3sg_ST = terminal("NA3sg_ST", a3sg);
-  MorphemeState nA3sg_SnT = terminal("NA3sg_SnT", a3sg);
+  MorphemeState nA3sg_SnT = nonTerminal("NA3sg_SnT", a3sg);
   MorphemeState nCop_ST = terminal("NCop_ST", cop);
+
+  MorphemeState nNeg_SnT = nonTerminal("nNeg_SnT", neg);
 
   //-------------- Conditions ------------------------------
 
@@ -188,7 +195,7 @@ public class TurkishMorphotactics {
         notContain(suRoot).and(notContain(RootAttribute.FamilyMember)));
 
     // su-ε-yum. Only for "su"
-    a3sg_SnT.add(p1sg_SnT, "yum", contains(suRoot));
+    a3sg_SnT.add(p1sg_SnT, "yum", Conditions.rootIs(suRoot));
 
     // ev-ε-i oda-ε-sı
     a3sg_SnT.add(p3sg_SnT, "+sI",
@@ -198,7 +205,7 @@ public class TurkishMorphotactics {
     a3sg_SnT.addEmpty(p3sg_SnT, contains(RootAttribute.CompoundP3sg));
 
     // su-ε-yu. Only for "su"
-    a3sg_SnT.add(p3sg_SnT, "yu", contains(suRoot));
+    a3sg_SnT.add(p3sg_SnT, "yu", Conditions.rootIs(suRoot));
 
     // ev-ler-ε-?
     a3pl_SnT.addEmpty(pnon_SnT, notContain(RootAttribute.FamilyMember));
@@ -293,8 +300,7 @@ public class TurkishMorphotactics {
 
     // zero morpheme derivation. Words like "yeşil-i" requires Adj to Noun conversion.
     // Since noun suffixes are not derivational a "Zero" morpheme is used for this.
-    // It has a HAS_TAIL condition because empty Noun derivation
-    // Adj->(A3sg+Pnon+Nom) is not allowed.
+    // Transition has a HAS_TAIL condition because Adj->Zero->Noun+A3sg+Pnon+Nom) is not allowed.
     adj_ST.addEmpty(adjZeroDeriv_SnT, Conditions.HAS_TAIL);
 
     adjZeroDeriv_SnT.addEmpty(noun_SnT);
@@ -306,15 +312,25 @@ public class TurkishMorphotactics {
 
     //elma-..-ε-yım
     nVerb_SnT.addEmpty(nPresent_SnT);
-
     // elma-ydı, çorap-tı
     nVerb_SnT.add(nPast_SnT, "+y>dI");
+
+    // word "değil" is special. It contains negative suffix implicitly. Also it behaves like
+    // noun->Verb zero morpheme derivation. because it cannot have most Verb suffixes.
+    // So we connect it to a separate root state "nVerbDegil" instead of Verb
+
+    DictionaryItem degilRoot = lexicon.getItemById("değil_Verb");
+    nVerbDegil_SnT.addEmpty(nNeg_SnT, Conditions.rootIs(degilRoot));
+    // copy transitions from nVerb_snT
+    nNeg_SnT.addOutgoingTransitions(nVerb_SnT);
 
     // elma-yım
     nPresent_SnT.add(nA1sg_ST, "+yIm",
         notContain(RootAttribute.FamilyMember));
-    // elma-ε-ε-dır non termınal.
+    // elma-ε-ε-dır to non terminal A3sg. We do not allow ending with A3sg from empty Present tense.
     nPresent_SnT.addEmpty(nA3sg_SnT);
+    // we allow `değil` to end with terminal A3sg from Present tense.
+    nPresent_SnT.addEmpty(nA3sg_ST, Conditions.rootIs(degilRoot));
 
     // elma-ydı-m
     nPast_SnT.add(nA1sg_ST, "m");
@@ -331,8 +347,13 @@ public class TurkishMorphotactics {
 
   }
 
-
   public MorphemeState getRootState(DictionaryItem dictionaryItem) {
+
+    //TODO: consider a generic mechanism for such items.
+    if (dictionaryItem.id.equals("değil_Verb")) {
+      return nVerbDegil_SnT;
+    }
+
     switch (dictionaryItem.primaryPos) {
       case Noun:
         if (dictionaryItem.hasAttribute(RootAttribute.CompoundP3sgRoot)) {
