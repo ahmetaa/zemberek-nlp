@@ -1,28 +1,48 @@
 package zemberek.morphology.analysis;
 
-import java.util.List;
-import org.junit.Assert;
 import org.junit.Test;
-import zemberek.morphology.analyzer.AnalysisResult;
 import zemberek.morphology.analyzer.InterpretingAnalyzer;
 
 public class NounAdjectiveDerivationTest extends AnalyzerTestBase {
 
   @Test
   public void withTest() {
-    InterpretingAnalyzer analyzer = getAnalyzer("meyve");
-    String in = "meyveli";
-    List<AnalysisResult> results = analyzer.analyze(in);
-    printAndSort(in, results);
-    Assert.assertEquals(1, results.size());
-    Assert.assertTrue(lastMorphemeIs(results.get(0), "Adj"));
-    Assert.assertTrue(containsMorpheme(results.get(0), "with"));
+    AnalysisTester tester = getTester("meyve");
+    tester.expectTrue("meyveli",
+        matchesLexicalTail("Pnon + Nom + With + Adj"));
+
+  }
+
+  @Test
+  public void justlikeTest() {
+    AnalysisTester tester = getTester("meyve");
+    tester.expectTrue("meyvemsi",
+        matchesLexicalTail("Pnon + Nom + JustLike + Adj"));
+  }
+
+  // check for
+  // incorrect P1sg analysis for meyvemsi.
+  // incorrect JustLike analysis for meyvesi.
+  @Test
+  public void justLikeFalseTest() {
+    AnalysisTester tester = getTester("meyve");
+    tester.expectFalse("meyvemsi",
+        matchesLexicalTail("P1sg + Nom + JustLike + Adj"));
+    tester.expectFalse("meyvesi",
+        matchesLexicalTail("Pnon + Nom + JustLike + Adj"));
+
   }
 
   @Test
   public void incorrect1() {
-    InterpretingAnalyzer analyzer = getAnalyzer("meyve");
-    expectFail(analyzer, "meyvelili");
+    AnalysisTester tester = getTester("meyve");
+    tester.expectFail("meyvelili");
+    tester.expectFail("meyvelerli");
+    tester.expectFail("meyvemli");
+    tester.expectFail("meyveyeli");
+    tester.expectFail("meyvelersi");
+    tester.expectFail("meyveyemsi");
+    tester.expectFail("meyvensi");
   }
 
 }

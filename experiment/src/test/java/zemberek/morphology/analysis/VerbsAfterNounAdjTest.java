@@ -25,7 +25,6 @@ public class VerbsAfterNounAdjTest extends AnalyzerTestBase {
     expectSuccess(analyzer, 1, "elmaydı");
     expectSuccess(analyzer, 1, "elmadır");
     expectSuccess(analyzer, 1, "elmayadır");
-    expectSuccess(analyzer, 1, "elmayayımdır");
   }
 
   @Test
@@ -35,16 +34,18 @@ public class VerbsAfterNounAdjTest extends AnalyzerTestBase {
         "elmaydıdır",
         "elmayıdır",
         "elmamdırım",
-        "elmamdımdır"
+        "elmamdımdır",
+        "elmayayımdır" // Oflazer accepts this.
+
     );
   }
 
   @Test
   public void degilTest() {
     AnalysisTester tester = getTester("değil [P:Verb]");
-    tester.checkSingleAnalysis("değil", matchesLexicalFormTail("Neg + Pres + A3sg"));
-    tester.checkSingleAnalysis("değildi", matchesLexicalFormTail("Neg + Past + A3sg"));
-    tester.checkSingleAnalysis("değilim", matchesLexicalFormTail("Neg + Pres + A1sg"));
+    tester.expectTrue("değil", matchesLexicalTail("Neg + Pres + A3sg"));
+    tester.expectTrue("değildi", matchesLexicalTail("Neg + Past + A3sg"));
+    tester.expectTrue("değilim", matchesLexicalTail("Neg + Pres + A1sg"));
   }
 
 

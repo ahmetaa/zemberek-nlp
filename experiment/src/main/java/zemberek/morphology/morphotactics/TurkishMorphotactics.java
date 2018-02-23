@@ -3,6 +3,7 @@ package zemberek.morphology.morphotactics;
 import static zemberek.morphology.morphotactics.Conditions.contains;
 import static zemberek.morphology.morphotactics.Conditions.notContain;
 import static zemberek.morphology.morphotactics.Conditions.rootIs;
+import static zemberek.morphology.morphotactics.Conditions.rootIsNot;
 import static zemberek.morphology.morphotactics.MorphemeState.builder;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminal;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivative;
@@ -62,6 +63,8 @@ public class TurkishMorphotactics {
   // With suffix. Noun to Adjective conversion. "elmalı = with apple"
   Morpheme with = new Morpheme("With", "With");
 
+  Morpheme justLike = new Morpheme("JustLike", "JustLike");
+
   // Zero derivation
   Morpheme zero = new Morpheme("Zero", "Zero");
 
@@ -116,7 +119,10 @@ public class TurkishMorphotactics {
 
   MorphemeState with_SnT = nonTerminalDerivative("with_SnT", with);
 
+  MorphemeState justLike_SnT = nonTerminalDerivative("justLike_SnT", justLike);
+
   MorphemeState nounZeroDeriv_SnT = nonTerminalDerivative("nounZeroDeriv_SnT", zero);
+
 
   //-------------- Adjective States ------------------------
 
@@ -193,14 +199,14 @@ public class TurkishMorphotactics {
     DictionaryItem suRoot = lexicon.getItemById("su_Noun");
     // ev-ε-im oda-ε-m
     a3sg_SnT.add(p1sg_SnT, "Im",
-        Conditions.rootIsNot(suRoot).and(notContain(RootAttribute.FamilyMember)));
+        rootIsNot(suRoot).and(notContain(RootAttribute.FamilyMember)));
 
     // su-ε-yum. Only for "su"
     a3sg_SnT.add(p1sg_SnT, "yum", rootIs(suRoot));
 
     // ev-ε-i oda-ε-sı
     a3sg_SnT.add(p3sg_SnT, "+sI",
-        Conditions.rootIsNot(suRoot).and(notContain(RootAttribute.FamilyMember)));
+        rootIsNot(suRoot).and(notContain(RootAttribute.FamilyMember)));
 
     // "zeytinyağı" has two analyses. Pnon and P3sg.
     a3sg_SnT.addEmpty(p3sg_SnT, contains(RootAttribute.CompoundP3sg));
@@ -292,8 +298,15 @@ public class TurkishMorphotactics {
         new NoSurfaceAfterDerivation().and(
             new PreviousNonEmptyMorphemeIs(with_SnT).not()));
 
+    nom_ST.add(justLike_SnT, "+msI",
+        new NoSurfaceAfterDerivation().and(
+            new PreviousNonEmptyMorphemeIs(justLike_SnT).not()));
+
+
     // connect With to Adjective root.
     with_SnT.addEmpty(adj_ST);
+
+    justLike_SnT.addEmpty(adj_ST);
 
   }
 
@@ -317,24 +330,26 @@ public class TurkishMorphotactics {
     nVerb_SnT.add(nPast_SnT, "+y>dI");
 
     // word "değil" is special. It contains negative suffix implicitly. Also it behaves like
-    // noun->Verb zero morpheme derivation. because it cannot have most Verb suffixes.
+    // noun->Verb Zero morpheme derivation. because it cannot have most Verb suffixes.
     // So we connect it to a separate root state "nVerbDegil" instead of Verb
-
     DictionaryItem degilRoot = lexicon.getItemById("değil_Verb");
     nVerbDegil_SnT.addEmpty(nNeg_SnT, rootIs(degilRoot));
     // copy transitions from nVerb_snT
     nNeg_SnT.addOutgoingTransitions(nVerb_SnT);
 
+    // we prevent "elmaya-yım" (Oflazer accepts this)
+    Condition previousNoDative = new Conditions.PreviousGroupContains(dat_ST).not();
+
     // elma-yım
     nPresent_SnT.add(nA1sg_ST, "+yIm",
-        notContain(RootAttribute.FamilyMember));
+        notContain(RootAttribute.FamilyMember).and(previousNoDative));
     // elma-ε-ε-dır to non terminal A3sg. We do not allow ending with A3sg from empty Present tense.
     nPresent_SnT.addEmpty(nA3sg_SnT);
     // we allow `değil` to end with terminal A3sg from Present tense.
     nPresent_SnT.addEmpty(nA3sg_ST, rootIs(degilRoot));
 
-    // elma-ydı-m
-    nPast_SnT.add(nA1sg_ST, "m");
+    // elma-ydı-m. Do not allow "elmaya-yım" (Oflazer accepts this)
+    nPast_SnT.add(nA1sg_ST, "m", previousNoDative);
     // elma-ydı-ε
     nPast_SnT.addEmpty(nA3sg_ST);
 

@@ -137,9 +137,17 @@ public class AnalyzerTestBase {
       AnalyzerTestBase.expectSuccess(analyzer, solutionCount, words);
     }
 
-    void checkSingleAnalysis(String input, Predicate<AnalysisResult> predicate) {
+    void expectTrue(String input, Predicate<AnalysisResult> predicate) {
       AnalysisResult result = getSingleAnalysis(analyzer, input);
       if (!predicate.test(result)) {
+        printDebug(analyzer, input);
+        Assert.fail("Anaysis Failed for [" + input + "]");
+      }
+    }
+
+    void expectFalse(String input, Predicate<AnalysisResult> predicate) {
+      AnalysisResult result = getSingleAnalysis(analyzer, input);
+      if (predicate.test(result)) {
         printDebug(analyzer, input);
         Assert.fail("Anaysis Failed for [" + input + "]");
       }
@@ -155,7 +163,7 @@ public class AnalyzerTestBase {
     return p -> p.shortForm().endsWith(shortFormTail);
   }
 
-  public static Predicate<AnalysisResult> matchesLexicalFormTail(String tail) {
+  public static Predicate<AnalysisResult> matchesLexicalTail(String tail) {
     return p -> p.lexicalForm().endsWith(tail);
   }
 

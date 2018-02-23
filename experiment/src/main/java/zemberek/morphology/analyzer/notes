@@ -21,6 +21,10 @@ We may not need `head` in SearchPath
 Noun->Zero Verb derivation correct and false positive tests -> elmalarımdı elmamdım elmandım elmamdır.
 how about implicitplural derivation etc?
 
+"JustLike" does not sound right. "odun-su". Resemblance?
+
+"elmayayım" "armudasın" "armudasındır" seems incorrect but Oflazer accepts.
+
 ----
 
 annemler, annenler etc can be resoved with implicitPlural, ImplicitP1sg and ImplicitP2sg attributes.

@@ -148,9 +148,9 @@ public class TurkishSuffixes extends DynamicSuffixProvider {
   public Suffix Acquire = new Suffix("Acquire");
   public SuffixForm Acquire_lAn = getForm(Acquire, "lAn");
   public Suffix JustLike = new Suffix("JustLike");
-  public SuffixForm JustLike_ImsI = getForm(JustLike, "ImsI"); // udunumsu
+  public SuffixForm JustLike_ImsI = getForm(JustLike, "ImsI"); // odunumsu
   public SuffixForm JustLike_msI = getForm(JustLike, "+msI"); // odunsu
-  public SuffixForm JustLike_Adj_ImsI = getForm("JustLike_Adj_ImsI", JustLike, "ImsI"); // udunumsu
+  public SuffixForm JustLike_Adj_ImsI = getForm("JustLike_Adj_ImsI", JustLike, "ImsI"); // odunumsu
 
   // ----------------------------  verbal tense --------------------------------
   public SuffixForm JustLike_Adj_msI = getForm("JustLike_Adj_msI", JustLike, "+msI"); // odunsu
