@@ -32,6 +32,7 @@ how about implicitplural derivation etc?
 elma:Noun + A3sg + Pnon + Nom + Zero + Verb + Pres + lar:A3pl
 Example: "Bunlar o elmalar.". However this actually generates a lot of ambiguity. Should we disallow?
 
+should we accept bot "yeşilimsi" and "yeşilsi" (currently we do)
 ----
 
 annemler, annenler etc can be resoved with implicitPlural, ImplicitP1sg and ImplicitP2sg attributes.

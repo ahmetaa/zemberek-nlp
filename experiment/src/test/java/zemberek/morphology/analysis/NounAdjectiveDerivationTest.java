@@ -34,7 +34,6 @@ public class NounAdjectiveDerivationTest extends AnalyzerTestBase {
         matchesLexicalTail("P1sg + Nom + JustLike + Adj"));
     tester.expectFalse("meyvesi",
         matchesLexicalTail("Pnon + Nom + JustLike + Adj"));
-
   }
 
   @Test
