@@ -15,12 +15,7 @@ public class SimpleNounsTest extends AnalyzerTestBase {
     String in = "elmalar";
     List<AnalysisResult> results = getAnalyzer("elma").analyze(in);
     printAndSort(in, results);
-    Assert.assertEquals(1, results.size());
-    AnalysisResult first = results.get(0);
-
-    Assert.assertEquals("elma_Noun", first.getDictionaryItem().id);
-    Assert.assertEquals("elma", first.root);
-    Assert.assertTrue(containsMorpheme(first, "A3pl"));
+    Assert.assertEquals(2, results.size());
   }
 
   @Test

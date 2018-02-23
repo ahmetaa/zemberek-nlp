@@ -370,6 +370,45 @@ class Conditions {
     }
   }
 
+  // Checks if any of the "Morpheme" in "morphemes" exist in previous Inflectional Group.
+  // If previous group starts after a derivation, derivation Morpheme is also checked.
+  public static class PreviousGroupContainsMorpheme extends AbstractCondition {
+
+    Set<Morpheme> morphemes;
+
+    public PreviousGroupContainsMorpheme(Morpheme... morphemes) {
+      this.morphemes = new HashSet<>(morphemes.length);
+      this.morphemes.addAll(Arrays.asList(morphemes));
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
+
+      int lastIndex = suffixes.size() - 1;
+      MorphemeSurfaceForm sf = suffixes.get(lastIndex);
+      // go back until a transition that is connected to a derivative morpheme.
+      while (!sf.morphemeState.derivative) {
+        lastIndex--;
+        if (lastIndex == 0) { // there is no previous group. return early.
+          return false;
+        }
+        sf = suffixes.get(lastIndex);
+      }
+
+      for (int i = lastIndex - 1; i > 0; i--) {
+        sf = suffixes.get(i);
+        if (morphemes.contains(sf.morphemeState.morpheme)) {
+          return true;
+        }
+        if (sf.morphemeState.derivative) { //could not found the morpheme in this group.
+          return false;
+        }
+      }
+      return false;
+    }
+  }
+
   // No letters are consumed after derivation occurred.This does not include the transition
   // that caused derivation.
   public static class NoSurfaceAfterDerivation extends AbstractCondition {

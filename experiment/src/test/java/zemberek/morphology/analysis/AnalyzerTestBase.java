@@ -152,7 +152,6 @@ public class AnalyzerTestBase {
         Assert.fail("Anaysis Failed for [" + input + "]");
       }
     }
-
   }
 
   public static Predicate<AnalysisResult> matchesShortForm(String shortForm) {

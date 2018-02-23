@@ -25,6 +25,9 @@ public class VerbsAfterNounAdjTest extends AnalyzerTestBase {
     expectSuccess(analyzer, 1, "elmaydı");
     expectSuccess(analyzer, 1, "elmadır");
     expectSuccess(analyzer, 1, "elmayadır");
+
+    // this has two analyses.
+    expectSuccess(analyzer, 2, "elmalar");
   }
 
   @Test
@@ -35,8 +38,12 @@ public class VerbsAfterNounAdjTest extends AnalyzerTestBase {
         "elmayıdır",
         "elmamdırım",
         "elmamdımdır",
-        "elmayayımdır" // Oflazer accepts this.
-
+        "elmayayımdır", // Oflazer accepts this.
+        "elmayalar",
+        "elmalarlar", // Oflazer accepts this.
+        "elmamım", // Oflazer accepts this.
+        "elmamımdır", // Oflazer accepts this.
+        "elmaydılardır"
     );
   }
 
@@ -48,6 +55,10 @@ public class VerbsAfterNounAdjTest extends AnalyzerTestBase {
     tester.expectTrue("değilim", matchesLexicalTail("Neg + Pres + A1sg"));
   }
 
-
+  @Test
+  public void nounVerbZeroTest() {
+    AnalysisTester tester = getTester("elma");
+    tester.expectTrue("elmayım", matchesLexicalTail("Zero + Verb + Pres + A1sg"));
+  }
 
 }

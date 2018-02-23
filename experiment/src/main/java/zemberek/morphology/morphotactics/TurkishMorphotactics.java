@@ -140,6 +140,7 @@ public class TurkishMorphotactics {
   MorphemeState nA1sg_ST = terminal("NA1sg_ST", a1sg);
   MorphemeState nA3sg_ST = terminal("NA3sg_ST", a3sg);
   MorphemeState nA3sg_SnT = nonTerminal("NA3sg_SnT", a3sg);
+  MorphemeState nA3pl_ST = terminal("nA3pl_ST", a3pl);
   MorphemeState nCop_ST = terminal("NCop_ST", cop);
 
   MorphemeState nNeg_SnT = nonTerminal("nNeg_SnT", neg);
@@ -337,19 +338,34 @@ public class TurkishMorphotactics {
     // copy transitions from nVerb_snT
     nNeg_SnT.addOutgoingTransitions(nVerb_SnT);
 
-    // we prevent "elmaya-yım" (Oflazer accepts this)
-    Condition previousNoDative = new Conditions.PreviousGroupContains(dat_ST).not();
+    // we prevent "elma-ya-yım" or "elma-lar-lar" (Oflazer accepts these)
+    Condition allowedTensePerson =
+        new Conditions.PreviousGroupContains(
+            dat_ST, a3pl_SnT, p3sg_SnT, a3sgCompound_SnT, a3plCompound_SnT, p1sg_SnT).not();
 
     // elma-yım
     nPresent_SnT.add(nA1sg_ST, "+yIm",
-        notContain(RootAttribute.FamilyMember).and(previousNoDative));
+        notContain(RootAttribute.FamilyMember).and(allowedTensePerson));
+
     // elma-ε-ε-dır to non terminal A3sg. We do not allow ending with A3sg from empty Present tense.
     nPresent_SnT.addEmpty(nA3sg_SnT);
+
     // we allow `değil` to end with terminal A3sg from Present tense.
     nPresent_SnT.addEmpty(nA3sg_ST, rootIs(degilRoot));
 
+    // elma-lar, elma-da-lar as Verb.
+    nPresent_SnT.add(nA3pl_ST, "lAr",
+        notContain(RootAttribute.FamilyMember)
+            .and(notContain(RootAttribute.CompoundP3sg))
+            .and(allowedTensePerson));
+
     // elma-ydı-m. Do not allow "elmaya-yım" (Oflazer accepts this)
-    nPast_SnT.add(nA1sg_ST, "m", previousNoDative);
+    nPast_SnT.add(nA1sg_ST, "m", allowedTensePerson);
+
+    // elma-ydı-lar.
+    nPast_SnT.add(nA3pl_ST, "lAr",
+        notContain(RootAttribute.CompoundP3sg));
+
     // elma-ydı-ε
     nPast_SnT.addEmpty(nA3sg_ST);
 
@@ -360,6 +376,8 @@ public class TurkishMorphotactics {
     nA1sg_ST.add(nCop_ST, "dIr", rejectNoCopula);
 
     nA3sg_SnT.add(nCop_ST, ">dIr", rejectNoCopula);
+
+    nA3pl_ST.add(nCop_ST, "dIr", rejectNoCopula);
 
   }
 

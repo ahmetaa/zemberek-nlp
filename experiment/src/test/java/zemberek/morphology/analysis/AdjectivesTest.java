@@ -11,13 +11,21 @@ public class AdjectivesTest extends AnalyzerTestBase {
         1,
         "mavi",
         "maviye",
-        "maviler",
         "mavilere",
         "mavilerime",
         "mavicik",
         "mavili",
         "mavicikli",
         "mavicikliye"
+    );
+  }
+
+  @Test
+  public void expects2Results() {
+    AnalysisTester tester = getTester("mavi [P:Adj]");
+    tester.expectSuccess(
+        2,
+        "maviler"
     );
   }
 

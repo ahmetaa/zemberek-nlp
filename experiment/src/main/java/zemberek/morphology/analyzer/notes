@@ -23,7 +23,14 @@ how about implicitplural derivation etc?
 
 "JustLike" does not sound right. "odun-su". Resemblance?
 
-"elmayayım" "armudasın" "armudasındır" seems incorrect but Oflazer accepts.
+"elmayayım" "armudasın" "armudasındır" "elmamımdır", "elmalarlar" seems incorrect but Oflazer accepts.
+
+"odun-lar-dır" vs "odun-dur-lar" Oflazer gives same analysis for both.
+(elma+Noun+A3sg+Pnon+Nom^DB+Verb+Zero+Pres+A3pl+Cop)  Should we allow "odun-dur-lar"?
+
+"elmalar" now also has a Verb result. Such as
+elma:Noun + A3sg + Pnon + Nom + Zero + Verb + Pres + lar:A3pl
+Example: "Bunlar o elmalar.". However this actually generates a lot of ambiguity. Should we disallow?
 
 ----
 
