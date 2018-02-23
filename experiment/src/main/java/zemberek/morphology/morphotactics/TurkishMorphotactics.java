@@ -14,6 +14,7 @@ import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
+import zemberek.morphology.morphotactics.Conditions.ContainsMorpheme;
 import zemberek.morphology.morphotactics.Conditions.CurrentGroupContains;
 import zemberek.morphology.morphotactics.Conditions.NoSurfaceAfterDerivation;
 import zemberek.morphology.morphotactics.Conditions.PreviousNonEmptyMorphemeIs;
@@ -122,7 +123,6 @@ public class TurkishMorphotactics {
   MorphemeState justLike_SnT = nonTerminalDerivative("justLike_SnT", justLike);
 
   MorphemeState nounZeroDeriv_SnT = nonTerminalDerivative("nounZeroDeriv_SnT", zero);
-
 
   //-------------- Adjective States ------------------------
 
@@ -285,8 +285,8 @@ public class TurkishMorphotactics {
     // such as, adj->zero->noun->ε-ε-ε->zero->Verb is not acceptable because there is already a
     // adj->zero->Verb path.
     Condition noun2VerbZeroDerivationCondition = Conditions.HAS_TAIL
-        .andNot(Conditions.CURRENT_GROUP_EMPTY.and(
-            new Conditions.LastDerivationIs(adjZeroDeriv_SnT)));
+        .andNot(Conditions.CURRENT_GROUP_EMPTY
+            .and(new Conditions.LastDerivationIs(adjZeroDeriv_SnT)));
     nom_ST.addEmpty(nounZeroDeriv_SnT, noun2VerbZeroDerivationCondition);
 
     // elma-ya-yım elma-ya-ydı
@@ -296,13 +296,17 @@ public class TurkishMorphotactics {
 
     // meyve-li
     nom_ST.add(with_SnT, "lI",
-        new NoSurfaceAfterDerivation().and(
-            new PreviousNonEmptyMorphemeIs(with_SnT).not()));
+        new NoSurfaceAfterDerivation()
+            .and(new ContainsMorpheme(with).not()));
 
     nom_ST.add(justLike_SnT, "+msI",
-        new NoSurfaceAfterDerivation().and(
-            new PreviousNonEmptyMorphemeIs(justLike_SnT).not()));
+        new NoSurfaceAfterDerivation()
+            .and(new ContainsMorpheme(justLike, adj).not()));
 
+    nom_ST.add(justLike_SnT, "ImsI",
+        notContain(PhoneticAttribute.LastLetterVowel)
+            .and(new NoSurfaceAfterDerivation())
+            .and(new ContainsMorpheme(justLike, adj).not()));
 
     // connect With to Adjective root.
     with_SnT.addEmpty(adj_ST);
@@ -321,6 +325,15 @@ public class TurkishMorphotactics {
     adjZeroDeriv_SnT.addEmpty(noun_SnT);
 
     adjZeroDeriv_SnT.addEmpty(nVerb_SnT);
+
+    adj_ST.add(justLike_SnT, "+msI",
+        new NoSurfaceAfterDerivation()
+            .and(new ContainsMorpheme(justLike).not()));
+
+    adj_ST.add(justLike_SnT, "ImsI",
+        notContain(PhoneticAttribute.LastLetterVowel)
+            .and(new NoSurfaceAfterDerivation())
+            .and(new ContainsMorpheme(justLike).not()));
   }
 
   private void connectVerbAfterNounAdjStates() {

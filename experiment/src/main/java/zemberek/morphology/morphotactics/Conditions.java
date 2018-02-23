@@ -434,4 +434,25 @@ class Conditions {
     }
   }
 
+  public static class ContainsMorpheme extends AbstractCondition {
+
+    Set<Morpheme> morphemes;
+
+    public ContainsMorpheme(Morpheme... morphemes) {
+      this.morphemes = new HashSet<>(morphemes.length);
+      this.morphemes.addAll(Arrays.asList(morphemes));
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
+      for (MorphemeSurfaceForm suffix : suffixes) {
+        if (morphemes.contains(suffix.morphemeState.morpheme)) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+
 }

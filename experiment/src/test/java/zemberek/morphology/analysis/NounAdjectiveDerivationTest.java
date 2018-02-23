@@ -1,14 +1,13 @@
 package zemberek.morphology.analysis;
 
 import org.junit.Test;
-import zemberek.morphology.analyzer.InterpretingAnalyzer;
 
 public class NounAdjectiveDerivationTest extends AnalyzerTestBase {
 
   @Test
   public void withTest() {
     AnalysisTester tester = getTester("meyve");
-    tester.expectTrue("meyveli",
+    tester.expectSingleTrue("meyveli",
         matchesLexicalTail("Pnon + Nom + With + Adj"));
 
   }
@@ -16,7 +15,12 @@ public class NounAdjectiveDerivationTest extends AnalyzerTestBase {
   @Test
   public void justlikeTest() {
     AnalysisTester tester = getTester("meyve");
-    tester.expectTrue("meyvemsi",
+    tester.expectSingleTrue("meyvemsi",
+        matchesLexicalTail("Pnon + Nom + JustLike + Adj"));
+    tester = getTester("odun");
+    tester.expectSingleTrue("odunsu",
+        matchesLexicalTail("Pnon + Nom + JustLike + Adj"));
+    tester.expectSingleTrue("odunumsu",
         matchesLexicalTail("Pnon + Nom + JustLike + Adj"));
   }
 
@@ -43,6 +47,11 @@ public class NounAdjectiveDerivationTest extends AnalyzerTestBase {
     tester.expectFail("meyvelersi");
     tester.expectFail("meyveyemsi");
     tester.expectFail("meyvensi");
+    tester = getTester("armut");
+    tester.expectFail("armudsu");
+    tester.expectFail("armutumsu");
+    tester.expectFail("armutlarımsı");
+    tester.expectFail("armutlarsı");
   }
 
 }

@@ -137,7 +137,7 @@ public class AnalyzerTestBase {
       AnalyzerTestBase.expectSuccess(analyzer, solutionCount, words);
     }
 
-    void expectTrue(String input, Predicate<AnalysisResult> predicate) {
+    void expectSingleTrue(String input, Predicate<AnalysisResult> predicate) {
       AnalysisResult result = getSingleAnalysis(analyzer, input);
       if (!predicate.test(result)) {
         printDebug(analyzer, input);
