@@ -10,140 +10,103 @@ import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivat
 import static zemberek.morphology.morphotactics.MorphemeState.terminal;
 
 import zemberek.core.turkish.PhoneticAttribute;
-import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.Conditions.ContainsMorpheme;
 import zemberek.morphology.morphotactics.Conditions.CurrentGroupContains;
 import zemberek.morphology.morphotactics.Conditions.NoSurfaceAfterDerivation;
-import zemberek.morphology.morphotactics.Conditions.PreviousNonEmptyMorphemeIs;
 
 public class TurkishMorphotactics {
-
-  //-------------- Morphemes ------------------------
-
-  Morpheme root = new Morpheme("Root", "Root");
-
-  Morpheme noun = new Morpheme("Noun", "Noun", PrimaryPos.Noun);
-
-  Morpheme adj = new Morpheme("Adjective", "Adj", PrimaryPos.Adjective);
-
-  Morpheme verb = new Morpheme("Verb", "Verb", PrimaryPos.Verb);
-
-  // Number-Person agreement.
-
-  Morpheme a1sg = new Morpheme("FirstPersonSingular", "A1sg");
-  // Third person singular suffix. "elma = apple"
-  Morpheme a3sg = new Morpheme("ThirdPersonSingular", "A3sg");
-  // Third person plural suffix. "elma-lar = apples"
-  Morpheme a3pl = new Morpheme("ThirdPersonPlural", "A3pl");
-
-  // Possessive
-
-  // No possession suffix. This is not a real morpheme but adds information to analysis. "elma = apple"
-  Morpheme pnon = new Morpheme("NoPosession", "Pnon");
-  // First person singular possession suffix.  "elma-m = my apple"
-  Morpheme p1sg = new Morpheme("FirstPersonSingularPosessive", "P1sg");
-  // Third person singular possession suffix. "elma-sı = his/her apple"
-  Morpheme p3sg = new Morpheme("ThirdPersonSingularPossesive", "P3sg");
-
-  // Case suffixes
-
-  // Nominal case suffix. It has no surface form (no letters). "elma = apple"
-  Morpheme nom = new Morpheme("Nominal", "Nom");
-  // Dative case suffix. "elmaya = to apple"
-  Morpheme dat = new Morpheme("Dative", "Dat");
-  // Accusative case suffix. "elmayı = ~the apple"
-  Morpheme acc = new Morpheme("Accusative", "Acc");
-
-  // Derivation suffixes
-
-  // Diminutive suffix. Noun to Noun conversion. "elmacık = small apple, poor apple"
-  Morpheme dim = new Morpheme("Diminutive", "Dim");
-  // With suffix. Noun to Adjective conversion. "elmalı = with apple"
-  Morpheme with = new Morpheme("With", "With");
-
-  Morpheme justLike = new Morpheme("JustLike", "JustLike");
-
-  // Zero derivation
-  Morpheme zero = new Morpheme("Zero", "Zero");
-
-
-  // Present Tense
-  Morpheme pres = new Morpheme("PresentTense", "Pres");
-  Morpheme past = new Morpheme("PastTense", "Past");
-
-  // Verb specific
-  Morpheme cop = new Morpheme("Copula", "Cop");
-
-  // Negative Verb
-  Morpheme neg = new Morpheme("Negative", "Neg");
 
   //-------------- States ----------------------------
   // _ST = Terminal state _SnT = Non Terminal State.
   // A terminal state means that a walk in the graph can end there.
 
   // root of the graph.
-  MorphemeState root_SnT = nonTerminal("root_Snt", root);
+  MorphemeState root_SnT = nonTerminal("root_Snt", Morphemes.root);
 
   //-------------- Noun States ------------------------
 
-  MorphemeState noun_SnT = builder("noun_SnT", noun).posRoot().build();
-  MorphemeState nounCompoundRoot_SnT = builder("nounCompoundRoot_SnT", noun).posRoot().build();
+  MorphemeState noun_SnT = builder("noun_SnT", Morphemes.noun).posRoot().build();
+  MorphemeState nounCompoundRoot_SnT =
+      builder("nounCompoundRoot_SnT", Morphemes.noun).posRoot().build();
 
   // Number-Person agreement
 
-  MorphemeState a3sg_SnT = nonTerminal("a3sg_SnT", a3sg);
-  MorphemeState a3sgCompound_SnT = nonTerminal("a3sgCompound_SnT", a3sg);
-  MorphemeState a3pl_SnT = nonTerminal("a3pl_SnT", a3pl);
-  MorphemeState a3plCompound_SnT = nonTerminal("a3plCompound_SnT", a3pl);
+  MorphemeState a3sg_SnT = nonTerminal("a3sg_SnT", Morphemes.a3sg);
+  MorphemeState a3sgCompound_SnT = nonTerminal("a3sgCompound_SnT", Morphemes.a3sg);
+  MorphemeState a3pl_SnT = nonTerminal("a3pl_SnT", Morphemes.a3pl);
+  MorphemeState a3plCompound_SnT = nonTerminal("a3plCompound_SnT", Morphemes.a3pl);
 
   // Possessive
 
-  MorphemeState pnon_SnT = nonTerminal("pnon_SnT", pnon);
-  MorphemeState pnonCompound_SnT = nonTerminal("pnonCompound_SnT", pnon);
-  MorphemeState p1sg_SnT = nonTerminal("p1sg_SnT", p1sg);
-  MorphemeState p3sg_SnT = nonTerminal("p3sg_SnT", p3sg);
+  MorphemeState pnon_SnT = nonTerminal("pnon_SnT", Morphemes.pnon);
+  MorphemeState pnonCompound_SnT = nonTerminal("pnonCompound_SnT", Morphemes.pnon);
+  MorphemeState p1sg_SnT = nonTerminal("p1sg_SnT", Morphemes.p1sg);
+  MorphemeState p3sg_SnT = nonTerminal("p3sg_SnT", Morphemes.p3sg);
 
   // Case
 
-  MorphemeState nom_ST = terminal("nom_ST", nom);
-  MorphemeState nom_SnT = nonTerminal("nom_SnT", nom);
+  MorphemeState nom_ST = terminal("nom_ST", Morphemes.nom);
+  MorphemeState nom_SnT = nonTerminal("nom_SnT", Morphemes.nom);
 
-  MorphemeState dat_ST = terminal("dat_ST", dat);
-  MorphemeState acc_ST = terminal("acc_ST", acc);
+  MorphemeState dat_ST = terminal("dat_ST", Morphemes.dat);
+  MorphemeState acc_ST = terminal("acc_ST", Morphemes.acc);
 
   // Derivation
 
-  MorphemeState dim_SnT = nonTerminalDerivative("dim_SnT", dim);
+  MorphemeState dim_SnT = nonTerminalDerivative("dim_SnT", Morphemes.dim);
 
-  MorphemeState with_SnT = nonTerminalDerivative("with_SnT", with);
+  MorphemeState with_SnT = nonTerminalDerivative("with_SnT", Morphemes.with);
 
-  MorphemeState justLike_SnT = nonTerminalDerivative("justLike_SnT", justLike);
+  MorphemeState justLike_SnT = nonTerminalDerivative("justLike_SnT", Morphemes.justLike);
 
-  MorphemeState nounZeroDeriv_SnT = nonTerminalDerivative("nounZeroDeriv_SnT", zero);
+  MorphemeState nounZeroDeriv_SnT = nonTerminalDerivative("nounZeroDeriv_SnT", Morphemes.zero);
 
   //-------------- Adjective States ------------------------
 
-  MorphemeState adj_ST = terminal("adj_ST", adj);
+  MorphemeState adj_ST = terminal("adj_ST", Morphemes.adj);
 
-  MorphemeState adjZeroDeriv_SnT = nonTerminalDerivative("adjZeroDeriv_SnT", zero);
+  MorphemeState adjZeroDeriv_SnT = nonTerminalDerivative("adjZeroDeriv_SnT", Morphemes.zero);
 
   //-------------- Adjective-Noun connected Verb States ------------------------
 
-  MorphemeState nVerb_SnT = builder("NVerb_SnT", verb).posRoot().build();
-  MorphemeState nVerbDegil_SnT = builder("NVerbDegil_SnT", verb).posRoot().build();
+  MorphemeState nVerb_SnT = builder("NVerb_SnT", Morphemes.verb).posRoot().build();
+  MorphemeState nVerbDegil_SnT = builder("NVerbDegil_SnT", Morphemes.verb).posRoot().build();
 
-  MorphemeState nPresent_SnT = nonTerminal("NPresent_SnT", pres);
-  MorphemeState nPast_SnT = nonTerminal("NPast_SnT", past);
-  MorphemeState nA1sg_ST = terminal("NA1sg_ST", a1sg);
-  MorphemeState nA3sg_ST = terminal("NA3sg_ST", a3sg);
-  MorphemeState nA3sg_SnT = nonTerminal("NA3sg_SnT", a3sg);
-  MorphemeState nA3pl_ST = terminal("nA3pl_ST", a3pl);
-  MorphemeState nCop_ST = terminal("NCop_ST", cop);
+  MorphemeState nPresent_SnT = nonTerminal("NPresent_SnT", Morphemes.pres);
+  MorphemeState nPast_SnT = nonTerminal("NPast_SnT", Morphemes.past);
+  MorphemeState nA1sg_ST = terminal("NA1sg_ST", Morphemes.a1sg);
+  MorphemeState nA3sg_ST = terminal("NA3sg_ST", Morphemes.a3sg);
+  MorphemeState nA3sg_SnT = nonTerminal("NA3sg_SnT", Morphemes.a3sg);
+  MorphemeState nA3pl_ST = terminal("nA3pl_ST", Morphemes.a3pl);
+  MorphemeState nCop_ST = terminal("NCop_ST", Morphemes.cop);
 
-  MorphemeState nNeg_SnT = nonTerminal("nNeg_SnT", neg);
+  MorphemeState nNeg_SnT = nonTerminal("nNeg_SnT", Morphemes.neg);
+
+
+  // ----------- Pronoun states --------------------------
+  // Pronouns have states similar with Nouns.
+  // Number-Person agreement
+
+  MorphemeState pA3sg_SnT = nonTerminal("pA3sg_SnT", Morphemes.a3sg);
+  MorphemeState pA3pl_SnT = nonTerminal("pA3pl_SnT", Morphemes.a3pl);
+
+  // Possessive
+
+  MorphemeState pPnon_SnT = nonTerminal("pPnon_SnT", Morphemes.pnon);
+  MorphemeState pP1sg_SnT = nonTerminal("pP1sg_SnT", Morphemes.p1sg);
+  MorphemeState pP3sg_SnT = nonTerminal("pP3sg_SnT", Morphemes.p3sg);
+
+  // Case
+
+  MorphemeState pNom_ST = terminal("pNom_ST", Morphemes.nom);
+  MorphemeState pNnom_SnT = nonTerminal("pNnom_SnT", Morphemes.nom);
+
+  MorphemeState pDat_ST = terminal("pDat_ST", Morphemes.dat);
+  MorphemeState pAcc_ST = terminal("pAcc_ST", Morphemes.acc);
+
 
   //-------------- Conditions ------------------------------
 
@@ -250,7 +213,8 @@ public class TurkishMorphotactics {
     // zeytinyağı-ε-ε-nı
     pnon_SnT.add(acc_ST, "+nI", contains(RootAttribute.CompoundP3sg));
 
-    // This transition is for words like "içeri" or "dışarı". Those words implicitly contains Dative suffix.
+    // This transition is for words like "içeri" or "dışarı".
+    // Those words implicitly contains Dative suffix.
     // But It is also possible to add dative suffix +yA to those words such as "içeri-ye".
     pnon_SnT.addEmpty(dat_ST, contains(RootAttribute.ImplicitDative));
 
@@ -297,16 +261,16 @@ public class TurkishMorphotactics {
     // meyve-li
     nom_ST.add(with_SnT, "lI",
         new NoSurfaceAfterDerivation()
-            .and(new ContainsMorpheme(with).not()));
+            .and(new ContainsMorpheme(Morphemes.with).not()));
 
     nom_ST.add(justLike_SnT, "+msI",
         new NoSurfaceAfterDerivation()
-            .and(new ContainsMorpheme(justLike, adj).not()));
+            .and(new ContainsMorpheme(Morphemes.justLike, Morphemes.adj).not()));
 
     nom_ST.add(justLike_SnT, "ImsI",
         notContain(PhoneticAttribute.LastLetterVowel)
             .and(new NoSurfaceAfterDerivation())
-            .and(new ContainsMorpheme(justLike, adj).not()));
+            .and(new ContainsMorpheme(Morphemes.justLike, Morphemes.adj).not()));
 
     // connect With to Adjective root.
     with_SnT.addEmpty(adj_ST);
@@ -328,12 +292,12 @@ public class TurkishMorphotactics {
 
     adj_ST.add(justLike_SnT, "+msI",
         new NoSurfaceAfterDerivation()
-            .and(new ContainsMorpheme(justLike).not()));
+            .and(new ContainsMorpheme(Morphemes.justLike).not()));
 
     adj_ST.add(justLike_SnT, "ImsI",
         notContain(PhoneticAttribute.LastLetterVowel)
             .and(new NoSurfaceAfterDerivation())
-            .and(new ContainsMorpheme(justLike).not()));
+            .and(new ContainsMorpheme(Morphemes.justLike).not()));
   }
 
   private void connectVerbAfterNounAdjStates() {
@@ -392,6 +356,12 @@ public class TurkishMorphotactics {
 
     nA3pl_ST.add(nCop_ST, "dIr", rejectNoCopula);
   }
+
+  private void connectPronounStates() {
+
+
+  }
+
 
   public MorphemeState getRootState(DictionaryItem dictionaryItem) {
 
