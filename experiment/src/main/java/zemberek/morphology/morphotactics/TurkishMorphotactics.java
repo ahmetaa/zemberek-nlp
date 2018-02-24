@@ -391,7 +391,6 @@ public class TurkishMorphotactics {
     nA3sg_SnT.add(nCop_ST, ">dIr", rejectNoCopula);
 
     nA3pl_ST.add(nCop_ST, "dIr", rejectNoCopula);
-
   }
 
   public MorphemeState getRootState(DictionaryItem dictionaryItem) {

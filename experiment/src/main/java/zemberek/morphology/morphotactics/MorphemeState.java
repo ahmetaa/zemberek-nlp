@@ -2,6 +2,7 @@ package zemberek.morphology.morphotactics;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import zemberek.core.logging.Log;
 
 public class MorphemeState {
@@ -148,5 +149,23 @@ public class MorphemeState {
 
   public void addOutgoingTransitions(MorphemeState state) {
     this.outgoing.addAll(state.outgoing);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    MorphemeState that = (MorphemeState) o;
+    return Objects.equals(id, that.id);
+  }
+
+  @Override
+  public int hashCode() {
+
+    return Objects.hash(id);
   }
 }

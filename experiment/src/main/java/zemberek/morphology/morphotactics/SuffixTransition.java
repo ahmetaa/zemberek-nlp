@@ -3,6 +3,7 @@ package zemberek.morphology.morphotactics;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.List;
+import java.util.Objects;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -152,4 +153,22 @@ public class SuffixTransition extends MorphemeTransition {
     }
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    SuffixTransition that = (SuffixTransition) o;
+    return Objects.equals(surfaceTemplate, that.surfaceTemplate)
+        && Objects.equals(from, that.from)
+        && Objects.equals(to, that.to);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(surfaceTemplate, from, to);
+  }
 }
