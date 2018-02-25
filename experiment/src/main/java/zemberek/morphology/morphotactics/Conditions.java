@@ -24,28 +24,28 @@ class Conditions {
   static final Condition CURRENT_GROUP_NOT_EMPTY = new NoSurfaceAfterDerivation().not();
 
 
-  public static Condition contains(RootAttribute attribute) {
-    return new ContainsRootAttribute(attribute);
+  public static Condition has(RootAttribute attribute) {
+    return new HasRootAttribute(attribute);
   }
 
-  public static Condition contains(PhoneticAttribute attribute) {
-    return new ContainsPhoneticAttribute(attribute);
+  public static Condition has(PhoneticAttribute attribute) {
+    return new HasPhoneticAttribute(attribute);
   }
 
   public static Condition rootIs(DictionaryItem item) {
     return new DictionaryItemIs(item);
   }
 
-  public static Condition notContain(RootAttribute attribute) {
-    return new ContainsRootAttribute(attribute).not();
+  public static Condition notHave(RootAttribute attribute) {
+    return new HasRootAttribute(attribute).not();
   }
 
-  public static Condition notContainAny(RootAttribute... attributes) {
-    return new ContainsAnyRootAttribute(attributes).not();
+  public static Condition notHaveAny(RootAttribute... attributes) {
+    return new HasAnyRootAttribute(attributes).not();
   }
 
-  public static Condition notContain(PhoneticAttribute attribute) {
-    return new ContainsPhoneticAttribute(attribute).not();
+  public static Condition notHave(PhoneticAttribute attribute) {
+    return new HasPhoneticAttribute(attribute).not();
   }
 
   public static Condition rootIsNot(DictionaryItem item) {
@@ -101,11 +101,11 @@ class Conditions {
     return condition.not();
   }
 
-  private static class ContainsRootAttribute extends AbstractCondition {
+  private static class HasRootAttribute extends AbstractCondition {
 
     RootAttribute attribute;
 
-    ContainsRootAttribute(RootAttribute attribute) {
+    HasRootAttribute(RootAttribute attribute) {
       this.attribute = attribute;
     }
 
@@ -117,15 +117,15 @@ class Conditions {
 
     @Override
     public String toString() {
-      return "ContainsRootAttribute{" + attribute + '}';
+      return "HasRootAttribute{" + attribute + '}';
     }
   }
 
-  private static class ContainsAnyRootAttribute extends AbstractCondition {
+  private static class HasAnyRootAttribute extends AbstractCondition {
 
     RootAttribute[] attributes;
 
-    ContainsAnyRootAttribute(RootAttribute... attributes) {
+    HasAnyRootAttribute(RootAttribute... attributes) {
       this.attributes = attributes.clone();
     }
 
@@ -142,15 +142,15 @@ class Conditions {
 
     @Override
     public String toString() {
-      return "ContainsAnyRootAttribute{" + Arrays.toString(attributes) + '}';
+      return "HasAnyRootAttribute{" + Arrays.toString(attributes) + '}';
     }
   }
 
-  private static class ContainsPhoneticAttribute extends AbstractCondition {
+  private static class HasPhoneticAttribute extends AbstractCondition {
 
     PhoneticAttribute attribute;
 
-    public ContainsPhoneticAttribute(PhoneticAttribute attribute) {
+    public HasPhoneticAttribute(PhoneticAttribute attribute) {
       this.attribute = attribute;
     }
 
@@ -161,7 +161,7 @@ class Conditions {
 
     @Override
     public String toString() {
-      return "ContainsPhoneticAttribute{" + attribute + '}';
+      return "HasPhoneticAttribute{" + attribute + '}';
     }
   }
 
@@ -226,11 +226,11 @@ class Conditions {
   }
 
 
-  public static class ContainsTailSequence extends AbstractCondition {
+  public static class HasTailSequence extends AbstractCondition {
 
     Morpheme[] morphemes;
 
-    public ContainsTailSequence(Morpheme... morphemes) {
+    public HasTailSequence(Morpheme... morphemes) {
       this.morphemes = morphemes;
     }
 
@@ -252,7 +252,7 @@ class Conditions {
 
     @Override
     public String toString() {
-      return "ContainsTailSequence{" + Arrays.toString(morphemes) + "}";
+      return "HasTailSequence{" + Arrays.toString(morphemes) + "}";
     }
   }
 

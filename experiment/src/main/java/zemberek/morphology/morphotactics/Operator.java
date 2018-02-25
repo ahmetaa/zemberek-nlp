@@ -1,6 +1,6 @@
 package zemberek.morphology.morphotactics;
 
-public enum Operator {
+enum Operator {
   AND,
   OR
 }

@@ -50,10 +50,10 @@ public class SuffixTransition extends MorphemeTransition {
     String lower = template.toLowerCase(Turkish.LOCALE);
     Condition c = null;
     if (template.startsWith(">") || !TurkishAlphabet.INSTANCE.isVowel(lower.charAt(0))) {
-      c = Conditions.contains(PhoneticAttribute.ExpectsVowel).not();
+      c = Conditions.has(PhoneticAttribute.ExpectsVowel).not();
     }
     if (template.startsWith("+") || TurkishAlphabet.INSTANCE.isVowel(lower.charAt(0))) {
-      c = Conditions.contains(PhoneticAttribute.ExpectsConsonant).not();
+      c = Conditions.has(PhoneticAttribute.ExpectsConsonant).not();
     }
     if (c != null) {
       if (condition == null) {
