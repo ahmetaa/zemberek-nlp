@@ -9,9 +9,9 @@ import static zemberek.morphology.morphotactics.MorphemeState.builder;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminal;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivative;
 import static zemberek.morphology.morphotactics.MorphemeState.terminal;
-import static zemberek.morphology.morphotactics.Morphemes.*;
 
 import zemberek.core.turkish.PhoneticAttribute;
+import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
@@ -20,6 +20,85 @@ import zemberek.morphology.morphotactics.Conditions.CurrentGroupContains;
 import zemberek.morphology.morphotactics.Conditions.NoSurfaceAfterDerivation;
 
 public class TurkishMorphotactics {
+
+  public static final Morpheme root = new Morpheme("Root", "Root");
+
+  public static final Morpheme noun = new Morpheme("Noun", "Noun", PrimaryPos.Noun);
+
+  public static final Morpheme adj = new Morpheme("Adjective", "Adj", PrimaryPos.Adjective);
+
+  public static final Morpheme verb = new Morpheme("Verb", "Verb", PrimaryPos.Verb);
+
+  public static final Morpheme pron = new Morpheme("Pronoun", "Pron", PrimaryPos.Pronoun);
+
+  // Number-Person agreement.
+
+
+  public static final Morpheme a1sg = new Morpheme("FirstPersonSingular", "A1sg");
+
+  public static final Morpheme a2sg = new Morpheme("SecondPersonSingular", "A2sg");
+
+  public static final Morpheme a3sg = new Morpheme("ThirdPersonSingular", "A3sg");
+
+  public static final Morpheme a1pl = new Morpheme("FirstPersonPlural", "A1pl");
+
+  public static final Morpheme a2pl = new Morpheme("SecondPersonPlural", "A2pl");
+
+  public static final Morpheme a3pl = new Morpheme("ThirdPersonPlural", "A3pl");
+
+  // Possessive
+
+  // No possession suffix. This is not a real Morpheme but adds information to analysis. "elma = apple"
+  public static final Morpheme pnon = new Morpheme("NoPosession", "Pnon");
+
+  // First person singular possession suffix.  "elma-m = my apple"
+  public static final Morpheme p1sg = new Morpheme("FirstPersonSingularPossessive", "P1sg");
+
+  public static final Morpheme p2sg = new Morpheme("SecondPersonSingularPossessive", "P2sg");
+
+  // Third person singular possession suffix. "elma-sı = his/her apple"
+  public static final Morpheme p3sg = new Morpheme("ThirdPersonSingularPossessive", "P3sg");
+
+  // First person plural possession suffix.
+  public static final Morpheme p1pl = new Morpheme("FirstPersonPluralPossessive", "P1pl");
+
+  public static final Morpheme p2pl = new Morpheme("SecondPersonPluralPossessive", "P2pl");
+
+  public static final Morpheme p3pl = new Morpheme("ThirdPersonPluralPossessive", "P3pl");
+
+
+  // Case suffixes
+
+  // Nominal case suffix. It has no surface form (no letters). "elma = apple"
+  public static final Morpheme nom = new Morpheme("Nominal", "Nom");
+  // Dative case suffix. "elmaya = to apple"
+  public static final Morpheme dat = new Morpheme("Dative", "Dat");
+  // Accusative case suffix. "elmayı = ~the apple"
+  public static final Morpheme acc = new Morpheme("Accusative", "Acc");
+
+  // Derivation suffixes
+
+  // Diminutive suffix. Noun to Noun conversion. "elmacık = small apple, poor apple"
+  public static final Morpheme dim = new Morpheme("Diminutive", "Dim");
+  // With suffix. Noun to Adjective conversion. "elmalı = with apple"
+  public static final Morpheme with = new Morpheme("With", "With");
+
+  public static final Morpheme justLike = new Morpheme("JustLike", "JustLike");
+
+  // Zero derivation
+  public static final Morpheme zero = new Morpheme("Zero", "Zero");
+
+
+  // Present Tense
+  public static final Morpheme pres = new Morpheme("PresentTense", "Pres");
+  public static final Morpheme past = new Morpheme("PastTense", "Past");
+
+  // Verb specific
+  public static final Morpheme cop = new Morpheme("Copula", "Cop");
+
+  // Negative Verb
+  public static final Morpheme neg = new Morpheme("Negative", "Neg");
+
 
   //-------------- States ----------------------------
   // _ST = Terminal state _SnT = Non Terminal State.
@@ -87,28 +166,42 @@ public class TurkishMorphotactics {
 
   MorphemeState nNeg_SnT = nonTerminal("nNeg_SnT", neg);
 
-
   // ----------- Pronoun states --------------------------
   // Pronouns have states similar with Nouns.
+
   // Number-Person agreement
 
+  MorphemeState pron_SnT = nonTerminal("pron_SnT", pron);
+
+  // used for ben-sen modification
+  public MorphemeState pron_Mod_SnT = nonTerminal("pron_Mod_SnT", pron);
+
+  MorphemeState pA1sg_SnT = nonTerminal("pA1sg_SnT", a1sg);
+  MorphemeState pA2sg_SnT = nonTerminal("pA2sg_SnT", a2sg);
+
+  MorphemeState pA1sgMod_SnT = nonTerminal("pA1sgMod_SnT", a1sg); // for modified ben
+  MorphemeState pA2sgMod_SnT = nonTerminal("pA2sgMod_SnT", a2sg); // for modified sen
+
   MorphemeState pA3sg_SnT = nonTerminal("pA3sg_SnT", a3sg);
+  MorphemeState pA1pl_SnT = nonTerminal("pA1pl_SnT", a1pl);
+  MorphemeState pA2pl_SnT = nonTerminal("pA2pl_SnT", a2pl);
   MorphemeState pA3pl_SnT = nonTerminal("pA3pl_SnT", a3pl);
 
   // Possessive
 
   MorphemeState pPnon_SnT = nonTerminal("pPnon_SnT", pnon);
+  MorphemeState pPnonMod_SnT = nonTerminal("pPnonMod_SnT", pnon); // for modified ben-sen
+
   MorphemeState pP1sg_SnT = nonTerminal("pP1sg_SnT", p1sg);
   MorphemeState pP3sg_SnT = nonTerminal("pP3sg_SnT", p3sg);
 
   // Case
 
   MorphemeState pNom_ST = terminal("pNom_ST", nom);
-  MorphemeState pNnom_SnT = nonTerminal("pNnom_SnT", nom);
+  MorphemeState pNom_SnT = nonTerminal("pNom_SnT", nom);
 
   MorphemeState pDat_ST = terminal("pDat_ST", dat);
   MorphemeState pAcc_ST = terminal("pAcc_ST", acc);
-
 
   //-------------- Conditions ------------------------------
 
@@ -119,10 +212,11 @@ public class TurkishMorphotactics {
     connectNounStates();
     connectAdjectiveStates();
     connectVerbAfterNounAdjStates();
+    connectPronounStates();
   }
 
   /**
-   * Turkish Nouns always have Noun-Person-Possession-Case  Even there are no suffix
+   * Turkish Nouns always have Noun-Person-Possession-Case morphemes.  Even there are no suffix
    * characters. elma -> Noun:elma - A3sg:ε - Pnon:ε - Nom:ε (Third person singular, No possession,
    * Nominal Case)
    */
@@ -360,6 +454,27 @@ public class TurkishMorphotactics {
 
   private void connectPronounStates() {
 
+    DictionaryItem ben = lexicon.getItemById("ben_Pron_Pers");
+    DictionaryItem sen = lexicon.getItemById("sen_Pron_Pers");
+    DictionaryItem o = lexicon.getItemById("o_Pron_Pers");
+    DictionaryItem biz = lexicon.getItemById("biz_Pron_Pers");
+    DictionaryItem siz = lexicon.getItemById("siz_Pron_Pers");
+
+    pron_SnT.addEmpty(pA1sg_SnT, rootIs(ben));
+    pron_SnT.addEmpty(pA2sg_SnT, rootIs(sen));
+
+    pron_Mod_SnT.addEmpty(pA1sgMod_SnT, rootIs(ben));
+    pron_Mod_SnT.addEmpty(pA2sgMod_SnT, rootIs(sen));
+
+    pA1sgMod_SnT.addEmpty(pPnonMod_SnT);
+    pPnonMod_SnT.add(pDat_ST, "A");
+
+    pA1sg_SnT.addEmpty(pPnon_SnT);
+
+    pPnon_SnT.addEmpty(pNom_ST);
+
+    pPnon_SnT.add(pDat_ST, "+nA",
+        notHave(PhoneticAttribute.UnModifiedPronoun)); // not allowing ben-e and sen-e
 
   }
 
@@ -380,6 +495,8 @@ public class TurkishMorphotactics {
         }
       case Adjective:
         return adj_ST;
+      case Pronoun:
+          return pron_SnT;
       default:
         return noun_SnT;
     }

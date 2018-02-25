@@ -42,6 +42,9 @@ public enum PhoneticAttribute implements StringEnum {
 
   ExpectsVowel("EV"),
   ExpectsConsonant("EC"),
+  ModifiedPronoun("MP"), //ben,sen -> ban, san form.
+  UnModifiedPronoun("UMP"), //ben,sen -> ben, sen form.
+
   ;
 
   private final static StringEnumMap<PhoneticAttribute> shortFormToPosMap = StringEnumMap

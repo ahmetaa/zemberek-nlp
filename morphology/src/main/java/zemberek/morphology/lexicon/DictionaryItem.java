@@ -141,6 +141,15 @@ public class DictionaryItem {
     return attributes.contains(attribute);
   }
 
+  public boolean hasAnyAttribute(RootAttribute... attributes) {
+    for (RootAttribute attribute : attributes) {
+      if(this.attributes.contains(attribute)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public String normalizedLemma() {
     return lemma.toLowerCase(Turkish.LOCALE);
   }

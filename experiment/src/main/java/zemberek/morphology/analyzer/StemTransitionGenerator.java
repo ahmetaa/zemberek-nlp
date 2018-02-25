@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import zemberek.core.turkish.PhoneticAttribute;
-import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.TurkicLetter;
@@ -22,6 +21,7 @@ import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.LexiconException;
+import zemberek.morphology.morphotactics.MorphemeState;
 import zemberek.morphology.morphotactics.StemTransition;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
@@ -123,7 +123,7 @@ public class StemTransitionGenerator {
   private List<StemTransition> generateModifiedRootNodes(DictionaryItem dicItem) {
 
     if (dicItem.hasAttribute(RootAttribute.Special)) {
-      // TODO: handleSpecialStems like ben demek etc.
+      return handleSpecialRoots(dicItem);
     }
 
     TurkishLetterSequence modifiedSeq = new TurkishLetterSequence(dicItem.pronunciation, alphabet);
@@ -194,10 +194,36 @@ public class StemTransitionGenerator {
         modifiedAttrs,
         morphotactics.getRootState(dicItem));
 
-    if(original.equals(modified)) {
+    if (original.equals(modified)) {
       return Collections.singletonList(original);
     }
     return Lists.newArrayList(original, modified);
   }
 
+  public List<StemTransition> handleSpecialRoots(DictionaryItem item) {
+
+    String id = item.getId();
+    EnumSet<PhoneticAttribute> originalAttrs = calculateAttributes(item.pronunciation);
+
+    if (id.equals("ben_Pron_Pers") || id.equals("sen_Pron_Pers")) {
+      StemTransition[] stems;
+      stems = new StemTransition[2];
+      MorphemeState unmodifiedRootState = morphotactics.getRootState(item);
+      if (item.lemma.equals("ben")) {
+        stems[0] = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
+        stems[1] = new StemTransition("ban", item, calculateAttributes("ban"),
+            morphotactics.pron_Mod_SnT);
+      } else if (item.lemma.equals("sen")) {
+        stems[0] = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
+        stems[1] = new StemTransition("san", item, calculateAttributes("san"),
+            morphotactics.pron_Mod_SnT);
+      }
+      stems[0].getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
+      stems[1].getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
+      return Lists.newArrayList(stems[0], stems[1]);
+    } else {
+      throw new IllegalArgumentException(
+          "Lexicon Item with special stem change cannot be handled:" + item);
+    }
+  }
 }
