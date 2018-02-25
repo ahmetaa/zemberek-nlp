@@ -123,6 +123,8 @@ public class CombinedCondition extends AbstractCondition {
           pass = true;
         }
       }
+      // for OR, we do not have specific failing condition.
+      // So we return this as failing condition.
       return pass ? null : this;
     }
   }

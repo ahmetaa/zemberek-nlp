@@ -36,9 +36,9 @@ import zemberek.morphology.morphotactics.TurkishMorphotactics;
  */
 public class InterpretingAnalyzer {
 
-  RootLexicon lexicon;
+  private RootLexicon lexicon;
 
-  TurkishMorphotactics morphotactics;
+  private TurkishMorphotactics morphotactics;
 
   // TODO: Move this to somewhere else. Also this mechanism should be an abstraction that can also use a Trie
   private ArrayListMultimap<String, StemTransition> multiStems =
@@ -153,6 +153,7 @@ public class InterpretingAnalyzer {
         continue;
       }
 
+      // if transition condition fails, add it to debug data.
       if (debugData != null && suffixTransition.getCondition()!=null) {
         Condition condition = suffixTransition.getCondition();
         Condition failed;
@@ -258,7 +259,7 @@ public class InterpretingAnalyzer {
     SuffixTransition transition;
     String reason;
 
-    public RejectedTransition(SuffixTransition transition, String reason) {
+    RejectedTransition(SuffixTransition transition, String reason) {
       this.transition = transition;
       this.reason = reason;
     }

@@ -40,6 +40,10 @@ class Conditions {
     return new ContainsRootAttribute(attribute).not();
   }
 
+  public static Condition notContainAny(RootAttribute... attributes) {
+    return new ContainsAnyRootAttribute(attributes).not();
+  }
+
   public static Condition notContain(PhoneticAttribute attribute) {
     return new ContainsPhoneticAttribute(attribute).not();
   }
@@ -114,6 +118,31 @@ class Conditions {
     @Override
     public String toString() {
       return "ContainsRootAttribute{" + attribute + '}';
+    }
+  }
+
+  private static class ContainsAnyRootAttribute extends AbstractCondition {
+
+    RootAttribute[] attributes;
+
+    ContainsAnyRootAttribute(RootAttribute... attributes) {
+      this.attributes = attributes.clone();
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      // TODO: maybe this should also check if visitor has no derivation.
+      for (RootAttribute attribute : attributes) {
+        if (visitor.containsRootAttribute(attribute)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    @Override
+    public String toString() {
+      return "ContainsAnyRootAttribute{" + Arrays.toString(attributes) + '}';
     }
   }
 

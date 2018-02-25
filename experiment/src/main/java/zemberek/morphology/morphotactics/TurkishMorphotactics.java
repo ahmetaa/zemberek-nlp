@@ -2,6 +2,7 @@ package zemberek.morphology.morphotactics;
 
 import static zemberek.morphology.morphotactics.Conditions.contains;
 import static zemberek.morphology.morphotactics.Conditions.notContain;
+import static zemberek.morphology.morphotactics.Conditions.notContainAny;
 import static zemberek.morphology.morphotactics.Conditions.rootIs;
 import static zemberek.morphology.morphotactics.Conditions.rootIsNot;
 import static zemberek.morphology.morphotactics.MorphemeState.builder;
@@ -192,8 +193,7 @@ public class TurkishMorphotactics {
     // ev-?-ε-ε (ev, evler).
     pnon_SnT.addEmpty(nom_ST,
         notContain(PhoneticAttribute.ExpectsVowel)
-            .and(notContain(RootAttribute.CompoundP3sgRoot))
-            .and(notContain(RootAttribute.FamilyMember)));
+            .and(notContainAny(RootAttribute.CompoundP3sgRoot, RootAttribute.FamilyMember)));
 
     // This transition is for not allowing inputs like "kitab" or "zeytinyağ".
     // They will fail because nominal case state is non terminal (nom_SnT)
