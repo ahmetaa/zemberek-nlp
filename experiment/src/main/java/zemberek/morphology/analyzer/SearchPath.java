@@ -126,13 +126,13 @@ public class SearchPath {
     return containsSuffixWithSurface;
   }
 
-  public boolean containsRootAttribute(RootAttribute attribute) {
-    return getStemTransition().item.attributes.contains(attribute);
-  }
-
   public boolean hasDictionaryItem(DictionaryItem item) {
     // TODO: for performance, probably it is safe to check references only.
     return item.equals(getStemTransition().item);
+  }
+
+  public DictionaryItem getDictionaryItem() {
+    return getStemTransition().item;
   }
 
 }

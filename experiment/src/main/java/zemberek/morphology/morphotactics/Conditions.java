@@ -112,7 +112,7 @@ class Conditions {
     @Override
     public boolean accept(SearchPath visitor) {
       // TODO: maybe this should also check if visitor has no derivation.
-      return visitor.containsRootAttribute(attribute);
+      return visitor.getDictionaryItem().hasAttribute(attribute);
     }
 
     @Override
@@ -132,12 +132,7 @@ class Conditions {
     @Override
     public boolean accept(SearchPath visitor) {
       // TODO: maybe this should also check if visitor has no derivation.
-      for (RootAttribute attribute : attributes) {
-        if (visitor.containsRootAttribute(attribute)) {
-          return true;
-        }
-      }
-      return false;
+      return visitor.getDictionaryItem().hasAnyAttribute(attributes);
     }
 
     @Override

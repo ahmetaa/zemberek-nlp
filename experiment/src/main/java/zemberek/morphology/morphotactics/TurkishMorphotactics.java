@@ -463,9 +463,9 @@ public class TurkishMorphotactics {
     pron_SnT.addEmpty(pA1sg_SnT, rootIs(ben));
     pron_SnT.addEmpty(pA2sg_SnT, rootIs(sen));
 
+    // --- modified `ben-sen` special state and transitions ----
     pron_Mod_SnT.addEmpty(pA1sgMod_SnT, rootIs(ben));
     pron_Mod_SnT.addEmpty(pA2sgMod_SnT, rootIs(sen));
-
     pA1sgMod_SnT.addEmpty(pPnonMod_SnT);
     pPnonMod_SnT.add(pDat_ST, "A");
 
