@@ -24,6 +24,7 @@ import zemberek.morphology.analyzer.MorphemeSurfaceForm.SuffixTemplateToken;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm.TemplateTokenType;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
+import zemberek.morphology.morphotactics.CombinedCondition;
 import zemberek.morphology.morphotactics.Condition;
 import zemberek.morphology.morphotactics.MorphemeTransition;
 import zemberek.morphology.morphotactics.StemTransition;
@@ -147,19 +148,23 @@ public class InterpretingAnalyzer {
         if (debugData != null) {
           debugData.rejectedTransitions.put(
               path,
-              new RejectedTransition("Empty surface expected.", suffixTransition));
+              new RejectedTransition(suffixTransition, "Empty surface expected."));
         }
         continue;
       }
 
-      if (debugData != null) {
-        //TODO: Not working yet. Collect all failed conditions.
-        List<Condition> failedConditions = new ArrayList<>();
-        for (Condition condition : failedConditions) {
+      if (debugData != null && suffixTransition.getCondition()!=null) {
+        Condition condition = suffixTransition.getCondition();
+        Condition failed;
+        if (condition instanceof CombinedCondition) {
+          failed = ((CombinedCondition) condition).getFailingCondition(path);
+        } else {
+          failed = condition.accept(path) ? null : condition;
+        }
+        if (failed != null) {
           debugData.rejectedTransitions.put(
               path,
-              new RejectedTransition("Condition → " + condition.toString(), suffixTransition));
-          break;
+              new RejectedTransition(suffixTransition, "Condition → " + failed.toString()));
         }
       }
 
@@ -188,7 +193,7 @@ public class InterpretingAnalyzer {
         if (debugData != null) {
           debugData.rejectedTransitions.put(
               path,
-              new RejectedTransition("Surface Mismatch:" + surface, suffixTransition));
+              new RejectedTransition(suffixTransition, "Surface Mismatch:" + surface));
         }
         continue;
       }
@@ -250,13 +255,12 @@ public class InterpretingAnalyzer {
 
   static class RejectedTransition {
 
-    String reason;
     SuffixTransition transition;
+    String reason;
 
-    public RejectedTransition(String reason,
-        SuffixTransition transition) {
-      this.reason = reason;
+    public RejectedTransition(SuffixTransition transition, String reason) {
       this.transition = transition;
+      this.reason = reason;
     }
 
     @Override

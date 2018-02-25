@@ -221,10 +221,9 @@ class Conditions {
       return true;
     }
 
-
     @Override
     public String toString() {
-      return "ContainsTailSequence{}";
+      return "ContainsTailSequence{" + Arrays.toString(morphemes) + "}";
     }
   }
 
@@ -243,7 +242,7 @@ class Conditions {
 
     @Override
     public String toString() {
-      return "LastMorphemeIs{}";
+      return "LastMorphemeIs{ " + morpheme + " }";
     }
   }
 
@@ -258,6 +257,11 @@ class Conditions {
     @Override
     public boolean accept(SearchPath visitor) {
       return !condition.accept(visitor);
+    }
+
+    @Override
+    public String toString() {
+      return "Not(" + condition + ")";
     }
   }
 
@@ -280,6 +284,11 @@ class Conditions {
       }
       return false;
     }
+
+    @Override
+    public String toString() {
+      return "LastDerivationIs{" + state + '}';
+    }
   }
 
   public static class PreviousNonEmptyMorphemeIs extends AbstractCondition {
@@ -301,6 +310,11 @@ class Conditions {
         return sf.morphemeState == state;
       }
       return false;
+    }
+
+    @Override
+    public String toString() {
+      return "PreviousNonEmptyMorphemeIs{" + state + '}';
     }
   }
 
@@ -328,6 +342,11 @@ class Conditions {
         }
       }
       return false;
+    }
+
+    @Override
+    public String toString() {
+      return "CurrentGroupContains{" + states + '}';
     }
   }
 
@@ -368,6 +387,11 @@ class Conditions {
       }
       return false;
     }
+
+    @Override
+    public String toString() {
+      return "PreviousGroupContains{" + states + '}';
+    }
   }
 
   // Checks if any of the "Morpheme" in "morphemes" exist in previous Inflectional Group.
@@ -406,6 +430,11 @@ class Conditions {
         }
       }
       return false;
+    }
+
+    @Override
+    public String toString() {
+      return "PreviousGroupContainsMorpheme{" + morphemes + '}';
     }
   }
 
@@ -452,6 +481,11 @@ class Conditions {
         }
       }
       return false;
+    }
+
+    @Override
+    public String toString() {
+      return "ContainsMorpheme{" + morphemes + '}';
     }
   }
 

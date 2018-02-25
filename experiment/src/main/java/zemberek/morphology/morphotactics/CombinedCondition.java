@@ -100,4 +100,61 @@ public class CombinedCondition extends AbstractCondition {
       return false;
     }
   }
+
+  public Condition getFailingCondition(SearchPath path) {
+    if (conditions.size() == 0) {
+      return null;
+    }
+    if (conditions.size() == 1) {
+      Condition condition = conditions.get(0);
+      return condition.accept(path) ? null : condition;
+    }
+    if (operator == Operator.AND) {
+      for (Condition condition : conditions) {
+        if (!condition.accept(path)) {
+          return condition;
+        }
+      }
+      return null;
+    } else {
+      boolean pass =  false;
+      for (Condition condition : conditions) {
+        if (condition.accept(path)) {
+          pass = true;
+        }
+      }
+      return pass ? null : this;
+    }
+  }
+
+  public String toString() {
+    if (conditions.size() == 0) {
+      return "[No-Condition]";
+    }
+    if (conditions.size() == 1) {
+      return conditions.get(0).toString();
+    }
+    if (operator == Operator.AND) {
+      StringBuilder sb = new StringBuilder();
+      int i = 0;
+      for (Condition condition : conditions) {
+        sb.append(condition.toString());
+        if (i++ < conditions.size()-1) {
+          sb.append(" AND ");
+        }
+      }
+      return sb.toString();
+    } else {
+      int i = 0;
+      StringBuilder sb = new StringBuilder();
+      for (Condition condition : conditions) {
+        sb.append(condition.toString());
+        if (i++ < conditions.size()-1) {
+          sb.append(" OR ");
+        }
+      }
+      return sb.toString();
+    }
+  }
+
 }

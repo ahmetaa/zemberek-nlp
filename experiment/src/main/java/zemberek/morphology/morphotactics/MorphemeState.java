@@ -134,6 +134,12 @@ public class MorphemeState {
     return this;
   }
 
+  public void dumpTransitions() {
+    for (MorphemeTransition transition : outgoing) {
+      System.out.println(transition.condition);
+    }
+  }
+
   @Override
   public String toString() {
     return "[" + id + ":" + morpheme.id + "]";

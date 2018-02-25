@@ -19,8 +19,6 @@ public class SuffixTransition extends MorphemeTransition {
 
   private List<SuffixTemplateToken> tokenList;
 
-  Condition condition;
-
   private SuffixTransition(Builder builder) {
     Preconditions.checkNotNull(builder.from);
     Preconditions.checkNotNull(builder.to);
@@ -35,10 +33,7 @@ public class SuffixTransition extends MorphemeTransition {
   }
 
   public boolean canPass(SearchPath path) {
-    if (condition == null) {
-      return true;
-    }
-    return condition.accept(path);
+    return condition == null || condition.accept(path);
   }
 
   private void connect() {
