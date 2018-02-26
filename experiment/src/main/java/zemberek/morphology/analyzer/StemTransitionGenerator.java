@@ -200,27 +200,26 @@ public class StemTransitionGenerator {
     return Lists.newArrayList(original, modified);
   }
 
-  public List<StemTransition> handleSpecialRoots(DictionaryItem item) {
+  private List<StemTransition> handleSpecialRoots(DictionaryItem item) {
 
     String id = item.getId();
     EnumSet<PhoneticAttribute> originalAttrs = calculateAttributes(item.pronunciation);
 
     if (id.equals("ben_Pron_Pers") || id.equals("sen_Pron_Pers")) {
-      StemTransition[] stems;
-      stems = new StemTransition[2];
+      StemTransition original, modified;
       MorphemeState unmodifiedRootState = morphotactics.getRootState(item);
       if (item.lemma.equals("ben")) {
-        stems[0] = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
-        stems[1] = new StemTransition("ban", item, calculateAttributes("ban"),
+        original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
+        modified = new StemTransition("ban", item, calculateAttributes("ban"),
             morphotactics.pron_Mod_SnT);
-      } else if (item.lemma.equals("sen")) {
-        stems[0] = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
-        stems[1] = new StemTransition("san", item, calculateAttributes("san"),
+      } else {
+        original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
+        modified = new StemTransition("san", item, calculateAttributes("san"),
             morphotactics.pron_Mod_SnT);
       }
-      stems[0].getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
-      stems[1].getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
-      return Lists.newArrayList(stems[0], stems[1]);
+      original.getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
+      modified.getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
+      return Lists.newArrayList(original, modified);
     } else {
       throw new IllegalArgumentException(
           "Lexicon Item with special stem change cannot be handled:" + item);
