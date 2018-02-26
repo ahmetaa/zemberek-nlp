@@ -10,6 +10,7 @@ import static zemberek.morphology.morphotactics.MorphemeState.nonTerminal;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivative;
 import static zemberek.morphology.morphotactics.MorphemeState.terminal;
 
+import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
@@ -66,7 +67,6 @@ public class TurkishMorphotactics {
 
   public static final Morpheme p3pl = new Morpheme("ThirdPersonPluralPossessive", "P3pl");
 
-
   // Case suffixes
 
   // Nominal case suffix. It has no surface form (no letters). "elma = apple"
@@ -98,7 +98,6 @@ public class TurkishMorphotactics {
 
   // Negative Verb
   public static final Morpheme neg = new Morpheme("Negative", "Neg");
-
 
   //-------------- States ----------------------------
   // _ST = Terminal state _SnT = Non Terminal State.
@@ -171,7 +170,8 @@ public class TurkishMorphotactics {
 
   // Number-Person agreement
 
-  MorphemeState pron_SnT = nonTerminal("pron_SnT", pron);
+  MorphemeState pronPers_SnT = nonTerminal("pronPers_SnT", pron);
+  MorphemeState pronDemons_SnT = nonTerminal("pronDemons_SnT", pron);
 
   // used for ben-sen modification
   public MorphemeState pron_Mod_SnT = nonTerminal("pron_Mod_SnT", pron);
@@ -185,20 +185,15 @@ public class TurkishMorphotactics {
   MorphemeState pA3sg_SnT = nonTerminal("pA3sg_SnT", a3sg);
   MorphemeState pA1pl_SnT = nonTerminal("pA1pl_SnT", a1pl);
   MorphemeState pA2pl_SnT = nonTerminal("pA2pl_SnT", a2pl);
-  MorphemeState pA3pl_SnT = nonTerminal("pA3pl_SnT", a3pl);
 
   // Possessive
 
   MorphemeState pPnon_SnT = nonTerminal("pPnon_SnT", pnon);
   MorphemeState pPnonMod_SnT = nonTerminal("pPnonMod_SnT", pnon); // for modified ben-sen
 
-  MorphemeState pP1sg_SnT = nonTerminal("pP1sg_SnT", p1sg);
-  MorphemeState pP3sg_SnT = nonTerminal("pP3sg_SnT", p3sg);
-
   // Case
 
   MorphemeState pNom_ST = terminal("pNom_ST", nom);
-  MorphemeState pNom_SnT = nonTerminal("pNom_SnT", nom);
 
   MorphemeState pDat_ST = terminal("pDat_ST", dat);
   MorphemeState pAcc_ST = terminal("pAcc_ST", acc);
@@ -454,27 +449,41 @@ public class TurkishMorphotactics {
 
   private void connectPronounStates() {
 
+    //----------- Personal Pronouns ----------------------------
     DictionaryItem ben = lexicon.getItemById("ben_Pron_Pers");
     DictionaryItem sen = lexicon.getItemById("sen_Pron_Pers");
     DictionaryItem o = lexicon.getItemById("o_Pron_Pers");
     DictionaryItem biz = lexicon.getItemById("biz_Pron_Pers");
     DictionaryItem siz = lexicon.getItemById("siz_Pron_Pers");
 
-    pron_SnT.addEmpty(pA1sg_SnT, rootIs(ben));
-    pron_SnT.addEmpty(pA2sg_SnT, rootIs(sen));
+    pronPers_SnT.addEmpty(pA1sg_SnT, rootIs(ben));
+    pronPers_SnT.addEmpty(pA2sg_SnT, rootIs(sen));
+    pronPers_SnT.addEmpty(pA3sg_SnT, rootIs(o));
+    pronPers_SnT.addEmpty(pA1pl_SnT, rootIs(biz));
+    pronPers_SnT.addEmpty(pA2pl_SnT, rootIs(siz));
 
-    // --- modified `ben-sen` special state and transitions ----
+    // --- modified `ben-sen` special state and transitions
     pron_Mod_SnT.addEmpty(pA1sgMod_SnT, rootIs(ben));
     pron_Mod_SnT.addEmpty(pA2sgMod_SnT, rootIs(sen));
     pA1sgMod_SnT.addEmpty(pPnonMod_SnT);
+    pA2sgMod_SnT.addEmpty(pPnonMod_SnT);
     pPnonMod_SnT.add(pDat_ST, "A");
+    // ----
 
     pA1sg_SnT.addEmpty(pPnon_SnT);
+    pA2sg_SnT.addEmpty(pPnon_SnT);
+    pA3sg_SnT.addEmpty(pPnon_SnT);
+    pA1pl_SnT.addEmpty(pPnon_SnT);
+    pA2pl_SnT.addEmpty(pPnon_SnT);
 
     pPnon_SnT.addEmpty(pNom_ST);
-
     pPnon_SnT.add(pDat_ST, "+nA",
         notHave(PhoneticAttribute.UnModifiedPronoun)); // not allowing ben-e and sen-e
+    pPnon_SnT.add(pAcc_ST, "+nI");
+
+
+    //------------ Demonstrative pronouns. ------------------------
+    pronDemons_SnT.addEmpty(pA3sg_SnT);
 
   }
 
@@ -496,8 +505,16 @@ public class TurkishMorphotactics {
       case Adjective:
         return adj_ST;
       case Pronoun:
-          return pron_SnT;
+        switch (dictionaryItem.secondaryPos) {
+          case PersonalPron:
+            return pronPers_SnT;
+          case DemonstrativePron:
+            return pronDemons_SnT;
+          default:
+            throw new IllegalStateException("Cannot find root for Pronoun " + dictionaryItem);
+        }
       default:
+        Log.warn("Cannot find a suitable root for " + dictionaryItem + ". Returning noun root.");
         return noun_SnT;
     }
   }
