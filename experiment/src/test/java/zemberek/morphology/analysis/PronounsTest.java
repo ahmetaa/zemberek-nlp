@@ -23,6 +23,8 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingleTrue("o", matchesLexicalTail("Pron + A3sg + Pnon + Nom"));
     tester.expectSingleTrue("ona", matchesLexicalTail("Pron + A3sg + Pnon + Dat"));
     tester.expectSingleTrue("onu", matchesLexicalTail("Pron + A3sg + Pnon + Acc"));
+    tester.expectSingleTrue("onlar", matchesLexicalTail("Pron + A3pl + Pnon + Nom"));
+    tester.expectSingleTrue("onlara", matchesLexicalTail("Pron + A3pl + Pnon + Dat"));
   }
 
   @Test
@@ -54,6 +56,8 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingleTrue("bu", matchesLexicalTail("Pron + A3sg + Pnon + Nom"));
     tester.expectSingleTrue("buna", matchesLexicalTail("Pron + A3sg + Pnon + Dat"));
     tester.expectSingleTrue("bunu", matchesLexicalTail("Pron + A3sg + Pnon + Acc"));
+    tester.expectSingleTrue("bunlar", matchesLexicalTail("Pron + A3pl + Pnon + Nom"));
+    tester.expectSingleTrue("bunları", matchesLexicalTail("Pron + A3pl + Pnon + Acc"));
   }
 
 

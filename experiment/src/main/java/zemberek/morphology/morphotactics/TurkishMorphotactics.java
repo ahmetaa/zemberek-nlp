@@ -185,6 +185,7 @@ public class TurkishMorphotactics {
   MorphemeState pA3sg_SnT = nonTerminal("pA3sg_SnT", a3sg);
   MorphemeState pA1pl_SnT = nonTerminal("pA1pl_SnT", a1pl);
   MorphemeState pA2pl_SnT = nonTerminal("pA2pl_SnT", a2pl);
+  MorphemeState pA3pl_SnT = nonTerminal("pA3pl_SnT", a3pl);
 
   // Possessive
 
@@ -459,6 +460,7 @@ public class TurkishMorphotactics {
     pronPers_SnT.addEmpty(pA1sg_SnT, rootIs(ben));
     pronPers_SnT.addEmpty(pA2sg_SnT, rootIs(sen));
     pronPers_SnT.addEmpty(pA3sg_SnT, rootIs(o));
+    pronPers_SnT.add(pA3pl_SnT, "nlAr",rootIs(o)); // Oflazer does not have "onlar" as Pronoun root.
     pronPers_SnT.addEmpty(pA1pl_SnT, rootIs(biz));
     pronPers_SnT.addEmpty(pA2pl_SnT, rootIs(siz));
 
@@ -475,16 +477,16 @@ public class TurkishMorphotactics {
     pA3sg_SnT.addEmpty(pPnon_SnT);
     pA1pl_SnT.addEmpty(pPnon_SnT);
     pA2pl_SnT.addEmpty(pPnon_SnT);
+    pA3pl_SnT.addEmpty(pPnon_SnT);
 
     pPnon_SnT.addEmpty(pNom_ST);
     pPnon_SnT.add(pDat_ST, "+nA",
         notHave(PhoneticAttribute.UnModifiedPronoun)); // not allowing ben-e and sen-e
     pPnon_SnT.add(pAcc_ST, "+nI");
 
-
     //------------ Demonstrative pronouns. ------------------------
     pronDemons_SnT.addEmpty(pA3sg_SnT);
-
+    pronDemons_SnT.add(pA3pl_SnT, "nlAr");
   }
 
 
