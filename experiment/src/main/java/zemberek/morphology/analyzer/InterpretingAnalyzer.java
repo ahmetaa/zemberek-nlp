@@ -95,7 +95,7 @@ public class InterpretingAnalyzer {
 
       for (SearchPath path : current) {
 
-        // if there is no more letters to consume and path can be terminated, we accept this
+        // if there are no more letters to consume and path can be terminated, we accept this
         // path as a correct result.
         if (path.tail.length() == 0) {
           if (path.isTerminal()) {
@@ -133,7 +133,7 @@ public class InterpretingAnalyzer {
   }
 
   // for all allowed outgoing transitions generates new Paths.
-  // Rules are used for checking if a transition is allowed.
+  // Transition conditions are used for checking if a search path is allowed to pass a transition.
   private List<SearchPath> advance(SearchPath path, AnalysisDebugData debugData) {
 
     List<SearchPath> newPaths = new ArrayList<>(2);
@@ -169,7 +169,7 @@ public class InterpretingAnalyzer {
         }
       }
 
-      // check rules.
+      // check conditions.
       if (!suffixTransition.canPass(path)) {
         continue;
       }
@@ -182,14 +182,14 @@ public class InterpretingAnalyzer {
         continue;
       }
 
-      // TODO: early return is possible
-      TurkishLetterSequence seq = MorphemeSurfaceForm.generate(
+      // TODO: early return is possible inside generate.
+      TurkishLetterSequence sequence = MorphemeSurfaceForm.generate(
           suffixTransition,
           path.phoneticAttributes);
 
-      String surface = seq.toString();
+      String surface = sequence.toString();
 
-      // no need to go further if generated surface for is not a prefix of tail.
+      // no need to go further if generated surface form is not a prefix of the paths's tail.
       if (!path.tail.startsWith(surface)) {
         if (debugData != null) {
           debugData.rejectedTransitions.put(
@@ -200,13 +200,16 @@ public class InterpretingAnalyzer {
       }
 
       //TODO: if tail is equal to surface, no need to calculate attributes.
-
       MorphemeSurfaceForm surfaceTransition = new MorphemeSurfaceForm(surface, suffixTransition);
-      SuffixTemplateToken lastToken = suffixTransition.getLastTemplateToken();
 
       EnumSet<PhoneticAttribute> attributes = MorphemeSurfaceForm
-          .defineMorphemicAttributes(seq, path.phoneticAttributes);
+          .defineMorphemicAttributes(sequence, path.phoneticAttributes);
 
+      // This is required for suffixes like `cik` and `ciğ`
+      // we add an extra attribute if "cik" or "ciğ" is generated and matches the tail.
+      // if "cik" is generated, ExpectsConsonant attribute is added, so only a consonant starting
+      // suffix can follow. Likewise, if "ciğ" is produced, a vowel starting suffix is allowed.
+      SuffixTemplateToken lastToken = suffixTransition.getLastTemplateToken();
       if (lastToken.type == TemplateTokenType.LAST_VOICED) {
         attributes.add(PhoneticAttribute.ExpectsConsonant);
       } else if (lastToken.type == TemplateTokenType.LAST_NOT_VOICED) {
@@ -280,7 +283,7 @@ public class InterpretingAnalyzer {
     Multimap<SearchPath, RejectedTransition> rejectedTransitions = ArrayListMultimap.create();
     List<AnalysisResult> results = new ArrayList<>();
 
-    public List<String> detailedInfo() {
+    List<String> detailedInfo() {
       List<String> l = new ArrayList<>();
       l.add("Input = " + input);
       l.add("Stem Candidate Transitions: ");
