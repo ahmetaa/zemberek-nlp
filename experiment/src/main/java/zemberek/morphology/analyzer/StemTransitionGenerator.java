@@ -205,10 +205,10 @@ public class StemTransitionGenerator {
 
     String id = item.getId();
     EnumSet<PhoneticAttribute> originalAttrs = calculateAttributes(item.pronunciation);
+    StemTransition original, modified;
+    MorphemeState unmodifiedRootState = morphotactics.getRootState(item);
 
     if (id.equals("ben_Pron_Pers") || id.equals("sen_Pron_Pers")) {
-      StemTransition original, modified;
-      MorphemeState unmodifiedRootState = morphotactics.getRootState(item);
       if (item.lemma.equals("ben")) {
         original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
         modified = new StemTransition("ban", item, calculateAttributes("ban"),
@@ -224,7 +224,12 @@ public class StemTransitionGenerator {
     } else if (id.equals("demek_Verb") || id.equals("yemek_Verb")) {
       return new ArrayList<>();
     } else if (id.equals("birbiri [P:Pron,Quant; A:Special]")) {
-      return new ArrayList<>();
+      original = new StemTransition(item.root, item, originalAttrs, morphotactics.pronQuant_SnT);
+      modified = new StemTransition("birbir", item, calculateAttributes("birbir"),
+          morphotactics.pronQuant_SnT);
+      original.getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
+      modified.getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
+      return Lists.newArrayList(original, modified);
     } else {
       throw new IllegalArgumentException(
           "Lexicon Item with special stem change cannot be handled:" + item);

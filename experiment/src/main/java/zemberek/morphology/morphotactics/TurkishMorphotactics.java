@@ -172,7 +172,7 @@ public class TurkishMorphotactics {
 
   MorphemeState pronPers_SnT = nonTerminal("pronPers_SnT", pron);
   MorphemeState pronDemons_SnT = nonTerminal("pronDemons_SnT", pron);
-  MorphemeState pronQuant_SnT = nonTerminal("pronQuant_SnT", pron);
+  public MorphemeState pronQuant_SnT = nonTerminal("pronQuant_SnT", pron);
 
   // used for ben-sen modification
   public MorphemeState pron_Mod_SnT = nonTerminal("pron_Mod_SnT", pron);
@@ -522,7 +522,6 @@ public class TurkishMorphotactics {
     pP3sg_SnT.addEmpty(pNom_ST);
     pP3sg_SnT.add(pDat_ST, "+nA");
     pP3sg_SnT.add(pAcc_ST, "+nI");
-
   }
 
 
