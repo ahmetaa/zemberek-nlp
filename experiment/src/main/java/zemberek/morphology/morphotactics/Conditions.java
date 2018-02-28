@@ -19,6 +19,7 @@ class Conditions {
 
   public static final Condition HAS_TAIL = new HasTail();
   public static final Condition HAS_NO_TAIL = new HasNoTail();
+  static final Condition HAS_SURFACE = new HasAnySuffixSurface();
   static final Condition HAS_NO_SURFACE = new HasAnySuffixSurface().not();
   static final Condition CURRENT_GROUP_EMPTY = new NoSurfaceAfterDerivation();
   static final Condition CURRENT_GROUP_NOT_EMPTY = new NoSurfaceAfterDerivation().not();
@@ -34,6 +35,14 @@ class Conditions {
 
   public static Condition rootIs(DictionaryItem item) {
     return new DictionaryItemIs(item);
+  }
+
+  public static Condition rootIsany(DictionaryItem... items) {
+    return new DictionaryItemIsAny(items);
+  }
+
+  public static Condition rootIsNone(DictionaryItem... items) {
+    return new DictionaryItemIsNone(items);
   }
 
   public static Condition notHave(RootAttribute attribute) {
@@ -111,7 +120,6 @@ class Conditions {
 
     @Override
     public boolean accept(SearchPath visitor) {
-      // TODO: maybe this should also check if visitor has no derivation.
       return visitor.getDictionaryItem().hasAttribute(attribute);
     }
 
@@ -131,7 +139,6 @@ class Conditions {
 
     @Override
     public boolean accept(SearchPath visitor) {
-      // TODO: maybe this should also check if visitor has no derivation.
       return visitor.getDictionaryItem().hasAnyAttribute(attributes);
     }
 
@@ -170,7 +177,6 @@ class Conditions {
 
     @Override
     public boolean accept(SearchPath visitor) {
-      // TODO: maybe this should also check if visitor has no derivation.
       return item != null && visitor.hasDictionaryItem(item);
     }
 
@@ -179,6 +185,45 @@ class Conditions {
       return "DictionaryItemIs{" + item + '}';
     }
   }
+
+  private static class DictionaryItemIsAny extends AbstractCondition {
+
+    Set<DictionaryItem> items;
+
+    DictionaryItemIsAny(DictionaryItem... items) {
+      this.items = new HashSet<>(Arrays.asList(items));
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      return items.contains(visitor.getDictionaryItem());
+    }
+
+    @Override
+    public String toString() {
+      return "DictionaryItemIsAny{" + items + '}';
+    }
+  }
+
+  private static class DictionaryItemIsNone extends AbstractCondition {
+
+    Set<DictionaryItem> items;
+
+    DictionaryItemIsNone(DictionaryItem... items) {
+      this.items = new HashSet<>(Arrays.asList(items));
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      return !items.contains(visitor.getDictionaryItem());
+    }
+
+    @Override
+    public String toString() {
+      return "DictionaryItemIsNone{" + items + '}';
+    }
+  }
+
 
   public static class HasAnySuffixSurface extends AbstractCondition {
 

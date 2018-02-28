@@ -35,6 +35,17 @@ Example: "Bunlar o elmalar.". However this actually generates a lot of ambiguity
 should we accept bot "yeşilimsi" and "yeşilsi" (currently we do)
 
 oflazer does not have `onlar` as a pronoun. it uses `o` and A3pl
+
+Oflzer accepts bunla =   [(bu:bu) (Pron,Demons;A3sg+Pnon+Inst:nla)]
+               bununla = [(bu:bu) (Pron,Demons;A3sg+Pnon+Inst:nunla)]
+should there be a `bunla`?
+
+Oflazer parses `bunlu`and `bunsuz` as separate adjectives.
+
+herkes is implicitly plural. Perhaps we should also accept `herkesler` as same.
+
+Should RootAttrubute and Root contitions also check if there is no derivation?
+
 ----
 
 annemler, annenler etc can be resoved with implicitPlural, ImplicitP1sg and ImplicitP2sg attributes.

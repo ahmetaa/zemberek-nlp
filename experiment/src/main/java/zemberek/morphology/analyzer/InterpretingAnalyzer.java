@@ -286,6 +286,9 @@ public class InterpretingAnalyzer {
     List<String> detailedInfo() {
       List<String> l = new ArrayList<>();
       l.add("Input = " + input);
+      if(candidateStemTransitions.size()==0) {
+        l.add("No Stem Candidates. Analysis Failed.");
+      }
       l.add("Stem Candidate Transitions: ");
       for (StemTransition c : candidateStemTransitions) {
         l.add("  " + c.debugForm());

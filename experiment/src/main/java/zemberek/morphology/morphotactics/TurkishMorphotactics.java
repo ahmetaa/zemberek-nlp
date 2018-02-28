@@ -4,13 +4,13 @@ import static zemberek.morphology.morphotactics.Conditions.has;
 import static zemberek.morphology.morphotactics.Conditions.notHave;
 import static zemberek.morphology.morphotactics.Conditions.notHaveAny;
 import static zemberek.morphology.morphotactics.Conditions.rootIs;
+import static zemberek.morphology.morphotactics.Conditions.rootIsNone;
 import static zemberek.morphology.morphotactics.Conditions.rootIsNot;
 import static zemberek.morphology.morphotactics.MorphemeState.builder;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminal;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivative;
 import static zemberek.morphology.morphotactics.MorphemeState.terminal;
 
-import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
@@ -172,6 +172,7 @@ public class TurkishMorphotactics {
 
   MorphemeState pronPers_SnT = nonTerminal("pronPers_SnT", pron);
   MorphemeState pronDemons_SnT = nonTerminal("pronDemons_SnT", pron);
+  MorphemeState pronQuant_SnT = nonTerminal("pronQuant_SnT", pron);
 
   // used for ben-sen modification
   public MorphemeState pron_Mod_SnT = nonTerminal("pron_Mod_SnT", pron);
@@ -185,12 +186,18 @@ public class TurkishMorphotactics {
   MorphemeState pA3sg_SnT = nonTerminal("pA3sg_SnT", a3sg);
   MorphemeState pA1pl_SnT = nonTerminal("pA1pl_SnT", a1pl);
   MorphemeState pA2pl_SnT = nonTerminal("pA2pl_SnT", a2pl);
+
   MorphemeState pA3pl_SnT = nonTerminal("pA3pl_SnT", a3pl);
+
+  MorphemeState pQuantA3sg_SnT = nonTerminal("pQuantA3sg_SnT", a3sg);
+  MorphemeState pQuantA3pl_SnT = nonTerminal("pQuantA3pl_SnT", a3pl);
 
   // Possessive
 
   MorphemeState pPnon_SnT = nonTerminal("pPnon_SnT", pnon);
   MorphemeState pPnonMod_SnT = nonTerminal("pPnonMod_SnT", pnon); // for modified ben-sen
+  MorphemeState pP3sg_SnT = nonTerminal("pP3sg_SnT", p3sg); // for `birisi` etc
+  MorphemeState pP3Pl_SnT = nonTerminal("pP3Pl_SnT", p3pl); // for `birileri` etc
 
   // Case
 
@@ -456,11 +463,15 @@ public class TurkishMorphotactics {
     DictionaryItem o = lexicon.getItemById("o_Pron_Pers");
     DictionaryItem biz = lexicon.getItemById("biz_Pron_Pers");
     DictionaryItem siz = lexicon.getItemById("siz_Pron_Pers");
+    DictionaryItem biri = lexicon.getItemById("biri_Pron_Quant");
+    DictionaryItem birbiri = lexicon.getItemById("birbiri_Pron_Quant");
+    DictionaryItem herkes = lexicon.getItemById("herkes_Pron_Quant");
 
     pronPers_SnT.addEmpty(pA1sg_SnT, rootIs(ben));
     pronPers_SnT.addEmpty(pA2sg_SnT, rootIs(sen));
     pronPers_SnT.addEmpty(pA3sg_SnT, rootIs(o));
-    pronPers_SnT.add(pA3pl_SnT, "nlAr",rootIs(o)); // Oflazer does not have "onlar" as Pronoun root.
+    pronPers_SnT
+        .add(pA3pl_SnT, "nlAr", rootIs(o)); // Oflazer does not have "onlar" as Pronoun root.
     pronPers_SnT.addEmpty(pA1pl_SnT, rootIs(biz));
     pronPers_SnT.addEmpty(pA2pl_SnT, rootIs(siz));
 
@@ -480,13 +491,38 @@ public class TurkishMorphotactics {
     pA3pl_SnT.addEmpty(pPnon_SnT);
 
     pPnon_SnT.addEmpty(pNom_ST);
-    pPnon_SnT.add(pDat_ST, "+nA",
-        notHave(PhoneticAttribute.UnModifiedPronoun)); // not allowing ben-e and sen-e
+    // not allowing `ben-e` and `sen-e`. `ban-a` and `san-a` are using different states.
+    pPnon_SnT.add(pDat_ST, "+nA", rootIsNone(ben, sen));
     pPnon_SnT.add(pAcc_ST, "+nI");
 
     //------------ Demonstrative pronouns. ------------------------
     pronDemons_SnT.addEmpty(pA3sg_SnT);
     pronDemons_SnT.add(pA3pl_SnT, "nlAr");
+
+    //------------ Quantitiva Pronouns ----------------------------
+
+    // we have separate A3pl and A3sg states for Quantitive Pronouns.
+    pronQuant_SnT.addEmpty(pQuantA3sg_SnT, rootIsNot(herkes));
+    pronQuant_SnT.add(pQuantA3pl_SnT, "lAr");
+    // Herkes is implicitly plural.
+    pronQuant_SnT.addEmpty(pQuantA3pl_SnT, rootIs(herkes));
+
+    // both biri-ne and birisi is accepted.
+    pQuantA3sg_SnT.addEmpty(pP3sg_SnT, rootIs(biri));
+    pQuantA3sg_SnT.add(pP3sg_SnT, "sI", rootIs(biri));
+
+    // there is no connection from pQuantA3pl to Pnon for preventing `biriler`
+    pQuantA3pl_SnT.add(pP3Pl_SnT, "I", rootIs(biri));
+    pQuantA3pl_SnT.addEmpty(pPnon_SnT, rootIs(herkes));
+
+    pP3Pl_SnT.addEmpty(pNom_ST);
+    pP3Pl_SnT.add(pDat_ST, "+nA");
+    pP3Pl_SnT.add(pAcc_ST, "+nI");
+
+    pP3sg_SnT.addEmpty(pNom_ST);
+    pP3sg_SnT.add(pDat_ST, "+nA");
+    pP3sg_SnT.add(pAcc_ST, "+nI");
+
   }
 
 
@@ -512,11 +548,12 @@ public class TurkishMorphotactics {
             return pronPers_SnT;
           case DemonstrativePron:
             return pronDemons_SnT;
+          case QuantitivePron:
+            return pronQuant_SnT;
           default:
             throw new IllegalStateException("Cannot find root for Pronoun " + dictionaryItem);
         }
       default:
-        Log.warn("Cannot find a suitable root for " + dictionaryItem + ". Returning noun root.");
         return noun_SnT;
     }
   }

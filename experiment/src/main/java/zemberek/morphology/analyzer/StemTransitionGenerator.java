@@ -10,6 +10,7 @@ import static zemberek.core.turkish.RootAttribute.Special;
 import static zemberek.core.turkish.RootAttribute.Voicing;
 
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -220,9 +221,16 @@ public class StemTransitionGenerator {
       original.getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
       modified.getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
       return Lists.newArrayList(original, modified);
+    } else if (id.equals("demek_Verb") || id.equals("yemek_Verb")) {
+      return new ArrayList<>();
+    } else if (id.equals("birbiri [P:Pron,Quant; A:Special]")) {
+      return new ArrayList<>();
     } else {
       throw new IllegalArgumentException(
           "Lexicon Item with special stem change cannot be handled:" + item);
     }
+
+
   }
+
 }
