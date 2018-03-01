@@ -513,23 +513,27 @@ public class TurkishMorphotactics {
     DictionaryItem kimi = lexicon.getItemById("kimi_Pron_Quant");
     DictionaryItem cogu = lexicon.getItemById("çoğu_Pron_Quant");
     DictionaryItem bircogu = lexicon.getItemById("birçoğu_Pron_Quant");
+    DictionaryItem tumu = lexicon.getItemById("tümü_Pron_Quant");
 
     // we have separate A3pl and A3sg states for Quantitive Pronouns.
     // herkes and hep cannot be singular.
-    pronQuant_S.addEmpty(pQuantA3sg_S, rootIsNone(herkes, hepsi, hep));
+    pronQuant_S.addEmpty(pQuantA3sg_S,
+        rootIsNone(herkes, hepsi, hep, tumu));
 
-    pronQuant_S.add(pQuantA3pl_S, "lAr", rootIsNone(hep, hepsi, cogu, bircogu, herbiri));
+    pronQuant_S.add(pQuantA3pl_S, "lAr",
+        rootIsNone(hep, hepsi, cogu, bircogu, herbiri, tumu));
 
     // Herkes is implicitly plural.
-    pronQuant_S.addEmpty(pQuantA3pl_S, rootIsAny(herkes, hepsi, cogu, bircogu));
+    pronQuant_S.addEmpty(pQuantA3pl_S,
+        rootIsAny(herkes, hepsi, cogu, bircogu, tumu));
 
     // for `birbiri-miz` `hep-imiz`
     pronQuant_S.addEmpty(pQuantA1pl_S,
-        rootIsAny(biri, birbiri, herbiri, hep, kimi, cogu, bircogu));
+        rootIsAny(biri, birbiri, herbiri, hep, kimi, cogu, bircogu, tumu));
 
     // for `birbiri-niz` and `hep-iniz`
     pronQuant_S.addEmpty(pQuantA2pl_S,
-        rootIsAny(biri, birbiri, herbiri, hep, kimi, cogu, bircogu));
+        rootIsAny(biri, birbiri, herbiri, hep, kimi, cogu, bircogu, tumu));
 
     // this is used for birbir-ler-i, çok-lar-ı, birçok-lar-ı separate root and A3pl states are
     // used for this.
@@ -546,7 +550,7 @@ public class TurkishMorphotactics {
 
     // there is no connection from pQuantA3pl to Pnon for preventing `biriler`
     pQuantA3pl_S.add(pP3Pl_S, "I", rootIsAny(biri, birbiri, kimi));
-    pQuantA3pl_S.addEmpty(pP3Pl_S, rootIsAny(hepsi, cogu, bircogu));
+    pQuantA3pl_S.addEmpty(pP3Pl_S, rootIsAny(hepsi, cogu, tumu, bircogu));
     pQuantA3pl_S.addEmpty(pPnon_S, rootIsAny(herkes));
 
     pQuantA1pl_S.add(pP1Pl_S, "ImIz");

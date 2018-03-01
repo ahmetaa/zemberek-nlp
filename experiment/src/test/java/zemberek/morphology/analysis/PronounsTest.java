@@ -169,6 +169,23 @@ public class PronounsTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void tumuTest() {
+    AnalysisTester tester = getTester("tümü [P:Pron,Quant]");
+
+    tester.expectSingle("tümü", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+    tester.expectSingle("tümümüz", matchesTailLex("Pron + A1pl + P1pl + Nom"));
+    tester.expectSingle("tümümüze", matchesTailLex("Pron + A1pl + P1pl + Dat"));
+    tester.expectSingle("tümünüz", matchesTailLex("Pron + A2pl + P2pl + Nom"));
+    tester.expectSingle("tümünüzü", matchesTailLex("Pron + A2pl + P2pl + Acc"));
+
+    tester.expectFail(
+        "tümler",
+        "tümleri",
+        "tümüm"
+    );
+  }
+
+  @Test
   public void hepsiTest() {
     AnalysisTester tester = getTester("hepsi [P:Pron,Quant]");
 
