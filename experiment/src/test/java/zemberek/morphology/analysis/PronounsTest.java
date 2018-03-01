@@ -78,6 +78,8 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("birini", matchesTailLex("Pron + A3sg + P3sg + Acc"));
     tester.expectSingle("birisini", matchesTailLex("Pron + A3sg + P3sg + Acc"));
 
+    tester.expectSingle("birimiz", matchesTailLex("Pron + A1pl + P1pl + Nom"));
+    tester.expectSingle("biriniz", matchesTailLex("Pron + A2pl + P2pl + Nom"));
     tester.expectSingle("birileri", matchesTailLex("Pron + A3pl + P3pl + Nom"));
     tester.expectSingle("birilerine", matchesTailLex("Pron + A3pl + P3pl + Dat"));
     tester.expectSingle("birilerini", matchesTailLex("Pron + A3pl + P3pl + Acc"));
@@ -85,6 +87,32 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectFail(
         "biriler",
         "birilerim"
+    );
+  }
+
+  @Test
+  public void herbiriTest1() {
+    AnalysisTester tester = getTester("herbiri [P:Pron,Quant]");
+    // both are same
+    tester.expectSingle("herbiri", matchesTailLex("Pron + A3sg + P3sg + Nom"));
+    tester.expectSingle("herbirisi", matchesTailLex("Pron + A3sg + P3sg + Nom"));
+    // both are same
+    tester.expectSingle("herbirine", matchesTailLex("Pron + A3sg + P3sg + Dat"));
+    tester.expectSingle("herbirisine", matchesTailLex("Pron + A3sg + P3sg + Dat"));
+    // both are same
+
+    tester.expectSingle("herbirimiz", matchesTailLex("Pron + A1pl + P1pl + Nom"));
+    tester.expectSingle("herbiriniz", matchesTailLex("Pron + A2pl + P2pl + Nom"));
+
+    tester.expectSingle("herbirini", matchesTailLex("Pron + A3sg + P3sg + Acc"));
+    tester.expectSingle("herbirisini", matchesTailLex("Pron + A3sg + P3sg + Acc"));
+
+    tester.expectFail(
+        "herbiriler",
+        "herbirileri",
+        "herbirilerine",
+        "herbirilerim",
+        "herbirilerin"
     );
   }
 

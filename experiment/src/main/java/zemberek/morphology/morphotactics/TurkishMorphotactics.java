@@ -4,9 +4,9 @@ import static zemberek.morphology.morphotactics.Conditions.has;
 import static zemberek.morphology.morphotactics.Conditions.notHave;
 import static zemberek.morphology.morphotactics.Conditions.notHaveAny;
 import static zemberek.morphology.morphotactics.Conditions.rootIs;
+import static zemberek.morphology.morphotactics.Conditions.rootIsAny;
 import static zemberek.morphology.morphotactics.Conditions.rootIsNone;
 import static zemberek.morphology.morphotactics.Conditions.rootIsNot;
-import static zemberek.morphology.morphotactics.Conditions.rootIsAny;
 import static zemberek.morphology.morphotactics.MorphemeState.builder;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminal;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivative;
@@ -506,6 +506,7 @@ public class TurkishMorphotactics {
     //------------ Quantitiva Pronouns ----------------------------
     DictionaryItem biri = lexicon.getItemById("biri_Pron_Quant");
     DictionaryItem birbiri = lexicon.getItemById("birbiri_Pron_Quant");
+    DictionaryItem herbiri = lexicon.getItemById("herbiri_Pron_Quant");
     DictionaryItem herkes = lexicon.getItemById("herkes_Pron_Quant");
     DictionaryItem hep = lexicon.getItemById("hep_Pron_Quant");
     DictionaryItem hepsi = lexicon.getItemById("hepsi_Pron_Quant");
@@ -513,33 +514,35 @@ public class TurkishMorphotactics {
     DictionaryItem cogu = lexicon.getItemById("çoğu_Pron_Quant");
     DictionaryItem bircogu = lexicon.getItemById("birçoğu_Pron_Quant");
 
-
     // we have separate A3pl and A3sg states for Quantitive Pronouns.
     // herkes and hep cannot be singular.
     pronQuant_S.addEmpty(pQuantA3sg_S, rootIsNone(herkes, hepsi, hep));
 
-    pronQuant_S.add(pQuantA3pl_S, "lAr", rootIsNone(hep, hepsi, cogu, bircogu));
+    pronQuant_S.add(pQuantA3pl_S, "lAr", rootIsNone(hep, hepsi, cogu, bircogu, herbiri));
 
     // Herkes is implicitly plural.
     pronQuant_S.addEmpty(pQuantA3pl_S, rootIsAny(herkes, hepsi, cogu, bircogu));
 
     // for `birbiri-miz` `hep-imiz`
-    pronQuant_S.addEmpty(pQuantA1pl_S, rootIsAny(birbiri, hep, kimi, cogu, bircogu));
+    pronQuant_S.addEmpty(pQuantA1pl_S,
+        rootIsAny(biri, birbiri, herbiri, hep, kimi, cogu, bircogu));
 
     // for `birbiri-niz` and `hep-iniz`
-    pronQuant_S.addEmpty(pQuantA2pl_S, rootIsAny(birbiri, hep, kimi, cogu, bircogu));
+    pronQuant_S.addEmpty(pQuantA2pl_S,
+        rootIsAny(biri, birbiri, herbiri, hep, kimi, cogu, bircogu));
 
-    // this is used for birbir-ler-i, çok-lar-ı, birçok-lar-ı A separate root state is used for this.
+    // this is used for birbir-ler-i, çok-lar-ı, birçok-lar-ı separate root and A3pl states are
+    // used for this.
     pronQuantModified_S.add(pQuantModA3pl_S, "lAr");
     pQuantModA3pl_S.add(pP3Pl_S, "I");
 
     // both `biri-ne` and `birisi-ne` or `birbirine` and `birbirisine` are accepted.
     pQuantA3sg_S.addEmpty(pP3sg_S,
-        rootIsAny(biri,birbiri, kimi)
-        .and(notHave(PhoneticAttribute.ModifiedPronoun)));
+        rootIsAny(biri, birbiri, kimi, herbiri)
+            .and(notHave(PhoneticAttribute.ModifiedPronoun)));
     pQuantA3sg_S.add(pP3sg_S, "sI",
-        rootIsAny(biri,birbiri)
-        .and(notHave(PhoneticAttribute.ModifiedPronoun)));
+        rootIsAny(biri, birbiri, herbiri)
+            .and(notHave(PhoneticAttribute.ModifiedPronoun)));
 
     // there is no connection from pQuantA3pl to Pnon for preventing `biriler`
     pQuantA3pl_S.add(pP3Pl_S, "I", rootIsAny(biri, birbiri, kimi));
