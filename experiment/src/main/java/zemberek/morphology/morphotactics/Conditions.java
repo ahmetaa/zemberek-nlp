@@ -37,7 +37,7 @@ class Conditions {
     return new DictionaryItemIs(item);
   }
 
-  public static Condition rootIsany(DictionaryItem... items) {
+  public static Condition rootIsAny(DictionaryItem... items) {
     return new DictionaryItemIsAny(items);
   }
 

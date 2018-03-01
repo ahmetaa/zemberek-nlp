@@ -212,21 +212,21 @@ public class StemTransitionGenerator {
       if (item.lemma.equals("ben")) {
         original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
         modified = new StemTransition("ban", item, calculateAttributes("ban"),
-            morphotactics.pron_Mod_SnT);
+            morphotactics.pron_Mod_S);
       } else {
         original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
         modified = new StemTransition("san", item, calculateAttributes("san"),
-            morphotactics.pron_Mod_SnT);
+            morphotactics.pron_Mod_S);
       }
       original.getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
       modified.getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
       return Lists.newArrayList(original, modified);
     } else if (id.equals("demek_Verb") || id.equals("yemek_Verb")) {
       return new ArrayList<>();
-    } else if (id.equals("birbiri [P:Pron,Quant; A:Special]")) {
-      original = new StemTransition(item.root, item, originalAttrs, morphotactics.pronQuant_SnT);
+    } else if (id.equals("birbiri_Pron_Quant")) {
+      original = new StemTransition(item.root, item, originalAttrs, morphotactics.pronQuant_S);
       modified = new StemTransition("birbir", item, calculateAttributes("birbir"),
-          morphotactics.pronQuant_SnT);
+          morphotactics.pronBirbiriMod_S);
       original.getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
       modified.getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
       return Lists.newArrayList(original, modified);
