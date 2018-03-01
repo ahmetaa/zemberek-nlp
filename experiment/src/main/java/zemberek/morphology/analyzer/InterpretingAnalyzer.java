@@ -285,7 +285,8 @@ public class InterpretingAnalyzer {
 
     List<String> detailedInfo() {
       List<String> l = new ArrayList<>();
-      l.add("Input = " + input);
+      l.add("----------------------");
+      l.add("Debug data for input = " + input);
       if(candidateStemTransitions.size()==0) {
         l.add("No Stem Candidates. Analysis Failed.");
       }
@@ -311,7 +312,7 @@ public class InterpretingAnalyzer {
       }
       l.add("Results:");
       for (AnalysisResult result : results) {
-        l.add("  " + result);
+        l.add("  " + result + " = " + result.shortForm());
       }
       return l;
     }

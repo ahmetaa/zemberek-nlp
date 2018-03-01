@@ -203,7 +203,7 @@ public class TurkishMorphotactics {
   MorphemeState pP3sg_S = nonTerminal("pP3sg_S", p3sg); // for `birisi` etc
   MorphemeState pP3Pl_S = nonTerminal("pP3Pl_S", p3pl); // for `birileri` etc
   MorphemeState pP1Pl_S = nonTerminal("pP1Pl_S", p1pl); // for `birbirimiz` etc
-  MorphemeState pP2Pl_S = nonTerminal("pP2Pl_S", p1pl); // for `birbiriniz` etc
+  MorphemeState pP2Pl_S = nonTerminal("pP2Pl_S", p2pl); // for `birbiriniz` etc
 
   // Case
 
@@ -472,7 +472,7 @@ public class TurkishMorphotactics {
     DictionaryItem biri = lexicon.getItemById("biri_Pron_Quant");
     DictionaryItem birbiri = lexicon.getItemById("birbiri_Pron_Quant");
     DictionaryItem herkes = lexicon.getItemById("herkes_Pron_Quant");
-    DictionaryItem hep = lexicon.getItemById("herkes_Pron_Quant");
+    DictionaryItem hep = lexicon.getItemById("hep_Pron_Quant");
 
     pronPers_S.addEmpty(pA1sg_S, rootIs(ben));
     pronPers_S.addEmpty(pA2sg_S, rootIs(sen));
@@ -509,8 +509,10 @@ public class TurkishMorphotactics {
     //------------ Quantitiva Pronouns ----------------------------
 
     // we have separate A3pl and A3sg states for Quantitive Pronouns.
-    pronQuant_S.addEmpty(pQuantA3sg_S, rootIsNot(herkes));
-    pronQuant_S.add(pQuantA3pl_S, "lAr");
+    // herkes and hep cannot be singular.
+    pronQuant_S.addEmpty(pQuantA3sg_S, rootIsNone(herkes, hep));
+
+    pronQuant_S.add(pQuantA3pl_S, "lAr", rootIsNone(hep));
 
     // Herkes is implicitly plural.
     pronQuant_S.addEmpty(pQuantA3pl_S, rootIs(herkes));
@@ -537,7 +539,7 @@ public class TurkishMorphotactics {
     pQuantA3pl_S.addEmpty(pPnon_S, rootIs(herkes));
 
     pQuantA1pl_S.add(pP1Pl_S, "ImIz");
-    pQuantA1pl_S.add(pP2Pl_S, "InIz");
+    pQuantA2pl_S.add(pP2Pl_S, "InIz");
 
     pP3Pl_S.addEmpty(pNom_ST);
     pP3Pl_S.add(pDat_ST, "+nA");
@@ -554,7 +556,6 @@ public class TurkishMorphotactics {
     pP2Pl_S.addEmpty(pNom_ST);
     pP2Pl_S.add(pDat_ST, "+nA");
     pP2Pl_S.add(pAcc_ST, "+nI");
-
 
   }
 
