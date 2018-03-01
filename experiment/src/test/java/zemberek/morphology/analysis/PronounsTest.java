@@ -119,4 +119,15 @@ public class PronounsTest extends AnalyzerTestBase {
   }
 
 
+  @Test
+  public void birbiriFailTest1() {
+    AnalysisTester tester = getTester("birbiri [P:Pron,Quant; A:Special]");
+    tester.expectFail(
+        "birbir",
+        "birbirler",
+        "birbiriler",
+        "birbirlere"
+    );
+  }
+
 }
