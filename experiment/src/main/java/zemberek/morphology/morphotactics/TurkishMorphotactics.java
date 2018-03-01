@@ -174,7 +174,7 @@ public class TurkishMorphotactics {
   MorphemeState pronPers_S = nonTerminal("pronPers_S", pron);
   MorphemeState pronDemons_S = nonTerminal("pronDemons_S", pron);
   public MorphemeState pronQuant_S = nonTerminal("pronQuant_S", pron);
-  public MorphemeState pronBirbiriMod_S = nonTerminal("pronBirbiriMod_S", pron);
+  public MorphemeState pronQuantModified_S = nonTerminal("pronQuantModified_S", pron);
 
   // used for ben-sen modification
   public MorphemeState pron_Mod_S = nonTerminal("pron_Mod_S", pron);
@@ -193,6 +193,7 @@ public class TurkishMorphotactics {
 
   MorphemeState pQuantA3sg_S = nonTerminal("pQuantA3sg_S", a3sg);
   MorphemeState pQuantA3pl_S = nonTerminal("pQuantA3pl_S", a3pl);
+  MorphemeState pQuantModA3pl_S = nonTerminal("pQuantModA3pl_S", a3pl); // for birbirleri etc.
   MorphemeState pQuantA1pl_S = nonTerminal("pQuantA1pl_S", a1pl);
   MorphemeState pQuantA2pl_S = nonTerminal("pQuantA2pl_S", a2pl);
 
@@ -509,25 +510,28 @@ public class TurkishMorphotactics {
     DictionaryItem hep = lexicon.getItemById("hep_Pron_Quant");
     DictionaryItem hepsi = lexicon.getItemById("hepsi_Pron_Quant");
     DictionaryItem kimi = lexicon.getItemById("kimi_Pron_Quant");
+    DictionaryItem cogu = lexicon.getItemById("çoğu_Pron_Quant");
+    DictionaryItem bircogu = lexicon.getItemById("birçoğu_Pron_Quant");
 
 
     // we have separate A3pl and A3sg states for Quantitive Pronouns.
     // herkes and hep cannot be singular.
     pronQuant_S.addEmpty(pQuantA3sg_S, rootIsNone(herkes, hepsi, hep));
 
-    pronQuant_S.add(pQuantA3pl_S, "lAr", rootIsNone(hep, hepsi));
+    pronQuant_S.add(pQuantA3pl_S, "lAr", rootIsNone(hep, hepsi, cogu, bircogu));
 
     // Herkes is implicitly plural.
-    pronQuant_S.addEmpty(pQuantA3pl_S, rootIsAny(herkes, hepsi));
+    pronQuant_S.addEmpty(pQuantA3pl_S, rootIsAny(herkes, hepsi, cogu, bircogu));
 
     // for `birbiri-miz` `hep-imiz`
-    pronQuant_S.addEmpty(pQuantA1pl_S, rootIsAny(birbiri, hep, kimi));
+    pronQuant_S.addEmpty(pQuantA1pl_S, rootIsAny(birbiri, hep, kimi, cogu, bircogu));
 
     // for `birbiri-niz` and `hep-iniz`
-    pronQuant_S.addEmpty(pQuantA2pl_S, rootIsAny(birbiri, hep, kimi));
+    pronQuant_S.addEmpty(pQuantA2pl_S, rootIsAny(birbiri, hep, kimi, cogu, bircogu));
 
-    // this is used only for birbir-ler-i. A separate root state is used for this.
-    pronBirbiriMod_S.add(pQuantA3pl_S, "lAr");
+    // this is used for birbir-ler-i, çok-lar-ı, birçok-lar-ı A separate root state is used for this.
+    pronQuantModified_S.add(pQuantModA3pl_S, "lAr");
+    pQuantModA3pl_S.add(pP3Pl_S, "I");
 
     // both `biri-ne` and `birisi-ne` or `birbirine` and `birbirisine` are accepted.
     pQuantA3sg_S.addEmpty(pP3sg_S,
@@ -539,7 +543,7 @@ public class TurkishMorphotactics {
 
     // there is no connection from pQuantA3pl to Pnon for preventing `biriler`
     pQuantA3pl_S.add(pP3Pl_S, "I", rootIsAny(biri, birbiri, kimi));
-    pQuantA3pl_S.addEmpty(pP3Pl_S, rootIsAny(hepsi));
+    pQuantA3pl_S.addEmpty(pP3Pl_S, rootIsAny(hepsi, cogu, bircogu));
     pQuantA3pl_S.addEmpty(pPnon_S, rootIsAny(herkes));
 
     pQuantA1pl_S.add(pP1Pl_S, "ImIz");

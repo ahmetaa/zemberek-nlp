@@ -209,12 +209,11 @@ public class StemTransitionGenerator {
     MorphemeState unmodifiedRootState = morphotactics.getRootState(item);
 
     if (id.equals("ben_Pron_Pers") || id.equals("sen_Pron_Pers")) {
+      original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
       if (item.lemma.equals("ben")) {
-        original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
         modified = new StemTransition("ban", item, calculateAttributes("ban"),
             morphotactics.pron_Mod_S);
       } else {
-        original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
         modified = new StemTransition("san", item, calculateAttributes("san"),
             morphotactics.pron_Mod_S);
       }
@@ -223,10 +222,25 @@ public class StemTransitionGenerator {
       return Lists.newArrayList(original, modified);
     } else if (id.equals("demek_Verb") || id.equals("yemek_Verb")) {
       return new ArrayList<>();
-    } else if (id.equals("birbiri_Pron_Quant")) {
+    } else if (id.equals("birbiri_Pron_Quant")
+        || id.equals("çoğu_Pron_Quant")
+        || id.equals("birçoğu_Pron_Quant")) {
       original = new StemTransition(item.root, item, originalAttrs, morphotactics.pronQuant_S);
-      modified = new StemTransition("birbir", item, calculateAttributes("birbir"),
-          morphotactics.pronBirbiriMod_S);
+
+      switch (item.lemma) {
+        case "birbiri":
+          modified = new StemTransition("birbir", item, calculateAttributes("birbir"),
+              morphotactics.pronQuantModified_S);
+          break;
+        case "çoğu":
+          modified = new StemTransition("çok", item, calculateAttributes("çok"),
+              morphotactics.pronQuantModified_S);
+          break;
+        default:
+          modified = new StemTransition("birçok", item, calculateAttributes("birçok"),
+              morphotactics.pronQuantModified_S);
+          break;
+      }
       original.getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
       modified.getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
       return Lists.newArrayList(original, modified);

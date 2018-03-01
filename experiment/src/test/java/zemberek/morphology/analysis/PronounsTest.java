@@ -97,7 +97,7 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("herkesi", matchesTailLex("Pron + A3pl + Pnon + Acc"));
 
     tester.expectFail(
-        "herkesim"
+        "herkesim" // no Pron analysis. Oflzer offers noun analysis
     );
   }
 
@@ -108,7 +108,7 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("birbiri", matchesTailLex("Pron + A3sg + P3sg + Nom"));
     tester.expectSingle("birbirine", matchesTailLex("Pron + A3sg + P3sg + Dat"));
     tester.expectSingle("birbirimiz", matchesTailLex("Pron + A1pl + P1pl + Nom"));
-    tester.expectSingle("birbiriniz", matchesTailLex("Pron + A1pl + P1pl + Nom"));
+    tester.expectSingle("birbiriniz", matchesTailLex("Pron + A2pl + P2pl + Nom"));
 
     tester.expectSingle("birbirileri", matchesTailLex("Pron + A3pl + P3pl + Nom"));
     tester.expectSingle("birbirleri", matchesTailLex("Pron + A3pl + P3pl + Nom"));
@@ -177,5 +177,38 @@ public class PronounsTest extends AnalyzerTestBase {
     );
   }
 
+  @Test
+  public void coguTest() {
+    AnalysisTester tester = getTester("çoğu [P:Pron,Quant; A:Special]");
+    tester.expectSingle("çoğu", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+    tester.expectSingle("çoğumuz", matchesTailLex("Pron + A1pl + P1pl + Nom"));
+    tester.expectSingle("çoğunuz", matchesTailLex("Pron + A2pl + P2pl + Nom"));
+    tester.expectSingle("çokları", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+    tester.expectSingle("çoğuna", matchesTailLex("Pron + A3pl + P3pl + Dat"));
+    tester.expectSingle("çoklarını", matchesTailLex("Pron + A3pl + P3pl + Acc"));
+
+    tester.expectFail(
+        "çoğular",
+        "çokumuz",
+        "çoğum"
+    );
+  }
+
+  @Test
+  public void bircoguTest() {
+    AnalysisTester tester = getTester("birçoğu [P:Pron,Quant; A:Special]");
+    tester.expectSingle("birçoğu", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+    tester.expectSingle("birçoğumuz", matchesTailLex("Pron + A1pl + P1pl + Nom"));
+    tester.expectSingle("birçoğunuz", matchesTailLex("Pron + A2pl + P2pl + Nom"));
+    tester.expectSingle("birçokları", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+    tester.expectSingle("birçoğuna", matchesTailLex("Pron + A3pl + P3pl + Dat"));
+    tester.expectSingle("birçoklarını", matchesTailLex("Pron + A3pl + P3pl + Acc"));
+
+    tester.expectFail(
+        "birçoğular",
+        "birçokumuz",
+        "birçoğum"
+    );
+  }  
 
 }
