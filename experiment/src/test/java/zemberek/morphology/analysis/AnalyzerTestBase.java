@@ -137,7 +137,7 @@ public class AnalyzerTestBase {
       AnalyzerTestBase.expectSuccess(analyzer, solutionCount, words);
     }
 
-    void expectSingleTrue(String input, Predicate<AnalysisResult> predicate) {
+    void expectSingle(String input, Predicate<AnalysisResult> predicate) {
       AnalysisResult result = getSingleAnalysis(analyzer, input);
       if (!predicate.test(result)) {
         printDebug(analyzer, input);
@@ -145,9 +145,25 @@ public class AnalyzerTestBase {
       }
     }
 
+    void expectSingle(String input, AnalysisMatcher matcher) {
+      AnalysisResult result = getSingleAnalysis(analyzer, input);
+      if (!matcher.predicate.test(result)) {
+        printDebug(analyzer, input);
+        Assert.fail("Anaysis Failed for [" + input + "]. Predicate Input = " + matcher.expected );
+      }
+    }
+
     void expectFalse(String input, Predicate<AnalysisResult> predicate) {
       AnalysisResult result = getSingleAnalysis(analyzer, input);
       if (predicate.test(result)) {
+        printDebug(analyzer, input);
+        Assert.fail("Anaysis Failed for [" + input + "]");
+      }
+    }
+
+    void expectFalse(String input, AnalysisMatcher matcher) {
+      AnalysisResult result = getSingleAnalysis(analyzer, input);
+      if (matcher.predicate.test(result)) {
         printDebug(analyzer, input);
         Assert.fail("Anaysis Failed for [" + input + "]");
       }
@@ -162,9 +178,19 @@ public class AnalyzerTestBase {
     return p -> p.shortForm().endsWith(shortFormTail);
   }
 
-  public static Predicate<AnalysisResult> matchesLexicalTail(String tail) {
-    return p -> p.lexicalForm().endsWith(tail);
+  public static AnalysisMatcher matchesTailLex(String tail) {
+    return new AnalysisMatcher(p -> p.lexicalForm().endsWith(tail), tail);
   }
 
+  static class AnalysisMatcher {
 
+    String expected;
+    Predicate<AnalysisResult> predicate;
+
+    AnalysisMatcher(Predicate<AnalysisResult> predicate, String expected) {
+      this.predicate = predicate;
+      this.expected = expected;
+    }
+
+  }
 }

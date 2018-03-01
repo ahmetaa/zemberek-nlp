@@ -7,21 +7,21 @@ public class NounAdjectiveDerivationTest extends AnalyzerTestBase {
   @Test
   public void withTest() {
     AnalysisTester tester = getTester("meyve");
-    tester.expectSingleTrue("meyveli",
-        matchesLexicalTail("Pnon + Nom + With + Adj"));
+    tester.expectSingle("meyveli",
+        matchesTailLex("Pnon + Nom + With + Adj"));
 
   }
 
   @Test
   public void justlikeTest() {
     AnalysisTester tester = getTester("meyve");
-    tester.expectSingleTrue("meyvemsi",
-        matchesLexicalTail("Pnon + Nom + JustLike + Adj"));
+    tester.expectSingle("meyvemsi",
+        matchesTailLex("Pnon + Nom + JustLike + Adj"));
     tester = getTester("odun");
-    tester.expectSingleTrue("odunsu",
-        matchesLexicalTail("Pnon + Nom + JustLike + Adj"));
-    tester.expectSingleTrue("odunumsu",
-        matchesLexicalTail("Pnon + Nom + JustLike + Adj"));
+    tester.expectSingle("odunsu",
+        matchesTailLex("Pnon + Nom + JustLike + Adj"));
+    tester.expectSingle("odunumsu",
+        matchesTailLex("Pnon + Nom + JustLike + Adj"));
   }
 
   // check for
@@ -31,9 +31,9 @@ public class NounAdjectiveDerivationTest extends AnalyzerTestBase {
   public void justLikeFalseTest() {
     AnalysisTester tester = getTester("meyve");
     tester.expectFalse("meyvemsi",
-        matchesLexicalTail("P1sg + Nom + JustLike + Adj"));
+        matchesTailLex("P1sg + Nom + JustLike + Adj"));
     tester.expectFalse("meyvesi",
-        matchesLexicalTail("Pnon + Nom + JustLike + Adj"));
+        matchesTailLex("Pnon + Nom + JustLike + Adj"));
   }
 
   @Test

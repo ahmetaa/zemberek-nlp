@@ -50,15 +50,15 @@ public class VerbsAfterNounAdjTest extends AnalyzerTestBase {
   @Test
   public void degilTest() {
     AnalysisTester tester = getTester("değil [P:Verb]");
-    tester.expectSingleTrue("değil", matchesLexicalTail("Neg + Pres + A3sg"));
-    tester.expectSingleTrue("değildi", matchesLexicalTail("Neg + Past + A3sg"));
-    tester.expectSingleTrue("değilim", matchesLexicalTail("Neg + Pres + A1sg"));
+    tester.expectSingle("değil", matchesTailLex("Neg + Pres + A3sg"));
+    tester.expectSingle("değildi", matchesTailLex("Neg + Past + A3sg"));
+    tester.expectSingle("değilim", matchesTailLex("Neg + Pres + A1sg"));
   }
 
   @Test
   public void nounVerbZeroTest() {
     AnalysisTester tester = getTester("elma");
-    tester.expectSingleTrue("elmayım", matchesLexicalTail("Zero + Verb + Pres + A1sg"));
+    tester.expectSingle("elmayım", matchesTailLex("Zero + Verb + Pres + A1sg"));
   }
 
 }

@@ -7,9 +7,9 @@ public class PronounsTest extends AnalyzerTestBase {
   @Test
   public void benSenTest1() {
     AnalysisTester tester = getTester("ben [P:Pron,Pers ;A:Special]");
-    tester.expectSingleTrue("ben", matchesLexicalTail("Pron + A1sg + Pnon + Nom"));
-    tester.expectSingleTrue("bana", matchesLexicalTail("Pron + A1sg + Pnon + Dat"));
-    tester.expectSingleTrue("beni", matchesLexicalTail("Pron + A1sg + Pnon + Acc"));
+    tester.expectSingle("ben", matchesTailLex("Pron + A1sg + Pnon + Nom"));
+    tester.expectSingle("bana", matchesTailLex("Pron + A1sg + Pnon + Dat"));
+    tester.expectSingle("beni", matchesTailLex("Pron + A1sg + Pnon + Acc"));
 
     tester.expectFail(
         "ban",
@@ -19,9 +19,9 @@ public class PronounsTest extends AnalyzerTestBase {
     );
 
     tester = getTester("sen [P:Pron,Pers ;A:Special]");
-    tester.expectSingleTrue("sen", matchesLexicalTail("Pron + A2sg + Pnon + Nom"));
-    tester.expectSingleTrue("sana", matchesLexicalTail("Pron + A2sg + Pnon + Dat"));
-    tester.expectSingleTrue("seni", matchesLexicalTail("Pron + A2sg + Pnon + Acc"));
+    tester.expectSingle("sen", matchesTailLex("Pron + A2sg + Pnon + Nom"));
+    tester.expectSingle("sana", matchesTailLex("Pron + A2sg + Pnon + Dat"));
+    tester.expectSingle("seni", matchesTailLex("Pron + A2sg + Pnon + Acc"));
 
     tester.expectFail(
         "san",
@@ -34,53 +34,53 @@ public class PronounsTest extends AnalyzerTestBase {
   @Test
   public void oTest1() {
     AnalysisTester tester = getTester("o [P:Pron,Pers]");
-    tester.expectSingleTrue("o", matchesLexicalTail("Pron + A3sg + Pnon + Nom"));
-    tester.expectSingleTrue("ona", matchesLexicalTail("Pron + A3sg + Pnon + Dat"));
-    tester.expectSingleTrue("onu", matchesLexicalTail("Pron + A3sg + Pnon + Acc"));
-    tester.expectSingleTrue("onlar", matchesLexicalTail("Pron + A3pl + Pnon + Nom"));
-    tester.expectSingleTrue("onlara", matchesLexicalTail("Pron + A3pl + Pnon + Dat"));
+    tester.expectSingle("o", matchesTailLex("Pron + A3sg + Pnon + Nom"));
+    tester.expectSingle("ona", matchesTailLex("Pron + A3sg + Pnon + Dat"));
+    tester.expectSingle("onu", matchesTailLex("Pron + A3sg + Pnon + Acc"));
+    tester.expectSingle("onlar", matchesTailLex("Pron + A3pl + Pnon + Nom"));
+    tester.expectSingle("onlara", matchesTailLex("Pron + A3pl + Pnon + Dat"));
   }
 
   @Test
   public void bizSizTest() {
     AnalysisTester tester = getTester("biz [P:Pron,Pers]");
-    tester.expectSingleTrue("biz", matchesLexicalTail("Pron + A1pl + Pnon + Nom"));
-    tester.expectSingleTrue("bize", matchesLexicalTail("Pron + A1pl + Pnon + Dat"));
-    tester.expectSingleTrue("bizi", matchesLexicalTail("Pron + A1pl + Pnon + Acc"));
+    tester.expectSingle("biz", matchesTailLex("Pron + A1pl + Pnon + Nom"));
+    tester.expectSingle("bize", matchesTailLex("Pron + A1pl + Pnon + Dat"));
+    tester.expectSingle("bizi", matchesTailLex("Pron + A1pl + Pnon + Acc"));
 
     tester = getTester("siz [P:Pron,Pers]");
-    tester.expectSingleTrue("siz", matchesLexicalTail("Pron + A2pl + Pnon + Nom"));
-    tester.expectSingleTrue("size", matchesLexicalTail("Pron + A2pl + Pnon + Dat"));
-    tester.expectSingleTrue("sizi", matchesLexicalTail("Pron + A2pl + Pnon + Acc"));
+    tester.expectSingle("siz", matchesTailLex("Pron + A2pl + Pnon + Nom"));
+    tester.expectSingle("size", matchesTailLex("Pron + A2pl + Pnon + Dat"));
+    tester.expectSingle("sizi", matchesTailLex("Pron + A2pl + Pnon + Acc"));
   }
 
 
   @Test
   public void buTest1() {
     AnalysisTester tester = getTester("bu [P:Pron,Demons]");
-    tester.expectSingleTrue("bu", matchesLexicalTail("Pron + A3sg + Pnon + Nom"));
-    tester.expectSingleTrue("buna", matchesLexicalTail("Pron + A3sg + Pnon + Dat"));
-    tester.expectSingleTrue("bunu", matchesLexicalTail("Pron + A3sg + Pnon + Acc"));
-    tester.expectSingleTrue("bunlar", matchesLexicalTail("Pron + A3pl + Pnon + Nom"));
-    tester.expectSingleTrue("bunları", matchesLexicalTail("Pron + A3pl + Pnon + Acc"));
+    tester.expectSingle("bu", matchesTailLex("Pron + A3sg + Pnon + Nom"));
+    tester.expectSingle("buna", matchesTailLex("Pron + A3sg + Pnon + Dat"));
+    tester.expectSingle("bunu", matchesTailLex("Pron + A3sg + Pnon + Acc"));
+    tester.expectSingle("bunlar", matchesTailLex("Pron + A3pl + Pnon + Nom"));
+    tester.expectSingle("bunları", matchesTailLex("Pron + A3pl + Pnon + Acc"));
   }
 
   @Test
   public void biriTest1() {
     AnalysisTester tester = getTester("biri [P:Pron,Quant]");
     // both are same
-    tester.expectSingleTrue("biri", matchesLexicalTail("Pron + A3sg + P3sg + Nom"));
-    tester.expectSingleTrue("birisi", matchesLexicalTail("Pron + A3sg + P3sg + Nom"));
+    tester.expectSingle("biri", matchesTailLex("Pron + A3sg + P3sg + Nom"));
+    tester.expectSingle("birisi", matchesTailLex("Pron + A3sg + P3sg + Nom"));
     // both are same
-    tester.expectSingleTrue("birine", matchesLexicalTail("Pron + A3sg + P3sg + Dat"));
-    tester.expectSingleTrue("birisine", matchesLexicalTail("Pron + A3sg + P3sg + Dat"));
+    tester.expectSingle("birine", matchesTailLex("Pron + A3sg + P3sg + Dat"));
+    tester.expectSingle("birisine", matchesTailLex("Pron + A3sg + P3sg + Dat"));
     // both are same
-    tester.expectSingleTrue("birini", matchesLexicalTail("Pron + A3sg + P3sg + Acc"));
-    tester.expectSingleTrue("birisini", matchesLexicalTail("Pron + A3sg + P3sg + Acc"));
+    tester.expectSingle("birini", matchesTailLex("Pron + A3sg + P3sg + Acc"));
+    tester.expectSingle("birisini", matchesTailLex("Pron + A3sg + P3sg + Acc"));
 
-    tester.expectSingleTrue("birileri", matchesLexicalTail("Pron + A3pl + P3pl + Nom"));
-    tester.expectSingleTrue("birilerine", matchesLexicalTail("Pron + A3pl + P3pl + Dat"));
-    tester.expectSingleTrue("birilerini", matchesLexicalTail("Pron + A3pl + P3pl + Acc"));
+    tester.expectSingle("birileri", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+    tester.expectSingle("birilerine", matchesTailLex("Pron + A3pl + P3pl + Dat"));
+    tester.expectSingle("birilerini", matchesTailLex("Pron + A3pl + P3pl + Acc"));
 
     tester.expectFail(
         "biriler",
@@ -92,9 +92,9 @@ public class PronounsTest extends AnalyzerTestBase {
   public void herkesTest() {
     AnalysisTester tester = getTester("herkes [P:Pron,Quant]");
 
-    tester.expectSingleTrue("herkes", matchesLexicalTail("Pron + A3pl + Pnon + Nom"));
-    tester.expectSingleTrue("herkese", matchesLexicalTail("Pron + A3pl + Pnon + Dat"));
-    tester.expectSingleTrue("herkesi", matchesLexicalTail("Pron + A3pl + Pnon + Acc"));
+    tester.expectSingle("herkes", matchesTailLex("Pron + A3pl + Pnon + Nom"));
+    tester.expectSingle("herkese", matchesTailLex("Pron + A3pl + Pnon + Dat"));
+    tester.expectSingle("herkesi", matchesTailLex("Pron + A3pl + Pnon + Acc"));
 
     tester.expectFail(
         "herkesim"
@@ -105,13 +105,13 @@ public class PronounsTest extends AnalyzerTestBase {
   public void birbiriTest() {
     AnalysisTester tester = getTester("birbiri [P:Pron,Quant; A:Special]");
 
-    tester.expectSingleTrue("birbiri", matchesLexicalTail("Pron + A3sg + P3sg + Nom"));
-    tester.expectSingleTrue("birbirine", matchesLexicalTail("Pron + A3sg + P3sg + Dat"));
-    tester.expectSingleTrue("birbirimiz", matchesLexicalTail("Pron + A1pl + P1pl + Nom"));
-    tester.expectSingleTrue("birbiriniz", matchesLexicalTail("Pron + A1pl + P1pl + Nom"));
+    tester.expectSingle("birbiri", matchesTailLex("Pron + A3sg + P3sg + Nom"));
+    tester.expectSingle("birbirine", matchesTailLex("Pron + A3sg + P3sg + Dat"));
+    tester.expectSingle("birbirimiz", matchesTailLex("Pron + A1pl + P1pl + Nom"));
+    tester.expectSingle("birbiriniz", matchesTailLex("Pron + A1pl + P1pl + Nom"));
 
-    tester.expectSingleTrue("birbirileri", matchesLexicalTail("Pron + A3pl + P3pl + Nom"));
-    tester.expectSingleTrue("birbirleri", matchesLexicalTail("Pron + A3pl + P3pl + Nom"));
+    tester.expectSingle("birbirileri", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+    tester.expectSingle("birbirleri", matchesTailLex("Pron + A3pl + P3pl + Nom"));
 
     tester.expectFail(
         "birbir",
@@ -123,20 +123,59 @@ public class PronounsTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void hepsiTest() {
+  public void hepTest() {
     AnalysisTester tester = getTester("hep [P:Pron,Quant]");
 
-    tester.expectSingleTrue("hepimiz", matchesLexicalTail("Pron + A1pl + P1pl + Nom"));
-    tester.expectSingleTrue("hepimize", matchesLexicalTail("Pron + A1pl + P1pl + Dat"));
-    tester.expectSingleTrue("hepiniz", matchesLexicalTail("Pron + A2pl + P2pl + Nom"));
-    tester.expectSingleTrue("hepinizi", matchesLexicalTail("Pron + A2pl + P2pl + Acc"));
+    tester.expectSingle("hepimiz", matchesTailLex("Pron + A1pl + P1pl + Nom"));
+    tester.expectSingle("hepimize", matchesTailLex("Pron + A1pl + P1pl + Dat"));
+    tester.expectSingle("hepiniz", matchesTailLex("Pron + A2pl + P2pl + Nom"));
+    tester.expectSingle("hepinizi", matchesTailLex("Pron + A2pl + P2pl + Acc"));
 
     tester.expectFail(
         "hep", // only [hep+Adv] is allowed.
         "hepler",
+        "hepleri",
         "hepe",
         "hepim"
     );
   }
+
+  @Test
+  public void hepsiTest() {
+    AnalysisTester tester = getTester("hepsi [P:Pron,Quant]");
+
+    tester.expectSingle("hepsi", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+    tester.expectSingle("hepsine", matchesTailLex("Pron + A3pl + P3pl + Dat"));
+    tester.expectSingle("hepsini", matchesTailLex("Pron + A3pl + P3pl + Acc"));
+
+    tester.expectFail(
+        "hepsiler",
+        "hepsim",
+        "hepsin",
+        "hepsisi",
+        "hepsimiz",
+        "hepsiniz",
+        "hepsileri"
+    );
+  }
+
+  @Test
+  public void kimiTest() {
+    AnalysisTester tester = getTester("kimi [P:Pron,Quant]");
+
+    tester.expectSingle("kimi", matchesTailLex("Pron + A3sg + P3sg + Nom"));
+    tester.expectSingle("kimimiz", matchesTailLex("Pron + A1pl + P1pl + Nom"));
+    tester.expectSingle("kiminiz", matchesTailLex("Pron + A2pl + P2pl + Nom"));
+    tester.expectSingle("kimileri", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+    tester.expectSingle("kimine", matchesTailLex("Pron + A3sg + P3sg + Dat"));
+    tester.expectSingle("kimimize", matchesTailLex("Pron + A1pl + P1pl + Dat"));
+
+    tester.expectFail(
+        "kimiler",
+        "kimim",
+        "kimin"
+    );
+  }
+
 
 }
