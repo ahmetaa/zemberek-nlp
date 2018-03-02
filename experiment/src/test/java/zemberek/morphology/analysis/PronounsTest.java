@@ -342,4 +342,17 @@ public class PronounsTest extends AnalyzerTestBase {
   }
 
 
+  @Test
+  public void kimseQuantTest() {
+    AnalysisTester tester = getTester("kimse [P:Pron,Quant]");
+
+    tester.expectSingle("kimse", matchesTailLex("Pron + A3sg + Pnon + Nom"));
+    tester.expectSingle("kimsem", matchesTailLex("Pron + A3sg + P1sg + Nom"));
+    tester.expectSingle("kimseye", matchesTailLex("Pron + A3sg + Pnon + Dat"));
+
+    // two analysis.
+    tester.expectAny("kimseler", matchesTailLex("Pron + A3pl + Pnon + Nom"));
+  }
+
+
 }

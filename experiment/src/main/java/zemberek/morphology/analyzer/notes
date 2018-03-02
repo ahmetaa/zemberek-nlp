@@ -49,6 +49,10 @@ Should RootAttrubute and Root contitions also check if there is no derivation?
 Oflazer does not offer A3pl+Pnon analysis for herkesler and öbürküler. We allow it.
 is "öbürkülerim" ok?
 
+Oflazer has pron+Quant and Noun forms for "kimse". kimseler only accepted for Noun or Pron->Verb+A3pl.
+Here I decided to connect "kimse" pronoun to Name-A3sg and Name-A3pl states. This way all name
+suffixes will apply but it will be a pronoun.  
+
 ----
 
 annemler, annenler etc can be resoved with implicitPlural, ImplicitP1sg and ImplicitP2sg attributes.

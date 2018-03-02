@@ -24,28 +24,18 @@ import zemberek.morphology.morphotactics.Conditions.NoSurfaceAfterDerivation;
 public class TurkishMorphotactics {
 
   public static final Morpheme root = new Morpheme("Root", "Root");
-
   public static final Morpheme noun = new Morpheme("Noun", "Noun", PrimaryPos.Noun);
-
   public static final Morpheme adj = new Morpheme("Adjective", "Adj", PrimaryPos.Adjective);
-
   public static final Morpheme verb = new Morpheme("Verb", "Verb", PrimaryPos.Verb);
-
   public static final Morpheme pron = new Morpheme("Pronoun", "Pron", PrimaryPos.Pronoun);
 
   // Number-Person agreement.
 
-
   public static final Morpheme a1sg = new Morpheme("FirstPersonSingular", "A1sg");
-
   public static final Morpheme a2sg = new Morpheme("SecondPersonSingular", "A2sg");
-
   public static final Morpheme a3sg = new Morpheme("ThirdPersonSingular", "A3sg");
-
   public static final Morpheme a1pl = new Morpheme("FirstPersonPlural", "A1pl");
-
   public static final Morpheme a2pl = new Morpheme("SecondPersonPlural", "A2pl");
-
   public static final Morpheme a3pl = new Morpheme("ThirdPersonPlural", "A3pl");
 
   // Possessive
@@ -88,7 +78,6 @@ public class TurkishMorphotactics {
 
   // Zero derivation
   public static final Morpheme zero = new Morpheme("Zero", "Zero");
-
 
   // Present Tense
   public static final Morpheme pres = new Morpheme("PresentTense", "Pres");
@@ -138,80 +127,9 @@ public class TurkishMorphotactics {
   // Derivation
 
   MorphemeState dim_S = nonTerminalDerivative("dim_S", dim);
-
   MorphemeState with_S = nonTerminalDerivative("with_S", with);
-
   MorphemeState justLike_S = nonTerminalDerivative("justLike_S", justLike);
-
   MorphemeState nounZeroDeriv_S = nonTerminalDerivative("nounZeroDeriv_S", zero);
-
-  //-------------- Adjective States ------------------------
-
-  MorphemeState adj_ST = terminal("adj_ST", adj);
-
-  MorphemeState adjZeroDeriv_S = nonTerminalDerivative("adjZeroDeriv_S", zero);
-
-  //-------------- Adjective-Noun connected Verb States ------------------------
-
-  MorphemeState nVerb_S = builder("NVerb_S", verb).posRoot().build();
-  MorphemeState nVerbDegil_S = builder("NVerbDegil_S", verb).posRoot().build();
-
-  MorphemeState nPresent_S = nonTerminal("NPresent_S", pres);
-  MorphemeState nPast_S = nonTerminal("NPast_S", past);
-  MorphemeState nA1sg_ST = terminal("NA1sg_ST", a1sg);
-  MorphemeState nA3sg_ST = terminal("NA3sg_ST", a3sg);
-  MorphemeState nA3sg_S = nonTerminal("NA3sg_S", a3sg);
-  MorphemeState nA3pl_ST = terminal("nA3pl_ST", a3pl);
-  MorphemeState nCop_ST = terminal("NCop_ST", cop);
-
-  MorphemeState nNeg_S = nonTerminal("nNeg_S", neg);
-
-  // ----------- Pronoun states --------------------------
-  // Pronouns have states similar with Nouns.
-
-  // Number-Person agreement
-
-  MorphemeState pronPers_S = nonTerminal("pronPers_S", pron);
-  MorphemeState pronDemons_S = nonTerminal("pronDemons_S", pron);
-  public MorphemeState pronQuant_S = nonTerminal("pronQuant_S", pron);
-  public MorphemeState pronQuantModified_S = nonTerminal("pronQuantModified_S", pron);
-
-  // used for ben-sen modification
-  public MorphemeState pron_Mod_S = nonTerminal("pron_Mod_S", pron);
-
-  MorphemeState pA1sg_S = nonTerminal("pA1sg_S", a1sg);
-  MorphemeState pA2sg_S = nonTerminal("pA2sg_S", a2sg);
-
-  MorphemeState pA1sgMod_S = nonTerminal("pA1sgMod_S", a1sg); // for modified ben
-  MorphemeState pA2sgMod_S = nonTerminal("pA2sgMod_S", a2sg); // for modified sen
-
-  MorphemeState pA3sg_S = nonTerminal("pA3sg_S", a3sg);
-  MorphemeState pA1pl_S = nonTerminal("pA1pl_S", a1pl);
-  MorphemeState pA2pl_S = nonTerminal("pA2pl_S", a2pl);
-
-  MorphemeState pA3pl_S = nonTerminal("pA3pl_S", a3pl);
-
-  MorphemeState pQuantA3sg_S = nonTerminal("pQuantA3sg_S", a3sg);
-  MorphemeState pQuantA3pl_S = nonTerminal("pQuantA3pl_S", a3pl);
-  MorphemeState pQuantModA3pl_S = nonTerminal("pQuantModA3pl_S", a3pl); // for birbirleri etc.
-  MorphemeState pQuantA1pl_S = nonTerminal("pQuantA1pl_S", a1pl);
-  MorphemeState pQuantA2pl_S = nonTerminal("pQuantA2pl_S", a2pl);
-
-  // Possessive
-
-  MorphemeState pPnon_S = nonTerminal("pPnon_S", pnon);
-  MorphemeState pPnonMod_S = nonTerminal("pPnonMod_S", pnon); // for modified ben-sen
-  MorphemeState pP3sg_S = nonTerminal("pP3sg_S", p3sg); // for `birisi` etc
-  MorphemeState pP3Pl_S = nonTerminal("pP3Pl_S", p3pl); // for `birileri` etc
-  MorphemeState pP1Pl_S = nonTerminal("pP1Pl_S", p1pl); // for `birbirimiz` etc
-  MorphemeState pP2Pl_S = nonTerminal("pP2Pl_S", p2pl); // for `birbiriniz` etc
-
-  // Case
-
-  MorphemeState pNom_ST = terminal("pNom_ST", nom);
-
-  MorphemeState pDat_ST = terminal("pDat_ST", dat);
-  MorphemeState pAcc_ST = terminal("pAcc_ST", acc);
 
   //-------------- Conditions ------------------------------
 
@@ -384,6 +302,12 @@ public class TurkishMorphotactics {
 
   }
 
+  //-------------- Adjective States ------------------------
+
+  MorphemeState adj_ST = terminal("adj_ST", adj);
+
+  MorphemeState adjZeroDeriv_S = nonTerminalDerivative("adjZeroDeriv_S", zero);
+
   private void connectAdjectiveStates() {
 
     // zero morpheme derivation. Words like "yeşil-i" requires Adj to Noun conversion.
@@ -404,6 +328,21 @@ public class TurkishMorphotactics {
             .and(new NoSurfaceAfterDerivation())
             .and(new ContainsMorpheme(justLike).not()));
   }
+
+  //-------------- Adjective-Noun connected Verb States ------------------------
+
+  MorphemeState nVerb_S = builder("nVerb_S", verb).posRoot().build();
+  MorphemeState nVerbDegil_S = builder("nVerbDegil_S", verb).posRoot().build();
+
+  MorphemeState nPresent_S = nonTerminal("nPresent_S", pres);
+  MorphemeState nPast_S = nonTerminal("nPast_S", past);
+  MorphemeState nA1sg_ST = terminal("nA1sg_ST", a1sg);
+  MorphemeState nA3sg_ST = terminal("nA3sg_ST", a3sg);
+  MorphemeState nA3sg_S = nonTerminal("nA3sg_S", a3sg);
+  MorphemeState nA3pl_ST = terminal("nA3pl_ST", a3pl);
+  MorphemeState nCop_ST = terminal("nCop_ST", cop);
+
+  MorphemeState nNeg_S = nonTerminal("nNeg_S", neg);
 
   private void connectVerbAfterNounAdjStates() {
 
@@ -462,6 +401,52 @@ public class TurkishMorphotactics {
     nA3pl_ST.add(nCop_ST, "dIr", rejectNoCopula);
   }
 
+  // ----------- Pronoun states --------------------------
+
+  // Pronouns have states similar with Nouns.
+
+  MorphemeState pronPers_S = nonTerminal("pronPers_S", pron);
+  MorphemeState pronDemons_S = nonTerminal("pronDemons_S", pron);
+  public MorphemeState pronQuant_S = nonTerminal("pronQuant_S", pron);
+  public MorphemeState pronQuantModified_S = nonTerminal("pronQuantModified_S", pron);
+
+  // used for ben-sen modification
+  public MorphemeState pron_Mod_S = nonTerminal("pron_Mod_S", pron);
+
+  MorphemeState pA1sg_S = nonTerminal("pA1sg_S", a1sg);
+  MorphemeState pA2sg_S = nonTerminal("pA2sg_S", a2sg);
+
+  MorphemeState pA1sgMod_S = nonTerminal("pA1sgMod_S", a1sg); // for modified ben
+  MorphemeState pA2sgMod_S = nonTerminal("pA2sgMod_S", a2sg); // for modified sen
+
+  MorphemeState pA3sg_S = nonTerminal("pA3sg_S", a3sg);
+  MorphemeState pA1pl_S = nonTerminal("pA1pl_S", a1pl);
+  MorphemeState pA2pl_S = nonTerminal("pA2pl_S", a2pl);
+
+  MorphemeState pA3pl_S = nonTerminal("pA3pl_S", a3pl);
+
+  MorphemeState pQuantA3sg_S = nonTerminal("pQuantA3sg_S", a3sg);
+  MorphemeState pQuantA3pl_S = nonTerminal("pQuantA3pl_S", a3pl);
+  MorphemeState pQuantModA3pl_S = nonTerminal("pQuantModA3pl_S", a3pl); // for birbirleri etc.
+  MorphemeState pQuantA1pl_S = nonTerminal("pQuantA1pl_S", a1pl);
+  MorphemeState pQuantA2pl_S = nonTerminal("pQuantA2pl_S", a2pl);
+
+  // Possessive
+
+  MorphemeState pPnon_S = nonTerminal("pPnon_S", pnon);
+  MorphemeState pPnonMod_S = nonTerminal("pPnonMod_S", pnon); // for modified ben-sen
+  MorphemeState pP3sg_S = nonTerminal("pP3sg_S", p3sg); // for `birisi` etc
+  MorphemeState pP3Pl_S = nonTerminal("pP3Pl_S", p3pl); // for `birileri` etc
+  MorphemeState pP1Pl_S = nonTerminal("pP1Pl_S", p1pl); // for `birbirimiz` etc
+  MorphemeState pP2Pl_S = nonTerminal("pP2Pl_S", p2pl); // for `birbiriniz` etc
+
+  // Case
+
+  MorphemeState pNom_ST = terminal("pNom_ST", nom);
+  MorphemeState pDat_ST = terminal("pDat_ST", dat);
+  MorphemeState pAcc_ST = terminal("pAcc_ST", acc);
+
+
   private void connectPronounStates() {
 
     //----------- Personal Pronouns ----------------------------
@@ -500,10 +485,12 @@ public class TurkishMorphotactics {
     pPnon_S.add(pAcc_ST, "+nI");
 
     //------------ Demonstrative pronouns. ------------------------
+
     pronDemons_S.addEmpty(pA3sg_S);
     pronDemons_S.add(pA3pl_S, "nlAr");
 
     //------------ Quantitiva Pronouns ----------------------------
+
     DictionaryItem biri = lexicon.getItemById("biri_Pron_Quant");
     DictionaryItem birbiri = lexicon.getItemById("birbiri_Pron_Quant");
     DictionaryItem herbiri = lexicon.getItemById("herbiri_Pron_Quant");
@@ -576,6 +563,14 @@ public class TurkishMorphotactics {
     pP2Pl_S.addEmpty(pNom_ST);
     pP2Pl_S.add(pDat_ST, "+nA");
     pP2Pl_S.add(pAcc_ST, "+nI");
+
+    // connect "kimse" to Noun-A3sg and Noun-A3pl. It behaves like a noun.
+    DictionaryItem kimse = lexicon.getItemById("kimse_Pron_Quant");
+
+    pronQuant_S.addEmpty(a3sg_S, rootIs(kimse));
+    pronQuant_S.add(a3pl_S, "lAr", rootIsAny(kimse));
+
+    //------------ Question Pronouns ----------------------------
 
   }
 
