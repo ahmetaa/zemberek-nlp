@@ -180,8 +180,27 @@ public class PronounsTest extends AnalyzerTestBase {
 
     tester.expectFail(
         "tümler",
+        "tümüler",
         "tümleri",
+        "tümüleri",
         "tümüm"
+    );
+  }
+
+  @Test
+  public void topuTest() {
+    AnalysisTester tester = getTester("topu [P:Pron,Quant]");
+
+    tester.expectSingle("topu", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+    tester.expectSingle("topumuz", matchesTailLex("Pron + A1pl + P1pl + Nom"));
+    tester.expectSingle("topumuza", matchesTailLex("Pron + A1pl + P1pl + Dat"));
+    tester.expectSingle("topunuz", matchesTailLex("Pron + A2pl + P2pl + Nom"));
+    tester.expectSingle("topunuzu", matchesTailLex("Pron + A2pl + P2pl + Acc"));
+
+    tester.expectFail(
+        "topular",
+        "topuları",
+        "topum" // no Pron analysis.
     );
   }
 
