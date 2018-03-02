@@ -82,8 +82,8 @@ public class MorphemeState {
   }
 
 
-  public MorphemeState addOutgoing(SuffixTransition... suffixTransitions) {
-    for (SuffixTransition suffixTransition : suffixTransitions) {
+  public MorphemeState addOutgoing(MorphemeTransition... suffixTransitions) {
+    for (MorphemeTransition suffixTransition : suffixTransitions) {
       if (outgoing.contains(suffixTransition)) {
         Log.warn("Outgoing transition %s already exist in %s", suffixTransition, this);
       }
@@ -92,8 +92,8 @@ public class MorphemeState {
     return this;
   }
 
-  public MorphemeState addIncoming(SuffixTransition... suffixTransitions) {
-    for (SuffixTransition suffixTransition : suffixTransitions) {
+  public MorphemeState addIncoming(MorphemeTransition... suffixTransitions) {
+    for (MorphemeTransition suffixTransition : suffixTransitions) {
       if (incoming.contains(suffixTransition)) {
         Log.warn("Incoming transition %s already exist in %s", suffixTransition, this);
       }
@@ -153,8 +153,13 @@ public class MorphemeState {
     return incoming;
   }
 
-  public void addOutgoingTransitions(MorphemeState state) {
-    this.outgoing.addAll(state.outgoing);
+  public void copyOutgoingTransitionsFrom(MorphemeState state) {
+    for(MorphemeTransition transition : state.outgoing) {
+      MorphemeTransition copy = transition.getCopy();
+      copy.from = this;
+      this.addOutgoing(transition);
+    }
+
   }
 
   @Override

@@ -357,7 +357,7 @@ public class TurkishMorphotactics {
     DictionaryItem degilRoot = lexicon.getItemById("değil_Verb");
     nVerbDegil_S.addEmpty(nNeg_S, rootIs(degilRoot));
     // copy transitions from nVerb_S
-    nNeg_S.addOutgoingTransitions(nVerb_S);
+    nNeg_S.copyOutgoingTransitionsFrom(nVerb_S);
 
     // we prevent "elma-ya-yım" or "elma-lar-lar" (Oflazer accepts these)
     Condition allowedTensePerson =
@@ -617,41 +617,19 @@ public class TurkishMorphotactics {
     pPnon_S.add(pDat_ST, "+yA", yGroup);
     pPnon_S.add(pAcc_ST, "+yI", yGroup);
 
-    pP3pl_S.addEmpty(pNom_ST);
-    pP3pl_S.add(pDat_ST, "+nA", nGroup);
-    pP3pl_S.add(pAcc_ST, "+nI", nGroup);
-    pP3pl_S.add(pDat_ST, "+yA", yGroup);
-    pP3pl_S.add(pAcc_ST, "+yI", yGroup);
-
-    pP3sg_S.addEmpty(pNom_ST);
-    pP3sg_S.add(pDat_ST, "+nA", nGroup);
-    pP3sg_S.add(pAcc_ST, "+nI", nGroup);
-    pP3sg_S.add(pDat_ST, "+yA", yGroup);
-    pP3sg_S.add(pAcc_ST, "+yI", yGroup);
-
-    pP1pl_S.addEmpty(pNom_ST);
-    pP1pl_S.add(pDat_ST, "+nA", nGroup);
-    pP1pl_S.add(pAcc_ST, "+nI", nGroup);
-    pP1pl_S.add(pDat_ST, "+yA", yGroup);
-    pP1pl_S.add(pAcc_ST, "+yI", yGroup);
-
-    pP2pl_S.addEmpty(pNom_ST);
-    pP2pl_S.add(pDat_ST, "+nA", nGroup);
-    pP2pl_S.add(pAcc_ST, "+nI", nGroup);
-    pP2pl_S.add(pDat_ST, "+yA", yGroup);
-    pP2pl_S.add(pAcc_ST, "+yI", yGroup);
-
     pP1sg_S.addEmpty(pNom_ST);
     pP1sg_S.add(pDat_ST, "+nA", nGroup);
     pP1sg_S.add(pAcc_ST, "+nI", nGroup);
     pP1sg_S.add(pDat_ST, "+yA", yGroup);
     pP1sg_S.add(pAcc_ST, "+yI", yGroup);
 
-    pP2sg_S.addEmpty(pNom_ST);
-    pP2sg_S.add(pDat_ST, "+nA", nGroup);
-    pP2sg_S.add(pAcc_ST, "+nI", nGroup);
-    pP2sg_S.add(pDat_ST, "+yA", yGroup);
-    pP2sg_S.add(pAcc_ST, "+yI", yGroup);
+    // copy from pP1sg_S
+    pP2sg_S.copyOutgoingTransitionsFrom(pP1sg_S);
+    pP3sg_S.copyOutgoingTransitionsFrom(pP1sg_S);
+    pP1pl_S.copyOutgoingTransitionsFrom(pP1sg_S);
+    pP2pl_S.copyOutgoingTransitionsFrom(pP1sg_S);
+    pP3pl_S.copyOutgoingTransitionsFrom(pP1sg_S);
+
   }
 
 

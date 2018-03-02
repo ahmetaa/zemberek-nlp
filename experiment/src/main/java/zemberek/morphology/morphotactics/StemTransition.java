@@ -22,6 +22,12 @@ public class StemTransition extends MorphemeTransition {
     this.to = toState;
   }
 
+  public StemTransition getCopy() {
+    StemTransition t = new StemTransition(surface, item, phoneticAttributes, to);
+    t.from = from;
+    return t;
+  }
+
   public EnumSet<PhoneticAttribute> getPhoneticAttributes() {
     return phoneticAttributes;
   }

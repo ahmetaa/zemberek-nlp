@@ -2,6 +2,7 @@ package zemberek.morphology.morphotactics;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import zemberek.core.logging.Log;
@@ -15,7 +16,7 @@ import zemberek.morphology.structure.Turkish;
 public class SuffixTransition extends MorphemeTransition {
 
   // this string represents the possible surface forms for this transition.
-  public final String surfaceTemplate;
+  private final String surfaceTemplate;
 
   private List<SuffixTemplateToken> tokenList;
 
@@ -30,6 +31,19 @@ public class SuffixTransition extends MorphemeTransition {
     this.tokenList = Lists
         .newArrayList(new SuffixTemplateTokenizer(this.surfaceTemplate));
 
+  }
+
+  private SuffixTransition(String surfaceTemplate) {
+    this.surfaceTemplate = surfaceTemplate;
+  }
+
+  public SuffixTransition getCopy() {
+    SuffixTransition st = new SuffixTransition(surfaceTemplate);
+    st.from = from;
+    st.to = to;
+    st.condition = condition;
+    st.tokenList = new ArrayList<>(tokenList);
+    return st;
   }
 
   public boolean canPass(SearchPath path) {

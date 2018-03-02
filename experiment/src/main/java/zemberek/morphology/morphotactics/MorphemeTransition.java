@@ -22,4 +22,6 @@ public abstract class MorphemeTransition {
   public Condition getCondition() {
     return condition;
   }
+
+  abstract MorphemeTransition getCopy();
 }
