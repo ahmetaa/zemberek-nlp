@@ -507,6 +507,7 @@ public class TurkishMorphotactics {
     DictionaryItem biri = lexicon.getItemById("biri_Pron_Quant");
     DictionaryItem birbiri = lexicon.getItemById("birbiri_Pron_Quant");
     DictionaryItem herbiri = lexicon.getItemById("herbiri_Pron_Quant");
+    DictionaryItem hicbiri = lexicon.getItemById("hiçbiri_Pron_Quant");
     DictionaryItem herkes = lexicon.getItemById("herkes_Pron_Quant");
     DictionaryItem hep = lexicon.getItemById("hep_Pron_Quant");
     DictionaryItem hepsi = lexicon.getItemById("hepsi_Pron_Quant");
@@ -521,7 +522,7 @@ public class TurkishMorphotactics {
         rootIsNone(herkes, hepsi, hep, tumu));
 
     pronQuant_S.add(pQuantA3pl_S, "lAr",
-        rootIsNone(hep, hepsi, cogu, bircogu, herbiri, tumu));
+        rootIsNone(hep, hepsi, cogu, bircogu, herbiri, tumu, hicbiri));
 
     // Herkes is implicitly plural.
     pronQuant_S.addEmpty(pQuantA3pl_S,
@@ -529,11 +530,11 @@ public class TurkishMorphotactics {
 
     // for `birbiri-miz` `hep-imiz`
     pronQuant_S.addEmpty(pQuantA1pl_S,
-        rootIsAny(biri, birbiri, herbiri, hep, kimi, cogu, bircogu, tumu));
+        rootIsAny(biri, birbiri, herbiri, hep, kimi, cogu, bircogu, tumu, hicbiri));
 
     // for `birbiri-niz` and `hep-iniz`
     pronQuant_S.addEmpty(pQuantA2pl_S,
-        rootIsAny(biri, birbiri, herbiri, hep, kimi, cogu, bircogu, tumu));
+        rootIsAny(biri, birbiri, herbiri, hep, kimi, cogu, bircogu, tumu, hicbiri));
 
     // this is used for birbir-ler-i, çok-lar-ı, birçok-lar-ı separate root and A3pl states are
     // used for this.
@@ -542,10 +543,10 @@ public class TurkishMorphotactics {
 
     // both `biri-ne` and `birisi-ne` or `birbirine` and `birbirisine` are accepted.
     pQuantA3sg_S.addEmpty(pP3sg_S,
-        rootIsAny(biri, birbiri, kimi, herbiri)
+        rootIsAny(biri, birbiri, kimi, herbiri, hicbiri)
             .and(notHave(PhoneticAttribute.ModifiedPronoun)));
     pQuantA3sg_S.add(pP3sg_S, "sI",
-        rootIsAny(biri, birbiri, herbiri)
+        rootIsAny(biri, birbiri, herbiri, hicbiri)
             .and(notHave(PhoneticAttribute.ModifiedPronoun)));
 
     // there is no connection from pQuantA3pl to Pnon for preventing `biriler`

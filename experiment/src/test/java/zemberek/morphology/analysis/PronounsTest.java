@@ -254,6 +254,32 @@ public class PronounsTest extends AnalyzerTestBase {
         "birçokumuz",
         "birçoğum"
     );
+  }
+
+  @Test
+  public void hiçbiriTest() {
+    AnalysisTester tester = getTester("hiçbiri [P:Pron,Quant]");
+    // both are same
+    tester.expectSingle("hiçbiri", matchesTailLex("Pron + A3sg + P3sg + Nom"));
+    tester.expectSingle("hiçbirisi", matchesTailLex("Pron + A3sg + P3sg + Nom"));
+    // both are same
+    tester.expectSingle("hiçbirine", matchesTailLex("Pron + A3sg + P3sg + Dat"));
+    tester.expectSingle("hiçbirisine", matchesTailLex("Pron + A3sg + P3sg + Dat"));
+    // both are same
+    tester.expectSingle("hiçbirini", matchesTailLex("Pron + A3sg + P3sg + Acc"));
+    tester.expectSingle("hiçbirisini", matchesTailLex("Pron + A3sg + P3sg + Acc"));
+
+    tester.expectSingle("hiçbirimiz", matchesTailLex("Pron + A1pl + P1pl + Nom"));
+    tester.expectSingle("hiçbiriniz", matchesTailLex("Pron + A2pl + P2pl + Nom"));
+
+    tester.expectFail(
+        "hiçbiriler",
+        "hiçbirileri",
+        "hiçbirilerine",
+        "hiçbirilerim"
+    );
   }  
+  
+  
 
 }
