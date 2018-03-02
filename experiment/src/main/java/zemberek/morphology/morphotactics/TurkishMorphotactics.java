@@ -550,8 +550,8 @@ public class TurkishMorphotactics {
 
     // this is used for birbir-ler-i, çok-lar-ı, birçok-lar-ı separate root and A3pl states are
     // used for this.
-    pronQuantModified_S.add(pQuantModA3pl_S, "lAr");
-    pQuantModA3pl_S.add(pP3pl_S, "I");
+    pronQuantModified_S.addEmpty(pQuantModA3pl_S);
+    pQuantModA3pl_S.add(pP3pl_S, "lArI");
 
     // both `biri-ne` and `birisi-ne` or `birbirine` and `birbirisine` are accepted.
     pQuantA3sg_S.addEmpty(pP3sg_S,
