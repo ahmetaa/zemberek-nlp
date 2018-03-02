@@ -147,6 +147,20 @@ public class PronounsTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void umumTest() {
+    AnalysisTester tester = getTester("umum [P:Pron,Quant]");
+
+    tester.expectSingle("umum", matchesTailLex("Pron + A3pl + Pnon + Nom"));
+    tester.expectSingle("umuma", matchesTailLex("Pron + A3pl + Pnon + Dat"));
+    tester.expectSingle("umumu", matchesTailLex("Pron + A3pl + Pnon + Acc"));
+
+    tester.expectFail(
+        "umumum",
+        "umumlar"
+    );
+  }
+
+  @Test
   public void birbiriTest() {
     AnalysisTester tester = getTester("birbiri [P:Pron,Quant; A:Special]");
 
@@ -240,6 +254,14 @@ public class PronounsTest extends AnalyzerTestBase {
     );
   }
 
+  @Test
+  public void cumlesiTest() {
+    AnalysisTester tester = getTester("cümlesi [P:Pron,Quant]");
+    tester.expectSingle("cümlesi", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+    tester.expectSingle("cümlesine", matchesTailLex("Pron + A3pl + P3pl + Dat"));
+    tester.expectSingle("cümlesini", matchesTailLex("Pron + A3pl + P3pl + Acc"));
+  }  
+  
   @Test
   public void kimiTest() {
     AnalysisTester tester = getTester("kimi [P:Pron,Quant]");
