@@ -51,7 +51,11 @@ is "öbürkülerim" ok?
 
 Oflazer has pron+Quant and Noun forms for "kimse". kimseler only accepted for Noun or Pron->Verb+A3pl.
 Here I decided to connect "kimse" pronoun to Name-A3sg and Name-A3pl states. This way all name
-suffixes will apply but it will be a pronoun.  
+suffixes will apply but it will be a pronoun.
+
+should we parse `nemiz, neniz (neyimiz, neyiniz)`
+
+`kimlerimde` etc. sounds bad. Should we restrict?
 
 ----
 

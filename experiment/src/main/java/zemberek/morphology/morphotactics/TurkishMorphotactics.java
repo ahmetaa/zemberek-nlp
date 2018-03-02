@@ -409,9 +409,10 @@ public class TurkishMorphotactics {
   MorphemeState pronDemons_S = nonTerminal("pronDemons_S", pron);
   public MorphemeState pronQuant_S = nonTerminal("pronQuant_S", pron);
   public MorphemeState pronQuantModified_S = nonTerminal("pronQuantModified_S", pron);
+  public MorphemeState pronQues_S = nonTerminal("pronQues_S", pron);
 
   // used for ben-sen modification
-  public MorphemeState pron_Mod_S = nonTerminal("pron_Mod_S", pron);
+  public MorphemeState pronPers_Mod_S = nonTerminal("pronPers_Mod_S", pron);
 
   MorphemeState pA1sg_S = nonTerminal("pA1sg_S", a1sg);
   MorphemeState pA2sg_S = nonTerminal("pA2sg_S", a2sg);
@@ -431,14 +432,18 @@ public class TurkishMorphotactics {
   MorphemeState pQuantA1pl_S = nonTerminal("pQuantA1pl_S", a1pl);
   MorphemeState pQuantA2pl_S = nonTerminal("pQuantA2pl_S", a2pl);
 
+  MorphemeState pQuesA3sg_S = nonTerminal("pQuesA3sg_S", a3sg);
+  MorphemeState pQuesA3pl_S = nonTerminal("pQuesA3pl_S", a3pl);
+
   // Possessive
 
   MorphemeState pPnon_S = nonTerminal("pPnon_S", pnon);
   MorphemeState pPnonMod_S = nonTerminal("pPnonMod_S", pnon); // for modified ben-sen
-  MorphemeState pP3sg_S = nonTerminal("pP3sg_S", p3sg); // for `birisi` etc
-  MorphemeState pP3Pl_S = nonTerminal("pP3Pl_S", p3pl); // for `birileri` etc
-  MorphemeState pP1Pl_S = nonTerminal("pP1Pl_S", p1pl); // for `birbirimiz` etc
-  MorphemeState pP2Pl_S = nonTerminal("pP2Pl_S", p2pl); // for `birbiriniz` etc
+  MorphemeState pP1sg_S = nonTerminal("pP3sg_S", p1sg); // kimim
+  MorphemeState pP3sg_S = nonTerminal("pP1sg_S", p3sg); // for `birisi` etc
+  MorphemeState pP1pl_S = nonTerminal("pP1pl_S", p1pl); // for `birbirimiz` etc
+  MorphemeState pP2pl_S = nonTerminal("pP2pl_S", p2pl); // for `birbiriniz` etc
+  MorphemeState pP3pl_S = nonTerminal("pP3pl_S", p3pl); // for `birileri` etc
 
   // Case
 
@@ -465,8 +470,8 @@ public class TurkishMorphotactics {
     pronPers_S.addEmpty(pA2pl_S, rootIs(siz));
 
     // --- modified `ben-sen` special state and transitions
-    pron_Mod_S.addEmpty(pA1sgMod_S, rootIs(ben));
-    pron_Mod_S.addEmpty(pA2sgMod_S, rootIs(sen));
+    pronPers_Mod_S.addEmpty(pA1sgMod_S, rootIs(ben));
+    pronPers_Mod_S.addEmpty(pA2sgMod_S, rootIs(sen));
     pA1sgMod_S.addEmpty(pPnonMod_S);
     pA2sgMod_S.addEmpty(pPnonMod_S);
     pPnonMod_S.add(pDat_ST, "A");
@@ -478,11 +483,6 @@ public class TurkishMorphotactics {
     pA1pl_S.addEmpty(pPnon_S);
     pA2pl_S.addEmpty(pPnon_S);
     pA3pl_S.addEmpty(pPnon_S);
-
-    pPnon_S.addEmpty(pNom_ST);
-    // not allowing `ben-e` and `sen-e`. `ban-a` and `san-a` are using different states.
-    pPnon_S.add(pDat_ST, "+nA", rootIsNone(ben, sen));
-    pPnon_S.add(pAcc_ST, "+nI");
 
     //------------ Demonstrative pronouns. ------------------------
 
@@ -505,6 +505,7 @@ public class TurkishMorphotactics {
     DictionaryItem topu = lexicon.getItemById("topu_Pron_Quant");
     DictionaryItem oburu = lexicon.getItemById("öbürü_Pron_Quant");
     DictionaryItem oburku = lexicon.getItemById("öbürkü_Pron_Quant");
+    DictionaryItem kimse = lexicon.getItemById("kimse_Pron_Quant");
 
     // we have separate A3pl and A3sg states for Quantitive Pronouns.
     // herkes and hep cannot be singular.
@@ -518,6 +519,10 @@ public class TurkishMorphotactics {
     pronQuant_S.addEmpty(pQuantA3pl_S,
         rootIsAny(herkes, hepsi, cogu, bircogu, tumu, topu));
 
+    // connect "kimse" to Noun-A3sg and Noun-A3pl. It behaves like a noun.
+    pronQuant_S.addEmpty(a3sg_S, rootIs(kimse));
+    pronQuant_S.add(a3pl_S, "lAr", rootIsAny(kimse));
+
     // for `birbiri-miz` `hep-imiz`
     pronQuant_S.addEmpty(pQuantA1pl_S,
         rootIsAny(biri, birbiri, herbiri, hep, kimi, cogu, bircogu, tumu, topu, hicbiri));
@@ -529,7 +534,7 @@ public class TurkishMorphotactics {
     // this is used for birbir-ler-i, çok-lar-ı, birçok-lar-ı separate root and A3pl states are
     // used for this.
     pronQuantModified_S.add(pQuantModA3pl_S, "lAr");
-    pQuantModA3pl_S.add(pP3Pl_S, "I");
+    pQuantModA3pl_S.add(pP3pl_S, "I");
 
     // both `biri-ne` and `birisi-ne` or `birbirine` and `birbirisine` are accepted.
     pQuantA3sg_S.addEmpty(pP3sg_S,
@@ -541,37 +546,72 @@ public class TurkishMorphotactics {
             .and(notHave(PhoneticAttribute.ModifiedPronoun)));
 
     // there is no connection from pQuantA3pl to Pnon for preventing `biriler` (except herkes)
-    pQuantA3pl_S.add(pP3Pl_S, "I", rootIsAny(biri, birbiri, kimi, oburku));
-    pQuantA3pl_S.addEmpty(pP3Pl_S, rootIsAny(hepsi, cogu, tumu, topu, bircogu));
+    pQuantA3pl_S.add(pP3pl_S, "I", rootIsAny(biri, birbiri, kimi, oburku));
+    pQuantA3pl_S.addEmpty(pP3pl_S, rootIsAny(hepsi, cogu, tumu, topu, bircogu));
     pQuantA3pl_S.addEmpty(pPnon_S, rootIsAny(herkes, oburku));
 
-    pQuantA1pl_S.add(pP1Pl_S, "ImIz");
-    pQuantA2pl_S.add(pP2Pl_S, "InIz");
-
-    pP3Pl_S.addEmpty(pNom_ST);
-    pP3Pl_S.add(pDat_ST, "+nA");
-    pP3Pl_S.add(pAcc_ST, "+nI");
-
-    pP3sg_S.addEmpty(pNom_ST);
-    pP3sg_S.add(pDat_ST, "+nA");
-    pP3sg_S.add(pAcc_ST, "+nI");
-
-    pP1Pl_S.addEmpty(pNom_ST);
-    pP1Pl_S.add(pDat_ST, "+nA");
-    pP1Pl_S.add(pAcc_ST, "+nI");
-
-    pP2Pl_S.addEmpty(pNom_ST);
-    pP2Pl_S.add(pDat_ST, "+nA");
-    pP2Pl_S.add(pAcc_ST, "+nI");
-
-    // connect "kimse" to Noun-A3sg and Noun-A3pl. It behaves like a noun.
-    DictionaryItem kimse = lexicon.getItemById("kimse_Pron_Quant");
-
-    pronQuant_S.addEmpty(a3sg_S, rootIs(kimse));
-    pronQuant_S.add(a3pl_S, "lAr", rootIsAny(kimse));
+    pQuantA1pl_S.add(pP1pl_S, "ImIz");
+    pQuantA2pl_S.add(pP2pl_S, "InIz");
 
     //------------ Question Pronouns ----------------------------
+    // `kim` (kim_Pron_Ques), `ne` and `nere`
+    DictionaryItem ne = lexicon.getItemById("ne_Pron_Ques");
+    DictionaryItem nere = lexicon.getItemById("nere_Pron_Ques");
 
+    pronQues_S.addEmpty(pQuesA3sg_S);
+    pronQues_S.add(pQuesA3pl_S, "lAr");
+
+    pQuesA3sg_S.addEmpty(pPnon_S);
+    pQuesA3sg_S.add(pP3sg_S, "+sI");
+    pQuesA3sg_S.add(pP1sg_S, "+yIm");
+    pQuesA3sg_S.add(pP1pl_S, "+yImIz");
+
+    pQuesA3pl_S.addEmpty(pPnon_S);
+    pQuesA3pl_S.add(pP3sg_S, "I");
+    pQuesA3pl_S.add(pP1sg_S, "Im");
+    pQuesA3pl_S.add(pP1pl_S, "ImIz");
+
+    // ------------------------
+    // Case connections for all
+    Condition notNeNere = rootIsNone(ne, nere);
+    Condition neNere = rootIsAny(ne, nere);
+
+    pPnon_S.addEmpty(pNom_ST);
+    // not allowing `ben-e` and `sen-e`. `ban-a` and `san-a` are using different states.
+    pPnon_S.add(pDat_ST, "+nA", rootIsNone(ben, sen, ne, nere));
+    pPnon_S.add(pAcc_ST, "+nI", notNeNere);
+    pPnon_S.add(pDat_ST, "+yA", neNere);
+    pPnon_S.add(pAcc_ST, "+yI", neNere);
+
+    pP3pl_S.addEmpty(pNom_ST);
+    pP3pl_S.add(pDat_ST, "+nA", notNeNere);
+    pP3pl_S.add(pAcc_ST, "+nI", notNeNere);
+    pP3pl_S.add(pDat_ST, "+yA", neNere);
+    pP3pl_S.add(pAcc_ST, "+yI", neNere);
+
+    pP3sg_S.addEmpty(pNom_ST);
+    pP3sg_S.add(pDat_ST, "+nA", notNeNere);
+    pP3sg_S.add(pAcc_ST, "+nI", notNeNere);
+    pP3sg_S.add(pDat_ST, "+yA", neNere);
+    pP3sg_S.add(pAcc_ST, "+yI", neNere);
+
+    pP1pl_S.addEmpty(pNom_ST);
+    pP1pl_S.add(pDat_ST, "+nA", notNeNere);
+    pP1pl_S.add(pAcc_ST, "+nI", notNeNere);
+    pP1pl_S.add(pDat_ST, "+yA", neNere);
+    pP1pl_S.add(pAcc_ST, "+yI", neNere);
+
+    pP2pl_S.addEmpty(pNom_ST);
+    pP2pl_S.add(pDat_ST, "+nA", notNeNere);
+    pP2pl_S.add(pAcc_ST, "+nI", notNeNere);
+    pP2pl_S.add(pDat_ST, "+yA", neNere);
+    pP2pl_S.add(pAcc_ST, "+yI", neNere);
+
+    pP1sg_S.addEmpty(pNom_ST);
+    pP1sg_S.add(pDat_ST, "+nA", notNeNere);
+    pP1sg_S.add(pAcc_ST, "+nI", notNeNere);
+    pP1sg_S.add(pDat_ST, "+yA", neNere);
+    pP1sg_S.add(pAcc_ST, "+yI", neNere);
   }
 
 
@@ -599,6 +639,9 @@ public class TurkishMorphotactics {
             return pronDemons_S;
           case QuantitivePron:
             return pronQuant_S;
+          case QuestionPron:
+            return pronQues_S;
+
           default:
             throw new IllegalStateException("Cannot find root for Pronoun " + dictionaryItem);
         }

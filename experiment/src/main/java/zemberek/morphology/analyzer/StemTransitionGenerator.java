@@ -212,10 +212,10 @@ public class StemTransitionGenerator {
       original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
       if (item.lemma.equals("ben")) {
         modified = new StemTransition("ban", item, calculateAttributes("ban"),
-            morphotactics.pron_Mod_S);
+            morphotactics.pronPers_Mod_S);
       } else {
         modified = new StemTransition("san", item, calculateAttributes("san"),
-            morphotactics.pron_Mod_S);
+            morphotactics.pronPers_Mod_S);
       }
       original.getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
       modified.getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);

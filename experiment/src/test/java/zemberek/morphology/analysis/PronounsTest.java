@@ -354,5 +354,51 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectAny("kimseler", matchesTailLex("Pron + A3pl + Pnon + Nom"));
   }
 
+  @Test
+  public void kimTest() {
+    AnalysisTester tester = getTester("kim [P:Pron,Ques]");
+
+    tester.expectSingle("kim", matchesTailLex("Pron + A3sg + Pnon + Nom"));
+    tester.expectSingle("kime", matchesTailLex("Pron + A3sg + Pnon + Dat"));
+    tester.expectSingle("kimler", matchesTailLex("Pron + A3pl + Pnon + Nom"));
+    tester.expectSingle("kimlere", matchesTailLex("Pron + A3pl + Pnon + Dat"));
+    tester.expectSingle("kimim", matchesTailLex("Pron + A3sg + P1sg + Nom"));
+    tester.expectSingle("kimimiz", matchesTailLex("Pron + A3sg + P1pl + Nom"));
+    tester.expectSingle("kimimize", matchesTailLex("Pron + A3sg + P1pl + Dat"));
+
+    tester.expectAny("kimi", matchesTailLex("Pron + A3sg + Pnon + Acc"));
+  }
+
+  @Test
+  public void neTest() {
+    AnalysisTester tester = getTester("ne [P:Pron,Ques]");
+
+    tester.expectSingle("ne", matchesTailLex("Pron + A3sg + Pnon + Nom"));
+    tester.expectSingle("neye", matchesTailLex("Pron + A3sg + Pnon + Dat"));
+    tester.expectSingle("neler", matchesTailLex("Pron + A3pl + Pnon + Nom"));
+    tester.expectSingle("nelere", matchesTailLex("Pron + A3pl + Pnon + Dat"));
+    tester.expectSingle("neyim", matchesTailLex("Pron + A3sg + P1sg + Nom"));
+    tester.expectSingle("neyimiz", matchesTailLex("Pron + A3sg + P1pl + Nom"));
+    tester.expectSingle("neyimize", matchesTailLex("Pron + A3sg + P1pl + Dat"));
+
+    tester.expectAny("neyi", matchesTailLex("Pron + A3sg + Pnon + Acc"));
+  }
+
+  @Test
+  public void nereTest() {
+    AnalysisTester tester = getTester("nere [P:Pron,Ques]");
+
+    tester.expectSingle("nere", matchesTailLex("Pron + A3sg + Pnon + Nom"));
+    tester.expectSingle("nereye", matchesTailLex("Pron + A3sg + Pnon + Dat"));
+    tester.expectSingle("nereler", matchesTailLex("Pron + A3pl + Pnon + Nom"));
+    tester.expectSingle("nerelere", matchesTailLex("Pron + A3pl + Pnon + Dat"));
+    tester.expectSingle("nereyim", matchesTailLex("Pron + A3sg + P1sg + Nom"));
+
+    // these sound strange.
+    tester.expectSingle("nereyimiz", matchesTailLex("Pron + A3sg + P1pl + Nom"));
+    tester.expectSingle("nereyimize", matchesTailLex("Pron + A3sg + P1pl + Dat"));
+
+    tester.expectAny("nereyi", matchesTailLex("Pron + A3sg + Pnon + Acc"));
+  }
 
 }
