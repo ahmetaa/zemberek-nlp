@@ -224,6 +224,7 @@ public class StemTransitionGenerator {
       return new ArrayList<>();
     } else if (id.equals("birbiri_Pron_Quant")
         || id.equals("çoğu_Pron_Quant")
+        || id.equals("öbürü_Pron_Quant")
         || id.equals("birçoğu_Pron_Quant")) {
       original = new StemTransition(item.root, item, originalAttrs, morphotactics.pronQuant_S);
 
@@ -234,6 +235,10 @@ public class StemTransitionGenerator {
           break;
         case "çoğu":
           modified = new StemTransition("çok", item, calculateAttributes("çok"),
+              morphotactics.pronQuantModified_S);
+          break;
+        case "öbürü":
+          modified = new StemTransition("öbür", item, calculateAttributes("öbür"),
               morphotactics.pronQuantModified_S);
           break;
         default:

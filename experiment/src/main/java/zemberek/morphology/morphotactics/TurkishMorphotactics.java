@@ -516,6 +516,7 @@ public class TurkishMorphotactics {
     DictionaryItem bircogu = lexicon.getItemById("birçoğu_Pron_Quant");
     DictionaryItem tumu = lexicon.getItemById("tümü_Pron_Quant");
     DictionaryItem topu = lexicon.getItemById("topu_Pron_Quant");
+    DictionaryItem oburu = lexicon.getItemById("öbürü_Pron_Quant");
 
     // we have separate A3pl and A3sg states for Quantitive Pronouns.
     // herkes and hep cannot be singular.
@@ -523,7 +524,7 @@ public class TurkishMorphotactics {
         rootIsNone(herkes, hepsi, hep, tumu, topu));
 
     pronQuant_S.add(pQuantA3pl_S, "lAr",
-        rootIsNone(hep, hepsi, cogu, bircogu, herbiri, tumu, hicbiri, topu));
+        rootIsNone(hep, hepsi, cogu, bircogu, herbiri, tumu, hicbiri, topu, oburu));
 
     // Herkes is implicitly plural.
     pronQuant_S.addEmpty(pQuantA3pl_S,
@@ -544,8 +545,9 @@ public class TurkishMorphotactics {
 
     // both `biri-ne` and `birisi-ne` or `birbirine` and `birbirisine` are accepted.
     pQuantA3sg_S.addEmpty(pP3sg_S,
-        rootIsAny(biri, birbiri, kimi, herbiri, hicbiri)
+        rootIsAny(biri, birbiri, kimi, herbiri, hicbiri, oburu)
             .and(notHave(PhoneticAttribute.ModifiedPronoun)));
+
     pQuantA3sg_S.add(pP3sg_S, "sI",
         rootIsAny(biri, birbiri, herbiri, hicbiri)
             .and(notHave(PhoneticAttribute.ModifiedPronoun)));

@@ -297,8 +297,28 @@ public class PronounsTest extends AnalyzerTestBase {
         "hiçbirilerine",
         "hiçbirilerim"
     );
-  }  
-  
-  
+  }
+
+  @Test
+  public void oburuTest() {
+    AnalysisTester tester = getTester("öbürü [P:Pron,Quant; A:Special]");
+    tester.expectSingle("öbürü", matchesTailLex("Pron + A3sg + P3sg + Nom"));
+    tester.expectSingle("öbürüne", matchesTailLex("Pron + A3sg + P3sg + Dat"));
+    tester.expectSingle("öbürünü", matchesTailLex("Pron + A3sg + P3sg + Acc"));
+    tester.expectSingle("öbürleri", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+    tester.expectSingle("öbürlerini", matchesTailLex("Pron + A3pl + P3pl + Acc"));
+
+    tester.expectFail(
+        "öbürüler",
+        "öbürümüz",
+        "öbürünüz",
+        "öbürün",
+        "öbürüm",
+        "öbürüleri",
+        "öbürülerine",
+        "öbürülerim"
+    );
+  }
+
 
 }
