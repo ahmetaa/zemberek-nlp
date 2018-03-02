@@ -320,5 +320,26 @@ public class PronounsTest extends AnalyzerTestBase {
     );
   }
 
+  @Test
+  public void oburkuTest() {
+    AnalysisTester tester = getTester("öbürkü [P:Pron,Quant]");
+    tester.expectSingle("öbürkü", matchesTailLex("Pron + A3sg + P3sg + Nom"));
+    tester.expectSingle("öbürküne", matchesTailLex("Pron + A3sg + P3sg + Dat"));
+    tester.expectSingle("öbürkünü", matchesTailLex("Pron + A3sg + P3sg + Acc"));
+    tester.expectSingle("öbürküler", matchesTailLex("Pron + A3pl + Pnon + Nom"));
+    tester.expectSingle("öbürkülerini", matchesTailLex("Pron + A3pl + P3pl + Acc"));
+
+    // Multiple solutions for öbürküleri
+    tester.expectAny("öbürküleri", matchesTailLex("Pron + A3pl + Pnon + Acc"));
+    tester.expectAny("öbürküleri", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+
+    tester.expectFail(
+        "öbürkümüz",
+        "öbürkünüz",
+        "öbürkün",
+        "öbürküm"
+    );
+  }
+
 
 }

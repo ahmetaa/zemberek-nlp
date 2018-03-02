@@ -46,6 +46,9 @@ herkes is implicitly plural. Perhaps we should also accept `herkesler` as same.
 
 Should RootAttrubute and Root contitions also check if there is no derivation?
 
+Oflazer does not offer A3pl+Pnon analysis for herkesler and öbürküler. We allow it.
+is "öbürkülerim" ok?
+
 ----
 
 annemler, annenler etc can be resoved with implicitPlural, ImplicitP1sg and ImplicitP2sg attributes.

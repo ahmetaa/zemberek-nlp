@@ -1,6 +1,7 @@
 package zemberek.morphology.analyzer;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.morphotactics.StemTransition;
@@ -50,8 +51,24 @@ public class AnalysisResult {
   public String lexicalForm() {
     return
         String.join(" + ", morphemes.stream()
-            .map(s->s.morphemeState.morpheme.id)
+            .map(s -> s.morphemeState.morpheme.id)
             .collect(Collectors.toList()));
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AnalysisResult that = (AnalysisResult) o;
+    return o.toString().equals(that.toString());
+  }
+
+  @Override
+  public int hashCode() {
+    return toString().hashCode();
+  }
 }

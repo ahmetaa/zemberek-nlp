@@ -1,8 +1,11 @@
 package zemberek.morphology.analysis;
 
+import com.google.common.collect.Sets;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import org.junit.Assert;
 import zemberek.morphology.analyzer.AnalysisResult;
 import zemberek.morphology.analyzer.InterpretingAnalyzer;
@@ -108,6 +111,32 @@ public class AnalyzerTestBase {
     return results.get(0);
   }
 
+  static List<AnalysisResult> getMultipleAnalysis(
+      InterpretingAnalyzer analyzer, int count, String input) {
+    List<AnalysisResult> results = analyzer.analyze(input);
+    if (results.size() != count) {
+      printDebug(analyzer, input);
+      if (results.size() == 0) {
+        Assert.fail(input + " cannot be analyzed");
+      } else {
+        Assert.fail(input + " is expected to have single solution but " +
+            " it has " + results.size() + " solutions");
+      }
+    }
+    printAndSort(input, results);
+    return results;
+  }
+
+  static List<AnalysisResult> getMultipleAnalysis(InterpretingAnalyzer analyzer, String input) {
+    List<AnalysisResult> results = analyzer.analyze(input);
+    if (results.size() == 0) {
+      printDebug(analyzer, input);
+      Assert.fail(input + " cannot be analyzed");
+    }
+    printAndSort(input, results);
+    return results;
+  }
+
 
   private static void printDebug(
       InterpretingAnalyzer analyzer,
@@ -149,8 +178,19 @@ public class AnalyzerTestBase {
       AnalysisResult result = getSingleAnalysis(analyzer, input);
       if (!matcher.predicate.test(result)) {
         printDebug(analyzer, input);
-        Assert.fail("Anaysis Failed for [" + input + "]. Predicate Input = " + matcher.expected );
+        Assert.fail("Anaysis Failed for [" + input + "]. Predicate Input = " + matcher.expected);
       }
+    }
+
+    void expectAny(String input, AnalysisMatcher matcher) {
+      List<AnalysisResult> result = getMultipleAnalysis(analyzer, input);
+      for (AnalysisResult analysisResult : result) {
+        if (matcher.predicate.test(analysisResult)) {
+          return;
+        }
+      }
+      printDebug(analyzer, input);
+      Assert.fail("Anaysis Failed for [" + input + "]. Predicate Input = " + matcher.expected);
     }
 
     void expectFalse(String input, Predicate<AnalysisResult> predicate) {
