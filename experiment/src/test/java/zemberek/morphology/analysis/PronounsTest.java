@@ -460,4 +460,22 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectAny("nereyi", matchesTailLex("Pron + A3sg + Pnon + Acc"));
   }
 
+  @Test
+  public void kendiTest() {
+    AnalysisTester tester = getTester("kendi [P:Pron,Reflex]");
+
+    tester.expectSingle("kendi", matchesTailLex("Pron + A3sg + P3sg + Nom"));
+    tester.expectSingle("kendileri", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+    tester.expectSingle("kendilerine", matchesTailLex("Pron + A3pl + P3pl + Dat"));
+    tester.expectSingle("kendim", matchesTailLex("Pron + A1sg + P1sg + Nom"));
+    tester.expectSingle("kendin", matchesTailLex("Pron + A2sg + P2sg + Nom"));
+    tester.expectSingle("kendisi", matchesTailLex("Pron + A3sg + P3sg + Nom"));
+    tester.expectSingle("kendimiz", matchesTailLex("Pron + A1pl + P1pl + Nom"));
+    tester.expectSingle("kendiniz", matchesTailLex("Pron + A2pl + P2pl + Nom"));
+
+    // kendine has 2 analyses
+    tester.expectAny("kendine", matchesTailLex("Pron + A3sg + P3sg + Dat"));
+    tester.expectAny("kendine", matchesTailLex("Pron + A2sg + P2sg + Dat"));
+  }
+
 }

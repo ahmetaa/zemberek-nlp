@@ -61,6 +61,8 @@ Adjective "öbür" should not get any suffixes.
 
 Added "falan, falanca" as personal pronoun. Oflazer does not.
 Added "berili" as qunatitive pronoun. Oflazer does not.
+
+Sak, uses "-leri" surface as A3pl+P3pl in "kendileri". Perhaps we should use that. Now we have "ler-i" A3pl+P3pl
 ----
 
 annemler, annenler etc can be resoved with implicitPlural, ImplicitP1sg and ImplicitP2sg attributes.

@@ -410,6 +410,7 @@ public class TurkishMorphotactics {
   public MorphemeState pronQuant_S = nonTerminal("pronQuant_S", pron);
   public MorphemeState pronQuantModified_S = nonTerminal("pronQuantModified_S", pron);
   public MorphemeState pronQues_S = nonTerminal("pronQues_S", pron);
+  public MorphemeState pronReflex_S = nonTerminal("pronReflex_S", pron);
 
   // used for ben-sen modification
   public MorphemeState pronPers_Mod_S = nonTerminal("pronPers_Mod_S", pron);
@@ -435,11 +436,20 @@ public class TurkishMorphotactics {
   MorphemeState pQuesA3sg_S = nonTerminal("pQuesA3sg_S", a3sg);
   MorphemeState pQuesA3pl_S = nonTerminal("pQuesA3pl_S", a3pl);
 
+  MorphemeState pReflexA3sg_S = nonTerminal("pReflexA3sg_S", a3sg);
+  MorphemeState pReflexA3pl_S = nonTerminal("pReflexA3pl_S", a3pl);
+  MorphemeState pReflexA1sg_S = nonTerminal("pReflexA1sg_S", a1sg);
+  MorphemeState pReflexA2sg_S = nonTerminal("pReflexA2sg_S", a2sg);
+  MorphemeState pReflexA1pl_S = nonTerminal("pReflexA1pl_S", a1pl);
+  MorphemeState pReflexA2pl_S = nonTerminal("pReflexA2pl_S", a2pl);
+
+
   // Possessive
 
   MorphemeState pPnon_S = nonTerminal("pPnon_S", pnon);
   MorphemeState pPnonMod_S = nonTerminal("pPnonMod_S", pnon); // for modified ben-sen
   MorphemeState pP1sg_S = nonTerminal("pP3sg_S", p1sg); // kimim
+  MorphemeState pP2sg_S = nonTerminal("pP2sg_S", p2sg);
   MorphemeState pP3sg_S = nonTerminal("pP1sg_S", p3sg); // for `birisi` etc
   MorphemeState pP1pl_S = nonTerminal("pP1pl_S", p1pl); // for `birbirimiz` etc
   MorphemeState pP2pl_S = nonTerminal("pP2pl_S", p2pl); // for `birbiriniz` etc
@@ -578,47 +588,70 @@ public class TurkishMorphotactics {
     pQuesA3pl_S.add(pP1sg_S, "Im");
     pQuesA3pl_S.add(pP1pl_S, "ImIz");
 
+    //------------ Reflexive Pronouns ----------------------------
+    // `kendi`
+    pronReflex_S.addEmpty(pReflexA1sg_S);
+    pronReflex_S.addEmpty(pReflexA2sg_S);
+    pronReflex_S.addEmpty(pReflexA3sg_S);
+    pronReflex_S.addEmpty(pReflexA1pl_S);
+    pronReflex_S.addEmpty(pReflexA2pl_S);
+    pronReflex_S.addEmpty(pReflexA3pl_S);
+
+    pReflexA1sg_S.add(pP1sg_S, "Im");
+    pReflexA2sg_S.add(pP2sg_S, "In");
+    pReflexA3sg_S.add(pP3sg_S, "+sI");
+    pReflexA3sg_S.addEmpty(pP3sg_S);
+    pReflexA1pl_S.add(pP1pl_S, "ImIz");
+    pReflexA2pl_S.add(pP2pl_S, "InIz");
+    pReflexA3pl_S.add(pP3pl_S, "lArI");
+
     // ------------------------
     // Case connections for all
-    Condition notNeNere = rootIsNone(ne, nere, falan, falanca);
-    Condition neNere = rootIsAny(ne, nere, falan, falanca);
+    Condition nGroup = rootIsNone(ne, nere, falan, falanca);
+    Condition yGroup = rootIsAny(ne, nere, falan, falanca);
 
     pPnon_S.addEmpty(pNom_ST);
     // not allowing `ben-e` and `sen-e`. `ban-a` and `san-a` are using different states.
     pPnon_S.add(pDat_ST, "+nA", rootIsNone(ben, sen, ne, nere, falan, falanca));
-    pPnon_S.add(pAcc_ST, "+nI", notNeNere);
-    pPnon_S.add(pDat_ST, "+yA", neNere);
-    pPnon_S.add(pAcc_ST, "+yI", neNere);
+    pPnon_S.add(pAcc_ST, "+nI", nGroup);
+    pPnon_S.add(pDat_ST, "+yA", yGroup);
+    pPnon_S.add(pAcc_ST, "+yI", yGroup);
 
     pP3pl_S.addEmpty(pNom_ST);
-    pP3pl_S.add(pDat_ST, "+nA", notNeNere);
-    pP3pl_S.add(pAcc_ST, "+nI", notNeNere);
-    pP3pl_S.add(pDat_ST, "+yA", neNere);
-    pP3pl_S.add(pAcc_ST, "+yI", neNere);
+    pP3pl_S.add(pDat_ST, "+nA", nGroup);
+    pP3pl_S.add(pAcc_ST, "+nI", nGroup);
+    pP3pl_S.add(pDat_ST, "+yA", yGroup);
+    pP3pl_S.add(pAcc_ST, "+yI", yGroup);
 
     pP3sg_S.addEmpty(pNom_ST);
-    pP3sg_S.add(pDat_ST, "+nA", notNeNere);
-    pP3sg_S.add(pAcc_ST, "+nI", notNeNere);
-    pP3sg_S.add(pDat_ST, "+yA", neNere);
-    pP3sg_S.add(pAcc_ST, "+yI", neNere);
+    pP3sg_S.add(pDat_ST, "+nA", nGroup);
+    pP3sg_S.add(pAcc_ST, "+nI", nGroup);
+    pP3sg_S.add(pDat_ST, "+yA", yGroup);
+    pP3sg_S.add(pAcc_ST, "+yI", yGroup);
 
     pP1pl_S.addEmpty(pNom_ST);
-    pP1pl_S.add(pDat_ST, "+nA", notNeNere);
-    pP1pl_S.add(pAcc_ST, "+nI", notNeNere);
-    pP1pl_S.add(pDat_ST, "+yA", neNere);
-    pP1pl_S.add(pAcc_ST, "+yI", neNere);
+    pP1pl_S.add(pDat_ST, "+nA", nGroup);
+    pP1pl_S.add(pAcc_ST, "+nI", nGroup);
+    pP1pl_S.add(pDat_ST, "+yA", yGroup);
+    pP1pl_S.add(pAcc_ST, "+yI", yGroup);
 
     pP2pl_S.addEmpty(pNom_ST);
-    pP2pl_S.add(pDat_ST, "+nA", notNeNere);
-    pP2pl_S.add(pAcc_ST, "+nI", notNeNere);
-    pP2pl_S.add(pDat_ST, "+yA", neNere);
-    pP2pl_S.add(pAcc_ST, "+yI", neNere);
+    pP2pl_S.add(pDat_ST, "+nA", nGroup);
+    pP2pl_S.add(pAcc_ST, "+nI", nGroup);
+    pP2pl_S.add(pDat_ST, "+yA", yGroup);
+    pP2pl_S.add(pAcc_ST, "+yI", yGroup);
 
     pP1sg_S.addEmpty(pNom_ST);
-    pP1sg_S.add(pDat_ST, "+nA", notNeNere);
-    pP1sg_S.add(pAcc_ST, "+nI", notNeNere);
-    pP1sg_S.add(pDat_ST, "+yA", neNere);
-    pP1sg_S.add(pAcc_ST, "+yI", neNere);
+    pP1sg_S.add(pDat_ST, "+nA", nGroup);
+    pP1sg_S.add(pAcc_ST, "+nI", nGroup);
+    pP1sg_S.add(pDat_ST, "+yA", yGroup);
+    pP1sg_S.add(pAcc_ST, "+yI", yGroup);
+
+    pP2sg_S.addEmpty(pNom_ST);
+    pP2sg_S.add(pDat_ST, "+nA", nGroup);
+    pP2sg_S.add(pAcc_ST, "+nI", nGroup);
+    pP2sg_S.add(pDat_ST, "+yA", yGroup);
+    pP2sg_S.add(pAcc_ST, "+yI", yGroup);
   }
 
 
@@ -648,7 +681,8 @@ public class TurkishMorphotactics {
             return pronQuant_S;
           case QuestionPron:
             return pronQues_S;
-
+          case ReflexivePron:
+            return pronReflex_S;
           default:
             return pronQuant_S;
           //throw new IllegalStateException("Cannot find root for Pronoun " + dictionaryItem);
