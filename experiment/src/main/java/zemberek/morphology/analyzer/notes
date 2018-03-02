@@ -57,6 +57,10 @@ should we parse `nemiz, neniz (neyimiz, neyiniz)`
 
 `kimlerimde` etc. sounds bad. Should we restrict?
 
+Adjective "öbür" should not get any suffixes.
+
+Added "falan, falanca" as personal pronoun. Oflazer does not.
+Added "berili" as qunatitive pronoun. Oflazer does not.
 ----
 
 annemler, annenler etc can be resoved with implicitPlural, ImplicitP1sg and ImplicitP2sg attributes.

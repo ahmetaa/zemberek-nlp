@@ -199,11 +199,12 @@ public class InterpretingAnalyzer {
         continue;
       }
 
-      //TODO: if tail is equal to surface, no need to calculate attributes.
       MorphemeSurfaceForm surfaceTransition = new MorphemeSurfaceForm(surface, suffixTransition);
 
-      EnumSet<PhoneticAttribute> attributes = MorphemeSurfaceForm
-          .defineMorphemicAttributes(sequence, path.phoneticAttributes);
+      //if tail is equal to surface, no need to calculate phonetic attributes.
+      EnumSet<PhoneticAttribute> attributes = path.tail.equals(surface) ?
+          path.phoneticAttributes.clone() :
+          MorphemeSurfaceForm.defineMorphemicAttributes(sequence, path.phoneticAttributes);
 
       // This is required for suffixes like `cik` and `ciğ`
       // we add an extra attribute if "cik" or "ciğ" is generated and matches the tail.

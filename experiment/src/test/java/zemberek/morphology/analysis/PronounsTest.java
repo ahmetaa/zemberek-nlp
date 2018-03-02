@@ -42,6 +42,23 @@ public class PronounsTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void falanFalancaTest1() {
+    AnalysisTester tester = getTester("falan [P:Pron,Pers]");
+    tester.expectSingle("falan", matchesTailLex("Pron + A3sg + Pnon + Nom"));
+    tester.expectSingle("falana", matchesTailLex("Pron + A3sg + Pnon + Dat"));
+    tester.expectSingle("falanı", matchesTailLex("Pron + A3sg + Pnon + Acc"));
+    tester.expectSingle("falanlar", matchesTailLex("Pron + A3pl + Pnon + Nom"));
+    tester.expectSingle("falanlara", matchesTailLex("Pron + A3pl + Pnon + Dat"));
+
+    tester = getTester("falanca [P:Pron,Pers]");
+    tester.expectSingle("falanca", matchesTailLex("Pron + A3sg + Pnon + Nom"));
+    tester.expectSingle("falancaya", matchesTailLex("Pron + A3sg + Pnon + Dat"));
+    tester.expectSingle("falancayı", matchesTailLex("Pron + A3sg + Pnon + Acc"));
+    tester.expectSingle("falancalar", matchesTailLex("Pron + A3pl + Pnon + Nom"));
+    tester.expectSingle("falancalara", matchesTailLex("Pron + A3pl + Pnon + Dat"));
+  }
+
+  @Test
   public void bizSizTest() {
     AnalysisTester tester = getTester("biz [P:Pron,Pers]");
     tester.expectSingle("biz", matchesTailLex("Pron + A1pl + Pnon + Nom"));
@@ -341,6 +358,26 @@ public class PronounsTest extends AnalyzerTestBase {
     );
   }
 
+  @Test
+  public void berikiTest() {
+    AnalysisTester tester = getTester("beriki [P:Pron,Quant]");
+    tester.expectSingle("beriki", matchesTailLex("Pron + A3sg + P3sg + Nom"));
+    tester.expectSingle("berikine", matchesTailLex("Pron + A3sg + P3sg + Dat"));
+    tester.expectSingle("berikini", matchesTailLex("Pron + A3sg + P3sg + Acc"));
+    tester.expectSingle("berikiler", matchesTailLex("Pron + A3pl + Pnon + Nom"));
+    tester.expectSingle("berikilerini", matchesTailLex("Pron + A3pl + P3pl + Acc"));
+
+    // Multiple solutions for berikileri
+    tester.expectAny("berikileri", matchesTailLex("Pron + A3pl + Pnon + Acc"));
+    tester.expectAny("berikileri", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+
+    tester.expectFail(
+        "berikimiz",
+        "berikiniz",
+        "berikin",
+        "berikim"
+    );
+  }
 
   @Test
   public void kimseQuantTest() {

@@ -460,12 +460,16 @@ public class TurkishMorphotactics {
     DictionaryItem o = lexicon.getItemById("o_Pron_Pers");
     DictionaryItem biz = lexicon.getItemById("biz_Pron_Pers");
     DictionaryItem siz = lexicon.getItemById("siz_Pron_Pers");
+    DictionaryItem falan = lexicon.getItemById("falan_Pron_Pers");
+    DictionaryItem falanca = lexicon.getItemById("falanca_Pron_Pers");
 
     pronPers_S.addEmpty(pA1sg_S, rootIs(ben));
     pronPers_S.addEmpty(pA2sg_S, rootIs(sen));
-    pronPers_S.addEmpty(pA3sg_S, rootIs(o));
+    pronPers_S.addEmpty(pA3sg_S, rootIsAny(o, falan, falanca));
     pronPers_S
         .add(pA3pl_S, "nlAr", rootIs(o)); // Oflazer does not have "onlar" as Pronoun root.
+    pronPers_S
+        .add(pA3pl_S, "lAr", rootIsAny(falan, falanca));
     pronPers_S.addEmpty(pA1pl_S, rootIs(biz));
     pronPers_S.addEmpty(pA2pl_S, rootIs(siz));
 
@@ -505,6 +509,7 @@ public class TurkishMorphotactics {
     DictionaryItem topu = lexicon.getItemById("topu_Pron_Quant");
     DictionaryItem oburu = lexicon.getItemById("öbürü_Pron_Quant");
     DictionaryItem oburku = lexicon.getItemById("öbürkü_Pron_Quant");
+    DictionaryItem beriki = lexicon.getItemById("beriki_Pron_Quant");
     DictionaryItem kimse = lexicon.getItemById("kimse_Pron_Quant");
 
     // we have separate A3pl and A3sg states for Quantitive Pronouns.
@@ -538,7 +543,7 @@ public class TurkishMorphotactics {
 
     // both `biri-ne` and `birisi-ne` or `birbirine` and `birbirisine` are accepted.
     pQuantA3sg_S.addEmpty(pP3sg_S,
-        rootIsAny(biri, birbiri, kimi, herbiri, hicbiri, oburu, oburku)
+        rootIsAny(biri, birbiri, kimi, herbiri, hicbiri, oburu, oburku, beriki)
             .and(notHave(PhoneticAttribute.ModifiedPronoun)));
 
     pQuantA3sg_S.add(pP3sg_S, "sI",
@@ -546,9 +551,9 @@ public class TurkishMorphotactics {
             .and(notHave(PhoneticAttribute.ModifiedPronoun)));
 
     // there is no connection from pQuantA3pl to Pnon for preventing `biriler` (except herkes)
-    pQuantA3pl_S.add(pP3pl_S, "I", rootIsAny(biri, birbiri, kimi, oburku));
+    pQuantA3pl_S.add(pP3pl_S, "I", rootIsAny(biri, birbiri, kimi, oburku, beriki));
     pQuantA3pl_S.addEmpty(pP3pl_S, rootIsAny(hepsi, cogu, tumu, topu, bircogu));
-    pQuantA3pl_S.addEmpty(pPnon_S, rootIsAny(herkes, oburku));
+    pQuantA3pl_S.addEmpty(pPnon_S, rootIsAny(herkes, oburku, beriki));
 
     pQuantA1pl_S.add(pP1pl_S, "ImIz");
     pQuantA2pl_S.add(pP2pl_S, "InIz");
@@ -573,12 +578,12 @@ public class TurkishMorphotactics {
 
     // ------------------------
     // Case connections for all
-    Condition notNeNere = rootIsNone(ne, nere);
-    Condition neNere = rootIsAny(ne, nere);
+    Condition notNeNere = rootIsNone(ne, nere, falan, falanca);
+    Condition neNere = rootIsAny(ne, nere, falan, falanca);
 
     pPnon_S.addEmpty(pNom_ST);
     // not allowing `ben-e` and `sen-e`. `ban-a` and `san-a` are using different states.
-    pPnon_S.add(pDat_ST, "+nA", rootIsNone(ben, sen, ne, nere));
+    pPnon_S.add(pDat_ST, "+nA", rootIsNone(ben, sen, ne, nere, falan, falanca));
     pPnon_S.add(pAcc_ST, "+nI", notNeNere);
     pPnon_S.add(pDat_ST, "+yA", neNere);
     pPnon_S.add(pAcc_ST, "+yI", neNere);
@@ -643,7 +648,8 @@ public class TurkishMorphotactics {
             return pronQues_S;
 
           default:
-            throw new IllegalStateException("Cannot find root for Pronoun " + dictionaryItem);
+            return pronQuant_S;
+          //throw new IllegalStateException("Cannot find root for Pronoun " + dictionaryItem);
         }
       default:
         return noun_S;
