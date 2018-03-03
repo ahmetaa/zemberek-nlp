@@ -38,8 +38,6 @@ public class VerbsAfterNounAdjTest extends AnalyzerTestBase {
         "elmayıdır",
         "elmamdırım",
         "elmamdımdır",
-        "elmayayımdır", // Oflazer accepts this.
-        "elmayalar",
         "elmalarlar", // Oflazer accepts this.
         "elmamım", // Oflazer accepts this.
         "elmamımdır", // Oflazer accepts this.
@@ -59,6 +57,54 @@ public class VerbsAfterNounAdjTest extends AnalyzerTestBase {
   public void nounVerbZeroTest() {
     AnalysisTester tester = getTester("elma");
     tester.expectSingle("elmayım", matchesTailLex("Zero + Verb + Pres + A1sg"));
+    tester.expectSingle("elmanım", matchesTailLex("Zero + Verb + Pres + A1sg"));
+  }
+
+  @Test
+  public void narrTest() {
+    AnalysisTester tester = getTester("elma");
+
+    tester.expectSingle("elmaymış", matchesTailLex("Zero + Verb + Narr + A3sg"));
+    tester.expectSingle("elmaymışız", matchesTailLex("Zero + Verb + Narr + A1pl"));
+    tester.expectSingle("elmaymışım", matchesTailLex("Zero + Verb + Narr + A1sg"));
+    tester.expectSingle("elmaymışımdır", matchesTailLex("Zero + Verb + Narr + A1sg + Cop"));
+    tester.expectSingle("elmaymışsam", matchesTailLex("Zero + Verb + Narr + Cond + A1sg"));
+
+    tester.expectFail(
+        "elmaymışmış"
+    );
+  }
+
+  @Test
+  public void pastTest() {
+    AnalysisTester tester = getTester("elma");
+
+    tester.expectSingle("elmaydı", matchesTailLex("Zero + Verb + Past + A3sg"));
+    tester.expectSingle("elmaydık", matchesTailLex("Zero + Verb + Past + A1pl"));
+    tester.expectSingle("elmaydım", matchesTailLex("Zero + Verb + Past + A1sg"));
+    tester.expectSingle("elmaydılar", matchesTailLex("Zero + Verb + Past + A3pl"));
+
+    tester.expectFail(
+        "elmaydıysa",
+        "elmaydıyız",
+        "elmaydılardır"
+    );
+  }
+
+  @Test
+  public void condTest() {
+    AnalysisTester tester = getTester("elma");
+
+    tester.expectSingle("elmaysa", matchesTailLex("Zero + Verb + Pres + Cond + A3sg"));
+    tester.expectSingle("elmaysak", matchesTailLex("Zero + Verb + Pres + Cond + A1pl"));
+    tester.expectSingle("elmaymışsa", matchesTailLex("Zero + Verb + Narr + Cond + A3sg"));
+    tester.expectSingle("elmaymışsam", matchesTailLex("Zero + Verb + Narr + Cond + A1sg"));
+
+    tester.expectFail(
+        "elmaydıysa",
+        "elmaysadır",
+        "elmaysalardır"
+    );
   }
 
 }

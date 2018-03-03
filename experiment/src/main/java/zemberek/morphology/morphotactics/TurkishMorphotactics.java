@@ -82,6 +82,8 @@ public class TurkishMorphotactics {
   // Present Tense
   public static final Morpheme pres = new Morpheme("PresentTense", "Pres");
   public static final Morpheme past = new Morpheme("PastTense", "Past");
+  public static final Morpheme narr = new Morpheme("NarrativeTense", "Narr");
+  public static final Morpheme cond = new Morpheme("Condition", "Cond");
 
   // Verb specific
   public static final Morpheme cop = new Morpheme("Copula", "Cop");
@@ -114,7 +116,9 @@ public class TurkishMorphotactics {
   MorphemeState pnon_S = nonTerminal("pnon_S", pnon);
   MorphemeState pnonCompound_S = nonTerminal("pnonCompound_S", pnon);
   MorphemeState p1sg_S = nonTerminal("p1sg_S", p1sg);
+  MorphemeState p2sg_S = nonTerminal("p2sg_S", p2sg);
   MorphemeState p3sg_S = nonTerminal("p3sg_S", p3sg);
+  MorphemeState p1pl_S = nonTerminal("p1pl_S", p1pl);
 
   // Case
 
@@ -179,39 +183,51 @@ public class TurkishMorphotactics {
 
     a3plCompound_S
         .add(p3sg_S, "I")
+        .add(p2sg_S, "In")
         .add(p1sg_S, "Im");
 
+    DictionaryItem su = lexicon.getItemById("su_Noun");
+    Condition noFamily = notHave(RootAttribute.FamilyMember);
+    Condition defaultPossCond = rootIsNot(su).and(noFamily);
+
     // ev-ε-ε-? Reject "annemler" etc.
-    a3sg_S.addEmpty(pnon_S, notHave(RootAttribute.FamilyMember));
+    a3sg_S.addEmpty(pnon_S, noFamily);
 
-    DictionaryItem suRoot = lexicon.getItemById("su_Noun");
     // ev-ε-im oda-ε-m
-    a3sg_S.add(p1sg_S, "Im",
-        rootIsNot(suRoot).and(notHave(RootAttribute.FamilyMember)));
+    a3sg_S.add(p1sg_S, "Im", defaultPossCond);
+    // su-ε-yum. 
+    a3sg_S.add(p1sg_S, "yum", rootIs(su));
 
-    // su-ε-yum. Only for "su"
-    a3sg_S.add(p1sg_S, "yum", rootIs(suRoot));
+    // ev-ε-im oda-ε-m
+    a3sg_S.add(p2sg_S, "In", defaultPossCond);
+    // su-ε-yun. 
+    a3sg_S.add(p2sg_S, "yun", rootIs(su));
 
     // ev-ε-i oda-ε-sı
-    a3sg_S.add(p3sg_S, "+sI",
-        rootIsNot(suRoot).and(notHave(RootAttribute.FamilyMember)));
-
+    a3sg_S.add(p3sg_S, "+sI", defaultPossCond);
     // "zeytinyağı" has two analyses. Pnon and P3sg.
     a3sg_S.addEmpty(p3sg_S, has(RootAttribute.CompoundP3sg));
-
     // su-ε-yu. Only for "su"
-    a3sg_S.add(p3sg_S, "yu", rootIs(suRoot));
+    a3sg_S.add(p3sg_S, "yu", rootIs(su));
+
+    a3sg_S.add(p1pl_S, "ImIz", defaultPossCond);
+    a3sg_S.add(p1pl_S, "yumuz", rootIs(su));
 
     // ev-ler-ε-?
-    a3pl_S.addEmpty(pnon_S, notHave(RootAttribute.FamilyMember));
+    a3pl_S.addEmpty(pnon_S, noFamily);
 
     // ev-ler-im-?
-    a3pl_S.add(p1sg_S, "Im", notHave(RootAttribute.FamilyMember));
-    // for words like "annemler".
+    a3pl_S.add(p1sg_S, "Im", noFamily);
+    a3pl_S.add(p2sg_S, "In", noFamily);
+
+    // for words like "annemler" and "annenler"
     a3pl_S.addEmpty(p1sg_S, has(RootAttribute.ImplicitP1sg));
+    a3pl_S.addEmpty(p2sg_S, has(RootAttribute.ImplicitP2sg));
 
     // ev-ler-i oda-lar-ı
-    a3pl_S.add(p3sg_S, "I", notHave(RootAttribute.FamilyMember));
+    a3pl_S.add(p3sg_S, "I", noFamily);
+
+    a3pl_S.add(p1pl_S, "ImIz", noFamily);
 
     // ev-?-ε-ε (ev, evler).
     pnon_S.addEmpty(nom_ST,
@@ -248,12 +264,26 @@ public class TurkishMorphotactics {
     // ev-?-im-i (ev-i, ev-ler-i, e-vim-i).
     p1sg_S.add(acc_ST, "I");
 
+    // evin, evlerin
+    p2sg_S.addEmpty(nom_ST);
+    // evine, evlerine
+    p2sg_S.add(dat_ST, "A");
+    // evini
+    p2sg_S.add(acc_ST, "I");
+
     //ev-?-i-ε (evi, evleri)
     p3sg_S.addEmpty(nom_ST);
     //ev-?-i-ε (evine, evlerine)
     p3sg_S.add(dat_ST, "nA");
     //ev-?-i-ε (ev-i-ni, ev-ler-i-ni)
     p3sg_S.add(acc_ST, "nI");
+
+    // evimiz
+    p1pl_S.addEmpty(nom_ST);
+    // evimize
+    p1pl_S.add(dat_ST, "A");
+    // evimizi
+    p1pl_S.add(acc_ST, "I");
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains any non empty surface suffix.
     // There are two almost identical suffix transitions with templates ">cI~k" and ">cI!ğ"
@@ -336,7 +366,11 @@ public class TurkishMorphotactics {
 
   MorphemeState nPresent_S = nonTerminal("nPresent_S", pres);
   MorphemeState nPast_S = nonTerminal("nPast_S", past);
+  MorphemeState nNarr_S = nonTerminal("nNarr_S", narr);
+  MorphemeState nCond_S = nonTerminal("nCond_S", cond);
   MorphemeState nA1sg_ST = terminal("nA1sg_ST", a1sg);
+  MorphemeState nA2sg_ST = terminal("nA2sg_ST", a2sg);
+  MorphemeState nA1pl_ST = terminal("nA1pl_ST", a1pl);
   MorphemeState nA3sg_ST = terminal("nA3sg_ST", a3sg);
   MorphemeState nA3sg_S = nonTerminal("nA3sg_S", a3sg);
   MorphemeState nA3pl_ST = terminal("nA3pl_ST", a3pl);
@@ -350,6 +384,8 @@ public class TurkishMorphotactics {
     nVerb_S.addEmpty(nPresent_S);
     // elma-ydı, çorap-tı
     nVerb_S.add(nPast_S, "+y>dI");
+    // elma-ymış
+    nVerb_S.add(nNarr_S, "+ymIş");
 
     // word "değil" is special. It contains negative suffix implicitly. Also it behaves like
     // noun->Verb Zero morpheme derivation. because it cannot have most Verb suffixes.
@@ -359,42 +395,82 @@ public class TurkishMorphotactics {
     // copy transitions from nVerb_S
     nNeg_S.copyOutgoingTransitionsFrom(nVerb_S);
 
-    // we prevent "elma-ya-yım" or "elma-lar-lar" (Oflazer accepts these)
-    Condition allowedTensePerson =
-        new Conditions.PreviousGroupContains(
-            dat_ST, a3pl_S, p3sg_S, a3sgCompound_S, a3plCompound_S, p1sg_S).not();
 
+    Condition noFamily = notHave(RootAttribute.FamilyMember);
+    // for preventing elmamım, elmamdım
+    // pP1sg_S, pDat_ST, pA1sg_S, pA1pl_S, pA3pl_S, pP2sg_S, pP1pl_S, pP3sg_S, pP1sg_S
+    Condition allowA1sgTrans =
+        notHave(RootAttribute.FamilyMember)
+            .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
+            .andNot(new Conditions.PreviousGroupContains(p1sg_S));
+    Condition allowA2sgTrans =
+        notHave(RootAttribute.FamilyMember)
+            .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
+            .andNot(new Conditions.PreviousGroupContains(p2sg_S));
+    // TODO: add p3pl once implemented
+    Condition allowA3plTrans =
+        notHave(RootAttribute.FamilyMember)
+            .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
+            .andNot(new Conditions.PreviousGroupContains(a3pl_S, a3plCompound_S));
+    Condition allowA1plTrans =
+        notHave(RootAttribute.FamilyMember)
+            .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
+            .andNot(new Conditions.PreviousGroupContains(p1pl_S));
     // elma-yım
-    nPresent_S.add(nA1sg_ST, "+yIm",
-        notHave(RootAttribute.FamilyMember).and(allowedTensePerson));
+    nPresent_S.add(nA1sg_ST, "+yIm", allowA1sgTrans);
 
     // elma-ε-ε-dır to non terminal A3sg. We do not allow ending with A3sg from empty Present tense.
     nPresent_S.addEmpty(nA3sg_S);
+
+    nPresent_S.add(nCond_S, "+ysA");
 
     // we allow `değil` to end with terminal A3sg from Present tense.
     nPresent_S.addEmpty(nA3sg_ST, rootIs(degilRoot));
 
     // elma-lar, elma-da-lar as Verb.
     nPresent_S.add(nA3pl_ST, "lAr",
-        notHave(RootAttribute.FamilyMember)
-            .and(notHave(RootAttribute.CompoundP3sg))
-            .and(allowedTensePerson));
+            notHave(RootAttribute.CompoundP3sg)
+            .and(allowA3plTrans));
 
     // elma-ydı-m. Do not allow "elmaya-yım" (Oflazer accepts this)
-    nPast_S.add(nA1sg_ST, "m", allowedTensePerson);
+    nPast_S.add(nA1sg_ST, "m", allowA1sgTrans);
+    nNarr_S.add(nA1sg_ST, "Im", allowA1sgTrans);
+
+    nPast_S.add(nA2sg_ST, "n", allowA2sgTrans);
+    nNarr_S.add(nA2sg_ST, "sIn", allowA2sgTrans);
+
+    nPast_S.add(nA1pl_ST, "k", allowA1plTrans);
+    nNarr_S.add(nA1pl_ST, "Iz", allowA1plTrans);
+    nPresent_S.add(nA1pl_ST, "+yIz", allowA1plTrans);
 
     // elma-ydı-lar.
     nPast_S.add(nA3pl_ST, "lAr",
-        notHave(RootAttribute.CompoundP3sg));
+        notHave(RootAttribute.CompoundP3sg)
+            .and(allowA3plTrans));
+    // elma-ymış-lar.
+    nNarr_S.add(nA3pl_ST, "lAr",
+        notHave(RootAttribute.CompoundP3sg)
+            .and(allowA3plTrans));
 
     // elma-ydı-ε
     nPast_S.addEmpty(nA3sg_ST);
+    // elma-ymış-ε
+    nNarr_S.addEmpty(nA3sg_ST);
+
+    // narr+cons is allowed but not past+cond
+    nNarr_S.add(nCond_S, "sA");
+
+    nCond_S.add(nA1sg_ST, "m", allowA1sgTrans);
+    nCond_S.add(nA1pl_ST, "k", allowA1plTrans);
+    nCond_S.addEmpty(nA3sg_ST);
+    nCond_S.add(nA3pl_ST, "lAr");
 
     // for not allowing "elma-ydı-m-dır"
-    Condition rejectNoCopula = new CurrentGroupContains(nPast_S).not();
+    Condition rejectNoCopula = new CurrentGroupContains(nPast_S, nCond_S).not();
 
     //elma-yım-dır
     nA1sg_ST.add(nCop_ST, "dIr", rejectNoCopula);
+    nA1pl_ST.add(nCop_ST, "dIr", rejectNoCopula);
 
     nA3sg_S.add(nCop_ST, ">dIr", rejectNoCopula);
 
@@ -447,9 +523,9 @@ public class TurkishMorphotactics {
 
   MorphemeState pPnon_S = nonTerminal("pPnon_S", pnon);
   MorphemeState pPnonMod_S = nonTerminal("pPnonMod_S", pnon); // for modified ben-sen
-  MorphemeState pP1sg_S = nonTerminal("pP3sg_S", p1sg); // kimim
+  MorphemeState pP1sg_S = nonTerminal("pP1sg_S", p1sg); // kimim
   MorphemeState pP2sg_S = nonTerminal("pP2sg_S", p2sg);
-  MorphemeState pP3sg_S = nonTerminal("pP1sg_S", p3sg); // for `birisi` etc
+  MorphemeState pP3sg_S = nonTerminal("pP3sg_S", p3sg); // for `birisi` etc
   MorphemeState pP1pl_S = nonTerminal("pP1pl_S", p1pl); // for `birbirimiz` etc
   MorphemeState pP2pl_S = nonTerminal("pP2pl_S", p2pl); // for `birbiriniz` etc
   MorphemeState pP3pl_S = nonTerminal("pP3pl_S", p3pl); // for `birileri` etc
@@ -461,6 +537,7 @@ public class TurkishMorphotactics {
   MorphemeState pAcc_ST = terminal("pAcc_ST", acc);
 
   MorphemeState pronZeroDeriv_S = nonTerminalDerivative("pronZeroDeriv_S", zero);
+
 
   private void connectPronounStates() {
 

@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import zemberek.core.turkish.PhoneticAttribute;
+import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.analyzer.MorphemeSurfaceForm;
 import zemberek.morphology.analyzer.SearchPath;
@@ -35,6 +36,10 @@ class Conditions {
 
   public static Condition rootIs(DictionaryItem item) {
     return new DictionaryItemIs(item);
+  }
+
+  public static Condition rootPrimaryPos(PrimaryPos pos) {
+    return new RootPrimaryPosIs(pos);
   }
 
   public static Condition rootIsAny(DictionaryItem... items) {
@@ -183,6 +188,25 @@ class Conditions {
     @Override
     public String toString() {
       return "DictionaryItemIs{" + item + '}';
+    }
+  }
+
+  private static class RootPrimaryPosIs extends AbstractCondition {
+
+    PrimaryPos pos;
+
+    public RootPrimaryPosIs(PrimaryPos pos) {
+      this.pos = pos;
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      return visitor.getDictionaryItem().primaryPos == pos;
+    }
+
+    @Override
+    public String toString() {
+      return "RootPrimaryPosIs{" + pos + '}';
     }
   }
 

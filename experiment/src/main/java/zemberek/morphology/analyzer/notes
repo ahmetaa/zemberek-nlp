@@ -23,7 +23,7 @@ how about implicitplural derivation etc?
 
 "JustLike" does not sound right. "odun-su". Resemblance?
 
-"elmayayım" "armudasın" "armudasındır" "elmamımdır", "elmalarlar" seems incorrect but Oflazer accepts.
+"elmamımdır", "elmalarlar" seems incorrect but Oflazer accepts.
 
 "odun-lar-dır" vs "odun-dur-lar" Oflazer gives same analysis for both.
 (elma+Noun+A3sg+Pnon+Nom^DB+Verb+Zero+Pres+A3pl+Cop)  Should we allow "odun-dur-lar"?
@@ -64,6 +64,15 @@ Added "berili" as qunatitive pronoun. Oflazer does not.
 
 Sak, uses "-leri" surface as A3pl+P3pl in "kendileri". Perhaps we should use that. Now we have "ler-i" A3pl+P3pl
 I make changes for Reflexive and some Quantitive pronouns but not all are covered.
+
+We do not allow zero->Verb+..+lar for pronouns. Oflazer does.
+
+Oflazer does not anayze elmaymışımdır. we do.
+
+Oflazer does not analyze elmaymışsa. we do
+
+akarsu also behaves like su but maybe both `akarsum` and `akarsuyum` are accepted.
+
 ----
 
 annemler, annenler etc can be resoved with implicitPlural, ImplicitP1sg and ImplicitP2sg attributes.

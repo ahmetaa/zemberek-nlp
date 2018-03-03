@@ -154,7 +154,7 @@ public class InterpretingAnalyzer {
       }
 
       // if transition condition fails, add it to debug data.
-      if (debugData != null && suffixTransition.getCondition()!=null) {
+      if (debugData != null && suffixTransition.getCondition() != null) {
         Condition condition = suffixTransition.getCondition();
         Condition failed;
         if (condition instanceof CombinedCondition) {
@@ -288,7 +288,7 @@ public class InterpretingAnalyzer {
       List<String> l = new ArrayList<>();
       l.add("----------------------");
       l.add("Debug data for input = " + input);
-      if(candidateStemTransitions.size()==0) {
+      if (candidateStemTransitions.size() == 0) {
         l.add("No Stem Candidates. Analysis Failed.");
       }
       l.add("Stem Candidate Transitions: ");
@@ -311,9 +311,13 @@ public class InterpretingAnalyzer {
           }
         }
       }
-      l.add("Results:");
+      l.add("Results (Surface + Morpheme State):");
       for (AnalysisResult result : results) {
-        l.add("  " + result + " = " + result.shortForm());
+        l.add("  " + result);
+      }
+      l.add("Results (Surface + Morpheme):");
+      for (AnalysisResult result : results) {
+        l.add("  " + result.shortForm());
       }
       return l;
     }

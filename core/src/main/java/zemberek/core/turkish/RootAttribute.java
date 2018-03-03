@@ -159,6 +159,7 @@ public enum RootAttribute implements StringEnum {
   ImplicitDative,
   ImplicitPlural,
   ImplicitP1sg,
+  ImplicitP2sg,
   FamilyMember, // annemler etc.
 
 
