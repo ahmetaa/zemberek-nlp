@@ -443,7 +443,6 @@ public class TurkishMorphotactics {
   MorphemeState pReflexA1pl_S = nonTerminal("pReflexA1pl_S", a1pl);
   MorphemeState pReflexA2pl_S = nonTerminal("pReflexA2pl_S", a2pl);
 
-
   // Possessive
 
   MorphemeState pPnon_S = nonTerminal("pPnon_S", pnon);
@@ -461,6 +460,7 @@ public class TurkishMorphotactics {
   MorphemeState pDat_ST = terminal("pDat_ST", dat);
   MorphemeState pAcc_ST = terminal("pAcc_ST", acc);
 
+  MorphemeState pronZeroDeriv_S = nonTerminalDerivative("pronZeroDeriv_S", zero);
 
   private void connectPronounStates() {
 
@@ -534,7 +534,7 @@ public class TurkishMorphotactics {
 
     // Herkes is implicitly plural.
     pronQuant_S.addEmpty(pQuantA3pl_S,
-        rootIsAny(herkes,umum, hepsi, cumlesi, cogu, bircogu, tumu, topu));
+        rootIsAny(herkes, umum, hepsi, cumlesi, cogu, bircogu, tumu, topu));
 
     // connect "kimse" to Noun-A3sg and Noun-A3pl. It behaves like a noun.
     pronQuant_S.addEmpty(a3sg_S, rootIs(kimse));
@@ -580,8 +580,12 @@ public class TurkishMorphotactics {
 
     pQuesA3sg_S.addEmpty(pPnon_S);
     pQuesA3sg_S.add(pP3sg_S, "+sI");
-    pQuesA3sg_S.add(pP1sg_S, "+yIm");
-    pQuesA3sg_S.add(pP1pl_S, "+yImIz");
+    pQuesA3sg_S.add(pP1sg_S, "Im", rootIsNot(ne));
+    pQuesA3sg_S.add(pP1sg_S, "yIm", rootIs(ne));
+    pQuesA3sg_S.add(pP2sg_S, "In", rootIsNot(ne));
+    pQuesA3sg_S.add(pP2sg_S, "yIn", rootIs(ne));
+    pQuesA3sg_S.add(pP1pl_S, "ImIz", rootIsNot(ne));
+    pQuesA3sg_S.add(pP1pl_S, "yImIz", rootIs(ne));
 
     pQuesA3pl_S.addEmpty(pPnon_S);
     pQuesA3pl_S.add(pP3sg_S, "I");
@@ -629,6 +633,13 @@ public class TurkishMorphotactics {
     pP1pl_S.copyOutgoingTransitionsFrom(pP1sg_S);
     pP2pl_S.copyOutgoingTransitionsFrom(pP1sg_S);
     pP3pl_S.copyOutgoingTransitionsFrom(pP1sg_S);
+
+    //------------- Derivation connections ---------
+
+    pNom_ST.addEmpty(pronZeroDeriv_S, Conditions.HAS_TAIL);
+    pDat_ST.addEmpty(pronZeroDeriv_S, Conditions.HAS_TAIL);
+
+    pronZeroDeriv_S.addEmpty(nVerb_S);
 
   }
 

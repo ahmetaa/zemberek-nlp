@@ -9,13 +9,13 @@ public class MorphemeState {
 
   public final String id;
   public final Morpheme morpheme;
-  List<MorphemeTransition> outgoing = new ArrayList<>(2);
-  List<MorphemeTransition> incoming = new ArrayList<>(2);
+  private List<MorphemeTransition> outgoing = new ArrayList<>(2);
+  private List<MorphemeTransition> incoming = new ArrayList<>(2);
   public final boolean terminal;
   public final boolean derivative;
   public final boolean posRoot;
 
-  public MorphemeState(
+  MorphemeState(
       String id,
       Morpheme morpheme,
       boolean terminal,
