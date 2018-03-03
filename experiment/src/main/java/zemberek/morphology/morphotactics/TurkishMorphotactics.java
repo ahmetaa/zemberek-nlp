@@ -28,6 +28,8 @@ public class TurkishMorphotactics {
   public static final Morpheme adj = new Morpheme("Adjective", "Adj", PrimaryPos.Adjective);
   public static final Morpheme verb = new Morpheme("Verb", "Verb", PrimaryPos.Verb);
   public static final Morpheme pron = new Morpheme("Pronoun", "Pron", PrimaryPos.Pronoun);
+  public static final Morpheme adv = new Morpheme("Adverb", "Adv", PrimaryPos.Adverb);
+  public static final Morpheme conj = new Morpheme("Conjunction", "Conj", PrimaryPos.Conjunction);
 
   // Number-Person agreement.
 
@@ -395,7 +397,6 @@ public class TurkishMorphotactics {
     // copy transitions from nVerb_S
     nNeg_S.copyOutgoingTransitionsFrom(nVerb_S);
 
-
     Condition noFamily = notHave(RootAttribute.FamilyMember);
     // for preventing elmamım, elmamdım
     // pP1sg_S, pDat_ST, pA1sg_S, pA1pl_S, pA3pl_S, pP2sg_S, pP1pl_S, pP3sg_S, pP1sg_S
@@ -429,7 +430,7 @@ public class TurkishMorphotactics {
 
     // elma-lar, elma-da-lar as Verb.
     nPresent_S.add(nA3pl_ST, "lAr",
-            notHave(RootAttribute.CompoundP3sg)
+        notHave(RootAttribute.CompoundP3sg)
             .and(allowA3plTrans));
 
     // elma-ydı-m. Do not allow "elmaya-yım" (Oflazer accepts this)
@@ -537,7 +538,6 @@ public class TurkishMorphotactics {
   MorphemeState pAcc_ST = terminal("pAcc_ST", acc);
 
   MorphemeState pronZeroDeriv_S = nonTerminalDerivative("pronZeroDeriv_S", zero);
-
 
   private void connectPronounStates() {
 
@@ -717,9 +717,12 @@ public class TurkishMorphotactics {
     pDat_ST.addEmpty(pronZeroDeriv_S, Conditions.HAS_TAIL);
 
     pronZeroDeriv_S.addEmpty(nVerb_S);
-
   }
 
+  // ------------- Adverb and Conjunctions -----------------
+
+  MorphemeState adv_ST = terminal("adv_ST", adv);
+  MorphemeState conj_ST = terminal("conj_ST", conj);
 
   public MorphemeState getRootState(DictionaryItem dictionaryItem) {
 
@@ -753,6 +756,10 @@ public class TurkishMorphotactics {
             return pronQuant_S;
           //throw new IllegalStateException("Cannot find root for Pronoun " + dictionaryItem);
         }
+      case Adverb:
+        return adv_ST;
+      case Conjunction:
+        return conj_ST;
       default:
         return noun_S;
     }
