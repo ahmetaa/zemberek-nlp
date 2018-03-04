@@ -591,6 +591,7 @@ public class TurkishMorphotactics {
     DictionaryItem hep = lexicon.getItemById("hep_Pron_Quant");
     DictionaryItem hepsi = lexicon.getItemById("hepsi_Pron_Quant");
     DictionaryItem cumlesi = lexicon.getItemById("cümlesi_Pron_Quant");
+    DictionaryItem birkaci = lexicon.getItemById("birkaçı_Pron_Quant");
     DictionaryItem kimi = lexicon.getItemById("kimi_Pron_Quant");
     DictionaryItem cogu = lexicon.getItemById("çoğu_Pron_Quant");
     DictionaryItem bircogu = lexicon.getItemById("birçoğu_Pron_Quant");
@@ -604,14 +605,14 @@ public class TurkishMorphotactics {
     // we have separate A3pl and A3sg states for Quantitive Pronouns.
     // herkes and hep cannot be singular.
     pronQuant_S.addEmpty(pQuantA3sg_S,
-        rootIsNone(herkes, umum, hepsi, cumlesi, hep, tumu, topu));
+        rootIsNone(herkes, umum, hepsi, cumlesi, hep, tumu, birkaci, topu));
 
     pronQuant_S.add(pQuantA3pl_S, "lAr",
-        rootIsNone(hep, hepsi, umum, cumlesi, cogu, bircogu, herbiri, tumu, hicbiri, topu, oburu));
+        rootIsNone(hep, hepsi, birkaci, umum, cumlesi, cogu, bircogu, herbiri, tumu, hicbiri, topu, oburu));
 
     // Herkes is implicitly plural.
     pronQuant_S.addEmpty(pQuantA3pl_S,
-        rootIsAny(herkes, umum, hepsi, cumlesi, cogu, bircogu, tumu, topu));
+        rootIsAny(herkes, umum, birkaci, hepsi, cumlesi, cogu, bircogu, tumu, topu));
 
     // connect "kimse" to Noun-A3sg and Noun-A3pl. It behaves like a noun.
     pronQuant_S.addEmpty(a3sg_S, rootIs(kimse));
@@ -619,11 +620,11 @@ public class TurkishMorphotactics {
 
     // for `birbiri-miz` `hep-imiz`
     pronQuant_S.addEmpty(pQuantA1pl_S,
-        rootIsAny(biri, birbiri, herbiri, hep, kimi, cogu, bircogu, tumu, topu, hicbiri));
+        rootIsAny(biri, birbiri, birkaci, herbiri, hep, kimi, cogu, bircogu, tumu, topu, hicbiri));
 
     // for `birbiri-niz` and `hep-iniz`
     pronQuant_S.addEmpty(pQuantA2pl_S,
-        rootIsAny(biri, birbiri, herbiri, hep, kimi, cogu, bircogu, tumu, topu, hicbiri));
+        rootIsAny(biri, birbiri, birkaci, herbiri, hep, kimi, cogu, bircogu, tumu, topu, hicbiri));
 
     // this is used for birbir-ler-i, çok-lar-ı, birçok-lar-ı separate root and A3pl states are
     // used for this.
@@ -641,7 +642,7 @@ public class TurkishMorphotactics {
 
     // there is no connection from pQuantA3pl to Pnon for preventing `biriler` (except herkes)
     pQuantA3pl_S.add(pP3pl_S, "I", rootIsAny(biri, birbiri, kimi, oburku, beriki));
-    pQuantA3pl_S.addEmpty(pP3pl_S, rootIsAny(hepsi, cumlesi, cogu, tumu, topu, bircogu));
+    pQuantA3pl_S.addEmpty(pP3pl_S, rootIsAny(hepsi, birkaci, cumlesi, cogu, tumu, topu, bircogu));
     pQuantA3pl_S.addEmpty(pPnon_S, rootIsAny(herkes, umum, oburku, beriki));
 
     pQuantA1pl_S.add(pP1pl_S, "ImIz");
@@ -739,6 +740,7 @@ public class TurkishMorphotactics {
           return noun_S;
         }
       case Adjective:
+      case Numeral:
         return adj_ST;
       case Pronoun:
         switch (dictionaryItem.secondaryPos) {
