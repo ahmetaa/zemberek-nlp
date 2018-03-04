@@ -582,25 +582,25 @@ public class TurkishMorphotactics {
 
     //------------ Quantitiva Pronouns ----------------------------
 
-    DictionaryItem biri = lexicon.getItemById("biri_Pron_Quant");
     DictionaryItem birbiri = lexicon.getItemById("birbiri_Pron_Quant");
-    DictionaryItem herbiri = lexicon.getItemById("herbiri_Pron_Quant");
-    DictionaryItem hicbiri = lexicon.getItemById("hiçbiri_Pron_Quant");
-    DictionaryItem herkes = lexicon.getItemById("herkes_Pron_Quant");
-    DictionaryItem umum = lexicon.getItemById("umum_Pron_Quant");
-    DictionaryItem hep = lexicon.getItemById("hep_Pron_Quant");
-    DictionaryItem hepsi = lexicon.getItemById("hepsi_Pron_Quant");
-    DictionaryItem cumlesi = lexicon.getItemById("cümlesi_Pron_Quant");
-    DictionaryItem birkaci = lexicon.getItemById("birkaçı_Pron_Quant");
-    DictionaryItem kimi = lexicon.getItemById("kimi_Pron_Quant");
-    DictionaryItem cogu = lexicon.getItemById("çoğu_Pron_Quant");
+    DictionaryItem biri = lexicon.getItemById("biri_Pron_Quant");
     DictionaryItem bircogu = lexicon.getItemById("birçoğu_Pron_Quant");
+    DictionaryItem birkaci = lexicon.getItemById("birkaçı_Pron_Quant");
+    DictionaryItem beriki = lexicon.getItemById("beriki_Pron_Quant");
+    DictionaryItem cogu = lexicon.getItemById("çoğu_Pron_Quant");
+    DictionaryItem cumlesi = lexicon.getItemById("cümlesi_Pron_Quant");
+    DictionaryItem hep = lexicon.getItemById("hep_Pron_Quant");
+    DictionaryItem herbiri = lexicon.getItemById("herbiri_Pron_Quant");
+    DictionaryItem herkes = lexicon.getItemById("herkes_Pron_Quant");
+    DictionaryItem hicbiri = lexicon.getItemById("hiçbiri_Pron_Quant");
+    DictionaryItem hepsi = lexicon.getItemById("hepsi_Pron_Quant");
+    DictionaryItem kimi = lexicon.getItemById("kimi_Pron_Quant");
+    DictionaryItem kimse = lexicon.getItemById("kimse_Pron_Quant");
+    DictionaryItem oburku = lexicon.getItemById("öbürkü_Pron_Quant");
+    DictionaryItem oburu = lexicon.getItemById("öbürü_Pron_Quant");
     DictionaryItem tumu = lexicon.getItemById("tümü_Pron_Quant");
     DictionaryItem topu = lexicon.getItemById("topu_Pron_Quant");
-    DictionaryItem oburu = lexicon.getItemById("öbürü_Pron_Quant");
-    DictionaryItem oburku = lexicon.getItemById("öbürkü_Pron_Quant");
-    DictionaryItem beriki = lexicon.getItemById("beriki_Pron_Quant");
-    DictionaryItem kimse = lexicon.getItemById("kimse_Pron_Quant");
+    DictionaryItem umum = lexicon.getItemById("umum_Pron_Quant");
 
     // we have separate A3pl and A3sg states for Quantitive Pronouns.
     // herkes and hep cannot be singular.
@@ -725,6 +725,24 @@ public class TurkishMorphotactics {
   MorphemeState adv_ST = terminal("adv_ST", adv);
   MorphemeState conj_ST = terminal("conj_ST", conj);
 
+  // ------------- Verbs -----------------------------------
+
+  MorphemeState verb_S = nonTerminal("verb_S", verb);
+  MorphemeState vPast_S = nonTerminal("vPast_S", past);
+  MorphemeState vNarr_S = nonTerminal("vNarr_S", narr);
+  MorphemeState vCond_S = nonTerminal("vCond_S", cond);
+  MorphemeState vA1sg_ST = terminal("vA1sg_ST", a1sg);
+  MorphemeState vA2sg_ST = terminal("vA2sg_ST", a2sg);
+  MorphemeState vA1pl_ST = terminal("vA1pl_ST", a1pl);
+  MorphemeState vA3sg_ST = terminal("vA3sg_ST", a3sg);
+  MorphemeState vA3sg_S = nonTerminal("vA3sg_S", a3sg);
+  MorphemeState vA3pl_ST = terminal("vA3pl_ST", a3pl);
+  MorphemeState vCop_ST = terminal("vCop_ST", cop);
+
+  MorphemeState vNeg_S = nonTerminal("vNeg_S", neg);
+
+  //--------------------------------------------------------
+
   public MorphemeState getRootState(DictionaryItem dictionaryItem) {
 
     //TODO: consider a generic mechanism for such items.
@@ -762,8 +780,11 @@ public class TurkishMorphotactics {
         return adv_ST;
       case Conjunction:
         return conj_ST;
+      case Verb:
+        return verb_S;
       default:
         return noun_S;
+
     }
   }
 

@@ -73,7 +73,7 @@ public class SuffixTransition extends MorphemeTransition {
       if (condition == null) {
         condition = c;
       } else {
-        condition = condition.and(c);
+        condition = c.and(condition);
       }
     }
   }
