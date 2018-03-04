@@ -783,6 +783,12 @@ public class TurkishMorphotactics {
     vCausT_S.addEmpty(verb_S);
     vCausTR_S.addEmpty(verb_S);
 
+    // "gidiyor" Progressive1 suffix.
+    // if last letter is a vowel, this is handled with verb_Prog_S root.
+    verb_S.add(vProgYor_S, "Iyor", notHave(PhoneticAttribute.LastLetterVowel));
+
+    // For "aramak", the modified root "ar" connects to verb_Prog_S. Here it is connected to
+    // progressive "Iyor" suffix. We use a separate root state for these for convenience.
     verb_Prog_S.add(vProgYor_S, "Iyor");
     vProgYor_S.add(vA1sg_ST, "um");
     vProgYor_S.add(vA2sg_ST, "sun");
@@ -803,7 +809,8 @@ public class TurkishMorphotactics {
       return nVerbDegil_S;
     }
 
-    // for verbs that their last vowel is dropped for immediate connection to Progressive suffixes.
+    // Verbs like "aramak" drops their last vowel when  connected to "Iyor" Progressive suffix.
+    // those modified roots are connected to a separate root state called verb_Prog_S.
     if (phoneticAttributes.contains(PhoneticAttribute.LastVowelDropped)) {
       return verb_Prog_S;
     }

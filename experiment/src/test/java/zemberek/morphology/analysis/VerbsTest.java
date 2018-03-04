@@ -16,13 +16,18 @@ public class VerbsTest extends AnalyzerTestBase {
 
   @Test
   public void progressive1() {
-    AnalysisTester tester = getTester("okumak");
+    AnalysisTester tester = getTester("yazmak");
 
-    tester.expectSingle("okuyorum", matchesTailLex("Verb + Prog1 + A1sg"));
-    tester.expectSingle("okuyorsun", matchesTailLex("Verb + Prog1 + A2sg"));
-    tester.expectSingle("okuyor", matchesTailLex("Verb + Prog1 + A3sg"));
-    tester.expectSingle("okuyoruz", matchesTailLex("Verb + Prog1 + A1pl"));
-    tester.expectSingle("okuyorlar", matchesTailLex("Verb + Prog1 + A3pl"));
+    tester.expectSingle("yazıyorum", matchesTailLex("Verb + Prog1 + A1sg"));
+    tester.expectSingle("yazıyorsun", matchesTailLex("Verb + Prog1 + A2sg"));
+    tester.expectSingle("yazıyor", matchesTailLex("Verb + Prog1 + A3sg"));
+    tester.expectSingle("yazıyoruz", matchesTailLex("Verb + Prog1 + A1pl"));
+    tester.expectSingle("yazıyorlar", matchesTailLex("Verb + Prog1 + A3pl"));
+
+    tester = getTester("gitmek [A:Voicing]");
+    tester.expectSingle("gidiyorum", matchesTailLex("Verb + Prog1 + A1sg"));
+    tester.expectSingle("gidiyorsun", matchesTailLex("Verb + Prog1 + A2sg"));
+    tester.expectSingle("gidiyor", matchesTailLex("Verb + Prog1 + A3sg"));
   }
 
   @Test
@@ -36,6 +41,11 @@ public class VerbsTest extends AnalyzerTestBase {
 
     tester.expectSingle("yürüyorum", matchesTailLex("Verb + Prog1 + A1sg"));
     tester.expectSingle("yürüyor", matchesTailLex("Verb + Prog1 + A3sg"));
+
+    tester = getTester("denemek");
+
+    tester.expectSingle("deniyorum", matchesTailLex("Verb + Prog1 + A1sg"));
+    tester.expectSingle("deniyor", matchesTailLex("Verb + Prog1 + A3sg"));
 
 
   }
