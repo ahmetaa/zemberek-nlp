@@ -67,7 +67,7 @@ public class StemTransitionGenerator {
           item.root,
           item,
           phoneticAttributes,
-          morphotactics.getRootState(item)
+          morphotactics.getRootState(item, phoneticAttributes)
       );
 
       return Lists.newArrayList(transition);
@@ -177,6 +177,7 @@ public class StemTransitionGenerator {
           if (modifiedSeq.hasVowel()) {
             modifiedAttrs = calculateAttributes(modifiedSeq);
           }
+          modifiedAttrs.add(PhoneticAttribute.LastVowelDropped);
           break;
         default:
           break;
@@ -187,13 +188,13 @@ public class StemTransitionGenerator {
         dicItem.root,
         dicItem,
         originalAttrs,
-        morphotactics.getRootState(dicItem));
+        morphotactics.getRootState(dicItem, originalAttrs));
 
     StemTransition modified = new StemTransition(
         modifiedSeq.toString(),
         dicItem,
         modifiedAttrs,
-        morphotactics.getRootState(dicItem));
+        morphotactics.getRootState(dicItem, modifiedAttrs));
 
     if (original.equals(modified)) {
       return Collections.singletonList(original);
@@ -206,7 +207,7 @@ public class StemTransitionGenerator {
     String id = item.getId();
     EnumSet<PhoneticAttribute> originalAttrs = calculateAttributes(item.pronunciation);
     StemTransition original, modified;
-    MorphemeState unmodifiedRootState = morphotactics.getRootState(item);
+    MorphemeState unmodifiedRootState = morphotactics.getRootState(item, originalAttrs);
 
     if (id.equals("ben_Pron_Pers") || id.equals("sen_Pron_Pers")) {
       original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);

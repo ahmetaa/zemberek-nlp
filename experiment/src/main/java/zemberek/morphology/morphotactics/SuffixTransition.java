@@ -30,7 +30,18 @@ public class SuffixTransition extends MorphemeTransition {
     conditionsFromTemplate(this.surfaceTemplate);
     this.tokenList = Lists
         .newArrayList(new SuffixTemplateTokenizer(this.surfaceTemplate));
+    this.conditionCount = countConditions();
+  }
 
+  private int countConditions() {
+    if (condition == null) {
+      return 0;
+    }
+    if (condition instanceof CombinedCondition) {
+      return ((CombinedCondition) condition).count();
+    } else {
+      return 1;
+    }
   }
 
   private SuffixTransition(String surfaceTemplate) {

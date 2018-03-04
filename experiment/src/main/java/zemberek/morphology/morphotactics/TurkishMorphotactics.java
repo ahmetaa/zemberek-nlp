@@ -12,6 +12,7 @@ import static zemberek.morphology.morphotactics.MorphemeState.nonTerminal;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivative;
 import static zemberek.morphology.morphotactics.MorphemeState.terminal;
 
+import java.util.EnumSet;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
@@ -81,17 +82,22 @@ public class TurkishMorphotactics {
   // Zero derivation
   public static final Morpheme zero = new Morpheme("Zero", "Zero");
 
-  // Present Tense
-  public static final Morpheme pres = new Morpheme("PresentTense", "Pres");
-  public static final Morpheme past = new Morpheme("PastTense", "Past");
-  public static final Morpheme narr = new Morpheme("NarrativeTense", "Narr");
-  public static final Morpheme cond = new Morpheme("Condition", "Cond");
-
   // Verb specific
   public static final Morpheme cop = new Morpheme("Copula", "Cop");
 
   // Negative Verb
   public static final Morpheme neg = new Morpheme("Negative", "Neg");
+
+  // Tense
+  public static final Morpheme pres = new Morpheme("PresentTense", "Pres");
+  public static final Morpheme past = new Morpheme("PastTense", "Past");
+  public static final Morpheme narr = new Morpheme("NarrativeTense", "Narr");
+  public static final Morpheme cond = new Morpheme("Condition", "Cond");
+  public static final Morpheme prog1 = new Morpheme("Progressive1", "Prog1");
+
+  // Verb
+  public static final Morpheme imp = new Morpheme("Imparative", "Imp");
+  public static final Morpheme caus = new Morpheme("Causative", "Caus");
 
   //-------------- States ----------------------------
   // _ST = Terminal state _S = Non Terminal State.
@@ -147,6 +153,7 @@ public class TurkishMorphotactics {
     connectAdjectiveStates();
     connectVerbAfterNounAdjStates();
     connectPronounStates();
+    connectVerbs();
   }
 
   /**
@@ -608,7 +615,8 @@ public class TurkishMorphotactics {
         rootIsNone(herkes, umum, hepsi, cumlesi, hep, tumu, birkaci, topu));
 
     pronQuant_S.add(pQuantA3pl_S, "lAr",
-        rootIsNone(hep, hepsi, birkaci, umum, cumlesi, cogu, bircogu, herbiri, tumu, hicbiri, topu, oburu));
+        rootIsNone(hep, hepsi, birkaci, umum, cumlesi, cogu, bircogu, herbiri, tumu, hicbiri, topu,
+            oburu));
 
     // Herkes is implicitly plural.
     pronQuant_S.addEmpty(pQuantA3pl_S,
@@ -728,26 +736,76 @@ public class TurkishMorphotactics {
   // ------------- Verbs -----------------------------------
 
   MorphemeState verb_S = nonTerminal("verb_S", verb);
-  MorphemeState vPast_S = nonTerminal("vPast_S", past);
-  MorphemeState vNarr_S = nonTerminal("vNarr_S", narr);
-  MorphemeState vCond_S = nonTerminal("vCond_S", cond);
+
   MorphemeState vA1sg_ST = terminal("vA1sg_ST", a1sg);
   MorphemeState vA2sg_ST = terminal("vA2sg_ST", a2sg);
   MorphemeState vA1pl_ST = terminal("vA1pl_ST", a1pl);
   MorphemeState vA3sg_ST = terminal("vA3sg_ST", a3sg);
   MorphemeState vA3sg_S = nonTerminal("vA3sg_S", a3sg);
   MorphemeState vA3pl_ST = terminal("vA3pl_ST", a3pl);
+
+  MorphemeState vPast_S = nonTerminal("vPast_S", past);
+  MorphemeState vNarr_S = nonTerminal("vNarr_S", narr);
+  MorphemeState vCond_S = nonTerminal("vCond_S", cond);
+  MorphemeState vProgYor_S = nonTerminal("vProgYor_S", prog1);
+
   MorphemeState vCop_ST = terminal("vCop_ST", cop);
 
   MorphemeState vNeg_S = nonTerminal("vNeg_S", neg);
 
+  MorphemeState vImp_S = nonTerminal("vImp_S", imp);
+
+  MorphemeState vCausT_S = nonTerminalDerivative("vCaus_S", caus);
+  MorphemeState vCausTR_S = nonTerminalDerivative("vCausTR_S", caus);
+
+  // for progressive vowel drop.
+  MorphemeState verb_Prog_S = nonTerminal("verb_Prog_S", verb);
+
+  private void connectVerbs() {
+
+    // Imperative.
+    verb_S.addEmpty(vImp_S);
+    // oku
+    vImp_S.addEmpty(vA2sg_ST);
+    // okusun
+    vImp_S.add(vA3sg_ST, "+sIn");
+    // okusunlar
+    vImp_S.add(vA3pl_ST, "+sInlAr");
+
+    verb_S.add(vCausT_S, "t", has(PhoneticAttribute.LastLetterVowel)
+        .or(new Conditions.LastDerivationIs(vCausTR_S))
+        .andNot(new Conditions.LastDerivationIs(vCausT_S)));
+
+    verb_S.add(vCausTR_S, "tIr",
+        has(PhoneticAttribute.LastLetterConsonant)
+            .andNot(new Conditions.LastDerivationIs(vCausTR_S)));
+
+    vCausT_S.addEmpty(verb_S);
+    vCausTR_S.addEmpty(verb_S);
+
+    verb_Prog_S.add(vProgYor_S, "Iyor");
+    vProgYor_S.add(vA1sg_ST, "um");
+    vProgYor_S.add(vA2sg_ST, "sun");
+    vProgYor_S.addEmpty(vA3sg_ST);
+    vProgYor_S.add(vA1pl_ST, "uz");
+    vProgYor_S.add(vA3pl_ST, "lar");
+
+  }
+
   //--------------------------------------------------------
 
-  public MorphemeState getRootState(DictionaryItem dictionaryItem) {
+  public MorphemeState getRootState(
+      DictionaryItem dictionaryItem,
+      EnumSet<PhoneticAttribute> phoneticAttributes) {
 
     //TODO: consider a generic mechanism for such items.
     if (dictionaryItem.id.equals("değil_Verb")) {
       return nVerbDegil_S;
+    }
+
+    // for verbs that their last vowel is dropped for immediate connection to Progressive suffixes.
+    if (phoneticAttributes.contains(PhoneticAttribute.LastVowelDropped)) {
+      return verb_Prog_S;
     }
 
     switch (dictionaryItem.primaryPos) {

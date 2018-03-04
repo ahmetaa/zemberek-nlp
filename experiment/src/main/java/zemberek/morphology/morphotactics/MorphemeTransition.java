@@ -11,6 +11,8 @@ public abstract class MorphemeTransition {
   // letter is a consonant, it cannot pass this transition.
   Condition condition;
 
+  int conditionCount;
+
   public MorphemeState from() {
     return from;
   }
@@ -21,6 +23,10 @@ public abstract class MorphemeTransition {
 
   public Condition getCondition() {
     return condition;
+  }
+
+  public int getConditionCount() {
+    return conditionCount;
   }
 
   abstract MorphemeTransition getCopy();

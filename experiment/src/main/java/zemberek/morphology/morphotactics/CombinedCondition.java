@@ -117,7 +117,7 @@ public class CombinedCondition extends AbstractCondition {
       }
       return null;
     } else {
-      boolean pass =  false;
+      boolean pass = false;
       for (Condition condition : conditions) {
         if (condition.accept(path)) {
           pass = true;
@@ -141,7 +141,7 @@ public class CombinedCondition extends AbstractCondition {
       int i = 0;
       for (Condition condition : conditions) {
         sb.append(condition.toString());
-        if (i++ < conditions.size()-1) {
+        if (i++ < conditions.size() - 1) {
           sb.append(" AND ");
         }
       }
@@ -151,12 +151,36 @@ public class CombinedCondition extends AbstractCondition {
       StringBuilder sb = new StringBuilder();
       for (Condition condition : conditions) {
         sb.append(condition.toString());
-        if (i++ < conditions.size()-1) {
+        if (i++ < conditions.size() - 1) {
           sb.append(" OR ");
         }
       }
       return sb.toString();
     }
+  }
+
+  // counts the number of conditions.
+  public int count() {
+    if (conditions.size() == 0) {
+      return 0;
+    }
+    if (conditions.size() == 1) {
+      Condition first = conditions.get(0);
+      if (first instanceof CombinedCondition) {
+        return ((CombinedCondition) first).count();
+      } else {
+        return 1;
+      }
+    }
+    int cnt = 0;
+    for (Condition condition : conditions) {
+      if (condition instanceof CombinedCondition) {
+        cnt += ((CombinedCondition) condition).count();
+      } else {
+        cnt++;
+      }
+    }
+    return cnt;
   }
 
 }

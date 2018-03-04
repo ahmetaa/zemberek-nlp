@@ -339,6 +339,44 @@ class Conditions {
     }
   }
 
+  public static class LastStateIs extends AbstractCondition {
+
+    MorphemeState state;
+
+    public LastStateIs(MorphemeState state) {
+      this.state = state;
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      return visitor.getCurrentState().equals(state);
+    }
+
+    @Override
+    public String toString() {
+      return "LastStateIs{ " + state + " }";
+    }
+  }
+
+  public static class LastStateIsNot extends AbstractCondition {
+
+    MorphemeState state;
+
+    public LastStateIsNot(MorphemeState state) {
+      this.state = state;
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      return !visitor.getCurrentState().equals(state);
+    }
+
+    @Override
+    public String toString() {
+      return "LastStateIsNot{ " + state + " }";
+    }
+  }
+
   public static class NotCondition extends AbstractCondition {
 
     Condition condition;

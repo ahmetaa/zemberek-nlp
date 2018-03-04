@@ -73,6 +73,12 @@ Oflazer does not analyze elmaymışsa. we do
 
 akarsu also behaves like su but maybe both `akarsum` and `akarsuyum` are accepted.
 
+Oflazer uses Prog1 (Progressive 1) for -iyor and Prog2 fo `-makta` should they be combined?
+Combining may create ambiguity for generation. Perhaps generation should offer multiple solutions anyway.
+
+Oflzer uses `Pos` for Positive in verbs. I decided not to use it for now to reduce clutter.
+Perhaps we should get rid of Pnon as well.
+
 ----
 
 annemler, annenler etc can be resoved with implicitPlural, ImplicitP1sg and ImplicitP2sg attributes.
