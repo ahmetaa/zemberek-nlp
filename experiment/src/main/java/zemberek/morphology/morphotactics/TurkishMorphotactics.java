@@ -489,16 +489,17 @@ public class TurkishMorphotactics {
   // ----------- Pronoun states --------------------------
 
   // Pronouns have states similar with Nouns.
+  MorphemeState pronPers_S = builder("pronPers_S", pron).posRoot().build();
 
-  MorphemeState pronPers_S = nonTerminal("pronPers_S", pron);
-  MorphemeState pronDemons_S = nonTerminal("pronDemons_S", pron);
-  public MorphemeState pronQuant_S = nonTerminal("pronQuant_S", pron);
-  public MorphemeState pronQuantModified_S = nonTerminal("pronQuantModified_S", pron);
-  public MorphemeState pronQues_S = nonTerminal("pronQues_S", pron);
-  public MorphemeState pronReflex_S = nonTerminal("pronReflex_S", pron);
+  MorphemeState pronDemons_S = builder("pronDemons_S", pron).posRoot().build();
+  public MorphemeState pronQuant_S = builder("pronQuant_S", pron).posRoot().build();
+  public MorphemeState pronQuantModified_S =
+      builder("pronQuantModified_S", pron).posRoot().build();
+  public MorphemeState pronQues_S = builder("pronQues_S", pron).posRoot().build();
+  public MorphemeState pronReflex_S = builder("pronReflex_S", pron).posRoot().build();
 
   // used for ben-sen modification
-  public MorphemeState pronPers_Mod_S = nonTerminal("pronPers_Mod_S", pron);
+  public MorphemeState pronPers_Mod_S = builder("pronPers_Mod_S", pron).posRoot().build();
 
   MorphemeState pA1sg_S = nonTerminal("pA1sg_S", a1sg);
   MorphemeState pA2sg_S = nonTerminal("pA2sg_S", a2sg);
@@ -730,12 +731,12 @@ public class TurkishMorphotactics {
 
   // ------------- Adverb and Conjunctions -----------------
 
-  MorphemeState adv_ST = terminal("adv_ST", adv);
-  MorphemeState conj_ST = terminal("conj_ST", conj);
+  MorphemeState advRoot_ST = builder("advRoot_ST", adv).posRoot().terminal().build();
+  MorphemeState conjRoot_ST = builder("conjRoot_ST", conj).posRoot().terminal().build();
 
   // ------------- Verbs -----------------------------------
 
-  MorphemeState verbRoot_S = nonTerminal("verbRoot_S", verb);
+  MorphemeState verbRoot_S = builder("verbRoot_S", verb).posRoot().build();
 
   MorphemeState vA1sg_ST = terminal("vA1sg_ST", a1sg);
   MorphemeState vA2sg_ST = terminal("vA2sg_ST", a2sg);
@@ -759,7 +760,7 @@ public class TurkishMorphotactics {
   MorphemeState vCausTR_S = nonTerminalDerivative("vCausTR_S", caus);
 
   // for progressive vowel drop.
-  MorphemeState verb_Prog_S = nonTerminal("verb_Prog_S", verb);
+  MorphemeState verbRoot_Prog_S = nonTerminal("verbRoot_Prog_S", verb);
 
   MorphemeState vAor_S = nonTerminal("vAor_S", aor);
 
@@ -784,12 +785,12 @@ public class TurkishMorphotactics {
     vCausTR_S.addEmpty(verbRoot_S);
 
     // "gidiyor" Progressive1 suffix.
-    // if last letter is a vowel, this is handled with verb_Prog_S root.
+    // if last letter is a vowel, this is handled with verbRoot_Prog_S root.
     verbRoot_S.add(vProgYor_S, "Iyor", notHave(PhoneticAttribute.LastLetterVowel));
 
-    // For "aramak", the modified root "ar" connects to verb_Prog_S. Here it is connected to
+    // For "aramak", the modified root "ar" connects to verbRoot_Prog_S. Here it is connected to
     // progressive "Iyor" suffix. We use a separate root state for these for convenience.
-    verb_Prog_S.add(vProgYor_S, "Iyor");
+    verbRoot_Prog_S.add(vProgYor_S, "Iyor");
     vProgYor_S.add(vA1sg_ST, "um")
         .add(vA2sg_ST, "sun")
         .addEmpty(vA3sg_ST)
@@ -825,9 +826,9 @@ public class TurkishMorphotactics {
     }
 
     // Verbs like "aramak" drops their last vowel when  connected to "Iyor" Progressive suffix.
-    // those modified roots are connected to a separate root state called verb_Prog_S.
+    // those modified roots are connected to a separate root state called verbRoot_Prog_S.
     if (phoneticAttributes.contains(PhoneticAttribute.LastVowelDropped)) {
-      return verb_Prog_S;
+      return verbRoot_Prog_S;
     }
 
     switch (dictionaryItem.primaryPos) {
@@ -857,9 +858,9 @@ public class TurkishMorphotactics {
           //throw new IllegalStateException("Cannot find root for Pronoun " + dictionaryItem);
         }
       case Adverb:
-        return adv_ST;
+        return advRoot_ST;
       case Conjunction:
-        return conj_ST;
+        return conjRoot_ST;
       case Verb:
         return verbRoot_S;
       default:
