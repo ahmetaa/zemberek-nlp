@@ -811,7 +811,7 @@ public class TurkishMorphotactics {
         .add(vA2sg_ST, "sIn")
         .addEmpty(vA3sg_ST)
         .add(vA1pl_ST, "Iz")
-        .add(vA3pl_ST, "lar");
+        .add(vA3pl_ST, "lAr");
   }
 
   //--------------------------------------------------------
