@@ -741,6 +741,7 @@ public class TurkishMorphotactics {
   MorphemeState vA1sg_ST = terminal("vA1sg_ST", a1sg);
   MorphemeState vA2sg_ST = terminal("vA2sg_ST", a2sg);
   MorphemeState vA1pl_ST = terminal("vA1pl_ST", a1pl);
+  MorphemeState vA2pl_ST = terminal("vA2pl_ST", a2pl);
   MorphemeState vA3sg_ST = terminal("vA3sg_ST", a3sg);
   MorphemeState vA3sg_S = nonTerminal("vA3sg_S", a3sg);
   MorphemeState vA3pl_ST = terminal("vA3pl_ST", a3pl);
@@ -753,6 +754,8 @@ public class TurkishMorphotactics {
   MorphemeState vCop_ST = terminal("vCop_ST", cop);
 
   MorphemeState vNeg_S = nonTerminal("vNeg_S", neg);
+  // for negative before progressive-1 "Iyor"
+  MorphemeState vNegProg1_S = nonTerminal("vNegProg1_S", neg);
 
   MorphemeState vImp_S = nonTerminal("vImp_S", imp);
 
@@ -763,6 +766,7 @@ public class TurkishMorphotactics {
   MorphemeState verbRoot_Prog_S = nonTerminal("verbRoot_Prog_S", verb);
 
   MorphemeState vAor_S = nonTerminal("vAor_S", aor);
+  MorphemeState vAorNeg_S = nonTerminal("vAorNeg_S", aor);
 
   private void connectVerbs() {
 
@@ -771,6 +775,8 @@ public class TurkishMorphotactics {
 
     vImp_S.addEmpty(vA2sg_ST)     // oku
         .add(vA3sg_ST, "+sIn") // okusun
+        .add(vA2pl_ST, "+yIn") // okuyun
+        .add(vA2pl_ST, "+yInIz") // okuyunuz
         .add(vA3pl_ST, "+sInlAr"); // okusunlar
 
     verbRoot_S.add(vCausT_S, "t", has(RootAttribute.Causative_t)
@@ -784,34 +790,59 @@ public class TurkishMorphotactics {
     vCausT_S.addEmpty(verbRoot_S);
     vCausTR_S.addEmpty(verbRoot_S);
 
-    // "gidiyor" Progressive1 suffix.
+    // Progressive1 suffix. `Iyor`
     // if last letter is a vowel, this is handled with verbRoot_Prog_S root.
     verbRoot_S.add(vProgYor_S, "Iyor", notHave(PhoneticAttribute.LastLetterVowel));
 
     // For "aramak", the modified root "ar" connects to verbRoot_Prog_S. Here it is connected to
     // progressive "Iyor" suffix. We use a separate root state for these for convenience.
     verbRoot_Prog_S.add(vProgYor_S, "Iyor");
-    vProgYor_S.add(vA1sg_ST, "um")
+    vProgYor_S
+        .add(vA1sg_ST, "um")
         .add(vA2sg_ST, "sun")
         .addEmpty(vA3sg_ST)
         .add(vA1pl_ST, "uz")
+        .add(vA2pl_ST, "sunuz")
         .add(vA3pl_ST, "lar");
 
-    // Aorist Tense.
+    // Positive Aorist Tense.
     // For single syllable words, it forms as "ar-er". For others "ir-ır-ur-ür"
     // However there are exceptions to it as well. So dictionary items are marked as Aorist_I and
-    // Aorist_A. Also, for convenience, we use separate root forms for "ar-er" form.
-    // If there is any morpheme already in the SearchPath
+    // Aorist_A.
     verbRoot_S.add(vAor_S, "Ir",
         has(RootAttribute.Aorist_I).or(Conditions.HAS_SURFACE));
     verbRoot_S.add(vAor_S, "Ar",
         has(RootAttribute.Aorist_A).and(Conditions.HAS_NO_SURFACE));
 
-    vAor_S.add(vA1sg_ST, "Im")
+    vAor_S
+        .add(vA1sg_ST, "Im")
         .add(vA2sg_ST, "sIn")
         .addEmpty(vA3sg_ST)
         .add(vA1pl_ST, "Iz")
+        .add(vA1pl_ST, "sInIz")
         .add(vA3pl_ST, "lAr");
+
+    // Negative
+    verbRoot_S.add(vNeg_S, "mA");
+    vNeg_S.addEmpty(vImp_S);
+
+    // Negative form is "m" before progressive "Iyor" because last vowel drops.
+    // We use a separate negative state for this.
+    verbRoot_S.add(vNegProg1_S, "m");
+    vNegProg1_S.add(vProgYor_S, "Iyor");
+
+    // Negative Aorist
+    // Aorist tense forms differently after negative.
+    vNeg_S.addEmpty(vAorNeg_S);
+
+    vAorNeg_S
+        .add(vA1sg_ST, "m")
+        .add(vA2sg_ST, "zsIn")
+        .add(vA3sg_ST, "z")
+        .add(vA1pl_ST, "yIz")
+        .add(vA2pl_ST, "zsInIz")
+        .add(vA3pl_ST, "zlAr");
+
   }
 
   //--------------------------------------------------------
