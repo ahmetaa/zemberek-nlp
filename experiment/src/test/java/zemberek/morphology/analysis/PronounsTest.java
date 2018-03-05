@@ -332,7 +332,7 @@ public class PronounsTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void hiçbiriTest() {
+  public void hicbiriTest() {
     AnalysisTester tester = getTester("hiçbiri [P:Pron,Quant]");
     // both are same
     tester.expectSingle("hiçbiri", matchesTailLex("Pron + A3sg + P3sg + Nom"));

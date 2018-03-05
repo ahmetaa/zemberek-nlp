@@ -94,6 +94,7 @@ public class TurkishMorphotactics {
   public static final Morpheme narr = new Morpheme("NarrativeTense", "Narr");
   public static final Morpheme cond = new Morpheme("Condition", "Cond");
   public static final Morpheme prog1 = new Morpheme("Progressive1", "Prog1");
+  public static final Morpheme aor = new Morpheme("Aorist", "Aor");
 
   // Verb
   public static final Morpheme imp = new Morpheme("Imparative", "Imp");
@@ -664,33 +665,32 @@ public class TurkishMorphotactics {
     pronQues_S.addEmpty(pQuesA3sg_S);
     pronQues_S.add(pQuesA3pl_S, "lAr");
 
-    pQuesA3sg_S.addEmpty(pPnon_S);
-    pQuesA3sg_S.add(pP3sg_S, "+sI");
-    pQuesA3sg_S.add(pP1sg_S, "Im", rootIsNot(ne));
-    pQuesA3sg_S.add(pP1sg_S, "yIm", rootIs(ne));
-    pQuesA3sg_S.add(pP2sg_S, "In", rootIsNot(ne));
-    pQuesA3sg_S.add(pP2sg_S, "yIn", rootIs(ne));
-    pQuesA3sg_S.add(pP1pl_S, "ImIz", rootIsNot(ne));
-    pQuesA3sg_S.add(pP1pl_S, "yImIz", rootIs(ne));
+    pQuesA3sg_S.addEmpty(pPnon_S)
+        .add(pP3sg_S, "+sI")
+        .add(pP1sg_S, "Im", rootIsNot(ne))
+        .add(pP1sg_S, "yIm", rootIs(ne))
+        .add(pP2sg_S, "In", rootIsNot(ne))
+        .add(pP2sg_S, "yIn", rootIs(ne))
+        .add(pP1pl_S, "ImIz", rootIsNot(ne))
+        .add(pP1pl_S, "yImIz", rootIs(ne));
 
-    pQuesA3pl_S.addEmpty(pPnon_S);
-    pQuesA3pl_S.add(pP3sg_S, "I");
-    pQuesA3pl_S.add(pP1sg_S, "Im");
-    pQuesA3pl_S.add(pP1pl_S, "ImIz");
+    pQuesA3pl_S.addEmpty(pPnon_S)
+        .add(pP3sg_S, "I")
+        .add(pP1sg_S, "Im")
+        .add(pP1pl_S, "ImIz");
 
     //------------ Reflexive Pronouns ----------------------------
     // `kendi`
-    pronReflex_S.addEmpty(pReflexA1sg_S);
-    pronReflex_S.addEmpty(pReflexA2sg_S);
-    pronReflex_S.addEmpty(pReflexA3sg_S);
-    pronReflex_S.addEmpty(pReflexA1pl_S);
-    pronReflex_S.addEmpty(pReflexA2pl_S);
-    pronReflex_S.addEmpty(pReflexA3pl_S);
+    pronReflex_S.addEmpty(pReflexA1sg_S)
+        .addEmpty(pReflexA2sg_S)
+        .addEmpty(pReflexA3sg_S)
+        .addEmpty(pReflexA1pl_S)
+        .addEmpty(pReflexA2pl_S)
+        .addEmpty(pReflexA3pl_S);
 
     pReflexA1sg_S.add(pP1sg_S, "Im");
     pReflexA2sg_S.add(pP2sg_S, "In");
-    pReflexA3sg_S.add(pP3sg_S, "+sI");
-    pReflexA3sg_S.addEmpty(pP3sg_S);
+    pReflexA3sg_S.add(pP3sg_S, "+sI").addEmpty(pP3sg_S);
     pReflexA1pl_S.add(pP1pl_S, "ImIz");
     pReflexA2pl_S.add(pP2pl_S, "InIz");
     pReflexA3pl_S.add(pP3pl_S, "lArI");
@@ -700,18 +700,18 @@ public class TurkishMorphotactics {
     Condition nGroup = rootIsNone(ne, nere, falan, falanca);
     Condition yGroup = rootIsAny(ne, nere, falan, falanca);
 
-    pPnon_S.addEmpty(pNom_ST);
-    // not allowing `ben-e` and `sen-e`. `ban-a` and `san-a` are using different states.
-    pPnon_S.add(pDat_ST, "+nA", rootIsNone(ben, sen, ne, nere, falan, falanca));
-    pPnon_S.add(pAcc_ST, "+nI", nGroup);
-    pPnon_S.add(pDat_ST, "+yA", yGroup);
-    pPnon_S.add(pAcc_ST, "+yI", yGroup);
+    pPnon_S.addEmpty(pNom_ST)
+        // not allowing `ben-e` and `sen-e`. `ban-a` and `san-a` are using different states
+        .add(pDat_ST, "+nA", rootIsNone(ben, sen, ne, nere, falan, falanca))
+        .add(pAcc_ST, "+nI", nGroup)
+        .add(pDat_ST, "+yA", yGroup)
+        .add(pAcc_ST, "+yI", yGroup);
 
-    pP1sg_S.addEmpty(pNom_ST);
-    pP1sg_S.add(pDat_ST, "+nA", nGroup);
-    pP1sg_S.add(pAcc_ST, "+nI", nGroup);
-    pP1sg_S.add(pDat_ST, "+yA", yGroup);
-    pP1sg_S.add(pAcc_ST, "+yI", yGroup);
+    pP1sg_S.addEmpty(pNom_ST)
+        .add(pDat_ST, "+nA", nGroup)
+        .add(pAcc_ST, "+nI", nGroup)
+        .add(pDat_ST, "+yA", yGroup)
+        .add(pAcc_ST, "+yI", yGroup);
 
     // copy from pP1sg_S
     pP2sg_S.copyOutgoingTransitionsFrom(pP1sg_S);
@@ -735,7 +735,7 @@ public class TurkishMorphotactics {
 
   // ------------- Verbs -----------------------------------
 
-  MorphemeState verb_S = nonTerminal("verb_S", verb);
+  MorphemeState verbRoot_S = nonTerminal("verbRoot_S", verb);
 
   MorphemeState vA1sg_ST = terminal("vA1sg_ST", a1sg);
   MorphemeState vA2sg_ST = terminal("vA2sg_ST", a2sg);
@@ -761,41 +761,56 @@ public class TurkishMorphotactics {
   // for progressive vowel drop.
   MorphemeState verb_Prog_S = nonTerminal("verb_Prog_S", verb);
 
+  MorphemeState vAor_S = nonTerminal("vAor_S", aor);
+
   private void connectVerbs() {
 
     // Imperative.
-    verb_S.addEmpty(vImp_S);
-    // oku
-    vImp_S.addEmpty(vA2sg_ST);
-    // okusun
-    vImp_S.add(vA3sg_ST, "+sIn");
-    // okusunlar
-    vImp_S.add(vA3pl_ST, "+sInlAr");
+    verbRoot_S.addEmpty(vImp_S);
 
-    verb_S.add(vCausT_S, "t", has(PhoneticAttribute.LastLetterVowel)
+    vImp_S.addEmpty(vA2sg_ST)     // oku
+        .add(vA3sg_ST, "+sIn") // okusun
+        .add(vA3pl_ST, "+sInlAr"); // okusunlar
+
+    verbRoot_S.add(vCausT_S, "t", has(RootAttribute.Causative_t)
         .or(new Conditions.LastDerivationIs(vCausTR_S))
         .andNot(new Conditions.LastDerivationIs(vCausT_S)));
 
-    verb_S.add(vCausTR_S, "tIr",
+    verbRoot_S.add(vCausTR_S, ">dIr",
         has(PhoneticAttribute.LastLetterConsonant)
             .andNot(new Conditions.LastDerivationIs(vCausTR_S)));
 
-    vCausT_S.addEmpty(verb_S);
-    vCausTR_S.addEmpty(verb_S);
+    vCausT_S.addEmpty(verbRoot_S);
+    vCausTR_S.addEmpty(verbRoot_S);
 
     // "gidiyor" Progressive1 suffix.
     // if last letter is a vowel, this is handled with verb_Prog_S root.
-    verb_S.add(vProgYor_S, "Iyor", notHave(PhoneticAttribute.LastLetterVowel));
+    verbRoot_S.add(vProgYor_S, "Iyor", notHave(PhoneticAttribute.LastLetterVowel));
 
     // For "aramak", the modified root "ar" connects to verb_Prog_S. Here it is connected to
     // progressive "Iyor" suffix. We use a separate root state for these for convenience.
     verb_Prog_S.add(vProgYor_S, "Iyor");
-    vProgYor_S.add(vA1sg_ST, "um");
-    vProgYor_S.add(vA2sg_ST, "sun");
-    vProgYor_S.addEmpty(vA3sg_ST);
-    vProgYor_S.add(vA1pl_ST, "uz");
-    vProgYor_S.add(vA3pl_ST, "lar");
+    vProgYor_S.add(vA1sg_ST, "um")
+        .add(vA2sg_ST, "sun")
+        .addEmpty(vA3sg_ST)
+        .add(vA1pl_ST, "uz")
+        .add(vA3pl_ST, "lar");
 
+    // Aorist Tense.
+    // For single syllable words, it forms as "ar-er". For others "ir-ır-ur-ür"
+    // However there are exceptions to it as well. So dictionary items are marked as Aorist_I and
+    // Aorist_A. Also, for convenience, we use separate root forms for "ar-er" form.
+    // If there is any morpheme already in the SearchPath
+    verbRoot_S.add(vAor_S, "Ir",
+        has(RootAttribute.Aorist_I).or(Conditions.HAS_SURFACE));
+    verbRoot_S.add(vAor_S, "Ar",
+        has(RootAttribute.Aorist_A).and(Conditions.HAS_NO_SURFACE));
+
+    vAor_S.add(vA1sg_ST, "Im")
+        .add(vA2sg_ST, "sIn")
+        .addEmpty(vA3sg_ST)
+        .add(vA1pl_ST, "Iz")
+        .add(vA3pl_ST, "lar");
   }
 
   //--------------------------------------------------------
@@ -846,7 +861,7 @@ public class TurkishMorphotactics {
       case Conjunction:
         return conj_ST;
       case Verb:
-        return verb_S;
+        return verbRoot_S;
       default:
         return noun_S;
 

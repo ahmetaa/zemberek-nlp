@@ -46,7 +46,34 @@ public class VerbsTest extends AnalyzerTestBase {
 
     tester.expectSingle("deniyorum", matchesTailLex("Verb + Prog1 + A1sg"));
     tester.expectSingle("deniyor", matchesTailLex("Verb + Prog1 + A3sg"));
+  }
 
+  @Test
+  public void aorist1() {
+    AnalysisTester tester = getTester("yazmak"); // Aorist_A attribute is inferred.
+
+    tester.expectSingle("yazarım", matchesTailLex("Verb + Aor + A1sg"));
+    tester.expectSingle("yazarsın", matchesTailLex("Verb + Aor + A2sg"));
+    tester.expectSingle("yazar", matchesTailLex("Verb + Aor + A3sg"));
+    tester.expectSingle("yazarız", matchesTailLex("Verb + Aor + A1pl"));
+    tester.expectSingle("yazarlar", matchesTailLex("Verb + Aor + A3pl"));
+
+    tester.expectSingle("yazdırır",
+        matchesTailLex("Verb + Caus + Verb + Aor + A3sg"));
+    tester.expectSingle("yazdırtır",
+        matchesTailLex("Verb + Caus + Verb + Caus + Verb + Aor + A3sg"));
+    tester.expectSingle("yazdırttırır",
+        matchesTailLex("Verb + Caus + Verb + Caus + Verb + Caus + Verb + Aor + A3sg"));
+
+    tester = getTester("semirmek");
+    tester.expectSingle("semiririm", matchesTailLex("Verb + Aor + A1sg"));
+    tester.expectSingle("semirirsin", matchesTailLex("Verb + Aor + A2sg"));
+    tester.expectSingle("semirir", matchesTailLex("Verb + Aor + A3sg"));
+
+    tester.expectSingle("semirtirim",
+        matchesTailLex("Verb + Caus + Verb + Aor + A1sg"));
+    tester.expectSingle("semirttiririm",
+        matchesTailLex("Verb + Caus + Verb + Caus + Verb + Aor + A1sg"));
 
   }
 
