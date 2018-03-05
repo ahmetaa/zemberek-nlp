@@ -153,4 +153,51 @@ public class VerbsTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Caus + Verb + Caus + Verb + Neg + Aor + A1sg"));
   }
 
+  @Test
+  public void abilityPositive() {
+    AnalysisTester t = getTester("yazmak");
+
+    t.expectSingle("yazabil", matchesTailLex("Verb + Able + Verb + Imp + A2sg"));
+    t.expectSingle("yazabiliyor", matchesTailLex("Verb + Able + Verb + Prog1 + A3sg"));
+
+    t.expectFail(
+        "yazabildir",
+        "yazabilebil"
+    );
+
+    t = getTester("okumak");
+
+    t.expectSingle("okuyabil", matchesTailLex("Verb + Able + Verb + Imp + A2sg"));
+    t.expectSingle("okuyabilir", matchesTailLex("Verb + Able + Verb + Aor + A3sg"));
+  }
+
+  @Test
+  public void abilityAfterCausative() {
+
+    AnalysisTester t = getTester("okumak");
+
+    t.expectSingle("okutabil", matchesTailLex("Verb + Caus + Verb + Able + Verb + Imp + A2sg"));
+    t.expectSingle("okutturabil",
+        matchesTailLex("Verb + Caus + Verb + Caus + Verb + Able + Verb + Imp + A2sg"));
+  }
+
+  @Test
+  public void abilityNegative() {
+    AnalysisTester t = getTester("yazmak");
+
+    t.expectSingle("yazama", matchesTailLex("Verb + Able + Verb + Neg + Imp + A2sg"));
+    t.expectSingle("yazamaz", matchesTailLex("Verb + Able + Verb + Neg + Aor + A3sg"));
+    t.expectSingle("yazamıyor", matchesTailLex("Verb + Able + Verb + Neg + Prog1 + A3sg"));
+
+    t = getTester("okumak");
+
+    t.expectSingle("okuyama", matchesTailLex("Verb + Able + Verb + Neg + Imp + A2sg"));
+    t.expectSingle("okutmayabilir",
+        matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Aor + A3sg"));
+    t.expectSingle("okutamayabilir",
+        matchesTailLex("Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Aor + A3sg"));
+    t.expectSingle("okuyamayabilir",
+        matchesTailLex("Verb + Able + Verb + Neg + Able + Verb + Aor + A3sg"));
+  }
+
 }

@@ -99,6 +99,7 @@ public class TurkishMorphotactics {
   // Verb
   public static final Morpheme imp = new Morpheme("Imparative", "Imp");
   public static final Morpheme caus = new Morpheme("Causative", "Caus");
+  public static final Morpheme able = new Morpheme("Ability", "Able");
 
   //-------------- States ----------------------------
   // _ST = Terminal state _S = Non Terminal State.
@@ -743,7 +744,6 @@ public class TurkishMorphotactics {
   MorphemeState vA1pl_ST = terminal("vA1pl_ST", a1pl);
   MorphemeState vA2pl_ST = terminal("vA2pl_ST", a2pl);
   MorphemeState vA3sg_ST = terminal("vA3sg_ST", a3sg);
-  MorphemeState vA3sg_S = nonTerminal("vA3sg_S", a3sg);
   MorphemeState vA3pl_ST = terminal("vA3pl_ST", a3pl);
 
   MorphemeState vPast_S = nonTerminal("vPast_S", past);
@@ -768,6 +768,11 @@ public class TurkishMorphotactics {
   MorphemeState vAor_S = nonTerminal("vAor_S", aor);
   MorphemeState vAorNeg_S = nonTerminal("vAorNeg_S", aor);
 
+  MorphemeState vAble_S = nonTerminal("vAble_S", able);
+  MorphemeState vAbleDerivRoot_S = nonTerminal("vAbleDerivRoot_S", verb);
+  MorphemeState vAbleNeg_S = nonTerminal("vAbleNeg_S", able);
+  MorphemeState vAbleNegDerivRoot_S = nonTerminal("vAbleNegDerivRoot_S", verb);
+
   private void connectVerbs() {
 
     // Imperative.
@@ -779,6 +784,9 @@ public class TurkishMorphotactics {
         .add(vA2pl_ST, "+yInIz") // okuyunuz
         .add(vA3pl_ST, "+sInlAr"); // okusunlar
 
+    // Causative suffixes makes Verb-Verb derivation.
+    // There are three forms of it, "t", "dIr" and "Ir". Here only two are covered.
+    // "t" form appears after
     verbRoot_S.add(vCausT_S, "t", has(RootAttribute.Causative_t)
         .or(new Conditions.LastDerivationIs(vCausTR_S))
         .andNot(new Conditions.LastDerivationIs(vCausT_S)));
@@ -813,7 +821,6 @@ public class TurkishMorphotactics {
         has(RootAttribute.Aorist_I).or(Conditions.HAS_SURFACE));
     verbRoot_S.add(vAor_S, "Ar",
         has(RootAttribute.Aorist_A).and(Conditions.HAS_NO_SURFACE));
-
     vAor_S
         .add(vA1sg_ST, "Im")
         .add(vA2sg_ST, "sIn")
@@ -834,7 +841,6 @@ public class TurkishMorphotactics {
     // Negative Aorist
     // Aorist tense forms differently after negative.
     vNeg_S.addEmpty(vAorNeg_S);
-
     vAorNeg_S
         .add(vA1sg_ST, "m")
         .add(vA2sg_ST, "zsIn")
@@ -842,6 +848,30 @@ public class TurkishMorphotactics {
         .add(vA1pl_ST, "yIz")
         .add(vA2pl_ST, "zsInIz")
         .add(vA3pl_ST, "zlAr");
+
+    //Positive Ability.
+    // This makes a Verb-Verb derivation.
+    verbRoot_S.add(vAble_S, "+yAbil");
+
+    // for ability derivation we use another root. This prevents adding a lot of conditions
+    // to other derivative suffix transitions. Such as for preventing Able+Verb+Caus
+    vAble_S.addEmpty(vAbleDerivRoot_S);
+
+    vAbleDerivRoot_S.addEmpty(vImp_S);
+    vAbleDerivRoot_S.add(vAor_S, "ir");
+    vAbleDerivRoot_S.add(vProgYor_S, "iyor");
+
+    // Negative ability.
+    verbRoot_S.add(vAbleNeg_S, "+yA");
+    // Also for ability that comes before negative, we add a new root state.
+    // From there only negative connections is possible.
+    vAbleNeg_S.addEmpty(vAbleNegDerivRoot_S);
+    vAbleNegDerivRoot_S.add(vNeg_S, "mA");
+    vAbleNegDerivRoot_S.add(vNegProg1_S, "m");
+
+    // it is possible to have abil derivation after negative.
+    vNeg_S.add(vAble_S, "yAbil");
+
 
   }
 
