@@ -100,6 +100,7 @@ public class TurkishMorphotactics {
   public static final Morpheme imp = new Morpheme("Imparative", "Imp");
   public static final Morpheme caus = new Morpheme("Causative", "Caus");
   public static final Morpheme able = new Morpheme("Ability", "Able");
+  public static final Morpheme pass = new Morpheme("Passive", "Pass");
 
   //-------------- States ----------------------------
   // _ST = Terminal state _S = Non Terminal State.
@@ -741,9 +742,9 @@ public class TurkishMorphotactics {
 
   MorphemeState vA1sg_ST = terminal("vA1sg_ST", a1sg);
   MorphemeState vA2sg_ST = terminal("vA2sg_ST", a2sg);
+  MorphemeState vA3sg_ST = terminal("vA3sg_ST", a3sg);
   MorphemeState vA1pl_ST = terminal("vA1pl_ST", a1pl);
   MorphemeState vA2pl_ST = terminal("vA2pl_ST", a2pl);
-  MorphemeState vA3sg_ST = terminal("vA3sg_ST", a3sg);
   MorphemeState vA3pl_ST = terminal("vA3pl_ST", a3pl);
 
   MorphemeState vPast_S = nonTerminal("vPast_S", past);
@@ -760,18 +761,19 @@ public class TurkishMorphotactics {
   MorphemeState vImp_S = nonTerminal("vImp_S", imp);
 
   MorphemeState vCausT_S = nonTerminalDerivative("vCaus_S", caus);
-  MorphemeState vCausTR_S = nonTerminalDerivative("vCausTR_S", caus);
+  MorphemeState vCausTır_S = nonTerminalDerivative("vCausTır_S", caus);
 
   // for progressive vowel drop.
-  MorphemeState verbRoot_Prog_S = nonTerminal("verbRoot_Prog_S", verb);
+  MorphemeState verbRoot_Prog_S = builder("verbRoot_Prog_S", verb).posRoot().build();
 
   MorphemeState vAor_S = nonTerminal("vAor_S", aor);
   MorphemeState vAorNeg_S = nonTerminal("vAorNeg_S", aor);
 
-  MorphemeState vAble_S = nonTerminal("vAble_S", able);
-  MorphemeState vAbleDerivRoot_S = nonTerminal("vAbleDerivRoot_S", verb);
-  MorphemeState vAbleNeg_S = nonTerminal("vAbleNeg_S", able);
-  MorphemeState vAbleNegDerivRoot_S = nonTerminal("vAbleNegDerivRoot_S", verb);
+  MorphemeState vAble_S = nonTerminalDerivative("vAble_S", able);
+  MorphemeState vAbleNeg_S = nonTerminalDerivative("vAbleNeg_S", able);
+  MorphemeState vAbleNegDerivRoot_S = builder("vAbleNegDerivRoot_S", verb).posRoot().build();
+
+  MorphemeState vPass_S = nonTerminalDerivative("vPass_S", pass);
 
   private void connectVerbs() {
 
@@ -779,24 +781,28 @@ public class TurkishMorphotactics {
     verbRoot_S.addEmpty(vImp_S);
 
     vImp_S.addEmpty(vA2sg_ST)     // oku
-        .add(vA3sg_ST, "+sIn") // okusun
+        .add(vA3sg_ST, "sIn") // okusun
         .add(vA2pl_ST, "+yIn") // okuyun
         .add(vA2pl_ST, "+yInIz") // okuyunuz
-        .add(vA3pl_ST, "+sInlAr"); // okusunlar
+        .add(vA3pl_ST, "sInlAr"); // okusunlar
 
-    // Causative suffixes makes Verb-Verb derivation.
-    // There are three forms of it, "t", "dIr" and "Ir". Here only two are covered.
-    // "t" form appears after
+    // Causative suffixes
+    // Causes Verb-Verb derivation. There are three forms: "t", "tIr" and "Ir".
+    // 1- "t" form is used if verb ends with a vowel, or immediately after "tIr" Causative.
+    // 2- "tIr" form is used if verb ends with a consonant or immediately after "t" Causative.
+    // 3- "Ir" form appears after some specific verbs but currently we treat them as separate verb.
+    // such as "pişmek - pişirmek"
+
     verbRoot_S.add(vCausT_S, "t", has(RootAttribute.Causative_t)
-        .or(new Conditions.LastDerivationIs(vCausTR_S))
-        .andNot(new Conditions.LastDerivationIs(vCausT_S)));
+        .or(new Conditions.LastDerivationIs(vCausTır_S))
+        .andNot(new Conditions.LastDerivationIsAny(vCausT_S, vPass_S, vAble_S)));
 
-    verbRoot_S.add(vCausTR_S, ">dIr",
+    verbRoot_S.add(vCausTır_S, ">dIr",
         has(PhoneticAttribute.LastLetterConsonant)
-            .andNot(new Conditions.LastDerivationIs(vCausTR_S)));
+            .andNot(new Conditions.LastDerivationIsAny(vCausTır_S, vPass_S, vAble_S)));
 
     vCausT_S.addEmpty(verbRoot_S);
-    vCausTR_S.addEmpty(verbRoot_S);
+    vCausTır_S.addEmpty(verbRoot_S);
 
     // Progressive1 suffix. `Iyor`
     // if last letter is a vowel, this is handled with verbRoot_Prog_S root.
@@ -851,15 +857,11 @@ public class TurkishMorphotactics {
 
     //Positive Ability.
     // This makes a Verb-Verb derivation.
-    verbRoot_S.add(vAble_S, "+yAbil");
+    verbRoot_S.add(vAble_S, "+yAbil", new Conditions.LastDerivationIs(vAble_S).not());
 
     // for ability derivation we use another root. This prevents adding a lot of conditions
     // to other derivative suffix transitions. Such as for preventing Able+Verb+Caus
-    vAble_S.addEmpty(vAbleDerivRoot_S);
-
-    vAbleDerivRoot_S.addEmpty(vImp_S);
-    vAbleDerivRoot_S.add(vAor_S, "ir");
-    vAbleDerivRoot_S.add(vProgYor_S, "iyor");
+    vAble_S.addEmpty(verbRoot_S);
 
     // Negative ability.
     verbRoot_S.add(vAbleNeg_S, "+yA");
@@ -872,6 +874,18 @@ public class TurkishMorphotactics {
     // it is possible to have abil derivation after negative.
     vNeg_S.add(vAble_S, "yAbil");
 
+    // Passive
+    // Causes Verb-Verb derivation. Passive morpheme has three forms.
+    // 1- If Verb ends with a vowel: "In"
+    // 2- If Verb ends with letter 'l' : "InIl"
+    // 3- If Verb ends with other consonants: "nIl"
+    verbRoot_S.add(vPass_S, "In", has(RootAttribute.Passive_In)
+        .andNot(new Conditions.ContainsMorpheme(pass)));
+    verbRoot_S.add(vPass_S, "InIl", has(RootAttribute.Passive_In)
+        .andNot(new Conditions.ContainsMorpheme(pass)));
+    verbRoot_S.add(vPass_S, "+nIl", notHave(RootAttribute.Passive_In)
+        .andNot(new Conditions.ContainsMorpheme(pass)));
+    vPass_S.addEmpty(verbRoot_S);
 
   }
 

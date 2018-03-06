@@ -422,6 +422,34 @@ class Conditions {
     }
   }
 
+  public static class LastDerivationIsAny extends AbstractCondition {
+
+    Set<MorphemeState> states;
+
+    public LastDerivationIsAny(MorphemeState... states) {
+      this.states = new HashSet<>(states.length);
+      this.states.addAll(Arrays.asList(states));
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
+      for (int i = suffixes.size() - 1; i > 0; i--) {
+        MorphemeSurfaceForm sf = suffixes.get(i);
+        if (sf.morphemeState.derivative) {
+          return states.contains(sf.morphemeState);
+        }
+      }
+      return false;
+    }
+
+    @Override
+    public String toString() {
+      return "LastDerivationIsAny{" + states + '}';
+    }
+  }
+
+
   public static class PreviousNonEmptyMorphemeIs extends AbstractCondition {
 
     MorphemeState state;
@@ -483,6 +511,7 @@ class Conditions {
 
   // Checks if any of the "MorphemeState" in "states" exist in previous Inflectional Group.
   // If previous group starts after a derivation, derivation MorphemeState is also checked.
+  // TODO: this may have a bug. Add test
   public static class PreviousGroupContains extends AbstractCondition {
 
     Set<MorphemeState> states;
@@ -500,10 +529,10 @@ class Conditions {
       MorphemeSurfaceForm sf = suffixes.get(lastIndex);
       // go back until a transition that is connected to a derivative morpheme.
       while (!sf.morphemeState.derivative) {
-        lastIndex--;
         if (lastIndex == 0) { // there is no previous group. return early.
           return false;
         }
+        lastIndex--;
         sf = suffixes.get(lastIndex);
       }
 
@@ -544,10 +573,10 @@ class Conditions {
       MorphemeSurfaceForm sf = suffixes.get(lastIndex);
       // go back until a transition that is connected to a derivative morpheme.
       while (!sf.morphemeState.derivative) {
-        lastIndex--;
         if (lastIndex == 0) { // there is no previous group. return early.
           return false;
         }
+        lastIndex--;
         sf = suffixes.get(lastIndex);
       }
 

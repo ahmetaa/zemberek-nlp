@@ -30,8 +30,8 @@ import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.TurkicLetter;
-import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.LexiconException;
 import zemberek.morphology.lexicon.RootLexicon;
@@ -470,7 +470,8 @@ public class TurkishDictionaryLoader {
         String word,
         PosInfo posData,
         Set<RootAttribute> attributes) {
-      TurkishLetterSequence sequence = new TurkishLetterSequence(word.toLowerCase(locale), alphabet);
+      TurkishLetterSequence sequence = new TurkishLetterSequence(word.toLowerCase(locale),
+          alphabet);
       final TurkicLetter last = sequence.lastLetter();
       switch (posData.primaryPos) {
         case Verb:
