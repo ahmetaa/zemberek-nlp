@@ -353,5 +353,43 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("etmemişiz", matchesTailLex("Verb + Neg + Narr + A1pl"));
   }
 
+  @Test
+  public void future() {
+    AnalysisTester t = getTester("yazmak");
+
+    t.expectSingle("yazacağım", matchesTailLex("Verb + Fut + A1sg"));
+    t.expectSingle("yazmayacağım", matchesTailLex("Verb + Neg + Fut + A1sg"));
+    t.expectSingle("yazacağız", matchesTailLex("Verb + Fut + A1pl"));
+    t.expectSingle("yazmayacağız", matchesTailLex("Verb + Neg + Fut + A1pl"));
+    t.expectSingle("yazacaksan", matchesTailLex("Verb + Fut + Cond + A2sg"));
+    t.expectSingle("yazmayacaksan", matchesTailLex("Verb + Neg + Fut + Cond + A2sg"));
+    t.expectSingle("yazmayacaktın", matchesTailLex("Verb + Neg + Fut + Past + A2sg"));
+
+    t.expectFail(
+        "yazmayacağ",
+        "yazmayacakım",
+        "yazacakım",
+        "yazacağsın"
+    );
+
+    t = getTester("etmek [A:Voicing]");
+    t.expectSingle("edecek", matchesTailLex("Verb + Fut + A3sg"));
+    t.expectSingle("etmeyecek", matchesTailLex("Verb + Neg + Fut + A3sg"));
+    t.expectSingle("edeceğiz", matchesTailLex("Verb + Fut + A1pl"));
+    t.expectSingle("etmeyeceğiz", matchesTailLex("Verb + Neg + Fut + A1pl"));
+  }
+
+  @Test
+  public void future2() {
+    AnalysisTester t = getTester("aramak");
+
+    t.expectSingle("arayacağım", matchesTailLex("Verb + Fut + A1sg"));
+    t.expectSingle("aratacağız", matchesTailLex("Verb + Caus + Verb + Fut + A1pl"));
+    t.expectSingle("arayabileceğiz", matchesTailLex("Verb + Able + Verb + Fut + A1pl"));
+    t.expectSingle("aratabileceğiz", matchesTailLex("Verb + Caus + Verb + Able + Verb + Fut + A1pl"));
+    t.expectSingle("aratmayabileceğiz", matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Fut + A1pl"));
+    t.expectSingle("arattıramayabileceğiz",
+        matchesTailLex("Verb + Caus + Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Fut + A1pl"));
+  }
 
 }

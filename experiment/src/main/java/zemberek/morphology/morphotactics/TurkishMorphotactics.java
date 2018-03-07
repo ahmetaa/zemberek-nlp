@@ -95,6 +95,7 @@ public class TurkishMorphotactics {
   public static final Morpheme cond = new Morpheme("Condition", "Cond");
   public static final Morpheme prog1 = new Morpheme("Progressive1", "Prog1");
   public static final Morpheme aor = new Morpheme("Aorist", "Aor");
+  public static final Morpheme fut = new Morpheme("Future", "Fut");
 
   // Verb
   public static final Morpheme imp = new Morpheme("Imparative", "Imp");
@@ -753,6 +754,8 @@ public class TurkishMorphotactics {
   MorphemeState vNarrAfterTense_S = nonTerminal("vNarrAfterTense_S", narr);
   MorphemeState vCond_S = nonTerminal("vCond_S", cond);
   MorphemeState vProgYor_S = nonTerminal("vProgYor_S", prog1);
+  MorphemeState vProgMakta_S = nonTerminal("vProgMakta_S", prog1);
+  MorphemeState vFut_S = nonTerminal("vFut_S", fut);
 
   MorphemeState vCop_ST = terminal("vCop_ST", cop);
 
@@ -847,6 +850,8 @@ public class TurkishMorphotactics {
     verbRoot_S.add(vNeg_S, "mA");
     vNeg_S.addEmpty(vImp_S);
     vNeg_S.add(vPast_S, "dI");
+    vNeg_S.add(vFut_S, "yAcA~k");
+    vNeg_S.add(vFut_S, "yAcA!ğ");
     vNeg_S.add(vNarr_S, "mIş");
 
     // Negative form is "m" before progressive "Iyor" because last vowel drops.
@@ -933,6 +938,7 @@ public class TurkishMorphotactics {
         .add(vA2pl_ST, "sInIz")
         .add(vA3pl_ST, "lAr");
     vNarr_S.add(vCond_S,"sA");
+    vNarr_S.add(vPastAfterTense_S,"tI");
 
     // Past after tense
     vPastAfterTense_S
@@ -951,6 +957,21 @@ public class TurkishMorphotactics {
         .add(vA1pl_ST, "Iz")
         .add(vA2pl_ST, "sInIz")
         .add(vA3pl_ST, "lAr");
+
+    // Future
+    verbRoot_S.add(vFut_S, "+yAcA~k");
+    verbRoot_S.add(vFut_S, "+yAcA!ğ");
+    vFut_S
+        .add(vA1sg_ST, "Im")
+        .add(vA2sg_ST, "sIn")
+        .addEmpty(vA3sg_ST, has(PhoneticAttribute.ExpectsConsonant)) // for preventing "geleceğ"
+        .add(vA1pl_ST, "Iz")
+        .add(vA2pl_ST, "sInIz")
+        .add(vA3pl_ST, "lAr");
+    vFut_S.add(vCond_S,"sA");
+    vFut_S.add(vPastAfterTense_S,"tI");
+
+    
 
   }
 
