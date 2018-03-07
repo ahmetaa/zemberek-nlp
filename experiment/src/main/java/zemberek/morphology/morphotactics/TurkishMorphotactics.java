@@ -748,7 +748,9 @@ public class TurkishMorphotactics {
   MorphemeState vA3pl_ST = terminal("vA3pl_ST", a3pl);
 
   MorphemeState vPast_S = nonTerminal("vPast_S", past);
+  MorphemeState vPastAfterTense_S = nonTerminal("vPastAfterTense_S", past);
   MorphemeState vNarr_S = nonTerminal("vNarr_S", narr);
+  MorphemeState vNarrAfterTense_S = nonTerminal("vNarrAfterTense_S", narr);
   MorphemeState vCond_S = nonTerminal("vCond_S", cond);
   MorphemeState vProgYor_S = nonTerminal("vProgYor_S", prog1);
 
@@ -818,6 +820,9 @@ public class TurkishMorphotactics {
         .add(vA1pl_ST, "uz")
         .add(vA2pl_ST, "sunuz")
         .add(vA3pl_ST, "lar");
+    vProgYor_S.add(vCond_S, "sa");
+    vProgYor_S.add(vPastAfterTense_S, "du");
+    vProgYor_S.add(vNarrAfterTense_S, "muş");
 
     // Positive Aorist Tense.
     // For single syllable words, it forms as "ar-er". For others "ir-ır-ur-ür"
@@ -834,10 +839,15 @@ public class TurkishMorphotactics {
         .add(vA1pl_ST, "Iz")
         .add(vA1pl_ST, "sInIz")
         .add(vA3pl_ST, "lAr");
+    vAor_S.add(vPastAfterTense_S, "dI");
+    vAor_S.add(vNarrAfterTense_S, "mIş");
+    vAor_S.add(vCond_S, "sA");
 
     // Negative
     verbRoot_S.add(vNeg_S, "mA");
     vNeg_S.addEmpty(vImp_S);
+    vNeg_S.add(vPast_S, "dI");
+    vNeg_S.add(vNarr_S, "mIş");
 
     // Negative form is "m" before progressive "Iyor" because last vowel drops.
     // We use a separate negative state for this.
@@ -854,6 +864,9 @@ public class TurkishMorphotactics {
         .add(vA1pl_ST, "yIz")
         .add(vA2pl_ST, "zsInIz")
         .add(vA3pl_ST, "zlAr");
+    vAorNeg_S.add(vPastAfterTense_S, "zdI");
+    vAorNeg_S.add(vNarrAfterTense_S, "zmIş");
+    vAorNeg_S.add(vCond_S, "zsA");
 
     //Positive Ability.
     // This makes a Verb-Verb derivation.
@@ -879,6 +892,8 @@ public class TurkishMorphotactics {
     // 1- If Verb ends with a vowel: "In"
     // 2- If Verb ends with letter 'l' : "InIl"
     // 3- If Verb ends with other consonants: "nIl"
+    // When loading dictionary, first and second case items are marked with Passive_In
+
     verbRoot_S.add(vPass_S, "In", has(RootAttribute.Passive_In)
         .andNot(new Conditions.ContainsMorpheme(pass)));
     verbRoot_S.add(vPass_S, "InIl", has(RootAttribute.Passive_In)
@@ -886,6 +901,56 @@ public class TurkishMorphotactics {
     verbRoot_S.add(vPass_S, "+nIl", notHave(RootAttribute.Passive_In)
         .andNot(new Conditions.ContainsMorpheme(pass)));
     vPass_S.addEmpty(verbRoot_S);
+
+    // Condition
+    verbRoot_S.add(vCond_S, "sA");
+    vCond_S
+        .add(vA1sg_ST, "m")
+        .add(vA2sg_ST, "n")
+        .addEmpty(vA3sg_ST)
+        .add(vA1pl_ST, "k")
+        .add(vA2pl_ST, "nIz")
+        .add(vA3pl_ST, "lAr");
+
+    // Past
+    verbRoot_S.add(vPast_S, ">dI");
+    vPast_S
+        .add(vA1sg_ST, "m")
+        .add(vA2sg_ST, "n")
+        .addEmpty(vA3sg_ST)
+        .add(vA1pl_ST, "k")
+        .add(vA2pl_ST, "nIz")
+        .add(vA3pl_ST, "lAr");
+    vPast_S.add(vCond_S,"ysA");
+
+    // Narrative
+    verbRoot_S.add(vNarr_S, "mIş");
+    vNarr_S
+        .add(vA1sg_ST, "Im")
+        .add(vA2sg_ST, "sIn")
+        .addEmpty(vA3sg_ST)
+        .add(vA1pl_ST, "Iz")
+        .add(vA2pl_ST, "sInIz")
+        .add(vA3pl_ST, "lAr");
+    vNarr_S.add(vCond_S,"sA");
+
+    // Past after tense
+    vPastAfterTense_S
+        .add(vA1sg_ST, "m")
+        .add(vA2sg_ST, "n")
+        .addEmpty(vA3sg_ST)
+        .add(vA1pl_ST, "k")
+        .add(vA2pl_ST, "nIz")
+        .add(vA3pl_ST, "lAr");
+
+    // Narrative after tense
+    vNarrAfterTense_S
+        .add(vA1sg_ST, "Im")
+        .add(vA2sg_ST, "sIn")
+        .addEmpty(vA3sg_ST)
+        .add(vA1pl_ST, "Iz")
+        .add(vA2pl_ST, "sInIz")
+        .add(vA3pl_ST, "lAr");
 
   }
 
