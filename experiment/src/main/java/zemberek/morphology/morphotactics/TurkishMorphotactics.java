@@ -93,7 +93,10 @@ public class TurkishMorphotactics {
   public static final Morpheme past = new Morpheme("PastTense", "Past");
   public static final Morpheme narr = new Morpheme("NarrativeTense", "Narr");
   public static final Morpheme cond = new Morpheme("Condition", "Cond");
+  // -ıyor
   public static final Morpheme prog1 = new Morpheme("Progressive1", "Prog1");
+  // -makta
+  public static final Morpheme prog2 = new Morpheme("Progressive2", "Prog2");
   public static final Morpheme aor = new Morpheme("Aorist", "Aor");
   public static final Morpheme fut = new Morpheme("Future", "Fut");
 
@@ -754,7 +757,7 @@ public class TurkishMorphotactics {
   MorphemeState vNarrAfterTense_S = nonTerminal("vNarrAfterTense_S", narr);
   MorphemeState vCond_S = nonTerminal("vCond_S", cond);
   MorphemeState vProgYor_S = nonTerminal("vProgYor_S", prog1);
-  MorphemeState vProgMakta_S = nonTerminal("vProgMakta_S", prog1);
+  MorphemeState vProgMakta_S = nonTerminal("vProgMakta_S", prog2);
   MorphemeState vFut_S = nonTerminal("vFut_S", fut);
 
   MorphemeState vCop_ST = terminal("vCop_ST", cop);
@@ -809,7 +812,7 @@ public class TurkishMorphotactics {
     vCausT_S.addEmpty(verbRoot_S);
     vCausTır_S.addEmpty(verbRoot_S);
 
-    // Progressive1 suffix. `Iyor`
+    // Progressive1 suffix. "-Iyor"
     // if last letter is a vowel, this is handled with verbRoot_Prog_S root.
     verbRoot_S.add(vProgYor_S, "Iyor", notHave(PhoneticAttribute.LastLetterVowel));
 
@@ -826,6 +829,19 @@ public class TurkishMorphotactics {
     vProgYor_S.add(vCond_S, "sa");
     vProgYor_S.add(vPastAfterTense_S, "du");
     vProgYor_S.add(vNarrAfterTense_S, "muş");
+
+    // Progressive - 2 "-mAktA"
+    verbRoot_S.add(vProgMakta_S, "mAktA");
+    vProgMakta_S
+        .add(vA1sg_ST, "yIm")
+        .add(vA2sg_ST, "sIn")
+        .addEmpty(vA3sg_ST)
+        .add(vA1pl_ST, "yIz")
+        .add(vA2pl_ST, "sInIz")
+        .add(vA3pl_ST, "lAr");
+    vProgMakta_S.add(vCond_S, "ysA");
+    vProgMakta_S.add(vPastAfterTense_S, "ydI");
+    vProgMakta_S.add(vNarrAfterTense_S, "ymIş");
 
     // Positive Aorist Tense.
     // For single syllable words, it forms as "ar-er". For others "ir-ır-ur-ür"
@@ -853,6 +869,7 @@ public class TurkishMorphotactics {
     vNeg_S.add(vFut_S, "yAcA~k");
     vNeg_S.add(vFut_S, "yAcA!ğ");
     vNeg_S.add(vNarr_S, "mIş");
+    vNeg_S.add(vProgMakta_S, "mAktA");
 
     // Negative form is "m" before progressive "Iyor" because last vowel drops.
     // We use a separate negative state for this.
@@ -970,6 +987,7 @@ public class TurkishMorphotactics {
         .add(vA3pl_ST, "lAr");
     vFut_S.add(vCond_S,"sA");
     vFut_S.add(vPastAfterTense_S,"tI");
+
 
     
 

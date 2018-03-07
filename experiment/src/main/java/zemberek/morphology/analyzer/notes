@@ -93,6 +93,7 @@ considered as "probability" but surely this will create ambiguity for regular "A
 "yazıyormuşsak" should we allow? Oflazer does not.
 
 Should we use different morphemes for Past and Narr after tenses (Hikaye, Rivayet)?
+
 ----
 
 annemler, annenler etc can be resoved with implicitPlural, ImplicitP1sg and ImplicitP2sg attributes.

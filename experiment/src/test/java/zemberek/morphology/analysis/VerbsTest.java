@@ -392,4 +392,37 @@ public class VerbsTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Caus + Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Fut + A1pl"));
   }
 
+  @Test
+  public void progressiveMakta() {
+    AnalysisTester t = getTester("yazmak");
+
+    t.expectSingle("yazmakta", matchesTailLex("Verb + Prog2 + A3sg"));
+    t.expectSingle("yazmaktayım", matchesTailLex("Verb + Prog2 + A1sg"));
+    t.expectSingle("yazmamaktayım", matchesTailLex("Verb + Neg + Prog2 + A1sg"));
+    t.expectSingle("yazmaktayız", matchesTailLex("Verb + Prog2 + A1pl"));
+    t.expectSingle("yazmamaktayız", matchesTailLex("Verb + Neg + Prog2 + A1pl"));
+    t.expectSingle("yazmaktaysan", matchesTailLex("Verb + Prog2 + Cond + A2sg"));
+    t.expectSingle("yazmaktaymışsınız", matchesTailLex("Verb + Prog2 + Narr + A2pl"));
+    // awkward but ok.
+    t.expectSingle("yazmamaktaydım", matchesTailLex("Verb + Neg + Prog2 + Past + A1sg"));
+
+    t = getTester("etmek [A:Voicing]");
+    t.expectSingle("etmekte", matchesTailLex("Verb + Prog2 + A3sg"));
+    t.expectSingle("etmemekte", matchesTailLex("Verb + Neg + Prog2 + A3sg"));
+    t.expectSingle("etmekteyiz", matchesTailLex("Verb + Prog2 + A1pl"));
+  }
+
+  @Test
+  public void progressiveMakta2() {
+    AnalysisTester t = getTester("aramak");
+
+    t.expectSingle("aramaktayım", matchesTailLex("Verb + Prog2 + A1sg"));
+    t.expectSingle("aratmaktayız", matchesTailLex("Verb + Caus + Verb + Prog2 + A1pl"));
+    t.expectSingle("arayabilmekteyiz", matchesTailLex("Verb + Able + Verb + Prog2 + A1pl"));
+    t.expectSingle("aratabilmekteyiz", matchesTailLex("Verb + Caus + Verb + Able + Verb + Prog2 + A1pl"));
+    t.expectSingle("aratmayabilmekteyiz", matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Prog2 + A1pl"));
+    t.expectSingle("arattıramayabilmekteyiz",
+        matchesTailLex("Verb + Caus + Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Prog2 + A1pl"));
+  }
+
 }
