@@ -325,6 +325,7 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("yazmadık", matchesTailLex("Verb + Neg + Past + A1pl"));
     t.expectSingle("yazdıysan", matchesTailLex("Verb + Past + Cond + A2sg"));
     t.expectSingle("yazmadıysan", matchesTailLex("Verb + Neg + Past + Cond + A2sg"));
+    t.expectSingle("yazdır", matchesTailLex("Verb + Caus + Verb + Imp + A2sg"));
 
 
     t = getTester("etmek [A:Voicing]");
@@ -423,6 +424,40 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("aratmayabilmekteyiz", matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Prog2 + A1pl"));
     t.expectSingle("arattıramayabilmekteyiz",
         matchesTailLex("Verb + Caus + Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Prog2 + A1pl"));
+  }
+
+
+  @Test
+  public void demekYemek() {
+    AnalysisTester t = getTester("demek [A:Special]");
+
+    t.expectSingle("de", matchesTailLex("Verb + Imp + A2sg"));
+    t.expectSingle("deme", matchesTailLex("Verb + Neg + Imp + A2sg"));
+    t.expectSingle("dedi", matchesTailLex("Verb + Past + A3sg"));
+    t.expectSingle("demiş", matchesTailLex("Verb + Narr + A3sg"));
+    t.expectSingle("den", matchesTailLex("Verb + Pass + Verb + Imp + A2sg"));
+    t.expectSingle("denil", matchesTailLex("Verb + Pass + Verb + Imp + A2sg"));
+    t.expectSingle("diyecek", matchesTailLex("Verb + Fut + A3sg"));
+    t.expectSingle("diyebilir", matchesTailLex("Verb + Able + Verb + Aor + A3sg"));
+    t.expectSingle("deme", matchesTailLex("Verb + Neg + Imp + A2sg"));
+    t.expectSingle("diyor", matchesTailLex("Verb + Prog1 + A3sg"));
+    t.expectSingle("demiyor", matchesTailLex("Verb + Neg + Prog1 + A3sg"));
+    t.expectSingle("der", matchesTailLex("Verb + Aor + A3sg"));
+    t.expectSingle("demez", matchesTailLex("Verb + Neg + Aor + A3sg"));
+    t.expectSingle("dedir", matchesTailLex("Verb + Caus + Verb + Imp + A2sg"));
+
+    t.expectFail(
+        "dir",
+        "dimez",
+        "di",
+        "din",
+        "didir",
+        "deyor",
+        "deyecek",
+        "didi",
+        "dimiş",
+        "dimiyor"
+    );
   }
 
 }

@@ -339,6 +339,49 @@ class Conditions {
     }
   }
 
+  public static class RootSurfaceIs extends AbstractCondition {
+
+    String surface;
+
+    public RootSurfaceIs(String surface) {
+      this.surface = surface;
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      return visitor.getStemTransition().surface.equals(this.surface);
+    }
+
+    @Override
+    public String toString() {
+      return "RootSurfaceIs{ " + surface + " }";
+    }
+  }
+
+  public static class RootSurfaceIsAny extends AbstractCondition {
+
+    String[] surfaces;
+
+    public RootSurfaceIsAny(String... surfaces) {
+      this.surfaces = surfaces;
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      for (String s : surfaces) {
+        if (visitor.getStemTransition().surface.equals(s)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    @Override
+    public String toString() {
+      return "RootSurfaceIsAny{ " + Arrays.toString(surfaces) + " }";
+    }
+  }
+
   public static class LastStateIs extends AbstractCondition {
 
     MorphemeState state;

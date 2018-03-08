@@ -21,6 +21,7 @@ import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.Conditions.ContainsMorpheme;
 import zemberek.morphology.morphotactics.Conditions.CurrentGroupContains;
 import zemberek.morphology.morphotactics.Conditions.NoSurfaceAfterDerivation;
+import zemberek.morphology.morphotactics.Conditions.RootSurfaceIsAny;
 
 public class TurkishMorphotactics {
 
@@ -742,7 +743,7 @@ public class TurkishMorphotactics {
 
   // ------------- Verbs -----------------------------------
 
-  MorphemeState verbRoot_S = builder("verbRoot_S", verb).posRoot().build();
+  public MorphemeState verbRoot_S = builder("verbRoot_S", verb).posRoot().build();
 
   MorphemeState vA1sg_ST = terminal("vA1sg_ST", a1sg);
   MorphemeState vA2sg_ST = terminal("vA2sg_ST", a2sg);
@@ -782,6 +783,8 @@ public class TurkishMorphotactics {
   MorphemeState vAbleNegDerivRoot_S = builder("vAbleNegDerivRoot_S", verb).posRoot().build();
 
   MorphemeState vPass_S = nonTerminalDerivative("vPass_S", pass);
+
+  public MorphemeState vDeYeRoot_S = builder("vDeYeRoot_S", verb).posRoot().build();
 
   private void connectVerbs() {
 
@@ -943,7 +946,7 @@ public class TurkishMorphotactics {
         .add(vA1pl_ST, "k")
         .add(vA2pl_ST, "nIz")
         .add(vA3pl_ST, "lAr");
-    vPast_S.add(vCond_S,"ysA");
+    vPast_S.add(vCond_S, "ysA");
 
     // Narrative
     verbRoot_S.add(vNarr_S, "mIş");
@@ -954,8 +957,8 @@ public class TurkishMorphotactics {
         .add(vA1pl_ST, "Iz")
         .add(vA2pl_ST, "sInIz")
         .add(vA3pl_ST, "lAr");
-    vNarr_S.add(vCond_S,"sA");
-    vNarr_S.add(vPastAfterTense_S,"tI");
+    vNarr_S.add(vCond_S, "sA");
+    vNarr_S.add(vPastAfterTense_S, "tI");
 
     // Past after tense
     vPastAfterTense_S
@@ -985,11 +988,38 @@ public class TurkishMorphotactics {
         .add(vA1pl_ST, "Iz")
         .add(vA2pl_ST, "sInIz")
         .add(vA3pl_ST, "lAr");
-    vFut_S.add(vCond_S,"sA");
-    vFut_S.add(vPastAfterTense_S,"tI");
+    vFut_S.add(vCond_S, "sA");
+    vFut_S.add(vPastAfterTense_S, "tI");
+
+    // work for demek-yemek
+    // `demek` and `yemek` are special because they are the only two verbs with two letters.
+    // Their root transform as:
+    // No chabge: de-di, de-miş, de-dir
+    // Change : di-yecek di-yor de-r
+    // "ye" has similar behavior but not the same. Such as "yi-yin" but for "de", "de-yin"
+    // TODO: this can be achieved with less repetition.
+    RootSurfaceIsAny diYiCondition = new RootSurfaceIsAny("di", "yi");
+    RootSurfaceIsAny deYeCondition = new RootSurfaceIsAny("de", "ye");
+    vDeYeRoot_S.add(vFut_S, "yece~k",diYiCondition);
+    vDeYeRoot_S.add(vFut_S, "yece!ğ",diYiCondition);
+    vDeYeRoot_S.add(vProgYor_S, "yor",diYiCondition);
+    vDeYeRoot_S.add(vAble_S, "yebil",diYiCondition);
+    vDeYeRoot_S.add(vAbleNeg_S, "ye",diYiCondition);
+
+    vDeYeRoot_S.add(vCausTır_S, "dir", deYeCondition);
+    vDeYeRoot_S.add(vPass_S, "n", deYeCondition);
+    vDeYeRoot_S.add(vPass_S, "nil", deYeCondition);
+    vDeYeRoot_S.add(vPast_S, "di", deYeCondition);
+    vDeYeRoot_S.add(vNarr_S, "miş", deYeCondition);
+    vDeYeRoot_S.add(vAor_S, "r", deYeCondition);
+    vDeYeRoot_S.add(vNeg_S, "me", deYeCondition);
+    vDeYeRoot_S.add(vNegProg1_S, "m", deYeCondition);
+    vDeYeRoot_S.add(vProgMakta_S, "mekte", deYeCondition);
+    vDeYeRoot_S.addEmpty(vImp_S, deYeCondition);
 
 
-    
+
+
 
   }
 

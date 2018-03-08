@@ -10,7 +10,6 @@ import static zemberek.core.turkish.RootAttribute.Special;
 import static zemberek.core.turkish.RootAttribute.Voicing;
 
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -222,7 +221,18 @@ public class StemTransitionGenerator {
       modified.getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
       return Lists.newArrayList(original, modified);
     } else if (id.equals("demek_Verb") || id.equals("yemek_Verb")) {
-      return new ArrayList<>();
+      original = new StemTransition(item.root, item, originalAttrs, morphotactics.vDeYeRoot_S);
+      switch (item.lemma) {
+        case "demek":
+          modified = new StemTransition("di", item, calculateAttributes("di"),
+              morphotactics.vDeYeRoot_S);
+          break;
+        default:
+          modified = new StemTransition("yi", item, calculateAttributes("yi"),
+              morphotactics.vDeYeRoot_S);
+      }
+      return Lists.newArrayList(original, modified);
+
     } else if (id.equals("birbiri_Pron_Quant")
         || id.equals("çoğu_Pron_Quant")
         || id.equals("öbürü_Pron_Quant")
