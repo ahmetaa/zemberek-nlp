@@ -142,6 +142,7 @@ public class TurkishMorphotactics {
   MorphemeState p2sg_S = nonTerminal("p2sg_S", p2sg);
   MorphemeState p3sg_S = nonTerminal("p3sg_S", p3sg);
   MorphemeState p1pl_S = nonTerminal("p1pl_S", p1pl);
+  MorphemeState p2pl_S = nonTerminal("p2pl_S", p2pl);
 
   // Case
 
@@ -209,7 +210,9 @@ public class TurkishMorphotactics {
     a3plCompound_S
         .add(p3sg_S, "I")
         .add(p2sg_S, "In")
-        .add(p1sg_S, "Im");
+        .add(p1sg_S, "Im")
+        .add(p1pl_S, "ImIz")
+        .add(p2pl_S, "InIz");
 
     Condition noFamily = notHave(RootAttribute.FamilyMember);
 
@@ -228,6 +231,7 @@ public class TurkishMorphotactics {
     a3sg_S.addEmpty(p3sg_S, has(RootAttribute.CompoundP3sg));
 
     a3sg_S.add(p1pl_S, "ImIz", noFamily);
+    a3sg_S.add(p2pl_S, "InIz", noFamily);
 
     // ev-ler-ε-?
     a3pl_S.addEmpty(pnon_S, noFamily);
@@ -240,6 +244,7 @@ public class TurkishMorphotactics {
     a3pl_S.addEmpty(p2sg_S, has(RootAttribute.ImplicitP2sg));
     a3pl_S.add(p3sg_S, "I", noFamily);
     a3pl_S.add(p1pl_S, "ImIz", noFamily);
+    a3pl_S.add(p2pl_S, "InIz", noFamily);
 
     // --- handle su - akarsu roots. ----
     nounSuRoot_S.addEmpty(a3sgSu_S);
@@ -249,7 +254,8 @@ public class TurkishMorphotactics {
         .add(p1sg_S, "yum")
         .add(p2sg_S, "yun")
         .add(p3sg_S, "yu")
-        .add(p1pl_S, "yumuz");
+        .add(p1pl_S, "yumuz")
+        .add(p2pl_S, "yunuz");
 
     // ev-?-ε-ε (ev, evler).
     pnon_S.addEmpty(nom_ST,
@@ -268,7 +274,7 @@ public class TurkishMorphotactics {
     // zeytinyağı-ε-ε-na
     pnon_S.add(dat_ST, "+nA", has(RootAttribute.CompoundP3sg));
 
-    // ev-?-ε-e (ev-i, ev-ler-i, e-vim-i). Not allow "zetinyağı-yı"
+    // evi Not allow "zetinyağı-yı"
     pnon_S.add(acc_ST, "+yI", notHave(RootAttribute.CompoundP3sg));
 
     // zeytinyağı-ε-ε-nı
@@ -279,33 +285,30 @@ public class TurkishMorphotactics {
     // But It is also possible to add dative suffix +yA to those words such as "içeri-ye".
     pnon_S.addEmpty(dat_ST, has(RootAttribute.ImplicitDative));
 
-    // ev-?-im-ε (evim, evlerim)
-    p1sg_S.addEmpty(nom_ST);
-    // ev-?-im-e (evime, evlerime)
-    p1sg_S.add(dat_ST, "A");
-    // ev-?-im-i (ev-i, ev-ler-i, e-vim-i).
-    p1sg_S.add(acc_ST, "I");
+    p1sg_S
+        .addEmpty(nom_ST)    // evim
+        .add(dat_ST, "A")    // evime
+        .add(acc_ST, "I");   // evimi
 
-    // evin, evlerin
-    p2sg_S.addEmpty(nom_ST);
-    // evine, evlerine
-    p2sg_S.add(dat_ST, "A");
-    // evini
-    p2sg_S.add(acc_ST, "I");
+    p2sg_S
+        .addEmpty(nom_ST)    // evin
+        .add(dat_ST, "A")    // evine
+        .add(acc_ST, "I");   // evini
 
-    //ev-?-i-ε (evi, evleri)
-    p3sg_S.addEmpty(nom_ST);
-    //ev-?-i-ε (evine, evlerine)
-    p3sg_S.add(dat_ST, "nA");
-    //ev-?-i-ε (ev-i-ni, ev-ler-i-ni)
-    p3sg_S.add(acc_ST, "nI");
+    p3sg_S
+        .addEmpty(nom_ST)    // evi
+        .add(dat_ST, "nA")   // evine
+        .add(acc_ST, "nI");  // evini
 
-    // evimiz
-    p1pl_S.addEmpty(nom_ST);
-    // evimize
-    p1pl_S.add(dat_ST, "A");
-    // evimizi
-    p1pl_S.add(acc_ST, "I");
+    p1pl_S
+        .addEmpty(nom_ST)    // evimiz
+        .add(dat_ST, "A")    // evimize
+        .add(acc_ST, "I");   // evimizi
+
+    p2pl_S
+        .addEmpty(nom_ST)    // eviniz
+        .add(dat_ST, "A")    // evinize
+        .add(acc_ST, "I");   // evinizi
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains any non empty surface suffix.
     // There are two almost identical suffix transitions with templates ">cI~k" and ">cI!ğ"
