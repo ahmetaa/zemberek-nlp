@@ -8,15 +8,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.antlr.v4.runtime.Token;
 import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.logging.Log;
+import zemberek.core.turkish.TurkicLetter;
 import zemberek.morphology.analyzer.AnalysisResult;
 import zemberek.morphology.analyzer.InterpretingAnalyzer;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
+import zemberek.tokenization.antlr.TurkishLexer;
 
 public class SpeedTest {
 
@@ -34,10 +37,13 @@ public class SpeedTest {
     int noAnalysis = 0;
     int sentenceCount = 0;
     for (String sentence : sentences) {
-      List<String> tokens = TurkishTokenizer.DEFAULT.tokenizeToStrings(sentence);
-      tokenCount += tokens.size();
-      for (String token : tokens) {
-        List<AnalysisResult> results = analyzer.analyze(token);
+      List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
+      for (Token token : tokens) {
+        if(token.getType()== TurkishLexer.Punctuation) {
+          continue;
+        }
+        tokenCount ++;
+        List<AnalysisResult> results = analyzer.analyze(token.getText());
         if (results.size() == 0) {
           noAnalysis++;
         }
@@ -49,8 +55,10 @@ public class SpeedTest {
     }
     double seconds = sw.stop().elapsed(TimeUnit.MILLISECONDS) / 1000d;
     double speed = tokenCount / seconds;
-    Log.info("%d Tokens analyzed in %.2f seconds. %d could not be parsed. Speed = %.2f tokens/sec",
-        tokenCount, seconds, noAnalysis, speed);
+    double parseRatio = 100 - (noAnalysis * 100d / tokenCount);
+    Log.info("Elapsed = %.2f seconds", seconds);
+    Log.info("Token Count (No Punc) = %d %nParse Ratio = %.4f%nSpeed = %.2f tokens/sec",
+        tokenCount, parseRatio, speed);
   }
 
   private List<String> getSentences(Path p) throws IOException {

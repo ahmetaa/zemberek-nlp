@@ -106,6 +106,8 @@ public class TurkishMorphotactics {
   public static final Morpheme caus = new Morpheme("Causative", "Caus");
   public static final Morpheme able = new Morpheme("Ability", "Able");
   public static final Morpheme pass = new Morpheme("Passive", "Pass");
+  public static final Morpheme opt = new Morpheme("Optative", "Opt");
+  public static final Morpheme desr = new Morpheme("Desire", "Desr");
 
   //-------------- States ----------------------------
   // _ST = Terminal state _S = Non Terminal State.
@@ -784,6 +786,9 @@ public class TurkishMorphotactics {
 
   MorphemeState vPass_S = nonTerminalDerivative("vPass_S", pass);
 
+  MorphemeState vOpt_S = nonTerminalDerivative("vOpt_S", opt);
+  MorphemeState vDesr_S = nonTerminalDerivative("vDesr_S", desr);
+
   public MorphemeState vDeYeRoot_S = builder("vDeYeRoot_S", verb).posRoot().build();
 
   private void connectVerbs() {
@@ -873,6 +878,8 @@ public class TurkishMorphotactics {
     vNeg_S.add(vFut_S, "yAcA!ğ");
     vNeg_S.add(vNarr_S, "mIş");
     vNeg_S.add(vProgMakta_S, "mAktA");
+    vNeg_S.add(vOpt_S, "yA");
+    vNeg_S.add(vDesr_S, "sA");
 
     // Negative form is "m" before progressive "Iyor" because last vowel drops.
     // We use a separate negative state for this.
@@ -928,7 +935,6 @@ public class TurkishMorphotactics {
     vPass_S.addEmpty(verbRoot_S);
 
     // Condition
-    verbRoot_S.add(vCond_S, "sA");
     vCond_S
         .add(vA1sg_ST, "m")
         .add(vA2sg_ST, "n")
@@ -1000,23 +1006,42 @@ public class TurkishMorphotactics {
     // TODO: this can be achieved with less repetition.
     RootSurfaceIsAny diYiCondition = new RootSurfaceIsAny("di", "yi");
     RootSurfaceIsAny deYeCondition = new RootSurfaceIsAny("de", "ye");
-    vDeYeRoot_S.add(vFut_S, "yece~k",diYiCondition);
-    vDeYeRoot_S.add(vFut_S, "yece!ğ",diYiCondition);
-    vDeYeRoot_S.add(vProgYor_S, "yor",diYiCondition);
-    vDeYeRoot_S.add(vAble_S, "yebil",diYiCondition);
-    vDeYeRoot_S.add(vAbleNeg_S, "ye",diYiCondition);
+    vDeYeRoot_S.add(vFut_S, "yece~k", diYiCondition)
+        .add(vFut_S, "yece!ğ", diYiCondition)
+        .add(vProgYor_S, "yor", diYiCondition)
+        .add(vAble_S, "yebil", diYiCondition)
+        .add(vAbleNeg_S, "ye", diYiCondition)
+        .add(vOpt_S, "ye", diYiCondition);
 
-    vDeYeRoot_S.add(vCausTır_S, "dir", deYeCondition);
-    vDeYeRoot_S.add(vPass_S, "n", deYeCondition);
-    vDeYeRoot_S.add(vPass_S, "nil", deYeCondition);
-    vDeYeRoot_S.add(vPast_S, "di", deYeCondition);
-    vDeYeRoot_S.add(vNarr_S, "miş", deYeCondition);
-    vDeYeRoot_S.add(vAor_S, "r", deYeCondition);
-    vDeYeRoot_S.add(vNeg_S, "me", deYeCondition);
-    vDeYeRoot_S.add(vNegProg1_S, "m", deYeCondition);
-    vDeYeRoot_S.add(vProgMakta_S, "mekte", deYeCondition);
-    vDeYeRoot_S.addEmpty(vImp_S, deYeCondition);
+    vDeYeRoot_S.add(vCausTır_S, "dir", deYeCondition)
+        .add(vPass_S, "n", deYeCondition)
+        .add(vPass_S, "nil", deYeCondition)
+        .add(vPast_S, "di", deYeCondition)
+        .add(vNarr_S, "miş", deYeCondition)
+        .add(vAor_S, "r", deYeCondition)
+        .add(vNeg_S, "me", deYeCondition)
+        .add(vNegProg1_S, "m", deYeCondition)
+        .add(vProgMakta_S, "mekte", deYeCondition)
+        .add(vDesr_S, "se", deYeCondition)
+        .addEmpty(vImp_S, deYeCondition);
 
+    // Optative (gel-e, gel-eyim gel-me-ye-yim)
+    verbRoot_S.add(vOpt_S, "+yA");
+    vOpt_S.add(vA1sg_ST, "yIm")
+        .add(vA2sg_ST, "sIn")
+        .addEmpty(vA3sg_ST)
+        .add(vA1pl_ST, "lIm")
+        .add(vA2pl_ST, "sInIz")
+        .add(vA3pl_ST, "lAr");
+
+    // Desire (gel-se, gel-se-m gel-me-se-m)
+    verbRoot_S.add(vDesr_S, "sA");
+    vDesr_S.add(vA1sg_ST, "m")
+        .add(vA2sg_ST, "n")
+        .addEmpty(vA3sg_ST)
+        .add(vA1pl_ST, "k")
+        .add(vA2pl_ST, "nIz")
+        .add(vA3pl_ST, "lAr");
 
 
 

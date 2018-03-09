@@ -445,6 +445,11 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("der", matchesTailLex("Verb + Aor + A3sg"));
     t.expectSingle("demez", matchesTailLex("Verb + Neg + Aor + A3sg"));
     t.expectSingle("dedir", matchesTailLex("Verb + Caus + Verb + Imp + A2sg"));
+    t.expectSingle("dedirme", matchesTailLex("Verb + Caus + Verb + Neg + Imp + A2sg"));
+    t.expectSingle("diye", matchesTailLex("Verb + Opt + A3sg"));
+    t.expectSingle("demeye", matchesTailLex("Verb + Neg + Opt + A3sg"));
+    t.expectSingle("dese", matchesTailLex("Verb + Desr + A3sg"));
+    t.expectSingle("demese", matchesTailLex("Verb + Neg + Desr + A3sg"));
 
     t.expectFail(
         "dir",
@@ -459,5 +464,47 @@ public class VerbsTest extends AnalyzerTestBase {
         "dimiyor"
     );
   }
+
+
+  @Test
+  public void optative() {
+    AnalysisTester t = getTester("yazmak");
+
+    t.expectSingle("yazayım", matchesTailLex("Verb + Opt + A1sg"));
+    t.expectSingle("yazmayayım", matchesTailLex("Verb + Neg + Opt + A1sg"));
+    t.expectSingle("yazasın", matchesTailLex("Verb + Opt + A2sg"));
+    t.expectSingle("yazmayasın", matchesTailLex("Verb + Neg + Opt + A2sg"));
+    t.expectSingle("yaza", matchesTailLex("Verb + Opt + A3sg"));
+    t.expectAny("yazmaya", matchesTailLex("Verb + Neg + Opt + A3sg"));
+    t.expectSingle("yazalım", matchesTailLex("Verb + Opt + A1pl"));
+    t.expectSingle("yazasınız", matchesTailLex("Verb + Opt + A2pl"));
+    t.expectSingle("yazalar", matchesTailLex("Verb + Opt + A3pl"));
+
+    t = getTester("etmek [A:Voicing]");
+    t.expectSingle("edeyim", matchesTailLex("Verb + Opt + A1sg"));
+    t.expectSingle("ede", matchesTailLex("Verb + Opt + A3sg"));
+    t.expectSingle("etmeye", matchesTailLex("Verb + Neg + Opt + A3sg"));
+  }
+
+  @Test
+  public void desire() {
+    AnalysisTester t = getTester("yazmak");
+
+    t.expectSingle("yazsam", matchesTailLex("Verb + Desr + A1sg"));
+    t.expectSingle("yazmasam", matchesTailLex("Verb + Neg + Desr + A1sg"));
+    t.expectSingle("yazsan", matchesTailLex("Verb + Desr + A2sg"));
+    t.expectSingle("yazmasan", matchesTailLex("Verb + Neg + Desr + A2sg"));
+    t.expectSingle("yazsa", matchesTailLex("Verb + Desr + A3sg"));
+    t.expectAny("yazmasa", matchesTailLex("Verb + Neg + Desr + A3sg"));
+    t.expectSingle("yazsak", matchesTailLex("Verb + Desr + A1pl"));
+    t.expectSingle("yazsanız", matchesTailLex("Verb + Desr + A2pl"));
+    t.expectSingle("yazsalar", matchesTailLex("Verb + Desr + A3pl"));
+
+    t = getTester("etmek [A:Voicing]");
+    t.expectSingle("etsem", matchesTailLex("Verb + Desr + A1sg"));
+    t.expectSingle("etse", matchesTailLex("Verb + Desr + A3sg"));
+    t.expectSingle("etmese", matchesTailLex("Verb + Neg + Desr + A3sg"));
+  }  
+
 
 }
