@@ -556,7 +556,6 @@ public class VerbsTest extends AnalyzerTestBase {
         "yazarsalardı",
         "yazarmışlarsa"
     );
-
   }
 
 }

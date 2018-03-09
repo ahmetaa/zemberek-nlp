@@ -5,9 +5,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import zemberek.morphology.analyzer.AnalysisResult;
 import zemberek.morphology.analyzer.InterpretingAnalyzer;
-import zemberek.morphology.analyzer.InterpretingAnalyzer.AnalysisDebugData;
 
-public class SimpleNounsTest extends AnalyzerTestBase {
+public class NounsTest extends AnalyzerTestBase {
 
 
   @Test
@@ -66,17 +65,22 @@ public class SimpleNounsTest extends AnalyzerTestBase {
     expectFail(analyzer, "kitapım", "kitab", "kitabcık", "kitapa", "kitablar");
   }
 
-
   @Test
-  public void analysisWithDebug() {
-    InterpretingAnalyzer analyzer = getAnalyzer("elma", "el", "elmas");
-    String in = "elmalara";
-    AnalysisDebugData debug = new AnalysisDebugData();
-    List<AnalysisResult> results = analyzer.analyze(in, debug);
-    debug.dumpToConsole();
-    printAndSort(in, results);
+  public void a3plExceptionTest() {
+    AnalysisTester t = getTester("su");
+
+    t.expectSingle("su", matchesTailLex("Noun + A3sg + Pnon + Nom"));
+    t.expectSingle("sulara", matchesTailLex("Noun + A3pl + Pnon + Dat"));
+    t.expectSingle("suyuma", matchesTailLex("Noun + A3sg + P1sg + Dat"));
+    t.expectSingle("suyun", matchesTailLex("Noun + A3sg + P2sg + Nom"));
+    t.expectSingle("suyumuz", matchesTailLex("Noun + A3sg + P1pl + Nom"));
+
+    t.expectFail(
+        "sunun",
+        "susu",
+        "sum",
+        "sun"
+    );
   }
-
-
 
 }

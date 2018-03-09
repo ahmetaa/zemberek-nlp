@@ -13,6 +13,8 @@ import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivat
 import static zemberek.morphology.morphotactics.MorphemeState.terminal;
 
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
@@ -20,8 +22,8 @@ import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.Conditions.ContainsMorpheme;
 import zemberek.morphology.morphotactics.Conditions.CurrentGroupContains;
-import zemberek.morphology.morphotactics.Conditions.PreviousStateIsAny;
 import zemberek.morphology.morphotactics.Conditions.NoSurfaceAfterDerivation;
+import zemberek.morphology.morphotactics.Conditions.PreviousStateIsAny;
 import zemberek.morphology.morphotactics.Conditions.RootSurfaceIsAny;
 
 public class TurkishMorphotactics {
@@ -121,12 +123,13 @@ public class TurkishMorphotactics {
   //-------------- Noun States ------------------------
 
   MorphemeState noun_S = builder("noun_S", noun).posRoot().build();
-  MorphemeState nounCompoundRoot_S =
-      builder("nounCompoundRoot_S", noun).posRoot().build();
+  MorphemeState nounCompoundRoot_S = builder("nounCompoundRoot_S", noun).posRoot().build();
+  MorphemeState nounSuRoot_S = builder("nounSuRoot_S", noun).posRoot().build();
 
   // Number-Person agreement
 
   MorphemeState a3sg_S = nonTerminal("a3sg_S", a3sg);
+  MorphemeState a3sgSu_S = nonTerminal("a3sgSu_S", a3sg);
   MorphemeState a3sgCompound_S = nonTerminal("a3sgCompound_S", a3sg);
   MorphemeState a3pl_S = nonTerminal("a3pl_S", a3pl);
   MorphemeState a3plCompound_S = nonTerminal("a3plCompound_S", a3pl);
@@ -161,6 +164,7 @@ public class TurkishMorphotactics {
 
   public TurkishMorphotactics(RootLexicon lexicon) {
     this.lexicon = lexicon;
+    mapSpecialItemsToRootStates();
     connectNounStates();
     connectAdjectiveStates();
     connectVerbAfterNounAdjStates();
@@ -207,32 +211,23 @@ public class TurkishMorphotactics {
         .add(p2sg_S, "In")
         .add(p1sg_S, "Im");
 
-    DictionaryItem su = lexicon.getItemById("su_Noun");
     Condition noFamily = notHave(RootAttribute.FamilyMember);
-    Condition defaultPossCond = rootIsNot(su).and(noFamily);
 
     // ev-ε-ε-? Reject "annemler" etc.
     a3sg_S.addEmpty(pnon_S, noFamily);
 
     // ev-ε-im oda-ε-m
-    a3sg_S.add(p1sg_S, "Im", defaultPossCond);
-    // su-ε-yum. 
-    a3sg_S.add(p1sg_S, "yum", rootIs(su));
+    a3sg_S.add(p1sg_S, "Im", noFamily);
 
     // ev-ε-im oda-ε-m
-    a3sg_S.add(p2sg_S, "In", defaultPossCond);
-    // su-ε-yun. 
-    a3sg_S.add(p2sg_S, "yun", rootIs(su));
+    a3sg_S.add(p2sg_S, "In", noFamily);
 
     // ev-ε-i oda-ε-sı
-    a3sg_S.add(p3sg_S, "+sI", defaultPossCond);
+    a3sg_S.add(p3sg_S, "+sI", noFamily);
     // "zeytinyağı" has two analyses. Pnon and P3sg.
     a3sg_S.addEmpty(p3sg_S, has(RootAttribute.CompoundP3sg));
-    // su-ε-yu. Only for "su"
-    a3sg_S.add(p3sg_S, "yu", rootIs(su));
 
-    a3sg_S.add(p1pl_S, "ImIz", defaultPossCond);
-    a3sg_S.add(p1pl_S, "yumuz", rootIs(su));
+    a3sg_S.add(p1pl_S, "ImIz", noFamily);
 
     // ev-ler-ε-?
     a3pl_S.addEmpty(pnon_S, noFamily);
@@ -240,15 +235,21 @@ public class TurkishMorphotactics {
     // ev-ler-im-?
     a3pl_S.add(p1sg_S, "Im", noFamily);
     a3pl_S.add(p2sg_S, "In", noFamily);
-
     // for words like "annemler" and "annenler"
     a3pl_S.addEmpty(p1sg_S, has(RootAttribute.ImplicitP1sg));
     a3pl_S.addEmpty(p2sg_S, has(RootAttribute.ImplicitP2sg));
-
-    // ev-ler-i oda-lar-ı
     a3pl_S.add(p3sg_S, "I", noFamily);
-
     a3pl_S.add(p1pl_S, "ImIz", noFamily);
+
+    // --- handle su - akarsu roots. ----
+    nounSuRoot_S.addEmpty(a3sgSu_S);
+    nounSuRoot_S.add(a3pl_S, "lar");
+    a3sgSu_S
+        .addEmpty(pnon_S)
+        .add(p1sg_S, "yum")
+        .add(p2sg_S, "yun")
+        .add(p3sg_S, "yu")
+        .add(p1pl_S, "yumuz");
 
     // ev-?-ε-ε (ev, evler).
     pnon_S.addEmpty(nom_ST,
@@ -435,7 +436,7 @@ public class TurkishMorphotactics {
     Condition allowA1plTrans =
         notHave(RootAttribute.FamilyMember)
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
-            .andNot(new Conditions.PreviousGroupContains(p1pl_S));
+            .andNot(new Conditions.PreviousGroupContains(p1pl_S, p1sg_S));
     // elma-yım
     nPresent_S.add(nA1sg_ST, "+yIm", allowA1sgTrans);
 
@@ -1077,8 +1078,14 @@ public class TurkishMorphotactics {
     vA3pl_ST.add(vPastAfterTense_ST, "dI", previousNotPastNarrCond);
     vA3pl_ST.add(vNarrAfterTense_ST, "mIş", previousNotPastNarrCond);
     vA3pl_ST.add(vCond_ST, "sA", previousNotPastNarrCond);
+  }
 
+  Map<String, MorphemeState> itemRootStateMap = new HashMap<>();
 
+  void mapSpecialItemsToRootStates() {
+    itemRootStateMap.put("değil_Verb", nVerbDegil_S);
+    itemRootStateMap.put("su_Noun", nounSuRoot_S);
+    itemRootStateMap.put("akarsu_Noun", nounSuRoot_S);
   }
 
   //--------------------------------------------------------
@@ -1087,9 +1094,9 @@ public class TurkishMorphotactics {
       DictionaryItem dictionaryItem,
       EnumSet<PhoneticAttribute> phoneticAttributes) {
 
-    //TODO: consider a generic mechanism for such items.
-    if (dictionaryItem.id.equals("değil_Verb")) {
-      return nVerbDegil_S;
+    MorphemeState root = itemRootStateMap.get(dictionaryItem.id);
+    if (root != null) {
+      return root;
     }
 
     // Verbs like "aramak" drops their last vowel when  connected to "Iyor" Progressive suffix.
