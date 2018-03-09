@@ -73,6 +73,7 @@ public class TurkishMorphotactics {
   public static final Morpheme dat = new Morpheme("Dative", "Dat");
   // Accusative case suffix. "elmayı = ~the apple"
   public static final Morpheme acc = new Morpheme("Accusative", "Acc");
+  public static final Morpheme abl = new Morpheme("Ablative", "Abl");
 
   // Derivation suffixes
 
@@ -150,6 +151,7 @@ public class TurkishMorphotactics {
   MorphemeState nom_S = nonTerminal("nom_S", nom);
 
   MorphemeState dat_ST = terminal("dat_ST", dat);
+  MorphemeState abl_ST = terminal("abl_ST", abl);
   MorphemeState acc_ST = terminal("acc_ST", acc);
 
   // Derivation
@@ -270,9 +272,14 @@ public class TurkishMorphotactics {
 
     // ev-?-ε-e (eve, evlere). Not allow "zetinyağı-ya"
     pnon_S.add(dat_ST, "+yA", notHave(RootAttribute.CompoundP3sg));
+    // ev-den
+    pnon_S.add(abl_ST, "dAn", notHave(RootAttribute.CompoundP3sg));
 
     // zeytinyağı-ε-ε-na
     pnon_S.add(dat_ST, "+nA", has(RootAttribute.CompoundP3sg));
+
+    // zeytinyağı-ε-ε-na
+    pnon_S.add(abl_ST, "+ndAn", has(RootAttribute.CompoundP3sg));
 
     // evi Not allow "zetinyağı-yı"
     pnon_S.add(acc_ST, "+yI", notHave(RootAttribute.CompoundP3sg));
@@ -288,26 +295,31 @@ public class TurkishMorphotactics {
     p1sg_S
         .addEmpty(nom_ST)    // evim
         .add(dat_ST, "A")    // evime
+        .add(abl_ST, "dAn")  // evimden
         .add(acc_ST, "I");   // evimi
 
     p2sg_S
         .addEmpty(nom_ST)    // evin
         .add(dat_ST, "A")    // evine
+        .add(abl_ST, "dAn")  // evinden
         .add(acc_ST, "I");   // evini
 
     p3sg_S
         .addEmpty(nom_ST)    // evi
         .add(dat_ST, "nA")   // evine
+        .add(abl_ST, "ndAn") // evinden
         .add(acc_ST, "nI");  // evini
 
     p1pl_S
         .addEmpty(nom_ST)    // evimiz
         .add(dat_ST, "A")    // evimize
+        .add(abl_ST, "dAn")    // evimizden
         .add(acc_ST, "I");   // evimizi
 
     p2pl_S
         .addEmpty(nom_ST)    // eviniz
         .add(dat_ST, "A")    // evinize
+        .add(abl_ST, "dAn")    // evinizden
         .add(acc_ST, "I");   // evinizi
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains any non empty surface suffix.
@@ -333,6 +345,10 @@ public class TurkishMorphotactics {
 
     // elma-ya-yım elma-ya-ydı
     dat_ST.addEmpty(nounZeroDeriv_S, noun2VerbZeroDerivationCondition);
+
+    // elma-dan-ım elma-dan-dı
+    abl_ST.addEmpty(nounZeroDeriv_S, noun2VerbZeroDerivationCondition);
+
 
     nounZeroDeriv_S.addEmpty(nVerb_S);
 

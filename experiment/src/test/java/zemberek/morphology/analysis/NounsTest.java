@@ -103,6 +103,26 @@ public class NounsTest extends AnalyzerTestBase {
     t.expectSingle("zeytinyağınıza", matchesTailLex("Noun + A3sg + P2pl + Dat"));
     t.expectAny("zeytinyağlarınız", matchesTailLex("Noun + A3pl + P2pl + Nom"));
     t.expectSingle("zeytinyağlarınıza", matchesTailLex("Noun + A3pl + P2pl + Dat"));
+  }
+
+  @Test
+  public void Ablative() {
+    AnalysisTester t = getTester("ev");
+
+    t.expectAny("evden", matchesTailLex("Noun + A3sg + Pnon + Abl"));
+    t.expectSingle("evlerden", matchesTailLex("Noun + A3pl + Pnon + Abl"));
+    t.expectSingle("evimden", matchesTailLex("Noun + A3sg + P1sg + Abl"));
+    t.expectAny("evimizden", matchesTailLex("Noun + A3sg + P1pl + Abl"));
+
+    t = getTester(
+        "zeytin",
+        "yağ",
+        "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
+
+    t.expectAny("zeytinyağından", matchesTailLex("Noun + A3sg + Pnon + Abl"));
+    t.expectSingle("zeytinyağımdan", matchesTailLex("Noun + A3sg + P1sg + Abl"));
+    t.expectSingle("zeytinyağlarımızdan", matchesTailLex("Noun + A3pl + P1pl + Abl"));
+    t.expectSingle("zeytinyağlarınızdan", matchesTailLex("Noun + A3pl + P2pl + Abl"));
 
   }
 
