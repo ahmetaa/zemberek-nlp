@@ -20,6 +20,7 @@ import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.Conditions.ContainsMorpheme;
 import zemberek.morphology.morphotactics.Conditions.CurrentGroupContains;
+import zemberek.morphology.morphotactics.Conditions.PreviousStateIsAny;
 import zemberek.morphology.morphotactics.Conditions.NoSurfaceAfterDerivation;
 import zemberek.morphology.morphotactics.Conditions.RootSurfaceIsAny;
 
@@ -108,6 +109,7 @@ public class TurkishMorphotactics {
   public static final Morpheme pass = new Morpheme("Passive", "Pass");
   public static final Morpheme opt = new Morpheme("Optative", "Opt");
   public static final Morpheme desr = new Morpheme("Desire", "Desr");
+  public static final Morpheme neces = new Morpheme("Necessity", "Neces");
 
   //-------------- States ----------------------------
   // _ST = Terminal state _S = Non Terminal State.
@@ -755,10 +757,16 @@ public class TurkishMorphotactics {
   MorphemeState vA3pl_ST = terminal("vA3pl_ST", a3pl);
 
   MorphemeState vPast_S = nonTerminal("vPast_S", past);
-  MorphemeState vPastAfterTense_S = nonTerminal("vPastAfterTense_S", past);
   MorphemeState vNarr_S = nonTerminal("vNarr_S", narr);
-  MorphemeState vNarrAfterTense_S = nonTerminal("vNarrAfterTense_S", narr);
   MorphemeState vCond_S = nonTerminal("vCond_S", cond);
+  MorphemeState vPastAfterTense_S = nonTerminal("vPastAfterTense_S", past);
+  MorphemeState vNarrAfterTense_S = nonTerminal("vNarrAfterTense_S", narr);
+
+  // terminal cases are used if A3pl comes before NarrAfterTense, PastAfterTense or vCond
+  MorphemeState vPastAfterTense_ST = terminal("vPastAfterTense_ST", past);
+  MorphemeState vNarrAfterTense_ST = terminal("vNarrAfterTense_ST", narr);
+  MorphemeState vCond_ST = terminal("vCond_ST", cond);
+
   MorphemeState vProgYor_S = nonTerminal("vProgYor_S", prog1);
   MorphemeState vProgMakta_S = nonTerminal("vProgMakta_S", prog2);
   MorphemeState vFut_S = nonTerminal("vFut_S", fut);
@@ -788,6 +796,7 @@ public class TurkishMorphotactics {
 
   MorphemeState vOpt_S = nonTerminalDerivative("vOpt_S", opt);
   MorphemeState vDesr_S = nonTerminalDerivative("vDesr_S", desr);
+  MorphemeState vNeces_S = nonTerminalDerivative("vNeces_S", neces);
 
   public MorphemeState vDeYeRoot_S = builder("vDeYeRoot_S", verb).posRoot().build();
 
@@ -880,6 +889,7 @@ public class TurkishMorphotactics {
     vNeg_S.add(vProgMakta_S, "mAktA");
     vNeg_S.add(vOpt_S, "yA");
     vNeg_S.add(vDesr_S, "sA");
+    vNeg_S.add(vNeces_S, "mAlI");
 
     // Negative form is "m" before progressive "Iyor" because last vowel drops.
     // We use a separate negative state for this.
@@ -934,7 +944,7 @@ public class TurkishMorphotactics {
         .andNot(new Conditions.ContainsMorpheme(pass)));
     vPass_S.addEmpty(verbRoot_S);
 
-    // Condition
+    // Condition "oku-r-sa"
     vCond_S
         .add(vA1sg_ST, "m")
         .add(vA2sg_ST, "n")
@@ -943,7 +953,7 @@ public class TurkishMorphotactics {
         .add(vA2pl_ST, "nIz")
         .add(vA3pl_ST, "lAr");
 
-    // Past
+    // Past "oku-du"
     verbRoot_S.add(vPast_S, ">dI");
     vPast_S
         .add(vA1sg_ST, "m")
@@ -954,7 +964,7 @@ public class TurkishMorphotactics {
         .add(vA3pl_ST, "lAr");
     vPast_S.add(vCond_S, "ysA");
 
-    // Narrative
+    // Narrative "oku-muş"
     verbRoot_S.add(vNarr_S, "mIş");
     vNarr_S
         .add(vA1sg_ST, "Im")
@@ -966,7 +976,7 @@ public class TurkishMorphotactics {
     vNarr_S.add(vCond_S, "sA");
     vNarr_S.add(vPastAfterTense_S, "tI");
 
-    // Past after tense
+    // Past after tense "oku-muş-tu"
     vPastAfterTense_S
         .add(vA1sg_ST, "m")
         .add(vA2sg_ST, "n")
@@ -975,16 +985,17 @@ public class TurkishMorphotactics {
         .add(vA2pl_ST, "nIz")
         .add(vA3pl_ST, "lAr");
 
-    // Narrative after tense
+    // Narrative after tense "oku-r-muş"
     vNarrAfterTense_S
         .add(vA1sg_ST, "Im")
         .add(vA2sg_ST, "sIn")
+        // for preventing yap+ar+lar(A3pl)+mış+A3sg
         .addEmpty(vA3sg_ST)
         .add(vA1pl_ST, "Iz")
         .add(vA2pl_ST, "sInIz")
         .add(vA3pl_ST, "lAr");
 
-    // Future
+    // Future "oku-yacak"
     verbRoot_S.add(vFut_S, "+yAcA~k");
     verbRoot_S.add(vFut_S, "+yAcA!ğ");
     vFut_S
@@ -1032,7 +1043,9 @@ public class TurkishMorphotactics {
         .addEmpty(vA3sg_ST)
         .add(vA1pl_ST, "lIm")
         .add(vA2pl_ST, "sInIz")
-        .add(vA3pl_ST, "lAr");
+        .add(vA3pl_ST, "lAr")
+        .add(vPastAfterTense_S, "ydI")
+        .add(vNarrAfterTense_S, "ymIş");
 
     // Desire (gel-se, gel-se-m gel-me-se-m)
     verbRoot_S.add(vDesr_S, "sA");
@@ -1041,9 +1054,29 @@ public class TurkishMorphotactics {
         .addEmpty(vA3sg_ST)
         .add(vA1pl_ST, "k")
         .add(vA2pl_ST, "nIz")
-        .add(vA3pl_ST, "lAr");
+        .add(vA3pl_ST, "lAr")
+        .add(vPastAfterTense_S, "ydI")
+        .add(vNarrAfterTense_S, "ymIş");
 
+    verbRoot_S.add(vNeces_S, "mAlI");
+    vNeces_S.add(vA1sg_ST, "yIm")
+        .add(vA2sg_ST, "sIn")
+        .addEmpty(vA3sg_ST)
+        .add(vA1pl_ST, "yIz")
+        .add(vA2pl_ST, "sInIz")
+        .add(vA3pl_ST, "lAr")
+        .add(vPastAfterTense_S, "ydI")
+        .add(vNarrAfterTense_S, "ymIş");
 
+    // A3pl exception case.
+    // A3pl can appear before or after some tense suffixes.
+    // "yapar-lar-dı" - "yapar-dı-lar"
+    // For preventing "yapar-dı-lar-dı", conditions are added.
+    Condition previousNotPastNarrCond = new PreviousStateIsAny(
+        vPastAfterTense_S, vNarrAfterTense_S, vCond_S).not();
+    vA3pl_ST.add(vPastAfterTense_ST, "dI", previousNotPastNarrCond);
+    vA3pl_ST.add(vNarrAfterTense_ST, "mIş", previousNotPastNarrCond);
+    vA3pl_ST.add(vCond_ST, "sA", previousNotPastNarrCond);
 
 
   }

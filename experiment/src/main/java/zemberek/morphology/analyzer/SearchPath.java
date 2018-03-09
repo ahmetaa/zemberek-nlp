@@ -5,7 +5,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PhoneticAttribute;
-import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.morphotactics.MorphemeState;
 import zemberek.morphology.morphotactics.StemTransition;
@@ -104,6 +103,13 @@ public class SearchPath {
 
   public MorphemeState getCurrentState() {
     return currentState;
+  }
+
+  public MorphemeState getPreviousState() {
+    if (morphemes.size() < 2) {
+      return null;
+    }
+    return morphemes.get(morphemes.size() - 2).morphemeState;
   }
 
   public EnumSet<PhoneticAttribute> getPhoneticAttributes() {

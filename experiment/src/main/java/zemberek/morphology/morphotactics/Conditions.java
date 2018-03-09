@@ -74,6 +74,14 @@ class Conditions {
     return new LastMorphemeIs(morpheme).not();
   }
 
+  public static Condition prviousMorphemeIs(Morpheme morpheme) {
+    return new PreviousMorphemeIs(morpheme);
+  }
+
+  public static Condition previousMorphemeIsNot(Morpheme morpheme) {
+    return new PreviousMorphemeIs(morpheme).not();
+  }
+
   public static Condition and(Condition left, Condition right) {
     return condition(AND, left, right);
   }
@@ -336,6 +344,26 @@ class Conditions {
     @Override
     public String toString() {
       return "LastMorphemeIs{ " + morpheme + " }";
+    }
+  }
+
+  public static class PreviousMorphemeIs extends AbstractCondition {
+
+    Morpheme morpheme;
+
+    public PreviousMorphemeIs(Morpheme morpheme) {
+      this.morpheme = morpheme;
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      MorphemeState previousState = visitor.getPreviousState();
+      return previousState != null && previousState.morpheme.equals(this.morpheme);
+    }
+
+    @Override
+    public String toString() {
+      return "PreviousMorphemeIs{ " + morpheme + " }";
     }
   }
 
@@ -691,5 +719,38 @@ class Conditions {
       return "ContainsMorpheme{" + morphemes + '}';
     }
   }
+
+  public static class PreviousMorphemeIsAny extends AbstractCondition {
+
+    Set<Morpheme> morphemes;
+
+    public PreviousMorphemeIsAny(Morpheme... morphemes) {
+      this.morphemes = new HashSet<>(morphemes.length);
+      this.morphemes.addAll(Arrays.asList(morphemes));
+    }
+
+    @Override
+    public boolean accept(SearchPath path) {
+      MorphemeState previousState = path.getPreviousState();
+      return previousState != null && morphemes.contains(previousState.morpheme);
+    }
+  }
+
+  public static class PreviousStateIsAny extends AbstractCondition {
+
+    Set<MorphemeState> states;
+
+    public PreviousStateIsAny(MorphemeState... states) {
+      this.states = new HashSet<>(states.length);
+      this.states.addAll(Arrays.asList(states));
+    }
+
+    @Override
+    public boolean accept(SearchPath path) {
+      MorphemeState previousState = path.getPreviousState();
+      return previousState != null && states.contains(previousState);
+    }
+  }
+
 
 }

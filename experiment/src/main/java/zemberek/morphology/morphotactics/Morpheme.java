@@ -38,4 +38,9 @@ public class Morpheme {
 
     return Objects.hash(id);
   }
+
+  @Override
+  public String toString() {
+    return name + ':' + id;
+  }
 }

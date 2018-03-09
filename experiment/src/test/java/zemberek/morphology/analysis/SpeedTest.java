@@ -12,7 +12,6 @@ import org.antlr.v4.runtime.Token;
 import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.logging.Log;
-import zemberek.core.turkish.TurkicLetter;
 import zemberek.morphology.analyzer.AnalysisResult;
 import zemberek.morphology.analyzer.InterpretingAnalyzer;
 import zemberek.morphology.lexicon.RootLexicon;
@@ -56,8 +55,8 @@ public class SpeedTest {
     double seconds = sw.stop().elapsed(TimeUnit.MILLISECONDS) / 1000d;
     double speed = tokenCount / seconds;
     double parseRatio = 100 - (noAnalysis * 100d / tokenCount);
-    Log.info("Elapsed = %.2f seconds", seconds);
-    Log.info("Token Count (No Punc) = %d %nParse Ratio = %.4f%nSpeed = %.2f tokens/sec",
+    Log.info("%nElapsed = %.2f seconds", seconds);
+    Log.info("%nToken Count (No Punc) = %d %nParse Ratio = %.4f%nSpeed = %.2f tokens/sec",
         tokenCount, parseRatio, speed);
   }
 
