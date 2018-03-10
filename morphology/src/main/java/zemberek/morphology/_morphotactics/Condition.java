@@ -1,0 +1,19 @@
+package zemberek.morphology._morphotactics;
+
+import zemberek.morphology._analyzer.SearchPath;
+
+public interface Condition {
+
+  boolean accept(SearchPath path);
+
+  Condition and(Condition other);
+
+  Condition andNot(Condition other);
+
+  Condition or(Condition other);
+
+  Condition orNot(Condition other);
+
+  Condition not();
+
+}
