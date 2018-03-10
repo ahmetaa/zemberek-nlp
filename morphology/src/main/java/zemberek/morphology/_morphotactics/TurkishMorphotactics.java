@@ -18,13 +18,13 @@ import java.util.Map;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
-import zemberek.morphology.lexicon.DictionaryItem;
-import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology._morphotactics.Conditions.ContainsMorpheme;
 import zemberek.morphology._morphotactics.Conditions.CurrentGroupContains;
 import zemberek.morphology._morphotactics.Conditions.NoSurfaceAfterDerivation;
 import zemberek.morphology._morphotactics.Conditions.PreviousStateIsAny;
 import zemberek.morphology._morphotactics.Conditions.RootSurfaceIsAny;
+import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.lexicon.RootLexicon;
 
 public class TurkishMorphotactics {
 
@@ -136,16 +136,19 @@ public class TurkishMorphotactics {
   MorphemeState a3sgCompound_S = nonTerminal("a3sgCompound_S", a3sg);
   MorphemeState a3pl_S = nonTerminal("a3pl_S", a3pl);
   MorphemeState a3plCompound_S = nonTerminal("a3plCompound_S", a3pl);
+  MorphemeState a3plCompound2_S = nonTerminal("a3plCompound2_S", a3pl);
 
   // Possessive
 
   MorphemeState pnon_S = nonTerminal("pnon_S", pnon);
   MorphemeState pnonCompound_S = nonTerminal("pnonCompound_S", pnon);
+  MorphemeState pnonCompound2_S = nonTerminal("pnonCompound2_S", pnon);
   MorphemeState p1sg_S = nonTerminal("p1sg_S", p1sg);
   MorphemeState p2sg_S = nonTerminal("p2sg_S", p2sg);
   MorphemeState p3sg_S = nonTerminal("p3sg_S", p3sg);
   MorphemeState p1pl_S = nonTerminal("p1pl_S", p1pl);
   MorphemeState p2pl_S = nonTerminal("p2pl_S", p2pl);
+  MorphemeState p3pl_S = nonTerminal("p3pl_S", p3pl);
 
   // Case
 
@@ -197,6 +200,7 @@ public class TurkishMorphotactics {
     // Allow only implicit plural `hayvanat`.
     noun_S.addEmpty(a3pl_S, has(RootAttribute.ImplicitPlural));
 
+    // --- Compound Handling ---------
     // for compound roots like "zeytinyağ-" generate two transitions
     // NounCompound--(ε)--> a3sgCompound --(ε)--> pNonCompound_S --> Nom_S
     nounCompoundRoot_S.addEmpty(
@@ -204,13 +208,21 @@ public class TurkishMorphotactics {
         has(RootAttribute.CompoundP3sgRoot));
 
     a3sgCompound_S.addEmpty(pnonCompound_S);
+    a3sgCompound_S.add(p3pl_S, "lArI");
+
     pnonCompound_S.addEmpty(nom_S);
 
     // for compound roots like "zeytinyağ-lar-ı" generate two transition
     // NounCompound--(lAr)--> a3plCompound ---> p3sg_S, P1sg etc.
     nounCompoundRoot_S.add(
         a3plCompound_S,
-        "lar",
+        "lAr",
+        has(RootAttribute.CompoundP3sgRoot));
+
+    // but for pnon connection, we use lArI
+    nounCompoundRoot_S.add(
+        a3plCompound2_S,
+        "lArI",
         has(RootAttribute.CompoundP3sgRoot));
 
     a3plCompound_S
@@ -218,39 +230,42 @@ public class TurkishMorphotactics {
         .add(p2sg_S, "In")
         .add(p1sg_S, "Im")
         .add(p1pl_S, "ImIz")
-        .add(p2pl_S, "InIz");
+        .add(p2pl_S, "InIz")
+        .add(p3pl_S, "I");
+
+    a3plCompound2_S.addEmpty(pnonCompound2_S);
+    pnonCompound2_S.addEmpty(nom_ST);
+
+
+    // ------
 
     Condition noFamily = notHave(RootAttribute.FamilyMember);
 
     // ev-ε-ε-? Reject "annemler" etc.
-    a3sg_S.addEmpty(pnon_S, noFamily);
-
-    // ev-ε-im oda-ε-m
-    a3sg_S.add(p1sg_S, "Im", noFamily);
-
-    // ev-ε-im oda-ε-m
-    a3sg_S.add(p2sg_S, "In", noFamily);
-
-    // ev-ε-i oda-ε-sı
-    a3sg_S.add(p3sg_S, "+sI", noFamily);
-    // "zeytinyağı" has two analyses. Pnon and P3sg.
-    a3sg_S.addEmpty(p3sg_S, has(RootAttribute.CompoundP3sg));
-
-    a3sg_S.add(p1pl_S, "ImIz", noFamily);
-    a3sg_S.add(p2pl_S, "InIz", noFamily);
+    a3sg_S
+        .addEmpty(pnon_S, noFamily)        // ev
+        .add(p1sg_S, "Im", noFamily)       // evim
+        .add(p2sg_S, "In", noFamily)       // evin
+        .add(p3sg_S, "+sI", noFamily)      // evi, odası
+        .addEmpty(p3sg_S,
+            has(RootAttribute.CompoundP3sg))  // "zeytinyağı" has two analyses. Pnon and P3sg.
+        .add(p1pl_S, "ImIz", noFamily)     // evimiz
+        .add(p2pl_S, "InIz", noFamily)     // eviniz
+        .add(p3pl_S, "lArI", noFamily);    // evleri
 
     // ev-ler-ε-?
     a3pl_S.addEmpty(pnon_S, noFamily);
 
     // ev-ler-im-?
-    a3pl_S.add(p1sg_S, "Im", noFamily);
-    a3pl_S.add(p2sg_S, "In", noFamily);
-    // for words like "annemler" and "annenler"
-    a3pl_S.addEmpty(p1sg_S, has(RootAttribute.ImplicitP1sg));
-    a3pl_S.addEmpty(p2sg_S, has(RootAttribute.ImplicitP2sg));
-    a3pl_S.add(p3sg_S, "I", noFamily);
-    a3pl_S.add(p1pl_S, "ImIz", noFamily);
-    a3pl_S.add(p2pl_S, "InIz", noFamily);
+    a3pl_S
+        .add(p1sg_S, "Im", noFamily)
+        .add(p2sg_S, "In", noFamily)
+        .addEmpty(p1sg_S, has(RootAttribute.ImplicitP1sg)) // for words like "annemler"
+        .addEmpty(p2sg_S, has(RootAttribute.ImplicitP2sg)) // for words like "annenler"
+        .add(p3sg_S, "I", noFamily)
+        .add(p1pl_S, "ImIz", noFamily)
+        .add(p2pl_S, "InIz", noFamily)
+        .add(p3pl_S, "I", noFamily);
 
     // --- handle su - akarsu roots. ----
     nounSuRoot_S.addEmpty(a3sgSu_S);
@@ -261,7 +276,8 @@ public class TurkishMorphotactics {
         .add(p2sg_S, "yun")
         .add(p3sg_S, "yu")
         .add(p1pl_S, "yumuz")
-        .add(p2pl_S, "yunuz");
+        .add(p2pl_S, "yunuz")
+        .add(p3pl_S, "lArI");
 
     // ev-?-ε-ε (ev, evler).
     pnon_S.addEmpty(nom_ST,
@@ -297,7 +313,7 @@ public class TurkishMorphotactics {
         .add(dat_ST, "A")    // evime
         .add(loc_ST, "dA")   // evimde
         .add(abl_ST, "dAn")  // evimden
-        .add(ins_ST, "lA")  // evimle
+        .add(ins_ST, "lA")   // evimle
         .add(acc_ST, "I");   // evimi
 
     p2sg_S
@@ -305,7 +321,7 @@ public class TurkishMorphotactics {
         .add(dat_ST, "A")    // evine
         .add(loc_ST, "dA")   // evinde
         .add(abl_ST, "dAn")  // evinden
-        .add(ins_ST, "lA")  // evinle
+        .add(ins_ST, "lA")   // evinle
         .add(acc_ST, "I");   // evini
 
     p3sg_S
@@ -313,7 +329,7 @@ public class TurkishMorphotactics {
         .add(dat_ST, "nA")   // evine
         .add(loc_ST, "dA")   // evinde
         .add(abl_ST, "ndAn") // evinden
-        .add(ins_ST, "lA")  // eviyle
+        .add(ins_ST, "lA")   // eviyle
         .add(acc_ST, "nI");  // evini
 
     p1pl_S
@@ -331,6 +347,14 @@ public class TurkishMorphotactics {
         .add(abl_ST, "dAn")  // evinizden
         .add(ins_ST, "lA")   // evinizle
         .add(acc_ST, "I");   // evinizi
+
+    p3pl_S
+        .addEmpty(nom_ST)     // evleri
+        .add(dat_ST, "nA")    // evlerine
+        .add(loc_ST, "ndA")   // evlerinde
+        .add(abl_ST, "ndAn")  // evlerinden
+        .add(ins_ST, "ylA")   // evleriyle
+        .add(acc_ST, "nI");   // evlerini
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains any non empty surface suffix.
     // There are two almost identical suffix transitions with templates ">cI~k" and ">cI!ğ"
@@ -364,7 +388,6 @@ public class TurkishMorphotactics {
 
     // elma-yla-yım elma-yla-ydı
     ins_ST.addEmpty(nounZeroDeriv_S, noun2VerbZeroDerivationCondition);
-
 
     nounZeroDeriv_S.addEmpty(nVerb_S);
 
@@ -1053,14 +1076,16 @@ public class TurkishMorphotactics {
     // TODO: this can be achieved with less repetition.
     RootSurfaceIsAny diYiCondition = new RootSurfaceIsAny("di", "yi");
     RootSurfaceIsAny deYeCondition = new RootSurfaceIsAny("de", "ye");
-    vDeYeRoot_S.add(vFut_S, "yece~k", diYiCondition)
+    vDeYeRoot_S
+        .add(vFut_S, "yece~k", diYiCondition)
         .add(vFut_S, "yece!ğ", diYiCondition)
         .add(vProgYor_S, "yor", diYiCondition)
         .add(vAble_S, "yebil", diYiCondition)
         .add(vAbleNeg_S, "ye", diYiCondition)
         .add(vOpt_S, "ye", diYiCondition);
 
-    vDeYeRoot_S.add(vCausTır_S, "dir", deYeCondition)
+    vDeYeRoot_S
+        .add(vCausTır_S, "dir", deYeCondition)
         .add(vPass_S, "n", deYeCondition)
         .add(vPass_S, "nil", deYeCondition)
         .add(vPast_S, "di", deYeCondition)
@@ -1074,7 +1099,8 @@ public class TurkishMorphotactics {
 
     // Optative (gel-e, gel-eyim gel-me-ye-yim)
     verbRoot_S.add(vOpt_S, "+yA");
-    vOpt_S.add(vA1sg_ST, "yIm")
+    vOpt_S
+        .add(vA1sg_ST, "yIm")
         .add(vA2sg_ST, "sIn")
         .addEmpty(vA3sg_ST)
         .add(vA1pl_ST, "lIm")
@@ -1085,7 +1111,8 @@ public class TurkishMorphotactics {
 
     // Desire (gel-se, gel-se-m gel-me-se-m)
     verbRoot_S.add(vDesr_S, "sA");
-    vDesr_S.add(vA1sg_ST, "m")
+    vDesr_S
+        .add(vA1sg_ST, "m")
         .add(vA2sg_ST, "n")
         .addEmpty(vA3sg_ST)
         .add(vA1pl_ST, "k")
@@ -1095,7 +1122,8 @@ public class TurkishMorphotactics {
         .add(vNarrAfterTense_S, "ymIş");
 
     verbRoot_S.add(vNeces_S, "mAlI");
-    vNeces_S.add(vA1sg_ST, "yIm")
+    vNeces_S
+        .add(vA1sg_ST, "yIm")
         .add(vA2sg_ST, "sIn")
         .addEmpty(vA3sg_ST)
         .add(vA1pl_ST, "yIz")

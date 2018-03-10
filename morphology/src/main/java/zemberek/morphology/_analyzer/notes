@@ -94,6 +94,21 @@ considered as "probability" but surely this will create ambiguity for regular "A
 
 Should we use different morphemes for Past and Narr after tenses (Hikaye, Rivayet)?
 
+A3pl causes 4 analysis in Oflazer system:
+"evleri"
+ev+Noun+A3pl+Pnon+Acc
+ev+Noun+A3pl+P3sg+Nom
+ev+Noun+A3sg+P3pl+Nom
+ev+Noun+A3pl+P3pl+Nom
+Should we keep all? We currently do.
+
+A3pl generates 4 analysis for compounds as well. But they are a little different
+"zeytinyağları"
+zeytinyağı+Noun+A3sg+P3pl+Nom
+zeytinyağı+Noun+A3pl+P3sg+Nom
+zeytinyağı+Noun+A3pl+P3pl+Nom
+zeytinyağı+Noun+A3pl+Pnon+Nom // This one seems to be the different one. Perhaps here because
+
 ----
 
 annemler, annenler etc can be resoved with implicitPlural, ImplicitP1sg and ImplicitP2sg attributes.
