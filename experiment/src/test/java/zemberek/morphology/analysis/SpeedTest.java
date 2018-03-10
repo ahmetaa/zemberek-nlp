@@ -11,11 +11,13 @@ import java.util.concurrent.TimeUnit;
 import org.antlr.v4.runtime.Token;
 import org.junit.Ignore;
 import org.junit.Test;
+import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.morphology.analyzer.AnalysisResult;
 import zemberek.morphology.analyzer.InterpretingAnalyzer;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
+import zemberek.morphology.structure.Turkish;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
@@ -35,6 +37,7 @@ public class SpeedTest {
     int tokenCount = 0;
     int noAnalysis = 0;
     int sentenceCount = 0;
+    Histogram<String> failedWords = new Histogram<>(100000);
     for (String sentence : sentences) {
       List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
       for (Token token : tokens) {
@@ -45,6 +48,7 @@ public class SpeedTest {
         List<AnalysisResult> results = analyzer.analyze(token.getText());
         if (results.size() == 0) {
           noAnalysis++;
+          failedWords.add(token.getText());
         }
       }
       sentenceCount++;
@@ -58,6 +62,9 @@ public class SpeedTest {
     Log.info("%nElapsed = %.2f seconds", seconds);
     Log.info("%nToken Count (No Punc) = %d %nParse Ratio = %.4f%nSpeed = %.2f tokens/sec",
         tokenCount, parseRatio, speed);
+    Log.info("Saving Unknown Tokens");
+    failedWords.saveSortedByCounts(Paths.get("unk.freq"), " ");
+    failedWords.saveSortedByKeys(Paths.get("unk"), " ", Turkish.STRING_COMPARATOR_ASC);
   }
 
   private List<String> getSentences(Path p) throws IOException {
