@@ -85,6 +85,7 @@ public class TurkishMorphotactics {
   public static final Morpheme with = new Morpheme("With", "With");
 
   public static final Morpheme justLike = new Morpheme("JustLike", "JustLike");
+  public static final Morpheme become = new Morpheme("Become", "Become");
 
   // Zero derivation
   public static final Morpheme zero = new Morpheme("Zero", "Zero");
@@ -167,6 +168,7 @@ public class TurkishMorphotactics {
   MorphemeState with_S = nonTerminalDerivative("with_S", with);
   MorphemeState justLike_S = nonTerminalDerivative("justLike_S", justLike);
   MorphemeState nounZeroDeriv_S = nonTerminalDerivative("nounZeroDeriv_S", zero);
+  MorphemeState become_S = nonTerminalDerivative("become_S", become);
 
   //-------------- Conditions ------------------------------
 
@@ -211,6 +213,7 @@ public class TurkishMorphotactics {
     a3sgCompound_S.add(p3pl_S, "lArI");
 
     pnonCompound_S.addEmpty(nom_S);
+    nom_S.add(become_S, "lAş");
 
     // for compound roots like "zeytinyağ-lar-ı" generate two transition
     // NounCompound--(lAr)--> a3plCompound ---> p3sg_S, P1sg etc.
@@ -235,7 +238,6 @@ public class TurkishMorphotactics {
 
     a3plCompound2_S.addEmpty(pnonCompound2_S);
     pnonCompound2_S.addEmpty(nom_ST);
-
 
     // ------
 
@@ -392,23 +394,28 @@ public class TurkishMorphotactics {
     nounZeroDeriv_S.addEmpty(nVerb_S);
 
     // meyve-li
+    Condition noSurfaceAfterDerivation = new NoSurfaceAfterDerivation();
     nom_ST.add(with_S, "lI",
-        new NoSurfaceAfterDerivation()
+        noSurfaceAfterDerivation
             .and(new ContainsMorpheme(with).not()));
 
     nom_ST.add(justLike_S, "+msI",
-        new NoSurfaceAfterDerivation()
+        noSurfaceAfterDerivation
             .and(new ContainsMorpheme(justLike, adj).not()));
 
     nom_ST.add(justLike_S, "ImsI",
         notHave(PhoneticAttribute.LastLetterVowel)
-            .and(new NoSurfaceAfterDerivation())
+            .and(noSurfaceAfterDerivation)
             .and(new ContainsMorpheme(justLike, adj).not()));
 
     // connect With to Adjective root.
     with_S.addEmpty(adj_ST);
 
     justLike_S.addEmpty(adj_ST);
+
+    nom_ST.add(become_S,"lAş",
+        noSurfaceAfterDerivation.andNot(new ContainsMorpheme(adj)));
+    become_S.addEmpty(verbRoot_S);
 
   }
 
@@ -437,6 +444,8 @@ public class TurkishMorphotactics {
         notHave(PhoneticAttribute.LastLetterVowel)
             .and(new NoSurfaceAfterDerivation())
             .and(new ContainsMorpheme(justLike).not()));
+
+    adj_ST.add(become_S,"lAş", new NoSurfaceAfterDerivation());
   }
 
   //-------------- Adjective-Noun connected Verb States ------------------------
