@@ -74,11 +74,13 @@ public class SuffixTransition extends MorphemeTransition {
     }
     String lower = template.toLowerCase(Turkish.LOCALE);
     Condition c = null;
-    if (template.startsWith(">") || !TurkishAlphabet.INSTANCE.isVowel(lower.charAt(0))) {
-      c = Conditions.has(PhoneticAttribute.ExpectsVowel).not();
+    boolean firstCharVowel = TurkishAlphabet.INSTANCE.isVowel(lower.charAt(0));
+    if (lower.startsWith(">") || !firstCharVowel) {
+      c = Conditions.notHave(PhoneticAttribute.ExpectsVowel);
     }
-    if (template.startsWith("+") || TurkishAlphabet.INSTANCE.isVowel(lower.charAt(0))) {
-      c = Conditions.has(PhoneticAttribute.ExpectsConsonant).not();
+    if ((lower.startsWith("+") && TurkishAlphabet.INSTANCE.isVowel(lower.charAt(2)))
+        || firstCharVowel) {
+      c = Conditions.notHave(PhoneticAttribute.ExpectsConsonant);
     }
     if (c != null) {
       if (condition == null) {

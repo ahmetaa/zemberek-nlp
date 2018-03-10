@@ -218,7 +218,7 @@ public class MorphemeSurfaceForm {
     }
   }
 
-  // TODO: consider making templates like "+Im" possible.
+  // TODO: consider making templates like "+Im" possible. Also change + syntax to ()
   public static class SuffixTemplateTokenizer implements Iterator<SuffixTemplateToken> {
 
     private final String generationWord;

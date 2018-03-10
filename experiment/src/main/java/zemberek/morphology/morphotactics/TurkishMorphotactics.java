@@ -75,6 +75,7 @@ public class TurkishMorphotactics {
   public static final Morpheme acc = new Morpheme("Accusative", "Acc");
   public static final Morpheme abl = new Morpheme("Ablative", "Abl");
   public static final Morpheme loc = new Morpheme("Locative", "Loc");
+  public static final Morpheme ins = new Morpheme("Instrumental", "Ins");
 
   // Derivation suffixes
 
@@ -154,6 +155,7 @@ public class TurkishMorphotactics {
   MorphemeState dat_ST = terminal("dat_ST", dat);
   MorphemeState abl_ST = terminal("abl_ST", abl);
   MorphemeState loc_ST = terminal("loc_ST", loc);
+  MorphemeState ins_ST = terminal("ins_ST", ins);
   MorphemeState acc_ST = terminal("acc_ST", acc);
 
   // Derivation
@@ -272,27 +274,18 @@ public class TurkishMorphotactics {
         has(RootAttribute.CompoundP3sgRoot)
             .or(has(PhoneticAttribute.ExpectsVowel)));
 
-    // ev-?-ε-e (eve, evlere). Not allow "zetinyağı-ya"
-    pnon_S.add(dat_ST, "+yA", notHave(RootAttribute.CompoundP3sg));
-    // ev-den
-    pnon_S.add(abl_ST, ">dAn", notHave(RootAttribute.CompoundP3sg));
-    pnon_S.add(loc_ST, ">dA", notHave(RootAttribute.CompoundP3sg));
+    // Not allow "zetinyağı-ya" etc.
+    pnon_S
+        .add(dat_ST, "+yA", notHave(RootAttribute.CompoundP3sg))   // ev-e
+        .add(abl_ST, ">dAn", notHave(RootAttribute.CompoundP3sg))  // ev-den
+        .add(loc_ST, ">dA", notHave(RootAttribute.CompoundP3sg))   // evde
+        .add(acc_ST, "+yI", notHave(RootAttribute.CompoundP3sg))   // evi
+        .add(ins_ST, "+ylA");   // evle
 
-    // zeytinyağı-ε-ε-na
-    pnon_S.add(dat_ST, "+nA", has(RootAttribute.CompoundP3sg));
-
-    // zeytinyağı-ndan
-    pnon_S.add(abl_ST, "+ndAn", has(RootAttribute.CompoundP3sg));
-
-    // zeytinyağı-nda
-    pnon_S.add(loc_ST, "+ndA", has(RootAttribute.CompoundP3sg));
-
-
-    // evi Not allow "zetinyağı-yı"
-    pnon_S.add(acc_ST, "+yI", notHave(RootAttribute.CompoundP3sg));
-
-    // zeytinyağı-ε-ε-nı
-    pnon_S.add(acc_ST, "+nI", has(RootAttribute.CompoundP3sg));
+    pnon_S.add(dat_ST, "+nA", has(RootAttribute.CompoundP3sg))   // zeytinyağı-na
+        .add(abl_ST, "+ndAn", has(RootAttribute.CompoundP3sg))   // zeytinyağı-ndan
+        .add(loc_ST, "+ndA", has(RootAttribute.CompoundP3sg))    // zeytinyağı-nda
+        .add(acc_ST, "+nI", has(RootAttribute.CompoundP3sg));    // zeytinyağı-nı
 
     // This transition is for words like "içeri" or "dışarı".
     // Those words implicitly contains Dative suffix.
@@ -304,6 +297,7 @@ public class TurkishMorphotactics {
         .add(dat_ST, "A")    // evime
         .add(loc_ST, "dA")   // evimde
         .add(abl_ST, "dAn")  // evimden
+        .add(ins_ST, "lA")  // evimle
         .add(acc_ST, "I");   // evimi
 
     p2sg_S
@@ -311,6 +305,7 @@ public class TurkishMorphotactics {
         .add(dat_ST, "A")    // evine
         .add(loc_ST, "dA")   // evinde
         .add(abl_ST, "dAn")  // evinden
+        .add(ins_ST, "lA")  // evinle
         .add(acc_ST, "I");   // evini
 
     p3sg_S
@@ -318,6 +313,7 @@ public class TurkishMorphotactics {
         .add(dat_ST, "nA")   // evine
         .add(loc_ST, "dA")   // evinde
         .add(abl_ST, "ndAn") // evinden
+        .add(ins_ST, "lA")  // eviyle
         .add(acc_ST, "nI");  // evini
 
     p1pl_S
@@ -325,6 +321,7 @@ public class TurkishMorphotactics {
         .add(dat_ST, "A")    // evimize
         .add(loc_ST, "dA")   // evimizde
         .add(abl_ST, "dAn")  // evimizden
+        .add(ins_ST, "lA")   // evimizden
         .add(acc_ST, "I");   // evimizi
 
     p2pl_S
@@ -332,6 +329,7 @@ public class TurkishMorphotactics {
         .add(dat_ST, "A")    // evinize
         .add(loc_ST, "dA")   // evinizde
         .add(abl_ST, "dAn")  // evinizden
+        .add(ins_ST, "lA")   // evinizle
         .add(acc_ST, "I");   // evinizi
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains any non empty surface suffix.
@@ -363,6 +361,9 @@ public class TurkishMorphotactics {
 
     // elma-da-yım elma-da-ydı
     loc_ST.addEmpty(nounZeroDeriv_S, noun2VerbZeroDerivationCondition);
+
+    // elma-yla-yım elma-yla-ydı
+    ins_ST.addEmpty(nounZeroDeriv_S, noun2VerbZeroDerivationCondition);
 
 
     nounZeroDeriv_S.addEmpty(nVerb_S);

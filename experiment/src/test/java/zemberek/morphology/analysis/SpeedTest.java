@@ -60,7 +60,7 @@ public class SpeedTest {
     double speed = tokenCount / seconds;
     double parseRatio = 100 - (noAnalysis * 100d / tokenCount);
     Log.info("%nElapsed = %.2f seconds", seconds);
-    Log.info("%nToken Count (No Punc) = %d %nParse Ratio = %.4f%nSpeed = %.2f tokens/sec",
+    Log.info("%nToken Count (No Punc) = %d %nParse Ratio = %.4f%nSpeed = %.2f tokens/sec%n",
         tokenCount, parseRatio, speed);
     Log.info("Saving Unknown Tokens");
     failedWords.saveSortedByCounts(Paths.get("unk.freq"), " ");

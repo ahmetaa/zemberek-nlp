@@ -117,7 +117,7 @@ public class NounsTest extends AnalyzerTestBase {
     t = getTester("kitap");
 
     t.expectAny("kitaptan", matchesTailLex("Noun + A3sg + Pnon + Abl"));
-    t.expectAny("kitabımdan", matchesTailLex("Noun + A3pl + P1sg + Abl"));
+    t.expectAny("kitabımdan", matchesTailLex("Noun + A3sg + P1sg + Abl"));
 
     t = getTester(
         "zeytin",
@@ -144,6 +144,11 @@ public class NounsTest extends AnalyzerTestBase {
     t.expectAny("kitapta", matchesTailLex("Noun + A3sg + Pnon + Loc"));
     t.expectAny("kitabımda", matchesTailLex("Noun + A3sg + P1sg + Loc"));
 
+    t = getTester("elma");
+
+    t.expectAny("elmada", matchesTailLex("Noun + A3sg + Pnon + Loc"));
+    t.expectAny("elmanda", matchesTailLex("Noun + A3sg + P2sg + Loc"));
+
     t = getTester(
         "zeytin",
         "yağ",
@@ -153,8 +158,37 @@ public class NounsTest extends AnalyzerTestBase {
     t.expectSingle("zeytinyağımda", matchesTailLex("Noun + A3sg + P1sg + Loc"));
     t.expectSingle("zeytinyağlarımızda", matchesTailLex("Noun + A3pl + P1pl + Loc"));
     t.expectSingle("zeytinyağlarınızda", matchesTailLex("Noun + A3pl + P2pl + Loc"));
-
   }
+
+  @Test
+  public void Instrumental() {
+    AnalysisTester t = getTester("ev");
+
+    t.expectAny("evle", matchesTailLex("Noun + A3sg + Pnon + Ins"));
+    t.expectSingle("evlerle", matchesTailLex("Noun + A3pl + Pnon + Ins"));
+    t.expectSingle("evimle", matchesTailLex("Noun + A3sg + P1sg + Ins"));
+    t.expectAny("evimizle", matchesTailLex("Noun + A3sg + P1pl + Ins"));
+
+    t = getTester("kitap");
+
+    t.expectAny("kitapla", matchesTailLex("Noun + A3sg + Pnon + Ins"));
+    t.expectAny("kitabımla", matchesTailLex("Noun + A3sg + P1sg + Ins"));
+
+    t = getTester("elma");
+
+    t.expectAny("elmayla", matchesTailLex("Noun + A3sg + Pnon + Ins"));
+    t.expectAny("elmanla", matchesTailLex("Noun + A3sg + P2sg + Ins"));
+
+    t = getTester(
+        "zeytin",
+        "yağ",
+        "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
+
+    t.expectAny("zeytinyağıyla", matchesTailLex("Noun + A3sg + Pnon + Ins"));
+    t.expectSingle("zeytinyağımla", matchesTailLex("Noun + A3sg + P1sg + Ins"));
+    t.expectSingle("zeytinyağlarımızla", matchesTailLex("Noun + A3pl + P1pl + Ins"));
+    t.expectSingle("zeytinyağlarınızla", matchesTailLex("Noun + A3pl + P2pl + Ins"));
+  }  
   
 
 }
