@@ -3,7 +3,10 @@ package zemberek.morphology._morphotactics;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticAttribute;
@@ -19,6 +22,12 @@ public class SuffixTransition extends MorphemeTransition {
   private final String surfaceTemplate;
 
   private List<SuffixTemplateToken> tokenList;
+
+  private Map<EnumSet<PhoneticAttribute>, String> surfaceCache = new HashMap<>();
+
+  public Map<EnumSet<PhoneticAttribute>, String> getSurfaceCache() {
+    return surfaceCache;
+  }
 
   private SuffixTransition(Builder builder) {
     Preconditions.checkNotNull(builder.from);

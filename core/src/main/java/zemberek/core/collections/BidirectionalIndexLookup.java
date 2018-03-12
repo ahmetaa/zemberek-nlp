@@ -8,8 +8,8 @@ import zemberek.core.text.TextUtil;
 
 public class BidirectionalIndexLookup<T> {
 
-  UIntValueMap<T> indexLookup = new UIntValueMap<>();
-  UIntMap<T> keyLookup = new UIntMap<>();
+  UIntValueMap<T> indexLookup;
+  UIntMap<T> keyLookup;
 
   public BidirectionalIndexLookup(UIntValueMap<T> indexLookup, UIntMap<T> keyLookup) {
     this.indexLookup = indexLookup;

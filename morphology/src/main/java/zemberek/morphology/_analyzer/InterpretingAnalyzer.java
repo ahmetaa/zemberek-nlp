@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import zemberek.core.turkish.PhoneticAttribute;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.morphology._analyzer.MorphemeSurfaceForm.SuffixTemplateToken;
 import zemberek.morphology._analyzer.MorphemeSurfaceForm.TemplateTokenType;
@@ -180,12 +181,9 @@ public class InterpretingAnalyzer {
         continue;
       }
 
-      // TODO: early return is possible inside generate.
-      TurkishLetterSequence sequence = MorphemeSurfaceForm.generate(
+      String surface = MorphemeSurfaceForm.generate(
           suffixTransition,
           path.phoneticAttributes);
-
-      String surface = sequence.toString();
 
       // no need to go further if generated surface form is not a prefix of the paths's tail.
       if (!path.tail.startsWith(surface)) {
@@ -202,7 +200,8 @@ public class InterpretingAnalyzer {
       //if tail is equal to surface, no need to calculate phonetic attributes.
       EnumSet<PhoneticAttribute> attributes = path.tail.equals(surface) ?
           path.phoneticAttributes.clone() :
-          MorphemeSurfaceForm.defineMorphemicAttributes(sequence, path.phoneticAttributes);
+          MorphemeSurfaceForm.defineMorphemicAttributes(new TurkishLetterSequence(surface,
+              TurkishAlphabet.INSTANCE), path.phoneticAttributes);
 
       // This is required for suffixes like `cik` and `ciğ`
       // we add an extra attribute if "cik" or "ciğ" is generated and matches the tail.

@@ -59,12 +59,17 @@ public class MorphemeSurfaceForm {
   }
 
   private String surfaceString() {
-    return surface.isEmpty() ? "" : surface+":";
+    return surface.isEmpty() ? "" : surface + ":";
   }
 
-  public static TurkishLetterSequence generate(
+  public static String generate(
       SuffixTransition transition,
       EnumSet<PhoneticAttribute> phoneticAttributes) {
+
+    String cached = transition.getSurfaceCache().get(phoneticAttributes);
+    if (cached != null) {
+      return cached;
+    }
 
     TurkishLetterSequence seq = new TurkishLetterSequence();
     int index = 0;
@@ -129,10 +134,10 @@ public class MorphemeSurfaceForm {
       }
       index++;
     }
-    return seq;
-
+    String s = seq.toString();
+    transition.getSurfaceCache().put(phoneticAttributes, s);
+    return s;
   }
-
 
   // in suffix, defining morphemic attributes is straight forward.
   // TODO: move this to somewhere more general.
