@@ -3,7 +3,7 @@ package zemberek.morphology._analyzer;
 import java.util.List;
 
 
-// This class represents the morphological analysis of a single word.
+// This class contains all morphological analyses of a word.
 // TODO: Not Yet In Use
 public class _WordAnalysis {
 
