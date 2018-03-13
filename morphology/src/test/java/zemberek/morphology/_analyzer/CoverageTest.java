@@ -56,7 +56,7 @@ public class CoverageTest {
     int batchSize = 20_000;
 
     while (!lines.isEmpty()) {
-      List<String> batch = new ArrayList<>();
+      List<String> batch = new ArrayList<>(batchSize);
       int j = 0;
       while (j < batchSize && !lines.isEmpty()) {
         batch.add(lines.poll());
@@ -65,7 +65,7 @@ public class CoverageTest {
 
       if (batch.size() > 0) {
         service.submit(() -> {
-          List<String> failed = new ArrayList<>();
+          List<String> failed = new ArrayList<>(batchSize/2);
           for (String s : batch) {
             List<AnalysisResult> results = analyzer.analyze(s);
             if (results.size() == 0) {
@@ -97,7 +97,6 @@ public class CoverageTest {
   }
 
   class Result {
-
     List<String> failedWords = new ArrayList<>();
     int wordCount;
 
@@ -107,12 +106,12 @@ public class CoverageTest {
     }
   }
 
-  private void logResult(List<String> failedWords, int i, Stopwatch sw) {
-    double coverage = 100 - (failedWords.size() * 100d / i);
+  private void logResult(List<String> failedWords, int wordCount, Stopwatch sw) {
+    double coverage = 100 - (failedWords.size() * 100d / wordCount);
     double seconds = sw.elapsed(TimeUnit.MILLISECONDS) / 1000d;
-    double speed = i / seconds;
+    double speed = wordCount / seconds;
     Log.info("Elapsed %.2f sec. %d analysed. Coverage = %.3f . Speed = %.3f tokens/sec",
-        seconds, i, coverage, speed);
+        seconds, wordCount, coverage, speed);
   }
 
 
