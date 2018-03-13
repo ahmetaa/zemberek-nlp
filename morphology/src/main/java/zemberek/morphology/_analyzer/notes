@@ -109,6 +109,7 @@ zeytinyağı+Noun+A3pl+P3sg+Nom
 zeytinyağı+Noun+A3pl+P3pl+Nom
 zeytinyağı+Noun+A3pl+Pnon+Nom // This one seems to be the different one. Perhaps here because
 
+Inf1 -> Noun -> Verb may contain false positives.
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

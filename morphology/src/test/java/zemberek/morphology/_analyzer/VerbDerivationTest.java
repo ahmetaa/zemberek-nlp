@@ -2,7 +2,7 @@ package zemberek.morphology._analyzer;
 
 import org.junit.Test;
 
-public class VerbVerbDerivationTest extends AnalyzerTestBase {
+public class VerbDerivationTest extends AnalyzerTestBase {
 
   @Test
   public void causativeTest() {
@@ -35,7 +35,28 @@ public class VerbVerbDerivationTest extends AnalyzerTestBase {
         "semirtt",
         "semirtirtir"
     );
-
   }
+
+
+
+  @Test
+  public void infinitive1() {
+    AnalysisTester tester = getTester("okumak");
+
+    tester.expectSingle("okumak",
+        matchesTailLex("Verb + Inf1 + Noun + A3sg + Pnon + Nom"));
+    tester.expectSingle("okumamak",
+        matchesTailLex("Verb + Neg + Inf1 + Noun + A3sg + Pnon + Nom"));
+    tester.expectSingle("okutmak",
+        matchesTailLex("Verb + Caus + Verb + Inf1 + Noun + A3sg + Pnon + Nom"));
+
+    tester.expectFail(
+        "okumaka",
+        "okumaklar",
+        "okumağ",
+        "okumağı"
+    );
+  }
+
 
 }

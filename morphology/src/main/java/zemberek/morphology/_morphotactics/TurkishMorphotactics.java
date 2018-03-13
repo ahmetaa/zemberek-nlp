@@ -148,12 +148,14 @@ public class TurkishMorphotactics {
   MorphemeState noun_S = builder("noun_S", noun).posRoot().build();
   MorphemeState nounCompoundRoot_S = builder("nounCompoundRoot_S", noun).posRoot().build();
   MorphemeState nounSuRoot_S = builder("nounSuRoot_S", noun).posRoot().build();
+  MorphemeState nounInf1Root_S = builder("nounInf1Root_S", noun).posRoot().build();
 
   // Number-Person agreement
 
   MorphemeState a3sg_S = nonTerminal("a3sg_S", a3sg);
   MorphemeState a3sgSu_S = nonTerminal("a3sgSu_S", a3sg);
   MorphemeState a3sgCompound_S = nonTerminal("a3sgCompound_S", a3sg);
+  MorphemeState a3sgInf1_S = nonTerminal("a3sgInf1_S", a3sg);
   MorphemeState a3pl_S = nonTerminal("a3pl_S", a3pl);
   MorphemeState a3plCompound_S = nonTerminal("a3plCompound_S", a3pl);
   MorphemeState a3plCompound2_S = nonTerminal("a3plCompound2_S", a3pl);
@@ -163,6 +165,7 @@ public class TurkishMorphotactics {
   MorphemeState pnon_S = nonTerminal("pnon_S", pnon);
   MorphemeState pnonCompound_S = nonTerminal("pnonCompound_S", pnon);
   MorphemeState pnonCompound2_S = nonTerminal("pnonCompound2_S", pnon);
+  MorphemeState pnonInf1_S = nonTerminal("pnonInf1_S", pnon);
   MorphemeState p1sg_S = nonTerminal("p1sg_S", p1sg);
   MorphemeState p2sg_S = nonTerminal("p2sg_S", p2sg);
   MorphemeState p3sg_S = nonTerminal("p3sg_S", p3sg);
@@ -455,6 +458,15 @@ public class TurkishMorphotactics {
         noSurfaceAfterDerivation.andNot(new ContainsMorpheme(adj)));
     acquire_S.addEmpty(verbRoot_S);
 
+    // Inf1 mak makes noun derivation. However, it cannot get any possessive or plural suffix.
+    // Also cannot be followed by Dat, Gen, Acc suffixes.
+    // So we create a path only for it.
+    nounInf1Root_S.addEmpty(a3sgInf1_S);
+    a3sgInf1_S.addEmpty(pnonInf1_S);
+    pnonInf1_S.addEmpty(pNom_ST);
+    pnonInf1_S.add(abl_ST, "tAn");
+    pnonInf1_S.add(loc_ST, "tA");
+
 
   }
 
@@ -528,20 +540,19 @@ public class TurkishMorphotactics {
     // for preventing elmamım, elmamdım
     // pP1sg_S, pDat_ST, pA1sg_S, pA1pl_S, pA3pl_S, pP2sg_S, pP1pl_S, pP3sg_S, pP1sg_S
     Condition allowA1sgTrans =
-        notHave(RootAttribute.FamilyMember)
+        noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
             .andNot(new Conditions.PreviousGroupContains(p1sg_S));
     Condition allowA2sgTrans =
-        notHave(RootAttribute.FamilyMember)
+        noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
             .andNot(new Conditions.PreviousGroupContains(p2sg_S));
-    // TODO: add p3pl once implemented
     Condition allowA3plTrans =
-        notHave(RootAttribute.FamilyMember)
+        noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
-            .andNot(new Conditions.PreviousGroupContains(a3pl_S, a3plCompound_S));
+            .andNot(new Conditions.PreviousGroupContains(a3pl_S, p3pl_S, a3plCompound_S));
     Condition allowA1plTrans =
-        notHave(RootAttribute.FamilyMember)
+        noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
             .andNot(new Conditions.PreviousGroupContains(p1pl_S, p1sg_S));
     // elma-yım
@@ -558,6 +569,7 @@ public class TurkishMorphotactics {
     // elma-lar, elma-da-lar as Verb.
     nPresent_S.add(nA3pl_ST, "lAr",
         notHave(RootAttribute.CompoundP3sg)
+            .andNot(new Conditions.ContainsMorpheme(inf1))
             .and(allowA3plTrans));
 
     // elma-ydı-m. Do not allow "elmaya-yım" (Oflazer accepts this)
@@ -902,9 +914,11 @@ public class TurkishMorphotactics {
 
   MorphemeState vPass_S = nonTerminalDerivative("vPass_S", pass);
 
-  MorphemeState vOpt_S = nonTerminalDerivative("vOpt_S", opt);
-  MorphemeState vDesr_S = nonTerminalDerivative("vDesr_S", desr);
-  MorphemeState vNeces_S = nonTerminalDerivative("vNeces_S", neces);
+  MorphemeState vOpt_S = nonTerminal("vOpt_S", opt);
+  MorphemeState vDesr_S = nonTerminal("vDesr_S", desr);
+  MorphemeState vNeces_S = nonTerminal("vNeces_S", neces);
+
+  MorphemeState vInf1_S = nonTerminalDerivative("vInf1_S", inf1);
 
   public MorphemeState vDeYeRoot_S = builder("vDeYeRoot_S", verb).posRoot().build();
 
@@ -998,6 +1012,7 @@ public class TurkishMorphotactics {
     vNeg_S.add(vOpt_S, "yA");
     vNeg_S.add(vDesr_S, "sA");
     vNeg_S.add(vNeces_S, "mAlI");
+    vNeg_S.add(vInf1_S, "mAk");
 
     // Negative form is "m" before progressive "Iyor" because last vowel drops.
     // We use a separate negative state for this.
@@ -1022,8 +1037,6 @@ public class TurkishMorphotactics {
     // This makes a Verb-Verb derivation.
     verbRoot_S.add(vAble_S, "+yAbil", new Conditions.LastDerivationIs(vAble_S).not());
 
-    // for ability derivation we use another root. This prevents adding a lot of conditions
-    // to other derivative suffix transitions. Such as for preventing Able+Verb+Caus
     vAble_S.addEmpty(verbRoot_S);
 
     // Negative ability.
@@ -1036,6 +1049,11 @@ public class TurkishMorphotactics {
 
     // it is possible to have abil derivation after negative.
     vNeg_S.add(vAble_S, "yAbil");
+
+    // Infinitive 1 "mAk"
+    // Causes Verb to Noun derivation. It is connected to a special noun root state.
+    verbRoot_S.add(vInf1_S,"mA~k");
+    vInf1_S.addEmpty(nounInf1Root_S);
 
     // Passive
     // Causes Verb-Verb derivation. Passive morpheme has three forms.
