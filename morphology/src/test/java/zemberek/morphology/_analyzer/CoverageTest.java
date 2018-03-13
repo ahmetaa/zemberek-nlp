@@ -39,11 +39,12 @@ public class CoverageTest {
 
     ArrayDeque<String> lines = reader.lines()
         .collect(Collectors.toCollection(ArrayDeque::new));
-
+    Log.info("File read, analyzing.");
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
     InterpretingAnalyzer analyzer = new InterpretingAnalyzer(lexicon);
+
     int threadCount = Runtime.getRuntime().availableProcessors();
-    Log.info("File read, Analyzer ready. Running with %s threads.", threadCount);
+    Log.info("Thread count = %d", threadCount);
     ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
     CompletionService<Result> service = new ExecutorCompletionService<>(executorService);
 
@@ -52,7 +53,7 @@ public class CoverageTest {
     Stopwatch sw = Stopwatch.createStarted();
 
     int batchCount = 0;
-    int batchSize = 25_000;
+    int batchSize = 20_000;
 
     while (!lines.isEmpty()) {
       List<String> batch = new ArrayList<>();
@@ -81,7 +82,7 @@ public class CoverageTest {
     int total = 0;
     while (i < batchCount) {
       Result r = service.take().get();
-      failedWords.addAll(r.failed);
+      failedWords.addAll(r.failedWords);
       total += r.wordCount;
       if (total % (batchSize * 10) == 0) {
         logResult(failedWords, total, sw);
@@ -96,11 +97,12 @@ public class CoverageTest {
   }
 
   class Result {
-    List<String> failed;
+
+    List<String> failedWords = new ArrayList<>();
     int wordCount;
 
-    Result(List<String> failed, int wordCount) {
-      this.failed = failed;
+    Result(List<String> failedWords, int wordCount) {
+      this.failedWords = failedWords;
       this.wordCount = wordCount;
     }
   }
