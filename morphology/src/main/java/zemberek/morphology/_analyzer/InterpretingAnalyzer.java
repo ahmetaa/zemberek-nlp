@@ -168,19 +168,6 @@ public class InterpretingAnalyzer {
         }
       }
 
-      // check conditions.
-      if (!suffixTransition.canPass(path)) {
-        continue;
-      }
-
-      // epsilon transition. Add and continue. Use existing attributes.
-      if (!suffixTransition.hasSurfaceForm()) {
-        newPaths.add(path.getCopy(
-            new MorphemeSurfaceForm("", suffixTransition),
-            path.phoneticAttributes));
-        continue;
-      }
-
       String surface = MorphemeSurfaceForm.generate(
           suffixTransition,
           path.phoneticAttributes);
@@ -192,6 +179,19 @@ public class InterpretingAnalyzer {
               path,
               new RejectedTransition(suffixTransition, "Surface Mismatch:" + surface));
         }
+        continue;
+      }
+
+      // check conditions.
+      if (!suffixTransition.canPass(path)) {
+        continue;
+      }
+
+      // epsilon transition. Add and continue. Use existing attributes.
+      if (!suffixTransition.hasSurfaceForm()) {
+        newPaths.add(path.getCopy(
+            new MorphemeSurfaceForm("", suffixTransition),
+            path.phoneticAttributes));
         continue;
       }
 
