@@ -608,11 +608,11 @@ class Conditions {
 
   // Checks if any of the "MorphemeState" in "states" exist in current Inflectional Group.
   // If previous group starts after a derivation, derivation MorphemeState is also checked.
-  public static class CurrentGroupContains extends AbstractCondition {
+  public static class CurrentGroupContainsAny extends AbstractCondition {
 
     Set<MorphemeState> states;
 
-    public CurrentGroupContains(MorphemeState... states) {
+    public CurrentGroupContainsAny(MorphemeState... states) {
       this.states = new HashSet<>(states.length);
       this.states.addAll(Arrays.asList(states));
     }
@@ -634,7 +634,7 @@ class Conditions {
 
     @Override
     public String toString() {
-      return "CurrentGroupContains{" + states + '}';
+      return "CurrentGroupContainsAny{" + states + '}';
     }
   }
 

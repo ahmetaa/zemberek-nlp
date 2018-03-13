@@ -49,6 +49,9 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Neg + Inf1 + Noun + A3sg + Pnon + Nom"));
     tester.expectSingle("okutmak",
         matchesTailLex("Verb + Caus + Verb + Inf1 + Noun + A3sg + Pnon + Nom"));
+    tester.expectSingle("okutmaktan",
+        matchesTailLex("Verb + Caus + Verb + Inf1 + Noun + A3sg + Pnon + Abl"));
+    
 
     tester.expectFail(
         "okumaka",
@@ -58,5 +61,39 @@ public class VerbDerivationTest extends AnalyzerTestBase {
     );
   }
 
+  @Test
+  public void infinitive2() {
+    AnalysisTester tester = getTester("okumak");
+
+    tester.expectAny("okuma",
+        matchesTailLex("Verb + Inf2 + Noun + A3sg + Pnon + Nom"));
+    tester.expectAny("okumama",
+        matchesTailLex("Verb + Neg + Inf2 + Noun + A3sg + Pnon + Nom"));
+    tester.expectAny("okumama",
+        matchesTailLex("Verb + Inf2 + Noun + A3sg + P1sg + Dat"));
+    tester.expectAny("okutma",
+        matchesTailLex("Verb + Caus + Verb + Inf2 + Noun + A3sg + Pnon + Nom"));
+    tester.expectAny("okutma",
+        matchesTailLex("Verb + Caus + Verb + Neg + Imp + A2sg"));
+    tester.expectAny("okutmama",
+        matchesTailLex("Verb + Caus + Verb + Inf2 + Noun + A3sg + P1sg + Dat"));
+    tester.expectAny("okutmamadan",
+        matchesTailLex("Verb + Caus + Verb + Neg + Inf2 + Noun + A3sg + Pnon + Abl"));
+  }
+
+
+  @Test
+  public void infinitive3() {
+    AnalysisTester tester = getTester("okumak");
+
+    tester.expectSingle("okuyuş",
+        matchesTailLex("Verb + Inf3 + Noun + A3sg + Pnon + Nom"));
+    tester.expectSingle("okumayış",
+        matchesTailLex("Verb + Neg + Inf3 + Noun + A3sg + Pnon + Nom"));
+    tester.expectSingle("okutmayış",
+        matchesTailLex("Verb + Caus + Verb + Neg + Inf3 + Noun + A3sg + Pnon + Nom"));
+    tester.expectSingle("okutmayıştan",
+        matchesTailLex("Verb + Caus + Verb + Neg + Inf3 + Noun + A3sg + Pnon + Abl"));
+  }
 
 }

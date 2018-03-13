@@ -20,7 +20,7 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology._morphotactics.Conditions.ContainsMorpheme;
-import zemberek.morphology._morphotactics.Conditions.CurrentGroupContains;
+import zemberek.morphology._morphotactics.Conditions.CurrentGroupContainsAny;
 import zemberek.morphology._morphotactics.Conditions.NoSurfaceAfterDerivation;
 import zemberek.morphology._morphotactics.Conditions.PreviousStateIsAny;
 import zemberek.morphology._morphotactics.Conditions.RootSurfaceIsAny;
@@ -459,7 +459,7 @@ public class TurkishMorphotactics {
     acquire_S.addEmpty(verbRoot_S);
 
     // Inf1 mak makes noun derivation. However, it cannot get any possessive or plural suffix.
-    // Also cannot be followed by Dat, Gen, Acc suffixes.
+    // Also cannot be followed by Dat, Gen, Acc case suffixes.
     // So we create a path only for it.
     nounInf1Root_S.addEmpty(a3sgInf1_S);
     a3sgInf1_S.addEmpty(pnonInf1_S);
@@ -567,9 +567,11 @@ public class TurkishMorphotactics {
     nPresent_S.addEmpty(nA3sg_ST, rootIs(degilRoot));
 
     // elma-lar, elma-da-lar as Verb.
+    // TODO: consider disallowing this.
     nPresent_S.add(nA3pl_ST, "lAr",
         notHave(RootAttribute.CompoundP3sg)
-            .andNot(new Conditions.ContainsMorpheme(inf1))
+            // do not allow "okumak-lar"
+            .andNot(new Conditions.HasTailSequence(inf1, noun, a3sg, pnon, nom, zero, verb, pres ))
             .and(allowA3plTrans));
 
     // elma-ydı-m. Do not allow "elmaya-yım" (Oflazer accepts this)
@@ -606,7 +608,7 @@ public class TurkishMorphotactics {
     nCond_S.add(nA3pl_ST, "lAr");
 
     // for not allowing "elma-ydı-m-dır"
-    Condition rejectNoCopula = new CurrentGroupContains(nPast_S, nCond_S).not();
+    Condition rejectNoCopula = new CurrentGroupContainsAny(nPast_S, nCond_S).not();
 
     //elma-yım-dır
     nA1sg_ST.add(nCop_ST, "dIr", rejectNoCopula);
@@ -919,6 +921,8 @@ public class TurkishMorphotactics {
   MorphemeState vNeces_S = nonTerminal("vNeces_S", neces);
 
   MorphemeState vInf1_S = nonTerminalDerivative("vInf1_S", inf1);
+  MorphemeState vInf2_S = nonTerminalDerivative("vInf2_S", inf2);
+  MorphemeState vInf3_S = nonTerminalDerivative("vInf3_S", inf3);
 
   public MorphemeState vDeYeRoot_S = builder("vDeYeRoot_S", verb).posRoot().build();
 
@@ -1013,6 +1017,8 @@ public class TurkishMorphotactics {
     vNeg_S.add(vDesr_S, "sA");
     vNeg_S.add(vNeces_S, "mAlI");
     vNeg_S.add(vInf1_S, "mAk");
+    vNeg_S.add(vInf2_S, "mA");
+    vNeg_S.add(vInf3_S, "yIş");
 
     // Negative form is "m" before progressive "Iyor" because last vowel drops.
     // We use a separate negative state for this.
@@ -1052,8 +1058,18 @@ public class TurkishMorphotactics {
 
     // Infinitive 1 "mAk"
     // Causes Verb to Noun derivation. It is connected to a special noun root state.
-    verbRoot_S.add(vInf1_S,"mA~k");
+    verbRoot_S.add(vInf1_S, "mA~k");
     vInf1_S.addEmpty(nounInf1Root_S);
+
+    // Infinitive 2 "mA"
+    // Causes Verb to Noun derivation.
+    verbRoot_S.add(vInf2_S, "mA");
+    vInf2_S.addEmpty(noun_S);
+
+    // Infinitive 3 "+yUş"
+    // Causes Verb to Noun derivation.
+    verbRoot_S.add(vInf3_S, "+yIş");
+    vInf3_S.addEmpty(noun_S);
 
     // Passive
     // Causes Verb-Verb derivation. Passive morpheme has three forms.
