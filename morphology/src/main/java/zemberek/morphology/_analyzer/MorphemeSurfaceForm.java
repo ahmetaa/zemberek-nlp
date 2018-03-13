@@ -135,7 +135,7 @@ public class MorphemeSurfaceForm {
       index++;
     }
     String s = seq.toString();
-    transition.getSurfaceCache().put(phoneticAttributes, s);
+    transition.getSurfaceCache().put(phoneticAttributes.clone(), s);
     return s;
   }
 
