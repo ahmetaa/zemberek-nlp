@@ -2,6 +2,7 @@ package zemberek.morphology._morphotactics;
 
 import java.util.EnumSet;
 import java.util.Objects;
+import zemberek.core.enums.EnumBitSet;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
 
@@ -10,6 +11,7 @@ public class StemTransition extends MorphemeTransition {
   public final String surface;
   public final DictionaryItem item;
   EnumSet<PhoneticAttribute> phoneticAttributes;
+  EnumBitSet phoneticAttributesNew;
 
   public StemTransition(
       String surface,
@@ -19,6 +21,7 @@ public class StemTransition extends MorphemeTransition {
     this.surface = surface;
     this.item = item;
     this.phoneticAttributes = phoneticAttributes;
+    this.phoneticAttributesNew = EnumBitSet.fromSet(phoneticAttributes);
     this.to = toState;
   }
 
@@ -30,6 +33,9 @@ public class StemTransition extends MorphemeTransition {
 
   public EnumSet<PhoneticAttribute> getPhoneticAttributes() {
     return phoneticAttributes;
+  }
+  public EnumBitSet getPhoneticAttributesNew() {
+    return phoneticAttributesNew;
   }
 
   public String debugForm() {
@@ -58,7 +64,6 @@ public class StemTransition extends MorphemeTransition {
 
   @Override
   public int hashCode() {
-
     return Objects.hash(surface, item, phoneticAttributes);
   }
 }

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import zemberek.core.collections.IntMap;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -24,6 +25,12 @@ public class SuffixTransition extends MorphemeTransition {
   private List<SuffixTemplateToken> tokenList;
 
   private Map<EnumSet<PhoneticAttribute>, String> surfaceCache = new HashMap<>();
+
+  private IntMap<String> surfaceCacheNew = new IntMap<>();
+
+  public IntMap<String> getSurfaceCacheNew() {
+    return  surfaceCacheNew;
+  }
 
   public Map<EnumSet<PhoneticAttribute>, String> getSurfaceCache() {
     return surfaceCache;

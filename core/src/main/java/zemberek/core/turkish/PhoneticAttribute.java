@@ -1,10 +1,11 @@
 package zemberek.core.turkish;
 
 
+import zemberek.core.enums.BitmapEnum;
 import zemberek.core.enums.StringEnum;
 import zemberek.core.enums.StringEnumMap;
 
-public enum PhoneticAttribute implements StringEnum {
+public enum PhoneticAttribute implements StringEnum, BitmapEnum {
 
   // Turkish vowels are: [a, e, ı, i, o, ö, u, ü]
   LastLetterVowel("LLV"),
@@ -52,9 +53,11 @@ public enum PhoneticAttribute implements StringEnum {
       .get(PhoneticAttribute.class);
 
   private final String shortForm;
+  private final int bitMask;
 
-  private PhoneticAttribute(String shortForm) {
+  PhoneticAttribute(String shortForm) {
     this.shortForm = shortForm;
+    this.bitMask = 1 << this.ordinal();
   }
 
   public static StringEnumMap<PhoneticAttribute> converter() {
@@ -65,4 +68,7 @@ public enum PhoneticAttribute implements StringEnum {
   public String getStringForm() {
     return shortForm;
   }
+
+  @Override
+  public int getBitMask() { return bitMask;}
 }

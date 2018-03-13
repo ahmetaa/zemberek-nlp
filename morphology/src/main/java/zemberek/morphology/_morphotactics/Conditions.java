@@ -171,7 +171,7 @@ class Conditions {
 
     @Override
     public boolean accept(SearchPath visitor) {
-      return visitor.getPhoneticAttributes().contains(attribute);
+      return visitor.getPhoneticAttributesNew().contains(attribute);
     }
 
     @Override

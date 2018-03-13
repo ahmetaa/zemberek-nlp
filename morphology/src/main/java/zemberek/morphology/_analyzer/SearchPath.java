@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
+import zemberek.core.enums.BitmapEnum;
+import zemberek.core.enums.EnumBitSet;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology._morphotactics.MorphemeState;
@@ -26,6 +28,7 @@ public class SearchPath {
   List<MorphemeSurfaceForm> morphemes;
 
   EnumSet<PhoneticAttribute> phoneticAttributes;
+  EnumBitSet phoneticAttributesNew;
 
   private boolean terminal = false;
   private boolean containsDerivation = false;
@@ -56,13 +59,13 @@ public class SearchPath {
     this.currentState = currentState;
     this.morphemes = morphemes;
     this.phoneticAttributes = phoneticAttributes;
+    this.phoneticAttributesNew = EnumBitSet.fromSet(phoneticAttributes);
     this.terminal = terminal;
   }
 
   SearchPath getCopy(
       MorphemeSurfaceForm surfaceNode,
       EnumSet<PhoneticAttribute> phoneticAttributes) {
-
     boolean t = surfaceNode.morphemeState.terminal;
     ArrayList<MorphemeSurfaceForm> hist = new ArrayList<>(morphemes);
     hist.add(surfaceNode);
@@ -114,6 +117,10 @@ public class SearchPath {
 
   public EnumSet<PhoneticAttribute> getPhoneticAttributes() {
     return phoneticAttributes;
+  }
+
+  public EnumBitSet getPhoneticAttributesNew() {
+    return phoneticAttributesNew;
   }
 
   public boolean isTerminal() {

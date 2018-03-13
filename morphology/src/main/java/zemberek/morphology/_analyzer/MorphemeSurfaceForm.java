@@ -23,6 +23,8 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import zemberek.core.enums.BitmapEnum;
+import zemberek.core.enums.EnumBitSet;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.TurkicLetter;
 import zemberek.core.turkish.TurkishLetterSequence;
@@ -139,10 +141,138 @@ public class MorphemeSurfaceForm {
     return s;
   }
 
+  public static String generate2(
+      SuffixTransition transition,
+      EnumBitSet phoneticAttributes) {
+
+    String cached = transition.getSurfaceCacheNew().get(phoneticAttributes.getBits());
+    if (cached != null) {
+      return cached;
+    }
+
+    TurkishLetterSequence seq = new TurkishLetterSequence();
+    int index = 0;
+    for (SuffixTemplateToken token : transition.getTokenList()) {
+      EnumBitSet attrs = defineMorphemicAttributesNew(seq, phoneticAttributes);
+      switch (token.type) {
+        case LETTER:
+          seq.append(token.letter);
+          break;
+
+        case A_WOVEL:
+          // TODO: document line below.
+          if (index == 0 && phoneticAttributes.contains(LastLetterVowel)) {
+            break;
+          }
+          if (attrs.contains(LastVowelBack)) {
+            seq.append(L_a);
+          } else if (attrs.contains(LastVowelFrontal)) {
+            seq.append(L_e);
+          } else {
+            throw new IllegalArgumentException("Cannot generate A form!");
+          }
+          break;
+
+        case I_WOVEL:
+          // TODO: document line below. With templates like +Im this would not be necessary
+          if (index == 0 && phoneticAttributes.contains(LastLetterVowel)) {
+            break;
+          }
+          if (attrs.containsBoth(LastVowelFrontal, LastVowelUnrounded)) {
+            seq.append(L_i);
+          } else if (attrs.containsBoth(LastVowelBack, LastVowelUnrounded)) {
+            seq.append(L_ii);
+          } else if (attrs.containsBoth(LastVowelBack, LastVowelRounded)) {
+            seq.append(L_u);
+          } else if (attrs.containsBoth(LastVowelFrontal, LastVowelRounded)) {
+            seq.append(L_uu);
+          } else {
+            throw new IllegalArgumentException("Cannot generate I form!");
+          }
+          break;
+
+        case APPEND:
+          if (attrs.contains(LastLetterVowel)) {
+            seq.append(token.letter);
+          }
+          break;
+
+        case DEVOICE_FIRST:
+          TurkicLetter ld = token.letter;
+          if (attrs.contains(LastLetterVoiceless)) {
+            ld = Alphabet.devoice(token.letter);
+          }
+          seq.append(ld);
+          break;
+
+        case LAST_VOICED:
+        case LAST_NOT_VOICED:
+          ld = token.letter;
+          seq.append(ld);
+          break;
+      }
+      index++;
+    }
+    String s = seq.toString();
+    transition.getSurfaceCacheNew().put(phoneticAttributes.getBits(), s);
+    return s;
+  }
+
+
   // in suffix, defining morphemic attributes is straight forward.
   // TODO: move this to somewhere more general.
   private static final List<PhoneticAttribute> NO_VOWEL_ATTRIBUTES = Arrays
       .asList(LastLetterConsonant, FirstLetterConsonant, HasNoVowel);
+
+  private static final List<BitmapEnum> NO_VOWEL_ATTRIBUTES_NEW =
+      Arrays.asList(LastLetterConsonant, FirstLetterConsonant, HasNoVowel);
+
+  public static EnumBitSet defineMorphemicAttributesNew(
+      TurkishLetterSequence seq,
+      EnumBitSet predecessorAttrs) {
+    if (seq.length() == 0) {
+      return EnumBitSet.copyOf(predecessorAttrs);
+    }
+    EnumBitSet attrs = new EnumBitSet();
+    if (seq.hasVowel()) {
+      if (seq.lastVowel().isFrontal()) {
+        attrs.add(LastVowelFrontal);
+      } else {
+        attrs.add(LastVowelBack);
+      }
+      if (seq.lastVowel().isRounded()) {
+        attrs.add(LastVowelRounded);
+      } else {
+        attrs.add(LastVowelUnrounded);
+      }
+      if (seq.lastLetter().isVowel()) {
+        attrs.add(LastLetterVowel);
+      } else {
+        attrs.add(LastLetterConsonant);
+      }
+      if (seq.firstLetter().isVowel()) {
+        attrs.add(FirstLetterVowel);
+      } else {
+        attrs.add(FirstLetterConsonant);
+      }
+    } else {
+      // we transfer vowel attributes from the predecessor attributes.
+      attrs = EnumBitSet.copyOf(predecessorAttrs);
+      attrs.addAll(NO_VOWEL_ATTRIBUTES_NEW);
+      attrs.remove(LastLetterVowel);
+    }
+    if (seq.lastLetter().isVoiceless()) {
+      attrs.add(PhoneticAttribute.LastLetterVoiceless);
+      if (seq.lastLetter().isStopConsonant()) {
+        // kitap
+        attrs.add(PhoneticAttribute.LastLetterVoicelessStop);
+      }
+    } else {
+      attrs.add(PhoneticAttribute.LastLetterVoiced);
+    }
+    return attrs;
+  }
+
 
   public static EnumSet<PhoneticAttribute> defineMorphemicAttributes(
       TurkishLetterSequence seq,

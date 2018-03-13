@@ -18,6 +18,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import zemberek.core.enums.EnumBitSet;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.core.turkish.TurkishLetterSequence;
@@ -152,9 +153,9 @@ public class InterpretingAnalyzer {
         continue;
       }
 
-      String surface = MorphemeSurfaceForm.generate(
+      String surface = MorphemeSurfaceForm.generate2(
           suffixTransition,
-          path.phoneticAttributes);
+          path.phoneticAttributesNew);
 
       // no need to go further if generated surface form is not a prefix of the paths's tail.
       if (!path.tail.startsWith(surface)) {
