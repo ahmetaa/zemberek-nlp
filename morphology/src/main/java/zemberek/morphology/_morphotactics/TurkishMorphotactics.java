@@ -67,15 +67,20 @@ public class TurkishMorphotactics {
 
   // Case suffixes
 
-  // Nominal case suffix. It has no surface form (no letters). "elma = apple"
+  // elma
   public static final Morpheme nom = new Morpheme("Nominal", "Nom");
-  // Dative case suffix. "elmaya = to apple"
+  // elmaya
   public static final Morpheme dat = new Morpheme("Dative", "Dat");
-  // Accusative case suffix. "elmayı = ~the apple"
+  // elmayı
   public static final Morpheme acc = new Morpheme("Accusative", "Acc");
+  // elmadan
   public static final Morpheme abl = new Morpheme("Ablative", "Abl");
+  // elmada
   public static final Morpheme loc = new Morpheme("Locative", "Loc");
+  // elmayla
   public static final Morpheme ins = new Morpheme("Instrumental", "Ins");
+  // elmanın
+  public static final Morpheme gen = new Morpheme("Genitive", "Gen");
 
   // Derivation suffixes
 
@@ -167,6 +172,7 @@ public class TurkishMorphotactics {
   MorphemeState loc_ST = terminal("loc_ST", loc);
   MorphemeState ins_ST = terminal("ins_ST", ins);
   MorphemeState acc_ST = terminal("acc_ST", acc);
+  MorphemeState gen_ST = terminal("gen_ST", gen);
 
   // Derivation
 
@@ -307,12 +313,14 @@ public class TurkishMorphotactics {
         .add(abl_ST, ">dAn", notHave(RootAttribute.CompoundP3sg))  // ev-den
         .add(loc_ST, ">dA", notHave(RootAttribute.CompoundP3sg))   // evde
         .add(acc_ST, "+yI", notHave(RootAttribute.CompoundP3sg))   // evi
-        .add(ins_ST, "+ylA");   // evle
+        .add(gen_ST, "+nIn")    // evin, zeytinyağının
+        .add(ins_ST, "+ylA");   // evle, zeytinyağıyla
 
     pnon_S.add(dat_ST, "+nA", has(RootAttribute.CompoundP3sg))   // zeytinyağı-na
         .add(abl_ST, "+ndAn", has(RootAttribute.CompoundP3sg))   // zeytinyağı-ndan
         .add(loc_ST, "+ndA", has(RootAttribute.CompoundP3sg))    // zeytinyağı-nda
         .add(acc_ST, "+nI", has(RootAttribute.CompoundP3sg));    // zeytinyağı-nı
+
 
     // This transition is for words like "içeri" or "dışarı".
     // Those words implicitly contains Dative suffix.
@@ -325,6 +333,7 @@ public class TurkishMorphotactics {
         .add(loc_ST, "dA")   // evimde
         .add(abl_ST, "dAn")  // evimden
         .add(ins_ST, "lA")   // evimle
+        .add(gen_ST, "In")   // evimin
         .add(acc_ST, "I");   // evimi
 
     p2sg_S
@@ -333,6 +342,7 @@ public class TurkishMorphotactics {
         .add(loc_ST, "dA")   // evinde
         .add(abl_ST, "dAn")  // evinden
         .add(ins_ST, "lA")   // evinle
+        .add(gen_ST, "In")   // evinin
         .add(acc_ST, "I");   // evini
 
     p3sg_S
@@ -341,6 +351,7 @@ public class TurkishMorphotactics {
         .add(loc_ST, "dA")   // evinde
         .add(abl_ST, "ndAn") // evinden
         .add(ins_ST, "lA")   // eviyle
+        .add(gen_ST, "nIn")  // evinin
         .add(acc_ST, "nI");  // evini
 
     p1pl_S
@@ -349,6 +360,7 @@ public class TurkishMorphotactics {
         .add(loc_ST, "dA")   // evimizde
         .add(abl_ST, "dAn")  // evimizden
         .add(ins_ST, "lA")   // evimizden
+        .add(gen_ST, "In")   // evimizin
         .add(acc_ST, "I");   // evimizi
 
     p2pl_S
@@ -357,6 +369,7 @@ public class TurkishMorphotactics {
         .add(loc_ST, "dA")   // evinizde
         .add(abl_ST, "dAn")  // evinizden
         .add(ins_ST, "lA")   // evinizle
+        .add(gen_ST, "In")   // evinizin
         .add(acc_ST, "I");   // evinizi
 
     p3pl_S
@@ -365,6 +378,7 @@ public class TurkishMorphotactics {
         .add(loc_ST, "ndA")   // evlerinde
         .add(abl_ST, "ndAn")  // evlerinden
         .add(ins_ST, "ylA")   // evleriyle
+        .add(gen_ST, "nIn")   // evlerinin
         .add(acc_ST, "nI");   // evlerini
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains any non empty surface suffix.
@@ -399,6 +413,9 @@ public class TurkishMorphotactics {
 
     // elma-yla-yım elma-yla-ydı
     ins_ST.addEmpty(nounZeroDeriv_S, noun2VerbZeroDerivationCondition);
+
+    // elma-nın-ım elma-nın-dı
+    gen_ST.addEmpty(nounZeroDeriv_S, noun2VerbZeroDerivationCondition);
 
     nounZeroDeriv_S.addEmpty(nVerb_S);
 
