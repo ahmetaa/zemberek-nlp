@@ -56,7 +56,7 @@ public class CoverageTest {
     int batchSize = 20_000;
 
     while (!lines.isEmpty()) {
-      List<String> batch = new ArrayList<>();
+      List<String> batch = new ArrayList<>(batchSize);
       int j = 0;
       while (j < batchSize && !lines.isEmpty()) {
         batch.add(lines.poll());
@@ -65,7 +65,7 @@ public class CoverageTest {
 
       if (batch.size() > 0) {
         service.submit(() -> {
-          List<String> failed = new ArrayList<>();
+          List<String> failed = new ArrayList<>(batchSize/2);
           for (String s : batch) {
             List<AnalysisResult> results = analyzer.analyze(s);
             if (results.size() == 0) {
