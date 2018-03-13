@@ -39,12 +39,11 @@ public class CoverageTest {
 
     ArrayDeque<String> lines = reader.lines()
         .collect(Collectors.toCollection(ArrayDeque::new));
-    Log.info("File read, analyzing.");
+
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
     InterpretingAnalyzer analyzer = new InterpretingAnalyzer(lexicon);
-
-    int threadCount = Runtime.getRuntime().availableProcessors() / 2;
-    Log.info("Thread count = %d", threadCount);
+    int threadCount = Runtime.getRuntime().availableProcessors();
+    Log.info("File read, Analyzer ready. Running with %s threads.", threadCount);
     ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
     CompletionService<Result> service = new ExecutorCompletionService<>(executorService);
 
@@ -53,7 +52,7 @@ public class CoverageTest {
     Stopwatch sw = Stopwatch.createStarted();
 
     int batchCount = 0;
-    int batchSize = 20_000;
+    int batchSize = 25_000;
 
     while (!lines.isEmpty()) {
       List<String> batch = new ArrayList<>();
@@ -97,8 +96,7 @@ public class CoverageTest {
   }
 
   class Result {
-
-    List<String> failed = new ArrayList<>();
+    List<String> failed;
     int wordCount;
 
     Result(List<String> failed, int wordCount) {
