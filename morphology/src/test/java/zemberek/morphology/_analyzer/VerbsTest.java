@@ -234,7 +234,8 @@ public class VerbsTest extends AnalyzerTestBase {
 
     AnalysisTester t = getTester("okumak");
 
-    t.expectSingle("okutabil", matchesTailLex("Verb + Caus + Verb + Able + Verb + Imp + A2sg"));
+    t.expectSingle("okutabil",
+        matchesTailLex("Verb + Caus + Verb + Able + Verb + Imp + A2sg"));
     t.expectSingle("okutturabil",
         matchesTailLex("Verb + Caus + Verb + Caus + Verb + Able + Verb + Imp + A2sg"));
   }
@@ -282,7 +283,8 @@ public class VerbsTest extends AnalyzerTestBase {
 
     t.expectSingle("okun", matchesTailLex("Verb + Pass + Verb + Imp + A2sg"));
     t.expectSingle("okunul", matchesTailLex("Verb + Pass + Verb + Imp + A2sg"));
-    t.expectSingle("okunulabilir", matchesTailLex("Verb + Pass + Verb + Able + Verb + Aor + A3sg"));
+    t.expectSingle("okunulabilir",
+        matchesTailLex("Verb + Pass + Verb + Able + Verb + Aor + A3sg"));
   }
 
   @Test
@@ -387,8 +389,10 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("arayacağım", matchesTailLex("Verb + Fut + A1sg"));
     t.expectSingle("aratacağız", matchesTailLex("Verb + Caus + Verb + Fut + A1pl"));
     t.expectSingle("arayabileceğiz", matchesTailLex("Verb + Able + Verb + Fut + A1pl"));
-    t.expectSingle("aratabileceğiz", matchesTailLex("Verb + Caus + Verb + Able + Verb + Fut + A1pl"));
-    t.expectSingle("aratmayabileceğiz", matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Fut + A1pl"));
+    t.expectSingle("aratabileceğiz",
+        matchesTailLex("Verb + Caus + Verb + Able + Verb + Fut + A1pl"));
+    t.expectSingle("aratmayabileceğiz",
+        matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Fut + A1pl"));
     t.expectSingle("arattıramayabileceğiz",
         matchesTailLex("Verb + Caus + Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Fut + A1pl"));
   }
@@ -420,8 +424,10 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("aramaktayım", matchesTailLex("Verb + Prog2 + A1sg"));
     t.expectSingle("aratmaktayız", matchesTailLex("Verb + Caus + Verb + Prog2 + A1pl"));
     t.expectSingle("arayabilmekteyiz", matchesTailLex("Verb + Able + Verb + Prog2 + A1pl"));
-    t.expectSingle("aratabilmekteyiz", matchesTailLex("Verb + Caus + Verb + Able + Verb + Prog2 + A1pl"));
-    t.expectSingle("aratmayabilmekteyiz", matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Prog2 + A1pl"));
+    t.expectSingle("aratabilmekteyiz",
+        matchesTailLex("Verb + Caus + Verb + Able + Verb + Prog2 + A1pl"));
+    t.expectSingle("aratmayabilmekteyiz",
+        matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Prog2 + A1pl"));
     t.expectSingle("arattıramayabilmekteyiz",
         matchesTailLex("Verb + Caus + Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Prog2 + A1pl"));
   }

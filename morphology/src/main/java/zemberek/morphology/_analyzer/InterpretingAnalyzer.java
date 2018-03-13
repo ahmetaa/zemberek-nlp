@@ -131,7 +131,7 @@ public class InterpretingAnalyzer {
     return result;
   }
 
-  // for all allowed outgoing transitions generates new Paths.
+  // for all allowed matching outgoing transitions, new paths are generated.
   // Transition conditions are used for checking if a search path is allowed to pass a transition.
   private List<SearchPath> advance(SearchPath path, AnalysisDebugData debugData) {
 
@@ -204,7 +204,7 @@ public class InterpretingAnalyzer {
               TurkishAlphabet.INSTANCE), path.phoneticAttributes);
 
       // This is required for suffixes like `cik` and `ciğ`
-      // we add an extra attribute if "cik" or "ciğ" is generated and matches the tail.
+      // an extra attribute is added if "cik" or "ciğ" is generated and matches the tail.
       // if "cik" is generated, ExpectsConsonant attribute is added, so only a consonant starting
       // suffix can follow. Likewise, if "ciğ" is produced, a vowel starting suffix is allowed.
       SuffixTemplateToken lastToken = suffixTransition.getLastTemplateToken();

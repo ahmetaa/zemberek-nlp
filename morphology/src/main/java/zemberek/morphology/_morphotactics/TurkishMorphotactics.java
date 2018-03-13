@@ -1076,8 +1076,8 @@ public class TurkishMorphotactics {
     vFut_S.add(vCond_S, "sA");
     vFut_S.add(vPastAfterTense_S, "tI");
 
-    // work for demek-yemek
-    // `demek` and `yemek` are special because they are the only two verbs with two letters.
+    // `demek` and `yemek` are special because they are the only two verbs with two letters
+    // and ends with a vowel.
     // Their root transform as:
     // No chabge: de-di, de-miş, de-dir
     // Change : di-yecek di-yor de-r
