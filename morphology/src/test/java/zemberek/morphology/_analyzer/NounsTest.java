@@ -70,7 +70,8 @@ public class NounsTest extends AnalyzerTestBase {
     t.expectSingle("su", matchesTailLex("Noun + A3sg + Pnon + Nom"));
     t.expectSingle("sulara", matchesTailLex("Noun + A3pl + Pnon + Dat"));
     t.expectSingle("suyuma", matchesTailLex("Noun + A3sg + P1sg + Dat"));
-    t.expectSingle("suyun", matchesTailLex("Noun + A3sg + P2sg + Nom"));
+    t.expectAny("suyun", matchesTailLex("Noun + A3sg + P2sg + Nom"));
+    t.expectAny("suyun", matchesTailLex("Noun + A3sg + Pnon + Gen"));
     t.expectSingle("suyumuz", matchesTailLex("Noun + A3sg + P1pl + Nom"));
 
     t.expectFail(

@@ -5,7 +5,7 @@ import org.junit.Test;
 public class VerbVerbDerivationTest extends AnalyzerTestBase {
 
   @Test
-  public void oburuTest() {
+  public void causativeTest() {
     AnalysisTester tester = getTester("okumak");
 
     tester.expectSingle("okut",

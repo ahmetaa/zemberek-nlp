@@ -3,6 +3,8 @@ package zemberek.morphology._morphotactics;
 import static zemberek.morphology._morphotactics.Conditions.has;
 import static zemberek.morphology._morphotactics.Conditions.notHave;
 import static zemberek.morphology._morphotactics.Conditions.notHaveAny;
+import static zemberek.morphology._morphotactics.Conditions.previousStateIs;
+import static zemberek.morphology._morphotactics.Conditions.previousStateIsNot;
 import static zemberek.morphology._morphotactics.Conditions.rootIs;
 import static zemberek.morphology._morphotactics.Conditions.rootIsAny;
 import static zemberek.morphology._morphotactics.Conditions.rootIsNone;
@@ -94,8 +96,15 @@ public class TurkishMorphotactics {
   // tahtalan
   public static final Morpheme acquire = new Morpheme("Acquire", "Acquire");
 
+  // okumak
+  public static final Morpheme inf1 = new Morpheme("Infinitive1", "Inf1");
+  // okuma
+  public static final Morpheme inf2 = new Morpheme("Infinitive2", "Inf2");
+  // okuyuş
+  public static final Morpheme inf3 = new Morpheme("Infinitive3", "Inf3");
   // TODO: Find the meaning of this.
   public static final Morpheme agt = new Morpheme("Agt", "Agt");
+
 
   // Zero derivation
   public static final Morpheme zero = new Morpheme("Zero", "Zero");
@@ -312,14 +321,14 @@ public class TurkishMorphotactics {
         .add(abl_ST, ">dAn", notHave(RootAttribute.CompoundP3sg))  // ev-den
         .add(loc_ST, ">dA", notHave(RootAttribute.CompoundP3sg))   // evde
         .add(acc_ST, "+yI", notHave(RootAttribute.CompoundP3sg))   // evi
-        .add(gen_ST, "+nIn")    // evin, zeytinyağının
-        .add(ins_ST, "+ylA");   // evle, zeytinyağıyla
+        .add(gen_ST, "+nIn", previousStateIsNot(a3sgSu_S))         // evin, zeytinyağının
+        .add(gen_ST, "yIn", previousStateIs(a3sgSu_S))             // suyun
+        .add(ins_ST, "+ylA");                                      // evle, zeytinyağıyla
 
     pnon_S.add(dat_ST, "+nA", has(RootAttribute.CompoundP3sg))   // zeytinyağı-na
         .add(abl_ST, "+ndAn", has(RootAttribute.CompoundP3sg))   // zeytinyağı-ndan
         .add(loc_ST, "+ndA", has(RootAttribute.CompoundP3sg))    // zeytinyağı-nda
         .add(acc_ST, "+nI", has(RootAttribute.CompoundP3sg));    // zeytinyağı-nı
-
 
     // This transition is for words like "içeri" or "dışarı".
     // Those words implicitly contains Dative suffix.
@@ -438,11 +447,11 @@ public class TurkishMorphotactics {
 
     justLike_S.addEmpty(adj_ST);
 
-    nom_ST.add(become_S,"lAş",
+    nom_ST.add(become_S, "lAş",
         noSurfaceAfterDerivation.andNot(new ContainsMorpheme(adj)));
     become_S.addEmpty(verbRoot_S);
 
-    nom_ST.add(acquire_S,"lAn",
+    nom_ST.add(acquire_S, "lAn",
         noSurfaceAfterDerivation.andNot(new ContainsMorpheme(adj)));
     acquire_S.addEmpty(verbRoot_S);
 
@@ -475,8 +484,8 @@ public class TurkishMorphotactics {
             .and(new NoSurfaceAfterDerivation())
             .and(new ContainsMorpheme(justLike).not()));
 
-    adj_ST.add(become_S,"lAş", new NoSurfaceAfterDerivation());
-    adj_ST.add(acquire_S,"lAn", new NoSurfaceAfterDerivation());
+    adj_ST.add(become_S, "lAş", new NoSurfaceAfterDerivation());
+    adj_ST.add(acquire_S, "lAn", new NoSurfaceAfterDerivation());
   }
 
   //-------------- Adjective-Noun connected Verb States ------------------------

@@ -66,12 +66,28 @@ class Conditions {
     return new DictionaryItemIs(item).not();
   }
 
-  public static Condition lastMorphemeIs(Morpheme morpheme) {
-    return new LastMorphemeIs(morpheme);
+  public static Condition currentMorphemeIs(Morpheme morpheme) {
+    return new CurrentMorphemeIs(morpheme);
   }
 
   public static Condition lastMorphemeIsNot(Morpheme morpheme) {
-    return new LastMorphemeIs(morpheme).not();
+    return new CurrentMorphemeIs(morpheme).not();
+  }
+
+  public static Condition currentStateIs(MorphemeState state) {
+    return new CurrentStateIs(state);
+  }
+
+  public static Condition currentStateIsNot(MorphemeState state) {
+    return new CurrentStateIsNot(state);
+  }
+
+  public static Condition previousStateIs(MorphemeState state) {
+    return new PreviousStateIs(state);
+  }
+
+  public static Condition previousStateIsNot(MorphemeState state) {
+    return new PreviousStateIsNot(state);
   }
 
   public static Condition prviousMorphemeIs(Morpheme morpheme) {
@@ -328,11 +344,11 @@ class Conditions {
     }
   }
 
-  public static class LastMorphemeIs extends AbstractCondition {
+  public static class CurrentMorphemeIs extends AbstractCondition {
 
     Morpheme morpheme;
 
-    public LastMorphemeIs(Morpheme morpheme) {
+    public CurrentMorphemeIs(Morpheme morpheme) {
       this.morpheme = morpheme;
     }
 
@@ -343,7 +359,7 @@ class Conditions {
 
     @Override
     public String toString() {
-      return "LastMorphemeIs{ " + morpheme + " }";
+      return "CurrentMorphemeIs{ " + morpheme + " }";
     }
   }
 
@@ -366,6 +382,48 @@ class Conditions {
       return "PreviousMorphemeIs{ " + morpheme + " }";
     }
   }
+
+
+  public static class PreviousStateIs extends AbstractCondition {
+
+    MorphemeState state;
+
+    public PreviousStateIs(MorphemeState state) {
+      this.state = state;
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      MorphemeState previousState = visitor.getPreviousState();
+      return previousState != null && previousState.equals(this.state);
+    }
+
+    @Override
+    public String toString() {
+      return "PreviousStateIs{ " + state + " }";
+    }
+  }
+
+  public static class PreviousStateIsNot extends AbstractCondition {
+
+    MorphemeState state;
+
+    public PreviousStateIsNot(MorphemeState state) {
+      this.state = state;
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      MorphemeState previousState = visitor.getPreviousState();
+      return previousState == null || !previousState.equals(this.state);
+    }
+
+    @Override
+    public String toString() {
+      return "PreviousStateIsNot{ " + state + " }";
+    }
+  }
+
 
   public static class RootSurfaceIs extends AbstractCondition {
 
@@ -410,11 +468,11 @@ class Conditions {
     }
   }
 
-  public static class LastStateIs extends AbstractCondition {
+  public static class CurrentStateIs extends AbstractCondition {
 
     MorphemeState state;
 
-    public LastStateIs(MorphemeState state) {
+    public CurrentStateIs(MorphemeState state) {
       this.state = state;
     }
 
@@ -425,15 +483,15 @@ class Conditions {
 
     @Override
     public String toString() {
-      return "LastStateIs{ " + state + " }";
+      return "CurrentStateIs{ " + state + " }";
     }
   }
 
-  public static class LastStateIsNot extends AbstractCondition {
+  public static class CurrentStateIsNot extends AbstractCondition {
 
     MorphemeState state;
 
-    public LastStateIsNot(MorphemeState state) {
+    public CurrentStateIsNot(MorphemeState state) {
       this.state = state;
     }
 
@@ -444,7 +502,7 @@ class Conditions {
 
     @Override
     public String toString() {
-      return "LastStateIsNot{ " + state + " }";
+      return "CurrentStateIsNot{ " + state + " }";
     }
   }
 
