@@ -1,13 +1,12 @@
 package zemberek.morphology._analyzer;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import zemberek.core.turkish.PhoneticAttribute;
-import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology._morphotactics.MorphemeState;
+import zemberek.morphology._morphotactics.PhoneticAttributeSet;
 import zemberek.morphology._morphotactics.StemTransition;
+import zemberek.morphology.lexicon.DictionaryItem;
 
 /**
  * This class represents a path in morphotactics graph. During analysis many SearchPaths are created
@@ -25,7 +24,7 @@ public class SearchPath {
 
   List<MorphemeSurfaceForm> morphemes;
 
-  EnumSet<PhoneticAttribute> phoneticAttributes;
+  PhoneticAttributeSet phoneticAttributes;
 
   private boolean terminal = false;
   private boolean containsDerivation = false;
@@ -49,7 +48,7 @@ public class SearchPath {
       String tail,
       MorphemeState currentState,
       List<MorphemeSurfaceForm> morphemes,
-      EnumSet<PhoneticAttribute> phoneticAttributes,
+      PhoneticAttributeSet phoneticAttributes,
       boolean terminal) {
     this.head = head;
     this.tail = tail;
@@ -61,7 +60,7 @@ public class SearchPath {
 
   SearchPath getCopy(
       MorphemeSurfaceForm surfaceNode,
-      EnumSet<PhoneticAttribute> phoneticAttributes) {
+      PhoneticAttributeSet phoneticAttributes) {
 
     boolean t = surfaceNode.morphemeState.terminal;
     ArrayList<MorphemeSurfaceForm> hist = new ArrayList<>(morphemes);
@@ -112,7 +111,7 @@ public class SearchPath {
     return morphemes.get(morphemes.size() - 2).morphemeState;
   }
 
-  public EnumSet<PhoneticAttribute> getPhoneticAttributes() {
+  public PhoneticAttributeSet getPhoneticAttributes() {
     return phoneticAttributes;
   }
 

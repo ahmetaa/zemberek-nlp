@@ -19,7 +19,6 @@ import static zemberek.core.turkish.TurkishAlphabet.L_uu;
 import static zemberek.morphology.structure.Turkish.Alphabet;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -28,6 +27,7 @@ import zemberek.core.turkish.TurkicLetter;
 import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.morphology._morphotactics.MorphemeState;
 import zemberek.morphology._morphotactics.MorphemeTransition;
+import zemberek.morphology._morphotactics.PhoneticAttributeSet;
 import zemberek.morphology._morphotactics.SuffixTransition;
 
 // TODO: find a better name. Move some methods outside.
@@ -64,7 +64,7 @@ public class MorphemeSurfaceForm {
 
   public static String generate(
       SuffixTransition transition,
-      EnumSet<PhoneticAttribute> phoneticAttributes) {
+      PhoneticAttributeSet phoneticAttributes) {
 
     String cached = transition.getSurfaceCache().get(phoneticAttributes);
     if (cached != null) {
@@ -74,7 +74,7 @@ public class MorphemeSurfaceForm {
     TurkishLetterSequence seq = new TurkishLetterSequence();
     int index = 0;
     for (SuffixTemplateToken token : transition.getTokenList()) {
-      EnumSet<PhoneticAttribute> attrs = defineMorphemicAttributes(seq, phoneticAttributes);
+      PhoneticAttributeSet attrs = defineMorphemicAttributes(seq, phoneticAttributes);
       switch (token.type) {
         case LETTER:
           seq.append(token.letter);
@@ -144,13 +144,13 @@ public class MorphemeSurfaceForm {
   private static final List<PhoneticAttribute> NO_VOWEL_ATTRIBUTES = Arrays
       .asList(LastLetterConsonant, FirstLetterConsonant, HasNoVowel);
 
-  public static EnumSet<PhoneticAttribute> defineMorphemicAttributes(
+  public static PhoneticAttributeSet defineMorphemicAttributes(
       TurkishLetterSequence seq,
-      EnumSet<PhoneticAttribute> predecessorAttrs) {
+      PhoneticAttributeSet predecessorAttrs) {
     if (seq.length() == 0) {
-      return EnumSet.copyOf(predecessorAttrs);
+      return PhoneticAttributeSet.copyOf(predecessorAttrs);
     }
-    EnumSet<PhoneticAttribute> attrs = EnumSet.noneOf(PhoneticAttribute.class);
+    PhoneticAttributeSet attrs = new PhoneticAttributeSet();
     if (seq.hasVowel()) {
       if (seq.lastVowel().isFrontal()) {
         attrs.add(LastVowelFrontal);
@@ -174,7 +174,7 @@ public class MorphemeSurfaceForm {
       }
     } else {
       // we transfer vowel attributes from the predecessor attributes.
-      attrs = EnumSet.copyOf(predecessorAttrs);
+      attrs = PhoneticAttributeSet.copyOf(predecessorAttrs);
       attrs.addAll(NO_VOWEL_ATTRIBUTES);
       attrs.remove(LastLetterVowel);
     }
@@ -190,8 +190,8 @@ public class MorphemeSurfaceForm {
     return attrs;
   }
 
-  EnumSet<PhoneticAttribute> defineMorphemicAttributes(TurkishLetterSequence seq) {
-    return defineMorphemicAttributes(seq, EnumSet.noneOf(PhoneticAttribute.class));
+  PhoneticAttributeSet defineMorphemicAttributes(TurkishLetterSequence seq) {
+    return defineMorphemicAttributes(seq, new PhoneticAttributeSet());
   }
 
   public enum TemplateTokenType {

@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -26,6 +25,7 @@ import zemberek.morphology._analyzer.MorphemeSurfaceForm.TemplateTokenType;
 import zemberek.morphology._morphotactics.CombinedCondition;
 import zemberek.morphology._morphotactics.Condition;
 import zemberek.morphology._morphotactics.MorphemeTransition;
+import zemberek.morphology._morphotactics.PhoneticAttributeSet;
 import zemberek.morphology._morphotactics.StemTransition;
 import zemberek.morphology._morphotactics.SuffixTransition;
 import zemberek.morphology._morphotactics.TurkishMorphotactics;
@@ -198,7 +198,7 @@ public class InterpretingAnalyzer {
       MorphemeSurfaceForm surfaceTransition = new MorphemeSurfaceForm(surface, suffixTransition);
 
       //if tail is equal to surface, no need to calculate phonetic attributes.
-      EnumSet<PhoneticAttribute> attributes = path.tail.equals(surface) ?
+      PhoneticAttributeSet attributes = path.tail.equals(surface) ?
           path.phoneticAttributes.clone() :
           MorphemeSurfaceForm.defineMorphemicAttributes(new TurkishLetterSequence(surface,
               TurkishAlphabet.INSTANCE), path.phoneticAttributes);

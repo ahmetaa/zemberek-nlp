@@ -12,7 +12,6 @@ import static zemberek.morphology._morphotactics.MorphemeState.nonTerminal;
 import static zemberek.morphology._morphotactics.MorphemeState.nonTerminalDerivative;
 import static zemberek.morphology._morphotactics.MorphemeState.terminal;
 
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import zemberek.core.turkish.PhoneticAttribute;
@@ -1164,7 +1163,7 @@ public class TurkishMorphotactics {
 
   public MorphemeState getRootState(
       DictionaryItem dictionaryItem,
-      EnumSet<PhoneticAttribute> phoneticAttributes) {
+      PhoneticAttributeSet phoneticAttributes) {
 
     MorphemeState root = itemRootStateMap.get(dictionaryItem.id);
     if (root != null) {
