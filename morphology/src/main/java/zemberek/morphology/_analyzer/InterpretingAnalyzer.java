@@ -152,6 +152,20 @@ public class InterpretingAnalyzer {
         continue;
       }
 
+      String surface = MorphemeSurfaceForm.generate(
+          suffixTransition,
+          path.phoneticAttributes);
+
+      // no need to go further if generated surface form is not a prefix of the paths's tail.
+      if (!path.tail.startsWith(surface)) {
+        if (debugData != null) {
+          debugData.rejectedTransitions.put(
+              path,
+              new RejectedTransition(suffixTransition, "Surface Mismatch:" + surface));
+        }
+        continue;
+      }
+
       // if transition condition fails, add it to debug data.
       if (debugData != null && suffixTransition.getCondition() != null) {
         Condition condition = suffixTransition.getCondition();
@@ -166,20 +180,6 @@ public class InterpretingAnalyzer {
               path,
               new RejectedTransition(suffixTransition, "Condition → " + failed.toString()));
         }
-      }
-
-      String surface = MorphemeSurfaceForm.generate(
-          suffixTransition,
-          path.phoneticAttributes);
-
-      // no need to go further if generated surface form is not a prefix of the paths's tail.
-      if (!path.tail.startsWith(surface)) {
-        if (debugData != null) {
-          debugData.rejectedTransitions.put(
-              path,
-              new RejectedTransition(suffixTransition, "Surface Mismatch:" + surface));
-        }
-        continue;
       }
 
       // check conditions.

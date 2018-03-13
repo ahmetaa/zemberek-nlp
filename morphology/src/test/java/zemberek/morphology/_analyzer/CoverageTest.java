@@ -53,7 +53,7 @@ public class CoverageTest {
     double coverage = 100 - (failedWords.size() * 100d / i);
     double seconds = sw.elapsed(TimeUnit.MILLISECONDS) / 1000d;
     double speed = i / seconds;
-    Log.info("%d analysed. Coveraga = %.3f . Speed = %.3f tokens/sec", i, coverage, speed);
+    Log.info("%d analysed. Coverage = %.3f . Speed = %.3f tokens/sec", i, coverage, speed);
   }
 
 
