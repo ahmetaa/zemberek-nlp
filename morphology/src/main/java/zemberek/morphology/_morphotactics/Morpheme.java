@@ -1,6 +1,5 @@
 package zemberek.morphology._morphotactics;
 
-import java.util.Objects;
 import zemberek.core.turkish.PrimaryPos;
 
 public class Morpheme {
@@ -30,13 +29,12 @@ public class Morpheme {
       return false;
     }
     Morpheme morpheme = (Morpheme) o;
-    return Objects.equals(id, morpheme.id);
+    return id.equals(morpheme.id);
   }
 
   @Override
   public int hashCode() {
-
-    return Objects.hash(id);
+    return id.hashCode();
   }
 
   @Override
