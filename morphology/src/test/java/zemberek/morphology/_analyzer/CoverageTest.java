@@ -107,12 +107,12 @@ public class CoverageTest {
     }
   }
 
-  private void logResult(List<String> failedWords, int i, Stopwatch sw) {
-    double coverage = 100 - (failedWords.size() * 100d / i);
+  private void logResult(List<String> failedWords, int wordCount, Stopwatch sw) {
+    double coverage = 100 - (failedWords.size() * 100d / wordCount);
     double seconds = sw.elapsed(TimeUnit.MILLISECONDS) / 1000d;
-    double speed = i / seconds;
+    double speed = wordCount / seconds;
     Log.info("Elapsed %.2f sec. %d analysed. Coverage = %.3f . Speed = %.3f tokens/sec",
-        seconds, i, coverage, speed);
+        seconds, wordCount, coverage, speed);
   }
 
 
