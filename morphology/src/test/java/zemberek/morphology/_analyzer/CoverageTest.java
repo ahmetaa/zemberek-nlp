@@ -1,7 +1,11 @@
 package zemberek.morphology._analyzer;
 
 import com.google.common.base.Stopwatch;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,22 +14,29 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.logging.Log;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.morphology.structure.Turkish;
 
 public class CoverageTest {
 
   @Test
   @Ignore(value = "Coverage Test.")
   public void testCoverage() throws IOException {
-    Path oflazerAndZemberek = Paths.get("../data/zemberek-oflazer/oflazer-zemberek-parsed.txt");
-    LinkedHashSet<String> lines = new LinkedHashSet<>(
-        Files.readAllLines(oflazerAndZemberek, StandardCharsets.UTF_8));
+    String path = "../data/zemberek-oflazer/oflazer-zemberek-parsed.txt.gz";
+    Log.info("Extracting coverage test file: %s" , path);
+    Path oflazerAndZemberek = Paths.get(path);
+    InputStream gzipStream = new GZIPInputStream(new FileInputStream(oflazerAndZemberek.toFile()));
+    BufferedReader reader = new BufferedReader(
+        new InputStreamReader(gzipStream, StandardCharsets.UTF_8));
 
+    LinkedHashSet<String> lines = reader.lines()
+        .collect(Collectors.toCollection(LinkedHashSet::new));
+    Log.info("File read, analyzing.");
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
     InterpretingAnalyzer analyzer = new InterpretingAnalyzer(lexicon);
 
