@@ -97,7 +97,6 @@ public class CoverageTest {
   }
 
   class Result {
-
     List<String> failedWords = new ArrayList<>();
     int wordCount;
 
