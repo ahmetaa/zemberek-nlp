@@ -3,8 +3,9 @@ package zemberek.morphology._analyzer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import zemberek.core.turkish.PhoneticAttribute;
+import zemberek.morphology._morphotactics.AttributeSet;
 import zemberek.morphology._morphotactics.MorphemeState;
-import zemberek.morphology._morphotactics.PhoneticAttributeSet;
 import zemberek.morphology._morphotactics.StemTransition;
 import zemberek.morphology.lexicon.DictionaryItem;
 
@@ -24,7 +25,7 @@ public class SearchPath {
 
   List<MorphemeSurfaceForm> morphemes;
 
-  PhoneticAttributeSet phoneticAttributes;
+  AttributeSet<PhoneticAttribute> phoneticAttributes;
 
   private boolean terminal = false;
   private boolean containsDerivation = false;
@@ -39,7 +40,7 @@ public class SearchPath {
         tail,
         stemTransition.to,
         morphemes,
-        stemTransition.getPhoneticAttributes().clone(),
+        stemTransition.getPhoneticAttributes().copy(),
         stemTransition.to.terminal);
   }
 
@@ -48,7 +49,7 @@ public class SearchPath {
       String tail,
       MorphemeState currentState,
       List<MorphemeSurfaceForm> morphemes,
-      PhoneticAttributeSet phoneticAttributes,
+      AttributeSet<PhoneticAttribute> phoneticAttributes,
       boolean terminal) {
     this.head = head;
     this.tail = tail;
@@ -60,7 +61,7 @@ public class SearchPath {
 
   SearchPath getCopy(
       MorphemeSurfaceForm surfaceNode,
-      PhoneticAttributeSet phoneticAttributes) {
+      AttributeSet<PhoneticAttribute> phoneticAttributes) {
 
     boolean t = surfaceNode.morphemeState.terminal;
     ArrayList<MorphemeSurfaceForm> hist = new ArrayList<>(morphemes);
@@ -111,7 +112,7 @@ public class SearchPath {
     return morphemes.get(morphemes.size() - 2).morphemeState;
   }
 
-  public PhoneticAttributeSet getPhoneticAttributes() {
+  public AttributeSet<PhoneticAttribute> getPhoneticAttributes() {
     return phoneticAttributes;
   }
 

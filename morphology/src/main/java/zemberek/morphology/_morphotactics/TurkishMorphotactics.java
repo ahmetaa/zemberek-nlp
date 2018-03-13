@@ -1195,7 +1195,7 @@ public class TurkishMorphotactics {
 
   public MorphemeState getRootState(
       DictionaryItem dictionaryItem,
-      PhoneticAttributeSet phoneticAttributes) {
+      AttributeSet<PhoneticAttribute> phoneticAttributes) {
 
     MorphemeState root = itemRootStateMap.get(dictionaryItem.id);
     if (root != null) {

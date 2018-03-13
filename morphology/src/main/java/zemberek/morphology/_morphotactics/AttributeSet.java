@@ -2,48 +2,52 @@ package zemberek.morphology._morphotactics;
 
 import java.util.EnumSet;
 
-public class EnumBitSet<E extends Enum<E>> {
+public class AttributeSet<E extends Enum<E>> {
 
   private int bits;
 
-  public EnumBitSet() {
+  public AttributeSet() {
     this(0);
   }
 
-  private EnumBitSet(int initialValue) {
+  private AttributeSet(int initialValue) {
     this.bits = initialValue;
   }
 
-  public static EnumBitSet copyOf(EnumBitSet other) {
-    return new EnumBitSet(other.bits);
+  public static AttributeSet copyOf(AttributeSet other) {
+    return new AttributeSet(other.bits);
   }
 
-  public static <E extends Enum<E>> EnumBitSet<E> fromSet(EnumSet<E> enumSet) {
-    EnumBitSet<E> res = new EnumBitSet<>();
+  public static <E extends Enum<E>> AttributeSet<E> fromSet(EnumSet<E> enumSet) {
+    AttributeSet<E> res = new AttributeSet<>();
     for (E e : enumSet) {
       res.add(e);
     }
     return res;
   }
 
-  public static  <E extends Enum<E>> EnumBitSet<E> of(E e1) {
-    EnumBitSet<E> res = new EnumBitSet<>();
+  public static  <E extends Enum<E>> AttributeSet<E> of(E e1) {
+    AttributeSet<E> res = new AttributeSet<>();
     res.add(e1);
     return res;
   }
 
-  public static  <E extends Enum<E>> EnumBitSet<E> of(E e1, E e2) {
-    EnumBitSet<E> res = new EnumBitSet<>();
+  public static  <E extends Enum<E>> AttributeSet<E> of(E e1, E e2) {
+    AttributeSet<E> res = new AttributeSet<>();
     res.add(e1);
     res.add(e2);
     return res;
   }
-  public static  <E extends Enum<E>> EnumBitSet<E> of(E e1, E e2, E e3) {
-    EnumBitSet<E> res = new EnumBitSet<>();
+  public static  <E extends Enum<E>> AttributeSet<E> of(E e1, E e2, E e3) {
+    AttributeSet<E> res = new AttributeSet<>();
     res.add(e1);
     res.add(e2);
     res.add(e3);
     return res;
+  }
+
+  public void copyFrom(AttributeSet<E> other) {
+    this.bits = other.bits;
   }
 
   public void add(E en) {
@@ -80,8 +84,8 @@ public class EnumBitSet<E extends Enum<E>> {
     return 1 << e.ordinal();
   }
 
-  public boolean containsBoth(E e1, E e2) {
-    return contains(e1) && contains(e2);
+  public AttributeSet<E> copy() {
+    return new AttributeSet<>(this.bits);
   }
 
   @Override
@@ -94,10 +98,10 @@ public class EnumBitSet<E extends Enum<E>> {
     if(this == other) {
       return  true;
     }
-    if (other == null || !(other instanceof EnumBitSet)) {
+    if (other == null || !(other instanceof AttributeSet)) {
       return false;
     }
-    return bits == ((EnumBitSet)other).bits;
+    return bits == ((AttributeSet)other).bits;
   }
 
   public int getBits() {
