@@ -83,9 +83,15 @@ public class TurkishMorphotactics {
   public static final Morpheme dim = new Morpheme("Diminutive", "Dim");
   // With suffix. Noun to Adjective conversion. "elmalı = with apple"
   public static final Morpheme with = new Morpheme("With", "With");
-
+  // tahtamsı
   public static final Morpheme justLike = new Morpheme("JustLike", "JustLike");
+  // tahtalaş
   public static final Morpheme become = new Morpheme("Become", "Become");
+  // tahtalan
+  public static final Morpheme acquire = new Morpheme("Acquire", "Acquire");
+
+  // TODO: Find the meaning of this.
+  public static final Morpheme agt = new Morpheme("Agt", "Agt");
 
   // Zero derivation
   public static final Morpheme zero = new Morpheme("Zero", "Zero");
@@ -169,6 +175,7 @@ public class TurkishMorphotactics {
   MorphemeState justLike_S = nonTerminalDerivative("justLike_S", justLike);
   MorphemeState nounZeroDeriv_S = nonTerminalDerivative("nounZeroDeriv_S", zero);
   MorphemeState become_S = nonTerminalDerivative("become_S", become);
+  MorphemeState acquire_S = nonTerminalDerivative("acquire_S", acquire);
 
   //-------------- Conditions ------------------------------
 
@@ -214,6 +221,7 @@ public class TurkishMorphotactics {
 
     pnonCompound_S.addEmpty(nom_S);
     nom_S.add(become_S, "lAş");
+    nom_S.add(acquire_S, "lAn");
 
     // for compound roots like "zeytinyağ-lar-ı" generate two transition
     // NounCompound--(lAr)--> a3plCompound ---> p3sg_S, P1sg etc.
@@ -236,6 +244,7 @@ public class TurkishMorphotactics {
         .add(p2pl_S, "InIz")
         .add(p3pl_S, "I");
 
+    // this path is used for plural analysis (A3pl+Pnon+Nom) of compound words.
     a3plCompound2_S.addEmpty(pnonCompound2_S);
     pnonCompound2_S.addEmpty(nom_ST);
 
@@ -417,6 +426,11 @@ public class TurkishMorphotactics {
         noSurfaceAfterDerivation.andNot(new ContainsMorpheme(adj)));
     become_S.addEmpty(verbRoot_S);
 
+    nom_ST.add(acquire_S,"lAn",
+        noSurfaceAfterDerivation.andNot(new ContainsMorpheme(adj)));
+    acquire_S.addEmpty(verbRoot_S);
+
+
   }
 
   //-------------- Adjective States ------------------------
@@ -446,6 +460,7 @@ public class TurkishMorphotactics {
             .and(new ContainsMorpheme(justLike).not()));
 
     adj_ST.add(become_S,"lAş", new NoSurfaceAfterDerivation());
+    adj_ST.add(acquire_S,"lAn", new NoSurfaceAfterDerivation());
   }
 
   //-------------- Adjective-Noun connected Verb States ------------------------

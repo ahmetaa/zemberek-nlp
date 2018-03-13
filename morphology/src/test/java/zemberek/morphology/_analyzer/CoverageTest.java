@@ -65,7 +65,7 @@ public class CoverageTest {
 
       if (batch.size() > 0) {
         service.submit(() -> {
-          List<String> failed = new ArrayList<>(batchSize/2);
+          List<String> failed = new ArrayList<>(batchSize / 2);
           for (String s : batch) {
             List<AnalysisResult> results = analyzer.analyze(s);
             if (results.size() == 0) {
@@ -97,7 +97,8 @@ public class CoverageTest {
   }
 
   class Result {
-    List<String> failedWords = new ArrayList<>();
+
+    List<String> failedWords;
     int wordCount;
 
     Result(List<String> failedWords, int wordCount) {
