@@ -193,13 +193,17 @@ public class SuffixTransition extends MorphemeTransition {
       return false;
     }
     SuffixTransition that = (SuffixTransition) o;
+    String thisCondition = condition == null ? "" : condition.toString();
+    String otherCondition = that.condition == null ? "" : that.condition.toString();
     return Objects.equals(surfaceTemplate, that.surfaceTemplate)
         && Objects.equals(from, that.from)
-        && Objects.equals(to, that.to);
+        && Objects.equals(to, that.to)
+        && Objects.equals(thisCondition, otherCondition);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(surfaceTemplate, from, to);
+    String thisCondition = condition == null ? "" : condition.toString();
+    return Objects.hash(surfaceTemplate, from, to, thisCondition);
   }
 }

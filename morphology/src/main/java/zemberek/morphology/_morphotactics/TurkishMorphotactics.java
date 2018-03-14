@@ -106,6 +106,7 @@ public class TurkishMorphotactics {
   public static final Morpheme agt = new Morpheme("Agt", "Agt");
   // Past participle
   public static final Morpheme pastPart = new Morpheme("PastParticiple", "PastPart");
+  public static final Morpheme futPart = new Morpheme("FutureParticiple", "FutPart");
 
 
   // Zero derivation
@@ -436,28 +437,33 @@ public class TurkishMorphotactics {
     Condition noSurfaceAfterDerivation = new NoSurfaceAfterDerivation();
     nom_ST.add(with_S, "lI",
         noSurfaceAfterDerivation
-            .and(new ContainsMorpheme(with).not()));
+            .andNot(new ContainsMorpheme(with)));
 
     nom_ST.add(justLike_S, "+msI",
         noSurfaceAfterDerivation
-            .and(new ContainsMorpheme(justLike, adj).not()));
+            .andNot(new ContainsMorpheme(justLike, adj)));
 
     nom_ST.add(justLike_S, "ImsI",
         notHave(PhoneticAttribute.LastLetterVowel)
             .and(noSurfaceAfterDerivation)
-            .and(new ContainsMorpheme(justLike, adj).not()));
+            .andNot(new ContainsMorpheme(justLike, adj)));
 
     // connect With to Adjective root.
     with_S.addEmpty(adj_ST);
 
     justLike_S.addEmpty(adj_ST);
 
+    ContainsMorpheme verbDeriv = new ContainsMorpheme(inf1, inf2, inf3, pastPart, futPart);
+
     nom_ST.add(become_S, "lAş",
-        noSurfaceAfterDerivation.andNot(new ContainsMorpheme(adj)));
+        noSurfaceAfterDerivation.andNot(new ContainsMorpheme(adj))
+            .andNot(verbDeriv));
     become_S.addEmpty(verbRoot_S);
 
     nom_ST.add(acquire_S, "lAn",
-        noSurfaceAfterDerivation.andNot(new ContainsMorpheme(adj)));
+        noSurfaceAfterDerivation.andNot(new ContainsMorpheme(adj))
+            .andNot(verbDeriv));
+
     acquire_S.addEmpty(verbRoot_S);
 
     // Inf1 mak makes noun derivation. However, it cannot get any possessive or plural suffix.
@@ -513,12 +519,12 @@ public class TurkishMorphotactics {
     adj_ST.add(acquire_S, "lAn", new NoSurfaceAfterDerivation());
 
     adjAfterVerb_S.addEmpty(aPnon_ST);
-    adjAfterVerb_S.add(aP1sg_ST,"Im");
-    adjAfterVerb_S.add(aP2sg_ST,"In");
-    adjAfterVerb_S.add(aP3sg_ST,"I");
-    adjAfterVerb_S.add(aP1pl_ST,"ImIz");
-    adjAfterVerb_S.add(aP2pl_ST,"InIz");
-    adjAfterVerb_S.add(aP3pl_ST,"lArI");
+    adjAfterVerb_S.add(aP1sg_ST, "Im");
+    adjAfterVerb_S.add(aP2sg_ST, "In");
+    adjAfterVerb_S.add(aP3sg_ST, "I");
+    adjAfterVerb_S.add(aP1pl_ST, "ImIz");
+    adjAfterVerb_S.add(aP2pl_ST, "InIz");
+    adjAfterVerb_S.add(aP3pl_ST, "lArI");
 
   }
 
@@ -564,31 +570,32 @@ public class TurkishMorphotactics {
     Condition noFamily = notHave(RootAttribute.FamilyMember);
     // for preventing elmamım, elmamdım
     // pP1sg_S, pDat_ST, pA1sg_S, pA1pl_S, pA3pl_S, pP2sg_S, pP1pl_S, pP3sg_S, pP1sg_S
+    ContainsMorpheme verbDeriv = new ContainsMorpheme(inf1, inf2, inf3, pastPart, futPart);
     Condition allowA1sgTrans =
         noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
             .andNot(new Conditions.PreviousGroupContains(p1sg_S))
-            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3,pastPart));
+            .andNot(verbDeriv);
     Condition allowA2sgTrans =
         noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
             .andNot(new Conditions.PreviousGroupContains(p2sg_S))
-            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3,pastPart));
+            .andNot(verbDeriv);
     Condition allowA3plTrans =
         noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
             .andNot(new Conditions.PreviousGroupContains(a3pl_S, p3pl_S, a3plCompound_S))
-            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3,pastPart));
+            .andNot(verbDeriv);
     Condition allowA2plTrans =
         noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
             .andNot(new Conditions.PreviousGroupContains(p2pl_S))
-            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3,pastPart));
+            .andNot(verbDeriv);
     Condition allowA1plTrans =
         noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
             .andNot(new Conditions.PreviousGroupContains(p1pl_S, p1sg_S))
-            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3,pastPart));
+            .andNot(verbDeriv);
     // elma-yım
     nPresent_S.add(nA1sg_ST, "+yIm", allowA1sgTrans);
     nPresent_S.add(nA2sg_ST, "sIn", allowA1sgTrans);
@@ -963,6 +970,7 @@ public class TurkishMorphotactics {
   MorphemeState vInf3_S = nonTerminalDerivative("vInf3_S", inf3);
 
   MorphemeState vPastPart_S = nonTerminalDerivative("vPastPart_S", pastPart);
+  MorphemeState vFutPart_S = nonTerminalDerivative("vFutPart_S", futPart);
 
   public MorphemeState vDeYeRoot_S = builder("vDeYeRoot_S", verb).posRoot().build();
 
@@ -1061,6 +1069,8 @@ public class TurkishMorphotactics {
     vNeg_S.add(vInf3_S, "yIş");
     vNeg_S.add(vPastPart_S, "dI~k");
     vNeg_S.add(vPastPart_S, "dI!ğ");
+    vNeg_S.add(vFutPart_S, "yAcA~k");
+    vNeg_S.add(vFutPart_S, "yAcA!ğ");
 
     // Negative form is "m" before progressive "Iyor" because last vowel drops.
     // We use a separate negative state for this.
@@ -1118,6 +1128,12 @@ public class TurkishMorphotactics {
     verbRoot_S.add(vPastPart_S, ">dI!ğ");
     vPastPart_S.addEmpty(noun_S);
     vPastPart_S.addEmpty(adjAfterVerb_S);
+
+    // FutPart "oku-yacağ-ım kitap"
+    verbRoot_S.add(vFutPart_S, "yAcA~k");
+    verbRoot_S.add(vFutPart_S, "yAcA!ğ");
+    vFutPart_S.addEmpty(noun_S);
+    vFutPart_S.addEmpty(adjAfterVerb_S);
 
     // Passive
     // Causes Verb-Verb derivation. Passive morpheme has three forms.
@@ -1191,7 +1207,7 @@ public class TurkishMorphotactics {
     vFut_S
         .add(vA1sg_ST, "Im")
         .add(vA2sg_ST, "sIn")
-        .addEmpty(vA3sg_ST, has(PhoneticAttribute.ExpectsConsonant)) // for preventing "geleceğ"
+        .addEmpty(vA3sg_ST)
         .add(vA1pl_ST, "Iz")
         .add(vA2pl_ST, "sInIz")
         .add(vA3pl_ST, "lAr");
@@ -1213,6 +1229,9 @@ public class TurkishMorphotactics {
         .add(vProgYor_S, "yor", diYiCondition)
         .add(vAble_S, "yebil", diYiCondition)
         .add(vAbleNeg_S, "ye", diYiCondition)
+        .add(vInf3_S, "yiş", new RootSurfaceIsAny("yi"))
+        .add(vFutPart_S, "yece~k", diYiCondition)
+        .add(vFutPart_S, "yece!ğ", diYiCondition)
         .add(vOpt_S, "ye", diYiCondition);
 
     vDeYeRoot_S
@@ -1226,6 +1245,11 @@ public class TurkishMorphotactics {
         .add(vNegProg1_S, "m", deYeCondition)
         .add(vProgMakta_S, "mekte", deYeCondition)
         .add(vDesr_S, "se", deYeCondition)
+        .add(vInf1_S, "mek", deYeCondition)
+        .add(vInf2_S, "me", deYeCondition)
+        .add(vInf3_S, "yiş", new RootSurfaceIsAny("de"))
+        .add(vPastPart_S, "di~k", deYeCondition)
+        .add(vPastPart_S, "di~ğ", deYeCondition)
         .addEmpty(vImp_S, deYeCondition);
 
     // Optative (gel-e, gel-eyim gel-me-ye-yim)

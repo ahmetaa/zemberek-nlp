@@ -97,7 +97,8 @@ public class InterpretingAnalyzer {
         // if there are no more letters to consume and path can be terminated, we accept this
         // path as a correct result.
         if (path.tail.length() == 0) {
-          if (path.isTerminal()) {
+          if (path.isTerminal() &&
+              !path.phoneticAttributes.contains(PhoneticAttribute.CannotTerminate)) {
             AnalysisResult analysis = new AnalysisResult(path);
             result.add(analysis);
             if (debugData != null) {
@@ -206,11 +207,13 @@ public class InterpretingAnalyzer {
       // an extra attribute is added if "cik" or "ciğ" is generated and matches the tail.
       // if "cik" is generated, ExpectsConsonant attribute is added, so only a consonant starting
       // suffix can follow. Likewise, if "ciğ" is produced, a vowel starting suffix is allowed.
+      attributes.remove(PhoneticAttribute.CannotTerminate);
       SuffixTemplateToken lastToken = suffixTransition.getLastTemplateToken();
       if (lastToken.type == TemplateTokenType.LAST_VOICED) {
         attributes.add(PhoneticAttribute.ExpectsConsonant);
       } else if (lastToken.type == TemplateTokenType.LAST_NOT_VOICED) {
         attributes.add(PhoneticAttribute.ExpectsVowel);
+        attributes.add(PhoneticAttribute.CannotTerminate);
       }
 
       SearchPath p = path.getCopy(

@@ -136,6 +136,9 @@ okumayacağım	oku	+Verb+Neg^DB+Noun+FutPart+A3sg+P1sg+Nom
 
 Do not allow Verb+PastPart->Noun->Verb+Pres+A1pl for "okmadığım"
 
+After adding PhoneticAttribute CannotTerminate we may remove some ExpectWovel conditions from
+Morphotactics
+
 
 ----
 
