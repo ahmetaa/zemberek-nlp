@@ -1130,8 +1130,8 @@ public class TurkishMorphotactics {
     vPastPart_S.addEmpty(adjAfterVerb_S);
 
     // FutPart "oku-yacağ-ım kitap"
-    verbRoot_S.add(vFutPart_S, "yAcA~k");
-    verbRoot_S.add(vFutPart_S, "yAcA!ğ");
+    verbRoot_S.add(vFutPart_S, "+yAcA~k");
+    verbRoot_S.add(vFutPart_S, "+yAcA!ğ");
     vFutPart_S.addEmpty(noun_S);
     vFutPart_S.addEmpty(adjAfterVerb_S);
 

@@ -139,6 +139,7 @@ Do not allow Verb+PastPart->Noun->Verb+Pres+A1pl for "okmadığım"
 After adding PhoneticAttribute CannotTerminate we may remove some ExpectWovel conditions from
 Morphotactics
 
+Oflazer does not solve Adj+Pnon for FuturePart.
 
 ----
 
