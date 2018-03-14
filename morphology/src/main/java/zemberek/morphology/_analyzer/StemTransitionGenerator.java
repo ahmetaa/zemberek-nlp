@@ -85,40 +85,11 @@ public class StemTransitionGenerator {
   }
 
   private AttributeSet<PhoneticAttribute> calculateAttributes(String input) {
-    return calculateAttributes(new TurkishLetterSequence(input, alphabet));
+    return AttributesHelper.getMorphemicAttributes(input);
   }
 
   private AttributeSet<PhoneticAttribute> calculateAttributes(TurkishLetterSequence sequence) {
-    AttributeSet<PhoneticAttribute> attrs = new AttributeSet<>();
-    // general phonetic attributes.
-    if (sequence.vowelCount() > 0) {
-      if (sequence.lastVowel().isRounded()) {
-        attrs.add(PhoneticAttribute.LastVowelRounded);
-      } else {
-        attrs.add(PhoneticAttribute.LastVowelUnrounded);
-      }
-      if (sequence.lastVowel().isFrontal()) {
-        attrs.add(PhoneticAttribute.LastVowelFrontal);
-      } else {
-        attrs.add(PhoneticAttribute.LastVowelBack);
-      }
-    }
-    if (sequence.lastLetter().isVowel()) {
-      // elma
-      attrs.add(PhoneticAttribute.LastLetterVowel);
-    } else {
-      attrs.add(PhoneticAttribute.LastLetterConsonant);
-    }
-    if (sequence.lastLetter().isVoiceless()) {
-      attrs.add(PhoneticAttribute.LastLetterVoiceless);
-      if (sequence.lastLetter().isStopConsonant()) {
-        // kitap
-        attrs.add(PhoneticAttribute.LastLetterVoicelessStop);
-      }
-    } else {
-      attrs.add(PhoneticAttribute.LastLetterVoiced);
-    }
-    return attrs;
+    return AttributesHelper.getMorphemicAttributes(sequence);
   }
 
   private List<StemTransition> generateModifiedRootNodes(DictionaryItem dicItem) {

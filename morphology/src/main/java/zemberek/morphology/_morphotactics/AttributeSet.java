@@ -1,8 +1,10 @@
 package zemberek.morphology._morphotactics;
 
-import java.util.EnumSet;
+import javax.management.Attribute;
 
 public class AttributeSet<E extends Enum<E>> {
+
+  private static final AttributeSet EMPTY_SET = new AttributeSet<>();
 
   private int bits;
 
@@ -12,18 +14,6 @@ public class AttributeSet<E extends Enum<E>> {
 
   private AttributeSet(int initialValue) {
     this.bits = initialValue;
-  }
-
-  public static AttributeSet copyOf(AttributeSet other) {
-    return new AttributeSet(other.bits);
-  }
-
-  public static <E extends Enum<E>> AttributeSet<E> fromSet(EnumSet<E> enumSet) {
-    AttributeSet<E> res = new AttributeSet<>();
-    for (E e : enumSet) {
-      res.add(e);
-    }
-    return res;
   }
 
   public static  <E extends Enum<E>> AttributeSet<E> of(E e1) {
@@ -44,6 +34,11 @@ public class AttributeSet<E extends Enum<E>> {
     res.add(e2);
     res.add(e3);
     return res;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <E extends Enum<E>> AttributeSet<E> emptySet() {
+    return (AttributeSet<E>) EMPTY_SET;
   }
 
   public void copyFrom(AttributeSet<E> other) {
