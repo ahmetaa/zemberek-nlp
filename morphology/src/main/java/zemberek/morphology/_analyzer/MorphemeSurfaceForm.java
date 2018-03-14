@@ -19,13 +19,13 @@ import static zemberek.core.turkish.TurkishAlphabet.L_uu;
 import static zemberek.morphology.structure.Turkish.Alphabet;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.TurkicLetter;
 import zemberek.core.turkish.TurkishLetterSequence;
+import zemberek.morphology._morphotactics.AttributeSet;
 import zemberek.morphology._morphotactics.MorphemeState;
 import zemberek.morphology._morphotactics.MorphemeTransition;
 import zemberek.morphology._morphotactics.SuffixTransition;
@@ -64,9 +64,9 @@ public class MorphemeSurfaceForm {
 
   public static String generate(
       SuffixTransition transition,
-      EnumSet<PhoneticAttribute> phoneticAttributes) {
+      AttributeSet<PhoneticAttribute> phoneticAttributes) {
 
-    String cached = transition.getSurfaceCache().get(phoneticAttributes);
+    String cached = transition.getSurfaceCache().get(phoneticAttributes.getBits());
     if (cached != null) {
       return cached;
     }
@@ -74,7 +74,7 @@ public class MorphemeSurfaceForm {
     TurkishLetterSequence seq = new TurkishLetterSequence();
     int index = 0;
     for (SuffixTemplateToken token : transition.getTokenList()) {
-      EnumSet<PhoneticAttribute> attrs = defineMorphemicAttributes(seq, phoneticAttributes);
+      AttributeSet<PhoneticAttribute> attrs = defineMorphemicAttributes(seq, phoneticAttributes);
       switch (token.type) {
         case LETTER:
           seq.append(token.letter);
@@ -135,7 +135,7 @@ public class MorphemeSurfaceForm {
       index++;
     }
     String s = seq.toString();
-    transition.getSurfaceCache().put(phoneticAttributes.clone(), s);
+    transition.getSurfaceCache().put(phoneticAttributes.getBits(), s);
     return s;
   }
 
@@ -144,13 +144,13 @@ public class MorphemeSurfaceForm {
   private static final List<PhoneticAttribute> NO_VOWEL_ATTRIBUTES = Arrays
       .asList(LastLetterConsonant, FirstLetterConsonant, HasNoVowel);
 
-  public static EnumSet<PhoneticAttribute> defineMorphemicAttributes(
+  public static AttributeSet<PhoneticAttribute> defineMorphemicAttributes(
       TurkishLetterSequence seq,
-      EnumSet<PhoneticAttribute> predecessorAttrs) {
+      AttributeSet<PhoneticAttribute> predecessorAttrs) {
     if (seq.length() == 0) {
-      return EnumSet.copyOf(predecessorAttrs);
+      return predecessorAttrs.copy();
     }
-    EnumSet<PhoneticAttribute> attrs = EnumSet.noneOf(PhoneticAttribute.class);
+    AttributeSet<PhoneticAttribute> attrs = new AttributeSet<>();
     if (seq.hasVowel()) {
       if (seq.lastVowel().isFrontal()) {
         attrs.add(LastVowelFrontal);
@@ -174,7 +174,7 @@ public class MorphemeSurfaceForm {
       }
     } else {
       // we transfer vowel attributes from the predecessor attributes.
-      attrs = EnumSet.copyOf(predecessorAttrs);
+      attrs.copyFrom(predecessorAttrs);
       attrs.addAll(NO_VOWEL_ATTRIBUTES);
       attrs.remove(LastLetterVowel);
     }
@@ -190,8 +190,8 @@ public class MorphemeSurfaceForm {
     return attrs;
   }
 
-  EnumSet<PhoneticAttribute> defineMorphemicAttributes(TurkishLetterSequence seq) {
-    return defineMorphemicAttributes(seq, EnumSet.noneOf(PhoneticAttribute.class));
+  AttributeSet<PhoneticAttribute> defineMorphemicAttributes(TurkishLetterSequence seq) {
+    return defineMorphemicAttributes(seq, new AttributeSet<>());
   }
 
   public enum TemplateTokenType {

@@ -1,6 +1,5 @@
 package zemberek.morphology._morphotactics;
 
-import java.util.EnumSet;
 import java.util.Objects;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.morphology.lexicon.DictionaryItem;
@@ -9,12 +8,12 @@ public class StemTransition extends MorphemeTransition {
 
   public final String surface;
   public final DictionaryItem item;
-  EnumSet<PhoneticAttribute> phoneticAttributes;
+  AttributeSet<PhoneticAttribute> phoneticAttributes;
 
   public StemTransition(
       String surface,
       DictionaryItem item,
-      EnumSet<PhoneticAttribute> phoneticAttributes,
+      AttributeSet<PhoneticAttribute> phoneticAttributes,
       MorphemeState toState) {
     this.surface = surface;
     this.item = item;
@@ -28,7 +27,7 @@ public class StemTransition extends MorphemeTransition {
     return t;
   }
 
-  public EnumSet<PhoneticAttribute> getPhoneticAttributes() {
+  public AttributeSet<PhoneticAttribute> getPhoneticAttributes() {
     return phoneticAttributes;
   }
 

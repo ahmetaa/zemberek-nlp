@@ -2,8 +2,8 @@ package zemberek.morphology._analyzer;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology._morphotactics.StemTransition;
+import zemberek.morphology.lexicon.DictionaryItem;
 
 public class AnalysisResult {
 
