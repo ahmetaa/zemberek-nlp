@@ -115,5 +115,4 @@ public class CoverageTest {
         seconds, wordCount, coverage, speed);
   }
 
-
 }

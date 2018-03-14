@@ -104,6 +104,8 @@ public class TurkishMorphotactics {
   public static final Morpheme inf3 = new Morpheme("Infinitive3", "Inf3");
   // TODO: Find the meaning of this.
   public static final Morpheme agt = new Morpheme("Agt", "Agt");
+  // Past participle
+  public static final Morpheme pastPart = new Morpheme("PastParticiple", "PastPart");
 
 
   // Zero derivation
@@ -472,9 +474,20 @@ public class TurkishMorphotactics {
 
   //-------------- Adjective States ------------------------
 
-  MorphemeState adj_ST = terminal("adj_ST", adj);
+  MorphemeState adj_ST = builder("adj_ST", adj).terminal().posRoot().build();
+  MorphemeState adjAfterVerb_S = builder("adjAfterVerb_ST", adj).posRoot().build();
 
   MorphemeState adjZeroDeriv_S = nonTerminalDerivative("adjZeroDeriv_S", zero);
+
+  // After verb->adj derivations Adj can get possesive suffixes.
+  // Such as "oku-duğ-um", "okuyacağı"
+  MorphemeState aPnon_ST = terminal("aPnon_ST", pnon);
+  MorphemeState aP1sg_ST = terminal("aP1sg_ST", p1sg);
+  MorphemeState aP2sg_ST = terminal("aP2sg_ST", p2sg);
+  MorphemeState aP3sg_ST = terminal("aP3sg_ST", p3sg);
+  MorphemeState aP1pl_ST = terminal("aP3sg_ST", p1pl);
+  MorphemeState aP2pl_ST = terminal("aP2pl_ST", p2pl);
+  MorphemeState aP3pl_ST = terminal("aP3pl_ST", p3pl);
 
   private void connectAdjectiveStates() {
 
@@ -498,6 +511,15 @@ public class TurkishMorphotactics {
 
     adj_ST.add(become_S, "lAş", new NoSurfaceAfterDerivation());
     adj_ST.add(acquire_S, "lAn", new NoSurfaceAfterDerivation());
+
+    adjAfterVerb_S.addEmpty(aPnon_ST);
+    adjAfterVerb_S.add(aP1sg_ST,"Im");
+    adjAfterVerb_S.add(aP2sg_ST,"In");
+    adjAfterVerb_S.add(aP3sg_ST,"I");
+    adjAfterVerb_S.add(aP1pl_ST,"ImIz");
+    adjAfterVerb_S.add(aP2pl_ST,"InIz");
+    adjAfterVerb_S.add(aP3pl_ST,"lArI");
+
   }
 
   //-------------- Adjective-Noun connected Verb States ------------------------
@@ -529,6 +551,8 @@ public class TurkishMorphotactics {
     // elma-ymış
     nVerb_S.add(nNarr_S, "+ymIş");
 
+    nVerb_S.add(nCond_S, "+ysA");
+
     // word "değil" is special. It contains negative suffix implicitly. Also it behaves like
     // noun->Verb Zero morpheme derivation. because it cannot have most Verb suffixes.
     // So we connect it to a separate root state "nVerbDegil" instead of Verb
@@ -544,35 +568,33 @@ public class TurkishMorphotactics {
         noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
             .andNot(new Conditions.PreviousGroupContains(p1sg_S))
-            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3));
+            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3,pastPart));
     Condition allowA2sgTrans =
         noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
             .andNot(new Conditions.PreviousGroupContains(p2sg_S))
-            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3));
+            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3,pastPart));
     Condition allowA3plTrans =
         noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
             .andNot(new Conditions.PreviousGroupContains(a3pl_S, p3pl_S, a3plCompound_S))
-            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3));
+            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3,pastPart));
     Condition allowA2plTrans =
         noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
             .andNot(new Conditions.PreviousGroupContains(p2pl_S))
-            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3));
+            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3,pastPart));
     Condition allowA1plTrans =
         noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
             .andNot(new Conditions.PreviousGroupContains(p1pl_S, p1sg_S))
-            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3));
+            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3,pastPart));
     // elma-yım
     nPresent_S.add(nA1sg_ST, "+yIm", allowA1sgTrans);
     nPresent_S.add(nA2sg_ST, "sIn", allowA1sgTrans);
 
     // elma-ε-ε-dır to non terminal A3sg. We do not allow ending with A3sg from empty Present tense.
     nPresent_S.addEmpty(nA3sg_S);
-
-    nPresent_S.add(nCond_S, "+ysA");
 
     // we allow `değil` to end with terminal A3sg from Present tense.
     nPresent_S.addEmpty(nA3sg_ST, rootIs(degilRoot));
@@ -940,6 +962,8 @@ public class TurkishMorphotactics {
   MorphemeState vInf2_S = nonTerminalDerivative("vInf2_S", inf2);
   MorphemeState vInf3_S = nonTerminalDerivative("vInf3_S", inf3);
 
+  MorphemeState vPastPart_S = nonTerminalDerivative("vPastPart_S", pastPart);
+
   public MorphemeState vDeYeRoot_S = builder("vDeYeRoot_S", verb).posRoot().build();
 
   private void connectVerbs() {
@@ -1035,6 +1059,8 @@ public class TurkishMorphotactics {
     vNeg_S.add(vInf1_S, "mAk");
     vNeg_S.add(vInf2_S, "mA");
     vNeg_S.add(vInf3_S, "yIş");
+    vNeg_S.add(vPastPart_S, "dI~k");
+    vNeg_S.add(vPastPart_S, "dI!ğ");
 
     // Negative form is "m" before progressive "Iyor" because last vowel drops.
     // We use a separate negative state for this.
@@ -1086,6 +1112,12 @@ public class TurkishMorphotactics {
     // Causes Verb to Noun derivation.
     verbRoot_S.add(vInf3_S, "+yIş");
     vInf3_S.addEmpty(noun_S);
+
+    // PastPart "oku-duğ-um"
+    verbRoot_S.add(vPastPart_S, ">dI~k");
+    verbRoot_S.add(vPastPart_S, ">dI!ğ");
+    vPastPart_S.addEmpty(noun_S);
+    vPastPart_S.addEmpty(adjAfterVerb_S);
 
     // Passive
     // Causes Verb-Verb derivation. Passive morpheme has three forms.

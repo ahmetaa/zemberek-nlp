@@ -196,10 +196,12 @@ public class AnalyzerTestBase {
     }
 
     void expectFalse(String input, AnalysisMatcher matcher) {
-      AnalysisResult result = getSingleAnalysis(analyzer, input);
-      if (matcher.predicate.test(result)) {
-        printDebug(analyzer, input);
-        Assert.fail("Anaysis Failed for [" + input + "]");
+      List<AnalysisResult> results = getMultipleAnalysis(analyzer, input);
+      for (AnalysisResult result : results) {
+        if (matcher.predicate.test(result)) {
+          printDebug(analyzer, input);
+          Assert.fail("Anaysis Failed for [" + input + "]");
+        }
       }
     }
   }

@@ -9,7 +9,7 @@ public class AdjectiveToVerbTest extends AnalyzerTestBase {
     AnalysisTester t = getTester("beyaz [P:Adj]");
 
     t.expectSingle("beyazlaş", matchesTailLex("Adj + Become + Verb + Imp + A2sg"));
-    t.expectSingle("beyazlaştık", matchesTailLex("Adj + Become + Verb + Past + A1pl"));
+    t.expectAny("beyazlaştık", matchesTailLex("Adj + Become + Verb + Past + A1pl"));
     t.expectSingle("beyazlaşacak", matchesTailLex("Adj + Become + Verb + Fut + A3sg"));
 
     t.expectFail(

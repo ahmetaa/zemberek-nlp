@@ -125,6 +125,18 @@ yaz+Verb+Pos+Neces+A3pl
 yaz+Verb+Pos^DB+Noun+Inf2+A3sg+Pnon+Nom^DB+Adj+With^DB+Noun+Zero+A3pl+Pnon+Nom
 
 
+for "okumayacak" oflazer offers:
+okumayacak	oku	+Verb+Neg+Fut+A3sg
+okumayacak	oku	+Verb+Neg^DB+Adj+FutPart+Pnon  <-- This is odd. Oflzer normally does not
+use possesive suffixes with Adjectives. First a noun derivation occurs. Same goes for
+"okumayacağım"
+okumayacağım	oku	+Verb+Neg+Fut+A1sg
+okumayacağım	oku	+Verb+Neg^DB+Adj+FutPart+P1sg
+okumayacağım	oku	+Verb+Neg^DB+Noun+FutPart+A3sg+P1sg+Nom
+
+Do not allow Verb+PastPart->Noun->Verb+Pres+A1pl for "okmadığım"
+
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.
