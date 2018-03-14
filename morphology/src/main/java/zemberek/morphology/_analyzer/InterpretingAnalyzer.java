@@ -200,8 +200,7 @@ public class InterpretingAnalyzer {
       //if tail is equal to surface, no need to calculate phonetic attributes.
       AttributeSet<PhoneticAttribute> attributes = path.tail.equals(surface) ?
           path.phoneticAttributes.copy() :
-          MorphemeSurfaceForm.defineMorphemicAttributes(new TurkishLetterSequence(surface,
-              TurkishAlphabet.INSTANCE), path.phoneticAttributes);
+          AttributesHelper.getMorphemicAttributes(surface, path.phoneticAttributes);
 
       // This is required for suffixes like `cik` and `ciğ`
       // an extra attribute is added if "cik" or "ciğ" is generated and matches the tail.
