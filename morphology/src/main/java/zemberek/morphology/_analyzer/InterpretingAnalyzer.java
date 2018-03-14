@@ -307,11 +307,11 @@ public class InterpretingAnalyzer {
           }
         }
       }
-      l.add("Results (Surface + Morpheme State):");
+      l.add("Results [" + input + "] (Surface + Morpheme State):");
       for (AnalysisResult result : results) {
         l.add("  " + result);
       }
-      l.add("Results (Surface + Morpheme):");
+      l.add("Results [" + input + "] (Surface + Morpheme):");
       for (AnalysisResult result : results) {
         l.add("  " + result.shortForm());
       }

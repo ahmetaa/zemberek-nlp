@@ -1,7 +1,5 @@
 package zemberek.morphology._morphotactics;
 
-import javax.management.Attribute;
-
 public class AttributeSet<E extends Enum<E>> {
 
   private static final AttributeSet EMPTY_SET = new AttributeSet<>();
@@ -28,11 +26,20 @@ public class AttributeSet<E extends Enum<E>> {
     res.add(e2);
     return res;
   }
+
   public static  <E extends Enum<E>> AttributeSet<E> of(E e1, E e2, E e3) {
     AttributeSet<E> res = new AttributeSet<>();
     res.add(e1);
     res.add(e2);
     res.add(e3);
+    return res;
+  }
+
+  public static  <E extends Enum<E>> AttributeSet<E> of(E... enums) {
+    AttributeSet<E> res = new AttributeSet<>();
+    for (E en : enums) {
+      res.add(en);
+    }
     return res;
   }
 
