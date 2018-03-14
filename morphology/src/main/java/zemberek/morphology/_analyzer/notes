@@ -110,6 +110,21 @@ zeytinyağı+Noun+A3pl+P3pl+Nom
 zeytinyağı+Noun+A3pl+Pnon+Nom // This one seems to be the different one. Perhaps here because
 
 Inf1 -> Noun -> Verb may contain false positives.
+
+aramaktayım ->  has ara:Verb + mak:Inf1 + Noun + A3sg + Pnon + ta:Loc + Zero + Verb + Pres + yım:A1sg solution
+yazmalıyım -> yaz:Verb + ma:Inf2 + Noun + A3sg + Pnon + Nom + lı:With + Adj + Zero + Verb + Pres + yım:A1sg
+yazmalıyız -> yaz:Verb + ma:Inf2 + Noun + A3sg + Pnon + Nom + lı:With + Adj + Zero + Verb + Pres + yız:A1pl
+false positive? Oflazer accepts.
+
+yazmalılar:
+yaz:Verb + malı:Neces + lar:A3pl
+yaz:Verb + ma:Inf2 + Noun + A3sg + Pnon + Nom + lı:With + Adj + Zero + Verb + Pres + lar:A3pl
+yaz:Verb + ma:Inf2 + Noun + A3sg + Pnon + Nom + lı:With + Adj + Zero + Noun + lar:A3pl + Pnon + Nom
+three solution is too much. Ofalzer offers:
+yaz+Verb+Pos+Neces+A3pl
+yaz+Verb+Pos^DB+Noun+Inf2+A3sg+Pnon+Nom^DB+Adj+With^DB+Noun+Zero+A3pl+Pnon+Nom
+
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.
