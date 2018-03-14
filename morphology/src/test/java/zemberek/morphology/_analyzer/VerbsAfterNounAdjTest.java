@@ -106,4 +106,26 @@ public class VerbsAfterNounAdjTest extends AnalyzerTestBase {
     );
   }
 
+  @Test
+  public void A2plTest() {
+    AnalysisTester tester = getTester("elma");
+
+    tester.expectSingle("elmasınız", matchesTailLex("Zero + Verb + Pres + A2pl"));
+    tester.expectSingle("elmaydınız", matchesTailLex("Zero + Verb + Past + A2pl"));
+    tester.expectSingle("elmaymışsınız", matchesTailLex("Zero + Verb + Narr + A2pl"));
+    tester.expectSingle("elmaysanız", matchesTailLex("Zero + Verb + Pres + Cond + A2pl"));
+    tester.expectSingle("elmaymışsanız", matchesTailLex("Zero + Verb + Narr + Cond + A2pl"));
+  }
+
+  @Test
+  public void afterLocTest() {
+    AnalysisTester tester = getTester("elma");
+
+    tester.expectSingle("elmadayım", matchesTailLex("Loc + Zero + Verb + Pres + A1sg"));
+    tester.expectSingle("elmadasın", matchesTailLex("Loc + Zero + Verb + Pres + A2sg"));
+    tester.expectSingle("elmadaydı", matchesTailLex("Loc + Zero + Verb + Past + A3sg"));
+    tester.expectSingle("elmadaymışsınız", matchesTailLex("Loc + Zero + Verb + Narr + A2pl"));
+    tester.expectSingle("elmadaysak", matchesTailLex("Loc + Zero + Verb + Pres + Cond + A1pl"));
+  }
+
 }

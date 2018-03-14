@@ -160,6 +160,13 @@ public class NounsTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void Locative2() {
+    AnalysisTester t = getTester("ev");
+
+    t.expectAny("evdeyim", matchesTailLex("Noun + A3sg + Pnon + Loc + Zero + Verb + Pres + A1sg"));
+  }
+
+  @Test
   public void Instrumental() {
     AnalysisTester t = getTester("ev");
 

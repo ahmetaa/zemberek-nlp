@@ -43,7 +43,7 @@ public class CoverageTest {
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
     InterpretingAnalyzer analyzer = new InterpretingAnalyzer(lexicon);
 
-    int threadCount = Runtime.getRuntime().availableProcessors();
+    int threadCount = Runtime.getRuntime().availableProcessors() / 2;
     Log.info("Thread count = %d", threadCount);
     ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
     CompletionService<Result> service = new ExecutorCompletionService<>(executorService);

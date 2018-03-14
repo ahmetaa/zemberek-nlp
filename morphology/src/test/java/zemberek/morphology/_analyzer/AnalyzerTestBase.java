@@ -60,7 +60,7 @@ public class AnalyzerTestBase {
       List<AnalysisResult> results = analyzer.analyze(word);
       if (results.size() != 0) {
         printDebug(analyzer, word);
-        Assert.fail(word + " is expected to fail but passed.");
+        Assert.fail("["+ word + "] is expected to fail but passed.");
       }
     }
   }
@@ -70,7 +70,7 @@ public class AnalyzerTestBase {
       List<AnalysisResult> results = analyzer.analyze(word);
       if (results.size() == 0) {
         printDebug(analyzer, word);
-        Assert.fail(word + " is expected to pass but failed.");
+        Assert.fail("["+ word + "] is expected to pass but failed.");
       } else {
         printAndSort(word, results);
       }
@@ -82,7 +82,7 @@ public class AnalyzerTestBase {
       List<AnalysisResult> results = analyzer.analyze(word);
       if (results.size() != solutionCount) {
         printDebug(analyzer, word);
-        Assert.fail(word + " is expected to pass with solution count " + solutionCount +
+        Assert.fail("["+ word + "] is expected to pass with solution count " + solutionCount +
             " but failed with solution count " + results.size());
       } else {
         printAndSort(word, results);
@@ -95,9 +95,9 @@ public class AnalyzerTestBase {
     if (results.size() != 1) {
       printDebug(analyzer, input);
       if (results.size() == 0) {
-        Assert.fail(input + " cannot be analyzed");
+        Assert.fail("["+ input + "] cannot be analyzed");
       } else {
-        Assert.fail(input + " is expected to have single solution but " +
+        Assert.fail("["+ input + "] is expected to have single solution but " +
             " it has " + results.size() + " solutions");
       }
     }
@@ -113,7 +113,7 @@ public class AnalyzerTestBase {
       if (results.size() == 0) {
         Assert.fail(input + " cannot be analyzed");
       } else {
-        Assert.fail(input + " is expected to have single solution but " +
+        Assert.fail("["+ input + "] is expected to have single solution but " +
             " it has " + results.size() + " solutions");
       }
     }

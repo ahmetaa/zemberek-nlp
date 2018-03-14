@@ -512,6 +512,7 @@ public class TurkishMorphotactics {
   MorphemeState nA1sg_ST = terminal("nA1sg_ST", a1sg);
   MorphemeState nA2sg_ST = terminal("nA2sg_ST", a2sg);
   MorphemeState nA1pl_ST = terminal("nA1pl_ST", a1pl);
+  MorphemeState nA2pl_ST = terminal("nA2pl_ST", a2pl);
   MorphemeState nA3sg_ST = terminal("nA3sg_ST", a3sg);
   MorphemeState nA3sg_S = nonTerminal("nA3sg_S", a3sg);
   MorphemeState nA3pl_ST = terminal("nA3pl_ST", a3pl);
@@ -542,21 +543,31 @@ public class TurkishMorphotactics {
     Condition allowA1sgTrans =
         noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
-            .andNot(new Conditions.PreviousGroupContains(p1sg_S));
+            .andNot(new Conditions.PreviousGroupContains(p1sg_S))
+            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3));
     Condition allowA2sgTrans =
         noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
-            .andNot(new Conditions.PreviousGroupContains(p2sg_S));
+            .andNot(new Conditions.PreviousGroupContains(p2sg_S))
+            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3));
     Condition allowA3plTrans =
         noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
-            .andNot(new Conditions.PreviousGroupContains(a3pl_S, p3pl_S, a3plCompound_S));
+            .andNot(new Conditions.PreviousGroupContains(a3pl_S, p3pl_S, a3plCompound_S))
+            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3));
+    Condition allowA2plTrans =
+        noFamily
+            .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
+            .andNot(new Conditions.PreviousGroupContains(p2pl_S))
+            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3));
     Condition allowA1plTrans =
         noFamily
             .andNot(Conditions.rootPrimaryPos(PrimaryPos.Pronoun))
-            .andNot(new Conditions.PreviousGroupContains(p1pl_S, p1sg_S));
+            .andNot(new Conditions.PreviousGroupContains(p1pl_S, p1sg_S))
+            .andNot(new Conditions.ContainsMorpheme(inf1,inf2,inf3));
     // elma-yım
     nPresent_S.add(nA1sg_ST, "+yIm", allowA1sgTrans);
+    nPresent_S.add(nA2sg_ST, "sIn", allowA1sgTrans);
 
     // elma-ε-ε-dır to non terminal A3sg. We do not allow ending with A3sg from empty Present tense.
     nPresent_S.addEmpty(nA3sg_S);
@@ -571,7 +582,7 @@ public class TurkishMorphotactics {
     nPresent_S.add(nA3pl_ST, "lAr",
         notHave(RootAttribute.CompoundP3sg)
             // do not allow "okumak-lar"
-            .andNot(new Conditions.HasTailSequence(inf1, noun, a3sg, pnon, nom, zero, verb, pres ))
+            .andNot(new Conditions.PreviousGroupContainsMorpheme(inf1))
             .and(allowA3plTrans));
 
     // elma-ydı-m. Do not allow "elmaya-yım" (Oflazer accepts this)
@@ -584,6 +595,10 @@ public class TurkishMorphotactics {
     nPast_S.add(nA1pl_ST, "k", allowA1plTrans);
     nNarr_S.add(nA1pl_ST, "Iz", allowA1plTrans);
     nPresent_S.add(nA1pl_ST, "+yIz", allowA1plTrans);
+
+    nPast_S.add(nA2pl_ST, "InIz", allowA1plTrans);
+    nNarr_S.add(nA2pl_ST, "sInIz", allowA1plTrans);
+    nPresent_S.add(nA2pl_ST, "sInIz", allowA1plTrans);
 
     // elma-ydı-lar.
     nPast_S.add(nA3pl_ST, "lAr",
@@ -604,6 +619,7 @@ public class TurkishMorphotactics {
 
     nCond_S.add(nA1sg_ST, "m", allowA1sgTrans);
     nCond_S.add(nA1pl_ST, "k", allowA1plTrans);
+    nCond_S.add(nA2pl_ST, "nIz", allowA2plTrans);
     nCond_S.addEmpty(nA3sg_ST);
     nCond_S.add(nA3pl_ST, "lAr");
 
