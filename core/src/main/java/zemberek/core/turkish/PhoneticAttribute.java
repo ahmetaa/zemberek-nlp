@@ -53,7 +53,7 @@ public enum PhoneticAttribute implements StringEnum {
 
   private final String shortForm;
 
-  private PhoneticAttribute(String shortForm) {
+  PhoneticAttribute(String shortForm) {
     this.shortForm = shortForm;
   }
 

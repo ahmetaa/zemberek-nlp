@@ -60,7 +60,8 @@ public class TurkishDictionaryLoader {
         new File(Resources.getResource("tr/non-tdk.dict").getFile()),
         new File(Resources.getResource("tr/proper.dict").getFile()),
         new File(Resources.getResource("tr/proper-from-corpus.dict").getFile()),
-        new File(Resources.getResource("tr/abbreviations.dict").getFile())
+        new File(Resources.getResource("tr/abbreviations.dict").getFile()),
+        new File(Resources.getResource("tr/locations-tr.dict").getFile())
     );
     List<String> lines = Lists.newArrayList();
     for (File file : DEFAULT_DICTIONARY_FILES) {

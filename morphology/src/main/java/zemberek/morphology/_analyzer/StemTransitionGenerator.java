@@ -19,11 +19,12 @@ import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.TurkicLetter;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.core.turkish.TurkishLetterSequence;
-import zemberek.morphology.lexicon.DictionaryItem;
-import zemberek.morphology.lexicon.LexiconException;
+import zemberek.morphology._morphotactics.AttributeSet;
 import zemberek.morphology._morphotactics.MorphemeState;
 import zemberek.morphology._morphotactics.StemTransition;
 import zemberek.morphology._morphotactics.TurkishMorphotactics;
+import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.lexicon.LexiconException;
 
 
 /**
@@ -61,7 +62,7 @@ public class StemTransitionGenerator {
     if (hasModifierAttribute(item)) {
       return generateModifiedRootNodes(item);
     } else {
-      EnumSet<PhoneticAttribute> phoneticAttributes = calculateAttributes(item.pronunciation);
+      AttributeSet<PhoneticAttribute> phoneticAttributes = calculateAttributes(item.pronunciation);
       StemTransition transition = new StemTransition(
           item.root,
           item,
@@ -83,12 +84,12 @@ public class StemTransitionGenerator {
     return false;
   }
 
-  private EnumSet<PhoneticAttribute> calculateAttributes(String input) {
+  private AttributeSet<PhoneticAttribute> calculateAttributes(String input) {
     return calculateAttributes(new TurkishLetterSequence(input, alphabet));
   }
 
-  private EnumSet<PhoneticAttribute> calculateAttributes(TurkishLetterSequence sequence) {
-    EnumSet<PhoneticAttribute> attrs = EnumSet.noneOf(PhoneticAttribute.class);
+  private AttributeSet<PhoneticAttribute> calculateAttributes(TurkishLetterSequence sequence) {
+    AttributeSet<PhoneticAttribute> attrs = new AttributeSet<>();
     // general phonetic attributes.
     if (sequence.vowelCount() > 0) {
       if (sequence.lastVowel().isRounded()) {
@@ -127,8 +128,8 @@ public class StemTransitionGenerator {
     }
 
     TurkishLetterSequence modifiedSeq = new TurkishLetterSequence(dicItem.pronunciation, alphabet);
-    EnumSet<PhoneticAttribute> originalAttrs = calculateAttributes(dicItem.pronunciation);
-    EnumSet<PhoneticAttribute> modifiedAttrs = originalAttrs.clone();
+    AttributeSet<PhoneticAttribute> originalAttrs = calculateAttributes(dicItem.pronunciation);
+    AttributeSet<PhoneticAttribute> modifiedAttrs = originalAttrs.copy();
 
     for (RootAttribute attribute : dicItem.attributes) {
 
@@ -204,7 +205,7 @@ public class StemTransitionGenerator {
   private List<StemTransition> handleSpecialRoots(DictionaryItem item) {
 
     String id = item.getId();
-    EnumSet<PhoneticAttribute> originalAttrs = calculateAttributes(item.pronunciation);
+    AttributeSet<PhoneticAttribute> originalAttrs = calculateAttributes(item.pronunciation);
     StemTransition original, modified;
     MorphemeState unmodifiedRootState = morphotactics.getRootState(item, originalAttrs);
 
