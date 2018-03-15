@@ -1164,7 +1164,6 @@ public class TurkishMorphotactics {
     vNeg_S.add(vWithoutHavingDoneSo_S, "mAdAn");
     vNeg_S.add(vWithoutHavingDoneSo_S, "mAksIzIn");
 
-
     // Negative form is "m" before progressive "Iyor" because last vowel drops.
     // We use a separate negative state for this.
     verbRoot_S.add(vNegProg1_S, "m");

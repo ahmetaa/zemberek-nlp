@@ -116,6 +116,10 @@ public class VerbsTest extends AnalyzerTestBase {
         "armıyoruz",
         "armıyor"
     );
+
+    t = getTester("affetmek [A:Voicing]");
+    t.expectSingle("affetmiyor", matchesTailLex("Verb + Neg + Prog1 + A3sg"));
+
   }
 
   @Test

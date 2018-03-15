@@ -1,5 +1,6 @@
 package zemberek.morphology._analyzer;
 
+import static zemberek.core.turkish.PhoneticAttribute.ExpectsConsonant;
 import static zemberek.core.turkish.PhoneticAttribute.FirstLetterConsonant;
 import static zemberek.core.turkish.PhoneticAttribute.FirstLetterVowel;
 import static zemberek.core.turkish.PhoneticAttribute.HasNoVowel;
@@ -70,6 +71,7 @@ public class AttributesHelper {
       attrs.copyFrom(predecessorAttrs);
       attrs.addAll(NO_VOWEL_ATTRIBUTES);
       attrs.remove(LastLetterVowel);
+      attrs.remove(ExpectsConsonant);
     }
     if (seq.lastLetter().isVoiceless()) {
       attrs.add(LastLetterVoiceless);
