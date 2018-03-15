@@ -100,6 +100,12 @@ public class TurkishMorphotactics {
   // tahtalan
   public static final Morpheme acquire = new Morpheme("Acquire", "Acquire");
 
+  // oku-t oku-t-tur
+  public static final Morpheme caus = new Morpheme("Causative", "Caus");
+  // oku-yabil
+  public static final Morpheme able = new Morpheme("Ability", "Able");
+  // oku-n, oku-nul
+  public static final Morpheme pass = new Morpheme("Passive", "Pass");
   // okumak
   public static final Morpheme inf1 = new Morpheme("Infinitive1", "Inf1");
   // okuma
@@ -114,7 +120,18 @@ public class TurkishMorphotactics {
   public static final Morpheme futPart = new Morpheme("FutureParticiple", "FutPart");
   // okuyan
   public static final Morpheme presPart = new Morpheme("PresentParticiple", "PresPart");
-
+  // okuyagel
+  public static final Morpheme everSince = new Morpheme("EverSince", "EverSince");
+  // okuyadur, okuyagör
+  public static final Morpheme repeat = new Morpheme("Repeat", "Repeat");
+  // okuyayaz
+  public static final Morpheme almost = new Morpheme("Almost", "Almost");
+  // okuyuver
+  public static final Morpheme hastily = new Morpheme("Hastily", "Hastily");
+  // okuyakal
+  public static final Morpheme stay = new Morpheme("Stay", "Stay");
+  // okuyakoy
+  public static final Morpheme start = new Morpheme("Start", "Start");
 
   // Zero derivation
   public static final Morpheme zero = new Morpheme("Zero", "Zero");
@@ -141,12 +158,6 @@ public class TurkishMorphotactics {
 
   // gel, gel-sin
   public static final Morpheme imp = new Morpheme("Imparative", "Imp");
-  // oku-t oku-t-tur
-  public static final Morpheme caus = new Morpheme("Causative", "Caus");
-  // oku-yabil
-  public static final Morpheme able = new Morpheme("Ability", "Able");
-  // oku-n, oku-nul
-  public static final Morpheme pass = new Morpheme("Passive", "Pass");
   // oku-ya
   public static final Morpheme opt = new Morpheme("Optative", "Opt");
   // oku-sa
@@ -998,6 +1009,13 @@ public class TurkishMorphotactics {
   MorphemeState vFutPart_S = nonTerminalDerivative("vFutPart_S", futPart);
   MorphemeState vPresPart_S = nonTerminalDerivative("vPresPart_S", presPart);
 
+  MorphemeState vEverSince_S = nonTerminalDerivative("vEverSince_S", everSince);
+  MorphemeState vRepeat_S = nonTerminalDerivative("vRepeat_S", repeat);
+  MorphemeState vAlmost_S = nonTerminalDerivative("vAlmost_S", almost);
+  MorphemeState vHastily_S = nonTerminalDerivative("vHastily_S", hastily);
+  MorphemeState vStay_S = nonTerminalDerivative("vStay_S", stay);
+  MorphemeState vStart_S = nonTerminalDerivative("vStart_S", start);
+
   public MorphemeState vDeYeRoot_S = builder("vDeYeRoot_S", verb).posRoot().build();
 
   private void connectVerbs() {
@@ -1330,6 +1348,25 @@ public class TurkishMorphotactics {
     vA3pl_ST.add(vPastAfterTense_ST, "dI", previousNotPastNarrCond);
     vA3pl_ST.add(vNarrAfterTense_ST, "mIş", previousNotPastNarrCond);
     vA3pl_ST.add(vCond_ST, "sA", previousNotPastNarrCond);
+
+    Condition c1 = new Conditions.PreviousMorphemeIsAny(
+        everSince, repeat, almost, hastily, stay, start).not();
+
+    verbRoot_S.add(vEverSince_S, "+yAgel", c1);
+    verbRoot_S.add(vRepeat_S, "+yAdur", c1);
+    verbRoot_S.add(vRepeat_S, "+yAgör", c1);
+    verbRoot_S.add(vAlmost_S, "+yAyaz", c1);
+    verbRoot_S.add(vHastily_S, "+yIver", c1);
+    verbRoot_S.add(vStay_S, "+yAkal", c1);
+    verbRoot_S.add(vStart_S, "+yAkoy", c1);
+
+    vEverSince_S.addEmpty(verbRoot_S);
+    vRepeat_S.addEmpty(verbRoot_S);
+    vAlmost_S.addEmpty(verbRoot_S);
+    vHastily_S.addEmpty(verbRoot_S);
+    vStay_S.addEmpty(verbRoot_S);
+    vStart_S.addEmpty(verbRoot_S);
+
   }
 
   Map<String, MorphemeState> itemRootStateMap = new HashMap<>();

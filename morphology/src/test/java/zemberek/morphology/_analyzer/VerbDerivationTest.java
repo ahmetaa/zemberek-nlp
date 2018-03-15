@@ -168,4 +168,25 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Caus + Verb + Neg + PresPart + Noun + A3sg + Pnon + Loc"));
   }
 
+  @Test
+  public void multiVerbtoVerbTest() {
+    AnalysisTester tester = getTester("okumak");
+
+    tester.expectSingle("okuyagel",
+        matchesTailLex("Verb + EverSince + Verb + Imp + A2sg"));
+    tester.expectSingle("okuyadur",
+        matchesTailLex("Verb + Repeat + Verb + Imp + A2sg"));
+    tester.expectSingle("okuyagör",
+        matchesTailLex("Verb + Repeat + Verb + Imp + A2sg"));
+    tester.expectSingle("okuyayaz",
+        matchesTailLex("Verb + Almost + Verb + Imp + A2sg"));
+    tester.expectSingle("okuyuver",
+        matchesTailLex("Verb + Hastily + Verb + Imp + A2sg"));
+    tester.expectSingle("okuyakal",
+        matchesTailLex("Verb + Stay + Verb + Imp + A2sg"));
+    tester.expectSingle("okuyakoy",
+        matchesTailLex("Verb + Start + Verb + Imp + A2sg"));
+  }
+
+
 }
