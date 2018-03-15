@@ -1275,6 +1275,9 @@ public class TurkishMorphotactics {
     // TODO: this can be achieved with less repetition.
     RootSurfaceIsAny diYiCondition = new RootSurfaceIsAny("di", "yi");
     RootSurfaceIsAny deYeCondition = new RootSurfaceIsAny("de", "ye");
+    Condition cMultiVerb = new Conditions.PreviousMorphemeIsAny(
+        everSince, repeat, almost, hastily, stay, start).not();
+
     vDeYeRoot_S
         .add(vFut_S, "yece~k", diYiCondition)
         .add(vFut_S, "yece!ğ", diYiCondition)
@@ -1284,6 +1287,13 @@ public class TurkishMorphotactics {
         .add(vInf3_S, "yiş", new RootSurfaceIsAny("yi"))
         .add(vFutPart_S, "yece~k", diYiCondition)
         .add(vFutPart_S, "yece!ğ", diYiCondition)
+        .add(vPresPart_S, "yen", diYiCondition)
+        .add(vEverSince_S, "yegel", diYiCondition.and(cMultiVerb))
+        .add(vRepeat_S, "yedur", diYiCondition.and(cMultiVerb))
+        .add(vRepeat_S, "yegör", diYiCondition.and(cMultiVerb))
+        .add(vAlmost_S, "yeyaz", diYiCondition.and(cMultiVerb))
+        .add(vStay_S, "yekal", diYiCondition.and(cMultiVerb))
+        .add(vStart_S, "yekoy", diYiCondition.and(cMultiVerb))
         .add(vOpt_S, "ye", diYiCondition);
 
     vDeYeRoot_S
@@ -1302,6 +1312,7 @@ public class TurkishMorphotactics {
         .add(vInf3_S, "yiş", new RootSurfaceIsAny("de"))
         .add(vPastPart_S, "di~k", deYeCondition)
         .add(vPastPart_S, "di~ğ", deYeCondition)
+        .add(vHastily_S, "yiver", diYiCondition.and(cMultiVerb))
         .addEmpty(vImp_S, deYeCondition);
 
     // Optative (gel-e, gel-eyim gel-me-ye-yim)
@@ -1349,16 +1360,13 @@ public class TurkishMorphotactics {
     vA3pl_ST.add(vNarrAfterTense_ST, "mIş", previousNotPastNarrCond);
     vA3pl_ST.add(vCond_ST, "sA", previousNotPastNarrCond);
 
-    Condition c1 = new Conditions.PreviousMorphemeIsAny(
-        everSince, repeat, almost, hastily, stay, start).not();
-
-    verbRoot_S.add(vEverSince_S, "+yAgel", c1);
-    verbRoot_S.add(vRepeat_S, "+yAdur", c1);
-    verbRoot_S.add(vRepeat_S, "+yAgör", c1);
-    verbRoot_S.add(vAlmost_S, "+yAyaz", c1);
-    verbRoot_S.add(vHastily_S, "+yIver", c1);
-    verbRoot_S.add(vStay_S, "+yAkal", c1);
-    verbRoot_S.add(vStart_S, "+yAkoy", c1);
+    verbRoot_S.add(vEverSince_S, "+yAgel", cMultiVerb);
+    verbRoot_S.add(vRepeat_S, "+yAdur", cMultiVerb);
+    verbRoot_S.add(vRepeat_S, "+yAgör", cMultiVerb);
+    verbRoot_S.add(vAlmost_S, "+yAyaz", cMultiVerb);
+    verbRoot_S.add(vHastily_S, "+yIver", cMultiVerb);
+    verbRoot_S.add(vStay_S, "+yAkal", cMultiVerb);
+    verbRoot_S.add(vStart_S, "+yAkoy", cMultiVerb);
 
     vEverSince_S.addEmpty(verbRoot_S);
     vRepeat_S.addEmpty(verbRoot_S);
