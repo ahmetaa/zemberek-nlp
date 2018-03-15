@@ -57,8 +57,6 @@ public class MorphemeSurfaceForm {
     return surface.isEmpty() ? "" : surface + ":";
   }
 
-  private static ReentrantLock lock = new ReentrantLock();
-
   public static String generate(
       SuffixTransition transition,
       AttributeSet<PhoneticAttribute> phoneticAttributes) {
@@ -133,14 +131,7 @@ public class MorphemeSurfaceForm {
       index++;
     }
     String s = seq.toString();
-
-    lock.lock();
-    try {
-      transition.addToSurfaceCache(phoneticAttributes, s);
-    } finally {
-      lock.unlock();
-    }
-
+    transition.addToSurfaceCache(phoneticAttributes, s);
     return s;
   }
 

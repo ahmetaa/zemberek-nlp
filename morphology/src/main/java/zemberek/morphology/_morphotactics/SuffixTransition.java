@@ -23,11 +23,12 @@ public class SuffixTransition extends MorphemeTransition {
 
   private IntMap<String> surfaceCache = new IntMap<>();
 
-  public void addToSurfaceCache(AttributeSet<PhoneticAttribute> attributes, String value) {
+  public synchronized void addToSurfaceCache(
+      AttributeSet<PhoneticAttribute> attributes, String value) {
     surfaceCache.put(attributes.getBits(), value);
   }
 
-  public String getFromSurfaceCache(AttributeSet<PhoneticAttribute> attributes) {
+  public synchronized String getFromSurfaceCache(AttributeSet<PhoneticAttribute> attributes) {
     return surfaceCache.get(attributes.getBits());
   }
 
