@@ -2,8 +2,6 @@ package zemberek.morphology._morphotactics;
 
 public class AttributeSet<E extends Enum<E>> {
 
-  private static final AttributeSet EMPTY_SET = new AttributeSet<>();
-
   private int bits;
 
   public AttributeSet() {
@@ -43,9 +41,8 @@ public class AttributeSet<E extends Enum<E>> {
     return res;
   }
 
-  @SuppressWarnings("unchecked")
   public static <E extends Enum<E>> AttributeSet<E> emptySet() {
-    return (AttributeSet<E>) EMPTY_SET;
+    return new AttributeSet<>();
   }
 
   public void copyFrom(AttributeSet<E> other) {

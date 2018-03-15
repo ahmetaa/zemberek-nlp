@@ -7,6 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import zemberek.core.collections.IntMap;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticAttribute;
@@ -25,8 +29,12 @@ public class SuffixTransition extends MorphemeTransition {
 
   private IntMap<String> surfaceCache = new IntMap<>();
 
-  public IntMap<String> getSurfaceCache() {
-    return surfaceCache;
+  public void addToSurfaceCache(AttributeSet<PhoneticAttribute> attributes, String value) {
+    surfaceCache.put(attributes.getBits(), value);
+  }
+
+  public String getFromSurfaceCache(AttributeSet<PhoneticAttribute> attributes) {
+    return surfaceCache.get(attributes.getBits());
   }
 
   private SuffixTransition(Builder builder) {

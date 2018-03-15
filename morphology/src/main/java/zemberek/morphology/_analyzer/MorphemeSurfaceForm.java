@@ -16,6 +16,7 @@ import static zemberek.morphology.structure.Turkish.Alphabet;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.concurrent.locks.ReentrantLock;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.TurkicLetter;
 import zemberek.core.turkish.TurkishLetterSequence;
@@ -56,11 +57,13 @@ public class MorphemeSurfaceForm {
     return surface.isEmpty() ? "" : surface + ":";
   }
 
+  private static ReentrantLock lock = new ReentrantLock();
+
   public static String generate(
       SuffixTransition transition,
       AttributeSet<PhoneticAttribute> phoneticAttributes) {
 
-    String cached = transition.getSurfaceCache().get(phoneticAttributes.getBits());
+    String cached = transition.getFromSurfaceCache(phoneticAttributes);
     if (cached != null) {
       return cached;
     }
@@ -68,7 +71,8 @@ public class MorphemeSurfaceForm {
     TurkishLetterSequence seq = new TurkishLetterSequence();
     int index = 0;
     for (SuffixTemplateToken token : transition.getTokenList()) {
-      AttributeSet<PhoneticAttribute> attrs = AttributesHelper.getMorphemicAttributes(seq, phoneticAttributes);
+      AttributeSet<PhoneticAttribute> attrs =
+          AttributesHelper.getMorphemicAttributes(seq, phoneticAttributes);
       switch (token.type) {
         case LETTER:
           seq.append(token.letter);
@@ -129,7 +133,14 @@ public class MorphemeSurfaceForm {
       index++;
     }
     String s = seq.toString();
-    transition.getSurfaceCache().put(phoneticAttributes.getBits(), s);
+
+    lock.lock();
+    try {
+      transition.addToSurfaceCache(phoneticAttributes, s);
+    } finally {
+      lock.unlock();
+    }
+
     return s;
   }
 
