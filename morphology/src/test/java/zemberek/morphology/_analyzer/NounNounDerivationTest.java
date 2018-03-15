@@ -37,6 +37,10 @@ public class NounNounDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Noun + A3sg + Pnon + Nom + Ness + Noun + A3sg + Pnon + Acc"));
     tester.expectAny("elmalığa",
         matchesTailLex("Noun + A3sg + Pnon + Nom + Ness + Noun + A3sg + Pnon + Dat"));
+    tester.expectAny("elmalığa",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Ness + Noun + A3sg + Pnon + Dat"));
+    tester.expectAny("elmasızlık",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Without + Adj + Ness + Noun + A3sg + Pnon + Nom"));
 
     tester.expectFail(
         "elmalarlık",

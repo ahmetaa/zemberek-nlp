@@ -1,6 +1,7 @@
 package zemberek.morphology._analyzer;
 
 import org.junit.Test;
+import zemberek.morphology._morphotactics.Morpheme;
 
 public class VerbDerivationTest extends AnalyzerTestBase {
 
@@ -186,6 +187,32 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Stay + Verb + Imp + A2sg"));
     tester.expectSingle("okuyakoy",
         matchesTailLex("Verb + Start + Verb + Imp + A2sg"));
+  }
+
+  @Test
+  public void adverbDerivation() {
+    AnalysisTester tester = getTester("okumak");
+
+    tester.expectSingle("okurcasına",
+        matchesTailLex("Verb + Aor + A3sg + AsIf + Adv"));
+    tester.expectSingle("okumazcasına",
+        matchesTailLex("Verb + Neg + Aor + A3sg + AsIf + Adv"));
+    tester.expectSingle("okumuşçasına",
+        matchesTailLex("Verb + Narr + A3sg + AsIf + Adv"));
+    tester.expectSingle("okuyalı",
+        matchesTailLex("Verb + SinceDoingSo + Adv"));
+    tester.expectSingle("okudukça",
+        matchesTailLex("Verb + AsLongAs + Adv"));
+    tester.expectSingle("okuyarak",
+        matchesTailLex("Verb + ByDoingSo + Adv"));
+    tester.expectSingle("okuyup",
+        matchesTailLex("Verb + AfterDoing + Adv"));
+    tester.expectAny("okumadan",
+        matchesTailLex("Verb + WithoutHavingDoneSo + Adv"));
+    tester.expectSingle("okumaksızın",
+        matchesTailLex("Verb + WithoutHavingDoneSo + Adv"));
+    tester.expectSingle("okuyamadan",
+        matchesTailLex("Verb + WithoutBeingAbleToHaveDoneSo + Adv"));
   }
 
 

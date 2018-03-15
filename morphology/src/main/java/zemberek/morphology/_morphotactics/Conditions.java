@@ -792,6 +792,32 @@ class Conditions {
       MorphemeState previousState = path.getPreviousState();
       return previousState != null && morphemes.contains(previousState.morpheme);
     }
+    @Override
+    public String toString() {
+      return "PreviousMorphemeIsAny{" + morphemes + '}';
+    }
+
+  }
+
+  public static class CurrentMorphemeIsAny extends AbstractCondition {
+
+    Set<Morpheme> morphemes;
+
+    public CurrentMorphemeIsAny(Morpheme... morphemes) {
+      this.morphemes = new HashSet<>(morphemes.length);
+      this.morphemes.addAll(Arrays.asList(morphemes));
+    }
+
+    @Override
+    public boolean accept(SearchPath path) {
+      MorphemeState previousState = path.getCurrentState();
+      return previousState != null && morphemes.contains(previousState.morpheme);
+    }
+    @Override
+    public String toString() {
+      return "CurrentMorphemeIsAny{" + morphemes + '}';
+    }
+
   }
 
   public static class PreviousStateIsAny extends AbstractCondition {
