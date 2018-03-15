@@ -127,16 +127,24 @@ public class TurkishMorphotactics {
   public static final Morpheme prog1 = new Morpheme("Progressive1", "Prog1");
   // -makta
   public static final Morpheme prog2 = new Morpheme("Progressive2", "Prog2");
+  // oku-r
   public static final Morpheme aor = new Morpheme("Aorist", "Aor");
+  // oku-yacak
   public static final Morpheme fut = new Morpheme("Future", "Fut");
 
-  // Verb
+  // gel, gel-sin
   public static final Morpheme imp = new Morpheme("Imparative", "Imp");
+  // oku-t oku-t-tur
   public static final Morpheme caus = new Morpheme("Causative", "Caus");
+  // oku-yabil
   public static final Morpheme able = new Morpheme("Ability", "Able");
+  // oku-n, oku-nul
   public static final Morpheme pass = new Morpheme("Passive", "Pass");
+  // oku-ya
   public static final Morpheme opt = new Morpheme("Optative", "Opt");
+  // oku-sa
   public static final Morpheme desr = new Morpheme("Desire", "Desr");
+  // oku-malı
   public static final Morpheme neces = new Morpheme("Necessity", "Neces");
 
   //-------------- States ----------------------------
