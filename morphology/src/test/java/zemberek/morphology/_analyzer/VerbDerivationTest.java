@@ -51,7 +51,6 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Caus + Verb + Inf1 + Noun + A3sg + Pnon + Nom"));
     tester.expectSingle("okutmaktan",
         matchesTailLex("Verb + Caus + Verb + Inf1 + Noun + A3sg + Pnon + Abl"));
-    
 
     tester.expectFail(
         "okumaka",

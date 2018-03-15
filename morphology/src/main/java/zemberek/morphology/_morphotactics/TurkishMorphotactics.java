@@ -85,9 +85,13 @@ public class TurkishMorphotactics {
 
   // Derivation suffixes
 
-  // Diminutive suffix. Noun to Noun conversion. "elmacık = small apple, poor apple"
+  // elmacık
   public static final Morpheme dim = new Morpheme("Diminutive", "Dim");
-  // With suffix. Noun to Adjective conversion. "elmalı = with apple"
+  // elmalık
+  // TODO: Find better name.
+  public static final Morpheme ness = new Morpheme("Ness", "Ness");
+
+  // elmalı
   public static final Morpheme with = new Morpheme("With", "With");
   // tahtamsı
   public static final Morpheme justLike = new Morpheme("JustLike", "JustLike");
@@ -199,6 +203,7 @@ public class TurkishMorphotactics {
   // Derivation
 
   MorphemeState dim_S = nonTerminalDerivative("dim_S", dim);
+  MorphemeState ness_S = nonTerminalDerivative("ness_S", ness);
   MorphemeState with_S = nonTerminalDerivative("with_S", with);
   MorphemeState justLike_S = nonTerminalDerivative("justLike_S", justLike);
   MorphemeState nounZeroDeriv_S = nonTerminalDerivative("nounZeroDeriv_S", zero);
@@ -415,6 +420,12 @@ public class TurkishMorphotactics {
 
     // connect dim to the noun root.
     dim_S.addEmpty(noun_S);
+
+    nom_ST.add(ness_S, "lI~k", Conditions.HAS_NO_SURFACE);
+    nom_ST.add(ness_S, "lI!ğ", Conditions.HAS_NO_SURFACE);
+
+    // connect `ness` to the noun root.
+    ness_S.addEmpty(noun_S);
 
     // here we do not allow an adjective to pass here.
     // such as, adj->zero->noun->ε-ε-ε->zero->Verb is not acceptable because there is already a

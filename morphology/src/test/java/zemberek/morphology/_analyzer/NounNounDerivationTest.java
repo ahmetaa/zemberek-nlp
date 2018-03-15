@@ -26,4 +26,25 @@ public class NounNounDerivationTest extends AnalyzerTestBase {
         "kitaptacık", "kitapçıkçık", "kitabcığ", "kitabçığ", "kitabçık", "kitapçığ"
     );
   }
+
+  @Test
+  public void nessTest() {
+    AnalysisTester tester = getTester("elma");
+
+    tester.expectAny("elmalık",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Ness + Noun + A3sg + Pnon + Nom"));
+    tester.expectAny("elmalığı",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Ness + Noun + A3sg + Pnon + Acc"));
+    tester.expectAny("elmalığa",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Ness + Noun + A3sg + Pnon + Dat"));
+
+    tester.expectFail(
+        "elmalarlık",
+        "elmamlık",
+        "elmlığ",
+        "elmayalık",
+        "elmadalık"
+    );
+  }
+
 }
