@@ -93,6 +93,8 @@ public class TurkishMorphotactics {
 
   // elmalı
   public static final Morpheme with = new Morpheme("With", "With");
+  // elmasız
+  public static final Morpheme without = new Morpheme("Without", "Without");
   // tahtamsı
   public static final Morpheme justLike = new Morpheme("JustLike", "JustLike");
   // tahtalaş
@@ -147,9 +149,9 @@ public class TurkishMorphotactics {
   public static final Morpheme past = new Morpheme("PastTense", "Past");
   public static final Morpheme narr = new Morpheme("NarrativeTense", "Narr");
   public static final Morpheme cond = new Morpheme("Condition", "Cond");
-  // -ıyor
+  // oku-yor
   public static final Morpheme prog1 = new Morpheme("Progressive1", "Prog1");
-  // -makta
+  // oku-makta
   public static final Morpheme prog2 = new Morpheme("Progressive2", "Prog2");
   // oku-r
   public static final Morpheme aor = new Morpheme("Aorist", "Aor");
@@ -219,6 +221,7 @@ public class TurkishMorphotactics {
   MorphemeState dim_S = nonTerminalDerivative("dim_S", dim);
   MorphemeState ness_S = nonTerminalDerivative("ness_S", ness);
   MorphemeState with_S = nonTerminalDerivative("with_S", with);
+  MorphemeState without_S = nonTerminalDerivative("without_S", without);
   MorphemeState justLike_S = nonTerminalDerivative("justLike_S", justLike);
   MorphemeState nounZeroDeriv_S = nonTerminalDerivative("nounZeroDeriv_S", zero);
   MorphemeState become_S = nonTerminalDerivative("become_S", become);
@@ -389,9 +392,9 @@ public class TurkishMorphotactics {
     p3sg_S
         .addEmpty(nom_ST)    // evi
         .add(dat_ST, "nA")   // evine
-        .add(loc_ST, "dA")   // evinde
+        .add(loc_ST, "ndA")   // evinde
         .add(abl_ST, "ndAn") // evinden
-        .add(ins_ST, "lA")   // eviyle
+        .add(ins_ST, "ylA")   // eviyle
         .add(gen_ST, "nIn")  // evinin
         .add(acc_ST, "nI");  // evini
 
@@ -470,7 +473,11 @@ public class TurkishMorphotactics {
     Condition noSurfaceAfterDerivation = new NoSurfaceAfterDerivation();
     nom_ST.add(with_S, "lI",
         noSurfaceAfterDerivation
-            .andNot(new ContainsMorpheme(with)));
+            .andNot(new ContainsMorpheme(with, without)));
+
+    nom_ST.add(without_S, "sIz",
+        noSurfaceAfterDerivation
+            .andNot(new ContainsMorpheme(with, without)));
 
     nom_ST.add(justLike_S, "+msI",
         noSurfaceAfterDerivation
@@ -483,6 +490,7 @@ public class TurkishMorphotactics {
 
     // connect With to Adjective root.
     with_S.addEmpty(adj_ST);
+    without_S.addEmpty(adj_ST);
 
     justLike_S.addEmpty(adj_ST);
 

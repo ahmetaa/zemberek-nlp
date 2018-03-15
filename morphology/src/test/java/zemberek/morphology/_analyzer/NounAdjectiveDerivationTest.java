@@ -9,7 +9,23 @@ public class NounAdjectiveDerivationTest extends AnalyzerTestBase {
     AnalysisTester tester = getTester("meyve");
     tester.expectSingle("meyveli",
         matchesTailLex("Pnon + Nom + With + Adj"));
+  }
 
+  @Test
+  public void withoutTest() {
+    AnalysisTester tester = getTester("meyve");
+    tester.expectSingle("meyvesiz",
+        matchesTailLex("Pnon + Nom + Without + Adj"));
+    tester.expectSingle("meyvesizdi",
+        matchesTailLex("Pnon + Nom + Without + Adj + Zero + Verb + Past + A3sg"));
+
+    tester.expectFail(
+        "meyvemsiz",
+        "meyvelersiz",
+        "meyvedesiz",
+        "meyvesizli",
+        "meyvelisiz"
+    );
   }
 
   @Test
