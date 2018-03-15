@@ -108,9 +108,12 @@ public class TurkishMorphotactics {
   public static final Morpheme inf3 = new Morpheme("Infinitive3", "Inf3");
   // TODO: Find the meaning of this.
   public static final Morpheme agt = new Morpheme("Agt", "Agt");
-  // Past participle
+  // okuduğum kitap
   public static final Morpheme pastPart = new Morpheme("PastParticiple", "PastPart");
+  // okuyacağım kitap
   public static final Morpheme futPart = new Morpheme("FutureParticiple", "FutPart");
+  // okuyan
+  public static final Morpheme presPart = new Morpheme("PresentParticiple", "PresPart");
 
 
   // Zero derivation
@@ -500,7 +503,8 @@ public class TurkishMorphotactics {
   //-------------- Adjective States ------------------------
 
   MorphemeState adj_ST = builder("adj_ST", adj).terminal().posRoot().build();
-  MorphemeState adjAfterVerb_S = builder("adjAfterVerb_ST", adj).posRoot().build();
+  MorphemeState adjAfterVerb_S = builder("adjAfterVerb_S", adj).posRoot().build();
+  MorphemeState adjAfterVerb_ST = builder("adjAfterVerb_ST", adj).terminal().posRoot().build();
 
   MorphemeState adjZeroDeriv_S = nonTerminalDerivative("adjZeroDeriv_S", zero);
 
@@ -537,13 +541,15 @@ public class TurkishMorphotactics {
     adj_ST.add(become_S, "lAş", new NoSurfaceAfterDerivation());
     adj_ST.add(acquire_S, "lAn", new NoSurfaceAfterDerivation());
 
-    adjAfterVerb_S.addEmpty(aPnon_ST);
-    adjAfterVerb_S.add(aP1sg_ST, "Im");
-    adjAfterVerb_S.add(aP2sg_ST, "In");
-    adjAfterVerb_S.add(aP3sg_ST, "I");
-    adjAfterVerb_S.add(aP1pl_ST, "ImIz");
-    adjAfterVerb_S.add(aP2pl_ST, "InIz");
-    adjAfterVerb_S.add(aP3pl_ST, "lArI");
+    Condition c1 = new Conditions.PreviousMorphemeIsAny(futPart, pastPart);
+
+    adjAfterVerb_S.addEmpty(aPnon_ST, c1);
+    adjAfterVerb_S.add(aP1sg_ST, "Im", c1);
+    adjAfterVerb_S.add(aP2sg_ST, "In", c1);
+    adjAfterVerb_S.add(aP3sg_ST, "I", c1);
+    adjAfterVerb_S.add(aP1pl_ST, "ImIz", c1);
+    adjAfterVerb_S.add(aP2pl_ST, "InIz", c1);
+    adjAfterVerb_S.add(aP3pl_ST, "lArI", c1);
 
   }
 
@@ -990,6 +996,7 @@ public class TurkishMorphotactics {
 
   MorphemeState vPastPart_S = nonTerminalDerivative("vPastPart_S", pastPart);
   MorphemeState vFutPart_S = nonTerminalDerivative("vFutPart_S", futPart);
+  MorphemeState vPresPart_S = nonTerminalDerivative("vPresPart_S", presPart);
 
   public MorphemeState vDeYeRoot_S = builder("vDeYeRoot_S", verb).posRoot().build();
 
@@ -1090,6 +1097,7 @@ public class TurkishMorphotactics {
     vNeg_S.add(vPastPart_S, "dI!ğ");
     vNeg_S.add(vFutPart_S, "yAcA~k");
     vNeg_S.add(vFutPart_S, "yAcA!ğ");
+    vNeg_S.add(vPresPart_S, "yAn");
 
     // Negative form is "m" before progressive "Iyor" because last vowel drops.
     // We use a separate negative state for this.
@@ -1151,8 +1159,13 @@ public class TurkishMorphotactics {
     // FutPart "oku-yacağ-ım kitap"
     verbRoot_S.add(vFutPart_S, "+yAcA~k");
     verbRoot_S.add(vFutPart_S, "+yAcA!ğ");
-    vFutPart_S.addEmpty(noun_S);
+    vFutPart_S.addEmpty(noun_S, Conditions.HAS_TAIL);
     vFutPart_S.addEmpty(adjAfterVerb_S);
+
+    // PresPart
+    verbRoot_S.add(vPresPart_S, "+yAn");
+    vPresPart_S.addEmpty(noun_S, Conditions.HAS_TAIL);
+    vPresPart_S.addEmpty(adjAfterVerb_ST); // connect to terminal Adj
 
     // Passive
     // Causes Verb-Verb derivation. Passive morpheme has three forms.
@@ -1223,6 +1236,7 @@ public class TurkishMorphotactics {
     // Future "oku-yacak"
     verbRoot_S.add(vFut_S, "+yAcA~k");
     verbRoot_S.add(vFut_S, "+yAcA!ğ");
+
     vFut_S
         .add(vA1sg_ST, "Im")
         .add(vA2sg_ST, "sIn")
@@ -1232,6 +1246,7 @@ public class TurkishMorphotactics {
         .add(vA3pl_ST, "lAr");
     vFut_S.add(vCond_S, "sA");
     vFut_S.add(vPastAfterTense_S, "tI");
+    vFut_S.add(vNarrAfterTense_S, "mIş");
 
     // `demek` and `yemek` are special because they are the only two verbs with two letters
     // and ends with a vowel.
