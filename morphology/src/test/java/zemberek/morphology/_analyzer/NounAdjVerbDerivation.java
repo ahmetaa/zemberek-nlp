@@ -62,6 +62,17 @@ public class NounAdjVerbDerivation extends AnalyzerTestBase {
 
     t.expectAny("zeytinyağlandık",
         matchesTailLex("Noun + A3sg + Pnon + Nom + Acquire + Verb + Past + A1pl"));
-  }  
+  }
+
+  @Test
+  public void whileTest() {
+    AnalysisTester t = getTester("tahta");
+
+    t.expectAny("tahtayken",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Zero + Verb + While + Adv"));
+    t.expectAny("tahtamken",
+        matchesTailLex("Noun + A3sg + P1sg + Nom + Zero + Verb + While + Adv"));
+  }
+
 
 }

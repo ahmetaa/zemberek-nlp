@@ -643,7 +643,7 @@ public class TurkishMorphotactics {
 
     nVerb_S.add(nCond_S, "+ysA");
 
-    nVerb_S.add(vWhile_S, "ken");
+    nVerb_S.add(vWhile_S, "+yken");
 
     // word "değil" is special. It contains negative suffix implicitly. Also it behaves like
     // noun->Verb Zero morpheme derivation. because it cannot have most Verb suffixes.
