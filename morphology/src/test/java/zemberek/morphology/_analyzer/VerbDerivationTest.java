@@ -216,4 +216,36 @@ public class VerbDerivationTest extends AnalyzerTestBase {
   }
 
 
+  @Test
+  public void whileAdverbDerivation() {
+    AnalysisTester tester = getTester("okumak");
+
+    tester.expectSingle("okurken",
+        matchesTailLex("Verb + Aor + While + Adv"));
+    tester.expectSingle("okurlarken",
+        matchesTailLex("Verb + Aor + A3pl + While + Adv"));
+    tester.expectSingle("okumazken",
+        matchesTailLex("Verb + Neg + Aor + While + Adv"));
+    tester.expectSingle("okuyorken",
+        matchesTailLex("Verb + Prog1 + While + Adv"));
+    tester.expectSingle("okumaktayken",
+        matchesTailLex("Verb + Prog2 + While + Adv"));
+    tester.expectAny("okuyacakken",
+        matchesTailLex("Verb + Fut + While + Adv"));
+    tester.expectSingle("okumuşken",
+        matchesTailLex("Verb + Narr + While + Adv"));
+    tester.expectSingle("okuyabilirken",
+        matchesTailLex("Verb + Able + Verb + Aor + While + Adv"));
+
+    tester.expectFail(
+        "okuduyken",
+        "okurumken",
+        "okudularken"
+    );
+
+
+
+  }
+
+
 }

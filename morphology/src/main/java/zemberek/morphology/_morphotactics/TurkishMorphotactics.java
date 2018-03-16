@@ -137,6 +137,8 @@ public class TurkishMorphotactics {
   public static final Morpheme start = new Morpheme("Start", "Start");
   // okurcasına (Adv,Adj)
   public static final Morpheme asIf = new Morpheme("AsIf", "AsIf");
+  // okurken (Adv)
+  public static final Morpheme while_ = new Morpheme("While", "While");
   // okuyalı (Adv)
   public static final Morpheme sinceDoingSo = new Morpheme("SinceDoingSo", "SinceDoingSo");
   // okudukça (Adv)
@@ -472,7 +474,6 @@ public class TurkishMorphotactics {
     // connect `ness` to the noun root.
     agt_S.addEmpty(noun_S);
 
-
     // here we do not allow an adjective to pass here.
     // such as, adj->zero->noun->ε-ε-ε->zero->Verb is not acceptable because there is already a
     // adj->zero->Verb path.
@@ -633,12 +634,15 @@ public class TurkishMorphotactics {
 
     //elma-..-ε-yım
     nVerb_S.addEmpty(nPresent_S);
+
     // elma-ydı, çorap-tı
     nVerb_S.add(nPast_S, "+y>dI");
     // elma-ymış
     nVerb_S.add(nNarr_S, "+ymIş");
 
     nVerb_S.add(nCond_S, "+ysA");
+
+    nVerb_S.add(vWhile_S, "ken");
 
     // word "değil" is special. It contains negative suffix implicitly. Also it behaves like
     // noun->Verb Zero morpheme derivation. because it cannot have most Verb suffixes.
@@ -1061,6 +1065,7 @@ public class TurkishMorphotactics {
   MorphemeState vStay_S = nonTerminalDerivative("vStay_S", stay);
   MorphemeState vStart_S = nonTerminalDerivative("vStart_S", start);
 
+  MorphemeState vWhile_S = nonTerminalDerivative("vWhile_S", while_);
   MorphemeState vAsIf_S = nonTerminalDerivative("vAsIf_S", asIf);
   MorphemeState vSinceDoingSo_S = nonTerminalDerivative("vSinceDoingSo_S", sinceDoingSo);
   MorphemeState vAsLongAs_S = nonTerminalDerivative("vAsLongAs_S", asLongAs);
@@ -1119,6 +1124,7 @@ public class TurkishMorphotactics {
     vProgYor_S.add(vCond_S, "sa");
     vProgYor_S.add(vPastAfterTense_S, "du");
     vProgYor_S.add(vNarrAfterTense_S, "muş");
+    vProgYor_S.add(vWhile_S, "ken");
 
     // Progressive - 2 "-mAktA"
     verbRoot_S.add(vProgMakta_S, "mAktA");
@@ -1132,6 +1138,7 @@ public class TurkishMorphotactics {
     vProgMakta_S.add(vCond_S, "ysA");
     vProgMakta_S.add(vPastAfterTense_S, "ydI");
     vProgMakta_S.add(vNarrAfterTense_S, "ymIş");
+    vProgMakta_S.add(vWhile_S, "yken");
 
     // Positive Aorist Tense.
     // For single syllable words, it forms as "ar-er". For others "ir-ır-ur-ür"
@@ -1151,6 +1158,7 @@ public class TurkishMorphotactics {
     vAor_S.add(vPastAfterTense_S, "dI");
     vAor_S.add(vNarrAfterTense_S, "mIş");
     vAor_S.add(vCond_S, "sA");
+    vAor_S.add(vWhile_S, "ken");
 
     // Negative
     verbRoot_S.add(vNeg_S, "mA");
@@ -1186,6 +1194,7 @@ public class TurkishMorphotactics {
 
     // Negative Aorist
     // Aorist tense forms differently after negative.
+    // TODO: this requires better surface definitions.
     vNeg_S.addEmpty(vAorNeg_S);
     vAorNeg_S
         .add(vA1sg_ST, "m")
@@ -1197,6 +1206,7 @@ public class TurkishMorphotactics {
     vAorNeg_S.add(vPastAfterTense_S, "zdI");
     vAorNeg_S.add(vNarrAfterTense_S, "zmIş");
     vAorNeg_S.add(vCond_S, "zsA");
+    vAorNeg_S.add(vWhile_S, "zken");
 
     //Positive Ability.
     // This makes a Verb-Verb derivation.
@@ -1293,6 +1303,7 @@ public class TurkishMorphotactics {
         .add(vA3pl_ST, "lAr");
     vNarr_S.add(vCond_S, "sA");
     vNarr_S.add(vPastAfterTense_S, "tI");
+    vNarr_S.add(vWhile_S, "ken");
 
     // Past after tense "oku-muş-tu"
     vPastAfterTense_S
@@ -1312,6 +1323,7 @@ public class TurkishMorphotactics {
         .add(vA1pl_ST, "Iz")
         .add(vA2pl_ST, "sInIz")
         .add(vA3pl_ST, "lAr");
+    vNarrAfterTense_S.add(vWhile_S, "ken");
 
     // Future "oku-yacak"
     verbRoot_S.add(vFut_S, "+yAcA~k");
@@ -1327,6 +1339,7 @@ public class TurkishMorphotactics {
     vFut_S.add(vCond_S, "sA");
     vFut_S.add(vPastAfterTense_S, "tI");
     vFut_S.add(vNarrAfterTense_S, "mIş");
+    vFut_S.add(vWhile_S, "ken");
 
     // `demek` and `yemek` are special because they are the only two verbs with two letters
     // and ends with a vowel.
@@ -1416,7 +1429,8 @@ public class TurkishMorphotactics {
         .add(vA2pl_ST, "sInIz")
         .add(vA3pl_ST, "lAr")
         .add(vPastAfterTense_S, "ydI")
-        .add(vNarrAfterTense_S, "ymIş");
+        .add(vNarrAfterTense_S, "ymIş")
+        .add(vWhile_S, "yken");
 
     // A3pl exception case.
     // A3pl can appear before or after some tense suffixes.
@@ -1427,6 +1441,9 @@ public class TurkishMorphotactics {
     vA3pl_ST.add(vPastAfterTense_ST, "dI", previousNotPastNarrCond);
     vA3pl_ST.add(vNarrAfterTense_ST, "mIş", previousNotPastNarrCond);
     vA3pl_ST.add(vCond_ST, "sA", previousNotPastNarrCond);
+
+    vA3pl_ST.add(vWhile_S, "ken",
+        new PreviousStateIsAny(vPast_S, vPastAfterTense_S, vCond_S).not());
 
     verbRoot_S.add(vEverSince_S, "+yAgel", cMultiVerb);
     verbRoot_S.add(vRepeat_S, "+yAdur", cMultiVerb);
@@ -1460,6 +1477,7 @@ public class TurkishMorphotactics {
     vWithoutBeingAbleToHaveDoneSo_S.addEmpty(advRoot_ST);
     vAsLongAs_S.addEmpty(advRoot_ST);
     vWithoutHavingDoneSo_S.addEmpty(advRoot_ST);
+    vWhile_S.addEmpty(advRoot_ST);
   }
 
   Map<String, MorphemeState> itemRootStateMap = new HashMap<>();
