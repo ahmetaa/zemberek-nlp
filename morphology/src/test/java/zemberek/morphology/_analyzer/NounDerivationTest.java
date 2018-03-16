@@ -353,4 +353,21 @@ public class NounDerivationTest extends AnalyzerTestBase {
     );
   }
 
+  @Test
+  public void related() {
+    AnalysisTester tester = getTester("meyve");
+    tester.expectSingle("meyvesel",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Related + Adj"));
+    tester.expectAny("meyveseldi",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Related + Adj + Zero + Verb + Past + A3sg"));
+
+    tester.expectFail(
+        "meyvemsel",
+        "meyvedesel",
+        "meyveselsel",
+        "meyveselki"
+    );
+  }
+
+
 }

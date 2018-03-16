@@ -97,6 +97,8 @@ public class TurkishMorphotactics {
   public static final Morpheme with = new Morpheme("With", "With");
   // elmasız (Adj)
   public static final Morpheme without = new Morpheme("Without", "Without");
+  // elmasal (Adj)
+  public static final Morpheme related = new Morpheme("Related", "Related");
   // tahtamsı (Adj)
   public static final Morpheme justLike = new Morpheme("JustLike", "JustLike");
   // tahtadaki (Adj)
@@ -249,6 +251,7 @@ public class TurkishMorphotactics {
   MorphemeState dim_S = nonTerminalDerivative("dim_S", dim);
   MorphemeState ness_S = nonTerminalDerivative("ness_S", ness);
   MorphemeState agt_S = nonTerminalDerivative("agt_S", agt);
+  MorphemeState related_S = nonTerminalDerivative("related_S", related);
   MorphemeState rel_S = nonTerminalDerivative("rel_S", rel);
   MorphemeState with_S = nonTerminalDerivative("with_S", with);
   MorphemeState without_S = nonTerminalDerivative("without_S", without);
@@ -537,9 +540,15 @@ public class TurkishMorphotactics {
             .and(noSurfaceAfterDerivation)
             .andNot(new ContainsMorpheme(justLike, futPart, pastPart, presPart, adj)));
 
+    nom_ST.add(related_S, "sAl",
+        noSurfaceAfterDerivation
+            .andNot(new ContainsMorpheme(with, without, related)));
+
+
     // connect With to Adjective root.
     with_S.addEmpty(adj_ST);
     without_S.addEmpty(adj_ST);
+    related_S.addEmpty(adj_ST);
 
     justLike_S.addEmpty(adj_ST);
 
