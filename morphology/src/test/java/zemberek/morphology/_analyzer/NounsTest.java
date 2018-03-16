@@ -196,7 +196,6 @@ public class NounsTest extends AnalyzerTestBase {
     t.expectSingle("zeytinyağlarınızla", matchesTailLex("Noun + A3pl + P2pl + Ins"));
   }
 
-
   @Test
   public void genitive() {
     AnalysisTester t = getTester("ev");
@@ -225,7 +224,30 @@ public class NounsTest extends AnalyzerTestBase {
     t.expectSingle("zeytinyağımın", matchesTailLex("Noun + A3sg + P1sg + Gen"));
     t.expectSingle("zeytinyağlarımızın", matchesTailLex("Noun + A3pl + P1pl + Gen"));
     t.expectSingle("zeytinyağlarınızın", matchesTailLex("Noun + A3pl + P2pl + Gen"));
-  }  
+  }
+
+
+  @Test
+  public void equ() {
+    AnalysisTester t = getTester("ev");
+
+    t.expectAny("evce", matchesTailLex("Noun + A3sg + Pnon + Equ"));
+    t.expectAny("evlerce", matchesTailLex("Noun + A3pl + Pnon + Equ"));
+    t.expectSingle("evimce", matchesTailLex("Noun + A3sg + P1sg + Equ"));
+    t.expectSingle("evimizce", matchesTailLex("Noun + A3sg + P1pl + Equ"));
+
+    t = getTester("kitap");
+
+    t.expectAny("kitapça", matchesTailLex("Noun + A3sg + Pnon + Equ"));
+    t.expectSingle("kitabımca", matchesTailLex("Noun + A3sg + P1sg + Equ"));
+
+    t = getTester(
+        "zeytin",
+        "yağ",
+        "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
+
+    t.expectAny("zeytinyağınca", matchesTailLex("Noun + A3sg + Pnon + Equ"));
+  }
 
   @Test
   public void P3pl() {
@@ -257,5 +279,33 @@ public class NounsTest extends AnalyzerTestBase {
     t.expectAny("zeytinyağları", matchesTailLex("Noun + A3sg + P3pl + Nom"));
     t.expectAny("zeytinyağlarına", matchesTailLex("Noun + A3pl + P3sg + Dat"));
   }
+
+  @Test
+  public void family1() {
+    InterpretingAnalyzer analyzer = getAnalyzer(
+        "annemler [A:ImplicitPlural,ImplicitP1sg,FamilyMember]");
+    expectFail(analyzer, "annemlerler", "annemlerim");
+  }
+
+  @Test
+  public void family2() {
+    InterpretingAnalyzer analyzer = getAnalyzer(
+        "annemler [A:ImplicitPlural,ImplicitP1sg,FamilyMember]");
+    expectSuccess(analyzer, 1, "annemler", "annemlere", "annemleri");
+  }
+
+  @Test
+  public void family3() {
+    InterpretingAnalyzer analyzer = getAnalyzer(
+        "annemler [A:ImplicitPlural,ImplicitP1sg,FamilyMember]");
+    String in = "annemleri";
+    List<AnalysisResult> results = analyzer.analyze(in);
+    printAndSort(in, results);
+    Assert.assertEquals(1, results.size());
+    AnalysisResult first = results.get(0);
+    Assert.assertTrue(containsMorpheme(first, "Acc"));
+    Assert.assertTrue(!containsMorpheme(first, "P3sg"));
+  }
+
 
 }

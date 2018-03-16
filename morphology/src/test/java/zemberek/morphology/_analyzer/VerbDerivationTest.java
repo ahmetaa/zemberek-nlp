@@ -1,7 +1,6 @@
 package zemberek.morphology._analyzer;
 
 import org.junit.Test;
-import zemberek.morphology._morphotactics.Morpheme;
 
 public class VerbDerivationTest extends AnalyzerTestBase {
 
@@ -234,7 +233,7 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Neg + Aor + While + Adv"));
     tester.expectSingle("okuyorken",
         matchesTailLex("Verb + Prog1 + While + Adv"));
-    tester.expectSingle("okumaktayken",
+    tester.expectAny("okumaktayken",
         matchesTailLex("Verb + Prog2 + While + Adv"));
     tester.expectAny("okuyacakken",
         matchesTailLex("Verb + Fut + While + Adv"));

@@ -84,6 +84,8 @@ public class TurkishMorphotactics {
   public static final Morpheme ins = new Morpheme("Instrumental", "Ins");
   // elmanın
   public static final Morpheme gen = new Morpheme("Genitive", "Gen");
+  // elmaca
+  public static final Morpheme equ = new Morpheme("Equ", "Equ");
 
   // Derivation suffixes
 
@@ -105,6 +107,9 @@ public class TurkishMorphotactics {
   public static final Morpheme become = new Morpheme("Become", "Become");
   // tahtalan (Verb)
   public static final Morpheme acquire = new Morpheme("Acquire", "Acquire");
+
+  // yeşilce (Adj->Adv)
+  public static final Morpheme ly = new Morpheme("Ly", "Ly");
 
   // oku-t oku-t-tur (Verb)
   public static final Morpheme caus = new Morpheme("Causative", "Caus");
@@ -236,6 +241,7 @@ public class TurkishMorphotactics {
   MorphemeState ins_ST = terminal("ins_ST", ins);
   MorphemeState acc_ST = terminal("acc_ST", acc);
   MorphemeState gen_ST = terminal("gen_ST", gen);
+  MorphemeState equ_ST = terminal("equ_ST", equ);
 
   // Derivation
 
@@ -374,6 +380,9 @@ public class TurkishMorphotactics {
         has(RootAttribute.CompoundP3sgRoot)
             .or(has(PhoneticAttribute.ExpectsVowel)));
 
+    Condition equCond = new Conditions.ContainsMorpheme(adj, pastPart).not();
+
+
     // Not allow "zetinyağı-ya" etc.
     pnon_S
         .add(dat_ST, "+yA", notHave(RootAttribute.CompoundP3sg))   // ev-e
@@ -382,11 +391,13 @@ public class TurkishMorphotactics {
         .add(acc_ST, "+yI", notHave(RootAttribute.CompoundP3sg))   // evi
         .add(gen_ST, "+nIn", previousStateIsNot(a3sgSu_S))         // evin, zeytinyağının
         .add(gen_ST, "yIn", previousStateIs(a3sgSu_S))             // suyun
+        .add(equ_ST, ">cA", notHave(RootAttribute.CompoundP3sg).and(equCond))   // evce
         .add(ins_ST, "+ylA");                                      // evle, zeytinyağıyla
 
     pnon_S.add(dat_ST, "+nA", has(RootAttribute.CompoundP3sg))   // zeytinyağı-na
         .add(abl_ST, "+ndAn", has(RootAttribute.CompoundP3sg))   // zeytinyağı-ndan
         .add(loc_ST, "+ndA", has(RootAttribute.CompoundP3sg))    // zeytinyağı-nda
+        .add(equ_ST, "+ncA", has(RootAttribute.CompoundP3sg).and(equCond))    // zeytinyağı-nca
         .add(acc_ST, "+nI", has(RootAttribute.CompoundP3sg));    // zeytinyağı-nı
 
     // This transition is for words like "içeri" or "dışarı".
@@ -401,6 +412,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "dAn")  // evimden
         .add(ins_ST, "lA")   // evimle
         .add(gen_ST, "In")   // evimin
+        .add(equ_ST, "cA", equCond)   // evimce
         .add(acc_ST, "I");   // evimi
 
     p2sg_S
@@ -410,15 +422,17 @@ public class TurkishMorphotactics {
         .add(abl_ST, "dAn")  // evinden
         .add(ins_ST, "lA")   // evinle
         .add(gen_ST, "In")   // evinin
+        .add(equ_ST, "cA",equCond)   // evince
         .add(acc_ST, "I");   // evini
 
     p3sg_S
         .addEmpty(nom_ST)    // evi
         .add(dat_ST, "nA")   // evine
-        .add(loc_ST, "ndA")   // evinde
+        .add(loc_ST, "ndA")  // evinde
         .add(abl_ST, "ndAn") // evinden
-        .add(ins_ST, "ylA")   // eviyle
+        .add(ins_ST, "ylA")  // eviyle
         .add(gen_ST, "nIn")  // evinin
+        .add(equ_ST, "cA",equCond)   // evince
         .add(acc_ST, "nI");  // evini
 
     p1pl_S
@@ -428,6 +442,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "dAn")  // evimizden
         .add(ins_ST, "lA")   // evimizden
         .add(gen_ST, "In")   // evimizin
+        .add(equ_ST, "cA",equCond)   // evimizce
         .add(acc_ST, "I");   // evimizi
 
     p2pl_S
@@ -437,6 +452,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "dAn")  // evinizden
         .add(ins_ST, "lA")   // evinizle
         .add(gen_ST, "In")   // evinizin
+        .add(equ_ST, "cA",equCond)   // evinizce
         .add(acc_ST, "I");   // evinizi
 
     p3pl_S
@@ -446,6 +462,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "ndAn")  // evlerinden
         .add(ins_ST, "ylA")   // evleriyle
         .add(gen_ST, "nIn")   // evlerinin
+        .add(equ_ST, "ncA",equCond)   // evlerinin
         .add(acc_ST, "nI");   // evlerini
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains any non empty surface suffix.
@@ -512,7 +529,7 @@ public class TurkishMorphotactics {
 
     nom_ST.add(justLike_S, "+msI",
         noSurfaceAfterDerivation
-            .andNot(new ContainsMorpheme(justLike, futPart, pastPart, presPart,  adj)));
+            .andNot(new ContainsMorpheme(justLike, futPart, pastPart, presPart, adj)));
 
     nom_ST.add(justLike_S, "ImsI",
         notHave(PhoneticAttribute.LastLetterVowel)
@@ -573,6 +590,7 @@ public class TurkishMorphotactics {
   MorphemeState aP3pl_ST = terminal("aP3pl_ST", p3pl);
 
   MorphemeState aNess_S = nonTerminalDerivative("aNess_S", ness);
+  MorphemeState aLy_S = nonTerminalDerivative("aLy_S", ly);
 
   private void connectAdjectiveStates() {
 
@@ -584,6 +602,9 @@ public class TurkishMorphotactics {
     adjZeroDeriv_S.addEmpty(noun_S);
 
     adjZeroDeriv_S.addEmpty(nVerb_S);
+
+    adj_ST.add(aLy_S, ">cA");
+    aLy_S.addEmpty(advRoot_ST);
 
     adj_ST.add(justLike_S, "+msI",
         new NoSurfaceAfterDerivation()
