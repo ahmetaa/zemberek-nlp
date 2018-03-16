@@ -163,6 +163,10 @@ Oflazer rejects "elmayalar" but accepts "elmayayım"
 
 Oflazer does not have Related (-sAl) suffix. It contains words with that suffix such as "bilimsel"
 If we will use Oflazer conversion, this will require some attention.
+
+Should we parse okuyasıma, okuyasımda? Oflazer does.
++Verb+Pos^DB+Noun+FeelLike+A3sg+P1sg+Dat
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

@@ -132,6 +132,8 @@ public class TurkishMorphotactics {
   public static final Morpheme futPart = new Morpheme("FutureParticiple", "FutPart");
   // okuyan (Adj, Noun)
   public static final Morpheme presPart = new Morpheme("PresentParticiple", "PresPart");
+  // okuyan (Adj, Noun)
+  public static final Morpheme feelLike = new Morpheme("FeelLike", "FeelLike");
   // okuyagel (Verb)
   public static final Morpheme everSince = new Morpheme("EverSince", "EverSince");
   // okuyadur, okuyagör (Verb)
@@ -1104,6 +1106,8 @@ public class TurkishMorphotactics {
   MorphemeState vPresPart_S = nonTerminalDerivative("vPresPart_S", presPart);
   MorphemeState vNarrPart_S = nonTerminalDerivative("vNarrPart_S", narrPart);
 
+  MorphemeState vFeelLike_S = nonTerminalDerivative("vFeelLike_S", feelLike);
+
   MorphemeState vEverSince_S = nonTerminalDerivative("vEverSince_S", everSince);
   MorphemeState vRepeat_S = nonTerminalDerivative("vRepeat_S", repeat);
   MorphemeState vAlmost_S = nonTerminalDerivative("vAlmost_S", almost);
@@ -1239,7 +1243,8 @@ public class TurkishMorphotactics {
         .add(vWithoutBeingAbleToHaveDoneSo_S, "yAmAdAn")
         .add(vAsLongAs_S, "dIkçA")
         .add(vWithoutHavingDoneSo_S, "mAdAn")
-        .add(vWithoutHavingDoneSo_S, "mAksIzIn");
+        .add(vWithoutHavingDoneSo_S, "mAksIzIn")
+        .add(vFeelLike_S, "yAsI");
 
     // Negative form is "m" before progressive "Iyor" because last vowel drops.
     // We use a separate negative state for this.
@@ -1322,6 +1327,11 @@ public class TurkishMorphotactics {
     verbRoot_S.add(vPresPart_S, "+yAn");
     vPresPart_S.addEmpty(noun_S, Conditions.HAS_TAIL);
     vPresPart_S.addEmpty(adjAfterVerb_ST); // connect to terminal Adj
+
+    // Feel Like
+    verbRoot_S.add(vFeelLike_S, "+yAsI");
+    vFeelLike_S.addEmpty(noun_S, Conditions.HAS_TAIL);
+    vFeelLike_S.addEmpty(adjAfterVerb_ST); // connect to terminal Adj
 
     // Passive
     // Causes Verb-Verb derivation. Passive morpheme has three forms.
