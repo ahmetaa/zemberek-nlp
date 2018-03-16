@@ -87,16 +87,16 @@ public class TurkishMorphotactics {
 
   // elmacık (Noun)
   public static final Morpheme dim = new Morpheme("Diminutive", "Dim");
-  // elmalık (Noun)
-  // TODO: Find better name.
+  // elmalık (Noun) TODO: Find better name.
   public static final Morpheme ness = new Morpheme("Ness", "Ness");
-
   // elmalı (Adj)
   public static final Morpheme with = new Morpheme("With", "With");
   // elmasız (Adj)
   public static final Morpheme without = new Morpheme("Without", "Without");
   // tahtamsı (Adj)
   public static final Morpheme justLike = new Morpheme("JustLike", "JustLike");
+  // elmacı
+  public static final Morpheme agt = new Morpheme("Agentive", "Agt");
   // tahtalaş (Verb)
   public static final Morpheme become = new Morpheme("Become", "Become");
   // tahtalan (Verb)
@@ -114,8 +114,6 @@ public class TurkishMorphotactics {
   public static final Morpheme inf2 = new Morpheme("Infinitive2", "Inf2");
   // okuyuş (Noun)
   public static final Morpheme inf3 = new Morpheme("Infinitive3", "Inf3");
-  // TODO: Find the meaning of this.
-  public static final Morpheme agt = new Morpheme("Agt", "Agt");
   // okuduğum kitap (Adj, Noun)
   public static final Morpheme pastPart = new Morpheme("PastParticiple", "PastPart");
   // okuyacağım kitap (Adj, Noun)
@@ -237,6 +235,7 @@ public class TurkishMorphotactics {
 
   MorphemeState dim_S = nonTerminalDerivative("dim_S", dim);
   MorphemeState ness_S = nonTerminalDerivative("ness_S", ness);
+  MorphemeState agt_S = nonTerminalDerivative("agt_S", agt);
   MorphemeState with_S = nonTerminalDerivative("with_S", with);
   MorphemeState without_S = nonTerminalDerivative("without_S", without);
   MorphemeState justLike_S = nonTerminalDerivative("justLike_S", justLike);
@@ -462,6 +461,13 @@ public class TurkishMorphotactics {
 
     // connect `ness` to the noun root.
     ness_S.addEmpty(noun_S);
+
+    nom_ST.add(agt_S, ">cI",
+        Conditions.CURRENT_GROUP_EMPTY.andNot(new ContainsMorpheme(adj)));
+
+    // connect `ness` to the noun root.
+    agt_S.addEmpty(noun_S);
+
 
     // here we do not allow an adjective to pass here.
     // such as, adj->zero->noun->ε-ε-ε->zero->Verb is not acceptable because there is already a
