@@ -110,7 +110,6 @@ public class TurkishMorphotactics {
 
   // yeşilce (Adj->Adv)
   public static final Morpheme ly = new Morpheme("Ly", "Ly");
-
   // oku-t oku-t-tur (Verb)
   public static final Morpheme caus = new Morpheme("Causative", "Caus");
   // oku-yabil (Verb)
@@ -757,6 +756,7 @@ public class TurkishMorphotactics {
     nNarr_S.add(nCond_S, "sA");
 
     nCond_S.add(nA1sg_ST, "m", allowA1sgTrans);
+    nCond_S.add(nA2sg_ST, "n", allowA2sgTrans);
     nCond_S.add(nA1pl_ST, "k", allowA1plTrans);
     nCond_S.add(nA2pl_ST, "nIz", allowA2plTrans);
     nCond_S.addEmpty(nA3sg_ST);
@@ -1356,6 +1356,7 @@ public class TurkishMorphotactics {
     vNarr_S.add(vPastAfterTense_S, "tI");
     vNarr_S.add(vCopBeforeA3pl_S, "tIr");
     vNarr_S.add(vWhile_S, "ken");
+    vNarr_S.add(vNarrAfterTense_S, "mIş");
 
     // Past after tense "oku-muş-tu"
     vPastAfterTense_S

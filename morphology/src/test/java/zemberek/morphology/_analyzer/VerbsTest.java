@@ -359,6 +359,7 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("etmemiş", matchesTailLex("Verb + Neg + Narr + A3sg"));
     t.expectSingle("etmişiz", matchesTailLex("Verb + Narr + A1pl"));
     t.expectSingle("etmemişiz", matchesTailLex("Verb + Neg + Narr + A1pl"));
+    t.expectSingle("etmişmiş", matchesTailLex("Verb + Narr + Narr + A3sg"));
   }
 
   @Test
