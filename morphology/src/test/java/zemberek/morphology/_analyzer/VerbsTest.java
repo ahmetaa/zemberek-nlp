@@ -576,4 +576,22 @@ public class VerbsTest extends AnalyzerTestBase {
     );
   }
 
+  @Test
+  public void copula() {
+    AnalysisTester t = getTester("yazmak");
+
+    t.expectAny("yazardır", matchesTailLex("Verb + Aor + A3sg + Cop"));
+    t.expectAny("yazmazdır", matchesTailLex("Verb + Neg + Aor + A3sg + Cop"));
+    t.expectAny("yazacaktır", matchesTailLex("Verb + Fut + A3sg + Cop"));
+    t.expectAny("yazacaklardır", matchesTailLex("Verb + Fut + A3pl + Cop"));
+    t.expectSingle("yazıyordur", matchesTailLex("Verb + Prog1 + A3sg + Cop"));
+    t.expectAny("yazmaktadır", matchesTailLex("Verb + Prog2 + A3sg + Cop"));
+    t.expectAny("yazmalıdır", matchesTailLex("Verb + Neces + A3sg + Cop"));
+
+    t.expectFail(
+        "yazsadır",
+        "yazdıdır"
+    );
+  }
+
 }

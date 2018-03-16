@@ -23,6 +23,7 @@ import zemberek.morphology._morphotactics.Conditions.ContainsMorpheme;
 import zemberek.morphology._morphotactics.Conditions.CurrentGroupContainsAny;
 import zemberek.morphology._morphotactics.Conditions.HasTailSequence;
 import zemberek.morphology._morphotactics.Conditions.NoSurfaceAfterDerivation;
+import zemberek.morphology._morphotactics.Conditions.PreviousMorphemeIsAny;
 import zemberek.morphology._morphotactics.Conditions.PreviousStateIsAny;
 import zemberek.morphology._morphotactics.Conditions.RootSurfaceIsAny;
 import zemberek.morphology.lexicon.DictionaryItem;
@@ -1039,6 +1040,7 @@ public class TurkishMorphotactics {
 
   MorphemeState vAor_S = nonTerminal("vAor_S", aor);
   MorphemeState vAorNeg_S = nonTerminal("vAorNeg_S", aor);
+  MorphemeState vAorNegEmpty_S = nonTerminal("vAorNegEmpty_S", aor);
 
   MorphemeState vAble_S = nonTerminalDerivative("vAble_S", able);
   MorphemeState vAbleNeg_S = nonTerminalDerivative("vAbleNeg_S", able);
@@ -1121,10 +1123,11 @@ public class TurkishMorphotactics {
         .add(vA1pl_ST, "uz")
         .add(vA2pl_ST, "sunuz")
         .add(vA3pl_ST, "lar");
-    vProgYor_S.add(vCond_S, "sa");
-    vProgYor_S.add(vPastAfterTense_S, "du");
-    vProgYor_S.add(vNarrAfterTense_S, "muş");
-    vProgYor_S.add(vWhile_S, "ken");
+    vProgYor_S
+        .add(vCond_S, "sa")
+        .add(vPastAfterTense_S, "du")
+        .add(vNarrAfterTense_S, "muş")
+        .add(vWhile_S, "ken");
 
     // Progressive - 2 "-mAktA"
     verbRoot_S.add(vProgMakta_S, "mAktA");
@@ -1135,10 +1138,11 @@ public class TurkishMorphotactics {
         .add(vA1pl_ST, "yIz")
         .add(vA2pl_ST, "sInIz")
         .add(vA3pl_ST, "lAr");
-    vProgMakta_S.add(vCond_S, "ysA");
-    vProgMakta_S.add(vPastAfterTense_S, "ydI");
-    vProgMakta_S.add(vNarrAfterTense_S, "ymIş");
-    vProgMakta_S.add(vWhile_S, "yken");
+    vProgMakta_S
+        .add(vCond_S, "ysA")
+        .add(vPastAfterTense_S, "ydI")
+        .add(vNarrAfterTense_S, "ymIş")
+        .add(vWhile_S, "yken");
 
     // Positive Aorist Tense.
     // For single syllable words, it forms as "ar-er". For others "ir-ır-ur-ür"
@@ -1155,37 +1159,40 @@ public class TurkishMorphotactics {
         .add(vA1pl_ST, "Iz")
         .add(vA1pl_ST, "sInIz")
         .add(vA3pl_ST, "lAr");
-    vAor_S.add(vPastAfterTense_S, "dI");
-    vAor_S.add(vNarrAfterTense_S, "mIş");
-    vAor_S.add(vCond_S, "sA");
-    vAor_S.add(vWhile_S, "ken");
+    vAor_S
+        .add(vPastAfterTense_S, "dI")
+        .add(vNarrAfterTense_S, "mIş")
+        .add(vCond_S, "sA")
+        .add(vWhile_S, "ken");
 
     // Negative
-    verbRoot_S.add(vNeg_S, "mA");
-    vNeg_S.addEmpty(vImp_S);
-    vNeg_S.add(vPast_S, "dI");
-    vNeg_S.add(vFut_S, "yAcA~k");
-    vNeg_S.add(vFut_S, "yAcA!ğ");
-    vNeg_S.add(vNarr_S, "mIş");
-    vNeg_S.add(vProgMakta_S, "mAktA");
-    vNeg_S.add(vOpt_S, "yA");
-    vNeg_S.add(vDesr_S, "sA");
-    vNeg_S.add(vNeces_S, "mAlI");
-    vNeg_S.add(vInf1_S, "mAk");
-    vNeg_S.add(vInf2_S, "mA");
-    vNeg_S.add(vInf3_S, "yIş");
-    vNeg_S.add(vPastPart_S, "dI~k");
-    vNeg_S.add(vPastPart_S, "dI!ğ");
-    vNeg_S.add(vFutPart_S, "yAcA~k");
-    vNeg_S.add(vFutPart_S, "yAcA!ğ");
-    vNeg_S.add(vPresPart_S, "yAn");
-    vNeg_S.add(vSinceDoingSo_S, "yAlI");
-    vNeg_S.add(vByDoingSo_S, "yArAk");
-    vNeg_S.add(vAfterDoing_S, "yIp");
-    vNeg_S.add(vWithoutBeingAbleToHaveDoneSo_S, "yAmAdAn");
-    vNeg_S.add(vAsLongAs_S, "dIkçA");
-    vNeg_S.add(vWithoutHavingDoneSo_S, "mAdAn");
-    vNeg_S.add(vWithoutHavingDoneSo_S, "mAksIzIn");
+    verbRoot_S
+        .add(vNeg_S, "mA");
+
+    vNeg_S.addEmpty(vImp_S)
+        .add(vPast_S, "dI")
+        .add(vFut_S, "yAcA~k")
+        .add(vFut_S, "yAcA!ğ")
+        .add(vNarr_S, "mIş")
+        .add(vProgMakta_S, "mAktA")
+        .add(vOpt_S, "yA")
+        .add(vDesr_S, "sA")
+        .add(vNeces_S, "mAlI")
+        .add(vInf1_S, "mAk")
+        .add(vInf2_S, "mA")
+        .add(vInf3_S, "yIş")
+        .add(vPastPart_S, "dI~k")
+        .add(vPastPart_S, "dI!ğ")
+        .add(vFutPart_S, "yAcA~k")
+        .add(vFutPart_S, "yAcA!ğ")
+        .add(vPresPart_S, "yAn")
+        .add(vSinceDoingSo_S, "yAlI")
+        .add(vByDoingSo_S, "yArAk")
+        .add(vAfterDoing_S, "yIp")
+        .add(vWithoutBeingAbleToHaveDoneSo_S, "yAmAdAn")
+        .add(vAsLongAs_S, "dIkçA")
+        .add(vWithoutHavingDoneSo_S, "mAdAn")
+        .add(vWithoutHavingDoneSo_S, "mAksIzIn");
 
     // Negative form is "m" before progressive "Iyor" because last vowel drops.
     // We use a separate negative state for this.
@@ -1193,20 +1200,21 @@ public class TurkishMorphotactics {
     vNegProg1_S.add(vProgYor_S, "Iyor");
 
     // Negative Aorist
-    // Aorist tense forms differently after negative.
-    // TODO: this requires better surface definitions.
-    vNeg_S.addEmpty(vAorNeg_S);
+    // Aorist tense forms differently after negative. It can be "z" or empty.
+    vNeg_S.add(vAorNeg_S, "z");
+    vNeg_S.addEmpty(vAorNegEmpty_S);
     vAorNeg_S
+        .add(vA2sg_ST, "sIn")
+        .addEmpty(vA3sg_ST)
+        .add(vA2pl_ST, "sInIz")
+        .add(vA3pl_ST, "lAr")
+        .add(vPastAfterTense_S, "dI")
+        .add(vNarrAfterTense_S, "mIş")
+        .add(vCond_S, "sA")
+        .add(vWhile_S, "ken");
+    vAorNegEmpty_S
         .add(vA1sg_ST, "m")
-        .add(vA2sg_ST, "zsIn")
-        .add(vA3sg_ST, "z")
-        .add(vA1pl_ST, "yIz")
-        .add(vA2pl_ST, "zsInIz")
-        .add(vA3pl_ST, "zlAr");
-    vAorNeg_S.add(vPastAfterTense_S, "zdI");
-    vAorNeg_S.add(vNarrAfterTense_S, "zmIş");
-    vAorNeg_S.add(vCond_S, "zsA");
-    vAorNeg_S.add(vWhile_S, "zken");
+        .add(vA1pl_ST, "yIz");
 
     //Positive Ability.
     // This makes a Verb-Verb derivation.
@@ -1270,7 +1278,7 @@ public class TurkishMorphotactics {
         .andNot(new Conditions.ContainsMorpheme(pass)));
     verbRoot_S.add(vPass_S, "+nIl",
         Conditions.previousStateIs(vCausT_S).or(notHave(RootAttribute.Passive_In)
-        .andNot(new Conditions.ContainsMorpheme(pass))));
+            .andNot(new Conditions.ContainsMorpheme(pass))));
     vPass_S.addEmpty(verbRoot_S);
 
     // Condition "oku-r-sa"
@@ -1443,8 +1451,14 @@ public class TurkishMorphotactics {
     vA3pl_ST.add(vNarrAfterTense_ST, "mIş", previousNotPastNarrCond);
     vA3pl_ST.add(vCond_ST, "sA", previousNotPastNarrCond);
 
-    vA3pl_ST.add(vWhile_S, "ken",
-        new PreviousStateIsAny(vPast_S, vPastAfterTense_S, vCond_S).not());
+    Condition a3plCopWhile =
+        new PreviousStateIsAny(vPast_S, vPastAfterTense_S, vCond_S).not();
+    vA3pl_ST.add(vCop_ST, "dIr", a3plCopWhile);
+    vA3pl_ST.add(vWhile_S, "ken", a3plCopWhile);
+
+    Condition a3sgCopWhile =
+        new PreviousMorphemeIsAny(prog1, prog2, neces, fut, narr, aor);
+    vA3sg_ST.add(vCop_ST, ">dIr", a3sgCopWhile);
 
     verbRoot_S.add(vEverSince_S, "+yAgel", cMultiVerb);
     verbRoot_S.add(vRepeat_S, "+yAdur", cMultiVerb);
