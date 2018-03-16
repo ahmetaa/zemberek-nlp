@@ -583,6 +583,10 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectAny("yazardır", matchesTailLex("Verb + Aor + A3sg + Cop"));
     t.expectAny("yazmazdır", matchesTailLex("Verb + Neg + Aor + A3sg + Cop"));
     t.expectAny("yazacaktır", matchesTailLex("Verb + Fut + A3sg + Cop"));
+    t.expectAny("yazacağımdır", matchesTailLex("Verb + Fut + A1sg + Cop"));
+    t.expectAny("yazacaksındır", matchesTailLex("Verb + Fut + A2sg + Cop"));
+    t.expectAny("yazacağızdır", matchesTailLex("Verb + Fut + A1pl + Cop"));
+    t.expectAny("yazacaksınızdır", matchesTailLex("Verb + Fut + A2pl + Cop"));
     t.expectAny("yazacaklardır", matchesTailLex("Verb + Fut + A3pl + Cop"));
     t.expectSingle("yazıyordur", matchesTailLex("Verb + Prog1 + A3sg + Cop"));
     t.expectAny("yazmaktadır", matchesTailLex("Verb + Prog2 + A3sg + Cop"));

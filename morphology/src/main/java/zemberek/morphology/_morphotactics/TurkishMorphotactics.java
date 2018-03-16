@@ -512,12 +512,12 @@ public class TurkishMorphotactics {
 
     nom_ST.add(justLike_S, "+msI",
         noSurfaceAfterDerivation
-            .andNot(new ContainsMorpheme(justLike, adj)));
+            .andNot(new ContainsMorpheme(justLike, futPart, pastPart, presPart,  adj)));
 
     nom_ST.add(justLike_S, "ImsI",
         notHave(PhoneticAttribute.LastLetterVowel)
             .and(noSurfaceAfterDerivation)
-            .andNot(new ContainsMorpheme(justLike, adj)));
+            .andNot(new ContainsMorpheme(justLike, futPart, pastPart, presPart, adj)));
 
     // connect With to Adjective root.
     with_S.addEmpty(adj_ST);
@@ -1458,7 +1458,11 @@ public class TurkishMorphotactics {
 
     Condition a3sgCopWhile =
         new PreviousMorphemeIsAny(prog1, prog2, neces, fut, narr, aor);
+    vA1sg_ST.add(vCop_ST, "dIr", a3sgCopWhile);
+    vA2sg_ST.add(vCop_ST, "dIr", a3sgCopWhile);
     vA3sg_ST.add(vCop_ST, ">dIr", a3sgCopWhile);
+    vA1pl_ST.add(vCop_ST, "dIr", a3sgCopWhile);
+    vA2pl_ST.add(vCop_ST, "dIr", a3sgCopWhile);
 
     verbRoot_S.add(vEverSince_S, "+yAgel", cMultiVerb);
     verbRoot_S.add(vRepeat_S, "+yAdur", cMultiVerb);
