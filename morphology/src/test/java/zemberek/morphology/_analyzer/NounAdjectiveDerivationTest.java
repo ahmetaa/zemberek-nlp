@@ -69,4 +69,22 @@ public class NounAdjectiveDerivationTest extends AnalyzerTestBase {
     tester.expectFail("armutlarsı");
   }
 
+  @Test
+  public void rel1() {
+    AnalysisTester tester = getTester("meyve");
+    tester.expectSingle("meyvedeki",
+        matchesTailLex("Noun + A3sg + Pnon + Loc + Rel + Adj"));
+    tester.expectAny("meyvelerdeki",
+        matchesTailLex("Noun + A3pl + Pnon + Loc + Rel + Adj"));
+    tester.expectSingle("meyvedekiydi",
+        matchesTailLex("Noun + A3sg + Pnon + Loc + Rel + Adj + Zero + Verb + Past + A3sg"));
+
+    tester.expectFail(
+        "meyveki",
+        "meyveyeki",
+        "meyvedekideki",
+        "meyvemki"
+    );
+  }
+
 }

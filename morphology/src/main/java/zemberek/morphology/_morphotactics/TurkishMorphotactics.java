@@ -21,6 +21,7 @@ import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology._morphotactics.Conditions.ContainsMorpheme;
 import zemberek.morphology._morphotactics.Conditions.CurrentGroupContainsAny;
+import zemberek.morphology._morphotactics.Conditions.HasTailSequence;
 import zemberek.morphology._morphotactics.Conditions.NoSurfaceAfterDerivation;
 import zemberek.morphology._morphotactics.Conditions.PreviousStateIsAny;
 import zemberek.morphology._morphotactics.Conditions.RootSurfaceIsAny;
@@ -95,7 +96,9 @@ public class TurkishMorphotactics {
   public static final Morpheme without = new Morpheme("Without", "Without");
   // tahtamsı (Adj)
   public static final Morpheme justLike = new Morpheme("JustLike", "JustLike");
-  // elmacı
+  // tahtadaki (Adj)
+  public static final Morpheme rel = new Morpheme("Relation", "Rel");
+  // elmacı (Noun)
   public static final Morpheme agt = new Morpheme("Agentive", "Agt");
   // tahtalaş (Verb)
   public static final Morpheme become = new Morpheme("Become", "Become");
@@ -236,6 +239,7 @@ public class TurkishMorphotactics {
   MorphemeState dim_S = nonTerminalDerivative("dim_S", dim);
   MorphemeState ness_S = nonTerminalDerivative("ness_S", ness);
   MorphemeState agt_S = nonTerminalDerivative("agt_S", agt);
+  MorphemeState rel_S = nonTerminalDerivative("rel_S", rel);
   MorphemeState with_S = nonTerminalDerivative("with_S", with);
   MorphemeState without_S = nonTerminalDerivative("without_S", without);
   MorphemeState justLike_S = nonTerminalDerivative("justLike_S", justLike);
@@ -444,7 +448,7 @@ public class TurkishMorphotactics {
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains any non empty surface suffix.
     // There are two almost identical suffix transitions with templates ">cI~k" and ">cI!ğ"
     // This was necessary for some simplification during analysis. This way there will be only one
-    // surface form generated per transition.
+    // surface form generated for each transition.
     nom_ST.add(dim_S, ">cI~k", Conditions.HAS_NO_SURFACE);
     nom_ST.add(dim_S, ">cI!ğ", Conditions.HAS_NO_SURFACE);
 
@@ -518,6 +522,11 @@ public class TurkishMorphotactics {
     without_S.addEmpty(adj_ST);
 
     justLike_S.addEmpty(adj_ST);
+
+    // meyve-de-ki
+    Condition notRelRepetition = new HasTailSequence(rel, adj, zero, noun, a3sg, pnon, loc).not();
+    loc_ST.add(rel_S, "ki", notRelRepetition);
+    rel_S.addEmpty(adj_ST);
 
     ContainsMorpheme verbDeriv = new ContainsMorpheme(inf1, inf2, inf3, pastPart, futPart);
 
