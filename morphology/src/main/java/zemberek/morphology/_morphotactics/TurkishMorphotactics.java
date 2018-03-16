@@ -150,6 +150,8 @@ public class TurkishMorphotactics {
   public static final Morpheme asIf = new Morpheme("AsIf", "AsIf");
   // okurken (Adv)
   public static final Morpheme while_ = new Morpheme("While", "While");
+  // okuyunca (Adv)
+  public static final Morpheme when = new Morpheme("When", "When");
   // okuyalı (Adv)
   public static final Morpheme sinceDoingSo = new Morpheme("SinceDoingSo", "SinceDoingSo");
   // okudukça (Adv)
@@ -428,7 +430,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "dAn")  // evinden
         .add(ins_ST, "lA")   // evinle
         .add(gen_ST, "In")   // evinin
-        .add(equ_ST, "cA",equCond)   // evince
+        .add(equ_ST, "cA", equCond)   // evince
         .add(acc_ST, "I");   // evini
 
     p3sg_S
@@ -438,7 +440,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "ndAn") // evinden
         .add(ins_ST, "ylA")  // eviyle
         .add(gen_ST, "nIn")  // evinin
-        .add(equ_ST, "cA",equCond)   // evince
+        .add(equ_ST, "cA", equCond)   // evince
         .add(acc_ST, "nI");  // evini
 
     p1pl_S
@@ -448,7 +450,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "dAn")  // evimizden
         .add(ins_ST, "lA")   // evimizden
         .add(gen_ST, "In")   // evimizin
-        .add(equ_ST, "cA",equCond)   // evimizce
+        .add(equ_ST, "cA", equCond)   // evimizce
         .add(acc_ST, "I");   // evimizi
 
     p2pl_S
@@ -458,7 +460,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "dAn")  // evinizden
         .add(ins_ST, "lA")   // evinizle
         .add(gen_ST, "In")   // evinizin
-        .add(equ_ST, "cA",equCond)   // evinizce
+        .add(equ_ST, "cA", equCond)   // evinizce
         .add(acc_ST, "I");   // evinizi
 
     p3pl_S
@@ -468,7 +470,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "ndAn")  // evlerinden
         .add(ins_ST, "ylA")   // evleriyle
         .add(gen_ST, "nIn")   // evlerinin
-        .add(equ_ST, "ncA",equCond)   // evlerinin
+        .add(equ_ST, "ncA", equCond)   // evlerinin
         .add(acc_ST, "nI");   // evlerini
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains any non empty surface suffix.
@@ -545,7 +547,6 @@ public class TurkishMorphotactics {
     nom_ST.add(related_S, "sAl",
         noSurfaceAfterDerivation
             .andNot(new ContainsMorpheme(with, without, related)));
-
 
     // connect With to Adjective root.
     with_S.addEmpty(adj_ST);
@@ -776,7 +777,8 @@ public class TurkishMorphotactics {
     nCond_S.add(nA3pl_ST, "lAr");
 
     // for not allowing "elma-ydı-m-dır"
-    Condition rejectNoCopula = new CurrentGroupContainsAny(nPast_S, nCond_S, nCopBeforeA3pl_S).not();
+    Condition rejectNoCopula = new CurrentGroupContainsAny(nPast_S, nCond_S, nCopBeforeA3pl_S)
+        .not();
 
     //elma-yım-dır
     nA1sg_ST.add(nCop_ST, "dIr", rejectNoCopula);
@@ -1116,6 +1118,7 @@ public class TurkishMorphotactics {
   MorphemeState vStart_S = nonTerminalDerivative("vStart_S", start);
 
   MorphemeState vWhile_S = nonTerminalDerivative("vWhile_S", while_);
+  MorphemeState vWhen_S = nonTerminalDerivative("vWhen_S", when);
   MorphemeState vAsIf_S = nonTerminalDerivative("vAsIf_S", asIf);
   MorphemeState vSinceDoingSo_S = nonTerminalDerivative("vSinceDoingSo_S", sinceDoingSo);
   MorphemeState vAsLongAs_S = nonTerminalDerivative("vAsLongAs_S", asLongAs);
@@ -1240,6 +1243,7 @@ public class TurkishMorphotactics {
         .add(vSinceDoingSo_S, "yAlI")
         .add(vByDoingSo_S, "yArAk")
         .add(vAfterDoing_S, "yIp")
+        .add(vWhen_S, "yIncA")
         .add(vWithoutBeingAbleToHaveDoneSo_S, "yAmAdAn")
         .add(vAsLongAs_S, "dIkçA")
         .add(vWithoutHavingDoneSo_S, "mAdAn")
@@ -1557,6 +1561,7 @@ public class TurkishMorphotactics {
 
     vA3sg_ST.add(vAsIf_S, ">cAsInA", new Conditions.PreviousMorphemeIsAny(aor, narr));
 
+    verbRoot_S.add(vWhen_S, "+yIncA");
     verbRoot_S.add(vSinceDoingSo_S, "+yAlI");
     verbRoot_S.add(vByDoingSo_S, "+yArAk");
     verbRoot_S.add(vAfterDoing_S, "+yIp");
@@ -1573,6 +1578,7 @@ public class TurkishMorphotactics {
     vAsLongAs_S.addEmpty(advRoot_ST);
     vWithoutHavingDoneSo_S.addEmpty(advRoot_ST);
     vWhile_S.addEmpty(advRoot_ST);
+    vWhen_S.addEmpty(advRoot_ST);
   }
 
   Map<String, MorphemeState> itemRootStateMap = new HashMap<>();

@@ -216,6 +216,10 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Aor + Narr + A3sg + AsIf + Adv"));
     tester.expectSingle("okuyalı",
         matchesTailLex("Verb + SinceDoingSo + Adv"));
+    tester.expectSingle("okuyunca",
+        matchesTailLex("Verb + When + Adv"));
+    tester.expectSingle("okumayınca",
+        matchesTailLex("Verb + Neg + When + Adv"));
     tester.expectSingle("okudukça",
         matchesTailLex("Verb + AsLongAs + Adv"));
     tester.expectSingle("okuyarak",
