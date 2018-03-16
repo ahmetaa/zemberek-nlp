@@ -1026,6 +1026,7 @@ public class TurkishMorphotactics {
   MorphemeState vFut_S = nonTerminal("vFut_S", fut);
 
   MorphemeState vCop_ST = terminal("vCop_ST", cop);
+  MorphemeState vCopBeforeA3pl_S = nonTerminal("vCopBeforeA3pl_S", cop);
 
   MorphemeState vNeg_S = nonTerminal("vNeg_S", neg);
   // for negative before progressive-1 "Iyor"
@@ -1130,6 +1131,7 @@ public class TurkishMorphotactics {
         .add(vCond_S, "sa")
         .add(vPastAfterTense_S, "du")
         .add(vNarrAfterTense_S, "muş")
+        .add(vCopBeforeA3pl_S, "dur")
         .add(vWhile_S, "ken");
 
     // Progressive - 2 "-mAktA"
@@ -1145,6 +1147,7 @@ public class TurkishMorphotactics {
         .add(vCond_S, "ysA")
         .add(vPastAfterTense_S, "ydI")
         .add(vNarrAfterTense_S, "ymIş")
+        .add(vCopBeforeA3pl_S, "dIr")
         .add(vWhile_S, "yken");
 
     // Positive Aorist Tense.
@@ -1166,6 +1169,7 @@ public class TurkishMorphotactics {
         .add(vPastAfterTense_S, "dI")
         .add(vNarrAfterTense_S, "mIş")
         .add(vCond_S, "sA")
+        .add(vCopBeforeA3pl_S, "dIr")
         .add(vWhile_S, "ken");
 
     // Negative
@@ -1214,6 +1218,7 @@ public class TurkishMorphotactics {
         .add(vPastAfterTense_S, "dI")
         .add(vNarrAfterTense_S, "mIş")
         .add(vCond_S, "sA")
+        .add(vCopBeforeA3pl_S, "dIr")
         .add(vWhile_S, "ken");
     vAorNegEmpty_S
         .add(vA1sg_ST, "m")
@@ -1321,6 +1326,7 @@ public class TurkishMorphotactics {
         .add(vA3pl_ST, "lAr");
     vNarr_S.add(vCond_S, "sA");
     vNarr_S.add(vPastAfterTense_S, "tI");
+    vNarr_S.add(vCopBeforeA3pl_S, "tIr");
     vNarr_S.add(vWhile_S, "ken");
 
     // Past after tense "oku-muş-tu"
@@ -1342,6 +1348,7 @@ public class TurkishMorphotactics {
         .add(vA2pl_ST, "sInIz")
         .add(vA3pl_ST, "lAr");
     vNarrAfterTense_S.add(vWhile_S, "ken");
+    vNarrAfterTense_S.add(vCopBeforeA3pl_S, "tIr");
 
     // Future "oku-yacak"
     verbRoot_S.add(vFut_S, "+yAcA~k");
@@ -1357,6 +1364,7 @@ public class TurkishMorphotactics {
     vFut_S.add(vCond_S, "sA");
     vFut_S.add(vPastAfterTense_S, "tI");
     vFut_S.add(vNarrAfterTense_S, "mIş");
+    vFut_S.add(vCopBeforeA3pl_S, "tIr");
     vFut_S.add(vWhile_S, "ken");
 
     // `demek` and `yemek` are special because they are the only two verbs with two letters
@@ -1448,6 +1456,7 @@ public class TurkishMorphotactics {
         .add(vA3pl_ST, "lAr")
         .add(vPastAfterTense_S, "ydI")
         .add(vNarrAfterTense_S, "ymIş")
+        .add(vCopBeforeA3pl_S, "dIr")
         .add(vWhile_S, "yken");
 
     // A3pl exception case.
@@ -1461,7 +1470,7 @@ public class TurkishMorphotactics {
     vA3pl_ST.add(vCond_ST, "sA", previousNotPastNarrCond);
 
     Condition a3plCopWhile =
-        new PreviousStateIsAny(vPast_S, vPastAfterTense_S, vCond_S).not();
+        new PreviousMorphemeIsAny(prog1, prog2, neces, fut, narr, aor);
     vA3pl_ST.add(vCop_ST, "dIr", a3plCopWhile);
     vA3pl_ST.add(vWhile_S, "ken", a3plCopWhile);
 
@@ -1472,6 +1481,8 @@ public class TurkishMorphotactics {
     vA3sg_ST.add(vCop_ST, ">dIr", a3sgCopWhile);
     vA1pl_ST.add(vCop_ST, "dIr", a3sgCopWhile);
     vA2pl_ST.add(vCop_ST, "dIr", a3sgCopWhile);
+
+    vCopBeforeA3pl_S.add(vA3pl_ST, "lAr");
 
     verbRoot_S.add(vEverSince_S, "+yAgel", cMultiVerb);
     verbRoot_S.add(vRepeat_S, "+yAdur", cMultiVerb);

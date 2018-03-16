@@ -150,6 +150,12 @@ domates+Noun+A3sg+Pnon+Gen^DB+Pron+Rel+A3sg+Pnon+Nom  <-- this is interesting. N
 
 for okuyacaklardır,okumazlardır Oflazer gives single soluiton
 
+Oflzer offers same output for gelecektirler and geleceklerdir. => +Verb+Pos+Fut+A3pl+Cop
+Zemberek changes orders of A3pl and Cop
+
+
+
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.
