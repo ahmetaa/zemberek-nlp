@@ -124,6 +124,8 @@ public class TurkishMorphotactics {
   public static final Morpheme inf3 = new Morpheme("Infinitive3", "Inf3");
   // okuduğum kitap (Adj, Noun)
   public static final Morpheme pastPart = new Morpheme("PastParticiple", "PastPart");
+  // okumuşlarımız (Adj, Noun)
+  public static final Morpheme narrPart = new Morpheme("NarrativeParticiple", "NarrPart");
   // okuyacağım kitap (Adj, Noun)
   public static final Morpheme futPart = new Morpheme("FutureParticiple", "FutPart");
   // okuyan (Adj, Noun)
@@ -379,8 +381,8 @@ public class TurkishMorphotactics {
         has(RootAttribute.CompoundP3sgRoot)
             .or(has(PhoneticAttribute.ExpectsVowel)));
 
-    Condition equCond = new Conditions.ContainsMorpheme(adj, pastPart).not();
-
+    Condition equCond =
+        new Conditions.ContainsMorpheme(adj, futPart, presPart, narrPart, pastPart).not();
 
     // Not allow "zetinyağı-ya" etc.
     pnon_S
@@ -1091,6 +1093,7 @@ public class TurkishMorphotactics {
   MorphemeState vPastPart_S = nonTerminalDerivative("vPastPart_S", pastPart);
   MorphemeState vFutPart_S = nonTerminalDerivative("vFutPart_S", futPart);
   MorphemeState vPresPart_S = nonTerminalDerivative("vPresPart_S", presPart);
+  MorphemeState vNarrPart_S = nonTerminalDerivative("vNarrPart_S", narrPart);
 
   MorphemeState vEverSince_S = nonTerminalDerivative("vEverSince_S", everSince);
   MorphemeState vRepeat_S = nonTerminalDerivative("vRepeat_S", repeat);
@@ -1302,6 +1305,10 @@ public class TurkishMorphotactics {
     vFutPart_S.addEmpty(noun_S, Conditions.HAS_TAIL);
     vFutPart_S.addEmpty(adjAfterVerb_S);
 
+    // FutPart "oku-yacağ-ım kitap"
+    verbRoot_S.add(vNarrPart_S, "mIş");
+    vNarrPart_S.addEmpty(adj_ST);
+
     // PresPart
     verbRoot_S.add(vPresPart_S, "+yAn");
     vPresPart_S.addEmpty(noun_S, Conditions.HAS_TAIL);
@@ -1445,6 +1452,7 @@ public class TurkishMorphotactics {
         .add(vInf3_S, "yiş", new RootSurfaceIsAny("de"))
         .add(vPastPart_S, "di~k", deYeCondition)
         .add(vPastPart_S, "di~ğ", deYeCondition)
+        .add(vNarrPart_S, "miş", deYeCondition)
         .add(vHastily_S, "yiver", diYiCondition.and(cMultiVerb))
         .add(vAsLongAs_S, "dikçe")
         .add(vWithoutHavingDoneSo_S, "meden")
