@@ -1268,8 +1268,9 @@ public class TurkishMorphotactics {
         .andNot(new Conditions.ContainsMorpheme(pass)));
     verbRoot_S.add(vPass_S, "InIl", has(RootAttribute.Passive_In)
         .andNot(new Conditions.ContainsMorpheme(pass)));
-    verbRoot_S.add(vPass_S, "+nIl", notHave(RootAttribute.Passive_In)
-        .andNot(new Conditions.ContainsMorpheme(pass)));
+    verbRoot_S.add(vPass_S, "+nIl",
+        Conditions.previousStateIs(vCausT_S).or(notHave(RootAttribute.Passive_In)
+        .andNot(new Conditions.ContainsMorpheme(pass))));
     vPass_S.addEmpty(verbRoot_S);
 
     // Condition "oku-r-sa"

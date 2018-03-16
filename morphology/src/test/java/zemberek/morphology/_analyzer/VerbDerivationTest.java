@@ -15,6 +15,8 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Caus + Verb + Caus + Verb + Imp + A2sg"));
     tester.expectSingle("okutturt",
         matchesTailLex("Verb + Caus + Verb + Caus + Verb + Caus + Verb + Imp + A2sg"));
+    tester.expectSingle("okutul",
+        matchesTailLex("Verb + Caus + Verb + Pass + Verb + Imp + A2sg"));
 
     tester.expectFail(
         "okutt",
@@ -37,8 +39,6 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         "semirtirtir"
     );
   }
-
-
 
   @Test
   public void infinitive1() {
@@ -77,6 +77,13 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Caus + Verb + Neg + Imp + A2sg"));
     tester.expectAny("okutmama",
         matchesTailLex("Verb + Caus + Verb + Inf2 + Noun + A3sg + P1sg + Dat"));
+    tester.expectAny("okuması",
+        matchesTailLex("Verb + Inf2 + Noun + A3sg + P3sg + Nom"));
+    tester.expectAny("okutması",
+        matchesTailLex("Verb + Caus + Verb + Inf2 + Noun + A3sg + P3sg + Nom"));
+    tester.expectAny("okutulması",
+        matchesTailLex("Verb + Caus + Verb + Pass + Verb + Inf2 + Noun + A3sg + P3sg + Nom"));
+
     tester.expectAny("okutmamadan",
         matchesTailLex("Verb + Caus + Verb + Neg + Inf2 + Noun + A3sg + Pnon + Abl"));
   }
@@ -214,7 +221,6 @@ public class VerbDerivationTest extends AnalyzerTestBase {
     tester.expectSingle("okuyamadan",
         matchesTailLex("Verb + WithoutBeingAbleToHaveDoneSo + Adv"));
   }
-
 
   @Test
   public void whileAdverbDerivation() {

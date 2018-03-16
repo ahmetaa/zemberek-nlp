@@ -83,16 +83,16 @@ public class InterpretingAnalyzer {
     return analyze(input, null);
   }
 
-  // searches through morphotactics graph recursively.
-  private List<AnalysisResult> search(List<SearchPath> current, AnalysisDebugData debugData) {
+  // searches through morphotactics graph.
+  private List<AnalysisResult> search(List<SearchPath> currentPaths, AnalysisDebugData debugData) {
 
     List<AnalysisResult> result = new ArrayList<>(3);
     // new Paths are generated with matching transitions.
-    while (current.size() > 0) {
+    while (currentPaths.size() > 0) {
 
       List<SearchPath> allNewPaths = Lists.newArrayList();
 
-      for (SearchPath path : current) {
+      for (SearchPath path : currentPaths) {
 
         // if there are no more letters to consume and path can be terminated, we accept this
         // path as a correct result.
@@ -122,7 +122,7 @@ public class InterpretingAnalyzer {
           debugData.paths.addAll(newPaths);
         }
       }
-      current = allNewPaths;
+      currentPaths = allNewPaths;
     }
 
     if (debugData != null) {
