@@ -649,7 +649,9 @@ public class TurkishMorphotactics {
   MorphemeState nA3sg_ST = terminal("nA3sg_ST", a3sg);
   MorphemeState nA3sg_S = nonTerminal("nA3sg_S", a3sg);
   MorphemeState nA3pl_ST = terminal("nA3pl_ST", a3pl);
+
   MorphemeState nCop_ST = terminal("nCop_ST", cop);
+  MorphemeState nCopBeforeA3pl_S = nonTerminal("nCopBeforeA3pl_S", cop);
 
   MorphemeState nNeg_S = nonTerminal("nNeg_S", neg);
 
@@ -761,7 +763,7 @@ public class TurkishMorphotactics {
     nCond_S.add(nA3pl_ST, "lAr");
 
     // for not allowing "elma-ydı-m-dır"
-    Condition rejectNoCopula = new CurrentGroupContainsAny(nPast_S, nCond_S).not();
+    Condition rejectNoCopula = new CurrentGroupContainsAny(nPast_S, nCond_S, nCopBeforeA3pl_S).not();
 
     //elma-yım-dır
     nA1sg_ST.add(nCop_ST, "dIr", rejectNoCopula);
@@ -770,6 +772,11 @@ public class TurkishMorphotactics {
     nA3sg_S.add(nCop_ST, ">dIr", rejectNoCopula);
 
     nA3pl_ST.add(nCop_ST, "dIr", rejectNoCopula);
+
+    // Copula can come before A3pl.
+    nPresent_S.add(nCopBeforeA3pl_S, ">dIr");
+    nCopBeforeA3pl_S.add(nA3pl_ST, "lAr");
+
   }
 
   // ----------- Pronoun states --------------------------

@@ -610,8 +610,7 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectAny("yazmalıdırlar", matchesTailLex("Verb + Neces + Cop + A3pl"));
 
     t.expectFail(
-        "yazacaktırlardır",
-        "yazacaklardırlar"
+        "yazacaktırlardır"
     );
   }
 

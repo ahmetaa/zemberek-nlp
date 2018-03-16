@@ -337,4 +337,20 @@ public class NounDerivationTest extends AnalyzerTestBase {
     tester.expectSingle("elmadaysak", matchesTailLex("Loc + Zero + Verb + Cond + A1pl"));
   }
 
+  @Test
+  public void copulaBeforeA3plTest() {
+    AnalysisTester tester = getTester("elma");
+
+    tester.expectSingle("elmadırlar", matchesTailLex("Nom + Zero + Verb + Pres + Cop + A3pl"));
+    tester.expectAny("elmadalardır",
+        matchesTailLex("Pnon + Loc + Zero + Verb + Pres + A3pl + Cop"));
+    tester.expectSingle("elmamdadırlar",
+        matchesTailLex("P1sg + Loc + Zero + Verb + Pres + Cop + A3pl"));
+
+    tester.expectFail(
+        "elmadalardırlar",
+        "elmadadırlardır"
+    );
+  }
+
 }

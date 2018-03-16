@@ -155,6 +155,11 @@ Zemberek changes orders of A3pl and Cop
 
 Equ suffix is dodgy. evimce.. evlerince etc.
 
+Oflazer rejects "elmayalar" but accepts "elmayayım"
+
+"yazacaklardırlar" we now accept it with
+ yaz:Verb + acak:FutPart + Noun + lar:A3pl + Pnon + Nom + Zero + Verb + Pres + dır:Cop + lar:A3pl
+ should we?
 
 ----
 
