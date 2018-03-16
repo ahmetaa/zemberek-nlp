@@ -248,9 +248,23 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         "okurumken",
         "okudularken"
     );
+  }
 
 
+  @Test
+  public void agt() {
+    AnalysisTester tester = getTester("okumak");
 
+    tester.expectAny("okuyucu",
+        matchesTailLex("Verb + Agt + Adj"));
+    tester.expectAny("okuyucu",
+        matchesTailLex("Verb + Agt + Noun + A3sg + Pnon + Nom"));
+    tester.expectAny("okutucu",
+        matchesTailLex("Verb + Caus + Verb + Agt + Adj"));
+
+    tester.expectFail(
+        "okuyucucu"
+    );
   }
 
 

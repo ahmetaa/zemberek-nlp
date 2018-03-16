@@ -470,7 +470,7 @@ public class TurkishMorphotactics {
     ness_S.addEmpty(noun_S);
 
     nom_ST.add(agt_S, ">cI",
-        Conditions.CURRENT_GROUP_EMPTY.andNot(new ContainsMorpheme(adj)));
+        Conditions.CURRENT_GROUP_EMPTY.andNot(new ContainsMorpheme(adj, agt)));
 
     // connect `ness` to the noun root.
     agt_S.addEmpty(noun_S);
@@ -551,6 +551,7 @@ public class TurkishMorphotactics {
     pnonInf1_S.addEmpty(pNom_ST);
     pnonInf1_S.add(abl_ST, "tAn");
     pnonInf1_S.add(loc_ST, "tA");
+    pnonInf1_S.add(ins_ST, "lA");
   }
 
   //-------------- Adjective States ------------------------
@@ -1056,6 +1057,8 @@ public class TurkishMorphotactics {
   MorphemeState vInf2_S = nonTerminalDerivative("vInf2_S", inf2);
   MorphemeState vInf3_S = nonTerminalDerivative("vInf3_S", inf3);
 
+  MorphemeState vAgt_S = nonTerminalDerivative("vAgt_S", agt);
+
   MorphemeState vPastPart_S = nonTerminalDerivative("vPastPart_S", pastPart);
   MorphemeState vFutPart_S = nonTerminalDerivative("vFutPart_S", futPart);
   MorphemeState vPresPart_S = nonTerminalDerivative("vPresPart_S", presPart);
@@ -1248,6 +1251,12 @@ public class TurkishMorphotactics {
     verbRoot_S.add(vInf3_S, "+yIş");
     vInf3_S.addEmpty(noun_S);
 
+    // Agt 3 "+yIcI"
+    // Causes Verb to Noun and Adj derivation.
+    verbRoot_S.add(vAgt_S, "+yIcI");
+    vAgt_S.addEmpty(noun_S);
+    vAgt_S.addEmpty(adjAfterVerb_ST);
+
     // PastPart "oku-duğ-um"
     verbRoot_S.add(vPastPart_S, ">dI~k");
     verbRoot_S.add(vPastPart_S, ">dI!ğ");
@@ -1277,7 +1286,7 @@ public class TurkishMorphotactics {
     verbRoot_S.add(vPass_S, "InIl", has(RootAttribute.Passive_In)
         .andNot(new Conditions.ContainsMorpheme(pass)));
     verbRoot_S.add(vPass_S, "+nIl",
-        Conditions.previousStateIs(vCausT_S).or(notHave(RootAttribute.Passive_In)
+        new Conditions.PreviousStateIsAny(vCausT_S, vCausTır_S).or(notHave(RootAttribute.Passive_In)
             .andNot(new Conditions.ContainsMorpheme(pass))));
     vPass_S.addEmpty(verbRoot_S);
 
