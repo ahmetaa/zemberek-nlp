@@ -9,9 +9,11 @@ public class VerbsTest extends AnalyzerTestBase {
     AnalysisTester t = getTester("okumak");
 
     t.expectSingle("oku", matchesTailLex("Verb + Imp + A2sg"));
+    t.expectSingle("okusana", matchesTailLex("Verb + Imp + A2sg"));
     t.expectSingle("okusun", matchesTailLex("Verb + Imp + A3sg"));
     t.expectSingle("okuyun", matchesTailLex("Verb + Imp + A2pl"));
     t.expectSingle("okuyunuz", matchesTailLex("Verb + Imp + A2pl"));
+    t.expectSingle("okusanıza", matchesTailLex("Verb + Imp + A2pl"));
     t.expectSingle("okusunlar", matchesTailLex("Verb + Imp + A3pl"));
 
     t = getTester("yazmak");

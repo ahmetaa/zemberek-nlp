@@ -132,6 +132,8 @@ public class TurkishMorphotactics {
   public static final Morpheme futPart = new Morpheme("FutureParticiple", "FutPart");
   // okuyan (Adj, Noun)
   public static final Morpheme presPart = new Morpheme("PresentParticiple", "PresPart");
+  // okurluk (Noun)
+  public static final Morpheme aorPart = new Morpheme("AoristParticiple", "AorPart");
   // okuyan (Adj, Noun)
   public static final Morpheme feelLike = new Morpheme("FeelLike", "FeelLike");
   // okuyagel (Verb)
@@ -1136,10 +1138,13 @@ public class TurkishMorphotactics {
     // Imperative.
     verbRoot_S.addEmpty(vImp_S);
 
-    vImp_S.addEmpty(vA2sg_ST)     // oku
-        .add(vA3sg_ST, "sIn") // okusun
-        .add(vA2pl_ST, "+yIn") // okuyun
-        .add(vA2pl_ST, "+yInIz") // okuyunuz
+    vImp_S
+        .addEmpty(vA2sg_ST)       // oku
+        .add(vA2sg_ST, "sAnA")    // oku
+        .add(vA3sg_ST, "sIn")     // okusun
+        .add(vA2pl_ST, "+yIn")    // okuyun
+        .add(vA2pl_ST, "+yInIz")  // okuyunuz
+        .add(vA2pl_ST, "+sAnIzA") // okuyunuz
         .add(vA3pl_ST, "sInlAr"); // okusunlar
 
     // Causative suffixes
