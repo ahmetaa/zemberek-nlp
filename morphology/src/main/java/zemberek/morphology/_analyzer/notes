@@ -167,6 +167,8 @@ If we will use Oflazer conversion, this will require some attention.
 Should we parse okuyasıma, okuyasımda? Oflazer does.
 +Verb+Pos^DB+Noun+FeelLike+A3sg+P1sg+Dat
 
+suikasti or suikastı? TDK says second. Second is very common
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.
