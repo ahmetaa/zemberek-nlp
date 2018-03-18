@@ -259,6 +259,7 @@ public class TurkishMorphotactics {
   MorphemeState agt_S = nonTerminalDerivative("agt_S", agt);
   MorphemeState related_S = nonTerminalDerivative("related_S", related);
   MorphemeState rel_S = nonTerminalDerivative("rel_S", rel);
+  MorphemeState relToPron_S = nonTerminalDerivative("relToPron_S", rel);
   MorphemeState with_S = nonTerminalDerivative("with_S", with);
   MorphemeState without_S = nonTerminalDerivative("without_S", without);
   MorphemeState justLike_S = nonTerminalDerivative("justLike_S", justLike);
@@ -562,6 +563,11 @@ public class TurkishMorphotactics {
     loc_ST.add(rel_S, "ki", notRelRepetition);
     rel_S.addEmpty(adj_ST);
 
+    // After Genitive suffix, Rel suffix makes a Pronoun derivation.
+    gen_ST.add(relToPron_S, "ki");
+    relToPron_S.addEmpty(pronAfterRel_S);
+
+
     ContainsMorpheme verbDeriv = new ContainsMorpheme(inf1, inf2, inf3, pastPart, futPart);
 
     nom_ST.add(become_S, "lAş",
@@ -810,6 +816,8 @@ public class TurkishMorphotactics {
 
   // used for ben-sen modification
   public MorphemeState pronPers_Mod_S = builder("pronPers_Mod_S", pron).posRoot().build();
+  // A root for noun->Rel->Pron derivation.
+  public MorphemeState pronAfterRel_S = builder("pronAfterRel_S", pron).posRoot().build();
 
   MorphemeState pA1sg_S = nonTerminal("pA1sg_S", a1sg);
   MorphemeState pA2sg_S = nonTerminal("pA2sg_S", a2sg);
@@ -818,10 +826,12 @@ public class TurkishMorphotactics {
   MorphemeState pA2sgMod_S = nonTerminal("pA2sgMod_S", a2sg); // for modified sen
 
   MorphemeState pA3sg_S = nonTerminal("pA3sg_S", a3sg);
+  MorphemeState pA3sgRel_S = nonTerminal("pA3sgRel_S", a3sg);
   MorphemeState pA1pl_S = nonTerminal("pA1pl_S", a1pl);
   MorphemeState pA2pl_S = nonTerminal("pA2pl_S", a2pl);
 
   MorphemeState pA3pl_S = nonTerminal("pA3pl_S", a3pl);
+  MorphemeState pA3plRel_S = nonTerminal("pA3plRel_S", a3pl);
 
   MorphemeState pQuantA3sg_S = nonTerminal("pQuantA3sg_S", a3sg);
   MorphemeState pQuantA3pl_S = nonTerminal("pQuantA3pl_S", a3pl);
@@ -842,6 +852,7 @@ public class TurkishMorphotactics {
   // Possessive
 
   MorphemeState pPnon_S = nonTerminal("pPnon_S", pnon);
+  MorphemeState pPnonRel_S = nonTerminal("pPnonRel_S", pnon);
   MorphemeState pPnonMod_S = nonTerminal("pPnonMod_S", pnon); // for modified ben-sen
   MorphemeState pP1sg_S = nonTerminal("pP1sg_S", p1sg); // kimim
   MorphemeState pP2sg_S = nonTerminal("pP2sg_S", p2sg);
@@ -855,6 +866,10 @@ public class TurkishMorphotactics {
   MorphemeState pNom_ST = terminal("pNom_ST", nom);
   MorphemeState pDat_ST = terminal("pDat_ST", dat);
   MorphemeState pAcc_ST = terminal("pAcc_ST", acc);
+  MorphemeState pAbl_ST = terminal("pAbl_ST", abl);
+  MorphemeState pLoc_ST = terminal("pLoc_ST", loc);
+  MorphemeState pGen_ST = terminal("pGen_ST", gen);
+  MorphemeState pIns_ST = terminal("pIns_ST", ins);
 
   MorphemeState pronZeroDeriv_S = nonTerminalDerivative("pronZeroDeriv_S", zero);
 
@@ -893,6 +908,20 @@ public class TurkishMorphotactics {
     pA1pl_S.addEmpty(pPnon_S);
     pA2pl_S.addEmpty(pPnon_S);
     pA3pl_S.addEmpty(pPnon_S);
+
+    //------------ Noun -> Rel -> Pron ---------------------------
+    // masanınki
+    pronAfterRel_S.addEmpty(pA3sgRel_S);
+    pronAfterRel_S.add(pA3plRel_S, "lAr");
+    pA3sgRel_S.addEmpty(pPnonRel_S);
+    pA3plRel_S.addEmpty(pPnonRel_S);
+    pPnonRel_S.addEmpty(pNom_ST);
+    pPnonRel_S.add(pDat_ST, "+nA");
+    pPnonRel_S.add(pAcc_ST, "+nI");
+    pPnonRel_S.add(pAbl_ST, "+ndAn");
+    pPnonRel_S.add(pLoc_ST, "+ndA");
+    pPnonRel_S.add(pIns_ST, "+ylA");
+    pPnonRel_S.add(pGen_ST, "+nIn");
 
     //------------ Demonstrative pronouns. ------------------------
 
@@ -1035,6 +1064,10 @@ public class TurkishMorphotactics {
 
     pNom_ST.addEmpty(pronZeroDeriv_S, Conditions.HAS_TAIL);
     pDat_ST.addEmpty(pronZeroDeriv_S, Conditions.HAS_TAIL);
+    pLoc_ST.addEmpty(pronZeroDeriv_S, Conditions.HAS_TAIL);
+    pAbl_ST.addEmpty(pronZeroDeriv_S, Conditions.HAS_TAIL);
+    pGen_ST.addEmpty(pronZeroDeriv_S, Conditions.HAS_TAIL);
+    pIns_ST.addEmpty(pronZeroDeriv_S, Conditions.HAS_TAIL);
 
     pronZeroDeriv_S.addEmpty(nVerb_S);
   }

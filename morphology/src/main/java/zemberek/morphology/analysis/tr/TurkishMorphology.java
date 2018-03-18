@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -299,6 +300,11 @@ public class TurkishMorphology {
     }
 
     public Builder addDictionaryLines(String... lines) throws IOException {
+      lexicon.addAll(new TurkishDictionaryLoader().load(lines));
+      return this;
+    }
+
+    public Builder addDictionaryLines(Collection<String> lines) throws IOException {
       lexicon.addAll(new TurkishDictionaryLoader().load(lines));
       return this;
     }

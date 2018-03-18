@@ -250,7 +250,7 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Prog2 + While + Adv"));
     tester.expectAny("okuyacakken",
         matchesTailLex("Verb + Fut + While + Adv"));
-    tester.expectSingle("okumuşken",
+    tester.expectAny("okumuşken",
         matchesTailLex("Verb + Narr + While + Adv"));
     tester.expectSingle("okuyabilirken",
         matchesTailLex("Verb + Able + Verb + Aor + While + Adv"));

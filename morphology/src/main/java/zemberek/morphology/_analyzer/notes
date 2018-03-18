@@ -169,6 +169,10 @@ Should we parse okuyasıma, okuyasımda? Oflazer does.
 
 suikasti or suikastı? TDK says second. Second is very common
 
+okumuşken should probably has one analysis only.
+
+yazasınız should have 2 solutions but has 3
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

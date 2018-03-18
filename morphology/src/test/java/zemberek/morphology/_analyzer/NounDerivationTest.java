@@ -369,5 +369,20 @@ public class NounDerivationTest extends AnalyzerTestBase {
     );
   }
 
+  @Test
+  public void relPronDerivationTest() {
+    AnalysisTester tester = getTester("meyve");
+    tester.expectAny("meyveninki",
+        matchesTailLex("Noun + A3sg + Pnon + Gen + Rel + Pron + A3sg + Pnon + Nom"));
+    tester.expectAny("meyveninkine",
+        matchesTailLex("Noun + A3sg + Pnon + Gen + Rel + Pron + A3sg + Pnon + Dat"));
+    tester.expectAny("meyveminkine",
+        matchesTailLex("Noun + A3sg + P1sg + Gen + Rel + Pron + A3sg + Pnon + Dat"));
+    tester.expectAny("meyveminkinde",
+        matchesTailLex("Noun + A3sg + P1sg + Gen + Rel + Pron + A3sg + Pnon + Loc"));
+    tester.expectAny("meyveminkindeymiş",
+        matchesTailLex("Noun + A3sg + P1sg + Gen + Rel + Pron + A3sg + Pnon + Loc + Zero + Verb + Narr + A3sg"));
+  }
+
 
 }

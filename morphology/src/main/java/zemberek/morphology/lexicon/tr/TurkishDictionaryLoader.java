@@ -195,14 +195,14 @@ public class TurkishDictionaryLoader {
           throw new LexiconException("Line " + line + " has malformed meta-data chunk" + chunk
               + " it should have a ':' symbol.");
         }
-        String tokenIdStr = Strings.subStringUntilFirst(chunk, ":");
+        String tokenIdStr = Strings.subStringUntilFirst(chunk, ":").trim();
         if (!MetaDataId.toEnum.enumExists(tokenIdStr)) {
           throw new LexiconException(
               "Line " + line + " has malformed meta-data chunk" + chunk + " unknown chunk id:"
                   + tokenIdStr);
         }
         MetaDataId id = MetaDataId.toEnum.getEnum(tokenIdStr);
-        String chunkData = Strings.subStringAfterFirst(chunk, ":");
+        String chunkData = Strings.subStringAfterFirst(chunk, ":").trim();
         if (chunkData.length() == 0) {
           throw new LexiconException("Line " + line + " has malformed meta-data chunk" + chunk
               + " no chunk data available");

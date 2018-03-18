@@ -27,7 +27,7 @@ public class StrictTurkishSyllableParser implements SyllableParser {
    */
   public List<String> parse(String input) {
     TurkishLetterSequence sequence = new TurkishLetterSequence(input, alphabet);
-    List<String> list = new ArrayList<String>();
+    List<String> list = new ArrayList<>();
     while (input.length() > 0) {
       int index = letterCountForLastSyllable(sequence);
       if (index < 0) {
