@@ -2,7 +2,6 @@ package zemberek.morphology._morphotactics;
 
 import static zemberek.morphology._morphotactics.Conditions.has;
 import static zemberek.morphology._morphotactics.Conditions.notHave;
-import static zemberek.morphology._morphotactics.Conditions.notHaveAny;
 import static zemberek.morphology._morphotactics.Conditions.previousStateIs;
 import static zemberek.morphology._morphotactics.Conditions.previousStateIsNot;
 import static zemberek.morphology._morphotactics.Conditions.rootIs;
@@ -1099,6 +1098,7 @@ public class TurkishMorphotactics {
   MorphemeState vPast_S = nonTerminal("vPast_S", past);
   MorphemeState vNarr_S = nonTerminal("vNarr_S", narr);
   MorphemeState vCond_S = nonTerminal("vCond_S", cond);
+  MorphemeState vCondAfterA2_ST = terminal("vCondAfterA2_ST", cond);
   MorphemeState vPastAfterTense_S = nonTerminal("vPastAfterTense_S", past);
   MorphemeState vNarrAfterTense_S = nonTerminal("vNarrAfterTense_S", narr);
 
@@ -1543,7 +1543,7 @@ public class TurkishMorphotactics {
         .add(vInf2_S, "me", deYeCondition)
         .add(vInf3_S, "yiş", new RootSurfaceIsAny("de"))
         .add(vPastPart_S, "di~k", deYeCondition)
-        .add(vPastPart_S, "di~ğ", deYeCondition)
+        .add(vPastPart_S, "di!ğ", deYeCondition)
         .add(vNarrPart_S, "miş", deYeCondition)
         .add(vHastily_S, "yiver", diYiCondition.and(cMultiVerb))
         .add(vAsLongAs_S, "dikçe")
@@ -1612,6 +1612,12 @@ public class TurkishMorphotactics {
     vA2pl_ST.add(vCop_ST, "dIr", a3sgCopWhile);
 
     vCopBeforeA3pl_S.add(vA3pl_ST, "lAr");
+
+    // Allow Past+A2pl+Cond  Past+A2sg+Cond (geldinse, geldinizse)
+    Condition previousPast = new Conditions.PreviousMorphemeIs(past)
+        .andNot(new ContainsMorpheme(cond, desr));
+    vA2pl_ST.add(vCondAfterA2_ST, "sA", previousPast);
+    vA2sg_ST.add(vCondAfterA2_ST, "sA", previousPast);
 
     verbRoot_S.add(vEverSince_S, "+yAgel", cMultiVerb);
     verbRoot_S.add(vRepeat_S, "+yAdur", cMultiVerb);

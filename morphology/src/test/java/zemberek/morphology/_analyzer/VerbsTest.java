@@ -146,21 +146,21 @@ public class VerbsTest extends AnalyzerTestBase {
 
     t.expectSingle("yazarım", matchesTailLex("Verb + Aor + A1sg"));
     t.expectSingle("yazarsın", matchesTailLex("Verb + Aor + A2sg"));
-    t.expectSingle("yazar", matchesTailLex("Verb + Aor + A3sg"));
-    t.expectSingle("yazarız", matchesTailLex("Verb + Aor + A1pl"));
+    t.expectAny("yazar", matchesTailLex("Verb + Aor + A3sg"));
+    t.expectAny("yazarız", matchesTailLex("Verb + Aor + A1pl"));
     t.expectSingle("yazarlar", matchesTailLex("Verb + Aor + A3pl"));
 
-    t.expectSingle("yazdırır",
+    t.expectAny("yazdırır",
         matchesTailLex("Verb + Caus + Verb + Aor + A3sg"));
-    t.expectSingle("yazdırtır",
+    t.expectAny("yazdırtır",
         matchesTailLex("Verb + Caus + Verb + Caus + Verb + Aor + A3sg"));
-    t.expectSingle("yazdırttırır",
+    t.expectAny("yazdırttırır",
         matchesTailLex("Verb + Caus + Verb + Caus + Verb + Caus + Verb + Aor + A3sg"));
 
     t = getTester("semirmek");
     t.expectSingle("semiririm", matchesTailLex("Verb + Aor + A1sg"));
     t.expectSingle("semirirsin", matchesTailLex("Verb + Aor + A2sg"));
-    t.expectSingle("semirir", matchesTailLex("Verb + Aor + A3sg"));
+    t.expectAny("semirir", matchesTailLex("Verb + Aor + A3sg"));
 
     t.expectSingle("semirtirim",
         matchesTailLex("Verb + Caus + Verb + Aor + A1sg"));
@@ -181,7 +181,7 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("yazmazmışız", matchesTailLex("Verb + Neg + Aor + Narr + A1pl"));
 
     t = getTester("etmek [A:Voicing]");
-    t.expectSingle("eder", matchesTailLex("Verb + Aor + A3sg"));
+    t.expectAny("eder", matchesTailLex("Verb + Aor + A3sg"));
     t.expectSingle("edermiş", matchesTailLex("Verb + Aor + Narr + A3sg"));
     t.expectSingle("etmezmiş", matchesTailLex("Verb + Neg + Aor + Narr + A3sg"));
     t.expectSingle("ederdik", matchesTailLex("Verb + Aor + Past + A1pl"));
@@ -195,14 +195,14 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectAny("yazmam", matchesTailLex("Verb + Neg + Aor + A1sg"));
     t.expectAny("yazmam", matchesTailLex("Verb + Inf2 + Noun + A3sg + P1sg + Nom"));
     t.expectSingle("yazmazsın", matchesTailLex("Verb + Neg + Aor + A2sg"));
-    t.expectSingle("yazmaz", matchesTailLex("Verb + Neg + Aor + A3sg"));
+    t.expectAny("yazmaz", matchesTailLex("Verb + Neg + Aor + A3sg"));
     t.expectAny("yazmayız", matchesTailLex("Verb + Neg + Aor + A1pl"));
     t.expectSingle("yazmazsınız", matchesTailLex("Verb + Neg + Aor + A2pl"));
     t.expectSingle("yazmazlar", matchesTailLex("Verb + Neg + Aor + A3pl"));
 
-    t.expectSingle("yazdırmaz",
+    t.expectAny("yazdırmaz",
         matchesTailLex("Verb + Caus + Verb + Neg + Aor + A3sg"));
-    t.expectSingle("yazdırtmaz",
+    t.expectAny("yazdırtmaz",
         matchesTailLex("Verb + Caus + Verb + Caus + Verb + Neg + Aor + A3sg"));
     t.expectSingle("yazdırttırmazsınız",
         matchesTailLex("Verb + Caus + Verb + Caus + Verb + Caus + Verb + Neg + Aor + A2pl"));
@@ -210,7 +210,7 @@ public class VerbsTest extends AnalyzerTestBase {
     t = getTester("semirmek");
     t.expectAny("semirmem", matchesTailLex("Verb + Neg + Aor + A1sg"));
     t.expectSingle("semirmezsin", matchesTailLex("Verb + Neg + Aor + A2sg"));
-    t.expectSingle("semirmez", matchesTailLex("Verb + Neg + Aor + A3sg"));
+    t.expectAny("semirmez", matchesTailLex("Verb + Neg + Aor + A3sg"));
 
     t.expectAny("semirtmem",
         matchesTailLex("Verb + Caus + Verb + Neg + Aor + A1sg"));
@@ -233,7 +233,7 @@ public class VerbsTest extends AnalyzerTestBase {
     t = getTester("okumak");
 
     t.expectSingle("okuyabil", matchesTailLex("Verb + Able + Verb + Imp + A2sg"));
-    t.expectSingle("okuyabilir", matchesTailLex("Verb + Able + Verb + Aor + A3sg"));
+    t.expectAny("okuyabilir", matchesTailLex("Verb + Able + Verb + Aor + A3sg"));
   }
 
   @Test
@@ -252,17 +252,17 @@ public class VerbsTest extends AnalyzerTestBase {
     AnalysisTester t = getTester("yazmak");
 
     t.expectSingle("yazama", matchesTailLex("Verb + Able + Verb + Neg + Imp + A2sg"));
-    t.expectSingle("yazamaz", matchesTailLex("Verb + Able + Verb + Neg + Aor + A3sg"));
+    t.expectAny("yazamaz", matchesTailLex("Verb + Able + Verb + Neg + Aor + A3sg"));
     t.expectSingle("yazamıyor", matchesTailLex("Verb + Able + Verb + Neg + Prog1 + A3sg"));
 
     t = getTester("okumak");
 
     t.expectSingle("okuyama", matchesTailLex("Verb + Able + Verb + Neg + Imp + A2sg"));
-    t.expectSingle("okutmayabilir",
+    t.expectAny("okutmayabilir",
         matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Aor + A3sg"));
-    t.expectSingle("okutamayabilir",
+    t.expectAny("okutamayabilir",
         matchesTailLex("Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Aor + A3sg"));
-    t.expectSingle("okuyamayabilir",
+    t.expectAny("okuyamayabilir",
         matchesTailLex("Verb + Able + Verb + Neg + Able + Verb + Aor + A3sg"));
   }
 
@@ -290,7 +290,7 @@ public class VerbsTest extends AnalyzerTestBase {
 
     t.expectSingle("okun", matchesTailLex("Verb + Pass + Verb + Imp + A2sg"));
     t.expectSingle("okunul", matchesTailLex("Verb + Pass + Verb + Imp + A2sg"));
-    t.expectSingle("okunulabilir",
+    t.expectAny("okunulabilir",
         matchesTailLex("Verb + Pass + Verb + Able + Verb + Aor + A3sg"));
   }
 
@@ -318,15 +318,15 @@ public class VerbsTest extends AnalyzerTestBase {
 
     t.expectSingle("okunmayın", matchesTailLex("Verb + Pass + Verb + Neg + Imp + A2pl"));
     t.expectSingle("okunulmasın", matchesTailLex("Verb + Pass + Verb + Neg + Imp + A3sg"));
-    t.expectSingle("okunulmayabilir",
+    t.expectAny("okunulmayabilir",
         matchesTailLex("Verb + Pass + Verb + Neg + Able + Verb + Aor + A3sg"));
-    t.expectSingle("okunulamayabilir",
+    t.expectAny("okunulamayabilir",
         matchesTailLex("Verb + Pass + Verb + Able + Verb + Neg + Able + Verb + Aor + A3sg"));
   }
 
   @Test
   public void past() {
-    AnalysisTester t = getTester("yazmak"); 
+    AnalysisTester t = getTester("yazmak");
 
     t.expectSingle("yazdım", matchesTailLex("Verb + Past + A1sg"));
     t.expectSingle("yazmadım", matchesTailLex("Verb + Neg + Past + A1sg"));
@@ -335,7 +335,6 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("yazdıysan", matchesTailLex("Verb + Past + Cond + A2sg"));
     t.expectSingle("yazmadıysan", matchesTailLex("Verb + Neg + Past + Cond + A2sg"));
     t.expectSingle("yazdır", matchesTailLex("Verb + Caus + Verb + Imp + A2sg"));
-
 
     t = getTester("etmek [A:Voicing]");
     t.expectSingle("etti", matchesTailLex("Verb + Past + A3sg"));
@@ -349,18 +348,17 @@ public class VerbsTest extends AnalyzerTestBase {
     AnalysisTester t = getTester("yazmak");
 
     t.expectAny("yazmışım", matchesTailLex("Verb + Narr + A1sg"));
-    t.expectSingle("yazmamışım", matchesTailLex("Verb + Neg + Narr + A1sg"));
+    t.expectAny("yazmamışım", matchesTailLex("Verb + Neg + Narr + A1sg"));
     t.expectAny("yazmışız", matchesTailLex("Verb + Narr + A1pl"));
-    t.expectSingle("yazmamışız", matchesTailLex("Verb + Neg + Narr + A1pl"));
+    t.expectAny("yazmamışız", matchesTailLex("Verb + Neg + Narr + A1pl"));
     t.expectAny("yazmışsan", matchesTailLex("Verb + Narr + Cond + A2sg"));
-    t.expectSingle("yazmamışsan", matchesTailLex("Verb + Neg + Narr + Cond + A2sg"));
-
+    t.expectAny("yazmamışsan", matchesTailLex("Verb + Neg + Narr + Cond + A2sg"));
 
     t = getTester("etmek [A:Voicing]");
     t.expectAny("etmiş", matchesTailLex("Verb + Narr + A3sg"));
-    t.expectSingle("etmemiş", matchesTailLex("Verb + Neg + Narr + A3sg"));
+    t.expectAny("etmemiş", matchesTailLex("Verb + Neg + Narr + A3sg"));
     t.expectAny("etmişiz", matchesTailLex("Verb + Narr + A1pl"));
-    t.expectSingle("etmemişiz", matchesTailLex("Verb + Neg + Narr + A1pl"));
+    t.expectAny("etmemişiz", matchesTailLex("Verb + Neg + Narr + A1pl"));
     t.expectAny("etmişmiş", matchesTailLex("Verb + Narr + Narr + A3sg"));
   }
 
@@ -402,7 +400,8 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("aratmayabileceğiz",
         matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Fut + A1pl"));
     t.expectSingle("arattıramayabileceğiz",
-        matchesTailLex("Verb + Caus + Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Fut + A1pl"));
+        matchesTailLex(
+            "Verb + Caus + Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Fut + A1pl"));
   }
 
   @Test
@@ -437,7 +436,8 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectAny("aratmayabilmekteyiz",
         matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Prog2 + A1pl"));
     t.expectAny("arattıramayabilmekteyiz",
-        matchesTailLex("Verb + Caus + Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Prog2 + A1pl"));
+        matchesTailLex(
+            "Verb + Caus + Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Prog2 + A1pl"));
   }
 
 
@@ -453,12 +453,12 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("denil", matchesTailLex("Verb + Pass + Verb + Imp + A2sg"));
     t.expectAny("diyecek", matchesTailLex("Verb + Fut + A3sg"));
     t.expectAny("diyecek", matchesTailLex("Verb + FutPart + Adj + Pnon"));
-    t.expectSingle("diyebilir", matchesTailLex("Verb + Able + Verb + Aor + A3sg"));
+    t.expectAny("diyebilir", matchesTailLex("Verb + Able + Verb + Aor + A3sg"));
     t.expectAny("deme", matchesTailLex("Verb + Neg + Imp + A2sg"));
     t.expectSingle("diyor", matchesTailLex("Verb + Prog1 + A3sg"));
     t.expectSingle("demiyor", matchesTailLex("Verb + Neg + Prog1 + A3sg"));
     t.expectSingle("der", matchesTailLex("Verb + Aor + A3sg"));
-    t.expectSingle("demez", matchesTailLex("Verb + Neg + Aor + A3sg"));
+    t.expectAny("demez", matchesTailLex("Verb + Neg + Aor + A3sg"));
     t.expectSingle("dedir", matchesTailLex("Verb + Caus + Verb + Imp + A2sg"));
     t.expectAny("dedirme", matchesTailLex("Verb + Caus + Verb + Neg + Imp + A2sg"));
     t.expectSingle("diye", matchesTailLex("Verb + Opt + A3sg"));
@@ -614,6 +614,21 @@ public class VerbsTest extends AnalyzerTestBase {
 
     t.expectFail(
         "yazacaktırlardır"
+    );
+  }
+
+
+  @Test
+  public void condAfterPastA2() {
+    AnalysisTester t = getTester("yazmak");
+
+    t.expectAny("yazdınsa", matchesTailLex("Verb + Past + A2sg + Cond"));
+    t.expectAny("yazdınızsa", matchesTailLex("Verb + Past + A2pl + Cond"));
+    t.expectAny("yazmadınızsa", matchesTailLex("Verb + Neg + Past + A2pl + Cond"));
+
+    t.expectFail(
+        "yazdınsaydın",
+        "yazsaydınsa"
     );
   }
 
