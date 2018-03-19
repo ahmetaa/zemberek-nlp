@@ -124,6 +124,8 @@ public class TurkishMorphotactics {
   public static final Morpheme inf2 = new Morpheme("Infinitive2", "Inf2");
   // okuyuş (Noun)
   public static final Morpheme inf3 = new Morpheme("Infinitive3", "Inf3");
+  // okumaca (Noun)
+  public static final Morpheme actOf = new Morpheme("ActOf", "ActOf");
   // okuduğum kitap (Adj, Noun)
   public static final Morpheme pastPart = new Morpheme("PastParticiple", "PastPart");
   // okumuşlarımız (Adj, Noun)
@@ -217,6 +219,7 @@ public class TurkishMorphotactics {
   MorphemeState nounCompoundRoot_S = builder("nounCompoundRoot_S", noun).posRoot().build();
   MorphemeState nounSuRoot_S = builder("nounSuRoot_S", noun).posRoot().build();
   MorphemeState nounInf1Root_S = builder("nounInf1Root_S", noun).posRoot().build();
+  MorphemeState nounActOfRoot_S = builder("nounActOfRoot_S", noun).posRoot().build();
 
   // Number-Person agreement
 
@@ -224,7 +227,9 @@ public class TurkishMorphotactics {
   MorphemeState a3sgSu_S = nonTerminal("a3sgSu_S", a3sg);
   MorphemeState a3sgCompound_S = nonTerminal("a3sgCompound_S", a3sg);
   MorphemeState a3sgInf1_S = nonTerminal("a3sgInf1_S", a3sg);
+  MorphemeState a3sgActOf_S = nonTerminal("a3sgActOf_S", a3sg);
   MorphemeState a3pl_S = nonTerminal("a3pl_S", a3pl);
+  MorphemeState a3plActOf_S = nonTerminal("a3plActOf_S", a3pl);
   MorphemeState a3plCompound_S = nonTerminal("a3plCompound_S", a3pl);
   MorphemeState a3plCompound2_S = nonTerminal("a3plCompound2_S", a3pl);
 
@@ -234,6 +239,7 @@ public class TurkishMorphotactics {
   MorphemeState pnonCompound_S = nonTerminal("pnonCompound_S", pnon);
   MorphemeState pnonCompound2_S = nonTerminal("pnonCompound2_S", pnon);
   MorphemeState pnonInf1_S = nonTerminal("pnonInf1_S", pnon);
+  MorphemeState pnonActOf = nonTerminal("pnonActOf", pnon);
   MorphemeState p1sg_S = nonTerminal("p1sg_S", p1sg);
   MorphemeState p2sg_S = nonTerminal("p2sg_S", p2sg);
   MorphemeState p3sg_S = nonTerminal("p3sg_S", p3sg);
@@ -384,7 +390,7 @@ public class TurkishMorphotactics {
 
     // ev-?-ε-ε (ev, evler).
     pnon_S.addEmpty(nom_ST,
-        notHave( RootAttribute.FamilyMember));
+        notHave(RootAttribute.FamilyMember));
 
     Condition equCond =
         new Conditions.ContainsMorpheme(adj, futPart, presPart, narrPart, pastPart).not();
@@ -562,7 +568,6 @@ public class TurkishMorphotactics {
     gen_ST.add(relToPron_S, "ki");
     relToPron_S.addEmpty(pronAfterRel_S);
 
-
     ContainsMorpheme verbDeriv = new ContainsMorpheme(inf1, inf2, inf3, pastPart, futPart);
 
     nom_ST.add(become_S, "lAş",
@@ -581,10 +586,17 @@ public class TurkishMorphotactics {
     // So we create a path only for it.
     nounInf1Root_S.addEmpty(a3sgInf1_S);
     a3sgInf1_S.addEmpty(pnonInf1_S);
-    pnonInf1_S.addEmpty(pNom_ST);
+    pnonInf1_S.addEmpty(nom_ST);
     pnonInf1_S.add(abl_ST, "tAn");
     pnonInf1_S.add(loc_ST, "tA");
     pnonInf1_S.add(ins_ST, "lA");
+
+    nounActOfRoot_S.addEmpty(a3sgActOf_S);
+    nounActOfRoot_S.add(a3plActOf_S, "lar");
+    a3sgActOf_S.addEmpty(pnonActOf);
+    a3plActOf_S.addEmpty(pnonActOf);
+    pnonActOf.addEmpty(nom_ST);
+
   }
 
   //-------------- Adjective States ------------------------
@@ -1132,6 +1144,7 @@ public class TurkishMorphotactics {
   MorphemeState vInf3_S = nonTerminalDerivative("vInf3_S", inf3);
 
   MorphemeState vAgt_S = nonTerminalDerivative("vAgt_S", agt);
+  MorphemeState vActOf_S = nonTerminalDerivative("vActOf_S", actOf);
 
   MorphemeState vPastPart_S = nonTerminalDerivative("vPastPart_S", pastPart);
   MorphemeState vFutPart_S = nonTerminalDerivative("vFutPart_S", futPart);
@@ -1269,6 +1282,7 @@ public class TurkishMorphotactics {
         .add(vInf1_S, "mAk")
         .add(vInf2_S, "mA")
         .add(vInf3_S, "yIş")
+        .add(vActOf_S, "mAcA")
         .add(vPastPart_S, "dI~k")
         .add(vPastPart_S, "dI!ğ")
         .add(vFutPart_S, "yAcA~k")
@@ -1276,6 +1290,8 @@ public class TurkishMorphotactics {
         .add(vPresPart_S, "yAn")
         .add(vSinceDoingSo_S, "yAlI")
         .add(vByDoingSo_S, "yArAk")
+        .add(vHastily_S, "yIver")
+        .add(vEverSince_S, "yAgör")
         .add(vAfterDoing_S, "yIp")
         .add(vWhen_S, "yIncA")
         .add(vWithoutBeingAbleToHaveDoneSo_S, "yAmAdAn")
@@ -1344,6 +1360,11 @@ public class TurkishMorphotactics {
     verbRoot_S.add(vAgt_S, "+yIcI");
     vAgt_S.addEmpty(noun_S);
     vAgt_S.addEmpty(adjAfterVerb_ST);
+
+    // ActOf "mAcA"
+    // Causes Verb to Noun and Adj derivation.
+    verbRoot_S.add(vActOf_S, "mAcA");
+    vActOf_S.addEmpty(nounActOfRoot_S);
 
     // PastPart "oku-duğ-um"
     verbRoot_S.add(vPastPart_S, ">dI~k");

@@ -74,7 +74,6 @@ public class StemTransitionGenerator {
     }
   }
 
-
   private boolean hasModifierAttribute(DictionaryItem item) {
     for (RootAttribute attr : modifiers) {
       if (item.attributes.contains(attr)) {

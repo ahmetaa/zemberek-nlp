@@ -121,7 +121,8 @@ public class VerbDerivationTest extends AnalyzerTestBase {
     tester.expectAny("okuttuğumuz",
         matchesTailLex("Verb + Caus + Verb + PastPart + Noun + A3sg + P1pl + Nom"));
     tester.expectAny("okuttuğumuzdu",
-        matchesTailLex("Verb + Caus + Verb + PastPart + Noun + A3sg + P1pl + Nom + Zero + Verb + Past + A3sg"));
+        matchesTailLex(
+            "Verb + Caus + Verb + PastPart + Noun + A3sg + P1pl + Nom + Zero + Verb + Past + A3sg"));
 
     // false positive test
     tester.expectFalse("okuduğum",
@@ -143,7 +144,8 @@ public class VerbDerivationTest extends AnalyzerTestBase {
     tester.expectAny("okutmayacağımız",
         matchesTailLex("Verb + Caus + Verb + Neg + FutPart + Noun + A3sg + P1pl + Nom"));
     tester.expectAny("okutmayacağımızdı",
-        matchesTailLex("Verb + Caus + Verb + Neg + FutPart + Noun + A3sg + P1pl + Nom + Zero + Verb + Past + A3sg"));
+        matchesTailLex(
+            "Verb + Caus + Verb + Neg + FutPart + Noun + A3sg + P1pl + Nom + Zero + Verb + Past + A3sg"));
 
     // false positive test
     tester.expectFalse("okuyacağım",
@@ -278,6 +280,23 @@ public class VerbDerivationTest extends AnalyzerTestBase {
 
     tester.expectFail(
         "okuyucucu"
+    );
+  }
+
+  @Test
+  public void actOf() {
+    AnalysisTester tester = getTester("okumak");
+
+    tester.expectAny("okumaca",
+        matchesTailLex("Verb + ActOf + Noun + A3sg + Pnon + Nom"));
+    tester.expectAny("okumamaca",
+        matchesTailLex("Verb + Neg + ActOf + Noun + A3sg + Pnon + Nom"));
+    tester.expectAny("okumacalar",
+        matchesTailLex("Verb + ActOf + Noun + A3pl + Pnon + Nom"));
+
+    tester.expectFail(
+        "okumacam",
+        "okumacaya"
     );
   }
 
