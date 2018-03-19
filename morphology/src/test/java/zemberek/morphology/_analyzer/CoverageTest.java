@@ -24,6 +24,7 @@ import org.junit.Test;
 import zemberek.core.logging.Log;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
+import zemberek.morphology.structure.Turkish;
 
 public class CoverageTest {
 
@@ -91,6 +92,7 @@ public class CoverageTest {
     }
 
     logResult(failedWords, total, sw);
+    failedWords.sort(Turkish.STRING_COMPARATOR_ASC);
     Files.write(
         Paths.get("../data/zemberek-oflazer/new-analyzer-failed.txt"),
         failedWords, StandardCharsets.UTF_8);

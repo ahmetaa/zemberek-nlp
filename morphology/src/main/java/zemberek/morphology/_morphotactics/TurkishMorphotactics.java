@@ -388,8 +388,7 @@ public class TurkishMorphotactics {
         .add(p3pl_S, "lArI");
 
     // ev-?-ε-ε (ev, evler).
-    pnon_S.addEmpty(nom_ST,
-        notHave(RootAttribute.FamilyMember));
+    pnon_S.addEmpty(nom_ST, notHave(RootAttribute.FamilyMember));
 
     Condition equCond =
         new Conditions.ContainsMorpheme(adj, futPart, presPart, narrPart, pastPart).not();
@@ -618,6 +617,7 @@ public class TurkishMorphotactics {
 
   MorphemeState aLy_S = nonTerminalDerivative("aLy_S", ly);
   MorphemeState aAsIf_S = nonTerminalDerivative("aAsIf_S", asIf);
+  MorphemeState aAgt_S = nonTerminalDerivative("aAgt_S", agt);
 
   private void connectAdjectiveStates() {
 
@@ -633,8 +633,12 @@ public class TurkishMorphotactics {
     adj_ST.add(aLy_S, ">cA");
     aLy_S.addEmpty(advRoot_ST);
 
-    adj_ST.add(aAsIf_S, ">cA",new Conditions.ContainsMorpheme(asIf, ly).not());
-    aAsIf_S.addEmpty(noun_S);
+    adj_ST.add(aAsIf_S, ">cA",new Conditions.ContainsMorpheme(asIf, ly, agt, with, justLike).not());
+    aAsIf_S.addEmpty(adj_ST);
+
+    adj_ST.add(aAgt_S, ">cI",new Conditions.ContainsMorpheme(asIf, ly, agt, with, justLike).not());
+    aAgt_S.addEmpty(noun_S);
+
 
     adj_ST.add(justLike_S, "+msI",
         new NoSurfaceAfterDerivation()
