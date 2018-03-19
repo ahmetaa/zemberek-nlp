@@ -1291,6 +1291,7 @@ public class TurkishMorphotactics {
         .add(vFutPart_S, "yAcA~k")
         .add(vFutPart_S, "yAcA!ğ")
         .add(vPresPart_S, "yAn")
+        .add(vNarrPart_S, "mIş")
         .add(vSinceDoingSo_S, "yAlI")
         .add(vByDoingSo_S, "yArAk")
         .add(vHastily_S, "yIver")
