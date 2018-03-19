@@ -617,6 +617,7 @@ public class TurkishMorphotactics {
   MorphemeState aP3pl_ST = terminal("aP3pl_ST", p3pl);
 
   MorphemeState aLy_S = nonTerminalDerivative("aLy_S", ly);
+  MorphemeState aAsIf_S = nonTerminalDerivative("aAsIf_S", asIf);
 
   private void connectAdjectiveStates() {
 
@@ -631,6 +632,9 @@ public class TurkishMorphotactics {
 
     adj_ST.add(aLy_S, ">cA");
     aLy_S.addEmpty(advRoot_ST);
+
+    adj_ST.add(aAsIf_S, ">cA",new Conditions.ContainsMorpheme(asIf, ly).not());
+    aAsIf_S.addEmpty(noun_S);
 
     adj_ST.add(justLike_S, "+msI",
         new NoSurfaceAfterDerivation()
@@ -708,6 +712,7 @@ public class TurkishMorphotactics {
     Condition noFamily = notHave(RootAttribute.FamilyMember);
     // for preventing elmamım, elmamdım
     // pP1sg_S, pDat_ST, pA1sg_S, pA1pl_S, pA3pl_S, pP2sg_S, pP1pl_S, pP3sg_S, pP1sg_S
+    // TODO: below causes "beklemedeyiz" to fail.
     ContainsMorpheme verbDeriv = new ContainsMorpheme(inf1, inf2, inf3, pastPart, futPart);
     Condition allowA1sgTrans =
         noFamily
