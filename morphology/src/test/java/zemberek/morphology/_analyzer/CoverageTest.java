@@ -3,6 +3,7 @@ package zemberek.morphology._analyzer;
 import com.google.common.base.Stopwatch;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -41,6 +42,21 @@ public class CoverageTest {
     ArrayDeque<String> lines = reader.lines()
         .collect(Collectors.toCollection(ArrayDeque::new));
     Log.info("File read, analyzing.");
+    checkCoverage(lines);
+  }
+
+  @Test
+  @Ignore(value = "Coverage Test")
+  public void testCoverage2() throws Exception {
+    Path path = Paths.get("../data/zemberek-oflazer/bro-test.txt");
+    List<String> strings = Files.readAllLines(path, StandardCharsets.UTF_8);
+    ArrayDeque<String> lines = new ArrayDeque<>(strings);
+    Log.info("File read, analyzing.");
+    checkCoverage(lines);
+  }
+
+  private void checkCoverage(ArrayDeque<String> lines)
+      throws IOException, InterruptedException, java.util.concurrent.ExecutionException {
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
     InterpretingAnalyzer analyzer = new InterpretingAnalyzer(lexicon);
 

@@ -331,4 +331,17 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Verb + FeelLike + Noun + A3pl + P3pl + Nom"));
   }
 
+  @Test
+  public void notStateTest() {
+    AnalysisTester tester = getTester("okumak");
+
+    tester.expectAny("okumazlık",
+        matchesTailLex("Verb + NotState + Noun + A3sg + Pnon + Nom"));
+    tester.expectAny("okumamazlık",
+        matchesTailLex("Verb + Neg + NotState + Noun + A3sg + Pnon + Nom"));
+    tester.expectAny("okumamazlığı",
+        matchesTailLex("Verb + Neg + NotState + Noun + A3sg + Pnon + Acc"));
+
+  }
+
 }

@@ -619,10 +619,11 @@ public class VerbsTest extends AnalyzerTestBase {
 
 
   @Test
-  public void condAfterPastA2() {
+  public void condAfterPastPerson() {
     AnalysisTester t = getTester("yazmak");
 
     t.expectAny("yazdınsa", matchesTailLex("Verb + Past + A2sg + Cond"));
+    t.expectAny("yazdımsa", matchesTailLex("Verb + Past + A1sg + Cond"));
     t.expectAny("yazdınızsa", matchesTailLex("Verb + Past + A2pl + Cond"));
     t.expectAny("yazmadınızsa", matchesTailLex("Verb + Neg + Past + A2pl + Cond"));
 
