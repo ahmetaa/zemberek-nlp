@@ -185,6 +185,22 @@ public class VerbDerivationTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void aorPartNegativeTest() {
+    AnalysisTester tester = getTester("okumak");
+    tester.expectAny("okumaz",
+        matchesTailLex("Verb + Neg + AorPart + Adj"));
+  }
+
+  @Test
+  public void aorPartTest() {
+    AnalysisTester tester = getTester("okumak");
+    tester.expectAny("okur",
+        matchesTailLex("Verb + AorPart + Adj"));
+    tester.expectAny("okurluk",
+        matchesTailLex("Verb + AorPart + Adj + Ness + Noun + A3sg + Pnon + Nom"));
+  }
+
+  @Test
   public void multiVerbtoVerbTest() {
     AnalysisTester tester = getTester("okumak");
 

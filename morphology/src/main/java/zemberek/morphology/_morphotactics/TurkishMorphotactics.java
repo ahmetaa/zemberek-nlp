@@ -491,9 +491,9 @@ public class TurkishMorphotactics {
     dim_S.addEmpty(noun_S);
 
     nom_ST.add(ness_S, "lI~k",
-        Conditions.CURRENT_GROUP_EMPTY.andNot(new ContainsMorpheme(ness, adj)));
+        Conditions.CURRENT_GROUP_EMPTY.andNot(new ContainsMorpheme(ness)));
     nom_ST.add(ness_S, "lI!ğ",
-        Conditions.CURRENT_GROUP_EMPTY.andNot(new ContainsMorpheme(ness, adj)));
+        Conditions.CURRENT_GROUP_EMPTY.andNot(new ContainsMorpheme(ness)));
 
     // connect `ness` to the noun root.
     ness_S.addEmpty(noun_S);
@@ -537,7 +537,7 @@ public class TurkishMorphotactics {
 
     nom_ST.add(without_S, "sIz",
         noSurfaceAfterDerivation
-            .andNot(new ContainsMorpheme(with, without)));
+            .andNot(new ContainsMorpheme(with, without, inf1)));
 
     nom_ST.add(justLike_S, "+msI",
         noSurfaceAfterDerivation
@@ -617,7 +617,6 @@ public class TurkishMorphotactics {
   MorphemeState aP2pl_ST = terminal("aP2pl_ST", p2pl);
   MorphemeState aP3pl_ST = terminal("aP3pl_ST", p3pl);
 
-  MorphemeState aNess_S = nonTerminalDerivative("aNess_S", ness);
   MorphemeState aLy_S = nonTerminalDerivative("aLy_S", ly);
 
   private void connectAdjectiveStates() {
@@ -659,6 +658,8 @@ public class TurkishMorphotactics {
     adj_ST.add(ness_S, "lI~k");
     adj_ST.add(ness_S, "lI!ğ");
 
+    adjAfterVerb_ST.add(ness_S, "lI~k", new Conditions.PreviousMorphemeIs(aorPart));
+    adjAfterVerb_ST.add(ness_S, "lI!ğ", new Conditions.PreviousMorphemeIs(aorPart));
   }
 
   //-------------- Adjective-Noun connected Verb States ------------------------
@@ -1128,6 +1129,8 @@ public class TurkishMorphotactics {
   MorphemeState vAor_S = nonTerminal("vAor_S", aor);
   MorphemeState vAorNeg_S = nonTerminal("vAorNeg_S", aor);
   MorphemeState vAorNegEmpty_S = nonTerminal("vAorNegEmpty_S", aor);
+  MorphemeState vAorPartNeg_S = nonTerminal("vAorPartNeg_S", aorPart);
+  MorphemeState vAorPart_S = nonTerminal("vAorPart_S", aorPart);
 
   MorphemeState vAble_S = nonTerminalDerivative("vAble_S", able);
   MorphemeState vAbleNeg_S = nonTerminalDerivative("vAbleNeg_S", able);
@@ -1322,6 +1325,9 @@ public class TurkishMorphotactics {
     vAorNegEmpty_S
         .add(vA1sg_ST, "m")
         .add(vA1pl_ST, "yIz");
+    // okuma-maz-ım
+    vNeg_S.add(vAorPartNeg_S, "z");
+    vAorPartNeg_S.addEmpty(adjAfterVerb_ST);
 
     //Positive Ability.
     // This makes a Verb-Verb derivation.
@@ -1381,6 +1387,13 @@ public class TurkishMorphotactics {
     // FutPart "oku-yacağ-ım kitap"
     verbRoot_S.add(vNarrPart_S, "mIş");
     vNarrPart_S.addEmpty(adj_ST);
+
+    // AorPart "okunabilir-lik"
+    verbRoot_S.add(vAorPart_S, "Ir",
+        has(RootAttribute.Aorist_I).or(Conditions.HAS_SURFACE));
+    verbRoot_S.add(vAorPart_S, "Ar",
+        has(RootAttribute.Aorist_A).and(Conditions.HAS_NO_SURFACE));
+    vAorPart_S.addEmpty(adjAfterVerb_ST);
 
     // PresPart
     verbRoot_S.add(vPresPart_S, "+yAn");
