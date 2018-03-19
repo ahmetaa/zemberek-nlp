@@ -173,6 +173,10 @@ okumuşken should probably has one analysis only.
 
 yazasınız should have 2 solutions but has 3
 
+should we accept elmaymışlar or elmasındalarmış? Oflazer doesnt
+
+some typos appear AorPart+...+Loc such as "darılmazda" should be "darılmaz da". "çıkılırda"
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

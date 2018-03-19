@@ -45,22 +45,17 @@ public class NounsTest extends AnalyzerTestBase {
 
   @Test
   public void voicing_1() {
-    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
-    String in = "kitabım";
-    List<AnalysisResult> results = analyzer.analyze(in);
-    printAndSort(in, results);
-    Assert.assertEquals(1, results.size());
-    AnalysisResult first = results.get(0);
+    AnalysisTester t = getTester("kitap");
+    t.expectSingle("kitap", matchesTailLex("Noun + A3sg + Pnon + Nom"));
+    t.expectAny("kitaplar", matchesTailLex("Noun + A3pl + Pnon + Nom"));
+    t.expectAny("kitabım", matchesTailLex("Noun + A3sg + P1sg + Nom"));
+    t.expectAny("kitaba", matchesTailLex("Noun + A3sg + Pnon + Dat"));
+    t.expectAny("kitapta", matchesTailLex("Noun + A3sg + Pnon + Loc"));
+    t.expectAny("kitapçık",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Dim + Noun + A3sg + Pnon + Nom"));
 
-    Assert.assertEquals("kitap", first.getDictionaryItem().lemma);
-    Assert.assertEquals("kitab", first.root);
-    Assert.assertTrue(containsMorpheme(first, "P1sg"));
-  }
+    t.expectFail( "kitapım", "kitab", "kitabcık", "kitapa", "kitablar");
 
-  @Test
-  public void voicingIncorrect_1() {
-    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
-    expectFail(analyzer, "kitapım", "kitab", "kitabcık", "kitapa", "kitablar");
   }
 
   @Test

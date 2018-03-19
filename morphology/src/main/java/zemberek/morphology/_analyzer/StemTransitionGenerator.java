@@ -119,11 +119,14 @@ public class StemTransitionGenerator {
           modifiedAttrs.remove(PhoneticAttribute.LastLetterVoicelessStop);
           originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
           modifiedAttrs.add(PhoneticAttribute.ExpectsVowel);
+          // TODO: find a better way for this.
+          modifiedAttrs.add(PhoneticAttribute.CannotTerminate);
           break;
         case Doubling:
           modifiedSeq.append(modifiedSeq.lastLetter());
           originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
           modifiedAttrs.add(PhoneticAttribute.ExpectsVowel);
+          modifiedAttrs.add(PhoneticAttribute.CannotTerminate);
           break;
         case LastVowelDrop:
           if (modifiedSeq.lastLetter().isVowel()) {

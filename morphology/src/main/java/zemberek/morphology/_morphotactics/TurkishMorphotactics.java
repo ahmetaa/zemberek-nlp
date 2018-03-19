@@ -160,6 +160,8 @@ public class TurkishMorphotactics {
   public static final Morpheme asLongAs = new Morpheme("AsLongAs", "AsLongAs");
   // okuyarak (Adv)
   public static final Morpheme byDoingSo = new Morpheme("ByDoingSo", "ByDoingSo");
+  // okuyasıya (Adv)
+  public static final Morpheme adamantly = new Morpheme("Adamantly", "Adamantly");
   // okuyup (Adv)
   public static final Morpheme afterDoing = new Morpheme("AfterDoing", "AfterDoing");
   // okumadan, okumaksızın (Adv)
@@ -382,14 +384,7 @@ public class TurkishMorphotactics {
 
     // ev-?-ε-ε (ev, evler).
     pnon_S.addEmpty(nom_ST,
-        notHave(PhoneticAttribute.ExpectsVowel)
-            .and(notHaveAny(RootAttribute.CompoundP3sgRoot, RootAttribute.FamilyMember)));
-
-    // This transition is for not allowing inputs like "kitab" or "zeytinyağ".
-    // They will fail because nominal case state is non terminal (nom_S)
-    pnon_S.addEmpty(nom_S,
-        has(RootAttribute.CompoundP3sgRoot)
-            .or(has(PhoneticAttribute.ExpectsVowel)));
+        notHave( RootAttribute.FamilyMember));
 
     Condition equCond =
         new Conditions.ContainsMorpheme(adj, futPart, presPart, narrPart, pastPart).not();
@@ -738,7 +733,7 @@ public class TurkishMorphotactics {
     nPresent_S.addEmpty(nA3sg_ST, rootIs(degilRoot));
 
     // elma-lar, elma-da-lar as Verb.
-    // TODO: consider disallowing this.
+    // TODO: consider disallowing this for "elmalar" case.
     nPresent_S.add(nA3pl_ST, "lAr",
         notHave(RootAttribute.CompoundP3sg)
             // do not allow "okumak-lar"
@@ -1158,6 +1153,7 @@ public class TurkishMorphotactics {
   MorphemeState vSinceDoingSo_S = nonTerminalDerivative("vSinceDoingSo_S", sinceDoingSo);
   MorphemeState vAsLongAs_S = nonTerminalDerivative("vAsLongAs_S", asLongAs);
   MorphemeState vByDoingSo_S = nonTerminalDerivative("vByDoingSo_S", byDoingSo);
+  MorphemeState vAdamantly_S = nonTerminalDerivative("vAdamantly_S", adamantly);
   MorphemeState vAfterDoing_S = nonTerminalDerivative("vAfterDoing_S", afterDoing);
   MorphemeState vWithoutHavingDoneSo_S =
       nonTerminalDerivative("vWithoutHavingDoneSo_S", withoutHavingDoneSo);
@@ -1602,6 +1598,7 @@ public class TurkishMorphotactics {
     verbRoot_S.add(vWhen_S, "+yIncA");
     verbRoot_S.add(vSinceDoingSo_S, "+yAlI");
     verbRoot_S.add(vByDoingSo_S, "+yArAk");
+    verbRoot_S.add(vAdamantly_S, "+yAsIyA");
     verbRoot_S.add(vAfterDoing_S, "+yIp");
     verbRoot_S.add(vWithoutBeingAbleToHaveDoneSo_S, "+yAmAdAn");
     verbRoot_S.add(vAsLongAs_S, ">dIkçA");
@@ -1611,6 +1608,7 @@ public class TurkishMorphotactics {
     vAsIf_S.addEmpty(advRoot_ST);
     vSinceDoingSo_S.addEmpty(advRoot_ST);
     vByDoingSo_S.addEmpty(advRoot_ST);
+    vAdamantly_S.addEmpty(advRoot_ST);
     vAfterDoing_S.addEmpty(advRoot_ST);
     vWithoutBeingAbleToHaveDoneSo_S.addEmpty(advRoot_ST);
     vAsLongAs_S.addEmpty(advRoot_ST);

@@ -40,6 +40,9 @@ public class NounDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Pnon + Nom + JustLike + Adj"));
     tester.expectSingle("odunumsu",
         matchesTailLex("Pnon + Nom + JustLike + Adj"));
+    tester = getTester("kitap");
+    tester.expectSingle("kitabımsı",
+        matchesTailLex("Pnon + Nom + JustLike + Adj"));
   }
 
   // check for
@@ -327,6 +330,17 @@ public class NounDerivationTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void A3plAfterZeroVerbDerivationTest() {
+    AnalysisTester tester = getTester("elma");
+
+    tester.expectAny("elmalar", matchesTailLex("Zero + Verb + Pres + A3pl"));
+    tester.expectAny("elmalardır", matchesTailLex("Zero + Verb + Pres + A3pl + Cop"));
+    tester.expectAny("elmadırlar", matchesTailLex("Nom + Zero + Verb + Pres + Cop + A3pl"));
+    tester.expectAny("elmayadırlar", matchesTailLex("Dat + Zero + Verb + Pres + Cop + A3pl"));
+    tester.expectAny("elmasındalar", matchesTailLex("Loc + Zero + Verb + Pres + A3pl"));
+  }
+
+  @Test
   public void afterLocTest() {
     AnalysisTester tester = getTester("elma");
 
@@ -341,7 +355,8 @@ public class NounDerivationTest extends AnalyzerTestBase {
   public void copulaBeforeA3plTest() {
     AnalysisTester tester = getTester("elma");
 
-    tester.expectSingle("elmadırlar", matchesTailLex("Nom + Zero + Verb + Pres + Cop + A3pl"));
+    tester.expectSingle("elmadırlar",
+        matchesTailLex("Nom + Zero + Verb + Pres + Cop + A3pl"));
     tester.expectAny("elmadalardır",
         matchesTailLex("Pnon + Loc + Zero + Verb + Pres + A3pl + Cop"));
     tester.expectSingle("elmamdadırlar",
