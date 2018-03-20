@@ -39,6 +39,8 @@ public class TurkishMorphotactics {
   public static final Morpheme conj = new Morpheme("Conjunction", "Conj", PrimaryPos.Conjunction);
   public static final Morpheme punc = new Morpheme("Punctuation", "Punc", PrimaryPos.Punctuation);
   public static final Morpheme ques = new Morpheme("Question", "Ques", PrimaryPos.Question);
+  public static final Morpheme interj = new Morpheme("Interjection", "Interj",
+      PrimaryPos.Interjection);
 
   // Number-Person agreement.
 
@@ -1096,10 +1098,11 @@ public class TurkishMorphotactics {
     pronZeroDeriv_S.addEmpty(nVerb_S);
   }
 
-  // ------------- Adverb and Conjunctions -----------------
+  // ------------- Adverb, Interjection and Conjunctions -----------------
 
   MorphemeState advRoot_ST = builder("advRoot_ST", adv).posRoot().terminal().build();
   MorphemeState conjRoot_ST = builder("conjRoot_ST", conj).posRoot().terminal().build();
+  MorphemeState interjRoot_ST = builder("interjRoot_ST", interj).posRoot().terminal().build();
 
   // ------------- Verbs -----------------------------------
 
@@ -1795,6 +1798,8 @@ public class TurkishMorphotactics {
         return conjRoot_ST;
       case Question:
         return questionRoot_S;
+      case Interjection:
+        return interjRoot_ST;
       case Verb:
         return verbRoot_S;
       case Punctuation:
