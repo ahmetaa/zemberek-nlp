@@ -228,7 +228,7 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Aor + A3sg + AsIf + Adv"));
     tester.expectSingle("okumazcasına",
         matchesTailLex("Verb + Neg + Aor + A3sg + AsIf + Adv"));
-    tester.expectSingle("okumuşçasına",
+    tester.expectAny("okumuşçasına",
         matchesTailLex("Verb + Narr + A3sg + AsIf + Adv"));
     tester.expectSingle("okurmuşçasına",
         matchesTailLex("Verb + Aor + Narr + A3sg + AsIf + Adv"));
@@ -329,6 +329,19 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Verb + FeelLike + Noun + A3sg + P1sg + Nom"));
     tester.expectAny("okuyasıları",
         matchesTailLex("Verb + FeelLike + Noun + A3pl + P3pl + Nom"));
+  }
+
+  @Test
+  public void notStateTest() {
+    AnalysisTester tester = getTester("okumak");
+
+    tester.expectAny("okumazlık",
+        matchesTailLex("Verb + NotState + Noun + A3sg + Pnon + Nom"));
+    tester.expectAny("okumamazlık",
+        matchesTailLex("Verb + Neg + NotState + Noun + A3sg + Pnon + Nom"));
+    tester.expectAny("okumamazlığı",
+        matchesTailLex("Verb + Neg + NotState + Noun + A3sg + Pnon + Acc"));
+
   }
 
 }

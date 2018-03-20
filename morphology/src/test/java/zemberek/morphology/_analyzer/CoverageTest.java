@@ -3,6 +3,7 @@ package zemberek.morphology._analyzer;
 import com.google.common.base.Stopwatch;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -24,6 +25,7 @@ import org.junit.Test;
 import zemberek.core.logging.Log;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
+import zemberek.morphology.structure.Turkish;
 
 public class CoverageTest {
 
@@ -40,6 +42,21 @@ public class CoverageTest {
     ArrayDeque<String> lines = reader.lines()
         .collect(Collectors.toCollection(ArrayDeque::new));
     Log.info("File read, analyzing.");
+    checkCoverage(lines);
+  }
+
+  @Test
+  @Ignore(value = "Coverage Test")
+  public void testCoverage2() throws Exception {
+    Path path = Paths.get("../data/zemberek-oflazer/bro-test.txt");
+    List<String> strings = Files.readAllLines(path, StandardCharsets.UTF_8);
+    ArrayDeque<String> lines = new ArrayDeque<>(strings);
+    Log.info("File read, analyzing.");
+    checkCoverage(lines);
+  }
+
+  private void checkCoverage(ArrayDeque<String> lines)
+      throws IOException, InterruptedException, java.util.concurrent.ExecutionException {
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
     InterpretingAnalyzer analyzer = new InterpretingAnalyzer(lexicon);
 
@@ -91,6 +108,7 @@ public class CoverageTest {
     }
 
     logResult(failedWords, total, sw);
+    failedWords.sort(Turkish.STRING_COMPARATOR_ASC);
     Files.write(
         Paths.get("../data/zemberek-oflazer/new-analyzer-failed.txt"),
         failedWords, StandardCharsets.UTF_8);

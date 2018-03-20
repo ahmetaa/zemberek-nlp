@@ -148,6 +148,10 @@ public class NounDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Noun + A3sg + Pnon + Nom + Agt + Noun + A3sg + Pnon + Dat"));
     tester.expectAny("elmacıkçı",
         matchesTailLex("Noun + A3sg + Pnon + Nom + Dim + Noun + A3sg + Pnon + Nom + Agt + Noun + A3sg + Pnon + Nom"));
+    tester.expectAny("elmacılık",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Agt + Noun + A3sg + Pnon + Nom + Ness + Noun + A3sg + Pnon + Nom"));
+    tester.expectAny("elmacılığı",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Agt + Noun + A3sg + Pnon + Nom + Ness + Noun + A3sg + Pnon + Acc"));
 
     tester.expectFail(
         "elmalarcı",
@@ -156,6 +160,7 @@ public class NounDerivationTest extends AnalyzerTestBase {
         "elmadacı"
     );
   }
+
 
   @Test
   public void become() {

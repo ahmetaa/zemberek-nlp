@@ -22,7 +22,7 @@ public class AdjectiveDerivationTest extends AnalyzerTestBase {
   @Test
   public void ly() {
     AnalysisTester t = getTester("beyaz [P:Adj]");
-    t.expectSingle("beyazca", matchesTailLex("Adj + Ly + Adv"));
+    t.expectAny("beyazca", matchesTailLex("Adj + Ly + Adv"));
   }
 
   @Test
@@ -48,5 +48,28 @@ public class AdjectiveDerivationTest extends AnalyzerTestBase {
     expectSuccess(analyzer, 1, "maviliyimdir");
   }
 
+
+  @Test
+  public void agtTest() {
+    AnalysisTester tester = getTester("ucuz [P:Adj]");
+
+    tester.expectAny("ucuzcu",
+        matchesTailLex("Adj + Agt + Noun + A3sg + Pnon + Nom"));
+    tester.expectAny("ucuzcuyu",
+        matchesTailLex("Adj + Agt + Noun + A3sg + Pnon + Acc"));
+    tester.expectAny("ucuzcuya",
+        matchesTailLex("Adj + Agt + Noun + A3sg + Pnon + Dat"));
+    tester.expectAny("ucuzculuk",
+        matchesTailLex("Adj + Agt + Noun + A3sg + Pnon + Nom + Ness + Noun + A3sg + Pnon + Nom"));
+    tester.expectAny("ucuzculuğu",
+        matchesTailLex("Adj + Agt + Noun + A3sg + Pnon + Nom + Ness + Noun + A3sg + Pnon + Acc"));
+
+
+    tester.expectFail(
+        "ucuzcucu",
+        "ucuzlucu",
+        "ucuzumsucu"
+    );
+  }
 
 }

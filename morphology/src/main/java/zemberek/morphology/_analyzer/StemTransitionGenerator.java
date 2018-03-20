@@ -131,12 +131,14 @@ public class StemTransitionGenerator {
           if (modifiedSeq.lastLetter().isVowel()) {
             modifiedSeq.delete(modifiedSeq.length() - 1);
             modifiedAttrs.add(PhoneticAttribute.ExpectsConsonant);
+            modifiedAttrs.add(PhoneticAttribute.CannotTerminate);
           } else {
             modifiedSeq.delete(modifiedSeq.length() - 2);
             if (!dicItem.primaryPos.equals(PrimaryPos.Verb)) {
               originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
             }
             modifiedAttrs.add(PhoneticAttribute.ExpectsVowel);
+            modifiedAttrs.add(PhoneticAttribute.CannotTerminate);
           }
           break;
         case InverseHarmony:
@@ -182,61 +184,75 @@ public class StemTransitionGenerator {
     StemTransition original, modified;
     MorphemeState unmodifiedRootState = morphotactics.getRootState(item, originalAttrs);
 
-    if (id.equals("ben_Pron_Pers") || id.equals("sen_Pron_Pers")) {
-      original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
-      if (item.lemma.equals("ben")) {
-        modified = new StemTransition("ban", item, calculateAttributes("ban"),
-            morphotactics.pronPers_Mod_S);
-      } else {
-        modified = new StemTransition("san", item, calculateAttributes("san"),
-            morphotactics.pronPers_Mod_S);
-      }
-      original.getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
-      modified.getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
-      return Lists.newArrayList(original, modified);
-    } else if (id.equals("demek_Verb") || id.equals("yemek_Verb")) {
-      original = new StemTransition(item.root, item, originalAttrs, morphotactics.vDeYeRoot_S);
-      switch (item.lemma) {
-        case "demek":
-          modified = new StemTransition("di", item, calculateAttributes("di"),
-              morphotactics.vDeYeRoot_S);
-          break;
-        default:
-          modified = new StemTransition("yi", item, calculateAttributes("yi"),
-              morphotactics.vDeYeRoot_S);
-      }
-      return Lists.newArrayList(original, modified);
+    switch (id) {
 
-    } else if (id.equals("birbiri_Pron_Quant")
-        || id.equals("çoğu_Pron_Quant")
-        || id.equals("öbürü_Pron_Quant")
-        || id.equals("birçoğu_Pron_Quant")) {
-      original = new StemTransition(item.root, item, originalAttrs, morphotactics.pronQuant_S);
+      case "içeri_Noun":
+      case "dışarı_Noun":
+      case "yukarı_Noun":
+        original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
+        String m = item.root.substring(0, item.root.length()-1);
+        modified = new StemTransition(m, item, calculateAttributes(m), unmodifiedRootState);
+        modified.getPhoneticAttributes().add(PhoneticAttribute.ExpectsConsonant);
+        modified.getPhoneticAttributes().add(PhoneticAttribute.CannotTerminate);
+        return Lists.newArrayList(original, modified);
 
-      switch (item.lemma) {
-        case "birbiri":
-          modified = new StemTransition("birbir", item, calculateAttributes("birbir"),
-              morphotactics.pronQuantModified_S);
-          break;
-        case "çoğu":
-          modified = new StemTransition("çok", item, calculateAttributes("çok"),
-              morphotactics.pronQuantModified_S);
-          break;
-        case "öbürü":
-          modified = new StemTransition("öbür", item, calculateAttributes("öbür"),
-              morphotactics.pronQuantModified_S);
-          break;
-        default:
-          modified = new StemTransition("birçok", item, calculateAttributes("birçok"),
-              morphotactics.pronQuantModified_S);
-          break;
-      }
-      original.getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
-      modified.getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
-      return Lists.newArrayList(original, modified);
-    } else {
-      throw new IllegalArgumentException(
-          "Lexicon Item with special stem change cannot be handled:" + item);
+      case "ben_Pron_Pers":
+      case "sen_Pron_Pers":
+        original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
+        if (item.lemma.equals("ben")) {
+          modified = new StemTransition("ban", item, calculateAttributes("ban"),
+              morphotactics.pronPers_Mod_S);
+        } else {
+          modified = new StemTransition("san", item, calculateAttributes("san"),
+              morphotactics.pronPers_Mod_S);
+        }
+        original.getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
+        modified.getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
+        return Lists.newArrayList(original, modified);
+      case "demek_Verb":
+      case "yemek_Verb":
+        original = new StemTransition(item.root, item, originalAttrs, morphotactics.vDeYeRoot_S);
+        switch (item.lemma) {
+          case "demek":
+            modified = new StemTransition("di", item, calculateAttributes("di"),
+                morphotactics.vDeYeRoot_S);
+            break;
+          default:
+            modified = new StemTransition("yi", item, calculateAttributes("yi"),
+                morphotactics.vDeYeRoot_S);
+        }
+        return Lists.newArrayList(original, modified);
+
+      case "birbiri_Pron_Quant":
+      case "çoğu_Pron_Quant":
+      case "öbürü_Pron_Quant":
+      case "birçoğu_Pron_Quant":
+        original = new StemTransition(item.root, item, originalAttrs, morphotactics.pronQuant_S);
+
+        switch (item.lemma) {
+          case "birbiri":
+            modified = new StemTransition("birbir", item, calculateAttributes("birbir"),
+                morphotactics.pronQuantModified_S);
+            break;
+          case "çoğu":
+            modified = new StemTransition("çok", item, calculateAttributes("çok"),
+                morphotactics.pronQuantModified_S);
+            break;
+          case "öbürü":
+            modified = new StemTransition("öbür", item, calculateAttributes("öbür"),
+                morphotactics.pronQuantModified_S);
+            break;
+          default:
+            modified = new StemTransition("birçok", item, calculateAttributes("birçok"),
+                morphotactics.pronQuantModified_S);
+            break;
+        }
+        original.getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
+        modified.getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
+        return Lists.newArrayList(original, modified);
+      default:
+        throw new IllegalArgumentException(
+            "Lexicon Item with special stem change cannot be handled:" + item);
     }
 
 

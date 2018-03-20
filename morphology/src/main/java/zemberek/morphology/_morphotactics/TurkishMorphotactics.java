@@ -136,6 +136,8 @@ public class TurkishMorphotactics {
   public static final Morpheme presPart = new Morpheme("PresentParticiple", "PresPart");
   // okurluk (Noun)
   public static final Morpheme aorPart = new Morpheme("AoristParticiple", "AorPart");
+  // okumazlık - okumamazlık (Noun)
+  public static final Morpheme notState = new Morpheme("NotState", "NotState");
   // okuyan (Adj, Noun)
   public static final Morpheme feelLike = new Morpheme("FeelLike", "FeelLike");
   // okuyagel (Verb)
@@ -391,11 +393,12 @@ public class TurkishMorphotactics {
         .add(p3pl_S, "lArI");
 
     // ev-?-ε-ε (ev, evler).
-    pnon_S.addEmpty(nom_ST,
-        notHave(RootAttribute.FamilyMember));
+    pnon_S.addEmpty(nom_ST, notHave(RootAttribute.FamilyMember));
 
     Condition equCond =
-        new Conditions.ContainsMorpheme(adj, futPart, presPart, narrPart, pastPart).not();
+        new Conditions.ContainsMorpheme(adj, futPart, presPart, narrPart, pastPart).not()
+            .or(new Conditions.ContainsMorphemeSequence(able, verb,
+                pastPart)); // allow `yapabildiğince`
 
     // Not allow "zetinyağı-ya" etc.
     pnon_S
@@ -621,6 +624,7 @@ public class TurkishMorphotactics {
 
   MorphemeState aLy_S = nonTerminalDerivative("aLy_S", ly);
   MorphemeState aAsIf_S = nonTerminalDerivative("aAsIf_S", asIf);
+  MorphemeState aAgt_S = nonTerminalDerivative("aAgt_S", agt);
 
   private void connectAdjectiveStates() {
 
@@ -636,8 +640,12 @@ public class TurkishMorphotactics {
     adj_ST.add(aLy_S, ">cA");
     aLy_S.addEmpty(advRoot_ST);
 
-    adj_ST.add(aAsIf_S, ">cA",new Conditions.ContainsMorpheme(asIf, ly).not());
-    aAsIf_S.addEmpty(noun_S);
+    adj_ST
+        .add(aAsIf_S, ">cA", new Conditions.ContainsMorpheme(asIf, ly, agt, with, justLike).not());
+    aAsIf_S.addEmpty(adj_ST);
+
+    adj_ST.add(aAgt_S, ">cI", new Conditions.ContainsMorpheme(asIf, ly, agt, with, justLike).not());
+    aAgt_S.addEmpty(noun_S);
 
     adj_ST.add(justLike_S, "+msI",
         new NoSurfaceAfterDerivation()
@@ -1106,7 +1114,7 @@ public class TurkishMorphotactics {
   MorphemeState vPast_S = nonTerminal("vPast_S", past);
   MorphemeState vNarr_S = nonTerminal("vNarr_S", narr);
   MorphemeState vCond_S = nonTerminal("vCond_S", cond);
-  MorphemeState vCondAfterA2_ST = terminal("vCondAfterA2_ST", cond);
+  MorphemeState vCondAfterPerson_ST = terminal("vCondAfterPerson_ST", cond);
   MorphemeState vPastAfterTense_S = nonTerminal("vPastAfterTense_S", past);
   MorphemeState vNarrAfterTense_S = nonTerminal("vNarrAfterTense_S", narr);
 
@@ -1163,6 +1171,8 @@ public class TurkishMorphotactics {
   MorphemeState vNarrPart_S = nonTerminalDerivative("vNarrPart_S", narrPart);
 
   MorphemeState vFeelLike_S = nonTerminalDerivative("vFeelLike_S", feelLike);
+
+  MorphemeState vNotState_S = nonTerminalDerivative("vNotState_S", notState);
 
   MorphemeState vEverSince_S = nonTerminalDerivative("vEverSince_S", everSince);
   MorphemeState vRepeat_S = nonTerminalDerivative("vRepeat_S", repeat);
@@ -1310,6 +1320,8 @@ public class TurkishMorphotactics {
         .add(vAsLongAs_S, "dIkçA")
         .add(vWithoutHavingDoneSo_S, "mAdAn")
         .add(vWithoutHavingDoneSo_S, "mAksIzIn")
+        .add(vNotState_S, "mAzlI~k")
+        .add(vNotState_S, "mAzlI!ğ")
         .add(vFeelLike_S, "yAsI");
 
     // Negative form is "m" before progressive "Iyor" because last vowel drops.
@@ -1409,10 +1421,15 @@ public class TurkishMorphotactics {
     vPresPart_S.addEmpty(noun_S, Conditions.HAS_TAIL);
     vPresPart_S.addEmpty(adjAfterVerb_ST); // connect to terminal Adj
 
-    // Feel Like
+    // FeelLike
     verbRoot_S.add(vFeelLike_S, "+yAsI");
     vFeelLike_S.addEmpty(noun_S, Conditions.HAS_TAIL);
     vFeelLike_S.addEmpty(adjAfterVerb_ST); // connect to terminal Adj
+
+    // NotState
+    verbRoot_S.add(vNotState_S, "mAzlI~k");
+    verbRoot_S.add(vNotState_S, "mAzlI!ğ");
+    vNotState_S.addEmpty(noun_S);
 
     // Passive
     // Causes Verb-Verb derivation. Passive morpheme has three forms.
@@ -1557,6 +1574,8 @@ public class TurkishMorphotactics {
         .add(vAsLongAs_S, "dikçe")
         .add(vWithoutHavingDoneSo_S, "meden")
         .add(vWithoutHavingDoneSo_S, "meksizin")
+        .add(vNotState_S, "mezli~k")
+        .add(vNotState_S, "mezli!ğ")
         .addEmpty(vImp_S, deYeCondition);
 
     // Optative (gel-e, gel-eyim gel-me-ye-yim)
@@ -1624,8 +1643,10 @@ public class TurkishMorphotactics {
     // Allow Past+A2pl+Cond  Past+A2sg+Cond (geldinse, geldinizse)
     Condition previousPast = new Conditions.PreviousMorphemeIs(past)
         .andNot(new ContainsMorpheme(cond, desr));
-    vA2pl_ST.add(vCondAfterA2_ST, "sA", previousPast);
-    vA2sg_ST.add(vCondAfterA2_ST, "sA", previousPast);
+    vA2pl_ST.add(vCondAfterPerson_ST, "sA", previousPast);
+    vA2sg_ST.add(vCondAfterPerson_ST, "sA", previousPast);
+    vA1sg_ST.add(vCondAfterPerson_ST, "sA", previousPast);
+    vA1pl_ST.add(vCondAfterPerson_ST, "sA", previousPast);
 
     verbRoot_S.add(vEverSince_S, "+yAgel", cMultiVerb);
     verbRoot_S.add(vRepeat_S, "+yAdur", cMultiVerb);

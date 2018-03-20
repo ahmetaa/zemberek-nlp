@@ -313,7 +313,6 @@ class Conditions {
     }
   }
 
-
   public static class HasTailSequence extends AbstractCondition {
 
     Morpheme[] morphemes;
@@ -343,6 +342,41 @@ class Conditions {
       return "HasTailSequence{" + Arrays.toString(morphemes) + "}";
     }
   }
+
+  public static class ContainsMorphemeSequence extends AbstractCondition {
+
+    Morpheme[] morphemes;
+
+    public ContainsMorphemeSequence(Morpheme... morphemes) {
+      this.morphemes = morphemes;
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      List<MorphemeSurfaceForm> forms = visitor.getMorphemes();
+      if (forms.size() < morphemes.length) {
+        return false;
+      }
+      int m = 0;
+      for (MorphemeSurfaceForm form : forms) {
+        if (form.morphemeState.morpheme.equals(morphemes[m])) {
+          m++;
+          if (m == morphemes.length) {
+            return true;
+          }
+        } else {
+          m = 0;
+        }
+      }
+      return false;
+    }
+
+    @Override
+    public String toString() {
+      return "ContainsMorphemeSequence{" + Arrays.toString(morphemes) + "}";
+    }
+  }
+
 
   public static class CurrentMorphemeIs extends AbstractCondition {
 
@@ -792,6 +826,7 @@ class Conditions {
       MorphemeState previousState = path.getPreviousState();
       return previousState != null && morphemes.contains(previousState.morpheme);
     }
+
     @Override
     public String toString() {
       return "PreviousMorphemeIsAny{" + morphemes + '}';
@@ -813,6 +848,7 @@ class Conditions {
       MorphemeState previousState = path.getCurrentState();
       return previousState != null && morphemes.contains(previousState.morpheme);
     }
+
     @Override
     public String toString() {
       return "CurrentMorphemeIsAny{" + morphemes + '}';

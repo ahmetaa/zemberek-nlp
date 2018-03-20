@@ -55,8 +55,21 @@ public class NounsTest extends AnalyzerTestBase {
         matchesTailLex("Noun + A3sg + Pnon + Nom + Dim + Noun + A3sg + Pnon + Nom"));
 
     t.expectFail( "kitapım", "kitab", "kitabcık", "kitapa", "kitablar");
-
   }
+
+  @Test
+  public void lastVowelDropExceptionTest() {
+    AnalysisTester t = getTester("içeri [A:ImplicitDative, Special]");
+
+    t.expectAny("içeri", matchesTailLex("Noun + A3sg + Pnon + Dat"));
+    t.expectAny("içeride", matchesTailLex("Noun + A3sg + Pnon + Loc"));
+    t.expectAny("içerilerde", matchesTailLex("Noun + A3pl + Pnon + Loc"));
+    t.expectAny("içerde", matchesTailLex("Noun + A3sg + Pnon + Loc"));
+    t.expectAny("içerlerde", matchesTailLex("Noun + A3pl + Pnon + Loc"));
+
+    t.expectFail( "içer");
+  }
+
 
   @Test
   public void suTest() {
