@@ -133,7 +133,7 @@
             <artifactId>protobuf-maven-plugin</artifactId>
             <version>0.5.1</version>
             <configuration>
-              <protocExecutable>/usr/local/bin/protoc</protocExecutable>
+              <protocExecutable>protoc</protocExecutable>
               <outputDirectory>${protobuf.output.directory.java}</outputDirectory>
             </configuration>
             <executions>

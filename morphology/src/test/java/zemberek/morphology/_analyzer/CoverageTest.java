@@ -48,7 +48,7 @@ public class CoverageTest {
   @Test
   @Ignore(value = "Coverage Test")
   public void testCoverage2() throws Exception {
-    Path path = Paths.get("../data/zemberek-oflazer/bro-test.txt");
+    Path path = Paths.get("../data/frequent-failed-words.txt");
     List<String> strings = Files.readAllLines(path, StandardCharsets.UTF_8);
     ArrayDeque<String> lines = new ArrayDeque<>(strings);
     Log.info("File read, analyzing.");
@@ -65,7 +65,7 @@ public class CoverageTest {
     ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
     CompletionService<Result> service = new ExecutorCompletionService<>(executorService);
 
-    List<String> failedWords = new ArrayList<>();
+    Result allResult = new Result(new ArrayList<>(100000), new ArrayList<>(1000000), lines.size());
 
     Stopwatch sw = Stopwatch.createStarted();
 
@@ -83,13 +83,16 @@ public class CoverageTest {
       if (batch.size() > 0) {
         service.submit(() -> {
           List<String> failed = new ArrayList<>(batchSize / 2);
+          List<String> passed = new ArrayList<>(batchSize);
           for (String s : batch) {
             List<AnalysisResult> results = analyzer.analyze(s);
             if (results.size() == 0) {
               failed.add(s);
+            } else {
+              passed.add(s);
             }
           }
-          return new Result(failed, batch.size());
+          return new Result(failed, passed, batch.size());
         });
         batchCount++;
       }
@@ -99,28 +102,36 @@ public class CoverageTest {
     int total = 0;
     while (i < batchCount) {
       Result r = service.take().get();
-      failedWords.addAll(r.failedWords);
+      allResult.failedWords.addAll(r.failedWords);
+      allResult.passedWords.addAll(r.passedWords);
       total += r.wordCount;
       if (total % (batchSize * 10) == 0) {
-        logResult(failedWords, total, sw);
+        logResult(allResult.failedWords, total, sw);
       }
       i++;
     }
 
-    logResult(failedWords, total, sw);
-    failedWords.sort(Turkish.STRING_COMPARATOR_ASC);
+    logResult(allResult.failedWords, total, sw);
+    allResult.failedWords.sort(Turkish.STRING_COMPARATOR_ASC);
+    allResult.passedWords.sort(Turkish.STRING_COMPARATOR_ASC);
     Files.write(
         Paths.get("../data/zemberek-oflazer/new-analyzer-failed.txt"),
-        failedWords, StandardCharsets.UTF_8);
+        allResult.failedWords, StandardCharsets.UTF_8);
+    Files.write(
+        Paths.get("../data/zemberek-oflazer/new-analyzer-passed.txt"),
+        allResult.passedWords, StandardCharsets.UTF_8);
+
   }
 
   class Result {
 
     List<String> failedWords;
+    List<String> passedWords;
     int wordCount;
 
-    Result(List<String> failedWords, int wordCount) {
+    public Result(List<String> failedWords, List<String> passedWords, int wordCount) {
       this.failedWords = failedWords;
+      this.passedWords = passedWords;
       this.wordCount = wordCount;
     }
   }

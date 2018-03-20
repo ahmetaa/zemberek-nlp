@@ -3136,8 +3136,8 @@ biraz [P:Adv]
 birazcık [P:Adj]
 birazcık [P:Adv]
 birazdan [P:Adv]
-birbiri [P:Pron, Quant]
-birçoğu [P:Pron,Quant]
+birbiri [P:Pron, Quant; A:Special]
+birçoğu [P:Pron,Quant; A:Special]
 birçok [P:Adj]
 birçok [P:Det]
 birden [P:Adv]
@@ -4895,7 +4895,7 @@ cüzzam
 çoğalmak
 çoğaltım
 çoğu [P:Det]
-çoğu [P:Pron, Quant]
+çoğu [P:Pron, Quant;A:Special]
 çoğul
 çoğul [P:Adj]
 çoğullamak

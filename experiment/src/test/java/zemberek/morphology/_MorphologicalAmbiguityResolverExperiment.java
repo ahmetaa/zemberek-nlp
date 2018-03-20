@@ -37,15 +37,15 @@ public class _MorphologicalAmbiguityResolverExperiment {
   }
 
   public static void main(String[] args) throws IOException {
-    Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
-    //Path p = Paths.get("/media/aaa/Data/corpora/final/www.kizlarsoruyor.com");
-    Path outRoot = Paths.get("/home/aaa/projects/zemberek-nlp/data/ambiguity");
+    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
+    Path outRoot = Paths.get("data/ambiguity");
     Files.createDirectories(outRoot);
 
-    new _MorphologicalAmbiguityResolverExperiment().extracData(p, outRoot);
+    new _MorphologicalAmbiguityResolverExperiment().extracData(p, outRoot, 1, -1);
   }
 
-  public void extracData(Path p, Path outRoot) throws IOException {
+  public void extracData(Path p, Path outRoot, int maxAnalysisCount, int resultLimit)
+      throws IOException {
     List<Path> files = Files.walk(p, 1).filter(s -> s.toFile().isFile()
         && s.toFile().getName().endsWith(".corpus")).collect(Collectors.toList());
     LinkedHashSet<SingleAnalysisSentence> result = new LinkedHashSet<>();
@@ -53,10 +53,13 @@ public class _MorphologicalAmbiguityResolverExperiment {
     int i = 0;
 
     for (Path file : files) {
-      List<SingleAnalysisSentence> collect = collect(file);
+      List<SingleAnalysisSentence> collect = collect(file, maxAnalysisCount);
       result.addAll(collect);
       i++;
       Log.info("%d of %d", i, files.size());
+      if (resultLimit > 0 && result.size() > resultLimit) {
+        break;
+      }
     }
 
     String s = p.toFile().getName();
@@ -67,7 +70,9 @@ public class _MorphologicalAmbiguityResolverExperiment {
       for (SingleAnalysisSentence sentence : result) {
         pw.println(sentence.sentence);
         for (Single single : sentence.tokens) {
-          pw.println(single.res.shortForm());
+          for (AnalysisResult r : single.res) {
+            pw.println(r.shortForm());
+          }
         }
         pw.println();
       }
@@ -80,7 +85,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
     failedWords.saveSortedByCounts(outRoot.resolve(s + "-failed.freq.txt"), " ");
   }
 
-  private List<SingleAnalysisSentence> collect(Path p) throws IOException {
+  private List<SingleAnalysisSentence> collect(Path p, int maxAnalysisCount) throws IOException {
     List<String> sentences = getSentences(p);
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
     InterpretingAnalyzer analyzer = new InterpretingAnalyzer(lexicon);
@@ -119,18 +124,19 @@ public class _MorphologicalAmbiguityResolverExperiment {
         if (results.size() == 0) {
           failedWords.add(word);
         }
-        if (results.size() != 1) {
+        if (results.size() < 1 || results.size() > 3) {
           failed = true;
           break;
         } else {
+          results = results.stream()
+              .filter(s -> !(s.dictionaryItem.secondaryPos == SecondaryPos.ProperNoun &&
+                  Character.isLowerCase(rawWord.charAt(0)))).collect(Collectors.toList());
 
-          AnalysisResult an = results.get(0);
-          if (an.dictionaryItem.secondaryPos == SecondaryPos.ProperNoun &&
-              Character.isLowerCase(rawWord.charAt(0))) {
+          if (results.size() == 0) {
             failed = true;
             break;
           }
-          singleAnalysisWords.add(new Single(word, i, an));
+          singleAnalysisWords.add(new Single(word, i, results));
           i++;
         }
       }
@@ -179,9 +185,9 @@ public class _MorphologicalAmbiguityResolverExperiment {
 
     String input;
     int index;
-    AnalysisResult res;
+    List<AnalysisResult> res;
 
-    public Single(String input, int index, AnalysisResult res) {
+    public Single(String input, int index, List<AnalysisResult> res) {
       this.input = input;
       this.index = index;
       this.res = res;
@@ -194,6 +200,5 @@ public class _MorphologicalAmbiguityResolverExperiment {
         .filter(s -> !s.startsWith("<")).collect(Collectors.toList());
     return TurkishSentenceExtractor.DEFAULT.fromParagraphs(lines);
   }
-
 
 }

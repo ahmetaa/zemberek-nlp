@@ -80,10 +80,9 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("sizinle", matchesTailLex("Pron + A2pl + Pnon + Ins"));
   }
 
-
   @Test
   public void buTest1() {
-    AnalysisTester tester = getTester("bu [P:Pron,Demons]");
+    AnalysisTester tester = getTester("bu [P:Pron, Demons]");
     tester.expectSingle("bu", matchesTailLex("Pron + A3sg + Pnon + Nom"));
     tester.expectSingle("buna", matchesTailLex("Pron + A3sg + Pnon + Dat"));
     tester.expectSingle("bunu", matchesTailLex("Pron + A3sg + Pnon + Acc"));
