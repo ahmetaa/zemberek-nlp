@@ -177,6 +177,8 @@ should we accept elmaymışlar or elmasındalarmış? Oflazer doesnt
 
 some typos appear AorPart+...+Loc such as "darılmazda" should be "darılmaz da". "çıkılırda"
 
+remove some proper nouns that causes ambiguity and false positives. `Li, Hayir` etc.
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

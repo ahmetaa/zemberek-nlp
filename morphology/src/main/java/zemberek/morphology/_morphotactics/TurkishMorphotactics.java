@@ -896,6 +896,7 @@ public class TurkishMorphotactics {
   MorphemeState pLoc_ST = terminal("pLoc_ST", loc);
   MorphemeState pGen_ST = terminal("pGen_ST", gen);
   MorphemeState pIns_ST = terminal("pIns_ST", ins);
+  MorphemeState pEqu_ST = terminal("pEqu_ST", equ);
 
   MorphemeState pronZeroDeriv_S = nonTerminalDerivative("pronZeroDeriv_S", zero);
 
@@ -1070,8 +1071,16 @@ public class TurkishMorphotactics {
         // not allowing `ben-e` and `sen-e`. `ban-a` and `san-a` are using different states
         .add(pDat_ST, "+nA", rootIsNone(ben, sen, ne, nere, falan, falanca))
         .add(pAcc_ST, "+nI", nGroup)
+        .add(pGen_ST, "+nIn", nGroup.and(rootIsNone(biz)))
         .add(pDat_ST, "+yA", yGroup)
-        .add(pAcc_ST, "+yI", yGroup);
+        .add(pGen_ST, "+yIn", yGroup.and(rootIsNone(biz)))
+        .add(pAcc_ST, "+yI", yGroup)
+        .add(pEqu_ST, ">cA", yGroup)
+        .add(pEqu_ST, ">cA", nGroup)
+        .add(pIns_ST, "+ylA", yGroup)
+        .add(pIns_ST, "+nlA", nGroup)
+        .add(pIns_ST, "inle", rootIs(siz));
+
 
     pP1sg_S.addEmpty(pNom_ST)
         .add(pDat_ST, "+nA", nGroup)

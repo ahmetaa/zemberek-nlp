@@ -1,4 +1,4 @@
-package zemberek.morphology.ambiguity;
+package zemberek.morphology;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,10 +14,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
-import org.junit.Ignore;
-import org.junit.Test;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
+import zemberek.core.turkish.SecondaryPos;
+import zemberek.langid.LanguageIdentifier;
 import zemberek.morphology._analyzer.AnalysisResult;
 import zemberek.morphology._analyzer.InterpretingAnalyzer;
 import zemberek.morphology.lexicon.RootLexicon;
@@ -28,10 +28,25 @@ import zemberek.tokenization.TurkishTokenizer;
 
 public class _MorphologicalAmbiguityResolverExperiment {
 
-  @Test
-  @Ignore(value = "Single anaysis.")
-  public void extracData() throws IOException {
-    Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
+  LanguageIdentifier identifier;
+  Map<String, List<AnalysisResult>> cache = new HashMap<>();
+  Histogram<String> failedWords = new Histogram<>(100000);
+
+
+  public _MorphologicalAmbiguityResolverExperiment() throws IOException {
+    identifier = LanguageIdentifier.fromInternalModelGroup("tr_group");
+  }
+
+  public static void main(String[] args) throws IOException {
+    //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
+    Path p = Paths.get("/media/aaa/Data/corpora/final/www.kizlarsoruyor.com");
+    Path outRoot = Paths.get("/home/aaa/projects/zemberek-nlp/data/ambiguity");
+    Files.createDirectories(outRoot);
+
+    new _MorphologicalAmbiguityResolverExperiment().extracData(p, outRoot);
+  }
+
+  public void extracData(Path p, Path outRoot) throws IOException {
     List<Path> files = Files.walk(p, 1).filter(s -> s.toFile().isFile()
         && s.toFile().getName().endsWith(".corpus")).collect(Collectors.toList());
     LinkedHashSet<SingleAnalysisSentence> result = new LinkedHashSet<>();
@@ -44,7 +59,10 @@ public class _MorphologicalAmbiguityResolverExperiment {
       i++;
       Log.info("%d of %d", i, files.size());
     }
-    Path out = Paths.get("../data/singleAnalysis");
+
+    String s = p.toFile().getName();
+
+    Path out = outRoot.resolve(s + "-unambigious.txt");
 
     try (PrintWriter pw = new PrintWriter(out.toFile(), "utf-8")) {
       for (SingleAnalysisSentence sentence : result) {
@@ -57,14 +75,11 @@ public class _MorphologicalAmbiguityResolverExperiment {
     }
 
     // saving failed words.
-    String s = p.toFile().getName() + "-failed.txt";
-    failedWords.saveSortedByKeys(Paths.get("../data/" + s), " ",
-        Turkish.STRING_COMPARATOR_ASC );
+    failedWords.saveSortedByKeys(outRoot.resolve(s + "-failed.txt"), " ",
+        Turkish.STRING_COMPARATOR_ASC);
+    // saving failed words by frequency.
+    failedWords.saveSortedByCounts(outRoot.resolve(s + "-failed.freq.txt"), " ");
   }
-
-  Map<String, List<AnalysisResult>> cache = new HashMap<>();
-
-  static Histogram<String> failedWords = new Histogram<>(100000);
 
   private List<SingleAnalysisSentence> collect(Path p) throws IOException {
     List<String> sentences = getSentences(p);
@@ -78,15 +93,22 @@ public class _MorphologicalAmbiguityResolverExperiment {
 
     for (String sentence : sentences) {
 
+/*
+      if (!identifier.identify(sentence).equals("tr")) {
+        continue;
+      }
+*/
+
       List<Single> singleAnalysisWords = new ArrayList<>();
       List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
       boolean failed = false;
       int i = 0;
       for (Token token : tokens) {
         tokenCount++;
-        String word = token.getText()
+        String rawWord = token.getText();
+        String word = rawWord
             .toLowerCase(Turkish.LOCALE)
-            .replaceAll("[']","");
+            .replaceAll("[']", "");
 
         List<AnalysisResult> results;
         if (cache.containsKey(word)) {
@@ -102,7 +124,14 @@ public class _MorphologicalAmbiguityResolverExperiment {
           failed = true;
           break;
         } else {
-          singleAnalysisWords.add(new Single(word, i, results.get(0)));
+
+          AnalysisResult an = results.get(0);
+          if (an.dictionaryItem.secondaryPos == SecondaryPos.ProperNoun &&
+              Character.isLowerCase(rawWord.charAt(0))) {
+            failed = true;
+            break;
+          }
+          singleAnalysisWords.add(new Single(word, i, an));
           i++;
         }
       }

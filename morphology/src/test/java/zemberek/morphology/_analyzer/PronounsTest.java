@@ -64,11 +64,20 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("biz", matchesTailLex("Pron + A1pl + Pnon + Nom"));
     tester.expectSingle("bize", matchesTailLex("Pron + A1pl + Pnon + Dat"));
     tester.expectSingle("bizi", matchesTailLex("Pron + A1pl + Pnon + Acc"));
+    tester.expectSingle("bizce", matchesTailLex("Pron + A1pl + Pnon + Equ"));
+
+    tester.expectFail(
+        "bizin"
+    );
 
     tester = getTester("siz [P:Pron,Pers]");
     tester.expectSingle("siz", matchesTailLex("Pron + A2pl + Pnon + Nom"));
     tester.expectSingle("size", matchesTailLex("Pron + A2pl + Pnon + Dat"));
     tester.expectSingle("sizi", matchesTailLex("Pron + A2pl + Pnon + Acc"));
+    tester.expectSingle("sizin", matchesTailLex("Pron + A2pl + Pnon + Gen"));
+    tester.expectSingle("sizce", matchesTailLex("Pron + A2pl + Pnon + Equ"));
+    tester.expectSingle("sizle", matchesTailLex("Pron + A2pl + Pnon + Ins"));
+    tester.expectSingle("sizinle", matchesTailLex("Pron + A2pl + Pnon + Ins"));
   }
 
 
