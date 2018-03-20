@@ -38,6 +38,7 @@ public class TurkishMorphotactics {
   public static final Morpheme adv = new Morpheme("Adverb", "Adv", PrimaryPos.Adverb);
   public static final Morpheme conj = new Morpheme("Conjunction", "Conj", PrimaryPos.Conjunction);
   public static final Morpheme punc = new Morpheme("Punctuation", "Punc", PrimaryPos.Punctuation);
+  public static final Morpheme ques = new Morpheme("Question", "Ques", PrimaryPos.Question);
 
   // Number-Person agreement.
 
@@ -175,7 +176,6 @@ public class TurkishMorphotactics {
   public static final Morpheme withoutBeingAbleToHaveDoneSo =
       new Morpheme("WithoutBeingAbleToHaveDoneSo", "WithoutBeingAbleToHaveDoneSo");
 
-
   // Zero derivation
   public static final Morpheme zero = new Morpheme("Zero", "Zero");
 
@@ -215,7 +215,7 @@ public class TurkishMorphotactics {
   // root of the graph.
   MorphemeState root_S = nonTerminal("root_S", root);
 
-  MorphemeState puncRoot_ST =  builder("puncRoot_ST", punc).terminal().posRoot().build();
+  MorphemeState puncRoot_ST = builder("puncRoot_ST", punc).terminal().posRoot().build();
 
   //-------------- Noun States ------------------------
 
@@ -291,6 +291,7 @@ public class TurkishMorphotactics {
     connectVerbAfterNounAdjStates();
     connectPronounStates();
     connectVerbs();
+    connectQuestion();
   }
 
   /**
@@ -1687,6 +1688,57 @@ public class TurkishMorphotactics {
     vWhen_S.addEmpty(advRoot_ST);
   }
 
+  MorphemeState qPresent_S = nonTerminal("qPresent_S", pres);
+  MorphemeState qPast_S = nonTerminal("qPast_S", past);
+  MorphemeState qNarr_S = nonTerminal("qNarr_S", narr);
+  MorphemeState qA1sg_ST = terminal("qA1sg_ST", a1sg);
+  MorphemeState qA2sg_ST = terminal("qA2sg_ST", a2sg);
+  MorphemeState qA3sg_ST = terminal("qA3sg_ST", a3sg);
+  MorphemeState qA1pl_ST = terminal("qA1pl_ST", a1pl);
+  MorphemeState qA2pl_ST = terminal("qA2pl_ST", a2pl);
+  MorphemeState qA3pl_ST = terminal("qA3pl_ST", a3pl);
+
+  MorphemeState questionRoot_S = builder("questionRoot_S", ques).posRoot().build();
+
+  private void connectQuestion() {
+    //mı
+    questionRoot_S.addEmpty(qPresent_S);
+    // mıydı
+    questionRoot_S.add(qPast_S, "ydI");
+    // mıymış
+    questionRoot_S.add(qNarr_S, "ymIş");
+
+    // mıyım
+    qPresent_S.add(qA1sg_ST, "yIm");
+    // mısın
+    qPresent_S.add(qA2sg_ST, "sIn");
+    qPresent_S.addEmpty(qA3sg_ST);
+
+    // mıydım
+    qPast_S.add(qA1sg_ST, "m");
+    // mıymışım
+    qNarr_S.add(qA1sg_ST, "Im");
+
+    qPast_S.add(qA2sg_ST, "n");
+    qNarr_S.add(qA2sg_ST, "sIn");
+
+    qPast_S.add(qA1pl_ST, "k");
+    qNarr_S.add(qA1pl_ST, "Iz");
+    qPresent_S.add(qA1pl_ST, "+yIz");
+
+    qPast_S.add(qA2pl_ST, "InIz");
+    qNarr_S.add(qA2pl_ST, "sInIz");
+    qPresent_S.add(qA2pl_ST, "sInIz");
+
+    qPast_S.add(qA3pl_ST, "lAr");
+    qNarr_S.add(qA3pl_ST, "lAr");
+
+    qPast_S.addEmpty(qA3sg_ST);
+    qNarr_S.addEmpty(qA3sg_ST);
+  }
+
+  //--------------------------------------------------------
+
   Map<String, MorphemeState> itemRootStateMap = new HashMap<>();
 
   void mapSpecialItemsToRootStates() {
@@ -1695,7 +1747,6 @@ public class TurkishMorphotactics {
     itemRootStateMap.put("akarsu_Noun", nounSuRoot_S);
   }
 
-  //--------------------------------------------------------
 
   public MorphemeState getRootState(
       DictionaryItem dictionaryItem,
@@ -1742,6 +1793,8 @@ public class TurkishMorphotactics {
         return advRoot_ST;
       case Conjunction:
         return conjRoot_ST;
+      case Question:
+        return questionRoot_S;
       case Verb:
         return verbRoot_S;
       case Punctuation:

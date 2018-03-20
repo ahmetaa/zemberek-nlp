@@ -55,9 +55,16 @@ public class _MorphologicalAmbiguityResolverExperiment {
         pw.println();
       }
     }
+
+    // saving failed words.
+    String s = p.toFile().getName() + "-failed.txt";
+    failedWords.saveSortedByKeys(Paths.get("../data/" + s), " ",
+        Turkish.STRING_COMPARATOR_ASC );
   }
 
   Map<String, List<AnalysisResult>> cache = new HashMap<>();
+
+  static Histogram<String> failedWords = new Histogram<>(100000);
 
   private List<SingleAnalysisSentence> collect(Path p) throws IOException {
     List<String> sentences = getSentences(p);
@@ -69,7 +76,6 @@ public class _MorphologicalAmbiguityResolverExperiment {
 
     List<SingleAnalysisSentence> result = new ArrayList<>();
 
-    Histogram<String> failedWords = new Histogram<>(100000);
     for (String sentence : sentences) {
 
       List<Single> singleAnalysisWords = new ArrayList<>();
@@ -78,7 +84,9 @@ public class _MorphologicalAmbiguityResolverExperiment {
       int i = 0;
       for (Token token : tokens) {
         tokenCount++;
-        String word = token.getText().toLowerCase(Turkish.LOCALE);
+        String word = token.getText()
+            .toLowerCase(Turkish.LOCALE)
+            .replaceAll("[']","");
 
         List<AnalysisResult> results;
         if (cache.containsKey(word)) {
@@ -87,8 +95,12 @@ public class _MorphologicalAmbiguityResolverExperiment {
           results = analyzer.analyze(word);
           cache.put(word, results);
         }
+        if (results.size() == 0) {
+          failedWords.add(word);
+        }
         if (results.size() != 1) {
           failed = true;
+          break;
         } else {
           singleAnalysisWords.add(new Single(word, i, results.get(0)));
           i++;
@@ -111,7 +123,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
     String sentence;
     List<Single> tokens = new ArrayList<>();
 
-    public SingleAnalysisSentence(String sentence,
+    SingleAnalysisSentence(String sentence,
         List<Single> tokens) {
       this.sentence = sentence;
       this.tokens = tokens;
