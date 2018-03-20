@@ -32,14 +32,13 @@ public class _MorphologicalAmbiguityResolverExperiment {
   Map<String, List<AnalysisResult>> cache = new HashMap<>();
   Histogram<String> failedWords = new Histogram<>(100000);
 
-
   public _MorphologicalAmbiguityResolverExperiment() throws IOException {
     identifier = LanguageIdentifier.fromInternalModelGroup("tr_group");
   }
 
   public static void main(String[] args) throws IOException {
-    //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
-    Path p = Paths.get("/media/aaa/Data/corpora/final/www.kizlarsoruyor.com");
+    Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
+    //Path p = Paths.get("/media/aaa/Data/corpora/final/www.kizlarsoruyor.com");
     Path outRoot = Paths.get("/home/aaa/projects/zemberek-nlp/data/ambiguity");
     Files.createDirectories(outRoot);
 
