@@ -37,6 +37,7 @@ public class TurkishMorphotactics {
   public static final Morpheme pron = new Morpheme("Pronoun", "Pron", PrimaryPos.Pronoun);
   public static final Morpheme adv = new Morpheme("Adverb", "Adv", PrimaryPos.Adverb);
   public static final Morpheme conj = new Morpheme("Conjunction", "Conj", PrimaryPos.Conjunction);
+  public static final Morpheme punc = new Morpheme("Punctuation", "Punc", PrimaryPos.Punctuation);
 
   // Number-Person agreement.
 
@@ -211,6 +212,8 @@ public class TurkishMorphotactics {
 
   // root of the graph.
   MorphemeState root_S = nonTerminal("root_S", root);
+
+  MorphemeState puncRoot_ST =  builder("puncRoot_ST", punc).terminal().posRoot().build();
 
   //-------------- Noun States ------------------------
 
@@ -1720,6 +1723,8 @@ public class TurkishMorphotactics {
         return conjRoot_ST;
       case Verb:
         return verbRoot_S;
+      case Punctuation:
+        return puncRoot_ST;
       default:
         return noun_S;
 
