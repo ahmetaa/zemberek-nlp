@@ -181,6 +181,8 @@ remove some proper nouns that causes ambiguity and false positives. `Li, Hayir` 
 
 we need to make "bizim" same as oflazer. Or, solve bizimki etc.
 
+OFlazer does not use suffix for `gel-im, gid-im`. Includes them in the dictionary. Should we?
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

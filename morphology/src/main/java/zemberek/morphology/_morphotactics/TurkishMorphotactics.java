@@ -295,6 +295,7 @@ public class TurkishMorphotactics {
     connectVerbAfterPronoun();
     connectVerbs();
     connectQuestion();
+    connectAdverbs();
   }
 
   /**
@@ -1175,7 +1176,7 @@ public class TurkishMorphotactics {
         .add(pIns_ST, "+ylA", hepsiCnd);
 
     // TODO: add bu,şu etc.
-    pNom_ST.add(with_S, "+nlI", Conditions.rootIsAny(ben, sen, o, biz, siz ));
+    pNom_ST.add(with_S, "+nlI", Conditions.rootIsAny(ben, sen, o, biz, siz));
     pNom_ST.add(with_S, "lI", Conditions.rootIsAny(nere));
     pNom_ST.add(with_S, "+ylI", Conditions.rootIsAny(ne));
     pNom_ST.add(without_S, "+nsIz", Conditions.rootIsAny(nere, ben, sen, o, biz, siz));
@@ -1279,8 +1280,23 @@ public class TurkishMorphotactics {
   // ------------- Adverb, Interjection and Conjunctions -----------------
 
   MorphemeState advRoot_ST = builder("advRoot_ST", adv).posRoot().terminal().build();
+  MorphemeState advNounRoot_ST = builder("advRoot_ST", adv).posRoot().terminal().build();
+  MorphemeState avNounAfterAdvRoot_ST = builder("advToNounRoot_ST", noun).posRoot().build();
+  MorphemeState avZero_S = nonTerminalDerivative("avZero_S", zero);
+  MorphemeState avA3sg_S = nonTerminal("avA3sg_S", a3sg);
+  MorphemeState avPnon_S = nonTerminal("avPnon_S", pnon);
+  MorphemeState avDat_ST = terminal("avDat_ST", dat);
+
   MorphemeState conjRoot_ST = builder("conjRoot_ST", conj).posRoot().terminal().build();
   MorphemeState interjRoot_ST = builder("interjRoot_ST", interj).posRoot().terminal().build();
+
+  private void connectAdverbs() {
+    advNounRoot_ST.addEmpty(avZero_S);
+    avZero_S.addEmpty(avNounAfterAdvRoot_ST);
+    avNounAfterAdvRoot_ST.addEmpty(avA3sg_S);
+    avA3sg_S.addEmpty(avPnon_S);
+    avPnon_S.add(avDat_ST, "+yA");
+  }
 
   // ------------- Verbs -----------------------------------
 
@@ -1867,7 +1883,7 @@ public class TurkishMorphotactics {
     vAsLongAs_S.addEmpty(advRoot_ST);
     vWithoutHavingDoneSo_S.addEmpty(advRoot_ST);
     vWhile_S.addEmpty(advRoot_ST);
-    vWhen_S.addEmpty(advRoot_ST);
+    vWhen_S.addEmpty(advNounRoot_ST);
   }
 
   MorphemeState qPresent_S = nonTerminal("qPresent_S", pres);
