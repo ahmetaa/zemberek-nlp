@@ -273,6 +273,7 @@ public class NounsTest extends AnalyzerTestBase {
     t = getTester("kitap");
 
     t.expectAny("kitapça", matchesTailLex("Noun + A3sg + Pnon + Equ"));
+    t.expectAny("kitaplarınca", matchesTailLex("Noun + A3pl + P3pl + Equ"));
     t.expectSingle("kitabımca", matchesTailLex("Noun + A3sg + P1sg + Equ"));
 
     t = getTester(

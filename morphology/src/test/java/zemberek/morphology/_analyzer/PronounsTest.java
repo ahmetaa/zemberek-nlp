@@ -447,6 +447,8 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("kimlere", matchesTailLex("Pron + A3pl + Pnon + Dat"));
     tester.expectSingle("kimimiz", matchesTailLex("Pron + A3sg + P1pl + Nom"));
     tester.expectSingle("kimimize", matchesTailLex("Pron + A3sg + P1pl + Dat"));
+    tester.expectSingle("kimsiniz",
+        matchesTailLex("Pron + A3sg + Pnon + Nom + Zero + Verb + Pres + A2pl"));
 
     tester.expectAny("kimim", matchesTailLex("Pron + A3sg + P1sg + Nom"));
     tester.expectAny("kimler", matchesTailLex("Pron + A3pl + Pnon + Nom"));
@@ -484,6 +486,7 @@ public class PronounsTest extends AnalyzerTestBase {
 
     tester.expectAny("nereler", matchesTailLex("Pron + A3pl + Pnon + Nom"));
     tester.expectAny("nereyi", matchesTailLex("Pron + A3sg + Pnon + Acc"));
+    tester.expectAny("nereli", matchesTailLex("Pron + A3sg + Pnon + Nom + With + Adj"));
   }
 
   @Test
