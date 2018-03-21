@@ -1350,7 +1350,7 @@ public class TurkishMorphotactics {
         .add(vA3sg_ST, "sIn")     // okusun
         .add(vA2pl_ST, "+yIn")    // okuyun
         .add(vA2pl_ST, "+yInIz")  // okuyunuz
-        .add(vA2pl_ST, "+sAnIzA") // okuyunuz
+        .add(vA2pl_ST, "sAnIzA") // okuyunuz
         .add(vA3pl_ST, "sInlAr"); // okusunlar
 
     // Causative suffixes

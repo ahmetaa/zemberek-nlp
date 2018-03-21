@@ -110,6 +110,7 @@ public enum RootAttribute implements StringEnum {
 
   // This is used for marking words that requires special handling. The operations on those words
   // are usually requires coding. Such as vebs "demek, yemek" and pronouns "ben, sen".
+  // TODO: This is not required in new analyzer.
   Special,
 
   // No suffix can be appended to this.

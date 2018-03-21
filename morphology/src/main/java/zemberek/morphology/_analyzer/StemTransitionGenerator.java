@@ -6,13 +6,14 @@ import static zemberek.core.turkish.RootAttribute.Doubling;
 import static zemberek.core.turkish.RootAttribute.InverseHarmony;
 import static zemberek.core.turkish.RootAttribute.LastVowelDrop;
 import static zemberek.core.turkish.RootAttribute.ProgressiveVowelDrop;
-import static zemberek.core.turkish.RootAttribute.Special;
 import static zemberek.core.turkish.RootAttribute.Voicing;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
@@ -42,7 +43,6 @@ public class StemTransitionGenerator {
       ProgressiveVowelDrop,
       InverseHarmony,
       Voicing,
-      Special,
       CompoundP3sg,
       CompoundP3sgRoot
   );
@@ -59,6 +59,9 @@ public class StemTransitionGenerator {
    * @return one or more StemTransition objects.
    */
   public List<StemTransition> generate(DictionaryItem item) {
+    if (specialRoots.contains(item.id)) {
+      return handleSpecialRoots(item);
+    }
     if (hasModifierAttribute(item)) {
       return generateModifiedRootNodes(item);
     } else {
@@ -92,10 +95,6 @@ public class StemTransitionGenerator {
   }
 
   private List<StemTransition> generateModifiedRootNodes(DictionaryItem dicItem) {
-
-    if (dicItem.hasAttribute(RootAttribute.Special)) {
-      return handleSpecialRoots(dicItem);
-    }
 
     TurkishLetterSequence modifiedSeq = new TurkishLetterSequence(dicItem.pronunciation, alphabet);
     AttributeSet<PhoneticAttribute> originalAttrs = calculateAttributes(dicItem.pronunciation);
@@ -177,6 +176,13 @@ public class StemTransitionGenerator {
     return Lists.newArrayList(original, modified);
   }
 
+  Set<String> specialRoots = Sets.newHashSet(
+      "içeri_Noun", "içeri_Adj", "dışarı_Adj",
+      "dışarı_Noun", "dışarı_Postp", "yukarı_Noun", "yukarı_Adj",
+      "ben_Pron_Pers", "sen_Pron_Pers", "demek_Verb", "yemek_Verb",
+      "birbiri_Pron_Quant", "çoğu_Pron_Quant", "öbürü_Pron_Quant", "birçoğu_Pron_Quant"
+  );
+
   private List<StemTransition> handleSpecialRoots(DictionaryItem item) {
 
     String id = item.getId();
@@ -185,12 +191,15 @@ public class StemTransitionGenerator {
     MorphemeState unmodifiedRootState = morphotactics.getRootState(item, originalAttrs);
 
     switch (id) {
-
       case "içeri_Noun":
+      case "içeri_Adj":
+      case "dışarı_Adj":
       case "dışarı_Noun":
+      case "dışarı_Postp":
       case "yukarı_Noun":
+      case "yukarı_Adj":
         original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
-        String m = item.root.substring(0, item.root.length()-1);
+        String m = item.root.substring(0, item.root.length() - 1);
         modified = new StemTransition(m, item, calculateAttributes(m), unmodifiedRootState);
         modified.getPhoneticAttributes().add(PhoneticAttribute.ExpectsConsonant);
         modified.getPhoneticAttributes().add(PhoneticAttribute.CannotTerminate);
