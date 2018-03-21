@@ -585,10 +585,13 @@ public class TurkishMorphotactics {
     DictionaryItem gun = lexicon.getItemById("gün_Noun_Time");
     DictionaryItem bugun = lexicon.getItemById("bugün_Noun_Time");
     DictionaryItem ileri = lexicon.getItemById("ileri_Noun");
-    DictionaryItem geri = lexicon.getItemById("ileri_Noun");
+    DictionaryItem geri = lexicon.getItemById("geri_Noun");
+    DictionaryItem ote = lexicon.getItemById("öte_Noun");
+    DictionaryItem beri = lexicon.getItemById("beri_Noun");
+
     Condition time2 = Conditions.rootIsAny(dun, gun, bugun);
     nom_ST.add(rel_S, "ki", time.andNot(time2));
-    nom_ST.add(rel_S, "ki", Conditions.rootIsAny(ileri, geri));
+    nom_ST.add(rel_S, "ki", Conditions.rootIsAny(ileri, geri, ote, beri));
     nom_ST.add(rel_S, "kü", time2.and(time));
 
     // After Genitive suffix, Rel suffix makes a Pronoun derivation.
