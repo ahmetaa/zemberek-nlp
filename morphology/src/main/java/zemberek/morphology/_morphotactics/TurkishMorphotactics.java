@@ -453,7 +453,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "ndAn") // evinden
         .add(ins_ST, "ylA")  // eviyle
         .add(gen_ST, "nIn")  // evinin
-        .add(equ_ST, "cA", equCond)   // evince
+        .add(equ_ST, "ncA", equCond)   // evince
         .add(acc_ST, "nI");  // evini
 
     p1pl_S
@@ -483,7 +483,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "ndAn")  // evlerinden
         .add(ins_ST, "ylA")   // evleriyle
         .add(gen_ST, "nIn")   // evlerinin
-        .add(equ_ST, "ncA", equCond)   // evlerinin
+        .add(equ_ST, "+ncA", equCond)   // evlerince
         .add(acc_ST, "nI");   // evlerini
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains any non empty surface suffix.
