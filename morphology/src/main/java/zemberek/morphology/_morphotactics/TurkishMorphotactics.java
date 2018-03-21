@@ -18,6 +18,7 @@ import java.util.Map;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
+import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology._morphotactics.Conditions.ContainsMorpheme;
 import zemberek.morphology._morphotactics.Conditions.CurrentGroupContainsAny;
 import zemberek.morphology._morphotactics.Conditions.HasTailSequence;
@@ -572,8 +573,19 @@ public class TurkishMorphotactics {
 
     // meyve-de-ki
     Condition notRelRepetition = new HasTailSequence(rel, adj, zero, noun, a3sg, pnon, loc).not();
-    loc_ST.add(rel_S, "ki", notRelRepetition);
+    loc_ST.add(rel_S, "ki",
+        notRelRepetition.andNot(new Conditions.SecondaryRootIs(SecondaryPos.Time)));
     rel_S.addEmpty(adj_ST);
+
+    // for covering dünkü, anki, yarınki etc.
+    Condition time = Conditions.CURRENT_GROUP_EMPTY.and(
+        new Conditions.SecondaryRootIs(SecondaryPos.Time));
+    DictionaryItem dun = lexicon.getItemById("dün_Noun_Time");
+    DictionaryItem gun = lexicon.getItemById("gün_Noun_Time");
+    DictionaryItem bugun = lexicon.getItemById("bugün_Noun_Time");
+    Condition time2 = Conditions.rootIsAny(dun, gun, bugun);
+    nom_ST.add(rel_S, "ki", time.andNot(time2));
+    nom_ST.add(rel_S, "kü", time2.and(time));
 
     // After Genitive suffix, Rel suffix makes a Pronoun derivation.
     gen_ST.add(relToPron_S, "ki");

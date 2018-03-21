@@ -5069,8 +5069,8 @@ dair [P:Postp,PCDat]
 daire
 dairevi [P:Adj]
 dakik [P:Adj]
-dakika [P:Adv, Time]
-dakika [P:Noun, Time]
+dakika [P:Adv]
+dakika [P:Noun]
 dakikasında [P:Adv]
 daktilo
 daktilograf
@@ -20403,8 +20403,8 @@ salıvermek
 salim [P:Adj]
 salimen [P:Adv]
 salip
-salise [P:Adv, Time]
-salise [P:Noun, Time]
+salise [P:Adv]
+salise [P:Noun]
 salisen [P:Adv]
 salisilât [A:NoVoicing]
 salisilik [P:Adj]
@@ -20477,8 +20477,8 @@ sanı
 sanık
 sanidin
 sanitasyon
-saniye [P:Adv, Time]
-saniye [P:Noun, Time]
+saniye [P:Adv]
+saniye [P:Noun]
 sanki [P:Adv]
 sanmak [A:Aorist_I]
 sanrı
