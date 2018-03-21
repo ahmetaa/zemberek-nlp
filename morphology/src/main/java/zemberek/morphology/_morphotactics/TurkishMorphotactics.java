@@ -578,13 +578,17 @@ public class TurkishMorphotactics {
     rel_S.addEmpty(adj_ST);
 
     // for covering dünkü, anki, yarınki etc.
+    // TODO: Use a more general grouping, not using Secondary Pos
     Condition time = Conditions.CURRENT_GROUP_EMPTY.and(
         new Conditions.SecondaryRootIs(SecondaryPos.Time));
     DictionaryItem dun = lexicon.getItemById("dün_Noun_Time");
     DictionaryItem gun = lexicon.getItemById("gün_Noun_Time");
     DictionaryItem bugun = lexicon.getItemById("bugün_Noun_Time");
+    DictionaryItem ileri = lexicon.getItemById("ileri_Noun");
+    DictionaryItem geri = lexicon.getItemById("ileri_Noun");
     Condition time2 = Conditions.rootIsAny(dun, gun, bugun);
     nom_ST.add(rel_S, "ki", time.andNot(time2));
+    nom_ST.add(rel_S, "ki", Conditions.rootIsAny(ileri, geri));
     nom_ST.add(rel_S, "kü", time2.and(time));
 
     // After Genitive suffix, Rel suffix makes a Pronoun derivation.
