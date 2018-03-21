@@ -18,6 +18,7 @@ import java.util.Map;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
+import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology._morphotactics.Conditions.ContainsMorpheme;
 import zemberek.morphology._morphotactics.Conditions.CurrentGroupContainsAny;
 import zemberek.morphology._morphotactics.Conditions.HasTailSequence;
@@ -292,9 +293,10 @@ public class TurkishMorphotactics {
     connectAdjectiveStates();
     connectVerbAfterNounAdjStates();
     connectPronounStates();
-    connectVerbAfterPronun();
+    connectVerbAfterPronoun();
     connectVerbs();
     connectQuestion();
+    connectAdverbs();
   }
 
   /**
@@ -433,7 +435,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "dAn")  // evimden
         .add(ins_ST, "lA")   // evimle
         .add(gen_ST, "In")   // evimin
-        .add(equ_ST, "cA", equCond)   // evimce
+        .add(equ_ST, "cA", equCond.or(new Conditions.ContainsMorpheme(pastPart)))   // evimce
         .add(acc_ST, "I");   // evimi
 
     p2sg_S
@@ -443,7 +445,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "dAn")  // evinden
         .add(ins_ST, "lA")   // evinle
         .add(gen_ST, "In")   // evinin
-        .add(equ_ST, "cA", equCond)   // evince
+        .add(equ_ST, "cA", equCond.or(new Conditions.ContainsMorpheme(pastPart)))   // evince
         .add(acc_ST, "I");   // evini
 
     p3sg_S
@@ -453,7 +455,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "ndAn") // evinden
         .add(ins_ST, "ylA")  // eviyle
         .add(gen_ST, "nIn")  // evinin
-        .add(equ_ST, "cA", equCond)   // evince
+        .add(equ_ST, "ncA", equCond.or(new Conditions.ContainsMorpheme(pastPart)))// evince
         .add(acc_ST, "nI");  // evini
 
     p1pl_S
@@ -463,7 +465,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "dAn")  // evimizden
         .add(ins_ST, "lA")   // evimizden
         .add(gen_ST, "In")   // evimizin
-        .add(equ_ST, "cA", equCond)   // evimizce
+        .add(equ_ST, "cA", equCond.or(new Conditions.ContainsMorpheme(pastPart)))   // evimizce
         .add(acc_ST, "I");   // evimizi
 
     p2pl_S
@@ -473,7 +475,7 @@ public class TurkishMorphotactics {
         .add(abl_ST, "dAn")  // evinizden
         .add(ins_ST, "lA")   // evinizle
         .add(gen_ST, "In")   // evinizin
-        .add(equ_ST, "cA", equCond)   // evinizce
+        .add(equ_ST, "cA", equCond.or(new Conditions.ContainsMorpheme(pastPart)))  // evinizce
         .add(acc_ST, "I");   // evinizi
 
     p3pl_S
@@ -483,7 +485,8 @@ public class TurkishMorphotactics {
         .add(abl_ST, "ndAn")  // evlerinden
         .add(ins_ST, "ylA")   // evleriyle
         .add(gen_ST, "nIn")   // evlerinin
-        .add(equ_ST, "ncA", equCond)   // evlerinin
+        // For now we omit equCond check because adj+..+A3pl+..+Equ fails.
+        .add(equ_ST, "+ncA")   // evlerince.
         .add(acc_ST, "nI");   // evlerini
 
     // ev-ε-ε-ε-cik (evcik). Disallow this path if visitor contains any non empty surface suffix.
@@ -570,8 +573,19 @@ public class TurkishMorphotactics {
 
     // meyve-de-ki
     Condition notRelRepetition = new HasTailSequence(rel, adj, zero, noun, a3sg, pnon, loc).not();
-    loc_ST.add(rel_S, "ki", notRelRepetition);
+    loc_ST.add(rel_S, "ki",
+        notRelRepetition.andNot(new Conditions.SecondaryRootIs(SecondaryPos.Time)));
     rel_S.addEmpty(adj_ST);
+
+    // for covering dünkü, anki, yarınki etc.
+    Condition time = Conditions.CURRENT_GROUP_EMPTY.and(
+        new Conditions.SecondaryRootIs(SecondaryPos.Time));
+    DictionaryItem dun = lexicon.getItemById("dün_Noun_Time");
+    DictionaryItem gun = lexicon.getItemById("gün_Noun_Time");
+    DictionaryItem bugun = lexicon.getItemById("bugün_Noun_Time");
+    Condition time2 = Conditions.rootIsAny(dun, gun, bugun);
+    nom_ST.add(rel_S, "ki", time.andNot(time2));
+    nom_ST.add(rel_S, "kü", time2.and(time));
 
     // After Genitive suffix, Rel suffix makes a Pronoun derivation.
     gen_ST.add(relToPron_S, "ki");
@@ -932,13 +946,13 @@ public class TurkishMorphotactics {
     pA1sg_S.addEmpty(pPnon_S);
     pA1sg_S.add(pP1sg_S, "im", rootIs(ben));
     pA2sg_S.addEmpty(pPnon_S);
-    pA2sg_S.add(pP1sg_S, "in", rootIs(sen));
+    pA2sg_S.add(pP2sg_S, "in", rootIs(sen));
     pA3sg_S.addEmpty(pPnon_S);
     pA3sg_S.add(pP3sg_S, "nun", rootIs(o));
     pA1pl_S.addEmpty(pPnon_S);
     pA1pl_S.add(pP1pl_S, "im", rootIs(biz));
     pA2pl_S.addEmpty(pPnon_S);
-    pA1pl_S.add(pP1pl_S, "in", rootIs(siz));
+    pA1pl_S.add(pP2pl_S, "in", rootIs(siz));
     pA3pl_S.addEmpty(pPnon_S);
     pA3pl_S.add(pP3pl_S, "ın", rootIs(o));
     //------------ Noun -> Rel -> Pron ---------------------------
@@ -1033,6 +1047,7 @@ public class TurkishMorphotactics {
     // `kim` (kim_Pron_Ques), `ne` and `nere`
     DictionaryItem ne = lexicon.getItemById("ne_Pron_Ques");
     DictionaryItem nere = lexicon.getItemById("nere_Pron_Ques");
+    DictionaryItem kim = lexicon.getItemById("nere_Pron_Ques");
 
     pronQues_S.addEmpty(pQuesA3sg_S);
     pronQues_S.add(pQuesA3pl_S, "lAr");
@@ -1090,45 +1105,66 @@ public class TurkishMorphotactics {
         .add(pIns_ST, "+nlA", nGroup)
         .add(pIns_ST, "inle", rootIs(siz));
 
-    pP1sg_S.addEmpty(pNom_ST)
+    Condition conditionpP1sg_S = Conditions.rootIsAny(kim, ben, ne, nere);
+
+    pP1sg_S
+        .addEmpty(pNom_ST)
         .add(pDat_ST, "+nA", nGroup)
         .add(pAcc_ST, "+nI", nGroup)
         .add(pDat_ST, "+yA", yGroup)
-        .add(pAcc_ST, "+yI", yGroup);
+        .add(pAcc_ST, "+yI", yGroup)
+        .add(pIns_ST, "lA", conditionpP1sg_S)
+        .add(pAbl_ST, "+ndAn", conditionpP1sg_S)
+        .add(pGen_ST, "+nIn", conditionpP1sg_S);
 
-    pP1sg_S
-        .add(pIns_ST, "lA", rootIs(ben));
-
-    // copy from pP1sg_S
-    pP2sg_S.copyOutgoingTransitionsFrom(pP1sg_S);
+    Condition conditionP2sg = Conditions.rootIsAny(kim, sen, ne, nere);
     pP2sg_S
-        .add(pIns_ST, "lA", rootIs(sen));
-
-    pP3sg_S.copyOutgoingTransitionsFrom(pP1sg_S);
+        .addEmpty(pNom_ST)
+        .add(pDat_ST, "+nA", nGroup)
+        .add(pAcc_ST, "+nI", nGroup)
+        .add(pDat_ST, "+yA", yGroup)
+        .add(pAcc_ST, "+yI", yGroup)
+        .add(pIns_ST, "lA", conditionP2sg)
+        .add(pAbl_ST, "+ndAn", conditionP2sg)
+        .add(pGen_ST, "+nIn", conditionP2sg);
 
     Condition p3sgCond = Conditions.rootIsAny(
-        o, biri, birbiri, herbiri, hep, kimi, hicbiri);
+        kim, ne, nere, o, biri, birbiri, herbiri, hep, kimi, hicbiri);
 
     pP3sg_S
+        .addEmpty(pNom_ST)
+        .add(pDat_ST, "+nA", nGroup)
+        .add(pAcc_ST, "+nI", nGroup)
+        .add(pDat_ST, "+yA", yGroup)
+        .add(pAcc_ST, "+yI", yGroup)
         .add(pLoc_ST, "+ndA", p3sgCond)
         .add(pAbl_ST, "+ndAn", p3sgCond)
         .add(pGen_ST, "+nIn", p3sgCond)
         .add(pEqu_ST, "ncA", p3sgCond)
         .add(pIns_ST, "+ylA", p3sgCond);
 
-    pP1pl_S.copyOutgoingTransitionsFrom(pP1sg_S);
-
     Condition hepCnd = Conditions.rootIsAny(
-        biz, siz, biri, birbiri, birkaci, herbiri, hep, kimi, cogu, bircogu, tumu, topu, hicbiri);
+        kim, ne, nere, biz, siz, biri, birbiri, birkaci, herbiri, hep, kimi, cogu, bircogu, tumu,
+        topu,
+        hicbiri);
     pP1pl_S
+        .addEmpty(pNom_ST)
+        .add(pDat_ST, "+nA", nGroup)
+        .add(pAcc_ST, "+nI", nGroup)
+        .add(pDat_ST, "+yA", yGroup)
+        .add(pAcc_ST, "+yI", yGroup)
         .add(pLoc_ST, "+ndA", hepCnd)
         .add(pAbl_ST, "+ndAn", hepCnd)
         .add(pGen_ST, "+nIn", hepCnd)
         .add(pEqu_ST, "+ncA", hepCnd)
         .add(pIns_ST, "+nlA", hepCnd);
 
-    pP2pl_S.copyOutgoingTransitionsFrom(pP1sg_S);
     pP2pl_S
+        .addEmpty(pNom_ST)
+        .add(pDat_ST, "+nA", nGroup)
+        .add(pAcc_ST, "+nI", nGroup)
+        .add(pDat_ST, "+yA", yGroup)
+        .add(pAcc_ST, "+yI", yGroup)
         .add(pLoc_ST, "+ndA", hepCnd)
         .add(pAbl_ST, "+ndAn", hepCnd)
         .add(pGen_ST, "+nIn", hepCnd)
@@ -1136,14 +1172,29 @@ public class TurkishMorphotactics {
         .add(pIns_ST, "+nlA", hepCnd);
 
     Condition hepsiCnd = Conditions.rootIsAny(
-        o, biri, herkes, umum, birkaci, hepsi, cumlesi, cogu, bircogu, birbiri, tumu, topu);
+        kim, ne, nere, o, biri, herkes, umum, birkaci, hepsi, cumlesi, cogu, bircogu, birbiri, tumu,
+        topu);
 
-    pP3pl_S.copyOutgoingTransitionsFrom(pP1sg_S);
-    pP3pl_S.add(pLoc_ST, "+ndA", hepsiCnd)
+    pP3pl_S
+        .addEmpty(pNom_ST)
+        .add(pDat_ST, "+nA", nGroup)
+        .add(pAcc_ST, "+nI", nGroup)
+        .add(pDat_ST, "+yA", yGroup)
+        .add(pAcc_ST, "+yI", yGroup)
+        .add(pLoc_ST, "+ndA", hepsiCnd)
         .add(pAbl_ST, "+ndAn", hepsiCnd)
-        .add(pGen_ST, "+nIn", hepsiCnd)
+        .add(pGen_ST, "+nIn", hepsiCnd.or(Conditions.rootIsAny(sen, siz)))
         .add(pEqu_ST, "+ncA", hepsiCnd)
         .add(pIns_ST, "+ylA", hepsiCnd);
+
+    // TODO: add bu,şu etc.
+    pNom_ST.add(with_S, "+nlI", Conditions.rootIsAny(ben, sen, o, biz, siz));
+    pNom_ST.add(with_S, "lI", Conditions.rootIsAny(nere));
+    pNom_ST.add(with_S, "+ylI", Conditions.rootIsAny(ne));
+    pNom_ST.add(without_S, "+nsIz", Conditions.rootIsAny(nere, ben, sen, o, biz, siz));
+    pNom_ST.add(without_S, "+ysIz", Conditions.rootIsAny(ne));
+    pGen_ST.add(rel_S, "ki", Conditions.rootIsAny(nere, ne, sen, o, biz, siz));
+    pIns_ST.add(vWhile_S, "+yken");
 
     //------------- Derivation connections ---------
 
@@ -1174,7 +1225,7 @@ public class TurkishMorphotactics {
 
   MorphemeState pvVerbRoot_S = builder("pvVerbRoot_S", verb).posRoot().build();
 
-  private void connectVerbAfterPronun() {
+  private void connectVerbAfterPronoun() {
 
     pvVerbRoot_S.addEmpty(pvPresent_S);
 
@@ -1194,7 +1245,8 @@ public class TurkishMorphotactics {
     // We do not allow ending with A3sg from empty Present tense.
     pvPresent_S.addEmpty(nA3sg_S);
     pvPresent_S.add(pvA1pl_ST, "+yIz", allowA1plTrans);
-    pvPresent_S.add(pvA2pl_ST, "+sInIz");
+    pvPresent_S.add(pvA2pl_ST, "sInIz");
+    pvPresent_S.add(pvA3pl_ST, "lAr", new Conditions.PreviousGroupContains(pLoc_ST));
 
     pvPast_S.add(pvA1sg_ST, "m", allowA1sgTrans);
     pvPast_S.add(pvA2sg_ST, "n", allowA2sgTrans);
@@ -1206,7 +1258,7 @@ public class TurkishMorphotactics {
     pvNarr_S.add(pvA1sg_ST, "Im", allowA1sgTrans);
     pvNarr_S.add(pvA2sg_ST, "sIn", allowA2sgTrans);
     pvNarr_S.add(pvA1pl_ST, "Iz", allowA1plTrans);
-    pvNarr_S.add(pvA2pl_ST, "+sInIz");
+    pvNarr_S.add(pvA2pl_ST, "sInIz");
     pvNarr_S.add(pvA3pl_ST, "lAr");
     pvNarr_S.addEmpty(pvA3sg_ST);
     // narr+cons is allowed but not past+cond
@@ -1240,8 +1292,23 @@ public class TurkishMorphotactics {
   // ------------- Adverb, Interjection and Conjunctions -----------------
 
   MorphemeState advRoot_ST = builder("advRoot_ST", adv).posRoot().terminal().build();
+  MorphemeState advNounRoot_ST = builder("advRoot_ST", adv).posRoot().terminal().build();
+  MorphemeState avNounAfterAdvRoot_ST = builder("advToNounRoot_ST", noun).posRoot().build();
+  MorphemeState avZero_S = nonTerminalDerivative("avZero_S", zero);
+  MorphemeState avA3sg_S = nonTerminal("avA3sg_S", a3sg);
+  MorphemeState avPnon_S = nonTerminal("avPnon_S", pnon);
+  MorphemeState avDat_ST = terminal("avDat_ST", dat);
+
   MorphemeState conjRoot_ST = builder("conjRoot_ST", conj).posRoot().terminal().build();
   MorphemeState interjRoot_ST = builder("interjRoot_ST", interj).posRoot().terminal().build();
+
+  private void connectAdverbs() {
+    advNounRoot_ST.addEmpty(avZero_S);
+    avZero_S.addEmpty(avNounAfterAdvRoot_ST);
+    avNounAfterAdvRoot_ST.addEmpty(avA3sg_S);
+    avA3sg_S.addEmpty(avPnon_S);
+    avPnon_S.add(avDat_ST, "+yA");
+  }
 
   // ------------- Verbs -----------------------------------
 
@@ -1350,7 +1417,7 @@ public class TurkishMorphotactics {
         .add(vA3sg_ST, "sIn")     // okusun
         .add(vA2pl_ST, "+yIn")    // okuyun
         .add(vA2pl_ST, "+yInIz")  // okuyunuz
-        .add(vA2pl_ST, "+sAnIzA") // okuyunuz
+        .add(vA2pl_ST, "sAnIzA") // okuyunuz
         .add(vA3pl_ST, "sInlAr"); // okusunlar
 
     // Causative suffixes
@@ -1717,6 +1784,7 @@ public class TurkishMorphotactics {
         .add(vAsLongAs_S, "dikçe")
         .add(vWithoutHavingDoneSo_S, "meden")
         .add(vWithoutHavingDoneSo_S, "meksizin")
+        .add(vNeces_S, "meli")
         .add(vNotState_S, "mezli~k")
         .add(vNotState_S, "mezli!ğ")
         .addEmpty(vImp_S, deYeCondition);
@@ -1827,7 +1895,7 @@ public class TurkishMorphotactics {
     vAsLongAs_S.addEmpty(advRoot_ST);
     vWithoutHavingDoneSo_S.addEmpty(advRoot_ST);
     vWhile_S.addEmpty(advRoot_ST);
-    vWhen_S.addEmpty(advRoot_ST);
+    vWhen_S.addEmpty(advNounRoot_ST);
   }
 
   MorphemeState qPresent_S = nonTerminal("qPresent_S", pres);

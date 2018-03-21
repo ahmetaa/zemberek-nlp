@@ -12,9 +12,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.collections.Histogram;
+import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.langid.LanguageIdentifier;
@@ -37,7 +39,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
   }
 
   public static void main(String[] args) throws IOException {
-    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
+    Path p = Paths.get("/media/aaa/Data/corpora/final/radikal");
     Path outRoot = Paths.get("data/ambiguity");
     Files.createDirectories(outRoot);
 
@@ -85,6 +87,8 @@ public class _MorphologicalAmbiguityResolverExperiment {
     failedWords.saveSortedByCounts(outRoot.resolve(s + "-failed.freq.txt"), " ");
   }
 
+  Pattern ignore = Pattern.compile("[0-9.\\-]+");
+
   private List<SingleAnalysisSentence> collect(Path p, int maxAnalysisCount) throws IOException {
     List<String> sentences = getSentences(p);
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
@@ -102,7 +106,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
         continue;
       }
 */
-
+      sentence = sentence.replaceAll("\\s+|\\u00a0", " ");
       List<Single> singleAnalysisWords = new ArrayList<>();
       List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
       boolean failed = false;
@@ -113,6 +117,9 @@ public class _MorphologicalAmbiguityResolverExperiment {
         String word = rawWord
             .toLowerCase(Turkish.LOCALE)
             .replaceAll("[']", "");
+        if (word.equals(" bir")) {
+          System.out.println();
+        }
 
         List<AnalysisResult> results;
         if (cache.containsKey(word)) {
@@ -122,9 +129,11 @@ public class _MorphologicalAmbiguityResolverExperiment {
           cache.put(word, results);
         }
         if (results.size() == 0) {
-          failedWords.add(word);
+          if (Strings.containsNone(word, "0123456789-.")) {
+            failedWords.add(word);
+          }
         }
-        if (results.size() < 1 || results.size() > 3) {
+        if (results.size() < 1 || results.size() > maxAnalysisCount) {
           failed = true;
           break;
         } else {

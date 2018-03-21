@@ -179,6 +179,11 @@ some typos appear AorPart+...+Loc such as "darılmazda" should be "darılmaz da"
 
 remove some proper nouns that causes ambiguity and false positives. `Li, Hayir` etc.
 
+we need to make "bizim" same as oflazer. Or, solve bizimki etc.
+
+OFlazer does not use suffix for `gel-im, gid-im`. Includes them in the dictionary. Should we?
+
+Should we accept "akşamdaki", "andaki", "yıldaki"
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

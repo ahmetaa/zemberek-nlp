@@ -10,4 +10,13 @@ public class AdverbsTest extends AnalyzerTestBase {
     tester.expectSingle("işte", matchesTailLex("Adv"));
   }
 
+  @Test
+  public void advTest2() {
+    AnalysisTester tester = getTester("olmak");
+    tester.expectSingle("olunca",
+        matchesTailLex("Verb + When + Adv"));
+    tester.expectSingle("oluncaya",
+        matchesTailLex("Verb + When + Adv + Zero + Noun + A3sg + Pnon + Dat"));
+  }
+
 }

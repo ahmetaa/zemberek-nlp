@@ -12,6 +12,7 @@ import java.util.Set;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
+import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology._analyzer.MorphemeSurfaceForm;
 import zemberek.morphology._analyzer.SearchPath;
 import zemberek.morphology.lexicon.DictionaryItem;
@@ -233,6 +234,26 @@ class Conditions {
       return "RootPrimaryPosIs{" + pos + '}';
     }
   }
+
+  public static class SecondaryRootIs extends AbstractCondition {
+
+    SecondaryPos pos;
+
+    public SecondaryRootIs(SecondaryPos pos) {
+      this.pos = pos;
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      return visitor.getDictionaryItem().secondaryPos == pos;
+    }
+
+    @Override
+    public String toString() {
+      return "SecondaryRootIs{" + pos + '}';
+    }
+  }
+
 
   private static class DictionaryItemIsAny extends AbstractCondition {
 

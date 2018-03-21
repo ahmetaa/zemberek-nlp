@@ -120,7 +120,7 @@ public class StemNodeGenerator {
 
   private StemNode[] generateModifiedRootNodes(DictionaryItem dicItem) {
 
-    if (dicItem.hasAttribute(RootAttribute.Special)) {
+    if (dicItem.hasAttribute(Special)) {
       return handleSpecialStems(dicItem);
     }
 
