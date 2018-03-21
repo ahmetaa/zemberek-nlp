@@ -89,7 +89,7 @@ public class CoverageTest {
             if (results.size() == 0) {
               failed.add(s);
             } else {
-              passed.add(s);
+              //passed.add(s);
             }
           }
           return new Result(failed, passed, batch.size());

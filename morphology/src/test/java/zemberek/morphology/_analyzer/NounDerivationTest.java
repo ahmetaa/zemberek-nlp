@@ -104,6 +104,13 @@ public class NounDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Noun + A3sg + Pnon + Nom + Rel + Adj"));
     tester.expectSingle("akşamkiydi",
         matchesTailLex("Noun + A3sg + Pnon + Nom + Rel + Adj + Zero + Verb + Past + A3sg"));
+
+    tester = getTester("ileri");
+    tester.expectSingle("ileriki",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Rel + Adj"));
+    tester.expectSingle("ilerikiydi",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Rel + Adj + Zero + Verb + Past + A3sg"));
+
     tester.expectFail(
         "dünki",
         "akşamkü",
