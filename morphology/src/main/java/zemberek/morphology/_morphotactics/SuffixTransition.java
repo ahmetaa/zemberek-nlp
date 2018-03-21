@@ -21,15 +21,15 @@ public class SuffixTransition extends MorphemeTransition {
 
   private List<SuffixTemplateToken> tokenList;
 
-  private IntMap<String> surfaceCache = new IntMap<>();
+  private AttributeToSurfaceCache surfaceCache;
 
-  public synchronized void addToSurfaceCache(
+  public void addToSurfaceCache(
       AttributeSet<PhoneticAttribute> attributes, String value) {
-    surfaceCache.put(attributes.getBits(), value);
+    surfaceCache.addSurface(attributes.getBits(), value);
   }
 
-  public synchronized String getFromSurfaceCache(AttributeSet<PhoneticAttribute> attributes) {
-    return surfaceCache.get(attributes.getBits());
+  public String getFromSurfaceCache(AttributeSet<PhoneticAttribute> attributes) {
+    return surfaceCache.getSurface(attributes.getBits());
   }
 
   private SuffixTransition(Builder builder) {
@@ -43,6 +43,7 @@ public class SuffixTransition extends MorphemeTransition {
     this.tokenList = Lists
         .newArrayList(new SuffixTemplateTokenizer(this.surfaceTemplate));
     this.conditionCount = countConditions();
+    this.surfaceCache = new AttributeToSurfaceCache();
   }
 
   private int countConditions() {
@@ -66,6 +67,7 @@ public class SuffixTransition extends MorphemeTransition {
     st.to = to;
     st.condition = condition;
     st.tokenList = new ArrayList<>(tokenList);
+    st.surfaceCache = this.surfaceCache;
     return st;
   }
 
