@@ -81,7 +81,9 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("arıyor", matchesTailLex("Verb + Prog1 + A3sg"));
 
     t.expectFail(
-        "arayorum"
+        "arayorum",
+        "ar",
+        "ardım"
     );
 
     t = getTester("yürümek");
@@ -104,7 +106,9 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("yazmıyor", matchesTailLex("Verb + Neg + Prog1 + A3sg"));
 
     t.expectFail(
-        "yazmayorum"
+        "yazmayorum",
+        "yazm",
+        "yazmz"
     );
 
     t = getTester("aramak");

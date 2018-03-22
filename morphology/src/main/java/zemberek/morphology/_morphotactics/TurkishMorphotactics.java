@@ -653,6 +653,7 @@ public class TurkishMorphotactics {
 
   }
 
+  //-------- Morphotactics for modified forms of words like "içeri->içerde"
   public MorphemeState nounLastVowelDropRoot_S =
       builder("nounLastVowelDropRoot_S", noun).posRoot().build();
   public MorphemeState adjLastVowelDropRoot_S =
@@ -800,23 +801,25 @@ public class TurkishMorphotactics {
     ContainsMorpheme verbDeriv = new ContainsMorpheme(inf1, inf2, inf3, pastPart, futPart);
     Condition allowA1sgTrans =
         noFamily
-            .andNot(new Conditions.PreviousGroupContains(p1sg_S))
+            .andNot(new Conditions.ContainsMorphemeSequence(p1sg, nom))
             .andNot(verbDeriv);
     Condition allowA2sgTrans =
         noFamily
-            .andNot(new Conditions.PreviousGroupContains(p2sg_S))
+            .andNot(new Conditions.ContainsMorphemeSequence(p2sg, nom))
             .andNot(verbDeriv);
     Condition allowA3plTrans =
         noFamily
-            .andNot(new Conditions.PreviousGroupContains(a3pl_S, p3pl_S, a3plCompound_S))
+            .andNot(new Conditions.PreviousGroupContains(a3pl_S))
+            .andNot(new Conditions.ContainsMorphemeSequence(p3pl, nom))
             .andNot(verbDeriv);
     Condition allowA2plTrans =
         noFamily
-            .andNot(new Conditions.PreviousGroupContains(p2pl_S))
+            .andNot(new Conditions.ContainsMorphemeSequence(p2pl, nom))
             .andNot(verbDeriv);
     Condition allowA1plTrans =
         noFamily
-            .andNot(new Conditions.PreviousGroupContains(p1pl_S, p1sg_S))
+            .andNot(new Conditions.ContainsMorphemeSequence(p1sg, nom))
+            .andNot(new Conditions.ContainsMorphemeSequence(p1pl, nom))
             .andNot(verbDeriv);
     // elma-yım
     nPresent_S.add(nA1sg_ST, "+yIm", allowA1sgTrans);
