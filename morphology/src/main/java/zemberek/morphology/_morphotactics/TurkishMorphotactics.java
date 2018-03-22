@@ -1996,7 +1996,7 @@ public class TurkishMorphotactics {
 
     // Verbs like "aramak" drops their last vowel when  connected to "Iyor" Progressive suffix.
     // those modified roots are connected to a separate root state called verbRoot_Prog_S.
-    if (phoneticAttributes.contains(PhoneticAttribute.LastVowelDropped)) {
+    if (phoneticAttributes.contains(PhoneticAttribute.LastLetterDropped)) {
       return verbRoot_Prog_S;
     }
 

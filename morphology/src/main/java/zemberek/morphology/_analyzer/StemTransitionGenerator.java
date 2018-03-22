@@ -151,7 +151,7 @@ public class StemTransitionGenerator {
           if (modifiedSeq.hasVowel()) {
             modifiedAttrs = calculateAttributes(modifiedSeq);
           }
-          modifiedAttrs.add(PhoneticAttribute.LastVowelDropped);
+          modifiedAttrs.add(PhoneticAttribute.LastLetterDropped);
           break;
         default:
           break;
@@ -177,7 +177,7 @@ public class StemTransitionGenerator {
   }
 
   Set<String> specialRoots = Sets.newHashSet(
-      "içeri_Noun", "içeri_Adj", "dışarı_Adj",
+      "içeri_Noun", "içeri_Adj", "dışarı_Adj","şura_Noun","bura_Noun","ora_Noun",
       "dışarı_Noun", "dışarı_Postp", "yukarı_Noun", "yukarı_Adj",
       "ben_Pron_Pers", "sen_Pron_Pers", "demek_Verb", "yemek_Verb",
       "birbiri_Pron_Quant", "çoğu_Pron_Quant", "öbürü_Pron_Quant", "birçoğu_Pron_Quant"
@@ -198,6 +198,9 @@ public class StemTransitionGenerator {
       case "dışarı_Postp":
       case "yukarı_Noun":
       case "yukarı_Adj":
+      case "şura_Noun":
+      case "bura_Noun":
+      case "ora_Noun":
         original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
         String m = item.root.substring(0, item.root.length() - 1);
         modified = new StemTransition(m, item, calculateAttributes(m), unmodifiedRootState);

@@ -68,6 +68,16 @@ public class NounsTest extends AnalyzerTestBase {
     t.expectAny("içerlerde", matchesTailLex("Noun + A3pl + Pnon + Loc"));
 
     t.expectFail( "içer");
+    t.expectFail( "içerdim");
+
+    t = getTester("bura");
+    t.expectAny("burada", matchesTailLex("Noun + A3sg + Pnon + Loc"));
+    t.expectAny("burda", matchesTailLex("Noun + A3sg + Pnon + Loc"));
+    t.expectAny("burlarda", matchesTailLex("Noun + A3pl + Pnon + Loc"));
+    t.expectAny("burdan", matchesTailLex("Noun + A3sg + Pnon + Abl"));
+
+    t.expectFail( "burd");
+    t.expectFail( "burdum");
   }
 
 

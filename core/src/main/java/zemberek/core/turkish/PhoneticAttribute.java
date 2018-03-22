@@ -46,7 +46,7 @@ public enum PhoneticAttribute implements StringEnum {
   UnModifiedPronoun("UMP"), //ben,sen -> ben, sen form.
 
   // for verbs that and with a vowel and to connect `iyor` progressive tense suffix.
-  LastVowelDropped("LWD"),
+  LastLetterDropped("LWD"),
   CannotTerminate("CNT");
 
   private final static StringEnumMap<PhoneticAttribute> shortFormToPosMap = StringEnumMap
