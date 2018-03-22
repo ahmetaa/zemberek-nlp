@@ -332,6 +332,11 @@ public class TurkishMorphotactics {
     nom_S.add(acquire_S, "lAn");
     // for "zeytinyağlı"
     nom_S.add(with_S, "lI", new ContainsMorpheme(with, without).not());
+    // for "zeytinyağsız"
+    nom_S.add(without_S, "sIz", new ContainsMorpheme(with, without).not());
+    // for "zeytinyağlık"
+    nom_S.add(ness_S, "lI~k", new ContainsMorpheme(ness));
+    nom_S.add(ness_S, "lI!ğ", new ContainsMorpheme(ness));
 
     // for compound roots like "zeytinyağ-lar-ı" generate two transition
     // NounCompound--(lAr)--> a3plCompound ---> p3sg_S, P1sg etc.
