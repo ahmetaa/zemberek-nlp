@@ -41,6 +41,9 @@ public class TurkishMorphotactics {
   public static final Morpheme conj = new Morpheme("Conjunction", "Conj", PrimaryPos.Conjunction);
   public static final Morpheme punc = new Morpheme("Punctuation", "Punc", PrimaryPos.Punctuation);
   public static final Morpheme ques = new Morpheme("Question", "Ques", PrimaryPos.Question);
+  public static final Morpheme postp = new Morpheme("PostPositive", "Postp",
+      PrimaryPos.PostPositive);
+  public static final Morpheme det = new Morpheme("Determiner", "Det", PrimaryPos.Determiner);
   public static final Morpheme interj = new Morpheme("Interjection", "Interj",
       PrimaryPos.Interjection);
 
@@ -298,6 +301,7 @@ public class TurkishMorphotactics {
     connectVerbs();
     connectQuestion();
     connectAdverbs();
+    connectLastVowelDropWords();
   }
 
   /**
@@ -647,6 +651,30 @@ public class TurkishMorphotactics {
     a3plActOf_S.addEmpty(pnonActOf);
     pnonActOf.addEmpty(nom_ST);
 
+  }
+
+  public MorphemeState nounLastVowelDropRoot_S =
+      builder("nounLastVowelDropRoot_S", noun).posRoot().build();
+  public MorphemeState adjLastVowelDropRoot_S =
+      builder("adjLastVowelDropRoot_S", adj).posRoot().build();
+  public MorphemeState postpLastVowelDropRoot_S =
+      builder("postpLastVowelDropRoot_S", postp).posRoot().build();
+  MorphemeState a3PlLastVowelDrop_S = nonTerminal("a3PlLastVowelDrop_S", a3pl);
+  MorphemeState a3sgLastVowelDrop_S = nonTerminal("a3sgLastVowelDrop_S", a3sg);
+  MorphemeState pNonLastVowelDrop_S = nonTerminal("pNonLastVowelDrop_S", pnon);
+  MorphemeState zeroLastVowelDrop_S = nonTerminal("zeroLastVowelDrop_S", zero);
+
+  private void connectLastVowelDropWords() {
+    nounLastVowelDropRoot_S.addEmpty(a3sgLastVowelDrop_S);
+    nounLastVowelDropRoot_S.add(a3PlLastVowelDrop_S, "lAr");
+    a3sgLastVowelDrop_S.addEmpty(pNonLastVowelDrop_S);
+    a3PlLastVowelDrop_S.addEmpty(pNonLastVowelDrop_S);
+    pNonLastVowelDrop_S.add(loc_ST, ">dA");
+    pNonLastVowelDrop_S.add(abl_ST, ">dAn");
+
+    adjLastVowelDropRoot_S.addEmpty(zeroLastVowelDrop_S);
+    postpLastVowelDropRoot_S.addEmpty(zeroLastVowelDrop_S);
+    zeroLastVowelDrop_S.addEmpty(nounLastVowelDropRoot_S);
   }
 
   //-------------- Adjective States ------------------------

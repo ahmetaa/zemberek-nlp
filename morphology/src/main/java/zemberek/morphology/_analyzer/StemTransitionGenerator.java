@@ -202,8 +202,22 @@ public class StemTransitionGenerator {
       case "bura_Noun":
       case "ora_Noun":
         original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
+
+        MorphemeState rootForModified;
+        switch (item.primaryPos) {
+          case Noun:
+            rootForModified = morphotactics.nounLastVowelDropRoot_S;
+            break;
+          case Adjective:
+            rootForModified = morphotactics.adjLastVowelDropRoot_S;
+            break;
+          case PostPositive:
+            rootForModified = morphotactics.adjLastVowelDropRoot_S;
+            break;
+          default: throw new IllegalStateException("No root morpheme state found for " + item);
+        }
         String m = item.root.substring(0, item.root.length() - 1);
-        modified = new StemTransition(m, item, calculateAttributes(m), unmodifiedRootState);
+        modified = new StemTransition(m, item, calculateAttributes(m), rootForModified);
         modified.getPhoneticAttributes().add(PhoneticAttribute.ExpectsConsonant);
         modified.getPhoneticAttributes().add(PhoneticAttribute.CannotTerminate);
         return Lists.newArrayList(original, modified);
