@@ -11,6 +11,15 @@ public class NounDerivationTest extends AnalyzerTestBase {
     AnalysisTester tester = getTester("meyve");
     tester.expectSingle("meyveli",
         matchesTailLex("Pnon + Nom + With + Adj"));
+
+    tester = getTester(
+        "zeytin",
+        "yağ",
+        "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
+
+    tester.expectAny("zeytinyağlı",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + With + Adj"));
+
   }
 
   @Test
@@ -28,6 +37,14 @@ public class NounDerivationTest extends AnalyzerTestBase {
         "meyvesizli",
         "meyvelisiz"
     );
+
+    tester = getTester(
+        "zeytin",
+        "yağ",
+        "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
+
+    tester.expectAny("zeytinyağsız",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Without + Adj"));
   }
 
   @Test
@@ -43,6 +60,18 @@ public class NounDerivationTest extends AnalyzerTestBase {
     tester = getTester("kitap");
     tester.expectSingle("kitabımsı",
         matchesTailLex("Pnon + Nom + JustLike + Adj"));
+
+    tester = getTester(
+        "zeytin",
+        "yağ",
+        "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
+
+    tester.expectAny("zeytinyağımsı",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + JustLike + Adj"));
+    tester.expectAny("zeytinyağsı",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + JustLike + Adj"));
+
+
   }
 
   // check for
@@ -90,6 +119,14 @@ public class NounDerivationTest extends AnalyzerTestBase {
         "meyvedekideki",
         "meyvemki"
     );
+
+    tester = getTester(
+        "zeytin",
+        "yağ",
+        "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
+
+    tester.expectAny("zeytinyağındaki",
+        matchesTailLex("Noun + A3sg + Pnon + Loc + Rel + Adj"));
   }
 
   @Test
@@ -120,14 +157,28 @@ public class NounDerivationTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void noun2Noun_1() {
-    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
-    String in = "kitapçık";
-    List<AnalysisResult> results = analyzer.analyze(in);
-    printAndSort(in, results);
-    Assert.assertEquals(1, results.size());
-    AnalysisResult first = results.get(0);
-    Assert.assertTrue(containsMorpheme(first, "Dim"));
+  public void dim1() {
+
+    AnalysisTester tester = getTester("kitap");
+    tester.expectSingle("kitapçık",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Dim + Noun + A3sg + Pnon + Nom"));
+    tester.expectSingle("kitapçıkta",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Dim + Noun + A3sg + Pnon + Loc"));
+    tester.expectSingle("kitapçığa",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Dim + Noun + A3sg + Pnon + Dat"));
+
+    tester.expectFail(
+        "kitaplarcık", "kitapçıklarcık", "kitapçığ", "kitapcık", "kitabımcık",
+        "kitaptacık", "kitapçıkçık", "kitabcığ", "kitabçığ", "kitabçık", "kitapçığ"
+    );
+
+    tester = getTester(
+        "zeytin",
+        "yağ",
+        "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
+
+    tester.expectAny("zeytinyağcık",
+        matchesTailLex("Noun + A3sg + Pnon + Nom + Dim + Noun + A3sg + Pnon + Nom"));
   }
 
 

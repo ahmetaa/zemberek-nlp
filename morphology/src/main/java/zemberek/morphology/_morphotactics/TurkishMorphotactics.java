@@ -1,6 +1,7 @@
 package zemberek.morphology._morphotactics;
 
 import static zemberek.morphology._morphotactics.Conditions.has;
+import static zemberek.morphology._morphotactics.Conditions.not;
 import static zemberek.morphology._morphotactics.Conditions.notHave;
 import static zemberek.morphology._morphotactics.Conditions.previousStateIs;
 import static zemberek.morphology._morphotactics.Conditions.previousStateIsNot;
@@ -327,6 +328,7 @@ public class TurkishMorphotactics {
     a3sgCompound_S.addEmpty(pnonCompound_S);
     a3sgCompound_S.add(p3pl_S, "lArI");
 
+    // ---- For compund derivations ------------
     pnonCompound_S.addEmpty(nom_S);
     nom_S.add(become_S, "lAş");
     nom_S.add(acquire_S, "lAn");
@@ -335,8 +337,14 @@ public class TurkishMorphotactics {
     // for "zeytinyağsız"
     nom_S.add(without_S, "sIz", new ContainsMorpheme(with, without).not());
     // for "zeytinyağlık"
-    nom_S.add(ness_S, "lI~k", new ContainsMorpheme(ness));
-    nom_S.add(ness_S, "lI!ğ", new ContainsMorpheme(ness));
+    nom_S.add(ness_S, "lI~k", not(new ContainsMorpheme(ness)));
+    nom_S.add(ness_S, "lI!ğ", not(new ContainsMorpheme(ness)));
+    nom_S.add(agt_S, ">cI", not(new ContainsMorpheme(agt)));
+    nom_S.add(justLike_S, "+msI", not(new ContainsMorpheme(justLike)));
+    nom_S.add(dim_S, ">cI~k",
+        Conditions.HAS_NO_SURFACE.andNot(new ContainsMorpheme(dim)));
+    nom_S.add(dim_S, ">cI!ğ",
+        Conditions.HAS_NO_SURFACE.andNot(new ContainsMorpheme(dim)));
 
     // for compound roots like "zeytinyağ-lar-ı" generate two transition
     // NounCompound--(lAr)--> a3plCompound ---> p3sg_S, P1sg etc.
