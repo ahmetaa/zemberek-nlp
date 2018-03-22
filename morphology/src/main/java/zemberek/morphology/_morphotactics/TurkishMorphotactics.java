@@ -339,12 +339,17 @@ public class TurkishMorphotactics {
     // for "zeytinyağlık"
     nom_S.add(ness_S, "lI~k", not(new ContainsMorpheme(ness)));
     nom_S.add(ness_S, "lI!ğ", not(new ContainsMorpheme(ness)));
+    // for "zeytinyağcı"
     nom_S.add(agt_S, ">cI", not(new ContainsMorpheme(agt)));
+    // for "zeytinyağsı"
     nom_S.add(justLike_S, "+msI", not(new ContainsMorpheme(justLike)));
+    // for "zeytinyağcık"
     nom_S.add(dim_S, ">cI~k",
         Conditions.HAS_NO_SURFACE.andNot(new ContainsMorpheme(dim)));
     nom_S.add(dim_S, ">cI!ğ",
         Conditions.HAS_NO_SURFACE.andNot(new ContainsMorpheme(dim)));
+    // "zeytinyağcağız"
+    nom_S.add(dim_S, "cAğIz", Conditions.HAS_NO_SURFACE);
 
     // for compound roots like "zeytinyağ-lar-ı" generate two transition
     // NounCompound--(lAr)--> a3plCompound ---> p3sg_S, P1sg etc.
