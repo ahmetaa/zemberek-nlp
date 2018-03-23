@@ -302,6 +302,7 @@ public class TurkishMorphotactics {
     connectQuestion();
     connectAdverbs();
     connectLastVowelDropWords();
+    connectPostpositives();
   }
 
   /**
@@ -2093,6 +2094,9 @@ public class TurkishMorphotactics {
         return puncRoot_ST;
       case Determiner:
         return detRoot_ST;
+      case PostPositive:
+        return postpRoot_ST;
+
       default:
         return noun_S;
 
