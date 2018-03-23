@@ -195,6 +195,13 @@ False analysis `olan` o:Adj + lan:Acquire + Verb + Imp + A2sg
 her->noun root is incorrect.
 diğer:Noun incorrect
 
+bu: Noun incorrect, add Det
+
+her:  Noun incorrect? add Det
+
+size: Noun incorrect
+
+masada -> prefer masa
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.
