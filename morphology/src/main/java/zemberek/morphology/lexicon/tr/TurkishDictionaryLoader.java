@@ -437,7 +437,9 @@ public class TurkishDictionaryLoader {
     }
 
     private boolean isVerb(String word) {
-      return word.length() > 3 && (word.endsWith("mek") || word.endsWith("mak"));
+      return Character.isLowerCase(word.charAt(0))
+          && word.length() > 3
+          && (word.endsWith("mek") || word.endsWith("mak"));
     }
 
     private SecondaryPos inferSecondaryPos(String word) {

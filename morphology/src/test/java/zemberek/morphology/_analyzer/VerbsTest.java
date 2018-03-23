@@ -265,12 +265,16 @@ public class VerbsTest extends AnalyzerTestBase {
     t = getTester("okumak");
 
     t.expectSingle("okuyama", matchesTailLex("Verb + Able + Verb + Neg + Imp + A2sg"));
+    t.expectSingle("okuyamadım", matchesTailLex("Verb + Able + Verb + Neg + Past + A1sg"));
     t.expectAny("okutmayabilir",
         matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Aor + A3sg"));
     t.expectAny("okutamayabilir",
         matchesTailLex("Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Aor + A3sg"));
     t.expectAny("okuyamayabilir",
         matchesTailLex("Verb + Able + Verb + Neg + Able + Verb + Aor + A3sg"));
+
+    t = getTester("yakmak");
+    t.expectSingle("yakamadım", matchesTailLex("Verb + Able + Verb + Neg + Past + A1sg"));
   }
 
   @Test

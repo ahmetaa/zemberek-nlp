@@ -17,4 +17,9 @@ if Proper, prefer Pnon+Gen to P2sg+Nom (Ankara'nın)
 After Pnon+Gen, Prefer P3sg+Nom to Pnon+Acc (Ankara'nın nüfusu)
 if first, prefer Pnon + Acc to P3sg + Nom ("Saati dinle.")
 if last word, prefer Neg + Imp to Inf2 ("oradan gitme")
-
+adli prefer Adj
+prefer ler:A3pl + Pnon + Nom to ...Zero + Verb + Pres + ler:A3pl
+if not last, prefer Adj to Interj
+prefer PastPart + Noun + A3sg + P2sg + Acc to PastPart + Noun + A3sg + P3sg + Acc
+prefer Noun + A3sg + Pnon + Ins to Verb + Inf2 + Noun + A3sg + P2sg + Ins
+if last, or followed by "Ques" word, prefer Verb + Aor + A3sg to Verb + AorPart + Adj
