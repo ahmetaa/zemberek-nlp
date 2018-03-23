@@ -1347,7 +1347,7 @@ public class TurkishMorphotactics {
 
   }
 
-  // ------------- Adverb, Interjection and Conjunctions -----------------
+  // ------------- Adverbs -----------------
 
   MorphemeState advRoot_ST = builder("advRoot_ST", adv).posRoot().terminal().build();
   MorphemeState advNounRoot_ST = builder("advRoot_ST", adv).posRoot().terminal().build();
@@ -1361,9 +1361,6 @@ public class TurkishMorphotactics {
   MorphemeState avPnon_S = nonTerminal("avPnon_S", pnon);
   MorphemeState avDat_ST = terminal("avDat_ST", dat);
 
-  MorphemeState conjRoot_ST = builder("conjRoot_ST", conj).posRoot().terminal().build();
-  MorphemeState interjRoot_ST = builder("interjRoot_ST", interj).posRoot().terminal().build();
-
   private void connectAdverbs() {
     advNounRoot_ST.addEmpty(avZero_S);
     avZero_S.addEmpty(avNounAfterAdvRoot_ST);
@@ -1373,6 +1370,22 @@ public class TurkishMorphotactics {
 
     advForVerbDeriv_ST.addEmpty(avZeroToVerb_S);
     avZeroToVerb_S.addEmpty(nVerb_S);
+  }
+
+  // ------------- Interjection, Conjunctions and Post Positive  -----------------
+
+  MorphemeState conjRoot_ST = builder("conjRoot_ST", conj).posRoot().terminal().build();
+  MorphemeState interjRoot_ST = builder("interjRoot_ST", interj).posRoot().terminal().build();
+  MorphemeState detRoot_ST = builder("interjRoot_ST", det).posRoot().terminal().build();
+
+  // ------------- Post Positive ------------------------------------------------
+
+  MorphemeState postpRoot_ST = builder("postpRoot_ST", postp).posRoot().terminal().build();
+  MorphemeState postpZero_S = nonTerminalDerivative("avZero_S", zero);
+
+  private void connectPostpositives() {
+    postpRoot_ST.addEmpty(postpZero_S);
+    postpZero_S.addEmpty(nVerb_S);
   }
 
   // ------------- Verbs -----------------------------------
@@ -2078,6 +2091,8 @@ public class TurkishMorphotactics {
         return verbRoot_S;
       case Punctuation:
         return puncRoot_ST;
+      case Determiner:
+        return detRoot_ST;
       default:
         return noun_S;
 
