@@ -39,11 +39,12 @@ public class _MorphologicalAmbiguityResolverExperiment {
   }
 
   public static void main(String[] args) throws IOException {
-    Path p = Paths.get("/media/aaa/Data/corpora/final/radikal");
+    Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
     Path outRoot = Paths.get("data/ambiguity");
     Files.createDirectories(outRoot);
 
-    new _MorphologicalAmbiguityResolverExperiment().extracData(p, outRoot, 1, -1);
+    new _MorphologicalAmbiguityResolverExperiment()
+        .extracData(p, outRoot, 2, 10000);
   }
 
   public void extracData(Path p, Path outRoot, int maxAnalysisCount, int resultLimit)

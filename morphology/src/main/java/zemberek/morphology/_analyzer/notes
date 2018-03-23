@@ -184,6 +184,17 @@ we need to make "bizim" same as oflazer. Or, solve bizimki etc.
 OFlazer does not use suffix for `gel-im, gid-im`. Includes them in the dictionary. Should we?
 
 Should we accept "akşamdaki", "andaki", "yıldaki"
+
+Some adverbs can derive to verbs such as:
+şöyleydi şöyleyim
+Some can derive but only for some suffixes
+tesadüfendi, tesadüfenmiş, tesadüfendir
+
+False analysis `olan` o:Adj + lan:Acquire + Verb + Imp + A2sg
+
+her->noun root is incorrect.
+diğer:Noun incorrect
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

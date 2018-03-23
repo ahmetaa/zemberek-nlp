@@ -1,0 +1,20 @@
+taban: prefer Noun
+etti:  Prefer Verb
+yardım:  Prefer Verb
+hırsız: Prefer Long
+kapı: first word, prefer Noun (Not Prop)
+contains ['] prefer Noun-Prop
+Not first, and starts capital, prefer Noun-Prop
+if  ma:Inf2 +...+ ya:Dat VS Neg+Opt, prefer first.
+her prefer Adj
+bu - Adj if a noun follows. Prop if Verb follows.
+ben - prefer Pron
+ama - prefer Conj
+oldukça - prefer Adv root
+if last, prefer Narr to NarrPart
+if last, Prefer Neg to Inf2
+if Proper, prefer Pnon+Gen to P2sg+Nom (Ankara'nın)
+After Pnon+Gen, Prefer P3sg+Nom to Pnon+Acc (Ankara'nın nüfusu)
+if first, prefer Pnon + Acc to P3sg + Nom ("Saati dinle.")
+if last word, prefer Neg + Imp to Inf2 ("oradan gitme")
+

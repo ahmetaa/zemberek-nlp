@@ -1351,8 +1351,12 @@ public class TurkishMorphotactics {
 
   MorphemeState advRoot_ST = builder("advRoot_ST", adv).posRoot().terminal().build();
   MorphemeState advNounRoot_ST = builder("advRoot_ST", adv).posRoot().terminal().build();
+  MorphemeState advForVerbDeriv_ST =
+      builder("advForVerbDeriv_ST", adv).posRoot().terminal().build();
+
   MorphemeState avNounAfterAdvRoot_ST = builder("advToNounRoot_ST", noun).posRoot().build();
   MorphemeState avZero_S = nonTerminalDerivative("avZero_S", zero);
+  MorphemeState avZeroToVerb_S = nonTerminalDerivative("avZeroToVerb_S", zero);
   MorphemeState avA3sg_S = nonTerminal("avA3sg_S", a3sg);
   MorphemeState avPnon_S = nonTerminal("avPnon_S", pnon);
   MorphemeState avDat_ST = terminal("avDat_ST", dat);
@@ -1366,6 +1370,9 @@ public class TurkishMorphotactics {
     avNounAfterAdvRoot_ST.addEmpty(avA3sg_S);
     avA3sg_S.addEmpty(avPnon_S);
     avPnon_S.add(avDat_ST, "+yA");
+
+    advForVerbDeriv_ST.addEmpty(avZeroToVerb_S);
+    avZeroToVerb_S.addEmpty(nVerb_S);
   }
 
   // ------------- Verbs -----------------------------------
@@ -2013,8 +2020,10 @@ public class TurkishMorphotactics {
     itemRootStateMap.put("değil_Verb", nVerbDegil_S);
     itemRootStateMap.put("su_Noun", nounSuRoot_S);
     itemRootStateMap.put("akarsu_Noun", nounSuRoot_S);
+    itemRootStateMap.put("öyle_Adv", advForVerbDeriv_ST);
+    itemRootStateMap.put("böyle_Adv", advForVerbDeriv_ST);
+    itemRootStateMap.put("şöyle_Adv", advForVerbDeriv_ST);
   }
-
 
   public MorphemeState getRootState(
       DictionaryItem dictionaryItem,

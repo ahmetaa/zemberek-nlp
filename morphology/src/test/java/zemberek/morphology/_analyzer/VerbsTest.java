@@ -53,6 +53,9 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("gidiyorsun", matchesTailLex("Verb + Prog1 + A2sg"));
     t.expectSingle("gidiyor", matchesTailLex("Verb + Prog1 + A3sg"));
 
+    t = getTester("bilmek [A:Aorist_I]");
+    t.expectSingle("biliyorsun", matchesTailLex("Verb + Prog1 + A2sg"));
+
     t.expectFail(
         "gitiyor",
         "gidyor"
