@@ -310,6 +310,7 @@ class CharacterGraphDecoder {
       if (charIndex != that.charIndex) {
         return false;
       }
+      // TODO: this should not be here.
       if (Float.compare(that.penalty, penalty) != 0) {
         return false;
       }
@@ -326,6 +327,7 @@ class CharacterGraphDecoder {
     public int hashCode() {
       int result = charIndex;
       result = 31 * result + node.hashCode();
+      // TODO: this should not be here.
       result = 31 * result + (penalty != +0.0f ? Float.floatToIntBits(penalty) : 0);
       result = 31 * result + (word != null ? word.hashCode() : 0);
       result = 31 * result + (ending != null ? ending.hashCode() : 0);

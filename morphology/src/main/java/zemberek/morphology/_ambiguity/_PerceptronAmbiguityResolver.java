@@ -1,4 +1,4 @@
-package zemberek.morphology.ambiguity;
+package zemberek.morphology._ambiguity;
 
 import static java.lang.String.format;
 
@@ -13,24 +13,19 @@ import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.IntValueMap;
-import zemberek.core.collections.UIntMap;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.SimpleTextWriter;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
+import zemberek.morphology.ambiguity.AbstractDisambiguator;
 
-/**
- * Based on "Haşim Sak, Tunga Güngör, and Murat Saraçlar. Morphological disambiguation of Turkish
- * text with perceptron algorithm. In CICLing 2007, volume LNCS 4394, pages 107-118, 2007" Original
- * Perl implementation is from <a href="http://www.cmpe.boun.edu.tr/~hasim">Haşim Sak</a>
- */
-public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator {
+public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
+
 
   Model weights = new Model();
   Model averagedWeights;
@@ -38,16 +33,16 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
 
   Random random = new Random(1);
 
-  public AveragedPerceptronMorphDisambiguator(File modelFile) throws IOException {
+  public _PerceptronAmbiguityResolver(File modelFile) throws IOException {
     this.averagedWeights = Model.loadFromTextFile(modelFile);
   }
 
-  private AveragedPerceptronMorphDisambiguator() {
+  private _PerceptronAmbiguityResolver() {
     this.averagedWeights = new Model(new FloatValueMap<>(10000));
   }
 
   static void train(File trainFile, File devFile, File modelFile) throws IOException {
-    AveragedPerceptronMorphDisambiguator disambiguator = new AveragedPerceptronMorphDisambiguator();
+    _PerceptronAmbiguityResolver disambiguator = new _PerceptronAmbiguityResolver();
     DataSet trainingSet = com.google.common.io.Files
         .readLines(trainFile, Charsets.UTF_8, new DataSetLoader());
     int numExamples = 0;
@@ -55,7 +50,7 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
       System.out.println("Iteration:" + i);
       for (SentenceData sentence : trainingSet) {
         numExamples++;
-        ParseResult result = disambiguator.bestParse(sentence, true);
+        ParseResult result = disambiguator._bestParse(sentence);
         if (sentence.correctParse.equals(result.bestParse)) {
           continue;
         }
@@ -80,8 +75,8 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
     Path model = Paths.get("/home/ahmetaa/Downloads/MD-Release/MD-Release/model");
     Path test = Paths.get("/home/ahmetaa/Downloads/MD-Release/MD-Release/data.test.txt");
     //Path test = Paths.get("/home/ahmetaa/Downloads/MD-Release/MD-Release/test.merge");
-    AveragedPerceptronMorphDisambiguator.train(train.toFile(), dev.toFile(), model.toFile());
-    new AveragedPerceptronMorphDisambiguator(model.toFile()).test(test.toFile());
+    _PerceptronAmbiguityResolver.train(train.toFile(), dev.toFile(), model.toFile());
+    new _PerceptronAmbiguityResolver(model.toFile()).test(test.toFile());
   }
 
   public void test(File testFile) throws IOException {
@@ -90,7 +85,7 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
     int hit = 0, total = 0;
     Stopwatch sw = Stopwatch.createStarted();
     for (SentenceData sentence : testSet.sentences) {
-      ParseResult result = bestParse(sentence, true);
+      ParseResult result = _bestParse(sentence);
       int i = 0;
       for (String best : result.bestParse) {
         if (sentence.correctParse.get(i).equals(best)) {
@@ -139,20 +134,19 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
     seq.add("</s>");
     IntValueMap<String> featureModel = new IntValueMap<>();
     for (int i = 2; i < seq.size(); i++) {
-      List<String> trigram = Lists.newArrayList(
+      String[] trigram = {
           seq.get(i - 2),
           seq.get(i - 1),
-          seq.get(i)
-      );
+          seq.get(i)};
       extractTrigramFeatures(trigram, featureModel);
     }
     return featureModel;
   }
 
-  void extractTrigramFeatures(List<String> trigram, IntValueMap<String> feats) {
-    WordParse w1 = new WordParse(trigram.get(0));
-    WordParse w2 = new WordParse(trigram.get(1));
-    WordParse w3 = new WordParse(trigram.get(2));
+  void extractTrigramFeatures(String[] trigram, IntValueMap<String> feats) {
+    WordParse w1 = new WordParse(trigram[0]);
+    WordParse w2 = new WordParse(trigram[1]);
+    WordParse w3 = new WordParse(trigram[2]);
     String r1 = w1.root;
     String r2 = w2.root;
     String r3 = w3.root;
@@ -183,9 +177,9 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
 
     for (String ig : ig3s) {
       feats.addOrIncrement(format("15:%s-%s-%s", ig1s[ig1s.length - 1], ig2s[ig2s.length - 1], ig));
-    //  feats.addOrIncrement(format("16:%s-%s", ig1s[ig1s.length - 1], ig));
+      //  feats.addOrIncrement(format("16:%s-%s", ig1s[ig1s.length - 1], ig));
       feats.addOrIncrement(format("17:%s-%s", ig2s[ig2s.length - 1], ig));
-    //  feats.addOrIncrement(format("18:%s", ig));
+      //  feats.addOrIncrement(format("18:%s", ig));
     }
 
     //for (int k = 0; k < ig3s.length - 1; k++) {
@@ -197,7 +191,7 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
     }
 
     if (Character.isUpperCase(r3.charAt(0)) && w3.igs.contains("Prop")) {
-       feats.addOrIncrement("21:PROPER");
+      feats.addOrIncrement("21:PROPER");
     }
 
     feats.addOrIncrement(format("22:%d", ig3s.length));
@@ -206,95 +200,100 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
     }
   }
 
+  static class Hypothesis {
+
+    String prev;
+    String current;
+    Hypothesis previous;
+    float score;
+
+    public Hypothesis(String prev, String current, Hypothesis previous, float score) {
+      this.prev = prev;
+      this.current = current;
+      this.previous = previous;
+      this.score = score;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      Hypothesis that = (Hypothesis) o;
+
+      if (!prev.equals(that.prev)) {
+        return false;
+      }
+      return current.equals(that.current);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = prev.hashCode();
+      result = 31 * result + current.hashCode();
+      return result;
+    }
+
+    @Override
+    public String toString() {
+      return "Hypothesis{" +
+          "prev='" + prev + '\'' +
+          ", current='" + current + '\'' +
+          ", score=" + score +
+          '}';
+    }
+  }
+
   /**
    * Calculates the best path using Viterbi decoding.
    *
    * @param sentence sentece with ambiguous wrods.
-   * @param useAveragedWeights if true, average weights are used for scoring, else, normal weights
-   * are used.
    * @return best parse sequence and its score.
    */
-  ParseResult bestParse(SentenceData sentence, boolean useAveragedWeights) {
+  ParseResult _bestParse(SentenceData sentence) {
 
     sentence.allWordAnalyses.add(WordData.SENTENCE_END);
-    IntValueMap<StateId> stateIds = new IntValueMap<>();
-    UIntMap<State> bestPath = new UIntMap<>();
 
-    // initial path and state
-    bestPath.put(0, new State(-1, 0, null));
-    stateIds.put(new StateId("<s>", "<s>"), 0);
+    Hypothesis initialHypothesis = new Hypothesis("<s>", "<s>", null, 0);
+    ActiveList currentList = new ActiveList();
+    currentList.add(initialHypothesis);
 
-    int bestStateNum = 0;
-    float bestScore = -100000;
-    int n = 0;
-    for (WordData word : sentence.allWordAnalyses) {
+    for (WordData wordAnalysis : sentence.allWordAnalyses) {
 
-      IntValueMap<StateId> nextStates = new IntValueMap<>();
-      // shuffle the parses for randomness.
-      List<String> allAnalyses = Lists.newArrayList(word.allParses);
-      //Collections.shuffle(allAnalyses, random);
-      bestScore = -100000;
+      ActiveList nextList = new ActiveList();
 
-      for (String analysis : allAnalyses) {
+      for (String analysis : wordAnalysis.allParses) {
 
-        for (StateId id : stateIds) {
-          int stateNum = stateIds.get(id);
-          State state = bestPath.get(stateNum);
-          List<String> trigram = Lists.newArrayList(
-              id.first,
-              id.second,
-              analysis
-          );
+        for (Hypothesis h : currentList) {
 
+          String[] trigram = {h.prev, h.current, analysis};
           IntValueMap<String> features = new IntValueMap<>();
           extractTrigramFeatures(trigram, features);
 
           float trigramScore = 0;
           for (String key : features) {
-            if (useAveragedWeights) {
-              trigramScore += averagedWeights.weight(key) * features.get(key);
-            } else {
-              trigramScore += weights.weight(key) * features.get(key);
-            }
+            trigramScore += (averagedWeights.weight(key) * features.get(key));
           }
 
-          float newScore = trigramScore + state.score;
-
-          StateId newStateId = new StateId(id.second, analysis);
-          if (!nextStates.contains(newStateId)) {
-            nextStates.put(newStateId, ++n);
-          }
-
-          // Viterbi path selection
-          int nextStateNum = nextStates.get(newStateId);
-
-          if (bestPath.containsKey(nextStateNum)) {
-            State s = bestPath.get(nextStateNum);
-            if (newScore > s.score) {
-              bestPath.put(nextStateNum, new State(stateNum, newScore, analysis));
-            }
-          } else {
-            bestPath.put(nextStateNum, new State(stateNum, newScore, analysis));
-          }
-
-          if (newScore > bestScore) {
-            bestScore = newScore;
-            bestStateNum = nextStateNum;
-          }
+          Hypothesis newHyp = new Hypothesis(h.current, analysis, h, h.score + trigramScore);
+          nextList.add(newHyp);
         }
       }
-      stateIds = nextStates;
+      currentList = nextList;
     }
 
-    LinkedList<String> best = Lists.newLinkedList();
-    int stateNum = bestStateNum;
-    while (stateNum > 0) {
-      State s = bestPath.get(stateNum);
-      best.addFirst(s.parse);
-      stateNum = s.previous;
+    Hypothesis best = currentList.getBest();
+    LinkedList<String> result = Lists.newLinkedList();
+    while (best.previous != null) {
+      result.addFirst(best.current);
+      best = best.previous;
     }
-    best.removeLast();
-    return new ParseResult(best, bestScore);
+    result.removeLast();
+    return new ParseResult(result, best.score);
   }
 
   static class Model implements Iterable<String> {
@@ -359,47 +358,155 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
     }
   }
 
-  //represents a state in Viterbi search.
-  class State {
 
-    int previous; // previous state index.
-    float score; // score
-    String parse;
+  static class ActiveList implements Iterable<Hypothesis> {
 
-    State(int previous, float score, String parse) {
-      this.previous = previous;
-      this.score = score;
-      this.parse = parse;
+    public static float DEFAULT_LOAD_FACTOR = 0.7f;
+
+    public static int DEFAULT_INITIAL_CAPACITY = 8;
+
+    private Hypothesis[] hypotheses;
+    private int capacity;
+
+    private int modulo;
+    private int size;
+    private int expandLimit;
+
+    ActiveList() {
+      this(DEFAULT_INITIAL_CAPACITY);
     }
-  }
 
-  // represents the ID of the state
-  class StateId {
+    ActiveList(int size) {
+      if (size < 1) {
+        throw new IllegalArgumentException("Size must be a positive value. But it is " + size);
+      }
+      int k = 1;
+      while (k < size) {
+        k <<= 1;
+      }
+      hypotheses = new Hypothesis[k];
+      expandLimit = (int) (k * DEFAULT_LOAD_FACTOR);
+      modulo = k - 1;
+    }
 
-    String first;
-    String second;
+    private int firstProbe(int hashCode) {
+      return hashCode & modulo;
+    }
 
-    StateId(String first, String second) {
-      this.first = first;
-      this.second = second;
+    private int nextProbe(int index) {
+      return index & modulo;
+    }
+
+    /**
+     * Finds either an empty slot location in Hypotheses array or the location of an equivalent Hypothesis.
+     * If an empty slot is found, it returns -(slot index)-1, if an equivalent Hypotheses is found, returns
+     * equal hypothesis's slot index.
+     */
+    private int locate(Hypothesis hyp) {
+      int slot = firstProbe(hyp.hashCode());
+      while (true) {
+        final Hypothesis h = hypotheses[slot];
+        if (h == null) {
+          return (-slot - 1);
+        }
+        if (h.equals(hyp)) {
+          return slot;
+        }
+        slot = nextProbe(slot + 1);
+      }
+    }
+
+    /**
+     * Adds a new hypothesis to the list.
+     **/
+    public void add(Hypothesis hypothesis) {
+
+      int slot = locate(hypothesis);
+
+      if (slot < 0) {
+        slot = -slot - 1;
+        hypotheses[slot] = hypothesis;
+        size++;
+      } else {
+        // Viterbi merge.
+        if (hypotheses[slot].score < hypothesis.score) {
+          hypotheses[slot] = hypothesis;
+        }
+      }
+      if (size == expandLimit) {
+        expand();
+      }
+    }
+
+    private void expand() {
+      ActiveList expandedList = new ActiveList(hypotheses.length * 2);
+      // put hypotheses to new list.
+      for (int i = 0; i < hypotheses.length; i++) {
+        Hypothesis hyp = hypotheses[i];
+        if (hyp == null) {
+          continue;
+        }
+        int slot = firstProbe(hyp.hashCode());
+        while (true) {
+          final Hypothesis h = expandedList.hypotheses[slot];
+          if (h == null) {
+            expandedList.hypotheses[slot] = hyp;
+            break;
+          }
+          slot = nextProbe(slot + 1);
+        }
+      }
+      this.modulo = expandedList.modulo;
+      this.capacity = expandedList.capacity;
+      this.expandLimit = expandedList.expandLimit;
+      this.hypotheses = expandedList.hypotheses;
+    }
+
+    Hypothesis getBest() {
+      Hypothesis best = null;
+      for (Hypothesis hypothesis : hypotheses) {
+        if (hypothesis == null) {
+          continue;
+        }
+        if (best == null || hypothesis.score > best.score) {
+          best = hypothesis;
+        }
+      }
+      return best;
     }
 
     @Override
-    public boolean equals(Object o) {
-      if (this == o) {
+    public Iterator<Hypothesis> iterator() {
+      return new HIterator();
+    }
+
+    class HIterator implements Iterator<Hypothesis> {
+
+      int pointer = 0;
+      int count = 0;
+      Hypothesis current;
+
+      @Override
+      public boolean hasNext() {
+        if (count == size) {
+          return false;
+        }
+        while (hypotheses[pointer] == null) {
+          pointer++;
+        }
+        current = hypotheses[pointer];
+        count++;
+        pointer++;
         return true;
       }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
+
+      @Override
+      public Hypothesis next() {
+        return current;
       }
-      StateId stateId = (StateId) o;
-      return Objects.equals(first, stateId.first) &&
-          Objects.equals(second, stateId.second);
     }
 
-    @Override
-    public int hashCode() {
-      return Objects.hash(first, second);
-    }
   }
+
+
 }

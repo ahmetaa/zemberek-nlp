@@ -60,7 +60,7 @@ public class BinaryFloatFileReader {
     int n;
     Histogram<Double> histogram;
 
-    LookupCalculator(int bitCount) throws IOException {
+    LookupCalculator(int bitCount) {
       this.bitCount = bitCount;
       this.n = 1 << bitCount;
       histogram = new Histogram<>(n / 2);

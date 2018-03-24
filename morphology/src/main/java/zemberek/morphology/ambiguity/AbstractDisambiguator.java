@@ -28,8 +28,8 @@ public abstract class AbstractDisambiguator {
 
   public static class WordData {
 
-    static WordData SENTENCE_END = new WordData(END_SENTENCE);
-    static WordData SENTENCE_START = new WordData(BEGIN_SENTENCE);
+    public static WordData SENTENCE_END = new WordData(END_SENTENCE);
+    public static WordData SENTENCE_BEGIN = new WordData(BEGIN_SENTENCE);
     public String word;
     public String correctParse;
     public List<String> allParses = Lists.newArrayList();
@@ -61,22 +61,22 @@ public abstract class AbstractDisambiguator {
 
   public static class SentenceData {
 
-    public List<WordData> words;
+    public List<WordData> allWordAnalyses;
     public LinkedList<String> correctParse = Lists.newLinkedList();
     public LinkedList<List<String>> allParse = Lists.newLinkedList();
 
-    SentenceData(List<WordData> words) {
-      this.words = words;
-      for (WordData word : words) {
+    SentenceData(List<WordData> allWordAnalyses) {
+      this.allWordAnalyses = allWordAnalyses;
+      for (WordData word : allWordAnalyses) {
         correctParse.add(word.correctParse);
       }
-      for (WordData word : words) {
+      for (WordData word : allWordAnalyses) {
         allParse.add(word.allParses);
       }
     }
 
     public int size() {
-      return words.size();
+      return allWordAnalyses.size();
     }
   }
 
@@ -91,7 +91,7 @@ public abstract class AbstractDisambiguator {
     int tokenCount() {
       int tc = 0;
       for (SentenceData sentence : sentences) {
-        tc += sentence.words.size();
+        tc += sentence.allWordAnalyses.size();
       }
       return tc;
     }
@@ -112,7 +112,7 @@ public abstract class AbstractDisambiguator {
     public List<WordData> currentWords = Lists.newArrayList();
 
     @Override
-    public boolean processLine(String s) throws IOException {
+    public boolean processLine(String s) {
       s = s.trim();
       String first = Strings.subStringUntilFirst(s, " ");
       if (ignoreLines.contains(first)) {
@@ -133,14 +133,15 @@ public abstract class AbstractDisambiguator {
     }
   }
 
-  static class WordParse {
+  protected static class WordParse {
 
     public String root;
     public String all;
-    public List<String> igs = Lists.newArrayList();
+    public List<String> igs;
     public String allIgs;
 
-    WordParse(String parseString) {
+    public WordParse(String parseString) {
+
       if (!parseString.contains("+")) {
         root = parseString;
         igs = Lists.newArrayList();
@@ -155,7 +156,7 @@ public abstract class AbstractDisambiguator {
           root = Strings.subStringUntilFirst(parseString, "+");
           String rest = "+" + Strings.subStringAfterFirst(parseString, "+");
           String igsStr = rest.replaceAll("\\^DB", " ");
-          igs = Lists.newArrayList(Splitter.on(" ").omitEmptyStrings().trimResults().split(igsStr));
+          igs = Splitter.on(" ").omitEmptyStrings().trimResults().splitToList(igsStr);
           allIgs = rest.replaceAll("\\^DB", " ");
         }
       }

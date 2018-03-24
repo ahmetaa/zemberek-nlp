@@ -63,7 +63,7 @@ public class MarkovModelDisambiguator extends AbstractDisambiguator {
     System.out.println("Generating Lemma Corpus.");
     for (AbstractDisambiguator.SentenceData sentenceData : trainingSet) {
       List<String> roots = Lists.newArrayList("<s>");
-      for (WordData word : sentenceData.words) {
+      for (WordData word : sentenceData.allWordAnalyses) {
         WordParse parse = new WordParse(word.correctParse);
         String rootPart = parse.root;
         roots.add(rootPart);
@@ -77,13 +77,13 @@ public class MarkovModelDisambiguator extends AbstractDisambiguator {
     WordParse start = new WordParse(BEGIN_SENTENCE);
     WordParse end = new WordParse(END_SENTENCE);
     for (SentenceData sentenceData : trainingSet) {
-      if (sentenceData.words.size() == 0) {
+      if (sentenceData.allWordAnalyses.size() == 0) {
         continue;
       }
       WordParse first = start;
-      WordParse second = new WordParse(sentenceData.words.get(0).correctParse);
-      for (int i = 1; i < sentenceData.words.size(); i++) {
-        WordParse third = new WordParse(sentenceData.words.get(i).correctParse);
+      WordParse second = new WordParse(sentenceData.allWordAnalyses.get(0).correctParse);
+      for (int i = 1; i < sentenceData.allWordAnalyses.size(); i++) {
+        WordParse third = new WordParse(sentenceData.allWordAnalyses.get(i).correctParse);
         for (int j = 0; j < third.igs.size(); j++) {
           igWriter.writeLine(first.getLastIg() + " " + second.getLastIg() + " " + third.igs.get(j));
         }
@@ -103,14 +103,14 @@ public class MarkovModelDisambiguator extends AbstractDisambiguator {
     Stopwatch sw = Stopwatch.createStarted();
     Random r = new Random(5);
     for (SentenceData sentence : testSet.sentences) {
-      for (WordData word : sentence.words) {
+      for (WordData word : sentence.allWordAnalyses) {
         Collections.shuffle(word.allParses, r);
       }
       Ambiguous[] seq = getAmbiguousSequence(sentence);
       int[] bestSeq = bestSequence(seq);
       int j = 0;
       for (int parseIndex : bestSeq) {
-        WordData wordData = sentence.words.get(j);
+        WordData wordData = sentence.allWordAnalyses.get(j);
         if (wordData.allParses.get(parseIndex).equals(wordData.correctParse)) {
           hit++;
         } else {
@@ -194,7 +194,7 @@ public class MarkovModelDisambiguator extends AbstractDisambiguator {
     awords[0] = startWord;
     awords[1] = startWord;
     int i = 2;
-    for (WordData word : sentence.words) {
+    for (WordData word : sentence.allWordAnalyses) {
       int[] roots = new int[word.allParses.size()];
       int[][] igs = new int[word.allParses.size()][];
       int j = 0;

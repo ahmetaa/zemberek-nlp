@@ -21,9 +21,9 @@ public abstract class HashBase<T> {
   int keyCount;
   int removeCount;
   // When structure has this amount of keys, it expands the key and count arrays.
-  int threshold = (int) (INITIAL_SIZE * DEFAULT_LOAD_FACTOR);
+  int threshold;
   // This is the size-1 of the key and value array length. Array length is a value power of two
-  private int modulo = INITIAL_SIZE - 1;
+  private int modulo;
 
   HashBase(int size) {
     if (size < 1) {

@@ -44,14 +44,13 @@ public class CompressLm extends CommandLineApplication {
 
   @Option(name = "-chunkBits",
       usage = "Defines the size of chunks when compressing very large models." +
-          " By default it is 21 bits meaning that chunks of 2^21 n-grams are used. Value must be between 16 to 31 (inclusive).")
+          " By default it is 21 bits meaning that chunks of 2^21 n-grams are used."
+          + " Value must be between 16 to 31 (inclusive).")
   public int chunkBits = 21;
 
   @Option(name = "-fractionDigits",
-      usage =
-          "Probability value fractions are rounded to this digit count before applying quantization. Default "
-              +
-              "value is 4 digits.")
+      usage = "Probability value fractions are rounded to this digit count "
+          + "before applying quantization. Default value is 4 digits.")
   public int fractionDigits = 4;
   public TextConverter textConverter;
   private int[] spaceUsage = new int[3];

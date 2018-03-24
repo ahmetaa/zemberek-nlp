@@ -12,7 +12,7 @@ import zemberek.core.math.DoubleArrays;
  */
 public class BinningQuantizer implements Quantizer {
 
-  Map<Double, Integer> lookup = new HashMap<>();
+  Map<Double, Integer> lookup;
   double[] means;
 
   public BinningQuantizer(Map<Double, Integer> lookup, double[] means) {
