@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -214,7 +215,9 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
    */
   ParseResult bestParse(SentenceData sentence, boolean useAveragedWeights) {
 
-    sentence.allWordAnalyses.add(WordData.SENTENCE_END);
+    List<WordData> sent = new ArrayList<>(sentence.allWordAnalyses);
+    sent.add(WordData.SENTENCE_END);
+
     IntValueMap<StateId> stateIds = new IntValueMap<>();
     UIntMap<State> bestPath = new UIntMap<>();
 
@@ -225,7 +228,7 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
     int bestStateNum = 0;
     float bestScore = -100000;
     int n = 0;
-    for (WordData word : sentence.allWordAnalyses) {
+    for (WordData word : sent) {
 
       IntValueMap<StateId> nextStates = new IntValueMap<>();
       // shuffle the parses for randomness.

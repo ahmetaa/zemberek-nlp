@@ -123,22 +123,23 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
       keySet.addAll(bestFeatures.getKeyList());
 
       for (String feat : keySet) {
-        updateAverageWeights(numExamples, feat);
-        weights
-            .increment(feat, (correctFeatures.get(feat) - bestFeatures.get(feat)));
-        // keep tack of the counts of the features. this will be used for averaging,
+
+        int featureCount = counts.get(feat);
+
+        float updatedWeight = (averagedWeights.get(feat) * featureCount
+            + (numExamples - featureCount) * weights.get(feat))
+            / (numExamples * 1f);
+
+        averagedWeights.put(
+            feat,
+            updatedWeight);
+
+        weights.increment(
+            feat,
+            (correctFeatures.get(feat) - bestFeatures.get(feat)));
+
         counts.put(feat, numExamples);
       }
-    }
-
-    private void updateAverageWeights(int numExamples, String feat) {
-      int featureCount = counts.get(feat);
-      float updatedWeight = (averagedWeights.get(feat) * featureCount +
-          (numExamples - featureCount) * weights.get(feat))
-          / numExamples;
-      averagedWeights.put(
-          feat,
-          updatedWeight);
     }
   }
 
@@ -317,10 +318,14 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
     /**
      * Calculates the best path using Viterbi decoding.
      *
-     * @param sentence sentece with ambiguous wrods.
+     * @param sentence sentence with ambiguous words.
      * @return best parse sequence and its score.
      */
     ParseResult bestPath(SentenceData sentence) {
+
+      if(sentence.size()==0) {
+        throw new IllegalArgumentException("bestPath cannot be called with empty sentence.");
+      }
 
       ActiveList currentList = new ActiveList();
       currentList.add(new Hypothesis("<s>", "<s>", null, 0));
@@ -369,10 +374,7 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
       Hypothesis best = currentList.getBest();
       float bestScore = best.score;
       List<String> result = Lists.newArrayList();
-      if (best.previous == null) {
-        result.add(best.current);
-        return new ParseResult(result, bestScore);
-      }
+
       while (best.previous != null) {
         result.add(best.current);
         best = best.previous;
