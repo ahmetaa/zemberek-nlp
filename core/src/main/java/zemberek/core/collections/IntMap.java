@@ -6,9 +6,17 @@ import java.util.List;
 
 /**
  * A simple hashmap with integer keys and T values. implements open address linear probing
- * algorithm. <p> Constraints: - Supports int key values in range (Integer.MIN_VALUE..Integer.MAX_VALUE];
- * - Does not implement Map interface - Size can be max 1 << 29 - Does not support remove. - Does
- * not implement Iterable. - Class is not thread safe.
+ * algorithm.
+ * <p> Constraints:
+ * - Supports int key values in range (Integer.MIN_VALUE..Integer.MAX_VALUE];
+ * - Does not implement Map interface
+ * - Size can be max 1 << 29
+ * - Does not support remove.
+ * - Does not implement Iterable.
+ * - Class is not thread safe.
+ *
+ * If created as an externally managed IntMap, it does not expand automatically when
+ * capacity threshold is reached, and must be expanded by callers.
  */
 public final class IntMap<T> {
 
@@ -41,8 +49,15 @@ public final class IntMap<T> {
    */
   private int modulo;
 
+  // If map is externally managed.
+  private boolean managed;
+
   public IntMap() {
-    this(DEFAULT_INITIAL_CAPACITY);
+    this(DEFAULT_INITIAL_CAPACITY, false);
+  }
+
+  public IntMap(int capacity) {
+    this(capacity, false);
   }
 
   /**
@@ -50,13 +65,18 @@ public final class IntMap<T> {
    * power of two, size will be the nearest larger power of two.
    */
   @SuppressWarnings("unchecked")
-  public IntMap(int capacity) {
+  public IntMap(int capacity, boolean managed) {
     capacity = adjustInitialCapacity(capacity);
     keys = new int[capacity];
     values = (T[]) new Object[keys.length];
     Arrays.fill(keys, EMPTY);
     modulo = keys.length - 1;
     threshold = (int) (capacity * LOAD_FACTOR);
+    this.managed = managed;
+  }
+
+  public static <T> IntMap<T> createManaged() {
+    return new IntMap<>(DEFAULT_INITIAL_CAPACITY, true);
   }
 
   private int adjustInitialCapacity(int capacity) {
@@ -87,10 +107,11 @@ public final class IntMap<T> {
     }
   }
 
-  public void put(int key, T value) {
+  public boolean put(int key, T value) {
     checkKey(key);
     if (keyCount == threshold) {
-      expand();
+      if (managed) return false;
+      expandInternal();
     }
     int loc = locate(key);
     if (loc >= 0) {
@@ -101,6 +122,7 @@ public final class IntMap<T> {
       values[loc] = value;
       keyCount++;
     }
+    return true;
   }
 
   /**
@@ -185,17 +207,29 @@ public final class IntMap<T> {
   /**
    * Expands backing arrays by doubling their capacity.
    */
-  private void expand() {
+  private void expandInternal() {
+    IntMap<T> expanded = expandAndCopy();
+    this.keys = expanded.keys;
+    this.values = expanded.values;
+    this.threshold = expanded.threshold;
+    this.modulo = expanded.modulo;
+  }
+
+  public IntMap<T> expand() {
+    if (!managed) {
+      throw new IllegalStateException("Only externally managed maps can be extended by callers.");
+    }
+    return expandAndCopy();
+  }
+
+  private IntMap<T> expandAndCopy() {
     int capacity = newCapacity();
-    IntMap<T> h = new IntMap<>(capacity);
+    IntMap<T> newMap = new IntMap<>(capacity, managed);
     for (int i = 0; i < keys.length; i++) {
       if (keys[i] != EMPTY) {
-        h.put(keys[i], values[i]);
+        newMap.put(keys[i], values[i]);
       }
     }
-    this.keys = h.keys;
-    this.values = h.values;
-    this.threshold = h.threshold;
-    this.modulo = h.modulo;
+    return newMap;
   }
 }

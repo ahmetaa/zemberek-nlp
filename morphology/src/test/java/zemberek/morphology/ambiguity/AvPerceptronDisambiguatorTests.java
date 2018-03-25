@@ -12,8 +12,8 @@ public class AvPerceptronDisambiguatorTests {
   public void sakReference() throws IOException {
     File modelFile = new File("/home/kodlab/apps/nlp/sak/model-t.txt");
     File testFile = new File("/home/kodlab/apps/nlp/sak/test.z3.merge");
-    AveragedPerceptronMorphDisambiguator
-        .train(new File("/home/kodlab/apps/nlp/sak/train.z3.merge"), modelFile);
+//    AveragedPerceptronMorphDisambiguator
+//        .train(new File("/home/kodlab/apps/nlp/sak/train.z3.merge"), modelFile);
     AveragedPerceptronMorphDisambiguator disambiguator = new AveragedPerceptronMorphDisambiguator(
         modelFile);
 
