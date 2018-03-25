@@ -24,18 +24,18 @@ import zemberek.core.logging.Log;
 import zemberek.core.text.TextUtil;
 import zemberek.morphology.ambiguity.AbstractDisambiguator;
 
-public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
+public class PerceptronDisambiguatorPort extends AbstractDisambiguator {
 
   private Model averagedModel;
   private Decoder decoder;
 
-  public static _PerceptronAmbiguityResolver fromModelFile(Path modelFile) throws IOException {
+  public static PerceptronDisambiguatorPort fromModelFile(Path modelFile) throws IOException {
     Model model = Model.loadFromTextFile(modelFile);
     FeatureExtractor extractor = new FeatureExtractor(false);
-    return new _PerceptronAmbiguityResolver(model, extractor);
+    return new PerceptronDisambiguatorPort(model, extractor);
   }
 
-  private _PerceptronAmbiguityResolver(
+  private PerceptronDisambiguatorPort(
       Model averagedModel,
       FeatureExtractor extractor) {
     this.averagedModel = averagedModel;
@@ -48,12 +48,12 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
     Path dev = root.resolve("data.dev.txt");
     Path model = root.resolve("model");
     Path test = root.resolve("data.test.txt");
-    _PerceptronAmbiguityResolver trained = new Trainer().train(train, dev);
+    PerceptronDisambiguatorPort trained = new Trainer().train(train, dev);
     Log.info("Model key count before pruning = %d", trained.averagedModel.size());
     trained.averagedModel.pruneNearZeroWeights();
     Log.info("Model key count after pruning = %d", trained.averagedModel.size());
     trained.averagedModel.saveAsText(model);
-    _PerceptronAmbiguityResolver.fromModelFile(model).test(test.toFile());
+    PerceptronDisambiguatorPort.fromModelFile(model).test(test.toFile());
   }
 
   static class Trainer {
@@ -62,7 +62,7 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
     Model averagedWeights = new Model();
     IntValueMap<String> counts = new IntValueMap<>();
 
-    public _PerceptronAmbiguityResolver train(Path trainFile, Path devFile)
+    public PerceptronDisambiguatorPort train(Path trainFile, Path devFile)
         throws IOException {
 
       FeatureExtractor extractor = new FeatureExtractor(true);
@@ -104,12 +104,12 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
         }
 
         Log.info("Testing development set.");
-        _PerceptronAmbiguityResolver disambiguator =
-            new _PerceptronAmbiguityResolver(averagedWeights, extractor);
+        PerceptronDisambiguatorPort disambiguator =
+            new PerceptronDisambiguatorPort(averagedWeights, extractor);
         disambiguator.test(devFile.toFile());
 
       }
-      return new _PerceptronAmbiguityResolver(averagedWeights, new FeatureExtractor(false));
+      return new PerceptronDisambiguatorPort(averagedWeights, new FeatureExtractor(false));
     }
 
     private void updateModel(
@@ -130,6 +130,7 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
 
         counts.put(feat, numExamples);
 
+        // reduce model by eliminating near zero weights.
         float wa = averagedWeights.get(feat);
         if (Math.abs(wa) <= Model.epsilon) {
           averagedWeights.data.remove(feat);
@@ -145,7 +146,7 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
       int featureCount = counts.get(feat);
       float updatedWeight = (averagedWeights.get(feat) * featureCount
           + (numExamples - featureCount) * weights.get(feat))
-          / (numExamples * 1f);
+          / numExamples;
 
       averagedWeights.put(
           feat,
@@ -155,7 +156,7 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
 
   static class FeatureExtractor {
 
-    boolean useCache = false;
+    boolean useCache;
 
     ConcurrentHashMap<String, IntValueMap<String>> featureCache =
         new ConcurrentHashMap<>();
