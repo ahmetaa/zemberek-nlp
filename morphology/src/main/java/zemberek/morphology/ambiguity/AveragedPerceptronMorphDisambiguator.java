@@ -24,6 +24,7 @@ import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.SimpleTextWriter;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
+import zemberek.morphology._ambiguity._PerceptronAmbiguityResolver;
 
 /**
  * Based on "Haşim Sak, Tunga Güngör, and Murat Saraçlar. Morphological disambiguation of Turkish
@@ -73,13 +74,11 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
   }
 
   public static void main(String[] args) throws IOException {
-    Path train = Paths.get("/home/ahmetaa/Downloads/MD-Release/MD-Release/data.train.txt");
-    //Path train = Paths.get("/home/ahmetaa/Downloads/MD-Release/MD-Release/tiny.txt");
-    //Path dev = Paths.get("/home/ahmetaa/Downloads/MD-Release/MD-Release/tiny.txt");
-    Path dev = Paths.get("/home/ahmetaa/Downloads/MD-Release/MD-Release/data.dev.txt");
-    Path model = Paths.get("/home/ahmetaa/Downloads/MD-Release/MD-Release/model");
-    Path test = Paths.get("/home/ahmetaa/Downloads/MD-Release/MD-Release/data.test.txt");
-    //Path test = Paths.get("/home/ahmetaa/Downloads/MD-Release/MD-Release/test.merge");
+    Path root = Paths.get("/home/aaa/apps/MD-Release");
+    Path train = root.resolve("data.train.txt");
+    Path dev = root.resolve("data.dev.txt");
+    Path model = root.resolve("model");
+    Path test = root.resolve("data.text.txt");
     AveragedPerceptronMorphDisambiguator.train(train.toFile(), dev.toFile(), model.toFile());
     new AveragedPerceptronMorphDisambiguator(model.toFile()).test(test.toFile());
   }
