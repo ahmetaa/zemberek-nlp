@@ -26,21 +26,19 @@ import zemberek.morphology.ambiguity.AbstractDisambiguator;
 
 public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
 
-  Model averagedModel;
+  private Model averagedModel;
+  private Decoder decoder;
 
-  FeatureExtractor extractor = new FeatureExtractor();
-  Decoder decoder;
-
-  public _PerceptronAmbiguityResolver(Path modelFile) throws IOException {
-    this.averagedModel = Model.loadFromTextFile(modelFile);
-    this.decoder = new Decoder(averagedModel, extractor);
+  public static _PerceptronAmbiguityResolver fromModelFile(Path modelFile) throws IOException {
+    Model model = Model.loadFromTextFile(modelFile);
+    FeatureExtractor extractor = new FeatureExtractor(false);
+    return new _PerceptronAmbiguityResolver(model, extractor);
   }
 
   private _PerceptronAmbiguityResolver(
       Model averagedModel,
       FeatureExtractor extractor) {
     this.averagedModel = averagedModel;
-    this.extractor = extractor;
     this.decoder = new Decoder(averagedModel, extractor);
   }
 
@@ -51,8 +49,11 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
     Path model = root.resolve("model");
     Path test = root.resolve("data.test.txt");
     _PerceptronAmbiguityResolver trained = new Trainer().train(train, dev);
+    Log.info("Model key count before pruning = %d", trained.averagedModel.size());
+    trained.averagedModel.pruneNearZeroWeights();
+    Log.info("Model key count after pruning = %d", trained.averagedModel.size());
     trained.averagedModel.saveAsText(model);
-    new _PerceptronAmbiguityResolver(model).test(test.toFile());
+    _PerceptronAmbiguityResolver.fromModelFile(model).test(test.toFile());
   }
 
   static class Trainer {
@@ -64,7 +65,7 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
     public _PerceptronAmbiguityResolver train(Path trainFile, Path devFile)
         throws IOException {
 
-      FeatureExtractor extractor = new FeatureExtractor();
+      FeatureExtractor extractor = new FeatureExtractor(true);
       Decoder decoder = new Decoder(weights, extractor);
 
       DataSet trainingSet = com.google.common.io.Files
@@ -96,22 +97,19 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
               extractor.extractFromSentence(result.bestParse);
           updateModel(correctFeatures, bestFeatures, numExamples);
         }
+
         for (String feat : averagedWeights) {
-          int featureCount = counts.get(feat);
-          float updatedWeight = (averagedWeights.get(feat) * featureCount +
-              (numExamples - featureCount) * weights.get(feat))
-              / numExamples;
-          averagedWeights.put(
-              feat,
-              updatedWeight);
+          updateAveragedWeights(feat, numExamples);
           counts.put(feat, numExamples);
         }
+
         Log.info("Testing development set.");
         _PerceptronAmbiguityResolver disambiguator =
             new _PerceptronAmbiguityResolver(averagedWeights, extractor);
         disambiguator.test(devFile.toFile());
+
       }
-      return new _PerceptronAmbiguityResolver(averagedWeights, extractor);
+      return new _PerceptronAmbiguityResolver(averagedWeights, new FeatureExtractor(false));
     }
 
     private void updateModel(
@@ -124,29 +122,47 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
 
       for (String feat : keySet) {
 
-        int featureCount = counts.get(feat);
-
-        float updatedWeight = (averagedWeights.get(feat) * featureCount
-            + (numExamples - featureCount) * weights.get(feat))
-            / (numExamples * 1f);
-
-        averagedWeights.put(
-            feat,
-            updatedWeight);
+        updateAveragedWeights(feat, numExamples);
 
         weights.increment(
             feat,
             (correctFeatures.get(feat) - bestFeatures.get(feat)));
 
         counts.put(feat, numExamples);
+
+        float wa = averagedWeights.get(feat);
+        if (Math.abs(wa) <= Model.epsilon) {
+          averagedWeights.data.remove(feat);
+        }
+        float w = weights.get(feat);
+        if (Math.abs(w) <= Model.epsilon) {
+          weights.data.remove(feat);
+        }
       }
+    }
+
+    private void updateAveragedWeights(String feat, int numExamples) {
+      int featureCount = counts.get(feat);
+      float updatedWeight = (averagedWeights.get(feat) * featureCount
+          + (numExamples - featureCount) * weights.get(feat))
+          / (numExamples * 1f);
+
+      averagedWeights.put(
+          feat,
+          updatedWeight);
     }
   }
 
   static class FeatureExtractor {
 
+    boolean useCache = false;
+
     ConcurrentHashMap<String, IntValueMap<String>> featureCache =
         new ConcurrentHashMap<>();
+
+    public FeatureExtractor(boolean useCache) {
+      this.useCache = useCache;
+    }
 
     IntValueMap<String> extractFromSentence(List<String> parseSequence) {
       List<String> seq = Lists.newArrayList("<s>", "<s>");
@@ -167,11 +183,13 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
     }
 
     IntValueMap<String> extractFromTrigram(String[] trigram) {
-      String concat = String.join("", trigram);
 
-      IntValueMap<String> cached = featureCache.get(concat);
-      if (cached != null) {
-        return cached;
+      if (useCache) {
+        String concat = String.join("", trigram);
+        IntValueMap<String> cached = featureCache.get(concat);
+        if (cached != null) {
+          return cached;
+        }
       }
 
       IntValueMap<String> feats = new IntValueMap<>();
@@ -230,7 +248,10 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
       if (w3.all.contains(".+Punc") && w3.igs.contains("Verb")) {
         feats.addOrIncrement("23:ENDSVERB");
       }
-      featureCache.put(concat, feats);
+      if (useCache) {
+        String concat = String.join("", trigram);
+        featureCache.put(concat, feats);
+      }
       return feats;
     }
   }
@@ -323,7 +344,7 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
      */
     ParseResult bestPath(SentenceData sentence) {
 
-      if(sentence.size()==0) {
+      if (sentence.size() == 0) {
         throw new IllegalArgumentException("bestPath cannot be called with empty sentence.");
       }
 
@@ -352,7 +373,6 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
                 h,
                 h.score + trigramScore);
             nextList.add(newHyp);
-
           }
         }
         currentList = nextList;
@@ -375,16 +395,21 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
       float bestScore = best.score;
       List<String> result = Lists.newArrayList();
 
+      // backtrack. from end to begin, we add words from Hypotheses.
       while (best.previous != null) {
         result.add(best.current);
         best = best.previous;
       }
+
+      // because we collect from end to begin, reverse is required.
       Collections.reverse(result);
       return new ParseResult(result, bestScore);
     }
   }
 
   static class Model implements Iterable<String> {
+
+    static float epsilon = 0.01f;
 
     FloatValueMap<String> data;
 
@@ -396,7 +421,11 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
       data = new FloatValueMap<>(10000);
     }
 
-    public static Model loadFromTextFile(Path file) throws IOException {
+    public int size() {
+      return data.size();
+    }
+
+    static Model loadFromTextFile(Path file) throws IOException {
       FloatValueMap<String> data = new FloatValueMap<>(10000);
       List<String> all = TextUtil.loadLinesWithText(file);
       for (String s : all) {
@@ -408,12 +437,24 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
       return new Model(data);
     }
 
-    public void saveAsText(Path file) throws IOException {
+    void saveAsText(Path file) throws IOException {
       try (PrintWriter pw = new PrintWriter(file.toFile(), "utf-8")) {
         for (String s : data.getKeyList()) {
           pw.println(data.get(s) + " " + s);
         }
       }
+    }
+
+    void pruneNearZeroWeights() {
+      FloatValueMap<String> pruned = new FloatValueMap<>();
+
+      for (String key : data) {
+        float w = data.get(key);
+        if (Math.abs(w) > epsilon) {
+          pruned.set(key, w);
+        }
+      }
+      this.data = pruned;
     }
 
     float get(String key) {
@@ -424,8 +465,8 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
       this.data.set(key, value);
     }
 
-    float increment(String key, float value) {
-      return data.incrementByAmount(key, value);
+    void increment(String key, float value) {
+      data.incrementByAmount(key, value);
     }
 
     @Override
@@ -592,7 +633,6 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
         return current;
       }
     }
-
   }
 
 
