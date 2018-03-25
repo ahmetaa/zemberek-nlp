@@ -45,7 +45,7 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
   }
 
   public static void main(String[] args) throws IOException {
-    Path root = Paths.get("/home/aaa/apps/MD-Release");
+    Path root = Paths.get("/home/ahmetaa/apps/MD-Release");
     Path train = root.resolve("data.train.txt");
     Path dev = root.resolve("data.dev.txt");
     Path model = root.resolve("model");
@@ -65,7 +65,7 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
         throws IOException {
 
       FeatureExtractor extractor = new FeatureExtractor();
-      Decoder decoder = new Decoder(averagedWeights, extractor);
+      Decoder decoder = new Decoder(weights, extractor);
 
       DataSet trainingSet = com.google.common.io.Files
           .readLines(trainFile.toFile(), Charsets.UTF_8, new DataSetLoader());
