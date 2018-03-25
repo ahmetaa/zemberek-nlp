@@ -67,31 +67,4 @@ public class MarkovModelTests {
     disambiguator.test(testFile);
   }
 
-  @Test
-  @Ignore("Not a unit test")
-  public void OflazerMarkovModel() throws IOException {
-    File workDir = new File("/home/afsina/data/disamb");
-    File trainFile = new File(workDir, "train.merge");
-    File rootCorpus = new File(workDir, "root-corpus.txt");
-    File igCorpus = new File(workDir, "ig-corpus.txt");
-    //generateTrainingCorpus(trainFile, rootCorpus, igCorpus);
-
-    File rootArpaLm = new File(workDir, "root-lm.arpa");
-    File igArpaLm = new File(workDir, "ig-lm.arpa");
-
-    //generateArpaLm(rootCorpus, rootArpaLm);
-    //generateArpaLm(igCorpus, igArpaLm);
-
-    File rootSmoothLm = new File(workDir, "root-lm.slm");
-    File igSmoothLm = new File(workDir, "ig-lm.slm");
-
-    //generateBinaryLm(rootArpaLm, rootSmoothLm );
-    //generateBinaryLm(igArpaLm, igSmoothLm );
-
-    MarkovModelDisambiguator disambiguator = new MarkovModelDisambiguator(rootSmoothLm, igSmoothLm);
-
-    File testFile = new File(workDir, "test.merge");
-    disambiguator.test(testFile);
-  }
-
 }

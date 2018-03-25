@@ -1,4 +1,4 @@
-package zemberek.morphology._ambiguity;
+package zemberek.morphology.ambiguity;
 
 import static java.lang.String.format;
 
@@ -22,8 +22,12 @@ import zemberek.core.collections.IntValueMap;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextUtil;
-import zemberek.morphology.ambiguity.AbstractDisambiguator;
 
+/**
+ * Based on "Haşim Sak, Tunga Güngör, and Murat Saraçlar. Morphological disambiguation of Turkish
+ * text with perceptron algorithm. In CICLing 2007, volume LNCS 4394, pages 107-118, 2007" Original
+ * Perl implementation is from <a href="http://www.cmpe.boun.edu.tr/~hasim">Haşim Sak</a>
+ */
 public class PerceptronDisambiguatorPort extends AbstractDisambiguator {
 
   private Model averagedModel;
@@ -635,6 +639,4 @@ public class PerceptronDisambiguatorPort extends AbstractDisambiguator {
       }
     }
   }
-
-
 }
