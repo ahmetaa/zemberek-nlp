@@ -54,7 +54,7 @@ public class Z3AbstractDisambiguator {
       return "WordData{" +
           "word='" + word + '\'' +
           ", correctParse='" + correctParse + '\'' +
-          ", allParses=" + allParses +
+          ", allAnalyses=" + allParses +
           '}';
     }
   }

@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -73,6 +73,9 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
       for (int i = 0; i < 4; i++) {
         Log.info("Iteration:" + i);
         for (SentenceData sentence : trainingSet) {
+          if (sentence.size() == 0) {
+            continue;
+          }
           numExamples++;
           ParseResult result = decoder.bestPath(sentence);
           if (numExamples % 500 == 0) {
@@ -81,15 +84,27 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
           if (sentence.correctParse.equals(result.bestParse)) {
             continue;
           }
+          if (sentence.correctParse.size() != result.bestParse.size()) {
+            throw new IllegalStateException(
+                "Best parse result must have same amount of tokens with Correct parse." +
+                    " \nCorrect = " + sentence.correctParse + " \nBest = " + result.bestParse);
+          }
+
           IntValueMap<String> correctFeatures =
               extractor.extractFromSentence(sentence.correctParse);
           IntValueMap<String> bestFeatures =
               extractor.extractFromSentence(result.bestParse);
           updateModel(correctFeatures, bestFeatures, numExamples);
-
         }
-        for (String key : averagedWeights) {
-          updateAverageWeights(numExamples, key);
+        for (String feat : averagedWeights) {
+          int featureCount = counts.get(feat);
+          float updatedWeight = (averagedWeights.get(feat) * featureCount +
+              (numExamples - featureCount) * weights.get(feat))
+              / numExamples;
+          averagedWeights.put(
+              feat,
+              updatedWeight);
+          counts.put(feat, numExamples);
         }
         Log.info("Testing development set.");
         _PerceptronAmbiguityResolver disambiguator =
@@ -109,15 +124,10 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
 
       for (String feat : keySet) {
         updateAverageWeights(numExamples, feat);
-        weights.increment(feat, (correctFeatures.get(feat) - bestFeatures.get(feat)));
+        weights
+            .increment(feat, (correctFeatures.get(feat) - bestFeatures.get(feat)));
         // keep tack of the counts of the features. this will be used for averaging,
         counts.put(feat, numExamples);
-        if (averagedWeights.get(feat) == 0) {
-          averagedWeights.data.remove(feat);
-        }
-        if (weights.get(feat) == 0) {
-          weights.data.remove(feat);
-        }
       }
     }
 
@@ -135,7 +145,7 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
   static class FeatureExtractor {
 
     ConcurrentHashMap<String, IntValueMap<String>> featureCache =
-        new ConcurrentHashMap<>(10000);
+        new ConcurrentHashMap<>();
 
     IntValueMap<String> extractFromSentence(List<String> parseSequence) {
       List<String> seq = Lists.newArrayList("<s>", "<s>");
@@ -247,9 +257,9 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
 
   static class Hypothesis {
 
-    String prev;
-    String current;
-    Hypothesis previous;
+    String prev; // previous word analysis result String
+    String current; // current word analysis result String
+    Hypothesis previous; // previous Hypothesis.
     float score;
 
     public Hypothesis(String prev, String current, Hypothesis previous, float score) {
@@ -312,17 +322,14 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
      */
     ParseResult bestPath(SentenceData sentence) {
 
-      sentence.allWordAnalyses.add(WordData.SENTENCE_END);
-
-      Hypothesis initialHypothesis = new Hypothesis("<s>", "<s>", null, 0);
       ActiveList currentList = new ActiveList();
-      currentList.add(initialHypothesis);
+      currentList.add(new Hypothesis("<s>", "<s>", null, 0));
 
-      for (WordData wordAnalysis : sentence.allWordAnalyses) {
+      for (WordData analysisData : sentence.allWordAnalyses) {
 
         ActiveList nextList = new ActiveList();
 
-        for (String analysis : wordAnalysis.allParses) {
+        for (String analysis : analysisData.allAnalyses) {
 
           for (Hypothesis h : currentList) {
 
@@ -331,7 +338,7 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
 
             float trigramScore = 0;
             for (String key : features) {
-              trigramScore += (model.data.get(key) * features.get(key));
+              trigramScore += (model.get(key) * features.get(key));
             }
 
             Hypothesis newHyp = new Hypothesis(
@@ -340,19 +347,38 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
                 h,
                 h.score + trigramScore);
             nextList.add(newHyp);
+
           }
         }
         currentList = nextList;
       }
 
+      // score for sentence end. No need to create new hypotheses.
+      for (Hypothesis h : currentList) {
+        String sentenceEnd = "</s>";
+        String[] trigram = {h.prev, h.current, sentenceEnd};
+        IntValueMap<String> features = extractor.extractFromTrigram(trigram);
+
+        float trigramScore = 0;
+        for (String key : features) {
+          trigramScore += (model.get(key) * features.get(key));
+        }
+        h.score += trigramScore;
+      }
+
       Hypothesis best = currentList.getBest();
-      LinkedList<String> result = Lists.newLinkedList();
+      float bestScore = best.score;
+      List<String> result = Lists.newArrayList();
+      if (best.previous == null) {
+        result.add(best.current);
+        return new ParseResult(result, bestScore);
+      }
       while (best.previous != null) {
-        result.addFirst(best.current);
+        result.add(best.current);
         best = best.previous;
       }
-      result.removeLast();
-      return new ParseResult(result, best.score);
+      Collections.reverse(result);
+      return new ParseResult(result, bestScore);
     }
   }
 
@@ -412,7 +438,7 @@ public class _PerceptronAmbiguityResolver extends AbstractDisambiguator {
     List<String> bestParse;
     float score;
 
-    private ParseResult(LinkedList<String> bestParse, float score) {
+    private ParseResult(List<String> bestParse, float score) {
       this.bestParse = bestParse;
       this.score = score;
     }

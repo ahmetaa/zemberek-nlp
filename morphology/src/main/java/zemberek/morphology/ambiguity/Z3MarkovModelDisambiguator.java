@@ -137,7 +137,7 @@ public class Z3MarkovModelDisambiguator extends Z3AbstractDisambiguator implemen
         if (wordData.allParses.get(parseIndex).equals(wordData.correctParse)) {
           hit++;
         } else {
-          //  System.out.println("miss:" + wordData.word + " Correct:" + wordData.correctParse + " : " + wordData.allParses.get(parseIndex));
+          //  System.out.println("miss:" + wordData.word + " Correct:" + wordData.correctParse + " : " + wordData.allAnalyses.get(parseIndex));
         }
         total++;
         j++;

@@ -104,17 +104,17 @@ public class MarkovModelDisambiguator extends AbstractDisambiguator {
     Random r = new Random(5);
     for (SentenceData sentence : testSet.sentences) {
       for (WordData word : sentence.allWordAnalyses) {
-        Collections.shuffle(word.allParses, r);
+        Collections.shuffle(word.allAnalyses, r);
       }
       Ambiguous[] seq = getAmbiguousSequence(sentence);
       int[] bestSeq = bestSequence(seq);
       int j = 0;
       for (int parseIndex : bestSeq) {
         WordData wordData = sentence.allWordAnalyses.get(j);
-        if (wordData.allParses.get(parseIndex).equals(wordData.correctParse)) {
+        if (wordData.allAnalyses.get(parseIndex).equals(wordData.correctParse)) {
           hit++;
         } else {
-          //System.out.println("miss:" + wordData.correctParse + " : " + wordData.allParses.get(parseIndex));
+          //System.out.println("miss:" + wordData.correctParse + " : " + wordData.allAnalyses.get(parseIndex));
         }
         total++;
         j++;
@@ -195,10 +195,10 @@ public class MarkovModelDisambiguator extends AbstractDisambiguator {
     awords[1] = startWord;
     int i = 2;
     for (WordData word : sentence.allWordAnalyses) {
-      int[] roots = new int[word.allParses.size()];
-      int[][] igs = new int[word.allParses.size()][];
+      int[] roots = new int[word.allAnalyses.size()];
+      int[][] igs = new int[word.allAnalyses.size()][];
       int j = 0;
-      for (String parseStr : word.allParses) {
+      for (String parseStr : word.allAnalyses) {
         WordParse parse = new WordParse(parseStr);
         String rootPart = parse.root;
         roots[j] = rootLm.getVocabulary().indexOf(rootPart);

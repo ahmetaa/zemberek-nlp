@@ -4,7 +4,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.LineProcessor;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +31,7 @@ public abstract class AbstractDisambiguator {
     public static WordData SENTENCE_BEGIN = new WordData(BEGIN_SENTENCE);
     public String word;
     public String correctParse;
-    public List<String> allParses = Lists.newArrayList();
+    public List<String> allAnalyses = Lists.newArrayList();
 
     WordData(String line) {
       int i = 0;
@@ -40,7 +39,7 @@ public abstract class AbstractDisambiguator {
         if (i == 0) {
           this.word = s;
         } else {
-          allParses.add(s);
+          allAnalyses.add(s);
         }
         if (i == 1) {
           this.correctParse = s;
@@ -54,7 +53,7 @@ public abstract class AbstractDisambiguator {
       return "WordData{" +
           "word='" + word + '\'' +
           ", correctParse='" + correctParse + '\'' +
-          ", allParses=" + allParses +
+          ", allAnalyses=" + allAnalyses +
           '}';
     }
   }
@@ -71,7 +70,7 @@ public abstract class AbstractDisambiguator {
         correctParse.add(word.correctParse);
       }
       for (WordData word : allWordAnalyses) {
-        allParse.add(word.allParses);
+        allParse.add(word.allAnalyses);
       }
     }
 

@@ -24,7 +24,6 @@ import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.SimpleTextWriter;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
-import zemberek.morphology._ambiguity._PerceptronAmbiguityResolver;
 
 /**
  * Based on "Haşim Sak, Tunga Güngör, and Murat Saraçlar. Morphological disambiguation of Turkish
@@ -230,7 +229,7 @@ public class AveragedPerceptronMorphDisambiguator extends AbstractDisambiguator 
 
       IntValueMap<StateId> nextStates = new IntValueMap<>();
       // shuffle the parses for randomness.
-      List<String> allAnalyses = Lists.newArrayList(word.allParses);
+      List<String> allAnalyses = Lists.newArrayList(word.allAnalyses);
       //Collections.shuffle(allAnalyses, random);
       bestScore = -100000;
 
