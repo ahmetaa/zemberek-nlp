@@ -303,6 +303,7 @@ public class TurkishMorphotactics {
     connectAdverbs();
     connectLastVowelDropWords();
     connectPostpositives();
+    handlePostProcessingConnections();
   }
 
   /**
@@ -1398,7 +1399,10 @@ public class TurkishMorphotactics {
   // ------------- Verbs -----------------------------------
 
   public MorphemeState verbRoot_S = builder("verbRoot_S", verb).posRoot().build();
-  public MorphemeState verbLasVowelDropRoot_S = builder("verbRoot_S", verb).posRoot().build();
+  public MorphemeState verbLastVowelDropModRoot_S =
+      builder("verbLastVowelDropModRoot_S", verb).posRoot().build();
+  public MorphemeState verbLastVowelDropUnmodRoot_S =
+      builder("verbLastVowelDropUnmodRoot_S", verb).posRoot().build();
 
   MorphemeState vA1sg_ST = terminal("vA1sg_ST", a1sg);
   MorphemeState vA2sg_ST = terminal("vA2sg_ST", a2sg);
@@ -1503,7 +1507,7 @@ public class TurkishMorphotactics {
         .add(vA3sg_ST, "sIn")     // okusun
         .add(vA2pl_ST, "+yIn")    // okuyun
         .add(vA2pl_ST, "+yInIz")  // okuyunuz
-        .add(vA2pl_ST, "sAnIzA") // okuyunuz
+        .add(vA2pl_ST, "sAnIzA")  // okuyunuz
         .add(vA3pl_ST, "sInlAr"); // okusunlar
 
     // Causative suffixes
@@ -1511,7 +1515,7 @@ public class TurkishMorphotactics {
     // 1- "t" form is used if verb ends with a vowel, or immediately after "tIr" Causative.
     // 2- "tIr" form is used if verb ends with a consonant or immediately after "t" Causative.
     // 3- "Ir" form appears after some specific verbs but currently we treat them as separate verb.
-    // such as "pişmek - pişirmek"
+    // such as "pişmek - pişirmek". Oflazer parses them as causative.
 
     verbRoot_S.add(vCausT_S, "t", has(RootAttribute.Causative_t)
         .or(new Conditions.LastDerivationIs(vCausTır_S))
@@ -1742,9 +1746,6 @@ public class TurkishMorphotactics {
         new Conditions.PreviousStateIsAny(vCausT_S, vCausTır_S)
             .or(notHave(RootAttribute.Passive_In).andNot(new Conditions.ContainsMorpheme(pass))));
     vPass_S.addEmpty(verbRoot_S);
-
-    // Passive has an exception for some verbs like `kavurmak` or `savurmak`
-    verbLasVowelDropRoot_S.add(vPass_S, "Il");
 
     // Condition "oku-r-sa"
     vCond_S
@@ -2034,6 +2035,18 @@ public class TurkishMorphotactics {
 
     qPast_S.addEmpty(qA3sg_ST);
     qNarr_S.addEmpty(qA3sg_ST);
+  }
+
+  private void handlePostProcessingConnections() {
+
+    // Passive has an exception for some verbs like `kavurmak` or `savurmak`.
+    // add passive state connection to modified root `kavr` etc.
+    verbLastVowelDropModRoot_S.add(vPass_S, "Il");
+    // for not allowing `kavur-ul` add all verb connections to
+    // unmodified `kavur` root and remove only the passive.
+    verbLastVowelDropUnmodRoot_S.copyOutgoingTransitionsFrom(verbRoot_S);
+    verbLastVowelDropUnmodRoot_S.removeTransitionsTo(pass);
+
   }
 
   //--------------------------------------------------------

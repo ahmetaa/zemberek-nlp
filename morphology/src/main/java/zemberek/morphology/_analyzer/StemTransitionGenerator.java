@@ -101,6 +101,7 @@ public class StemTransitionGenerator {
     AttributeSet<PhoneticAttribute> modifiedAttrs = originalAttrs.copy();
 
     MorphemeState modifiedRootState = null;
+    MorphemeState unmodifiedRootState = null;
 
     for (RootAttribute attribute : dicItem.attributes) {
 
@@ -137,7 +138,9 @@ public class StemTransitionGenerator {
             modifiedSeq.delete(modifiedSeq.length() - 2);
             if (!dicItem.primaryPos.equals(PrimaryPos.Verb)) {
               originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
-              modifiedRootState = morphotactics.verbLasVowelDropRoot_S;
+            } else {
+              unmodifiedRootState = morphotactics.verbLastVowelDropUnmodRoot_S;
+              modifiedRootState = morphotactics.verbLastVowelDropModRoot_S;
             }
             modifiedAttrs.add(PhoneticAttribute.ExpectsVowel);
             modifiedAttrs.add(PhoneticAttribute.CannotTerminate);
@@ -161,7 +164,9 @@ public class StemTransitionGenerator {
       }
     }
 
-    MorphemeState unmodifiedRootState = morphotactics.getRootState(dicItem, originalAttrs);
+    if (unmodifiedRootState == null) {
+      unmodifiedRootState = morphotactics.getRootState(dicItem, originalAttrs);
+    }
     StemTransition original = new StemTransition(
         dicItem.root,
         dicItem,

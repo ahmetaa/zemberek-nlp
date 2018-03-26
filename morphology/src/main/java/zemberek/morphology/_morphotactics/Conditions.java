@@ -25,6 +25,8 @@ class Conditions {
   static final Condition HAS_NO_SURFACE = new HasAnySuffixSurface().not();
   static final Condition CURRENT_GROUP_EMPTY = new NoSurfaceAfterDerivation();
   static final Condition CURRENT_GROUP_NOT_EMPTY = new NoSurfaceAfterDerivation().not();
+  static final Condition HAS_DERIVATION = new HasDerivation();
+  static final Condition HAS_NO_DERIVATION = not(new HasDerivation());
 
 
   public static Condition has(RootAttribute attribute) {
@@ -603,6 +605,25 @@ class Conditions {
     @Override
     public String toString() {
       return "LastDerivationIs{" + state + '}';
+    }
+  }
+
+  public static class HasDerivation extends AbstractCondition {
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
+      for (MorphemeSurfaceForm suffix : suffixes) {
+        if (suffix.morphemeState.derivative) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    @Override
+    public String toString() {
+      return "HasDerivation";
     }
   }
 

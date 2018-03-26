@@ -153,13 +153,45 @@ public class MorphemeState {
   }
 
   public void copyOutgoingTransitionsFrom(MorphemeState state) {
-    for(MorphemeTransition transition : state.outgoing) {
+    for (MorphemeTransition transition : state.outgoing) {
       MorphemeTransition copy = transition.getCopy();
       copy.from = this;
       this.addOutgoing(transition);
     }
-
   }
+
+  public void removeTransitionsTo(MorphemeState state) {
+    List<MorphemeTransition> transitions = new ArrayList<>(2);
+    for (MorphemeTransition transition : outgoing) {
+      if (transition.to.equals(state)) {
+        transitions.add(transition);
+      }
+    }
+    outgoing.removeAll(transitions);
+  }
+
+  public void removeTransitionsTo(Morpheme morpheme) {
+    List<MorphemeTransition> transitions = new ArrayList<>(2);
+    for (MorphemeTransition transition : outgoing) {
+      if (transition.to.morpheme.equals(morpheme)) {
+        transitions.add(transition);
+      }
+    }
+    outgoing.removeAll(transitions);
+  }
+
+  public void removeTransitionsTo(MorphemeState... state) {
+    for (MorphemeState morphemeState : state) {
+      removeTransitionsTo(morphemeState);
+    }
+  }
+
+  public void removeTransitionsTo(Morpheme... morphemes) {
+    for (Morpheme morpheme : morphemes) {
+      removeTransitionsTo(morpheme);
+    }
+  }
+
 
   @Override
   public boolean equals(Object o) {

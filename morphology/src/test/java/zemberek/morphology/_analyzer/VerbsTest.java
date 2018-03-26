@@ -644,7 +644,6 @@ public class VerbsTest extends AnalyzerTestBase {
     );
   }
 
-
   @Test
   public void lastVowelDropTest() {
     AnalysisTester t = getTester("kavurmak [A:LastVowelDrop]");
