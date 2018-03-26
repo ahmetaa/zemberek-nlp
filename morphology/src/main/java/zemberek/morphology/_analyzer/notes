@@ -202,6 +202,11 @@ her:  Noun incorrect? add Det
 size: Noun incorrect
 
 masada -> prefer masa
+
+`hemde` with `he-m-de` analysis is almost always incorrect, perhaps possessive suffixes should be prohibited
+for some words like letter pronunciations.
+olabilirimde -> almost always incorrect
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

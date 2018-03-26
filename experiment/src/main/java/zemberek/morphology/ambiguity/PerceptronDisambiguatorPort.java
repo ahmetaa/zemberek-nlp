@@ -57,6 +57,7 @@ public class PerceptronDisambiguatorPort extends AbstractDisambiguator {
     trained.averagedModel.pruneNearZeroWeights();
     Log.info("Model key count after pruning = %d", trained.averagedModel.size());
     trained.averagedModel.saveAsText(model);
+
     PerceptronDisambiguatorPort.fromModelFile(model).test(test.toFile());
   }
 
@@ -414,7 +415,7 @@ public class PerceptronDisambiguatorPort extends AbstractDisambiguator {
 
   static class Model implements Iterable<String> {
 
-    static float epsilon = 0.01f;
+    static float epsilon = 0.001f;
 
     FloatValueMap<String> data;
 
