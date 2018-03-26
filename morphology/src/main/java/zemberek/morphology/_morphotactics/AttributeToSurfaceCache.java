@@ -1,6 +1,5 @@
 package zemberek.morphology._morphotactics;
 
-import java.util.Arrays;
 import zemberek.core.collections.IntMap;
 
 /**
@@ -30,8 +29,6 @@ public class AttributeToSurfaceCache {
   }
 
   public String getSurface(int attributes) {
-    // Obtain a reference to current edge map. Even if the edgeMap instance is changed
-    // by a writer thread, we can still read a consistent version of the map.
     IntMap<String> map = attributeMap;
     return map.get(attributes);
   }

@@ -1,5 +1,13 @@
 package zemberek.morphology._morphotactics;
 
+ /**
+  * A class for representing a set of enums efficiently.
+  *
+  *</p>
+  * Note: Uses ordinals as bit indexes of an int, so only works for maximum of
+  * 32 different enum values. If serialized as is, the ordinals of enums must
+  * not change.
+  */
 public class AttributeSet<E extends Enum<E>> {
 
   private int bits;
@@ -10,27 +18,6 @@ public class AttributeSet<E extends Enum<E>> {
 
   private AttributeSet(int initialValue) {
     this.bits = initialValue;
-  }
-
-  public static  <E extends Enum<E>> AttributeSet<E> of(E e1) {
-    AttributeSet<E> res = new AttributeSet<>();
-    res.add(e1);
-    return res;
-  }
-
-  public static  <E extends Enum<E>> AttributeSet<E> of(E e1, E e2) {
-    AttributeSet<E> res = new AttributeSet<>();
-    res.add(e1);
-    res.add(e2);
-    return res;
-  }
-
-  public static  <E extends Enum<E>> AttributeSet<E> of(E e1, E e2, E e3) {
-    AttributeSet<E> res = new AttributeSet<>();
-    res.add(e1);
-    res.add(e2);
-    res.add(e3);
-    return res;
   }
 
   public static  <E extends Enum<E>> AttributeSet<E> of(E... enums) {
@@ -50,6 +37,9 @@ public class AttributeSet<E extends Enum<E>> {
   }
 
   public void add(E en) {
+    if (en.ordinal() > 31) {
+      throw new IllegalArgumentException("Set can contain enums with max ordinal of 31.");
+    }
     bits |= mask(en);
   }
 
@@ -67,12 +57,6 @@ public class AttributeSet<E extends Enum<E>> {
 
   public void remove(E en) {
     bits &= ~mask(en);
-  }
-
-  public void removeAll(Iterable<E> enums) {
-    for (E en : enums) {
-      remove(en);
-    }
   }
 
   public boolean contains(E en) {
