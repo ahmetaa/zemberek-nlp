@@ -307,7 +307,7 @@ public class PronounsTest extends AnalyzerTestBase {
 
   @Test
   public void coguTest() {
-    AnalysisTester tester = getTester("çoğu [P:Pron,Quant; A:Special]");
+    AnalysisTester tester = getTester("çoğu [P:Pron,Quant]");
     tester.expectSingle("çoğu", matchesTailLex("Pron + A3pl + P3pl + Nom"));
     tester.expectSingle("çoğumuz", matchesTailLex("Pron + A1pl + P1pl + Nom"));
     tester.expectSingle("çoğunuz", matchesTailLex("Pron + A2pl + P2pl + Nom"));
@@ -319,6 +319,28 @@ public class PronounsTest extends AnalyzerTestBase {
         "çoğular",
         "çokumuz",
         "çoğum"
+    );
+  }
+
+  @Test
+  public void baziTest() {
+    AnalysisTester tester = getTester("bazı [P:Pron,Quant]");
+
+    tester.expectSingle("bazımız", matchesTailLex("Pron + A1pl + P1pl + Nom"));
+    tester.expectSingle("bazınız", matchesTailLex("Pron + A2pl + P2pl + Nom"));
+    tester.expectSingle("bazıları", matchesTailLex("Pron + A3pl + P3pl + Nom"));
+    tester.expectSingle("bazısına", matchesTailLex("Pron + A3sg + P3sg + Dat"));
+    tester.expectSingle("bazımızdan", matchesTailLex("Pron + A1pl + P1pl + Abl"));
+    tester.expectSingle("bazınıza", matchesTailLex("Pron + A2pl + P2pl + Abl"));
+    tester.expectSingle("bazılarımızdan", matchesTailLex("Pron + A1pl + P1pl + Abl"));
+    tester.expectSingle("bazılarını", matchesTailLex("Pron + A3pl + P3pl + Acc"));
+
+    tester.expectFail(
+        "bazı",// oflazer does not solve this for Pron+Quant
+        "bazına",
+        "bazım",
+        "bazın",
+        "bazılar"
     );
   }
 

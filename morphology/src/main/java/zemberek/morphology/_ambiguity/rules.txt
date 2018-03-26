@@ -94,3 +94,14 @@ Do not prefer Proper nouns with derivations.
 maki:Noun + A3sg + n:P2sg + e:Dat
 makine:Noun + A3sg + Pnon + Nom <-- prefer this.
 
+For abbreviations reject possesives, verb derivations.
+For proper nouns, reject possesives
+
+masada -> prefer masa
+
+`hemde` with `he-m-de` analysis is almost always incorrect, perhaps possessive suffixes should be prohibited
+for some words like letter pronunciations.
+`Omuzum` -> terrible analysis `o-muz-um`
+olabilirimde -> almost always incorrect
+
+

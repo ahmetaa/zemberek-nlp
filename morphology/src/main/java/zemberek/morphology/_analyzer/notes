@@ -208,6 +208,12 @@ for some words like letter pronunciations.
 `Omuzum` -> terrible analysis `o-muz-um`
 olabilirimde -> almost always incorrect
 
+should we accept:
+birbirlerimize
+birbirlerimizin
+birbirlerinize
+birbirlerinizin
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

@@ -39,7 +39,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
   }
 
   public static void main(String[] args) throws IOException {
-    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/wowturkey.com");
+    Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
     Path outRoot = Paths.get("data/ambiguity");
     Files.createDirectories(outRoot);
 
@@ -108,6 +108,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
       }
 */
       sentence = sentence.replaceAll("\\s+|\\u00a0", " ");
+      sentence = sentence.replaceAll("[\\u00ad]", "");
       List<Single> singleAnalysisWords = new ArrayList<>();
       List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
       boolean failed = false;

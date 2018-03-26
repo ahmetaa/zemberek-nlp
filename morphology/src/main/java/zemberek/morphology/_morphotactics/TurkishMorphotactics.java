@@ -1037,6 +1037,7 @@ public class TurkishMorphotactics {
 
     DictionaryItem birbiri = lexicon.getItemById("birbiri_Pron_Quant");
     DictionaryItem biri = lexicon.getItemById("biri_Pron_Quant");
+    DictionaryItem bazi = lexicon.getItemById("bazı_Pron_Quant");
     DictionaryItem bircogu = lexicon.getItemById("birçoğu_Pron_Quant");
     DictionaryItem birkaci = lexicon.getItemById("birkaçı_Pron_Quant");
     DictionaryItem beriki = lexicon.getItemById("beriki_Pron_Quant");
@@ -1064,6 +1065,10 @@ public class TurkishMorphotactics {
         rootIsNone(hep, hepsi, birkaci, umum, cumlesi, cogu, bircogu, herbiri, tumu, hicbiri, topu,
             oburu));
 
+    // bazılarınız -> A1pl+P1pl
+    pronQuant_S.add(pQuantA1pl_S, "lAr", rootIsAny(bazi));
+    pronQuant_S.add(pQuantA2pl_S, "lAr", rootIsAny(bazi));
+
     // Herkes is implicitly plural.
     pronQuant_S.addEmpty(pQuantA3pl_S,
         rootIsAny(herkes, umum, birkaci, hepsi, cumlesi, cogu, bircogu, tumu, topu));
@@ -1074,11 +1079,13 @@ public class TurkishMorphotactics {
 
     // for `birbiri-miz` `hep-imiz`
     pronQuant_S.addEmpty(pQuantA1pl_S,
-        rootIsAny(biri, birbiri, birkaci, herbiri, hep, kimi, cogu, bircogu, tumu, topu, hicbiri));
+        rootIsAny(biri, bazi, birbiri, birkaci, herbiri, hep, kimi,
+            cogu, bircogu, tumu, topu, hicbiri));
 
     // for `birbiri-niz` and `hep-iniz`
     pronQuant_S.addEmpty(pQuantA2pl_S,
-        rootIsAny(biri, birbiri, birkaci, herbiri, hep, kimi, cogu, bircogu, tumu, topu, hicbiri));
+        rootIsAny(biri, bazi, birbiri, birkaci, herbiri, hep, kimi, cogu, bircogu, tumu, topu,
+            hicbiri));
 
     // this is used for birbir-ler-i, çok-lar-ı, birçok-lar-ı separate root and A3pl states are
     // used for this.
@@ -1091,11 +1098,11 @@ public class TurkishMorphotactics {
             .and(notHave(PhoneticAttribute.ModifiedPronoun)));
 
     pQuantA3sg_S.add(pP3sg_S, "sI",
-        rootIsAny(biri, birbiri, herbiri, hicbiri, oburku)
+        rootIsAny(biri, bazi, birbiri, herbiri, hicbiri, oburku)
             .and(notHave(PhoneticAttribute.ModifiedPronoun)));
 
     // there is no connection from pQuantA3pl to Pnon for preventing `biriler` (except herkes)
-    pQuantA3pl_S.add(pP3pl_S, "I", rootIsAny(biri, birbiri, kimi, oburku, beriki));
+    pQuantA3pl_S.add(pP3pl_S, "I", rootIsAny(biri, bazi, birbiri, kimi, oburku, beriki));
     pQuantA3pl_S.addEmpty(pP3pl_S, rootIsAny(hepsi, birkaci, cumlesi, cogu, tumu, topu, bircogu));
     pQuantA3pl_S.addEmpty(pPnon_S, rootIsAny(herkes, umum, oburku, beriki));
 
@@ -1188,7 +1195,7 @@ public class TurkishMorphotactics {
         .add(pGen_ST, "+nIn", conditionP2sg);
 
     Condition p3sgCond = Conditions.rootIsAny(
-        kim, ne, nere, o, biri, birbiri, herbiri, hep, kimi, hicbiri);
+        kim, ne, nere, o, bazi, biri, birbiri, herbiri, hep, kimi, hicbiri);
 
     pP3sg_S
         .addEmpty(pNom_ST)
@@ -1204,8 +1211,7 @@ public class TurkishMorphotactics {
 
     Condition hepCnd = Conditions.rootIsAny(
         kim, ne, nere, biz, siz, biri, birbiri, birkaci, herbiri, hep, kimi, cogu, bircogu, tumu,
-        topu,
-        hicbiri);
+        topu, bazi, hicbiri);
     pP1pl_S
         .addEmpty(pNom_ST)
         .add(pDat_ST, "+nA", nGroup)
@@ -1231,8 +1237,8 @@ public class TurkishMorphotactics {
         .add(pIns_ST, "+nlA", hepCnd);
 
     Condition hepsiCnd = Conditions.rootIsAny(
-        kim, ne, nere, o, biri, herkes, umum, birkaci, hepsi, cumlesi, cogu, bircogu, birbiri, tumu,
-        topu);
+        kim, ne, nere, o, bazi, biri, herkes, umum, birkaci, hepsi, cumlesi, cogu,
+        bircogu, birbiri, tumu, kimi, topu);
 
     pP3pl_S
         .addEmpty(pNom_ST)
