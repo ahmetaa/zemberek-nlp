@@ -100,6 +100,8 @@ public class StemTransitionGenerator {
     AttributeSet<PhoneticAttribute> originalAttrs = calculateAttributes(dicItem.pronunciation);
     AttributeSet<PhoneticAttribute> modifiedAttrs = originalAttrs.copy();
 
+    MorphemeState modifiedRootState = null;
+
     for (RootAttribute attribute : dicItem.attributes) {
 
       // generate other boundary attributes and modified root state.
@@ -135,6 +137,7 @@ public class StemTransitionGenerator {
             modifiedSeq.delete(modifiedSeq.length() - 2);
             if (!dicItem.primaryPos.equals(PrimaryPos.Verb)) {
               originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
+              modifiedRootState = morphotactics.verbLasVowelDropRoot_S;
             }
             modifiedAttrs.add(PhoneticAttribute.ExpectsVowel);
             modifiedAttrs.add(PhoneticAttribute.CannotTerminate);
@@ -158,17 +161,23 @@ public class StemTransitionGenerator {
       }
     }
 
+    MorphemeState unmodifiedRootState = morphotactics.getRootState(dicItem, originalAttrs);
     StemTransition original = new StemTransition(
         dicItem.root,
         dicItem,
         originalAttrs,
-        morphotactics.getRootState(dicItem, originalAttrs));
+        unmodifiedRootState);
+
+    // if modified root state is not defined in the switch block, get it from morphotactics.
+    if (modifiedRootState == null) {
+      modifiedRootState = morphotactics.getRootState(dicItem, modifiedAttrs);
+    }
 
     StemTransition modified = new StemTransition(
         modifiedSeq.toString(),
         dicItem,
         modifiedAttrs,
-        morphotactics.getRootState(dicItem, modifiedAttrs));
+        modifiedRootState);
 
     if (original.equals(modified)) {
       return Collections.singletonList(original);
@@ -177,7 +186,7 @@ public class StemTransitionGenerator {
   }
 
   Set<String> specialRoots = Sets.newHashSet(
-      "içeri_Noun", "içeri_Adj", "dışarı_Adj","şura_Noun","bura_Noun","ora_Noun",
+      "içeri_Noun", "içeri_Adj", "dışarı_Adj", "şura_Noun", "bura_Noun", "ora_Noun",
       "dışarı_Noun", "dışarı_Postp", "yukarı_Noun", "yukarı_Adj",
       "ben_Pron_Pers", "sen_Pron_Pers", "demek_Verb", "yemek_Verb",
       "birbiri_Pron_Quant", "çoğu_Pron_Quant", "öbürü_Pron_Quant", "birçoğu_Pron_Quant"
@@ -211,10 +220,12 @@ public class StemTransitionGenerator {
           case Adjective:
             rootForModified = morphotactics.adjLastVowelDropRoot_S;
             break;
+          // TODO: check postpositive case. Maybe it is not required.
           case PostPositive:
             rootForModified = morphotactics.adjLastVowelDropRoot_S;
             break;
-          default: throw new IllegalStateException("No root morpheme state found for " + item);
+          default:
+            throw new IllegalStateException("No root morpheme state found for " + item);
         }
         String m = item.root.substring(0, item.root.length() - 1);
         modified = new StemTransition(m, item, calculateAttributes(m), rootForModified);

@@ -1398,6 +1398,7 @@ public class TurkishMorphotactics {
   // ------------- Verbs -----------------------------------
 
   public MorphemeState verbRoot_S = builder("verbRoot_S", verb).posRoot().build();
+  public MorphemeState verbLasVowelDropRoot_S = builder("verbRoot_S", verb).posRoot().build();
 
   MorphemeState vA1sg_ST = terminal("vA1sg_ST", a1sg);
   MorphemeState vA2sg_ST = terminal("vA2sg_ST", a2sg);
@@ -1738,9 +1739,12 @@ public class TurkishMorphotactics {
     verbRoot_S.add(vPass_S, "InIl", has(RootAttribute.Passive_In)
         .andNot(new Conditions.ContainsMorpheme(pass)));
     verbRoot_S.add(vPass_S, "+nIl",
-        new Conditions.PreviousStateIsAny(vCausT_S, vCausTır_S).or(notHave(RootAttribute.Passive_In)
-            .andNot(new Conditions.ContainsMorpheme(pass))));
+        new Conditions.PreviousStateIsAny(vCausT_S, vCausTır_S)
+            .or(notHave(RootAttribute.Passive_In).andNot(new Conditions.ContainsMorpheme(pass))));
     vPass_S.addEmpty(verbRoot_S);
+
+    // Passive has an exception for some verbs like `kavurmak` or `savurmak`
+    verbLasVowelDropRoot_S.add(vPass_S, "Il");
 
     // Condition "oku-r-sa"
     vCond_S
@@ -2046,10 +2050,10 @@ public class TurkishMorphotactics {
   }
 
   public MorphemeState getRootState(
-      DictionaryItem dictionaryItem,
+      DictionaryItem item,
       AttributeSet<PhoneticAttribute> phoneticAttributes) {
 
-    MorphemeState root = itemRootStateMap.get(dictionaryItem.id);
+    MorphemeState root = itemRootStateMap.get(item.id);
     if (root != null) {
       return root;
     }
@@ -2060,9 +2064,9 @@ public class TurkishMorphotactics {
       return verbRoot_Prog_S;
     }
 
-    switch (dictionaryItem.primaryPos) {
+    switch (item.primaryPos) {
       case Noun:
-        if (dictionaryItem.hasAttribute(RootAttribute.CompoundP3sgRoot)) {
+        if (item.hasAttribute(RootAttribute.CompoundP3sgRoot)) {
           return nounCompoundRoot_S;
         } else {
           return noun_S;
@@ -2071,7 +2075,7 @@ public class TurkishMorphotactics {
       case Numeral:
         return adj_ST;
       case Pronoun:
-        switch (dictionaryItem.secondaryPos) {
+        switch (item.secondaryPos) {
           case PersonalPron:
             return pronPers_S;
           case DemonstrativePron:

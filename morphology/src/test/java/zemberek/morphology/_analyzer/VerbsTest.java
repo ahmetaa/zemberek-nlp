@@ -645,4 +645,28 @@ public class VerbsTest extends AnalyzerTestBase {
   }
 
 
+  @Test
+  public void lastVowelDropTest() {
+    AnalysisTester t = getTester("kavurmak [A:LastVowelDrop]");
+
+    t.expectAny("kavur", matchesTailLex("Verb + Imp + A2sg"));
+    t.expectAny("kavuruyor", matchesTailLex("Verb + Prog1 + A3sg"));
+    t.expectAny("kavuracak", matchesTailLex("Verb + Fut + A3sg"));
+    t.expectAny("kavurur", matchesTailLex("Verb + Aor + A3sg"));
+    t.expectAny("kavurmuyor", matchesTailLex("Verb + Neg + Prog1 + A3sg"));
+    t.expectAny("kavurt", matchesTailLex("Verb + Caus + Verb + Imp + A2sg"));
+    t.expectAny("kavrul", matchesTailLex("Verb + Pass + Verb + Imp + A2sg"));
+    t.expectAny("kavurabil", matchesTailLex("Verb + Able + Verb + Imp + A2sg"));
+    t.expectAny("kavrulabil", matchesTailLex("Verb + Pass + Verb + Able + Verb + Imp + A2sg"));
+
+    t.expectFail(
+        "kavr",
+        "kavurulacak",
+        "kavurul",
+        "kavracak",
+        "kavrıyor",
+        "kavruyor",
+        "kavurturacak"
+    );
+  }
 }
