@@ -11,13 +11,13 @@ public class AnalysisResult {
   public final DictionaryItem dictionaryItem;
   public final String root;
 
-  List<MorphemeSurfaceForm> morphemes;
+  List<SurfaceTransition> morphemes;
 
   public AnalysisResult(SearchPath searchPath) {
     StemTransition st = searchPath.getStemTransition();
     this.dictionaryItem = st.item;
     this.root = st.surface;
-    this.morphemes = searchPath.getMorphemes();
+    this.morphemes = searchPath.getTransitions();
   }
 
   public DictionaryItem getDictionaryItem() {
@@ -28,7 +28,7 @@ public class AnalysisResult {
     return root;
   }
 
-  public List<MorphemeSurfaceForm> getMorphemes() {
+  public List<SurfaceTransition> getMorphemes() {
     return morphemes;
   }
 
@@ -36,21 +36,21 @@ public class AnalysisResult {
   public String toString() {
     return "[" +
         String.join(" + ", morphemes.stream()
-            .map(MorphemeSurfaceForm::toString)
+            .map(SurfaceTransition::toString)
             .collect(Collectors.toList())) + "]";
   }
 
   public String shortForm() {
     return
         String.join(" + ", morphemes.stream()
-            .map(MorphemeSurfaceForm::toMorphemeString)
+            .map(SurfaceTransition::toMorphemeString)
             .collect(Collectors.toList()));
   }
 
   public String lexicalForm() {
     return
         String.join(" + ", morphemes.stream()
-            .map(s -> s.morphemeState.morpheme.id)
+            .map(s -> s.getMorpheme().id)
             .collect(Collectors.toList()));
   }
 

@@ -665,7 +665,7 @@ public class TurkishMorphotactics {
   MorphemeState a3PlLastVowelDrop_S = nonTerminal("a3PlLastVowelDrop_S", a3pl);
   MorphemeState a3sgLastVowelDrop_S = nonTerminal("a3sgLastVowelDrop_S", a3sg);
   MorphemeState pNonLastVowelDrop_S = nonTerminal("pNonLastVowelDrop_S", pnon);
-  MorphemeState zeroLastVowelDrop_S = nonTerminal("zeroLastVowelDrop_S", zero);
+  MorphemeState zeroLastVowelDrop_S = nonTerminalDerivative("zeroLastVowelDrop_S", zero);
 
   private void connectLastVowelDropWords() {
     nounLastVowelDropRoot_S.addEmpty(a3sgLastVowelDrop_S);
@@ -916,9 +916,7 @@ public class TurkishMorphotactics {
   public MorphemeState pronAfterRel_S = builder("pronAfterRel_S", pron).posRoot().build();
 
   MorphemeState pA1sg_S = nonTerminal("pA1sg_S", a1sg);
-  MorphemeState pA1sgBen_S = nonTerminal("pA1sgBen_S", a1sg);
   MorphemeState pA2sg_S = nonTerminal("pA2sg_S", a2sg);
-  MorphemeState pA2sgSen_S = nonTerminal("pA2sgSen_S", a2sg);
 
   MorphemeState pA1sgMod_S = nonTerminal("pA1sgMod_S", a1sg); // for modified ben
   MorphemeState pA2sgMod_S = nonTerminal("pA2sgMod_S", a2sg); // for modified sen
@@ -1363,11 +1361,12 @@ public class TurkishMorphotactics {
       builder("advForVerbDeriv_ST", adv).posRoot().terminal().build();
 
   MorphemeState avNounAfterAdvRoot_ST = builder("advToNounRoot_ST", noun).posRoot().build();
-  MorphemeState avZero_S = nonTerminalDerivative("avZero_S", zero);
-  MorphemeState avZeroToVerb_S = nonTerminalDerivative("avZeroToVerb_S", zero);
   MorphemeState avA3sg_S = nonTerminal("avA3sg_S", a3sg);
   MorphemeState avPnon_S = nonTerminal("avPnon_S", pnon);
   MorphemeState avDat_ST = terminal("avDat_ST", dat);
+
+  MorphemeState avZero_S = nonTerminalDerivative("avZero_S", zero);
+  MorphemeState avZeroToVerb_S = nonTerminalDerivative("avZeroToVerb_S", zero);
 
   private void connectAdverbs() {
     advNounRoot_ST.addEmpty(avZero_S);
@@ -1446,7 +1445,7 @@ public class TurkishMorphotactics {
   MorphemeState vAorNeg_S = nonTerminal("vAorNeg_S", aor);
   MorphemeState vAorNegEmpty_S = nonTerminal("vAorNegEmpty_S", aor);
   MorphemeState vAorPartNeg_S = nonTerminal("vAorPartNeg_S", aorPart);
-  MorphemeState vAorPart_S = nonTerminal("vAorPart_S", aorPart);
+  MorphemeState vAorPart_S = nonTerminalDerivative("vAorPart_S", aorPart);
 
   MorphemeState vAble_S = nonTerminalDerivative("vAble_S", able);
   MorphemeState vAbleNeg_S = nonTerminalDerivative("vAbleNeg_S", able);

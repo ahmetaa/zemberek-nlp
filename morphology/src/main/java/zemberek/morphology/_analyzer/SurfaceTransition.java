@@ -21,36 +21,47 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.TurkicLetter;
 import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.morphology._morphotactics.AttributeSet;
+import zemberek.morphology._morphotactics.Morpheme;
 import zemberek.morphology._morphotactics.MorphemeState;
 import zemberek.morphology._morphotactics.MorphemeTransition;
 import zemberek.morphology._morphotactics.SuffixTransition;
 
 // TODO: find a better name. Move some methods outside.
 // not a transition.
-public class MorphemeSurfaceForm {
+public class SurfaceTransition {
 
   public final String surface;
   // TODO: this can be removed if SearchPath contains StemTransition.
   public final MorphemeTransition lexicalTransition;
-  public final MorphemeState morphemeState;
 
-  public MorphemeSurfaceForm(String surface, MorphemeTransition transition) {
+  public SurfaceTransition(String surface, MorphemeTransition transition) {
     this.surface = surface;
     this.lexicalTransition = transition;
-    this.morphemeState = transition.to;
+  }
+
+  public boolean isDerivative() {
+    return lexicalTransition.to.derivative;
+  }
+
+  public MorphemeState getState() {
+    return lexicalTransition.to;
+  }
+
+  public Morpheme getMorpheme() {
+    return lexicalTransition.to.morpheme;
   }
 
   public boolean isDerivationalOrRoot() {
-    return morphemeState.derivative || morphemeState.posRoot;
+    return getState().derivative || getState().posRoot;
   }
 
   @Override
   public String toString() {
-    return surfaceString() + morphemeState.id;
+    return surfaceString() + getState().id;
   }
 
   public String toMorphemeString() {
-    return surfaceString() + morphemeState.morpheme.id;
+    return surfaceString() + getState().morpheme.id;
   }
 
   private String surfaceString() {

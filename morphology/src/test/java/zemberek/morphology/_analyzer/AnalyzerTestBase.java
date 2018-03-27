@@ -22,7 +22,7 @@ public class AnalyzerTestBase {
   }
 
   boolean containsMorpheme(AnalysisResult result, String morphemeName) {
-    for (MorphemeSurfaceForm forms : result.getMorphemes()) {
+    for (SurfaceTransition forms : result.getMorphemes()) {
       if (forms.lexicalTransition.to.morpheme.id.equalsIgnoreCase(morphemeName)) {
         return true;
       }
@@ -31,16 +31,16 @@ public class AnalyzerTestBase {
   }
 
   boolean lastMorphemeIs(AnalysisResult result, String morphemeName) {
-    List<MorphemeSurfaceForm> morphemes = result.getMorphemes();
+    List<SurfaceTransition> morphemes = result.getMorphemes();
     if (morphemes.size() == 0) {
       return false;
     }
-    MorphemeSurfaceForm last = morphemes.get(morphemes.size() - 1);
+    SurfaceTransition last = morphemes.get(morphemes.size() - 1);
     return last.lexicalTransition.to.morpheme.id.equalsIgnoreCase(morphemeName);
   }
 
   public boolean notContains(AnalysisResult result, String morphemeName) {
-    for (MorphemeSurfaceForm forms : result.getMorphemes()) {
+    for (SurfaceTransition forms : result.getMorphemes()) {
       if (forms.lexicalTransition.to.morpheme.id.equalsIgnoreCase(morphemeName)) {
         return false;
       }

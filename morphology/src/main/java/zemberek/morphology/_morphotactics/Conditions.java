@@ -13,7 +13,7 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology._analyzer.MorphemeSurfaceForm;
+import zemberek.morphology._analyzer.SurfaceTransition;
 import zemberek.morphology._analyzer.SearchPath;
 import zemberek.morphology.lexicon.DictionaryItem;
 
@@ -346,14 +346,14 @@ class Conditions {
 
     @Override
     public boolean accept(SearchPath visitor) {
-      List<MorphemeSurfaceForm> forms = visitor.getMorphemes();
+      List<SurfaceTransition> forms = visitor.getTransitions();
       if (forms.size() < morphemes.length) {
         return false;
       }
       int i = 0;
       int j = forms.size() - morphemes.length;
       while (i < morphemes.length) {
-        if (morphemes[i++] != forms.get(j++).morphemeState.morpheme) {
+        if (morphemes[i++] != forms.get(j++).getMorpheme()) {
           return false;
         }
       }
@@ -376,13 +376,13 @@ class Conditions {
 
     @Override
     public boolean accept(SearchPath visitor) {
-      List<MorphemeSurfaceForm> forms = visitor.getMorphemes();
+      List<SurfaceTransition> forms = visitor.getTransitions();
       if (forms.size() < morphemes.length) {
         return false;
       }
       int m = 0;
-      for (MorphemeSurfaceForm form : forms) {
-        if (form.morphemeState.morpheme.equals(morphemes[m])) {
+      for (SurfaceTransition form : forms) {
+        if (form.getMorpheme().equals(morphemes[m])) {
           m++;
           if (m == morphemes.length) {
             return true;
@@ -592,11 +592,11 @@ class Conditions {
 
     @Override
     public boolean accept(SearchPath visitor) {
-      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
+      List<SurfaceTransition> suffixes = visitor.getTransitions();
       for (int i = suffixes.size() - 1; i > 0; i--) {
-        MorphemeSurfaceForm sf = suffixes.get(i);
-        if (sf.morphemeState.derivative) {
-          return sf.morphemeState == state;
+        SurfaceTransition sf = suffixes.get(i);
+        if (sf.getState().derivative) {
+          return sf.getState() == state;
         }
       }
       return false;
@@ -612,9 +612,9 @@ class Conditions {
 
     @Override
     public boolean accept(SearchPath visitor) {
-      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
-      for (MorphemeSurfaceForm suffix : suffixes) {
-        if (suffix.morphemeState.derivative) {
+      List<SurfaceTransition> suffixes = visitor.getTransitions();
+      for (SurfaceTransition suffix : suffixes) {
+        if (suffix.getState().derivative) {
           return true;
         }
       }
@@ -638,11 +638,11 @@ class Conditions {
 
     @Override
     public boolean accept(SearchPath visitor) {
-      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
+      List<SurfaceTransition> suffixes = visitor.getTransitions();
       for (int i = suffixes.size() - 1; i > 0; i--) {
-        MorphemeSurfaceForm sf = suffixes.get(i);
-        if (sf.morphemeState.derivative) {
-          return states.contains(sf.morphemeState);
+        SurfaceTransition sf = suffixes.get(i);
+        if (sf.getState().derivative) {
+          return states.contains(sf.getState());
         }
       }
       return false;
@@ -665,13 +665,13 @@ class Conditions {
 
     @Override
     public boolean accept(SearchPath visitor) {
-      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
+      List<SurfaceTransition> suffixes = visitor.getTransitions();
       for (int i = suffixes.size() - 1; i > 0; i--) {
-        MorphemeSurfaceForm sf = suffixes.get(i);
+        SurfaceTransition sf = suffixes.get(i);
         if (sf.surface.isEmpty()) {
           continue;
         }
-        return sf.morphemeState == state;
+        return sf.getState() == state;
       }
       return false;
     }
@@ -695,13 +695,13 @@ class Conditions {
 
     @Override
     public boolean accept(SearchPath visitor) {
-      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
+      List<SurfaceTransition> suffixes = visitor.getTransitions();
       for (int i = suffixes.size() - 1; i > 0; i--) {
-        MorphemeSurfaceForm sf = suffixes.get(i);
-        if (states.contains(sf.morphemeState)) {
+        SurfaceTransition sf = suffixes.get(i);
+        if (states.contains(sf.getState())) {
           return true;
         }
-        if (sf.morphemeState.derivative) {
+        if (sf.getState().derivative) {
           return false;
         }
       }
@@ -728,12 +728,12 @@ class Conditions {
 
     @Override
     public boolean accept(SearchPath visitor) {
-      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
+      List<SurfaceTransition> suffixes = visitor.getTransitions();
 
       int lastIndex = suffixes.size() - 1;
-      MorphemeSurfaceForm sf = suffixes.get(lastIndex);
+      SurfaceTransition sf = suffixes.get(lastIndex);
       // go back until a transition that is connected to a derivative morpheme.
-      while (!sf.morphemeState.derivative) {
+      while (!sf.getState().derivative) {
         if (lastIndex == 0) { // there is no previous group. return early.
           return false;
         }
@@ -743,10 +743,10 @@ class Conditions {
 
       for (int i = lastIndex - 1; i > 0; i--) {
         sf = suffixes.get(i);
-        if (states.contains(sf.morphemeState)) {
+        if (states.contains(sf.getState())) {
           return true;
         }
-        if (sf.morphemeState.derivative) { //could not found the morpheme in this group.
+        if (sf.getState().derivative) { //could not found the morpheme in this group.
           return false;
         }
       }
@@ -772,12 +772,12 @@ class Conditions {
 
     @Override
     public boolean accept(SearchPath visitor) {
-      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
+      List<SurfaceTransition> suffixes = visitor.getTransitions();
 
       int lastIndex = suffixes.size() - 1;
-      MorphemeSurfaceForm sf = suffixes.get(lastIndex);
+      SurfaceTransition sf = suffixes.get(lastIndex);
       // go back until a transition that is connected to a derivative morpheme.
-      while (!sf.morphemeState.derivative) {
+      while (!sf.getState().derivative) {
         if (lastIndex == 0) { // there is no previous group. return early.
           return false;
         }
@@ -787,10 +787,10 @@ class Conditions {
 
       for (int i = lastIndex - 1; i > 0; i--) {
         sf = suffixes.get(i);
-        if (morphemes.contains(sf.morphemeState.morpheme)) {
+        if (morphemes.contains(sf.getState().morpheme)) {
           return true;
         }
-        if (sf.morphemeState.derivative) { //could not found the morpheme in this group.
+        if (sf.getState().derivative) { //could not found the morpheme in this group.
           return false;
         }
       }
@@ -809,10 +809,10 @@ class Conditions {
 
     @Override
     public boolean accept(SearchPath visitor) {
-      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
+      List<SurfaceTransition> suffixes = visitor.getTransitions();
       for (int i = suffixes.size() - 1; i > 0; i--) {
-        MorphemeSurfaceForm sf = suffixes.get(i);
-        if (sf.morphemeState.derivative) {
+        SurfaceTransition sf = suffixes.get(i);
+        if (sf.getState().derivative) {
           return true;
         }
         if (!sf.surface.isEmpty()) {
@@ -839,9 +839,9 @@ class Conditions {
 
     @Override
     public boolean accept(SearchPath visitor) {
-      List<MorphemeSurfaceForm> suffixes = visitor.getMorphemes();
-      for (MorphemeSurfaceForm suffix : suffixes) {
-        if (morphemes.contains(suffix.morphemeState.morpheme)) {
+      List<SurfaceTransition> suffixes = visitor.getTransitions();
+      for (SurfaceTransition suffix : suffixes) {
+        if (morphemes.contains(suffix.getState().morpheme)) {
           return true;
         }
       }

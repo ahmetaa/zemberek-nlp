@@ -5,12 +5,11 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import zemberek.core.collections.IntMap;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.TurkishAlphabet;
-import zemberek.morphology._analyzer.MorphemeSurfaceForm.SuffixTemplateToken;
-import zemberek.morphology._analyzer.MorphemeSurfaceForm.SuffixTemplateTokenizer;
+import zemberek.morphology._analyzer.SurfaceTransition.SuffixTemplateToken;
+import zemberek.morphology._analyzer.SurfaceTransition.SuffixTemplateTokenizer;
 import zemberek.morphology._analyzer.SearchPath;
 import zemberek.morphology.structure.Turkish;
 

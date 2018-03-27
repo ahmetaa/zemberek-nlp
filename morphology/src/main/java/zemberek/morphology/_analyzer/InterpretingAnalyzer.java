@@ -18,10 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import zemberek.core.turkish.PhoneticAttribute;
-import zemberek.core.turkish.TurkishAlphabet;
-import zemberek.core.turkish.TurkishLetterSequence;
-import zemberek.morphology._analyzer.MorphemeSurfaceForm.SuffixTemplateToken;
-import zemberek.morphology._analyzer.MorphemeSurfaceForm.TemplateTokenType;
+import zemberek.morphology._analyzer.SurfaceTransition.SuffixTemplateToken;
+import zemberek.morphology._analyzer.SurfaceTransition.TemplateTokenType;
 import zemberek.morphology._morphotactics.AttributeSet;
 import zemberek.morphology._morphotactics.CombinedCondition;
 import zemberek.morphology._morphotactics.Condition;
@@ -153,7 +151,7 @@ public class InterpretingAnalyzer {
         continue;
       }
 
-      String surface = MorphemeSurfaceForm.generate(
+      String surface = SurfaceTransition.generate(
           suffixTransition,
           path.phoneticAttributes);
 
@@ -191,12 +189,12 @@ public class InterpretingAnalyzer {
       // epsilon transition. Add and continue. Use existing attributes.
       if (!suffixTransition.hasSurfaceForm()) {
         newPaths.add(path.getCopy(
-            new MorphemeSurfaceForm("", suffixTransition),
+            new SurfaceTransition("", suffixTransition),
             path.phoneticAttributes));
         continue;
       }
 
-      MorphemeSurfaceForm surfaceTransition = new MorphemeSurfaceForm(surface, suffixTransition);
+      SurfaceTransition surfaceTransition = new SurfaceTransition(surface, suffixTransition);
 
       //if tail is equal to surface, no need to calculate phonetic attributes.
       AttributeSet<PhoneticAttribute> attributes = path.tail.equals(surface) ?
