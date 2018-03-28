@@ -224,9 +224,13 @@ public class TurkishMorphotactics {
 
   MorphemeState puncRoot_ST = builder("puncRoot_ST", punc).terminal().posRoot().build();
 
+  // this will be used for proper noun separation.
+  MorphemeState puncProperSeparator_S = nonTerminal("puncProperSeparator_S", punc);
+
   //-------------- Noun States ------------------------
 
   MorphemeState noun_S = builder("noun_S", noun).posRoot().build();
+  MorphemeState nounProper_S = builder("nounProper_S", noun).posRoot().build();
   MorphemeState nounCompoundRoot_S = builder("nounCompoundRoot_S", noun).posRoot().build();
   MorphemeState nounSuRoot_S = builder("nounSuRoot_S", noun).posRoot().build();
   MorphemeState nounInf1Root_S = builder("nounInf1Root_S", noun).posRoot().build();
@@ -334,7 +338,16 @@ public class TurkishMorphotactics {
     a3sgCompound_S.addEmpty(pnonCompound_S);
     a3sgCompound_S.add(p3pl_S, "lArI");
 
-    // ---- For compund derivations ------------
+    // ---- Proper noun handling -------
+    // TODO: consider adding single quote after an overhaul.
+    // nounProper_S.add(puncProperSeparator_S, "'");
+    nounProper_S.addEmpty(a3sg_S);
+    nounProper_S.add(a3pl_S, "lAr");
+    puncProperSeparator_S.addEmpty(a3sg_S);
+    puncProperSeparator_S.add(a3pl_S, "lAr");
+
+
+    // ---- For compund derivations -----------------
     pnonCompound_S.addEmpty(nom_S);
     nom_S.add(become_S, "lAş");
     nom_S.add(acquire_S, "lAn");
@@ -2078,6 +2091,9 @@ public class TurkishMorphotactics {
 
     switch (item.primaryPos) {
       case Noun:
+        if (item.secondaryPos == SecondaryPos.ProperNoun) {
+          return nounProper_S;
+        }
         if (item.hasAttribute(RootAttribute.CompoundP3sgRoot)) {
           return nounCompoundRoot_S;
         } else {

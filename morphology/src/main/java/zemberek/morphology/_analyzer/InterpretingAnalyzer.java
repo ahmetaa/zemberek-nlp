@@ -17,6 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.morphology._analyzer.SurfaceTransition.SuffixTemplateToken;
 import zemberek.morphology._analyzer.SurfaceTransition.TemplateTokenType;
@@ -238,9 +239,13 @@ public class InterpretingAnalyzer {
   private void generateStemTransitions(TurkishMorphotactics morphotactics) {
     StemTransitionGenerator generator = new StemTransitionGenerator(morphotactics);
     for (DictionaryItem item : lexicon) {
-      List<StemTransition> transitions = generator.generate(item);
-      for (StemTransition transition : transitions) {
-        addStemTransition(transition);
+      try {
+        List<StemTransition> transitions = generator.generate(item);
+        for (StemTransition transition : transitions) {
+          addStemTransition(transition);
+        }
+      } catch (Exception e) {
+        Log.warn("Cannot generate stem transition for %s with reason %s", item, e.getMessage());
       }
     }
   }

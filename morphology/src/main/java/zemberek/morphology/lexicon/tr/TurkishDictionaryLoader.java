@@ -1,8 +1,5 @@
 package zemberek.morphology.lexicon.tr;
 
-import static zemberek.core.turkish.TurkishAlphabet.L_l;
-import static zemberek.core.turkish.TurkishAlphabet.L_r;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
@@ -29,9 +26,7 @@ import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.core.turkish.TurkicLetter;
-import zemberek.core.turkish.TurkishAlphabet;
-import zemberek.core.turkish.TurkishLetterSequence;
+import zemberek.core.turkish._TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.LexiconException;
 import zemberek.morphology.lexicon.RootLexicon;
@@ -219,7 +214,7 @@ public class TurkishDictionaryLoader {
 
   static class TextLexiconProcessor implements LineProcessor<RootLexicon> {
 
-    static final TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+    static final _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
     static Locale locale = new Locale("tr");
     RootLexicon rootLexicon = new RootLexicon();
     List<LineData> lateEntries = Lists.newArrayList();
@@ -339,7 +334,7 @@ public class TurkishDictionaryLoader {
         if (posInfo.primaryPos == PrimaryPos.Punctuation) {
           //TODO: what to do with pronunciations of punctuations? For now we give them a generic one.
           pronunciation = "a";
-        } else if (new TurkishLetterSequence(cleanWord, alphabet).hasVowel()) {
+        } else if (alphabet.containsVowel(cleanWord)) {
           pronunciation = cleanWord;
         } else {
           pronunciation = Turkish.inferPronunciation(cleanWord);
@@ -371,6 +366,7 @@ public class TurkishDictionaryLoader {
       if (posInfo.primaryPos == PrimaryPos.Verb && isVerb(word)) {
         word = word.substring(0, word.length() - 3);
       }
+      //TODO: probably we should not remove diacritics or convert to lowecase.
       // Remove diacritics.
       word = word.toLowerCase(locale)
           .replace('â', 'a')
@@ -473,28 +469,30 @@ public class TurkishDictionaryLoader {
         String word,
         PosInfo posData,
         Set<RootAttribute> attributes) {
-      TurkishLetterSequence sequence = new TurkishLetterSequence(word.toLowerCase(locale),
-          alphabet);
-      final TurkicLetter last = sequence.lastLetter();
+
+      char last = word.charAt(word.length()-1);
+      boolean lastCharIsVowel = alphabet.isVowel(last);
+
+      int vowelCount = alphabet.vowelCount(word);
       switch (posData.primaryPos) {
         case Verb:
           // if a verb ends with a wovel, and -Iyor suffix is appended, last vowel drops.
-          if (last.isVowel()) {
+          if (lastCharIsVowel) {
             attributes.add(RootAttribute.ProgressiveVowelDrop);
             attributes.add(RootAttribute.Passive_In);
           }
           // if verb has more than 1 syllable and there is no Aorist_A label, add Aorist_I.
-          if (sequence.vowelCount() > 1 && !attributes.contains(RootAttribute.Aorist_A)) {
+          if (vowelCount > 1 && !attributes.contains(RootAttribute.Aorist_A)) {
             attributes.add(RootAttribute.Aorist_I);
           }
           // if verb has 1 syllable and there is no Aorist_I label, add Aorist_A
-          if (sequence.vowelCount() == 1 && !attributes.contains(RootAttribute.Aorist_I)) {
+          if (vowelCount == 1 && !attributes.contains(RootAttribute.Aorist_I)) {
             attributes.add(RootAttribute.Aorist_A);
           }
-          if (last == L_l) {
+          if (last == 'l') {
             attributes.add(RootAttribute.Passive_In);
           }
-          if (last.isVowel() || (last == L_l || last == L_r) && sequence.vowelCount() > 1) {
+          if (lastCharIsVowel || (last == 'l' || last == 'r') && vowelCount > 1) {
             attributes.add(RootAttribute.Causative_t);
           }
           break;
@@ -502,8 +500,8 @@ public class TurkishDictionaryLoader {
         case Adjective:
         case Duplicator:
           // if a noun or adjective has more than one syllable and last letter is a stop consonant, add voicing.
-          if (sequence.vowelCount() > 1
-              && last.isStopConsonant()
+          if (vowelCount > 1
+              && alphabet.isStopConsonant(last)
               && posData.secondaryPos != SecondaryPos.ProperNoun
               && !attributes.contains(RootAttribute.NoVoicing)
               && !attributes.contains(RootAttribute.InverseHarmony)) {
@@ -514,7 +512,7 @@ public class TurkishDictionaryLoader {
                 && posData.secondaryPos != SecondaryPos.ProperNoun) {
               attributes.add(RootAttribute.Voicing);
             }
-          } else if (sequence.vowelCount() < 2 && !attributes.contains(RootAttribute.Voicing)) {
+          } else if (vowelCount < 2 && !attributes.contains(RootAttribute.Voicing)) {
             attributes.add(RootAttribute.NoVoicing);
           }
           break;

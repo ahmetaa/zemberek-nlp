@@ -1,23 +1,23 @@
 ## collected from a corpus, has missing properties and mistakes
 A
-A1
-A2
-A3
-A4
+A1 [Pr:abir]
+A2 [Pr:aiki]
+A3 [Pr:aüç]
+A4 [Pr:adört]
 Aa
 Aaa
-Ab [pr:abe]
-Abb [pr:abebe]
-Abc [pr:abece]
-Abe [pr:abe]
-Abs [pr:abese]
+Ab [Pr:abe]
+Abb [Pr:abebe]
+Abc [Pr:abece]
+Abe [Pr:abe]
+Abs [Pr:abese]
 Ace
 Aç
 Add
 Ae
-Aek [pr:aeka]
+Aek [Pr:aeka]
 Ael
-Afm [pr:afeme]
+Afm [Pr:afeme]
 Afp
 Agb
 Age
@@ -25,13 +25,13 @@ Ahl
 Air
 Ak
 Akk
-Akm [pr:akame]
-Akp [pr:akape]
+Akm [Pr:akame]
+Akp [Pr:akape]
 Ale
 All
 Als
 Amb
-Amd [pr:amede]
+Amd [Pr:amede]
 Amg
 Amr
 And
@@ -61,10 +61,10 @@ Axa
 Aym [Pr:Ayeme]
 Ayy
 B
-B1 [pr:bebirr]
-B12 [pr:beoniki]
-B2 [pr:beiki]
-B6 [pr:bealtı]
+B1 [Pr:bebirr]
+B12 [Pr:beoniki]
+B2 [Pr:beiki]
+B6 [Pr:bealtı]
 Bab
 Bad
 Bae
@@ -102,7 +102,7 @@ Box
 Bşb
 Bşk
 Btc
-Btk [pr:beteka]
+Btk [Pr:beteka]
 Bud
 Bug
 Bur
@@ -111,8 +111,8 @@ Bv
 By
 Bye
 C
-C3 [pr:ceüç]
-C4 [pr:cedört]
+C3 [Pr:ceüç]
+C4 [Pr:cedört]
 Cac
 Cad
 Caf
@@ -193,7 +193,7 @@ Dhl
 Dia
 Die
 Dj
-dk [Pr:dakika; Ref:dakika_Noun_Time]
+dk [Pr:dakika; Ref:dakika_Noun]
 Dlh
 Dm
 Dna
@@ -215,7 +215,7 @@ Dsi
 Dsö
 Dsp
 Dt
-Dtk [pr:deteka]
+Dtk [Pr:deteka]
 Dtm
 Dto
 Dtö
@@ -239,7 +239,7 @@ Egs
 Eib
 Eit
 Ekg
-Ekk [pr:ekaka]
+Ekk [Pr:ekaka]
 Emı
 Emo
 End
@@ -256,8 +256,8 @@ Eva
 Evo
 Ex
 F
-F1 [pr:febir]
-F16 [pr:feonaltı]
+F1 [Pr:febir]
+F16 [Pr:feonaltı]
 Fao
 Fat
 Fb
@@ -276,11 +276,11 @@ Fry
 Fsb
 Fsm
 G
-G2 [pr:geiki]
-G20 [pr:geyirmi]
-G3 [pr:geüç]
-G7 [pr:geyedi]
-G8 [pr:gesekiz]
+G2 [Pr:geiki]
+G20 [Pr:geyirmi]
+G3 [Pr:geüç]
+G7 [Pr:geyedi]
+G8 [Pr:gesekiz]
 Gal
 Gap
 Gas
@@ -298,8 +298,8 @@ Gih
 Gik
 Gil
 Gli
-Gmk [pr:gemeka]
-gmsh [A:Ext;Pr:gesemehe,gesemeha]
+Gmk [Pr:gemeka]
+gmsh [A:Ext;Pr:gesemehe]
 Gn
 Gns
 Go
@@ -351,10 +351,10 @@ Hpg
 Hpv
 Hs
 Ht
-Hsyk [pr:heseyeka]
+Hsyk [Pr:heseyeka]
 Htc
 Hts
-Http [pr:hetetepe]
+Http [Pr:hetetepe]
 Hü
 Hwa
 Hy
@@ -390,7 +390,7 @@ Its
 Iv
 Ivy
 Iyi
-İ7 [pr:iyedi]
+İ7 [Pr:iyedi]
 İa
 İab
 İb
@@ -411,7 +411,7 @@ Iyi
 İk
 İkö
 İkt
-İmf [pr:imefe]
+İmf [Pr:imefe]
 İng
 İnş
 İö
@@ -432,7 +432,7 @@ Jax
 Jay
 Jem
 Jen
-Jfk [pr:ceyefkey]
+Jfk [Pr:ceyefkey]
 Ji
 Jim
 Jin
@@ -449,7 +449,7 @@ Kai
 Kb
 Kbb
 Kc
-Kck [pr:kaceka]
+Kck [Pr:kaceka]
 Kd
 Kdp
 Kdv
@@ -462,11 +462,11 @@ Kgb
 Kgm
 Kgs
 Kh
-Khk [pr:kaheka]
+Khk [Pr:kaheka]
 Kia
 Kid
 Kk
-Kkk [pr:kakaka]
+Kkk [Pr:kakaka]
 Km
 Ko
 Kos
@@ -481,11 +481,11 @@ Kto
 Ktü
 Kü
 Kv
-Kvk [pr:kaveka]
+Kvk [Pr:kaveka]
 Ky
 Kyb
 Kyi
-Kyk [pr:kayeka]
+Kyk [Pr:kayeka]
 Lab
 Las
 Law
@@ -517,10 +517,10 @@ Lte
 Luc
 Lys
 M
-M1 [pr:me1]
-M2 [pr:me2]
-M3 [pr:me3]
-M4 [pr:me4]
+M1 [Pr:mebir]
+M2 [Pr:meiki]
+M3 [Pr:meüç]
+M4 [Pr:medört]
 Maa
 Mac
 Mad
@@ -547,9 +547,9 @@ Mem
 Mer
 Mf
 Mfö
-Mgk [pr:megeka]
+Mgk [Pr:megeka]
 Mh
-Mhk [pr:meheka]
+Mhk [Pr:meheka]
 Mhp
 Mhz
 Mıt
@@ -557,7 +557,7 @@ Mi
 Mia
 Mk
 Mke
-Mkyk [pr:mekayeka]
+Mkyk [Pr:mekayeka]
 Ml
 Mm
 Mms
@@ -567,7 +567,7 @@ Moe
 Mol
 Mö
 Mp
-Mp3 [pr:mepeüç]
+Mp3 [Pr:mepeüç]
 Mr
 Mrı
 Mrs
@@ -579,7 +579,7 @@ Msp
 Mş
 Mt
 Mta
-Mtk [pr:meteka]
+Mtk [Pr:meteka]
 Mts
 Mtv
 Mu
@@ -588,7 +588,7 @@ Müh
 Mvp
 Mw
 My
-Myk [pr:meyeka]
+Myk [Pr:meyeka]
 Myo
 N
 Nak
@@ -629,7 +629,7 @@ Oa
 Ob
 Obi
 Odd
-OECD [pr:oisidi]
+OECD [Pr:oisidi]
 Off
 Og
 Ogg
@@ -647,7 +647,7 @@ Op
 Opr
 Or
 Ork
-OSB [pr:osebe]
+OSB [Pr:osebe]
 Osd
 Oş
 Out
@@ -655,20 +655,20 @@ Ovp
 Oz
 Ö
 Öa
-Ödp [pr:ödepe]
+Ödp [Pr:ödepe]
 Öho
-Öib [pr:öibe]
-Öiv [pr:öive]
+Öib [Pr:öibe]
+Öiv [Pr:öive]
 Ök
 Öso
-Öss [pr:ösese]
-Ösym [pr:öseyeme]
-Ösys [pr:öseyese]
+Öss [Pr:ösese]
+Ösym [Pr:öseyeme]
+Ösys [Pr:öseyese]
 Öta
-Ötv [pr:öteve]
+Ötv [Pr:öteve]
 Öy
-Öyk [pr:öyeka]
-Öym [pr:öyeme]
+Öyk [Pr:öyeka]
+Öym [Pr:öyeme]
 P
 Paf
 Par
@@ -686,19 +686,19 @@ Plc
 Pmı
 Poe
 Pp
-Ppk [pr:pepeka]
+Ppk [Pr:pepeka]
 Pre
 Pro
 Ps
-Ps3 [pr:peseüç]
-Ps4 [pr:pesedört]
+Ps3 [Pr:peseüç]
+Ps4 [Pr:pesedört]
 Psg
 Psv
 Ptt
 Pvc
 Pwc
 Pyd
-Q7 [pr:kuyedi]
+Q7 [Pr:kuyedi]
 Qi
 R
 Rai
@@ -729,10 +729,10 @@ Rte
 Rtl
 Ry
 S
-S3 [pr:seüç]
-S4 [pr:sedört]
-S5 [pr:sebeş]
-S6 [pr:sealtı]
+S3 [Pr:seüç]
+S4 [Pr:sedört]
+S5 [Pr:sebeş]
+S6 [Pr:sealtı]
 Sad
 Sao
 Sas
@@ -747,7 +747,7 @@ Sdü
 Sea
 Seo
 Sg
-Sgk [pr:segeka]
+Sgk [Pr:segeka]
 Sh
 Shi
 Shp
@@ -768,15 +768,15 @@ Sö
 Sp
 Spa
 Spd
-Spk [pr:sepeka]
+Spk [Pr:sepeka]
 Spy
 Sri
 Ss
 Ssd
-Ssk [pr:seseka]
+Ssk [Pr:seseka]
 Ssm
 St
-Stk [pr:seteka]
+Stk [Pr:seteka]
 Stu
 Stv
 Sue
@@ -813,7 +813,7 @@ Tau
 Tbb
 Tbf
 Tcg
-Tck [pr:teceka]
+Tck [Pr:teceka]
 Tcy
 Td
 TDÇİ
@@ -833,7 +833,7 @@ Tgb
 Tgc
 Tgs
 The
-Thk [pr:teheka]
+Thk [Pr:teheka]
 Ths
 Thy
 Tıp
@@ -864,7 +864,7 @@ Tsk [Pr:teseka]
 Tso
 Tt
 Ttb
-Ttk [pr:teteka]
+Ttk [Pr:teteka]
 Tts
 Tu
 Tus
@@ -875,11 +875,11 @@ Tvf
 Two
 Ty
 U
-U17
-U19
-U2
-U20
-U21
+U17 [Pr:uonyedi]
+U19 [Pr:uondokuz]
+U2 [Pr:uiki]
+U20 [Pr:uyirmi]
+U21 [Pr:uyirmibir]
 Ubp
 Ubs
 Ucm
@@ -908,8 +908,8 @@ Uzm
 Üni
 Ünv
 V
-V6 [pr:vealtı]
-V8 [pr:vesekiz]
+V6 [Pr:vealtı]
+V8 [Pr:vesekiz]
 Val
 Vb
 Vcd
@@ -961,7 +961,7 @@ Yav
 Yç
 Yd
 Ydg
-Ydk [pr:yedeka]
+Ydk [Pr:yedeka]
 Ydp
 Yds
 Yes
@@ -982,9 +982,9 @@ You
 Yök
 Yp
 Ypg
-Ypk [pr:yepeka]
+Ypk [Pr:yepeka]
 Yrd
-Ysk [pr:yeseka]
+Ysk [Pr:yeseka]
 Yt
 Ytl
 Ytp
@@ -997,11 +997,11 @@ Z
 Zap
 Zdf
 Zec
-Epdk [pr:epedeka]
-vd [pr:vede]
-m² [pr:metrekare]
-km² [pr:kilometrekare]
-cm² [pr:santimetrekare]
-Alm. [pr:almanca]
-İng. [pr:ingilizce]
+Epdk [Pr:epedeka]
+vd [Pr:vede]
+m² [Pr:metrekare]
+km² [Pr:kilometrekare]
+cm² [Pr:santimetrekare]
+Alm. [Pr:almanca]
+İng. [Pr:ingilizce]
 

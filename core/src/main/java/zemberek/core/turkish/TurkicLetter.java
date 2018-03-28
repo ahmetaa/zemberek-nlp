@@ -6,9 +6,8 @@ package zemberek.core.turkish;
  */
 public class TurkicLetter {
 
-  public static final TurkicLetter UNDEFINED = new TurkicLetter((char) 0, -1);
+  public static final TurkicLetter UNDEFINED = new TurkicLetter((char) 0);
   public final char charValue;
-  public final int alphabeticIndex;
   public final boolean vowel;
   public final boolean frontal;
   public final boolean rounded;
@@ -20,7 +19,6 @@ public class TurkicLetter {
 
   private TurkicLetter(Builder builder) {
     this.charValue = builder._charValue;
-    this.alphabeticIndex = builder._alphabeticIndex;
     this.vowel = builder._vowel;
     this.frontal = builder._frontalVowel;
     this.rounded = builder._roundedVowel;
@@ -32,9 +30,8 @@ public class TurkicLetter {
   }
 
   // only used for illegal letter.
-  private TurkicLetter(char c, int alphabeticIndex) {
+  private TurkicLetter(char c) {
     this.charValue = c;
-    this.alphabeticIndex = alphabeticIndex;
     vowel = false;
     frontal = false;
     rounded = false;
@@ -45,16 +42,12 @@ public class TurkicLetter {
     englishEquivalentChar = c;
   }
 
-  public static Builder builder(char charValue, int alphabeticIndex) {
-    return new Builder(charValue).alphabeticIndex(alphabeticIndex);
+  public static Builder builder(char charValue) {
+    return new Builder(charValue);
   }
 
   public char charValue() {
     return charValue;
-  }
-
-  public int alphabeticIndex() {
-    return alphabeticIndex;
   }
 
   public boolean isVowel() {
@@ -124,7 +117,6 @@ public class TurkicLetter {
   public static class Builder {
 
     private char _charValue = 0;
-    private int _alphabeticIndex = -1;
     private boolean _vowel = false;
     private boolean _frontalVowel = false;
     private boolean _roundedVowel = false;
@@ -137,11 +129,6 @@ public class TurkicLetter {
     public Builder(char charValue) {
       this._charValue = charValue;
       this._englishEquivalentChar = charValue;
-    }
-
-    public Builder alphabeticIndex(int alphabeticIndex) {
-      this._alphabeticIndex = alphabeticIndex;
-      return this;
     }
 
     public Builder vowel() {
@@ -189,20 +176,8 @@ public class TurkicLetter {
           || _roundedVowel))) {
         throw new IllegalArgumentException(
             "Letter seems to have both vowel and Consonant attributes");
-      } else if ((!_inAscii) && (_charValue < 'a' && _charValue > 'z')) {
-        throw new IllegalArgumentException(
-            "Marked as english alphabet but it is not." + _charValue);
-      } else if (_alphabeticIndex < 0) {
-        throw new IllegalArgumentException(
-            "Alphabetical index must be positive:" + _alphabeticIndex);
       }
-
-      if ((!_inAscii) && (_charValue < 'a' && _charValue > 'z')) {
-        ;
-      }
-
-      TurkicLetter tl = new TurkicLetter(this);
-      return tl;
+      return new TurkicLetter(this);
     }
   }
 }

@@ -6,7 +6,7 @@ import java.util.Arrays;
  * <code>TurkishLetterSequence</code> represents a sequence of <code>Letter</code>s. It is mutable and not
  * Thread safe. should be used for intermediate operations, not as storage.
  */
-public class TurkishLetterSequence implements CharSequence, Comparable<TurkishLetterSequence> {
+public class TurkishLetterSequence implements CharSequence {
 
   public static final TurkishLetterSequence EMPTY_SEQ = new TurkishLetterSequence(0);
   private TurkicLetter[] letters;
@@ -465,35 +465,7 @@ public class TurkishLetterSequence implements CharSequence, Comparable<TurkishLe
     return new StringBuilder(this).toString();
   }
 
-  /**
-   * Compare to metodu siralama icin kiyaslama yapar. Kiyaslama oncelikle harflerin alphabettik
-   * sirasina daha sonra dizilerin boyutuna gore yapilir.
-   *
-   * @param o kiyaslanacak dizi.
-   * @return 'kedi'.compareTo('kedi') -> 0 'kedi'.compareTo('ke')  -> 2 (boy farki)
-   * 'kedi'.compareTo('kedm') -> -4 (i->m alphabettik sira farki) 'kedi'.compareTo(null) -> 1
-   */
-  public int compareTo(TurkishLetterSequence o) {
-    if (o == null) {
-      return 1;
-    }
-
-    if (this == o) {
-      return 0;
-    }
-
-    int l = o.size;
-    int n = Math.min(size, l);
-
-    for (int i = 0; i < n; i++) {
-      if (!letters[i].equals(o.letters[i])) {
-        return letters[i].alphabeticIndex() - o.letters[i].alphabeticIndex();
-      }
-    }
-    return size - l;
-  }
-
-    /* ------------------------- ozel metodlar ------------------------------- */
+  /* ------------------------- ozel metodlar ------------------------------- */
 
   /**
    * Genellikle kelimedeki hece sayisini bulmak icin kullanilir.
