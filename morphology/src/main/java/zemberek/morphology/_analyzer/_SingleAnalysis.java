@@ -5,11 +5,9 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology._morphotactics.Morpheme;
-import zemberek.morphology._morphotactics.StemTransition;
 import zemberek.morphology.lexicon.DictionaryItem;
 
 // This class represents a single morphological analysis result
-// TODO: Not Yet In Use
 public class _SingleAnalysis {
 
   // Dictionary Item of the analysis.
@@ -61,6 +59,10 @@ public class _SingleAnalysis {
     }
   }
 
+  int getMorphemeGroupCount() {
+    return groupBoundaries.length;
+  }
+
   /**
    * Returns the concatenated suffix surfaces.
    * <pre>
@@ -91,6 +93,7 @@ public class _SingleAnalysis {
    *   "arıyor"       -> "ar"
    * </pre>
    * TODO: decide for inputs like "12'ye and "Ankara'da"
+   *
    * @return concatenated suffix surfaces.
    */
   public String getStem() {
