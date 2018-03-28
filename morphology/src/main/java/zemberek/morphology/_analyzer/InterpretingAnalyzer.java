@@ -50,7 +50,11 @@ public class InterpretingAnalyzer {
     generateStemTransitions(morphotactics);
   }
 
-  public List<AnalysisResult> analyze(String input, AnalysisDebugData debugData) {
+  public RootLexicon getLexicon() {
+    return lexicon;
+  }
+
+  public List<_SingleAnalysis> analyze(String input, AnalysisDebugData debugData) {
 
     // get stem candidates.
     List<StemTransition> candidates = Lists.newArrayListWithCapacity(3);
@@ -74,17 +78,27 @@ public class InterpretingAnalyzer {
     }
 
     // search graph.
-    return search(paths, debugData);
+    List<SearchPath> resultPaths = search(paths, debugData);
+    // generate results from successful paths.
+    List<_SingleAnalysis> result = new ArrayList<>(resultPaths.size());
+    for (SearchPath path : resultPaths) {
+      _SingleAnalysis analysis = _SingleAnalysis.fromSearchPath(path);
+      result.add(analysis);
+      if (debugData != null) {
+        debugData.results.add(analysis);
+      }
+    }
+    return result;
   }
 
-  public List<AnalysisResult> analyze(String input) {
+  public List<_SingleAnalysis> analyze(String input) {
     return analyze(input, null);
   }
 
   // searches through morphotactics graph.
-  private List<AnalysisResult> search(List<SearchPath> currentPaths, AnalysisDebugData debugData) {
+  private List<SearchPath> search(List<SearchPath> currentPaths, AnalysisDebugData debugData) {
 
-    List<AnalysisResult> result = new ArrayList<>(3);
+    List<SearchPath> result = new ArrayList<>(3);
     // new Paths are generated with matching transitions.
     while (currentPaths.size() > 0) {
 
@@ -97,8 +111,7 @@ public class InterpretingAnalyzer {
         if (path.tail.length() == 0) {
           if (path.isTerminal() &&
               !path.phoneticAttributes.contains(PhoneticAttribute.CannotTerminate)) {
-            AnalysisResult analysis = new AnalysisResult(path);
-            result.add(analysis);
+            result.add(path);
             if (debugData != null) {
               debugData.finishedPaths.add(path);
             }
@@ -124,7 +137,7 @@ public class InterpretingAnalyzer {
     }
 
     if (debugData != null) {
-      debugData.results.addAll(result);
+      debugData.resultPaths.addAll(result);
     }
 
     return result;
@@ -279,7 +292,8 @@ public class InterpretingAnalyzer {
     Map<SearchPath, String> failedPaths = new HashMap<>();
     Set<SearchPath> finishedPaths = new LinkedHashSet<>();
     Multimap<SearchPath, RejectedTransition> rejectedTransitions = ArrayListMultimap.create();
-    List<AnalysisResult> results = new ArrayList<>();
+    List<_SingleAnalysis> results = new ArrayList<>();
+    List<SearchPath> resultPaths = new ArrayList<>();
 
     List<String> detailedInfo() {
       List<String> l = new ArrayList<>();
@@ -308,13 +322,13 @@ public class InterpretingAnalyzer {
           }
         }
       }
-      l.add("Results [" + input + "] (Surface + Morpheme State):");
-      for (AnalysisResult result : results) {
-        l.add("  " + result);
+      l.add("Paths    [" + input + "] (Surface + Morpheme State):");
+      for (SearchPath result : resultPaths) {
+        l.add("  " + result.toString());
       }
-      l.add("Results [" + input + "] (Surface + Morpheme):");
-      for (AnalysisResult result : results) {
-        l.add("  " + result.shortForm());
+      l.add("Analyses [" + input + "] (Surface + Morpheme):");
+      for (_SingleAnalysis result : results) {
+        l.add("  " + AnalysisFormatters.shortForm().format(result));
       }
       return l;
     }

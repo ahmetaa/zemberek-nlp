@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import org.junit.Assert;
 import zemberek.morphology._analyzer.InterpretingAnalyzer.AnalysisDebugData;
+import zemberek.morphology._analyzer._SingleAnalysis.MorphemeSurface;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 
@@ -21,43 +22,43 @@ public class AnalyzerTestBase {
     return new AnalysisTester(new InterpretingAnalyzer(loader));
   }
 
-  boolean containsMorpheme(AnalysisResult result, String morphemeName) {
-    for (SurfaceTransition forms : result.getMorphemes()) {
-      if (forms.lexicalTransition.to.morpheme.id.equalsIgnoreCase(morphemeName)) {
+  boolean containsMorpheme(_SingleAnalysis result, String morphemeName) {
+    for (MorphemeSurface forms : result.getMorphemesSurfaces()) {
+      if (forms.morpheme.id.equalsIgnoreCase(morphemeName)) {
         return true;
       }
     }
     return false;
   }
 
-  boolean lastMorphemeIs(AnalysisResult result, String morphemeName) {
-    List<SurfaceTransition> morphemes = result.getMorphemes();
+  boolean lastMorphemeIs(_SingleAnalysis result, String morphemeName) {
+    List<MorphemeSurface> morphemes = result.getMorphemesSurfaces();
     if (morphemes.size() == 0) {
       return false;
     }
-    SurfaceTransition last = morphemes.get(morphemes.size() - 1);
-    return last.lexicalTransition.to.morpheme.id.equalsIgnoreCase(morphemeName);
+    MorphemeSurface last = morphemes.get(morphemes.size() - 1);
+    return last.morpheme.id.equalsIgnoreCase(morphemeName);
   }
 
-  public boolean notContains(AnalysisResult result, String morphemeName) {
-    for (SurfaceTransition forms : result.getMorphemes()) {
-      if (forms.lexicalTransition.to.morpheme.id.equalsIgnoreCase(morphemeName)) {
+  public boolean notContains(_SingleAnalysis result, String morphemeName) {
+    for (_SingleAnalysis.MorphemeSurface forms : result.getMorphemesSurfaces()) {
+      if (forms.morpheme.id.equalsIgnoreCase(morphemeName)) {
         return false;
       }
     }
     return true;
   }
 
-  static void printAndSort(String input, List<AnalysisResult> results) {
-    results.sort(Comparator.comparing(AnalysisResult::toString));
-    for (AnalysisResult result : results) {
+  static void printAndSort(String input, List<_SingleAnalysis> results) {
+    results.sort(Comparator.comparing(_SingleAnalysis::toString));
+    for (_SingleAnalysis result : results) {
       System.out.println(input + " = " + result + " = " + result.shortForm());
     }
   }
 
   static void expectFail(InterpretingAnalyzer analyzer, String... words) {
     for (String word : words) {
-      List<AnalysisResult> results = analyzer.analyze(word);
+      List<_SingleAnalysis> results = analyzer.analyze(word);
       if (results.size() != 0) {
         printDebug(analyzer, word);
         Assert.fail("["+ word + "] is expected to fail but passed.");
@@ -67,7 +68,7 @@ public class AnalyzerTestBase {
 
   static void expectSuccess(InterpretingAnalyzer analyzer, String... words) {
     for (String word : words) {
-      List<AnalysisResult> results = analyzer.analyze(word);
+      List<_SingleAnalysis> results = analyzer.analyze(word);
       if (results.size() == 0) {
         printDebug(analyzer, word);
         Assert.fail("["+ word + "] is expected to pass but failed.");
@@ -79,7 +80,7 @@ public class AnalyzerTestBase {
 
   static void expectSuccess(InterpretingAnalyzer analyzer, int solutionCount, String... words) {
     for (String word : words) {
-      List<AnalysisResult> results = analyzer.analyze(word);
+      List<_SingleAnalysis> results = analyzer.analyze(word);
       if (results.size() != solutionCount) {
         printDebug(analyzer, word);
         Assert.fail("["+ word + "] is expected to pass with solution count " + solutionCount +
@@ -90,8 +91,8 @@ public class AnalyzerTestBase {
     }
   }
 
-  static AnalysisResult getSingleAnalysis(InterpretingAnalyzer analyzer, String input) {
-    List<AnalysisResult> results = analyzer.analyze(input);
+  static _SingleAnalysis getSingleAnalysis(InterpretingAnalyzer analyzer, String input) {
+    List<_SingleAnalysis> results = analyzer.analyze(input);
     if (results.size() != 1) {
       printDebug(analyzer, input);
       if (results.size() == 0) {
@@ -105,9 +106,9 @@ public class AnalyzerTestBase {
     return results.get(0);
   }
 
-  static List<AnalysisResult> getMultipleAnalysis(
+  static List<_SingleAnalysis> getMultipleAnalysis(
       InterpretingAnalyzer analyzer, int count, String input) {
-    List<AnalysisResult> results = analyzer.analyze(input);
+    List<_SingleAnalysis> results = analyzer.analyze(input);
     if (results.size() != count) {
       printDebug(analyzer, input);
       if (results.size() == 0) {
@@ -121,8 +122,8 @@ public class AnalyzerTestBase {
     return results;
   }
 
-  static List<AnalysisResult> getMultipleAnalysis(InterpretingAnalyzer analyzer, String input) {
-    List<AnalysisResult> results = analyzer.analyze(input);
+  static List<_SingleAnalysis> getMultipleAnalysis(InterpretingAnalyzer analyzer, String input) {
+    List<_SingleAnalysis> results = analyzer.analyze(input);
     if (results.size() == 0) {
       printDebug(analyzer, input);
       Assert.fail(input + " cannot be analyzed");
@@ -160,8 +161,8 @@ public class AnalyzerTestBase {
       AnalyzerTestBase.expectSuccess(analyzer, solutionCount, words);
     }
 
-    void expectSingle(String input, Predicate<AnalysisResult> predicate) {
-      AnalysisResult result = getSingleAnalysis(analyzer, input);
+    void expectSingle(String input, Predicate<_SingleAnalysis> predicate) {
+      _SingleAnalysis result = getSingleAnalysis(analyzer, input);
       if (!predicate.test(result)) {
         printDebug(analyzer, input);
         Assert.fail("Anaysis Failed for [" + input + "]");
@@ -169,7 +170,7 @@ public class AnalyzerTestBase {
     }
 
     void expectSingle(String input, AnalysisMatcher matcher) {
-      AnalysisResult result = getSingleAnalysis(analyzer, input);
+      _SingleAnalysis result = getSingleAnalysis(analyzer, input);
       if (!matcher.predicate.test(result)) {
         printDebug(analyzer, input);
         Assert.fail("Anaysis Failed for [" + input + "]. Predicate Input = " + matcher.expected);
@@ -177,8 +178,8 @@ public class AnalyzerTestBase {
     }
 
     void expectAny(String input, AnalysisMatcher matcher) {
-      List<AnalysisResult> result = getMultipleAnalysis(analyzer, input);
-      for (AnalysisResult analysisResult : result) {
+      List<_SingleAnalysis> result = getMultipleAnalysis(analyzer, input);
+      for (_SingleAnalysis analysisResult : result) {
         if (matcher.predicate.test(analysisResult)) {
           return;
         }
@@ -187,8 +188,8 @@ public class AnalyzerTestBase {
       Assert.fail("Anaysis Failed for [" + input + "]. Predicate Input = " + matcher.expected);
     }
 
-    void expectFalse(String input, Predicate<AnalysisResult> predicate) {
-      AnalysisResult result = getSingleAnalysis(analyzer, input);
+    void expectFalse(String input, Predicate<_SingleAnalysis> predicate) {
+      _SingleAnalysis result = getSingleAnalysis(analyzer, input);
       if (predicate.test(result)) {
         printDebug(analyzer, input);
         Assert.fail("Anaysis Failed for [" + input + "]");
@@ -196,8 +197,8 @@ public class AnalyzerTestBase {
     }
 
     void expectFalse(String input, AnalysisMatcher matcher) {
-      List<AnalysisResult> results = getMultipleAnalysis(analyzer, input);
-      for (AnalysisResult result : results) {
+      List<_SingleAnalysis> results = getMultipleAnalysis(analyzer, input);
+      for (_SingleAnalysis result : results) {
         if (matcher.predicate.test(result)) {
           printDebug(analyzer, input);
           Assert.fail("Anaysis Failed for [" + input + "]");
@@ -206,11 +207,11 @@ public class AnalyzerTestBase {
     }
   }
 
-  public static Predicate<AnalysisResult> matchesShortForm(String shortForm) {
+  public static Predicate<_SingleAnalysis> matchesShortForm(String shortForm) {
     return p -> p.shortForm().equalsIgnoreCase(shortForm);
   }
 
-  public static Predicate<AnalysisResult> matchesShortFormTail(String shortFormTail) {
+  public static Predicate<_SingleAnalysis> matchesShortFormTail(String shortFormTail) {
     return p -> p.shortForm().endsWith(shortFormTail);
   }
 
@@ -221,9 +222,9 @@ public class AnalyzerTestBase {
   static class AnalysisMatcher {
 
     String expected;
-    Predicate<AnalysisResult> predicate;
+    Predicate<_SingleAnalysis> predicate;
 
-    AnalysisMatcher(Predicate<AnalysisResult> predicate, String expected) {
+    AnalysisMatcher(Predicate<_SingleAnalysis> predicate, String expected) {
       this.predicate = predicate;
       this.expected = expected;
     }

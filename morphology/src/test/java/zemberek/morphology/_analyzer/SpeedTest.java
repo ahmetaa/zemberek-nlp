@@ -43,7 +43,7 @@ public class SpeedTest {
           continue;
         }
         tokenCount ++;
-        List<AnalysisResult> results = analyzer.analyze(token.getText());
+        List<_SingleAnalysis> results = analyzer.analyze(token.getText());
         if (results.size() == 0) {
           noAnalysis++;
           failedWords.add(token.getText());

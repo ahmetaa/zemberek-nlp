@@ -214,6 +214,8 @@ birbirlerimizin
 birbirlerinize
 birbirlerinizin
 
+Consider adding "'" to analysis.
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

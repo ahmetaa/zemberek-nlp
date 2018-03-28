@@ -48,7 +48,7 @@ public class CoverageTest {
   @Test
   @Ignore(value = "Coverage Test")
   public void testCoverage2() throws Exception {
-    Path path = Paths.get("../data/frequent-failed-words.txt");
+    Path path = Paths.get("../data/ambiguity/all-words-sorted-name.txt");
     List<String> strings = Files.readAllLines(path, StandardCharsets.UTF_8);
     ArrayDeque<String> lines = new ArrayDeque<>(strings);
     Log.info("File read, analyzing.");
@@ -85,11 +85,12 @@ public class CoverageTest {
           List<String> failed = new ArrayList<>(batchSize / 2);
           List<String> passed = new ArrayList<>(batchSize);
           for (String s : batch) {
-            List<AnalysisResult> results = analyzer.analyze(s);
+            String c = s.toLowerCase(Turkish.LOCALE).replaceAll("[']","");
+            List<_SingleAnalysis> results = analyzer.analyze(c);
             if (results.size() == 0) {
               failed.add(s);
             } else {
-              //passed.add(s);
+              passed.add(s);
             }
           }
           return new Result(failed, passed, batch.size());

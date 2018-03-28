@@ -8,40 +8,17 @@ public class NounsTest extends AnalyzerTestBase {
 
 
   @Test
-  public void shouldParse_1() {
-    String in = "elmalar";
-    List<AnalysisResult> results = getAnalyzer("elma").analyze(in);
-    printAndSort(in, results);
-    Assert.assertEquals(2, results.size());
-  }
-
-  @Test
   public void implicitDative_1() {
-    String in = "içeri";
-    List<AnalysisResult> results = getAnalyzer("içeri [A:ImplicitDative]")
-        .analyze(in);
-    printAndSort(in, results);
-    Assert.assertEquals(2, results.size());
-    AnalysisResult first = results.get(0);
-
-    Assert.assertEquals("içeri_Noun", first.getDictionaryItem().id);
-    Assert.assertEquals("içeri", first.root);
-    Assert.assertTrue(containsMorpheme(first, "Dat"));
+    AnalysisTester t = getTester("içeri [A:ImplicitDative]");
+    t.expectAny("içeri", matchesTailLex("Noun + A3sg + Pnon + Dat"));
+    t.expectAny("içeri", matchesTailLex("Noun + A3sg + Pnon + Nom"));
   }
 
   @Test
   public void implicitPLural_1() {
-    String in = "hayvanat";
-    List<AnalysisResult> results = getAnalyzer(
-        "hayvanat [A:ImplicitPlural]")
-        .analyze(in);
-    printAndSort(in, results);
-    Assert.assertEquals(1, results.size());
-    AnalysisResult first = results.get(0);
-
-    Assert.assertTrue(containsMorpheme(first, "A3pl"));
+    AnalysisTester t = getTester("hayvanat [A:ImplicitPlural]");
+    t.expectSingle("hayvanat", matchesTailLex("Noun + A3pl + Pnon + Nom"));
   }
-
 
   @Test
   public void voicing_1() {
@@ -54,7 +31,7 @@ public class NounsTest extends AnalyzerTestBase {
     t.expectAny("kitapçık",
         matchesTailLex("Noun + A3sg + Pnon + Nom + Dim + Noun + A3sg + Pnon + Nom"));
 
-    t.expectFail( "kitapım", "kitab", "kitabcık", "kitapa", "kitablar");
+    t.expectFail("kitapım", "kitab", "kitabcık", "kitapa", "kitablar");
   }
 
   @Test
@@ -67,8 +44,8 @@ public class NounsTest extends AnalyzerTestBase {
     t.expectAny("içerde", matchesTailLex("Noun + A3sg + Pnon + Loc"));
     t.expectAny("içerlerde", matchesTailLex("Noun + A3pl + Pnon + Loc"));
 
-    t.expectFail( "içer");
-    t.expectFail( "içerdim");
+    t.expectFail("içer");
+    t.expectFail("içerdim");
 
     t = getTester("bura");
     t.expectAny("burada", matchesTailLex("Noun + A3sg + Pnon + Loc"));
@@ -76,8 +53,8 @@ public class NounsTest extends AnalyzerTestBase {
     t.expectAny("burlarda", matchesTailLex("Noun + A3pl + Pnon + Loc"));
     t.expectAny("burdan", matchesTailLex("Noun + A3sg + Pnon + Abl"));
 
-    t.expectFail( "burd");
-    t.expectFail( "burdum");
+    t.expectFail("burd");
+    t.expectFail("burdum");
   }
 
 
@@ -344,10 +321,10 @@ public class NounsTest extends AnalyzerTestBase {
     InterpretingAnalyzer analyzer = getAnalyzer(
         "annemler [A:ImplicitPlural,ImplicitP1sg,FamilyMember]");
     String in = "annemleri";
-    List<AnalysisResult> results = analyzer.analyze(in);
+    List<_SingleAnalysis> results = analyzer.analyze(in);
     printAndSort(in, results);
     Assert.assertEquals(1, results.size());
-    AnalysisResult first = results.get(0);
+    _SingleAnalysis first = results.get(0);
     Assert.assertTrue(containsMorpheme(first, "Acc"));
     Assert.assertTrue(!containsMorpheme(first, "P3sg"));
   }

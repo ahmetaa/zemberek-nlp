@@ -76,21 +76,21 @@ public class _SingleAnalysis {
     StringBuilder sb = new StringBuilder();
     // skip the root.
     for (int i = 1; i < morphemesSurfaces.size(); i++) {
-      MorphemeSurface surface = morphemesSurfaces.get(i);
-      sb.append(surface);
+      MorphemeSurface mSurface = morphemesSurfaces.get(i);
+      sb.append(mSurface.surface);
     }
     return sb.toString();
   }
 
   /**
-   * Returns the concatenated suffix surfaces.
+   * Returns the stem of the word. Stem may be different than the lemma of the word.
    * <pre>
    *   "elmalar"      -> "elma"
    *   "kitabımız"    -> "kitab"
    *   "okutturdular" -> "oku"
    *   "arıyor"       -> "ar"
    * </pre>
-   *
+   * TODO: decide for inputs like "12'ye and "Ankara'da"
    * @return concatenated suffix surfaces.
    */
   public String getStem() {
@@ -170,11 +170,7 @@ public class _SingleAnalysis {
   // Here we generate a _SingleAnalysis from a search path.
   public static _SingleAnalysis fromSearchPath(SearchPath searchPath) {
 
-    StemTransition st = searchPath.getStemTransition();
     List<MorphemeSurface> morphemes = new ArrayList<>(searchPath.transitions.size());
-
-    MorphemeSurface stemSurface = new MorphemeSurface(st.to.morpheme, st.surface);
-    morphemes.add(stemSurface);
 
     int derivationCount = 0;
 
@@ -214,7 +210,20 @@ public class _SingleAnalysis {
     }
 
     return new _SingleAnalysis(searchPath.getDictionaryItem(), morphemes, groupBoundaries);
-
   }
+
+  @Override
+  public String toString() {
+    return AnalysisFormatters.lexicalForm().format(this);
+  }
+
+  public String shortForm() {
+    return AnalysisFormatters.shortForm().format(this);
+  }
+
+  public String lexicalForm() {
+    return AnalysisFormatters.lexicalForm().format(this);
+  }
+
 
 }
