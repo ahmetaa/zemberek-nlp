@@ -6,14 +6,14 @@ import zemberek.morphology._analyzer._SingleAnalysis.MorphemeSurface;
 public class AnalysisFormatters {
 
   public static AnalysisFormatter lexicalForm() {
-    return analysis -> String.join(" + ", analysis.getMorphemes().stream()
+    return analysis -> String.join(" + ", analysis.getMorphemesSurfaces().stream()
         .map(s -> s.morpheme.id)
         .collect(Collectors.toList()));
   }
 
   public static AnalysisFormatter shortForm() {
     return analysis ->
-        String.join(" + ", analysis.getMorphemes().stream()
+        String.join(" + ", analysis.getMorphemesSurfaces().stream()
             .map(MorphemeSurface::toMorphemeString)
             .collect(Collectors.toList()));
   }

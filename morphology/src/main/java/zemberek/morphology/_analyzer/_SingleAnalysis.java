@@ -3,6 +3,7 @@ package zemberek.morphology._analyzer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology._morphotactics.Morpheme;
 import zemberek.morphology._morphotactics.StemTransition;
 import zemberek.morphology.lexicon.DictionaryItem;
@@ -18,33 +19,101 @@ public class _SingleAnalysis {
   // List also contain the root (unchanged or modified) of the Dictionary item.
   // For example, for normalized input "kedilere"
   // This list may contain "kedi:Noun, ler:A3pl , e:Dat" information.
-  private List<MorphemeSurface> morphemes;
+  private List<MorphemeSurface> morphemesSurfaces;
 
   // groupBoundaries holds the index values of morphemes.
   private int[] groupBoundaries;
 
   private _SingleAnalysis(
       DictionaryItem item,
-      List<MorphemeSurface> morphemes,
+      List<MorphemeSurface> morphemesSurfaces,
       int[] groupBoundaries) {
     this.item = item;
-    this.morphemes = morphemes;
+    this.morphemesSurfaces = morphemesSurfaces;
     this.groupBoundaries = groupBoundaries;
   }
 
-  public List<MorphemeSurface> getMorphemes() {
-    return morphemes;
+  public static class MorphemeGroup {
+
+    List<MorphemeSurface> morphemes;
+
+    public MorphemeGroup(
+        List<MorphemeSurface> morphemes) {
+      this.morphemes = morphemes;
+    }
+
+    public PrimaryPos getPos() {
+      for (MorphemeSurface mSurface : morphemes) {
+        if (mSurface.morpheme.pos != null) {
+          return mSurface.morpheme.pos;
+        }
+      }
+      throw new IllegalStateException(
+          "A morhpheme group must have a morpheme with a POS information. " + morphemes);
+    }
+
+    public String surface() {
+      StringBuilder sb = new StringBuilder();
+      for (MorphemeSurface mSurface : morphemes) {
+        sb.append(mSurface.surface);
+      }
+      return sb.toString();
+    }
   }
 
-  public List<MorphemeSurface> getGroup(int groupIndex) {
+  /**
+   * Returns the concatenated suffix surfaces.
+   * <pre>
+   *   "elmalar"      -> "lar"
+   *   "elmalara"     -> "lara"
+   *   "okutturdular" -> "tturdular"
+   *   "arıyor"       -> "ıyor"
+   * </pre>
+   *
+   * @return concatenated suffix surfaces.
+   */
+  public String getEnding() {
+    StringBuilder sb = new StringBuilder();
+    // skip the root.
+    for (int i = 1; i < morphemesSurfaces.size(); i++) {
+      MorphemeSurface surface = morphemesSurfaces.get(i);
+      sb.append(surface);
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Returns the concatenated suffix surfaces.
+   * <pre>
+   *   "elmalar"      -> "elma"
+   *   "kitabımız"    -> "kitab"
+   *   "okutturdular" -> "oku"
+   *   "arıyor"       -> "ar"
+   * </pre>
+   *
+   * @return concatenated suffix surfaces.
+   */
+  public String getStem() {
+    return morphemesSurfaces.get(0).surface;
+  }
+
+  public DictionaryItem getItem() {
+    return item;
+  }
+
+  public List<MorphemeSurface> getMorphemesSurfaces() {
+    return morphemesSurfaces;
+  }
+
+  public MorphemeGroup getGroup(int groupIndex) {
     if (groupIndex < 0 || groupIndex >= groupBoundaries.length) {
       throw new IllegalArgumentException("There are only " + groupBoundaries.length +
           " morpheme groups. But input is " + groupIndex);
     }
     int endIndex = groupIndex == groupBoundaries.length - 1 ?
-        morphemes.size() : groupBoundaries[groupIndex + 1];
+        morphemesSurfaces.size() : groupBoundaries[groupIndex + 1];
 
-    return new ArrayList<>(morphemes.subList(groupIndex, endIndex));
+    return new MorphemeGroup(morphemesSurfaces.subList(groupIndex, endIndex));
   }
 
   // container for Morphemes and their surface forms.
