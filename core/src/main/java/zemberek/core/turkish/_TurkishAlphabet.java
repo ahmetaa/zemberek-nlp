@@ -7,19 +7,23 @@ public class _TurkishAlphabet {
 
   public static final Locale TR = new Locale("tr");
 
-  private String lowercase = "abcçdefgğhıijklmnoöprsştuüvyzxwqâîû";
-  private String uppercase = lowercase.toUpperCase(TR);
-  FixedBitVector dictionaryLettersLookup =
+  private final String lowercase = "abcçdefgğhıijklmnoöprsştuüvyzxwqâîû";
+  private final String uppercase = lowercase.toUpperCase(TR);
+  private final FixedBitVector dictionaryLettersLookup =
       generateBitLookup(lowercase + uppercase);
 
-  private String vowelsLowercase = "aeıioöuüâîû";
+  private final String vowelsLowercase = "aeıioöuüâîû";
   private String vowelsUppercase = vowelsLowercase.toUpperCase(TR);
   FixedBitVector vowelLookup =
       generateBitLookup(vowelsLowercase + vowelsUppercase);
 
-  private String stopConsonants = "çkpt";
+  private final String stopConsonants = "çkpt";
   FixedBitVector stopConsonantLookup =
       generateBitLookup(stopConsonants + stopConsonants.toUpperCase(TR));
+
+  private String voicelessConsonants = "çfhkpsşt";
+  FixedBitVector voicelessConsonantsLookup =
+      generateBitLookup(voicelessConsonants + voicelessConsonants.toUpperCase(TR));
 
   public static _TurkishAlphabet INSTANCE = Singleton.Instance.alphabet;
 
@@ -39,6 +43,12 @@ public class _TurkishAlphabet {
   public boolean isStopConsonant(char c) {
     return lookup(stopConsonantLookup, c);
   }
+
+  public boolean isVoicelessConsonant(char c) {
+    return lookup(voicelessConsonantsLookup, c);
+  }
+
+
 
 
   public boolean containsVowel(String s) {
