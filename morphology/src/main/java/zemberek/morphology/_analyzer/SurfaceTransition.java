@@ -6,25 +6,17 @@ import static zemberek.core.turkish.PhoneticAttribute.LastVowelBack;
 import static zemberek.core.turkish.PhoneticAttribute.LastVowelFrontal;
 import static zemberek.core.turkish.PhoneticAttribute.LastVowelRounded;
 import static zemberek.core.turkish.PhoneticAttribute.LastVowelUnrounded;
-import static zemberek.core.turkish.TurkishAlphabet.L_a;
-import static zemberek.core.turkish.TurkishAlphabet.L_e;
-import static zemberek.core.turkish.TurkishAlphabet.L_i;
-import static zemberek.core.turkish.TurkishAlphabet.L_ii;
-import static zemberek.core.turkish.TurkishAlphabet.L_u;
-import static zemberek.core.turkish.TurkishAlphabet.L_uu;
-import static zemberek.morphology.structure.Turkish.Alphabet;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.concurrent.locks.ReentrantLock;
 import zemberek.core.turkish.PhoneticAttribute;
-import zemberek.core.turkish.TurkicLetter;
-import zemberek.core.turkish.TurkishLetterSequence;
+import zemberek.core.turkish._TurkishAlphabet;
 import zemberek.morphology._morphotactics.AttributeSet;
 import zemberek.morphology._morphotactics.Morpheme;
 import zemberek.morphology._morphotactics.MorphemeState;
 import zemberek.morphology._morphotactics.MorphemeTransition;
 import zemberek.morphology._morphotactics.SuffixTransition;
+import zemberek.morphology._morphotactics.TurkishMorphotactics;
 
 // TODO: find a better name. Move some methods outside.
 // not a transition.
@@ -68,6 +60,8 @@ public class SurfaceTransition {
     return surface.isEmpty() ? "" : surface + ":";
   }
 
+  static _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
+
   public static String generate(
       SuffixTransition transition,
       AttributeSet<PhoneticAttribute> phoneticAttributes) {
@@ -77,14 +71,14 @@ public class SurfaceTransition {
       return cached;
     }
 
-    TurkishLetterSequence seq = new TurkishLetterSequence();
+    StringBuilder sb = new StringBuilder();
     int index = 0;
     for (SuffixTemplateToken token : transition.getTokenList()) {
       AttributeSet<PhoneticAttribute> attrs =
-          AttributesHelper.getMorphemicAttributes(seq, phoneticAttributes);
+          AttributesHelper.getMorphemicAttributes(sb, phoneticAttributes);
       switch (token.type) {
         case LETTER:
-          seq.append(token.letter);
+          sb.append(token.letter);
           break;
 
         case A_WOVEL:
@@ -93,9 +87,9 @@ public class SurfaceTransition {
             break;
           }
           if (attrs.contains(LastVowelBack)) {
-            seq.append(L_a);
+            sb.append('a');
           } else if (attrs.contains(LastVowelFrontal)) {
-            seq.append(L_e);
+            sb.append('e');
           } else {
             throw new IllegalArgumentException("Cannot generate A form!");
           }
@@ -107,13 +101,13 @@ public class SurfaceTransition {
             break;
           }
           if (attrs.contains(LastVowelFrontal) && attrs.contains(LastVowelUnrounded)) {
-            seq.append(L_i);
+            sb.append('i');
           } else if (attrs.contains(LastVowelBack) && attrs.contains(LastVowelUnrounded)) {
-            seq.append(L_ii);
+            sb.append('ı');
           } else if (attrs.contains(LastVowelBack) && attrs.contains(LastVowelRounded)) {
-            seq.append(L_u);
+            sb.append('u');
           } else if (attrs.contains(LastVowelFrontal) && attrs.contains(LastVowelRounded)) {
-            seq.append(L_uu);
+            sb.append('ü');
           } else {
             throw new IllegalArgumentException("Cannot generate I form!");
           }
@@ -121,27 +115,27 @@ public class SurfaceTransition {
 
         case APPEND:
           if (attrs.contains(LastLetterVowel)) {
-            seq.append(token.letter);
+            sb.append(token.letter);
           }
           break;
 
         case DEVOICE_FIRST:
-          TurkicLetter ld = token.letter;
+          char ld = token.letter;
           if (attrs.contains(LastLetterVoiceless)) {
-            ld = Alphabet.devoice(token.letter);
+            ld = alphabet.devoice(ld);
           }
-          seq.append(ld);
+          sb.append(ld);
           break;
 
         case LAST_VOICED:
         case LAST_NOT_VOICED:
           ld = token.letter;
-          seq.append(ld);
+          sb.append(ld);
           break;
       }
       index++;
     }
-    String s = seq.toString();
+    String s = sb.toString();
     transition.addToSurfaceCache(phoneticAttributes, s);
     return s;
   }
@@ -160,15 +154,15 @@ public class SurfaceTransition {
   public static class SuffixTemplateToken {
 
     TemplateTokenType type;
-    TurkicLetter letter;
+    char letter;
     boolean append = false;
 
-    private SuffixTemplateToken(TemplateTokenType type, TurkicLetter letter) {
+    private SuffixTemplateToken(TemplateTokenType type, char letter) {
       this.type = type;
       this.letter = letter;
     }
 
-    private SuffixTemplateToken(TemplateTokenType type, TurkicLetter letter, boolean append) {
+    private SuffixTemplateToken(TemplateTokenType type, char letter, boolean append) {
       this.type = type;
       this.letter = letter;
       this.append = append;
@@ -199,38 +193,45 @@ public class SurfaceTransition {
         cNext = generationWord.charAt(pointer);
       }
 
+      char undefined = (char) 0;
       switch (c) {
         case '+':
           pointer++;
           if (cNext == 'I') {
-            return new SuffixTemplateToken(TemplateTokenType.I_WOVEL, TurkicLetter.UNDEFINED, true);
+            return new SuffixTemplateToken(TemplateTokenType.I_WOVEL, undefined, true);
           } else if (cNext == 'A') {
-            return new SuffixTemplateToken(TemplateTokenType.A_WOVEL, TurkicLetter.UNDEFINED, true);
+            return new SuffixTemplateToken(TemplateTokenType.A_WOVEL, undefined, true);
           } else {
-            return new SuffixTemplateToken(TemplateTokenType.APPEND, Alphabet.getLetter(cNext));
+            return new SuffixTemplateToken(TemplateTokenType.APPEND, cNext);
           }
         case '>':
           pointer++;
-          return new SuffixTemplateToken(TemplateTokenType.DEVOICE_FIRST,
-              Alphabet.getLetter(cNext));
+          return new SuffixTemplateToken(TemplateTokenType.DEVOICE_FIRST, cNext);
         case '~':
           pointer++;
-          return new SuffixTemplateToken(TemplateTokenType.LAST_VOICED, Alphabet.getLetter(cNext));
+          return new SuffixTemplateToken(TemplateTokenType.LAST_VOICED, cNext);
         case '!':
           pointer++;
-          return new SuffixTemplateToken(TemplateTokenType.LAST_NOT_VOICED,
-              Alphabet.getLetter(cNext));
+          return new SuffixTemplateToken(TemplateTokenType.LAST_NOT_VOICED, cNext);
         case 'I':
-          return new SuffixTemplateToken(TemplateTokenType.I_WOVEL, TurkicLetter.UNDEFINED);
+          return new SuffixTemplateToken(TemplateTokenType.I_WOVEL, undefined);
         case 'A':
-          return new SuffixTemplateToken(TemplateTokenType.A_WOVEL, TurkicLetter.UNDEFINED);
+          return new SuffixTemplateToken(TemplateTokenType.A_WOVEL, undefined);
         default:
-          return new SuffixTemplateToken(TemplateTokenType.LETTER, Alphabet.getLetter(c));
+          return new SuffixTemplateToken(TemplateTokenType.LETTER, c);
 
       }
     }
 
     public void remove() {
     }
+  }
+
+  public static void main(String[] args) {
+    MorphemeState f = MorphemeState.nonTerminal("f", TurkishMorphotactics.a3sg);
+    MorphemeState t = MorphemeState.nonTerminal("t", TurkishMorphotactics.a3pl);
+    SuffixTransition tr = new SuffixTransition.Builder().from(f).to(t).surfaceTemplate("+yInIz")
+        .build();
+    generate(tr, AttributesHelper.getMorphemicAttributes("oku"));
   }
 }

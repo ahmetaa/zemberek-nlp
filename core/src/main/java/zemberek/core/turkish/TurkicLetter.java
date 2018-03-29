@@ -13,9 +13,6 @@ public class TurkicLetter {
   public final boolean rounded;
   public final boolean voiceless;
   public final boolean continuant;
-  public final boolean inAscii;
-  public final boolean foreign;
-  public final char englishEquivalentChar;
 
   private TurkicLetter(Builder builder) {
     this.charValue = builder._charValue;
@@ -24,9 +21,21 @@ public class TurkicLetter {
     this.rounded = builder._roundedVowel;
     this.voiceless = builder._voiceless;
     this.continuant = builder._continuant;
-    this.inAscii = builder._inAscii;
-    this.foreign = builder._foreign;
-    this.englishEquivalentChar = builder._englishEquivalentChar;
+  }
+
+  public TurkicLetter(
+      char charValue,
+      boolean vowel,
+      boolean frontal,
+      boolean rounded,
+      boolean voiceless,
+      boolean continuant) {
+    this.charValue = charValue;
+    this.vowel = vowel;
+    this.frontal = frontal;
+    this.rounded = rounded;
+    this.voiceless = voiceless;
+    this.continuant = continuant;
   }
 
   // only used for illegal letter.
@@ -37,9 +46,6 @@ public class TurkicLetter {
     rounded = false;
     voiceless = false;
     continuant = false;
-    inAscii = false;
-    foreign = false;
-    englishEquivalentChar = c;
   }
 
   public static Builder builder(char charValue) {
@@ -70,25 +76,13 @@ public class TurkicLetter {
     return voiceless;
   }
 
-  public boolean isContinuant() {
-    return continuant;
-  }
-
-  public boolean isInAscii() {
-    return inAscii;
-  }
-
-  public char englishEquivalentChar() {
-    return englishEquivalentChar;
-  }
-
   public boolean isStopConsonant() {
     return voiceless && !continuant;
   }
 
   @Override
   public String toString() {
-    return String.valueOf(charValue + ":" + englishEquivalentChar);
+    return String.valueOf(charValue);
   }
 
   @Override
@@ -109,6 +103,10 @@ public class TurkicLetter {
     return true;
   }
 
+  TurkicLetter copyFor(char c) {
+    return new TurkicLetter(c, vowel, frontal, rounded, voiceless, continuant);
+  }
+
   @Override
   public int hashCode() {
     return (int) charValue;
@@ -122,13 +120,9 @@ public class TurkicLetter {
     private boolean _roundedVowel = false;
     private boolean _voiceless = false;
     private boolean _continuant = false;
-    private boolean _inAscii = true;
-    private boolean _foreign = false;
-    private char _englishEquivalentChar = 0;
 
     public Builder(char charValue) {
       this._charValue = charValue;
-      this._englishEquivalentChar = charValue;
     }
 
     public Builder vowel() {
@@ -153,21 +147,6 @@ public class TurkicLetter {
 
     public Builder continuant() {
       this._continuant = true;
-      return this;
-    }
-
-    public Builder notInAscii() {
-      this._inAscii = false;
-      return this;
-    }
-
-    public Builder foreign() {
-      this._foreign = true;
-      return this;
-    }
-
-    public Builder similarAscii(char equivalent) {
-      this._englishEquivalentChar = equivalent;
       return this;
     }
 

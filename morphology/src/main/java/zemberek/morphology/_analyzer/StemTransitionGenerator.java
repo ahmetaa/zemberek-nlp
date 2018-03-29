@@ -18,8 +18,7 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.TurkicLetter;
-import zemberek.core.turkish.TurkishAlphabet;
-import zemberek.core.turkish.TurkishLetterSequence;
+import zemberek.core.turkish._TurkishAlphabet;
 import zemberek.morphology._morphotactics.AttributeSet;
 import zemberek.morphology._morphotactics.MorphemeState;
 import zemberek.morphology._morphotactics.StemTransition;
@@ -33,7 +32,7 @@ import zemberek.morphology.lexicon.LexiconException;
  */
 public class StemTransitionGenerator {
 
-  TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+  _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
 
   TurkishMorphotactics morphotactics;
 
@@ -86,17 +85,14 @@ public class StemTransitionGenerator {
     return false;
   }
 
-  private AttributeSet<PhoneticAttribute> calculateAttributes(String input) {
+  private AttributeSet<PhoneticAttribute> calculateAttributes(CharSequence input) {
     return AttributesHelper.getMorphemicAttributes(input);
-  }
-
-  private AttributeSet<PhoneticAttribute> calculateAttributes(TurkishLetterSequence sequence) {
-    return AttributesHelper.getMorphemicAttributes(sequence);
   }
 
   private List<StemTransition> generateModifiedRootNodes(DictionaryItem dicItem) {
 
-    TurkishLetterSequence modifiedSeq = new TurkishLetterSequence(dicItem.pronunciation, alphabet);
+    StringBuilder modifiedSeq = new StringBuilder(dicItem.pronunciation);
+
     AttributeSet<PhoneticAttribute> originalAttrs = calculateAttributes(dicItem.pronunciation);
     AttributeSet<PhoneticAttribute> modifiedAttrs = originalAttrs.copy();
 
@@ -108,15 +104,15 @@ public class StemTransitionGenerator {
       // generate other boundary attributes and modified root state.
       switch (attribute) {
         case Voicing:
-          TurkicLetter last = modifiedSeq.lastLetter();
-          TurkicLetter modifiedLetter = alphabet.voice(last);
-          if (modifiedLetter == null) {
+          char last = alphabet.getLastChar(modifiedSeq);
+          char voiced = alphabet.voice(last);
+          if (last == voiced) {
             throw new LexiconException("Voicing letter is not proper in:" + dicItem);
           }
           if (dicItem.lemma.endsWith("nk")) {
-            modifiedLetter = TurkishAlphabet.L_g;
+            voiced = 'g';
           }
-          modifiedSeq.changeLetter(modifiedSeq.length() - 1, modifiedLetter);
+          modifiedSeq.setCharAt(modifiedSeq.length() - 1, voiced);
           modifiedAttrs.remove(PhoneticAttribute.LastLetterVoicelessStop);
           originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
           modifiedAttrs.add(PhoneticAttribute.ExpectsVowel);
@@ -124,18 +120,19 @@ public class StemTransitionGenerator {
           modifiedAttrs.add(PhoneticAttribute.CannotTerminate);
           break;
         case Doubling:
-          modifiedSeq.append(modifiedSeq.lastLetter());
+          modifiedSeq.append(alphabet.getLastChar(modifiedSeq));
           originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
           modifiedAttrs.add(PhoneticAttribute.ExpectsVowel);
           modifiedAttrs.add(PhoneticAttribute.CannotTerminate);
           break;
         case LastVowelDrop:
-          if (modifiedSeq.lastLetter().isVowel()) {
-            modifiedSeq.delete(modifiedSeq.length() - 1);
+          TurkicLetter lastLetter = alphabet.getLastLetter(modifiedSeq);
+          if (lastLetter.isVowel()) {
+            modifiedSeq.deleteCharAt(modifiedSeq.length() - 1);
             modifiedAttrs.add(PhoneticAttribute.ExpectsConsonant);
             modifiedAttrs.add(PhoneticAttribute.CannotTerminate);
           } else {
-            modifiedSeq.delete(modifiedSeq.length() - 2);
+            modifiedSeq.deleteCharAt(modifiedSeq.length() - 2);
             if (!dicItem.primaryPos.equals(PrimaryPos.Verb)) {
               originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
             } else {
@@ -153,8 +150,8 @@ public class StemTransitionGenerator {
           modifiedAttrs.remove(PhoneticAttribute.LastVowelBack);
           break;
         case ProgressiveVowelDrop:
-          modifiedSeq.delete(modifiedSeq.length() - 1);
-          if (modifiedSeq.hasVowel()) {
+          modifiedSeq.deleteCharAt(modifiedSeq.length() - 1);
+          if (alphabet.containsVowel(modifiedSeq)) {
             modifiedAttrs = calculateAttributes(modifiedSeq);
           }
           modifiedAttrs.add(PhoneticAttribute.LastLetterDropped);

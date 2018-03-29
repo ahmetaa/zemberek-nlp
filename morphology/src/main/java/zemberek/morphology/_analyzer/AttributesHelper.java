@@ -17,51 +17,54 @@ import static zemberek.core.turkish.PhoneticAttribute.LastVowelUnrounded;
 import java.util.Arrays;
 import java.util.List;
 import zemberek.core.turkish.PhoneticAttribute;
-import zemberek.core.turkish.TurkishAlphabet;
-import zemberek.core.turkish.TurkishLetterSequence;
+import zemberek.core.turkish.TurkicLetter;
+import zemberek.core.turkish._TurkishAlphabet;
 import zemberek.morphology._morphotactics.AttributeSet;
 
-/** Helper class for calculating morphemic attributes. */
+/**
+ * Helper class for calculating morphemic attributes.
+ */
 public class AttributesHelper {
 
   private static final List<PhoneticAttribute> NO_VOWEL_ATTRIBUTES = Arrays
       .asList(LastLetterConsonant, FirstLetterConsonant, HasNoVowel);
 
-  public static AttributeSet<PhoneticAttribute> getMorphemicAttributes(String seq) {
-      return getMorphemicAttributes(seq, AttributeSet.emptySet());
+  public static AttributeSet<PhoneticAttribute> getMorphemicAttributes(CharSequence seq) {
+    return getMorphemicAttributes(seq, AttributeSet.emptySet());
   }
 
-  public static AttributeSet<PhoneticAttribute> getMorphemicAttributes(
-      String str,
-      AttributeSet<PhoneticAttribute> predecessorAttrs) {
-    return getMorphemicAttributes(new TurkishLetterSequence(str, TurkishAlphabet.INSTANCE),
-        predecessorAttrs);
-  }
+  static _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
 
   public static AttributeSet<PhoneticAttribute> getMorphemicAttributes(
-      TurkishLetterSequence seq,
+      CharSequence seq,
       AttributeSet<PhoneticAttribute> predecessorAttrs) {
     if (seq.length() == 0) {
       return predecessorAttrs.copy();
     }
     AttributeSet<PhoneticAttribute> attrs = new AttributeSet<>();
-    if (seq.hasVowel()) {
-      if (seq.lastVowel().isFrontal()) {
-        attrs.add(LastVowelFrontal);
-      } else {
-        attrs.add(LastVowelBack);
-      }
-      if (seq.lastVowel().isRounded()) {
-        attrs.add(LastVowelRounded);
-      } else {
-        attrs.add(LastVowelUnrounded);
-      }
-      if (seq.lastLetter().isVowel()) {
+    if (alphabet.containsVowel(seq)) {
+
+      TurkicLetter last = alphabet.getLastLetter(seq);
+      if (last.isVowel()) {
         attrs.add(LastLetterVowel);
       } else {
         attrs.add(LastLetterConsonant);
       }
-      if (seq.firstLetter().isVowel()) {
+
+      TurkicLetter lastVowel = last.isVowel() ? last : alphabet.getLastVowel(seq);
+
+      if (lastVowel.isFrontal()) {
+        attrs.add(LastVowelFrontal);
+      } else {
+        attrs.add(LastVowelBack);
+      }
+      if (lastVowel.isRounded()) {
+        attrs.add(LastVowelRounded);
+      } else {
+        attrs.add(LastVowelUnrounded);
+      }
+
+      if (alphabet.getFirstLetter(seq).isVowel()) {
         attrs.add(FirstLetterVowel);
       } else {
         attrs.add(FirstLetterConsonant);
@@ -73,9 +76,12 @@ public class AttributesHelper {
       attrs.remove(LastLetterVowel);
       attrs.remove(ExpectsConsonant);
     }
-    if (seq.lastLetter().isVoiceless()) {
+
+    TurkicLetter last = alphabet.getLastLetter(seq);
+
+    if (last.isVoiceless()) {
       attrs.add(LastLetterVoiceless);
-      if (seq.lastLetter().isStopConsonant()) {
+      if (last.isStopConsonant()) {
         // kitap
         attrs.add(LastLetterVoicelessStop);
       }
@@ -83,10 +89,6 @@ public class AttributesHelper {
       attrs.add(LastLetterVoiced);
     }
     return attrs;
-  }
-
-  public static AttributeSet<PhoneticAttribute> getMorphemicAttributes(TurkishLetterSequence seq) {
-    return getMorphemicAttributes(seq, AttributeSet.emptySet());
   }
 
 }

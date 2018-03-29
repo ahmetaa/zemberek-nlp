@@ -27,17 +27,14 @@ public class TurkishAlphabet {
   public static final TurkicLetter L_a = builder('a').vowel().build();
   public static final TurkicLetter L_b = builder('b').build();
   public static final TurkicLetter L_c = builder('c').build();
-  public static final TurkicLetter L_cc = builder('ç').notInAscii().voiceless()
-      .similarAscii('c').build();
+  public static final TurkicLetter L_cc = builder('ç').voiceless().build();
   public static final TurkicLetter L_d = builder('d').build();
   public static final TurkicLetter L_e = builder('e').vowel().frontalVowel().build();
   public static final TurkicLetter L_f = builder('f').continuant().voiceless().build();
   public static final TurkicLetter L_g = builder('g').build();
-  public static final TurkicLetter L_gg = builder('ğ').continuant().notInAscii()
-      .similarAscii('g').build();
+  public static final TurkicLetter L_gg = builder('ğ').continuant().build();
   public static final TurkicLetter L_h = builder('h').continuant().voiceless().build();
-  public static final TurkicLetter L_ii = builder('ı').vowel().notInAscii().similarAscii('i')
-      .build();
+  public static final TurkicLetter L_ii = builder('ı').vowel().build();
   public static final TurkicLetter L_i = builder('i').vowel().frontalVowel().build();
   public static final TurkicLetter L_j = builder('j').continuant().build();
   public static final TurkicLetter L_k = builder('k').voiceless().build();
@@ -45,31 +42,25 @@ public class TurkishAlphabet {
   public static final TurkicLetter L_m = builder('m').continuant().build();
   public static final TurkicLetter L_n = builder('n').continuant().build();
   public static final TurkicLetter L_o = builder('o').vowel().roundedVowel().build();
-  public static final TurkicLetter L_oo = builder('ö').vowel().frontalVowel().roundedVowel()
-      .notInAscii().similarAscii('o').build();
+  public static final TurkicLetter L_oo = builder('ö').vowel().frontalVowel().roundedVowel().build();
   public static final TurkicLetter L_p = builder('p').voiceless().build();
   public static final TurkicLetter L_r = builder('r').continuant().build();
   public static final TurkicLetter L_s = builder('s').continuant().voiceless().build();
-  public static final TurkicLetter L_ss = builder('ş').continuant().notInAscii().voiceless()
-      .similarAscii('s').build();
+  public static final TurkicLetter L_ss = builder('ş').continuant().voiceless().build();
   public static final TurkicLetter L_t = builder('t').voiceless().build();
   public static final TurkicLetter L_u = builder('u').vowel().roundedVowel().build();
-  public static final TurkicLetter L_uu = builder('ü').vowel().roundedVowel().frontalVowel()
-      .similarAscii('u').notInAscii().build();
+  public static final TurkicLetter L_uu = builder('ü').vowel().roundedVowel().frontalVowel().build();
   public static final TurkicLetter L_v = builder('v').continuant().build();
   public static final TurkicLetter L_y = builder('y').continuant().build();
   public static final TurkicLetter L_z = builder('z').continuant().build();
   // Not Turkish but sometimes appears in geographical names etc.
-  public static final TurkicLetter L_q = builder('q').foreign().build();
-  public static final TurkicLetter L_w = builder('w').foreign().build();
-  public static final TurkicLetter L_x = builder('x').foreign().build();
+  public static final TurkicLetter L_q = builder('q').build();
+  public static final TurkicLetter L_w = builder('w').build();
+  public static final TurkicLetter L_x = builder('x').build();
   // Circumflexed letters
-  public static final TurkicLetter L_ac = builder(a_CIRC).vowel().similarAscii('a').notInAscii()
-      .build();
-  public static final TurkicLetter L_ic = builder(i_CIRC).vowel().frontalVowel()
-      .similarAscii('i').notInAscii().build();
-  public static final TurkicLetter L_uc = builder(u_CIRC).vowel().frontalVowel()
-      .similarAscii('u').roundedVowel().notInAscii().build();
+  public static final TurkicLetter L_ac = builder(a_CIRC).vowel().build();
+  public static final TurkicLetter L_ic = builder(i_CIRC).vowel().frontalVowel().build();
+  public static final TurkicLetter L_uc = builder(u_CIRC).vowel().frontalVowel().roundedVowel().build();
 
   protected static final ImmutableMap<TurkicLetter, TurkicLetter> devoicingMap = new ImmutableMap.Builder<TurkicLetter, TurkicLetter>()
       .put(L_b, L_p)
@@ -124,13 +115,6 @@ public class TurkishAlphabet {
       if (turkicLetter.isVowel()) {
         VOWEL_TABLE[turkicLetter.charValue()] = true;
       }
-    }
-  }
-
-  static {
-    Arrays.fill(ASCII_EQUIVALENT_CHARS_LOOKUP, (char) 0);
-    for (TurkicLetter turkicLetter : TURKISH_LETTERS) {
-      ASCII_EQUIVALENT_CHARS_LOOKUP[turkicLetter.charValue] = turkicLetter.englishEquivalentChar();
     }
   }
 
@@ -286,13 +270,6 @@ public class TurkishAlphabet {
   public boolean asciiEqual(char c1, char c2) {
     return (isValid(c1) && isValid(c2)) &&
         (c1 == c2 || ASCII_EQUIVALENT_CHARS_LOOKUP[c1] == ASCII_EQUIVALENT_CHARS_LOOKUP[c2]);
-  }
-
-  public char getAsciiEquivalentChar(char c) {
-    if (!isValid(c)) {
-      throw new IllegalArgumentException("unexpected char:" + c);
-    }
-    return CHAR_TO_LETTER_LOOKUP[c].englishEquivalentChar();
   }
 
   public TurkicLetter getAsciEquivalentLetter(char c) {

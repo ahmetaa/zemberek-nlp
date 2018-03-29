@@ -57,21 +57,6 @@ public class TurkishAlphabetTest {
     Assert.assertFalse(alphabet.asciiEqual('ü', 'a'));
   }
 
-
-  @Test
-  public void getAsciiEquivalentChar() {
-    TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
-    Assert.assertEquals(alphabet.getAsciiEquivalentChar('a'), 'a');
-    Assert.assertEquals(alphabet.getAsciiEquivalentChar('x'), 'x');
-    Assert.assertEquals(alphabet.getAsciiEquivalentChar('ğ'), 'g');
-    Assert.assertEquals(alphabet.getAsciiEquivalentChar('ç'), 'c');
-    Assert.assertEquals(alphabet.getAsciiEquivalentChar('ı'), 'i');
-    Assert.assertEquals(alphabet.getAsciiEquivalentChar('ş'), 's');
-    Assert.assertEquals(alphabet.getAsciiEquivalentChar('ö'), 'o');
-    Assert.assertEquals(alphabet.getAsciiEquivalentChar('ü'), 'u');
-    Assert.assertNotSame(alphabet.getAsciiEquivalentChar('ü'), 'a');
-  }
-
   @Test
   public void isVowelTest() {
     TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;

@@ -1,7 +1,13 @@
 package zemberek.core.turkish;
 
+import static zemberek.core.turkish.TurkicLetter.builder;
+
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import zemberek.core.collections.FixedBitVector;
+import zemberek.core.collections.UIntMap;
 
 public class _TurkishAlphabet {
 
@@ -32,6 +38,121 @@ public class _TurkishAlphabet {
     _TurkishAlphabet alphabet = new _TurkishAlphabet();
   }
 
+  UIntMap<TurkicLetter> letterMap = new UIntMap<>();
+
+  public _TurkishAlphabet() {
+    List<TurkicLetter> letters = generateLetters();
+    for (TurkicLetter letter : letters) {
+      letterMap.put(letter.charValue, letter);
+    }
+  }
+
+  List<TurkicLetter> generateLetters() {
+    List<TurkicLetter> letters = Lists.newArrayList(
+        builder('a').vowel().build(),
+        builder('e').vowel().frontalVowel().build(),
+        builder('ı').vowel().build(),
+        builder('i').vowel().frontalVowel().build(),
+        builder('o').vowel().roundedVowel().build(),
+        builder('ö').vowel().frontalVowel().roundedVowel().build(),
+        builder('u').vowel().roundedVowel().build(),
+        builder('ü').vowel().roundedVowel().frontalVowel().build(),
+        // Circumflexed letters
+        builder('â').vowel().build(),
+        builder('î').vowel().frontalVowel().build(),
+        builder('û').vowel().frontalVowel().roundedVowel().build(),
+        // Consonants
+        builder('b').build(),
+        builder('c').build(),
+        builder('ç').voiceless().build(),
+        builder('d').build(),
+        builder('f').continuant().voiceless().build(),
+        builder('g').build(),
+        builder('ğ').continuant().build(),
+        builder('h').continuant().voiceless().build(),
+        builder('j').continuant().build(),
+        builder('k').voiceless().build(),
+        builder('l').continuant().build(),
+        builder('m').continuant().build(),
+        builder('n').continuant().build(),
+        builder('p').voiceless().build(),
+        builder('r').continuant().build(),
+        builder('s').continuant().voiceless().build(),
+        builder('ş').continuant().voiceless().build(),
+        builder('t').voiceless().build(),
+        builder('v').continuant().build(),
+        builder('y').continuant().build(),
+        builder('z').continuant().build(),
+        builder('q').build(),
+        builder('w').build(),
+        builder('x').build()
+    );
+    List<TurkicLetter> capitals = new ArrayList<>();
+    for (TurkicLetter letter : letters) {
+      char upper = String.valueOf(letter.charValue).toUpperCase(TR).charAt(0);
+      capitals.add(letter.copyFor(upper));
+    }
+    letters.addAll(capitals);
+    return letters;
+  }
+
+  public char devoice(char c) {
+    switch (c) {
+      case 'b':
+        return 'p';
+      case 'c':
+        return 'ç';
+      case 'd':
+        return 't';
+      case 'g':
+        return 'k';
+      case 'ğ':
+        return 'k';
+      default:
+        return c;
+    }
+  }
+
+  public char voice(char c) {
+    switch (c) {
+      case 'p':
+        return 'b';
+      case 'k':
+        return 'ğ';
+      case 'ç':
+        return 'c';
+      case 't':
+        return 'd';
+      case 'g':
+        return 'ğ';
+      default:
+        return c;
+    }
+  }
+
+  public TurkicLetter getLetter(char c) {
+    TurkicLetter letter = letterMap.get(c);
+    return letter == null ? TurkicLetter.UNDEFINED : letter;
+  }
+
+  public TurkicLetter getLastLetter(CharSequence s) {
+    if (s.length() == 0) {
+      return TurkicLetter.UNDEFINED;
+    }
+    return letterMap.get(s.charAt(s.length() - 1));
+  }
+
+  public char getLastChar(CharSequence s) {
+    return s.charAt(s.length() - 1);
+  }
+
+  public TurkicLetter getFirstLetter(CharSequence s) {
+    if (s.length() == 0) {
+      return TurkicLetter.UNDEFINED;
+    }
+    return letterMap.get(s.charAt(0));
+  }
+
   public boolean isVowel(char c) {
     return lookup(vowelLookup, c);
   }
@@ -48,11 +169,21 @@ public class _TurkishAlphabet {
     return lookup(voicelessConsonantsLookup, c);
   }
 
+  public TurkicLetter getLastVowel(CharSequence s) {
+    if (s.length() == 0) {
+      return TurkicLetter.UNDEFINED;
+    }
+    for (int i = s.length() - 1; i >= 0; i--) {
+      char c = s.charAt(i);
+      if (isVowel(c)) {
+        return getLetter(c);
+      }
+    }
+    return TurkicLetter.UNDEFINED;
+  }
 
-
-
-  public boolean containsVowel(String s) {
-    if (s.isEmpty()) {
+  public boolean containsVowel(CharSequence s) {
+    if (s.length() == 0) {
       return false;
     }
     for (int i = 0; i < s.length(); i++) {
