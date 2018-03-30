@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import zemberek.core.collections.FixedBitVector;
-import zemberek.core.collections.UIntMap;
+import zemberek.core.collections.IntIntMap;
+import zemberek.core.collections.IntMap;
+import zemberek.core.text.TextUtil;
 
 public class _TurkishAlphabet {
 
@@ -16,20 +18,20 @@ public class _TurkishAlphabet {
   private final String lowercase = "abcçdefgğhıijklmnoöprsştuüvyzxwqâîû";
   private final String uppercase = lowercase.toUpperCase(TR);
   private final FixedBitVector dictionaryLettersLookup =
-      generateBitLookup(lowercase + uppercase);
+      TextUtil.generateBitLookup(lowercase + uppercase);
 
   private final String vowelsLowercase = "aeıioöuüâîû";
   private String vowelsUppercase = vowelsLowercase.toUpperCase(TR);
-  FixedBitVector vowelLookup =
-      generateBitLookup(vowelsLowercase + vowelsUppercase);
+  private FixedBitVector vowelLookup =
+      TextUtil.generateBitLookup(vowelsLowercase + vowelsUppercase);
 
   private final String stopConsonants = "çkpt";
-  FixedBitVector stopConsonantLookup =
-      generateBitLookup(stopConsonants + stopConsonants.toUpperCase(TR));
+  private FixedBitVector stopConsonantLookup =
+      TextUtil.generateBitLookup(stopConsonants + stopConsonants.toUpperCase(TR));
 
   private String voicelessConsonants = "çfhkpsşt";
-  FixedBitVector voicelessConsonantsLookup =
-      generateBitLookup(voicelessConsonants + voicelessConsonants.toUpperCase(TR));
+  private FixedBitVector voicelessConsonantsLookup =
+      TextUtil.generateBitLookup(voicelessConsonants + voicelessConsonants.toUpperCase(TR));
 
   public static _TurkishAlphabet INSTANCE = Singleton.Instance.alphabet;
 
@@ -38,12 +40,34 @@ public class _TurkishAlphabet {
     _TurkishAlphabet alphabet = new _TurkishAlphabet();
   }
 
-  UIntMap<TurkicLetter> letterMap = new UIntMap<>();
+  private IntMap<TurkicLetter> letterMap = new IntMap<>();
+  private IntIntMap voicingMap = new IntIntMap();
+  private IntIntMap devoicingMap = new IntIntMap();
 
-  public _TurkishAlphabet() {
+  private _TurkishAlphabet() {
     List<TurkicLetter> letters = generateLetters();
     for (TurkicLetter letter : letters) {
       letterMap.put(letter.charValue, letter);
+    }
+
+    String voicingIn = "çgkpt";
+    String voicingOut = "cğğbd";
+    String devoicingIn = "bcdgğ";
+    String devoicingOut = "pçtkk";
+
+    populateCharMap(voicingMap,
+        voicingIn + voicingIn.toUpperCase(TR),
+        voicingOut + voicingOut.toUpperCase(TR));
+    populateCharMap(devoicingMap,
+        devoicingIn + devoicingIn.toUpperCase(TR),
+        devoicingOut + devoicingOut.toUpperCase(TR));
+  }
+
+  private void populateCharMap(IntIntMap map, String inStr, String outStr) {
+    for (int i = 0; i < inStr.length(); i++) {
+      char in = inStr.charAt(i);
+      char out = outStr.charAt(i);
+      map.put(in, out);
     }
   }
 
@@ -97,37 +121,13 @@ public class _TurkishAlphabet {
   }
 
   public char devoice(char c) {
-    switch (c) {
-      case 'b':
-        return 'p';
-      case 'c':
-        return 'ç';
-      case 'd':
-        return 't';
-      case 'g':
-        return 'k';
-      case 'ğ':
-        return 'k';
-      default:
-        return c;
-    }
+    int res = devoicingMap.get(c);
+    return res == IntIntMap.NO_RESULT ? c : (char) res;
   }
 
   public char voice(char c) {
-    switch (c) {
-      case 'p':
-        return 'b';
-      case 'k':
-        return 'ğ';
-      case 'ç':
-        return 'c';
-      case 't':
-        return 'd';
-      case 'g':
-        return 'ğ';
-      default:
-        return c;
-    }
+    int res = voicingMap.get(c);
+    return res == IntIntMap.NO_RESULT ? c : (char) res;
   }
 
   public TurkicLetter getLetter(char c) {
@@ -219,21 +219,6 @@ public class _TurkishAlphabet {
 
   private boolean lookup(FixedBitVector vector, char c) {
     return c < vector.length && vector.get(c);
-  }
-
-  private static FixedBitVector generateBitLookup(String characters) {
-    int max = 0;
-    for (char c : characters.toCharArray()) {
-      if (c > max) {
-        max = c;
-      }
-    }
-
-    FixedBitVector result = new FixedBitVector(max + 1);
-    for (char c : characters.toCharArray()) {
-      result.set(c);
-    }
-    return result;
   }
 
 }
