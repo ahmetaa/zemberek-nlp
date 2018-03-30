@@ -333,7 +333,7 @@ public class InterpretingAnalyzer {
       }
       l.add("Analyses [" + input + "] (Surface + Morpheme):");
       for (_SingleAnalysis result : results) {
-        l.add("  " + AnalysisFormatters.shortForm().format(result));
+        l.add("  " + AnalysisFormatters.surfaceSequenceFormatter().format(result));
       }
       return l;
     }

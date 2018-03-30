@@ -217,16 +217,23 @@ public class _SingleAnalysis {
 
   @Override
   public String toString() {
-    return AnalysisFormatters.lexicalForm().format(this);
+    return format();
   }
 
-  public String shortForm() {
-    return AnalysisFormatters.shortForm().format(this);
+  public String formatSurfaceSequence() {
+    return AnalysisFormatters.surfaceSequenceFormatter().format(this);
   }
 
-  public String lexicalForm() {
-    return AnalysisFormatters.lexicalForm().format(this);
+  public String formatLexicalSequence() {
+    return AnalysisFormatters.lexicalSequenceFormatter().format(this);
   }
 
+  public String formatLexical() {
+    return AnalysisFormatters.DEFAULT_LEXICAL.format(this);
+  }
+
+  public String format() {
+    return AnalysisFormatters.DEFAULT_SURFACE.format(this);
+  }
 
 }

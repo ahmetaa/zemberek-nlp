@@ -216,6 +216,40 @@ birbirlerinizin
 
 Consider adding "'" to analysis.
 
+
+"Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Aor + Past + A1pl"
+
+Default Long
+okutamayabilirdik
+[okumak:Verb] oku:Verb|t:Caus→Verb|a:Able→Verb+ma:Neg|abil:Able→Verb+ir:Aor+di:Past+k:A1pl
+
+
+Ankara'daymış
+without punc
+[Ankara:Noun,Prop] Ankara:Noun+A3sg+Pnon+da:Loc|Zero→Verb+mış:Narr+A3sg
+with punc
+[Ankara:Noun,Prop] Ankara:Noun+':Punc+A3sg+Pnon+da:Loc|Zero→Verb+mış:Narr+A3sg
+without empty
+[Ankara:Noun,Prop] Ankara:Noun+':Punc+da:Loc|Verb+mış:Narr
+
+Google'ın
+
+[Google:Noun,Prop-/gugıl/] Google:Noun+':Punc+A3sg+Pnon+ın:Gen
+
+[Google:Noun,Prop-/gugıl/] Google:Noun+':Punc+A3sg+Pnon+ın:Gen
+
+
+Default Lex
+
+okutamayabilirdik
+[okumak:Verb] Verb|Caus→Verb|Able→Verb+Neg|Able→Verb+Aor+Past+A1pl
+
+Ankara'daymış
+[Ankara:Noun,Prop] Ankara:Noun+Punc+A3sg+Pnon+Loc|Zero→Verb+Narr+A3sg
+
+Without empty
+[Ankara:Noun,Prop] Ankara:Noun+Punc+Loc|Verb+Narr
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.
@@ -227,3 +261,5 @@ annemler, annenler etc can be resoved with implicitPlural, ImplicitP1sg and Impl
 However, for making morphotactics work easier, A third property (FamilyMember?) can be added.
 
 Currently we do not add root "Noun" state to the SearchPath. We should.
+
+

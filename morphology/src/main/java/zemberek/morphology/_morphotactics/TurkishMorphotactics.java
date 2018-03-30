@@ -98,93 +98,93 @@ public class TurkishMorphotactics {
   // Derivation suffixes
 
   // elmacık (Noun)
-  public static final Morpheme dim = new Morpheme("Diminutive", "Dim");
+  public static final Morpheme dim = new Morpheme("Diminutive", "Dim", true);
   // elmalık (Noun) TODO: Find better name.
-  public static final Morpheme ness = new Morpheme("Ness", "Ness");
+  public static final Morpheme ness = new Morpheme("Ness", "Ness", true);
   // elmalı (Adj)
-  public static final Morpheme with = new Morpheme("With", "With");
+  public static final Morpheme with = new Morpheme("With", "With", true);
   // elmasız (Adj)
-  public static final Morpheme without = new Morpheme("Without", "Without");
+  public static final Morpheme without = new Morpheme("Without", "Without", true);
   // elmasal (Adj)
-  public static final Morpheme related = new Morpheme("Related", "Related");
+  public static final Morpheme related = new Morpheme("Related", "Related", true);
   // tahtamsı (Adj)
-  public static final Morpheme justLike = new Morpheme("JustLike", "JustLike");
+  public static final Morpheme justLike = new Morpheme("JustLike", "JustLike", true);
   // tahtadaki (Adj)
-  public static final Morpheme rel = new Morpheme("Relation", "Rel");
+  public static final Morpheme rel = new Morpheme("Relation", "Rel", true);
   // elmacı (Noun)
-  public static final Morpheme agt = new Morpheme("Agentive", "Agt");
+  public static final Morpheme agt = new Morpheme("Agentive", "Agt", true);
   // tahtalaş (Verb)
-  public static final Morpheme become = new Morpheme("Become", "Become");
+  public static final Morpheme become = new Morpheme("Become", "Become", true);
   // tahtalan (Verb)
-  public static final Morpheme acquire = new Morpheme("Acquire", "Acquire");
+  public static final Morpheme acquire = new Morpheme("Acquire", "Acquire", true);
 
   // yeşilce (Adj->Adv)
-  public static final Morpheme ly = new Morpheme("Ly", "Ly");
+  public static final Morpheme ly = new Morpheme("Ly", "Ly", true);
   // oku-t oku-t-tur (Verb)
-  public static final Morpheme caus = new Morpheme("Causative", "Caus");
+  public static final Morpheme caus = new Morpheme("Causative", "Caus", true);
   // oku-yabil (Verb)
-  public static final Morpheme able = new Morpheme("Ability", "Able");
+  public static final Morpheme able = new Morpheme("Ability", "Able", true);
   // oku-n, oku-nul (Verb)
-  public static final Morpheme pass = new Morpheme("Passive", "Pass");
+  public static final Morpheme pass = new Morpheme("Passive", "Pass", true);
   // okumak (Noun)
-  public static final Morpheme inf1 = new Morpheme("Infinitive1", "Inf1");
+  public static final Morpheme inf1 = new Morpheme("Infinitive1", "Inf1", true);
   // okuma (Noun)
-  public static final Morpheme inf2 = new Morpheme("Infinitive2", "Inf2");
+  public static final Morpheme inf2 = new Morpheme("Infinitive2", "Inf2", true);
   // okuyuş (Noun)
-  public static final Morpheme inf3 = new Morpheme("Infinitive3", "Inf3");
+  public static final Morpheme inf3 = new Morpheme("Infinitive3", "Inf3", true);
   // okumaca (Noun)
-  public static final Morpheme actOf = new Morpheme("ActOf", "ActOf");
+  public static final Morpheme actOf = new Morpheme("ActOf", "ActOf", true);
   // okuduğum kitap (Adj, Noun)
-  public static final Morpheme pastPart = new Morpheme("PastParticiple", "PastPart");
+  public static final Morpheme pastPart = new Morpheme("PastParticiple", "PastPart", true);
   // okumuşlarımız (Adj, Noun)
-  public static final Morpheme narrPart = new Morpheme("NarrativeParticiple", "NarrPart");
+  public static final Morpheme narrPart = new Morpheme("NarrativeParticiple", "NarrPart", true);
   // okuyacağım kitap (Adj, Noun)
-  public static final Morpheme futPart = new Morpheme("FutureParticiple", "FutPart");
+  public static final Morpheme futPart = new Morpheme("FutureParticiple", "FutPart", true);
   // okuyan (Adj, Noun)
-  public static final Morpheme presPart = new Morpheme("PresentParticiple", "PresPart");
+  public static final Morpheme presPart = new Morpheme("PresentParticiple", "PresPart", true);
   // okurluk (Noun)
-  public static final Morpheme aorPart = new Morpheme("AoristParticiple", "AorPart");
+  public static final Morpheme aorPart = new Morpheme("AoristParticiple", "AorPart", true);
   // okumazlık - okumamazlık (Noun)
-  public static final Morpheme notState = new Morpheme("NotState", "NotState");
+  public static final Morpheme notState = new Morpheme("NotState", "NotState", true);
   // okuyan (Adj, Noun)
-  public static final Morpheme feelLike = new Morpheme("FeelLike", "FeelLike");
+  public static final Morpheme feelLike = new Morpheme("FeelLike", "FeelLike", true);
   // okuyagel (Verb)
-  public static final Morpheme everSince = new Morpheme("EverSince", "EverSince");
+  public static final Morpheme everSince = new Morpheme("EverSince", "EverSince", true);
   // okuyadur, okuyagör (Verb)
-  public static final Morpheme repeat = new Morpheme("Repeat", "Repeat");
+  public static final Morpheme repeat = new Morpheme("Repeat", "Repeat", true);
   // okuyayaz (Verb)
-  public static final Morpheme almost = new Morpheme("Almost", "Almost");
+  public static final Morpheme almost = new Morpheme("Almost", "Almost", true);
   // okuyuver (Verb)
-  public static final Morpheme hastily = new Morpheme("Hastily", "Hastily");
+  public static final Morpheme hastily = new Morpheme("Hastily", "Hastily", true);
   // okuyakal (Verb)
-  public static final Morpheme stay = new Morpheme("Stay", "Stay");
+  public static final Morpheme stay = new Morpheme("Stay", "Stay", true);
   // okuyakoy (Verb)
-  public static final Morpheme start = new Morpheme("Start", "Start");
+  public static final Morpheme start = new Morpheme("Start", "Start", true);
   // okurcasına (Adv,Adj)
-  public static final Morpheme asIf = new Morpheme("AsIf", "AsIf");
+  public static final Morpheme asIf = new Morpheme("AsIf", "AsIf", true);
   // okurken (Adv)
-  public static final Morpheme while_ = new Morpheme("While", "While");
+  public static final Morpheme while_ = new Morpheme("While", "While", true);
   // okuyunca (Adv)
-  public static final Morpheme when = new Morpheme("When", "When");
+  public static final Morpheme when = new Morpheme("When", "When", true);
   // okuyalı (Adv)
-  public static final Morpheme sinceDoingSo = new Morpheme("SinceDoingSo", "SinceDoingSo");
+  public static final Morpheme sinceDoingSo = new Morpheme("SinceDoingSo", "SinceDoingSo", true);
   // okudukça (Adv)
-  public static final Morpheme asLongAs = new Morpheme("AsLongAs", "AsLongAs");
+  public static final Morpheme asLongAs = new Morpheme("AsLongAs", "AsLongAs", true);
   // okuyarak (Adv)
-  public static final Morpheme byDoingSo = new Morpheme("ByDoingSo", "ByDoingSo");
+  public static final Morpheme byDoingSo = new Morpheme("ByDoingSo", "ByDoingSo", true);
   // okuyasıya (Adv)
-  public static final Morpheme adamantly = new Morpheme("Adamantly", "Adamantly");
+  public static final Morpheme adamantly = new Morpheme("Adamantly", "Adamantly", true);
   // okuyup (Adv)
-  public static final Morpheme afterDoing = new Morpheme("AfterDoing", "AfterDoing");
+  public static final Morpheme afterDoing = new Morpheme("AfterDoing", "AfterDoing", true);
   // okumadan, okumaksızın (Adv)
   public static final Morpheme withoutHavingDoneSo =
-      new Morpheme("WithoutHavingDoneSo", "WithoutHavingDoneSo");
+      new Morpheme("WithoutHavingDoneSo", "WithoutHavingDoneSo", true);
   //okuyamadan (Adv)
   public static final Morpheme withoutBeingAbleToHaveDoneSo =
-      new Morpheme("WithoutBeingAbleToHaveDoneSo", "WithoutBeingAbleToHaveDoneSo");
+      new Morpheme("WithoutBeingAbleToHaveDoneSo", "WithoutBeingAbleToHaveDoneSo", true);
 
   // Zero derivation
-  public static final Morpheme zero = new Morpheme("Zero", "Zero");
+  public static final Morpheme zero = new Morpheme("Zero", "Zero", true);
 
   // Verb specific
   public static final Morpheme cop = new Morpheme("Copula", "Cop");

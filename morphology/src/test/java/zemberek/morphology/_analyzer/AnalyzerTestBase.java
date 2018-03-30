@@ -52,7 +52,7 @@ public class AnalyzerTestBase {
   static void printAndSort(String input, List<_SingleAnalysis> results) {
     results.sort(Comparator.comparing(_SingleAnalysis::toString));
     for (_SingleAnalysis result : results) {
-      System.out.println(input + " = " + result + " = " + result.shortForm());
+      System.out.println(input + " = " + result + " = " + result.formatSurfaceSequence());
     }
   }
 
@@ -208,15 +208,15 @@ public class AnalyzerTestBase {
   }
 
   public static Predicate<_SingleAnalysis> matchesShortForm(String shortForm) {
-    return p -> p.shortForm().equalsIgnoreCase(shortForm);
+    return p -> p.formatSurfaceSequence().equalsIgnoreCase(shortForm);
   }
 
   public static Predicate<_SingleAnalysis> matchesShortFormTail(String shortFormTail) {
-    return p -> p.shortForm().endsWith(shortFormTail);
+    return p -> p.formatSurfaceSequence().endsWith(shortFormTail);
   }
 
   public static AnalysisMatcher matchesTailLex(String tail) {
-    return new AnalysisMatcher(p -> p.lexicalForm().endsWith(tail), tail);
+    return new AnalysisMatcher(p -> p.formatLexicalSequence().endsWith(tail), tail);
   }
 
   static class AnalysisMatcher {

@@ -34,12 +34,12 @@ public class _TurkishAlphabetTest {
     _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
     String iStr = "çÇgGkKpPtTaAbB";
     String oStr = "cCğĞğĞbBdDaAbB";
-    for (int i = 0; i <  iStr.length(); i++) {
-       char in =  iStr.charAt(i);
-       char outExpected =  oStr.charAt(i);
-       Assert.assertEquals("",
-           String.valueOf(outExpected),
-           String.valueOf(alphabet.voice(in)));
+    for (int i = 0; i < iStr.length(); i++) {
+      char in = iStr.charAt(i);
+      char outExpected = oStr.charAt(i);
+      Assert.assertEquals("",
+          String.valueOf(outExpected),
+          String.valueOf(alphabet.voice(in)));
     }
   }
 
@@ -48,9 +48,9 @@ public class _TurkishAlphabetTest {
     _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
     String iStr = "bBcCdDgGğĞaAkK";
     String oStr = "pPçÇtTkKkKaAkK";
-    for (int i = 0; i <  iStr.length(); i++) {
-      char in =  iStr.charAt(i);
-      char outExpected =  oStr.charAt(i);
+    for (int i = 0; i < iStr.length(); i++) {
+      char in = iStr.charAt(i);
+      char outExpected = oStr.charAt(i);
       Assert.assertEquals("",
           String.valueOf(outExpected),
           String.valueOf(alphabet.devoice(in)));

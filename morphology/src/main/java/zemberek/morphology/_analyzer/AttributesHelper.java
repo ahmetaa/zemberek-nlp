@@ -33,7 +33,7 @@ public class AttributesHelper {
     return getMorphemicAttributes(seq, AttributeSet.emptySet());
   }
 
-  static _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
+  private static _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
 
   public static AttributeSet<PhoneticAttribute> getMorphemicAttributes(
       CharSequence seq,

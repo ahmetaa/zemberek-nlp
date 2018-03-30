@@ -270,6 +270,9 @@ public class VerbsTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Aor + A3sg"));
     t.expectAny("okutamayabilir",
         matchesTailLex("Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Aor + A3sg"));
+    t.expectAny("okutamayabilirdik",
+        matchesTailLex("Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Aor + Past + A1pl"));
+
     t.expectAny("okuyamayabilir",
         matchesTailLex("Verb + Able + Verb + Neg + Able + Verb + Aor + A3sg"));
 
@@ -454,7 +457,7 @@ public class VerbsTest extends AnalyzerTestBase {
 
   @Test
   public void demekYemek() {
-    AnalysisTester t = getTester("demek [A:Special]");
+    AnalysisTester t = getTester("demek");
 
     t.expectSingle("de", matchesTailLex("Verb + Imp + A2sg"));
     t.expectAny("deme", matchesTailLex("Verb + Neg + Imp + A2sg"));
