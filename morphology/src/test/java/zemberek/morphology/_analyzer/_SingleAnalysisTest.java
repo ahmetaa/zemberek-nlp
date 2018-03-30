@@ -19,7 +19,6 @@ public class _SingleAnalysisTest extends AnalyzerTestBase {
     Assert.assertEquals("kitap", analysis.getStem());
   }
 
-
   @Test
   public void morphemeGroupTest() {
     InterpretingAnalyzer analyzer = getAnalyzer("kitap");

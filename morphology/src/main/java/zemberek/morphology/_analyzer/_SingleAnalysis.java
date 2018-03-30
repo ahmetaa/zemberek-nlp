@@ -221,11 +221,11 @@ public class _SingleAnalysis {
   }
 
   public String formatSurfaceSequence() {
-    return AnalysisFormatters.surfaceSequenceFormatter().format(this);
+    return AnalysisFormatters.SURFACE_SEQUENCE.format(this);
   }
 
   public String formatLexicalSequence() {
-    return AnalysisFormatters.lexicalSequenceFormatter().format(this);
+    return AnalysisFormatters.LEXICAL_SEQUENCE.format(this);
   }
 
   public String formatLexical() {
