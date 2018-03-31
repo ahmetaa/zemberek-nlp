@@ -145,7 +145,7 @@ public class Z3AbstractDisambiguator {
     public List<Z3WordData> currentWords = Lists.newArrayList();
 
     @Override
-    public boolean processLine(String s) throws IOException {
+    public boolean processLine(String s) {
       s = s.trim();
       String first = Strings.subStringUntilFirst(s, " ");
       if (ignoreLines.contains(first)) {

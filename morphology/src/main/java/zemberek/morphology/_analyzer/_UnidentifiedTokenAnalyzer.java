@@ -41,7 +41,7 @@ public class _UnidentifiedTokenAnalyzer {
   }
 
   private InterpretingAnalyzer analyzer;
-  private _TurkishAlphabet alphabet;
+  private _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
   private TurkishNumeralEndingMachine numeralEndingMachine = new TurkishNumeralEndingMachine();
 
   public _UnidentifiedTokenAnalyzer(InterpretingAnalyzer analyzer) {

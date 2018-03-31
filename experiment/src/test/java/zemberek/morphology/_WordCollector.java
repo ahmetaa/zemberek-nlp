@@ -39,7 +39,7 @@ public class _WordCollector {
 
     for (Path dir : dirs) {
       new _WordCollector()
-          .extracData(dir, outRoot, -1);
+          .extractData(dir, outRoot, -1);
     }
 */
   }

@@ -1428,7 +1428,7 @@ public class TurkishMorphotactics {
   MorphemeState conjRoot_ST = builder("conjRoot_ST", conj).posRoot().terminal().build();
   MorphemeState interjRoot_ST = builder("interjRoot_ST", interj).posRoot().terminal().build();
   MorphemeState detRoot_ST = builder("detRoot_ST", det).posRoot().terminal().build();
-  MorphemeState dupRoot_ST = builder("dupRoot_ST", det).posRoot().terminal().build();
+  MorphemeState dupRoot_ST = builder("dupRoot_ST", dup).posRoot().terminal().build();
 
   // ------------- Post Positive ------------------------------------------------
 

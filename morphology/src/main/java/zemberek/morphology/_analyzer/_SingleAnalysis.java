@@ -1,5 +1,6 @@
 package zemberek.morphology._analyzer;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -230,6 +231,35 @@ public class _SingleAnalysis {
     // replace the stem surface. it is in the first morpheme.
     surfaces.set(0, new MorphemeSurface(surfaces.get(0).morpheme, stem));
     return new _SingleAnalysis(item, surfaces, groupBoundaries.clone());
+  }
+
+  /**
+   * Returns surface forms list of all root and derivational roots of a parse.
+   * Examples:
+   * "kitaplar"  ->["kitap"]
+   * "kitabım"   ->["kitab"]
+   * "kitaplaşır"->["kitap", "kitaplaş"]
+   * "kavrulduk" ->["kavr","kavrul"]
+   */
+  public List<String> getStems() {
+    List<String> stems = Lists.newArrayListWithCapacity(2);
+    stems.add(getStem());
+    String previousStem = stems.get(0);
+    if (groupBoundaries.length > 1) {
+      for (int i = 1; i < groupBoundaries.length; i++) {
+        MorphemeGroup ig = getGroup(i);
+        MorphemeSurface suffixData = ig.morphemes.get(0);
+        if (suffixData.surface.length() > 0) {
+          String surface = suffixData.surface;
+          String stem = previousStem + surface;
+          if (!stems.contains(stem)) {
+            stems.add(stem);
+          }
+        }
+        previousStem = previousStem + ig.surface();
+      }
+    }
+    return stems;
   }
 
   @Override

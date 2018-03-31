@@ -22,6 +22,7 @@ import zemberek.core.turkish.SecondaryPos;
 import zemberek.langid.LanguageIdentifier;
 import zemberek.morphology._analyzer.InterpretingAnalyzer;
 import zemberek.morphology._analyzer._SingleAnalysis;
+import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.structure.Turkish;
@@ -39,15 +40,15 @@ public class _MorphologicalAmbiguityResolverExperiment {
   }
 
   public static void main(String[] args) throws IOException {
-    Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
+    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
     Path outRoot = Paths.get("data/ambiguity");
     Files.createDirectories(outRoot);
 
     new _MorphologicalAmbiguityResolverExperiment()
-        .extracData(p, outRoot, 1, -1);
+        .extractData(p, outRoot, 2, 10000);
   }
 
-  public void extracData(Path p, Path outRoot, int maxAnalysisCount, int resultLimit)
+  public void extractData(Path p, Path outRoot, int maxAnalysisCount, int resultLimit)
       throws IOException {
     List<Path> files = Files.walk(p, 1).filter(s -> s.toFile().isFile()
         && s.toFile().getName().endsWith(".corpus")).collect(Collectors.toList());
@@ -67,14 +68,14 @@ public class _MorphologicalAmbiguityResolverExperiment {
 
     String s = p.toFile().getName();
 
-    Path out = outRoot.resolve(s + "-unambigious.txt");
+    Path out = outRoot.resolve(s + "-ambigious.txt");
 
     try (PrintWriter pw = new PrintWriter(out.toFile(), "utf-8")) {
       for (SingleAnalysisSentence sentence : result) {
         pw.println(sentence.sentence);
         for (Single single : sentence.tokens) {
           for (_SingleAnalysis r : single.res) {
-            pw.println(r.formatSurfaceSequence());
+            pw.println(r.format());
           }
         }
         pw.println();
@@ -93,7 +94,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
   private List<SingleAnalysisSentence> collect(Path p, int maxAnalysisCount) throws IOException {
     List<String> sentences = getSentences(p);
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
-    InterpretingAnalyzer analyzer = new InterpretingAnalyzer(lexicon);
+    _TurkishMorphologicalAnalyzer analyzer = new _TurkishMorphologicalAnalyzer(lexicon);
 
     int tokenCount = 0;
     int sentenceCount = 0;
@@ -157,7 +158,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
   class SingleAnalysisSentence {
 
     String sentence;
-    List<Single> tokens = new ArrayList<>();
+    List<Single> tokens;
 
     SingleAnalysisSentence(String sentence,
         List<Single> tokens) {

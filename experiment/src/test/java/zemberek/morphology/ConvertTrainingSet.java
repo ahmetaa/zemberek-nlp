@@ -10,10 +10,12 @@ import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.ambiguity.AbstractDisambiguator.DataSet;
 import zemberek.morphology.ambiguity.AbstractDisambiguator.DataSetLoader;
+import zemberek.morphology.ambiguity.AbstractDisambiguator.SentenceData;
 
 public class ConvertTrainingSet {
 
   static class AnalysisData {
+
     String input;
     String root;
     PrimaryPos primaryPos;
@@ -27,9 +29,12 @@ public class ConvertTrainingSet {
   }
 
   public static void main(String[] args) throws IOException {
-    Path path= Paths.get("/home/ahmetaa/apps/MD-Release/data.test.txt");
-    DataSet test = load(path);
-    
+    Path path = Paths.get("/home/ahmetaa/apps/MD-Release/data.test.txt");
+    DataSet set = load(path);
+
+    for (SentenceData sentenceData : set.sentences) {
+      System.out.println(sentenceData.sentence());
+    }
 
   }
 

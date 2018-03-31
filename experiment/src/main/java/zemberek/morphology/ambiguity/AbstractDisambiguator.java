@@ -4,6 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.LineProcessor;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -72,6 +73,14 @@ public abstract class AbstractDisambiguator {
       for (WordData word : allWordAnalyses) {
         allParse.add(word.allAnalyses);
       }
+    }
+
+    public String sentence() {
+      List<String> sentence = new ArrayList<>();
+      for (WordData s : allWordAnalyses) {
+        sentence.add(s.word);
+      }
+      return String.join(" ", sentence);
     }
 
     public int size() {
@@ -169,4 +178,6 @@ public abstract class AbstractDisambiguator {
       return igs.get(igs.size() - 1);
     }
   }
+
+
 }
