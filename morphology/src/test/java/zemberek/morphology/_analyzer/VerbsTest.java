@@ -671,4 +671,18 @@ public class VerbsTest extends AnalyzerTestBase {
         "kavurturacak"
     );
   }
+
+  @Test
+  public void reciprocalTest() {
+    AnalysisTester t = getTester("kaçmak");
+
+    t.expectAny("kaçış", matchesTailLex("Verb + Recip + Verb + Imp + A2sg"));
+    t.expectAny("kaçışma", matchesTailLex("Verb + Recip + Verb + Neg + Imp + A2sg"));
+    t.expectAny("kaçıştık", matchesTailLex("Verb + Recip + Verb + Past + A1pl"));
+
+    // Implicit Reciprocal
+    t = getTester("dövüşmek [A:Reciprocal]");
+    t.expectAny("dövüştük", matchesTailLex("Verb + Recip + Verb + Past + A1pl"));
+  }
+
 }

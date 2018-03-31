@@ -3,6 +3,7 @@ package zemberek.morphology._morphotactics;
 import static zemberek.morphology._morphotactics.Conditions.has;
 import static zemberek.morphology._morphotactics.Conditions.not;
 import static zemberek.morphology._morphotactics.Conditions.notHave;
+import static zemberek.morphology._morphotactics.Conditions.notHaveAny;
 import static zemberek.morphology._morphotactics.Conditions.previousStateIs;
 import static zemberek.morphology._morphotactics.Conditions.previousStateIsNot;
 import static zemberek.morphology._morphotactics.Conditions.rootIs;
@@ -123,6 +124,8 @@ public class TurkishMorphotactics {
   public static final Morpheme ly = new Morpheme("Ly", "Ly", true);
   // oku-t oku-t-tur (Verb)
   public static final Morpheme caus = new Morpheme("Causative", "Caus", true);
+  // konuş-uş (Verb)
+  public static final Morpheme recip = new Morpheme("Reciprocal", "Recip", true);
   // oku-yabil (Verb)
   public static final Morpheme able = new Morpheme("Ability", "Able", true);
   // oku-n, oku-nul (Verb)
@@ -347,7 +350,6 @@ public class TurkishMorphotactics {
     nounProper_S.add(a3pl_S, "lAr");
     puncProperSeparator_S.addEmpty(a3sg_S);
     puncProperSeparator_S.add(a3pl_S, "lAr");
-
 
     // ---- For compund derivations -----------------
     pnonCompound_S.addEmpty(nom_S);
@@ -789,7 +791,6 @@ public class TurkishMorphotactics {
             .and(new ContainsMorpheme(justLike).not()));
 
   }
-
 
   //-------------- Adjective-Noun connected Verb States ------------------------
 
@@ -1477,6 +1478,9 @@ public class TurkishMorphotactics {
   MorphemeState vCausT_S = nonTerminalDerivative("vCaus_S", caus);
   MorphemeState vCausTır_S = nonTerminalDerivative("vCausTır_S", caus);
 
+  MorphemeState vRecip_S = nonTerminalDerivative("vRecip_S", recip);
+  MorphemeState vImplicitiRecipRoot_S = builder("vImplicitiRecipRoot_S", verb).posRoot().build();
+
   // for progressive vowel drop.
   MorphemeState verbRoot_Prog_S = builder("verbRoot_Prog_S", verb).posRoot().build();
 
@@ -1768,6 +1772,12 @@ public class TurkishMorphotactics {
     verbRoot_S.add(vNotState_S, "mAzlI~k");
     verbRoot_S.add(vNotState_S, "mAzlI!ğ");
     vNotState_S.addEmpty(noun_S);
+
+    // reciprocal
+    verbRoot_S.add(vRecip_S, "Iş", notHaveAny(RootAttribute.Reciprocal, RootAttribute.NonReciprocal)
+        .andNot(new Conditions.ContainsMorpheme(recip)));
+    vRecip_S.addEmpty(verbRoot_S);
+    vImplicitiRecipRoot_S.addEmpty(vRecip_S);
 
     // Passive
     // Causes Verb-Verb derivation. Passive morpheme has three forms.
@@ -2084,7 +2094,6 @@ public class TurkishMorphotactics {
     // unmodified `kavur` root and remove only the passive.
     verbLastVowelDropUnmodRoot_S.copyOutgoingTransitionsFrom(verbRoot_S);
     verbLastVowelDropUnmodRoot_S.removeTransitionsTo(pass);
-
   }
 
   //--------------------------------------------------------
@@ -2113,6 +2122,10 @@ public class TurkishMorphotactics {
     // those modified roots are connected to a separate root state called verbRoot_Prog_S.
     if (phoneticAttributes.contains(PhoneticAttribute.LastLetterDropped)) {
       return verbRoot_Prog_S;
+    }
+
+    if (item.hasAttribute(RootAttribute.Reciprocal)) {
+      return vImplicitiRecipRoot_S;
     }
 
     switch (item.primaryPos) {
@@ -2161,7 +2174,6 @@ public class TurkishMorphotactics {
         return postpRoot_ST;
       case Numeral:
         return numeralRoot_ST;
-
 
       default:
         return noun_S;

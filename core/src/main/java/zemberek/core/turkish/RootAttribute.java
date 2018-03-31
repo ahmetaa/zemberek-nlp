@@ -145,6 +145,8 @@ public enum RootAttribute implements StringEnum {
   // TODO: Reciprocal suffix is commented out in morphotactics and reciprocal verbs are added with suffixes.
   // Such as boğuşmak [A:Reciprocal]
   Reciprocal,
+  // if a verb cannot be reciprocal.
+  NonReciprocal,
 
   // for items that are not in official TDK dictionary
   Ext,
