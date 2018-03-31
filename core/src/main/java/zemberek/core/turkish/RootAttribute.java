@@ -157,7 +157,6 @@ public enum RootAttribute implements StringEnum {
   //For dummy items. Those are created when processing compound items.
   Dummy,
 
-
   // -------------- Experimental attributes.
   ImplicitDative,
   ImplicitPlural,
