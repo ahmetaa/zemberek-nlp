@@ -225,6 +225,8 @@ dövüştük -> döv + üş:Recip + ...
 Therefore probably we need to ass "NonReciprocal" attribute to "dövmek"
 Also some verbs should not get Reciprocal suffix and needs to be marked with "NonReciprocal"
 
+consider adding "giller" as a derivative suffix.
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.
