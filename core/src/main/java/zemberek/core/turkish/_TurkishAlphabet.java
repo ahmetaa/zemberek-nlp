@@ -50,6 +50,10 @@ public class _TurkishAlphabet {
       letterMap.put(letter.charValue, letter);
     }
 
+    generateVoicingDevoicingLookups();
+  }
+
+  private void generateVoicingDevoicingLookups() {
     String voicingIn = "çgkpt";
     String voicingOut = "cğğbd";
     String devoicingIn = "bcdgğ";

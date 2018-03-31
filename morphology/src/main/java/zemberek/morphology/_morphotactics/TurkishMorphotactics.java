@@ -46,6 +46,7 @@ public class TurkishMorphotactics {
       PrimaryPos.PostPositive);
   public static final Morpheme det = new Morpheme("Determiner", "Det", PrimaryPos.Determiner);
   public static final Morpheme num = new Morpheme("Numeral", "Num", PrimaryPos.Numeral);
+  public static final Morpheme dup = new Morpheme("Duplicator", "Dup", PrimaryPos.Duplicator);
   public static final Morpheme interj = new Morpheme("Interjection", "Interj",
       PrimaryPos.Interjection);
 
@@ -126,6 +127,9 @@ public class TurkishMorphotactics {
   public static final Morpheme caus = new Morpheme("Causative", "Caus", true);
   // konuş-uş (Verb)
   public static final Morpheme recip = new Morpheme("Reciprocal", "Recip", true);
+  // kaşınmak (Verb) For now Reflexive suffixes are only implicit. Meaning that
+  // dictionary contains "kaşınmak" with Reflexive attribute.
+  public static final Morpheme reflex = new Morpheme("Reflexive", "Reflex", true);
   // oku-yabil (Verb)
   public static final Morpheme able = new Morpheme("Ability", "Able", true);
   // oku-n, oku-nul (Verb)
@@ -1419,11 +1423,12 @@ public class TurkishMorphotactics {
     avZeroToVerb_S.addEmpty(nVerb_S);
   }
 
-  // ------------- Interjection, Conjunctions and Post Positive  -----------------
+  // ------------- Interjection, Conjunctions, Determiner and Duplicator  -----------------
 
   MorphemeState conjRoot_ST = builder("conjRoot_ST", conj).posRoot().terminal().build();
   MorphemeState interjRoot_ST = builder("interjRoot_ST", interj).posRoot().terminal().build();
-  MorphemeState detRoot_ST = builder("interjRoot_ST", det).posRoot().terminal().build();
+  MorphemeState detRoot_ST = builder("detRoot_ST", det).posRoot().terminal().build();
+  MorphemeState dupRoot_ST = builder("dupRoot_ST", det).posRoot().terminal().build();
 
   // ------------- Post Positive ------------------------------------------------
 
@@ -1479,7 +1484,10 @@ public class TurkishMorphotactics {
   MorphemeState vCausTır_S = nonTerminalDerivative("vCausTır_S", caus);
 
   MorphemeState vRecip_S = nonTerminalDerivative("vRecip_S", recip);
-  MorphemeState vImplicitiRecipRoot_S = builder("vImplicitiRecipRoot_S", verb).posRoot().build();
+  MorphemeState vImplicitRecipRoot_S = builder("vImplicitRecipRoot_S", verb).posRoot().build();
+
+  MorphemeState vReflex_S = nonTerminalDerivative("vReflex_S", reflex);
+  MorphemeState vImplicitReflexRoot_S = builder("vImplicitReflexRoot_S", verb).posRoot().build();
 
   // for progressive vowel drop.
   MorphemeState verbRoot_Prog_S = builder("verbRoot_Prog_S", verb).posRoot().build();
@@ -1777,7 +1785,11 @@ public class TurkishMorphotactics {
     verbRoot_S.add(vRecip_S, "Iş", notHaveAny(RootAttribute.Reciprocal, RootAttribute.NonReciprocal)
         .andNot(new Conditions.ContainsMorpheme(recip)));
     vRecip_S.addEmpty(verbRoot_S);
-    vImplicitiRecipRoot_S.addEmpty(vRecip_S);
+    vImplicitRecipRoot_S.addEmpty(vRecip_S);
+
+    // reflexive
+    vImplicitReflexRoot_S.addEmpty(vReflex_S);
+    vReflex_S.addEmpty(verbRoot_S);
 
     // Passive
     // Causes Verb-Verb derivation. Passive morpheme has three forms.
@@ -2125,8 +2137,13 @@ public class TurkishMorphotactics {
     }
 
     if (item.hasAttribute(RootAttribute.Reciprocal)) {
-      return vImplicitiRecipRoot_S;
+      return vImplicitRecipRoot_S;
     }
+
+    if (item.hasAttribute(RootAttribute.Reflexive)) {
+      return vImplicitReflexRoot_S;
+    }
+
 
     switch (item.primaryPos) {
       case Noun:
@@ -2174,7 +2191,8 @@ public class TurkishMorphotactics {
         return postpRoot_ST;
       case Numeral:
         return numeralRoot_ST;
-
+      case Duplicator:
+        return dupRoot_ST;
       default:
         return noun_S;
 

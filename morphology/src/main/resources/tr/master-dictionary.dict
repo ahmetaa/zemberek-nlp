@@ -27923,81 +27923,6 @@ yüzlük
 yüzlük [P:Adj]
 zeytinlik
 
-ağaçsı [P:Adj]
-ağsı [P:Adj]
-alaysı [P:Adj]
-anıtsı [P:Adj]
-armutsu [P:Adj]
-ayrıksı [P:Adj]
-basamaksı [P:Adj]
-beyinsi [P:Adj]
-bezsi [P:Adj]
-boynuzsu [P:Adj]
-böbreksi [P:Adj]
-buğdaysı [P:Adj]
-bulutsu
-buruksu [P:Adj]
-büyüksü [P:Adj]
-camsı
-camsı [P:Adj]
-çanaksı [P:Adj]
-çeliksi [P:Adj]
-çengelsi [P:Adj]
-çocuksu [P:Adj]
-çocuksu [P:Adv]
-dalsı [P:Adj]
-damaksı [P:Adj]
-destansı [P:Adj]
-dikensi [P:Adj]
-erkeksi [P:Adj]
-gırtlaksı [P:Adj]
-gümüşsü [P:Adj]
-hamursu [P:Adj]
-hardalsı [P:Adj]
-ibiksi [P:Adj]
-insansı [P:Adj]
-ipliksi [P:Adj]
-ipsi [P:Adj]
-kabuksu [P:Adj]
-kadınsı [P:Adj]
-kâğıtsı [P:Adj]
-kamışsı [P:Adj]
-karpuzsu [P:Adj]
-kavunsu [P:Adj]
-kemiksi [P:Adj]
-kirpiksi [P:Adj]
-kozalaksı [P:Adj]
-köksü
-madensi
-madensi [P:Adj]
-mantarsı [P:Adj]
-maymunsu [P:Adj]
-merdivensi [P:Adj]
-metalsi
-mızraksı [P:Adj]
-odunsu [P:Adj]
-otsu [P:Adj]
-ozansı [P:Adj]
-örümceksi [P:Adj]
-parmaksı [P:Adj]
-piramitsi [P:Adj]
-pirinçsi [P:Adj]
-sedefsi [P:Adj]
-soğansı [P:Adj]
-sümüksü [P:Adj]
-süngersi [P:Adj]
-taraksı [P:Adj]
-telsi [P:Adj]
-tırnaksı [P:Adj]
-tırtılsı
-tırtılsı [P:Adj]
-topraksı [P:Adj]
-yanıksı [P:Adj]
-yapraksı [P:Adj]
-yıldızsı [P:Adj]
-zarsı [P:Adj]
-zeytinsi [P:Adj]
-
 acılanmak
 adaklanmak
 adlanmak
@@ -28309,337 +28234,326 @@ denizlaleleri
 denizşakayıkları
 denizyıldızları
 
-akarlar
-akciğerliler
-akkarıncalar
-akrepler
-algler
-amfibyumlar
-amipler
-antiloplar
-antropoitler
-arılar
-armoniler
-ayaksızlar
-balıkçıllar
-balinalar
-bitler
-boalar
-böcekçiller
-böcekler
-delikliler
-dinozorlar
-doğuranlar
-duyargalılar
-eklemliler
-eklemsizler
-eklentiler
-etçiller
-eteneliler
-etenesizler
-flamanlar
-fundalar
-gökkuzgunlar
-gökkuzgunumsular
-gömlekliler
-günsüler
-güvercinler
-halkalılar
-haşlamlılar
-hidralar
-holotüritler
-hortumlular
-ıspanaklar
-ıstakozlar
-ışınlılar
-insanımsılar
-insansılar
-ipsiler
-kabuklular
-kalafatçılar
-kamçılılar
-kanatlılar
-kanatsızlar
-kançılar
-kaplumbağalar
-karıncalar
-karinalılar
-kartallar
-kavuzlular
-keçiler
-kefaller
-kelebekler
-kemirgenler
-kemiriciler
-keneler
-kertenkeleler
-keseliler
-kirpikliler
-koordinatlar
-kordalılar
-kozalaklılar
-kurbağalar
-kuşlar
-kuyruklular
-kuyruksuzlar
-leylekler
-leyleksiler
-madreporlar
-mantarlar
-maymunlar
-memeliler
-mercanlar
-omurgalılar
-omurgasızlar
-otyiyenler
-örümceğimsiler
-örümcekler
-palamutlular
-papağanlar
-pelikansılar
-penguenler
-pireler
-primatlar
-sağanlar
-selentereler
-sıçanımsılar
-sifonlular
-sikalar
-sinekler
-solucanlar
-sölomlular
-sporlular
-susallar
-sülükler
-süngerler
-sürüngenler
-şebekler
-şeritler
-taçsızlar
-taraklılar
-tavuklar
-tavuksular
-tepegözler
-termitler
-tırmananlar
-tırmanıcılar
-timsahlar
-toynaklılar
-trakeliler
-troplar
-tulumlular
-tulumsular
-tümeller
-yarasalar
-yırtıcılar
-yumurtlayanlar
-yumuşakçalar
+akarlar [A:ImplicitPlural]
+akciğerliler [A:ImplicitPlural]
+akkarıncalar [A:ImplicitPlural]
+akrepler [A:ImplicitPlural]
+algler [A:ImplicitPlural]
+amfibyumlar [A:ImplicitPlural]
+amipler [A:ImplicitPlural]
+antiloplar [A:ImplicitPlural]
+antropoitler [A:ImplicitPlural]
+arılar [A:ImplicitPlural]
+armoniler [A:ImplicitPlural]
+ayaksızlar [A:ImplicitPlural]
+balıkçıllar [A:ImplicitPlural]
+balinalar [A:ImplicitPlural]
+bitler [A:ImplicitPlural]
+boalar [A:ImplicitPlural]
+böcekçiller [A:ImplicitPlural]
+böcekler [A:ImplicitPlural]
+delikliler [A:ImplicitPlural]
+dinozorlar [A:ImplicitPlural]
+doğuranlar [A:ImplicitPlural]
+duyargalılar [A:ImplicitPlural]
+eklemliler [A:ImplicitPlural]
+eklemsizler [A:ImplicitPlural]
+eklentiler [A:ImplicitPlural]
+etçiller [A:ImplicitPlural]
+eteneliler [A:ImplicitPlural]
+etenesizler [A:ImplicitPlural]
+flamanlar [A:ImplicitPlural]
+fundalar [A:ImplicitPlural]
+gökkuzgunlar [A:ImplicitPlural]
+gökkuzgunumsular [A:ImplicitPlural]
+gömlekliler [A:ImplicitPlural]
+günsüler [A:ImplicitPlural]
+güvercinler [A:ImplicitPlural]
+halkalılar [A:ImplicitPlural]
+haşlamlılar [A:ImplicitPlural]
+hidralar [A:ImplicitPlural]
+holotüritler [A:ImplicitPlural]
+hortumlular [A:ImplicitPlural]
+ıspanaklar [A:ImplicitPlural]
+ıstakozlar [A:ImplicitPlural]
+ışınlılar [A:ImplicitPlural]
+insanımsılar [A:ImplicitPlural]
+insansılar [A:ImplicitPlural]
+ipsiler [A:ImplicitPlural]
+kabuklular [A:ImplicitPlural]
+kalafatçılar [A:ImplicitPlural]
+kamçılılar [A:ImplicitPlural]
+kanatlılar [A:ImplicitPlural]
+kanatsızlar [A:ImplicitPlural]
+kançılar [A:ImplicitPlural]
+kaplumbağalar [A:ImplicitPlural]
+karıncalar [A:ImplicitPlural]
+karinalılar [A:ImplicitPlural]
+kartallar [A:ImplicitPlural]
+kavuzlular [A:ImplicitPlural]
+keçiler [A:ImplicitPlural]
+kefaller [A:ImplicitPlural]
+kelebekler [A:ImplicitPlural]
+kemirgenler [A:ImplicitPlural]
+kemiriciler [A:ImplicitPlural]
+keneler [A:ImplicitPlural]
+kertenkeleler [A:ImplicitPlural]
+keseliler [A:ImplicitPlural]
+kirpikliler [A:ImplicitPlural]
+koordinatlar [A:ImplicitPlural]
+kordalılar [A:ImplicitPlural]
+kozalaklılar [A:ImplicitPlural]
+kurbağalar [A:ImplicitPlural]
+kuşlar [A:ImplicitPlural]
+kuyruklular [A:ImplicitPlural]
+kuyruksuzlar [A:ImplicitPlural]
+leylekler [A:ImplicitPlural]
+leyleksiler [A:ImplicitPlural]
+madreporlar [A:ImplicitPlural]
+mantarlar [A:ImplicitPlural]
+maymunlar [A:ImplicitPlural]
+memeliler [A:ImplicitPlural]
+mercanlar [A:ImplicitPlural]
+omurgalılar [A:ImplicitPlural]
+omurgasızlar [A:ImplicitPlural]
+otyiyenler [A:ImplicitPlural]
+örümceğimsiler [A:ImplicitPlural]
+örümcekler [A:ImplicitPlural]
+palamutlular [A:ImplicitPlural]
+papağanlar [A:ImplicitPlural]
+pelikansılar [A:ImplicitPlural]
+penguenler [A:ImplicitPlural]
+pireler [A:ImplicitPlural]
+primatlar [A:ImplicitPlural]
+sağanlar [A:ImplicitPlural]
+selentereler [A:ImplicitPlural]
+sıçanımsılar [A:ImplicitPlural]
+sifonlular [A:ImplicitPlural]
+sikalar [A:ImplicitPlural]
+sinekler [A:ImplicitPlural]
+solucanlar [A:ImplicitPlural]
+sölomlular [A:ImplicitPlural]
+sporlular [A:ImplicitPlural]
+susallar [A:ImplicitPlural]
+sülükler [A:ImplicitPlural]
+süngerler [A:ImplicitPlural]
+sürüngenler [A:ImplicitPlural]
+şebekler [A:ImplicitPlural]
+şeritler [A:ImplicitPlural]
+taçsızlar [A:ImplicitPlural]
+taraklılar [A:ImplicitPlural]
+tavuklar [A:ImplicitPlural]
+tavuksular [A:ImplicitPlural]
+tepegözler [A:ImplicitPlural]
+termitler [A:ImplicitPlural]
+tırmananlar [A:ImplicitPlural]
+tırmanıcılar [A:ImplicitPlural]
+timsahlar [A:ImplicitPlural]
+toynaklılar [A:ImplicitPlural]
+trakeliler [A:ImplicitPlural]
+troplar [A:ImplicitPlural]
+tulumlular [A:ImplicitPlural]
+tulumsular [A:ImplicitPlural]
+tümeller [A:ImplicitPlural]
+yarasalar [A:ImplicitPlural]
+yırtıcılar [A:ImplicitPlural]
+yumurtlayanlar [A:ImplicitPlural]
+yumuşakçalar [A:ImplicitPlural]
 
-abanozgiller
-akbabagiller
-akçaağaçgiller
-alabalıkgiller
-ananasgiller
-aslangiller
-asmagiller
-atgiller
-atkuyruğugiller
-ayıgiller
-baklagiller
-bakterigiller
-balığıgiller
-balıkçılgiller
-ballıbabagiller
-barbunyagiller
-baştankaragiller
-baykuşgiller
-begonyagiller
-bileşikgiller
-boagiller
-boynuzlugiller
-buğdaygiller
-bukalemungiller
-cevizgiller
-çamgiller
-çarkıfelekgiller
-çaygiller
-çınargiller
-çiçeğigiller
-çinçilyagiller
-çobanaldatangiller
-çobanpüskülügiller
-çotiragiller
-çullukgiller
-defnegiller
-domuzgiller
-droseragiller
-dutgiller
-ebegümecigiller
-engerekgiller
-erguvangiller
-fasulyegiller
-filgiller
-flâmangiller
-fokgiller
-fukusgiller
-fundagiller
-gecesefasıgiller
-gelincikgiller
-gergedangiller
-geyikgiller
-gökkuzgungiller
-gugukgiller
-gülgiller
-gürgengiller
-güvercingiller
-hamsigiller
-hanımeligiller
-hanigiller
-harharyasgiller
-hindigiller
-hipopotamgiller
-hodangiller
-horozbinagiller
-horozibiğigiller
-hünnapgiller
-ıhlamurgiller
-ılgıngiller
-ısırgangiller
-ıspanakgiller
-iguanagiller
-iğdegiller
-insangiller
-iskorpitgiller
-ispinozgiller
-izmaritgiller
-kabakgiller
-kaktüsgiller
-kangurugiller
-karaağaçgiller
-karabatakgiller
-karabibergiller
-karabuğdaygiller
-karanfilgiller
-karatavukgiller
-kargagiller
-karıncayiyengiller
-kartalgiller
-kayıngiller
-kedigiller
-kefalgiller
-kelergiller
-kendirgiller
-ketengiller
-kırlangıçgiller
-kızılcıkgiller
-kızılkantarongiller
-kirpigiller
-kivigiller
-kobaygiller
-kobragiller
-kolagiller
-kolibrigiller
-köpekgiller
-köstebekgiller
-kuyruksallayangiller
-ladengiller
-lapinagiller
-levrekgiller
-leylekgiller
-lüfergiller
-makigiller
-manolyagiller
-martıgiller
-maydanozgiller
-menekşegiller
-mersingiller
-mezgitgiller
-morsgiller
-muzgiller
-nargiller
-nergisgiller
-nilüfergiller
-otugiller
-öglenagiller
-ördekgiller
-ötleğengiller
-palmiyegiller
-papağangiller
-papirüsgiller
-patlıcangiller
-pelikangiller
-penguengiller
-porsukgiller
-salepgiller
-sandalgiller
-sansargiller
-sapotgiller
-sardunyagiller
-sarıasmagiller
-sarmaşığıgiller
-sarmaşıkgiller
-sazangiller
-semendergiller
-semizotugiller
-serçegiller
-servigiller
-sıçangiller
-sığırdiligiller
-sıracagiller
-sırtlangiller
-sincapgiller
-sinekkapangiller
-skinkgiller
-söğütgiller
-suibriğigiller
-suokugiller
-susamgiller
-sülüngiller
-sümsükgiller
-süsengiller
-sütleğengiller
-şahteregiller
-şeritgiller
-şeytaniğnesigiller
-şimşirgiller
-tapirgiller
-taşemengiller
-taşkırangiller
-tavşangiller
-tavukgiller
-toygiller
-turnagiller
-turpgiller
-turunçgiller
-uskumrugiller
-uskumrumsugiller
-yalıçapkınıgiller
-yelkovangiller
-yılangiller
-yılanyastığıgiller
-yunusgiller
-zakkumgiller
-zambakgiller
-zencefilgiller
-zeytingiller
-zürafagiller
+abanozgiller [A:ImplicitPlural]
+akbabagiller [A:ImplicitPlural]
+akçaağaçgiller [A:ImplicitPlural]
+alabalıkgiller [A:ImplicitPlural]
+ananasgiller [A:ImplicitPlural]
+aslangiller [A:ImplicitPlural]
+asmagiller [A:ImplicitPlural]
+atgiller [A:ImplicitPlural]
+atkuyruğugiller [A:ImplicitPlural]
+ayıgiller [A:ImplicitPlural]
+baklagiller [A:ImplicitPlural]
+bakterigiller [A:ImplicitPlural]
+balığıgiller [A:ImplicitPlural]
+balıkçılgiller [A:ImplicitPlural]
+ballıbabagiller [A:ImplicitPlural]
+barbunyagiller [A:ImplicitPlural]
+baştankaragiller [A:ImplicitPlural]
+baykuşgiller [A:ImplicitPlural]
+begonyagiller [A:ImplicitPlural]
+bileşikgiller [A:ImplicitPlural]
+boagiller [A:ImplicitPlural]
+boynuzlugiller [A:ImplicitPlural]
+buğdaygiller [A:ImplicitPlural]
+bukalemungiller [A:ImplicitPlural]
+cevizgiller [A:ImplicitPlural]
+çamgiller [A:ImplicitPlural]
+çarkıfelekgiller [A:ImplicitPlural]
+çaygiller [A:ImplicitPlural]
+çınargiller [A:ImplicitPlural]
+çiçeğigiller [A:ImplicitPlural]
+çinçilyagiller [A:ImplicitPlural]
+çobanaldatangiller [A:ImplicitPlural]
+çobanpüskülügiller [A:ImplicitPlural]
+çotiragiller [A:ImplicitPlural]
+çullukgiller [A:ImplicitPlural]
+defnegiller [A:ImplicitPlural]
+domuzgiller [A:ImplicitPlural]
+droseragiller [A:ImplicitPlural]
+dutgiller [A:ImplicitPlural]
+ebegümecigiller [A:ImplicitPlural]
+engerekgiller [A:ImplicitPlural]
+erguvangiller [A:ImplicitPlural]
+fasulyegiller [A:ImplicitPlural]
+filgiller [A:ImplicitPlural]
+flâmangiller [A:ImplicitPlural]
+fokgiller [A:ImplicitPlural]
+fukusgiller [A:ImplicitPlural]
+fundagiller [A:ImplicitPlural]
+gecesefasıgiller [A:ImplicitPlural]
+gelincikgiller [A:ImplicitPlural]
+gergedangiller [A:ImplicitPlural]
+geyikgiller [A:ImplicitPlural]
+gökkuzgungiller [A:ImplicitPlural]
+gugukgiller [A:ImplicitPlural]
+gülgiller [A:ImplicitPlural]
+gürgengiller [A:ImplicitPlural]
+güvercingiller [A:ImplicitPlural]
+hamsigiller [A:ImplicitPlural]
+hanımeligiller [A:ImplicitPlural]
+hanigiller [A:ImplicitPlural]
+harharyasgiller [A:ImplicitPlural]
+hindigiller [A:ImplicitPlural]
+hipopotamgiller [A:ImplicitPlural]
+hodangiller [A:ImplicitPlural]
+horozbinagiller [A:ImplicitPlural]
+horozibiğigiller [A:ImplicitPlural]
+hünnapgiller [A:ImplicitPlural]
+ıhlamurgiller [A:ImplicitPlural]
+ılgıngiller [A:ImplicitPlural]
+ısırgangiller [A:ImplicitPlural]
+ıspanakgiller [A:ImplicitPlural]
+iguanagiller [A:ImplicitPlural]
+iğdegiller [A:ImplicitPlural]
+insangiller [A:ImplicitPlural]
+iskorpitgiller [A:ImplicitPlural]
+ispinozgiller [A:ImplicitPlural]
+izmaritgiller [A:ImplicitPlural]
+kabakgiller [A:ImplicitPlural]
+kaktüsgiller [A:ImplicitPlural]
+kangurugiller [A:ImplicitPlural]
+karaağaçgiller [A:ImplicitPlural]
+karabatakgiller [A:ImplicitPlural]
+karabibergiller [A:ImplicitPlural]
+karabuğdaygiller [A:ImplicitPlural]
+karanfilgiller [A:ImplicitPlural]
+karatavukgiller [A:ImplicitPlural]
+kargagiller [A:ImplicitPlural]
+karıncayiyengiller [A:ImplicitPlural]
+kartalgiller [A:ImplicitPlural]
+kayıngiller [A:ImplicitPlural]
+kedigiller [A:ImplicitPlural]
+kefalgiller [A:ImplicitPlural]
+kelergiller [A:ImplicitPlural]
+kendirgiller [A:ImplicitPlural]
+ketengiller [A:ImplicitPlural]
+kırlangıçgiller [A:ImplicitPlural]
+kızılcıkgiller [A:ImplicitPlural]
+kızılkantarongiller [A:ImplicitPlural]
+kirpigiller [A:ImplicitPlural]
+kivigiller [A:ImplicitPlural]
+kobaygiller [A:ImplicitPlural]
+kobragiller [A:ImplicitPlural]
+kolagiller [A:ImplicitPlural]
+kolibrigiller [A:ImplicitPlural]
+köpekgiller [A:ImplicitPlural]
+köstebekgiller [A:ImplicitPlural]
+kuyruksallayangiller [A:ImplicitPlural]
+ladengiller [A:ImplicitPlural]
+lapinagiller [A:ImplicitPlural]
+levrekgiller [A:ImplicitPlural]
+leylekgiller [A:ImplicitPlural]
+lüfergiller [A:ImplicitPlural]
+makigiller [A:ImplicitPlural]
+manolyagiller [A:ImplicitPlural]
+martıgiller [A:ImplicitPlural]
+maydanozgiller [A:ImplicitPlural]
+menekşegiller [A:ImplicitPlural]
+mersingiller [A:ImplicitPlural]
+mezgitgiller [A:ImplicitPlural]
+morsgiller [A:ImplicitPlural]
+muzgiller [A:ImplicitPlural]
+nargiller [A:ImplicitPlural]
+nergisgiller [A:ImplicitPlural]
+nilüfergiller [A:ImplicitPlural]
+otugiller [A:ImplicitPlural]
+öglenagiller [A:ImplicitPlural]
+ördekgiller [A:ImplicitPlural]
+ötleğengiller [A:ImplicitPlural]
+palmiyegiller [A:ImplicitPlural]
+papağangiller [A:ImplicitPlural]
+papirüsgiller [A:ImplicitPlural]
+patlıcangiller [A:ImplicitPlural]
+pelikangiller [A:ImplicitPlural]
+penguengiller [A:ImplicitPlural]
+porsukgiller [A:ImplicitPlural]
+salepgiller [A:ImplicitPlural]
+sandalgiller [A:ImplicitPlural]
+sansargiller [A:ImplicitPlural]
+sapotgiller [A:ImplicitPlural]
+sardunyagiller [A:ImplicitPlural]
+sarıasmagiller [A:ImplicitPlural]
+sarmaşığıgiller [A:ImplicitPlural]
+sarmaşıkgiller [A:ImplicitPlural]
+sazangiller [A:ImplicitPlural]
+semendergiller [A:ImplicitPlural]
+semizotugiller [A:ImplicitPlural]
+serçegiller [A:ImplicitPlural]
+servigiller [A:ImplicitPlural]
+sıçangiller [A:ImplicitPlural]
+sığırdiligiller [A:ImplicitPlural]
+sıracagiller [A:ImplicitPlural]
+sırtlangiller [A:ImplicitPlural]
+sincapgiller [A:ImplicitPlural]
+sinekkapangiller [A:ImplicitPlural]
+skinkgiller [A:ImplicitPlural]
+söğütgiller [A:ImplicitPlural]
+suibriğigiller [A:ImplicitPlural]
+suokugiller [A:ImplicitPlural]
+susamgiller [A:ImplicitPlural]
+sülüngiller [A:ImplicitPlural]
+sümsükgiller [A:ImplicitPlural]
+süsengiller [A:ImplicitPlural]
+sütleğengiller [A:ImplicitPlural]
+şahteregiller [A:ImplicitPlural]
+şeritgiller [A:ImplicitPlural]
+şeytaniğnesigiller [A:ImplicitPlural]
+şimşirgiller [A:ImplicitPlural]
+tapirgiller [A:ImplicitPlural]
+taşemengiller [A:ImplicitPlural]
+taşkırangiller [A:ImplicitPlural]
+tavşangiller [A:ImplicitPlural]
+tavukgiller [A:ImplicitPlural]
+toygiller [A:ImplicitPlural]
+turnagiller [A:ImplicitPlural]
+turpgiller [A:ImplicitPlural]
+turunçgiller [A:ImplicitPlural]
+uskumrugiller [A:ImplicitPlural]
+uskumrumsugiller [A:ImplicitPlural]
+yalıçapkınıgiller [A:ImplicitPlural]
+yelkovangiller [A:ImplicitPlural]
+yılangiller [A:ImplicitPlural]
+yılanyastığıgiller [A:ImplicitPlural]
+yunusgiller [A:ImplicitPlural]
+zakkumgiller [A:ImplicitPlural]
+zambakgiller [A:ImplicitPlural]
+zencefilgiller [A:ImplicitPlural]
+zeytingiller [A:ImplicitPlural]
+zürafagiller [A:ImplicitPlural]
 
-akşamki [P:Adj]
 benimki [P:Adj]
 benimki [P:Pron]
 bizimki [P:Adj]
 bizimki [P:Pron]
-bugünkü [P:Adj]
-dünkü [P:Adj]
-evvelki [P:Adj]
-geceki [P:Adj]
-gündüzki [P:Adj]
-önceki [P:Adj]
-sabahki [P:Adj]
-sonraki [P:Adj]
-şimdiki [P:Adj]
 şimdikiler
-yarınki [P:Adj]
 
 ahir [P:Adv]
 alicenap [P:Adv]
@@ -28886,106 +28800,59 @@ dürtüşmek
 enenmek
 fıkırdaşmak [A:Reciprocal]
 fısıldaşmak [A:Reciprocal]
-gelinmek
-gülünmek
-harcanmak
-haykırışmak
 hırıldaşmak [A:Reciprocal]
 homurdanmak
 ilaçlamak
-iletişmek
-indirgenmek
 ırganmak
 kapanmak
-kasınmak
-kaşınmak
+kasınmak [A:Reflexive]
+kaşınmak [A:Reflexive]
 kavranmak
 kaynaşmak [A:Reciprocal]
 kıkırdaşmak [A:Reciprocal]
-kılınmak
-kımıldanmak
-kınanmak
 kıpırdaşmak [A:Reciprocal]
-küçümsenmek
-mırıldanmak
-ödenmek
-ödeşmek
-okşanmak
-ölçünmek
-ölçüşmek
-öleyazmak
-onanmak
-önemsenmek
-öpüşmek
-oturuşmak
-oynanmak
+ödeşmek [A:Reciprocal]
+ölçüşmek [A:Reciprocal]
+öpüşmek [A:Reciprocal]
 oyulganmak
-özümsenmek
-saptanmak
-sayışmak
+sayışmak [A:Reciprocal]
 selametlemek
 selamlamak
 sıkışmak
 silahlamak
 silinmek
-sınanmak
-sıvanmak
 sokuşmak
-sövüşmek
-söyleşmek
-tanınmak
-taranmak
+sövüşmek [A:Reciprocal]
+söyleşmek [A:Reciprocal]
+taranmak [A:Reflexive]
 tasniflemek
 telalamak
-tıkanmak
 tıkışmak
-umursanmak
 uzaklaşmak
 vıcırdaşmak [A:Reciprocal]
-vızıldanmak
-yadırganmak
-yadsınmak
-yaramamak
-yaşanmak
-yaşatmamak
 yazışmak [A:Reciprocal]
 yığılışmak [A:Reciprocal]
-yığışmak
-yıkanmak
+yıkanmak [A:Reflexive]
 yıldıramak
-yükseltgenmek
-zırıldanmak
 
 asıl [A:LastVowelDrop]
-affetmişsin
+affetmişsin [P:Interj]
 ayırt
 cc [Pr:cece]
 eprime
 he [P:Interj]
-nasılsınız
 tıkır
 uzatmayalım [P:Adv]
 zorunluluk
 
 evelallah [P:Adv]
 
-binler
-birler
-onlar
-yüzler
-
 lap [P:Dup]
 lıkır [P:Dup]
 lime [P:Dup]
 
-
-ağzından
 aracılığıyla [P:Adv]
 aralıkta [P:Adv]
-ayıran
-ayıran [P:Adj]
-açan
-bakarak [P:Adv]
 baltacı
 beklenmedik [P:Adj]
 beslenen [P:Adj]
@@ -29011,46 +28878,16 @@ gibilerden [P:Adv]
 gibisi [P:Adj]
 gibisinden [P:Adv]
 giderek [P:Adv]
-giren
-gitsin
-gitti
-gözünde
 indirgenebilir [P:Adj]
-kayan [P:Adj]
-kesen
-kesen [P:Adj]
-kesişen
-kesişen [P:Adj]
 milletvekilliği
 nerede [P:Adv]
-olabilir [P:Adj]
-olacak
-olacak [P:Adj]
-olamaz [P:Adj]
 olamaz [P:Interj]
-oldu [P:Interj]
 onmadık [P:Adj]
-pahasına
-sayısız [P:Adj]
 serbesti [A:NoVoicing,Ext;Ref:serbestî]
-sesli
-sesli [P:Adj]
 sesli [P:Adv]
-sessiz [P:Adj]
 silahaltı [A:CompoundP3sg; Roots:silah-alt]
-tartışma
-taşınabilir
-taşınır
-taşınır [P:Adj]
 tatlılıkla [P:Adv]
 tıpkısı
-yağar
-yaşında
-ünlü
-ünlü [P:Adj]
-ünsüz
-ünsüz [P:Adj]
-yumuşakça [P:Adv]
 
 geceleri [P:Adv]
 günde [P:Adv]
@@ -29060,4 +28897,3 @@ sabaha [P:Adv]
 sabahları [P:Adv]
 seneye [P:Adv]
 sonraları [P:Adv]
-
