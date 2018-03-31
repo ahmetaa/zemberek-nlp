@@ -215,6 +215,23 @@ public class _SingleAnalysis {
     return new _SingleAnalysis(searchPath.getDictionaryItem(), morphemes, groupBoundaries);
   }
 
+  /**
+   * This method is used for modifying the dictionary item and stem of an analysis
+   * without changing the suffix morphemes. This is used for generating result for
+   * inputs like "5'e"
+   *
+   * @param item new DictionaryItem
+   * @param stem new stem
+   * @return new _SingleAnalysis object with given DictionaryItem and stem.
+   */
+  _SingleAnalysis copyFor(DictionaryItem item, String stem) {
+    // copy morpheme-surface list.
+    List<MorphemeSurface> surfaces = new ArrayList<>(morphemesSurfaces);
+    // replace the stem surface. it is in the first morpheme.
+    surfaces.set(0, new MorphemeSurface(surfaces.get(0).morpheme, stem));
+    return new _SingleAnalysis(item, surfaces, groupBoundaries.clone());
+  }
+
   @Override
   public String toString() {
     return format();

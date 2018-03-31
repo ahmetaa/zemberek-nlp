@@ -6,6 +6,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -17,6 +18,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.morphology._analyzer.SurfaceTransition.SuffixTemplateToken;
@@ -44,11 +47,17 @@ public class InterpretingAnalyzer {
   private ArrayListMultimap<String, StemTransition> multiStems =
       ArrayListMultimap.create(1000, 2);
   private Map<String, StemTransition> singleStems = Maps.newConcurrentMap();
+  private Set<StemTransition> stemTransitions = Sets.newConcurrentHashSet();
+
+  //TODO: check the lock mechanism
+  private ReadWriteLock lock = new ReentrantReadWriteLock();
+  private StemTransitionGenerator generator;
 
   public InterpretingAnalyzer(RootLexicon lexicon) {
     this.lexicon = lexicon;
     morphotactics = new TurkishMorphotactics(lexicon);
-    generateStemTransitions(morphotactics);
+    generator = new StemTransitionGenerator(morphotactics);
+    generateStemTransitions();
   }
 
   public RootLexicon getLexicon() {
@@ -236,40 +245,75 @@ public class InterpretingAnalyzer {
     return newPaths;
   }
 
-  private void generateStemTransitions(TurkishMorphotactics morphotactics) {
-    StemTransitionGenerator generator = new StemTransitionGenerator(morphotactics);
+  private void generateStemTransitions() {
     for (DictionaryItem item : lexicon) {
-      try {
-        List<StemTransition> transitions = generator.generate(item);
-        for (StemTransition transition : transitions) {
-          addStemTransition(transition);
-        }
-      } catch (Exception e) {
-        Log.warn("Cannot generate stem transition for %s with reason %s", item, e.getMessage());
-      }
+      addDictionaryItem(item);
     }
   }
 
   private synchronized void addStemTransition(StemTransition stemTransition) {
-    final String surfaceForm = stemTransition.surface;
-    if (multiStems.containsKey(surfaceForm)) {
-      multiStems.put(surfaceForm, stemTransition);
-    } else if (singleStems.containsKey(surfaceForm)) {
-      multiStems.put(surfaceForm, singleStems.get(surfaceForm));
-      singleStems.remove(surfaceForm);
-      multiStems.put(surfaceForm, stemTransition);
-    } else {
-      singleStems.put(surfaceForm, stemTransition);
+    lock.writeLock().lock();
+    try {
+      final String surfaceForm = stemTransition.surface;
+      if (multiStems.containsKey(surfaceForm)) {
+        multiStems.put(surfaceForm, stemTransition);
+      } else if (singleStems.containsKey(surfaceForm)) {
+        multiStems.put(surfaceForm, singleStems.get(surfaceForm));
+        singleStems.remove(surfaceForm);
+        multiStems.put(surfaceForm, stemTransition);
+      } else {
+        singleStems.put(surfaceForm, stemTransition);
+      }
+    } finally {
+      lock.writeLock().unlock();
     }
   }
 
-  public List<StemTransition> getMatchingStemTransitions(String stem) {
+  private synchronized void removeStemNode(StemTransition stemTransition) {
+    lock.writeLock().lock();
+    try {
+      final String surfaceForm = stemTransition.surface;
+      if (multiStems.containsKey(surfaceForm)) {
+        multiStems.remove(surfaceForm, stemTransition);
+      } else if (singleStems.containsKey(surfaceForm)
+          && singleStems.get(surfaceForm).item.equals(stemTransition.item)) {
+        singleStems.remove(surfaceForm);
+      }
+      stemTransitions.remove(stemTransition);
+    } finally {
+      lock.writeLock().unlock();
+    }
+  }
+
+  private List<StemTransition> getMatchingStemTransitions(String stem) {
     if (singleStems.containsKey(stem)) {
       return Lists.newArrayList(singleStems.get(stem));
     } else if (multiStems.containsKey(stem)) {
       return Lists.newArrayList(multiStems.get(stem));
     } else {
       return Collections.emptyList();
+    }
+  }
+
+  public void addDictionaryItem(DictionaryItem item) {
+    try {
+      List<StemTransition> transitions = generator.generate(item);
+      for (StemTransition transition : transitions) {
+        addStemTransition(transition);
+      }
+    } catch (Exception e) {
+      Log.warn("Cannot generate stem transition for %s with reason %s", item, e.getMessage());
+    }
+  }
+
+  public void removeDictionaryItem(DictionaryItem item) {
+    try {
+      List<StemTransition> transitions = generator.generate(item);
+      for (StemTransition transition : transitions) {
+        removeStemNode(transition);
+      }
+    } finally {
+      lock.writeLock().unlock();
     }
   }
 

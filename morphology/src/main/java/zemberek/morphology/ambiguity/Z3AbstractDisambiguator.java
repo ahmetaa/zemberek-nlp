@@ -112,7 +112,7 @@ public class Z3AbstractDisambiguator {
     public List<Z3WordData> currentWords = Lists.newArrayList();
 
     @Override
-    public boolean processLine(String s) throws IOException {
+    public boolean processLine(String s)  {
       s = s.trim();
       if (s.length() == 0) {
         return true;
