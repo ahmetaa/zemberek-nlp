@@ -101,7 +101,7 @@ public class AnalysisFormatters {
 
       // root and suffix formatting
       sb.append(analysis.getStem()).append(':').append(surfaces.get(0).morpheme.id);
-      if (surfaces.size() > 1) {
+      if (surfaces.size() > 1 && !surfaces.get(1).morpheme.derivational) {
         sb.append("+");
       }
       for (int i = 1; i < surfaces.size(); i++) {

@@ -22,6 +22,11 @@ public class AnalysisFormatterTest {
     analysis = analyzer.analyze("kitaplardaymış").get(0);
     Assert.assertEquals("[kitap:Noun] kitap:Noun+lar:A3pl+Pnon+da:Loc|Zero→Verb+ymış:Narr+A3sg",
         AnalysisFormatters.DEFAULT_SURFACE.format(analysis));
+
+    analyzer = getAnalyzer("okumak");
+    analysis = analyzer.analyze("okut").get(0);
+    Assert.assertEquals("[okumak:Verb] oku:Verb|t:Caus→Verb+Imp+A2sg",
+        AnalysisFormatters.DEFAULT_SURFACE.format(analysis));
   }
 
   @Test
@@ -38,6 +43,11 @@ public class AnalysisFormatterTest {
 
     analysis = analyzer.analyze("kitaplardaymış").get(0);
     Assert.assertEquals("[kitap:Noun] kitap:Noun+A3pl+Pnon+Loc|Zero→Verb+Narr+A3sg",
+        AnalysisFormatters.DEFAULT_LEXICAL.format(analysis));
+
+    analyzer = getAnalyzer("okumak");
+    analysis = analyzer.analyze("okut").get(0);
+    Assert.assertEquals("[okumak:Verb] oku:Verb|Caus→Verb+Imp+A2sg",
         AnalysisFormatters.DEFAULT_LEXICAL.format(analysis));
   }
 
