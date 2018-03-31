@@ -43,9 +43,13 @@ public class AnalysisFormatters {
 
       String posStr = pos == PrimaryPos.Adverb ? "Adverb" : pos.shortForm;
 
-      sb.append(posStr).append("+");
+      sb.append(posStr);
       if (item.secondaryPos != SecondaryPos.None) {
-        sb.append(item.secondaryPos.shortForm).append("+");
+        sb.append(posStr).append("+");
+        sb.append(item.secondaryPos.shortForm);
+      }
+      if (surfaces.size() > 1 && !surfaces.get(1).morpheme.derivational) {
+        sb.append("+");
       }
 
       for (int i = 1; i < surfaces.size(); i++) {

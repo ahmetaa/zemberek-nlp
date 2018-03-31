@@ -66,6 +66,11 @@ public class AnalysisFormatterTest {
     analysis = analyzer.analyze("kitaplardaymış").get(0);
     Assert.assertEquals("kitap+Noun+A3pl+Pnon+Loc^DB+Verb+Zero+Narr+A3sg",
         AnalysisFormatters.OFLAZER_STYLE.format(analysis));
+
+    analyzer = getAnalyzer("okumak");
+    analysis = analyzer.analyze("okut").get(0);
+    Assert.assertEquals("oku+Verb^DB+Verb+Caus+Imp+A2sg",
+        AnalysisFormatters.OFLAZER_STYLE.format(analysis));
   }
 
 
