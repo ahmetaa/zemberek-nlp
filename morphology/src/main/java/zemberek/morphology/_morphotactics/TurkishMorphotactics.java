@@ -44,6 +44,7 @@ public class TurkishMorphotactics {
   public static final Morpheme postp = new Morpheme("PostPositive", "Postp",
       PrimaryPos.PostPositive);
   public static final Morpheme det = new Morpheme("Determiner", "Det", PrimaryPos.Determiner);
+  public static final Morpheme num = new Morpheme("Numeral", "Num", PrimaryPos.Numeral);
   public static final Morpheme interj = new Morpheme("Interjection", "Interj",
       PrimaryPos.Interjection);
 
@@ -299,6 +300,7 @@ public class TurkishMorphotactics {
     mapSpecialItemsToRootStates();
     connectNounStates();
     connectAdjectiveStates();
+    connectNumeralStates();
     connectVerbAfterNounAdjStates();
     connectPronounStates();
     connectVerbAfterPronoun();
@@ -604,17 +606,17 @@ public class TurkishMorphotactics {
             .andNot(new ContainsMorpheme(with, without, related)));
 
     // connect With to Adjective root.
-    with_S.addEmpty(adj_ST);
-    without_S.addEmpty(adj_ST);
-    related_S.addEmpty(adj_ST);
+    with_S.addEmpty(adjectiveRoot_ST);
+    without_S.addEmpty(adjectiveRoot_ST);
+    related_S.addEmpty(adjectiveRoot_ST);
 
-    justLike_S.addEmpty(adj_ST);
+    justLike_S.addEmpty(adjectiveRoot_ST);
 
     // meyve-de-ki
     Condition notRelRepetition = new HasTailSequence(rel, adj, zero, noun, a3sg, pnon, loc).not();
     loc_ST.add(rel_S, "ki",
         notRelRepetition.andNot(new Conditions.SecondaryRootIs(SecondaryPos.Time)));
-    rel_S.addEmpty(adj_ST);
+    rel_S.addEmpty(adjectiveRoot_ST);
 
     // for covering dünkü, anki, yarınki etc.
     // TODO: Use a more general grouping, not using Secondary Pos
@@ -695,7 +697,7 @@ public class TurkishMorphotactics {
 
   //-------------- Adjective States ------------------------
 
-  MorphemeState adj_ST = builder("adj_ST", adj).terminal().posRoot().build();
+  MorphemeState adjectiveRoot_ST = builder("adjectiveRoot_ST", adj).terminal().posRoot().build();
   MorphemeState adjAfterVerb_S = builder("adjAfterVerb_S", adj).posRoot().build();
   MorphemeState adjAfterVerb_ST = builder("adjAfterVerb_ST", adj).terminal().posRoot().build();
 
@@ -720,33 +722,34 @@ public class TurkishMorphotactics {
     // zero morpheme derivation. Words like "yeşil-i" requires Adj to Noun conversion.
     // Since noun suffixes are not derivational a "Zero" morpheme is used for this.
     // Transition has a HAS_TAIL condition because Adj->Zero->Noun+A3sg+Pnon+Nom) is not allowed.
-    adj_ST.addEmpty(adjZeroDeriv_S, Conditions.HAS_TAIL);
+    adjectiveRoot_ST.addEmpty(adjZeroDeriv_S, Conditions.HAS_TAIL);
 
     adjZeroDeriv_S.addEmpty(noun_S);
 
     adjZeroDeriv_S.addEmpty(nVerb_S);
 
-    adj_ST.add(aLy_S, ">cA");
+    adjectiveRoot_ST.add(aLy_S, ">cA");
     aLy_S.addEmpty(advRoot_ST);
 
-    adj_ST
+    adjectiveRoot_ST
         .add(aAsIf_S, ">cA", new Conditions.ContainsMorpheme(asIf, ly, agt, with, justLike).not());
-    aAsIf_S.addEmpty(adj_ST);
+    aAsIf_S.addEmpty(adjectiveRoot_ST);
 
-    adj_ST.add(aAgt_S, ">cI", new Conditions.ContainsMorpheme(asIf, ly, agt, with, justLike).not());
+    adjectiveRoot_ST
+        .add(aAgt_S, ">cI", new Conditions.ContainsMorpheme(asIf, ly, agt, with, justLike).not());
     aAgt_S.addEmpty(noun_S);
 
-    adj_ST.add(justLike_S, "+msI",
+    adjectiveRoot_ST.add(justLike_S, "+msI",
         new NoSurfaceAfterDerivation()
             .and(new ContainsMorpheme(justLike).not()));
 
-    adj_ST.add(justLike_S, "ImsI",
+    adjectiveRoot_ST.add(justLike_S, "ImsI",
         notHave(PhoneticAttribute.LastLetterVowel)
             .and(new NoSurfaceAfterDerivation())
             .and(new ContainsMorpheme(justLike).not()));
 
-    adj_ST.add(become_S, "lAş", new NoSurfaceAfterDerivation());
-    adj_ST.add(acquire_S, "lAn", new NoSurfaceAfterDerivation());
+    adjectiveRoot_ST.add(become_S, "lAş", new NoSurfaceAfterDerivation());
+    adjectiveRoot_ST.add(acquire_S, "lAn", new NoSurfaceAfterDerivation());
 
     Condition c1 = new Conditions.PreviousMorphemeIsAny(futPart, pastPart);
 
@@ -758,12 +761,35 @@ public class TurkishMorphotactics {
     adjAfterVerb_S.add(aP2pl_ST, "InIz", c1);
     adjAfterVerb_S.add(aP3pl_ST, "lArI", c1);
 
-    adj_ST.add(ness_S, "lI~k");
-    adj_ST.add(ness_S, "lI!ğ");
+    adjectiveRoot_ST.add(ness_S, "lI~k");
+    adjectiveRoot_ST.add(ness_S, "lI!ğ");
 
     adjAfterVerb_ST.add(ness_S, "lI~k", new Conditions.PreviousMorphemeIs(aorPart));
     adjAfterVerb_ST.add(ness_S, "lI!ğ", new Conditions.PreviousMorphemeIs(aorPart));
   }
+
+  //--------------------- Numeral Root --------------------------------------------------
+  MorphemeState numeralRoot_ST = builder("numeralRoot_ST", num).terminal().posRoot().build();
+  MorphemeState numZeroDeriv_S = nonTerminalDerivative("numZeroDeriv_S", zero);
+
+  private void connectNumeralStates() {
+    numeralRoot_ST.add(ness_S, "lI~k");
+    numeralRoot_ST.add(ness_S, "lI!ğ");
+    numeralRoot_ST.addEmpty(numZeroDeriv_S, Conditions.HAS_TAIL);
+    numZeroDeriv_S.addEmpty(noun_S);
+    numZeroDeriv_S.addEmpty(nVerb_S);
+
+    numeralRoot_ST.add(justLike_S, "+msI",
+        new NoSurfaceAfterDerivation()
+            .and(new ContainsMorpheme(justLike).not()));
+
+    numeralRoot_ST.add(justLike_S, "ImsI",
+        notHave(PhoneticAttribute.LastLetterVowel)
+            .and(new NoSurfaceAfterDerivation())
+            .and(new ContainsMorpheme(justLike).not()));
+
+  }
+
 
   //-------------- Adjective-Noun connected Verb States ------------------------
 
@@ -1719,7 +1745,7 @@ public class TurkishMorphotactics {
 
     // FutPart "oku-yacağ-ım kitap"
     verbRoot_S.add(vNarrPart_S, "mIş");
-    vNarrPart_S.addEmpty(adj_ST);
+    vNarrPart_S.addEmpty(adjectiveRoot_ST);
 
     // AorPart "okunabilir-lik"
     verbRoot_S.add(vAorPart_S, "Ir",
@@ -2100,8 +2126,7 @@ public class TurkishMorphotactics {
           return noun_S;
         }
       case Adjective:
-      case Numeral:
-        return adj_ST;
+        return adjectiveRoot_ST;
       case Pronoun:
         switch (item.secondaryPos) {
           case PersonalPron:
@@ -2134,6 +2159,9 @@ public class TurkishMorphotactics {
         return detRoot_ST;
       case PostPositive:
         return postpRoot_ST;
+      case Numeral:
+        return numeralRoot_ST;
+
 
       default:
         return noun_S;
