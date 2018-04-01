@@ -232,13 +232,9 @@ public class TurkishMorphotactics {
 
   MorphemeState puncRoot_ST = builder("puncRoot_ST", punc).terminal().posRoot().build();
 
-  // this will be used for proper noun separation.
-  MorphemeState puncProperSeparator_S = nonTerminal("puncProperSeparator_S", punc);
-
   //-------------- Noun States ------------------------
 
   MorphemeState noun_S = builder("noun_S", noun).posRoot().build();
-  MorphemeState nounProper_S = builder("nounProper_S", noun).posRoot().build();
   MorphemeState nounCompoundRoot_S = builder("nounCompoundRoot_S", noun).posRoot().build();
   MorphemeState nounSuRoot_S = builder("nounSuRoot_S", noun).posRoot().build();
   MorphemeState nounInf1Root_S = builder("nounInf1Root_S", noun).posRoot().build();
@@ -306,6 +302,7 @@ public class TurkishMorphotactics {
     this.lexicon = lexicon;
     mapSpecialItemsToRootStates();
     connectNounStates();
+    connectProperNounsAndAbbreviations();
     connectAdjectiveStates();
     connectNumeralStates();
     connectVerbAfterNounAdjStates();
@@ -346,14 +343,6 @@ public class TurkishMorphotactics {
 
     a3sgCompound_S.addEmpty(pnonCompound_S);
     a3sgCompound_S.add(p3pl_S, "lArI");
-
-    // ---- Proper noun handling -------
-    // TODO: consider adding single quote after an overhaul.
-    // nounProper_S.add(puncProperSeparator_S, "'");
-    nounProper_S.addEmpty(a3sg_S);
-    nounProper_S.add(a3pl_S, "lAr");
-    puncProperSeparator_S.addEmpty(a3sg_S);
-    puncProperSeparator_S.add(a3pl_S, "lAr");
 
     // ---- For compund derivations -----------------
     pnonCompound_S.addEmpty(nom_S);
@@ -700,6 +689,27 @@ public class TurkishMorphotactics {
     postpLastVowelDropRoot_S.addEmpty(zeroLastVowelDrop_S);
     zeroLastVowelDrop_S.addEmpty(nounLastVowelDropRoot_S);
   }
+
+  MorphemeState nounProper_S = builder("nounProper_S", noun).posRoot().build();
+  MorphemeState nounAbbrv_S = builder("nounAbbrv_S", noun).posRoot().build();
+  // this will be used for proper noun separation.
+  MorphemeState puncProperSeparator_S = nonTerminal("puncProperSeparator_S", punc);
+
+  private void connectProperNounsAndAbbreviations() {
+    // ---- Proper noun handling -------
+    // TODO: consider adding single quote after an overhaul.
+    // nounProper_S.add(puncProperSeparator_S, "'");
+    nounProper_S.addEmpty(a3sg_S);
+    nounProper_S.add(a3pl_S, "lAr");
+    puncProperSeparator_S.addEmpty(a3sg_S);
+    puncProperSeparator_S.add(a3pl_S, "lAr");
+
+    // ---- Abbreviation Handling -------
+    // TODO: consider restricting possessive, most derivation and plural suffixes.
+    nounAbbrv_S.addEmpty(a3sg_S);
+    nounAbbrv_S.add(a3pl_S, "lAr");
+  }
+
 
   //-------------- Adjective States ------------------------
 
@@ -2150,6 +2160,10 @@ public class TurkishMorphotactics {
         if (item.secondaryPos == SecondaryPos.ProperNoun) {
           return nounProper_S;
         }
+        if (item.secondaryPos == SecondaryPos.Abbreviation) {
+          return nounAbbrv_S;
+        }
+
         if (item.hasAttribute(RootAttribute.CompoundP3sgRoot)) {
           return nounCompoundRoot_S;
         } else {

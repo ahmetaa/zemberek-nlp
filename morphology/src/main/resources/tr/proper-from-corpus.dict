@@ -1,14 +1,5 @@
 ## These words are collected from a large corpus with some heuristics. It may contain wrong proper nouns.
 
-A101 [Pr:ayüzbir]
-A310 [Pr:aüçyüzon]
-A319 [Pr:aüçyüzondokuz]
-A320 [Pr:aüçyüzyirmi]
-A321 [Pr:aüçyüzyirmibir]
-A330 [Pr:aüçyüzotuz]
-A340 [Pr:aüçyüzkırk]
-A350 [Pr:aüçyüzelli]
-A380 [Pr:aüçyüzseksen]
 Aachen
 Aalborg
 Aang
@@ -402,8 +393,6 @@ Ahtisaari
 Ahunbay
 Ahzab
 Aıba
-Aıds
-Aıhm [pr:aiheme]
 Aıpac
 Aibü
 Aida
@@ -411,7 +400,6 @@ Aids
 Aifd
 Aigk
 Aigoo
-Aihm [pr:aiheme]
 Aihs
 Ailton
 Aimar
@@ -2023,7 +2011,6 @@ Azumi
 Azur
 Azure
 Azzam
-B737 [Pr:beyediyüzotuzyedi]
 Baader
 Baas
 Babahan
@@ -10681,8 +10668,6 @@ Ipod
 Ipra
 Ipsos
 Ipswich
-Iptv
-Ipv [Pr:aypivealtı]
 Iraki
 Iraq
 Iravul
@@ -10827,7 +10812,6 @@ Izzy
 İdris
 İdtm
 İesob
-İett [pr:ietete]
 İfsak
 İgdaş
 İgeme
@@ -12504,7 +12488,6 @@ Kkdf
 Kkka
 Kkore
 Kktc
-Kl08 [Pr:kalesıfırsekiz]
 Klaas
 Klaket
 Klasnic
@@ -13153,7 +13136,6 @@ Kyrie
 Kyul
 Kyung
 Kyuubi
-L200 [Pr:leikiyüz]
 Label
 Labeouf
 Labne
@@ -17838,7 +17820,6 @@ Product
 Production
 Productions
 Proença
-Prof [pr:profesör]
 Professional
 Professor
 Profilo
@@ -18169,7 +18150,6 @@ Rattle
 Ratzinger
 Rauf
 Raul
-Rav4 [Pr:ravdört]
 Rava
 Ravalpindi
 Ravel
@@ -18800,7 +18780,6 @@ Rybak
 Ryder
 Rytas
 Ryul
-S2000 [Pr:seikibin]
 Saab
 Saad
 Saade
@@ -22191,9 +22170,6 @@ Trouble
 Troy
 Troya
 Troyes
-Trt1 [Pr:teretebir]
-Trt2 [Pr:tereteiki]
-Trt3 [Pr:tereteüç]
 Trtspor
 Truck
 Trucks
@@ -23012,7 +22988,6 @@ Vauxhall
 Vavien
 Vayy
 Vazquez
-Vdsl2 [Pr:vedeseleiki]
 Vecihi
 Vectra
 Vedad
@@ -23556,8 +23531,6 @@ Wilson
 Wilton
 Wimax
 Wimbledon
-Win32 [Pr:winotuziki]
-Win7 [Pr:vinyedi]
 Winamp
 Winch
 Winchester
@@ -23687,7 +23660,6 @@ Xanthos
 Xavi
 Xavier
 Xbox
-Xc90 [Pr:ikscedoksan]
 Xenon
 Xerez
 Xerox
@@ -24453,7 +24425,6 @@ Zynga
 Zyuganov
 Zyxel
 Zztk
-A300 [Pr:aüçyüz]
 Abarth
 Abaşidze
 Abcde
@@ -24605,7 +24576,6 @@ Azarbeycan
 Azimi
 Azimov
 Azovmash
-B777 [pr:beyediyüzyetmişyedi]
 Baal
 Babacar
 Babal
@@ -24966,7 +24936,6 @@ Düzdağ
 Düzgünman
 Düzlerçamı
 Dyke
-E5 [Pr:ebeş]
 Eames
 Easa
 Easter
@@ -25273,7 +25242,6 @@ Integrated
 Internationale
 Intersport
 Invisible
-Ipv4 [Pr:aypivedört]
 Irlanda
 Isak
 Isdell
@@ -25979,7 +25947,6 @@ Serencebey
 Sertavul
 Setenay
 Seyyari
-Sg220 [pr:segeikiyüzyirmi]
 Shakthar
 Shaman
 Shifu
@@ -26006,7 +25973,6 @@ Sinisa
 Siriza
 Sisko
 Skarsgard
-Sl200 [pr:seleikiyüz]
 Sladziç
 Smalling
 Smear
@@ -26079,7 +26045,6 @@ Syed
 Şükufe
 Şükürer
 Şvayk
-T129 [pr:teyüzyirmidokuz]
 Taberi
 Tabgis
 Taçoy
@@ -26108,7 +26073,6 @@ Tatoğulları
 Taviani
 Tavlusun
 Tavşanoğlu
-Tb2l [pr:tebeikile]
 Tcmerkez
 Tdkd
 Teba
@@ -26162,7 +26126,6 @@ Tricky
 Trink
 Trittin
 Trixie
-Trt6 [pr:teretealtı]
 Truffaz
 Trukid
 Tshh
@@ -27395,7 +27358,6 @@ Metrobüs
 Danıştay
 Lütfü
 Omega
-Bp
 Bambi
 Bayık
 Semih

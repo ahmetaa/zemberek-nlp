@@ -3,7 +3,9 @@ package zemberek.morphology._analyzer;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.core.turkish._TurkishAlphabet;
 import zemberek.morphology._morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.structure.StemAndEnding;
@@ -37,8 +39,9 @@ public class _TurkishMorphologicalAnalyzer {
    * @return WordAnalysis list.
    */
   private List<_SingleAnalysis> analyzeWithoutCache(String word) {
-    String s = TurkishAlphabet.INSTANCE
-        .normalize(word); // TODO: this may cause problem for some foreign words.
+
+    String s = TextUtil.normalizeApostrophes(word.toLowerCase(_TurkishAlphabet.TR));
+
     if (s.length() == 0) {
       return Collections.emptyList();
     }

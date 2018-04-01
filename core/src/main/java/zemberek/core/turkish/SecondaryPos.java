@@ -23,6 +23,8 @@ public enum SecondaryPos implements StringEnum {
   Distribution("Dist"),
   Clock("Clock"),
   Date("Date"),
+  RegularAbbreviation("RegAbbrv"),
+  Abbreviation("Abbrv"),
 
   // Below POS information is for Oflazer compatibility.
   // They indicate that words before Post positive words should end with certain suffixes.

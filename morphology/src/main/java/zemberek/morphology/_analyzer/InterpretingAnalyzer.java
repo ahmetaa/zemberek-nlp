@@ -307,6 +307,7 @@ public class InterpretingAnalyzer {
   }
 
   public void removeDictionaryItem(DictionaryItem item) {
+    lock.writeLock().lock();
     try {
       List<StemTransition> transitions = generator.generate(item);
       for (StemTransition transition : transitions) {

@@ -3529,7 +3529,6 @@ bu [P:Det]
 bu [P:Pron, Demons]
 buat [A:NoVoicing]
 bucak
-buçuk [P:Adj]
 budak
 budala [P:Adj]
 budamak
@@ -4769,7 +4768,7 @@ cüzzam
 çifte [P:Adj]
 çiftehane
 çiftelemek
-çifter
+çifter [P:Adj]
 çiftetelli
 çiftlemek
 çiftlik
@@ -26967,6 +26966,7 @@ altmış [P:Num, Card]
 beş [P:Num, Card]
 bin [P:Num, Card]
 bir [P:Num, Card]
+buçuk [P:Num, Card]
 doksan [P:Num, Card]
 dokuz [P:Num, Card]
 dört [P:Num, Card; A:Voicing]
@@ -26997,6 +26997,8 @@ biner [P:Num,Dist]
 bininci [P:Num,Ord]
 birer [P:Num,Dist]
 birinci [P:Num,Ord]
+buçukar [P:Num,Dist]
+buçukuncu [P:Num,Ord]
 doksanar [P:Num,Dist]
 doksanıncı [P:Num,Ord]
 dokuzar [P:Num,Dist]

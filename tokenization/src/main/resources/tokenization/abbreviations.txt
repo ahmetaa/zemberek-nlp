@@ -540,6 +540,7 @@ Jap.
 jeol.
 JGK
 JHY
+Jr
 K
 kal
 KARDEMİR
