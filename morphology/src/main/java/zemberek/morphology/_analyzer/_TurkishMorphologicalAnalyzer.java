@@ -70,6 +70,10 @@ public class _TurkishMorphologicalAnalyzer {
       res = unidentifiedTokenAnalyzer.analyze(s);
     }
 
+    if (res.size() == 1 && res.get(0).getItem().isUnknown()) {
+      res = Collections.emptyList();
+    }
+
     return new _WordAnalysis(word, s, index, res);
   }
 

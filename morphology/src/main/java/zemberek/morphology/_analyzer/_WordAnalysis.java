@@ -36,6 +36,18 @@ public class _WordAnalysis implements Iterable<_SingleAnalysis> {
     this.analysisResults = analysisResults;
   }
 
+  public String getInput() {
+    return input;
+  }
+
+  public String getNormalizedInput() {
+    return normalizedInput;
+  }
+
+  public int getIndex() {
+    return index;
+  }
+
   public boolean isCorrect() {
     return analysisResults.size() > 0;
   }
