@@ -1,5 +1,7 @@
 package zemberek.morphology._analyzer;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,13 +11,18 @@ import zemberek.core.turkish._TurkishAlphabet;
 import zemberek.morphology._morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.structure.StemAndEnding;
+import zemberek.tokenization.TurkishTokenizer;
 
+// TODO: mothods require some re-thinking.
+// analysis method should probably not apply unidentified token analysis.
+// this should be left to the user.
 public class _TurkishMorphologicalAnalyzer {
 
   RootLexicon lexicon;
   TurkishMorphotactics morphotactics;
   InterpretingAnalyzer analyzer;
   _UnidentifiedTokenAnalyzer unidentifiedTokenAnalyzer;
+  TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
 
   public _TurkishMorphologicalAnalyzer(RootLexicon lexicon) {
     this.lexicon = lexicon;
@@ -24,8 +31,16 @@ public class _TurkishMorphologicalAnalyzer {
     unidentifiedTokenAnalyzer = new _UnidentifiedTokenAnalyzer(analyzer);
   }
 
-  public List<_SingleAnalysis> analyze(String word) {
+  public _WordAnalysis analyze(String word) {
     return analyzeWithoutCache(word);
+  }
+
+  public _WordAnalysis analyze(String word, int index) {
+    return analyzeWithoutCache(word, index);
+  }
+
+  private _WordAnalysis analyzeWithoutCache(String word) {
+    return analyzeWithoutCache(word, 0);
   }
 
   /**
@@ -38,25 +53,24 @@ public class _TurkishMorphologicalAnalyzer {
    * @param word input word.
    * @return WordAnalysis list.
    */
-  private List<_SingleAnalysis> analyzeWithoutCache(String word) {
+  private _WordAnalysis analyzeWithoutCache(String word, int index) {
 
     String s = TextUtil.normalizeApostrophes(word.toLowerCase(_TurkishAlphabet.TR));
 
     if (s.length() == 0) {
-      return Collections.emptyList();
+      return _WordAnalysis.EMPTY_INPUT_RESULT;
     }
     List<_SingleAnalysis> res = analyzer.analyze(s);
 
     if (res.size() == 0) {
       res = analyzeWordsWithApostrophe(s);
-
     }
 
     if (res.size() == 0) {
       res = unidentifiedTokenAnalyzer.analyze(s);
     }
 
-    return res;
+    return new _WordAnalysis(word, s, index, res);
   }
 
   private List<_SingleAnalysis> analyzeWordsWithApostrophe(String word) {
@@ -85,7 +99,22 @@ public class _TurkishMorphologicalAnalyzer {
     } else {
       return Collections.emptyList();
     }
+  }
 
+  public _SentenceAnalysis analyzeSentence(String sentence) {
+    _SentenceAnalysis sentenceAnalysis = new _SentenceAnalysis();
+    String preprocessed = preProcessSentence(sentence);
+    int index = 0;
+    for (String s : Splitter.on(" ").omitEmptyStrings().trimResults().split(preprocessed)) {
+      _WordAnalysis parses = analyze(s, index++);
+      sentenceAnalysis.addParse(parses);
+    }
+    return sentenceAnalysis;
+  }
+
+  private String preProcessSentence(String str) {
+    String quotesHyphensNormalized = TextUtil.normalizeQuotesHyphens(str);
+    return Joiner.on(" ").join(tokenizer.tokenizeToStrings(quotesHyphensNormalized));
   }
 
 

@@ -20,9 +20,9 @@ import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.langid.LanguageIdentifier;
-import zemberek.morphology._analyzer.InterpretingAnalyzer;
 import zemberek.morphology._analyzer._SingleAnalysis;
 import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
+import zemberek.morphology._analyzer._WordAnalysis;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.structure.Turkish;
@@ -32,7 +32,7 @@ import zemberek.tokenization.TurkishTokenizer;
 public class _MorphologicalAmbiguityResolverExperiment {
 
   LanguageIdentifier identifier;
-  Map<String, List<_SingleAnalysis>> cache = new HashMap<>();
+  Map<String, _WordAnalysis> cache = new HashMap<>();
   Histogram<String> failedWords = new Histogram<>(100000);
 
   public _MorphologicalAmbiguityResolverExperiment() throws IOException {
@@ -75,6 +75,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
         pw.println(sentence.sentence);
         for (Single single : sentence.tokens) {
           for (_SingleAnalysis r : single.res) {
+            pw.println(single.input);
             pw.println(r.format());
           }
         }
@@ -115,31 +116,31 @@ public class _MorphologicalAmbiguityResolverExperiment {
         String rawWord = token.getText();
         String word = Character.isUpperCase(rawWord.charAt(0)) ?
             Turkish.capitalize(rawWord) : rawWord.toLowerCase(Turkish.LOCALE);
-        List<_SingleAnalysis> results;
+        _WordAnalysis results;
         if (cache.containsKey(word)) {
           results = cache.get(word);
         } else {
           results = analyzer.analyze(word);
           cache.put(word, results);
         }
-        if (results.size() == 0) {
+        if (results.analysisCount() == 0) {
           if (Strings.containsNone(word, "0123456789-.")) {
             failedWords.add(word);
           }
         }
-        if (results.size() < 1 || results.size() > maxAnalysisCount) {
+        if (results.analysisCount() < 1 || results.analysisCount() > maxAnalysisCount) {
           failed = true;
           break;
         } else {
-          results = results.stream()
+          List<_SingleAnalysis> filtered = results.stream()
               .filter(s -> !(s.getItem().secondaryPos == SecondaryPos.ProperNoun &&
                   Character.isLowerCase(rawWord.charAt(0)))).collect(Collectors.toList());
 
-          if (results.size() == 0) {
+          if (filtered.size() == 0) {
             failed = true;
             break;
           }
-          singleAnalysisWords.add(new Single(word, i, results));
+          singleAnalysisWords.add(new Single(word, i, results.copyFor(filtered)));
           i++;
         }
       }
@@ -188,15 +189,14 @@ public class _MorphologicalAmbiguityResolverExperiment {
 
     String input;
     int index;
-    List<_SingleAnalysis> res;
+    _WordAnalysis res;
 
-    public Single(String input, int index, List<_SingleAnalysis> res) {
+    public Single(String input, int index, _WordAnalysis res) {
       this.input = input;
       this.index = index;
       this.res = res;
     }
   }
-
 
   private List<String> getSentences(Path p) throws IOException {
     List<String> lines = Files.readAllLines(p, StandardCharsets.UTF_8).stream()
