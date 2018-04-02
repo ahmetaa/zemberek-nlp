@@ -58,6 +58,7 @@ public class RuleBasedDisambiguator {
           bothProper(first, second, bothProperRules);
         }
 
+        AmbiguityAnalysis begin = i == 0 ? null : results.get(i - 1);
         AmbiguityAnalysis next = i == results.size() - 1 ? null : results.get(i + 1);
 
         if (next == null
@@ -69,8 +70,13 @@ public class RuleBasedDisambiguator {
           }
         }
 
-      }
+        if (begin == null) {
+          if (a.choices.size() == 2) {
+            ignoreOne(first, second, beginPairLexRules);
+          }
+        }
 
+      }
     }
   }
 
@@ -166,8 +172,19 @@ public class RuleBasedDisambiguator {
           "[bura:Noun]"),
       new PairRule(
           "[Bacak:Noun,Prop]",
-          "[bacak:Noun]")
-
+          "[bacak:Noun]"),
+      new PairRule(
+          "[görmek:Verb]",
+          "[görüşmek:Verb]"),
+      new PairRule(
+          "[defa:Noun]",
+          "[defalarca:Adv]"),
+      new PairRule(
+          "[ister:Noun]",
+          "[istemek:Verb]"),
+      new PairRule( // yapmaya ..
+          "Neg+Opt",
+              "Inf2→Noun")
 
   );
 
@@ -205,6 +222,14 @@ public class RuleBasedDisambiguator {
           ":Verb"
       )
   );
+
+  static List<PairRule> beginPairLexRules = Lists.newArrayList(
+      new PairRule(
+          "P2sg+Gen",
+          "Pnon+Gen")
+
+  );
+
 
   static List<PairRule> bothProperRules = Lists.newArrayList(
       new PairRule(
@@ -254,7 +279,7 @@ public class RuleBasedDisambiguator {
     String lex1 = a1.analysis.formatLexical();
     String lex2 = a2.analysis.formatLexical();
 
-    if (lex1.contains("Prop]") && lex2.contains("Noun]")) {
+    if (lex1.contains("Prop]") && !lex2.contains("Prop]")) {
       if ((!first && Character.isUpperCase(input.charAt(0))) || input.contains("'")) {
         a2.decision = Decision.IGNORE;
       }
@@ -263,7 +288,7 @@ public class RuleBasedDisambiguator {
       }
     }
 
-    if (lex2.contains("Prop]") && lex1.contains("Noun]")) {
+    if (lex2.contains("Prop]") && !lex1.contains("Prop]")) {
       if ((!first && Character.isUpperCase(input.charAt(0))) || input.contains("'")) {
         a1.decision = Decision.IGNORE;
       }
