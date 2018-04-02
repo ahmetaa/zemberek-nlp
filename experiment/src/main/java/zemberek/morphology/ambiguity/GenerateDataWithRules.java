@@ -18,6 +18,7 @@ import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
 import zemberek.morphology._analyzer._WordAnalysis;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AmbiguityAnalysis;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AnalysisDecision;
+import zemberek.morphology.ambiguity.RuleBasedDisambiguator.Decision;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.ResultSentence;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
@@ -41,7 +42,8 @@ public class GenerateDataWithRules {
   private static Collection<Predicate<String>> ignoreSentencePredicates = new ArrayList<>();
 
   public static void main(String[] args) throws IOException {
-    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
+    //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
+    Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
     Path outRoot = Paths.get("data/ambiguity");
     Files.createDirectories(outRoot);
 
@@ -100,7 +102,7 @@ public class GenerateDataWithRules {
         for (AmbiguityAnalysis analysis : sentence.results) {
           pw.println(analysis.input);
           for (AnalysisDecision r : analysis.choices) {
-            pw.println(r.analysis.format());
+            pw.println(r.analysis.format() + (r.decision == Decision.IGNORE ? "-" : ""));
           }
         }
         pw.println();
