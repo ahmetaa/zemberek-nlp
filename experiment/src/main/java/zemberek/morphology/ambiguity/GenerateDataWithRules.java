@@ -12,9 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
-import zemberek.core.text.TextIO;
 import zemberek.langid.LanguageIdentifier;
 import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
 import zemberek.morphology._analyzer._WordAnalysis;
@@ -44,7 +42,8 @@ public class GenerateDataWithRules {
   private static Collection<Predicate<String>> ignoreSentencePredicates = new ArrayList<>();
 
   public static void main(String[] args) throws IOException {
-    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
+    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/www.aljazeera.com.tr");
+    //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
     //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
     Path outRoot = Paths.get("data/ambiguity");
     Files.createDirectories(outRoot);
@@ -57,7 +56,7 @@ public class GenerateDataWithRules {
     ignoreSentencePredicates.add(longSentence(15));
 
     new GenerateDataWithRules()
-        .extractData(p, outRoot, 1000);
+        .extractData(p, outRoot, 3000);
   }
 
   private static Predicate<_WordAnalysis> hasAnalysis() {
@@ -82,8 +81,7 @@ public class GenerateDataWithRules {
 
   private void extractData(Path p, Path outRoot, int resultLimit)
       throws IOException {
-    List<Path> files = Files.walk(p, 1).filter(s -> s.toFile().isFile()
-        && s.toFile().getName().endsWith(".corpus")).collect(Collectors.toList());
+    List<Path> files = Files.walk(p, 1).filter(s -> s.toFile().isFile()).collect(Collectors.toList());
 
     BatchResult result = new BatchResult();
 
@@ -102,17 +100,25 @@ public class GenerateDataWithRules {
 
     Log.info("Saving.");
     Path out = outRoot.resolve(s + "-rule-result.txt");
+    Path amb = outRoot.resolve(s + "-rule-result-amb.txt");
 
-    try (PrintWriter pw = new PrintWriter(out.toFile(), "utf-8")) {
+    try (
+        PrintWriter pwu = new PrintWriter(out.toFile(), "utf-8");
+        PrintWriter pwa= new PrintWriter(amb.toFile(), "utf-8")
+    ) {
       for (ResultSentence sentence : result.results) {
-        pw.println(sentence.sentence);
+        pwu.println(sentence.sentence);
+        pwa.println(sentence.sentence);
         for (AmbiguityAnalysis analysis : sentence.results) {
-          pw.println(analysis.input);
+          pwu.println(analysis.input);
+          pwa.println(analysis.input);
           for (AnalysisDecision r : analysis.choices) {
-            pw.println(r.analysis.format() + (r.decision == Decision.IGNORE ? "-" : ""));
+            pwu.println(r.analysis.format() + (r.decision == Decision.IGNORE ? "-" : ""));
+            pwa.println(r.analysis.format());
           }
         }
-        pw.println();
+        pwu.println();
+        pwa.println();
       }
     }
   }

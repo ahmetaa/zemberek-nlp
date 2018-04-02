@@ -313,6 +313,8 @@ public class InterpretingAnalyzer {
       for (StemTransition transition : transitions) {
         removeStemNode(transition);
       }
+    } catch (Exception e) {
+      Log.warn("Cannot remove %s ", e.getMessage());
     } finally {
       lock.writeLock().unlock();
     }

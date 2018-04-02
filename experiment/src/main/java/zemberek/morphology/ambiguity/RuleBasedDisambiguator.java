@@ -226,7 +226,13 @@ public class RuleBasedDisambiguator {
           "[dönüşmek:Verb]"),
       new PairRule(
           "Recip→Verb",
-          "Become→Verb")
+          "Become→Verb"),
+      new PairRule(
+          "[yarmak:Verb]",
+          "[yardım:Noun]"),
+      new PairRule(
+          "[yar:Noun]",
+          "[yardım:Noun]")
 
   );
 
@@ -258,7 +264,6 @@ public class RuleBasedDisambiguator {
       new PairRule(
           "[demek:Adv]",
           "[demek:Verb]"),
-
       new PairRule( //TODO: false with değil
           ":Noun",
           ":Verb"
@@ -279,8 +284,10 @@ public class RuleBasedDisambiguator {
   static List<PairRule> bothProperRules = Lists.newArrayList(
       new PairRule(
           "Nom",
-          "Acc")
-
+          "Acc"),
+      new PairRule(
+          "P2sg+Nom",
+          "Pnon+Gen")
   );
 
   static void ignoreOne(AnalysisDecision a1, AnalysisDecision a2, List<PairRule> rulez) {
