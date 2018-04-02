@@ -33,6 +33,7 @@ import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
 import zemberek.core.logging.Log;
 import zemberek.core.text.Regexps;
+import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 import zemberek.core.text.TokenSequence;
 
@@ -45,7 +46,7 @@ public class SentenceExtractionComparison {
     Path test = Paths
         .get("tokenization/src/test/resources/tokenization/Sentence-Boundary-Test.txt");
 
-    List<String> testSentences = TextUtil.loadLinesWithText(test);
+    List<String> testSentences = TextIO.loadLines(test);
 
     Log.info(" \n---------------- Zemberek ------------------\n");
 

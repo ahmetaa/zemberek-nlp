@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import zemberek.core.StringPair;
+import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 
 public class BidirectionalIndexLookup<T> {
@@ -21,7 +22,7 @@ public class BidirectionalIndexLookup<T> {
     if (!path.toFile().exists()) {
       throw new IllegalArgumentException("File " + path + " does not exist.");
     }
-    List<String> lines = TextUtil.loadLinesWithText(path);
+    List<String> lines = TextIO.loadLines(path);
     UIntValueMap<String> indexLookup = new UIntValueMap<>(lines.size());
     UIntMap<String> wordLookup = new UIntMap<>(lines.size());
     for (String line : lines) {

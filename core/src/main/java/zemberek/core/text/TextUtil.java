@@ -245,34 +245,8 @@ public class TextUtil {
     return (d * 1d) / s.length();
   }
 
-  public static String loadUtf8AsString(Path filePath) throws IOException {
-    return String.join("\n", Files.readAllLines(filePath, StandardCharsets.UTF_8));
-  }
-
-  public static List<String> loadLinesWithText(Path path) throws IOException {
-    return Files.readAllLines(path, StandardCharsets.UTF_8)
-        .stream()
-        .filter(s -> s.trim().length() > 0)
-        .collect(Collectors.toList());
-  }
-
   public static String escapeQuotesApostrpohes(String input) {
     return input.replaceAll("\"", "&quot;").replaceAll("'", "&apos;");
-  }
-
-  public static Path createTempFile(String content) throws IOException {
-    return createTempFile(Collections.singletonList(content));
-  }
-
-  public static Path createTempFile(String... content) throws IOException {
-    return createTempFile(Arrays.asList(content));
-  }
-
-  public static Path createTempFile(List<String> content) throws IOException {
-    Path temp = Files.createTempFile("tmp", ".tmp");
-    temp.toFile().deleteOnExit();
-    Files.write(temp, content, StandardCharsets.UTF_8);
-    return temp;
   }
 
   private static void initializeHtmlCharMap(Map<String, String> map, String resource) {

@@ -13,6 +13,7 @@ import org.antlr.v4.runtime.Token;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.text.Regexps;
+import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 import zemberek.morphology.structure.Turkish;
 import zemberek.tokenization.TurkishTokenizer;
@@ -73,7 +74,7 @@ public class NerDataSet {
 
     Log.info("Extracting data from %s", path);
 
-    List<String> lines = TextUtil.loadLinesWithText(path);
+    List<String> lines = TextIO.loadLines(path);
 
     List<NerSentence> nerSentences = new ArrayList<>(lines.size());
     for (String line : lines) {

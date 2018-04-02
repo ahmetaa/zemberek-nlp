@@ -21,6 +21,7 @@ import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.IntValueMap;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 
 /**
@@ -433,7 +434,7 @@ public class PerceptronDisambiguatorPort extends AbstractDisambiguator {
 
     static Model loadFromTextFile(Path file) throws IOException {
       FloatValueMap<String> data = new FloatValueMap<>(10000);
-      List<String> all = TextUtil.loadLinesWithText(file);
+      List<String> all = TextIO.loadLines(file);
       for (String s : all) {
         float weight = Float.parseFloat(Strings.subStringUntilFirst(s, " "));
         String key = Strings.subStringAfterFirst(s, " ");

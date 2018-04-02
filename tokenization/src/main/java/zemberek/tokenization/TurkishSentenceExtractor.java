@@ -16,6 +16,7 @@ import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.UIntSet;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 
 /**
@@ -210,7 +211,7 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
 
     public TurkishSentenceExtractor train() throws IOException {
       FloatValueMap<String> weights = new FloatValueMap<>();
-      List<String> sentences = TextUtil.loadLinesWithText(builder.trainFile);
+      List<String> sentences = TextIO.loadLines(builder.trainFile);
       FloatValueMap<String> averages = new FloatValueMap<>();
 
       Random rnd = new Random(1);

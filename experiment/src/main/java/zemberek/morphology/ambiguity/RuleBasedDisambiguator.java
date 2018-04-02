@@ -2,23 +2,33 @@ package zemberek.morphology.ambiguity;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import zemberek.core.collections.Histogram;
+import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology._analyzer._SentenceAnalysis;
 import zemberek.morphology._analyzer._SingleAnalysis;
 import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
 import zemberek.morphology._analyzer._WordAnalysis;
+import zemberek.morphology.structure.Turkish;
 
 // Used for collecting training data.
 
 public class RuleBasedDisambiguator {
 
   _TurkishMorphologicalAnalyzer analyzer;
+  private static Histogram<String> wordFreq;
 
-  public RuleBasedDisambiguator(_TurkishMorphologicalAnalyzer analyzer) {
+  public RuleBasedDisambiguator(_TurkishMorphologicalAnalyzer analyzer) throws IOException {
     this.analyzer = analyzer;
+    Log.info("Loading 100k word frequencies.");
+    List<String> freqLines = TextIO.loadLinesFromCompressedResource("/ambiguity/freq-100k.txt.gz");
+    wordFreq = Histogram.loadFromLines(freqLines, ' ');
+
   }
 
   public ResultSentence disambiguate(String sentence) {
@@ -62,6 +72,7 @@ public class RuleBasedDisambiguator {
         if (a.choices.size() == 2) {
           ignoreOne(first, second, pairLexRules);
           oneProper(first, second, i == 0, a.input);
+          oneProper(second, first, i == 0, a.input);
           bothProper(first, second, bothProperRules);
         }
 
@@ -206,7 +217,16 @@ public class RuleBasedDisambiguator {
           "[bilmek:Verb]"),
       new PairRule(
           "[ölmek:Verb]",
-          "[öldürmek:Verb]")
+          "[öldürmek:Verb]"),
+      new PairRule(
+          "[sıkmak:Verb]",
+          "[sıkışmak:Verb]"),
+      new PairRule(
+          "[dönmek:Verb]",
+          "[dönüşmek:Verb]"),
+      new PairRule(
+          "Recip→Verb",
+          "Become→Verb")
 
   );
 
@@ -229,7 +249,7 @@ public class RuleBasedDisambiguator {
       new PairRule(
           "NarrPart→Adj",
           "Narr+"),
-      new PairRule(
+      new PairRule( // TODO: this may cause error `yapmaya mı geldin`
           "Inf2→Noun",
           "Neg+"),
       new PairRule(
@@ -238,8 +258,8 @@ public class RuleBasedDisambiguator {
       new PairRule(
           "[demek:Adv]",
           "[demek:Verb]"),
-      //TODO: false with değil
-      new PairRule(
+
+      new PairRule( //TODO: false with değil
           ":Noun",
           ":Verb"
       )
@@ -314,23 +334,12 @@ public class RuleBasedDisambiguator {
       if (containsAny(lex1, possesion)) {
         a1.decision = Decision.IGNORE;
       }
+      if ((first && Character.isUpperCase(input.charAt(0)) && !input.contains("'"))) {
+        if (wordFreq.getCount(input) < wordFreq.getCount(input.toLowerCase(Turkish.LOCALE))) {
+          a1.decision = Decision.IGNORE;
+        }
+      }
     }
-
-    if (lex2.contains("Prop]") && !lex1.contains("Prop]")) {
-      if ((!first && Character.isUpperCase(input.charAt(0))) || input.contains("'")) {
-        a1.decision = Decision.IGNORE;
-      }
-
-      if (Character.isLowerCase(input.charAt(0)) && !input.contains("'")) {
-        a2.decision = Decision.IGNORE;
-      }
-
-      if (containsAny(lex2, possesion)) {
-        a2.decision = Decision.IGNORE;
-      }
-
-    }
-
   }
 
   static Set<String> possesion = Sets.newHashSet("P1sg", "P2sg", "P1pl", "P2pl", "P3pl");

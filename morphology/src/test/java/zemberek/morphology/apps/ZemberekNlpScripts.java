@@ -27,6 +27,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
@@ -163,7 +164,7 @@ public class ZemberekNlpScripts {
     Path outDir = DATA_PATH.resolve("out");
     Log.info("Loading histogram.");
     Histogram<String> histogram = Histogram.loadFromUtf8File(wordFreqFile, ' ');
-    List<String> all = TextUtil.loadLinesWithText(outDir.resolve("zemberek-parsed-words.txt"));
+    List<String> all = TextIO.loadLines(outDir.resolve("zemberek-parsed-words.txt"));
     List<String> result = all.stream().filter(s -> histogram.getCount(s) >= min)
         .collect(Collectors.toList());
     sortAndSave(outDir.resolve("zemberek-parsed-words-min" + min + ".txt"), result);
@@ -287,7 +288,7 @@ public class ZemberekNlpScripts {
   public void findZemberekMissingOrDifferent() throws IOException {
     Path path = DATA_PATH.resolve("out");
     LinkedHashSet<String> oSet =
-        new LinkedHashSet<>(TextUtil.loadLinesWithText(path.resolve("dictionary-from-analysis.txt"))
+        new LinkedHashSet<>(TextIO.loadLines(path.resolve("dictionary-from-analysis.txt"))
             .stream()
             .filter(s -> !s.contains("Prop")).collect(Collectors.toList()));
 

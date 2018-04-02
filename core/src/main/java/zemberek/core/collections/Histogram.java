@@ -41,16 +41,7 @@ public class Histogram<T> implements Iterable<T> {
     map = new UIntValueMap<>();
   }
 
-  /**
-   * Loads a String Histogram from a file. Counts are supposedly delimited with `delimiter`
-   * character.
-   *
-   * @param path file path
-   * @param delimiter delimiter
-   * @return a Histogram.
-   */
-  public static Histogram<String> loadFromUtf8File(Path path, char delimiter) throws IOException {
-    List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+  public static Histogram<String> loadFromLines(List<String> lines, char delimiter) {
     Histogram<String> result = new Histogram<>(lines.size());
     for (String s : lines) {
       int index = s.indexOf(delimiter);
@@ -63,6 +54,19 @@ public class Histogram<T> implements Iterable<T> {
       result.add(item, count);
     }
     return result;
+  }
+
+  /**
+   * Loads a String Histogram from a file. Counts are supposedly delimited with `delimiter`
+   * character.
+   *
+   * @param path file path
+   * @param delimiter delimiter
+   * @return a Histogram.
+   */
+  public static Histogram<String> loadFromUtf8File(Path path, char delimiter) throws IOException {
+    List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+    return loadFromLines(lines, delimiter);
   }
 
   public static void serializeStringHistogram(Histogram<String> h, DataOutputStream dos)

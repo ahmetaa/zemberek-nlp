@@ -14,6 +14,7 @@ import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.UIntSet;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 
 /**
@@ -157,7 +158,7 @@ class TrainableTokenizer extends PerceptronSegmenter {
 
     public TrainableTokenizer train() throws IOException {
       FloatValueMap<String> weights = new FloatValueMap<>();
-      List<String> sentences = TextUtil.loadLinesWithText(builder.trainFile);
+      List<String> sentences = TextIO.loadLines(builder.trainFile);
       FloatValueMap<String> averages = new FloatValueMap<>();
 
       int updateCount = 0;

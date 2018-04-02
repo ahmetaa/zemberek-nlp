@@ -12,7 +12,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 import zemberek.langid.LanguageIdentifier;
 import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
 import zemberek.morphology._analyzer._WordAnalysis;
@@ -175,6 +177,7 @@ public class GenerateDataWithRules {
   }
 
   static class BatchResult {
+
     LinkedHashSet<String> ignoredSentences = new LinkedHashSet<>();
     LinkedHashSet<String> acceptedSentences = new LinkedHashSet<>();
     List<ResultSentence> results = new ArrayList<>();
