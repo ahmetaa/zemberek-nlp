@@ -42,14 +42,16 @@ public class TurkishAlphabet {
   public static final TurkicLetter L_m = builder('m').continuant().build();
   public static final TurkicLetter L_n = builder('n').continuant().build();
   public static final TurkicLetter L_o = builder('o').vowel().roundedVowel().build();
-  public static final TurkicLetter L_oo = builder('ö').vowel().frontalVowel().roundedVowel().build();
+  public static final TurkicLetter L_oo = builder('ö').vowel().frontalVowel().roundedVowel()
+      .build();
   public static final TurkicLetter L_p = builder('p').voiceless().build();
   public static final TurkicLetter L_r = builder('r').continuant().build();
   public static final TurkicLetter L_s = builder('s').continuant().voiceless().build();
   public static final TurkicLetter L_ss = builder('ş').continuant().voiceless().build();
   public static final TurkicLetter L_t = builder('t').voiceless().build();
   public static final TurkicLetter L_u = builder('u').vowel().roundedVowel().build();
-  public static final TurkicLetter L_uu = builder('ü').vowel().roundedVowel().frontalVowel().build();
+  public static final TurkicLetter L_uu = builder('ü').vowel().roundedVowel().frontalVowel()
+      .build();
   public static final TurkicLetter L_v = builder('v').continuant().build();
   public static final TurkicLetter L_y = builder('y').continuant().build();
   public static final TurkicLetter L_z = builder('z').continuant().build();
@@ -60,7 +62,44 @@ public class TurkishAlphabet {
   // Circumflexed letters
   public static final TurkicLetter L_ac = builder(a_CIRC).vowel().build();
   public static final TurkicLetter L_ic = builder(i_CIRC).vowel().frontalVowel().build();
-  public static final TurkicLetter L_uc = builder(u_CIRC).vowel().frontalVowel().roundedVowel().build();
+  public static final TurkicLetter L_uc = builder(u_CIRC).vowel().frontalVowel().roundedVowel()
+      .build();
+  // Punctuations
+  public static final TurkicLetter P_Dot = builder('.').build();
+  public static final TurkicLetter P_Comma = builder(',').build();
+  public static final TurkicLetter P_Hyphen = builder('-').build();
+  public static final TurkicLetter P_Colon = builder(':').build();
+  public static final TurkicLetter P_Semicolon = builder(';').build();
+  public static final TurkicLetter P_Plus = builder('+').build();
+  public static final TurkicLetter P_Popen = builder('(').build();
+  public static final TurkicLetter P_Pclose = builder(')').build();
+  public static final TurkicLetter P_Bopen = builder('[').build();
+  public static final TurkicLetter P_Bclose = builder(']').build();
+  public static final TurkicLetter P_CBopen = builder('{').build();
+  public static final TurkicLetter P_CBclose = builder('}').build();
+  public static final TurkicLetter P_QuestionMark = builder('?').build();
+  public static final TurkicLetter P_ExcMark = builder('!').build();
+  public static final TurkicLetter P_SQuote = builder('\'').build();
+  public static final TurkicLetter P_DQuote = builder('\"').build();
+  public static final TurkicLetter P_Slash = builder('/').build();
+  public static final TurkicLetter P_Percent = builder('%').build();
+  public static final TurkicLetter P_Number = builder('#').build();
+  public static final TurkicLetter P_Dollar = builder('$').build();
+  public static final TurkicLetter P_Yen = builder('¥').build();
+  public static final TurkicLetter P_Pound = builder('£').build();
+  public static final TurkicLetter P_Euro = builder('€').build();
+  // numbers
+  public static final TurkicLetter N_0 = builder('0').build();
+  public static final TurkicLetter N_1 = builder('1').build();
+  public static final TurkicLetter N_2 = builder('2').build();
+  public static final TurkicLetter N_3 = builder('3').build();
+  public static final TurkicLetter N_4 = builder('4').build();
+  public static final TurkicLetter N_5 = builder('5').build();
+  public static final TurkicLetter N_6 = builder('6').build();
+  public static final TurkicLetter N_7 = builder('7').build();
+  public static final TurkicLetter N_8 = builder('8').build();
+  public static final TurkicLetter N_9 = builder('9').build();
+
 
   protected static final ImmutableMap<TurkicLetter, TurkicLetter> devoicingMap = new ImmutableMap.Builder<TurkicLetter, TurkicLetter>()
       .put(L_b, L_p)
@@ -83,7 +122,12 @@ public class TurkishAlphabet {
       L_gg, L_h, L_ii, L_i, L_j, L_k, L_l, L_m,
       L_n, L_o, L_oo, L_p, L_r, L_s, L_ss, L_t,
       L_u, L_uu, L_v, L_y, L_z, L_q, L_w, L_x,
-      L_ac, L_ic, L_uc
+      L_ac, L_ic, L_uc,
+      P_Dot, P_Comma, P_Hyphen, P_Colon, P_Semicolon,
+      P_Plus, P_Popen, P_Pclose, P_Bopen, P_Bclose, P_CBopen, P_CBclose,
+      P_QuestionMark, P_ExcMark, P_SQuote, P_DQuote, P_Slash, P_Percent, P_Number,
+      P_Dollar, P_Yen, P_Pound, P_Euro,
+      N_0, N_1, N_2, N_3, N_4, N_5, N_6, N_7, N_8, N_9
   };
   public static final int ALPHABET_LETTER_COUNT = TURKISH_LETTERS.length;
   // 0x15f is the maximum char value in turkish specific characters. It is the size

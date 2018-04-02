@@ -1,8 +1,10 @@
 package zemberek.morphology.ambiguity;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology._analyzer._SentenceAnalysis;
 import zemberek.morphology._analyzer._SingleAnalysis;
@@ -24,6 +26,11 @@ public class RuleBasedDisambiguator {
     ResultSentence s = new ResultSentence(sentence, ambiguous);
     s.makeDecisions();
     return s;
+  }
+
+  public ResultSentence noDisambiguation(String sentence) {
+    _SentenceAnalysis ambiguous = analyzer.analyzeSentence(sentence);
+    return new ResultSentence(sentence, ambiguous);
   }
 
   static class ResultSentence {
@@ -54,7 +61,7 @@ public class RuleBasedDisambiguator {
 
         if (a.choices.size() == 2) {
           ignoreOne(first, second, pairLexRules);
-          oneProperOtherNoun(first, second, i == 0, a.input);
+          oneProper(first, second, i == 0, a.input);
           bothProper(first, second, bothProperRules);
         }
 
@@ -171,6 +178,9 @@ public class RuleBasedDisambiguator {
           "[Burada:Noun,Prop]",
           "[bura:Noun]"),
       new PairRule(
+          "[ama:Conj]",
+          "[am:Noun]"),
+      new PairRule(
           "[Bacak:Noun,Prop]",
           "[bacak:Noun]"),
       new PairRule(
@@ -184,7 +194,19 @@ public class RuleBasedDisambiguator {
           "[istemek:Verb]"),
       new PairRule( // yapmaya ..
           "Neg+Opt",
-              "Inf2→Noun")
+          "Inf2→Noun"),
+      new PairRule(
+          "[iğrenç:Adv]",
+          "[iğrenç:Adj]"),
+      new PairRule(
+          "[uymak:Verb]",
+          "[uyanmak:Verb]"),
+      new PairRule(
+          "[bilemek:Verb]",
+          "[bilmek:Verb]"),
+      new PairRule(
+          "[ölmek:Verb]",
+          "[öldürmek:Verb]")
 
   );
 
@@ -226,7 +248,10 @@ public class RuleBasedDisambiguator {
   static List<PairRule> beginPairLexRules = Lists.newArrayList(
       new PairRule(
           "P2sg+Gen",
-          "Pnon+Gen")
+          "Pnon+Gen"),
+      new PairRule(
+          "Nom",
+          "Acc")
 
   );
 
@@ -271,7 +296,7 @@ public class RuleBasedDisambiguator {
     }
   }
 
-  static void oneProperOtherNoun(
+  static void oneProper(
       AnalysisDecision a1,
       AnalysisDecision a2,
       boolean first,
@@ -286,6 +311,9 @@ public class RuleBasedDisambiguator {
       if (Character.isLowerCase(input.charAt(0)) && !input.contains("'")) {
         a1.decision = Decision.IGNORE;
       }
+      if (containsAny(lex1, possesion)) {
+        a1.decision = Decision.IGNORE;
+      }
     }
 
     if (lex2.contains("Prop]") && !lex1.contains("Prop]")) {
@@ -296,8 +324,26 @@ public class RuleBasedDisambiguator {
       if (Character.isLowerCase(input.charAt(0)) && !input.contains("'")) {
         a2.decision = Decision.IGNORE;
       }
+
+      if (containsAny(lex2, possesion)) {
+        a2.decision = Decision.IGNORE;
+      }
+
     }
 
   }
 
+  static Set<String> possesion = Sets.newHashSet("P1sg", "P2sg", "P1pl", "P2pl", "P3pl");
+
+  static boolean containsAny(String in, Set<String> set) {
+    for (String s : set) {
+      if (in.contains(s)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
 }
+
+

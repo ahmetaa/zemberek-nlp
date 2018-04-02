@@ -42,6 +42,8 @@ enum SecondaryPos {
   Distribution = 15;
   Clock = 16;
   Date = 17;
+  RegularAbbreviation = 18;
+  Abbreviation = 19;
 
   // Below POS information is for compatibility with K. Oflazer's notation.
   // They indicate that words before Post positive words should end with certain suffixes.
@@ -58,10 +60,10 @@ enum RootAttribute {
   RootAttribute_Unknown = 0;
   Aorist_I = 1;
   Aorist_A = 2;
-  ProgressiveVowelDrop =3;
+  ProgressiveVowelDrop = 3;
   Passive_In = 4;
   Causative_t = 5;
-  Voicing =  6;
+  Voicing = 6;
   NoVoicing = 7;
   InverseHarmony = 8;
   Doubling = 9;
@@ -78,6 +80,12 @@ enum RootAttribute {
   Ext = 20;
   Runtime = 21;
   Dummy = 22;
+  NonReciprocal = 23;
+  ImplicitDative = 24;
+  ImplicitPlural = 25;
+  ImplicitP1sg = 26;
+  ImplicitP2sg = 27;
+  FamilyMember = 28;
 }
 
 message DictionaryItem {

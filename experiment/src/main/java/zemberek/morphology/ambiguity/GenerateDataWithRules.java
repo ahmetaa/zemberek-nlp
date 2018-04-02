@@ -42,8 +42,8 @@ public class GenerateDataWithRules {
   private static Collection<Predicate<String>> ignoreSentencePredicates = new ArrayList<>();
 
   public static void main(String[] args) throws IOException {
-    //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
-    Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
+    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
+    //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
     Path outRoot = Paths.get("data/ambiguity");
     Files.createDirectories(outRoot);
 
@@ -52,6 +52,7 @@ public class GenerateDataWithRules {
     ignoreSentencePredicates.add(contains("\""));
     ignoreSentencePredicates.add(contains("…"));
     ignoreSentencePredicates.add(probablyNotTurkish());
+    ignoreSentencePredicates.add(longSentence(15));
 
     new GenerateDataWithRules()
         .extractData(p, outRoot, 1000);
@@ -71,6 +72,10 @@ public class GenerateDataWithRules {
 
   private static Predicate<String> probablyNotTurkish() {
     return p -> !identifier.identify(p).equals("tr");
+  }
+
+  private static Predicate<String> longSentence(int tokenCount) {
+    return p -> p.split("[ ]+").length > tokenCount;
   }
 
   private void extractData(Path p, Path outRoot, int resultLimit)
@@ -170,17 +175,9 @@ public class GenerateDataWithRules {
   }
 
   static class BatchResult {
-
     LinkedHashSet<String> ignoredSentences = new LinkedHashSet<>();
     LinkedHashSet<String> acceptedSentences = new LinkedHashSet<>();
     List<ResultSentence> results = new ArrayList<>();
-
-    void add(BatchResult other) {
-      ignoredSentences.addAll(other.ignoredSentences);
-      acceptedSentences.addAll(other.acceptedSentences);
-      results.addAll(other.results);
-    }
-
   }
 
   private LinkedHashSet<String> getSentences(Path p) throws IOException {

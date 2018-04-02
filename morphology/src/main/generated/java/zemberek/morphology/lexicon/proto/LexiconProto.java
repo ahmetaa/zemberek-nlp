@@ -269,6 +269,14 @@ public final class LexiconProto {
      */
     Date(17),
     /**
+     * <code>RegularAbbreviation = 18;</code>
+     */
+    RegularAbbreviation(18),
+    /**
+     * <code>Abbreviation = 19;</code>
+     */
+    Abbreviation(19),
+    /**
      * <pre>
      * Below POS information is for compatibility with K. Oflazer's notation.
      * They indicate that words before Post positive words should end with certain suffixes.
@@ -373,6 +381,14 @@ public final class LexiconProto {
      */
     public static final int Date_VALUE = 17;
     /**
+     * <code>RegularAbbreviation = 18;</code>
+     */
+    public static final int RegularAbbreviation_VALUE = 18;
+    /**
+     * <code>Abbreviation = 19;</code>
+     */
+    public static final int Abbreviation_VALUE = 19;
+    /**
      * <pre>
      * Below POS information is for compatibility with K. Oflazer's notation.
      * They indicate that words before Post positive words should end with certain suffixes.
@@ -435,6 +451,8 @@ public final class LexiconProto {
         case 15: return Distribution;
         case 16: return Clock;
         case 17: return Date;
+        case 18: return RegularAbbreviation;
+        case 19: return Abbreviation;
         case 50: return PCDat;
         case 51: return PCAcc;
         case 52: return PCIns;
@@ -567,6 +585,30 @@ public final class LexiconProto {
      * <code>Dummy = 22;</code>
      */
     Dummy(22),
+    /**
+     * <code>NonReciprocal = 23;</code>
+     */
+    NonReciprocal(23),
+    /**
+     * <code>ImplicitDative = 24;</code>
+     */
+    ImplicitDative(24),
+    /**
+     * <code>ImplicitPlural = 25;</code>
+     */
+    ImplicitPlural(25),
+    /**
+     * <code>ImplicitP1sg = 26;</code>
+     */
+    ImplicitP1sg(26),
+    /**
+     * <code>ImplicitP2sg = 27;</code>
+     */
+    ImplicitP2sg(27),
+    /**
+     * <code>FamilyMember = 28;</code>
+     */
+    FamilyMember(28),
     UNRECOGNIZED(-1),
     ;
 
@@ -662,6 +704,30 @@ public final class LexiconProto {
      * <code>Dummy = 22;</code>
      */
     public static final int Dummy_VALUE = 22;
+    /**
+     * <code>NonReciprocal = 23;</code>
+     */
+    public static final int NonReciprocal_VALUE = 23;
+    /**
+     * <code>ImplicitDative = 24;</code>
+     */
+    public static final int ImplicitDative_VALUE = 24;
+    /**
+     * <code>ImplicitPlural = 25;</code>
+     */
+    public static final int ImplicitPlural_VALUE = 25;
+    /**
+     * <code>ImplicitP1sg = 26;</code>
+     */
+    public static final int ImplicitP1sg_VALUE = 26;
+    /**
+     * <code>ImplicitP2sg = 27;</code>
+     */
+    public static final int ImplicitP2sg_VALUE = 27;
+    /**
+     * <code>FamilyMember = 28;</code>
+     */
+    public static final int FamilyMember_VALUE = 28;
 
 
     public final int getNumber() {
@@ -701,6 +767,12 @@ public final class LexiconProto {
         case 20: return Ext;
         case 21: return Runtime;
         case 22: return Dummy;
+        case 23: return NonReciprocal;
+        case 24: return ImplicitDative;
+        case 25: return ImplicitPlural;
+        case 26: return ImplicitP1sg;
+        case 27: return ImplicitP2sg;
+        case 28: return FamilyMember;
         default: return null;
       }
     }
