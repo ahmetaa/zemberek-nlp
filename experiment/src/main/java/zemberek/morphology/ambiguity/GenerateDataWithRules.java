@@ -27,14 +27,12 @@ import zemberek.tokenization.TurkishSentenceExtractor;
 public class GenerateDataWithRules {
 
   private static LanguageIdentifier identifier;
-  private static RootLexicon lexicon;
-  private static _TurkishMorphologicalAnalyzer analyzer;
   private static RuleBasedDisambiguator ruleBasedDisambiguator;
 
   private GenerateDataWithRules() throws IOException {
     identifier = LanguageIdentifier.fromInternalModelGroup("tr_group");
-    lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
-    analyzer = new _TurkishMorphologicalAnalyzer(lexicon);
+    RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
+    _TurkishMorphologicalAnalyzer analyzer = new _TurkishMorphologicalAnalyzer(lexicon);
     ruleBasedDisambiguator = new RuleBasedDisambiguator(analyzer);
   }
 

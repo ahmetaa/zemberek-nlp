@@ -4,8 +4,6 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.base.Stopwatch;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
@@ -14,7 +12,9 @@ import java.util.function.Function;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 
-/** A simple analysis cache. Can be shared between threads. */
+/**
+ * A simple analysis cache. Can be shared between threads.
+ */
 class AnalysisCache {
 
   private static final int STATIC_CACHE_CAPACITY = 5000;
@@ -26,7 +26,7 @@ class AnalysisCache {
   private Semaphore staticCacheSemaphore = new Semaphore(1);
   private boolean staticCacheInitialized = false;
   private long staticCacheHits;
-  long staticCacheMiss;
+  private long staticCacheMiss;
   private Cache<String, _WordAnalysis> dynamicCache;
 
   public static AnalysisCache INSTANCE = Singleton.Instance.cache;
@@ -83,7 +83,7 @@ class AnalysisCache {
     _WordAnalysis analysis = staticCache.get(input);
     if (analysis != null) {
       staticCacheHits++;
-      return  analysis;
+      return analysis;
     }
     staticCacheMiss++;
     return dynamicCache.get(input, analysisProvider);
@@ -94,10 +94,10 @@ class AnalysisCache {
     StringBuilder sb = new StringBuilder();
     long total = staticCacheHits + staticCacheMiss;
     if (total > 0) {
-        sb.append(String.format("Static cache(size: %d) Hit rate: %f",
-            staticCache.size(), 1.0 * (staticCacheHits)/(staticCacheHits + staticCacheMiss)));
+      sb.append(String.format("Static cache(size: %d) Hit rate: %.3f%n",
+          staticCache.size(), 1.0 * (staticCacheHits) / (staticCacheHits + staticCacheMiss)));
     }
-    sb.append("Dynamic cache hit rate: ").append(dynamicCache.stats().hitRate());
+    sb.append(String.format("Dynamic cache hit rate: %.3f ", dynamicCache.stats().hitRate()));
     return sb.toString();
   }
 }
