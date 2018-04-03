@@ -23,12 +23,14 @@ public class _TurkishMorphologicalAnalyzer {
   InterpretingAnalyzer analyzer;
   _UnidentifiedTokenAnalyzer unidentifiedTokenAnalyzer;
   TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
+  AnalysisCache cache = AnalysisCache.INSTANCE;
 
   public _TurkishMorphologicalAnalyzer(RootLexicon lexicon) {
     this.lexicon = lexicon;
     morphotactics = new TurkishMorphotactics(lexicon);
     analyzer = new InterpretingAnalyzer(lexicon);
     unidentifiedTokenAnalyzer = new _UnidentifiedTokenAnalyzer(analyzer);
+    cache.initializeStaticCache(this::analyzeWithoutCache);
   }
 
   public _WordAnalysis analyze(String word) {
@@ -41,6 +43,10 @@ public class _TurkishMorphologicalAnalyzer {
 
   private _WordAnalysis analyzeWithoutCache(String word) {
     return analyzeWithoutCache(word, 0);
+  }
+
+  private _WordAnalysis analyzeWithache(String word) {
+    return cache.getAnalysis(word, this::analyzeWithoutCache);
   }
 
   /**
