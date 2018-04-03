@@ -5326,7 +5326,7 @@ değerlemek
 değerli [P:Adj]
 değersiz [P:Adj]
 değgin [P:Adj]
-değil
+değil [P:Verb]
 değil [P:Conj]
 değim
 değin [P:Postp,PCDat]
@@ -14244,6 +14244,7 @@ kurul
 kurulamak
 kurultay
 kurulum
+kuruluş
 kurum
 kurumak
 kuruntu
@@ -26697,7 +26698,6 @@ cöreklenmek
 çullanmak
 dalatmak
 dayatmak
-değilmek
 denetmek
 dergilemek
 derinlemek

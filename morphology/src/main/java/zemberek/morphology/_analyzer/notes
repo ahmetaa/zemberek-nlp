@@ -227,6 +227,18 @@ Also some verbs should not get Reciprocal suffix and needs to be marked with "No
 
 consider adding "giller" as a derivative suffix.
 
+Second is not correct.
+alçaklıktır
+[alçak:Adj] alçak:Adj|lık:Ness→Noun+A3sg+Pnon+Nom|Zero→Verb+Pres+A3sg+tır:Cop
+[alçak:Adj] alçak:Adj|Zero→Noun+A3sg+Pnon+Nom|lık:Ness→Noun+A3sg+Pnon+Nom|Zero→Verb+Pres+A3sg+tır:Cop
+
+bununla -> not working. Oflazer:
+bunla
+bunla	bu	+Pron+Demons+A3sg+Pnon+Ins
+bununla
+bununla	bu	+Pron+Demons+A3sg+Pnon+Ins
+
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

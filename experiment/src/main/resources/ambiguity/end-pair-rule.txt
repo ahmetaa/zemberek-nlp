@@ -1,0 +1,14 @@
+* Fut+ FutPart→Noun
+* Fut+ FutPart→Adj
+* Aor+ AorPart→Noun
+* Aor+ AorPart→Adj
+* Narr+ NarrPart→Noun
+* Narr+ NarrPart→Adj
+## TODO: this may cause error `yapmaya mı geldin`
+* Neg+ Inf2→Noun
+* Neces+ Inf2→Noun
+* [demek:Verb] [demek:Adv]
+## TODO: this may cause error with 'var'
+!var :Verb :Noun
+var :Noun :Verb
+* :Verb :Adj

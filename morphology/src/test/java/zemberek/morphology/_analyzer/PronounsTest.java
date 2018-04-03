@@ -88,6 +88,7 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("bunu", matchesTailLex("Pron + A3sg + Acc"));
     tester.expectSingle("bunlar", matchesTailLex("Pron + A3pl"));
     tester.expectSingle("bunları", matchesTailLex("Pron + A3pl + Acc"));
+    tester.expectSingle("bununla", matchesTailLex("Pron + A3sg + Ins"));
 
 
     tester.expectSingle("bunlaraymış",

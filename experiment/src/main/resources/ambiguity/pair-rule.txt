@@ -1,0 +1,79 @@
+# input preferred ignored
+
+* [uzlaşmak:Verb] [uz:Adj]
+
+göre [göre:Postp,PCDat] [görmek:Verb]
+
+* [genel:Adj] [genelmek:Verb]
+
+* [Türkiye:Noun,Prop] *
+
+de [de:Conj] *
+
+özellikle [özellikle:Adv] *
+
+yatırım [yatırım:Noun] *
+
+ağırlık [ağırlık:Noun] *
+
+konu [konu:Noun] *
+
+bu [bu:Det] *
+
+kararın [karar:Noun] [kararmak:Verb]
+
+* [süreç:Noun] [süre:Noun]
+
+ise [ise:Adv] *
+
+peki [peki:Adv] *
+
+* Noun+A3pl+P1sg$ Noun+A3pl|Zero→Verb+Pres+A1sg
+* Noun+A3pl+P2sg$ Noun+A3pl|Zero→Verb+Pres+A2sg
+* Noun+A3pl$ Noun+A3sg|Zero→Verb+Pres+A3pl
+
+* [şura:Noun] [şûra:Noun]
+
+* [merhaba:Interj] [merhaba:Noun]
+
+* [ben:Pron,Pers] [ben:Noun]
+
+* [konuşmak:Verb] [konmak:Verb]
+
+* [bura:Noun] [Burada:Noun,Prop]
+
+* [ama:Conj] [am:Noun]
+
+* [bacak:Noun] [Bacak:Noun,Prop]
+
+* [görüşmek:Verb] [görmek:Verb]
+
+* [defalarca:Adv] [defa:Noun]
+
+* [istemek:Verb] [ister:Noun]
+
+* [iğrenç:Adj] [iğrenç:Adv]
+
+* Inf2→Noun Neg+Opt
+
+* [iğrenç:Adj] [iğrenç:Adv]
+
+* [uyanmak:Verb] [uymak:Verb]
+
+* [bilmek:Verb] [bilemek:Verb]
+
+* [öldürmek:Verb] [ölmek:Verb]
+
+* [sıkışmak:Verb] [sıkmak:Verb]
+
+* [dönüşmek:Verb] [dönmek:Verb]
+
+* Become→Verb Recip→Verb
+
+* [yardım:Noun] [yarmak:Verb]
+
+* [yardım:Noun] [yar:Noun]
+
+* [mi:Ques] *
+
+* :Noun+A3pl Inf3→Noun+A3pl

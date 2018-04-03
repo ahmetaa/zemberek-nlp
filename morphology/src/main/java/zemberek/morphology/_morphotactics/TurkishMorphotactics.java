@@ -1083,6 +1083,10 @@ public class TurkishMorphotactics {
 
     //------------ Demonstrative pronouns. ------------------------
 
+    DictionaryItem bu = lexicon.getItemById("bu_Pron_Demons");
+    DictionaryItem su = lexicon.getItemById("şu_Pron_Demons");
+    DictionaryItem o_demons = lexicon.getItemById("o_Pron_Demons");
+
     pronDemons_S.addEmpty(pA3sg_S);
     pronDemons_S.add(pA3pl_S, "nlAr");
 
@@ -1305,13 +1309,12 @@ public class TurkishMorphotactics {
         .add(pEqu_ST, "+ncA", hepsiCnd)
         .add(pIns_ST, "+ylA", hepsiCnd);
 
-    // TODO: add bu,şu etc.
-    pNom_ST.add(with_S, "+nlI", Conditions.rootIsAny(ben, sen, o, biz, siz));
+    pNom_ST.add(with_S, "+nlI", Conditions.rootIsAny(bu, su, o_demons, ben, sen, o, biz, siz));
     pNom_ST.add(with_S, "lI", Conditions.rootIsAny(nere));
     pNom_ST.add(with_S, "+ylI", Conditions.rootIsAny(ne));
-    pNom_ST.add(without_S, "+nsIz", Conditions.rootIsAny(nere, ben, sen, o, biz, siz));
+    pNom_ST.add(without_S, "+nsIz", Conditions.rootIsAny(nere, bu, su, o_demons, ben, sen, o, biz, siz));
     pNom_ST.add(without_S, "+ysIz", Conditions.rootIsAny(ne));
-    pGen_ST.add(rel_S, "ki", Conditions.rootIsAny(nere, ne, sen, o, biz, siz));
+    pGen_ST.add(rel_S, "ki", Conditions.rootIsAny(nere, bu, su, o_demons, ne, sen, o, biz, siz));
     pIns_ST.add(vWhile_S, "+yken");
 
     //------------- Derivation connections ---------
