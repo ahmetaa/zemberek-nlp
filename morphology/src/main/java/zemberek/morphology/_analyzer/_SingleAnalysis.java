@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology._morphotactics.Morpheme;
+import zemberek.morphology._morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.DictionaryItem;
 
 // This class represents a single morphological analysis result
@@ -117,7 +118,7 @@ public class _SingleAnalysis {
     int endIndex = groupIndex == groupBoundaries.length - 1 ?
         morphemesSurfaces.size() : groupBoundaries[groupIndex + 1];
 
-    return new MorphemeGroup(morphemesSurfaces.subList(groupIndex, endIndex));
+    return new MorphemeGroup(morphemesSurfaces.subList(groupBoundaries[groupIndex], endIndex));
   }
 
   // container for Morphemes and their surface forms.
@@ -186,6 +187,11 @@ public class _SingleAnalysis {
 
       Morpheme morpheme = transition.getMorpheme();
 
+      // we skip these two morphemes as they create visual noise and does not carry much information.
+      if(morpheme== TurkishMorphotactics.nom || morpheme== TurkishMorphotactics.pnon) {
+        continue;
+      }
+
       // if empty, use the cache.
       if (transition.surface.isEmpty()) {
         MorphemeSurface suffixSurface = emptyMorphemeCache.get(morpheme);
@@ -205,8 +211,8 @@ public class _SingleAnalysis {
     groupBoundaries[0] = 0; // we assume there is always an IG
 
     int morphemeCounter = 0, derivationCounter = 1;
-    for (SurfaceTransition transition : searchPath.getTransitions()) {
-      if (transition.isDerivative()) {
+    for (MorphemeSurface morphemeSurface : morphemes) {
+      if (morphemeSurface.morpheme.derivational) {
         groupBoundaries[derivationCounter] = morphemeCounter;
         derivationCounter++;
       }

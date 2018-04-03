@@ -5,7 +5,10 @@ import java.util.stream.Collectors;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology._analyzer._SingleAnalysis.MorphemeSurface;
+import zemberek.morphology._morphotactics.Morpheme;
+import zemberek.morphology._morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.structure.Turkish;
 
 public class AnalysisFormatters {
 
@@ -110,7 +113,8 @@ public class AnalysisFormatters {
       }
       for (int i = 1; i < surfaces.size(); i++) {
         MorphemeSurface s = surfaces.get(i);
-        if (s.morpheme.derivational) {
+        Morpheme morpheme = s.morpheme;
+        if (morpheme.derivational) {
           sb.append('|');
         }
         if (addSurface && s.surface.length() > 0) {

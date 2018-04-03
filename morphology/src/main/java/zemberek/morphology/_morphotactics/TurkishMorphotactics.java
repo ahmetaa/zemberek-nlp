@@ -1505,7 +1505,7 @@ public class TurkishMorphotactics {
   MorphemeState vAor_S = nonTerminal("vAor_S", aor);
   MorphemeState vAorNeg_S = nonTerminal("vAorNeg_S", aor);
   MorphemeState vAorNegEmpty_S = nonTerminal("vAorNegEmpty_S", aor);
-  MorphemeState vAorPartNeg_S = nonTerminal("vAorPartNeg_S", aorPart);
+  MorphemeState vAorPartNeg_S = nonTerminalDerivative("vAorPartNeg_S", aorPart);
   MorphemeState vAorPart_S = nonTerminalDerivative("vAorPart_S", aorPart);
 
   MorphemeState vAble_S = nonTerminalDerivative("vAble_S", able);

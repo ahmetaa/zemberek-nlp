@@ -16,7 +16,7 @@ public class AdverbsTest extends AnalyzerTestBase {
     tester.expectSingle("olunca",
         matchesTailLex("Verb + When + Adv"));
     tester.expectSingle("oluncaya",
-        matchesTailLex("Verb + When + Adv + Zero + Noun + A3sg + Pnon + Dat"));
+        matchesTailLex("Verb + When + Adv + Zero + Noun + A3sg + Dat"));
   }
 
 }

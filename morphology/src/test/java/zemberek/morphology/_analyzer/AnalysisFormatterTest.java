@@ -12,15 +12,15 @@ public class AnalysisFormatterTest {
     InterpretingAnalyzer analyzer = getAnalyzer("kitap");
     _SingleAnalysis analysis = analyzer.analyze("kitaplarda").get(0);
 
-    Assert.assertEquals("[kitap:Noun] kitap:Noun+lar:A3pl+Pnon+da:Loc",
+    Assert.assertEquals("[kitap:Noun] kitap:Noun+lar:A3pl+da:Loc",
         AnalysisFormatters.DEFAULT_SURFACE.format(analysis));
 
     analysis = analyzer.analyze("kitapsız").get(0);
-    Assert.assertEquals("[kitap:Noun] kitap:Noun+A3sg+Pnon+Nom|sız:Without→Adj",
+    Assert.assertEquals("[kitap:Noun] kitap:Noun+A3sg|sız:Without→Adj",
         AnalysisFormatters.DEFAULT_SURFACE.format(analysis));
 
     analysis = analyzer.analyze("kitaplardaymış").get(0);
-    Assert.assertEquals("[kitap:Noun] kitap:Noun+lar:A3pl+Pnon+da:Loc|Zero→Verb+ymış:Narr+A3sg",
+    Assert.assertEquals("[kitap:Noun] kitap:Noun+lar:A3pl+da:Loc|Zero→Verb+ymış:Narr+A3sg",
         AnalysisFormatters.DEFAULT_SURFACE.format(analysis));
 
     analyzer = getAnalyzer("okumak");
@@ -34,15 +34,15 @@ public class AnalysisFormatterTest {
     InterpretingAnalyzer analyzer = getAnalyzer("kitap");
     _SingleAnalysis analysis = analyzer.analyze("kitaplarda").get(0);
 
-    Assert.assertEquals("[kitap:Noun] kitap:Noun+A3pl+Pnon+Loc",
+    Assert.assertEquals("[kitap:Noun] kitap:Noun+A3pl+Loc",
         AnalysisFormatters.DEFAULT_LEXICAL.format(analysis));
 
     analysis = analyzer.analyze("kitapsız").get(0);
-    Assert.assertEquals("[kitap:Noun] kitap:Noun+A3sg+Pnon+Nom|Without→Adj",
+    Assert.assertEquals("[kitap:Noun] kitap:Noun+A3sg|Without→Adj",
         AnalysisFormatters.DEFAULT_LEXICAL.format(analysis));
 
     analysis = analyzer.analyze("kitaplardaymış").get(0);
-    Assert.assertEquals("[kitap:Noun] kitap:Noun+A3pl+Pnon+Loc|Zero→Verb+Narr+A3sg",
+    Assert.assertEquals("[kitap:Noun] kitap:Noun+A3pl+Loc|Zero→Verb+Narr+A3sg",
         AnalysisFormatters.DEFAULT_LEXICAL.format(analysis));
 
     analyzer = getAnalyzer("okumak");
@@ -52,19 +52,19 @@ public class AnalysisFormatterTest {
   }
 
   @Test
-  public void defaultOflazerFormatterTest() {
+  public void oflazerStyleFormatterTest() {
     InterpretingAnalyzer analyzer = getAnalyzer("kitap");
     _SingleAnalysis analysis = analyzer.analyze("kitaplarda").get(0);
 
-    Assert.assertEquals("kitap+Noun+A3pl+Pnon+Loc",
+    Assert.assertEquals("kitap+Noun+A3pl+Loc",
         AnalysisFormatters.OFLAZER_STYLE.format(analysis));
 
     analysis = analyzer.analyze("kitapsız").get(0);
-    Assert.assertEquals("kitap+Noun+A3sg+Pnon+Nom^DB+Adj+Without",
+    Assert.assertEquals("kitap+Noun+A3sg^DB+Adj+Without",
         AnalysisFormatters.OFLAZER_STYLE.format(analysis));
 
     analysis = analyzer.analyze("kitaplardaymış").get(0);
-    Assert.assertEquals("kitap+Noun+A3pl+Pnon+Loc^DB+Verb+Zero+Narr+A3sg",
+    Assert.assertEquals("kitap+Noun+A3pl+Loc^DB+Verb+Zero+Narr+A3sg",
         AnalysisFormatters.OFLAZER_STYLE.format(analysis));
 
     analyzer = getAnalyzer("okumak");

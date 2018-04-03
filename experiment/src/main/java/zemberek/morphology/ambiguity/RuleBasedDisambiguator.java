@@ -163,16 +163,16 @@ public class RuleBasedDisambiguator {
   static List<PairRule> pairLexRules = Lists.newArrayList(
       new PairRule(
           "Noun+A3pl+Pnon+Nom|Zero→Verb+Pres+A1sg",
-          "Noun+A3pl+P1sg+Nom"),
+          "Noun+A3pl+P1sg"),
       new PairRule(
           "Noun+A3pl+Pnon+Nom|Zero→Verb+Pres+A3sg",
-          "Noun+A3pl+Pnon+Nom"),
+          "Noun+A3pl"),
       new PairRule(
           "Noun+A3pl+Pnon+Nom|Zero→Verb+Pres+A2sg",
-          "Noun+A3pl+P2sg+Nom"),
+          "Noun+A3pl+P2sg"),
       new PairRule(
           "Noun+A3sg+Pnon+Nom|Zero→Verb+Pres+A3pl",
-          "Noun+A3pl+Pnon+Nom"),
+          "Noun+A3pl"),
       new PairRule(
           "[şûra:Noun]",
           "[şura:Noun]"),
@@ -270,6 +270,7 @@ public class RuleBasedDisambiguator {
       )
   );
 
+  //TODO:There are no more Nom or Pnon. Fix
   static List<PairRule> beginPairLexRules = Lists.newArrayList(
       new PairRule(
           "P2sg+Gen",
@@ -277,10 +278,9 @@ public class RuleBasedDisambiguator {
       new PairRule(
           "Nom",
           "Acc")
-
   );
 
-
+  //TODO:There are no more Nom or Pnon. Fix
   static List<PairRule> bothProperRules = Lists.newArrayList(
       new PairRule(
           "Nom",
@@ -351,7 +351,7 @@ public class RuleBasedDisambiguator {
 
   static Set<String> possesion = Sets.newHashSet("P1sg", "P2sg", "P1pl", "P2pl", "P3pl");
 
-  static boolean containsAny(String in, Set<String> set) {
+  private static boolean containsAny(String in, Set<String> set) {
     for (String s : set) {
       if (in.contains(s)) {
         return true;

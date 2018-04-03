@@ -42,13 +42,13 @@ public class GenerateDataWithRules {
   private static Collection<Predicate<String>> ignoreSentencePredicates = new ArrayList<>();
 
   public static void main(String[] args) throws IOException {
-    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/www.aljazeera.com.tr");
+    //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/www.aljazeera.com.tr");
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
-    //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
+    Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
     Path outRoot = Paths.get("data/ambiguity");
     Files.createDirectories(outRoot);
 
-    acceptWordPredicates.add(maxAnalysisCount(2));
+    acceptWordPredicates.add(maxAnalysisCount(4));
     acceptWordPredicates.add(hasAnalysis());
     ignoreSentencePredicates.add(contains("\""));
     ignoreSentencePredicates.add(contains("…"));
@@ -56,7 +56,7 @@ public class GenerateDataWithRules {
     ignoreSentencePredicates.add(longSentence(15));
 
     new GenerateDataWithRules()
-        .extractData(p, outRoot, 3000);
+        .extractData(p, outRoot, 2000);
   }
 
   private static Predicate<_WordAnalysis> hasAnalysis() {

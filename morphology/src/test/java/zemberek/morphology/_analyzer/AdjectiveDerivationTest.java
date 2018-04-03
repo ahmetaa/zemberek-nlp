@@ -54,15 +54,15 @@ public class AdjectiveDerivationTest extends AnalyzerTestBase {
     AnalysisTester tester = getTester("ucuz [P:Adj]");
 
     tester.expectAny("ucuzcu",
-        matchesTailLex("Adj + Agt + Noun + A3sg + Pnon + Nom"));
+        matchesTailLex("Adj + Agt + Noun + A3sg"));
     tester.expectAny("ucuzcuyu",
-        matchesTailLex("Adj + Agt + Noun + A3sg + Pnon + Acc"));
+        matchesTailLex("Adj + Agt + Noun + A3sg + Acc"));
     tester.expectAny("ucuzcuya",
-        matchesTailLex("Adj + Agt + Noun + A3sg + Pnon + Dat"));
+        matchesTailLex("Adj + Agt + Noun + A3sg + Dat"));
     tester.expectAny("ucuzculuk",
-        matchesTailLex("Adj + Agt + Noun + A3sg + Pnon + Nom + Ness + Noun + A3sg + Pnon + Nom"));
+        matchesTailLex("Adj + Agt + Noun + A3sg + Ness + Noun + A3sg"));
     tester.expectAny("ucuzculuğu",
-        matchesTailLex("Adj + Agt + Noun + A3sg + Pnon + Nom + Ness + Noun + A3sg + Pnon + Acc"));
+        matchesTailLex("Adj + Agt + Noun + A3sg + Ness + Noun + A3sg + Acc"));
 
 
     tester.expectFail(

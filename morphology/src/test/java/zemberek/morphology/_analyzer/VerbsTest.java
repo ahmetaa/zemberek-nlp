@@ -200,7 +200,7 @@ public class VerbsTest extends AnalyzerTestBase {
     AnalysisTester t = getTester("yazmak"); // Aorist_A attribute is inferred.
 
     t.expectAny("yazmam", matchesTailLex("Verb + Neg + Aor + A1sg"));
-    t.expectAny("yazmam", matchesTailLex("Verb + Inf2 + Noun + A3sg + P1sg + Nom"));
+    t.expectAny("yazmam", matchesTailLex("Verb + Inf2 + Noun + A3sg + P1sg"));
     t.expectSingle("yazmazsın", matchesTailLex("Verb + Neg + Aor + A2sg"));
     t.expectAny("yazmaz", matchesTailLex("Verb + Neg + Aor + A3sg"));
     t.expectAny("yazmayız", matchesTailLex("Verb + Neg + Aor + A1pl"));
@@ -466,7 +466,7 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("den", matchesTailLex("Verb + Pass + Verb + Imp + A2sg"));
     t.expectSingle("denil", matchesTailLex("Verb + Pass + Verb + Imp + A2sg"));
     t.expectAny("diyecek", matchesTailLex("Verb + Fut + A3sg"));
-    t.expectAny("diyecek", matchesTailLex("Verb + FutPart + Adj + Pnon"));
+    t.expectAny("diyecek", matchesTailLex("Verb + FutPart + Adj"));
     t.expectAny("diyebilir", matchesTailLex("Verb + Able + Verb + Aor + A3sg"));
     t.expectAny("deme", matchesTailLex("Verb + Neg + Imp + A2sg"));
     t.expectSingle("diyor", matchesTailLex("Verb + Prog1 + A3sg"));
