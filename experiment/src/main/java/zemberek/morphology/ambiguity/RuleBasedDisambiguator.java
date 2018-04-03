@@ -58,7 +58,7 @@ public class RuleBasedDisambiguator {
       }
     }
 
-    public void makeDecisions() {
+    void makeDecisions() {
       for (int i = 0; i < results.size(); i++) {
         AmbiguityAnalysis a = results.get(i);
 
@@ -66,34 +66,31 @@ public class RuleBasedDisambiguator {
           continue;
         }
 
-        AnalysisDecision first = a.choices.get(0);
-        AnalysisDecision second = a.choices.size() > 1 ? a.choices.get(1) : null;
-
-        if (a.choices.size() == 2) {
-          ignoreOne(first, second, pairLexRules);
-          oneProper(first, second, i == 0, a.input);
-          oneProper(second, first, i == 0, a.input);
-          bothProper(first, second, bothProperRules);
-        }
-
         AmbiguityAnalysis begin = i == 0 ? null : results.get(i - 1);
         AmbiguityAnalysis next = i == results.size() - 1 ? null : results.get(i + 1);
 
-        if (next == null
-            || next.checkPos(PrimaryPos.Punctuation)
-            || next.checkPos(PrimaryPos.Question)
-            || next.checkPos(PrimaryPos.Conjunction)) {
-          if (a.choices.size() == 2) {
-            ignoreOne(first, second, endPairLexRules);
+        if (a.choices.size() > 1) {
+          for (int j = 0; j < a.choices.size(); j++) {
+            for (int k = j + 1; k < a.choices.size(); k++) {
+              AnalysisDecision first = a.choices.get(j);
+              AnalysisDecision second = a.choices.size() > 1 ? a.choices.get(k) : null;
+
+              ignoreOne(first, second, pairLexRules);
+              oneProper(first, second, i == 0, a.input);
+              oneProper(second, first, i == 0, a.input);
+              bothProper(first, second, bothProperRules);
+              if (begin == null) {
+                ignoreOne(first, second, beginPairLexRules);
+              }
+              if (next == null
+                  || next.checkPos(PrimaryPos.Punctuation)
+                  || next.checkPos(PrimaryPos.Question)
+                  || next.checkPos(PrimaryPos.Conjunction)) {
+                ignoreOne(first, second, endPairLexRules);
+              }
+            }
           }
         }
-
-        if (begin == null) {
-          if (a.choices.size() == 2) {
-            ignoreOne(first, second, beginPairLexRules);
-          }
-        }
-
       }
     }
   }
