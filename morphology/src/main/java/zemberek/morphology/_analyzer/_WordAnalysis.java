@@ -7,32 +7,28 @@ import java.util.stream.Stream;
 
 
 // This class contains all morphological analyses of a word.
-// TODO: Not Yet In Use
 public class _WordAnalysis implements Iterable<_SingleAnalysis> {
 
-  static final _WordAnalysis EMPTY_INPUT_RESULT = new _WordAnalysis("", Collections.emptyList());
+  static final _WordAnalysis EMPTY_INPUT_RESULT =
+      new _WordAnalysis("", Collections.emptyList());
 
   //this is actual input.
   String input;
   // this is the input that is prepared for analysis.
   String normalizedInput;
-  // This shows location of the word if used in a sentence or other context.
-  int index;
 
   List<_SingleAnalysis> analysisResults;
 
   public _WordAnalysis(String input, List<_SingleAnalysis> analysisResults) {
     this.input = input;
     this.normalizedInput = input;
-    this.index = 0;
     this.analysisResults = analysisResults;
   }
 
-  public _WordAnalysis(String input, String normalizedInput, int index,
+  public _WordAnalysis(String input, String normalizedInput,
       List<_SingleAnalysis> analysisResults) {
     this.input = input;
     this.normalizedInput = normalizedInput;
-    this.index = index;
     this.analysisResults = analysisResults;
   }
 
@@ -42,10 +38,6 @@ public class _WordAnalysis implements Iterable<_SingleAnalysis> {
 
   public String getNormalizedInput() {
     return normalizedInput;
-  }
-
-  public int getIndex() {
-    return index;
   }
 
   public boolean isCorrect() {
@@ -66,7 +58,7 @@ public class _WordAnalysis implements Iterable<_SingleAnalysis> {
   }
 
   public _WordAnalysis copyFor(List<_SingleAnalysis> analyses) {
-    return new _WordAnalysis(this.input, this.normalizedInput, this.index, analyses);
+    return new _WordAnalysis(this.input, this.normalizedInput, analyses);
   }
 
 }

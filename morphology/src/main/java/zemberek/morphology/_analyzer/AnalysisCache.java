@@ -12,6 +12,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 
 /** A simple analysis cache. Can be shared between threads. */
 class AnalysisCache {
@@ -20,7 +21,7 @@ class AnalysisCache {
   private static final int DEFAULT_INITIAL_DYNAMIC_CACHE_CAPACITY = 1000;
   private static final int DEFAULT_MAX_DYNAMIC_CACHE_CAPACITY = 10000;
 
-  private static final String MOST_USED_WORDS_FILE = "morphology/src/main/resources/tr/first-10K";
+  private static final String MOST_USED_WORDS_FILE = "/tr/first-10K";
   private ConcurrentHashMap<String, _WordAnalysis> staticCache;
   private Semaphore staticCacheSemaphore = new Semaphore(1);
   private boolean staticCacheInitialized = false;
@@ -55,7 +56,7 @@ class AnalysisCache {
       new Thread(() -> {
         try {
           Stopwatch stopwatch = Stopwatch.createStarted();
-          List<String> words = Files.readAllLines(Paths.get(MOST_USED_WORDS_FILE));
+          List<String> words = TextIO.loadLinesFromResource(MOST_USED_WORDS_FILE);
           Log.info("File read in %d ms.", stopwatch.elapsed(TimeUnit.MILLISECONDS));
           // TODO(make configurable)
           int size = Math.min(STATIC_CACHE_CAPACITY, words.size());
@@ -96,7 +97,7 @@ class AnalysisCache {
         sb.append(String.format("Static cache(size: %d) Hit rate: %f",
             staticCache.size(), 1.0 * (staticCacheHits)/(staticCacheHits + staticCacheMiss)));
     }
-    sb.append("Dynamic cache hit rate: " + dynamicCache.stats().hitRate());
+    sb.append("Dynamic cache hit rate: ").append(dynamicCache.stats().hitRate());
     return sb.toString();
   }
 }

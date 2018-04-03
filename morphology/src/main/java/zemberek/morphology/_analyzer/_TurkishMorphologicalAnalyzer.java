@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.core.turkish._TurkishAlphabet;
-import zemberek.morphology._morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.structure.StemAndEnding;
 import zemberek.tokenization.TurkishTokenizer;
@@ -19,33 +18,23 @@ import zemberek.tokenization.TurkishTokenizer;
 public class _TurkishMorphologicalAnalyzer {
 
   RootLexicon lexicon;
-  TurkishMorphotactics morphotactics;
   InterpretingAnalyzer analyzer;
-  _UnidentifiedTokenAnalyzer unidentifiedTokenAnalyzer;
-  TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
-  AnalysisCache cache = AnalysisCache.INSTANCE;
+  private _UnidentifiedTokenAnalyzer unidentifiedTokenAnalyzer;
+  private TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
+  private AnalysisCache cache = AnalysisCache.INSTANCE;
 
   public _TurkishMorphologicalAnalyzer(RootLexicon lexicon) {
     this.lexicon = lexicon;
-    morphotactics = new TurkishMorphotactics(lexicon);
     analyzer = new InterpretingAnalyzer(lexicon);
     unidentifiedTokenAnalyzer = new _UnidentifiedTokenAnalyzer(analyzer);
     cache.initializeStaticCache(this::analyzeWithoutCache);
   }
 
   public _WordAnalysis analyze(String word) {
-    return analyzeWithoutCache(word);
+    return analyzeWithCache(word);
   }
 
-  public _WordAnalysis analyze(String word, int index) {
-    return analyzeWithoutCache(word, index);
-  }
-
-  private _WordAnalysis analyzeWithoutCache(String word) {
-    return analyzeWithoutCache(word, 0);
-  }
-
-  private _WordAnalysis analyzeWithache(String word) {
+  private _WordAnalysis analyzeWithCache(String word) {
     return cache.getAnalysis(word, this::analyzeWithoutCache);
   }
 
@@ -59,7 +48,7 @@ public class _TurkishMorphologicalAnalyzer {
    * @param word input word.
    * @return WordAnalysis list.
    */
-  private _WordAnalysis analyzeWithoutCache(String word, int index) {
+  private _WordAnalysis analyzeWithoutCache(String word) {
 
     String s = TextUtil.normalizeApostrophes(word.toLowerCase(_TurkishAlphabet.TR));
 
@@ -80,7 +69,7 @@ public class _TurkishMorphologicalAnalyzer {
       res = Collections.emptyList();
     }
 
-    return new _WordAnalysis(word, s, index, res);
+    return new _WordAnalysis(word, s, res);
   }
 
   private List<_SingleAnalysis> analyzeWordsWithApostrophe(String word) {
@@ -114,9 +103,8 @@ public class _TurkishMorphologicalAnalyzer {
   public _SentenceAnalysis analyzeSentence(String sentence) {
     _SentenceAnalysis sentenceAnalysis = new _SentenceAnalysis();
     String preprocessed = preProcessSentence(sentence);
-    int index = 0;
     for (String s : Splitter.on(" ").omitEmptyStrings().trimResults().split(preprocessed)) {
-      _WordAnalysis parses = analyze(s, index++);
+      _WordAnalysis parses = analyze(s);
       sentenceAnalysis.addParse(parses);
     }
     return sentenceAnalysis;
