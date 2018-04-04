@@ -56,7 +56,7 @@ public class GenerateDataWithRules {
     ignoreSentencePredicates.add(longSentence(15));
 
     new GenerateDataWithRules()
-        .extractData(p, outRoot, 1000);
+        .extractData(p, outRoot, 5000, 1);
   }
 
   private static Predicate<_WordAnalysis> hasAnalysis() {
@@ -79,7 +79,7 @@ public class GenerateDataWithRules {
     return p -> p.split("[ ]+").length > tokenCount;
   }
 
-  private void extractData(Path p, Path outRoot, int resultLimit)
+  private void extractData(Path p, Path outRoot, int resultLimit, int maxAmbigiousWordCount)
       throws IOException {
     List<Path> files = Files.walk(p, 1).filter(s -> s.toFile().isFile())
         .collect(Collectors.toList());
@@ -90,7 +90,7 @@ public class GenerateDataWithRules {
 
     for (Path file : files) {
       Log.info("Processing %s", file);
-      collect(result, file, resultLimit);
+      collect(result, file, maxAmbigiousWordCount, resultLimit);
       i++;
       Log.info("%d of %d", i, files.size());
       if (resultLimit > 0 && result.results.size() > resultLimit) {
@@ -125,7 +125,8 @@ public class GenerateDataWithRules {
     }
   }
 
-  private void collect(BatchResult batchResult, Path p, int resultLimit) throws IOException {
+  private void collect(BatchResult batchResult, Path p, int maxAmbigiousWordCount, int resultLimit)
+      throws IOException {
 
     LinkedHashSet<String> sentences = getSentences(p);
 
@@ -161,6 +162,10 @@ public class GenerateDataWithRules {
       for (String sentence : toProcess) {
 
         ResultSentence r = ruleBasedDisambiguator.disambiguate(sentence);
+
+        if (r.ambigiousWordCount() > maxAmbigiousWordCount) {
+          continue;
+        }
 
         boolean sentenceOk = true;
 

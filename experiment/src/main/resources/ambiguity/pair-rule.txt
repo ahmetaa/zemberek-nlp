@@ -70,8 +70,6 @@ peki [peki:Adv] *
 
 * [dönüşmek:Verb] [dönmek:Verb]
 
-* Become→Verb Recip→Verb
-
 * [yardım:Noun] [yarmak:Verb]
 
 * [yardım:Noun] [yar:Noun]
@@ -197,5 +195,6 @@ takım * [tak:Noun]
 arıza* * [arız:Adj]
 
 uğraş* * Recip→Verb
+paylaş* * [pay:Noun]
 
 Çünkü * [Çünk:Noun,Prop]

@@ -56,6 +56,19 @@ public class RuleBasedDisambiguator {
       }
     }
 
+    int ambigiousWordCount() {
+      int cnt = 0;
+      for (AmbiguityAnalysis result : results) {
+        if (result.choices.size() > 1) {
+          long c = result.choices.stream().filter(s -> s.decision == Decision.UNDECIDED).count();
+          if (c > 1) {
+            cnt++;
+          }
+        }
+      }
+      return cnt;
+    }
+
     void makeDecisions() {
       for (int i = 0; i < results.size(); i++) {
         AmbiguityAnalysis a = results.get(i);
@@ -125,7 +138,6 @@ public class RuleBasedDisambiguator {
     boolean checkPos(PrimaryPos pos) {
       return choices.size() == 1 && choices.get(0).analysis.getItem().primaryPos.equals(pos);
     }
-
   }
 
   enum Decision {
@@ -299,10 +311,6 @@ public class RuleBasedDisambiguator {
       String input) {
     String lex1 = a1.analysis.formatLexical();
     String lex2 = a2.analysis.formatLexical();
-
-    if(input.equals("Çünkü")) {
-      System.out.println();
-    }
 
     if (isProperOrAbbrv(lex1) && !isProperOrAbbrv(lex2)) {
       if ((!first && Character.isUpperCase(input.charAt(0))) || input.contains("'")) {
