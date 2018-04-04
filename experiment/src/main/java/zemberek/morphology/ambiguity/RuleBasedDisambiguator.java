@@ -74,10 +74,15 @@ public class RuleBasedDisambiguator {
 
         if (a.choices.size() > 1) {
           for (int j = 0; j < a.choices.size(); j++) {
+            AnalysisDecision first = a.choices.get(j);
+            if (first.decision == Decision.IGNORE) {
+              continue;
+            }
             for (int k = j + 1; k < a.choices.size(); k++) {
-              AnalysisDecision first = a.choices.get(j);
               AnalysisDecision second = a.choices.size() > 1 ? a.choices.get(k) : null;
-
+              if (second != null && second.decision == Decision.IGNORE) {
+                continue;
+              }
               ignoreOne(first, second, pairLexRules, a.input);
               oneProper(first, second, i == 0, a.input);
               oneProper(second, first, i == 0, a.input);
@@ -174,8 +179,8 @@ public class RuleBasedDisambiguator {
     public String toString() {
       return
           "input=" + input + '\'' +
-          ", okStr='" + okStr + '\'' +
-          ", ignoreStr='" + ignoreStr;
+              ", okStr='" + okStr + '\'' +
+              ", ignoreStr='" + ignoreStr;
     }
   }
 
@@ -215,23 +220,23 @@ public class RuleBasedDisambiguator {
 
     try {
       for (PairRule pairRule : rulez) {
-        if(!checkInput(input, pairRule.input)) {
+        if (!checkInput(input, pairRule.input)) {
           continue;
         }
         String toIgnore = pairRule.ignoreStr;
         String toLeave = pairRule.okStr;
         if (toIgnore.equals("*")) {
-          if (check(lex2, toLeave)) {
+          if (checkRuleStr(lex2, toLeave)) {
             a1.decision = Decision.IGNORE;
           }
-          if (check(lex1, toLeave)) {
+          if (checkRuleStr(lex1, toLeave)) {
             a2.decision = Decision.IGNORE;
           }
         } else {
-          if (check(lex1, toIgnore) && check(lex2, toLeave)) {
+          if (checkRuleStr(lex1, toIgnore) && checkRuleStr(lex2, toLeave)) {
             a1.decision = Decision.IGNORE;
           }
-          if (check(lex2, toIgnore) && check(lex1, toLeave)) {
+          if (checkRuleStr(lex2, toIgnore) && checkRuleStr(lex1, toLeave)) {
             a2.decision = Decision.IGNORE;
           }
         }
@@ -242,25 +247,33 @@ public class RuleBasedDisambiguator {
   }
 
   private static boolean checkInput(String input, String ruleInput) {
-    if(ruleInput.equals("*")) {
+    if (ruleInput.equals("*")) {
       return true;
     }
-    if(ruleInput.startsWith("!")) {
+    if (ruleInput.endsWith("*")) {
+      return input.startsWith(ruleInput.substring(0, ruleInput.length() - 1));
+    }
+    if (ruleInput.startsWith("*")) {
+      return input.startsWith(ruleInput.substring(1, ruleInput.length()));
+    }
+    if (ruleInput.startsWith("!")) {
       return !input.equals(ruleInput.substring(1));
     }
-    if(input.equals(ruleInput)) {
+    if (input.equals(ruleInput)) {
       return true;
     }
     return false;
   }
 
-  private static boolean check(String input, String str) {
+  private static boolean checkRuleStr(String input, String str) {
+    if (str.equals("*")) {
+      return true;
+    }
     if (str.endsWith("$")) {
       return input.endsWith(str.substring(0, str.length() - 1));
     } else {
       return input.contains(str);
     }
-
   }
 
   static void bothProper(AnalysisDecision a1, AnalysisDecision a2, List<PairRule> rulez) {
@@ -275,10 +288,10 @@ public class RuleBasedDisambiguator {
     for (PairRule pairRule : rulez) {
       String toIgnore = pairRule.ignoreStr;
       String toLeave = pairRule.okStr;
-      if (check(lex1, toIgnore) && check(lex2, toLeave)) {
+      if (checkRuleStr(lex1, toIgnore) && checkRuleStr(lex2, toLeave)) {
         a1.decision = Decision.IGNORE;
       }
-      if (check(lex2, toIgnore) && check(lex1, toLeave)) {
+      if (checkRuleStr(lex2, toIgnore) && checkRuleStr(lex1, toLeave)) {
         a2.decision = Decision.IGNORE;
       }
     }

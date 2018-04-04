@@ -42,11 +42,13 @@ public class GenerateDataWithRules {
   public static void main(String[] args) throws IOException {
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/www.aljazeera.com.tr");
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
-    Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
+    //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
+    //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
+    Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
     Path outRoot = Paths.get("data/ambiguity");
     Files.createDirectories(outRoot);
 
-    acceptWordPredicates.add(maxAnalysisCount(4));
+    acceptWordPredicates.add(maxAnalysisCount(5));
     acceptWordPredicates.add(hasAnalysis());
     ignoreSentencePredicates.add(contains("\""));
     ignoreSentencePredicates.add(contains("…"));
@@ -54,7 +56,7 @@ public class GenerateDataWithRules {
     ignoreSentencePredicates.add(longSentence(15));
 
     new GenerateDataWithRules()
-        .extractData(p, outRoot, 2000);
+        .extractData(p, outRoot, 1000);
   }
 
   private static Predicate<_WordAnalysis> hasAnalysis() {
@@ -79,13 +81,15 @@ public class GenerateDataWithRules {
 
   private void extractData(Path p, Path outRoot, int resultLimit)
       throws IOException {
-    List<Path> files = Files.walk(p, 1).filter(s -> s.toFile().isFile()).collect(Collectors.toList());
+    List<Path> files = Files.walk(p, 1).filter(s -> s.toFile().isFile())
+        .collect(Collectors.toList());
 
     BatchResult result = new BatchResult();
 
     int i = 0;
 
     for (Path file : files) {
+      Log.info("Processing %s", file);
       collect(result, file, resultLimit);
       i++;
       Log.info("%d of %d", i, files.size());
@@ -102,7 +106,7 @@ public class GenerateDataWithRules {
 
     try (
         PrintWriter pwu = new PrintWriter(out.toFile(), "utf-8");
-        PrintWriter pwa= new PrintWriter(amb.toFile(), "utf-8")
+        PrintWriter pwa = new PrintWriter(amb.toFile(), "utf-8")
     ) {
       for (ResultSentence sentence : result.results) {
         pwu.println(sentence.sentence);
@@ -125,59 +129,89 @@ public class GenerateDataWithRules {
 
     LinkedHashSet<String> sentences = getSentences(p);
 
-    List<String> normalized = new ArrayList<>();
-    for (String sentence : sentences) {
-      sentence = sentence.replaceAll("\\s+|\\u00a0", " ");
-      sentence = sentence.replaceAll("[\\u00ad]", "");
-      sentence = sentence.replaceAll("[…]", "...");
-      normalized.add(sentence);
-    }
+    List<List<String>> group = group(new ArrayList<>(sentences), 1000);
 
-    LinkedHashSet<String> toProcess = new LinkedHashSet<>();
-    for (String s : normalized) {
-      boolean ok = true;
-      for (Predicate<String> ignorePredicate : ignoreSentencePredicates) {
-        if (ignorePredicate.test(s)) {
-          ok = false;
-          break;
-        }
+    for (List<String> strings : group) {
+
+      List<String> normalized = new ArrayList<>();
+      for (String sentence : strings) {
+        sentence = sentence.replaceAll("\\s+|\\u00a0", " ");
+        sentence = sentence.replaceAll("[\\u00ad]", "");
+        sentence = sentence.replaceAll("[…]", "...");
+        normalized.add(sentence);
       }
-      if (!ok) {
-        batchResult.ignoredSentences.add(s);
-      } else {
-        toProcess.add(s);
-      }
-    }
 
-    for (String sentence : toProcess) {
-
-      ResultSentence r = ruleBasedDisambiguator.disambiguate(sentence);
-
-      boolean sentenceOk = true;
-
-      for (_WordAnalysis an : r.sentenceAnalysis) {
+      LinkedHashSet<String> toProcess = new LinkedHashSet<>();
+      for (String s : normalized) {
         boolean ok = true;
-        for (Predicate<_WordAnalysis> predicate : acceptWordPredicates) {
-          if (!predicate.test(an)) {
+        for (Predicate<String> ignorePredicate : ignoreSentencePredicates) {
+          if (ignorePredicate.test(s)) {
             ok = false;
             break;
           }
         }
         if (!ok) {
-          batchResult.ignoredSentences.add(sentence);
-          sentenceOk = false;
-          break;
+          batchResult.ignoredSentences.add(s);
+        } else {
+          toProcess.add(s);
         }
       }
 
-      if (sentenceOk) {
-        batchResult.acceptedSentences.add(sentence);
-        batchResult.results.add(r);
-        if (resultLimit > 0 && batchResult.results.size() > resultLimit) {
-          return;
+      Log.info("Processing.. ");
+      for (String sentence : toProcess) {
+
+        ResultSentence r = ruleBasedDisambiguator.disambiguate(sentence);
+
+        boolean sentenceOk = true;
+
+        for (_WordAnalysis an : r.sentenceAnalysis) {
+          boolean ok = true;
+          for (Predicate<_WordAnalysis> predicate : acceptWordPredicates) {
+            if (!predicate.test(an)) {
+              ok = false;
+              break;
+            }
+          }
+          if (!ok) {
+            batchResult.ignoredSentences.add(sentence);
+            sentenceOk = false;
+            break;
+          }
+        }
+
+        if (sentenceOk) {
+          batchResult.acceptedSentences.add(sentence);
+          batchResult.results.add(r);
+          if (resultLimit > 0 && batchResult.results.size() > resultLimit) {
+            return;
+          }
         }
       }
     }
+  }
+
+  List<List<String>> group(List<String> lines, int blockCount) {
+    List<List<String>> result = new ArrayList<>();
+    if (lines.size() <= blockCount) {
+      result.add(new ArrayList<>(lines));
+      return result;
+    }
+    int start = 0;
+    int end = start + blockCount;
+    while (end < lines.size()) {
+      result.add(new ArrayList<>(lines.subList(start, end)));
+      start = end;
+      end = start + blockCount;
+      if (end >= lines.size()) {
+        end = lines.size();
+        ArrayList<String> l = new ArrayList<>(lines.subList(start, end));
+        if (l.size() > 0) {
+          result.add(l);
+        }
+        break;
+      }
+    }
+    return result;
   }
 
   static class BatchResult {

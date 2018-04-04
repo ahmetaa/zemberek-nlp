@@ -77,3 +77,67 @@ peki [peki:Adv] *
 * [mi:Ques] *
 
 * :Noun+A3pl Inf3→Noun+A3pl
+
+* [sen:Pron,Pers] [se:Noun]
+
+* [az:Adj] [azı:Noun]
+
+* [dolar:Noun] [do:Noun]
+
+var [var:Adj] [varmak:Verb]
+
+* [değil:Verb] [değmek:Verb]
+
+değil [değil:Verb] [değil:Conj]
+
+Hayır * [Hayır:Noun,Prop]
+
+Büyük [büyük:Adj] [büyük:Noun]
+büyük [büyük:Adj] [büyük:Noun]
+
+Karşılık [karşılık:Noun] *
+
+karşılık [karşılık:Noun] *
+
+* [ben:Pron,Pers] [be:Noun]
+
+hızlı* [hızlı:Adj] [hız:Noun]
+
+* [olasılık:Noun] *
+
+* [pahalı:Adj] *
+
+gelen* [gelen:Verb] *
+
+biz* [biz:Pron,Pers] [biz:Noun]
+
+yapılan [yapmak:Verb] *
+
+aynı [aynı:Adj] *
+
+oluş* [oluşmak:Verb] [olmak:Verb]
+
+Sadece [sadece:Adv] *
+sadece [sadece:Adv] *
+
+ile * [ilmek:Verb]
+
+Kesinlikle [kesinlikle:Adv] [kesin:Adj]
+kesinlikle [kesinlikle:Adv] [kesin:Adj]
+
+* [katılmak:Verb] [katmak:Verb]
+
+bu* [bu:Pron,Demons] [bun:Noun]
+
+umar* [ummak:Verb] [umar:Noun]
+
+yıldır * [yılmak:Verb]
+
+bend* [ben:Pron,Pers] [bent:Noun]
+
+bazı [bazı:Det] *
+
+adam [adam:Noun] [ada:Noun]
+Adam [adam:Noun] [ada:Noun]
+
+yine [yine:Adv] *
