@@ -1642,7 +1642,7 @@ public class TurkishMorphotactics {
         .add(vA2sg_ST, "sIn")
         .addEmpty(vA3sg_ST)
         .add(vA1pl_ST, "Iz")
-        .add(vA1pl_ST, "sInIz")
+        .add(vA2pl_ST, "sInIz")
         .add(vA3pl_ST, "lAr");
     vAor_S
         .add(vPastAfterTense_S, "dI")

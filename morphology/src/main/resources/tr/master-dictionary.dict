@@ -11822,6 +11822,7 @@ kaldırım
 kaldırmak
 kale
 kalebent
+kaleci
 kalem
 kalembek [A:NoVoicing]
 kalemis
@@ -26736,7 +26737,7 @@ hudutlanmak
 ısmarlatmak
 ikizlemek
 ikonlaşmak
-imek
+imek [A:NonReciprocal]
 irmek
 izlencelemek
 kalıplaşmak

@@ -44,6 +44,8 @@ peki [peki:Adv] *
 
 * [ama:Conj] [am:Noun]
 
+* [ama:Conj] [âmâ:Adj]
+
 * [bacak:Noun] [Bacak:Noun,Prop]
 
 * [görüşmek:Verb] [görmek:Verb]
@@ -107,7 +109,7 @@ hızlı* [hızlı:Adj] [hız:Noun]
 
 * [pahalı:Adj] *
 
-gelen* [gelen:Verb] *
+gelen* [gelmek:Verb] *
 
 biz* [biz:Pron,Pers] [biz:Noun]
 
@@ -128,6 +130,7 @@ kesinlikle [kesinlikle:Adv] [kesin:Adj]
 * [katılmak:Verb] [katmak:Verb]
 
 bu* [bu:Pron,Demons] [bun:Noun]
+Bunun* [bu:Pron,Demons] [bun:Noun]
 
 umar* [ummak:Verb] [umar:Noun]
 
@@ -141,3 +144,58 @@ adam [adam:Noun] [ada:Noun]
 Adam [adam:Noun] [ada:Noun]
 
 yine [yine:Adv] *
+
+tarafından [tarafından:Adv] *
+
+sırasında [sırasında:Adv] *
+
+tartışabil* [tartışmak:Verb] *
+
+yetiş* [yetişmek:Verb] [yetmek:Verb]
+
+kısacası [kısacası:Adv] *
+
+iman* [iman:Noun] *
+
+etti* [etmek:Verb] *
+
+Türkler* [Türk:Noun,Prop] *
+Kürtler* [Kürt:Noun,Prop] *
+
+* [kibar:Adj] [kibar:Noun]
+
+bana* [ben:Pron,Pers] *
+
+* Fut+A3sg+Cop FutPart→Noun+A3sg|Zero→Verb+Pres+A3sg+Cop
+
+para* [para:Noun] [par:Noun]
+
+Türkçe [Türkçe:Noun,Prop] *
+Kürtçe [Kürtçe:Noun,Prop] *
+
+bile * [bilmek:Verb]
+
+sağ * [sağmak:Verb]
+
+birleş*  * [bir:Num,Card]
+
+ay * [aymak:Verb]
+
+sol * [solmak:Verb]
+
+İnce * Equ
+ince * Equ
+
+diliyor* * [dilmek:Verb]
+
+yıl * [yılmak:Verb]
+
+Aslan * [As:Noun,Prop]
+
+takım * [tak:Noun]
+
+arıza* * [arız:Adj]
+
+uğraş* * Recip→Verb
+
+Çünkü * [Çünk:Noun,Prop]

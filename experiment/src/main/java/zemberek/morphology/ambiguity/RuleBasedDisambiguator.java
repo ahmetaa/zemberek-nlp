@@ -41,11 +41,6 @@ public class RuleBasedDisambiguator {
     return s;
   }
 
-  public ResultSentence noDisambiguation(String sentence) {
-    _SentenceAnalysis ambiguous = analyzer.analyzeSentence(sentence);
-    return new ResultSentence(sentence, ambiguous);
-  }
-
   static class ResultSentence {
 
     String sentence;
@@ -69,7 +64,7 @@ public class RuleBasedDisambiguator {
           continue;
         }
 
-        AmbiguityAnalysis begin = i == 0 ? null : results.get(i - 1);
+        AmbiguityAnalysis before = i == 0 ? null : results.get(i - 1);
         AmbiguityAnalysis next = i == results.size() - 1 ? null : results.get(i + 1);
 
         if (a.choices.size() > 1) {
@@ -87,7 +82,7 @@ public class RuleBasedDisambiguator {
               oneProper(first, second, i == 0, a.input);
               oneProper(second, first, i == 0, a.input);
               bothProper(first, second, bothProperRules);
-              if (begin == null) {
+              if (before == null) {
                 ignoreOne(first, second, beginPairLexRules, a.input);
               }
               if (next == null
@@ -286,12 +281,12 @@ public class RuleBasedDisambiguator {
     }
 
     for (PairRule pairRule : rulez) {
-      String toIgnore = pairRule.ignoreStr;
-      String toLeave = pairRule.okStr;
-      if (checkRuleStr(lex1, toIgnore) && checkRuleStr(lex2, toLeave)) {
+      String ignore = pairRule.ignoreStr;
+      String ok = pairRule.okStr;
+      if (checkRuleStr(lex1, ignore) && checkRuleStr(lex2, ok)) {
         a1.decision = Decision.IGNORE;
       }
-      if (checkRuleStr(lex2, toIgnore) && checkRuleStr(lex1, toLeave)) {
+      if (checkRuleStr(lex2, ignore) && checkRuleStr(lex1, ok)) {
         a2.decision = Decision.IGNORE;
       }
     }
@@ -304,6 +299,10 @@ public class RuleBasedDisambiguator {
       String input) {
     String lex1 = a1.analysis.formatLexical();
     String lex2 = a2.analysis.formatLexical();
+
+    if(input.equals("Çünkü")) {
+      System.out.println();
+    }
 
     if (isProperOrAbbrv(lex1) && !isProperOrAbbrv(lex2)) {
       if ((!first && Character.isUpperCase(input.charAt(0))) || input.contains("'")) {
