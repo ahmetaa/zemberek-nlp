@@ -44,7 +44,7 @@ class AnalysisCache {
     staticCache = new ConcurrentHashMap<>(STATIC_CACHE_CAPACITY);
   }
 
-  public synchronized void initializeStaticCache(Function<String, _WordAnalysis> analysisProvider) {
+  synchronized void initializeStaticCache(Function<String, _WordAnalysis> analysisProvider) {
     if (staticCacheInitialized) {
       return;
     }
@@ -68,7 +68,7 @@ class AnalysisCache {
     staticCacheInitialized = true;
   }
 
-  public _WordAnalysis getAnalysis(String input, Function<String, _WordAnalysis> analysisProvider) {
+  _WordAnalysis getAnalysis(String input, Function<String, _WordAnalysis> analysisProvider) {
     _WordAnalysis analysis = staticCache.get(input);
     if (analysis != null) {
       staticCacheHits++;

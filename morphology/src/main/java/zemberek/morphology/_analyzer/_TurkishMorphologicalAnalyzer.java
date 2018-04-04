@@ -115,5 +115,7 @@ public class _TurkishMorphologicalAnalyzer {
     return Joiner.on(" ").join(tokenizer.tokenizeToStrings(quotesHyphensNormalized));
   }
 
-
+  public AnalysisCache getCache() {
+    return cache;
+  }
 }

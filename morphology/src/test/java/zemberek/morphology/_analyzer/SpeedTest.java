@@ -24,11 +24,12 @@ public class SpeedTest {
 
   @Test
   @Ignore(value = "Speed Test.")
-  public void testNewsCorpusNoCache() throws IOException {
-    Path p = Paths.get("src/main/resources/corpora/cnn-turk-10k");
+  public void testNewsCorpus() throws IOException {
+    Path p = Paths.get("/media/aaa/Data/corpora/me-sentences/www.aljazeera.com.tr/2018-02-22");
+    //Path p = Paths.get("src/main/resources/corpora/cnn-turk-10k");
     List<String> sentences = getSentences(p);
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
-    InterpretingAnalyzer analyzer = new InterpretingAnalyzer(lexicon);
+    _TurkishMorphologicalAnalyzer analyzer = new _TurkishMorphologicalAnalyzer(lexicon);
 
     Stopwatch sw = Stopwatch.createStarted();
 
@@ -43,8 +44,8 @@ public class SpeedTest {
           continue;
         }
         tokenCount ++;
-        List<_SingleAnalysis> results = analyzer.analyze(token.getText());
-        if (results.size() == 0) {
+        _WordAnalysis results = analyzer.analyze(token.getText());
+        if (!results.isCorrect()) {
           noAnalysis++;
           failedWords.add(token.getText());
         }
@@ -57,6 +58,7 @@ public class SpeedTest {
     double seconds = sw.stop().elapsed(TimeUnit.MILLISECONDS) / 1000d;
     double speed = tokenCount / seconds;
     double parseRatio = 100 - (noAnalysis * 100d / tokenCount);
+    System.out.println(analyzer.getCache());
     Log.info("%nElapsed = %.2f seconds", seconds);
     Log.info("%nToken Count (No Punc) = %d %nParse Ratio = %.4f%nSpeed = %.2f tokens/sec%n",
         tokenCount, parseRatio, speed);

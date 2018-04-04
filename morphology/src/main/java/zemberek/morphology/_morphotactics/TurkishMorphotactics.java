@@ -1226,6 +1226,7 @@ public class TurkishMorphotactics {
         .add(pEqu_ST, ">cA", nGroup)
         .add(pIns_ST, "+ylA", yGroup)
         .add(pIns_ST, "+nlA", nGroup)
+        .add(pIns_ST, "+nInlA", nGroup.and(rootIsAny(bu, su, o)))
         .add(pIns_ST, "inle", rootIs(siz));
 
     Condition conditionpP1sg_S = Conditions.rootIsAny(kim, ben, ne, nere);
