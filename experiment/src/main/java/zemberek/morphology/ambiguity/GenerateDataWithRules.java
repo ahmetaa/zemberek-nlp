@@ -53,10 +53,10 @@ public class GenerateDataWithRules {
     ignoreSentencePredicates.add(contains("\""));
     ignoreSentencePredicates.add(contains("…"));
     ignoreSentencePredicates.add(probablyNotTurkish());
-    ignoreSentencePredicates.add(longSentence(15));
+    ignoreSentencePredicates.add(tooLongSentence(15));
 
     new GenerateDataWithRules()
-        .extractData(p, outRoot, 5000, 1);
+        .extractData(p, outRoot, 3000, 1);
   }
 
   private static Predicate<_WordAnalysis> hasAnalysis() {
@@ -75,7 +75,7 @@ public class GenerateDataWithRules {
     return p -> !identifier.identify(p).equals("tr");
   }
 
-  private static Predicate<String> longSentence(int tokenCount) {
+  private static Predicate<String> tooLongSentence(int tokenCount) {
     return p -> p.split("[ ]+").length > tokenCount;
   }
 

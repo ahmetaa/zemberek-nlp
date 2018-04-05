@@ -19,6 +19,7 @@ ağırlık [ağırlık:Noun] *
 konu [konu:Noun] *
 
 bu [bu:Det] *
+Bu [bu:Det] *
 
 kararın [karar:Noun] [kararmak:Verb]
 
@@ -27,6 +28,7 @@ kararın [karar:Noun] [kararmak:Verb]
 ise [ise:Adv] *
 
 peki [peki:Adv] *
+Peki [peki:Adv] *
 
 * Noun+A3pl+P1sg$ Noun+A3pl|Zero→Verb+Pres+A1sg
 * Noun+A3pl+P2sg$ Noun+A3pl|Zero→Verb+Pres+A2sg
@@ -135,6 +137,7 @@ umar* [ummak:Verb] [umar:Noun]
 yıldır * [yılmak:Verb]
 
 bend* [ben:Pron,Pers] [bent:Noun]
+Bend* [ben:Pron,Pers] [bent:Noun]
 
 bazı [bazı:Det] *
 
@@ -142,6 +145,8 @@ adam [adam:Noun] [ada:Noun]
 Adam [adam:Noun] [ada:Noun]
 
 yine [yine:Adv] *
+Yine [yine:Adv] *
+
 
 tarafından [tarafından:Adv] *
 
@@ -198,3 +203,20 @@ uğraş* * Recip→Verb
 paylaş* * [pay:Noun]
 
 Çünkü * [Çünk:Noun,Prop]
+çünkü * [Çünk:Noun,Prop]
+
+* P3sg+Dat$ P2sg+Dat$
+
+* P3sg+Loc$ P2sg+Loc$
+
+* P3sg+Abl$ P2sg+Abl$
+
+* P3sg+Ins$ P2sg+Ins$
+
+* P3sg+Gen$ P2sg+Gen$
+
+bura* [bura:Noun] [burmak:Verb]
+
+erişim [erişim:Noun] [ermek:Verb]
+
+düşüş* Inf3→Noun Recip→Verb

@@ -1,6 +1,5 @@
 package zemberek.morphology.ambiguity;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,14 +23,18 @@ public class RuleBasedDisambiguator {
   private static Histogram<String> wordFreq;
   static List<PairRule> pairLexRules;
   static List<PairRule> endPairLexRules;
+  static List<PairRule> beginPairLexRules;
+  static List<PairRule> bothProperRules;
 
   public RuleBasedDisambiguator(_TurkishMorphologicalAnalyzer analyzer) throws IOException {
     this.analyzer = analyzer;
     Log.info("Loading 100k word frequencies.");
     List<String> freqLines = TextIO.loadLinesFromCompressedResource("/ambiguity/freq-100k.txt.gz");
     wordFreq = Histogram.loadFromLines(freqLines, ' ');
-    pairLexRules = loadPairRule("/ambiguity/pair-rule.txt");
-    endPairLexRules = loadPairRule("/ambiguity/end-pair-rule.txt");
+    pairLexRules = loadPairRule("/ambiguity/pair-rules.txt");
+    endPairLexRules = loadPairRule("/ambiguity/end-pair-rules.txt");
+    beginPairLexRules = loadPairRule("/ambiguity/begin-pair-rules.txt");
+    bothProperRules = loadPairRule("/ambiguity/both-proper-rules.txt");
   }
 
   public ResultSentence disambiguate(String sentence) {
@@ -204,17 +207,6 @@ public class RuleBasedDisambiguator {
     }
     return rules;
   }
-
-  static List<PairRule> beginPairLexRules = Lists.newArrayList(
-      new PairRule("A3sg+Gen", "P2sg+Gen"),
-      new PairRule("A3pl+Gen", "P2sg+Gen"),
-      new PairRule("Acc$", "A3sg$")
-  );
-
-  static List<PairRule> bothProperRules = Lists.newArrayList(
-      new PairRule("Acc$", "A3sg$"),
-      new PairRule("Gen$", "P2sg$")
-  );
 
   static void ignoreOne(
       AnalysisDecision a1,
