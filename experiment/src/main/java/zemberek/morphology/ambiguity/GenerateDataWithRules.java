@@ -18,7 +18,6 @@ import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
 import zemberek.morphology._analyzer._WordAnalysis;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AmbiguityAnalysis;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AnalysisDecision;
-import zemberek.morphology.ambiguity.RuleBasedDisambiguator.Decision;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.ResultSentence;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
