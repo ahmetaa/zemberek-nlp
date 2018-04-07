@@ -225,7 +225,7 @@ public class TurkishNumbers {
 
   /**
    * seperates connected number texts. such as
-   * ["oniki","otuzbes","ikiiii"] -> ["on","iki","otuz","bes","ikiiii"]
+   * ["oniki","otuzbeş","ikiiii"] -> ["on","iki","otuz","beş","ikiiii"]
    *
    * @param inputSequence a sequence of words.
    * @return same list with strings where connected number strings are separated.

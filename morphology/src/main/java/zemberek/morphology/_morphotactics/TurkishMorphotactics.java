@@ -2062,6 +2062,8 @@ public class TurkishMorphotactics {
     vWhen_S.addEmpty(advNounRoot_ST);
   }
 
+  //-------- Question (mi) -----------------------------------------------
+
   MorphemeState qPresent_S = nonTerminal("qPresent_S", pres);
   MorphemeState qPast_S = nonTerminal("qPast_S", past);
   MorphemeState qNarr_S = nonTerminal("qNarr_S", narr);

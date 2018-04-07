@@ -22,7 +22,6 @@ import zemberek.core.collections.IntValueMap;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
-import zemberek.core.text.TextUtil;
 
 /**
  * Based on "Haşim Sak, Tunga Güngör, and Murat Saraçlar. Morphological disambiguation of Turkish
@@ -291,7 +290,7 @@ public class PerceptronDisambiguatorPort extends AbstractDisambiguator {
     Hypothesis previous; // previous Hypothesis.
     float score;
 
-    public Hypothesis(String prev, String current, Hypothesis previous, float score) {
+    Hypothesis(String prev, String current, Hypothesis previous, float score) {
       this.prev = prev;
       this.current = current;
       this.previous = previous;

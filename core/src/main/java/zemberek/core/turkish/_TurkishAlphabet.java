@@ -186,6 +186,9 @@ public class _TurkishAlphabet {
     return TurkicLetter.UNDEFINED;
   }
 
+  /**
+   * Returns tru if input contains a vowel.
+   */
   public boolean containsVowel(CharSequence s) {
     if (s.length() == 0) {
       return false;
@@ -198,6 +201,9 @@ public class _TurkishAlphabet {
     return false;
   }
 
+  /**
+   * Returns the vowel count in a word.
+   */
   public int vowelCount(String s) {
     int result = 0;
     for (int i = 0; i < s.length(); i++) {

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
@@ -141,6 +142,38 @@ public class RuleBasedDisambiguator {
     boolean checkPos(PrimaryPos pos) {
       return choices.size() == 1 && choices.get(0).analysis.getItem().primaryPos.equals(pos);
     }
+
+    /**
+     * Returns choices as string list.
+     * if there is only one analysis, returns the string form only.
+     * if there are more than 1 analyses;
+     * if there is only one analysisDecision that is Decision.UNDECIDED, add * at the end.
+     * if there are more than 1 analysisDecision with Decision.UNDECIDED, just add string form.
+     * For all ignored analysisDecision, add minus at the end.
+     */
+    List<String> getForTrainingOutput() {
+      List<String> result = new ArrayList<>();
+      result.add(input);
+      if (choices.size() == 1) {
+        result.add(choices.get(0).analysis.format());
+        return result;
+      }
+
+      List<String> notIgnored = choices.stream().filter(s -> s.decision != Decision.IGNORE)
+          .map(s -> s.analysis.format()).collect(Collectors.toList());
+      if(notIgnored.size()==1) {
+        result.add(notIgnored.get(0)+"*");
+      } else {
+        result.addAll(notIgnored);
+      }
+      List<String> ignored = choices.stream().filter(s -> s.decision == Decision.IGNORE)
+          .map(s -> s.analysis.format()).collect(Collectors.toList());
+      for (String s : ignored) {
+        result.add(s+"-");
+      }
+      return result;
+    }
+
   }
 
   enum Decision {

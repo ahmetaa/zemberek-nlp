@@ -42,4 +42,11 @@ public class TextConsumer {
       cursor++;
     }
   }
+
+  public String getAndAdvance() {
+    String r = current();
+    advance();
+    return r;
+  }
+
 }
