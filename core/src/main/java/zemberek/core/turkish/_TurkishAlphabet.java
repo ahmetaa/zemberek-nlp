@@ -25,6 +25,12 @@ public class _TurkishAlphabet {
   private FixedBitVector vowelLookup =
       TextUtil.generateBitLookup(vowelsLowercase + vowelsUppercase);
 
+  private final String circumflex = "âîû";
+  private final String circumflexUpper = "ÂÎÛ";
+  private FixedBitVector circumflexLookup =
+      TextUtil.generateBitLookup(circumflex + circumflexUpper);
+
+
   private final String stopConsonants = "çkpt";
   private FixedBitVector stopConsonantLookup =
       TextUtil.generateBitLookup(stopConsonants + stopConsonants.toUpperCase(TR));
@@ -43,6 +49,7 @@ public class _TurkishAlphabet {
   private IntMap<TurkicLetter> letterMap = new IntMap<>();
   private IntIntMap voicingMap = new IntIntMap();
   private IntIntMap devoicingMap = new IntIntMap();
+  private IntIntMap circumflexMap = new IntIntMap();
 
   private _TurkishAlphabet() {
     List<TurkicLetter> letters = generateLetters();
@@ -65,6 +72,11 @@ public class _TurkishAlphabet {
     populateCharMap(devoicingMap,
         devoicingIn + devoicingIn.toUpperCase(TR),
         devoicingOut + devoicingOut.toUpperCase(TR));
+
+    String circumflexNormalized = "aiu";
+    populateCharMap(circumflexMap,
+        circumflex + circumflex.toUpperCase(TR),
+        circumflexNormalized + circumflexNormalized.toUpperCase(TR));
   }
 
   private void populateCharMap(IntIntMap map, String inStr, String outStr) {
@@ -127,6 +139,37 @@ public class _TurkishAlphabet {
   public char devoice(char c) {
     int res = devoicingMap.get(c);
     return res == IntIntMap.NO_RESULT ? c : (char) res;
+  }
+
+  public char normalizeCircumflex(char c) {
+    int res = circumflexMap.get(c);
+    return res == IntIntMap.NO_RESULT ? c : (char) res;
+  }
+
+  public boolean containsCircumflex(String s) {
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (lookup(circumflexLookup, c)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public String normalizeCircumflex(String s) {
+    if (!containsCircumflex(s)) {
+      return s;
+    }
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (lookup(circumflexLookup, c)) {
+        sb.append((char) circumflexMap.get(c));
+      } else {
+        sb.append(c);
+      }
+    }
+    return sb.toString();
   }
 
   public char voice(char c) {

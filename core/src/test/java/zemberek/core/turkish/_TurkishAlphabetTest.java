@@ -57,4 +57,12 @@ public class _TurkishAlphabetTest {
     }
   }
 
+  @Test
+  public void circumflexTest() {
+    _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
+    String iStr = "abcâîûÂÎÛ fg12";
+    String oStr = "abcaiuAİU fg12";
+    Assert.assertEquals(oStr, alphabet.normalizeCircumflex(iStr));
+  }
+
 }

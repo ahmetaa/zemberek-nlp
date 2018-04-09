@@ -19,40 +19,7 @@ public class TurkishNumbers {
   public static final long MIN_NUMBER = -999999999999999999L;
   private static Map<String, Long> stringToNumber = new HashMap<>();
   private static Map<Long, String> NUMBER_TABLE = new HashMap<>();
-  public static final String SIFIR = NUMBER_TABLE.get(0L);
-  public static final String BIR = NUMBER_TABLE.get(1L);
-  public static final String IKI = NUMBER_TABLE.get(2L);
-  public static final String UC = NUMBER_TABLE.get(3L);
-  public static final String DORT = NUMBER_TABLE.get(4L);
-  public static final String BES = NUMBER_TABLE.get(5L);
-  public static final String ALTI = NUMBER_TABLE.get(6L);
-  public static final String YEDI = NUMBER_TABLE.get(7L);
-  public static final String SEKIZ = NUMBER_TABLE.get(8L);
-  public static final String DOKUZ = NUMBER_TABLE.get(9L);
-  public static final String ON = NUMBER_TABLE.get(10L);
-  public static final String YIRMI = NUMBER_TABLE.get(20L);
-  public static final String OTUZ = NUMBER_TABLE.get(30L);
-  public static final String KIRK = NUMBER_TABLE.get(40L);
-  public static final String ELLI = NUMBER_TABLE.get(50L);
-  public static final String ATMIS = NUMBER_TABLE.get(60L);
-  public static final String YETMIS = NUMBER_TABLE.get(70L);
-  public static final String SEKSEN = NUMBER_TABLE.get(80L);
-  public static final String DOKSAN = NUMBER_TABLE.get(90L);
-  public static final String YUZ = NUMBER_TABLE.get(100L);
-  public static final String BIN = NUMBER_TABLE.get(1000L);
-  public static final String MILYON = NUMBER_TABLE.get(1000000L);
-  public static final String MILYAR = NUMBER_TABLE.get(1000000000L);
-  public static final String TRILYON = NUMBER_TABLE.get(1000000000000L);
-  public static final String KATRILYON = NUMBER_TABLE.get(1000000000000000L);
   private static Map<String, String> ORDINAL_READING_TABLE = new HashMap<>();
-  private static String singleDigitNumbers[] = {"", BIR, IKI, UC, DORT, BES, ALTI, YEDI, SEKIZ,
-      DOKUZ};
-  private static String tenToNinety[] = {"", ON, YIRMI, OTUZ, KIRK, ELLI, ATMIS, YETMIS, SEKSEN,
-      DOKSAN};
-  private static String thousands[] = {"", BIN, MILYON, MILYAR, TRILYON, KATRILYON};
-  private static Pattern NUMBER_SEPARATION = Pattern.compile("[0-9]+|[^0-9 ]+");
-  private static Pattern NOT_NUMBER = Pattern.compile("[^0-9]");
-  private static Pattern NUMBER = Pattern.compile("[0-9]");
 
   // fill the NUMBER_TABLE and stringToNumber map.
   static {
@@ -92,11 +59,47 @@ public class TurkishNumbers {
       KeyValueReader reader = new KeyValueReader(":", "#");
       ORDINAL_READING_TABLE = reader
           .loadFromStream(
-              IOs.getClassPathResourceAsStream("/resources/turkish-ordinal-numbers.txt"), "utf-8");
+              IOs.getClassPathResourceAsStream("/tr/turkish-ordinal-numbers.txt"), "utf-8");
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
+
+  public static final String SIFIR = NUMBER_TABLE.get(0L);
+  public static final String BIR = NUMBER_TABLE.get(1L);
+  public static final String IKI = NUMBER_TABLE.get(2L);
+  public static final String UC = NUMBER_TABLE.get(3L);
+  public static final String DORT = NUMBER_TABLE.get(4L);
+  public static final String BES = NUMBER_TABLE.get(5L);
+  public static final String ALTI = NUMBER_TABLE.get(6L);
+  public static final String YEDI = NUMBER_TABLE.get(7L);
+  public static final String SEKIZ = NUMBER_TABLE.get(8L);
+  public static final String DOKUZ = NUMBER_TABLE.get(9L);
+  public static final String ON = NUMBER_TABLE.get(10L);
+  public static final String YIRMI = NUMBER_TABLE.get(20L);
+  public static final String OTUZ = NUMBER_TABLE.get(30L);
+  public static final String KIRK = NUMBER_TABLE.get(40L);
+  public static final String ELLI = NUMBER_TABLE.get(50L);
+  public static final String ATMIS = NUMBER_TABLE.get(60L);
+  public static final String YETMIS = NUMBER_TABLE.get(70L);
+  public static final String SEKSEN = NUMBER_TABLE.get(80L);
+  public static final String DOKSAN = NUMBER_TABLE.get(90L);
+  public static final String YUZ = NUMBER_TABLE.get(100L);
+  public static final String BIN = NUMBER_TABLE.get(1000L);
+  public static final String MILYON = NUMBER_TABLE.get(1000000L);
+  public static final String MILYAR = NUMBER_TABLE.get(1000000000L);
+  public static final String TRILYON = NUMBER_TABLE.get(1000000000000L);
+  public static final String KATRILYON = NUMBER_TABLE.get(1000000000000000L);
+  private static String singleDigitNumbers[] = {"", BIR, IKI, UC, DORT, BES, ALTI, YEDI, SEKIZ,
+      DOKUZ};
+  private static String tenToNinety[] = {"", ON, YIRMI, OTUZ, KIRK, ELLI, ATMIS, YETMIS, SEKSEN,
+      DOKSAN};
+  private static String thousands[] = {"", BIN, MILYON, MILYAR, TRILYON, KATRILYON};
+  private static Pattern NUMBER_SEPARATION = Pattern.compile("[0-9]+|[^0-9 ]+");
+  private static Pattern NOT_NUMBER = Pattern.compile("[^0-9]");
+  private static Pattern NUMBER = Pattern.compile("[0-9]");
+
+
 
   private static void add(long number, String string) {
     NUMBER_TABLE.put(number, string);
@@ -276,8 +279,8 @@ public class TurkishNumbers {
 
   public static String convertOrdinalNumberString(String input) {
     String numberPart = input;
-    if (input.endsWith("")) {
-      numberPart = Strings.subStringUntilFirst(input, "");
+    if (input.endsWith(".")) {
+      numberPart = Strings.subStringUntilFirst(input, ".");
     }
 
     long number = Long.parseLong(numberPart);
