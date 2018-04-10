@@ -2,6 +2,8 @@ package zemberek.morphology._analyzer;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,6 +11,7 @@ import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.core.turkish._TurkishAlphabet;
 import zemberek.morphology.lexicon.RootLexicon;
+import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.structure.StemAndEnding;
 import zemberek.tokenization.TurkishTokenizer;
 
@@ -28,6 +31,11 @@ public class _TurkishMorphologicalAnalyzer {
     analyzer = new InterpretingAnalyzer(lexicon);
     unidentifiedTokenAnalyzer = new _UnidentifiedTokenAnalyzer(analyzer);
     cache.initializeStaticCache(this::analyzeWithoutCache);
+  }
+
+  public static _TurkishMorphologicalAnalyzer createDefault() throws IOException {
+    RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
+    return new _TurkishMorphologicalAnalyzer(lexicon);
   }
 
   public _WordAnalysis analyze(String word) {
@@ -100,14 +108,13 @@ public class _TurkishMorphologicalAnalyzer {
     }
   }
 
-  public _SentenceAnalysis analyzeSentence(String sentence) {
-    _SentenceAnalysis sentenceAnalysis = new _SentenceAnalysis();
+  public List<_WordAnalysis> analyzeSentence(String sentence) {
     String preprocessed = preProcessSentence(sentence);
+    List<_WordAnalysis> result = new ArrayList<>();
     for (String s : Splitter.on(" ").omitEmptyStrings().trimResults().split(preprocessed)) {
-      _WordAnalysis parses = analyze(s);
-      sentenceAnalysis.addParse(parses);
+      result.add(analyze(s));
     }
-    return sentenceAnalysis;
+    return result;
   }
 
   private String preProcessSentence(String str) {

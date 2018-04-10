@@ -10,7 +10,6 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
-import zemberek.morphology._analyzer._SentenceAnalysis;
 import zemberek.morphology._analyzer._SingleAnalysis;
 import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
 import zemberek.morphology._analyzer._WordAnalysis;
@@ -39,7 +38,7 @@ public class RuleBasedDisambiguator {
   }
 
   public ResultSentence disambiguate(String sentence) {
-    _SentenceAnalysis ambiguous = analyzer.analyzeSentence(sentence);
+    List<_WordAnalysis> ambiguous = analyzer.analyzeSentence(sentence);
     ResultSentence s = new ResultSentence(sentence, ambiguous);
     s.makeDecisions();
     return s;
@@ -48,10 +47,10 @@ public class RuleBasedDisambiguator {
   static class ResultSentence {
 
     String sentence;
-    _SentenceAnalysis sentenceAnalysis;
+    List<_WordAnalysis> sentenceAnalysis;
     List<AmbiguityAnalysis> results;
 
-    public ResultSentence(String sentence, _SentenceAnalysis sentenceAnalysis) {
+    public ResultSentence(String sentence, List<_WordAnalysis> sentenceAnalysis) {
       this.sentence = sentence;
       this.sentenceAnalysis = sentenceAnalysis;
       results = new ArrayList<>();

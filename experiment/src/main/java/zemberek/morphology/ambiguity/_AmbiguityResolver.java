@@ -4,24 +4,57 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextConsumer;
 import zemberek.core.text.TextIO;
-import zemberek.morphology._analyzer._SingleAnalysis;
+import zemberek.morphology._analyzer._SentenceAnalysis;
+import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
 import zemberek.morphology._analyzer._WordAnalysis;
 
-public class _AmbiguityResolver {
+public class _AmbiguityResolver implements _Disambiguator {
 
 
   public static void main(String[] args) throws IOException {
 
     Path path = Paths.get("data/ambiguity/www.aljazeera.com.tr-rule-result.txt");
 
+    _TurkishMorphologicalAnalyzer analyzer = _TurkishMorphologicalAnalyzer.createDefault();
+
     List<SentenceDataStr> set = DataSet.t(path);
     // Find actual analysis equivalents.
+    for (SentenceDataStr sentenceStr : set) {
+      String sentence = sentenceStr.sentence;
+      List<_WordAnalysis> sentenceAnalysis = analyzer.analyzeSentence(sentence);
+      if (sentenceAnalysis.size() != sentenceStr.wordList.size()) {
+        Log.warn("Actual anaysis token size [%d] and sentence from file token size [%d] "
+                + "does not match for sentence [%s]",
+            sentenceAnalysis.size(), sentenceStr.wordList.size(), sentence);
+      }
+      for (int i = 0; i < sentenceAnalysis.size(); i++) {
+        _WordAnalysis w = sentenceAnalysis.get(i);
+        WordDataStr s = sentenceStr.wordList.get(i);
+        if (!w.getInput().equals(s.word)) {
+          Log.warn("Actual anaysis token [%s] at index [%d] and sentence from file token [%s] "
+              + "does not match for sentence [%s]", w.getInput(), i, sentence);
+        }
 
+        Map<String, _WordAnalysis> lexAnalysisMap = new HashMap<>();
+
+
+      }
+
+
+    }
+
+  }
+
+  @Override
+  public _SentenceAnalysis disambiguate(String sentence) {
+    return null;
   }
 
   static class DataSet {
@@ -65,7 +98,7 @@ public class _AmbiguityResolver {
             }
           }
 
-          WordDataStr w = new WordDataStr(selected, analysesFromLines);
+          WordDataStr w = new WordDataStr(word, selected, analysesFromLines);
           if (w.correctAnalysis == null) {
             Log.warn("Sentence [%s] contains ambiguous analysis for word %s. It will be ignored.",
                 sentence, word);
@@ -88,7 +121,7 @@ public class _AmbiguityResolver {
   static class SentenceDataStr {
 
     String sentence;
-    List<WordDataStr> wordList = new ArrayList<>();
+    List<WordDataStr> wordList;
 
     public SentenceDataStr(String sentence,
         List<WordDataStr> wordList) {
@@ -99,24 +132,16 @@ public class _AmbiguityResolver {
 
   static class WordDataStr {
 
+    String word;
     String correctAnalysis;
     List<String> wordAnalysis;
 
-    public WordDataStr(String correctAnalysis, List<String> wordAnalysis) {
+    public WordDataStr(String word, String correctAnalysis,
+        List<String> wordAnalysis) {
+      this.word = word;
       this.correctAnalysis = correctAnalysis;
       this.wordAnalysis = wordAnalysis;
     }
   }
 
-  static class SentenceData {
-
-    String sentence;
-    List<WordData> wordList = new ArrayList<>();
-  }
-
-  static class WordData {
-
-    _SingleAnalysis correctAnalysis;
-    _WordAnalysis wordAnalysis;
-  }
 }

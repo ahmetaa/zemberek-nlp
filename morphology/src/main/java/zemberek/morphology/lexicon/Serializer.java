@@ -88,6 +88,9 @@ public class Serializer {
       builder.addItems(convertToProto(item));
     }
     Dictionary dictionary = builder.build();
+    if(outPath.toFile().exists()) {
+      Files.delete(outPath);
+    }
     Files.write(outPath, dictionary.toByteArray(), StandardOpenOption.CREATE);
   }
 
