@@ -4,6 +4,8 @@ import zemberek.core.turkish.PrimaryPos;
 
 public class Morpheme {
 
+  public static final Morpheme UNKNOWN = new Morpheme("Unknown", "Unknown");
+
   public final String name;
   public final String id;
   public final PrimaryPos pos;

@@ -2,6 +2,7 @@ package zemberek.morphology._analyzer;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import zemberek.core.turkish.PrimaryPos;
@@ -24,6 +25,9 @@ public class _SingleAnalysis {
   // groupBoundaries holds the index values of morphemes.
   private int[] groupBoundaries;
 
+  // cached hash value.
+  private int hash;
+
   private _SingleAnalysis(
       DictionaryItem item,
       List<MorphemeSurface> morphemesSurfaces,
@@ -31,7 +35,15 @@ public class _SingleAnalysis {
     this.item = item;
     this.morphemesSurfaces = morphemesSurfaces;
     this.groupBoundaries = groupBoundaries;
+    this.hash = hashCode();
   }
+
+  public static _SingleAnalysis unknown(String input) {
+    DictionaryItem item = DictionaryItem.UNKNOWN;
+    MorphemeSurface s = new MorphemeSurface(Morpheme.UNKNOWN, input);
+    return new _SingleAnalysis(item, Collections.singletonList(s), new int[0]);
+  }
+
 
   public static class MorphemeGroup {
 
@@ -188,7 +200,7 @@ public class _SingleAnalysis {
       Morpheme morpheme = transition.getMorpheme();
 
       // we skip these two morphemes as they create visual noise and does not carry much information.
-      if(morpheme== TurkishMorphotactics.nom || morpheme== TurkishMorphotactics.pnon) {
+      if (morpheme == TurkishMorphotactics.nom || morpheme == TurkishMorphotactics.pnon) {
         continue;
       }
 
@@ -285,8 +297,46 @@ public class _SingleAnalysis {
     return AnalysisFormatters.DEFAULT_LEXICAL.format(this);
   }
 
+  public String formatMorphemesLexical() {
+    return AnalysisFormatters.DEFAULT_LEXICAL_MORPHEME.format(this);
+  }
+
   public String format() {
     return AnalysisFormatters.DEFAULT_SURFACE.format(this);
   }
 
+  public int groupCount() {
+    return groupBoundaries.length;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    _SingleAnalysis that = (_SingleAnalysis) o;
+
+    if (hash != that.hash) {
+      return false;
+    }
+    if (!item.equals(that.item)) {
+      return false;
+    }
+    return morphemesSurfaces.equals(that.morphemesSurfaces);
+  }
+
+  @Override
+  public int hashCode() {
+    if (hash != 0) {
+      return hash;
+    }
+    int result = item.hashCode();
+    result = 31 * result + morphemesSurfaces.hashCode();
+    result = 31 * result + hash;
+    return result;
+  }
 }

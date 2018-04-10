@@ -34,20 +34,20 @@ public class AnalysisFormatterTest {
     InterpretingAnalyzer analyzer = getAnalyzer("kitap");
     _SingleAnalysis analysis = analyzer.analyze("kitaplarda").get(0);
 
-    Assert.assertEquals("[kitap:Noun] kitap:Noun+A3pl+Loc",
+    Assert.assertEquals("[kitap:Noun] Noun+A3pl+Loc",
         AnalysisFormatters.DEFAULT_LEXICAL.format(analysis));
 
     analysis = analyzer.analyze("kitapsız").get(0);
-    Assert.assertEquals("[kitap:Noun] kitap:Noun+A3sg|Without→Adj",
+    Assert.assertEquals("[kitap:Noun] Noun+A3sg|Without→Adj",
         AnalysisFormatters.DEFAULT_LEXICAL.format(analysis));
 
     analysis = analyzer.analyze("kitaplardaymış").get(0);
-    Assert.assertEquals("[kitap:Noun] kitap:Noun+A3pl+Loc|Zero→Verb+Narr+A3sg",
+    Assert.assertEquals("[kitap:Noun] Noun+A3pl+Loc|Zero→Verb+Narr+A3sg",
         AnalysisFormatters.DEFAULT_LEXICAL.format(analysis));
 
     analyzer = getAnalyzer("okumak");
     analysis = analyzer.analyze("okut").get(0);
-    Assert.assertEquals("[okumak:Verb] oku:Verb|Caus→Verb+Imp+A2sg",
+    Assert.assertEquals("[okumak:Verb] Verb|Caus→Verb+Imp+A2sg",
         AnalysisFormatters.DEFAULT_LEXICAL.format(analysis));
   }
 
