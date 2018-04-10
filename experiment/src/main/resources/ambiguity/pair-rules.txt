@@ -1,4 +1,8 @@
 # input preferred ignored
+# * = any
+# foo* = prefix match
+# foo$ = ends-with
+
 
 * [uzlaşmak:Verb] [uz:Adj]
 
@@ -26,6 +30,8 @@ kararın [karar:Noun] [kararmak:Verb]
 * [süreç:Noun] [süre:Noun]
 
 ise [ise:Adv] *
+
+## peki pek-i
 
 peki [peki:Adv] *
 Peki [peki:Adv] *
@@ -168,6 +174,9 @@ Kürtler* [Kürt:Noun,Prop] *
 * [kibar:Adj] [kibar:Noun]
 
 bana* [ben:Pron,Pers] *
+
+# "yapacaktır" Prefer Fut against FutPart->Noun conversion
+# There may be some false positives.
 
 * Fut+A3sg+Cop FutPart→Noun+A3sg|Zero→Verb+Pres+A3sg+Cop
 

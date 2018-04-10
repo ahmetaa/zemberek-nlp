@@ -32,7 +32,7 @@ public class NerDataSet {
       "((\\[)(?<TYPE>PER|ORG|LOC)( )(?<CONTENT>.+?)(]))|([^ ]+)");
   Set<String> types = new HashSet<>();
   Set<String> typeIds = new HashSet<>();
-  List<NerSentence> sentences = new ArrayList<>();
+  List<NerSentence> sentences;
 
   public NerDataSet(List<NerSentence> sentences) {
     this.sentences = sentences;
@@ -53,7 +53,7 @@ public class NerDataSet {
     return loadTurkishNERCorpus(path, enamexNePattern, enamexNeSplitPattern);
   }
 
-  static String normalizeForNer(String input) {
+  public static String normalizeForNer(String input) {
     input = input.toLowerCase(Turkish.LOCALE);
     List<String> result = new ArrayList<>();
     for (Token t : TurkishTokenizer.DEFAULT.tokenize(input)) {
@@ -86,7 +86,7 @@ public class NerDataSet {
       int index = 0;
       for (String token : tokens) {
         //combine apostrophe suffix to previous word.
-        if (token.startsWith("'") && !token.endsWith("'")) {
+        if (index>0 && token.startsWith("'") && !token.endsWith("'")) {
           nerTokens.get(index - 1).word = nerTokens.get(index - 1).word + token;
           nerTokens.get(index - 1).normalized = nerTokens.get(index - 1).normalized + token;
           continue;

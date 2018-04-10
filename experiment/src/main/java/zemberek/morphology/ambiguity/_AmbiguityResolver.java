@@ -20,6 +20,8 @@ public class _AmbiguityResolver {
     Path path = Paths.get("data/ambiguity/www.aljazeera.com.tr-rule-result.txt");
 
     List<SentenceDataStr> set = DataSet.t(path);
+    // Find actual analysis equivalents.
+
   }
 
   static class DataSet {

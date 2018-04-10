@@ -19,6 +19,11 @@ public class FloatValueMap<T> extends HashBase<T> implements Iterable<T> {
     values = new float[keys.length];
   }
 
+  private FloatValueMap(FloatValueMap<T> other, T[] keys, float[] values) {
+    super(other, keys);
+    this.values = values;
+  }
+
   /**
    * Returns the count of the key. If key does not exist, returns 0.
    *
@@ -128,6 +133,10 @@ public class FloatValueMap<T> extends HashBase<T> implements Iterable<T> {
       }
     }
     return res;
+  }
+
+  public FloatValueMap<T> copy() {
+    return new FloatValueMap<>(this, keys.clone(), values.clone());
   }
 
   public Iterator<Entry<T>> entryIterator() {
