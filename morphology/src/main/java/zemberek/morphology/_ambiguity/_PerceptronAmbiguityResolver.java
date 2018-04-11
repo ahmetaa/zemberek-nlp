@@ -30,7 +30,7 @@ import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
 import zemberek.morphology._analyzer._WordAnalysis;
 
 public class _PerceptronAmbiguityResolver
-    implements _MorphologicalAmbiguityResolver {
+    implements _AmbiguityResolver {
 
   private Decoder decoder;
   private _TurkishMorphologicalAnalyzer analyzer;
