@@ -45,6 +45,10 @@ public class _AmbiguityResolver implements _Disambiguator {
     this.analyzer = analyzer;
   }
 
+  Model getModel() {
+    return decoder.model;
+  }
+
   public static _AmbiguityResolver fromModelFile(
       Path modelFile,
       _TurkishMorphologicalAnalyzer analyzer) throws IOException {
@@ -55,11 +59,16 @@ public class _AmbiguityResolver implements _Disambiguator {
 
   public static void main(String[] args) throws IOException {
 
-    Path path = Paths.get("data/ambiguity/www.aljazeera.com.tr-rule-result.txt");
-
+    Path train = Paths.get("data/ambiguity/aljazeera.train.txt");
+    Path test = Paths.get("data/ambiguity/aljazeera.test.txt");
+    Path model = Paths.get("data/ambiguity/model");
     _TurkishMorphologicalAnalyzer analyzer = _TurkishMorphologicalAnalyzer.createDefault();
 
-    DataSet set = DataSet.load(path, analyzer);
+    _AmbiguityResolver resolver = new Trainer(analyzer).train(train, test);
+    resolver.getModel().pruneNearZeroWeights();
+    resolver.getModel().saveAsText(model);
+
+    resolver.test(test);
   }
 
   @Override

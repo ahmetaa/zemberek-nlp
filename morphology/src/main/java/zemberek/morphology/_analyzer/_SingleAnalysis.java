@@ -41,7 +41,8 @@ public class _SingleAnalysis {
   public static _SingleAnalysis unknown(String input) {
     DictionaryItem item = DictionaryItem.UNKNOWN;
     MorphemeSurface s = new MorphemeSurface(Morpheme.UNKNOWN, input);
-    return new _SingleAnalysis(item, Collections.singletonList(s), new int[0]);
+    int[] boundaries = {0};
+    return new _SingleAnalysis(item, Collections.singletonList(s), boundaries);
   }
 
 
@@ -191,7 +192,7 @@ public class _SingleAnalysis {
   }
 
   public MorphemeGroup getLastGroup() {
-    return getGroup(groupBoundaries[groupBoundaries.length - 1]);
+    return getGroup(groupBoundaries.length - 1);
   }
 
   public MorphemeGroup[] getGroups() {
