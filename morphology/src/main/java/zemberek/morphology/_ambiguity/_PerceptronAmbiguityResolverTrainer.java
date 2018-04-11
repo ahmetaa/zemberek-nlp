@@ -25,11 +25,10 @@ import zemberek.morphology._analyzer._WordAnalysis;
 
 public class _PerceptronAmbiguityResolverTrainer {
 
-
-  Model weights = new Model();
-  Model averagedWeights = new Model();
-  IntValueMap<String> counts = new IntValueMap<>();
-  _TurkishMorphologicalAnalyzer analyzer;
+  private Model weights = new Model();
+  private Model averagedWeights = new Model();
+  private IntValueMap<String> counts = new IntValueMap<>();
+  private _TurkishMorphologicalAnalyzer analyzer;
 
   _PerceptronAmbiguityResolverTrainer(_TurkishMorphologicalAnalyzer analyzer) {
     this.analyzer = analyzer;

@@ -285,7 +285,7 @@ public class InterpretingAnalyzer {
     }
   }
 
-  private List<StemTransition> getMatchingStemTransitions(String stem) {
+  List<StemTransition> getMatchingStemTransitions(String stem) {
     if (singleStems.containsKey(stem)) {
       return Lists.newArrayList(singleStems.get(stem));
     } else if (multiStems.containsKey(stem)) {
