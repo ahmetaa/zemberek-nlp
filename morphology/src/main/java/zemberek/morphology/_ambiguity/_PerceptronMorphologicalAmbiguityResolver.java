@@ -1,4 +1,4 @@
-package zemberek.morphology.ambiguity;
+package zemberek.morphology._ambiguity;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -32,12 +32,13 @@ import zemberek.morphology._analyzer._SingleAnalysis.MorphemeGroup;
 import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
 import zemberek.morphology._analyzer._WordAnalysis;
 
-public class _AmbiguityResolver implements _Disambiguator {
+public class _PerceptronMorphologicalAmbiguityResolver
+    implements _MorphologicalAmbiguityResolver {
 
   private Decoder decoder;
   private _TurkishMorphologicalAnalyzer analyzer;
 
-  private _AmbiguityResolver(
+  private _PerceptronMorphologicalAmbiguityResolver(
       Model averagedModel,
       FeatureExtractor extractor,
       _TurkishMorphologicalAnalyzer analyzer) {
@@ -49,24 +50,25 @@ public class _AmbiguityResolver implements _Disambiguator {
     return decoder.model;
   }
 
-  public static _AmbiguityResolver fromModelFile(
+  public static _PerceptronMorphologicalAmbiguityResolver fromModelFile(
       Path modelFile,
       _TurkishMorphologicalAnalyzer analyzer) throws IOException {
     Model model = Model.loadFromTextFile(modelFile);
     FeatureExtractor extractor = new FeatureExtractor(false);
-    return new _AmbiguityResolver(model, extractor, analyzer);
+    return new _PerceptronMorphologicalAmbiguityResolver(model, extractor, analyzer);
   }
 
   public static void main(String[] args) throws IOException {
 
-    Path train = Paths.get("data/ambiguity/aljazeera.train.txt");
-    Path test = Paths.get("data/ambiguity/aljazeera.test.txt");
+    Path train = Paths.get("data/ambiguity/www.aljazeera.com.tr-rule-result.txt");
+    Path dev = Paths.get("data/ambiguity/aljazeera.test.txt");
     Path model = Paths.get("data/ambiguity/model");
     _TurkishMorphologicalAnalyzer analyzer = _TurkishMorphologicalAnalyzer.createDefault();
 
-    _AmbiguityResolver resolver = new Trainer(analyzer).train(train, test);
+    _PerceptronMorphologicalAmbiguityResolver resolver = new Trainer(analyzer).train(train, dev);
     resolver.getModel().pruneNearZeroWeights();
     resolver.getModel().saveAsText(model);
+    Path test = Paths.get("data/ambiguity/open-subtitles-rule-result.txt");
     resolver.test(test);
   }
 
@@ -116,7 +118,7 @@ public class _AmbiguityResolver implements _Disambiguator {
       this.analyzer = analyzer;
     }
 
-    public _AmbiguityResolver train(Path trainFile, Path devFile)
+    public _PerceptronMorphologicalAmbiguityResolver train(Path trainFile, Path devFile)
         throws IOException {
 
       FeatureExtractor extractor = new FeatureExtractor(true);
@@ -155,12 +157,12 @@ public class _AmbiguityResolver implements _Disambiguator {
         }
 
         Log.info("Testing development set.");
-        _AmbiguityResolver disambiguator =
-            new _AmbiguityResolver(averagedWeights, extractor, analyzer);
+        _PerceptronMorphologicalAmbiguityResolver disambiguator =
+            new _PerceptronMorphologicalAmbiguityResolver(averagedWeights, extractor, analyzer);
         disambiguator.test(devSet);
 
       }
-      return new _AmbiguityResolver(averagedWeights, new FeatureExtractor(false), analyzer);
+      return new _PerceptronMorphologicalAmbiguityResolver(averagedWeights, new FeatureExtractor(false), analyzer);
     }
 
     private void updateModel(

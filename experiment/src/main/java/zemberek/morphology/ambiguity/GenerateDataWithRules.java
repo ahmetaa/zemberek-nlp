@@ -56,7 +56,7 @@ class GenerateDataWithRules {
     ignoreSentencePredicates.add(tooLongSentence(15));
 
     new GenerateDataWithRules()
-        .extractData(p, outRoot, 5000, 0);
+        .extractData(p, outRoot, 50000, 0);
   }
 
   private static Predicate<_WordAnalysis> hasAnalysis() {

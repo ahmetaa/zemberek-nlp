@@ -1,10 +1,11 @@
-package zemberek.morphology.ambiguity;
+package zemberek.morphology._ambiguity;
 
 import java.util.List;
 import zemberek.morphology._analyzer._SentenceAnalysis;
 import zemberek.morphology._analyzer._WordAnalysis;
 
-public interface _Disambiguator {
+public interface _MorphologicalAmbiguityResolver {
 
   _SentenceAnalysis disambiguate(List<_WordAnalysis> allAnalyses);
+
 }
