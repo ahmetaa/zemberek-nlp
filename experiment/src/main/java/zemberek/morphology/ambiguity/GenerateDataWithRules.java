@@ -23,7 +23,7 @@ import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.tokenization.TurkishSentenceExtractor;
 
-public class GenerateDataWithRules {
+class GenerateDataWithRules {
 
   private static LanguageIdentifier identifier;
   private static RuleBasedDisambiguator ruleBasedDisambiguator;

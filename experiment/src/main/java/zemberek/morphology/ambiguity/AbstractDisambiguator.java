@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import zemberek.core.io.Strings;
 
-public abstract class AbstractDisambiguator {
+abstract class AbstractDisambiguator {
 
   public static final String NO_IG = "NO_IG";
   public static final String START_IG = "START_IG";

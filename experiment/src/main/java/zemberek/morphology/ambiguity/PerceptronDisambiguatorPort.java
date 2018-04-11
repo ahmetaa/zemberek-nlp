@@ -28,7 +28,7 @@ import zemberek.core.text.TextIO;
  * text with perceptron algorithm. In CICLing 2007, volume LNCS 4394, pages 107-118, 2007" Original
  * Perl implementation is from <a href="http://www.cmpe.boun.edu.tr/~hasim">Haşim Sak</a>
  */
-public class PerceptronDisambiguatorPort extends AbstractDisambiguator {
+class PerceptronDisambiguatorPort extends AbstractDisambiguator {
 
   private Model averagedModel;
   private Decoder decoder;

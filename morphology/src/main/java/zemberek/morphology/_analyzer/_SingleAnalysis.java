@@ -76,7 +76,7 @@ public class _SingleAnalysis {
     public String lexicalForm() {
       StringBuilder sb = new StringBuilder();
       for (MorphemeSurface mSurface : morphemes) {
-        sb.append(mSurface.morpheme);
+        sb.append(mSurface.morpheme.id);
       }
       return sb.toString();
     }

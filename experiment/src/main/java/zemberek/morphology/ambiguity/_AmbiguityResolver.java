@@ -67,7 +67,6 @@ public class _AmbiguityResolver implements _Disambiguator {
     _AmbiguityResolver resolver = new Trainer(analyzer).train(train, test);
     resolver.getModel().pruneNearZeroWeights();
     resolver.getModel().saveAsText(model);
-
     resolver.test(test);
   }
 
@@ -81,11 +80,15 @@ public class _AmbiguityResolver implements _Disambiguator {
     return new _SentenceAnalysis(l);
   }
 
-  public void test(Path testFile) throws IOException {
-    DataSet testSet = DataSet.load(testFile, analyzer);
+  public void test(Path testFilePath) throws IOException {
+    DataSet testSet = DataSet.load(testFilePath, analyzer);
+    test(testSet);
+  }
+
+  public void test(DataSet set) {
     int hit = 0, total = 0;
     Stopwatch sw = Stopwatch.createStarted();
-    for (_SentenceAnalysis sentence : testSet.sentences) {
+    for (_SentenceAnalysis sentence : set.sentences) {
       ParseResult result = decoder.bestPath(sentence.allAnalyses());
       int i = 0;
       List<_SingleAnalysis> bestExpected = sentence.bestAnalysis();
@@ -109,7 +112,7 @@ public class _AmbiguityResolver implements _Disambiguator {
     IntValueMap<String> counts = new IntValueMap<>();
     _TurkishMorphologicalAnalyzer analyzer;
 
-    public Trainer(_TurkishMorphologicalAnalyzer analyzer) {
+    Trainer(_TurkishMorphologicalAnalyzer analyzer) {
       this.analyzer = analyzer;
     }
 
@@ -120,6 +123,7 @@ public class _AmbiguityResolver implements _Disambiguator {
       Decoder decoder = new Decoder(weights, extractor);
 
       DataSet trainingSet = DataSet.load(trainFile, analyzer);
+      DataSet devSet = DataSet.load(devFile, analyzer);
       int numExamples = 0;
       for (int i = 0; i < 4; i++) {
         Log.info("Iteration:" + i);
@@ -129,9 +133,6 @@ public class _AmbiguityResolver implements _Disambiguator {
           }
           numExamples++;
           ParseResult result = decoder.bestPath(sentence.allAnalyses());
-          if (numExamples % 500 == 0) {
-            Log.info("%d sentences processed.", numExamples);
-          }
           if (sentence.bestAnalysis().equals(result.bestParse)) {
             continue;
           }
@@ -156,7 +157,7 @@ public class _AmbiguityResolver implements _Disambiguator {
         Log.info("Testing development set.");
         _AmbiguityResolver disambiguator =
             new _AmbiguityResolver(averagedWeights, extractor, analyzer);
-        disambiguator.test(devFile);
+        disambiguator.test(devSet);
 
       }
       return new _AmbiguityResolver(averagedWeights, new FeatureExtractor(false), analyzer);
@@ -211,7 +212,7 @@ public class _AmbiguityResolver implements _Disambiguator {
     ConcurrentHashMap<_SingleAnalysis[], IntValueMap<String>> featureCache =
         new ConcurrentHashMap<>();
 
-    public FeatureExtractor(boolean useCache) {
+    FeatureExtractor(boolean useCache) {
       this.useCache = useCache;
     }
 
@@ -246,31 +247,33 @@ public class _AmbiguityResolver implements _Disambiguator {
       _SingleAnalysis w1 = trigram[0];
       _SingleAnalysis w2 = trigram[1];
       _SingleAnalysis w3 = trigram[2];
-      String r1 = w1.getItem().lemma;
-      String r2 = w2.getItem().lemma;
-      String r3 = w3.getItem().lemma;
+
+      String r1 = w1.getItem().id;
+      String r2 = w2.getItem().id;
+      String r3 = w3.getItem().id;
+
       String ig1 = w1.formatMorphemesLexical();
       String ig2 = w2.formatMorphemesLexical();
       String ig3 = w3.formatMorphemesLexical();
 
-      String r1Ig1 = r1 + ig1;
-      String r2Ig2 = r2 + ig2;
-      String r3Ig3 = r3 + ig3;
+      String r1Ig1 = r1 + "+" + ig1;
+      String r2Ig2 = r2 + "+" + ig2;
+      String r3Ig3 = r3 + "+" + ig3;
 
       feats.addOrIncrement("1:" + r1Ig1 + "-" + r2Ig2 + "-" + r3Ig3);
       feats.addOrIncrement("2:" + r1 + ig2 + r3Ig3);
       feats.addOrIncrement("3:" + r2Ig2 + "-" + r3Ig3);
       feats.addOrIncrement("4:" + r3Ig3);
-      //feats.addOrIncrement(format("5:%s%s-%s", r2, ig2, ig3));
-      //feats.addOrIncrement(format("6:%s%s-%s", r1, ig1, ig3));
+      feats.addOrIncrement("5:" + r2 + ig2 + "-" + ig3);
+      feats.addOrIncrement("6:" + r1 + ig1 + "-" + ig3);
 
-      //feats.addOrIncrement(format("7:%s-%s-%s", r1, r2, r3));
-      //feats.addOrIncrement(format("8:%s-%s", r1, r3));
+      feats.addOrIncrement("7:" + r1 + "-" + r2 + "-" + r3);
+      feats.addOrIncrement("8:" + r1 + "-" + r3);
       feats.addOrIncrement("9:" + r2 + "-" + r3);
       feats.addOrIncrement("10:" + r3);
 
-      //feats.addOrIncrement(format("11:%s-%s-%s", ig1, ig2, ig3));
-      //feats.addOrIncrement(format("12:%s-%s", ig1, ig3));
+      feats.addOrIncrement("11:" + ig1 + "-" + ig2 + "-" + ig3);
+      feats.addOrIncrement("12:" + ig1 + "-" + ig3);
       feats.addOrIncrement("13:" + ig2 + "-" + ig3);
       feats.addOrIncrement("14:" + ig3);
 
@@ -285,14 +288,15 @@ public class _AmbiguityResolver implements _Disambiguator {
 
       for (String ig : lastWordGroupsLex) {
         feats.addOrIncrement("15:" + w1LastGroup + "-" + w2LastGroup + "-" + ig);
-        //  feats.addOrIncrement(format("16:%s-%s", ig1s[ig1s.length - 1], ig));
+        feats.addOrIncrement("16:" + w1LastGroup + "-" + ig);
         feats.addOrIncrement("17:" + w2LastGroup + ig);
-        //  feats.addOrIncrement(format("18:%s", ig));
+        feats.addOrIncrement("18:" + ig);
       }
 
-      //for (int k = 0; k < ig3s.length - 1; k++) {
-      //  feats.addOrIncrement(format("19:%s-%s", ig3s[k], ig3s[k + 1]));
-      //}
+      for (int k = 0; k < lastWordGroupsLex.length - 1; k++) {
+        feats.addOrIncrement("19:" +
+            lastWordGroupsLex[k] + "-" + lastWordGroupsLex[k + 1]);
+      }
 
       for (int k = 0; k < lastWordGroupsLex.length; k++) {
         feats.addOrIncrement("20:" + k + "-" + lastWordGroupsLex[k]);
@@ -324,7 +328,7 @@ public class _AmbiguityResolver implements _Disambiguator {
     Model model;
     FeatureExtractor extractor;
 
-    public Decoder(Model model,
+    Decoder(Model model,
         FeatureExtractor extractor) {
       this.model = model;
       this.extractor = extractor;
@@ -606,7 +610,7 @@ public class _AmbiguityResolver implements _Disambiguator {
 
   static class Model implements Iterable<String> {
 
-    static float epsilon = 0.001f;
+    static float epsilon = 0.0001f;
 
     FloatValueMap<String> data;
 
@@ -834,7 +838,7 @@ public class _AmbiguityResolver implements _Disambiguator {
     String sentence;
     List<WordDataStr> wordList;
 
-    public SentenceDataStr(String sentence,
+    SentenceDataStr(String sentence,
         List<WordDataStr> wordList) {
       this.sentence = sentence;
       this.wordList = wordList;
@@ -847,7 +851,7 @@ public class _AmbiguityResolver implements _Disambiguator {
     String correctAnalysis;
     List<String> wordAnalysis;
 
-    public WordDataStr(String word, String correctAnalysis,
+    WordDataStr(String word, String correctAnalysis,
         List<String> wordAnalysis) {
       this.word = word;
       this.correctAnalysis = correctAnalysis;

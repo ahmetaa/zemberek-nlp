@@ -24,7 +24,7 @@ import zemberek.lm.compression.SmoothLm;
  * best parse. Kneser-Ney Lm generation is done with BerkeleyLm library Language model compression
  * and fast random access is provided via SmoothLm library.
  */
-public class MarkovModelDisambiguator extends AbstractDisambiguator {
+class MarkovModelDisambiguator extends AbstractDisambiguator {
 
   public static final double UNKNOWN_PROB = -10;
   SmoothLm rootLm;

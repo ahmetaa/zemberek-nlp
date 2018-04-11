@@ -17,7 +17,7 @@ import zemberek.morphology.structure.Turkish;
 
 // Used for collecting training data.
 
-public class RuleBasedDisambiguator {
+class RuleBasedDisambiguator {
 
   _TurkishMorphologicalAnalyzer analyzer;
   private static Histogram<String> wordFreq;
