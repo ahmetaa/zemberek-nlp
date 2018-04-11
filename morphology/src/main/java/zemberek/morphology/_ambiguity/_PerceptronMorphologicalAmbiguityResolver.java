@@ -19,6 +19,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.IntValueMap;
+import zemberek.core.dynamic.ActiveList;
+import zemberek.core.dynamic.Scoreable;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextConsumer;
@@ -162,7 +164,8 @@ public class _PerceptronMorphologicalAmbiguityResolver
         disambiguator.test(devSet);
 
       }
-      return new _PerceptronMorphologicalAmbiguityResolver(averagedWeights, new FeatureExtractor(false), analyzer);
+      return new _PerceptronMorphologicalAmbiguityResolver(averagedWeights,
+          new FeatureExtractor(false), analyzer);
     }
 
     private void updateModel(
@@ -342,12 +345,12 @@ public class _PerceptronMorphologicalAmbiguityResolver
         throw new IllegalArgumentException("bestPath cannot be called with empty sentence.");
       }
 
-      ActiveList currentList = new ActiveList();
+      ActiveList<Hypothesis> currentList = new ActiveList<>();
       currentList.add(new Hypothesis(sentenceBegin, sentenceBegin, null, 0));
 
       for (_WordAnalysis analysisData : sentence) {
 
-        ActiveList nextList = new ActiveList();
+        ActiveList<Hypothesis> nextList = new ActiveList<>();
 
         for (_SingleAnalysis analysis : analysisData) {
 
@@ -411,7 +414,7 @@ public class _PerceptronMorphologicalAmbiguityResolver
     }
   }
 
-  static class Hypothesis {
+  static class Hypothesis implements Scoreable {
 
     _SingleAnalysis prev; // previous word analysis result String
     _SingleAnalysis current; // current word analysis result String
@@ -461,152 +464,10 @@ public class _PerceptronMorphologicalAmbiguityResolver
           ", score=" + score +
           '}';
     }
-  }
-
-  static class ActiveList implements Iterable<Hypothesis> {
-
-    static float DEFAULT_LOAD_FACTOR = 0.65f;
-
-    static int DEFAULT_INITIAL_CAPACITY = 8;
-
-    private Hypothesis[] hypotheses;
-
-    private int modulo;
-    private int size;
-    private int expandLimit;
-
-    ActiveList() {
-      this(DEFAULT_INITIAL_CAPACITY);
-    }
-
-    ActiveList(int size) {
-      if (size < 1) {
-        throw new IllegalArgumentException("Size must be a positive value. But it is " + size);
-      }
-      int k = 1;
-      while (k < size) {
-        k <<= 1;
-      }
-      hypotheses = new Hypothesis[k];
-      expandLimit = (int) (k * DEFAULT_LOAD_FACTOR);
-      modulo = k - 1;
-    }
-
-    private int firstProbe(int hashCode) {
-      return hashCode & modulo;
-    }
-
-    private int nextProbe(int index) {
-      return index & modulo;
-    }
-
-    /**
-     * Finds either an empty slot location in Hypotheses array or the location of an equivalent
-     * Hypothesis. If an empty slot is found, it returns -(slot index)-1, if an equivalent
-     * Hypotheses is found, returns equal hypothesis's slot index.
-     */
-    private int locate(Hypothesis hyp) {
-      int slot = firstProbe(hyp.hashCode());
-      while (true) {
-        final Hypothesis h = hypotheses[slot];
-        if (h == null) {
-          return (-slot - 1);
-        }
-        if (h.equals(hyp)) {
-          return slot;
-        }
-        slot = nextProbe(slot + 1);
-      }
-    }
-
-    /**
-     * Adds a new hypothesis to the list.
-     **/
-    public void add(Hypothesis hypothesis) {
-
-      int slot = locate(hypothesis);
-
-      // if not exist, add.
-      if (slot < 0) {
-        slot = -slot - 1;
-        hypotheses[slot] = hypothesis;
-        size++;
-      } else {
-        // If exist, check score and if score is better, replace it.
-        if (hypotheses[slot].score < hypothesis.score) {
-          hypotheses[slot] = hypothesis;
-        }
-      }
-      if (size == expandLimit) {
-        expand();
-      }
-    }
-
-    private void expand() {
-      ActiveList expandedList = new ActiveList(hypotheses.length * 2);
-      // put hypotheses to new list.
-      for (int i = 0; i < hypotheses.length; i++) {
-        Hypothesis hyp = hypotheses[i];
-        if (hyp == null) {
-          continue;
-        }
-        int slot = firstProbe(hyp.hashCode());
-        while (true) {
-          final Hypothesis h = expandedList.hypotheses[slot];
-          if (h == null) {
-            expandedList.hypotheses[slot] = hyp;
-            break;
-          }
-          slot = nextProbe(slot + 1);
-        }
-      }
-      this.modulo = expandedList.modulo;
-      this.expandLimit = expandedList.expandLimit;
-      this.hypotheses = expandedList.hypotheses;
-    }
-
-    Hypothesis getBest() {
-      Hypothesis best = null;
-      for (Hypothesis hypothesis : hypotheses) {
-        if (hypothesis == null) {
-          continue;
-        }
-        if (best == null || hypothesis.score > best.score) {
-          best = hypothesis;
-        }
-      }
-      return best;
-    }
 
     @Override
-    public Iterator<Hypothesis> iterator() {
-      return new HIterator();
-    }
-
-    class HIterator implements Iterator<Hypothesis> {
-
-      int pointer = 0;
-      int count = 0;
-      Hypothesis current;
-
-      @Override
-      public boolean hasNext() {
-        if (count == size) {
-          return false;
-        }
-        while (hypotheses[pointer] == null) {
-          pointer++;
-        }
-        current = hypotheses[pointer];
-        count++;
-        pointer++;
-        return true;
-      }
-
-      @Override
-      public Hypothesis next() {
-        return current;
-      }
+    public float getScore() {
+      return score;
     }
   }
 
