@@ -1,18 +1,21 @@
 package zemberek.morphology.ambiguity;
 
-import static java.lang.String.format;
-
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.IntValueMap;
@@ -25,11 +28,30 @@ import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology._analyzer._SentenceAnalysis;
 import zemberek.morphology._analyzer._SentenceWordAnalysis;
 import zemberek.morphology._analyzer._SingleAnalysis;
+import zemberek.morphology._analyzer._SingleAnalysis.MorphemeGroup;
 import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
 import zemberek.morphology._analyzer._WordAnalysis;
 
 public class _AmbiguityResolver implements _Disambiguator {
 
+  private Decoder decoder;
+  private _TurkishMorphologicalAnalyzer analyzer;
+
+  private _AmbiguityResolver(
+      Model averagedModel,
+      FeatureExtractor extractor,
+      _TurkishMorphologicalAnalyzer analyzer) {
+    this.decoder = new Decoder(averagedModel, extractor);
+    this.analyzer = analyzer;
+  }
+
+  public static _AmbiguityResolver fromModelFile(
+      Path modelFile,
+      _TurkishMorphologicalAnalyzer analyzer) throws IOException {
+    Model model = Model.loadFromTextFile(modelFile);
+    FeatureExtractor extractor = new FeatureExtractor(false);
+    return new _AmbiguityResolver(model, extractor, analyzer);
+  }
 
   public static void main(String[] args) throws IOException {
 
@@ -37,18 +59,142 @@ public class _AmbiguityResolver implements _Disambiguator {
 
     _TurkishMorphologicalAnalyzer analyzer = _TurkishMorphologicalAnalyzer.createDefault();
 
-    List<SentenceDataStr> sentencesFromTextFile = DataSet.loadTrainingDataText(path);
-    DataSet set = new DataSet(DataSet.convert(sentencesFromTextFile, analyzer));
-
+    DataSet set = DataSet.load(path, analyzer);
   }
 
   @Override
-  public _SentenceAnalysis disambiguate(String sentence) {
-    return null;
+  public _SentenceAnalysis disambiguate(List<_WordAnalysis> allAnalyses) {
+    ParseResult best = decoder.bestPath(allAnalyses);
+    List<_SentenceWordAnalysis> l = new ArrayList<>();
+    for (int i = 0; i < allAnalyses.size(); i++) {
+      l.add(new _SentenceWordAnalysis(best.bestParse.get(i), allAnalyses.get(i)));
+    }
+    return new _SentenceAnalysis(l);
   }
 
+  public void test(Path testFile) throws IOException {
+    DataSet testSet = DataSet.load(testFile, analyzer);
+    int hit = 0, total = 0;
+    Stopwatch sw = Stopwatch.createStarted();
+    for (_SentenceAnalysis sentence : testSet.sentences) {
+      ParseResult result = decoder.bestPath(sentence.allAnalyses());
+      int i = 0;
+      List<_SingleAnalysis> bestExpected = sentence.bestAnalysis();
+      for (_SingleAnalysis bestActual : result.bestParse) {
+        if (bestExpected.get(i).equals(bestActual)) {
+          hit++;
+        }
+        total++;
+        i++;
+      }
+    }
+    Log.info("Elapsed: " + sw.elapsed(TimeUnit.MILLISECONDS));
+    Log.info(
+        "Word count:" + total + " hit=" + hit + String.format(" Accuracy:%f", hit * 1.0 / total));
+  }
 
-/*
+  static class Trainer {
+
+    Model weights = new Model();
+    Model averagedWeights = new Model();
+    IntValueMap<String> counts = new IntValueMap<>();
+    _TurkishMorphologicalAnalyzer analyzer;
+
+    public Trainer(_TurkishMorphologicalAnalyzer analyzer) {
+      this.analyzer = analyzer;
+    }
+
+    public _AmbiguityResolver train(Path trainFile, Path devFile)
+        throws IOException {
+
+      FeatureExtractor extractor = new FeatureExtractor(true);
+      Decoder decoder = new Decoder(weights, extractor);
+
+      DataSet trainingSet = DataSet.load(trainFile, analyzer);
+      int numExamples = 0;
+      for (int i = 0; i < 4; i++) {
+        Log.info("Iteration:" + i);
+        for (_SentenceAnalysis sentence : trainingSet.sentences) {
+          if (sentence.size() == 0) {
+            continue;
+          }
+          numExamples++;
+          ParseResult result = decoder.bestPath(sentence.allAnalyses());
+          if (numExamples % 500 == 0) {
+            Log.info("%d sentences processed.", numExamples);
+          }
+          if (sentence.bestAnalysis().equals(result.bestParse)) {
+            continue;
+          }
+          if (sentence.bestAnalysis().size() != result.bestParse.size()) {
+            throw new IllegalStateException(
+                "Best parse result must have same amount of tokens with Correct parse." +
+                    " \nCorrect = " + sentence.bestAnalysis() + " \nBest = " + result.bestParse);
+          }
+
+          IntValueMap<String> correctFeatures =
+              extractor.extractFromSentence(sentence.bestAnalysis());
+          IntValueMap<String> bestFeatures =
+              extractor.extractFromSentence(result.bestParse);
+          updateModel(correctFeatures, bestFeatures, numExamples);
+        }
+
+        for (String feat : averagedWeights) {
+          updateAveragedWeights(feat, numExamples);
+          counts.put(feat, numExamples);
+        }
+
+        Log.info("Testing development set.");
+        _AmbiguityResolver disambiguator =
+            new _AmbiguityResolver(averagedWeights, extractor, analyzer);
+        disambiguator.test(devFile);
+
+      }
+      return new _AmbiguityResolver(averagedWeights, new FeatureExtractor(false), analyzer);
+    }
+
+    private void updateModel(
+        IntValueMap<String> correctFeatures,
+        IntValueMap<String> bestFeatures,
+        int numExamples) {
+      Set<String> keySet = Sets.newHashSet();
+      keySet.addAll(correctFeatures.getKeyList());
+      keySet.addAll(bestFeatures.getKeyList());
+
+      for (String feat : keySet) {
+
+        updateAveragedWeights(feat, numExamples);
+
+        weights.increment(
+            feat,
+            (correctFeatures.get(feat) - bestFeatures.get(feat)));
+
+        counts.put(feat, numExamples);
+
+        // reduce model by eliminating near zero weights.
+        float wa = averagedWeights.get(feat);
+        if (Math.abs(wa) <= Model.epsilon) {
+          averagedWeights.data.remove(feat);
+        }
+        float w = weights.get(feat);
+        if (Math.abs(w) <= Model.epsilon) {
+          weights.data.remove(feat);
+        }
+      }
+    }
+
+    private void updateAveragedWeights(String feat, int numExamples) {
+      int featureCount = counts.get(feat);
+      float updatedWeight = (averagedWeights.get(feat) * featureCount
+          + (numExamples - featureCount) * weights.get(feat))
+          / numExamples;
+
+      averagedWeights.put(
+          feat,
+          updatedWeight);
+    }
+  }
+
   static class FeatureExtractor {
 
     boolean useCache;
@@ -60,13 +206,13 @@ public class _AmbiguityResolver implements _Disambiguator {
       this.useCache = useCache;
     }
 
-    IntValueMap<String> extractFromSentence(List<String> parseSequence) {
-      List<String> seq = Lists.newArrayList("<s>", "<s>");
+    IntValueMap<String> extractFromSentence(List<_SingleAnalysis> parseSequence) {
+      List<_SingleAnalysis> seq = Lists.newArrayList(sentenceBegin, sentenceBegin);
       seq.addAll(parseSequence);
-      seq.add("</s>");
+      seq.add(sentenceEnd);
       IntValueMap<String> featureModel = new IntValueMap<>();
       for (int i = 2; i < seq.size(); i++) {
-        String[] trigram = {
+        _SingleAnalysis[] trigram = {
             seq.get(i - 2),
             seq.get(i - 1),
             seq.get(i)};
@@ -98,32 +244,40 @@ public class _AmbiguityResolver implements _Disambiguator {
       String ig2 = w2.formatMorphemesLexical();
       String ig3 = w3.formatMorphemesLexical();
 
-      feats.addOrIncrement(format("1:%s%s-%s%s-%s%s", r1, ig1, r2, ig2, r3, ig3));
-      feats.addOrIncrement(format("2:%s%s-%s%s", r1, ig2, r3, ig3));
-      feats.addOrIncrement(format("3:%s%s-%s%s", r2, ig2, r3, ig3));
-      feats.addOrIncrement(format("4:%s%s", r3, ig3));
+      String r1Ig1 = r1 + ig1;
+      String r2Ig2 = r2 + ig2;
+      String r3Ig3 = r3 + ig3;
+
+      feats.addOrIncrement("1:" + r1Ig1 + "-" + r2Ig2 + "-" + r3Ig3);
+      feats.addOrIncrement("2:" + r1 + ig2 + r3Ig3);
+      feats.addOrIncrement("3:" + r2Ig2 + "-" + r3Ig3);
+      feats.addOrIncrement("4:" + r3Ig3);
       //feats.addOrIncrement(format("5:%s%s-%s", r2, ig2, ig3));
       //feats.addOrIncrement(format("6:%s%s-%s", r1, ig1, ig3));
 
       //feats.addOrIncrement(format("7:%s-%s-%s", r1, r2, r3));
       //feats.addOrIncrement(format("8:%s-%s", r1, r3));
-      feats.addOrIncrement(format("9:%s-%s", r2, r3));
-      feats.addOrIncrement(format("10:%s", r3));
+      feats.addOrIncrement("9:" + r2 + "-" + r3);
+      feats.addOrIncrement("10:" + r3);
 
       //feats.addOrIncrement(format("11:%s-%s-%s", ig1, ig2, ig3));
       //feats.addOrIncrement(format("12:%s-%s", ig1, ig3));
-      feats.addOrIncrement(format("13:%s-%s", ig2, ig3));
-      feats.addOrIncrement(format("14:%s", ig3));
+      feats.addOrIncrement("13:" + ig2 + "-" + ig3);
+      feats.addOrIncrement("14:" + ig3);
 
-      String ig1s[] = ig1.split("[ ]");
-      String ig2s[] = ig2.split("[ ]");
-      String ig3s[] = ig3.split("[ ]");
+      MorphemeGroup[] lastWordGroups = w3.getGroups();
+      String[] lastWordGroupsLex = new String[lastWordGroups.length];
+      for (int i = 0; i < lastWordGroupsLex.length; i++) {
+        lastWordGroupsLex[i] = lastWordGroups[i].lexicalForm();
+      }
 
-      for (String ig : ig3s) {
-        feats.addOrIncrement(
-            format("15:%s-%s-%s", ig1s[ig1s.length - 1], ig2s[ig2s.length - 1], ig));
+      String w1LastGroup = w1.getLastGroup().lexicalForm();
+      String w2LastGroup = w2.getLastGroup().lexicalForm();
+
+      for (String ig : lastWordGroupsLex) {
+        feats.addOrIncrement("15:" + w1LastGroup + "-" + w2LastGroup + "-" + ig);
         //  feats.addOrIncrement(format("16:%s-%s", ig1s[ig1s.length - 1], ig));
-        feats.addOrIncrement(format("17:%s-%s", ig2s[ig2s.length - 1], ig));
+        feats.addOrIncrement("17:" + w2LastGroup + ig);
         //  feats.addOrIncrement(format("18:%s", ig));
       }
 
@@ -131,8 +285,8 @@ public class _AmbiguityResolver implements _Disambiguator {
       //  feats.addOrIncrement(format("19:%s-%s", ig3s[k], ig3s[k + 1]));
       //}
 
-      for (int k = 0; k < ig3s.length; k++) {
-        feats.addOrIncrement("20:" + k + "-" + ig3s[k]);
+      for (int k = 0; k < lastWordGroupsLex.length; k++) {
+        feats.addOrIncrement("20:" + k + "-" + lastWordGroupsLex[k]);
       }
 
       if (Character.isUpperCase(r3.charAt(0))
@@ -152,12 +306,11 @@ public class _AmbiguityResolver implements _Disambiguator {
       return feats;
     }
   }
-*/
 
   private static final _SingleAnalysis sentenceBegin = _SingleAnalysis.unknown("<s>");
   private static final _SingleAnalysis sentenceEnd = _SingleAnalysis.unknown("</s>");
 
-/*  private static class Decoder {
+  private static class Decoder {
 
     Model model;
     FeatureExtractor extractor;
@@ -168,24 +321,24 @@ public class _AmbiguityResolver implements _Disambiguator {
       this.extractor = extractor;
     }
 
-    _SentenceAnalysis bestPath(List<_WordAnalysis> sentence) {
+    ParseResult bestPath(List<_WordAnalysis> sentence) {
 
       if (sentence.size() == 0) {
         throw new IllegalArgumentException("bestPath cannot be called with empty sentence.");
       }
 
       ActiveList currentList = new ActiveList();
-      currentList.add(new Hypothesis("<s>", "<s>", null, 0));
+      currentList.add(new Hypothesis(sentenceBegin, sentenceBegin, null, 0));
 
       for (_WordAnalysis analysisData : sentence) {
 
         ActiveList nextList = new ActiveList();
 
-        for (String analysis : analysisData.allAnalyses) {
+        for (_SingleAnalysis analysis : analysisData) {
 
           for (Hypothesis h : currentList) {
 
-            String[] trigram = {h.prev, h.current, analysis};
+            _SingleAnalysis[] trigram = {h.prev, h.current, analysis};
             IntValueMap<String> features = extractor.extractFromTrigram(trigram);
 
             float trigramScore = 0;
@@ -206,8 +359,7 @@ public class _AmbiguityResolver implements _Disambiguator {
 
       // score for sentence end. No need to create new hypotheses.
       for (Hypothesis h : currentList) {
-        String sentenceEnd = "</s>";
-        String[] trigram = {h.prev, h.current, sentenceEnd};
+        _SingleAnalysis[] trigram = {h.prev, h.current, sentenceEnd};
         IntValueMap<String> features = extractor.extractFromTrigram(trigram);
 
         float trigramScore = 0;
@@ -219,7 +371,7 @@ public class _AmbiguityResolver implements _Disambiguator {
 
       Hypothesis best = currentList.getBest();
       float bestScore = best.score;
-      List<String> result = Lists.newArrayList();
+      List<_SingleAnalysis> result = Lists.newArrayList();
 
       // backtrack. from end to begin, we add words from Hypotheses.
       while (best.previous != null) {
@@ -231,7 +383,18 @@ public class _AmbiguityResolver implements _Disambiguator {
       Collections.reverse(result);
       return new ParseResult(result, bestScore);
     }
-  }*/
+  }
+
+  private static class ParseResult {
+
+    List<_SingleAnalysis> bestParse;
+    float score;
+
+    private ParseResult(List<_SingleAnalysis> bestParse, float score) {
+      this.bestParse = bestParse;
+      this.score = score;
+    }
+  }
 
   static class Hypothesis {
 
@@ -240,7 +403,11 @@ public class _AmbiguityResolver implements _Disambiguator {
     Hypothesis previous; // previous Hypothesis.
     float score;
 
-    Hypothesis(_SingleAnalysis prev, _SingleAnalysis current, Hypothesis previous, float score) {
+    Hypothesis(
+        _SingleAnalysis prev,
+        _SingleAnalysis current,
+        Hypothesis previous,
+        float score) {
       this.prev = prev;
       this.current = current;
       this.previous = previous;
@@ -446,7 +613,7 @@ public class _AmbiguityResolver implements _Disambiguator {
       return data.size();
     }
 
-    static PerceptronDisambiguatorPort.Model loadFromTextFile(Path file) throws IOException {
+    static Model loadFromTextFile(Path file) throws IOException {
       FloatValueMap<String> data = new FloatValueMap<>(10000);
       List<String> all = TextIO.loadLines(file);
       for (String s : all) {
@@ -455,7 +622,7 @@ public class _AmbiguityResolver implements _Disambiguator {
         data.set(key, weight);
       }
       Log.info("Model Loaded.");
-      return new PerceptronDisambiguatorPort.Model(data);
+      return new Model(data);
     }
 
     void saveAsText(Path file) throws IOException {
@@ -503,6 +670,11 @@ public class _AmbiguityResolver implements _Disambiguator {
 
     DataSet(List<_SentenceAnalysis> sentences) {
       this.sentences = sentences;
+    }
+
+    static DataSet load(Path path, _TurkishMorphologicalAnalyzer analyzer) throws IOException {
+      List<SentenceDataStr> sentencesFromTextFile = DataSet.loadTrainingDataText(path);
+      return new DataSet(DataSet.convert(sentencesFromTextFile, analyzer));
     }
 
     static List<_SentenceAnalysis> convert(

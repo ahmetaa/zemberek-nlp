@@ -27,13 +27,13 @@ public class _SingleAnalysisTest extends AnalyzerTestBase {
     _SingleAnalysis analysis = analyzer.analyze("kitaplarda").get(0);
 
     MorphemeGroup group = analysis.getGroup(0);
-    Assert.assertEquals("kitaplarda", group.surface());
+    Assert.assertEquals("kitaplarda", group.surfaceForm());
 
     analysis = analyzer.analyze("kitaplı").get(0);
     group = analysis.getGroup(0);
-    Assert.assertEquals("kitap", group.surface());
+    Assert.assertEquals("kitap", group.surfaceForm());
     group = analysis.getGroup(1);
-    Assert.assertEquals("lı", group.surface());
+    Assert.assertEquals("lı", group.surfaceForm());
 
 
     analyzer = getAnalyzer("okumak");
@@ -41,9 +41,9 @@ public class _SingleAnalysisTest extends AnalyzerTestBase {
 
     Assert.assertEquals(2, analysis.getMorphemeGroupCount());
     MorphemeGroup group0 = analysis.getGroup(0);
-    Assert.assertEquals("oku", group0.surface());
+    Assert.assertEquals("oku", group0.surfaceForm());
     MorphemeGroup group1 = analysis.getGroup(1);
-    Assert.assertEquals("tmuyor", group1.surface());
+    Assert.assertEquals("tmuyor", group1.surfaceForm());
   }
 
   static List<String> toList(String... input) {

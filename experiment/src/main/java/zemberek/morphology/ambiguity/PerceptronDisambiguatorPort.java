@@ -47,7 +47,8 @@ public class PerceptronDisambiguatorPort extends AbstractDisambiguator {
   }
 
   public static void main(String[] args) throws IOException {
-    Path root = Paths.get("/home/ahmetaa/apps/MD-Release");
+    //Path root = Paths.get("/home/ahmetaa/apps/MD-Release");
+    Path root = Paths.get("/home/aaa/apps/MD-Release");
     Path train = root.resolve("data.train.txt");
     Path dev = root.resolve("data.dev.txt");
     Path model = root.resolve("model");

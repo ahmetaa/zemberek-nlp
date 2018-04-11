@@ -64,13 +64,22 @@ public class _SingleAnalysis {
           "A morhpheme group must have a morpheme with a POS information. " + morphemes);
     }
 
-    public String surface() {
+    public String surfaceForm() {
       StringBuilder sb = new StringBuilder();
       for (MorphemeSurface mSurface : morphemes) {
         sb.append(mSurface.surface);
       }
       return sb.toString();
     }
+
+    public String lexicalForm() {
+      StringBuilder sb = new StringBuilder();
+      for (MorphemeSurface mSurface : morphemes) {
+        sb.append(mSurface.morpheme);
+      }
+      return sb.toString();
+    }
+
   }
 
   int getMorphemeGroupCount() {
@@ -181,6 +190,19 @@ public class _SingleAnalysis {
     }
   }
 
+  public MorphemeGroup getLastGroup() {
+    return getGroup(groupBoundaries[groupBoundaries.length - 1]);
+  }
+
+  public MorphemeGroup[] getGroups() {
+    MorphemeGroup[] groups = new MorphemeGroup[groupBoundaries.length];
+    for (int i = 0; i < groups.length; i++) {
+      groups[i] = getGroup(i);
+    }
+    return groups;
+  }
+
+
   private static final ConcurrentHashMap<Morpheme, MorphemeSurface> emptyMorphemeCache =
       new ConcurrentHashMap<>();
 
@@ -235,9 +257,8 @@ public class _SingleAnalysis {
   }
 
   /**
-   * This method is used for modifying the dictionary item and stem of an analysis
-   * without changing the suffix morphemes. This is used for generating result for
-   * inputs like "5'e"
+   * This method is used for modifying the dictionary item and stem of an analysis without changing
+   * the suffix morphemes. This is used for generating result for inputs like "5'e"
    *
    * @param item new DictionaryItem
    * @param stem new stem
@@ -252,12 +273,9 @@ public class _SingleAnalysis {
   }
 
   /**
-   * Returns surface forms list of all root and derivational roots of a parse.
-   * Examples:
-   * "kitaplar"  ->["kitap"]
-   * "kitabım"   ->["kitab"]
-   * "kitaplaşır"->["kitap", "kitaplaş"]
-   * "kavrulduk" ->["kavr","kavrul"]
+   * Returns surface forms list of all root and derivational roots of a parse. Examples: "kitaplar"
+   * ->["kitap"] "kitabım"   ->["kitab"] "kitaplaşır"->["kitap", "kitaplaş"] "kavrulduk"
+   * ->["kavr","kavrul"]
    */
   public List<String> getStems() {
     List<String> stems = Lists.newArrayListWithCapacity(2);
@@ -274,7 +292,7 @@ public class _SingleAnalysis {
             stems.add(stem);
           }
         }
-        previousStem = previousStem + ig.surface();
+        previousStem = previousStem + ig.surfaceForm();
       }
     }
     return stems;
