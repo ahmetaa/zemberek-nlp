@@ -45,6 +45,9 @@ public class _SingleAnalysis {
     return new _SingleAnalysis(item, Collections.singletonList(s), boundaries);
   }
 
+  public String surfaceForm() {
+    return getStem() + getEnding();
+  }
 
   public static class MorphemeGroup {
 

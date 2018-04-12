@@ -11,7 +11,6 @@ import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 
 public class AnalyzerTestBase {
 
-
   static InterpretingAnalyzer getAnalyzer(String... dictionaryLines) {
     RootLexicon loader = new TurkishDictionaryLoader().load(dictionaryLines);
     return new InterpretingAnalyzer(loader);

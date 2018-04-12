@@ -80,6 +80,26 @@ public class SearchPath {
     return path;
   }
 
+  SearchPath getCopyForGeneration(
+      SurfaceTransition surfaceNode,
+      AttributeSet<PhoneticAttribute> phoneticAttributes) {
+
+    boolean isTerminal = surfaceNode.getState().terminal;
+    ArrayList<SurfaceTransition> hist = new ArrayList<>(transitions);
+    hist.add(surfaceNode);
+    String newHead = head + surfaceNode.surface;
+    SearchPath path = new SearchPath(
+        newHead,
+        tail,
+        surfaceNode.getState(),
+        hist,
+        phoneticAttributes,
+        isTerminal);
+    path.containsSuffixWithSurface = containsSuffixWithSurface || !surfaceNode.surface.isEmpty();
+    path.containsDerivation = containsDerivation || surfaceNode.getState().derivative;
+    return path;
+  }
+
   public String toString() {
     StemTransition st = getStemTransition();
     String morphemeStr =
@@ -135,6 +155,10 @@ public class SearchPath {
   public boolean hasDictionaryItem(DictionaryItem item) {
     // TODO: for performance, probably it is safe to check references only.
     return item.equals(getStemTransition().item);
+  }
+
+  public SurfaceTransition getLastTransition() {
+    return transitions.get(transitions.size() - 1);
   }
 
   public DictionaryItem getDictionaryItem() {

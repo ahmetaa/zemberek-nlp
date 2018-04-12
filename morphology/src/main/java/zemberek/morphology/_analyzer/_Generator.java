@@ -3,6 +3,7 @@ package zemberek.morphology._analyzer;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.morphology._analyzer.InterpretingAnalyzer.AnalysisDebugData;
 import zemberek.morphology._analyzer.InterpretingAnalyzer.RejectedTransition;
@@ -15,13 +16,32 @@ import zemberek.morphology._morphotactics.Morpheme;
 import zemberek.morphology._morphotactics.MorphemeTransition;
 import zemberek.morphology._morphotactics.StemTransition;
 import zemberek.morphology._morphotactics.SuffixTransition;
+import zemberek.morphology._morphotactics.TurkishMorphotactics;
 
 public class _Generator {
 
-
   InterpretingAnalyzer analyzer;
 
-  public List<_SingleAnalysis> generate(
+  public _Generator(InterpretingAnalyzer analyzer) {
+    this.analyzer = analyzer;
+  }
+
+  public List<GenerationResult> generateWithIds(
+      String stem,
+      List<String> morphemeIds,
+      AnalysisDebugData debugData) {
+    List<Morpheme> morphemes = new ArrayList<>();
+    for (String morphemeId : morphemeIds) {
+      Morpheme morpheme = TurkishMorphotactics.getMorpheme(morphemeId);
+      if (morpheme == null) {
+        throw new IllegalStateException("Uidentified morpheme " + morphemeId);
+      }
+      morphemes.add(morpheme);
+    }
+    return generate(stem, morphemes, debugData);
+  }
+
+  public List<GenerationResult> generate(
       String stem,
       List<Morpheme> morphemes,
       AnalysisDebugData debugData) {
@@ -36,21 +56,21 @@ public class _Generator {
     }
 
     // generate initial search paths.
-    List<SearchPath> paths = new ArrayList<>();
+    List<GenerationPath> paths = new ArrayList<>();
     for (StemTransition candidate : candidates) {
-      int length = candidate.surface.length();
       String head = stem;
-      String tail = "";
-      paths.add(SearchPath.initialPath(candidate, head, tail));
+      String tail = " ";
+      SearchPath searchPath = SearchPath.initialPath(candidate, head, tail);
+      paths.add(new GenerationPath(searchPath, new ArrayList<>(morphemes)));
     }
 
     // search graph.
-    List<SearchPath> resultPaths = search(paths, debugData);
+    List<GenerationPath> resultPaths = search(paths, debugData);
     // generate results from successful paths.
-    List<_SingleAnalysis> result = new ArrayList<>(resultPaths.size());
-    for (SearchPath path : resultPaths) {
-      _SingleAnalysis analysis = _SingleAnalysis.fromSearchPath(path);
-      result.add(analysis);
+    List<GenerationResult> result = new ArrayList<>(resultPaths.size());
+    for (GenerationPath path : resultPaths) {
+      _SingleAnalysis analysis = _SingleAnalysis.fromSearchPath(path.path);
+      result.add(new GenerationResult(analysis.surfaceForm(), analysis));
       if (debugData != null) {
         debugData.results.add(analysis);
       }
@@ -58,53 +78,61 @@ public class _Generator {
     return result;
   }
 
-  public List<_SingleAnalysis> generate(String stem, List<Morpheme> morphemes) {
+  public List<GenerationResult> generateWithIds(String stem, List<String> morphemeIds) {
+    return generateWithIds(stem, morphemeIds, null);
+  }
+
+  public List<GenerationResult> generate(String stem, List<Morpheme> morphemes) {
     return generate(stem, morphemes, null);
   }
 
   // searches through morphotactics graph.
-  private List<SearchPath> search(List<SearchPath> currentPaths, AnalysisDebugData debugData) {
+  private List<GenerationPath> search(
+      List<GenerationPath> currentPaths,
+      AnalysisDebugData debugData) {
 
-    List<SearchPath> result = new ArrayList<>(3);
+    List<GenerationPath> result = new ArrayList<>(3);
     // new Paths are generated with matching transitions.
     while (currentPaths.size() > 0) {
 
-      List<SearchPath> allNewPaths = Lists.newArrayList();
+      List<GenerationPath> allNewPaths = Lists.newArrayList();
 
-      for (SearchPath path : currentPaths) {
+      for (GenerationPath path : currentPaths) {
 
         // if there are no more letters to consume and path can be terminated, we accept this
         // path as a correct result.
-        if (path.tail.length() == 0) {
-          if (path.isTerminal() &&
-              !path.phoneticAttributes.contains(PhoneticAttribute.CannotTerminate)) {
+        if (path.morphemes.size() == 0) {
+          if (path.path.isTerminal() &&
+              !path.path.phoneticAttributes.contains(PhoneticAttribute.CannotTerminate)) {
             result.add(path);
             if (debugData != null) {
-              debugData.finishedPaths.add(path);
+              debugData.finishedPaths.add(path.path);
             }
             continue;
           }
           if (debugData != null) {
-            debugData.failedPaths.put(path, "Finished but Path not terminal");
+            debugData.failedPaths.put(path.path, "Finished but Path not terminal");
           }
         }
 
         // Creates new paths with outgoing and matching transitions.
-        List<SearchPath> newPaths = advance(path, debugData);
+        List<GenerationPath> newPaths = advance(path, debugData);
         allNewPaths.addAll(newPaths);
 
         if (debugData != null) {
           if (newPaths.isEmpty()) {
-            debugData.failedPaths.put(path, "No Transition");
+            debugData.failedPaths.put(path.path, "No Transition");
           }
-          debugData.paths.addAll(newPaths);
+          debugData.paths.addAll(
+              newPaths.stream().map(s -> s.path).collect(Collectors.toList()));
         }
       }
       currentPaths = allNewPaths;
     }
 
     if (debugData != null) {
-      debugData.resultPaths.addAll(result);
+      debugData.resultPaths.addAll(
+          result.stream().map(s -> s.path).collect(Collectors.toList()));
     }
 
     return result;
@@ -112,35 +140,33 @@ public class _Generator {
 
   // for all allowed matching outgoing transitions, new paths are generated.
   // Transition conditions are used for checking if a search path is allowed to pass a transition.
-  private List<SearchPath> advance(SearchPath path, AnalysisDebugData debugData) {
+  private List<GenerationPath> advance(GenerationPath gPath, AnalysisDebugData debugData) {
 
-    List<SearchPath> newPaths = new ArrayList<>(2);
+    List<GenerationPath> newPaths = new ArrayList<>(2);
 
     // for all outgoing transitions.
-    for (MorphemeTransition transition : path.currentState.getOutgoing()) {
+    for (MorphemeTransition transition : gPath.path.currentState.getOutgoing()) {
 
       SuffixTransition suffixTransition = (SuffixTransition) transition;
 
-      // if tail is empty and this transitions surface is not empty, no need to check.
-      if (path.tail.isEmpty() && suffixTransition.hasSurfaceForm()) {
+      // if there are no morphemes and this transitions surface is not empty, no need to check.
+      if (gPath.morphemes.isEmpty() && suffixTransition.hasSurfaceForm()) {
         if (debugData != null) {
           debugData.rejectedTransitions.put(
-              path,
+              gPath.path,
               new RejectedTransition(suffixTransition, "Empty surface expected."));
         }
         continue;
       }
 
-      String surface = SurfaceTransition.generate(
-          suffixTransition,
-          path.phoneticAttributes);
-
-      // no need to go further if generated surface form is not a prefix of the paths's tail.
-      if (!path.tail.startsWith(surface)) {
+      // check morpheme match.
+      // if transition surface is empty, here will pass.
+      if (!gPath.matches(suffixTransition)) {
         if (debugData != null) {
           debugData.rejectedTransitions.put(
-              path,
-              new RejectedTransition(suffixTransition, "Surface Mismatch:" + surface));
+              gPath.path,
+              new RejectedTransition(suffixTransition,
+                  "Morpheme mismatch." + suffixTransition.to.morpheme));
         }
         continue;
       }
@@ -150,36 +176,40 @@ public class _Generator {
         Condition condition = suffixTransition.getCondition();
         Condition failed;
         if (condition instanceof CombinedCondition) {
-          failed = ((CombinedCondition) condition).getFailingCondition(path);
+          failed = ((CombinedCondition) condition).getFailingCondition(gPath.path);
         } else {
-          failed = condition.accept(path) ? null : condition;
+          failed = condition.accept(gPath.path) ? null : condition;
         }
         if (failed != null) {
           debugData.rejectedTransitions.put(
-              path,
+              gPath.path,
               new RejectedTransition(suffixTransition, "Condition → " + failed.toString()));
         }
       }
 
       // check conditions.
-      if (!suffixTransition.canPass(path)) {
+      if (!suffixTransition.canPass(gPath.path)) {
         continue;
       }
 
       // epsilon transition. Add and continue. Use existing attributes.
       if (!suffixTransition.hasSurfaceForm()) {
-        newPaths.add(path.getCopy(
+        SearchPath pCopy = gPath.path.getCopyForGeneration(
             new SurfaceTransition("", suffixTransition),
-            path.phoneticAttributes));
+            gPath.path.phoneticAttributes);
+        newPaths.add(gPath.copy(pCopy));
         continue;
       }
+
+      String surface = SurfaceTransition.generate(
+          suffixTransition,
+          gPath.path.phoneticAttributes);
 
       SurfaceTransition surfaceTransition = new SurfaceTransition(surface, suffixTransition);
 
       //if tail is equal to surface, no need to calculate phonetic attributes.
-      AttributeSet<PhoneticAttribute> attributes = path.tail.equals(surface) ?
-          path.phoneticAttributes.copy() :
-          AttributesHelper.getMorphemicAttributes(surface, path.phoneticAttributes);
+      AttributeSet<PhoneticAttribute> attributes =
+          AttributesHelper.getMorphemicAttributes(surface, gPath.path.phoneticAttributes);
 
       // This is required for suffixes like `cik` and `ciğ`
       // an extra attribute is added if "cik" or "ciğ" is generated and matches the tail.
@@ -194,13 +224,69 @@ public class _Generator {
         attributes.add(PhoneticAttribute.CannotTerminate);
       }
 
-      SearchPath p = path.getCopy(
+      SearchPath p = gPath.path.getCopyForGeneration(
           surfaceTransition,
           attributes);
-      newPaths.add(p);
+      newPaths.add(gPath.copy(p));
     }
     return newPaths;
   }
 
+  static class GenerationResult {
+
+    String surface;
+    _SingleAnalysis analysis;
+
+    public GenerationResult(String surface, _SingleAnalysis analysis) {
+      this.surface = surface;
+      this.analysis = analysis;
+    }
+  }
+
+  static class GenerationPath {
+
+    SearchPath path;
+    List<Morpheme> morphemes;
+
+    public GenerationPath(SearchPath path,
+        List<Morpheme> morphemes) {
+      this.path = path;
+      this.morphemes = morphemes;
+    }
+
+    public GenerationPath copy(SearchPath path) {
+      SurfaceTransition lastTransition = path.getLastTransition();
+      Morpheme m = lastTransition.getMorpheme();
+
+      if (lastTransition.surface.isEmpty()) {
+        if (morphemes.size() == 0) {
+          return new GenerationPath(path, morphemes);
+        }
+        if (m.equals(morphemes.get(0))) {
+          return new GenerationPath(path, morphemes.subList(1, morphemes.size()));
+        } else {
+          return new GenerationPath(path, morphemes);
+        }
+      }
+      if (!m.equals(morphemes.get(0))) {
+        throw new IllegalStateException(
+            "Cannot generate Generation copy because transition morpheme and first morpheme to consume"
+                + " does not match.");
+      }
+      return new GenerationPath(path, morphemes.subList(1, morphemes.size()));
+
+    }
+
+    boolean matches(SuffixTransition transition) {
+      if (!transition.hasSurfaceForm()) {
+        return true;
+      }
+      if (morphemes.size() > 0 && transition.to.morpheme.equals(morphemes.get(0))) {
+        return true;
+      }
+      return false;
+    }
+
+  }
 
 }
