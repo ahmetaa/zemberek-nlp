@@ -16,6 +16,7 @@ import zemberek.core.logging.Log;
 import zemberek.langid.LanguageIdentifier;
 import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
 import zemberek.morphology._analyzer._WordAnalysis;
+import zemberek.morphology._morphotactics.TurkishMorphotactics;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AmbiguityAnalysis;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AnalysisDecision;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.ResultSentence;
@@ -31,7 +32,8 @@ class GenerateDataWithRules {
   private GenerateDataWithRules() throws IOException {
     identifier = LanguageIdentifier.fromInternalModelGroup("tr_group");
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
-    _TurkishMorphologicalAnalyzer analyzer = new _TurkishMorphologicalAnalyzer(lexicon);
+    TurkishMorphotactics morphotactics = new TurkishMorphotactics(lexicon);
+    _TurkishMorphologicalAnalyzer analyzer = new _TurkishMorphologicalAnalyzer(morphotactics);
     ruleBasedDisambiguator = new RuleBasedDisambiguator(analyzer);
   }
 
@@ -39,8 +41,8 @@ class GenerateDataWithRules {
   private static Collection<Predicate<String>> ignoreSentencePredicates = new ArrayList<>();
 
   public static void main(String[] args) throws IOException {
-    Path p = Paths.get("/media/aaa/Data/corpora/final/www.aljazeera.com.tr");
-    //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/www.aljazeera.com.tr");
+    //Path p = Paths.get("/media/aaa/Data/corpora/final/www.aljazeera.com.tr");
+    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/www.aljazeera.com.tr");
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
     //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
     //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
@@ -56,7 +58,7 @@ class GenerateDataWithRules {
     ignoreSentencePredicates.add(tooLongSentence(15));
 
     new GenerateDataWithRules()
-        .extractData(p, outRoot, 50000, 0);
+        .extractData(p, outRoot, 5000, 0);
   }
 
   private static Predicate<_WordAnalysis> hasAnalysis() {
@@ -109,8 +111,8 @@ class GenerateDataWithRules {
         PrintWriter pwa = new PrintWriter(amb.toFile(), "utf-8")
     ) {
       for (ResultSentence sentence : result.results) {
-        pwu.println("S:"+sentence.sentence);
-        pwa.println("S:"+sentence.sentence);
+        pwu.println("S:" + sentence.sentence);
+        pwa.println("S:" + sentence.sentence);
         for (AmbiguityAnalysis analysis : sentence.results) {
 
           List<String> forTrain = analysis.getForTrainingOutput();

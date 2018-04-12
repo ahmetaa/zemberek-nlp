@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.core.turkish._TurkishAlphabet;
+import zemberek.morphology._morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.structure.StemAndEnding;
@@ -26,16 +27,17 @@ public class _TurkishMorphologicalAnalyzer {
   private TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
   private AnalysisCache cache = AnalysisCache.INSTANCE;
 
-  public _TurkishMorphologicalAnalyzer(RootLexicon lexicon) {
-    this.lexicon = lexicon;
-    analyzer = new InterpretingAnalyzer(lexicon);
+  public _TurkishMorphologicalAnalyzer(TurkishMorphotactics morphotactics) {
+    this.lexicon = morphotactics.getRootLexicon();
+    analyzer = new InterpretingAnalyzer(morphotactics);
     unidentifiedTokenAnalyzer = new _UnidentifiedTokenAnalyzer(analyzer);
     cache.initializeStaticCache(this::analyzeWithoutCache);
   }
 
   public static _TurkishMorphologicalAnalyzer createDefault() throws IOException {
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
-    return new _TurkishMorphologicalAnalyzer(lexicon);
+    TurkishMorphotactics morphotactics = new TurkishMorphotactics(lexicon);
+    return new _TurkishMorphologicalAnalyzer(morphotactics);
   }
 
   public _WordAnalysis analyze(String word) {

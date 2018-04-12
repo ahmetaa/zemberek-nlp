@@ -350,6 +350,8 @@ class RuleBasedDisambiguator {
         String loweCase = input.toLowerCase(Turkish.LOCALE);
         if (wordFreq.getCount(capitalCase) < wordFreq.getCount(loweCase)) {
           a1.decision = Decision.IGNORE;
+        } else {
+          a2.decision = Decision.IGNORE;
         }
       }
     }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology._morphotactics.Morpheme;
 import zemberek.morphology._morphotactics.TurkishMorphotactics;
@@ -133,6 +134,10 @@ public class _SingleAnalysis {
 
   public List<MorphemeSurface> getMorphemesSurfaces() {
     return morphemesSurfaces;
+  }
+
+  public List getMorphemes() {
+    return morphemesSurfaces.stream().map(s -> s.morpheme).collect(Collectors.toList());
   }
 
   public MorphemeGroup getGroup(int groupIndex) {

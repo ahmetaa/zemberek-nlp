@@ -24,7 +24,9 @@ public class RootLexicon implements Iterable<DictionaryItem> {
   private Set<DictionaryItem> itemSet = Sets.newLinkedHashSet();
 
   public RootLexicon(List<DictionaryItem> dictionaryItems) {
-    itemSet.addAll(dictionaryItems);
+    for (DictionaryItem dictionaryItem : dictionaryItems) {
+      add(dictionaryItem);
+    }
   }
 
   public RootLexicon() {

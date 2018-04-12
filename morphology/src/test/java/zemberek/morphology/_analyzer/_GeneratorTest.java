@@ -10,8 +10,7 @@ public class _GeneratorTest extends AnalyzerTestBase {
 
   @Test
   public void testGeneration1() {
-    InterpretingAnalyzer analyzer = getAnalyzer("elma");
-    _Generator generator = new _Generator(analyzer);
+    _Generator generator = new _Generator(getMorphotactics("elma"));
     List<String> morphemes = Lists.newArrayList("A3pl", "P1pl");
     List<GenerationResult> results = generator.generateWithIds(
         "elma",
@@ -20,5 +19,30 @@ public class _GeneratorTest extends AnalyzerTestBase {
     Assert.assertTrue(results.size() > 0);
     Assert.assertEquals("elmalarımız", results.get(0).surface);
   }
+
+  @Test
+  public void testGeneration2() {
+    _Generator generator = new _Generator(getMorphotactics("elma"));
+    List<String> morphemes = Lists.newArrayList("Noun", "A3pl", "P1pl");
+    List<GenerationResult> results = generator.generateWithIds(
+        "elma",
+        morphemes
+    );
+    Assert.assertTrue(results.size() > 0);
+    Assert.assertEquals("elmalarımız", results.get(0).surface);
+  }
+
+  @Test
+  public void testGeneration3() {
+    _Generator generator = new _Generator(getMorphotactics("elma"));
+    List<String> morphemes = Lists.newArrayList("Noun", "With");
+    List<GenerationResult> results = generator.generateWithIds(
+        "elma",
+        morphemes
+    );
+    Assert.assertTrue(results.size() > 0);
+    Assert.assertEquals("elmalı", results.get(0).surface);
+  }
+
 
 }

@@ -17,13 +17,16 @@ import zemberek.morphology._morphotactics.MorphemeTransition;
 import zemberek.morphology._morphotactics.StemTransition;
 import zemberek.morphology._morphotactics.SuffixTransition;
 import zemberek.morphology._morphotactics.TurkishMorphotactics;
+import zemberek.morphology.lexicon.DictionaryItem;
 
 public class _Generator {
 
-  InterpretingAnalyzer analyzer;
+  TurkishMorphotactics morphotactics;
+  StemTransitions stemTransitions;
 
-  public _Generator(InterpretingAnalyzer analyzer) {
-    this.analyzer = analyzer;
+  public _Generator(TurkishMorphotactics morphotactics) {
+    this.morphotactics = morphotactics;
+    this.stemTransitions = morphotactics.getStemTransitions();
   }
 
   public List<GenerationResult> generateWithIds(
@@ -48,7 +51,7 @@ public class _Generator {
 
     // get stem candidates.
     List<StemTransition> candidates = Lists.newArrayListWithCapacity(1);
-    candidates.addAll(analyzer.getMatchingStemTransitions(stem));
+    candidates.addAll(stemTransitions.getMatchingStemTransitions(stem));
 
     if (debugData != null) {
       debugData.input = stem;
@@ -58,10 +61,23 @@ public class _Generator {
     // generate initial search paths.
     List<GenerationPath> paths = new ArrayList<>();
     for (StemTransition candidate : candidates) {
-      String head = stem;
-      String tail = " ";
-      SearchPath searchPath = SearchPath.initialPath(candidate, head, tail);
-      paths.add(new GenerationPath(searchPath, new ArrayList<>(morphemes)));
+      // we set the tail as " " because in morphotactics, some conditions look for tail's size
+      // during graph walk. Because this is generation we let that condition pass always.
+      SearchPath searchPath = SearchPath.initialPath(candidate, stem, " ");
+      List<Morpheme> morphemesInPath;
+      // if input morpheme starts with a POS Morpheme such as Noun etc,
+      // we skip it if it matches with the initial morpheme of the graph visiting SearchPath object.
+      if (morphemes.size() > 0) {
+        if (morphemes.get(0).equals(searchPath.currentState.morpheme)) {
+          morphemesInPath = morphemes.subList(1, morphemes.size());
+        } else {
+          morphemesInPath = new ArrayList<>(morphemes);
+        }
+      } else {
+        morphemesInPath = new ArrayList<>(0);
+      }
+
+      paths.add(new GenerationPath(searchPath, morphemesInPath));
     }
 
     // search graph.

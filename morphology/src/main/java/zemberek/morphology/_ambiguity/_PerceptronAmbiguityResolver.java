@@ -29,10 +29,24 @@ import zemberek.morphology._analyzer._SingleAnalysis.MorphemeGroup;
 import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
 import zemberek.morphology._analyzer._WordAnalysis;
 
+/**
+ * This is a class for applying morphological ambiguity resolution for Turkish sentences. Algorithm
+ * is based on "Haşim Sak, Tunga Güngör, and Murat Saraçlar. Morphological disambiguation of Turkish
+ * text with perceptron algorithm. In CICLing 2007, volume LNCS 4394, pages 107-118, 2007" This is
+ * adapted from the original Perl implementation.
+ *
+ * @see <a href="http://www.cmpe.boun.edu.tr/~hasim">Haşim Sak</a>
+ * <p>
+ * But this is not a direct port, many changes needed to be applied for Zemberek integration and
+ * cleaner design.
+ * <p>
+ * For Training, use {@link _PerceptronAmbiguityResolverTrainer} class.
+ */
 public class _PerceptronAmbiguityResolver
     implements _AmbiguityResolver {
 
   private Decoder decoder;
+
   private _TurkishMorphologicalAnalyzer analyzer;
 
   _PerceptronAmbiguityResolver(
@@ -223,6 +237,9 @@ public class _PerceptronAmbiguityResolver
   private static final _SingleAnalysis sentenceBegin = _SingleAnalysis.unknown("<s>");
   private static final _SingleAnalysis sentenceEnd = _SingleAnalysis.unknown("</s>");
 
+  /**
+   * Decoder finds the best path from multiple word analyses using Viterbi search algorithm.
+   */
   static class Decoder {
 
     Model model;
@@ -240,6 +257,7 @@ public class _PerceptronAmbiguityResolver
         throw new IllegalArgumentException("bestPath cannot be called with empty sentence.");
       }
 
+      // hold the current active paths. initially it contains a single empty Hypothesis.
       ActiveList<Hypothesis> currentList = new ActiveList<>();
       currentList.add(new Hypothesis(sentenceBegin, sentenceBegin, null, 0));
 

@@ -4,23 +4,17 @@ import static java.lang.String.format;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.morphology._analyzer.SurfaceTransition.SuffixTemplateToken;
 import zemberek.morphology._analyzer.SurfaceTransition.TemplateTokenType;
@@ -31,7 +25,6 @@ import zemberek.morphology._morphotactics.MorphemeTransition;
 import zemberek.morphology._morphotactics.StemTransition;
 import zemberek.morphology._morphotactics.SuffixTransition;
 import zemberek.morphology._morphotactics.TurkishMorphotactics;
-import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 
 /**
@@ -40,24 +33,21 @@ import zemberek.morphology.lexicon.RootLexicon;
 public class InterpretingAnalyzer {
 
   private RootLexicon lexicon;
-
+  private StemTransitions stemTransitions;
   private TurkishMorphotactics morphotactics;
 
-  // TODO: Move this to somewhere else. Also this mechanism should be an abstraction that can also use a Trie
-  private ArrayListMultimap<String, StemTransition> multiStems =
-      ArrayListMultimap.create(1000, 2);
-  private Map<String, StemTransition> singleStems = Maps.newConcurrentMap();
-  private Set<StemTransition> stemTransitions = Sets.newConcurrentHashSet();
+  public InterpretingAnalyzer(TurkishMorphotactics morphotactics) {
+    this.morphotactics = morphotactics;
+    this.lexicon = morphotactics.getRootLexicon();
+    this.stemTransitions = morphotactics.getStemTransitions();
+  }
 
-  //TODO: check the lock mechanism
-  private ReadWriteLock lock = new ReentrantReadWriteLock();
-  private StemTransitionGenerator generator;
+  public StemTransitions getStemTransitions() {
+    return stemTransitions;
+  }
 
-  public InterpretingAnalyzer(RootLexicon lexicon) {
-    this.lexicon = lexicon;
-    morphotactics = new TurkishMorphotactics(lexicon);
-    generator = new StemTransitionGenerator(morphotactics);
-    generateStemTransitions();
+  public TurkishMorphotactics getMorphotactics() {
+    return morphotactics;
   }
 
   public RootLexicon getLexicon() {
@@ -70,7 +60,7 @@ public class InterpretingAnalyzer {
     List<StemTransition> candidates = Lists.newArrayListWithCapacity(3);
     for (int i = 1; i <= input.length(); i++) {
       String stem = input.substring(0, i);
-      candidates.addAll(getMatchingStemTransitions(stem));
+      candidates.addAll(stemTransitions.getMatchingStemTransitions(stem));
     }
 
     if (debugData != null) {
@@ -243,81 +233,6 @@ public class InterpretingAnalyzer {
       newPaths.add(p);
     }
     return newPaths;
-  }
-
-  private void generateStemTransitions() {
-    for (DictionaryItem item : lexicon) {
-      addDictionaryItem(item);
-    }
-  }
-
-  private synchronized void addStemTransition(StemTransition stemTransition) {
-    lock.writeLock().lock();
-    try {
-      final String surfaceForm = stemTransition.surface;
-      if (multiStems.containsKey(surfaceForm)) {
-        multiStems.put(surfaceForm, stemTransition);
-      } else if (singleStems.containsKey(surfaceForm)) {
-        multiStems.put(surfaceForm, singleStems.get(surfaceForm));
-        singleStems.remove(surfaceForm);
-        multiStems.put(surfaceForm, stemTransition);
-      } else {
-        singleStems.put(surfaceForm, stemTransition);
-      }
-    } finally {
-      lock.writeLock().unlock();
-    }
-  }
-
-  private synchronized void removeStemNode(StemTransition stemTransition) {
-    lock.writeLock().lock();
-    try {
-      final String surfaceForm = stemTransition.surface;
-      if (multiStems.containsKey(surfaceForm)) {
-        multiStems.remove(surfaceForm, stemTransition);
-      } else if (singleStems.containsKey(surfaceForm)
-          && singleStems.get(surfaceForm).item.equals(stemTransition.item)) {
-        singleStems.remove(surfaceForm);
-      }
-      stemTransitions.remove(stemTransition);
-    } finally {
-      lock.writeLock().unlock();
-    }
-  }
-
-  List<StemTransition> getMatchingStemTransitions(String stem) {
-    if (singleStems.containsKey(stem)) {
-      return Lists.newArrayList(singleStems.get(stem));
-    } else if (multiStems.containsKey(stem)) {
-      return Lists.newArrayList(multiStems.get(stem));
-    } else {
-      return Collections.emptyList();
-    }
-  }
-
-  public void addDictionaryItem(DictionaryItem item) {
-    try {
-      List<StemTransition> transitions = generator.generate(item);
-      for (StemTransition transition : transitions) {
-        addStemTransition(transition);
-      }
-    } catch (Exception e) {
-      Log.warn("Cannot generate stem transition for %s with reason %s", item, e.getMessage());
-    }
-  }
-
-  public void removeDictionaryItem(DictionaryItem item) {
-    lock.writeLock().lock();
-    try {
-      List<StemTransition> transitions = generator.generate(item);
-      for (StemTransition transition : transitions) {
-        removeStemNode(transition);
-      }
-    } catch (Exception e) {
-      Log.warn("Cannot remove %s ", e.getMessage());
-    } finally {
-      lock.writeLock().unlock();
-    }
   }
 
   static class RejectedTransition {

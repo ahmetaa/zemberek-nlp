@@ -6,19 +6,23 @@ import java.util.function.Predicate;
 import org.junit.Assert;
 import zemberek.morphology._analyzer.InterpretingAnalyzer.AnalysisDebugData;
 import zemberek.morphology._analyzer._SingleAnalysis.MorphemeSurface;
+import zemberek.morphology._morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 
 public class AnalyzerTestBase {
 
+  static TurkishMorphotactics getMorphotactics(String... dictionaryLines) {
+    RootLexicon lexicon = new TurkishDictionaryLoader().load(dictionaryLines);
+    return new TurkishMorphotactics(lexicon);
+  }
+
   static InterpretingAnalyzer getAnalyzer(String... dictionaryLines) {
-    RootLexicon loader = new TurkishDictionaryLoader().load(dictionaryLines);
-    return new InterpretingAnalyzer(loader);
+    return new InterpretingAnalyzer(getMorphotactics(dictionaryLines));
   }
 
   static AnalysisTester getTester(String... dictionaryLines) {
-    RootLexicon loader = new TurkishDictionaryLoader().load(dictionaryLines);
-    return new AnalysisTester(new InterpretingAnalyzer(loader));
+    return new AnalysisTester(new InterpretingAnalyzer(getMorphotactics(dictionaryLines)));
   }
 
   boolean containsMorpheme(_SingleAnalysis result, String morphemeName) {
@@ -60,7 +64,7 @@ public class AnalyzerTestBase {
       List<_SingleAnalysis> results = analyzer.analyze(word);
       if (results.size() != 0) {
         printDebug(analyzer, word);
-        Assert.fail("["+ word + "] is expected to fail but passed.");
+        Assert.fail("[" + word + "] is expected to fail but passed.");
       }
     }
   }
@@ -70,7 +74,7 @@ public class AnalyzerTestBase {
       List<_SingleAnalysis> results = analyzer.analyze(word);
       if (results.size() == 0) {
         printDebug(analyzer, word);
-        Assert.fail("["+ word + "] is expected to pass but failed.");
+        Assert.fail("[" + word + "] is expected to pass but failed.");
       } else {
         printAndSort(word, results);
       }
@@ -82,7 +86,7 @@ public class AnalyzerTestBase {
       List<_SingleAnalysis> results = analyzer.analyze(word);
       if (results.size() != solutionCount) {
         printDebug(analyzer, word);
-        Assert.fail("["+ word + "] is expected to pass with solution count " + solutionCount +
+        Assert.fail("[" + word + "] is expected to pass with solution count " + solutionCount +
             " but failed with solution count " + results.size());
       } else {
         printAndSort(word, results);
@@ -95,9 +99,9 @@ public class AnalyzerTestBase {
     if (results.size() != 1) {
       printDebug(analyzer, input);
       if (results.size() == 0) {
-        Assert.fail("["+ input + "] cannot be analyzed");
+        Assert.fail("[" + input + "] cannot be analyzed");
       } else {
-        Assert.fail("["+ input + "] is expected to have single solution but " +
+        Assert.fail("[" + input + "] is expected to have single solution but " +
             " it has " + results.size() + " solutions");
       }
     }
@@ -113,7 +117,7 @@ public class AnalyzerTestBase {
       if (results.size() == 0) {
         Assert.fail(input + " cannot be analyzed");
       } else {
-        Assert.fail("["+ input + "] is expected to have single solution but " +
+        Assert.fail("[" + input + "] is expected to have single solution but " +
             " it has " + results.size() + " solutions");
       }
     }

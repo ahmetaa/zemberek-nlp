@@ -23,6 +23,14 @@ import zemberek.morphology._analyzer._SingleAnalysis;
 import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
 import zemberek.morphology._analyzer._WordAnalysis;
 
+/**
+ * This is the trainer class for the Turkish morphological ambiguity resolution mechanism.
+ * This class generates the model for actual ambiguity resolution class
+ * {@link _PerceptronAmbiguityResolver}
+ * <p>
+ * Trainer uses text files for training. It parses them and then converts them to
+ * Morphological analysis result using the Morphological analyzer.
+ */
 public class _PerceptronAmbiguityResolverTrainer {
 
   private Model weights = new Model();

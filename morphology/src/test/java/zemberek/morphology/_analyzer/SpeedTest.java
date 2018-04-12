@@ -13,6 +13,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
+import zemberek.morphology._morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.structure.Turkish;
@@ -29,7 +30,8 @@ public class SpeedTest {
     //Path p = Paths.get("src/main/resources/corpora/cnn-turk-10k");
     List<String> sentences = getSentences(p);
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
-    _TurkishMorphologicalAnalyzer analyzer = new _TurkishMorphologicalAnalyzer(lexicon);
+    TurkishMorphotactics morphotactics = new TurkishMorphotactics(lexicon);
+    _TurkishMorphologicalAnalyzer analyzer = new _TurkishMorphologicalAnalyzer(morphotactics);
 
     Stopwatch sw = Stopwatch.createStarted();
 
@@ -40,10 +42,10 @@ public class SpeedTest {
     for (String sentence : sentences) {
       List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
       for (Token token : tokens) {
-        if(token.getType()== TurkishLexer.Punctuation) {
+        if (token.getType() == TurkishLexer.Punctuation) {
           continue;
         }
-        tokenCount ++;
+        tokenCount++;
         _WordAnalysis results = analyzer.analyze(token.getText());
         if (!results.isCorrect()) {
           noAnalysis++;

@@ -72,10 +72,10 @@ public class _UnidentifiedTokenAnalyzer {
           PrimaryPos.Noun,
           SecondaryPos.ProperNoun);
       itemProp.attributes.add(RootAttribute.Runtime);
-      analyzer.addDictionaryItem(itemProp);
+      analyzer.getStemTransitions().addDictionaryItem(itemProp);
       String toParse = stem + ending;
       List<_SingleAnalysis> properResults = analyzer.analyze(toParse);
-      analyzer.removeDictionaryItem(itemProp);
+      analyzer.getStemTransitions().removeDictionaryItem(itemProp);
       return properResults;
     } else if (Character.isUpperCase(word.charAt(0))) {
       String normalized = TurkishAlphabet.INSTANCE.normalize(word);
@@ -87,10 +87,10 @@ public class _UnidentifiedTokenAnalyzer {
           PrimaryPos.Noun,
           SecondaryPos.ProperNoun);
       itemProp.attributes.add(RootAttribute.Runtime);
-      analyzer.addDictionaryItem(itemProp);
+      analyzer.getStemTransitions().addDictionaryItem(itemProp);
       //TODO eliminate gross code duplication
       List<_SingleAnalysis> properResults = analyzer.analyze(normalized);
-      analyzer.removeDictionaryItem(itemProp);
+      analyzer.getStemTransitions().removeDictionaryItem(itemProp);
       return properResults;
     }
     return Collections.emptyList();

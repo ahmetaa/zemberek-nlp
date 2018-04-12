@@ -23,6 +23,7 @@ import zemberek.langid.LanguageIdentifier;
 import zemberek.morphology._analyzer._SingleAnalysis;
 import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
 import zemberek.morphology._analyzer._WordAnalysis;
+import zemberek.morphology._morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.structure.Turkish;
@@ -95,7 +96,8 @@ public class _MorphologicalAmbiguityResolverExperiment {
   private List<SingleAnalysisSentence> collect(Path p, int maxAnalysisCount) throws IOException {
     List<String> sentences = getSentences(p);
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
-    _TurkishMorphologicalAnalyzer analyzer = new _TurkishMorphologicalAnalyzer(lexicon);
+    TurkishMorphotactics morphotactics = new TurkishMorphotactics(lexicon);
+    _TurkishMorphologicalAnalyzer analyzer = new _TurkishMorphologicalAnalyzer(morphotactics);
 
     int tokenCount = 0;
     int sentenceCount = 0;
