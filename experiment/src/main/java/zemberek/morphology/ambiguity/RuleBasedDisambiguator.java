@@ -143,12 +143,11 @@ class RuleBasedDisambiguator {
     }
 
     /**
-     * Returns choices as string list.
-     * if there is only one analysis, returns the string form only.
-     * if there are more than 1 analyses;
-     * if there is only one analysisDecision that is Decision.UNDECIDED, add * at the end.
-     * if there are more than 1 analysisDecision with Decision.UNDECIDED, just add string form.
-     * For all ignored analysisDecision, add minus at the end.
+     * Returns choices as string list. if there is only one analysis, returns the string form only.
+     * if there are more than 1 analyses; if there is only one analysisDecision that is
+     * Decision.UNDECIDED, add * at the end. if there are more than 1 analysisDecision with
+     * Decision.UNDECIDED, just add string form. For all ignored analysisDecision, add minus at the
+     * end.
      */
     List<String> getForTrainingOutput() {
       List<String> result = new ArrayList<>();
@@ -160,15 +159,15 @@ class RuleBasedDisambiguator {
 
       List<String> notIgnored = choices.stream().filter(s -> s.decision != Decision.IGNORE)
           .map(s -> s.analysis.format()).collect(Collectors.toList());
-      if(notIgnored.size()==1) {
-        result.add(notIgnored.get(0)+"*");
+      if (notIgnored.size() == 1) {
+        result.add(notIgnored.get(0) + "*");
       } else {
         result.addAll(notIgnored);
       }
       List<String> ignored = choices.stream().filter(s -> s.decision == Decision.IGNORE)
           .map(s -> s.analysis.format()).collect(Collectors.toList());
       for (String s : ignored) {
-        result.add(s+"-");
+        result.add(s + "-");
       }
       return result;
     }
@@ -347,7 +346,9 @@ class RuleBasedDisambiguator {
         a1.decision = Decision.IGNORE;
       }
       if ((first && Character.isUpperCase(input.charAt(0)) && !input.contains("'"))) {
-        if (wordFreq.getCount(input) < wordFreq.getCount(input.toLowerCase(Turkish.LOCALE))) {
+        String capitalCase = Turkish.capitalize(input);
+        String loweCase = input.toLowerCase(Turkish.LOCALE);
+        if (wordFreq.getCount(capitalCase) < wordFreq.getCount(loweCase)) {
           a1.decision = Decision.IGNORE;
         }
       }

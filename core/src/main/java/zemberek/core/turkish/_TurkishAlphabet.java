@@ -141,6 +141,15 @@ public class _TurkishAlphabet {
     return res == IntIntMap.NO_RESULT ? c : (char) res;
   }
 
+  public boolean allCapital(String input) {
+    for (int i = 0; i < input.length(); i++) {
+      if (!Character.isUpperCase(input.charAt(i))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   public char normalizeCircumflex(char c) {
     int res = circumflexMap.get(c);
     return res == IntIntMap.NO_RESULT ? c : (char) res;
