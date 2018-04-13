@@ -207,15 +207,36 @@ paylaş* * [pay:Noun]
 
 Çünkü|çünkü * [Çünk:Noun,Prop]
 
-hee|Her [her:Det] *
+her|Her [her:Det] *
+
+Aklı*|aklı* [akıl:Noun] *
+
+kimse* [kimse:Noun] * Hiç|hiç *
+Hiç|hiç [hiç:Noun] * * kimse*
+Hiç|hiç [hiç:Adv] * * bir
+
+# ne hale geldik
+hale [hâl:Noun] * * ge*
+
+Şarkı|şarkı [şarkı:Noun] *
+
+güzel [güzel:Adj] *
+
+kırmızı|Kırmızı [kırmızı:Adj] *
 
 şu|Şu [şu:Det] * * an*
 
 an* [an:Noun,Time] * şu*|Şu*|o|O *
 o|O [o:Det] * * an*
 
+edi* [etmek:Verb] [edi:Noun]
+
 ## Risky but necessary for now.
 bir|Bir [bir:Det] *
+
+değerlendir* [değerlendirmek:Verb] *
+
+bunu|Bunu [bu:Pron,Demons] *
 
 daha|Daha [daha:Adv] *
 

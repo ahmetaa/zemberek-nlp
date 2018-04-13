@@ -14,10 +14,11 @@ public class RuleBasedDisambiguatorTest {
   public void test() throws IOException {
     //String input = "ABD Açık Serena Williams'ın";
     //String input = "Çünkü birbirine tezat oluşturuyor.";
-    String input = "O anda gördüm.";
+    //String input = "O anda gördüm.";
+    String input = "Aklımıza ilk gelen emeği öncelemek.";
     _TurkishMorphologicalAnalyzer analyzer = _TurkishMorphologicalAnalyzer.createDefault();
     Rules rules = new Rules();
-    rules.pairLexRules.add(PairRule.fromLine("o|O [o:Det] * * an*"));
+    rules.pairLexRules.add(PairRule.fromLine("Aklı*|aklı* [akıl:Noun] *"));
     RuleBasedDisambiguator disambiguator = new RuleBasedDisambiguator(analyzer, rules);
 
     ResultSentence resultSentence = disambiguator.disambiguate(input);

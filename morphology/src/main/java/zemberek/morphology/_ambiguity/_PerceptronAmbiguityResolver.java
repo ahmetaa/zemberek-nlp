@@ -70,21 +70,6 @@ public class _PerceptronAmbiguityResolver
     return new _PerceptronAmbiguityResolver(model, extractor, analyzer);
   }
 
-  public static void main(String[] args) throws IOException {
-
-    Path train = Paths.get("data/ambiguity/www.aljazeera.com.tr-rule-result.txt");
-    Path dev = Paths.get("data/ambiguity/aljazeera.test.txt");
-    Path model = Paths.get("data/ambiguity/model");
-    _TurkishMorphologicalAnalyzer analyzer = _TurkishMorphologicalAnalyzer.createDefault();
-
-    _PerceptronAmbiguityResolver resolver =
-        new _PerceptronAmbiguityResolverTrainer(analyzer).train(train, dev);
-    resolver.getModel().pruneNearZeroWeights();
-    resolver.getModel().saveAsText(model);
-    Path test = Paths.get("data/ambiguity/open-subtitles-rule-result.txt");
-    resolver.test(test);
-  }
-
   @Override
   public _SentenceAnalysis disambiguate(List<_WordAnalysis> allAnalyses) {
     ParseResult best = decoder.bestPath(allAnalyses);

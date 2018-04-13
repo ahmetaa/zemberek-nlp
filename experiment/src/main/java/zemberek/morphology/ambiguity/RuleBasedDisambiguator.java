@@ -43,17 +43,15 @@ class RuleBasedDisambiguator {
 
     static Rules fromResources() throws IOException {
       Rules rules = new Rules();
-      rules.pairLexRules = loadPairRule("ambiguity/pair-rules.txt");
-      rules.endPairLexRules = loadPairRule("ambiguity/end-pair-rules.txt");
-      rules.beginPairLexRules = loadPairRule("ambiguity/begin-pair-rules.txt");
-      rules.bothProperRules = loadPairRule("ambiguity/both-proper-rules.txt");
+      rules.pairLexRules = loadPairRule("/ambiguity/pair-rules.txt");
+      rules.endPairLexRules = loadPairRule("/ambiguity/end-pair-rules.txt");
+      rules.beginPairLexRules = loadPairRule("/ambiguity/begin-pair-rules.txt");
+      rules.bothProperRules = loadPairRule("/ambiguity/both-proper-rules.txt");
       return rules;
     }
 
     Rules() {
     }
-
-
   }
 
 
@@ -117,9 +115,6 @@ class RuleBasedDisambiguator {
                 continue;
               }
               ignoreOne(first, second, left, right, rules.pairLexRules, a.input);
-              oneProper(first, second, i == 0, a.input);
-              oneProper(second, first, i == 0, a.input);
-              bothProper(first, second, rules.bothProperRules);
               if (before == null) {
                 ignoreOne(first, second, left, right, rules.beginPairLexRules, a.input);
               }
@@ -128,6 +123,21 @@ class RuleBasedDisambiguator {
                   || next.checkPos(PrimaryPos.Question)) {
                 ignoreOne(first, second, left, right, rules.endPairLexRules, a.input);
               }
+            }
+          }
+          for (int j = 0; j < a.choices.size(); j++) {
+            AnalysisDecision first = a.choices.get(j);
+            if (first.decision == Decision.IGNORE) {
+              continue;
+            }
+            for (int k = j + 1; k < a.choices.size(); k++) {
+              AnalysisDecision second = a.choices.size() > 1 ? a.choices.get(k) : null;
+              if (second != null && second.decision == Decision.IGNORE) {
+                continue;
+              }
+              oneProper(first, second, i == 0, a.input);
+              oneProper(second, first, i == 0, a.input);
+              bothProper(first, second, rules.bothProperRules);
             }
           }
         }
@@ -354,6 +364,11 @@ class RuleBasedDisambiguator {
         }
       }
     }
+
+    if(ruleInput.startsWith("*") && ruleInput.endsWith("*")) {
+      return input.contains(ruleInput.replace("*",""));
+    }
+
     if (ruleInput.endsWith("*")) {
       return input.startsWith(ruleInput.substring(0, ruleInput.length() - 1));
     }
