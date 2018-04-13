@@ -1,7 +1,9 @@
 package zemberek.morphology.ambiguity;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -21,26 +23,44 @@ class RuleBasedDisambiguator {
 
   _TurkishMorphologicalAnalyzer analyzer;
   private static Histogram<String> wordFreq;
-  static List<PairRule> pairLexRules;
-  static List<PairRule> endPairLexRules;
-  static List<PairRule> beginPairLexRules;
-  static List<PairRule> bothProperRules;
+  Rules rules;
 
-  public RuleBasedDisambiguator(_TurkishMorphologicalAnalyzer analyzer) throws IOException {
+  public RuleBasedDisambiguator(_TurkishMorphologicalAnalyzer analyzer, Rules rules)
+      throws IOException {
     this.analyzer = analyzer;
     Log.info("Loading 100k word frequencies.");
     List<String> freqLines = TextIO.loadLinesFromCompressedResource("/ambiguity/freq-100k.txt.gz");
     wordFreq = Histogram.loadFromLines(freqLines, ' ');
-    pairLexRules = loadPairRule("/ambiguity/pair-rules.txt");
-    endPairLexRules = loadPairRule("/ambiguity/end-pair-rules.txt");
-    beginPairLexRules = loadPairRule("/ambiguity/begin-pair-rules.txt");
-    bothProperRules = loadPairRule("/ambiguity/both-proper-rules.txt");
+    this.rules = rules;
   }
+
+  static class Rules {
+
+    List<PairRule> pairLexRules = new ArrayList<>();
+    List<PairRule> endPairLexRules = new ArrayList<>();
+    List<PairRule> beginPairLexRules = new ArrayList<>();
+    List<PairRule> bothProperRules = new ArrayList<>();
+
+    static Rules fromResources() throws IOException {
+      Rules rules = new Rules();
+      rules.pairLexRules = loadPairRule("ambiguity/pair-rules.txt");
+      rules.endPairLexRules = loadPairRule("ambiguity/end-pair-rules.txt");
+      rules.beginPairLexRules = loadPairRule("ambiguity/begin-pair-rules.txt");
+      rules.bothProperRules = loadPairRule("ambiguity/both-proper-rules.txt");
+      return rules;
+    }
+
+    Rules() {
+    }
+
+
+  }
+
 
   public ResultSentence disambiguate(String sentence) {
     List<_WordAnalysis> ambiguous = analyzer.analyzeSentence(sentence);
     ResultSentence s = new ResultSentence(sentence, ambiguous);
-    s.makeDecisions();
+    s.makeDecisions(rules);
     return s;
   }
 
@@ -72,7 +92,7 @@ class RuleBasedDisambiguator {
       return cnt;
     }
 
-    void makeDecisions() {
+    void makeDecisions(Rules rules) {
       for (int i = 0; i < results.size(); i++) {
         AmbiguityAnalysis a = results.get(i);
 
@@ -82,6 +102,8 @@ class RuleBasedDisambiguator {
 
         AmbiguityAnalysis before = i == 0 ? null : results.get(i - 1);
         AmbiguityAnalysis next = i == results.size() - 1 ? null : results.get(i + 1);
+        String left = i == 0 ? "<s>" : results.get(i - 1).input;
+        String right = i == results.size() - 1 ? "</s>" : results.get(i + 1).input;
 
         if (a.choices.size() > 1) {
           for (int j = 0; j < a.choices.size(); j++) {
@@ -94,17 +116,17 @@ class RuleBasedDisambiguator {
               if (second != null && second.decision == Decision.IGNORE) {
                 continue;
               }
-              ignoreOne(first, second, pairLexRules, a.input);
+              ignoreOne(first, second, left, right, rules.pairLexRules, a.input);
               oneProper(first, second, i == 0, a.input);
               oneProper(second, first, i == 0, a.input);
-              bothProper(first, second, bothProperRules);
+              bothProper(first, second, rules.bothProperRules);
               if (before == null) {
-                ignoreOne(first, second, beginPairLexRules, a.input);
+                ignoreOne(first, second, left, right, rules.beginPairLexRules, a.input);
               }
               if (next == null
                   || next.checkPos(PrimaryPos.Punctuation)
                   || next.checkPos(PrimaryPos.Question)) {
-                ignoreOne(first, second, endPairLexRules, a.input);
+                ignoreOne(first, second, left, right, rules.endPairLexRules, a.input);
               }
             }
           }
@@ -199,11 +221,13 @@ class RuleBasedDisambiguator {
     }
   }
 
-  private static class PairRule {
+  static class PairRule {
 
     String input = "*";
     String okStr;
     String ignoreStr;
+    String left = "*";
+    String right = "*";
 
     public PairRule(String okStr, String ignoreStr) {
       this.okStr = okStr;
@@ -216,25 +240,58 @@ class RuleBasedDisambiguator {
       this.ignoreStr = ignoreStr;
     }
 
+    public PairRule(String input, String okStr, String ignoreStr, String left, String right) {
+      this.input = input;
+      this.okStr = okStr;
+      this.ignoreStr = ignoreStr;
+      this.left = left;
+      this.right = right;
+    }
+
+    public static PairRule fromLine(String line) {
+      String[] tokens = line.trim().split("[ ]+");
+      if (tokens.length == 3) {
+        return new PairRule(tokens[0], tokens[1], tokens[2]);
+      } else if (tokens.length == 5) {
+        return new PairRule(tokens[0], tokens[1], tokens[2], tokens[3], tokens[4]);
+      } else {
+        Log.warn("Unexpected token count in line %s", line);
+      }
+      return null;
+    }
+
+
     @Override
     public String toString() {
       return
-          "input=" + input + '\'' +
-              ", okStr='" + okStr + '\'' +
-              ", ignoreStr='" + ignoreStr;
+          "input=" + input + ", Ok=" + okStr + ", ignore=" +
+              ignoreStr + ", left=" + left + ", right=" + right;
     }
   }
+
+  static List<PairRule> loadPairRule(Path path) throws IOException {
+    List<String> lines = TextIO.loadLines(path, "#");
+    List<PairRule> rules = new ArrayList<>();
+    for (String line : lines) {
+      PairRule rule = PairRule.fromLine(line);
+      if (rule == null) {
+        continue;
+      }
+      rules.add(rule);
+    }
+    return rules;
+  }
+
 
   static List<PairRule> loadPairRule(String resource) throws IOException {
     List<String> lines = TextIO.loadLinesFromResource(resource, "#");
     List<PairRule> rules = new ArrayList<>();
     for (String line : lines) {
-      String[] tokens = line.trim().split("[ ]+");
-      if (tokens.length != 3) {
-        Log.warn("Unexpected token count in line %s in %s", line, resource);
+      PairRule rule = PairRule.fromLine(line);
+      if (rule == null) {
         continue;
       }
-      rules.add(new PairRule(tokens[0], tokens[1], tokens[2]));
+      rules.add(rule);
     }
     return rules;
   }
@@ -242,6 +299,8 @@ class RuleBasedDisambiguator {
   static void ignoreOne(
       AnalysisDecision a1,
       AnalysisDecision a2,
+      String left,
+      String right,
       List<PairRule> rulez,
       String input) {
 
@@ -253,6 +312,13 @@ class RuleBasedDisambiguator {
         if (!checkInput(input, pairRule.input)) {
           continue;
         }
+        if (!checkInput(left, pairRule.left)) {
+          continue;
+        }
+        if (!checkInput(right, pairRule.right)) {
+          continue;
+        }
+
         String toIgnore = pairRule.ignoreStr;
         String toLeave = pairRule.okStr;
         if (toIgnore.equals("*")) {
@@ -279,6 +345,14 @@ class RuleBasedDisambiguator {
   private static boolean checkInput(String input, String ruleInput) {
     if (ruleInput.equals("*")) {
       return true;
+    }
+    if (ruleInput.contains("|")) {
+      List<String> words = Splitter.on("|").splitToList(ruleInput);
+      for (String word : words) {
+        if (checkInput(input, word)) {
+          return true;
+        }
+      }
     }
     if (ruleInput.endsWith("*")) {
       return input.startsWith(ruleInput.substring(0, ruleInput.length() - 1));
@@ -370,6 +444,11 @@ class RuleBasedDisambiguator {
       }
     }
     return false;
+  }
+
+  static class RuleDebugData {
+
+
   }
 
 }

@@ -34,7 +34,8 @@ class GenerateDataWithRules {
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
     TurkishMorphotactics morphotactics = new TurkishMorphotactics(lexicon);
     _TurkishMorphologicalAnalyzer analyzer = new _TurkishMorphologicalAnalyzer(morphotactics);
-    ruleBasedDisambiguator = new RuleBasedDisambiguator(analyzer);
+    RuleBasedDisambiguator.Rules rules = RuleBasedDisambiguator.Rules.fromResources();
+    ruleBasedDisambiguator = new RuleBasedDisambiguator(analyzer, rules);
   }
 
   private static Collection<Predicate<_WordAnalysis>> acceptWordPredicates = new ArrayList<>();
@@ -58,7 +59,7 @@ class GenerateDataWithRules {
     ignoreSentencePredicates.add(tooLongSentence(15));
 
     new GenerateDataWithRules()
-        .extractData(p, outRoot, 5000, 0);
+        .extractData(p, outRoot, 3000, 4);
   }
 
   private static Predicate<_WordAnalysis> hasAnalysis() {

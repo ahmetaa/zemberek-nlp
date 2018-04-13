@@ -256,6 +256,8 @@ Equ should not be allowed for proper nouns.
 
 Terim'in should have a Proper analysis.
 
+all words that starts with capital letter should be a proper noun candidate.
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

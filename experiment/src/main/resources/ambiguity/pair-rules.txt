@@ -1,8 +1,10 @@
-# input preferred ignored
+# Syntax: [input] [preferred] [ignored] [left] [right]
+# left and right are optional. Syntaz for input, left and right
 # * = any
 # foo* = prefix match
 # foo$ = ends-with
-
+# foo = exact match
+# foo|bar* = checks for any `foo` and 'bar*' matches.
 
 * [uzlaşmak:Verb] [uz:Adj]
 
@@ -100,8 +102,7 @@ değil [değil:Verb] [değil:Conj]
 
 Hayır * [Hayır:Noun,Prop]
 
-Büyük [büyük:Adj] [büyük:Noun]
-büyük [büyük:Adj] [büyük:Noun]
+Büyük|büyük [büyük:Adj] [büyük:Noun]
 
 Karşılık [karşılık:Noun] *
 
@@ -125,13 +126,11 @@ aynı [aynı:Adj] *
 
 oluş* [oluşmak:Verb] [olmak:Verb]
 
-Sadece [sadece:Adv] *
-sadece [sadece:Adv] *
+Sadece|sadece [sadece:Adv] *
 
 ile * [ilmek:Verb]
 
-Kesinlikle [kesinlikle:Adv] [kesin:Adj]
-kesinlikle [kesinlikle:Adv] [kesin:Adj]
+Kesinlikle|Kesinlikle [kesinlikle:Adv] [kesin:Adj]
 
 * [katılmak:Verb] [katmak:Verb]
 
@@ -142,17 +141,13 @@ umar* [ummak:Verb] [umar:Noun]
 
 yıldır * [yılmak:Verb]
 
-bend* [ben:Pron,Pers] [bent:Noun]
-Bend* [ben:Pron,Pers] [bent:Noun]
+bend*|Bend* [ben:Pron,Pers] [bent:Noun]
 
 bazı [bazı:Det] *
 
-adam [adam:Noun] [ada:Noun]
-Adam [adam:Noun] [ada:Noun]
+adam|Adam [adam:Noun] [ada:Noun]
 
-yine [yine:Adv] *
-Yine [yine:Adv] *
-
+yine|Yine [yine:Adv] *
 
 tarafından [tarafından:Adv] *
 
@@ -195,8 +190,7 @@ ay * [aymak:Verb]
 
 sol * [solmak:Verb]
 
-İnce * Equ
-ince * Equ
+İnce|ince * Equ
 
 diliyor* * [dilmek:Verb]
 
@@ -211,8 +205,23 @@ arıza* * [arız:Adj]
 uğraş* * Recip→Verb
 paylaş* * [pay:Noun]
 
-Çünkü * [Çünk:Noun,Prop]
-çünkü * [Çünk:Noun,Prop]
+Çünkü|çünkü * [Çünk:Noun,Prop]
+
+hee|Her [her:Det] *
+
+şu|Şu [şu:Det] * * an*
+
+an* [an:Noun,Time] * şu*|Şu*|o|O *
+o|O [o:Det] * * an*
+
+## Risky but necessary for now.
+bir|Bir [bir:Det] *
+
+daha|Daha [daha:Adv] *
+
+Topla*|topla* [toplamak:Verb] *
+
+galibi Zero→Noun+A3sg+i:Acc Zero→Noun+A3sg+i:P3sg
 
 * P3sg+Dat$ P2sg+Dat$
 

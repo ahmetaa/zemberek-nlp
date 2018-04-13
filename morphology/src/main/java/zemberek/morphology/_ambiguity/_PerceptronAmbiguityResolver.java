@@ -32,12 +32,13 @@ import zemberek.morphology._analyzer._WordAnalysis;
 /**
  * This is a class for applying morphological ambiguity resolution for Turkish sentences. Algorithm
  * is based on "Haşim Sak, Tunga Güngör, and Murat Saraçlar. Morphological disambiguation of Turkish
- * text with perceptron algorithm. In CICLing 2007, volume LNCS 4394, pages 107-118, 2007" This is
- * adapted from the original Perl implementation.
+ * text with perceptron algorithm. In CICLing 2007, volume LNCS 4394, pages 107-118, 2007".
+ *
  *
  * @see <a href="http://www.cmpe.boun.edu.tr/~hasim">Haşim Sak</a>
  * <p>
- * But this is not a direct port, many changes needed to be applied for Zemberek integration and
+ * This is code is adapted from the Author's original Perl implementation.
+ * However, this is not a direct port, many changes needed to be applied for Zemberek integration and
  * cleaner design.
  * <p>
  * For Training, use {@link _PerceptronAmbiguityResolverTrainer} class.
