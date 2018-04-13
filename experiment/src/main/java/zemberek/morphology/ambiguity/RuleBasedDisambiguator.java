@@ -346,9 +346,9 @@ class RuleBasedDisambiguator {
         a1.decision = Decision.IGNORE;
       }
       if ((first && Character.isUpperCase(input.charAt(0)) && !input.contains("'"))) {
-        String capitalCase = Turkish.capitalize(input);
-        String loweCase = input.toLowerCase(Turkish.LOCALE);
-        if (wordFreq.getCount(capitalCase) < wordFreq.getCount(loweCase)) {
+        String a1Lemma = Turkish.capitalize(a1.analysis.getItem().lemma);
+        String a2LemmaLower = a2.analysis.getItem().lemma.toLowerCase(Turkish.LOCALE);
+        if (wordFreq.getCount(a1Lemma) < wordFreq.getCount(a2LemmaLower)) {
           a1.decision = Decision.IGNORE;
         } else {
           a2.decision = Decision.IGNORE;

@@ -21,7 +21,6 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology._analyzer.StemTransitionGenerator;
 import zemberek.morphology._analyzer.StemTransitions;
 import zemberek.morphology._morphotactics.Conditions.ContainsMorpheme;
 import zemberek.morphology._morphotactics.Conditions.CurrentGroupContainsAny;
@@ -350,8 +349,7 @@ public class TurkishMorphotactics {
   public TurkishMorphotactics(RootLexicon lexicon) {
     this.lexicon = lexicon;
     makeGraph();
-    StemTransitionGenerator generator = new StemTransitionGenerator(this);
-    this.stemTransitions = new StemTransitions(lexicon, generator);
+    this.stemTransitions = new StemTransitions(lexicon, this);
   }
 
   private void makeGraph() {

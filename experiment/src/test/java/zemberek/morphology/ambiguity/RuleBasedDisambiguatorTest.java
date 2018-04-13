@@ -10,7 +10,8 @@ public class RuleBasedDisambiguatorTest {
 
   @Test
   public void test() throws IOException {
-    String input = "ABD Açık Serena Williams'ın";
+    //String input = "ABD Açık Serena Williams'ın";
+    String input = "Çünkü birbirine tezat oluşturuyor.";
     _TurkishMorphologicalAnalyzer analyzer = _TurkishMorphologicalAnalyzer.createDefault();
     RuleBasedDisambiguator disambiguator = new RuleBasedDisambiguator(analyzer);
 
