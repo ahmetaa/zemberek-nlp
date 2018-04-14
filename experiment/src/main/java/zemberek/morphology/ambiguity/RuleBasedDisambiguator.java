@@ -114,6 +114,22 @@ class RuleBasedDisambiguator {
               if (second != null && second.decision == Decision.IGNORE) {
                 continue;
               }
+              oneProper(first, second, i == 0, a.input);
+              oneProper(second, first, i == 0, a.input);
+              bothProper(first, second, rules.bothProperRules);
+            }
+          }
+
+          for (int j = 0; j < a.choices.size(); j++) {
+            AnalysisDecision first = a.choices.get(j);
+            if (first.decision == Decision.IGNORE) {
+              continue;
+            }
+            for (int k = j + 1; k < a.choices.size(); k++) {
+              AnalysisDecision second = a.choices.size() > 1 ? a.choices.get(k) : null;
+              if (second != null && second.decision == Decision.IGNORE) {
+                continue;
+              }
               ignoreOne(first, second, left, right, rules.pairLexRules, a.input);
               if (before == null) {
                 ignoreOne(first, second, left, right, rules.beginPairLexRules, a.input);
@@ -125,21 +141,7 @@ class RuleBasedDisambiguator {
               }
             }
           }
-          for (int j = 0; j < a.choices.size(); j++) {
-            AnalysisDecision first = a.choices.get(j);
-            if (first.decision == Decision.IGNORE) {
-              continue;
-            }
-            for (int k = j + 1; k < a.choices.size(); k++) {
-              AnalysisDecision second = a.choices.size() > 1 ? a.choices.get(k) : null;
-              if (second != null && second.decision == Decision.IGNORE) {
-                continue;
-              }
-              oneProper(first, second, i == 0, a.input);
-              oneProper(second, first, i == 0, a.input);
-              bothProper(first, second, rules.bothProperRules);
-            }
-          }
+
         }
       }
     }
