@@ -20,7 +20,7 @@ import zemberek.morphology._ambiguity._PerceptronAmbiguityResolver.ParseResult;
 import zemberek.morphology._analyzer._SentenceAnalysis;
 import zemberek.morphology._analyzer._SentenceWordAnalysis;
 import zemberek.morphology._analyzer._SingleAnalysis;
-import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
+import zemberek.morphology._analyzer._TurkishMorphology;
 import zemberek.morphology._analyzer._WordAnalysis;
 
 /**
@@ -36,9 +36,9 @@ public class _PerceptronAmbiguityResolverTrainer {
   private Model weights = new Model();
   private Model averagedWeights = new Model();
   private IntValueMap<String> counts = new IntValueMap<>();
-  private _TurkishMorphologicalAnalyzer analyzer;
+  private _TurkishMorphology analyzer;
 
-  _PerceptronAmbiguityResolverTrainer(_TurkishMorphologicalAnalyzer analyzer) {
+  _PerceptronAmbiguityResolverTrainer(_TurkishMorphology analyzer) {
     this.analyzer = analyzer;
   }
 
@@ -140,14 +140,14 @@ public class _PerceptronAmbiguityResolverTrainer {
       this.sentences = sentences;
     }
 
-    static DataSet load(Path path, _TurkishMorphologicalAnalyzer analyzer) throws IOException {
+    static DataSet load(Path path, _TurkishMorphology analyzer) throws IOException {
       List<SentenceDataStr> sentencesFromTextFile = DataSet.loadTrainingDataText(path);
       return new DataSet(DataSet.convert(sentencesFromTextFile, analyzer));
     }
 
     static List<_SentenceAnalysis> convert(
         List<SentenceDataStr> set,
-        _TurkishMorphologicalAnalyzer analyzer) {
+        _TurkishMorphology analyzer) {
 
       List<_SentenceAnalysis> sentences = new ArrayList<>();
       // Find actual analysis equivalents.

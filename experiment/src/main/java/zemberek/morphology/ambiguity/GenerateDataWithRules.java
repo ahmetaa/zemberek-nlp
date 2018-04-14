@@ -14,14 +14,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import zemberek.core.logging.Log;
 import zemberek.langid.LanguageIdentifier;
-import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
+import zemberek.morphology._analyzer._TurkishMorphology;
 import zemberek.morphology._analyzer._WordAnalysis;
-import zemberek.morphology._morphotactics.TurkishMorphotactics;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AmbiguityAnalysis;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AnalysisDecision;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.ResultSentence;
-import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.tokenization.TurkishSentenceExtractor;
 
 class GenerateDataWithRules {
@@ -31,9 +28,7 @@ class GenerateDataWithRules {
 
   private GenerateDataWithRules() throws IOException {
     identifier = LanguageIdentifier.fromInternalModelGroup("tr_group");
-    RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
-    TurkishMorphotactics morphotactics = new TurkishMorphotactics(lexicon);
-    _TurkishMorphologicalAnalyzer analyzer = new _TurkishMorphologicalAnalyzer(morphotactics);
+    _TurkishMorphology analyzer = _TurkishMorphology.createDefault();
     RuleBasedDisambiguator.Rules rules = RuleBasedDisambiguator.Rules.fromResources();
     ruleBasedDisambiguator = new RuleBasedDisambiguator(analyzer, rules);
   }

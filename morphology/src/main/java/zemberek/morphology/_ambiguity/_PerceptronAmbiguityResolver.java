@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -26,7 +25,7 @@ import zemberek.morphology._analyzer._SentenceAnalysis;
 import zemberek.morphology._analyzer._SentenceWordAnalysis;
 import zemberek.morphology._analyzer._SingleAnalysis;
 import zemberek.morphology._analyzer._SingleAnalysis.MorphemeGroup;
-import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
+import zemberek.morphology._analyzer._TurkishMorphology;
 import zemberek.morphology._analyzer._WordAnalysis;
 
 /**
@@ -48,12 +47,12 @@ public class _PerceptronAmbiguityResolver
 
   private Decoder decoder;
 
-  private _TurkishMorphologicalAnalyzer analyzer;
+  private _TurkishMorphology analyzer;
 
   _PerceptronAmbiguityResolver(
       Model averagedModel,
       FeatureExtractor extractor,
-      _TurkishMorphologicalAnalyzer analyzer) {
+      _TurkishMorphology analyzer) {
     this.decoder = new Decoder(averagedModel, extractor);
     this.analyzer = analyzer;
   }
@@ -64,7 +63,7 @@ public class _PerceptronAmbiguityResolver
 
   public static _PerceptronAmbiguityResolver fromModelFile(
       Path modelFile,
-      _TurkishMorphologicalAnalyzer analyzer) throws IOException {
+      _TurkishMorphology analyzer) throws IOException {
     Model model = Model.loadFromTextFile(modelFile);
     FeatureExtractor extractor = new FeatureExtractor(false);
     return new _PerceptronAmbiguityResolver(model, extractor, analyzer);

@@ -21,7 +21,7 @@ import zemberek.core.collections.IntValueMap;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextUtil;
 import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.WordAnalysisFormatter;
+import zemberek.morphology.analysis.WordAnalysisSurfaceFormatter;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.tokenization.TurkishTokenizer;
 
@@ -498,7 +498,7 @@ public class PerceptronNer {
 
   static class FeatureData {
 
-    static WordAnalysisFormatter formatter = new WordAnalysisFormatter();
+    static WordAnalysisSurfaceFormatter formatter = new WordAnalysisSurfaceFormatter();
     TurkishMorphology morphology;
     Gazetteers gazetteers;
     String currentWord;

@@ -13,7 +13,7 @@ import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology._analyzer._SingleAnalysis;
-import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
+import zemberek.morphology._analyzer._TurkishMorphology;
 import zemberek.morphology._analyzer._WordAnalysis;
 import zemberek.morphology.structure.Turkish;
 
@@ -21,11 +21,11 @@ import zemberek.morphology.structure.Turkish;
 
 class RuleBasedDisambiguator {
 
-  _TurkishMorphologicalAnalyzer analyzer;
+  _TurkishMorphology analyzer;
   private static Histogram<String> wordFreq;
   Rules rules;
 
-  public RuleBasedDisambiguator(_TurkishMorphologicalAnalyzer analyzer, Rules rules)
+  public RuleBasedDisambiguator(_TurkishMorphology analyzer, Rules rules)
       throws IOException {
     this.analyzer = analyzer;
     Log.info("Loading 100k word frequencies.");

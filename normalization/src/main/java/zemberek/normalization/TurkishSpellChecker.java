@@ -17,7 +17,7 @@ import zemberek.lm.LmVocabulary;
 import zemberek.lm.NgramLanguageModel;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.WordAnalysisFormatter;
+import zemberek.morphology.analysis.WordAnalysisSurfaceFormatter;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.morphology.structure.Turkish;
 import zemberek.tokenization.TurkishTokenizer;
@@ -28,7 +28,7 @@ public class TurkishSpellChecker {
   private static final NgramLanguageModel DUMMY_LM = new DummyLanguageModel();
   private static final TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
   TurkishMorphology morphology;
-  WordAnalysisFormatter formatter = new WordAnalysisFormatter();
+  WordAnalysisSurfaceFormatter formatter = new WordAnalysisSurfaceFormatter();
   CharacterGraphDecoder decoder;
   NgramLanguageModel unigramModel;
 
@@ -70,7 +70,7 @@ public class TurkishSpellChecker {
 
   public boolean check(String input) {
     List<WordAnalysis> analyses = morphology.analyze(input);
-    WordAnalysisFormatter.CaseType caseType = formatter.guessCase(input);
+    WordAnalysisSurfaceFormatter.CaseType caseType = formatter.guessCase(input);
     for (WordAnalysis analysis : analyses) {
       if (analysis.isUnknown()) {
         continue;
@@ -106,10 +106,10 @@ public class TurkishSpellChecker {
     String normalized = TurkishAlphabet.INSTANCE.normalize(word).replaceAll("['’]", "");
     List<String> strings = decoder.getSuggestions(normalized);
 
-    WordAnalysisFormatter.CaseType caseType = formatter.guessCase(word);
-    if (caseType == WordAnalysisFormatter.CaseType.MIXED_CASE ||
-        caseType == WordAnalysisFormatter.CaseType.LOWER_CASE) {
-      caseType = WordAnalysisFormatter.CaseType.DEFAULT_CASE;
+    WordAnalysisSurfaceFormatter.CaseType caseType = formatter.guessCase(word);
+    if (caseType == WordAnalysisSurfaceFormatter.CaseType.MIXED_CASE ||
+        caseType == WordAnalysisSurfaceFormatter.CaseType.LOWER_CASE) {
+      caseType = WordAnalysisSurfaceFormatter.CaseType.DEFAULT_CASE;
     }
     Set<String> results = new LinkedHashSet<>(strings.size());
     for (String string : strings) {

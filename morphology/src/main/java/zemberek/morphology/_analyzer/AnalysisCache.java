@@ -2,6 +2,7 @@ package zemberek.morphology._analyzer;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import java.io.IOException;
 import java.util.List;
@@ -19,6 +20,7 @@ class AnalysisCache {
   private static final int STATIC_CACHE_CAPACITY = 5000;
   private static final int DEFAULT_INITIAL_DYNAMIC_CACHE_CAPACITY = 1000;
   private static final int DEFAULT_MAX_DYNAMIC_CACHE_CAPACITY = 10000;
+  private static final int DYNAMIC_CACHE_CAPACITY_LIMIT = 1_000_000;
 
   private static final String MOST_USED_WORDS_FILE = "/tr/first-10K";
   private ConcurrentHashMap<String, _WordAnalysis> staticCache;
@@ -26,26 +28,74 @@ class AnalysisCache {
   private long staticCacheHits;
   private long staticCacheMiss;
   private Cache<String, _WordAnalysis> dynamicCache;
+  private boolean staticCacheDisabled;
+  private boolean dynamicCacheDisabled;
 
-  public static AnalysisCache INSTANCE = Singleton.Instance.cache;
+  public static AnalysisCache DEFAULT_INSTANCE = Singleton.Instance.cache;
 
   private enum Singleton {
     Instance;
-    AnalysisCache cache = new AnalysisCache();
+    AnalysisCache cache = new AnalysisCache(new Builder());
   }
 
-  // TODO(add a builder)
-  private AnalysisCache() {
-    dynamicCache = Caffeine.newBuilder()
+  private AnalysisCache(Builder builder) {
+
+    this.dynamicCacheDisabled = builder._disableDynamicCache;
+    this.staticCacheDisabled = builder._disableStaticCache;
+
+    dynamicCache = dynamicCacheDisabled ? null : Caffeine.newBuilder()
         .recordStats()
-        .initialCapacity(DEFAULT_INITIAL_DYNAMIC_CACHE_CAPACITY)
-        .maximumSize(DEFAULT_MAX_DYNAMIC_CACHE_CAPACITY)
+        .initialCapacity(builder._dynamicCacheInitialSize)
+        .maximumSize(builder._dynamicCacheMaxSize)
         .build();
-    staticCache = new ConcurrentHashMap<>(STATIC_CACHE_CAPACITY);
+    staticCache = staticCacheDisabled ? null : new ConcurrentHashMap<>(STATIC_CACHE_CAPACITY);
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+
+    int _staticCacheSize = STATIC_CACHE_CAPACITY;
+    int _dynamicCacheInitialSize = DEFAULT_INITIAL_DYNAMIC_CACHE_CAPACITY;
+    int _dynamicCacheMaxSize = DEFAULT_MAX_DYNAMIC_CACHE_CAPACITY;
+    boolean _disableStaticCache = false;
+    boolean _disableDynamicCache = false;
+
+    Builder staticCacheSize(int staticCacheSize) {
+      Preconditions.checkArgument(staticCacheSize >= 0,
+          "Static cache size cannot be negative. But it is %d", staticCacheSize);
+      this._staticCacheSize = staticCacheSize;
+      return this;
+    }
+
+    Builder dynamicCacheSize(int initial, int max) {
+      Preconditions.checkArgument(initial >= 0,
+          "Dynamic cache initial size cannot be negative. But it is %d", initial);
+      Preconditions.checkArgument(max >= 0,
+          "Dynamic cache initial size cannot be negative. But it is %d", max);
+      Preconditions.checkArgument(max <= DYNAMIC_CACHE_CAPACITY_LIMIT,
+          "Dynamic cache initial size cannot be larger than %d. But it is %d",
+          DYNAMIC_CACHE_CAPACITY_LIMIT, max);
+      this._dynamicCacheInitialSize = initial;
+      this._dynamicCacheMaxSize = max;
+      return this;
+    }
+
+    Builder disableStaticCache() {
+      this._disableStaticCache = true;
+      return this;
+    }
+
+    Builder disableDynamicCache() {
+      this._disableDynamicCache = true;
+      return this;
+    }
   }
 
   synchronized void initializeStaticCache(Function<String, _WordAnalysis> analysisProvider) {
-    if (staticCacheInitialized) {
+    if (staticCacheDisabled || staticCacheInitialized) {
       return;
     }
     new Thread(() -> {
@@ -69,13 +119,18 @@ class AnalysisCache {
   }
 
   _WordAnalysis getAnalysis(String input, Function<String, _WordAnalysis> analysisProvider) {
-    _WordAnalysis analysis = staticCache.get(input);
+
+    _WordAnalysis analysis = staticCacheDisabled ? null : staticCache.get(input);
     if (analysis != null) {
       staticCacheHits++;
       return analysis;
     }
     staticCacheMiss++;
-    return dynamicCache.get(input, analysisProvider);
+    if (dynamicCacheDisabled) {
+      return analysisProvider.apply(input);
+    } else {
+      return dynamicCache.get(input, analysisProvider);
+    }
   }
 
   @Override

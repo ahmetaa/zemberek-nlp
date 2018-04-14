@@ -3,7 +3,7 @@ package zemberek.morphology._ambiguity;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import zemberek.morphology._analyzer._TurkishMorphologicalAnalyzer;
+import zemberek.morphology._analyzer._TurkishMorphology;
 
 public class _PerceptronAmbiguityResolverEvaluation {
 
@@ -12,7 +12,7 @@ public class _PerceptronAmbiguityResolverEvaluation {
     Path train = Paths.get("data/ambiguity/aljazeera-train");
     Path dev = Paths.get("data/ambiguity/open-subtitles-test");
     Path model = Paths.get("data/ambiguity/model");
-    _TurkishMorphologicalAnalyzer analyzer = _TurkishMorphologicalAnalyzer.createDefault();
+    _TurkishMorphology analyzer = _TurkishMorphology.createDefault();
 
     _PerceptronAmbiguityResolver resolver =
         new _PerceptronAmbiguityResolverTrainer(analyzer).train(train, dev, 7);

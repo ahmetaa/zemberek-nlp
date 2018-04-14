@@ -13,9 +13,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
-import zemberek.morphology._morphotactics.TurkishMorphotactics;
-import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.structure.Turkish;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
@@ -26,12 +23,10 @@ public class SpeedTest {
   @Test
   @Ignore(value = "Speed Test.")
   public void testNewsCorpus() throws IOException {
-    Path p = Paths.get("/media/aaa/Data/corpora/me-sentences/www.aljazeera.com.tr/2018-02-22");
-    //Path p = Paths.get("src/main/resources/corpora/cnn-turk-10k");
+    //Path p = Paths.get("/media/aaa/Data/corpora/me-sentences/www.aljazeera.com.tr/2018-02-22");
+    Path p = Paths.get("src/main/resources/corpora/cnn-turk-10k");
     List<String> sentences = getSentences(p);
-    RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
-    TurkishMorphotactics morphotactics = new TurkishMorphotactics(lexicon);
-    _TurkishMorphologicalAnalyzer analyzer = new _TurkishMorphologicalAnalyzer(morphotactics);
+    _TurkishMorphology analyzer = _TurkishMorphology.createDefault();
 
     Stopwatch sw = Stopwatch.createStarted();
 
