@@ -19,7 +19,7 @@ public class TurkishNumbers {
   public static final long MIN_NUMBER = -999999999999999999L;
   private static Map<String, Long> stringToNumber = new HashMap<>();
   private static Map<Long, String> NUMBER_TABLE = new HashMap<>();
-  private static Map<String, String> ORDINAL_READING_TABLE = new HashMap<>();
+  private static Map<String, String> ordinalMap = new HashMap<>();
 
   // fill the NUMBER_TABLE and stringToNumber map.
   static {
@@ -57,7 +57,7 @@ public class TurkishNumbers {
     // read ordinal readings.
     try {
       KeyValueReader reader = new KeyValueReader(":", "#");
-      ORDINAL_READING_TABLE = reader
+      ordinalMap = reader
           .loadFromStream(
               IOs.getClassPathResourceAsStream("/tr/turkish-ordinal-numbers.txt"), "utf-8");
     } catch (IOException e) {
@@ -99,8 +99,6 @@ public class TurkishNumbers {
   private static Pattern NOT_NUMBER = Pattern.compile("[^0-9]");
   private static Pattern NUMBER = Pattern.compile("[0-9]");
 
-
-
   private static void add(long number, String string) {
     NUMBER_TABLE.put(number, string);
   }
@@ -125,6 +123,10 @@ public class TurkishNumbers {
     }
     sonuc = sonuc + " " + tenToNinety[tens] + " " + singleDigitNumbers[singleDigit];
     return sonuc.trim();
+  }
+
+  public static Map<String, String> getOrdinalMap() {
+    return ordinalMap;
   }
 
   /**
@@ -288,8 +290,8 @@ public class TurkishNumbers {
     String[] words = text.trim().split("[ ]+");
     String lastNumber = words[words.length - 1];
 
-    if (ORDINAL_READING_TABLE.containsKey(lastNumber)) {
-      lastNumber = ORDINAL_READING_TABLE.get(lastNumber);
+    if (ordinalMap.containsKey(lastNumber)) {
+      lastNumber = ordinalMap.get(lastNumber);
     } else {
       throw new RuntimeException("Cannot find ordinal reading for:" + lastNumber);
     }
@@ -303,7 +305,7 @@ public class TurkishNumbers {
   }
 
   public static String getOrdinal(String input) {
-    return ORDINAL_READING_TABLE.get(input);
+    return ordinalMap.get(input);
   }
 
   public static boolean hasNumber(String s) {

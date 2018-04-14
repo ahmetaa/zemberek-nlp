@@ -47,6 +47,7 @@ public class TurkishSpellChecker {
     decoder = new CharacterGraphDecoder(graph);
   }
 
+  //TODO: this does not cover all token types.
   public static List<String> tokenizeForSpelling(String sentence) {
     List<Token> tokens = tokenizer.tokenize(sentence);
     List<String> result = new ArrayList<>(tokens.size());
@@ -59,7 +60,7 @@ public class TurkishSpellChecker {
       String w = token.getText();
       if (token.getType() == TurkishLexer.Word) {
         w = w.toLowerCase(Turkish.LOCALE);
-      } else if (token.getType() == TurkishLexer.WordWithApostrophe) {
+      } else if (token.getType() == TurkishLexer.WordWithSymbol) {
         w = Turkish.capitalize(w);
       }
       result.add(w);

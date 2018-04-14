@@ -42,7 +42,7 @@ public class _PerceptronAmbiguityResolverTrainer {
     this.analyzer = analyzer;
   }
 
-  public _PerceptronAmbiguityResolver train(Path trainFile, Path devFile)
+  public _PerceptronAmbiguityResolver train(Path trainFile, Path devFile, int iterationCount)
       throws IOException {
 
     FeatureExtractor extractor = new FeatureExtractor(true);
@@ -51,7 +51,7 @@ public class _PerceptronAmbiguityResolverTrainer {
     DataSet trainingSet = DataSet.load(trainFile, analyzer);
     DataSet devSet = DataSet.load(devFile, analyzer);
     int numExamples = 0;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < iterationCount; i++) {
       Log.info("Iteration:" + i);
       for (_SentenceAnalysis sentence : trainingSet.sentences) {
         if (sentence.size() == 0) {
@@ -149,7 +149,7 @@ public class _PerceptronAmbiguityResolverTrainer {
         List<SentenceDataStr> set,
         _TurkishMorphologicalAnalyzer analyzer) {
 
-      List<_SentenceAnalysis> trainingSentences = new ArrayList<>();
+      List<_SentenceAnalysis> sentences = new ArrayList<>();
       // Find actual analysis equivalents.
       for (SentenceDataStr sentenceStr : set) {
 
@@ -208,14 +208,16 @@ public class _PerceptronAmbiguityResolverTrainer {
         }
 
         if (unambigiousAnalyses.size() == sentenceStr.wordList.size()) {
-          trainingSentences.add(new _SentenceAnalysis(unambigiousAnalyses));
+          sentences.add(new _SentenceAnalysis(unambigiousAnalyses));
         }
       }
-      Log.info("There are %d sentences in trainig set.", trainingSentences.size());
-      Log.info("Total token count is %d.",
-          trainingSentences.stream().mapToInt(_SentenceAnalysis::size).sum());
+      return sentences;
+    }
 
-      return trainingSentences;
+    void info() {
+      Log.info("There are %d sentences and %d tokens.",
+          sentences.size(),
+          sentences.stream().mapToInt(_SentenceAnalysis::size).sum());
 
     }
 
@@ -281,8 +283,10 @@ public class _PerceptronAmbiguityResolverTrainer {
           set.add(new SentenceDataStr(sentence, wordDataStrList));
         }
       }
-      Log.info("%d sentences are loaded. ", set.size());
-      Log.info("Total token count is %d.", set.stream().mapToInt(s -> s.wordList.size()).sum());
+      Log.info("There are %d sentences and %d tokens in %s.",
+          set.size(),
+          set.stream().mapToInt(s -> s.wordList.size()).sum(),
+          input);
       return set;
     }
   }

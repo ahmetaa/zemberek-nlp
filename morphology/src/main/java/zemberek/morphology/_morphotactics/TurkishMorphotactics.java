@@ -748,6 +748,11 @@ public class TurkishMorphotactics {
   // this will be used for proper noun separation.
   MorphemeState puncProperSeparator_S = nonTerminal("puncProperSeparator_S", punc);
 
+  MorphemeState nounNoSuffix_S = builder("nounNoSuffix_S", noun).posRoot().build();
+  MorphemeState nounA3sgNoSuffix_S = nonTerminal("nounA3sgNoSuffix_S", a3sg);
+  MorphemeState nounPnonNoSuffix_S = nonTerminal("nounPnonNoSuffix_S", pnon);
+  MorphemeState nounNomNoSuffix_ST = terminal("nounNomNoSuffix_S", nom);
+
   private void connectProperNounsAndAbbreviations() {
     // ---- Proper noun handling -------
     // TODO: consider adding single quote after an overhaul.
@@ -761,6 +766,11 @@ public class TurkishMorphotactics {
     // TODO: consider restricting possessive, most derivation and plural suffixes.
     nounAbbrv_S.addEmpty(a3sg_S);
     nounAbbrv_S.add(a3pl_S, "lAr");
+
+    //----- This is for catching words that cannot have a suffix.
+    nounNoSuffix_S.addEmpty(nounA3sgNoSuffix_S);
+    nounA3sgNoSuffix_S.addEmpty(nounPnonNoSuffix_S);
+    nounPnonNoSuffix_S.addEmpty(nounNomNoSuffix_ST);
   }
 
   //-------------- Adjective States ------------------------
@@ -2215,11 +2225,20 @@ public class TurkishMorphotactics {
 
     switch (item.primaryPos) {
       case Noun:
-        if (item.secondaryPos == SecondaryPos.ProperNoun) {
-          return nounProper_S;
-        }
-        if (item.secondaryPos == SecondaryPos.Abbreviation) {
-          return nounAbbrv_S;
+
+        switch (item.secondaryPos) {
+          case ProperNoun:
+            return nounProper_S;
+          case Abbreviation:
+            return nounAbbrv_S;
+          case Email:
+          case Url:
+          case HashTag:
+          case Mention:
+          case Emoticon:
+            return nounNoSuffix_S;
+          default:
+            break;
         }
 
         if (item.hasAttribute(RootAttribute.CompoundP3sgRoot)) {
@@ -2227,6 +2246,7 @@ public class TurkishMorphotactics {
         } else {
           return noun_S;
         }
+
       case Adjective:
         return adjectiveRoot_ST;
       case Pronoun:
@@ -2267,8 +2287,39 @@ public class TurkishMorphotactics {
         return dupRoot_ST;
       default:
         return noun_S;
-
     }
   }
 
+  public static Morpheme getMorphemeForPrimaryPos(PrimaryPos pos) {
+    switch (pos) {
+      case Noun:
+        return noun;
+      case Adjective:
+        return adj;
+      case Verb:
+        return verb;
+      case Pronoun:
+        return pron;
+      case Adverb:
+        return adv;
+      case Conjunction:
+        return conj;
+      case Question:
+        return ques;
+      case Interjection:
+        return interj;
+      case Punctuation:
+        return punc;
+      case Determiner:
+        return det;
+      case PostPositive:
+        return postp;
+      case Numeral:
+        return num;
+      case Duplicator:
+        return dup;
+      default:
+        return noun;
+    }
+  }
 }

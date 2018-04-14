@@ -23,6 +23,11 @@ public enum SecondaryPos implements StringEnum {
   Distribution("Dist"),
   Clock("Clock"),
   Date("Date"),
+  Email("Email"),
+  Url("Url"),
+  Mention("Mention"),
+  HashTag("HashTag"),
+  Emoticon("Emoticon"),
   RegularAbbreviation("RegAbbrv"),
   Abbreviation("Abbrv"),
 

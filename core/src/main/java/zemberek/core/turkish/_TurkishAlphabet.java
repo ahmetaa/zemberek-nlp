@@ -17,8 +17,9 @@ public class _TurkishAlphabet {
 
   private final String lowercase = "abcçdefgğhıijklmnoöprsştuüvyzxwqâîû";
   private final String uppercase = lowercase.toUpperCase(TR);
+  private final String allLetters = lowercase + uppercase;
   private final FixedBitVector dictionaryLettersLookup =
-      TextUtil.generateBitLookup(lowercase + uppercase);
+      TextUtil.generateBitLookup(allLetters);
 
   private final String vowelsLowercase = "aeıioöuüâîû";
   private String vowelsUppercase = vowelsLowercase.toUpperCase(TR);
@@ -163,6 +164,10 @@ public class _TurkishAlphabet {
       }
     }
     return false;
+  }
+
+  public String getAllLetters() {
+    return allLetters;
   }
 
   public String normalizeCircumflex(String s) {

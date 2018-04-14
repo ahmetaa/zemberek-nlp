@@ -1,12 +1,12 @@
 package zemberek.morphology._analyzer;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.antlr.v4.runtime.Token;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.core.turkish._TurkishAlphabet;
@@ -42,6 +42,11 @@ public class _TurkishMorphologicalAnalyzer {
 
   public _WordAnalysis analyze(String word) {
     return analyzeWithCache(word);
+  }
+
+  //TODO: cannot use cache with tokens.
+  public _WordAnalysis analyze(Token token) {
+    return analyzeWithoutCache(token);
   }
 
   private _WordAnalysis analyzeWithCache(String word) {
@@ -82,6 +87,31 @@ public class _TurkishMorphologicalAnalyzer {
     return new _WordAnalysis(word, s, res);
   }
 
+  private _WordAnalysis analyzeWithoutCache(Token token) {
+
+    String word = token.getText();
+    String s = TextUtil.normalizeApostrophes(word.toLowerCase(_TurkishAlphabet.TR));
+
+    if (s.length() == 0) {
+      return _WordAnalysis.EMPTY_INPUT_RESULT;
+    }
+    List<_SingleAnalysis> result = analyzer.analyze(s);
+
+    if (result.size() == 0) {
+      result = analyzeWordsWithApostrophe(s);
+    }
+
+    if (result.size() == 0) {
+      result = unidentifiedTokenAnalyzer.analyze(token);
+    }
+
+    if (result.size() == 1 && result.get(0).getItem().isUnknown()) {
+      result = Collections.emptyList();
+    }
+
+    return new _WordAnalysis(word, s, result);
+  }
+
   private List<_SingleAnalysis> analyzeWordsWithApostrophe(String word) {
 
     int index = word.indexOf('\'');
@@ -111,10 +141,10 @@ public class _TurkishMorphologicalAnalyzer {
   }
 
   public List<_WordAnalysis> analyzeSentence(String sentence) {
-    String preprocessed = preProcessSentence(sentence);
+    String normalized = TextUtil.normalizeQuotesHyphens(sentence);
     List<_WordAnalysis> result = new ArrayList<>();
-    for (String s : Splitter.on(" ").omitEmptyStrings().trimResults().split(preprocessed)) {
-      result.add(analyze(s));
+    for (Token token : tokenizer.tokenize(normalized)) {
+      result.add(analyze(token));
     }
     return result;
   }

@@ -91,7 +91,7 @@ fragment TurkishLettersAll
     : [a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ];
 
 fragment AllTurkishAlphanumerical
-    : [0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ-];
+    : [0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ];
 
 fragment Apostrophe: ('\''|'’');
 
@@ -165,17 +165,23 @@ AbbreviationWithDots
 Word
     : TurkishLettersAll+;
 
-// Ahmet'in
-WordWithApostrophe
-    : AllTurkishAlphanumerical+ AposAndSuffix?;
+// f16
+WordAlphanumerical
+    : AllTurkishAlphanumerical+;
+
+WordWithSymbol
+    : AllTurkishAlphanumerical+ '-'? AllTurkishAlphanumerical+ AposAndSuffix?;
+
+fragment PunctuationFragment
+    : Apostrophe | DoubleQuote | '‘' | '…' | '...' | '(!)' | '(?)'| [.,!?%$&*+@:;]
+          | '\\' | '-' | '/' | '(' | ')' | '[' | ']' | '{' | '}';
 
 Punctuation
-    :  Apostrophe | DoubleQuote | '‘' | '…' | '...' | '(!)' | '(?)'| [.,!?%$&*+@:;]
-    | '\\' | '-'  | '(' | ')' | '[' | ']' | '{' | '}';
+    : PunctuationFragment;
 
 UnknownWord
     : ~([ \n\r\t.,!?%$&*+@:;] | '\'' | '’' | '‘' | '"' | '”' | '“' | '»' | '«'
-    |'\\' | '-' |'(' | ')' | '[' | ']' | '{' | '}')+;
+    |'\\' | '-' |'(' | '/' | ')' | '[' | ']' | '{' | '}')+;
 
 // Catch all remaining as Unknown.
 Unknown : .+? ;

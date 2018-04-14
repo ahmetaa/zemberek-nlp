@@ -29,7 +29,7 @@ public class _SingleAnalysis {
   // cached hash value.
   private int hash;
 
-  private _SingleAnalysis(
+  public _SingleAnalysis(
       DictionaryItem item,
       List<MorphemeSurface> morphemesSurfaces,
       int[] groupBoundaries) {
