@@ -28,6 +28,7 @@ public enum SecondaryPos implements StringEnum {
   Mention("Mention"),
   HashTag("HashTag"),
   Emoticon("Emoticon"),
+  RomanNumeral("RomanNumeral"),
   RegularAbbreviation("RegAbbrv"),
   Abbreviation("Abbrv"),
 

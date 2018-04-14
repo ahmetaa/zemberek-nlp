@@ -70,6 +70,11 @@ public class _UnidentifiedTokenAnalyzer {
         return SecondaryPos.Mention;
       case TurkishLexer.Emoticon:
         return SecondaryPos.Emoticon;
+      case TurkishLexer.RomanNumeral:
+        return SecondaryPos.RomanNumeral;
+      case TurkishLexer.AbbreviationWithDots:
+        return SecondaryPos.Abbreviation;
+
       default:
         return SecondaryPos.None;
     }
@@ -93,13 +98,14 @@ public class _UnidentifiedTokenAnalyzer {
 
   private List<_SingleAnalysis> tryWithoutApostrophe(String word) {
     String normalized = TurkishAlphabet.INSTANCE.normalize(word);
-    String pronunciation = guessPronunciation(normalized);
+    //TODO: should we remove dots with normalization?
+    String pronunciation = guessPronunciation(normalized.replaceAll("[.]", ""));
     DictionaryItem itemProp = new DictionaryItem(
         Turkish.capitalize(normalized),
         normalized,
         pronunciation,
         PrimaryPos.Noun,
-        SecondaryPos.ProperNoun);
+        normalized.contains(".") ? SecondaryPos.Abbreviation : SecondaryPos.ProperNoun);
     itemProp.attributes.add(RootAttribute.Runtime);
     analyzer.getStemTransitions().addDictionaryItem(itemProp);
     //TODO eliminate gross code duplication
@@ -117,7 +123,8 @@ public class _UnidentifiedTokenAnalyzer {
     String ending = word.substring(index + 1);
 
     StemAndEnding se = new StemAndEnding(stem, ending);
-    String stemNormalized = TurkishAlphabet.INSTANCE.normalize(se.stem);
+    //TODO: should we remove dots with normalization?
+    String stemNormalized = TurkishAlphabet.INSTANCE.normalize(se.stem).replaceAll("[.]", "");
     String endingNormalized = TurkishAlphabet.INSTANCE.normalize(se.ending);
     String pronunciation = guessPronunciation(stemNormalized);
     DictionaryItem itemProp = new DictionaryItem(
