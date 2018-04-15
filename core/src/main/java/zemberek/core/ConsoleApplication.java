@@ -12,7 +12,7 @@ import zemberek.core.logging.Log;
  * Base class for command line applications. It provides convenience methods for failing and
  * executing applications.
  */
-public abstract class CommandLineApplication {
+public abstract class ConsoleApplication {
 
   @Option(name = "-verbosity",
       aliases = {"-v"},
@@ -115,7 +115,7 @@ public abstract class CommandLineApplication {
   protected abstract String getDescription();
 
   /**
-   * Implementation of the subclasses of CommandLineApplication will be done within this method
+   * Implementation of the subclasses of ConsoleApplication will be done within this method
    */
   protected abstract void run() throws Exception;
 

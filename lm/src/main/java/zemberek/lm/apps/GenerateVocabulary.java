@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import org.kohsuke.args4j.Option;
-import zemberek.core.CommandLineApplication;
+import zemberek.core.ConsoleApplication;
 import zemberek.core.SpaceTabTokenizer;
 import zemberek.core.collections.Histogram;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.SimpleTextWriter;
 import zemberek.core.logging.Log;
 
-public class GenerateVocabulary extends CommandLineApplication {
+public class GenerateVocabulary extends ConsoleApplication {
 
   @Option(name = "-corpus",
       usage = "Text corpus file path.",

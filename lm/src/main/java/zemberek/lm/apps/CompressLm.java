@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import org.kohsuke.args4j.Option;
-import zemberek.core.CommandLineApplication;
+import zemberek.core.ConsoleApplication;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextConverter;
 import zemberek.lm.compression.MultiFileUncompressedLm;
@@ -18,7 +18,7 @@ import zemberek.lm.compression.UncompressedToSmoothLmConverter;
  * A command line utility class for generating compressed SmoothLm model from an Arpa language model
  * file. Run the main method to see the options.
  */
-public class CompressLm extends CommandLineApplication {
+public class CompressLm extends ConsoleApplication {
 
   @Option(name = "-in",
       required = true,

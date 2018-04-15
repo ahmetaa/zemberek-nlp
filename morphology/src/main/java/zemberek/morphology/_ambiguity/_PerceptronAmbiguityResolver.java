@@ -13,8 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.IntValueMap;
+import zemberek.core.compression.LossyIntLookup;
 import zemberek.core.dynamic.ActiveList;
 import zemberek.core.dynamic.Scoreable;
+import zemberek.core.io.IOUtil;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
@@ -33,7 +35,6 @@ import zemberek.morphology._analyzer._WordAnalysis;
  * is based on "Haşim Sak, Tunga Güngör, and Murat Saraçlar. Morphological disambiguation of Turkish
  * text with perceptron algorithm. In CICLing 2007, volume LNCS 4394, pages 107-118, 2007".
  *
- *
  * @see <a href="http://www.cmpe.boun.edu.tr/~hasim">Haşim Sak</a>
  * <p>
  * This is code is adapted from the Author's original Perl implementation.
@@ -50,14 +51,14 @@ public class _PerceptronAmbiguityResolver
   private _TurkishMorphology analyzer;
 
   _PerceptronAmbiguityResolver(
-      Model averagedModel,
+      WeightLookup averagedModel,
       FeatureExtractor extractor,
       _TurkishMorphology analyzer) {
     this.decoder = new Decoder(averagedModel, extractor);
     this.analyzer = analyzer;
   }
 
-  Model getModel() {
+  WeightLookup getModel() {
     return decoder.model;
   }
 
@@ -65,6 +66,14 @@ public class _PerceptronAmbiguityResolver
       Path modelFile,
       _TurkishMorphology analyzer) throws IOException {
     Model model = Model.loadFromTextFile(modelFile);
+    FeatureExtractor extractor = new FeatureExtractor(false);
+    return new _PerceptronAmbiguityResolver(model, extractor, analyzer);
+  }
+
+  public static _PerceptronAmbiguityResolver fromCompressedModelFile(
+      Path modelFile,
+      _TurkishMorphology analyzer) throws IOException {
+    CompressedModel model = CompressedModel.deserialize(modelFile);
     FeatureExtractor extractor = new FeatureExtractor(false);
     return new _PerceptronAmbiguityResolver(model, extractor, analyzer);
   }
@@ -227,10 +236,10 @@ public class _PerceptronAmbiguityResolver
    */
   static class Decoder {
 
-    Model model;
+    WeightLookup model;
     FeatureExtractor extractor;
 
-    Decoder(Model model,
+    Decoder(WeightLookup model,
         FeatureExtractor extractor) {
       this.model = model;
       this.extractor = extractor;
@@ -369,7 +378,44 @@ public class _PerceptronAmbiguityResolver
     }
   }
 
-  static class Model implements Iterable<String> {
+  static class CompressedModel implements WeightLookup {
+
+    LossyIntLookup lookup;
+
+    public CompressedModel(LossyIntLookup lookup) {
+      this.lookup = lookup;
+    }
+
+    @Override
+    public float get(String key) {
+      return lookup.getAsFloat(key);
+    }
+
+    @Override
+    public int size() {
+      return lookup.size();
+    }
+
+    void serialize(Path path) throws IOException {
+      lookup.serialize(path);
+    }
+
+    static CompressedModel deserialize(Path path) throws IOException {
+      LossyIntLookup lookup = LossyIntLookup.deserialize(IOUtil.getDataInputStream(path));
+      return new CompressedModel(lookup);
+    }
+
+  }
+
+  interface WeightLookup {
+
+    float get(String key);
+
+    int size();
+
+  }
+
+  static class Model implements WeightLookup, Iterable<String> {
 
     static float epsilon = 0.0001f;
 
@@ -419,7 +465,11 @@ public class _PerceptronAmbiguityResolver
       this.data = pruned;
     }
 
-    float get(String key) {
+    LossyIntLookup compress() {
+      return LossyIntLookup.generate(data);
+    }
+
+    public float get(String key) {
       return data.get(key);
     }
 

@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import org.kohsuke.args4j.Option;
-import zemberek.core.CommandLineApplication;
+import zemberek.core.ConsoleApplication;
 
-public class YuretTureDisambiguatorRunner extends CommandLineApplication {
+public class YuretTureDisambiguatorRunner extends ConsoleApplication {
 
   @Option(name = "-root",
       required = true,
