@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
-
 // This class contains all morphological analyses of a word.
 public class _WordAnalysis implements Iterable<_SingleAnalysis> {
 
@@ -61,4 +60,7 @@ public class _WordAnalysis implements Iterable<_SingleAnalysis> {
     return new _WordAnalysis(this.input, this.normalizedInput, analyses);
   }
 
+  public List<_SingleAnalysis> getAnalysisResults() {
+    return analysisResults;
+  }
 }

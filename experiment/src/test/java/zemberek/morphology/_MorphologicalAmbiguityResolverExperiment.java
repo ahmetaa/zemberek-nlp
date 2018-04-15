@@ -74,7 +74,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
         for (Single single : sentence.tokens) {
           for (_SingleAnalysis r : single.res) {
             pw.println(single.input);
-            pw.println(r.format());
+            pw.println(r.formatLong());
           }
         }
         pw.println();

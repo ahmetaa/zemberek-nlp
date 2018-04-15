@@ -1,31 +1,33 @@
 package morphology;
 
 import java.io.IOException;
-import java.util.List;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
+import zemberek.morphology._analyzer.AnalysisFormatters;
+import zemberek.morphology._analyzer._SingleAnalysis;
+import zemberek.morphology._analyzer._TurkishMorphology;
+import zemberek.morphology._analyzer._WordAnalysis;
 
 public class AnalyzeWords {
 
-  TurkishMorphology morphology;
+  _TurkishMorphology morphology;
 
-  public AnalyzeWords(TurkishMorphology morphology) {
+  public AnalyzeWords(_TurkishMorphology morphology) {
     this.morphology = morphology;
   }
 
   public static void main(String[] args) throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    _TurkishMorphology morphology = _TurkishMorphology.createWithDefaults();
     new AnalyzeWords(morphology).analyze("kalemi");
   }
 
   public void analyze(String word) {
     System.out.println("Word = " + word);
-    List<WordAnalysis> results = morphology.analyze(word);
-    for (WordAnalysis result : results) {
-      System.out.println(result.formatLong());
-      System.out.println(result.formatNoEmpty());
-      System.out.println(result.formatOflazer());
-      System.out.println(result.formatOnlyIgs());
+    _WordAnalysis results = morphology.analyze(word);
+    for (_SingleAnalysis result : results) {
+      System.out.println("Morphemes and Surface : " + result.formatLong());
+      System.out.println("Only Morphemes        : " + result.formatLexical());
+      System.out.println("Oflazer style         : " +
+          AnalysisFormatters.OFLAZER_STYLE.format(result));
+      System.out.println();
     }
   }
 

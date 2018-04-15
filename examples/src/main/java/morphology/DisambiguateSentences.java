@@ -1,49 +1,46 @@
 package morphology;
 
 import java.io.IOException;
-import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
-import zemberek.morphology.analysis.SentenceAnalysis;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
-import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
+import java.util.List;
+import zemberek.morphology._analyzer._SentenceAnalysis;
+import zemberek.morphology._analyzer._SentenceWordAnalysis;
+import zemberek.morphology._analyzer._SingleAnalysis;
+import zemberek.morphology._analyzer._TurkishMorphology;
+import zemberek.morphology._analyzer._WordAnalysis;
 
 public class DisambiguateSentences {
 
-  TurkishSentenceAnalyzer sentenceAnalyzer;
+  _TurkishMorphology morphology;
 
-  public DisambiguateSentences(TurkishSentenceAnalyzer sentenceAnalyzer) {
-    this.sentenceAnalyzer = sentenceAnalyzer;
+  public DisambiguateSentences(_TurkishMorphology morphology) {
+    this.morphology = morphology;
   }
 
   public static void main(String[] args) throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-    Z3MarkovModelDisambiguator disambiguator = new Z3MarkovModelDisambiguator();
-    TurkishSentenceAnalyzer sentenceAnalyzer = new TurkishSentenceAnalyzer(
-        morphology,
-        disambiguator
-    );
-    new DisambiguateSentences(sentenceAnalyzer)
-        .analyzeAndDisambiguate("86 lira harcardım.");
+    _TurkishMorphology morphology = _TurkishMorphology.createWithDefaults();
+
+    new DisambiguateSentences(morphology)
+        .analyzeAndDisambiguate("Bu akşam kar yağacak gibi.");
   }
 
   void analyzeAndDisambiguate(String sentence) {
     System.out.println("Sentence  = " + sentence);
-    SentenceAnalysis result = sentenceAnalyzer.analyze(sentence);
+    List<_WordAnalysis> analyses = morphology.analyzeSentence(sentence);
 
-    System.out.println("Before disambiguation.");
-    writeParseResult(result);
+    System.out.println("Sentence word analysis result:");
+    writeParseResult(analyses);
 
-    System.out.println("\nAfter disambiguation.");
-    sentenceAnalyzer.disambiguate(result);
-
-    writeParseResult(result);
-
+    _SentenceAnalysis result = morphology.disambiguate(analyses);
+    System.out.println("\nBest analyses:");
+    for (_SentenceWordAnalysis sentenceWordAnalysis : result) {
+      System.out.println(sentenceWordAnalysis.getAnalysis().formatLong());
+    }
   }
 
-  private void writeParseResult(SentenceAnalysis sentenceAnalysis) {
-    for (SentenceAnalysis.Entry entry : sentenceAnalysis) {
-      System.out.println("Word = " + entry.input);
-      for (WordAnalysis analysis : entry.parses) {
+  private void writeParseResult(List<_WordAnalysis> sentenceAnalysis) {
+    for (_WordAnalysis entry : sentenceAnalysis) {
+      System.out.println("Word = " + entry.getInput());
+      for (_SingleAnalysis analysis : entry) {
         System.out.println(analysis.formatLong());
       }
     }

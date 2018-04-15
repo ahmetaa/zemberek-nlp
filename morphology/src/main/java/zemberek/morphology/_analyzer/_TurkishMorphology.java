@@ -18,6 +18,8 @@ import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.core.turkish._TurkishAlphabet;
+import zemberek.morphology._ambiguity._AmbiguityResolver;
+import zemberek.morphology._ambiguity._PerceptronAmbiguityResolver;
 import zemberek.morphology._morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.Serializer;
@@ -37,6 +39,7 @@ public class _TurkishMorphology {
   private TurkishTokenizer tokenizer;
   private AnalysisCache cache;
   private TurkishMorphotactics morphotactics;
+  private _AmbiguityResolver ambiguityResolver;
 
   private boolean useUnidentifiedTokenAnalyzer;
   private boolean useCache;
@@ -59,6 +62,17 @@ public class _TurkishMorphology {
     }
     this.useCache = builder.useDynamicCache;
     this.useUnidentifiedTokenAnalyzer = builder.useUnidentifiedTokenAnalyzer;
+
+    if (ambiguityResolver == null) {
+      String resourcePath = "/tr/ambiguity/model-compressed";
+      try {
+        this.ambiguityResolver =
+            _PerceptronAmbiguityResolver.fromResource(resourcePath);
+      } catch (IOException e) {
+        throw new RuntimeException(
+            "Cannot initialize _PerceptronAmbiguityResolver from resource " + resourcePath, e);
+      }
+    }
   }
 
   public static _TurkishMorphology createWithDefaults() throws IOException {
@@ -90,6 +104,16 @@ public class _TurkishMorphology {
 
   private _WordAnalysis analyzeWithCache(String word) {
     return cache.getAnalysis(word, this::analyzeWithoutCache);
+  }
+
+  public void invalidateCache() {
+    if (useCache) {
+      cache.invalidateDynamicCache();
+    }
+  }
+
+  public RootLexicon getLexicon() {
+    return lexicon;
   }
 
   /**
@@ -188,6 +212,14 @@ public class _TurkishMorphology {
     return result;
   }
 
+  public _SentenceAnalysis disambiguate(List<_WordAnalysis> sentenceAnalysis) {
+    return ambiguityResolver.disambiguate(sentenceAnalysis);
+  }
+
+  public _SentenceAnalysis analyzeAndResolveAmbiguıty(String sentence) {
+    return disambiguate(analyzeSentence(sentence));
+  }
+
   public AnalysisCache getCache() {
     return cache;
   }
@@ -206,6 +238,7 @@ public class _TurkishMorphology {
     boolean useDynamicCache = true;
     boolean useUnidentifiedTokenAnalyzer = true;
     AnalysisCache cache;
+    _AmbiguityResolver ambiguityResolver;
     TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
 
     public Builder addBinaryDictionary(Path dictionaryPath) throws IOException {
@@ -261,6 +294,11 @@ public class _TurkishMorphology {
 
     public Builder setCache(AnalysisCache cache) {
       this.cache = cache;
+      return this;
+    }
+
+    public Builder setAmbiguityResolver(_AmbiguityResolver ambiguityResolver) {
+      this.ambiguityResolver = ambiguityResolver;
       return this;
     }
 

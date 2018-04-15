@@ -84,6 +84,9 @@ public class TextIO {
 
   public static List<String> loadLinesFromResource(String resourcePath, String ignorePrefix)
       throws IOException {
+    if (!resourcePath.startsWith("/")) {
+      resourcePath = "/" + resourcePath;
+    }
     try (InputStream is = TextIO.class.getResourceAsStream(resourcePath)) {
       BufferedReader reader = new BufferedReader(
           new InputStreamReader(is, StandardCharsets.UTF_8));

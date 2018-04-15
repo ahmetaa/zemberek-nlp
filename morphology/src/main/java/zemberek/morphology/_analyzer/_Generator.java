@@ -248,10 +248,10 @@ public class _Generator {
     return newPaths;
   }
 
-  static class GenerationResult {
+  public static class GenerationResult {
 
-    String surface;
-    _SingleAnalysis analysis;
+    public final String surface;
+    public final _SingleAnalysis analysis;
 
     public GenerationResult(String surface, _SingleAnalysis analysis) {
       this.surface = surface;

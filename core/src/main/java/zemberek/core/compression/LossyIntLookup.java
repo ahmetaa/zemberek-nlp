@@ -3,12 +3,14 @@ package zemberek.core.compression;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PushbackInputStream;
 import java.nio.file.Path;
 import java.util.List;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.hash.Mphf;
 import zemberek.core.hash.MultiLevelMphf;
 import zemberek.core.hash.StringHashKeyProvider;
+import zemberek.core.io.Bytes;
 import zemberek.core.io.IOUtil;
 
 /**
@@ -20,6 +22,8 @@ public class LossyIntLookup {
 
   Mphf mphf;
   int[] data; // contains fingerprints and actual data.
+
+  private static final int MAGIC = 0xcafebeef;
 
   public LossyIntLookup(Mphf mphf, int[] data) {
     this.mphf = mphf;
@@ -69,6 +73,7 @@ public class LossyIntLookup {
 
   public void serialize(Path path) throws IOException {
     try (DataOutputStream dos = IOUtil.getDataOutputStream(path)) {
+      dos.writeInt(MAGIC);
       dos.writeInt(data.length);
       for (int d : data) {
         dos.writeInt(d);
@@ -77,7 +82,23 @@ public class LossyIntLookup {
     }
   }
 
+  public static boolean checkStream(DataInputStream dis) throws IOException {
+    PushbackInputStream pis = new PushbackInputStream(dis, 4);
+    byte[] fourBytes = new byte[4];
+    int c = dis.read(fourBytes);
+    if (c < 4) {
+      return false;
+    }
+    int magic = Bytes.toInt(fourBytes, true);
+    pis.unread(fourBytes);
+    return magic == MAGIC;
+  }
+
   public static LossyIntLookup deserialize(DataInputStream dis) throws IOException {
+    long magic = dis.readInt();
+    if (magic != MAGIC) {
+      throw new IllegalStateException("File does not carry expected value in the beginning.");
+    }
     int length = dis.readInt();
     int[] data = new int[length];
     for (int i = 0; i < data.length; i++) {

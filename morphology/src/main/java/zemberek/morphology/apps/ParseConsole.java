@@ -10,10 +10,9 @@ import java.util.Scanner;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
+import zemberek.morphology._analyzer._SingleAnalysis;
+import zemberek.morphology._analyzer._TurkishMorphology;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.lexicon.SuffixProvider;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 
 public class ParseConsole {
@@ -33,23 +32,22 @@ public class ParseConsole {
   public static void main(String[] args) throws IOException {
     // to test the development lexicon, use ParseConsoleTest
     //TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-    TurkishMorphology morphology = TurkishMorphology.builder().addDefaultDictionaries().build();
+    _TurkishMorphology morphology = _TurkishMorphology.builder().addDefaultDictionaries().build();
     //morphology.getGraph().stats();
     new ParseConsole().run(morphology);
   }
 
-  public void run(TurkishMorphology parser) throws IOException {
+  public void run(_TurkishMorphology parser) throws IOException {
     String input;
     System.out.println("Enter word:");
     Scanner sc = new Scanner(System.in);
     input = sc.nextLine();
     while (!input.equals("exit") && !input.equals("quit")) {
 
-      List<WordAnalysis> tokens = parser.analyze(input);
+      List<_SingleAnalysis> tokens = parser.analyze(input).getAnalysisResults();
       if (tokens.size() == 0 || (tokens.size() == 1
-          && tokens.get(0).dictionaryItem.primaryPos == PrimaryPos.Unknown)) {
+          && tokens.get(0).getDictionaryItem().primaryPos == PrimaryPos.Unknown)) {
         System.out.println("cannot be parsed");
-        parser.getWordAnalyzer().dump(input);
       } else {
         tokens.forEach(this::printMorphParse);
       }
@@ -57,10 +55,9 @@ public class ParseConsole {
     }
   }
 
-  protected void printMorphParse(WordAnalysis token) {
+  protected void printMorphParse(_SingleAnalysis token) {
     String runtime =
-        token.dictionaryItem.hasAttribute(RootAttribute.Runtime) ? " [Not in dictionary]" : "";
+        token.getDictionaryItem().hasAttribute(RootAttribute.Runtime) ? " [Not in dictionary]" : "";
     System.out.println(token.formatLong() + runtime);
-    System.out.println(token.formatOflazer() + runtime);
   }
 }

@@ -79,6 +79,17 @@ public class _SingleAnalysis {
       return sb.toString();
     }
 
+    public String surfaceFormSkipPosRoot() {
+      StringBuilder sb = new StringBuilder();
+      for (MorphemeSurface mSurface : morphemes) {
+        if (mSurface.morpheme.pos != null) {
+          continue;
+        }
+        sb.append(mSurface.surface);
+      }
+      return sb.toString();
+    }
+
     public String lexicalForm() {
       StringBuilder sb = new StringBuilder();
       for (MorphemeSurface mSurface : morphemes) {
@@ -161,7 +172,7 @@ public class _SingleAnalysis {
     return morphemesSurfaces;
   }
 
-  public List getMorphemes() {
+  public List<Morpheme> getMorphemes() {
     return morphemesSurfaces.stream().map(s -> s.morpheme).collect(Collectors.toList());
   }
 
@@ -307,9 +318,13 @@ public class _SingleAnalysis {
   }
 
   /**
-   * Returns surface forms list of all root and derivational roots of a parse. Examples: "kitaplar"
-   * ->["kitap"] "kitabım"   ->["kitab"] "kitaplaşır"->["kitap", "kitaplaş"] "kavrulduk"
-   * ->["kavr","kavrul"]
+   * Returns surface forms list of all root and derivational roots of a parse. Examples:
+   * <pre>
+   * "kitaplar"  ->["kitap"]
+   * "kitabım"   ->["kitab"]
+   * "kitaplaşır"->["kitap", "kitaplaş"]
+   * "kavrulduk" ->["kavr","kavrul"]
+   * </pre>
    */
   public List<String> getStems() {
     List<String> stems = Lists.newArrayListWithCapacity(2);
@@ -332,9 +347,45 @@ public class _SingleAnalysis {
     return stems;
   }
 
+
+  /**
+   * Returns list of all lemmas of a parse.
+   * Examples:
+   * <pre>
+   * "kitaplar"  ->["kitap"]
+   * "kitabım"   ->["kitap"]
+   * "kitaplaşır"->["kitap", "kitaplaş"]
+   * "kitaplaş"  ->["kitap", "kitaplaş"]
+   * "arattıragörür" -> ["ara","arat","arattır","arattıragör"]
+   * </pre>
+   */
+  public List<String> getLemmas() {
+    List<String> lemmas = Lists.newArrayListWithCapacity(2);
+    lemmas.add(item.root);
+
+    String previousStem = getGroup(0).surfaceForm();
+    if (groupBoundaries.length > 1) {
+      for (int i = 1; i < groupBoundaries.length; i++) {
+        MorphemeGroup ig = getGroup(i);
+        MorphemeSurface suffixData = ig.morphemes.get(0);
+
+        String surface = suffixData.surface;
+        if (suffixData.surface.endsWith("ğ")) {
+          surface = surface.substring(0, surface.length() - 1) + "k";
+        }
+        String stem = previousStem + surface;
+        if (!lemmas.contains(stem)) {
+          lemmas.add(stem);
+        }
+        previousStem = previousStem + ig.surfaceForm();
+      }
+    }
+    return lemmas;
+  }
+
   @Override
   public String toString() {
-    return format();
+    return formatLong();
   }
 
   public String formatSurfaceSequence() {
@@ -353,7 +404,7 @@ public class _SingleAnalysis {
     return AnalysisFormatters.DEFAULT_LEXICAL_MORPHEME.format(this);
   }
 
-  public String format() {
+  public String formatLong() {
     return AnalysisFormatters.DEFAULT_SURFACE.format(this);
   }
 

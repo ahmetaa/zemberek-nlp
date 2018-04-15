@@ -99,6 +99,7 @@ var [var:Adj] [varmak:Verb]
 * [değil:Verb] [değmek:Verb]
 
 değil [değil:Verb] [değil:Conj]
+değil [değil:Verb] [değmek:Verb]
 
 Hayır * [Hayır:Noun,Prop]
 
@@ -259,3 +260,5 @@ bura* [bura:Noun] [burmak:Verb]
 erişim [erişim:Noun] [ermek:Verb]
 
 düşüş* Inf3→Noun Recip→Verb
+
+yarın|Yarın [yarın:Noun,Time] *

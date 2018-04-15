@@ -2,6 +2,7 @@ package zemberek.morphology._ambiguity;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
@@ -43,39 +44,40 @@ import zemberek.morphology._analyzer._WordAnalysis;
  * <p>
  * For Training, use {@link _PerceptronAmbiguityResolverTrainer} class.
  */
-public class _PerceptronAmbiguityResolver
-    implements _AmbiguityResolver {
+public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
 
   private Decoder decoder;
 
-  private _TurkishMorphology analyzer;
-
-  _PerceptronAmbiguityResolver(
-      WeightLookup averagedModel,
-      FeatureExtractor extractor,
-      _TurkishMorphology analyzer) {
+  _PerceptronAmbiguityResolver(WeightLookup averagedModel, FeatureExtractor extractor) {
     this.decoder = new Decoder(averagedModel, extractor);
-    this.analyzer = analyzer;
   }
 
   WeightLookup getModel() {
     return decoder.model;
   }
 
-  public static _PerceptronAmbiguityResolver fromModelFile(
-      Path modelFile,
-      _TurkishMorphology analyzer) throws IOException {
-    Model model = Model.loadFromTextFile(modelFile);
+  public static _PerceptronAmbiguityResolver fromModelFile(Path modelFile) throws IOException {
+
+    WeightLookup lookup;
+    if (CompressedModel.isCompressed(modelFile)) {
+      lookup = CompressedModel.deserialize(modelFile);
+    } else {
+      lookup = Model.loadFromFile(modelFile);
+    }
     FeatureExtractor extractor = new FeatureExtractor(false);
-    return new _PerceptronAmbiguityResolver(model, extractor, analyzer);
+    return new _PerceptronAmbiguityResolver(lookup, extractor);
   }
 
-  public static _PerceptronAmbiguityResolver fromCompressedModelFile(
-      Path modelFile,
-      _TurkishMorphology analyzer) throws IOException {
-    CompressedModel model = CompressedModel.deserialize(modelFile);
+  public static _PerceptronAmbiguityResolver fromResource(String resourcePath) throws IOException {
+
+    WeightLookup lookup;
+    if (CompressedModel.isCompressed(resourcePath)) {
+      lookup = CompressedModel.deserialize(resourcePath);
+    } else {
+      lookup = Model.loadFromResource(resourcePath);
+    }
     FeatureExtractor extractor = new FeatureExtractor(false);
-    return new _PerceptronAmbiguityResolver(model, extractor, analyzer);
+    return new _PerceptronAmbiguityResolver(lookup, extractor);
   }
 
   @Override
@@ -88,8 +90,8 @@ public class _PerceptronAmbiguityResolver
     return new _SentenceAnalysis(l);
   }
 
-  public void test(Path testFilePath) throws IOException {
-    DataSet testSet = DataSet.load(testFilePath, analyzer);
+  public void test(Path testFilePath, _TurkishMorphology morphology) throws IOException {
+    DataSet testSet = DataSet.load(testFilePath, morphology);
     test(testSet);
   }
 
@@ -405,6 +407,28 @@ public class _PerceptronAmbiguityResolver
       return new CompressedModel(lookup);
     }
 
+    static boolean isCompressed(DataInputStream dis) throws IOException {
+      return LossyIntLookup.checkStream(dis);
+    }
+
+    static boolean isCompressed(Path path) throws IOException {
+      try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
+        return isCompressed(dis);
+      }
+    }
+
+    static boolean isCompressed(String resource) throws IOException {
+      try (DataInputStream dis = IOUtil.getDataInputStream(resource)) {
+        return isCompressed(dis);
+      }
+    }
+
+
+    static CompressedModel deserialize(String resource) throws IOException {
+      try (DataInputStream dis = IOUtil.getDataInputStream(resource)) {
+        return new CompressedModel(LossyIntLookup.deserialize(dis));
+      }
+    }
   }
 
   interface WeightLookup {
@@ -433,10 +457,19 @@ public class _PerceptronAmbiguityResolver
       return data.size();
     }
 
-    static Model loadFromTextFile(Path file) throws IOException {
-      FloatValueMap<String> data = new FloatValueMap<>(10000);
+    static Model loadFromResource(String resource) throws IOException {
+      List<String> lines = TextIO.loadLinesFromResource(resource);
+      return loadFromLines(lines);
+    }
+
+    static Model loadFromFile(Path file) throws IOException {
       List<String> all = TextIO.loadLines(file);
-      for (String s : all) {
+      return loadFromLines(all);
+    }
+
+    static Model loadFromLines(List<String> lines) {
+      FloatValueMap<String> data = new FloatValueMap<>(10000);
+      for (String s : lines) {
         float weight = Float.parseFloat(Strings.subStringUntilFirst(s, " "));
         String key = Strings.subStringAfterFirst(s, " ");
         data.set(key, weight);

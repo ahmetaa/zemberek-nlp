@@ -94,6 +94,12 @@ class AnalysisCache {
     }
   }
 
+  void invalidateDynamicCache() {
+    if (!dynamicCacheDisabled && dynamicCache != null) {
+      dynamicCache.invalidateAll();
+    }
+  }
+
   synchronized void initializeStaticCache(Function<String, _WordAnalysis> analysisProvider) {
     if (staticCacheDisabled || staticCacheInitialized) {
       return;

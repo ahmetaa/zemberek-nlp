@@ -2,32 +2,37 @@ package morphology;
 
 import java.io.IOException;
 import java.util.List;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
+import zemberek.morphology._analyzer._Generator;
+import zemberek.morphology._analyzer._Generator.GenerationResult;
+import zemberek.morphology._analyzer._SingleAnalysis;
+import zemberek.morphology._analyzer._TurkishMorphology;
+import zemberek.morphology._analyzer._WordAnalysis;
 import zemberek.morphology.lexicon.DictionaryItem;
 
 public class ChangeStem {
 
-  TurkishMorphology morphology;
+  _TurkishMorphology morphology;
 
-  public ChangeStem(TurkishMorphology morphology) {
+  public ChangeStem(_TurkishMorphology morphology) {
     this.morphology = morphology;
   }
 
   public static void main(String[] args) throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    _TurkishMorphology morphology = _TurkishMorphology.createWithDefaults();
     DictionaryItem newStem = morphology.getLexicon().getMatchingItems("poğaça").get(0);
     new ChangeStem(morphology).regenerate("simidime", newStem);
   }
 
-  public void regenerate(String word, DictionaryItem lemma) {
-    System.out.println("Word = " + word);
-    List<WordAnalysis> results = morphology.analyze(word);
-    for (WordAnalysis result : results) {
-      String[] generated = morphology.getGenerator().generate(lemma, result.getSuffixes());
-      for (String s : generated) {
-        System.out
-            .println("Generated for " + result.formatLong() + " with item " + lemma + " = " + s);
+  private void regenerate(String word, DictionaryItem dictionaryItem) {
+    System.out.println("Input Word = " + word);
+    _WordAnalysis results = morphology.analyze(word);
+    for (_SingleAnalysis result : results) {
+      List<_Generator.GenerationResult> generated =
+          morphology.getGenerator().generate(dictionaryItem.lemma, result.getMorphemes());
+      for (GenerationResult s : generated) {
+        System.out.println("Input analysis: " + result.formatLong());
+        System.out.println("After stem change, word = " + s.surface);
+        System.out.println("After stem change, Analysis = " + s.analysis.formatLong());
       }
     }
   }

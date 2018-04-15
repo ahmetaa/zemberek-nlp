@@ -1,20 +1,20 @@
 package morphology;
 
 import java.io.IOException;
-import java.util.List;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
+import zemberek.morphology._analyzer._SingleAnalysis;
+import zemberek.morphology._analyzer._TurkishMorphology;
+import zemberek.morphology._analyzer._WordAnalysis;
 
 public class StemmingAndLemmatization {
 
-  TurkishMorphology morphology;
+  _TurkishMorphology morphology;
 
-  public StemmingAndLemmatization(TurkishMorphology morphology) {
+  public StemmingAndLemmatization(_TurkishMorphology morphology) {
     this.morphology = morphology;
   }
 
   public static void main(String[] args) throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    _TurkishMorphology morphology = _TurkishMorphology.createWithDefaults();
     new StemmingAndLemmatization(morphology).analyze("kitabımızsa");
   }
 
@@ -22,8 +22,8 @@ public class StemmingAndLemmatization {
     System.out.println("Word = " + word);
 
     System.out.println("Parses: ");
-    List<WordAnalysis> results = morphology.analyze(word);
-    for (WordAnalysis result : results) {
+    _WordAnalysis results = morphology.analyze(word);
+    for (_SingleAnalysis result : results) {
       System.out.println(result.formatLong());
       System.out.println("\tStems = " + result.getStems());
       System.out.println("\tLemmas = " + result.getLemmas());

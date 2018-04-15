@@ -10,14 +10,15 @@ public class _PerceptronAmbiguityResolverEvaluation {
 
   public static void main(String[] args) throws IOException {
 
-    Path train = Paths.get("data/ambiguity/aljazeera-train");
+    Path train = Paths.get("data/ambiguity/train");
     Path dev = Paths.get("data/ambiguity/open-subtitles-test");
-    Path model = Paths.get("data/ambiguity/model");
-    Path modelCompressed = Paths.get("data/ambiguity/model-compressed");
-    _TurkishMorphology analyzer = _TurkishMorphology.createWithDefaults();
+    Path model = Paths.get("morphology/src/main/resources/tr/ambiguity/model");
+    Path modelCompressed = Paths.get("morphology/src/main/resources/tr/ambiguity/model-compressed");
+
+    _TurkishMorphology morphology = _TurkishMorphology.createWithDefaults();
 
     _PerceptronAmbiguityResolver resolver =
-        new _PerceptronAmbiguityResolverTrainer(analyzer).train(train, dev, 7);
+        new _PerceptronAmbiguityResolverTrainer(morphology).train(train, dev, 7);
     Model modelTrained = (Model) resolver.getModel();
     modelTrained.pruneNearZeroWeights();
     modelTrained.saveAsText(model);
@@ -25,18 +26,17 @@ public class _PerceptronAmbiguityResolverEvaluation {
     System.out.println("Load model and test");
 
     _PerceptronAmbiguityResolver resolverRead =
-        _PerceptronAmbiguityResolver.fromModelFile(model, analyzer);
+        _PerceptronAmbiguityResolver.fromModelFile(model);
     Path test = Paths.get("data/ambiguity/open-subtitles-test");
-    resolverRead.test(test);
     ((Model) resolverRead.getModel()).compress().serialize(modelCompressed);
+
+    resolverRead.test(test, morphology);
 
     System.out.println("Load compressed model and test");
 
     _PerceptronAmbiguityResolver comp =
-        _PerceptronAmbiguityResolver.fromCompressedModelFile(modelCompressed, analyzer);
-    comp.test(test);
-
-
+        _PerceptronAmbiguityResolver.fromModelFile(modelCompressed);
+    comp.test(test, morphology);
   }
 
 }

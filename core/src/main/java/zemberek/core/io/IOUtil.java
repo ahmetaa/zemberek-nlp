@@ -21,6 +21,11 @@ public class IOUtil {
     return new DataInputStream(new BufferedInputStream(is));
   }
 
+  public static DataInputStream getDataInputStream(String resource) throws IOException {
+    return new DataInputStream(new BufferedInputStream(IOUtil.class.getResourceAsStream(resource)));
+  }
+
+
   public static DataOutputStream getDataOutputStream(Path path) throws IOException {
     return new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(path)));
   }

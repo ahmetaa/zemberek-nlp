@@ -45,7 +45,7 @@ public class _PerceptronAmbiguityResolverTrainer {
   public _PerceptronAmbiguityResolver train(Path trainFile, Path devFile, int iterationCount)
       throws IOException {
 
-    FeatureExtractor extractor = new FeatureExtractor(true);
+    FeatureExtractor extractor = new FeatureExtractor(false);
     Decoder decoder = new Decoder(weights, extractor);
 
     DataSet trainingSet = DataSet.load(trainFile, analyzer);
@@ -82,12 +82,11 @@ public class _PerceptronAmbiguityResolverTrainer {
 
       Log.info("Testing development set.");
       _PerceptronAmbiguityResolver disambiguator =
-          new _PerceptronAmbiguityResolver(averagedWeights, extractor, analyzer);
+          new _PerceptronAmbiguityResolver(averagedWeights, extractor);
       disambiguator.test(devSet);
 
     }
-    return new _PerceptronAmbiguityResolver(averagedWeights,
-        new FeatureExtractor(false), analyzer);
+    return new _PerceptronAmbiguityResolver(averagedWeights, new FeatureExtractor(false));
   }
 
   private void updateModel(
@@ -187,7 +186,7 @@ public class _PerceptronAmbiguityResolverTrainer {
 
           Map<String, _SingleAnalysis> analysisMap = new HashMap<>();
           for (_SingleAnalysis single : w) {
-            analysisMap.put(single.format(), single);
+            analysisMap.put(single.formatLong(), single);
           }
 
           for (String analysis : s.wordAnalysis) {

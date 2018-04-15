@@ -187,19 +187,19 @@ class RuleBasedDisambiguator {
       List<String> result = new ArrayList<>();
       result.add(input);
       if (choices.size() == 1) {
-        result.add(choices.get(0).analysis.format());
+        result.add(choices.get(0).analysis.formatLong());
         return result;
       }
 
       List<String> notIgnored = choices.stream().filter(s -> s.decision != Decision.IGNORE)
-          .map(s -> s.analysis.format()).collect(Collectors.toList());
+          .map(s -> s.analysis.formatLong()).collect(Collectors.toList());
       if (notIgnored.size() == 1) {
         result.add(notIgnored.get(0) + "*");
       } else {
         result.addAll(notIgnored);
       }
       List<String> ignored = choices.stream().filter(s -> s.decision == Decision.IGNORE)
-          .map(s -> s.analysis.format()).collect(Collectors.toList());
+          .map(s -> s.analysis.formatLong()).collect(Collectors.toList());
       for (String s : ignored) {
         result.add(s + "-");
       }
