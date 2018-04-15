@@ -15,7 +15,8 @@ public class StemmingAndLemmatization {
 
   public static void main(String[] args) throws IOException {
     _TurkishMorphology morphology = _TurkishMorphology.createWithDefaults();
-    new StemmingAndLemmatization(morphology).analyze("kitabımızsa");
+    //new StemmingAndLemmatization(morphology).analyze("kitabımızsa");
+    new StemmingAndLemmatization(morphology).analyze("geleceğe");
   }
 
   public void analyze(String word) {
