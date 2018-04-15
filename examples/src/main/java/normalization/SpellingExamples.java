@@ -1,13 +1,14 @@
 package normalization;
 
 import java.io.IOException;
+import zemberek.morphology._analyzer._TurkishMorphology;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.normalization.TurkishSpellChecker;
 
 public class SpellingExamples {
 
   public static void main(String[] args) throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    _TurkishMorphology morphology = _TurkishMorphology.createWithDefaults();
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
 
     System.out.println("Check if written correctly.");

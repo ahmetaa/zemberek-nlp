@@ -3,6 +3,7 @@ package zemberek.morphology.analysis;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
+import zemberek.morphology._analyzer._SingleAnalysis;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.structure.Turkish;
 
@@ -15,8 +16,8 @@ public class WordAnalysisSurfaceFormatter {
    *
    * @return formatted word analysis.
    */
-  public String format(WordAnalysis analysis, String apostrophe) {
-    DictionaryItem item = analysis.dictionaryItem;
+  public String format(_SingleAnalysis analysis, String apostrophe) {
+    DictionaryItem item = analysis.getDictionaryItem();
     String ending = analysis.getEnding();
     if (apostropheRequired(analysis)) {
       return ending.length() > 0 ? item.lemma + apostrophe + ending : item.lemma;
@@ -27,13 +28,13 @@ public class WordAnalysisSurfaceFormatter {
       if (item.attributes.contains(RootAttribute.NoQuote)) {
         return item.lemma + ending;
       } else {
-        return analysis.getRoot() + ending;
+        return analysis.getStem() + ending;
       }
     }
   }
 
-  private boolean apostropheRequired(WordAnalysis analysis) {
-    DictionaryItem item = analysis.dictionaryItem;
+  private boolean apostropheRequired(_SingleAnalysis analysis) {
+    DictionaryItem item = analysis.getDictionaryItem();
     return (item.secondaryPos == SecondaryPos.ProperNoun && !item.attributes
         .contains(RootAttribute.NoQuote))
         || (item.primaryPos == PrimaryPos.Numeral && item.hasAttribute(RootAttribute.Runtime))
@@ -50,7 +51,7 @@ public class WordAnalysisSurfaceFormatter {
    * @param type case type.
    * @return formatted result or empty string.
    */
-  public String formatToCase(WordAnalysis analysis, CaseType type, String apostrophe) {
+  public String formatToCase(_SingleAnalysis analysis, CaseType type, String apostrophe) {
     String formatted = format(analysis, apostrophe);
     switch (type) {
       case DEFAULT_CASE:
@@ -78,7 +79,7 @@ public class WordAnalysisSurfaceFormatter {
   }
 
   //TODO: write tests.
-  public boolean canBeFormatted(WordAnalysis analysis, CaseType type) {
+  public boolean canBeFormatted(_SingleAnalysis analysis, CaseType type) {
     boolean proper = analysis.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun;
     switch (type) {
       case LOWER_CASE:

@@ -16,9 +16,10 @@ import zemberek.lm.DummyLanguageModel;
 import zemberek.lm.LmVocabulary;
 import zemberek.lm.NgramLanguageModel;
 import zemberek.lm.compression.SmoothLm;
-import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology._analyzer._SingleAnalysis;
+import zemberek.morphology._analyzer._TurkishMorphology;
+import zemberek.morphology._analyzer._WordAnalysis;
 import zemberek.morphology.analysis.WordAnalysisSurfaceFormatter;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.morphology.structure.Turkish;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
@@ -27,12 +28,12 @@ public class TurkishSpellChecker {
 
   private static final NgramLanguageModel DUMMY_LM = new DummyLanguageModel();
   private static final TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
-  TurkishMorphology morphology;
+  _TurkishMorphology morphology;
   WordAnalysisSurfaceFormatter formatter = new WordAnalysisSurfaceFormatter();
   CharacterGraphDecoder decoder;
   NgramLanguageModel unigramModel;
 
-  public TurkishSpellChecker(TurkishMorphology morphology) throws IOException {
+  public TurkishSpellChecker(_TurkishMorphology morphology) throws IOException {
     this.morphology = morphology;
     StemEndingGraph graph = new StemEndingGraph(morphology);
     decoder = new CharacterGraphDecoder(graph.stemGraph);
@@ -41,8 +42,8 @@ public class TurkishSpellChecker {
     }
   }
 
-  public TurkishSpellChecker(TurkishMorphology morphology,
-      CharacterGraph graph) throws IOException {
+  public TurkishSpellChecker(_TurkishMorphology morphology,
+      CharacterGraph graph) {
     this.morphology = morphology;
     decoder = new CharacterGraphDecoder(graph);
   }
@@ -69,9 +70,9 @@ public class TurkishSpellChecker {
   }
 
   public boolean check(String input) {
-    List<WordAnalysis> analyses = morphology.analyze(input);
+    _WordAnalysis analyses = morphology.analyze(input);
     WordAnalysisSurfaceFormatter.CaseType caseType = formatter.guessCase(input);
-    for (WordAnalysis analysis : analyses) {
+    for (_SingleAnalysis analysis : analyses) {
       if (analysis.isUnknown()) {
         continue;
       }
@@ -113,8 +114,8 @@ public class TurkishSpellChecker {
     }
     Set<String> results = new LinkedHashSet<>(strings.size());
     for (String string : strings) {
-      List<WordAnalysis> analyses = morphology.analyze(string);
-      for (WordAnalysis analysis : analyses) {
+      _WordAnalysis analyses = morphology.analyze(string);
+      for (_SingleAnalysis analysis : analyses) {
         if (analysis.isUnknown()) {
           continue;
         }

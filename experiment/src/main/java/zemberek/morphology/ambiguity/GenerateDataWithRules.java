@@ -28,7 +28,7 @@ class GenerateDataWithRules {
 
   private GenerateDataWithRules() throws IOException {
     identifier = LanguageIdentifier.fromInternalModelGroup("tr_group");
-    _TurkishMorphology analyzer = _TurkishMorphology.createDefault();
+    _TurkishMorphology analyzer = _TurkishMorphology.createWithDefaults();
     RuleBasedDisambiguator.Rules rules = RuleBasedDisambiguator.Rules.fromResources();
     ruleBasedDisambiguator = new RuleBasedDisambiguator(analyzer, rules);
   }

@@ -12,7 +12,7 @@ public class _PerceptronAmbiguityResolverEvaluation {
     Path train = Paths.get("data/ambiguity/aljazeera-train");
     Path dev = Paths.get("data/ambiguity/open-subtitles-test");
     Path model = Paths.get("data/ambiguity/model");
-    _TurkishMorphology analyzer = _TurkishMorphology.createDefault();
+    _TurkishMorphology analyzer = _TurkishMorphology.createWithDefaults();
 
     _PerceptronAmbiguityResolver resolver =
         new _PerceptronAmbiguityResolverTrainer(analyzer).train(train, dev, 7);

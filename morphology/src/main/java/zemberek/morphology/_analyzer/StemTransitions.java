@@ -62,6 +62,10 @@ public class StemTransitions {
     generateStemTransitions();
   }
 
+  public Set<StemTransition> getTransitions() {
+    return stemTransitions;
+  }
+
   public RootLexicon getLexicon() {
     return lexicon;
   }
@@ -85,6 +89,7 @@ public class StemTransitions {
       } else {
         singleStems.put(surfaceForm, stemTransition);
       }
+      stemTransitions.add(stemTransition);
     } finally {
       lock.writeLock().unlock();
     }

@@ -15,7 +15,7 @@ public class _SingleAnalysisTest extends AnalyzerTestBase {
     Assert.assertEquals(1, analyses.size());
     _SingleAnalysis analysis = analyses.get(0);
 
-    Assert.assertEquals(analysis.getItem(), analyzer.getLexicon().getItemById("kitap_Noun"));
+    Assert.assertEquals(analysis.getDictionaryItem(), analyzer.getLexicon().getItemById("kitap_Noun"));
     Assert.assertEquals("larda", analysis.getEnding());
     Assert.assertEquals("kitap", analysis.getStem());
   }

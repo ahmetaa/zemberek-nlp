@@ -173,7 +173,7 @@ class RuleBasedDisambiguator {
     }
 
     boolean checkPos(PrimaryPos pos) {
-      return choices.size() == 1 && choices.get(0).analysis.getItem().primaryPos.equals(pos);
+      return choices.size() == 1 && choices.get(0).analysis.getDictionaryItem().primaryPos.equals(pos);
     }
 
     /**
@@ -437,8 +437,8 @@ class RuleBasedDisambiguator {
         a1.decision = Decision.IGNORE;
       }
       if ((first && Character.isUpperCase(input.charAt(0)) && !input.contains("'"))) {
-        String a1Lemma = Turkish.capitalize(a1.analysis.getItem().lemma);
-        String a2LemmaLower = a2.analysis.getItem().lemma.toLowerCase(Turkish.LOCALE);
+        String a1Lemma = Turkish.capitalize(a1.analysis.getDictionaryItem().lemma);
+        String a2LemmaLower = a2.analysis.getDictionaryItem().lemma.toLowerCase(Turkish.LOCALE);
         if (wordFreq.getCount(a1Lemma) < wordFreq.getCount(a2LemmaLower)) {
           a1.decision = Decision.IGNORE;
         } else {

@@ -40,7 +40,7 @@ public class AnalysisFormatters {
 
       // root and suffix formatting
       sb.append(analysis.getStem()).append('+');
-      DictionaryItem item = analysis.getItem();
+      DictionaryItem item = analysis.getDictionaryItem();
       PrimaryPos pos = item.primaryPos;
 
       String posStr = pos == PrimaryPos.Adverb ? "Adverb" : pos.shortForm;
@@ -151,7 +151,7 @@ public class AnalysisFormatters {
 
       // dictionary item formatting
       sb.append('[');
-      DictionaryItem item = analysis.getItem();
+      DictionaryItem item = analysis.getDictionaryItem();
       sb.append(item.lemma).append(':').append(item.primaryPos.shortForm);
       if (item.secondaryPos != SecondaryPos.None) {
         sb.append(',').append(item.secondaryPos.shortForm);

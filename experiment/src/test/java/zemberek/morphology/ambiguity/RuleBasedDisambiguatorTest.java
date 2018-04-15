@@ -16,7 +16,7 @@ public class RuleBasedDisambiguatorTest {
     //String input = "O anda gördüm.";
     //String input = "Aklımıza ilk gelen emeği öncelemek.";
     String input = "Petrolün Türkiye üzerinden dünya pazarına satılması.";
-    _TurkishMorphology analyzer = _TurkishMorphology.createDefault();
+    _TurkishMorphology analyzer = _TurkishMorphology.createWithDefaults();
 //    Rules rules = new Rules();
 //    rules.pairLexRules.add(PairRule.fromLine("Aklı*|aklı* [akıl:Noun] *"));
     RuleBasedDisambiguator disambiguator = new RuleBasedDisambiguator(analyzer, Rules.fromResources());

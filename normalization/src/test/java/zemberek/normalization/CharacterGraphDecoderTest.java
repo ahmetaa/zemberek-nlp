@@ -16,6 +16,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.FloatValueMap;
+import zemberek.morphology._analyzer._TurkishMorphology;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 public class CharacterGraphDecoderTest {
@@ -253,7 +254,7 @@ public class CharacterGraphDecoderTest {
 
   @Test
   public void stemEndingTest1() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+    _TurkishMorphology morphology = _TurkishMorphology.builder()
         .addDictionaryLines("bakmak", "gelmek").build();
     List<String> endings = Lists.newArrayList("acak", "ecek");
     StemEndingGraph graph = new StemEndingGraph(morphology, endings);
@@ -265,7 +266,7 @@ public class CharacterGraphDecoderTest {
 
   @Test
   public void stemEndingTest2() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+    _TurkishMorphology morphology = _TurkishMorphology.builder()
         .addDictionaryLines("üzmek", "yüz", "güz").build();
     List<String> endings = Lists.newArrayList("düm");
     StemEndingGraph graph = new StemEndingGraph(morphology, endings);
@@ -277,7 +278,7 @@ public class CharacterGraphDecoderTest {
 
   @Test
   public void stemEndingTest3() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder().addDictionaryLines("o", "ol", "ola")
+    _TurkishMorphology morphology = _TurkishMorphology.builder().addDictionaryLines("o", "ol", "ola")
         .build();
     List<String> endings = Lists.newArrayList("arak", "acak");
     StemEndingGraph graph = new StemEndingGraph(morphology, endings);
@@ -288,7 +289,7 @@ public class CharacterGraphDecoderTest {
 
   @Test
   public void stemEndingTest() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+    _TurkishMorphology morphology = _TurkishMorphology.builder()
         .addDictionaryLines("Türkiye", "Bayram").build();
     List<String> endings = Lists.newArrayList("ında", "de");
     StemEndingGraph graph = new StemEndingGraph(morphology, endings);

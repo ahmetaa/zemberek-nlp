@@ -92,7 +92,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
 
   private List<SingleAnalysisSentence> collect(Path p, int maxAnalysisCount) throws IOException {
     List<String> sentences = getSentences(p);
-    _TurkishMorphology analyzer = _TurkishMorphology.createDefault();
+    _TurkishMorphology analyzer = _TurkishMorphology.createWithDefaults();
 
     int tokenCount = 0;
     int sentenceCount = 0;
@@ -130,7 +130,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
           break;
         } else {
           List<_SingleAnalysis> filtered = results.stream()
-              .filter(s -> !(s.getItem().secondaryPos == SecondaryPos.ProperNoun &&
+              .filter(s -> !(s.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun &&
                   Character.isLowerCase(rawWord.charAt(0)))).collect(Collectors.toList());
 
           if (filtered.size() == 0) {

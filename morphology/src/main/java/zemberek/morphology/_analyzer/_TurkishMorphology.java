@@ -36,13 +36,14 @@ public class _TurkishMorphology {
   private _UnidentifiedTokenAnalyzer unidentifiedTokenAnalyzer;
   private TurkishTokenizer tokenizer;
   private AnalysisCache cache;
+  private TurkishMorphotactics morphotactics;
 
   private boolean useUnidentifiedTokenAnalyzer;
   private boolean useCache;
 
   private _TurkishMorphology(Builder builder) {
     this.lexicon = builder.lexicon;
-    TurkishMorphotactics morphotactics = new TurkishMorphotactics(builder.lexicon);
+    this.morphotactics = new TurkishMorphotactics(builder.lexicon);
     this.analyzer = new InterpretingAnalyzer(morphotactics);
     this.generator = new _Generator(morphotactics);
     this.unidentifiedTokenAnalyzer = new _UnidentifiedTokenAnalyzer(analyzer);
@@ -60,7 +61,7 @@ public class _TurkishMorphology {
     this.useUnidentifiedTokenAnalyzer = builder.useUnidentifiedTokenAnalyzer;
   }
 
-  public static _TurkishMorphology createDefault() throws IOException {
+  public static _TurkishMorphology createWithDefaults() throws IOException {
     Stopwatch sw = Stopwatch.createStarted();
     _TurkishMorphology instance = new Builder().addDefaultBinaryDictionary().build();
     Log.info("Initialized in %d ms.", sw.elapsed(TimeUnit.MILLISECONDS));
@@ -72,6 +73,10 @@ public class _TurkishMorphology {
     _TurkishMorphology instance = new Builder().addDefaultDictionaries().build();
     Log.info("Initialized in %d ms.", sw.elapsed(TimeUnit.MILLISECONDS));
     return instance;
+  }
+
+  public TurkishMorphotactics getMorphotactics() {
+    return morphotactics;
   }
 
   public _WordAnalysis analyze(String word) {
@@ -114,7 +119,7 @@ public class _TurkishMorphology {
       res = unidentifiedTokenAnalyzer.analyze(s);
     }
 
-    if (res.size() == 1 && res.get(0).getItem().isUnknown()) {
+    if (res.size() == 1 && res.get(0).getDictionaryItem().isUnknown()) {
       res = Collections.emptyList();
     }
 
@@ -139,7 +144,7 @@ public class _TurkishMorphology {
       result = unidentifiedTokenAnalyzer.analyze(token);
     }
 
-    if (result.size() == 1 && result.get(0).getItem().isUnknown()) {
+    if (result.size() == 1 && result.get(0).getDictionaryItem().isUnknown()) {
       result = Collections.emptyList();
     }
 
@@ -189,6 +194,10 @@ public class _TurkishMorphology {
 
   public _Generator getGenerator() {
     return generator;
+  }
+
+  public static Builder builder() {
+    return new Builder();
   }
 
   public static class Builder {

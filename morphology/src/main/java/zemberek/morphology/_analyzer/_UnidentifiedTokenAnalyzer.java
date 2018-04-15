@@ -196,7 +196,7 @@ public class _UnidentifiedTokenAnalyzer {
         }
         List<_SingleAnalysis> res = analyzer.analyze(toParse);
         for (_SingleAnalysis re : res) {
-          if (re.getItem().primaryPos != PrimaryPos.Numeral) {
+          if (re.getDictionaryItem().primaryPos != PrimaryPos.Numeral) {
             continue;
           }
           DictionaryItem runTimeItem = new DictionaryItem(

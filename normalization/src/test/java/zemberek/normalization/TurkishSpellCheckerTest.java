@@ -18,6 +18,7 @@ import org.junit.Test;
 import zemberek.core.logging.Log;
 import zemberek.lm.NgramLanguageModel;
 import zemberek.lm.compression.SmoothLm;
+import zemberek.morphology._analyzer._TurkishMorphology;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 public class TurkishSpellCheckerTest {
@@ -53,7 +54,7 @@ public class TurkishSpellCheckerTest {
 
   @Test
   public void checkProperNounsTest() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+    _TurkishMorphology morphology = _TurkishMorphology.builder()
         .addDictionaryLines("Ankara", "Iphone [Pr:ayfon]", "Google [Pr:gugıl]").build();
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
 
@@ -73,7 +74,7 @@ public class TurkishSpellCheckerTest {
   //TODO: check for ordinals.
   @Test
   public void formatNumbersTest() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+    _TurkishMorphology morphology = _TurkishMorphology.builder()
         .addDictionaryLines("bir [P:Num]", "dört [P:Num;A:Voicing]", "üç [P:Num]", "beş [P:Num]")
         .build();
 
@@ -92,7 +93,7 @@ public class TurkishSpellCheckerTest {
 
   @Test
   public void apostropheTest() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+    _TurkishMorphology morphology = _TurkishMorphology.builder()
         .addDictionaryLines("zaman [P:Noun, Time]").build();
 
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
@@ -109,7 +110,7 @@ public class TurkishSpellCheckerTest {
   @Test
   @Ignore("Slow. Uses actual data.")
   public void suggestWordPerformanceStemEnding() throws Exception {
-    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    _TurkishMorphology morphology = _TurkishMorphology.createWithDefaults();
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
     NgramLanguageModel lm = getLm("lm-unigram.slm");
     run(spellChecker, lm);
@@ -118,7 +119,7 @@ public class TurkishSpellCheckerTest {
   @Test
   @Ignore("Slow. Uses actual data.")
   public void suggestWord1() throws Exception {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+    _TurkishMorphology morphology = _TurkishMorphology.builder()
         .addDictionaryLines("Türkiye", "Bayram").build();
     List<String> endings = Lists.newArrayList("ında", "de");
     StemEndingGraph graph = new StemEndingGraph(morphology, endings);
@@ -137,7 +138,7 @@ public class TurkishSpellCheckerTest {
   @Test
   @Ignore("Slow. Uses actual data.")
   public void suggestWordPerformanceWord() throws Exception {
-    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    _TurkishMorphology morphology = _TurkishMorphology.createWithDefaults();
     CharacterGraph graph = new CharacterGraph();
     Path r = Paths.get(ClassLoader.getSystemResource("zemberek-parsed-words-min10.txt").toURI());
     List<String> words = Files.readAllLines(r, StandardCharsets.UTF_8);
@@ -173,7 +174,7 @@ public class TurkishSpellCheckerTest {
   @Test
   @Ignore("Slow. Uses actual data.")
   public void runSentence() throws Exception {
-    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    _TurkishMorphology morphology = _TurkishMorphology.createWithDefaults();
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
     NgramLanguageModel lm = getLm("lm-bigram.slm");
     Path testInput = Paths

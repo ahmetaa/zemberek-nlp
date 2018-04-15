@@ -147,9 +147,9 @@ public class _PerceptronAmbiguityResolver
       _SingleAnalysis w2 = trigram[1];
       _SingleAnalysis w3 = trigram[2];
 
-      String r1 = w1.getItem().id;
-      String r2 = w2.getItem().id;
-      String r3 = w3.getItem().id;
+      String r1 = w1.getDictionaryItem().id;
+      String r2 = w2.getDictionaryItem().id;
+      String r3 = w3.getDictionaryItem().id;
 
       String ig1 = w1.formatMorphemesLexical();
       String ig2 = w2.formatMorphemesLexical();
@@ -202,14 +202,14 @@ public class _PerceptronAmbiguityResolver
       }
 
       if (Character.isUpperCase(r3.charAt(0))
-          && w3.getItem().secondaryPos == SecondaryPos.ProperNoun) {
+          && w3.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun) {
         feats.addOrIncrement("21:PROPER");
       }
 
       feats.addOrIncrement("22:" + w3.groupCount());
       //
-      if ((w3 == sentenceEnd || w3.getItem().lemma.equals("."))
-          && w3.getItem().primaryPos == PrimaryPos.Verb) {
+      if ((w3 == sentenceEnd || w3.getDictionaryItem().lemma.equals("."))
+          && w3.getDictionaryItem().primaryPos == PrimaryPos.Verb) {
         feats.addOrIncrement("23:ENDSVERB");
       }
       if (useCache) {

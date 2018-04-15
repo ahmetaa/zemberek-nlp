@@ -7,6 +7,11 @@ import java.util.List;
 import java.util.Set;
 import zemberek.core.collections.Histogram;
 import zemberek.core.turkish.PrimaryPos;
+import zemberek.morphology._analyzer.StemTransitions;
+import zemberek.morphology._analyzer._SingleAnalysis;
+import zemberek.morphology._analyzer._TurkishMorphology;
+import zemberek.morphology._analyzer._WordAnalysis;
+import zemberek.morphology._morphotactics.StemTransition;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
@@ -24,9 +29,9 @@ public class StemEndingGraph {
   CharacterGraph stemGraph;
   private CharacterGraph endingGraph;
 
-  private TurkishMorphology morphology;
+  private _TurkishMorphology morphology;
 
-  public StemEndingGraph(TurkishMorphology morphology) throws IOException {
+  public StemEndingGraph(_TurkishMorphology morphology) throws IOException {
     this.morphology = morphology;
     List<String> endings =
         Resources.readLines(
@@ -39,7 +44,7 @@ public class StemEndingGraph {
     }
   }
 
-  StemEndingGraph(TurkishMorphology morphology, List<String> endings) throws IOException {
+  StemEndingGraph(_TurkishMorphology morphology, List<String> endings) throws IOException {
     this.morphology = morphology;
     this.endingGraph = generateEndingGraph(endings);
     this.stemGraph = generateStemGraph();
@@ -52,8 +57,8 @@ public class StemEndingGraph {
   List<String> getEndingsFromVocabulary(List<String> words) {
     Histogram<String> endings = new Histogram<>(words.size() / 10);
     for (String word : words) {
-      List<WordAnalysis> analyses = morphology.analyze(word);
-      for (WordAnalysis analysis : analyses) {
+      _WordAnalysis analyses = morphology.analyze(word);
+      for (_SingleAnalysis analysis : analyses) {
         if (analysis.isUnknown()) {
           continue;
         }
@@ -76,13 +81,13 @@ public class StemEndingGraph {
 
   private CharacterGraph generateStemGraph() {
     CharacterGraph stemGraph = new CharacterGraph();
-    DynamicLexiconGraph lexiconGraph = morphology.getGraph();
-    for (StemNode stemNode : lexiconGraph.getStemNodes()) {
-      if (stemNode.surfaceForm.length() == 0 ||
-          stemNode.getDictionaryItem().primaryPos == PrimaryPos.Punctuation) {
+    StemTransitions stemTransitions = morphology.getMorphotactics().getStemTransitions();
+    for (StemTransition transition : stemTransitions.getTransitions()) {
+      if (transition.surface.length() == 0 ||
+          transition.item.primaryPos == PrimaryPos.Punctuation) {
         continue;
       }
-      stemGraph.addWord(stemNode.surfaceForm, Node.TYPE_WORD);
+      stemGraph.addWord(transition.surface, Node.TYPE_WORD);
     }
     return stemGraph;
   }

@@ -1,18 +1,19 @@
 package zemberek.morphology.analysis;
 
 import java.io.IOException;
-import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
+import zemberek.morphology._analyzer._SingleAnalysis;
+import zemberek.morphology._analyzer._TurkishMorphology;
+import zemberek.morphology._analyzer._WordAnalysis;
 
 public class WordAnalysisSurfaceFormatterTest {
 
   @Test
   public void formatNonProperNoun() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+    _TurkishMorphology morphology = _TurkishMorphology.builder()
         .addDictionaryLines("elma", "kitap", "demek", "evet").build();
 
     String[] inputs = {"elmamadaki", "elma", "kitalarımdan", "kitabımızsa", "diyebileceğimiz",
@@ -21,8 +22,8 @@ public class WordAnalysisSurfaceFormatterTest {
     WordAnalysisSurfaceFormatter formatter = new WordAnalysisSurfaceFormatter();
 
     for (String input : inputs) {
-      List<WordAnalysis> results = morphology.analyze(input);
-      for (WordAnalysis result : results) {
+      _WordAnalysis results = morphology.analyze(input);
+      for (_SingleAnalysis result : results) {
         Assert.assertEquals(input, formatter.format(result, "'"));
       }
     }
@@ -30,7 +31,7 @@ public class WordAnalysisSurfaceFormatterTest {
 
   @Test
   public void formatKnownProperNouns() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+    _TurkishMorphology morphology = _TurkishMorphology.builder()
         .addDictionaryLines("Ankara", "Iphone [Pr:ayfon]", "Google [Pr:gugıl]").build();
 
     String[] inputs = {"ankarada", "ıphonumun", "googledan", "Iphone", "Google", "Googlesa"};
@@ -39,13 +40,13 @@ public class WordAnalysisSurfaceFormatterTest {
     check(morphology, inputs, expected);
   }
 
-  private void check(TurkishMorphology morphology, String[] inputs, String[] expected) {
+  private void check(_TurkishMorphology morphology, String[] inputs, String[] expected) {
     WordAnalysisSurfaceFormatter formatter = new WordAnalysisSurfaceFormatter();
 
     int i = 0;
     for (String input : inputs) {
-      List<WordAnalysis> results = morphology.analyze(input);
-      for (WordAnalysis result : results) {
+      _WordAnalysis results = morphology.analyze(input);
+      for (_SingleAnalysis result : results) {
         if (result.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun) {
           String format = formatter.format(result, "'");
           Assert.assertEquals(expected[i], format);
@@ -57,7 +58,7 @@ public class WordAnalysisSurfaceFormatterTest {
 
   @Test
   public void formatKnownProperNounsNoQuote() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+    _TurkishMorphology morphology = _TurkishMorphology.builder()
         .addDictionaryLines("Blah [A:NoQuote]").build();
 
     String[] inputs = {"blaha", "Blahta"};
@@ -69,8 +70,7 @@ public class WordAnalysisSurfaceFormatterTest {
 
   @Test
   public void formatNumerals() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder().build();
-
+    _TurkishMorphology morphology = _TurkishMorphology.builder().build();
     String[] inputs = {"1e", "4ten", "123ü", "12,5ten"};
     String[] expected = {"1'e", "4'ten", "123'ü", "12,5ten"};
 
@@ -78,8 +78,8 @@ public class WordAnalysisSurfaceFormatterTest {
 
     int i = 0;
     for (String input : inputs) {
-      List<WordAnalysis> results = morphology.analyze(input);
-      for (WordAnalysis result : results) {
+      _WordAnalysis results = morphology.analyze(input);
+      for (_SingleAnalysis result : results) {
         if (result.getDictionaryItem().primaryPos == PrimaryPos.Numeral) {
           Assert.assertEquals(expected[i], formatter.format(result, "'"));
         }
@@ -91,7 +91,7 @@ public class WordAnalysisSurfaceFormatterTest {
 
   @Test
   public void formatToCase() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+    _TurkishMorphology morphology = _TurkishMorphology.builder()
         .addDictionaryLines("kış", "şiir", "Aydın", "Google [Pr:gugıl]").build();
 
     String[] inputs =
@@ -119,7 +119,7 @@ public class WordAnalysisSurfaceFormatterTest {
   }
 
   private void testCaseType(
-      TurkishMorphology morphology,
+      _TurkishMorphology morphology,
       String[] inputs,
       String[] expected,
       WordAnalysisSurfaceFormatter.CaseType caseType) {
@@ -128,8 +128,8 @@ public class WordAnalysisSurfaceFormatterTest {
 
     int i = 0;
     for (String input : inputs) {
-      List<WordAnalysis> results = morphology.analyze(input);
-      for (WordAnalysis result : results) {
+      _WordAnalysis results = morphology.analyze(input);
+      for (_SingleAnalysis result : results) {
         Assert.assertEquals(expected[i], formatter.formatToCase(result, caseType, "'"));
       }
       i++;

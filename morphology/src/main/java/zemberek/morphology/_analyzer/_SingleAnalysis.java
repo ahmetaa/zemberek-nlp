@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology._morphotactics.Morpheme;
 import zemberek.morphology._morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.structure.StemAndEnding;
 
 // This class represents a single morphological analysis result
 public class _SingleAnalysis {
@@ -128,9 +130,32 @@ public class _SingleAnalysis {
     return morphemesSurfaces.get(0).surface;
   }
 
-  public DictionaryItem getItem() {
+  /**
+   * Splits the parse into stem and ending. Such as:
+   * "kitaplar" -> "kitap-lar"
+   * "kitabımdaki" -> "kitab-ımdaki"
+   * "kitap" -> "kitap-"
+   *
+   * @return a StemAndEnding instance carrying stem and ending. If ending has no surface content
+   * empty string is used.
+   */
+  public StemAndEnding getStemAndEnding() {
+    return new StemAndEnding(getStem(), getEnding());
+  }
+
+
+  public DictionaryItem getDictionaryItem() {
     return item;
   }
+
+  public boolean isUnknown() {
+    return item.isUnknown();
+  }
+
+  public boolean isRuntime() {
+    return item.hasAttribute(RootAttribute.Runtime);
+  }
+
 
   public List<MorphemeSurface> getMorphemesSurfaces() {
     return morphemesSurfaces;
