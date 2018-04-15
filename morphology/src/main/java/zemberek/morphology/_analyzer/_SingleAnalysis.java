@@ -329,17 +329,16 @@ public class _SingleAnalysis {
   public List<String> getStems() {
     List<String> stems = Lists.newArrayListWithCapacity(2);
     stems.add(getStem());
-    String previousStem = stems.get(0);
+    String previousStem = getGroup(0).surfaceForm();
     if (groupBoundaries.length > 1) {
       for (int i = 1; i < groupBoundaries.length; i++) {
         MorphemeGroup ig = getGroup(i);
         MorphemeSurface suffixData = ig.morphemes.get(0);
-        if (suffixData.surface.length() > 0) {
-          String surface = suffixData.surface;
-          String stem = previousStem + surface;
-          if (!stems.contains(stem)) {
-            stems.add(stem);
-          }
+
+        String surface = suffixData.surface;
+        String stem = previousStem + surface;
+        if (!stems.contains(stem)) {
+          stems.add(stem);
         }
         previousStem = previousStem + ig.surfaceForm();
       }
@@ -364,7 +363,7 @@ public class _SingleAnalysis {
     lemmas.add(item.root);
 
     String previousStem = getGroup(0).surfaceForm();
-    if(!previousStem.equals(item.root)) {
+    if (!previousStem.equals(item.root)) {
       if (previousStem.endsWith("ğ")) {
         previousStem = previousStem.substring(0, previousStem.length() - 1) + "k";
       }

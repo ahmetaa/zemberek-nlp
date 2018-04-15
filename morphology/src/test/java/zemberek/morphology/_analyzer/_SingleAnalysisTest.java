@@ -62,9 +62,8 @@ public class _SingleAnalysisTest extends AnalyzerTestBase {
     analysis = analyzer.analyze("kitaplarda").get(0);
     Assert.assertEquals(toList("kitap"), analysis.getStems());
 
-// TODO: check the below case.
-//    analysis = analyzer.analyze("kitabımmış").get(0);
-//    Assert.assertEquals(toList("kitab","kitabım"), analysis.getStems());
+    analysis = analyzer.analyze("kitabımmış").get(0);
+    Assert.assertEquals(toList("kitab","kitabım"), analysis.getStems());
 
     analysis = analyzer.analyze("kitapçığa").get(0);
     Assert.assertEquals(toList("kitap", "kitapçığ"), analysis.getStems());
