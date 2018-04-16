@@ -6,11 +6,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import zemberek.core._turkish._TurkishAlphabet;
 import zemberek.core.io.Strings;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.old_analysis.WordAnalysis;
 import zemberek.morphology.old_analysis.WordAnalyzer;
 import zemberek.morphology.analysis.tr.TurkishNumeralEndingMachine;
@@ -67,8 +67,8 @@ public class UnidentifiedTokenAnalyzer {
         return Collections.emptyList();
       }
       StemAndEnding se = new StemAndEnding(word.substring(0, index), word.substring(index + 1));
-      String stem = TurkishAlphabet.INSTANCE.normalize(se.stem);
-      String ending = TurkishAlphabet.INSTANCE.normalize(se.ending);
+      String stem = _TurkishAlphabet.INSTANCE.normalize(se.stem);
+      String ending = _TurkishAlphabet.INSTANCE.normalize(se.ending);
       String pronunciation = guessPronunciation(stem);
       DictionaryItem itemProp = new DictionaryItem(
           Turkish.capitalize(stem),
@@ -83,7 +83,7 @@ public class UnidentifiedTokenAnalyzer {
       graph.removeDictionaryItem(itemProp);
       return properResults;
     } else if (Character.isUpperCase(word.charAt(0))) {
-      String normalized = TurkishAlphabet.INSTANCE.normalize(word);
+      String normalized = _TurkishAlphabet.INSTANCE.normalize(word);
       String pronunciation = guessPronunciation(normalized);
       DictionaryItem itemProp = new DictionaryItem(
           Turkish.capitalize(normalized),
@@ -102,7 +102,7 @@ public class UnidentifiedTokenAnalyzer {
   }
 
   private String guessPronunciation(String stem) {
-    if (!Turkish.Alphabet.hasVowel(stem)) {
+    if (!_TurkishAlphabet.INSTANCE.hasVowel(stem)) {
       return Turkish.inferPronunciation(stem);
     } else {
       return stem;
@@ -146,7 +146,7 @@ public class UnidentifiedTokenAnalyzer {
       Matcher m = digit.pattern.matcher(se.stem);
       if (m.find()) {
         String toParse;
-        if (se.ending.length() > 0 && lemma.equals("dört") && TurkishAlphabet.INSTANCE
+        if (se.ending.length() > 0 && lemma.equals("dört") && _TurkishAlphabet.INSTANCE
             .isVowel(se.ending.charAt(0))) {
           toParse = "dörd" + se.ending;
         } else {

@@ -13,10 +13,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
+import zemberek.core._turkish._TurkishAlphabet;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.SimpleTextWriter;
-import zemberek.core.turkish.TurkishLetterSequence;
-import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.core._turkish.TurkishLetterSequence;
 
 /**
  * Runs the binary
@@ -68,7 +68,7 @@ public class OflazerAnalyzerRunner {
 
   public static void extractRootsFromParse(File input, File output) throws IOException {
     System.out.println("Extracting root words from parse list");
-    TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+    _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
     List<String> all = SimpleTextReader.trimmingUTF8Reader(input).asStringList();
     Set<String> roots = Sets.newHashSet();
     for (String s : all) {
@@ -95,7 +95,7 @@ public class OflazerAnalyzerRunner {
 
   public static void extractDictItems(File input, File output) throws IOException {
     System.out.println("Extracting dict items from parse list");
-    TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+    _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
     List<String> all = SimpleTextReader.trimmingUTF8Reader(input).asStringList();
     Set<String> roots = Sets.newHashSet();
     for (String s : all) {

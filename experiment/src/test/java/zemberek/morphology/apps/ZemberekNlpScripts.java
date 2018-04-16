@@ -25,13 +25,13 @@ import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import org.junit.Ignore;
 import org.junit.Test;
+import zemberek.core._turkish._TurkishAlphabet;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.core.turkish.TurkishLetterSequence;
-import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.core._turkish.TurkishLetterSequence;
 import zemberek.morphology.old_ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.old_analysis.SentenceAnalysis;
 import zemberek.morphology.old_analysis.WordAnalysis;
@@ -49,7 +49,7 @@ import zemberek.tokenization.antlr.TurkishLexer;
 
 public class ZemberekNlpScripts {
 
-  static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+  static _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
   //private static Path DATA_PATH = Paths.get("/media/depo/data/aaa");
   private static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
   private static Path NLP_TOOLS_PATH = Paths.get("/home/ahmetaa/apps/nlp/tools");
@@ -295,7 +295,7 @@ public class ZemberekNlpScripts {
     List<String> zemberekTypes = new ArrayList<>(parser.getLexicon().size());
     for (DictionaryItem item : parser.getLexicon()) {
       String lemma = /*item.primaryPos == PrimaryPos.Verb ? item.lemma.replaceAll("mek$|mak$", "") : */item.lemma;
-      lemma = TurkishAlphabet.INSTANCE.normalizeCircumflex(lemma);
+      lemma = _TurkishAlphabet.INSTANCE.normalizeCircumflex(lemma);
       String primaryString = /*item.primaryPos == PrimaryPos.Adverb ? "Adverb" :*/ item.primaryPos.shortForm;
       String pos = item.secondaryPos == null
           || item.secondaryPos == SecondaryPos.UnknownSec
@@ -427,13 +427,13 @@ public class ZemberekNlpScripts {
       if (s.length() < 4) {
         continue;
       }
-      if (!Turkish.Alphabet.hasVowel(s)) {
+      if (!_TurkishAlphabet.INSTANCE.hasVowel(s)) {
         continue;
       }
 
       for (int i = 2; i < s.length(); i++) {
         String candidateRoot = s.substring(0, i + 1);
-        if (!Turkish.Alphabet.hasVowel(candidateRoot)) {
+        if (!_TurkishAlphabet.INSTANCE.hasVowel(candidateRoot)) {
           continue;
         }
         List<DictionaryItem> items = new ArrayList<>(3);

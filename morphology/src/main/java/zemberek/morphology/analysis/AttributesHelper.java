@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.TurkicLetter;
-import zemberek.core.turkish._TurkishAlphabet;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.morphotactics.AttributeSet;
 
 /**
@@ -33,7 +33,7 @@ public class AttributesHelper {
     return getMorphemicAttributes(seq, AttributeSet.emptySet());
   }
 
-  private static _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
+  private static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
 
   public static AttributeSet<PhoneticAttribute> getMorphemicAttributes(
       CharSequence seq,

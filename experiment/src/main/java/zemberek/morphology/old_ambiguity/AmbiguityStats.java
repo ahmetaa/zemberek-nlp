@@ -10,11 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import zemberek.core._turkish._TurkishAlphabet;
 import zemberek.core.collections.Histogram;
 import zemberek.core.io.LineIterator;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.text.TextUtil;
-import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.old_analysis.WordAnalysis;
 import zemberek.morphology.old_analysis.tr.TurkishMorphology;
 import zemberek.tokenization.TurkishTokenizer;
@@ -77,7 +77,7 @@ public class AmbiguityStats {
     for (String line : lines) {
       for (String s : splitter.split(line)) {
         List<WordAnalysis> results = parser.getWordAnalyzer().analyze(
-            TurkishAlphabet.INSTANCE.normalize(s));
+            _TurkishAlphabet.INSTANCE.normalize(s));
         if (++total % 50000 == 0) {
           System.out.println("Processed: " + total);
         }
@@ -136,7 +136,7 @@ public class AmbiguityStats {
     for (String line : lines) {
       for (String s : splitter.split(line)) {
         List<WordAnalysis> results = parser.getWordAnalyzer().analyze(
-            TurkishAlphabet.INSTANCE.normalize(s));
+            _TurkishAlphabet.INSTANCE.normalize(s));
         total++;
         if (total % 50000 == 0) {
           System.out.println("Processed: " + total);
@@ -171,7 +171,7 @@ public class AmbiguityStats {
       for (String line : lines) {
         for (String s : splitter.split(line)) {
           List<WordAnalysis> results = parser.getWordAnalyzer().analyze(
-              TurkishAlphabet.INSTANCE.normalize(s));
+              _TurkishAlphabet.INSTANCE.normalize(s));
           total++;
           if (total % 50000 == 0) {
             System.out.println("Processed: " + total);

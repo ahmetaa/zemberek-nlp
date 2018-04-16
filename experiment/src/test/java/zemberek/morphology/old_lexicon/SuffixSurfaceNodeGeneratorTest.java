@@ -12,19 +12,16 @@ import java.util.EnumSet;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
+import zemberek.core._turkish._TurkishAlphabet;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
-import zemberek.core.turkish.TurkishLetterSequence;
-import zemberek.core.turkish.TurkishAlphabet;
-import zemberek.morphology.old_lexicon.Suffix;
-import zemberek.morphology.old_lexicon.SuffixForm;
-import zemberek.morphology.old_lexicon.SuffixSurfaceNodeGenerator;
+import zemberek.core._turkish.TurkishLetterSequence;
 import zemberek.morphology.old_lexicon.graph.SuffixData;
 import zemberek.morphology.old_lexicon.graph.SuffixSurfaceNode;
 
 public class SuffixSurfaceNodeGeneratorTest {
 
-  static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+  static _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
 
   @Test
   public void suffixFormAHarmonyTest() {

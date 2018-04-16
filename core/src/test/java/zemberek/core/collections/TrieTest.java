@@ -19,6 +19,7 @@ public class TrieTest {
   private Trie<Item> lt;
 
   private static class Item {
+
     String surfaceForm;
     String payload;
 
@@ -175,11 +176,12 @@ public class TrieTest {
 
   private List<String> generateRandomWords(int number) {
     List<String> randomWords = Lists.newArrayList();
+    String letters = alphabet.getLowercaseLetters();
     for (int i = 0; i < number; i++) {
       int len = r.nextInt(20) + 1;
       char[] chars = new char[len];
       for (int j = 0; j < len; j++) {
-        chars[j] = alphabet.getLetter(r.nextInt(29) + 1).charValue();
+        chars[j] = letters.charAt(r.nextInt(29) + 1);
       }
       randomWords.add(new String(chars));
     }

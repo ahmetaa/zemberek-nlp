@@ -15,8 +15,8 @@ import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.TurkicLetter;
-import zemberek.core.turkish.TurkishLetterSequence;
-import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.core._turkish.TurkishLetterSequence;
+import zemberek.core._turkish._TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.LexiconException;
 import zemberek.morphology.old_lexicon.SuffixProvider;
@@ -30,7 +30,7 @@ import zemberek.morphology.old_lexicon.graph.TerminationType;
  */
 public class StemNodeGenerator {
 
-  TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+  _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
   SuffixProvider suffixProvider;
   EnumSet<RootAttribute> modifiers = EnumSet.of(
       Doubling,
@@ -141,7 +141,7 @@ public class StemNodeGenerator {
             throw new LexiconException("Voicing letter is not proper in:" + dicItem);
           }
           if (dicItem.lemma.endsWith("nk")) {
-            modifiedLetter = TurkishAlphabet.L_g;
+            modifiedLetter = _TurkishAlphabet.L_g;
           }
           modifiedSeq.changeLetter(modifiedSeq.length() - 1, modifiedLetter);
           modifiedAttrs.remove(PhoneticAttribute.LastLetterVoicelessStop);

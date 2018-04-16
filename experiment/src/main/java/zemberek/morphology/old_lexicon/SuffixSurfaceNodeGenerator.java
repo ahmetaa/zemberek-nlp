@@ -10,12 +10,12 @@ import static zemberek.core.turkish.PhoneticAttribute.LastVowelBack;
 import static zemberek.core.turkish.PhoneticAttribute.LastVowelFrontal;
 import static zemberek.core.turkish.PhoneticAttribute.LastVowelRounded;
 import static zemberek.core.turkish.PhoneticAttribute.LastVowelUnrounded;
-import static zemberek.core.turkish.TurkishAlphabet.L_a;
-import static zemberek.core.turkish.TurkishAlphabet.L_e;
-import static zemberek.core.turkish.TurkishAlphabet.L_i;
-import static zemberek.core.turkish.TurkishAlphabet.L_ii;
-import static zemberek.core.turkish.TurkishAlphabet.L_u;
-import static zemberek.core.turkish.TurkishAlphabet.L_uu;
+import static zemberek.core._turkish._TurkishAlphabet.L_a;
+import static zemberek.core._turkish._TurkishAlphabet.L_e;
+import static zemberek.core._turkish._TurkishAlphabet.L_i;
+import static zemberek.core._turkish._TurkishAlphabet.L_ii;
+import static zemberek.core._turkish._TurkishAlphabet.L_u;
+import static zemberek.core._turkish._TurkishAlphabet.L_uu;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
@@ -24,10 +24,11 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import zemberek.core._turkish._TurkishAlphabet;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PhoneticExpectation;
 import zemberek.core.turkish.TurkicLetter;
-import zemberek.core.turkish.TurkishLetterSequence;
+import zemberek.core._turkish.TurkishLetterSequence;
 import zemberek.morphology.old_lexicon.graph.SuffixData;
 import zemberek.morphology.old_lexicon.graph.SuffixSurfaceNode;
 import zemberek.morphology.old_lexicon.graph.TerminationType;
@@ -143,7 +144,7 @@ public class SuffixSurfaceNodeGenerator {
         case DEVOICE_FIRST:
           TurkicLetter ld = token.letter;
           if (formAttrs.contains(LastLetterVoiceless)) {
-            ld = Turkish.Alphabet.devoice(token.letter);
+            ld = _TurkishAlphabet.INSTANCE.devoice(token.letter);
           }
           seq.append(ld);
           if (index == tokenList.size() - 1) {
@@ -166,7 +167,7 @@ public class SuffixSurfaceNodeGenerator {
                 EnumSet.of(PhoneticExpectation.ConsonantStart),
                 suffixData,
                 suffixForm.terminationType));
-            seq.changeLast(Turkish.Alphabet.voice(token.letter));
+            seq.changeLast(_TurkishAlphabet.INSTANCE.voice(token.letter));
             forms.add(new SuffixSurfaceNode(
                 suffixForm,
                 seq.toString(),

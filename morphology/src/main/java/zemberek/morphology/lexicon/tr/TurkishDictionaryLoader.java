@@ -26,7 +26,7 @@ import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.core.turkish._TurkishAlphabet;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.LexiconException;
 import zemberek.morphology.lexicon.RootLexicon;
@@ -214,7 +214,7 @@ public class TurkishDictionaryLoader {
 
   static class TextLexiconProcessor implements LineProcessor<RootLexicon> {
 
-    static final _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
+    static final TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
     static Locale locale = new Locale("tr");
     RootLexicon rootLexicon = new RootLexicon();
     List<LineData> lateEntries = Lists.newArrayList();

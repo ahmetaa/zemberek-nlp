@@ -1,6 +1,7 @@
-package zemberek.core.turkish;
+package zemberek.core._turkish;
 
 import java.util.Arrays;
+import zemberek.core.turkish.TurkicLetter;
 
 /**
  * <code>TurkishLetterSequence</code> represents a sequence of <code>Letter</code>s. It is mutable and not
@@ -38,7 +39,7 @@ public class TurkishLetterSequence implements CharSequence {
    * @param capacity baslangic olusan TurkicLetter[] boyu
    * @param alphabet ilgili alphabet
    */
-  public TurkishLetterSequence(String str, TurkishAlphabet alphabet, int capacity) {
+  public TurkishLetterSequence(String str, _TurkishAlphabet alphabet, int capacity) {
     if (capacity < str.length()) {
       capacity = str.length();
     }
@@ -56,7 +57,7 @@ public class TurkishLetterSequence implements CharSequence {
    * @param str ornek alincak String
    * @param alphabet ilgili alphabet
    */
-  public TurkishLetterSequence(String str, TurkishAlphabet alphabet) {
+  public TurkishLetterSequence(String str, _TurkishAlphabet alphabet) {
     size = str.length();
     letters = new TurkicLetter[size];
     for (int i = 0; i < size; i++) {

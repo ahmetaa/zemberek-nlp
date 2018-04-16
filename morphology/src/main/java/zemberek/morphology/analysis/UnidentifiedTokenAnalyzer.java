@@ -12,7 +12,6 @@ import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.TurkishAlphabet;
-import zemberek.core.turkish._TurkishAlphabet;
 import zemberek.morphology.analysis.tr.TurkishNumbers;
 import zemberek.morphology.analysis.tr.TurkishNumeralEndingMachine;
 import zemberek.morphology.lexicon.DictionaryItem;
@@ -30,7 +29,7 @@ public class UnidentifiedTokenAnalyzer {
   private static Map<String, String> ordinalMap = TurkishNumbers.getOrdinalMap();
 
   private InterpretingAnalyzer analyzer;
-  private _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
+  private TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
   private TurkishNumeralEndingMachine numeralEndingMachine = new TurkishNumeralEndingMachine();
 
   public UnidentifiedTokenAnalyzer(InterpretingAnalyzer analyzer) {
@@ -39,7 +38,7 @@ public class UnidentifiedTokenAnalyzer {
 
 
   public static final Pattern nonLettersPattern =
-      Pattern.compile("[^" + _TurkishAlphabet.INSTANCE.getAllLetters() + "]");
+      Pattern.compile("[^" + TurkishAlphabet.INSTANCE.getAllLetters() + "]");
 
   public synchronized List<SingleAnalysis> analyze(Token token) {
 
@@ -142,7 +141,7 @@ public class UnidentifiedTokenAnalyzer {
   }
 
   private String guessPronunciation(String stem) {
-    if (!Turkish.Alphabet.hasVowel(stem)) {
+    if (!Turkish.Alphabet.containsVowel(stem)) {
       return Turkish.inferPronunciation(stem);
     } else {
       return stem;

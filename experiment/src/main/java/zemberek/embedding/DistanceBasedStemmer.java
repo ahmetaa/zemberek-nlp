@@ -16,8 +16,8 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 import zemberek.core.ScoredItem;
+import zemberek.core._turkish._TurkishAlphabet;
 import zemberek.core.logging.Log;
-import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.old_ambiguity.Z3MarkovModelDisambiguator;
 import zemberek.morphology.old_analysis.SentenceAnalysis;
 import zemberek.morphology.old_analysis.WordAnalysis;
@@ -27,7 +27,7 @@ import zemberek.morphology.old_analysis.tr.TurkishSentenceAnalyzer;
 public class DistanceBasedStemmer {
 
   static Locale TR = new Locale("tr");
-  static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+  static _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
   Map<String, WordVector> vectorMap;
   TurkishMorphology morphology;
   DistanceList distances;

@@ -21,8 +21,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import zemberek.core._turkish._TurkishAlphabet;
 import zemberek.core.logging.Log;
-import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.old_analysis.WordAnalysis;
 import zemberek.morphology.old_analysis.WordAnalyzer;
 import zemberek.morphology.old_generator.SimpleGenerator;
@@ -141,7 +141,7 @@ public class TurkishMorphology {
    * @return WordAnalysis list.
    */
   private List<WordAnalysis> analyzeWithoutCache(String word) {
-    String s = TurkishAlphabet.INSTANCE
+    String s = _TurkishAlphabet.INSTANCE
         .normalize(word); // TODO: this may cause problem for some foreign words.
     if (s.length() == 0) {
       return Collections.emptyList();
@@ -180,7 +180,7 @@ public class TurkishMorphology {
       }
 
       StemAndEnding se = new StemAndEnding(word.substring(0, index), word.substring(index + 1));
-      String stem = TurkishAlphabet.INSTANCE.normalize(se.stem);
+      String stem = _TurkishAlphabet.INSTANCE.normalize(se.stem);
 
       String withoutQuote = word.replaceAll("'", "");
 

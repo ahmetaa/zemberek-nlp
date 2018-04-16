@@ -15,24 +15,17 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.SimpleTextWriter;
 import zemberek.core.io.Strings;
-import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.core.turkish.TurkishLetterSequence;
-import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 
 public class TurkishDictionaryLoaderTest {
 
@@ -186,83 +179,6 @@ public class TurkishDictionaryLoaderTest {
       Assert.assertEquals(Noun, item.primaryPos);
       Assert.assertEquals("error in:" + pair.str, pair.attrs, item.attributes);
     }
-  }
-
-  @Test
-  @Ignore("Not a unit Test. Only loads the master dictionary.")
-  public void masterDictionaryLoadTest() throws IOException {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
-
-    RootLexicon items = loader
-        .load(new File(Resources.getResource("tr/master-dictionary.dict").getFile()));
-    TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
-    Set<String> masterVoicing = new HashSet<>();
-    for (DictionaryItem item : items) {
-      if (item.attributes.contains(NoVoicing)) {
-        masterVoicing.add(item.lemma);
-      }
-    }
-
-    Locale tr = new Locale("tr");
-    List<String> allZ2 = SimpleTextReader.trimmingUTF8Reader(
-        new File(Resources.getResource("tr/master-dictionary.dict").getFile())).asStringList();
-    for (String s : allZ2) {
-      if (s.startsWith("#")) {
-        continue;
-      }
-      String clean = Strings.subStringUntilFirst(s.trim(), " ").toLowerCase(tr)
-          .replaceAll("[\\-']", "");
-      if (s.contains("Adj") && !s.contains("Compound") && !s.contains("PropNoun")) {
-        TurkishLetterSequence seq = new TurkishLetterSequence(clean, alphabet);
-        if (seq.vowelCount() > 1 && seq.lastLetter().isStopConsonant() && !s.contains("Vo") && !s
-            .contains("VowDrop")) {
-          if (!masterVoicing.contains(clean)) {
-            File f = new File("/home/afsina/data/tdk/html", clean + ".html");
-            if (!f.exists()) {
-              f = new File("/home/afsina/data/tdk/html",
-                  clean.replaceAll("â", "a").replaceAll("\\u00ee", "i") + ".html");
-            }
-            if (!f.exists()) {
-              System.out.println("Cannot find:" + s);
-              continue;
-            }
-            char c = clean.charAt(clean.length() - 1);
-            char vv = c;
-            switch (c) {
-              case 'k':
-                vv = 'ğ';
-                break;
-              case 'p':
-                vv = 'b';
-                break;
-              case 'ç':
-                vv = 'c';
-                break;
-              case 't':
-                vv = 'd';
-                break;
-              default:
-                System.out.println("crap:" + s);
-            }
-            String content = SimpleTextReader.trimmingUTF8Reader(f).asString();
-            if (!content.contains("color=DarkBlue>-" + String.valueOf(vv))) {
-              System.out.println(s);
-            }
-          }
-        }
-      }
-    }
-
-    for (DictionaryItem item : items) {
-      if ((item.primaryPos == Noun || item.primaryPos == PrimaryPos.Adjective)
-          && item.secondaryPos != SecondaryPos.ProperNoun &&
-          item.hasAttribute(RootAttribute.Voicing)) {
-
-      }
-    }
-
-    System.out.println(items.size());
-
   }
 
   @Test

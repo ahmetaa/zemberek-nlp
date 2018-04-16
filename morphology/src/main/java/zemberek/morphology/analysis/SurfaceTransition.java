@@ -10,7 +10,7 @@ import static zemberek.core.turkish.PhoneticAttribute.LastVowelUnrounded;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import zemberek.core.turkish.PhoneticAttribute;
-import zemberek.core.turkish._TurkishAlphabet;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.morphotactics.AttributeSet;
 import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.morphology.morphotactics.MorphemeState;
@@ -60,7 +60,7 @@ public class SurfaceTransition {
     return surface.isEmpty() ? "" : surface + ":";
   }
 
-  static _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
+  static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
 
   public static String generate(
       SuffixTransition transition,

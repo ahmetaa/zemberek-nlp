@@ -4,10 +4,10 @@ import java.util.List;
 
 public abstract class TurkishHyphenator implements Hyphenator {
 
-  SyllableParser parser;
+  SyllableExtractor extractor;
 
-  protected TurkishHyphenator(SyllableParser parser) {
-    this.parser = parser;
+  protected TurkishHyphenator(SyllableExtractor extractor) {
+    this.extractor = extractor;
   }
 
   public int splitIndex(String input, int spaceAvailable) {
@@ -17,7 +17,7 @@ public abstract class TurkishHyphenator implements Hyphenator {
       return input.length();
     }
 
-    List<String> pieces = parser.parse(input);
+    List<String> pieces = extractor.getSyllables(input);
 
     // handle no syllable.
     if (pieces.isEmpty()) {

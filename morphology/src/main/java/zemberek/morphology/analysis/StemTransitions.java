@@ -24,7 +24,7 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.TurkicLetter;
-import zemberek.core.turkish._TurkishAlphabet;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.morphotactics.AttributeSet;
 import zemberek.morphology.morphotactics.MorphemeState;
 import zemberek.morphology.morphotactics.StemTransition;
@@ -54,7 +54,7 @@ public class StemTransitions {
 
   RootLexicon lexicon;
   TurkishMorphotactics morphotactics;
-  _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
+  TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
 
   public StemTransitions(RootLexicon lexicon, TurkishMorphotactics morphotactics) {
     this.lexicon = lexicon;
