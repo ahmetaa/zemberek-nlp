@@ -24,7 +24,7 @@ public class FindPOS {
 
   private void test(String s) {
     System.out.println("Sentence  = " + s);
-    _SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguıty(s);
+    _SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(s);
 
     for (_SentenceWordAnalysis a : analysis) {
       PrimaryPos primaryPos = a.getAnalysis().getDictionaryItem().primaryPos;

@@ -33,8 +33,8 @@ import zemberek.tokenization.TurkishTokenizer;
 // this should be left to the user.
 public class _TurkishMorphology {
 
-  RootLexicon lexicon;
-  InterpretingAnalyzer analyzer;
+  private RootLexicon lexicon;
+  private InterpretingAnalyzer analyzer;
   private _Generator generator;
   private _UnidentifiedTokenAnalyzer unidentifiedTokenAnalyzer;
   private TurkishTokenizer tokenizer;
@@ -217,7 +217,7 @@ public class _TurkishMorphology {
     return ambiguityResolver.disambiguate(sentenceAnalysis);
   }
 
-  public _SentenceAnalysis analyzeAndResolveAmbiguıty(String sentence) {
+  public _SentenceAnalysis analyzeAndResolveAmbiguity(String sentence) {
     return disambiguate(analyzeSentence(sentence));
   }
 

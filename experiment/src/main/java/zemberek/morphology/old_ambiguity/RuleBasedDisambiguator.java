@@ -173,7 +173,8 @@ class RuleBasedDisambiguator {
     }
 
     boolean checkPos(PrimaryPos pos) {
-      return choices.size() == 1 && choices.get(0).analysis.getDictionaryItem().primaryPos.equals(pos);
+      return choices.size() == 1 && choices.get(0).analysis.getDictionaryItem().primaryPos
+          .equals(pos);
     }
 
     /**
@@ -367,8 +368,8 @@ class RuleBasedDisambiguator {
       }
     }
 
-    if(ruleInput.startsWith("*") && ruleInput.endsWith("*")) {
-      return input.contains(ruleInput.replace("*",""));
+    if (ruleInput.startsWith("*") && ruleInput.endsWith("*")) {
+      return input.contains(ruleInput.replace("*", ""));
     }
 
     if (ruleInput.endsWith("*")) {
