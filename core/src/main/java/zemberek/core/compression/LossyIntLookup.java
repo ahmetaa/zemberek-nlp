@@ -14,25 +14,25 @@ import zemberek.core.io.Bytes;
 import zemberek.core.io.IOUtil;
 
 /**
- * This is a compact integer value lookup. Keys are considered as Strings.
- * There may be false positives (that it can return values of other keys for an input.
- * But the probability of occuring this is very low.
+ * This is a compact integer value lookup. Keys are considered as Strings. There may be false
+ * positives (that it can return values of other keys for an input). But the probability of occurring
+ * this is very low.
  */
 public class LossyIntLookup {
 
-  Mphf mphf;
-  int[] data; // contains fingerprints and actual data.
+  private Mphf mphf;
+  private int[] data; // contains fingerprints and actual data.
 
   private static final int MAGIC = 0xcafebeef;
 
-  public LossyIntLookup(Mphf mphf, int[] data) {
+  private LossyIntLookup(Mphf mphf, int[] data) {
     this.mphf = mphf;
     this.data = data;
   }
 
   public int get(String s) {
     int index = mphf.get(s) * 2;
-    int fingerprint = MultiLevelMphf.hash(s, -1);
+    int fingerprint = getFingerprint(s);
     if (fingerprint == data[index]) {
       return data[index + 1];
     } else {
