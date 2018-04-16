@@ -12,6 +12,8 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
+import zemberek.morphology._ambiguity._AmbiguityResolver;
+import zemberek.morphology._analyzer._SentenceAnalysis;
 import zemberek.morphology._analyzer._SingleAnalysis;
 import zemberek.morphology._analyzer._TurkishMorphology;
 import zemberek.morphology._analyzer._WordAnalysis;

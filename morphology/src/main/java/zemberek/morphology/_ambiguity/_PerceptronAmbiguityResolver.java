@@ -38,9 +38,8 @@ import zemberek.morphology._analyzer._WordAnalysis;
  *
  * @see <a href="http://www.cmpe.boun.edu.tr/~hasim">Haşim Sak</a>
  * <p>
- * This is code is adapted from the Author's original Perl implementation.
- * However, this is not a direct port, many changes needed to be applied for Zemberek integration and
- * cleaner design.
+ * This is code is adapted from the Author's original Perl implementation. However, this is not a
+ * direct port, many changes needed to be applied for Zemberek integration and cleaner design.
  * <p>
  * For Training, use {@link _PerceptronAmbiguityResolverTrainer} class.
  */
@@ -81,13 +80,13 @@ public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
   }
 
   @Override
-  public _SentenceAnalysis disambiguate(List<_WordAnalysis> allAnalyses) {
+  public _SentenceAnalysis disambiguate(String sentence, List<_WordAnalysis> allAnalyses) {
     ParseResult best = decoder.bestPath(allAnalyses);
     List<_SentenceWordAnalysis> l = new ArrayList<>();
     for (int i = 0; i < allAnalyses.size(); i++) {
       l.add(new _SentenceWordAnalysis(best.bestParse.get(i), allAnalyses.get(i)));
     }
-    return new _SentenceAnalysis(l);
+    return new _SentenceAnalysis(sentence, l);
   }
 
   public void test(Path testFilePath, _TurkishMorphology morphology) throws IOException {

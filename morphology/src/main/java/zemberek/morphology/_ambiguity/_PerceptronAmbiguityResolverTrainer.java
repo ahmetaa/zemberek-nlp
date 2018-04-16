@@ -24,12 +24,12 @@ import zemberek.morphology._analyzer._TurkishMorphology;
 import zemberek.morphology._analyzer._WordAnalysis;
 
 /**
- * This is the trainer class for the Turkish morphological ambiguity resolution mechanism.
- * This class generates the model for actual ambiguity resolution class
- * {@link _PerceptronAmbiguityResolver}
+ * This is the trainer class for the Turkish morphological ambiguity resolution mechanism. This
+ * class generates the model for actual ambiguity resolution class {@link
+ * _PerceptronAmbiguityResolver}
  * <p>
- * Trainer uses text files for training. It parses them and then converts them to
- * Morphological analysis result using the Morphological analyzer.
+ * Trainer uses text files for training. It parses them and then converts them to Morphological
+ * analysis result using the Morphological analyzer.
  */
 public class _PerceptronAmbiguityResolverTrainer {
 
@@ -207,7 +207,7 @@ public class _PerceptronAmbiguityResolverTrainer {
         }
 
         if (unambigiousAnalyses.size() == sentenceStr.wordList.size()) {
-          sentences.add(new _SentenceAnalysis(unambigiousAnalyses));
+          sentences.add(new _SentenceAnalysis(sentence, unambigiousAnalyses));
         }
       }
       return sentences;

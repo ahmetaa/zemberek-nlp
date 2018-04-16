@@ -6,6 +6,6 @@ import zemberek.morphology._analyzer._WordAnalysis;
 
 public interface _AmbiguityResolver {
 
-  _SentenceAnalysis disambiguate(List<_WordAnalysis> allAnalyses);
+  _SentenceAnalysis disambiguate(String sentence, List<_WordAnalysis> allAnalyses);
 
 }

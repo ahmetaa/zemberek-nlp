@@ -213,12 +213,12 @@ public class _TurkishMorphology {
     return result;
   }
 
-  public _SentenceAnalysis disambiguate(List<_WordAnalysis> sentenceAnalysis) {
-    return ambiguityResolver.disambiguate(sentenceAnalysis);
+  public _SentenceAnalysis disambiguate(String sentence, List<_WordAnalysis> sentenceAnalysis) {
+    return ambiguityResolver.disambiguate(sentence, sentenceAnalysis);
   }
 
   public _SentenceAnalysis analyzeAndResolveAmbiguity(String sentence) {
-    return disambiguate(analyzeSentence(sentence));
+    return disambiguate(sentence, analyzeSentence(sentence));
   }
 
   public AnalysisCache getCache() {
@@ -276,7 +276,7 @@ public class _TurkishMorphology {
       return this;
     }
 
-    public Builder addDictionaryLines(String... lines)  {
+    public Builder addDictionaryLines(String... lines) {
       lexicon.addAll(new TurkishDictionaryLoader().load(lines));
       return this;
     }

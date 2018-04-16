@@ -30,7 +30,7 @@ public class DisambiguateSentences {
     System.out.println("Sentence word analysis result:");
     writeParseResult(analyses);
 
-    _SentenceAnalysis result = morphology.disambiguate(analyses);
+    _SentenceAnalysis result = morphology.disambiguate(sentence, analyses);
     System.out.println("\nBest analyses:");
     for (_SentenceWordAnalysis sentenceWordAnalysis : result) {
       System.out.println(sentenceWordAnalysis.getAnalysis().formatLong());

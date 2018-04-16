@@ -6,10 +6,13 @@ import java.util.stream.Collectors;
 
 public class _SentenceAnalysis implements Iterable<_SentenceWordAnalysis> {
 
+  private String sentence;
   private List<_SentenceWordAnalysis> parseEntries;
 
   public _SentenceAnalysis(
+      String sentence,
       List<_SentenceWordAnalysis> parseEntries) {
+    this.sentence = sentence;
     this.parseEntries = parseEntries;
   }
 
@@ -17,11 +20,14 @@ public class _SentenceAnalysis implements Iterable<_SentenceWordAnalysis> {
     return parseEntries.size();
   }
 
+  public String getSentence() {
+    return sentence;
+  }
+
   @Override
   public Iterator<_SentenceWordAnalysis> iterator() {
     return parseEntries.iterator();
   }
-
 
   public List<_SentenceWordAnalysis> getParseEntries() {
     return parseEntries;
