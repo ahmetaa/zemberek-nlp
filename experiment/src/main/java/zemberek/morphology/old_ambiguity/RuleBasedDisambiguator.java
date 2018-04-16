@@ -12,9 +12,9 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
-import zemberek.morphology.analyzer.SingleAnalysis;
-import zemberek.morphology.analyzer.TurkishMorphology;
-import zemberek.morphology.analyzer.WordAnalysis;
+import zemberek.morphology.analysis.SingleAnalysis;
+import zemberek.morphology.analysis.TurkishMorphology;
+import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.structure.Turkish;
 
 // Used for collecting training data.

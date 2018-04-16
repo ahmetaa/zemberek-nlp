@@ -4,9 +4,9 @@ import java.io.IOException;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology.analyzer.SingleAnalysis;
-import zemberek.morphology.analyzer.TurkishMorphology;
-import zemberek.morphology.analyzer.WordAnalysis;
+import zemberek.morphology.analysis.SingleAnalysis;
+import zemberek.morphology.analysis.TurkishMorphology;
+import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.DictionaryItem;
 
 

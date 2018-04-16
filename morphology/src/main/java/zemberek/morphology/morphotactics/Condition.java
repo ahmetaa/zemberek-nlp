@@ -1,6 +1,6 @@
 package zemberek.morphology.morphotactics;
 
-import zemberek.morphology.analyzer.SearchPath;
+import zemberek.morphology.analysis.SearchPath;
 
 public interface Condition {
 

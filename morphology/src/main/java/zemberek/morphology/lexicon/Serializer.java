@@ -21,7 +21,7 @@ import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology.analyzer.TurkishMorphology;
+import zemberek.morphology.analysis.TurkishMorphology;
 import zemberek.morphology.lexicon.proto.LexiconProto;
 import zemberek.morphology.lexicon.proto.LexiconProto.Dictionary;
 

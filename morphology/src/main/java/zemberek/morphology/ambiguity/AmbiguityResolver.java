@@ -1,8 +1,8 @@
 package zemberek.morphology.ambiguity;
 
 import java.util.List;
-import zemberek.morphology.analyzer.SentenceAnalysis;
-import zemberek.morphology.analyzer.WordAnalysis;
+import zemberek.morphology.analysis.SentenceAnalysis;
+import zemberek.morphology.analysis.WordAnalysis;
 
 public interface AmbiguityResolver {
 

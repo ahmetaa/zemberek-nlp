@@ -24,12 +24,12 @@ import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolverTrainer.DataSet;
-import zemberek.morphology.analyzer.SentenceAnalysis;
-import zemberek.morphology.analyzer.SentenceWordAnalysis;
-import zemberek.morphology.analyzer.SingleAnalysis;
-import zemberek.morphology.analyzer.SingleAnalysis.MorphemeGroup;
-import zemberek.morphology.analyzer.TurkishMorphology;
-import zemberek.morphology.analyzer.WordAnalysis;
+import zemberek.morphology.analysis.SentenceAnalysis;
+import zemberek.morphology.analysis.SentenceWordAnalysis;
+import zemberek.morphology.analysis.SingleAnalysis;
+import zemberek.morphology.analysis.SingleAnalysis.MorphemeGroup;
+import zemberek.morphology.analysis.TurkishMorphology;
+import zemberek.morphology.analysis.WordAnalysis;
 
 /**
  * This is a class for applying morphological ambiguity resolution for Turkish sentences. Algorithm

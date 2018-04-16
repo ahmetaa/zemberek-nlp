@@ -8,9 +8,9 @@ import java.util.Objects;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.TurkishAlphabet;
-import zemberek.morphology.analyzer.SurfaceTransition.SuffixTemplateToken;
-import zemberek.morphology.analyzer.SurfaceTransition.SuffixTemplateTokenizer;
-import zemberek.morphology.analyzer.SearchPath;
+import zemberek.morphology.analysis.SurfaceTransition.SuffixTemplateToken;
+import zemberek.morphology.analysis.SurfaceTransition.SuffixTemplateTokenizer;
+import zemberek.morphology.analysis.SearchPath;
 import zemberek.morphology.structure.Turkish;
 
 public class SuffixTransition extends MorphemeTransition {

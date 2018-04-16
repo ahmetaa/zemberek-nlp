@@ -2,7 +2,7 @@ package zemberek.morphology.old_ambiguity;
 
 import java.io.IOException;
 import org.junit.Test;
-import zemberek.morphology.analyzer.TurkishMorphology;
+import zemberek.morphology.analysis.TurkishMorphology;
 import zemberek.morphology.old_ambiguity.RuleBasedDisambiguator.AmbiguityAnalysis;
 import zemberek.morphology.old_ambiguity.RuleBasedDisambiguator.ResultSentence;
 import zemberek.morphology.old_ambiguity.RuleBasedDisambiguator.Rules;

@@ -13,7 +13,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
-import zemberek.morphology.analyzer.TurkishMorphology;
+import zemberek.morphology.analysis.TurkishMorphology;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 
