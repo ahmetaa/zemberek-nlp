@@ -108,13 +108,13 @@ public class Serializer {
     }
     Dictionary dictionary = builder.build();
     System.out.println("Total size of serialized dictionary: " + dictionary.getSerializedSize());
-    File f = new File("lexicon.bin");
-    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(f));
+    Path f = Files.createTempFile("lexicon",".bin");
+    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(f.toFile()));
     bos.write(dictionary.toByteArray());
     bos.close();
 
     long start = System.currentTimeMillis();
-    byte[] serialized = Files.readAllBytes(new File("lexicon.bin").toPath());
+    byte[] serialized = Files.readAllBytes(f);
     long end = System.currentTimeMillis();
     Log.info("Dictionary loaded in %d ms.", (end - start));
 

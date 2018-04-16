@@ -13,13 +13,16 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
+import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import zemberek.core.logging.Log;
 import zemberek.lm.NgramLanguageModel;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class TurkishSpellCheckerTest {
 
   private static Random random = new Random(1);
@@ -53,7 +56,7 @@ public class TurkishSpellCheckerTest {
 
   @Test
   public void checkProperNounsTest() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+    TurkishMorphology morphology = TurkishMorphology.builder().disableCache()
         .addDictionaryLines("Ankara", "Iphone [Pr:ayfon]", "Google [Pr:gugıl]").build();
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
 
@@ -73,7 +76,7 @@ public class TurkishSpellCheckerTest {
   //TODO: check for ordinals.
   @Test
   public void formatNumbersTest() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+    TurkishMorphology morphology = TurkishMorphology.builder().disableCache()
         .addDictionaryLines("bir [P:Num]", "dört [P:Num;A:Voicing]", "üç [P:Num]", "beş [P:Num]")
         .build();
 
@@ -92,7 +95,7 @@ public class TurkishSpellCheckerTest {
 
   @Test
   public void apostropheTest() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+    TurkishMorphology morphology = TurkishMorphology.builder().disableCache()
         .addDictionaryLines("zaman [P:Noun, Time]").build();
 
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
