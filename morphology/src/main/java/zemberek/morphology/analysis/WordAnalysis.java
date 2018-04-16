@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 // This class contains all morphological analyses of a word.
 public class WordAnalysis implements Iterable<SingleAnalysis> {
 
-  static final WordAnalysis EMPTY_INPUT_RESULT =
+  public static final WordAnalysis EMPTY_INPUT_RESULT =
       new WordAnalysis("", Collections.emptyList());
 
   //this is actual input.

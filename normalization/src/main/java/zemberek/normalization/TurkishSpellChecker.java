@@ -17,7 +17,7 @@ import zemberek.lm.LmVocabulary;
 import zemberek.lm.NgramLanguageModel;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.analysis.SingleAnalysis;
-import zemberek.morphology.analysis.TurkishMorphology;
+import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.WordAnalysisSurfaceFormatter;
 import zemberek.morphology.structure.Turkish;

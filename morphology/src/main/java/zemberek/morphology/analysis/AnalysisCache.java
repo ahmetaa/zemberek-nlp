@@ -15,7 +15,7 @@ import zemberek.core.text.TextIO;
 /**
  * A simple analysis cache. Can be shared between threads.
  */
-class AnalysisCache {
+public class AnalysisCache {
 
   private static final int STATIC_CACHE_CAPACITY = 5000;
   private static final int DEFAULT_INITIAL_DYNAMIC_CACHE_CAPACITY = 1000;
@@ -94,13 +94,13 @@ class AnalysisCache {
     }
   }
 
-  void invalidateDynamicCache() {
+  public void invalidateDynamicCache() {
     if (!dynamicCacheDisabled && dynamicCache != null) {
       dynamicCache.invalidateAll();
     }
   }
 
-  synchronized void initializeStaticCache(Function<String, WordAnalysis> analysisProvider) {
+  public synchronized void initializeStaticCache(Function<String, WordAnalysis> analysisProvider) {
     if (staticCacheDisabled || staticCacheInitialized) {
       return;
     }
@@ -124,7 +124,7 @@ class AnalysisCache {
     staticCacheInitialized = true;
   }
 
-  WordAnalysis getAnalysis(String input, Function<String, WordAnalysis> analysisProvider) {
+  public WordAnalysis getAnalysis(String input, Function<String, WordAnalysis> analysisProvider) {
 
     WordAnalysis analysis = staticCacheDisabled ? null : staticCache.get(input);
     if (analysis != null) {

@@ -28,7 +28,7 @@ import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis.MorphemeGroup;
-import zemberek.morphology.analysis.TurkishMorphology;
+import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
 
 /**

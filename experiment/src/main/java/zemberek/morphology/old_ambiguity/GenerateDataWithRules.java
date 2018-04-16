@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import zemberek.core.logging.Log;
 import zemberek.langid.LanguageIdentifier;
-import zemberek.morphology.analysis.TurkishMorphology;
+import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.old_ambiguity.RuleBasedDisambiguator.AmbiguityAnalysis;
 import zemberek.morphology.old_ambiguity.RuleBasedDisambiguator.AnalysisDecision;

@@ -1,4 +1,4 @@
-package zemberek.morphology.analysis;
+package zemberek.morphology;
 
 import com.google.common.base.Stopwatch;
 import java.io.File;
@@ -20,6 +20,12 @@ import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.core.turkish._TurkishAlphabet;
 import zemberek.morphology.ambiguity.AmbiguityResolver;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver;
+import zemberek.morphology.analysis.AnalysisCache;
+import zemberek.morphology.analysis.InterpretingAnalyzer;
+import zemberek.morphology.analysis.SentenceAnalysis;
+import zemberek.morphology.analysis.SingleAnalysis;
+import zemberek.morphology.analysis.UnidentifiedTokenAnalyzer;
+import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.morphology.generator.Generator;
 import zemberek.morphology.lexicon.RootLexicon;

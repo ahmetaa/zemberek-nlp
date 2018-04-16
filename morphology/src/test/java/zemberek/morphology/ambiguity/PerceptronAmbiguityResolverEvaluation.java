@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.Model;
-import zemberek.morphology.analysis.TurkishMorphology;
+import zemberek.morphology.TurkishMorphology;
 
 public class PerceptronAmbiguityResolverEvaluation {
 

@@ -2,7 +2,7 @@ package morphology;
 
 import java.io.IOException;
 import zemberek.morphology.analysis.SingleAnalysis;
-import zemberek.morphology.analysis.TurkishMorphology;
+import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
 
 public class StemmingAndLemmatization {

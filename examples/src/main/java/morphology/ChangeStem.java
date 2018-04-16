@@ -5,7 +5,7 @@ import java.util.List;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.generator.Generator;
 import zemberek.morphology.generator.Generator.GenerationResult;
-import zemberek.morphology.analysis.TurkishMorphology;
+import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.DictionaryItem;
 

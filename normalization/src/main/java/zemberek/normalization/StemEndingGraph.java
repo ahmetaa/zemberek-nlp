@@ -9,7 +9,7 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology.analysis.StemTransitions;
 import zemberek.morphology.analysis.SingleAnalysis;
-import zemberek.morphology.analysis.TurkishMorphology;
+import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.morphotactics.StemTransition;
 import zemberek.morphology.structure.StemAndEnding;

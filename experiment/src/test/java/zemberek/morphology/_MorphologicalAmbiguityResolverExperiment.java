@@ -21,7 +21,6 @@ import zemberek.core.logging.Log;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.langid.LanguageIdentifier;
 import zemberek.morphology.analysis.SingleAnalysis;
-import zemberek.morphology.analysis.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.structure.Turkish;
 import zemberek.tokenization.TurkishSentenceExtractor;
