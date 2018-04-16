@@ -15,6 +15,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import zemberek.core.collections.IntValueMap;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.morphology._analyzer.SurfaceTransition.SuffixTemplateToken;
 import zemberek.morphology._analyzer.SurfaceTransition.TemplateTokenType;
@@ -31,6 +32,8 @@ import zemberek.morphology.lexicon.RootLexicon;
  * This is a primitive _analyzer.
  */
 public class InterpretingAnalyzer {
+
+  private static final int MAX_REPEATING_SUFFIX_TYPE_COUNT = 3;
 
   private RootLexicon lexicon;
   private StemTransitions stemTransitions;
@@ -97,6 +100,10 @@ public class InterpretingAnalyzer {
 
   // searches through morphotactics graph.
   private List<SearchPath> search(List<SearchPath> currentPaths, AnalysisDebugData debugData) {
+
+    if (currentPaths.size() > 30) {
+      currentPaths = pruneCyclicPaths(currentPaths);
+    }
 
     List<SearchPath> result = new ArrayList<>(3);
     // new Paths are generated with matching transitions.
@@ -233,6 +240,26 @@ public class InterpretingAnalyzer {
       newPaths.add(p);
     }
     return newPaths;
+  }
+
+  // for preventing excessive branching during search, we remove paths that has more than
+  // MAX_REPEATING_SUFFIX_TYPE_COUNT morpheme-state types.
+  private List<SearchPath> pruneCyclicPaths(List<SearchPath> tokens) {
+    List<SearchPath> result = new ArrayList<>();
+    for (SearchPath token : tokens) {
+      boolean remove = false;
+      IntValueMap<String> typeCounts = new IntValueMap<>(10);
+      for (SurfaceTransition node : token.transitions) {
+        if (typeCounts.addOrIncrement(node.getState().id) > MAX_REPEATING_SUFFIX_TYPE_COUNT) {
+          remove = true;
+          break;
+        }
+      }
+      if (!remove) {
+        result.add(token);
+      }
+    }
+    return result;
   }
 
   static class RejectedTransition {
