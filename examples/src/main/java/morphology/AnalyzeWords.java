@@ -1,10 +1,10 @@
 package morphology;
 
 import java.io.IOException;
-import zemberek.morphology._analyzer.AnalysisFormatters;
-import zemberek.morphology._analyzer.SingleAnalysis;
-import zemberek.morphology._analyzer.TurkishMorphology;
-import zemberek.morphology._analyzer.WordAnalysis;
+import zemberek.morphology.analyzer.AnalysisFormatters;
+import zemberek.morphology.analyzer.SingleAnalysis;
+import zemberek.morphology.analyzer.TurkishMorphology;
+import zemberek.morphology.analyzer.WordAnalysis;
 
 public class AnalyzeWords {
 

@@ -4,9 +4,9 @@ import java.io.IOException;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology._analyzer.SentenceAnalysis;
-import zemberek.morphology._analyzer.SentenceWordAnalysis;
-import zemberek.morphology._analyzer.TurkishMorphology;
+import zemberek.morphology.analyzer.SentenceAnalysis;
+import zemberek.morphology.analyzer.SentenceWordAnalysis;
+import zemberek.morphology.analyzer.TurkishMorphology;
 
 public class FindPOS {
 

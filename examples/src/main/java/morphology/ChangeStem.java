@@ -2,11 +2,11 @@ package morphology;
 
 import java.io.IOException;
 import java.util.List;
-import zemberek.morphology._analyzer.SingleAnalysis;
+import zemberek.morphology.analyzer.SingleAnalysis;
 import zemberek.morphology.generator.Generator;
 import zemberek.morphology.generator.Generator.GenerationResult;
-import zemberek.morphology._analyzer.TurkishMorphology;
-import zemberek.morphology._analyzer.WordAnalysis;
+import zemberek.morphology.analyzer.TurkishMorphology;
+import zemberek.morphology.analyzer.WordAnalysis;
 import zemberek.morphology.lexicon.DictionaryItem;
 
 public class ChangeStem {

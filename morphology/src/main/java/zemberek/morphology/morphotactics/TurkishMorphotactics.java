@@ -21,7 +21,7 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology._analyzer.StemTransitions;
+import zemberek.morphology.analyzer.StemTransitions;
 import zemberek.morphology.morphotactics.Conditions.ContainsMorpheme;
 import zemberek.morphology.morphotactics.Conditions.CurrentGroupContainsAny;
 import zemberek.morphology.morphotactics.Conditions.HasTailSequence;

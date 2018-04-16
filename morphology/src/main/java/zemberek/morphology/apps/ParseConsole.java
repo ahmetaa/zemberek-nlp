@@ -10,8 +10,8 @@ import java.util.Scanner;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
-import zemberek.morphology._analyzer.SingleAnalysis;
-import zemberek.morphology._analyzer.TurkishMorphology;
+import zemberek.morphology.analyzer.SingleAnalysis;
+import zemberek.morphology.analyzer.TurkishMorphology;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 

@@ -1,6 +1,6 @@
 package zemberek.morphology.morphotactics;
 
-import zemberek.morphology._analyzer.SearchPath;
+import zemberek.morphology.analyzer.SearchPath;
 
 abstract class AbstractCondition implements Condition {
 

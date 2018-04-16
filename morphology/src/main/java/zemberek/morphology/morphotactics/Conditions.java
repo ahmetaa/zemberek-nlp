@@ -13,8 +13,8 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology._analyzer.SurfaceTransition;
-import zemberek.morphology._analyzer.SearchPath;
+import zemberek.morphology.analyzer.SurfaceTransition;
+import zemberek.morphology.analyzer.SearchPath;
 import zemberek.morphology.lexicon.DictionaryItem;
 
 class Conditions {

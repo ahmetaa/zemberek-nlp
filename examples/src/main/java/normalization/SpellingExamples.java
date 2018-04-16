@@ -1,7 +1,7 @@
 package normalization;
 
 import java.io.IOException;
-import zemberek.morphology._analyzer.TurkishMorphology;
+import zemberek.morphology.analyzer.TurkishMorphology;
 import zemberek.normalization.TurkishSpellChecker;
 
 public class SpellingExamples {

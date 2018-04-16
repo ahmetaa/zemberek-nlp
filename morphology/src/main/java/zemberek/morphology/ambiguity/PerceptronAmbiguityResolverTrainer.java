@@ -17,11 +17,11 @@ import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.Decoder;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.FeatureExtractor;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.Model;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.ParseResult;
-import zemberek.morphology._analyzer.SentenceAnalysis;
-import zemberek.morphology._analyzer.SentenceWordAnalysis;
-import zemberek.morphology._analyzer.SingleAnalysis;
-import zemberek.morphology._analyzer.TurkishMorphology;
-import zemberek.morphology._analyzer.WordAnalysis;
+import zemberek.morphology.analyzer.SentenceAnalysis;
+import zemberek.morphology.analyzer.SentenceWordAnalysis;
+import zemberek.morphology.analyzer.SingleAnalysis;
+import zemberek.morphology.analyzer.TurkishMorphology;
+import zemberek.morphology.analyzer.WordAnalysis;
 
 /**
  * This is the trainer class for the Turkish morphological ambiguity resolution mechanism. This

@@ -3,7 +3,7 @@ package zemberek.morphology.morphotactics;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import zemberek.morphology._analyzer.SearchPath;
+import zemberek.morphology.analyzer.SearchPath;
 
 // TODO: add tests!!
 public class CombinedCondition extends AbstractCondition {

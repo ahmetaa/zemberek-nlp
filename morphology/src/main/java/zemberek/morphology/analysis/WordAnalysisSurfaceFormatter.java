@@ -3,14 +3,14 @@ package zemberek.morphology.analysis;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology._analyzer.SingleAnalysis;
+import zemberek.morphology.analyzer.SingleAnalysis;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.structure.Turkish;
 
 public class WordAnalysisSurfaceFormatter {
 
   /**
-   * Formats the morphological analysis result's surface form. Zemberek _analyzer uses lowercase
+   * Formats the morphological analysis result's surface form. Zemberek analyzer uses lowercase
    * letters during operation. This methods creates the properly formatted surface form of an
    * analysis. For example this method returns [Ankara'ya] for the analysis of [ankaraya]
    *
