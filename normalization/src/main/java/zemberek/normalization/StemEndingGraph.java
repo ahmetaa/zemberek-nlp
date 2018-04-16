@@ -12,10 +12,6 @@ import zemberek.morphology._analyzer._SingleAnalysis;
 import zemberek.morphology._analyzer._TurkishMorphology;
 import zemberek.morphology._analyzer._WordAnalysis;
 import zemberek.morphology._morphotactics.StemTransition;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
-import zemberek.morphology.lexicon.graph.DynamicLexiconGraph;
-import zemberek.morphology.lexicon.graph.StemNode;
 import zemberek.morphology.structure.StemAndEnding;
 import zemberek.morphology.structure.Turkish;
 

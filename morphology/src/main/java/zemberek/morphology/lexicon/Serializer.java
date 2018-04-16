@@ -21,7 +21,7 @@ import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
+import zemberek.morphology._analyzer._TurkishMorphology;
 import zemberek.morphology.lexicon.proto.LexiconProto;
 import zemberek.morphology.lexicon.proto.LexiconProto.Dictionary;
 
@@ -50,7 +50,7 @@ public class Serializer {
   }
 
   public static void createDefaultDictionary(Path path) throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder().addDefaultDictionaries().build();
+    _TurkishMorphology morphology = _TurkishMorphology.builder().addDefaultDictionaries().build();
     save(morphology.getLexicon(), path);
   }
 
@@ -88,7 +88,7 @@ public class Serializer {
       builder.addItems(convertToProto(item));
     }
     Dictionary dictionary = builder.build();
-    if(outPath.toFile().exists()) {
+    if (outPath.toFile().exists()) {
       Files.delete(outPath);
     }
     Files.write(outPath, dictionary.toByteArray(), StandardOpenOption.CREATE);
@@ -100,7 +100,7 @@ public class Serializer {
   }
 
   private static void serializeDeserializeTest() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    _TurkishMorphology morphology = _TurkishMorphology.createWithDefaults();
     RootLexicon lexicon = morphology.getLexicon();
     Dictionary.Builder builder = Dictionary.newBuilder();
     for (DictionaryItem item : lexicon.getAllItems()) {

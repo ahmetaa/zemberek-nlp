@@ -19,7 +19,6 @@ import zemberek.core.logging.Log;
 import zemberek.lm.NgramLanguageModel;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology._analyzer._TurkishMorphology;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 public class TurkishSpellCheckerTest {
 

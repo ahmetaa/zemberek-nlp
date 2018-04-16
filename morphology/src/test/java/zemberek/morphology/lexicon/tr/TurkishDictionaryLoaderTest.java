@@ -1,4 +1,4 @@
-package zemberek.morphology.lexicon;
+package zemberek.morphology.lexicon.tr;
 
 import static zemberek.core.turkish.PrimaryPos.Noun;
 import static zemberek.core.turkish.PrimaryPos.Verb;
@@ -30,6 +30,8 @@ import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.TurkishLetterSequence;
 import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 
 public class TurkishDictionaryLoaderTest {

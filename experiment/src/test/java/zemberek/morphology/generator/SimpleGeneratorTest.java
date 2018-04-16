@@ -1,4 +1,4 @@
-package zemberek.morphology.generator.morphology;
+package zemberek.morphology.generator;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;

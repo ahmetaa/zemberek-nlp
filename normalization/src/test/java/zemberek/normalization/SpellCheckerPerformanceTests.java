@@ -14,7 +14,6 @@ import org.junit.Test;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.morphology._analyzer._TurkishMorphology;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 

@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import zemberek.core.io.IOs;
 import zemberek.core.io.KeyValueReader;
 import zemberek.core.io.Strings;
+import zemberek.morphology.analysis.tr.TurkishTextToNumberConverter;
 
 public class TurkishNumbers {
 

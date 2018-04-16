@@ -17,7 +17,6 @@ import org.junit.Test;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.morphology._analyzer._TurkishMorphology;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
 
 public class CharacterGraphDecoderTest {
 

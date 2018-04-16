@@ -28,7 +28,6 @@ import org.junit.Test;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
-import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.TurkishLetterSequence;
