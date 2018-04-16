@@ -19,8 +19,8 @@ import zemberek.morphology.old_lexicon.SuffixProvider;
 import zemberek.morphology.old_lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.old_lexicon.tr.TurkishSuffixes;
-import zemberek.morphology.structure.StemAndEnding;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.StemAndEnding;
+import zemberek.core.turkish.Turkish;
 
 public class UnidentifiedTokenAnalyzer {
 

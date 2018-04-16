@@ -30,7 +30,7 @@ import zemberek.morphology.generator.Generator;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.Serializer;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.morphology.structure.StemAndEnding;
+import zemberek.core.turkish.StemAndEnding;
 import zemberek.tokenization.TurkishTokenizer;
 
 // TODO: mothods require some re-thinking.

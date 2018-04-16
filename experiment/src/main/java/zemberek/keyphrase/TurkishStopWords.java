@@ -16,7 +16,7 @@ import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology.old_analysis.tr.TurkishMorphology;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.Turkish;
 
 public class TurkishStopWords {
 

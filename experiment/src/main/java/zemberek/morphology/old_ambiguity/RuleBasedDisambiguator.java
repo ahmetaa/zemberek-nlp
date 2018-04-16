@@ -15,7 +15,7 @@ import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.Turkish;
 
 // Used for collecting training data.
 

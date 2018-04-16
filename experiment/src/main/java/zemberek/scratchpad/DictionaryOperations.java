@@ -9,7 +9,7 @@ import zemberek.morphology.old_analysis.tr.TurkishMorphology;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.Turkish;
 
 import java.io.IOException;
 import java.nio.file.Files;

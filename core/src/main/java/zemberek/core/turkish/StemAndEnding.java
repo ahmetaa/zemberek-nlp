@@ -1,4 +1,4 @@
-package zemberek.morphology.structure;
+package zemberek.core.turkish;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;

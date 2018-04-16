@@ -43,7 +43,7 @@ import zemberek.morphology.old_lexicon.NullSuffixForm;
 import zemberek.morphology.old_lexicon.SuffixForm;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.old_lexicon.tr.TurkishSuffixes;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.Turkish;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 

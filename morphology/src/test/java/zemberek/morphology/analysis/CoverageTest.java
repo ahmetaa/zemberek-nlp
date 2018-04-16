@@ -26,7 +26,7 @@ import zemberek.core.logging.Log;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.Turkish;
 
 public class CoverageTest {
 

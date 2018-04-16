@@ -1,4 +1,4 @@
-package zemberek.morphology.structure;
+package zemberek.core.turkish;
 
 import java.io.IOException;
 import java.text.Collator;
@@ -10,9 +10,9 @@ import java.util.regex.Pattern;
 import zemberek.core.collections.UIntMap;
 import zemberek.core.io.KeyValueReader;
 import zemberek.core.logging.Log;
-import zemberek.core.turkish.TurkishAlphabet;
 
 /**
+ * TODO: check the content of this class. Either merge with TurkishAlphabet or fix it.
  * This class contains some Turkish language specific helper methods and properties.
  */
 public class Turkish {

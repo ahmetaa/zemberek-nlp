@@ -4,7 +4,7 @@ import java.util.EnumSet;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.Turkish;
 
 /**
  * DictionaryItem represents an entity from a dictionary.

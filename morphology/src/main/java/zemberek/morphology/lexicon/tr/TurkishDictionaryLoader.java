@@ -30,7 +30,7 @@ import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.LexiconException;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.Turkish;
 
 public class TurkishDictionaryLoader {
 

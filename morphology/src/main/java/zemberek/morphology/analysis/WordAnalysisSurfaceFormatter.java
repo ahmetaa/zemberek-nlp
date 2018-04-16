@@ -3,9 +3,8 @@ package zemberek.morphology.analysis;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.lexicon.DictionaryItem;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.Turkish;
 
 public class WordAnalysisSurfaceFormatter {
 

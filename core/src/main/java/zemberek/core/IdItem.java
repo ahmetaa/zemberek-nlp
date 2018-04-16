@@ -1,4 +1,4 @@
-package zemberek.morphology.structure;
+package zemberek.core;
 
 public abstract class IdItem {
 

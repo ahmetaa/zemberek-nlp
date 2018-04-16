@@ -13,7 +13,7 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
 import zemberek.morphology._MorphologicalAmbiguityResolverExperiment.SingleAnalysisSentence;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.Turkish;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 

@@ -12,8 +12,8 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.morphotactics.StemTransition;
-import zemberek.morphology.structure.StemAndEnding;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.StemAndEnding;
+import zemberek.core.turkish.Turkish;
 
 /**
  * This is a data structure that can be used for spell checking purposes. This is a graph consist of

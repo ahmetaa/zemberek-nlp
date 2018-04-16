@@ -14,8 +14,7 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.text.Regexps;
 import zemberek.core.text.TextIO;
-import zemberek.core.text.TextUtil;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.Turkish;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 

@@ -11,7 +11,7 @@ import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analysis.SurfaceTransition.SuffixTemplateToken;
 import zemberek.morphology.analysis.SurfaceTransition.SuffixTemplateTokenizer;
 import zemberek.morphology.analysis.SearchPath;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.Turkish;
 
 public class SuffixTransition extends MorphemeTransition {
 

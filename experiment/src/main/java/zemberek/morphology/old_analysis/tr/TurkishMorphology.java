@@ -33,7 +33,7 @@ import zemberek.morphology.old_lexicon.SuffixProvider;
 import zemberek.morphology.old_lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.old_lexicon.tr.TurkishSuffixes;
-import zemberek.morphology.structure.StemAndEnding;
+import zemberek.core.turkish.StemAndEnding;
 
 /**
  * Turkish Morphological Parser finds all possible parses for a Turkish word.

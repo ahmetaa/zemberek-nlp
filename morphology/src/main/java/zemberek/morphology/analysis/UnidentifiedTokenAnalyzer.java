@@ -16,8 +16,8 @@ import zemberek.morphology.analysis.tr.TurkishNumbers;
 import zemberek.morphology.analysis.tr.TurkishNumeralEndingMachine;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.morphology.structure.StemAndEnding;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.StemAndEnding;
+import zemberek.core.turkish.Turkish;
 import zemberek.tokenization.antlr.TurkishLexer;
 
 //TODO: Code requires serious testing and review.

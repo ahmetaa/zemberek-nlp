@@ -1,6 +1,6 @@
 package zemberek.morphology.old_lexicon;
 
-import zemberek.morphology.structure.IdItem;
+import zemberek.core.IdItem;
 
 /**
  * This is the representation of a Suffix. It only contains an id.

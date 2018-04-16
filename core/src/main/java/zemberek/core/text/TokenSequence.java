@@ -91,10 +91,6 @@ public class TokenSequence {
     return words[0];
   }
 
-  public String asAsrCorpusSentence() {
-    return SENTENCE_START + " " + asString() + " " + SENTENCE_END;
-  }
-
   @Override
   public String toString() {
     return asString();

@@ -17,7 +17,7 @@ import zemberek.morphology.old_lexicon.Suffix;
 import zemberek.morphology.old_lexicon.SuffixFormTemplate;
 import zemberek.morphology.old_lexicon.graph.StemNode;
 import zemberek.morphology.old_lexicon.graph.SuffixSurfaceNode;
-import zemberek.morphology.structure.StemAndEnding;
+import zemberek.core.turkish.StemAndEnding;
 
 /**
  * This class represents a single morphological parse of a word.

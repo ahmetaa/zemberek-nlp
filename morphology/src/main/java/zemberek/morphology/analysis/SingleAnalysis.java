@@ -11,7 +11,7 @@ import zemberek.core.turkish.RootAttribute;
 import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.DictionaryItem;
-import zemberek.morphology.structure.StemAndEnding;
+import zemberek.core.turkish.StemAndEnding;
 
 // This class represents a single morphological analysis result
 public class SingleAnalysis {

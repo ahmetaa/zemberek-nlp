@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Set;
 import zemberek.morphology.old_analysis.tr.TurkishMorphology;
 import zemberek.morphology.lexicon.DictionaryItem;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.Turkish;
 
 /**
  * Extracts city, district and village names from a csv file. File is downloaded from public postal

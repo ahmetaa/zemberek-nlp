@@ -32,7 +32,7 @@ import zemberek.core._turkish.TurkishLetterSequence;
 import zemberek.morphology.old_lexicon.graph.SuffixData;
 import zemberek.morphology.old_lexicon.graph.SuffixSurfaceNode;
 import zemberek.morphology.old_lexicon.graph.TerminationType;
-import zemberek.morphology.structure.Turkish;
+import zemberek.core.turkish.Turkish;
 
 public class SuffixSurfaceNodeGenerator {
 
