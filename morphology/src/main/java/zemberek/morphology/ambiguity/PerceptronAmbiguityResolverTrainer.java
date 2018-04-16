@@ -1,4 +1,4 @@
-package zemberek.morphology._ambiguity;
+package zemberek.morphology.ambiguity;
 
 import com.google.common.collect.Sets;
 import java.io.IOException;
@@ -13,36 +13,36 @@ import zemberek.core.collections.IntValueMap;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextConsumer;
 import zemberek.core.text.TextIO;
-import zemberek.morphology._ambiguity._PerceptronAmbiguityResolver.Decoder;
-import zemberek.morphology._ambiguity._PerceptronAmbiguityResolver.FeatureExtractor;
-import zemberek.morphology._ambiguity._PerceptronAmbiguityResolver.Model;
-import zemberek.morphology._ambiguity._PerceptronAmbiguityResolver.ParseResult;
-import zemberek.morphology._analyzer._SentenceAnalysis;
-import zemberek.morphology._analyzer._SentenceWordAnalysis;
-import zemberek.morphology._analyzer._SingleAnalysis;
-import zemberek.morphology._analyzer._TurkishMorphology;
-import zemberek.morphology._analyzer._WordAnalysis;
+import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.Decoder;
+import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.FeatureExtractor;
+import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.Model;
+import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.ParseResult;
+import zemberek.morphology._analyzer.SentenceAnalysis;
+import zemberek.morphology._analyzer.SentenceWordAnalysis;
+import zemberek.morphology._analyzer.SingleAnalysis;
+import zemberek.morphology._analyzer.TurkishMorphology;
+import zemberek.morphology._analyzer.WordAnalysis;
 
 /**
  * This is the trainer class for the Turkish morphological ambiguity resolution mechanism. This
  * class generates the model for actual ambiguity resolution class {@link
- * _PerceptronAmbiguityResolver}
+ * PerceptronAmbiguityResolver}
  * <p>
  * Trainer uses text files for training. It parses them and then converts them to Morphological
  * analysis result using the Morphological analyzer.
  */
-public class _PerceptronAmbiguityResolverTrainer {
+public class PerceptronAmbiguityResolverTrainer {
 
   private Model weights = new Model();
   private Model averagedWeights = new Model();
   private IntValueMap<String> counts = new IntValueMap<>();
-  private _TurkishMorphology analyzer;
+  private TurkishMorphology analyzer;
 
-  _PerceptronAmbiguityResolverTrainer(_TurkishMorphology analyzer) {
+  PerceptronAmbiguityResolverTrainer(TurkishMorphology analyzer) {
     this.analyzer = analyzer;
   }
 
-  public _PerceptronAmbiguityResolver train(Path trainFile, Path devFile, int iterationCount)
+  public PerceptronAmbiguityResolver train(Path trainFile, Path devFile, int iterationCount)
       throws IOException {
 
     FeatureExtractor extractor = new FeatureExtractor(false);
@@ -53,7 +53,7 @@ public class _PerceptronAmbiguityResolverTrainer {
     int numExamples = 0;
     for (int i = 0; i < iterationCount; i++) {
       Log.info("Iteration:" + i);
-      for (_SentenceAnalysis sentence : trainingSet.sentences) {
+      for (SentenceAnalysis sentence : trainingSet.sentences) {
         if (sentence.size() == 0) {
           continue;
         }
@@ -81,12 +81,12 @@ public class _PerceptronAmbiguityResolverTrainer {
       }
 
       Log.info("Testing development set.");
-      _PerceptronAmbiguityResolver disambiguator =
-          new _PerceptronAmbiguityResolver(averagedWeights, extractor);
+      PerceptronAmbiguityResolver disambiguator =
+          new PerceptronAmbiguityResolver(averagedWeights, extractor);
       disambiguator.test(devSet);
 
     }
-    return new _PerceptronAmbiguityResolver(averagedWeights, new FeatureExtractor(false));
+    return new PerceptronAmbiguityResolver(averagedWeights, new FeatureExtractor(false));
   }
 
   private void updateModel(
@@ -133,28 +133,28 @@ public class _PerceptronAmbiguityResolverTrainer {
 
   static class DataSet {
 
-    List<_SentenceAnalysis> sentences;
+    List<SentenceAnalysis> sentences;
 
-    DataSet(List<_SentenceAnalysis> sentences) {
+    DataSet(List<SentenceAnalysis> sentences) {
       this.sentences = sentences;
     }
 
-    static DataSet load(Path path, _TurkishMorphology analyzer) throws IOException {
+    static DataSet load(Path path, TurkishMorphology analyzer) throws IOException {
       List<SentenceDataStr> sentencesFromTextFile = DataSet.loadTrainingDataText(path);
       return new DataSet(DataSet.convert(sentencesFromTextFile, analyzer));
     }
 
-    static List<_SentenceAnalysis> convert(
+    static List<SentenceAnalysis> convert(
         List<SentenceDataStr> set,
-        _TurkishMorphology analyzer) {
+        TurkishMorphology analyzer) {
 
-      List<_SentenceAnalysis> sentences = new ArrayList<>();
+      List<SentenceAnalysis> sentences = new ArrayList<>();
       // Find actual analysis equivalents.
       for (SentenceDataStr sentenceStr : set) {
 
         String sentence = sentenceStr.sentence;
 
-        List<_WordAnalysis> sentenceAnalysis = analyzer.analyzeSentence(sentence);
+        List<WordAnalysis> sentenceAnalysis = analyzer.analyzeSentence(sentence);
 
         if (sentenceAnalysis.size() != sentenceStr.wordList.size()) {
           Log.warn("Actual analysis token size [%d] and sentence from file token size [%d] "
@@ -162,12 +162,12 @@ public class _PerceptronAmbiguityResolverTrainer {
               sentenceAnalysis.size(), sentenceStr.wordList.size(), sentence);
         }
 
-        List<_SentenceWordAnalysis> unambigiousAnalyses = new ArrayList<>();
+        List<SentenceWordAnalysis> unambigiousAnalyses = new ArrayList<>();
 
         BAD_SENTENCE:
         for (int i = 0; i < sentenceAnalysis.size(); i++) {
 
-          _WordAnalysis w = sentenceAnalysis.get(i);
+          WordAnalysis w = sentenceAnalysis.get(i);
           WordDataStr s = sentenceStr.wordList.get(i);
 
           if (!w.getInput().equals(s.word)) {
@@ -184,8 +184,8 @@ public class _PerceptronAmbiguityResolverTrainer {
             break;
           }
 
-          Map<String, _SingleAnalysis> analysisMap = new HashMap<>();
-          for (_SingleAnalysis single : w) {
+          Map<String, SingleAnalysis> analysisMap = new HashMap<>();
+          for (SingleAnalysis single : w) {
             analysisMap.put(single.formatLong(), single);
           }
 
@@ -199,15 +199,15 @@ public class _PerceptronAmbiguityResolverTrainer {
           }
 
           if (analysisMap.containsKey(s.correctAnalysis)) {
-            _SingleAnalysis correct = analysisMap.get(s.correctAnalysis);
-            unambigiousAnalyses.add(new _SentenceWordAnalysis(correct, w));
+            SingleAnalysis correct = analysisMap.get(s.correctAnalysis);
+            unambigiousAnalyses.add(new SentenceWordAnalysis(correct, w));
           } else {
             break;
           }
         }
 
         if (unambigiousAnalyses.size() == sentenceStr.wordList.size()) {
-          sentences.add(new _SentenceAnalysis(sentence, unambigiousAnalyses));
+          sentences.add(new SentenceAnalysis(sentence, unambigiousAnalyses));
         }
       }
       return sentences;
@@ -216,7 +216,7 @@ public class _PerceptronAmbiguityResolverTrainer {
     void info() {
       Log.info("There are %d sentences and %d tokens.",
           sentences.size(),
-          sentences.stream().mapToInt(_SentenceAnalysis::size).sum());
+          sentences.stream().mapToInt(SentenceAnalysis::size).sum());
 
     }
 

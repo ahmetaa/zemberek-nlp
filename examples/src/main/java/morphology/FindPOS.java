@@ -4,29 +4,29 @@ import java.io.IOException;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology._analyzer._SentenceAnalysis;
-import zemberek.morphology._analyzer._SentenceWordAnalysis;
-import zemberek.morphology._analyzer._TurkishMorphology;
+import zemberek.morphology._analyzer.SentenceAnalysis;
+import zemberek.morphology._analyzer.SentenceWordAnalysis;
+import zemberek.morphology._analyzer.TurkishMorphology;
 
 public class FindPOS {
 
-  _TurkishMorphology morphology;
+  TurkishMorphology morphology;
 
-  public FindPOS(_TurkishMorphology morphology) {
+  public FindPOS(TurkishMorphology morphology) {
     this.morphology = morphology;
   }
 
   public static void main(String[] args) throws IOException {
-    _TurkishMorphology morphology = _TurkishMorphology.createWithDefaults();
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     new FindPOS(morphology)
         .test("Keşke yarın hava güzel olsa.");
   }
 
   private void test(String s) {
     System.out.println("Sentence  = " + s);
-    _SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(s);
+    SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(s);
 
-    for (_SentenceWordAnalysis a : analysis) {
+    for (SentenceWordAnalysis a : analysis) {
       PrimaryPos primaryPos = a.getAnalysis().getDictionaryItem().primaryPos;
       SecondaryPos secondaryPos = a.getAnalysis().getDictionaryItem().secondaryPos;
       Log.info("%s -> %s : %s ",

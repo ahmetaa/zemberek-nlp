@@ -6,26 +6,26 @@ import java.util.List;
 import java.util.stream.Stream;
 
 // This class contains all morphological analyses of a word.
-public class _WordAnalysis implements Iterable<_SingleAnalysis> {
+public class WordAnalysis implements Iterable<SingleAnalysis> {
 
-  static final _WordAnalysis EMPTY_INPUT_RESULT =
-      new _WordAnalysis("", Collections.emptyList());
+  static final WordAnalysis EMPTY_INPUT_RESULT =
+      new WordAnalysis("", Collections.emptyList());
 
   //this is actual input.
   String input;
   // this is the input that is prepared for analysis.
   String normalizedInput;
 
-  List<_SingleAnalysis> analysisResults;
+  List<SingleAnalysis> analysisResults;
 
-  public _WordAnalysis(String input, List<_SingleAnalysis> analysisResults) {
+  public WordAnalysis(String input, List<SingleAnalysis> analysisResults) {
     this.input = input;
     this.normalizedInput = input;
     this.analysisResults = analysisResults;
   }
 
-  public _WordAnalysis(String input, String normalizedInput,
-      List<_SingleAnalysis> analysisResults) {
+  public WordAnalysis(String input, String normalizedInput,
+      List<SingleAnalysis> analysisResults) {
     this.input = input;
     this.normalizedInput = normalizedInput;
     this.analysisResults = analysisResults;
@@ -48,19 +48,19 @@ public class _WordAnalysis implements Iterable<_SingleAnalysis> {
   }
 
   @Override
-  public Iterator<_SingleAnalysis> iterator() {
+  public Iterator<SingleAnalysis> iterator() {
     return analysisResults.iterator();
   }
 
-  public Stream<_SingleAnalysis> stream() {
+  public Stream<SingleAnalysis> stream() {
     return analysisResults.stream();
   }
 
-  public _WordAnalysis copyFor(List<_SingleAnalysis> analyses) {
-    return new _WordAnalysis(this.input, this.normalizedInput, analyses);
+  public WordAnalysis copyFor(List<SingleAnalysis> analyses) {
+    return new WordAnalysis(this.input, this.normalizedInput, analyses);
   }
 
-  public List<_SingleAnalysis> getAnalysisResults() {
+  public List<SingleAnalysis> getAnalysisResults() {
     return analysisResults;
   }
 }

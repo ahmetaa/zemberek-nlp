@@ -19,7 +19,7 @@ import java.util.List;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.TurkicLetter;
 import zemberek.core.turkish._TurkishAlphabet;
-import zemberek.morphology._morphotactics.AttributeSet;
+import zemberek.morphology.morphotactics.AttributeSet;
 
 /**
  * Helper class for calculating morphemic attributes.

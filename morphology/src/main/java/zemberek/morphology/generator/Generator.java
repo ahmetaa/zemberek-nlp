@@ -9,26 +9,26 @@ import zemberek.morphology._analyzer.AnalysisDebugData;
 import zemberek.morphology._analyzer.AnalysisDebugData.RejectedTransition;
 import zemberek.morphology._analyzer.AttributesHelper;
 import zemberek.morphology._analyzer.SearchPath;
+import zemberek.morphology._analyzer.SingleAnalysis;
 import zemberek.morphology._analyzer.StemTransitions;
 import zemberek.morphology._analyzer.SurfaceTransition;
 import zemberek.morphology._analyzer.SurfaceTransition.SuffixTemplateToken;
 import zemberek.morphology._analyzer.SurfaceTransition.TemplateTokenType;
-import zemberek.morphology._analyzer._SingleAnalysis;
-import zemberek.morphology._morphotactics.AttributeSet;
-import zemberek.morphology._morphotactics.CombinedCondition;
-import zemberek.morphology._morphotactics.Condition;
-import zemberek.morphology._morphotactics.Morpheme;
-import zemberek.morphology._morphotactics.MorphemeTransition;
-import zemberek.morphology._morphotactics.StemTransition;
-import zemberek.morphology._morphotactics.SuffixTransition;
-import zemberek.morphology._morphotactics.TurkishMorphotactics;
+import zemberek.morphology.morphotactics.AttributeSet;
+import zemberek.morphology.morphotactics.CombinedCondition;
+import zemberek.morphology.morphotactics.Condition;
+import zemberek.morphology.morphotactics.Morpheme;
+import zemberek.morphology.morphotactics.MorphemeTransition;
+import zemberek.morphology.morphotactics.StemTransition;
+import zemberek.morphology.morphotactics.SuffixTransition;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
-public class _Generator {
+public class Generator {
 
   private TurkishMorphotactics morphotactics;
   private StemTransitions stemTransitions;
 
-  public _Generator(TurkishMorphotactics morphotactics) {
+  public Generator(TurkishMorphotactics morphotactics) {
     this.morphotactics = morphotactics;
     this.stemTransitions = morphotactics.getStemTransitions();
   }
@@ -89,7 +89,7 @@ public class _Generator {
     // generate results from successful paths.
     List<GenerationResult> result = new ArrayList<>(resultPaths.size());
     for (GenerationPath path : resultPaths) {
-      _SingleAnalysis analysis = _SingleAnalysis.fromSearchPath(path.path);
+      SingleAnalysis analysis = SingleAnalysis.fromSearchPath(path.path);
       result.add(new GenerationResult(analysis.surfaceForm(), analysis));
       if (debugData != null) {
         debugData.results.add(analysis);
@@ -255,9 +255,9 @@ public class _Generator {
   public static class GenerationResult {
 
     public final String surface;
-    public final _SingleAnalysis analysis;
+    public final SingleAnalysis analysis;
 
-    public GenerationResult(String surface, _SingleAnalysis analysis) {
+    public GenerationResult(String surface, SingleAnalysis analysis) {
       this.surface = surface;
       this.analysis = analysis;
     }

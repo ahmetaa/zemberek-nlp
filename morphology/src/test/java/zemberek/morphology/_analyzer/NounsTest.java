@@ -321,10 +321,10 @@ public class NounsTest extends AnalyzerTestBase {
     InterpretingAnalyzer analyzer = getAnalyzer(
         "annemler [A:ImplicitPlural,ImplicitP1sg,FamilyMember]");
     String in = "annemleri";
-    List<_SingleAnalysis> results = analyzer.analyze(in);
+    List<SingleAnalysis> results = analyzer.analyze(in);
     printAndSort(in, results);
     Assert.assertEquals(1, results.size());
-    _SingleAnalysis first = results.get(0);
+    SingleAnalysis first = results.get(0);
     Assert.assertTrue(containsMorpheme(first, "Acc"));
     Assert.assertTrue(!containsMorpheme(first, "P3sg"));
   }

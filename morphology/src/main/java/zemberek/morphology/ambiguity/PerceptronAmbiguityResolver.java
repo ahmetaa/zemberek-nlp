@@ -1,4 +1,4 @@
-package zemberek.morphology._ambiguity;
+package zemberek.morphology.ambiguity;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -23,13 +23,13 @@ import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology._ambiguity._PerceptronAmbiguityResolverTrainer.DataSet;
-import zemberek.morphology._analyzer._SentenceAnalysis;
-import zemberek.morphology._analyzer._SentenceWordAnalysis;
-import zemberek.morphology._analyzer._SingleAnalysis;
-import zemberek.morphology._analyzer._SingleAnalysis.MorphemeGroup;
-import zemberek.morphology._analyzer._TurkishMorphology;
-import zemberek.morphology._analyzer._WordAnalysis;
+import zemberek.morphology.ambiguity.PerceptronAmbiguityResolverTrainer.DataSet;
+import zemberek.morphology._analyzer.SentenceAnalysis;
+import zemberek.morphology._analyzer.SentenceWordAnalysis;
+import zemberek.morphology._analyzer.SingleAnalysis;
+import zemberek.morphology._analyzer.SingleAnalysis.MorphemeGroup;
+import zemberek.morphology._analyzer.TurkishMorphology;
+import zemberek.morphology._analyzer.WordAnalysis;
 
 /**
  * This is a class for applying morphological ambiguity resolution for Turkish sentences. Algorithm
@@ -41,13 +41,13 @@ import zemberek.morphology._analyzer._WordAnalysis;
  * This is code is adapted from the Author's original Perl implementation. However, this is not a
  * direct port, many changes needed to be applied for Zemberek integration and cleaner design.
  * <p>
- * For Training, use {@link _PerceptronAmbiguityResolverTrainer} class.
+ * For Training, use {@link PerceptronAmbiguityResolverTrainer} class.
  */
-public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
+public class PerceptronAmbiguityResolver implements AmbiguityResolver {
 
   private Decoder decoder;
 
-  _PerceptronAmbiguityResolver(WeightLookup averagedModel, FeatureExtractor extractor) {
+  PerceptronAmbiguityResolver(WeightLookup averagedModel, FeatureExtractor extractor) {
     this.decoder = new Decoder(averagedModel, extractor);
   }
 
@@ -55,7 +55,7 @@ public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
     return decoder.model;
   }
 
-  public static _PerceptronAmbiguityResolver fromModelFile(Path modelFile) throws IOException {
+  public static PerceptronAmbiguityResolver fromModelFile(Path modelFile) throws IOException {
 
     WeightLookup lookup;
     if (CompressedModel.isCompressed(modelFile)) {
@@ -64,10 +64,10 @@ public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
       lookup = Model.loadFromFile(modelFile);
     }
     FeatureExtractor extractor = new FeatureExtractor(false);
-    return new _PerceptronAmbiguityResolver(lookup, extractor);
+    return new PerceptronAmbiguityResolver(lookup, extractor);
   }
 
-  public static _PerceptronAmbiguityResolver fromResource(String resourcePath) throws IOException {
+  public static PerceptronAmbiguityResolver fromResource(String resourcePath) throws IOException {
 
     WeightLookup lookup;
     if (CompressedModel.isCompressed(resourcePath)) {
@@ -76,20 +76,20 @@ public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
       lookup = Model.loadFromResource(resourcePath);
     }
     FeatureExtractor extractor = new FeatureExtractor(false);
-    return new _PerceptronAmbiguityResolver(lookup, extractor);
+    return new PerceptronAmbiguityResolver(lookup, extractor);
   }
 
   @Override
-  public _SentenceAnalysis disambiguate(String sentence, List<_WordAnalysis> allAnalyses) {
+  public SentenceAnalysis disambiguate(String sentence, List<WordAnalysis> allAnalyses) {
     ParseResult best = decoder.bestPath(allAnalyses);
-    List<_SentenceWordAnalysis> l = new ArrayList<>();
+    List<SentenceWordAnalysis> l = new ArrayList<>();
     for (int i = 0; i < allAnalyses.size(); i++) {
-      l.add(new _SentenceWordAnalysis(best.bestParse.get(i), allAnalyses.get(i)));
+      l.add(new SentenceWordAnalysis(best.bestParse.get(i), allAnalyses.get(i)));
     }
-    return new _SentenceAnalysis(sentence, l);
+    return new SentenceAnalysis(sentence, l);
   }
 
-  public void test(Path testFilePath, _TurkishMorphology morphology) throws IOException {
+  public void test(Path testFilePath, TurkishMorphology morphology) throws IOException {
     DataSet testSet = DataSet.load(testFilePath, morphology);
     test(testSet);
   }
@@ -97,11 +97,11 @@ public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
   public void test(DataSet set) {
     int hit = 0, total = 0;
     Stopwatch sw = Stopwatch.createStarted();
-    for (_SentenceAnalysis sentence : set.sentences) {
+    for (SentenceAnalysis sentence : set.sentences) {
       ParseResult result = decoder.bestPath(sentence.allAnalyses());
       int i = 0;
-      List<_SingleAnalysis> bestExpected = sentence.bestAnalysis();
-      for (_SingleAnalysis bestActual : result.bestParse) {
+      List<SingleAnalysis> bestExpected = sentence.bestAnalysis();
+      for (SingleAnalysis bestActual : result.bestParse) {
         if (bestExpected.get(i).equals(bestActual)) {
           hit++;
         }
@@ -118,20 +118,20 @@ public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
 
     boolean useCache;
 
-    ConcurrentHashMap<_SingleAnalysis[], IntValueMap<String>> featureCache =
+    ConcurrentHashMap<SingleAnalysis[], IntValueMap<String>> featureCache =
         new ConcurrentHashMap<>();
 
     FeatureExtractor(boolean useCache) {
       this.useCache = useCache;
     }
 
-    IntValueMap<String> extractFromSentence(List<_SingleAnalysis> parseSequence) {
-      List<_SingleAnalysis> seq = Lists.newArrayList(sentenceBegin, sentenceBegin);
+    IntValueMap<String> extractFromSentence(List<SingleAnalysis> parseSequence) {
+      List<SingleAnalysis> seq = Lists.newArrayList(sentenceBegin, sentenceBegin);
       seq.addAll(parseSequence);
       seq.add(sentenceEnd);
       IntValueMap<String> featureModel = new IntValueMap<>();
       for (int i = 2; i < seq.size(); i++) {
-        _SingleAnalysis[] trigram = {
+        SingleAnalysis[] trigram = {
             seq.get(i - 2),
             seq.get(i - 1),
             seq.get(i)};
@@ -143,7 +143,7 @@ public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
       return featureModel;
     }
 
-    IntValueMap<String> extractFromTrigram(_SingleAnalysis[] trigram) {
+    IntValueMap<String> extractFromTrigram(SingleAnalysis[] trigram) {
 
       if (useCache) {
         IntValueMap<String> cached = featureCache.get(trigram);
@@ -153,9 +153,9 @@ public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
       }
 
       IntValueMap<String> feats = new IntValueMap<>();
-      _SingleAnalysis w1 = trigram[0];
-      _SingleAnalysis w2 = trigram[1];
-      _SingleAnalysis w3 = trigram[2];
+      SingleAnalysis w1 = trigram[0];
+      SingleAnalysis w2 = trigram[1];
+      SingleAnalysis w3 = trigram[2];
 
       String r1 = w1.getDictionaryItem().id;
       String r2 = w2.getDictionaryItem().id;
@@ -229,8 +229,8 @@ public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
     }
   }
 
-  private static final _SingleAnalysis sentenceBegin = _SingleAnalysis.unknown("<s>");
-  private static final _SingleAnalysis sentenceEnd = _SingleAnalysis.unknown("</s>");
+  private static final SingleAnalysis sentenceBegin = SingleAnalysis.unknown("<s>");
+  private static final SingleAnalysis sentenceEnd = SingleAnalysis.unknown("</s>");
 
   /**
    * Decoder finds the best path from multiple word analyses using Viterbi search algorithm.
@@ -246,7 +246,7 @@ public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
       this.extractor = extractor;
     }
 
-    ParseResult bestPath(List<_WordAnalysis> sentence) {
+    ParseResult bestPath(List<WordAnalysis> sentence) {
 
       if (sentence.size() == 0) {
         throw new IllegalArgumentException("bestPath cannot be called with empty sentence.");
@@ -256,15 +256,15 @@ public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
       ActiveList<Hypothesis> currentList = new ActiveList<>();
       currentList.add(new Hypothesis(sentenceBegin, sentenceBegin, null, 0));
 
-      for (_WordAnalysis analysisData : sentence) {
+      for (WordAnalysis analysisData : sentence) {
 
         ActiveList<Hypothesis> nextList = new ActiveList<>();
 
-        for (_SingleAnalysis analysis : analysisData) {
+        for (SingleAnalysis analysis : analysisData) {
 
           for (Hypothesis h : currentList) {
 
-            _SingleAnalysis[] trigram = {h.prev, h.current, analysis};
+            SingleAnalysis[] trigram = {h.prev, h.current, analysis};
             IntValueMap<String> features = extractor.extractFromTrigram(trigram);
 
             float trigramScore = 0;
@@ -285,7 +285,7 @@ public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
 
       // score for sentence end. No need to create new hypotheses.
       for (Hypothesis h : currentList) {
-        _SingleAnalysis[] trigram = {h.prev, h.current, sentenceEnd};
+        SingleAnalysis[] trigram = {h.prev, h.current, sentenceEnd};
         IntValueMap<String> features = extractor.extractFromTrigram(trigram);
 
         float trigramScore = 0;
@@ -297,7 +297,7 @@ public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
 
       Hypothesis best = currentList.getBest();
       float bestScore = best.score;
-      List<_SingleAnalysis> result = Lists.newArrayList();
+      List<SingleAnalysis> result = Lists.newArrayList();
 
       // backtrack. from end to begin, we add words from Hypotheses.
       while (best.previous != null) {
@@ -313,10 +313,10 @@ public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
 
   static class ParseResult {
 
-    List<_SingleAnalysis> bestParse;
+    List<SingleAnalysis> bestParse;
     float score;
 
-    private ParseResult(List<_SingleAnalysis> bestParse, float score) {
+    private ParseResult(List<SingleAnalysis> bestParse, float score) {
       this.bestParse = bestParse;
       this.score = score;
     }
@@ -324,14 +324,14 @@ public class _PerceptronAmbiguityResolver implements _AmbiguityResolver {
 
   static class Hypothesis implements Scoreable {
 
-    _SingleAnalysis prev; // previous word analysis result String
-    _SingleAnalysis current; // current word analysis result String
+    SingleAnalysis prev; // previous word analysis result String
+    SingleAnalysis current; // current word analysis result String
     Hypothesis previous; // previous Hypothesis.
     float score;
 
     Hypothesis(
-        _SingleAnalysis prev,
-        _SingleAnalysis current,
+        SingleAnalysis prev,
+        SingleAnalysis current,
         Hypothesis previous,
         float score) {
       this.prev = prev;

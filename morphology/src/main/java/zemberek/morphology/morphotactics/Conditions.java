@@ -1,8 +1,8 @@
-package zemberek.morphology._morphotactics;
+package zemberek.morphology.morphotactics;
 
 import static java.util.Arrays.asList;
-import static zemberek.morphology._morphotactics.Operator.AND;
-import static zemberek.morphology._morphotactics.Operator.OR;
+import static zemberek.morphology.morphotactics.Operator.AND;
+import static zemberek.morphology.morphotactics.Operator.OR;
 
 import java.util.Arrays;
 import java.util.Collection;

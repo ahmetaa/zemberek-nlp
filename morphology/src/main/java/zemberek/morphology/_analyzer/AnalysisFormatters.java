@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology._analyzer._SingleAnalysis.MorphemeSurface;
-import zemberek.morphology._morphotactics.Morpheme;
+import zemberek.morphology._analyzer.SingleAnalysis.MorphemeSurface;
+import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.morphology.lexicon.DictionaryItem;
 
 public class AnalysisFormatters {
@@ -33,7 +33,7 @@ public class AnalysisFormatters {
   static class OflazerStyleFormatter implements AnalysisFormatter {
 
     @Override
-    public String format(_SingleAnalysis analysis) {
+    public String format(SingleAnalysis analysis) {
       List<MorphemeSurface> surfaces = analysis.getMorphemesSurfaces();
 
       StringBuilder sb = new StringBuilder(surfaces.size() * 4);
@@ -91,7 +91,7 @@ public class AnalysisFormatters {
     }
 
     @Override
-    public String format(_SingleAnalysis analysis) {
+    public String format(SingleAnalysis analysis) {
       List<MorphemeSurface> surfaces = analysis.getMorphemesSurfaces();
 
       StringBuilder sb = new StringBuilder(surfaces.size() * 4);
@@ -144,7 +144,7 @@ public class AnalysisFormatters {
     }
 
     @Override
-    public String format(_SingleAnalysis analysis) {
+    public String format(SingleAnalysis analysis) {
       List<MorphemeSurface> surfaces = analysis.getMorphemesSurfaces();
 
       StringBuilder sb = new StringBuilder(surfaces.size() * 5);

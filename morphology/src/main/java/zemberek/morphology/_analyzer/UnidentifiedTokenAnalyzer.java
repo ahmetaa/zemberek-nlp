@@ -25,7 +25,7 @@ import zemberek.tokenization.antlr.TurkishLexer;
 //TODO: For unknown pronouns, do not analyze as regular nouns if apostrophe is not in the
 //        correct place. Such as [obama'ymış] should not have "oba" root solution.
 
-public class _UnidentifiedTokenAnalyzer {
+public class UnidentifiedTokenAnalyzer {
 
   private static Map<String, String> ordinalMap = TurkishNumbers.getOrdinalMap();
 
@@ -33,7 +33,7 @@ public class _UnidentifiedTokenAnalyzer {
   private _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
   private TurkishNumeralEndingMachine numeralEndingMachine = new TurkishNumeralEndingMachine();
 
-  public _UnidentifiedTokenAnalyzer(InterpretingAnalyzer analyzer) {
+  public UnidentifiedTokenAnalyzer(InterpretingAnalyzer analyzer) {
     this.analyzer = analyzer;
   }
 
@@ -41,7 +41,7 @@ public class _UnidentifiedTokenAnalyzer {
   public static final Pattern nonLettersPattern =
       Pattern.compile("[^" + _TurkishAlphabet.INSTANCE.getAllLetters() + "]");
 
-  public synchronized List<_SingleAnalysis> analyze(Token token) {
+  public synchronized List<SingleAnalysis> analyze(Token token) {
 
     SecondaryPos sPos = guessSecondaryPosType(token);
     String word = token.getText();
@@ -80,7 +80,7 @@ public class _UnidentifiedTokenAnalyzer {
     }
   }
 
-  public synchronized List<_SingleAnalysis> analyze(String word) {
+  public synchronized List<SingleAnalysis> analyze(String word) {
     if (word.contains("?")) {
       return Collections.emptyList();
     }
@@ -96,7 +96,7 @@ public class _UnidentifiedTokenAnalyzer {
     return Collections.emptyList();
   }
 
-  private List<_SingleAnalysis> tryWithoutApostrophe(String word) {
+  private List<SingleAnalysis> tryWithoutApostrophe(String word) {
     String normalized = TurkishAlphabet.INSTANCE.normalize(word);
     //TODO: should we remove dots with normalization?
     String pronunciation = guessPronunciation(normalized.replaceAll("[.]", ""));
@@ -109,12 +109,12 @@ public class _UnidentifiedTokenAnalyzer {
     itemProp.attributes.add(RootAttribute.Runtime);
     analyzer.getStemTransitions().addDictionaryItem(itemProp);
     //TODO eliminate gross code duplication
-    List<_SingleAnalysis> properResults = analyzer.analyze(normalized);
+    List<SingleAnalysis> properResults = analyzer.analyze(normalized);
     analyzer.getStemTransitions().removeDictionaryItem(itemProp);
     return properResults;
   }
 
-  private List<_SingleAnalysis> tryWordWithApostrophe(String word) {
+  private List<SingleAnalysis> tryWordWithApostrophe(String word) {
     int index = word.indexOf('\'');
     if (index < 0 || index == 0 || index == word.length() - 1) {
       return Collections.emptyList();
@@ -136,7 +136,7 @@ public class _UnidentifiedTokenAnalyzer {
     itemProp.attributes.add(RootAttribute.Runtime);
     analyzer.getStemTransitions().addDictionaryItem(itemProp);
     String toParse = stemNormalized + endingNormalized;
-    List<_SingleAnalysis> properResults = analyzer.analyze(toParse);
+    List<SingleAnalysis> properResults = analyzer.analyze(toParse);
     analyzer.getStemTransitions().removeDictionaryItem(itemProp);
     return properResults;
   }
@@ -171,7 +171,7 @@ public class _UnidentifiedTokenAnalyzer {
     return new StemAndEnding(s.substring(0, cutPoint), s.substring(cutPoint));
   }
 
-  private List<_SingleAnalysis> tryNumeral(String s) {
+  private List<SingleAnalysis> tryNumeral(String s) {
     StemAndEnding se = getFromNumeral(s);
     String lemma;
     if (se.stem.endsWith(".")) {
@@ -182,7 +182,7 @@ public class _UnidentifiedTokenAnalyzer {
       lemma = numeralEndingMachine.find(se.stem);
     }
 
-    List<_SingleAnalysis> results = Lists.newArrayListWithCapacity(1);
+    List<SingleAnalysis> results = Lists.newArrayListWithCapacity(1);
 
     for (TurkishDictionaryLoader.Digit digit : TurkishDictionaryLoader.Digit.values()) {
       Matcher m = digit.pattern.matcher(se.stem);
@@ -194,8 +194,8 @@ public class _UnidentifiedTokenAnalyzer {
         } else {
           toParse = lemma + se.ending;
         }
-        List<_SingleAnalysis> res = analyzer.analyze(toParse);
-        for (_SingleAnalysis re : res) {
+        List<SingleAnalysis> res = analyzer.analyze(toParse);
+        for (SingleAnalysis re : res) {
           if (re.getDictionaryItem().primaryPos != PrimaryPos.Numeral) {
             continue;
           }

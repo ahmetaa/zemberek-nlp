@@ -20,9 +20,9 @@ import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.langid.LanguageIdentifier;
-import zemberek.morphology._analyzer._SingleAnalysis;
-import zemberek.morphology._analyzer._TurkishMorphology;
-import zemberek.morphology._analyzer._WordAnalysis;
+import zemberek.morphology._analyzer.SingleAnalysis;
+import zemberek.morphology._analyzer.TurkishMorphology;
+import zemberek.morphology._analyzer.WordAnalysis;
 import zemberek.morphology.structure.Turkish;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
@@ -30,7 +30,7 @@ import zemberek.tokenization.TurkishTokenizer;
 public class _MorphologicalAmbiguityResolverExperiment {
 
   LanguageIdentifier identifier;
-  Map<String, _WordAnalysis> cache = new HashMap<>();
+  Map<String, WordAnalysis> cache = new HashMap<>();
   Histogram<String> failedWords = new Histogram<>(100000);
 
   public _MorphologicalAmbiguityResolverExperiment() throws IOException {
@@ -72,7 +72,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
       for (SingleAnalysisSentence sentence : result) {
         pw.println(sentence.sentence);
         for (Single single : sentence.tokens) {
-          for (_SingleAnalysis r : single.res) {
+          for (SingleAnalysis r : single.res) {
             pw.println(single.input);
             pw.println(r.formatLong());
           }
@@ -92,7 +92,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
 
   private List<SingleAnalysisSentence> collect(Path p, int maxAnalysisCount) throws IOException {
     List<String> sentences = getSentences(p);
-    _TurkishMorphology analyzer = _TurkishMorphology.createWithDefaults();
+    TurkishMorphology analyzer = TurkishMorphology.createWithDefaults();
 
     int tokenCount = 0;
     int sentenceCount = 0;
@@ -113,7 +113,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
         String rawWord = token.getText();
         String word = Character.isUpperCase(rawWord.charAt(0)) ?
             Turkish.capitalize(rawWord) : rawWord.toLowerCase(Turkish.LOCALE);
-        _WordAnalysis results;
+        WordAnalysis results;
         if (cache.containsKey(word)) {
           results = cache.get(word);
         } else {
@@ -129,7 +129,7 @@ public class _MorphologicalAmbiguityResolverExperiment {
           failed = true;
           break;
         } else {
-          List<_SingleAnalysis> filtered = results.stream()
+          List<SingleAnalysis> filtered = results.stream()
               .filter(s -> !(s.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun &&
                   Character.isLowerCase(rawWord.charAt(0)))).collect(Collectors.toList());
 
@@ -186,9 +186,9 @@ public class _MorphologicalAmbiguityResolverExperiment {
 
     String input;
     int index;
-    _WordAnalysis res;
+    WordAnalysis res;
 
-    public Single(String input, int index, _WordAnalysis res) {
+    public Single(String input, int index, WordAnalysis res) {
       this.input = input;
       this.index = index;
       this.res = res;

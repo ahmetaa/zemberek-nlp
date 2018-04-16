@@ -2,22 +2,22 @@ package morphology;
 
 import java.io.IOException;
 import java.util.List;
-import zemberek.morphology._analyzer._SentenceAnalysis;
-import zemberek.morphology._analyzer._SentenceWordAnalysis;
-import zemberek.morphology._analyzer._SingleAnalysis;
-import zemberek.morphology._analyzer._TurkishMorphology;
-import zemberek.morphology._analyzer._WordAnalysis;
+import zemberek.morphology._analyzer.SentenceAnalysis;
+import zemberek.morphology._analyzer.SentenceWordAnalysis;
+import zemberek.morphology._analyzer.SingleAnalysis;
+import zemberek.morphology._analyzer.TurkishMorphology;
+import zemberek.morphology._analyzer.WordAnalysis;
 
 public class DisambiguateSentences {
 
-  _TurkishMorphology morphology;
+  TurkishMorphology morphology;
 
-  public DisambiguateSentences(_TurkishMorphology morphology) {
+  public DisambiguateSentences(TurkishMorphology morphology) {
     this.morphology = morphology;
   }
 
   public static void main(String[] args) throws IOException {
-    _TurkishMorphology morphology = _TurkishMorphology.createWithDefaults();
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
     new DisambiguateSentences(morphology)
         .analyzeAndDisambiguate("Bu akşam kar yağacak gibi.");
@@ -25,22 +25,22 @@ public class DisambiguateSentences {
 
   void analyzeAndDisambiguate(String sentence) {
     System.out.println("Sentence  = " + sentence);
-    List<_WordAnalysis> analyses = morphology.analyzeSentence(sentence);
+    List<WordAnalysis> analyses = morphology.analyzeSentence(sentence);
 
     System.out.println("Sentence word analysis result:");
     writeParseResult(analyses);
 
-    _SentenceAnalysis result = morphology.disambiguate(sentence, analyses);
+    SentenceAnalysis result = morphology.disambiguate(sentence, analyses);
     System.out.println("\nBest analyses:");
-    for (_SentenceWordAnalysis sentenceWordAnalysis : result) {
+    for (SentenceWordAnalysis sentenceWordAnalysis : result) {
       System.out.println(sentenceWordAnalysis.getAnalysis().formatLong());
     }
   }
 
-  private void writeParseResult(List<_WordAnalysis> sentenceAnalysis) {
-    for (_WordAnalysis entry : sentenceAnalysis) {
+  private void writeParseResult(List<WordAnalysis> sentenceAnalysis) {
+    for (WordAnalysis entry : sentenceAnalysis) {
       System.out.println("Word = " + entry.getInput());
-      for (_SingleAnalysis analysis : entry) {
+      for (SingleAnalysis analysis : entry) {
         System.out.println(analysis.formatLong());
       }
     }

@@ -4,14 +4,14 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
-import zemberek.morphology.generator._Generator;
-import zemberek.morphology.generator._Generator.GenerationResult;
+import zemberek.morphology.generator.Generator;
+import zemberek.morphology.generator.Generator.GenerationResult;
 
 public class _GeneratorTest extends AnalyzerTestBase {
 
   @Test
   public void testGeneration1() {
-    _Generator generator = new _Generator(getMorphotactics("elma"));
+    Generator generator = new Generator(getMorphotactics("elma"));
     List<String> morphemes = Lists.newArrayList("A3pl", "P1pl");
     List<GenerationResult> results = generator.generateWithIds(
         "elma",
@@ -23,7 +23,7 @@ public class _GeneratorTest extends AnalyzerTestBase {
 
   @Test
   public void testGeneration2() {
-    _Generator generator = new _Generator(getMorphotactics("elma"));
+    Generator generator = new Generator(getMorphotactics("elma"));
     List<String> morphemes = Lists.newArrayList("Noun", "A3pl", "P1pl");
     List<GenerationResult> results = generator.generateWithIds(
         "elma",
@@ -35,7 +35,7 @@ public class _GeneratorTest extends AnalyzerTestBase {
 
   @Test
   public void testGeneration3() {
-    _Generator generator = new _Generator(getMorphotactics("elma"));
+    Generator generator = new Generator(getMorphotactics("elma"));
     List<String> morphemes = Lists.newArrayList("Noun", "With");
     List<GenerationResult> results = generator.generateWithIds(
         "elma",

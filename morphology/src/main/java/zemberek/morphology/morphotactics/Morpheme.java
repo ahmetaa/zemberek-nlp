@@ -1,4 +1,4 @@
-package zemberek.morphology._morphotactics;
+package zemberek.morphology.morphotactics;
 
 import zemberek.core.turkish.PrimaryPos;
 

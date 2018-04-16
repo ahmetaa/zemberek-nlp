@@ -23,11 +23,11 @@ class AnalysisCache {
   private static final int DYNAMIC_CACHE_CAPACITY_LIMIT = 1_000_000;
 
   private static final String MOST_USED_WORDS_FILE = "/tr/first-10K";
-  private ConcurrentHashMap<String, _WordAnalysis> staticCache;
+  private ConcurrentHashMap<String, WordAnalysis> staticCache;
   private boolean staticCacheInitialized = false;
   private long staticCacheHits;
   private long staticCacheMiss;
-  private Cache<String, _WordAnalysis> dynamicCache;
+  private Cache<String, WordAnalysis> dynamicCache;
   private boolean staticCacheDisabled;
   private boolean dynamicCacheDisabled;
 
@@ -100,7 +100,7 @@ class AnalysisCache {
     }
   }
 
-  synchronized void initializeStaticCache(Function<String, _WordAnalysis> analysisProvider) {
+  synchronized void initializeStaticCache(Function<String, WordAnalysis> analysisProvider) {
     if (staticCacheDisabled || staticCacheInitialized) {
       return;
     }
@@ -124,9 +124,9 @@ class AnalysisCache {
     staticCacheInitialized = true;
   }
 
-  _WordAnalysis getAnalysis(String input, Function<String, _WordAnalysis> analysisProvider) {
+  WordAnalysis getAnalysis(String input, Function<String, WordAnalysis> analysisProvider) {
 
-    _WordAnalysis analysis = staticCacheDisabled ? null : staticCache.get(input);
+    WordAnalysis analysis = staticCacheDisabled ? null : staticCache.get(input);
     if (analysis != null) {
       staticCacheHits++;
       return analysis;

@@ -13,7 +13,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
-import zemberek.morphology._analyzer._TurkishMorphology;
+import zemberek.morphology._analyzer.TurkishMorphology;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 
@@ -22,7 +22,7 @@ public class SpellCheckerPerformanceTests {
   @Test
   @Ignore(value = "Not a test.")
   public void correctWordFindingTest() throws Exception {
-    _TurkishMorphology morphology = _TurkishMorphology.createWithDefaults();
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
     TurkishSentenceExtractor extractor = TurkishSentenceExtractor.DEFAULT;
     TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;

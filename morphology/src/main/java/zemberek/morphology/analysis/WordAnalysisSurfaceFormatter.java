@@ -3,7 +3,7 @@ package zemberek.morphology.analysis;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology._analyzer._SingleAnalysis;
+import zemberek.morphology._analyzer.SingleAnalysis;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.structure.Turkish;
 
@@ -16,7 +16,7 @@ public class WordAnalysisSurfaceFormatter {
    *
    * @return formatted word analysis.
    */
-  public String format(_SingleAnalysis analysis, String apostrophe) {
+  public String format(SingleAnalysis analysis, String apostrophe) {
     DictionaryItem item = analysis.getDictionaryItem();
     String ending = analysis.getEnding();
     if (apostropheRequired(analysis)) {
@@ -33,7 +33,7 @@ public class WordAnalysisSurfaceFormatter {
     }
   }
 
-  private boolean apostropheRequired(_SingleAnalysis analysis) {
+  private boolean apostropheRequired(SingleAnalysis analysis) {
     DictionaryItem item = analysis.getDictionaryItem();
     return (item.secondaryPos == SecondaryPos.ProperNoun && !item.attributes
         .contains(RootAttribute.NoQuote))
@@ -51,7 +51,7 @@ public class WordAnalysisSurfaceFormatter {
    * @param type case type.
    * @return formatted result or empty string.
    */
-  public String formatToCase(_SingleAnalysis analysis, CaseType type, String apostrophe) {
+  public String formatToCase(SingleAnalysis analysis, CaseType type, String apostrophe) {
     String formatted = format(analysis, apostrophe);
     switch (type) {
       case DEFAULT_CASE:
@@ -79,7 +79,7 @@ public class WordAnalysisSurfaceFormatter {
   }
 
   //TODO: write tests.
-  public boolean canBeFormatted(_SingleAnalysis analysis, CaseType type) {
+  public boolean canBeFormatted(SingleAnalysis analysis, CaseType type) {
     boolean proper = analysis.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun;
     switch (type) {
       case LOWER_CASE:

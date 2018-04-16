@@ -1,4 +1,4 @@
-package zemberek.morphology._morphotactics;
+package zemberek.morphology.morphotactics;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

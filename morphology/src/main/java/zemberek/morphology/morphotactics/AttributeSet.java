@@ -1,4 +1,4 @@
-package zemberek.morphology._morphotactics;
+package zemberek.morphology.morphotactics;
 
  /**
   * A class for representing a set of enums efficiently.

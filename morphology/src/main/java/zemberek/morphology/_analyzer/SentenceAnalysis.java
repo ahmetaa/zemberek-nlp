@@ -4,14 +4,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class _SentenceAnalysis implements Iterable<_SentenceWordAnalysis> {
+public class SentenceAnalysis implements Iterable<SentenceWordAnalysis> {
 
   private String sentence;
-  private List<_SentenceWordAnalysis> parseEntries;
+  private List<SentenceWordAnalysis> parseEntries;
 
-  public _SentenceAnalysis(
+  public SentenceAnalysis(
       String sentence,
-      List<_SentenceWordAnalysis> parseEntries) {
+      List<SentenceWordAnalysis> parseEntries) {
     this.sentence = sentence;
     this.parseEntries = parseEntries;
   }
@@ -25,19 +25,19 @@ public class _SentenceAnalysis implements Iterable<_SentenceWordAnalysis> {
   }
 
   @Override
-  public Iterator<_SentenceWordAnalysis> iterator() {
+  public Iterator<SentenceWordAnalysis> iterator() {
     return parseEntries.iterator();
   }
 
-  public List<_SentenceWordAnalysis> getParseEntries() {
+  public List<SentenceWordAnalysis> getParseEntries() {
     return parseEntries;
   }
 
-  public List<_SingleAnalysis> bestAnalysis() {
+  public List<SingleAnalysis> bestAnalysis() {
     return parseEntries.stream().map(s -> s.analysis).collect(Collectors.toList());
   }
 
-  public List<_WordAnalysis> allAnalyses() {
+  public List<WordAnalysis> allAnalyses() {
     return parseEntries.stream().map(s -> s.wordAnalysis).collect(Collectors.toList());
   }
 

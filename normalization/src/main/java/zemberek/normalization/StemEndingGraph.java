@@ -8,10 +8,10 @@ import java.util.Set;
 import zemberek.core.collections.Histogram;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology._analyzer.StemTransitions;
-import zemberek.morphology._analyzer._SingleAnalysis;
-import zemberek.morphology._analyzer._TurkishMorphology;
-import zemberek.morphology._analyzer._WordAnalysis;
-import zemberek.morphology._morphotactics.StemTransition;
+import zemberek.morphology._analyzer.SingleAnalysis;
+import zemberek.morphology._analyzer.TurkishMorphology;
+import zemberek.morphology._analyzer.WordAnalysis;
+import zemberek.morphology.morphotactics.StemTransition;
 import zemberek.morphology.structure.StemAndEnding;
 import zemberek.morphology.structure.Turkish;
 
@@ -25,9 +25,9 @@ public class StemEndingGraph {
   CharacterGraph stemGraph;
   private CharacterGraph endingGraph;
 
-  private _TurkishMorphology morphology;
+  private TurkishMorphology morphology;
 
-  public StemEndingGraph(_TurkishMorphology morphology) throws IOException {
+  public StemEndingGraph(TurkishMorphology morphology) throws IOException {
     this.morphology = morphology;
     List<String> endings =
         Resources.readLines(
@@ -40,7 +40,7 @@ public class StemEndingGraph {
     }
   }
 
-  StemEndingGraph(_TurkishMorphology morphology, List<String> endings) throws IOException {
+  StemEndingGraph(TurkishMorphology morphology, List<String> endings) throws IOException {
     this.morphology = morphology;
     this.endingGraph = generateEndingGraph(endings);
     this.stemGraph = generateStemGraph();
@@ -53,8 +53,8 @@ public class StemEndingGraph {
   List<String> getEndingsFromVocabulary(List<String> words) {
     Histogram<String> endings = new Histogram<>(words.size() / 10);
     for (String word : words) {
-      _WordAnalysis analyses = morphology.analyze(word);
-      for (_SingleAnalysis analysis : analyses) {
+      WordAnalysis analyses = morphology.analyze(word);
+      for (SingleAnalysis analysis : analyses) {
         if (analysis.isUnknown()) {
           continue;
         }

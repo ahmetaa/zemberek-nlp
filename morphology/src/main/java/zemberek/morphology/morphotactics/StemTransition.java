@@ -1,4 +1,4 @@
-package zemberek.morphology._morphotactics;
+package zemberek.morphology.morphotactics;
 
 import java.util.Objects;
 import zemberek.core.turkish.PhoneticAttribute;

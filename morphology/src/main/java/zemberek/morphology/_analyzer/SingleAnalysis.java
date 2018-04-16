@@ -8,13 +8,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
-import zemberek.morphology._morphotactics.Morpheme;
-import zemberek.morphology._morphotactics.TurkishMorphotactics;
+import zemberek.morphology.morphotactics.Morpheme;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.structure.StemAndEnding;
 
 // This class represents a single morphological analysis result
-public class _SingleAnalysis {
+public class SingleAnalysis {
 
   // Dictionary Item of the analysis.
   private DictionaryItem item;
@@ -31,7 +31,7 @@ public class _SingleAnalysis {
   // cached hash value.
   private int hash;
 
-  public _SingleAnalysis(
+  public SingleAnalysis(
       DictionaryItem item,
       List<MorphemeSurface> morphemesSurfaces,
       int[] groupBoundaries) {
@@ -41,11 +41,11 @@ public class _SingleAnalysis {
     this.hash = hashCode();
   }
 
-  public static _SingleAnalysis unknown(String input) {
+  public static SingleAnalysis unknown(String input) {
     DictionaryItem item = DictionaryItem.UNKNOWN;
     MorphemeSurface s = new MorphemeSurface(Morpheme.UNKNOWN, input);
     int[] boundaries = {0};
-    return new _SingleAnalysis(item, Collections.singletonList(s), boundaries);
+    return new SingleAnalysis(item, Collections.singletonList(s), boundaries);
   }
 
   public String surfaceForm() {
@@ -251,8 +251,8 @@ public class _SingleAnalysis {
   private static final ConcurrentHashMap<Morpheme, MorphemeSurface> emptyMorphemeCache =
       new ConcurrentHashMap<>();
 
-  // Here we generate a _SingleAnalysis from a search path.
-  public static _SingleAnalysis fromSearchPath(SearchPath searchPath) {
+  // Here we generate a SingleAnalysis from a search path.
+  public static SingleAnalysis fromSearchPath(SearchPath searchPath) {
 
     List<MorphemeSurface> morphemes = new ArrayList<>(searchPath.transitions.size());
 
@@ -298,7 +298,7 @@ public class _SingleAnalysis {
       morphemeCounter++;
     }
 
-    return new _SingleAnalysis(searchPath.getDictionaryItem(), morphemes, groupBoundaries);
+    return new SingleAnalysis(searchPath.getDictionaryItem(), morphemes, groupBoundaries);
   }
 
   /**
@@ -307,14 +307,14 @@ public class _SingleAnalysis {
    *
    * @param item new DictionaryItem
    * @param stem new stem
-   * @return new _SingleAnalysis object with given DictionaryItem and stem.
+   * @return new SingleAnalysis object with given DictionaryItem and stem.
    */
-  _SingleAnalysis copyFor(DictionaryItem item, String stem) {
+  SingleAnalysis copyFor(DictionaryItem item, String stem) {
     // copy morpheme-surface list.
     List<MorphemeSurface> surfaces = new ArrayList<>(morphemesSurfaces);
     // replace the stem surface. it is in the first morpheme.
     surfaces.set(0, new MorphemeSurface(surfaces.get(0).morpheme, stem));
-    return new _SingleAnalysis(item, surfaces, groupBoundaries.clone());
+    return new SingleAnalysis(item, surfaces, groupBoundaries.clone());
   }
 
   /**
@@ -426,7 +426,7 @@ public class _SingleAnalysis {
       return false;
     }
 
-    _SingleAnalysis that = (_SingleAnalysis) o;
+    SingleAnalysis that = (SingleAnalysis) o;
 
     if (hash != that.hash) {
       return false;

@@ -8,13 +8,13 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.morphology._analyzer.AnalysisDebugData.RejectedTransition;
 import zemberek.morphology._analyzer.SurfaceTransition.SuffixTemplateToken;
 import zemberek.morphology._analyzer.SurfaceTransition.TemplateTokenType;
-import zemberek.morphology._morphotactics.AttributeSet;
-import zemberek.morphology._morphotactics.CombinedCondition;
-import zemberek.morphology._morphotactics.Condition;
-import zemberek.morphology._morphotactics.MorphemeTransition;
-import zemberek.morphology._morphotactics.StemTransition;
-import zemberek.morphology._morphotactics.SuffixTransition;
-import zemberek.morphology._morphotactics.TurkishMorphotactics;
+import zemberek.morphology.morphotactics.AttributeSet;
+import zemberek.morphology.morphotactics.CombinedCondition;
+import zemberek.morphology.morphotactics.Condition;
+import zemberek.morphology.morphotactics.MorphemeTransition;
+import zemberek.morphology.morphotactics.StemTransition;
+import zemberek.morphology.morphotactics.SuffixTransition;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;
 
 /**
@@ -46,7 +46,7 @@ public class InterpretingAnalyzer {
     return lexicon;
   }
 
-  public List<_SingleAnalysis> analyze(String input, AnalysisDebugData debugData) {
+  public List<SingleAnalysis> analyze(String input, AnalysisDebugData debugData) {
 
     // get stem candidates.
     List<StemTransition> candidates = Lists.newArrayListWithCapacity(3);
@@ -72,9 +72,9 @@ public class InterpretingAnalyzer {
     // search graph.
     List<SearchPath> resultPaths = search(paths, debugData);
     // generate results from successful paths.
-    List<_SingleAnalysis> result = new ArrayList<>(resultPaths.size());
+    List<SingleAnalysis> result = new ArrayList<>(resultPaths.size());
     for (SearchPath path : resultPaths) {
-      _SingleAnalysis analysis = _SingleAnalysis.fromSearchPath(path);
+      SingleAnalysis analysis = SingleAnalysis.fromSearchPath(path);
       result.add(analysis);
       if (debugData != null) {
         debugData.results.add(analysis);
@@ -83,7 +83,7 @@ public class InterpretingAnalyzer {
     return result;
   }
 
-  public List<_SingleAnalysis> analyze(String input) {
+  public List<SingleAnalysis> analyze(String input) {
     return analyze(input, null);
   }
 

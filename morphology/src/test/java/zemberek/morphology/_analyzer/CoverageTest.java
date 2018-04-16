@@ -23,7 +23,7 @@ import java.util.zip.GZIPInputStream;
 import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.logging.Log;
-import zemberek.morphology._morphotactics.TurkishMorphotactics;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.structure.Turkish;
@@ -88,7 +88,7 @@ public class CoverageTest {
           List<String> passed = new ArrayList<>(batchSize);
           for (String s : batch) {
             String c = s.toLowerCase(Turkish.LOCALE).replaceAll("[']", "");
-            List<_SingleAnalysis> results = analyzer.analyze(c);
+            List<SingleAnalysis> results = analyzer.analyze(c);
             if (results.size() == 0) {
               failed.add(s);
             } else {

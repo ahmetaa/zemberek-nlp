@@ -11,12 +11,12 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish._TurkishAlphabet;
-import zemberek.morphology._morphotactics.AttributeSet;
-import zemberek.morphology._morphotactics.Morpheme;
-import zemberek.morphology._morphotactics.MorphemeState;
-import zemberek.morphology._morphotactics.MorphemeTransition;
-import zemberek.morphology._morphotactics.SuffixTransition;
-import zemberek.morphology._morphotactics.TurkishMorphotactics;
+import zemberek.morphology.morphotactics.AttributeSet;
+import zemberek.morphology.morphotactics.Morpheme;
+import zemberek.morphology.morphotactics.MorphemeState;
+import zemberek.morphology.morphotactics.MorphemeTransition;
+import zemberek.morphology.morphotactics.SuffixTransition;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
 // TODO: find a better name. Move some methods outside.
 // not a transition.

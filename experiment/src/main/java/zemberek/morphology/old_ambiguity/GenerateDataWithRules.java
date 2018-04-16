@@ -14,8 +14,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import zemberek.core.logging.Log;
 import zemberek.langid.LanguageIdentifier;
-import zemberek.morphology._analyzer._TurkishMorphology;
-import zemberek.morphology._analyzer._WordAnalysis;
+import zemberek.morphology._analyzer.TurkishMorphology;
+import zemberek.morphology._analyzer.WordAnalysis;
 import zemberek.morphology.old_ambiguity.RuleBasedDisambiguator.AmbiguityAnalysis;
 import zemberek.morphology.old_ambiguity.RuleBasedDisambiguator.AnalysisDecision;
 import zemberek.morphology.old_ambiguity.RuleBasedDisambiguator.ResultSentence;
@@ -28,12 +28,12 @@ class GenerateDataWithRules {
 
   private GenerateDataWithRules() throws IOException {
     identifier = LanguageIdentifier.fromInternalModelGroup("tr_group");
-    _TurkishMorphology analyzer = _TurkishMorphology.createWithDefaults();
+    TurkishMorphology analyzer = TurkishMorphology.createWithDefaults();
     RuleBasedDisambiguator.Rules rules = RuleBasedDisambiguator.Rules.fromResources();
     ruleBasedDisambiguator = new RuleBasedDisambiguator(analyzer, rules);
   }
 
-  private static Collection<Predicate<_WordAnalysis>> acceptWordPredicates = new ArrayList<>();
+  private static Collection<Predicate<WordAnalysis>> acceptWordPredicates = new ArrayList<>();
   private static Collection<Predicate<String>> ignoreSentencePredicates = new ArrayList<>();
 
   public static void main(String[] args) throws IOException {
@@ -58,11 +58,11 @@ class GenerateDataWithRules {
         .extractData(p, outRoot, 50000, 0);
   }
 
-  private static Predicate<_WordAnalysis> hasAnalysis() {
-    return _WordAnalysis::isCorrect;
+  private static Predicate<WordAnalysis> hasAnalysis() {
+    return WordAnalysis::isCorrect;
   }
 
-  private static Predicate<_WordAnalysis> maxAnalysisCount(int i) {
+  private static Predicate<WordAnalysis> maxAnalysisCount(int i) {
     return p -> p.analysisCount() <= i;
   }
 
@@ -170,9 +170,9 @@ class GenerateDataWithRules {
 
         boolean sentenceOk = true;
 
-        for (_WordAnalysis an : r.sentenceAnalysis) {
+        for (WordAnalysis an : r.sentenceAnalysis) {
           boolean ok = true;
-          for (Predicate<_WordAnalysis> predicate : acceptWordPredicates) {
+          for (Predicate<WordAnalysis> predicate : acceptWordPredicates) {
             if (!predicate.test(an)) {
               ok = false;
               break;

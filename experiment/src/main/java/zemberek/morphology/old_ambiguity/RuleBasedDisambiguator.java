@@ -12,22 +12,20 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
-import zemberek.morphology._ambiguity._AmbiguityResolver;
-import zemberek.morphology._analyzer._SentenceAnalysis;
-import zemberek.morphology._analyzer._SingleAnalysis;
-import zemberek.morphology._analyzer._TurkishMorphology;
-import zemberek.morphology._analyzer._WordAnalysis;
+import zemberek.morphology._analyzer.SingleAnalysis;
+import zemberek.morphology._analyzer.TurkishMorphology;
+import zemberek.morphology._analyzer.WordAnalysis;
 import zemberek.morphology.structure.Turkish;
 
 // Used for collecting training data.
 
 class RuleBasedDisambiguator {
 
-  _TurkishMorphology analyzer;
+  TurkishMorphology analyzer;
   private static Histogram<String> wordFreq;
   Rules rules;
 
-  public RuleBasedDisambiguator(_TurkishMorphology analyzer, Rules rules)
+  public RuleBasedDisambiguator(TurkishMorphology analyzer, Rules rules)
       throws IOException {
     this.analyzer = analyzer;
     Log.info("Loading 100k word frequencies.");
@@ -58,7 +56,7 @@ class RuleBasedDisambiguator {
 
 
   public ResultSentence disambiguate(String sentence) {
-    List<_WordAnalysis> ambiguous = analyzer.analyzeSentence(sentence);
+    List<WordAnalysis> ambiguous = analyzer.analyzeSentence(sentence);
     ResultSentence s = new ResultSentence(sentence, ambiguous);
     s.makeDecisions(rules);
     return s;
@@ -67,14 +65,14 @@ class RuleBasedDisambiguator {
   static class ResultSentence {
 
     String sentence;
-    List<_WordAnalysis> sentenceAnalysis;
+    List<WordAnalysis> sentenceAnalysis;
     List<AmbiguityAnalysis> results;
 
-    public ResultSentence(String sentence, List<_WordAnalysis> sentenceAnalysis) {
+    public ResultSentence(String sentence, List<WordAnalysis> sentenceAnalysis) {
       this.sentence = sentence;
       this.sentenceAnalysis = sentenceAnalysis;
       results = new ArrayList<>();
-      for (_WordAnalysis analysis : sentenceAnalysis) {
+      for (WordAnalysis analysis : sentenceAnalysis) {
         results.add(new AmbiguityAnalysis(analysis));
       }
     }
@@ -155,7 +153,7 @@ class RuleBasedDisambiguator {
     AmbiguityAnalysis current;
     AmbiguityAnalysis next;
 
-    public AmbigiousWord(_WordAnalysis previous, _WordAnalysis current, _WordAnalysis next) {
+    public AmbigiousWord(WordAnalysis previous, WordAnalysis current, WordAnalysis next) {
       this.previous = new AmbiguityAnalysis(previous);
       this.current = new AmbiguityAnalysis(current);
       this.next = new AmbiguityAnalysis(next);
@@ -167,9 +165,9 @@ class RuleBasedDisambiguator {
     String input;
     List<AnalysisDecision> choices = new ArrayList<>();
 
-    AmbiguityAnalysis(_WordAnalysis wordAnalysis) {
+    AmbiguityAnalysis(WordAnalysis wordAnalysis) {
       this.input = wordAnalysis.getInput();
-      for (_SingleAnalysis analysis : wordAnalysis) {
+      for (SingleAnalysis analysis : wordAnalysis) {
         choices.add(new AnalysisDecision(input, analysis, Decision.UNDECIDED));
       }
     }
@@ -219,7 +217,7 @@ class RuleBasedDisambiguator {
   public static class AnalysisDecision {
 
     String input;
-    _SingleAnalysis analysis;
+    SingleAnalysis analysis;
 
     Decision decision;
 
@@ -229,7 +227,7 @@ class RuleBasedDisambiguator {
           ", analysis=" + analysis;
     }
 
-    AnalysisDecision(String input, _SingleAnalysis analysis, Decision decision) {
+    AnalysisDecision(String input, SingleAnalysis analysis, Decision decision) {
       this.input = input;
       this.analysis = analysis;
       this.decision = decision;

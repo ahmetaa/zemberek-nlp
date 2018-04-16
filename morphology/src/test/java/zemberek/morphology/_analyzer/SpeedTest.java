@@ -26,7 +26,7 @@ public class SpeedTest {
     //Path p = Paths.get("/media/aaa/Data/corpora/me-sentences/www.aljazeera.com.tr/2018-02-22");
     Path p = Paths.get("src/main/resources/corpora/cnn-turk-10k");
     List<String> sentences = getSentences(p);
-    _TurkishMorphology analyzer = _TurkishMorphology.createWithDefaults();
+    TurkishMorphology analyzer = TurkishMorphology.createWithDefaults();
 
     Stopwatch sw = Stopwatch.createStarted();
 
@@ -41,7 +41,7 @@ public class SpeedTest {
           continue;
         }
         tokenCount++;
-        _WordAnalysis results = analyzer.analyze(token.getText());
+        WordAnalysis results = analyzer.analyze(token.getText());
         if (!results.isCorrect()) {
           noAnalysis++;
           failedWords.add(token.getText());

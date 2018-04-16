@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PhoneticAttribute;
-import zemberek.morphology._morphotactics.AttributeSet;
-import zemberek.morphology._morphotactics.MorphemeState;
-import zemberek.morphology._morphotactics.StemTransition;
+import zemberek.morphology.morphotactics.AttributeSet;
+import zemberek.morphology.morphotactics.MorphemeState;
+import zemberek.morphology.morphotactics.StemTransition;
 import zemberek.morphology.lexicon.DictionaryItem;
 
 /**

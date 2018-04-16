@@ -14,8 +14,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import zemberek.morphology._morphotactics.StemTransition;
-import zemberek.morphology._morphotactics.SuffixTransition;
+import zemberek.morphology.morphotactics.StemTransition;
+import zemberek.morphology.morphotactics.SuffixTransition;
 
 public class AnalysisDebugData {
 
@@ -25,7 +25,7 @@ public class AnalysisDebugData {
   public Map<SearchPath, String> failedPaths = new HashMap<>();
   public Set<SearchPath> finishedPaths = new LinkedHashSet<>();
   public Multimap<SearchPath, RejectedTransition> rejectedTransitions = ArrayListMultimap.create();
-  public List<_SingleAnalysis> results = new ArrayList<>();
+  public List<SingleAnalysis> results = new ArrayList<>();
   public List<SearchPath> resultPaths = new ArrayList<>();
 
   List<String> detailedInfo() {
@@ -60,7 +60,7 @@ public class AnalysisDebugData {
       l.add("  " + result.toString());
     }
     l.add("Analyses [" + input + "] (Surface + Morpheme):");
-    for (_SingleAnalysis result : results) {
+    for (SingleAnalysis result : results) {
       l.add("  " + AnalysisFormatters.surfaceSequenceFormatter().format(result));
     }
     return l;

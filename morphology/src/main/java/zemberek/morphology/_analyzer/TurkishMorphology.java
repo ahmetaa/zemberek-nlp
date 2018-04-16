@@ -18,10 +18,10 @@ import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.core.turkish._TurkishAlphabet;
-import zemberek.morphology._ambiguity._AmbiguityResolver;
-import zemberek.morphology._ambiguity._PerceptronAmbiguityResolver;
-import zemberek.morphology._morphotactics.TurkishMorphotactics;
-import zemberek.morphology.generator._Generator;
+import zemberek.morphology.ambiguity.AmbiguityResolver;
+import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
+import zemberek.morphology.generator.Generator;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.Serializer;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
@@ -31,26 +31,26 @@ import zemberek.tokenization.TurkishTokenizer;
 // TODO: mothods require some re-thinking.
 // analysis method should probably not apply unidentified token analysis.
 // this should be left to the user.
-public class _TurkishMorphology {
+public class TurkishMorphology {
 
   private RootLexicon lexicon;
   private InterpretingAnalyzer analyzer;
-  private _Generator generator;
-  private _UnidentifiedTokenAnalyzer unidentifiedTokenAnalyzer;
+  private Generator generator;
+  private UnidentifiedTokenAnalyzer unidentifiedTokenAnalyzer;
   private TurkishTokenizer tokenizer;
   private AnalysisCache cache;
   private TurkishMorphotactics morphotactics;
-  private _AmbiguityResolver ambiguityResolver;
+  private AmbiguityResolver ambiguityResolver;
 
   private boolean useUnidentifiedTokenAnalyzer;
   private boolean useCache;
 
-  private _TurkishMorphology(Builder builder) {
+  private TurkishMorphology(Builder builder) {
     this.lexicon = builder.lexicon;
     this.morphotactics = new TurkishMorphotactics(builder.lexicon);
     this.analyzer = new InterpretingAnalyzer(morphotactics);
-    this.generator = new _Generator(morphotactics);
-    this.unidentifiedTokenAnalyzer = new _UnidentifiedTokenAnalyzer(analyzer);
+    this.generator = new Generator(morphotactics);
+    this.unidentifiedTokenAnalyzer = new UnidentifiedTokenAnalyzer(analyzer);
     this.tokenizer = builder.tokenizer;
 
     if (builder.useDynamicCache) {
@@ -68,24 +68,24 @@ public class _TurkishMorphology {
       String resourcePath = "/tr/ambiguity/model-compressed";
       try {
         this.ambiguityResolver =
-            _PerceptronAmbiguityResolver.fromResource(resourcePath);
+            PerceptronAmbiguityResolver.fromResource(resourcePath);
       } catch (IOException e) {
         throw new RuntimeException(
-            "Cannot initialize _PerceptronAmbiguityResolver from resource " + resourcePath, e);
+            "Cannot initialize PerceptronAmbiguityResolver from resource " + resourcePath, e);
       }
     }
   }
 
-  public static _TurkishMorphology createWithDefaults() throws IOException {
+  public static TurkishMorphology createWithDefaults() throws IOException {
     Stopwatch sw = Stopwatch.createStarted();
-    _TurkishMorphology instance = new Builder().addDefaultBinaryDictionary().build();
+    TurkishMorphology instance = new Builder().addDefaultBinaryDictionary().build();
     Log.info("Initialized in %d ms.", sw.elapsed(TimeUnit.MILLISECONDS));
     return instance;
   }
 
-  public static _TurkishMorphology createWithTextDictionaries() throws IOException {
+  public static TurkishMorphology createWithTextDictionaries() throws IOException {
     Stopwatch sw = Stopwatch.createStarted();
-    _TurkishMorphology instance = new Builder().addDefaultDictionaries().build();
+    TurkishMorphology instance = new Builder().addDefaultDictionaries().build();
     Log.info("Initialized in %d ms.", sw.elapsed(TimeUnit.MILLISECONDS));
     return instance;
   }
@@ -94,16 +94,16 @@ public class _TurkishMorphology {
     return morphotactics;
   }
 
-  public _WordAnalysis analyze(String word) {
+  public WordAnalysis analyze(String word) {
     return useCache ? analyzeWithCache(word) : analyzeWithoutCache(word);
   }
 
   //TODO: cannot use cache with tokens.
-  public _WordAnalysis analyze(Token token) {
+  public WordAnalysis analyze(Token token) {
     return analyzeWithoutCache(token);
   }
 
-  private _WordAnalysis analyzeWithCache(String word) {
+  private WordAnalysis analyzeWithCache(String word) {
     return cache.getAnalysis(word, this::analyzeWithoutCache);
   }
 
@@ -127,14 +127,14 @@ public class _TurkishMorphology {
    * @param word input word.
    * @return WordAnalysis list.
    */
-  private _WordAnalysis analyzeWithoutCache(String word) {
+  private WordAnalysis analyzeWithoutCache(String word) {
 
     String s = TextUtil.normalizeApostrophes(word.toLowerCase(_TurkishAlphabet.TR));
 
     if (s.length() == 0) {
-      return _WordAnalysis.EMPTY_INPUT_RESULT;
+      return WordAnalysis.EMPTY_INPUT_RESULT;
     }
-    List<_SingleAnalysis> res = analyzer.analyze(s);
+    List<SingleAnalysis> res = analyzer.analyze(s);
 
     if (res.size() == 0) {
       res = analyzeWordsWithApostrophe(s);
@@ -148,18 +148,18 @@ public class _TurkishMorphology {
       res = Collections.emptyList();
     }
 
-    return new _WordAnalysis(word, s, res);
+    return new WordAnalysis(word, s, res);
   }
 
-  private _WordAnalysis analyzeWithoutCache(Token token) {
+  private WordAnalysis analyzeWithoutCache(Token token) {
 
     String word = token.getText();
     String s = TextUtil.normalizeApostrophes(word.toLowerCase(_TurkishAlphabet.TR));
 
     if (s.length() == 0) {
-      return _WordAnalysis.EMPTY_INPUT_RESULT;
+      return WordAnalysis.EMPTY_INPUT_RESULT;
     }
-    List<_SingleAnalysis> result = analyzer.analyze(s);
+    List<SingleAnalysis> result = analyzer.analyze(s);
 
     if (result.size() == 0) {
       result = analyzeWordsWithApostrophe(s);
@@ -173,10 +173,10 @@ public class _TurkishMorphology {
       result = Collections.emptyList();
     }
 
-    return new _WordAnalysis(word, s, result);
+    return new WordAnalysis(word, s, result);
   }
 
-  private List<_SingleAnalysis> analyzeWordsWithApostrophe(String word) {
+  private List<SingleAnalysis> analyzeWordsWithApostrophe(String word) {
 
     int index = word.indexOf('\'');
 
@@ -191,7 +191,7 @@ public class _TurkishMorphology {
 
       String withoutQuote = word.replaceAll("'", "");
 
-      List<_SingleAnalysis> noQuotesParses = analyzer.analyze(withoutQuote);
+      List<SingleAnalysis> noQuotesParses = analyzer.analyze(withoutQuote);
       if (noQuotesParses.size() == 0) {
         return Collections.emptyList();
       }
@@ -204,20 +204,20 @@ public class _TurkishMorphology {
     }
   }
 
-  public List<_WordAnalysis> analyzeSentence(String sentence) {
+  public List<WordAnalysis> analyzeSentence(String sentence) {
     String normalized = TextUtil.normalizeQuotesHyphens(sentence);
-    List<_WordAnalysis> result = new ArrayList<>();
+    List<WordAnalysis> result = new ArrayList<>();
     for (Token token : tokenizer.tokenize(normalized)) {
       result.add(analyze(token));
     }
     return result;
   }
 
-  public _SentenceAnalysis disambiguate(String sentence, List<_WordAnalysis> sentenceAnalysis) {
+  public SentenceAnalysis disambiguate(String sentence, List<WordAnalysis> sentenceAnalysis) {
     return ambiguityResolver.disambiguate(sentence, sentenceAnalysis);
   }
 
-  public _SentenceAnalysis analyzeAndResolveAmbiguity(String sentence) {
+  public SentenceAnalysis analyzeAndResolveAmbiguity(String sentence) {
     return disambiguate(sentence, analyzeSentence(sentence));
   }
 
@@ -225,7 +225,7 @@ public class _TurkishMorphology {
     return cache;
   }
 
-  public _Generator getGenerator() {
+  public Generator getGenerator() {
     return generator;
   }
 
@@ -239,7 +239,7 @@ public class _TurkishMorphology {
     boolean useDynamicCache = true;
     boolean useUnidentifiedTokenAnalyzer = true;
     AnalysisCache cache;
-    _AmbiguityResolver ambiguityResolver;
+    AmbiguityResolver ambiguityResolver;
     TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
 
     public Builder addBinaryDictionary(Path dictionaryPath) throws IOException {
@@ -298,7 +298,7 @@ public class _TurkishMorphology {
       return this;
     }
 
-    public Builder setAmbiguityResolver(_AmbiguityResolver ambiguityResolver) {
+    public Builder setAmbiguityResolver(AmbiguityResolver ambiguityResolver) {
       this.ambiguityResolver = ambiguityResolver;
       return this;
     }
@@ -339,8 +339,8 @@ public class _TurkishMorphology {
       return this;
     }
 
-    public _TurkishMorphology build() {
-      return new _TurkishMorphology(this);
+    public TurkishMorphology build() {
+      return new TurkishMorphology(this);
     }
   }
 }
