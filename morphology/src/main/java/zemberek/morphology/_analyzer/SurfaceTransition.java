@@ -167,6 +167,14 @@ public class SurfaceTransition {
       this.letter = letter;
       this.append = append;
     }
+
+    public TemplateTokenType getType() {
+      return type;
+    }
+
+    public char getLetter() {
+      return letter;
+    }
   }
 
   // TODO: consider making templates like "+Im" possible. Also change + syntax to ()

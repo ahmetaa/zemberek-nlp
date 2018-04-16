@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import org.junit.Assert;
-import zemberek.morphology._analyzer.InterpretingAnalyzer.AnalysisDebugData;
 import zemberek.morphology._analyzer._SingleAnalysis.MorphemeSurface;
 import zemberek.morphology._morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;

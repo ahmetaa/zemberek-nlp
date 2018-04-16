@@ -18,11 +18,11 @@ import java.util.stream.Collectors;
 import zemberek.core.ScoredItem;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.TurkishAlphabet;
-import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
-import zemberek.morphology.analysis.SentenceAnalysis;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
-import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
+import zemberek.morphology.old_ambiguity.Z3MarkovModelDisambiguator;
+import zemberek.morphology.old_analysis.SentenceAnalysis;
+import zemberek.morphology.old_analysis.WordAnalysis;
+import zemberek.morphology.old_analysis.tr.TurkishMorphology;
+import zemberek.morphology.old_analysis.tr.TurkishSentenceAnalyzer;
 
 public class DistanceBasedStemmer {
 

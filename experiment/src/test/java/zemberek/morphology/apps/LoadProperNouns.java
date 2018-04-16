@@ -11,8 +11,8 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.io.Strings;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
+import zemberek.morphology.old_analysis.WordAnalysis;
+import zemberek.morphology.old_analysis.tr.TurkishMorphology;
 import zemberek.morphology.structure.Turkish;
 
 public class LoadProperNouns {

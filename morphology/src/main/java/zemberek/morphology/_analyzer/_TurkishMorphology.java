@@ -21,6 +21,7 @@ import zemberek.core.turkish._TurkishAlphabet;
 import zemberek.morphology._ambiguity._AmbiguityResolver;
 import zemberek.morphology._ambiguity._PerceptronAmbiguityResolver;
 import zemberek.morphology._morphotactics.TurkishMorphotactics;
+import zemberek.morphology.generator._Generator;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.Serializer;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
@@ -275,12 +276,12 @@ public class _TurkishMorphology {
       return this;
     }
 
-    public Builder addDictionaryLines(String... lines) throws IOException {
+    public Builder addDictionaryLines(String... lines)  {
       lexicon.addAll(new TurkishDictionaryLoader().load(lines));
       return this;
     }
 
-    public Builder addDictionaryLines(Collection<String> lines) throws IOException {
+    public Builder addDictionaryLines(Collection<String> lines) {
       lexicon.addAll(new TurkishDictionaryLoader().load(lines));
       return this;
     }
@@ -328,17 +329,17 @@ public class _TurkishMorphology {
       return this;
     }
 
-    public Builder removeItems(Iterable<String> dictionaryString) throws IOException {
+    public Builder removeItems(Iterable<String> dictionaryString) {
       lexicon.removeAll(new TurkishDictionaryLoader().load(dictionaryString));
       return this;
     }
 
-    public Builder removeAllLemmas(Iterable<String> lemmas) throws IOException {
+    public Builder removeAllLemmas(Iterable<String> lemmas) {
       lexicon.removeAllLemmas(lemmas);
       return this;
     }
 
-    public _TurkishMorphology build() throws IOException {
+    public _TurkishMorphology build() {
       return new _TurkishMorphology(this);
     }
   }

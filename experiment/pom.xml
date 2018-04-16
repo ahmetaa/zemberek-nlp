@@ -23,11 +23,11 @@
       <artifactId>zemberek-core</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
-    <dependency>
+<!--    <dependency>
       <groupId>zemberek-nlp</groupId>
       <artifactId>zemberek-morphology</artifactId>
       <version>${project.parent.version}</version>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>zemberek-nlp</groupId>
       <artifactId>zemberek-normalization</artifactId>

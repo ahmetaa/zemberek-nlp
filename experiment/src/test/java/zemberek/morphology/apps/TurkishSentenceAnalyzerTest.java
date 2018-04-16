@@ -12,11 +12,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.collections.Histogram;
 import zemberek.core.io.SimpleTextReader;
-import zemberek.morphology.ambiguity.Z3MarkovModelDisambiguator;
-import zemberek.morphology.analysis.SentenceAnalysis;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
-import zemberek.morphology.analysis.tr.TurkishSentenceAnalyzer;
+import zemberek.morphology.old_ambiguity.Z3MarkovModelDisambiguator;
+import zemberek.morphology.old_analysis.SentenceAnalysis;
+import zemberek.morphology.old_analysis.WordAnalysis;
+import zemberek.morphology.old_analysis.tr.TurkishMorphology;
+import zemberek.morphology.old_analysis.tr.TurkishSentenceAnalyzer;
 import zemberek.morphology.lexicon.DictionaryItem;
 
 public class TurkishSentenceAnalyzerTest {

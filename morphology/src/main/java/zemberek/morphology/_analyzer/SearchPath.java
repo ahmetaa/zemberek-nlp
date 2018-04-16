@@ -80,7 +80,7 @@ public class SearchPath {
     return path;
   }
 
-  SearchPath getCopyForGeneration(
+  public SearchPath getCopyForGeneration(
       SurfaceTransition surfaceNode,
       AttributeSet<PhoneticAttribute> phoneticAttributes) {
 

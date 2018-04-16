@@ -9,8 +9,8 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
+import zemberek.morphology.old_analysis.WordAnalysis;
+import zemberek.morphology.old_analysis.tr.TurkishMorphology;
 
 public class WordSimilarityConsole {
 

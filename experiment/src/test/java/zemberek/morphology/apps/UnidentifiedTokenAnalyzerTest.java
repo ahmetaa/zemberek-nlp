@@ -6,9 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
-import zemberek.morphology.analysis.tr.UnidentifiedTokenAnalyzer;
+import zemberek.morphology.old_analysis.WordAnalysis;
+import zemberek.morphology.old_analysis.tr.TurkishMorphology;
+import zemberek.morphology.old_analysis.tr.UnidentifiedTokenAnalyzer;
 
 public class UnidentifiedTokenAnalyzerTest {
 

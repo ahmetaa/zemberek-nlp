@@ -2,8 +2,8 @@ package morphology;
 
 import java.io.IOException;
 import java.util.List;
-import zemberek.morphology._analyzer._Generator;
-import zemberek.morphology._analyzer._Generator.GenerationResult;
+import zemberek.morphology.generator._Generator;
+import zemberek.morphology.generator._Generator.GenerationResult;
 import zemberek.morphology._analyzer._SingleAnalysis;
 import zemberek.morphology._analyzer._TurkishMorphology;
 import zemberek.morphology._analyzer._WordAnalysis;

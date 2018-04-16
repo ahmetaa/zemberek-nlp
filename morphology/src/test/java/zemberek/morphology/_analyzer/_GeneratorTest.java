@@ -4,7 +4,8 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
-import zemberek.morphology._analyzer._Generator.GenerationResult;
+import zemberek.morphology.generator._Generator;
+import zemberek.morphology.generator._Generator.GenerationResult;
 
 public class _GeneratorTest extends AnalyzerTestBase {
 

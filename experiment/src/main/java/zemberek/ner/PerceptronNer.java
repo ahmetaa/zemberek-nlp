@@ -20,9 +20,9 @@ import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.IntValueMap;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextUtil;
-import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.old_analysis.WordAnalysis;
 import zemberek.morphology.analysis.WordAnalysisSurfaceFormatter;
-import zemberek.morphology.analysis.tr.TurkishMorphology;
+import zemberek.morphology.old_analysis.tr.TurkishMorphology;
 import zemberek.tokenization.TurkishTokenizer;
 
 /**
