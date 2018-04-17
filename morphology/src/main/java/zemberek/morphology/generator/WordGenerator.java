@@ -23,17 +23,17 @@ import zemberek.morphology.morphotactics.StemTransition;
 import zemberek.morphology.morphotactics.SuffixTransition;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
-public class Generator {
+public class WordGenerator {
 
   private TurkishMorphotactics morphotactics;
   private StemTransitions stemTransitions;
 
-  public Generator(TurkishMorphotactics morphotactics) {
+  public WordGenerator(TurkishMorphotactics morphotactics) {
     this.morphotactics = morphotactics;
     this.stemTransitions = morphotactics.getStemTransitions();
   }
 
-  public List<GenerationResult> generateWithIds(
+  public List<Result> generateWithIds(
       String stem,
       List<String> morphemeIds,
       AnalysisDebugData debugData) {
@@ -48,7 +48,7 @@ public class Generator {
     return generate(stem, morphemes, debugData);
   }
 
-  public List<GenerationResult> generate(
+  public List<Result> generate(
       String stem,
       List<Morpheme> morphemes,
       AnalysisDebugData debugData) {
@@ -87,10 +87,10 @@ public class Generator {
     // search graph.
     List<GenerationPath> resultPaths = search(paths, debugData);
     // generate results from successful paths.
-    List<GenerationResult> result = new ArrayList<>(resultPaths.size());
+    List<Result> result = new ArrayList<>(resultPaths.size());
     for (GenerationPath path : resultPaths) {
       SingleAnalysis analysis = SingleAnalysis.fromSearchPath(path.path);
-      result.add(new GenerationResult(analysis.surfaceForm(), analysis));
+      result.add(new Result(analysis.surfaceForm(), analysis));
       if (debugData != null) {
         debugData.results.add(analysis);
       }
@@ -98,11 +98,11 @@ public class Generator {
     return result;
   }
 
-  public List<GenerationResult> generateWithIds(String stem, List<String> morphemeIds) {
+  public List<Result> generateWithIds(String stem, List<String> morphemeIds) {
     return generateWithIds(stem, morphemeIds, null);
   }
 
-  public List<GenerationResult> generate(String stem, List<Morpheme> morphemes) {
+  public List<Result> generate(String stem, List<Morpheme> morphemes) {
     return generate(stem, morphemes, null);
   }
 
@@ -252,12 +252,12 @@ public class Generator {
     return newPaths;
   }
 
-  public static class GenerationResult {
+  public static class Result {
 
     public final String surface;
     public final SingleAnalysis analysis;
 
-    public GenerationResult(String surface, SingleAnalysis analysis) {
+    public Result(String surface, SingleAnalysis analysis) {
       this.surface = surface;
       this.analysis = analysis;
     }

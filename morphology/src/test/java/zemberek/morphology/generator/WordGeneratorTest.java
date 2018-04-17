@@ -5,16 +5,15 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import zemberek.morphology.analysis.AnalyzerTestBase;
-import zemberek.morphology.generator.Generator;
-import zemberek.morphology.generator.Generator.GenerationResult;
+import zemberek.morphology.generator.WordGenerator.Result;
 
-public class GeneratorTest extends AnalyzerTestBase {
+public class WordGeneratorTest extends AnalyzerTestBase {
 
   @Test
   public void testGeneration1() {
-    Generator generator = new Generator(getMorphotactics("elma"));
+    WordGenerator wordGenerator = new WordGenerator(getMorphotactics("elma"));
     List<String> morphemes = Lists.newArrayList("A3pl", "P1pl");
-    List<GenerationResult> results = generator.generateWithIds(
+    List<Result> results = wordGenerator.generateWithIds(
         "elma",
         morphemes
     );
@@ -24,9 +23,9 @@ public class GeneratorTest extends AnalyzerTestBase {
 
   @Test
   public void testGeneration2() {
-    Generator generator = new Generator(getMorphotactics("elma"));
+    WordGenerator wordGenerator = new WordGenerator(getMorphotactics("elma"));
     List<String> morphemes = Lists.newArrayList("Noun", "A3pl", "P1pl");
-    List<GenerationResult> results = generator.generateWithIds(
+    List<Result> results = wordGenerator.generateWithIds(
         "elma",
         morphemes
     );
@@ -36,9 +35,9 @@ public class GeneratorTest extends AnalyzerTestBase {
 
   @Test
   public void testGeneration3() {
-    Generator generator = new Generator(getMorphotactics("elma"));
+    WordGenerator wordGenerator = new WordGenerator(getMorphotactics("elma"));
     List<String> morphemes = Lists.newArrayList("Noun", "With");
-    List<GenerationResult> results = generator.generateWithIds(
+    List<Result> results = wordGenerator.generateWithIds(
         "elma",
         morphemes
     );

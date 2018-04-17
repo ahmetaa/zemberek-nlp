@@ -26,7 +26,7 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.UnidentifiedTokenAnalyzer;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
-import zemberek.morphology.generator.Generator;
+import zemberek.morphology.generator.WordGenerator;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.Serializer;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
@@ -40,7 +40,7 @@ public class TurkishMorphology {
 
   private RootLexicon lexicon;
   private InterpretingAnalyzer analyzer;
-  private Generator generator;
+  private WordGenerator wordGenerator;
   private UnidentifiedTokenAnalyzer unidentifiedTokenAnalyzer;
   private TurkishTokenizer tokenizer;
   private AnalysisCache cache;
@@ -54,7 +54,7 @@ public class TurkishMorphology {
     this.lexicon = builder.lexicon;
     this.morphotactics = new TurkishMorphotactics(builder.lexicon);
     this.analyzer = new InterpretingAnalyzer(morphotactics);
-    this.generator = new Generator(morphotactics);
+    this.wordGenerator = new WordGenerator(morphotactics);
     this.unidentifiedTokenAnalyzer = new UnidentifiedTokenAnalyzer(analyzer);
     this.tokenizer = builder.tokenizer;
 
@@ -230,8 +230,8 @@ public class TurkishMorphology {
     return cache;
   }
 
-  public Generator getGenerator() {
-    return generator;
+  public WordGenerator getWordGenerator() {
+    return wordGenerator;
   }
 
   public static Builder builder() {

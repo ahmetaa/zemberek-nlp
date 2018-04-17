@@ -3,8 +3,7 @@ package morphology;
 import java.io.IOException;
 import java.util.List;
 import zemberek.morphology.analysis.SingleAnalysis;
-import zemberek.morphology.generator.Generator;
-import zemberek.morphology.generator.Generator.GenerationResult;
+import zemberek.morphology.generator.WordGenerator.Result;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.DictionaryItem;
@@ -27,9 +26,9 @@ public class ChangeStem {
     System.out.println("Input Word = " + word);
     WordAnalysis results = morphology.analyze(word);
     for (SingleAnalysis result : results) {
-      List<Generator.GenerationResult> generated =
-          morphology.getGenerator().generate(dictionaryItem.lemma, result.getMorphemes());
-      for (GenerationResult s : generated) {
+      List<Result> generated =
+          morphology.getWordGenerator().generate(dictionaryItem.lemma, result.getMorphemes());
+      for (Result s : generated) {
         System.out.println("Input analysis: " + result.formatLong());
         System.out.println("After stem change, word = " + s.surface);
         System.out.println("After stem change, Analysis = " + s.analysis.formatLong());
