@@ -48,6 +48,11 @@ public class WordGenerator {
     this.stemTransitions = morphotactics.getStemTransitions();
   }
 
+  /**
+   * Method returns a WordGenerator instance.
+   * But when this factory constructor is used, an AnalysisDebugData object is generated after each
+   * call to generation methods. That object cen be retrieved with getDebugData method.
+   */
   public static WordGenerator forDebug(TurkishMorphotactics morphotactics) {
     WordGenerator generator = new WordGenerator(morphotactics);
     generator.debugMode = true;

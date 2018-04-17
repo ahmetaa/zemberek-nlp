@@ -18,8 +18,8 @@ import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;
 
 /**
- * This is a Morphological Analysis implementation. This class is not thread-safe if instantiated
- * with forDebug() factory constructor method.
+ * This is a Morphological Analysis implementation. Instances of this class are not thread safe
+ * if instantiated with forDebug() factory constructor method.
  */
 public class InterpretingAnalyzer {
 
@@ -35,6 +35,11 @@ public class InterpretingAnalyzer {
     this.stemTransitions = morphotactics.getStemTransitions();
   }
 
+  /**
+   * Method returns a InterpretingAnalyzer instance.
+   * But when this factory constructor is used, an AnalysisDebugData object is generated after each
+   * call to generation methods. That object cen be retrieved with getDebugData method.
+   */
   public static InterpretingAnalyzer forDebug(TurkishMorphotactics morphotactics) {
     InterpretingAnalyzer analyzer = new InterpretingAnalyzer(morphotactics);
     analyzer.debugMode = true;

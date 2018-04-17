@@ -101,6 +101,11 @@ var [var:Adj] [varmak:Verb]
 değil [değil:Verb] [değil:Conj]
 değil [değil:Verb] [değmek:Verb]
 
+Adam*|adam* [adam:Noun] [ada:Noun]
+
+Delik|delik [delik:Noun] *
+Deliğ*|deliğ* [delik:Noun] *
+
 Hayır * [Hayır:Noun,Prop]
 
 Büyük|büyük [büyük:Adj] [büyük:Noun]
@@ -116,6 +121,10 @@ hızlı* [hızlı:Adj] [hız:Noun]
 * [olasılık:Noun] *
 
 * [pahalı:Adj] *
+
+anla [anlamak:Verb] *
+
+Burada|burada [bura:Noun] *
 
 gelen* [gelmek:Verb] *
 
@@ -169,7 +178,10 @@ Kürtler* [Kürt:Noun,Prop] *
 
 * [kibar:Adj] [kibar:Noun]
 
-bana* [ben:Pron,Pers] *
+Bana*|bana* [ben:Pron,Pers] *
+Sana*|sana* [sen:Pron,Pers] *
+
+lazım [lazım:Adj] *
 
 # "yapacaktır" Prefer Fut against FutPart->Noun conversion
 # There may be some false positives.
@@ -209,6 +221,10 @@ paylaş* * [pay:Noun]
 Çünkü|çünkü * [Çünk:Noun,Prop]
 
 her|Her [her:Det] *
+
+Baş*|baş* [baş:Noun] Prop
+
+İki*|iki* [iki:Num,Card] Prop
 
 Aklı*|aklı* [akıl:Noun] *
 

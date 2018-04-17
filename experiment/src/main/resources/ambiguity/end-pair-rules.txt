@@ -6,7 +6,8 @@
 * Narr+ NarrPart→Adj
 * Narr+ PastPart→Noun
 * Narr+ PastPart→Adj
-## TODO: this may cause error `yapmaya mı geldin`
+
+* Inf2→Noun Neg+ * mı|mi|mu|mü
 * Neg+ Inf2→Noun
 * Neces+ Inf2→Noun
 * [demek:Verb] [demek:Adv]

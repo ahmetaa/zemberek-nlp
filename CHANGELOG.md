@@ -1,6 +1,47 @@
 CHANGE LOG
 ==========
 
+## 0.12.0 (Not Yet Released)
+
+This release is the result of some major refactoring of Morphology module. There are many breaking changes.
+
+Morphology module is re-written almost from scratch. Now there is a somewhat simpler morphotactics mechanism 
+but rules are still defined in code. New analyzer handles pronouns better and probably it generates
+more accurate results. But because this is a complete re-write, there will be new errors.  
+
+Ambiguity resolution mechanism is changed. It now uses the old but popular Averaged Perceptron algorithm.
+However, for now it is trained with the data generated from some corpora using simple rules. 
+Therefore in this version disambiguation will not work so accurately. But it will improve in the upcoming releases quickly.
+Nevertheless, new module is probably working better than previous releases.   
+
+Default analysis representation is changed. Some examples:
+    
+    odama: 
+    [oda:Noun] oda:Noun+A3sg+m:P1sg+a:Dat
+      
+    diyerek
+    [demek:Verb] di:Verb|yerek:ByDoingSo→Adv
+    
+This format is probably not final. We consider changing some morpheme names and refine the representation.
+
+We now use Caffeine for caching analysis results. There are static and dynamic caches for speeding up the word analysis. 
+
+Word generation mechanism is also re-written.
+
+Dictionary serialization mechanism is written using protocol-buffers. Now initialization of TurkishMorphology class is faster.
+
+There are Email, Url, Mention, HashTag, Emoticon, RomanNumeral, RegularAbbreviation, Abbreviation secondary POS information.
+
+#### Work that has not made this release
+
+We wrote a port of Facebook's FastText library in Java. It can be used for word embeddings and classification tasks. However it is not yet ready for release. 
+
+There is an experimental Named Entity Recognition module. But it is not yet ready for release.
+
+Here are some details of Breaking Changes:
+
+// TODO: finish.
+
 ## 0.11.1
 
 TurkishSpellChecker now can load internal resources correctly.
