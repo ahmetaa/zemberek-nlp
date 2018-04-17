@@ -158,6 +158,10 @@ public final class Log {
     log(Level.FINE, object.toString());
   }
 
+  public static void info() {
+    log(Level.INFO, "\n");
+  }
+
   public static void info(String message, Object... params) {
     log(Level.INFO, message, params);
   }

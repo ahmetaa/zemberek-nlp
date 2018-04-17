@@ -1,6 +1,7 @@
 package morphology;
 
 import java.io.IOException;
+import zemberek.core.logging.Log;
 import zemberek.morphology.analysis.AnalysisFormatters;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.TurkishMorphology;
@@ -20,14 +21,14 @@ public class AnalyzeWords {
   }
 
   public void analyze(String word) {
-    System.out.println("Word = " + word);
+    Log.info("Word = " + word);
     WordAnalysis results = morphology.analyze(word);
     for (SingleAnalysis result : results) {
-      System.out.println("Morphemes and Surface : " + result.formatLong());
-      System.out.println("Only Morphemes        : " + result.formatLexical());
-      System.out.println("Oflazer style         : " +
+      Log.info("Morphemes and Surface : " + result.formatLong());
+      Log.info("Only Morphemes        : " + result.formatLexical());
+      Log.info("Oflazer style         : " +
           AnalysisFormatters.OFLAZER_STYLE.format(result));
-      System.out.println();
+      Log.info();
     }
   }
 

@@ -1,6 +1,7 @@
 package morphology;
 
 import java.io.IOException;
+import zemberek.core.logging.Log;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
@@ -20,14 +21,14 @@ public class StemmingAndLemmatization {
   }
 
   public void analyze(String word) {
-    System.out.println("Word = " + word);
+    Log.info("Word = " + word);
 
-    System.out.println("Parses: ");
+    Log.info("Parses: ");
     WordAnalysis results = morphology.analyze(word);
     for (SingleAnalysis result : results) {
-      System.out.println(result.formatLong());
-      System.out.println("\tStems = " + result.getStems());
-      System.out.println("\tLemmas = " + result.getLemmas());
+      Log.info(result.formatLong());
+      Log.info("\tStems = " + result.getStems());
+      Log.info("\tLemmas = " + result.getLemmas());
     }
   }
 }

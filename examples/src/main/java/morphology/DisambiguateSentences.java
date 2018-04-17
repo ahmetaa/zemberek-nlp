@@ -2,6 +2,7 @@ package morphology;
 
 import java.io.IOException;
 import java.util.List;
+import zemberek.core.logging.Log;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
@@ -24,24 +25,24 @@ public class DisambiguateSentences {
   }
 
   void analyzeAndDisambiguate(String sentence) {
-    System.out.println("Sentence  = " + sentence);
+    Log.info("Sentence  = " + sentence);
     List<WordAnalysis> analyses = morphology.analyzeSentence(sentence);
 
-    System.out.println("Sentence word analysis result:");
+    Log.info("Sentence word analysis result:");
     writeParseResult(analyses);
 
     SentenceAnalysis result = morphology.disambiguate(sentence, analyses);
-    System.out.println("\nBest analyses:");
+    Log.info("\nBest analyses:");
     for (SentenceWordAnalysis sentenceWordAnalysis : result) {
-      System.out.println(sentenceWordAnalysis.getAnalysis().formatLong());
+      Log.info(sentenceWordAnalysis.getAnalysis().formatLong());
     }
   }
 
   private void writeParseResult(List<WordAnalysis> sentenceAnalysis) {
     for (WordAnalysis entry : sentenceAnalysis) {
-      System.out.println("Word = " + entry.getInput());
+      Log.info("Word = " + entry.getInput());
       for (SingleAnalysis analysis : entry) {
-        System.out.println(analysis.formatLong());
+        Log.info(analysis.formatLong());
       }
     }
   }

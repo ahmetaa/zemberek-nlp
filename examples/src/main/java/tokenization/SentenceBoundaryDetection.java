@@ -1,6 +1,7 @@
 package tokenization;
 
 import java.util.List;
+import zemberek.core.logging.Log;
 import zemberek.tokenization.TurkishSentenceExtractor;
 
 public class SentenceBoundaryDetection {
@@ -9,12 +10,12 @@ public class SentenceBoundaryDetection {
     String input =
         "Prof. Dr. Veli Davul açıklama yaptı. Kimse %6.5 lik enflasyon oranını beğenmemiş!" +
             " Oysa maçta ikinci olmuştuk... Değil mi?";
-    System.out.println("Paragraph = " + input);
+    Log.info("Paragraph = " + input);
     TurkishSentenceExtractor extractor = TurkishSentenceExtractor.DEFAULT;
     List<String> sentences = extractor.fromParagraph(input);
-    System.out.println("Sentences:");
+    Log.info("Sentences:");
     for (String sentence : sentences) {
-      System.out.println(sentence);
+      Log.info(sentence);
     }
   }
 

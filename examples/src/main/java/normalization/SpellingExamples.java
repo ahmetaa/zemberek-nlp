@@ -1,6 +1,7 @@
 package normalization;
 
 import java.io.IOException;
+import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.normalization.TurkishSpellChecker;
 
@@ -10,16 +11,16 @@ public class SpellingExamples {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
 
-    System.out.println("Check if written correctly.");
+    Log.info("Check if written correctly.");
     String[] words = {"Ankara'ya", "Ankar'aya", "yapbileceksen", "yapabileceğinizden"};
     for (String word : words) {
-      System.out.println(word + " -> " + spellChecker.check(word));
+      Log.info(word + " -> " + spellChecker.check(word));
     }
-    System.out.println();
-    System.out.println("Give suggestions.");
+    Log.info();
+    Log.info("Give suggestions.");
     String[] toSuggest = {"Kraamanda", "okumuştk", "yapbileceksen", "oukyamıyorum"};
     for (String s : toSuggest) {
-      System.out.println(s + " -> " + spellChecker.suggestForWord(s));
+      Log.info(s + " -> " + spellChecker.suggestForWord(s));
     }
   }
 }

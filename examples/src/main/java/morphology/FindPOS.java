@@ -23,7 +23,7 @@ public class FindPOS {
   }
 
   private void test(String s) {
-    System.out.println("Sentence  = " + s);
+    Log.info("Sentence  = " + s);
     SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(s);
 
     for (SentenceWordAnalysis a : analysis) {

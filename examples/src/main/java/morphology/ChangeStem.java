@@ -2,6 +2,7 @@ package morphology;
 
 import java.io.IOException;
 import java.util.List;
+import zemberek.core.logging.Log;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.generator.WordGenerator.Result;
 import zemberek.morphology.TurkishMorphology;
@@ -23,15 +24,15 @@ public class ChangeStem {
   }
 
   private void regenerate(String word, DictionaryItem dictionaryItem) {
-    System.out.println("Input Word = " + word);
+    Log.info("Input Word = " + word);
     WordAnalysis results = morphology.analyze(word);
     for (SingleAnalysis result : results) {
       List<Result> generated =
           morphology.getWordGenerator().generate(dictionaryItem, result.getMorphemes());
       for (Result s : generated) {
-        System.out.println("Input analysis: " + result.formatLong());
-        System.out.println("After stem change, word = " + s.surface);
-        System.out.println("After stem change, Analysis = " + s.analysis.formatLong());
+        Log.info("Input analysis: " + result.formatLong());
+        Log.info("After stem change, word = " + s.surface);
+        Log.info("After stem change, Analysis = " + s.analysis.formatLong());
       }
     }
   }
