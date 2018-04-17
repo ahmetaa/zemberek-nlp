@@ -36,16 +36,21 @@ import zemberek.morphology.lexicon.RootLexicon;
 /**
  * Hold stem->root-suffix transitions.
  * Such as
+ * <pre>
  * elma->Noun
  * kitab->Noun
  * kitap->Noun
  * oku->Verb
+ * </pre>
  */
 public class StemTransitions {
 
   // TODO: this mechanism should be an abstraction that can also use a Trie
   private ArrayListMultimap<String, StemTransition> multiStems =
       ArrayListMultimap.create(1000, 2);
+  private ArrayListMultimap<DictionaryItem, StemTransition> dictionaryMap =
+      ArrayListMultimap.create(1000, 1);
+
   private Map<String, StemTransition> singleStems = Maps.newConcurrentMap();
   private Set<StemTransition> stemTransitions = Sets.newConcurrentHashSet();
 
@@ -90,6 +95,9 @@ public class StemTransitions {
         singleStems.put(surfaceForm, stemTransition);
       }
       stemTransitions.add(stemTransition);
+      if (!dictionaryMap.containsEntry(stemTransition.item, stemTransition)) {
+        dictionaryMap.put(stemTransition.item, stemTransition);
+      }
     } finally {
       lock.writeLock().unlock();
     }
@@ -106,6 +114,9 @@ public class StemTransitions {
         singleStems.remove(surfaceForm);
       }
       stemTransitions.remove(stemTransition);
+      if (!dictionaryMap.containsEntry(stemTransition.item, stemTransition)) {
+        dictionaryMap.remove(stemTransition.item, stemTransition);
+      }
     } finally {
       lock.writeLock().unlock();
     }
@@ -116,6 +127,14 @@ public class StemTransitions {
       return Lists.newArrayList(singleStems.get(stem));
     } else if (multiStems.containsKey(stem)) {
       return Lists.newArrayList(multiStems.get(stem));
+    } else {
+      return Collections.emptyList();
+    }
+  }
+
+  public List<StemTransition> getMatchingStemTransitions(DictionaryItem item) {
+    if (dictionaryMap.containsKey(item)) {
+      return dictionaryMap.get(item);
     } else {
       return Collections.emptyList();
     }

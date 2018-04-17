@@ -10,6 +10,8 @@ public class StemTransition extends MorphemeTransition {
   public final DictionaryItem item;
   AttributeSet<PhoneticAttribute> phoneticAttributes;
 
+  int cachedHash = 0;
+
   public StemTransition(
       String surface,
       DictionaryItem item,
@@ -19,6 +21,7 @@ public class StemTransition extends MorphemeTransition {
     this.item = item;
     this.phoneticAttributes = phoneticAttributes;
     this.to = toState;
+    this.cachedHash = hashCode();
   }
 
   public StemTransition getCopy() {
@@ -57,7 +60,9 @@ public class StemTransition extends MorphemeTransition {
 
   @Override
   public int hashCode() {
-
+    if (cachedHash != 0) {
+      return cachedHash;
+    }
     return Objects.hash(surface, item, phoneticAttributes);
   }
 }

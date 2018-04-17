@@ -27,7 +27,7 @@ public class ChangeStem {
     WordAnalysis results = morphology.analyze(word);
     for (SingleAnalysis result : results) {
       List<Result> generated =
-          morphology.getWordGenerator().generate(dictionaryItem.lemma, result.getMorphemes());
+          morphology.getWordGenerator().generate(dictionaryItem, result.getMorphemes());
       for (Result s : generated) {
         System.out.println("Input analysis: " + result.formatLong());
         System.out.println("After stem change, word = " + s.surface);

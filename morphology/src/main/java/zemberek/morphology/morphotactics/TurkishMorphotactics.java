@@ -16,7 +16,9 @@ import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivat
 import static zemberek.morphology.morphotactics.MorphemeState.terminal;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
@@ -344,6 +346,10 @@ public class TurkishMorphotactics {
 
   public static Morpheme getMorpheme(String id) {
     return morphemeMap.get(id);
+  }
+
+  public List<Morpheme> getMorphemes(List<String> ids) {
+    return ids.stream().map(TurkishMorphotactics::getMorpheme).collect(Collectors.toList());
   }
 
   public TurkishMorphotactics(RootLexicon lexicon) {

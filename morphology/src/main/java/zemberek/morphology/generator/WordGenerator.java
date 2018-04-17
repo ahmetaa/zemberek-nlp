@@ -14,6 +14,7 @@ import zemberek.morphology.analysis.StemTransitions;
 import zemberek.morphology.analysis.SurfaceTransition;
 import zemberek.morphology.analysis.SurfaceTransition.SuffixTemplateToken;
 import zemberek.morphology.analysis.SurfaceTransition.TemplateTokenType;
+import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.morphotactics.AttributeSet;
 import zemberek.morphology.morphotactics.CombinedCondition;
 import zemberek.morphology.morphotactics.Condition;
@@ -57,7 +58,7 @@ public class WordGenerator {
     return debugData;
   }
 
-  public List<Result> generateWithIds(String stem, List<String> morphemeIds) {
+  public List<Result> generate(String stem, List<String> morphemeIds) {
     List<Morpheme> morphemes = new ArrayList<>();
     for (String morphemeId : morphemeIds) {
       Morpheme morpheme = TurkishMorphotactics.getMorpheme(morphemeId);
@@ -66,18 +67,22 @@ public class WordGenerator {
       }
       morphemes.add(morpheme);
     }
-    return generate(stem, morphemes);
+    List<StemTransition> candidates = stemTransitions.getMatchingStemTransitions(stem);
+    return generate(stem, candidates, morphemes);
   }
 
-  public List<Result> generate(String stem, List<Morpheme> morphemes) {
+  public List<Result> generate(DictionaryItem item, List<Morpheme> morphemes) {
+    List<StemTransition> candidates = stemTransitions.getMatchingStemTransitions(item);
+    return generate(item.id, candidates, morphemes);
+  }
 
+  private List<Result> generate(String input, List<StemTransition> candidates,
+      List<Morpheme> morphemes) {
     // get stem candidates.
-    List<StemTransition> candidates = Lists.newArrayListWithCapacity(1);
-    candidates.addAll(stemTransitions.getMatchingStemTransitions(stem));
 
     if (debugMode) {
       debugData = new AnalysisDebugData();
-      debugData.input = stem;
+      debugData.input = input;
       debugData.candidateStemTransitions.addAll(candidates);
     }
 
@@ -86,7 +91,7 @@ public class WordGenerator {
     for (StemTransition candidate : candidates) {
       // we set the tail as " " because in morphotactics, some conditions look for tail's size
       // during graph walk. Because this is generation we let that condition pass always.
-      SearchPath searchPath = SearchPath.initialPath(candidate, stem, " ");
+      SearchPath searchPath = SearchPath.initialPath(candidate, candidate.surface, " ");
       List<Morpheme> morphemesInPath;
       // if input morpheme starts with a POS Morpheme such as Noun etc,
       // we skip it if it matches with the initial morpheme of the graph visiting SearchPath object.

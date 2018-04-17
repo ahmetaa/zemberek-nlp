@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import zemberek.morphology.analysis.AnalyzerTestBase;
 import zemberek.morphology.generator.WordGenerator.Result;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
 public class WordGeneratorTest extends AnalyzerTestBase {
 
@@ -13,7 +14,7 @@ public class WordGeneratorTest extends AnalyzerTestBase {
   public void testGeneration1() {
     WordGenerator wordGenerator = new WordGenerator(getMorphotactics("elma"));
     List<String> morphemes = Lists.newArrayList("A3pl", "P1pl");
-    List<Result> results = wordGenerator.generateWithIds(
+    List<Result> results = wordGenerator.generate(
         "elma",
         morphemes
     );
@@ -25,7 +26,7 @@ public class WordGeneratorTest extends AnalyzerTestBase {
   public void testGeneration2() {
     WordGenerator wordGenerator = new WordGenerator(getMorphotactics("elma"));
     List<String> morphemes = Lists.newArrayList("Noun", "A3pl", "P1pl");
-    List<Result> results = wordGenerator.generateWithIds(
+    List<Result> results = wordGenerator.generate(
         "elma",
         morphemes
     );
@@ -37,12 +38,25 @@ public class WordGeneratorTest extends AnalyzerTestBase {
   public void testGeneration3() {
     WordGenerator wordGenerator = new WordGenerator(getMorphotactics("elma"));
     List<String> morphemes = Lists.newArrayList("Noun", "With");
-    List<Result> results = wordGenerator.generateWithIds(
+    List<Result> results = wordGenerator.generate(
         "elma",
         morphemes
     );
     Assert.assertTrue(results.size() > 0);
     Assert.assertEquals("elmalı", results.get(0).surface);
+  }
+
+  @Test
+  public void testGeneration4() {
+    TurkishMorphotactics mo = getMorphotactics("elma");
+    WordGenerator wordGenerator = new WordGenerator(mo);
+    List<String> morphemes = Lists.newArrayList("Noun", "A3pl", "P1pl");
+    List<Result> results = wordGenerator.generate(
+        mo.getRootLexicon().getItemById("elma_Noun"),
+        mo.getMorphemes(morphemes)
+    );
+    Assert.assertTrue(results.size() > 0);
+    Assert.assertEquals("elmalarımız", results.get(0).surface);
   }
 
 
