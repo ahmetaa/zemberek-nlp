@@ -18,7 +18,8 @@ import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;
 
 /**
- * This is a Morphological Analysis implementation.
+ * This is a Morphological Analysis implementation. This class is not thread-safe if instantiated
+ * with forDebug() factory constructor method.
  */
 public class InterpretingAnalyzer {
 
@@ -26,28 +27,36 @@ public class InterpretingAnalyzer {
 
   private RootLexicon lexicon;
   private StemTransitions stemTransitions;
-  private TurkishMorphotactics morphotactics;
+  private boolean debugMode = false;
+  private AnalysisDebugData debugData;
 
   public InterpretingAnalyzer(TurkishMorphotactics morphotactics) {
-    this.morphotactics = morphotactics;
     this.lexicon = morphotactics.getRootLexicon();
     this.stemTransitions = morphotactics.getStemTransitions();
+  }
+
+  public static InterpretingAnalyzer forDebug(TurkishMorphotactics morphotactics) {
+    InterpretingAnalyzer analyzer = new InterpretingAnalyzer(morphotactics);
+    analyzer.debugMode = true;
+    return analyzer;
   }
 
   public StemTransitions getStemTransitions() {
     return stemTransitions;
   }
 
-  public TurkishMorphotactics getMorphotactics() {
-    return morphotactics;
-  }
-
   public RootLexicon getLexicon() {
     return lexicon;
   }
 
-  public List<SingleAnalysis> analyze(String input, AnalysisDebugData debugData) {
+  public AnalysisDebugData getDebugData() {
+    return debugData;
+  }
 
+  public List<SingleAnalysis> analyze(String input) {
+    if (debugMode) {
+      debugData = new AnalysisDebugData();
+    }
     // get stem candidates.
     List<StemTransition> candidates = Lists.newArrayListWithCapacity(3);
     for (int i = 1; i <= input.length(); i++) {
@@ -55,7 +64,7 @@ public class InterpretingAnalyzer {
       candidates.addAll(stemTransitions.getMatchingStemTransitions(stem));
     }
 
-    if (debugData != null) {
+    if (debugMode) {
       debugData.input = input;
       debugData.candidateStemTransitions.addAll(candidates);
     }
@@ -70,25 +79,21 @@ public class InterpretingAnalyzer {
     }
 
     // search graph.
-    List<SearchPath> resultPaths = search(paths, debugData);
+    List<SearchPath> resultPaths = search(paths);
     // generate results from successful paths.
     List<SingleAnalysis> result = new ArrayList<>(resultPaths.size());
     for (SearchPath path : resultPaths) {
       SingleAnalysis analysis = SingleAnalysis.fromSearchPath(path);
       result.add(analysis);
-      if (debugData != null) {
+      if (debugMode) {
         debugData.results.add(analysis);
       }
     }
     return result;
   }
 
-  public List<SingleAnalysis> analyze(String input) {
-    return analyze(input, null);
-  }
-
   // searches through morphotactics graph.
-  private List<SearchPath> search(List<SearchPath> currentPaths, AnalysisDebugData debugData) {
+  private List<SearchPath> search(List<SearchPath> currentPaths) {
 
     if (currentPaths.size() > 30) {
       currentPaths = pruneCyclicPaths(currentPaths);
@@ -108,21 +113,21 @@ public class InterpretingAnalyzer {
           if (path.isTerminal() &&
               !path.phoneticAttributes.contains(PhoneticAttribute.CannotTerminate)) {
             result.add(path);
-            if (debugData != null) {
+            if (debugMode) {
               debugData.finishedPaths.add(path);
             }
             continue;
           }
-          if (debugData != null) {
+          if (debugMode) {
             debugData.failedPaths.put(path, "Finished but Path not terminal");
           }
         }
 
         // Creates new paths with outgoing and matching transitions.
-        List<SearchPath> newPaths = advance(path, debugData);
+        List<SearchPath> newPaths = advance(path);
         allNewPaths.addAll(newPaths);
 
-        if (debugData != null) {
+        if (debugMode) {
           if (newPaths.isEmpty()) {
             debugData.failedPaths.put(path, "No Transition");
           }
@@ -132,7 +137,7 @@ public class InterpretingAnalyzer {
       currentPaths = allNewPaths;
     }
 
-    if (debugData != null) {
+    if (debugMode) {
       debugData.resultPaths.addAll(result);
     }
 
@@ -141,7 +146,7 @@ public class InterpretingAnalyzer {
 
   // for all allowed matching outgoing transitions, new paths are generated.
   // Transition conditions are used for checking if a search path is allowed to pass a transition.
-  private List<SearchPath> advance(SearchPath path, AnalysisDebugData debugData) {
+  private List<SearchPath> advance(SearchPath path) {
 
     List<SearchPath> newPaths = new ArrayList<>(2);
 
@@ -152,7 +157,7 @@ public class InterpretingAnalyzer {
 
       // if tail is empty and this transitions surface is not empty, no need to check.
       if (path.tail.isEmpty() && suffixTransition.hasSurfaceForm()) {
-        if (debugData != null) {
+        if (debugMode) {
           debugData.rejectedTransitions.put(
               path,
               new RejectedTransition(suffixTransition, "Empty surface expected."));
@@ -166,7 +171,7 @@ public class InterpretingAnalyzer {
 
       // no need to go further if generated surface form is not a prefix of the paths's tail.
       if (!path.tail.startsWith(surface)) {
-        if (debugData != null) {
+        if (debugMode) {
           debugData.rejectedTransitions.put(
               path,
               new RejectedTransition(suffixTransition, "Surface Mismatch:" + surface));
@@ -175,7 +180,7 @@ public class InterpretingAnalyzer {
       }
 
       // if transition condition fails, add it to debug data.
-      if (debugData != null && suffixTransition.getCondition() != null) {
+      if (debugMode && suffixTransition.getCondition() != null) {
         Condition condition = suffixTransition.getCondition();
         Condition failed;
         if (condition instanceof CombinedCondition) {

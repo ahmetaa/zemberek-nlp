@@ -17,11 +17,11 @@ public class AnalyzerTestBase {
   }
 
   static InterpretingAnalyzer getAnalyzer(String... dictionaryLines) {
-    return new InterpretingAnalyzer(getMorphotactics(dictionaryLines));
+    return InterpretingAnalyzer.forDebug(getMorphotactics(dictionaryLines));
   }
 
   static AnalysisTester getTester(String... dictionaryLines) {
-    return new AnalysisTester(new InterpretingAnalyzer(getMorphotactics(dictionaryLines)));
+    return new AnalysisTester(InterpretingAnalyzer.forDebug(getMorphotactics(dictionaryLines)));
   }
 
   boolean containsMorpheme(SingleAnalysis result, String morphemeName) {
@@ -138,8 +138,8 @@ public class AnalyzerTestBase {
   private static void printDebug(
       InterpretingAnalyzer analyzer,
       String input) {
-    AnalysisDebugData debugData = new AnalysisDebugData();
-    analyzer.analyze(input, debugData);
+    analyzer.analyze(input);
+    AnalysisDebugData debugData = analyzer.getDebugData();
     debugData.dumpToConsole();
   }
 

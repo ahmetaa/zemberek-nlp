@@ -23,20 +23,41 @@ import zemberek.morphology.morphotactics.StemTransition;
 import zemberek.morphology.morphotactics.SuffixTransition;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
+/**
+ * This class is used for generating words from lexical information. For example, a word can be
+ * constructed with only stem and morpheme id's
+ * <p>
+ * Generation algorithm automatically searches through empty morphemes if the are not provided by
+ * the user. For example, for
+ * <pre>
+ * Stem: elma
+ * Morphemes:[Dat]
+ * </pre>
+ * word "elmaya" is generated with elma:Noun+A3sg+ya:Dat analysis.
+ * <p>
+ * This class is not thread-safe if instantiated with forDebug() factory constructor method.
+ */
 public class WordGenerator {
 
-  private TurkishMorphotactics morphotactics;
   private StemTransitions stemTransitions;
+  private boolean debugMode = false;
+  private AnalysisDebugData debugData;
 
   public WordGenerator(TurkishMorphotactics morphotactics) {
-    this.morphotactics = morphotactics;
     this.stemTransitions = morphotactics.getStemTransitions();
   }
 
-  public List<Result> generateWithIds(
-      String stem,
-      List<String> morphemeIds,
-      AnalysisDebugData debugData) {
+  public static WordGenerator forDebug(TurkishMorphotactics morphotactics) {
+    WordGenerator generator = new WordGenerator(morphotactics);
+    generator.debugMode = true;
+    return generator;
+  }
+
+  public AnalysisDebugData getDebugData() {
+    return debugData;
+  }
+
+  public List<Result> generateWithIds(String stem, List<String> morphemeIds) {
     List<Morpheme> morphemes = new ArrayList<>();
     for (String morphemeId : morphemeIds) {
       Morpheme morpheme = TurkishMorphotactics.getMorpheme(morphemeId);
@@ -45,19 +66,17 @@ public class WordGenerator {
       }
       morphemes.add(morpheme);
     }
-    return generate(stem, morphemes, debugData);
+    return generate(stem, morphemes);
   }
 
-  public List<Result> generate(
-      String stem,
-      List<Morpheme> morphemes,
-      AnalysisDebugData debugData) {
+  public List<Result> generate(String stem, List<Morpheme> morphemes) {
 
     // get stem candidates.
     List<StemTransition> candidates = Lists.newArrayListWithCapacity(1);
     candidates.addAll(stemTransitions.getMatchingStemTransitions(stem));
 
-    if (debugData != null) {
+    if (debugMode) {
+      debugData = new AnalysisDebugData();
       debugData.input = stem;
       debugData.candidateStemTransitions.addAll(candidates);
     }
@@ -85,31 +104,21 @@ public class WordGenerator {
     }
 
     // search graph.
-    List<GenerationPath> resultPaths = search(paths, debugData);
+    List<GenerationPath> resultPaths = search(paths);
     // generate results from successful paths.
     List<Result> result = new ArrayList<>(resultPaths.size());
     for (GenerationPath path : resultPaths) {
       SingleAnalysis analysis = SingleAnalysis.fromSearchPath(path.path);
       result.add(new Result(analysis.surfaceForm(), analysis));
-      if (debugData != null) {
+      if (debugMode) {
         debugData.results.add(analysis);
       }
     }
     return result;
   }
 
-  public List<Result> generateWithIds(String stem, List<String> morphemeIds) {
-    return generateWithIds(stem, morphemeIds, null);
-  }
-
-  public List<Result> generate(String stem, List<Morpheme> morphemes) {
-    return generate(stem, morphemes, null);
-  }
-
   // searches through morphotactics graph.
-  private List<GenerationPath> search(
-      List<GenerationPath> currentPaths,
-      AnalysisDebugData debugData) {
+  private List<GenerationPath> search(List<GenerationPath> currentPaths) {
 
     List<GenerationPath> result = new ArrayList<>(3);
     // new Paths are generated with matching transitions.
@@ -125,21 +134,21 @@ public class WordGenerator {
           if (path.path.isTerminal() &&
               !path.path.getPhoneticAttributes().contains(PhoneticAttribute.CannotTerminate)) {
             result.add(path);
-            if (debugData != null) {
+            if (debugMode) {
               debugData.finishedPaths.add(path.path);
             }
             continue;
           }
-          if (debugData != null) {
+          if (debugMode) {
             debugData.failedPaths.put(path.path, "Finished but Path not terminal");
           }
         }
 
         // Creates new paths with outgoing and matching transitions.
-        List<GenerationPath> newPaths = advance(path, debugData);
+        List<GenerationPath> newPaths = advance(path);
         allNewPaths.addAll(newPaths);
 
-        if (debugData != null) {
+        if (debugMode) {
           if (newPaths.isEmpty()) {
             debugData.failedPaths.put(path.path, "No Transition");
           }
@@ -150,7 +159,7 @@ public class WordGenerator {
       currentPaths = allNewPaths;
     }
 
-    if (debugData != null) {
+    if (debugMode) {
       debugData.resultPaths.addAll(
           result.stream().map(s -> s.path).collect(Collectors.toList()));
     }
@@ -160,7 +169,7 @@ public class WordGenerator {
 
   // for all allowed matching outgoing transitions, new paths are generated.
   // Transition conditions are used for checking if a search path is allowed to pass a transition.
-  private List<GenerationPath> advance(GenerationPath gPath, AnalysisDebugData debugData) {
+  private List<GenerationPath> advance(GenerationPath gPath) {
 
     List<GenerationPath> newPaths = new ArrayList<>(2);
 
@@ -171,7 +180,7 @@ public class WordGenerator {
 
       // if there are no morphemes and this transitions surface is not empty, no need to check.
       if (gPath.morphemes.isEmpty() && suffixTransition.hasSurfaceForm()) {
-        if (debugData != null) {
+        if (debugMode) {
           debugData.rejectedTransitions.put(
               gPath.path,
               new RejectedTransition(suffixTransition, "Empty surface expected."));
@@ -182,7 +191,7 @@ public class WordGenerator {
       // check morpheme match.
       // if transition surface is empty, here will pass.
       if (!gPath.matches(suffixTransition)) {
-        if (debugData != null) {
+        if (debugMode) {
           debugData.rejectedTransitions.put(
               gPath.path,
               new RejectedTransition(suffixTransition,
@@ -192,7 +201,7 @@ public class WordGenerator {
       }
 
       // if transition condition fails, add it to debug data.
-      if (debugData != null && suffixTransition.getCondition() != null) {
+      if (debugMode && suffixTransition.getCondition() != null) {
         Condition condition = suffixTransition.getCondition();
         Condition failed;
         if (condition instanceof CombinedCondition) {
