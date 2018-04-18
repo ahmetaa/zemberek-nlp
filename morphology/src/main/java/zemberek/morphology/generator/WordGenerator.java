@@ -2,6 +2,7 @@ package zemberek.morphology.generator;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PhoneticAttribute;
@@ -41,17 +42,19 @@ import zemberek.morphology.morphotactics.TurkishMorphotactics;
 public class WordGenerator {
 
   private StemTransitions stemTransitions;
+  private TurkishMorphotactics morphotactics;
   private boolean debugMode = false;
   private AnalysisDebugData debugData;
 
   public WordGenerator(TurkishMorphotactics morphotactics) {
+    this.morphotactics = morphotactics;
     this.stemTransitions = morphotactics.getStemTransitions();
   }
 
   /**
-   * Method returns a WordGenerator instance.
-   * But when this factory constructor is used, an AnalysisDebugData object is generated after each
-   * call to generation methods. That object cen be retrieved with getDebugData method.
+   * Method returns a WordGenerator instance. But when this factory constructor is used, an
+   * AnalysisDebugData object is generated after each call to generation methods. That object cen be
+   * retrieved with getDebugData method.
    */
   public static WordGenerator forDebug(TurkishMorphotactics morphotactics) {
     WordGenerator generator = new WordGenerator(morphotactics);
@@ -67,9 +70,6 @@ public class WordGenerator {
     List<Morpheme> morphemes = new ArrayList<>();
     for (String morphemeId : morphemeIds) {
       Morpheme morpheme = TurkishMorphotactics.getMorpheme(morphemeId);
-      if (morpheme == null) {
-        throw new IllegalStateException("Uidentified morpheme " + morphemeId);
-      }
       morphemes.add(morpheme);
     }
     List<StemTransition> candidates = stemTransitions.getMatchingStemTransitions(stem);
@@ -79,6 +79,16 @@ public class WordGenerator {
   public List<Result> generate(DictionaryItem item, List<Morpheme> morphemes) {
     List<StemTransition> candidates = stemTransitions.getMatchingStemTransitions(item);
     return generate(item.id, candidates, morphemes);
+  }
+
+  public List<Result> generate(DictionaryItem item, Morpheme... morphemes) {
+    List<StemTransition> candidates = stemTransitions.getMatchingStemTransitions(item);
+    return generate(item.id, candidates, Arrays.asList(morphemes));
+  }
+
+  public List<Result> generate(DictionaryItem item, String... morphemeIds) {
+    List<StemTransition> candidates = stemTransitions.getMatchingStemTransitions(item);
+    return generate(item.id, candidates, morphotactics.getMorphemes(morphemeIds));
   }
 
   private List<Result> generate(String input, List<StemTransition> candidates,

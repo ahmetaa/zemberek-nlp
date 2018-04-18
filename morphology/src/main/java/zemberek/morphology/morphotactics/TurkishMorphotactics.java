@@ -15,6 +15,7 @@ import static zemberek.morphology.morphotactics.MorphemeState.nonTerminal;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivative;
 import static zemberek.morphology.morphotactics.MorphemeState.terminal;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -350,6 +351,14 @@ public class TurkishMorphotactics {
 
   public List<Morpheme> getMorphemes(List<String> ids) {
     return ids.stream().map(TurkishMorphotactics::getMorpheme).collect(Collectors.toList());
+  }
+
+  public List<Morpheme> getMorphemes(String... ids) {
+    List<Morpheme> morphemes = new ArrayList<>(ids.length);
+    for (String id : ids) {
+      morphemes.add(getMorpheme(id));
+    }
+    return morphemes;
   }
 
   public TurkishMorphotactics(RootLexicon lexicon) {

@@ -1,4 +1,4 @@
-package zemberek.morphology.old_ambiguity;
+package zemberek.morphology.ambiguity;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -16,9 +16,9 @@ import zemberek.core.logging.Log;
 import zemberek.langid.LanguageIdentifier;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.old_ambiguity.RuleBasedDisambiguator.AmbiguityAnalysis;
-import zemberek.morphology.old_ambiguity.RuleBasedDisambiguator.AnalysisDecision;
-import zemberek.morphology.old_ambiguity.RuleBasedDisambiguator.ResultSentence;
+import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AmbiguityAnalysis;
+import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AnalysisDecision;
+import zemberek.morphology.ambiguity.RuleBasedDisambiguator.ResultSentence;
 import zemberek.tokenization.TurkishSentenceExtractor;
 
 class GenerateDataWithRules {

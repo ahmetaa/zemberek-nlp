@@ -21,6 +21,7 @@ import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
+import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.lexicon.proto.LexiconProto;
 import zemberek.morphology.lexicon.proto.LexiconProto.Dictionary;
@@ -169,7 +170,7 @@ public class Serializer {
     for (LexiconProto.RootAttribute rootAttribute : item.getRootAttributesList()) {
       rootAttributes.add(rootAttributeConverter.convertBack(rootAttribute, RootAttribute.Unknown));
     }
-    String lowercaseLemma = item.getLemma().toLowerCase();
+    String lowercaseLemma = item.getLemma().toLowerCase(Turkish.LOCALE);
     return new DictionaryItem(item.getLemma(),
         item.getRoot().isEmpty() ? lowercaseLemma : item.getRoot(),
         item.getPronunciation().isEmpty() ? lowercaseLemma : item.getPronunciation(),
@@ -184,8 +185,8 @@ public class Serializer {
 
   static class SimpleEnumConverter<E extends Enum<E>, P extends Enum<P>> {
 
-    Map<String, P> conversionFromEToP = new HashMap<>();
-    Map<String, E> conversionFromPToE = new HashMap<>();
+    Map<String, P> conversionFromEToP;
+    Map<String, E> conversionFromPToE;
 
     private SimpleEnumConverter(Map<String, P> conversionFromEToP,
         Map<String, E> conversionFromPToE) {

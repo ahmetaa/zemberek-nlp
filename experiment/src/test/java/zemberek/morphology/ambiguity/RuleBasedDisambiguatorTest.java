@@ -1,11 +1,12 @@
-package zemberek.morphology.old_ambiguity;
+package zemberek.morphology.ambiguity;
 
 import java.io.IOException;
 import org.junit.Test;
 import zemberek.morphology.TurkishMorphology;
-import zemberek.morphology.old_ambiguity.RuleBasedDisambiguator.AmbiguityAnalysis;
-import zemberek.morphology.old_ambiguity.RuleBasedDisambiguator.ResultSentence;
-import zemberek.morphology.old_ambiguity.RuleBasedDisambiguator.Rules;
+import zemberek.morphology.ambiguity.RuleBasedDisambiguator;
+import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AmbiguityAnalysis;
+import zemberek.morphology.ambiguity.RuleBasedDisambiguator.ResultSentence;
+import zemberek.morphology.ambiguity.RuleBasedDisambiguator.Rules;
 
 public class RuleBasedDisambiguatorTest {
 

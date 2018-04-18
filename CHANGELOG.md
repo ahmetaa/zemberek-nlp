@@ -3,7 +3,8 @@ CHANGE LOG
 
 ## 0.12.0 (Not Yet Released)
 
-This release is the result of some major refactoring of Morphology module. There are many breaking changes.
+This release is the result of some major refactoring of the Morphology module.
+There are many breaking changes.
 
 Morphology module is re-written almost from scratch. Turkish morphotactics are now expressed in a simpler and more readable way
 in the code. New analyzer handles pronouns better and probably it generates
@@ -16,14 +17,19 @@ Nevertheless, new module is probably working better than previous releases.
 
 Default analysis representation is changed. Some examples:
     
-    odama: 
-    [oda:Noun] oda:Noun+A3sg+m:P1sg+a:Dat
-      
-    diyerek
+    kitap ("book", Noun, Singular.)
+    [kitap:Noun] kitap:Noun+A3sg
+
+    kitabımda ("in my book"  Noun, Singular, First person possession, Locative)
+    [kitap:Noun] kitab:Noun+A3sg+ım:P1sg+da:Loc
+
+    dedim ("I told" Verb, past, first person sigular )
+    [demek:Verb] de:Verb+di:Past+m:P1sg
+
+    diyerek ("By telling" Verb, derived to an adverb)
     [demek:Verb] di:Verb|yerek:ByDoingSo→Adv
     
 We decided to omit displaying implicit Pnon and Nom suffixes from nouns to make it more readable.
-  
 This format is probably not final. We consider changing some morpheme names and refine the representation.
 
 We now use Caffeine for caching analysis results. There are static and dynamic caches for speeding up the word analysis. 
@@ -34,6 +40,22 @@ Dictionary serialization mechanism is written using protocol-buffers. Now initia
 
 There are Email, Url, Mention, HashTag, Emoticon, RomanNumeral, RegularAbbreviation, Abbreviation secondary POS information.
 
+#### Breaking changes
+
+Z3AbstractDisambiguator, TurkishMorphDisambiguator, Z3AbstractDisambiguator, Z3MarkovModelDisambiguator,
+Z3ModelA removed from morphology modue.
+
+TurkishSuffixes, TurkishSentenceAnalyzer, WordAnalyzer, SimpleGenerator, DynamicLexiconGraph,
+DynamicSuffixProvider, SuffixData, SuffixSurfaceNode, StemNode, StemNodeGenerator,
+Suffix, SuffixForm, SuffixProvider, SuffixSurfaceNodeGenerator  are removed from morphology modue.
+
+TurkishMorphology analysis methods now return **WordAnalysis** object instead of a **WordAnalysis**
+list WordAnalysis contains a **SingleAnalysis** List where analysis details can be reached. Methods like
+getStem() or getLemmas() are moved from WordAnalysis to SingleAnalysis.
+
+Generation is now handled by WordGenerator class. generation rules are changed so that if user does not
+provide empty surface Morphemes, system search through them anyway. Check *GenerateWords* example class.
+
 #### Performance and memory footprint
 // TODO: Add some numbers here?
 
@@ -42,10 +64,6 @@ There are Email, Url, Mention, HashTag, Emoticon, RomanNumeral, RegularAbbreviat
 We wrote a port of Facebook's FastText library in Java. It can be used for word embeddings and classification tasks. However it is not yet ready for release. 
 
 There is an experimental Named Entity Recognition module. But it is not yet ready for release.
-
-Here are some details of Breaking Changes:
-
-// TODO: finish.
 
 ## 0.11.1
 

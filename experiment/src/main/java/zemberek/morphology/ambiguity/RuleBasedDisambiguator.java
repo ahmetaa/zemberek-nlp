@@ -1,4 +1,4 @@
-package zemberek.morphology.old_ambiguity;
+package zemberek.morphology.ambiguity;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
