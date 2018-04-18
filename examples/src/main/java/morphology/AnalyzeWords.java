@@ -9,7 +9,6 @@ import zemberek.morphology.analysis.WordAnalysis;
 
 public class AnalyzeWords {
 
-
   public static void main(String[] args) throws IOException {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     String word = "kalemi";

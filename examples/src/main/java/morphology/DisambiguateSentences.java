@@ -11,12 +11,6 @@ import zemberek.morphology.analysis.WordAnalysis;
 
 public class DisambiguateSentences {
 
-  TurkishMorphology morphology;
-
-  public DisambiguateSentences(TurkishMorphology morphology) {
-    this.morphology = morphology;
-  }
-
   public static void main(String[] args) throws IOException {
 
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
