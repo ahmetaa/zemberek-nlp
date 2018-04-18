@@ -15,7 +15,7 @@ public class AddNewDictionaryItem {
 
   TurkishMorphology morphology;
 
-  public AddNewDictionaryItem(TurkishMorphology morphology) {
+  AddNewDictionaryItem(TurkishMorphology morphology) {
     this.morphology = morphology;
   }
 
@@ -43,7 +43,7 @@ public class AddNewDictionaryItem {
 
   }
 
-  void test(String input, DictionaryItem newItem) throws IOException {
+  private void test(String input, DictionaryItem newItem) throws IOException {
 
     WordAnalysis before = morphology.analyze(input);
     Log.info("Parses for " + input + " before adding " + newItem);

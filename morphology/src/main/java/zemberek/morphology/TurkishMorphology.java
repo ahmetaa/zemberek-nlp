@@ -51,8 +51,9 @@ public class TurkishMorphology {
   private boolean useCache;
 
   private TurkishMorphology(Builder builder) {
+
     this.lexicon = builder.lexicon;
-    this.morphotactics = new TurkishMorphotactics(builder.lexicon);
+    this.morphotactics = new TurkishMorphotactics(this.lexicon);
     this.analyzer = new InterpretingAnalyzer(morphotactics);
     this.wordGenerator = new WordGenerator(morphotactics);
     this.unidentifiedTokenAnalyzer = new UnidentifiedTokenAnalyzer(analyzer);

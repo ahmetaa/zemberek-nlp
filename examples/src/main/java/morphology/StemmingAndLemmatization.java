@@ -8,22 +8,14 @@ import zemberek.morphology.analysis.WordAnalysis;
 
 public class StemmingAndLemmatization {
 
-  TurkishMorphology morphology;
-
-  public StemmingAndLemmatization(TurkishMorphology morphology) {
-    this.morphology = morphology;
-  }
-
   public static void main(String[] args) throws IOException {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-    //new StemmingAndLemmatization(morphology).analyze("kitabımızsa");
-    new StemmingAndLemmatization(morphology).analyze("geleceğe");
-  }
 
-  public void analyze(String word) {
+    String word = "kitabımızsa";
+
     Log.info("Word = " + word);
 
-    Log.info("Parses: ");
+    Log.info("Results: ");
     WordAnalysis results = morphology.analyze(word);
     for (SingleAnalysis result : results) {
       Log.info(result.formatLong());
@@ -31,4 +23,5 @@ public class StemmingAndLemmatization {
       Log.info("\tLemmas = " + result.getLemmas());
     }
   }
+
 }

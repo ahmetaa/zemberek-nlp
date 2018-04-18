@@ -10,21 +10,12 @@ import zemberek.morphology.TurkishMorphology;
 
 public class FindPOS {
 
-  TurkishMorphology morphology;
-
-  public FindPOS(TurkishMorphology morphology) {
-    this.morphology = morphology;
-  }
-
   public static void main(String[] args) throws IOException {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-    new FindPOS(morphology)
-        .test("Keşke yarın hava güzel olsa.");
-  }
 
-  private void test(String s) {
-    Log.info("Sentence  = " + s);
-    SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(s);
+    String sentence = "Keşke yarın hava güzel olsa.";
+    Log.info("Sentence  = " + sentence);
+    SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(sentence);
 
     for (SentenceWordAnalysis a : analysis) {
       PrimaryPos primaryPos = a.getAnalysis().getDictionaryItem().primaryPos;
@@ -35,4 +26,5 @@ public class FindPOS {
           secondaryPos == SecondaryPos.None ? "" : secondaryPos);
     }
   }
+
 }

@@ -18,32 +18,23 @@ public class DisambiguateSentences {
   }
 
   public static void main(String[] args) throws IOException {
+
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
-    new DisambiguateSentences(morphology)
-        .analyzeAndDisambiguate("Bu akşam kar yağacak gibi.");
-  }
-
-  void analyzeAndDisambiguate(String sentence) {
+    String sentence = "Bu akşam kar yağacak gibi.";
     Log.info("Sentence  = " + sentence);
     List<WordAnalysis> analyses = morphology.analyzeSentence(sentence);
 
     Log.info("Sentence word analysis result:");
-    writeParseResult(analyses);
-
-    SentenceAnalysis result = morphology.disambiguate(sentence, analyses);
-    Log.info("\nBest analyses:");
-    for (SentenceWordAnalysis sentenceWordAnalysis : result) {
-      Log.info(sentenceWordAnalysis.getAnalysis().formatLong());
-    }
-  }
-
-  private void writeParseResult(List<WordAnalysis> sentenceAnalysis) {
-    for (WordAnalysis entry : sentenceAnalysis) {
+    for (WordAnalysis entry : analyses) {
       Log.info("Word = " + entry.getInput());
       for (SingleAnalysis analysis : entry) {
         Log.info(analysis.formatLong());
       }
     }
+    SentenceAnalysis result = morphology.disambiguate(sentence, analyses);
+
+    Log.info("\nBest analyses : ");
+    result.bestAnalysis().forEach(Log::info);
   }
 }

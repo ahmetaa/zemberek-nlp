@@ -159,7 +159,7 @@ public final class Log {
   }
 
   public static void info() {
-    log(Level.INFO, "\n");
+    log(Level.INFO, "");
   }
 
   public static void info(String message, Object... params) {
