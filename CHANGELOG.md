@@ -29,14 +29,14 @@ Default analysis representation is changed. Some examples:
     diyerek ("By telling" Verb, derived to an adverb)
     [demek:Verb] di:Verb|yerek:ByDoingSo→Adv
     
-We decided to omit displaying implicit Pnon and Nom suffixes from nouns to make it more readable.
+We decided to omit displaying implicit `Pnon` and `Nom` suffixes from nouns to make it more readable.
 This format is probably not final. We consider changing some morpheme names and refine the representation.
 
 We now use Caffeine for caching analysis results. There are static and dynamic caches for speeding up the word analysis. 
 
 Word generation mechanism is also re-written.
 
-Dictionary serialization mechanism is written using protocol-buffers. Now initialization of TurkishMorphology class is faster.
+Dictionary serialization mechanism is written using protocol-buffers. Now initialization of `TurkishMorphology` class is faster.
 
 There are Email, Url, Mention, HashTag, Emoticon, RomanNumeral, RegularAbbreviation, Abbreviation secondary POS information.
 
@@ -49,12 +49,12 @@ TurkishSuffixes, TurkishSentenceAnalyzer, WordAnalyzer, SimpleGenerator, Dynamic
 DynamicSuffixProvider, SuffixData, SuffixSurfaceNode, StemNode, StemNodeGenerator,
 Suffix, SuffixForm, SuffixProvider, SuffixSurfaceNodeGenerator  are removed from morphology modue.
 
-TurkishMorphology analysis methods now return **WordAnalysis** object instead of a **WordAnalysis**
-list WordAnalysis contains a **SingleAnalysis** List where analysis details can be reached. Methods like
-getStem() or getLemmas() are moved from WordAnalysis to SingleAnalysis.
+TurkishMorphology analysis methods now return `WordAnalysis` object instead of `List<WordAnalysis>`
+. `WordAnalysis` contains a `List<SingleAnalysis>` where analysis details can be reached. Methods like
+`getStem()` or `getLemmas()` are moved from `WordAnalysis` to `SingleAnalysis`.
 
-Generation is now handled by WordGenerator class. generation rules are changed so that if user does not
-provide empty surface Morphemes, system search through them anyway. Check *GenerateWords* example class.
+Generation is now handled by `WordGenerator` class. generation rules are changed so that if user does not
+provide empty surface morphemes, system search through them anyway. Check `GenerateWords` example class.
 
 #### Performance and memory footprint
 // TODO: Add some numbers here?
