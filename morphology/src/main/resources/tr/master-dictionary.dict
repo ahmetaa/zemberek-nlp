@@ -3474,7 +3474,7 @@ bölüm
 bölümlemek
 bölüngü
 bölüntü
-bölüşmek
+bölüşmek [A:Reciprocal]
 bölüşüm
 bölüt [A:NoVoicing]
 bön [P:Adj]
@@ -9092,7 +9092,7 @@ gülük
 gülümsemek
 gülümser [P:Adj]
 gülünç [P:Adj]
-gülüşmek
+gülüşmek [A:Reciprocal]
 gülüt [A:NoVoicing]
 güm
 gümbedek [P:Adv]
@@ -11622,8 +11622,7 @@ kâbus
 kabza
 kabzetmek [A:Voicing, Aorist_A]
 kabzımal
-kaç [P:Num]
-kaç [P:Pron,Ques]
+kaç [P:Adj]
 kaçak
 kaçak [P:Adj]
 kaçamak [P:Adj]
@@ -14455,7 +14454,7 @@ küsuf
 küsur
 küsurat [A:NoVoicing, Plural]
 küsü
-küsüşmek
+küsüşmek [A:Reciprocal]
 küşade [P:Adj]
 küşat [P:Adj]
 küşne
@@ -18432,7 +18431,7 @@ ozuga
 örtü
 örtük [P:Adj]
 örtünmek
-örtüşmek
+örtüşmek [A:Reciprocal]
 örü
 örük
 örüklemek
@@ -18458,7 +18457,7 @@ ozuga
 ötürmek
 ötürü [P:Postp,PCAbl]
 ötürük
-ötüşmek
+ötüşmek [A:Reciprocal]
 öveç
 övgü
 övmek
@@ -22140,7 +22139,7 @@ sürşarj
 sürtmek
 sürtük
 sürtünmek
-sürtüşmek
+sürtüşmek [A:Reciprocal]
 sürur
 sürü
 sürücü
@@ -24553,7 +24552,7 @@ tutulum
 tutum
 tutunmak
 tuturuk [P:Adj]
-tutuşmak
+tutuşmak [A:Reciprocal]
 tutya
 tuval [A:InverseHarmony]
 tuvalet [A:NoVoicing]
@@ -24973,7 +24972,7 @@ uzviyet [A:NoVoicing]
 ürtiker
 ürümek
 ürün
-ürüşmek
+ürüşmek [A:Reciprocal]
 üryan [P:Adj]
 üryanî
 üs [A:Doubling]
@@ -28798,7 +28797,7 @@ birikişmek
 bürünmek
 çemrenmek
 cıvıldaşmak [A:Reciprocal]
-çöküşmek
+çöküşmek [A:Reciprocal]
 dayatışmak
 dürtüşmek
 enenmek

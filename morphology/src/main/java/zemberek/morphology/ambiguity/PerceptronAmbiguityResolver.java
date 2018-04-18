@@ -173,16 +173,16 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
       feats.addOrIncrement("2:" + r1 + ig2 + r3Ig3);
       feats.addOrIncrement("3:" + r2Ig2 + "-" + r3Ig3);
       feats.addOrIncrement("4:" + r3Ig3);
-      feats.addOrIncrement("5:" + r2 + ig2 + "-" + ig3);
-      feats.addOrIncrement("6:" + r1 + ig1 + "-" + ig3);
+      //feats.addOrIncrement("5:" + r2 + ig2 + "-" + ig3);
+      //feats.addOrIncrement("6:" + r1 + ig1 + "-" + ig3);
 
-      feats.addOrIncrement("7:" + r1 + "-" + r2 + "-" + r3);
-      feats.addOrIncrement("8:" + r1 + "-" + r3);
+      //feats.addOrIncrement("7:" + r1 + "-" + r2 + "-" + r3);
+      //feats.addOrIncrement("8:" + r1 + "-" + r3);
       feats.addOrIncrement("9:" + r2 + "-" + r3);
       feats.addOrIncrement("10:" + r3);
 
-      feats.addOrIncrement("11:" + ig1 + "-" + ig2 + "-" + ig3);
-      feats.addOrIncrement("12:" + ig1 + "-" + ig3);
+      //feats.addOrIncrement("11:" + ig1 + "-" + ig2 + "-" + ig3);
+      //feats.addOrIncrement("12:" + ig1 + "-" + ig3);
       feats.addOrIncrement("13:" + ig2 + "-" + ig3);
       feats.addOrIncrement("14:" + ig3);
 
@@ -197,14 +197,13 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
 
       for (String ig : lastWordGroupsLex) {
         feats.addOrIncrement("15:" + w1LastGroup + "-" + w2LastGroup + "-" + ig);
-        feats.addOrIncrement("16:" + w1LastGroup + "-" + ig);
+        //feats.addOrIncrement("16:" + w1LastGroup + "-" + ig);
         feats.addOrIncrement("17:" + w2LastGroup + ig);
-        feats.addOrIncrement("18:" + ig);
+        //feats.addOrIncrement("18:" + ig);
       }
 
       for (int k = 0; k < lastWordGroupsLex.length - 1; k++) {
-        feats.addOrIncrement("19:" +
-            lastWordGroupsLex[k] + "-" + lastWordGroupsLex[k + 1]);
+        //feats.addOrIncrement("19:" + lastWordGroupsLex[k] + "-" + lastWordGroupsLex[k + 1]);
       }
 
       for (int k = 0; k < lastWordGroupsLex.length; k++) {

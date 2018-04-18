@@ -1874,8 +1874,11 @@ public class TurkishMorphotactics {
     vNotState_S.addEmpty(noun_S);
 
     // reciprocal
+    // TODO: for reducing ambiguity for now remove reciprocal
+/*
     verbRoot_S.add(vRecip_S, "Iş", notHaveAny(RootAttribute.Reciprocal, RootAttribute.NonReciprocal)
         .andNot(new Conditions.ContainsMorpheme(recip)));
+*/
     vRecip_S.addEmpty(verbRoot_S);
     vImplicitRecipRoot_S.addEmpty(vRecip_S);
 

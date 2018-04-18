@@ -128,6 +128,54 @@ Burada|burada [bura:Noun] *
 
 gelen* [gelmek:Verb] *
 
+çöplü* [çöplük:Noun] *
+
+# for `kullanılmakta` prefer Prog2
+* Verb|Pass→Verb+Prog2+A3sg Verb|Pass→Verb|Inf1→Noun+A3sg+Loc
+
+Günümüz|günümüz [gün:Noun,Time]  *
+
+orta*|Orta* [orta:Noun] [orta:Adj]
+
+kırık [kırık:Adj] *
+
+başka [başka:Postp,PCAbl] *
+
+ile [ile:Conj] *
+
+yada * *
+
+# this is actually a bug.
+
+* Adj|Ness→Noun+A3sg Adj|Zero→Noun+A3sg|Ness→Noun+A3sg
+
+beton* [beton:Noun] *
+
+kamyon* [kamyon:Noun] *
+
+çalış* [çalışmak:Verb] *
+
+# "istediğin"
+* PastPart→Noun+A3sg+Gen PastPart→Noun+A3sg+P2sg
+
+alınarak [almak:Verb] [alınmak:Verb]
+
+güzel [güzel:Adj] *
+
+gibi [gibi:Postp,PCGen] *
+
+tahta|Tahta [taht:Noun] * * otur*|çık*
+
+tahta|Tahta [tahta:Noun] *
+
+al* [almak:Verb] * baz|söz|yer *
+
+kar [kar:Noun] *
+
+en [en:Adv] * * doğru|az|çok
+
+doğru [doğru:Adj] * en|çok|bunu *
+
 biz* [biz:Pron,Pers] [biz:Noun]
 
 yapılan [yapmak:Verb] *
@@ -153,9 +201,13 @@ yıldır * [yılmak:Verb]
 
 bend*|Bend* [ben:Pron,Pers] [bent:Noun]
 
-bazı [bazı:Det] *
+bazı|Bazı [bazı:Det] *
 
 adam|Adam [adam:Noun] [ada:Noun]
+
+Tarihi|tarihi|tarihî [tarihî:Adj] * * yarımada|ev|bina|eser
+
+ne|Ne * [Ne:Noun,Abbrv]
 
 yine|Yine [yine:Adv] *
 
