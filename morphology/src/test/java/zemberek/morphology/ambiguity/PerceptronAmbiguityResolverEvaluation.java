@@ -18,7 +18,7 @@ public class PerceptronAmbiguityResolverEvaluation {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
     PerceptronAmbiguityResolver resolver =
-        new PerceptronAmbiguityResolverTrainer(morphology).train(train, dev, 7);
+        new PerceptronAmbiguityResolverTrainer(morphology).train(train, dev, 4);
     Model modelTrained = (Model) resolver.getModel();
     modelTrained.pruneNearZeroWeights();
     modelTrained.saveAsText(model);
