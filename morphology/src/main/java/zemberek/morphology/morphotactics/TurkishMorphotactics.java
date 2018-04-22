@@ -683,11 +683,10 @@ public class TurkishMorphotactics {
 
     // meyve-de-ki
     Condition notRelRepetition = new HasTailSequence(rel, adj, zero, noun, a3sg, pnon, loc).not();
-    loc_ST.add(rel_S, "ki",
-        notRelRepetition.andNot(new Conditions.SecondaryRootIs(SecondaryPos.Time)));
+    loc_ST.add(rel_S, "ki", notRelRepetition);
     rel_S.addEmpty(adjectiveRoot_ST);
 
-    // for covering dünkü, anki, yarınki etc.
+    // for covering dünkü, anki, yarınki etc. Unlike Oflazer, We also allow dündeki etc.
     // TODO: Use a more general grouping, not using Secondary Pos
     Condition time = Conditions.CURRENT_GROUP_EMPTY.and(
         new Conditions.SecondaryRootIs(SecondaryPos.Time));

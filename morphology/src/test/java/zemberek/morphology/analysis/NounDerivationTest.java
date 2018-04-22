@@ -106,6 +106,8 @@ public class NounDerivationTest extends AnalyzerTestBase {
     AnalysisTester tester = getTester("meyve");
     tester.expectSingle("meyvedeki",
         matchesTailLex("Noun + A3sg + Loc + Rel + Adj"));
+    tester.expectAny("meyvendeki",
+        matchesTailLex("Noun + A3sg + P2sg + Loc + Rel + Adj"));
     tester.expectAny("meyvelerdeki",
         matchesTailLex("Noun + A3pl + Loc + Rel + Adj"));
     tester.expectSingle("meyvedekiydi",
@@ -140,6 +142,12 @@ public class NounDerivationTest extends AnalyzerTestBase {
     tester.expectSingle("akşamkiydi",
         matchesTailLex("Noun + A3sg + Rel + Adj + Zero + Verb + Past + A3sg"));
 
+    // Unlike Oflazer, we allow thıs:
+    tester.expectSingle("akşamdaki",
+        matchesTailLex("Noun + A3sg + Loc + Rel + Adj"));
+    tester.expectAny("akşamındaki",
+        matchesTailLex("Noun + A3sg + P2sg + Loc + Rel + Adj"));
+
     tester = getTester("ileri");
     tester.expectSingle("ileriki",
         matchesTailLex("Noun + A3sg + Rel + Adj"));
@@ -149,8 +157,7 @@ public class NounDerivationTest extends AnalyzerTestBase {
     tester.expectFail(
         "dünki",
         "akşamkü",
-        "akşamkı",
-        "akşamdaki"
+        "akşamkı"
     );
   }
 
