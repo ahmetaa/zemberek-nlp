@@ -15,7 +15,6 @@ import java.nio.file.Paths;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -31,25 +30,23 @@ import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.core._turkish.TurkishLetterSequence;
-import zemberek.morphology.old_ambiguity.Z3MarkovModelDisambiguator;
-import zemberek.morphology.old_analysis.SentenceAnalysis;
-import zemberek.morphology.old_analysis.WordAnalysis;
-import zemberek.morphology.old_analysis.tr.TurkishMorphology;
-import zemberek.morphology.old_analysis.tr.TurkishSentenceAnalyzer;
+import zemberek.core.turkish.Turkish;
+import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.SentenceAnalysis;
+import zemberek.morphology.analysis.SingleAnalysis;
+import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.external.OflazerAnalyzerRunner;
 import zemberek.morphology.lexicon.DictionaryItem;
-import zemberek.morphology.old_lexicon.NullSuffixForm;
-import zemberek.morphology.old_lexicon.SuffixForm;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.morphology.old_lexicon.tr.TurkishSuffixes;
-import zemberek.core.turkish.Turkish;
+import zemberek.morphology.morphotactics.Morpheme;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 
 public class ZemberekNlpScripts {
 
-  static _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
+  static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
   //private static Path DATA_PATH = Paths.get("/media/depo/data/aaa");
   private static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
   private static Path NLP_TOOLS_PATH = Paths.get("/home/ahmetaa/apps/nlp/tools");
@@ -60,16 +57,8 @@ public class ZemberekNlpScripts {
   @Test
   @Ignore("Not a Test.")
   public void generateSuffixNames() throws IOException {
-    TurkishSuffixes suffixes = new TurkishSuffixes();
-    List<SuffixForm> forms = new ArrayList<>();
-    for (SuffixForm form : suffixes.getAllForms()) {
-      if (form instanceof NullSuffixForm) {
-        continue;
-      }
-      forms.add(form);
-    }
-    forms.sort(Comparator.comparing(SuffixForm::getId));
-    List<String> result = forms.stream().map(s -> s.id).collect(Collectors.toList());
+    List<Morpheme> morphemes = TurkishMorphotactics.getAllMorphemes();
+    List<String> result = morphemes.stream().map(s -> s.id).collect(Collectors.toList());
     Files.write(Paths.get("suffix-list"), result);
   }
 
@@ -91,7 +80,8 @@ public class ZemberekNlpScripts {
   @Test
   @Ignore("Not a Test.")
   public void parseLargeVocabularyZemberek() throws IOException {
-    Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
+    //Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
+    Path wordFreqFile = DATA_PATH.resolve("all-counts-sorted-freq.txt");
     Path outDir = DATA_PATH.resolve("out");
     Files.createDirectories(outDir);
 
@@ -102,9 +92,10 @@ public class ZemberekNlpScripts {
 
     int c = 0;
     for (String s : histogram) {
-      List<WordAnalysis> parses = parser.analyze(s);
-      if (parses.size() > 0 &&
-          parses.get(0).dictionaryItem.primaryPos != PrimaryPos.Unknown) {
+      WordAnalysis parses = parser.analyze(s);
+      List<SingleAnalysis> analyses = parses.getAnalysisResults();
+      if (analyses.size() > 0 &&
+          analyses.get(0).getDictionaryItem().primaryPos != PrimaryPos.Unknown) {
         accepted.add(s);
       }
       if (c > 0 && c % 10000 == 0) {
@@ -113,7 +104,8 @@ public class ZemberekNlpScripts {
       c++;
     }
 
-    sortAndSave(outDir.resolve("zemberek-parsed-words.txt"), accepted);
+    save(outDir.resolve("zemberek-parsed-words.txt"), accepted);
+    sortAndSave(outDir.resolve("zemberek-parsed-words.tr.txt"), accepted);
   }
 
   @Test
@@ -126,8 +118,9 @@ public class ZemberekNlpScripts {
     LinkedHashSet<String> accepted = new LinkedHashSet<>();
     TurkishMorphology parser = TurkishMorphology.createWithDefaults();
     for (String s : words) {
-      List<WordAnalysis> parses = parser.analyze(s);
-      for (WordAnalysis parse : parses) {
+      WordAnalysis parses = parser.analyze(s);
+      List<SingleAnalysis> analyses = parses.getAnalysisResults();
+      for (SingleAnalysis parse : analyses) {
         if (parse.isUnknown() || parse.isRuntime()) {
           continue;
         }
@@ -144,6 +137,13 @@ public class ZemberekNlpScripts {
 
     Log.info("Word count = %d Found = %d Not Found = %d", words.size(), accepted.size(),
         words.size() - accepted.size());
+  }
+
+  private void save(Path outPath, List<String> accepted) throws IOException {
+    Log.info("Writing.");
+    try (PrintWriter pw = new PrintWriter(outPath.toFile(), "utf-8")) {
+      accepted.forEach(pw::println);
+    }
   }
 
   private void sortAndSave(Path outPath, List<String> accepted) throws IOException {
@@ -176,8 +176,8 @@ public class ZemberekNlpScripts {
     OflazerAnalyzerRunner runner = new OflazerAnalyzerRunner(
         OFLAZER_ANALYZER_PATH.toFile(), OFLAZER_ANALYZER_PATH.resolve("tfeaturesulx.fst").toFile());
 
-    //Path wordFile = DATA_PATH.resolve("vocab.all");
-    Path wordFile = DATA_PATH.resolve("vocab-corpus-and-zemberek");
+    Path wordFile = DATA_PATH.resolve("all-words-sorted-freq.txt");
+    //Path wordFile = DATA_PATH.resolve("vocab-corpus-and-zemberek");
     Path outDir = DATA_PATH.resolve("out");
     Files.createDirectories(outDir);
 
@@ -198,7 +198,10 @@ public class ZemberekNlpScripts {
       }
       accepted.add(line.substring(0, line.indexOf('\t')));
     }
-    sortAndSave(DATA_PATH.resolve("out").resolve("oflazer-parsed-words.txt"),
+    save(DATA_PATH.resolve("out").resolve("oflazer-parsed-words.txt"),
+        new ArrayList<>(accepted));
+
+    sortAndSave(DATA_PATH.resolve("out").resolve("oflazer-parsed-words.tr.txt"),
         new ArrayList<>(accepted));
   }
 
@@ -253,8 +256,7 @@ public class ZemberekNlpScripts {
               ? morphs.get(1).replaceAll("\\^DB", "") : "";
 
       if (primaryPos.equals("Verb")) {
-        TurkishLetterSequence seq = new TurkishLetterSequence(value, alphabet);
-        if (seq.lastVowel().isFrontal()) {
+        if (alphabet.getLastVowel(value).isFrontal()) {
           value = value + "mek";
         } else {
           value = value + "mak";
@@ -461,14 +463,14 @@ public class ZemberekNlpScripts {
           }
         }
         for (DictionaryItem item : items) {
-          morphology.getGraph().addDictionaryItems(item);
-          List<WordAnalysis> analyze = morphology.analyze(s);
-          for (WordAnalysis wordAnalysis : analyze) {
+          morphology.getMorphotactics().getStemTransitions().addDictionaryItem(item);
+          WordAnalysis analyze = morphology.analyze(s);
+          for (SingleAnalysis wordAnalysis : analyze) {
             if (!wordAnalysis.isUnknown()) {
               res.put(candidateRoot, s);
             }
           }
-          morphology.getGraph().removeDictionaryItem(item);
+          morphology.getMorphotactics().getStemTransitions().removeDictionaryItem(item);
         }
 
       }
@@ -507,14 +509,6 @@ public class ZemberekNlpScripts {
   }
 
 
-  @Test
-  @Ignore("Not a Test.")
-  public void generatorTest() throws IOException {
-    TurkishMorphology parser = TurkishMorphology.createWithDefaults();
-    List<WordAnalysis> result = parser.analyze("besiciliği");
-    WordAnalysis first = result.get(0);
-    Log.info(first.inflectionalGroups);
-  }
 
   @Test
   @Ignore("Not a Test.")
@@ -530,9 +524,6 @@ public class ZemberekNlpScripts {
         .disableUnidentifiedTokenAnalyzer()
         .disableCache()
         .build();
-
-    TurkishSentenceAnalyzer sentenceAnalyzer =
-        new TurkishSentenceAnalyzer(analyzer, new Z3MarkovModelDisambiguator());
 
     Log.info(lines.size() + " lines will be processed.");
     Log.info("Dictionary has " + analyzer.getLexicon().size() + " items.");
@@ -565,7 +556,7 @@ public class ZemberekNlpScripts {
     clock.reset().start();
     for (String line : lines) {
       try {
-        SentenceAnalysis res = sentenceAnalyzer.analyze(line);
+        List<WordAnalysis> res = analyzer.analyzeSentence(line);
         counter += res.size(); // for preventing VM optimizations.
       } catch (Exception e) {
         Log.info(line);
@@ -582,11 +573,11 @@ public class ZemberekNlpScripts {
     Log.info("");
 
     Log.info("Disambiguation Test:");
-    analyzer.invalidateAllCache();
+    analyzer.invalidateCache();
     clock.reset().start();
     for (String line : lines) {
       try {
-        List<WordAnalysis> results = sentenceAnalyzer.bestParse(line);
+        SentenceAnalysis results = analyzer.analyzeAndResolveAmbiguity(line);
         counter += results.size(); // for preventing VM optimizations.
       } catch (Exception e) {
         Log.info(line);
@@ -603,45 +594,6 @@ public class ZemberekNlpScripts {
     Log.info(counter);
   }
 
-  @Test
-  @Ignore("Not a Test.")
-  public void testWordAnalysis() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-    List<WordAnalysis> results = morphology.analyze("phpye");
-    for (WordAnalysis result : results) {
-      Log.info(result.formatLong());
-      Log.info("\tStems = " + result.getStems());
-      Log.info("\tLemmas = " + result.getLemmas());
-    }
-  }
-
-  @Test
-  @Ignore("Not a Test.")
-  public void testSentenceAnalysis() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-    Z3MarkovModelDisambiguator disambiguator = new Z3MarkovModelDisambiguator();
-    TurkishSentenceAnalyzer analyzer = new TurkishSentenceAnalyzer(morphology, disambiguator);
-
-    String sentence = "Kırmızı kalemi al.";
-    Log.info("Sentence  = " + sentence);
-    SentenceAnalysis analysis = analyzer.analyze(sentence);
-
-    Log.info("Before disambiguation.");
-    writeParseResult(analysis);
-
-    Log.info("\nAfter disambiguation.");
-    analyzer.disambiguate(analysis);
-    writeParseResult(analysis);
-  }
-
-  private void writeParseResult(SentenceAnalysis analysis) {
-    for (SentenceAnalysis.Entry entry : analysis) {
-      Log.info("Word = " + entry.input);
-      for (WordAnalysis w : entry.parses) {
-        Log.info(w.formatLong());
-      }
-    }
-  }
 
   @Test
   @Ignore("Not a Test.")
@@ -658,8 +610,8 @@ public class ZemberekNlpScripts {
     for (int i = 0; i < 100; i++) {
       Stopwatch sw = Stopwatch.createStarted();
       for (String s : words) {
-        List<WordAnalysis> parses = parser.analyze(s);
-        c += parses.size();
+        WordAnalysis parses = parser.analyze(s);
+        c += parses.analysisCount();
       }
       Log.info(sw.elapsed(TimeUnit.MILLISECONDS));
       Log.info(parser.toString());
@@ -676,26 +628,6 @@ public class ZemberekNlpScripts {
   }
 
 
-  @Test
-  @Ignore("Not a Test.")
-  public void disambiguationMemoryTest() throws IOException {
-    List<String> lines = Files.readAllLines(Paths.get("/media/depo/data/aaa/corpora/dunya.100k"));
-    TurkishMorphology parser = TurkishMorphology.createWithDefaults();
-    TurkishSentenceAnalyzer sentenceAnalyzer = new TurkishSentenceAnalyzer(parser,
-        new Z3MarkovModelDisambiguator());
-
-    int k = 0;
-    for (int i = 0; i < 100; i++) {
-      Stopwatch sw = Stopwatch.createStarted();
-      for (String line : lines) {
-        k += sentenceAnalyzer.bestParse(line).size();
-      }
-      Log.info(sw.elapsed(TimeUnit.MILLISECONDS));
-    }
-    Log.info(k);
-  }
-
-
   private LinkedHashSet<String> getStrings() throws IOException {
     List<String> lines = Files.readAllLines(Paths.get("/media/depo/data/aaa/corpora/dunya.500k"));
     LinkedHashSet<String> words = new LinkedHashSet<>();
@@ -707,50 +639,6 @@ public class ZemberekNlpScripts {
     Log.info("Unique word count = %d", words.size());
     Files.write(Paths.get("dunya"), words);
     return words;
-  }
-
-  @Test
-  @Ignore("Not a Test.")
-  public void parseLargeVocabularyZemberekForMorfessor() throws IOException {
-    Path wordFreqFile = DATA_PATH.resolve("vocab.all.freq");
-    Path outDir = DATA_PATH.resolve("out");
-    Files.createDirectories(outDir);
-
-    TurkishMorphology parser = TurkishMorphology.createWithDefaults();
-    Log.info("Loading histogram.");
-    Histogram<String> histogram = Histogram.loadFromUtf8File(wordFreqFile, ' ');
-    histogram.removeSmaller(1000);
-    List<String> accepted = new ArrayList<>(histogram.size());
-
-    int c = 0;
-    for (String s : histogram) {
-      s = s.trim();
-      if (s.length() < 4) {
-        continue;
-      }
-      List<WordAnalysis> parses = parser.analyze(s);
-      if (parses.size() > 0 &&
-          parses.get(0).dictionaryItem.primaryPos != PrimaryPos.Unknown) {
-        LinkedHashSet<String> k = new LinkedHashSet<>(2);
-        for (WordAnalysis parse : parses) {
-          if (parse.dictionaryItem.lemma.length() > 1) {
-            String str = parse.root + " " + String.join(" ", parse.suffixSurfaceList())
-                .replaceAll("[ ]+", " ").trim();
-            k.add(str);
-          }
-        }
-
-        String join = String.join(", ", k).trim();
-        if (!s.equals(join) && join.length() > 2) {
-          accepted.add(s + " " + join);
-        }
-      }
-      if (c > 0 && c % 10000 == 0) {
-        Log.info("Processed = " + c);
-      }
-      c++;
-    }
-    sortAndSave(outDir.resolve("morfessor-annotation.txt"), accepted);
   }
 
 }

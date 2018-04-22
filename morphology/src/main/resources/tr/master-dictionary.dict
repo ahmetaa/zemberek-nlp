@@ -14788,7 +14788,7 @@ linç [A:Voicing]
 lineer [P:Adj]
 linet [A:NoVoicing]
 linin
-link
+link [A:NoVoicing]
 linolyum
 linotip [A:NoVoicing]
 linyit [A:NoVoicing]

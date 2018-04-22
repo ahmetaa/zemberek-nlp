@@ -3,7 +3,6 @@ package zemberek.morphology.morphotactics;
 import static zemberek.morphology.morphotactics.Conditions.has;
 import static zemberek.morphology.morphotactics.Conditions.not;
 import static zemberek.morphology.morphotactics.Conditions.notHave;
-import static zemberek.morphology.morphotactics.Conditions.notHaveAny;
 import static zemberek.morphology.morphotactics.Conditions.previousStateIs;
 import static zemberek.morphology.morphotactics.Conditions.previousStateIsNot;
 import static zemberek.morphology.morphotactics.Conditions.rootIs;
@@ -16,6 +15,7 @@ import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivat
 import static zemberek.morphology.morphotactics.MorphemeState.terminal;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +25,8 @@ import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.analysis.StemTransitions;
+import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.Conditions.ContainsMorpheme;
 import zemberek.morphology.morphotactics.Conditions.CurrentGroupContainsAny;
 import zemberek.morphology.morphotactics.Conditions.HasTailSequence;
@@ -32,8 +34,6 @@ import zemberek.morphology.morphotactics.Conditions.NoSurfaceAfterDerivation;
 import zemberek.morphology.morphotactics.Conditions.PreviousMorphemeIsAny;
 import zemberek.morphology.morphotactics.Conditions.PreviousStateIsAny;
 import zemberek.morphology.morphotactics.Conditions.RootSurfaceIsAny;
-import zemberek.morphology.lexicon.DictionaryItem;
-import zemberek.morphology.lexicon.RootLexicon;
 
 public class TurkishMorphotactics {
 
@@ -344,14 +344,20 @@ public class TurkishMorphotactics {
     return lexicon;
   }
 
-
   public static Morpheme getMorpheme(String id) {
     return morphemeMap.get(id);
   }
 
-  public List<Morpheme> getMorphemes(List<String> ids) {
+  public static List<Morpheme> getMorphemes(List<String> ids) {
     return ids.stream().map(TurkishMorphotactics::getMorpheme).collect(Collectors.toList());
   }
+
+  public static List<Morpheme> getAllMorphemes() {
+    List<Morpheme> morphemes = new ArrayList<>(morphemeMap.values());
+    morphemes.sort(Comparator.comparing(a -> a.id));
+    return morphemes;
+  }
+
 
   public List<Morpheme> getMorphemes(String... ids) {
     List<Morpheme> morphemes = new ArrayList<>(ids.length);
@@ -2155,6 +2161,9 @@ public class TurkishMorphotactics {
   MorphemeState qA2pl_ST = terminal("qA2pl_ST", a2pl);
   MorphemeState qA3pl_ST = terminal("qA3pl_ST", a3pl);
 
+  MorphemeState qCopBeforeA3pl_S = nonTerminal("qCopBeforeA3pl_S", cop);
+  MorphemeState qCop_ST = terminal("qCop_ST", cop);
+
   MorphemeState questionRoot_S = builder("questionRoot_S", ques).posRoot().build();
 
   private void connectQuestion() {
@@ -2169,6 +2178,7 @@ public class TurkishMorphotactics {
     qPresent_S.add(qA1sg_ST, "yIm");
     // mısın
     qPresent_S.add(qA2sg_ST, "sIn");
+    // mı
     qPresent_S.addEmpty(qA3sg_ST);
 
     // mıydım
@@ -2176,22 +2186,53 @@ public class TurkishMorphotactics {
     // mıymışım
     qNarr_S.add(qA1sg_ST, "Im");
 
+    //mıydın
     qPast_S.add(qA2sg_ST, "n");
+    //mıymışsın
     qNarr_S.add(qA2sg_ST, "sIn");
 
+    //mıydık
     qPast_S.add(qA1pl_ST, "k");
+    //mıymışız
     qNarr_S.add(qA1pl_ST, "Iz");
+    // mıyız
     qPresent_S.add(qA1pl_ST, "+yIz");
 
+    // mıydınız
     qPast_S.add(qA2pl_ST, "InIz");
+    // mıymışsınız
     qNarr_S.add(qA2pl_ST, "sInIz");
+    // mısınız
     qPresent_S.add(qA2pl_ST, "sInIz");
 
+    // mıydılar
     qPast_S.add(qA3pl_ST, "lAr");
+    // mıymışlar
     qNarr_S.add(qA3pl_ST, "lAr");
 
+    // mıydı
     qPast_S.addEmpty(qA3sg_ST);
+    // mıymış
     qNarr_S.addEmpty(qA3sg_ST);
+
+    // for not allowing "mı-ydı-m-dır"
+    Condition rejectNoCopula = new CurrentGroupContainsAny(qPast_S).not();
+
+    // mıyımdır
+    qA1sg_ST.add(qCop_ST, "dIr", rejectNoCopula);
+    // mısındır
+    qA2sg_ST.add(qCop_ST, "dIr", rejectNoCopula);
+    // mıdır
+    qA3sg_ST.add(qCop_ST, ">dIr", rejectNoCopula);
+    // mıyızdır
+    qA1pl_ST.add(qCop_ST, "dIr", rejectNoCopula);
+    // mısınızdır
+    qA2pl_ST.add(qCop_ST, "dIr", rejectNoCopula);
+
+    // Copula can come before A3pl.
+    qPresent_S.add(pvCopBeforeA3pl_S, "dIr");
+    qCopBeforeA3pl_S.add(qA3pl_ST, "lAr");
+
   }
 
   private void handlePostProcessingConnections() {

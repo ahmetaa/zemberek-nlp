@@ -170,7 +170,7 @@ tahta|Tahta [tahta:Noun] *
 
 al* [almak:Verb] * baz|söz|yer *
 
-# TODO: not always. check with kar etmek.
+kar|kâr [kâr:Noun] * * et*
 kar [kar:Noun] *
 
 en [en:Adv] * * doğru|az|çok
