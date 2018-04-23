@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import org.junit.Ignore;
 import org.junit.Test;
-import zemberek.core._turkish._TurkishAlphabet;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
@@ -297,7 +296,7 @@ public class ZemberekNlpScripts {
     List<String> zemberekTypes = new ArrayList<>(parser.getLexicon().size());
     for (DictionaryItem item : parser.getLexicon()) {
       String lemma = /*item.primaryPos == PrimaryPos.Verb ? item.lemma.replaceAll("mek$|mak$", "") : */item.lemma;
-      lemma = _TurkishAlphabet.INSTANCE.normalizeCircumflex(lemma);
+      lemma = TurkishAlphabet.INSTANCE.normalizeCircumflex(lemma);
       String primaryString = /*item.primaryPos == PrimaryPos.Adverb ? "Adverb" :*/ item.primaryPos.shortForm;
       String pos = item.secondaryPos == null
           || item.secondaryPos == SecondaryPos.UnknownSec
@@ -429,13 +428,13 @@ public class ZemberekNlpScripts {
       if (s.length() < 4) {
         continue;
       }
-      if (!_TurkishAlphabet.INSTANCE.hasVowel(s)) {
+      if (!TurkishAlphabet.INSTANCE.containsVowel(s)) {
         continue;
       }
 
       for (int i = 2; i < s.length(); i++) {
         String candidateRoot = s.substring(0, i + 1);
-        if (!_TurkishAlphabet.INSTANCE.hasVowel(candidateRoot)) {
+        if (!TurkishAlphabet.INSTANCE.containsVowel(candidateRoot)) {
           continue;
         }
         List<DictionaryItem> items = new ArrayList<>(3);

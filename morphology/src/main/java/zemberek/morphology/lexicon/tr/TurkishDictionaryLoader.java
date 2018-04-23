@@ -234,8 +234,8 @@ public class TurkishDictionaryLoader {
       try {
         LineData lineData = new LineData(line);
         // if a line contains references to other lines, we add them to lexicon later.
-        if (!lineData.containsMetaData(MetaDataId.REF_ID) && !lineData
-            .containsMetaData(MetaDataId.ROOTS)) {
+        if (!lineData.containsMetaData(MetaDataId.REF_ID) &&
+            !lineData.containsMetaData(MetaDataId.ROOTS)) {
           rootLexicon.add(getItem(lineData));
         } else {
           lateEntries.add(lineData);
@@ -366,12 +366,8 @@ public class TurkishDictionaryLoader {
       if (posInfo.primaryPos == PrimaryPos.Verb && isVerb(word)) {
         word = word.substring(0, word.length() - 3);
       }
-      //TODO: probably we should not remove diacritics or convert to lowecase.
-      // Remove diacritics.
-      word = word.toLowerCase(locale)
-          .replace('â', 'a')
-          .replace('î', 'i')
-          .replace('û', 'u');
+      //TODO: probably we should not convert to lowecase.
+      word = word.toLowerCase(locale);
       // Remove dashes
       return DASH_QUOTE_MATCHER.matcher(word).replaceAll("");
     }
