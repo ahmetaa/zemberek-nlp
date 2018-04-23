@@ -218,7 +218,7 @@ public class ZemberekNlpScripts {
       }
       accepted.add(line.trim());
     }
-    sortAndSave(DATA_PATH.resolve("out").resolve("oflazer-analyses.txt"),
+    save(DATA_PATH.resolve("out").resolve("oflazer-analyses.txt"),
         new ArrayList<>(accepted));
   }
 

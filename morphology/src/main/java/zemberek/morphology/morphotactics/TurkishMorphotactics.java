@@ -1237,7 +1237,7 @@ public class TurkishMorphotactics {
             .and(notHave(PhoneticAttribute.ModifiedPronoun)));
 
     pQuantA3sg_S.add(pP3sg_S, "sI",
-        rootIsAny(biri, bazi, birbiri, herbiri, hicbiri, oburku)
+        rootIsAny(biri, bazi, kimi, birbiri, herbiri, hicbiri, oburku)
             .and(notHave(PhoneticAttribute.ModifiedPronoun)));
 
     // there is no connection from pQuantA3pl to Pnon for preventing `biriler` (except herkes)
@@ -1252,7 +1252,7 @@ public class TurkishMorphotactics {
     // `kim` (kim_Pron_Ques), `ne` and `nere`
     DictionaryItem ne = lexicon.getItemById("ne_Pron_Ques");
     DictionaryItem nere = lexicon.getItemById("nere_Pron_Ques");
-    DictionaryItem kim = lexicon.getItemById("nere_Pron_Ques");
+    DictionaryItem kim = lexicon.getItemById("kim_Pron_Ques");
 
     pronQues_S.addEmpty(pQuesA3sg_S);
     pronQues_S.add(pQuesA3pl_S, "lAr");
