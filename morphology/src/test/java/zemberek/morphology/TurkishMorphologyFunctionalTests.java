@@ -15,10 +15,19 @@ public class TurkishMorphologyFunctionalTests {
         .disableCache()
         .build();
     WordAnalysis result = morphology.analyze("zekâ");
+    Assert.assertEquals(1, result.analysisCount());
+  }
+
+  @Test
+  public void testWordsWithDot() {
+    TurkishMorphology morphology = TurkishMorphology
+        .builder()
+        .addDictionaryLines("Dr [P:Abbrv]")
+        .disableCache()
+        .build();
+    WordAnalysis result = morphology.analyze("Dr.");
 
     Assert.assertEquals(1, result.analysisCount());
 
   }
-
-
 }

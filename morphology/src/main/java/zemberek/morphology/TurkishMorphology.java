@@ -16,6 +16,7 @@ import org.antlr.v4.runtime.Token;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
+import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.ambiguity.AmbiguityResolver;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver;
@@ -135,7 +136,7 @@ public class TurkishMorphology {
    */
   private WordAnalysis analyzeWithoutCache(String word) {
 
-    String s = TextUtil.normalizeApostrophes(word.toLowerCase(TurkishAlphabet.TR));
+    String s = normalizeForAnalysis(word);
 
     if (s.length() == 0) {
       return WordAnalysis.EMPTY_INPUT_RESULT;
@@ -157,10 +158,17 @@ public class TurkishMorphology {
     return new WordAnalysis(word, s, res);
   }
 
+  private String normalizeForAnalysis(String word) {
+    String s = word.toLowerCase(Turkish.LOCALE);
+    s = TurkishAlphabet.INSTANCE.normalizeCircumflex(s);
+    s = TextUtil.normalizeApostrophes(s);
+    return s;
+  }
+
   private WordAnalysis analyzeWithoutCache(Token token) {
 
     String word = token.getText();
-    String s = TextUtil.normalizeApostrophes(word.toLowerCase(TurkishAlphabet.TR));
+    String s = normalizeForAnalysis(word);
 
     if (s.length() == 0) {
       return WordAnalysis.EMPTY_INPUT_RESULT;

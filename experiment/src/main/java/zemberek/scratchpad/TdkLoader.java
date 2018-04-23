@@ -7,8 +7,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import zemberek.core.logging.Log;
 
 public class TdkLoader {
 
@@ -36,6 +38,9 @@ public class TdkLoader {
     Path dir = outputRoot.resolve(prefix);
     Files.createDirectories(dir);
     Path out = dir.resolve(encode + ".html");
+    if(out.toFile().exists()) {
+      return null;
+    }
     if (!overwrite && out.toFile().exists()) {
       return null;
     }
@@ -51,12 +56,18 @@ public class TdkLoader {
         out,
         Collections.singletonList(htmlContent),
         StandardCharsets.UTF_8);
+    Thread.sleep(2000);
     return doc;
   }
 
   public static void main(String[] args) throws Exception {
     TdkLoader loader = new TdkLoader(Paths.get("tdk-out"));
-    loader.loadFromHtmlAndSave("elma", true);
+    Path circumflex = Paths.get("/home/ahmetaa/data/nlp/out/words-with-circumflex.txt");
+    List<String> word = Files.readAllLines(circumflex);
+    for (String s : word) {
+      Log.info(s);
+      loader.loadFromHtmlAndSave(s, true);
+    }
   }
 
 }

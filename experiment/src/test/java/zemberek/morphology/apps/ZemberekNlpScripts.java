@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,6 +38,7 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.external.OflazerAnalyzerRunner;
 import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
@@ -339,6 +341,92 @@ public class ZemberekNlpScripts {
 
   @Test
   @Ignore("Not a Test.")
+  public void generateOnlyOflazerWithAnalyzer() throws IOException {
+    Path inPath = DATA_PATH.resolve("out");
+    List<String> oflazer = Files.readAllLines(inPath.resolve("oflazer-parsed-words.txt"));
+    Log.info("Oflazer Loaded. %d words.", oflazer.size());
+    List<String> result = new ArrayList<>(oflazer.size() / 10);
+    TurkishMorphology morphology = TurkishMorphology.createWithTextDictionaries();
+    int i = 0;
+    for (String s : oflazer) {
+      if (!morphology.analyze(s).isCorrect()) {
+        result.add(s);
+      }
+      if (i++ % 20000 == 0) {
+        Log.info("%d processed.", i);
+      }
+    }
+    Log.info("Writing.");
+    Files.write(inPath.resolve("only-oflazer-2.txt"), result);
+    Log.info("Oflazer-only saved.");
+  }
+
+  @Test
+  @Ignore("Not a Test.")
+  public void extractCircumflexWords() throws IOException {
+    Path inPath = DATA_PATH.resolve("out");
+    TurkishMorphology morphology = TurkishMorphology.createWithTextDictionaries();
+    LinkedHashSet<String> result = new LinkedHashSet<>();
+    for (DictionaryItem i : morphology.getLexicon()) {
+      if (TurkishAlphabet.INSTANCE.containsCircumflex(i.lemma)) {
+        result.add(i.lemma);
+      }
+    }
+    Log.info("Writing.");
+    Files.write(inPath.resolve("words-with-circumflex.txt"), result);
+  }
+
+  @Test
+  @Ignore("Not a Test.")
+  public void findObsoleteCircumflexWords() throws IOException {
+    Path root = Paths.get("../tdk-out");
+    List<Path> htmlList = Files.walk(root, 2)
+        .filter(s -> s.toFile().isFile() && s.toString().endsWith("html"))
+        .collect(Collectors.toList());
+    List<String> obsolete = new ArrayList<>();
+    for (Path path : htmlList) {
+      String s = TextIO.loadUtfAsString(path);
+      if (s.contains("yerine aşağıdakilerden") && !s.contains("id=\"hor-minimalist-a\"")) {
+
+        obsolete.add(URLDecoder.decode(path.toFile().getName().replace(".html", ""), "utf-8"));
+      }
+    }
+    Log.info("Writing.");
+    Files.write(Paths.get("../data/vocabulary/words-with-circumflex-obsolete.txt"), obsolete);
+  }
+
+  @Test
+  @Ignore("Not a Test.")
+  public void dictionaryObsoleteCircumflexWordsCheck() throws IOException {
+
+    Path path = Paths.get("../data/vocabulary/words-with-circumflex-obsolete.txt");
+    List<String> obsolete = Files.readAllLines(path, StandardCharsets.UTF_8);
+    TurkishMorphology morphology = TurkishMorphology.createWithTextDictionaries();
+    RootLexicon lexicon = morphology.getLexicon();
+    List<String> single = new ArrayList<>();
+    for (String s : obsolete) {
+      List<DictionaryItem> items = lexicon.getMatchingItems(s);
+      List<DictionaryItem> matchingItems = lexicon
+          .getMatchingItems(TurkishAlphabet.INSTANCE.normalizeCircumflex(s));
+      items.addAll(matchingItems);
+      Log.info("%s = %s", s, items);
+      if (items.size() == 1) {
+        String line = items.get(0).toString();
+        line = line.replace("[P:Noun]","").trim();
+        line = line.replace("[P:Noun, Prop]","").trim();
+        line = line.replace("P:Noun; ","").trim();
+        line = line.replace("P:Noun, Prop; ","").trim();
+        line = line.replace("P:Verb; ","").trim();
+        line = line.replace("[A:Voicing]","").trim();
+        single.add(line.replaceAll("\\s+"," ").trim());
+      }
+    }
+    Path pathSingle = Paths.get("../data/vocabulary/words-with-circumflex-obsolete-single.txt");
+    Files.write(pathSingle, single, StandardCharsets.UTF_8);
+  }
+
+  @Test
+  @Ignore("Not a Test.")
   public void generateOnlyZemberek() throws IOException {
     Path dir = DATA_PATH.resolve("out");
     List<String> oflazerAll =
@@ -508,7 +596,6 @@ public class ZemberekNlpScripts {
   }
 
 
-
   @Test
   @Ignore("Not a Test.")
   public void performance() throws IOException {
@@ -625,7 +712,6 @@ public class ZemberekNlpScripts {
   public void generateWords() throws IOException {
     getStrings();
   }
-
 
   private LinkedHashSet<String> getStrings() throws IOException {
     List<String> lines = Files.readAllLines(Paths.get("/media/depo/data/aaa/corpora/dunya.500k"));

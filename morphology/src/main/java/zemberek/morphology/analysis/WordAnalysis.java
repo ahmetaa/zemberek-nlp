@@ -40,7 +40,7 @@ public class WordAnalysis implements Iterable<SingleAnalysis> {
   }
 
   public boolean isCorrect() {
-    return analysisResults.size() > 0;
+    return analysisResults.size() > 0 && !analysisResults.get(0).isUnknown();
   }
 
   public int analysisCount() {

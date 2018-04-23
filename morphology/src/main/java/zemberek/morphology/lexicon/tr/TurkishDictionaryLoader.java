@@ -26,11 +26,11 @@ import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
+import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.LexiconException;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.core.turkish.Turkish;
 
 public class TurkishDictionaryLoader {
 
@@ -366,8 +366,9 @@ public class TurkishDictionaryLoader {
       if (posInfo.primaryPos == PrimaryPos.Verb && isVerb(word)) {
         word = word.substring(0, word.length() - 3);
       }
-      //TODO: probably we should not convert to lowecase.
-      word = word.toLowerCase(locale);
+      //TODO: not sure if we should remove diacritics or convert to lowercase.
+      // Lowercase and normalize diacritics.
+      word = alphabet.normalizeCircumflex(word.toLowerCase(locale));
       // Remove dashes
       return DASH_QUOTE_MATCHER.matcher(word).replaceAll("");
     }
@@ -466,7 +467,7 @@ public class TurkishDictionaryLoader {
         PosInfo posData,
         Set<RootAttribute> attributes) {
 
-      char last = word.charAt(word.length()-1);
+      char last = word.charAt(word.length() - 1);
       boolean lastCharIsVowel = alphabet.isVowel(last);
 
       int vowelCount = alphabet.vowelCount(word);
