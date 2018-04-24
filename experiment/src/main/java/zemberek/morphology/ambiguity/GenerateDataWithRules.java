@@ -15,22 +15,23 @@ import java.util.stream.Collectors;
 import zemberek.core.logging.Log;
 import zemberek.langid.LanguageIdentifier;
 import zemberek.morphology.TurkishMorphology;
-import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AmbiguityAnalysis;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AnalysisDecision;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.ResultSentence;
+import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.tokenization.TurkishSentenceExtractor;
 
 class GenerateDataWithRules {
 
   private static LanguageIdentifier identifier;
   private static RuleBasedDisambiguator ruleBasedDisambiguator;
+  TurkishMorphology morphology;
 
   private GenerateDataWithRules() throws IOException {
     identifier = LanguageIdentifier.fromInternalModelGroup("tr_group");
-    TurkishMorphology analyzer = TurkishMorphology.createWithDefaults();
+    this.morphology = TurkishMorphology.createWithDefaults();
     RuleBasedDisambiguator.Rules rules = RuleBasedDisambiguator.Rules.fromResources();
-    ruleBasedDisambiguator = new RuleBasedDisambiguator(analyzer, rules);
+    ruleBasedDisambiguator = new RuleBasedDisambiguator(morphology, rules);
   }
 
   private static Collection<Predicate<WordAnalysis>> acceptWordPredicates = new ArrayList<>();
@@ -40,21 +41,21 @@ class GenerateDataWithRules {
     //Path p = Paths.get("/media/aaa/Data/corpora/final/www.aljazeera.com.tr");
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/www.aljazeera.com.tr");
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
-    //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/wowturkey.com");
+    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/wowturkey.com");
     //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
-    Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
+    //Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
     Path outRoot = Paths.get("data/ambiguity");
     Files.createDirectories(outRoot);
 
-    acceptWordPredicates.add(maxAnalysisCount(5));
+    acceptWordPredicates.add(maxAnalysisCount(10));
     acceptWordPredicates.add(hasAnalysis());
     ignoreSentencePredicates.add(contains("\""));
     ignoreSentencePredicates.add(contains("…"));
     ignoreSentencePredicates.add(probablyNotTurkish());
-    ignoreSentencePredicates.add(tooLongSentence(20));
+    ignoreSentencePredicates.add(tooLongSentence(25));
 
     new GenerateDataWithRules()
-        .extractData(p, outRoot, 5000, 0);
+        .extractData(p, outRoot, 50000, 0);
   }
 
   private static Predicate<WordAnalysis> hasAnalysis() {
@@ -130,7 +131,7 @@ class GenerateDataWithRules {
 
     LinkedHashSet<String> sentences = getSentences(p);
 
-    List<List<String>> group = group(new ArrayList<>(sentences), 1000);
+    List<List<String>> group = group(new ArrayList<>(sentences), 5000);
 
     for (List<String> strings : group) {
 
@@ -158,7 +159,8 @@ class GenerateDataWithRules {
         }
       }
 
-      Log.info("Processing.. ");
+      Log.info("Processing.. %d found.", batchResult.acceptedSentences.size());
+      Log.info(morphology.getCache().toString());
       for (String sentence : toProcess) {
 
         ResultSentence r = ruleBasedDisambiguator.disambiguate(sentence);

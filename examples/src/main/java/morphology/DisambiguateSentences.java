@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import zemberek.core.logging.Log;
 import zemberek.morphology.analysis.SentenceAnalysis;
-import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;

@@ -89,7 +89,7 @@ Finds all morphological analyses, stems and lemmas of word "kitabımızsa"
       System.out.println("\tLemmas = " + analysis.getLemmas());
     }
     
-    Output:
+ Output:
 
     [kitap:Noun] kitab:Noun+A3sg+ımız:P1pl|Zero→Verb+sa:Cond+A3sg
       Stems = [kitab, kitabımız]
@@ -118,6 +118,37 @@ urkishMorphology morphology = TurkishMorphology.createWithDefaults();
     System.out.println("\nAfter disambiguation.");
     SentenceAnalysis after = morphology.disambiguate(sentence, analysis);
     after.bestAnalysis().forEach(s-> System.out.println(s.formatLong()));
+
+Output:    
+
+    Sentence  = Yarın kar yağacak.
+    Before disambiguation.
+    Word = Yarın
+    [yarın:Adv] yarın:Adv
+    [yarmak:Verb] yar:Verb+Imp+ın:A2pl
+    [Yar:Noun,Prop] yar:Noun+A3sg+ın:Gen
+    [Yar:Noun,Prop] yar:Noun+A3sg+ın:P2sg
+    [yar:Noun] yar:Noun+A3sg+ın:Gen
+    [yar:Noun] yar:Noun+A3sg+ın:P2sg
+    [yarı:Noun] yarı:Noun+A3sg+n:P2sg
+    [yarın:Noun,Time] yarın:Noun+A3sg
+    [yarı:Adj] yarı:Adj|Zero→Noun+A3sg+n:P2sg
+    Word = kar
+    [karmak:Verb] kar:Verb+Imp+A2sg
+    [kar:Noun] kar:Noun+A3sg
+    [kâr:Noun] kar:Noun+A3sg
+    Word = yağacak
+    [yağmak:Verb] yağ:Verb+acak:Fut+A3sg
+    [yağmak:Verb] yağ:Verb|acak:FutPart→Adj
+    Word = .
+    [.:Punc] .:Punc
+    
+    After disambiguation.
+    [yarın:Noun,Time] yarın:Noun+A3sg
+    [kar:Noun] kar:Noun+A3sg
+    [yağmak:Verb] yağ:Verb+acak:Fut+A3sg
+    [.:Punc] .:Punc
+
 
 ### Known Issues
 

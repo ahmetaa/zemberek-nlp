@@ -13,6 +13,7 @@ import zemberek.core.collections.IntValueMap;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextConsumer;
 import zemberek.core.text.TextIO;
+import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.Decoder;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.FeatureExtractor;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.Model;
@@ -20,7 +21,6 @@ import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.ParseResult;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
-import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
 
 /**
@@ -42,14 +42,14 @@ public class PerceptronAmbiguityResolverTrainer {
     this.analyzer = analyzer;
   }
 
-  public PerceptronAmbiguityResolver train(Path trainFile, Path devFile, int iterationCount)
-      throws IOException {
+  public PerceptronAmbiguityResolver train(
+      DataSet trainingSet,
+      DataSet devSet,
+      int iterationCount) {
 
     FeatureExtractor extractor = new FeatureExtractor(false);
     Decoder decoder = new Decoder(weights, extractor);
 
-    DataSet trainingSet = DataSet.load(trainFile, analyzer);
-    DataSet devSet = DataSet.load(devFile, analyzer);
     int numExamples = 0;
     for (int i = 0; i < iterationCount; i++) {
       Log.info("Iteration:" + i);
@@ -87,6 +87,13 @@ public class PerceptronAmbiguityResolverTrainer {
 
     }
     return new PerceptronAmbiguityResolver(averagedWeights, new FeatureExtractor(false));
+  }
+
+  public PerceptronAmbiguityResolver train(Path trainFile, Path devFile, int iterationCount)
+      throws IOException {
+    DataSet trainingSet = DataSet.load(trainFile, analyzer);
+    DataSet devSet = DataSet.load(devFile, analyzer);
+    return train(trainingSet, devSet, iterationCount);
   }
 
   private void updateModel(
@@ -135,8 +142,16 @@ public class PerceptronAmbiguityResolverTrainer {
 
     List<SentenceAnalysis> sentences;
 
+    public DataSet() {
+      sentences = new ArrayList<>();
+    }
+
     DataSet(List<SentenceAnalysis> sentences) {
       this.sentences = sentences;
+    }
+
+    void add(DataSet other) {
+      this.sentences.addAll(other.sentences);
     }
 
     static DataSet load(Path path, TurkishMorphology analyzer) throws IOException {
