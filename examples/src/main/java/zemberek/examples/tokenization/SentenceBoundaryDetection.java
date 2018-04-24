@@ -1,4 +1,4 @@
-package tokenization;
+package zemberek.examples.tokenization;
 
 import java.util.List;
 import zemberek.core.logging.Log;

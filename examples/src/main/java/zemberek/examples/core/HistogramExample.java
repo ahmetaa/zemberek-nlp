@@ -1,4 +1,4 @@
-package core;
+package zemberek.examples.core;
 
 import java.util.Arrays;
 import zemberek.core.collections.Histogram;

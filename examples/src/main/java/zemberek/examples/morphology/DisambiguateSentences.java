@@ -1,4 +1,4 @@
-package morphology;
+package zemberek.examples.morphology;
 
 import java.io.IOException;
 import java.util.List;

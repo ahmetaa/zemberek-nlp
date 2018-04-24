@@ -1,4 +1,4 @@
-package normalization;
+package zemberek.examples.normalization;
 
 import java.io.IOException;
 import zemberek.core.logging.Log;

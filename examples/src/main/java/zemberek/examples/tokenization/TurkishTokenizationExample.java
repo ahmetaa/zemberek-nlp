@@ -1,4 +1,4 @@
-package tokenization;
+package zemberek.examples.tokenization;
 
 import com.google.common.base.Joiner;
 import java.util.Iterator;
