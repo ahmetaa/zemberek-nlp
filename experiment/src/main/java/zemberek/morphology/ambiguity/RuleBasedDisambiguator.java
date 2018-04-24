@@ -335,10 +335,10 @@ class RuleBasedDisambiguator {
         String toIgnore = pairRule.ignoreStr;
         String toLeave = pairRule.okStr;
         if (toIgnore.equals("*")) {
-          if (checkRuleStr(lex2, toLeave)) {
+          if (checkRuleStr(lex2, toLeave) && !checkRuleStr(lex1, toLeave)) {
             a1.decision = Decision.IGNORE;
           }
-          if (checkRuleStr(lex1, toLeave)) {
+          if (checkRuleStr(lex1, toLeave) && !checkRuleStr(lex2, toLeave)) {
             a2.decision = Decision.IGNORE;
           }
         } else {

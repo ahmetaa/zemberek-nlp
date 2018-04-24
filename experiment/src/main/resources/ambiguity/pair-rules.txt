@@ -1,5 +1,5 @@
 # Syntax: [input] [preferred] [ignored] [left] [right]
-# left and right are optional. Syntaz for input, left and right
+# left and right are optional. Syntax for input, left and right
 # * = any
 # foo* = prefix match
 # foo$ = ends-with
@@ -7,6 +7,9 @@
 # foo|bar* = checks for any `foo` and 'bar*' matches.
 
 * [uzlaşmak:Verb] [uz:Adj]
+
+# "bu evin" evin -> Gen, not P2sg
+* A3sg+Gen$ A3sg+P2sg$ bu|Bu *
 
 göre [göre:Postp,PCDat] [görmek:Verb]
 
@@ -162,7 +165,7 @@ alınarak [almak:Verb] [alınmak:Verb]
 
 güzel [güzel:Adj] *
 
-gibi [gibi:Postp,PCGen] *
+gibi* [gibi:Postp,PCGen] *
 
 tahta|Tahta [taht:Noun] * * otur*|çık*
 
@@ -247,6 +250,8 @@ Türkçe [Türkçe:Noun,Prop] *
 Kürtçe [Kürtçe:Noun,Prop] *
 
 bile * [bilmek:Verb]
+# for now.
+bile [bile:Adv] *
 
 sağ * [sağmak:Verb]
 
@@ -330,4 +335,42 @@ erişim [erişim:Noun] [ermek:Verb]
 
 düşüş* Inf3→Noun Recip→Verb
 
+kımıld* [kımıldamak:Verb] *
+
+yattı* [yatmak:Verb] *
+
+ed* [etmek:Verb] *
+
+#ya da
+ya [ya:Conj] * * da
+
+# for now accept all `ya` as conjunction.
+ya|Ya [ya:Conj] *
+
+devam [devam:Noun] *
+
+ağır|Ağır [ağır:Adj] *
+
+memnun|Memnun [memnun:Adj] *
+
+izin [izin:Noun] * * al*|ver*
+
+uzun|Uzun [uzun:Adj] *
+
+kötü|Kötü [kötü:Adj] *
+
+böyle|Böyle [böyle:Adj] *
+
+takım* [takım:Noun] *
+
+oyund* [oyun:Noun] [oy:Noun]
+
+olmadığ* [olmak:Verb] *
+
+durum [durum:Noun] [duru:Adj]
+
+bizim biz:Pron+A1pl+im:P1pl *
+
 yarın|Yarın [yarın:Noun,Time] *
+
+# * A3sg+P3sg+Acc A3sg+P2sg+Acc

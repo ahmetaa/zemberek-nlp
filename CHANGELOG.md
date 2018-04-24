@@ -8,12 +8,13 @@ There are many breaking changes.
 
 Morphology module is re-written almost from scratch. Turkish morphotactics are now expressed in a simpler and more readable way
 in the code. New analyzer handles pronouns better and probably it generates
-more accurate results. But because this is a complete re-write, there might be new errors.  
+more accurate results. But because this is a complete re-write, there might be new bugs and regressions.
 
 Ambiguity resolution mechanism is changed. It now uses the old but popular Averaged Perceptron algorithm.
-For now, it is trained with the data generated from some corpora using simple rules. 
+For now, it is trained with the data generated from some corpora using simple rules.
 Therefore in this version disambiguation may not work so accurately. But it will improve in the upcoming releases quickly.
-Nevertheless, new module is probably working better than previous releases.   
+Nevertheless, new module is probably working better than previous releases.
+Previous language model based algorithm is retired for now, but in future we may use a hybrid approach.
 
 Default analysis representation is changed. Some examples:
     

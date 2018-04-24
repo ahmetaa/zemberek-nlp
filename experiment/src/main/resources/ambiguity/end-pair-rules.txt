@@ -4,8 +4,8 @@
 * Aor+ AorPart→Adj
 * Narr+ NarrPart→Noun
 * Narr+ NarrPart→Adj
-* Narr+ PastPart→Noun
-* Narr+ PastPart→Adj
+* Past+ PastPart→Noun
+* Past+ PastPart→Adj
 
 * Inf2→Noun Neg+ * mı|mi|mu|mü
 * Neg+ Inf2→Noun
@@ -15,3 +15,4 @@
 !var :Verb :Noun
 var :Noun :Verb
 * :Verb :Adj
+verem* [vermek:Verb] *

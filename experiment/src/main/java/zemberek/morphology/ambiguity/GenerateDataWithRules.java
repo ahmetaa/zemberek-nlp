@@ -39,11 +39,10 @@ class GenerateDataWithRules {
   public static void main(String[] args) throws IOException {
     //Path p = Paths.get("/media/aaa/Data/corpora/final/www.aljazeera.com.tr");
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/www.aljazeera.com.tr");
-    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
+    //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/wowturkey.com");
     //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
-    //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
-    //Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
+    Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
     Path outRoot = Paths.get("data/ambiguity");
     Files.createDirectories(outRoot);
 
@@ -55,7 +54,7 @@ class GenerateDataWithRules {
     ignoreSentencePredicates.add(tooLongSentence(20));
 
     new GenerateDataWithRules()
-        .extractData(p, outRoot, 50000, 0);
+        .extractData(p, outRoot, 5000, 0);
   }
 
   private static Predicate<WordAnalysis> hasAnalysis() {

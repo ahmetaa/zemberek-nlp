@@ -65,7 +65,53 @@ public class SpeedTest {
     failedWords.saveSortedByKeys(Paths.get("unk"), " ", Turkish.STRING_COMPARATOR_ASC);
   }
 
-  private List<String> getSentences(Path p) throws IOException {
+
+  private static void testForVisualVm(Path p, TurkishMorphology analyzer) throws IOException {
+    //Path p = Paths.get("/media/aaa/Data/corpora/me-sentences/www.aljazeera.com.tr/2018-02-22");
+    List<String> sentences = getSentences(p);
+
+    Stopwatch sw = Stopwatch.createStarted();
+
+    int tokenCount = 0;
+    int noAnalysis = 0;
+    int sentenceCount = 0;
+    for (String sentence : sentences) {
+      List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
+      for (Token token : tokens) {
+        tokenCount++;
+        WordAnalysis results = analyzer.analyze(token.getText());
+        if (!results.isCorrect()) {
+          noAnalysis++;
+        }
+      }
+      sentenceCount++;
+      if (sentenceCount % 2000 == 0) {
+        Log.info("%d tokens analyzed.", tokenCount);
+      }
+    }
+    double seconds = sw.stop().elapsed(TimeUnit.MILLISECONDS) / 1000d;
+    double speed = tokenCount / seconds;
+    double parseRatio = 100 - (noAnalysis * 100d / tokenCount);
+    System.out.println(analyzer.getCache());
+    Log.info("%nElapsed = %.2f seconds", seconds);
+    Log.info("%nToken Count (No Punc) = %d %nParse Ratio = %.4f%nSpeed = %.2f tokens/sec%n",
+        tokenCount, parseRatio, speed);
+  }
+
+  public static void main(String[] args) throws IOException {
+    Path p = Paths.get("morphology/src/test/resources/corpora/cnn-turk-10k");
+
+    TurkishMorphology analyzer = TurkishMorphology.createWithDefaults();
+    for (int i = 0; i < 10; i++) {
+      testForVisualVm(p, analyzer);
+      analyzer.invalidateCache();
+      System.in.read();
+    }
+
+  }
+
+
+  private static List<String> getSentences(Path p) throws IOException {
     List<String> lines = Files.readAllLines(p, StandardCharsets.UTF_8);
     return TurkishSentenceExtractor.DEFAULT.fromParagraphs(lines);
   }

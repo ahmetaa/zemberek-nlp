@@ -33,6 +33,7 @@ import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.AnalysisFormatters;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
@@ -412,13 +413,13 @@ public class ZemberekNlpScripts {
       Log.info("%s = %s", s, items);
       if (items.size() == 1) {
         String line = items.get(0).toString();
-        line = line.replace("[P:Noun]","").trim();
-        line = line.replace("[P:Noun, Prop]","").trim();
-        line = line.replace("P:Noun; ","").trim();
-        line = line.replace("P:Noun, Prop; ","").trim();
-        line = line.replace("P:Verb; ","").trim();
-        line = line.replace("[A:Voicing]","").trim();
-        single.add(line.replaceAll("\\s+"," ").trim());
+        line = line.replace("[P:Noun]", "").trim();
+        line = line.replace("[P:Noun, Prop]", "").trim();
+        line = line.replace("P:Noun; ", "").trim();
+        line = line.replace("P:Noun, Prop; ", "").trim();
+        line = line.replace("P:Verb; ", "").trim();
+        line = line.replace("[A:Voicing]", "").trim();
+        single.add(line.replaceAll("\\s+", " ").trim());
       }
     }
     Path pathSingle = Paths.get("../data/vocabulary/words-with-circumflex-obsolete-single.txt");
@@ -724,6 +725,47 @@ public class ZemberekNlpScripts {
     Log.info("Unique word count = %d", words.size());
     Files.write(Paths.get("dunya"), words);
     return words;
+  }
+
+  @Test
+  @Ignore("Not a Test")
+  public void readmeExample1() throws IOException {
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    WordAnalysis results = morphology.analyze("kalemin");
+    results.forEach(s -> System.out.println(s.formatLong()));
+  }
+
+  @Test
+  @Ignore("Not a Test")
+  public void readmeExample2() throws IOException {
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    WordAnalysis result = morphology.analyze("kitabımızsa");
+    for (SingleAnalysis analysis : result) {
+      System.out.println(analysis.formatLong());
+      System.out.println("\tStems = " + analysis.getStems());
+      System.out.println("\tLemmas = " + analysis.getLemmas());
+    }
+  }
+
+  @Test
+  @Ignore("Not a Test")
+  public void disambiguationExample() throws IOException {
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+
+    String sentence = "Yarın kar yağacak.";
+    System.out.println("Sentence  = " + sentence);
+    List<WordAnalysis> analysis = morphology.analyzeSentence(sentence);
+
+    System.out.println("Before disambiguation.");
+    for (WordAnalysis entry : analysis) {
+      System.out.println("Word = " + entry.getInput());
+      for (SingleAnalysis single : entry) {
+        System.out.println(single.formatLong());
+      }
+    }
+    System.out.println("\nAfter disambiguation.");
+    SentenceAnalysis after = morphology.disambiguate(sentence, analysis);
+    after.bestAnalysis().forEach(s-> System.out.println(s.formatLong()));
   }
 
 }
