@@ -151,7 +151,11 @@ public class AnalysisCache {
       return analysisProvider.apply(input);
     } else {
       WordAnalysis a = dynamicCache.getIfPresent(input.getText());
-      return a == null ? analysisProvider.apply(input) : a;
+      if (a == null) {
+        a = analysisProvider.apply(input);
+        dynamicCache.put(input.getText(), a);
+      }
+      return a;
     }
   }
 
