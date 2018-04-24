@@ -107,7 +107,7 @@ Finds all morphological analyses, stems and lemmas of word "kitabımızsa"
 
 ## Ambiguity Resolution
 
-Turkish is a highly ambigious language. As shown in the example below, Word `yarın` has 9 morphological
+Turkish is a highly ambiguous language. As shown in the example below, Word `yarın` has 9 morphological
 analyses. Zemberek uses an Averaged Perceptron based mechanism to resolve ambiguity. 
 
 ### Example
@@ -172,7 +172,7 @@ retired for the time being.
 ## Word Generation
 
 Zemberek offers simple word generation functionality.
-Generation requires root form of a word of a Dictionary item and morphemes. Generation mechanism 
+Generation requires root form of a word or a Dictionary item and morphemes. Generation mechanism 
 is very similar to analysis mechanism. But it passes through empty Morphemes in the 
 search graph even if they are not provided in the input. For example, user does not need to provide 
 A3sg morpheme as input as it's surface is empty. Generation returns an inner static 
