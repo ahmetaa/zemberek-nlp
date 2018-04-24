@@ -105,9 +105,8 @@ public class TurkishMorphology {
     return useCache ? analyzeWithCache(word) : analyzeWithoutCache(word);
   }
 
-  //TODO: cannot use cache with tokens.
   public WordAnalysis analyze(Token token) {
-    return analyzeWithoutCache(token);
+    return cache.getAnalysis(token, this::analyzeWithoutCache);
   }
 
   private WordAnalysis analyzeWithCache(String word) {

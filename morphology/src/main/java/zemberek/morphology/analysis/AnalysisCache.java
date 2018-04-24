@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import org.antlr.v4.runtime.Token;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 
@@ -136,6 +137,21 @@ public class AnalysisCache {
       return analysisProvider.apply(input);
     } else {
       return dynamicCache.get(input, analysisProvider);
+    }
+  }
+
+  public WordAnalysis getAnalysis(Token input, Function<Token, WordAnalysis> analysisProvider) {
+    WordAnalysis analysis = staticCacheDisabled ? null : staticCache.get(input.getText());
+    if (analysis != null) {
+      staticCacheHits++;
+      return analysis;
+    }
+    staticCacheMiss++;
+    if (dynamicCacheDisabled) {
+      return analysisProvider.apply(input);
+    } else {
+      WordAnalysis a = dynamicCache.getIfPresent(input.getText());
+      return a == null ? analysisProvider.apply(input) : a;
     }
   }
 
