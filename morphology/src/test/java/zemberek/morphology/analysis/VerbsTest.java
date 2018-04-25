@@ -457,7 +457,7 @@ public class VerbsTest extends AnalyzerTestBase {
 
   @Test
   public void demekYemek() {
-    AnalysisTester t = getTester("demek");
+    AnalysisTester t = getTester("demek", "yemek");
 
     t.expectSingle("de", matchesTailLex("Verb + Imp + A2sg"));
     t.expectAny("deme", matchesTailLex("Verb + Neg + Imp + A2sg"));
@@ -480,6 +480,12 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("dese", matchesTailLex("Verb + Desr + A3sg"));
     t.expectSingle("demese", matchesTailLex("Verb + Neg + Desr + A3sg"));
 
+    t.expectSingle("ye", matchesTailLex("Verb + Imp + A2sg"));
+    t.expectSingle("yesin", matchesTailLex("Verb + Imp + A3sg"));
+    t.expectSingle("yiyin", matchesTailLex("Verb + Imp + A2pl"));
+    t.expectSingle("yiyiniz", matchesTailLex("Verb + Imp + A2pl"));
+    t.expectSingle("yesinler", matchesTailLex("Verb + Imp + A3pl"));
+
     t.expectFail(
         "dir",
         "dimez",
@@ -497,6 +503,30 @@ public class VerbsTest extends AnalyzerTestBase {
         "yimek",
         "dimiş",
         "dimiyor"
+    );
+
+    t.expectFail(
+        "yir",
+        "yimez",
+        "yi",
+        "yin",
+        "yidir",
+        "yeyor",
+        "yeyecek",
+        "yidi",
+        "yeyiş",
+        "yimek",
+        "yime",
+        "yime",
+        "yeyin",
+        "yeyiniz",
+        "yisin",
+        "yisinler",
+        "yimez",
+        "yimek",
+        "yimek",
+        "yimiş",
+        "yimiyor"
     );
   }
 

@@ -33,6 +33,7 @@ import zemberek.morphology.morphotactics.Conditions.HasTailSequence;
 import zemberek.morphology.morphotactics.Conditions.NoSurfaceAfterDerivation;
 import zemberek.morphology.morphotactics.Conditions.PreviousMorphemeIsAny;
 import zemberek.morphology.morphotactics.Conditions.PreviousStateIsAny;
+import zemberek.morphology.morphotactics.Conditions.RootSurfaceIs;
 import zemberek.morphology.morphotactics.Conditions.RootSurfaceIsAny;
 
 public class TurkishMorphotactics {
@@ -1576,6 +1577,8 @@ public class TurkishMorphotactics {
   MorphemeState vNegProg1_S = nonTerminal("vNegProg1_S", neg);
 
   MorphemeState vImp_S = nonTerminal("vImp_S", imp);
+  MorphemeState vImpYemekYi_S = nonTerminal("vImpYemekYi_S", imp);
+  MorphemeState vImpYemekYe_S = nonTerminal("vImpYemekYe_S", imp);
 
   MorphemeState vCausT_S = nonTerminalDerivative("vCaus_S", caus);
   MorphemeState vCausTır_S = nonTerminalDerivative("vCausTır_S", caus);
@@ -2037,7 +2040,20 @@ public class TurkishMorphotactics {
         .add(vNeces_S, "meli")
         .add(vNotState_S, "mezli~k")
         .add(vNotState_S, "mezli!ğ")
-        .addEmpty(vImp_S, deYeCondition);
+        .addEmpty(vImp_S, new RootSurfaceIs("de"))
+        .addEmpty(vImpYemekYe_S, new RootSurfaceIs("ye"))
+        .addEmpty(vImpYemekYi_S, new RootSurfaceIs("yi"));
+
+    // verb `yemek` has an exception case for some imperatives.
+    vImpYemekYi_S
+        .add(vA2pl_ST, "yin")
+        .add(vA2pl_ST, "yiniz");
+    vImpYemekYe_S
+        .addEmpty(vA2sg_ST)
+        .add(vA2sg_ST, "sene")
+        .add(vA3sg_ST, "sin")
+        .add(vA2pl_ST, "senize")
+        .add(vA3pl_ST, "sinler");
 
     // Optative (gel-e, gel-eyim gel-me-ye-yim)
     verbRoot_S.add(vOpt_S, "+yA");
