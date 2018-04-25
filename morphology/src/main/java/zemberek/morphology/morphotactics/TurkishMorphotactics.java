@@ -2012,6 +2012,7 @@ public class TurkishMorphotactics {
         .add(vStart_S, "yekoy", diYiCondition.and(cMultiVerb))
         .add(vSinceDoingSo_S, "yeli", diYiCondition)
         .add(vByDoingSo_S, "yerek", diYiCondition)
+        .add(vFeelLike_S, "yesi", diYiCondition)
         .add(vAfterDoing_S, "yip", diYiCondition)
         .add(vWithoutBeingAbleToHaveDoneSo_S, "yemeden", diYiCondition)
         .add(vOpt_S, "ye", diYiCondition);

@@ -262,6 +262,8 @@ all words that starts with capital letter should be a proper noun candidate.
 
 Rethink Reciprocal morphotactics as it generates painful ambiguity.
 
+"vazgeçilmezi" seems ok but not sure if it can be generalized.
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

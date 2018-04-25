@@ -339,6 +339,14 @@ public class VerbsTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void passiveVazgecmek() {
+    AnalysisTester t = getTester("vazgeçmek [A:Aorist_A]","yenmek");
+    t.expectSingle("vazgeçil", matchesTailLex("Verb + Pass + Verb + Imp + A2sg"));
+    t.expectAny("vazgeçilmez", matchesTailLex("Verb + Pass + Verb + Neg + AorPart + Adj"));
+    t.expectAny("yenilmez", matchesTailLex("Verb + Pass + Verb + Neg + AorPart + Adj"));
+  }
+
+  @Test
   public void past() {
     AnalysisTester t = getTester("yazmak");
 
@@ -485,6 +493,7 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("yiyin", matchesTailLex("Verb + Imp + A2pl"));
     t.expectSingle("yiyiniz", matchesTailLex("Verb + Imp + A2pl"));
     t.expectSingle("yesinler", matchesTailLex("Verb + Imp + A3pl"));
+    t.expectSingle("yiyesim", matchesTailLex("Verb + FeelLike + Noun + A3sg + P1sg"));
 
     t.expectFail(
         "dir",
