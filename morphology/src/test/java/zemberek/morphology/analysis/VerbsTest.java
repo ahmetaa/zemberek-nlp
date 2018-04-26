@@ -1,5 +1,6 @@
 package zemberek.morphology.analysis;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class VerbsTest extends AnalyzerTestBase {
@@ -712,6 +713,8 @@ public class VerbsTest extends AnalyzerTestBase {
   }
 
   @Test
+  @Ignore
+  // Reciprocal suffix is not included for now.
   public void reciprocalTest() {
     AnalysisTester t = getTester("kaçmak");
 
