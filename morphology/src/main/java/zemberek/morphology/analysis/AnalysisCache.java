@@ -18,7 +18,7 @@ import zemberek.core.text.TextIO;
  */
 public class AnalysisCache {
 
-  private static final int STATIC_CACHE_CAPACITY = 5000;
+  private static final int STATIC_CACHE_CAPACITY = 3000;
   private static final int DEFAULT_INITIAL_DYNAMIC_CACHE_CAPACITY = 1000;
   private static final int DEFAULT_MAX_DYNAMIC_CACHE_CAPACITY = 10000;
   private static final int DYNAMIC_CACHE_CAPACITY_LIMIT = 1_000_000;
@@ -109,14 +109,14 @@ public class AnalysisCache {
       try {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<String> words = TextIO.loadLinesFromResource(MOST_USED_WORDS_FILE);
-        Log.info("File read in %d ms.", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        Log.debug("File read in %d ms.", stopwatch.elapsed(TimeUnit.MILLISECONDS));
         int size = Math.min(STATIC_CACHE_CAPACITY, words.size());
         for (int i = 0; i < size; i++) {
           String word = words.get(i);
           staticCache.put(word, analysisProvider.apply(word));
         }
-        Log.info("Static cache initialized with %d most frequent words", size);
-        Log.info("Initialization time: %d ms.", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        Log.debug("Static cache initialized with %d most frequent words", size);
+        Log.debug("Initialization time: %d ms.", stopwatch.elapsed(TimeUnit.MILLISECONDS));
       } catch (IOException e) {
         Log.error("Could not read most frequent words list, static cache is disabled.");
         e.printStackTrace();
