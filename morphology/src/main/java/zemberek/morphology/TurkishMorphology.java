@@ -160,7 +160,9 @@ public class TurkishMorphology {
   private String normalizeForAnalysis(String word) {
     String s = word.toLowerCase(Turkish.LOCALE);
     s = TurkishAlphabet.INSTANCE.normalizeCircumflex(s);
-    s = s.replace(".","");
+    if (!s.equals(".")) {
+      s = s.replace(".","");
+    }
     s = TextUtil.normalizeApostrophes(s);
     return s;
   }

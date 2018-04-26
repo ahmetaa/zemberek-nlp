@@ -14,7 +14,7 @@ public class DisambiguateSentences {
 
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
-    String sentence = "Bu akşam kar yağacak gibi.";
+    String sentence = "Yarın akşam kar yağacak gibi.";
     Log.info("Sentence  = " + sentence);
     List<WordAnalysis> analyses = morphology.analyzeSentence(sentence);
 
