@@ -7,6 +7,10 @@ Please note that **all code and APIs are subject to change drastically until ver
 
 Latest version is 0.11.1 (April 13th 2017). [Change Log](CHANGELOG.md)
 
+## Citing
+
+If you use this project in an academic publication, please refer to this site.
+
 ## FAQ 
 
 Please read the [FAQ](https://github.com/ahmetaa/zemberek-nlp/wiki/FAQ) for common questions.
@@ -45,8 +49,10 @@ contains jar files for different versions.
 
 ### Examples
 
+There is a [examples](examples) module in the code for usage examples.
+
+Also, there is a separate project with same examples that uses Zemberek-NLP as maven modules: 
 [Turkish-nlp-examples](https://github.com/ahmetaa/turkish-nlp-examples)
-contains a maven java project with small usage examples.
 
 ## Modules
 
@@ -58,7 +64,7 @@ Maven artifact id : **core**
 
 ### Morphology
 
-Turkish morphological analysis, disambiguation and generation. [Documentation](morphology)
+Turkish morphological analysis, disambiguation and word generation. [Documentation](morphology)
 
 Maven artifact id : **morphology**
 
