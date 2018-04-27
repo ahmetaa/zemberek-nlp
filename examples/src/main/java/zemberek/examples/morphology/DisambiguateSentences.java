@@ -27,7 +27,7 @@ public class DisambiguateSentences {
     }
     SentenceAnalysis result = morphology.disambiguate(sentence, analyses);
 
-    Log.info("\nBest analyses : ");
+    Log.info("\nAfter ambiguity resolution : ");
     result.bestAnalysis().forEach(Log::info);
   }
 }

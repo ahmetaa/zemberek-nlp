@@ -41,9 +41,9 @@ class GenerateDataWithRules {
     //Path p = Paths.get("/media/aaa/Data/corpora/final/www.aljazeera.com.tr");
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/www.aljazeera.com.tr");
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
-    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/wowturkey.com");
+    //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/wowturkey.com");
     //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
-    //Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
+    Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
     Path outRoot = Paths.get("data/ambiguity");
     Files.createDirectories(outRoot);
 
@@ -55,7 +55,7 @@ class GenerateDataWithRules {
     ignoreSentencePredicates.add(tooLongSentence(25));
 
     new GenerateDataWithRules()
-        .extractData(p, outRoot, 50000, 0);
+        .extractData(p, outRoot, 150000, 0);
   }
 
   private static Predicate<WordAnalysis> hasAnalysis() {
@@ -115,7 +115,7 @@ class GenerateDataWithRules {
           List<String> forTrain = analysis.getForTrainingOutput();
           forTrain.forEach(pwu::println);
 
-          pwa.println(analysis.input);
+          pwa.println(analysis.token);
           for (AnalysisDecision r : analysis.choices) {
             pwa.println(r.analysis.formatLong());
           }
@@ -165,7 +165,13 @@ class GenerateDataWithRules {
 
         ResultSentence r = ruleBasedDisambiguator.disambiguate(sentence);
 
-        if (r.ambigiousWordCount() > maxAmbigiousWordCount) {
+        if (r.ambiguousWordCount() > maxAmbigiousWordCount) {
+          continue;
+        }
+
+        if (r.allIgnoredCount() > 0) {
+          Log.warn("Sentence [%s] contains word(s) that all analyses are ignored.",
+              r.sentence);
           continue;
         }
 

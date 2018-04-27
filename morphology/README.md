@@ -45,9 +45,10 @@ contains the input and zero or more `SingleAnalysis` objects in it.
  
  - If a word cannot be parsed, `WordAnalysis` will have 0 `SingleAnalysis` item.
    
- - Even if a word's root does not exist in dictionary, it will be analyzed anyway. Such as numbers or 
-   proper nouns that start with capital letters and contain a single quote. 
-   Users can disable this behavior by calling `disableUnidentifiedAnalyzer()` method while building `TurkishMorphology` object. 
+ - Even if a word's root does not exist in dictionary, system will try to analyze it anyway. 
+   This way numbers or proper nouns that start with capital letters and contain a single quote may get analyzed. 
+   Users can disable this behavior by calling `disableUnidentifiedTokenAnalyzer()` 
+   method while building `TurkishMorphology` object. 
    
    Consider examples "Matsumoto'ya" and "153'ü".
    System will temporarily generate `DictionaryItem` objects for "Matsumoto" and "153" and try to parse the words.
@@ -194,14 +195,11 @@ You can run this example from `zemberek.examples.morphology.GenerateWords` in ex
 
     DictionaryItem item = morphology.getLexicon().getMatchingItems("armut").get(0);
     for (String numberM : number) {
-
       for (String possessiveM : possessives) {
         for (String caseM : cases) {
           List<Result> results =
               morphology.getWordGenerator().generate(item, numberM, possessiveM, caseM);
-          for (Result result : results) {
-            System.out.println(result.surface);
-          }
+          results.forEach(System.out::println);
         }
       }
     }

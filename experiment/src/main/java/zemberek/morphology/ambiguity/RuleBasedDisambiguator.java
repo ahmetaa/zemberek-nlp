@@ -77,7 +77,28 @@ class RuleBasedDisambiguator {
       }
     }
 
-    int ambigiousWordCount() {
+    public int allIgnoredCount() {
+      int cnt = 0;
+      for (AmbiguityAnalysis result : results) {
+        long ignoreCount = result.choices.stream()
+            .filter(s -> s.decision == Decision.IGNORE).count();
+        if (ignoreCount == result.choices.size()) {
+          cnt++;
+        }
+      }
+      return cnt;
+    }
+
+    public String dump() {
+      List<String> lines = new ArrayList<>();
+      lines.add("S:" + sentence);
+      for (AmbiguityAnalysis analysis : results) {
+        lines.addAll(analysis.getForTrainingOutput());
+      }
+      return String.join("\n", lines);
+    }
+
+    int ambiguousWordCount() {
       int cnt = 0;
       for (AmbiguityAnalysis result : results) {
         if (result.choices.size() > 1) {
@@ -100,8 +121,8 @@ class RuleBasedDisambiguator {
 
         AmbiguityAnalysis before = i == 0 ? null : results.get(i - 1);
         AmbiguityAnalysis next = i == results.size() - 1 ? null : results.get(i + 1);
-        String left = i == 0 ? "<s>" : results.get(i - 1).input;
-        String right = i == results.size() - 1 ? "</s>" : results.get(i + 1).input;
+        String left = i == 0 ? "<s>" : results.get(i - 1).token;
+        String right = i == results.size() - 1 ? "</s>" : results.get(i + 1).token;
 
         if (a.choices.size() > 1) {
           for (int j = 0; j < a.choices.size(); j++) {
@@ -114,8 +135,8 @@ class RuleBasedDisambiguator {
               if (second != null && second.decision == Decision.IGNORE) {
                 continue;
               }
-              oneProper(first, second, i == 0, a.input);
-              oneProper(second, first, i == 0, a.input);
+              oneProper(first, second, i == 0, a.token);
+              oneProper(second, first, i == 0, a.token);
               bothProper(first, second, rules.bothProperRules);
             }
           }
@@ -130,14 +151,14 @@ class RuleBasedDisambiguator {
               if (second != null && second.decision == Decision.IGNORE) {
                 continue;
               }
-              ignoreOne(first, second, left, right, rules.pairLexRules, a.input);
+              ignoreOne(first, second, left, right, rules.pairLexRules, a.token);
               if (before == null) {
-                ignoreOne(first, second, left, right, rules.beginPairLexRules, a.input);
+                ignoreOne(first, second, left, right, rules.beginPairLexRules, a.token);
               }
               if (next == null
                   || next.checkPos(PrimaryPos.Punctuation)
                   || next.checkPos(PrimaryPos.Question)) {
-                ignoreOne(first, second, left, right, rules.endPairLexRules, a.input);
+                ignoreOne(first, second, left, right, rules.endPairLexRules, a.token);
               }
             }
           }
@@ -145,6 +166,104 @@ class RuleBasedDisambiguator {
         }
       }
     }
+
+    void bothProper(AnalysisDecision a1, AnalysisDecision a2, List<PairRule> rulez) {
+
+      String lex1 = a1.analysis.formatLexical();
+      String lex2 = a2.analysis.formatLexical();
+
+      if (!isProperOrAbbrv(lex1) || !isProperOrAbbrv(lex2)) {
+        return;
+      }
+
+      for (PairRule pairRule : rulez) {
+        String ignore = pairRule.ignoreStr;
+        String ok = pairRule.okStr;
+        if (checkRuleStr(lex1, ignore) && checkRuleStr(lex2, ok)) {
+          a1.decision = Decision.IGNORE;
+        }
+        if (checkRuleStr(lex2, ignore) && checkRuleStr(lex1, ok)) {
+          a2.decision = Decision.IGNORE;
+        }
+      }
+    }
+
+    void oneProper(
+        AnalysisDecision a1,
+        AnalysisDecision a2,
+        boolean first,
+        String input) {
+      String lex1 = a1.analysis.formatLexical();
+      String lex2 = a2.analysis.formatLexical();
+
+      if (isProperOrAbbrv(lex1) && !isProperOrAbbrv(lex2)) {
+        if ((!first && Character.isUpperCase(input.charAt(0))) || input.contains("'")) {
+          a2.decision = Decision.IGNORE;
+        }
+        if (Character.isLowerCase(input.charAt(0)) && !input.contains("'")) {
+          a1.decision = Decision.IGNORE;
+        }
+        if (containsAny(lex1, possession)) {
+          a1.decision = Decision.IGNORE;
+        }
+        if ((first && Character.isUpperCase(input.charAt(0)) && !input.contains("'"))) {
+          String a1Lemma = Turkish.capitalize(a1.analysis.getDictionaryItem().lemma);
+          String a2LemmaLower = a2.analysis.getDictionaryItem().lemma.toLowerCase(Turkish.LOCALE);
+          if (wordFreq.getCount(a1Lemma) < wordFreq.getCount(a2LemmaLower)) {
+            a1.decision = Decision.IGNORE;
+          } else {
+            a2.decision = Decision.IGNORE;
+          }
+        }
+      }
+    }
+
+    void ignoreOne(
+        AnalysisDecision a1,
+        AnalysisDecision a2,
+        String left,
+        String right,
+        List<PairRule> rulez,
+        String input) {
+
+      String lex1 = a1.analysis.formatLexical();
+      String lex2 = a2.analysis.formatLexical();
+
+      try {
+        for (PairRule pairRule : rulez) {
+          if (!checkInput(input, pairRule.input)) {
+            continue;
+          }
+          if (!checkInput(left, pairRule.left)) {
+            continue;
+          }
+          if (!checkInput(right, pairRule.right)) {
+            continue;
+          }
+
+          String toIgnore = pairRule.ignoreStr;
+          String toLeave = pairRule.okStr;
+          if (toIgnore.equals("*")) {
+            if (checkRuleStr(lex2, toLeave) && !checkRuleStr(lex1, toLeave)) {
+              a1.decision = Decision.IGNORE;
+            }
+            if (checkRuleStr(lex1, toLeave) && !checkRuleStr(lex2, toLeave)) {
+              a2.decision = Decision.IGNORE;
+            }
+          } else {
+            if (checkRuleStr(lex1, toIgnore) && checkRuleStr(lex2, toLeave)) {
+              a1.decision = Decision.IGNORE;
+            }
+            if (checkRuleStr(lex2, toIgnore) && checkRuleStr(lex1, toLeave)) {
+              a2.decision = Decision.IGNORE;
+            }
+          }
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
   }
 
   public static class AmbigiousWord {
@@ -162,13 +281,13 @@ class RuleBasedDisambiguator {
 
   public static class AmbiguityAnalysis {
 
-    String input;
+    String token;
     List<AnalysisDecision> choices = new ArrayList<>();
 
     AmbiguityAnalysis(WordAnalysis wordAnalysis) {
-      this.input = wordAnalysis.getInput();
+      this.token = wordAnalysis.getInput();
       for (SingleAnalysis analysis : wordAnalysis) {
-        choices.add(new AnalysisDecision(input, analysis, Decision.UNDECIDED));
+        choices.add(new AnalysisDecision(token, analysis, Decision.UNDECIDED));
       }
     }
 
@@ -186,7 +305,7 @@ class RuleBasedDisambiguator {
      */
     List<String> getForTrainingOutput() {
       List<String> result = new ArrayList<>();
-      result.add(input);
+      result.add(token);
       if (choices.size() == 1) {
         result.add(choices.get(0).analysis.formatLong());
         return result;
@@ -207,6 +326,11 @@ class RuleBasedDisambiguator {
       return result;
     }
 
+    @Override
+    public String toString() {
+      return token + "-" + choices;
+    }
+
   }
 
   enum Decision {
@@ -223,8 +347,8 @@ class RuleBasedDisambiguator {
 
     @Override
     public String toString() {
-      return "input='" + input + '\'' +
-          ", analysis=" + analysis;
+      return "input=" + input +
+          ", analysis=" + analysis + "," + decision;
     }
 
     AnalysisDecision(String input, SingleAnalysis analysis, Decision decision) {
@@ -282,7 +406,7 @@ class RuleBasedDisambiguator {
     }
   }
 
-  static List<PairRule> loadPairRule(Path path) throws IOException {
+  List<PairRule> loadPairRule(Path path) throws IOException {
     List<String> lines = TextIO.loadLines(path, "#");
     List<PairRule> rules = new ArrayList<>();
     for (String line : lines) {
@@ -309,51 +433,6 @@ class RuleBasedDisambiguator {
     return rules;
   }
 
-  static void ignoreOne(
-      AnalysisDecision a1,
-      AnalysisDecision a2,
-      String left,
-      String right,
-      List<PairRule> rulez,
-      String input) {
-
-    String lex1 = a1.analysis.formatLexical();
-    String lex2 = a2.analysis.formatLexical();
-
-    try {
-      for (PairRule pairRule : rulez) {
-        if (!checkInput(input, pairRule.input)) {
-          continue;
-        }
-        if (!checkInput(left, pairRule.left)) {
-          continue;
-        }
-        if (!checkInput(right, pairRule.right)) {
-          continue;
-        }
-
-        String toIgnore = pairRule.ignoreStr;
-        String toLeave = pairRule.okStr;
-        if (toIgnore.equals("*")) {
-          if (checkRuleStr(lex2, toLeave) && !checkRuleStr(lex1, toLeave)) {
-            a1.decision = Decision.IGNORE;
-          }
-          if (checkRuleStr(lex1, toLeave) && !checkRuleStr(lex2, toLeave)) {
-            a2.decision = Decision.IGNORE;
-          }
-        } else {
-          if (checkRuleStr(lex1, toIgnore) && checkRuleStr(lex2, toLeave)) {
-            a1.decision = Decision.IGNORE;
-          }
-          if (checkRuleStr(lex2, toIgnore) && checkRuleStr(lex1, toLeave)) {
-            a2.decision = Decision.IGNORE;
-          }
-        }
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
 
   private static boolean checkInput(String input, String ruleInput) {
     if (ruleInput.equals("*")) {
@@ -398,56 +477,6 @@ class RuleBasedDisambiguator {
     }
   }
 
-  static void bothProper(AnalysisDecision a1, AnalysisDecision a2, List<PairRule> rulez) {
-
-    String lex1 = a1.analysis.formatLexical();
-    String lex2 = a2.analysis.formatLexical();
-
-    if (!isProperOrAbbrv(lex1) || !isProperOrAbbrv(lex2)) {
-      return;
-    }
-
-    for (PairRule pairRule : rulez) {
-      String ignore = pairRule.ignoreStr;
-      String ok = pairRule.okStr;
-      if (checkRuleStr(lex1, ignore) && checkRuleStr(lex2, ok)) {
-        a1.decision = Decision.IGNORE;
-      }
-      if (checkRuleStr(lex2, ignore) && checkRuleStr(lex1, ok)) {
-        a2.decision = Decision.IGNORE;
-      }
-    }
-  }
-
-  static void oneProper(
-      AnalysisDecision a1,
-      AnalysisDecision a2,
-      boolean first,
-      String input) {
-    String lex1 = a1.analysis.formatLexical();
-    String lex2 = a2.analysis.formatLexical();
-
-    if (isProperOrAbbrv(lex1) && !isProperOrAbbrv(lex2)) {
-      if ((!first && Character.isUpperCase(input.charAt(0))) || input.contains("'")) {
-        a2.decision = Decision.IGNORE;
-      }
-      if (Character.isLowerCase(input.charAt(0)) && !input.contains("'")) {
-        a1.decision = Decision.IGNORE;
-      }
-      if (containsAny(lex1, possession)) {
-        a1.decision = Decision.IGNORE;
-      }
-      if ((first && Character.isUpperCase(input.charAt(0)) && !input.contains("'"))) {
-        String a1Lemma = Turkish.capitalize(a1.analysis.getDictionaryItem().lemma);
-        String a2LemmaLower = a2.analysis.getDictionaryItem().lemma.toLowerCase(Turkish.LOCALE);
-        if (wordFreq.getCount(a1Lemma) < wordFreq.getCount(a2LemmaLower)) {
-          a1.decision = Decision.IGNORE;
-        } else {
-          a2.decision = Decision.IGNORE;
-        }
-      }
-    }
-  }
 
   private static boolean isProperOrAbbrv(String in) {
     return in.contains("Prop]") || in.contains("Abbrv]");
@@ -462,6 +491,24 @@ class RuleBasedDisambiguator {
       }
     }
     return false;
+  }
+
+  static class RulePairFail {
+
+    String s1, s2;
+    String failed;
+    String rule;
+    String rightContext, leftContext;
+
+    public RulePairFail(String s1, String s2, String failed, String rule, String rightContext,
+        String leftContext) {
+      this.s1 = s1;
+      this.s2 = s2;
+      this.failed = failed;
+      this.rule = rule;
+      this.rightContext = rightContext;
+      this.leftContext = leftContext;
+    }
   }
 
   static class RuleDebugData {

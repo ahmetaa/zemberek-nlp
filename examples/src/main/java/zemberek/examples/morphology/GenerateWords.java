@@ -18,14 +18,11 @@ public class GenerateWords {
 
     DictionaryItem item = morphology.getLexicon().getMatchingItems("armut").get(0);
     for (String numberM : number) {
-
       for (String possessiveM : possessives) {
         for (String caseM : cases) {
           List<Result> results =
               morphology.getWordGenerator().generate(item, numberM, possessiveM, caseM);
-          for (Result result : results) {
-            System.out.println(result.surface);
-          }
+          results.forEach(System.out::println);
         }
       }
     }

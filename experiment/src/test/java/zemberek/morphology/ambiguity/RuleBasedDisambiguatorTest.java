@@ -17,8 +17,8 @@ public class RuleBasedDisambiguatorTest {
     //String input = "O anda gördüm.";
     //String input = "Aklımıza ilk gelen emeği öncelemek.";
     //String input = "Petrolün Türkiye üzerinden dünya pazarına satılması.";
-    //String input = "Yarın kar yağacak.";
-    String input = "Bu takımın.";
+    String input = "Sanki Yarın kar yağacak.";
+    //String input = "Sadece partimi iktidar yaptım.";
     TurkishMorphology analyzer = TurkishMorphology.createWithDefaults();
 //    Rules rules = new Rules();
 //    rules.pairLexRules.add(PairRule.fromLine("Aklı*|aklı* [akıl:Noun] *"));
