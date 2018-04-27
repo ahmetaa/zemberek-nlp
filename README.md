@@ -88,17 +88,14 @@ Maven artifact id : **lm**
 
 ### Normalization
 
-Provides spell checker and suggestion functions. [Documentation](normalization)
+Provides basic spell checker and suggestion functions. [Documentation](normalization)
 
 Maven artifact id : **normalization**
 
 ## Known Issues and Limitations
-- Project requires Java 8.
-- Currently word and sentence parse module operations generates parse graph with each initialization.
-So each run in the system takes some seconds. 
+- Project requires Java 8 or higher.
 - Morphological parsing does not work for some obvious and frequent words.
 - Morphological disambiguation is working less accurate then expected.
-- Morphological generation may not work for some obvious Stem-Suffix combinations.
 - Please see issues section for further issues and feel free to create new ones.
 
 ## License
