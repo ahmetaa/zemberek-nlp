@@ -17,7 +17,7 @@ public class RuleBasedDisambiguatorTest {
     //String input = "O anda gördüm.";
     //String input = "Aklımıza ilk gelen emeği öncelemek.";
     //String input = "Petrolün Türkiye üzerinden dünya pazarına satılması.";
-    String input = "koskoca adapazarı belediyesi.";
+    String input = "Selamlarımla...";
     //String input = "Sadece partimi iktidar yaptım.";
     TurkishMorphology analyzer = TurkishMorphology.createWithDefaults();
 //    Rules rules = new Rules();
@@ -25,6 +25,7 @@ public class RuleBasedDisambiguatorTest {
     RuleBasedDisambiguator disambiguator = new RuleBasedDisambiguator(analyzer, Rules.fromResources());
 
     ResultSentence resultSentence = disambiguator.disambiguate(input);
+    System.out.println(resultSentence.allIgnoredCount());
     for (AmbiguityAnalysis a : resultSentence.results) {
       a.getForTrainingOutput().forEach(System.out::println);
     }

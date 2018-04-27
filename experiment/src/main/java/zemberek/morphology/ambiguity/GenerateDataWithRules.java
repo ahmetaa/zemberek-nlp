@@ -42,8 +42,8 @@ class GenerateDataWithRules {
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/www.aljazeera.com.tr");
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/wowturkey.com");
-    //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
-    Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
+    Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
+    //Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
     Path outRoot = Paths.get("data/ambiguity");
     Files.createDirectories(outRoot);
 
@@ -166,6 +166,10 @@ class GenerateDataWithRules {
         ResultSentence r = ruleBasedDisambiguator.disambiguate(sentence);
 
         if (r.ambiguousWordCount() > maxAmbigiousWordCount) {
+          continue;
+        }
+
+        if (r.zeroAnalysisCount() > 0) {
           continue;
         }
 

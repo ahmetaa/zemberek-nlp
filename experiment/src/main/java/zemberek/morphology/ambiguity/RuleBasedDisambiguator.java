@@ -77,6 +77,16 @@ class RuleBasedDisambiguator {
       }
     }
 
+    public int zeroAnalysisCount() {
+      int cnt = 0;
+      for (AmbiguityAnalysis result : results) {
+        if (result.choices.size()==0) {
+          cnt++;
+        }
+      }
+      return cnt;
+    }
+
     public int allIgnoredCount() {
       int cnt = 0;
       for (AmbiguityAnalysis result : results) {
