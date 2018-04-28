@@ -56,7 +56,7 @@ public class Trie<T> {
         if (i == chars.length) {
           // Homonym
           if (fragmentSplitIndex == node.fragment.length) {
-            if(node.addItem(item)) {
+            if (node.addItem(item)) {
               size++;
             }
             break;
@@ -148,13 +148,20 @@ public class Trie<T> {
       // Compare fragment and input.
       boolean fail = false;
       int j;
-      for(j =0; j<fragment.length && i<input.length(); j++,i++) {
-        if(!fail && fragment[j] != input.charAt(i)) {
+      for (j = 0; j < fragment.length && i < input.length(); j++, i++) {
+        if (!fail && fragment[j] != input.charAt(i)) {
           fail = true;
         }
       }
-      if(nodeCallback != null && !fail && j==fragment.length && node.hasItem()) {
-        nodeCallback.accept(node);
+      if (nodeCallback != null) {
+        if (!fail && j == fragment.length) {
+          if (node.hasItem()) {
+            nodeCallback.accept(node);
+          }
+        } else {
+          // no need to go further
+          break;
+        }
       }
     }
     return node;
@@ -166,8 +173,7 @@ public class Trie<T> {
    * @param input input char array to look in the fragment
    * @param start start index where method starts looking the input in the fragment
    * @param fragment the char array to look input array.
-   * @return
-   * <pre>
+   * @return <pre>
    * for input: "foo" fragment = "foobar" index = 0, returns 3
    * for input: "fool" fragment = "foobar" index = 0, returns 3
    * for input: "fool" fragment = "foobar" index = 1, returns 2
