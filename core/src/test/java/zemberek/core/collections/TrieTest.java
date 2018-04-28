@@ -1,6 +1,7 @@
 package zemberek.core.collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.base.Objects;
@@ -81,12 +82,20 @@ public class TrieTest {
     }
   }
 
-  private void checkitemsMatches(String prefix, List<Item> items) {
-    List<Item> stems = lt.getMatchingItems(prefix);
+  private void checkitemsMatches(String input, List<Item> items) {
+    List<Item> stems = lt.getMatchingItems(input);
     for (Item Item : items) {
       assertTrue("Should have contained: " + Item, stems.contains(Item));
     }
   }
+
+  private void checkitemsMustNotMatch(String input, List<Item> items) {
+    List<Item> stems = lt.getMatchingItems(input);
+    for (Item Item : items) {
+      assertFalse("Must not have contained: " + Item, stems.contains(Item));
+    }
+  }
+
 
   @Test
   public void empty() {
@@ -152,11 +161,12 @@ public class TrieTest {
   }
 
   @Test
-  public void stemsForLongerInputs2() {
-    List<Item> items = createitems("a", "air", "airports");
+  public void stemsWrongMatchTest() {
+    List<Item> items = createitems("e","elma", "elmas");
     additems(items);
     checkitemsExist(items);
-    checkitemsMatches("airpods", createitems("a", "air"));
+    checkitemsMatches("elms", createitems("e"));
+    checkitemsMustNotMatch("elms", createitems("elma","elmas"));
   }
 
   @Test
