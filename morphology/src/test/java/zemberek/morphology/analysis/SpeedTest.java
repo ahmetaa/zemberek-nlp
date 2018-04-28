@@ -28,7 +28,7 @@ public class SpeedTest {
     Path p = Paths.get("src/test/resources/corpora/cnn-turk-10k");
     List<String> sentences = getSentences(p);
     TurkishMorphology analyzer = TurkishMorphology
-        .builder().disableCache().addDefaultDictionaries().build();
+        .builder().addDefaultDictionaries().build();
 
     Stopwatch sw = Stopwatch.createStarted();
 

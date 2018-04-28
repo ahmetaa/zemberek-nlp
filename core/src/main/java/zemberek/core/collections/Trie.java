@@ -148,9 +148,11 @@ public class Trie<T> {
       // Compare fragment and input.
       boolean fail = false;
       int j;
+      //TODO: code below may be simplified
       for (j = 0; j < fragment.length && i < input.length(); j++, i++) {
-        if (!fail && fragment[j] != input.charAt(i)) {
+        if (fragment[j] != input.charAt(i)) {
           fail = true;
+          break;
         }
       }
       if (nodeCallback != null) {
