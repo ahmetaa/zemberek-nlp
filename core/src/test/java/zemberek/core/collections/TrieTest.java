@@ -177,6 +177,14 @@ public class TrieTest {
   }
 
   @Test
+  public void stemsWrongMatchTest3() {
+    List<Item> items = createitems("comple","complete");
+    additems(items);
+    checkitemsExist(items);
+    checkitemsMustNotMatch("complutense", createitems("complete"));
+  }
+
+  @Test
   public void removeStems() {
     List<Item> items = createitems("el", "elmas", "elma", "ela");
     additems(items);

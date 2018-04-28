@@ -37,6 +37,9 @@ public class SpeedTest {
     int sentenceCount = 0;
     Histogram<String> failedWords = new Histogram<>(100000);
     for (String sentence : sentences) {
+      sentence = sentence.replaceAll("\\s+|\\u00a0", " ");
+      sentence = sentence.replaceAll("[\\u00ad]", "");
+      sentence = sentence.replaceAll("[…]", "...");
       List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
       for (Token token : tokens) {
         if (token.getType() == TurkishLexer.Punctuation) {

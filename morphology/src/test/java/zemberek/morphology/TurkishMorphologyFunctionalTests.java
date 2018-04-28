@@ -26,9 +26,7 @@ public class TurkishMorphologyFunctionalTests {
         .build();
     Assert.assertEquals(0, morphology.analyze("Air'rrr").analysisCount());
     Assert.assertEquals(1, morphology.analyze("Air").analysisCount());
-
   }
-
 
   @Test
   public void testWordsWithDot() {
