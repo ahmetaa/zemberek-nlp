@@ -162,11 +162,18 @@ public class TrieTest {
 
   @Test
   public void stemsWrongMatchTest() {
-    List<Item> items = createitems("e","elma", "elmas");
+    List<Item> items = createitems("e", "elma", "elmas");
     additems(items);
     checkitemsExist(items);
-    checkitemsMatches("elms", createitems("e"));
-    checkitemsMustNotMatch("elms", createitems("elma","elmas"));
+    checkitemsMustNotMatch("elms", createitems("elma", "elmas"));
+  }
+
+  @Test
+  public void stemsWrongMatchTest2() {
+    List<Item> items = createitems("airport", "airports");
+    additems(items);
+    checkitemsExist(items);
+    checkitemsMustNotMatch("airpods", createitems("airports"));
   }
 
   @Test

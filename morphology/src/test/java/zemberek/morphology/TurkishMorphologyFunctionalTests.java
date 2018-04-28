@@ -1,12 +1,10 @@
 package zemberek.morphology;
 
-import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 import zemberek.morphology.analysis.WordAnalysis;
 
 public class TurkishMorphologyFunctionalTests {
-
 
   @Test
   public void testWordsWithCircumflex() {
@@ -20,13 +18,15 @@ public class TurkishMorphologyFunctionalTests {
   }
 
   @Test
-  public void test2() throws IOException {
+  public void test2() {
     TurkishMorphology morphology = TurkishMorphology
         .builder()
-        .addDefaultDictionaries()
+        .addDictionaryLines("Air")
         .disableCache()
         .build();
-    morphology.analyze("airpods");
+    Assert.assertEquals(0, morphology.analyze("Air'rrr").analysisCount());
+    Assert.assertEquals(1, morphology.analyze("Air").analysisCount());
+
   }
 
 

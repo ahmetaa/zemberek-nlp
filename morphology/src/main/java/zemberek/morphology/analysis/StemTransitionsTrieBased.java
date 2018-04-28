@@ -111,7 +111,7 @@ public class StemTransitionsTrieBased implements StemTransitions {
     try {
       List<StemTransition> transitions = generate(item);
       for (StemTransition transition : transitions) {
-        stemTransitionTrie.add(transition.surface, transition);
+        stemTransitionTrie.remove(transition.surface, transition);
       }
       if (differentStemItems.containsKey(item)) {
         differentStemItems.removeAll(item);

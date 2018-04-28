@@ -145,15 +145,16 @@ public class Trie<T> {
         break;
       }
       char[] fragment = node.fragment;
-      int j = 0;
       // Compare fragment and input.
-      while (j < fragment.length && i < input.length() && fragment[j++] == input.charAt(i++)) {
-
-      }
-      if (nodeCallback != null) {
-        if (j == fragment.length && i <= input.length() && node.hasItem()) {
-          nodeCallback.accept(node);
+      boolean fail = false;
+      int j;
+      for(j =0; j<fragment.length && i<input.length(); j++,i++) {
+        if(!fail && fragment[j] != input.charAt(i)) {
+          fail = true;
         }
+      }
+      if(nodeCallback != null && !fail && j==fragment.length && node.hasItem()) {
+        nodeCallback.accept(node);
       }
     }
     return node;
@@ -165,11 +166,16 @@ public class Trie<T> {
    * @param input input char array to look in the fragment
    * @param start start index where method starts looking the input in the fragment
    * @param fragment the char array to look input array.
-   * @return for input: "foo" fragment = "foobar" index = 0, returns 3 for input: "fool" fragment =
-   * "foobar" index = 0, returns 3 for input: "fool" fragment = "foobar" index = 1, returns 2 for
-   * input: "foo" fragment = "obar" index = 1, returns 2 for input: "xyzfoo" fragment = "foo" index
-   * = 3, returns 2 for input: "xyzfoo" fragment = "xyz" index = 3, returns 0 for input: "xyz"
-   * fragment = "abc" index = 0, returns 0
+   * @return
+   * <pre>
+   * for input: "foo" fragment = "foobar" index = 0, returns 3
+   * for input: "fool" fragment = "foobar" index = 0, returns 3
+   * for input: "fool" fragment = "foobar" index = 1, returns 2
+   * for input: "foo" fragment = "obar" index = 1, returns 2
+   * for input: "xyzfoo" fragment = "foo" index = 3, returns 2
+   * for input: "xyzfoo" fragment = "xyz" index = 3, returns 0
+   * for input: "xyz" fragment = "abc" index = 0, returns 0
+   * </pre>
    */
   private static int getSplitPoint(char[] input, int start, char[] fragment) {
     int fragmentIndex = 0;

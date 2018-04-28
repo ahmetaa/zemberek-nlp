@@ -89,6 +89,10 @@ public class RootLexicon implements Iterable<DictionaryItem> {
     }
   }
 
+  public boolean containsItem(DictionaryItem item) {
+    return itemSet.contains(item);
+  }
+
   public DictionaryItem getItemById(String id) {
     return idMap.get(id);
   }

@@ -11,13 +11,14 @@ import zemberek.core.io.Strings;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
+import zemberek.core.turkish.StemAndEnding;
+import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analysis.tr.TurkishNumbers;
 import zemberek.morphology.analysis.tr.TurkishNumeralEndingMachine;
 import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.core.turkish.StemAndEnding;
-import zemberek.core.turkish.Turkish;
 import zemberek.tokenization.antlr.TurkishLexer;
 
 //TODO: Code requires serious testing and review.
@@ -28,20 +29,21 @@ public class UnidentifiedTokenAnalyzer {
 
   private static Map<String, String> ordinalMap = TurkishNumbers.getOrdinalMap();
 
+
   private InterpretingAnalyzer analyzer;
+  private RootLexicon lexicon;
   private TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
   private TurkishNumeralEndingMachine numeralEndingMachine = new TurkishNumeralEndingMachine();
 
   public UnidentifiedTokenAnalyzer(InterpretingAnalyzer analyzer) {
     this.analyzer = analyzer;
+    this.lexicon = analyzer.getLexicon();
   }
-
 
   public static final Pattern nonLettersPattern =
       Pattern.compile("[^" + TurkishAlphabet.INSTANCE.getAllLetters() + "]");
 
   public synchronized List<SingleAnalysis> analyze(Token token) {
-
     SecondaryPos sPos = guessSecondaryPosType(token);
     String word = token.getText();
 
@@ -53,8 +55,17 @@ public class UnidentifiedTokenAnalyzer {
     //TODO: consider returning analysis results without interfering with analyzer.
     String normalized = nonLettersPattern.matcher(word).replaceAll("");
     DictionaryItem item = new DictionaryItem(word, word, normalized, PrimaryPos.Noun, sPos);
-    analyzer.getStemTransitions().addDictionaryItem(item);
-    return analyzer.analyze(normalized);
+
+    boolean itemDoesNotExist = !lexicon.containsItem(item);
+    if (!itemDoesNotExist) {
+      item.attributes.add(RootAttribute.Runtime);
+      analyzer.getStemTransitions().addDictionaryItem(item);
+    }
+    List<SingleAnalysis> results = analyzer.analyze(normalized);
+    if (itemDoesNotExist) {
+      analyzer.getStemTransitions().removeDictionaryItem(item);
+    }
+    return results;
   }
 
   private SecondaryPos guessSecondaryPosType(Token token) {
@@ -105,11 +116,17 @@ public class UnidentifiedTokenAnalyzer {
         pronunciation,
         PrimaryPos.Noun,
         normalized.contains(".") ? SecondaryPos.Abbreviation : SecondaryPos.ProperNoun);
-    itemProp.attributes.add(RootAttribute.Runtime);
-    analyzer.getStemTransitions().addDictionaryItem(itemProp);
+    boolean itemDoesNotExist = !lexicon.containsItem(itemProp);
+
+    if (!itemDoesNotExist) {
+      itemProp.attributes.add(RootAttribute.Runtime);
+      analyzer.getStemTransitions().addDictionaryItem(itemProp);
+    }
     //TODO eliminate gross code duplication
     List<SingleAnalysis> properResults = analyzer.analyze(normalized);
-    analyzer.getStemTransitions().removeDictionaryItem(itemProp);
+    if (itemDoesNotExist) {
+      analyzer.getStemTransitions().removeDictionaryItem(itemProp);
+    }
     return properResults;
   }
 
@@ -132,11 +149,16 @@ public class UnidentifiedTokenAnalyzer {
         pronunciation,
         PrimaryPos.Noun,
         SecondaryPos.ProperNoun);
-    itemProp.attributes.add(RootAttribute.Runtime);
-    analyzer.getStemTransitions().addDictionaryItem(itemProp);
+    boolean itemDoesNotExist = !lexicon.containsItem(itemProp);
+    if (itemDoesNotExist) {
+      itemProp.attributes.add(RootAttribute.Runtime);
+      analyzer.getStemTransitions().addDictionaryItem(itemProp);
+    }
     String toParse = stemNormalized + endingNormalized;
     List<SingleAnalysis> properResults = analyzer.analyze(toParse);
-    analyzer.getStemTransitions().removeDictionaryItem(itemProp);
+    if (itemDoesNotExist) {
+      analyzer.getStemTransitions().removeDictionaryItem(itemProp);
+    }
     return properResults;
   }
 
