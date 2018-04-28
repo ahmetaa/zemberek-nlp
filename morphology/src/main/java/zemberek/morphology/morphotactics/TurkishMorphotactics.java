@@ -25,6 +25,7 @@ import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.analysis.StemTransitions;
+import zemberek.morphology.analysis.StemTransitionsMapBased;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.Conditions.ContainsMorpheme;
@@ -371,7 +372,7 @@ public class TurkishMorphotactics {
   public TurkishMorphotactics(RootLexicon lexicon) {
     this.lexicon = lexicon;
     makeGraph();
-    this.stemTransitions = new StemTransitions(lexicon, this);
+    this.stemTransitions = new StemTransitionsMapBased(lexicon, this);
   }
 
   private void makeGraph() {

@@ -6,8 +6,10 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -150,6 +152,14 @@ public class TrieTest {
   }
 
   @Test
+  public void stemsForLongerInputs2() {
+    List<Item> items = createitems("a", "air", "airports");
+    additems(items);
+    checkitemsExist(items);
+    checkitemsMatches("airpods", createitems("a", "air"));
+  }
+
+  @Test
   public void removeStems() {
     List<Item> items = createitems("el", "elmas", "elma", "ela");
     additems(items);
@@ -191,6 +201,7 @@ public class TrieTest {
   @Test
   public void testBigNumberOfBigWords() {
     List<String> words = generateRandomWords(10000);
+    int uniqueSize = new HashSet<>(words).size();
     Trie<Item> testTrie = new Trie<>();
     List<Item> items = new ArrayList<>();
     for (String s : words) {
@@ -198,10 +209,11 @@ public class TrieTest {
       testTrie.add(item.surfaceForm, item);
       items.add(item);
     }
+    Assert.assertEquals(uniqueSize, testTrie.size());
     for (Item item : items) {
       List<Item> res = testTrie.getMatchingItems(item.surfaceForm);
       assertTrue(res.contains(item));
-      assertTrue(res.get(res.size() - 1).surfaceForm.equals(item.surfaceForm));
+      assertEquals(res.get(res.size() - 1).surfaceForm, item.surfaceForm);
       for (Item n : res) {
         // Check if all stems are a prefix of last one on the tree.
         assertTrue(res.get(res.size() - 1).surfaceForm.startsWith(n.surfaceForm));
