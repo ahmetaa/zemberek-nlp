@@ -53,7 +53,7 @@ public class WordGeneratorTest extends AnalyzerTestBase {
     List<String> morphemes = Lists.newArrayList("Noun", "A3pl", "P1pl");
     List<Result> results = wordGenerator.generate(
         mo.getRootLexicon().getItemById("elma_Noun"),
-        mo.getMorphemes(morphemes)
+        TurkishMorphotactics.getMorphemes(morphemes)
     );
     Assert.assertTrue(results.size() > 0);
     Assert.assertEquals("elmalarımız", results.get(0).surface);

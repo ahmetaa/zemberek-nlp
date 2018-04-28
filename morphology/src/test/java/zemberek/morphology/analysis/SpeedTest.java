@@ -8,13 +8,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
-import zemberek.morphology.TurkishMorphology;
 import zemberek.core.turkish.Turkish;
+import zemberek.morphology.TurkishMorphology;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
@@ -37,9 +38,6 @@ public class SpeedTest {
     int sentenceCount = 0;
     Histogram<String> failedWords = new Histogram<>(100000);
     for (String sentence : sentences) {
-      sentence = sentence.replaceAll("\\s+|\\u00a0", " ");
-      sentence = sentence.replaceAll("[\\u00ad]", "");
-      sentence = sentence.replaceAll("[…]", "...");
       List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
       for (Token token : tokens) {
         if (token.getType() == TurkishLexer.Punctuation) {
@@ -49,7 +47,7 @@ public class SpeedTest {
         WordAnalysis results = analyzer.analyze(token.getText());
         if (!results.isCorrect()) {
           noAnalysis++;
-          failedWords.add(token.getText());
+          //failedWords.add(token.getText());
         }
       }
       sentenceCount++;
@@ -79,6 +77,7 @@ public class SpeedTest {
     int noAnalysis = 0;
     int sentenceCount = 0;
     for (String sentence : sentences) {
+
       List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
       for (Token token : tokens) {
         tokenCount++;
@@ -110,12 +109,15 @@ public class SpeedTest {
       analyzer.invalidateCache();
       System.in.read();
     }
-
   }
-
 
   private static List<String> getSentences(Path p) throws IOException {
     List<String> lines = Files.readAllLines(p, StandardCharsets.UTF_8);
+    lines = lines.stream().map(s ->
+        s.replaceAll("\\s+|\\u00a0", " ")
+            .replaceAll("[\\u00ad]", "").
+            replaceAll("[…]", "...")
+    ).collect(Collectors.toList());
     return TurkishSentenceExtractor.DEFAULT.fromParagraphs(lines);
   }
 

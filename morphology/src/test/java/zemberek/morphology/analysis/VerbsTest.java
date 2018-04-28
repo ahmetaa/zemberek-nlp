@@ -727,4 +727,19 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectAny("dövüştük", matchesTailLex("Verb + Recip + Verb + Past + A1pl"));
   }
 
+  @Test
+  public void testImek() {
+    AnalysisTester t = getTester("imek");
+
+    t.expectAny("idi", matchesTailLex("Verb + Past + A3sg"));
+    t.expectAny("ise", matchesTailLex("Verb + Cond + A3sg"));
+    t.expectAny("imiş", matchesTailLex("Verb + Narr + A3sg"));
+
+    t.expectFail(
+        "i",
+        "iyim"
+    );
+  }
+
+
 }
