@@ -1,5 +1,6 @@
 package zemberek.core.collections;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,21 +13,22 @@ import java.util.function.Consumer;
  */
 public class Trie<T> {
 
-  private Node root = new Node();
+  private Node<T> root = new Node<>();
+  private int size = 0;
 
   public void add(String s, T item) {
     if (item == null) {
       throw new NullPointerException("Input key can not be null");
     }
     char[] chars = s.toCharArray();
-    Node node = root;
-    Node previousNode;
+    Node<T> node = root;
+    Node<T> previousNode;
     // i holds the char index for input
     int i = 0;
     // fragmentSplitIndex is the index of the last fragment
     int fragmentSplitIndex;
     // While we still have chars left on the input, or no child marked with s[i]
-    // is found in subnodes
+    // is found in sub-nodes
     while (node != null) {
       previousNode = node;
       node = node.getChildNode(chars[i]);
@@ -38,7 +40,8 @@ public class Trie<T> {
       // or
       // root-foo* <- foobar ==> foor-foo*-bar*
       if (node == null) {
-        previousNode.addChild(new Node(item, getSuffix(chars, i)));
+        previousNode.addChild(new Node<>(item, getSuffix(chars, i)));
+        size++;
         return;
       } else {
         fragmentSplitIndex = getSplitPoint(chars, i, node.fragment);
@@ -53,10 +56,13 @@ public class Trie<T> {
         if (i == chars.length) {
           // Homonym
           if (fragmentSplitIndex == node.fragment.length) {
-            node.addItem(item);
+            if (node.addItem(item)) {
+              size++;
+            }
             break;
           }
-          Node newNode = new Node(item, Arrays.copyOf(node.fragment, fragmentSplitIndex));
+          Node<T> newNode = new Node<>(item, Arrays.copyOf(node.fragment, fragmentSplitIndex));
+          size++;
           node.trimLeft(fragmentSplitIndex);
           newNode.addChild(node);
           previousNode.addChild(newNode);
@@ -66,12 +72,13 @@ public class Trie<T> {
         // root-foobar* <- foxes ==> root-fo-obar*
         //                                  \-xes*
         if (i < chars.length && fragmentSplitIndex < node.fragment.length) {
-          Node node1 = new Node();
+          Node<T> node1 = new Node<>();
           node1.setFragment(Arrays.copyOf(node.fragment, fragmentSplitIndex)); // fo
           previousNode.addChild(node1);
           node.trimLeft(fragmentSplitIndex); // obar
           node1.addChild(node);
-          Node node2 = new Node(item, getSuffix(chars, i)); //xes
+          Node<T> node2 = new Node<>(item, getSuffix(chars, i)); //xes
+          size++;
           node1.addChild(node2);
           break;
         }
@@ -81,24 +88,67 @@ public class Trie<T> {
 
   // Remove does not apply compaction, just removes the item from node.
   public void remove(String s, T item) {
-    Node node = walkToNode(s, null);
+    Node node = walkToNode(s);
     if (node != null && node.hasItem()) {
       node.items.remove(item);
+      size--;
     }
   }
 
-  public boolean hasItem(String s, T item) {
-    Node node = walkToNode(s, null);
+  public int size() {
+    return size;
+  }
+
+  public boolean containsItem(String s, T item) {
+    Node node = walkToNode(s);
     return (node != null && node.hasItem());
   }
 
-  public List<T> getMatchingItems(String input) {
-    List<T> items = new ArrayList<>();
-    walkToNode(input, (node) -> {
-      if (node.hasItem()) {
-        items.addAll(node.items);
+  public List<T> getAll() {
+    List<T> items = new ArrayList<>(size);
+    List<Node<T>> toWalk = Lists.newArrayList(root);
+    while (toWalk.size() > 0) {
+      List<Node<T>> n = new ArrayList<>();
+      for (Node<T> tNode : toWalk) {
+        if (tNode.hasItem()) {
+          items.addAll(tNode.items);
+          n.addAll(tNode.children.getValues());
+        }
       }
-    });
+      toWalk = n;
+    }
+    return items;
+  }
+
+  public List<T> getMatchingItems(String input) {
+    List<T> items = new ArrayList<>(2);
+    Node<T> node = root;
+    char[] chars = input.toCharArray();
+    int i = 0;
+    mainLoop:
+    while (i < chars.length) {
+      node = node.getChildNode(chars[i]);
+      // if there are no child node with input char, break
+      if (node == null) {
+        break;
+      }
+      char[] fragment = node.fragment;
+      // Compare fragment and input.
+      int j;
+      for (j = 0; j < fragment.length && i < chars.length; j++, i++) {
+        if (fragment[j] != chars[i]) {
+          break mainLoop;
+        }
+      }
+      if (j == fragment.length) {
+        if (node.hasItem()) {
+          items.addAll(node.items);
+        }
+      } else {
+        // no need to go further
+        break;
+      }
+    }
     return items;
   }
 
@@ -106,8 +156,8 @@ public class Trie<T> {
     return root != null ? root.dump() : "";
   }
 
-  private Node walkToNode(String input, Consumer<Node> nodeCallback) {
-    Node node = root;
+  private Node<T> walkToNode(String input) {
+    Node<T> node = root;
     int i = 0;
     while (i < input.length()) {
       node = node.getChildNode(input.charAt(i));
@@ -116,14 +166,12 @@ public class Trie<T> {
         break;
       }
       char[] fragment = node.fragment;
-      int j = 0;
       // Compare fragment and input.
-      while (j < fragment.length && i < input.length() && fragment[j++] == input.charAt(i++)) {
-
-      }
-      if (nodeCallback != null) {
-        if (j == fragment.length && i <= input.length() && node.hasItem()) {
-          nodeCallback.accept(node);
+      int j;
+      //TODO: code below may be simplified
+      for (j = 0; j < fragment.length && i < input.length(); j++, i++) {
+        if (fragment[j] != input.charAt(i)) {
+          break;
         }
       }
     }
@@ -136,13 +184,17 @@ public class Trie<T> {
    * @param input input char array to look in the fragment
    * @param start start index where method starts looking the input in the fragment
    * @param fragment the char array to look input array.
-   * @return for input: "foo" fragment = "foobar" index = 0, returns 3 for input: "fool" fragment =
-   * "foobar" index = 0, returns 3 for input: "fool" fragment = "foobar" index = 1, returns 2 for
-   * input: "foo" fragment = "obar" index = 1, returns 2 for input: "xyzfoo" fragment = "foo" index
-   * = 3, returns 2 for input: "xyzfoo" fragment = "xyz" index = 3, returns 0 for input: "xyz"
-   * fragment = "abc" index = 0, returns 0
+   * @return <pre>
+   * for input: "foo" fragment = "foobar" index = 0, returns 3
+   * for input: "fool" fragment = "foobar" index = 0, returns 3
+   * for input: "fool" fragment = "foobar" index = 1, returns 2
+   * for input: "foo" fragment = "obar" index = 1, returns 2
+   * for input: "xyzfoo" fragment = "foo" index = 3, returns 2
+   * for input: "xyzfoo" fragment = "xyz" index = 3, returns 0
+   * for input: "xyz" fragment = "abc" index = 0, returns 0
+   * </pre>
    */
-  static int getSplitPoint(char[] input, int start, char[] fragment) {
+  private static int getSplitPoint(char[] input, int start, char[] fragment) {
     int fragmentIndex = 0;
     while (start < input.length && fragmentIndex < fragment.length
         && input[start++] == fragment[fragmentIndex]) {
@@ -161,7 +213,7 @@ public class Trie<T> {
 
     private char[] fragment;
     private List<T> items;
-    private IntMap<Node> children;
+    private IntMap<Node<T>> children;
 
     Node() {
     }
@@ -179,23 +231,27 @@ public class Trie<T> {
       this.fragment = fragment;
     }
 
-    void addItem(T item) {
+    boolean addItem(T item) {
       if (items == null) {
-        items = new ArrayList<>(2);
+        items = new ArrayList<>(1);
       }
       if (!items.contains(item)) {
         items.add(item);
+        return true;
+      } else {
+        return false;
       }
+
     }
 
-    void addChild(Node node) {
+    void addChild(Node<T> node) {
       if (children == null) {
-        children = new IntMap<>(8);
+        children = new IntMap<>(4);
       }
       children.put(node.getChar(), node);
     }
 
-    Node getChildNode(char c) {
+    Node<T> getChildNode(char c) {
       if (children == null) {
         return null;
       }
@@ -204,24 +260,22 @@ public class Trie<T> {
 
     @Override
     public String toString() {
-      String s = fragment == null ? "#" : new String(fragment);
+      StringBuilder s = new StringBuilder(fragment == null ? "#" : new String(fragment));
       if (children != null) {
-        s += "( ";
+        s.append("( ");
         for (Node node : children.getValues()) {
           if (node != null) {
-            s += node.getChar() + " ";
+            s.append(node.getChar()).append(" ");
           }
         }
-        s += ")";
-      } else {
-        s += "";
+        s.append(")");
       }
       if (items != null) {
         for (T item : items) {
-          s += " [" + item + "]";
+          s.append(" [").append(item).append("]");
         }
       }
-      return s;
+      return s.toString();
     }
 
     private char getChar() {

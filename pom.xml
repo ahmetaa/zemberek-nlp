@@ -58,6 +58,17 @@
           <plugin>
             <artifactId>maven-assembly-plugin</artifactId>
           </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>3.1.0</version>
+            <configuration>
+              <excludes>
+                <include>**/*.dict</include>
+                <include>tr/ambiguity/model</include>
+              </excludes>
+            </configuration>
+          </plugin>
           <!--<plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-source-plugin</artifactId>

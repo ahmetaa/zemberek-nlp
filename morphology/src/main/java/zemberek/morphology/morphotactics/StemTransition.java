@@ -10,7 +10,7 @@ public class StemTransition extends MorphemeTransition {
   public final DictionaryItem item;
   AttributeSet<PhoneticAttribute> phoneticAttributes;
 
-  int cachedHash = 0;
+  int cachedHash;
 
   public StemTransition(
       String surface,

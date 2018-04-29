@@ -25,6 +25,7 @@ import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.analysis.StemTransitions;
+import zemberek.morphology.analysis.StemTransitionsMapBased;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.Conditions.ContainsMorpheme;
@@ -371,7 +372,8 @@ public class TurkishMorphotactics {
   public TurkishMorphotactics(RootLexicon lexicon) {
     this.lexicon = lexicon;
     makeGraph();
-    this.stemTransitions = new StemTransitions(lexicon, this);
+    this.stemTransitions = new StemTransitionsMapBased(lexicon, this);
+    //this.stemTransitions = new StemTransitionsTrieBased(lexicon, this);
   }
 
   private void makeGraph() {
@@ -388,6 +390,7 @@ public class TurkishMorphotactics {
     connectAdverbs();
     connectLastVowelDropWords();
     connectPostpositives();
+    connectImek();
     handlePostProcessingConnections();
   }
 
@@ -1531,11 +1534,63 @@ public class TurkishMorphotactics {
   // ------------- Post Positive ------------------------------------------------
 
   MorphemeState postpRoot_ST = builder("postpRoot_ST", postp).posRoot().terminal().build();
-  MorphemeState postpZero_S = nonTerminalDerivative("avZero_S", zero);
+  MorphemeState postpZero_S = nonTerminalDerivative("postpZero_S", zero);
+
+  MorphemeState po2nRoot_S = nonTerminal("po2nRoot_S", noun);
+
+  MorphemeState po2nA3sg_S = nonTerminal("po2nA3sg_S", a3sg);
+  MorphemeState po2nA3pl_S = nonTerminal("po2nA3pl_S", a3pl);
+
+  MorphemeState po2nP3sg_S = nonTerminal("po2nP3sg_S", p3sg);
+  MorphemeState po2nPnon_S = nonTerminal("po2nPnon_S", pnon);
+
+  MorphemeState po2nNom_ST = terminal("po2nNom_ST", nom);
+  MorphemeState po2nDat_ST = terminal("po2nDat_ST", dat);
+  MorphemeState po2nAbl_ST = terminal("po2nAbl_ST", abl);
+  MorphemeState po2nLoc_ST = terminal("po2nLoc_ST", loc);
+  MorphemeState po2nIns_ST = terminal("po2nIns_ST", ins);
+  MorphemeState po2nAcc_ST = terminal("po2nAcc_ST", acc);
+  MorphemeState po2nGen_ST = terminal("po2nGen_ST", gen);
+  MorphemeState po2nEqu_ST = terminal("po2nEqu_ST", equ);
 
   private void connectPostpositives() {
+
     postpRoot_ST.addEmpty(postpZero_S);
     postpZero_S.addEmpty(nVerb_S);
+
+    // gibi is kind of special.
+    DictionaryItem gibiGen = lexicon.getItemById("gibi_Postp_PCGen");
+    DictionaryItem gibiNom = lexicon.getItemById("gibi_Postp_PCNom");
+
+    postpZero_S.addEmpty(po2nRoot_S, rootIsAny(gibiGen, gibiNom));
+
+    po2nRoot_S.addEmpty(po2nA3sg_S);
+    po2nRoot_S.add(po2nA3pl_S, "lAr");
+
+    // gibisi
+    po2nA3sg_S.add(po2nP3sg_S, "+sI");
+    // gibileri
+    po2nA3pl_S.add(po2nP3sg_S, "+sI");
+    po2nA3pl_S.addEmpty(po2nPnon_S);
+
+    po2nP3sg_S
+        .addEmpty(po2nNom_ST)
+        .add(po2nDat_ST, "nA")
+        .add(po2nLoc_ST, "ndA")
+        .add(po2nAbl_ST, "ndAn")
+        .add(po2nIns_ST, "ylA")
+        .add(po2nGen_ST, "nIn")
+        .add(po2nAcc_ST, "nI");
+
+    po2nPnon_S
+        .addEmpty(po2nNom_ST)
+        .add(po2nDat_ST, "A")
+        .add(po2nLoc_ST, "dA")
+        .add(po2nAbl_ST, "dAn")
+        .add(po2nIns_ST, "lA")
+        .add(po2nGen_ST, "In")
+        .add(po2nEqu_ST, "cA")
+        .add(po2nAcc_ST, "I");
   }
 
   // ------------- Verbs -----------------------------------
@@ -2248,7 +2303,70 @@ public class TurkishMorphotactics {
     // Copula can come before A3pl.
     qPresent_S.add(pvCopBeforeA3pl_S, "dIr");
     qCopBeforeA3pl_S.add(qA3pl_ST, "lAr");
+  }
 
+  //-------- Verb `imek` -----------------------------------------------
+
+  public MorphemeState imekRoot_S = builder("imekRoot_S", verb).posRoot().build();
+
+  MorphemeState imekPast_S = nonTerminal("imekPast_S", past);
+  MorphemeState imekNarr_S = nonTerminal("imekNarr_S", narr);
+
+  MorphemeState imekCond_S = nonTerminal("imekCond_S", cond);
+
+  MorphemeState imekA1sg_ST = terminal("imekA1sg_ST", a1sg);
+  MorphemeState imekA2sg_ST = terminal("imekA2sg_ST", a2sg);
+  MorphemeState imekA3sg_ST = terminal("imekA3sg_ST", a3sg);
+  MorphemeState imekA1pl_ST = terminal("imekA1pl_ST", a1pl);
+  MorphemeState imekA2pl_ST = terminal("imekA2pl_ST", a2pl);
+  MorphemeState imekA3pl_ST = terminal("imekA3pl_ST", a3pl);
+
+  MorphemeState imekCop_ST = terminal("qCop_ST", cop);
+
+  private void connectImek() {
+    // idi
+    imekRoot_S.add(imekPast_S, "di");
+    // imiş
+    imekRoot_S.add(imekNarr_S, "miş");
+    // ise
+    imekRoot_S.add(imekCond_S, "se");
+
+    // idim, idin, idi, idik, idiniz, idiler
+    imekPast_S.add(imekA1sg_ST, "m");
+    imekPast_S.add(imekA2sg_ST, "n");
+    imekPast_S.addEmpty(imekA3sg_ST);
+    imekPast_S.add(imekA1pl_ST, "k");
+    imekPast_S.add(imekA2pl_ST, "niz");
+    imekPast_S.add(imekA3pl_ST, "ler");
+
+    // imişim, imişsin, imiş, imişiz, imişsiniz, imişler
+    imekNarr_S.add(imekA1sg_ST, "im");
+    imekNarr_S.add(imekA2sg_ST, "sin");
+    imekNarr_S.addEmpty(imekA3sg_ST);
+    imekNarr_S.add(imekA1pl_ST, "iz");
+    imekNarr_S.add(imekA2pl_ST, "siniz");
+    imekNarr_S.add(imekA3pl_ST, "ler");
+
+    imekPast_S.add(imekCond_S, "yse");
+    imekNarr_S.add(imekCond_S, "se");
+
+    imekCond_S.add(imekA1sg_ST, "m");
+    imekCond_S.add(imekA2sg_ST, "n");
+    imekCond_S.addEmpty(imekA3sg_ST);
+    imekCond_S.add(imekA1pl_ST, "k");
+    imekCond_S.add(imekA2pl_ST, "niz");
+    imekCond_S.add(imekA3pl_ST, "ler");
+
+    // for not allowing "i-di-m-dir"
+    Condition rejectNoCopula = new CurrentGroupContainsAny(imekPast_S).not();
+
+    // imişimdir, imişsindir etc.
+    imekA1sg_ST.add(imekCop_ST, "dir", rejectNoCopula);
+    imekA2sg_ST.add(imekCop_ST, "dir", rejectNoCopula);
+    imekA3sg_ST.add(imekCop_ST, "tir", rejectNoCopula);
+    imekA1pl_ST.add(imekCop_ST, "dir", rejectNoCopula);
+    imekA2pl_ST.add(imekCop_ST, "dir", rejectNoCopula);
+    imekA3pl_ST.add(imekCop_ST, "dir", rejectNoCopula);
   }
 
   private void handlePostProcessingConnections() {
@@ -2268,6 +2386,7 @@ public class TurkishMorphotactics {
 
   void mapSpecialItemsToRootStates() {
     itemRootStateMap.put("değil_Verb", nVerbDegil_S);
+    itemRootStateMap.put("imek_Verb", imekRoot_S);
     itemRootStateMap.put("su_Noun", nounSuRoot_S);
     itemRootStateMap.put("akarsu_Noun", nounSuRoot_S);
     itemRootStateMap.put("öyle_Adv", advForVerbDeriv_ST);

@@ -96,6 +96,7 @@ Maven artifact id : **normalization**
 - Project requires Java 8 or higher.
 - Morphological parsing does not work for some obvious and frequent words.
 - Morphological disambiguation is working less accurate then expected.
+- Library is not well-tested for multi-threaded usage. 
 - Please see issues section for further issues and feel free to create new ones.
 
 ## License

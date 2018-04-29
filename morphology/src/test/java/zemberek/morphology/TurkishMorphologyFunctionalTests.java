@@ -6,7 +6,6 @@ import zemberek.morphology.analysis.WordAnalysis;
 
 public class TurkishMorphologyFunctionalTests {
 
-
   @Test
   public void testWordsWithCircumflex() {
     TurkishMorphology morphology = TurkishMorphology
@@ -16,6 +15,17 @@ public class TurkishMorphologyFunctionalTests {
         .build();
     WordAnalysis result = morphology.analyze("zekâ");
     Assert.assertEquals(1, result.analysisCount());
+  }
+
+  @Test
+  public void test2() {
+    TurkishMorphology morphology = TurkishMorphology
+        .builder()
+        .addDictionaryLines("Air")
+        .disableCache()
+        .build();
+    Assert.assertEquals(0, morphology.analyze("Air'rrr").analysisCount());
+    Assert.assertEquals(1, morphology.analyze("Air").analysisCount());
   }
 
   @Test

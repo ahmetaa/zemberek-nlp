@@ -72,22 +72,22 @@ public class WordGenerator {
       Morpheme morpheme = TurkishMorphotactics.getMorpheme(morphemeId);
       morphemes.add(morpheme);
     }
-    List<StemTransition> candidates = stemTransitions.getMatchingStemTransitions(stem);
+    List<StemTransition> candidates = stemTransitions.getPrefixMatches(stem);
     return generate(stem, candidates, morphemes);
   }
 
   public List<Result> generate(DictionaryItem item, List<Morpheme> morphemes) {
-    List<StemTransition> candidates = stemTransitions.getMatchingStemTransitions(item);
+    List<StemTransition> candidates = stemTransitions.getTransitions(item);
     return generate(item.id, candidates, morphemes);
   }
 
   public List<Result> generate(DictionaryItem item, Morpheme... morphemes) {
-    List<StemTransition> candidates = stemTransitions.getMatchingStemTransitions(item);
+    List<StemTransition> candidates = stemTransitions.getTransitions(item);
     return generate(item.id, candidates, Arrays.asList(morphemes));
   }
 
   public List<Result> generate(DictionaryItem item, String... morphemeIds) {
-    List<StemTransition> candidates = stemTransitions.getMatchingStemTransitions(item);
+    List<StemTransition> candidates = stemTransitions.getTransitions(item);
     return generate(item.id, candidates, morphotactics.getMorphemes(morphemeIds));
   }
 

@@ -8,6 +8,7 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.morphology.analysis.AnalysisDebugData.RejectedTransition;
 import zemberek.morphology.analysis.SurfaceTransition.SuffixTemplateToken;
 import zemberek.morphology.analysis.SurfaceTransition.TemplateTokenType;
+import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.AttributeSet;
 import zemberek.morphology.morphotactics.CombinedCondition;
 import zemberek.morphology.morphotactics.Condition;
@@ -15,7 +16,6 @@ import zemberek.morphology.morphotactics.MorphemeTransition;
 import zemberek.morphology.morphotactics.StemTransition;
 import zemberek.morphology.morphotactics.SuffixTransition;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
-import zemberek.morphology.lexicon.RootLexicon;
 
 /**
  * This is a Morphological Analysis implementation. Instances of this class are not thread safe
@@ -63,11 +63,7 @@ public class InterpretingAnalyzer {
       debugData = new AnalysisDebugData();
     }
     // get stem candidates.
-    List<StemTransition> candidates = Lists.newArrayListWithCapacity(3);
-    for (int i = 1; i <= input.length(); i++) {
-      String stem = input.substring(0, i);
-      candidates.addAll(stemTransitions.getMatchingStemTransitions(stem));
-    }
+    List<StemTransition> candidates = stemTransitions.getPrefixMatches(input);
 
     if (debugMode) {
       debugData.input = input;

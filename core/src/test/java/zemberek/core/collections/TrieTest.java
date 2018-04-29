@@ -1,13 +1,16 @@
 package zemberek.core.collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -79,12 +82,20 @@ public class TrieTest {
     }
   }
 
-  private void checkitemsMatches(String prefix, List<Item> items) {
-    List<Item> stems = lt.getMatchingItems(prefix);
+  private void checkitemsMatches(String input, List<Item> items) {
+    List<Item> stems = lt.getMatchingItems(input);
     for (Item Item : items) {
       assertTrue("Should have contained: " + Item, stems.contains(Item));
     }
   }
+
+  private void checkitemsMustNotMatch(String input, List<Item> items) {
+    List<Item> stems = lt.getMatchingItems(input);
+    for (Item Item : items) {
+      assertFalse("Must not have contained: " + Item, stems.contains(Item));
+    }
+  }
+
 
   @Test
   public void empty() {
@@ -150,6 +161,30 @@ public class TrieTest {
   }
 
   @Test
+  public void stemsWrongMatchTest() {
+    List<Item> items = createitems("e", "elma", "elmas");
+    additems(items);
+    checkitemsExist(items);
+    checkitemsMustNotMatch("elms", createitems("elma", "elmas"));
+  }
+
+  @Test
+  public void stemsWrongMatchTest2() {
+    List<Item> items = createitems("airport", "airports");
+    additems(items);
+    checkitemsExist(items);
+    checkitemsMustNotMatch("airpods", createitems("airports"));
+  }
+
+  @Test
+  public void stemsWrongMatchTest3() {
+    List<Item> items = createitems("comple","complete");
+    additems(items);
+    checkitemsExist(items);
+    checkitemsMustNotMatch("complutense", createitems("complete"));
+  }
+
+  @Test
   public void removeStems() {
     List<Item> items = createitems("el", "elmas", "elma", "ela");
     additems(items);
@@ -191,6 +226,7 @@ public class TrieTest {
   @Test
   public void testBigNumberOfBigWords() {
     List<String> words = generateRandomWords(10000);
+    int uniqueSize = new HashSet<>(words).size();
     Trie<Item> testTrie = new Trie<>();
     List<Item> items = new ArrayList<>();
     for (String s : words) {
@@ -198,10 +234,11 @@ public class TrieTest {
       testTrie.add(item.surfaceForm, item);
       items.add(item);
     }
+    Assert.assertEquals(uniqueSize, testTrie.size());
     for (Item item : items) {
       List<Item> res = testTrie.getMatchingItems(item.surfaceForm);
       assertTrue(res.contains(item));
-      assertTrue(res.get(res.size() - 1).surfaceForm.equals(item.surfaceForm));
+      assertEquals(res.get(res.size() - 1).surfaceForm, item.surfaceForm);
       for (Item n : res) {
         // Check if all stems are a prefix of last one on the tree.
         assertTrue(res.get(res.size() - 1).surfaceForm.startsWith(n.surfaceForm));
