@@ -88,7 +88,7 @@ public class Trie<T> {
 
   // Remove does not apply compaction, just removes the item from node.
   public void remove(String s, T item) {
-    Node node = walkToNode(s, null);
+    Node node = walkToNode(s);
     if (node != null && node.hasItem()) {
       node.items.remove(item);
       size--;
@@ -100,7 +100,7 @@ public class Trie<T> {
   }
 
   public boolean containsItem(String s, T item) {
-    Node node = walkToNode(s, null);
+    Node node = walkToNode(s);
     return (node != null && node.hasItem());
   }
 
@@ -120,14 +120,35 @@ public class Trie<T> {
     return items;
   }
 
-
   public List<T> getMatchingItems(String input) {
     List<T> items = new ArrayList<>(2);
-    walkToNode(input, (node) -> {
-      if (node.hasItem()) {
-        items.addAll(node.items);
+    Node<T> node = root;
+    char[] chars = input.toCharArray();
+    int i = 0;
+    mainLoop:
+    while (i < chars.length) {
+      node = node.getChildNode(chars[i]);
+      // if there are no child node with input char, break
+      if (node == null) {
+        break;
       }
-    });
+      char[] fragment = node.fragment;
+      // Compare fragment and input.
+      int j;
+      for (j = 0; j < fragment.length && i < chars.length; j++, i++) {
+        if (fragment[j] != chars[i]) {
+          break mainLoop;
+        }
+      }
+      if (j == fragment.length) {
+        if (node.hasItem()) {
+          items.addAll(node.items);
+        }
+      } else {
+        // no need to go further
+        break;
+      }
+    }
     return items;
   }
 
@@ -135,7 +156,7 @@ public class Trie<T> {
     return root != null ? root.dump() : "";
   }
 
-  private Node<T> walkToNode(String input, Consumer<Node<T>> nodeCallback) {
+  private Node<T> walkToNode(String input) {
     Node<T> node = root;
     int i = 0;
     while (i < input.length()) {
@@ -146,22 +167,10 @@ public class Trie<T> {
       }
       char[] fragment = node.fragment;
       // Compare fragment and input.
-      boolean fail = false;
       int j;
       //TODO: code below may be simplified
       for (j = 0; j < fragment.length && i < input.length(); j++, i++) {
         if (fragment[j] != input.charAt(i)) {
-          fail = true;
-          break;
-        }
-      }
-      if (nodeCallback != null) {
-        if (!fail && j == fragment.length) {
-          if (node.hasItem()) {
-            nodeCallback.accept(node);
-          }
-        } else {
-          // no need to go further
           break;
         }
       }
