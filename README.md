@@ -34,7 +34,7 @@ And dependencies (For example morphology):
     <dependencies>
         <dependency>
             <groupId>zemberek-nlp</groupId>
-            <artifactId>morphology</artifactId>
+            <artifactId>zemberek-morphology</artifactId>
             <version>0.12.0</version>
         </dependency>
     </dependencies>
