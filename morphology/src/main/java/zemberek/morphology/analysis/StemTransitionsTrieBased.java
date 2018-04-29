@@ -6,7 +6,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import zemberek.core.collections.Trie;
 import zemberek.core.logging.Log;
-import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.StemTransition;
@@ -21,15 +20,12 @@ public class StemTransitionsTrieBased extends StemTransitionsBase implements Ste
       ArrayListMultimap.create(1000, 2);
 
   private ReadWriteLock lock = new ReentrantReadWriteLock();
-
   private RootLexicon lexicon;
-  private TurkishMorphotactics morphotactics;
-  private TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
 
   public StemTransitionsTrieBased(RootLexicon lexicon, TurkishMorphotactics morphotactics) {
     this.lexicon = lexicon;
     this.morphotactics = morphotactics;
-    generateStemTransitions();
+    lexicon.forEach(this::addTransitions);
   }
 
   public List<StemTransition> getTransitions() {
@@ -43,12 +39,6 @@ public class StemTransitionsTrieBased extends StemTransitionsBase implements Ste
 
   public RootLexicon getLexicon() {
     return lexicon;
-  }
-
-  private synchronized void generateStemTransitions() {
-    for (DictionaryItem item : lexicon) {
-      addDictionaryItem(item);
-    }
   }
 
   public List<StemTransition> getPrefixMatches(String stem) {
@@ -71,18 +61,22 @@ public class StemTransitionsTrieBased extends StemTransitionsBase implements Ste
   public void addDictionaryItem(DictionaryItem item) {
     lock.writeLock().lock();
     try {
-      List<StemTransition> transitions = generate(item);
-      for (StemTransition transition : transitions) {
-        stemTransitionTrie.add(transition.surface, transition);
-      }
-      if (transitions.size() > 1 || (transitions.size() == 1 && !item.root
-          .equals(transitions.get(0).surface))) {
-        differentStemItems.putAll(item, transitions);
-      }
+      addTransitions(item);
     } catch (Exception e) {
       Log.warn("Cannot generate stem transition for %s with reason %s", item, e.getMessage());
     } finally {
       lock.writeLock().unlock();
+    }
+  }
+
+  private void addTransitions(DictionaryItem item) {
+    List<StemTransition> transitions = generate(item);
+    for (StemTransition transition : transitions) {
+      stemTransitionTrie.add(transition.surface, transition);
+    }
+    if (transitions.size() > 1 || (transitions.size() == 1 && !item.root
+        .equals(transitions.get(0).surface))) {
+      differentStemItems.putAll(item, transitions);
     }
   }
 
