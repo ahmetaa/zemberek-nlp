@@ -39,7 +39,8 @@ We now use Caffeine for caching analysis results. There are static and dynamic c
 
 Word generation mechanism is also re-written.
 
-Dictionary serialization mechanism is written using protocol-buffers. Now initialization of `TurkishMorphology` class is faster.
+Dictionary serialization mechanism is written using protocol-buffers. 
+Now initialization of `TurkishMorphology` class is faster.
 
 There are Email, Url, Mention, HashTag, Emoticon, RomanNumeral, RegularAbbreviation, Abbreviation 
 secondary POS information.  
