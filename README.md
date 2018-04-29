@@ -60,37 +60,43 @@ Also, there is a separate project with same examples that uses Zemberek-NLP as m
 
 Core classes such as special Collection classes, Hash functions and helpers.
 
-Maven artifact id : **core**
+Maven artifact id : **zemberek-core**
 
 ### Morphology
 
 Turkish morphological analysis, disambiguation and word generation. [Documentation](morphology)
 
-Maven artifact id : **morphology**
+Maven artifact id : **zemberek-morphology**
 
 ### Tokenization
 
 Turkish Tokenization and sentence boundary detection. [Documentation](tokenization)
 
-Maven artifact id : **tokenization**
+Maven artifact id : **zemberek-tokenization**
 
 ### Language Identification.
 
 Allows fast identification of text language. [Documentation](lang-id)
 
-Maven artifact id : **lang-id**
+Maven artifact id : **zemberek-lang-id**
 
 ### Language modeling
 
 Provides a language compression algorithm. [Documentation](lm)
 
-Maven artifact id : **lm**
+Maven artifact id : **zemberek-lm**
 
 ### Normalization
 
 Provides basic spell checker and suggestion functions. [Documentation](normalization)
 
-Maven artifact id : **normalization**
+Maven artifact id : **zemberek-normalization**
+
+### Examples
+
+Provides basic usage examples. [Documentation](normalization)
+
+Maven artifact id : **zemberek-examples**
 
 ## Known Issues and Limitations
 - Project requires Java 8 or higher.

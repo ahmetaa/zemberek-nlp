@@ -6,6 +6,8 @@ CHANGE LOG
 This release is the result of some major refactoring of the Morphology module.
 There are many breaking changes.
 
+Maven artifact id names have now `zemberek-` prefix.
+
 Morphology module is re-written almost from scratch. Turkish morphotactics are now expressed in a simpler and more readable way
 in the code. New analyzer handles pronouns better and probably it generates
 more accurate results. But because this is a complete re-write, there might be new bugs and regressions.
