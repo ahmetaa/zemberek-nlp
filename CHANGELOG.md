@@ -1,7 +1,7 @@
 CHANGE LOG
 ==========
 
-## 0.12.0 (Not Yet Released)
+## 0.12.0 
 
 This release is the result of some major refactoring of the Morphology module.
 There are many breaking changes.
@@ -24,7 +24,7 @@ Default analysis representation is changed. Some examples:
     kitabımda ("in my book"  Noun, Singular, First person possession, Locative)
     [kitap:Noun] kitab:Noun+A3sg+ım:P1sg+da:Loc
 
-    dedim ("I told" Verb, past, first person sigular )
+    dedim ("I told" Verb, past tense, first person singular)
     [demek:Verb] de:Verb+di:Past+m:P1sg
 
     diyerek ("By telling" Verb, derived to an adverb)
