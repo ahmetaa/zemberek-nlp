@@ -329,5 +329,11 @@ public class NounsTest extends AnalyzerTestBase {
     Assert.assertTrue(!containsMorpheme(first, "P3sg"));
   }
 
+  @Test
+  public void properNoun1() {
+    AnalysisTester t = getTester("Ankara");
+    t.expectAny("ankara", matchesTailLex("Noun + A3sg"));
+  }
+
 
 }

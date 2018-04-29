@@ -21,6 +21,7 @@ import zemberek.core.turkish.TurkicLetter;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.LexiconException;
+import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.AttributeSet;
 import zemberek.morphology.morphotactics.MorphemeState;
 import zemberek.morphology.morphotactics.StemTransition;
@@ -29,9 +30,10 @@ import zemberek.morphology.morphotactics.TurkishMorphotactics;
 public abstract class StemTransitionsBase {
 
   TurkishMorphotactics morphotactics;
-  TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+  private TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+  RootLexicon lexicon;
 
-  EnumSet<RootAttribute> modifiers = EnumSet.of(
+  private EnumSet<RootAttribute> modifiers = EnumSet.of(
       Doubling,
       LastVowelDrop,
       ProgressiveVowelDrop,

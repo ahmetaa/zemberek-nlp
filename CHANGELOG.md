@@ -39,7 +39,8 @@ Word generation mechanism is also re-written.
 
 Dictionary serialization mechanism is written using protocol-buffers. Now initialization of `TurkishMorphology` class is faster.
 
-There are Email, Url, Mention, HashTag, Emoticon, RomanNumeral, RegularAbbreviation, Abbreviation secondary POS information.
+There are Email, Url, Mention, HashTag, Emoticon, RomanNumeral, RegularAbbreviation, Abbreviation 
+secondary POS information.  
 
 We added examples module. This is like a copy of `turkis-nlp-examples` project. Users can see 
 high level usage examples there.  
@@ -61,11 +62,13 @@ Generation is now handled by `WordGenerator` class. generation rules are changed
 provide empty surface morphemes, system search through them anyway. Check `GenerateWords` example class.
 
 #### Performance and memory footprint
-// TODO: Add some numbers here?
+System memory footprint is reduced. Analysis performance may be a bit slower but with cache, impact should be 
+small. We will provide measurements later.   
 
 #### Work that has not made this release
 
-We wrote a port of Facebook's FastText library in Java. It can be used for word embeddings and classification tasks. However it is not yet ready for release. 
+We wrote a port of Facebook's FastText library in Java. It can be used for word embeddings and 
+classification tasks. However it is not yet ready for release. 
 
 There is an experimental Named Entity Recognition module. But it is not yet ready for release.
 

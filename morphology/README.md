@@ -199,7 +199,7 @@ You can run this example from `zemberek.examples.morphology.GenerateWords` in ex
         for (String caseM : cases) {
           List<Result> results =
               morphology.getWordGenerator().generate(item, numberM, possessiveM, caseM);
-          results.forEach(System.out::println);
+          results.forEach(s->System.out.println(s.surface));
         }
       }
     }

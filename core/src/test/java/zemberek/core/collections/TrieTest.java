@@ -77,20 +77,20 @@ public class TrieTest {
 
   private void checkitemsExist(List<Item> items) {
     for (Item item : items) {
-      List<Item> stems = lt.getMatchingItems(item.surfaceForm);
+      List<Item> stems = lt.getPrefixMatchingItems(item.surfaceForm);
       assertTrue(" Should have contained: " + item, stems.contains(item));
     }
   }
 
   private void checkitemsMatches(String input, List<Item> items) {
-    List<Item> stems = lt.getMatchingItems(input);
+    List<Item> stems = lt.getPrefixMatchingItems(input);
     for (Item Item : items) {
       assertTrue("Should have contained: " + Item, stems.contains(Item));
     }
   }
 
   private void checkitemsMustNotMatch(String input, List<Item> items) {
-    List<Item> stems = lt.getMatchingItems(input);
+    List<Item> stems = lt.getPrefixMatchingItems(input);
     for (Item Item : items) {
       assertFalse("Must not have contained: " + Item, stems.contains(Item));
     }
@@ -99,7 +99,7 @@ public class TrieTest {
 
   @Test
   public void empty() {
-    List<Item> stems = lt.getMatchingItems("foo");
+    List<Item> stems = lt.getPrefixMatchingItems("foo");
     assertEquals(stems.size(), 0);
   }
 
@@ -236,7 +236,7 @@ public class TrieTest {
     }
     Assert.assertEquals(uniqueSize, testTrie.size());
     for (Item item : items) {
-      List<Item> res = testTrie.getMatchingItems(item.surfaceForm);
+      List<Item> res = testTrie.getPrefixMatchingItems(item.surfaceForm);
       assertTrue(res.contains(item));
       assertEquals(res.get(res.size() - 1).surfaceForm, item.surfaceForm);
       for (Item n : res) {
