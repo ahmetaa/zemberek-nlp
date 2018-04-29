@@ -94,7 +94,7 @@ Maven artifact id : **zemberek-normalization**
 
 ### Examples
 
-Provides basic usage examples. [Documentation](normalization)
+Provides basic usage examples. [Source](examples)
 
 Maven artifact id : **zemberek-examples**
 
