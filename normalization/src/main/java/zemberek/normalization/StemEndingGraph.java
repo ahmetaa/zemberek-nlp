@@ -1,19 +1,18 @@
 package zemberek.normalization;
 
-import com.google.common.io.Resources;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 import zemberek.core.collections.Histogram;
+import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
-import zemberek.morphology.analysis.StemTransitions;
-import zemberek.morphology.analysis.SingleAnalysis;
-import zemberek.morphology.TurkishMorphology;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.morphotactics.StemTransition;
 import zemberek.core.turkish.StemAndEnding;
 import zemberek.core.turkish.Turkish;
+import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.SingleAnalysis;
+import zemberek.morphology.analysis.StemTransitions;
+import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.morphotactics.StemTransition;
 
 /**
  * This is a data structure that can be used for spell checking purposes. This is a graph consist of
@@ -29,9 +28,7 @@ public class StemEndingGraph {
 
   public StemEndingGraph(TurkishMorphology morphology) throws IOException {
     this.morphology = morphology;
-    List<String> endings =
-        Resources.readLines(
-            Resources.getResource("endings"), StandardCharsets.UTF_8);
+    List<String> endings = TextIO.loadLinesFromResource("endings");
     this.endingGraph = generateEndingGraph(endings);
     this.stemGraph = generateStemGraph();
     Set<Node> stemWordNodes = stemGraph.getAllNodes(n -> n.word != null);

@@ -4,6 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 import zemberek.core.collections.Trie;
 import zemberek.core.logging.Log;
 import zemberek.morphology.lexicon.DictionaryItem;
@@ -15,12 +16,12 @@ public class StemTransitionsTrieBased extends StemTransitionsBase implements Ste
 
   private Trie<StemTransition> stemTransitionTrie = new Trie<>();
 
-  // contains a map that holds dictionary items that has multiple or different than item.root stem surface forms.
+  // contains a map that holds dictionary items that has multiple or
+  // different than item.root stem surface forms.
   private ArrayListMultimap<DictionaryItem, StemTransition> differentStemItems =
       ArrayListMultimap.create(1000, 2);
 
   private ReadWriteLock lock = new ReentrantReadWriteLock();
-  private RootLexicon lexicon;
 
   public StemTransitionsTrieBased(RootLexicon lexicon, TurkishMorphotactics morphotactics) {
     this.lexicon = lexicon;
@@ -44,7 +45,7 @@ public class StemTransitionsTrieBased extends StemTransitionsBase implements Ste
   public List<StemTransition> getPrefixMatches(String stem) {
     lock.readLock().lock();
     try {
-      return stemTransitionTrie.getMatchingItems(stem);
+      return stemTransitionTrie.getPrefixMatchingItems(stem);
     } finally {
       lock.readLock().unlock();
     }
@@ -54,7 +55,8 @@ public class StemTransitionsTrieBased extends StemTransitionsBase implements Ste
     if (differentStemItems.containsKey(item)) {
       return differentStemItems.get(item);
     } else {
-      return getPrefixMatches(item.root);
+      List<StemTransition> transitions = stemTransitionTrie.getItems(item.root);
+      return transitions.stream().filter(s -> s.item.equals(item)).collect(Collectors.toList());
     }
   }
 
@@ -70,13 +72,18 @@ public class StemTransitionsTrieBased extends StemTransitionsBase implements Ste
   }
 
   private void addTransitions(DictionaryItem item) {
-    List<StemTransition> transitions = generate(item);
-    for (StemTransition transition : transitions) {
-      stemTransitionTrie.add(transition.surface, transition);
-    }
-    if (transitions.size() > 1 || (transitions.size() == 1 && !item.root
-        .equals(transitions.get(0).surface))) {
-      differentStemItems.putAll(item, transitions);
+    lock.writeLock().lock();
+    try {
+      List<StemTransition> transitions = generate(item);
+      for (StemTransition transition : transitions) {
+        stemTransitionTrie.add(transition.surface, transition);
+      }
+      if (transitions.size() > 1 || (transitions.size() == 1 && !item.root
+          .equals(transitions.get(0).surface))) {
+        differentStemItems.putAll(item, transitions);
+      }
+    } finally {
+      lock.writeLock().unlock();
     }
   }
 

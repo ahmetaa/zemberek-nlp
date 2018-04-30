@@ -1,10 +1,12 @@
 CHANGE LOG
 ==========
 
-## 0.12.0 (Not Yet Released)
+## 0.12.0 
 
 This release is the result of some major refactoring of the Morphology module.
 There are many breaking changes.
+
+Maven artifact id names have now `zemberek-` prefix.
 
 Morphology module is re-written almost from scratch. Turkish morphotactics are now expressed in a simpler and more readable way
 in the code. New analyzer handles pronouns better and probably it generates
@@ -24,7 +26,7 @@ Default analysis representation is changed. Some examples:
     kitabımda ("in my book"  Noun, Singular, First person possession, Locative)
     [kitap:Noun] kitab:Noun+A3sg+ım:P1sg+da:Loc
 
-    dedim ("I told" Verb, past, first person sigular )
+    dedim ("I told" Verb, past tense, first person singular)
     [demek:Verb] de:Verb+di:Past+m:P1sg
 
     diyerek ("By telling" Verb, derived to an adverb)
@@ -37,9 +39,11 @@ We now use Caffeine for caching analysis results. There are static and dynamic c
 
 Word generation mechanism is also re-written.
 
-Dictionary serialization mechanism is written using protocol-buffers. Now initialization of `TurkishMorphology` class is faster.
+Dictionary serialization mechanism is written using protocol-buffers. 
+Now initialization of `TurkishMorphology` class is faster.
 
-There are Email, Url, Mention, HashTag, Emoticon, RomanNumeral, RegularAbbreviation, Abbreviation secondary POS information.
+There are Email, Url, Mention, HashTag, Emoticon, RomanNumeral, RegularAbbreviation, Abbreviation 
+secondary POS information.  
 
 We added examples module. This is like a copy of `turkis-nlp-examples` project. Users can see 
 high level usage examples there.  
@@ -61,11 +65,13 @@ Generation is now handled by `WordGenerator` class. generation rules are changed
 provide empty surface morphemes, system search through them anyway. Check `GenerateWords` example class.
 
 #### Performance and memory footprint
-// TODO: Add some numbers here?
+System memory footprint is reduced. Analysis performance may be a bit slower but with cache, impact should be 
+small. We will provide measurements later.   
 
 #### Work that has not made this release
 
-We wrote a port of Facebook's FastText library in Java. It can be used for word embeddings and classification tasks. However it is not yet ready for release. 
+We wrote a port of Facebook's FastText library in Java. It can be used for word embeddings and 
+classification tasks. However it is not yet ready for release. 
 
 There is an experimental Named Entity Recognition module. But it is not yet ready for release.
 

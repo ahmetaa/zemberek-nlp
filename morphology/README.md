@@ -4,7 +4,16 @@ Turkish Morphology
 ## Morphology
 
 Turkish is a morphologically rich language. 
-Zemberek provides morphological analysis, morphological ambiguity resolution and word generation functions. 
+Zemberek provides morphological analysis, morphological ambiguity resolution and word generation functions.
+
+## Maven Usage
+ 
+    <dependency>
+        <groupId>zemberek-nlp</groupId>
+        <artifactId>zemberek-morphology</artifactId>
+        <version>0.12.0</version>
+    </dependency>
+ 
 
 ### Creating TurkishMorphology object
 
@@ -199,7 +208,7 @@ You can run this example from `zemberek.examples.morphology.GenerateWords` in ex
         for (String caseM : cases) {
           List<Result> results =
               morphology.getWordGenerator().generate(item, numberM, possessiveM, caseM);
-          results.forEach(System.out::println);
+          results.forEach(s->System.out.println(s.surface));
         }
       }
     }

@@ -47,8 +47,7 @@ public class AnalysisFormatters {
 
       sb.append(posStr);
       if (item.secondaryPos != SecondaryPos.None) {
-        sb.append(posStr).append("+");
-        sb.append(item.secondaryPos.shortForm);
+        sb.append('+').append(item.secondaryPos.shortForm);
       }
       if (surfaces.size() > 1 && !surfaces.get(1).morpheme.derivational) {
         sb.append("+");

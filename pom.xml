@@ -15,7 +15,7 @@
     <module>tokenization</module>
     <module>lm</module>
     <module>all</module>
-    <module>experiment</module>
+    <!--<module>experiment</module>-->
     <module>lang-id</module>
     <module>normalization</module>
     <module>examples</module>

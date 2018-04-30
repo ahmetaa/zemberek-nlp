@@ -2,10 +2,9 @@ Zemberek-NLP
 ============
 
 Zemberek-NLP provides basic Natural Language Processing tools for Turkish.
-Code and API is **not** compatible with the old [Zemberek2](https://github.com/ahmetaa/zemberek) project. 
-Please note that **all code and APIs are subject to change drastically until version 1.0.0**
+Please note that **all code and APIs are subject to change until version 1.0.0**
 
-Latest version is 0.11.1 (April 13th 2017). [Change Log](CHANGELOG.md)
+Latest version is 0.12.0 (April 29th 2018). [Change Log](CHANGELOG.md)
 
 ## Citing
 
@@ -34,8 +33,8 @@ And dependencies (For example morphology):
     <dependencies>
         <dependency>
             <groupId>zemberek-nlp</groupId>
-            <artifactId>morphology</artifactId>
-            <version>0.11.0</version>
+            <artifactId>zemberek-morphology</artifactId>
+            <version>0.12.0</version>
         </dependency>
     </dependencies>
 
@@ -60,44 +59,50 @@ Also, there is a separate project with same examples that uses Zemberek-NLP as m
 
 Core classes such as special Collection classes, Hash functions and helpers.
 
-Maven artifact id : **core**
+Maven artifact id : **zemberek-core**
 
 ### Morphology
 
 Turkish morphological analysis, disambiguation and word generation. [Documentation](morphology)
 
-Maven artifact id : **morphology**
+Maven artifact id : **zemberek-morphology**
 
 ### Tokenization
 
 Turkish Tokenization and sentence boundary detection. [Documentation](tokenization)
 
-Maven artifact id : **tokenization**
+Maven artifact id : **zemberek-tokenization**
 
 ### Language Identification.
 
 Allows fast identification of text language. [Documentation](lang-id)
 
-Maven artifact id : **lang-id**
+Maven artifact id : **zemberek-lang-id**
 
 ### Language modeling
 
 Provides a language compression algorithm. [Documentation](lm)
 
-Maven artifact id : **lm**
+Maven artifact id : **zemberek-lm**
 
 ### Normalization
 
 Provides basic spell checker and suggestion functions. [Documentation](normalization)
 
-Maven artifact id : **normalization**
+Maven artifact id : **zemberek-normalization**
+
+### Examples
+
+Provides basic usage examples. [Source](examples)
+
+Maven artifact id : **zemberek-examples**
 
 ## Known Issues and Limitations
 - Project requires Java 8 or higher.
-- Morphological parsing does not work for some obvious and frequent words.
 - Morphological disambiguation is working less accurate then expected.
-- Library is not well-tested for multi-threaded usage. 
-- Please see issues section for further issues and feel free to create new ones.
+- Library is not well-tested for multi-threaded usage.
+
+Please see issues section for further issues and feel free to create new ones.
 
 ## License
 Code is licensed under Apache License, Version 2.0

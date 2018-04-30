@@ -71,6 +71,11 @@ public class AnalysisFormatterTest {
     analysis = analyzer.analyze("okut").get(0);
     Assert.assertEquals("oku+Verb^DB+Verb+Caus+Imp+A2sg",
         AnalysisFormatters.OFLAZER_STYLE.format(analysis));
+
+    analyzer = getAnalyzer("Ankara");
+    analysis = analyzer.analyze("ankara").get(0);
+    Assert.assertEquals("ankara+Noun+Prop+A3sg",
+        AnalysisFormatters.OFLAZER_STYLE.format(analysis));
   }
 
 

@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * A simple compact trie.
@@ -100,8 +99,13 @@ public class Trie<T> {
   }
 
   public boolean containsItem(String s, T item) {
-    Node node = walkToNode(s);
-    return (node != null && node.hasItem());
+    Node<T> node = walkToNode(s);
+    return (node != null && node.items.contains(item));
+  }
+
+  public List<T> getItems(String s) {
+    Node<T> node = walkToNode(s);
+    return node == null ? new ArrayList<>(0) : new ArrayList<>(node.items);
   }
 
   public List<T> getAll() {
@@ -120,7 +124,7 @@ public class Trie<T> {
     return items;
   }
 
-  public List<T> getMatchingItems(String input) {
+  public List<T> getPrefixMatchingItems(String input) {
     List<T> items = new ArrayList<>(2);
     Node<T> node = root;
     char[] chars = input.toCharArray();
