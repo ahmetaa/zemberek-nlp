@@ -234,12 +234,4 @@ public class SurfaceTransition {
     public void remove() {
     }
   }
-
-  public static void main(String[] args) {
-    MorphemeState f = MorphemeState.nonTerminal("f", TurkishMorphotactics.a3sg);
-    MorphemeState t = MorphemeState.nonTerminal("t", TurkishMorphotactics.a3pl);
-    SuffixTransition tr = new SuffixTransition.Builder().from(f).to(t).surfaceTemplate("+yInIz")
-        .build();
-    generate(tr, AttributesHelper.getMorphemicAttributes("oku"));
-  }
 }

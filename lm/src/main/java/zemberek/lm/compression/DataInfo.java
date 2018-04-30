@@ -106,11 +106,6 @@ public class DataInfo {
     return probBits;
   }
 
-  public static void main(String[] args) {
-    System.out.println(fromCounts(10, 100000, 0));
-    System.out.println(fromCountsAndExpectedBits(10, 200, 4, 100, 10));
-  }
-
   byte[] encode(int fp, int probIndex, int backoffIndex) {
     long k = backoffIndex;
     k = k << probBits;
@@ -126,12 +121,8 @@ public class DataInfo {
   }
 
   byte[] encode2(int fp, int prob, int backoff) {
-
     byte[] arr = new byte[byteCount];
-
     return arr;
-
-
   }
 
   @Override
