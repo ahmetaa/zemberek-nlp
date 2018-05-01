@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import zemberek.core.io.IOs;
 import zemberek.core.io.KeyValueReader;
 import zemberek.core.io.Strings;
+import zemberek.core.text.Regexps;
 
 public class TurkishNumbers {
 
@@ -195,7 +196,7 @@ public class TurkishNumbers {
 
   /**
    * return the value of a single key number value. those values are limited.
-   * key should not contain any spaces and must be in smallcase.
+   * key should not contain any spaces and must be in lowercase.
    *
    * @param word the Turkish representation of a single key number string.
    * @return the
@@ -211,7 +212,7 @@ public class TurkishNumbers {
 
   /**
    * replaces all number strings with actual numbers.
-   * Such as: ["hello bir on iki nokta otuz bes hello"] -> ["hello 1 10 2 nokta 30 5 hello"]
+   * Such as: ["hello bir on iki nokta otuz beş hello"] -> ["hello 1 10 2 nokta 30 5 hello"]
    *
    * @param inputSequence a sequence of words.
    * @return same as input but string representations of numbers are replaced with numbers.
@@ -302,6 +303,19 @@ public class TurkishNumbers {
     }
     sb.append(lastNumber);
     return sb.toString();
+  }
+
+  /**
+   * Separate digits and non digits as Strings. Such as:
+   * <pre>
+   * A12 -> "A" "12"
+   * 1A12'ye -> "1" "A" "12" "'ye"
+   * </pre>
+   * @param s input.
+   * @return separated list of numerical and non numerical tokens.
+   */
+  public static List<String> separateNumbers(String s) {
+    return Regexps.allMatches(NUMBER_SEPARATION, s);
   }
 
   public static String getOrdinal(String input) {

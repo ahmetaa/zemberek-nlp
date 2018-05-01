@@ -247,6 +247,12 @@ public class TurkishTokenizerTest {
   }
 
   @Test
+  public void testUnknownWord2() {
+    TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
+    matchSentences(tokenizer, "Bjørn", "Bjørn");
+  }
+
+  @Test
   public void testTimeToken() {
     TurkishTokenizer t = TurkishTokenizer.DEFAULT;
     matchSentences(t,
