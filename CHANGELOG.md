@@ -48,6 +48,8 @@ secondary POS information.
 We added examples module. This is like a copy of `turkis-nlp-examples` project. Users can see 
 high level usage examples there.  
 
+FAQ and front page Readme files are updated.
+
 #### Breaking changes
 
 Z3AbstractDisambiguator, TurkishMorphDisambiguator, Z3AbstractDisambiguator, Z3MarkovModelDisambiguator,
