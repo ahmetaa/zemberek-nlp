@@ -162,10 +162,11 @@ Tokenizer currently tokenizes these types:
     RomanNumeral=13
     AbbreviationWithDots=14
     Word=15
-    WordWithApostrophe=16
-    Punctuation=17
-    UnknownWord=18
-    Unknown=19
+    WordAlphanumerical=16
+    WordWithSymbol=17
+    Punctuation=18
+    UnknownWord=19
+    Unknown=20
 
 ### Speed
 
