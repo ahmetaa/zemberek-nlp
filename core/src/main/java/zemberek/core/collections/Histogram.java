@@ -41,15 +41,26 @@ public class Histogram<T> implements Iterable<T> {
     map = new UIntValueMap<>();
   }
 
+  /**
+   * Loads from file with format:
+   * [key][delimiter][count]
+   */
   public static Histogram<String> loadFromLines(List<String> lines, char delimiter) {
+    return loadFromLines(lines, delimiter, true);
+  }
+
+  public static Histogram<String> loadFromLines(
+      List<String> lines,
+      char delimiter,
+      boolean keyComesFirst) {
     Histogram<String> result = new Histogram<>(lines.size());
     for (String s : lines) {
       int index = s.indexOf(delimiter);
       if (index <= 0) {
         throw new IllegalStateException("Bad histogram line = " + s);
       }
-      String item = s.substring(0, index);
-      String countStr = s.substring(index + 1);
+      String item = keyComesFirst ? s.substring(0, index) : s.substring(index + 1);
+      String countStr = keyComesFirst ? s.substring(index + 1) : s.substring(0, index);
       int count = Integer.parseInt(countStr);
       result.add(item, count);
     }
@@ -59,7 +70,7 @@ public class Histogram<T> implements Iterable<T> {
   /**
    * Loads a String Histogram from a file. Counts are supposedly delimited with `delimiter`
    * character.
-   *
+   * format: [key][delimiter][count]
    * @param path file path
    * @param delimiter delimiter
    * @return a Histogram.
@@ -68,6 +79,15 @@ public class Histogram<T> implements Iterable<T> {
     List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
     return loadFromLines(lines, delimiter);
   }
+
+  public static Histogram<String> loadFromUtf8File(
+      Path path,
+      char delimiter,
+      boolean keyComesFirst) throws IOException {
+    List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+    return loadFromLines(lines, delimiter, keyComesFirst);
+  }
+
 
   public static void serializeStringHistogram(Histogram<String> h, DataOutputStream dos)
       throws IOException {
