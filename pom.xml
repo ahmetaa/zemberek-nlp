@@ -43,7 +43,7 @@
         <jdk>1.8</jdk>
       </activation>
       <build>
-        <finalName>zemberek-${project.artifactId}-${project.version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
