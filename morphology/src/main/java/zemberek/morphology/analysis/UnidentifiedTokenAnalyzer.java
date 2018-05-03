@@ -14,6 +14,7 @@ import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.StemAndEnding;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.morphology.analysis.tr.PronunciationGuesser;
 import zemberek.morphology.analysis.tr.TurkishNumbers;
 import zemberek.morphology.analysis.tr.TurkishNumeralEndingMachine;
 import zemberek.morphology.lexicon.DictionaryItem;
@@ -162,9 +163,11 @@ public class UnidentifiedTokenAnalyzer {
     return properResults;
   }
 
+  PronunciationGuesser guesser = new PronunciationGuesser();
+
   private String guessPronunciation(String stem) {
     if (!Turkish.Alphabet.containsVowel(stem)) {
-      return Turkish.inferPronunciation(stem);
+      return guesser.toTurkishLetterPronunciations(stem);
     } else {
       return stem;
     }

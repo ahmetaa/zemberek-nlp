@@ -13,6 +13,11 @@ import zemberek.core.turkish.TurkishAlphabet;
 public class TurkishSyllableExtractor implements SyllableExtractor {
 
   private final TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+  boolean strict = false;
+
+  public void setStrict(boolean strict) {
+    this.strict = strict;
+  }
 
   public List<String> getSyllables(String str) {
     int[] boudaries = syllableBoundaries(str);
@@ -94,6 +99,9 @@ public class TurkishSyllableExtractor implements SyllableExtractor {
         }
         return 3;
       } else {
+        if (strict && !isVowel(chr[endIndex - 2])) {
+          return -1;
+        }
         if (endIndex == 2 || !isVowel(chr[endIndex - 3])) {
           return -1;
         }
