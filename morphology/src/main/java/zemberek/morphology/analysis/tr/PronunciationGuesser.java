@@ -1,10 +1,7 @@
 package zemberek.morphology.analysis.tr;
 
 import java.io.IOException;
-import java.text.Collator;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import zemberek.core.io.KeyValueReader;
 import zemberek.core.logging.Log;
@@ -13,13 +10,10 @@ import zemberek.core.turkish.hyphenation.TurkishSyllableExtractor;
 
 public class PronunciationGuesser {
 
-  public static final Locale LOCALE = new Locale("tr");
   public static final TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
-  public static final Collator COLLATOR = Collator.getInstance(LOCALE);
-  public static final Comparator<String> STRING_COMPARATOR_ASC = new TurkishStringComparator();
-  static Map<String, String> turkishLetterProns;
-  static Map<String, String> englishLetterProns;
-  static Map<String, String> englishPhonesToTurkish;
+  private static Map<String, String> turkishLetterProns;
+  private static Map<String, String> englishLetterProns;
+  private static Map<String, String> englishPhonesToTurkish;
 
   static {
     turkishLetterProns = loadMap("/tr/phonetics/turkish-letter-names.txt");
@@ -27,7 +21,7 @@ public class PronunciationGuesser {
     englishPhonesToTurkish = loadMap("/tr/phonetics/english-phones-to-turkish.txt");
   }
 
-  static Map<String, String> loadMap(String resource) {
+  private static Map<String, String> loadMap(String resource) {
     try {
       return new KeyValueReader("=", "##").loadFromStream(
           PronunciationGuesser.class.getResourceAsStream(resource),
@@ -35,10 +29,6 @@ public class PronunciationGuesser {
     } catch (IOException e) {
       throw new RuntimeException(e.getMessage());
     }
-  }
-
-  public boolean containsVowel(String s) {
-    return alphabet.vowelCount(s) > 0;
   }
 
   public String toTurkishLetterPronunciations(String w) {
@@ -82,7 +72,6 @@ public class PronunciationGuesser {
     }
     return sb.toString().replaceAll("[ ]+", "");
   }
-
 
   public String replaceEnglishSpecificChars(String w) {
     StringBuilder sb = new StringBuilder();
@@ -134,10 +123,4 @@ public class PronunciationGuesser {
 
   }
 
-  private static class TurkishStringComparator implements Comparator<String> {
-
-    public int compare(String o1, String o2) {
-      return COLLATOR.compare(o1, o2);
-    }
-  }
 }
