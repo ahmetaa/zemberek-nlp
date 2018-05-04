@@ -596,6 +596,7 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("yazmamalısın", matchesTailLex("Verb + Neg + Neces + A2sg"));
     t.expectAny("yazmalı", matchesTailLex("Verb + Neces + A3sg"));
     t.expectAny("yazmamalı", matchesTailLex("Verb + Neg + Neces + A3sg"));
+    t.expectAny("yazmamalıysa", matchesTailLex("Verb + Neg + Neces + Cond + A3sg"));
     t.expectAny("yazmalıyız", matchesTailLex("Verb + Neces + A1pl"));
     t.expectSingle("yazmalısınız", matchesTailLex("Verb + Neces + A2pl"));
     t.expectAny("yazmalılar", matchesTailLex("Verb + Neces + A3pl"));

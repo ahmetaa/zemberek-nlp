@@ -2143,6 +2143,7 @@ public class TurkishMorphotactics {
         .add(vA2pl_ST, "sInIz")
         .add(vA3pl_ST, "lAr")
         .add(vPastAfterTense_S, "ydI")
+        .add(vCond_S, "ysA")
         .add(vNarrAfterTense_S, "ymIş")
         .add(vCopBeforeA3pl_S, "dIr")
         .add(vWhile_S, "yken");

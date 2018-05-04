@@ -83,7 +83,7 @@ public class TurkishMorphology {
     }
   }
 
-  public static TurkishMorphology createWithDefaults() throws IOException {
+  public static TurkishMorphology createWithDefaults() {
     Stopwatch sw = Stopwatch.createStarted();
     TurkishMorphology instance = new Builder().addDefaultBinaryDictionary().build();
     Log.info("Initialized in %d ms.", sw.elapsed(TimeUnit.MILLISECONDS));
@@ -160,8 +160,8 @@ public class TurkishMorphology {
   private String normalizeForAnalysis(String word) {
     String s = word.toLowerCase(Turkish.LOCALE);
     s = TurkishAlphabet.INSTANCE.normalizeCircumflex(s);
-    String noDot = s.replace(".","");
-    if(noDot.length()==0) {
+    String noDot = s.replace(".", "");
+    if (noDot.length() == 0) {
       noDot = s;
     }
     return TextUtil.normalizeApostrophes(noDot);
@@ -263,10 +263,15 @@ public class TurkishMorphology {
       return this;
     }
 
-    public Builder addDefaultBinaryDictionary() throws IOException {
-      Stopwatch stopwatch = Stopwatch.createStarted();
-      lexicon = Serializer.loadFromResources("/tr/lexicon.bin");
-      Log.info("Dictionary generated in %d ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    public Builder addDefaultBinaryDictionary() {
+      try {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        lexicon = Serializer.loadFromResources("/tr/lexicon.bin");
+        Log.info("Dictionary generated in %d ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+      } catch (IOException e) {
+        throw new RuntimeException(
+            "Cannot load default binary dictionary. Reason:" + e.getMessage(), e);
+      }
       return this;
     }
 
