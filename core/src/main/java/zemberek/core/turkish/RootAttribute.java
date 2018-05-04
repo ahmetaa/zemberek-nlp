@@ -163,6 +163,7 @@ public enum RootAttribute implements StringEnum {
   ImplicitP1sg,
   ImplicitP2sg,
   FamilyMember, // annemler etc.
+  PronunciationGuessed,
 
 
   // This is used for temporary DictionaryItems created for words that cannot be analyzed.

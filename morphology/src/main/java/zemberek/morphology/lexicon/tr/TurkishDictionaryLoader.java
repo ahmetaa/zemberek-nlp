@@ -28,6 +28,7 @@ import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.morphology.analysis.tr.PronunciationGuesser;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.LexiconException;
 import zemberek.morphology.lexicon.RootLexicon;
@@ -319,6 +320,8 @@ public class TurkishDictionaryLoader {
       return rootLexicon;
     }
 
+    PronunciationGuesser pronunciationGuesser = new PronunciationGuesser();
+
     DictionaryItem getItem(LineData data) {
       PosInfo posInfo = getPosData(data.getMetaData(MetaDataId.POS), data.word);
       String cleanWord = generateRoot(data.word, posInfo);
@@ -330,14 +333,18 @@ public class TurkishDictionaryLoader {
       }
 
       String pronunciation = data.getMetaData(MetaDataId.PRONUNCIATION);
+      boolean pronunciationGuessed = false;
       if (pronunciation == null) {
+        pronunciationGuessed = true;
         if (posInfo.primaryPos == PrimaryPos.Punctuation) {
           //TODO: what to do with pronunciations of punctuations? For now we give them a generic one.
           pronunciation = "a";
+        } else if (posInfo.secondaryPos == SecondaryPos.Abbreviation) {
+          pronunciation = pronunciationGuesser.guessForAbbreviation(cleanWord);
         } else if (alphabet.containsVowel(cleanWord)) {
           pronunciation = cleanWord;
         } else {
-          pronunciation = Turkish.inferPronunciation(cleanWord);
+          pronunciation = pronunciationGuesser.toTurkishLetterPronunciations(cleanWord);
         }
       } else {
         pronunciation = pronunciation.toLowerCase(Turkish.LOCALE);
@@ -347,6 +354,10 @@ public class TurkishDictionaryLoader {
           data.getMetaData(MetaDataId.ATTRIBUTES),
           pronunciation,
           posInfo);
+
+      if (pronunciationGuessed) {
+        attributes.add(RootAttribute.PronunciationGuessed);
+      }
 
       return new DictionaryItem(
           data.word,

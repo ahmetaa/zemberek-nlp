@@ -609,6 +609,10 @@ public final class LexiconProto {
      * <code>FamilyMember = 28;</code>
      */
     FamilyMember(28),
+    /**
+     * <code>PronunciationGuessed = 29;</code>
+     */
+    PronunciationGuessed(29),
     UNRECOGNIZED(-1),
     ;
 
@@ -728,6 +732,10 @@ public final class LexiconProto {
      * <code>FamilyMember = 28;</code>
      */
     public static final int FamilyMember_VALUE = 28;
+    /**
+     * <code>PronunciationGuessed = 29;</code>
+     */
+    public static final int PronunciationGuessed_VALUE = 29;
 
 
     public final int getNumber() {
@@ -773,6 +781,7 @@ public final class LexiconProto {
         case 26: return ImplicitP1sg;
         case 27: return ImplicitP2sg;
         case 28: return FamilyMember;
+        case 29: return PronunciationGuessed;
         default: return null;
       }
     }

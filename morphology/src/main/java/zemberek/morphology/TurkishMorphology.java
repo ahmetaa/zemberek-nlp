@@ -16,6 +16,7 @@ import org.antlr.v4.runtime.Token;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
+import zemberek.core.turkish.StemAndEnding;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.ambiguity.AmbiguityResolver;
@@ -26,12 +27,11 @@ import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.UnidentifiedTokenAnalyzer;
 import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.morphology.generator.WordGenerator;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.Serializer;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.core.turkish.StemAndEnding;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.tokenization.TurkishTokenizer;
 
 // TODO: mothods require some re-thinking.

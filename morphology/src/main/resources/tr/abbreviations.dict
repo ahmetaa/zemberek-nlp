@@ -1,4 +1,4 @@
-## collected from a corpus, has missing properties and mistakes
+## collected from a corpus, has missing properties and mistakes [P:Abbrv]
 A [P:Abbrv]
 A1 [Pr:abir; P:Abbrv]
 A2 [Pr:aiki; P:Abbrv]
@@ -70,7 +70,7 @@ Bae [P:Abbrv]
 Baf [P:Abbrv]
 Bai [P:Abbrv]
 Bbb [P:Abbrv]
-Bbc [P:Abbrv]
+Bbc [Pr:bibisi; P:Abbrv]
 Bbg [P:Abbrv]
 Bbp [P:Abbrv]
 Bçg [P:Abbrv]
@@ -97,7 +97,6 @@ Boi [P:Abbrv]
 Boj [P:Abbrv]
 Boo [P:Abbrv]
 Bop [P:Abbrv]
-Box [P:Abbrv]
 Bşb [P:Abbrv]
 Bşk [P:Abbrv]
 Btc [P:Abbrv]
@@ -358,7 +357,7 @@ Hye [P:Abbrv]
 Hz [P:Abbrv]
 I [P:Abbrv]
 Ian [P:Abbrv]
-Ibm [P:Abbrv]
+Ibm [Pr:aybiem;P:Abbrv]
 Ic [P:Abbrv]
 Icc [P:Abbrv]
 Ice [P:Abbrv]
@@ -445,7 +444,6 @@ Kb [P:Abbrv]
 Kbb [P:Abbrv]
 Kc [P:Abbrv]
 Kck [Pr:kaceka; P:Abbrv]
-Kd [P:Abbrv]
 Kdp [P:Abbrv]
 Kdv [P:Abbrv]
 Ke [P:Abbrv]
@@ -483,9 +481,9 @@ Kyi [P:Abbrv]
 Kyk [Pr:kayeka; P:Abbrv]
 Lab [P:Abbrv]
 Las [P:Abbrv]
-Law [P:Abbrv]
+Law [Pr:lov;P:Abbrv]
 Lc [P:Abbrv]
-Lcd [P:Abbrv]
+Lcd [Pr:elsidi;P:Abbrv]
 Lcw [P:Abbrv]
 Ldl [P:Abbrv]
 Le [P:Abbrv]
@@ -541,7 +539,7 @@ Mek [P:Abbrv]
 Mem [P:Abbrv]
 Mer [P:Abbrv]
 Mf [P:Abbrv]
-Mfö [P:Abbrv]
+Mfö [Pr:emefö;P:Abbrv]
 Mgk [Pr:megeka; P:Abbrv]
 Mh [P:Abbrv]
 Mhk [Pr:meheka; P:Abbrv]
@@ -589,8 +587,8 @@ N [P:Abbrv]
 Nak [P:Abbrv]
 Nat [P:Abbrv]
 Nb [P:Abbrv]
-Nba [P:Abbrv]
-Nbc [P:Abbrv]
+Nba [Pr:enbiey;P:Abbrv]
+Nbc [Pr:enbisi;P:Abbrv]
 Nbg [P:Abbrv]
 Nc [P:Abbrv]
 Nç [P:Abbrv]
@@ -794,7 +792,6 @@ Syi [P:Abbrv]
 Şti [P:Abbrv]
 T [P:Abbrv]
 T1 [Pr:tebir; P:Abbrv]
-Taa [P:Abbrv]
 Tab [P:Abbrv]
 Tac [P:Abbrv]
 Tae [P:Abbrv]
@@ -910,7 +907,7 @@ Vcd [P:Abbrv]
 Vfb [P:Abbrv]
 Vı [P:Abbrv]
 Vıı [P:Abbrv]
-Vıp [P:Abbrv]
+VIP [Pr:viaypi;P:Abbrv]
 Via [P:Abbrv]
 Vic [P:Abbrv]
 Vip [P:Abbrv]
@@ -942,10 +939,10 @@ Wsj [P:Abbrv]
 Wta [P:Abbrv]
 Wu [P:Abbrv]
 Wwf [P:Abbrv]
-Xi [P:Abbrv]
-Xl [P:Abbrv]
-Xp [P:Abbrv]
-Xu [P:Abbrv]
+Xi [Pr:zi;P:Abbrv]
+Xl [Pr:ikslarç;P:Abbrv]
+Xp [Pr:ikspi;P:Abbrv]
+Xu [Pr:zu;P:Abbrv]
 Xx [P:Abbrv]
 Xxx [P:Abbrv]
 Y [P:Abbrv]
@@ -1138,269 +1135,251 @@ FIVB [Pr:feivebe; P:Abbrv]
 FNSS [Pr:fenesese; P:Abbrv]
 FSEK [Pr:fısek; P:Abbrv]
 Eüaş [P:Abbrv]
-Gmbh
-Gmde
-Gmis
-Gmsi
-Gmyo
-Gprs
-Gstv
-Gsyh
-Gsyi
-Gsyiad
-Gsyih
-Gtip
-H1n1 [Pr:hebirnebir]
-H3n2 [Pr:heüçnebir]
-H5n1 [Pr:hebeşnebir]
-Haarp
-Hdtv
-HDMI
-Icbc
-Idef
-Icao
-Icrc
-Icsıd
-Ieee
-Ieft
-Ielts
-Ifab
+Gmbh [P:Abbrv]
+Gmde [P:Abbrv]
+Gmis [P:Abbrv]
+Gmsi [P:Abbrv]
+Gmyo [P:Abbrv]
+Gprs [Pr:cipiares;P:Abbrv]
+Gstv [P:Abbrv]
+Gsyh [P:Abbrv]
+Gsyi [P:Abbrv]
+Gsyiad [P:Abbrv]
+Gsyih [P:Abbrv]
+Gtip [P:Abbrv]
+H1n1 [Pr:hebirnebir;P:Abbrv]
+H3n2 [Pr:heüçnebir;P:Abbrv]
+H5n1 [Pr:hebeşnebir;P:Abbrv]
+Haarp [P:Abbrv]
+Hdtv [Pr:eyçditivi;P:Abbrv]
+HDMI [Pr:eyçdiemay;P:Abbrv]
+Icbc [P:Abbrv]
+Idef [P:Abbrv]
+Icao [P:Abbrv]
+Icrc [P:Abbrv]
+Icsıd [P:Abbrv]
+Ieee [Pr:aytripıli;P:Abbrv]
+Ieft [P:Abbrv]
+Ielts [P:Abbrv]
+Ifab [P:Abbrv]
 
-Ikby
-Ikdp
-Ikyb
-Imdb
-Imeı
-İmkb
-Ipcc
-Isbn
-Isco
-Itso
-Ituc
-Iucn
+Ikby [P:Abbrv]
+Ikdp [P:Abbrv]
+Ikyb [P:Abbrv]
+Imdb [P:Abbrv]
+Imeı [P:Abbrv]
+İmkb [P:Abbrv]
+Ipcc [P:Abbrv]
+Isbn [P:Abbrv]
+Isco [P:Abbrv]
+Itso [P:Abbrv]
+Ituc [P:Abbrv]
+Iucn [P:Abbrv]
 
-İhdk
-İhas
-İhkib
-İibf
-İksev
-İksv
-IMEI
-İmer
-İmes
-İoaş
-İski
-İsmmmo
-İsöm
-İssa
-İsta
-İstaç
-İstoç
-İzfaş
-İzgaz
-Kbps
-Kbrn
-Kcna
-Kd
-Bçvş
-Kdtp
-Yzb
-Kıtt
-Kkdf
-Kkka
-Kktc
-Koop
-Kpds
-Kpmg
-Kpss
-Lösev
-Lviv
-Lvmh
-Mpeg
-Mscı
-Msnbc
-Mtso
-Mttb
-Müsiad
-Mysql
-Ncaa
-Ncap
-Ncıs
-Ntsb
-Ntvmsnbc
-Ntvspor
-Nypd
-Nyse
-Odtü
-Oecd
-OICA
-OLED
-Tbbl
-Tbkp
-Tbmm
-Tbwa
-Tcdd
-Tckn
-Tcmb
-Tcsg
-Tdci
-Tffhgd
-Tfsı
-Tgdf
-Tgrt
-Tgsd
-Thko
-Thkp
-Tkbl
-Tkdk
-Tkfe
-Tkhk
-Tkyd
-Tmme
-Tmmob
-Tmok
-Tmsf
-Todt
-Toefl
-Tisk
-Toki
-Töbe
-Töder
-Töhob
-Tömer
-Tskb
-Tsky
-Tspakb
-Tsrşb
-Tsyd
-Tşof
-Ttgv
-Ttıp
-Ttkd
-Ttnet
-Ttso
-TUBİM
-Tudem
-Turyap
-Turyol
-Tusaş
-Tüba
-Tübisad
-Tübitak
-Tüdef
-Tüdemsaş
-Tüder
-Tüfad
-Tüfe
-Tügiad
-Tügik
-Tüik
-Tülomsaş
-Tümay
-Tümer
-Tüprag
-Tüpraş
-Türkiş
-Türofed
-Türsab
-Türsak
-Tüvtürk
-Tvnet
-Tyçp
-Uaea
-Uaek
-Uedaş
-Uefa
-Uekae
-Uetd
-Ufrs
-UITP
-UKIP
-Ukome
-Ulcay
-Umts
-Umke
-Ummc
-Undp
-Unep
-Unesco
-UNFICYP
-Unfpa
-Unicef
-Usgs
-Uzzk
-Ülev
-Üdik
-Vefd
-Vkgb
-Vver
-Yörsan
-Zztk
-Aassm
-Aclu
-Adsl
-Adsl2 [Pr:adeseleiki]
-Aesob
-Afad
-Afdk
-Aibü
-Aida
-Aids
-Aifd
-Aigk
-Aihs
-Akom
-Akon
-Ales
-Aobp
-Aosb
-Assn
-Adnks
-Ah1n1 [Pr:ahebirnebir]
-Anap
-Anar
-Aşti
-Bbdk
-Bboi
-Bbom
-Bbsk
-Bbva
-Bddk
-Bknz
-Bmgk
-Bmmyk
-Bskyb
-Bsmv
-Byegm
-Çydd
-D100 [Pr:deyüz]
-Çtso
-Daeş
-Ddr2 [Pr:dedereiki]
-Ddr3 [Pr:dedereüç]
-Ddos
-Dshp
-Dslr
-Dtcf
-Dtik
-Dtso
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+İhdk [P:Abbrv]
+İhas [P:Abbrv]
+İhkib [P:Abbrv]
+İibf [P:Abbrv]
+İksev [P:Abbrv]
+İksv [P:Abbrv]
+IMEI [P:Abbrv]
+İmer [P:Abbrv]
+İmes [P:Abbrv]
+İoaş [P:Abbrv]
+İski [P:Abbrv]
+İsmmmo [P:Abbrv]
+İsöm [P:Abbrv]
+İssa [P:Abbrv]
+İsta [P:Abbrv]
+İstaç [P:Abbrv]
+İstoç [P:Abbrv]
+İzfaş [P:Abbrv]
+İzgaz [P:Abbrv]
+Kbps [P:Abbrv]
+Kbrn [P:Abbrv]
+Kcna [P:Abbrv]
+Kd [P:Abbrv]
+Bçvş [P:Abbrv]
+Kdtp [P:Abbrv]
+Yzb [P:Abbrv]
+Kıtt [P:Abbrv]
+Kkdf [P:Abbrv]
+Kkka [P:Abbrv]
+Kktc [P:Abbrv]
+Koop [P:Abbrv]
+Kpds [Pr:kapedese;P:Abbrv]
+Kpmg [P:Abbrv]
+Kpss [Pr:kapesese;P:Abbrv]
+Lösev [P:Abbrv]
+Lviv [P:Abbrv]
+Lvmh [P:Abbrv]
+Mpeg [P:Abbrv]
+Mscı [P:Abbrv]
+Msnbc [P:Abbrv]
+Mtso [P:Abbrv]
+Mttb [P:Abbrv]
+Müsiad [P:Abbrv]
+Mysql [Pr:mayesküel;P:Abbrv]
+Mssql [Pr:emesesküel;P:Abbrv]
+Ncaa [Pr:ensieyey;P:Abbrv]
+Ncap [P:Abbrv]
+NDA [Pr:endiey;P:Abbrv]
+Ncıs [P:Abbrv]
+Ntsb [P:Abbrv]
+Ntvmsnbc [Pr:entiviemesenbisi;P:Abbrv]
+Ntvspor [Pr:entivispor;P:Abbrv]
+Nypd [Pr:envaypidi;P:Abbrv]
+Nyse [P:Abbrv]
+Odtü [P:Abbrv]
+Oecd [P:Abbrv]
+OICA [P:Abbrv]
+OLED [P:Abbrv]
+Tbbl [P:Abbrv]
+Tbkp [P:Abbrv]
+Tbmm [P:Abbrv]
+Tbwa [P:Abbrv]
+Tcdd [P:Abbrv]
+Tckn [P:Abbrv]
+Tcmb [P:Abbrv]
+Tcsg [P:Abbrv]
+Tdci [P:Abbrv]
+Tffhgd [P:Abbrv]
+Tfsı [P:Abbrv]
+Tgdf [P:Abbrv]
+Tgrt [P:Abbrv]
+Tgsd [P:Abbrv]
+Thko [P:Abbrv]
+Thkp [P:Abbrv]
+Tkbl [P:Abbrv]
+Tkdk [P:Abbrv]
+Tkfe [P:Abbrv]
+Tkhk [P:Abbrv]
+Tkyd [P:Abbrv]
+Tmme [P:Abbrv]
+Tmmob [P:Abbrv]
+Tmok [P:Abbrv]
+Tmsf [P:Abbrv]
+Todt [P:Abbrv]
+Toefl [P:Abbrv]
+Tisk [P:Abbrv]
+Toki [P:Abbrv]
+Töbe [P:Abbrv]
+Töder [P:Abbrv]
+Töhob [P:Abbrv]
+Tömer [P:Abbrv]
+Tskb [P:Abbrv]
+Tsky [P:Abbrv]
+Tspakb [P:Abbrv]
+Tsrşb [P:Abbrv]
+Tsyd [P:Abbrv]
+Tşof [P:Abbrv]
+Ttgv [P:Abbrv]
+Ttıp [P:Abbrv]
+Ttkd [P:Abbrv]
+Ttnet [P:Abbrv]
+Ttso [P:Abbrv]
+TUBİM [P:Abbrv]
+Tudem [P:Abbrv]
+Turyap [P:Abbrv]
+Turyol [P:Abbrv]
+Tusaş [P:Abbrv]
+Tüba [P:Abbrv]
+Tübisad [P:Abbrv]
+Tübitak [P:Abbrv]
+Tüdef [P:Abbrv]
+Tüdemsaş [P:Abbrv]
+Tüder [P:Abbrv]
+Tüfad [P:Abbrv]
+Tüfe [P:Abbrv]
+Tügiad [P:Abbrv]
+Tügik [P:Abbrv]
+Tüik [P:Abbrv]
+Tülomsaş [P:Abbrv]
+Tümay [P:Abbrv]
+Tümer [P:Abbrv]
+Tüprag [P:Abbrv]
+Tüpraş [P:Abbrv]
+Türkiş [P:Abbrv]
+Türofed [P:Abbrv]
+Türsab [P:Abbrv]
+Türsak [P:Abbrv]
+Tüvtürk [P:Abbrv]
+Tvnet [P:Abbrv]
+Tyçp [P:Abbrv]
+Uaea [P:Abbrv]
+Uaek [P:Abbrv]
+Uedaş [P:Abbrv]
+Uefa [P:Abbrv]
+Uekae [P:Abbrv]
+Uetd [P:Abbrv]
+Ufrs [P:Abbrv]
+UITP [P:Abbrv]
+UKIP [P:Abbrv]
+Ukome [P:Abbrv]
+Ulcay [P:Abbrv]
+Umts [P:Abbrv]
+Umke [P:Abbrv]
+Ummc [P:Abbrv]
+Undp [P:Abbrv]
+Unep [P:Abbrv]
+Unesco [P:Abbrv]
+UNFICYP [P:Abbrv]
+Unfpa [P:Abbrv]
+Unicef [P:Abbrv]
+Usgs [P:Abbrv]
+Uzzk [P:Abbrv]
+Ülev [P:Abbrv]
+Üdik [P:Abbrv]
+Vefd [P:Abbrv]
+Vkgb [P:Abbrv]
+Vver [P:Abbrv]
+Yörsan [P:Abbrv]
+Zztk [P:Abbrv]
+Aassm [P:Abbrv]
+Aclu [P:Abbrv]
+Adsl [P:Abbrv]
+Adsl2 [Pr:adeseleiki;P:Abbrv]
+Aesob [P:Abbrv]
+Afad [P:Abbrv]
+Afdk [P:Abbrv]
+Aibü [P:Abbrv]
+Aida [P:Abbrv]
+Aids [P:Abbrv]
+Aifd [P:Abbrv]
+Aigk [P:Abbrv]
+Aihs [P:Abbrv]
+Akom [P:Abbrv]
+Akon [P:Abbrv]
+Ales [P:Abbrv]
+Aobp [P:Abbrv]
+Aosb [P:Abbrv]
+Assn [P:Abbrv]
+Adnks [P:Abbrv]
+Ah1n1 [Pr:ahebirnebir;P:Abbrv]
+Anap [P:Abbrv]
+Anar [P:Abbrv]
+Aşti [P:Abbrv]
+Bbdk [P:Abbrv]
+Bboi [P:Abbrv]
+Bbom [P:Abbrv]
+Bbsk [P:Abbrv]
+Bbva [P:Abbrv]
+Bddk [P:Abbrv]
+Bknz [P:Abbrv]
+Bmgk [P:Abbrv]
+Bmmyk [P:Abbrv]
+Bskyb [P:Abbrv]
+Bsmv [P:Abbrv]
+Byegm [P:Abbrv]
+Çydd [P:Abbrv]
+D100 [Pr:deyüz;P:Abbrv]
+Çtso [P:Abbrv]
+Daeş [P:Abbrv]
+Ddr2 [Pr:dedereiki;P:Abbrv]
+Ddr3 [Pr:dedereüç;P:Abbrv]
+Ddos [P:Abbrv]
+Dshp [P:Abbrv]
+Dslr [P:Abbrv]
+Dtcf [P:Abbrv]
+Dtik [P:Abbrv]
+Dtso [P:Abbrv]

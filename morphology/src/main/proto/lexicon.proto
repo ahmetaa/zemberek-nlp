@@ -86,6 +86,7 @@ enum RootAttribute {
   ImplicitP1sg = 26;
   ImplicitP2sg = 27;
   FamilyMember = 28;
+  PronunciationGuessed = 29;
 }
 
 message DictionaryItem {
