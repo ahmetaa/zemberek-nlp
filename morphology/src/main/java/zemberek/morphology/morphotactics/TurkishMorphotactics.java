@@ -515,9 +515,9 @@ public class TurkishMorphotactics {
     pnon_S.addEmpty(nom_ST, notHave(RootAttribute.FamilyMember));
 
     Condition equCond =
-        new Conditions.ContainsMorpheme(adj, futPart, presPart, narrPart, pastPart).not()
-            .or(new Conditions.ContainsMorphemeSequence(able, verb,
-                pastPart)); // allow `yapabildiğince`
+        Conditions.prviousMorphemeIs(a3pl).or(
+        new Conditions.ContainsMorpheme(adj, futPart, presPart, narrPart, pastPart).not())
+            .or(new Conditions.ContainsMorphemeSequence(able, verb,pastPart)); // allow `yapabildiğince`
 
     // Not allow "zetinyağı-ya" etc.
     pnon_S

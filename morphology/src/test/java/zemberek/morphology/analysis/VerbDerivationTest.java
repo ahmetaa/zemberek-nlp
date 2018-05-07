@@ -146,6 +146,8 @@ public class VerbDerivationTest extends AnalyzerTestBase {
     tester.expectAny("okutmayacağımızdı",
         matchesTailLex(
             "Verb + Caus + Verb + Neg + FutPart + Noun + A3sg + P1pl + Zero + Verb + Past + A3sg"));
+    tester.expectAny("okuyacaklarca",
+        matchesTailLex("Verb + FutPart + Noun + A3pl + Equ"));
 
     // false positive test
     tester.expectFalse("okuyacağım",
@@ -173,6 +175,9 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Neg + PresPart + Noun + A3sg + Dat"));
     tester.expectAny("okutmayanda",
         matchesTailLex("Verb + Caus + Verb + Neg + PresPart + Noun + A3sg + Loc"));
+    tester.expectAny("okutmayanlarca",
+        matchesTailLex("Verb + Caus + Verb + Neg + PresPart + Noun + A3pl + Equ"));
+
   }
 
   @Test
