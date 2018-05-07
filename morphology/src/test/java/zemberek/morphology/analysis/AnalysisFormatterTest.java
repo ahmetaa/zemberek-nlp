@@ -78,5 +78,31 @@ public class AnalysisFormatterTest {
         AnalysisFormatters.OFLAZER_STYLE.format(analysis));
   }
 
+  @Test
+  public void onlySurfaceFormatterTest() {
+    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
+    SingleAnalysis analysis = analyzer.analyze("kitaplarda").get(0);
+
+    Assert.assertEquals("kitap lar da",
+        AnalysisFormatters.ONLY_SURFACE.format(analysis));
+
+    analysis = analyzer.analyze("kitapsız").get(0);
+    Assert.assertEquals("kitap sız",
+        AnalysisFormatters.ONLY_SURFACE.format(analysis));
+
+    analysis = analyzer.analyze("kitaplardaymış").get(0);
+    Assert.assertEquals("kitap lar da ymış",
+        AnalysisFormatters.ONLY_SURFACE.format(analysis));
+
+    analyzer = getAnalyzer("okumak");
+    analysis = analyzer.analyze("okut").get(0);
+    Assert.assertEquals("oku t",
+        AnalysisFormatters.ONLY_SURFACE.format(analysis));
+
+    analyzer = getAnalyzer("Ankara");
+    analysis = analyzer.analyze("ankara").get(0);
+    Assert.assertEquals("ankara",
+        AnalysisFormatters.ONLY_SURFACE.format(analysis));
+  }
 
 }

@@ -1,5 +1,6 @@
 package zemberek.morphology.analysis;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PrimaryPos;
@@ -16,6 +17,7 @@ public class AnalysisFormatters {
   public static AnalysisFormatter OFLAZER_STYLE = new OflazerStyleFormatter();
   public static AnalysisFormatter LEXICAL_SEQUENCE = lexicalSequenceFormatter();
   public static AnalysisFormatter SURFACE_SEQUENCE = surfaceSequenceFormatter();
+  public static AnalysisFormatter ONLY_SURFACE = new OnlySurfaceFormatter();
 
   public static AnalysisFormatter lexicalSequenceFormatter() {
     return analysis -> String.join(" + ", analysis.getMorphemesSurfaces().stream()
@@ -160,6 +162,21 @@ public class AnalysisFormatters {
       // root and suffix formatting
       sb.append(morphemesFormatter.format(analysis));
       return sb.toString();
+    }
+  }
+
+  static class OnlySurfaceFormatter implements AnalysisFormatter {
+
+    @Override
+    public String format(SingleAnalysis analysis) {
+      List<String> tokens = new ArrayList<>(3);
+
+      for (MorphemeSurface mSurface : analysis.getMorphemesSurfaces()) {
+        if (mSurface.surface.length() > 0) {
+          tokens.add(mSurface.surface);
+        }
+      }
+      return String.join(" ", tokens);
     }
   }
 
