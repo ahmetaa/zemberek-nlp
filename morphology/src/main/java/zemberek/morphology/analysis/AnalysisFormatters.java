@@ -5,30 +5,30 @@ import java.util.List;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology.analysis.SingleAnalysis.MorphemeSurface;
+import zemberek.morphology.analysis.SingleAnalysis.MorphemeData;
 import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.morphology.lexicon.DictionaryItem;
 
 public class AnalysisFormatters {
 
-  public static AnalysisFormatter DEFAULT_SURFACE = DefaultFormatter.surface();
-  public static AnalysisFormatter DEFAULT_LEXICAL = DefaultFormatter.lexical();
-  public static AnalysisFormatter DEFAULT_LEXICAL_MORPHEME = MorphemesFormatter.lexical();
+  public static AnalysisFormatter DEFAULT = DefaultFormatter.surfaceAndLexical();
+  public static AnalysisFormatter DEFAULT_LEXICAL = DefaultFormatter.onlyLexical();
+  public static AnalysisFormatter DEFAULT_LEXICAL_ONLY_MORPHEMES = MorphemesFormatter.lexical();
   public static AnalysisFormatter OFLAZER_STYLE = new OflazerStyleFormatter();
   public static AnalysisFormatter LEXICAL_SEQUENCE = lexicalSequenceFormatter();
-  public static AnalysisFormatter SURFACE_SEQUENCE = surfaceSequenceFormatter();
-  public static AnalysisFormatter ONLY_SURFACE = new OnlySurfaceFormatter();
+  public static AnalysisFormatter SURFACE_AND_LEXICAL_SEQUENCE = surfaceSequenceFormatter();
+  public static AnalysisFormatter SURFACE_SEQUENCE = new OnlySurfaceFormatter();
 
   public static AnalysisFormatter lexicalSequenceFormatter() {
-    return analysis -> String.join(" + ", analysis.getMorphemesSurfaces().stream()
+    return analysis -> String.join(" + ", analysis.getMorphemeDataList().stream()
         .map(s -> s.morpheme.id)
         .collect(Collectors.toList()));
   }
 
   public static AnalysisFormatter surfaceSequenceFormatter() {
     return analysis ->
-        String.join(" + ", analysis.getMorphemesSurfaces().stream()
-            .map(MorphemeSurface::toMorphemeString)
+        String.join(" + ", analysis.getMorphemeDataList().stream()
+            .map(MorphemeData::toMorphemeString)
             .collect(Collectors.toList()));
   }
 
@@ -36,7 +36,7 @@ public class AnalysisFormatters {
 
     @Override
     public String format(SingleAnalysis analysis) {
-      List<MorphemeSurface> surfaces = analysis.getMorphemesSurfaces();
+      List<MorphemeData> surfaces = analysis.getMorphemeDataList();
 
       StringBuilder sb = new StringBuilder(surfaces.size() * 4);
 
@@ -56,7 +56,7 @@ public class AnalysisFormatters {
       }
 
       for (int i = 1; i < surfaces.size(); i++) {
-        MorphemeSurface s = surfaces.get(i);
+        MorphemeData s = surfaces.get(i);
         if (s.morpheme.derivational) {
           sb.append("^DB+");
           sb.append(surfaces.get(i + 1).morpheme.id)
@@ -93,7 +93,7 @@ public class AnalysisFormatters {
 
     @Override
     public String format(SingleAnalysis analysis) {
-      List<MorphemeSurface> surfaces = analysis.getMorphemesSurfaces();
+      List<MorphemeData> surfaces = analysis.getMorphemeDataList();
 
       StringBuilder sb = new StringBuilder(surfaces.size() * 4);
 
@@ -106,7 +106,7 @@ public class AnalysisFormatters {
         sb.append("+");
       }
       for (int i = 1; i < surfaces.size(); i++) {
-        MorphemeSurface s = surfaces.get(i);
+        MorphemeData s = surfaces.get(i);
         Morpheme morpheme = s.morpheme;
         if (morpheme.derivational) {
           sb.append('|');
@@ -130,11 +130,11 @@ public class AnalysisFormatters {
     boolean addSurface;
     MorphemesFormatter morphemesFormatter;
 
-    static DefaultFormatter lexical() {
+    static DefaultFormatter onlyLexical() {
       return new DefaultFormatter(false);
     }
 
-    static DefaultFormatter surface() {
+    static DefaultFormatter surfaceAndLexical() {
       return new DefaultFormatter(true);
     }
 
@@ -146,7 +146,7 @@ public class AnalysisFormatters {
 
     @Override
     public String format(SingleAnalysis analysis) {
-      List<MorphemeSurface> surfaces = analysis.getMorphemesSurfaces();
+      List<MorphemeData> surfaces = analysis.getMorphemeDataList();
 
       StringBuilder sb = new StringBuilder(surfaces.size() * 5);
 
@@ -171,7 +171,7 @@ public class AnalysisFormatters {
     public String format(SingleAnalysis analysis) {
       List<String> tokens = new ArrayList<>(3);
 
-      for (MorphemeSurface mSurface : analysis.getMorphemesSurfaces()) {
+      for (MorphemeData mSurface : analysis.getMorphemeDataList()) {
         if (mSurface.surface.length() > 0) {
           tokens.add(mSurface.surface);
         }

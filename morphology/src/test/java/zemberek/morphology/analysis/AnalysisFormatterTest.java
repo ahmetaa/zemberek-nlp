@@ -13,20 +13,20 @@ public class AnalysisFormatterTest {
     SingleAnalysis analysis = analyzer.analyze("kitaplarda").get(0);
 
     Assert.assertEquals("[kitap:Noun] kitap:Noun+lar:A3pl+da:Loc",
-        AnalysisFormatters.DEFAULT_SURFACE.format(analysis));
+        AnalysisFormatters.DEFAULT.format(analysis));
 
     analysis = analyzer.analyze("kitapsız").get(0);
     Assert.assertEquals("[kitap:Noun] kitap:Noun+A3sg|sız:Without→Adj",
-        AnalysisFormatters.DEFAULT_SURFACE.format(analysis));
+        AnalysisFormatters.DEFAULT.format(analysis));
 
     analysis = analyzer.analyze("kitaplardaymış").get(0);
     Assert.assertEquals("[kitap:Noun] kitap:Noun+lar:A3pl+da:Loc|Zero→Verb+ymış:Narr+A3sg",
-        AnalysisFormatters.DEFAULT_SURFACE.format(analysis));
+        AnalysisFormatters.DEFAULT.format(analysis));
 
     analyzer = getAnalyzer("okumak");
     analysis = analyzer.analyze("okut").get(0);
     Assert.assertEquals("[okumak:Verb] oku:Verb|t:Caus→Verb+Imp+A2sg",
-        AnalysisFormatters.DEFAULT_SURFACE.format(analysis));
+        AnalysisFormatters.DEFAULT.format(analysis));
   }
 
   @Test
@@ -84,25 +84,25 @@ public class AnalysisFormatterTest {
     SingleAnalysis analysis = analyzer.analyze("kitaplarda").get(0);
 
     Assert.assertEquals("kitap lar da",
-        AnalysisFormatters.ONLY_SURFACE.format(analysis));
+        AnalysisFormatters.SURFACE_SEQUENCE.format(analysis));
 
     analysis = analyzer.analyze("kitapsız").get(0);
     Assert.assertEquals("kitap sız",
-        AnalysisFormatters.ONLY_SURFACE.format(analysis));
+        AnalysisFormatters.SURFACE_SEQUENCE.format(analysis));
 
     analysis = analyzer.analyze("kitaplardaymış").get(0);
     Assert.assertEquals("kitap lar da ymış",
-        AnalysisFormatters.ONLY_SURFACE.format(analysis));
+        AnalysisFormatters.SURFACE_SEQUENCE.format(analysis));
 
     analyzer = getAnalyzer("okumak");
     analysis = analyzer.analyze("okut").get(0);
     Assert.assertEquals("oku t",
-        AnalysisFormatters.ONLY_SURFACE.format(analysis));
+        AnalysisFormatters.SURFACE_SEQUENCE.format(analysis));
 
     analyzer = getAnalyzer("Ankara");
     analysis = analyzer.analyze("ankara").get(0);
     Assert.assertEquals("ankara",
-        AnalysisFormatters.ONLY_SURFACE.format(analysis));
+        AnalysisFormatters.SURFACE_SEQUENCE.format(analysis));
   }
 
 }

@@ -4,7 +4,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import org.junit.Assert;
-import zemberek.morphology.analysis.SingleAnalysis.MorphemeSurface;
+import zemberek.morphology.analysis.SingleAnalysis.MorphemeData;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
@@ -25,7 +25,7 @@ public class AnalyzerTestBase {
   }
 
   boolean containsMorpheme(SingleAnalysis result, String morphemeName) {
-    for (MorphemeSurface forms : result.getMorphemesSurfaces()) {
+    for (MorphemeData forms : result.getMorphemeDataList()) {
       if (forms.morpheme.id.equalsIgnoreCase(morphemeName)) {
         return true;
       }
@@ -34,16 +34,16 @@ public class AnalyzerTestBase {
   }
 
   boolean lastMorphemeIs(SingleAnalysis result, String morphemeName) {
-    List<MorphemeSurface> morphemes = result.getMorphemesSurfaces();
+    List<MorphemeData> morphemes = result.getMorphemeDataList();
     if (morphemes.size() == 0) {
       return false;
     }
-    MorphemeSurface last = morphemes.get(morphemes.size() - 1);
+    MorphemeData last = morphemes.get(morphemes.size() - 1);
     return last.morpheme.id.equalsIgnoreCase(morphemeName);
   }
 
   public boolean notContains(SingleAnalysis result, String morphemeName) {
-    for (SingleAnalysis.MorphemeSurface forms : result.getMorphemesSurfaces()) {
+    for (MorphemeData forms : result.getMorphemeDataList()) {
       if (forms.morpheme.id.equalsIgnoreCase(morphemeName)) {
         return false;
       }
@@ -54,7 +54,7 @@ public class AnalyzerTestBase {
   static void printAndSort(String input, List<SingleAnalysis> results) {
     results.sort(Comparator.comparing(SingleAnalysis::toString));
     for (SingleAnalysis result : results) {
-      System.out.println(input + " = " + result + " = " + result.formatSurfaceSequence());
+      System.out.println(input + " = " + result + " = " + formatSurfaceAndLexical(result));
     }
   }
 
@@ -209,16 +209,25 @@ public class AnalyzerTestBase {
     }
   }
 
+  public static String formatSurfaceAndLexical(SingleAnalysis analysis) {
+    return AnalysisFormatters.SURFACE_AND_LEXICAL_SEQUENCE.format(analysis);
+  }
+
   public static Predicate<SingleAnalysis> matchesShortForm(String shortForm) {
-    return p -> p.formatSurfaceSequence().equalsIgnoreCase(shortForm);
+    return p -> formatSurfaceAndLexical(p).equalsIgnoreCase(shortForm);
   }
 
   public static Predicate<SingleAnalysis> matchesShortFormTail(String shortFormTail) {
-    return p -> p.formatSurfaceSequence().endsWith(shortFormTail);
+    return p -> formatSurfaceAndLexical(p).endsWith(shortFormTail);
+  }
+
+
+  public static String formatLexicalSequence(SingleAnalysis s) {
+    return AnalysisFormatters.LEXICAL_SEQUENCE.format(s);
   }
 
   public static AnalysisMatcher matchesTailLex(String tail) {
-    return new AnalysisMatcher(p -> p.formatLexicalSequence().endsWith(tail), tail);
+    return new AnalysisMatcher(p -> formatLexicalSequence(p).endsWith(tail), tail);
   }
 
   static class AnalysisMatcher {

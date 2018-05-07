@@ -23,7 +23,7 @@ public class SingleAnalysis {
   // List also contain the root (unchanged or modified) of the Dictionary item.
   // For example, for normalized input "kedilere"
   // This list may contain "kedi:Noun, ler:A3pl , e:Dat" information.
-  private List<MorphemeSurface> morphemesSurfaces;
+  private List<MorphemeData> morphemeDataList;
 
   // groupBoundaries holds the index values of morphemes.
   private int[] groupBoundaries;
@@ -33,17 +33,17 @@ public class SingleAnalysis {
 
   public SingleAnalysis(
       DictionaryItem item,
-      List<MorphemeSurface> morphemesSurfaces,
+      List<MorphemeData> morphemeDataList,
       int[] groupBoundaries) {
     this.item = item;
-    this.morphemesSurfaces = morphemesSurfaces;
+    this.morphemeDataList = morphemeDataList;
     this.groupBoundaries = groupBoundaries;
     this.hash = hashCode();
   }
 
   public static SingleAnalysis unknown(String input) {
     DictionaryItem item = DictionaryItem.UNKNOWN;
-    MorphemeSurface s = new MorphemeSurface(Morpheme.UNKNOWN, input);
+    MorphemeData s = new MorphemeData(Morpheme.UNKNOWN, input);
     int[] boundaries = {0};
     return new SingleAnalysis(item, Collections.singletonList(s), boundaries);
   }
@@ -54,15 +54,15 @@ public class SingleAnalysis {
 
   public static class MorphemeGroup {
 
-    List<MorphemeSurface> morphemes;
+    List<MorphemeData> morphemes;
 
     public MorphemeGroup(
-        List<MorphemeSurface> morphemes) {
+        List<MorphemeData> morphemes) {
       this.morphemes = morphemes;
     }
 
     public PrimaryPos getPos() {
-      for (MorphemeSurface mSurface : morphemes) {
+      for (MorphemeData mSurface : morphemes) {
         if (mSurface.morpheme.pos != null) {
           return mSurface.morpheme.pos;
         }
@@ -73,7 +73,7 @@ public class SingleAnalysis {
 
     public String surfaceForm() {
       StringBuilder sb = new StringBuilder();
-      for (MorphemeSurface mSurface : morphemes) {
+      for (MorphemeData mSurface : morphemes) {
         sb.append(mSurface.surface);
       }
       return sb.toString();
@@ -81,7 +81,7 @@ public class SingleAnalysis {
 
     public String surfaceFormSkipPosRoot() {
       StringBuilder sb = new StringBuilder();
-      for (MorphemeSurface mSurface : morphemes) {
+      for (MorphemeData mSurface : morphemes) {
         if (mSurface.morpheme.pos != null) {
           continue;
         }
@@ -92,7 +92,7 @@ public class SingleAnalysis {
 
     public String lexicalForm() {
       StringBuilder sb = new StringBuilder();
-      for (MorphemeSurface mSurface : morphemes) {
+      for (MorphemeData mSurface : morphemes) {
         sb.append(mSurface.morpheme.id);
       }
       return sb.toString();
@@ -118,8 +118,8 @@ public class SingleAnalysis {
   public String getEnding() {
     StringBuilder sb = new StringBuilder();
     // skip the root.
-    for (int i = 1; i < morphemesSurfaces.size(); i++) {
-      MorphemeSurface mSurface = morphemesSurfaces.get(i);
+    for (int i = 1; i < morphemeDataList.size(); i++) {
+      MorphemeData mSurface = morphemeDataList.get(i);
       sb.append(mSurface.surface);
     }
     return sb.toString();
@@ -138,7 +138,7 @@ public class SingleAnalysis {
    * @return concatenated suffix surfaces.
    */
   public String getStem() {
-    return morphemesSurfaces.get(0).surface;
+    return morphemeDataList.get(0).surface;
   }
 
   /**
@@ -168,12 +168,12 @@ public class SingleAnalysis {
   }
 
 
-  public List<MorphemeSurface> getMorphemesSurfaces() {
-    return morphemesSurfaces;
+  public List<MorphemeData> getMorphemeDataList() {
+    return morphemeDataList;
   }
 
   public List<Morpheme> getMorphemes() {
-    return morphemesSurfaces.stream().map(s -> s.morpheme).collect(Collectors.toList());
+    return morphemeDataList.stream().map(s -> s.morpheme).collect(Collectors.toList());
   }
 
   public MorphemeGroup getGroup(int groupIndex) {
@@ -182,18 +182,18 @@ public class SingleAnalysis {
           " morpheme groups. But input is " + groupIndex);
     }
     int endIndex = groupIndex == groupBoundaries.length - 1 ?
-        morphemesSurfaces.size() : groupBoundaries[groupIndex + 1];
+        morphemeDataList.size() : groupBoundaries[groupIndex + 1];
 
-    return new MorphemeGroup(morphemesSurfaces.subList(groupBoundaries[groupIndex], endIndex));
+    return new MorphemeGroup(morphemeDataList.subList(groupBoundaries[groupIndex], endIndex));
   }
 
   // container for Morphemes and their surface forms.
-  public static class MorphemeSurface {
+  public static class MorphemeData {
 
     public final Morpheme morpheme;
     public final String surface;
 
-    public MorphemeSurface(Morpheme morpheme, String surface) {
+    public MorphemeData(Morpheme morpheme, String surface) {
       this.morpheme = morpheme;
       this.surface = surface;
     }
@@ -219,7 +219,7 @@ public class SingleAnalysis {
         return false;
       }
 
-      MorphemeSurface that = (MorphemeSurface) o;
+      MorphemeData that = (MorphemeData) o;
 
       if (!morpheme.equals(that.morpheme)) {
         return false;
@@ -248,13 +248,13 @@ public class SingleAnalysis {
   }
 
 
-  private static final ConcurrentHashMap<Morpheme, MorphemeSurface> emptyMorphemeCache =
+  private static final ConcurrentHashMap<Morpheme, MorphemeData> emptyMorphemeCache =
       new ConcurrentHashMap<>();
 
   // Here we generate a SingleAnalysis from a search path.
   public static SingleAnalysis fromSearchPath(SearchPath searchPath) {
 
-    List<MorphemeSurface> morphemes = new ArrayList<>(searchPath.transitions.size());
+    List<MorphemeData> morphemes = new ArrayList<>(searchPath.transitions.size());
 
     int derivationCount = 0;
 
@@ -273,16 +273,16 @@ public class SingleAnalysis {
 
       // if empty, use the cache.
       if (transition.surface.isEmpty()) {
-        MorphemeSurface suffixSurface = emptyMorphemeCache.get(morpheme);
-        if (suffixSurface == null) {
-          suffixSurface = new MorphemeSurface(morpheme, "");
-          emptyMorphemeCache.put(morpheme, suffixSurface);
+        MorphemeData morphemeData = emptyMorphemeCache.get(morpheme);
+        if (morphemeData == null) {
+          morphemeData = new MorphemeData(morpheme, "");
+          emptyMorphemeCache.put(morpheme, morphemeData);
         }
-        morphemes.add(suffixSurface);
+        morphemes.add(morphemeData);
         continue;
       }
 
-      MorphemeSurface suffixSurface = new MorphemeSurface(morpheme, transition.surface);
+      MorphemeData suffixSurface = new MorphemeData(morpheme, transition.surface);
       morphemes.add(suffixSurface);
     }
 
@@ -290,8 +290,8 @@ public class SingleAnalysis {
     groupBoundaries[0] = 0; // we assume there is always an IG
 
     int morphemeCounter = 0, derivationCounter = 1;
-    for (MorphemeSurface morphemeSurface : morphemes) {
-      if (morphemeSurface.morpheme.derivational) {
+    for (MorphemeData morphemeData : morphemes) {
+      if (morphemeData.morpheme.derivational) {
         groupBoundaries[derivationCounter] = morphemeCounter;
         derivationCounter++;
       }
@@ -311,10 +311,10 @@ public class SingleAnalysis {
    */
   SingleAnalysis copyFor(DictionaryItem item, String stem) {
     // copy morpheme-surface list.
-    List<MorphemeSurface> surfaces = new ArrayList<>(morphemesSurfaces);
+    List<MorphemeData> data = new ArrayList<>(morphemeDataList);
     // replace the stem surface. it is in the first morpheme.
-    surfaces.set(0, new MorphemeSurface(surfaces.get(0).morpheme, stem));
-    return new SingleAnalysis(item, surfaces, groupBoundaries.clone());
+    data.set(0, new MorphemeData(data.get(0).morpheme, stem));
+    return new SingleAnalysis(item, data, groupBoundaries.clone());
   }
 
   /**
@@ -333,7 +333,7 @@ public class SingleAnalysis {
     if (groupBoundaries.length > 1) {
       for (int i = 1; i < groupBoundaries.length; i++) {
         MorphemeGroup ig = getGroup(i);
-        MorphemeSurface suffixData = ig.morphemes.get(0);
+        MorphemeData suffixData = ig.morphemes.get(0);
 
         String surface = suffixData.surface;
         String stem = previousStem + surface;
@@ -372,7 +372,7 @@ public class SingleAnalysis {
     if (groupBoundaries.length > 1) {
       for (int i = 1; i < groupBoundaries.length; i++) {
         MorphemeGroup ig = getGroup(i);
-        MorphemeSurface suffixData = ig.morphemes.get(0);
+        MorphemeData suffixData = ig.morphemes.get(0);
 
         String surface = suffixData.surface;
         if (suffixData.surface.endsWith("ğ")) {
@@ -393,24 +393,20 @@ public class SingleAnalysis {
     return formatLong();
   }
 
-  public String formatSurfaceSequence() {
-    return AnalysisFormatters.SURFACE_SEQUENCE.format(this);
-  }
-
-  public String formatLexicalSequence() {
-    return AnalysisFormatters.LEXICAL_SEQUENCE.format(this);
-  }
-
   public String formatLexical() {
     return AnalysisFormatters.DEFAULT_LEXICAL.format(this);
   }
 
+  /**
+   * Formats only the morphemes. Dictionary item information is not included.
+   * @return formatted
+   */
   public String formatMorphemesLexical() {
-    return AnalysisFormatters.DEFAULT_LEXICAL_MORPHEME.format(this);
+    return AnalysisFormatters.DEFAULT_LEXICAL_ONLY_MORPHEMES.format(this);
   }
 
   public String formatLong() {
-    return AnalysisFormatters.DEFAULT_SURFACE.format(this);
+    return AnalysisFormatters.DEFAULT.format(this);
   }
 
   public int groupCount() {
@@ -434,7 +430,7 @@ public class SingleAnalysis {
     if (!item.equals(that.item)) {
       return false;
     }
-    return morphemesSurfaces.equals(that.morphemesSurfaces);
+    return morphemeDataList.equals(that.morphemeDataList);
   }
 
   @Override
@@ -443,7 +439,7 @@ public class SingleAnalysis {
       return hash;
     }
     int result = item.hashCode();
-    result = 31 * result + morphemesSurfaces.hashCode();
+    result = 31 * result + morphemeDataList.hashCode();
     result = 31 * result + hash;
     return result;
   }
