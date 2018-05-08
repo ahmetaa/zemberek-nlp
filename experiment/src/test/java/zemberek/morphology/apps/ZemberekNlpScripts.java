@@ -50,7 +50,8 @@ public class ZemberekNlpScripts {
 
   static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
   //private static Path DATA_PATH = Paths.get("/media/depo/data/aaa");
-  private static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
+  //private static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
+  private static Path DATA_PATH = Paths.get("/media/aaa/3t/data/nlp");
   private static Path NLP_TOOLS_PATH = Paths.get("/home/ahmetaa/apps/nlp/tools");
   private static Path OFLAZER_ANALYZER_PATH = NLP_TOOLS_PATH
       .resolve("Morphological-Analyzer/Turkish-Oflazer-Linux64");
@@ -94,16 +95,20 @@ public class ZemberekNlpScripts {
 
     int c = 0;
     for (String s : histogram) {
-      WordAnalysis parses = parser.analyze(s);
-      List<SingleAnalysis> analyses = parses.getAnalysisResults();
-      if (analyses.size() > 0 &&
-          analyses.get(0).getDictionaryItem().primaryPos != PrimaryPos.Unknown) {
-        accepted.add(s);
+      try {
+        WordAnalysis parses = parser.analyze(s);
+        List<SingleAnalysis> analyses = parses.getAnalysisResults();
+        if (analyses.size() > 0 &&
+            analyses.get(0).getDictionaryItem().primaryPos != PrimaryPos.Unknown) {
+          accepted.add(s);
+        }
+        if (c > 0 && c % 10000 == 0) {
+          Log.info("Processed = " + c);
+        }
+        c++;
+      } catch (Exception e) {
+        Log.info("Exception in %s",s);
       }
-      if (c > 0 && c % 10000 == 0) {
-        Log.info("Processed = " + c);
-      }
-      c++;
     }
 
     save(outDir.resolve("zemberek-parsed-words.txt"), accepted);
