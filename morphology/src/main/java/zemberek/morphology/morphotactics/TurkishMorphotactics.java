@@ -516,8 +516,9 @@ public class TurkishMorphotactics {
 
     Condition equCond =
         Conditions.prviousMorphemeIs(a3pl).or(
-        new Conditions.ContainsMorpheme(adj, futPart, presPart, narrPart, pastPart).not())
-            .or(new Conditions.ContainsMorphemeSequence(able, verb,pastPart)); // allow `yapabildiğince`
+            new Conditions.ContainsMorpheme(adj, futPart, presPart, narrPart, pastPart).not())
+            .or(new Conditions.ContainsMorphemeSequence(able, verb,
+                pastPart)); // allow `yapabildiğince`
 
     // Not allow "zetinyağı-ya" etc.
     pnon_S
@@ -1140,18 +1141,14 @@ public class TurkishMorphotactics {
     pPnonMod_S.add(pDat_ST, "A");
     // ----
 
+    // Possesive connecitons are not used.
     pA1sg_S.addEmpty(pPnon_S);
-    pA1sg_S.add(pP1sg_S, "im", rootIs(ben));
     pA2sg_S.addEmpty(pPnon_S);
-    pA2sg_S.add(pP2sg_S, "in", rootIs(sen));
     pA3sg_S.addEmpty(pPnon_S);
-    pA3sg_S.add(pP3sg_S, "nun", rootIs(o));
     pA1pl_S.addEmpty(pPnon_S);
-    pA1pl_S.add(pP1pl_S, "im", rootIs(biz));
     pA2pl_S.addEmpty(pPnon_S);
-    pA1pl_S.add(pP2pl_S, "in", rootIs(siz));
     pA3pl_S.addEmpty(pPnon_S);
-    pA3pl_S.add(pP3pl_S, "ın", rootIs(o));
+
     //------------ Noun -> Rel -> Pron ---------------------------
     // masanınki
     pronAfterRel_S.addEmpty(pA3sgRel_S);
@@ -1305,7 +1302,9 @@ public class TurkishMorphotactics {
         .add(pLoc_ST, "dA", yGroup)
         .add(pAbl_ST, "+ndAn", nGroup)
         .add(pAbl_ST, "dAn", yGroup)
-        .add(pGen_ST, "+nIn", nGroup.and(rootIsNone(biz)))
+        .add(pGen_ST, "+nIn", nGroup.and(rootIsNone(biz, ben, sen)))
+        .add(pGen_ST, "im", rootIsAny(ben, biz)) // benim, senin, bizim are genitive.
+        .add(pGen_ST, "in", rootIs(sen))
         .add(pGen_ST, "+yIn", yGroup.and(rootIsNone(biz)))
         .add(pEqu_ST, ">cA", yGroup)
         .add(pEqu_ST, ">cA", nGroup)
@@ -1443,10 +1442,12 @@ public class TurkishMorphotactics {
 
     pvVerbRoot_S.add(pvCond_S, "+ysA");
 
-    Condition allowA1sgTrans = new Conditions.PreviousGroupContains(pP1sg_S).not();
-    Condition allowA1plTrans = new Conditions.PreviousGroupContains(pP1sg_S, pP2sg_S).not();
-    Condition allowA2sgTrans = new Conditions.PreviousGroupContains(pP2sg_S).not();
-    Condition allowA2plTrans = new Conditions.PreviousGroupContains(pP2pl_S).not();
+    // disallow `benin, bizim with A1sg analysis etc.`
+    Condition allowA1sgTrans = new Conditions.PreviousGroupContains(pA1pl_S, pP1sg_S).not();
+    Condition allowA1plTrans =
+        new Conditions.PreviousGroupContains(pA1sg_S, pA2sg_S, pP1sg_S, pP2sg_S).not();
+    Condition allowA2sgTrans = new Conditions.PreviousGroupContains(pA2pl_S, pP2sg_S).not();
+    Condition allowA2plTrans = new Conditions.PreviousGroupContains(pA2sg_S, pP2pl_S).not();
 
     pvPresent_S.add(pvA1sg_ST, "+yIm", allowA1sgTrans);
     pvPresent_S.add(pvA2sg_ST, "sIn", allowA2sgTrans);
