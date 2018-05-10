@@ -141,14 +141,14 @@ public class TurkishDictionaryLoaderTest {
     for (String s : voicing) {
       DictionaryItem item = loader.loadFromString(s);
       Assert.assertEquals(Noun, item.primaryPos);
-      Assert.assertEquals("error in:" + s, EnumSet.of(RootAttribute.Voicing), item.attributes);
+      Assert.assertTrue("error in:" + s, item.hasAttribute(RootAttribute.Voicing));
     }
 
     String[] novoicing = {"kek", "link [A:NoVoicing]", "top", "kulp", "takat [A:NoVoicing]"};
     for (String s : novoicing) {
       DictionaryItem item = loader.loadFromString(s);
       Assert.assertEquals(Noun, item.primaryPos);
-      Assert.assertEquals("error in:" + s, EnumSet.of(NoVoicing), item.attributes);
+      Assert.assertTrue("error in:" + s, item.hasAttribute(NoVoicing));
     }
   }
 

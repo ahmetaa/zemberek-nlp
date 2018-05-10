@@ -47,7 +47,6 @@ public final class Log {
     Thread.setDefaultUncaughtExceptionHandler(EXCEPTION_HANDLER);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
-        Log.info("Application closed.");
         handlers.values().forEach(FileHandler::close);
       }
     });

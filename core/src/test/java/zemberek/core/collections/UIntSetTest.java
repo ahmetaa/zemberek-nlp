@@ -14,12 +14,12 @@ public class UIntSetTest {
   @Test
   public void containsSet() {
     UIntSet set = new UIntSet();
-    for (int i = 0; i < 1000000; i++) {
+    for (int i = 0; i < 100000; i++) {
       set.add(i);
     }
 
-    for (int i = 0; i < 2000000; i++) {
-      if (i < 1000000) {
+    for (int i = 0; i < 200000; i++) {
+      if (i < 100000) {
         Assert.assertTrue(set.contains(i));
       } else {
         Assert.assertFalse(set.contains(i));
@@ -30,13 +30,13 @@ public class UIntSetTest {
   @Test
   public void stressTest() {
     UIntSet set = new UIntSet();
-    int size = 100000;
+    int size = 10000;
     for (int i = 0; i < size; i++) {
       set.add(i);
     }
     Random rnd = new Random();
     int[] removed = new int[size];
-    for (int i = 0; i < 50000; i++) {
+    for (int i = 0; i < 5000; i++) {
       int key = rnd.nextInt(size);
       removed[key] = 1;
       set.remove(key);
@@ -50,7 +50,7 @@ public class UIntSetTest {
       }
     }
 
-    for (int i = 0; i < 20000; i++) {
+    for (int i = 0; i < 2000; i++) {
       int key = rnd.nextInt(size);
       removed[key] = 0;
       set.add(key);
@@ -68,7 +68,7 @@ public class UIntSetTest {
   @Test
   public void removeTest() {
     UIntSet set = new UIntSet();
-    int count = 100000;
+    int count = 1000;
     for (int i = 0; i < count; i++) {
       set.add(i);
     }

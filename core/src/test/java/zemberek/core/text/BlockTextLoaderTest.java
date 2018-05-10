@@ -1,6 +1,7 @@
 package zemberek.core.text;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,8 @@ public class BlockTextLoaderTest {
 
     Assert.assertEquals(i, 1);
     Assert.assertEquals(lines, read);
+
+    Files.delete(path);
 
   }
 }

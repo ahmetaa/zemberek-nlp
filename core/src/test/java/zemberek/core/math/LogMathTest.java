@@ -103,7 +103,7 @@ public class LogMathTest {
   @Test
   public void logSumError() throws IOException {
 
-    int VALS = 10000000;
+    int VALS = 1000000;
 
     double[] logA = new double[VALS];
 
@@ -142,9 +142,9 @@ public class LogMathTest {
   }
 
   @Test
-  public void logSumErrorFloat() throws IOException {
+  public void logSumErrorFloat() {
 
-    int VALS = 10000000;
+    int VALS = 1000000;
 
     float[] logA = new float[VALS];
 
@@ -180,11 +180,6 @@ public class LogMathTest {
     Assert.assertTrue(maxError < 0.007);
     System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));
     sw.stop();
-  }
-
-  @Test
-  public void testSphinx4Log() {
-    Assert.assertEquals(23027, (int) LogMath.toLogSphinx(Math.log(10)));
   }
 
   @Test

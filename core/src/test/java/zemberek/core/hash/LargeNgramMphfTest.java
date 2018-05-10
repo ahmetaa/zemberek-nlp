@@ -11,11 +11,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class LargeNgramMphfTest {
 
   @Test
+  @Ignore("Contains File I/O, test manually.")
   public void NgramFileMPHFTest() throws IOException {
     int[] gramCounts = {1, 2, 4, 8, 10, 100, 1000, 10000, 100000, 1000000};
     for (int gramCount : gramCounts) {
@@ -32,11 +34,6 @@ public class LargeNgramMphfTest {
       Stopwatch sw = Stopwatch.createStarted();
       LargeNgramMphf mphf = LargeNgramMphf.generate(file, 20);
       System.out.println("Generation time:" + sw.elapsed(TimeUnit.MILLISECONDS));
-/*            System.out.println("Bits per key=" + mphf.averageBitsPerKey(gramCount));
-            System.out.println("Main failed key count:" + mphf.emptyHashIndexes.length);
-            for (NgramPHF.HashLevelData ld : mphf.hashLevelData) {
-                System.out.println(ld.emptyHashIndexes.length);
-            }*/
       sw.reset().start();
       for (int[] key : arr) {
         mphf.get(key);

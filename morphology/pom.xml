@@ -5,7 +5,7 @@
   <parent>
     <artifactId>zemberek-nlp</artifactId>
     <groupId>zemberek-nlp</groupId>
-    <version>0.12.0</version>
+    <version>0.13.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -31,7 +31,6 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.test.skip>true</maven.test.skip>
   </properties>
 
 </project>

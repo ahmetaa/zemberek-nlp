@@ -243,7 +243,7 @@ public class IntValueMapTest {
   @Test
   public void stressTest() {
     Random rand = new Random(System.currentTimeMillis());
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 10; i++) {
       IntValueMap<Integer> siv = new IntValueMap<>();
       int kc = 0;
       for (int j = 0; j < 100000; j++) {

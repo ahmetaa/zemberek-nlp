@@ -47,13 +47,13 @@ public class UIntMapTest {
   @Test
   public void stressTest() {
     UIntMap<String> map = new UIntMap<>(1);
-    int size = 100000;
+    int size = 10000;
     for (int i = 0; i < size; i++) {
       map.put(i, String.valueOf(i + 1));
     }
     Random rnd = new Random();
     int[] removed = new int[size];
-    for (int i = 0; i < 50000; i++) {
+    for (int i = 0; i < 5000; i++) {
       int key = rnd.nextInt(size);
       removed[key] = 1;
       map.remove(key);
@@ -67,7 +67,7 @@ public class UIntMapTest {
       }
     }
 
-    for (int i = 0; i < 20000; i++) {
+    for (int i = 0; i < 2000; i++) {
       int key = rnd.nextInt(size);
       removed[key] = 0;
       map.put(key, String.valueOf(key + 1));
@@ -110,7 +110,7 @@ public class UIntMapTest {
   @Test
   public void removeTest() {
     UIntMap<String> map = new UIntMap<>();
-    int count = 100000;
+    int count = 10000;
     for (int i = 0; i < count; i++) {
       map.put(i, String.valueOf(i + 1));
     }

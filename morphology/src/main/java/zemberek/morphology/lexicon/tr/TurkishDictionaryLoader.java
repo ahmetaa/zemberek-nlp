@@ -334,12 +334,13 @@ public class TurkishDictionaryLoader {
 
       String pronunciation = data.getMetaData(MetaDataId.PRONUNCIATION);
       boolean pronunciationGuessed = false;
+      SecondaryPos secondaryPos = posInfo.secondaryPos;
       if (pronunciation == null) {
         pronunciationGuessed = true;
         if (posInfo.primaryPos == PrimaryPos.Punctuation) {
           //TODO: what to do with pronunciations of punctuations? For now we give them a generic one.
           pronunciation = "a";
-        } else if (posInfo.secondaryPos == SecondaryPos.Abbreviation) {
+        } else if (secondaryPos == SecondaryPos.Abbreviation) {
           pronunciation = pronunciationGuesser.guessForAbbreviation(cleanWord);
         } else if (alphabet.containsVowel(cleanWord)) {
           pronunciation = cleanWord;
@@ -355,7 +356,8 @@ public class TurkishDictionaryLoader {
           pronunciation,
           posInfo);
 
-      if (pronunciationGuessed) {
+      if (pronunciationGuessed &&
+          (secondaryPos == SecondaryPos.ProperNoun || secondaryPos == SecondaryPos.Abbreviation)) {
         attributes.add(RootAttribute.PronunciationGuessed);
       }
 
@@ -364,7 +366,7 @@ public class TurkishDictionaryLoader {
           cleanWord,
           pronunciation,
           posInfo.primaryPos,
-          posInfo.secondaryPos,
+          secondaryPos,
           attributes,
           index);
     }

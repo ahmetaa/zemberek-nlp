@@ -39,19 +39,19 @@ public class FixedBitVectorTest {
     for (int j = 1; j < 10_000_000; j = j * 2) {
       FixedBitVector vector = new FixedBitVector(j);
       for (int i = 0; i < vector.length; i++) {
-        Assert.assertEquals(false, vector.get(i));
+        Assert.assertFalse(vector.get(i));
       }
       for (int i = 0; i < vector.length; i++) {
         vector.set(i);
       }
       for (int i = 0; i < vector.length; i++) {
-        Assert.assertEquals(true, vector.get(i));
+        Assert.assertTrue(vector.get(i));
       }
       for (int i = 0; i < vector.length; i++) {
         vector.clear(i);
       }
       for (int i = 0; i < vector.length; i++) {
-        Assert.assertEquals(false, vector.get(i));
+        Assert.assertFalse(vector.get(i));
       }
     }
   }
@@ -61,19 +61,19 @@ public class FixedBitVectorTest {
     for (int j = 1; j < 10_000_000; j = j * 2) {
       FixedBitVector vector = new FixedBitVector(j);
       for (int i = 0; i < vector.length; i++) {
-        Assert.assertEquals(false, vector.safeGet(i));
+        Assert.assertFalse(vector.safeGet(i));
       }
       for (int i = 0; i < vector.length; i++) {
         vector.safeSet(i);
       }
       for (int i = 0; i < vector.length; i++) {
-        Assert.assertEquals(true, vector.safeGet(i));
+        Assert.assertTrue(vector.safeGet(i));
       }
       for (int i = 0; i < vector.length; i++) {
         vector.safeClear(i);
       }
       for (int i = 0; i < vector.length; i++) {
-        Assert.assertEquals(false, vector.safeGet(i));
+        Assert.assertFalse(vector.safeGet(i));
       }
     }
   }

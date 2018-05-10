@@ -173,7 +173,8 @@ public class SmoothLmTest {
   public void testLogBaseChange() throws IOException {
     SmoothLm lm10 = getTinyLm();
     System.out.println(lm10.info());
-    SmoothLm lm = SmoothLm.builder(getTinyLmFile()).logBase(Math.E).build();
+    File lmFile = getTinyLmFile();
+    SmoothLm lm = SmoothLm.builder(lmFile).logBase(Math.E).build();
     System.out.println(lm.info());
     Assert.assertEquals(lm.getLogBase(), Math.E, 0.00001);
     LmVocabulary vocabulary = lm.getVocabulary();
@@ -189,6 +190,7 @@ public class SmoothLmTest {
         vocabulary.indexOf("yedi")};
     Assert.assertEquals(l(-0.602060), lm.getProbabilityValue(is3), 0.0001);
     Assert.assertEquals(l(-0.602060), lm.getProbability(is3), 0.0001);
+    java.nio.file.Files.delete(lmFile.toPath());
   }
 
   private double l(double i) {
@@ -285,7 +287,8 @@ public class SmoothLmTest {
 
   @Test
   public void testStupifBackoff() throws IOException {
-    SmoothLm lm = SmoothLm.builder(getTinyLmFile()).useStupidBackoff().build();
+    File lmFile = getTinyLmFile();
+    SmoothLm lm = SmoothLm.builder(lmFile).useStupidBackoff().build();
     LmVocabulary vocabulary = lm.getVocabulary();
     int ahmet = vocabulary.indexOf("Ahmet");
     int armut = vocabulary.indexOf("armut");
@@ -297,6 +300,7 @@ public class SmoothLmTest {
     System.out.println("expected = " + expected);
     System.out.println(lm.explain(ahmet, armut, kirmizi));
     Assert.assertEquals(expected, lm.getProbability(ahmet, armut, kirmizi), 0.0001);
+    java.nio.file.Files.delete(lmFile.toPath());
   }
 
   @Test
