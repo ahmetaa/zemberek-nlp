@@ -1613,7 +1613,7 @@ asude [P:Adj]
 asuman
 asyön
 aş
-aşağı
+aşağı [A:ImplicitDative]
 aşağı [P:Adj]
 aşağı [P:Adv]
 aşağı [P:Postp,PCAbl]
@@ -5729,7 +5729,7 @@ dırlanmak
 dırlaşmak [A:Reciprocal]
 dış
 dış [P:Adj]
-dışarı
+dışarı [A:ImplicitDative]
 dışarı [P:Adv]
 dışarı [P:Postp,PCAbl]
 dışarılık
@@ -12332,7 +12332,7 @@ karpuz
 karsak
 karst
 karstik [P:Adj]
-karşı
+karşı [A:ImplicitDative]
 karşı [P:Adj]
 karşı [P:Adv]
 karşı [P:Postp,PCDat]
@@ -18442,7 +18442,7 @@ ozuga
 östrojen
 öşür [A:LastVowelDrop]
 ötanazi
-öte
+öte [A:ImplicitDative]
 öte [P:Postp,PCAbl]
 öteberi
 öteki [P:Adj]
@@ -26195,7 +26195,7 @@ yuh [P:Interj]
 yuha [P:Interj]
 yuhalamak
 yukaç
-yukarı
+yukarı [A:ImplicitDative]
 yukarı [P:Adj]
 yukarı [P:Postp,PCAbl]
 yulaf
@@ -27245,7 +27245,7 @@ başıbozuk
 batı
 bâtın
 benzeri
-beri
+beri [A:ImplicitDative]
 betonarme
 billûrî
 biyomedikal
@@ -27299,7 +27299,7 @@ hoyrat
 hukukî
 hulûskâr
 hurda
-içeri
+içeri [A:ImplicitDative]
 iktisadî
 ılgın
 ilk
