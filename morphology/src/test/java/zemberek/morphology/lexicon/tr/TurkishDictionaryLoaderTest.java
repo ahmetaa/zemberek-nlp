@@ -1,6 +1,7 @@
 package zemberek.morphology.lexicon.tr;
 
 import static zemberek.core.turkish.PrimaryPos.Noun;
+import static zemberek.core.turkish.PrimaryPos.Punctuation;
 import static zemberek.core.turkish.PrimaryPos.Verb;
 import static zemberek.core.turkish.RootAttribute.Doubling;
 import static zemberek.core.turkish.RootAttribute.InverseHarmony;
@@ -106,6 +107,14 @@ public class TurkishDictionaryLoaderTest {
     Assert.assertEquals(Noun, item.primaryPos);
     Assert.assertTrue(item.hasAttribute(RootAttribute.NoVoicing));
     Assert.assertFalse(item.hasAttribute(RootAttribute.Voicing));
+  }
+
+  @Test
+  public void punctuationTest() {
+    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
+    DictionaryItem item = loader.loadFromString("… [P:Punc]");
+    Assert.assertEquals("…", item.root);
+    Assert.assertEquals(Punctuation, item.primaryPos);
   }
 
   @Test
