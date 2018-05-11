@@ -1,0 +1,14 @@
+runtime: java
+env: flex
+readiness_check:
+  check_interval_sec: 30
+  app_start_timeout_sec: 600
+
+automatic_scaling:
+  min_num_instances: 1
+  max_num_instances: 2
+
+resources:
+  cpu: 0.5
+  memory_gb: 0.9
+  disk_size_gb: 10
