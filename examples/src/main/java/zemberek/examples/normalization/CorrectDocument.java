@@ -84,39 +84,38 @@ public class CorrectDocument {
             + "Egemenliğin kullanılması, hiçbir surette hiçbir kişiye, zümreye veya sınıfa bırakılamaz. Hiçbir kimse veya organ\n"
             + "kaynağını Anayasadan almayan bir Devlet yetkisi kullanamaz";
 
-    TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
+    TurkishTokenizer tokenizer = TurkishTokenizer.ALL;
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     TurkishSentenceExtractor sentenceExtractor = TurkishSentenceExtractor.DEFAULT;
 
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
-
     List<String> sentences = sentenceExtractor.fromDocument(input);
 
     for (String sentence : sentences) {
-
-      List<String> result = new ArrayList<>();
+      StringBuilder output = new StringBuilder();
       for (Token token : tokenizer.tokenize(sentence)) {
-        String word = token.getText();
-        if (analyzeToken(token) && !spellChecker.check(word)) {
+        String text = token.getText();
+        if (analyzeToken(token) && !spellChecker.check(text)) {
           List<String> strings = spellChecker.suggestForWord(token.getText());
           if (!strings.isEmpty()) {
             String suggestion = strings.get(0);
-            Log.info("Correction: " + word + " -> " + suggestion);
-            result.add(suggestion);
+            Log.info("Correction: " + text + " -> " + suggestion);
+            output.append(suggestion);
           } else {
-            result.add(word);
+            output.append(text);
           }
         } else {
-          result.add(word);
+          output.append(text);
         }
       }
-      String resultStr = String.join(" ", result);
-      Log.info(resultStr);
+      Log.info(output);
     }
   }
 
   static boolean analyzeToken(Token token) {
-    return token.getType() != TurkishLexer.UnknownWord
+    return token.getType() != TurkishLexer.NewLine
+        && token.getType() != TurkishLexer.SpaceTab
+        && token.getType() != TurkishLexer.UnknownWord
         && token.getType() != TurkishLexer.RomanNumeral
         && token.getType() != TurkishLexer.Unknown;
   }
