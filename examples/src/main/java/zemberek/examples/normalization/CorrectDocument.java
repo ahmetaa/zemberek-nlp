@@ -1,13 +1,11 @@
 package zemberek.examples.normalization;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.normalization.TurkishSpellChecker;
-import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 
@@ -86,30 +84,25 @@ public class CorrectDocument {
 
     TurkishTokenizer tokenizer = TurkishTokenizer.ALL;
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-    TurkishSentenceExtractor sentenceExtractor = TurkishSentenceExtractor.DEFAULT;
-
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
-    List<String> sentences = sentenceExtractor.fromDocument(input);
+    StringBuilder output = new StringBuilder();
 
-    for (String sentence : sentences) {
-      StringBuilder output = new StringBuilder();
-      for (Token token : tokenizer.tokenize(sentence)) {
-        String text = token.getText();
-        if (analyzeToken(token) && !spellChecker.check(text)) {
-          List<String> strings = spellChecker.suggestForWord(token.getText());
-          if (!strings.isEmpty()) {
-            String suggestion = strings.get(0);
-            Log.info("Correction: " + text + " -> " + suggestion);
-            output.append(suggestion);
-          } else {
-            output.append(text);
-          }
+    for (Token token : tokenizer.tokenize(input)) {
+      String text = token.getText();
+      if (analyzeToken(token) && !spellChecker.check(text)) {
+        List<String> strings = spellChecker.suggestForWord(token.getText());
+        if (!strings.isEmpty()) {
+          String suggestion = strings.get(0);
+          Log.info("Correction: " + text + " -> " + suggestion);
+          output.append(suggestion);
         } else {
           output.append(text);
         }
+      } else {
+        output.append(text);
       }
-      Log.info(output);
     }
+    Log.info(output);
   }
 
   static boolean analyzeToken(Token token) {
