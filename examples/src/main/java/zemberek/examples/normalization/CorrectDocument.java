@@ -1,11 +1,13 @@
 package zemberek.examples.normalization;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.normalization.TurkishSpellChecker;
+import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 
@@ -82,33 +84,39 @@ public class CorrectDocument {
             + "Egemenliğin kullanılması, hiçbir surette hiçbir kişiye, zümreye veya sınıfa bırakılamaz. Hiçbir kimse veya organ\n"
             + "kaynağını Anayasadan almayan bir Devlet yetkisi kullanamaz";
 
-    TurkishTokenizer tokenizer = TurkishTokenizer.ALL;
+    TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-    TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
-    StringBuilder output = new StringBuilder();
+    TurkishSentenceExtractor sentenceExtractor = TurkishSentenceExtractor.DEFAULT;
 
-    for (Token token : tokenizer.tokenize(input)) {
-      String text = token.getText();
-      if (analyzeToken(token) && !spellChecker.check(text)) {
-        List<String> strings = spellChecker.suggestForWord(token.getText());
-        if (!strings.isEmpty()) {
-          String suggestion = strings.get(0);
-          Log.info("Correction: " + text + " -> " + suggestion);
-          output.append(suggestion);
+    TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
+
+    List<String> sentences = sentenceExtractor.fromDocument(input);
+
+    for (String sentence : sentences) {
+
+      List<String> result = new ArrayList<>();
+      for (Token token : tokenizer.tokenize(sentence)) {
+        String word = token.getText();
+        if (analyzeToken(token) && !spellChecker.check(word)) {
+          List<String> strings = spellChecker.suggestForWord(token.getText());
+          if (!strings.isEmpty()) {
+            String suggestion = strings.get(0);
+            Log.info("Correction: " + word + " -> " + suggestion);
+            result.add(suggestion);
+          } else {
+            result.add(word);
+          }
         } else {
-          output.append(text);
+          result.add(word);
         }
-      } else {
-        output.append(text);
       }
+      String resultStr = String.join(" ", result);
+      Log.info(resultStr);
     }
-    Log.info(output);
   }
 
   static boolean analyzeToken(Token token) {
-    return token.getType() != TurkishLexer.NewLine
-        && token.getType() != TurkishLexer.SpaceTab
-        && token.getType() != TurkishLexer.UnknownWord
+    return token.getType() != TurkishLexer.UnknownWord
         && token.getType() != TurkishLexer.RomanNumeral
         && token.getType() != TurkishLexer.Unknown;
   }
