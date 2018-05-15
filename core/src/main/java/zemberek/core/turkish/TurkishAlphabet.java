@@ -155,7 +155,7 @@ public class TurkishAlphabet {
     StringBuilder sb = new StringBuilder(input.length());
     input = TextUtil.normalizeApostrophes(input.toLowerCase(TR));
     for (char c : input.toCharArray()) {
-      if (letterMap.containsKey(c) || c == '.') {
+      if (letterMap.containsKey(c) || c == '.' || c == '-') {
         sb.append(c);
       } else {
         sb.append("?");

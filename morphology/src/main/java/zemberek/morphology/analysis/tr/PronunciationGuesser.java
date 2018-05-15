@@ -47,7 +47,7 @@ public class PronunciationGuesser {
           sb.append(turkishLetterProns.get(key));
         }
       } else {
-        Log.warn("Cannot identify [" + key + "] in :[" + w + "]");
+        Log.warn("Cannot guess pronunciation of letter [" + key + "] in :[" + w + "]");
       }
     }
     return sb.toString();

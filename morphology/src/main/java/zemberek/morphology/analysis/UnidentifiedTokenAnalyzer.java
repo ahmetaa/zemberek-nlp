@@ -58,11 +58,11 @@ public class UnidentifiedTokenAnalyzer {
     DictionaryItem item = new DictionaryItem(word, word, normalized, PrimaryPos.Noun, sPos);
 
     boolean itemDoesNotExist = !lexicon.containsItem(item);
-    if (!itemDoesNotExist) {
+    if (itemDoesNotExist) {
       item.attributes.add(RootAttribute.Runtime);
       analyzer.getStemTransitions().addDictionaryItem(item);
     }
-    List<SingleAnalysis> results = analyzer.analyze(normalized);
+    List<SingleAnalysis> results = analyzer.analyze(word);
     if (itemDoesNotExist) {
       analyzer.getStemTransitions().removeDictionaryItem(item);
     }
@@ -196,6 +196,7 @@ public class UnidentifiedTokenAnalyzer {
   }
 
   private List<SingleAnalysis> tryNumeral(String s) {
+    s = s.toLowerCase(TurkishAlphabet.TR);
     StemAndEnding se = getFromNumeral(s);
     String lemma;
     if (se.stem.endsWith(".")) {

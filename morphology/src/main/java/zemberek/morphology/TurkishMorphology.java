@@ -83,6 +83,10 @@ public class TurkishMorphology {
     }
   }
 
+  public UnidentifiedTokenAnalyzer getUnidentifiedTokenAnalyzer() {
+    return unidentifiedTokenAnalyzer;
+  }
+
   public static TurkishMorphology createWithDefaults() {
     Stopwatch sw = Stopwatch.createStarted();
     TurkishMorphology instance = new Builder().addDefaultBinaryDictionary().build();
@@ -135,26 +139,11 @@ public class TurkishMorphology {
    */
   private WordAnalysis analyzeWithoutCache(String word) {
 
-    String s = normalizeForAnalysis(word);
-
-    if (s.length() == 0) {
-      return WordAnalysis.EMPTY_INPUT_RESULT;
+    List<Token> tokens = tokenizer.tokenize(word);
+    if (tokens.size() != 1) {
+      return new WordAnalysis(word, word, new ArrayList<>(0));
     }
-    List<SingleAnalysis> res = analyzer.analyze(s);
-
-    if (res.size() == 0) {
-      res = analyzeWordsWithApostrophe(s);
-    }
-
-    if (res.size() == 0 && useUnidentifiedTokenAnalyzer) {
-      res = unidentifiedTokenAnalyzer.analyze(s);
-    }
-
-    if (res.size() == 1 && res.get(0).getDictionaryItem().isUnknown()) {
-      res = Collections.emptyList();
-    }
-
-    return new WordAnalysis(word, s, res);
+    return analyzeWithoutCache(tokens.get(0));
   }
 
   private String normalizeForAnalysis(String word) {
@@ -192,7 +181,7 @@ public class TurkishMorphology {
     return new WordAnalysis(word, s, result);
   }
 
-  private List<SingleAnalysis> analyzeWordsWithApostrophe(String word) {
+  public List<SingleAnalysis> analyzeWordsWithApostrophe(String word) {
 
     int index = word.indexOf('\'');
 
@@ -202,7 +191,10 @@ public class TurkishMorphology {
         return Collections.emptyList();
       }
 
-      StemAndEnding se = new StemAndEnding(word.substring(0, index), word.substring(index + 1));
+      StemAndEnding se = new StemAndEnding(
+          word.substring(0, index),
+          word.substring(index + 1));
+
       String stem = TurkishAlphabet.INSTANCE.normalize(se.stem);
 
       String withoutQuote = word.replaceAll("'", "");

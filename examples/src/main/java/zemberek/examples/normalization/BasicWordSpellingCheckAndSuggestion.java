@@ -5,7 +5,7 @@ import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.normalization.TurkishSpellChecker;
 
-public class SpellingExamples {
+public class BasicWordSpellingCheckAndSuggestion {
 
   public static void main(String[] args) throws IOException {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
