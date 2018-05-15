@@ -94,22 +94,6 @@ public class TurkishSpellCheckerTest {
   }
 
   @Test
-  public void apostropheTest() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder().disableCache()
-        .addDictionaryLines("zaman [P:Noun, Time]").build();
-
-    TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
-
-    String[] inputs = {
-        "zamanda"
-    };
-
-    for (String input : inputs) {
-      Assert.assertTrue("Fail at " + input, spellChecker.check(input));
-    }
-  }
-
-  @Test
   @Ignore("Slow. Uses actual data.")
   public void suggestWordPerformanceStemEnding() throws Exception {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
@@ -185,7 +169,7 @@ public class TurkishSpellCheckerTest {
     try (PrintWriter pw = new PrintWriter("bigram-test-result.txt")) {
       for (String sentence : sentences) {
         pw.println(sentence);
-        List<String> input = TurkishSpellChecker.tokenizeForSpelling(sentence);
+        List<String> input = spellChecker.tokenizeForSpelling(sentence);
         for (int i = 0; i < input.size(); i++) {
           String left = i == 0 ? null : input.get(i - 1);
           String right = i == input.size() - 1 ? null : input.get(i + 1);
