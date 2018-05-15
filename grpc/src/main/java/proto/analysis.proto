@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package zemberek.proto;
+
+option java_multiple_files = true;
+
+message AnalysisRequest {
+  string input = 1;
+}
+
+message AnalysisResponse {
+  // TODO: Add analysis protos.
+  string analysis = 1;
+}
+
+service AnalysisService {
+  rpc analyze(AnalysisRequest) returns AnalysisResponse;
+}

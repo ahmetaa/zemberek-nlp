@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <artifactId>zemberek-grpc-server</artifactId>
+  <version>0.1.0</version>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>zemberek-nlp</artifactId>
+    <groupId>zemberek-nlp</groupId>
+    <version>0.13.0</version>
+  </parent>
+
+  <dependencies>
+    <dependency>
+      <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-core</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-tokenization</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-morphology</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-netty</artifactId>
+      <version>1.12.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf</artifactId>
+      <version>1.12.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-stub</artifactId>
+      <version>1.12.0</version>
+    </dependency>
+  </dependencies>
+
+  <properties>
+    <java.version>1.8</java.version>
+  </properties>
+
+  <build>
+    <extensions>
+      <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>1.6.0</version>
+      </extension>
+    </extensions>
+      <plugins>
+        <plugin>
+          <groupId>org.xolstice.maven.plugins</groupId>
+          <artifactId>protobuf-maven-plugin</artifactId>
+          <version>0.5.1</version>
+          <configuration>
+            <protocArtifact>com.google.protobuf:protoc:3.5.1-1:exe:${os.detected.classifier}</protocArtifact>
+            <pluginId>grpc-java</pluginId>
+            <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.11.0:exe:${os.detected.classifier}</pluginArtifact>
+          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>compile</goal>
+                <goal>compile-custom</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+    </plugins>
+  </build>
+
+</project>

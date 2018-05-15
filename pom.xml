@@ -17,6 +17,8 @@
     <module>all</module>
     <module>experiment</module>
     <module>lang-id</module>
+    <module>grpc</module>
+    <module>server</module>
     <module>normalization</module>
     <module>examples</module>
   </modules>
@@ -34,7 +36,19 @@
     <protobuf.output.directory.java>${project.basedir}/src/main/generated/java
     </protobuf.output.directory.java>
     <protobuf.version>3.4.0</protobuf.version>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
+
+  <build>
+    <extensions>
+      <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>1.6.0</version>
+      </extension>
+    </extensions>
+  </build>
 
   <profiles>
     <profile>
@@ -139,39 +153,20 @@
       <id>genproto</id>
       <build>
         <plugins>
+
           <plugin>
             <groupId>org.xolstice.maven.plugins</groupId>
             <artifactId>protobuf-maven-plugin</artifactId>
             <version>0.5.1</version>
-            <configuration>
-              <protocExecutable>protoc</protocExecutable>
-              <outputDirectory>${protobuf.output.directory.java}</outputDirectory>
-            </configuration>
+            <extensions>true</extensions>
             <executions>
               <execution>
                 <goals>
                   <goal>compile</goal>
                   <goal>test-compile</goal>
                 </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <version>3.0.0</version>
-            <executions>
-              <execution>
-                <id>gensources</id>
-                <phase>generate-sources</phase>
-                <goals>
-                  <goal>add-source</goal>
-                </goals>
                 <configuration>
-                  <sources>
-                    <source>${protobuf.output.directory.java}</source>
-                  </sources>
+                  <protocArtifact>com.google.protobuf:protoc:3.4.0:exe:${os.detected.classifier}</protocArtifact>
                 </configuration>
               </execution>
             </executions>
