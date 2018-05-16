@@ -1026,7 +1026,12 @@ public class TurkishMorphotactics {
 
     //elma-yım-dır
     nA1sg_ST.add(nCop_ST, "dIr", rejectNoCopula);
+    // elmasındır
+    nA2sg_ST.add(nCop_ST, "dIr", rejectNoCopula);
+    // elmayızdır
     nA1pl_ST.add(nCop_ST, "dIr", rejectNoCopula);
+    // elmasınızdır
+    nA2pl_ST.add(nCop_ST, "dIr", rejectNoCopula);
 
     nA3sg_S.add(nCop_ST, ">dIr", rejectNoCopula);
 
@@ -1480,13 +1485,13 @@ public class TurkishMorphotactics {
     pvCond_S.addEmpty(pvA3sg_ST);
     pvCond_S.add(pvA3pl_ST, "lAr");
 
-    // for not allowing "elma-ydı-m-dır"
     Condition rejectNoCopula = new CurrentGroupContainsAny(pvPast_S, pvCond_S, pvCopBeforeA3pl_S)
         .not();
 
-    //elma-yım-dır
     pvA1sg_ST.add(pvCop_ST, "dIr", rejectNoCopula);
+    pvA2sg_ST.add(pvCop_ST, "dIr", rejectNoCopula);
     pvA1pl_ST.add(pvCop_ST, "dIr", rejectNoCopula);
+    pvA2pl_ST.add(pvCop_ST, "dIr", rejectNoCopula);
 
     pvA3sg_S.add(pvCop_ST, ">dIr", rejectNoCopula);
 

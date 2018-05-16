@@ -353,6 +353,15 @@ public class NounDerivationTest extends AnalyzerTestBase {
     tester.expectSingle("değil", matchesTailLex("Neg + Pres + A3sg"));
     tester.expectSingle("değildi", matchesTailLex("Neg + Past + A3sg"));
     tester.expectSingle("değilim", matchesTailLex("Neg + Pres + A1sg"));
+    tester.expectSingle("değildir", matchesTailLex("Neg + Pres + A3sg + Cop"));
+    tester.expectSingle("değilimdir", matchesTailLex("Neg + Pres + A1sg + Cop"));
+    tester.expectSingle("değilsindir", matchesTailLex("Neg + Pres + A2sg + Cop"));
+    tester.expectSingle("değilsinizdir", matchesTailLex("Neg + Pres + A2pl + Cop"));
+    tester.expectSingle("değilmişsinizdir", matchesTailLex("Neg + Narr + A2pl + Cop"));
+
+    tester.expectFail(
+        "değildinizdir"
+    );
   }
 
   @Test
