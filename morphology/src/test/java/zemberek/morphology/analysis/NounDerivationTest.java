@@ -501,4 +501,15 @@ public class NounDerivationTest extends AnalyzerTestBase {
   }
 
 
+  @Test
+  public void noun2VerbAsIfTest() {
+    AnalysisTester tester = getTester("dost");
+    tester.expectSingle("dostmuşçasına",
+        matchesTailLex("Zero + Verb + Narr + A3sg + AsIf + Adv"));
+    tester.expectSingle("dostmuşlarcasına",
+        matchesTailLex("Zero + Verb + Narr + A3pl + AsIf + Adv"));
+
+  }
+
+
 }

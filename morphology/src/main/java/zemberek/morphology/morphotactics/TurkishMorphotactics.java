@@ -1037,6 +1037,14 @@ public class TurkishMorphotactics {
 
     nA3pl_ST.add(nCop_ST, "dIr", rejectNoCopula);
 
+    PreviousMorphemeIsAny asIfCond = new PreviousMorphemeIsAny(narr);
+    nA3sg_ST.add(vAsIf_S, ">cAsInA", asIfCond);
+    nA1sg_ST.add(vAsIf_S, ">cAsInA", asIfCond);
+    nA2sg_ST.add(vAsIf_S, ">cAsInA", asIfCond);
+    nA1pl_ST.add(vAsIf_S, ">cAsInA", asIfCond);
+    nA2pl_ST.add(vAsIf_S, ">cAsInA", asIfCond);
+    nA3pl_ST.add(vAsIf_S, ">cAsInA", asIfCond);
+
     // Copula can come before A3pl.
     nPresent_S.add(nCopBeforeA3pl_S, ">dIr");
     nCopBeforeA3pl_S.add(nA3pl_ST, "lAr");
