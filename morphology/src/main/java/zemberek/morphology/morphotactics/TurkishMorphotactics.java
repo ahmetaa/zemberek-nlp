@@ -1449,6 +1449,8 @@ public class TurkishMorphotactics {
 
     pvVerbRoot_S.addEmpty(pvPresent_S);
 
+    pvVerbRoot_S.add(vWhile_S,"+yken");
+
     pvVerbRoot_S.add(pvPast_S, "+ydI");
 
     pvVerbRoot_S.add(pvNarr_S, "+ymIş");

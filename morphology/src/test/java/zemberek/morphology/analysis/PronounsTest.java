@@ -11,6 +11,7 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("bana", matchesTailLex("Pron + A1sg + Dat"));
     tester.expectSingle("beni", matchesTailLex("Pron + A1sg + Acc"));
     tester.expectAny("benim", matchesTailLex("Pron + A1sg + Gen"));
+    tester.expectAny("benken", matchesTailLex("Pron + A1sg + Zero + Verb + While + Adv"));
 
     tester.expectFail(
         "ban",
