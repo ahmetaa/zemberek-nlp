@@ -48,134 +48,105 @@
         <version>1.6.0</version>
       </extension>
     </extensions>
+    <finalName>${project.artifactId}-${project.version}</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <encoding>UTF-8</encoding>
+        </configuration>
+        <version>3.0</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.xolstice.maven.plugins</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <version>0.5.1</version>
+        <configuration>
+          <protocArtifact>com.google.protobuf:protoc:3.5.1-1:exe:${os.detected.classifier}</protocArtifact>
+          <pluginId>grpc-java</pluginId>
+          <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.11.0:exe:${os.detected.classifier}</pluginArtifact>
+        </configuration>
+        <extensions>true</extensions>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>test-compile</goal>
+            </goals>
+            <configuration>
+              <protocArtifact>com.google.protobuf:protoc:3.4.0:exe:${os.detected.classifier}</protocArtifact>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <excludes>
+            <include>**/*.dict</include>
+            <include>tr/ambiguity/model</include>
+          </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-artifact</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${project.artifactId}</artifactId>
+                  <version>${project.version}</version>
+                  <type>${project.packaging}</type>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>../dependencies</outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>../dependencies</outputDirectory>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <excludeGroupIds>
+                junit,org.hamcrest,org.mockito,org.powermock,${project.groupId}
+              </excludeGroupIds>
+              <excludeArtifactIds>
+                all
+              </excludeArtifactIds>
+            </configuration>
+          </execution>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>sources</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>production</id>
-      <activation>
-        <jdk>1.8</jdk>
-      </activation>
-      <build>
-        <finalName>${project.artifactId}-${project.version}</finalName>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-              <source>1.8</source>
-              <target>1.8</target>
-              <encoding>UTF-8</encoding>
-            </configuration>
-            <version>3.0</version>
-          </plugin>
-          <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <version>3.1.0</version>
-            <configuration>
-              <excludes>
-                <include>**/*.dict</include>
-                <include>tr/ambiguity/model</include>
-              </excludes>
-            </configuration>
-          </plugin>
-          <!--<plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-source-plugin</artifactId>
-              <executions>
-                  <execution>
-                      <id>attach-sources</id>
-                      <goals>
-                          <goal>jar</goal>
-                      </goals>
-                  </execution>
-              </executions>
-              <version>2.0.4</version>
-          </plugin>-->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>copy-artifact</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>copy</goal>
-                </goals>
-                <configuration>
-                  <artifactItems>
-                    <artifactItem>
-                      <groupId>${project.groupId}</groupId>
-                      <artifactId>${project.artifactId}</artifactId>
-                      <version>${project.version}</version>
-                      <type>${project.packaging}</type>
-                    </artifactItem>
-                  </artifactItems>
-                  <outputDirectory>../dependencies</outputDirectory>
-                </configuration>
-              </execution>
-              <execution>
-                <id>copy-dependencies</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>copy-dependencies</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>../dependencies</outputDirectory>
-                  <overWriteIfNewer>true</overWriteIfNewer>
-                  <excludeGroupIds>
-                    junit,org.hamcrest,org.mockito,org.powermock,${project.groupId}
-                  </excludeGroupIds>
-                  <excludeArtifactIds>
-                    all
-                  </excludeArtifactIds>
-                </configuration>
-              </execution>
-              <execution>
-                <phase>generate-sources</phase>
-                <goals>
-                  <goal>sources</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-
-        </plugins>
-      </build>
-    </profile>
-    <!-- mvn compile -P genproto -->
-    <profile>
-      <id>genproto</id>
-      <build>
-        <plugins>
-
-          <plugin>
-            <groupId>org.xolstice.maven.plugins</groupId>
-            <artifactId>protobuf-maven-plugin</artifactId>
-            <version>0.5.1</version>
-            <extensions>true</extensions>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>compile</goal>
-                  <goal>test-compile</goal>
-                </goals>
-                <configuration>
-                  <protocArtifact>com.google.protobuf:protoc:3.4.0:exe:${os.detected.classifier}</protocArtifact>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
   <dependencies>
     <dependency>
@@ -183,7 +154,7 @@
       <artifactId>guava</artifactId>
       <version>21.0</version>
     </dependency>
-      <!-- https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
+    <!-- https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>

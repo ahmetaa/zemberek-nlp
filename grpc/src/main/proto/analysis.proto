@@ -14,5 +14,5 @@ message AnalysisResponse {
 }
 
 service AnalysisService {
-  rpc analyze(AnalysisRequest) returns AnalysisResponse;
+  rpc analyze(AnalysisRequest) returns (AnalysisResponse);
 }
