@@ -5,12 +5,13 @@ import io.grpc.ServerBuilder;
 import zemberek.core.logging.Log;
 
 public class ZemberekGrpcServer {
-  private static final int PORT = 6789;
+  public static final int PORT = 6789;
 
   public static void main(String[] args) throws Exception {
     Server server = ServerBuilder.forPort(PORT)
         .addService(new AnalysisServerImpl())
-        .build();
+        .build()
+        .start();
     Log.info("Zemberek grpc server started at port: " + PORT);
     server.awaitTermination();
   }
