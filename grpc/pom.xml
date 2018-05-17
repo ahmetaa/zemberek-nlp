@@ -17,19 +17,16 @@
       <groupId>zemberek-nlp</groupId>
       <artifactId>zemberek-core</artifactId>
       <version>${project.parent.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>zemberek-nlp</groupId>
       <artifactId>zemberek-tokenization</artifactId>
       <version>${project.parent.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>zemberek-nlp</groupId>
       <artifactId>zemberek-morphology</artifactId>
       <version>${project.parent.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>io.grpc</groupId>
