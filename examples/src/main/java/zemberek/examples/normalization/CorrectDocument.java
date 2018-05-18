@@ -109,7 +109,6 @@ public class CorrectDocument {
     return token.getType() != TurkishLexer.NewLine
         && token.getType() != TurkishLexer.SpaceTab
         && token.getType() != TurkishLexer.UnknownWord
-        && token.getType() != TurkishLexer.RomanNumeral
         && token.getType() != TurkishLexer.Unknown;
   }
 }

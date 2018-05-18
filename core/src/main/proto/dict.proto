@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+option java_package = "zemberek.proto";
+option java_multiple_files = true;
+option optimize_for = LITE_RUNTIME;
+
+import "core/src/main/proto/pos.proto";
+
+// Keep in sync with zemberek.core.turkish.RootAttribute
+enum RootAttribute {
+  RootAttribute_Unknown = 0;
+  Aorist_I = 1;
+  Aorist_A = 2;
+  ProgressiveVowelDrop = 3;
+  Passive_In = 4;
+  Causative_t = 5;
+  Voicing = 6;
+  NoVoicing = 7;
+  InverseHarmony = 8;
+  Doubling = 9;
+  LastVowelDrop = 10;
+  CompoundP3sg = 11;
+  Special = 12;
+  NoSuffix = 13;
+  Plural = 14;
+  NounConsInsert_n = 15;
+  NoQuote = 16;
+  CompoundP3sgRoot = 17;
+  Reflexive = 18;
+  Reciprocal = 19;
+  Ext = 20;
+  Runtime = 21;
+  Dummy = 22;
+  NonReciprocal = 23;
+  ImplicitDative = 24;
+  ImplicitPlural = 25;
+  ImplicitP1sg = 26;
+  ImplicitP2sg = 27;
+  FamilyMember = 28;
+  PronunciationGuessed = 29;
+}
+
+message DictionaryItem {
+  string lemma = 1;
+  string root = 2;
+  string pronunciation = 3;
+  string reference = 4;
+  PrimaryPos primary_pos = 5;
+  SecondaryPos secondary_pos = 6;
+  repeated RootAttribute root_attributes = 7;
+}

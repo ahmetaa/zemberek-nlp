@@ -12,6 +12,17 @@
 
   <artifactId>zemberek-core</artifactId>
 
+  <build>
+    <resources>
+        <resource>
+            <directory>src/main/proto</directory>
+            <includes>
+                <include> **/*.proto</include>
+            </includes>
+        </resource>
+    </resources>
+  </build>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.test.skip>true</maven.test.skip>

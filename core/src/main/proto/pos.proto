@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+option java_package = "zemberek.proto";
+option java_multiple_files = true;
+option optimize_for = LITE_RUNTIME;
+
+// Keep in synnc with zemberek.core.turkish.PrimaryPos
+enum PrimaryPos {
+  PrimaryPos_Unknown = 0;
+  Noun = 1;
+  Adjective = 2;
+  Adverb = 3;
+  Conjunction = 4;
+  Interjection = 5;
+  Verb = 6;
+  Pronoun = 7;
+  Numeral = 8;
+  Determiner = 9;
+  PostPositive = 10;
+  Question = 11;
+  Duplicator = 12;
+  Punctuation = 13;
+}
+
+// Keep in sync with zemberek.core.turkish.SecondaryPos
+enum SecondaryPos {
+  SecondaryPos_Unknown = 0;
+  DemonstrativePron = 1;
+  Time = 2;
+  QuantitivePron = 3;
+  QuestionPron = 4;
+  ProperNoun = 5;
+  PersonalPron = 6;
+  ReflexivePron = 7;
+  None = 8;
+  Ordinal = 9;
+  Cardinal = 10;
+  Percentage = 11;
+  Ratio = 12;
+  Range = 13;
+  Real = 14;
+  Distribution = 15;
+  Clock = 16;
+  Date = 17;
+  RegularAbbreviation = 18;
+  Abbreviation = 19;
+
+  // Below POS information is for compatibility with K. Oflazer's notation.
+  // They indicate that words before Post positive words should end with certain suffixes.
+  PCDat = 50;
+  PCAcc = 51;
+  PCIns = 52;
+  PCNom = 53;
+  PCGen = 54;
+  PCAbl = 55;
+}

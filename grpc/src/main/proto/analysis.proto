@@ -3,9 +3,112 @@ syntax = "proto3";
 package zemberek.proto;
 
 option java_multiple_files = true;
+option optimize_for = LITE_RUNTIME;
 
 message AnalysisRequest {
   string input = 1;
+  bool disambiguate = 2;
+  bool provide_suggestions = 3;
+}
+
+message Morpheme {
+  enum Type {
+    undefined = 0;
+    root = 1;
+    noun = 2;
+    adj = 3;
+    verb = 4;
+    pron = 5;
+    adv = 6;
+    conj = 7;
+    punc = 8;
+    ques = 9;
+    postp = 10;
+    det = 11;
+    num = 12;
+    dup = 13;
+    interj = 14;
+
+    // Number - Person agreement.
+    a1sg = 20;
+    a2sg = 21;
+    a3sg = 22;
+    a1pl = 23;
+    a2pl = 24;
+    a3pl = 25;
+
+    // Possesive
+    pnon = 26;
+    p1sg = 27;
+    p2sg = 28;
+    p3sg = 29;
+    p1pl = 30;
+    p2pl = 31;
+    p3pl = 32;
+
+    // Case
+    nom = 33;
+    dat = 34;
+    acc = 35;
+    abl = 36;
+    loc = 37;
+    ins = 38;
+    gen = 39;
+    equ = 40;
+
+    // Derivation
+    dim = 41;
+    ness = 42;
+    with = 43;
+    without = 44;
+    related = 45;
+    justlike = 46;
+    rel = 47;
+    agt = 48;
+    become = 49;
+    acquire = 50;
+    // TODO: Add others.
+  }
+
+  // TODO: Use a shared proto
+  enum PrimaryPos {
+    PrimaryPos_Unknown = 0;
+    Noun = 1;
+    Adjective = 2;
+    Adverb = 3;
+    Conjunction = 4;
+    Interjection = 5;
+    Verb = 6;
+    Pronoun = 7;
+    Numeral = 8;
+    Determiner = 9;
+    PostPositive = 10;
+    Question = 11;
+    Duplicator = 12;
+    Punctuation = 13;
+  }
+  string name = 1;
+  PrimaryPos primary_pos = 2;
+  bool derivational = 3;
+}
+
+message MorphemeData {
+  Morpheme morpheme = 1;
+  string surface = 2;
+}
+
+message SingleAnalysis {
+  // TODO Add dictionary item.
+  repeated MorphemeData morpheme_data;
+  repeated int32 group_boundaries;
+}
+
+message WordAnalysis {
+  // Actual input
+  string input = 1;
+  // The input that is prepared for analysis.
+  string normalized_input = 2;
+  repeated SingleAnalysis single_analysis = 3;
 }
 
 message AnalysisResponse {

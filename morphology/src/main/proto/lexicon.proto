@@ -1,104 +1,10 @@
 syntax = "proto3";
 
 option java_package = "zemberek.morphology.lexicon.proto";
-option java_outer_classname = "LexiconProto";
+option java_multiple_files = true;
 option optimize_for = LITE_RUNTIME;
 
-// Keep in synnc with zemberek.core.turkish.PrimaryPos
-enum PrimaryPos {
-  PrimaryPos_Unknown = 0;
-  Noun = 1;
-  Adjective = 2;
-  Adverb = 3;
-  Conjunction = 4;
-  Interjection = 5;
-  Verb = 6;
-  Pronoun = 7;
-  Numeral = 8;
-  Determiner = 9;
-  PostPositive = 10;
-  Question = 11;
-  Duplicator = 12;
-  Punctuation = 13;
-}
-
-// Keep in sync with zemberek.core.turkish.SecondaryPos
-enum SecondaryPos {
-  SecondaryPos_Unknown = 0;
-  DemonstrativePron = 1;
-  Time = 2;
-  QuantitivePron = 3;
-  QuestionPron = 4;
-  ProperNoun = 5;
-  PersonalPron = 6;
-  ReflexivePron = 7;
-  None = 8;
-  Ordinal = 9;
-  Cardinal = 10;
-  Percentage = 11;
-  Ratio = 12;
-  Range = 13;
-  Real = 14;
-  Distribution = 15;
-  Clock = 16;
-  Date = 17;
-  RegularAbbreviation = 18;
-  Abbreviation = 19;
-
-  // Below POS information is for compatibility with K. Oflazer's notation.
-  // They indicate that words before Post positive words should end with certain suffixes.
-  PCDat = 50;
-  PCAcc = 51;
-  PCIns = 52;
-  PCNom = 53;
-  PCGen = 54;
-  PCAbl = 55;
-}
-
-// Keep in sync with zemberek.core.turkish.RootAttribute
-enum RootAttribute {
-  RootAttribute_Unknown = 0;
-  Aorist_I = 1;
-  Aorist_A = 2;
-  ProgressiveVowelDrop = 3;
-  Passive_In = 4;
-  Causative_t = 5;
-  Voicing = 6;
-  NoVoicing = 7;
-  InverseHarmony = 8;
-  Doubling = 9;
-  LastVowelDrop = 10;
-  CompoundP3sg = 11;
-  Special = 12;
-  NoSuffix = 13;
-  Plural = 14;
-  NounConsInsert_n = 15;
-  NoQuote = 16;
-  CompoundP3sgRoot = 17;
-  Reflexive = 18;
-  Reciprocal = 19;
-  Ext = 20;
-  Runtime = 21;
-  Dummy = 22;
-  NonReciprocal = 23;
-  ImplicitDative = 24;
-  ImplicitPlural = 25;
-  ImplicitP1sg = 26;
-  ImplicitP2sg = 27;
-  FamilyMember = 28;
-  PronunciationGuessed = 29;
-}
-
-message DictionaryItem {
-  string lemma = 1;
-  string root = 2;
-  string pronunciation = 3;
-  string reference = 4;
-  PrimaryPos primary_pos = 5;
-  SecondaryPos secondary_pos = 6;
-  repeated RootAttribute root_attributes = 7;
-  int32 index = 8;
-}
+import "core/src/main/proto/dict.proto";
 
 message Dictionary {
   enum Creator {
