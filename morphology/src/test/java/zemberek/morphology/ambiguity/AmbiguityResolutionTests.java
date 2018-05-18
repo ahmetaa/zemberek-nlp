@@ -12,8 +12,8 @@ public class AmbiguityResolutionTests {
 
   @Test
   public void issue157ShouldNotThrowNPE() {
-    String input = "Dünya Yıldız Kızlar Voleybol Şampiyonası'nda Yıldız Milli Takım, "
-        + "final maçında Çin'i 3-0 yenerek şampiyon oldu.";
+    String input = "Yıldız Kızlar Dünya Şampiyonası FIVB'nin düzenlediği ve 18 "
+        + "yaşının altındaki voleybolcuların katılabildiği bir şampiyonadır.";
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(input);
     Assert.assertEquals(TurkishTokenizer.DEFAULT.tokenize(input).size(), analysis.size());
