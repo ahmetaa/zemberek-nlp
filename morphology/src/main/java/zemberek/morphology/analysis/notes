@@ -266,6 +266,9 @@ Rethink Reciprocal morphotactics as it generates painful ambiguity.
 beklemedeyiz
 bilmezden
 
+odalar
+[o:Adj] o:Adj|Zero→Noun+A3sg+da:Loc|Zero→Verb+Pres+lar:A3pl --> WRONG
+
 Consider adding abbreviations with dot directly. Or add a rootattribute
 
 ----

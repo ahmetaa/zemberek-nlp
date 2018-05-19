@@ -77,7 +77,7 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
 
   @Override
   public SentenceAnalysis disambiguate(String sentence, List<WordAnalysis> allAnalyses) {
-    ParseResult best = decoder.bestPath(allAnalyses);
+    DecodeResult best = decoder.bestPath(allAnalyses);
     List<SentenceWordAnalysis> l = new ArrayList<>();
     for (int i = 0; i < allAnalyses.size(); i++) {
       WordAnalysis wordAnalysis = allAnalyses.get(i);
@@ -218,7 +218,7 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
       this.extractor = extractor;
     }
 
-    ParseResult bestPath(List<WordAnalysis> sentence) {
+    DecodeResult bestPath(List<WordAnalysis> sentence) {
 
       if (sentence.size() == 0) {
         throw new IllegalArgumentException("bestPath cannot be called with empty sentence.");
@@ -232,12 +232,15 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
 
         ActiveList<Hypothesis> nextList = new ActiveList<>();
 
+        // this is necessary because word analysis may contain zero SingleAnalysis
+        // So we add an unknown SingleAnalysis to it.
         List<SingleAnalysis> analyses = analysisData.getAnalysisResults();
-        if(analyses.size()==0) {
+        if (analyses.size() == 0) {
+          analyses = new ArrayList<>(1);
           analyses.add(SingleAnalysis.unknown(analysisData.getInput()));
         }
 
-        for (SingleAnalysis analysis : analysisData) {
+        for (SingleAnalysis analysis : analyses) {
 
           for (Hypothesis h : currentList) {
 
@@ -284,16 +287,16 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
 
       // because we collect from end to begin, reverse is required.
       Collections.reverse(result);
-      return new ParseResult(result, bestScore);
+      return new DecodeResult(result, bestScore);
     }
   }
 
-  static class ParseResult {
+  static class DecodeResult {
 
     List<SingleAnalysis> bestParse;
     float score;
 
-    private ParseResult(List<SingleAnalysis> bestParse, float score) {
+    private DecodeResult(List<SingleAnalysis> bestParse, float score) {
       this.bestParse = bestParse;
       this.score = score;
     }

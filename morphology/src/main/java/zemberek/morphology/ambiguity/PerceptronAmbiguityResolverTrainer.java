@@ -19,7 +19,7 @@ import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.Decoder;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.FeatureExtractor;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.Model;
-import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.ParseResult;
+import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.DecodeResult;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
@@ -68,7 +68,7 @@ public class PerceptronAmbiguityResolverTrainer {
           continue;
         }
         numExamples++;
-        ParseResult result = decoder.bestPath(sentence.allAnalyses());
+        DecodeResult result = decoder.bestPath(sentence.allAnalyses());
         if (sentence.bestAnalysis().equals(result.bestParse)) {
           continue;
         }
@@ -356,7 +356,7 @@ public class PerceptronAmbiguityResolverTrainer {
     int hit = 0, total = 0;
     Stopwatch sw = Stopwatch.createStarted();
     for (SentenceAnalysis sentence : set.sentences) {
-      ParseResult result = resolver.decoder.bestPath(sentence.allAnalyses());
+      DecodeResult result = resolver.decoder.bestPath(sentence.allAnalyses());
       int i = 0;
       List<SingleAnalysis> bestExpected = sentence.bestAnalysis();
       for (SingleAnalysis bestActual : result.bestParse) {
