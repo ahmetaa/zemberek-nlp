@@ -8,16 +8,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.langid.LanguageIdentifier;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AmbiguityAnalysis;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AnalysisDecision;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.ResultSentence;
+import zemberek.morphology.analysis.SentenceAnalysis;
+import zemberek.morphology.analysis.SentenceWordAnalysis;
+import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.tokenization.TurkishSentenceExtractor;
 
@@ -54,8 +59,11 @@ class GenerateDataWithRules {
     ignoreSentencePredicates.add(probablyNotTurkish());
     ignoreSentencePredicates.add(tooLongSentence(25));
 
+/*    new GenerateDataWithRules()
+        .extractData(p, outRoot, 150000, 0);*/
     new GenerateDataWithRules()
-        .extractData(p, outRoot, 150000, 0);
+        .extractHighlyAmbigiousWordSentences(p, outRoot, 3, 1000);
+
   }
 
   private static Predicate<WordAnalysis> hasAnalysis() {
@@ -78,6 +86,62 @@ class GenerateDataWithRules {
     return p -> p.split("[ ]+").length > tokenCount;
   }
 
+  private void extractHighlyAmbigiousWordSentences(
+      Path inputRoot,
+      Path outRoot,
+      int minCount,
+      int wordCount)
+      throws IOException {
+    List<Path> files = Files.walk(inputRoot, 1).filter(s -> s.toFile().isFile())
+        .collect(Collectors.toList());
+
+    Histogram<WordAnalysis> wordAnalyses = new Histogram<>();
+
+    for (Path file : files) {
+      Log.info("Processing %s", file);
+      LinkedHashSet<String> sentences = getSentences(file);
+
+      List<List<String>> group = group(new ArrayList<>(sentences), 5000);
+
+      for (List<String> lines : group) {
+        Log.info("Collected %d words.", wordAnalyses.size());
+        LinkedHashSet<String> toProcess = getAccpetableSentences(lines);
+        for (String sentence : toProcess) {
+          try {
+            SentenceAnalysis sentenceAnalysis = morphology.analyzeAndResolveAmbiguity(sentence);
+            for (SentenceWordAnalysis analysis : sentenceAnalysis) {
+              HashSet<String> stems = new HashSet<>(4);
+              for (SingleAnalysis s : analysis.getWordAnalysis()) {
+                stems.add(s.getStem());
+                if (stems.size() > minCount) {
+                  wordAnalyses.add(analysis.getWordAnalysis());
+                  break;
+                }
+              }
+            }
+          } catch (Exception e) {
+            Log.warn("Error in sentence %s", sentence);
+          }
+        }
+      }
+      if (wordAnalyses.size() > wordCount) {
+        break;
+      }
+    }
+
+    String s = inputRoot.toFile().getName();
+    Path amb = outRoot.resolve(s + "-amb.txt");
+    try (PrintWriter pwa = new PrintWriter(amb.toFile(), "utf-8")) {
+      for (WordAnalysis wa : wordAnalyses.getSortedList()) {
+        pwa.println(wa.getInput());
+        for (SingleAnalysis analysis : wa) {
+          pwa.println(analysis.formatLong());
+        }
+        pwa.println();
+      }
+    }
+  }
+
   private void extractData(Path p, Path outRoot, int resultLimit, int maxAmbigiousWordCount)
       throws IOException {
     List<Path> files = Files.walk(p, 1).filter(s -> s.toFile().isFile())
@@ -89,7 +153,8 @@ class GenerateDataWithRules {
 
     for (Path file : files) {
       Log.info("Processing %s", file);
-      collect(result, file, maxAmbigiousWordCount, resultLimit);
+      LinkedHashSet<String> sentences = getSentences(p);
+      collect(result, sentences, maxAmbigiousWordCount, resultLimit);
       i++;
       Log.info("%d of %d", i, files.size());
       if (resultLimit > 0 && result.results.size() > resultLimit) {
@@ -126,38 +191,18 @@ class GenerateDataWithRules {
     }
   }
 
-  private void collect(BatchResult batchResult, Path p, int maxAmbigiousWordCount, int resultLimit)
+  private void collect(
+      BatchResult batchResult,
+      Collection<String> sentences,
+      int maxAmbigiousWordCount,
+      int resultLimit)
       throws IOException {
-
-    LinkedHashSet<String> sentences = getSentences(p);
 
     List<List<String>> group = group(new ArrayList<>(sentences), 5000);
 
     for (List<String> strings : group) {
 
-      List<String> normalized = new ArrayList<>();
-      for (String sentence : strings) {
-        sentence = sentence.replaceAll("\\s+|\\u00a0", " ");
-        sentence = sentence.replaceAll("[\\u00ad]", "");
-        sentence = sentence.replaceAll("[…]", "...");
-        normalized.add(sentence);
-      }
-
-      LinkedHashSet<String> toProcess = new LinkedHashSet<>();
-      for (String s : normalized) {
-        boolean ok = true;
-        for (Predicate<String> ignorePredicate : ignoreSentencePredicates) {
-          if (ignorePredicate.test(s)) {
-            ok = false;
-            break;
-          }
-        }
-        if (!ok) {
-          batchResult.ignoredSentences.add(s);
-        } else {
-          toProcess.add(s);
-        }
-      }
+      LinkedHashSet<String> toProcess = getAccpetableSentences(strings);
 
       Log.info("Processing.. %d found.", batchResult.acceptedSentences.size());
       Log.info(morphology.getCache().toString());
@@ -205,6 +250,31 @@ class GenerateDataWithRules {
         }
       }
     }
+  }
+
+  private LinkedHashSet<String> getAccpetableSentences(List<String> strings) {
+    List<String> normalized = new ArrayList<>();
+    for (String sentence : strings) {
+      sentence = sentence.replaceAll("\\s+|\\u00a0", " ");
+      sentence = sentence.replaceAll("[\\u00ad]", "");
+      sentence = sentence.replaceAll("[…]", "...");
+      normalized.add(sentence);
+    }
+
+    LinkedHashSet<String> toProcess = new LinkedHashSet<>();
+    for (String s : normalized) {
+      boolean ok = true;
+      for (Predicate<String> ignorePredicate : ignoreSentencePredicates) {
+        if (ignorePredicate.test(s)) {
+          ok = false;
+          break;
+        }
+      }
+      if (ok) {
+        toProcess.add(s);
+      }
+    }
+    return toProcess;
   }
 
   List<List<String>> group(List<String> lines, int blockCount) {

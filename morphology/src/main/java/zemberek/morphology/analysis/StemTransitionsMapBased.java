@@ -22,7 +22,8 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
   private ArrayListMultimap<String, StemTransition> multiStems =
       ArrayListMultimap.create(1000, 2);
 
-  // contains a map that holds dictionary items that has multiple or different than item.root stem surface forms.
+  // contains a map that holds dictionary items that has
+  // multiple or different than item.root stem surface forms.
   private ArrayListMultimap<DictionaryItem, StemTransition> differentStemItems =
       ArrayListMultimap.create(1000, 2);
 

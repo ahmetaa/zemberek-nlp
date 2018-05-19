@@ -3,8 +3,8 @@ package zemberek.morphology.ambiguity;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.Model;
 import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.Model;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolverTrainer.DataSet;
 
 public class PerceptronAmbiguityResolverEvaluation {
@@ -40,13 +40,12 @@ public class PerceptronAmbiguityResolverEvaluation {
     Path test = Paths.get("data/ambiguity/test");
     ((Model) resolverRead.getModel()).compress().serialize(modelCompressed);
 
-    resolverRead.test(test, morphology);
+    PerceptronAmbiguityResolverTrainer.test(test, morphology, resolverRead);
 
     System.out.println("Load compressed model and test");
 
     PerceptronAmbiguityResolver comp =
         PerceptronAmbiguityResolver.fromModelFile(modelCompressed);
-    comp.test(test, morphology);
+    PerceptronAmbiguityResolverTrainer.test(test, morphology, comp);
   }
-
 }

@@ -24,8 +24,7 @@ public class WordAnalysis implements Iterable<SingleAnalysis> {
     this.analysisResults = analysisResults;
   }
 
-  public WordAnalysis(String input, String normalizedInput,
-      List<SingleAnalysis> analysisResults) {
+  public WordAnalysis(String input, String normalizedInput, List<SingleAnalysis> analysisResults) {
     this.input = input;
     this.normalizedInput = normalizedInput;
     this.analysisResults = analysisResults;

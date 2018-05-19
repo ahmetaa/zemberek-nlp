@@ -1,5 +1,6 @@
 package zemberek.morphology.ambiguity;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import zemberek.core.collections.IntValueMap;
 import zemberek.core.logging.Log;
@@ -38,8 +40,16 @@ public class PerceptronAmbiguityResolverTrainer {
   private IntValueMap<String> counts = new IntValueMap<>();
   private TurkishMorphology analyzer;
 
+  // during model updates, keys with lower than this value will be removed from the model.
+  private double minPruneWeight = 0;
+
   PerceptronAmbiguityResolverTrainer(TurkishMorphology analyzer) {
     this.analyzer = analyzer;
+  }
+
+  PerceptronAmbiguityResolverTrainer(TurkishMorphology analyzer, double weightThreshold) {
+    this.analyzer = analyzer;
+    this.minPruneWeight = weightThreshold;
   }
 
   public PerceptronAmbiguityResolver train(
@@ -83,7 +93,7 @@ public class PerceptronAmbiguityResolverTrainer {
       Log.info("Testing development set.");
       PerceptronAmbiguityResolver disambiguator =
           new PerceptronAmbiguityResolver(averagedWeights, extractor);
-      disambiguator.test(devSet);
+      test(devSet, disambiguator);
 
     }
     return new PerceptronAmbiguityResolver(averagedWeights, new FeatureExtractor(false));
@@ -116,11 +126,11 @@ public class PerceptronAmbiguityResolverTrainer {
 
       // reduce model by eliminating near zero weights.
       float wa = averagedWeights.get(feat);
-      if (Math.abs(wa) <= Model.epsilon) {
+      if (Math.abs(wa) <= minPruneWeight) {
         averagedWeights.data.remove(feat);
       }
       float w = weights.get(feat);
-      if (Math.abs(w) <= Model.epsilon) {
+      if (Math.abs(w) <= minPruneWeight) {
         weights.data.remove(feat);
       }
     }
@@ -305,7 +315,6 @@ public class PerceptronAmbiguityResolverTrainer {
     }
   }
 
-
   static class SentenceDataStr {
 
     String sentence;
@@ -330,6 +339,37 @@ public class PerceptronAmbiguityResolverTrainer {
       this.correctAnalysis = correctAnalysis;
       this.wordAnalysis = wordAnalysis;
     }
+  }
+
+  /**
+   * For evaluating a test file.
+   */
+  public static void test(
+      Path testFilePath,
+      TurkishMorphology morphology,
+      PerceptronAmbiguityResolver resolver) throws IOException {
+    DataSet testSet = DataSet.load(testFilePath, morphology);
+    test(testSet, resolver);
+  }
+
+  public static void test(DataSet set, PerceptronAmbiguityResolver resolver) {
+    int hit = 0, total = 0;
+    Stopwatch sw = Stopwatch.createStarted();
+    for (SentenceAnalysis sentence : set.sentences) {
+      ParseResult result = resolver.decoder.bestPath(sentence.allAnalyses());
+      int i = 0;
+      List<SingleAnalysis> bestExpected = sentence.bestAnalysis();
+      for (SingleAnalysis bestActual : result.bestParse) {
+        if (bestExpected.get(i).equals(bestActual)) {
+          hit++;
+        }
+        total++;
+        i++;
+      }
+    }
+    Log.info("Elapsed: " + sw.elapsed(TimeUnit.MILLISECONDS));
+    Log.info(
+        "Word count:" + total + " hit=" + hit + String.format(" Accuracy:%f", hit * 1.0 / total));
   }
 
 

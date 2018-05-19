@@ -24,4 +24,18 @@ public class AmbiguityResolutionTests {
     }
   }
 
+  @Test
+  public void shouldNotThrowException() {
+    String input = "dsddfsd tanıyor ve ilgileniyor.";
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(input);
+    Assert.assertEquals(TurkishTokenizer.DEFAULT.tokenize(input).size(), analysis.size());
+    for (SentenceWordAnalysis sentenceWordAnalysis : analysis) {
+      String token = sentenceWordAnalysis.getWordAnalysis().getInput();
+      SingleAnalysis an = sentenceWordAnalysis.getAnalysis();
+      System.out.println(token + " = " + an.formatLong());
+    }
+  }
+
+
 }

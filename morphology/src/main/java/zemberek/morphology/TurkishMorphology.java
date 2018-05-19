@@ -141,7 +141,7 @@ public class TurkishMorphology {
 
     List<Token> tokens = tokenizer.tokenize(word);
     if (tokens.size() != 1) {
-      return new WordAnalysis(word, word, new ArrayList<>(0));
+      return new WordAnalysis(word, word, Collections.singletonList(SingleAnalysis.unknown(word)));
     }
     return analyzeWithoutCache(tokens.get(0));
   }
@@ -174,8 +174,9 @@ public class TurkishMorphology {
       result = unidentifiedTokenAnalyzer.analyze(token);
     }
 
-    if (result.size() == 1 && result.get(0).getDictionaryItem().isUnknown()) {
-      result = Collections.emptyList();
+    if (result.size() == 0) {
+      result = new ArrayList<>(1);
+      result.add(SingleAnalysis.unknown(word));
     }
 
     return new WordAnalysis(word, s, result);
