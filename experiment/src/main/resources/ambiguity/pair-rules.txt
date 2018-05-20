@@ -374,3 +374,31 @@ bizim biz:Pron+A1pl+im:P1pl *
 yarın|Yarın [yarın:Noun,Time] *
 
 # * A3sg+P3sg+Acc A3sg+P2sg+Acc
+
+sürücü*|Sürücü* [sürücü:Noun] *
+
+kurulum*|Kurulum* [kurulum:Noun] *
+
+güvence*|Güvence* [güvence:Noun] *
+
+kelime*|Kelime* [kelime:Noun] *
+
+yakalar* [yakalamak:Verb] *
+
+koşanlar* koş:Verb|PresPart→Noun+A3pl *
+
+şemsiye* [şemsiye:Noun] *
+
+güvence* [güvence:Noun] *
+
+yakınsa [yakın:Noun] *
+
+basına|Basına [basın:Noun] *
+
+altındasınız [alt:Noun] *
+
+satıcılar [satıcı:Noun] *
+
+zenginler [zengin:Adj] *
+
+odalar [oda:Noun] *

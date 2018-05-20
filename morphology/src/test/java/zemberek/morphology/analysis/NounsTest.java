@@ -335,5 +335,23 @@ public class NounsTest extends AnalyzerTestBase {
     t.expectAny("ankara", matchesTailLex("Noun + A3sg"));
   }
 
+  @Test
+  public void abbreviationShouldNotGetPossessive() {
+    AnalysisTester t = getTester("Tdk [Pr:tedeka]");
+    t.expectAny("tdk", matchesTailLex("Noun + A3sg"));
+    t.expectAny("tdkya", matchesTailLex("Noun + A3sg + Dat"));
+
+    t.expectFail(
+        "Tdkm",
+        "Tdkn",
+        "Tdksı",
+        "Tdkmız",
+        "Tdknız"
+    );
+
+  }
+
+
+
 
 }

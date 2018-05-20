@@ -10383,7 +10383,6 @@ hüzme
 ıpıl [P:Dup]
 ıpıslak [P:Adj]
 ıpıssız [P:Adj]
-ır
 ıra
 ırak [P:Adj]
 ırakgörür
@@ -10404,7 +10403,6 @@ hüzme
 ırlamak
 ırmak [P:Noun]
 ırz
-ıs
 ısfahan
 ısı
 ısıalan [P:Adj]
@@ -20838,13 +20836,13 @@ sekülarizm
 seküler [P:Adj]
 sel
 sela
-selâm
-selâmet [A:NoVoicing]
-selâmetlemek
-selâmlamak
-selâmünaleyküm [P:Interj]
+selam
+selamet [A:NoVoicing]
+selametlemek
+selamlamak
+selamünaleyküm [P:Interj]
 selanik
-selâset [A:NoVoicing]
+selaset [A:NoVoicing]
 selâtin
 sele
 selef
@@ -23011,6 +23009,7 @@ tanıklamak
 tanılamak
 tanım
 tanımak
+tanınmış [P:Adj]
 tanımlamak
 tanış [P:Adj]
 tanışık [P:Adj]
@@ -27788,7 +27787,6 @@ binlerce [P:Adj]
 bizce [P:Adv]
 bolca [P:Adj]
 bolca [P:Adv]
-boyunca [P:Postp]
 bozca
 bozca [P:Adj]
 bönce [P:Adj]
@@ -28819,8 +28817,6 @@ kıpırdaşmak [A:Reciprocal]
 öpüşmek [A:Reciprocal]
 oyulganmak
 sayışmak [A:Reciprocal]
-selametlemek
-selamlamak
 sıkışmak
 silahlamak
 silinmek
