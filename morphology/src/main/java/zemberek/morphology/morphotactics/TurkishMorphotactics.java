@@ -36,6 +36,7 @@ import zemberek.morphology.morphotactics.Conditions.PreviousMorphemeIsAny;
 import zemberek.morphology.morphotactics.Conditions.PreviousStateIsAny;
 import zemberek.morphology.morphotactics.Conditions.RootSurfaceIs;
 import zemberek.morphology.morphotactics.Conditions.RootSurfaceIsAny;
+import zemberek.morphology.morphotactics.Conditions.SecondaryPosIs;
 
 public class TurkishMorphotactics {
 
@@ -471,33 +472,34 @@ public class TurkishMorphotactics {
 
     // ------
 
-    Condition noFamily = notHave(RootAttribute.FamilyMember);
+    // do not allow possessive suffixes for abbreviations or words like "annemler"
+    Condition possessionCond = notHave(RootAttribute.FamilyMember)
+        .andNot(new SecondaryPosIs(SecondaryPos.Abbreviation));
 
-    // ev-ε-ε-? Reject "annemler" etc.
     a3sg_S
-        .addEmpty(pnon_S, noFamily)        // ev
-        .add(p1sg_S, "Im", noFamily)       // evim
-        .add(p2sg_S, "In", noFamily)       // evin
-        .add(p3sg_S, "+sI", noFamily)      // evi, odası
+        .addEmpty(pnon_S, possessionCond)        // ev
+        .add(p1sg_S, "Im", possessionCond)       // evim
+        .add(p2sg_S, "In", possessionCond)       // evin
+        .add(p3sg_S, "+sI", possessionCond)      // evi, odası
         .addEmpty(p3sg_S,
             has(RootAttribute.CompoundP3sg))  // "zeytinyağı" has two analyses. Pnon and P3sg.
-        .add(p1pl_S, "ImIz", noFamily)     // evimiz
-        .add(p2pl_S, "InIz", noFamily)     // eviniz
-        .add(p3pl_S, "lArI", noFamily);    // evleri
+        .add(p1pl_S, "ImIz", possessionCond)     // evimiz
+        .add(p2pl_S, "InIz", possessionCond)     // eviniz
+        .add(p3pl_S, "lArI", possessionCond);    // evleri
 
     // ev-ler-ε-?
-    a3pl_S.addEmpty(pnon_S, noFamily);
+    a3pl_S.addEmpty(pnon_S, possessionCond);
 
     // ev-ler-im-?
     a3pl_S
-        .add(p1sg_S, "Im", noFamily)
-        .add(p2sg_S, "In", noFamily)
+        .add(p1sg_S, "Im", possessionCond)
+        .add(p2sg_S, "In", possessionCond)
         .addEmpty(p1sg_S, has(RootAttribute.ImplicitP1sg)) // for words like "annemler"
         .addEmpty(p2sg_S, has(RootAttribute.ImplicitP2sg)) // for words like "annenler"
-        .add(p3sg_S, "I", noFamily)
-        .add(p1pl_S, "ImIz", noFamily)
-        .add(p2pl_S, "InIz", noFamily)
-        .add(p3pl_S, "I", noFamily);
+        .add(p3sg_S, "I", possessionCond)
+        .add(p1pl_S, "ImIz", possessionCond)
+        .add(p2pl_S, "InIz", possessionCond)
+        .add(p3pl_S, "I", possessionCond);
 
     // --- handle su - akarsu roots. ----
     nounSuRoot_S.addEmpty(a3sgSu_S);
@@ -693,7 +695,7 @@ public class TurkishMorphotactics {
     // for covering dünkü, anki, yarınki etc. Unlike Oflazer, We also allow dündeki etc.
     // TODO: Use a more general grouping, not using Secondary Pos
     Condition time = Conditions.CURRENT_GROUP_EMPTY.and(
-        new Conditions.SecondaryRootIs(SecondaryPos.Time));
+        new SecondaryPosIs(SecondaryPos.Time));
     DictionaryItem dun = lexicon.getItemById("dün_Noun_Time");
     DictionaryItem gun = lexicon.getItemById("gün_Noun_Time");
     DictionaryItem bugun = lexicon.getItemById("bugün_Noun_Time");
@@ -1448,6 +1450,8 @@ public class TurkishMorphotactics {
   private void connectVerbAfterPronoun() {
 
     pvVerbRoot_S.addEmpty(pvPresent_S);
+
+    pvVerbRoot_S.add(vWhile_S,"+yken");
 
     pvVerbRoot_S.add(pvPast_S, "+ydI");
 

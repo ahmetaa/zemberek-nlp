@@ -263,6 +263,13 @@ all words that starts with capital letter should be a proper noun candidate.
 Rethink Reciprocal morphotactics as it generates painful ambiguity.
 
 "vazgeçilmezi" seems ok but not sure if it can be generalized.
+beklemedeyiz
+bilmezden
+
+odalar
+[o:Adj] o:Adj|Zero→Noun+A3sg+da:Loc|Zero→Verb+Pres+lar:A3pl --> WRONG
+
+Consider adding abbreviations with dot directly. Or add a rootattribute
 
 ----
 

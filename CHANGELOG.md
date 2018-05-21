@@ -1,6 +1,18 @@
 CHANGE LOG
 ==========
 
+## 0.13.0
+
+This is a bug fix and small changes release. 
+
+- A problem in ambiguity resolution is fixed. It was throwing NPE for unknown words. (Issue #157)
+
+- Abbreviations are not allowed to have possessive suffixes.
+
+- Morphotactics improvements.
+
+- We started experimenting with server side modules.
+
 ## 0.12.0 
 
 This release is the result of some major refactoring of the Morphology module.

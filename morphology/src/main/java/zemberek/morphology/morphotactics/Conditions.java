@@ -237,11 +237,11 @@ class Conditions {
     }
   }
 
-  public static class SecondaryRootIs extends AbstractCondition {
+  public static class SecondaryPosIs extends AbstractCondition {
 
     SecondaryPos pos;
 
-    public SecondaryRootIs(SecondaryPos pos) {
+    public SecondaryPosIs(SecondaryPos pos) {
       this.pos = pos;
     }
 
@@ -252,7 +252,7 @@ class Conditions {
 
     @Override
     public String toString() {
-      return "SecondaryRootIs{" + pos + '}';
+      return "SecondaryPosIs{" + pos + '}';
     }
   }
 

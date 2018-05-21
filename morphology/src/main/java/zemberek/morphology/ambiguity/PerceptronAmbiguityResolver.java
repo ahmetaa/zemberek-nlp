@@ -1,6 +1,5 @@
 package zemberek.morphology.ambiguity;
 
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -11,7 +10,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.IntValueMap;
 import zemberek.core.compression.LossyIntLookup;
@@ -23,12 +21,10 @@ import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology.ambiguity.PerceptronAmbiguityResolverTrainer.DataSet;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis.MorphemeGroup;
-import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
 
 /**
@@ -45,7 +41,7 @@ import zemberek.morphology.analysis.WordAnalysis;
  */
 public class PerceptronAmbiguityResolver implements AmbiguityResolver {
 
-  private Decoder decoder;
+  Decoder decoder;
 
   PerceptronAmbiguityResolver(WeightLookup averagedModel, FeatureExtractor extractor) {
     this.decoder = new Decoder(averagedModel, extractor);
@@ -81,37 +77,14 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
 
   @Override
   public SentenceAnalysis disambiguate(String sentence, List<WordAnalysis> allAnalyses) {
-    ParseResult best = decoder.bestPath(allAnalyses);
+    DecodeResult best = decoder.bestPath(allAnalyses);
     List<SentenceWordAnalysis> l = new ArrayList<>();
     for (int i = 0; i < allAnalyses.size(); i++) {
-      l.add(new SentenceWordAnalysis(best.bestParse.get(i), allAnalyses.get(i)));
+      WordAnalysis wordAnalysis = allAnalyses.get(i);
+      SingleAnalysis analysis = best.bestParse.get(i);
+      l.add(new SentenceWordAnalysis(analysis, wordAnalysis));
     }
     return new SentenceAnalysis(sentence, l);
-  }
-
-  public void test(Path testFilePath, TurkishMorphology morphology) throws IOException {
-    DataSet testSet = DataSet.load(testFilePath, morphology);
-    test(testSet);
-  }
-
-  public void test(DataSet set) {
-    int hit = 0, total = 0;
-    Stopwatch sw = Stopwatch.createStarted();
-    for (SentenceAnalysis sentence : set.sentences) {
-      ParseResult result = decoder.bestPath(sentence.allAnalyses());
-      int i = 0;
-      List<SingleAnalysis> bestExpected = sentence.bestAnalysis();
-      for (SingleAnalysis bestActual : result.bestParse) {
-        if (bestExpected.get(i).equals(bestActual)) {
-          hit++;
-        }
-        total++;
-        i++;
-      }
-    }
-    Log.info("Elapsed: " + sw.elapsed(TimeUnit.MILLISECONDS));
-    Log.info(
-        "Word count:" + total + " hit=" + hit + String.format(" Accuracy:%f", hit * 1.0 / total));
   }
 
   static class FeatureExtractor {
@@ -245,13 +218,13 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
       this.extractor = extractor;
     }
 
-    ParseResult bestPath(List<WordAnalysis> sentence) {
+    DecodeResult bestPath(List<WordAnalysis> sentence) {
 
       if (sentence.size() == 0) {
         throw new IllegalArgumentException("bestPath cannot be called with empty sentence.");
       }
 
-      // hold the current active paths. initially it contains a single empty Hypothesis.
+      // holds the current active paths. initially it contains a single empty Hypothesis.
       ActiveList<Hypothesis> currentList = new ActiveList<>();
       currentList.add(new Hypothesis(sentenceBegin, sentenceBegin, null, 0));
 
@@ -259,7 +232,15 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
 
         ActiveList<Hypothesis> nextList = new ActiveList<>();
 
-        for (SingleAnalysis analysis : analysisData) {
+        // this is necessary because word analysis may contain zero SingleAnalysis
+        // So we add an unknown SingleAnalysis to it.
+        List<SingleAnalysis> analyses = analysisData.getAnalysisResults();
+        if (analyses.size() == 0) {
+          analyses = new ArrayList<>(1);
+          analyses.add(SingleAnalysis.unknown(analysisData.getInput()));
+        }
+
+        for (SingleAnalysis analysis : analyses) {
 
           for (Hypothesis h : currentList) {
 
@@ -306,16 +287,16 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
 
       // because we collect from end to begin, reverse is required.
       Collections.reverse(result);
-      return new ParseResult(result, bestScore);
+      return new DecodeResult(result, bestScore);
     }
   }
 
-  static class ParseResult {
+  static class DecodeResult {
 
     List<SingleAnalysis> bestParse;
     float score;
 
-    private ParseResult(List<SingleAnalysis> bestParse, float score) {
+    private DecodeResult(List<SingleAnalysis> bestParse, float score) {
       this.bestParse = bestParse;
       this.score = score;
     }
