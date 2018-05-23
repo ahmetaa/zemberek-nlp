@@ -58,10 +58,10 @@ public class AnalysisServerImpl extends AnalysisServiceImplBase {
 
   zemberek.proto.Morpheme tomorphemeProto(Morpheme morpheme) {
     zemberek.proto.Morpheme.Builder builder = zemberek.proto.Morpheme.newBuilder();
-    return builder.setName(morpheme.name)
+    return builder.setId(morpheme.id)
+        .setName(morpheme.name)
         .setDerivational(morpheme.derivational)
         .build();
         // TODO Add other fields.
   }
-
 }

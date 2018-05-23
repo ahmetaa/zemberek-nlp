@@ -173,10 +173,10 @@ message Morpheme {
     neces = 99;
     // TODO: Add others.
   }
-
-  string name = 1;
-  PrimaryPos primary_pos = 2;
-  bool derivational = 3;
+  string id = 1;
+  string name = 2;
+  PrimaryPos primary_pos = 3;
+  bool derivational = 4;
 }
 
 message MorphemeData {
