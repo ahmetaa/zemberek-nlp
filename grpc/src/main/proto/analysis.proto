@@ -3,180 +3,21 @@ syntax = "proto3";
 option java_package = "zemberek.proto";
 option java_multiple_files = true;
 
-// Keep in sync with zemberek.core.turkish.RootAttribute
-// TODO: Use a shared proto
-enum RootAttribute {
-  RootAttribute_Unknown = 0;
-  Aorist_I = 1;
-  Aorist_A = 2;
-  ProgressiveVowelDrop = 3;
-  Passive_In = 4;
-  Causative_t = 5;
-  Voicing = 6;
-  NoVoicing = 7;
-  InverseHarmony = 8;
-  Doubling = 9;
-  LastVowelDrop = 10;
-  CompoundP3sg = 11;
-  Special = 12;
-  NoSuffix = 13;
-  Plural = 14;
-  NounConsInsert_n = 15;
-  NoQuote = 16;
-  CompoundP3sgRoot = 17;
-  Reflexive = 18;
-  Reciprocal = 19;
-  Ext = 20;
-  Runtime = 21;
-  Dummy = 22;
-  NonReciprocal = 23;
-  ImplicitDative = 24;
-  ImplicitPlural = 25;
-  ImplicitP1sg = 26;
-  ImplicitP2sg = 27;
-  FamilyMember = 28;
-  PronunciationGuessed = 29;
-}
-
-// TODO: Use a shared proto
-enum PrimaryPos {
-  PrimaryPos_Unknown = 0;
-  Noun = 1;
-  Adjective = 2;
-  Adverb = 3;
-  Conjunction = 4;
-  Interjection = 5;
-  Verb = 6;
-  Pronoun = 7;
-  Numeral = 8;
-  Determiner = 9;
-  PostPositive = 10;
-  Question = 11;
-  Duplicator = 12;
-  Punctuation = 13;
-}
-
 message DictionaryItem {
   string lemma = 1;
   string root = 2;
   string pronunciation = 3;
   string reference = 4;
-  PrimaryPos primary_pos = 5;
-  // SecondaryPos secondary_pos = 6;
-  repeated RootAttribute root_attributes = 7;
+  string primary_pos = 5;
+  string secondary_pos = 6;
+  repeated string root_attributes = 7;
 }
 
 message Morpheme {
-  enum Type {
-    undefined = 0;
-    root = 1;
-    noun = 2;
-    adj = 3;
-    verb = 4;
-    pron = 5;
-    adv = 6;
-    conj = 7;
-    punc = 8;
-    ques = 9;
-    postp = 10;
-    det = 11;
-    num = 12;
-    dup = 13;
-    interj = 14;
-
-    // Number - Person agreement.
-    a1sg = 20;
-    a2sg = 21;
-    a3sg = 22;
-    a1pl = 23;
-    a2pl = 24;
-    a3pl = 25;
-
-    // Possesive
-    pnon = 26;
-    p1sg = 27;
-    p2sg = 28;
-    p3sg = 29;
-    p1pl = 30;
-    p2pl = 31;
-    p3pl = 32;
-
-    // Case
-    nom = 33;
-    dat = 34;
-    acc = 35;
-    abl = 36;
-    loc = 37;
-    ins = 38;
-    gen = 39;
-    equ = 40;
-
-    // Derivation
-    dim = 41;
-    ness = 42;
-    with = 43;
-    without = 44;
-    related = 45;
-    justlike = 46;
-    rel = 47;
-    agt = 48;
-    become = 49;
-    acquire = 50;
-    ly = 51;
-    caus = 52;
-    recip = 53;
-    reflex = 54;
-    able = 55;
-    pass = 56;
-    inf1 = 57;
-    inf2 = 58;
-    inf3 = 59;
-    actOf = 60;
-    pastPart = 61;
-    narrPart = 62;
-    futPart = 63;
-    presPart = 64;
-    aorPart = 65;
-    notState = 66;
-    feelLike = 67;
-    everSince = 68;
-    repeat = 69;
-    almost = 70;
-    hastily = 71;
-    stay = 72;
-    start = 73;
-    asIf = 74;
-    while_ = 75;
-    when = 76;
-    sinceDoingSo = 77;
-    asLongAs = 78;
-    byDoingSo = 79;
-    adamantly = 80;
-    afterDoing = 81;
-    withoutHavingDoneSo = 82;
-    withoutBeingAbleToHaveDoneSo = 83;
-
-    zero = 84;
-    cop = 85;
-    neg = 86;
-    pres = 87;
-    past = 88;
-    narr = 89;
-    cond = 90;
-    prog1 = 91;
-    prog2 = 92;
-    aor = 94;
-    fut = 95;
-    imp = 96;
-    opt = 97;
-    desr = 98;
-    neces = 99;
-    // TODO: Add others.
-  }
-
-  string name = 1;
-  PrimaryPos primary_pos = 2;
-  bool derivational = 3;
+  string id = 1;
+  string name = 2;
+  string primary_pos = 3;
+  bool derivational = 4;
 }
 
 message MorphemeData {

@@ -14,8 +14,8 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import zemberek.core.enums.EnumConverter;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
@@ -27,12 +27,12 @@ import zemberek.morphology.lexicon.proto.LexiconProto.Dictionary;
 
 public class Serializer {
 
-  static SimpleEnumConverter<PrimaryPos, LexiconProto.PrimaryPos> primaryPosConverter =
-      SimpleEnumConverter.createConverter(PrimaryPos.class, LexiconProto.PrimaryPos.class);
-  static SimpleEnumConverter<SecondaryPos, LexiconProto.SecondaryPos> secondaryPosConverter =
-      SimpleEnumConverter.createConverter(SecondaryPos.class, LexiconProto.SecondaryPos.class);
-  static SimpleEnumConverter<RootAttribute, LexiconProto.RootAttribute> rootAttributeConverter =
-      SimpleEnumConverter.createConverter(RootAttribute.class, LexiconProto.RootAttribute.class);
+  static EnumConverter<PrimaryPos, LexiconProto.PrimaryPos> primaryPosConverter =
+      EnumConverter.createConverter(PrimaryPos.class, LexiconProto.PrimaryPos.class);
+  static EnumConverter<SecondaryPos, LexiconProto.SecondaryPos> secondaryPosConverter =
+      EnumConverter.createConverter(SecondaryPos.class, LexiconProto.SecondaryPos.class);
+  static EnumConverter<RootAttribute, LexiconProto.RootAttribute> rootAttributeConverter =
+      EnumConverter.createConverter(RootAttribute.class, LexiconProto.RootAttribute.class);
 
   public static RootLexicon loadFromResources(String resourcePathString) throws IOException {
     long start = System.currentTimeMillis();
@@ -180,66 +180,6 @@ public class Serializer {
         !rootAttributes.isEmpty() ? EnumSet.copyOf(rootAttributes)
             : EnumSet.noneOf(RootAttribute.class),
         item.getIndex());
-  }
-
-  static class SimpleEnumConverter<E extends Enum<E>, P extends Enum<P>> {
-
-    Map<String, P> conversionFromEToP;
-    Map<String, E> conversionFromPToE;
-
-    private SimpleEnumConverter(Map<String, P> conversionFromEToP,
-        Map<String, E> conversionFromPToE) {
-      this.conversionFromEToP = conversionFromEToP;
-      this.conversionFromPToE = conversionFromPToE;
-    }
-
-    public static <E extends Enum<E>, P extends Enum<P>> SimpleEnumConverter<E, P>
-    createConverter(Class<E> enumType, Class<P> otherEnumType) {
-      Map<String, E> namesMapE = createEnumNameMap(enumType);
-      Map<String, P> namesMapP = createEnumNameMap(otherEnumType);
-
-      Map<String, P> conversionFromEToP = new HashMap<>();
-      Map<String, E> conversionFromPToE = new HashMap<>();
-      for (Entry<String, E> entry : namesMapE.entrySet()) {
-        if (namesMapP.containsKey(entry.getKey())) {
-          conversionFromEToP.put(entry.getKey(), namesMapP.get(entry.getKey()));
-        }
-      }
-      for (Entry<String, P> entry : namesMapP.entrySet()) {
-        if (namesMapP.containsKey(entry.getKey())) {
-          conversionFromPToE.put(entry.getKey(), namesMapE.get(entry.getKey()));
-        }
-      }
-      return new SimpleEnumConverter<>(conversionFromEToP, conversionFromPToE);
-    }
-
-    private static <E extends Enum<E>> Map<String, E> createEnumNameMap(
-        Class<E> enumType) {
-      Map<String, E> nameToEnum = new HashMap<>();
-      // put Enums in map by name
-      for (E enumElement : EnumSet.allOf(enumType)) {
-        nameToEnum.put(enumElement.name(), enumElement);
-      }
-      return nameToEnum;
-    }
-
-    public P convertTo(E en, P defaultEnum) {
-      P pEnum = conversionFromEToP.get(en.name());
-      if (pEnum == null) {
-        Log.warn("Could not map from Enum %s Returning default", en.name());
-        return defaultEnum;
-      }
-      return pEnum;
-    }
-
-    public E convertBack(P en, E defaultEnum) {
-      E eEnum = conversionFromPToE.get(en.name());
-      if (eEnum == null) {
-        Log.warn("Could not map from Enum %s Returning default", en.name());
-        return defaultEnum;
-      }
-      return eEnum;
-    }
   }
 
 }
