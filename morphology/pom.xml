@@ -27,6 +27,12 @@
       <artifactId>zemberek-lm</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
+    <dependency>
+      <scope>test</scope>
+      <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-lang-id</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
   </dependencies>
 
   <properties>

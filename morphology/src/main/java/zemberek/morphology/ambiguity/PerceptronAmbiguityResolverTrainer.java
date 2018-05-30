@@ -79,9 +79,9 @@ public class PerceptronAmbiguityResolverTrainer {
         }
 
         IntValueMap<String> correctFeatures =
-            extractor.extractFromSentence(sentence.bestAnalysis());
+            extractor.extractFeatureCounts(sentence.bestAnalysis());
         IntValueMap<String> bestFeatures =
-            extractor.extractFromSentence(result.bestParse);
+            extractor.extractFeatureCounts(result.bestParse);
         updateModel(correctFeatures, bestFeatures, numExamples);
       }
 

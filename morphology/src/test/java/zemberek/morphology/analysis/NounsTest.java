@@ -340,6 +340,7 @@ public class NounsTest extends AnalyzerTestBase {
     AnalysisTester t = getTester("Tdk [Pr:tedeka]");
     t.expectAny("tdk", matchesTailLex("Noun + A3sg"));
     t.expectAny("tdkya", matchesTailLex("Noun + A3sg + Dat"));
+    t.expectAny("tdknın", matchesTailLex("Noun + A3sg + Gen"));
 
     t.expectFail(
         "Tdkm",
@@ -348,7 +349,6 @@ public class NounsTest extends AnalyzerTestBase {
         "Tdkmız",
         "Tdknız"
     );
-
   }
 
 

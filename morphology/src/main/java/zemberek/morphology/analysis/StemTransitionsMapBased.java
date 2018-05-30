@@ -147,7 +147,7 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
         differentStemItems.removeAll(item);
       }
     } catch (Exception e) {
-      Log.warn("Cannot remove %s ", e.getMessage());
+      Log.warn("Cannot remove %s ", item, e.getMessage());
     } finally {
       lock.writeLock().unlock();
     }

@@ -1,0 +1,107 @@
+taban: prefer Noun
+etti:  Prefer Verb
+yardım:  Prefer Verb
+hırsız: Prefer Long
+kapı: first word, prefer Noun (Not Prop)
+contains ['] prefer Noun-Prop
+Not first, and starts capital, prefer Noun-Prop
+if  ma:Inf2 +...+ ya:Dat VS Neg+Opt, prefer first.
+her prefer Adj
+bu - Adj if a noun follows. Prop if Verb follows.
+ben - prefer Pron
+ama - prefer Conj
+oldukça - prefer Adv root
+if last, prefer Narr to NarrPart
+if last, Prefer Neg to Inf2
+if Proper, prefer Pnon+Gen to P2sg+Nom (Ankara'nın)
+After Pnon+Gen, Prefer P3sg+Nom to Pnon+Acc (Ankara'nın nüfusu)
+if first, prefer Pnon + Acc to P3sg + Nom ("Saati dinle.")
+if last word, prefer Neg + Imp to Inf2 ("oradan gitme")
+adli prefer Adj
+prefer ler:A3pl + Pnon + Nom to ...Zero + Verb + Pres + ler:A3pl
+if not last, prefer Adj to Interj
+prefer PastPart + Noun + A3sg + P2sg + Acc to PastPart + Noun + A3sg + P3sg + Acc
+prefer Noun + A3sg + Pnon + Ins to Verb + Inf2 + Noun + A3sg + P2sg + Ins
+if last, or followed by "Ques" word, prefer Verb + Aor + A3sg to Verb + AorPart + Adj
+kımılda -> perfer Verb
+kötü -> if not followed by verb root, prefer Adj
+Do not chose ->Adj + Zero + Verb + Pres + ler:A3pl
+
+oraya-> chose "ora"
+
+prefer Adj to Adj->Noun->Dim->Noun
+
+// bahsetmeye başlıyor
+bahset:Verb + me:Neg + ye:Opt + A3sg
+bahset:Verb + me:Inf2 + Noun + A3sg + Pnon + ye:Dat <-- Prefer this
+başl:Verb + ıyor:Prog1 + A3sg
+
+// ya da
+ya:Conj <-- prefer this
+ya:Interj
+da:Conj
+
+// yat
+yat:Verb + tı:Past + n:A2sg <-- Prefer this
+yat:Noun + A3sg + Pnon + Nom + Zero + Verb + tı:Past + n:A2sg
+
+// Bu, dış dünyayla
+bu:Noun + A3sg + Pnon + Nom <-- Wrong
+bu:Pron + A3sg + Pnon + Nom
+,:Punc
+
+
+dış:Adj <-- Prefer this if followed by a noun
+dış:Noun + A3sg + Pnon + Nom
+dünya:Noun + A3sg + Pnon + yla:Ins
+
+diz:Verb + Imp + A2sg
+diz:Noun + A3sg + Pnon + Nom <-- prefer this
+
+et:Verb + Imp + A2sg <-- Prefer this if last.
+et:Noun + A3sg + Pnon + Nom
+
+maymun-> prefer noun
+
+Dava mı?
+dav:Noun + A3sg + Pnon + a:Dat
+dava:Noun + A3sg + Pnon + Nom <-- prefer this.
+
+Sağır değiliz herhalde.
+sağır:Adj
+sağır:Noun + A3sg + Pnon + Nom <-- prefer this if followed by verb
+değil:Noun + A3sg + Pnon + Nom + Zero + Verb + Pres + iz:A1pl
+
+
+if first, prefer yem:Noun + A3sg + Pnon + i:Acc to  yem:Noun + A3sg + i:P3sg + Nom
+
+hiç:Adv <-- prefer this to hiç:Noun + A3sg + Pnon + Nom
+
+Ağlama Francoise,
+ağla:Verb + ma:Neg + Imp + A2sg <-- Prefer this, wehn followed Noun+A3sg+Pnon+Nom
+ağla:Verb + ma:Inf2 + Noun + A3sg + Pnon + Nom
+francois:Noun + A3sg + Pnon + e:Dat
+
+Zamanla öğrenecekler.
+zamanla:Verb + Imp + A2sg
+zaman:Noun + A3sg + Pnon + la:Ins <-- Prefer noun over verb if not last.
+öğren:Verb + ecek:Fut + ler:A3pl <-- prefer Fut over FutPart is last.
+öğren:Verb + ecek:FutPart + Noun + ler:A3pl + Pnon + Nom
+.:Punc
+
+Do not prefer Proper nouns with derivations.
+
+maki:Noun + A3sg + n:P2sg + e:Dat
+makine:Noun + A3sg + Pnon + Nom <-- prefer this.
+
+For abbreviations reject possesives, verb derivations.
+For proper nouns, reject possesives
+
+masada -> prefer masa
+
+`hemde` with `he-m-de` analysis is almost always incorrect, perhaps possessive suffixes should be prohibited
+for some words like letter pronunciations.
+`Omuzum` -> terrible analysis `o-muz-um`
+olabilirimde -> almost always incorrect
+
+

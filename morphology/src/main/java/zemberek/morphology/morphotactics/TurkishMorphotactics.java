@@ -477,7 +477,7 @@ public class TurkishMorphotactics {
         .andNot(new SecondaryPosIs(SecondaryPos.Abbreviation));
 
     a3sg_S
-        .addEmpty(pnon_S, possessionCond)        // ev
+        .addEmpty(pnon_S, notHave(RootAttribute.FamilyMember))        // ev
         .add(p1sg_S, "Im", possessionCond)       // evim
         .add(p2sg_S, "In", possessionCond)       // evin
         .add(p3sg_S, "+sI", possessionCond)      // evi, odası
@@ -488,7 +488,7 @@ public class TurkishMorphotactics {
         .add(p3pl_S, "lArI", possessionCond);    // evleri
 
     // ev-ler-ε-?
-    a3pl_S.addEmpty(pnon_S, possessionCond);
+    a3pl_S.addEmpty(pnon_S, notHave(RootAttribute.FamilyMember));
 
     // ev-ler-im-?
     a3pl_S

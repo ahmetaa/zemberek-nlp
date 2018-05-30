@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -33,7 +34,6 @@ import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.TurkishMorphology;
-import zemberek.morphology.analysis.AnalysisFormatters;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
@@ -50,8 +50,8 @@ public class ZemberekNlpScripts {
 
   static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
   //private static Path DATA_PATH = Paths.get("/media/depo/data/aaa");
-  //private static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
-  private static Path DATA_PATH = Paths.get("/media/aaa/3t/data/nlp");
+  private static Path DATA_PATH = Paths.get("/home/ahmetaa/data/nlp");
+  //private static Path DATA_PATH = Paths.get("/media/aaa/3t/data/nlp");
   private static Path NLP_TOOLS_PATH = Paths.get("/home/ahmetaa/apps/nlp/tools");
   private static Path OFLAZER_ANALYZER_PATH = NLP_TOOLS_PATH
       .resolve("Morphological-Analyzer/Turkish-Oflazer-Linux64");
@@ -107,7 +107,7 @@ public class ZemberekNlpScripts {
         }
         c++;
       } catch (Exception e) {
-        Log.info("Exception in %s",s);
+        Log.info("Exception in %s", s);
       }
     }
 
@@ -190,6 +190,72 @@ public class ZemberekNlpScripts {
 
     Path outPath = outDir.resolve("oflazer-parses.txt");
     runner.parseSentences(wordFile.toFile(), outPath.toFile());
+  }
+
+  @Test
+  @Ignore("Not a Test.")
+  public void parseLargeVocabularyZemberek2() throws IOException {
+
+    Path wordFile = DATA_PATH.resolve("all-words-sorted-freq.txt");
+    //Path wordFile = DATA_PATH.resolve("vocab-corpus-and-zemberek");
+    Path outDir = DATA_PATH.resolve("out");
+    Files.createDirectories(outDir);
+    Path outCorrect = outDir.resolve("zemberek-parses.txt");
+    Path outIncorrect = outDir.resolve("zemberek-incorrect.txt");
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    List<String> words = Files.readAllLines(wordFile).subList(0, 2000_000);
+    List<String> correct = new ArrayList<>();
+    List<String> incorrect = new ArrayList<>();
+    for (String word : words) {
+      if (morphology.analyze(word).isCorrect()) {
+        correct.add(word);
+      } else {
+        incorrect.add(word);
+      }
+    }
+    Files.write(outCorrect, correct, StandardCharsets.UTF_8);
+    Files.write(outIncorrect, incorrect, StandardCharsets.UTF_8);
+
+  }
+
+  @Test
+  @Ignore("Not a Test.")
+  public void ambiguousWords() throws IOException {
+    Path outDir = DATA_PATH.resolve("out");
+    Files.createDirectories(outDir);
+    Path correct = outDir.resolve("zemberek-parses.txt");
+    Path outAmbAn = outDir.resolve("zemberek-ambigious-analyses.txt");
+    Path outAmbWord = outDir.resolve("zemberek-ambigious-words.txt");
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    List<String> words = Files.readAllLines(correct).subList(0, 100_000);
+    List<String> ambWords = new ArrayList<>();
+    List<WordAnalysis> amb = new ArrayList<>();
+    for (String word : words) {
+      WordAnalysis analysis = morphology.analyze(word);
+      if (!analysis.isCorrect() || analysis.analysisCount() == 1) {
+      } else {
+        HashSet<String> stems = new HashSet<>(4);
+        for (SingleAnalysis s : analysis) {
+          stems.add(s.getStem());
+          if (stems.size() > 1) {
+            amb.add(analysis);
+            ambWords.add(word);
+            break;
+          }
+        }
+      }
+    }
+    Log.info("Writing %d words", amb.size());
+    try (PrintWriter pwa = new PrintWriter(outAmbAn.toFile(), "utf-8")) {
+      for (WordAnalysis wa : amb) {
+        pwa.println(wa.getInput());
+        for (SingleAnalysis analysis : wa) {
+          pwa.println(analysis.formatLong());
+        }
+        pwa.println();
+      }
+    }
+    Files.write(outAmbWord, ambWords, StandardCharsets.UTF_8);
   }
 
   @Test
@@ -349,7 +415,7 @@ public class ZemberekNlpScripts {
   @Ignore("Not a Test.")
   public void generateOnlyOflazerWithAnalyzer() throws IOException {
     Path inPath = DATA_PATH.resolve("out");
-    List<String> oflazer = Files.readAllLines(inPath.resolve("oflazer-parsed-words.txt"));
+    List<String> oflazer = Files.readAllLines(inPath.resolve("only-oflazer-2.txt"));
     Log.info("Oflazer Loaded. %d words.", oflazer.size());
     List<String> result = new ArrayList<>(oflazer.size() / 10);
     TurkishMorphology morphology = TurkishMorphology.createWithTextDictionaries();
@@ -363,7 +429,7 @@ public class ZemberekNlpScripts {
       }
     }
     Log.info("Writing.");
-    Files.write(inPath.resolve("only-oflazer-2.txt"), result);
+    Files.write(inPath.resolve("only-oflazer-3.txt"), result);
     Log.info("Oflazer-only saved.");
   }
 
@@ -770,7 +836,7 @@ public class ZemberekNlpScripts {
     }
     System.out.println("\nAfter disambiguation.");
     SentenceAnalysis after = morphology.disambiguate(sentence, analysis);
-    after.bestAnalysis().forEach(s-> System.out.println(s.formatLong()));
+    after.bestAnalysis().forEach(s -> System.out.println(s.formatLong()));
   }
 
 }

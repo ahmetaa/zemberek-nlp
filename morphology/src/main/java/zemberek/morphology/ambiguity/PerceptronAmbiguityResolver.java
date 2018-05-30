@@ -98,11 +98,13 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
       this.useCache = useCache;
     }
 
-    IntValueMap<String> extractFromSentence(List<SingleAnalysis> parseSequence) {
+    // This is used for training. Extracts feature counts from current best analysis sequence.
+    // Trainer then uses this counts to update weights for those features.
+    IntValueMap<String> extractFeatureCounts(List<SingleAnalysis> bestSequence) {
       List<SingleAnalysis> seq = Lists.newArrayList(sentenceBegin, sentenceBegin);
-      seq.addAll(parseSequence);
+      seq.addAll(bestSequence);
       seq.add(sentenceEnd);
-      IntValueMap<String> featureModel = new IntValueMap<>();
+      IntValueMap<String> featureCounts = new IntValueMap<>();
       for (int i = 2; i < seq.size(); i++) {
         SingleAnalysis[] trigram = {
             seq.get(i - 2),
@@ -110,10 +112,10 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
             seq.get(i)};
         IntValueMap<String> trigramFeatures = extractFromTrigram(trigram);
         for (IntValueMap.Entry<String> s : trigramFeatures.iterableEntries()) {
-          featureModel.incrementByAmount(s.key, s.count);
+          featureCounts.incrementByAmount(s.key, s.count);
         }
       }
-      return featureModel;
+      return featureCounts;
     }
 
     IntValueMap<String> extractFromTrigram(SingleAnalysis[] trigram) {
