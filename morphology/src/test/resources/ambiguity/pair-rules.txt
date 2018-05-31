@@ -402,3 +402,5 @@ satıcılar [satıcı:Noun] *
 zenginler [zengin:Adj] *
 
 odalar [oda:Noun] *
+
+yerine [yerine:Adv] *

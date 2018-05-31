@@ -22,7 +22,6 @@ import zemberek.core.logging.Log;
 import zemberek.core.quantization.DoubleLookup;
 import zemberek.core.quantization.Quantizer;
 import zemberek.core.quantization.QuantizerType;
-import zemberek.core.text.TextConverter;
 import zemberek.lm.LmVocabulary;
 
 /**
@@ -60,15 +59,6 @@ public class MultiFileUncompressedLm {
       File dir,
       String encoding,
       int fractionDigits) throws IOException {
-    return generate(arpaFile, dir, encoding, fractionDigits, null);
-  }
-
-  public static MultiFileUncompressedLm generate(
-      File arpaFile,
-      File dir,
-      String encoding,
-      int fractionDigits,
-      TextConverter transformer) throws IOException {
     if (dir.exists() && !dir.isDirectory()) {
       throw new IllegalArgumentException(dir + " is not a directory!");
     } else {
@@ -76,7 +66,7 @@ public class MultiFileUncompressedLm {
     }
 
     long elapsedTime = Files.readLines(arpaFile, Charset.forName(encoding),
-        new ArpaToBinaryConverter(dir, fractionDigits, transformer));
+        new ArpaToBinaryConverter(dir, fractionDigits));
     Log.info("Multi file uncompressed binary model is generated in " + (double) elapsedTime / 1000d
         + " seconds");
     if (!new File(dir, INFO_FILE_NAME).exists()) {
@@ -246,8 +236,7 @@ public class MultiFileUncompressedLm {
     LmVocabulary.Builder vocabularyBuilder = new LmVocabulary.Builder();
     // This will be generated after reading unigrams.
     LmVocabulary lmVocabulary;
-    TextConverter textConverter;
-    ArpaToBinaryConverter(File dir, int fractionDigitCount, TextConverter textConverter)
+    ArpaToBinaryConverter(File dir, int fractionDigitCount)
         throws FileNotFoundException {
       Log.info("Generating multi file uncompressed language model from Arpa file in directory: %s",
           dir.getAbsolutePath());
@@ -257,7 +246,6 @@ public class MultiFileUncompressedLm {
       } else {
         fractionMultiplier = 0;
       }
-      this.textConverter = textConverter;
       start = System.currentTimeMillis();
     }
 
@@ -432,10 +420,6 @@ public class MultiFileUncompressedLm {
           Closeables.close(probOs, true);
           Closeables.close(backoOffs, true);
           Log.info("Writing model vocabulary.");
-          if (textConverter != null) {
-            lmVocabulary = new LmVocabulary.Builder().addAll(lmVocabulary.words())
-                .generateDecoded(textConverter);
-          }
           lmVocabulary.saveBinary(new File(dir, VOCAB_FILE_NAME));
           return false; // we are done.
       }

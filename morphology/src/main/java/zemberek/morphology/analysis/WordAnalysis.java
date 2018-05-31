@@ -62,4 +62,32 @@ public class WordAnalysis implements Iterable<SingleAnalysis> {
   public List<SingleAnalysis> getAnalysisResults() {
     return analysisResults;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    WordAnalysis analyses = (WordAnalysis) o;
+
+    if (!input.equals(analyses.input)) {
+      return false;
+    }
+    if (!normalizedInput.equals(analyses.normalizedInput)) {
+      return false;
+    }
+    return analysisResults.equals(analyses.analysisResults);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = input.hashCode();
+    result = 31 * result + normalizedInput.hashCode();
+    result = 31 * result + analysisResults.hashCode();
+    return result;
+  }
 }

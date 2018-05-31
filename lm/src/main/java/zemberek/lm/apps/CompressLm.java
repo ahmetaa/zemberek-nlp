@@ -10,7 +10,6 @@ import java.util.List;
 import org.kohsuke.args4j.Option;
 import zemberek.core.ConsoleApplication;
 import zemberek.core.logging.Log;
-import zemberek.core.text.TextConverter;
 import zemberek.lm.compression.MultiFileUncompressedLm;
 import zemberek.lm.compression.UncompressedToSmoothLmConverter;
 
@@ -52,7 +51,6 @@ public class CompressLm extends ConsoleApplication {
       usage = "Probability value fractions are rounded to this digit count "
           + "before applying quantization. Default value is 4 digits.")
   public int fractionDigits = 4;
-  public TextConverter textConverter;
   private int[] spaceUsage = new int[3];
 
   public static void main(String[] args) {
@@ -106,7 +104,7 @@ public class CompressLm extends ConsoleApplication {
     UncompressedToSmoothLmConverter converter = new UncompressedToSmoothLmConverter(
         compressedLmFile, tmpDir);
     converter.convertLarge(
-        MultiFileUncompressedLm.generate(arpaFile, tmpDir, "utf-8", fractionDigits, textConverter)
+        MultiFileUncompressedLm.generate(arpaFile, tmpDir, "utf-8", fractionDigits)
             .getLmDir(),
         new UncompressedToSmoothLmConverter.NgramDataBlock(spaceUsage[0], spaceUsage[1],
             spaceUsage[2]),

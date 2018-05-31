@@ -22,9 +22,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import zemberek.core.io.SimpleTextReader;
-import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
-import zemberek.core.text.TextConverter;
 
 public class LmVocabulary {
 
@@ -617,21 +615,5 @@ public class LmVocabulary {
       return new LmVocabulary(tokens);
     }
 
-    public LmVocabulary generateDecoded(TextConverter converter) {
-      List<String> newTokens = new ArrayList<>();
-      for (String token : tokens) {
-        if (Strings.containsNone(token, "</>")) {
-          newTokens.add(converter.decode(token));
-        } else {
-          newTokens.add(token);
-        }
-      }
-      if (this.tokens.size() != newTokens.size()) {
-        throw new IllegalStateException(
-            "After vocabulary text conversion, token sizes does not match!");
-      }
-      this.tokens = newTokens;
-      return generate();
-    }
   }
 }

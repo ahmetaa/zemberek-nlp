@@ -42,8 +42,7 @@ public class TurkishSpellChecker {
     }
   }
 
-  public TurkishSpellChecker(TurkishMorphology morphology,
-      CharacterGraph graph) {
+  public TurkishSpellChecker(TurkishMorphology morphology, CharacterGraph graph) {
     this.morphology = morphology;
     decoder = new CharacterGraphDecoder(graph);
   }

@@ -21,7 +21,6 @@ class Bucket implements Comparable<Bucket> {
   }
 
   public int compareTo(Bucket o) {
-    return keyIndexes.length < o.keyIndexes.length ? 1
-        : (keyIndexes.length > o.keyIndexes.length ? -1 : 0);
+    return Integer.compare(o.keyIndexes.length, keyIndexes.length);
   }
 }

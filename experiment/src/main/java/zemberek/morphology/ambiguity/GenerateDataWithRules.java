@@ -46,9 +46,9 @@ class GenerateDataWithRules {
     //Path p = Paths.get("/media/aaa/Data/corpora/final/www.aljazeera.com.tr");
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/www.aljazeera.com.tr");
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
-    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/wowturkey.com");
+    //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/wowturkey.com");
     //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
-    //Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
+    Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
     Path outRoot = Paths.get("data/ambiguity");
     Files.createDirectories(outRoot);
 
@@ -62,7 +62,7 @@ class GenerateDataWithRules {
 /*    new GenerateDataWithRules()
         .extractData(p, outRoot, 150000, 0);*/
     new GenerateDataWithRules()
-        .extractHighlyAmbigiousWordSentences(p, outRoot, 3, 1000);
+        .extractHighlyAmbigiousWordSentences(p, outRoot, 2, 10000);
 
   }
 
@@ -86,7 +86,7 @@ class GenerateDataWithRules {
     return p -> p.split("[ ]+").length > tokenCount;
   }
 
-  private void extractHighlyAmbigiousWordSentences(
+  private  Histogram<WordAnalysis> extractHighlyAmbigiousWordSentences(
       Path inputRoot,
       Path outRoot,
       int minCount,
@@ -140,6 +140,7 @@ class GenerateDataWithRules {
         pwa.println();
       }
     }
+    return wordAnalyses;
   }
 
   private void extractData(Path p, Path outRoot, int resultLimit, int maxAmbigiousWordCount)
