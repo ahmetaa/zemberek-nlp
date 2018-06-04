@@ -191,7 +191,7 @@ class CharacterGraphDecoder {
   }
 
   enum Operation {
-    NE, INS, DEL, SUB, TR, N_A
+    NO_ERROR, INSERTION, DELETION, SUBSTITUTION, TRANSPOSITION, N_A
   }
 
   public interface CharMatcher {
@@ -201,7 +201,7 @@ class CharacterGraphDecoder {
 
   static class Hypothesis implements Comparable<Hypothesis> {
 
-    Operation operation = Operation.N_A;
+    Operation operation;
     int charIndex;
     Node node;
     float penalty;
@@ -418,11 +418,12 @@ class CharacterGraphDecoder {
 
         // there can be more than one matching character, depending on the matcher.
         char[] cc = matcher.matches(nextChar);
-        // because there can be empty connections, there can be more than 1 matching child nodes per character.
+        // because there can be empty connections,
+        // there can be more than 1 matching child nodes per character.
         if (hypothesis.node.hasEpsilonConnection()) {
           for (Node child : hypothesis.node.getChildList(cc)) {
 
-            Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NE);
+            Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NO_ERROR);
             h.setWord(child);
 
             newHypotheses.add(h);
@@ -438,7 +439,7 @@ class CharacterGraphDecoder {
             if (child == null) {
               continue;
             }
-            Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NE);
+            Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NO_ERROR);
             h.setWord(child);
 
             newHypotheses.add(h);
@@ -484,7 +485,7 @@ class CharacterGraphDecoder {
             Hypothesis h = hypothesis.getNewMoveForward(
                 child,
                 penalty,
-                Operation.SUB);
+                Operation.SUBSTITUTION);
             h.setWord(child);
             if (nextIndex == input.length() - 1) {
               if (h.node.word != null) {
@@ -503,11 +504,11 @@ class CharacterGraphDecoder {
 
       // deletion
       newHypotheses
-          .add(hypothesis.getNewMoveForward(hypothesis.node, DELETION_PENALTY, Operation.DEL));
+          .add(hypothesis.getNewMoveForward(hypothesis.node, DELETION_PENALTY, Operation.DELETION));
 
       // insertion
       for (Node child : allChildNodes) {
-        Hypothesis h = hypothesis.getNew(child, INSERTION_PENALTY, Operation.INS);
+        Hypothesis h = hypothesis.getNew(child, INSERTION_PENALTY, Operation.INSERTION);
         h.setWord(child);
         newHypotheses.add(h);
       }
@@ -528,7 +529,7 @@ class CharacterGraphDecoder {
                       n,
                       TRANSPOSITION_PENALTY,
                       nextIndex + 1,
-                      Operation.TR);
+                      Operation.TRANSPOSITION);
                   h.setWord(n);
                   if (nextIndex == input.length() - 1) {
                     if (h.node.word != null) {

@@ -16,13 +16,13 @@ public class BlockTextLoader implements Iterable<List<String>> {
   private int blockSize;
   private Charset charset;
 
-  public BlockTextLoader(Path path, Charset charset, int blockSize) throws IOException {
+  public BlockTextLoader(Path path, Charset charset, int blockSize) {
     this.path = path;
     this.charset = charset;
     this.blockSize = blockSize;
   }
 
-  public BlockTextLoader(Path path, int blockSize) throws IOException {
+  public BlockTextLoader(Path path, int blockSize) {
     this(path, StandardCharsets.UTF_8, blockSize);
   }
 
