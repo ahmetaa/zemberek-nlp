@@ -33,6 +33,12 @@
       <artifactId>zemberek-lang-id</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
+    <dependency>
+      <scope>test</scope>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>1.4.197</version>
+    </dependency>
   </dependencies>
 
   <properties>
