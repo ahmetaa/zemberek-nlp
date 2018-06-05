@@ -126,7 +126,7 @@ public class TurkishSpellCheckerTest {
   public void suggestWordPerformanceWord() throws Exception {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     CharacterGraph graph = new CharacterGraph();
-    Path r = Paths.get(ClassLoader.getSystemResource("zemberek-parsed-words-min10.txt").toURI());
+    Path r = Paths.get("../data/zemberek-oflazer/test100k");
     List<String> words = Files.readAllLines(r, StandardCharsets.UTF_8);
     words.forEach(s -> graph.addWord(s, Node.TYPE_WORD));
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology, graph);

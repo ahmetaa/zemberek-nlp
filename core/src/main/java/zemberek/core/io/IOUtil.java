@@ -8,8 +8,11 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
+import zemberek.core.logging.Log;
 
 public class IOUtil {
 
@@ -84,6 +87,20 @@ public class IOUtil {
       throw new IllegalArgumentException(
           "A directory is expected. But path is a file = " + f.getAbsolutePath());
     }
+  }
+
+  public static void deleteTempDir(Path tempDir) throws IOException {
+    String tmpRoot = System.getProperty("java.io.tmpdir");
+    if (!tempDir.toFile().getAbsolutePath().startsWith(tmpRoot)) {
+      Log.info("Only directories within temporary system dir [%s] are allowed to be deleted recursively. But : %s",
+          tmpRoot,
+          tempDir.toFile().getAbsolutePath());
+      return;
+    }
+    java.nio.file.Files.walk(tempDir, FileVisitOption.FOLLOW_LINKS)
+        .sorted(Comparator.reverseOrder())
+        .map(Path::toFile)
+        .forEach(File::delete);
   }
 
 }

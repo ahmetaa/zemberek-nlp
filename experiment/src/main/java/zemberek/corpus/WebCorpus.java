@@ -38,9 +38,7 @@ public class WebCorpus {
     this.id = id;
   }
 
-  public static List<WebDocument> loadDocuments(Path corpusFile) throws IOException {
-    List<String> allLines = Files.readAllLines(corpusFile, StandardCharsets.UTF_8);
-
+  public static List<WebDocument> loadDocuments(List<String> allLines) throws IOException {
     List<WebDocument> pages = new ArrayList<>(allLines.size() / 10);
 
     TextConsumer textConsumer = new TextConsumer(allLines);
@@ -56,6 +54,12 @@ public class WebCorpus {
       }
     }
     return pages;
+  }
+
+
+  public static List<WebDocument> loadDocuments(Path corpusFile) throws IOException {
+    List<String> allLines = Files.readAllLines(corpusFile, StandardCharsets.UTF_8);
+    return loadDocuments(allLines);
   }
 
   //TODO: this may be lossy.
@@ -158,8 +162,9 @@ public class WebCorpus {
   }
 
   public static void main(String[] args) throws IOException {
-    List<WebDocument> list  = WebCorpus.loadDocuments(Paths.get("/home/ahmetaa/data/text/news-corpus/www.cnnturk.com.corpus"));
-    WebCorpus c = new WebCorpus("foo","bar");
+    List<WebDocument> list = WebCorpus
+        .loadDocuments(Paths.get("/home/ahmetaa/data/text/news-corpus/www.cnnturk.com.corpus"));
+    WebCorpus c = new WebCorpus("foo", "bar");
     c.addDocuments(list);
     c = c.copyNoDuplicates();
     c.save(Paths.get("/home/ahmetaa/data/text/news-corpus/www.cnnturk.com.txt"), true);
