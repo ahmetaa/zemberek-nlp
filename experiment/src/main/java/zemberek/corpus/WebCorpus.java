@@ -7,6 +7,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -78,6 +82,34 @@ public class WebCorpus {
     }
     return noDup;
   }
+
+  public static List<CorpusDocument> convertToCorpusDocument(Path path) throws IOException {
+    return convertToCorpusDocument(loadDocuments(path));
+  }
+
+  public static List<CorpusDocument> convertToCorpusDocument(List<WebDocument> docs) {
+    List<CorpusDocument> corpusDocuments = new ArrayList<>();
+    for (WebDocument d : docs) {
+      String content = String.join("\n", d.lines);
+      corpusDocuments.add(
+          new CorpusDocument(
+              d.id,
+              d.source,
+              content,
+              parseDateTime(d.crawlDate),
+              parseDateTime(d.crawlDate)));
+    }
+    return corpusDocuments;
+  }
+
+  private static LocalDateTime parseDateTime(String str) {
+    if (str == null || str.length() == 0) {
+      return null;
+    }
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    return LocalDate.parse(str, formatter).atTime(LocalTime.MIN);
+  }
+
 
   public WebDocument getDocument(String id) {
     return lookup.get(id);

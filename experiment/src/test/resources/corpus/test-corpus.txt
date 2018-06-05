@@ -19,3 +19,71 @@ Bu yılın ilk yarısında lüks otomobil sayısı geçen yılın aynı dönemin
 İlk yarıda 22 Maserati, 16 Aston Martin ve 12 Ferrari satıldı
 Geçen yıl ise 1 Bentley, 5 Ferrari, 1 Infiniti, 96 Jaguar, 6 Lamborghini, 1 Lexus, 32 Maserati ve 282 Porche satın alınmıştı.
 </doc>
+<doc id="www.dunya.com/gundem/atac-ve-enerjisa039dan-hes-isbirligi-haberi-158049" source="www.dunya.com" title="" crawl-date="2017-01-11" labels="" category="">
+İnşaat ve enerji şirketlerinden Ataç, Sabancı Grubuna bağlı Enerjisa'nın Adana Aladağ bölgesinde, Seyhan Nehri kolu üzerinde işleteceği Doğançay regülatör ve hidroelektrik santralinin inşaatını üstlenecek.
+Ataç İnşaat ve Sanayi A.Ş'den yapılan açıklamada, imzalanan protokole göre projenin toplam maliyetinin 105 milyon lira, teslim tarihinin ise Mart 2014 olarak belirlendiği, Ataç'ın projeyi, G. HINTEREGGER & SÖHNE Baugesellschaft M.B.H şirketi (Avusturya) ile gerçekleştirilen yüzde 50 - yüzde 50 sermayeli girişim ortaklığı çatısı altında tamamlayacağı bildirildi.
+Ataç Yönetim Kurulu Başkanı Halil Ataman, Enerjisa ile imzalanan bu yeni protokolün Türkiye'nin hidroelektrik santral ve yenilenebilir enerji potansiyeline katkı sağlayacak önemli bir proje olduğunun altını çizdi.
+</doc>
+<doc id="www.dunya.com/gundem/kgf-antalya-subesi039ni-acti-haberi-139181" source="www.dunya.com" title="" crawl-date="2017-01-11" labels="" category="">
+KGF'nin, sektör ayrımı yapmaksızın tüm sektörleri kefaletiyle desteklediğini ifade eden Budak, şunları belirtti:
+Borç yapılandırmak isteyene de kapılar açık
+Budak, borçlarını yapılandıran veya ödenebilir tutarlarda vergi-SGK borçları olan KOBİ'lerin de KGF kefaletine başvurabileceğini belirtti.
+</doc>
+<doc id="www.dunya.com/gundem/sabanci-enerji-sirketlerini-yapilandiriyor-haberi-159619" source="www.dunya.com" title="" crawl-date="2017-01-11" labels="" category="">
+Sabancı Holding'in iştirak portföyünde yer alan enerji şirketlerinin yeniden yapılandırılması doğrultusunda yeni bir anonim şirket kurulacak.
+Sabancı Holding'in Kamuyu Aydınlatma Platformu'nda (KAP) yer alan açıklamasında, Holding'in 20 Aralık 2011 tarihinde enerji şirketlerinin yapılandırılmasına ilişkin gerçekleştirilecek olağanüstü genel kurul gündemine ilişkin bilgi verildi.
+Açıklamada, olağanüstü genel kurulda, şirketin iştirak portföyünde yer alan Enerjisa Enerji Üretim Anonim Şirketi, Enerjisa Doğal Gaz Toptan Satış Anonim Şirketi, Enerjisa Elektrik Enerjisi Toptan Satış Anonim Şirketi ve Enerjisa Elektrik Dağıtım Anonim Şirketi unvanlı şirketlerin hisse senetlerinin kısmi bölünme yoluyla kurulacak anonim şirkete ayni sermaye olarak devrine ilişkin karar alınacağı belirtildi.
+Sabancı Holding'in konuya ilişkin ek açıklamasında ise şunlar kaydedildi:
+"Kısmi bölünme ile; iştirak portföyümüzde yer alan enerji şirketlerinin yeniden yapılandırılması doğrultusunda yeni bir anonim şirket kurulacaktır. Böylece mevcut haliyle doğrudan sahip olunan enerji şirketleri hisse senetlerine, bunların kurulacak anonim şirkete kısmi bölünme yoluyla konulması ile aynı oranda dolaylı olarak sahip olunmaya devam edilecektir.
+Yeni yapı ile lisans yönetmelikleri nedeniyle ayrı tüzel kişiler olmak zorunda olan enerji şirketlerinin hedeflerinin ve faaliyetlerinin dikey entegre yapı içinde stratejik olarak koordine edilmesi, yönlendirilmesi ve kontrol edilmesi ile şirketlerin ihtiyacı olan hizmetlerin merkezileştirilmesi, tasarruf ve verimlilik artışı sağlanması amaçlanmıştır."
+</doc>
+<doc id="www.dunya.com/finans/haberler/petrol-icin-kritik-zirve-haberi-338142" source="www.dunya.com" title="" crawl-date="2017-01-11" labels="" category="">
+OPEC üyesi ülkelerin petrol ve enerji bakanlarının cuma günü Doha'da yapılacak olan Doğal Gaz İhracatçısı Ülkeler Forumu sırasında gayriresmi bir toplantı gerçekleştirecek.
+Uluslararası kaynaklar, Doha'daki toplantıya Suudi Arabistan, Cezayir, Libya, Nijerya,İran, BAE, Venezuela ve Katar'ın katılmalarını beklendiğini ifade ediyor.
+OPEC üyeleri 30 Kasım'da Viyana'da yapılacak resmi toplantıda petrol üretimini sınırlanması, azaltılması konusunda Eylül sonunda Cezayir'de varılan uzlaşmanın nasıl hayata geçirileceğine karar verecek.
+İran, Irak, Libya ve Nijerya, üretimin dondurulması, azaltılmasından muaf tutulmak istiyor.
+</doc>
+<doc id="www.dunya.com/sektorler/enerji/halliburton-kar-kinder-morgan-zarar-etti-haberi-334342" source="www.dunya.com" title="" crawl-date="2017-01-11" labels="" category="">
+ABD'li enerji şirketlerinden Halliburton ve Kinder Morgan, yılın üçüncü çeyreğine dair net kar ve gelirlerini açıkladı.
+ABD merkezli enerji hizmetleri şirketi Halliburton, düşük petrol fiyatlarına rağmen üçüncü çeyrekte kar ettiğini duyurdu.
+Halliburton'dan yapılan açıklamaya göre, yılın üçüncü çeyreğindeki net karın 7 milyon dolar olduğu bildirildi. Şirket, geçen senenin aynı döneminde 53 milyon dolar zarar etmişti.
+Şirketin bu yılın üçüncü çeyreğinde geliri ise yüzde 0,3 azalarak 3,83 milyar dolar oldu. Halliburton, geçen senenin temmuz-eylül döneminde 3,84 milyar dolar gelir açıklamıştı.
+Halliburton'ın hisse başına karı da geçen yılın üçüncü çeyreğinde 0,31 dolar olmuştu. Aynı gösterge, bu senenin aynı döneminde 0,01 dolara düştü.
+Açıklamada görüşlerine yer verilen Halliburton İcra Kurulu Başkanı Dave Lesar, petrol endüstrisinin son iki yılda karşılaştığı zorluklara rağmen şirketin üçüncü çeyrek bilançosundan memnun olduğunu belirtti.
+Lesar, düşük petrol fiyatlarına karşın Halliburton'ın Kuzey Amerika operasyonlarında verimliliği artırdığına dikkati çekerek, maliyet yönetimine odaklandığını ifade etti.
+Halliburton'ın üçüncü çeyrekte kar elde etmesinin ardından, New York borsasında şirketin hisse başına değeri yüzde 5,3 artışla 50,23 dolara kadar yükseldi.
+Kuzey Amerika'nın en büyük altyapı ve petrol, doğalgaz boru hattı şirketi Kinder Morgan ise yılın üçüncü çeyreğinde zarar ettiğini duyurdu.
+Kinder Morgan, geçen yılın üçüncü çeyreğinde 186 milyon dolar net kara ulaşmıştı. Şirket, bu senenin aynı döneminde 227 milyon dolar zarar etti.
+Şirketin bu yılın üçüncü çeyreğinde geliri de yüzde 10,2 azalarak 3,33 milyar dolara geriledi. Kinder Morgan, geçen senenin temmuz-eylül döneminde 3,71 milyar dolar gelir açıklamıştı.
+Kinder Morgan'ın üçüncü çeyrekte zarar etmesinin ardından, New York borsasında hisse başına değeri yüzde 1,4 düşüşle 20,22 dolara kadar geriledi.
+</doc>
+<doc id="www.dunya.com/sektorler/enerji/abde-elektrik-uretimi-karbonsuzlasacak-haberi-334984" source="www.dunya.com" title="" crawl-date="2017-01-11" labels="" category="">
+Canete, Brüksel'de gerçekleştirilen "Güç Piyasası" konferansında, enerji piyasalarının geçmişte monopollerden oluştuğunu, bugün ise liberal bir piyasa sistemine geçiş yapıldığını anımsattı.
+Elektrik piyasalarında üretimin önümüzdeki 10 yılda daha değişken ve dağınık bir şekilde olacağına işaret eden Canete, teknolojik devrimin tüketicilere piyasalarda aktif birer oyuncu olma şansı tanıyacağını söyledi.
+Bu ölçüde değişimin bir gecede yaşanmayacağını belirten Canete, bu değişim için net politikalar belirlenmesi ve uygun mevzuatların hazırlanması gerektiğini ifade etti.
+Canete, 2016 yılı sona ermeden AB enerji sistemini radikal bir şekilde revize edecek kapsayıcı bir paket teklifi sunacaklarını söyledi.
+Yatırımcılara sinyal
+Canete, Avrupa Yatırım Programı çerçevesinde son bir yılda 17 milyar avronun yenilenebilir, enerji verimliliği ve akıllı saatler gibi enerji projeleri için onaylandığını anımsattı.
+Yapılar verimsiz
+AB'nin sadece enerji verimliliğiyle 2015 yılındaki enerji ithalatında 27 milyar avro tasarruf sağladığına işaret eden Canete, Avrupa'da yapıların enerji verimsizliğinin yüzde 40'ına neden olduğunu ifade etti.
+Enerji sektörünün Avrupa milli gelirinin yüzde 9'unu oluşturduğunu hatırlatan Canete, 18 milyon insanın enerji sektöründe istihdam edildiğini anlattı.
+Yeni yenilenebilir yönetmeliğindeki değişikliklerle sektörde yatırım için doğru koşulların oluşturulacağını anlatan Canete, "Yenilenebilir sektörü Avrupa'da 1,2 milyon insana iş ve 138 milyon avro kazanç sağlıyor." diye konuştu.
+Canete, Avrupa'nın 2030 enerji hedeflerini yakalamak için 2021'den itibaren her yıl 177 milyar avro ilave yatırım yapması gerektiğini de sözlerine ekledi.
+</doc>
+<doc id="www.dunya.com/gundem/quotkiz-cocuklari-gelin-olmasinquot-haberi-276862" source="www.dunya.com" title="" crawl-date="2017-01-11" labels="" category="">
+Sabancı Holding Yönetim Kurulu Başkanı Güler Sabancı, "Kız çocukları gelin olmasın, çocukluklarını yaşasın. Evet iyi eğitilsinler, hiç değilse 18 yaşına kadar eğitim alsınlar. Sonra kendi ayakları üzerinde durabilsinler" dedi.
+Sabancı Vakfı'nın "Çocuk Gelin Olmasın" projesi kapsamında düzenlenen basın toplantısında, "Kız Leyla" şarkısının klibi gösterildi.
+Sabancı, burada yaptığı konuşmada, "Kız Leyla" şarkısındaki emeklerinden dolayı Sertap Erener'e, Sezen Aksu'ya ve Çağan Irmak'a teşekkür etti.
+Çocuk gelin sorununun çok çeşitli gerekçeleri olduğunu bildiren Sabancı, "Ama bu tekrarlamaktan yılmamamız, gündemde tutmaya devam etmemiz gereken bir konu" şeklinde konuştu.
+Kız çocuklarının hakları için sürekli ve el ele çalışılması gerektiğine işaret eden Sabancı, toplumun her kesiminin bu konuda yapacak işi, verecek desteği olduğunu dile getirdi.
+"Elif Şafak ile 'Kız Leyla' şarkısının İngilizce versiyonunu yazmaya başladık"
+Sanatçı Sertap Erener ise "Kız Leyla" şarkısını bir gece Sezen Aksu ile muhabbet ederken yazma fikrinin ortaya çıktığını, sonrasında da Güler Sabancı ile temasa geçtiklerini anlattı.
+Erener, bu yıl bu konu ile ilgili Sabancı Vakfı ile çalışacağını bildirdi.
+Çocuk gelin konusunun sadece Türkiye'nin problemi olmadığına işaret eden Erener, yazar Elif Şafak ile "Kız Leyla" şarkısının İngilizce versiyonunu yazmaya başladıklarını, bunu bütün dünya ile paylaşmayı planladıkları bilgisini verdi.
+Farkındalığın artırılması için burada olduklarını belirten Erener, klibin sonunu mümkün olduğunca umutlu bıraktıklarını, eğer umut olmazsa pek çok konuda hayatın kolay olmayacağını vurguladı.
+"Sadece kadın konusuna 15 milyon liraya yakın kaynak ayırdık"
+Sabancı Vakfı Genel Müdürü Zerrin Koyunsağan da kuruluşlarından bugüne gerçekleştirdikleri çalışmalar hakkında bilgi vererek, "çocuk gelinler" konusunun da bunlardan biri olduğunu söyledi.
+Koyunsağan, 18 yaşını doldurmadan evlenmiş her kadının "çocuk gelin" olduğunu ifade etti.
+Önlem alınmazsa 2050'de 1.2 milyar kız çocuğu evli olacak
+Türkiye'de ve dünyada çocuk gelinlerin bir sorun ve gerçek olduğunun altını çizen Koyunsağan, şöyle devam etti:
+</doc>

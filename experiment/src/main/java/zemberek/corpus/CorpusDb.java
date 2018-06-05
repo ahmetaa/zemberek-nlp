@@ -15,6 +15,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import org.h2.jdbcx.JdbcConnectionPool;
 import zemberek.core.logging.Log;
 
@@ -54,6 +56,13 @@ public class CorpusDb {
     }
   }
 
+  public void addAll(List<CorpusDocument> docs) {
+    for (CorpusDocument doc : docs) {
+      int key = saveDocument(doc);
+      doc.setKey(key);
+    }
+  }
+
   public void generateTables() throws SQLException, IOException {
     String query = Resources.toString(
         Resources.getResource("corpus/corpus-schema.sql"), StandardCharsets.UTF_8);
@@ -64,7 +73,42 @@ public class CorpusDb {
   }
 
   private String getJdbcConnectionString() {
-    return "jdbc:h2:" + dbPath.toFile().getAbsolutePath() + ";COMPRESS=TRUE";
+    return "jdbc:h2:" + dbPath.toFile().getAbsolutePath() + ";COMPRESS=FALSE";
+  }
+
+  public void saveSentences(int docKey, List<String> sentences) {
+    try (Connection connection = connectionPool.getConnection()) {
+      String sql = "INSERT INTO SENTENCE_TABLE " +
+          "(DOC_KEY, CONTENT)" +
+          " VALUES (?,?)";
+      PreparedStatement employeeStmt = connection.prepareStatement(sql);
+      for (String sentence : sentences) {
+        employeeStmt.setInt(1, docKey);
+        employeeStmt.setString(2, sentence);
+        employeeStmt.addBatch();
+      }
+      employeeStmt.executeBatch();
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
+  }
+
+  public List<SentenceSearchResult> search(String text) {
+    try (Connection connection = connectionPool.getConnection()) {
+      String sql = "SELECT T.* FROM FT_SEARCH_DATA('" + text + "', 0, 0) FT, SENTENCE_TABLE T "
+          + "WHERE FT.TABLE='SENTENCE_TABLE' AND T.ID=FT.KEYS[0];";
+      Statement stat = connection.createStatement();
+      ResultSet set = stat.executeQuery(sql);
+      List<SentenceSearchResult> result = new ArrayList<>();
+      while (set.next()) {
+        result.add(new SentenceSearchResult(set.getInt(1), set.getInt(2), set.getString(3)));
+      }
+      return result;
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
   }
 
   int saveDocument(CorpusDocument doc) {
