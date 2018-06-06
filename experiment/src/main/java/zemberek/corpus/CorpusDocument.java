@@ -1,8 +1,11 @@
 package zemberek.corpus;
 
+import static zemberek.corpus.WebCorpus.parseDateTime;
+
 import java.time.LocalDateTime;
 
 public class CorpusDocument {
+
   int key;
   String id;
   String source;
@@ -23,6 +26,17 @@ public class CorpusDocument {
     this.content = content;
     this.sourceDate = sourceDate;
     this.processDate = processDate;
+  }
+
+  public static CorpusDocument fromWebDocument(WebDocument d) {
+    String content = String.join("\n", d.lines);
+    return
+        new CorpusDocument(
+            d.id,
+            d.source,
+            content,
+            parseDateTime(d.crawlDate),
+            parseDateTime(d.crawlDate));
   }
 
   public void setKey(int key) {
