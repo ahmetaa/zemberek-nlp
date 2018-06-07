@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.h2.jdbcx.JdbcConnectionPool;
 import zemberek.core.logging.Log;
+import zemberek.tokenization.TurkishSentenceExtractor;
 
 public class CorpusDb {
 
@@ -73,7 +74,7 @@ public class CorpusDb {
   }
 
   private String getJdbcConnectionString() {
-    return "jdbc:h2:" + dbPath.toFile().getAbsolutePath() + ";COMPRESS=FALSE";
+    return "jdbc:h2:" + dbPath.toFile().getAbsolutePath() + ";COMPRESS=TRUE";
   }
 
   public void saveSentences(int docKey, List<String> sentences) {
@@ -83,6 +84,9 @@ public class CorpusDb {
           " VALUES (?,?)";
       PreparedStatement employeeStmt = connection.prepareStatement(sql);
       for (String sentence : sentences) {
+        if (sentence.length() >= 512) {
+          continue;
+        }
         employeeStmt.setInt(1, docKey);
         employeeStmt.setString(2, sentence);
         employeeStmt.addBatch();
@@ -113,19 +117,21 @@ public class CorpusDb {
 
   int saveDocument(CorpusDocument doc) {
     try (Connection connection = connectionPool.getConnection()) {
+/*
       Clob clob = connection.createNClob();
       clob.setString(1, doc.content);
+*/
 
       String sql = "INSERT INTO DOCUMENT_TABLE " +
-          "(DOC_ID,SOURCE_ID,SOURCE_DATE,PROCESS_DATE,CONTENT)" +
-          " VALUES (?,?,?,?,?)";
+          "(DOC_ID,SOURCE_ID,SOURCE_DATE,PROCESS_DATE)" +
+          " VALUES (?,?,?,?)";
       try (PreparedStatement ps = connection
           .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
         ps.setString(1, doc.id);
         ps.setString(2, doc.source);
         ps.setTimestamp(3, toTimeStamp(doc.sourceDate));
         ps.setTimestamp(4, toTimeStamp(doc.processDate));
-        ps.setClob(5, clob);
+        //ps.setClob(5, clob);
         ps.executeUpdate();
         ResultSet rs = ps.getGeneratedKeys();
         if (rs.next()) {
@@ -195,8 +201,7 @@ public class CorpusDb {
     return doc;
   }
 
-
-  public static String readClob(Clob clob) throws SQLException, IOException {
+  private static String readClob(Clob clob) throws SQLException, IOException {
     StringBuilder sb = new StringBuilder((int) clob.length());
     Reader r = clob.getCharacterStream();
     char[] cbuf = new char[2048];
@@ -205,6 +210,17 @@ public class CorpusDb {
       sb.append(cbuf, 0, n);
     }
     return sb.toString();
+  }
+
+  public void addDocs(Path corpusFile) throws IOException {
+    List<WebDocument> corpus = WebCorpus.loadDocuments(corpusFile);
+    for (WebDocument doc : corpus) {
+      CorpusDocument cd = CorpusDocument.fromWebDocument(doc);
+      int key = saveDocument(cd);
+      List<String> paragraphs = doc.lines;
+      List<String> sentences = TurkishSentenceExtractor.DEFAULT.fromParagraphs(paragraphs);
+      saveSentences(key, sentences);
+    }
   }
 
 }

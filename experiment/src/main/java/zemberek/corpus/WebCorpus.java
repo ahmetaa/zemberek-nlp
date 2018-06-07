@@ -42,7 +42,7 @@ public class WebCorpus {
     this.id = id;
   }
 
-  public static List<WebDocument> loadDocuments(List<String> allLines) throws IOException {
+  public static List<WebDocument> loadDocuments(List<String> allLines) {
     List<WebDocument> pages = new ArrayList<>(allLines.size() / 10);
 
     TextConsumer textConsumer = new TextConsumer(allLines);
@@ -90,23 +90,17 @@ public class WebCorpus {
   public static List<CorpusDocument> convertToCorpusDocument(List<WebDocument> docs) {
     List<CorpusDocument> corpusDocuments = new ArrayList<>();
     for (WebDocument d : docs) {
-      String content = String.join("\n", d.lines);
-      corpusDocuments.add(
-          new CorpusDocument(
-              d.id,
-              d.source,
-              content,
-              parseDateTime(d.crawlDate),
-              parseDateTime(d.crawlDate)));
+      corpusDocuments.add(CorpusDocument.fromWebDocument(d));
     }
     return corpusDocuments;
   }
 
-  private static LocalDateTime parseDateTime(String str) {
-    if (str == null || str.length() == 0) {
+  static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+  public static LocalDateTime parseDateTime(String str) {
+    if (str == null || str.length() == 0 || str.equals("null")) {
       return null;
     }
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     return LocalDate.parse(str, formatter).atTime(LocalTime.MIN);
   }
 
