@@ -177,7 +177,7 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
     }
 
     public TrainerBuilder skipSpaceFrequencyonCount(int count) {
-      this.skipSpaceFrequency = skipSpaceFrequency;
+      this.skipSpaceFrequency = count;
       return this;
     }
 
@@ -187,7 +187,7 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
     }
 
     public TrainerBuilder lowerCaseFirstLetterFrequency(int count) {
-      this.lowerCaseFirstLetterFrequency = lowerCaseFirstLetterFrequency;
+      this.lowerCaseFirstLetterFrequency = count;
       return this;
     }
 
