@@ -31,7 +31,7 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
    * A singleton instance that is generated from the default internal model.
    */
   public static final TurkishSentenceExtractor DEFAULT = Singleton.Instance.extractor;
-  static final String BOUNDARY_CHARS = ".!?";
+  static final String BOUNDARY_CHARS = ".!?…";
   private static final Pattern LINE_BREAK_PATTERN = Pattern.compile("[\n\r]+");
 
   private TurkishSentenceExtractor(FloatValueMap<String> weights) {
@@ -343,7 +343,7 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
 
       currentChar = input.charAt(pointer);
       currentWord = leftChunk + String.valueOf(currentChar) + rightChunk;
-      currentWordNoPunctuation = currentWord.replaceAll("[.!?]", "");
+      currentWordNoPunctuation = currentWord.replaceAll("[.!?…]", "");
 
       StringBuilder sb = new StringBuilder();
       int j = nextSpace;

@@ -53,9 +53,14 @@ public class SentenceExtractionComparison {
     evaluate(testSentences, new TurkishSentenceExtractorAdapter());
 
     Log.info(" \n---------------- OpenNlp ------------------\n");
-    SentenceExtractor openNlpAdapter = new OpenNlpAdapter(
-        Paths.get("/home/ahmetaa/data/nlp/tr-sent.bin"));
+/*
+    Path openNlpModel = Paths.get("/home/ahmetaa/data/nlp/tr-sent.bin");
+    if (!openNlpModel.toFile().exists()) {
+      trainOpenNlp();
+    }
+    SentenceExtractor openNlpAdapter = new OpenNlpAdapter(openNlpModel);
     evaluate(testSentences, openNlpAdapter);
+*/
   }
 
   static void trainZemberekSentenceExtractor() throws IOException {
@@ -63,8 +68,8 @@ public class SentenceExtractionComparison {
         .get("tokenization/src/test/resources/tokenization/Sentence-Boundary-Train.txt");
     TurkishSentenceExtractor extractor = TurkishSentenceExtractor.Trainer
         .builder(train)
-        .iterationCount(10)
-        .learningRate(0.1f)
+        .iterationCount(30)
+        .learningRate(0.03f)
         .shuffleSentences()
         .build()
         .train();
@@ -78,7 +83,7 @@ public class SentenceExtractionComparison {
     // Sanitize input
     referenceSentences = referenceSentences
         .stream()
-        .map(s -> s.replaceAll("\\s+", " ").replaceAll("…", "...").trim())
+        .map(s -> s.replaceAll("\\s+", " ").trim())
         .collect(Collectors.toList());
     String joinedSentence = Joiner.on(" ").join(referenceSentences);
 
@@ -97,6 +102,7 @@ public class SentenceExtractionComparison {
           .replaceAll("[.]", " . ")
           .replaceAll("[?]", " ? ")
           .replaceAll("[!]", " ! ")
+          .replaceAll("[…]", " … ")
           .replaceAll("\\s+", " ")
           .trim());
     }
@@ -107,6 +113,7 @@ public class SentenceExtractionComparison {
           .replaceAll("[.]", " . ")
           .replaceAll("[?]", " ? ")
           .replaceAll("[!]", " ! ")
+          .replaceAll("[…]", " … ")
           .replaceAll("\\s+", " ")
           .trim());
     }
@@ -175,7 +182,7 @@ public class SentenceExtractionComparison {
     Charset charset = Charset.forName("UTF-8");
     ObjectStream<String> lineStream =
         new PlainTextByLineStream(() -> new FileInputStream(
-            Paths.get("src/test/resources/tokenization/Sentence-Boundary-Train.txt").toFile()),
+            Paths.get("tokenization/src/test/resources/tokenization/Sentence-Boundary-Train.txt").toFile()),
             charset);
     ObjectStream<SentenceSample> sampleStream = new SentenceSampleStream(lineStream);
 
