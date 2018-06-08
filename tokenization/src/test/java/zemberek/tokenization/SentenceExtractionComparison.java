@@ -71,6 +71,8 @@ public class SentenceExtractionComparison {
         .iterationCount(30)
         .learningRate(0.03f)
         .shuffleSentences()
+        .skipSpaceFrequencyonCount(20)
+        .lowerCaseFirstLetterFrequency(20)
         .build()
         .train();
     extractor.saveBinary(
