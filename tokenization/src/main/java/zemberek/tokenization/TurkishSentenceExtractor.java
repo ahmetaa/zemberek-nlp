@@ -176,7 +176,10 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
       return this;
     }
 
-    public TrainerBuilder skipSpaceFrequencyonCount(int count) {
+    /**
+     * In every [count] sentence, trainer skips the space after sentence boundary punctuation.
+     */
+    public TrainerBuilder skipSpaceFrequency(int count) {
       this.skipSpaceFrequency = count;
       return this;
     }
@@ -186,6 +189,10 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
       return this;
     }
 
+    /**
+     * In every [count] sentence, trainer lower cases the character
+     * after sentence boundary punctuation.
+     */
     public TrainerBuilder lowerCaseFirstLetterFrequency(int count) {
       this.lowerCaseFirstLetterFrequency = count;
       return this;

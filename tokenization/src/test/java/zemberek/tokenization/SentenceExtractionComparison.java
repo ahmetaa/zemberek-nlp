@@ -34,7 +34,6 @@ import opennlp.tools.util.TrainingParameters;
 import zemberek.core.logging.Log;
 import zemberek.core.text.Regexps;
 import zemberek.core.text.TextIO;
-import zemberek.core.text.TextUtil;
 import zemberek.core.text.TokenSequence;
 
 public class SentenceExtractionComparison {
@@ -71,7 +70,7 @@ public class SentenceExtractionComparison {
         .iterationCount(30)
         .learningRate(0.03f)
         .shuffleSentences()
-        .skipSpaceFrequencyonCount(20)
+        .skipSpaceFrequency(20)
         .lowerCaseFirstLetterFrequency(20)
         .build()
         .train();
