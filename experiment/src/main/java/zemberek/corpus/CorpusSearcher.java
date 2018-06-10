@@ -32,7 +32,6 @@ public class CorpusSearcher {
     Query query = parser.parse(queryStr);
     TopDocs results = searcher.search(query, hitCount);
     ScoreDoc[] hits = results.scoreDocs;
-    System.out.println("Results for " + queryStr);
     List<String> result = new ArrayList<>();
     for (ScoreDoc hit : hits) {
       Document doc = searcher.doc(hit.doc);
@@ -42,10 +41,10 @@ public class CorpusSearcher {
   }
 
   public static void main(String[] args) throws Exception {
-    Path indexRoot = Paths.get("/home/ahmetaa/data/zemberek/corpus-index");
+    Path indexRoot = Paths.get("/home/ahmetaa/data/zemberek/data/corpus-index");
     CorpusSearcher searcher = new CorpusSearcher(indexRoot);
 
-    List<String> hits = searcher.search("armut*", 100);
+    List<String> hits = searcher.search("", 1000);
 
     hits.forEach(System.out::println);
 
