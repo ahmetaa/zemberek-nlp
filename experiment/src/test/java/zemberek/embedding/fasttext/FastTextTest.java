@@ -15,9 +15,9 @@ public class FastTextTest {
   @Ignore("Not an actual Test.")
   public void dbpediaClassificationTest() throws Exception {
 
-    Path inputRoot = Paths.get("/media/data/aaa/fasttext");
+    Path inputRoot = Paths.get("/media/aaa/3t/aaa/fasttext");
     Path trainFile = inputRoot.resolve("dbpedia.train");
-    Path modelPath = Paths.get("/media/data/aaa/fasttext/dbpedia.model.bin");
+    Path modelPath = Paths.get("/media/aaa/3t/aaa/fasttext/dbpedia.model.bin");
 
     FastText fastText;
 
@@ -30,7 +30,7 @@ public class FastTextTest {
       argz.wordNgrams = 2;
       argz.minCount = 1;
       argz.lr = 0.1;
-      argz.dim = 10;
+      argz.dim = 32;
       argz.bucket = 5_000_000;
 
       fastText = FastText.train(trainFile, argz);
@@ -49,8 +49,8 @@ public class FastTextTest {
   @Ignore("Not an actual Test.")
   public void quantizationTest() throws Exception {
 
-    Path inputRoot = Paths.get("/home/ahmetaa/projects/fastText/data");
-    Path trainFile = inputRoot.resolve("train.10k");
+    Path inputRoot = Paths.get("/media/aaa/3t/aaa/fasttext");
+    Path trainFile = inputRoot.resolve("dbpedia.train");
     Path modelPath = inputRoot.resolve("10k.model.bin");
     Path quantizedModelPath = inputRoot.resolve("10k.model.qbin");
     Path testFile = inputRoot.resolve("dbpedia.test");

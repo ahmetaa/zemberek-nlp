@@ -41,7 +41,7 @@ public class CorpusSearcher {
   }
 
   public static void main(String[] args) throws Exception {
-    Path indexRoot = Paths.get("/home/ahmetaa/data/zemberek/data/corpus-index");
+    Path indexRoot = Paths.get("/home/aaa/data/zemberek/corpus-index");
     CorpusSearcher searcher = new CorpusSearcher(indexRoot);
 
     List<String> hits = searcher.search("", 1000);

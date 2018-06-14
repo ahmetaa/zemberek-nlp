@@ -1,0 +1,1314 @@
+S:Mersinliler için , çocuklarım için ...
+Mersinliler
+[Mersinli:Noun,Prop] mersinli:Noun+ler:A3pl*
+[Mersinli:Noun,Prop] mersinli:Noun+A3sg|Zero→Verb+Pres+ler:A3pl
+[Mersin:Noun,Prop] mersin:Noun+A3sg|li:With→Adj|Zero→Verb+Pres+ler:A3pl
+[mersin:Noun] mersin:Noun+A3sg|li:With→Adj|Zero→Verb+Pres+ler:A3pl
+[Mersin:Noun,Prop] mersin:Noun+A3sg|li:With→Adj|Zero→Noun+ler:A3pl
+[mersin:Noun] mersin:Noun+A3sg|li:With→Adj|Zero→Noun+ler:A3pl
+için
+[için:Postp,PCNom] için:Postp*
+[için:Postp,PCGen] için:Postp
+[içmek:Verb] iç:Verb+Imp+in:A2pl
+[iç:Noun] iç:Noun+A3sg+in:Gen
+[iç:Noun] iç:Noun+A3sg+in:P2sg
+[İçi:Noun,Prop] içi:Noun+A3sg+n:P2sg
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:Gen
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:P2sg
+,
+[,:Punc] ,:Punc
+çocuklarım
+[Çocuk:Noun,Prop] çocuk:Noun+lar:A3pl+ım:P1sg
+[çocuk:Noun] çocuk:Noun+lar:A3pl+ım:P1sg*
+[Çocuklar:Noun,Prop] çocuklar:Noun+A3sg+ım:P1sg
+[çocuk:Adj] çocuk:Adj|Zero→Noun+lar:A3pl+ım:P1sg
+[Çocuk:Noun,Prop] çocuk:Noun+lar:A3pl|Zero→Verb+Pres+ım:A1sg
+[çocuk:Noun] çocuk:Noun+lar:A3pl|Zero→Verb+Pres+ım:A1sg
+[Çocuklar:Noun,Prop] çocuklar:Noun+A3sg|Zero→Verb+Pres+ım:A1sg
+[çocuk:Adj] çocuk:Adj|Zero→Noun+lar:A3pl|Zero→Verb+Pres+ım:A1sg
+için
+[için:Postp,PCNom] için:Postp
+[için:Postp,PCGen] için:Postp*
+[içmek:Verb] iç:Verb+Imp+in:A2pl
+[iç:Noun] iç:Noun+A3sg+in:Gen
+[iç:Noun] iç:Noun+A3sg+in:P2sg
+[İçi:Noun,Prop] içi:Noun+A3sg+n:P2sg
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:Gen
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:P2sg
+...
+[...:Punc] ...:Punc
+
+S:Bizim için , herkes için .
+Bizim
+[biz:Pron,Pers] biz:Pron+A1pl+im:Gen*
+[biz:Noun] biz:Noun+A3sg+im:P1sg
+[biz:Noun] biz:Noun+A3sg|Zero→Verb+Pres+im:A1sg
+için
+[için:Postp,PCNom] için:Postp
+[için:Postp,PCGen] için:Postp*
+[içmek:Verb] iç:Verb+Imp+in:A2pl
+[iç:Noun] iç:Noun+A3sg+in:Gen
+[iç:Noun] iç:Noun+A3sg+in:P2sg
+[İçi:Noun,Prop] içi:Noun+A3sg+n:P2sg
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:Gen
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:P2sg
+,
+[,:Punc] ,:Punc
+herkes
+[herkes:Pron,Quant] herkes:Pron+A3pl*
+için
+[için:Postp,PCNom] için:Postp
+[için:Postp,PCGen] için:Postp*
+[içmek:Verb] iç:Verb+Imp+in:A2pl
+[iç:Noun] iç:Noun+A3sg+in:Gen
+[iç:Noun] iç:Noun+A3sg+in:P2sg
+[İçi:Noun,Prop] içi:Noun+A3sg+n:P2sg
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:Gen
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:P2sg
+.
+[.:Punc] .:Punc
+
+S:Üzüldüğümüz için , vicdanımız için , vatanımız için yürüdük .
+Üzüldüğümüz
+[üzülmek:Verb] üzül:Verb|düğ:PastPart→Adj+ümüz:P1pl*
+[üzmek:Verb] üz:Verb|ül:Pass→Verb|düğ:PastPart→Adj+ümüz:P1pl
+[üzülmek:Verb] üzül:Verb|düğ:PastPart→Noun+A3sg+ümüz:P1pl
+[üzmek:Verb] üz:Verb|ül:Pass→Verb|düğ:PastPart→Noun+A3sg+ümüz:P1pl
+için
+[için:Postp,PCNom] için:Postp
+[için:Postp,PCGen] için:Postp*
+[içmek:Verb] iç:Verb+Imp+in:A2pl
+[iç:Noun] iç:Noun+A3sg+in:Gen
+[iç:Noun] iç:Noun+A3sg+in:P2sg
+[İçi:Noun,Prop] içi:Noun+A3sg+n:P2sg
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:Gen
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:P2sg
+,
+[,:Punc] ,:Punc
+vicdanımız
+[vicdan:Noun] vicdan:Noun+A3sg+ımız:P1pl
+için
+[için:Postp,PCNom] için:Postp
+[için:Postp,PCGen] için:Postp*
+[içmek:Verb] iç:Verb+Imp+in:A2pl
+[iç:Noun] iç:Noun+A3sg+in:Gen
+[iç:Noun] iç:Noun+A3sg+in:P2sg
+[İçi:Noun,Prop] içi:Noun+A3sg+n:P2sg
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:Gen
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:P2sg
+,
+[,:Punc] ,:Punc
+vatanımız
+[vatan:Noun] vatan:Noun+A3sg+ımız:P1pl*
+[Vatan:Noun,Prop] vatan:Noun+A3sg+ımız:P1pl
+için
+[için:Postp,PCNom] için:Postp
+[için:Postp,PCGen] için:Postp*
+[içmek:Verb] iç:Verb+Imp+in:A2pl
+[iç:Noun] iç:Noun+A3sg+in:Gen
+[iç:Noun] iç:Noun+A3sg+in:P2sg
+[İçi:Noun,Prop] içi:Noun+A3sg+n:P2sg
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:Gen
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:P2sg
+yürüdük
+[yürümek:Verb] yürü:Verb+dü:Past+k:A1pl*
+[yürümek:Verb] yürü:Verb|dük:PastPart→Adj
+[yürümek:Verb] yürü:Verb|dük:PastPart→Noun+A3sg
+.
+[.:Punc] .:Punc
+
+S:Bol su ve sıvı için .
+Bol
+[bol:Adj] bol:Adj*
+[bol:Noun] bol:Noun+A3sg
+su
+[su:Noun] su:Noun+A3sg*
+[Su:Noun,Prop] su:Noun+A3sg
+ve
+[ve:Conj] ve:Conj
+sıvı
+[sıvı:Noun] sıvı:Noun+A3sg
+için
+[için:Postp,PCNom] için:Postp
+[için:Postp,PCGen] için:Postp
+[içmek:Verb] iç:Verb+Imp+in:A2pl*
+[iç:Noun] iç:Noun+A3sg+in:Gen
+[iç:Noun] iç:Noun+A3sg+in:P2sg
+[İçi:Noun,Prop] içi:Noun+A3sg+n:P2sg
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:Gen
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:P2sg
+.
+[.:Punc] .:Punc
+
+S:Her gün 2 bardak süt için .
+Her
+[her:Adj] her:Adj
+[her:Det] her:Det*
+gün
+[gün:Noun,Time] gün:Noun+A3sg*
+[Gün:Noun,Prop] gün:Noun+A3sg
+2
+[2:Num,Card] 2:Num
+bardak
+[bardak:Adj] bardak:Adj
+[bardak:Noun] bardak:Noun+A3sg*
+[Bardak:Noun,Prop] bardak:Noun+A3sg
+süt
+[süt:Noun] süt:Noun+A3sg
+için
+[için:Postp,PCNom] için:Postp
+[için:Postp,PCGen] için:Postp
+[içmek:Verb] iç:Verb+Imp+in:A2pl*
+[iç:Noun] iç:Noun+A3sg+in:Gen
+[iç:Noun] iç:Noun+A3sg+in:P2sg
+[İçi:Noun,Prop] içi:Noun+A3sg+n:P2sg
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:Gen
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:P2sg
+.
+[.:Punc] .:Punc
+
+S:İçin geçmiş senin .
+İçin
+[için:Postp,PCNom] için:Postp
+[için:Postp,PCGen] için:Postp
+[içmek:Verb] iç:Verb+Imp+in:A2pl
+[iç:Noun] iç:Noun+A3sg+in:Gen
+[iç:Noun] iç:Noun+A3sg+in:P2sg*
+[İçi:Noun,Prop] içi:Noun+A3sg+n:P2sg
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:Gen
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:P2sg
+geçmiş
+[geçmiş:Adj] geçmiş:Adj
+[geçmek:Verb] geç:Verb|miş:NarrPart→Adj*
+[geçmek:Verb] geç:Verb+miş:Narr+A3sg
+[geçmiş:Noun] geçmiş:Noun+A3sg
+[Geçmiş:Noun,Prop] geçmiş:Noun+A3sg
+[geç:Adj] geç:Adj|Zero→Verb+miş:Narr+A3sg
+[Geç:Noun,Prop] geç:Noun+A3sg|Zero→Verb+miş:Narr+A3sg
+senin
+[se:Noun] se:Noun+A3sg+nin:Gen
+[se:Noun] se:Noun+A3sg+n:P2sg+in:Gen
+[Se:Noun,Abbrv] se:Noun+A3sg+nin:Gen
+[sen:Pron,Pers] sen:Pron+A2sg+in:Gen*
+.
+[.:Punc] .:Punc
+
+S:İçin kötü senin .
+İçin
+[için:Postp,PCNom] için:Postp
+[için:Postp,PCGen] için:Postp
+[içmek:Verb] iç:Verb+Imp+in:A2pl
+[iç:Noun] iç:Noun+A3sg+in:Gen
+[iç:Noun] iç:Noun+A3sg+in:P2sg*
+[İçi:Noun,Prop] içi:Noun+A3sg+n:P2sg
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:Gen
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:P2sg
+kötü
+[kötü:Adj] kötü:Adj*
+[kötü:Adv] kötü:Adv
+senin
+[se:Noun] se:Noun+A3sg+nin:Gen
+[se:Noun] se:Noun+A3sg+n:P2sg+in:Gen
+[Se:Noun,Abbrv] se:Noun+A3sg+nin:Gen
+[sen:Pron,Pers] sen:Pron+A2sg+in:Gen*
+.
+[.:Punc] .:Punc
+
+S:Sadece özel durumlar için .
+Sadece
+[sadece:Adv] sadece:Adv*
+[sade:Adj] sade:Adj|ce:Ly→Adv
+[sade:Adj] sade:Adj|ce:AsIf→Adj
+[Sade:Noun,Prop] sade:Noun+A3sg+ce:Equ
+özel
+[özel:Adj] özel:Adj
+durumlar
+[durum:Noun] durum:Noun+lar:A3pl*
+[Dur:Noun,Prop] dur:Noun+A3sg+um:P1sg|Zero→Verb+Pres+lar:A3pl
+[Duru:Noun,Prop] duru:Noun+A3sg+m:P1sg|Zero→Verb+Pres+lar:A3pl
+[durum:Noun] durum:Noun+A3sg|Zero→Verb+Pres+lar:A3pl
+[duru:Adj] duru:Adj|Zero→Noun+A3sg+m:P1sg|Zero→Verb+Pres+lar:A3pl
+için
+[için:Postp,PCNom] için:Postp*
+[için:Postp,PCGen] için:Postp
+[içmek:Verb] iç:Verb+Imp+in:A2pl
+[iç:Noun] iç:Noun+A3sg+in:Gen
+[iç:Noun] iç:Noun+A3sg+in:P2sg
+[İçi:Noun,Prop] içi:Noun+A3sg+n:P2sg
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:Gen
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:P2sg
+.
+[.:Punc] .:Punc
+
+S:Kadınlar için durum farklı .
+Kadınlar
+[kadın:Noun] kadın:Noun+lar:A3pl*
+[Kadın:Noun,Prop] kadın:Noun+lar:A3pl
+[Kadınlar:Noun,Prop] kadınlar:Noun+A3sg
+[kadın:Adj] kadın:Adj|Zero→Verb+Pres+lar:A3pl
+[kadın:Adj] kadın:Adj|Zero→Noun+lar:A3pl
+[kadı:Noun] kadı:Noun+A3sg+n:P2sg|Zero→Verb+Pres+lar:A3pl
+[Kadı:Noun,Prop] kadı:Noun+A3sg+n:P2sg|Zero→Verb+Pres+lar:A3pl
+[kadın:Noun] kadın:Noun+A3sg|Zero→Verb+Pres+lar:A3pl
+[Kadın:Noun,Prop] kadın:Noun+A3sg|Zero→Verb+Pres+lar:A3pl
+için
+[için:Postp,PCNom] için:Postp
+[için:Postp,PCGen] için:Postp*
+[içmek:Verb] iç:Verb+Imp+in:A2pl
+[iç:Noun] iç:Noun+A3sg+in:Gen
+[iç:Noun] iç:Noun+A3sg+in:P2sg
+[İçi:Noun,Prop] içi:Noun+A3sg+n:P2sg
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:Gen
+[iç:Adj] iç:Adj|Zero→Noun+A3sg+in:P2sg
+durum
+[Dur:Noun,Prop] dur:Noun+A3sg+um:P1sg
+[Duru:Noun,Prop] duru:Noun+A3sg+m:P1sg
+[durum:Noun] durum:Noun+A3sg*
+[duru:Adj] duru:Adj|Zero→Noun+A3sg+m:P1sg
+[Dur:Noun,Prop] dur:Noun+A3sg|Zero→Verb+Pres+um:A1sg
+farklı
+[fark:Noun] fark:Noun+A3sg|lı:With→Adj
+.
+[.:Punc] .:Punc
+
+S:Sevgiliniz ile beraberken , eski sevgiliniz ile karşılaşsanız !
+Sevgiliniz
+[sevgi:Noun] sevgi:Noun+A3sg|li:With→Adj|Zero→Noun+A3sg+niz:P2pl*
+[Sevgi:Noun,Prop] sevgi:Noun+A3sg|li:With→Adj|Zero→Noun+A3sg+niz:P2pl
+[sevgi:Noun] sevgi:Noun+A3sg|li:With→Adj|Zero→Noun+A3sg+n:P2sg|Zero→Verb+Pres+iz:A1pl
+[Sevgi:Noun,Prop] sevgi:Noun+A3sg|li:With→Adj|Zero→Noun+A3sg+n:P2sg|Zero→Verb+Pres+iz:A1pl
+ile
+[ile:Conj] ile:Conj*
+[ile:Postp,PCNom] ile:Postp
+[ilmek:Verb] il:Verb+e:Opt+A3sg
+[il:Noun] il:Noun+A3sg+e:Dat
+[İl:Noun,Prop] il:Noun+A3sg+e:Dat
+beraberken
+[beraber:Adj] beraber:Adj|Zero→Verb|ken:While→Adv*
+[beraber:Postp,PCIns] beraber:Postp|Zero→Verb|ken:While→Adv
+,
+[,:Punc] ,:Punc
+eski
+[eski:Adj] eski:Adj*
+[eskimek:Verb] eski:Verb+Imp+A2sg
+[Esk:Noun,Prop] esk:Noun+A3sg+i:Acc
+[Esk:Noun,Prop] esk:Noun+A3sg+i:P3sg
+[Eski:Noun,Prop] eski:Noun+A3sg
+[eski:Noun] eski:Noun+A3sg
+sevgiliniz
+[sevgili:Noun] sevgili:Noun+A3sg+niz:P2pl*
+[sevgili:Adj] sevgili:Adj|Zero→Noun+A3sg+niz:P2pl
+[sevgili:Noun] sevgili:Noun+A3sg+n:P2sg|Zero→Verb+Pres+iz:A1pl
+[sevgili:Adj] sevgili:Adj|Zero→Noun+A3sg+n:P2sg|Zero→Verb+Pres+iz:A1pl
+[sevgi:Noun] sevgi:Noun+A3sg|li:With→Adj|Zero→Noun+A3sg+niz:P2pl
+[Sevgi:Noun,Prop] sevgi:Noun+A3sg|li:With→Adj|Zero→Noun+A3sg+niz:P2pl
+[sevgi:Noun] sevgi:Noun+A3sg|li:With→Adj|Zero→Noun+A3sg+n:P2sg|Zero→Verb+Pres+iz:A1pl
+[Sevgi:Noun,Prop] sevgi:Noun+A3sg|li:With→Adj|Zero→Noun+A3sg+n:P2sg|Zero→Verb+Pres+iz:A1pl
+ile
+[ile:Conj] ile:Conj*
+[ile:Postp,PCNom] ile:Postp
+[ilmek:Verb] il:Verb+e:Opt+A3sg
+[il:Noun] il:Noun+A3sg+e:Dat
+[İl:Noun,Prop] il:Noun+A3sg+e:Dat
+karşılaşsanız
+[karşı:Adj] karşı:Adj|laş:Become→Verb+sa:Desr+nız:A2pl
+[karşılaşmak:Verb] karşılaş:Verb|Recip→Verb+sa:Desr+nız:A2pl*
+[karşı:Noun] karşı:Noun+A3sg|laş:Become→Verb+sa:Desr+nız:A2pl
+[Karşı:Noun,Prop] karşı:Noun+A3sg|laş:Become→Verb+sa:Desr+nız:A2pl
+!
+[!:Punc] !:Punc
+
+S:iradesi ile değil duyguları ile hareket eder .
+iradesi
+[irade:Noun] irade:Noun+A3sg+si:P3sg
+ile
+[ile:Conj] ile:Conj*
+[ile:Postp,PCNom] ile:Postp
+[ilmek:Verb] il:Verb+e:Opt+A3sg
+[il:Noun] il:Noun+A3sg+e:Dat
+[İl:Noun,Prop] il:Noun+A3sg+e:Dat
+değil
+[değil:Conj] değil:Conj
+[değil:Verb] değil:Verb+Neg+Pres+A3sg*
+[değmek:Verb] değ:Verb|il:Pass→Verb+Imp+A2sg
+duyguları
+[duygu:Noun] duygu:Noun+A3sg+ları:P3pl
+[duygu:Noun] duygu:Noun+lar:A3pl+ı:Acc*
+[duygu:Noun] duygu:Noun+lar:A3pl+ı:P3sg
+[duygu:Noun] duygu:Noun+lar:A3pl+ı:P3pl
+ile
+[ile:Conj] ile:Conj*
+[ile:Postp,PCNom] ile:Postp
+[ilmek:Verb] il:Verb+e:Opt+A3sg
+[il:Noun] il:Noun+A3sg+e:Dat
+[İl:Noun,Prop] il:Noun+A3sg+e:Dat
+hareket
+[hareket:Noun] hareket:Noun+A3sg
+eder
+[etmek:Verb] ed:Verb+er:Aor+A3sg*
+[etmek:Verb] ed:Verb|er:AorPart→Adj
+[eder:Noun] eder:Noun+A3sg
+.
+[.:Punc] .:Punc
+
+
+S:İnşallah ile maşallah ile olmuyor
+İnşallah
+[inşallah:Interj] inşallah:Interj
+ile
+[ile:Conj] ile:Conj*
+[ile:Postp,PCNom] ile:Postp
+[ilmek:Verb] il:Verb+e:Opt+A3sg
+[il:Noun] il:Noun+A3sg+e:Dat
+[İl:Noun,Prop] il:Noun+A3sg+e:Dat
+maşallah
+[maşallah:Interj] maşallah:Interj
+ile
+[ile:Conj] ile:Conj*
+[ile:Postp,PCNom] ile:Postp
+[ilmek:Verb] il:Verb+e:Opt+A3sg
+[il:Noun] il:Noun+A3sg+e:Dat
+[İl:Noun,Prop] il:Noun+A3sg+e:Dat
+olmuyor
+[olmak:Verb] ol:Verb+m:Neg+uyor:Prog1+A3sg
+
+S:Fransa ile İngiltere ile de görüştük .
+Fransa
+[Frans:Noun,Prop] frans:Noun+A3sg+a:Dat
+[Fransa:Noun,Prop] fransa:Noun+A3sg*
+[Fran:Noun,Prop] fran:Noun+A3sg|Zero→Verb+sa:Cond+A3sg
+ile
+[ile:Conj] ile:Conj*
+[ile:Postp,PCNom] ile:Postp
+[ilmek:Verb] il:Verb+e:Opt+A3sg
+[il:Noun] il:Noun+A3sg+e:Dat
+[İl:Noun,Prop] il:Noun+A3sg+e:Dat
+İngiltere
+[İngiltere:Noun,Prop] ingiltere:Noun+A3sg
+ile
+[ile:Conj] ile:Conj*
+[ile:Postp,PCNom] ile:Postp
+[ilmek:Verb] il:Verb+e:Opt+A3sg
+[il:Noun] il:Noun+A3sg+e:Dat
+[İl:Noun,Prop] il:Noun+A3sg+e:Dat
+de
+[de:Conj] de:Conj*
+[demek:Verb] de:Verb+Imp+A2sg
+[de:Noun] de:Noun+A3sg
+[De:Noun,Prop] de:Noun+A3sg
+görüştük
+[görüşmek:Verb] görüş:Verb+tü:Past+k:A1pl*
+[görüşmek:Verb] görüş:Verb|tük:PastPart→Adj
+[görüşmek:Verb] görüş:Verb|tük:PastPart→Noun+A3sg
+[görüş:Noun] görüş:Noun+A3sg|Zero→Verb+tü:Past+k:A1pl
+.
+[.:Punc] .:Punc
+
+S:Keşke herkes senin gibi benim gibi bizim gibi düşünse .
+Keşke
+[keşke:Adv] keşke:Adv
+[keşke:Interj] keşke:Interj*
+herkes
+[herkes:Pron,Quant] herkes:Pron+A3pl
+senin
+[se:Noun] se:Noun+A3sg+nin:Gen
+[se:Noun] se:Noun+A3sg+n:P2sg+in:Gen
+[Se:Noun,Abbrv] se:Noun+A3sg+nin:Gen
+[sen:Pron,Pers] sen:Pron+A2sg+in:Gen*
+gibi
+[gibi:Postp,PCGen] gibi:Postp*
+[gibi:Postp,PCNom] gibi:Postp
+[Gib:Noun,Abbrv] gib:Noun+A3sg+i:Acc
+benim
+[ben:Noun] ben:Noun+A3sg+im:P1sg
+[ben:Pron,Pers] ben:Pron+A1sg+im:Gen*
+[be:Noun] be:Noun+A3sg+n:P2sg|Zero→Verb+Pres+im:A1sg
+[ben:Noun] ben:Noun+A3sg|Zero→Verb+Pres+im:A1sg
+[ben:Pron,Pers] ben:Pron+A1sg|Zero→Verb+Pres+im:A1sg
+gibi
+[gibi:Postp,PCGen] gibi:Postp*
+[gibi:Postp,PCNom] gibi:Postp
+[Gib:Noun,Abbrv] gib:Noun+A3sg+i:Acc
+bizim
+[biz:Noun] biz:Noun+A3sg+im:P1sg
+[biz:Pron,Pers] biz:Pron+A1pl+im:Gen*
+[biz:Noun] biz:Noun+A3sg|Zero→Verb+Pres+im:A1sg
+gibi
+[gibi:Postp,PCGen] gibi:Postp*
+[gibi:Postp,PCNom] gibi:Postp
+[Gib:Noun,Abbrv] gib:Noun+A3sg+i:Acc
+düşünse
+[düşünmek:Verb] düşün:Verb+se:Desr+A3sg*
+[düş:Noun] düş:Noun+A3sg+ün:Gen|Zero→Verb+se:Cond+A3sg
+[düş:Noun] düş:Noun+A3sg+ün:P2sg|Zero→Verb+se:Cond+A3sg
+[düşün:Noun] düşün:Noun+A3sg|Zero→Verb+se:Cond+A3sg
+.
+[.:Punc] .:Punc
+
+S:Adam gibi adam gibi .
+Adam
+[ada:Noun] ada:Noun+A3sg+m:P1sg
+[Ada:Noun,Prop] ada:Noun+A3sg+m:P1sg
+[adam:Noun] adam:Noun+A3sg*
+gibi
+[gibi:Postp,PCGen] gibi:Postp
+[gibi:Postp,PCNom] gibi:Postp*
+[Gib:Noun,Abbrv] gib:Noun+A3sg+i:Acc
+adam
+[ada:Noun] ada:Noun+A3sg+m:P1sg
+[Ada:Noun,Prop] ada:Noun+A3sg+m:P1sg
+[adam:Noun] adam:Noun+A3sg*
+gibi
+[gibi:Postp,PCGen] gibi:Postp
+[gibi:Postp,PCNom] gibi:Postp*
+[Gib:Noun,Abbrv] gib:Noun+A3sg+i:Acc
+.
+[.:Punc] .:Punc
+
+S:çıkarcı arkadaşlar gibi .
+çıkarcı
+[çıkarcı:Adj] çıkarcı:Adj*
+[çıkar:Noun] çıkar:Noun+A3sg|cı:Agt→Noun+A3sg
+arkadaşlar
+[arkadaş:Noun] arkadaş:Noun+lar:A3pl*
+[arkadaş:Noun] arkadaş:Noun+A3sg|Zero→Verb+Pres+lar:A3pl
+gibi
+[gibi:Postp,PCGen] gibi:Postp
+[gibi:Postp,PCNom] gibi:Postp*
+[Gib:Noun,Abbrv] gib:Noun+A3sg+i:Acc
+.
+[.:Punc] .:Punc
+
+S:Cılız olan mı şişko olan mı ?
+Cılız
+[cılız:Adj] cılız:Adj*
+[cılız:Adv] cılız:Adv
+olan
+[olmak:Verb] ol:Verb|an:PresPart→Adj*
+[o:Adj] o:Adj|lan:Acquire→Verb+Imp+A2sg
+mı
+[mı:Ques] mi:Ques+Pres+A3sg
+şişko
+[şişko:Adj] şişko:Adj
+olan
+[olmak:Verb] ol:Verb|an:PresPart→Adj*
+[o:Adj] o:Adj|lan:Acquire→Verb+Imp+A2sg
+mı
+[mı:Ques] mı:Ques+Pres+A3sg
+?
+[?:Punc] ?:Punc
+
+S:Mavi olan mı sarı olan mı :D
+Mavi
+[mavi:Adj] mavi:Adj*
+[mavi:Noun] mavi:Noun+A3sg
+[Mavi:Noun,Prop] mavi:Noun+A3sg
+olan
+[olmak:Verb] ol:Verb|an:PresPart→Adj*
+[o:Adj] o:Adj|lan:Acquire→Verb+Imp+A2sg
+mı
+[mı:Ques] mı:Ques+Pres+A3sg
+sarı
+[sarı:Adj] sarı:Adj*
+[sarı:Noun] sarı:Noun+A3sg
+[Sarı:Noun,Prop] sarı:Noun+A3sg
+olan
+[olmak:Verb] ol:Verb|an:PresPart→Adj*
+[o:Adj] o:Adj|lan:Acquire→Verb+Imp+A2sg
+mı
+[mı:Ques] mı:Ques+Pres+A3sg
+:D
+[:D:Noun,Emoticon] :D:Noun+A3sg
+
+S:Ama evde yapın ama salonda ama sokakta muhakkak yapın .
+Ama
+[âmâ:Adj] ama:Adj
+[ama:Conj] ama:Conj*
+[am:Noun] am:Noun+A3sg+a:Dat
+evde
+[ev:Noun] ev:Noun+A3sg+de:Loc*
+[Ev:Noun,Prop] ev:Noun+A3sg+de:Loc
+yapın
+[yapmak:Verb] yap:Verb+Imp+ın:A2pl*
+[yapınmak:Verb] yapın:Verb+Imp+A2sg
+[yapı:Noun] yapı:Noun+A3sg+n:P2sg
+[Yapı:Noun,Prop] yapı:Noun+A3sg+n:P2sg
+ama
+[âmâ:Adj] ama:Adj
+[ama:Conj] ama:Conj*
+[am:Noun] am:Noun+A3sg+a:Dat
+salonda
+[salon:Noun] salon:Noun+A3sg+da:Loc
+ama
+[âmâ:Adj] ama:Adj
+[ama:Conj] ama:Conj*
+[am:Noun] am:Noun+A3sg+a:Dat
+sokakta
+[sokak:Noun] sokak:Noun+A3sg+ta:Loc*
+[Sokak:Noun,Prop] sokak:Noun+A3sg+ta:Loc
+muhakkak
+[muhakkak:Adj] muhakkak:Adj
+[muhakkak:Adv] muhakkak:Adv*
+yapın
+[yapmak:Verb] yap:Verb+Imp+ın:A2pl*
+[yapınmak:Verb] yapın:Verb+Imp+A2sg
+[yapı:Noun] yapı:Noun+A3sg+n:P2sg
+[Yapı:Noun,Prop] yapı:Noun+A3sg+n:P2sg
+.
+[.:Punc] .:Punc
+
+S:Ama çift , ama tek taraf .
+Ama
+[âmâ:Adj] ama:Adj
+[ama:Conj] ama:Conj*
+[am:Noun] am:Noun+A3sg+a:Dat
+çift
+[çift:Adj] çift:Adj*
+[çift:Noun] çift:Noun+A3sg
+,
+[,:Punc] ,:Punc
+ama
+[âmâ:Adj] ama:Adj
+[ama:Conj] ama:Conj*
+[am:Noun] am:Noun+A3sg+a:Dat
+tek
+[tek:Adv] tek:Adv
+[tek:Num] tek:Num*
+[tek:Noun] tek:Noun+A3sg
+[Tek:Noun,Prop] tek:Noun+A3sg
+taraf
+[taraf:Noun] taraf:Noun+A3sg
+.
+[.:Punc] .:Punc
+
+S:Ama büyük , ama küçük .
+Ama
+[âmâ:Adj] ama:Adj
+[ama:Conj] ama:Conj*
+[am:Noun] am:Noun+A3sg+a:Dat
+büyük
+[büyük:Adj] büyük:Adj*
+[büyük:Noun] büyük:Noun+A3sg
+[Büyük:Noun,Prop] büyük:Noun+A3sg
+,
+[,:Punc] ,:Punc
+ama
+[âmâ:Adj] ama:Adj
+[ama:Conj] ama:Conj*
+[am:Noun] am:Noun+A3sg+a:Dat
+küçük
+[küçük:Adj] küçük:Adj*
+[küçük:Noun] küçük:Noun+A3sg
+[Küçük:Noun,Prop] küçük:Noun+A3sg
+.
+[.:Punc] .:Punc
+
+S:Hayır değil , kesinlikle değil .
+Hayır
+[hayır:Adj] hayır:Adj
+[hayır:Adv] hayır:Adv*
+[hayır:Interj] hayır:Interj
+[hayır:Noun] hayır:Noun+A3sg
+[Hayır:Noun,Prop] hayır:Noun+A3sg
+değil
+[değil:Conj] değil:Conj
+[değil:Verb] değil:Verb+Neg+Pres+A3sg*
+[değmek:Verb] değ:Verb|il:Pass→Verb+Imp+A2sg
+,
+[,:Punc] ,:Punc
+kesinlikle
+[kesinlikle:Adv] kesinlikle:Adv*
+[kesin:Adj] kesin:Adj|lik:Ness→Noun+A3sg+le:Ins
+[kesin:Adj] kesin:Adj|Zero→Noun+A3sg|lik:Ness→Noun+A3sg+le:Ins
+değil
+[değil:Conj] değil:Conj
+[değil:Verb] değil:Verb+Neg+Pres+A3sg*
+[değmek:Verb] değ:Verb|il:Pass→Verb+Imp+A2sg
+.
+[.:Punc] .:Punc
+
+S:Kötü değil ; değil mi ?
+Kötü
+[kötü:Adj] kötü:Adj*
+[kötü:Adv] kötü:Adv
+değil
+[değil:Conj] değil:Conj
+[değil:Verb] değil:Verb+Neg+Pres+A3sg*
+[değmek:Verb] değ:Verb|il:Pass→Verb+Imp+A2sg
+;
+[;:Punc] ;:Punc
+değil
+[değil:Conj] değil:Conj
+[değil:Verb] değil:Verb+Neg+Pres+A3sg*
+[değmek:Verb] değ:Verb|il:Pass→Verb+Imp+A2sg
+mi
+[mi:Ques] mi:Ques+Pres+A3sg*
+[mi:Noun] mi:Noun+A3sg
+[Mi:Noun,Abbrv] mi:Noun+A3sg
+?
+[?:Punc] ?:Punc
+
+S:Böyle diye diye de delirtiyormuşuz .
+Böyle
+[böyle:Adj] böyle:Adj*
+[böyle:Adv] böyle:Adv
+diye
+[diye:Postp,PCNom] diye:Postp*
+[demek:Verb] di:Verb+ye:Opt+A3sg
+diye
+[diye:Postp,PCNom] diye:Postp*
+[demek:Verb] di:Verb+ye:Opt+A3sg
+de
+[de:Conj] de:Conj*
+[demek:Verb] de:Verb+Imp+A2sg
+[de:Noun] de:Noun+A3sg
+[De:Noun,Prop] de:Noun+A3sg
+delirtiyormuşuz
+[delirmek:Verb] delir:Verb|t:Caus→Verb+iyor:Prog1+muş:Narr+uz:A1pl
+.
+[.:Punc] .:Punc
+
+S:Sana nispet olsun diye kıskan diye çıldır diye .
+Sana
+[sanmak:Verb] san:Verb+a:Opt+A3sg
+[san:Noun] san:Noun+A3sg+a:Dat
+[sen:Pron,Pers] san:Pron+A2sg+a:Dat*
+[San:Noun,Prop] san:Noun+A3sg+a:Dat
+[Sana:Noun,Prop] sana:Noun+A3sg
+nispet
+[nispet:Adv] nispet:Adv
+[nispet:Noun] nispet:Noun+A3sg*
+olsun
+[olmak:Verb] ol:Verb+Imp+sun:A3sg
+diye
+[diye:Postp,PCNom] diye:Postp*
+[demek:Verb] di:Verb+ye:Opt+A3sg
+kıskan
+[kıskanmak:Verb] kıskan:Verb+Imp+A2sg*
+[kıska:Noun] kıska:Noun+A3sg+n:P2sg
+diye
+[diye:Postp,PCNom] diye:Postp*
+[demek:Verb] di:Verb+ye:Opt+A3sg
+çıldır
+[çıldırmak:Verb] çıldır:Verb+Imp+A2sg*
+[Çıldır:Noun,Prop] çıldır:Noun+A3sg
+diye
+[diye:Postp,PCNom] diye:Postp*
+[demek:Verb] di:Verb+ye:Opt+A3sg
+.
+[.:Punc] .:Punc
+
+S:Tarza göre değil , farza göre .
+Tarza
+[tarz:Noun] tarz:Noun+A3sg+a:Dat
+göre
+[göre:Postp,PCDat] göre:Postp*
+[görmek:Verb] gör:Verb+e:Opt+A3sg
+[Göre:Noun,Prop] göre:Noun+A3sg
+değil
+[değil:Conj] değil:Conj
+[değil:Verb] değil:Verb+Neg+Pres+A3sg*
+[değmek:Verb] değ:Verb|il:Pass→Verb+Imp+A2sg
+,
+[,:Punc] ,:Punc
+farza
+[farz:Noun] farz:Noun+A3sg+a:Dat
+göre
+[göre:Postp,PCDat] göre:Postp*
+[görmek:Verb] gör:Verb+e:Opt+A3sg
+[Göre:Noun,Prop] göre:Noun+A3sg
+.
+[.:Punc] .:Punc
+
+S:Daha iyi , daha iyi !
+Daha
+[daha:Adv] daha:Adv*
+[daha:Noun,Time] daha:Noun+A3sg
+iyi
+[iyi:Adj] iyi:Adj*
+[iyi:Adv] iyi:Adv
+[İ:Noun,Prop] i:Noun+A3sg+yi:Acc
+[iyi:Noun] iyi:Noun+A3sg
+,
+[,:Punc] ,:Punc
+daha
+[daha:Adv] daha:Adv*
+[daha:Noun,Time] daha:Noun+A3sg
+iyi
+[iyi:Adj] iyi:Adj*
+[iyi:Adv] iyi:Adv
+[İ:Noun,Prop] i:Noun+A3sg+yi:Acc
+[iyi:Noun] iyi:Noun+A3sg
+!
+[!:Punc] !:Punc
+
+S:Bir an önce git bir an önce gel .
+Bir
+[bir:Adj] bir:Adj
+[bir:Adv] bir:Adv
+[bir:Det] bir:Det*
+[bir:Num,Card] bir:Num
+[Bir:Noun,Prop] bir:Noun+A3sg
+an
+[anmak:Verb] an:Verb+Imp+A2sg
+[an:Noun,Time] an:Noun+A3sg*
+önce
+[önce:Adv] önce:Adv*
+[önce:Postp,PCAbl] önce:Postp
+[ön:Adj] ön:Adj|ce:Ly→Adv
+[ön:Adj] ön:Adj|ce:AsIf→Adj
+[ön:Noun] ön:Noun+A3sg+ce:Equ
+[Ön:Noun,Prop] ön:Noun+A3sg+ce:Equ
+[önce:Noun,Time] önce:Noun+A3sg
+git
+[gitmek:Verb] git:Verb+Imp+A2sg
+bir
+[bir:Adj] bir:Adj
+[bir:Adv] bir:Adv
+[bir:Det] bir:Det*
+[bir:Num,Card] bir:Num
+[Bir:Noun,Prop] bir:Noun+A3sg
+an
+[anmak:Verb] an:Verb+Imp+A2sg
+[an:Noun,Time] an:Noun+A3sg*
+önce
+[önce:Adv] önce:Adv*
+[önce:Postp,PCAbl] önce:Postp
+[ön:Adj] ön:Adj|ce:Ly→Adv
+[ön:Adj] ön:Adj|ce:AsIf→Adj
+[ön:Noun] ön:Noun+A3sg+ce:Equ
+[Ön:Noun,Prop] ön:Noun+A3sg+ce:Equ*
+[önce:Noun,Time] önce:Noun+A3sg
+gel
+[gelmek:Verb] gel:Verb+Imp+A2sg
+.
+[.:Punc] .:Punc
+
+S:Daha önce , sizden önce yazıp çizdiği oldu mu ?
+Daha
+[daha:Adv] daha:Adv*
+[daha:Noun,Time] daha:Noun+A3sg
+önce
+[önce:Adv] önce:Adv*
+[önce:Postp,PCAbl] önce:Postp
+[ön:Adj] ön:Adj|ce:Ly→Adv
+[ön:Adj] ön:Adj|ce:AsIf→Adj
+[ön:Noun] ön:Noun+A3sg+ce:Equ
+[Ön:Noun,Prop] ön:Noun+A3sg+ce:Equ
+[önce:Noun,Time] önce:Noun+A3sg
+,
+[,:Punc] ,:Punc
+sizden
+[siz:Pron,Pers] siz:Pron+A2pl+den:Abl
+önce
+[önce:Adv] önce:Adv
+[önce:Postp,PCAbl] önce:Postp*
+[ön:Adj] ön:Adj|ce:Ly→Adv
+[ön:Adj] ön:Adj|ce:AsIf→Adj
+[ön:Noun] ön:Noun+A3sg+ce:Equ
+[Ön:Noun,Prop] ön:Noun+A3sg+ce:Equ
+[önce:Noun,Time] önce:Noun+A3sg
+yazıp
+[yazmak:Verb] yaz:Verb|ıp:AfterDoing→Adv
+çizdiği
+[çizmek:Verb] çiz:Verb|diğ:PastPart→Adj+i:P3sg
+[çizmek:Verb] çiz:Verb|diğ:PastPart→Noun+A3sg+i:Acc*
+[çizmek:Verb] çiz:Verb|diğ:PastPart→Noun+A3sg+i:P3sg
+oldu
+[olmak:Verb] ol:Verb+du:Past+A3sg
+mu
+[mu:Ques] mu:Ques+Pres+A3sg*
+[Mu:Noun,Abbrv] mu:Noun+A3sg
+?
+[?:Punc] ?:Punc
+
+S:Lan yeni yeni şeyler çıkarmayın .
+Lan
+[lan:Interj] lan:Interj*
+[la:Noun] la:Noun+A3sg+n:P2sg
+yeni
+[yeni:Adj] yeni:Adj*
+[yeni:Adv] yeni:Adv
+[yen:Noun] yen:Noun+A3sg+i:Acc
+[yen:Noun] yen:Noun+A3sg+i:P3sg
+[Yeni:Noun,Prop] yeni:Noun+A3sg
+yeni
+[yeni:Adj] yeni:Adj*
+[yeni:Adv] yeni:Adv
+[yen:Noun] yen:Noun+A3sg+i:Acc
+[yen:Noun] yen:Noun+A3sg+i:P3sg
+[Yeni:Noun,Prop] yeni:Noun+A3sg
+şeyler
+[şey:Noun] şey:Noun+ler:A3pl*
+[şey:Noun] şey:Noun+A3sg|Zero→Verb+Pres+ler:A3pl
+çıkarmayın
+[çıkarmak:Verb] çıkar:Verb+ma:Neg+Imp+yın:A2pl
+.
+[.:Punc] .:Punc
+
+S:Yeni alışmaya başladım .
+Yeni
+[yeni:Adj] yeni:Adj
+[yeni:Adv] yeni:Adv*
+[yen:Noun] yen:Noun+A3sg+i:Acc
+[yen:Noun] yen:Noun+A3sg+i:P3sg
+[Yeni:Noun,Prop] yeni:Noun+A3sg
+alışmaya
+[alışmak:Verb] alış:Verb+ma:Neg+ya:Opt+A3sg
+[alışmak:Verb] alış:Verb|ma:Inf2→Noun+A3sg+ya:Dat*
+başladım
+[başlamak:Verb] başla:Verb+dı:Past+m:A1sg
+.
+[.:Punc] .:Punc
+
+S:Yeni hevesler , yeni tatlar aransın .
+Yeni
+[yeni:Adj] yeni:Adj*
+[yeni:Adv] yeni:Adv
+[yen:Noun] yen:Noun+A3sg+i:Acc
+[yen:Noun] yen:Noun+A3sg+i:P3sg
+[Yeni:Noun,Prop] yeni:Noun+A3sg
+hevesler
+[heves:Noun] heves:Noun+ler:A3pl*
+[heves:Noun] heves:Noun+A3sg|Zero→Verb+Pres+ler:A3pl
+,
+[,:Punc] ,:Punc
+yeni
+[yeni:Adj] yeni:Adj
+[yeni:Adv] yeni:Adv
+[yen:Noun] yen:Noun+A3sg+i:Acc
+[yen:Noun] yen:Noun+A3sg+i:P3sg
+[Yeni:Noun,Prop] yeni:Noun+A3sg*
+tatlar
+[tat:Noun] tat:Noun+lar:A3pl*
+[Tat:Noun,Prop] tat:Noun+lar:A3pl
+[Tatlar:Noun,Prop] tatlar:Noun+A3sg
+[tat:Noun] tat:Noun+A3sg|Zero→Verb+Pres+lar:A3pl
+[Tat:Noun,Prop] tat:Noun+A3sg|Zero→Verb+Pres+lar:A3pl
+aransın
+[aranmak:Verb] aran:Verb+Imp+sın:A3sg
+[aramak:Verb] ara:Verb|n:Pass→Verb+Imp+sın:A3sg*
+[ara:Noun] ara:Noun+A3sg+n:P2sg|Zero→Verb+Pres+sın:A2sg
+[Aran:Noun,Prop] aran:Noun+A3sg|Zero→Verb+Pres+sın:A2sg
+[ara:Adj] ara:Adj|Zero→Noun+A3sg+n:P2sg|Zero→Verb+Pres+sın:A2sg
+[Aran:Noun,Prop] aran:Noun+A3sg|sı:JustLike→Adj|Zero→Noun+A3sg+n:P2sg
+.
+[.:Punc] .:Punc
+
+S:Avro , Japon Yeni karşısında da geriledi .
+Avro
+[avro:Noun] avro:Noun+A3sg
+,
+[,:Punc] ,:Punc
+Japon
+[Japon:Noun,Prop] japon:Noun+A3sg
+Yeni
+[yeni:Adj] yeni:Adj
+[yeni:Adv] yeni:Adv
+[yen:Noun] yen:Noun+A3sg+i:Acc*
+[yen:Noun] yen:Noun+A3sg+i:P3sg
+[Yeni:Noun,Prop] yeni:Noun+A3sg
+karşısında
+[karşı:Noun] karşı:Noun+A3sg+sı:P3sg+nda:Loc*
+[Karşı:Noun,Prop] karşı:Noun+A3sg+sı:P3sg+nda:Loc
+[Karşısı:Noun,Prop] karşısı:Noun+A3sg+n:P2sg+da:Loc
+[karşı:Adj] karşı:Adj|Zero→Noun+A3sg+sı:P3sg+nda:Loc
+da
+[da:Conj] da:Conj
+geriledi
+[gerilemek:Verb] gerile:Verb+di:Past+A3sg
+.
+[.:Punc] .:Punc
+
+S:Ne yerim dar ne yenim ...
+Ne
+[ne:Adj] ne:Adj
+[ne:Adv] ne:Adv*
+[ne:Conj] ne:Conj
+[ne:Interj] ne:Interj
+[ne:Pron,Ques] ne:Pron+A3sg
+[ne:Noun] ne:Noun+A3sg
+[Ne:Noun,Abbrv] ne:Noun+A3sg
+yerim
+[yemek:Verb] ye:Verb+r:Aor+im:A1sg
+[yer:Noun] yer:Noun+A3sg+im:P1sg*
+[Yer:Noun,Prop] yer:Noun+A3sg+im:P1sg
+[Yeri:Noun,Prop] yeri:Noun+A3sg+m:P1sg
+[yer:Noun] yer:Noun+A3sg|Zero→Verb+Pres+im:A1sg
+[Yer:Noun,Prop] yer:Noun+A3sg|Zero→Verb+Pres+im:A1sg
+dar
+[dar:Adj] dar:Adj*
+[dar:Adv] dar:Adv
+[dar:Noun] dar:Noun+A3sg
+ne
+[ne:Adj] ne:Adj
+[ne:Adv] ne:Adv*
+[ne:Conj] ne:Conj
+[ne:Interj] ne:Interj
+[ne:Pron,Ques] ne:Pron+A3sg
+[ne:Noun] ne:Noun+A3sg
+[Ne:Noun,Abbrv] ne:Noun+A3sg*
+yenim
+[yen:Noun] yen:Noun+A3sg+im:P1sg*
+[Yeni:Noun,Prop] yeni:Noun+A3sg+m:P1sg
+[yeni:Adj] yeni:Adj|Zero→Noun+A3sg+m:P1sg
+[yen:Noun] yen:Noun+A3sg|Zero→Verb+Pres+im:A1sg
+...
+[...:Punc] ...:Punc
+
+S:Cüzdanda 650 Yenim kaldı .
+Cüzdanda
+[cüzdan:Noun] cüzdan:Noun+A3sg+da:Loc
+650
+[650:Num,Card] 650:Num
+Yenim
+[yen:Noun] yen:Noun+A3sg+im:P1sg*
+[Yeni:Noun,Prop] yeni:Noun+A3sg+m:P1sg
+[yeni:Adj] yeni:Adj|Zero→Noun+A3sg+m:P1sg
+[yen:Noun] yen:Noun+A3sg|Zero→Verb+Pres+im:A1sg
+kaldı
+[kalmak:Verb] kal:Verb+dı:Past+A3sg*
+[kal:Noun] kal:Noun+A3sg|Zero→Verb+dı:Past+A3sg
+.
+[.:Punc] .:Punc
+
+S:Espri yeteneği ana tarafından mı yoksa baba tarafından mı ?
+Espri
+[espri:Noun] espri:Noun+A3sg
+yeteneği
+[yetenek:Noun] yeteneğ:Noun+A3sg+i:Acc*
+[yetenek:Noun] yeteneğ:Noun+A3sg+i:P3sg
+ana
+[ana:Adj] ana:Adj
+[ana:Interj] ana:Interj
+[anmak:Verb] an:Verb+a:Opt+A3sg
+[an:Noun,Time] an:Noun+A3sg+a:Dat
+[ana:Noun] ana:Noun+A3sg*
+[Ana:Noun,Prop] ana:Noun+A3sg
+tarafından
+[tarafından:Adv] tarafından:Adv
+[taraf:Noun] taraf:Noun+A3sg+ın:P2sg+dan:Abl
+[taraf:Noun] taraf:Noun+A3sg+ı:P3sg+ndan:Abl*
+mı
+[mı:Ques] mı:Ques+Pres+A3sg
+yoksa
+[yoksa:Conj] yoksa:Conj*
+[yoksamak:Verb] yoksa:Verb+Imp+A2sg
+[yok:Adj] yok:Adj|Zero→Verb+sa:Cond+A3sg
+[yok:Adj] yok:Adj|Zero→Verb+sa:Cond+A3sg
+[yok:Noun] yok:Noun+A3sg|Zero→Verb+sa:Cond+A3sg
+[Yok:Noun,Prop] yok:Noun+A3sg|Zero→Verb+sa:Cond+A3sg
+baba
+[baba:Adj] baba:Adj
+[bap:Noun] bab:Noun+A3sg+a:Dat
+[Bab:Noun,Abbrv] bab:Noun+A3sg+a:Dat
+[baba:Noun] baba:Noun+A3sg*
+[Baba:Noun,Prop] baba:Noun+A3sg
+tarafından
+[tarafından:Adv] tarafından:Adv
+[taraf:Noun] taraf:Noun+A3sg+ın:P2sg+dan:Abl
+[taraf:Noun] taraf:Noun+A3sg+ı:P3sg+ndan:Abl*
+mı
+[mı:Ques] mı:Ques+Pres+A3sg
+?
+[?:Punc] ?:Punc
+
+S:Kanun bankerler tarafından yazılmıştı , hukukçular tarafından değil .
+Kanun
+[Kanu:Noun,Prop] kanu:Noun+A3sg+n:P2sg
+[kânun:Noun] kanun:Noun+A3sg
+[kanun:Noun] kanun:Noun+A3sg*
+bankerler
+[banker:Noun] banker:Noun+ler:A3pl*
+[banker:Noun] banker:Noun+A3sg|Zero→Verb+Pres+ler:A3pl
+tarafından
+[tarafından:Adv] tarafından:Adv*
+[taraf:Noun] taraf:Noun+A3sg+ın:P2sg+dan:Abl
+[taraf:Noun] taraf:Noun+A3sg+ı:P3sg+ndan:Abl
+yazılmıştı
+[yazmak:Verb] yaz:Verb|ıl:Pass→Verb+mış:Narr+tı:Past+A3sg*
+[yazmak:Verb] yaz:Verb|ıl:Pass→Verb|mış:NarrPart→Adj|Zero→Verb+tı:Past+A3sg
+,
+[,:Punc] ,:Punc
+hukukçular
+[hukuk:Noun] hukuk:Noun+A3sg|çu:Agt→Noun+lar:A3pl*
+[hukuk:Noun] hukuk:Noun+A3sg|çu:Agt→Noun+A3sg|Zero→Verb+Pres+lar:A3pl
+tarafından
+[tarafından:Adv] tarafından:Adv*
+[taraf:Noun] taraf:Noun+A3sg+ın:P2sg+dan:Abl
+[taraf:Noun] taraf:Noun+A3sg+ı:P3sg+ndan:Abl
+değil
+[değil:Conj] değil:Conj
+[değil:Verb] değil:Verb+Neg+Pres+A3sg*
+[değmek:Verb] değ:Verb|il:Pass→Verb+Imp+A2sg
+.
+[.:Punc] .:Punc
+
+S:Bu yeni Türkiye , güçlü Türkiye .
+Bu
+[bu:Det] bu:Det
+[bu:Pron,Demons] bu:Pron+A3sg*
+yeni
+[yeni:Adj] yeni:Adj*
+[yeni:Adv] yeni:Adv
+[yen:Noun] yen:Noun+A3sg+i:Acc
+[yen:Noun] yen:Noun+A3sg+i:P3sg
+[Yeni:Noun,Prop] yeni:Noun+A3sg
+Türkiye
+[Türki:Noun,Prop] türki:Noun+A3sg+ye:Dat
+[Türkiye:Noun,Prop] türkiye:Noun+A3sg*
+[Türki:Adj,Prop] türki:Adj|Zero→Noun+A3sg+ye:Dat
+,
+[,:Punc] ,:Punc
+güçlü
+[güçlü:Adj] güçlü:Adj
+[Güçlü:Noun,Prop] güçlü:Noun+A3sg
+[güç:Noun] güç:Noun+A3sg|lü:With→Adj
+[Güç:Noun,Prop] güç:Noun+A3sg|lü:With→Adj*
+[güç:Adj] güç:Adj|Zero→Noun+A3sg|lü:With→Adj
+Türkiye
+[Türki:Noun,Prop] türki:Noun+A3sg+ye:Dat
+[Türkiye:Noun,Prop] türkiye:Noun+A3sg*
+[Türki:Adj,Prop] türki:Adj|Zero→Noun+A3sg+ye:Dat
+.
+[.:Punc] .:Punc
+
+S:Ben de dövüşebilirim !
+Ben
+[be:Noun] be:Noun+A3sg+n:P2sg
+[ben:Noun] ben:Noun+A3sg
+[ben:Pron,Pers] ben:Pron+A1sg*
+de
+[de:Conj] de:Conj*
+[demek:Verb] de:Verb+Imp+A2sg
+[de:Noun] de:Noun+A3sg
+[De:Noun,Prop] de:Noun+A3sg
+dövüşebilirim
+[dövüşmek:Verb] dövüş:Verb|ebil:Able→Verb+ir:Aor+im:A1sg
+!
+[!:Punc] !:Punc
+
+S:Ben eşinin yerinde olsam ben de ayrılırdım .
+Ben
+[be:Noun] be:Noun+A3sg+n:P2sg
+[ben:Noun] ben:Noun+A3sg
+[ben:Pron,Pers] ben:Pron+A1sg*
+eşinin
+[eşinmek:Verb] eşin:Verb+Imp+in:A2pl
+[eş:Noun] eş:Noun+A3sg+in:P2sg+in:Gen
+[eş:Noun] eş:Noun+A3sg+i:P3sg+nin:Gen*
+[eş:Adj] eş:Adj|Zero→Noun+A3sg+in:P2sg+in:Gen
+[eş:Adj] eş:Adj|Zero→Noun+A3sg+i:P3sg+nin:Gen
+yerinde
+[yerinde:Adj] yerinde:Adj
+[yerinde:Adv] yerinde:Adv
+[yer:Noun] yer:Noun+A3sg+in:P2sg+de:Loc
+[yer:Noun] yer:Noun+A3sg+i:P3sg+nde:Loc*
+[Yer:Noun,Prop] yer:Noun+A3sg+in:P2sg+de:Loc
+[Yer:Noun,Prop] yer:Noun+A3sg+i:P3sg+nde:Loc
+[Yeri:Noun,Prop] yeri:Noun+A3sg+n:P2sg+de:Loc
+olsam
+[olmak:Verb] ol:Verb+sa:Desr+m:A1sg
+ben
+[be:Noun] be:Noun+A3sg+n:P2sg
+[ben:Noun] ben:Noun+A3sg
+[ben:Pron,Pers] ben:Pron+A1sg*
+de
+[de:Conj] de:Conj*
+[demek:Verb] de:Verb+Imp+A2sg
+[de:Noun] de:Noun+A3sg
+[De:Noun,Prop] de:Noun+A3sg
+ayrılırdım
+[ayrılmak:Verb] ayrıl:Verb+ır:Aor+dı:Past+m:A1sg*
+[ayırmak:Verb] ayr:Verb|ıl:Pass→Verb+ır:Aor+dı:Past+m:A1sg
+.
+[.:Punc] .:Punc
+
+S:sağ boynumda bir çok ben var ne çok şanslıyım .
+sağ
+[sağ:Adj] sağ:Adj
+[sağmak:Verb] sağ:Verb+Imp+A2sg
+[sağ:Noun] sağ:Noun+A3sg*
+[Sağ:Noun,Prop] sağ:Noun+A3sg
+boynumda
+[boyun:Noun] boyn:Noun+A3sg+um:P1sg+da:Loc*
+[Boynu:Noun,Prop] boynu:Noun+A3sg+m:P1sg+da:Loc
+bir
+[bir:Adj] bir:Adj
+[bir:Adv] bir:Adv
+[bir:Det] bir:Det
+[bir:Num,Card] bir:Num*
+[Bir:Noun,Prop] bir:Noun+A3sg
+çok
+[çok:Adj] çok:Adj*
+[çok:Adv] çok:Adv
+[çok:Det] çok:Det
+[çok:Postp,PCAbl] çok:Postp
+ben
+[be:Noun] be:Noun+A3sg+n:P2sg
+[ben:Noun] ben:Noun+A3sg*
+[ben:Pron,Pers] ben:Pron+A1sg
+var
+[var:Adj] var:Adj
+[varmak:Verb] var:Verb+Imp+A2sg
+[var:Noun] var:Noun+A3sg*
+ne
+[ne:Adj] ne:Adj
+[ne:Adv] ne:Adv*
+[ne:Conj] ne:Conj
+[ne:Interj] ne:Interj
+[ne:Pron,Ques] ne:Pron+A3sg
+[ne:Noun] ne:Noun+A3sg
+[Ne:Noun,Abbrv] ne:Noun+A3sg
+çok
+[çok:Adj] çok:Adj*
+[çok:Adv] çok:Adv
+[çok:Det] çok:Det
+[çok:Postp,PCAbl] çok:Postp
+şanslıyım
+[şans:Noun] şans:Noun+A3sg|lı:With→Adj|Zero→Verb+Pres+yım:A1sg
+.
+[.:Punc] .:Punc
+
+S:cildimde çok ben var beni rahatsız ediyorlar
+cildimde
+[cilt:Noun] cild:Noun+A3sg+im:P1sg+de:Loc
+çok
+[çok:Adj] çok:Adj*
+[çok:Adv] çok:Adv
+[çok:Det] çok:Det
+[çok:Postp,PCAbl] çok:Postp
+ben
+[be:Noun] be:Noun+A3sg+n:P2sg
+[ben:Noun] ben:Noun+A3sg*
+[ben:Pron,Pers] ben:Pron+A1sg
+var
+[var:Adj] var:Adj
+[varmak:Verb] var:Verb+Imp+A2sg
+[var:Noun] var:Noun+A3sg*
+
+S:Her yer yeşillik , her yer doğal .
+Her
+[her:Adj] her:Adj
+[her:Det] her:Det*
+yer
+[yemek:Verb] ye:Verb+r:Aor+A3sg
+[yermek:Verb] yer:Verb+Imp+A2sg
+[yer:Noun] yer:Noun+A3sg*
+[Yer:Noun,Prop] yer:Noun+A3sg
+yeşillik
+[Yeşillik:Noun,Prop] yeşillik:Noun+A3sg
+[yeşil:Adj] yeşil:Adj|lik:Ness→Noun+A3sg*
+[yeşil:Noun] yeşil:Noun+A3sg|lik:Ness→Noun+A3sg
+[Yeşil:Noun,Prop] yeşil:Noun+A3sg|lik:Ness→Noun+A3sg
+[yeşil:Adj] yeşil:Adj|Zero→Noun+A3sg|lik:Ness→Noun+A3sg
+,
+[,:Punc] ,:Punc
+her
+[her:Adj] her:Adj
+[her:Det] her:Det*
+yer
+[yemek:Verb] ye:Verb+r:Aor+A3sg
+[yermek:Verb] yer:Verb+Imp+A2sg
+[yer:Noun] yer:Noun+A3sg*
+[Yer:Noun,Prop] yer:Noun+A3sg
+doğal
+[doğal:Adj] doğal:Adj
+.
+[.:Punc] .:Punc
+
+S:Bölgede yer yer çatışmalar çıktı .
+Bölgede
+[bölge:Noun] bölge:Noun+A3sg+de:Loc
+yer
+[yemek:Verb] ye:Verb+r:Aor+A3sg
+[yermek:Verb] yer:Verb+Imp+A2sg
+[yer:Noun] yer:Noun+A3sg*
+[Yer:Noun,Prop] yer:Noun+A3sg
+yer
+[yemek:Verb] ye:Verb+r:Aor+A3sg
+[yermek:Verb] yer:Verb+Imp+A2sg
+[yer:Noun] yer:Noun+A3sg*
+[Yer:Noun,Prop] yer:Noun+A3sg
+çatışmalar
+[çatışmak:Verb] çatış:Verb|ma:Inf2→Noun+lar:A3pl
+çıktı
+[çıkmak:Verb] çık:Verb+tı:Past+A3sg*
+[çıktı:Noun] çıktı:Noun+A3sg
+[Çıktı:Noun,Prop] çıktı:Noun+A3sg
+.
+[.:Punc] .:Punc
+
+S:Değişim oranı yüzde eksi yüzde 52 .
+Değişim
+[Değiş:Noun,Prop] değiş:Noun+A3sg+im:P1sg
+[değişim:Noun] değişim:Noun+A3sg*
+[değmek:Verb] değ:Verb|iş:Inf3→Noun+A3sg+im:P1sg
+[Değiş:Noun,Prop] değiş:Noun+A3sg|Zero→Verb+Pres+im:A1sg
+oranı
+[ora:Noun] ora:Noun+A3sg+n:P2sg+ı:Acc
+[oran:Noun] oran:Noun+A3sg+ı:Acc*
+[oran:Noun] oran:Noun+A3sg+ı:P3sg
+[Oran:Noun,Prop] oran:Noun+A3sg+ı:Acc
+[Oran:Noun,Prop] oran:Noun+A3sg+ı:P3sg
+yüzde
+[yüz:Noun] yüz:Noun+A3sg+de:Loc
+[Yüz:Noun,Prop] yüz:Noun+A3sg+de:Loc
+[yüzde:Noun] yüzde:Noun+A3sg*
+[yüz:Num,Card] yüz:Num|Zero→Noun+A3sg+de:Loc
+eksi
+[eksi:Adj] eksi:Adj
+[ek:Adj] ek:Adj|si:JustLike→Adj
+[eksi:Noun] eksi:Noun+A3sg*
+[ek:Noun] ek:Noun+A3sg|si:JustLike→Adj
+yüzde
+[yüz:Noun] yüz:Noun+A3sg+de:Loc
+[Yüz:Noun,Prop] yüz:Noun+A3sg+de:Loc
+[yüzde:Noun] yüzde:Noun+A3sg
+[yüz:Num,Card] yüz:Num|Zero→Noun+A3sg+de:Loc*
+52
+[52:Num,Card] 52:Num
+.
+[.:Punc] .:Punc
+
+S:Yüzde 8.5'in altında , yüzde 8'in üzerinde görünüyor .
+Yüzde
+[yüz:Noun] yüz:Noun+A3sg+de:Loc
+[Yüz:Noun,Prop] yüz:Noun+A3sg+de:Loc
+[yüzde:Noun] yüzde:Noun+A3sg*
+[yüz:Num,Card] yüz:Num|Zero→Noun+A3sg+de:Loc
+8.5'in
+[8.5:Num,Real] 8.5:Num|Zero→Noun+A3sg+in:Gen*
+[8.5:Num,Real] 8.5:Num|Zero→Noun+A3sg+in:P2sg
+altında
+[alt:Noun] alt:Noun+A3sg+ın:P2sg+da:Loc
+[alt:Noun] alt:Noun+A3sg+ı:P3sg+nda:Loc*
+[Alt:Noun,Prop] alt:Noun+A3sg+ın:P2sg+da:Loc
+[Alt:Noun,Prop] alt:Noun+A3sg+ı:P3sg+nda:Loc
+[Altı:Noun,Prop] altı:Noun+A3sg+n:P2sg+da:Loc
+[altın:Noun] altın:Noun+A3sg+da:Loc
+[Altın:Noun,Prop] altın:Noun+A3sg+da:Loc
+[alt:Adj] alt:Adj|Zero→Noun+A3sg+ın:P2sg+da:Loc
+[alt:Adj] alt:Adj|Zero→Noun+A3sg+ı:P3sg+nda:Loc
+[altı:Num,Card] altı:Num|Zero→Noun+A3sg+n:P2sg+da:Loc
+[altın:Adj] altın:Adj|Zero→Noun+A3sg+da:Loc
+,
+[,:Punc] ,:Punc
+yüzde
+[yüz:Noun] yüz:Noun+A3sg+de:Loc
+[Yüz:Noun,Prop] yüz:Noun+A3sg+de:Loc
+[yüzde:Noun] yüzde:Noun+A3sg*
+[yüz:Num,Card] yüz:Num|Zero→Noun+A3sg+de:Loc
+8'in
+[8:Num,Card] 8:Num|Zero→Noun+A3sg+in:Gen*
+[8:Num,Card] 8:Num|Zero→Noun+A3sg+in:P2sg
+üzerinde
+[üzerinde:Adv] üzerinde:Adv
+[Üzer:Noun,Prop] üzer:Noun+A3sg+in:P2sg+de:Loc
+[Üzer:Noun,Prop] üzer:Noun+A3sg+i:P3sg+nde:Loc
+[üzeri:Noun] üzeri:Noun+A3sg+n:P2sg+de:Loc*
+[Üzeri:Noun,Prop] üzeri:Noun+A3sg+n:P2sg+de:Loc
+görünüyor
+[görünmek:Verb] görün:Verb+üyor:Prog1+A3sg
+.
+[.:Punc] .:Punc

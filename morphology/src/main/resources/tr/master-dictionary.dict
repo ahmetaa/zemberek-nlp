@@ -9879,7 +9879,6 @@ herifçioğlu [A:CompoundP3sg; Roots:herifçi-oğul]
 herik
 herk
 herkes [P:Pron, Quant]
-herkes
 hermafrodit
 hermetik [P:Adj]
 hertz
@@ -16497,9 +16496,8 @@ muhafaza
 muhafazakâr [P:Adj]
 muhafız
 muhakeme
-muhakkak [A:NoVoicing]
-muhakkak [P:Adj]
-muhakkak [P:Adv]
+muhakkak [P:Adj;A:NoVoicing]
+muhakkak [P:Adv;A:NoVoicing]
 muhakkik [A:NoVoicing]
 muhakkik [P:Adj]
 muhal [A:InverseHarmony]
@@ -21075,6 +21073,8 @@ sevda
 sevecen [P:Adj]
 sever [P:Adj]
 sevgi
+sevgili
+sevgili [P:Adj]
 sevi
 sevim
 sevimli [P:Adj]

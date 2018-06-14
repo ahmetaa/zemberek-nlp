@@ -271,6 +271,10 @@ odalar
 
 Consider adding abbreviations with dot directly. Or add a rootattribute
 
+
+üzeride ---> should not be parsed!
+üzeri should be "üzer+Noun+A3sg+P3sg+Nom" but zemebrek parses  [üzeri:Noun] üzeri:Noun+A3sg
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

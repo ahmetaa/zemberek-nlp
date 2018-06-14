@@ -42,6 +42,7 @@ public class AmbiguousExampleFinder {
         })
         .filter(s -> !s.contains("\""))
         .filter(s -> !s.contains(")"))
+        .filter(s -> !s.contains("-"))
         //.sorted(Comparator.comparingInt(a -> a.split(" ").length))
         .collect(Collectors.toList());
 
@@ -52,8 +53,8 @@ public class AmbiguousExampleFinder {
   }
 
   public static void main(String[] args) throws Exception {
-    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-    Path indexRoot = Paths.get("/home/ahmetaa/data/zemberek/data/corpus-index");
+    TurkishMorphology morphology = TurkishMorphology.createWithTextDictionaries();
+    Path indexRoot = Paths.get("/home/aaa/data/zemberek/corpus-index");
     CorpusSearcher searcher = new CorpusSearcher(indexRoot);
 
     AmbiguousExampleFinder finder = new AmbiguousExampleFinder(searcher);
@@ -70,7 +71,7 @@ public class AmbiguousExampleFinder {
         PrintWriter pwMorph = new PrintWriter(morph.toFile(), "utf-8")) {
       for (String word : ambigiousWords) {
         Log.info(word);
-        List<String> sentences = finder.getSentences(word, 5, 5, 10);
+        List<String> sentences = finder.getSentences(word, 3, 5, 10);
         pw.println(word);
         sentences.forEach(pw::println);
         pw.println();
@@ -93,7 +94,7 @@ public class AmbiguousExampleFinder {
               if (wa.analysisCount() == 1) {
                 pwMorph.println(singleAnalysis.formatLong());
               } else {
-                pwMorph.format("%s%s%n", singleAnalysis.formatLong(), isBest ? "*" : "-");
+                pwMorph.format("%s%s%n", singleAnalysis.formatLong(), isBest ? "*" : "");
               }
             }
           }

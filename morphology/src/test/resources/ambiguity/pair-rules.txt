@@ -404,3 +404,5 @@ zenginler [zengin:Adj] *
 odalar [oda:Noun] *
 
 yerine [yerine:Adv] *
+
+eski [eski:Adj] *

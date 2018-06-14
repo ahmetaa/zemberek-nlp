@@ -21,7 +21,7 @@ import zemberek.lm.LmVocabulary;
 public class WordVectorLookup {
 
   private LmVocabulary vocabulary;
-  private UIntMap<Vector> vectors = new UIntMap<>();
+  private UIntMap<Vector> vectors;
   private int dimension;
 
   private WordVectorLookup(LmVocabulary vocabulary, UIntMap<Vector> vectors) {

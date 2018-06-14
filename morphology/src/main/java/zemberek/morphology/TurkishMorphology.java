@@ -338,7 +338,6 @@ public class TurkishMorphology {
         lines.addAll(TextIO.loadLinesFromResource(resource));
       }
       lexicon.addAll(new TurkishDictionaryLoader().load(lines));
-      Log.info("Lexicon Generated.");
       return this;
     }
 
