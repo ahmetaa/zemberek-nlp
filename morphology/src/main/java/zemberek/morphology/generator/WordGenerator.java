@@ -250,7 +250,7 @@ public class WordGenerator {
         continue;
       }
 
-      String surface = SurfaceTransition.generate(
+      String surface = SurfaceTransition.generateSurface(
           suffixTransition,
           gPath.path.getPhoneticAttributes());
 

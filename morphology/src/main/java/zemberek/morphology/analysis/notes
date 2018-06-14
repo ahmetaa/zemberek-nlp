@@ -238,10 +238,6 @@ bunla	bu	+Pron+Demons+A3sg+Pnon+Ins
 bununla
 bununla	bu	+Pron+Demons+A3sg+Pnon+Ins
 
-wrong lemma.
-[milletvekil:Noun] milletvekil:Noun+A3sg|liğ:Ness→Noun+A3sg+i:Acc
-[milletvekil:Noun] milletvekil:Noun+A3sg|liğ:Ness→Noun+A3sg+i:P3sg
-
 iseniz
 [imek:Verb] i:Verb+se:Desr+niz:A2pl <-- wrong. +Verb+Pos+Cond+A2pl
 needs to connect to noun->verb root.

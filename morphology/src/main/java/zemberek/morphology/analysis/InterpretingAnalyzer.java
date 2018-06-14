@@ -81,6 +81,7 @@ public class InterpretingAnalyzer {
 
     // search graph.
     List<SearchPath> resultPaths = search(paths);
+
     // generate results from successful paths.
     List<SingleAnalysis> result = new ArrayList<>(resultPaths.size());
     for (SearchPath path : resultPaths) {
@@ -112,7 +113,7 @@ public class InterpretingAnalyzer {
         // path as a correct result.
         if (path.tail.length() == 0) {
           if (path.isTerminal() &&
-              !path.phoneticAttributes.contains(PhoneticAttribute.CannotTerminate)) {
+              !path.containsPhoneticAttribute(PhoneticAttribute.CannotTerminate)) {
             result.add(path);
             if (debugMode) {
               debugData.finishedPaths.add(path);
@@ -146,7 +147,8 @@ public class InterpretingAnalyzer {
   }
 
   // for all allowed matching outgoing transitions, new paths are generated.
-  // Transition conditions are used for checking if a search path is allowed to pass a transition.
+  // Transition `conditions` are used for checking if a `search path`
+  // is allowed to pass a transition.
   private List<SearchPath> advance(SearchPath path) {
 
     List<SearchPath> newPaths = new ArrayList<>(2);
@@ -166,7 +168,7 @@ public class InterpretingAnalyzer {
         continue;
       }
 
-      String surface = SurfaceTransition.generate(
+      String surface = SurfaceTransition.generateSurface(
           suffixTransition,
           path.phoneticAttributes);
 
@@ -201,7 +203,7 @@ public class InterpretingAnalyzer {
         continue;
       }
 
-      // epsilon transition. Add and continue. Use existing attributes.
+      // epsilon (empty) transition. Add and continue. Use existing attributes.
       if (!suffixTransition.hasSurfaceForm()) {
         newPaths.add(path.getCopy(
             new SurfaceTransition("", suffixTransition),

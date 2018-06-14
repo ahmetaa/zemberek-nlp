@@ -298,7 +298,14 @@ public class SingleAnalysis {
       morphemeCounter++;
     }
 
-    return new SingleAnalysis(searchPath.getDictionaryItem(), morphemes, groupBoundaries);
+    // if dictionary item is `Dummy`, use the referenced item.
+    // `Dummy` items are usually generated for some compound words. For example for `zeytinyağı`
+    // a DictionaryItem is generated with root "zeytinyağ". But here we switch to the original.
+    DictionaryItem item = searchPath.getDictionaryItem();
+    if(item.hasAttribute(RootAttribute.Dummy)) {
+      item = item.getReferenceItem();
+    }
+    return new SingleAnalysis(item, morphemes, groupBoundaries);
   }
 
   /**

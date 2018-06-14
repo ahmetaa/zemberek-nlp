@@ -136,6 +136,10 @@ public class SearchPath {
     return phoneticAttributes;
   }
 
+  public boolean containsPhoneticAttribute(PhoneticAttribute attribute) {
+    return phoneticAttributes.contains(attribute);
+  }
+
   public boolean isTerminal() {
     return terminal;
   }

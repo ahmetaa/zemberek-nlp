@@ -263,8 +263,8 @@ public class TurkishDictionaryLoader {
           item.setReferenceItem(refItem);
           rootLexicon.add(item);
         }
-        if (lateEntry.containsMetaData(
-            MetaDataId.ROOTS)) { // this is a compound lemma with P3sg in it. Such as atkuyruğu
+        // this is a compound lemma with P3sg in it. Such as atkuyruğu
+        if (lateEntry.containsMetaData(MetaDataId.ROOTS)) {
           PosInfo posInfo = getPosData(lateEntry.getMetaData(MetaDataId.POS), lateEntry.word);
           DictionaryItem item = rootLexicon
               .getItemById(lateEntry.word + "_" + posInfo.primaryPos.shortForm);
@@ -286,8 +286,8 @@ public class TurkishDictionaryLoader {
           if (refItems.size() > 0) {
             // use the item with lowest index value.
             refItems.sort(Comparator.comparingInt(a -> a.index));
-            refItem = refItems.get(
-                0); // grab the first Dictionary item matching to kuyruk. We will use it's attributes.
+            // grab the first Dictionary item matching to kuyruk. We will use it's attributes.
+            refItem = refItems.get(0);
             attrSet = refItem.attributes.clone();
           } else {
             attrSet = morphemicAttributes(null, root, posInfo);

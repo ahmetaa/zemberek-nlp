@@ -97,11 +97,10 @@ public class TurkishLexer extends Lexer {
 
 	static {
 	    try {
-	        for(String line: Resources.readLines(Resources.getResource(
-              "tokenization/abbreviations.txt"),Charsets.UTF_8)) {
+	        for(String line: Resources.readLines(Resources.getResource("tokenization/abbreviations.txt"),Charsets.UTF_8)) {
 	            if (line.trim().length() > 0) {
 	                final String abbr = line.trim().replaceAll("\\s+",""); // erase spaces
-	                if (abbr.endsWith("")) {
+	                if (abbr.endsWith(".")) {
 	                    abbreviations.add(abbr);
 	                    abbreviations.add(abbr.toLowerCase(Locale.ENGLISH));
 	                    abbreviations.add(abbr.toLowerCase(localeTr));
@@ -149,7 +148,6 @@ public class TurkishLexer extends Lexer {
 	public TurkishLexer(CharStream input) {
 		super(input);
 		_interp = new CustomLexerATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
-		//_interp = new LexerATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 
 	@Override

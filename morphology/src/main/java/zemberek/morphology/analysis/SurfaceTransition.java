@@ -62,7 +62,7 @@ public class SurfaceTransition {
 
   static TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
 
-  public static String generate(
+  public static String generateSurface(
       SuffixTransition transition,
       AttributeSet<PhoneticAttribute> phoneticAttributes) {
 
