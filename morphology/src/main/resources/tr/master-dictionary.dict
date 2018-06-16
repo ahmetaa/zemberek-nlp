@@ -25035,7 +25035,8 @@ uzviyet [A:NoVoicing]
 üzengilemek
 üzenti
 üzere [P:Postp,PCNom]
-üzeri
+## TODO: this is not a compound but behaves like one. Perhaps we need to change name to ImplicitP3sg
+üzeri [A:CompoundP3sg;Roots:üzer]
 üzerinde [P:Adv]
 üzerine [P:Adv]
 üzgü

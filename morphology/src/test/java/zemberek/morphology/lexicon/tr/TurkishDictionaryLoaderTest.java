@@ -175,6 +175,16 @@ public class TurkishDictionaryLoaderTest {
   }
 
   @Test
+  public void implicitP3sgTest() {
+    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
+    String[] lines = {
+        "üzeri [A:CompoundP3sg;Roots:üzer]"};
+    RootLexicon lexicon = loader.load(lines);
+    Assert.assertEquals(2, lexicon.size());
+  }
+
+
+  @Test
   public void nounAttributesTest() {
     TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
 

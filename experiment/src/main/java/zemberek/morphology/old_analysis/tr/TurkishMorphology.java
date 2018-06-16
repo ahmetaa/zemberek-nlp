@@ -28,7 +28,7 @@ import zemberek.morphology.old_analysis.WordAnalyzer;
 import zemberek.morphology.old_generator.SimpleGenerator;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.lexicon.Serializer;
+import zemberek.morphology.lexicon.DictionarySerializer;
 import zemberek.morphology.old_lexicon.SuffixProvider;
 import zemberek.morphology.old_lexicon.graph.DynamicLexiconGraph;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
@@ -81,7 +81,7 @@ public class TurkishMorphology {
 
   public static TurkishMorphology createWithDefaults() throws IOException {
     Log.info("Started.");
-    InputStream is = Serializer.class.getResourceAsStream(TR_LEXICON_BIN);
+    InputStream is = DictionarySerializer.class.getResourceAsStream(TR_LEXICON_BIN);
     if (is != null) {
       Log.info("Loading from binary dictionary.");
       return new Builder().addDefaultBinaryDictionary().build();
@@ -266,13 +266,13 @@ public class TurkishMorphology {
     private int maxCacheSize = DEFAULT_MAX_CACHE_SIZE;
 
     public Builder addBinaryDictionary(Path dictionaryPath) throws IOException {
-      lexicon.addAll(Serializer.load(dictionaryPath).getAllItems());
+      lexicon.addAll(DictionarySerializer.load(dictionaryPath).getAllItems());
       return this;
     }
 
     public Builder addDefaultBinaryDictionary() throws IOException {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      lexicon = Serializer.loadFromResources("/tr/lexicon.bin");
+      lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
       Log.info("Binary dictionary loaded in %d ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
       return this;
     }

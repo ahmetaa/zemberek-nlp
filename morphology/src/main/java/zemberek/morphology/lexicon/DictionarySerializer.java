@@ -25,7 +25,7 @@ import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.lexicon.proto.LexiconProto;
 import zemberek.morphology.lexicon.proto.LexiconProto.Dictionary;
 
-public class Serializer {
+public class DictionarySerializer {
 
   static EnumConverter<PrimaryPos, LexiconProto.PrimaryPos> primaryPosConverter =
       EnumConverter.createConverter(PrimaryPos.class, LexiconProto.PrimaryPos.class);
@@ -36,7 +36,7 @@ public class Serializer {
 
   public static RootLexicon loadFromResources(String resourcePathString) throws IOException {
     long start = System.currentTimeMillis();
-    try (InputStream is = Serializer.class.getResourceAsStream(resourcePathString)) {
+    try (InputStream is = DictionarySerializer.class.getResourceAsStream(resourcePathString)) {
       byte[] bytes = ByteStreams.toByteArray(is);
       long end = System.currentTimeMillis();
       Log.info("Binary lexicon read from resource in %d ms.", (end - start));

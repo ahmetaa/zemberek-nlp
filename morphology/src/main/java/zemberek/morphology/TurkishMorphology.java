@@ -29,7 +29,7 @@ import zemberek.morphology.analysis.UnidentifiedTokenAnalyzer;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.generator.WordGenerator;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.lexicon.Serializer;
+import zemberek.morphology.lexicon.DictionarySerializer;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.tokenization.TurkishTokenizer;
@@ -251,14 +251,14 @@ public class TurkishMorphology {
     TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
 
     public Builder addBinaryDictionary(Path dictionaryPath) throws IOException {
-      lexicon.addAll(Serializer.load(dictionaryPath).getAllItems());
+      lexicon.addAll(DictionarySerializer.load(dictionaryPath).getAllItems());
       return this;
     }
 
     public Builder addDefaultBinaryDictionary() {
       try {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        lexicon = Serializer.loadFromResources("/tr/lexicon.bin");
+        lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
         Log.info("Dictionary generated in %d ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
       } catch (IOException e) {
         throw new RuntimeException(

@@ -351,6 +351,14 @@ public class NounsTest extends AnalyzerTestBase {
     );
   }
 
+  @Test
+  public void uzeri() {
+    InterpretingAnalyzer analyzer = getAnalyzer(
+        "üzeri [A:CompoundP3sg;Roots:üzer]");
+    String in = "üzeri";
+    List<SingleAnalysis> results = analyzer.analyze(in);
+    Assert.assertEquals(2, results.size());
+  }
 
 
 

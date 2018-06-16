@@ -267,9 +267,19 @@ odalar
 
 Consider adding abbreviations with dot directly. Or add a rootattribute
 
+for "üzeri" Oflazer only offers "üzer+Noun+A3sg+P3sg+Nom" but zemebrek has 2 parses  [üzeri:Noun] üzeri:Noun+A3sg
+also similarly zemberek offers 3 parses of zeytinyağına
 
-üzeride ---> should not be parsed!
-üzeri should be "üzer+Noun+A3sg+P3sg+Nom" but zemebrek parses  [üzeri:Noun] üzeri:Noun+A3sg
+zeytinyağına
+[zeytinyağı:Noun] zeytinyağı:Noun+A3sg+na:Dat
+[zeytinyağı:Noun] zeytinyağı:Noun+A3sg+n:P2sg+a:Dat
+[zeytinyağı:Noun] zeytinyağı:Noun+A3sg+P3sg+na:Dat
+
+but Oflazer offers 2
+
+zeytinyağına
+zeytinyağına zeytinyağı+Noun+A3sg+P2sg+Dat
+zeytinyağına zeytinyağı+Noun+A3sg+P3sg+Dat
 
 ----
 
