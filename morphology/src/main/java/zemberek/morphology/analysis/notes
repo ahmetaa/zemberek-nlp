@@ -281,6 +281,11 @@ zeytinyağına
 zeytinyağına zeytinyağı+Noun+A3sg+P2sg+Dat
 zeytinyağına zeytinyağı+Noun+A3sg+P3sg+Dat
 
+Provide a common sanitation method for corpora sentences.
+- replace \\s, u00a0 and u200b with single space,
+- remove u00ad
+- if contains combining diacritics chars [u+0300-u+036f], fix or ignore sentence.
+
 ----
 
 Turkish location names dictionary may be generating false positives as it contains many weird names.

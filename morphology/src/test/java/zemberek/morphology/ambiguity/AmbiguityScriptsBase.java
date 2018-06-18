@@ -54,9 +54,8 @@ public class AmbiguityScriptsBase {
   LinkedHashSet<String> getAccpetableSentences(List<String> strings) {
     List<String> normalized = new ArrayList<>();
     for (String sentence : strings) {
-      sentence = sentence.replaceAll("\\s+|\\u00a0", " ");
+      sentence = sentence.replaceAll("\\s+|\\u00a0+|\\u200b+", " ");
       sentence = sentence.replaceAll("[\\u00ad]", "");
-      sentence = sentence.replaceAll("[…]", "...");
       normalized.add(sentence);
     }
 

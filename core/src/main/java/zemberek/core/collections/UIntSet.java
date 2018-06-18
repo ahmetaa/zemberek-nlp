@@ -24,6 +24,14 @@ public class UIntSet extends UIntKeyHashBase {
     copyParameters(h);
   }
 
+  public static UIntSet of(int... vals) {
+    UIntSet set = new UIntSet(vals.length);
+    for (int val : vals) {
+      set.add(val);
+    }
+    return set;
+  }
+
   /**
    * puts `key` with `value`. if `key` already exists, it overwrites its value with `value`
    */

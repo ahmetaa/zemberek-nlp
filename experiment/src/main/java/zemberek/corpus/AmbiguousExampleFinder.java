@@ -56,10 +56,13 @@ public class AmbiguousExampleFinder {
     TurkishMorphology morphology = TurkishMorphology.createWithTextDictionaries();
     Path indexRoot = Paths.get("/home/aaa/data/zemberek/corpus-index");
     CorpusSearcher searcher = new CorpusSearcher(indexRoot);
-
     AmbiguousExampleFinder finder = new AmbiguousExampleFinder(searcher);
+    extractSentences(morphology, finder);
+  }
 
-    List<String> ambigiousWords = Files.readAllLines(
+  private static void extractSentences(TurkishMorphology morphology, AmbiguousExampleFinder finder)
+      throws Exception {
+    List<String> ambiguousWords = Files.readAllLines(
         Paths.get("data/ambiguity/zemberek-ambigious-words.txt"),
         StandardCharsets.UTF_8)
         .subList(0, 100);
@@ -69,7 +72,7 @@ public class AmbiguousExampleFinder {
     try (
         PrintWriter pw = new PrintWriter(out.toFile(), "utf-8");
         PrintWriter pwMorph = new PrintWriter(morph.toFile(), "utf-8")) {
-      for (String word : ambigiousWords) {
+      for (String word : ambiguousWords) {
         Log.info(word);
         List<String> sentences = finder.getSentences(word, 3, 5, 10);
         pw.println(word);

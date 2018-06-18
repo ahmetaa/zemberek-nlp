@@ -17,14 +17,14 @@ public abstract class UIntKeyHashBase {
   private static final double LOAD_FACTOR = 0.7;
   // Array length is a value power of two, so we can use x & modulo instead of
   // x % size to calculate the slot
-  protected int modulo = INITIAL_SIZE - 1;
+  protected int modulo;
   protected int[] keys;
 
   protected int keyCount;
   protected int removeCount;
 
   // When structure has this amount of keys, it expands the key and count arrays.
-  protected int threshold = (int) (INITIAL_SIZE * LOAD_FACTOR);
+  protected int threshold;
 
   UIntKeyHashBase(int size) {
     if (size < 1) {
