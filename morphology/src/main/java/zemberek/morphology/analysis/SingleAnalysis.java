@@ -56,9 +56,12 @@ public class SingleAnalysis {
 
     List<MorphemeData> morphemes;
 
-    public MorphemeGroup(
-        List<MorphemeData> morphemes) {
+    public MorphemeGroup(List<MorphemeData> morphemes) {
       this.morphemes = morphemes;
+    }
+
+    public List<MorphemeData> getMorphemes() {
+      return morphemes;
     }
 
     public PrimaryPos getPos() {

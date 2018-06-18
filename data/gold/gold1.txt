@@ -1174,18 +1174,29 @@ S:cildimde çok ben var beni rahatsız ediyorlar
 cildimde
 [cilt:Noun] cild:Noun+A3sg+im:P1sg+de:Loc
 çok
-[çok:Adj] çok:Adj*
+[çok:Adj] çok:Adj
 [çok:Adv] çok:Adv
-[çok:Det] çok:Det
+[çok:Det] çok:Det*
 [çok:Postp,PCAbl] çok:Postp
 ben
 [be:Noun] be:Noun+A3sg+n:P2sg
-[ben:Noun] ben:Noun+A3sg*
-[ben:Pron,Pers] ben:Pron+A1sg
+[ben:Noun] ben:Noun+A3sg
+[ben:Pron,Pers] ben:Pron+A1sg*
 var
 [var:Adj] var:Adj
 [varmak:Verb] var:Verb+Imp+A2sg
 [var:Noun] var:Noun+A3sg*
+beni
+[be:Noun] be:Noun+A3sg+n:P2sg+i:Acc
+[ben:Noun] ben:Noun+A3sg+i:Acc
+[ben:Noun] ben:Noun+A3sg+i:P3sg
+[ben:Pron,Pers] ben:Pron+A1sg+i:Acc*
+rahatsız
+[rahat:Noun] rahat:Noun+A3sg|sız:Without→Adj
+[Rahat:Noun,Prop] rahat:Noun+A3sg|sız:Without→Adj*
+[rahat:Adj] rahat:Adj|Zero→Noun+A3sg|sız:Without→Adj
+ediyorlar
+[etmek:Verb] ed:Verb+iyor:Prog1+lar:A3pl
 
 S:Her yer yeşillik , her yer doğal .
 Her

@@ -12,7 +12,7 @@
 * Neces+ Inf2→Noun
 * [demek:Verb] [demek:Adv]
 ## TODO: this may cause error with 'var'
-!var :Verb :Noun
+## !var :Verb :Noun
 var :Noun :Verb
 * :Verb :Adj
 verem* [vermek:Verb] *

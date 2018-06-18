@@ -51,6 +51,8 @@ Peki [peki:Adv] *
 
 * [ben:Pron,Pers] [ben:Noun]
 
+benim ben:Pron+A1sg+im:Gen *
+
 * [konuşmak:Verb] [konmak:Verb]
 
 * [bura:Noun] [Burada:Noun,Prop]
@@ -108,8 +110,6 @@ Adam*|adam* [adam:Noun] [ada:Noun]
 
 Delik|delik [delik:Noun] *
 Deliğ*|deliğ* [delik:Noun] *
-
-Hayır * [Hayır:Noun,Prop]
 
 Büyük|büyük [büyük:Adj] [büyük:Noun]
 
@@ -406,3 +406,33 @@ odalar [oda:Noun] *
 yerine [yerine:Adv] *
 
 eski [eski:Adj] *
+
+* * [Ne:Noun,Abbrv]
+
+* * [Hayır:Noun,Prop]
+
+yayın|Yayin [yayın:Noun] *
+
+bir [bir:Num,Card] * * numara*
+
+hayır [hayır:Noun] * iş*|haber*|kurum* *
+
+açıklamada [açıklama:Noun] *
+
+görüştü [görüş:Noun] * bir *
+
+belli * [bel:Noun] ince|kalın *
+
+belli|Belli [belli:Adj] *
+
+yüzde [yüzde:Noun] *
+
+Üzer*|üzer* * Noun,Prop
+
+Sıcak|sicak [sıcak:Adj] *
+
+önce|Önce * [ön:
+önce|Önce * [Ön:
+önce|Önce [önce:Postp,PCAbl] * *den|*dan|*ten|*tan *
+önce|Önce [önce:Adv] *
+

@@ -22,13 +22,20 @@ public class AmbiguityScriptsBase {
   Collection<Predicate<String>> ignoreSentencePredicates = new ArrayList<>();
   TurkishMorphology morphology;
 
-  public AmbiguityScriptsBase() {
+  public AmbiguityScriptsBase() throws IOException {
     try {
       identifier = LanguageIdentifier.fromInternalModelGroup("tr_group");
     } catch (IOException e) {
       e.printStackTrace();
     }
-    this.morphology = TurkishMorphology.createWithDefaults();
+    this.morphology = TurkishMorphology.builder().addTextDictionaryResources(
+        "tr/master-dictionary.dict",
+        "tr/non-tdk.dict",
+        "tr/proper.dict",
+        "tr/proper-from-corpus.dict",
+        "tr/abbreviations.dict",
+        "tr/locations-tr.dict"
+    ).build();
   }
 
   Predicate<WordAnalysis> hasAnalysis() {
@@ -101,8 +108,19 @@ public class AmbiguityScriptsBase {
 
   LinkedHashSet<String> getSentences(Path p) throws IOException {
     List<String> lines = Files.readAllLines(p, StandardCharsets.UTF_8).stream()
-        .filter(s -> !s.startsWith("<")).collect(Collectors.toList());
+        .filter(s -> !s.startsWith("<"))
+        .collect(Collectors.toList());
     return new LinkedHashSet<>(TurkishSentenceExtractor.DEFAULT.fromParagraphs(lines));
+  }
+
+  static boolean containsCombiningDiacritics(String sentence) {
+    for (int i = 0; i < sentence.length(); i++) {
+      char c = sentence.charAt(i);
+      if (c >= 0x300 && c <= 0x036f) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

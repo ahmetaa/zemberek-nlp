@@ -50,7 +50,7 @@ class PerceptronDisambiguatorPort extends AbstractDisambiguator {
 
   public static void main(String[] args) throws IOException {
     //Path root = Paths.get("/home/ahmetaa/apps/MD-Release");
-    Path root = Paths.get("/home/aaa/apps/MD-Release");
+    Path root = Paths.get("/home/ahmetaa/apps/Hasim_Sak_Data");
     Path train = root.resolve("data.train.txt");
     Path dev = root.resolve("data.dev.txt");
     Path model = root.resolve("model");
@@ -211,6 +211,7 @@ class PerceptronDisambiguatorPort extends AbstractDisambiguator {
       String ig1 = w1.allIgs;
       String ig2 = w2.allIgs;
       String ig3 = w3.allIgs;
+
 
       feats.addOrIncrement(format("1:%s%s-%s%s-%s%s", r1, ig1, r2, ig2, r3, ig3));
       feats.addOrIncrement(format("2:%s%s-%s%s", r1, ig2, r3, ig3));

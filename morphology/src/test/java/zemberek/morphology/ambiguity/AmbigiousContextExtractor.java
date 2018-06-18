@@ -15,7 +15,8 @@ import zemberek.tokenization.TurkishTokenizer;
 
 public class AmbigiousContextExtractor extends AmbiguityScriptsBase {
 
-  public AmbigiousContextExtractor() {
+  public AmbigiousContextExtractor() throws IOException {
+    super();
     acceptWordPredicates.add(maxAnalysisCount(10));
     acceptWordPredicates.add(hasAnalysis());
     ignoreSentencePredicates.add(contains("\""));
@@ -27,8 +28,8 @@ public class AmbigiousContextExtractor extends AmbiguityScriptsBase {
   public static void main(String[] args) throws IOException {
     //Path p = Paths.get("/media/aaa/Data/corpora/final/www.aljazeera.com.tr");
     //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/www.aljazeera.com.tr");
-    //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
-    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/wowturkey.com");
+    Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/open-subtitles");
+    //Path p = Paths.get("/home/ahmetaa/data/zemberek/data/corpora/wowturkey.com");
     //Path p = Paths.get("/media/aaa/Data/corpora/final/open-subtitles");
     //Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
     Path outRoot = Paths.get("data/ambiguity");

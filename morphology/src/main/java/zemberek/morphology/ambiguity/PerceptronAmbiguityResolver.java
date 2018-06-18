@@ -87,6 +87,37 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
     return new SentenceAnalysis(sentence, l);
   }
 
+  static class WordData {
+
+    String lemma;
+    List<String> igs;
+
+    public WordData(String lemma, List<String> igs) {
+      this.lemma = lemma;
+      this.igs = igs;
+    }
+
+    static WordData fromAnalysis(SingleAnalysis sa) {
+      String lemma = sa.getDictionaryItem().lemma;
+      SecondaryPos secPos = sa.getDictionaryItem().secondaryPos;
+      String sp = secPos == SecondaryPos.None ? "" : secPos.name();
+
+      List<String> igs = new ArrayList<>(sa.groupCount());
+      for (int i = 0; i < sa.groupCount(); i++) {
+        String s = sa.getGroup(0).lexicalForm();
+        if (i == 0) {
+          s = sp + s;
+        }
+        igs.add(s);
+      }
+      return new WordData(lemma, igs);
+    }
+
+    String lastGroup() {
+      return igs.get(igs.size() - 1);
+    }
+  }
+
   static class FeatureExtractor {
 
     boolean useCache;
@@ -128,17 +159,17 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
       }
 
       IntValueMap<String> feats = new IntValueMap<>();
-      SingleAnalysis w1 = trigram[0];
-      SingleAnalysis w2 = trigram[1];
-      SingleAnalysis w3 = trigram[2];
+      WordData w1 = WordData.fromAnalysis(trigram[0]);
+      WordData w2 = WordData.fromAnalysis(trigram[1]);
+      WordData w3 = WordData.fromAnalysis(trigram[2]);
 
-      String r1 = w1.getDictionaryItem().id;
-      String r2 = w2.getDictionaryItem().id;
-      String r3 = w3.getDictionaryItem().id;
+      String r1 = w1.lemma;
+      String r2 = w2.lemma;
+      String r3 = w3.lemma;
 
-      String ig1 = w1.formatMorphemesLexical();
-      String ig2 = w2.formatMorphemesLexical();
-      String ig3 = w3.formatMorphemesLexical();
+      String ig1 = String.join("+", w1.igs);
+      String ig2 = String.join("+", w2.igs);
+      String ig3 = String.join("+", w3.igs);
 
       String r1Ig1 = r1 + "+" + ig1;
       String r2Ig2 = r2 + "+" + ig2;
@@ -148,52 +179,48 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
       feats.addOrIncrement("2:" + r1 + ig2 + r3Ig3);
       feats.addOrIncrement("3:" + r2Ig2 + "-" + r3Ig3);
       feats.addOrIncrement("4:" + r3Ig3);
-      //feats.addOrIncrement("5:" + r2 + ig2 + "-" + ig3);
-      //feats.addOrIncrement("6:" + r1 + ig1 + "-" + ig3);
+      feats.addOrIncrement("5:" + r2 + ig2 + "-" + ig3);
+      feats.addOrIncrement("6:" + r1 + ig1 + "-" + ig3);
 
-      //feats.addOrIncrement("7:" + r1 + "-" + r2 + "-" + r3);
-      //feats.addOrIncrement("8:" + r1 + "-" + r3);
+      feats.addOrIncrement("7:" + r1 + "-" + r2 + "-" + r3);
+      feats.addOrIncrement("8:" + r1 + "-" + r3);
       feats.addOrIncrement("9:" + r2 + "-" + r3);
       feats.addOrIncrement("10:" + r3);
 
-      //feats.addOrIncrement("11:" + ig1 + "-" + ig2 + "-" + ig3);
-      //feats.addOrIncrement("12:" + ig1 + "-" + ig3);
+      feats.addOrIncrement("11:" + ig1 + "-" + ig2 + "-" + ig3);
+      feats.addOrIncrement("12:" + ig1 + "-" + ig3);
       feats.addOrIncrement("13:" + ig2 + "-" + ig3);
       feats.addOrIncrement("14:" + ig3);
 
-      MorphemeGroup[] lastWordGroups = w3.getGroups();
-      String[] lastWordGroupsLex = new String[lastWordGroups.length];
-      for (int i = 0; i < lastWordGroupsLex.length; i++) {
-        lastWordGroupsLex[i] = lastWordGroups[i].lexicalForm();
-      }
+      String w1LastGroup = w1.lastGroup();
+      String w2LastGroup = w2.lastGroup();
 
-      String w1LastGroup = w1.getLastGroup().lexicalForm();
-      String w2LastGroup = w2.getLastGroup().lexicalForm();
-
-      for (String ig : lastWordGroupsLex) {
+      for (String ig : w3.igs) {
         feats.addOrIncrement("15:" + w1LastGroup + "-" + w2LastGroup + "-" + ig);
-        //feats.addOrIncrement("16:" + w1LastGroup + "-" + ig);
+        feats.addOrIncrement("16:" + w1LastGroup + "-" + ig);
         feats.addOrIncrement("17:" + w2LastGroup + ig);
-        //feats.addOrIncrement("18:" + ig);
+        feats.addOrIncrement("18:" + ig);
       }
 
-      for (int k = 0; k < lastWordGroupsLex.length - 1; k++) {
-        //feats.addOrIncrement("19:" + lastWordGroupsLex[k] + "-" + lastWordGroupsLex[k + 1]);
+      for (int k = 0; k < w3.igs.size() - 1; k++) {
+        feats.addOrIncrement("19:" + w3.igs.get(k) + "-" + w3.igs.get(k + 1));
       }
 
-      for (int k = 0; k < lastWordGroupsLex.length; k++) {
-        feats.addOrIncrement("20:" + k + "-" + lastWordGroupsLex[k]);
+      for (int k = 0; k < w3.igs.size(); k++) {
+        feats.addOrIncrement("20:" + k + "-" + w3.igs.get(k));
       }
 
       if (Character.isUpperCase(r3.charAt(0))
-          && w3.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun) {
-        feats.addOrIncrement("21:PROPER");
+          && trigram[2].getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun) {
+        feats.addOrIncrement("21:PROPER-"+r3);
+      } else {
+        feats.addOrIncrement("21b:NOT_PROPER-" + r3);
       }
 
-      feats.addOrIncrement("22:" + w3.groupCount());
+      feats.addOrIncrement("22:" + trigram[2].groupCount());
       //
-      if ((w3 == sentenceEnd || w3.getDictionaryItem().lemma.equals("."))
-          && w3.getDictionaryItem().primaryPos == PrimaryPos.Verb) {
+      if ((trigram[2] == sentenceEnd || trigram[2].getDictionaryItem().lemma.equals("."))
+          && trigram[2].getDictionaryItem().primaryPos == PrimaryPos.Verb) {
         feats.addOrIncrement("23:ENDSVERB");
       }
       if (useCache) {

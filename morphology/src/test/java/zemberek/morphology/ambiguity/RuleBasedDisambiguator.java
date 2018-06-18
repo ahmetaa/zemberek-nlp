@@ -16,6 +16,8 @@ import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.morphotactics.Morpheme;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
 // Used for collecting training data.
 
@@ -80,7 +82,7 @@ class RuleBasedDisambiguator {
     public int zeroAnalysisCount() {
       int cnt = 0;
       for (AmbiguityAnalysis result : results) {
-        if (result.choices.size()==0) {
+        if (result.choices.size() == 0) {
           cnt++;
         }
       }
@@ -186,6 +188,13 @@ class RuleBasedDisambiguator {
         return;
       }
 
+      if (containsPossessive(a1) || containsDerivation(a1)) {
+        a1.decision = Decision.IGNORE;
+      }
+      if (containsPossessive(a2) || containsDerivation(a2)) {
+        a2.decision = Decision.IGNORE;
+      }
+
       for (PairRule pairRule : rulez) {
         String ignore = pairRule.ignoreStr;
         String ok = pairRule.okStr;
@@ -209,12 +218,19 @@ class RuleBasedDisambiguator {
       if (isProperOrAbbrv(lex1) && !isProperOrAbbrv(lex2)) {
         if ((!first && Character.isUpperCase(input.charAt(0))) || input.contains("'")) {
           a2.decision = Decision.IGNORE;
+          return;
         }
         if (Character.isLowerCase(input.charAt(0)) && !input.contains("'")) {
           a1.decision = Decision.IGNORE;
+          return;
         }
         if (containsAny(lex1, possession)) {
           a1.decision = Decision.IGNORE;
+          return;
+        }
+        if (containsPossessive(a1) || containsDerivation(a1)) {
+          a1.decision = Decision.IGNORE;
+          return;
         }
         if ((first && Character.isUpperCase(input.charAt(0)) && !input.contains("'"))) {
           String a1Lemma = Turkish.capitalize(a1.analysis.getDictionaryItem().lemma);
@@ -226,6 +242,24 @@ class RuleBasedDisambiguator {
           }
         }
       }
+    }
+
+    static Set<Morpheme> possesviveMorphemes = Sets.newHashSet(
+        TurkishMorphotactics.p1sg,
+        TurkishMorphotactics.p2sg,
+        TurkishMorphotactics.p3sg,
+        TurkishMorphotactics.p1pl,
+        TurkishMorphotactics.p2pl,
+        TurkishMorphotactics.p3pl
+    );
+
+    private boolean containsPossessive(AnalysisDecision a) {
+      SingleAnalysis.MorphemeGroup g = a.analysis.getGroup(0);
+      return g.getMorphemes().stream().anyMatch(s -> possesviveMorphemes.contains(s.morpheme));
+    }
+
+    private boolean containsDerivation(AnalysisDecision a) {
+      return a.analysis.getMorphemes().stream().anyMatch(s -> s.derivational);
     }
 
     void ignoreOne(

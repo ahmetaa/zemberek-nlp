@@ -175,16 +175,16 @@ public class PerceptronAmbiguityResolverTrainer {
 
       List<SentenceAnalysis> sentences = new ArrayList<>();
       // Find actual analysis equivalents.
-      for (SentenceDataStr sentenceStr : set) {
+      for (SentenceDataStr sentenceFromTrain : set) {
 
-        String sentence = sentenceStr.sentence;
+        String sentence = sentenceFromTrain.sentence;
 
         List<WordAnalysis> sentenceAnalysis = analyzer.analyzeSentence(sentence);
 
-        if (sentenceAnalysis.size() != sentenceStr.wordList.size()) {
+        if (sentenceAnalysis.size() != sentenceFromTrain.wordList.size()) {
           Log.warn("Actual analysis token size [%d] and sentence from file token size [%d] "
                   + "does not match for sentence [%s]",
-              sentenceAnalysis.size(), sentenceStr.wordList.size(), sentence);
+              sentenceAnalysis.size(), sentenceFromTrain.wordList.size(), sentence);
         }
 
         List<SentenceWordAnalysis> unambigiousAnalyses = new ArrayList<>();
@@ -193,7 +193,13 @@ public class PerceptronAmbiguityResolverTrainer {
         for (int i = 0; i < sentenceAnalysis.size(); i++) {
 
           WordAnalysis w = sentenceAnalysis.get(i);
-          WordDataStr s = sentenceStr.wordList.get(i);
+
+          Map<String, SingleAnalysis> analysisMap = new HashMap<>();
+          for (SingleAnalysis single : w) {
+            analysisMap.put(single.formatLong(), single);
+          }
+
+          WordDataStr s = sentenceFromTrain.wordList.get(i);
 
           if (!w.getInput().equals(s.word)) {
             Log.warn(
@@ -205,13 +211,8 @@ public class PerceptronAmbiguityResolverTrainer {
             Log.warn(
                 "Actual analysis token [%s] has [%d] analyses but word from training file has [%d] "
                     + " analyses for sentence [%s]",
-                w.getInput(), i, s.wordAnalysis.size(), sentence);
+                w.getInput(), w.analysisCount(), s.wordAnalysis.size(), sentence);
             break;
-          }
-
-          Map<String, SingleAnalysis> analysisMap = new HashMap<>();
-          for (SingleAnalysis single : w) {
-            analysisMap.put(single.formatLong(), single);
           }
 
           for (String analysis : s.wordAnalysis) {
@@ -231,7 +232,7 @@ public class PerceptronAmbiguityResolverTrainer {
           }
         }
 
-        if (unambigiousAnalyses.size() == sentenceStr.wordList.size()) {
+        if (unambigiousAnalyses.size() == sentenceFromTrain.wordList.size()) {
           sentences.add(new SentenceAnalysis(sentence, unambigiousAnalyses));
         }
       }
