@@ -262,11 +262,16 @@ public class PerceptronNer {
   }
 
   public static void main(String[] args) throws IOException {
-    //trainAndTest();
+
+    Path trainPath = Paths.get("experiment/src/main/resources/ner/reyyan.train.txt");
+    Path testPath = Paths.get("experiment/src/main/resources/ner/reyyan.test.txt");
+    Path modelRoot = Paths.get("experiment/src/main/resources/ner/model");
+    Path reportPath = Paths.get("experiment/src/main/resources/ner/test-result.txt");
+    trainAndTest(trainPath, testPath, modelRoot, reportPath);
+
     TurkishMorphology morphology = TurkishMorphology.builder()
         .addDefaultDictionaries()
         .build();
-    Path modelRoot = Paths.get("experiment/src/main/resources/ner/model");
     PerceptronNer ner = PerceptronNer.loadModel(modelRoot, morphology);
 
     Stopwatch sw = Stopwatch.createStarted();
@@ -289,24 +294,20 @@ public class PerceptronNer {
     System.out.println("Elapsed = " + sw.elapsed(TimeUnit.MILLISECONDS));
   }
 
-  private static void trainAndTest() throws IOException {
-    Path trainPath = Paths.get("experiment/src/main/resources/ner/reyyan.train.txt");
-    //Path trainPath = Paths.get("experiment/src/main/resources/ner/NE-bracket.train.txt");
+  private static void trainAndTest(
+      Path trainPath,
+      Path testPath,
+      Path modelRoot,
+      Path reportPath) throws IOException {
+
     NerDataSet trainingSet = NerDataSet.loadBracketTurkishCorpus(trainPath);
     new NerDataSet.Info(trainingSet).log();
 
-    Path testPath = Paths.get("experiment/src/main/resources/ner/reyyan.test.txt");
-    //Path testPath = Paths.get("experiment/src/main/resources/ner/NE-bracket.test.txt");
     NerDataSet testSet = NerDataSet.loadBracketTurkishCorpus(testPath);
     new NerDataSet.Info(testSet).log();
 
-    //Gazetteers gazetteers = new Gazetteers();
-
-    Gazetteers gazetteers = new Gazetteers(
-        Paths.get("experiment/src/main/resources/ner/gazetteer.loc.txt"),
-        Paths.get("experiment/src/main/resources/ner/gazetteer.org.txt"),
-        Paths.get("experiment/src/main/resources/ner/gazetteer.per.txt")
-    );
+    // empty, not used.
+    Gazetteers gazetteers = new Gazetteers();
 
     TurkishMorphology morphology = TurkishMorphology.builder()
         .addDefaultDictionaries()
@@ -317,13 +318,12 @@ public class PerceptronNer {
 
     PerceptronNer ner = new PerceptronNer(model, morphology, gazetteers);
 
-    Path modelRoot = Paths.get("experiment/src/main/resources/ner/model");
     ner.saveModelAsText(modelRoot);
 
     Log.info("Testing %d sentences.", testSet.sentences.size());
     NerDataSet testResult = ner.test(testSet);
 
-    testReport(testSet, testResult, Paths.get("experiment/src/main/resources/ner/test-result.txt"));
+    testReport(testSet, testResult, reportPath);
     Log.info("Done.");
   }
 
@@ -416,7 +416,8 @@ public class PerceptronNer {
     Set<String> organizationWords = new HashSet<>();
     Set<String> personWords = new HashSet<>();
 
-    public Gazetteers(Path locationPath, Path organizationPath, Path personPath) throws IOException {
+    public Gazetteers(Path locationPath, Path organizationPath, Path personPath)
+        throws IOException {
       locationWords.addAll(Files.readAllLines(locationPath));
       organizationWords.addAll(Files.readAllLines(organizationPath));
       personWords.addAll(Files.readAllLines(personPath));
@@ -558,7 +559,7 @@ public class PerceptronNer {
         return;
       }
       List<WordAnalysis> analyses = morphology.analyze(word);
-      WordAnalysis longest = analyses.get(0);
+      WordAnalysis longest = analyses.get(analyses.size() - 1);
       for (WordAnalysis analysis : analyses) {
         if (analysis.isUnknown()) {
           return;
@@ -588,24 +589,24 @@ public class PerceptronNer {
 
       if (featurePrefix.equals("CW")) {
         for (String lemma : lemmas) {
-          if (gazetteers.organizationWords.contains(lemma)||
+          if (gazetteers.organizationWords.contains(lemma) ||
               gazetteers.organizationWords.contains(lemma.toLowerCase())) {
-            features.add(featurePrefix + "NW_Org_Gzt"+lemma);
+            features.add(featurePrefix + "NW_Org_Gzt" + lemma);
             break;
           }
         }
         for (String lemma : lemmas) {
-          if (gazetteers.personWords.contains(lemma)||
+          if (gazetteers.personWords.contains(lemma) ||
               gazetteers.personWords.contains(lemma.toLowerCase())) {
-            features.add(featurePrefix + "NW_Per_Gzt"+lemma);
+            features.add(featurePrefix + "NW_Per_Gzt" + lemma);
             break;
           }
         }
 
         for (String lemma : lemmas) {
-          if (gazetteers.locationWords.contains(lemma)||
+          if (gazetteers.locationWords.contains(lemma) ||
               gazetteers.locationWords.contains(lemma.toLowerCase())) {
-            features.add(featurePrefix + "NW_Loc_Gzt"+lemma);
+            features.add(featurePrefix + "NW_Loc_Gzt" + lemma);
             break;
           }
         }
@@ -627,7 +628,7 @@ public class PerceptronNer {
       //wordFeatures(nextWord2Orig, "NW2", features);
 
       morphologicalFeatures(currentWordOrig, "CW", features);
-      //morphologicalFeatures(previousWordOrig, "PW", features);
+      morphologicalFeatures(previousWordOrig, "PW", features);
       //morphologicalFeatures(previousWord2Orig, "PW2", features);
       morphologicalFeatures(nextWordOrig, "NW", features);
       //morphologicalFeatures(nextWord2Orig, "NW2", features);
