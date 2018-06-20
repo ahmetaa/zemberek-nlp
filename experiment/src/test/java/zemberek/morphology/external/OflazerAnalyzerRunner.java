@@ -13,10 +13,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
-import zemberek.core._turkish._TurkishAlphabet;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.SimpleTextWriter;
-import zemberek.core._turkish.TurkishLetterSequence;
+import zemberek.core.turkish.TurkishAlphabet;
 
 /**
  * Runs the binary
@@ -68,7 +67,7 @@ public class OflazerAnalyzerRunner {
 
   public static void extractRootsFromParse(File input, File output) throws IOException {
     System.out.println("Extracting root words from parse list");
-    _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
+    TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
     List<String> all = SimpleTextReader.trimmingUTF8Reader(input).asStringList();
     Set<String> roots = Sets.newHashSet();
     for (String s : all) {
@@ -79,7 +78,7 @@ public class OflazerAnalyzerRunner {
         root = iterator.next();
         String pos = iterator.next();
         if (pos.equals("Verb")) {
-          if (new TurkishLetterSequence(root, alphabet).lastVowel().isFrontal()) {
+          if (alphabet.getLastVowel(root).isFrontal()) {
             root = root + "mek";
           } else {
             root = root + "mak";
@@ -95,7 +94,7 @@ public class OflazerAnalyzerRunner {
 
   public static void extractDictItems(File input, File output) throws IOException {
     System.out.println("Extracting dict items from parse list");
-    _TurkishAlphabet alphabet = _TurkishAlphabet.INSTANCE;
+    TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
     List<String> all = SimpleTextReader.trimmingUTF8Reader(input).asStringList();
     Set<String> roots = Sets.newHashSet();
     for (String s : all) {
@@ -115,7 +114,7 @@ public class OflazerAnalyzerRunner {
           }
         }
         if (pos.equals("Verb")) {
-          if (new TurkishLetterSequence(root, alphabet).lastVowel().isFrontal()) {
+          if (alphabet.getLastVowel(root).isFrontal()) {
             root = root + "mek";
           } else {
             root = root + "mak";

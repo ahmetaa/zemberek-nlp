@@ -16,7 +16,6 @@ import zemberek.corpus.WebCorpus;
 import zemberek.corpus.WebDocument;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SingleAnalysis;
-import zemberek.morphology.old_analysis.WordAnalysis;
 import zemberek.core.turkish.Turkish;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
