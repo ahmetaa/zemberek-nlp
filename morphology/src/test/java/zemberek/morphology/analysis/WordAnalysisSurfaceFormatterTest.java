@@ -10,8 +10,8 @@ import zemberek.morphology.TurkishMorphology;
 public class WordAnalysisSurfaceFormatterTest {
 
   @Test
-  public void formatNonProperNoun() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+  public void formatNonProperNoun() {
+    TurkishMorphology morphology = TurkishMorphology.builder().disableCache()
         .addDictionaryLines("elma", "kitap", "demek", "evet").build();
 
     String[] inputs = {"elmamadaki", "elma", "kitalarımdan", "kitabımızsa", "diyebileceğimiz",
@@ -28,8 +28,8 @@ public class WordAnalysisSurfaceFormatterTest {
   }
 
   @Test
-  public void formatKnownProperNouns() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+  public void formatKnownProperNouns() {
+    TurkishMorphology morphology = TurkishMorphology.builder().disableCache()
         .addDictionaryLines("Ankara", "Iphone [Pr:ayfon]", "Google [Pr:gugıl]").build();
 
     String[] inputs = {"ankarada", "ıphonumun", "googledan", "Iphone", "Google", "Googlesa"};
@@ -55,8 +55,8 @@ public class WordAnalysisSurfaceFormatterTest {
   }
 
   @Test
-  public void formatKnownProperNounsNoQuote() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+  public void formatKnownProperNounsNoQuote() {
+    TurkishMorphology morphology = TurkishMorphology.builder().disableCache()
         .addDictionaryLines("Blah [A:NoQuote]").build();
 
     String[] inputs = {"blaha", "Blahta"};
@@ -67,8 +67,8 @@ public class WordAnalysisSurfaceFormatterTest {
 
 
   @Test
-  public void formatNumerals() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder().build();
+  public void formatNumerals() {
+    TurkishMorphology morphology = TurkishMorphology.builder().disableCache().build();
     String[] inputs = {"1e", "4ten", "123ü", "12,5ten"};
     String[] expected = {"1'e", "4'ten", "123'ü", "12,5ten"};
 
@@ -88,8 +88,8 @@ public class WordAnalysisSurfaceFormatterTest {
 
 
   @Test
-  public void formatToCase() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
+  public void formatToCase() {
+    TurkishMorphology morphology = TurkishMorphology.builder().disableCache()
         .addDictionaryLines("kış", "şiir", "Aydın", "Google [Pr:gugıl]").build();
 
     String[] inputs =
@@ -136,7 +136,7 @@ public class WordAnalysisSurfaceFormatterTest {
 
 
   @Test
-  public void guessCaseTest() throws IOException {
+  public void guessCaseTest() {
 
     String[] inputs = {"abc", "Abc", "ABC", "Abc'de", "ABC'DE", "ABC.", "ABC'de", "a", "12", "A",
         "A1"};

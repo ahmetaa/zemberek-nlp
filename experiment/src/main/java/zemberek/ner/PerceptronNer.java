@@ -1,27 +1,20 @@
 package zemberek.ner;
 
-import com.google.common.base.Stopwatch;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.FloatValueMap;
-import zemberek.core.collections.IntValueMap;
-import zemberek.core.logging.Log;
 import zemberek.core.text.TextUtil;
-import zemberek.morphology.old_analysis.WordAnalysis;
 import zemberek.morphology.analysis.WordAnalysisSurfaceFormatter;
+import zemberek.morphology.old_analysis.WordAnalysis;
 import zemberek.morphology.old_analysis.tr.TurkishMorphology;
 import zemberek.tokenization.TurkishTokenizer;
 
@@ -30,13 +23,12 @@ import zemberek.tokenization.TurkishTokenizer;
  */
 public class PerceptronNer {
 
-  private Map<String, ClassWeights> model;
+  private Map<String, ClassModel> model;
+
   private TurkishMorphology morphology;
   private Gazetteers gazetteers;
 
-  public PerceptronNer(
-      Map<String, ClassWeights> model,
-      TurkishMorphology morphology) {
+  public PerceptronNer( Map<String, ClassModel> model, TurkishMorphology morphology) {
     this.model = model;
     this.morphology = morphology;
     this.gazetteers = new Gazetteers();
@@ -49,19 +41,20 @@ public class PerceptronNer {
   }
 
   static PerceptronNer loadModel(Path modelRoot, TurkishMorphology morphology) throws IOException {
-    Map<String, ClassWeights> weightsMap = new HashMap<>();
+    Map<String, ClassModel> weightsMap = new HashMap<>();
     List<Path> files = Files.walk(modelRoot, 1)
         .filter(s -> s.toFile().getName().endsWith(".ner.model"))
         .collect(Collectors.toList());
     for (Path file : files) {
-      ClassWeights weights = ClassWeights.loadFromText(file);
+      ClassModel weights = ClassModel.loadFromText(file);
       weightsMap.put(weights.id, weights);
     }
     return new PerceptronNer(weightsMap, morphology);
   }
 
-
-  public PerceptronNer(Map<String, ClassWeights> model, TurkishMorphology morphology,
+  public PerceptronNer(
+      Map<String, ClassModel> model,
+      TurkishMorphology morphology,
       Gazetteers gazetteers) {
     this.model = model;
     this.morphology = morphology;
@@ -71,260 +64,61 @@ public class PerceptronNer {
     this.gazetteers = gazetteers;
   }
 
-  private static Map<String, ClassWeights> copyModel(Map<String, ClassWeights> model) {
-    Map<String, ClassWeights> copy = new HashMap<>();
-    for (String s : model.keySet()) {
-      copy.put(s, model.get(s).copy());
-    }
-    return copy;
-  }
-
-  public static Map<String, ClassWeights> train(
-      TurkishMorphology morphology,
-      Gazetteers gazetteers,
-      NerDataSet trainingSet,
-      NerDataSet devSet,
-      int iterationCount,
-      float learningRate) {
-
-    Map<String, ClassWeights> averages = new HashMap<>();
-    Map<String, ClassWeights> model = new HashMap<>();
-    IntValueMap<String> counts = new IntValueMap<>();
-
-    //initialize model weights for all classes.
-    for (String typeId : trainingSet.typeIds) {
-      model.put(typeId, new ClassWeights(typeId));
-      averages.put(typeId, new ClassWeights(typeId));
-    }
-
-    int count = 0;
-
-    for (int it = 0; it < iterationCount; it++) {
-
-      int errorCount = 0;
-      int tokenCount = 0;
-
-      for (NerSentence sentence : trainingSet.sentences) {
-
-        for (int i = 0; i < sentence.tokens.size(); i++) {
-
-          tokenCount++;
-          NerToken currentToken = sentence.tokens.get(i);
-          String currentId = currentToken.tokenId;
-
-          FeatureData data = new FeatureData(morphology, gazetteers, sentence, i);
-          List<String> sparseFeatures = data.getSparseFeatures();
-
-          if (i > 0) {
-            sparseFeatures.add("PreType=" + sentence.tokens.get(i - 1).tokenId);
-          }
-          if (i > 1) {
-            sparseFeatures.add("2PreType=" + sentence.tokens.get(i - 2).tokenId);
-          }
-          if (i > 2) {
-            sparseFeatures.add("3PreType=" + sentence.tokens.get(i - 3).tokenId);
-          }
-
-          ScoredItem<String> predicted = predictTypeAndPosition(model, sparseFeatures);
-          String predictedId = predicted.item;
-
-          if (predictedId.equals(currentId)) {
-            // do nothing
-            counts.addOrIncrement(predictedId);
-            count++;
-            continue;
-          }
-          count++;
-          counts.addOrIncrement(currentId);
-          counts.addOrIncrement(predictedId);
-          errorCount++;
-
-          model.get(currentId).updateSparse(sparseFeatures, +learningRate);
-          model.get(predictedId).updateSparse(sparseFeatures, -learningRate);
-
-          averages.get(currentId)
-              .updateSparse(sparseFeatures, counts.get(currentId) * learningRate);
-          averages.get(predictedId)
-              .updateSparse(sparseFeatures, -counts.get(predictedId) * learningRate);
-        }
-      }
-      Log.info("Iteration %d, Token error = %.6f", it + 1, (errorCount * 1d) / tokenCount);
-
-      Map<String, ClassWeights> copyModel = copyModel(model);
-      averageWeights(averages, copyModel, counts);
-      PerceptronNer ner = new PerceptronNer(copyModel, morphology, gazetteers);
-      NerDataSet result = ner.test(devSet);
-      testLog(devSet, result).dump();
-    }
-
-    averageWeights(averages, model, counts);
-
-    Log.info("Training finished.");
-    return model;
-  }
-
-  private static void averageWeights(Map<String, ClassWeights> averages,
-      Map<String, ClassWeights> model, IntValueMap<String> counts) {
-    for (String typeId : model.keySet()) {
-      FloatValueMap<String> w = model.get(typeId).sparseWeights;
-      FloatValueMap<String> a = averages.get(typeId).sparseWeights;
-      for (String s : w) {
-        w.set(s, w.get(s) - a.get(s) / counts.get(typeId));
-      }
-    }
-  }
-
   public static ScoredItem<String> predictTypeAndPosition(
-      Map<String, ClassWeights> model, List<String> sparseKeys) {
+      Map<String, ClassModel> model,
+      List<String> sparseKeys) {
+
     List<ScoredItem<String>> scores = new ArrayList<>();
+
+    // find score for each class.
     for (String out : model.keySet()) {
-      ClassWeights o = model.get(out);
+      ClassModel o = model.get(out);
       float score = 0f;
       for (String s : sparseKeys) {
         score += o.sparseWeights.get(s);
       }
       scores.add(new ScoredItem<>(out, score));
     }
+
+    // return max.
     return scores.stream().max((a, b) -> Float.compare(a.score, b.score)).get();
   }
 
-  static void testReport(NerDataSet reference, NerDataSet prediction, Path reportPath)
-      throws IOException {
+  public NerDataSet test(NerDataSet set) {
 
-    try (PrintWriter pw = new PrintWriter(reportPath.toFile(), "UTF-8")) {
-      List<NerSentence> testSentences = reference.sentences;
-      for (int i = 0; i < testSentences.size(); i++) {
-        NerSentence ts = testSentences.get(i);
-        pw.println(ts.content);
-        NerSentence ps = prediction.sentences.get(i);
-        for (int j = 0; j < ts.tokens.size(); j++) {
-          NerToken tt = ts.tokens.get(j);
-          NerToken pt = ps.tokens.get(j);
-          if (tt.word.equals(tt.normalized)) {
-            pw.println(String.format("%s %s -> %s", tt.word, tt.tokenId, pt.tokenId));
-          } else {
-            pw.println(
-                String.format("%s:%s %s -> %s", tt.word, tt.normalized, tt.tokenId, pt.tokenId));
-          }
+    List<NerSentence> resultSentences = new ArrayList<>();
+
+    for (NerSentence sentence : set.sentences) {
+      List<NerToken> predictedTokens = new ArrayList<>();
+
+      for (int i = 0; i < sentence.tokens.size(); i++) {
+
+        NerToken currentToken = sentence.tokens.get(i);
+
+        FeatureData data = new FeatureData(morphology, gazetteers, sentence, i);
+        List<String> sparseInputs = data.getTextualFeatures();
+
+        if (i > 0) {
+          sparseInputs.add("PreType=" + predictedTokens.get(i - 1).tokenId);
         }
-      }
-      TestResult result = testLog(reference, prediction);
-      pw.println(result.dump());
-    }
-  }
-
-  static TestResult testLog(NerDataSet reference, NerDataSet prediction) {
-
-    int errorCount = 0;
-    int tokenCount = 0;
-    int truePositives = 0;
-    int falsePositives = 0;
-    int falseNegatives = 0;
-    int testNamedEntityCount = 0;
-    int correctNamedEntityCount = 0;
-
-    List<NerSentence> testSentences = reference.sentences;
-    for (int i = 0; i < testSentences.size(); i++) {
-      NerSentence ts = testSentences.get(i);
-      NerSentence ps = prediction.sentences.get(i);
-      for (int j = 0; j < ts.tokens.size(); j++) {
-        NerToken tt = ts.tokens.get(j);
-        NerToken pt = ps.tokens.get(j);
-        if (!tt.tokenId.equals(pt.tokenId)) {
-          errorCount++;
-          if (tt.position == NePosition.OUTSIDE) {
-            falsePositives++;
-          }
-          if (pt.position == NePosition.OUTSIDE) {
-            falseNegatives++;
-          }
-        } else {
-          if (tt.position != NePosition.OUTSIDE) {
-            truePositives++;
-          }
+        if (i > 1) {
+          sparseInputs.add("2PreType=" + predictedTokens.get(i - 2).tokenId);
         }
-        tokenCount++;
-      }
-      List<NamedEntity> namedEntities = ts.getNamedEntities();
-      testNamedEntityCount += namedEntities.size();
-      correctNamedEntityCount += ps.matchingNEs(namedEntities).size();
-    }
-
-    TestResult result = new TestResult();
-    result.correctNamedEntityCount = correctNamedEntityCount;
-    result.errorCount = errorCount;
-    result.falseNegatives = falseNegatives;
-    result.falsePositives = falsePositives;
-    result.testNamedEntityCount = testNamedEntityCount;
-    result.tokenCount = tokenCount;
-    result.truePositives = truePositives;
-    return result;
-  }
-
-  public static void main(String[] args) throws IOException {
-
-    Path trainPath = Paths.get("experiment/src/main/resources/ner/reyyan.train.txt");
-    Path testPath = Paths.get("experiment/src/main/resources/ner/reyyan.test.txt");
-    Path modelRoot = Paths.get("experiment/src/main/resources/ner/model");
-    Path reportPath = Paths.get("experiment/src/main/resources/ner/test-result.txt");
-    trainAndTest(trainPath, testPath, modelRoot, reportPath);
-
-    TurkishMorphology morphology = TurkishMorphology.builder()
-        .addDefaultDictionaries()
-        .build();
-    PerceptronNer ner = PerceptronNer.loadModel(modelRoot, morphology);
-
-    Stopwatch sw = Stopwatch.createStarted();
-
-    Path input = Paths.get("experiment/src/main/resources/ner/test.txt");
-    Path output = Paths.get("experiment/src/main/resources/ner/test.out.txt");
-    List<String> sentences = Files.readAllLines(input);
-
-    try (PrintWriter pw = new PrintWriter(output.toFile(), "UTF-8")) {
-      for (String sentence : sentences) {
-        pw.println(sentence);
-        NerSentence result = ner.findNamedEntities(sentence);
-        for (NamedEntity entity : result.getNamedEntities()) {
-          pw.println(entity.toString());
+        if (i > 2) {
+          sparseInputs.add("3PreType=" + predictedTokens.get(i - 3).tokenId);
         }
-        pw.println("-------------");
+
+        ScoredItem<String> predicted = PerceptronNer.predictTypeAndPosition(model, sparseInputs);
+
+        NerToken predictedToken = NerToken.fromTypePositionString(
+            currentToken.index, currentToken.word, currentToken.normalized, predicted.item);
+        predictedTokens.add(predictedToken);
+
       }
+      NerSentence predictedSentence = new NerSentence(sentence.content, predictedTokens);
+      resultSentences.add(predictedSentence);
     }
-
-    System.out.println("Elapsed = " + sw.elapsed(TimeUnit.MILLISECONDS));
-  }
-
-  private static void trainAndTest(
-      Path trainPath,
-      Path testPath,
-      Path modelRoot,
-      Path reportPath) throws IOException {
-
-    NerDataSet trainingSet = NerDataSet.loadBracketTurkishCorpus(trainPath);
-    new NerDataSet.Info(trainingSet).log();
-
-    NerDataSet testSet = NerDataSet.loadBracketTurkishCorpus(testPath);
-    new NerDataSet.Info(testSet).log();
-
-    // empty, not used.
-    Gazetteers gazetteers = new Gazetteers();
-
-    TurkishMorphology morphology = TurkishMorphology.builder()
-        .addDefaultDictionaries()
-        .build();
-
-    Map<String, ClassWeights> model = PerceptronNer
-        .train(morphology, gazetteers, trainingSet, testSet, 10, 0.1f);
-
-    PerceptronNer ner = new PerceptronNer(model, morphology, gazetteers);
-
-    ner.saveModelAsText(modelRoot);
-
-    Log.info("Testing %d sentences.", testSet.sentences.size());
-    NerDataSet testResult = ner.test(testSet);
-
-    testReport(testSet, testResult, reportPath);
-    Log.info("Done.");
+    return new NerDataSet(resultSentences);
   }
 
   public NerSentence findNamedEntities(String sentence) {
@@ -351,7 +145,7 @@ public class PerceptronNer {
       NerToken currentToken = nerSentence.tokens.get(i);
 
       FeatureData data = new FeatureData(morphology, gazetteers, nerSentence, i);
-      List<String> sparseInputs = data.getSparseFeatures();
+      List<String> sparseInputs = data.getTextualFeatures();
 
       if (i > 0) {
         sparseInputs.add("PreType=" + predictedTokens.get(i - 1).tokenId);
@@ -373,43 +167,7 @@ public class PerceptronNer {
     return new NerSentence(nerSentence.content, predictedTokens);
   }
 
-  public NerDataSet test(NerDataSet set) {
-
-    List<NerSentence> resultSentences = new ArrayList<>();
-
-    for (NerSentence sentence : set.sentences) {
-      List<NerToken> predictedTokens = new ArrayList<>();
-
-      for (int i = 0; i < sentence.tokens.size(); i++) {
-
-        NerToken currentToken = sentence.tokens.get(i);
-
-        FeatureData data = new FeatureData(morphology, gazetteers, sentence, i);
-        List<String> sparseInputs = data.getSparseFeatures();
-
-        if (i > 0) {
-          sparseInputs.add("PreType=" + predictedTokens.get(i - 1).tokenId);
-        }
-        if (i > 1) {
-          sparseInputs.add("2PreType=" + predictedTokens.get(i - 2).tokenId);
-        }
-        if (i > 2) {
-          sparseInputs.add("3PreType=" + predictedTokens.get(i - 3).tokenId);
-        }
-
-        ScoredItem<String> predicted = predictTypeAndPosition(model, sparseInputs);
-
-        NerToken predictedToken = NerToken.fromTypePositionString(
-            currentToken.index, currentToken.word, currentToken.normalized, predicted.item);
-        predictedTokens.add(predictedToken);
-
-      }
-      NerSentence predictedSentence = new NerSentence(sentence.content, predictedTokens);
-      resultSentences.add(predictedSentence);
-    }
-    return new NerDataSet(resultSentences);
-  }
-
+  //TODO: Gazetteers should allow multi word entities.
   static class Gazetteers {
 
     Set<String> locationWords = new HashSet<>();
@@ -427,17 +185,17 @@ public class PerceptronNer {
     }
   }
 
-  public static class ClassWeights {
+  public static class ClassModel {
 
     String id;
     FloatValueMap<String> sparseWeights = new FloatValueMap<>();
     List<DenseWeights> denseWeights = new ArrayList<>();
 
-    public ClassWeights(String id) {
+    public ClassModel(String id) {
       this.id = id;
     }
 
-    public ClassWeights(String id,
+    public ClassModel(String id,
         FloatValueMap<String> sparseWeights) {
       this.id = id;
       this.sparseWeights = sparseWeights;
@@ -449,8 +207,8 @@ public class PerceptronNer {
       }
     }
 
-    ClassWeights copy() {
-      ClassWeights weights = new ClassWeights(id);
+    ClassModel copy() {
+      ClassModel weights = new ClassModel(id);
       weights.sparseWeights = sparseWeights.copy();
       List<DenseWeights> copy = new ArrayList<>();
       for (DenseWeights denseWeight : denseWeights) {
@@ -468,7 +226,7 @@ public class PerceptronNer {
       Files.write(file, lines);
     }
 
-    public static ClassWeights loadFromText(Path modelFile) throws IOException {
+    public static ClassModel loadFromText(Path modelFile) throws IOException {
       String id = modelFile.toFile().getName().replace(".ner.model", "");
       List<String> lines = Files.readAllLines(modelFile);
       FloatValueMap<String> sparseWeights = new FloatValueMap<>();
@@ -481,7 +239,7 @@ public class PerceptronNer {
         float val = Float.parseFloat(line.substring(spaceIndex + 1));
         sparseWeights.set(key, val);
       }
-      return new ClassWeights(id, sparseWeights);
+      return new ClassModel(id, sparseWeights);
     }
 
   }
@@ -513,7 +271,10 @@ public class PerceptronNer {
     String previousWord2;
     String previousWord2Orig;
 
-    FeatureData(TurkishMorphology morphology, Gazetteers gazetteers, NerSentence sentence,
+    FeatureData(
+        TurkishMorphology morphology,
+        Gazetteers gazetteers,
+        NerSentence sentence,
         int index) {
       this.morphology = morphology;
       this.gazetteers = gazetteers;
@@ -613,7 +374,7 @@ public class PerceptronNer {
       }
     }
 
-    List<String> getSparseFeatures() {
+    List<String> getTextualFeatures() {
       List<String> features = new ArrayList<>();
       features.add("CW:" + currentWord);
       features.add("NW:" + nextWord);
@@ -682,41 +443,4 @@ public class PerceptronNer {
     }
   }
 
-  public static class TestResult {
-
-    int errorCount = 0;
-    int tokenCount = 0;
-    int truePositives = 0;
-    int falsePositives = 0;
-    int falseNegatives = 0;
-    int testNamedEntityCount = 0;
-    int correctNamedEntityCount = 0;
-
-    double tokenErrorRatio() {
-      return (errorCount * 1d) / tokenCount;
-    }
-
-    double tokenPresicion() {
-      return (truePositives * 1d) / (truePositives + falsePositives);
-    }
-
-    //TODO: check this
-    double tokenRecall() {
-      return (truePositives * 1d) / (truePositives + falseNegatives);
-    }
-
-    double exactMatch() {
-      return (correctNamedEntityCount * 1d) / testNamedEntityCount;
-    }
-
-    String dump() {
-      List<String> lines = new ArrayList<>();
-      lines.add(String.format("Token Error ratio   = %.6f", tokenErrorRatio()));
-      Log.info(String.format("NE Token Precision  = %.6f", tokenPresicion()));
-      Log.info(String.format("NE Token Recall     = %.6f", tokenRecall()));
-      Log.info(String.format("Exact NER match     = %.6f", exactMatch()));
-      return String.join(" ", lines);
-    }
-
-  }
 }
