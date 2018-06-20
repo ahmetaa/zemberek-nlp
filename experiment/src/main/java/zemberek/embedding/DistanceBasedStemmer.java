@@ -18,11 +18,11 @@ import java.util.stream.Collectors;
 import zemberek.core.ScoredItem;
 import zemberek.core._turkish._TurkishAlphabet;
 import zemberek.core.logging.Log;
-import zemberek.morphology.old_ambiguity.Z3MarkovModelDisambiguator;
-import zemberek.morphology.old_analysis.SentenceAnalysis;
-import zemberek.morphology.old_analysis.WordAnalysis;
-import zemberek.morphology.old_analysis.tr.TurkishMorphology;
-import zemberek.morphology.old_analysis.tr.TurkishSentenceAnalyzer;
+import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.SentenceAnalysis;
+import zemberek.morphology.analysis.SentenceWordAnalysis;
+import zemberek.morphology.analysis.SingleAnalysis;
+import zemberek.morphology.analysis.WordAnalysis;
 
 public class DistanceBasedStemmer {
 
@@ -31,7 +31,6 @@ public class DistanceBasedStemmer {
   Map<String, WordVector> vectorMap;
   TurkishMorphology morphology;
   DistanceList distances;
-  TurkishSentenceAnalyzer sentenceAnalyzer;
 
   public DistanceBasedStemmer(
       Map<String, WordVector> vectorMap,
@@ -40,8 +39,6 @@ public class DistanceBasedStemmer {
     this.vectorMap = vectorMap;
     this.morphology = morphology;
     this.distances = distances;
-    this.sentenceAnalyzer = new TurkishSentenceAnalyzer(morphology,
-        new Z3MarkovModelDisambiguator());
   }
 
   public static DistanceBasedStemmer load(Path vector, Path distances, Path vocabFile)
@@ -102,25 +99,28 @@ public class DistanceBasedStemmer {
 
   public void findStems(String str) {
     str = "<s> <s> " + str + " </s> </s>";
-    SentenceAnalysis analysis = sentenceAnalyzer.analyze(str);
+    SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(str);
+    List<SentenceWordAnalysis> swaList = analysis.getParseEntries();
 
     for (int i = 2; i < analysis.size() - 2; i++) {
 
-      String s = analysis.getInput(i);
+      SentenceWordAnalysis swa = swaList.get(i);
+
+      String s = swaList.get(i).getWordAnalysis().getInput();
       List<String> bigramContext = Lists.newArrayList(
-          normalize(analysis.getInput(i - 1)),
-          normalize(analysis.getInput(i - 2)),
-          normalize(analysis.getInput(i + 1)),
-          normalize(analysis.getInput(i + 2)));
+          normalize(swaList.get(i - 1).getWordAnalysis().getInput()),
+          normalize(swaList.get(i - 2).getWordAnalysis().getInput()),
+          normalize(swaList.get(i + 1).getWordAnalysis().getInput()),
+          normalize(swaList.get(i + 2).getWordAnalysis().getInput()));
 
       List<String> unigramContext = Lists.newArrayList(
-          normalize(analysis.getInput(i - 1)),
-          normalize(analysis.getInput(i + 1)));
+          normalize(swaList.get(i - 1).getWordAnalysis().getInput()),
+          normalize(swaList.get(i + 1).getWordAnalysis().getInput()));
 
       Set<String> stems = new HashSet<>();
-      List<WordAnalysis> wordResults = analysis.getParses(i);
+      WordAnalysis wordResults = swa.getWordAnalysis();
       stems.addAll(
-          wordResults.stream().map(a -> normalize(a.getLemma())).collect(Collectors.toList()));
+          wordResults.stream().map(a -> normalize(a.getDictionaryItem().lemma)).collect(Collectors.toList()));
       List<ScoredItem<String>> scores = new ArrayList<>();
       for (String stem : stems) {
         if (!distances.containsWord(stem)) {
@@ -150,12 +150,11 @@ public class DistanceBasedStemmer {
 
     Log.info("==== Z disambiguation result ===== ");
 
-    sentenceAnalyzer.disambiguate(analysis);
-    for (SentenceAnalysis.Entry a : analysis) {
-      Log.info("%n%s : ", a.input);
+    for (SentenceWordAnalysis a : analysis) {
+      Log.info("%n%s : ", a.getWordAnalysis().getInput());
       LinkedHashSet<String> items = new LinkedHashSet<>();
-      for (WordAnalysis wa : a.parses) {
-        items.add(wa.dictionaryItem.toString());
+      for (SingleAnalysis wa : a.getWordAnalysis()) {
+        items.add(wa.getDictionaryItem().toString());
       }
       for (String item : items) {
         Log.info("%s", item);

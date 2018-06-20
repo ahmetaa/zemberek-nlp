@@ -8,10 +8,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
+import zemberek.core.turkish.StemAndEnding;
+import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
-import zemberek.morphology.lexicon.DictionaryItem;
-import zemberek.core.turkish.StemAndEnding;
 
 // This class represents a single morphological analysis result
 public class SingleAnalysis {
@@ -305,7 +305,7 @@ public class SingleAnalysis {
     // `Dummy` items are usually generated for some compound words. For example for `zeytinyağı`
     // a DictionaryItem is generated with root "zeytinyağ". But here we switch to the original.
     DictionaryItem item = searchPath.getDictionaryItem();
-    if(item.hasAttribute(RootAttribute.Dummy)) {
+    if (item.hasAttribute(RootAttribute.Dummy)) {
       item = item.getReferenceItem();
     }
     return new SingleAnalysis(item, morphemes, groupBoundaries);
@@ -409,10 +409,15 @@ public class SingleAnalysis {
 
   /**
    * Formats only the morphemes. Dictionary item information is not included.
+   *
    * @return formatted
    */
   public String formatMorphemesLexical() {
     return AnalysisFormatters.DEFAULT_LEXICAL_ONLY_MORPHEMES.format(this);
+  }
+
+  public PrimaryPos getPos() {
+    return getGroup(groupCount() - 1).getPos();
   }
 
   public String formatLong() {

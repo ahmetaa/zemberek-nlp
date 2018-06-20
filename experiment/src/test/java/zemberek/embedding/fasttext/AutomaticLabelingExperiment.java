@@ -23,31 +23,25 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.corpus.WebCorpus;
 import zemberek.corpus.WebDocument;
-import zemberek.morphology.old_ambiguity.Z3MarkovModelDisambiguator;
-import zemberek.morphology.old_analysis.SentenceAnalysis;
-import zemberek.morphology.old_analysis.WordAnalysis;
-import zemberek.morphology.old_analysis.tr.TurkishMorphology;
-import zemberek.morphology.old_analysis.tr.TurkishSentenceAnalyzer;
 import zemberek.core.turkish.Turkish;
+import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.SentenceAnalysis;
+import zemberek.morphology.analysis.SentenceWordAnalysis;
+import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 
 public class AutomaticLabelingExperiment {
 
-  TurkishSentenceAnalyzer analyzer;
   TurkishTokenizer lexer = TurkishTokenizer.DEFAULT;
   private Path experimentRoot;
   private Path rawCorpusRoot;
+  TurkishMorphology morphology ;
 
   private AutomaticLabelingExperiment(Path experimentRoot, Path rawCorpusRoot) throws IOException {
     this.experimentRoot = experimentRoot;
     this.rawCorpusRoot = rawCorpusRoot;
-    TurkishMorphology morphology = TurkishMorphology.builder()
-        .addDefaultDictionaries()
-        .cacheParameters(50_000, 100_000)
-        .build();
-    this.analyzer =
-        new TurkishSentenceAnalyzer(morphology, new Z3MarkovModelDisambiguator());
+    this.morphology = TurkishMorphology.createWithDefaults();
   }
 
   /**
@@ -107,7 +101,7 @@ public class AutomaticLabelingExperiment {
     Path predictionPath = experimentRoot.resolve("labels.prediction");
 
     //extractLabeledDocuments(rawCorpusRoot, corpusPath);
-    Set<String> set = generateSetForLabelExperiment(corpusPath, analyzer, true);
+    Set<String> set = generateSetForLabelExperiment(corpusPath, morphology, true);
     saveSets(trainData, testData, set);
     FastText fastText = getOrTrainFastText(trainData, modelPath);
     test(corpusPath, testData, predictionPath, fastText);
@@ -173,7 +167,7 @@ public class AutomaticLabelingExperiment {
 
   Set<String> generateSetForLabelExperiment(
       Path input,
-      TurkishSentenceAnalyzer analyzer,
+      TurkishMorphology analyzer,
       boolean useRoots) throws IOException {
     WebCorpus corpus = new WebCorpus("label", "labeled");
     corpus.addDocuments(WebCorpus.loadDocuments(input));
@@ -223,7 +217,7 @@ public class AutomaticLabelingExperiment {
       String labelStr = String.join(" ", labelTags);
 
       String content = document.getContentAsString();
-      String processed = processContent(analyzer, content, useRoots);
+      String processed = processContent(morphology, content, useRoots);
       if (processed.length() < 200) {
         continue;
       }
@@ -238,7 +232,7 @@ public class AutomaticLabelingExperiment {
     return new LinkedHashSet<>(set);
   }
 
-  public String processContent(TurkishSentenceAnalyzer analyzer, String content, boolean useRoots) {
+  public String processContent(TurkishMorphology analyzer, String content, boolean useRoots) {
     List<Token> docTokens = lexer.tokenize(content);
 
     List<String> reduced = new ArrayList<>(docTokens.size());
@@ -257,13 +251,12 @@ public class AutomaticLabelingExperiment {
     }
     String joined = String.join(" ", reduced);
     if (useRoots) {
-      SentenceAnalysis analysis = analyzer.analyze(joined);
-      analyzer.disambiguate(analysis);
+      SentenceAnalysis analysis = analyzer.analyzeAndResolveAmbiguity(joined);
       List<String> res = new ArrayList<>();
-      for (SentenceAnalysis.Entry e : analysis) {
-        WordAnalysis best = e.parses.get(0);
+      for (SentenceWordAnalysis e : analysis) {
+        SingleAnalysis best = e.getAnalysis();
         if (best.isUnknown()) {
-          res.add(e.input);
+          res.add(e.getWordAnalysis().getInput());
           continue;
         }
         List<String> lemmas = best.getLemmas();

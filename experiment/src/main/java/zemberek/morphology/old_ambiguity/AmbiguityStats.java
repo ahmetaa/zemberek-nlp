@@ -10,13 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import zemberek.core._turkish._TurkishAlphabet;
 import zemberek.core.collections.Histogram;
 import zemberek.core.io.LineIterator;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.text.TextUtil;
-import zemberek.morphology.old_analysis.WordAnalysis;
-import zemberek.morphology.old_analysis.tr.TurkishMorphology;
+import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.tokenization.TurkishTokenizer;
 
 /**
@@ -76,12 +75,11 @@ public class AmbiguityStats {
     int total = 0;
     for (String line : lines) {
       for (String s : splitter.split(line)) {
-        List<WordAnalysis> results = parser.getWordAnalyzer().analyze(
-            _TurkishAlphabet.INSTANCE.normalize(s));
+        WordAnalysis results = parser.analyze(s);
         if (++total % 50000 == 0) {
           System.out.println("Processed: " + total);
         }
-        if (results.size() > 1) {
+        if (results.analysisCount() > 1) {
           String key = generateKeyFromParse(results);
           uniques.add(key);
           Histogram<String> members = ambiguityGroups.get(key);
@@ -117,11 +115,11 @@ public class AmbiguityStats {
     st.dump();
   }
 
-  private String generateKeyFromParse(List<WordAnalysis> results) {
+  private String generateKeyFromParse(WordAnalysis results) {
     StringBuilder key = new StringBuilder();
-    for (int i = 0; i < results.size(); i++) {
-      key.append(results.get(i).formatOnlyIgs());
-      if (i < results.size() - 1) {
+    for (int i = 0; i < results.analysisCount(); i++) {
+      key.append(results.getAnalysisResults().get(i).formatMorphemesLexical());
+      if (i < results.analysisCount() - 1) {
         key.append("\n");
       }
     }
@@ -135,13 +133,12 @@ public class AmbiguityStats {
     Splitter splitter = Splitter.on(" ").omitEmptyStrings().trimResults();
     for (String line : lines) {
       for (String s : splitter.split(line)) {
-        List<WordAnalysis> results = parser.getWordAnalyzer().analyze(
-            _TurkishAlphabet.INSTANCE.normalize(s));
+        WordAnalysis results = parser.analyze(s);
         total++;
         if (total % 50000 == 0) {
           System.out.println("Processed: " + total);
         }
-        if (results.size() > 1) {
+        if (results.analysisCount() > 1) {
           uniques.add(s);
         }
       }
@@ -170,13 +167,12 @@ public class AmbiguityStats {
       Splitter splitter = Splitter.on(" ").omitEmptyStrings().trimResults();
       for (String line : lines) {
         for (String s : splitter.split(line)) {
-          List<WordAnalysis> results = parser.getWordAnalyzer().analyze(
-              _TurkishAlphabet.INSTANCE.normalize(s));
+          WordAnalysis results = parser.analyze(s);
           total++;
           if (total % 50000 == 0) {
             System.out.println("Processed: " + total);
           }
-          if (results.size() == 0) {
+          if (results.analysisCount() == 0) {
             uniques.add(s);
           }
         }

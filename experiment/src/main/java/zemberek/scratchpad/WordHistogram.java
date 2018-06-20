@@ -20,12 +20,11 @@ import zemberek.corpus.WebCorpus;
 import zemberek.corpus.WebDocument;
 import zemberek.deasciifier.Deasciifier;
 import zemberek.langid.LanguageIdentifier;
-import zemberek.morphology.old_ambiguity.Z3MarkovModelDisambiguator;
-import zemberek.morphology.old_analysis.SentenceAnalysis;
-import zemberek.morphology.old_analysis.WordAnalysis;
-import zemberek.morphology.old_analysis.tr.TurkishMorphology;
-import zemberek.morphology.old_analysis.tr.TurkishSentenceAnalyzer;
 import zemberek.core.turkish.Turkish;
+import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.SentenceAnalysis;
+import zemberek.morphology.analysis.SentenceWordAnalysis;
+import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
@@ -167,12 +166,7 @@ public class WordHistogram {
 
   static void generateHistograms(List<String> paragraphs, Path outRoot) throws IOException {
 
-    TurkishMorphology morphology = TurkishMorphology.builder()
-        .addDefaultDictionaries()
-        .cacheParameters(75_000, 150_000)
-        .build();
-    TurkishSentenceAnalyzer analyzer = new TurkishSentenceAnalyzer(morphology,
-        new Z3MarkovModelDisambiguator());
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
     Histogram<String> roots = new Histogram<>(1000_000);
     Histogram<String> words = new Histogram<>(1000_000);
@@ -188,10 +182,10 @@ public class WordHistogram {
         List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
         tokenCounter += tokens.size();
 
-        SentenceAnalysis analysis = analyzer.analyze(sentence);
-        analyzer.disambiguate(analysis);
-        for (SentenceAnalysis.Entry e : analysis) {
-          WordAnalysis best = e.parses.get(0);
+        SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(sentence);
+
+        for (SentenceWordAnalysis e : analysis) {
+          SingleAnalysis best = e.getAnalysis();
           if (best.getPos() == PrimaryPos.Numeral ||
               best.getPos() == PrimaryPos.Punctuation) {
             continue;
@@ -200,7 +194,7 @@ public class WordHistogram {
             continue;
           }
           if (best.isRuntime() &&
-              !Strings.containsNone(e.input, "01234567890")) {
+              !Strings.containsNone(e.getWordAnalysis().getInput(), "01234567890")) {
             continue;
           }
           List<String> lemmas = best.getLemmas();
@@ -210,7 +204,7 @@ public class WordHistogram {
 
           roots.add(best.getDictionaryItem().lemma);
 
-          String w = e.input;
+          String w = e.getWordAnalysis().getInput();
           if (best.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun) {
             w = w.toLowerCase(Turkish.LOCALE);
           } else {

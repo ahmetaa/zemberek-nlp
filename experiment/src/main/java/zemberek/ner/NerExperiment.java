@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import zemberek.core.logging.Log;
-import zemberek.morphology.old_analysis.tr.TurkishMorphology;
+import zemberek.morphology.TurkishMorphology;
 import zemberek.ner.PerceptronNer.Gazetteers;
 
 public class NerExperiment {

@@ -13,7 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import zemberek.core.turkish.PrimaryPos;
-import zemberek.morphology.old_analysis.tr.TurkishMorphology;
+import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.core.turkish.Turkish;

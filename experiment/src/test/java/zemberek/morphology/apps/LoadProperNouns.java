@@ -11,9 +11,10 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.io.Strings;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology.old_analysis.WordAnalysis;
-import zemberek.morphology.old_analysis.tr.TurkishMorphology;
 import zemberek.core.turkish.Turkish;
+import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.SingleAnalysis;
+import zemberek.morphology.analysis.WordAnalysis;
 
 public class LoadProperNouns {
 
@@ -50,15 +51,15 @@ public class LoadProperNouns {
         continue;
       }
 
-      List<WordAnalysis> parses = parserGenerator.analyze(word);
+      WordAnalysis parses = parserGenerator.analyze(word);
       boolean found = false;
-      for (WordAnalysis parse : parses) {
-        if (parse.dictionaryItem.secondaryPos.equals(SecondaryPos.ProperNoun) &&
-            !parse.dictionaryItem.hasAttribute(RootAttribute.Runtime)) {
+      for (SingleAnalysis parse : parses) {
+        if (parse.getDictionaryItem().secondaryPos.equals(SecondaryPos.ProperNoun) &&
+            !parse.getDictionaryItem().hasAttribute(RootAttribute.Runtime)) {
           found = true;
         }
       }
-      parserGenerator.invalidateCacheForWord(word);
+      parserGenerator.invalidateCache();
 
       if (found) {
         continue;

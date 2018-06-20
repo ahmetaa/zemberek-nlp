@@ -13,9 +13,10 @@ import java.util.stream.Collectors;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.text.TextUtil;
+import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.SingleAnalysis;
+import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.WordAnalysisSurfaceFormatter;
-import zemberek.morphology.old_analysis.WordAnalysis;
-import zemberek.morphology.old_analysis.tr.TurkishMorphology;
 import zemberek.tokenization.TurkishTokenizer;
 
 /**
@@ -28,7 +29,7 @@ public class PerceptronNer {
   private TurkishMorphology morphology;
   private Gazetteers gazetteers;
 
-  public PerceptronNer( Map<String, ClassModel> model, TurkishMorphology morphology) {
+  public PerceptronNer(Map<String, ClassModel> model, TurkishMorphology morphology) {
     this.model = model;
     this.morphology = morphology;
     this.gazetteers = new Gazetteers();
@@ -319,9 +320,12 @@ public class PerceptronNer {
       if (word == null) {
         return;
       }
-      List<WordAnalysis> analyses = morphology.analyze(word);
-      WordAnalysis longest = analyses.get(analyses.size() - 1);
-      for (WordAnalysis analysis : analyses) {
+      WordAnalysis analyses = morphology.analyze(word);
+      SingleAnalysis longest =
+          analyses.analysisCount() > 0 ?
+              analyses.getAnalysisResults().get(analyses.analysisCount() - 1) :
+              SingleAnalysis.unknown(word);
+      for (SingleAnalysis analysis : analyses) {
         if (analysis.isUnknown()) {
           return;
         }
@@ -337,14 +341,14 @@ public class PerceptronNer {
         }
       }
       List<String> lemmas = longest.getLemmas();
-      features.add(featurePrefix + "Stem:" + longest.getRoot());
+      features.add(featurePrefix + "Stem:" + longest.getStem());
       String ending = longest.getEnding();
       if (ending.length() > 0) {
         features.add(featurePrefix + "Ending:" + ending);
       }
       features.add(featurePrefix + "LongLemma:" + lemmas.get(lemmas.size() - 1));
       features.add(featurePrefix + "POS:" + longest.getPos());
-      features.add(featurePrefix + "LastIg:" + longest.getLastIg().formatNoSurface());
+      features.add(featurePrefix + "LastIg:" + longest.getLastGroup().lexicalForm());
 
       //features.add(featurePrefix + "ContainsProper:" + containsProper);
 

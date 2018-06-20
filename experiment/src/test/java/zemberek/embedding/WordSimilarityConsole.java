@@ -9,8 +9,8 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
-import zemberek.morphology.old_analysis.WordAnalysis;
-import zemberek.morphology.old_analysis.tr.TurkishMorphology;
+import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.WordAnalysis;
 
 public class WordSimilarityConsole {
 
@@ -50,9 +50,9 @@ public class WordSimilarityConsole {
 
       List<String> noParse = new ArrayList<>();
       for (String s : dist) {
-        List<WordAnalysis> tokens = morphology.analyze(s);
-        if (tokens.size() == 0 || (tokens.size() == 1
-            && tokens.get(0).dictionaryItem.primaryPos == PrimaryPos.Unknown)) {
+        WordAnalysis an = morphology.analyze(s);
+        if (an.isCorrect() || (an.analysisCount() == 1
+            && an.getAnalysisResults().get(0).getDictionaryItem().primaryPos == PrimaryPos.Unknown)) {
           noParse.add(s);
         }
       }

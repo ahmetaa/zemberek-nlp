@@ -14,11 +14,13 @@ import static zemberek.morphology.morphotactics.MorphemeState.nonTerminal;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivative;
 import static zemberek.morphology.morphotactics.MorphemeState.terminal;
 
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
@@ -102,6 +104,10 @@ public class TurkishMorphotactics {
   public static final Morpheme p3pl = addMorpheme(
       new Morpheme("ThirdPersonPluralPossessive", "P3pl"));
 
+  public static Set<Morpheme> possessiveMorphemes = Sets.newHashSet(
+      p1sg, p2sg, p3sg, p1pl, p2pl, p3pl
+  );
+
   // Case suffixes
 
   // elma
@@ -120,6 +126,10 @@ public class TurkishMorphotactics {
   public static final Morpheme gen = addMorpheme(new Morpheme("Genitive", "Gen"));
   // elmaca
   public static final Morpheme equ = addMorpheme(new Morpheme("Equ", "Equ"));
+
+  public static Set<Morpheme> caseMorphemes = Sets.newHashSet(
+      dat, acc, abl, loc, ins, gen, equ
+  );
 
   // Derivation suffixes
 

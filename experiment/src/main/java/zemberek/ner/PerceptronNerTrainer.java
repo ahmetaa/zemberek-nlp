@@ -11,7 +11,7 @@ import zemberek.core.ScoredItem;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.IntValueMap;
 import zemberek.core.logging.Log;
-import zemberek.morphology.old_analysis.tr.TurkishMorphology;
+import zemberek.morphology.TurkishMorphology;
 import zemberek.ner.PerceptronNer.ClassModel;
 import zemberek.ner.PerceptronNer.FeatureData;
 import zemberek.ner.PerceptronNer.Gazetteers;

@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.analysis.SingleAnalysis.MorphemeData;
-import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.morphotactics.Morpheme;
 
 public class AnalysisFormatters {
 
@@ -116,7 +116,7 @@ public class AnalysisFormatters {
       String posStr = pos == PrimaryPos.Adverb ? "Adverb" : pos.shortForm;
 
       sb.append(posStr);
-      if (item.secondaryPos != SecondaryPos.None) {
+      if (item.secondaryPos != SecondaryPos.None && item.secondaryPos != SecondaryPos.UnknownSec) {
         sb.append('+').append(item.secondaryPos.shortForm);
       }
       if (surfaces.size() > 1 && !surfaces.get(1).morpheme.derivational) {

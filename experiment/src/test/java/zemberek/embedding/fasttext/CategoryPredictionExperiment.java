@@ -19,12 +19,11 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.corpus.WebCorpus;
 import zemberek.corpus.WebDocument;
-import zemberek.morphology.old_ambiguity.Z3MarkovModelDisambiguator;
-import zemberek.morphology.old_analysis.SentenceAnalysis;
-import zemberek.morphology.old_analysis.WordAnalysis;
-import zemberek.morphology.old_analysis.tr.TurkishMorphology;
-import zemberek.morphology.old_analysis.tr.TurkishSentenceAnalyzer;
 import zemberek.core.turkish.Turkish;
+import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.SentenceAnalysis;
+import zemberek.morphology.analysis.SentenceWordAnalysis;
+import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 
@@ -125,9 +124,6 @@ public class CategoryPredictionExperiment {
 
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
-    TurkishSentenceAnalyzer analyzer = new TurkishSentenceAnalyzer(morphology,
-        new Z3MarkovModelDisambiguator());
-
     WebCorpus corpus = new WebCorpus("category", "category");
     Log.info("Loading corpus from %s", input);
     corpus.addDocuments(WebCorpus.loadDocuments(input));
@@ -190,13 +186,12 @@ public class CategoryPredictionExperiment {
       String join = String.join(" ", reduced);
 
       if (useRoots) {
-        SentenceAnalysis analysis = analyzer.analyze(join);
-        analyzer.disambiguate(analysis);
+        SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(join);
         List<String> res = new ArrayList<>();
-        for (SentenceAnalysis.Entry e : analysis) {
-          WordAnalysis best = e.parses.get(0);
+        for (SentenceWordAnalysis e : analysis) {
+          SingleAnalysis best = e.getAnalysis();
           if (best.isUnknown()) {
-            res.add(e.input);
+            res.add(e.getWordAnalysis().getInput());
             continue;
           }
           List<String> lemmas = best.getLemmas();

@@ -14,8 +14,9 @@ import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.corpus.WebCorpus;
 import zemberek.corpus.WebDocument;
+import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.old_analysis.WordAnalysis;
-import zemberek.morphology.old_analysis.tr.TurkishSentenceAnalyzer;
 import zemberek.core.turkish.Turkish;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
@@ -56,12 +57,12 @@ public class UnsupervisedKeyPhraseExtractor {
   static final TurkishTokenizer lexer = TurkishTokenizer.DEFAULT;
   final int order;
   CorpusStatistics statistics;
-  TurkishSentenceAnalyzer sentenceAnalyzer;
+  TurkishMorphology morphology;
   private float DEFAULT_CUTOFF_POSITION = 1000;
 
   public UnsupervisedKeyPhraseExtractor(CorpusStatistics statistics,
-      TurkishSentenceAnalyzer sentenceAnalyzer) {
-    this.sentenceAnalyzer = sentenceAnalyzer;
+      TurkishMorphology sentenceAnalyzer) {
+    this.morphology = sentenceAnalyzer;
     this.statistics = statistics;
     this.order = 3;
   }
@@ -89,7 +90,7 @@ public class UnsupervisedKeyPhraseExtractor {
         t.getType() == TurkishLexer.Unknown);
   }
 
-  static boolean analysisAcceptable(WordAnalysis t) {
+  static boolean analysisAcceptable(SingleAnalysis t) {
     //TODO: should we keep verb roots?
     return (t.getPos() == PrimaryPos.Noun ||
         t.getPos() == PrimaryPos.Adjective) && (t.getDictionaryItem().primaryPos
@@ -127,7 +128,7 @@ public class UnsupervisedKeyPhraseExtractor {
   }
 
   static CorpusStatistics collectCorpusStatisticsForLemmas(
-      WebCorpus corpus, TurkishSentenceAnalyzer analyzer, int count) throws IOException {
+      WebCorpus corpus, TurkishMorphology analyzer, int count) throws IOException {
 
     CorpusStatistics statistics = new CorpusStatistics(1_000_000);
 
@@ -136,12 +137,12 @@ public class UnsupervisedKeyPhraseExtractor {
       Histogram<String> docHistogram = new Histogram<>();
       List<String> sentences = extractor.fromParagraphs(document.getLines());
       for (String sentence : sentences) {
-        List<WordAnalysis> analysis = analyzer.bestParse(sentence);
-        for (WordAnalysis w : analysis) {
+        List<SingleAnalysis> analysis = analyzer.analyzeAndResolveAmbiguity(sentence).bestAnalysis();
+        for (SingleAnalysis w : analysis) {
           if (!analysisAcceptable(w)) {
             continue;
           }
-          String s = w.getSurfaceForm();
+          String s = w.getStemAndEnding().concat();
           if (TurkishStopWords.DEFAULT.contains(s)) {
             continue;
           }
@@ -234,7 +235,7 @@ public class UnsupervisedKeyPhraseExtractor {
   }
 
   public List<Histogram<Term>> ngrams(List<String> paragraphs) {
-    if (sentenceAnalyzer == null) {
+    if (morphology == null) {
       return wordNgrams(paragraphs);
     } else {
       return lemmaNgrams(paragraphs);
@@ -275,7 +276,7 @@ public class UnsupervisedKeyPhraseExtractor {
     List<String> sentences = extractor.fromParagraphs(paragraphs);
     for (String sentence : sentences) {
 
-      List<WordAnalysis> analysis = sentenceAnalyzer.bestParse(sentence);
+      List<SingleAnalysis> analysis = morphology.analyzeAndResolveAmbiguity(sentence).bestAnalysis();
 
       for (int i = 0; i < order; i++) {
         int currentOrder = i + 1;
@@ -283,12 +284,12 @@ public class UnsupervisedKeyPhraseExtractor {
           String[] words = new String[currentOrder];
           boolean fail = false;
           for (int k = 0; k < currentOrder; k++) {
-            WordAnalysis a = analysis.get(j + k);
+            SingleAnalysis a = analysis.get(j + k);
             if (!analysisAcceptable(a)) {
               fail = true;
               break;
             }
-            String surface = a.getSurfaceForm();
+            String surface = a.getStemAndEnding().concat();
             if (TurkishStopWords.DEFAULT.contains(surface)) {
               fail = true;
               break;

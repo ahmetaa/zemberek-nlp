@@ -17,7 +17,7 @@ public class RuleBasedDisambiguatorTest {
     //String input = "O anda gördüm.";
     //String input = "Aklımıza ilk gelen emeği öncelemek.";
     //String input = "Petrolün Türkiye üzerinden dünya pazarına satılması.";
-    String input = "Selamlarımla...";
+    String input = "4 Neden önemli?";
     //String input = "Sadece partimi iktidar yaptım.";
     TurkishMorphology analyzer = TurkishMorphology.createWithDefaults();
 //    Rules rules = new Rules();
