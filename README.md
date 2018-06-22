@@ -48,7 +48,7 @@ contains jar files for different versions.
 
 ### Examples
 
-There is a [examples](examples) module in the code for usage examples.
+There is an [examples](examples) module in the code for usage examples.
 
 Also, there is a separate project with same examples that uses Zemberek-NLP as maven modules: 
 [Turkish-nlp-examples](https://github.com/ahmetaa/turkish-nlp-examples)
@@ -99,7 +99,7 @@ Maven artifact id : **zemberek-examples**
 
 ## Known Issues and Limitations
 - Project requires Java 8 or higher.
-- Morphological disambiguation is working less accurate then expected.
+- Morphological disambiguation is working less accurate than expected.
 - Library is not well-tested for multi-threaded usage.
 
 Please see issues section for further issues and feel free to create new ones.
