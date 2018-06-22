@@ -65,7 +65,7 @@ public class MultiFileUncompressedLm {
       java.nio.file.Files.createDirectories(dir.toPath());
     }
 
-    long elapsedTime = Files.readLines(arpaFile, Charset.forName(encoding),
+    long elapsedTime = Files.asCharSource(arpaFile, Charset.forName(encoding)).readLines(
         new ArpaToBinaryConverter(dir, fractionDigits));
     Log.info("Multi file uncompressed binary model is generated in " + (double) elapsedTime / 1000d
         + " seconds");

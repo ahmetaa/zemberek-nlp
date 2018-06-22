@@ -25,7 +25,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -63,7 +65,7 @@ public class LineIterator implements Iterator<String>, AutoCloseable {
 
   private boolean trim = false;
 
-  private Filter filters[] = new Filter[0];
+  private List<Filter<String>> filters = new ArrayList<>();
 
   public LineIterator(InputStream is) {
     Preconditions.checkNotNull(is, "InputStream cannot be null!");
@@ -79,16 +81,15 @@ public class LineIterator implements Iterator<String>, AutoCloseable {
     }
   }
 
-  public LineIterator(Reader reader, boolean trim, Filter... filters) {
+  public LineIterator(Reader reader, boolean trim,List<Filter<String>> filters) {
     Preconditions.checkNotNull(reader, "Reader cannot be null!");
     if (reader instanceof BufferedReader) {
       this.bufferedReader = (BufferedReader) reader;
     } else {
       this.bufferedReader = new BufferedReader(reader);
     }
-    if (filters != null && filters.length > 0) {
-      this.filters = filters;
-    }
+    this.filters = new ArrayList<>(filters);
+
     this.trim = trim;
   }
 
@@ -107,7 +108,7 @@ public class LineIterator implements Iterator<String>, AutoCloseable {
             line = line.trim();
           }
         }
-        while (line != null && filters.length > 0 && !StringFilters.canPassAll(line, filters));
+        while (line != null && filters.size() > 0 && !StringFilters.canPassAll(line, filters));
 
         if (line == null) {
           finished = true;

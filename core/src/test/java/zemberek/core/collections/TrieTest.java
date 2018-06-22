@@ -57,7 +57,7 @@ public class TrieTest {
 
   @Before
   public void setUp() {
-    lt = new Trie();
+    lt = new Trie<>();
   }
 
   private void additems(List<Item> items) {

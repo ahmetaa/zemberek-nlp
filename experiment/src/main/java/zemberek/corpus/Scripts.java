@@ -101,7 +101,9 @@ class Scripts {
       0x2029 // paragraph separator
   );
 
-  private static void saveUnambiguous(List<String> sentences, TurkishMorphology morphology,
+  private static void saveUnambiguous(
+      List<String> sentences,
+      TurkishMorphology morphology,
       Path out)
       throws IOException {
     try (PrintWriter pwMorph = new PrintWriter(out.toFile(), "utf-8")) {

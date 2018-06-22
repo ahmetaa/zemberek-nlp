@@ -22,9 +22,8 @@ public class NerExperiment {
     Path reportPath = Paths.get("experiment/src/main/resources/ner/test-result.txt");
     trainAndTest(trainPath, testPath, modelRoot, reportPath);
 
-    TurkishMorphology morphology = TurkishMorphology.builder()
-        .addDefaultDictionaries()
-        .build();
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+
     PerceptronNer ner = PerceptronNer.loadModel(modelRoot, morphology);
 
     Stopwatch sw = Stopwatch.createStarted();

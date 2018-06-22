@@ -22,28 +22,39 @@ package zemberek.core.io;
 
 
 import com.google.common.base.Preconditions;
+import java.util.List;
 import java.util.regex.Pattern;
 
 class StringFilters {
 
-  public static final Filter PASS_ALL = new AllPassFilter();
-  public static final Filter PASS_NON_NULL_OR_EMPTY = new NullOrEmptyFilter();
-  public static final Filter PASS_ONLY_TEXT = new HasNoTextFilter();
+  public static final Filter<String> PASS_ALL = new AllPassFilter();
+  public static final Filter<String> PASS_NON_NULL_OR_EMPTY = new NullOrEmptyFilter();
+  public static final Filter<String> PASS_ONLY_TEXT = new HasNoTextFilter();
 
-  public static Filter newRegexpFilter(String regexp) {
+  public static Filter<String> newRegexpFilter(String regexp) {
     return new RegexpFilter(regexp, false);
   }
 
-  public static Filter newRegexpFilterIgnoreCase(String regexp) {
+  public static Filter<String> newRegexpFilterIgnoreCase(String regexp) {
     return new RegexpFilter(regexp, true);
   }
 
-  public static Filter newRegexpFilter(Pattern pattern) {
+  public static Filter<String> newRegexpFilter(Pattern pattern) {
     return new RegexpFilter(pattern);
   }
 
-  public static Filter newPrefixFilter(String prefix) {
+  public static Filter<String> newPrefixFilter(String prefix) {
     return new PrefixFilter(prefix);
+  }
+
+  public static boolean canPassAll(String s, List<Filter<String>> filters) {
+    for (Filter<String> filter : filters) {
+      if (!filter.canPass(s)) {
+        return false;
+      }
+    }
+    return true;
+
   }
 
   public static boolean canPassAll(String s, Filter<String>... filters) {

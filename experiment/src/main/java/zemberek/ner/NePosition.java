@@ -4,11 +4,11 @@ package zemberek.ner;
  * BILOU style NER position information.
  */
 enum NePosition {
-  BEGIN("B"),
-  INSIDE("I"),
-  LAST("L"),
-  OUTSIDE("O"),
-  UNIT("U");
+  BEGIN("B"),  // beginning token of a NE
+  INSIDE("I"), // Inside token of a NE
+  LAST("L"),   // Last token of a NE
+  OUTSIDE("O"),// Not a NE token
+  UNIT("U");   // A single NE token
 
   String shortForm;
 

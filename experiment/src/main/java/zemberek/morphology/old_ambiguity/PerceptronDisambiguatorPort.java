@@ -77,7 +77,7 @@ class PerceptronDisambiguatorPort extends AbstractDisambiguator {
       Decoder decoder = new Decoder(weights, extractor);
 
       DataSet trainingSet = com.google.common.io.Files
-          .readLines(trainFile.toFile(), Charsets.UTF_8, new DataSetLoader());
+          .asCharSource(trainFile.toFile(), Charsets.UTF_8).readLines(new DataSetLoader());
       int numExamples = 0;
       for (int i = 0; i < 4; i++) {
         Log.info("Iteration:" + i);
@@ -268,7 +268,7 @@ class PerceptronDisambiguatorPort extends AbstractDisambiguator {
 
   public void test(File testFile) throws IOException {
     DataSet testSet = com.google.common.io.Files
-        .readLines(testFile, Charsets.UTF_8, new DataSetLoader());
+        .asCharSource(testFile, Charsets.UTF_8).readLines(new DataSetLoader());
     int hit = 0, total = 0;
     Stopwatch sw = Stopwatch.createStarted();
     for (SentenceData sentence : testSet.sentences) {

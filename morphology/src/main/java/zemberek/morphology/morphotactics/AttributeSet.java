@@ -20,6 +20,7 @@ public class AttributeSet<E extends Enum<E>> {
     this.bits = initialValue;
   }
 
+  @SafeVarargs
   public static  <E extends Enum<E>> AttributeSet<E> of(E... enums) {
     AttributeSet<E> res = new AttributeSet<>();
     for (E en : enums) {
@@ -43,7 +44,8 @@ public class AttributeSet<E extends Enum<E>> {
     bits |= mask(en);
   }
 
-  public void add(E... enums) {
+  @SafeVarargs
+  public final void add(E... enums) {
     for (E en : enums) {
       add(en);
     }

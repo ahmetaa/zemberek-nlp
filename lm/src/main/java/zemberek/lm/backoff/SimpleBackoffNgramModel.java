@@ -56,7 +56,7 @@ public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramL
           "Unigram weight must be between 0 and 1 but it is:" + unigramWeigth);
     }
     ArpaLoader converter = new ArpaLoader(unigramWeigth);
-    return Files.readLines(arpaModel, Charsets.UTF_8, converter);
+    return Files.asCharSource(arpaModel, Charsets.UTF_8).readLines(converter);
   }
 
   /**

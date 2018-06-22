@@ -95,7 +95,7 @@ public class LmVocabularyTest {
   private File getUtf8VocFile() throws IOException {
     File tmp = File.createTempFile("utf8_voc_test", "foo");
     tmp.deleteOnExit();
-    Files.write(String.format("Hello%n%n      %n\t%nWorld"), tmp, Charsets.UTF_8);
+    Files.asCharSink(tmp, Charsets.UTF_8).write(String.format("Hello%n%n      %n\t%nWorld"));
     return tmp;
   }
 

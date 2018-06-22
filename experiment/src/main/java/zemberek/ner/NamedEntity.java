@@ -3,6 +3,9 @@ package zemberek.ner;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a sequence of named entity tokens.
+ */
 class NamedEntity {
 
   String type;

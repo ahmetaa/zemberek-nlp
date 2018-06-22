@@ -7,7 +7,7 @@ import java.util.Random;
 public class TestUtils {
 
   public static List<int[]> createFuzzingLists() {
-    List<int[]> fuzzLists = new ArrayList(5000);
+    List<int[]> fuzzLists = new ArrayList<>(5000);
     int maxListSize = 300;
     Random r = new Random(0xBEEFCAFE);
     // Random sized lists with values in [0..n] shuffled.

@@ -67,12 +67,12 @@ public class TurkishDictionaryLoader {
   }
 
   public RootLexicon load(File input) throws IOException {
-    return Files.readLines(input, Charsets.UTF_8, new TextLexiconProcessor());
+    return Files.asCharSource(input, Charsets.UTF_8).readLines(new TextLexiconProcessor());
   }
 
   public RootLexicon loadInto(RootLexicon lexicon, File input) throws IOException {
     return Files
-        .readLines(input, Charsets.UTF_8, new TextLexiconProcessor(lexicon));
+        .asCharSource(input, Charsets.UTF_8).readLines(new TextLexiconProcessor(lexicon));
   }
 
   public DictionaryItem loadFromString(String dictionaryLine) {

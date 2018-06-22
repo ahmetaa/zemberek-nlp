@@ -19,7 +19,7 @@ public final class SimpleTextReader implements AutoCloseable {
 
   private final InputStream is;
   private final String encoding;
-  private Filter filters[] = new Filter[0];
+  private List<Filter<String>> filters = new ArrayList<>();
   private boolean trim = false;
   private Template template;
 
@@ -28,7 +28,7 @@ public final class SimpleTextReader implements AutoCloseable {
     this.is = is;
     this.encoding = template._encoding;
 
-    List<Filter> filterz = new ArrayList<>();
+    List<Filter<String>> filterz = new ArrayList<>();
     if (template._ignoreWhiteSpaceLines) {
       filterz.add(StringFilters.PASS_ONLY_TEXT);
     }
@@ -39,7 +39,7 @@ public final class SimpleTextReader implements AutoCloseable {
       filterz.add(new IgnorePrefixFilter(template._ignorePrefix));
     }
 
-    this.filters = filterz.toArray(new Filter[filterz.size()]);
+    this.filters = filterz;
 
     this.trim = template._trim;
   }
@@ -244,7 +244,7 @@ public final class SimpleTextReader implements AutoCloseable {
    * @throws java.io.IOException if an io error occurs
    */
   public List<String> asStringList() throws IOException {
-    return IOs.readAsStringList(getReader(), trim, filters);
+    return IOs.readAsStringList(getReader(), trim, filters.toArray(new Filter[0]));
   }
 
   /**

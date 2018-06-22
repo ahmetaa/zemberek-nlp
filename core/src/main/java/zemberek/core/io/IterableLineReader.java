@@ -22,7 +22,9 @@ package zemberek.core.io;
 
 import java.io.BufferedReader;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * This class wraps a LineIterator. It is useful to use this in an enhanced for loop.
@@ -31,7 +33,7 @@ public class IterableLineReader implements Iterable<String>, AutoCloseable {
 
   private final BufferedReader bufferedReader;
   private boolean trim;
-  private Filter filters[] = new Filter[0];
+  private List<Filter<String>> filters = new ArrayList<>();
 
   public IterableLineReader(Reader reader) {
     if (reader instanceof BufferedReader) {
@@ -42,7 +44,7 @@ public class IterableLineReader implements Iterable<String>, AutoCloseable {
 
   }
 
-  public IterableLineReader(Reader reader, boolean trim, Filter[] filters) {
+  public IterableLineReader(Reader reader, boolean trim, List<Filter<String>> filters) {
     if (reader instanceof BufferedReader) {
       this.bufferedReader = (BufferedReader) reader;
     } else {
