@@ -1298,6 +1298,7 @@ public class TurkishMorphotactics {
 
     //------------ Reflexive Pronouns ----------------------------
     // `kendi`
+    DictionaryItem kendi = lexicon.getItemById("kendi_Pron_Reflex");
     pronReflex_S.addEmpty(pReflexA1sg_S)
         .addEmpty(pReflexA2sg_S)
         .addEmpty(pReflexA3sg_S)
@@ -1362,7 +1363,7 @@ public class TurkishMorphotactics {
         .add(pGen_ST, "+nIn", conditionP2sg);
 
     Condition p3sgCond = Conditions.rootIsAny(
-        kim, ne, nere, o, bazi, biri, birbiri, herbiri, hep, kimi, hicbiri);
+        kendi, kim, ne, nere, o, bazi, biri, birbiri, herbiri, hep, kimi, hicbiri);
 
     pP3sg_S
         .addEmpty(pNom_ST)
@@ -1377,7 +1378,7 @@ public class TurkishMorphotactics {
         .add(pIns_ST, "+ylA", p3sgCond);
 
     Condition hepCnd = Conditions.rootIsAny(
-        kim, ne, nere, biz, siz, biri, birbiri, birkaci, herbiri, hep, kimi, cogu, bircogu, tumu,
+        kendi, kim, ne, nere, biz, siz, biri, birbiri, birkaci, herbiri, hep, kimi, cogu, bircogu, tumu,
         topu, bazi, hicbiri);
     pP1pl_S
         .addEmpty(pNom_ST)
@@ -1404,7 +1405,7 @@ public class TurkishMorphotactics {
         .add(pIns_ST, "+nlA", hepCnd);
 
     Condition hepsiCnd = Conditions.rootIsAny(
-        kim, ne, nere, o, bazi, biri, herkes, umum, birkaci, hepsi, cumlesi, cogu,
+        kendi, kim, ne, nere, o, bazi, biri, herkes, umum, birkaci, hepsi, cumlesi, cogu,
         bircogu, birbiri, tumu, kimi, topu);
 
     pP3pl_S

@@ -1,3 +1,0 @@
-* A3sg+Gen$ A3sg+P2sg+Gen$
-* Acc$ A3sg$
-* Acc$ P3sg$

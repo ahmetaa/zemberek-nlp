@@ -2588,6 +2588,7 @@ baza
 bazal [P:Adj]
 bazalt [A:NoVoicing]
 bazen [P:Adv]
+bazı [P:Adj]
 bazı [P:Det]
 bazı [P:Pron,Quant]
 bazısı [P:Pron]
@@ -3170,7 +3171,7 @@ birlik
 birlikte [P:Postp,PCIns]
 birliktelik
 birsam
-birtakım [P:Pron,Quant]
+birtakım [P:Adj]
 birtakım [P:Det]
 birun
 biryan
@@ -4894,6 +4895,7 @@ cüzzam
 çocuklu [P:Adj]
 çoğalmak
 çoğaltım
+çoğu [P:Adj]
 çoğu [P:Det]
 çoğu [P:Pron, Quant]
 çoğul
@@ -10793,6 +10795,7 @@ ilga
 ilgeç
 ilgi
 ilgilemek
+ilgili [P:Adj]
 ilginç [P:Adj]
 ilhak [A:NoVoicing]
 ilham
@@ -10924,6 +10927,7 @@ inal
 inam
 inan
 inanç
+inandırıcı [P:Adj]
 inanmak
 inat
 inat [P:Adj]
@@ -11320,6 +11324,7 @@ işbaşı
 işbirliği [A:CompoundP3sg; Roots:iş-birlik]
 işbu [P:Adj]
 işçi
+işçilik
 işemek
 işgal [A:InverseHarmony]
 işgaliye
@@ -12798,8 +12803,7 @@ kemre
 kemrelemek
 kenar
 kenarortay
-kendi
-## kendi [P:Pron, Reflex] TODO: fix this.
+kendi [P:Pron, Reflex]
 kendigelen [P:Adj]
 kendiliğinden [P:Adj]
 kendiliğinden [P:Adv]
@@ -23419,7 +23423,7 @@ teist [P:Adj;A:NoVoicing]
 teizm
 tek
 tek [P:Adv]
-tek [P:Num]
+tek [P:Adj]
 tekabül
 tekâlif
 tekâmül
@@ -25185,7 +25189,7 @@ vaşak
 vat
 vatan
 vatandaş
-vatanî
+vatanî [P:Adj]
 vatanperver [P:Adj]
 vatansever [P:Adj]
 vatka
@@ -25978,6 +25982,7 @@ yerleşmek
 yerli [P:Adj]
 yermek
 yeröte
+yersiz [P:Adj]
 yeryüzü
 yestehlemek
 yesyeni [P:Adj]
@@ -26014,6 +26019,7 @@ yetiştirim
 yetke
 yetki
 yetkilemek
+yetkili [P:Adj]
 yetkin [P:Adj]
 yetmek
 yevmî
@@ -26045,7 +26051,7 @@ yılandili [A:CompoundP3sg; Roots:yılan-dil]
 yılaniğnesi
 yılankavi [P:Adj]
 yılanyastığı [A:CompoundP3sg; Roots:yılan-yastık]
-yılbaşı [A:CompoundP3sg; Roots:yık-baş]
+yılbaşı [A:CompoundP3sg; Roots:yıl-baş]
 yıldırak
 yıldırak [P:Adj]
 yıldırım

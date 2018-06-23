@@ -18,13 +18,14 @@ public class PerceptronAmbiguityResolverEvaluation {
         Paths.get("data/ambiguity/www.aljazeera.com.tr-rule-result.txt"),
         Paths.get("data/ambiguity/wowturkey.com-rule-result.txt"),
         Paths.get("data/ambiguity/open-subtitles-rule-result.txt"),
-    Paths.get("data/ambiguity/www.cnnturk.com-rule-result.txt"));
+        Paths.get("data/ambiguity/sak.train"),
+        Paths.get("data/ambiguity/www.haberturk.com-rule-result.txt"),
+        Paths.get("data/ambiguity/www.cnnturk.com-rule-result.txt"));
 
-    Path dev = Paths.get("data/ambiguity/www.haberturk.com-rule-result.txt");
+    Path dev = Paths.get("data/ambiguity/sak.dev");
     Path model = Paths.get("morphology/src/main/resources/tr/ambiguity/model");
     Path modelCompressed = Paths.get("morphology/src/main/resources/tr/ambiguity/model-compressed");
 
-    //TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     TurkishMorphology morphology = TurkishMorphology.builder().addTextDictionaryResources(
         "tr/master-dictionary.dict",
         "tr/non-tdk.dict",
@@ -41,7 +42,7 @@ public class PerceptronAmbiguityResolverEvaluation {
     DataSet devSet = DataSet.load(dev, morphology);
 
     PerceptronAmbiguityResolver resolver =
-        new PerceptronAmbiguityResolverTrainer(morphology).train(trainingSet, devSet, 5);
+        new PerceptronAmbiguityResolverTrainer(morphology).train(trainingSet, devSet, 15);
     Model modelTrained = (Model) resolver.getModel();
     modelTrained.pruneNearZeroWeights();
     modelTrained.saveAsText(model);
@@ -50,7 +51,7 @@ public class PerceptronAmbiguityResolverEvaluation {
 
     PerceptronAmbiguityResolver resolverRead =
         PerceptronAmbiguityResolver.fromModelFile(model);
-    Path test = Paths.get("data/ambiguity/www.haberturk.com-rule-result.txt");
+    Path test = Paths.get("data/ambiguity/sak.test");
     ((Model) resolverRead.getModel()).compress().serialize(modelCompressed);
 
     PerceptronAmbiguityResolverTrainer.test(test, morphology, resolverRead);

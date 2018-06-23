@@ -532,6 +532,8 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("kendisi", matchesTailLex("Pron + A3sg + P3sg"));
     tester.expectSingle("kendimiz", matchesTailLex("Pron + A1pl + P1pl"));
     tester.expectSingle("kendiniz", matchesTailLex("Pron + A2pl + P2pl"));
+    tester.expectSingle("kendisiyle", matchesTailLex("Pron + A3sg + P3sg + Ins"));
+    tester.expectSingle("kendimizle", matchesTailLex("Pron + A1pl + P1pl + Ins"));
 
     // kendine has 2 analyses
     tester.expectAny("kendine", matchesTailLex("Pron + A3sg + P3sg + Dat"));

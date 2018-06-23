@@ -1,0 +1,5 @@
+
+* A3sg+Gen$ P2sg+Gen$
+* A3sg+Gen$ A3sg+P2sg$
+* A3pl+Gen$ P2sg+Gen$
+* Acc$ A3sg$

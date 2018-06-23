@@ -19,7 +19,7 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.tokenization.TurkishSentenceExtractor;
 
-class Scripts {
+public class Scripts {
 
   public static void main(String[] args) throws IOException {
     Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
@@ -101,7 +101,7 @@ class Scripts {
       0x2029 // paragraph separator
   );
 
-  private static void saveUnambiguous(
+  public static void saveUnambiguous(
       List<String> sentences,
       TurkishMorphology morphology,
       Path out)
@@ -116,6 +116,37 @@ class Scripts {
         }
 
         pwMorph.format("S:%s%n", sentence);
+        for (SentenceWordAnalysis sw : analysis) {
+          WordAnalysis wa = sw.getWordAnalysis();
+          pwMorph.println(wa.getInput());
+
+          SingleAnalysis best = sw.getAnalysis();
+          for (SingleAnalysis singleAnalysis : wa) {
+            boolean isBest = singleAnalysis.equals(best);
+            if (wa.analysisCount() == 1) {
+              pwMorph.println(singleAnalysis.formatLong());
+            } else {
+              pwMorph.format("%s%s%n", singleAnalysis.formatLong(), isBest ? "*" : "");
+            }
+          }
+        }
+        pwMorph.println();
+      }
+    }
+  }
+
+  public static void saveUnambiguous(
+      List<SentenceAnalysis> sentences,
+      Path out)
+      throws IOException {
+    try (PrintWriter pwMorph = new PrintWriter(out.toFile(), "utf-8")) {
+
+      for (SentenceAnalysis analysis : sentences) {
+
+        if (analysis.bestAnalysis().stream().anyMatch(SingleAnalysis::isUnknown)) {
+          continue;
+        }
+        pwMorph.format("S:%s%n", analysis.getSentence());
         for (SentenceWordAnalysis sw : analysis) {
           WordAnalysis wa = sw.getWordAnalysis();
           pwMorph.println(wa.getInput());
