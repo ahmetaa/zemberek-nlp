@@ -42,7 +42,7 @@ public class PerceptronAmbiguityResolverEvaluation {
     DataSet devSet = DataSet.load(dev, morphology);
 
     PerceptronAmbiguityResolver resolver =
-        new PerceptronAmbiguityResolverTrainer(morphology).train(trainingSet, devSet, 15);
+        new PerceptronAmbiguityResolverTrainer(morphology).train(trainingSet, devSet, 13);
     Model modelTrained = (Model) resolver.getModel();
     modelTrained.pruneNearZeroWeights();
     modelTrained.saveAsText(model);

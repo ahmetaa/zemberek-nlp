@@ -175,54 +175,56 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
       String r2Ig2 = r2 + "+" + ig2;
       String r3Ig3 = r3 + "+" + ig3;
 
-      feats.addOrIncrement("1:" + r1Ig1 + "-" + r2Ig2 + "-" + r3Ig3);
+      //feats.addOrIncrement("1:" + r1Ig1 + "-" + r2Ig2 + "-" + r3Ig3);
       feats.addOrIncrement("2:" + r1 + ig2 + r3Ig3);
       feats.addOrIncrement("3:" + r2Ig2 + "-" + r3Ig3);
       feats.addOrIncrement("4:" + r3Ig3);
-      feats.addOrIncrement("5:" + r2 + ig2 + "-" + ig3);
-      feats.addOrIncrement("6:" + r1 + ig1 + "-" + ig3);
+      //feats.addOrIncrement("5:" + r2 + ig2 + "-" + ig3);
+      //feats.addOrIncrement("6:" + r1 + ig1 + "-" + ig3);
 
-      feats.addOrIncrement("7:" + r1 + "-" + r2 + "-" + r3);
-      feats.addOrIncrement("8:" + r1 + "-" + r3);
+      //feats.addOrIncrement("7:" + r1 + "-" + r2 + "-" + r3);
+      //feats.addOrIncrement("8:" + r1 + "-" + r3);
       feats.addOrIncrement("9:" + r2 + "-" + r3);
       feats.addOrIncrement("10:" + r3);
 
-      feats.addOrIncrement("11:" + ig1 + "-" + ig2 + "-" + ig3);
-      feats.addOrIncrement("12:" + ig1 + "-" + ig3);
-      feats.addOrIncrement("13:" + ig2 + "-" + ig3);
-      feats.addOrIncrement("14:" + ig3);
+      //feats.addOrIncrement("11:" + ig1 + "-" + ig2 + "-" + ig3);
+      //feats.addOrIncrement("12:" + ig1 + "-" + ig3);
+      //feats.addOrIncrement("13:" + ig2 + "-" + ig3);
+      //feats.addOrIncrement("14:" + ig3);
 
       String w1LastGroup = w1.lastGroup();
       String w2LastGroup = w2.lastGroup();
 
       for (String ig : w3.igs) {
         feats.addOrIncrement("15:" + w1LastGroup + "-" + w2LastGroup + "-" + ig);
-        feats.addOrIncrement("16:" + w1LastGroup + "-" + ig);
+        //feats.addOrIncrement("16:" + w1LastGroup + "-" + ig);
         feats.addOrIncrement("17:" + w2LastGroup + ig);
-        feats.addOrIncrement("18:" + ig);
+        //feats.addOrIncrement("18:" + ig);
       }
 
-      for (int k = 0; k < w3.igs.size() - 1; k++) {
-        feats.addOrIncrement("19:" + w3.igs.get(k) + "-" + w3.igs.get(k + 1));
-      }
+//      for (int k = 0; k < w3.igs.size() - 1; k++) {
+//        feats.addOrIncrement("19:" + w3.igs.get(k) + "-" + w3.igs.get(k + 1));
+//      }
 
       for (int k = 0; k < w3.igs.size(); k++) {
         feats.addOrIncrement("20:" + k + "-" + w3.igs.get(k));
       }
 
-      if (Character.isUpperCase(r3.charAt(0))
+/*      if (Character.isUpperCase(r3.charAt(0))
           && trigram[2].getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun) {
         feats.addOrIncrement("21:PROPER-"+r3);
       } else {
         feats.addOrIncrement("21b:NOT_PROPER-" + r3);
-      }
+      }*/
 
       feats.addOrIncrement("22:" + trigram[2].groupCount());
       //
+/*
       if ((trigram[2] == sentenceEnd || trigram[2].getDictionaryItem().lemma.equals("."))
           && trigram[2].getDictionaryItem().primaryPos == PrimaryPos.Verb) {
         feats.addOrIncrement("23:ENDSVERB");
       }
+*/
       if (useCache) {
         featureCache.put(trigram, feats);
       }
