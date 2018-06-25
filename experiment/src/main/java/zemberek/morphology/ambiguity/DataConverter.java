@@ -10,9 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import zemberek.core.collections.Histogram;
 import zemberek.core.turkish.Turkish;
 import zemberek.corpus.Scripts;
 import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.AnalysisFormatter;
 import zemberek.morphology.analysis.AnalysisFormatters;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
@@ -34,13 +36,25 @@ public class DataConverter {
     lookup.put("kamuoy+noun+a3sg+p3sg","kamuoyu+noun+a3sg+p3sg");
     lookup.put("muhafazakar+noun+a3sg","muhafazakar+adj");
     lookup.put("gazeteci+noun+a3sg","gazete+noun+a3sg^db+noun+agt+a3sg");
+    lookup.put("türk+noun+a3sg","türk+noun+prop+a3sg");
+    lookup.put("ilgili+noun+a3sg","ilgili+adj");
+    lookup.put("üzer+noun+a3sg+p3sg+dat","üzeri+noun+a3sg+p3sg+dat");
+    lookup.put("üzer+noun+a3sg+p3sg+loc","üzeri+noun+a3sg+p3sg+loc");
+    lookup.put("türkçe+adj","türkçe+noun+prop+a3sg");
+    lookup.put("cumhurbaşkan+noun+a3sg+p3sg","cumhurbaşkanı+noun+a3sg+p3sg");
+    lookup.put("yılbaş+noun+a3sg+p3sg","yılbaşı+noun+a3sg+p3sg");
+    lookup.put("değil+verb+pres+a3sg+cop","değil+verb+neg+pres+a3sg+cop");
+    lookup.put("ünlü+noun+a3sg","ün+noun+a3sg^db+adj+with");
+    lookup.put("gerek+noun+a3sg^db+adj+with","gerekli+adj");
+    lookup.put("erken+adj","erken+adv");
   }
 
 
   public static void main(String[] args) throws IOException {
 
-    Path dataPath = Paths.get("/home/ahmetaa/apps/Hasim_Sak_Data/data.dev.txt");
-    Path output = Paths.get("data/ambiguity/sak.dev");
+    //Path dataPath = Paths.get("/home/ahmetaa/apps/Hasim_Sak_Data/data.dev.txt");
+    Path dataPath = Paths.get("/home/aaa/apps/MD-Release/data.train.txt");
+    Path output = Paths.get("data/ambiguity/sak.train");
 
     extract(dataPath, output);
 
@@ -53,6 +67,7 @@ public class DataConverter {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
     List<SentenceAnalysis> result = new ArrayList<>();
+    Histogram<String> parseFails = new Histogram<>();
     for (SentenceData sentenceData : set) {
       //System.out.println(sentenceData.correctParse);
       List<String> tokens = Splitter.on(" ").splitToList(sentenceData.sentence());
@@ -94,14 +109,26 @@ public class DataConverter {
           }
         }
         if (best == null) {
+          if (Character.isUpperCase(s.charAt(0)) && p.contains("+noun") && !p.contains("prop")) {
+            String pp = p.replaceFirst("\\+noun","\\+noun+prop");
+            for (SingleAnalysis analysis : a) {
+              String of = convert(analysis);
+              if (of.equals(pp)) {
+                best = analysis;
+                break;
+              }
+            }
+          }
+        }
+        if (best == null) {
           List<String> z = a.getAnalysisResults().stream()
               .map(DataConverter::convert)
               .collect(Collectors.toList());
+          parseFails.add(s+" " +p);
 
-          //System.out.println("Not found [" + s + " " + p + "] - " + String.join(" ", z));
-          break;
+        } else {
+          correctList.add(new SentenceWordAnalysis(best, a));
         }
-        correctList.add(new SentenceWordAnalysis(best, a));
       }
 
       if (correctList.size() == tokens.size()) {
@@ -111,11 +138,16 @@ public class DataConverter {
 
     Scripts.saveUnambiguous(result, output);
 
+    parseFails.removeSmaller(3);
+    parseFails.saveSortedByCounts(Paths.get("parse-fails.txt")," ");
+
     System.out.format("Full Sentence Match  = %d in %d%n", result.size(), set.sentences.size());
   }
 
+  static AnalysisFormatter formatter = AnalysisFormatters.OflazerStyleFormatter.usingDictionaryRoot();
+
   private static String convert(SingleAnalysis analysis) {
-    String of = AnalysisFormatters.OFLAZER_STYLE.format(analysis);
+    String of = formatter.format(analysis);
     of = of.replaceAll("[.]", "");
     of = of.replaceAll("Time", "");
     of = of.replaceAll("[+]+", "+");

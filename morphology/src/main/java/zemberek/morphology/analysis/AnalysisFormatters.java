@@ -12,10 +12,8 @@ import zemberek.morphology.morphotactics.Morpheme;
 public class AnalysisFormatters {
 
   /**
-   * Default morphological Analysis formatter.
-   * Pipe `|` represents derivation boundary.
-   * Left side of `→` represents derivation causing morpheme, right side represents the derivation
-   * result.
+   * Default morphological Analysis formatter. Pipe `|` represents derivation boundary. Left side of
+   * `→` represents derivation causing morpheme, right side represents the derivation result.
    * <pre>
    * kitap -> [kitap:Noun] kitap:Noun+A3s
    * kitaplarda -> [kitap:Noun] kitap:Noun+lar:A3pl+da:Loc
@@ -35,8 +33,8 @@ public class AnalysisFormatters {
   public static AnalysisFormatter DEFAULT_LEXICAL = DefaultFormatter.onlyLexical();
 
   /**
-   * Default lexical morphological analysis formatter. But it will not contain
-   * Dictionary item related data.
+   * Default lexical morphological analysis formatter. But it will not contain Dictionary item
+   * related data.
    * <pre>
    * kitap -> Noun+A3s
    * kitaplarda -> Noun+A3pl+Loc
@@ -100,7 +98,20 @@ public class AnalysisFormatters {
             .collect(Collectors.toList()));
   }
 
-  static class OflazerStyleFormatter implements AnalysisFormatter {
+  public static class OflazerStyleFormatter implements AnalysisFormatter {
+
+    private boolean useRoot = false;
+
+    public OflazerStyleFormatter() {
+    }
+
+    private OflazerStyleFormatter(boolean useRoot) {
+      this.useRoot = useRoot;
+    }
+
+    public static OflazerStyleFormatter usingDictionaryRoot() {
+      return new OflazerStyleFormatter(true);
+    }
 
     @Override
     public String format(SingleAnalysis analysis) {
@@ -109,7 +120,9 @@ public class AnalysisFormatters {
       StringBuilder sb = new StringBuilder(surfaces.size() * 4);
 
       // root and suffix formatting
-      sb.append(analysis.getStem()).append('+');
+
+      String stemStr = useRoot ? analysis.getDictionaryItem().root : analysis.getStem();
+      sb.append(stemStr).append('+');
       DictionaryItem item = analysis.getDictionaryItem();
       PrimaryPos pos = item.primaryPos;
 
