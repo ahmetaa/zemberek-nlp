@@ -436,3 +436,4 @@ Sıcak|sicak [sıcak:Adj] *
 önce|Önce [önce:Postp,PCAbl] * *den|*dan|*ten|*tan *
 önce|Önce [önce:Adv] *
 
+milli [millî:Adj] *

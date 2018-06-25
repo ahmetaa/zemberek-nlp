@@ -47,6 +47,7 @@ public class DataConverter {
     lookup.put("ünlü+noun+a3sg","ün+noun+a3sg^db+adj+with");
     lookup.put("gerek+noun+a3sg^db+adj+with","gerekli+adj");
     lookup.put("erken+adj","erken+adv");
+    lookup.put("milletvekil+noun+a3sg+p3sg","milletvekili+noun+a3sg+p3sg");
   }
 
 
