@@ -945,8 +945,7 @@ Isparta
 İslâhiye
 İslam
 İslâm [A:NoQuote]
-İslâmî [A:NoQuote]
-İslami [P:Adj]
+İslami [P:Adj;A:NoQuote]
 İslamiyet
 İslâmiyet [A:NoQuote]
 İslav

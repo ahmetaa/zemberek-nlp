@@ -32,6 +32,7 @@ public class PerceptronAmbiguityResolverEvaluation {
         "tr/proper.dict",
         "tr/proper-from-corpus.dict",
         "tr/abbreviations.dict",
+        "tr/person-names.dict",
         "tr/locations-tr.dict"
     ).build();
 

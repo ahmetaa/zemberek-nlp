@@ -408,7 +408,7 @@ ahlak [A:NoVoicing]
 ahlaken [P:Adv]
 ahlaki [P:Adj]
 ahlamak
-ahlat [A:NoVoicing, Plural]
+ahlat [A:NoVoicing, ImplicitPlural]
 ahlâtıerbaa
 ahmak [P:Adj]
 ahmakıslatan
@@ -7195,7 +7195,7 @@ ervah
 erzak [A:NoVoicing]
 erzel [P:Adj]
 es
-esame [A:Plural]
+esame [A: ImplicitPlural]
 esans
 esaret [A:NoVoicing]
 esas
@@ -9259,7 +9259,7 @@ hadi [P:Interj]
 hadim [P:Adj]
 hadis
 hâdis
-hâdisat [A:NoVoicing, Plural]
+hâdisat [A:NoVoicing, ImplicitPlural]
 hâdise
 hadisene [P:Interj]
 haf
@@ -9483,7 +9483,7 @@ hapşu
 haptetmek [A:Voicing, Aorist_A]
 har
 hara
-harabat [A:NoVoicing, Plural]
+harabat [A:NoVoicing, ImplicitPlural]
 harabatî
 harabe
 harabi [P:Adj]
@@ -9570,7 +9570,7 @@ hasbihâl
 hasebiyle [P:Adv]
 haseki
 hasekiküpesi [A:CompoundP3sg; Roots:heseki-küpe]
-hasenat [A:NoVoicing, Plural]
+hasenat [A:NoVoicing, ImplicitPlural]
 hasep
 haset
 haset [P:Adj]
@@ -9606,7 +9606,7 @@ hastel
 hasut [A:LastVowelDrop]
 hasut [P:Adj]
 hâşâ [P:Interj]
-haşarat [A:NoVoicing, Plural]
+haşarat [A:NoVoicing, ImplicitPlural]
 haşarı [P:Adj]
 haşat [P:Adj]
 haşefe
@@ -9629,7 +9629,7 @@ haşlak [P:Adj]
 haşlamak
 haşmet [A:NoVoicing]
 haşmetlû
-haşviyat [A:NoVoicing, Plural]
+haşviyat [A:NoVoicing, ImplicitPlural]
 haşyet [A:NoVoicing]
 hat [A:Doubling]
 hata
@@ -9637,7 +9637,7 @@ hatıl
 hatıllamak
 hatır
 hatıra
-hatırat [A:NoVoicing, Plural]
+hatırat [A:NoVoicing, ImplicitPlural]
 hatırlamak
 hatırşinas [P:Adj]
 hatif
@@ -9661,7 +9661,7 @@ havadan [P:Adv]
 havadar [P:Adj]
 havadis
 havaî
-havaiyat [A:NoVoicing, Plural]
+havaiyat [A:NoVoicing, ImplicitPlural]
 havalanmak
 havale
 havalimanı [A:CompoundP3sg; Roots:hava-liman]
@@ -9744,7 +9744,7 @@ haysiyet [A:NoVoicing]
 haysiyetiyle [P:Adv]
 hayta [P:Adj]
 hayvan
-hayvanat [A:NoVoicing, Plural]
+hayvanat [A:NoVoicing, ImplicitPlural]
 hayvancağız
 hayvanî
 hayvaniyet [A:NoVoicing]
@@ -9916,7 +9916,7 @@ hezaren
 hezel
 hezeyan
 hezimet [A:NoVoicing]
-hezliyat [A:NoVoicing, Plural]
+hezliyat [A:NoVoicing, ImplicitPlural]
 hıçkırık
 hıçkırmak
 hıdiv
@@ -10114,7 +10114,7 @@ hissetmek [A:Voicing, Aorist_A]
 hissî [P:Adj]
 hissikablelvuku
 hissiselim
-hissiyat [A:NoVoicing, Plural]
+hissiyat [A:NoVoicing, ImplicitPlural]
 histerezis
 histeri
 histerik [P:Adj]
@@ -10234,7 +10234,7 @@ höt [P:Interj]
 höykürmek
 höyük
 hu [P:Interj]
-hububat [A:NoVoicing, Plural]
+hububat [A:NoVoicing, ImplicitPlural]
 hudayinabit [A:NoVoicing]
 hudayinabit [P:Adj]
 hudut
@@ -10271,7 +10271,7 @@ hurma
 hurra [P:Interj]
 hurt [P:Dup]
 huruç
-hurufat [A:NoVoicing, Plural]
+hurufat [A:NoVoicing, ImplicitPlural]
 huruşan [P:Adj]
 husuf
 husul [A:InverseHarmony]
@@ -10482,7 +10482,7 @@ hüzme
 ıtlak
 ıtrah
 ıtrî
-ıtriyat [A:NoVoicing, Plural]
+ıtriyat [A:NoVoicing, ImplicitPlural]
 ıttıla
 ıttırat
 ıvır [P:Dup]
@@ -10543,7 +10543,7 @@ icazetname
 icbar
 icmal [A:InverseHarmony]
 icra
-icraat [A:NoVoicing, Plural]
+icraat [A:NoVoicing, ImplicitPlural]
 iç
 iç [P:Adj]
 içbükey [P:Adj]
@@ -10623,11 +10623,11 @@ ifna
 ifrağ
 ifrat [A:NoVoicing]
 ifraz
-ifrazat [A:NoVoicing, Plural]
+ifrazat [A:NoVoicing, ImplicitPlural]
 ifrit [A:NoVoicing]
 ifsat
 ifşa
-ifşaat [A:NoVoicing, Plural]
+ifşaat [A:NoVoicing, ImplicitPlural]
 ifta
 iftar
 iftariye
@@ -13159,7 +13159,7 @@ kışlak
 kışlamak
 kıt [P:Adj]
 kıta
-kıtaat [A:NoVoicing, Plural]
+kıtaat [A:NoVoicing, ImplicitPlural]
 kıtal [A:InverseHarmony]
 kıtık
 kıtıklamak
@@ -14320,7 +14320,7 @@ kuyruksallayan
 kuyruksüren
 kuytu [P:Adj]
 kuyu
-kuyudat [A:NoVoicing, Plural]
+kuyudat [A:NoVoicing, ImplicitPlural]
 kuyum
 kuyumcu
 kuyut [P:Dup]
@@ -14454,7 +14454,7 @@ küstah [P:Adj]
 küstere
 küsuf
 küsur
-küsurat [A:NoVoicing, Plural]
+küsurat [A:NoVoicing, ImplicitPlural]
 küsü
 küsüşmek [A:Reciprocal]
 küşade [P:Adj]
@@ -14538,7 +14538,7 @@ lakırtı
 lakin [P:Conj]
 laklak
 laklaka
-laklakıyat [A:NoVoicing, Plural]
+laklakıyat [A:NoVoicing, ImplicitPlural]
 lakonik [P:Adj]
 lakoz
 lakrimal [A:InverseHarmony]
@@ -14719,7 +14719,7 @@ letarjik [P:Adj]
 leva
 levanti
 levazım
-levazımat [A:NoVoicing, Plural]
+levazımat [A:NoVoicing, ImplicitPlural]
 levendane [P:Adv]
 levent
 levent [P:Adj]
@@ -14964,7 +14964,7 @@ madara [P:Adj]
 madde
 maddeten [P:Adv]
 maddî [P:Adj]
-maddiyat [A:NoVoicing, Plural]
+maddiyat [A:NoVoicing, ImplicitPlural]
 maddiyet
 madem [P:Conj]
 mademki [P:Conj]
@@ -15046,7 +15046,7 @@ mahkûmiyet [A:NoVoicing]
 mahlâs
 mahlep
 mahluk [A:NoVoicing]
-mahlûkat [A:NoVoicing, Plural]
+mahlûkat [A:NoVoicing, ImplicitPlural]
 mahlûl [A:InverseHarmony]
 mahlût [A:NoVoicing]
 mahmude
@@ -15225,7 +15225,7 @@ mandolin
 manej
 manen [P:Adv]
 manevî [P:Adj]
-maneviyat [A:NoVoicing, Plural]
+maneviyat [A:NoVoicing, ImplicitPlural]
 manevra
 manga
 mangal
@@ -15387,7 +15387,7 @@ maslup [A:NoVoicing]
 maslup [P:Adj]
 masmavi [P:Adj]
 masnu [P:Adj]
-masnuat [A:NoVoicing, Plural]
+masnuat [A:NoVoicing, ImplicitPlural]
 mason
 masör
 masöz
@@ -15813,7 +15813,7 @@ mesaha
 mesai
 mesail
 mesaj
-mesamat [A:NoVoicing, Plural]
+mesamat [A:NoVoicing, ImplicitPlural]
 mesame
 mesane
 mescit
@@ -15870,7 +15870,7 @@ meşkûr [P:Adj]
 meşrep
 meşru [P:Adj]
 meşrubat [A:NoVoicing]
-meşruhat [A:NoVoicing, Plural]
+meşruhat [A:NoVoicing, ImplicitPlural]
 meşruiyet [A:NoVoicing]
 meşrut [A:NoVoicing]
 meşrut [P:Adj]
@@ -15947,7 +15947,7 @@ metruk [P:Adj]
 metrûkât [A:NoVoicing]
 metruke [P:Adj]
 metrukiyet [A:NoVoicing]
-mevcudat [A:NoVoicing, Plural]
+mevcudat [A:NoVoicing, ImplicitPlural]
 mevcudiyet [A:NoVoicing]
 mevcut [P:Adj]
 mevdu [P:Adj]
@@ -15980,7 +15980,7 @@ mevut [P:Adj]
 mevzi
 mevziî [P:Adj]
 mevzu
-mevzuat [A:NoVoicing, Plural]
+mevzuat [A:NoVoicing, ImplicitPlural]
 mevzubahis [P:Adj]
 mevzun [P:Adj]
 mevzuubahis [A:LastVowelDrop]
@@ -16531,8 +16531,8 @@ muhasır
 muhasip
 muhassala
 muhassas [P:Adj]
-muhassasat [A:NoVoicing, Plural]
-muhassenat [A:NoVoicing, Plural]
+muhassasat [A:NoVoicing, ImplicitPlural]
+muhassenat [A:NoVoicing, ImplicitPlural]
 muhassıl
 muhat [P:Adj; A:NoVoicing]
 muhatap
@@ -16582,7 +16582,7 @@ muhtesip
 muhteşem [P:Adj]
 muhteva
 muhtevi [P:Adj]
-muhteviyat [A:NoVoicing, Plural]
+muhteviyat [A:NoVoicing, ImplicitPlural]
 muhtıra
 muhzır
 muin
@@ -16817,7 +16817,7 @@ mücerrep [P:Adj]
 mücerret [P:Adj]
 mücessem [P:Adj]
 mücevher
-mücevherat [A:NoVoicing, Plural]
+mücevherat [A:NoVoicing, ImplicitPlural]
 mücmel [P:Adj]
 mücrim [P:Adj]
 mücver
@@ -16842,7 +16842,7 @@ müdellel [P:Adj]
 müdellel [P:Adv]
 müderris
 müdevven [P:Adj]
-müdevvenat [A:NoVoicing, Plural]
+müdevvenat [A:NoVoicing, ImplicitPlural]
 müdevver [P:Adj]
 müdire
 müdrik [A:NoVoicing]
@@ -16856,7 +16856,7 @@ müebbet [A:NoVoicing]
 müebbet [P:Adj]
 müeccel [P:Adj]
 müeddep [P:Adj]
-müellefat [A:NoVoicing, Plural]
+müellefat [A:NoVoicing, ImplicitPlural]
 müellif
 müemmen [P:Adj]
 müennes [P:Adj]
@@ -16874,7 +16874,7 @@ müfessir [P:Adj]
 müfettiş
 müfit [P:Adj]
 müflis [P:Adj]
-müfredat [A:NoVoicing, Plural]
+müfredat [A:NoVoicing, ImplicitPlural]
 müfret
 müfrez [P:Adj]
 müfreze
@@ -16891,7 +16891,7 @@ mühendishane
 müheyya [P:Adj]
 müheyyiç [P:Adj]
 mühim [P:Adj]
-mühimmat [A:NoVoicing, Plural]
+mühimmat [A:NoVoicing, ImplicitPlural]
 mühimsemek
 mühlet [A:NoVoicing]
 mühlik [A:NoVoicing]
@@ -16921,12 +16921,12 @@ mükemmeliyet [A:NoVoicing]
 mükerrer [P:Adj]
 mükerreren [P:Adv]
 mükevvenat [A:NoVoicing]
-mükeyyifat [A:NoVoicing, Plural]
+mükeyyifat [A:NoVoicing, ImplicitPlural]
 mükrim [P:Adj]
-müktesebat [A:NoVoicing, Plural]
+müktesebat [A:NoVoicing, ImplicitPlural]
 müktesep [P:Adj]
 mülahaza
-mülahazat [A:NoVoicing, Plural]
+mülahazat [A:NoVoicing, ImplicitPlural]
 mülahham [P:Adj]
 mülakat [A:NoVoicing]
 mülaki [P:Adj]
@@ -16941,7 +16941,7 @@ müleyyin [P:Adj]
 mülga [P:Adj]
 mülhak [A:NoVoicing]
 mülhak [P:Adj]
-mülhakat [A:NoVoicing, Plural]
+mülhakat [A:NoVoicing, ImplicitPlural]
 mülhem [P:Adj]
 mülhit [P:Adj]
 mülk
@@ -17037,7 +17037,7 @@ müreffehen [P:Adv]
 mürekkep
 mürekkep [P:Adj]
 mürekkeplemek
-mürettebat [A:NoVoicing, Plural]
+mürettebat [A:NoVoicing, ImplicitPlural]
 mürettep [P:Adj]
 mürettip
 mürettip [P:Adj]
@@ -17064,7 +17064,7 @@ müsademe
 müsadere
 müsadif [P:Adj]
 müsait [P:Adj; A:NoVoicing]
-müsakkafat [A:NoVoicing, Plural]
+müsakkafat [A:NoVoicing, ImplicitPlural]
 müsamaha
 müsamahakâr [P:Adj]
 müsamere
@@ -17085,7 +17085,7 @@ müsemmen
 müsemmen [P:Adj]
 müsevvit
 müshil
-müskirat [A:NoVoicing, Plural]
+müskirat [A:NoVoicing, ImplicitPlural]
 müsmir [P:Adj]
 müspet [P:Adj; A:NoVoicing]
 müsrif [P:Adj]
@@ -17100,7 +17100,7 @@ müstahdem
 müstahkem [P:Adj]
 müstahsil [P:Adj]
 müstahzar [P:Adj]
-müstahzarat [A:NoVoicing, Plural]
+müstahzarat [A:NoVoicing, ImplicitPlural]
 müstait [P:Adj]
 müstait [P:Noun; A:Voicing, Doubling]
 müstakar [A:Doubling]
@@ -17287,8 +17287,8 @@ müvezzi
 müyesser [P:Adj]
 müzaheret [A:NoVoicing]
 müzahir [P:Adj]
-müzahrefat [A:NoVoicing, Plural]
-müzakerat [A:NoVoicing, Plural]
+müzahrefat [A:NoVoicing, ImplicitPlural]
+müzakerat [A:NoVoicing, ImplicitPlural]
 müzakere
 müzayaka
 müzayede
@@ -17324,7 +17324,7 @@ nadas
 nadide [P:Adj]
 nadim [P:Adj]
 nadir [P:Adj]
-nadirat [A:NoVoicing, Plural]
+nadirat [A:NoVoicing, ImplicitPlural]
 nadiren [P:Adv]
 nafaka
 nafıa
@@ -17368,7 +17368,7 @@ nakkaş
 naklen [P:Adv]
 nakletmek [A:Voicing, Aorist_A]
 naklî [P:Adj]
-nakliyat [A:NoVoicing, Plural]
+nakliyat [A:NoVoicing, ImplicitPlural]
 nakliye
 nakşetmek [A:Voicing, Aorist_A]
 nakşolmak
@@ -17486,7 +17486,7 @@ nazarıdikkat [A:NoVoicing, InverseHarmony]
 nazarıitibar
 nazarında [P:Adv]
 nazarî [P:Adj]
-nazariyat [A:NoVoicing, Plural]
+nazariyat [A:NoVoicing, ImplicitPlural]
 nazariye
 nazenin [P:Adj]
 nâzım
@@ -17505,7 +17505,7 @@ ne [P:Adv]
 ne [P:Conj]
 ne [P:Pron,Ques]
 nebat [A:NoVoicing]
-nebatat [A:NoVoicing, Plural]
+nebatat [A:NoVoicing, ImplicitPlural]
 nebatî [P:Adj]
 nebbaş
 nebevî [P:Adj]
@@ -20145,7 +20145,7 @@ rükün [A:LastVowelDrop]
 rüküş [P:Adj]
 rüstik
 rüsum
-rüsumat [A:NoVoicing, Plural]
+rüsumat [A:NoVoicing, ImplicitPlural]
 rüsup
 rüsva [P:Adj]
 rüşeym
@@ -20233,7 +20233,7 @@ sadizm
 sadrazam
 saf [P:Adj]
 safa
-safahat [A:NoVoicing, Plural]
+safahat [A:NoVoicing, ImplicitPlural]
 safari
 safderun [P:Adj]
 safdil [P:Adj]
@@ -21119,7 +21119,7 @@ seyyal [P:Adj]
 seyyanen [P:Adv]
 seyyar [P:Adj]
 seyyare
-seyyiat [A:NoVoicing,Plural]
+seyyiat [A:NoVoicing, ImplicitPlural]
 seyyibe [P:Adj]
 seyyie
 seza [P:Adj]
@@ -22448,7 +22448,7 @@ süzüntü
 şepit
 şer [A:Doubling]
 şer [P:Adj]
-şerait [A:NoVoicing, Plural]
+şerait [A:NoVoicing, ImplicitPlural]
 şeran [P:Adv]
 şerare
 şerbet [A:NoVoicing]
@@ -22795,7 +22795,7 @@ tahaşşüt
 tahattur
 tahavvül
 tahayyül
-tahdidat [A:NoVoicing, Plural]
+tahdidat [A:NoVoicing, ImplicitPlural]
 tahdit
 tahfif
 tahıl
@@ -24727,7 +24727,7 @@ ulan [P:Interj]
 ulantı
 ulaşım
 ulaşmak
-ulema [A:Plural]
+ulema [A:ImplicitPlural]
 ultramodern [P:Adj]
 ultrason
 ultraviyole
@@ -24864,6 +24864,7 @@ uyuşkan [P:Adj]
 uyuşmak
 uyuşuk [P:Adj]
 uyuşum
+uyuşturucu
 uyuz
 uyuz [P:Adj]
 uz [P:Adj]
@@ -25149,7 +25150,7 @@ vardiya
 vareste [P:Adj]
 vargel
 vargı
-varidat [A:NoVoicing, Plural]
+varidat [A:NoVoicing, ImplicitPlural]
 varide
 varil
 varis
@@ -26472,7 +26473,7 @@ zerzevat [A:NoVoicing]
 zevahir
 zeval [A:InverseHarmony]
 zevalî [P:Adj]
-zevat [A:NoVoicing, Plural]
+zevat [A:NoVoicing, ImplicitPlural]
 zevce
 zevç [A:Voicing]
 zeveban

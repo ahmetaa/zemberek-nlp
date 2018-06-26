@@ -117,11 +117,6 @@ public enum RootAttribute implements StringEnum {
   // TODO: this is not yet used. But some words are marked in dictionary.
   NoSuffix,
 
-  // It contains plural meaning implicitly so adding an external plural suffix is erroneous.
-  // This usually applies to arabic loan words. Such as ulema, hayvanat et.
-  // TODO: this is not yet used. But some words are marked in dictionary.
-  Plural,
-
   // Some Compound words adds `n` instead of `y` when used with some suffixes. Such as `Boğaziçi-ne` not `Boğaziçi-ye`
   // TODO: this is not yet used. But some words are marked in dictionary.
   NounConsInsert_n,
@@ -159,6 +154,9 @@ public enum RootAttribute implements StringEnum {
 
   // -------------- Experimental attributes.
   ImplicitDative,
+
+  // It contains plural meaning implicitly so adding an external plural suffix is erroneous.
+  // This usually applies to arabic loan words. Such as ulema, hayvanat et.
   ImplicitPlural,
   ImplicitP1sg,
   ImplicitP2sg,

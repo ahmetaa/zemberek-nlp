@@ -41,6 +41,7 @@ public class TurkishDictionaryLoader {
       "tr/proper.dict",
       "tr/proper-from-corpus.dict",
       "tr/abbreviations.dict",
+      "tr/person-names.dict",
       "tr/locations-tr.dict"
   );
   static final Pattern DASH_QUOTE_MATCHER = Pattern.compile("[\\-']");
@@ -57,6 +58,7 @@ public class TurkishDictionaryLoader {
         new File(Resources.getResource("tr/proper.dict").getFile()),
         new File(Resources.getResource("tr/proper-from-corpus.dict").getFile()),
         new File(Resources.getResource("tr/abbreviations.dict").getFile()),
+        new File(Resources.getResource("tr/person-names.dict").getFile()),
         new File(Resources.getResource("tr/locations-tr.dict").getFile())
     );
     List<String> lines = Lists.newArrayList();
@@ -75,7 +77,7 @@ public class TurkishDictionaryLoader {
         .asCharSource(input, Charsets.UTF_8).readLines(new TextLexiconProcessor(lexicon));
   }
 
-  public DictionaryItem loadFromString(String dictionaryLine) {
+  public static DictionaryItem loadFromString(String dictionaryLine) {
     String lemma = dictionaryLine;
     if (dictionaryLine.contains(" ")) {
       lemma = dictionaryLine.substring(0, dictionaryLine.indexOf(" "));
@@ -83,7 +85,7 @@ public class TurkishDictionaryLoader {
     return load(dictionaryLine).getMatchingItems(lemma).get(0);
   }
 
-  public RootLexicon load(String... dictionaryLines) {
+  public static RootLexicon load(String... dictionaryLines) {
     TextLexiconProcessor processor = new TextLexiconProcessor();
     try {
       for (String s : dictionaryLines) {
@@ -97,7 +99,7 @@ public class TurkishDictionaryLoader {
     }
   }
 
-  public RootLexicon load(Iterable<String> dictionaryLines) {
+  public static RootLexicon load(Iterable<String> dictionaryLines) {
     TextLexiconProcessor processor = new TextLexiconProcessor();
     for (String s : dictionaryLines) {
       try {

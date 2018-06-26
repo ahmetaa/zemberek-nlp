@@ -225,8 +225,8 @@ public class TurkishMorphotactics {
   public static final Morpheme adamantly = addMorpheme(
       new Morpheme("Adamantly", "Adamantly", true));
   // okuyup (Adv)
-  public static final Morpheme afterDoing = addMorpheme(
-      new Morpheme("AfterDoing", "AfterDoing", true));
+  public static final Morpheme afterDoingSo = addMorpheme(
+      new Morpheme("AfterDoingSo", "AfterDoingSo", true));
   // okumadan, okumaksızın (Adv)
   public static final Morpheme withoutHavingDoneSo =
       addMorpheme(new Morpheme("WithoutHavingDoneSo", "WithoutHavingDoneSo", true));
@@ -1721,7 +1721,7 @@ public class TurkishMorphotactics {
   MorphemeState vAsLongAs_S = nonTerminalDerivative("vAsLongAs_S", asLongAs);
   MorphemeState vByDoingSo_S = nonTerminalDerivative("vByDoingSo_S", byDoingSo);
   MorphemeState vAdamantly_S = nonTerminalDerivative("vAdamantly_S", adamantly);
-  MorphemeState vAfterDoing_S = nonTerminalDerivative("vAfterDoing_S", afterDoing);
+  MorphemeState vAfterDoing_S = nonTerminalDerivative("vAfterDoing_S", afterDoingSo);
   MorphemeState vWithoutHavingDoneSo_S =
       nonTerminalDerivative("vWithoutHavingDoneSo_S", withoutHavingDoneSo);
   MorphemeState vWithoutBeingAbleToHaveDoneSo_S =

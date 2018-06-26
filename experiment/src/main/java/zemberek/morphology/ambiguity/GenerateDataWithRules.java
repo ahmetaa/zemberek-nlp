@@ -42,7 +42,8 @@ class GenerateDataWithRules extends AmbiguityScriptsBase {
   }
 
   public static void main(String[] args) throws IOException {
-    Path corporaRoot = Paths.get("/home/ahmetaa/data/zemberek/data/corpora");
+    //Path corporaRoot = Paths.get("/home/ahmetaa/data/zemberek/data/corpora");
+    Path corporaRoot = Paths.get("/media/aaa/Data/corpora/final");
     List<Path> roots = Lists.newArrayList(
         corporaRoot.resolve("www.aljazeera.com.tr"),
         corporaRoot.resolve("open-subtitles"),

@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,7 @@ public class PerceptronAmbiguityResolverTrainer {
     int numExamples = 0;
     for (int i = 0; i < iterationCount; i++) {
       Log.info("Iteration:" + i);
+      trainingSet.shuffle();
       for (SentenceAnalysis sentence : trainingSet.sentences) {
         if (sentence.size() == 0) {
           continue;
@@ -151,6 +153,10 @@ public class PerceptronAmbiguityResolverTrainer {
   static class DataSet {
 
     List<SentenceAnalysis> sentences;
+
+    public void shuffle() {
+      Collections.shuffle(sentences);
+    }
 
     public DataSet() {
       sentences = new ArrayList<>();

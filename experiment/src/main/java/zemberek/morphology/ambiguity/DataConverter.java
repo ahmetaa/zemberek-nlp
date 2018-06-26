@@ -48,14 +48,17 @@ public class DataConverter {
     lookup.put("gerek+noun+a3sg^db+adj+with","gerekli+adj");
     lookup.put("erken+adj","erken+adv");
     lookup.put("milletvekil+noun+a3sg+p3sg","milletvekili+noun+a3sg+p3sg");
+    lookup.put("işbirlik+noun+a3sg+p3sg","işbirliği+noun+a3sg+p3sg");
+    lookup.put("Meral","işbirliği+noun+a3sg+p3sg");
+    lookup.put("islami+adj","islami+adj+prop");
   }
 
 
   public static void main(String[] args) throws IOException {
 
     //Path dataPath = Paths.get("/home/ahmetaa/apps/Hasim_Sak_Data/data.dev.txt");
-    Path dataPath = Paths.get("/home/aaa/apps/MD-Release/data.train.txt");
-    Path output = Paths.get("data/ambiguity/sak.train");
+    Path dataPath = Paths.get("/home/aaa/apps/MD-Release/data.dev.txt");
+    Path output = Paths.get("data/ambiguity/sak.dev");
 
     extract(dataPath, output);
 
@@ -65,7 +68,14 @@ public class DataConverter {
     DataSet set = com.google.common.io.Files
         .asCharSource(dataPath.toFile(), Charsets.UTF_8).readLines(new DataSetLoader());
 
-    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    TurkishMorphology morphology = TurkishMorphology.builder().addTextDictionaryResources(
+        "tr/master-dictionary.dict",
+        "tr/non-tdk.dict",
+        "tr/proper.dict",
+        "tr/proper-from-corpus.dict",
+        "tr/abbreviations.dict",
+        "tr/person-names.dict",
+        "tr/locations-tr.dict").build();
 
     List<SentenceAnalysis> result = new ArrayList<>();
     Histogram<String> parseFails = new Histogram<>();
@@ -91,7 +101,6 @@ public class DataConverter {
         p = p.replaceAll("[.]", "");
         p = p.toLowerCase(Turkish.LOCALE);
         p = p.replaceAll("adverb", "adv");
-        p = p.replaceAll("afterdoingso", "afterdoing");
         p = p.replaceAll("\\+cop\\+a3sg", "+a3sg+cop");
         if(lookup.containsKey(p)) {
           p = lookup.get(p);
@@ -110,7 +119,7 @@ public class DataConverter {
           }
         }
         if (best == null) {
-          if (Character.isUpperCase(s.charAt(0)) && p.contains("+noun") && !p.contains("prop")) {
+          if (Character.isUpperCase(s.charAt(0)) && (p.contains("+noun") && !p.contains("prop"))) {
             String pp = p.replaceFirst("\\+noun","\\+noun+prop");
             for (SingleAnalysis analysis : a) {
               String of = convert(analysis);
