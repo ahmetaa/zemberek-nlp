@@ -38,6 +38,9 @@ public class PronunciationGuesser {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < w.length(); i++) {
       char c = w.charAt(i);
+      if (c == '-') {
+        continue;
+      }
       String key = String.valueOf(c);
       if (turkishLetterProns.containsKey(key)) {
         // most abbreviations ends with k uses `ka` sounds.

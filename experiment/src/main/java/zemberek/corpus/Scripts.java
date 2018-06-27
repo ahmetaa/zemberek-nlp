@@ -12,18 +12,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 import zemberek.core.collections.Histogram;
 import zemberek.core.collections.UIntSet;
+import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
+import zemberek.morphology.morphotactics.Morpheme;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.tokenization.TurkishSentenceExtractor;
 
 public class Scripts {
 
   public static void main(String[] args) throws IOException {
-    Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
-    checkWeirdChars(p);
+    //Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
+    //checkWeirdChars(p);
+    //morphemeNames();
+    foobar();
   }
 
   static void saveUnambigious() throws IOException {
@@ -32,6 +39,51 @@ public class Scripts {
     Path goldTestOut = Paths.get("data/gold/gold-test.txt");
     TurkishMorphology morphology = TurkishMorphology.createWithTextDictionaries();
     saveUnambiguous(clean(Files.readAllLines(goldTest)), morphology, goldTestOut);
+  }
+
+  static void morphemeNames() throws IOException {
+    List<Morpheme> morphemes = TurkishMorphotactics.getAllMorphemes();
+    for (Morpheme morpheme : morphemes) {
+      System.out.println(morpheme.id + " " + morpheme.name);
+    }
+  }
+
+  static void foobar() throws IOException {
+
+    Path path = Paths
+        .get("/home/aaa/projects/zemberek-nlp/morphology/src/main/resources/tr/person-names.dict");
+    Path path2 = Paths
+        .get("/home/aaa/projects/zemberek-nlp/morphology/src/main/resources/tr/person-names-reduced.dict");
+
+    List<String> bb = Files.readAllLines(path);
+
+
+    TurkishMorphology morphology = TurkishMorphology.builder().addTextDictionaryResources(
+        "tr/master-dictionary.dict",
+        "tr/non-tdk.dict",
+        "tr/proper.dict",
+        "tr/proper-from-corpus.dict",
+        "tr/abbreviations.dict",
+        "tr/locations-tr.dict").build();
+
+List<String> r = new ArrayList<>();
+    for (String s : bb) {
+      if(s.trim().length()==0)
+        continue;
+      s = s.replaceAll("[ ]+"," ").trim();
+      DictionaryItem d = TurkishDictionaryLoader.loadFromString(s);
+      if(!morphology.getLexicon().containsItem(d)) {
+        r.add(s.trim());
+      }
+    }
+    r.sort(Turkish.STRING_COMPARATOR_ASC);
+
+    Files.write(path2, r);
+
+
+
+
+
   }
 
   private static void checkWeirdChars(Path root) throws IOException {
