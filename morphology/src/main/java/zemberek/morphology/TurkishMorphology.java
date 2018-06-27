@@ -16,6 +16,7 @@ import org.antlr.v4.runtime.Token;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
+import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.StemAndEnding;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -164,10 +165,14 @@ public class TurkishMorphology {
     if (s.length() == 0) {
       return WordAnalysis.EMPTY_INPUT_RESULT;
     }
-    List<SingleAnalysis> result = analyzer.analyze(s);
 
-    if (result.size() == 0) {
+    List<SingleAnalysis> result;
+
+    if (TurkishAlphabet.INSTANCE.containsApostrophe(s)) {
+      s = TurkishAlphabet.INSTANCE.normalizeApostrophe(s);
       result = analyzeWordsWithApostrophe(s);
+    } else {
+      result = analyzer.analyze(s);
     }
 
     if (result.size() == 0 && useUnidentifiedTokenAnalyzer) {
@@ -185,31 +190,27 @@ public class TurkishMorphology {
 
     int index = word.indexOf('\'');
 
-    if (index >= 0) {
-
-      if (index == 0 || index == word.length() - 1) {
-        return Collections.emptyList();
-      }
-
-      StemAndEnding se = new StemAndEnding(
-          word.substring(0, index),
-          word.substring(index + 1));
-
-      String stem = TurkishAlphabet.INSTANCE.normalize(se.stem);
-
-      String withoutQuote = word.replaceAll("'", "");
-
-      List<SingleAnalysis> noQuotesParses = analyzer.analyze(withoutQuote);
-      if (noQuotesParses.size() == 0) {
-        return Collections.emptyList();
-      }
-
-      return noQuotesParses.stream()
-          .filter(noQuotesParse -> noQuotesParse.getStems().contains(stem))
-          .collect(Collectors.toList());
-    } else {
+    if (index <= 0 || index == word.length() - 1) {
       return Collections.emptyList();
     }
+
+    StemAndEnding se = new StemAndEnding(
+        word.substring(0, index),
+        word.substring(index + 1));
+
+    String stem = TurkishAlphabet.INSTANCE.normalize(se.stem);
+
+    String withoutQuote = word.replace("'", "");
+
+    List<SingleAnalysis> noQuotesParses = analyzer.analyze(withoutQuote);
+    if (noQuotesParses.size() == 0) {
+      return Collections.emptyList();
+    }
+
+    return noQuotesParses.stream()
+        .filter(
+            a -> a.getDictionaryItem().primaryPos == PrimaryPos.Noun && a.getStem().equals(stem))
+        .collect(Collectors.toList());
   }
 
   public List<WordAnalysis> analyzeSentence(String sentence) {
@@ -278,7 +279,7 @@ public class TurkishMorphology {
       for (File file : dictionaryFiles) {
         lines.addAll(Files.readAllLines(file.toPath()));
       }
-      lexicon.addAll(new TurkishDictionaryLoader().load(lines));
+      lexicon.addAll(TurkishDictionaryLoader().load(lines));
       return this;
     }
 
@@ -290,12 +291,12 @@ public class TurkishMorphology {
     }
 
     public Builder addDictionaryLines(String... lines) {
-      lexicon.addAll(new TurkishDictionaryLoader().load(lines));
+      lexicon.addAll(TurkishDictionaryLoader().load(lines));
       return this;
     }
 
     public Builder addDictionaryLines(Collection<String> lines) {
-      lexicon.addAll(new TurkishDictionaryLoader().load(lines));
+      lexicon.addAll(TurkishDictionaryLoader().load(lines));
       return this;
     }
 
@@ -337,12 +338,12 @@ public class TurkishMorphology {
       for (String resource : resources) {
         lines.addAll(TextIO.loadLinesFromResource(resource));
       }
-      lexicon.addAll(new TurkishDictionaryLoader().load(lines));
+      lexicon.addAll(TurkishDictionaryLoader().load(lines));
       return this;
     }
 
     public Builder removeItems(Iterable<String> dictionaryString) {
-      lexicon.removeAll(new TurkishDictionaryLoader().load(dictionaryString));
+      lexicon.removeAll(TurkishDictionaryLoader().load(dictionaryString));
       return this;
     }
 

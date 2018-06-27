@@ -31,6 +31,8 @@ public class TurkishAlphabet {
   private FixedBitVector circumflexLookup =
       TextUtil.generateBitLookup(circumflex + circumflexUpper);
 
+  private final String apostrophe = "\u2032´`’‘'";
+  private FixedBitVector apostropheLookup = TextUtil.generateBitLookup(apostrophe);
 
   private final String stopConsonants = "çkpt";
   private FixedBitVector stopConsonantLookup =
@@ -179,6 +181,16 @@ public class TurkishAlphabet {
     return false;
   }
 
+  public boolean containsApostrophe(String s) {
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (lookup(apostropheLookup, c)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public String getAllLetters() {
     return allLetters;
   }
@@ -206,6 +218,23 @@ public class TurkishAlphabet {
     }
     return sb.toString();
   }
+
+  public String normalizeApostrophe(String s) {
+    if (!containsApostrophe(s)) {
+      return s;
+    }
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (lookup(apostropheLookup, c)) {
+        sb.append('\'');
+      } else {
+        sb.append(c);
+      }
+    }
+    return sb.toString();
+  }
+
 
   public char voice(char c) {
     int res = voicingMap.get(c);

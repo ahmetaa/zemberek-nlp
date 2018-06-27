@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.io.Strings;
 import zemberek.core.turkish.PrimaryPos;
@@ -116,7 +117,8 @@ public class UnidentifiedTokenAnalyzer {
         normalized,
         pronunciation,
         PrimaryPos.Noun,
-        normalized.contains(".") ? SecondaryPos.Abbreviation : SecondaryPos.ProperNoun);
+        word.contains(".") ? SecondaryPos.Abbreviation : SecondaryPos.ProperNoun);
+
     boolean itemDoesNotExist = !lexicon.containsItem(itemProp);
 
     if (!itemDoesNotExist) {
@@ -132,12 +134,14 @@ public class UnidentifiedTokenAnalyzer {
   }
 
   private List<SingleAnalysis> tryWordWithApostrophe(String word) {
-    int index = word.indexOf('\'');
-    if (index < 0 || index == 0 || index == word.length() - 1) {
+    String normalized = TurkishAlphabet.INSTANCE.normalizeApostrophe(word);
+
+    int index = normalized.indexOf('\'');
+    if (index <= 0 || index == normalized.length() - 1) {
       return Collections.emptyList();
     }
-    String stem = word.substring(0, index);
-    String ending = word.substring(index + 1);
+    String stem = normalized.substring(0, index);
+    String ending = normalized.substring(index + 1);
 
     StemAndEnding se = new StemAndEnding(stem, ending);
     //TODO: should we remove dots with normalization?
@@ -156,11 +160,14 @@ public class UnidentifiedTokenAnalyzer {
       analyzer.getStemTransitions().addDictionaryItem(itemProp);
     }
     String toParse = stemNormalized + endingNormalized;
-    List<SingleAnalysis> properResults = analyzer.analyze(toParse);
+
+    List<SingleAnalysis> noQuotesParses = analyzer.analyze(toParse);
     if (itemDoesNotExist) {
       analyzer.getStemTransitions().removeDictionaryItem(itemProp);
     }
-    return properResults;
+    return noQuotesParses.stream()
+        .filter(noQuotesParse -> noQuotesParse.getStem().equals(stemNormalized))
+        .collect(Collectors.toList());
   }
 
   PronunciationGuesser guesser = new PronunciationGuesser();
