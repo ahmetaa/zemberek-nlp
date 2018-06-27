@@ -1,9 +1,11 @@
 package zemberek.grpc.server;
 
 import io.grpc.stub.StreamObserver;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import zemberek.langid.LanguageIdentifier;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis.MorphemeData;
@@ -13,13 +15,17 @@ import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.proto.AnalysisRequest;
 import zemberek.proto.AnalysisResponse;
 import zemberek.proto.AnalysisServiceGrpc.AnalysisServiceImplBase;
+import zemberek.proto.LangIdRequest;
+import zemberek.proto.LangIdResponse;
 
 public class AnalysisServerImpl extends AnalysisServiceImplBase {
 
   private final TurkishMorphology morphology;
+  private final LanguageIdentifier languageIdentifier;
 
-  public AnalysisServerImpl() {
+  public AnalysisServerImpl() throws IOException {
     morphology = TurkishMorphology.createWithDefaults();
+    languageIdentifier = LanguageIdentifier.fromInternalModels();
   }
 
   @Override
@@ -38,6 +44,14 @@ public class AnalysisServerImpl extends AnalysisServiceImplBase {
     responseObserver.onNext(AnalysisResponse.newBuilder()
         .addAllWordAnalysis(wordAnalysisList)
         .build());
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void detectLanguage(LangIdRequest request,
+      StreamObserver<LangIdResponse> responseObserver) {
+    String id = languageIdentifier.identify(request.getInput());
+    responseObserver.onNext(LangIdResponse.newBuilder().setLangId(id).build());
     responseObserver.onCompleted();
   }
 

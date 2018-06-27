@@ -29,6 +29,11 @@
       <version>${project.parent.version}</version>
     </dependency>
     <dependency>
+      <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-lang-id</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-netty</artifactId>
       <version>1.12.0</version>
