@@ -279,7 +279,7 @@ public class TurkishMorphology {
       for (File file : dictionaryFiles) {
         lines.addAll(Files.readAllLines(file.toPath()));
       }
-      lexicon.addAll(TurkishDictionaryLoader().load(lines));
+      lexicon.addAll(TurkishDictionaryLoader.load(lines));
       return this;
     }
 
@@ -291,12 +291,12 @@ public class TurkishMorphology {
     }
 
     public Builder addDictionaryLines(String... lines) {
-      lexicon.addAll(TurkishDictionaryLoader().load(lines));
+      lexicon.addAll(TurkishDictionaryLoader.load(lines));
       return this;
     }
 
     public Builder addDictionaryLines(Collection<String> lines) {
-      lexicon.addAll(TurkishDictionaryLoader().load(lines));
+      lexicon.addAll(TurkishDictionaryLoader.load(lines));
       return this;
     }
 
@@ -338,12 +338,12 @@ public class TurkishMorphology {
       for (String resource : resources) {
         lines.addAll(TextIO.loadLinesFromResource(resource));
       }
-      lexicon.addAll(TurkishDictionaryLoader().load(lines));
+      lexicon.addAll(TurkishDictionaryLoader.load(lines));
       return this;
     }
 
     public Builder removeItems(Iterable<String> dictionaryString) {
-      lexicon.removeAll(TurkishDictionaryLoader().load(dictionaryString));
+      lexicon.removeAll(TurkishDictionaryLoader.load(dictionaryString));
       return this;
     }
 
