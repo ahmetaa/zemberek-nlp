@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option java_package = "zemberek.proto";
+option java_multiple_files = true;
+
+message LangIdRequest {
+  string input = 1;
+}
+
+message LangIdResponse {
+  string langId = 1;
+}
+
+service LanguageIdService {
+  rpc detectLanguage (LangIdRequest) returns (LangIdResponse);
+}

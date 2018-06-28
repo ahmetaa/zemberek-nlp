@@ -52,16 +52,6 @@ message AnalysisResponse {
   repeated WordAnalysis word_analysis = 2;
 }
 
-
-message LangIdRequest {
-  string input = 1;
-}
-
-message LangIdResponse {
-  string langId = 1;
-}
-
 service AnalysisService {
   rpc analyze(AnalysisRequest) returns (AnalysisResponse);
-  rpc detectLanguage (LangIdRequest) returns (LangIdResponse);
 }

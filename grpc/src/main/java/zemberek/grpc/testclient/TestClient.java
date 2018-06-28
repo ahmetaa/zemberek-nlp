@@ -10,6 +10,8 @@ import zemberek.proto.AnalysisServiceGrpc;
 import zemberek.proto.AnalysisServiceGrpc.AnalysisServiceBlockingStub;
 import zemberek.proto.LangIdRequest;
 import zemberek.proto.LangIdResponse;
+import zemberek.proto.LanguageIdServiceGrpc;
+import zemberek.proto.LanguageIdServiceGrpc.LanguageIdServiceBlockingStub;
 
 public class TestClient {
 
@@ -19,6 +21,8 @@ public class TestClient {
         .usePlaintext()
         .build();
     AnalysisServiceBlockingStub analysisServiceBlockingStub = AnalysisServiceGrpc
+        .newBlockingStub(channel);
+    LanguageIdServiceBlockingStub languageIdServiceBlockingStub = LanguageIdServiceGrpc
         .newBlockingStub(channel);
     String input = "tapirler";
     AnalysisResponse response = analysisServiceBlockingStub.analyze(AnalysisRequest.newBuilder()
@@ -30,7 +34,7 @@ public class TestClient {
     Log.info("----- Language Identification ------------ ");
 
     String langIdInput = "Merhaba dünya";
-    LangIdResponse langIdResponse = analysisServiceBlockingStub.detectLanguage(
+    LangIdResponse langIdResponse = languageIdServiceBlockingStub.detectLanguage(
         LangIdRequest.newBuilder().setInput(langIdInput).build());
 
     Log.info("Input: " + langIdInput);
