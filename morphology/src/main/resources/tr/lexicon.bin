@@ -4243,7 +4243,8 @@ solidarist(:2
 radyotelefon(2
 Barton(0:2
 fotokopi(2
-Liam(0:2'
+Liam(0:2
+	ortaklık(:2'
 horozşeker"horozşekeri_Noun(:2
 Rölöve(0:2
 Cohn(0:2
@@ -12373,7 +12374,11 @@ Selamoğlu(0:2
 mihman(2
 topalak(:2
 Burmahan(0:2
-	hayırdua(2
+	hayırdua(2
+
+yardımcı(2
+
+yardımcı(2
 
 Sindirella(0:2
 Hasen(0:2
@@ -43038,6 +43043,8 @@ cancağız(2
 	karasevda(:2
 Lülecioğlu(0:2
 Yedideğirmen(0:2
+yazılı(2
+yazılı(2
 hazırun(2
 Gdynia(0:2
 
@@ -44432,7 +44439,9 @@ Günbeller(0:2
 Meymun(0:2
 Alatlar(0:2
 Gemişpınarı(0:2
-Belsu(0:2
+Belsu(0:2
+
+bağımlı(2
 Gazimağusa(0:2
 transplantasyon(2
 Mazhar(0:2
@@ -46132,7 +46141,8 @@ dağılım(2
 
 elaman(2
 Kyung(0:2
-Karşıkuşluhan(0:2
+Karşıkuşluhan(0:2
+	Yargıtay(0:2
 
 Fabrikası(0:2
 yıldızanasonu(:2
@@ -57815,8 +57825,7 @@ esindirmekesindiresindir(:2
 Broken(0:2
 Ferry(0:2
 Philae(0:2
-sıradan(2
-	yargıtay(2
+sıradan(2
 Speer(0:2
 Abher(0:2
 beka(2
@@ -62280,8 +62289,8 @@ Kozanoğlu(0:2
 anzarot(:2
 	Hocasinan(0:2
 Ovakozlu(0:2
-ilenç(:2	
-ileri(2	
+ilenç(:2
+ileri(:2	
 ileri(2	
 ileri(2	
 ileri(2
@@ -84171,7 +84180,8 @@ hektometre(2
 kargabüken(2
 Göbette(0:2
 	Abdoulaye(0:2
-Elmalar(0:2
+Elmalar(0:2
+bağımsız(2
 Afet(0:2
 Afer(0:2
 	Abdelaziz(0:2
@@ -93159,7 +93169,8 @@ Ağıldere(0:2
 
 astbaşkan(:2
 Gümüşkapı(0:2
-depozit(:2
+depozit(:2
+temsilci(2
 	telörgü(:2
 Spin(0:2
 Spil(0:2
@@ -100125,7 +100136,8 @@ Neciplerin(0:2
 Eskiapardı(0:2!
 	paralâksparalaksparalaks(2
 Evora(0:2(
-gündönüm"gündönümü_Noun(:2
+gündönüm"gündönümü_Noun(:2
+kişisel(2
 Erkiner(0:2
 berhava(2
 Karamanağzı(0:2

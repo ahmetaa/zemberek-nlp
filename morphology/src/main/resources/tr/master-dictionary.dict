@@ -2029,6 +2029,8 @@ bağıl
 bağıl [P:Adj]
 bağıldak
 bağım
+bağımsız [P:Adj]
+bağımlı [P:Adj]
 bağımlamak
 bağın
 bağıntı
@@ -10780,7 +10782,7 @@ ilelebet [P:Adv]
 ilenç
 ilenmek
 ilerde
-ileri
+ileri [A:ImplicitDative]
 ileri [P:Adj]
 ileri [P:Adv]
 ilerlek [P:Adj]
@@ -13366,6 +13368,7 @@ kispî
 kist [A:NoVoicing]
 kisve
 kişi
+kişisel [P:Adj]
 kişilik
 kişioğlu
 kişizade [P:Adj]
@@ -18115,6 +18118,7 @@ ortaç
 ortak
 ortak [P:Adj]
 ortaklaşa
+ortaklık
 ortaklaşa [P:Adv]
 ortakyaşar [P:Adj]
 ortalama
@@ -23621,6 +23625,7 @@ temren
 temrin
 temriye
 temsil
+temsilci
 temsilen [P:Adv]
 temsilî [P:Adj]
 temyiz
@@ -25718,6 +25723,8 @@ yarbay
 yarda
 yardak
 yardım
+yardımcı
+yardımcı [P:Adj]
 yardımsever [P:Adj]
 yâren
 yârenbaşı [A:CompoundP3sg; Roots:yâren-baş]
@@ -25725,7 +25732,7 @@ yargı
 yargıç
 yargıevi [A:CompoundP3sg; Roots:yargı-ev]
 yargılamak
-yargıtay
+Yargıtay
 yarı [P:Adj]
 yarıçap [A:NoVoicing]
 yarık
@@ -25855,6 +25862,8 @@ yazı
 yazıhane
 yazık
 yazılamak
+yazılı
+yazılı [P:Adj]
 yazılım
 yazım
 yazın

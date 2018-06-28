@@ -51,14 +51,29 @@ public class DataConverter {
     lookup.put("işbirlik+noun+a3sg+p3sg","işbirliği+noun+a3sg+p3sg");
     lookup.put("Meral","işbirliği+noun+a3sg+p3sg");
     lookup.put("islami+adj","islami+adj+prop");
+    lookup.put("bir+num+dist","birer+num+dist");
+    lookup.put("müdürlük+noun+a3sg+p3sg","müdürlüğü+noun+a3sg+p3sg");
+    lookup.put("toplumsal+adj","toplum+noun+a3sg^db+adj+related");
+    lookup.put("üzer+noun+a3sg+p3sg+loc^db+adj+rel","üzeri+noun+a3sg+loc+adj+rel");
+    lookup.put("ol+verb^db+adj+prespart^db+noun+zero+a3pl","ol+verb^db+noun+prespart+a3pl");
+    lookup.put("herkes+noun+a3sg+gen","herkes+pron+quant+a3pl+gen");
+    lookup.put("müslüman+adj","müslüman+noun+prop+a3sg");
+    lookup.put("yazılı+noun+a3sg","yazılı+adj");
+    lookup.put("sorumlu+noun+a3sg^db+noun+ness+a3sg","sorumluluk+noun+a3sg");
+    lookup.put("işadam+noun+a3sg+p3sg","işadamı+noun+a3sg+p3sg");
+    lookup.put("değil+verb+pres+a1pl","değil+verb+neg+pres+a1pl");
+    lookup.put("değil+verb+pres+a1sg","değil+verb+neg+pres+a1sg");
+    lookup.put("değil+verb+past+a3sg","değil+verb+neg+past+a3sg");
+    lookup.put("kamuoy+noun+a3sg+p3sg+loc","kamuoyu+noun+a3sg+p3sg+loc");
+    lookup.put("çık+verb^db+verb+caus+past+a3sg","çıkar+verb+past+a3sg");
   }
 
 
   public static void main(String[] args) throws IOException {
 
     //Path dataPath = Paths.get("/home/ahmetaa/apps/Hasim_Sak_Data/data.dev.txt");
-    Path dataPath = Paths.get("/home/aaa/apps/MD-Release/data.dev.txt");
-    Path output = Paths.get("data/ambiguity/sak.dev");
+    Path dataPath = Paths.get("/home/aaa/apps/MD-Release/data.test.txt");
+    Path output = Paths.get("data/ambiguity/sak.test");
 
     extract(dataPath, output);
 

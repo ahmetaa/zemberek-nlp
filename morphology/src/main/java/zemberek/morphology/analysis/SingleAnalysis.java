@@ -144,12 +144,22 @@ public class SingleAnalysis {
     return morphemeDataList.get(0).surface;
   }
 
+  public boolean containsMorpheme(Morpheme morpheme) {
+    for (MorphemeData morphemeData : morphemeDataList) {
+      if (morphemeData.morpheme == morpheme) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * Splits the parse into stem and ending. Such as:
+   * <pre>
    * "kitaplar" -> "kitap-lar"
    * "kitabımdaki" -> "kitab-ımdaki"
    * "kitap" -> "kitap-"
-   *
+   * </pre>
    * @return a StemAndEnding instance carrying stem and ending. If ending has no surface content
    * empty string is used.
    */
@@ -358,8 +368,7 @@ public class SingleAnalysis {
 
 
   /**
-   * Returns list of all lemmas of a parse.
-   * Examples:
+   * Returns list of all lemmas of a parse. Examples:
    * <pre>
    * "kitaplar"  ->["kitap"]
    * "kitabım"   ->["kitap"]

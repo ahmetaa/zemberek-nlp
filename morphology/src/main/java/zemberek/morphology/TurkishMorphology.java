@@ -207,9 +207,12 @@ public class TurkishMorphology {
       return Collections.emptyList();
     }
 
+    // TODO: this is somewhat a hack.Correcty here once we decide what to do about
+    // words like "Hastanesi'ne". Should we accept Hastanesi or Hastane?
     return noQuotesParses.stream()
         .filter(
-            a -> a.getDictionaryItem().primaryPos == PrimaryPos.Noun && a.getStem().equals(stem))
+            a -> a.getDictionaryItem().primaryPos == PrimaryPos.Noun &&
+                (a.containsMorpheme(TurkishMorphotactics.p3sg) || a.getStem().equals(stem)))
         .collect(Collectors.toList());
   }
 

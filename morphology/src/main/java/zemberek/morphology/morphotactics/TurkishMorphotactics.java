@@ -1589,8 +1589,9 @@ public class TurkishMorphotactics {
     // gibi is kind of special.
     DictionaryItem gibiGen = lexicon.getItemById("gibi_Postp_PCGen");
     DictionaryItem gibiNom = lexicon.getItemById("gibi_Postp_PCNom");
+    DictionaryItem sonraAbl = lexicon.getItemById("sonra_Postp_PCAbl");
 
-    postpZero_S.addEmpty(po2nRoot_S, rootIsAny(gibiGen, gibiNom));
+    postpZero_S.addEmpty(po2nRoot_S, rootIsAny(gibiGen, gibiNom, sonraAbl));
 
     po2nRoot_S.addEmpty(po2nA3sg_S);
     po2nRoot_S.add(po2nA3pl_S, "lAr");

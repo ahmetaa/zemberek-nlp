@@ -184,7 +184,7 @@ public abstract class StemTransitionsBase {
 
   Set<String> specialRoots = Sets.newHashSet(
       "içeri_Noun", "içeri_Adj", "dışarı_Adj", "şura_Noun", "bura_Noun", "ora_Noun",
-      "dışarı_Noun", "dışarı_Postp", "yukarı_Noun", "yukarı_Adj",
+      "dışarı_Noun", "dışarı_Postp", "yukarı_Noun", "yukarı_Adj", "ileri_Noun",
       "ben_Pron_Pers", "sen_Pron_Pers", "demek_Verb", "yemek_Verb", "imek_Verb",
       "birbiri_Pron_Quant", "çoğu_Pron_Quant", "öbürü_Pron_Quant", "birçoğu_Pron_Quant"
   );
@@ -203,6 +203,7 @@ public abstract class StemTransitionsBase {
       case "dışarı_Noun":
       case "dışarı_Postp":
       case "yukarı_Noun":
+      case "ileri_Noun":
       case "yukarı_Adj":
       case "şura_Noun":
       case "bura_Noun":

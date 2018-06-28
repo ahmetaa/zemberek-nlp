@@ -56,7 +56,7 @@ class GenerateDataWithRules extends AmbiguityScriptsBase {
     GenerateDataWithRules app = new GenerateDataWithRules();
 
     for (Path root : roots) {
-      app.extractData(root, outRoot, 10000, 0);
+      app.extractData(root, outRoot, 15000, 0);
     }
   }
 

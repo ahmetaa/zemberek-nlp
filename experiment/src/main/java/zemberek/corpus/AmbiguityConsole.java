@@ -3,6 +3,7 @@ package zemberek.corpus;
 import java.io.IOException;
 import java.util.Scanner;
 import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.AnalysisFormatters;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
