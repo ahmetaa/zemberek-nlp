@@ -21,6 +21,7 @@
     <module>server</module>
     <module>normalization</module>
     <module>examples</module>
+    <module>ner</module>
   </modules>
 
   <distributionManagement>
