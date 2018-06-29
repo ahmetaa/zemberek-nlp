@@ -1,17 +1,17 @@
 package zemberek.morphology.analysis;
 
 public class SentenceWordAnalysis {
-  SingleAnalysis analysis;
+  SingleAnalysis bestAnalysis;
   WordAnalysis wordAnalysis;
 
-  public SentenceWordAnalysis(SingleAnalysis analysis,
+  public SentenceWordAnalysis(SingleAnalysis bestAnalysis,
       WordAnalysis wordAnalysis) {
-    this.analysis = analysis;
+    this.bestAnalysis = bestAnalysis;
     this.wordAnalysis = wordAnalysis;
   }
 
-  public SingleAnalysis getAnalysis() {
-    return analysis;
+  public SingleAnalysis getBestAnalysis() {
+    return bestAnalysis;
   }
 
   public WordAnalysis getWordAnalysis() {

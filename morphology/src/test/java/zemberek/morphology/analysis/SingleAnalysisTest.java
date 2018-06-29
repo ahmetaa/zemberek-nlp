@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
+import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology.analysis.SingleAnalysis.MorphemeGroup;
 
 public class SingleAnalysisTest extends AnalyzerTestBase {
@@ -19,6 +20,18 @@ public class SingleAnalysisTest extends AnalyzerTestBase {
         analyzer.getLexicon().getItemById("kitap_Noun"));
     Assert.assertEquals("larda", analysis.getEnding());
     Assert.assertEquals("kitap", analysis.getStem());
+  }
+
+  @Test
+  public void getPosTest() {
+    InterpretingAnalyzer analyzer = getAnalyzer("görmek");
+    List<SingleAnalysis> analyses = analyzer.analyze("görmek");
+    Assert.assertEquals(1, analyses.size());
+    SingleAnalysis analysis = analyses.get(0);
+
+    Assert.assertEquals(analysis.getDictionaryItem(),
+        analyzer.getLexicon().getItemById("görmek_Verb"));
+    Assert.assertEquals(PrimaryPos.Noun, analysis.getPos());
   }
 
   @Test

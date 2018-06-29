@@ -18,8 +18,8 @@ public class FindPOS {
     SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(sentence);
 
     for (SentenceWordAnalysis a : analysis) {
-      PrimaryPos primaryPos = a.getAnalysis().getDictionaryItem().primaryPos;
-      SecondaryPos secondaryPos = a.getAnalysis().getDictionaryItem().secondaryPos;
+      PrimaryPos primaryPos = a.getBestAnalysis().getDictionaryItem().primaryPos;
+      SecondaryPos secondaryPos = a.getBestAnalysis().getDictionaryItem().secondaryPos;
       Log.info("%s -> %s : %s ",
           a.getWordAnalysis().getInput(),
           primaryPos,

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.StemAndEnding;
@@ -66,12 +67,11 @@ public class SingleAnalysis {
 
     public PrimaryPos getPos() {
       for (MorphemeData mSurface : morphemes) {
-        if (mSurface.morpheme.pos != null) {
+        if (mSurface.morpheme.pos != null && mSurface.morpheme.pos != PrimaryPos.Unknown) {
           return mSurface.morpheme.pos;
         }
       }
-      throw new IllegalStateException(
-          "A morhpheme group must have a morpheme with a POS information. " + morphemes);
+      return PrimaryPos.Unknown;
     }
 
     public String surfaceForm() {
@@ -160,6 +160,7 @@ public class SingleAnalysis {
    * "kitabımdaki" -> "kitab-ımdaki"
    * "kitap" -> "kitap-"
    * </pre>
+   *
    * @return a StemAndEnding instance carrying stem and ending. If ending has no surface content
    * empty string is used.
    */

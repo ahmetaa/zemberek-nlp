@@ -34,7 +34,7 @@ public class SentenceAnalysis implements Iterable<SentenceWordAnalysis> {
   }
 
   public List<SingleAnalysis> bestAnalysis() {
-    return parseEntries.stream().map(s -> s.analysis).collect(Collectors.toList());
+    return parseEntries.stream().map(s -> s.bestAnalysis).collect(Collectors.toList());
   }
 
   public List<WordAnalysis> allAnalyses() {

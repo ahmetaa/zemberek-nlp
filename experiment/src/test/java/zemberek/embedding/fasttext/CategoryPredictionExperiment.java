@@ -189,7 +189,7 @@ public class CategoryPredictionExperiment {
         SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(join);
         List<String> res = new ArrayList<>();
         for (SentenceWordAnalysis e : analysis) {
-          SingleAnalysis best = e.getAnalysis();
+          SingleAnalysis best = e.getBestAnalysis();
           if (best.isUnknown()) {
             res.add(e.getWordAnalysis().getInput());
             continue;

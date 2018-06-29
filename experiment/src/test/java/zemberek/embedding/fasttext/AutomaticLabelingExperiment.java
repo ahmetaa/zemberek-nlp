@@ -254,7 +254,7 @@ public class AutomaticLabelingExperiment {
       SentenceAnalysis analysis = analyzer.analyzeAndResolveAmbiguity(joined);
       List<String> res = new ArrayList<>();
       for (SentenceWordAnalysis e : analysis) {
-        SingleAnalysis best = e.getAnalysis();
+        SingleAnalysis best = e.getBestAnalysis();
         if (best.isUnknown()) {
           res.add(e.getWordAnalysis().getInput());
           continue;

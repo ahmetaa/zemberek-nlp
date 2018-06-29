@@ -3,7 +3,6 @@ package zemberek.corpus;
 import java.io.IOException;
 import java.util.Scanner;
 import zemberek.morphology.TurkishMorphology;
-import zemberek.morphology.analysis.AnalysisFormatters;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
@@ -36,7 +35,7 @@ public class AmbiguityConsole {
         WordAnalysis wa = sw.getWordAnalysis();
         System.out.println(wa.getInput());
 
-        SingleAnalysis best = sw.getAnalysis();
+        SingleAnalysis best = sw.getBestAnalysis();
         for (SingleAnalysis singleAnalysis : wa) {
           boolean isBest = singleAnalysis.equals(best);
           if (wa.analysisCount() == 1) {

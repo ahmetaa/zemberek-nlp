@@ -23,7 +23,7 @@ public class AmbiguityResolutionTests {
     Assert.assertEquals(TurkishTokenizer.DEFAULT.tokenize(input).size(), analysis.size());
     for (SentenceWordAnalysis sentenceWordAnalysis : analysis) {
       String token = sentenceWordAnalysis.getWordAnalysis().getInput();
-      SingleAnalysis an = sentenceWordAnalysis.getAnalysis();
+      SingleAnalysis an = sentenceWordAnalysis.getBestAnalysis();
       System.out.println(token + " = " + an.formatLong());
     }
   }

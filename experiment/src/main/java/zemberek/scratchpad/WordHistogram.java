@@ -185,7 +185,7 @@ public class WordHistogram {
         SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(sentence);
 
         for (SentenceWordAnalysis e : analysis) {
-          SingleAnalysis best = e.getAnalysis();
+          SingleAnalysis best = e.getBestAnalysis();
           if (best.getPos() == PrimaryPos.Numeral ||
               best.getPos() == PrimaryPos.Punctuation) {
             continue;

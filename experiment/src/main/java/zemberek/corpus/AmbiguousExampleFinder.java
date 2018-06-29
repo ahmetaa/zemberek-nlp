@@ -91,7 +91,7 @@ public class AmbiguousExampleFinder {
             WordAnalysis wa = sw.getWordAnalysis();
             pwMorph.println(wa.getInput());
 
-            SingleAnalysis best = sw.getAnalysis();
+            SingleAnalysis best = sw.getBestAnalysis();
             for (SingleAnalysis singleAnalysis : wa) {
               boolean isBest = singleAnalysis.equals(best);
               if (wa.analysisCount() == 1) {
