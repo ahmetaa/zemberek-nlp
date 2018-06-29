@@ -17,7 +17,7 @@ class NerSentence {
 
   public List<NamedEntity> getNamedEntities() {
     return getNamedEntitiesAll().stream()
-        .filter(s->!s.type.equals("O")).collect(Collectors.toList());
+        .filter(s->!s.type.equals("OUT")).collect(Collectors.toList());
   }
 
   private List<NamedEntity> getNamedEntitiesAll() {
@@ -36,6 +36,23 @@ class NerSentence {
       neTokens.add(token);
     }
     return namedEntities;
+  }
+
+  public String getAsTrainingSentence() {
+    List<NamedEntity> all = getNamedEntitiesAll();
+    List<String> tokens = new ArrayList<>();
+    for (NamedEntity namedEntity : all) {
+      if(namedEntity.type.equals("OUT")) {
+        tokens.add(namedEntity.tokens.get(0).word);
+      } else {
+        tokens.add("[" + namedEntity.type);
+        for(NerToken token : namedEntity.tokens) {
+          tokens.add(token.word);
+        }
+        tokens.add("]");
+      }
+    }
+    return String.join(" ", tokens);
   }
 
   List<NamedEntity> matchingNEs(List<NamedEntity> nes) {

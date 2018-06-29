@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import zemberek.core.data.Weights;
 import zemberek.morphology.TurkishMorphology;
-import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.Model;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolverTrainer.DataSet;
 
 public class PerceptronAmbiguityResolverEvaluation {
@@ -44,7 +44,7 @@ public class PerceptronAmbiguityResolverEvaluation {
 
     PerceptronAmbiguityResolver resolver =
         new PerceptronAmbiguityResolverTrainer(morphology).train(trainingSet, devSet, 7);
-    Model modelTrained = (Model) resolver.getModel();
+    Weights modelTrained = (Weights) resolver.getModel();
     modelTrained.pruneNearZeroWeights();
     modelTrained.saveAsText(model);
 
@@ -53,7 +53,7 @@ public class PerceptronAmbiguityResolverEvaluation {
     PerceptronAmbiguityResolver resolverRead =
         PerceptronAmbiguityResolver.fromModelFile(model);
     Path test = Paths.get("data/ambiguity/sak.test");
-    ((Model) resolverRead.getModel()).compress().serialize(modelCompressed);
+    ((Weights) resolverRead.getModel()).compress().serialize(modelCompressed);
 
     PerceptronAmbiguityResolverTrainer.test(test, morphology, resolverRead);
 

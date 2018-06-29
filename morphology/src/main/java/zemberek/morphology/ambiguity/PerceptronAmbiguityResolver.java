@@ -1,30 +1,22 @@
 package zemberek.morphology.ambiguity;
 
 import com.google.common.collect.Lists;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.IntValueMap;
-import zemberek.core.compression.LossyIntLookup;
+import zemberek.core.data.CompressedWeights;
+import zemberek.core.data.WeightLookup;
+import zemberek.core.data.Weights;
 import zemberek.core.dynamic.ActiveList;
 import zemberek.core.dynamic.Scoreable;
-import zemberek.core.io.IOUtil;
-import zemberek.core.io.Strings;
-import zemberek.core.logging.Log;
-import zemberek.core.text.TextIO;
-import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
-import zemberek.morphology.analysis.SingleAnalysis.MorphemeGroup;
 import zemberek.morphology.analysis.WordAnalysis;
 
 /**
@@ -54,10 +46,10 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
   public static PerceptronAmbiguityResolver fromModelFile(Path modelFile) throws IOException {
 
     WeightLookup lookup;
-    if (CompressedModel.isCompressed(modelFile)) {
-      lookup = CompressedModel.deserialize(modelFile);
+    if (CompressedWeights.isCompressed(modelFile)) {
+      lookup = CompressedWeights.deserialize(modelFile);
     } else {
-      lookup = Model.loadFromFile(modelFile);
+      lookup = Weights.loadFromFile(modelFile);
     }
     FeatureExtractor extractor = new FeatureExtractor(false);
     return new PerceptronAmbiguityResolver(lookup, extractor);
@@ -66,10 +58,10 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
   public static PerceptronAmbiguityResolver fromResource(String resourcePath) throws IOException {
 
     WeightLookup lookup;
-    if (CompressedModel.isCompressed(resourcePath)) {
-      lookup = CompressedModel.deserialize(resourcePath);
+    if (CompressedWeights.isCompressed(resourcePath)) {
+      lookup = CompressedWeights.deserialize(resourcePath);
     } else {
-      lookup = Model.loadFromResource(resourcePath);
+      lookup = Weights.loadFromResource(resourcePath);
     }
     FeatureExtractor extractor = new FeatureExtractor(false);
     return new PerceptronAmbiguityResolver(lookup, extractor);
@@ -388,147 +380,6 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
     public float getScore() {
       return score;
     }
-  }
-
-  static class CompressedModel implements WeightLookup {
-
-    LossyIntLookup lookup;
-
-    public CompressedModel(LossyIntLookup lookup) {
-      this.lookup = lookup;
-    }
-
-    @Override
-    public float get(String key) {
-      return lookup.getAsFloat(key);
-    }
-
-    @Override
-    public int size() {
-      return lookup.size();
-    }
-
-    void serialize(Path path) throws IOException {
-      lookup.serialize(path);
-    }
-
-    static CompressedModel deserialize(Path path) throws IOException {
-      LossyIntLookup lookup = LossyIntLookup.deserialize(IOUtil.getDataInputStream(path));
-      return new CompressedModel(lookup);
-    }
-
-    static boolean isCompressed(DataInputStream dis) throws IOException {
-      return LossyIntLookup.checkStream(dis);
-    }
-
-    static boolean isCompressed(Path path) throws IOException {
-      try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
-        return isCompressed(dis);
-      }
-    }
-
-    static boolean isCompressed(String resource) throws IOException {
-      try (DataInputStream dis = IOUtil.getDataInputStream(resource)) {
-        return isCompressed(dis);
-      }
-    }
-
-
-    static CompressedModel deserialize(String resource) throws IOException {
-      try (DataInputStream dis = IOUtil.getDataInputStream(resource)) {
-        return new CompressedModel(LossyIntLookup.deserialize(dis));
-      }
-    }
-  }
-
-  interface WeightLookup {
-
-    float get(String key);
-
-    int size();
-
-  }
-
-  static class Model implements WeightLookup, Iterable<String> {
-
-    static float epsilon = 0.0001f;
-
-    FloatValueMap<String> data;
-
-    Model(FloatValueMap<String> data) {
-      this.data = data;
-    }
-
-    Model() {
-      data = new FloatValueMap<>(10000);
-    }
-
-    public int size() {
-      return data.size();
-    }
-
-    static Model loadFromResource(String resource) throws IOException {
-      List<String> lines = TextIO.loadLinesFromResource(resource);
-      return loadFromLines(lines);
-    }
-
-    static Model loadFromFile(Path file) throws IOException {
-      List<String> all = TextIO.loadLines(file);
-      return loadFromLines(all);
-    }
-
-    static Model loadFromLines(List<String> lines) {
-      FloatValueMap<String> data = new FloatValueMap<>(10000);
-      for (String s : lines) {
-        float weight = Float.parseFloat(Strings.subStringUntilFirst(s, " "));
-        String key = Strings.subStringAfterFirst(s, " ");
-        data.set(key, weight);
-      }
-      Log.info("Model Loaded.");
-      return new Model(data);
-    }
-
-    void saveAsText(Path file) throws IOException {
-      try (PrintWriter pw = new PrintWriter(file.toFile(), "utf-8")) {
-        for (String s : data.getKeyList()) {
-          pw.println(data.get(s) + " " + s);
-        }
-      }
-    }
-
-    void pruneNearZeroWeights() {
-      FloatValueMap<String> pruned = new FloatValueMap<>();
-
-      for (String key : data) {
-        float w = data.get(key);
-        if (Math.abs(w) > epsilon) {
-          pruned.set(key, w);
-        }
-      }
-      this.data = pruned;
-    }
-
-    LossyIntLookup compress() {
-      return LossyIntLookup.generate(data);
-    }
-
-    public float get(String key) {
-      return data.get(key);
-    }
-
-    void put(String key, float value) {
-      this.data.set(key, value);
-    }
-
-    void increment(String key, float value) {
-      data.incrementByAmount(key, value);
-    }
-
-    @Override
-    public Iterator<String> iterator() {
-      return data.iterator();
-    }
-
   }
 
 }

@@ -4,8 +4,10 @@ import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,6 +44,12 @@ public class NerDataSet {
         typeIds.add(token.tokenId);
       }
     }
+  }
+
+  static Random rnd = new Random(0xcafe);
+
+  public void shuffle() {
+    Collections.shuffle(sentences, rnd);
   }
 
   static NerDataSet loadBracketTurkishCorpus(Path path) throws IOException {
@@ -85,7 +93,7 @@ public class NerDataSet {
       int index = 0;
       for (String token : tokens) {
         //combine apostrophe suffix to previous word.
-        if (index>0 && token.startsWith("'") && !token.endsWith("'")) {
+        if (index > 0 && token.startsWith("'") && !token.endsWith("'")) {
           nerTokens.get(index - 1).word = nerTokens.get(index - 1).word + token;
           nerTokens.get(index - 1).normalized = nerTokens.get(index - 1).normalized + token;
           continue;

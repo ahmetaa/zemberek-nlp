@@ -14,13 +14,14 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import zemberek.core.collections.IntValueMap;
+import zemberek.core.data.Weights;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextConsumer;
 import zemberek.core.text.TextIO;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.Decoder;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.FeatureExtractor;
-import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.Model;
+
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver.DecodeResult;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
@@ -37,8 +38,8 @@ import zemberek.morphology.analysis.WordAnalysis;
  */
 public class PerceptronAmbiguityResolverTrainer {
 
-  private Model weights = new Model();
-  private Model averagedWeights = new Model();
+  private Weights weights = new Weights();
+  private Weights averagedWeights = new Weights();
   private IntValueMap<String> counts = new IntValueMap<>();
   private TurkishMorphology analyzer;
 
@@ -130,11 +131,11 @@ public class PerceptronAmbiguityResolverTrainer {
       // reduce model by eliminating near zero weights.
       float wa = averagedWeights.get(feat);
       if (Math.abs(wa) <= minPruneWeight) {
-        averagedWeights.data.remove(feat);
+        averagedWeights.getData().remove(feat);
       }
       float w = weights.get(feat);
       if (Math.abs(w) <= minPruneWeight) {
-        weights.data.remove(feat);
+        weights.getData().remove(feat);
       }
     }
   }

@@ -148,11 +148,12 @@
             <configuration>
               <outputDirectory>../dependencies</outputDirectory>
               <overWriteIfNewer>true</overWriteIfNewer>
+              <excludeTransitive>true</excludeTransitive>
               <excludeGroupIds>
-                junit,org.hamcrest,org.mockito,org.powermock,${project.groupId}
+                junit,org.hamcrest,org.mockito,org.powermock,${project.groupId},server,examples,experiment,all
               </excludeGroupIds>
               <excludeArtifactIds>
-                all
+                all, server, examples, experiment
               </excludeArtifactIds>
             </configuration>
           </execution>

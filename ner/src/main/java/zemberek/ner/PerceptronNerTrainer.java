@@ -8,23 +8,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import zemberek.core.ScoredItem;
-import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.IntValueMap;
+import zemberek.core.data.Weights;
 import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.ner.PerceptronNer.ClassModel;
 import zemberek.ner.PerceptronNer.FeatureData;
-import zemberek.ner.PerceptronNer.Gazetteers;
 
 public class PerceptronNerTrainer {
 
   private TurkishMorphology morphology;
-  private Gazetteers gazetteers;
 
-  public PerceptronNerTrainer(TurkishMorphology morphology,
-      Gazetteers gazetteers) {
+  public PerceptronNerTrainer(TurkishMorphology morphology) {
     this.morphology = morphology;
-    this.gazetteers = gazetteers;
   }
 
   public PerceptronNer train(
@@ -48,6 +44,8 @@ public class PerceptronNerTrainer {
       int errorCount = 0;
       int tokenCount = 0;
 
+      trainingSet.shuffle();
+
       for (NerSentence sentence : trainingSet.sentences) {
 
         for (int i = 0; i < sentence.tokens.size(); i++) {
@@ -56,7 +54,7 @@ public class PerceptronNerTrainer {
           NerToken currentToken = sentence.tokens.get(i);
           String currentId = currentToken.tokenId;
 
-          FeatureData data = new FeatureData(morphology, gazetteers, sentence, i);
+          FeatureData data = new FeatureData(morphology, sentence, i);
           List<String> sparseFeatures = data.getTextualFeatures();
 
           if (i > 0) {
@@ -96,7 +94,7 @@ public class PerceptronNerTrainer {
 
       Map<String, ClassModel> copyModel = copyModel(model);
       averageWeights(averages, copyModel, counts);
-      PerceptronNer ner = new PerceptronNer(copyModel, morphology, gazetteers);
+      PerceptronNer ner = new PerceptronNer(copyModel, morphology);
       NerDataSet result = ner.test(devSet);
       testLog(devSet, result).dump();
     }
@@ -120,10 +118,10 @@ public class PerceptronNerTrainer {
       Map<String, ClassModel> model,
       IntValueMap<String> counts) {
     for (String typeId : model.keySet()) {
-      FloatValueMap<String> w = model.get(typeId).sparseWeights;
-      FloatValueMap<String> a = averages.get(typeId).sparseWeights;
+      Weights w = model.get(typeId).sparseWeights;
+      Weights a = averages.get(typeId).sparseWeights;
       for (String s : w) {
-        w.set(s, w.get(s) - a.get(s) / counts.get(typeId));
+        w.put(s, w.get(s) - a.get(s) / counts.get(typeId));
       }
     }
   }

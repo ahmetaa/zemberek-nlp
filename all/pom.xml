@@ -83,6 +83,11 @@
     </dependency>
     <dependency>
       <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-grpc-server</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>zemberek-nlp</groupId>
       <artifactId>zemberek-morphology</artifactId>
       <version>${project.parent.version}</version>
     </dependency>

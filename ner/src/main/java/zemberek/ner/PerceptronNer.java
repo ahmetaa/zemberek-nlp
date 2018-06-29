@@ -5,13 +5,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import zemberek.core.ScoredItem;
-import zemberek.core.collections.FloatValueMap;
+import zemberek.core.data.Weights;
+import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SingleAnalysis;
@@ -27,12 +26,10 @@ public class PerceptronNer {
   private Map<String, ClassModel> model;
 
   private TurkishMorphology morphology;
-  private Gazetteers gazetteers;
 
   public PerceptronNer(Map<String, ClassModel> model, TurkishMorphology morphology) {
     this.model = model;
     this.morphology = morphology;
-    this.gazetteers = new Gazetteers();
   }
 
   void saveModelAsText(Path modelRoot) throws IOException {
@@ -51,18 +48,6 @@ public class PerceptronNer {
       weightsMap.put(weights.id, weights);
     }
     return new PerceptronNer(weightsMap, morphology);
-  }
-
-  public PerceptronNer(
-      Map<String, ClassModel> model,
-      TurkishMorphology morphology,
-      Gazetteers gazetteers) {
-    this.model = model;
-    this.morphology = morphology;
-    if (gazetteers == null) {
-      gazetteers = new Gazetteers();
-    }
-    this.gazetteers = gazetteers;
   }
 
   public static ScoredItem<String> predictTypeAndPosition(
@@ -96,7 +81,7 @@ public class PerceptronNer {
 
         NerToken currentToken = sentence.tokens.get(i);
 
-        FeatureData data = new FeatureData(morphology, gazetteers, sentence, i);
+        FeatureData data = new FeatureData(morphology, sentence, i);
         List<String> sparseInputs = data.getTextualFeatures();
 
         if (i > 0) {
@@ -145,7 +130,7 @@ public class PerceptronNer {
 
       NerToken currentToken = nerSentence.tokens.get(i);
 
-      FeatureData data = new FeatureData(morphology, gazetteers, nerSentence, i);
+      FeatureData data = new FeatureData(morphology, nerSentence, i);
       List<String> sparseInputs = data.getTextualFeatures();
 
       if (i > 0) {
@@ -168,81 +153,52 @@ public class PerceptronNer {
     return new NerSentence(nerSentence.content, predictedTokens);
   }
 
-  //TODO: Gazetteers should allow multi word entities.
-  static class Gazetteers {
-
-    Set<String> locationWords = new HashSet<>();
-    Set<String> organizationWords = new HashSet<>();
-    Set<String> personWords = new HashSet<>();
-
-    public Gazetteers(Path locationPath, Path organizationPath, Path personPath)
-        throws IOException {
-      locationWords.addAll(Files.readAllLines(locationPath));
-      organizationWords.addAll(Files.readAllLines(organizationPath));
-      personWords.addAll(Files.readAllLines(personPath));
-    }
-
-    public Gazetteers() {
-    }
-  }
-
   public static class ClassModel {
 
     String id;
-    FloatValueMap<String> sparseWeights = new FloatValueMap<>();
+    Weights sparseWeights =  new Weights();
     List<DenseWeights> denseWeights = new ArrayList<>();
 
     public ClassModel(String id) {
       this.id = id;
     }
 
-    public ClassModel(String id,
-        FloatValueMap<String> sparseWeights) {
+    public ClassModel(String id, Weights sparseWeights) {
       this.id = id;
       this.sparseWeights = sparseWeights;
     }
 
     void updateSparse(List<String> inputs, float value) {
       for (String input : inputs) {
-        sparseWeights.incrementByAmount(input, value);
+        sparseWeights.increment(input, value);
       }
     }
 
     ClassModel copy() {
-      ClassModel weights = new ClassModel(id);
-      weights.sparseWeights = sparseWeights.copy();
+      ClassModel model = new ClassModel(id);
+      model.sparseWeights = sparseWeights.copy();
       List<DenseWeights> copy = new ArrayList<>();
       for (DenseWeights denseWeight : denseWeights) {
         copy.add(new DenseWeights(denseWeight.id, denseWeight.weights.clone()));
       }
-      weights.denseWeights = copy;
-      return weights;
+      model.denseWeights = copy;
+      return model;
     }
 
     public void saveText(Path outRoot) throws IOException {
       Path file = outRoot.resolve(id + ".ner.model");
-      List<String> lines = sparseWeights.getKeyList().stream()
-          .map(s -> String.format("%s %.3f", s, sparseWeights.get(s)))
-          .collect(Collectors.toList());
-      Files.write(file, lines);
+      sparseWeights.saveAsText(file);
     }
 
     public static ClassModel loadFromText(Path modelFile) throws IOException {
       String id = modelFile.toFile().getName().replace(".ner.model", "");
-      List<String> lines = Files.readAllLines(modelFile);
-      FloatValueMap<String> sparseWeights = new FloatValueMap<>();
-      for (String line : lines) {
-        if (line.trim().isEmpty()) {
-          continue;
-        }
-        int spaceIndex = line.indexOf(" ");
-        String key = line.substring(0, spaceIndex);
-        float val = Float.parseFloat(line.substring(spaceIndex + 1));
-        sparseWeights.set(key, val);
-      }
-      return new ClassModel(id, sparseWeights);
+      return new ClassModel(id, Weights.loadFromFile(modelFile));
     }
 
+    public static ClassModel loadFromResource(String id) throws IOException {
+      List<String> lines = TextIO.loadLinesFromResource(id + "ner.model");
+      return new ClassModel(id, Weights.loadFromLines(lines));
+    }
   }
 
   public static class DenseWeights {
@@ -260,7 +216,6 @@ public class PerceptronNer {
 
     static WordAnalysisSurfaceFormatter formatter = new WordAnalysisSurfaceFormatter();
     TurkishMorphology morphology;
-    Gazetteers gazetteers;
     String currentWord;
     String currentWordOrig;
     String nextWord;
@@ -274,11 +229,9 @@ public class PerceptronNer {
 
     FeatureData(
         TurkishMorphology morphology,
-        Gazetteers gazetteers,
         NerSentence sentence,
         int index) {
       this.morphology = morphology;
-      this.gazetteers = gazetteers;
       List<NerToken> tokens = sentence.tokens;
       this.currentWord = tokens.get(index).normalized;
       this.currentWordOrig = tokens.get(index).word;
@@ -349,54 +302,32 @@ public class PerceptronNer {
       features.add(featurePrefix + "LongLemma:" + lemmas.get(lemmas.size() - 1));
       features.add(featurePrefix + "POS:" + longest.getPos());
       features.add(featurePrefix + "LastIg:" + longest.getLastGroup().lexicalForm());
-
       //features.add(featurePrefix + "ContainsProper:" + containsProper);
-
-      if (featurePrefix.equals("CW")) {
-        for (String lemma : lemmas) {
-          if (gazetteers.organizationWords.contains(lemma) ||
-              gazetteers.organizationWords.contains(lemma.toLowerCase())) {
-            features.add(featurePrefix + "NW_Org_Gzt" + lemma);
-            break;
-          }
-        }
-        for (String lemma : lemmas) {
-          if (gazetteers.personWords.contains(lemma) ||
-              gazetteers.personWords.contains(lemma.toLowerCase())) {
-            features.add(featurePrefix + "NW_Per_Gzt" + lemma);
-            break;
-          }
-        }
-
-        for (String lemma : lemmas) {
-          if (gazetteers.locationWords.contains(lemma) ||
-              gazetteers.locationWords.contains(lemma.toLowerCase())) {
-            features.add(featurePrefix + "NW_Loc_Gzt" + lemma);
-            break;
-          }
-        }
-      }
     }
 
     List<String> getTextualFeatures() {
+
       List<String> features = new ArrayList<>();
       features.add("CW:" + currentWord);
       features.add("NW:" + nextWord);
+      features.add("CW-NW:" + currentWord + nextWord);
       features.add("2NW:" + nextWord2);
+      features.add("CW+NW+2NW:" + currentWord + nextWord + nextWord2);
+
       features.add("PW:" + previousWord);
       features.add("2PW:" + previousWord2);
+      features.add("CW-PW:" + currentWord + previousWord);
+      features.add("CW-PW-2PW:" + currentWord + previousWord + previousWord);
+
+      features.add("PW-CW-NW:" + previousWord + currentWord + nextWord);
 
       wordFeatures(currentWordOrig, "CW", features);
       wordFeatures(previousWordOrig, "PW", features);
-      //wordFeatures(previousWord2Orig, "PW2", features);
       wordFeatures(nextWordOrig, "NW", features);
-      //wordFeatures(nextWord2Orig, "NW2", features);
 
       morphologicalFeatures(currentWordOrig, "CW", features);
       morphologicalFeatures(previousWordOrig, "PW", features);
-      //morphologicalFeatures(previousWord2Orig, "PW2", features);
       morphologicalFeatures(nextWordOrig, "NW", features);
-      //morphologicalFeatures(nextWord2Orig, "NW2", features);
 
       String cwLast2 =
           currentWord.length() > 2 ? currentWord.substring(currentWord.length() - 2) : "";
