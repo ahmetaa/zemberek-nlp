@@ -3,6 +3,7 @@ package zemberek.ner;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class NerSentence {
 
@@ -15,17 +16,21 @@ class NerSentence {
   }
 
   public List<NamedEntity> getNamedEntities() {
+    return getNamedEntitiesAll().stream()
+        .filter(s->!s.type.equals("O")).collect(Collectors.toList());
+  }
+
+  private List<NamedEntity> getNamedEntitiesAll() {
     List<NamedEntity> namedEntities = new ArrayList<>();
     List<NerToken> neTokens = new ArrayList<>();
     for (int i = 0; i < tokens.size(); i++) {
       NerToken token = tokens.get(i);
-      if (token.position == NePosition.UNIT || token.position == NePosition.LAST) {
+      if (token.position == NePosition.UNIT
+          || token.position == NePosition.LAST ||
+          token.position == NePosition.OUTSIDE ) {
         neTokens.add(token);
         namedEntities.add(new NamedEntity(token.type, neTokens));
         neTokens = new ArrayList<>();
-        continue;
-      }
-      if (token.position == NePosition.OUTSIDE) {
         continue;
       }
       neTokens.add(token);

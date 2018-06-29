@@ -16,11 +16,13 @@ public class NerExperiment {
 
   public static void main(String[] args) throws IOException {
 
+
     Path trainPath = Paths.get("experiment/src/main/resources/ner/reyyan.train.txt");
     Path testPath = Paths.get("experiment/src/main/resources/ner/reyyan.test.txt");
     Path modelRoot = Paths.get("experiment/src/main/resources/ner/model");
     Path reportPath = Paths.get("experiment/src/main/resources/ner/test-result.txt");
-    trainAndTest(trainPath, testPath, modelRoot, reportPath);
+//    trainAndTest(trainPath, testPath, modelRoot, reportPath);
+
 
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
