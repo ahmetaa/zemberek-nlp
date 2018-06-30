@@ -40,7 +40,7 @@ A Training set file needs to contain fairly large amounts of data.
 
 NER annotation is not an easy task. Sometimes it is hard to decide the boundary and types of the named entities.
 
-Lets separate 1/10 of the data for testing. We call this data `test set`.
+It is usually a good idea to separate 1/10 of the data for testing. We call this data `test set`.
 Normally another set `development set` is used for parameter tuning but we will not use it in this example. 
 
 ### Training
