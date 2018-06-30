@@ -11,7 +11,7 @@ import zemberek.morphology.lexicon.DictionaryItem;
 
 public class ChangeStem {
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     DictionaryItem newStem = morphology.getLexicon().getMatchingItems("poğaça").get(0);
 

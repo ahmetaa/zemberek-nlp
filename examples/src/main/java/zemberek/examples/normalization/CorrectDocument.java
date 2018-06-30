@@ -13,6 +13,9 @@ import zemberek.tokenization.antlr.TurkishLexer;
 public class CorrectDocument {
 
   public static void main(String[] args) throws IOException {
+
+    // This is only for demonstration. Current normalization mechanism is not proper for automatic text normalization.
+
     String input =
         "Türk Vatanı ve Milletinin ebedi varlığxını ve Yüce Türk Devlatinin bölünmez bütünlüğünü belirleyen bu Anayasa,\n"
             + "Türkiye Cumhuriyetinin kurucusu, ölümsüz önder ve eşsiz kahraman Atatürk’ün belirlediği milliyetçilik anlayışı ve onun\n"
