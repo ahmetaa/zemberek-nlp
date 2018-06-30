@@ -49,7 +49,7 @@ public class FastTextTest {
   @Ignore("Not an actual Test.")
   public void quantizationTest() throws Exception {
 
-    Path inputRoot = Paths.get("/media/aaa/3t/aaa/fasttext");
+    Path inputRoot = Paths.get("/home/ahmetaa/projects/fastText/data");
     Path trainFile = inputRoot.resolve("dbpedia.train");
     Path modelPath = inputRoot.resolve("10k.model.bin");
     Path quantizedModelPath = inputRoot.resolve("10k.model.qbin");
@@ -59,7 +59,7 @@ public class FastTextTest {
     argz.thread = 4;
     argz.epoch = 5;
     argz.wordNgrams = 2;
-    argz.minCount = 1;
+    argz.minCount = 3;
     argz.lr = 0.1;
     argz.dim = 32;
     argz.bucket = 5_000_000;
@@ -68,13 +68,13 @@ public class FastTextTest {
     fastText.saveModel(modelPath);
     Log.info("Testing started.");
     fastText.test(testFile, 1);
-    FastText loaded = FastText.load(modelPath);
-    loaded.test(testFile, 1);
+    fastText = FastText.load(modelPath);
+    fastText.test(testFile, 1);
     argz.qnorm = true;
-    FastText quantized = fastText.quantize(modelPath, argz);
-    quantized.saveModel(quantizedModelPath);
+    fastText = fastText.quantize(modelPath, argz);
+    fastText.saveModel(quantizedModelPath);
     Log.info("Testing started.");
-    quantized.test(testFile, 1);
+    fastText.test(testFile, 1);
   }
 
   /**
@@ -86,7 +86,7 @@ public class FastTextTest {
     Args argz = Args.forWordVectors(Args.model_name.sg);
     argz.thread = 8;
     argz.epoch = 10;
-    argz.dim = 150;
+    argz.dim = 100;
     argz.bucket = 2_000_000;
     argz.minn = 3;
     argz.maxn = 6;

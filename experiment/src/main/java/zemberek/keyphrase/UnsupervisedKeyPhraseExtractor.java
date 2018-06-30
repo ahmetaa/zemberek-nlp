@@ -136,7 +136,7 @@ public class UnsupervisedKeyPhraseExtractor {
       Histogram<String> docHistogram = new Histogram<>();
       List<String> sentences = extractor.fromParagraphs(document.getLines());
       for (String sentence : sentences) {
-        List<SingleAnalysis> analysis = analyzer.analyzeAndResolveAmbiguity(sentence).bestAnalysis();
+        List<SingleAnalysis> analysis = analyzer.analyzeAndDisambiguate(sentence).bestAnalysis();
         for (SingleAnalysis w : analysis) {
           if (!analysisAcceptable(w)) {
             continue;
@@ -275,7 +275,7 @@ public class UnsupervisedKeyPhraseExtractor {
     List<String> sentences = extractor.fromParagraphs(paragraphs);
     for (String sentence : sentences) {
 
-      List<SingleAnalysis> analysis = morphology.analyzeAndResolveAmbiguity(sentence).bestAnalysis();
+      List<SingleAnalysis> analysis = morphology.analyzeAndDisambiguate(sentence).bestAnalysis();
 
       for (int i = 0; i < order; i++) {
         int currentOrder = i + 1;

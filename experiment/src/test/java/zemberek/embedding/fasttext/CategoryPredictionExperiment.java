@@ -186,7 +186,7 @@ public class CategoryPredictionExperiment {
       String join = String.join(" ", reduced);
 
       if (useRoots) {
-        SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(join);
+        SentenceAnalysis analysis = morphology.analyzeAndDisambiguate(join);
         List<String> res = new ArrayList<>();
         for (SentenceWordAnalysis e : analysis) {
           SingleAnalysis best = e.getBestAnalysis();

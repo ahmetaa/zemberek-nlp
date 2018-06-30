@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Represents a sequence of named entity tokens.
  */
-class NamedEntity {
+public class NamedEntity {
 
   String type;
   List<NerToken> tokens;

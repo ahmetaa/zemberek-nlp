@@ -1,6 +1,38 @@
 CHANGE LOG
 ==========
 
+## 0.14.0
+
+This is a major release with improved Morphological disambiguation and initial release of NER module.
+
+- Morphological Disambiguation is improved and now became more usable.  
+
+- There is now a Named Entity Recognition (NER) module for Turkish. 
+This is our initial implementation and no NER model is provided yet. 
+Users can train their own models.
+
+- Around 12 thousands lines of code is removed from project. Previous morphology and disambiguation code is gone.   
+
+- Behavior for inputs proper nouns with apostrophe is changed. For example there will no longer be
+an analysis with root `oba` for input `Obama'ydı`. However handling proper nouns with suffixes and apostrophes is 
+still under development.
+
+- After some cleaning, person names dictionary is added. 
+
+- "…" is now considered a sentence boundary character. 
+
+- Morphotactics improvements.
+
+- A Grpc server module is under development. Remote server functions can be accessed with multiple client libraries (Python, C#, Javascript etc.).
+Initial version will probably be available in the next release.
+
+Breaking Changes: 
+- `analysis` parameter in SentenceWordAnalysis class is now `bestAnalysis`.
+- For consistency, change method  `analyzeAndResolveAmbiguity` in `TurkishMorphology` to `analyzeAndDisambiguate`
+  old method still works but deprecated.
+- `addDefaultDictionaries()` in `TurkishNMorphology.Builder` is deprecated. Use `addDefaultBinaryDictionary` instead.
+- Maven distibutions now includes sources (via Ali Ok)
+
 ## 0.13.0
 
 This is a bug fix and small changes release. 

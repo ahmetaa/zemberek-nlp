@@ -29,8 +29,8 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.UnidentifiedTokenAnalyzer;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.generator.WordGenerator;
-import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.DictionarySerializer;
+import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.tokenization.TurkishTokenizer;
@@ -229,9 +229,27 @@ public class TurkishMorphology {
     return ambiguityResolver.disambiguate(sentence, sentenceAnalysis);
   }
 
+  /**
+   * Applies morphological analysis and disambiguation to a sentence.
+   *
+   * @param sentence Sentence.
+   * @return SentenceAnalysis instance.
+   */
+  public SentenceAnalysis analyzeAndDisambiguate(String sentence) {
+    return disambiguate(sentence, analyzeSentence(sentence));
+  }
+
+  /**
+   * Applies morphological analysis and disambiguation to a sentence.
+   *
+   * @param sentence Sentence.
+   * @return SentenceAnalysis instance.
+   * @deprecated Use {@link #analyzeAndDisambiguate(String)}. This will be removed in 0.15.0
+   */
   public SentenceAnalysis analyzeAndResolveAmbiguity(String sentence) {
     return disambiguate(sentence, analyzeSentence(sentence));
   }
+
 
   public AnalysisCache getCache() {
     return cache;
@@ -270,6 +288,16 @@ public class TurkishMorphology {
       }
       return this;
     }
+
+    /**
+     * Adds internal text dictionaries. This is used only for debugging and will throw in
+     * jar distributions.
+     *
+     * @return same builder instance
+     * @throws IOException I/O Error
+     * @deprecated this method will be removed in 0.15.0 because it causes confusion,
+     * use {@link #addDefaultBinaryDictionary()} instead.
+     */
 
     public Builder addDefaultDictionaries() throws IOException {
       return addTextDictionaryResources(

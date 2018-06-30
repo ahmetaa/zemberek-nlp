@@ -182,7 +182,7 @@ public class WordHistogram {
         List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
         tokenCounter += tokens.size();
 
-        SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(sentence);
+        SentenceAnalysis analysis = morphology.analyzeAndDisambiguate(sentence);
 
         for (SentenceWordAnalysis e : analysis) {
           SingleAnalysis best = e.getBestAnalysis();

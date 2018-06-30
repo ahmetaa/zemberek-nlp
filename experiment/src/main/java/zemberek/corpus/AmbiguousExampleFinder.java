@@ -81,7 +81,7 @@ public class AmbiguousExampleFinder {
 
         for (String sentence : sentences) {
 
-          SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(sentence);
+          SentenceAnalysis analysis = morphology.analyzeAndDisambiguate(sentence);
           if (containsUnkown(analysis)) {
             continue;
           }

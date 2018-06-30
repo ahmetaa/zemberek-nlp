@@ -735,7 +735,7 @@ public class ZemberekNlpScripts {
     clock.reset().start();
     for (String line : lines) {
       try {
-        SentenceAnalysis results = analyzer.analyzeAndResolveAmbiguity(line);
+        SentenceAnalysis results = analyzer.analyzeAndDisambiguate(line);
         counter += results.size(); // for preventing VM optimizations.
       } catch (Exception e) {
         Log.info(line);

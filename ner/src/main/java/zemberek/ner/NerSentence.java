@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
+import zemberek.ner.NerDataSet.AnnotationStyle;
 
-class NerSentence {
+public class NerSentence {
 
   String content;
   List<NerToken> tokens;
@@ -16,18 +17,17 @@ class NerSentence {
   }
 
   public List<NamedEntity> getNamedEntities() {
-    return getNamedEntitiesAll().stream()
-        .filter(s->!s.type.equals("OUT")).collect(Collectors.toList());
+    return getAllEntities().stream()
+        .filter(s -> !s.type.equals(NerDataSet.OUT_TOKEN_TYPE)).collect(Collectors.toList());
   }
 
-  private List<NamedEntity> getNamedEntitiesAll() {
+  public  List<NamedEntity> getAllEntities() {
     List<NamedEntity> namedEntities = new ArrayList<>();
     List<NerToken> neTokens = new ArrayList<>();
-    for (int i = 0; i < tokens.size(); i++) {
-      NerToken token = tokens.get(i);
+    for (NerToken token : tokens) {
       if (token.position == NePosition.UNIT
           || token.position == NePosition.LAST ||
-          token.position == NePosition.OUTSIDE ) {
+          token.position == NePosition.OUTSIDE) {
         neTokens.add(token);
         namedEntities.add(new NamedEntity(token.type, neTokens));
         neTokens = new ArrayList<>();
@@ -38,18 +38,26 @@ class NerSentence {
     return namedEntities;
   }
 
-  public String getAsTrainingSentence() {
-    List<NamedEntity> all = getNamedEntitiesAll();
+  public String getAsTrainingSentence(NerDataSet.AnnotationStyle style) {
+    List<NamedEntity> all = getAllEntities();
     List<String> tokens = new ArrayList<>();
     for (NamedEntity namedEntity : all) {
-      if(namedEntity.type.equals("OUT")) {
+      if (namedEntity.type.equals(NerDataSet.OUT_TOKEN_TYPE)) {
         tokens.add(namedEntity.tokens.get(0).word);
       } else {
-        tokens.add("[" + namedEntity.type);
-        for(NerToken token : namedEntity.tokens) {
+        if (style == AnnotationStyle.ENAMEX) {
+          tokens.add("<b_enamex TYPE=\"" + namedEntity.type + "\">");
+        } else {
+          tokens.add("[" + namedEntity.type);
+        }
+        for (NerToken token : namedEntity.tokens) {
           tokens.add(token.word);
         }
-        tokens.add("]");
+        if (style == AnnotationStyle.ENAMEX) {
+          tokens.add("<e_enamex>");
+        } else {
+          tokens.add("]");
+        }
       }
     }
     return String.join(" ", tokens);

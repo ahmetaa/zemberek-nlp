@@ -4,15 +4,15 @@ Zemberek-NLP
 Zemberek-NLP provides basic Natural Language Processing tools for Turkish.
 Please note that **all code and APIs are subject to change until version 1.0.0**
 
-Latest version is 0.13.0 (May 20th 2018). [Change Log](CHANGELOG.md)
-
-## Citing
-
-If you use this project in an academic publication, please refer to this site.
+Latest version is 0.14.0 (June 30th 2018). [Change Log](CHANGELOG.md)
 
 ## FAQ 
 
 Please read the [FAQ](https://github.com/ahmetaa/zemberek-nlp/wiki/FAQ) for common questions.
+
+## Citing
+
+If you use this project in an academic publication, please refer to this site.
 
 ## Usage
 
@@ -34,7 +34,7 @@ And dependencies (For example morphology):
         <dependency>
             <groupId>zemberek-nlp</groupId>
             <artifactId>zemberek-morphology</artifactId>
-            <version>0.13.0</version>
+            <version>0.14.0</version>
         </dependency>
     </dependencies>
 
@@ -73,6 +73,18 @@ Turkish Tokenization and sentence boundary detection. [Documentation](tokenizati
 
 Maven artifact id : **zemberek-tokenization**
 
+### Normalization
+
+Provides basic spell checker and suggestion functions. [Documentation](normalization)
+
+Maven artifact id : **zemberek-normalization**
+
+### Named Entity Recognition
+
+Basic Named Entity Recognition mechanism. [Documentation](ner)
+
+Maven artifact id : **zemberek-ner**
+
 ### Language Identification.
 
 Allows fast identification of text language. [Documentation](lang-id)
@@ -85,12 +97,6 @@ Provides a language compression algorithm. [Documentation](lm)
 
 Maven artifact id : **zemberek-lm**
 
-### Normalization
-
-Provides basic spell checker and suggestion functions. [Documentation](normalization)
-
-Maven artifact id : **zemberek-normalization**
-
 ### Examples
 
 Provides basic usage examples. [Source](examples)
@@ -99,7 +105,7 @@ Maven artifact id : **zemberek-examples**
 
 ## Known Issues and Limitations
 - Project requires Java 8 or higher.
-- Morphological disambiguation is working less accurate than expected.
+- NER module does not provide a model yet.
 - Library is not well-tested for multi-threaded usage.
 
 Please see issues section for further issues and feel free to create new ones.

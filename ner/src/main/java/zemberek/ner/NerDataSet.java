@@ -46,18 +46,32 @@ public class NerDataSet {
     }
   }
 
+  public enum AnnotationStyle {
+    ENAMEX,
+    BRACKET
+  }
+
   static Random rnd = new Random(0xcafe);
 
   public void shuffle() {
     Collections.shuffle(sentences, rnd);
   }
 
-  static NerDataSet loadBracketTurkishCorpus(Path path) throws IOException {
-    return loadTurkishNERCorpus(path, bracketNePattern, bracketNeSplitPattern);
+  public static NerDataSet load(Path path, AnnotationStyle style) throws IOException {
+    if (style == AnnotationStyle.BRACKET) {
+      return loadBracketStyle(path);
+    } else {
+      return loadEnamexStyle(path);
+    }
   }
 
-  static NerDataSet loadEnamexTurkishNERCorpus(Path path) throws IOException {
-    return loadTurkishNERCorpus(path, enamexNePattern, enamexNeSplitPattern);
+  static NerDataSet loadBracketStyle(Path path) throws IOException {
+    return loadDataSet(path, bracketNePattern, bracketNeSplitPattern);
+  }
+
+
+  static NerDataSet loadEnamexStyle(Path path) throws IOException {
+    return loadDataSet(path, enamexNePattern, enamexNeSplitPattern);
   }
 
   public static String normalizeForNer(String input) {
@@ -74,7 +88,7 @@ public class NerDataSet {
     return String.join("", result);
   }
 
-  static NerDataSet loadTurkishNERCorpus(
+  static NerDataSet loadDataSet(
       Path path,
       Pattern nePattern,
       Pattern splitPattern) throws IOException {
@@ -144,6 +158,13 @@ public class NerDataSet {
     return new NerDataSet(new ArrayList<>(sentences.subList(from, to)));
   }
 
+  /**
+   * prints information about the data set.
+   */
+  public void info() {
+    new Info(this).log();
+  }
+
   static class Info {
 
     int numberOfSentences;
@@ -152,7 +173,7 @@ public class NerDataSet {
     Histogram<String> tokenHistogram = new Histogram<>();
     int numberOfTokens;
 
-    Info(NerDataSet set) {
+    public Info(NerDataSet set) {
       this.types = set.types;
       this.numberOfSentences = set.sentences.size();
       for (NerSentence sentence : set.sentences) {

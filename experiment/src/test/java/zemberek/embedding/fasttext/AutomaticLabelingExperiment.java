@@ -251,7 +251,7 @@ public class AutomaticLabelingExperiment {
     }
     String joined = String.join(" ", reduced);
     if (useRoots) {
-      SentenceAnalysis analysis = analyzer.analyzeAndResolveAmbiguity(joined);
+      SentenceAnalysis analysis = analyzer.analyzeAndDisambiguate(joined);
       List<String> res = new ArrayList<>();
       for (SentenceWordAnalysis e : analysis) {
         SingleAnalysis best = e.getBestAnalysis();

@@ -1,5 +1,6 @@
 package zemberek.corpus;
 
+import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +28,20 @@ import zemberek.tokenization.TurkishSentenceExtractor;
 public class Scripts {
 
   public static void main(String[] args) throws IOException {
+/*
+    Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
+    checkWeirdChars(p);
+*/
+
+    Path corporaRoot = Paths.get("/home/ahmetaa/data/zemberek/data/corpora");
+    List<Path> roots = Lists.newArrayList(
+        corporaRoot.resolve("www.aljazeera.com.tr"),
+        corporaRoot.resolve("open-subtitles"),
+        corporaRoot.resolve("wowturkey.com"),
+        corporaRoot.resolve("www.cnnturk.com"),
+        corporaRoot.resolve("www.haberturk.com"));
+    Path out = corporaRoot.resolve("sentences.txt");
+    //saveSentences(roots, out);
     //Path p = Paths.get("/media/aaa/Data/corpora/final/wowturkey.com");
     //checkWeirdChars(p);
     //morphemeNames();
@@ -161,7 +176,7 @@ List<String> r = new ArrayList<>();
     try (PrintWriter pwMorph = new PrintWriter(out.toFile(), "utf-8")) {
       for (String sentence : sentences) {
 
-        SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(sentence);
+        SentenceAnalysis analysis = morphology.analyzeAndDisambiguate(sentence);
 
         if (analysis.bestAnalysis().stream().anyMatch(SingleAnalysis::isUnknown)) {
           continue;

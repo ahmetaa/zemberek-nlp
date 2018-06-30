@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
+import zemberek.ner.NerDataSet.AnnotationStyle;
+import zemberek.tokenization.TurkishTokenizer;
 
 public class NerExperiment {
 
@@ -17,7 +19,7 @@ public class NerExperiment {
 
     Path root = Paths.get("/home/ahmetaa/data/nlp/ner");
 
-    Path trainPath = root.resolve("sentences.50k.result.txt");
+    Path trainPath = root.resolve("sentences.20k.result.txt");
     Path testPath = root.resolve("reyyan.test.txt");
     Path modelRoot = root.resolve("ner/model-toy");
     Path reportPath = root.resolve("test-result.txt");
@@ -33,17 +35,20 @@ public class NerExperiment {
     Path output = root.resolve("sentences.1k.result.txt");
     List<String> sentences = Files.readAllLines(input);
 
+    int tokenCount = 0;
     try (PrintWriter pw = new PrintWriter(output.toFile(), "UTF-8")) {
       for (String sentence : sentences) {
         if (sentence.contains("[") || sentence.contains("]")) {
           continue;
         }
+        tokenCount+=TurkishTokenizer.DEFAULT.tokenize(sentence).size();
         NerSentence result = ner.findNamedEntities(sentence);
-        pw.println(result.getAsTrainingSentence());
+        pw.println(result.getAsTrainingSentence(AnnotationStyle.BRACKET));
       }
     }
 
     System.out.println("Elapsed = " + sw.elapsed(TimeUnit.MILLISECONDS));
+    System.out.println("TokenCount = " + tokenCount);
   }
 
   public static void trainAndTest(
@@ -52,14 +57,14 @@ public class NerExperiment {
       Path modelRoot,
       Path reportPath) throws IOException {
 
-    NerDataSet trainingSet = NerDataSet.loadBracketTurkishCorpus(trainPath);
+    NerDataSet trainingSet = NerDataSet.load(trainPath, AnnotationStyle.BRACKET);
     new NerDataSet.Info(trainingSet).log();
 
-    NerDataSet testSet = NerDataSet.loadBracketTurkishCorpus(testPath);
+    NerDataSet testSet = NerDataSet.load(testPath, AnnotationStyle.BRACKET);
     new NerDataSet.Info(testSet).log();
 
     TurkishMorphology morphology = TurkishMorphology.builder()
-        .addDefaultDictionaries()
+        .addDefaultBinaryDictionary()
         .build();
 
     PerceptronNer ner = new PerceptronNerTrainer(morphology)

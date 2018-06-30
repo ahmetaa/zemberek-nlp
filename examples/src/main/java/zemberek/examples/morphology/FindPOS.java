@@ -15,7 +15,7 @@ public class FindPOS {
 
     String sentence = "Keşke yarın hava güzel olsa.";
     Log.info("Sentence  = " + sentence);
-    SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(sentence);
+    SentenceAnalysis analysis = morphology.analyzeAndDisambiguate(sentence);
 
     for (SentenceWordAnalysis a : analysis) {
       PrimaryPos primaryPos = a.getBestAnalysis().getDictionaryItem().primaryPos;

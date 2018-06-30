@@ -1,6 +1,6 @@
 package zemberek.ner;
 
-class NerToken {
+public class NerToken {
 
   int index;
   String word;

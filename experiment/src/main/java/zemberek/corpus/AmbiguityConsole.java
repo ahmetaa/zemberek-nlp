@@ -28,7 +28,7 @@ public class AmbiguityConsole {
         continue;
       }
 
-      SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(input);
+      SentenceAnalysis analysis = morphology.analyzeAndDisambiguate(input);
 
       System.out.format("%nS:%s%n", input);
       for (SentenceWordAnalysis sw : analysis) {

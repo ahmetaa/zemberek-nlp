@@ -19,7 +19,7 @@ public class AmbiguityResolutionTests {
     String input = "Yıldız Kızlar Dünya Şampiyonası FIVB'nin düzenlediği ve 18 "
         + "yaşının altındaki voleybolcuların katılabildiği bir şampiyonadır.";
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-    SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(input);
+    SentenceAnalysis analysis = morphology.analyzeAndDisambiguate(input);
     Assert.assertEquals(TurkishTokenizer.DEFAULT.tokenize(input).size(), analysis.size());
     for (SentenceWordAnalysis sentenceWordAnalysis : analysis) {
       String token = sentenceWordAnalysis.getWordAnalysis().getInput();
@@ -36,7 +36,7 @@ public class AmbiguityResolutionTests {
     for (String line : lines) {
       List<String> sentences = TurkishSentenceExtractor.DEFAULT.fromParagraph(line);
       for (String sentence : sentences) {
-        morphology.analyzeAndResolveAmbiguity(sentence);
+        morphology.analyzeAndDisambiguate(sentence);
       }
     }
   }

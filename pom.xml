@@ -7,7 +7,7 @@
   <groupId>zemberek-nlp</groupId>
   <artifactId>zemberek-nlp</artifactId>
   <packaging>pom</packaging>
-  <version>0.13.0</version>
+  <version>0.14.0</version>
 
   <modules>
     <module>core</module>

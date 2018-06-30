@@ -197,7 +197,7 @@ class GenerateDataWithRules extends AmbiguityScriptsBase {
         LinkedHashSet<String> toProcess = getAccpetableSentences(lines);
         for (String sentence : toProcess) {
           try {
-            SentenceAnalysis sentenceAnalysis = morphology.analyzeAndResolveAmbiguity(sentence);
+            SentenceAnalysis sentenceAnalysis = morphology.analyzeAndDisambiguate(sentence);
             for (SentenceWordAnalysis analysis : sentenceAnalysis) {
               HashSet<String> stems = new HashSet<>(4);
               for (SingleAnalysis s : analysis.getWordAnalysis()) {

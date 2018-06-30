@@ -56,7 +56,7 @@ Open NLP model is provided by @sonerx
 
 ### Notes
 
-- Extracting from paragraphs only splits from [.!?] characters.
+- Extracting from paragraphs only splits from [.!?…] characters.
 - fromDocument method also splits from line breaks.
 - Class will not split if a sentence ends with an abbreviation or a number,
 - Narration sentences such as [Ali "topu at." dedi.] will be split.

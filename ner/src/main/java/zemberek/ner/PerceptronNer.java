@@ -32,13 +32,31 @@ public class PerceptronNer {
     this.morphology = morphology;
   }
 
-  void saveModelAsText(Path modelRoot) throws IOException {
+  public void saveModelAsText(Path modelRoot) throws IOException {
     for (String key : model.keySet()) {
       model.get(key).saveText(modelRoot);
     }
+    Files.write(
+        modelRoot.resolve("ner-types"),
+        model.keySet().stream().sorted().collect(Collectors.toList()));
   }
 
-  static PerceptronNer loadModel(Path modelRoot, TurkishMorphology morphology) throws IOException {
+  public static PerceptronNer loadModelFromResources(String name, TurkishMorphology morphology) {
+    String resourceRoot = "/ner/model/" + name;
+    try {
+      List<String> types = TextIO.loadLinesFromResource(resourceRoot + "/ner-types");
+      Map<String, ClassModel> weightsMap = new HashMap<>();
+      for (String type : types) {
+        ClassModel weights = ClassModel.loadFromResource(resourceRoot + "/" + type + ".ner.model");
+        weightsMap.put(weights.id, weights);
+      }
+      return new PerceptronNer(weightsMap, morphology);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static PerceptronNer loadModel(Path modelRoot, TurkishMorphology morphology) throws IOException {
     Map<String, ClassModel> weightsMap = new HashMap<>();
     List<Path> files = Files.walk(modelRoot, 1)
         .filter(s -> s.toFile().getName().endsWith(".ner.model"))
@@ -156,7 +174,7 @@ public class PerceptronNer {
   public static class ClassModel {
 
     String id;
-    Weights sparseWeights =  new Weights();
+    Weights sparseWeights = new Weights();
     List<DenseWeights> denseWeights = new ArrayList<>();
 
     public ClassModel(String id) {
