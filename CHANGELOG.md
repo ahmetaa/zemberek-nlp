@@ -28,8 +28,8 @@ Initial version will probably be available in the next release.
 
 Breaking Changes: 
 - `analysis` parameter in SentenceWordAnalysis class is now `bestAnalysis`.
-- For consistency, change method  `analyzeAndResolveAmbiguity` in `TurkishMorphology` to `analyzeAndDisambiguate`
-  old method still works but deprecated.
+- For consistency, `analyzeAndResolveAmbiguity` methid in `TurkishMorphology` is changed to `analyzeAndDisambiguate`.
+  Old method still works but deprecated.
 - `addDefaultDictionaries()` in `TurkishNMorphology.Builder` is deprecated. Use `addDefaultBinaryDictionary` instead.
 - Maven distibutions now includes sources (via Ali Ok)
 
