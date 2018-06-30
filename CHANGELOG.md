@@ -9,7 +9,7 @@ This is a major release with improved Morphological disambiguation and initial r
 
 - There is now a Named Entity Recognition (NER) module for Turkish. 
 This is our initial implementation and no NER model is provided yet. 
-Users can train their own models.
+Users can train their own models. Please refer to the [documentation](ner) for details. 
 
 - Around 12 thousands lines of code is removed from project. Previous morphology and disambiguation code is gone.   
 
