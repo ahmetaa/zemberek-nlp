@@ -1,7 +1,9 @@
 package zemberek.core.io;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -34,11 +36,37 @@ public class TestUtil {
     return true;
   }
 
-  public static Path tempFileWithData(Collection<String> collection) throws IOException {
-    Path temp = java.nio.file.Files.createTempFile("", "");
-    temp.toFile().deleteOnExit();
-    java.nio.file.Files.write(temp, collection);
-    return temp;
+  @SafeVarargs
+  public static <V> boolean containsAll(Set<V> set, V... values) {
+    for (V value : values) {
+      if (!set.contains(value)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public static Path tempFileWithData(Collection<String> collection) {
+    try {
+      Path temp = java.nio.file.Files.createTempFile("zemberek", "");
+      temp.toFile().deleteOnExit();
+      java.nio.file.Files.write(temp, collection, StandardCharsets.UTF_8);
+      return temp;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  public static Path tempFileWithData(String... lines) {
+    try {
+      Path temp = java.nio.file.Files.createTempFile("zemberek", "");
+      temp.toFile().deleteOnExit();
+      java.nio.file.Files.write(temp, Arrays.asList(lines), StandardCharsets.UTF_8);
+      return temp;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @SafeVarargs

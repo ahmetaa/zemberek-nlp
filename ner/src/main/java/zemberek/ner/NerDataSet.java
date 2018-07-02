@@ -24,13 +24,21 @@ public class NerDataSet {
 
   public static final String OUT_TOKEN_TYPE = "OUT";
   private static Pattern enamexNePattern = Pattern.compile(
-      "((<b_enamex TYPE=\")(?<TYPE>.+?)(\">)(?<CONTENT>.+?)(<e_enamex>))");
+      "((<b_enamex TYPE=\")(?<TYPE>.+?)(\">)(?<CONTENT>.+?)(<e_enamex>))",
+      Pattern.CASE_INSENSITIVE);
   private static Pattern enamexNeSplitPattern = Pattern.compile(
-      "((<b_enamex TYPE=\")(?<TYPE>.+?)(\">)(?<CONTENT>.+?)(<e_enamex>))|([^ ]+)");
+      "((<b_enamex TYPE=\")(?<TYPE>.+?)(\">)(?<CONTENT>.+?)(<e_enamex>))|([^ ]+)",
+      Pattern.CASE_INSENSITIVE);
   private static Pattern bracketNePattern = Pattern.compile(
-      "((\\[)(?<TYPE>PER|ORG|LOC)( )(?<CONTENT>.+?)(]))");
+      "((\\[)(?<TYPE>[^ ]+)( )(?<CONTENT>.+?)(]))", Pattern.CASE_INSENSITIVE);
   private static Pattern bracketNeSplitPattern = Pattern.compile(
-      "((\\[)(?<TYPE>PER|ORG|LOC)( )(?<CONTENT>.+?)(]))|([^ ]+)");
+      "((\\[)(?<TYPE>[^ ]+)( )(?<CONTENT>.+?)(]))|([^ ]+)", Pattern.CASE_INSENSITIVE);
+  private static Pattern openNlpNePattern = Pattern.compile(
+      "((<START:)(?<TYPE>.+?)(>)(?<CONTENT>.+?)(<END>))", Pattern.CASE_INSENSITIVE);
+  private static Pattern openNlpNeSplitPattern = Pattern.compile(
+      "((<START:)(?<TYPE>.+?)(>)(?<CONTENT>.+?)(<END>))|([^ ]+)", Pattern.CASE_INSENSITIVE);
+
+
   Set<String> types = new HashSet<>();
   Set<String> typeIds = new HashSet<>();
   List<NerSentence> sentences;
@@ -48,7 +56,8 @@ public class NerDataSet {
 
   public enum AnnotationStyle {
     ENAMEX,
-    BRACKET
+    BRACKET,
+    OPEN_NLP
   }
 
   static Random rnd = new Random(0xcafe);
@@ -58,11 +67,15 @@ public class NerDataSet {
   }
 
   public static NerDataSet load(Path path, AnnotationStyle style) throws IOException {
-    if (style == AnnotationStyle.BRACKET) {
-      return loadBracketStyle(path);
-    } else {
-      return loadEnamexStyle(path);
+    switch (style) {
+      case BRACKET:
+        return loadBracketStyle(path);
+      case ENAMEX:
+        return loadEnamexStyle(path);
+      case OPEN_NLP:
+        return loadOpenNlpStyle(path);
     }
+    throw new IOException(String.format("Cannot load data from %s with style %s", path, style));
   }
 
   static NerDataSet loadBracketStyle(Path path) throws IOException {
@@ -72,6 +85,10 @@ public class NerDataSet {
 
   static NerDataSet loadEnamexStyle(Path path) throws IOException {
     return loadDataSet(path, enamexNePattern, enamexNeSplitPattern);
+  }
+
+  static NerDataSet loadOpenNlpStyle(Path path) throws IOException {
+    return loadDataSet(path, openNlpNePattern, openNlpNeSplitPattern);
   }
 
   public static String normalizeForNer(String input) {
