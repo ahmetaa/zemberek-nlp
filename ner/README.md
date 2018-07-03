@@ -25,13 +25,20 @@ It should be tokenized first.
 
     Enerji Verimliliği Merkezi kurucu başkanı Bülent Yeşilata , Ankara'da bir toplantıya katıldı .
 
+Then named entity boundaries and types are annotated. There are three ways to annotate.
+ 
 Bracket Style annotation
 
-    [ORG Enerji Verimliliği Merkezi] kurucu başkanı [PER Bülent Yeşilata], [LOC Ankara'da] bir toplantıya katıldı.
+    [ORG Enerji Verimliliği Merkezi] kurucu başkanı [PER Bülent Yeşilata] , [LOC Ankara'da] bir toplantıya katıldı.
+    
+OpenNLP Style annotation (After 0.14.0)
+
+    <START:ORG> Enerji Verimliliği Merkezi <END> kurucu başkanı <START:PER> Bülent Yeşilata , <START:LOC> Ankara'da <END> bir toplantıya katıldı.
+    
 
 Enamex Style annotation
 
-    <b_enamex TYPE="ORG">Enerji Verimliliği Merkezi<e_enamex> kurucu başkanı <b_enamex TYPE="PER">Bülent Yeşilata<e_enamex>, <b_enamex TYPE="LOC">Ankara'da<e_enamex> bir toplantıya katıldı.
+    <b_enamex TYPE="ORG">Enerji Verimliliği Merkezi<e_enamex> kurucu başkanı <b_enamex TYPE="PER">Bülent Yeşilata<e_enamex> , <b_enamex TYPE="LOC">Ankara'da<e_enamex> bir toplantıya katıldı.
 
 Here PER (Person), ORG (Organization) and LOC (Location) named entity types are used. But these names are arbitrary, user can define more types.
 There should be a sentence per line. There may be sentences without NEs.
