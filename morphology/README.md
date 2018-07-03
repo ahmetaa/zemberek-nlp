@@ -34,7 +34,7 @@ After this, Turkish suffix graph is generated, internal dictionaries are loaded 
     gugıllamak
     Hepsiburada
     
-Dictionary rules are explained here: // TODO //
+Dictionary rules are explained [here](https://github.com/ahmetaa/zemberek-nlp/wiki/Text-Dictionary-Rules)
 
 For adding this dictionary, builder mechanism is used for instantiation:
   
