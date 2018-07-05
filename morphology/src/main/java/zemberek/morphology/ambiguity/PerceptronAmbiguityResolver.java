@@ -27,13 +27,14 @@ import zemberek.morphology.analysis.WordAnalysis;
  * @see <a href="http://www.cmpe.boun.edu.tr/~hasim">Haşim Sak</a>
  * <p>
  * This is code is adapted from the Author's original Perl implementation. However, this is not a
- * direct port, many changes needed to be applied for Zemberek integration and it has a cleaner design.
+ * direct port, many changes needed to be applied for Zemberek integration and it has a cleaner
+ * design.
  * <p>
  * For Training, use {@link PerceptronAmbiguityResolverTrainer} class.
  */
 public class PerceptronAmbiguityResolver implements AmbiguityResolver {
 
-  Decoder decoder;
+  private Decoder decoder;
 
   PerceptronAmbiguityResolver(WeightLookup averagedModel, FeatureExtractor extractor) {
     this.decoder = new Decoder(averagedModel, extractor);
@@ -41,6 +42,10 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
 
   WeightLookup getModel() {
     return decoder.model;
+  }
+
+  Decoder getDecoder() {
+    return decoder;
   }
 
   public static PerceptronAmbiguityResolver fromModelFile(Path modelFile) throws IOException {

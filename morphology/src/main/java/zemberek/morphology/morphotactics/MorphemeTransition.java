@@ -1,5 +1,8 @@
 package zemberek.morphology.morphotactics;
 
+/**
+ * Represents a transition in morphotactics graph.
+ */
 public abstract class MorphemeTransition {
 
   public MorphemeState from;

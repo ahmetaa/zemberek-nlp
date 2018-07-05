@@ -13,22 +13,22 @@ import zemberek.core.collections.IntMap;
  * This is also knows as cheap read-write lock trick (see item #5 in the link)
  * https://www.ibm.com/developerworks/java/library/j-jtp06197/index.html
  */
-public class AttributeToSurfaceCache {
+ class AttributeToSurfaceCache {
 
   // volatile guarantees atomic reference copy.
   private volatile IntMap<String> attributeMap;
 
-  public AttributeToSurfaceCache() {
+  AttributeToSurfaceCache() {
     attributeMap = IntMap.createManaged();
   }
 
-  public synchronized void addSurface(int attributes, String surface) {
+  synchronized void addSurface(int attributes, String surface) {
     while (!attributeMap.put(attributes, surface)) {
       attributeMap = attributeMap.expand();
     }
   }
 
-  public String getSurface(int attributes) {
+  String getSurface(int attributes) {
     IntMap<String> map = attributeMap;
     return map.get(attributes);
   }

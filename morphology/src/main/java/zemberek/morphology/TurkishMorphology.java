@@ -290,15 +290,14 @@ public class TurkishMorphology {
     }
 
     /**
-     * Adds internal text dictionaries. This is used only for debugging and will throw in
+     * Adds internal text dictionaries. This is used only for debugging and will throw exception in
      * jar distributions.
      *
      * @return same builder instance
      * @throws IOException I/O Error
-     * @deprecated this method will be removed in 0.15.0 because it causes confusion,
-     * use {@link #addDefaultBinaryDictionary()} instead.
+     * @deprecated this method will be removed in 0.15.0 because it causes confusion, use {@link
+     * #addDefaultBinaryDictionary()} or {@link #addTextDictionaryResources(String...)} instead.
      */
-
     public Builder addDefaultDictionaries() throws IOException {
       return addTextDictionaryResources(
           TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.toArray(
@@ -363,14 +362,18 @@ public class TurkishMorphology {
       return this;
     }
 
-    public Builder addTextDictionaryResources(String... resources) throws IOException {
-      Log.info("Dictionaries :%s", String.join(", ", Arrays.asList(resources)));
+    public Builder addTextDictionaryResources(Collection<String> resources) throws IOException {
+      Log.info("Dictionaries :%s", String.join(", ", resources));
       List<String> lines = new ArrayList<>();
       for (String resource : resources) {
         lines.addAll(TextIO.loadLinesFromResource(resource));
       }
       lexicon.addAll(TurkishDictionaryLoader.load(lines));
       return this;
+    }
+
+    public Builder addTextDictionaryResources(String... resources) throws IOException {
+      return addTextDictionaryResources(Arrays.asList(resources));
     }
 
     public Builder removeItems(Iterable<String> dictionaryString) {

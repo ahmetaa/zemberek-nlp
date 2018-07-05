@@ -370,7 +370,7 @@ class PerceptronDisambiguatorPort extends AbstractDisambiguator {
 
         ActiveList<Hypothesis> nextList = new ActiveList<>();
 
-        for (String analysis : analysisData.allAnalyses) {
+        for (String analysis : analysisData.ambiguousAnalyses) {
 
           for (Hypothesis h : currentList) {
 

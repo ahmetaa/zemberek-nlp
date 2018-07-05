@@ -14,7 +14,9 @@ import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
-// This class represents a single morphological analysis result
+/**
+ * This class represents a single morphological analysis result.
+ */
 public class SingleAnalysis {
 
   // Dictionary Item of the analysis.

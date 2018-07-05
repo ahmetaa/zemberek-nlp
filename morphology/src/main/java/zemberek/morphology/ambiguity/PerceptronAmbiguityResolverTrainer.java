@@ -72,7 +72,7 @@ public class PerceptronAmbiguityResolverTrainer {
           continue;
         }
         numExamples++;
-        DecodeResult result = decoder.bestPath(sentence.allAnalyses());
+        DecodeResult result = decoder.bestPath(sentence.ambiguousAnalysis());
         if (sentence.bestAnalysis().equals(result.bestParse)) {
           continue;
         }
@@ -366,7 +366,7 @@ public class PerceptronAmbiguityResolverTrainer {
     int hit = 0, total = 0;
     Stopwatch sw = Stopwatch.createStarted();
     for (SentenceAnalysis sentence : set.sentences) {
-      DecodeResult result = resolver.decoder.bestPath(sentence.allAnalyses());
+      DecodeResult result = resolver.getDecoder().bestPath(sentence.ambiguousAnalysis());
       int i = 0;
       List<SingleAnalysis> bestExpected = sentence.bestAnalysis();
       for (SingleAnalysis bestActual : result.bestParse) {

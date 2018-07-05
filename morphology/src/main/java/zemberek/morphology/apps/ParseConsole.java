@@ -24,7 +24,7 @@ public class ParseConsole {
     for (String resource : resources) {
       lines.addAll(Resources.readLines(Resources.getResource(resource), Charsets.UTF_8));
     }
-    lexicon.addAll(new TurkishDictionaryLoader().load(lines));
+    lexicon.addAll(TurkishDictionaryLoader.load(lines));
     Log.info("Lexicon Generated.");
     return lexicon;
   }

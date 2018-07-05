@@ -24,6 +24,7 @@ import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.lexicon.proto.LexiconProto;
 import zemberek.morphology.lexicon.proto.LexiconProto.Dictionary;
+import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 
 public class DictionarySerializer {
 
@@ -50,7 +51,8 @@ public class DictionarySerializer {
   }
 
   public static void createDefaultDictionary(Path path) throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder().addDefaultDictionaries().build();
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES).build();
     save(morphology.getLexicon(), path);
   }
 

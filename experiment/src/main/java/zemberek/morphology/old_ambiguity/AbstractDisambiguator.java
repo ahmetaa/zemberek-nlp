@@ -32,7 +32,7 @@ public abstract class AbstractDisambiguator {
     public static WordData SENTENCE_BEGIN = new WordData(BEGIN_SENTENCE);
     public String word;
     public String correctParse;
-    public List<String> allAnalyses = Lists.newArrayList();
+    public List<String> ambiguousAnalyses = Lists.newArrayList();
 
     WordData(String line) {
       int i = 0;
@@ -40,7 +40,7 @@ public abstract class AbstractDisambiguator {
         if (i == 0) {
           this.word = s;
         } else {
-          allAnalyses.add(s);
+          ambiguousAnalyses.add(s);
         }
         if (i == 1) {
           this.correctParse = s;
@@ -54,7 +54,7 @@ public abstract class AbstractDisambiguator {
       return "WordData{" +
           "word='" + word + '\'' +
           ", correctParse='" + correctParse + '\'' +
-          ", allAnalyses=" + allAnalyses +
+          ", ambiguousAnalysis=" + ambiguousAnalyses +
           '}';
     }
   }
@@ -71,7 +71,7 @@ public abstract class AbstractDisambiguator {
         correctParse.add(word.correctParse);
       }
       for (WordData word : allWordAnalyses) {
-        allParse.add(word.allAnalyses);
+        allParse.add(word.ambiguousAnalyses);
       }
     }
 

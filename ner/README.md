@@ -35,7 +35,6 @@ OpenNLP Style annotation (After 0.14.0)
 
     <START:ORG> Enerji Verimliliği Merkezi <END> kurucu başkanı <START:PER> Bülent Yeşilata , <START:LOC> Ankara'da <END> bir toplantıya katıldı.
     
-
 Enamex Style annotation
 
     <b_enamex TYPE="ORG">Enerji Verimliliği Merkezi<e_enamex> kurucu başkanı <b_enamex TYPE="PER">Bülent Yeşilata<e_enamex> , <b_enamex TYPE="LOC">Ankara'da<e_enamex> bir toplantıya katıldı.

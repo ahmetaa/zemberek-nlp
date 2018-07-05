@@ -83,7 +83,7 @@ public class AttributeSet<E extends Enum<E>> {
     if(this == other) {
       return  true;
     }
-    if (other == null || !(other instanceof AttributeSet)) {
+    if (!(other instanceof AttributeSet)) {
       return false;
     }
     return bits == ((AttributeSet)other).bits;

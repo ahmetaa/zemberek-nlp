@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import zemberek.core.logging.Log;
 
+/**
+ * Represents a state in morphotactics graph.
+ */
 public class MorphemeState {
 
   public final String id;

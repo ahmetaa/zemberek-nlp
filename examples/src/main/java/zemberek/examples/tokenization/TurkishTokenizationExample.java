@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.logging.Log;
 import zemberek.tokenization.TurkishTokenizer;
+import zemberek.tokenization.antlr.TurkishLexer;
 
 public class TurkishTokenizationExample {
 
@@ -17,7 +18,8 @@ public class TurkishTokenizationExample {
     Iterator<Token> tokenIterator = tokenizer.getTokenIterator(input);
     while (tokenIterator.hasNext()) {
       Token token = tokenIterator.next();
-      Log.info("Token= " + token.getText() + " Type=" + token.getType());
+      Log.info("Token = " + token.getText() +
+          ", Type = " + TurkishLexer.VOCABULARY.getDisplayName(token.getType()));
     }
   }
 

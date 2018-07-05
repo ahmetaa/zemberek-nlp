@@ -165,7 +165,7 @@ public class NerDataSet {
     return new NerDataSet(nerSentences);
   }
 
-  void addSet(NerDataSet set) {
+  public void addSet(NerDataSet set) {
     this.sentences.addAll(set.sentences);
     types.addAll(set.types);
     typeIds.addAll(set.typeIds);
