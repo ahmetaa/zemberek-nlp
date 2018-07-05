@@ -65,7 +65,7 @@ public class TurkishDictionaryLoader {
     for (File file : DEFAULT_DICTIONARY_FILES) {
       lines.addAll(SimpleTextReader.trimmingUTF8Reader(file).asStringList());
     }
-    return new TurkishDictionaryLoader().load(lines);
+    return load(lines);
   }
 
   public RootLexicon load(File input) throws IOException {

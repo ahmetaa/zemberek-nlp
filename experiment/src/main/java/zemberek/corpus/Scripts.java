@@ -52,7 +52,8 @@ public class Scripts {
     Path goldTest = Paths.get("data/gold/gold-test.sentences");
     //Path goldTest = Paths.get("data/gold/test.txt");
     Path goldTestOut = Paths.get("data/gold/gold-test.txt");
-    TurkishMorphology morphology = TurkishMorphology.createWithTextDictionaries();
+    TurkishMorphology morphology =  TurkishMorphology.builder()
+        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES).build();
     saveUnambiguous(clean(Files.readAllLines(goldTest)), morphology, goldTestOut);
   }
 

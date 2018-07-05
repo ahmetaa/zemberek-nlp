@@ -95,9 +95,20 @@ public class TurkishMorphology {
     return instance;
   }
 
+  /**
+   * Adds internal text dictionaries. This is used only for debugging and will throw exception in
+   * jar distributions as they only contain binary dictionaries.
+   *
+   * @return same builder instance
+   * @throws IOException I/O Error
+   * @deprecated this method will be removed in 0.16.0 because it causes confusion, use builder
+   * mechanism, and {@link Builder#addDefaultBinaryDictionary()} or {@link
+   * Builder#addTextDictionaryResources(String...)} instead.
+   */
   public static TurkishMorphology createWithTextDictionaries() throws IOException {
     Stopwatch sw = Stopwatch.createStarted();
-    TurkishMorphology instance = new Builder().addDefaultDictionaries().build();
+    TurkishMorphology instance = new Builder()
+        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES).build();
     Log.info("Initialized in %d ms.", sw.elapsed(TimeUnit.MILLISECONDS));
     return instance;
   }
@@ -291,7 +302,7 @@ public class TurkishMorphology {
 
     /**
      * Adds internal text dictionaries. This is used only for debugging and will throw exception in
-     * jar distributions.
+     * jar distributions as they only contain binary dictionaries.
      *
      * @return same builder instance
      * @throws IOException I/O Error

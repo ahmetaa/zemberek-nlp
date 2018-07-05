@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * This class holds the result of a sentence morphological analysis and disambiguation result of a
- * sentence.
+ * This class holds the result of a morphological analysis and disambiguation results of words in
+ * a sentence.
  */
 public class SentenceAnalysis implements Iterable<SentenceWordAnalysis> {
 

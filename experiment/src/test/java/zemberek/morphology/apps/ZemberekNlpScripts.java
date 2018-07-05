@@ -418,7 +418,7 @@ public class ZemberekNlpScripts {
     List<String> oflazer = Files.readAllLines(inPath.resolve("only-oflazer-2.txt"));
     Log.info("Oflazer Loaded. %d words.", oflazer.size());
     List<String> result = new ArrayList<>(oflazer.size() / 10);
-    TurkishMorphology morphology = TurkishMorphology.createWithTextDictionaries();
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     int i = 0;
     for (String s : oflazer) {
       if (!morphology.analyze(s).isCorrect()) {
@@ -437,7 +437,7 @@ public class ZemberekNlpScripts {
   @Ignore("Not a Test.")
   public void extractCircumflexWords() throws IOException {
     Path inPath = DATA_PATH.resolve("out");
-    TurkishMorphology morphology = TurkishMorphology.createWithTextDictionaries();
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     LinkedHashSet<String> result = new LinkedHashSet<>();
     for (DictionaryItem i : morphology.getLexicon()) {
       if (TurkishAlphabet.INSTANCE.containsCircumflex(i.lemma)) {
@@ -473,7 +473,7 @@ public class ZemberekNlpScripts {
 
     Path path = Paths.get("../data/vocabulary/words-with-circumflex-obsolete.txt");
     List<String> obsolete = Files.readAllLines(path, StandardCharsets.UTF_8);
-    TurkishMorphology morphology = TurkishMorphology.createWithTextDictionaries();
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     RootLexicon lexicon = morphology.getLexicon();
     List<String> single = new ArrayList<>();
     for (String s : obsolete) {
@@ -678,7 +678,7 @@ public class ZemberekNlpScripts {
     );
 
     TurkishMorphology analyzer = TurkishMorphology.builder()
-        .addDefaultDictionaries()
+        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES)
         .disableUnidentifiedTokenAnalyzer()
         .disableCache()
         .build();
@@ -759,7 +759,7 @@ public class ZemberekNlpScripts {
     List<String> words = Files.readAllLines(Paths.get("dunya"));
     TurkishMorphology parser = TurkishMorphology
         .builder()
-        .addDefaultDictionaries()
+        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES)
         //.disableCache()
         //.disableUnidentifiedTokenAnalyzer()
         .build();

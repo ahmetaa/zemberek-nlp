@@ -7,11 +7,13 @@ import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 
 public class AmbiguityConsole {
 
   public static void main(String[] args) throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder().addDefaultDictionaries().build();
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES).build();
     new AmbiguityConsole().run(morphology);
   }
 

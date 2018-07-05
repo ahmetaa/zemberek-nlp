@@ -16,6 +16,7 @@ import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 
 public class AmbiguousExampleFinder {
 
@@ -53,7 +54,8 @@ public class AmbiguousExampleFinder {
   }
 
   public static void main(String[] args) throws Exception {
-    TurkishMorphology morphology = TurkishMorphology.createWithTextDictionaries();
+    TurkishMorphology morphology =  TurkishMorphology.builder()
+        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES).build();
     Path indexRoot = Paths.get("/home/aaa/data/zemberek/corpus-index");
     CorpusSearcher searcher = new CorpusSearcher(indexRoot);
     AmbiguousExampleFinder finder = new AmbiguousExampleFinder(searcher);

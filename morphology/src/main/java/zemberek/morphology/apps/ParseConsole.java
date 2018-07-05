@@ -32,7 +32,8 @@ public class ParseConsole {
   public static void main(String[] args) throws IOException {
     // to test the development lexicon, use ParseConsoleTest
     //TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-    TurkishMorphology morphology = TurkishMorphology.builder().addDefaultDictionaries().build();
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES).build();
     //morphology.getGraph().stats();
     new ParseConsole().run(morphology);
   }
