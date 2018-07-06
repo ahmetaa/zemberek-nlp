@@ -8,7 +8,7 @@ Term `Named Entity` (NE) is used for defining unique entities. For example, `Ank
 is to find NEs in natural language sentences.   
 
 Zemberek-NLP provides a simple Named Entity Recognition module for Turkish. Currently module does not
-have any model in it su users need to train their own model for now. In the upcoming version we will
+have any model in it therefore users need to train their own model for now. In the upcoming version we will
 provide simple generic models that can be used directly. However, usually NER modules are domain sensitive 
 so some degree of customization will always be necessary. 
 
