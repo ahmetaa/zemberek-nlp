@@ -19,7 +19,6 @@ public class Matrix_ {
     this.data_ = data_;
   }
 
-
   /**
    * Generates a matrix that hs n_ columns and m_ rows.
    */
@@ -33,6 +32,10 @@ public class Matrix_ {
     this.m_ = 0;
     this.n_ = 0;
     this.data_ = null;
+  }
+
+  public Matrix_ copy() {
+    return new Matrix_(m_, n_, data_.clone());
   }
 
   /**

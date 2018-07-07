@@ -41,7 +41,7 @@ public class Args {
     minCount = 5;
     minCountLabel = 0;
     neg = 5;
-    bucket = 2000000;
+    bucket = 2_000_000;
     threadSafe = false;
     thread = 8;
     lrUpdateRate = 100;

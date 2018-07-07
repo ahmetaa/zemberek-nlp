@@ -32,7 +32,6 @@ public class FastText {
 
   public static final int FASTTEXT_VERSION = 11;
   public static final int FASTTEXT_FILEFORMAT_MAGIC_INT32 = 793712314;
-  boolean quant_ = false; // TODO: this can be removed because it already exists in Model
   private Args args_;
   private Dictionary dict_;
   private Model model_;
@@ -41,7 +40,6 @@ public class FastText {
     this.args_ = args_;
     this.dict_ = dict_;
     this.model_ = model;
-    quant_ = model.quant_;
   }
 
   static boolean checkModel(Path in) throws IOException {
@@ -205,14 +203,14 @@ public class FastText {
       signModel(dos);
       args_.save(dos);
       dict_.save(dos);
-      dos.writeBoolean(quant_);
-      if (quant_) {
+      dos.writeBoolean(model_.quant_);
+      if (model_.quant_) {
         model_.qwi_.save(dos);
       } else {
         model_.wi_.save(dos);
       }
       dos.writeBoolean(args_.qout);
-      if (quant_ && args_.qout) {
+      if (model_.quant_ && args_.qout) {
         model_.qwo_.save(dos);
       } else {
         model_.wo_.save(dos);

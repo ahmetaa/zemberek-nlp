@@ -62,7 +62,8 @@ public class ProductQuantizer {
     return centroids_.ref((m * ksub_ + i) * dsub_);
   }
 
-  float assign_centroid(FArray x,
+  float assign_centroid(
+      FArray x,
       FArray c0,
       BArray code,
       int d) {
@@ -144,13 +145,19 @@ public class ProductQuantizer {
   }
 
   void kmeans(FArray x, FArray c, int n, int d) {
-    IntVector iv = new IntVector(n);
-    for (int i = 0; i < iv.size(); i++) {
-      iv.set(i, i);
+    int[] values = new int[n];
+    IntVector perm = new IntVector(values);
+
+    for (int i = 0; i < n; i++) {
+      perm.safeSet(i, i);
     }
-    iv.shuffle(rng);
+    perm.shuffle(rng);
     for (int i = 0; i < ksub_; i++) {
-      x.arrayCopy(iv.get(i) * d, c, i * d, d);
+      x.arrayCopy( // x -> src
+          perm.get(i) * d, // src pos
+          c,     // destination
+          i * d, // destination pos
+          d);    //amount of data
     }
     BArray codes = new BArray(new byte[n]);
     for (int i = 0; i < niter_; i++) {
@@ -164,9 +171,9 @@ public class ProductQuantizer {
       throw new IllegalArgumentException(
           "Matrix too small for quantization, must have > 256 rows. But it is " + n);
     }
-    IntVector perm = new IntVector(n);
+    IntVector perm = new IntVector(new int[n]);
     for (int i = 0; i < n; i++) {
-      perm.set(i, i);
+      perm.safeSet(i, i);
     }
     int d = dsub_;
     int np = Math.min(n, max_points_);
@@ -287,8 +294,17 @@ public class ProductQuantizer {
       return data[pointer + i];
     }
 
-    void arrayCopy(int srcPos, FArray dest, int destPos, int amount) {
-      System.arraycopy(data, pointer + srcPos, dest.data, dest.pointer + destPos, amount);
+    void arrayCopy(
+        int srcPos,
+        FArray dest,
+        int destPos,
+        int amount) {
+      System.arraycopy(
+          data,
+          pointer + srcPos,
+          dest.data,
+          dest.pointer + destPos,
+          amount);
     }
 
     void set(int i, float value) {

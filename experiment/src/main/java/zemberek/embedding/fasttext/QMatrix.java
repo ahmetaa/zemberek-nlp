@@ -53,7 +53,7 @@ public class QMatrix {
   void quantize(Matrix_ matrix) {
     assert (n_ == matrix.n_);
     assert (m_ == matrix.m_);
-    Matrix_ temp = new Matrix_(matrix.m_, matrix.n_);
+    Matrix_ temp = matrix.copy();
     if (qnorm_) {
       Vector norms = new Vector(temp.m_);
       temp.l2NormRow(norms);

@@ -71,7 +71,7 @@ class Dictionary {
     return h & 0x7fff_ffff;
   }
 
-  static Dictionary readFromFile(Path file, final Args args) throws IOException {
+  static Dictionary readFromFile(Path file, final Args args) {
 
     Log.info("Initialize dictionary and histograms.");
     Dictionary dictionary = new Dictionary(args);
@@ -263,7 +263,9 @@ class Dictionary {
     for (int i = 0; i < size_; i++) {
       String word = BOW + words_.get(i).word + EOW;
       // adds the wordId to the n-grams as well.
-      words_.get(i).subwords = characterNgrams(word, i);
+      if(args_.wordNgrams>1) {
+        words_.get(i).subwords = characterNgrams(word, i);
+      }
     }
   }
 
@@ -369,6 +371,7 @@ class Dictionary {
   /**
    * this algorithm is also slightly different than the original. This basically computes the
    * character ngrams from a word But it does not use the ngram, instead it calculates a hash of it.
+   *
    * minn defines the minimum n-gram length, maxn defines the maximum ngram length. For example, For
    * word 'zemberek' minn = 3 and maxn = 6 these ngrams are calculated: _ze, _zem, _zemb, _zembe
    * zem, zemb, zembe, zember emb, embe, ember, embere mbe, mber, mbere, mberek ber, bere, berek,

@@ -62,6 +62,13 @@ public class IntVector {
     data[index] = value;
   }
 
+  public void safeSet(int index, int value) {
+    if(index<0 || index>=size) {
+      throw new ArrayIndexOutOfBoundsException("Bad index: " + index);
+    }
+    data[index] = value;
+  }
+
   public int size() {
     return size;
   }
