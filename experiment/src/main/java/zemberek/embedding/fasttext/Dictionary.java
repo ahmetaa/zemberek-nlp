@@ -49,11 +49,11 @@ class Dictionary {
     Arrays.fill(word2int_, -1);
   }
 
-  private static int hash(String str) {
+  static int hash(String str) {
     return hash(str, 0, str.length());
   }
 
-  private static int hash(byte[] bytes) {
+  static int hash(byte[] bytes) {
     int h = 0x811C_9DC5;
     for (byte b : bytes) {
       h = h ^ (int) b;
@@ -62,7 +62,7 @@ class Dictionary {
     return h & 0x7fff_ffff;
   }
 
-  private static int hash(String str, int start, int end) {
+  static int hash(String str, int start, int end) {
     int h = 0x811C_9DC5;
     for (int i = start; i < end; i++) {
       h = h ^ str.charAt(i);
@@ -153,7 +153,6 @@ class Dictionary {
       e.count = dis.readLong();
       e.type = dis.readInt();
       dict.words_.add(e);
-      dict.word2int_[dict.find(e.word)] = i;
     }
     for (int i = 0; i < dict.pruneidx_size_; i++) {
       int first = dis.readInt();
@@ -162,18 +161,36 @@ class Dictionary {
     }
     dict.initTableDiscard();
     dict.initNgrams();
+
+    int word2IntSize = (int) Math.ceil(dict.size_ / 0.7);
+    dict.word2int_ = new int[word2IntSize];
+    Arrays.fill(dict.word2int_, -1);
+    for (int i = 0; i < dict.size_; i++) {
+      dict.word2int_[dict.find(dict.words_.get(i).word)] = i;
+    }
+
     return dict;
+  }
+
+  void init() {
+    initTableDiscard();
+    initNgrams();
   }
 
   /**
    * This looks like a linear probing hash table.
    */
   private int find(String w) {
-    int h = hash(w) % MAX_VOCAB_SIZE;
-    while (word2int_[h] != -1 && (!words_.get(word2int_[h]).word.equals(w))) {
-      h = (h + 1) % MAX_VOCAB_SIZE;
+    return find(w, hash(w));
+  }
+
+  private int find(String w, int h) {
+    int word2IntSize = word2int_.length;
+    int id = h % word2IntSize;
+    while (word2int_[id] != -1 && !words_.get(word2int_[id]).word.equals(w)) {
+      id = (id + 1) % word2IntSize;
     }
-    return h;
+    return id;
   }
 
   void add(String w) {
@@ -213,18 +230,22 @@ class Dictionary {
     return ntokens_;
   }
 
-  int[] getNgrams(int i) {
+  int[] getSubWords(int i) {
     assert (i >= 0);
     assert (i < nwords_);
     return words_.get(i).subwords;
   }
 
-  int[] getNgrams(String word) {
+  int[] getSubWords(String word) {
     int i = getId(word);
     if (i >= 0) {
-      return getNgrams(i);
+      return getSubWords(i);
     }
-    return characterNgrams(BOW + word + EOW, i);
+    if (!word.equals(EOS)) {
+      return computeSubWords(BOW + word + EOW, i);
+    } else {
+      return new int[0];
+    }
   }
 
   private boolean discard(int id, float rand) {
@@ -232,6 +253,12 @@ class Dictionary {
     assert (id < nwords_);
     return rand > pdiscard_[id];
   }
+
+  int getId(String w, int h) {
+    int index = find(w, h);
+    return word2int_[index];
+  }
+
 
   int getId(String w) {
     int h = find(w);
@@ -250,21 +277,21 @@ class Dictionary {
     return words_.get(id).word;
   }
 
-  private int[] characterNgrams(String word, int wordId) {
+  private int[] computeSubWords(String word, int wordId) {
     int[] hashes = args_.subWordHashProvider.getHashes(word, wordId);
+    IntVector k = new IntVector();
     for (int i = 0; i < hashes.length; i++) {
-      hashes[i] = (hashes[i] % args_.bucket) + nwords_;
+      pushHash(k, hashes[i] % args_.bucket);
     }
-    return hashes;
-
+    return k.copyOf();
   }
 
   private void initNgrams() {
     for (int i = 0; i < size_; i++) {
       String word = BOW + words_.get(i).word + EOW;
       // adds the wordId to the n-grams as well.
-      if(args_.wordNgrams>1) {
-        words_.get(i).subwords = characterNgrams(word, i);
+      if (args_.wordNgrams > 1 && !words_.get(i).word.equals(EOS)) {
+        words_.get(i).subwords = computeSubWords(word, i);
       }
     }
   }
@@ -296,10 +323,25 @@ class Dictionary {
       long h = line.get(i);
       for (int j = i + 1; j < line_size && j < i + n; j++) {
         h = h * 116049371 + line.get(j);
-        line.add((int) (nwords_ + (h % args_.bucket)));
+        pushHash(line, (int) (h % args_.bucket));
       }
     }
   }
+
+  void pushHash(IntVector hashes, int id) {
+    if(pruneidx_size_==0 || id<0) {
+      return;
+    }
+    if(pruneidx_size_>0) {
+      if(pruneidx_.containsKey(id)) {
+        id = pruneidx_.get(id);
+      } else {
+        return;
+      }
+    }
+    hashes.add(nwords_+id);
+  }
+
 
   int getLine(
       String line,
@@ -337,9 +379,51 @@ class Dictionary {
   }
 
   String getLabel(int lid) {
-    assert (lid >= 0);
-    assert (lid < nlabels_);
+    if (lid < 0 || lid >= nlabels_) {
+      throw new IllegalArgumentException
+          (String.format("Label id %d is out of range [0, %d]", lid, nlabels_));
+    }
     return words_.get(lid + nwords_).word;
+  }
+
+  int[] prune(int[] idx) {
+    IntVector words = new IntVector();
+    IntVector ngrams = new IntVector();
+    for (int i : idx) {
+      if (i < nwords_) {
+        words.add(i);
+      } else {
+        ngrams.add(i);
+      }
+    }
+    words.sort();
+    IntVector newIndexes = new IntVector(words.copyOf());
+    if (ngrams.size() > 0) {
+      int j = 0;
+      for (int k = 0; k < ngrams.size(); k++) {
+        int ngram = ngrams.get(k);
+        pruneidx_.put(ngram - nwords_, j);
+        j++;
+      }
+      newIndexes.addAll(ngrams);
+    }
+    pruneidx_size_ = pruneidx_.size();
+    Arrays.fill(word2int_, -1);
+
+
+    int j = 0;
+    for (int i = 0; i < words_.size(); i++) {
+      if (getType(i) == TYPE_LABEL || (j < words.size() && words.get(j) == i)) {
+        words_.set(j, words_.get(i));
+        word2int_[find(words_.get(j).word)] = j;
+        j++;
+      }
+    }
+    nwords_ = words.size();
+    size_ = nwords_ +  nlabels_;
+    words_ = new ArrayList<>(words_.subList(0, size_));
+    initNgrams();
+    return newIndexes.copyOf();
   }
 
   void save(DataOutputStream out) throws IOException {

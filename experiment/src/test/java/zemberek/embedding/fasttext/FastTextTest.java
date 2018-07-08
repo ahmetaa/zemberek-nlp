@@ -59,7 +59,7 @@ public class FastTextTest {
     Args argz = Args.forSupervised();
     argz.thread = 1;
     argz.epoch = 15;
-    argz.wordNgrams = 1;
+    argz.wordNgrams = 2;
     argz.minCount = 10;
     argz.lr = 0.1;
     argz.dim = 20;
@@ -76,10 +76,14 @@ public class FastTextTest {
     fastText.test(testFile, 1);
 
     argz.qnorm = false;
+    argz.cutoff = 500;
     fastText = fastText.quantize(modelPath, argz);
     fastText.saveModel(quantizedModelPath);
-    Log.info("Testing started.");
-    fastText.test(testFile, 1);
+    Log.info("Testing quantization result.");
+    fastText.test(testFile,1);
+    fastText = FastText.load(quantizedModelPath);
+    Log.info("Testing after loading quantized model.");
+    fastText.test(testFile,1);
   }
 
   /**

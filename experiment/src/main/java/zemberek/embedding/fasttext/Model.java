@@ -10,6 +10,7 @@ import java.util.PriorityQueue;
 import java.util.Random;
 import zemberek.core.collections.IntVector;
 import zemberek.core.logging.Log;
+import zemberek.embedding.fasttext.Args.model_name;
 
 class Model {
 
@@ -210,36 +211,52 @@ class Model {
     return hidden;
   }
 
-  List<FloatIntPair> predict(int k,
+  List<FloatIntPair> predict(
+      int k,
+      float threshold,
       Vector hidden,
       Vector output) {
-    assert (k > 0);
+
+    if (k <= 0) {
+      throw new IllegalArgumentException("k needs to be 1 or higher! Value = " + k);
+    }
+
+    if (args_.model != model_name.sup) {
+      throw new IllegalArgumentException(
+          "Model needs to be supervised for prediction! Mmodel = " + args_.model);
+    }
+
     PriorityQueue<FloatIntPair> heap = new PriorityQueue<>(k + 1, PAIR_COMPARATOR);
     if (args_.loss == Args.loss_name.hs) {
-      dfs(k, 2 * osz_ - 2, 0.0f, heap, hidden);
+      dfs(k, threshold, 2 * osz_ - 2, 0.0f, heap, hidden);
     } else {
-      findKBest(k, heap, hidden, output);
+      findKBest(k, threshold, heap, hidden, output);
     }
     List<FloatIntPair> result = new ArrayList<>(heap);
     Collections.sort(result);
     return result;
   }
 
-  List<FloatIntPair> predict(int[] input, int k) {
+  List<FloatIntPair> predict(int[] input, float threshold, int k) {
     Vector hidden_ = computeHidden(input);
-    return predict(k, hidden_, output_);
+    return predict(k, threshold, hidden_, output_);
   }
 
-  private void findKBest(int k,
+  private void findKBest(
+      int k,
+      float threshold,
       PriorityQueue<FloatIntPair> heap,
       Vector hidden,
       Vector output) {
     computeOutputSoftmax(hidden, output);
     for (int i = 0; i < osz_; i++) {
-      if (heap.size() == k && log(output.data_[i]) < heap.peek().first) {
+      if (output.data_[i] < threshold) {
         continue;
       }
-      heap.add(new FloatIntPair(log(output.data_[i]), i));
+      if (heap.size() == k && stdLog(output.data_[i]) < heap.peek().first) {
+        continue;
+      }
+      heap.add(new FloatIntPair(stdLog(output.data_[i]), i));
       if (heap.size() > k) {
         heap.remove();
       }
@@ -247,11 +264,16 @@ class Model {
   }
 
   //todo: check here.
-  private void dfs(int k,
+  private void dfs(
+      int k,
+      float threshold,
       int node,
       float score,
       PriorityQueue<FloatIntPair> heap,
       Vector hidden) {
+    if (score < stdLog(threshold)) {
+      return;
+    }
     if (heap.size() == k && score < heap.peek().first) {
       return;
     }
@@ -265,13 +287,14 @@ class Model {
     }
     float f;
     if (quant_ && args_.qout) {
-      f = sigmoid(qwo_.dotRow(hidden, node - osz_));
+      f = qwo_.dotRow(hidden, node - osz_);
     } else {
-      f = sigmoid(wo_.dotRow(hidden, node - osz_));
+      f = wo_.dotRow(hidden, node - osz_);
     }
+    f = (float) (1f / (1 + Math.exp(-f)));
 
-    dfs(k, tree[node].left, score + log((float) (1.0 - f)), heap, hidden);
-    dfs(k, tree[node].right, score + log(f), heap, hidden);
+    dfs(k, threshold, tree[node].left, score + stdLog(1.0f - f), heap, hidden);
+    dfs(k, threshold, tree[node].right, score + stdLog(f), heap, hidden);
   }
 
 
@@ -391,6 +414,10 @@ class Model {
     }
     int i = (int) (x * LOG_TABLE_SIZE);
     return t_log[i];
+  }
+
+  private float stdLog(float x) {
+    return (float) Math.log(x+1e-5);
   }
 
   private float sigmoid(float x) {

@@ -27,6 +27,7 @@ import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
 import zemberek.core.text.TextIO;
+import zemberek.embedding.fasttext.Args.model_name;
 
 public class FastText {
 
@@ -40,6 +41,39 @@ public class FastText {
     this.args_ = args_;
     this.dict_ = dict_;
     this.model_ = model;
+  }
+
+  public void addInputVector(Vector vec, int ind) {
+    if (model_.quant_) {
+      vec.addRow(model_.qwi_, ind);
+    } else {
+      vec.addRow(model_.wi_, ind);
+    }
+  }
+
+  public Dictionary getDictionary() {
+    return dict_;
+  }
+
+  public Args getArgs() {
+    return args_;
+  }
+
+  public Matrix_ getInputMatrix() {
+    return model_.wi_;
+  }
+
+  public Matrix_ getOutputMatrix() {
+    return model_.wo_;
+  }
+
+  public int getWordId(String word) {
+    return dict_.getId(word);
+  }
+
+  public int getSubwordId(String word) {
+    int h = Dictionary.hash(word) % args_.bucket;
+    return dict_.nwords() + h;
   }
 
   static boolean checkModel(Path in) throws IOException {
@@ -56,6 +90,53 @@ public class FastText {
     return true;
   }
 
+  private Vector getWordVector(String word) {
+    int[] ngrams = dict_.getSubWords(word);
+    Vector vec = new Vector(args_.dim);
+    for (int i : ngrams) {
+      vec.addRow(model_.wi_, i);
+    }
+    if (ngrams.length > 0) {
+      vec.mul(1.0f / ngrams.length);
+    }
+    return vec;
+  }
+
+  private Vector getSubWordVector(String word) {
+    int h = Dictionary.hash(word) % args_.bucket;
+    h = h + dict_.nwords();
+    Vector vec = new Vector(args_.dim);
+    addInputVector(vec, h);
+    return vec;
+  }
+
+  public void saveVectors(Path outFilePath) throws IOException {
+    try (PrintWriter pw = new PrintWriter(outFilePath.toFile(), "utf-8")) {
+      pw.println(dict_.nwords() + " " + args_.dim);
+      for (int i = 0; i < dict_.nwords(); i++) {
+        String word = dict_.getWord(i);
+        Vector vector = getWordVector(word);
+        pw.println(word + " " + vector.asString());
+      }
+    }
+  }
+
+  public void saveOutput(Path outPath) throws IOException {
+
+    int n = (args_.model == model_name.sup) ? dict_.nlabels() : dict_.nwords();
+
+    try (PrintWriter pw = new PrintWriter(outPath.toFile(), "utf-8")) {
+      pw.println(dict_.nwords() + " " + args_.dim);
+      for (int i = 0; i < n; i++) {
+        String word = (args_.model == model_name.sup) ?
+            dict_.getLabel(i) : dict_.getWord(i);
+        Vector vector = new Vector(args_.dim);
+        vector.addRow(model_.wo_, i);
+        pw.println(word + " " + vector.asString());
+      }
+    }
+  }
+
   static boolean checkModel(DataInputStream dis) throws IOException {
     int magic = dis.readInt();
     if (magic != FASTTEXT_FILEFORMAT_MAGIC_INT32) {
@@ -67,6 +148,32 @@ public class FastText {
     }
     return true;
   }
+
+  private void signModel(DataOutputStream dos) throws IOException {
+    dos.writeInt(FASTTEXT_FILEFORMAT_MAGIC_INT32);
+    dos.writeInt(FASTTEXT_VERSION);
+  }
+
+  void saveModel(Path outFilePath) throws IOException {
+    try (DataOutputStream dos = IOUtil.getDataOutputStream(outFilePath)) {
+      signModel(dos);
+      args_.save(dos);
+      dict_.save(dos);
+      dos.writeBoolean(model_.quant_);
+      if (model_.quant_) {
+        model_.qwi_.save(dos);
+      } else {
+        model_.wi_.save(dos);
+      }
+      dos.writeBoolean(args_.qout);
+      if (model_.quant_ && args_.qout) {
+        model_.qwo_.save(dos);
+      } else {
+        model_.wo_.save(dos);
+      }
+    }
+  }
+
 
   static FastText load(Path path) throws IOException {
     try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
@@ -97,7 +204,6 @@ public class FastText {
   static FastText train(Path input, Args args_) throws Exception {
 
     Dictionary dict_ = Dictionary.readFromFile(input, args_);
-
     Matrix_ input_ = null;
     if (args_.pretrainedVectors.length() != 0) {
       //TODO: implement this.
@@ -157,66 +263,6 @@ public class FastText {
     return new FastText(args_, dict_, model_);
   }
 
-  // Sums all word and ngram vectors for a word and normalizes it.
-  private Vector getVector(String word) {
-    int[] ngrams = dict_.getNgrams(word);
-    Vector vec = new Vector(args_.dim);
-    for (int i : ngrams) {
-      vec.addRow(model_.wi_, i);
-    }
-    if (ngrams.length > 0) {
-      vec.mul(1.0f / ngrams.length);
-    }
-    return vec;
-  }
-
-  void saveVectors(Path outFilePath) throws IOException {
-    try (PrintWriter pw = new PrintWriter(outFilePath.toFile(), "utf-8")) {
-      pw.println(dict_.nwords() + " " + args_.dim);
-      for (int i = 0; i < dict_.nwords(); i++) {
-        String word = dict_.getWord(i);
-        Vector vector = getVector(word);
-        pw.println(word + " " + vector.asString());
-      }
-    }
-  }
-
-  void saveOutput(Path outPath) throws IOException {
-    try (PrintWriter pw = new PrintWriter(outPath.toFile(), "utf-8")) {
-      pw.println(dict_.nwords() + " " + args_.dim);
-      for (int i = 0; i < dict_.nwords(); i++) {
-        String word = dict_.getWord(i);
-        Vector vector = new Vector(args_.dim);
-        vector.addRow(model_.wo_, i);
-        pw.println(word + " " + vector.asString());
-      }
-    }
-  }
-
-  void signModel(DataOutputStream dos) throws IOException {
-    dos.writeInt(FASTTEXT_FILEFORMAT_MAGIC_INT32);
-    dos.writeInt(FASTTEXT_VERSION);
-  }
-
-  void saveModel(Path outFilePath) throws IOException {
-    try (DataOutputStream dos = IOUtil.getDataOutputStream(outFilePath)) {
-      signModel(dos);
-      args_.save(dos);
-      dict_.save(dos);
-      dos.writeBoolean(model_.quant_);
-      if (model_.quant_) {
-        model_.qwi_.save(dos);
-      } else {
-        model_.wi_.save(dos);
-      }
-      dos.writeBoolean(args_.qout);
-      if (model_.quant_ && args_.qout) {
-        model_.qwo_.save(dos);
-      } else {
-        model_.wo_.save(dos);
-      }
-    }
-  }
 
   FastText quantize(Path path, Args qargs) throws IOException {
     try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
@@ -227,55 +273,78 @@ public class FastText {
     }
   }
 
+  // selects ids of highest L2Norm valued embeddings.
+  // Returns (word - subword) indexes.
   int[] selectEmbeddings(int cutoff) {
+
     Matrix_ input_ = model_.wi_;
-    L2NormData[] normIndexes = new L2NormData[input_.m_ - 1];
-    int eosid = dict_.getId(Dictionary.EOS);
-    int k = 0;
+    List<L2NormData> normIndexes = new ArrayList<>(input_.m_);
+    int eosid = dict_.getId(Dictionary.EOS); // we want to retain EOS
     for (int i = 0; i < input_.m_; i++) {
       if (i == eosid) {
         continue;
       }
-      normIndexes[k].l2Norm = input_.l2NormRow(i);
-      normIndexes[k].index = i;
-      k++;
+      normIndexes.add(new L2NormData(i, input_.l2NormRow(i)));
     }
-    Arrays.sort(normIndexes,
-        (a, b) -> Float.compare(normIndexes[a.index].l2Norm, normIndexes[b.index].l2Norm));
-    int[] result = new int[cutoff - 1];
-    for (int i = 0; i < result.length; i++) {
-      result[i] = normIndexes[i].index;
+    normIndexes.sort((a, b) -> Float.compare(b.l2Norm, a.l2Norm));
+
+    int[] result = new int[cutoff];
+    for (int i = 0; i < cutoff-1; i++) {
+      result[i] = normIndexes.get(i).index;
     }
-    // add EOS explicitly.
-    result[cutoff] = eosid;
+    // add EOS.
+    result[cutoff-1] = eosid;
     return result;
   }
 
   FastText quantize(DataInputStream dis, Args qargs) throws IOException {
     Args args_ = Args.load(dis);
+    if (args_.model != model_name.sup) {
+      throw new IllegalArgumentException("Only supervised models can be quantized.");
+    }
     Dictionary dict_ = Dictionary.load(dis, args_);
     Model model_ = Model.load(dis, args_);
+
+    args_.qout = qargs.qout;
+
+    Matrix_ input = model_.wi_;
+    if (qargs.cutoff > 0 && qargs.cutoff < input.m_) {
+      int[] idx = selectEmbeddings(qargs.cutoff);
+      idx = dict_.prune(idx);
+      Matrix_ newInput = new Matrix_(idx.length, args_.dim);
+      for (int i = 0; i < idx.length; i++) {
+        for (int j = 0; j < args_.dim; j++) {
+          newInput.set(i, j, input.at(idx[i], j));
+        }
+      }
+      model_.wi_ = newInput;
+      // TODO: add retraining. It was hard because of the design differences
+    }
+
+    QMatrix qwi_ = new QMatrix(model_.wi_, qargs.dsub, qargs.qnorm);
+
+    QMatrix qwo_ = model_.qwo_;
+    if (qargs.qout) {
+      qwo_ = new QMatrix(model_.wo_, 2, qargs.qnorm);
+    }
+
+    model_ = new Model(model_.wi_, model_.wo_, args_, 0);
+    model_.quant_ = true;
+    model_.setQuantizePointer(qwi_, qwo_, args_.qout);
+
     if (args_.model == Args.model_name.sup) {
       model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_LABEL));
     } else {
       model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_WORD));
     }
-
-    args_.qout = qargs.qout;
-    //TODO: add  cutoff operations later.
-
-    model_.qwi_ = new QMatrix(model_.wi_, qargs.dsub, qargs.qnorm);
-
-    if (args_.qout) {
-      model_.qwo_ = new QMatrix(model_.wo_, 2, qargs.qnorm);
-    }
-
-    model_.quant_ = true;
     return new FastText(args_, dict_, model_);
   }
 
-
   void test(Path in, int k) throws IOException {
+    test(in, k, 0);
+  }
+
+  void test(Path in, int k, float threshold) throws IOException {
     int nexamples = 0, nlabels = 0;
     double precision = 0.0;
     String lineStr;
@@ -285,7 +354,8 @@ public class FastText {
       dict_.getLine(lineStr, line, labels, model_.getRng());
       dict_.addWordNgramHashes(line, args_.wordNgrams);
       if (labels.size() > 0 && line.size() > 0) {
-        List<Model.FloatIntPair> modelPredictions = model_.predict(line.copyOf(), k);
+        List<Model.FloatIntPair> modelPredictions =
+            model_.predict(line.copyOf(), threshold, k);
 
         for (Model.FloatIntPair pair : modelPredictions) {
           if (labels.contains(pair.second)) {
@@ -335,6 +405,10 @@ public class FastText {
   }
 
   List<ScoredItem<String>> predict(String line, int k) {
+    return predict(line, k, 0f);
+  }
+
+  List<ScoredItem<String>> predict(String line, int k, float threshold) {
     IntVector words = new IntVector();
     IntVector labels = new IntVector();
     dict_.getLine(line, words, labels, model_.getRng());
@@ -344,7 +418,7 @@ public class FastText {
     }
     Vector output = new Vector(dict_.nlabels());
     Vector hidden = model_.computeHidden(words.copyOf());
-    List<Model.FloatIntPair> modelPredictions = model_.predict(k, hidden, output);
+    List<Model.FloatIntPair> modelPredictions = model_.predict(k, threshold, hidden, output);
     List<ScoredItem<String>> result = new ArrayList<>(modelPredictions.size());
     for (Model.FloatIntPair pair : modelPredictions) {
       result.add(new ScoredItem<>(dict_.getLabel(pair.second), pair.first));
@@ -354,8 +428,13 @@ public class FastText {
 
   static class L2NormData {
 
-    int index;
-    float l2Norm;
+    final int index;
+    final float l2Norm;
+
+    public L2NormData(int index, float l2Norm) {
+      this.index = index;
+      this.l2Norm = l2Norm;
+    }
   }
 
   private static class TrainTask implements Callable<Model> {
@@ -421,7 +500,7 @@ public class FastText {
         IntVector bow = new IntVector();
         for (int c = -boundary; c <= boundary; c++) {
           if (c != 0 && w + c >= 0 && w + c < line.length) {
-            int[] ngrams = dictionary.getNgrams(line[w + c]);
+            int[] ngrams = dictionary.getSubWords(line[w + c]);
             bow.addAll(ngrams);
           }
         }
@@ -432,7 +511,7 @@ public class FastText {
     private void skipgram(Model model, float lr, int[] line) {
       for (int w = 0; w < line.length; w++) {
         int boundary = model.getRng().nextInt(args_.ws) + 1; // [1..args.ws]
-        int[] ngrams = dictionary.getNgrams(line[w]);
+        int[] ngrams = dictionary.getSubWords(line[w]);
         for (int c = -boundary; c <= boundary; c++) {
           if (c != 0 && w + c >= 0 && w + c < line.length) {
             model.update(ngrams, line[w + c], lr);
@@ -442,7 +521,7 @@ public class FastText {
     }
 
     @Override
-    public Model call() throws Exception {
+    public Model call() {
 
       if (args_.model == Args.model_name.sup) {
         model.setTargetCounts(dictionary.getCounts(Dictionary.TYPE_LABEL));

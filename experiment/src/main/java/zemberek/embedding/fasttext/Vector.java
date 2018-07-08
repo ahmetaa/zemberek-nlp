@@ -16,7 +16,7 @@ class Vector {
   }
 
   public int size() {
-    return data_.length;
+    return m_;
   }
 
   void zero() {
@@ -58,6 +58,15 @@ class Vector {
         data_[i] += A.at(i, j) * vec.data_[j];
       }
     }
+  }
+
+  float norm() {
+    float sum = 0f;
+    for (float v : data_) {
+      sum += v * v;
+    }
+    return (float) Math.sqrt(sum);
+
   }
 
   void mul(QMatrix A, Vector vec) {

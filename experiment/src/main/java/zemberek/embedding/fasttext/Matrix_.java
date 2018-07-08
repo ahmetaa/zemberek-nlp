@@ -105,6 +105,9 @@ public class Matrix_ {
     for (int j = 0; j < n_; j++) {
       d += at(i, j) * vec.data_[j];
     }
+    if (Float.isNaN(d)) {
+      throw new IllegalStateException("Encountered NaN");
+    }
     return d;
   }
 
@@ -173,6 +176,10 @@ public class Matrix_ {
     }
   }
 
+  void set(int row, int col, float val) {
+    data_[row * n_ + col] = val;
+  }
+
   /**
    * Calculates L2 Norm value of a row. Which is the Square root of  sum of squares of all row
    * values.
@@ -185,6 +192,9 @@ public class Matrix_ {
     for (int j = 0; j < n_; j++) {
       float v = data_[i * n_ + j];
       norm += v * v;
+    }
+    if (Float.isNaN(norm)) {
+      throw new IllegalStateException("Encountered NaN");
     }
     return (float) Math.sqrt(norm);
   }
