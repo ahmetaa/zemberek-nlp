@@ -37,7 +37,7 @@ class Model {
   private Vector output_;
   private int hsz_;
   private int isz_;
-  private int osz_;
+  private int osz_; // output size
   private float loss_;
   private long nexamples_;
   // used for negative sampling:
@@ -134,7 +134,12 @@ class Model {
     return rng;
   }
 
-  private float binaryLogistic(Vector grad, Vector hidden, int target, boolean label, float lr) {
+  private float binaryLogistic(
+      Vector grad,
+      Vector hidden,
+      int target,
+      boolean label,
+      float lr) {
     float score = sigmoid(wo_.dotRow(hidden, target));
     float alpha = lr * ((label ? 1f : 0f) - score);
     grad.addRow(wo_, target, alpha);
@@ -146,7 +151,12 @@ class Model {
     }
   }
 
-  private float negativeSampling(Vector grad, Vector hidden, int target, float lr) {
+  private float negativeSampling(
+      Vector grad,
+      Vector hidden,
+      int target,
+      float lr) {
+
     float loss = 0.0f;
     for (int n = 0; n <= args_.neg; n++) {
       if (n == 0) {
@@ -158,7 +168,12 @@ class Model {
     return loss;
   }
 
-  private float hierarchicalSoftmax(Vector grad_, Vector hidden, int target, float lr) {
+  private float hierarchicalSoftmax(
+      Vector grad_,
+      Vector hidden,
+      int target,
+      float lr) {
+
     float loss = 0.0f;
     IntVector binaryCode = codes.get(target);
     IntVector pathToRoot = paths.get(target);
@@ -187,7 +202,11 @@ class Model {
     }
   }
 
-  private float softmax(Vector grad_, Vector hidden_, int target, float lr) {
+  private float softmax(
+      Vector grad_,
+      Vector hidden_,
+      int target,
+      float lr) {
     computeOutputSoftmax(hidden_, output_);
     for (int i = 0; i < osz_; i++) {
       float label = (i == target) ? 1.0f : 0.0f;
@@ -271,6 +290,7 @@ class Model {
       float score,
       PriorityQueue<FloatIntPair> heap,
       Vector hidden) {
+
     if (score < stdLog(threshold)) {
       return;
     }
@@ -359,9 +379,14 @@ class Model {
     return negative;
   }
 
+  /**
+   * This is used for hierarchical softmax calculation.
+   *
+   */
   private void buildTree(long[] counts) {
-    tree = new Node[2 * osz_ - 1];
-    for (int i = 0; i < 2 * osz_ - 1; i++) {
+    int nodeCount = 2 * osz_ - 1;
+    tree = new Node[nodeCount];
+    for (int i = 0; i < nodeCount; i++) {
       tree[i] = new Node();
       tree[i].parent = -1;
       tree[i].left = -1;
@@ -374,7 +399,7 @@ class Model {
     }
     int leaf = osz_ - 1;
     int node = osz_;
-    for (int i = osz_; i < 2 * osz_ - 1; i++) {
+    for (int i = osz_; i < nodeCount; i++) {
       int[] mini = new int[2];
       for (int j = 0; j < 2; j++) {
         if (leaf >= 0 && tree[leaf].count < tree[node].count) {
@@ -408,6 +433,10 @@ class Model {
     return loss_ / nexamples_;
   }
 
+  /**
+   * This is a log approximation. Input values larger than 1.0 are truncated.
+   * Results are read from a lookup table.
+   */
   private float log(float x) {
     if (x > 1.0f) {
       return 0.0f;
@@ -416,8 +445,12 @@ class Model {
     return t_log[i];
   }
 
+  /**
+   * This applies Math.log() to the input after applying a small offset to prevent log(0)
+   * @param x input
+   */
   private float stdLog(float x) {
-    return (float) Math.log(x+1e-5);
+    return (float) Math.log(x + 1e-5);
   }
 
   private float sigmoid(float x) {
@@ -432,7 +465,6 @@ class Model {
   }
 
   private static class Node {
-
     int parent;
     int left;
     int right;

@@ -8,8 +8,8 @@ import zemberek.proto.AnalysisRequest;
 import zemberek.proto.AnalysisResponse;
 import zemberek.proto.AnalysisServiceGrpc;
 import zemberek.proto.AnalysisServiceGrpc.AnalysisServiceBlockingStub;
-import zemberek.proto.LangIdRequest;
-import zemberek.proto.LangIdResponse;
+import zemberek.proto.DetectRequest;
+import zemberek.proto.DetectResponse;
 import zemberek.proto.LanguageIdServiceGrpc;
 import zemberek.proto.LanguageIdServiceGrpc.LanguageIdServiceBlockingStub;
 
@@ -34,8 +34,8 @@ public class TestClient {
     Log.info("----- Language Identification ------------ ");
 
     String langIdInput = "Merhaba dünya";
-    LangIdResponse langIdResponse = languageIdServiceBlockingStub.detectLanguage(
-        LangIdRequest.newBuilder().setInput(langIdInput).build());
+    DetectResponse langIdResponse = languageIdServiceBlockingStub.detect(
+        DetectRequest.newBuilder().setInput(langIdInput).build());
 
     Log.info("Input: " + langIdInput);
     Log.info("Response: " + langIdResponse.getLangId());

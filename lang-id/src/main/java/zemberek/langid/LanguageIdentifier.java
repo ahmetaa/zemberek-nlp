@@ -420,7 +420,7 @@ public class LanguageIdentifier {
 
   private List<ModelScore> scoreFull(String input, int maxSampleCount) {
     int[] samplingPoints;
-    if (maxSampleCount == -1) {
+    if (maxSampleCount <= 0) {
       samplingPoints = getStepping(input, input.length());
     } else {
       samplingPoints = getStepping(input, maxSampleCount);
@@ -452,7 +452,7 @@ public class LanguageIdentifier {
 
   private List<ModelScore> scoreWithElimination(String input, int maxSampleCount) {
     int[] samplingPoints;
-    if (maxSampleCount == -1) {
+    if (maxSampleCount <= 0) {
       samplingPoints = getStepping(input, input.length());
     } else {
       samplingPoints = getStepping(input, maxSampleCount);

@@ -137,16 +137,13 @@ public class FastText {
     }
   }
 
-  static boolean checkModel(DataInputStream dis) throws IOException {
+  private static boolean checkModel(DataInputStream dis) throws IOException {
     int magic = dis.readInt();
     if (magic != FASTTEXT_FILEFORMAT_MAGIC_INT32) {
       return false;
     }
     int version = dis.readInt();
-    if (version != FASTTEXT_VERSION) {
-      return false;
-    }
-    return true;
+    return version == FASTTEXT_VERSION;
   }
 
   private void signModel(DataOutputStream dos) throws IOException {
