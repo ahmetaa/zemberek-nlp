@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -286,12 +285,23 @@ public class FastText {
     normIndexes.sort((a, b) -> Float.compare(b.l2Norm, a.l2Norm));
 
     int[] result = new int[cutoff];
-    for (int i = 0; i < cutoff-1; i++) {
+    for (int i = 0; i < cutoff - 1; i++) {
       result[i] = normIndexes.get(i).index;
     }
     // add EOS.
-    result[cutoff-1] = eosid;
+    result[cutoff - 1] = eosid;
     return result;
+  }
+
+  static class L2NormData {
+
+    final int index;
+    final float l2Norm;
+
+    public L2NormData(int index, float l2Norm) {
+      this.index = index;
+      this.l2Norm = l2Norm;
+    }
   }
 
   FastText quantize(DataInputStream dis, Args qargs) throws IOException {
@@ -347,12 +357,11 @@ public class FastText {
     String lineStr;
     BufferedReader reader = Files.newBufferedReader(in, StandardCharsets.UTF_8);
     while ((lineStr = reader.readLine()) != null) {
-      IntVector line = new IntVector(), labels = new IntVector();
-      dict_.getLine(lineStr, line, labels, model_.getRng());
-      dict_.addWordNgramHashes(line, args_.wordNgrams);
-      if (labels.size() > 0 && line.size() > 0) {
+      IntVector words = new IntVector(), labels = new IntVector();
+      dict_.getLine(lineStr, words, labels);
+      if (labels.size() > 0 && words.size() > 0) {
         List<Model.FloatIntPair> modelPredictions =
-            model_.predict(line.copyOf(), threshold, k);
+            model_.predict(words.copyOf(), threshold, k);
 
         for (Model.FloatIntPair pair : modelPredictions) {
           if (labels.contains(pair.second)) {
@@ -372,8 +381,8 @@ public class FastText {
   Vector textVectors(List<String> paragraph) {
     Vector vec = new Vector(args_.dim);
     for (String s : paragraph) {
-      IntVector line = new IntVector(), labels = new IntVector();
-      dict_.getLine(s, line, labels, model_.getRng());
+      IntVector line = new IntVector();
+      dict_.getLine(s, line, model_.getRng());
       if (line.size() == 0) {
         continue;
       }
@@ -386,10 +395,11 @@ public class FastText {
     return vec;
   }
 
+  //TODO: this method does not exist in original c++ code. check python bindings
   Vector textVector(String s) {
     Vector vec = new Vector(args_.dim);
-    IntVector line = new IntVector(), labels = new IntVector();
-    dict_.getLine(s, line, labels, model_.getRng());
+    IntVector line = new IntVector();
+    dict_.getLine(s, line, model_.getRng());
     dict_.addWordNgramHashes(line, args_.wordNgrams);
     if (line.size() == 0) {
       return vec;
@@ -401,6 +411,40 @@ public class FastText {
     return vec;
   }
 
+  Vector getSentenceVector(String s) {
+    Vector svec = new Vector(args_.dim);
+    if (args_.model == model_name.sup) {
+      IntVector line = new IntVector(), labels = new IntVector();
+      dict_.getLine(s, line, labels);
+      for (int i = 0; i < line.size(); i++) {
+        addInputVector(svec, line.get(i));
+      }
+      if (!line.isempty()) {
+        svec.mul(1.0f / line.size());
+      }
+    } else {
+      String[] tokens = s.split("\\s+");
+      int count = 0;
+      for (String token : tokens) {
+        if (token.length() == 0) {
+          continue;
+        }
+        Vector vec = getWordVector(token);
+        float norm = vec.norm();
+        if (norm > 0) {
+          vec.mul(1.0f / norm);
+          svec.addVector(vec);
+          count++;
+        }
+      }
+      if (count > 0) {
+        svec.mul(1.0f / count);
+      }
+    }
+    return svec;
+  }
+
+
   List<ScoredItem<String>> predict(String line, int k) {
     return predict(line, k, 0f);
   }
@@ -408,14 +452,14 @@ public class FastText {
   List<ScoredItem<String>> predict(String line, int k, float threshold) {
     IntVector words = new IntVector();
     IntVector labels = new IntVector();
-    dict_.getLine(line, words, labels, model_.getRng());
-    dict_.addWordNgramHashes(words, args_.wordNgrams);
+    dict_.getLine(line, words, labels);
     if (words.isempty()) {
       return Collections.emptyList();
     }
     Vector output = new Vector(dict_.nlabels());
     Vector hidden = model_.computeHidden(words.copyOf());
-    List<Model.FloatIntPair> modelPredictions = model_.predict(k, threshold, hidden, output);
+    List<Model.FloatIntPair> modelPredictions =
+        model_.predict(k, threshold, hidden, output);
     List<ScoredItem<String>> result = new ArrayList<>(modelPredictions.size());
     for (Model.FloatIntPair pair : modelPredictions) {
       result.add(new ScoredItem<>(dict_.getLabel(pair.second), pair.first));
@@ -423,16 +467,6 @@ public class FastText {
     return result;
   }
 
-  static class L2NormData {
-
-    final int index;
-    final float l2Norm;
-
-    public L2NormData(int index, float l2Norm) {
-      this.index = index;
-      this.l2Norm = l2Norm;
-    }
-  }
 
   private static class TrainTask implements Callable<Model> {
 
@@ -542,21 +576,18 @@ public class FastText {
               return model;
             }
             IntVector line = new IntVector(15);
-            IntVector labels = new IntVector();
-            int wcount = dictionary.getLine(lineStr, line, labels, model.getRng());
-            if (wcount == 0) {
-              continue;
-            }
-            localTokenCount += wcount;
             progress = (float) ((1.0 * tokenCount.get()) / (args_.epoch * ntokens));
             float lr = (float) (args_.lr * (1.0 - progress));
 
             if (args_.model == Args.model_name.sup) {
-              dictionary.addWordNgramHashes(line, args_.wordNgrams);
+              IntVector labels = new IntVector();
+              localTokenCount += dictionary.getLine(lineStr, line, labels);
               supervised(model, lr, line.copyOf(), labels.copyOf());
             } else if (args_.model == Args.model_name.cbow) {
+              localTokenCount += dictionary.getLine(lineStr, line, model.getRng());
               cbow(model, lr, line.copyOf());
             } else if (args_.model == Args.model_name.sg) {
+              localTokenCount += dictionary.getLine(lineStr, line, model.getRng());
               skipgram(model, lr, line.copyOf());
             }
             if (localTokenCount > args_.lrUpdateRate) {
