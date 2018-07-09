@@ -45,7 +45,7 @@ class Dictionary {
     nlabels_ = 0;
     ntokens_ = 0;
     word2int_ = new int[MAX_VOCAB_SIZE];
-    words_ = new ArrayList<>(1_000_000);
+    words_ = new ArrayList<>(100_000);
     Arrays.fill(word2int_, -1);
   }
 
@@ -131,10 +131,7 @@ class Dictionary {
       }
     }
     Log.info("Word count = %d , Label count = %d", dictionary.nwords(), dictionary.nlabels());
-    dictionary.initTableDiscard();
-    Log.info("Adding character n-grams for words.");
-    dictionary.initNgrams();
-    Log.info("Done.");
+    dictionary.init();
     return dictionary;
   }
 
@@ -150,7 +147,7 @@ class Dictionary {
     for (int i = 0; i < dict.size_; i++) {
       Entry e = new Entry();
       e.word = dis.readUTF();
-      e.count = dis.readLong();
+      e.count = dis.readInt();
       e.type = dis.readInt();
       dict.words_.add(e);
     }
@@ -159,8 +156,7 @@ class Dictionary {
       int second = dis.readInt();
       dict.pruneidx_.put(first, second);
     }
-    dict.initTableDiscard();
-    dict.initNgrams();
+    dict.init();
 
     int word2IntSize = (int) Math.ceil(dict.size_ / 0.7);
     dict.word2int_ = new int[word2IntSize];
@@ -304,8 +300,8 @@ class Dictionary {
     }
   }
 
-  long[] getCounts(int entry_type) {
-    long[] counts = entry_type == TYPE_WORD ? new long[nwords_] : new long[nlabels_];
+  int[] getCounts(int entry_type) {
+    int[] counts = entry_type == TYPE_WORD ? new int[nwords_] : new int[nlabels_];
     int c = 0;
     for (Entry entry : words_) {
       if (entry.type == entry_type) {
@@ -318,6 +314,9 @@ class Dictionary {
 
   //adds word level n-grams hash values to input word index Vector. n=1 means uni-grams, no value is added.
   void addWordNgramHashes(IntVector line, int n) {
+    if(n==1) {
+      return;
+    }
     int line_size = line.size();
     for (int i = 0; i < line_size; i++) {
       long h = line.get(i);
@@ -435,7 +434,7 @@ class Dictionary {
     for (int i = 0; i < size_; i++) {
       Entry e = words_.get(i);
       out.writeUTF(e.word);
-      out.writeLong(e.count);
+      out.writeInt(e.count);
       out.writeInt(e.type);
     }
     for (int key : pruneidx_.getKeyArray()) {
@@ -447,7 +446,7 @@ class Dictionary {
   public static class Entry {
 
     String word;
-    long count; // TODO: can be int.
+    int count;
     int type;
     int[] subwords;
   }
