@@ -344,7 +344,7 @@ class Model {
     }
   }
 
-  void setTargetCounts(long[] counts) {
+  void setTargetCounts(int[] counts) {
     assert (counts.length == osz_);
     if (args_.loss == Args.loss_name.ns) {
       initTableNegatives(counts);
@@ -354,10 +354,10 @@ class Model {
     }
   }
 
-  private void initTableNegatives(long[] counts) {
+  private void initTableNegatives(int[] counts) {
     IntVector vec = new IntVector(counts.length * 10);
     float z = 0.0f;
-    for (long count : counts) {
+    for (int count : counts) {
       z += (float) Math.pow(count, 0.5);
     }
     for (int i = 0; i < counts.length; i++) {
@@ -383,7 +383,7 @@ class Model {
    * This is used for hierarchical softmax calculation.
    *
    */
-  private void buildTree(long[] counts) {
+  private void buildTree(int[] counts) {
     int nodeCount = 2 * osz_ - 1;
     tree = new Node[nodeCount];
     for (int i = 0; i < nodeCount; i++) {
