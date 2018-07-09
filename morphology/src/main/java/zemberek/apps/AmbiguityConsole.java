@@ -1,4 +1,4 @@
-package zemberek.corpus;
+package zemberek.apps;
 
 import java.io.IOException;
 import java.util.Scanner;

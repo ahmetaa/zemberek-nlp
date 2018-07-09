@@ -9,7 +9,7 @@
   <parent>
     <artifactId>zemberek-nlp</artifactId>
     <groupId>zemberek-nlp</groupId>
-    <version>0.14.0</version>
+    <version>0.15.0-SNAPHOT</version>
   </parent>
 
   <dependencies>
