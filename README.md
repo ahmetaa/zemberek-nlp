@@ -40,11 +40,11 @@ And dependencies (For example morphology):
 
 ### Jar distributions
 
-[Google docs page](https://drive.google.com/#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8) page 
+[Google drive page](https://drive.google.com/#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8) page 
 contains jar files for different versions. 
 
 [**module-jars**] folder contain all zemberek modules as separate jar files. 
-[**zemberek-all-VERSION.jar**] contains all zemberek modules. [**dependencies**] folder contains other dependencies suchas Google Guava.
+[**zemberek-all-VERSION.jar**] contains all zemberek modules. [**dependencies**] folder contains other dependencies such as Google Guava.
 
 ### Examples
 
