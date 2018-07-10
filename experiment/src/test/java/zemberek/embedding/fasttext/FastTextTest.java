@@ -53,23 +53,23 @@ public class FastTextTest {
   public void quantizationTest() throws Exception {
 
     Path inputRoot = Paths.get("/home/ahmetaa/projects/fastText/data");
-    //Path trainFile = inputRoot.resolve("dbpedia.train");
-    Path trainFile = inputRoot.resolve("train.10k");
+    Path trainFile = inputRoot.resolve("dbpedia.train");
+    //Path trainFile = inputRoot.resolve("train.10k");
     Path modelPath = inputRoot.resolve("10k.model.bin");
     Path quantizedModelPath = inputRoot.resolve("10k.model.qbin");
     Path testFile = inputRoot.resolve("dbpedia.test");
 
     Args argz = Args.forSupervised();
-    argz.thread = 1;
+    argz.thread = 4;
     argz.epoch = 15;
     argz.wordNgrams = 2;
-    argz.minCount = 10;
+    argz.minCount = 5;
     argz.lr = 0.1;
-    argz.dim = 20;
-    argz.bucket = argz.wordNgrams<=1 ? 0 : 100_000;
+    argz.dim = 30;
+    argz.bucket = argz.wordNgrams<=1 ? 0 : 1000_000;
 
-    //FastText fastText = FastText.load(modelPath);
-    FastText fastText = FastText.train(trainFile, argz);
+    FastText fastText = FastText.load(modelPath);
+    //FastText fastText = FastText.train(trainFile, argz);
 
 
     fastText.saveModel(modelPath);
@@ -79,7 +79,7 @@ public class FastTextTest {
     fastText.test(testFile, 1);
 
     argz.qnorm = false;
-    argz.cutoff = 500;
+    argz.cutoff = 15000;
     fastText = fastText.quantize(modelPath, argz);
     fastText.saveModel(quantizedModelPath);
     Log.info("Testing quantization result.");

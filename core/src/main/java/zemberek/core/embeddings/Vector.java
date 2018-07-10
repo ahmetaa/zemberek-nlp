@@ -41,6 +41,11 @@ public class Vector {
     }
   }
 
+  void addVector(Vector source) {
+    assert (size() == source.size());
+    FloatArrays.addToFirst(data_, source.data_);
+  }
+
   void addRow(Matrix_ A, int i, float a) {
     assert (i >= 0);
     assert (i < A.m_);

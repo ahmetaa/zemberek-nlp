@@ -90,7 +90,7 @@ public class Dictionary {
           if (word.startsWith("#")) {
             continue;
           }
-          dictionary.addWithCount(word, 1);
+          dictionary.add(word);
         }
       }
       Log.info("Lines read: %d (thousands) ", blockCounter * 100);
@@ -108,6 +108,7 @@ public class Dictionary {
       }
     });
 
+    //TODO: add threshold method.
     LinkedHashSet<Entry> all = new LinkedHashSet<>(dictionary.words_);
     List<Entry> toRemove = dictionary.words_
         .stream()
@@ -314,7 +315,7 @@ public class Dictionary {
 
   //adds word level n-grams hash values to input word index Vector. n=1 means uni-grams, no value is added.
   void addWordNgramHashes(IntVector line, int n) {
-    if(n==1) {
+    if (n == 1) {
       return;
     }
     int line_size = line.size();
@@ -327,55 +328,105 @@ public class Dictionary {
     }
   }
 
+  void addWordNgramHashes(IntVector line, IntVector hashes, int n) {
+    for (int i = 0; i < hashes.size(); i++) {
+      long h = hashes.get(i);
+      for (int j = i + 1; j < hashes.size() && j < i + n; j++) {
+        h = h * 116049371 + hashes.get(j);
+        pushHash(line, (int) (h % args_.bucket));
+      }
+    }
+  }
+
   void pushHash(IntVector hashes, int id) {
-    if(pruneidx_size_==0 || id<0) {
+    if (pruneidx_size_ == 0 || id < 0) {
       return;
     }
-    if(pruneidx_size_>0) {
-      if(pruneidx_.containsKey(id)) {
+    if (pruneidx_size_ > 0) {
+      if (pruneidx_.containsKey(id)) {
         id = pruneidx_.get(id);
       } else {
         return;
       }
     }
-    hashes.add(nwords_+id);
+    hashes.add(nwords_ + id);
   }
 
 
   int getLine(
       String line,
       IntVector words,
-      IntVector labels,
       Random random) {
 
     int ntokens = 0;
     List<String> tokens = tokenizer.splitToList(line);
-    tokens.add(EOS);
 
     for (String token : tokens) {
       if (token.startsWith("#")) {
         continue;
       }
-      int wid = getId(token);
+      int h = hash(token);
+      int wid = getId(token, h);
       if (wid < 0) {
         continue;
       }
-      int type = getType(wid);
       ntokens++;
-      if (type == TYPE_WORD) {
-        if (args_.model == Args.model_name.sup || !discard(wid, random.nextFloat())) {
-          words.add(wid);
-        }
+      if (getType(wid) == TYPE_WORD && !discard(wid, random.nextFloat())) {
+        words.add(wid);
       }
-      if (type == TYPE_LABEL) {
-        labels.add(wid - nwords_);
-      }
-      if (words.size() > MAX_LINE_SIZE && args_.model != Args.model_name.sup) {
+      if (ntokens > MAX_LINE_SIZE || token.equals(EOS)) {
         break;
       }
     }
     return ntokens;
   }
+
+  void addSubwords(IntVector line, String token, int wid) {
+    if (wid < 0) { // out of vocab
+      if (!token.equals(EOS)) {
+        computeSubWords(BOW + token + EOW, wid);
+      }
+    } else {
+      if (args_.maxn <= 0) { // in vocab w/o subwords
+        line.add(wid);
+      } else { // in vocab w/ subwords
+        int[] ngrams = getSubWords(wid);
+        line.addAll(ngrams);
+      }
+    }
+  }
+
+  int getLine(
+      String line,
+      IntVector words,
+      IntVector labels) {
+
+    IntVector wordHashes = new IntVector();
+    int ntokens = 0;
+    List<String> tokens = tokenizer.splitToList(line);
+
+    for (String token : tokens) {
+      if (token.startsWith("#")) {
+        continue;
+      }
+      int h = hash(token);
+      int wid = getId(token, h);
+      int type = wid < 0 ? getType(token) : getType(wid);
+      ntokens++;
+      if (type == TYPE_WORD) {
+        addSubwords(words, token, wid);
+        wordHashes.add(h);
+      } else if (type == TYPE_LABEL) {
+        labels.add(wid - nwords_);
+      }
+      if (token.equals(EOS)) {
+        break;
+      }
+    }
+    addWordNgramHashes(words, wordHashes, args_.wordNgrams);
+    return ntokens;
+  }
+
 
   String getLabel(int lid) {
     if (lid < 0 || lid >= nlabels_) {
@@ -409,7 +460,6 @@ public class Dictionary {
     pruneidx_size_ = pruneidx_.size();
     Arrays.fill(word2int_, -1);
 
-
     int j = 0;
     for (int i = 0; i < words_.size(); i++) {
       if (getType(i) == TYPE_LABEL || (j < words.size() && words.get(j) == i)) {
@@ -419,7 +469,7 @@ public class Dictionary {
       }
     }
     nwords_ = words.size();
-    size_ = nwords_ +  nlabels_;
+    size_ = nwords_ + nlabels_;
     words_ = new ArrayList<>(words_.subList(0, size_));
     initNgrams();
     return newIndexes.copyOf();
