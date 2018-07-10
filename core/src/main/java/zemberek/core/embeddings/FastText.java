@@ -396,7 +396,7 @@ public class FastText {
   }
 
   //TODO: this method does not exist in original c++ code. check python bindings
-  Vector textVector(String s) {
+  public Vector textVector(String s) {
     Vector vec = new Vector(args_.dim);
     IntVector line = new IntVector();
     dict_.getLine(s, line, model_.getRng());
@@ -445,7 +445,7 @@ public class FastText {
   }
 
 
-  List<ScoredItem<String>> predict(String line, int k) {
+  public List<ScoredItem<String>> predict(String line, int k) {
     return predict(line, k, 0f);
   }
 
