@@ -1,4 +1,4 @@
-package zemberek.embedding.fasttext;
+package zemberek.core.embeddings;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -6,45 +6,66 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.Random;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class Matrix_ {
+class Matrix {
 
   int m_;
   int n_;
-  float[] data_;
+  float[][] data_;
+  private ReadWriteLock[] locks;
+  // for activating row level locking functionality, set this to true.
+  private boolean enableLocks = false;
 
-  private Matrix_(int m_, int n_, float[] data_) {
+  private Matrix(int m_, int n_, float[] data_) {
+    this(m_, n_, data_, false);
+  }
+
+  private Matrix(int m_, int n_, float[][] data_, boolean enableLocks) {
     this.m_ = m_;
     this.n_ = n_;
     this.data_ = data_;
+    this.enableLocks = enableLocks;
   }
+
+  private Matrix(int m_, int n_, float[] data_, boolean enableLocks) {
+    this.m_ = m_;
+    this.n_ = n_;
+    this.data_ = new float[m_][n_];
+    for (int i = 0; i < m_; i++) {
+      System.arraycopy(data_, i * n_, this.data_[i], 0, n_);
+    }
+    this.enableLocks = enableLocks;
+  }
+
 
   /**
    * Generates a matrix that hs n_ columns and m_ rows.
    */
-  Matrix_(int m_, int n_) {
+  Matrix(int m_, int n_, boolean enableLocks) {
+    this.enableLocks = enableLocks;
     this.m_ = m_;
     this.n_ = n_;
-    this.data_ = new float[m_ * n_];
-  }
-
-  Matrix_() {
-    this.m_ = 0;
-    this.n_ = 0;
-    this.data_ = null;
-  }
-
-  public Matrix_ copy() {
-    return new Matrix_(m_, n_, data_.clone());
+    this.data_ = new float[m_][n_];
+    if (enableLocks) {
+      locks = new ReentrantReadWriteLock[m_];
+    }
+    for (int i = 0; i < m_; i++) {
+      this.data_[i] = new float[n_];
+      if (enableLocks) {
+        locks[i] = new ReentrantReadWriteLock();
+      }
+    }
   }
 
   /**
    * loads the values from binary stream [dis] and instantiates the matrix.
    */
-  static Matrix_ load(DataInputStream dis) throws IOException {
+  static Matrix load(DataInputStream dis) throws IOException {
     int m_ = dis.readInt();
     int n_ = dis.readInt();
-    float[] data = new float[m_ * n_];
+    float[][] data = new float[m_][n_];
 
     int blockSize = n_ * 4;
 
@@ -65,7 +86,7 @@ public class Matrix_ {
       fb.get(tmp);
 
       for (int k = 0; k < tmp.length / n_; k++) {
-        System.arraycopy(tmp, k * n_, data, (k + start) * n_, n_);
+        System.arraycopy(tmp, k * n_, data[k + start], 0, n_);
       }
       blockCounter++;
       start = end;
@@ -75,7 +96,37 @@ public class Matrix_ {
         block = (end - start) * blockSize;
       }
     }
-    return new Matrix_(m_, n_, data);
+    return new Matrix(m_, n_, data, false);
+  }
+
+  /**
+   * Locks the [i]th row for writing.
+   */
+  final void writeLock(int i) {
+    if (enableLocks) {
+      locks[i].writeLock().lock();
+    }
+  }
+
+  /**
+   * Unlocks the [i]th row from write operations.
+   */
+  final void writeUnlock(int i) {
+    if (enableLocks) {
+      locks[i].writeLock().unlock();
+    }
+  }
+
+  final void readLock(int i) {
+    if (enableLocks) {
+      locks[i].readLock().lock();
+    }
+  }
+
+  final void readUnlock(int i) {
+    if (enableLocks) {
+      locks[i].readLock().unlock();
+    }
   }
 
   /**
@@ -83,14 +134,24 @@ public class Matrix_ {
    */
   void uniform(float a) {
     Random random = new Random(1);
-    for (int i = 0; i < m_ * n_; i++) {
-      float v = (float) (random.nextDouble() * 2 * a - a);
-      data_[i] = v;
+    for (int i = 0; i < m_; i++) {
+      for (int j = 0; j < n_; j++) {
+        float v = (float) (random.nextDouble() * 2 * a - a);
+        data_[i][j] = v;
+      }
     }
   }
 
-  float at(int i, int j) {
-    return data_[i * n_ + j];
+  /**
+   * Sums the [a]*values of Vector [vec] to the [i].th row of the Matrix. If locks are enabled,
+   * access to the row is thread safe.
+   */
+  void addRow(Vector vec, int i, float a) {
+    writeLock(i);
+    for (int j = 0; j < n_; j++) {
+      data_[i][j] += a * vec.data_[j];
+    }
+    writeUnlock(i);
   }
 
   /**
@@ -102,23 +163,12 @@ public class Matrix_ {
     assert (i < m_);
     assert (vec.m_ == n_);
     float d = 0.0f;
+    readLock(i);
     for (int j = 0; j < n_; j++) {
-      d += at(i, j) * vec.data_[j];
+      d += data_[i][j] * vec.data_[j];
     }
-    if (Float.isNaN(d)) {
-      throw new IllegalStateException("Encountered NaN");
-    }
+    readUnlock(i);
     return d;
-  }
-
-  /**
-   * Sums the [a]*values of Vector [vec] to the [i].th row of the Matrix. If locks are enabled,
-   * access to the row is thread safe.
-   */
-  void addRow(Vector vec, int i, float a) {
-    for (int j = 0; j < n_; j++) {
-      data_[i * n_ + j] += a * vec.data_[j];
-    }
   }
 
   void multiplyRow(Vector nums) {
@@ -141,16 +191,14 @@ public class Matrix_ {
     assert (ie <= nums.size());
     for (int i = ib; i < ie; i++) {
       float n = nums.data_[i - ib];
+      readLock(i);
       if (n != 0) {
         for (int j = 0; j < n_; j++) {
-          data_[i * n_ + j] *= n;
+          data_[i][j] *= n;
         }
       }
+      readUnlock(i);
     }
-  }
-
-  void divideRow(Vector denoms) {
-    divideRow(denoms, 0, -1);
   }
 
   /**
@@ -168,16 +216,14 @@ public class Matrix_ {
     assert (ie <= denoms.size());
     for (int i = ib; i < ie; i++) {
       float n = denoms.data_[i - ib];
+      readLock(i);
       if (n != 0) {
         for (int j = 0; j < n_; j++) {
-          data_[i * n_ + j] /= n;
+          data_[i][j] /= n;
         }
       }
+      readUnlock(i);
     }
-  }
-
-  void set(int row, int col, float val) {
-    data_[row * n_ + col] = val;
   }
 
   /**
@@ -190,17 +236,14 @@ public class Matrix_ {
   float l2NormRow(int i) {
     float norm = 0f;
     for (int j = 0; j < n_; j++) {
-      float v = data_[i * n_ + j];
+      float v = data_[i][j];
       norm += v * v;
-    }
-    if (Float.isNaN(norm)) {
-      throw new IllegalStateException("Encountered NaN");
     }
     return (float) Math.sqrt(norm);
   }
 
   /**
-   * Fills the norm vector with l2 norm values of the rows.
+   * Fills the `norms` vector with l2 norm values of the rows.
    *
    * @param norms norm vector to fill.
    */
@@ -233,7 +276,7 @@ public class Matrix_ {
       ByteBuffer buffer = ByteBuffer.wrap(b);
       FloatBuffer fb = buffer.asFloatBuffer();
       for (int i = start; i < end; i++) {
-        fb.put(data_, i * n_, n_);
+        fb.put(data_[i]);
       }
       dos.write(b);
       blockCounter++;
@@ -245,4 +288,14 @@ public class Matrix_ {
       }
     }
   }
+
+  void printRow(String s, int i, int amount) {
+    int n = amount > n_ ? n_ : amount;
+    System.out.print(s + "[" + i + "] = ");
+    for (int k = 0; k < n; k++) {
+      System.out.print(String.format("%.4f ", data_[i][k]));
+    }
+    System.out.println();
+  }
+
 }

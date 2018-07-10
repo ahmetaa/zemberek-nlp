@@ -1,4 +1,4 @@
-package zemberek.embedding.fasttext;
+package zemberek.core.embeddings;
 
 import com.google.common.base.Stopwatch;
 import java.io.BufferedReader;
@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -27,7 +26,7 @@ import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
 import zemberek.core.text.TextIO;
-import zemberek.embedding.fasttext.Args.model_name;
+import zemberek.core.embeddings.Args.model_name;
 
 public class FastText {
 
@@ -151,7 +150,7 @@ public class FastText {
     dos.writeInt(FASTTEXT_VERSION);
   }
 
-  void saveModel(Path outFilePath) throws IOException {
+  public void saveModel(Path outFilePath) throws IOException {
     try (DataOutputStream dos = IOUtil.getDataOutputStream(outFilePath)) {
       signModel(dos);
       args_.save(dos);
@@ -172,7 +171,7 @@ public class FastText {
   }
 
 
-  static FastText load(Path path) throws IOException {
+  public static FastText load(Path path) throws IOException {
     try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
       if (!checkModel(dis)) {
         throw new IllegalStateException("Model file has wrong file format.");
@@ -198,7 +197,7 @@ public class FastText {
    * Trains a model for the input with given arguments, returns a FastText instance. Input can be a
    * text corpus, or a corpus with text and labels.
    */
-  static FastText train(Path input, Args args_) throws Exception {
+  public static FastText train(Path input, Args args_) throws Exception {
 
     Dictionary dict_ = Dictionary.readFromFile(input, args_);
     Matrix_ input_ = null;
@@ -261,7 +260,7 @@ public class FastText {
   }
 
 
-  FastText quantize(Path path, Args qargs) throws IOException {
+  public FastText quantize(Path path, Args qargs) throws IOException {
     try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
       if (!checkModel(dis)) {
         throw new IllegalStateException("Model file has wrong file format.");
@@ -337,7 +336,7 @@ public class FastText {
     return new FastText(args_, dict_, model_);
   }
 
-  void test(Path in, int k) throws IOException {
+  public void test(Path in, int k) throws IOException {
     test(in, k, 0);
   }
 
@@ -386,7 +385,7 @@ public class FastText {
     return vec;
   }
 
-  Vector textVector(String s) {
+  public Vector textVector(String s) {
     Vector vec = new Vector(args_.dim);
     IntVector line = new IntVector(), labels = new IntVector();
     dict_.getLine(s, line, labels, model_.getRng());
@@ -401,7 +400,7 @@ public class FastText {
     return vec;
   }
 
-  List<ScoredItem<String>> predict(String line, int k) {
+  public List<ScoredItem<String>> predict(String line, int k) {
     return predict(line, k, 0f);
   }
 

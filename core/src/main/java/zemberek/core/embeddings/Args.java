@@ -1,4 +1,4 @@
-package zemberek.embedding.fasttext;
+package zemberek.core.embeddings;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -6,33 +6,33 @@ import java.io.IOException;
 
 public class Args {
 
-  double lr;
-  int lrUpdateRate;
-  int dim;
-  int ws;
-  int epoch;
-  int minCount;
-  int minCountLabel;
-  int neg;
-  int wordNgrams;
-  loss_name loss;
-  model_name model;
-  boolean threadSafe;
-  int bucket;
-  int minn;
-  int maxn;
-  int thread;
-  double t;
-  String label;
-  int verbose;
-  String pretrainedVectors;
-  SubWordHashProvider subWordHashProvider;
+  public double lr;
+  public int lrUpdateRate;
+  public int dim;
+  public int ws;
+  public int epoch;
+  public int minCount;
+  public int minCountLabel;
+  public int neg;
+  public int wordNgrams;
+  public loss_name loss;
+  public model_name model;
+  public boolean threadSafe;
+  public int bucket;
+  public int minn;
+  public int maxn;
+  public int thread;
+  public double t;
+  public String label;
+  public int verbose;
+  public String pretrainedVectors;
+  public SubWordHashProvider subWordHashProvider;
 
-  boolean qout = false;
-  boolean retrain = false;
-  boolean qnorm = false;
-  int cutoff = 0;
-  int dsub = 2;
+  public boolean qout = false;
+  public boolean retrain = false;
+  public boolean qnorm = false;
+  public int cutoff = 0;
+  public int dsub = 2;
 
   private Args() {
     dim = 100;
@@ -51,7 +51,7 @@ public class Args {
     pretrainedVectors = "";
   }
 
-  static Args forWordVectors(model_name modelName) {
+  public static Args forWordVectors(model_name modelName) {
     Args args = new Args();
     args.minn = 3;
     args.maxn = 6;
@@ -64,7 +64,7 @@ public class Args {
     return args;
   }
 
-  static Args forSupervised() {
+  public static Args forSupervised() {
     Args args = new Args();
     args.minn = 0;
     args.maxn = 0;
@@ -77,7 +77,7 @@ public class Args {
     return args;
   }
 
-  static Args load(DataInputStream in) throws IOException {
+  public static Args load(DataInputStream in) throws IOException {
     Args args = new Args();
     args.dim = in.readInt();
     args.ws = in.readInt();
@@ -120,7 +120,7 @@ public class Args {
     return args;
   }
 
-  void save(DataOutputStream out) throws IOException {
+  public void save(DataOutputStream out) throws IOException {
     out.writeInt(dim);
     out.writeInt(ws);
     out.writeInt(epoch);
@@ -136,7 +136,7 @@ public class Args {
     out.writeDouble(t);
   }
 
-  enum model_name {
+  public enum model_name {
     cbow(1), sg(2), sup(3);
 
     int index;
@@ -146,7 +146,7 @@ public class Args {
     }
   }
 
-  enum loss_name {
+  public enum loss_name {
     hs(1), ns(2), softmax(3);
 
     int index;

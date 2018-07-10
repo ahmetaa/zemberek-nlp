@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.Histogram;
+import zemberek.core.embeddings.Args;
+import zemberek.core.embeddings.FastText;
 import zemberek.core.logging.Log;
 import zemberek.corpus.WebCorpus;
 import zemberek.corpus.WebDocument;

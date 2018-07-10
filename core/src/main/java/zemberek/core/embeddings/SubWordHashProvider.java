@@ -1,4 +1,4 @@
-package zemberek.embedding.fasttext;
+package zemberek.core.embeddings;
 
 public interface SubWordHashProvider {
 

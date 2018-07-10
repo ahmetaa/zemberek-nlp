@@ -4,6 +4,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.Ignore;
 import org.junit.Test;
+import zemberek.core.embeddings.Args;
+import zemberek.core.embeddings.Dictionary;
+import zemberek.core.embeddings.FastText;
 import zemberek.core.logging.Log;
 
 public class FastTextTest {

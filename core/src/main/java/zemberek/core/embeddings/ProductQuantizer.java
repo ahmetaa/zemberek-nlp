@@ -1,4 +1,4 @@
-package zemberek.embedding.fasttext;
+package zemberek.core.embeddings;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

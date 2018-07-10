@@ -1,4 +1,4 @@
-package zemberek.embedding.fasttext;
+package zemberek.core.embeddings;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -16,7 +16,7 @@ import zemberek.core.collections.UIntIntMap;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
 
-class Dictionary {
+public class Dictionary {
 
   static final int TYPE_WORD = 0;
   static final int TYPE_LABEL = 1;
@@ -461,12 +461,12 @@ class Dictionary {
    * berek_ ere, erek, erek_ rek, rek_, ek_ <p> If wordId is not -1, wordId value is added to
    * result[0]
    */
-  static class CharacterNgramHashProvider implements SubWordHashProvider {
+  public static class CharacterNgramHashProvider implements SubWordHashProvider {
 
     int minn;
     int maxn;
 
-    CharacterNgramHashProvider(int minn, int maxn) {
+    public CharacterNgramHashProvider(int minn, int maxn) {
       this.minn = minn;
       this.maxn = maxn;
     }
@@ -507,7 +507,7 @@ class Dictionary {
     }
   }
 
-  static class EmptySubwordHashProvider implements SubWordHashProvider {
+  public static class EmptySubwordHashProvider implements SubWordHashProvider {
 
     @Override
     public int[] getHashes(String word, int wordId) {
@@ -521,12 +521,12 @@ class Dictionary {
     }
   }
 
-  static class SuffixPrefixHashProvider implements SubWordHashProvider {
+  public static class SuffixPrefixHashProvider implements SubWordHashProvider {
 
     int minn;
     int maxn;
 
-    SuffixPrefixHashProvider(int minn, int maxn) {
+    public SuffixPrefixHashProvider(int minn, int maxn) {
       this.minn = minn;
       this.maxn = maxn;
     }

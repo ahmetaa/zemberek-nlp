@@ -1,11 +1,11 @@
-package zemberek.embedding.fasttext;
+package zemberek.core.embeddings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import zemberek.core.math.FloatArrays;
 
-class Vector {
+public class Vector {
 
   float[] data_;
   int m_;
@@ -13,6 +13,10 @@ class Vector {
   Vector(int m_) {
     this.data_ = new float[m_];
     this.m_ = m_;
+  }
+
+  public float[] getData() {
+    return data_;
   }
 
   public int size() {

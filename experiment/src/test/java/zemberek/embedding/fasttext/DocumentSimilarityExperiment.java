@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.Histogram;
+import zemberek.core.embeddings.Args;
+import zemberek.core.embeddings.Dictionary;
+import zemberek.core.embeddings.FastText;
 import zemberek.core.logging.Log;
 import zemberek.corpus.WebCorpus;
 import zemberek.corpus.WebDocument;
@@ -59,7 +62,7 @@ public class DocumentSimilarityExperiment {
       }
       String str = doc.getContentAsString();
       str = str.length() > 200 ? str.substring(0, 200) : str;
-      float[] vec = fastText.textVector(str).data_.clone();
+      float[] vec = fastText.textVector(str).getData().clone();
       //float[] vec = fastText.textVectors(doc.getLines()).data_.clone();
       sims.add(new DocumentSimilarity(doc, vec));
     }

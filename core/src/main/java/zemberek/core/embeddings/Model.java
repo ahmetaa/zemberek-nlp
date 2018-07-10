@@ -1,4 +1,4 @@
-package zemberek.embedding.fasttext;
+package zemberek.core.embeddings;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -10,7 +10,7 @@ import java.util.PriorityQueue;
 import java.util.Random;
 import zemberek.core.collections.IntVector;
 import zemberek.core.logging.Log;
-import zemberek.embedding.fasttext.Args.model_name;
+import zemberek.core.embeddings.Args.model_name;
 
 class Model {
 
