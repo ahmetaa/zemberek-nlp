@@ -66,7 +66,7 @@ public class FastTextTest {
     argz.minCount = 5;
     argz.lr = 0.1;
     argz.dim = 30;
-    argz.bucket = argz.wordNgrams<=1 ? 0 : 1000_000;
+    argz.bucket = 1000_000;
 
     FastText fastText = FastText.load(modelPath);
     //FastText fastText = FastText.train(trainFile, argz);

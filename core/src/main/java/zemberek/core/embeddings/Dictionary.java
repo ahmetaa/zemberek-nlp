@@ -132,7 +132,8 @@ public class Dictionary {
       }
     }
     Log.info("Word count = %d , Label count = %d", dictionary.nwords(), dictionary.nlabels());
-    dictionary.init();
+    dictionary.initTableDiscard();
+    dictionary.initNgrams();
     return dictionary;
   }
 
@@ -287,7 +288,7 @@ public class Dictionary {
     for (int i = 0; i < size_; i++) {
       String word = BOW + words_.get(i).word + EOW;
       // adds the wordId to the n-grams as well.
-      if (args_.wordNgrams > 1 && !words_.get(i).word.equals(EOS)) {
+      if (!words_.get(i).word.equals(EOS)) {
         words_.get(i).subwords = computeSubWords(word, i);
       }
     }
@@ -498,7 +499,7 @@ public class Dictionary {
     String word;
     int count;
     int type;
-    int[] subwords;
+    int[] subwords = new int[0];
   }
 
   /**
