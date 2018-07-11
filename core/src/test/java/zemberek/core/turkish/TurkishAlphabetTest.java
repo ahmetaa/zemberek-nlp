@@ -65,4 +65,12 @@ public class TurkishAlphabetTest {
     Assert.assertEquals(oStr, alphabet.normalizeCircumflex(iStr));
   }
 
+  @Test
+  public void ascciifyTest() {
+    TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+    String iStr = "abcçğıiİIoöüşâîûÂÎÛz";
+    String oStr = "abccgiiIIoousaiuAIUz";
+    Assert.assertEquals(oStr, alphabet.toAscii(iStr));
+  }
+
 }

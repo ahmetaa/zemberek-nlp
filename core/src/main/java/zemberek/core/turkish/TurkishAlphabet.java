@@ -44,6 +44,10 @@ public class TurkishAlphabet {
 
   public static TurkishAlphabet INSTANCE = Singleton.Instance.alphabet;
 
+  private String turkishSpecific = "çÇğĞıİöÖşŞüÜâîûÂÎÛ";
+  private String turkishAscii = "cCgGiIoOsSuUaiuAIU";
+  private IntIntMap asciiMap = new IntIntMap();
+
   private enum Singleton {
     Instance;
     TurkishAlphabet alphabet = new TurkishAlphabet();
@@ -60,6 +64,19 @@ public class TurkishAlphabet {
       letterMap.put(letter.charValue, letter);
     }
     generateVoicingDevoicingLookups();
+
+    populateCharMap(asciiMap, turkishSpecific, turkishAscii);
+  }
+
+  public String toAscii(String in) {
+    StringBuilder sb = new StringBuilder(in.length());
+    for (int i = 0; i < in.length(); i++) {
+      char c = in.charAt(i);
+      int res = asciiMap.get(c);
+      char map = res == IntIntMap.NO_RESULT ? c : (char) res;
+      sb.append(map);
+    }
+    return sb.toString();
   }
 
   private void generateVoicingDevoicingLookups() {
