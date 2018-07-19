@@ -120,7 +120,10 @@ public class DictionaryOperations {
   public static void main(String[] args) throws IOException {
     //saveLemmas(1);
     //saveRegular();
-    extractGroups(Paths.get("tdk-out"),Paths.get("foo.txt"));    //saveProperNouns();
+    Path root = Paths.get("/home/ahmetaa/data/tdk-out");
+    Path out = Paths.get("foo.txt");
+
+    extractGroups(root, out);    //saveProperNouns();
     //matchingLines("P:Det", Paths.get("det.txt"));
   }
 
@@ -141,6 +144,7 @@ public class DictionaryOperations {
 
       List<String> matches = Regexps.getMatchesForGroup(s, p1, 2);
       String name = URLDecoder.decode(file.toFile().getName().replaceAll("\\.html",""), "utf-8");
+      name = name.toLowerCase(TurkishAlphabet.TR);
       result.putAll(name, matches);
       if(matches.size()>0) {
         System.out.println(file);

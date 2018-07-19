@@ -839,4 +839,20 @@ public class ZemberekNlpScripts {
     after.bestAnalysis().forEach(s -> System.out.println(s.formatLong()));
   }
 
+  @Test
+  @Ignore("Not a Test")
+  public void removeWordsFromVocabulary() throws IOException {
+    Path vocab = Paths.get("/home/ahmetaa/data/zemberek.vocab");
+    Path vocabf = Paths.get("/home/ahmetaa/data/zemberek.vocab.filtered");
+    Path loc = Paths.get(
+        "/home/ahmetaa/projects/zemberek-nlp/morphology/src/main/resources/tr/locations-tr.dict");
+    Path prop = Paths.get(
+        "/home/ahmetaa/projects/zemberek-nlp/morphology/src/main/resources/tr/proper-from-corpus.dict");
+    LinkedHashSet<String> foo = new LinkedHashSet<>(
+        Files.readAllLines(vocab, StandardCharsets.UTF_8));
+    foo.removeAll(Files.readAllLines(loc));
+    foo.removeAll(Files.readAllLines(prop));
+    Files.write(vocabf, foo);
+  }
+
 }

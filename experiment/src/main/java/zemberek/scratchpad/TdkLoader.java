@@ -38,7 +38,8 @@ public class TdkLoader {
     Path dir = outputRoot.resolve(prefix);
     Files.createDirectories(dir);
     Path out = dir.resolve(encode + ".html");
-    if(out.toFile().exists()) {
+    if (out.toFile().exists()) {
+      Log.info("Skip %s", searchPhrase);
       return null;
     }
     if (!overwrite && out.toFile().exists()) {
@@ -56,17 +57,29 @@ public class TdkLoader {
         out,
         Collections.singletonList(htmlContent),
         StandardCharsets.UTF_8);
-    Thread.sleep(2000);
+    Thread.sleep(1500);
     return doc;
   }
 
   public static void main(String[] args) throws Exception {
-    TdkLoader loader = new TdkLoader(Paths.get("tdk-out"));
-    Path circumflex = Paths.get("/home/ahmetaa/data/nlp/out/words-with-circumflex.txt");
-    List<String> word = Files.readAllLines(circumflex);
-    for (String s : word) {
-      Log.info(s);
-      loader.loadFromHtmlAndSave(s, true);
+    Path outputRoot = Paths.get("/home/ahmetaa/data/tdk-out");
+    TdkLoader loader = new TdkLoader(outputRoot);
+    Path vocab = Paths.get("/home/ahmetaa/data/zemberek.vocab.filtered");
+    List<String> words = Files.readAllLines(vocab);
+    Collections.shuffle(words);
+    int trial = 0;
+    while (trial < 10) {
+      try {
+        for (String s : words) {
+          Log.info(s);
+          loader.loadFromHtmlAndSave(s, true);
+        }
+        System.exit(0);
+      } catch (Exception e) {
+        Thread.sleep(10000);
+        trial++;
+        Log.info("Retrying %d", trial);
+      }
     }
   }
 

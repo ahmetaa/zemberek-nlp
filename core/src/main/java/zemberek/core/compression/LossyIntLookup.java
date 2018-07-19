@@ -20,7 +20,7 @@ import zemberek.core.io.IOUtil;
  */
 public class LossyIntLookup {
 
-  private Mphf mphf;
+  private Mphf mphf; // Minimal perfect hash function that provides string to integer index lookup.
   private int[] data; // contains fingerprints and actual data.
 
   private static final int MAGIC = 0xcafebeef;
@@ -45,19 +45,16 @@ public class LossyIntLookup {
   }
 
   public float getAsFloat(String s) {
-    int index = mphf.get(s) * 2;
-    int fingerprint = getFingerprint(s);
-    if (fingerprint == data[index]) {
-      return Float.intBitsToFloat(data[index + 1]);
-    } else {
-      return 0;
-    }
+    return Float.intBitsToFloat(get(s));
   }
 
   private static int getFingerprint(String s) {
     return s.hashCode() & 0x7ffffff;
   }
 
+  /**
+   * Generates a LossyIntLookup from a String->Float lookup
+   */
   public static LossyIntLookup generate(FloatValueMap<String> lookup) {
     List<String> keyList = lookup.getKeyList();
     StringHashKeyProvider provider = new StringHashKeyProvider(keyList);
@@ -71,6 +68,9 @@ public class LossyIntLookup {
     return new LossyIntLookup(mphf, data);
   }
 
+  /**
+   * Serialized this data structure to a binary file.
+   */
   public void serialize(Path path) throws IOException {
     try (DataOutputStream dos = IOUtil.getDataOutputStream(path)) {
       dos.writeInt(MAGIC);
@@ -82,6 +82,9 @@ public class LossyIntLookup {
     }
   }
 
+  /**
+   * Checks if input {@link DataInputStream} [dis] contains a serialized LossyIntLookup.
+   */
   public static boolean checkStream(DataInputStream dis) throws IOException {
     PushbackInputStream pis = new PushbackInputStream(dis, 4);
     byte[] fourBytes = new byte[4];
@@ -94,6 +97,9 @@ public class LossyIntLookup {
     return magic == MAGIC;
   }
 
+  /**
+   * Deseializes a LossyIntLookup structure from a {@link DataInputStream} [dis]
+   */
   public static LossyIntLookup deserialize(DataInputStream dis) throws IOException {
     long magic = dis.readInt();
     if (magic != MAGIC) {
