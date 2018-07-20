@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * Linear probing Hash base class.
  */
-public abstract class HashBase<T> {
+abstract class HashBase<T> {
 
   static final int INITIAL_SIZE = 4;
   // Used for marking slots of deleted keys.

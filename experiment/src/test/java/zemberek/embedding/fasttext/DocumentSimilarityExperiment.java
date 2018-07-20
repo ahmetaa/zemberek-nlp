@@ -18,12 +18,12 @@ import org.antlr.v4.runtime.Token;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.Histogram;
 import zemberek.core.embeddings.Args;
-import zemberek.core.embeddings.Dictionary;
+import zemberek.core.embeddings.EmbeddingHashProviders;
 import zemberek.core.embeddings.FastText;
 import zemberek.core.logging.Log;
+import zemberek.core.turkish.Turkish;
 import zemberek.corpus.WebCorpus;
 import zemberek.corpus.WebDocument;
-import zemberek.core.turkish.Turkish;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
@@ -142,7 +142,7 @@ public class DocumentSimilarityExperiment {
     argz.minn = 0;
     argz.maxn = 0;
     //argz.wordNgrams = 2;
-    argz.subWordHashProvider = new Dictionary.EmptySubwordHashProvider();
+    argz.subWordHashProvider = new EmbeddingHashProviders.EmptySubwordHashProvider();
     //argz.subWordHashProvider = new Dictionary.CharacterNgramHashProvider(argz.minn, argz.maxn);
 
     FastText fastText = FastText.train(input, argz);

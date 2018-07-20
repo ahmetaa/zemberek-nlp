@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.embeddings.Args;
-import zemberek.core.embeddings.Dictionary;
+import zemberek.core.embeddings.EmbeddingHashProviders;
 import zemberek.core.embeddings.FastText;
 import zemberek.core.logging.Log;
 
@@ -102,7 +102,7 @@ public class FastTextTest {
     argz.bucket = 2_000_000;
     argz.minn = 3;
     argz.maxn = 6;
-    argz.subWordHashProvider = new Dictionary.CharacterNgramHashProvider(argz.minn, argz.maxn);
+    argz.subWordHashProvider = new EmbeddingHashProviders.CharacterNgramHashProvider(argz.minn, argz.maxn);
 
     Path input = Paths.get("/home/ahmetaa/data/nlp/corpora/corpus-1M.txt");
 

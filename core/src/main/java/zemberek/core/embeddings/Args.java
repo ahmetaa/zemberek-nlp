@@ -3,6 +3,7 @@ package zemberek.core.embeddings;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import zemberek.core.embeddings.EmbeddingHashProviders.CharacterNgramHashProvider;
 
 public class Args {
 
@@ -56,7 +57,7 @@ public class Args {
     args.minn = 3;
     args.maxn = 6;
     args.subWordHashProvider =
-        new Dictionary.CharacterNgramHashProvider(args.minn, args.maxn);
+        new EmbeddingHashProviders.CharacterNgramHashProvider(args.minn, args.maxn);
     args.lr = 0.05;
     args.loss = loss_name.ns;
     args.model = modelName;
@@ -69,7 +70,7 @@ public class Args {
     args.minn = 0;
     args.maxn = 0;
     args.subWordHashProvider =
-        new Dictionary.EmptySubwordHashProvider();
+        new EmbeddingHashProviders.EmptySubwordHashProvider();
     args.lr = 0.1;
     args.loss = loss_name.softmax;
     args.model = model_name.sup;
@@ -112,9 +113,9 @@ public class Args {
     args.t = in.readDouble();
 
     if (args.minn != 0) {
-      args.subWordHashProvider = new Dictionary.CharacterNgramHashProvider(args.minn, args.maxn);
+      args.subWordHashProvider = new EmbeddingHashProviders.CharacterNgramHashProvider(args.minn, args.maxn);
     } else {
-      args.subWordHashProvider = new Dictionary.EmptySubwordHashProvider();
+      args.subWordHashProvider = new EmbeddingHashProviders.EmptySubwordHashProvider();
     }
 
     return args;

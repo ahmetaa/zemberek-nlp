@@ -1,4 +1,4 @@
-package zemberek.core;
+package zemberek.core.text;
 
 import com.google.common.base.Joiner;
 import java.util.ArrayList;
