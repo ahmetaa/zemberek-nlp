@@ -4,20 +4,20 @@ import java.util.Iterator;
 
 /**
  * This is a special set like data structure that can be used in beam-search like algorithms.
- * It holds objects with a {@link Scoreable} interface.
+ * It holds objects with a {@link ScoredItem} interface.
  *
  * When an object is added to the ActiveList, it checks if an equivalent object exists. If not,
  * object is placed in the data structure using linear probing. If an equivalent object exists
  * object with lower score is replaced with the the other one.
  * @param <T>
  */
-public class ActiveList<T extends Scoreable> implements Iterable<T> {
+public class ActiveList<T extends ScoredItem> implements Iterable<T> {
 
   static float DEFAULT_LOAD_FACTOR = 0.65f;
 
   static int DEFAULT_INITIAL_CAPACITY = 8;
 
-  private T[] hypotheses;
+  private T[] items;
 
   private int modulo;
   private int size;
@@ -35,7 +35,7 @@ public class ActiveList<T extends Scoreable> implements Iterable<T> {
     while (k < size) {
       k <<= 1;
     }
-    hypotheses = (T[]) new Scoreable[k];
+    items = (T[]) new ScoredItem[k];
     expandLimit = (int) (k * DEFAULT_LOAD_FACTOR);
     modulo = k - 1;
   }
@@ -50,17 +50,17 @@ public class ActiveList<T extends Scoreable> implements Iterable<T> {
 
   /**
    * Finds either an empty slot location in Hypotheses array or the location of an equivalent
-   * Hypothesis. If an empty slot is found, it returns -(slot index)-1, if an equivalent
-   * Hypotheses is found, returns equal hypothesis's slot index.
+   * item. If an empty slot is found, it returns -(slot index)-1, if an equivalent
+   * item is found, returns equal item's slot index.
    */
-  private int locate(T hyp) {
-    int slot = firstProbe(hyp.hashCode());
+  private int locate(T t) {
+    int slot = firstProbe(t.hashCode());
     while (true) {
-      final Scoreable h = hypotheses[slot];
+      final ScoredItem h = items[slot];
       if (h == null) {
         return (-slot - 1);
       }
-      if (h.equals(hyp)) {
+      if (h.equals(t)) {
         return slot;
       }
       slot = nextProbe(slot + 1);
@@ -68,21 +68,21 @@ public class ActiveList<T extends Scoreable> implements Iterable<T> {
   }
 
   /**
-   * Adds a new hypothesis to the list.
+   * Adds a new scoreable to the list.
    **/
-  public void add(T hypothesis) {
+  public void add(T t) {
 
-    int slot = locate(hypothesis);
+    int slot = locate(t);
 
     // if not exist, add.
     if (slot < 0) {
       slot = -slot - 1;
-      hypotheses[slot] = hypothesis;
+      items[slot] = t;
       size++;
     } else {
       // If exist, check score and if score is better, replace it.
-      if (hypotheses[slot].getScore() < hypothesis.getScore()) {
-        hypotheses[slot] = hypothesis;
+      if (items[slot].getScore() < t.getScore()) {
+        items[slot] = t;
       }
     }
     if (size == expandLimit) {
@@ -91,18 +91,18 @@ public class ActiveList<T extends Scoreable> implements Iterable<T> {
   }
 
   private void expand() {
-    ActiveList<T> expandedList = new ActiveList<>(hypotheses.length * 2);
-    // put hypotheses to new list.
-    for (int i = 0; i < hypotheses.length; i++) {
-      T hyp = hypotheses[i];
-      if (hyp == null) {
+    ActiveList<T> expandedList = new ActiveList<>(items.length * 2);
+    // put items to new list.
+    for (int i = 0; i < items.length; i++) {
+      T t = items[i];
+      if (t == null) {
         continue;
       }
-      int slot = firstProbe(hyp.hashCode());
+      int slot = firstProbe(t.hashCode());
       while (true) {
-        final T h = expandedList.hypotheses[slot];
+        final T h = expandedList.items[slot];
         if (h == null) {
-          expandedList.hypotheses[slot] = hyp;
+          expandedList.items[slot] = t;
           break;
         }
         slot = nextProbe(slot + 1);
@@ -110,17 +110,17 @@ public class ActiveList<T extends Scoreable> implements Iterable<T> {
     }
     this.modulo = expandedList.modulo;
     this.expandLimit = expandedList.expandLimit;
-    this.hypotheses = expandedList.hypotheses;
+    this.items = expandedList.items;
   }
 
   public T getBest() {
     T best = null;
-    for (T hypothesis : hypotheses) {
-      if (hypothesis == null) {
+    for (T t : items) {
+      if (t == null) {
         continue;
       }
-      if (best == null || hypothesis.getScore() > best.getScore()) {
-        best = hypothesis;
+      if (best == null || t.getScore() > best.getScore()) {
+        best = t;
       }
     }
     return best;
@@ -128,10 +128,10 @@ public class ActiveList<T extends Scoreable> implements Iterable<T> {
 
   @Override
   public Iterator<T> iterator() {
-    return new HIterator();
+    return new TIterator();
   }
 
-  class HIterator implements Iterator<T> {
+  class TIterator implements Iterator<T> {
 
     int pointer = 0;
     int count = 0;
@@ -142,10 +142,10 @@ public class ActiveList<T extends Scoreable> implements Iterable<T> {
       if (count == size) {
         return false;
       }
-      while (hypotheses[pointer] == null) {
+      while (items[pointer] == null) {
         pointer++;
       }
-      current = hypotheses[pointer];
+      current = items[pointer];
       count++;
       pointer++;
       return true;

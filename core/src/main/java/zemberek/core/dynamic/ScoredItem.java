@@ -1,6 +1,6 @@
 package zemberek.core.dynamic;
 
-public interface Scoreable {
+public interface ScoredItem {
 
   float getScore();
 }
