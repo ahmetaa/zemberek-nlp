@@ -843,7 +843,7 @@ public class FloatArrays {
     }
   }
 
-  public static float[][] clone2D(float[][] result) throws IOException {
+  public static float[][] clone2D(float[][] result) {
     float[][] arr = new float[result.length][];
     for (int i = 0; i < arr.length; i++) {
       arr[i] = result[i].clone();
@@ -851,7 +851,7 @@ public class FloatArrays {
     return arr;
   }
 
-  public static float[] toVector(float[][] matrix) {
+  public static float[] to1D(float[][] matrix) {
     if (matrix.length == 0) {
       return ZERO_LENGTH_ARRAY;
     }

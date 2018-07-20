@@ -22,11 +22,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.IntVector;
+import zemberek.core.embeddings.Args.model_name;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
 import zemberek.core.text.TextIO;
-import zemberek.core.embeddings.Args.model_name;
 
 public class FastText {
 
@@ -58,11 +58,11 @@ public class FastText {
     return args_;
   }
 
-  public Matrix_ getInputMatrix() {
+  public Matrix getInputMatrix() {
     return model_.wi_;
   }
 
-  public Matrix_ getOutputMatrix() {
+  public Matrix getOutputMatrix() {
     return model_.wo_;
   }
 
@@ -200,20 +200,20 @@ public class FastText {
   public static FastText train(Path input, Args args_) throws Exception {
 
     Dictionary dict_ = Dictionary.readFromFile(input, args_);
-    Matrix_ input_ = null;
+    Matrix input_ = null;
     if (args_.pretrainedVectors.length() != 0) {
       //TODO: implement this.
       //loadVectors(args_->pretrainedVectors);
     } else {
-      input_ = new Matrix_(dict_.nwords() + args_.bucket, args_.dim);
+      input_ = new Matrix(dict_.nwords() + args_.bucket, args_.dim);
       input_.uniform(1.0f / args_.dim);
     }
 
-    Matrix_ output_;
+    Matrix output_;
     if (args_.model == Args.model_name.sup) {
-      output_ = new Matrix_(dict_.nlabels(), args_.dim);
+      output_ = new Matrix(dict_.nlabels(), args_.dim);
     } else {
-      output_ = new Matrix_(dict_.nwords(), args_.dim);
+      output_ = new Matrix(dict_.nwords(), args_.dim);
     }
 
     Model model_ = new Model(input_, output_, args_, 0);
@@ -273,7 +273,7 @@ public class FastText {
   // Returns (word - subword) indexes.
   int[] selectEmbeddings(int cutoff) {
 
-    Matrix_ input_ = model_.wi_;
+    Matrix input_ = model_.wi_;
     List<L2NormData> normIndexes = new ArrayList<>(input_.m_);
     int eosid = dict_.getId(Dictionary.EOS); // we want to retain EOS
     for (int i = 0; i < input_.m_; i++) {
@@ -314,11 +314,11 @@ public class FastText {
 
     args_.qout = qargs.qout;
 
-    Matrix_ input = model_.wi_;
+    Matrix input = model_.wi_;
     if (qargs.cutoff > 0 && qargs.cutoff < input.m_) {
       int[] idx = selectEmbeddings(qargs.cutoff);
       idx = dict_.prune(idx);
-      Matrix_ newInput = new Matrix_(idx.length, args_.dim);
+      Matrix newInput = new Matrix(idx.length, args_.dim);
       for (int i = 0; i < idx.length; i++) {
         for (int j = 0; j < args_.dim; j++) {
           newInput.set(i, j, input.at(idx[i], j));

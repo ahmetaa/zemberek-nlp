@@ -10,7 +10,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.io.IOUtil;
 
-public class Matrix_Test {
+public class MatrixTest {
 
   @Test
   public void saveLoadTest() throws IOException {
@@ -35,11 +35,11 @@ public class Matrix_Test {
     Path p = tempFile.toPath();
     DataOutputStream dos = IOUtil.getDataOutputStream(p);
 
-    Matrix_ ma = new Matrix_(m, n);
+    Matrix ma = new Matrix(m, n);
     int k = 0;
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
-        ma.data_[i * ma.n_ + j] = k * 0.01f;
+        ma.data_[i][j] = k * 0.01f;
         k++;
       }
     }
@@ -47,11 +47,11 @@ public class Matrix_Test {
     dos.close();
     Assert.assertEquals(m * n * 4 + 8, tempFile.length());
     DataInputStream dis = IOUtil.getDataInputStream(p);
-    ma = Matrix_.load(dis);
+    ma = Matrix.load(dis);
     k = 0;
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
-        Assert.assertEquals(k * 0.01f, ma.at(i, j), 0.1);
+        Assert.assertEquals(k * 0.01f, ma.data_[i][j], 0.1);
         k++;
       }
     }

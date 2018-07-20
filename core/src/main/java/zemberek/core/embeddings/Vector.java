@@ -30,7 +30,7 @@ class Vector {
   }
 
 
-  void addRow(Matrix_ A, int i) {
+  void addRow(Matrix A, int i) {
     assert (i >= 0);
     assert (i < A.m_);
     assert (size() == A.n_);
@@ -44,7 +44,7 @@ class Vector {
     FloatArrays.addToFirst(data_, source.data_);
   }
 
-  void addRow(Matrix_ A, int i, float a) {
+  void addRow(Matrix A, int i, float a) {
     assert (i >= 0);
     assert (i < A.m_);
     assert (size() == A.n_);
@@ -58,7 +58,7 @@ class Vector {
     A.addToVector(this, i);
   }
 
-  void mul(Matrix_ A, Vector vec) {
+  void mul(Matrix A, Vector vec) {
     for (int i = 0; i < size(); i++) {
       data_[i] = 0.0f;
       for (int j = 0; j < A.n_; j++) {

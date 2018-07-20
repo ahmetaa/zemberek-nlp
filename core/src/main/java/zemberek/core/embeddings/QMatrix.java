@@ -25,7 +25,7 @@ class QMatrix {
     codesize_ = 0;
   }
 
-  public QMatrix(Matrix_ mat, int dsub, boolean qnorm) {
+  public QMatrix(Matrix mat, int dsub, boolean qnorm) {
     qnorm_ = qnorm;
     m_ = mat.m_;
     n_ = mat.n_;
@@ -50,19 +50,18 @@ class QMatrix {
     npq_.compute_codes(fArray, bArray, m_);
   }
 
-  void quantize(Matrix_ matrix) {
+  void quantize(Matrix matrix) {
     assert (n_ == matrix.n_);
     assert (m_ == matrix.m_);
-    Matrix_ temp = matrix.copy();
     if (qnorm_) {
-      Vector norms = new Vector(temp.m_);
-      temp.l2NormRow(norms);
-      temp.divideRow(norms);
+      Vector norms = new Vector(matrix.m_);
+      matrix.l2NormRow(norms);
+      matrix.divideRow(norms);
       quantizeNorm(norms);
     }
-    float[] dataptr = temp.data_;
-    pq_.train(m_, dataptr);
-    ProductQuantizer.FArray fArray = new ProductQuantizer.FArray(dataptr);
+    float[] data1D = matrix.getData1D();
+    pq_.train(m_, data1D);
+    ProductQuantizer.FArray fArray = new ProductQuantizer.FArray(data1D);
     ProductQuantizer.BArray bArray = new ProductQuantizer.BArray(codes_);
     pq_.compute_codes(fArray, bArray, m_);
   }

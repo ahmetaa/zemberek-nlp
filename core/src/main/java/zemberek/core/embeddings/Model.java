@@ -28,8 +28,8 @@ class Model {
     initSigmoid();
   }
 
-  Matrix_ wi_;
-  Matrix_ wo_;
+  Matrix wi_;
+  Matrix wo_;
   QMatrix qwi_;
   QMatrix qwo_;
   boolean quant_;
@@ -49,8 +49,8 @@ class Model {
   private Node[] tree;
   private Random rng;
 
-  Model(Matrix_ wi,
-      Matrix_ wo,
+  Model(Matrix wi,
+      Matrix wo,
       Args args,
       int seed) {
     output_ = new Vector(wo.m_);
@@ -75,17 +75,17 @@ class Model {
     Log.info("Loading Matrices.");
     boolean quant_input = dis.readBoolean();
 
-    Matrix_ input_;
-    Matrix_ output_;
+    Matrix input_;
+    Matrix output_;
     QMatrix qInput_ = null;
     QMatrix qOutput_ = null;
 
     if (quant_input) {
       qInput_ = new QMatrix();
       qInput_.load(dis);
-      input_ = new Matrix_(); // empty
+      input_ = Matrix.EMPTY; // empty
     } else {
-      input_ = Matrix_.load(dis);
+      input_ = Matrix.load(dis);
     }
 
     //TODO: I dont like this. we should not override Args value like this.
@@ -94,9 +94,9 @@ class Model {
     if (quant_input && args_.qout) {
       qOutput_ = new QMatrix();
       qOutput_.load(dis);
-      output_ = new Matrix_(); // empty
+      output_ = Matrix.EMPTY; // empty
     } else {
-      output_ = Matrix_.load(dis);
+      output_ = Matrix.load(dis);
     }
 
     Model model_ = new Model(input_, output_, args_, 0);
