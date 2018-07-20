@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class QMatrix {
+class QMatrix {
 
   ProductQuantizer pq_;
   ProductQuantizer npq_;
@@ -42,7 +42,7 @@ public class QMatrix {
 
   void quantizeNorm(Vector norms) {
     assert (qnorm_);
-    assert (norms.m_ == m_);
+    assert (norms.size() == m_);
     float[] dataptr = norms.data_;
     npq_.train(m_, dataptr);
     ProductQuantizer.FArray fArray = new ProductQuantizer.FArray(dataptr);

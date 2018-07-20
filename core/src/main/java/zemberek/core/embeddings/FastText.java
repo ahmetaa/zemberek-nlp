@@ -396,19 +396,19 @@ public class FastText {
   }
 
   //TODO: this method does not exist in original c++ code. check python bindings
-  public Vector textVector(String s) {
+  public float[] textVector(String s) {
     Vector vec = new Vector(args_.dim);
     IntVector line = new IntVector();
     dict_.getLine(s, line, model_.getRng());
     dict_.addWordNgramHashes(line, args_.wordNgrams);
     if (line.size() == 0) {
-      return vec;
+      return vec.getData();
     }
     for (int i : line.copyOf()) {
       vec.addRow(model_.wi_, i);
     }
     vec.mul((float) (1.0 / line.size()));
-    return vec;
+    return vec.getData();
   }
 
   Vector getSentenceVector(String s) {

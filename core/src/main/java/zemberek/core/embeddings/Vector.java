@@ -5,14 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 import zemberek.core.math.FloatArrays;
 
-public class Vector {
+class Vector {
 
   float[] data_;
-  int m_;
 
   Vector(int m_) {
     this.data_ = new float[m_];
-    this.m_ = m_;
   }
 
   public float[] getData() {
@@ -20,7 +18,7 @@ public class Vector {
   }
 
   public int size() {
-    return m_;
+    return data_.length;
   }
 
   void zero() {
@@ -35,7 +33,7 @@ public class Vector {
   void addRow(Matrix_ A, int i) {
     assert (i >= 0);
     assert (i < A.m_);
-    assert (m_ == A.n_);
+    assert (size() == A.n_);
     for (int j = 0; j < A.n_; j++) {
       data_[j] += A.at(i, j);
     }
@@ -49,7 +47,7 @@ public class Vector {
   void addRow(Matrix_ A, int i, float a) {
     assert (i >= 0);
     assert (i < A.m_);
-    assert (m_ == A.n_);
+    assert (size() == A.n_);
     for (int j = 0; j < A.n_; j++) {
       data_[j] += a * A.at(i, j);
     }
@@ -61,7 +59,7 @@ public class Vector {
   }
 
   void mul(Matrix_ A, Vector vec) {
-    for (int i = 0; i < m_; i++) {
+    for (int i = 0; i < size(); i++) {
       data_[i] = 0.0f;
       for (int j = 0; j < A.n_; j++) {
         data_[i] += A.at(i, j) * vec.data_[j];
@@ -79,9 +77,9 @@ public class Vector {
   }
 
   void mul(QMatrix A, Vector vec) {
-    assert (A.getM() == m_);
-    assert (A.getN() == vec.m_);
-    for (int i = 0; i < m_; i++) {
+    assert (A.getM() == size());
+    assert (A.getN() == vec.size());
+    for (int i = 0; i < size(); i++) {
       data_[i] = A.dotRow(vec, i);
     }
   }
@@ -89,7 +87,7 @@ public class Vector {
   public int argmax() {
     float max = data_[0];
     int argmax = 0;
-    for (int i = 1; i < m_; i++) {
+    for (int i = 1; i < size(); i++) {
       if (data_[i] > max) {
         max = data_[i];
         argmax = i;

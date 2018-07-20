@@ -100,7 +100,7 @@ public class Matrix_ {
   float dotRow(Vector vec, int i) {
     assert (i >= 0);
     assert (i < m_);
-    assert (vec.m_ == n_);
+    assert (vec.size() == n_);
     float d = 0.0f;
     for (int j = 0; j < n_; j++) {
       d += at(i, j) * vec.data_[j];
