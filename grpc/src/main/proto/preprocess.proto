@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option java_package = "zemberek.proto";
+option java_multiple_files = true;
+
+
+message TokenizationRequest {
+  string input = 1;
+  // TODO: Add options (ignore etc.)
+}
+
+message Token {
+  string token = 1;
+  // TODO: Types should be enums.
+  string type = 2;
+}
+
+message TokenizationResponse {
+  repeated Token tokens = 1;
+}
+
+service PreprocessingService {
+  rpc tokenize (TokenizationRequest) returns (TokenizationResponse);
+}

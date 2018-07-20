@@ -210,7 +210,7 @@ public class LanguageIdentifier {
     if (content.length() <= order) {
       return new int[0];
     }
-    if (gramAmount < 0) {
+    if (gramAmount <= 0) {
       return getSequencial(content);
     }
     int gramIndexLimit = content.length() - order + 1;

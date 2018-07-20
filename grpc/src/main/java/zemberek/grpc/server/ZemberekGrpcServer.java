@@ -12,6 +12,7 @@ public class ZemberekGrpcServer {
     Server server = ServerBuilder.forPort(PORT)
         .addService(new AnalysisServiceImpl())
         .addService(new LanguageIdServiceImpl())
+        .addService(new PreprocessingServiceImpl())
         .build()
         .start();
     Log.info("Zemberek grpc server started at port: " + PORT);
