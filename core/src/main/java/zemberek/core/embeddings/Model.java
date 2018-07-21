@@ -9,8 +9,9 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Random;
 import zemberek.core.collections.IntVector;
-import zemberek.core.logging.Log;
 import zemberek.core.embeddings.Args.model_name;
+import zemberek.core.logging.Log;
+import zemberek.core.math.FloatArrays;
 
 class Model {
 
@@ -38,7 +39,7 @@ class Model {
   private int hsz_;
   private int isz_;
   private int osz_; // output size
-  private float loss_;
+  private float loss_; // models loss value. This is updated during training,
   private long nexamples_;
   // used for negative sampling:
   private int[] negatives;
@@ -83,7 +84,7 @@ class Model {
     if (quant_input) {
       qInput_ = new QMatrix();
       qInput_.load(dis);
-      input_ = Matrix.EMPTY; // empty
+      input_ = Matrix.EMPTY;
     } else {
       input_ = Matrix.load(dis);
     }
@@ -94,7 +95,7 @@ class Model {
     if (quant_input && args_.qout) {
       qOutput_ = new QMatrix();
       qOutput_.load(dis);
-      output_ = Matrix.EMPTY; // empty
+      output_ = Matrix.EMPTY;
     } else {
       output_ = Matrix.load(dis);
     }
@@ -192,10 +193,9 @@ class Model {
     } else {
       output.mul(wo_, hidden);
     }
-    float max = output.data_[0], z = 0.0f;
-    for (int i = 0; i < osz_; i++) {
-      max = Math.max(output.data_[i], max);
-    }
+    float max = FloatArrays.max(output_.data_);
+    float z = 0.0f;
+
     for (int i = 0; i < osz_; i++) {
       output.data_[i] = (float) Math.exp(output.data_[i] - max);
       z += output.data_[i];

@@ -314,7 +314,8 @@ class Dictionary {
     return counts;
   }
 
-  //adds word level n-grams hash values to input word index Vector. n=1 means uni-grams, no value is added.
+  //adds word level n-grams hash values to input word index Vector.
+  // n=1 means uni-grams, no value is added.
   void addWordNgramHashes(IntVector line, int n) {
     if (n == 1) {
       return;
