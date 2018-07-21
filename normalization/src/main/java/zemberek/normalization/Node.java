@@ -177,7 +177,7 @@ class Node {
   public String toString() {
     StringBuilder sb = new StringBuilder("[" + chr);
     char[] characters = new char[nodes.size()];
-    int[] keys = nodes.getKeyArray();
+    int[] keys = nodes.getKeys();
     for (int i = 0; i < characters.length; i++) {
       characters[i] = (char) keys[i];
     }

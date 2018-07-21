@@ -5,13 +5,17 @@ public class EmbeddingHashProviders {
 
   /**
    * this algorithm is also slightly different than the original. This basically computes the
-   * character ngrams from a word But it does not use the ngram, instead it calculates a hash of it.
+   * character ngrams from a word But it does not use the ngram, instead it calculates a hash of
+   * it.
    *
    * minn defines the minimum n-gram length, maxn defines the maximum ngram length. For example, For
-   * word 'zemberek' minn = 3 and maxn = 6 these ngrams are calculated: _ze, _zem, _zemb, _zembe
+   * word 'zemberek' minn = 3 and maxn = 6 these ngrams are calculated:
+   * <pre>_ze, _zem, _zemb, _zembe
    * zem, zemb, zembe, zember emb, embe, ember, embere mbe, mber, mbere, mberek ber, bere, berek,
-   * berek_ ere, erek, erek_ rek, rek_, ek_ <p> If wordId is not -1, wordId value is added to
-   * result[0]
+   * berek_ ere, erek, erek_ rek, rek_, ek_
+   * </pre>
+   * <p>
+   * If wordId is not -1, wordId value is added to result[0]
    */
   public static class CharacterNgramHashProvider implements SubWordHashProvider {
 

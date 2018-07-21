@@ -2,6 +2,7 @@ package zemberek.core.collections;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ import java.util.List;
  * If created as an externally managed IntMap, it does not expand automatically when
  * capacity threshold is reached, and must be expanded by callers.
  */
-public final class IntMap<T> {
+public final class IntMap<T> implements Iterable<T> {
 
   private static final int DEFAULT_INITIAL_CAPACITY = 4;
   /**
@@ -231,5 +232,39 @@ public final class IntMap<T> {
       }
     }
     return newMap;
+  }
+
+  @Override
+  public Iterator<T> iterator() {
+    return new ValueIterator();
+  }
+
+  private class ValueIterator implements Iterator<T> {
+
+    int keyCounter = 0;
+    int counter = 0;
+    T item;
+
+    @Override
+    public boolean hasNext() {
+      if (counter == keyCount) {
+        return false;
+      }
+      while (true) {
+        if (keys[keyCounter] != EMPTY) {
+          keyCounter++;
+          break;
+        }
+        keyCounter++;
+      }
+      item = values[keyCounter - 1];
+      counter++;
+      return true;
+    }
+
+    @Override
+    public T next() {
+      return item;
+    }
   }
 }

@@ -489,7 +489,7 @@ class Dictionary {
       out.writeInt(e.count);
       out.writeInt(e.type);
     }
-    for (int key : pruneidx_.getKeyArray()) {
+    for (int key : pruneidx_.getKeys()) {
       out.writeInt(key);
       out.writeInt(pruneidx_.get(key));
     }

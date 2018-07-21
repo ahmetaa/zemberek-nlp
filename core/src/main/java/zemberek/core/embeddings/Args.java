@@ -41,7 +41,7 @@ public class Args {
     minCountLabel = 0;
     neg = 5;
     bucket = 2_000_000;
-    thread = 8;
+    thread = Runtime.getRuntime().availableProcessors() / 2;
     lrUpdateRate = 100;
     t = 1e-4;
     label = "__label__";
@@ -110,7 +110,8 @@ public class Args {
     args.t = in.readDouble();
 
     if (args.minn != 0) {
-      args.subWordHashProvider = new EmbeddingHashProviders.CharacterNgramHashProvider(args.minn, args.maxn);
+      args.subWordHashProvider = new EmbeddingHashProviders.CharacterNgramHashProvider(args.minn,
+          args.maxn);
     } else {
       args.subWordHashProvider = new EmbeddingHashProviders.EmptySubwordHashProvider();
     }

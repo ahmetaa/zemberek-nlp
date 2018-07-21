@@ -187,7 +187,7 @@ public class WordVectorLookup {
     public DistanceMatcher(WordVectorLookup lookup) {
       this.lookup = lookup;
       this.cMap = new UIntFloatMap(lookup.vectors.size());
-      for (int i : lookup.vectors.getKeyArray()) {
+      for (int i : lookup.vectors.getKeys()) {
         cMap.put(i, lookup.vectors.get(i).c());
       }
     }

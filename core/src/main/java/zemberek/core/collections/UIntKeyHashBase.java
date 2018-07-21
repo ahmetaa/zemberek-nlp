@@ -126,16 +126,16 @@ public abstract class UIntKeyHashBase {
    * returns the keys sorted ascending.
    */
   public int[] getKeyArraySorted() {
-    int[] sorted = getKeyArray();
+    int[] sorted = getKeys();
     Arrays.sort(sorted);
     return sorted;
   }
 
 
   /**
-   * returns the keys sorted ascending.
+   * returns the keys in an array.
    */
-  public int[] getKeyArray() {
+  public int[] getKeys() {
     int[] keyArray = new int[keyCount];
     int c = 0;
     for (int key : keys) {

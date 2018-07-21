@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.FloatValueMap;
 
-class CharacterGraphDecoder {
+public class CharacterGraphDecoder {
 
   public static final Map<Character, String> TURKISH_FQ_NEAR_KEY_MAP = new HashMap<>();
   public static final Map<Character, String> TURKISH_Q_NEAR_KEY_MAP = new HashMap<>();
@@ -37,7 +37,6 @@ class CharacterGraphDecoder {
     map.put('g', "fğh");
     map.put('ğ', "gıpü");
     map.put('h', "npgj");
-    map.put('ğ', "gıpü");
     map.put('ı', "ğou");
     map.put('i', "ueş");
     map.put('j', "öhk");
@@ -75,7 +74,6 @@ class CharacterGraphDecoder {
     map.put('g', "fh");
     map.put('ğ', "pü");
     map.put('h', "gj");
-    map.put('ğ', "pü");
     map.put('ı', "ou");
     map.put('i', "ş");
     map.put('j', "hk");
