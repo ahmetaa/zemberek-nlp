@@ -133,7 +133,7 @@ public class DocumentSimilarityExperiment {
   }
 
   public void generateVectorModel(Path input, Path modelFile) throws Exception {
-    Args argz = Args.forWordVectors(Args.model_name.sg);
+    Args argz = Args.forWordVectors(Args.model_name.skipGram);
     argz.thread = 16;
     argz.epoch = 10;
     argz.dim = 250;

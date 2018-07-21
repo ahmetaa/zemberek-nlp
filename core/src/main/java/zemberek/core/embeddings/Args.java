@@ -3,7 +3,6 @@ package zemberek.core.embeddings;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import zemberek.core.embeddings.EmbeddingHashProviders.CharacterNgramHashProvider;
 
 public class Args {
 
@@ -18,7 +17,6 @@ public class Args {
   public int wordNgrams;
   public loss_name loss;
   public model_name model;
-  public boolean threadSafe;
   public int bucket;
   public int minn;
   public int maxn;
@@ -43,7 +41,6 @@ public class Args {
     minCountLabel = 0;
     neg = 5;
     bucket = 2_000_000;
-    threadSafe = false;
     thread = 8;
     lrUpdateRate = 100;
     t = 1e-4;
@@ -59,7 +56,7 @@ public class Args {
     args.subWordHashProvider =
         new EmbeddingHashProviders.CharacterNgramHashProvider(args.minn, args.maxn);
     args.lr = 0.05;
-    args.loss = loss_name.ns;
+    args.loss = loss_name.negativeSampling;
     args.model = modelName;
     args.wordNgrams = 1;
     return args;
@@ -73,7 +70,7 @@ public class Args {
         new EmbeddingHashProviders.EmptySubwordHashProvider();
     args.lr = 0.1;
     args.loss = loss_name.softmax;
-    args.model = model_name.sup;
+    args.model = model_name.supervised;
     args.wordNgrams = 2;
     return args;
   }
@@ -87,10 +84,10 @@ public class Args {
     args.neg = in.readInt();
     args.wordNgrams = in.readInt();
     int loss = in.readInt();
-    if (loss == loss_name.hs.index) {
-      args.loss = loss_name.hs;
-    } else if (loss == loss_name.ns.index) {
-      args.loss = loss_name.ns;
+    if (loss == loss_name.hierarchicalSoftmax.index) {
+      args.loss = loss_name.hierarchicalSoftmax;
+    } else if (loss == loss_name.negativeSampling.index) {
+      args.loss = loss_name.negativeSampling;
     } else if (loss == loss_name.softmax.index) {
       args.loss = loss_name.softmax;
     } else {
@@ -99,10 +96,10 @@ public class Args {
     int model = in.readInt();
     if (model == model_name.cbow.index) {
       args.model = model_name.cbow;
-    } else if (model == model_name.sg.index) {
-      args.model = model_name.sg;
-    } else if (model == model_name.sup.index) {
-      args.model = model_name.sup;
+    } else if (model == model_name.skipGram.index) {
+      args.model = model_name.skipGram;
+    } else if (model == model_name.supervised.index) {
+      args.model = model_name.supervised;
     } else {
       throw new IllegalStateException("Unknown model type.");
     }
@@ -138,7 +135,7 @@ public class Args {
   }
 
   public enum model_name {
-    cbow(1), sg(2), sup(3);
+    cbow(1), skipGram(2), supervised(3);
 
     int index;
 
@@ -148,7 +145,7 @@ public class Args {
   }
 
   public enum loss_name {
-    hs(1), ns(2), softmax(3);
+    hierarchicalSoftmax(1), negativeSampling(2), softmax(3);
 
     int index;
 

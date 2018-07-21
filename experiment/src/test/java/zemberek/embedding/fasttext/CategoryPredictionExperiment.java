@@ -70,9 +70,8 @@ public class CategoryPredictionExperiment {
     } else {
       Args argz = Args.forSupervised();
       argz.thread = 4;
-      argz.model = Args.model_name.sup;
+      argz.model = Args.model_name.supervised;
       argz.loss = Args.loss_name.softmax;
-      argz.threadSafe = false;
       argz.epoch = 50;
       argz.wordNgrams = 2;
       argz.minCount = 0;

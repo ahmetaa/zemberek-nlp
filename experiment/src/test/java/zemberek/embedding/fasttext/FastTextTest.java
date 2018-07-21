@@ -95,7 +95,7 @@ public class FastTextTest {
   @Test
   @Ignore("Not an actual Test.")
   public void skipgram() throws Exception {
-    Args argz = Args.forWordVectors(Args.model_name.sg);
+    Args argz = Args.forWordVectors(Args.model_name.skipGram);
     argz.thread = 8;
     argz.epoch = 10;
     argz.dim = 100;

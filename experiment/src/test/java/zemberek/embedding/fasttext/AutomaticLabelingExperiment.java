@@ -152,8 +152,7 @@ public class AutomaticLabelingExperiment {
     } else {
       Args argz = Args.forSupervised();
       argz.thread = 16;
-      argz.loss = Args.loss_name.hs;
-      argz.threadSafe = false;
+      argz.loss = Args.loss_name.hierarchicalSoftmax;
       argz.epoch = 100;
       argz.wordNgrams = 2;
       argz.minCount = 10;

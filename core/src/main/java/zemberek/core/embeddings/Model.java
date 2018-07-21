@@ -140,10 +140,13 @@ class Model {
       int target,
       boolean label,
       float lr) {
+    // calculates hidden layer and output node activation with Sigmoid
     float score = sigmoid(wo_.dotRow(hidden, target));
+
     float alpha = lr * ((label ? 1f : 0f) - score);
     grad.addRow(wo_, target, alpha);
     wo_.addRow(hidden, target, alpha);
+
     if (label) {
       return -log(score);
     } else {
@@ -240,13 +243,13 @@ class Model {
       throw new IllegalArgumentException("k needs to be 1 or higher! Value = " + k);
     }
 
-    if (args_.model != model_name.sup) {
+    if (args_.model != model_name.supervised) {
       throw new IllegalArgumentException(
           "Model needs to be supervised for prediction! Mmodel = " + args_.model);
     }
 
     PriorityQueue<FloatIntPair> heap = new PriorityQueue<>(k + 1, PAIR_COMPARATOR);
-    if (args_.loss == Args.loss_name.hs) {
+    if (args_.loss == Args.loss_name.hierarchicalSoftmax) {
       dfs(k, threshold, 2 * osz_ - 2, 0.0f, heap, hidden);
     } else {
       findKBest(k, threshold, heap, hidden, output);
@@ -326,16 +329,16 @@ class Model {
     }
     Vector hidden_ = computeHidden(input);
     Vector grad_ = new Vector(hsz_);
-    if (args_.loss == Args.loss_name.ns) {
+    if (args_.loss == Args.loss_name.negativeSampling) {
       loss_ += negativeSampling(grad_, hidden_, target, lr);
-    } else if (args_.loss == Args.loss_name.hs) {
+    } else if (args_.loss == Args.loss_name.hierarchicalSoftmax) {
       loss_ += hierarchicalSoftmax(grad_, hidden_, target, lr);
     } else {
       loss_ += softmax(grad_, hidden_, target, lr);
     }
     nexamples_ += 1;
 
-    if (args_.model == Args.model_name.sup) {
+    if (args_.model == Args.model_name.supervised) {
       grad_.mul((float) (1.0 / input.length));
     }
 
@@ -346,22 +349,29 @@ class Model {
 
   void setTargetCounts(int[] counts) {
     assert (counts.length == osz_);
-    if (args_.loss == Args.loss_name.ns) {
+    if (args_.loss == Args.loss_name.negativeSampling) {
       initTableNegatives(counts);
     }
-    if (args_.loss == Args.loss_name.hs) {
+    if (args_.loss == Args.loss_name.hierarchicalSoftmax) {
       buildTree(counts);
     }
   }
 
+  // input is an array that carries counts of words or labels.
+  // counts[W-index] = count of W
+  // this will return a large array where system can draw negative samples for training.
+  // Samples are word or label indexes.
+  // amount of items in the array will be proportional with their counts.
   private void initTableNegatives(int[] counts) {
     IntVector vec = new IntVector(counts.length * 10);
-    float z = 0.0f;
+
+    float z = 0.0f; // z will hold the sum of square roots of all counts
     for (int count : counts) {
-      z += (float) Math.pow(count, 0.5);
+      z += (float) Math.sqrt(count);
     }
+
     for (int i = 0; i < counts.length; i++) {
-      float c = (float) Math.pow(counts[i], 0.5);
+      float c = (float) Math.sqrt(counts[i]);
       for (int j = 0; j < c * NEGATIVE_TABLE_SIZE / z; j++) {
         vec.add(i);
       }
@@ -370,6 +380,7 @@ class Model {
     negatives = vec.copyOf();
   }
 
+  // gets a negative sample
   private int getNegative(int target) {
     int negative;
     do {

@@ -122,12 +122,12 @@ public class FastText {
 
   public void saveOutput(Path outPath) throws IOException {
 
-    int n = (args_.model == model_name.sup) ? dict_.nlabels() : dict_.nwords();
+    int n = (args_.model == model_name.supervised) ? dict_.nlabels() : dict_.nwords();
 
     try (PrintWriter pw = new PrintWriter(outPath.toFile(), "utf-8")) {
       pw.println(dict_.nwords() + " " + args_.dim);
       for (int i = 0; i < n; i++) {
-        String word = (args_.model == model_name.sup) ?
+        String word = (args_.model == model_name.supervised) ?
             dict_.getLabel(i) : dict_.getWord(i);
         Vector vector = new Vector(args_.dim);
         vector.addRow(model_.wo_, i);
@@ -184,7 +184,7 @@ public class FastText {
     Args args_ = Args.load(dis);
     Dictionary dict_ = Dictionary.load(dis, args_);
     Model model_ = Model.load(dis, args_);
-    if (args_.model == Args.model_name.sup) {
+    if (args_.model == Args.model_name.supervised) {
       model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_LABEL));
     } else {
       model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_WORD));
@@ -210,14 +210,14 @@ public class FastText {
     }
 
     Matrix output_;
-    if (args_.model == Args.model_name.sup) {
+    if (args_.model == Args.model_name.supervised) {
       output_ = new Matrix(dict_.nlabels(), args_.dim);
     } else {
       output_ = new Matrix(dict_.nwords(), args_.dim);
     }
 
     Model model_ = new Model(input_, output_, args_, 0);
-    if (args_.model == Args.model_name.sup) {
+    if (args_.model == Args.model_name.supervised) {
       model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_LABEL));
     } else {
       model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_WORD));
@@ -306,7 +306,7 @@ public class FastText {
 
   FastText quantize(DataInputStream dis, Args qargs) throws IOException {
     Args args_ = Args.load(dis);
-    if (args_.model != model_name.sup) {
+    if (args_.model != model_name.supervised) {
       throw new IllegalArgumentException("Only supervised models can be quantized.");
     }
     Dictionary dict_ = Dictionary.load(dis, args_);
@@ -339,7 +339,7 @@ public class FastText {
     model_.quant_ = true;
     model_.setQuantizePointer(qwi_, qwo_, args_.qout);
 
-    if (args_.model == Args.model_name.sup) {
+    if (args_.model == Args.model_name.supervised) {
       model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_LABEL));
     } else {
       model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_WORD));
@@ -413,7 +413,7 @@ public class FastText {
 
   Vector getSentenceVector(String s) {
     Vector svec = new Vector(args_.dim);
-    if (args_.model == model_name.sup) {
+    if (args_.model == model_name.supervised) {
       IntVector line = new IntVector(), labels = new IntVector();
       dict_.getLine(s, line, labels);
       for (int i = 0; i < line.size(); i++) {
@@ -554,7 +554,7 @@ public class FastText {
     @Override
     public Model call() {
 
-      if (args_.model == Args.model_name.sup) {
+      if (args_.model == Args.model_name.supervised) {
         model.setTargetCounts(dictionary.getCounts(Dictionary.TYPE_LABEL));
       } else {
         model.setTargetCounts(dictionary.getCounts(Dictionary.TYPE_WORD));
@@ -579,14 +579,14 @@ public class FastText {
             progress = (float) ((1.0 * tokenCount.get()) / (args_.epoch * ntokens));
             float lr = (float) (args_.lr * (1.0 - progress));
 
-            if (args_.model == Args.model_name.sup) {
+            if (args_.model == Args.model_name.supervised) {
               IntVector labels = new IntVector();
               localTokenCount += dictionary.getLine(lineStr, line, labels);
               supervised(model, lr, line.copyOf(), labels.copyOf());
             } else if (args_.model == Args.model_name.cbow) {
               localTokenCount += dictionary.getLine(lineStr, line, model.getRng());
               cbow(model, lr, line.copyOf());
-            } else if (args_.model == Args.model_name.sg) {
+            } else if (args_.model == Args.model_name.skipGram) {
               localTokenCount += dictionary.getLine(lineStr, line, model.getRng());
               skipgram(model, lr, line.copyOf());
             }

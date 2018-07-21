@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Random;
 import zemberek.core.collections.IntVector;
 
-public class ProductQuantizer {
+class ProductQuantizer {
 
   //TODO: original is 8 bits but because byte is signed, for now make it 7
   int nbits_ = 7;
