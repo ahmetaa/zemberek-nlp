@@ -90,6 +90,53 @@ public class FastTextTest {
   }
 
   /**
+   * Runs the cooking label guessing task. run with -Xms8G or more.
+   */
+  @Test
+  @Ignore("Not an actual Test.")
+  public void classificationTest() throws Exception {
+
+    Path inputRoot = Paths.get("/home/ahmetaa/data/fasttext");
+    Path trainFile = inputRoot.resolve("cooking.train");
+    //Path trainFile = inputRoot.resolve("train.10k");
+    Path modelPath = inputRoot.resolve("cooking.model.bin");
+    Path quantizedModelPath = inputRoot.resolve("cooking.model.qbin");
+    Path testFile = inputRoot.resolve("cooking.valid");
+
+    Args argz = Args.forSupervised();
+    argz.thread = 4;
+    argz.epoch = 25;
+    argz.wordNgrams = 2;
+    argz.minCount = 1;
+    argz.lr = 1.0;
+    argz.dim = 100;
+    argz.bucket = 1000_000;
+
+    FastText fastText;
+/*    if(modelPath.toFile().exists())
+      fastText = FastText.load(modelPath);
+    else*/
+      fastText = FastText.train(trainFile, argz);
+
+
+    fastText.saveModel(modelPath);
+    Log.info("Testing started.");
+    fastText.test(testFile, 1);
+    fastText = FastText.load(modelPath);
+    fastText.test(testFile, 1);
+
+    argz.qnorm = false;
+    argz.cutoff = 3000;
+    fastText = fastText.quantize(modelPath, argz);
+    fastText.saveModel(quantizedModelPath);
+    Log.info("Testing quantization result.");
+    fastText.test(testFile,1);
+    fastText = FastText.load(quantizedModelPath);
+    Log.info("Testing after loading quantized model.");
+    fastText.test(testFile,1);
+  }
+
+  /**
    * Generates word vectors using skip-gram model. run with -Xms8G or more.
    */
   @Test

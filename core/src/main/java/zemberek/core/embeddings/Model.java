@@ -37,17 +37,14 @@ class Model {
   private Args args_;
   private Vector output_;
   private int hsz_;
-  private int isz_;
   private int osz_; // output size
   private float loss_; // models loss value. This is updated during training,
   private long nexamples_;
-  // used for negative sampling:
-  private int[] negatives;
-  private int negpos;
-  // used for hierarchical softmax:
-  private List<IntVector> paths = new ArrayList<>();
-  private List<IntVector> codes = new ArrayList<>();
-  private Node[] tree;
+
+  private NegativeSampler negativeSampler;
+
+  private HierarchicalSoftmax hierarchicalSoftmax;
+
   private Random rng;
 
   Model(Matrix wi,
@@ -59,10 +56,8 @@ class Model {
     wi_ = wi;
     wo_ = wo;
     args_ = args;
-    isz_ = wi.m_;
     osz_ = wo.m_;
     hsz_ = args.dim;
-    negpos = 0;
     loss_ = 0.0f;
     nexamples_ = 1;
   }
@@ -166,7 +161,7 @@ class Model {
       if (n == 0) {
         loss += binaryLogistic(grad, hidden, target, true, lr);
       } else {
-        loss += binaryLogistic(grad, hidden, getNegative(target), false, lr);
+        loss += binaryLogistic(grad, hidden, negativeSampler.getSample(target), false, lr);
       }
     }
     return loss;
@@ -179,8 +174,8 @@ class Model {
       float lr) {
 
     float loss = 0.0f;
-    IntVector binaryCode = codes.get(target);
-    IntVector pathToRoot = paths.get(target);
+    IntVector binaryCode = hierarchicalSoftmax.codes.get(target);
+    IntVector pathToRoot = hierarchicalSoftmax.paths.get(target);
     for (int i = 0; i < pathToRoot.size(); i++) {
       loss += binaryLogistic(grad_, hidden, pathToRoot.get(i), binaryCode.get(i) == 1, lr);
     }
@@ -301,6 +296,8 @@ class Model {
       return;
     }
 
+    Node[] tree = hierarchicalSoftmax.tree;
+
     if (tree[node].left == -1 && tree[node].right == -1) {
       heap.add(new FloatIntPair(score, node));
       if (heap.size() > k) {
@@ -350,93 +347,124 @@ class Model {
   void setTargetCounts(int[] counts) {
     assert (counts.length == osz_);
     if (args_.loss == Args.loss_name.negativeSampling) {
-      initTableNegatives(counts);
+      negativeSampler = NegativeSampler.instantiate(counts, rng);
     }
     if (args_.loss == Args.loss_name.hierarchicalSoftmax) {
-      buildTree(counts);
+      hierarchicalSoftmax = HierarchicalSoftmax.buildTree(counts, osz_);
     }
   }
 
-  // input is an array that carries counts of words or labels.
-  // counts[W-index] = count of W
-  // this will return a large array where system can draw negative samples for training.
-  // Samples are word or label indexes.
-  // amount of items in the array will be proportional with their counts.
-  private void initTableNegatives(int[] counts) {
-    IntVector vec = new IntVector(counts.length * 10);
 
-    float z = 0.0f; // z will hold the sum of square roots of all counts
-    for (int count : counts) {
-      z += (float) Math.sqrt(count);
+  private static class NegativeSampler {
+
+    int negatives[];
+    int currentIndex = 0;
+
+    NegativeSampler(int[] negatives) {
+      this.negatives = negatives;
     }
 
-    for (int i = 0; i < counts.length; i++) {
-      float c = (float) Math.sqrt(counts[i]);
-      for (int j = 0; j < c * NEGATIVE_TABLE_SIZE / z; j++) {
-        vec.add(i);
+    // input is an array that carries counts of words or labels.
+    // counts[W-index] = count of W
+    // this will return a large array where system can draw negative samples for training.
+    // Samples are word or label indexes.
+    // amount of items in the array will be proportional with their counts.
+    static NegativeSampler instantiate(int[] counts, Random rng) {
+      IntVector vec = new IntVector(counts.length * 10);
+
+      float z = 0.0f; // z will hold the sum of square roots of all counts
+      for (int count : counts) {
+        z += (float) Math.sqrt(count);
       }
-    }
-    vec.shuffle(rng);
-    negatives = vec.copyOf();
-  }
 
-  // gets a negative sample
-  private int getNegative(int target) {
-    int negative;
-    do {
-      negative = negatives[negpos];
-      negpos = (negpos + 1) % negatives.length;
-    } while (target == negative);
-    return negative;
-  }
-
-  /**
-   * This is used for hierarchical softmax calculation.
-   *
-   */
-  private void buildTree(int[] counts) {
-    int nodeCount = 2 * osz_ - 1;
-    tree = new Node[nodeCount];
-    for (int i = 0; i < nodeCount; i++) {
-      tree[i] = new Node();
-      tree[i].parent = -1;
-      tree[i].left = -1;
-      tree[i].right = -1;
-      tree[i].count = (long) 1e15;
-      tree[i].binary = false;
-    }
-    for (int i = 0; i < osz_; i++) {
-      tree[i].count = counts[i];
-    }
-    int leaf = osz_ - 1;
-    int node = osz_;
-    for (int i = osz_; i < nodeCount; i++) {
-      int[] mini = new int[2];
-      for (int j = 0; j < 2; j++) {
-        if (leaf >= 0 && tree[leaf].count < tree[node].count) {
-          mini[j] = leaf--;
-        } else {
-          mini[j] = node++;
+      for (int i = 0; i < counts.length; i++) {
+        float c = (float) Math.sqrt(counts[i]);
+        for (int j = 0; j < c * NEGATIVE_TABLE_SIZE / z; j++) {
+          vec.add(i);
         }
       }
-      tree[i].left = mini[0];
-      tree[i].right = mini[1];
-      tree[i].count = tree[mini[0]].count + tree[mini[1]].count;
-      tree[mini[0]].parent = i;
-      tree[mini[1]].parent = i;
-      tree[mini[1]].binary = true;
+      vec.shuffle(rng);
+      int[] negatives = vec.copyOf();
+      return new NegativeSampler(negatives);
     }
-    for (int i = 0; i < osz_; i++) {
-      IntVector path = new IntVector();
-      IntVector code = new IntVector();
-      int j = i;
-      while (tree[j].parent != -1) {
-        path.add(tree[j].parent - osz_);
-        code.add(tree[j].binary ? 1 : 0);
-        j = tree[j].parent;
+
+    // gets a negative sample
+    int getSample(int target) {
+      int negative;
+      do {
+        negative = negatives[currentIndex];
+        currentIndex = (currentIndex + 1) % negatives.length;
+      } while (target == negative);
+      return negative;
+    }
+  }
+
+  private static class HierarchicalSoftmax {
+
+    Node[] tree;
+    List<IntVector> paths;
+    List<IntVector> codes;
+
+    HierarchicalSoftmax(
+        Node[] tree,
+        List<IntVector> paths,
+        List<IntVector> codes) {
+      this.tree = tree;
+      this.paths = paths;
+      this.codes = codes;
+    }
+
+    /**
+     * This is used for hierarchical softmax calculation.
+     */
+    static HierarchicalSoftmax buildTree(int[] counts, int osz_) {
+      int nodeCount = 2 * osz_ - 1;
+      Node[] tree = new Node[nodeCount];
+      List<IntVector> paths = new ArrayList<>();
+      List<IntVector> codes = new ArrayList<>();
+
+      for (int i = 0; i < nodeCount; i++) {
+        tree[i] = new Node();
+        tree[i].parent = -1;
+        tree[i].left = -1;
+        tree[i].right = -1;
+        tree[i].count = (long) 1e15;
+        tree[i].binary = false;
       }
-      paths.add(path);
-      codes.add(code);
+      for (int i = 0; i < osz_; i++) {
+        tree[i].count = counts[i];
+      }
+      int leaf = osz_ - 1;
+      int node = osz_;
+      for (int i = osz_; i < nodeCount; i++) {
+        int[] mini = new int[2];
+        for (int j = 0; j < 2; j++) {
+          if (leaf >= 0 && tree[leaf].count < tree[node].count) {
+            mini[j] = leaf--;
+          } else {
+            mini[j] = node++;
+          }
+        }
+        tree[i].left = mini[0];
+        tree[i].right = mini[1];
+        tree[i].count = tree[mini[0]].count + tree[mini[1]].count;
+        tree[mini[0]].parent = i;
+        tree[mini[1]].parent = i;
+        tree[mini[1]].binary = true;
+      }
+      for (int i = 0; i < osz_; i++) {
+        IntVector path = new IntVector();
+        IntVector code = new IntVector();
+        int j = i;
+        while (tree[j].parent != -1) {
+          path.add(tree[j].parent - osz_);
+          code.add(tree[j].binary ? 1 : 0);
+          j = tree[j].parent;
+        }
+        paths.add(path);
+        codes.add(code);
+      }
+      return new HierarchicalSoftmax(tree, paths, codes);
     }
   }
 
@@ -445,8 +473,8 @@ class Model {
   }
 
   /**
-   * This is a log approximation. Input values larger than 1.0 are truncated.
-   * Results are read from a lookup table.
+   * This is a log approximation. Input values larger than 1.0 are truncated. Results are read from
+   * a lookup table.
    */
   private float log(float x) {
     if (x > 1.0f) {
@@ -458,6 +486,7 @@ class Model {
 
   /**
    * This applies Math.log() to the input after applying a small offset to prevent log(0)
+   *
    * @param x input
    */
   private float stdLog(float x) {
@@ -476,6 +505,7 @@ class Model {
   }
 
   private static class Node {
+
     int parent;
     int left;
     int right;

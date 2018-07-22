@@ -496,7 +496,6 @@ class Dictionary {
   }
 
   public static class Entry {
-
     String word;
     int count;
     int type;
