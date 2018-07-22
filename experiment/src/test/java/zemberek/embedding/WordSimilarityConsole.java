@@ -15,8 +15,8 @@ import zemberek.morphology.analysis.WordAnalysis;
 public class WordSimilarityConsole {
 
   public static void main(String[] args) throws Exception {
-    Path root = Paths.get("/home/ahmetaa/data/vector/fasttext");
-    String id = "1M-skipgram";
+    Path root = Paths.get("/home/ahmetaa/data/fasttext");
+    String id = "sentences-50k-skipgram";
     Path vectorFile = root.resolve(id + ".vec");
     Path binVectorFile = root.resolve(id + ".vec.bin");
     WordVectorLookup.loadFromText(vectorFile, true).saveToFolder(root, id);

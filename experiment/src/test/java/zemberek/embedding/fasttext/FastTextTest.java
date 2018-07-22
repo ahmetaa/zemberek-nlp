@@ -143,7 +143,7 @@ public class FastTextTest {
   @Ignore("Not an actual Test.")
   public void skipgram() throws Exception {
     Args argz = Args.forWordVectors(Args.model_name.skipGram);
-    argz.thread = 8;
+    argz.thread = 4;
     argz.epoch = 10;
     argz.dim = 100;
     argz.bucket = 2_000_000;
@@ -151,12 +151,12 @@ public class FastTextTest {
     argz.maxn = 6;
     argz.subWordHashProvider = new EmbeddingHashProviders.CharacterNgramHashProvider(argz.minn, argz.maxn);
 
-    Path input = Paths.get("/home/ahmetaa/data/nlp/corpora/corpus-1M.txt");
+    Path input = Paths.get("/home/ahmetaa/data/nlp/corpora/sentences.50k");
 
-    Path outRoot = Paths.get("/home/ahmetaa/data/vector/fasttext");
+    Path outRoot = Paths.get("/home/ahmetaa/data/fasttext");
 
     FastText fastText = FastText.train(input, argz);
-    Path vectorFile = outRoot.resolve("1M-skipgram.vec");
+    Path vectorFile = outRoot.resolve("sentences-50k-skipgram.vec");
     Log.info("Saving vectors to %s", vectorFile);
     fastText.saveVectors(vectorFile);
   }

@@ -28,7 +28,7 @@
           <!-- MainClass in mainfest make a executable jar -->
           <archive>
             <manifest>
-              <mainClass>zemberek.apps.AmbiguityConsole</mainClass>
+              <mainClass>zemberek.apps.RunConsoleApplication</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -80,6 +80,16 @@
     </dependency>
     <dependency>
       <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-morphology</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-apps</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>zemberek-nlp</groupId>
       <artifactId>zemberek-tokenization</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
@@ -107,11 +117,6 @@
       <groupId>zemberek-nlp</groupId>
       <artifactId>zemberek-grpc-server</artifactId>
       <version>0.1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>zemberek-nlp</groupId>
-      <artifactId>zemberek-morphology</artifactId>
-      <version>${project.parent.version}</version>
     </dependency>
   </dependencies>
 

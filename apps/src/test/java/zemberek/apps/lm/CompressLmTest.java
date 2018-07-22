@@ -1,4 +1,4 @@
-package zemberek.lm.apps;
+package zemberek.apps.lm;
 
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
@@ -9,9 +9,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import zemberek.lm.compression.SmoothLm;
 
-public class ConvertToSmoothLmTest {
+public class CompressLmTest {
 
-  URL TINY_ARPA_URL = Resources.getResource("tiny.arpa");
+  URL TINY_ARPA_URL = Resources.getResource("lm/tiny.arpa");
 
   File getTinyArpaFile() throws IOException {
     File tmp = File.createTempFile("tiny", ".arpa");
@@ -25,9 +25,9 @@ public class ConvertToSmoothLmTest {
     File sm = new File(System.currentTimeMillis() + "-test-lm.smooth");
     sm.deleteOnExit();
     new CompressLm().execute(
-        "-arpaFile",
+        "-in",
         arpaFile.getAbsolutePath(),
-        "-smoothFile",
+        "-out",
         sm.getAbsolutePath(),
         "-spaceUsage", "16-16-16");
     Assert.assertTrue(sm.exists());

@@ -22,6 +22,7 @@
     <module>normalization</module>
     <module>examples</module>
     <module>ner</module>
+    <module>apps</module>
   </modules>
 
   <distributionManagement>
@@ -180,16 +181,6 @@
       <version>25.1-jre</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
-    <dependency>
-      <groupId>com.github.ben-manes.caffeine</groupId>
-      <artifactId>caffeine</artifactId>
-      <version>2.6.2</version>
-    </dependency>
-    <dependency>
-      <groupId>args4j</groupId>
-      <artifactId>args4j</artifactId>
-      <version>2.0.25</version>
-    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

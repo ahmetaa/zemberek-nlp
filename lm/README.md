@@ -32,7 +32,7 @@ Suppose we have an arpa file named lm.arpa:
 
 From Command Line:
 
-    java -Xmx4G -cp [jar file with dependencies] zemberek.lm.app.CompressLm -in lm.arpa -out lm.smooth
+    java -Xmx4G -cp [jar file with dependencies] zemberek.apps.lm.CompressLm -in lm.arpa -out lm.smooth
 
 Generates the compressed model file lm.smooth. -Xmx4G parameter tells java virtual machine to use maximum 4 Gbytes
 of memory. If model is very large, for better compression -spaceUsage 16-8-8 can be used. This will quantize probability
@@ -40,7 +40,7 @@ and backoff values to 256 values and usually application performance is not effe
 
 Here are the parameters for the application:
 
-    Usage: java -cp "[CLASS-PATH]" zemberek.lm.apps.CompressLm -arpaFile FILE [-chunkBits N] [-logFile FILE] -smoothFile FILE [-spaceUsage VAL] [-tmpDir FILE] [-verbosity N]
+    Usage: java -cp "[CLASS-PATH]" zemberek.apps.lm.CompressLm -arpaFile FILE [-chunkBits N] [-logFile FILE] -smoothFile FILE [-spaceUsage VAL] [-tmpDir FILE] [-verbosity N]
 
      -in FILE         : Arpa input file.
      -chunkBits N     : Defines the size of chunks when compressing very large models. By default it is

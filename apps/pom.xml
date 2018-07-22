@@ -9,12 +9,27 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>zemberek-morphology</artifactId>
+  <artifactId>zemberek-apps</artifactId>
 
   <dependencies>
     <dependency>
+      <groupId>com.beust</groupId>
+      <artifactId>jcommander</artifactId>
+      <version>1.72</version>
+    </dependency>
+    <dependency>
       <groupId>zemberek-nlp</groupId>
       <artifactId>zemberek-core</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-morphology</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-normalization</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
     <dependency>
@@ -27,21 +42,7 @@
       <artifactId>zemberek-lm</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
-    <dependency>
-      <scope>test</scope>
-      <groupId>zemberek-nlp</groupId>
-      <artifactId>zemberek-lang-id</artifactId>
-      <version>${project.parent.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.github.ben-manes.caffeine</groupId>
-      <artifactId>caffeine</artifactId>
-      <version>2.6.2</version>
-    </dependency>
-  </dependencies>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+  </dependencies>
 
 </project>
