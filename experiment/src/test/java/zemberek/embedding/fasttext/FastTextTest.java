@@ -7,6 +7,7 @@ import org.junit.Test;
 import zemberek.core.embeddings.Args;
 import zemberek.core.embeddings.EmbeddingHashProviders;
 import zemberek.core.embeddings.FastText;
+import zemberek.core.embeddings.FastTextTrainer;
 import zemberek.core.logging.Log;
 
 public class FastTextTest {
@@ -36,7 +37,7 @@ public class FastTextTest {
       argz.dim = 32;
       argz.bucket = 5_000_000;
 
-      fastText = FastText.train(trainFile, argz);
+      fastText = new FastTextTrainer().train(trainFile, argz);
       fastText.saveModel(modelPath);
     }
 
@@ -116,7 +117,7 @@ public class FastTextTest {
 /*    if(modelPath.toFile().exists())
       fastText = FastText.load(modelPath);
     else*/
-      fastText = FastText.train(trainFile, argz);
+      fastText = new FastTextTrainer().train(trainFile, argz);
 
 
     fastText.saveModel(modelPath);
@@ -155,7 +156,7 @@ public class FastTextTest {
 
     Path outRoot = Paths.get("/home/ahmetaa/data/fasttext");
 
-    FastText fastText = FastText.train(input, argz);
+    FastText fastText = new FastTextTrainer().train(input, argz);
     Path vectorFile = outRoot.resolve("sentences-50k-skipgram.vec");
     Log.info("Saving vectors to %s", vectorFile);
     fastText.saveVectors(vectorFile);

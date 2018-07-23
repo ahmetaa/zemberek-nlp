@@ -42,6 +42,11 @@
       <artifactId>zemberek-lm</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
+    <dependency>
+      <groupId>me.tongfei</groupId>
+      <artifactId>progressbar</artifactId>
+      <version>0.7.0</version>
+    </dependency>
 
   </dependencies>
 

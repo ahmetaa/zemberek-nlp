@@ -1,6 +1,7 @@
 package zemberek.core.text;
 
 import com.google.common.base.Splitter;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,6 +32,17 @@ public class TextIO {
         .stream()
         .filter(s -> s.trim().length() > 0)
         .collect(Collectors.toList());
+  }
+
+  public static long lineCount(Path p) throws IOException {
+    try (BufferedReader br = Files.newBufferedReader(p, StandardCharsets.UTF_8)) {
+      int count = 1;
+      for (int c = 0; c != -1; c = br.read()) {
+        count += c == '\n' ? 1 : 0;
+      }
+      return count;
+    }
+
   }
 
   public static List<String> loadLines(Path path, String ignorePrefix) throws IOException {

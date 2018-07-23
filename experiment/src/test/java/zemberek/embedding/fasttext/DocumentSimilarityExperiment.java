@@ -20,6 +20,7 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.embeddings.Args;
 import zemberek.core.embeddings.EmbeddingHashProviders;
 import zemberek.core.embeddings.FastText;
+import zemberek.core.embeddings.FastTextTrainer;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.Turkish;
 import zemberek.corpus.WebCorpus;
@@ -145,7 +146,7 @@ public class DocumentSimilarityExperiment {
     argz.subWordHashProvider = new EmbeddingHashProviders.EmptySubwordHashProvider();
     //argz.subWordHashProvider = new Dictionary.CharacterNgramHashProvider(argz.minn, argz.maxn);
 
-    FastText fastText = FastText.train(input, argz);
+    FastText fastText = new FastTextTrainer().train(input, argz);
     Log.info("Saving vmodel to %s", modelFile);
     fastText.saveModel(modelFile);
   }

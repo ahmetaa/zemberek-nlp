@@ -61,6 +61,16 @@ public class EmbeddingHashProviders {
       }
       return result;
     }
+
+    @Override
+    public int getMinN() {
+      return minn;
+    }
+
+    @Override
+    public int getMaxN() {
+      return maxn;
+    }
   }
 
   public static class EmptySubwordHashProvider implements SubWordHashProvider {
@@ -74,6 +84,16 @@ public class EmbeddingHashProviders {
         result[0] = wordId;
         return result;
       }
+    }
+
+    @Override
+    public int getMinN() {
+      return 0;
+    }
+
+    @Override
+    public int getMaxN() {
+      return 0;
     }
   }
 
@@ -120,6 +140,16 @@ public class EmbeddingHashProviders {
       }
 
       return result;
+    }
+
+    @Override
+    public int getMinN() {
+      return minn;
+    }
+
+    @Override
+    public int getMaxN() {
+      return maxn;
     }
   }
 

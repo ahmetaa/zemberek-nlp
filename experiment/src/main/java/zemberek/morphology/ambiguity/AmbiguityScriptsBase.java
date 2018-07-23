@@ -113,15 +113,4 @@ public class AmbiguityScriptsBase {
         .collect(Collectors.toList());
     return new LinkedHashSet<>(TurkishSentenceExtractor.DEFAULT.fromParagraphs(lines));
   }
-
-  static boolean containsCombiningDiacritics(String sentence) {
-    for (int i = 0; i < sentence.length(); i++) {
-      char c = sentence.charAt(i);
-      if (c >= 0x300 && c <= 0x036f) {
-        return true;
-      }
-    }
-    return false;
-  }
-
 }

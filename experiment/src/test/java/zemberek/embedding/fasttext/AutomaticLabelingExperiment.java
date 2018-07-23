@@ -22,6 +22,7 @@ import zemberek.core.ScoredItem;
 import zemberek.core.collections.Histogram;
 import zemberek.core.embeddings.Args;
 import zemberek.core.embeddings.FastText;
+import zemberek.core.embeddings.FastTextTrainer;
 import zemberek.core.logging.Log;
 import zemberek.corpus.WebCorpus;
 import zemberek.corpus.WebDocument;
@@ -160,7 +161,7 @@ public class AutomaticLabelingExperiment {
       argz.dim = 250;
       argz.bucket = 7_000_000;
 
-      fastText = FastText.train(train, argz);
+      fastText = new FastTextTrainer().train(train, argz);
       fastText.saveModel(modelPath);
     }
     return fastText;

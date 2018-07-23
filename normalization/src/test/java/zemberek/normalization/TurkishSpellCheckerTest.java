@@ -126,8 +126,8 @@ public class TurkishSpellCheckerTest {
   public void suggestWordPerformanceWord() throws Exception {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     CharacterGraph graph = new CharacterGraph();
-    Path r = Paths.get("../data/zemberek-oflazer/test100k");
-    List<String> words = Files.readAllLines(r, StandardCharsets.UTF_8);
+    Path r = Paths.get("../data/zemberek-oflazer/oflazer-zemberek-parsed.txt");
+    List<String> words = Files.readAllLines(r, StandardCharsets.UTF_8).subList(0, 1000_000);
     words.forEach(s -> graph.addWord(s, Node.TYPE_WORD));
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology, graph);
     NgramLanguageModel lm = getLm("lm-unigram.slm");

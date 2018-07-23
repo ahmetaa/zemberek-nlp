@@ -15,6 +15,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextUtil;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AmbiguityAnalysis;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.AnalysisDecision;
 import zemberek.morphology.ambiguity.RuleBasedDisambiguator.ResultSentence;
@@ -38,7 +39,7 @@ class GenerateDataWithRules extends AmbiguityScriptsBase {
     ignoreSentencePredicates.add(contains("…"));
     ignoreSentencePredicates.add(probablyNotTurkish());
     ignoreSentencePredicates.add(p -> p.split("[ ]+").length > 25);
-    ignoreSentencePredicates.add(AmbiguityScriptsBase::containsCombiningDiacritics);
+    ignoreSentencePredicates.add(TextUtil::containsCombiningDiacritics);
   }
 
   public static void main(String[] args) throws IOException {

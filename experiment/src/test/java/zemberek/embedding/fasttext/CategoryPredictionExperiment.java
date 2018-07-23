@@ -18,6 +18,7 @@ import zemberek.core.ScoredItem;
 import zemberek.core.collections.Histogram;
 import zemberek.core.embeddings.Args;
 import zemberek.core.embeddings.FastText;
+import zemberek.core.embeddings.FastTextTrainer;
 import zemberek.core.logging.Log;
 import zemberek.corpus.WebCorpus;
 import zemberek.corpus.WebDocument;
@@ -79,7 +80,7 @@ public class CategoryPredictionExperiment {
       argz.dim = 100;
       argz.bucket = 5_000_000;
 
-      fastText = FastText.train(train, argz);
+      fastText = new FastTextTrainer().train(train, argz);
       fastText.saveModel(modelPath);
     }
 

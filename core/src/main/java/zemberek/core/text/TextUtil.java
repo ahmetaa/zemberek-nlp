@@ -370,4 +370,31 @@ public class TextUtil {
     return HTML_START + "<html><head>" + Joiner.on(" ").join(parts) +
         "</head>\n" + cleanScripts(htmlBody) + "</html>";
   }
+
+  /**
+   * Replaces all unicode space like characters with " " and
+   * replaces soft hyphens [u00ad].
+   * @param input Input String
+   * @return normalized input.
+   */
+  public static String normalizeSpacesAndSoftHyphens(String input) {
+    return input
+        .replaceAll("[\\s\\u00a0\\u200b]+", " ")
+        .replaceAll("[\\u00ad]", "").trim();
+  }
+
+  /**
+   * Returns true iff input contains Combining Diacritics symbols.
+   * These characters sometimes appear in documents when accented or dotted
+   * non ascii characters are used (like çşğ).
+   */
+  public static boolean containsCombiningDiacritics(String sentence) {
+    for (int i = 0; i < sentence.length(); i++) {
+      char c = sentence.charAt(i);
+      if (c >= 0x300 && c <= 0x036f) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
