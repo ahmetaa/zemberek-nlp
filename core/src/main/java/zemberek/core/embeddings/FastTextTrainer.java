@@ -26,11 +26,17 @@ public class FastTextTrainer {
     return eventBus;
   }
 
+  private Args args_;
+
+  public FastTextTrainer(Args args) {
+    this.args_ = args;
+  }
+
   /**
    * Trains a model for the input with given arguments, returns a FastText instance. Input can be a
    * text corpus, or a corpus with text and labels.
    */
-  public FastText train(Path input, Args args_) throws Exception {
+  public FastText train(Path input) throws Exception {
 
     Dictionary dict_ = Dictionary.readFromFile(input, args_);
     Matrix input_ = null;
@@ -93,6 +99,8 @@ public class FastTextTrainer {
   }
 
   public static class Progress {
+    public long total;
+    public long current;
     public float percentProgress;
     public float wordsPerSecond;
     public float learningRate;
@@ -153,6 +161,8 @@ public class FastTextTrainer {
           loss,
           String.format("%dh%dm", etah, etam)
       );
+      p.total = args_.epoch* dictionary.ntokens();
+      p.current = tokenCount.get();
 
       eventBus.post(p);
 

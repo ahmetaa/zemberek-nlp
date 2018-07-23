@@ -146,7 +146,7 @@ public class DocumentSimilarityExperiment {
     argz.subWordHashProvider = new EmbeddingHashProviders.EmptySubwordHashProvider();
     //argz.subWordHashProvider = new Dictionary.CharacterNgramHashProvider(argz.minn, argz.maxn);
 
-    FastText fastText = new FastTextTrainer().train(input, argz);
+    FastText fastText = new FastTextTrainer(argz).train(input);
     Log.info("Saving vmodel to %s", modelFile);
     fastText.saveModel(modelFile);
   }

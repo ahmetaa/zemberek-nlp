@@ -4,6 +4,8 @@ import com.beust.jcommander.Parameter;
 import com.google.common.eventbus.Subscribe;
 import java.io.IOException;
 import java.nio.file.Path;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarStyle;
 import zemberek.apps.ConsoleApp;
 import zemberek.core.embeddings.FastText;
 import zemberek.core.embeddings.FastTextTrainer;
@@ -54,12 +56,14 @@ public class GenerateWordVectors extends ConsoleApp {
 
   @Parameter(names = {"--minWordCount", "-minc"},
       description = "Words with lower than this count will be ignored..")
-  public int minWordCount = WordVectorsTrainer.DEFAULT_EPOCH;
+  public int minWordCount = WordVectorsTrainer.DEFAULT_MIN_WORD_COUNT;
 
   @Override
   public String description() {
     return "Generates word vectors using a text corpus. Uses java port of fastText project.";
   }
+
+  ProgressBar pb;
 
   @Override
   public void run() throws IOException {
@@ -77,22 +81,29 @@ public class GenerateWordVectors extends ConsoleApp {
         .contextWindowSize(contextWindowSize)
         .build();
 
+    Log.info("Training Started.");
     trainer.getEventBus().register(this);
 
-    Log.info("Training Started.");
     FastText fastText = trainer.train(input);
+    if(pb!=null) {
+      pb.close();
+    }
+
     Log.info("Saving vectors in text format to %s", output);
     fastText.saveVectors(output);
   }
 
   @Subscribe
   public void trainingProgress(FastTextTrainer.Progress progress) {
-    Log.info("Progress: %.1f%% words/sec/thread: %.0f lr: %.6f loss:%.6f eta %s",
-        progress.percentProgress,
-        progress.wordsPerSecond,
-        progress.learningRate,
-        progress.loss,
-        progress.eta);
+
+    synchronized (this) {
+      if (pb == null) {
+        System.setProperty("org.jline.terminal.dumb", "true");
+        pb = new ProgressBar("", progress.total, ProgressBarStyle.ASCII);
+      }
+    }
+    pb.stepTo(progress.current);
+    pb.setExtraMessage(String.format("lr: %.6f", progress.learningRate));
   }
 
   public static void main(String[] args) {

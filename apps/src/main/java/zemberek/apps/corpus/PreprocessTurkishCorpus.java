@@ -44,7 +44,7 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
   @Override
   public String description() {
     return "Applies Turkish Sentence boundary detection and tokenization to a corpus file. "
-        + "Lines start with `<` character is ignored. It applies white space normalization and "
+        + "Lines start with `<` character are ignored. It applies white space normalization and "
         + " removes soft hyphens. Sentences that contain `combining diacritic` symbols are "
         + "ignored.";
   }
@@ -73,29 +73,32 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
     long sentenceCount = 0;
 
     try (PrintWriter pw = new PrintWriter(output.toFile(), "UTF-8")) {
-      ProgressBar pb = new ProgressBar("Lines", totalLines,
-          ProgressBarStyle.ASCII);
+      ProgressBar pb = new ProgressBar("Lines", totalLines, ProgressBarStyle.ASCII);
 
       for (Path path : paths) {
         // process with chunks of 10.000 lines.
         BlockTextLoader loader = new BlockTextLoader(path, StandardCharsets.UTF_8, 10_000);
         for (List<String> block : loader) {
+
           List<String> chunk = block.stream()
               .filter(s -> !s.startsWith("<"))
               .map(TextUtil::normalizeSpacesAndSoftHyphens)
               .collect(Collectors.toList());
+
           List<String> sentences = TurkishSentenceExtractor.DEFAULT.fromParagraphs(chunk);
           sentences = sentences.stream()
               .filter(s -> !TextUtil.containsCombiningDiacritics(s))
               .map(s -> String.join(" ", TurkishTokenizer.DEFAULT.tokenizeToStrings(s)))
               .map(s -> toLowercase ? s.toLowerCase(Turkish.LOCALE) : s)
               .collect(Collectors.toList());
+
           sentences.forEach(pw::println);
+
           sentenceCount += sentences.size();
           pb.stepBy(block.size());
           pb.setExtraMessage(String.format("(%d/%d)", i, paths.size()));
-          i++;
         }
+        i++;
       }
       pb.close();
     }

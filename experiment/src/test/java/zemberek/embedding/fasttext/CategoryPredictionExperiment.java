@@ -80,7 +80,7 @@ public class CategoryPredictionExperiment {
       argz.dim = 100;
       argz.bucket = 5_000_000;
 
-      fastText = new FastTextTrainer().train(train, argz);
+      fastText = new FastTextTrainer(argz).train(train);
       fastText.saveModel(modelPath);
     }
 

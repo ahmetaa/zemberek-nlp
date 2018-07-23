@@ -37,7 +37,7 @@ public class FastTextTest {
       argz.dim = 32;
       argz.bucket = 5_000_000;
 
-      fastText = new FastTextTrainer().train(trainFile, argz);
+      fastText = new FastTextTrainer(argz).train(trainFile);
       fastText.saveModel(modelPath);
     }
 
@@ -117,7 +117,7 @@ public class FastTextTest {
 /*    if(modelPath.toFile().exists())
       fastText = FastText.load(modelPath);
     else*/
-      fastText = new FastTextTrainer().train(trainFile, argz);
+      fastText = new FastTextTrainer(argz).train(trainFile);
 
 
     fastText.saveModel(modelPath);
@@ -156,7 +156,7 @@ public class FastTextTest {
 
     Path outRoot = Paths.get("/home/ahmetaa/data/fasttext");
 
-    FastText fastText = new FastTextTrainer().train(input, argz);
+    FastText fastText = new FastTextTrainer(argz).train(input);
     Path vectorFile = outRoot.resolve("sentences-50k-skipgram.vec");
     Log.info("Saving vectors to %s", vectorFile);
     fastText.saveVectors(vectorFile);

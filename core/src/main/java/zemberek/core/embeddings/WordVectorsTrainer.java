@@ -117,13 +117,13 @@ public class WordVectorsTrainer {
     args.maxn = p.getMaxN();
     args.minCount = builder.minWordCount;
 
-    FastTextTrainer trainer = new FastTextTrainer();
+    FastTextTrainer trainer = new FastTextTrainer(args);
 
     // for catching and forwarding progress events.
     trainer.getEventBus().register(this);
 
     try {
-      return trainer.train(corpus, args);
+      return trainer.train(corpus);
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);

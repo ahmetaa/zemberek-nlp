@@ -15,8 +15,8 @@ import zemberek.morphology.analysis.WordAnalysis;
 public class WordSimilarityConsole {
 
   public static void main(String[] args) throws Exception {
-    Path root = Paths.get("/media/aaa/3t/data/nlp/apps-out");
-    String id = "aljazeera";
+    Path root = Paths.get("/media/ahmetaa/depo/data/zemberek/data/out");
+    String id = "open-subtitles";
     Path vectorFile = root.resolve(id + ".vec");
     Path binVectorFile = root.resolve(id + ".vec.bin");
     WordVectorLookup.loadFromText(vectorFile, true).saveToFolder(root, id);

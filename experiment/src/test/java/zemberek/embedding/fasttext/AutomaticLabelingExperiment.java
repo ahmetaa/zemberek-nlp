@@ -161,7 +161,7 @@ public class AutomaticLabelingExperiment {
       argz.dim = 250;
       argz.bucket = 7_000_000;
 
-      fastText = new FastTextTrainer().train(train, argz);
+      fastText = new FastTextTrainer(argz).train(train);
       fastText.saveModel(modelPath);
     }
     return fastText;
