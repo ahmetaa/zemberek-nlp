@@ -19,7 +19,7 @@ public abstract class ConsoleApp {
         } catch (ParameterException e) {
             System.out.println(e.getMessage());
             System.out.println("Description: ");
-            System.out.println(RunConsoleApplication.wrap(description(), 50));
+            System.out.println(ApplicationRunner.wrap(description(), 80));
             System.out.println();
             commander.usage();
         } catch (Exception e) {

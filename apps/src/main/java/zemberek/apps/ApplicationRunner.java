@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ServiceLoader;
 
-public class RunConsoleApplication {
+public class ApplicationRunner {
 
   public static void main(String[] args) {
     ServiceLoader<ConsoleApp> loader = ServiceLoader.load(ConsoleApp.class);
@@ -48,6 +48,15 @@ public class RunConsoleApplication {
     if (s == null) {
       return "";
     }
+    List<String> paragrahs = Splitter.on("\n").splitToList(s);
+    List<String> result = new ArrayList<>();
+    for (String paragrah : paragrahs) {
+      result.add(wrapParagraph(paragrah, lineLength));
+    }
+    return String.join("\n", result);
+  }
+
+  private static String wrapParagraph(String s, int lineLength) {
     List<String> lines = new ArrayList<>();
     StringBuilder sb = new StringBuilder();
     for (String token : Splitter.on(" ").splitToList(s)) {

@@ -17,12 +17,11 @@ import zemberek.core.collections.UIntSet;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
-import zemberek.core.text.TextUtil;
 
 /**
  * This class is used for extracting sentences from paragraphs. For making boundary decisions it
  * uses a combination of rules and a binary averaged perceptron model. It only breaks paragraphs
- * from [.!?] symbols. <p> Use the static DEFAULT singleton for the TurkishSentenceExtractor
+ * from [.!?…] symbols. <p> Use the static DEFAULT singleton for the TurkishSentenceExtractor
  * instance that uses the internal extraction model.
  */
 public class TurkishSentenceExtractor extends PerceptronSegmenter {
@@ -65,6 +64,18 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
       result.addAll(fromParagraph(paragraph));
     }
     return result;
+  }
+
+  int[] boundaryIndexes(String paragraph) {
+    List<Span> spans = extractToSpans(paragraph);
+    int[] indexes = new int[spans.size() * 2];
+    int i = 0;
+    for (Span span : spans) {
+      indexes[i] = span.start;
+      indexes[i + 1] = span.end;
+      i += 2;
+    }
+    return indexes;
   }
 
   private List<Span> extractToSpans(String paragraph) {
@@ -190,8 +201,8 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
     }
 
     /**
-     * In every [count] sentence, trainer lower cases the character
-     * after sentence boundary punctuation.
+     * In every [count] sentence, trainer lower cases the character after sentence boundary
+     * punctuation.
      */
     public TrainerBuilder lowerCaseFirstLetterFrequency(int count) {
       this.lowerCaseFirstLetterFrequency = count;

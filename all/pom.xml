@@ -23,12 +23,12 @@
         <configuration>
           <!-- get all project dependencies -->
           <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
+            <descriptorRef>with-dependencies</descriptorRef>
           </descriptorRefs>
           <!-- MainClass in mainfest make a executable jar -->
           <archive>
             <manifest>
-              <mainClass>zemberek.apps.RunConsoleApplication</mainClass>
+              <mainClass>zemberek.apps.ApplicationRunner</mainClass>
             </manifest>
           </archive>
         </configuration>

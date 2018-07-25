@@ -13,50 +13,30 @@ import zemberek.core.embeddings.WordVectorsTrainer;
 import zemberek.core.embeddings.WordVectorsTrainer.ModelType;
 import zemberek.core.logging.Log;
 
-public class GenerateWordVectors extends ConsoleApp {
+public class GenerateWordVectors extends FastTextAppBase {
 
   @Parameter(names = {"--input", "-i"},
       required = true,
       description = "Input corpus text file. Assumed to be one sentence per line, "
           + "tokenized and in UTF-8 encoding.")
-  public Path input;
+  Path input;
 
   @Parameter(names = {"--output", "-o"},
       required = true,
       description = "Output model file.")
-  public Path output;
+  Path output;
 
   @Parameter(names = {"--type", "-t"},
       description = "Model type.")
-  public WordVectorsTrainer.ModelType modelType = ModelType.SKIP_GRAM;
+  WordVectorsTrainer.ModelType modelType = ModelType.SKIP_GRAM;
 
   @Parameter(names = {"--learningRate", "-lr"},
       description = "Learning rate. Should be between 0.01-1.0")
-  public float learningRate = WordVectorsTrainer.DEFAULT_LR;
-
-  @Parameter(names = {"--wordNGrams", "-wng"},
-      description = "Word N-Gram order.")
-  public int wordNGrams = WordVectorsTrainer.DEFAULT_WORD_NGRAM;
-
-  @Parameter(names = {"--dimension", "-dim"},
-      description = "Vector dimension.")
-  public int dimension = WordVectorsTrainer.DEFAULT_DIMENSION;
-
-  @Parameter(names = {"--contextWindowSize", "-ws"},
-      description = "Context window size.")
-  public int contextWindowSize = WordVectorsTrainer.DEFAULT_CONTEXT_WINDOW_SIZE;
-
-  @Parameter(names = {"--threadCount", "-tc"},
-      description = "Thread Count.")
-  public int threadCount = WordVectorsTrainer.DEFAULT_TC;
+  float learningRate = WordVectorsTrainer.DEFAULT_LR;
 
   @Parameter(names = {"--epochCount", "-ec"},
       description = "Epoch Count.")
-  public int epochCount = WordVectorsTrainer.DEFAULT_EPOCH;
-
-  @Parameter(names = {"--minWordCount", "-minc"},
-      description = "Words with lower than this count will be ignored..")
-  public int minWordCount = WordVectorsTrainer.DEFAULT_MIN_WORD_COUNT;
+  int epochCount = WordVectorsTrainer.DEFAULT_EPOCH;
 
   @Override
   public String description() {

@@ -43,7 +43,8 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
 
   @Override
   public String description() {
-    return "Applies Turkish Sentence boundary detection and tokenization to a corpus file. "
+    return "Applies Turkish Sentence boundary detection and tokenization to a corpus file or a "
+        + "directory of corpus files. "
         + "Lines start with `<` character are ignored. It applies white space normalization and "
         + " removes soft hyphens. Sentences that contain `combining diacritic` symbols are "
         + "ignored.";
