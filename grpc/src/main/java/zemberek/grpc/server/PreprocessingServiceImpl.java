@@ -4,17 +4,23 @@ import io.grpc.stub.StreamObserver;
 import java.util.List;
 import java.util.stream.Collectors;
 import zemberek.proto.PreprocessingServiceGrpc.PreprocessingServiceImplBase;
+import zemberek.proto.SentenceExtractionRequest;
+import zemberek.proto.SentenceExtractionResponse;
 import zemberek.proto.TokenizationRequest;
 import zemberek.proto.TokenizationResponse;
+import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 
 public class PreprocessingServiceImpl extends PreprocessingServiceImplBase {
 
   private final TurkishTokenizer tokenizer;
+  private final TurkishSentenceExtractor extractor;
+
 
   public PreprocessingServiceImpl() {
     tokenizer = TurkishTokenizer.DEFAULT;
+    extractor = TurkishSentenceExtractor.DEFAULT;
   }
 
   public void tokenize(TokenizationRequest request,
@@ -32,6 +38,14 @@ public class PreprocessingServiceImpl extends PreprocessingServiceImplBase {
         .addAllTokens(tokens)
         .build()
     );
+    responseObserver.onCompleted();
+  }
+
+  public void extractSentences(SentenceExtractionRequest request,
+      StreamObserver<SentenceExtractionResponse> responseObserver) {
+    responseObserver.onNext(SentenceExtractionResponse.newBuilder()
+        .addAllSentences(extractor.fromDocument(request.getDocument()))
+        .build());
     responseObserver.onCompleted();
   }
 }

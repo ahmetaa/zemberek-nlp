@@ -66,7 +66,7 @@ Open NLP model is provided by @sonerx
 ### Usage
 
 Zemberek offers a rule based tokenizer class called TurkishTokenizer. 
-This tokenizer uses a custom Antlr grammar based Lexer.
+This tokenizer uses a [custom Antlr grammar based Lexer](https://github.com/ahmetaa/zemberek-nlp/blob/master/tokenization/src/main/resources/tokenization/TurkishLexer.g4#L75).
 There are static instances provided for common use:
  
         TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;

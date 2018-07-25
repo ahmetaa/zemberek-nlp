@@ -19,6 +19,15 @@ message TokenizationResponse {
   repeated Token tokens = 1;
 }
 
+message SentenceExtractionRequest {
+  string document = 1;
+}
+
+message SentenceExtractionResponse {
+  repeated string sentences = 1;
+}
+
 service PreprocessingService {
-  rpc tokenize (TokenizationRequest) returns (TokenizationResponse);
+  rpc Tokenize (TokenizationRequest) returns (TokenizationResponse);
+  rpc ExtractSentences (SentenceExtractionRequest) returns (SentenceExtractionResponse);
 }

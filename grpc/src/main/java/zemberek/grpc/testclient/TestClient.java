@@ -14,6 +14,8 @@ import zemberek.proto.LanguageIdServiceGrpc;
 import zemberek.proto.LanguageIdServiceGrpc.LanguageIdServiceBlockingStub;
 import zemberek.proto.PreprocessingServiceGrpc;
 import zemberek.proto.PreprocessingServiceGrpc.PreprocessingServiceBlockingStub;
+import zemberek.proto.SentenceExtractionRequest;
+import zemberek.proto.SentenceExtractionResponse;
 import zemberek.proto.TokenizationRequest;
 import zemberek.proto.TokenizationResponse;
 
@@ -40,7 +42,6 @@ public class TestClient {
     Log.info("Response: " + response);
 
     Log.info("----- Language Identification ------------ ");
-
     String langIdInput = "Merhaba dünya";
     DetectResponse langIdResponse = languageIdServiceBlockingStub.detect(
         DetectRequest.newBuilder().setInput(langIdInput).build());
@@ -48,7 +49,6 @@ public class TestClient {
     Log.info("Response: " + langIdResponse.getLangId());
 
     Log.info("----- Tokenization ------------ ");
-
     String tokenizationInput = "Saat, 12:00.";
     TokenizationResponse tokenizationResponse = preprocessingServiceBlockingStub
         .tokenize(TokenizationRequest.newBuilder()
@@ -57,5 +57,13 @@ public class TestClient {
     Log.info("Input: " + tokenizationInput);
     Log.info(tokenizationResponse);
 
+    Log.info("----- Sentence Extraction ------------ ");
+    String sentenceExtractionInput = "Merhaba! Bugün 2. köprü Fsm.'de trafik vardı.değil mi?";
+    SentenceExtractionResponse sentenceExtractionResponse = preprocessingServiceBlockingStub
+        .extractSentences(SentenceExtractionRequest.newBuilder()
+            .setDocument(sentenceExtractionInput)
+            .build());
+    Log.info("Input: " + sentenceExtractionInput);
+    sentenceExtractionResponse.getSentencesList().forEach(Log::info);
   }
 }
