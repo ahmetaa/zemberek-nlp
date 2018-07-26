@@ -1,7 +1,11 @@
-package zemberek.apps.embeddings;
+package zemberek.apps.fasttext;
 
 import com.beust.jcommander.Parameter;
+import com.google.common.eventbus.Subscribe;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarStyle;
 import zemberek.apps.ConsoleApp;
+import zemberek.core.embeddings.FastTextTrainer;
 import zemberek.core.embeddings.WordVectorsTrainer;
 
 public abstract class FastTextAppBase extends ConsoleApp {
@@ -25,5 +29,20 @@ public abstract class FastTextAppBase extends ConsoleApp {
   @Parameter(names = {"--minWordCount", "-minc"},
       description = "Words with lower than this count will be ignored..")
   int minWordCount = WordVectorsTrainer.DEFAULT_MIN_WORD_COUNT;
+
+  ProgressBar pb;
+
+  @Subscribe
+  public void trainingProgress(FastTextTrainer.Progress progress) {
+
+    synchronized (this) {
+      if (pb == null) {
+        System.setProperty("org.jline.terminal.dumb", "true");
+        pb = new ProgressBar("", progress.total, ProgressBarStyle.ASCII);
+      }
+    }
+    pb.stepTo(progress.current);
+    pb.setExtraMessage(String.format("lr: %.6f", progress.learningRate));
+  }
 
 }

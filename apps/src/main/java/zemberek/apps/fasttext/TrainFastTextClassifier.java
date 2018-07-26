@@ -1,10 +1,12 @@
-package zemberek.apps.classification;
+package zemberek.apps.fasttext;
 
 import com.beust.jcommander.Parameter;
+import java.io.IOException;
 import java.nio.file.Path;
-import zemberek.apps.embeddings.FastTextAppBase;
-import zemberek.core.embeddings.FasttextClassifierTrainer.LossType;
-import zemberek.core.embeddings.WordVectorsTrainer;
+import zemberek.core.embeddings.FastText;
+import zemberek.core.embeddings.FastTextClassifierTrainer;
+import zemberek.core.embeddings.FastTextClassifierTrainer.LossType;
+import zemberek.core.logging.Log;
 
 public class TrainFastTextClassifier extends FastTextAppBase {
 
@@ -29,9 +31,20 @@ public class TrainFastTextClassifier extends FastTextAppBase {
           + " smaller.")
   boolean applyQuantization = false;
 
+  @Parameter(names = {"--cutOff", "-c"},
+      description = "Reduces dictionary size with given threshold value. "
+          + "Dictionary entries are sorted with l2-norm values and top `cutOff` are selected."
+          + "This greatly reduces model size. This option is only available if"
+          + "applyQuantization flag is used.")
+  int cutOff = -1;
+
   @Parameter(names = {"--epochCount", "-ec"},
       description = "Epoch Count.")
-  int epochCount = WordVectorsTrainer.DEFAULT_EPOCH;
+  int epochCount = FastTextClassifierTrainer.DEFAULT_EPOCH;
+
+  @Parameter(names = {"--learningRate", "-lr"},
+      description = "Learning rate. Should be between 0.01-1.0")
+  float learningRate = FastTextClassifierTrainer.DEFAULT_LR;
 
   @Override
   public String description() {
@@ -47,14 +60,48 @@ public class TrainFastTextClassifier extends FastTextAppBase {
         + "Each line (document) may contain more than one label.\n"
         + "If there are a lot of labels, LossType can be chosen `HIERARCHICAL_SOFTMAX`. "
         + "This way training and runtime speed will be faster with a small accuracy loss. ";
-
   }
 
   @Override
-  public void run() throws Exception {
+  public void run() throws IOException {
 
+    Log.info("Generating classification model from %s", input);
+
+    FastTextClassifierTrainer trainer = FastTextClassifierTrainer.builder()
+        .epochCount(epochCount)
+        .learningRate(learningRate)
+        .lossType(lossType)
+        .quantizationCutOff(cutOff)
+        .minWordCount(minWordCount)
+        .threadCount(threadCount)
+        .wordNgramOrder(wordNGrams)
+        .dimension(dimension)
+        .contextWindowSize(contextWindowSize)
+        .build();
+
+    Log.info("Training Started.");
+    trainer.getEventBus().register(this);
+
+    FastText fastText = trainer.train(input);
+
+    if(pb!=null) {
+      pb.close();
+    }
+
+    Log.info("Saving classification model in binary format to %s", output);
+    fastText.saveVectors(output);
+
+    if(applyQuantization) {
+      Log.info("Applying quantization.");
+      if(cutOff>0) {
+        Log.info("Quantization dictionary cut-off value = %d", cutOff);
+      }
+
+      Path quantized = output.getParent().resolve(output.toFile().getName()+".quant");
+      Log.info("Saving quantized classification model to %s", quantized);
+      fastText.quantize(quantized, fastText.getArgs());
+    }
   }
-
   public static void main(String[] args) {
     new TrainFastTextClassifier().execute(args);
   }

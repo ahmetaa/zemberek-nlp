@@ -196,6 +196,12 @@ public class TurkishTokenizerTest {
   }
 
   @Test
+  public void testUnderscoreWords() {
+    TurkishTokenizer t = TurkishTokenizer.DEFAULT;
+    matchSentences(t, "__he_llo__", "__he_llo__");
+  }
+
+  @Test
   public void testDotInMiddle() {
     TurkishTokenizer t = TurkishTokenizer.DEFAULT;
     matchSentences(t, "Ali.gel.", "Ali . gel .");

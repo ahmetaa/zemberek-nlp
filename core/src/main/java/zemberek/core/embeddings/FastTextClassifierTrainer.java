@@ -6,11 +6,11 @@ import java.nio.file.Path;
 import zemberek.core.concurrency.ConcurrencyUtil;
 import zemberek.core.embeddings.Args.loss_name;
 
-public class FasttextClassifierTrainer {
+public class FastTextClassifierTrainer {
 
   public static final int DEFAULT_DIMENSION = 100;
   public static final float DEFAULT_LR = 1f;
-  public static final int DEFAULT_EPOCH = 5;
+  public static final int DEFAULT_EPOCH = 25;
   public static final int DEFAULT_MIN_WORD_COUNT = 1;
   public static final int DEFAULT_WORD_NGRAM = 1;
   public static final int DEFAULT_CONTEXT_WINDOW_SIZE = 5;
@@ -20,7 +20,7 @@ public class FasttextClassifierTrainer {
 
   private Builder builder;
 
-  FasttextClassifierTrainer(Builder builder) {
+  FastTextClassifierTrainer(Builder builder) {
     this.builder = builder;
   }
 
@@ -49,8 +49,9 @@ public class FasttextClassifierTrainer {
     int epochCount = DEFAULT_EPOCH;
     int dimension = DEFAULT_DIMENSION;
     int minWordCount = DEFAULT_MIN_WORD_COUNT;
+    int quantizationCutOff = -1;
 
-    public Builder modelType(LossType type) {
+    public Builder lossType(LossType type) {
       this.type = type;
       return this;
     }
@@ -90,8 +91,13 @@ public class FasttextClassifierTrainer {
       return this;
     }
 
-    public FasttextClassifierTrainer build() {
-      return new FasttextClassifierTrainer(this);
+    public Builder quantizationCutOff(int quantizationCutOff) {
+      this.quantizationCutOff = quantizationCutOff;
+      return this;
+    }
+
+    public FastTextClassifierTrainer build() {
+      return new FastTextClassifierTrainer(this);
     }
   }
 
@@ -110,6 +116,7 @@ public class FasttextClassifierTrainer {
     args.minn = p.getMinN();
     args.maxn = p.getMaxN();
     args.minCount = builder.minWordCount;
+    args.cutoff = builder.quantizationCutOff;
 
     FastTextTrainer trainer = new FastTextTrainer(args);
 

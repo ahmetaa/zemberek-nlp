@@ -1,4 +1,4 @@
-package zemberek.apps.embeddings;
+package zemberek.apps.fasttext;
 
 import com.beust.jcommander.Parameter;
 import com.google.common.eventbus.Subscribe;
@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
-import zemberek.apps.ConsoleApp;
 import zemberek.core.embeddings.FastText;
 import zemberek.core.embeddings.FastTextTrainer;
 import zemberek.core.embeddings.WordVectorsTrainer;
@@ -43,8 +42,6 @@ public class GenerateWordVectors extends FastTextAppBase {
     return "Generates word vectors using a text corpus. Uses java port of fastText project.";
   }
 
-  ProgressBar pb;
-
   @Override
   public void run() throws IOException {
 
@@ -73,18 +70,7 @@ public class GenerateWordVectors extends FastTextAppBase {
     fastText.saveVectors(output);
   }
 
-  @Subscribe
-  public void trainingProgress(FastTextTrainer.Progress progress) {
 
-    synchronized (this) {
-      if (pb == null) {
-        System.setProperty("org.jline.terminal.dumb", "true");
-        pb = new ProgressBar("", progress.total, ProgressBarStyle.ASCII);
-      }
-    }
-    pb.stepTo(progress.current);
-    pb.setExtraMessage(String.format("lr: %.6f", progress.learningRate));
-  }
 
   public static void main(String[] args) {
     new GenerateWordVectors().execute(args);
