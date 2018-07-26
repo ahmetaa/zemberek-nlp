@@ -32,7 +32,7 @@ public class FasttextClassifierTrainer {
     return new Builder();
   }
 
-  enum LossType {
+  public enum LossType {
     SOFTMAX, HIERARCHICAL_SOFTMAX
   }
 
