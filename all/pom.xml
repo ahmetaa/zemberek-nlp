@@ -23,7 +23,7 @@
         <configuration>
           <!-- get all project dependencies -->
           <descriptorRefs>
-            <descriptorRef>with-dependencies</descriptorRef>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
           <!-- MainClass in mainfest make a executable jar -->
           <archive>
@@ -60,7 +60,6 @@
                   <exclude>args4j:args4j</exclude>
                   <exclude>com.google*</exclude>
                   <exclude>org.antlr*</exclude>
-                  <exclude>org.kohsuke*</exclude>
                   <exclude>hamcrest-all:hamcrest-all</exclude>
                   <exclude>mockito-all:mockito-all</exclude>
                 </excludes>

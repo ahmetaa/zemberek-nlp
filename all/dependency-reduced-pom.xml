@@ -50,7 +50,6 @@
                   <exclude>args4j:args4j</exclude>
                   <exclude>com.google*</exclude>
                   <exclude>org.antlr*</exclude>
-                  <exclude>org.kohsuke*</exclude>
                   <exclude>hamcrest-all:hamcrest-all</exclude>
                   <exclude>mockito-all:mockito-all</exclude>
                 </excludes>
