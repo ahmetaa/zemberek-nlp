@@ -20,9 +20,9 @@ import zemberek.core.embeddings.Args;
 import zemberek.core.embeddings.FastText;
 import zemberek.core.embeddings.FastTextTrainer;
 import zemberek.core.logging.Log;
+import zemberek.core.turkish.Turkish;
 import zemberek.corpus.WebCorpus;
 import zemberek.corpus.WebDocument;
-import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
@@ -45,7 +45,7 @@ public class CategoryPredictionExperiment {
    */
   public static void main(String[] args) throws Exception {
 
-    Path expRoot = Paths.get("/media/data/corpora/cat-exp");
+    Path expRoot = Paths.get("/home/ahmetaa/data/fasttext/cat-exp");
 
     new CategoryPredictionExperiment(
         expRoot,
@@ -56,12 +56,14 @@ public class CategoryPredictionExperiment {
     Path corpusPath = experimentRoot.resolve("category.corpus");
     Path train = experimentRoot.resolve("category.train");
     Path test = experimentRoot.resolve("category.test");
+    Path titleRaw = experimentRoot.resolve("category.title");
     Path modelPath = experimentRoot.resolve("category.model");
     Path predictionPath = experimentRoot.resolve("category.predictions");
     extractCategoryDocuments(rawCorpusRoot, corpusPath);
     boolean useOnlyTitles = true;
     boolean useLemmas = true;
     generateSets(corpusPath, train, test, useOnlyTitles, useLemmas);
+    generateRawSet(corpusPath, titleRaw);
 
     FastText fastText;
 
@@ -76,7 +78,7 @@ public class CategoryPredictionExperiment {
       argz.epoch = 50;
       argz.wordNgrams = 2;
       argz.minCount = 0;
-      argz.lr = 0.2;
+      argz.lr = 0.5;
       argz.dim = 100;
       argz.bucket = 5_000_000;
 
@@ -117,12 +119,89 @@ public class CategoryPredictionExperiment {
     Log.info("Done.");
   }
 
+  private void generateRawSet(
+      Path input,
+      Path train) throws IOException {
+
+    WebCorpus corpus = new WebCorpus("category", "category");
+    Log.info("Loading corpus from %s", input);
+    corpus.addDocuments(WebCorpus.loadDocuments(input));
+    List<String> set = new ArrayList<>(corpus.documentCount());
+
+    Histogram<String> categoryCounts = new Histogram<>();
+    for (WebDocument document : corpus.getDocuments()) {
+      String category = document.getCategory();
+      if (category.length() > 0) {
+        categoryCounts.add(category);
+      }
+    }
+
+    Log.info("All category count = %d", categoryCounts.size());
+    categoryCounts.removeSmaller(20);
+    for (String c : categoryCounts.getSortedList()) {
+      System.out.println(c + " " + categoryCounts.getCount(c));
+    }
+    Log.info("Reduced label count = %d", categoryCounts.size());
+
+    Log.info("Extracting data from %d documents ", corpus.documentCount());
+    int c = 0;
+
+    for (WebDocument document : corpus.getDocuments()) {
+      if (document.getCategory().length() == 0) {
+        continue;
+      }
+      if (document.getTitle().length() == 0) {
+        continue;
+      }
+
+      String title = document.getTitle();
+
+      String category = document.getCategory();
+      if(category.contains("CNN")||
+          category.contains("Güncel")||
+          category.contains("Euro 2016")||
+          category.contains("Yazarlar")||
+          category.contains("Ajanda")
+
+          ) {
+        continue;
+      }
+      if(category.equals("İyilik Sağlık")) {
+        category = "Sağlık";
+      }
+      if(category.equals("Spor Diğer")) {
+        category = "Spor";
+      }
+      if(category.equals("İyilik Sağlık")) {
+        category = "Sağlık";
+      }
+
+      if (categoryCounts.contains(category)) {
+        category = "__label__" + category.replaceAll("[ ]+", "_")
+            .toLowerCase(Turkish.LOCALE);
+      } else {
+        continue;
+      }
+
+      set.add(category + " " + title);
+
+      if (c++ % 1000 == 0) {
+        Log.info("%d of %d processed.", c, corpus.documentCount());
+      }
+    }
+
+    Log.info("Generate raw set.");
+
+    Files.write(train, set, StandardCharsets.UTF_8);
+  }
+
+
   private void generateSets(
       Path input,
       Path train,
       Path test,
       boolean useOnlyTitle,
-      boolean useRoots) throws IOException {
+      boolean useLemmas) throws IOException {
 
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
@@ -143,6 +222,9 @@ public class CategoryPredictionExperiment {
 
     Log.info("All category count = %d", categoryCounts.size());
     categoryCounts.removeSmaller(20);
+    for (String c : categoryCounts.getSortedList()) {
+      System.out.println(c + " " + categoryCounts.getCount(c));
+    }
     Log.info("Reduced label count = %d", categoryCounts.size());
 
     Log.info("Extracting data from %d documents ", corpus.documentCount());
@@ -186,8 +268,11 @@ public class CategoryPredictionExperiment {
       }
 
       String join = String.join(" ", reduced);
+      if(join.trim().isEmpty()) {
+        continue;
+      }
 
-      if (useRoots) {
+      if (useLemmas) {
         SentenceAnalysis analysis = morphology.analyzeAndDisambiguate(join);
         List<String> res = new ArrayList<>();
         for (SentenceWordAnalysis e : analysis) {
@@ -221,8 +306,8 @@ public class CategoryPredictionExperiment {
   private void extractCategoryDocuments(Path root, Path categoryFile) throws IOException {
 
     List<Path> files = Files.walk(root).filter(s -> s.toFile().isFile())
+        .sorted(Comparator.comparing(Path::toString))
         .collect(Collectors.toList());
-    files.sort(Comparator.comparing(Path::toString));
     WebCorpus corpus = new WebCorpus("category", "category");
     for (Path file : files) {
       if (file.toFile().isDirectory()) {

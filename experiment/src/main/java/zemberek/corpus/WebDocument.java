@@ -15,9 +15,9 @@ public class WebDocument {
   static Pattern sourcePattern = Pattern.compile("(source=\")(.+?)(\")");
   static Pattern urlPattern = Pattern.compile("(id=\")(.+?)(\")");
   static Pattern crawlDatePattern = Pattern.compile("(crawl-date=\")(.+?)(\")");
-  static Pattern labelPattern = Pattern.compile("(labels=)(.+?)(\")");
-  static Pattern categoryPattern = Pattern.compile("(category=)(.+?)(\")");
-  static Pattern titlePattern = Pattern.compile("(title=)(.+?)(\")");
+  static Pattern labelPattern = Pattern.compile("(labels=\")(.+?)(\" category)");
+  static Pattern categoryPattern = Pattern.compile("(category=\")(.+?)(\" crawl)");
+  static Pattern titlePattern = Pattern.compile("(title=\")(.+?)(\" labels)");
   String source;
   String id;
   String url;
@@ -84,9 +84,9 @@ public class WebDocument {
   }
 
   public String getDocumentHeader() {
-    return "<doc id=\"" + id + "\" source=\"" + source + "\" title=\"" + title + "\" crawl-date=\""
-        + crawlDate +
-        "\" labels=\"" + labelString + "\" category=\"" + category + "\">";
+    return "<doc id=\"" + id + "\" source=\"" + source + "\" title=\"" + title +
+        "\" labels=\"" + labelString + "\" category=\"" + category+ "\" crawl-date=\""
+        + crawlDate + "\">";
   }
 
   public WebDocument emptyContent() {

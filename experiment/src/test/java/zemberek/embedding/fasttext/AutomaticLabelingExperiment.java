@@ -24,9 +24,9 @@ import zemberek.core.embeddings.Args;
 import zemberek.core.embeddings.FastText;
 import zemberek.core.embeddings.FastTextTrainer;
 import zemberek.core.logging.Log;
+import zemberek.core.turkish.Turkish;
 import zemberek.corpus.WebCorpus;
 import zemberek.corpus.WebDocument;
-import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
@@ -70,7 +70,7 @@ public class AutomaticLabelingExperiment {
         if (s.contains(source)) {
           testSet.add(s);
           i++;
-          if (i == 300) {
+          if (i == 1000) {
             break;
           }
         }
