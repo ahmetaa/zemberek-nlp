@@ -42,6 +42,11 @@
       <artifactId>zemberek-lang-id</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
+    <dependency>
+      <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-apps</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
   </dependencies>
 
 </project>

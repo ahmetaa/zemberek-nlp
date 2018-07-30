@@ -91,7 +91,7 @@ public class TrainFastTextClassifier extends FastTextAppBase {
     }
 
     Log.info("Saving classification model in binary format to %s", output);
-    fastText.saveVectors(output);
+    fastText.saveModel(output);
 
     if(applyQuantization) {
       Log.info("Applying quantization.");

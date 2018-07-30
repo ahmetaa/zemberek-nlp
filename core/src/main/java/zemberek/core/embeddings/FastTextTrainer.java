@@ -92,9 +92,6 @@ public class FastTextTrainer {
       completionService.take().get();
       c++;
     }
-    Log.info("Training finished in %.1f seconds.",
-        sw.elapsed(TimeUnit.MILLISECONDS) / 1000d);
-
     return new FastText(args_, dict_, model_);
   }
 

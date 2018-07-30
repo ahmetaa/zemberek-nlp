@@ -1,13 +1,9 @@
 package zemberek.apps.fasttext;
 
 import com.beust.jcommander.Parameter;
-import com.google.common.eventbus.Subscribe;
 import java.io.IOException;
 import java.nio.file.Path;
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarStyle;
 import zemberek.core.embeddings.FastText;
-import zemberek.core.embeddings.FastTextTrainer;
 import zemberek.core.embeddings.WordVectorsTrainer;
 import zemberek.core.embeddings.WordVectorsTrainer.ModelType;
 import zemberek.core.logging.Log;
