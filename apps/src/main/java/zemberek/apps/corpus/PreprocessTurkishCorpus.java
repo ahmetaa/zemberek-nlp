@@ -142,9 +142,6 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
         continue;
       }
       List<String> lemmas = best.getLemmas();
-      if (lemmas.size() == 0) {
-        continue;
-      }
       res.add(lemmas.get(lemmas.size() - 1));
     }
     return String.join(" ", res);
