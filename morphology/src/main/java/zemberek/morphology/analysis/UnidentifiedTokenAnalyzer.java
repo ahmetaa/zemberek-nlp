@@ -109,7 +109,15 @@ public class UnidentifiedTokenAnalyzer {
   }
 
   private List<SingleAnalysis> tryWithoutApostrophe(String word) {
-    String normalized = TurkishAlphabet.INSTANCE.normalize(word);
+    String normalized = null;
+    TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+    if (alphabet.containsAsciiForeignDiacritics(word)) {
+      normalized = alphabet.foreignDiacriticsToTurkish(word);
+    }
+    normalized = normalized==null ?
+        alphabet.normalize(word):
+        alphabet.normalize(normalized);
+
     //TODO: should we remove dots with normalization?
     String pronunciation = guessPronunciation(normalized.replaceAll("[.]", ""));
     DictionaryItem itemProp = new DictionaryItem(
@@ -125,7 +133,6 @@ public class UnidentifiedTokenAnalyzer {
       itemProp.attributes.add(RootAttribute.Runtime);
       analyzer.getStemTransitions().addDictionaryItem(itemProp);
     }
-    //TODO eliminate gross code duplication
     List<SingleAnalysis> properResults = analyzer.analyze(normalized);
     if (itemDoesNotExist) {
       analyzer.getStemTransitions().removeDictionaryItem(itemProp);

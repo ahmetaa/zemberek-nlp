@@ -42,11 +42,16 @@ public class TurkishAlphabet {
   private FixedBitVector voicelessConsonantsLookup =
       TextUtil.generateBitLookup(voicelessConsonants + voicelessConsonants.toUpperCase(TR));
 
-  public static TurkishAlphabet INSTANCE = Singleton.Instance.alphabet;
-
   private String turkishSpecific = "çÇğĞıİöÖşŞüÜâîûÂÎÛ";
   private String turkishAscii = "cCgGiIoOsSuUaiuAIU";
   private IntIntMap asciiMap = new IntIntMap();
+
+  private String foreignDiacritics = "ÀÁÂÃÄÅÈÉÊËÌÍÎÏÑÒÓÔÕÙÚÛàáâãäåèéêëìíîïñòóôõùúû";
+  private String diaciritcsToTurkish = "AAAAAAEEEEIIIINOOOOUUUaaaaaaeeeeiiiinoooouuu";
+  private IntIntMap foreignDiacriticsMap = new IntIntMap();
+  private FixedBitVector foreignDiacriticsLookup = TextUtil.generateBitLookup(foreignDiacritics);
+
+  public static TurkishAlphabet INSTANCE = Singleton.Instance.alphabet;
 
   private enum Singleton {
     Instance;
@@ -66,6 +71,7 @@ public class TurkishAlphabet {
     generateVoicingDevoicingLookups();
 
     populateCharMap(asciiMap, turkishSpecific, turkishAscii);
+    populateCharMap(foreignDiacriticsMap, foreignDiacritics, diaciritcsToTurkish);
   }
 
   public String toAscii(String in) {
@@ -73,6 +79,17 @@ public class TurkishAlphabet {
     for (int i = 0; i < in.length(); i++) {
       char c = in.charAt(i);
       int res = asciiMap.get(c);
+      char map = res == IntIntMap.NO_RESULT ? c : (char) res;
+      sb.append(map);
+    }
+    return sb.toString();
+  }
+
+  public String foreignDiacriticsToTurkish(String in) {
+    StringBuilder sb = new StringBuilder(in.length());
+    for (int i = 0; i < in.length(); i++) {
+      char c = in.charAt(i);
+      int res = foreignDiacriticsMap.get(c);
       char map = res == IntIntMap.NO_RESULT ? c : (char) res;
       sb.append(map);
     }
@@ -189,19 +206,21 @@ public class TurkishAlphabet {
   }
 
   public boolean containsCircumflex(String s) {
-    for (int i = 0; i < s.length(); i++) {
-      char c = s.charAt(i);
-      if (lookup(circumflexLookup, c)) {
-        return true;
-      }
-    }
-    return false;
+    return checkLookup(circumflexLookup, s);
   }
 
   public boolean containsApostrophe(String s) {
+    return checkLookup(apostropheLookup, s);
+  }
+
+  public boolean containsAsciiForeignDiacritics(String s) {
+    return checkLookup(foreignDiacriticsLookup, s);
+  }
+
+  private boolean checkLookup(FixedBitVector lookup, String s) {
     for (int i = 0; i < s.length(); i++) {
       char c = s.charAt(i);
-      if (lookup(apostropheLookup, c)) {
+      if (lookup(lookup, c)) {
         return true;
       }
     }
