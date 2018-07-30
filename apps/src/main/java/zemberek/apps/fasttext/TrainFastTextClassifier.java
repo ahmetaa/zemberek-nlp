@@ -28,12 +28,12 @@ public class TrainFastTextClassifier extends FastTextAppBase {
 
   @Parameter(names = {"--applyQuantization", "-q"},
       description = "If used, applies quantization to model. This way model files will be "
-          + " smaller.")
+          + " smaller. Underlying algorithm uses 8 bit values for weights instead of 32 bit floats.")
   boolean applyQuantization = false;
 
   @Parameter(names = {"--cutOff", "-c"},
       description = "Reduces dictionary size with given threshold value. "
-          + "Dictionary entries are sorted with l2-norm values and top `cutOff` are selected."
+          + "Dictionary entries are sorted with l2-norm values and top `cutOff` are selected. "
           + "This greatly reduces model size. This option is only available if"
           + "applyQuantization flag is used.")
   int cutOff = -1;
@@ -43,7 +43,7 @@ public class TrainFastTextClassifier extends FastTextAppBase {
   int epochCount = FastTextClassifierTrainer.DEFAULT_EPOCH;
 
   @Parameter(names = {"--learningRate", "-lr"},
-      description = "Learning rate. Should be between 0.01-1.0")
+      description = "Learning rate. Should be between 0.01-2.0")
   float learningRate = FastTextClassifierTrainer.DEFAULT_LR;
 
   @Override
@@ -59,7 +59,9 @@ public class TrainFastTextClassifier extends FastTextAppBase {
         + "[__label__sports Match ended in a draw.]\n"
         + "Each line (document) may contain more than one label.\n"
         + "If there are a lot of labels, LossType can be chosen `HIERARCHICAL_SOFTMAX`. "
-        + "This way training and runtime speed will be faster with a small accuracy loss. ";
+        + "This way training and runtime speed will be faster with a small accuracy loss.\n "
+        + "For generating compact models, use -applyQuantization and -cutOff [dictionary-cut-off] "
+        + "parameters.";
   }
 
   @Override

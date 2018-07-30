@@ -17,6 +17,10 @@ import zemberek.core.text.BlockTextLoader;
 import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.Turkish;
+import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.SentenceAnalysis;
+import zemberek.morphology.analysis.SentenceWordAnalysis;
+import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 
@@ -41,6 +45,11 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
       description = "If used, applies Turkish lower casing to resulting sentences.")
   public boolean toLowercase = false;
 
+  @Parameter(names = {"--operation", "-op"},
+      description = "Applies operation to words. If LEMMA is selected, words are replaced with "
+          + "longest lemmas.")
+  public Operation operation = Operation.NONE;
+
   @Override
   public String description() {
     return "Applies Turkish Sentence boundary detection and tokenization to a corpus file or a "
@@ -49,6 +58,13 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
         + " removes soft hyphens. Sentences that contain `combining diacritic` symbols are "
         + "ignored.";
   }
+
+  enum Operation {
+    NONE,
+    LEMMA
+  }
+
+  TurkishMorphology morphology;
 
   @Override
   public void run() throws IOException {
@@ -73,6 +89,10 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
     int i = 1;
     long sentenceCount = 0;
 
+    if (operation == Operation.LEMMA) {
+      morphology = TurkishMorphology.createWithDefaults();
+    }
+
     try (PrintWriter pw = new PrintWriter(output.toFile(), "UTF-8")) {
       ProgressBar pb = new ProgressBar("Lines", totalLines, ProgressBarStyle.ASCII);
 
@@ -89,7 +109,13 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
           List<String> sentences = TurkishSentenceExtractor.DEFAULT.fromParagraphs(chunk);
           sentences = sentences.stream()
               .filter(s -> !TextUtil.containsCombiningDiacritics(s))
-              .map(s -> String.join(" ", TurkishTokenizer.DEFAULT.tokenizeToStrings(s)))
+              .map(s -> {
+                if (operation == Operation.LEMMA) {
+                  return replaceWordsWithLemma(s);
+                } else {
+                  return String.join(" ", TurkishTokenizer.DEFAULT.tokenizeToStrings(s));
+                }
+              })
               .map(s -> toLowercase ? s.toLowerCase(Turkish.LOCALE) : s)
               .collect(Collectors.toList());
 
@@ -104,6 +130,24 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
       pb.close();
     }
     Log.info("%d sentences are written in %s", sentenceCount, output);
+  }
+
+  private String replaceWordsWithLemma(String sentence) {
+    SentenceAnalysis analysis = morphology.analyzeAndDisambiguate(sentence);
+    List<String> res = new ArrayList<>();
+    for (SentenceWordAnalysis e : analysis) {
+      SingleAnalysis best = e.getBestAnalysis();
+      if (best.isUnknown()) {
+        res.add(e.getWordAnalysis().getInput());
+        continue;
+      }
+      List<String> lemmas = best.getLemmas();
+      if (lemmas.size() == 0) {
+        continue;
+      }
+      res.add(lemmas.get(lemmas.size() - 1));
+    }
+    return String.join(" ", res);
   }
 
   public static void main(String[] args) {
