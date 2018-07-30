@@ -84,8 +84,9 @@ public class TurkishTokenizer {
   }
 
   public List<String> tokenizeToStrings(String input) {
-    List<String> tokenStrings = new ArrayList<>();
-    for (Token token : tokenize(input)) {
+    List<Token> tokens = tokenize(input);
+    List<String> tokenStrings = new ArrayList<>(tokens.size());
+    for (Token token : tokens) {
       tokenStrings.add(token.getText());
     }
     return tokenStrings;

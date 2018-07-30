@@ -1,4 +1,4 @@
-// Generated from /home/ahmetaa/projects/zemberek-nlp/tokenization/src/main/resources/tokenization/TurkishLexer.g4 by ANTLR 4.7
+// Generated from /home/aaa/projects/zemberek-nlp/tokenization/src/main/resources/tokenization/TurkishLexer.g4 by ANTLR 4.7
 package zemberek.tokenization.antlr;
 
 import com.google.common.base.Charsets;
@@ -27,9 +27,9 @@ public class TurkishLexer extends Lexer {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		Abbreviation=1, SpaceTab=2, NewLine=3, Time=4, Date=5, PercentNumeral=6, 
-		Number=7, URL=8, Email=9, HashTag=10, Mention=11, Emoticon=12, RomanNumeral=13, 
-		AbbreviationWithDots=14, Word=15, WordAlphanumerical=16, WordWithSymbol=17, 
+		Abbreviation=1, SpaceTab=2, NewLine=3, Time=4, Date=5, PercentNumeral=6,
+		Number=7, URL=8, Email=9, HashTag=10, Mention=11, Emoticon=12, RomanNumeral=13,
+		AbbreviationWithDots=14, Word=15, WordAlphanumerical=16, WordWithSymbol=17,
 		Punctuation=18, UnknownWord=19, Unknown=20;
 	public static String[] channelNames = {
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
@@ -40,21 +40,21 @@ public class TurkishLexer extends Lexer {
 	};
 
 	public static final String[] ruleNames = {
-		"Digit", "TurkishLetters", "TurkishLettersCapital", "TurkishLettersAll", 
-		"AllTurkishAlphanumerical", "Apostrophe", "DoubleQuote", "AposAndSuffix", 
-		"SpaceTab", "NewLine", "Time", "Date", "PercentNumeral", "Number", "Integer", 
-		"Exp", "URLFragment", "URLFragmentWithDot", "URL", "Email", "HashTag", 
-		"Mention", "Emoticon", "RomanNumeral", "AbbreviationWithDots", "Word", 
-		"WordAlphanumerical", "WordWithSymbol", "PunctuationFragment", "Punctuation", 
+		"Digit", "TurkishLetters", "TurkishLettersCapital", "TurkishLettersAll",
+		"AllTurkishAlphanumerical", "Apostrophe", "DoubleQuote", "AposAndSuffix",
+		"SpaceTab", "NewLine", "Time", "Date", "PercentNumeral", "Number", "Integer",
+		"Exp", "URLFragment", "URLFragmentWithDot", "URL", "Email", "HashTag",
+		"Mention", "Emoticon", "RomanNumeral", "AbbreviationWithDots", "Word",
+		"WordAlphanumerical", "WordWithSymbol", "PunctuationFragment", "Punctuation",
 		"UnknownWord", "Unknown"
 	};
 
 	private static final String[] _LITERAL_NAMES = {
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
-		null, "Abbreviation", "SpaceTab", "NewLine", "Time", "Date", "PercentNumeral", 
-		"Number", "URL", "Email", "HashTag", "Mention", "Emoticon", "RomanNumeral", 
-		"AbbreviationWithDots", "Word", "WordAlphanumerical", "WordWithSymbol", 
+		null, "Abbreviation", "SpaceTab", "NewLine", "Time", "Date", "PercentNumeral",
+		"Number", "URL", "Email", "HashTag", "Mention", "Emoticon", "RomanNumeral",
+		"AbbreviationWithDots", "Word", "WordAlphanumerical", "WordWithSymbol",
 		"Punctuation", "UnknownWord", "Unknown"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
@@ -226,61 +226,61 @@ public class TurkishLexer extends Lexer {
 		"C\\aac|\u00c4\u00c4\u00c9\u00c9\u00d0\u00d0\u00d8\u00d8\u00dd\u00de\u00e4"+
 		"\u00e4\u00e9\u00e9\u00f0\u00f0\u00f8\u00f8\u00fd\u00fe\u0120\u0121\u0132"+
 		"\u0133\u0160\u0161\4\2\u201a\u201a\u2028\u2028\n\2##&(*\61<=AB]_}}\177"+
-		"\177\17\2\13\f\17\17\"$&\61<=AB]_}}\177\177\u00ad\u00ad\u00bd\u00bd\u201a"+
-		"\u201b\u201e\u201f\2\u0220\2\23\3\2\2\2\2\25\3\2\2\2\2\27\3\2\2\2\2\31"+
-		"\3\2\2\2\2\33\3\2\2\2\2\35\3\2\2\2\2\'\3\2\2\2\2)\3\2\2\2\2+\3\2\2\2\2"+
-		"-\3\2\2\2\2/\3\2\2\2\2\61\3\2\2\2\2\63\3\2\2\2\2\65\3\2\2\2\2\67\3\2\2"+
-		"\2\29\3\2\2\2\2=\3\2\2\2\2?\3\2\2\2\2A\3\2\2\2\3C\3\2\2\2\5E\3\2\2\2\7"+
-		"G\3\2\2\2\tI\3\2\2\2\13K\3\2\2\2\rM\3\2\2\2\17O\3\2\2\2\21Q\3\2\2\2\23"+
-		"X\3\2\2\2\25\\\3\2\2\2\27^\3\2\2\2\31\u009d\3\2\2\2\33\u009f\3\2\2\2\35"+
-		"\u00da\3\2\2\2\37\u00dd\3\2\2\2!\u00e1\3\2\2\2#\u00e8\3\2\2\2%\u00ec\3"+
-		"\2\2\2\'\u0101\3\2\2\2)\u010f\3\2\2\2+\u012b\3\2\2\2-\u0131\3\2\2\2/\u0171"+
-		"\3\2\2\2\61\u0187\3\2\2\2\63\u0192\3\2\2\2\65\u019d\3\2\2\2\67\u01a2\3"+
-		"\2\2\29\u01a7\3\2\2\2;\u01c3\3\2\2\2=\u01c5\3\2\2\2?\u01c8\3\2\2\2A\u01cd"+
-		"\3\2\2\2CD\t\2\2\2D\4\3\2\2\2EF\t\3\2\2F\6\3\2\2\2GH\t\4\2\2H\b\3\2\2"+
-		"\2IJ\t\5\2\2J\n\3\2\2\2KL\t\6\2\2L\f\3\2\2\2MN\t\7\2\2N\16\3\2\2\2OP\t"+
-		"\b\2\2P\20\3\2\2\2QS\5\r\7\2RT\5\t\5\2SR\3\2\2\2TU\3\2\2\2US\3\2\2\2U"+
-		"V\3\2\2\2V\22\3\2\2\2WY\t\t\2\2XW\3\2\2\2YZ\3\2\2\2ZX\3\2\2\2Z[\3\2\2"+
-		"\2[\24\3\2\2\2\\]\t\n\2\2]\26\3\2\2\2^_\t\13\2\2_`\t\2\2\2`a\t\f\2\2a"+
-		"b\t\r\2\2bf\t\2\2\2cd\t\f\2\2de\t\r\2\2eg\t\2\2\2fc\3\2\2\2fg\3\2\2\2"+
-		"gi\3\2\2\2hj\5\21\t\2ih\3\2\2\2ij\3\2\2\2j\30\3\2\2\2km\t\16\2\2lk\3\2"+
-		"\2\2lm\3\2\2\2mn\3\2\2\2no\t\2\2\2oq\7\60\2\2pr\t\17\2\2qp\3\2\2\2qr\3"+
-		"\2\2\2rs\3\2\2\2st\t\2\2\2t\177\7\60\2\2uv\t\20\2\2vw\t\21\2\2wx\t\2\2"+
-		"\2x\u0080\t\2\2\2yz\t\22\2\2z{\t\23\2\2{|\t\2\2\2|\u0080\t\2\2\2}~\t\2"+
-		"\2\2~\u0080\t\2\2\2\177u\3\2\2\2\177y\3\2\2\2\177}\3\2\2\2\u0080\u0082"+
-		"\3\2\2\2\u0081\u0083\5\21\t\2\u0082\u0081\3\2\2\2\u0082\u0083\3\2\2\2"+
-		"\u0083\u009e\3\2\2\2\u0084\u0086\t\16\2\2\u0085\u0084\3\2\2\2\u0085\u0086"+
-		"\3\2\2\2\u0086\u0087\3\2\2\2\u0087\u0088\t\2\2\2\u0088\u008a\7\61\2\2"+
-		"\u0089\u008b\t\17\2\2\u008a\u0089\3\2\2\2\u008a\u008b\3\2\2\2\u008b\u008c"+
-		"\3\2\2\2\u008c\u008d\t\2\2\2\u008d\u0098\7\61\2\2\u008e\u008f\t\20\2\2"+
-		"\u008f\u0090\t\21\2\2\u0090\u0091\t\2\2\2\u0091\u0099\t\2\2\2\u0092\u0093"+
-		"\t\22\2\2\u0093\u0094\t\23\2\2\u0094\u0095\t\2\2\2\u0095\u0099\t\2\2\2"+
-		"\u0096\u0097\t\2\2\2\u0097\u0099\t\2\2\2\u0098\u008e\3\2\2\2\u0098\u0092"+
-		"\3\2\2\2\u0098\u0096\3\2\2\2\u0099\u009b\3\2\2\2\u009a\u009c\5\21\t\2"+
-		"\u009b\u009a\3\2\2\2\u009b\u009c\3\2\2\2\u009c\u009e\3\2\2\2\u009dl\3"+
-		"\2\2\2\u009d\u0085\3\2\2\2\u009e\32\3\2\2\2\u009f\u00a0\7\'\2\2\u00a0"+
-		"\u00a1\5\35\17\2\u00a1\34\3\2\2\2\u00a2\u00a4\t\24\2\2\u00a3\u00a2\3\2"+
-		"\2\2\u00a3\u00a4\3\2\2\2\u00a4\u00a5\3\2\2\2\u00a5\u00a6\5\37\20\2\u00a6"+
-		"\u00a7\t\25\2\2\u00a7\u00a9\5\37\20\2\u00a8\u00aa\5!\21\2\u00a9\u00a8"+
-		"\3\2\2\2\u00a9\u00aa\3\2\2\2\u00aa\u00ac\3\2\2\2\u00ab\u00ad\5\21\t\2"+
-		"\u00ac\u00ab\3\2\2\2\u00ac\u00ad\3\2\2\2\u00ad\u00db\3\2\2\2\u00ae\u00b0"+
-		"\t\24\2\2\u00af\u00ae\3\2\2\2\u00af\u00b0\3\2\2\2\u00b0\u00b1\3\2\2\2"+
-		"\u00b1\u00b2\5\37\20\2\u00b2\u00b4\5!\21\2\u00b3\u00b5\5\21\t\2\u00b4"+
-		"\u00b3\3\2\2\2\u00b4\u00b5\3\2\2\2\u00b5\u00db\3\2\2\2\u00b6\u00b8\t\24"+
-		"\2\2\u00b7\u00b6\3\2\2\2\u00b7\u00b8\3\2\2\2\u00b8\u00b9\3\2\2\2\u00b9"+
-		"\u00bb\5\37\20\2\u00ba\u00bc\5\21\t\2\u00bb\u00ba\3\2\2\2\u00bb\u00bc"+
-		"\3\2\2\2\u00bc\u00db\3\2\2\2\u00bd\u00be\5\37\20\2\u00be\u00bf\7\60\2"+
-		"\2\u00bf\u00c1\3\2\2\2\u00c0\u00bd\3\2\2\2\u00c1\u00c2\3\2\2\2\u00c2\u00c0"+
-		"\3\2\2\2\u00c2\u00c3\3\2\2\2\u00c3\u00c4\3\2\2\2\u00c4\u00c6\5\37\20\2"+
-		"\u00c5\u00c7\5\21\t\2\u00c6\u00c5\3\2\2\2\u00c6\u00c7\3\2\2\2\u00c7\u00db"+
-		"\3\2\2\2\u00c8\u00c9\5\37\20\2\u00c9\u00ca\7.\2\2\u00ca\u00cc\3\2\2\2"+
-		"\u00cb\u00c8\3\2\2\2\u00cc\u00cd\3\2\2\2\u00cd\u00cb\3\2\2\2\u00cd\u00ce"+
-		"\3\2\2\2\u00ce\u00cf\3\2\2\2\u00cf\u00d1\5\37\20\2\u00d0\u00d2\5\21\t"+
-		"\2\u00d1\u00d0\3\2\2\2\u00d1\u00d2\3\2\2\2\u00d2\u00db\3\2\2\2\u00d3\u00d5"+
-		"\5\37\20\2\u00d4\u00d6\7\60\2\2\u00d5\u00d4\3\2\2\2\u00d5\u00d6\3\2\2"+
-		"\2\u00d6\u00d8\3\2\2\2\u00d7\u00d9\5\21\t\2\u00d8\u00d7\3\2\2\2\u00d8"+
-		"\u00d9\3\2\2\2\u00d9\u00db\3\2\2\2\u00da\u00a3\3\2\2\2\u00da\u00af\3\2"+
-		"\2\2\u00da\u00b7\3\2\2\2\u00da\u00c0\3\2\2\2\u00da\u00cb\3\2\2\2\u00da"+
+		"\177\20\2\13\f\17\17\"$&\61<=AB]_}}\177\177\u00ad\u00ad\u00bd\u00bd\u201a"+
+		"\u201b\u201e\u201f\u2028\u2028\2\u0220\2\23\3\2\2\2\2\25\3\2\2\2\2\27"+
+		"\3\2\2\2\2\31\3\2\2\2\2\33\3\2\2\2\2\35\3\2\2\2\2\'\3\2\2\2\2)\3\2\2\2"+
+		"\2+\3\2\2\2\2-\3\2\2\2\2/\3\2\2\2\2\61\3\2\2\2\2\63\3\2\2\2\2\65\3\2\2"+
+		"\2\2\67\3\2\2\2\29\3\2\2\2\2=\3\2\2\2\2?\3\2\2\2\2A\3\2\2\2\3C\3\2\2\2"+
+		"\5E\3\2\2\2\7G\3\2\2\2\tI\3\2\2\2\13K\3\2\2\2\rM\3\2\2\2\17O\3\2\2\2\21"+
+		"Q\3\2\2\2\23X\3\2\2\2\25\\\3\2\2\2\27^\3\2\2\2\31\u009d\3\2\2\2\33\u009f"+
+		"\3\2\2\2\35\u00da\3\2\2\2\37\u00dd\3\2\2\2!\u00e1\3\2\2\2#\u00e8\3\2\2"+
+		"\2%\u00ec\3\2\2\2\'\u0101\3\2\2\2)\u010f\3\2\2\2+\u012b\3\2\2\2-\u0131"+
+		"\3\2\2\2/\u0171\3\2\2\2\61\u0187\3\2\2\2\63\u0192\3\2\2\2\65\u019d\3\2"+
+		"\2\2\67\u01a2\3\2\2\29\u01a7\3\2\2\2;\u01c3\3\2\2\2=\u01c5\3\2\2\2?\u01c8"+
+		"\3\2\2\2A\u01cd\3\2\2\2CD\t\2\2\2D\4\3\2\2\2EF\t\3\2\2F\6\3\2\2\2GH\t"+
+		"\4\2\2H\b\3\2\2\2IJ\t\5\2\2J\n\3\2\2\2KL\t\6\2\2L\f\3\2\2\2MN\t\7\2\2"+
+		"N\16\3\2\2\2OP\t\b\2\2P\20\3\2\2\2QS\5\r\7\2RT\5\t\5\2SR\3\2\2\2TU\3\2"+
+		"\2\2US\3\2\2\2UV\3\2\2\2V\22\3\2\2\2WY\t\t\2\2XW\3\2\2\2YZ\3\2\2\2ZX\3"+
+		"\2\2\2Z[\3\2\2\2[\24\3\2\2\2\\]\t\n\2\2]\26\3\2\2\2^_\t\13\2\2_`\t\2\2"+
+		"\2`a\t\f\2\2ab\t\r\2\2bf\t\2\2\2cd\t\f\2\2de\t\r\2\2eg\t\2\2\2fc\3\2\2"+
+		"\2fg\3\2\2\2gi\3\2\2\2hj\5\21\t\2ih\3\2\2\2ij\3\2\2\2j\30\3\2\2\2km\t"+
+		"\16\2\2lk\3\2\2\2lm\3\2\2\2mn\3\2\2\2no\t\2\2\2oq\7\60\2\2pr\t\17\2\2"+
+		"qp\3\2\2\2qr\3\2\2\2rs\3\2\2\2st\t\2\2\2t\177\7\60\2\2uv\t\20\2\2vw\t"+
+		"\21\2\2wx\t\2\2\2x\u0080\t\2\2\2yz\t\22\2\2z{\t\23\2\2{|\t\2\2\2|\u0080"+
+		"\t\2\2\2}~\t\2\2\2~\u0080\t\2\2\2\177u\3\2\2\2\177y\3\2\2\2\177}\3\2\2"+
+		"\2\u0080\u0082\3\2\2\2\u0081\u0083\5\21\t\2\u0082\u0081\3\2\2\2\u0082"+
+		"\u0083\3\2\2\2\u0083\u009e\3\2\2\2\u0084\u0086\t\16\2\2\u0085\u0084\3"+
+		"\2\2\2\u0085\u0086\3\2\2\2\u0086\u0087\3\2\2\2\u0087\u0088\t\2\2\2\u0088"+
+		"\u008a\7\61\2\2\u0089\u008b\t\17\2\2\u008a\u0089\3\2\2\2\u008a\u008b\3"+
+		"\2\2\2\u008b\u008c\3\2\2\2\u008c\u008d\t\2\2\2\u008d\u0098\7\61\2\2\u008e"+
+		"\u008f\t\20\2\2\u008f\u0090\t\21\2\2\u0090\u0091\t\2\2\2\u0091\u0099\t"+
+		"\2\2\2\u0092\u0093\t\22\2\2\u0093\u0094\t\23\2\2\u0094\u0095\t\2\2\2\u0095"+
+		"\u0099\t\2\2\2\u0096\u0097\t\2\2\2\u0097\u0099\t\2\2\2\u0098\u008e\3\2"+
+		"\2\2\u0098\u0092\3\2\2\2\u0098\u0096\3\2\2\2\u0099\u009b\3\2\2\2\u009a"+
+		"\u009c\5\21\t\2\u009b\u009a\3\2\2\2\u009b\u009c\3\2\2\2\u009c\u009e\3"+
+		"\2\2\2\u009dl\3\2\2\2\u009d\u0085\3\2\2\2\u009e\32\3\2\2\2\u009f\u00a0"+
+		"\7\'\2\2\u00a0\u00a1\5\35\17\2\u00a1\34\3\2\2\2\u00a2\u00a4\t\24\2\2\u00a3"+
+		"\u00a2\3\2\2\2\u00a3\u00a4\3\2\2\2\u00a4\u00a5\3\2\2\2\u00a5\u00a6\5\37"+
+		"\20\2\u00a6\u00a7\t\25\2\2\u00a7\u00a9\5\37\20\2\u00a8\u00aa\5!\21\2\u00a9"+
+		"\u00a8\3\2\2\2\u00a9\u00aa\3\2\2\2\u00aa\u00ac\3\2\2\2\u00ab\u00ad\5\21"+
+		"\t\2\u00ac\u00ab\3\2\2\2\u00ac\u00ad\3\2\2\2\u00ad\u00db\3\2\2\2\u00ae"+
+		"\u00b0\t\24\2\2\u00af\u00ae\3\2\2\2\u00af\u00b0\3\2\2\2\u00b0\u00b1\3"+
+		"\2\2\2\u00b1\u00b2\5\37\20\2\u00b2\u00b4\5!\21\2\u00b3\u00b5\5\21\t\2"+
+		"\u00b4\u00b3\3\2\2\2\u00b4\u00b5\3\2\2\2\u00b5\u00db\3\2\2\2\u00b6\u00b8"+
+		"\t\24\2\2\u00b7\u00b6\3\2\2\2\u00b7\u00b8\3\2\2\2\u00b8\u00b9\3\2\2\2"+
+		"\u00b9\u00bb\5\37\20\2\u00ba\u00bc\5\21\t\2\u00bb\u00ba\3\2\2\2\u00bb"+
+		"\u00bc\3\2\2\2\u00bc\u00db\3\2\2\2\u00bd\u00be\5\37\20\2\u00be\u00bf\7"+
+		"\60\2\2\u00bf\u00c1\3\2\2\2\u00c0\u00bd\3\2\2\2\u00c1\u00c2\3\2\2\2\u00c2"+
+		"\u00c0\3\2\2\2\u00c2\u00c3\3\2\2\2\u00c3\u00c4\3\2\2\2\u00c4\u00c6\5\37"+
+		"\20\2\u00c5\u00c7\5\21\t\2\u00c6\u00c5\3\2\2\2\u00c6\u00c7\3\2\2\2\u00c7"+
+		"\u00db\3\2\2\2\u00c8\u00c9\5\37\20\2\u00c9\u00ca\7.\2\2\u00ca\u00cc\3"+
+		"\2\2\2\u00cb\u00c8\3\2\2\2\u00cc\u00cd\3\2\2\2\u00cd\u00cb\3\2\2\2\u00cd"+
+		"\u00ce\3\2\2\2\u00ce\u00cf\3\2\2\2\u00cf\u00d1\5\37\20\2\u00d0\u00d2\5"+
+		"\21\t\2\u00d1\u00d0\3\2\2\2\u00d1\u00d2\3\2\2\2\u00d2\u00db\3\2\2\2\u00d3"+
+		"\u00d5\5\37\20\2\u00d4\u00d6\7\60\2\2\u00d5\u00d4\3\2\2\2\u00d5\u00d6"+
+		"\3\2\2\2\u00d6\u00d8\3\2\2\2\u00d7\u00d9\5\21\t\2\u00d8\u00d7\3\2\2\2"+
+		"\u00d8\u00d9\3\2\2\2\u00d9\u00db\3\2\2\2\u00da\u00a3\3\2\2\2\u00da\u00af"+
+		"\3\2\2\2\u00da\u00b7\3\2\2\2\u00da\u00c0\3\2\2\2\u00da\u00cb\3\2\2\2\u00da"+
 		"\u00d3\3\2\2\2\u00db\36\3\2\2\2\u00dc\u00de\5\3\2\2\u00dd\u00dc\3\2\2"+
 		"\2\u00de\u00df\3\2\2\2\u00df\u00dd\3\2\2\2\u00df\u00e0\3\2\2\2\u00e0 "+
 		"\3\2\2\2\u00e1\u00e3\t\26\2\2\u00e2\u00e4\t\24\2\2\u00e3\u00e2\3\2\2\2"+

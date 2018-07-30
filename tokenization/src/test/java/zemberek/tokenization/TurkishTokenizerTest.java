@@ -342,6 +342,12 @@ public class TurkishTokenizerTest {
   }
 
   @Test
+  public void testEllipsis() {
+    TurkishTokenizer t = TurkishTokenizer.DEFAULT;
+    matchSentences(t, "Merhaba, Kaya Ivır ve Tunç Zıvır…", "Merhaba , Kaya Ivır ve Tunç Zıvır …");
+  }
+
+  @Test
   @Ignore("Not an actual test. Requires external data.")
   public void performance() throws IOException {
     TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
