@@ -1,4 +1,4 @@
-package zemberek.examples.fasttext;
+package zemberek.examples.classification;
 
 import com.google.common.base.Splitter;
 import java.io.IOException;
@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import zemberek.apps.fasttext.TrainFastTextClassifier;
+import zemberek.classification.FastTextClassifier;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.Histogram;
-import zemberek.core.embeddings.FastText;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;
@@ -157,13 +157,14 @@ public class NewsTitleCategoryFinder {
   }
 
   private void test(Path testPath, Path predictionsPath, Path modelPath) throws IOException {
-    FastText fastText = FastText.load(modelPath);
-    fastText.test(testPath, 1);
+    FastTextClassifier classifier = FastTextClassifier.load(modelPath);
+
+    classifier.evaluate(testPath, 1);
 
     List<String> testLines = Files.readAllLines(testPath, StandardCharsets.UTF_8);
     try (PrintWriter pw = new PrintWriter(predictionsPath.toFile(), "utf-8")) {
       for (String testLine : testLines) {
-        List<ScoredItem<String>> res = fastText.predict(testLine, 3);
+        List<ScoredItem<String>> res = classifier.predict(testLine, 3);
         List<String> predictedCategories = new ArrayList<>();
         for (ScoredItem<String> re : res) {
           predictedCategories.add(String.format("%s (%.6f)",

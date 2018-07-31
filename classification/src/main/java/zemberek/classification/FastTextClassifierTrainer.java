@@ -1,10 +1,15 @@
-package zemberek.core.embeddings;
+package zemberek.classification;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import java.nio.file.Path;
 import zemberek.core.concurrency.ConcurrencyUtil;
+import zemberek.core.embeddings.Args;
 import zemberek.core.embeddings.Args.loss_name;
+import zemberek.core.embeddings.EmbeddingHashProviders.EmptySubwordHashProvider;
+import zemberek.core.embeddings.FastText;
+import zemberek.core.embeddings.FastTextTrainer;
+import zemberek.core.embeddings.SubWordHashProvider;
 
 public class FastTextClassifierTrainer {
 
@@ -36,13 +41,12 @@ public class FastTextClassifierTrainer {
     SOFTMAX, HIERARCHICAL_SOFTMAX
   }
 
-
   public static class Builder {
 
     LossType type = LossType.SOFTMAX;
     int wordNgramOrder = DEFAULT_WORD_NGRAM;
     SubWordHashProvider subWordHashProvider =
-        new EmbeddingHashProviders.EmptySubwordHashProvider();
+        new EmptySubwordHashProvider();
     float learningRate = DEFAULT_LR;
     int threadCount = DEFAULT_TC;
     int contextWindowSize = DEFAULT_CONTEXT_WINDOW_SIZE;
@@ -101,7 +105,7 @@ public class FastTextClassifierTrainer {
     }
   }
 
-  public FastText train(Path corpus) {
+  public FastTextClassifier train(Path corpus) {
     Args args = Args.forSupervised();
     args.loss = builder.type == LossType.SOFTMAX ?
         loss_name.softmax : loss_name.hierarchicalSoftmax;
@@ -124,7 +128,7 @@ public class FastTextClassifierTrainer {
     trainer.getEventBus().register(this);
 
     try {
-      return trainer.train(corpus);
+      return new FastTextClassifier(trainer.train(corpus));
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);

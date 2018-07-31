@@ -214,6 +214,10 @@ public class FastText {
     return result;
   }
 
+  public List<String> getLabels() {
+    return getDictionary().getLabels();
+  }
+
   static class L2NormData {
 
     final int index;
@@ -269,7 +273,7 @@ public class FastText {
   }
 
   public void test(Path in, int k) throws IOException {
-    test(in, k, 0);
+    test(in, k, -100f);
   }
 
   void test(Path in, int k, float threshold) throws IOException {

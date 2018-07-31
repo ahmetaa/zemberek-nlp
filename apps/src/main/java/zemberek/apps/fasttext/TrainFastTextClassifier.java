@@ -3,9 +3,10 @@ package zemberek.apps.fasttext;
 import com.beust.jcommander.Parameter;
 import java.io.IOException;
 import java.nio.file.Path;
+import zemberek.classification.FastTextClassifier;
+import zemberek.classification.FastTextClassifierTrainer;
+import zemberek.classification.FastTextClassifierTrainer.LossType;
 import zemberek.core.embeddings.FastText;
-import zemberek.core.embeddings.FastTextClassifierTrainer;
-import zemberek.core.embeddings.FastTextClassifierTrainer.LossType;
 import zemberek.core.logging.Log;
 
 public class TrainFastTextClassifier extends FastTextAppBase {
@@ -85,13 +86,14 @@ public class TrainFastTextClassifier extends FastTextAppBase {
     Log.info("Training Started.");
     trainer.getEventBus().register(this);
 
-    FastText fastText = trainer.train(input);
+    FastTextClassifier classifier = trainer.train(input);
 
-    if (pb != null) {
-      pb.close();
+    if (progressBar != null) {
+      progressBar.close();
     }
 
     Log.info("Saving classification model to %s", output);
+    FastText fastText = classifier.getFastText();
     fastText.saveModel(output);
 
     if (applyQuantization) {

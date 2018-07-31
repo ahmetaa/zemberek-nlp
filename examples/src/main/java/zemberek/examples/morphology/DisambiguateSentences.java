@@ -13,7 +13,7 @@ public class DisambiguateSentences {
 
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
-    String sentence = "Yarın akşam kar yağacak gibi.";
+    String sentence = "Yabancılar ddkunmasın diye.";
     Log.info("Sentence  = " + sentence);
     List<WordAnalysis> analyses = morphology.analyzeSentence(sentence);
 

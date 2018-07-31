@@ -30,19 +30,19 @@ public abstract class FastTextAppBase extends ConsoleApp {
       description = "Words with lower than this count will be ignored..")
   int minWordCount = WordVectorsTrainer.DEFAULT_MIN_WORD_COUNT;
 
-  ProgressBar pb;
+  ProgressBar progressBar;
 
   @Subscribe
   public void trainingProgress(FastTextTrainer.Progress progress) {
 
     synchronized (this) {
-      if (pb == null) {
+      if (progressBar == null) {
         System.setProperty("org.jline.terminal.dumb", "true");
-        pb = new ProgressBar("", progress.total, ProgressBarStyle.ASCII);
+        progressBar = new ProgressBar("", progress.total, ProgressBarStyle.ASCII);
       }
     }
-    pb.stepTo(progress.current);
-    pb.setExtraMessage(String.format("lr: %.6f", progress.learningRate));
+    progressBar.stepTo(progress.current);
+    progressBar.setExtraMessage(String.format("lr: %.6f", progress.learningRate));
   }
 
 }

@@ -23,6 +23,7 @@
     <module>examples</module>
     <module>ner</module>
     <module>apps</module>
+    <module>classification</module>
   </modules>
 
   <distributionManagement>

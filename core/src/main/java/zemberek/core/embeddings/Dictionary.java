@@ -234,6 +234,16 @@ class Dictionary {
     return words_.get(i).subwords;
   }
 
+  public List<String> getLabels() {
+    List<String> results = new ArrayList<>();
+    for (Entry entry : words_) {
+      if (entry.type == TYPE_LABEL) {
+        results.add(entry.word);
+      }
+    }
+    return results;
+  }
+
   int[] getSubWords(String word) {
     int i = getId(word);
     if (i >= 0) {
@@ -496,6 +506,7 @@ class Dictionary {
   }
 
   public static class Entry {
+
     String word;
     int count;
     int type;
