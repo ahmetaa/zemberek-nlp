@@ -28,7 +28,8 @@ public class TrainFastTextClassifier extends FastTextAppBase {
 
   @Parameter(names = {"--applyQuantization", "-q"},
       description = "If used, applies quantization to model. This way model files will be "
-          + " smaller. Underlying algorithm uses 8 bit values for weights instead of 32 bit floats.")
+          + " smaller. Underlying algorithm uses 8 bit values for weights instead of 32 bit floats."
+          + " Quantized model will be saved same place of output with name [output].q ")
   boolean applyQuantization = false;
 
   @Parameter(names = {"--cutOff", "-c"},
@@ -86,24 +87,25 @@ public class TrainFastTextClassifier extends FastTextAppBase {
 
     FastText fastText = trainer.train(input);
 
-    if(pb!=null) {
+    if (pb != null) {
       pb.close();
     }
 
-    Log.info("Saving classification model in binary format to %s", output);
+    Log.info("Saving classification model to %s", output);
     fastText.saveModel(output);
 
-    if(applyQuantization) {
+    if (applyQuantization) {
       Log.info("Applying quantization.");
-      if(cutOff>0) {
+      if (cutOff > 0) {
         Log.info("Quantization dictionary cut-off value = %d", cutOff);
       }
-
-      Path quantized = output.getParent().resolve(output.toFile().getName()+".quant");
-      Log.info("Saving quantized classification model to %s", quantized);
-      fastText.quantize(quantized, fastText.getArgs());
+      Path quantizedModel = output.getParent().resolve(output.toFile().getName() + ".q");
+      Log.info("Saving quantized classification model to %s", quantizedModel);
+      FastText quantized = fastText.quantize(output, fastText.getArgs());
+      quantized.saveModel(quantizedModel);
     }
   }
+
   public static void main(String[] args) {
     new TrainFastTextClassifier().execute(args);
   }

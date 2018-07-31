@@ -68,7 +68,6 @@ class Model {
 
   static Model load(DataInputStream dis, Args args_) throws IOException {
 
-    Log.info("Loading Matrices.");
     boolean quant_input = dis.readBoolean();
 
     Matrix input_;

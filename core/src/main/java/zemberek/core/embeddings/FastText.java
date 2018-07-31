@@ -178,7 +178,6 @@ public class FastText {
     } else {
       model_.setTargetCounts(dict_.getCounts(Dictionary.TYPE_WORD));
     }
-    Log.info("Model loaded.");
     return new FastText(args_, dict_, model_);
   }
 
@@ -368,7 +367,7 @@ public class FastText {
 
 
   public List<ScoredItem<String>> predict(String line, int k) {
-    return predict(line, k, 0f);
+    return predict(line, k, -100f);
   }
 
   List<ScoredItem<String>> predict(String line, int k, float threshold) {
@@ -378,10 +377,8 @@ public class FastText {
     if (words.isempty()) {
       return Collections.emptyList();
     }
-    Vector output = new Vector(dict_.nlabels());
-    Vector hidden = model_.computeHidden(words.copyOf());
     List<Model.FloatIntPair> modelPredictions =
-        model_.predict(k, threshold, hidden, output);
+        model_.predict(words.copyOf(), threshold, k);
     List<ScoredItem<String>> result = new ArrayList<>(modelPredictions.size());
     for (Model.FloatIntPair pair : modelPredictions) {
       result.add(new ScoredItem<>(dict_.getLabel(pair.second), pair.first));
