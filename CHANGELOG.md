@@ -1,6 +1,54 @@
 CHANGE LOG
 ==========
 
+## 0.15.0 (Not yet released)
+
+#### New features 
+
+Initial release of **classification** module. Classification module is based on  based on Java port of [fastText](https://fasttext.cc/) project.
+Refer to the [documentation](classification) for more information. There are two usage examples in 
+[examples](https://github.com/ahmetaa/zemberek-nlp/tree/master/examples/src/main/java/zemberek/examples/classification) module. 
+
+There is now a single jar containing all dependencies. 
+
+Initial release of **apps** module. All console applications will be in this module. When  
+zemberek jar with dependencies is run directly, a catalogue of available applications are listed. They 
+can be run directly bt the Class name without the package name. For example:
+
+     java -jar zemberek-with-deps.jar TrainFastTextClassifier
+     
+will run the TrainFastTextClassifier application and list available parameters.
+
+OpenNlp NER annotation style is added.
+
+`toAscii` method is added to TurkishAlphabet
+
+#### Bug fixes
+
+Common foreign words with diacritic letters (like `José`) will not generate an exception warning.
+
+Tokenizer will handle ellipsis `…` character correctly.
+
+#### Deprecations and breaking changes
+
+`createWithTextDictionaries()` method in TurkishMorphology and `addDefaultDictionaries()` in 
+ TurkishMorphology.Builder are deprecated.
+ 
+ `parseEntries()` in SentenceAnalysis is deprecated.
+ 
+ Deprecated `analyzeAndResolveAmbiguity(String sentence)` in TurkishMorphology is removed.
+
+#### Documentation
+ 
+ [Dictionary Rules](https://github.com/ahmetaa/zemberek-nlp/wiki/Text-Dictionary-Rules) and
+ [Morphemes](https://github.com/ahmetaa/zemberek-nlp/wiki/Morphemes) wiki pages are added. 
+
+#### Experimental
+
+There is also word vector generation functionality but it is not yet documented.
+
+There are more grpc services available but moule is not yet ready for release.       
+
 ## 0.14.0
 
 This is a major release with improved Morphological disambiguation and initial release of NER module.

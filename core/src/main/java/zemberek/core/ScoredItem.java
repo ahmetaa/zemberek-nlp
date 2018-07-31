@@ -27,10 +27,10 @@ public class ScoredItem<T> implements Comparable<ScoredItem> {
 
   @Override
   public String toString() {
-    return toString(4);
+    return toString(6);
   }
 
   public String toString(int fractionDigits) {
-    return item.toString() + ":" + String.format("%." + fractionDigits + "f", score);
+    return item.toString() + " : " + String.format("%." + fractionDigits + "f", score);
   }
 }

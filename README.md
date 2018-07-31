@@ -85,6 +85,12 @@ Basic Named Entity Recognition mechanism. [Documentation](ner)
 
 Maven artifact id : **zemberek-ner**
 
+### Classification (Not Yet Released)
+
+Text classification based on Java port of fastText project. [Documentation](classification)
+
+Maven artifact id : **zemberek-classification**
+
 ### Language Identification.
 
 Allows fast identification of text language. [Documentation](lang-id)

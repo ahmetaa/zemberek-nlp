@@ -30,7 +30,9 @@ public class NewsTitleCategoryFinder {
 
   public static void main(String[] args) throws IOException {
     NewsTitleCategoryFinder experiment = new NewsTitleCategoryFinder();
-    String set = "/home/aaa/data/zemberek/classification/news-title-category-set";
+    // Download data set `news-title-category-set`
+    // from https://drive.google.com/drive/folders/1JBPExAeRctAXL2oGW2U6CbqfwIJ84BG7
+    String set = "/media/ahmetaa/depo/zemberek/data/classification/news-title-category-set";
 
     Path dataPath = Paths.get(set);
     Path root = dataPath.getParent();

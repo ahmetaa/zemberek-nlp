@@ -17,7 +17,7 @@ so some degree of customization will always be necessary.
 ### Data Preparation
 
 For creating a NER model, we first need a `training set`. A file that contains correct examples.
-Training data can be prepared using two annotation methods. Lets look at the sentence below.
+Training data can be prepared using three annotation methods. Lets look at the sentence below.
 
     Enerji Verimliliği Merkezi kurucu başkanı Bülent Yeşilata, Ankara'da bir toplantıya katıldı.
     
@@ -31,7 +31,7 @@ Bracket Style annotation
 
     [ORG Enerji Verimliliği Merkezi] kurucu başkanı [PER Bülent Yeşilata] , [LOC Ankara'da] bir toplantıya katıldı.
     
-OpenNLP Style annotation (After 0.14.0)
+OpenNLP Style annotation
 
     <START:ORG> Enerji Verimliliği Merkezi <END> kurucu başkanı <START:PER> Bülent Yeşilata , <START:LOC> Ankara'da <END> bir toplantıya katıldı.
     

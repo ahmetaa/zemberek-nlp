@@ -250,18 +250,6 @@ public class TurkishMorphology {
     return disambiguate(sentence, analyzeSentence(sentence));
   }
 
-  /**
-   * Applies morphological analysis and disambiguation to a sentence.
-   *
-   * @param sentence Sentence.
-   * @return SentenceAnalysis instance.
-   * @deprecated Use {@link #analyzeAndDisambiguate(String)}. This will be removed in 0.15.0
-   */
-  public SentenceAnalysis analyzeAndResolveAmbiguity(String sentence) {
-    return disambiguate(sentence, analyzeSentence(sentence));
-  }
-
-
   public AnalysisCache getCache() {
     return cache;
   }
