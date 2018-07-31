@@ -11,26 +11,26 @@ Zemberek-NLP provides a simple text classification module based on Java port of 
 
 ### Data Preparation
 
-For creating a classification model, we first need a `training set`. A file that contains examples.
+For creating a classification model, we first need a `training set`. A file that contains documents and their labels.
 Training data should be prepared `fastText` style. For example, a training set that contains news
-titles and their categories:
+titles and their categories ([Download](https://drive.google.com/drive/folders/1JBPExAeRctAXL2oGW2U6CbqfwIJ84BG7)):
 
     __label__magazin Jackie Chan'a yapmadıklarını bırakmadılar!
     __label__spor Fenerbahçe Akhisar'da çok rahat kazandı    
     __label__teknoloji Google Nexus telefonları Huawei de üretebilir!    
 
-Each line must contain a `document`. A document can be a sentence, or a paragraph. Algorithm should work
-if a page long document but performance may be lower than expected.  
+Each line must contain a `document` and its label(s). A document can be a sentence, or a paragraph. Algorithm should work
+with a page long document but performance may be lower than expected. A label must have a `__label__` prefix.  
 
 However, it is usually suggested to preprocess the training set. Otherwise, for example `üretebilir!` and `üretebilir`
- will be handled as different words. How the input should be processed depends on the problem. For example: 
+ will be handled as different words. How the input should be processed depends on the problem. Some options: 
  * Tokenization
  * Removal of some punctuations
  * Removal or normalization of digits
  * Using stems, lemmas or morphemes instead of words
  * Lower casing 
  
- Most of them reduces sparsity of the vocabulary without damaging the information carried 
+ Most of those operations reduce sparsity of the vocabulary without damaging the information carried 
  in the document and probably improves the performance but experimentation is necessary.
  
  For example after tokenization and lowercasing training set may become:
@@ -39,7 +39,7 @@ However, it is usually suggested to preprocess the training set. Otherwise, for 
     __label__spor fenerbahçe akhisar'da çok rahat kazandı
     __label__teknoloji google nexus telefonları huawei de üretebilir
  
- Lets assume this file is called `news-title-set`
+ Lets assume this file is called `news-title-category-set`
 
 ### Training
 
@@ -47,12 +47,12 @@ Training can be done with a console application or with the API. Using console a
 Use zemberek with dependencies jar: 
 
     java -jar zemberek-with-dependencies.jar TrainFastTextClassifier \ 
-     -i news-title-set \
-     -o news-title.model \
+     -i news-title-category-set \
+     -o news-title-category-set.model \
      --learningRate 0.1 \
      --epochCount 50 
    
-If training ends with success `news-title.model` file will be generated. Model file is quite large
+If training ends with success `news-title-category-set.model` file will be generated. Model file is quite large
 but there are ways to reduce it.  
 
 ## Using the Classifier
@@ -98,7 +98,7 @@ For generating quantized models, `--applyQuantization` and `--cutOff` can be use
      --applyQuantization \
      --cutOff 15000
 
-Now there will be two models, `news-title.model` and `news-title.model.q` 
+Now there will be two models, `news-title-category-set.model` and `news-title-category-set.model.q` 
 Both models can be used for instantiating FastTextClassifier.
 
 For the set mentioned above, model size is reduced from 824 MB to 1MB.
