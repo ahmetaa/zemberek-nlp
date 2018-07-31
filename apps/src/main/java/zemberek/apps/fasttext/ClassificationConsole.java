@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.Token;
 import zemberek.apps.ConsoleApp;
 import zemberek.classification.FastTextClassifier;
 import zemberek.core.ScoredItem;
+import zemberek.core.logging.Log;
 import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SentenceAnalysis;
@@ -49,6 +50,8 @@ public class ClassificationConsole extends ConsoleApp {
 
   @Override
   public void run() throws Exception {
+
+    Log.info("Loading classification model...");
     FastTextClassifier classifier = FastTextClassifier.load(model);
 
     if (preprocessor == Preprocessor.LEMMA) {
@@ -99,9 +102,13 @@ public class ClassificationConsole extends ConsoleApp {
   private String replaceWordsWithLemma(String sentence) {
 
     List<String> tokens = Splitter.on(" ").splitToList(sentence);
-    // assume first is label. Remove label from sentence for morphological analysis.
+
+    // check if first token is a label
     String label = tokens.get(0);
-    tokens = tokens.subList(1, tokens.size());
+    if (label.startsWith("__label__")) {
+      tokens = tokens.subList(1, tokens.size());
+    }
+
     sentence = String.join(" ", tokens);
 
     SentenceAnalysis analysis = morphology.analyzeAndDisambiguate(sentence);
