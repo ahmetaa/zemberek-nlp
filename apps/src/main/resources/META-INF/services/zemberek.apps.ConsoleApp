@@ -1,5 +1,7 @@
 zemberek.apps.corpus.PreprocessTurkishCorpus
 zemberek.apps.fasttext.TrainFastTextClassifier
 zemberek.apps.fasttext.GenerateWordVectors
+zemberek.apps.fasttext.ClassificationConsole
+zemberek.apps.fasttext.EvaluateFasttextClassifier
 zemberek.apps.lm.CompressLm
 zemberek.apps.lm.GenerateVocabulary

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ServiceLoader;
+import zemberek.core.io.Strings;
 
 public class ApplicationRunner {
 
@@ -33,10 +34,11 @@ public class ApplicationRunner {
 
   private static void listApplications(List<ConsoleApp> apps) {
     System.out.println("List of available applications:");
-    System.out.println("-------------------------------");
+    System.out.println("===============================");
     for (ConsoleApp app : apps) {
-      System.out.println(app.getClass().getSimpleName());
-      System.out.println();
+      String simpleName = app.getClass().getSimpleName();
+      System.out.println(simpleName);
+      System.out.println(Strings.repeat("-", simpleName.length()));
       String wrapped = wrap(app.description(), 80);
       System.out.println(wrapped);
       System.out.println();
@@ -66,7 +68,7 @@ public class ApplicationRunner {
         sb = new StringBuilder();
       }
     }
-    if(sb.length()>0) {
+    if (sb.length() > 0) {
       lines.add(sb.toString().trim());
     }
     return String.join("\n", lines);
