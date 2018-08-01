@@ -15,7 +15,7 @@ import zemberek.core.embeddings.Args.model_name;
  */
 public class WordVectorsTrainer {
 
-  public static final int DEFAULT_DIMENSION = 100;
+  public static final int DEFAULT_DIMENSION = 50;
   public static final float DEFAULT_LR = 0.05f;
   public static final int DEFAULT_EPOCH = 5;
   public static final int DEFAULT_MIN_WORD_COUNT = 1;

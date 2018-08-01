@@ -13,7 +13,7 @@ Zemberek-NLP provides a simple text classification module based on Java port of 
 
 For creating a classification model, we first need a `training set`. A file that contains documents and their labels.
 Training data should be prepared `fastText` style. For example, a training set that contains news
-titles and their categories ([Download](https://drive.google.com/drive/folders/1JBPExAeRctAXL2oGW2U6CbqfwIJ84BG7)):
+titles and their categories (You can [download](https://drive.google.com/drive/folders/1JBPExAeRctAXL2oGW2U6CbqfwIJ84BG7) the set):
 
     __label__magazin Jackie Chan'a yapmadıklarını bırakmadılar!
     __label__spor Fenerbahçe Akhisar'da çok rahat kazandı    
@@ -57,7 +57,8 @@ but there are ways to reduce it.
 
 ## Using the Classifier
 
-Once a model is generated, applying it to documents is straight forward.
+Once a model is generated, applying it to documents is straight forward. One important thing is that
+ before the prediction operation, input text should be processed same as the training data.  
 
 Here is an example:
 
@@ -101,11 +102,11 @@ For generating quantized models, `--applyQuantization` and `--cutOff` can be use
 Now there will be two models, `news-title-category-set.model` and `news-title-category-set.model.q` 
 Both models can be used for instantiating FastTextClassifier.
 
-For the set mentioned above, model size is reduced from 824 MB to 1MB.
+For the set mentioned above, model size is reduced from 400 MB to 1MB.
 
 ### Performance and Speed
 
-Original fastText library is very fast, despite not using GPUs. Our Java port's speed is close to the C++ version. Training is multi-threaded. 
+Despite not using GPUs, original fastText library is very fast. Our Java port's speed is close to the C++ version. Training is multi-threaded. 
 For example, using 4 threads, news title set with 68365 samples and 442.000 tokens, training takes 
 about 20 seconds. Testing 1000 examples takes around 4.5 seconds with a single thread.
 
@@ -114,7 +115,7 @@ Test system: 2.3 Ghz AMD FX-8320, Ubuntu Linux 16.04 LTS.
 ## Algorithm
 
 As mentioned before, classification algorithm is based on a port of fastText project.
-Please refer to the project(https://fasttext.cc/) documentation and related scientific papers for more information. 
+Please refer to the [project](https://fasttext.cc/) documentation and related scientific papers for more information. 
 
 ## Examples
 

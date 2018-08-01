@@ -13,8 +13,8 @@ import zemberek.core.embeddings.SubWordHashProvider;
 
 public class FastTextClassifierTrainer {
 
-  public static final int DEFAULT_DIMENSION = 100;
-  public static final float DEFAULT_LR = 1f;
+  public static final int DEFAULT_DIMENSION = 50;
+  public static final float DEFAULT_LR = 0.2f;
   public static final int DEFAULT_EPOCH = 25;
   public static final int DEFAULT_MIN_WORD_COUNT = 1;
   public static final int DEFAULT_WORD_NGRAM = 1;
