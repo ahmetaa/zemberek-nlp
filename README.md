@@ -47,15 +47,16 @@ contains jar files for different versions.
 
 |  Module    | Maven Id |         |
 |------------|----------|---------|
-| [Core](core)                    | zemberek-core           | Core classes such as special Collection classes, Hash functions and helpers. |
+| [Core](core)                    | zemberek-core           | Special Collections, Hash functions and helpers. |
 | [Morphology](morphology)        | zemberek-morphology     | Turkish morphological analysis, disambiguation and word generation. |
 | [Tokenization](tokenization)    | zemberek-tokenization   | Turkish Tokenization and sentence boundary detection. |
-| [NER](ner)                      | zemberek-ner            | Provides basic spell checker and suggestion functions. |
+| [Normalization](normalization)  | zemberek-normalization  | Basic spell checker and word suggestion. |
+| [NER](ner)                      | zemberek-ner            | Turkish Named Entity Recognition. |
 | [Classification](classification)| zemberek-classification | Text classification based on Java port of fastText project. |
-| [Language Identification](lang-id)| zemberek-lang-id      | Allows fast identification of text language. |
-| [Language Modeling](lm)         | zemberek-lm             | Provides a language compression algorithm. |
+| [Language Identification](lang-id)| zemberek-lang-id      | Fast identification of text language. |
+| [Language Modeling](lm)         | zemberek-lm             | A language compression algorithm. |
 | [Applications](apps)            | zemberek-apps           | Console applications |
-| [Examples](examples)            | zemberek-examples       | Provides basic usage examples. |
+| [Examples](examples)            | zemberek-examples       | Usage examples. |
 
 ### Examples
 
