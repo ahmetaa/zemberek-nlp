@@ -106,11 +106,17 @@ For the set mentioned above, model size is reduced from 400 MB to 1MB.
 
 ### Performance and Speed
 
+According to the [1] fastText classification algorithm gives comparable results to alternative
+more complex systems of 2016. However, recent state of the art systems probably give better results. 
+
 Despite not using GPUs, original fastText library is very fast. Our Java port's speed is close to the C++ version. Training is multi-threaded. 
 For example, using 4 threads, news title set with 68365 samples and 442.000 tokens, training takes 
 about 20 seconds. Testing 1000 examples takes around 4.5 seconds with a single thread.
 
 Test system: 2.3 Ghz AMD FX-8320, Ubuntu Linux 16.04 LTS.
+
+[1] A. Joulin, E. Grave, P. Bojanowski, T. Mikolov,
+ [Bag of Tricks for Efficient Text Classification](https://arxiv.org/abs/1607.01759)
 
 ## Algorithm
 
