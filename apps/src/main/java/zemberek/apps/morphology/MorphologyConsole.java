@@ -1,30 +1,34 @@
-package zemberek.apps;
+package zemberek.apps.morphology;
 
-import java.io.IOException;
 import java.util.Scanner;
+import zemberek.apps.ConsoleApp;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 
-public class AmbiguityConsole {
+public class MorphologyConsole extends ConsoleApp {
 
-  public static void main(String[] args) throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
-        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES).build();
-    new AmbiguityConsole().run(morphology);
+  public static void main(String[] args) {
+    new MorphologyConsole().execute(args);
   }
 
-  public void run(TurkishMorphology morphology) {
+  @Override
+  public String description() {
+    return "Applies morphological analysis and disambiguation to user entries.";
+  }
+
+  @Override
+  public void run() {
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     String input;
-    System.out.println("Enter sentence:");
+    System.out.println("Enter word or sentence:");
     Scanner sc = new Scanner(System.in);
     input = sc.nextLine();
     while (!input.equals("exit") && !input.equals("quit")) {
 
-      if(input.trim().length()==0) {
+      if (input.trim().length() == 0) {
         System.out.println("Empty line cannot be processed.");
         input = sc.nextLine();
         continue;
@@ -52,5 +56,4 @@ public class AmbiguityConsole {
       input = sc.nextLine();
     }
   }
-
 }

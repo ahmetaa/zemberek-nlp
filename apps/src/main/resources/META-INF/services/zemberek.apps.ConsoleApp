@@ -1,3 +1,4 @@
+zemberek.apps.morphology.MorphologyConsole
 zemberek.apps.corpus.PreprocessTurkishCorpus
 zemberek.apps.fasttext.TrainFastTextClassifier
 zemberek.apps.fasttext.GenerateWordVectors
