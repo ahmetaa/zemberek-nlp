@@ -99,7 +99,7 @@ public class DistanceBasedStemmer {
 
   public void findStems(String str) {
     str = "<s> <s> " + str + " </s> </s>";
-    SentenceAnalysis analysis = morphology.analyzeAndResolveAmbiguity(str);
+    SentenceAnalysis analysis = morphology.analyzeAndDisambiguate(str);
     List<SentenceWordAnalysis> swaList = analysis.getWordAnalyses();
 
     for (int i = 2; i < analysis.size() - 2; i++) {

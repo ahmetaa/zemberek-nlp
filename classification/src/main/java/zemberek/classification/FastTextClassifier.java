@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.List;
 import zemberek.core.ScoredItem;
 import zemberek.core.embeddings.FastText;
+import zemberek.core.embeddings.FastText.EvaluationResult;
 
 public class FastTextClassifier {
 
@@ -26,8 +27,8 @@ public class FastTextClassifier {
     return new FastTextClassifier(fastText);
   }
 
-  public void evaluate(Path testPath, int k) throws IOException {
-    fastText.test(testPath, k);
+  public EvaluationResult evaluate(Path testPath, int k) throws IOException {
+    return fastText.test(testPath, k);
   }
 
   public List<ScoredItem<String>> predict(String input, int k) {

@@ -15,6 +15,7 @@ import zemberek.apps.fasttext.TrainFastTextClassifier;
 import zemberek.classification.FastTextClassifier;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.Histogram;
+import zemberek.core.embeddings.FastText.EvaluationResult;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;
@@ -161,7 +162,8 @@ public class NewsTitleCategoryFinder {
   private void test(Path testPath, Path predictionsPath, Path modelPath) throws IOException {
     FastTextClassifier classifier = FastTextClassifier.load(modelPath);
 
-    classifier.evaluate(testPath, 1);
+    EvaluationResult result = classifier.evaluate(testPath, 1);
+    Log.info(result.toString());
 
     List<String> testLines = Files.readAllLines(testPath, StandardCharsets.UTF_8);
     try (PrintWriter pw = new PrintWriter(predictionsPath.toFile(), "utf-8")) {

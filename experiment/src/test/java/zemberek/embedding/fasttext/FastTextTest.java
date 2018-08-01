@@ -1,5 +1,6 @@
 package zemberek.embedding.fasttext;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.Ignore;
@@ -7,6 +8,7 @@ import org.junit.Test;
 import zemberek.core.embeddings.Args;
 import zemberek.core.embeddings.EmbeddingHashProviders;
 import zemberek.core.embeddings.FastText;
+import zemberek.core.embeddings.FastText.EvaluationResult;
 import zemberek.core.embeddings.FastTextTrainer;
 import zemberek.core.logging.Log;
 
@@ -43,7 +45,8 @@ public class FastTextTest {
 
     Path testFile = inputRoot.resolve("dbpedia.test");
     Log.info("Testing started.");
-    fastText.test(testFile, 1);
+    EvaluationResult result = fastText.test(testFile, 1);
+    Log.info(result.toString());
   }
 
   /**
@@ -72,22 +75,26 @@ public class FastTextTest {
     FastText fastText = FastText.load(modelPath);
     //FastText fastText = FastText.train(trainFile, argz);
 
-
     fastText.saveModel(modelPath);
     Log.info("Testing started.");
-    fastText.test(testFile, 1);
+    test(fastText,testFile, 1);
     fastText = FastText.load(modelPath);
-    fastText.test(testFile, 1);
+    test(fastText,testFile, 1);
 
     argz.qnorm = false;
     argz.cutoff = 15000;
     fastText = fastText.quantize(modelPath, argz);
     fastText.saveModel(quantizedModelPath);
     Log.info("Testing quantization result.");
-    fastText.test(testFile,1);
+    test(fastText, testFile, 1);
     fastText = FastText.load(quantizedModelPath);
     Log.info("Testing after loading quantized model.");
-    fastText.test(testFile,1);
+    test(fastText,testFile, 1);
+  }
+
+  private void test(FastText f, Path testPath, int k) throws IOException {
+    EvaluationResult result = f.test(testPath, k);
+    Log.info(result.toString());
   }
 
   /**
@@ -117,24 +124,23 @@ public class FastTextTest {
 /*    if(modelPath.toFile().exists())
       fastText = FastText.load(modelPath);
     else*/
-      fastText = new FastTextTrainer(argz).train(trainFile);
-
+    fastText = new FastTextTrainer(argz).train(trainFile);
 
     fastText.saveModel(modelPath);
     Log.info("Testing started.");
-    fastText.test(testFile, 1);
+    test(fastText,testFile, 1);
     fastText = FastText.load(modelPath);
-    fastText.test(testFile, 1);
+    test(fastText,testFile, 1);
 
     argz.qnorm = false;
     argz.cutoff = 3000;
     fastText = fastText.quantize(modelPath, argz);
     fastText.saveModel(quantizedModelPath);
     Log.info("Testing quantization result.");
-    fastText.test(testFile,1);
+    test(fastText,testFile, 1);
     fastText = FastText.load(quantizedModelPath);
     Log.info("Testing after loading quantized model.");
-    fastText.test(testFile,1);
+    test(fastText,testFile, 1);
   }
 
   /**
@@ -150,7 +156,8 @@ public class FastTextTest {
     argz.bucket = 2_000_000;
     argz.minn = 3;
     argz.maxn = 6;
-    argz.subWordHashProvider = new EmbeddingHashProviders.CharacterNgramHashProvider(argz.minn, argz.maxn);
+    argz.subWordHashProvider = new EmbeddingHashProviders.CharacterNgramHashProvider(argz.minn,
+        argz.maxn);
 
     Path input = Paths.get("/home/ahmetaa/data/nlp/corpora/sentences.50k");
 

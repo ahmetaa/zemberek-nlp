@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.IntValueMap;
 import zemberek.core.dynamic.ActiveList;
-import zemberek.core.dynamic.ScoredItem;
+import zemberek.core.dynamic.Scorable;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
@@ -287,7 +287,7 @@ class PerceptronDisambiguatorPort extends AbstractDisambiguator {
         "Word count:" + total + " hit=" + hit + String.format(" Accuracy:%f", hit * 1.0 / total));
   }
 
-  static class Hypothesis implements ScoredItem {
+  static class Hypothesis implements Scorable {
 
     String prev; // previous word analysis result String
     String current; // current word analysis result String

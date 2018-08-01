@@ -18,6 +18,7 @@ import zemberek.core.ScoredItem;
 import zemberek.core.collections.Histogram;
 import zemberek.core.embeddings.Args;
 import zemberek.core.embeddings.FastText;
+import zemberek.core.embeddings.FastText.EvaluationResult;
 import zemberek.core.embeddings.FastTextTrainer;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.Turkish;
@@ -86,7 +87,8 @@ public class CategoryPredictionExperiment {
       fastText.saveModel(modelPath);
     }
 
-    fastText.test(test, 1);
+    EvaluationResult result = fastText.test(test, 1);
+    Log.info(result.toString());
 
     WebCorpus corpus = new WebCorpus("corpus", "labeled");
     corpus.addDocuments(WebCorpus.loadDocuments(corpusPath));
@@ -157,22 +159,22 @@ public class CategoryPredictionExperiment {
       String title = document.getTitle();
 
       String category = document.getCategory();
-      if(category.contains("CNN")||
-          category.contains("Güncel")||
-          category.contains("Euro 2016")||
-          category.contains("Yazarlar")||
+      if (category.contains("CNN") ||
+          category.contains("Güncel") ||
+          category.contains("Euro 2016") ||
+          category.contains("Yazarlar") ||
           category.contains("Ajanda")
 
           ) {
         continue;
       }
-      if(category.equals("İyilik Sağlık")) {
+      if (category.equals("İyilik Sağlık")) {
         category = "Sağlık";
       }
-      if(category.equals("Spor Diğer")) {
+      if (category.equals("Spor Diğer")) {
         category = "Spor";
       }
-      if(category.equals("İyilik Sağlık")) {
+      if (category.equals("İyilik Sağlık")) {
         category = "Sağlık";
       }
 
@@ -268,7 +270,7 @@ public class CategoryPredictionExperiment {
       }
 
       String join = String.join(" ", reduced);
-      if(join.trim().isEmpty()) {
+      if (join.trim().isEmpty()) {
         continue;
       }
 

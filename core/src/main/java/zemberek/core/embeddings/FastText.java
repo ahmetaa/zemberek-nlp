@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -15,7 +16,6 @@ import zemberek.core.ScoredItem;
 import zemberek.core.collections.IntVector;
 import zemberek.core.embeddings.Args.model_name;
 import zemberek.core.io.IOUtil;
-import zemberek.core.logging.Log;
 
 public class FastText {
 
@@ -272,13 +272,45 @@ public class FastText {
     return new FastText(args_, dict_, model_);
   }
 
-  public void test(Path in, int k) throws IOException {
-    test(in, k, -100f);
+  public EvaluationResult test(Path in, int k) throws IOException {
+    return test(in, k, -100f);
   }
 
-  void test(Path in, int k, float threshold) throws IOException {
+  public static class EvaluationResult {
+
+    public final float precision;
+    public final float recall;
+    public final int k;
+    public final int numberOfExamples;
+
+    public EvaluationResult(
+        float precision,
+        float recall,
+        int k,
+        int numberOfExamples) {
+      this.precision = precision;
+      this.recall = recall;
+      this.k = k;
+      this.numberOfExamples = numberOfExamples;
+    }
+
+    public void printTo(PrintStream stream) {
+      stream.println(toString());
+    }
+
+    @Override
+    public String toString() {
+      return String.format(
+          "P@%d: %.3f  R@%d: %.3f  Number of examples = %d",
+          k, precision,
+          k, recall,
+          numberOfExamples);
+    }
+  }
+
+  EvaluationResult test(Path in, int k, float threshold) throws IOException {
     int nexamples = 0, nlabels = 0;
-    double precision = 0.0;
+    float precision = 0.0f;
     String lineStr;
     BufferedReader reader = Files.newBufferedReader(in, StandardCharsets.UTF_8);
     while ((lineStr = reader.readLine()) != null) {
@@ -290,16 +322,17 @@ public class FastText {
 
         for (Model.FloatIntPair pair : modelPredictions) {
           if (labels.contains(pair.second)) {
-            precision += 1.0;
+            precision += 1.0f;
           }
         }
         nexamples++;
         nlabels += labels.size();
       }
     }
-    Log.info("P@%d: %.3f  R@%d: %.3f  Number of examples = %d",
-        k, precision / (k * nexamples),
-        k, precision / nlabels,
+    return new EvaluationResult(
+        precision / (k * nexamples),
+        precision / nlabels,
+        k,
         nexamples);
   }
 

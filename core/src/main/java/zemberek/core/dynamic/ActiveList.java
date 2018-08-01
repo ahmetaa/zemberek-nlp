@@ -4,14 +4,14 @@ import java.util.Iterator;
 
 /**
  * This is a special set like data structure that can be used in beam-search like algorithms.
- * It holds objects with a {@link ScoredItem} interface.
+ * It holds objects with a {@link Scorable} interface.
  *
  * When an object is added to the ActiveList, it checks if an equivalent object exists. If not,
  * object is placed in the data structure using linear probing. If an equivalent object exists
  * object with lower score is replaced with the the other one.
  * @param <T>
  */
-public class ActiveList<T extends ScoredItem> implements Iterable<T> {
+public class ActiveList<T extends Scorable> implements Iterable<T> {
 
   static float DEFAULT_LOAD_FACTOR = 0.65f;
 
@@ -35,7 +35,7 @@ public class ActiveList<T extends ScoredItem> implements Iterable<T> {
     while (k < size) {
       k <<= 1;
     }
-    items = (T[]) new ScoredItem[k];
+    items = (T[]) new Scorable[k];
     expandLimit = (int) (k * DEFAULT_LOAD_FACTOR);
     modulo = k - 1;
   }
@@ -56,7 +56,7 @@ public class ActiveList<T extends ScoredItem> implements Iterable<T> {
   private int locate(T t) {
     int slot = firstProbe(t.hashCode());
     while (true) {
-      final ScoredItem h = items[slot];
+      final Scorable h = items[slot];
       if (h == null) {
         return (-slot - 1);
       }

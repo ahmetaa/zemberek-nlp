@@ -12,7 +12,7 @@ import zemberek.core.data.CompressedWeights;
 import zemberek.core.data.WeightLookup;
 import zemberek.core.data.Weights;
 import zemberek.core.dynamic.ActiveList;
-import zemberek.core.dynamic.ScoredItem;
+import zemberek.core.dynamic.Scorable;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
@@ -330,7 +330,7 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
     }
   }
 
-  static class Hypothesis implements ScoredItem {
+  static class Hypothesis implements Scorable {
 
     SingleAnalysis prev; // previous word analysis result String
     SingleAnalysis current; // current word analysis result String

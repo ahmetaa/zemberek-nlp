@@ -288,21 +288,6 @@ public class TurkishMorphology {
       return this;
     }
 
-    /**
-     * Adds internal text dictionaries. This is used only for debugging and will throw exception in
-     * jar distributions as they only contain binary dictionaries.
-     *
-     * @return same builder instance
-     * @throws IOException I/O Error
-     * @deprecated this method will be removed in 0.15.0 because it causes confusion, use {@link
-     * #addDefaultBinaryDictionary()} or {@link #addTextDictionaryResources(String...)} instead.
-     */
-    public Builder addDefaultDictionaries() throws IOException {
-      return addTextDictionaryResources(
-          TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES.toArray(
-              new String[0]));
-    }
-
     public Builder addTextDictionaries(File... dictionaryFiles) throws IOException {
       List<String> lines = new ArrayList<>();
       for (File file : dictionaryFiles) {
