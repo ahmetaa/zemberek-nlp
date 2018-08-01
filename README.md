@@ -8,6 +8,21 @@ Latest version is 0.14.0 (June 30th 2018). [Change Log](CHANGELOG.md)
 
 Please read the [FAQ](https://github.com/ahmetaa/zemberek-nlp/wiki/FAQ) for common questions.
 
+## Modules
+
+|  Module    | Maven Id |         |
+|------------|----------|---------|
+| [Core](core)                    | zemberek-core           | Special Collections, Hash functions and helpers. |
+| [Morphology](morphology)        | zemberek-morphology     | Turkish morphological analysis, disambiguation and word generation. |
+| [Tokenization](tokenization)    | zemberek-tokenization   | Turkish Tokenization and sentence boundary detection. |
+| [Normalization](normalization)  | zemberek-normalization  | Basic spell checker and word suggestion. |
+| [NER](ner)                      | zemberek-ner            | Turkish Named Entity Recognition. |
+| [Classification](classification)| zemberek-classification | Text classification based on Java port of fastText project. |
+| [Language Identification](lang-id)| zemberek-lang-id      | Fast identification of text language. |
+| [Language Modeling](lm)         | zemberek-lm             | A language compression algorithm. |
+| [Applications](apps)            | zemberek-apps           | Console applications |
+| [Examples](examples)            | zemberek-examples       | Usage examples. |
+
 ## Usage
 
 ### Maven
@@ -42,21 +57,6 @@ contains jar files for different versions.
 [**zemberek-all-VERSION.jar**] contains all zemberek modules. [**dependencies**] folder contains other dependencies such as Google Guava.
 
 [**zemberek-with-dependencies-VERSION.jar**] is a single jar that contains all modules and dependencies.
-
-## Modules
-
-|  Module    | Maven Id |         |
-|------------|----------|---------|
-| [Core](core)                    | zemberek-core           | Special Collections, Hash functions and helpers. |
-| [Morphology](morphology)        | zemberek-morphology     | Turkish morphological analysis, disambiguation and word generation. |
-| [Tokenization](tokenization)    | zemberek-tokenization   | Turkish Tokenization and sentence boundary detection. |
-| [Normalization](normalization)  | zemberek-normalization  | Basic spell checker and word suggestion. |
-| [NER](ner)                      | zemberek-ner            | Turkish Named Entity Recognition. |
-| [Classification](classification)| zemberek-classification | Text classification based on Java port of fastText project. |
-| [Language Identification](lang-id)| zemberek-lang-id      | Fast identification of text language. |
-| [Language Modeling](lm)         | zemberek-lm             | A language compression algorithm. |
-| [Applications](apps)            | zemberek-apps           | Console applications |
-| [Examples](examples)            | zemberek-examples       | Usage examples. |
 
 ### Examples
 
