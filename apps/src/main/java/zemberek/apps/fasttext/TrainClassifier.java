@@ -3,6 +3,7 @@ package zemberek.apps.fasttext;
 import com.beust.jcommander.Parameter;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import zemberek.classification.FastTextClassifier;
 import zemberek.classification.FastTextClassifierTrainer;
 import zemberek.classification.FastTextClassifierTrainer.LossType;
@@ -101,7 +102,9 @@ public class TrainClassifier extends FastTextAppBase {
       if (cutOff > 0) {
         Log.info("Quantization dictionary cut-off value = %d", cutOff);
       }
-      Path quantizedModel = output.getParent().resolve(output.toFile().getName() + ".q");
+      Path parent = output.getParent();
+      String name = output.toFile().getName() + ".q";
+      Path quantizedModel = parent == null ? Paths.get(name) : parent.resolve(name);
       Log.info("Saving quantized classification model to %s", quantizedModel);
       FastText quantized = fastText.quantize(output, fastText.getArgs());
       quantized.saveModel(quantizedModel);

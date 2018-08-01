@@ -33,10 +33,13 @@ public class NewsTitleCategoryFinder {
     NewsTitleCategoryFinder experiment = new NewsTitleCategoryFinder();
     // Download data set `news-title-category-set`
     // from https://drive.google.com/drive/folders/1JBPExAeRctAXL2oGW2U6CbqfwIJ84BG7
-    String set = "/home/ahmetaa/data/zemberek/news-title-category-set";
+    String set = "news-title-category-set";
 
     Path dataPath = Paths.get(set);
     Path root = dataPath.getParent();
+    if (root == null) {
+      root = Paths.get("");
+    }
     List<String> lines = Files.readAllLines(dataPath, StandardCharsets.UTF_8);
     String name = dataPath.toFile().getName();
     experiment.dataInfo(lines);
@@ -131,6 +134,9 @@ public class NewsTitleCategoryFinder {
     // Create training and test sets.
     List<String> lines = Files.readAllLines(set, StandardCharsets.UTF_8);
     Path root = set.getParent();
+    if (root == null) {
+      root = Paths.get("");
+    }
     String name = set.toFile().getName();
 
     Path train = root.resolve(name + ".train");
@@ -149,7 +155,7 @@ public class NewsTitleCategoryFinder {
           "--epochCount", "50",
           "--wordNGrams", "2",
           "--applyQuantization",
-          "--cutOff", "15000"
+          "--cutOff", "25000"
       );
     }
     Log.info("Testing...");

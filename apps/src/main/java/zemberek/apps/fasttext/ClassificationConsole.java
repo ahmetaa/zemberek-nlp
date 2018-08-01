@@ -71,7 +71,7 @@ public class ClassificationConsole extends ConsoleApp {
         continue;
       }
 
-      String processed = "";
+      String processed;
       if (preprocessor == Preprocessor.TOKENIZED) {
         processed = String.join(" ", TurkishTokenizer.DEFAULT.tokenizeToStrings(input));
       } else {
@@ -101,20 +101,9 @@ public class ClassificationConsole extends ConsoleApp {
 
   private String replaceWordsWithLemma(String sentence) {
 
-    List<String> tokens = Splitter.on(" ").splitToList(sentence);
-
-    // check if first token is a label
-    String label = tokens.get(0);
-    if (label.startsWith("__label__")) {
-      tokens = tokens.subList(1, tokens.size());
-    }
-
-    sentence = String.join(" ", tokens);
-
     SentenceAnalysis analysis = morphology.analyzeAndDisambiguate(sentence);
     List<String> res = new ArrayList<>();
-    // add label first.
-    res.add(label);
+
     for (SentenceWordAnalysis e : analysis) {
       SingleAnalysis best = e.getBestAnalysis();
       if (best.isUnknown()) {
