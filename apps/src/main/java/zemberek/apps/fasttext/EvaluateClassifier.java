@@ -6,7 +6,7 @@ import zemberek.apps.ConsoleApp;
 import zemberek.core.embeddings.FastText;
 import zemberek.core.embeddings.FastText.EvaluationResult;
 
-public class EvaluateFasttextClassifier extends ConsoleApp {
+public class EvaluateClassifier extends ConsoleApp {
 
   @Parameter(names = {"--input", "-i"},
       required = true,
@@ -18,6 +18,10 @@ public class EvaluateFasttextClassifier extends ConsoleApp {
       description = "Model file.")
   Path model;
 
+  @Parameter(names = {"--predictionCount", "-k"},
+      description = "Amount of top predictions.")
+  int predictionCount = 1;
+
   @Override
   public String description() {
     return "Evaluates classifier with a test set.";
@@ -26,7 +30,7 @@ public class EvaluateFasttextClassifier extends ConsoleApp {
   @Override
   public void run() throws Exception {
     FastText fastText = FastText.load(model);
-    EvaluationResult result = fastText.test(input, 1);
+    EvaluationResult result = fastText.test(input, predictionCount);
     System.out.println(result.toString());
   }
 }

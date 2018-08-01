@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
-import zemberek.apps.fasttext.TrainFastTextClassifier;
+import zemberek.apps.fasttext.TrainClassifier;
 import zemberek.classification.FastTextClassifier;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.Histogram;
@@ -33,7 +33,7 @@ public class NewsTitleCategoryFinder {
     NewsTitleCategoryFinder experiment = new NewsTitleCategoryFinder();
     // Download data set `news-title-category-set`
     // from https://drive.google.com/drive/folders/1JBPExAeRctAXL2oGW2U6CbqfwIJ84BG7
-    String set = "/media/ahmetaa/depo/zemberek/data/classification/news-title-category-set";
+    String set = "/home/ahmetaa/data/zemberek/news-title-category-set";
 
     Path dataPath = Paths.get(set);
     Path root = dataPath.getParent();
@@ -142,7 +142,7 @@ public class NewsTitleCategoryFinder {
     //Create model if it does not exist.
     Path modelPath = root.resolve(name + ".model");
     if (!modelPath.toFile().exists()) {
-      new TrainFastTextClassifier().execute(
+      new TrainClassifier().execute(
           "-i", train.toString(),
           "-o", modelPath.toString(),
           "--learningRate", "0.1",

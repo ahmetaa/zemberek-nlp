@@ -9,7 +9,7 @@ import zemberek.classification.FastTextClassifierTrainer.LossType;
 import zemberek.core.embeddings.FastText;
 import zemberek.core.logging.Log;
 
-public class TrainFastTextClassifier extends FastTextAppBase {
+public class TrainClassifier extends FastTextAppBase {
 
   @Parameter(names = {"--input", "-i"},
       required = true,
@@ -109,6 +109,6 @@ public class TrainFastTextClassifier extends FastTextAppBase {
   }
 
   public static void main(String[] args) {
-    new TrainFastTextClassifier().execute(args);
+    new TrainClassifier().execute(args);
   }
 }
