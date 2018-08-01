@@ -5,7 +5,7 @@ CHANGE LOG
 
 #### New features 
 
-Initial release of **classification** module. Classification module is based on  based on Java port of [fastText](https://fasttext.cc/) project.
+Initial release of **classification** module. Classification module is based on Java port of [fastText](https://fasttext.cc/) project.
 Refer to the [documentation](classification) for more information. There are two usage examples in 
 [examples](https://github.com/ahmetaa/zemberek-nlp/tree/master/examples/src/main/java/zemberek/examples/classification) module. 
 

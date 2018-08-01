@@ -113,8 +113,8 @@ Test system: 2.3 Ghz AMD FX-8320, Ubuntu Linux 16.04 LTS.
 
 ## Algorithm
 
-As mentioned before, classification algorithm is based on a port of [fastText](https://fasttext.cc/) project.
-Please refer to the fastText documentation and related scientific papers for more information. 
+As mentioned before, classification algorithm is based on a port of fastText project.
+Please refer to the project(https://fasttext.cc/) documentation and related scientific papers for more information. 
 
 ## Examples
 
