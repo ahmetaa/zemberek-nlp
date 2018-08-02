@@ -2,7 +2,6 @@ package zemberek.examples.classification;
 
 import com.google.common.base.Splitter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,10 +12,7 @@ import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import zemberek.apps.fasttext.EvaluateClassifier;
 import zemberek.apps.fasttext.TrainClassifier;
-import zemberek.classification.FastTextClassifier;
-import zemberek.core.ScoredItem;
 import zemberek.core.collections.Histogram;
-import zemberek.core.embeddings.FastText.EvaluationResult;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;
@@ -34,6 +30,7 @@ public class NewsTitleCategoryFinder {
     NewsTitleCategoryFinder experiment = new NewsTitleCategoryFinder();
     // Download data set `news-title-category-set`
     // from https://drive.google.com/drive/folders/1JBPExAeRctAXL2oGW2U6CbqfwIJ84BG7
+    // and change the line below.
     String set = "/home/aaa/data/zemberek/classification/news-title-category-set";
 
     Path dataPath = Paths.get(set);

@@ -4,7 +4,7 @@ Zemberek-NLP
 Zemberek-NLP provides basic Natural Language Processing tools for Turkish.
 Please note that **all code and APIs are subject to change until version 1.0.0**
 
-Latest version is 0.14.0 (June 30th 2018). [Change Log](CHANGELOG.md)
+Latest version is 0.15.0 (August 2nd 2018). [Change Log](CHANGELOG.md)
 
 Please read the [FAQ](https://github.com/ahmetaa/zemberek-nlp/wiki/FAQ) for common questions.
 
@@ -43,7 +43,7 @@ And dependencies (For example morphology):
         <dependency>
             <groupId>zemberek-nlp</groupId>
             <artifactId>zemberek-morphology</artifactId>
-            <version>0.14.0</version>
+            <version>0.15.0</version>
         </dependency>
     </dependencies>
 
@@ -53,7 +53,7 @@ And dependencies (For example morphology):
 
 [**module-jars**] folder contain all zemberek modules as separate jar files. 
 
-[**zemberek-all-VERSION.jar**] contains all zemberek modules. [**dependencies**] folder contains other dependencies such as Google Guava.
+[**zemberek-all-0.15.0.jar**] contains all zemberek modules. [**dependencies**] folder contains other dependencies such as Google Guava.
 
 [**zemberek-full.jar**] is a single jar that contains all modules and dependencies.
 

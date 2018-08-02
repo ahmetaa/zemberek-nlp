@@ -1,7 +1,7 @@
 CHANGE LOG
 ==========
 
-## 0.15.0 (Not yet released)
+## 0.15.0
 
 #### New features 
 
