@@ -7,7 +7,9 @@ CHANGE LOG
 
 Initial release of **classification** module. Classification module is based on Java port of [fastText](https://fasttext.cc/) project.
 Refer to the [documentation](classification) for more information. There are two usage examples in 
-[examples](https://github.com/ahmetaa/zemberek-nlp/tree/master/examples/src/main/java/zemberek/examples/classification) module. 
+[examples](https://github.com/ahmetaa/zemberek-nlp/tree/master/examples/src/main/java/zemberek/examples/classification) module.
+There is also a Turkish [wiki page](https://github.com/ahmetaa/zemberek-nlp/wiki/Zemberek-NLP-ile-Metin-S%C4%B1n%C4%B1fland%C4%B1rma)
+ on generating and evaluating classifier for Turkish news headline categories. 
 
 There is now a single jar containing all dependencies named `zemberek-full.jar`. 
 
