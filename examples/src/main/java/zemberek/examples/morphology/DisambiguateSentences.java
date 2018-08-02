@@ -13,7 +13,7 @@ public class DisambiguateSentences {
 
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
-    String sentence = "Yabancılar ddkunmasın diye.";
+    String sentence = "Bol baharatlı bir yemek yaptıralım.";
     Log.info("Sentence  = " + sentence);
     List<WordAnalysis> analyses = morphology.analyzeSentence(sentence);
 
