@@ -19,7 +19,7 @@ Please read the [FAQ](https://github.com/ahmetaa/zemberek-nlp/wiki/FAQ) for comm
 | [NER](ner)                      | zemberek-ner            | Turkish Named Entity Recognition. |
 | [Classification](classification)| zemberek-classification | Text classification based on Java port of fastText project. |
 | [Language Identification](lang-id)| zemberek-lang-id      | Fast identification of text language. |
-| [Language Modeling](lm)         | zemberek-lm             | A language compression algorithm. |
+| [Language Modeling](lm)         | zemberek-lm             | Provides a language model compression algorithm. |
 | [Applications](apps)            | zemberek-apps           | Console applications |
 | [Examples](examples)            | zemberek-examples       | Usage examples. |
 
