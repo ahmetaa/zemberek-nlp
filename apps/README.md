@@ -1,4 +1,4 @@
-Zemberek Applications
+Applications
 ============
 
 ## Introduction
@@ -7,7 +7,7 @@ This module contains console applications that can be run from the terminal.
 
 ## Running applications
 
-Easiest way to run the applications is to use zemberek jar file with dependencies.
+Easiest way to run the applications is to use jar file with dependencies.
 
     java -jar zemberek-full.jar
     

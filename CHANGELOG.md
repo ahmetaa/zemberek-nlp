@@ -9,7 +9,7 @@ Initial release of **classification** module. Classification module is based on 
 Refer to the [documentation](classification) for more information. There are two usage examples in 
 [examples](https://github.com/ahmetaa/zemberek-nlp/tree/master/examples/src/main/java/zemberek/examples/classification) module. 
 
-There is now a single jar containing all dependencies. 
+There is now a single jar containing all dependencies named `zemberek-full.jar`. 
 
 Initial release of **apps** module. All console applications will be in this module. When 
 zemberek-full.jar is run directly, a catalogue of available applications are listed. They 
@@ -47,7 +47,7 @@ Tokenizer will handle ellipsis `…` character correctly.
 
 There is also word vector generation functionality but it is not yet documented.
 
-There are more grpc services available but moule is not yet ready for release.       
+There are more grpc services available but module is not yet ready for release.       
 
 ## 0.14.0
 

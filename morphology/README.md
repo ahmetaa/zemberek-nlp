@@ -4,7 +4,7 @@ Turkish Morphology
 ## Morphology
 
 Turkish is a morphologically rich language. 
-Zemberek provides morphological analysis, morphological ambiguity resolution and word generation functions.
+Project provides morphological analysis, morphological ambiguity resolution and word generation functions.
 
 ## Maven Usage
  
