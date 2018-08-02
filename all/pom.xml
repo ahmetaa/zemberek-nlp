@@ -5,7 +5,7 @@
   <parent>
     <artifactId>zemberek-nlp</artifactId>
     <groupId>zemberek-nlp</groupId>
-    <version>0.15.0-SNAPSHOT</version>
+    <version>0.15.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -25,7 +25,8 @@
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
-          <!-- MainClass in mainfest make a executable jar -->
+          <finalName>zemberek-full</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
           <archive>
             <manifest>
               <mainClass>zemberek.apps.ApplicationRunner</mainClass>

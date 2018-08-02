@@ -9,7 +9,7 @@ This module contains console applications that can be run from the terminal.
 
 Easiest way to run the applications is to use zemberek jar file with dependencies.
 
-    java -jar zemberek-with-dependencies.jar
+    java -jar zemberek-full.jar
     
 This will print available applications. Output may look like this:     
 
@@ -28,5 +28,5 @@ This will print available applications. Output may look like this:
 
 For running any application, add the name to the previous command:
 
-    java -jar zemberek-with-dependencies.jar MorphologyConsole
+    java -jar zemberek-full.jar MorphologyConsole
 

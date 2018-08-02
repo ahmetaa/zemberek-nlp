@@ -7,7 +7,7 @@
   <groupId>zemberek-nlp</groupId>
   <artifactId>zemberek-nlp</artifactId>
   <packaging>pom</packaging>
-  <version>0.15.0-SNAPSHOT</version>
+  <version>0.15.0</version>
 
   <modules>
     <module>core</module>
@@ -18,7 +18,8 @@
     <module>experiment</module>
     <module>lang-id</module>
     <module>grpc</module>
-    <module>server</module>
+    <!-- disable server modules for the time being.-->
+    <!--<module>server</module>-->
     <module>normalization</module>
     <module>examples</module>
     <module>ner</module>
@@ -71,9 +72,11 @@
         <artifactId>protobuf-maven-plugin</artifactId>
         <version>0.5.1</version>
         <configuration>
-          <protocArtifact>com.google.protobuf:protoc:3.5.1-1:exe:${os.detected.classifier}</protocArtifact>
+          <protocArtifact>com.google.protobuf:protoc:3.5.1-1:exe:${os.detected.classifier}
+          </protocArtifact>
           <pluginId>grpc-java</pluginId>
-          <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.11.0:exe:${os.detected.classifier}</pluginArtifact>
+          <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.11.0:exe:${os.detected.classifier}
+          </pluginArtifact>
         </configuration>
         <extensions>true</extensions>
         <executions>
@@ -83,7 +86,8 @@
               <goal>test-compile</goal>
             </goals>
             <configuration>
-              <protocArtifact>com.google.protobuf:protoc:3.4.0:exe:${os.detected.classifier}</protocArtifact>
+              <protocArtifact>com.google.protobuf:protoc:3.4.0:exe:${os.detected.classifier}
+              </protocArtifact>
             </configuration>
           </execution>
         </executions>
@@ -154,7 +158,7 @@
             <configuration>
               <outputDirectory>../dependencies</outputDirectory>
               <overWriteIfNewer>true</overWriteIfNewer>
-              <excludeTransitive>true</excludeTransitive>
+              <!--<excludeTransitive>true</excludeTransitive>-->
               <excludeGroupIds>
                 junit,org.hamcrest,org.mockito,org.powermock,${project.groupId},server,examples,experiment,all
               </excludeGroupIds>

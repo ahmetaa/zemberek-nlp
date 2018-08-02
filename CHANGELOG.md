@@ -15,7 +15,7 @@ Initial release of **apps** module. All console applications will be in this mod
 zemberek jar with dependencies is run directly, a catalogue of available applications are listed. They 
 can be run directly bt the Class name without the package name. For example:
 
-     java -jar zemberek-with-deps.jar TrainFastTextClassifier
+     java -jar zemberek-full.jar TrainFastTextClassifier
      
 will run the TrainFastTextClassifier application and list available parameters.
 

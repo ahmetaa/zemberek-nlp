@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
+import zemberek.apps.fasttext.EvaluateClassifier;
 import zemberek.apps.fasttext.TrainClassifier;
 import zemberek.classification.FastTextClassifier;
 import zemberek.core.ScoredItem;
@@ -33,7 +34,7 @@ public class NewsTitleCategoryFinder {
     NewsTitleCategoryFinder experiment = new NewsTitleCategoryFinder();
     // Download data set `news-title-category-set`
     // from https://drive.google.com/drive/folders/1JBPExAeRctAXL2oGW2U6CbqfwIJ84BG7
-    String set = "news-title-category-set";
+    String set = "/home/aaa/data/zemberek/classification/news-title-category-set";
 
     Path dataPath = Paths.get(set);
     Path root = dataPath.getParent();
@@ -81,7 +82,6 @@ public class NewsTitleCategoryFinder {
         .collect(Collectors.toList());
     Files.write(tokenizedPath, tokenized);
   }
-
 
   private String replaceWordsWithLemma(String sentence) {
 
@@ -165,26 +165,13 @@ public class NewsTitleCategoryFinder {
     test(testPath, root.resolve(name + ".predictions.q"), root.resolve(name + ".model.q"));
   }
 
-  private void test(Path testPath, Path predictionsPath, Path modelPath) throws IOException {
-    FastTextClassifier classifier = FastTextClassifier.load(modelPath);
-
-    EvaluationResult result = classifier.evaluate(testPath, 1);
-    Log.info(result.toString());
-
-    List<String> testLines = Files.readAllLines(testPath, StandardCharsets.UTF_8);
-    try (PrintWriter pw = new PrintWriter(predictionsPath.toFile(), "utf-8")) {
-      for (String testLine : testLines) {
-        List<ScoredItem<String>> res = classifier.predict(testLine, 3);
-        List<String> predictedCategories = new ArrayList<>();
-        for (ScoredItem<String> re : res) {
-          predictedCategories.add(String.format("%s (%.6f)",
-              re.item.replaceAll("__label__", "").replaceAll("_", " "), re.score));
-        }
-        pw.println(testLine);
-        pw.println("Predictions   = " + String.join(", ", predictedCategories));
-        pw.println();
-      }
-    }
+  private void test(Path testPath, Path predictionsPath, Path modelPath) {
+    new EvaluateClassifier().execute(
+        "-i", testPath.toString(),
+        "-m", modelPath.toString(),
+        "-o", predictionsPath.toString(),
+        "-k", "1"
+    );
   }
 
   void dataInfo(List<String> lines) {

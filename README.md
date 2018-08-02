@@ -56,7 +56,7 @@ contains jar files for different versions.
 
 [**zemberek-all-VERSION.jar**] contains all zemberek modules. [**dependencies**] folder contains other dependencies such as Google Guava.
 
-[**zemberek-with-dependencies-VERSION.jar**] is a single jar that contains all modules and dependencies.
+[**zemberek-full.jar**] is a single jar that contains all modules and dependencies.
 
 ### Examples
 
