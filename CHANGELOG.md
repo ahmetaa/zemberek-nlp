@@ -11,9 +11,9 @@ Refer to the [documentation](classification) for more information. There are two
 
 There is now a single jar containing all dependencies. 
 
-Initial release of **apps** module. All console applications will be in this module. When  
-zemberek jar with dependencies is run directly, a catalogue of available applications are listed. They 
-can be run directly bt the Class name without the package name. For example:
+Initial release of **apps** module. All console applications will be in this module. When 
+zemberek-full.jar is run directly, a catalogue of available applications are listed. They 
+can be run directly bt the class name without the package name. For example:
 
      java -jar zemberek-full.jar TrainFastTextClassifier
      
