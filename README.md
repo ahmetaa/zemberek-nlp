@@ -49,8 +49,7 @@ And dependencies (For example morphology):
 
 ### Jar distributions
 
-[Google drive page](https://drive.google.com/#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8) page 
-contains jar files for different versions. 
+[Google drive page](https://drive.google.com/#folders/0B9TrB39LQKZWSjNKdVcwWUxxUm8) contains jar files for different versions. 
 
 [**module-jars**] folder contain all zemberek modules as separate jar files. 
 
