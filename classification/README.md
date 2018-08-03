@@ -1,4 +1,4 @@
-Text Classification (Not Yet Released)
+Text Classification
 ============
 
 ## Introduction
@@ -129,4 +129,7 @@ There are two examples in [examples](https://github.com/ahmetaa/zemberek-nlp/tre
 **NewsTitleCategoryFinder** generates different classification models from Turkish news title category
  data set and evaluates.
  
- **SimpleClassification** shown how to make category prediction in runtime.  
+ **SimpleClassification** shown how to make category prediction in runtime.
+ 
+ There is also a Turkish [wiki page](https://github.com/ahmetaa/zemberek-nlp/wiki/Zemberek-NLP-ile-Metin-S%C4%B1n%C4%B1fland%C4%B1rma)
+  on generating and evaluating classifier for Turkish news headline categories.  

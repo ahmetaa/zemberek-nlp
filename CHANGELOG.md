@@ -1,7 +1,7 @@
 CHANGE LOG
 ==========
 
-## 0.15.0 (Not yet released)
+## 0.15.0
 
 #### New features 
 
@@ -17,7 +17,7 @@ Initial release of **apps** module. All console applications will be in this mod
 zemberek-full.jar is run directly, a catalogue of available applications are listed. They 
 can be run directly bt the class name without the package name. For example:
 
-     java -jar zemberek-full.jar TrainFastTextClassifier
+     java -jar zemberek-full.jar TrainClassifier
      
 will run the TrainFastTextClassifier application and list available parameters.
 
