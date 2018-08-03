@@ -46,7 +46,7 @@ However, it is usually suggested to preprocess the training set. Otherwise, for 
 Training can be done with a console application or with the API. Using console application is easy.
 Use zemberek with dependencies jar: 
 
-    java -jar zemberek-full.jar TrainFastTextClassifier \ 
+    java -jar zemberek-full.jar TrainClassifier \ 
      -i news-title-category-set \
      -o news-title-category-set.model \
      --learningRate 0.1 \
@@ -91,7 +91,7 @@ dramatically with small performance loss.
 
 For generating quantized models, `--applyQuantization` and `--cutOff` can be used. For example: 
 
-    java -jar zemberek-full.jar TrainFastTextClassifier \ 
+    java -jar zemberek-full.jar TrainClassifier \ 
      -i news-title-set \
      -o news-title.model \
      --learningRate 0.1 \
