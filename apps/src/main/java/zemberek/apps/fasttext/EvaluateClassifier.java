@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import zemberek.apps.ConsoleApp;
@@ -50,7 +51,7 @@ public class EvaluateClassifier extends ConsoleApp {
 
     if (predictions == null) {
       String name = input.toFile().getName();
-      predictions = input.toFile().getParentFile().toPath().resolve(name + ".predictions");
+      predictions = Paths.get("").resolve(name + ".predictions");
     }
 
     List<String> testLines = Files.readAllLines(input, StandardCharsets.UTF_8);
