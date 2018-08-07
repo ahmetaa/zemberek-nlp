@@ -5,7 +5,7 @@ Text Classification
 
 Text classification can be used in several NLP tasks such as document classification, sentiment analysis or spam detection.   
 
-Zemberek-NLP provides a simple text classification module based on Java port of [fastText](https://fasttext.cc/) project.
+Zemberek-NLP provides a simple text classification module based on our Java port of [fastText](https://fasttext.cc/) project.
 
 ## Generating a Classification Model 
 
