@@ -57,6 +57,11 @@ And dependencies (For example morphology):
 
 [**zemberek-full.jar**] is a single jar that contains all modules and dependencies.
 
+### For Develpoers 
+
+[Here](https://github.com/ahmetaa/zemberek-nlp/wiki/Zemberek-For-Developers) information about 
+how to compile the code and generate jar file from the project is explained. 
+
 ### Examples
 
 There is an [examples](examples) module in the code for usage examples.
