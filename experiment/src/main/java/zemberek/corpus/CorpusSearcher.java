@@ -30,7 +30,6 @@ public class CorpusSearcher {
     IndexSearcher searcher = new IndexSearcher(reader);
     Analyzer analyzer = CustomAnalyzer.builder()
         .withTokenizer("standard")
-        .addTokenFilter(LuceneLemmaFilter.Factory.class)
         .build();
     QueryParser parser = new QueryParser("content", analyzer);
     Query query = parser.parse(queryStr);
@@ -48,7 +47,7 @@ public class CorpusSearcher {
     Path indexRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpus-index-lemma");
     CorpusSearcher searcher = new CorpusSearcher(indexRoot);
 
-    List<String> hits = searcher.search("\"kafa ye\"", 1000);
+    List<String> hits = searcher.search("\"şart koş\"", 1000);
 
     hits.forEach(System.out::println);
 

@@ -18,7 +18,7 @@ import zemberek.morphology.morphotactics.SuffixTransition;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
 /**
- * This is a Morphological Analysis implementation. Instances of this class are not thread safe
+ * This is a Morphological Analyser implementation. Instances of this class are not thread safe
  * if instantiated with forDebug() factory constructor method.
  */
 public class InterpretingAnalyzer {
