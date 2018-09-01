@@ -64,7 +64,7 @@ public class LuceneLemmaFilterTest {
   @Test
   public void testMultiWordSearch() throws IOException, ParseException {
 
-    Query query = parser.parse("limon kek");
+    Query query = parser.parse("\"limon kek\"");
     TopDocs hits = searcher.search(query, 10);
     Assert.assertEquals(1, hits.totalHits);
   }

@@ -17,7 +17,7 @@ import zemberek.morphology.analysis.WordAnalysis;
 
 public class LuceneLemmaFilter extends TokenFilter {
 
-  Deque<String> lemmas = new ArrayDeque<>();
+  private Deque<String> lemmas = new ArrayDeque<>();
 
   private AttributeSource.State current;
   private final CharTermAttribute termAttribute = addAttribute(CharTermAttribute.class);
@@ -62,8 +62,8 @@ public class LuceneLemmaFilter extends TokenFilter {
   private boolean addLemmas() {
     String word = termAttribute.toString();
     WordAnalysis analysis = morphology.analyze(word);
-    Set<String> l = new HashSet<>();
-    l.add(word);
+    Set<String> l = new HashSet<>(5);
+    //l.add(word);
     analysis.forEach(s -> l.addAll(s.getLemmas()));
     lemmas = new ArrayDeque<>(l);
     return true;
