@@ -340,9 +340,12 @@ public class TurkishMorphotactics {
 
   //-------------- Conditions ------------------------------
 
-  private RootLexicon lexicon;
+  protected RootLexicon lexicon;
 
   StemTransitions stemTransitions;
+
+  protected TurkishMorphotactics() {
+  }
 
   private static Morpheme addMorpheme(Morpheme morpheme) {
     morphemeMap.put(morpheme.id, morpheme);
@@ -386,7 +389,7 @@ public class TurkishMorphotactics {
     this.stemTransitions = new StemTransitionsMapBased(lexicon, this);
   }
 
-  private void makeGraph() {
+  protected void makeGraph() {
     mapSpecialItemsToRootStates();
     connectNounStates();
     connectProperNounsAndAbbreviations();
