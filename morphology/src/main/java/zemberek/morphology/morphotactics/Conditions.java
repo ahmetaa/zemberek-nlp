@@ -582,6 +582,10 @@ class Conditions {
     }
   }
 
+  public static Condition lastDerivationIs(MorphemeState state) {
+    return new LastDerivationIs(state);
+  }
+
   public static class LastDerivationIs extends AbstractCondition {
 
     MorphemeState state;

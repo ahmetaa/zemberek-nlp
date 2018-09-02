@@ -1,6 +1,7 @@
 package zemberek.morphology.morphotactics;
 
 import static zemberek.morphology.morphotactics.Conditions.has;
+import static zemberek.morphology.morphotactics.Conditions.lastDerivationIs;
 import static zemberek.morphology.morphotactics.Conditions.not;
 import static zemberek.morphology.morphotactics.Conditions.notHave;
 import static zemberek.morphology.morphotactics.Conditions.previousStateIs;
@@ -1778,8 +1779,7 @@ public class TurkishMorphotactics {
         .addEmpty(vA3sg_ST)
         .add(vA1pl_ST, "uz")
         .add(vA2pl_ST, "sunuz")
-        .add(vA3pl_ST, "lar");
-    vProgYor_S
+        .add(vA3pl_ST, "lar")
         .add(vCond_S, "sa")
         .add(vPastAfterTense_S, "du")
         .add(vNarrAfterTense_S, "muş")
@@ -1794,8 +1794,7 @@ public class TurkishMorphotactics {
         .addEmpty(vA3sg_ST)
         .add(vA1pl_ST, "yIz")
         .add(vA2pl_ST, "sInIz")
-        .add(vA3pl_ST, "lAr");
-    vProgMakta_S
+        .add(vA3pl_ST, "lAr")
         .add(vCond_S, "ysA")
         .add(vPastAfterTense_S, "ydI")
         .add(vNarrAfterTense_S, "ymIş")
@@ -1816,8 +1815,7 @@ public class TurkishMorphotactics {
         .addEmpty(vA3sg_ST)
         .add(vA1pl_ST, "Iz")
         .add(vA2pl_ST, "sInIz")
-        .add(vA3pl_ST, "lAr");
-    vAor_S
+        .add(vA3pl_ST, "lAr")
         .add(vPastAfterTense_S, "dI")
         .add(vNarrAfterTense_S, "mIş")
         .add(vCond_S, "sA")
@@ -1889,7 +1887,7 @@ public class TurkishMorphotactics {
 
     //Positive Ability.
     // This makes a Verb-Verb derivation.
-    verbRoot_S.add(vAble_S, "+yAbil", new Conditions.LastDerivationIs(vAble_S).not());
+    verbRoot_S.add(vAble_S, "+yAbil", lastDerivationIs(vAble_S).not());
 
     vAble_S.addEmpty(verbRoot_S);
 

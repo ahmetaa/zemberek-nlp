@@ -22,6 +22,8 @@ public class SpokenTurkishMorphotactics extends TurkishMorphotactics {
   MorphemeState vProgYor_S_Fake = fakeNonTerminal("vProgYor_S_Fake", prog1);
   MorphemeState vFut_S_Fake = fakeNonTerminal("vFut_S", fut);
 
+  MorphemeState vQues_S_Fake = fakeNonTerminal("vQues_S_Fake", ques);
+
   void addGraph() {
 
     // yap-ıyo
@@ -44,12 +46,18 @@ public class SpokenTurkishMorphotactics extends TurkishMorphotactics {
 
     RootSurfaceIsAny diYiCondition = new RootSurfaceIsAny("di", "yi");
     vDeYeRoot_S
-        .add(vProgYor_S, "yor", diYiCondition);
+        .add(vProgYor_S, "yo", diYiCondition);
 
     // yap-a-k
 
     vOpt_S
         .add(vA1pl_ST_Fake,"Ak");
+
+    // yap-tı-mı Connected Question word.
+    // After past and narrative, a person suffix is required.
+    // yap-tı-m-mı
+    // After progressive, future, question can come before.
+    // yap-ıyor-mu-yum yap-acak-mı-yız
 
 
   }
