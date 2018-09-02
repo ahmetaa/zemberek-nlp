@@ -5,14 +5,14 @@ import java.util.List;
 import java.util.function.Predicate;
 import org.junit.Assert;
 import zemberek.morphology.analysis.SingleAnalysis.MorphemeData;
-import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
 public class AnalyzerTestBase {
 
   public static TurkishMorphotactics getMorphotactics(String... dictionaryLines) {
-    RootLexicon lexicon = new TurkishDictionaryLoader().load(dictionaryLines);
+    RootLexicon lexicon = TurkishDictionaryLoader.load(dictionaryLines);
     return new TurkishMorphotactics(lexicon);
   }
 
@@ -20,8 +20,16 @@ public class AnalyzerTestBase {
     return InterpretingAnalyzer.forDebug(getMorphotactics(dictionaryLines));
   }
 
+  static InterpretingAnalyzer getAnalyzer(TurkishMorphotactics morphotactics) {
+    return InterpretingAnalyzer.forDebug(morphotactics);
+  }
+
   static AnalysisTester getTester(String... dictionaryLines) {
     return new AnalysisTester(InterpretingAnalyzer.forDebug(getMorphotactics(dictionaryLines)));
+  }
+
+  static AnalysisTester getTester(TurkishMorphotactics morphotactics) {
+    return new AnalysisTester(InterpretingAnalyzer.forDebug(morphotactics));
   }
 
   boolean containsMorpheme(SingleAnalysis result, String morphemeName) {

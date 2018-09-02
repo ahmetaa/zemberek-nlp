@@ -73,6 +73,10 @@ class Conditions {
     return new CurrentMorphemeIs(morpheme);
   }
 
+  public static Condition currentMorphemeIsAny(Morpheme... morphemes) {
+    return new CurrentMorphemeIsAny(morphemes);
+  }
+
   public static Condition lastMorphemeIsNot(Morpheme morpheme) {
     return new CurrentMorphemeIs(morpheme).not();
   }
@@ -658,6 +662,24 @@ class Conditions {
     }
   }
 
+  public static class SurfaceEndsWith extends AbstractCondition {
+
+    String suffix;
+
+    public SurfaceEndsWith(String suffix) {
+      this.suffix = suffix;
+    }
+
+    @Override
+    public boolean accept(SearchPath visitor) {
+      return visitor.getHead().endsWith(suffix);
+    }
+
+    @Override
+    public String toString() {
+      return "SurfaceEndsWith{" + suffix + '}';
+    }
+  }
 
   public static class PreviousNonEmptyMorphemeIs extends AbstractCondition {
 

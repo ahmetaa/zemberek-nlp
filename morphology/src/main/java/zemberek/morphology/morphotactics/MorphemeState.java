@@ -89,7 +89,7 @@ public class MorphemeState {
   }
 
   public static MorphemeState fakeNonTerminal(String id, Morpheme morpheme) {
-    return builder(id, morpheme).terminal().fake().build();
+    return builder(id, morpheme).fake().build();
   }
 
   public static MorphemeState terminalDerivative(String id, Morpheme morpheme) {

@@ -6,7 +6,6 @@ import org.junit.Test;
 
 public class NounsTest extends AnalyzerTestBase {
 
-
   @Test
   public void implicitDative_1() {
     AnalysisTester t = getTester("içeri [A:ImplicitDative]");
