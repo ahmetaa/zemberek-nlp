@@ -9,9 +9,9 @@ import zemberek.morphology.analysis.StemTransitionsMapBased;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.Conditions.RootSurfaceIsAny;
 
-public class SpokenTurkishMorphotactics extends TurkishMorphotactics {
+public class InformalTurkishMorphotactics extends TurkishMorphotactics {
 
-  public SpokenTurkishMorphotactics(RootLexicon lexicon) {
+  public InformalTurkishMorphotactics(RootLexicon lexicon) {
     this.lexicon = lexicon;
     makeGraph();
     addGraph();

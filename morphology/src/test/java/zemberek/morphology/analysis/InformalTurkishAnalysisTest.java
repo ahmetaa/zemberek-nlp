@@ -3,14 +3,14 @@ package zemberek.morphology.analysis;
 import org.junit.Test;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.morphology.morphotactics.SpokenTurkishMorphotactics;
+import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
-public class SpokenTurkishAnalysisTest extends AnalyzerTestBase {
+public class InformalTurkishAnalysisTest extends AnalyzerTestBase {
 
   public static TurkishMorphotactics getSpokenMorphotactics(String... dictionaryLines) {
     RootLexicon lexicon = TurkishDictionaryLoader.load(dictionaryLines);
-    return new SpokenTurkishMorphotactics(lexicon);
+    return new InformalTurkishMorphotactics(lexicon);
   }
 
   static AnalysisTester getTester(String... dictionaryLines) {
