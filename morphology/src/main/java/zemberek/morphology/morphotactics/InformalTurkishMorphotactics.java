@@ -53,6 +53,7 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
 
   MorphemeState vFut_S_Inf = nonTerminal("vFut_S_Inf", futInformal);
   MorphemeState vFut_S_Inf2 = nonTerminal("vFut_S_Inf2", futInformal);
+  MorphemeState vFut_S_Inf3 = nonTerminal("vFut_S_Inf3", futInformal);
 
   MorphemeState vQues_S_Inf = nonTerminal("vQues_S_Inf", quesSuffixInformal);
 
@@ -60,13 +61,14 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
 
   MorphemeState vOpt_S_Inf = nonTerminal("vOpt_S_Inf", optInformal);
   MorphemeState vOpt_S_Empty_Inf = nonTerminal("vOpt_S_Empty_Inf", optInformal);
+  MorphemeState vOpt_S_Empty_Inf2 = nonTerminal("vOpt_S_Empty_Inf2", optInformal);
 
   void addGraph() {
 
     // yap-ıyo
 
     verbRoot_S.add(vProgYor_S_Inf, "Iyo", notHave(PhoneticAttribute.LastLetterVowel));
-    verbRoot_Prog_S.add(vProgYor_S_Inf, "Iyo");
+    verbRoot_VowelDrop_S.add(vProgYor_S_Inf, "Iyo");
     vProgYor_S_Inf
         .add(vA1sg_ST, "m")
         .add(vA2sg_ST, "sun")
@@ -130,20 +132,28 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
         .add(vA1pl_ST, "z") // yap-ca-z
         .add(vA1pl_ST, "nIz"); // yap-ca-nız
 
-
     vFut_S_Inf.add(vCond_S, "sA");
     vFut_S_Inf.add(vPastAfterTense_S, "tI");
     vFut_S_Inf.add(vNarrAfterTense_S, "mIş");
     vFut_S_Inf.add(vCopBeforeA3pl_S, "tIr");
     vFut_S_Inf.add(vWhile_S, "ken");
 
-    // Handling of yapıyim, okuyim, bakıyim
+    // Handling of yapıyim, okuyim, bakıyim. TODO: not yet finished
 
     verbRoot_S.add(vOpt_S_Inf, "I", Conditions.has(PhoneticAttribute.LastLetterConsonant));
+
+    // for handling "arıyim, okuyim"
+    verbRoot_VowelDrop_S.add(vOpt_S_Inf, "I");
+
     verbRoot_S.addEmpty(vOpt_S_Empty_Inf, Conditions.has(PhoneticAttribute.LastLetterVowel));
 
     vOpt_S_Inf.add(vA1sg_ST_Inf, "+yIm");
+    vOpt_S_Inf.add(vA1sg_ST_Inf, "+yim");
     vOpt_S_Empty_Inf.add(vA1sg_ST_Inf, "+yim");
+
+    // handling of 'babacım, kuzucum' or 'babacıım, kuzucuum'
+
+    // handling of 'abim-gil' 'Ahmet'gil'
 
     // yap-tı-mı Connected Question word.
     // After past and narrative, a person suffix is required.

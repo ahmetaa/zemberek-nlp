@@ -17,13 +17,11 @@ import static zemberek.morphology.morphotactics.MorphemeState.nonTerminal;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivative;
 import static zemberek.morphology.morphotactics.MorphemeState.terminal;
 
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
@@ -1674,7 +1672,7 @@ public class TurkishMorphotactics {
   MorphemeState vImplicitReflexRoot_S = builder("vImplicitReflexRoot_S", verb).posRoot().build();
 
   // for progressive vowel drop.
-  MorphemeState verbRoot_Prog_S = builder("verbRoot_Prog_S", verb).posRoot().build();
+  MorphemeState verbRoot_VowelDrop_S = builder("verbRoot_VowelDrop_S", verb).posRoot().build();
 
   MorphemeState vAor_S = nonTerminal("vAor_S", aor);
   MorphemeState vAorNeg_S = nonTerminal("vAorNeg_S", aor);
@@ -1763,12 +1761,12 @@ public class TurkishMorphotactics {
     vCausTır_S.addEmpty(verbRoot_S);
 
     // Progressive1 suffix. "-Iyor"
-    // if last letter is a vowel, this is handled with verbRoot_Prog_S root.
+    // if last letter is a vowel, this is handled with verbRoot_VowelDrop_S root.
     verbRoot_S.add(vProgYor_S, "Iyor", notHave(PhoneticAttribute.LastLetterVowel));
 
-    // For "aramak", the modified root "ar" connects to verbRoot_Prog_S. Here it is connected to
+    // For "aramak", the modified root "ar" connects to verbRoot_VowelDrop_S. Here it is connected to
     // progressive "Iyor" suffix. We use a separate root state for these for convenience.
-    verbRoot_Prog_S.add(vProgYor_S, "Iyor");
+    verbRoot_VowelDrop_S.add(vProgYor_S, "Iyor");
     vProgYor_S
         .add(vA1sg_ST, "um")
         .add(vA2sg_ST, "sun")
@@ -2431,9 +2429,9 @@ public class TurkishMorphotactics {
     }
 
     // Verbs like "aramak" drops their last vowel when  connected to "Iyor" Progressive suffix.
-    // those modified roots are connected to a separate root state called verbRoot_Prog_S.
+    // those modified roots are connected to a separate root state called verbRoot_VowelDrop_S.
     if (phoneticAttributes.contains(PhoneticAttribute.LastLetterDropped)) {
-      return verbRoot_Prog_S;
+      return verbRoot_VowelDrop_S;
     }
 
     if (item.hasAttribute(RootAttribute.Reciprocal)) {
