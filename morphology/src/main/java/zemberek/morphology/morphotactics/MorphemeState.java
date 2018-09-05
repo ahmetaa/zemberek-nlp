@@ -16,21 +16,18 @@ public class MorphemeState {
   public final boolean terminal;
   public final boolean derivative;
   public final boolean posRoot;
-  public final boolean fake;
 
   MorphemeState(
       String id,
       Morpheme morpheme,
       boolean terminal,
       boolean derivative,
-      boolean posRoot,
-      boolean fake) {
+      boolean posRoot) {
     this.morpheme = morpheme;
     this.id = id;
     this.terminal = terminal;
     this.derivative = derivative;
     this.posRoot = posRoot;
-    this.fake = fake;
   }
 
   public static Builder builder(String id, Morpheme morpheme) {
@@ -41,7 +38,6 @@ public class MorphemeState {
 
     final String _id;
     final Morpheme _morpheme;
-    private boolean _fake = false;
     private boolean _terminal = false;
     private boolean _derivative = false;
     private boolean _posRoot = false;
@@ -66,13 +62,8 @@ public class MorphemeState {
       return this;
     }
 
-    public Builder fake() {
-      this._fake = true;
-      return this;
-    }
-
     public MorphemeState build() {
-      return new MorphemeState(_id, _morpheme, _terminal, _derivative, _posRoot, _fake);
+      return new MorphemeState(_id, _morpheme, _terminal, _derivative, _posRoot);
     }
   }
 
@@ -80,17 +71,11 @@ public class MorphemeState {
     return builder(id, morpheme).terminal().build();
   }
 
-  public static MorphemeState fakeTerminal(String id, Morpheme morpheme) {
-    return builder(id, morpheme).terminal().fake().build();
-  }
 
   public static MorphemeState nonTerminal(String id, Morpheme morpheme) {
     return builder(id, morpheme).build();
   }
 
-  public static MorphemeState fakeNonTerminal(String id, Morpheme morpheme) {
-    return builder(id, morpheme).fake().build();
-  }
 
   public static MorphemeState terminalDerivative(String id, Morpheme morpheme) {
     return builder(id, morpheme).terminal().derivative().build();

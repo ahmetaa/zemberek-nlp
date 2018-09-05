@@ -10,6 +10,8 @@ import static zemberek.morphology.morphotactics.Conditions.rootIs;
 import static zemberek.morphology.morphotactics.Conditions.rootIsAny;
 import static zemberek.morphology.morphotactics.Conditions.rootIsNone;
 import static zemberek.morphology.morphotactics.Conditions.rootIsNot;
+import static zemberek.morphology.morphotactics.Morpheme.derivational;
+import static zemberek.morphology.morphotactics.Morpheme.instance;
 import static zemberek.morphology.morphotactics.MorphemeState.builder;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminal;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivative;
@@ -45,228 +47,221 @@ public class TurkishMorphotactics {
 
   private static Map<String, Morpheme> morphemeMap = new HashMap<>();
 
-  public static final Morpheme root = addMorpheme(new Morpheme("Root", "Root"));
-  public static final Morpheme noun = addMorpheme(new Morpheme("Noun", "Noun", PrimaryPos.Noun));
+  public static final Morpheme root = addMorpheme(instance("Root", "Root"));
+  public static final Morpheme noun = addMorpheme(instance("Noun", "Noun", PrimaryPos.Noun));
   public static final Morpheme adj = addMorpheme(
-      new Morpheme("Adjective", "Adj", PrimaryPos.Adjective));
-  public static final Morpheme verb = addMorpheme(new Morpheme("Verb", "Verb", PrimaryPos.Verb));
+      instance("Adjective", "Adj", PrimaryPos.Adjective));
+  public static final Morpheme verb = addMorpheme(instance("Verb", "Verb", PrimaryPos.Verb));
   public static final Morpheme pron = addMorpheme(
-      new Morpheme("Pronoun", "Pron", PrimaryPos.Pronoun));
-  public static final Morpheme adv = addMorpheme(new Morpheme("Adverb", "Adv", PrimaryPos.Adverb));
+      instance("Pronoun", "Pron", PrimaryPos.Pronoun));
+  public static final Morpheme adv = addMorpheme(instance("Adverb", "Adv", PrimaryPos.Adverb));
   public static final Morpheme conj = addMorpheme(
-      new Morpheme("Conjunction", "Conj", PrimaryPos.Conjunction));
+      instance("Conjunction", "Conj", PrimaryPos.Conjunction));
   public static final Morpheme punc = addMorpheme(
-      new Morpheme("Punctuation", "Punc", PrimaryPos.Punctuation));
+      instance("Punctuation", "Punc", PrimaryPos.Punctuation));
   public static final Morpheme ques = addMorpheme(
-      new Morpheme("Question", "Ques", PrimaryPos.Question));
-  public static final Morpheme postp = addMorpheme(new Morpheme("PostPositive", "Postp",
+      instance("Question", "Ques", PrimaryPos.Question));
+  public static final Morpheme postp = addMorpheme(instance("PostPositive", "Postp",
       PrimaryPos.PostPositive));
   public static final Morpheme det = addMorpheme(
-      new Morpheme("Determiner", "Det", PrimaryPos.Determiner));
+      instance("Determiner", "Det", PrimaryPos.Determiner));
   public static final Morpheme num = addMorpheme(
-      new Morpheme("Numeral", "Num", PrimaryPos.Numeral));
+      instance("Numeral", "Num", PrimaryPos.Numeral));
   public static final Morpheme dup = addMorpheme(
-      new Morpheme("Duplicator", "Dup", PrimaryPos.Duplicator));
-  public static final Morpheme interj = addMorpheme(new Morpheme("Interjection", "Interj",
+      instance("Duplicator", "Dup", PrimaryPos.Duplicator));
+  public static final Morpheme interj = addMorpheme(instance("Interjection", "Interj",
       PrimaryPos.Interjection));
 
   // Number-Person agreement.
 
-  public static final Morpheme a1sg = addMorpheme(new Morpheme("FirstPersonSingular", "A1sg"));
-  public static final Morpheme a2sg = addMorpheme(new Morpheme("SecondPersonSingular", "A2sg"));
-  public static final Morpheme a3sg = addMorpheme(new Morpheme("ThirdPersonSingular", "A3sg"));
-  public static final Morpheme a1pl = addMorpheme(new Morpheme("FirstPersonPlural", "A1pl"));
-  public static final Morpheme a2pl = addMorpheme(new Morpheme("SecondPersonPlural", "A2pl"));
-  public static final Morpheme a3pl = addMorpheme(new Morpheme("ThirdPersonPlural", "A3pl"));
+  public static final Morpheme a1sg = addMorpheme(instance("FirstPersonSingular", "A1sg"));
+  public static final Morpheme a2sg = addMorpheme(instance("SecondPersonSingular", "A2sg"));
+  public static final Morpheme a3sg = addMorpheme(instance("ThirdPersonSingular", "A3sg"));
+  public static final Morpheme a1pl = addMorpheme(instance("FirstPersonPlural", "A1pl"));
+  public static final Morpheme a2pl = addMorpheme(instance("SecondPersonPlural", "A2pl"));
+  public static final Morpheme a3pl = addMorpheme(instance("ThirdPersonPlural", "A3pl"));
 
   // Possessive
 
   // No possession suffix. This is not a real Morpheme but adds information to analysis. "elma = apple"
-  public static final Morpheme pnon = addMorpheme(new Morpheme("NoPosession", "Pnon"));
+  public static final Morpheme pnon = addMorpheme(instance("NoPosession", "Pnon"));
 
   // First person singular possession suffix.  "elma-m = my apple"
   public static final Morpheme p1sg = addMorpheme(
-      new Morpheme("FirstPersonSingularPossessive", "P1sg"));
+      instance("FirstPersonSingularPossessive", "P1sg"));
 
   public static final Morpheme p2sg = addMorpheme(
-      new Morpheme("SecondPersonSingularPossessive", "P2sg"));
+      instance("SecondPersonSingularPossessive", "P2sg"));
 
   // Third person singular possession suffix. "elma-sı = his/her apple"
   public static final Morpheme p3sg = addMorpheme(
-      new Morpheme("ThirdPersonSingularPossessive", "P3sg"));
+      instance("ThirdPersonSingularPossessive", "P3sg"));
 
   // First person plural possession suffix.
   public static final Morpheme p1pl = addMorpheme(
-      new Morpheme("FirstPersonPluralPossessive", "P1pl"));
+      instance("FirstPersonPluralPossessive", "P1pl"));
 
   public static final Morpheme p2pl = addMorpheme(
-      new Morpheme("SecondPersonPluralPossessive", "P2pl"));
+      instance("SecondPersonPluralPossessive", "P2pl"));
 
   public static final Morpheme p3pl = addMorpheme(
-      new Morpheme("ThirdPersonPluralPossessive", "P3pl"));
+      instance("ThirdPersonPluralPossessive", "P3pl"));
 
-  public static Set<Morpheme> possessiveMorphemes = Sets.newHashSet(
-      p1sg, p2sg, p3sg, p1pl, p2pl, p3pl
-  );
 
   // Case suffixes
 
   // elma
-  public static final Morpheme nom = addMorpheme(new Morpheme("Nominal", "Nom"));
+  public static final Morpheme nom = addMorpheme(instance("Nominal", "Nom"));
   // elmaya
-  public static final Morpheme dat = addMorpheme(new Morpheme("Dative", "Dat"));
+  public static final Morpheme dat = addMorpheme(instance("Dative", "Dat"));
   // elmayı
-  public static final Morpheme acc = addMorpheme(new Morpheme("Accusative", "Acc"));
+  public static final Morpheme acc = addMorpheme(instance("Accusative", "Acc"));
   // elmadan
-  public static final Morpheme abl = addMorpheme(new Morpheme("Ablative", "Abl"));
+  public static final Morpheme abl = addMorpheme(instance("Ablative", "Abl"));
   // elmada
-  public static final Morpheme loc = addMorpheme(new Morpheme("Locative", "Loc"));
+  public static final Morpheme loc = addMorpheme(instance("Locative", "Loc"));
   // elmayla
-  public static final Morpheme ins = addMorpheme(new Morpheme("Instrumental", "Ins"));
+  public static final Morpheme ins = addMorpheme(instance("Instrumental", "Ins"));
   // elmanın
-  public static final Morpheme gen = addMorpheme(new Morpheme("Genitive", "Gen"));
+  public static final Morpheme gen = addMorpheme(instance("Genitive", "Gen"));
   // elmaca
-  public static final Morpheme equ = addMorpheme(new Morpheme("Equ", "Equ"));
-
-  public static Set<Morpheme> caseMorphemes = Sets.newHashSet(
-      dat, acc, abl, loc, ins, gen, equ
-  );
+  public static final Morpheme equ = addMorpheme(instance("Equ", "Equ"));
 
   // Derivation suffixes
 
   // elmacık (Noun)
-  public static final Morpheme dim = addMorpheme(new Morpheme("Diminutive", "Dim", true));
+  public static final Morpheme dim = addMorpheme(derivational("Diminutive", "Dim"));
   // elmalık (Noun) TODO: Find better name.
-  public static final Morpheme ness = addMorpheme(new Morpheme("Ness", "Ness", true));
+  public static final Morpheme ness = addMorpheme(derivational("Ness", "Ness"));
   // elmalı (Adj)
-  public static final Morpheme with = addMorpheme(new Morpheme("With", "With", true));
+  public static final Morpheme with = addMorpheme(derivational("With", "With"));
   // elmasız (Adj)
-  public static final Morpheme without = addMorpheme(new Morpheme("Without", "Without", true));
+  public static final Morpheme without = addMorpheme(derivational("Without", "Without"));
   // elmasal (Adj)
-  public static final Morpheme related = addMorpheme(new Morpheme("Related", "Related", true));
+  public static final Morpheme related = addMorpheme(derivational("Related", "Related"));
   // tahtamsı (Adj)
-  public static final Morpheme justLike = addMorpheme(new Morpheme("JustLike", "JustLike", true));
+  public static final Morpheme justLike = addMorpheme(derivational("JustLike", "JustLike"));
   // tahtadaki (Adj)
-  public static final Morpheme rel = addMorpheme(new Morpheme("Relation", "Rel", true));
+  public static final Morpheme rel = addMorpheme(derivational("Relation", "Rel"));
   // elmacı (Noun)
-  public static final Morpheme agt = addMorpheme(new Morpheme("Agentive", "Agt", true));
+  public static final Morpheme agt = addMorpheme(derivational("Agentive", "Agt"));
   // tahtalaş (Verb)
-  public static final Morpheme become = addMorpheme(new Morpheme("Become", "Become", true));
+  public static final Morpheme become = addMorpheme(derivational("Become", "Become"));
   // tahtalan (Verb)
-  public static final Morpheme acquire = addMorpheme(new Morpheme("Acquire", "Acquire", true));
+  public static final Morpheme acquire = addMorpheme(derivational("Acquire", "Acquire"));
 
   // yeşilce (Adj->Adv)
-  public static final Morpheme ly = addMorpheme(new Morpheme("Ly", "Ly", true));
+  public static final Morpheme ly = addMorpheme(derivational("Ly", "Ly"));
   // oku-t oku-t-tur (Verb)
-  public static final Morpheme caus = addMorpheme(new Morpheme("Causative", "Caus", true));
+  public static final Morpheme caus = addMorpheme(derivational("Causative", "Caus"));
   // konuş-uş (Verb)
-  public static final Morpheme recip = addMorpheme(new Morpheme("Reciprocal", "Recip", true));
+  public static final Morpheme recip = addMorpheme(derivational("Reciprocal", "Recip"));
   // kaşınmak (Verb) For now Reflexive suffixes are only implicit. Meaning that
   // dictionary contains "kaşınmak" with Reflexive attribute.
-  public static final Morpheme reflex = addMorpheme(new Morpheme("Reflexive", "Reflex", true));
+  public static final Morpheme reflex = addMorpheme(derivational("Reflexive", "Reflex"));
   // oku-yabil (Verb)
-  public static final Morpheme able = addMorpheme(new Morpheme("Ability", "Able", true));
+  public static final Morpheme able = addMorpheme(derivational("Ability", "Able"));
   // oku-n, oku-nul (Verb)
-  public static final Morpheme pass = addMorpheme(new Morpheme("Passive", "Pass", true));
+  public static final Morpheme pass = addMorpheme(derivational("Passive", "Pass"));
   // okumak (Noun)
-  public static final Morpheme inf1 = addMorpheme(new Morpheme("Infinitive1", "Inf1", true));
+  public static final Morpheme inf1 = addMorpheme(derivational("Infinitive1", "Inf1"));
   // okuma (Noun)
-  public static final Morpheme inf2 = addMorpheme(new Morpheme("Infinitive2", "Inf2", true));
+  public static final Morpheme inf2 = addMorpheme(derivational("Infinitive2", "Inf2"));
   // okuyuş (Noun)
-  public static final Morpheme inf3 = addMorpheme(new Morpheme("Infinitive3", "Inf3", true));
+  public static final Morpheme inf3 = addMorpheme(derivational("Infinitive3", "Inf3"));
   // okumaca (Noun)
-  public static final Morpheme actOf = addMorpheme(new Morpheme("ActOf", "ActOf", true));
+  public static final Morpheme actOf = addMorpheme(derivational("ActOf", "ActOf"));
   // okuduğum kitap (Adj, Noun)
   public static final Morpheme pastPart = addMorpheme(
-      new Morpheme("PastParticiple", "PastPart", true));
+      derivational("PastParticiple", "PastPart"));
   // okumuşlarımız (Adj, Noun)
   public static final Morpheme narrPart = addMorpheme(
-      new Morpheme("NarrativeParticiple", "NarrPart", true));
+      derivational("NarrativeParticiple", "NarrPart"));
   // okuyacağım kitap (Adj, Noun)
   public static final Morpheme futPart = addMorpheme(
-      new Morpheme("FutureParticiple", "FutPart", true));
+      derivational("FutureParticiple", "FutPart"));
   // okuyan (Adj, Noun)
   public static final Morpheme presPart = addMorpheme(
-      new Morpheme("PresentParticiple", "PresPart", true));
+      derivational("PresentParticiple", "PresPart"));
   // okurluk (Noun)
   public static final Morpheme aorPart = addMorpheme(
-      new Morpheme("AoristParticiple", "AorPart", true));
+      derivational("AoristParticiple", "AorPart"));
   // okumazlık - okumamazlık (Noun)
-  public static final Morpheme notState = addMorpheme(new Morpheme("NotState", "NotState", true));
+  public static final Morpheme notState = addMorpheme(derivational("NotState", "NotState"));
   // okuyan (Adj, Noun)
-  public static final Morpheme feelLike = addMorpheme(new Morpheme("FeelLike", "FeelLike", true));
+  public static final Morpheme feelLike = addMorpheme(derivational("FeelLike", "FeelLike"));
   // okuyagel (Verb)
   public static final Morpheme everSince = addMorpheme(
-      new Morpheme("EverSince", "EverSince", true));
+      derivational("EverSince", "EverSince"));
   // okuyadur, okuyagör (Verb)
-  public static final Morpheme repeat = addMorpheme(new Morpheme("Repeat", "Repeat", true));
+  public static final Morpheme repeat = addMorpheme(derivational("Repeat", "Repeat"));
   // okuyayaz (Verb)
-  public static final Morpheme almost = addMorpheme(new Morpheme("Almost", "Almost", true));
+  public static final Morpheme almost = addMorpheme(derivational("Almost", "Almost"));
   // okuyuver (Verb)
-  public static final Morpheme hastily = addMorpheme(new Morpheme("Hastily", "Hastily", true));
+  public static final Morpheme hastily = addMorpheme(derivational("Hastily", "Hastily"));
   // okuyakal (Verb)
-  public static final Morpheme stay = addMorpheme(new Morpheme("Stay", "Stay", true));
+  public static final Morpheme stay = addMorpheme(derivational("Stay", "Stay"));
   // okuyakoy (Verb)
-  public static final Morpheme start = addMorpheme(new Morpheme("Start", "Start", true));
+  public static final Morpheme start = addMorpheme(derivational("Start", "Start"));
   // okurcasına (Adv,Adj)
-  public static final Morpheme asIf = addMorpheme(new Morpheme("AsIf", "AsIf", true));
+  public static final Morpheme asIf = addMorpheme(derivational("AsIf", "AsIf"));
   // okurken (Adv)
-  public static final Morpheme while_ = addMorpheme(new Morpheme("While", "While", true));
+  public static final Morpheme while_ = addMorpheme(derivational("While", "While"));
   // okuyunca (Adv)
-  public static final Morpheme when = addMorpheme(new Morpheme("When", "When", true));
+  public static final Morpheme when = addMorpheme(derivational("When", "When"));
   // okuyalı (Adv)
   public static final Morpheme sinceDoingSo = addMorpheme(
-      new Morpheme("SinceDoingSo", "SinceDoingSo", true));
+      derivational("SinceDoingSo", "SinceDoingSo"));
   // okudukça (Adv)
-  public static final Morpheme asLongAs = addMorpheme(new Morpheme("AsLongAs", "AsLongAs", true));
+  public static final Morpheme asLongAs = addMorpheme(derivational("AsLongAs", "AsLongAs"));
   // okuyarak (Adv)
   public static final Morpheme byDoingSo = addMorpheme(
-      new Morpheme("ByDoingSo", "ByDoingSo", true));
+      derivational("ByDoingSo", "ByDoingSo"));
   // okuyasıya (Adv)
   public static final Morpheme adamantly = addMorpheme(
-      new Morpheme("Adamantly", "Adamantly", true));
+      derivational("Adamantly", "Adamantly"));
   // okuyup (Adv)
   public static final Morpheme afterDoingSo = addMorpheme(
-      new Morpheme("AfterDoingSo", "AfterDoingSo", true));
+      derivational("AfterDoingSo", "AfterDoingSo"));
   // okumadan, okumaksızın (Adv)
   public static final Morpheme withoutHavingDoneSo =
-      addMorpheme(new Morpheme("WithoutHavingDoneSo", "WithoutHavingDoneSo", true));
+      addMorpheme(derivational("WithoutHavingDoneSo", "WithoutHavingDoneSo"));
   //okuyamadan (Adv)
   public static final Morpheme withoutBeingAbleToHaveDoneSo =
       addMorpheme(
-          new Morpheme("WithoutBeingAbleToHaveDoneSo", "WithoutBeingAbleToHaveDoneSo", true));
+          derivational("WithoutBeingAbleToHaveDoneSo", "WithoutBeingAbleToHaveDoneSo"));
 
   // Zero derivation
-  public static final Morpheme zero = addMorpheme(new Morpheme("Zero", "Zero", true));
+  public static final Morpheme zero = addMorpheme(derivational("Zero", "Zero"));
 
   // Verb specific
-  public static final Morpheme cop = addMorpheme(new Morpheme("Copula", "Cop"));
+  public static final Morpheme cop = addMorpheme(instance("Copula", "Cop"));
 
   // Negative Verb
-  public static final Morpheme neg = addMorpheme(new Morpheme("Negative", "Neg"));
+  public static final Morpheme neg = addMorpheme(instance("Negative", "Neg"));
 
   // Tense
-  public static final Morpheme pres = addMorpheme(new Morpheme("PresentTense", "Pres"));
-  public static final Morpheme past = addMorpheme(new Morpheme("PastTense", "Past"));
-  public static final Morpheme narr = addMorpheme(new Morpheme("NarrativeTense", "Narr"));
-  public static final Morpheme cond = addMorpheme(new Morpheme("Condition", "Cond"));
+  public static final Morpheme pres = addMorpheme(instance("PresentTense", "Pres"));
+  public static final Morpheme past = addMorpheme(instance("PastTense", "Past"));
+  public static final Morpheme narr = addMorpheme(instance("NarrativeTense", "Narr"));
+  public static final Morpheme cond = addMorpheme(instance("Condition", "Cond"));
   // oku-yor
-  public static final Morpheme prog1 = addMorpheme(new Morpheme("Progressive1", "Prog1"));
+  public static final Morpheme prog1 = addMorpheme(instance("Progressive1", "Prog1"));
   // oku-makta
-  public static final Morpheme prog2 = addMorpheme(new Morpheme("Progressive2", "Prog2"));
+  public static final Morpheme prog2 = addMorpheme(instance("Progressive2", "Prog2"));
   // oku-r
-  public static final Morpheme aor = addMorpheme(new Morpheme("Aorist", "Aor"));
+  public static final Morpheme aor = addMorpheme(instance("Aorist", "Aor"));
   // oku-yacak
-  public static final Morpheme fut = addMorpheme(new Morpheme("Future", "Fut"));
+  public static final Morpheme fut = addMorpheme(instance("Future", "Fut"));
 
   // gel, gel-sin
-  public static final Morpheme imp = addMorpheme(new Morpheme("Imparative", "Imp"));
+  public static final Morpheme imp = addMorpheme(instance("Imparative", "Imp"));
   // oku-ya
-  public static final Morpheme opt = addMorpheme(new Morpheme("Optative", "Opt"));
+  public static final Morpheme opt = addMorpheme(instance("Optative", "Opt"));
   // oku-sa
-  public static final Morpheme desr = addMorpheme(new Morpheme("Desire", "Desr"));
+  public static final Morpheme desr = addMorpheme(instance("Desire", "Desr"));
   // oku-malı
-  public static final Morpheme neces = addMorpheme(new Morpheme("Necessity", "Neces"));
+  public static final Morpheme neces = addMorpheme(instance("Necessity", "Neces"));
 
   //-------------- States ----------------------------
   // _ST = Terminal state _S = Non Terminal State.
@@ -348,7 +343,7 @@ public class TurkishMorphotactics {
   protected TurkishMorphotactics() {
   }
 
-  private static Morpheme addMorpheme(Morpheme morpheme) {
+  protected static Morpheme addMorpheme(Morpheme morpheme) {
     morphemeMap.put(morpheme.id, morpheme);
     return morpheme;
   }
@@ -1382,7 +1377,8 @@ public class TurkishMorphotactics {
         .add(pIns_ST, "+ylA", p3sgCond);
 
     Condition hepCnd = Conditions.rootIsAny(
-        kendi, kim, ne, nere, biz, siz, biri, birbiri, birkaci, herbiri, hep, kimi, cogu, bircogu, tumu,
+        kendi, kim, ne, nere, biz, siz, biri, birbiri, birkaci, herbiri, hep, kimi, cogu, bircogu,
+        tumu,
         topu, bazi, hicbiri);
     pP1pl_S
         .addEmpty(pNom_ST)
@@ -1466,7 +1462,7 @@ public class TurkishMorphotactics {
 
     pvVerbRoot_S.addEmpty(pvPresent_S);
 
-    pvVerbRoot_S.add(vWhile_S,"+yken");
+    pvVerbRoot_S.add(vWhile_S, "+yken");
 
     pvVerbRoot_S.add(pvPast_S, "+ydI");
 
