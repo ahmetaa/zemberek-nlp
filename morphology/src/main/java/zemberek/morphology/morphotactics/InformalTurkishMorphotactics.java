@@ -19,31 +19,31 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
   }
 
   public static final Morpheme a1plInformal = addMorpheme(
-      Morpheme.builder("a1plInformal", "a1plInformal")
+      Morpheme.builder("A1plInformal", "A1plInformal")
           .informal().mappedMorpheme(p1pl).build());
 
   public static final Morpheme a1sgInformal = addMorpheme(
-      Morpheme.builder("a1sgInformal", "a1sgInformal")
+      Morpheme.builder("A1sgInformal", "A1sgInformal")
           .informal().mappedMorpheme(a1sg).build());
 
   public static final Morpheme prog1Informal = addMorpheme(
-      Morpheme.builder("prog1Informal", "prog1Informal")
+      Morpheme.builder("Prog1Informal", "Prog1Informal")
           .informal().mappedMorpheme(prog1).build());
 
   public static final Morpheme futInformal = addMorpheme(
-      Morpheme.builder("futInformal", "futInformal")
+      Morpheme.builder("FutInformal", "FutInformal")
           .informal().mappedMorpheme(fut).build());
 
   public static final Morpheme quesSuffixInformal = addMorpheme(
-      Morpheme.builder("quesSuffixInformal", "quesSuffixInformal")
+      Morpheme.builder("QuesSuffixInformal", "QuesSuffixInformal")
           .informal().mappedMorpheme(ques).build());
 
   public static final Morpheme negInformal = addMorpheme(
-      Morpheme.builder("negInformal", "negInformal")
+      Morpheme.builder("NegInformal", "NegInformal")
           .informal().mappedMorpheme(neg).build());
 
   public static final Morpheme optInformal = addMorpheme(
-      Morpheme.builder("optInformal", "optInformal")
+      Morpheme.builder("OptInformal", "OptInformal")
           .informal().mappedMorpheme(opt).build());
 
 
