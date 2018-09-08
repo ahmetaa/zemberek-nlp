@@ -12,6 +12,7 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("beni", matchesTailLex("Pron + A1sg + Acc"));
     tester.expectAny("benim", matchesTailLex("Pron + A1sg + Gen"));
     tester.expectAny("benken", matchesTailLex("Pron + A1sg + Zero + Verb + While + Adv"));
+    tester.expectSingle("benimle", matchesTailLex("Pron + A1sg + Ins"));
 
     tester.expectFail(
         "ban",
@@ -27,6 +28,7 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("sana", matchesTailLex("Pron + A2sg + Dat"));
     tester.expectSingle("seni", matchesTailLex("Pron + A2sg + Acc"));
     tester.expectSingle("senin", matchesTailLex("Pron + A2sg + Gen"));
+    tester.expectSingle("seninle", matchesTailLex("Pron + A2sg + Ins"));
 
     tester.expectFail(
         "san",
@@ -44,6 +46,8 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("onu", matchesTailLex("Pron + A3sg + Acc"));
     tester.expectSingle("onlar", matchesTailLex("Pron + A3pl"));
     tester.expectSingle("onlara", matchesTailLex("Pron + A3pl + Dat"));
+    tester.expectSingle("onunla", matchesTailLex("Pron + A3sg + Ins"));
+
   }
 
   @Test
@@ -71,6 +75,8 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("bizi", matchesTailLex("Pron + A1pl + Acc"));
     tester.expectSingle("bizim", matchesTailLex("Pron + A1pl + Gen"));
     tester.expectSingle("bizce", matchesTailLex("Pron + A1pl + Equ"));
+    tester.expectSingle("bizimle", matchesTailLex("Pron + A1pl + Ins"));
+
 
     tester.expectFail(
         "bizin"
