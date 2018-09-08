@@ -77,6 +77,7 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
           .filter(s -> s.toFile().isFile() && (extension == null || s.endsWith(extension)))
           .collect(Collectors.toList()));
     }
+    Log.info("There are %d files to process.", paths.size());
     long totalLines = 0;
     for (Path path : paths) {
       totalLines += TextIO.lineCount(path);

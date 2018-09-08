@@ -64,14 +64,14 @@ public class AnalysisCache {
     boolean _disableStaticCache = false;
     boolean _disableDynamicCache = false;
 
-    Builder staticCacheSize(int staticCacheSize) {
+    public Builder staticCacheSize(int staticCacheSize) {
       Preconditions.checkArgument(staticCacheSize >= 0,
           "Static cache size cannot be negative. But it is %d", staticCacheSize);
       this._staticCacheSize = staticCacheSize;
       return this;
     }
 
-    Builder dynamicCacheSize(int initial, int max) {
+    public Builder dynamicCacheSize(int initial, int max) {
       Preconditions.checkArgument(initial >= 0,
           "Dynamic cache initial size cannot be negative. But it is %d", initial);
       Preconditions.checkArgument(max >= 0,
@@ -84,14 +84,18 @@ public class AnalysisCache {
       return this;
     }
 
-    Builder disableStaticCache() {
+    public Builder disableStaticCache() {
       this._disableStaticCache = true;
       return this;
     }
 
-    Builder disableDynamicCache() {
+    public Builder disableDynamicCache() {
       this._disableDynamicCache = true;
       return this;
+    }
+
+    public AnalysisCache build() {
+      return new AnalysisCache(this);
     }
   }
 
