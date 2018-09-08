@@ -56,14 +56,14 @@ public class NoisyWordsLexiconGenerator {
 
     NoisyWordsLexiconGenerator generator = new NoisyWordsLexiconGenerator(morphology);
 
-    // create vocabularies
-    Path corporaRoot = Paths.get("/media/aaa/Data/corpora/final");
+    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
+    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization");
     List<Path> roots = Arrays.asList(
         corporaRoot.resolve("www.aljazeera.com.tr"),
         corporaRoot.resolve("open-subtitles"),
-        corporaRoot.resolve("wowturkey.com"),
+        corporaRoot.resolve("wowturkey.com")/*,
         corporaRoot.resolve("www.cnnturk.com"),
-        corporaRoot.resolve("www.haberturk.com"));
+        corporaRoot.resolve("www.haberturk.com")*/);
 
     List<Path> corpora = new ArrayList<>();
     for (Path corpusRoot : roots) {
@@ -74,10 +74,10 @@ public class NoisyWordsLexiconGenerator {
 
     Log.info("There are %d corpus files.", corpora.size());
 
-    Path outRoot = Paths.get("data/normalization");
     Files.createDirectories(outRoot);
 
-    int threadCount = 8;
+    // create vocabularies
+    int threadCount = 4;
     Log.info("Thread count = %d", threadCount);
     Vocabulary vocabulary = generator.collectVocabularyHistogram(corpora, threadCount);
 

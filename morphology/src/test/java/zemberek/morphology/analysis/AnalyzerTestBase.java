@@ -11,6 +11,8 @@ import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
 public class AnalyzerTestBase {
 
+  public static final boolean PRINT_RESULTS_TO_SCREEN = false;
+
   public static TurkishMorphotactics getMorphotactics(String... dictionaryLines) {
     RootLexicon lexicon = TurkishDictionaryLoader.load(dictionaryLines);
     return new TurkishMorphotactics(lexicon);
@@ -61,6 +63,9 @@ public class AnalyzerTestBase {
 
   static void printAndSort(String input, List<SingleAnalysis> results) {
     results.sort(Comparator.comparing(SingleAnalysis::toString));
+    if (!PRINT_RESULTS_TO_SCREEN) {
+      return;
+    }
     for (SingleAnalysis result : results) {
       System.out.println(input + " = " + result + " = " + formatSurfaceAndLexical(result));
     }
