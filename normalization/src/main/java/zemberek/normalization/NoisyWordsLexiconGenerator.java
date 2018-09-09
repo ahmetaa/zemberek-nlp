@@ -61,7 +61,14 @@ public class NoisyWordsLexiconGenerator {
     List<Path> roots = Arrays.asList(
         corporaRoot.resolve("www.aljazeera.com.tr"),
         corporaRoot.resolve("open-subtitles"),
-        corporaRoot.resolve("wowturkey.com")/*,
+        corporaRoot.resolve("wowturkey.com"),
+        corporaRoot.resolve("forum.memurlar.net"),
+        corporaRoot.resolve("mobile.donanimhaber.com"),
+        corporaRoot.resolve("www.forumotomobil.com"),
+        corporaRoot.resolve("www.kizlarsoruyor.com"),
+        corporaRoot.resolve("www.kadinlarkulubu.com"),
+        corporaRoot.resolve("www.incisozluk.com.tr")/*,
+
         corporaRoot.resolve("www.cnnturk.com"),
         corporaRoot.resolve("www.haberturk.com")*/);
 
@@ -145,7 +152,7 @@ public class NoisyWordsLexiconGenerator {
               TurkishAlphabet.INSTANCE.containsDigit(token) ||
               TurkishAlphabet.INSTANCE.containsApostrophe(token) ||
               Character.isUpperCase(token.charAt(0))) {
-            local.ignored.add(token);
+            //local.ignored.add(token);
             continue;
           }
           token = token.toLowerCase(Turkish.LOCALE);
@@ -162,7 +169,7 @@ public class NoisyWordsLexiconGenerator {
         lock.lock();
         global.correct.add(local.correct);
         global.incorrect.add(local.incorrect);
-        global.ignored.add(local.ignored);
+        //global.ignored.add(local.ignored);
         Log.info("Size of histogram = %d correct %d incorrect",
             global.correct.size(),
             global.incorrect.size());
