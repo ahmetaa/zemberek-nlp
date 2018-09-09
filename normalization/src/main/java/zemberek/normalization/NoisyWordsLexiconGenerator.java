@@ -46,7 +46,7 @@ public class NoisyWordsLexiconGenerator {
 
     AnalysisCache cache = AnalysisCache
         .builder()
-        .dynamicCacheSize(50_000, 200_000).build();
+        .dynamicCacheSize(200_000, 500_000).build();
     TurkishMorphology morphology = TurkishMorphology
         .builder()
         .addDefaultBinaryDictionary()
@@ -56,21 +56,13 @@ public class NoisyWordsLexiconGenerator {
 
     NoisyWordsLexiconGenerator generator = new NoisyWordsLexiconGenerator(morphology);
 
-    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
-    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization");
-    List<Path> roots = Arrays.asList(
-        corporaRoot.resolve("www.aljazeera.com.tr"),
-        corporaRoot.resolve("open-subtitles"),
-        corporaRoot.resolve("wowturkey.com"),
-        corporaRoot.resolve("forum.memurlar.net"),
-        corporaRoot.resolve("mobile.donanimhaber.com"),
-        corporaRoot.resolve("www.forumotomobil.com"),
-        corporaRoot.resolve("www.kizlarsoruyor.com"),
-        corporaRoot.resolve("www.kadinlarkulubu.com"),
-        corporaRoot.resolve("www.incisozluk.com.tr")/*,
+    Path corporaRoot = Paths.get("/media/aaa/Data/corpora/reduced");
+    Path outRoot = Paths.get("/home/aaa/data/normalization");
+    Path rootList = Paths.get("data/normalization/vocab-list");
+    List<String> rootNames = Files.readAllLines(rootList);
 
-        corporaRoot.resolve("www.cnnturk.com"),
-        corporaRoot.resolve("www.haberturk.com")*/);
+    List<Path> roots = new ArrayList<>();
+    rootNames.forEach(s->roots.add(corporaRoot.resolve(s)));
 
     List<Path> corpora = new ArrayList<>();
     for (Path corpusRoot : roots) {
@@ -84,7 +76,7 @@ public class NoisyWordsLexiconGenerator {
     Files.createDirectories(outRoot);
 
     // create vocabularies
-    int threadCount = 4;
+    int threadCount = 8;
     Log.info("Thread count = %d", threadCount);
     Vocabulary vocabulary = generator.collectVocabularyHistogram(corpora, threadCount);
 

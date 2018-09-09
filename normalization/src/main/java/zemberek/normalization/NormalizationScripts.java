@@ -14,17 +14,17 @@ import zemberek.lm.compression.SmoothLm;
 public class NormalizationScripts {
 
   public static void main(String[] args) throws IOException {
-    Path root = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization");
+    Path root = Paths.get("/home/aaa/data/normalization");
     Path p = root.resolve("incorrect");
     Path s = root.resolve("split");
-    splitWords(p, s, 2);
+    Path lm = root.resolve("lm.slm");
+    splitWords(p, s, lm,2);
   }
 
-  static void splitWords(Path wordFrequencyFile, Path splitFile, int minWordCount)
+  static void splitWords(Path wordFrequencyFile, Path splitFile, Path lmPath, int minWordCount)
       throws IOException {
 
-    Path bigramLm = Paths.get("bin/lm/lm-bigram.slm");
-    SmoothLm lm = SmoothLm.builder(bigramLm).logBase(Math.E).build();
+    SmoothLm lm = SmoothLm.builder(lmPath).logBase(Math.E).build();
     Log.info("Language model = %s", lm.info());
 
     Histogram<String> wordFreq = Histogram.loadFromUtf8File(wordFrequencyFile, ' ');
@@ -72,7 +72,7 @@ public class NormalizationScripts {
 
         if (k.size() > 0) {
           ScoredItem<String> best = k.get(0);
-          if (best.score > -8) {
+          if (best.score > -6) {
             pw.println(word + " = " + best.item);
           }
         }
