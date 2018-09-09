@@ -1,7 +1,9 @@
 package zemberek.normalization;
 
+import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -14,11 +16,14 @@ import zemberek.lm.compression.SmoothLm;
 public class NormalizationScripts {
 
   public static void main(String[] args) throws IOException {
-    Path root = Paths.get("/home/aaa/data/normalization");
+    Path root = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization");
     Path p = root.resolve("incorrect");
     Path s = root.resolve("split");
     Path lm = root.resolve("lm.slm");
-    splitWords(p, s, lm,2);
+    //splitWords(p, s, lm, 2);
+
+    Path quesOut = root.resolve("question-suffix");
+    getQuestionSuffixes(s, quesOut);
   }
 
   static void splitWords(Path wordFrequencyFile, Path splitFile, Path lmPath, int minWordCount)
@@ -51,7 +56,7 @@ public class NormalizationScripts {
 
         List<ScoredItem<String>> k = new ArrayList<>();
 
-        for (int i = 2; i < word.length() - 1; i++) {
+        for (int i = 1; i < word.length() - 1; i++) {
           String head = word.substring(0, i);
           String tail = word.substring(i);
           int hi = lm.getVocabulary().indexOf(head);
@@ -78,6 +83,36 @@ public class NormalizationScripts {
         }
       }
     }
+  }
+
+
+  static void getQuestionSuffixes(Path in, Path out) throws IOException {
+    List<String> splitLines = Files.readAllLines(in, Charsets.UTF_8);
+    Histogram<String> endings = new Histogram<>();
+    for (String splitLine : splitLines) {
+      String[] tokens = splitLine.split("=");
+      String s = tokens[1].trim();
+      String[] t2 = s.split("[ ]");
+      if (t2.length != 2) {
+        System.out.println("Problem in " + splitLine);
+        continue;
+      }
+      String suf = t2[1];
+      if (suf.startsWith("mi") ||
+          suf.startsWith("mu") ||
+          suf.startsWith("mı") ||
+          suf.startsWith("mü")
+          ) {
+        endings.add(t2[1]);
+      }
+    }
+    for (String ending : endings.getSortedList()) {
+      System.out.println(ending + " " + endings.getCount(ending));
+    }
+    for (String ending : endings.getSortedList()) {
+      System.out.println(ending);
+    }
+
   }
 
 }

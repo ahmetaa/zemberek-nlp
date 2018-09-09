@@ -55,7 +55,11 @@ public class TurkishMorphology {
   private TurkishMorphology(Builder builder) {
 
     this.lexicon = builder.lexicon;
-    this.morphotactics = new TurkishMorphotactics(this.lexicon);
+    if(builder.morphotactics==null) {
+      this.morphotactics = new TurkishMorphotactics(this.lexicon);
+    } else {
+      this.morphotactics = builder.morphotactics;
+    }
     this.analyzer = new InterpretingAnalyzer(morphotactics);
     this.wordGenerator = new WordGenerator(morphotactics);
     this.unidentifiedTokenAnalyzer = new UnidentifiedTokenAnalyzer(analyzer);
@@ -269,6 +273,7 @@ public class TurkishMorphology {
     boolean useUnidentifiedTokenAnalyzer = true;
     AnalysisCache cache;
     AmbiguityResolver ambiguityResolver;
+    TurkishMorphotactics morphotactics;
     TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
 
     public Builder addBinaryDictionary(Path dictionaryPath) throws IOException {
@@ -306,6 +311,11 @@ public class TurkishMorphology {
 
     public Builder addDictionaryLines(String... lines) {
       lexicon.addAll(TurkishDictionaryLoader.load(lines));
+      return this;
+    }
+
+    public Builder morphotactics(TurkishMorphotactics morphotactics) {
+      this.morphotactics = morphotactics;
       return this;
     }
 

@@ -334,7 +334,8 @@ public class TurkishTokenizerTest {
 
     String[] urls = {
         "fo@bar.baz",
-        "fo.bar@bar.baz"
+        "fo.bar@bar.baz",
+        "fo_.bar@bar.baz"
     };
     for (String s : urls) {
       matchToken(t, s, TurkishLexer.Email, s);

@@ -75,7 +75,7 @@ public class CharacterGraphDecoderTest {
   @Test
   public void asciiTolerantTest() {
     CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(1);
-    spellChecker.addWords("şıra", "sıra", "kömür");
+    spellChecker.addWords("şıra", "sıra", "kömür", "giriş");
     CharacterGraphDecoder.CharMatcher matcher = CharacterGraphDecoder.ASCII_TOLERANT_MATCHER;
     List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("komur", matcher);
     Assert.assertEquals(1, res.size());
@@ -85,6 +85,9 @@ public class CharacterGraphDecoderTest {
     Assert.assertEquals(2, res.size());
     assertContainsAll(res, "sıra", "şıra");
 
+    res = spellChecker.getSuggestionsWithScores("gırıs", matcher);
+    Assert.assertEquals(1, res.size());
+    assertContainsAll(res, "giriş");
   }
 
 

@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import zemberek.core.logging.Log;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.StemAndEnding;
@@ -103,6 +102,10 @@ public class SingleAnalysis {
       return sb.toString();
     }
 
+  }
+
+  public boolean containsInformalMorpheme() {
+    return getMorphemes().stream().anyMatch(m -> m.informal);
   }
 
   int getMorphemeGroupCount() {

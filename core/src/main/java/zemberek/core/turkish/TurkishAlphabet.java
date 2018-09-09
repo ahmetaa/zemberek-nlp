@@ -45,6 +45,7 @@ public class TurkishAlphabet {
   private String turkishSpecific = "çÇğĞıİöÖşŞüÜâîûÂÎÛ";
   private String turkishAscii = "cCgGiIoOsSuUaiuAIU";
   private IntIntMap asciiMap = new IntIntMap();
+  private FixedBitVector turkishSpecificLookup = TextUtil.generateBitLookup(turkishSpecific);
 
   private String foreignDiacritics = "ÀÁÂÃÄÅÈÉÊËÌÍÎÏÑÒÓÔÕÙÚÛàáâãäåèéêëìíîïñòóôõùúû";
   private String diaciritcsToTurkish = "AAAAAAEEEEIIIINOOOOUUUaaaaaaeeeeiiiinoooouuu";
@@ -207,6 +208,10 @@ public class TurkishAlphabet {
 
   public boolean containsCircumflex(String s) {
     return checkLookup(circumflexLookup, s);
+  }
+
+  public boolean isTurkishSpecific(char c) {
+    return lookup(turkishSpecificLookup, c);
   }
 
   public boolean containsApostrophe(String s) {

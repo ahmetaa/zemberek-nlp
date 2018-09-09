@@ -93,6 +93,9 @@ fragment TurkishLettersAll
 fragment AllTurkishAlphanumerical
     : [0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ];
 
+fragment AllTurkishAlphanumericalUnderscore
+    : [0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ_];
+
 fragment Apostrophe: ('\''|'’');
 
 fragment DoubleQuote: ('"'|'”'|'“'|'»'|'«');
@@ -140,7 +143,7 @@ URL :
     ('http://'|'https://')? 'www.' URLFragment URLFragmentWithDot+;
 
 Email
-    :AllTurkishAlphanumerical+ '.'? AllTurkishAlphanumerical+ '@'
+    :AllTurkishAlphanumericalUnderscore+ '.'? AllTurkishAlphanumericalUnderscore+ '@'
     (AllTurkishAlphanumerical+ '.' AllTurkishAlphanumerical+)+ ;
 
 HashTag: '#' AllTurkishAlphanumerical+;
