@@ -1,5 +1,6 @@
 package zemberek.normalization;
 
+import com.google.common.base.Stopwatch;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
@@ -8,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.lm.compression.SmoothLm;
@@ -25,14 +27,14 @@ public class BotExperiment {
         .addDefaultBinaryDictionary()
         .morphotactics(new InformalTurkishMorphotactics(formal.getLexicon()))
         .build();
-    Path root = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization");
+    Path root = Paths.get("/home/aaa/data/normalization");
     Path splitList = root.resolve("split");
     Path rawLines = root.resolve("bot/raw");
     Path nodup = root.resolve("bot/sentences-nodup");
     Path sentencesNodup = root.resolve("bot/sentences-nodup");
     Path sentencesNodupTokenized = root.resolve("bot/sentences-nodup-tokenized");
     //Path sentencesNodupTokenized = root.resolve("bot/test");
-    Path normalizationOutput = root.resolve("bot/normalized");
+    Path output = root.resolve("bot/report");
 
     Path lmPath = root.resolve("lm.slm");
     SmoothLm lm = SmoothLm.builder(lmPath).logBase(Math.E).build();
@@ -40,9 +42,9 @@ public class BotExperiment {
     TurkishSentenceNormalizer normalizer =
         new TurkishSentenceNormalizer(informal, splitList, lm);
 
-    //preprocess(rawLines, nodup, sentencesNodup, sentencesNodupTokenized);
+    // preprocess(rawLines, nodup, sentencesNodup, sentencesNodupTokenized);
 
-    normalize(normalizer, sentencesNodupTokenized, normalizationOutput);
+    normalize(normalizer, sentencesNodupTokenized, output);
     Log.info("Done.");
 
   }
@@ -78,20 +80,34 @@ public class BotExperiment {
     Files.write(sentencesNoDupTokenizedPath, sentencesNoDupTokenized, StandardCharsets.UTF_8);
   }
 
-  static void normalize(TurkishSentenceNormalizer normalizer, Path in, Path out)
+  static void normalize(
+      TurkishSentenceNormalizer normalizer,
+      Path in,
+      Path normalized)
       throws IOException {
     List<String> lines = Files.readAllLines(in, StandardCharsets.UTF_8);
-    try (PrintWriter pw = new PrintWriter(out.toFile(), "utf-8")) {
+    Stopwatch sw = Stopwatch.createStarted();
+    try (PrintWriter pw = new PrintWriter(normalized.toFile(), "utf-8")) {
+      int tokenCount = 0, lineCount = 0;
       for (String line : lines) {
+        tokenCount += TurkishTokenizer.DEFAULT.tokenize(line).size();
+        lineCount++;
         String n = normalizer.normalize(line);
         if (!n.equals(line)) {
           pw.println(line);
           pw.println(n);
           pw.println();
+        } else {
+          pw.println(line);
+          pw.println();
         }
       }
+      pw.println("Line count = " + lineCount);
+      pw.println("Token count = " + tokenCount);
+      double elapsed = sw.elapsed(TimeUnit.MILLISECONDS) / 1000d;
+      pw.println("Time to process = " + String.format("%.2f", elapsed) + " seconds.");
+      pw.println("Speed = " + String.format("%.2f", tokenCount/elapsed) + " tokens/seconds.");
     }
-
   }
 
 }

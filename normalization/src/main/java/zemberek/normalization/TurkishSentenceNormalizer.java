@@ -58,8 +58,7 @@ public class TurkishSentenceNormalizer {
     this.commonConnectedSuffixes.addAll(Arrays.asList("de", "da", "ki"));
   }
 
-  public String normalize(String input) {
-    List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(input);
+  public String normalize(List<Token> tokens) {
     String s = combineNecessaryWords(tokens);
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
     s = splitNecessaryWords(tokens, false);
@@ -77,6 +76,11 @@ public class TurkishSentenceNormalizer {
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
     s = useSpellChecker(tokens);
     return s;
+  }
+
+  public String normalize(String input) {
+    List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(input);
+    return normalize(tokens);
   }
 
   String splitNecessaryWords(List<Token> tokens, boolean useLookup) {
@@ -200,8 +204,8 @@ public class TurkishSentenceNormalizer {
 
 
   /**
-   * Tries to combine words that are written separately using heuristics.
-   * If it cannot combine, returns empty string.
+   * Tries to combine words that are written separately using heuristics. If it cannot combine,
+   * returns empty string.
    *
    * Such as:
    * <pre>
@@ -231,8 +235,8 @@ public class TurkishSentenceNormalizer {
   }
 
   /**
-   * Returns true if only word is analysed with internal dictionary and analysis
-   * dictionary item is not proper noun.
+   * Returns true if only word is analysed with internal dictionary and analysis dictionary item is
+   * not proper noun.
    */
   boolean hasRegularAnalysis(String s) {
     WordAnalysis a = morphology.analyze(s);
@@ -243,9 +247,8 @@ public class TurkishSentenceNormalizer {
   }
 
   /**
-   * Tries to separate question words, conjunctions and common mistakes
-   * by looking from a lookup or using heuristics.
-   * Such as:
+   * Tries to separate question words, conjunctions and common mistakes by looking from a lookup or
+   * using heuristics. Such as:
    * <pre>
    * gelecekmisin -> gelecek misin
    * tutupda -> tutup da
