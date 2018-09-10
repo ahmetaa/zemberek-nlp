@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -29,8 +28,8 @@ import zemberek.tokenization.TurkishTokenizer;
 
 
 /**
- * A modified implementation of Hassan and Menendez's 2013 paper "Social Text Normalization using
- * Contextual Graph Random Walks".
+ * A modified implementation of Hassan and Menezes's 2013 paper "Social Text Normalization using
+ * Contextual Graph Random Walks" And Demir's 2016 paper "Context Tailoring for Text Normalization"
  */
 public class NoisyWordsLexiconGenerator {
 

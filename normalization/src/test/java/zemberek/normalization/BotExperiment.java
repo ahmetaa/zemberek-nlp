@@ -34,7 +34,7 @@ public class BotExperiment {
     Path sentencesNodup = root.resolve("bot/sentences-nodup");
     Path sentencesNodupTokenized = root.resolve("bot/sentences-nodup-tokenized");
     //Path sentencesNodupTokenized = root.resolve("bot/test");
-    Path output = root.resolve("bot/report");
+    Path output = root.resolve("bot/report.txt");
 
     Path lmPath = root.resolve("lm.slm");
     SmoothLm lm = SmoothLm.builder(lmPath).logBase(Math.E).build();

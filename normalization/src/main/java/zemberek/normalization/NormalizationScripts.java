@@ -16,11 +16,11 @@ import zemberek.lm.compression.SmoothLm;
 public class NormalizationScripts {
 
   public static void main(String[] args) throws IOException {
-    Path root = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization");
+    Path root = Paths.get("/home/aaa/data/normalization");
     Path p = root.resolve("incorrect");
     Path s = root.resolve("split");
     Path lm = root.resolve("lm.slm");
-    //splitWords(p, s, lm, 2);
+    splitWords(p, s, lm, 2);
 
     Path quesOut = root.resolve("question-suffix");
     getQuestionSuffixes(s, quesOut);
