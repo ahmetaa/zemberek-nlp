@@ -4,9 +4,13 @@ import java.util.Arrays;
 
 /**
  * A simple hashmap with integer keys integer values. implements open address linear probing
- * algorithm. <p> Constraints: - Supports int key values in range (Integer.MIN_VALUE..Integer.MAX_VALUE];
- * - Does not implement Map interface - Capacity can be max 1 << 28 - Does not implement Iterable. -
- * Class is not thread safe.
+ * algorithm. Constraints: <pre>
+ * - Supports int key values in range (Integer.MIN_VALUE..Integer.MAX_VALUE];
+ * - Does not implement Map interface
+ * - Capacity can be max 1 << 28
+ * - Does not implement Iterable.
+ * - Class is not thread safe.
+ * </pre>
  */
 public final class IntIntMap {
 
@@ -98,6 +102,22 @@ public final class IntIntMap {
     int loc = locate(key);
     if (loc >= 0) {
       entries[loc + 1] = value;
+    } else {
+      loc = -loc - 1;
+      entries[loc] = key;
+      entries[loc + 1] = value;
+      keyCount++;
+    }
+  }
+
+  public void increment(int key, int value) {
+    checkKey(key);
+    if (keyCount > threshold) {
+      expand();
+    }
+    int loc = locate(key);
+    if (loc >= 0) {
+      entries[loc + 1] += value;
     } else {
       loc = -loc - 1;
       entries[loc] = key;
