@@ -35,7 +35,7 @@ public abstract class UIntKeyHashBase {
       k <<= 1;
     }
     keys = new int[k];
-    Arrays.fill(keys, -1);
+    Arrays.fill(keys, EMPTY);
     threshold = (int) (k * LOAD_FACTOR);
     modulo = k - 1;
   }
@@ -143,6 +143,7 @@ public abstract class UIntKeyHashBase {
         keyArray[c++] = key;
       }
     }
+    assert c == keyArray.length;
     return keyArray;
   }
 

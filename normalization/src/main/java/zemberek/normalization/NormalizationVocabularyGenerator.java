@@ -73,7 +73,7 @@ public class NormalizationVocabularyGenerator {
   }
 
 
-  static class Vocabulary {
+  private static class Vocabulary {
 
     Histogram<String> correct = new Histogram<>(100_000);
     Histogram<String> incorrect = new Histogram<>(100_000);
