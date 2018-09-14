@@ -35,7 +35,6 @@ import zemberek.core.turkish.Turkish;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 
-
 /**
  * A modified implementation of Hassan and Menezes's 2013 paper "Social Text Normalization using
  * Contextual Graph Random Walks".
@@ -83,7 +82,7 @@ public class NoisyWordsLexiconGenerator {
 
     Log.info("Collecting candidates data.");
     int threadCount = Runtime.getRuntime().availableProcessors() / 2;
-    WalkResult walkResult = walker.walk(1000, 4, threadCount);
+    WalkResult walkResult = walker.walk(100, 6, threadCount);
     Path allCandidates = outRoot.resolve("all-candidates");
     try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8")) {
       for (String s : walkResult.allCandidates.keySet()) {
@@ -93,7 +92,6 @@ public class NoisyWordsLexiconGenerator {
     }
 
     Log.info("Done");
-
   }
 
   /**
@@ -127,7 +125,7 @@ public class NoisyWordsLexiconGenerator {
     return graph;
   }
 
-  LinkedHashSet<String> getSentences(Path path) throws IOException {
+  private LinkedHashSet<String> getSentences(Path path) throws IOException {
     List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8).stream()
         .filter(s -> !s.startsWith("<"))
         .map(TextUtil::normalizeSpacesAndSoftHyphens)
@@ -136,15 +134,15 @@ public class NoisyWordsLexiconGenerator {
   }
 
 
-  public static final String SENTENCE_START = "<s>";
-  public static final String SENTENCE_END = "</s>";
+  static final String SENTENCE_START = "<s>";
+  static final String SENTENCE_END = "</s>";
 
   private static class RandomWalkNode {
 
     int[] keysCounts;
     int totalCounts;
 
-    public RandomWalkNode(int[] keysCounts, int totalCounts) {
+    RandomWalkNode(int[] keysCounts, int totalCounts) {
       this.keysCounts = keysCounts;
       this.totalCounts = totalCounts;
     }
@@ -369,7 +367,7 @@ public class NoisyWordsLexiconGenerator {
 
     int contextSize;
 
-    public ContextualSimilarityGraph(
+    ContextualSimilarityGraph(
         NormalizationVocabulary vocabulary,
         int contextSize) {
 

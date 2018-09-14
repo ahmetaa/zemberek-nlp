@@ -25,6 +25,9 @@ import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.AnalysisCache;
 import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.lexicon.DictionarySerializer;
+import zemberek.morphology.lexicon.RootLexicon;
+import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 
@@ -41,11 +44,15 @@ public class NormalizationVocabularyGenerator {
 
     AnalysisCache cache = AnalysisCache
         .builder()
-        .dynamicCacheSize(100_000, 500_000).build();
+        .dynamicCacheSize(300_000, 500_000).build();
+
+    RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
+
     TurkishMorphology morphology = TurkishMorphology
         .builder()
-        .addDefaultBinaryDictionary()
+        .useLexicon(lexicon)
         .disableUnidentifiedTokenAnalyzer()
+        .morphotactics(new InformalTurkishMorphotactics(lexicon))
         .setCache(cache)
         .build();
 
@@ -72,6 +79,9 @@ public class NormalizationVocabularyGenerator {
 
     // create vocabularies
     int threadCount = Runtime.getRuntime().availableProcessors() / 2;
+    if (threadCount > 20) {
+      threadCount = 20;
+    }
     generator.createVocabulary(
         corpora,
         threadCount,
@@ -115,7 +125,7 @@ public class NormalizationVocabularyGenerator {
       service.submit(new WordCollectorTask(path, result));
     }
     executorService.shutdown();
-    executorService.awaitTermination(1,TimeUnit.DAYS);
+    executorService.awaitTermination(1, TimeUnit.DAYS);
     return result;
   }
 
