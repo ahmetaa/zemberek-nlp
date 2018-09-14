@@ -15,12 +15,18 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import zemberek.core.IntPair;
 import zemberek.core.collections.Histogram;
 import zemberek.core.collections.IntIntMap;
+import zemberek.core.collections.IntVector;
 import zemberek.core.collections.UIntMap;
 import zemberek.core.collections.UIntValueMap;
+import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
@@ -76,11 +82,12 @@ public class NoisyWordsLexiconGenerator {
     RandomWalker walker = RandomWalker.fromGraphFile(vocabulary, graphPath);
 
     Log.info("Collecting candidates data.");
-    Multimap<String, String> allPossibilities = walker.walk(100, 4);
+    int threadCount = Runtime.getRuntime().availableProcessors() / 2;
+    WalkResult walkResult = walker.walk(1000, 4, threadCount);
     Path allCandidates = outRoot.resolve("all-candidates");
     try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8")) {
-      for (String s : allPossibilities.keySet()) {
-        pw.println(s + "=" + String.join(" ", allPossibilities.get(s)));
+      for (String s : walkResult.allCandidates.keySet()) {
+        pw.println(s + "=" + String.join(" ", walkResult.allCandidates.get(s)));
         pw.println();
       }
     }
@@ -193,51 +200,120 @@ public class NoisyWordsLexiconGenerator {
       return edgeMap;
     }
 
-    Multimap<String, String> walk(int walkCount, int maxHopCount) {
-      Multimap<String, String> allPossibilities = HashMultimap.create();
-
-      int c = 0;
+    WalkResult walk(int walkCount, int maxHopCount, int threadCount)
+        throws Exception {
+      List<Work> workList = new ArrayList<>();
+      int bathSize = 5_000;
+      IntVector vector = new IntVector(bathSize);
       for (int wordIndex : wordsToContextHashes.getKeys()) {
-        // for all noisy words
+        // only noisy words
         if (vocabulary.isValid(wordIndex)) {
           continue;
         }
-        if (c > 0 && c % 10_000 == 0) {
-          Log.info("Candidates for %d words collected.");
-        }
-        c++;
-        int node = wordIndex;
-        for (int i = 0; i < walkCount; i++) {
-          boolean atWordNode = true;
-          for (int j = 0; j < maxHopCount; j++) {
-            node = atWordNode ?
-                selectFromDistribution(wordsToContextHashes.get(node)) :
-                selectFromDistribution(contextHashesToWords.get(node));
-            atWordNode = !atWordNode;
-            if (atWordNode && node != wordIndex && vocabulary.isValid(node)) {
-              allPossibilities.put(vocabulary.getWord(wordIndex), vocabulary.getWord(node));
-              break;
-            }
-
-          }
+        vector.add(wordIndex);
+        if (vector.size() == bathSize) {
+          workList.add(new Work(vector.copyOf()));
+          vector = new IntVector(bathSize);
         }
       }
-      return allPossibilities;
+      // for remaining data.
+      if (vector.size() > 0) {
+        workList.add(new Work(vector.copyOf()));
+      }
+
+      ExecutorService executorService = new BlockingExecutor(threadCount);
+      CompletionService<WalkResult> service =
+          new ExecutorCompletionService<>(executorService);
+
+      for (Work work : workList) {
+        service.submit(new WalkTask(
+            this,
+            work,
+            walkCount,
+            maxHopCount
+        ));
+      }
+      executorService.shutdown();
+
+      int workCount = 0;
+      WalkResult result = new WalkResult();
+      while (workCount < workList.size()) {
+        WalkResult threadResult = service.take().get();
+        result.allCandidates.putAll(threadResult.allCandidates);
+        Log.info("%d words processed.", result.allCandidates.size());
+        workCount++;
+      }
+      return result;
     }
 
     int selectFromDistribution(RandomWalkNode node) {
-      int rollDice = rnd.nextInt(node.totalCounts);
+      int dice = rnd.nextInt(node.totalCounts);
       int accumulator = 0;
       int[] keysCounts = node.keysCounts;
       for (int i = 0; i < keysCounts.length; i += 2) {
         accumulator += keysCounts[i + 1];
-        if (accumulator >= rollDice) {
+        if (accumulator >= dice) {
           return keysCounts[i];
         }
       }
       throw new IllegalStateException("Unreachable.");
     }
+  }
 
+  private static class WalkResult {
+    Multimap<String, String> allCandidates = HashMultimap.create();
+  }
+
+  private static class Work {
+
+    int[] wordIndexes;
+
+    Work(int[] wordIndexes) {
+      this.wordIndexes = wordIndexes;
+    }
+  }
+
+  private static class WalkTask implements Callable<WalkResult> {
+
+    RandomWalker walker;
+    Work work;
+    int walkCount;
+    int maxHopCount;
+
+    WalkTask(RandomWalker walker, Work work, int walkCount, int maxHopCount) {
+      this.walker = walker;
+      this.work = work;
+      this.walkCount = walkCount;
+      this.maxHopCount = maxHopCount;
+    }
+
+    @Override
+    public WalkResult call() {
+      WalkResult result = new WalkResult();
+      for (int wordIndex : work.wordIndexes) {
+        // Only noisy words. Just to be sure.
+        if (walker.vocabulary.isValid(wordIndex)) {
+          continue;
+        }
+        int node = wordIndex;
+        for (int i = 0; i < walkCount; i++) {
+          boolean atWordNode = true;
+          for (int j = 0; j < maxHopCount; j++) {
+            node = atWordNode ?
+                walker.selectFromDistribution(walker.wordsToContextHashes.get(node)) :
+                walker.selectFromDistribution(walker.contextHashesToWords.get(node));
+            atWordNode = !atWordNode;
+            if (atWordNode && node != wordIndex && walker.vocabulary.isValid(node)) {
+              result.allCandidates.put(
+                  walker.vocabulary.getWord(wordIndex),
+                  walker.vocabulary.getWord(node));
+              break;
+            }
+          }
+        }
+      }
+      return result;
+    }
   }
 
   public static class NormalizationVocabulary {
@@ -246,7 +322,7 @@ public class NoisyWordsLexiconGenerator {
     UIntValueMap<String> indexes = new UIntValueMap<>();
     int outWordStart;
 
-    public NormalizationVocabulary(
+    NormalizationVocabulary(
         Path correct,
         Path incorrect,
         int correctMinCount,
@@ -283,7 +359,6 @@ public class NoisyWordsLexiconGenerator {
     }
 
   }
-
 
   public class ContextualSimilarityGraph {
 

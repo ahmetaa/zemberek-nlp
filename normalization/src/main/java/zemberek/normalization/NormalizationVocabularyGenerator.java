@@ -12,6 +12,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import zemberek.core.collections.Histogram;
@@ -70,9 +71,10 @@ public class NormalizationVocabularyGenerator {
     Files.createDirectories(outRoot);
 
     // create vocabularies
+    int threadCount = Runtime.getRuntime().availableProcessors() / 2;
     generator.createVocabulary(
         corpora,
-        Runtime.getRuntime().availableProcessors() / 2,
+        threadCount,
         outRoot);
   }
 
@@ -91,7 +93,7 @@ public class NormalizationVocabularyGenerator {
     }
   }
 
-  void createVocabulary(List<Path> corpora, int threadCount, Path outRoot) throws IOException {
+  void createVocabulary(List<Path> corpora, int threadCount, Path outRoot) throws Exception {
     Log.info("Thread count = %d", threadCount);
     Vocabulary vocabulary = collectVocabularyHistogram(corpora, threadCount);
 
@@ -102,7 +104,7 @@ public class NormalizationVocabularyGenerator {
     vocabulary.ignored.saveSortedByCounts(outRoot.resolve("ignored"), " ");
   }
 
-  Vocabulary collectVocabularyHistogram(List<Path> corpora, int threadCount) {
+  Vocabulary collectVocabularyHistogram(List<Path> corpora, int threadCount) throws Exception {
     ExecutorService executorService = new BlockingExecutor(threadCount);
     CompletionService<Vocabulary> service =
         new ExecutorCompletionService<>(executorService);
@@ -113,6 +115,7 @@ public class NormalizationVocabularyGenerator {
       service.submit(new WordCollectorTask(path, result));
     }
     executorService.shutdown();
+    executorService.awaitTermination(1,TimeUnit.DAYS);
     return result;
   }
 
