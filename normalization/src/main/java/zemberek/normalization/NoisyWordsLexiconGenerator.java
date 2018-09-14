@@ -75,8 +75,8 @@ public class NoisyWordsLexiconGenerator {
     Log.info("Constructing random walk graph from %s", graphPath);
     RandomWalker walker = RandomWalker.fromGraphFile(vocabulary, graphPath);
 
-    Multimap<String, String> allPossibilities = walker.walk(10, 4);
     Log.info("Collecting candidates data.");
+    Multimap<String, String> allPossibilities = walker.walk(100, 4);
     Path allCandidates = outRoot.resolve("all-candidates");
     try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8")) {
       for (String s : allPossibilities.keySet()) {
@@ -132,18 +132,29 @@ public class NoisyWordsLexiconGenerator {
   public static final String SENTENCE_START = "<s>";
   public static final String SENTENCE_END = "</s>";
 
+  private static class RandomWalkNode {
+
+    int[] keysCounts;
+    int totalCounts;
+
+    public RandomWalkNode(int[] keysCounts, int totalCounts) {
+      this.keysCounts = keysCounts;
+      this.totalCounts = totalCounts;
+    }
+  }
+
   private static class RandomWalker {
 
-    UIntMap<int[]> contextHashesToWords;
-    UIntMap<int[]> wordsToContextHashes;
+    UIntMap<RandomWalkNode> contextHashesToWords;
+    UIntMap<RandomWalkNode> wordsToContextHashes;
     NormalizationVocabulary vocabulary;
     private static final Random rnd = new Random(1);
 
 
     public RandomWalker(
         NormalizationVocabulary vocabulary,
-        UIntMap<int[]> contextHashesToWords,
-        UIntMap<int[]> wordsToContextHashes) {
+        UIntMap<RandomWalkNode> contextHashesToWords,
+        UIntMap<RandomWalkNode> wordsToContextHashes) {
       this.vocabulary = vocabulary;
       this.contextHashesToWords = contextHashesToWords;
       this.wordsToContextHashes = wordsToContextHashes;
@@ -152,23 +163,32 @@ public class NoisyWordsLexiconGenerator {
     static RandomWalker fromGraphFile(NormalizationVocabulary vocabulary, Path path)
         throws IOException {
       try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
-        UIntMap<int[]> contextHashesToWords = loadNodes(dis);
-        UIntMap<int[]> wordsToContextHashes = loadNodes(dis);
+        UIntMap<RandomWalkNode> contextHashesToWords = loadNodes(dis);
+        UIntMap<RandomWalkNode> wordsToContextHashes = loadNodes(dis);
         return new RandomWalker(vocabulary, contextHashesToWords, wordsToContextHashes);
       }
     }
 
-    private static UIntMap<int[]> loadNodes(DataInputStream dis) throws IOException {
-      int contextSize = dis.readInt();
-      UIntMap<int[]> edgeMap = new UIntMap<>(contextSize / 2);
-      for (int i = 0; i < contextSize; i++) {
+    private static UIntMap<RandomWalkNode> loadNodes(DataInputStream dis) throws IOException {
+      int nodeCount = dis.readInt();
+      Log.info("There are %d nodes.", nodeCount);
+      UIntMap<RandomWalkNode> edgeMap = new UIntMap<>(nodeCount / 2);
+      for (int i = 0; i < nodeCount; i++) {
         int key = dis.readInt();
         int size = dis.readInt();
         int[] keysCounts = new int[size * 2];
+        int totalCount = 0;
         for (int j = 0; j < size * 2; j++) {
-          keysCounts[j] = dis.readInt();
+          int val = dis.readInt();
+          keysCounts[j] = val;
+          if ((j & 0x01) == 1) {
+            totalCount += val;
+          }
         }
-        edgeMap.put(key, keysCounts);
+        edgeMap.put(key, new RandomWalkNode(keysCounts, totalCount));
+        if (i > 0 && i % 500_000 == 0) {
+          Log.info("%d node data loaded.", i);
+        }
       }
       return edgeMap;
     }
@@ -176,11 +196,16 @@ public class NoisyWordsLexiconGenerator {
     Multimap<String, String> walk(int walkCount, int maxHopCount) {
       Multimap<String, String> allPossibilities = HashMultimap.create();
 
+      int c = 0;
       for (int wordIndex : wordsToContextHashes.getKeys()) {
         // for all noisy words
         if (vocabulary.isValid(wordIndex)) {
           continue;
         }
+        if (c > 0 && c % 10_000 == 0) {
+          Log.info("Candidates for %d words collected.");
+        }
+        c++;
         int node = wordIndex;
         for (int i = 0; i < walkCount; i++) {
           boolean atWordNode = true;
@@ -189,24 +214,21 @@ public class NoisyWordsLexiconGenerator {
                 selectFromDistribution(wordsToContextHashes.get(node)) :
                 selectFromDistribution(contextHashesToWords.get(node));
             atWordNode = !atWordNode;
-            if (atWordNode && vocabulary.isValid(node)) {
+            if (atWordNode && node != wordIndex && vocabulary.isValid(node)) {
               allPossibilities.put(vocabulary.getWord(wordIndex), vocabulary.getWord(node));
               break;
             }
+
           }
         }
       }
       return allPossibilities;
     }
 
-    int selectFromDistribution(int[] keysCounts) {
-      int totalCount = 0;
-      for (int i = 0; i < keysCounts.length; i += 2) {
-        totalCount += keysCounts[i + 1];
-      }
-
-      int rollDice = rnd.nextInt(totalCount);
+    int selectFromDistribution(RandomWalkNode node) {
+      int rollDice = rnd.nextInt(node.totalCounts);
       int accumulator = 0;
+      int[] keysCounts = node.keysCounts;
       for (int i = 0; i < keysCounts.length; i += 2) {
         accumulator += keysCounts[i + 1];
         if (accumulator >= rollDice) {
@@ -249,7 +271,7 @@ public class NoisyWordsLexiconGenerator {
     }
 
     boolean isValid(int id) {
-      return id < outWordStart;
+      return id >= 0 && id < outWordStart && id < totalSize();
     }
 
     int getIndex(String word) {
