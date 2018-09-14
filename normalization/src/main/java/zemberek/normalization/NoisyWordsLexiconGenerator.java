@@ -47,7 +47,7 @@ public class NoisyWordsLexiconGenerator {
     NoisyWordsLexiconGenerator generator = new NoisyWordsLexiconGenerator();
 
     Path corporaRoot = Paths.get("/home/aaa/data/corpora");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/test");
+    Path outRoot = Paths.get("/home/aaa/data/normalization/test2");
     Path rootList = Paths.get("/home/aaa/data/corpora/vocab-list");
     List<String> rootNames = TextIO.loadLines(rootList, "#");
 
@@ -74,7 +74,8 @@ public class NoisyWordsLexiconGenerator {
 
     // create graph
     Path graphPath = outRoot.resolve("graph");
-    //generator.buildGraph(vocabulary, corpora, graphPath);
+    ContextualSimilarityGraph graph = generator.buildGraph(vocabulary, corpora, graphPath);
+    graph.info();
 
     // create Random Walker
     Log.info("Constructing random walk graph from %s", graphPath);
@@ -132,7 +133,6 @@ public class NoisyWordsLexiconGenerator {
         .collect(Collectors.toList());
     return new LinkedHashSet<>(TurkishSentenceExtractor.DEFAULT.fromParagraphs(lines));
   }
-
 
   static final String SENTENCE_START = "<s>";
   static final String SENTENCE_END = "</s>";
@@ -259,6 +259,7 @@ public class NoisyWordsLexiconGenerator {
   }
 
   private static class WalkResult {
+
     Multimap<String, String> allCandidates = HashMultimap.create();
   }
 
@@ -427,6 +428,19 @@ public class NoisyWordsLexiconGenerator {
       }
     }
 
+    void info() {
+      IntIntMap map = new IntIntMap();
+      for (IntIntMap i : contextHashToWordCounts) {
+        map.increment(i.size(),1);
+      }
+      IntPair[] pairs = map.getAsPairs();
+      Arrays.sort(pairs, (a,b)->Integer.compare(b.second, a.second));
+      for (IntPair pair : pairs) {
+        System.out.println(pair.first + " " + pair.second);
+      }
+
+    }
+
     void serializeForRandomWalk(Path p) throws IOException {
       try (DataOutputStream dos = IOUtil.getDataOutputStream(p)) {
         serializeEdges(dos, contextHashToWordCounts);
@@ -439,9 +453,11 @@ public class NoisyWordsLexiconGenerator {
 
       dos.writeInt(edgesMap.size());
 
-      for (int wordIndex : edgesMap.getKeys()) {
-        dos.writeInt(wordIndex);
-        IntIntMap map = edgesMap.get(wordIndex);
+      for (int nodeIndex : edgesMap.getKeys()) {
+
+        dos.writeInt(nodeIndex);
+        IntIntMap map = edgesMap.get(nodeIndex);
+
         if (map == null) {
           throw new IllegalStateException("edge map is null!");
         }

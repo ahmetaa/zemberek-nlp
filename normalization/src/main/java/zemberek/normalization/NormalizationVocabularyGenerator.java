@@ -59,7 +59,7 @@ public class NormalizationVocabularyGenerator {
     NormalizationVocabularyGenerator generator = new NormalizationVocabularyGenerator(morphology);
 
     Path corporaRoot = Paths.get("/home/aaa/data/corpora");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/test");
+    Path outRoot = Paths.get("/home/aaa/data/normalization/test2");
     Path rootList = Paths.get("/home/aaa/data/corpora/vocab-list");
     List<String> rootNames = TextIO.loadLines(rootList, "#");
 
