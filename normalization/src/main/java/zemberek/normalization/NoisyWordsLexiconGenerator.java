@@ -32,6 +32,7 @@ import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.Turkish;
+import zemberek.normalization.NormalizationVocabularyGenerator.Vocabulary;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 
@@ -46,9 +47,9 @@ public class NoisyWordsLexiconGenerator {
 
     NoisyWordsLexiconGenerator generator = new NoisyWordsLexiconGenerator();
 
-    Path corporaRoot = Paths.get("/home/aaa/data/corpora");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/test");
-    Path rootList = Paths.get("/home/aaa/data/corpora/vocab-list");
+    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
+    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test");
+    Path rootList = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora/vocab-list");
     List<String> rootNames = TextIO.loadLines(rootList, "#");
 
     List<Path> roots = new ArrayList<>();
@@ -74,7 +75,13 @@ public class NoisyWordsLexiconGenerator {
 
     // create graph
     Path graphPath = outRoot.resolve("graph");
-    //generator.buildGraph(vocabulary, corpora, graphPath);
+    ContextualSimilarityGraph graph = generator.buildGraph(vocabulary, corpora, 1);
+    Log.info("Context hash count = %d", graph.contextHashCount());
+    Log.info("Edge count = %d", graph.edgeCount());
+
+    Log.info("Serializing graph for random walk structure.");
+    graph.serializeForRandomWalk(graphPath);
+    Log.info("Serialized to %s", graphPath);
 
     // create Random Walker
     Log.info("Constructing random walk graph from %s", graphPath);
@@ -100,9 +107,9 @@ public class NoisyWordsLexiconGenerator {
   ContextualSimilarityGraph buildGraph(
       NormalizationVocabulary vocabulary,
       List<Path> corpora,
-      Path graphPath) throws IOException {
+      int contextSize) throws IOException {
 
-    ContextualSimilarityGraph graph = new ContextualSimilarityGraph(vocabulary, 1);
+    ContextualSimilarityGraph graph = new ContextualSimilarityGraph(vocabulary, contextSize);
 
     int i = 0;
     for (Path path : corpora) {
@@ -115,13 +122,6 @@ public class NoisyWordsLexiconGenerator {
         i++;
       }
     }
-    Log.info("Context hash count = %d", graph.contextHashCount());
-    Log.info("Edge count = %d", graph.edgeCount());
-
-    Log.info("Serializing graph for random walk structure.");
-    graph.serializeForRandomWalk(graphPath);
-    Log.info("Serialized to %s", graphPath);
-
     return graph;
   }
 
@@ -133,11 +133,10 @@ public class NoisyWordsLexiconGenerator {
     return new LinkedHashSet<>(TurkishSentenceExtractor.DEFAULT.fromParagraphs(lines));
   }
 
+  private static final String SENTENCE_START = "<s>";
+  private static final String SENTENCE_END = "</s>";
 
-  static final String SENTENCE_START = "<s>";
-  static final String SENTENCE_END = "</s>";
-
-  private static class RandomWalkNode {
+  static class RandomWalkNode {
 
     int[] keysCounts;
     int totalCounts;
@@ -148,7 +147,7 @@ public class NoisyWordsLexiconGenerator {
     }
   }
 
-  private static class RandomWalker {
+  static class RandomWalker {
 
     UIntMap<RandomWalkNode> contextHashesToWords;
     UIntMap<RandomWalkNode> wordsToContextHashes;
@@ -156,7 +155,7 @@ public class NoisyWordsLexiconGenerator {
     private static final Random rnd = new Random(1);
 
 
-    public RandomWalker(
+    RandomWalker(
         NormalizationVocabulary vocabulary,
         UIntMap<RandomWalkNode> contextHashesToWords,
         UIntMap<RandomWalkNode> wordsToContextHashes) {
@@ -245,7 +244,7 @@ public class NoisyWordsLexiconGenerator {
     }
 
     int selectFromDistribution(RandomWalkNode node) {
-      int dice = rnd.nextInt(node.totalCounts);
+      int dice = rnd.nextInt(node.totalCounts + 1);
       int accumulator = 0;
       int[] keysCounts = node.keysCounts;
       for (int i = 0; i < keysCounts.length; i += 2) {
@@ -258,7 +257,8 @@ public class NoisyWordsLexiconGenerator {
     }
   }
 
-  private static class WalkResult {
+  static class WalkResult {
+
     Multimap<String, String> allCandidates = HashMultimap.create();
   }
 
@@ -293,18 +293,26 @@ public class NoisyWordsLexiconGenerator {
         if (walker.vocabulary.isValid(wordIndex)) {
           continue;
         }
-        int node = wordIndex;
         for (int i = 0; i < walkCount; i++) {
+          int nodeIndex = wordIndex;
           boolean atWordNode = true;
           for (int j = 0; j < maxHopCount; j++) {
-            node = atWordNode ?
-                walker.selectFromDistribution(walker.wordsToContextHashes.get(node)) :
-                walker.selectFromDistribution(walker.contextHashesToWords.get(node));
+
+            RandomWalkNode node = atWordNode ?
+                walker.wordsToContextHashes.get(nodeIndex) :
+                walker.contextHashesToWords.get(nodeIndex);
+
+            if (node == null) {
+              System.out.println();
+            }
+
+            nodeIndex = walker.selectFromDistribution(node);
+
             atWordNode = !atWordNode;
-            if (atWordNode && node != wordIndex && walker.vocabulary.isValid(node)) {
+            if (atWordNode && nodeIndex != wordIndex && walker.vocabulary.isValid(nodeIndex)) {
               result.allCandidates.put(
                   walker.vocabulary.getWord(wordIndex),
-                  walker.vocabulary.getWord(node));
+                  walker.vocabulary.getWord(nodeIndex));
               break;
             }
           }
@@ -314,20 +322,18 @@ public class NoisyWordsLexiconGenerator {
     }
   }
 
-  public static class NormalizationVocabulary {
+  static class NormalizationVocabulary {
 
     List<String> words;
     UIntValueMap<String> indexes = new UIntValueMap<>();
     int outWordStart;
 
     NormalizationVocabulary(
-        Path correct,
-        Path incorrect,
+        Vocabulary vocabulary,
         int correctMinCount,
-        int incorrectMinCount) throws IOException {
-
-      Histogram<String> inWords = Histogram.loadFromUtf8File(correct, ' ');
-      Histogram<String> outWords = Histogram.loadFromUtf8File(incorrect, ' ');
+        int incorrectMinCount) {
+      Histogram<String> inWords = vocabulary.correct;
+      Histogram<String> outWords = vocabulary.incorrect;
       inWords.removeSmaller(correctMinCount);
       outWords.removeSmaller(incorrectMinCount);
       this.outWordStart = inWords.size();
@@ -340,12 +346,28 @@ public class NoisyWordsLexiconGenerator {
       }
     }
 
+    NormalizationVocabulary(
+        Path correct,
+        Path incorrect,
+        int correctMinCount,
+        int incorrectMinCount) throws IOException {
+      this(new Vocabulary(
+              Histogram.loadFromUtf8File(correct, ' '),
+              Histogram.loadFromUtf8File(incorrect, ' '),
+              new Histogram<>()),
+          correctMinCount, incorrectMinCount);
+    }
+
     int totalSize() {
       return words.size();
     }
 
     boolean isValid(int id) {
       return id >= 0 && id < outWordStart && id < totalSize();
+    }
+
+    boolean isValid(String id) {
+      return isValid(getIndex(id));
     }
 
     int getIndex(String word) {
@@ -358,10 +380,10 @@ public class NoisyWordsLexiconGenerator {
 
   }
 
-  public class ContextualSimilarityGraph {
+  class ContextualSimilarityGraph {
 
-    UIntMap<IntIntMap> contextHashToWordCounts = new UIntMap<>(100_000);
-    UIntMap<IntIntMap> wordToContexts = new UIntMap<>(100_000);
+    UIntMap<IntIntMap> contextHashToWordCounts = new UIntMap<>();
+    UIntMap<IntIntMap> wordToContexts = new UIntMap<>();
 
     NormalizationVocabulary vocabulary;
 
@@ -439,9 +461,9 @@ public class NoisyWordsLexiconGenerator {
 
       dos.writeInt(edgesMap.size());
 
-      for (int wordIndex : edgesMap.getKeys()) {
-        dos.writeInt(wordIndex);
-        IntIntMap map = edgesMap.get(wordIndex);
+      for (int nodeIndex : edgesMap.getKeys()) {
+        dos.writeInt(nodeIndex);
+        IntIntMap map = edgesMap.get(nodeIndex);
         if (map == null) {
           throw new IllegalStateException("edge map is null!");
         }
@@ -469,7 +491,7 @@ public class NoisyWordsLexiconGenerator {
 
   }
 
-  private static int hash(String[] context) {
+  static int hash(String... context) {
     int d = 0x811C9DC5;
     for (String s : context) {
       for (int i = 0; i < s.length(); i++) {

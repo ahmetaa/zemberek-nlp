@@ -1,0 +1,17 @@
+# Noisy words:
+# ağşam, acıba, kisi
+# gelicek, gidicez (if informal analysis is not used.)
+
+bu ağşam eve kaç kişi gelicek
+acıba bu akşam eve kaç kez gidicez
+acaba bu araba kaç para eder
+kaç kisi gelicek
+bu akşam eve gitmesek mi
+yemeğe kaç kişi gelecek
+oraya üç kez gideceğiz
+buraya üç kez gittik
+sanırım oraya üç kez gittik
+acaba bu eve kaç kişi gelcek
+buraya beş kişi oturacak
+yarın akşam git
+dün akşam uyudum

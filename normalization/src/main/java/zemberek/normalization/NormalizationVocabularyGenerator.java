@@ -58,9 +58,9 @@ public class NormalizationVocabularyGenerator {
 
     NormalizationVocabularyGenerator generator = new NormalizationVocabularyGenerator(morphology);
 
-    Path corporaRoot = Paths.get("/home/aaa/data/corpora");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/test");
-    Path rootList = Paths.get("/home/aaa/data/corpora/vocab-list");
+    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
+    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test");
+    Path rootList = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora/vocab-list");
     List<String> rootNames = TextIO.loadLines(rootList, "#");
 
     List<Path> roots = new ArrayList<>();
@@ -88,12 +88,21 @@ public class NormalizationVocabularyGenerator {
         outRoot);
   }
 
-
-  private static class Vocabulary {
+  static class Vocabulary {
 
     Histogram<String> correct = new Histogram<>(100_000);
     Histogram<String> incorrect = new Histogram<>(100_000);
     Histogram<String> ignored = new Histogram<>(10_000);
+
+    public Vocabulary() {
+    }
+
+    public Vocabulary(Histogram<String> correct,
+        Histogram<String> incorrect, Histogram<String> ignored) {
+      this.correct = correct;
+      this.incorrect = incorrect;
+      this.ignored = ignored;
+    }
 
     public String toString() {
       return String.format("Correct =%d Incorrect=%d Ignored=%d",
@@ -101,6 +110,7 @@ public class NormalizationVocabularyGenerator {
           incorrect.size(),
           ignored.size());
     }
+
   }
 
   void createVocabulary(List<Path> corpora, int threadCount, Path outRoot) throws Exception {
