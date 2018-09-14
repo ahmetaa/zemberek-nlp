@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import zemberek.core.collections.Histogram;
 import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -39,7 +40,7 @@ public class NormalizationVocabularyGenerator {
 
     AnalysisCache cache = AnalysisCache
         .builder()
-        .dynamicCacheSize(100_000, 200_000).build();
+        .dynamicCacheSize(100_000, 500_000).build();
     TurkishMorphology morphology = TurkishMorphology
         .builder()
         .addDefaultBinaryDictionary()
@@ -49,10 +50,10 @@ public class NormalizationVocabularyGenerator {
 
     NormalizationVocabularyGenerator generator = new NormalizationVocabularyGenerator(morphology);
 
-    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
-    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test");
-    Path rootList = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora/vocab-list");
-    List<String> rootNames = Files.readAllLines(rootList);
+    Path corporaRoot = Paths.get("/home/aaa/data/corpora");
+    Path outRoot = Paths.get("/home/aaa/data/normalization/test");
+    Path rootList = Paths.get("/home/aaa/data/corpora/vocab-list");
+    List<String> rootNames = TextIO.loadLines(rootList, "#");
 
     List<Path> roots = new ArrayList<>();
     rootNames.forEach(s -> roots.add(corporaRoot.resolve(s)));
@@ -69,7 +70,10 @@ public class NormalizationVocabularyGenerator {
     Files.createDirectories(outRoot);
 
     // create vocabularies
-    generator.createVocabulary(corpora, 4, outRoot);
+    generator.createVocabulary(
+        corpora,
+        Runtime.getRuntime().availableProcessors() / 2,
+        outRoot);
   }
 
 

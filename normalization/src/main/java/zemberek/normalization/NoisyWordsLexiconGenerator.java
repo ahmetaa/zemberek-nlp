@@ -1,8 +1,11 @@
 package zemberek.normalization;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import zemberek.core.IntPair;
 import zemberek.core.collections.Histogram;
@@ -19,6 +23,7 @@ import zemberek.core.collections.UIntMap;
 import zemberek.core.collections.UIntValueMap;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.Turkish;
 import zemberek.tokenization.TurkishSentenceExtractor;
@@ -36,10 +41,10 @@ public class NoisyWordsLexiconGenerator {
 
     NoisyWordsLexiconGenerator generator = new NoisyWordsLexiconGenerator();
 
-    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
-    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test");
-    Path rootList = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora/vocab-list");
-    List<String> rootNames = Files.readAllLines(rootList);
+    Path corporaRoot = Paths.get("/home/aaa/data/corpora");
+    Path outRoot = Paths.get("/home/aaa/data/normalization/test");
+    Path rootList = Paths.get("/home/aaa/data/corpora/vocab-list");
+    List<String> rootNames = TextIO.loadLines(rootList, "#");
 
     List<Path> roots = new ArrayList<>();
     rootNames.forEach(s -> roots.add(corporaRoot.resolve(s)));
@@ -59,15 +64,28 @@ public class NoisyWordsLexiconGenerator {
     Path incorrect = outRoot.resolve("incorrect");
 
     NormalizationVocabulary vocabulary = new NormalizationVocabulary(
-        correct, incorrect, 2, 2
+        correct, incorrect, 2, 3
     );
 
     // create graph
     Path graphPath = outRoot.resolve("graph");
-    generator.buildGraph(vocabulary, corpora, graphPath);
+    //generator.buildGraph(vocabulary, corpora, graphPath);
 
     // create Random Walker
+    Log.info("Constructing random walk graph from %s", graphPath);
     RandomWalker walker = RandomWalker.fromGraphFile(vocabulary, graphPath);
+
+    Multimap<String, String> allPossibilities = walker.walk(10, 4);
+    Log.info("Collecting candidates data.");
+    Path allCandidates = outRoot.resolve("all-candidates");
+    try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8")) {
+      for (String s : allPossibilities.keySet()) {
+        pw.println(s + "=" + String.join(" ", allPossibilities.get(s)));
+        pw.println();
+      }
+    }
+
+    Log.info("Done");
 
   }
 
@@ -119,6 +137,7 @@ public class NoisyWordsLexiconGenerator {
     UIntMap<int[]> contextHashesToWords;
     UIntMap<int[]> wordsToContextHashes;
     NormalizationVocabulary vocabulary;
+    private static final Random rnd = new Random(1);
 
 
     public RandomWalker(
@@ -145,14 +164,58 @@ public class NoisyWordsLexiconGenerator {
       for (int i = 0; i < contextSize; i++) {
         int key = dis.readInt();
         int size = dis.readInt();
-        int[] vals = new int[size * 2];
+        int[] keysCounts = new int[size * 2];
         for (int j = 0; j < size * 2; j++) {
-          vals[j] = dis.readInt();
+          keysCounts[j] = dis.readInt();
         }
-        edgeMap.put(key, vals);
+        edgeMap.put(key, keysCounts);
       }
       return edgeMap;
     }
+
+    Multimap<String, String> walk(int walkCount, int maxHopCount) {
+      Multimap<String, String> allPossibilities = HashMultimap.create();
+
+      for (int wordIndex : wordsToContextHashes.getKeys()) {
+        // for all noisy words
+        if (vocabulary.isValid(wordIndex)) {
+          continue;
+        }
+        int node = wordIndex;
+        for (int i = 0; i < walkCount; i++) {
+          boolean atWordNode = true;
+          for (int j = 0; j < maxHopCount; j++) {
+            node = atWordNode ?
+                selectFromDistribution(wordsToContextHashes.get(node)) :
+                selectFromDistribution(contextHashesToWords.get(node));
+            atWordNode = !atWordNode;
+            if (atWordNode && vocabulary.isValid(node)) {
+              allPossibilities.put(vocabulary.getWord(wordIndex), vocabulary.getWord(node));
+              break;
+            }
+          }
+        }
+      }
+      return allPossibilities;
+    }
+
+    int selectFromDistribution(int[] keysCounts) {
+      int totalCount = 0;
+      for (int i = 0; i < keysCounts.length; i += 2) {
+        totalCount += keysCounts[i + 1];
+      }
+
+      int rollDice = rnd.nextInt(totalCount);
+      int accumulator = 0;
+      for (int i = 0; i < keysCounts.length; i += 2) {
+        accumulator += keysCounts[i + 1];
+        if (accumulator >= rollDice) {
+          return keysCounts[i];
+        }
+      }
+      throw new IllegalStateException("Unreachable.");
+    }
+
   }
 
   public static class NormalizationVocabulary {
@@ -191,6 +254,10 @@ public class NoisyWordsLexiconGenerator {
 
     int getIndex(String word) {
       return indexes.get(word);
+    }
+
+    String getWord(int id) {
+      return words.get(id);
     }
 
   }

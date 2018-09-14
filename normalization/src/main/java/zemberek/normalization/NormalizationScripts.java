@@ -3,6 +3,8 @@ package zemberek.normalization;
 import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,10 +22,11 @@ public class NormalizationScripts {
     Path p = root.resolve("incorrect");
     Path s = root.resolve("split");
     Path lm = root.resolve("lm.slm");
-    splitWords(p, s, lm, 2);
+    //splitWords(p, s, lm, 2);
 
     Path quesOut = root.resolve("question-suffix");
-    getQuestionSuffixes(s, quesOut);
+    //getQuestionSuffixes(s, quesOut);
+    convertTweetData();
   }
 
   static void splitWords(Path wordFrequencyFile, Path splitFile, Path lmPath, int minWordCount)
@@ -85,7 +88,6 @@ public class NormalizationScripts {
     }
   }
 
-
   static void getQuestionSuffixes(Path in, Path out) throws IOException {
     List<String> splitLines = Files.readAllLines(in, Charsets.UTF_8);
     Histogram<String> endings = new Histogram<>();
@@ -114,5 +116,14 @@ public class NormalizationScripts {
     }
 
   }
+
+  static void convertTweetData() throws IOException {
+    Path in = Paths.get("/home/aaa/Downloads/20milyontweet/all_tweets.txt");
+    Path out = Paths.get("/home/aaa/Downloads/20milyontweet/all_tweets-utf8");
+    List<String> lines = Files.readAllLines(in, Charset.forName("iso-8859-9"));
+    Log.info("Writing.");
+    Files.write(out, lines, StandardCharsets.UTF_8);
+  }
+
 
 }
