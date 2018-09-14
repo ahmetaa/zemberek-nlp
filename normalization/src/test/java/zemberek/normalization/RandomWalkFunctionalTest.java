@@ -119,6 +119,4 @@ public class RandomWalkFunctionalTest {
     Assert.assertTrue(result.allCandidates.get("ağşam").contains("akşam"));
 
   }
-
-
 }

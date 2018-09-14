@@ -20,6 +20,7 @@ import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
+import org.antlr.v4.runtime.Token;
 import zemberek.core.IntPair;
 import zemberek.core.collections.Histogram;
 import zemberek.core.collections.IntIntMap;
@@ -35,10 +36,12 @@ import zemberek.core.turkish.Turkish;
 import zemberek.normalization.NormalizationVocabularyGenerator.Vocabulary;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
+import zemberek.tokenization.antlr.TurkishLexer;
 
 /**
  * A modified implementation of Hassan and Menezes's 2013 paper "Social Text Normalization using
- * Contextual Graph Random Walks".
+ * Contextual Graph Random Walks". Here when building contextual similarity graph, we use hash
+ * values of the contexts instead of the contexts itself.
  */
 public class NoisyWordsLexiconGenerator {
 
@@ -377,7 +380,6 @@ public class NoisyWordsLexiconGenerator {
     String getWord(int id) {
       return words.get(id);
     }
-
   }
 
   class ContextualSimilarityGraph {
@@ -407,7 +409,21 @@ public class NoisyWordsLexiconGenerator {
         tokens.add(SENTENCE_START);
       }
       sentence = sentence.toLowerCase(Turkish.LOCALE);
-      tokens.addAll(TurkishTokenizer.DEFAULT.tokenizeToStrings(sentence));
+      List<Token> raw = TurkishTokenizer.DEFAULT.tokenize(sentence);
+      for (Token token : raw) {
+        if(token.getType()==TurkishLexer.Punctuation) {
+          continue;
+        }
+        String text = token.getText();
+        if(token.getType()==TurkishLexer.Time ||
+            token.getType()==TurkishLexer.PercentNumeral ||
+            token.getType()==TurkishLexer.Number ||
+            token.getType()==TurkishLexer.Date) {
+          text = text.replaceAll("[0-9]+","_d");
+        }
+        tokens.add(text);
+      }
+
       for (int i = 0; i < contextSize; i++) {
         tokens.add(SENTENCE_END);
       }
