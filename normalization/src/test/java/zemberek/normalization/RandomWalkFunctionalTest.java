@@ -95,13 +95,6 @@ public class RandomWalkFunctionalTest {
     Assert.assertEquals(2, m1.get(idCorrect));
     Assert.assertEquals(1, m1.get(idIncorrect));
 
-    // check words->context counts
-    IntIntMap m2 = graph.wordToContexts.get(idCorrect);
-    Assert.assertNotNull(m2);
-    Assert.assertEquals(3, m2.size());
-    Assert.assertTrue(m2.containsKey(c1Hash));
-    Assert.assertTrue(m2.containsKey(NoisyWordsLexiconGenerator.hash("dün", "uyudum")));
-
     Path tmp = Files.createTempFile("rnd", "foo");
 
     graph.serializeForRandomWalk(tmp);
