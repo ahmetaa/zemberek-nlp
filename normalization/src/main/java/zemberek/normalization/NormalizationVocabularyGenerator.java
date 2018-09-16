@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
+import org.antlr.v4.runtime.Token;
 import zemberek.core.collections.Histogram;
 import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.logging.Log;
@@ -30,6 +31,7 @@ import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
+import zemberek.tokenization.antlr.TurkishLexer;
 
 public class NormalizationVocabularyGenerator {
 
@@ -154,30 +156,38 @@ public class NormalizationVocabularyGenerator {
       Vocabulary local = new Vocabulary();
       LinkedHashSet<String> sentences = getSentences(path);
       for (String sentence : sentences) {
-        List<String> tokens = TurkishTokenizer.DEFAULT.tokenizeToStrings(sentence);
-        for (String token : tokens) {
-          if (local.correct.contains(token) || global.correct.contains(token)) {
-            local.correct.add(token);
+        List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
+        for (Token token : tokens) {
+          String s = token.getText();
+          if (local.correct.contains(s) || global.correct.contains(s)) {
+            local.correct.add(s);
             continue;
           }
-          if (local.incorrect.contains(token) || global.incorrect.contains(token)) {
-            local.incorrect.add(token);
+          if (local.incorrect.contains(s) || global.incorrect.contains(s)) {
+            local.incorrect.add(s);
             continue;
           }
-          if (local.ignored.contains(token) ||
-              global.ignored.contains(token) ||
-              TurkishAlphabet.INSTANCE.containsDigit(token) ||
-              TurkishAlphabet.INSTANCE.containsApostrophe(token) ||
-              Character.isUpperCase(token.charAt(0))) {
-            //local.ignored.add(token);
+          // TODO: fix below.
+          if (token.getType() == TurkishLexer.URL ||
+              token.getType() == TurkishLexer.Punctuation ||
+              token.getType() == TurkishLexer.Email ||
+              token.getType() == TurkishLexer.HashTag ||
+              token.getType() == TurkishLexer.Mention ||
+              token.getType() == TurkishLexer.Emoticon ||
+              local.ignored.contains(s) ||
+              global.ignored.contains(s) ||
+              TurkishAlphabet.INSTANCE.containsDigit(s) /*||
+              TurkishAlphabet.INSTANCE.containsApostrophe(s) ||
+              Character.isUpperCase(s.charAt(0))*/) {
+            //local.ignored.add(s);
             continue;
           }
-          token = token.toLowerCase(Turkish.LOCALE);
-          WordAnalysis results = morphology.analyze(token);
+          s = s.toLowerCase(Turkish.LOCALE);
+          WordAnalysis results = morphology.analyze(s);
           if (results.analysisCount() == 0) {
-            local.incorrect.add(token);
+            local.incorrect.add(s);
           } else {
-            local.correct.add(token);
+            local.correct.add(s);
           }
         }
       }

@@ -87,7 +87,7 @@ public class NoisyWordsLexiconGenerator {
 
     Log.info("Collecting candidates data.");
     int threadCount = Runtime.getRuntime().availableProcessors() / 2;
-    WalkResult walkResult = walker.walk(300, 6, threadCount);
+    WalkResult walkResult = walker.walk(100, 6, threadCount);
     Path allCandidates = outRoot.resolve("all-candidates");
     try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8")) {
       for (String s : walkResult.allCandidates.keySet()) {
@@ -126,8 +126,8 @@ public class NoisyWordsLexiconGenerator {
       LinkedHashSet<String> sentences = getSentences(path);
       for (String sentence : sentences) {
         graph.add(sentence);
-        if (i % 10_000 == 0) {
-          Log.info(i);
+        if (i % 100_000 == 0) {
+          Log.info("Sentence processed : " + i);
         }
         i++;
       }
@@ -431,7 +431,14 @@ public class NoisyWordsLexiconGenerator {
             token.getType() == TurkishLexer.Number ||
             token.getType() == TurkishLexer.Date) {
           text = text.replaceAll("[0-9]+", "_d");
+        } else if (token.getType() == TurkishLexer.URL) {
+          text = "<url>";
+        } else if (token.getType() == TurkishLexer.HashTag) {
+          text = "<hashtag>";
+        } else if (token.getType() == TurkishLexer.Email) {
+          text = "<email>";
         }
+
         tokens.add(text);
       }
 

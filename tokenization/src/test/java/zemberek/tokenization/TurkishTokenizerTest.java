@@ -303,6 +303,7 @@ public class TurkishTokenizerTest {
     TurkishTokenizer t = TurkishTokenizer.DEFAULT;
 
     String[] urls = {
+        "http://t.co/gn32szS9",
         "http://www.fo.bar",
         "https://www.fo.baz.zip",
         "www.fo.tar.kar",
