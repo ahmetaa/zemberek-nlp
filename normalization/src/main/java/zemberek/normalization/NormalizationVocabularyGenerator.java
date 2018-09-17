@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
+import org.antlr.v4.runtime.Token;
 import zemberek.core.collections.Histogram;
 import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.logging.Log;
@@ -30,6 +31,7 @@ import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
+import zemberek.tokenization.antlr.TurkishLexer;
 
 public class NormalizationVocabularyGenerator {
 
@@ -58,9 +60,9 @@ public class NormalizationVocabularyGenerator {
 
     NormalizationVocabularyGenerator generator = new NormalizationVocabularyGenerator(morphology);
 
-    Path corporaRoot = Paths.get("/home/aaa/data/corpora");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/test2");
-    Path rootList = Paths.get("/home/aaa/data/corpora/vocab-list");
+    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
+    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test");
+    Path rootList = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora/vocab-list");
     List<String> rootNames = TextIO.loadLines(rootList, "#");
 
     List<Path> roots = new ArrayList<>();
@@ -88,12 +90,21 @@ public class NormalizationVocabularyGenerator {
         outRoot);
   }
 
-
-  private static class Vocabulary {
+  static class Vocabulary {
 
     Histogram<String> correct = new Histogram<>(100_000);
     Histogram<String> incorrect = new Histogram<>(100_000);
     Histogram<String> ignored = new Histogram<>(10_000);
+
+    public Vocabulary() {
+    }
+
+    public Vocabulary(Histogram<String> correct,
+        Histogram<String> incorrect, Histogram<String> ignored) {
+      this.correct = correct;
+      this.incorrect = incorrect;
+      this.ignored = ignored;
+    }
 
     public String toString() {
       return String.format("Correct =%d Incorrect=%d Ignored=%d",
@@ -101,6 +112,7 @@ public class NormalizationVocabularyGenerator {
           incorrect.size(),
           ignored.size());
     }
+
   }
 
   void createVocabulary(List<Path> corpora, int threadCount, Path outRoot) throws Exception {
@@ -144,30 +156,38 @@ public class NormalizationVocabularyGenerator {
       Vocabulary local = new Vocabulary();
       LinkedHashSet<String> sentences = getSentences(path);
       for (String sentence : sentences) {
-        List<String> tokens = TurkishTokenizer.DEFAULT.tokenizeToStrings(sentence);
-        for (String token : tokens) {
-          if (local.correct.contains(token) || global.correct.contains(token)) {
-            local.correct.add(token);
+        List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
+        for (Token token : tokens) {
+          String s = token.getText();
+          if (local.correct.contains(s) || global.correct.contains(s)) {
+            local.correct.add(s);
             continue;
           }
-          if (local.incorrect.contains(token) || global.incorrect.contains(token)) {
-            local.incorrect.add(token);
+          if (local.incorrect.contains(s) || global.incorrect.contains(s)) {
+            local.incorrect.add(s);
             continue;
           }
-          if (local.ignored.contains(token) ||
-              global.ignored.contains(token) ||
-              TurkishAlphabet.INSTANCE.containsDigit(token) ||
-              TurkishAlphabet.INSTANCE.containsApostrophe(token) ||
-              Character.isUpperCase(token.charAt(0))) {
-            //local.ignored.add(token);
+          // TODO: fix below.
+          if (token.getType() == TurkishLexer.URL ||
+              token.getType() == TurkishLexer.Punctuation ||
+              token.getType() == TurkishLexer.Email ||
+              token.getType() == TurkishLexer.HashTag ||
+              token.getType() == TurkishLexer.Mention ||
+              token.getType() == TurkishLexer.Emoticon ||
+              local.ignored.contains(s) ||
+              global.ignored.contains(s) ||
+              TurkishAlphabet.INSTANCE.containsDigit(s) /*||
+              TurkishAlphabet.INSTANCE.containsApostrophe(s) ||
+              Character.isUpperCase(s.charAt(0))*/) {
+            //local.ignored.add(s);
             continue;
           }
-          token = token.toLowerCase(Turkish.LOCALE);
-          WordAnalysis results = morphology.analyze(token);
+          s = s.toLowerCase(Turkish.LOCALE);
+          WordAnalysis results = morphology.analyze(s);
           if (results.analysisCount() == 0) {
-            local.incorrect.add(token);
+            local.incorrect.add(s);
           } else {
-            local.correct.add(token);
+            local.correct.add(s);
           }
         }
       }

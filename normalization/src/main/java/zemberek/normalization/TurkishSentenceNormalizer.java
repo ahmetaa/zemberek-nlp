@@ -279,7 +279,7 @@ public class TurkishSentenceNormalizer {
   /**
    * Makes a guess if input sentence requires deasciifier.
    */
-  public boolean probablyRequiresDeasciifier(String sentence) {
+  public static boolean probablyRequiresDeasciifier(String sentence) {
     int turkishSpecCount = 0;
     for (int i = 0; i < sentence.length(); i++) {
       char c = sentence.charAt(i);
@@ -288,7 +288,7 @@ public class TurkishSentenceNormalizer {
       }
     }
     double ratio = turkishSpecCount * 1d / sentence.length();
-    return ratio < 0.02;
+    return ratio < 0.05;
   }
 
 }
