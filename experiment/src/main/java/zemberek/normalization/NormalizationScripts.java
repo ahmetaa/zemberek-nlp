@@ -55,11 +55,15 @@ public class NormalizationScripts {
     //multipleLetterRepetitionWords(incorrect, repetitive);
 
     Path corporaRoot = Paths.get("/home/aaa/data/corpora");
-    cleanTwitterData(
-        corporaRoot.resolve("tweets-2m"),
-        corporaRoot.resolve("tweets-2m-clean")
+    Path tweetRoot = Paths.get("/media/aaa/Data/corpora/tweets");
+/*    cleanTwitterData(
+        tweetRoot.resolve("tweets-2m"),
+        tweetRoot.resolve("tweets-2m-clean")
     );
-
+    */
+    splitSingleFileCorpus(
+        tweetRoot.resolve("tweets-20m-clean.nodup"),
+        corporaRoot.resolve("tweets-20m"));
   }
 
   static void splitWords(Path wordFrequencyFile, Path splitFile, Path lmPath, int minWordCount)
@@ -212,9 +216,6 @@ public class NormalizationScripts {
         .disableUnidentifiedTokenAnalyzer()
         .build();
 
-    int blockSize = 20_000;
-    BlockTextLoader loader = new BlockTextLoader(in, blockSize);
-
     int threadCount = Runtime.getRuntime().availableProcessors() / 2;
     if (threadCount > 20) {
       threadCount = 20;
@@ -223,6 +224,9 @@ public class NormalizationScripts {
         new BlockingExecutor(threadCount);
     CompletionService<TwitterSaver> service =
         new ExecutorCompletionService<>(executorService);
+
+    int blockSize = 20_000;
+    BlockTextLoader loader = new BlockTextLoader(in, blockSize);
 
     Path foreign = Paths.get(out.toString() + ".foreign");
     TwitterSaver saver = new TwitterSaver(out, foreign, blockSize);
@@ -344,7 +348,8 @@ public class NormalizationScripts {
         // to prevent this, if language is identified as jv or id, we skip.
         // to remove this hack we need a better language identification model for Turkish
         // that is trained with also noisy text.
-        if (!lang.equals("jv") && !lang.equals("id") && TurkishSentenceNormalizer.probablyRequiresDeasciifier(join)) {
+        if (!lang.equals("jv") && !lang.equals("id") && TurkishSentenceNormalizer
+            .probablyRequiresDeasciifier(join)) {
           String k = new Deasciifier(join).convertToTurkish();
           // identify and check morphology to be sure.
           String l = lid.identify(join);
@@ -372,6 +377,20 @@ public class NormalizationScripts {
       }
       saver.save(clean, foreign);
       return saver;
+    }
+  }
+
+  static void splitSingleFileCorpus(Path in, Path outRoot) throws IOException {
+    int blockSize = 100_000;
+    BlockTextLoader loader = new BlockTextLoader(in, blockSize);
+    Files.createDirectories(outRoot);
+
+    int bc = 0;
+    for (List<String> block : loader) {
+      String name = in.toFile().getName();
+      Path blockPath = outRoot.resolve(name + "." + String.valueOf(bc));
+      Files.write(blockPath, block, StandardCharsets.UTF_8);
+      bc++;
     }
   }
 

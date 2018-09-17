@@ -41,8 +41,44 @@ import zemberek.tokenization.antlr.TurkishLexer;
 
 /**
  * A modified implementation of Hassan and Menezes's 2013 paper "Social Text Normalization using
- * Contextual Graph Random Walks". Here when building contextual similarity graph, we use hash
- * values of the contexts instead of the contexts itself.
+ * Contextual Graph Random Walks".
+ * <p></p>
+ * Algorithm basically works like this:
+ * <p></p>
+ * First, we need to have two vocabularies from a corpus. One vocabulary is correct words, other is
+ * noisy words. This operation is actually quite tricky as how to decide if a word is noisy is
+ * tricky. For Turkish we use morphological analysis but it may actually fail for proper nouns and
+ * for inputs where Turkish characters are not used.
+ * <p></p>
+ * Second, a bipartite graph is generated from the corpus. There are two sides in the graph. One
+ * represents contexts, other represents words. For example:
+ * <pre>
+ *  context(bu * eve) -> (sabah:105, zabah:3, akşam:126, aksam:7, mavi:2 ...)
+ *  context(sabah * geldim) -> (eve:56, işe:78, okula:64, okulua:2 ...)
+ *  word(sabah) -> ([bu eve]:105, [bu kahvaltıda]:23, [her olmaz]:7 ...)
+ *  word(zabah) -> ([bu eve]:3 ...)
+ * </pre>
+ * (bu * eve) represents a context. And sabah:105 means from this context, "sabah" appeared in the
+ * middle 105 times. And noisy "zabah" appeared 3 times.
+ * <p></p>
+ * Here different from original paper, when building contextual similarity graph, we use 32 bit hash
+ * values of the contexts instead of the contexts itself. This reduces memory and calculation cost
+ * greatly.
+ * <p></p>
+ * After this graph is constructed, For every noisy word in the graph several random walks are
+ * generated with following rules:
+ * <pre>
+ * - Start from a noisy word.
+ * - Select one of the contexts of this word randomly. But, random is not uniform.
+ *   Context is selected proportional to occurrence counts.
+ * - From context, similarly randomly hop to a word.
+ * - If word is noisy, continue hops.
+ * - If word is not noisy, stop. Check lexical similarity.
+ * - If hop count reaches to a certain value, stop.
+ * </pre>
+ * If random walks are repeated for many times, All candidates that may be the correct version can
+ * be collected. After that, a Viterbi search using a language model can be performed for better
+ * performance.
  */
 public class NoisyWordsLexiconGenerator {
 
