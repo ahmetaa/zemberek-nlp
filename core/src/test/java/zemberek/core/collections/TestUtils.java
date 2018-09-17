@@ -55,4 +55,27 @@ public class TestUtils {
       array[i] = temp;
     }
   }
+
+  public static int[] createRandomUintArray(int size) {
+    Random random = new Random(0xCAFEBEEF);
+    UIntSet uIntSet = new UIntSet();
+    while (uIntSet.size() < size) {
+      uIntSet.add(Math.abs(random.nextInt()));
+    }
+    int[] res = uIntSet.keys;
+    shuffle(res);
+    return res;
+  }
+
+  public static int[] createRandomUintArray(int size, int limit) {
+    Random random = new Random(0xCAFEBEEF);
+    UIntSet uIntSet = new UIntSet();
+    while (uIntSet.size() < size) {
+      uIntSet.add(Math.abs(random.nextInt(limit)));
+    }
+    int[] res = uIntSet.keys;
+    shuffle(res);
+    return res;
+  }
+
 }

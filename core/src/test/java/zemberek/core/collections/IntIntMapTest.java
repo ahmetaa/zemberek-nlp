@@ -3,9 +3,12 @@ package zemberek.core.collections;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
+import zemberek.core.io.TestUtil;
 
 public class IntIntMapTest {
 
@@ -124,5 +127,35 @@ public class IntIntMapTest {
     assertTrue((m.capacity() & (m.capacity() - 1)) == 0);
   }
 
+  @Test
+  @Ignore("Not a unit test")
+  public void testPerformance() {
+    int[] arr = TestUtils.createRandomUintArray(1_000_000, 1<<29);
+    long sum =0;
+    int iter = 100;
+    long start = System.currentTimeMillis();
+    for (int i=0; i<iter; i++) {
+      IntIntMap imap = new IntIntMap();
+      for (int j=0; j<arr.length; j++) {
+        imap.put(arr[j], arr[j] + 1);
+      }
+    }
+    long elapsed = System.currentTimeMillis() - start;
+    System.out.println("Creation: " + elapsed);
+
+    IntIntMap imap = new IntIntMap();
+    for (int j=0; j<arr.length; j++) {
+      imap.put(arr[j], arr[j] + 1);
+    }
+    start = System.currentTimeMillis();
+    for (int i=0; i<iter; i++) {
+      for (int j=arr.length-1; j >=0; j--) {
+        sum += imap.get(arr[j]);
+      }
+    }
+    elapsed = System.currentTimeMillis() - start;
+    System.out.println("Retrieval: " + elapsed);
+    System.out.println("Val: " + sum);
+  }
 
 }
