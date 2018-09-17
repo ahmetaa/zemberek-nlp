@@ -1,6 +1,7 @@
 package zemberek.core.collections;
 
 import java.util.Arrays;
+import zemberek.core.IntPair;
 
 /**
  * A simple hashmap with integer keys and integer values. Implements open address linear probing
@@ -14,6 +15,7 @@ import java.util.Arrays;
  * </pre>
  */
 public final class IntIntMap {
+
   public static final int NO_RESULT = Integer.MIN_VALUE;
   private static final int DEFAULT_INITIAL_CAPACITY = 4;
   // Capacity of the map is expanded when size reaches to capacity * LOAD_FACTOR. This value is
@@ -189,6 +191,17 @@ public final class IntIntMap {
       }
     }
     return valueArray;
+  }
+
+  public IntPair[] getAsPairs() {
+    IntPair[] pairs = new IntPair[keyCount];
+    int c = 0;
+    for (int i = 0; i < entries.length; i += 2) {
+      if (entries[i] != EMPTY) {
+        pairs[c++] = new IntPair(entries[i], entries[i + 1]);
+      }
+    }
+    return pairs;
   }
 
   private int locate(int key) {

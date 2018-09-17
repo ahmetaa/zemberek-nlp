@@ -135,12 +135,11 @@ fragment Exp
     : [Ee] [+\-]? Integer ;
 
 fragment URLFragment
-    : [0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ\-_]+;
-fragment URLFragmentWithDot
-    :'.'[0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ\-_/?&+;=]+;
+    : [0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ\-_/?&+;=[\].]+;
 
 URL :
-    ('http://'|'https://')? 'www.' URLFragment URLFragmentWithDot+;
+    ('http://'|'https://') URLFragment |
+    ('http://'|'https://')? 'www.' URLFragment;
 
 Email
     :AllTurkishAlphanumericalUnderscore+ '.'? AllTurkishAlphanumericalUnderscore+ '@'
@@ -153,7 +152,7 @@ Mention: '@' AllTurkishAlphanumerical+;
 // Only a subset.
 // TODO: Add more, also consider Emoji tokens.
 Emoticon
-    : ':)'|':-)'|':-]'|':D'|':-D'|'8-)'|';)'|';‑)'|':('|':-('|':\'('
+    : ':'[)]+|':-)'|':-]'|':D'|':-D'|'8-)'|';)'|';‑)'|':'[(]+|':-('|':\'('
     |':‑/'|':/'|':^)'|'¯\\_(ツ)_/¯'|'O_o'|'o_O'|'O_O'|'\\o/';
 
 // Roman numbers:

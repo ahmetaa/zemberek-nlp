@@ -281,6 +281,11 @@ public class TurkishMorphology {
       return this;
     }
 
+    public Builder useLexicon(RootLexicon lexicon) throws IOException {
+      this.lexicon = lexicon;
+      return this;
+    }
+
     public Builder addDefaultBinaryDictionary() {
       try {
         Stopwatch stopwatch = Stopwatch.createStarted();
