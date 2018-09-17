@@ -152,8 +152,8 @@ Mention: '@' AllTurkishAlphanumerical+;
 // Only a subset.
 // TODO: Add more, also consider Emoji tokens.
 Emoticon
-    : ':'[)]+|':-)'|':-]'|':D'|':-D'|'8-)'|';)'|';‑)'|':'[(]+|':-('|':\'('
-    |':‑/'|':/'|':^)'|'¯\\_(ツ)_/¯'|'O_o'|'o_O'|'O_O'|'\\o/';
+    : ':)'|':-)'|':-]'|':D'|':-D'|'8-)'|';)'|';‑)'|':('|':-('|':\'('
+    |':‑/'|':/'|':^)'|'¯\\_(ツ)_/¯'|'O_o'|'o_O'|'O_O'|'\\o/'|'<3';
 
 // Roman numbers:
 RomanNumeral

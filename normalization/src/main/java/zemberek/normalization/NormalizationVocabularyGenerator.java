@@ -46,7 +46,7 @@ public class NormalizationVocabularyGenerator {
 
     AnalysisCache cache = AnalysisCache
         .builder()
-        .dynamicCacheSize(300_000, 700_000).build();
+        .dynamicCacheSize(200_000, 500_000).build();
 
     RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
 
@@ -60,9 +60,9 @@ public class NormalizationVocabularyGenerator {
 
     NormalizationVocabularyGenerator generator = new NormalizationVocabularyGenerator(morphology);
 
-    Path corporaRoot = Paths.get("/media/aaa/Data/corpora/reduced");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/test");
-    Path rootList = Paths.get("/media/aaa/Data/corpora/reduced/corpora.list");
+    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
+    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test");
+    Path rootList = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora/vocab-list");
     List<String> rootNames = TextIO.loadLines(rootList, "#");
 
     List<Path> roots = new ArrayList<>();

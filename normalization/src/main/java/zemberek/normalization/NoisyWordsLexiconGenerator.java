@@ -12,11 +12,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -33,7 +36,9 @@ import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
+import zemberek.core.text.distance.CharDistance;
 import zemberek.core.turkish.Turkish;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.normalization.NormalizationVocabularyGenerator.Vocabulary;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
@@ -47,7 +52,7 @@ import zemberek.tokenization.antlr.TurkishLexer;
  * <p></p>
  * First, we need to have two vocabularies from a corpus. One vocabulary is correct words, other is
  * noisy words. This operation is actually quite tricky as how to decide if a word is noisy is
- * tricky. For Turkish we use morphological analysis but it may actually fail for proper nouns and
+ * not easy. For Turkish we use morphological analysis but it may actually fail for some proper nouns and
  * for inputs where Turkish characters are not used.
  * <p></p>
  * Second, a bipartite graph is generated from the corpus. There are two sides in the graph. One
@@ -61,12 +66,12 @@ import zemberek.tokenization.antlr.TurkishLexer;
  * (bu * eve) represents a context. And sabah:105 means from this context, "sabah" appeared in the
  * middle 105 times. And noisy "zabah" appeared 3 times.
  * <p></p>
- * Here different from original paper, when building contextual similarity graph, we use 32 bit hash
+ * Here we do something different from original paper, when building contextual similarity graph, we use 32 bit hash
  * values of the contexts instead of the contexts itself. This reduces memory and calculation cost
  * greatly.
  * <p></p>
  * After this graph is constructed, For every noisy word in the graph several random walks are
- * generated with following rules:
+ * done as below:
  * <pre>
  * - Start from a noisy word.
  * - Select one of the contexts of this word randomly. But, random is not uniform.
@@ -127,7 +132,12 @@ public class NoisyWordsLexiconGenerator {
     Path allCandidates = outRoot.resolve("all-candidates");
     try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8")) {
       for (String s : walkResult.allCandidates.keySet()) {
-        pw.println(s + "=" + String.join(" ", walkResult.allCandidates.get(s)));
+        List<WalkScore> scores = new ArrayList<>(walkResult.allCandidates.get(s));
+        scores.sort((a, b) -> Float.compare(a.getCost(), b.getCost()));
+        pw.println(s);
+        for (WalkScore score : scores) {
+          pw.println(String.format("%s:%.3f", score.candidate, score.getCost()));
+        }
         pw.println();
       }
     }
@@ -203,7 +213,6 @@ public class NoisyWordsLexiconGenerator {
     UIntMap<RandomWalkNode> wordsToContextHashes;
     NormalizationVocabulary vocabulary;
     private static final Random rnd = new Random(1);
-
 
     RandomWalker(
         NormalizationVocabulary vocabulary,
@@ -293,6 +302,10 @@ public class NoisyWordsLexiconGenerator {
       return result;
     }
 
+    /**
+     * From a node, selects a connected node randomly.
+     * Randomness is not uniform, it is proportional to the occurrence counts attached to the edges.
+     */
     int selectFromDistribution(RandomWalkNode node) {
       int dice = rnd.nextInt(node.totalCounts + 1);
       int accumulator = 0;
@@ -309,7 +322,53 @@ public class NoisyWordsLexiconGenerator {
 
   static class WalkResult {
 
-    Multimap<String, String> allCandidates = HashMultimap.create();
+    Multimap<String, WalkScore> allCandidates = HashMultimap.create();
+  }
+
+  static class WalkScore {
+
+    String candidate;
+    int hitCount;
+    int hopCount;
+    float contextualSimilarityProbability;
+    float lexicalSimilarityCost;
+
+    void update(int hopeCount) {
+      this.hitCount++;
+      this.hopCount += hopeCount;
+    }
+
+    float getAverageHittingTime() {
+      return hopCount * 1f / hitCount;
+    }
+
+    float getCost() {
+      return contextualSimilarityProbability + lexicalSimilarityCost;
+    }
+
+    public WalkScore(String candidate) {
+      this.candidate = candidate;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      WalkScore walkScore = (WalkScore) o;
+
+      return candidate.equals(walkScore.candidate);
+    }
+
+    @Override
+    public int hashCode() {
+      return candidate.hashCode();
+    }
   }
 
   private static class Work {
@@ -338,11 +397,15 @@ public class NoisyWordsLexiconGenerator {
     @Override
     public WalkResult call() {
       WalkResult result = new WalkResult();
+      CharDistance distanceCalculator = new CharDistance();
       for (int wordIndex : work.wordIndexes) {
-        // Only noisy words. Just to be sure.
+        // Only noisy words. Check anyway, to be sure.
         if (walker.vocabulary.isValid(wordIndex)) {
           continue;
         }
+
+        Map<String, WalkScore> scores = new HashMap<>();
+
         for (int i = 0; i < walkCount; i++) {
           int nodeIndex = wordIndex;
           boolean atWordNode = true;
@@ -352,24 +415,91 @@ public class NoisyWordsLexiconGenerator {
                 walker.wordsToContextHashes.get(nodeIndex) :
                 walker.contextHashesToWords.get(nodeIndex);
 
-            if (node == null) {
-              System.out.println();
-            }
-
             nodeIndex = walker.selectFromDistribution(node);
 
             atWordNode = !atWordNode;
+
+            // if we reach to a valid word ([...] --> [Context node] --> [Valid word node] )
             if (atWordNode && nodeIndex != wordIndex && walker.vocabulary.isValid(nodeIndex)) {
-              result.allCandidates.put(
-                  walker.vocabulary.getWord(wordIndex),
-                  walker.vocabulary.getWord(nodeIndex));
+              String word = walker.vocabulary.getWord(nodeIndex);
+              WalkScore score = scores.get(word);
+              if (score == null) {
+                score = new WalkScore(word);
+                scores.put(word, score);
+              }
+              score.update(j + 1);
               break;
             }
           }
         }
+
+        // calculate contextual similarity probabilities.
+        float totalAverageHittingTime = 0;
+        for (WalkScore score : scores.values()) {
+          totalAverageHittingTime += score.getAverageHittingTime();
+        }
+        for (String s : scores.keySet()) {
+          WalkScore score = scores.get(s);
+          score.contextualSimilarityProbability =
+              score.getAverageHittingTime() / totalAverageHittingTime;
+        }
+
+        // calculate lexical similarity cost. This is slow for now.
+        String word = walker.vocabulary.getWord(wordIndex);
+        // convert to ascii and remove vowels and repetitions.
+        String reducedSource = reduceWord(word);
+
+        for (String s : scores.keySet()) {
+          String reducedTarget = reduceWord(s);
+          float editDistance = (float) distanceCalculator.distance(reducedSource, reducedTarget);
+
+          // longest commons substring ratio
+          float lcsr = longestCommonSubstring(word, s).length() * 1f /
+              Math.max(s.length(), word.length());
+
+          WalkScore score = scores.get(s);
+          score.lexicalSimilarityCost = lcsr / editDistance;
+        }
+        result.allCandidates.putAll(word, scores.values());
       }
       return result;
     }
+  }
+
+  static Map<String, String> reducedWords = new ConcurrentHashMap<>(100_000);
+
+  static String reduceWord(String input) {
+
+    String cached = reducedWords.get(input);
+    if (cached != null) {
+      return cached;
+    }
+    String s = TurkishAlphabet.INSTANCE.toAscii(input);
+    if (input.length() < 3) {
+      return s;
+    }
+    StringBuilder sb = new StringBuilder(input.length() - 2);
+    char previous = 0;
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (TurkishAlphabet.INSTANCE.isVowel(c)) {
+        previous = 0;
+        continue;
+      }
+      if (previous == c) {
+        continue;
+      }
+      sb.append(c);
+      previous = c;
+    }
+    String reduced = sb.toString();
+
+    if (reduced.length() == 0) {
+      return input;
+    }
+
+    reducedWords.put(input, reduced);
+    return reduced;
   }
 
   static class NormalizationVocabulary {
@@ -607,6 +737,44 @@ public class NoisyWordsLexiconGenerator {
       }
     }
     return d & 0x7fffffff;
+  }
+
+  /**
+   * Finds the longest common substring of two strings.
+   */
+  static String longestCommonSubstring(String a, String b) {
+    int[][] lengths = new int[a.length() + 1][b.length() + 1];
+
+    // row 0 and column 0 are initialized to 0 already
+
+    for (int i = 0; i < a.length(); i++) {
+      for (int j = 0; j < b.length(); j++) {
+        if (a.charAt(i) == b.charAt(j)) {
+          lengths[i + 1][j + 1] = lengths[i][j] + 1;
+        } else {
+          lengths[i + 1][j + 1] =
+              Math.max(lengths[i + 1][j], lengths[i][j + 1]);
+        }
+      }
+    }
+
+    // read the substring out from the matrix
+    StringBuilder sb = new StringBuilder();
+    for (int x = a.length(), y = b.length();
+        x != 0 && y != 0; ) {
+      if (lengths[x][y] == lengths[x - 1][y]) {
+        x--;
+      } else if (lengths[x][y] == lengths[x][y - 1]) {
+        y--;
+      } else {
+        assert a.charAt(x - 1) == b.charAt(y - 1);
+        sb.append(a.charAt(x - 1));
+        x--;
+        y--;
+      }
+    }
+
+    return sb.reverse().toString();
   }
 
 }
