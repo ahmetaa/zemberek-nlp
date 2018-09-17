@@ -20,7 +20,7 @@ public final class IntIntMap {
   private static final int DEFAULT_INITIAL_CAPACITY = 4;
   // Capacity of the map is expanded when size reaches to capacity * LOAD_FACTOR. This value is
   // selected to fit max 5 elements to 8 and 10 elements to a 16 sized map.
-  private static final float LOAD_FACTOR = 0.80f;
+  private static final float LOAD_FACTOR = 0.75f;
   private static final int MAX_CAPACITY = 1 << 29;
   // Special value to mark empty cells.
   private static final int EMPTY = Integer.MIN_VALUE;
