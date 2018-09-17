@@ -1,6 +1,7 @@
 package zemberek.normalization;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
@@ -26,6 +27,9 @@ import zemberek.core.text.BlockTextLoader;
 import zemberek.core.text.TextUtil;
 import zemberek.langid.LanguageIdentifier;
 import zemberek.lm.compression.SmoothLm;
+import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.AnalysisCache;
+import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
@@ -50,10 +54,10 @@ public class NormalizationScripts {
     Path repetitive = root.resolve("repetitions.hist.txt");
     //multipleLetterRepetitionWords(incorrect, repetitive);
 
-    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
+    Path corporaRoot = Paths.get("/home/aaa/data/corpora");
     cleanTwitterData(
-        corporaRoot.resolve("20m-tweets-utf8"),
-        corporaRoot.resolve("20m-tweets-utf8-clean")
+        corporaRoot.resolve("tweets-2m"),
+        corporaRoot.resolve("tweets-2m-clean")
     );
 
   }
@@ -197,11 +201,26 @@ public class NormalizationScripts {
   static void cleanTwitterData(Path in, Path out)
       throws Exception {
 
+    AnalysisCache cache = AnalysisCache
+        .builder()
+        .dynamicCacheSize(300_000, 500_000).build();
+
+    TurkishMorphology morphology = TurkishMorphology
+        .builder()
+        .setCache(cache)
+        .addDefaultBinaryDictionary()
+        .disableUnidentifiedTokenAnalyzer()
+        .build();
+
     int blockSize = 20_000;
     BlockTextLoader loader = new BlockTextLoader(in, blockSize);
 
+    int threadCount = Runtime.getRuntime().availableProcessors() / 2;
+    if (threadCount > 20) {
+      threadCount = 20;
+    }
     ExecutorService executorService =
-        new BlockingExecutor(Runtime.getRuntime().availableProcessors() / 2);
+        new BlockingExecutor(threadCount);
     CompletionService<TwitterSaver> service =
         new ExecutorCompletionService<>(executorService);
 
@@ -210,7 +229,7 @@ public class NormalizationScripts {
 
     int bc = 0;
     for (List<String> block : loader) {
-      service.submit(new TwitterTask(saver, block, bc));
+      service.submit(new TwitterTask(morphology, saver, block, bc));
       bc++;
     }
     executorService.shutdown();
@@ -245,11 +264,14 @@ public class NormalizationScripts {
 
   static class TwitterTask implements Callable<TwitterSaver> {
 
+    TurkishMorphology morphology;
     TwitterSaver saver;
     List<String> block;
     int blockIndex;
 
-    public TwitterTask(TwitterSaver saver, List<String> block, int blockIndex) {
+    public TwitterTask(TurkishMorphology morphology,
+        TwitterSaver saver, List<String> block, int blockIndex) {
+      this.morphology = morphology;
       this.saver = saver;
       this.block = block;
       this.blockIndex = blockIndex;
@@ -285,14 +307,14 @@ public class NormalizationScripts {
       List<String> foreign = new ArrayList<>();
       for (String s : block) {
         s = s.trim();
-        if(s.contains("... http://")) {
+        if (s.contains("... http://")) {
           continue;
         }
         // remove time information.
         if (s.contains("EEST")) {
           s = s.replaceAll("^[^-]+-[^-]+-", "").trim(); // replaces until after second -
         }
-        s = s.replaceAll("[\\u0095\\u0085]"," ");
+        s = s.replaceAll("[\\u0095\\u0085]", " ");
         s = TextUtil.normalizeApostrophes(s);
         s = TextUtil.normalizeQuotesHyphens(s);
         s = TextUtil.normalizeSpacesAndSoftHyphens(s);
@@ -304,6 +326,8 @@ public class NormalizationScripts {
                     k.getType() != TurkishLexer.Mention &&
                     k.getType() != TurkishLexer.URL &&
                     k.getText().indexOf('_') < 0 &&
+                    k.getText().indexOf('#') < 0 &&
+                    k.getText().indexOf('@') < 0 &&
                     !k.getText().equals("RT"))
             .map(Token::getText)
             .collect(Collectors.toList());
@@ -312,14 +336,33 @@ public class NormalizationScripts {
           continue;
         }
 
-        // TODO: this mechanism fails in some cases as deasciification
-        // makes sentences Turkish like
-        boolean turkish;
-        if (TurkishSentenceNormalizer.probablyRequiresDeasciifier(join)) {
+        boolean turkish = false;
+        String lang = lid.identify(join);
+        //TODO: here is a hack for javanese-indonesian language confusion.
+        // twitter data I use seems to have lots of data with those languages.
+        // we try to deasciify those and sometimes erroneously identify them as turkish afterwards.
+        // to prevent this, if language is identified as jv or id, we skip.
+        // to remove this hack we need a better language identification model for Turkish
+        // that is trained with also noisy text.
+        if (!lang.equals("jv") && !lang.equals("id") && TurkishSentenceNormalizer.probablyRequiresDeasciifier(join)) {
           String k = new Deasciifier(join).convertToTurkish();
-          turkish = lid.identify(k).equals("tr");
+          // identify and check morphology to be sure.
+          String l = lid.identify(join);
+          if (l.equals("tr")) {
+            List<String> words = Splitter.on(' ').splitToList(k);
+            int accepted = 0;
+            for (String word : words) {
+              WordAnalysis a = morphology.analyze(word);
+              if (a.isCorrect()) {
+                accepted++;
+              }
+            }
+            if (accepted * 1d / words.size() >= 0.3) {
+              turkish = true;
+            }
+          }
         } else {
-          turkish = lid.identify(join).equals("tr");
+          turkish = lang.equals("tr");
         }
         if (turkish) {
           clean.add(join);

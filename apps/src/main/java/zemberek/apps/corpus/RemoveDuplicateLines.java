@@ -15,6 +15,7 @@ import zemberek.core.collections.LongUIntMap;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
+import zemberek.core.turkish.TurkishAlphabet;
 
 public class RemoveDuplicateLines extends ConsoleApp {
 
@@ -26,6 +27,10 @@ public class RemoveDuplicateLines extends ConsoleApp {
   @Parameter(names = {"--output", "-o"},
       description = "Output corpus file. If not defined, [input].nodup file is generated.")
   Path output;
+
+  @Parameter(names = {"--normalizeLines", "-norm"},
+      description = "Applies normalization before processing a line.")
+  boolean normalizeLines = false;
 
   @Override
   public String description() {
@@ -61,11 +66,15 @@ public class RemoveDuplicateLines extends ConsoleApp {
     BlockTextLoader loader = new BlockTextLoader(corpus, StandardCharsets.UTF_8, 10_000);
     for (List<String> block : loader) {
       for (String line : block) {
+        String l = line;
+        if (normalizeLines) {
+          l = process(line);
+        }
         totalCount++;
         if (totalCount % PROGRESS == 0) {
           Log.info("Total lines read: %d. Duplicates: %d", totalCount, duplicateCount);
         }
-        long hash = longHash(line);
+        long hash = longHash(l);
         if (index.containsKey(hash)) {
           duplicateCount++;
         } else {
@@ -75,6 +84,12 @@ public class RemoveDuplicateLines extends ConsoleApp {
     }
     Log.info("Total lines read: %d. Duplicates: %d", totalCount, duplicateCount);
     Log.info("Duplicate Ratio: %.3f", duplicateCount * 100.0d / totalCount);
+  }
+
+  private String process(String line) {
+    String l = line.replaceAll("[^" + TurkishAlphabet.INSTANCE.getAllLetters() + "]", "");
+    l = l.toLowerCase(TurkishAlphabet.TR);
+    return l;
   }
 
   private long longHash(String line) {
@@ -89,11 +104,15 @@ public class RemoveDuplicateLines extends ConsoleApp {
       BlockTextLoader loader = new BlockTextLoader(corpus, StandardCharsets.UTF_8, 10_000);
       for (List<String> block : loader) {
         for (String line : block) {
+          String l = line;
+          if (normalizeLines) {
+            l = process(line);
+          }
           lineCounter++;
           if (lineCounter % PROGRESS == 0) {
             Log.info("Total lines read: %d. Lines Written: %d", lineCounter, writtenLines);
           }
-          long hash = longHash(line);
+          long hash = longHash(l);
           if (index.get(hash) == lineCounter) {
             writer.println(line);
             writtenLines++;
