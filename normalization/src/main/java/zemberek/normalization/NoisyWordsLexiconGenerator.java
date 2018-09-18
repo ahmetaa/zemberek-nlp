@@ -51,9 +51,9 @@ import zemberek.tokenization.antlr.TurkishLexer;
  * Algorithm basically works like this:
  * <p></p>
  * First, we need to have two vocabularies from a corpus. One vocabulary is correct words, other is
- * noisy words. This operation is actually quite tricky as how to decide if a word is noisy is
- * not easy. For Turkish we use morphological analysis but it may actually fail for some proper nouns and
- * for inputs where Turkish characters are not used.
+ * noisy words. This operation is actually quite tricky as how to decide if a word is noisy is not
+ * easy. For Turkish we use morphological analysis but it may actually fail for some proper nouns
+ * and for inputs where Turkish characters are not used.
  * <p></p>
  * Second, a bipartite graph is generated from the corpus. There are two sides in the graph. One
  * represents contexts, other represents words. For example:
@@ -66,20 +66,25 @@ import zemberek.tokenization.antlr.TurkishLexer;
  * (bu * eve) represents a context. And sabah:105 means from this context, "sabah" appeared in the
  * middle 105 times. And noisy "zabah" appeared 3 times.
  * <p></p>
- * Here we do something different from original paper, when building contextual similarity graph, we use 32 bit hash
- * values of the contexts instead of the contexts itself. This reduces memory and calculation cost
- * greatly.
+ * Here we do something different from original paper, when building contextual similarity graph, we
+ * use 32 bit hash values of the contexts instead of the contexts itself. This reduces memory and
+ * calculation cost greatly.
  * <p></p>
- * After this graph is constructed, For every noisy word in the graph several random walks are
- * done as below:
+ * After this graph is constructed, For every noisy word in the graph several random walks are done
+ * as below:
  * <pre>
  * - Start from a noisy word.
- * - Select one of the contexts of this word randomly. But, random is not uniform.
+ * - repeat k times (such as k = 100)
+ * -- Select one of the contexts of this word randomly. But, random is not uniform.
  *   Context is selected proportional to occurrence counts.
- * - From context, similarly randomly hop to a word.
- * - If word is noisy, continue hops.
- * - If word is not noisy, stop. Check lexical similarity.
- * - If hop count reaches to a certain value, stop.
+ * -- From context, similarly randomly hop to a word.
+ * -- If word is noisy, continue hops.
+ * -- If word is not noisy or hop count reaches to a certain value (such as 4), stop.
+ *    Store average-hitting-time
+ * - Calculate contextual and lexical similarity and prune. Lexical similarity is calculated
+ *   with modified edit distance and longest common substring ratio (from Contractor et al. 2010
+ *   Unsupervised cleansing of noisy text)
+ *
  * </pre>
  * If random walks are repeated for many times, All candidates that may be the correct version can
  * be collected. After that, a Viterbi search using a language model can be performed for better
@@ -92,9 +97,9 @@ public class NoisyWordsLexiconGenerator {
 
     NoisyWordsLexiconGenerator generator = new NoisyWordsLexiconGenerator();
 
-    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
-    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test");
-    Path rootList = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora/vocab-list");
+    Path corporaRoot = Paths.get("/media/aaa/Data/corpora/reduced");
+    Path outRoot = Paths.get("/home/aaa/data/normalization/test-small");
+    Path rootList = corporaRoot.resolve("corpora.list.small");
     List<String> rootNames = TextIO.loadLines(rootList, "#");
 
     List<Path> roots = new ArrayList<>();
@@ -115,12 +120,12 @@ public class NoisyWordsLexiconGenerator {
     Path incorrect = outRoot.resolve("incorrect");
 
     NormalizationVocabulary vocabulary = new NormalizationVocabulary(
-        correct, incorrect, 2, 3
+        correct, incorrect, 1, 3
     );
 
     // create graph
     Path graphPath = outRoot.resolve("graph");
-    ContextualSimilarityGraph graph = getGraph(generator, corpora, vocabulary, graphPath);
+    //ContextualSimilarityGraph graph = getGraph(generator, corpora, vocabulary, graphPath);
 
     // create Random Walker
     Log.info("Constructing random walk graph from %s", graphPath);
@@ -128,15 +133,16 @@ public class NoisyWordsLexiconGenerator {
 
     Log.info("Collecting candidates data.");
     int threadCount = Runtime.getRuntime().availableProcessors() / 2;
-    WalkResult walkResult = walker.walk(100, 6, threadCount);
+    WalkResult walkResult = walker.walk(200, 6, threadCount);
     Path allCandidates = outRoot.resolve("all-candidates");
     try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8")) {
       for (String s : walkResult.allCandidates.keySet()) {
         List<WalkScore> scores = new ArrayList<>(walkResult.allCandidates.get(s));
-        scores.sort((a, b) -> Float.compare(a.getCost(), b.getCost()));
+        scores.sort((a, b) -> Float.compare(b.getScore(), a.getScore()));
+        scores = scores.stream().filter(w -> w.getScore() >= 0.15).collect(Collectors.toList());
         pw.println(s);
         for (WalkScore score : scores) {
-          pw.println(String.format("%s:%.3f", score.candidate, score.getCost()));
+          pw.println(String.format("%s:%.3f", score.candidate, score.getScore()));
         }
         pw.println();
       }
@@ -259,17 +265,17 @@ public class NoisyWordsLexiconGenerator {
     WalkResult walk(int walkCount, int maxHopCount, int threadCount)
         throws Exception {
       List<Work> workList = new ArrayList<>();
-      int bathSize = 5_000;
-      IntVector vector = new IntVector(bathSize);
+      int batchSize = 5_000;
+      IntVector vector = new IntVector(batchSize);
       for (int wordIndex : wordsToContextHashes.getKeys()) {
         // only noisy words
         if (vocabulary.isValid(wordIndex)) {
           continue;
         }
         vector.add(wordIndex);
-        if (vector.size() == bathSize) {
+        if (vector.size() == batchSize) {
           workList.add(new Work(vector.copyOf()));
-          vector = new IntVector(bathSize);
+          vector = new IntVector(batchSize);
         }
       }
       // for remaining data.
@@ -296,15 +302,15 @@ public class NoisyWordsLexiconGenerator {
       while (workCount < workList.size()) {
         WalkResult threadResult = service.take().get();
         result.allCandidates.putAll(threadResult.allCandidates);
-        Log.info("%d words processed.", result.allCandidates.size());
+        Log.info("%d words processed.", result.allCandidates.keySet().size());
         workCount++;
       }
       return result;
     }
 
     /**
-     * From a node, selects a connected node randomly.
-     * Randomness is not uniform, it is proportional to the occurrence counts attached to the edges.
+     * From a node, selects a connected node randomly. Randomness is not uniform, it is proportional
+     * to the occurrence counts attached to the edges.
      */
     int selectFromDistribution(RandomWalkNode node) {
       int dice = rnd.nextInt(node.totalCounts + 1);
@@ -330,8 +336,8 @@ public class NoisyWordsLexiconGenerator {
     String candidate;
     int hitCount;
     int hopCount;
-    float contextualSimilarityProbability;
-    float lexicalSimilarityCost;
+    float contextualSimilarity;
+    float lexicalSimilarity;
 
     void update(int hopeCount) {
       this.hitCount++;
@@ -342,8 +348,8 @@ public class NoisyWordsLexiconGenerator {
       return hopCount * 1f / hitCount;
     }
 
-    float getCost() {
-      return contextualSimilarityProbability + lexicalSimilarityCost;
+    float getScore() {
+      return contextualSimilarity + lexicalSimilarity;
     }
 
     public WalkScore(String candidate) {
@@ -440,7 +446,7 @@ public class NoisyWordsLexiconGenerator {
         }
         for (String s : scores.keySet()) {
           WalkScore score = scores.get(s);
-          score.contextualSimilarityProbability =
+          score.contextualSimilarity =
               score.getAverageHittingTime() / totalAverageHittingTime;
         }
 
@@ -451,14 +457,15 @@ public class NoisyWordsLexiconGenerator {
 
         for (String s : scores.keySet()) {
           String reducedTarget = reduceWord(s);
-          float editDistance = (float) distanceCalculator.distance(reducedSource, reducedTarget);
+          float editDistance =
+              (float) distanceCalculator.distance(reducedSource, reducedTarget) + 1;
 
           // longest commons substring ratio
           float lcsr = longestCommonSubstring(word, s).length() * 1f /
               Math.max(s.length(), word.length());
 
           WalkScore score = scores.get(s);
-          score.lexicalSimilarityCost = lcsr / editDistance;
+          score.lexicalSimilarity = lcsr / editDistance;
         }
         result.allCandidates.putAll(word, scores.values());
       }

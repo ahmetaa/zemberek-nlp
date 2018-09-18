@@ -60,9 +60,9 @@ public class NormalizationVocabularyGenerator {
 
     NormalizationVocabularyGenerator generator = new NormalizationVocabularyGenerator(morphology);
 
-    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
-    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test");
-    Path rootList = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora/vocab-list");
+    Path corporaRoot = Paths.get("/media/aaa/Data/corpora/reduced");
+    Path outRoot = Paths.get("/home/aaa/data/normalization/test-small");
+    Path rootList = Paths.get("/media/aaa/Data/corpora/reduced/corpora.list.small");
     List<String> rootNames = TextIO.loadLines(rootList, "#");
 
     List<Path> roots = new ArrayList<>();
