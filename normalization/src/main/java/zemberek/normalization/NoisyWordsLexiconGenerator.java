@@ -133,16 +133,31 @@ public class NoisyWordsLexiconGenerator {
 
     Log.info("Collecting candidates data.");
     int threadCount = Runtime.getRuntime().availableProcessors() / 2;
-    WalkResult walkResult = walker.walk(200, 6, threadCount);
+    WalkResult walkResult = walker.walk(1000, 10, threadCount);
     Path allCandidates = outRoot.resolve("all-candidates");
+
+    Histogram<String> noisyWords = Histogram.loadFromUtf8File(incorrect, ' ');
+
     try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8")) {
-      for (String s : walkResult.allCandidates.keySet()) {
+      List<String> words = new ArrayList<>(walkResult.allCandidates.keySet());
+
+      words.sort((a, b) -> Integer.compare(noisyWords.getCount(b), noisyWords.getCount(a)));
+
+      for (String s : words) {
         List<WalkScore> scores = new ArrayList<>(walkResult.allCandidates.get(s));
-        scores.sort((a, b) -> Float.compare(b.getScore(), a.getScore()));
-        scores = scores.stream().filter(w -> w.getScore() >= 0.15).collect(Collectors.toList());
+        float lambda1 = 1f;
+        float lambda2 = 1f;
+        scores.sort(
+            (a, b) -> Float.compare(b.getScore(lambda1, lambda2), a.getScore(lambda1, lambda2)));
+        scores = scores.stream()
+            .filter(w -> w.getScore(lambda1, lambda2) >= 0.25)
+            .collect(Collectors.toList());
         pw.println(s);
         for (WalkScore score : scores) {
-          pw.println(String.format("%s:%.3f", score.candidate, score.getScore()));
+          pw.println(String.format("%s:%.3f (%.3f - %.3f)",
+              score.candidate, score.getScore(lambda1, lambda2),
+              score.contextualSimilarity,
+              score.lexicalSimilarity));
         }
         pw.println();
       }
@@ -352,6 +367,11 @@ public class NoisyWordsLexiconGenerator {
       return contextualSimilarity + lexicalSimilarity;
     }
 
+    float getScore(float lambda1, float lambda2) {
+      return lambda1 * contextualSimilarity + lambda2 * lexicalSimilarity;
+    }
+
+
     public WalkScore(String candidate) {
       this.candidate = candidate;
     }
@@ -489,7 +509,7 @@ public class NoisyWordsLexiconGenerator {
     char previous = 0;
     for (int i = 0; i < s.length(); i++) {
       char c = s.charAt(i);
-      if (TurkishAlphabet.INSTANCE.isVowel(c)) {
+      if (TurkishAlphabet.INSTANCE.isVowel(c) || c == 'ğ') {
         previous = 0;
         continue;
       }
