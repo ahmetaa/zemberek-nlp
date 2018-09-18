@@ -88,7 +88,7 @@ import zemberek.tokenization.antlr.TurkishLexer;
  * </pre>
  * If random walks are repeated for many times, All candidates that may be the correct version can
  * be collected. After that, a Viterbi search using a language model can be performed for better
- * performance.
+ * accuracy.
  */
 public class NoisyWordsLexiconGenerator {
 
