@@ -486,7 +486,8 @@ public class TurkishMorphotactics {
     a3sg_S
         .addEmpty(pnon_S, notHave(RootAttribute.FamilyMember))        // ev
         .add(p1sg_S, "Im", possessionCond)       // evim
-        .add(p2sg_S, "In", possessionCond)       // evin
+        .add(p2sg_S, "In", possessionCond
+            .andNot(new Conditions.PreviousGroupContainsMorpheme(justLike)))  // evin
         .add(p3sg_S, "+sI", possessionCond)      // evi, odası
         .addEmpty(p3sg_S,
             has(RootAttribute.CompoundP3sg))  // "zeytinyağı" has two analyses. Pnon and P3sg.

@@ -68,8 +68,6 @@ public class NounDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Noun + A3sg + JustLike + Adj"));
     tester.expectAny("zeytinyağsı",
         matchesTailLex("Noun + A3sg + JustLike + Adj"));
-
-
   }
 
   // check for
@@ -512,4 +510,20 @@ public class NounDerivationTest extends AnalyzerTestBase {
   }
 
 
+  /**
+   * Test for Issue 170.
+   * After justlike derivation, P2sg should not be allowed.
+   * Such as: "güzelsin"
+   */
+  @Test
+  public void justlikeTest_Issue_170() {
+    AnalysisTester tester = getTester("güzel [P:Adj]");
+    // no Justlike+Noun+A3sg+P2sg allowed
+    tester.expectSingle("güzelsin",
+        matchesTailLex("Zero + Verb + Pres + A2sg"));
+    tester = getTester("odun");
+    // no Justlike+Adj+Zero+A3sg+P2sg allowed
+    tester.expectSingle("odunsun",
+        matchesTailLex("Noun + A3sg + Zero + Verb + Pres + A2sg"));
+  }
 }
