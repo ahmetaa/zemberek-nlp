@@ -32,8 +32,10 @@ import zemberek.morphology.analysis.StemTransitionsMapBased;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.Conditions.ContainsMorpheme;
+import zemberek.morphology.morphotactics.Conditions.ContainsMorphemeSequence;
 import zemberek.morphology.morphotactics.Conditions.CurrentGroupContainsAny;
 import zemberek.morphology.morphotactics.Conditions.HasTailSequence;
+import zemberek.morphology.morphotactics.Conditions.LastDerivationIs;
 import zemberek.morphology.morphotactics.Conditions.NoSurfaceAfterDerivation;
 import zemberek.morphology.morphotactics.Conditions.PreviousMorphemeIsAny;
 import zemberek.morphology.morphotactics.Conditions.PreviousStateIsAny;
@@ -438,8 +440,9 @@ public class TurkishMorphotactics {
     // for "zeytinyağsız"
     nom_S.add(without_S, "sIz", new ContainsMorpheme(with, without).not());
     // for "zeytinyağlık"
-    nom_S.add(ness_S, "lI~k", not(new ContainsMorpheme(ness)));
-    nom_S.add(ness_S, "lI!ğ", not(new ContainsMorpheme(ness)));
+    ContainsMorpheme containsNess = new ContainsMorpheme(ness);
+    nom_S.add(ness_S, "lI~k", not(containsNess));
+    nom_S.add(ness_S, "lI!ğ", not(containsNess));
     // for "zeytinyağcı"
     nom_S.add(agt_S, ">cI", not(new ContainsMorpheme(agt)));
     // for "zeytinyağsı"
@@ -626,10 +629,12 @@ public class TurkishMorphotactics {
     // connect dim to the noun root.
     dim_S.addEmpty(noun_S);
 
+    Condition emptyAdjNounSeq = new ContainsMorphemeSequence(adj, zero, noun, a3sg, pnon, nom);
+
     nom_ST.add(ness_S, "lI~k",
-        Conditions.CURRENT_GROUP_EMPTY.andNot(new ContainsMorpheme(ness)));
+        Conditions.CURRENT_GROUP_EMPTY.andNot(containsNess).andNot(emptyAdjNounSeq));
     nom_ST.add(ness_S, "lI!ğ",
-        Conditions.CURRENT_GROUP_EMPTY.andNot(new ContainsMorpheme(ness)));
+        Conditions.CURRENT_GROUP_EMPTY.andNot(containsNess).andNot(emptyAdjNounSeq));
 
     // connect `ness` to the noun root.
     ness_S.addEmpty(noun_S);
