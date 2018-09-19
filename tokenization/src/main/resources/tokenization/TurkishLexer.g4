@@ -122,7 +122,8 @@ Number
     : [+\-]? Integer [.,] Integer Exp? AposAndSuffix? // -1.35, 1.35E-9, 3,1'e
     | [+\-]? Integer Exp AposAndSuffix?     // 1e10 -3e4 1e10'dur
     | [+\-]? Integer AposAndSuffix?         // -3, 45
-    | (Integer '.')+ Integer AposAndSuffix? // 1.000.000 
+    | [+\-]? Integer '/' Integer AposAndSuffix?  // -1/2
+    | (Integer '.')+ Integer AposAndSuffix? // 1.000.000
     | (Integer ',')+ Integer AposAndSuffix? // 2,345,531
     | Integer '.'? AposAndSuffix?           // Ordinal 2. 34.      
     ;
@@ -155,9 +156,9 @@ Emoticon
     : ':)'|':-)'|':-]'|':D'|':-D'|'8-)'|';)'|';‑)'|':('|':-('|':\'('
     |':‑/'|':/'|':^)'|'¯\\_(ツ)_/¯'|'O_o'|'o_O'|'O_O'|'\\o/'|'<3';
 
-// Roman numbers:
+// Possible Roman numbers:
 RomanNumeral
-    : ('I'|'II'|'III'|'IV'|'V'|'VI'|'VII'|'VIII'|'IX') '.'? AposAndSuffix? ;
+    : [ILVCDMX]+ '.'? AposAndSuffix? ;
 
 // I.B.M.
 AbbreviationWithDots

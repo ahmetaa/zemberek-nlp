@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import zemberek.core.io.IOs;
 import zemberek.core.io.KeyValueReader;
@@ -311,6 +312,7 @@ public class TurkishNumbers {
    * A12 -> "A" "12"
    * 1A12'ye -> "1" "A" "12" "'ye"
    * </pre>
+   *
    * @param s input.
    * @return separated list of numerical and non numerical tokens.
    */
@@ -329,4 +331,41 @@ public class TurkishNumbers {
   public static boolean hasOnlyNumber(String s) {
     return !NOT_NUMBER.matcher(s).find();
   }
+
+
+  static final Pattern romanNumeralPattern =
+      Pattern.compile("^(M{0,3})(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$",
+          Pattern.CASE_INSENSITIVE);
+
+  /**
+   * Convert a roman numeral to decimal numbers.
+   * Copied from public domain source (https://stackoverflow.com/a/19392801).
+   *
+   * @param s roman numeral
+   * @return decimal equivalent. if it cannot be converted, -1.
+   */
+  public static int romanToDecimal(String s) {
+    if (s == null ||
+        s.isEmpty() ||
+        !romanNumeralPattern.matcher(s).matches()) {
+      return -1;
+    }
+
+    final Matcher matcher = Pattern.compile("M|CM|D|CD|C|XC|L|XL|X|IX|V|IV|I").matcher(s);
+    final int[] decimalValues = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+    final String[] romanNumerals = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V",
+        "IV", "I"};
+    int result = 0;
+
+    while (matcher.find()) {
+      for (int i = 0; i < romanNumerals.length; i++) {
+        if (romanNumerals[i].equals(matcher.group(0))) {
+          result += decimalValues[i];
+        }
+      }
+    }
+
+    return result;
+  }
+
 }

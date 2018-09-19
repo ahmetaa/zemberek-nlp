@@ -1,6 +1,7 @@
 package zemberek.morphology.analysis;
 
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,6 @@ import zemberek.morphology.analysis.tr.TurkishNumbers;
 import zemberek.morphology.analysis.tr.TurkishNumeralEndingMachine;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.tokenization.antlr.TurkishLexer;
 
 //TODO: Code requires serious testing and review.
@@ -29,8 +29,8 @@ import zemberek.tokenization.antlr.TurkishLexer;
 
 public class UnidentifiedTokenAnalyzer {
 
+  public static final TurkishAlphabet ALPHABET = TurkishAlphabet.INSTANCE;
   private static Map<String, String> ordinalMap = TurkishNumbers.getOrdinalMap();
-
 
   private InterpretingAnalyzer analyzer;
   private RootLexicon lexicon;
@@ -51,7 +51,21 @@ public class UnidentifiedTokenAnalyzer {
 
     // TODO: for now, for regular words and numbers etc, use the analyze method.
     if (sPos == SecondaryPos.None) {
-      return analyze(word);
+      if (word.contains("?")) {
+        return Collections.emptyList();
+      }
+      if (alphabet.containsDigit(word)) {
+        return tryNumeral(token);
+      } else {
+        return analyzeWord(word);
+      }
+    }
+
+    if (sPos == SecondaryPos.RomanNumeral) {
+      return getForRomanNumeral(token);
+    }
+    if (sPos == SecondaryPos.Date || sPos == SecondaryPos.Time) {
+      return tryNumeral(token);
     }
 
     //TODO: consider returning analysis results without interfering with analyzer.
@@ -86,19 +100,17 @@ public class UnidentifiedTokenAnalyzer {
         return SecondaryPos.RomanNumeral;
       case TurkishLexer.AbbreviationWithDots:
         return SecondaryPos.Abbreviation;
+      case TurkishLexer.Date:
+        return SecondaryPos.Date;
+      case TurkishLexer.Time: // TODO: consider SecondaryPos.Time -> Temporal and Clock -> Time
+        return SecondaryPos.Clock;
 
       default:
         return SecondaryPos.None;
     }
   }
 
-  public synchronized List<SingleAnalysis> analyze(String word) {
-    if (word.contains("?")) {
-      return Collections.emptyList();
-    }
-    if (alphabet.containsDigit(word)) {
-      return tryNumeral(word);
-    }
+  public synchronized List<SingleAnalysis> analyzeWord(String word) {
     int index = word.indexOf('\'');
     if (index >= 0) {
       return tryWordWithApostrophe(word);
@@ -114,8 +126,8 @@ public class UnidentifiedTokenAnalyzer {
     if (alphabet.containsAsciiForeignDiacritics(word)) {
       normalized = alphabet.foreignDiacriticsToTurkish(word);
     }
-    normalized = normalized==null ?
-        alphabet.normalize(word):
+    normalized = normalized == null ?
+        alphabet.normalize(word) :
         alphabet.normalize(normalized);
 
     //TODO: should we remove dots with normalization?
@@ -209,7 +221,52 @@ public class UnidentifiedTokenAnalyzer {
     return new StemAndEnding(s.substring(0, cutPoint), s.substring(cutPoint));
   }
 
-  private List<SingleAnalysis> tryNumeral(String s) {
+  private List<SingleAnalysis> getForRomanNumeral(Token token) {
+    String content = token.getText();
+    StemAndEnding se = getFromNumeral(content);
+    String ss = se.stem;
+    if (se.stem.endsWith(".")) {
+      ss = se.stem.substring(0, se.stem.length() - 1);
+    }
+    int decimal = TurkishNumbers.romanToDecimal(ss);
+    if (decimal == -1) {
+      return new ArrayList<>(0);
+    }
+
+    String lemma;
+    if (se.stem.endsWith(".")) {
+      lemma = numeralEndingMachine.find(String.valueOf(decimal));
+      lemma = ordinalMap.get(lemma);
+    } else {
+      lemma = numeralEndingMachine.find(String.valueOf(decimal));
+    }
+    List<SingleAnalysis> results = Lists.newArrayListWithCapacity(1);
+    String toParse;
+    if (se.ending.length() > 0 && lemma.equals("dört") &&
+        ALPHABET.isVowel(se.ending.charAt(0))) {
+      toParse = "dörd" + se.ending;
+    } else {
+      toParse = lemma + se.ending;
+    }
+    List<SingleAnalysis> res = analyzer.analyze(toParse);
+    for (SingleAnalysis re : res) {
+      if (re.getDictionaryItem().primaryPos != PrimaryPos.Numeral) {
+        continue;
+      }
+      DictionaryItem runTimeItem = new DictionaryItem(
+          se.stem,
+          se.stem,
+          content + lemma,
+          PrimaryPos.Numeral,
+          SecondaryPos.RomanNumeral);
+      runTimeItem.attributes.add(RootAttribute.Runtime);
+      results.add(re.copyFor(runTimeItem, se.stem));
+    }
+    return results;
+  }
+
+  private List<SingleAnalysis> tryNumeral(Token token) {
+    String s = token.getText();
     s = s.toLowerCase(TurkishAlphabet.TR);
     StemAndEnding se = getFromNumeral(s);
     String lemma;
@@ -223,12 +280,12 @@ public class UnidentifiedTokenAnalyzer {
 
     List<SingleAnalysis> results = Lists.newArrayListWithCapacity(1);
 
-    for (TurkishDictionaryLoader.Digit digit : TurkishDictionaryLoader.Digit.values()) {
-      Matcher m = digit.pattern.matcher(se.stem);
+    for (Numerals numerals : Numerals.values()) {
+      Matcher m = numerals.pattern.matcher(se.stem);
       if (m.find()) {
         String toParse;
-        if (se.ending.length() > 0 && lemma.equals("dört") && TurkishAlphabet.INSTANCE
-            .isVowel(se.ending.charAt(0))) {
+        if (se.ending.length() > 0 && lemma.equals("dört") &&
+            ALPHABET.isVowel(se.ending.charAt(0))) {
           toParse = "dörd" + se.ending;
         } else {
           toParse = lemma + se.ending;
@@ -243,13 +300,37 @@ public class UnidentifiedTokenAnalyzer {
               se.stem,
               s + lemma,
               PrimaryPos.Numeral,
-              digit.secondaryPos);
+              numerals.secondaryPos);
           runTimeItem.attributes.add(RootAttribute.Runtime);
           results.add(re.copyFor(runTimeItem, se.stem));
         }
       }
     }
     return results;
+  }
+
+  public enum Numerals {
+    CARDINAL("#", "^[+\\-]?\\d+$", SecondaryPos.Cardinal),
+    ORDINAL("#.", "^[+\\-]?[0-9]+[.]$", SecondaryPos.Ordinal),
+    RANGE("#-#", "^[+\\-]?[0-9]+-[0-9]+$", SecondaryPos.Range),
+    RATIO("#/#", "^[+\\-]?[0-9]+/[0-9]+$", SecondaryPos.Ratio),
+    REAL("#,#", "^[+\\-]?[0-9]+[,][0-9]+$|^[+\\-]?[0-9]+[.][0-9]+$", SecondaryPos.Real),
+
+    DISTRIB("#DIS", "^\\d+[^0-9]+$", SecondaryPos.Distribution),
+    PERCENTAGE("%#", "(^|[+\\-])(%)(\\d+)([.]|[,])(\\d+)(|%)$", SecondaryPos.Percentage),
+    TIME("#:#", "^([012][0-9]|[1-9])([.]|[:])([0-5][0-9])$", SecondaryPos.Time),
+    DATE("##.##.####", "^([0-3][0-9]|[1-9])([.]|[/])([01][0-9]|[1-9])([.]|[/])(\\d{4})$",
+        SecondaryPos.Date);
+
+    public String lemma;
+    public Pattern pattern;
+    public SecondaryPos secondaryPos;
+
+    Numerals(String lemma, String patternStr, SecondaryPos secondaryPos) {
+      this.lemma = lemma;
+      this.pattern = Pattern.compile(patternStr);
+      this.secondaryPos = secondaryPos;
+    }
   }
 
 }

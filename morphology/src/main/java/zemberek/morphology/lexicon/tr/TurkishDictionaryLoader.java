@@ -133,29 +133,6 @@ public class TurkishDictionaryLoader {
     }
   }
 
-
-  public enum Digit {
-    CARDINAL("#", "^[+\\-]?\\d+$", SecondaryPos.Cardinal),
-    ORDINAL("#.", "^[+\\-]?[0-9]+[.]$", SecondaryPos.Ordinal),
-    RANGE("#-#", "^[+\\-]?[0-9]+-[0-9]+$", SecondaryPos.Range),
-    REAL("#,#", "^[+\\-]?[0-9]+[,][0-9]+$|^[+\\-]?[0-9]+[.][0-9]+$", SecondaryPos.Real),
-    DISTRIB("#DIS", "^\\d+[^0-9]+$", SecondaryPos.Distribution),
-    PERCENTAGE("%#", "^[%][0-9]+,[0-9]?+$|^[%][0-9]?+$|^[%][0-9].[0-9]?+$",
-        SecondaryPos.Percentage),
-    CLOCK("#:#", "^[0-9]{2}:[0-9]{2}$", SecondaryPos.Clock),
-    DATE("##.##.####", "^[0-9]{2}\\.[0-9]{2}\\.[1-9]{4}$", SecondaryPos.Date);
-
-    public String lemma;
-    public Pattern pattern;
-    public SecondaryPos secondaryPos;
-
-    Digit(String lemma, String patternStr, SecondaryPos secondaryPos) {
-      this.lemma = lemma;
-      this.pattern = Pattern.compile(patternStr);
-      this.secondaryPos = secondaryPos;
-    }
-  }
-
   // A simple class that holds raw word and metadata information. Represents a single line in dictionary.
   static class LineData {
 

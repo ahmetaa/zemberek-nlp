@@ -44,8 +44,7 @@ public class TurkishMorphologyFunctionalTests {
 
   @Test
   public void testRomanNumeral() {
-    // Instance with no dictionary item.
-    TurkishMorphology morphology = getEmptyTurkishMorphology();
+    TurkishMorphology morphology = getMorphology("dört [P:Num,Card;A:Voicing]");
     WordAnalysis result = morphology.analyze("IV");
     Assert.assertEquals(1, result.analysisCount());
     Assert.assertEquals(
@@ -53,11 +52,71 @@ public class TurkishMorphologyFunctionalTests {
         result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
   }
 
+  @Test
+  public void testRomanNumeral2() {
+    // Instance with no dictionary item.
+    TurkishMorphology morphology = getMorphology("dördüncü [P:Num,Ord]");
+    WordAnalysis result = morphology.analyze("XXIV.");
+    Assert.assertEquals(1, result.analysisCount());
+    Assert.assertEquals(
+        SecondaryPos.RomanNumeral,
+        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
+  }
+
+  @Test
+  public void testRomanNumeral3() {
+    TurkishMorphology morphology = getMorphology("dört [P:Num,Card;A:Voicing]");
+    WordAnalysis result = morphology.analyze("XXIV'ten");
+    Assert.assertEquals(1, result.analysisCount());
+    Assert.assertEquals(
+        SecondaryPos.RomanNumeral,
+        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
+  }
+
+  @Test
+  public void testDate() {
+    TurkishMorphology morphology = getMorphology("dört [P:Num,Card;A:Voicing]");
+    WordAnalysis result = morphology.analyze("1.1.2014");
+    Assert.assertEquals(1, result.analysisCount());
+    Assert.assertEquals(
+        SecondaryPos.Date,
+        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
+  }
+
+  @Test
+  public void testTime() {
+    TurkishMorphology morphology = getMorphology("otuz [P:Num,Card]");
+    WordAnalysis result = morphology.analyze("20:30'da");
+    Assert.assertEquals(1, result.analysisCount());
+    Assert.assertEquals(
+        SecondaryPos.Clock,
+        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
+  }
+
+  @Test
+  public void testRatio() {
+    TurkishMorphology morphology = getMorphology("iki [P:Num,Card]");
+    WordAnalysis result = morphology.analyze("1/2");
+    Assert.assertEquals(1, result.analysisCount());
+    Assert.assertEquals(
+        SecondaryPos.Ratio,
+        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
+  }
+
+
   private TurkishMorphology getEmptyTurkishMorphology() {
     return TurkishMorphology
-          .builder()
-          .disableCache()
-          .build();
+        .builder()
+        .disableCache()
+        .build();
+  }
+
+  private TurkishMorphology getMorphology(String... lines) {
+    return TurkishMorphology
+        .builder()
+        .addDictionaryLines(lines)
+        .disableCache()
+        .build();
   }
 
   @Test
