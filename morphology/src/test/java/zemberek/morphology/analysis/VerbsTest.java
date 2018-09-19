@@ -341,7 +341,7 @@ public class VerbsTest extends AnalyzerTestBase {
 
   @Test
   public void passiveVazgecmek() {
-    AnalysisTester t = getTester("vazgeçmek [A:Aorist_A]","yenmek");
+    AnalysisTester t = getTester("vazgeçmek [A:Aorist_A]", "yenmek");
     t.expectSingle("vazgeçil", matchesTailLex("Verb + Pass + Verb + Imp + A2sg"));
     t.expectAny("vazgeçilmez", matchesTailLex("Verb + Pass + Verb + Neg + AorPart + Adj"));
     t.expectAny("yenilmez", matchesTailLex("Verb + Pass + Verb + Neg + AorPart + Adj"));
@@ -742,5 +742,14 @@ public class VerbsTest extends AnalyzerTestBase {
     );
   }
 
-
+  /**
+   * For Issue https://github.com/ahmetaa/zemberek-nlp/issues/173
+   */
+  @Test
+  public void negativeShouldNotCOmeAfterAbility_173() {
+    AnalysisTester t = getTester("yazmak");
+    t.expectSingle("yazabil", matchesTailLex("Verb + Able + Verb + Imp + A2sg"));
+    // only analysis. There should not be a "Neg" solution.
+    t.expectSingle("yazabilme", matchesTailLex("Verb + Able + Verb + Inf2 + Noun + A3sg"));
+  }
 }

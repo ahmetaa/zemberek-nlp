@@ -1819,7 +1819,7 @@ public class TurkishMorphotactics {
 
     // Negative
     verbRoot_S
-        .add(vNeg_S, "mA");
+        .add(vNeg_S, "mA", Conditions.previousMorphemeIsNot(able));
 
     vNeg_S.addEmpty(vImp_S)
         .add(vPast_S, "dI")
