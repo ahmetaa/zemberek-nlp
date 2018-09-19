@@ -1362,7 +1362,6 @@ public class TurkishMorphotactics {
         .add(pAbl_ST, "+ndAn", rootIsAny(kendi))
         .add(pEqu_ST, "+ncA", rootIsAny(kendi))
         .add(pIns_ST, "+nlA", conditionP2sg)
-        .add(pAbl_ST, "+ndAn", conditionP2sg)
         .add(pGen_ST, "+nIn", conditionP2sg);
 
     Condition p3sgCond = Conditions.rootIsAny(
