@@ -7,39 +7,40 @@ import zemberek.morphology.analysis.WordAnalysis;
 
 public class TurkishMorphologyFunctionalTests {
 
-  @Test
-  public void testWordsWithCircumflex() {
-    TurkishMorphology morphology = TurkishMorphology
+  private TurkishMorphology getEmptyTurkishMorphology() {
+    return TurkishMorphology
         .builder()
-        .addDictionaryLines("zekâ")
         .disableCache()
         .build();
+  }
+
+  private TurkishMorphology getMorphology(String... lines) {
+    return TurkishMorphology
+        .builder()
+        .addDictionaryLines(lines)
+        .disableCache()
+        .build();
+  }
+
+  @Test
+  public void testWordsWithCircumflex() {
+    TurkishMorphology morphology = getMorphology("zekâ");
     WordAnalysis result = morphology.analyze("zekâ");
     Assert.assertEquals(1, result.analysisCount());
   }
 
   @Test
   public void test2() {
-    TurkishMorphology morphology = TurkishMorphology
-        .builder()
-        .addDictionaryLines("Air")
-        .disableCache()
-        .build();
+    TurkishMorphology morphology = getMorphology("Air");
     Assert.assertEquals(0, morphology.analyze("Air'rrr").analysisCount());
     Assert.assertEquals(1, morphology.analyze("Air").analysisCount());
   }
 
   @Test
   public void testWordsWithDot() {
-    TurkishMorphology morphology = TurkishMorphology
-        .builder()
-        .addDictionaryLines("Dr [P:Abbrv]")
-        .disableCache()
-        .build();
+    TurkishMorphology morphology = getMorphology("Dr [P:Abbrv]");
     WordAnalysis result = morphology.analyze("Dr.");
-
     Assert.assertEquals(1, result.analysisCount());
-
   }
 
   @Test
@@ -101,22 +102,6 @@ public class TurkishMorphologyFunctionalTests {
     Assert.assertEquals(
         SecondaryPos.Ratio,
         result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
-  }
-
-
-  private TurkishMorphology getEmptyTurkishMorphology() {
-    return TurkishMorphology
-        .builder()
-        .disableCache()
-        .build();
-  }
-
-  private TurkishMorphology getMorphology(String... lines) {
-    return TurkishMorphology
-        .builder()
-        .addDictionaryLines(lines)
-        .disableCache()
-        .build();
   }
 
   @Test
