@@ -1337,7 +1337,7 @@ public class TurkishMorphotactics {
         .add(pIns_ST, "inle", rootIs(siz))
         .add(pIns_ST, "imle", rootIsAny(biz, ben));
 
-    Condition conditionpP1sg_S = Conditions.rootIsAny(kim, ben, ne, nere);
+    Condition conditionpP1sg_S = Conditions.rootIsAny(kim, ben, ne, nere, kendi);
 
     pP1sg_S
         .addEmpty(pNom_ST)
@@ -1345,18 +1345,23 @@ public class TurkishMorphotactics {
         .add(pAcc_ST, "+nI", nGroup)
         .add(pDat_ST, "+yA", yGroup)
         .add(pAcc_ST, "+yI", yGroup)
-        .add(pIns_ST, "lA", conditionpP1sg_S)
-        .add(pAbl_ST, "+ndAn", conditionpP1sg_S)
+        .add(pLoc_ST, "+ndA", rootIsAny(kendi))
+        .add(pAbl_ST, "+ndAn", rootIsAny(kendi))
+        .add(pEqu_ST, "+ncA", rootIsAny(kendi))
+        .add(pIns_ST, "+nlA", conditionpP1sg_S)
         .add(pGen_ST, "+nIn", conditionpP1sg_S);
 
-    Condition conditionP2sg = Conditions.rootIsAny(kim, sen, ne, nere);
+    Condition conditionP2sg = Conditions.rootIsAny(kim, sen, ne, nere, kendi);
     pP2sg_S
         .addEmpty(pNom_ST)
         .add(pDat_ST, "+nA", nGroup)
         .add(pAcc_ST, "+nI", nGroup)
         .add(pDat_ST, "+yA", yGroup)
         .add(pAcc_ST, "+yI", yGroup)
-        .add(pIns_ST, "lA", conditionP2sg)
+        .add(pLoc_ST, "+ndA", rootIsAny(kendi))
+        .add(pAbl_ST, "+ndAn", rootIsAny(kendi))
+        .add(pEqu_ST, "+ncA", rootIsAny(kendi))
+        .add(pIns_ST, "+nlA", conditionP2sg)
         .add(pAbl_ST, "+ndAn", conditionP2sg)
         .add(pGen_ST, "+nIn", conditionP2sg);
 
@@ -1377,8 +1382,7 @@ public class TurkishMorphotactics {
 
     Condition hepCnd = Conditions.rootIsAny(
         kendi, kim, ne, nere, biz, siz, biri, birbiri, birkaci, herbiri, hep, kimi, cogu, bircogu,
-        tumu,
-        topu, bazi, hicbiri);
+        tumu,  topu, bazi, hicbiri);
     pP1pl_S
         .addEmpty(pNom_ST)
         .add(pDat_ST, "+nA", nGroup)

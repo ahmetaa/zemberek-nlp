@@ -546,4 +546,29 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectAny("kendine", matchesTailLex("Pron + A2sg + P2sg + Dat"));
   }
 
+  /**
+   * Test for issues
+   * <a href="https://github.com/ahmetaa/zemberek-nlp/issues/171">171</a>
+   * <a href="https://github.com/ahmetaa/zemberek-nlp/issues/172">172</a>
+   */
+  @Test
+  public void kendiTest_issues_171_172() {
+    AnalysisTester tester = getTester("kendi [P:Pron,Reflex]");
+
+    tester.expectSingle("kendime", matchesTailLex("Pron + A1sg + P1sg + Dat"));
+    tester.expectSingle("kendimde", matchesTailLex("Pron + A1sg + P1sg + Loc"));
+    tester.expectSingle("kendimden", matchesTailLex("Pron + A1sg + P1sg + Abl"));
+    tester.expectSingle("kendimce", matchesTailLex("Pron + A1sg + P1sg + Equ"));
+    tester.expectSingle("kendimle", matchesTailLex("Pron + A1sg + P1sg + Ins"));
+
+    // These also have A3sg analyses.
+    tester.expectAny("kendine", matchesTailLex("Pron + A2sg + P2sg + Dat"));
+    tester.expectAny("kendinde", matchesTailLex("Pron + A2sg + P2sg + Loc"));
+    tester.expectAny("kendinden", matchesTailLex("Pron + A2sg + P2sg + Abl"));
+    tester.expectAny("kendince", matchesTailLex("Pron + A2sg + P2sg + Equ"));
+    tester.expectAny("kendinle", matchesTailLex("Pron + A2sg + P2sg + Ins"));
+
+
+  }
+
 }
