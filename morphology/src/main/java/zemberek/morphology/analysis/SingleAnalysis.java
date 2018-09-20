@@ -400,10 +400,10 @@ public class SingleAnalysis {
         MorphemeData suffixData = ig.morphemes.get(0);
 
         String surface = suffixData.surface;
-        if (suffixData.surface.endsWith("ğ")) {
-          surface = surface.substring(0, surface.length() - 1) + "k";
-        }
         String stem = previousStem + surface;
+        if (stem.endsWith("ğ")) {
+          stem = stem.substring(0, stem.length() - 1) + "k";
+        }
         if (!lemmas.contains(stem)) {
           lemmas.add(stem);
         }
