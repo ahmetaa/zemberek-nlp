@@ -176,14 +176,14 @@ WordWithSymbol
     : AllTurkishAlphanumerical+ '-'? AllTurkishAlphanumerical+ AposAndSuffix?;
 
 fragment PunctuationFragment
-    : Apostrophe | DoubleQuote | '‘' | '…' | '...' | '(!)' | '(?)'| [.,!?%$&*+@:;]
+    : Apostrophe | DoubleQuote | '‘' | '…' | '...' | '(!)' | '(?)'| [.,!?%$&*+@:;®™©℠]
           | '\\' | '-' | '/' | '(' | ')' | '[' | ']' | '{' | '}';
 
 Punctuation
     : PunctuationFragment;
 
 UnknownWord
-    : ~([ \n\r\t.,!?%$&*+@:;…] | '\'' | '’' | '‘' | '"' | '”' | '“' | '»' | '«'
+    : ~([ \n\r\t.,!?%$&*+@:;…®™©℠] | '\'' | '’' | '‘' | '"' | '”' | '“' | '»' | '«'
     |'\\' | '-' |'(' | '/' | ')' | '[' | ']' | '{' | '}')+;
 
 // Catch all remaining as Unknown.

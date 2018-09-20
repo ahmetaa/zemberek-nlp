@@ -30,6 +30,10 @@ $ [P:Punc]
 “ [P:Punc]
 » [P:Punc]
 « [P:Punc]
+® [P:Punc]
+™ [P:Punc]
+© [P:Punc]
+℠ [P:Punc]
 
 a [P:Interj]
 ab

@@ -9,15 +9,16 @@ import java.util.List;
  * A simple hashmap with integer keys and T values. implements open address linear probing
  * algorithm.
  * <p> Constraints:
+ * <pre>
  * - Supports int key values in range (Integer.MIN_VALUE..Integer.MAX_VALUE];
  * - Does not implement Map interface
  * - Size can be max 1 << 29
  * - Does not support remove.
  * - Does not implement Iterable.
  * - Class is not thread safe.
- *
- * If created as an externally managed IntMap, it does not expand automatically when
- * capacity threshold is reached, and must be expanded by callers.
+ * </pre>
+ * If created as an externally managed IntMap, it does not expand automatically when capacity
+ * threshold is reached, and must be expanded by callers.
  */
 public final class IntMap<T> implements Iterable<T> {
 
@@ -111,7 +112,9 @@ public final class IntMap<T> implements Iterable<T> {
   public boolean put(int key, T value) {
     checkKey(key);
     if (keyCount == threshold) {
-      if (managed) return false;
+      if (managed) {
+        return false;
+      }
       expandInternal();
     }
     int loc = locate(key);

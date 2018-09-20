@@ -59,6 +59,8 @@ abstract class HashBase<T> {
     this.removeCount = 0;
   }
 
+  // TODO: here if key count is less than half of the values array should be shrunk.
+  // This may happen after lots of removal operations
   int newSize() {
     long size = keys.length * 2L;
     if (size > Integer.MAX_VALUE) {

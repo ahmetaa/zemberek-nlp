@@ -210,7 +210,9 @@ public class TurkishTokenizerTest {
   @Test
   public void testPunctuation() {
     TurkishTokenizer t = TurkishTokenizer.DEFAULT;
-    matchSentences(t, ".,!:;$%\"\'()[]{}&@", ". , ! : ; $ % \" \' ( ) [ ] { } & @");
+    matchSentences(t,
+        ".,!:;$%\"\'()[]{}&@®™©℠",
+        ". , ! : ; $ % \" \' ( ) [ ] { } & @ ® ™ © ℠");
     matchToken(t, "...", "...");
     matchToken(t, "(!)", "(!)");
   }
