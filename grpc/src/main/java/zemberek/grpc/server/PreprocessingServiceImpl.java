@@ -17,7 +17,6 @@ public class PreprocessingServiceImpl extends PreprocessingServiceImplBase {
   private final TurkishTokenizer tokenizer;
   private final TurkishSentenceExtractor extractor;
 
-
   public PreprocessingServiceImpl() {
     tokenizer = TurkishTokenizer.DEFAULT;
     extractor = TurkishSentenceExtractor.DEFAULT;
