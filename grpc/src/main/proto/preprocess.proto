@@ -5,6 +5,7 @@ option java_multiple_files = true;
 
 message TokenizationRequest {
   string input = 1;
+  bool includeTokenBoundaries = 2;
   // TODO: Add options (ignore etc.)
 }
 
@@ -12,6 +13,8 @@ message Token {
   string token = 1;
   // TODO: Types should be enums.
   string type = 2;
+  int32 start = 3;
+  int32 end = 4;
 }
 
 message TokenizationResponse {

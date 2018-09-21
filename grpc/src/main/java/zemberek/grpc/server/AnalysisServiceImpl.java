@@ -1,11 +1,9 @@
 package zemberek.grpc.server;
 
 import io.grpc.stub.StreamObserver;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis.MorphemeData;
@@ -20,7 +18,7 @@ public class AnalysisServiceImpl extends AnalysisServiceImplBase {
 
   private final TurkishMorphology morphology;
 
-  public AnalysisServiceImpl(ZemberekContext context) throws IOException {
+  public AnalysisServiceImpl(ZemberekContext context) {
     morphology = context.morphology;
   }
 
@@ -55,7 +53,6 @@ public class AnalysisServiceImpl extends AnalysisServiceImplBase {
   }
 
   zemberek.proto.MorphemeData toMorphemeDataProto(MorphemeData morphemeData) {
-    Log.info("MorphemeData: " + morphemeData);
     zemberek.proto.MorphemeData.Builder builder = zemberek.proto.MorphemeData.newBuilder()
         .setMorpheme(toMorphemeProto(morphemeData.morpheme))
         .setSurface(morphemeData.surface);

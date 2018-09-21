@@ -27,7 +27,7 @@ public class TestClient {
 
   public static void main(String[] args) {
     ManagedChannel channel = ManagedChannelBuilder
-        .forAddress("localhost", ZemberekGrpcServer.PORT)
+        .forAddress("localhost", ZemberekGrpcServer.DEFAULT_PORT)
         .usePlaintext()
         .build();
     AnalysisServiceBlockingStub analysisServiceBlockingStub = AnalysisServiceGrpc
@@ -59,6 +59,7 @@ public class TestClient {
     TokenizationResponse tokenizationResponse = preprocessingServiceBlockingStub
         .tokenize(TokenizationRequest.newBuilder()
             .setInput(tokenizationInput)
+            .setIncludeTokenBoundaries(true)
             .build());
     Log.info("Input: " + tokenizationInput);
     Log.info(tokenizationResponse);
