@@ -78,7 +78,7 @@ public class TestClient {
         .normalize(NormalizationRequest.newBuilder()
             .setInput(normalizationiInput)
             .build());
-    Log.info("Input: " + sentenceExtractionInput);
+    Log.info("Input: " + normalizationiInput);
     Log.info("Response: " + normalizationResponse.getNormalizedInput());
 
   }
