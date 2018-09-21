@@ -2751,7 +2751,7 @@ bembeyaz [P:Adj]
 bembeyaz [P:Adv]
 bemol [A:InverseHarmony]
 ben
-ben [P:Pron,Pers ;A:Special]
+ben [P:Pron,Pers]
 benbenci [P:Adj]
 bencil [P:Adj]
 bencileyin [P:Adv]
@@ -5435,7 +5435,7 @@ demagojik [P:Adj]
 dembedem [P:Adv]
 deme
 demeç
-demek [A:Special]
+demek
 demet [A:NoVoicing]
 demetlemek
 demevi [P:Adj]
@@ -20928,7 +20928,7 @@ sempozyum
 semptom
 semt
 semtürreis
-sen [P:Pron,Pers ;A:Special]
+sen [P:Pron,Pers]
 sena
 senarist [A:NoVoicing]
 senaryo
@@ -25941,7 +25941,7 @@ yelve
 yelyazar
 yelyutan
 yem
-yemek [A:Special]
+yemek
 yemek [P:Noun]
 yemekaltı
 yemekhane
