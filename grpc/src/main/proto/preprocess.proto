@@ -3,7 +3,6 @@ syntax = "proto3";
 option java_package = "zemberek.proto";
 option java_multiple_files = true;
 
-
 message TokenizationRequest {
   string input = 1;
   // TODO: Add options (ignore etc.)

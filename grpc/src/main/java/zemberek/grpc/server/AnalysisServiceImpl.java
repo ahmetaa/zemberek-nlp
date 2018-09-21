@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis.MorphemeData;
@@ -19,8 +20,8 @@ public class AnalysisServiceImpl extends AnalysisServiceImplBase {
 
   private final TurkishMorphology morphology;
 
-  public AnalysisServiceImpl() throws IOException {
-    morphology = TurkishMorphology.createWithDefaults();
+  public AnalysisServiceImpl(ZemberekContext context) throws IOException {
+    morphology = context.morphology;
   }
 
   @Override
@@ -54,6 +55,7 @@ public class AnalysisServiceImpl extends AnalysisServiceImplBase {
   }
 
   zemberek.proto.MorphemeData toMorphemeDataProto(MorphemeData morphemeData) {
+    Log.info("MorphemeData: " + morphemeData);
     zemberek.proto.MorphemeData.Builder builder = zemberek.proto.MorphemeData.newBuilder()
         .setMorpheme(toMorphemeProto(morphemeData.morpheme))
         .setSurface(morphemeData.surface);
@@ -61,12 +63,14 @@ public class AnalysisServiceImpl extends AnalysisServiceImplBase {
   }
 
   zemberek.proto.Morpheme toMorphemeProto(Morpheme morpheme) {
-    zemberek.proto.Morpheme.Builder builder = zemberek.proto.Morpheme.newBuilder();
-    return builder.setId(morpheme.id)
+    zemberek.proto.Morpheme.Builder builder = zemberek.proto.Morpheme.newBuilder()
+        .setId(morpheme.id)
         .setName(morpheme.name)
-        .setPrimaryPos(morpheme.pos.shortForm)
-        .setDerivational(morpheme.derivational)
-        .build();
+        .setDerivational(morpheme.derivational);
+    if (morpheme.pos != null) {
+      builder.setPrimaryPos(morpheme.pos.shortForm);
+    }
+    return builder.build();
     // TODO Add other fields.
   }
 
