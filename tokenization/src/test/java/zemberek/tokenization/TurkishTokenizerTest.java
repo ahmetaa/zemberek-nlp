@@ -75,6 +75,7 @@ public class TurkishTokenizerTest {
     matchToken(t, "100'e", TurkishLexer.Number, "100'e");
     matchToken(t, "3.14'ten", TurkishLexer.Number, "3.14'ten");
     matchToken(t, "%2.5'ten", TurkishLexer.PercentNumeral, "%2.5'ten");
+    matchToken(t, "%2", TurkishLexer.PercentNumeral, "%2");
   }
 
   @Test

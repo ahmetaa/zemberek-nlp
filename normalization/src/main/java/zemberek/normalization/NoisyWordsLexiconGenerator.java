@@ -53,7 +53,8 @@ import zemberek.tokenization.antlr.TurkishLexer;
  * First, we need to have two vocabularies from a corpus. One vocabulary is correct words, other is
  * noisy words. This operation is actually quite tricky as how to decide if a word is noisy is not
  * easy. For Turkish we use morphological analysis but it may actually fail for some proper nouns
- * and for inputs where Turkish characters are not used.
+ * and for inputs where Turkish characters are not used. For example in sentence "öle olmaz" word
+ * "öle" passes morphological analysis but it is actually "öyle".
  * <p></p>
  * Second, a bipartite graph is generated from the corpus. There are two sides in the graph. One
  * represents contexts, other represents words. For example:
@@ -464,15 +465,17 @@ public class NoisyWordsLexiconGenerator {
         for (WalkScore score : scores.values()) {
           totalAverageHittingTime += score.getAverageHittingTime();
         }
+
         for (String s : scores.keySet()) {
           WalkScore score = scores.get(s);
           score.contextualSimilarity =
-              score.getAverageHittingTime() / totalAverageHittingTime;
+              score.getAverageHittingTime() /
+                  (totalAverageHittingTime - score.getAverageHittingTime());
         }
 
         // calculate lexical similarity cost. This is slow for now.
-        String word = walker.vocabulary.getWord(wordIndex);
         // convert to ascii and remove vowels and repetitions.
+        String word = walker.vocabulary.getWord(wordIndex);
         String reducedSource = reduceWord(word);
 
         for (String s : scores.keySet()) {

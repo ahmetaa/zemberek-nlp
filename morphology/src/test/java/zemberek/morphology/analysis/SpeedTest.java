@@ -46,7 +46,7 @@ public class SpeedTest {
         WordAnalysis results = morphology.analyze(token.getText());
         if (!results.isCorrect()) {
           noAnalysis++;
-          //failedWords.add(token.getText());
+          failedWords.add(token.getText());
         }
       }
       sentenceCount++;

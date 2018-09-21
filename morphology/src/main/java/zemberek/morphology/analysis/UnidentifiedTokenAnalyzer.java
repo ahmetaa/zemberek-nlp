@@ -315,9 +315,8 @@ public class UnidentifiedTokenAnalyzer {
     RANGE("#-#", "^[+\\-]?[0-9]+-[0-9]+$", SecondaryPos.Range),
     RATIO("#/#", "^[+\\-]?[0-9]+/[0-9]+$", SecondaryPos.Ratio),
     REAL("#,#", "^[+\\-]?[0-9]+[,][0-9]+$|^[+\\-]?[0-9]+[.][0-9]+$", SecondaryPos.Real),
-
     DISTRIB("#DIS", "^\\d+[^0-9]+$", SecondaryPos.Distribution),
-    PERCENTAGE("%#", "(^|[+\\-])(%)(\\d+)([.]|[,])(\\d+)(|%)$", SecondaryPos.Percentage),
+    PERCENTAGE_BEFORE("%#", "(^|[+\\-])(%)(\\d+)((([.]|[,])(\\d+))|)$", SecondaryPos.Percentage),
     TIME("#:#", "^([012][0-9]|[1-9])([.]|[:])([0-5][0-9])$", SecondaryPos.Time),
     DATE("##.##.####", "^([0-3][0-9]|[1-9])([.]|[/])([01][0-9]|[1-9])([.]|[/])(\\d{4})$",
         SecondaryPos.Date);

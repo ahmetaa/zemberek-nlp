@@ -105,6 +105,20 @@ public class TurkishMorphologyFunctionalTests {
   }
 
   @Test
+  public void testPercent() {
+    TurkishMorphology morphology = getMorphology("iki [P:Num,Card]");
+    String[] correct = {"%2", "%2'si", "%2.2'si", "%2,2'si"};
+    for (String s : correct) {
+      WordAnalysis result = morphology.analyze(s);
+      Assert.assertEquals("Failed for " + s, 1, result.analysisCount());
+      Assert.assertEquals("Failed for " + s,
+          SecondaryPos.Percentage,
+          result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
+    }
+  }
+
+
+  @Test
   public void testEmoticon() {
     TurkishMorphology morphology = getEmptyTurkishMorphology();
     WordAnalysis result = morphology.analyze(":)");
