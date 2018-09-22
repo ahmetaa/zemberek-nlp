@@ -1,26 +1,17 @@
 package zemberek.normalization;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.collections.Histogram;
 import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.logging.Log;
-import zemberek.core.text.TextIO;
-import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.TurkishMorphology;
@@ -29,14 +20,13 @@ import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.DictionarySerializer;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
-import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 
 public class NormalizationVocabularyGenerator {
 
-  TurkishMorphology morphology;
-  ReentrantLock lock = new ReentrantLock();
+  private TurkishMorphology morphology;
+  private ReentrantLock lock = new ReentrantLock();
 
   public NormalizationVocabularyGenerator(TurkishMorphology morphology) {
     this.morphology = morphology;
@@ -60,22 +50,12 @@ public class NormalizationVocabularyGenerator {
 
     NormalizationVocabularyGenerator generator = new NormalizationVocabularyGenerator(morphology);
 
-    Path corporaRoot = Paths.get("/media/aaa/Data/corpora/reduced");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/test-small");
-    Path rootList = Paths.get("/media/aaa/Data/corpora/reduced/corpora.list.small");
-    List<String> rootNames = TextIO.loadLines(rootList, "#");
+    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
+    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test-small");
+    Path rootList = corporaRoot.resolve("vocab-list");
 
-    List<Path> roots = new ArrayList<>();
-    rootNames.forEach(s -> roots.add(corporaRoot.resolve(s)));
-
-    List<Path> corpora = new ArrayList<>();
-    for (Path corpusRoot : roots) {
-      corpora.addAll(Files.walk(corpusRoot, 1)
-          .filter(s -> s.toFile().isFile())
-          .collect(Collectors.toList()));
-    }
-
-    Log.info("There are %d corpus files.", corpora.size());
+    CorpusLinesProvider corpusProvider = CorpusLinesProvider
+        .fromCorporaRoot(corporaRoot, rootList, 100_000);
 
     Files.createDirectories(outRoot);
 
@@ -84,8 +64,9 @@ public class NormalizationVocabularyGenerator {
     if (threadCount > 20) {
       threadCount = 20;
     }
+
     generator.createVocabulary(
-        corpora,
+        corpusProvider,
         threadCount,
         outRoot);
   }
@@ -115,7 +96,11 @@ public class NormalizationVocabularyGenerator {
 
   }
 
-  void createVocabulary(List<Path> corpora, int threadCount, Path outRoot) throws Exception {
+  void createVocabulary(
+      CorpusLinesProvider corpora,
+      int threadCount,
+      Path outRoot) throws Exception {
+
     Log.info("Thread count = %d", threadCount);
     Vocabulary vocabulary = collectVocabularyHistogram(corpora, threadCount);
 
@@ -126,15 +111,15 @@ public class NormalizationVocabularyGenerator {
     vocabulary.ignored.saveSortedByCounts(outRoot.resolve("ignored"), " ");
   }
 
-  Vocabulary collectVocabularyHistogram(List<Path> corpora, int threadCount) throws Exception {
+  Vocabulary collectVocabularyHistogram(CorpusLinesProvider corpora, int threadCount)
+      throws Exception {
+
     ExecutorService executorService = new BlockingExecutor(threadCount);
-    CompletionService<Vocabulary> service =
-        new ExecutorCompletionService<>(executorService);
     Vocabulary result = new Vocabulary();
 
-    for (Path path : corpora) {
-      Log.info("Processing %s", path);
-      service.submit(new WordCollectorTask(path, result));
+    for (TextChunk chunk : corpora) {
+      Log.info("Processing %s", chunk.id);
+      executorService.submit(new WordCollectorTask(chunk, result));
     }
     executorService.shutdown();
     executorService.awaitTermination(1, TimeUnit.DAYS);
@@ -143,27 +128,27 @@ public class NormalizationVocabularyGenerator {
 
   class WordCollectorTask implements Callable<Vocabulary> {
 
-    Path path;
-    Vocabulary global;
+    TextChunk chunk;
+    Vocabulary globalVocabulary;
 
-    WordCollectorTask(Path path, Vocabulary global) {
-      this.path = path;
-      this.global = global;
+    public WordCollectorTask(TextChunk chunk, Vocabulary globalVocabulary) {
+      this.chunk = chunk;
+      this.globalVocabulary = globalVocabulary;
     }
 
     @Override
-    public Vocabulary call() throws Exception {
+    public Vocabulary call() {
       Vocabulary local = new Vocabulary();
-      LinkedHashSet<String> sentences = getSentences(path);
+      List<String> sentences = CorpusLinesProvider.cleanAndExtractSentences(chunk.getData());
       for (String sentence : sentences) {
         List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
         for (Token token : tokens) {
           String s = token.getText();
-          if (local.correct.contains(s) || global.correct.contains(s)) {
+          if (local.correct.contains(s) || globalVocabulary.correct.contains(s)) {
             local.correct.add(s);
             continue;
           }
-          if (local.incorrect.contains(s) || global.incorrect.contains(s)) {
+          if (local.incorrect.contains(s) || globalVocabulary.incorrect.contains(s)) {
             local.incorrect.add(s);
             continue;
           }
@@ -175,7 +160,7 @@ public class NormalizationVocabularyGenerator {
               token.getType() == TurkishLexer.Mention ||
               token.getType() == TurkishLexer.Emoticon ||
               local.ignored.contains(s) ||
-              global.ignored.contains(s) ||
+              globalVocabulary.ignored.contains(s) ||
               TurkishAlphabet.INSTANCE.containsDigit(s) /*||
               TurkishAlphabet.INSTANCE.containsApostrophe(s) ||
               Character.isUpperCase(s.charAt(0))*/) {
@@ -191,29 +176,20 @@ public class NormalizationVocabularyGenerator {
           }
         }
       }
-      Log.info("%s processed. %s", path, local.toString());
+      Log.info("%s processed. %s", chunk.id, local.toString());
       try {
         lock.lock();
-        global.correct.add(local.correct);
-        global.incorrect.add(local.incorrect);
+        globalVocabulary.correct.add(local.correct);
+        globalVocabulary.incorrect.add(local.incorrect);
         //global.ignored.add(local.ignored);
         Log.info("Size of histogram = %d correct %d incorrect",
-            global.correct.size(),
-            global.incorrect.size());
+            globalVocabulary.correct.size(),
+            globalVocabulary.incorrect.size());
       } finally {
         lock.unlock();
       }
       return local;
     }
   }
-
-  LinkedHashSet<String> getSentences(Path path) throws IOException {
-    List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8).stream()
-        .filter(s -> !s.startsWith("<"))
-        .map(TextUtil::normalizeSpacesAndSoftHyphens)
-        .collect(Collectors.toList());
-    return new LinkedHashSet<>(TurkishSentenceExtractor.DEFAULT.fromParagraphs(lines));
-  }
-
 
 }

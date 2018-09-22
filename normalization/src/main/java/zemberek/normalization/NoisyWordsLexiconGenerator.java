@@ -6,14 +6,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -22,6 +20,8 @@ import java.util.concurrent.CompletionService;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.IntPair;
@@ -34,13 +34,10 @@ import zemberek.core.collections.UIntValueMap;
 import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
-import zemberek.core.text.TextIO;
-import zemberek.core.text.TextUtil;
 import zemberek.core.text.distance.CharDistance;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.normalization.NormalizationVocabularyGenerator.Vocabulary;
-import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 
@@ -93,27 +90,16 @@ import zemberek.tokenization.antlr.TurkishLexer;
  */
 public class NoisyWordsLexiconGenerator {
 
-
   public static void main(String[] args) throws Exception {
 
     NoisyWordsLexiconGenerator generator = new NoisyWordsLexiconGenerator();
 
-    Path corporaRoot = Paths.get("/media/aaa/Data/corpora/reduced");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/test-small");
-    Path rootList = corporaRoot.resolve("corpora.list.small");
-    List<String> rootNames = TextIO.loadLines(rootList, "#");
+    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
+    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test-small");
+    Path rootList = corporaRoot.resolve("vocab-list");
 
-    List<Path> roots = new ArrayList<>();
-    rootNames.forEach(s -> roots.add(corporaRoot.resolve(s)));
-
-    List<Path> corpora = new ArrayList<>();
-    for (Path corpusRoot : roots) {
-      corpora.addAll(Files.walk(corpusRoot, 1)
-          .filter(s -> s.toFile().isFile())
-          .collect(Collectors.toList()));
-    }
-
-    Log.info("There are %d corpus files.", corpora.size());
+    CorpusLinesProvider corpusProvider = CorpusLinesProvider
+        .fromCorporaRoot(corporaRoot, rootList, 50_000);
 
     Files.createDirectories(outRoot);
 
@@ -124,16 +110,27 @@ public class NoisyWordsLexiconGenerator {
         correct, incorrect, 1, 3
     );
 
+    int threadCount = Runtime.getRuntime().availableProcessors() / 2;
+    if (threadCount > 20) {
+      threadCount = 20;
+    }
+
     // create graph
     Path graphPath = outRoot.resolve("graph");
-    //ContextualSimilarityGraph graph = getGraph(generator, corpora, vocabulary, graphPath);
+    ContextualSimilarityGraph graph = generator.buildGraph(
+        corpusProvider,
+        vocabulary,
+        1,
+        1);
+    Log.info("Serializing graph for random walk structure.");
+    graph.serializeForRandomWalk(graphPath);
+    Log.info("Serialized to %s", graphPath);
 
     // create Random Walker
     Log.info("Constructing random walk graph from %s", graphPath);
     RandomWalker walker = RandomWalker.fromGraphFile(vocabulary, graphPath);
 
     Log.info("Collecting candidates data.");
-    int threadCount = Runtime.getRuntime().availableProcessors() / 2;
     WalkResult walkResult = walker.walk(1000, 10, threadCount);
     Path allCandidates = outRoot.resolve("all-candidates");
 
@@ -166,57 +163,6 @@ public class NoisyWordsLexiconGenerator {
 
     Log.info("Done");
   }
-
-  private static ContextualSimilarityGraph getGraph(NoisyWordsLexiconGenerator generator,
-      List<Path> corpora, NormalizationVocabulary vocabulary, Path graphPath) throws IOException {
-    ContextualSimilarityGraph graph = generator.buildGraph(vocabulary, corpora, 1);
-    Log.info("Context hash count = %d", graph.contextHashCount());
-    Log.info("Edge count = %d", graph.edgeCount());
-
-    Log.info("Serializing graph for random walk structure.");
-    graph.serializeForRandomWalk(graphPath);
-    Log.info("Serialized to %s", graphPath);
-    return graph;
-  }
-
-  /**
-   * Generates a bipartite graph that represents contextual similarity.
-   */
-  ContextualSimilarityGraph buildGraph(
-      NormalizationVocabulary vocabulary,
-      List<Path> corpora,
-      int contextSize) throws IOException {
-
-    ContextualSimilarityGraph graph = new ContextualSimilarityGraph(vocabulary, contextSize);
-
-    int i = 0;
-    for (Path path : corpora) {
-      LinkedHashSet<String> sentences = getSentences(path);
-      for (String sentence : sentences) {
-        graph.add(sentence);
-        if (i % 100_000 == 0) {
-          Log.info("Sentence processed : " + i);
-        }
-        i++;
-      }
-    }
-    Log.info("contexts = " + graph.contextHashToWordCounts.size());
-    graph.pruneContextNodes();
-    Log.info("After pruning contexts = " + graph.contextHashToWordCounts.size());
-    graph.createWordToContextMap();
-    return graph;
-  }
-
-  private LinkedHashSet<String> getSentences(Path path) throws IOException {
-    List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8).stream()
-        .filter(s -> !s.startsWith("<"))
-        .map(TextUtil::normalizeSpacesAndSoftHyphens)
-        .collect(Collectors.toList());
-    return new LinkedHashSet<>(TurkishSentenceExtractor.DEFAULT.fromParagraphs(lines));
-  }
-
-  private static final String SENTENCE_START = "<s>";
-  private static final String SENTENCE_END = "</s>";
 
   static class RandomWalkNode {
 
@@ -372,11 +318,9 @@ public class NoisyWordsLexiconGenerator {
       return lambda1 * contextualSimilarity + lambda2 * lexicalSimilarity;
     }
 
-
-    public WalkScore(String candidate) {
+    WalkScore(String candidate) {
       this.candidate = candidate;
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -496,9 +440,9 @@ public class NoisyWordsLexiconGenerator {
     }
   }
 
-  static Map<String, String> reducedWords = new ConcurrentHashMap<>(100_000);
+  private static Map<String, String> reducedWords = new ConcurrentHashMap<>(100_000);
 
-  static String reduceWord(String input) {
+  private static String reduceWord(String input) {
 
     String cached = reducedWords.get(input);
     if (cached != null) {
@@ -589,12 +533,36 @@ public class NoisyWordsLexiconGenerator {
     }
   }
 
-  class ContextualSimilarityGraph {
+  /**
+   * Generates and serializes a bipartite graph that represents contextual similarity.
+   */
+  ContextualSimilarityGraph buildGraph(
+      CorpusLinesProvider corpora,
+      NormalizationVocabulary vocabulary,
+      int contextSize,
+      int threadCount) throws Exception {
+    ContextualSimilarityGraph graph = new ContextualSimilarityGraph(vocabulary, contextSize);
+    graph.build(corpora, threadCount);
+    Log.info("Context hash count before pruning = " + graph.contextHashCount());
+    graph.pruneContextNodes();
+    Log.info("Context hash count after pruning  = " + graph.contextHashCount());
+    Log.info("Edge count = %d", graph.edgeCount());
+    Log.info("Creating Words -> Context counts.");
+    graph.createWordToContextMap();
+    return graph;
+  }
+
+  private static final String SENTENCE_START = "<s>";
+  private static final String SENTENCE_END = "</s>";
+
+
+  static class ContextualSimilarityGraph {
 
     UIntMap<IntIntMap> contextHashToWordCounts = new UIntMap<>();
     UIntMap<IntIntMap> wordToContexts = new UIntMap<>();
 
     NormalizationVocabulary vocabulary;
+    ReentrantLock lock = new ReentrantLock();
 
     int contextSize;
 
@@ -609,66 +577,118 @@ public class NoisyWordsLexiconGenerator {
       this.vocabulary = vocabulary;
     }
 
-    void add(String sentence) {
+    void build(
+        CorpusLinesProvider corpora,
+        int threadCount) throws Exception {
 
+      ExecutorService executorService = new BlockingExecutor(threadCount);
+
+      for (TextChunk chunk : corpora) {
+
+        executorService.submit(() -> {
+          Log.info("Processing %s", chunk.id);
+          UIntMap<IntIntMap> localContextCounts = new UIntMap<>();
+          List<String> sentences = CorpusLinesProvider.cleanAndExtractSentences(chunk.getData());
+          for (String sentence : sentences) {
+            List<String> tokens = getTokens(sentence);
+
+            // context array will be reused.
+            String[] context = new String[contextSize * 2];
+
+            for (int i = contextSize; i < tokens.size() - contextSize; i++) {
+
+              int wordIndex = vocabulary.getIndex(tokens.get(i));
+
+              // if current word is out of vocabulary (neither valid nor noisy) , continue.
+              if (wordIndex == -1) {
+                continue;
+              }
+
+              // gather context and calculate hash
+              if (contextSize == 1) {
+                context[0] = tokens.get(i - 1);
+                context[1] = tokens.get(i + 1);
+              } else {
+                context[0] = tokens.get(i - 2);
+                context[1] = tokens.get(i - 1);
+                context[2] = tokens.get(i + 1);
+                context[3] = tokens.get(i + 2);
+              }
+              int hash = hash(context);
+
+              // update context -> word counts
+              IntIntMap wordCounts = localContextCounts.get(hash);
+              if (wordCounts == null) {
+                wordCounts = new IntIntMap(1);
+                localContextCounts.put(hash, wordCounts);
+              }
+              wordCounts.increment(wordIndex, 1);
+            }
+          }
+
+          try {
+            lock.lock();
+            for (int key : localContextCounts.getKeys()) {
+              IntIntMap localMap = localContextCounts.get(key);
+              IntIntMap globalMap = contextHashToWordCounts.get(key);
+              if (globalMap == null) {
+                contextHashToWordCounts.put(key, localMap);
+              } else {
+                for (int countKey : localMap.getKeys()) {
+                  globalMap.increment(countKey, localMap.get(countKey));
+                }
+              }
+            }
+            Log.info("Context count = %d", contextHashToWordCounts.size());
+          } finally {
+            lock.unlock();
+          }
+        });
+      }
+      executorService.shutdown();
+      executorService.awaitTermination(1, TimeUnit.DAYS);
+    }
+
+    private List<String> getTokens(String sentence) {
       List<String> tokens = new ArrayList<>();
+
       for (int i = 0; i < contextSize; i++) {
         tokens.add(SENTENCE_START);
       }
+
       sentence = sentence.toLowerCase(Turkish.LOCALE);
       List<Token> raw = TurkishTokenizer.DEFAULT.tokenize(sentence);
+
+      // use substitute values for numbers, urls etc.
       for (Token token : raw) {
         if (token.getType() == TurkishLexer.Punctuation) {
           continue;
         }
         String text = token.getText();
-        if (token.getType() == TurkishLexer.Time ||
-            token.getType() == TurkishLexer.PercentNumeral ||
-            token.getType() == TurkishLexer.Number ||
-            token.getType() == TurkishLexer.Date) {
-          text = text.replaceAll("[0-9]+", "_d");
-        } else if (token.getType() == TurkishLexer.URL) {
-          text = "<url>";
-        } else if (token.getType() == TurkishLexer.HashTag) {
-          text = "<hashtag>";
-        } else if (token.getType() == TurkishLexer.Email) {
-          text = "<email>";
+        switch (token.getType()) {
+          case TurkishLexer.Time:
+          case TurkishLexer.PercentNumeral:
+          case TurkishLexer.Number:
+          case TurkishLexer.Date:
+            text = text.replaceAll("\\d+", "_d");
+            break;
+          case TurkishLexer.URL:
+            text = "<url>";
+            break;
+          case TurkishLexer.HashTag:
+            text = "<hashtag>";
+            break;
+          case TurkishLexer.Email:
+            text = "<email>";
+            break;
         }
-
         tokens.add(text);
       }
 
       for (int i = 0; i < contextSize; i++) {
         tokens.add(SENTENCE_END);
       }
-      String[] context = new String[contextSize * 2];
-      for (int i = contextSize; i < tokens.size() - contextSize; i++) {
-        // if current word is out of vocabulary, continue.
-        int wordIndex = vocabulary.getIndex(tokens.get(i));
-        if (wordIndex == -1) {
-          continue;
-        }
-
-        // gather context and calculate hash
-        if (contextSize == 1) {
-          context[0] = tokens.get(i - 1);
-          context[1] = tokens.get(i + 1);
-        } else {
-          context[0] = tokens.get(i - 2);
-          context[1] = tokens.get(i - 1);
-          context[2] = tokens.get(i + 1);
-          context[3] = tokens.get(i + 2);
-        }
-        int hash = hash(context);
-
-        // update context -> word counts
-        IntIntMap wordCounts = contextHashToWordCounts.get(hash);
-        if (wordCounts == null) {
-          wordCounts = new IntIntMap(1);
-          contextHashToWordCounts.put(hash, wordCounts);
-        }
-        wordCounts.increment(wordIndex, 1);
-      }
+      return tokens;
     }
 
     void pruneContextNodes() {
@@ -759,6 +779,9 @@ public class NoisyWordsLexiconGenerator {
     }
   }
 
+  /**
+   * calculates a non negative 31 bit hash value of a String array.
+   */
   static int hash(String... context) {
     int d = 0x811C9DC5;
     for (String s : context) {
@@ -772,7 +795,7 @@ public class NoisyWordsLexiconGenerator {
   /**
    * Finds the longest common substring of two strings.
    */
-  static String longestCommonSubstring(String a, String b) {
+  private static String longestCommonSubstring(String a, String b) {
     int[][] lengths = new int[a.length() + 1][b.length() + 1];
 
     // row 0 and column 0 are initialized to 0 already

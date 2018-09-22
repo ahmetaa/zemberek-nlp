@@ -27,20 +27,20 @@ import zemberek.normalization.NormalizationVocabularyGenerator.Vocabulary;
 @FixMethodOrder(MethodSorters.JVM)
 public class RandomWalkFunctionalTest {
 
-  private List<Path> corpora;
+  CorpusLinesProvider corpora;
 
   @Before
   public void setUp() throws Exception {
     Path tmp = Files.createTempFile("foo", "bar");
     List<String> lines = TextIO.loadLinesFromResource("normalization/mini-noisy-corpus.txt", "#");
     Files.write(tmp, lines);
-    corpora = Collections.singletonList(tmp);
+    corpora = CorpusLinesProvider.fromCorpusPaths(Collections.singletonList(tmp));
   }
 
   @After
   public void tearDown() throws Exception {
     if (corpora != null) {
-      for (Path path : corpora) {
+      for (Path path : corpora.getCorpusPaths()) {
         Files.delete(path);
       }
     }
@@ -67,7 +67,7 @@ public class RandomWalkFunctionalTest {
 
 
   @Test
-  @Ignore(value =  "Not working. Work in progress.")
+  @Ignore(value = "Not working. Work in progress.")
   public void VocabularyGenerationTest() throws Exception {
 
     NormalizationVocabularyGenerator vocabularyGenerator =
@@ -85,7 +85,7 @@ public class RandomWalkFunctionalTest {
 
     Assert.assertFalse(vocabulary.isValid("ağşam"));
 
-    ContextualSimilarityGraph graph = lexiconGenerator.buildGraph(vocabulary, corpora, 1);
+    ContextualSimilarityGraph graph = lexiconGenerator.buildGraph(corpora, vocabulary, 1, 1);
 
     // check if contexts are correct.
     int c1Hash = NoisyWordsLexiconGenerator.hash("bu", "eve");
