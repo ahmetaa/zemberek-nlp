@@ -121,7 +121,7 @@ public class NoisyWordsLexiconGenerator {
         corpusProvider,
         vocabulary,
         1,
-        1);
+        threadCount);
     Log.info("Serializing graph for random walk structure.");
     graph.serializeForRandomWalk(graphPath);
     Log.info("Serialized to %s", graphPath);

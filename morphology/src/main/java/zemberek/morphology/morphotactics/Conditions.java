@@ -29,31 +29,31 @@ class Conditions {
   static final Condition HAS_NO_DERIVATION = not(new HasDerivation());
 
 
-  public static Condition has(RootAttribute attribute) {
+  static Condition has(RootAttribute attribute) {
     return new HasRootAttribute(attribute);
   }
 
-  public static Condition has(PhoneticAttribute attribute) {
+  static Condition has(PhoneticAttribute attribute) {
     return new HasPhoneticAttribute(attribute);
   }
 
-  public static Condition rootIs(DictionaryItem item) {
+  static Condition rootIs(DictionaryItem item) {
     return new DictionaryItemIs(item);
   }
 
-  public static Condition rootPrimaryPos(PrimaryPos pos) {
+  static Condition rootPrimaryPos(PrimaryPos pos) {
     return new RootPrimaryPosIs(pos);
   }
 
-  public static Condition rootIsAny(DictionaryItem... items) {
+  static Condition rootIsAny(DictionaryItem... items) {
     return new DictionaryItemIsAny(items);
   }
 
-  public static Condition rootIsNone(DictionaryItem... items) {
+  static Condition rootIsNone(DictionaryItem... items) {
     return new DictionaryItemIsNone(items);
   }
 
-  public static Condition notHave(RootAttribute attribute) {
+  static Condition notHave(RootAttribute attribute) {
     return new HasRootAttribute(attribute).not();
   }
 
@@ -61,11 +61,11 @@ class Conditions {
     return new HasAnyRootAttribute(attributes).not();
   }
 
-  public static Condition notHave(PhoneticAttribute attribute) {
+  static Condition notHave(PhoneticAttribute attribute) {
     return new HasPhoneticAttribute(attribute).not();
   }
 
-  public static Condition rootIsNot(DictionaryItem item) {
+  static Condition rootIsNot(DictionaryItem item) {
     return new DictionaryItemIs(item).not();
   }
 
@@ -81,27 +81,27 @@ class Conditions {
     return new CurrentMorphemeIs(morpheme).not();
   }
 
-  public static Condition currentStateIs(MorphemeState state) {
+  static Condition currentStateIs(MorphemeState state) {
     return new CurrentStateIs(state);
   }
 
-  public static Condition currentStateIsNot(MorphemeState state) {
+  static Condition currentStateIsNot(MorphemeState state) {
     return new CurrentStateIsNot(state);
   }
 
-  public static Condition previousStateIs(MorphemeState state) {
+  static Condition previousStateIs(MorphemeState state) {
     return new PreviousStateIs(state);
   }
 
-  public static Condition previousStateIsNot(MorphemeState state) {
+  static Condition previousStateIsNot(MorphemeState state) {
     return new PreviousStateIsNot(state);
   }
 
-  public static Condition prviousMorphemeIs(Morpheme morpheme) {
+  static Condition prviousMorphemeIs(Morpheme morpheme) {
     return new PreviousMorphemeIs(morpheme);
   }
 
-  public static Condition previousMorphemeIsNot(Morpheme morpheme) {
+  static Condition previousMorphemeIsNot(Morpheme morpheme) {
     return new PreviousMorphemeIs(morpheme).not();
   }
 
@@ -188,7 +188,7 @@ class Conditions {
 
     PhoneticAttribute attribute;
 
-    public HasPhoneticAttribute(PhoneticAttribute attribute) {
+    HasPhoneticAttribute(PhoneticAttribute attribute) {
       this.attribute = attribute;
     }
 
@@ -226,7 +226,7 @@ class Conditions {
 
     PrimaryPos pos;
 
-    public RootPrimaryPosIs(PrimaryPos pos) {
+    RootPrimaryPosIs(PrimaryPos pos) {
       this.pos = pos;
     }
 
@@ -245,7 +245,7 @@ class Conditions {
 
     SecondaryPos pos;
 
-    public SecondaryPosIs(SecondaryPos pos) {
+    SecondaryPosIs(SecondaryPos pos) {
       this.pos = pos;
     }
 
@@ -344,7 +344,7 @@ class Conditions {
 
     Morpheme[] morphemes;
 
-    public HasTailSequence(Morpheme... morphemes) {
+    HasTailSequence(Morpheme... morphemes) {
       this.morphemes = morphemes;
     }
 
@@ -374,7 +374,7 @@ class Conditions {
 
     Morpheme[] morphemes;
 
-    public ContainsMorphemeSequence(Morpheme... morphemes) {
+    ContainsMorphemeSequence(Morpheme... morphemes) {
       this.morphemes = morphemes;
     }
 
@@ -409,7 +409,7 @@ class Conditions {
 
     Morpheme morpheme;
 
-    public CurrentMorphemeIs(Morpheme morpheme) {
+    CurrentMorphemeIs(Morpheme morpheme) {
       this.morpheme = morpheme;
     }
 
@@ -428,7 +428,7 @@ class Conditions {
 
     Morpheme morpheme;
 
-    public PreviousMorphemeIs(Morpheme morpheme) {
+    PreviousMorphemeIs(Morpheme morpheme) {
       this.morpheme = morpheme;
     }
 
@@ -449,7 +449,7 @@ class Conditions {
 
     MorphemeState state;
 
-    public PreviousStateIs(MorphemeState state) {
+    PreviousStateIs(MorphemeState state) {
       this.state = state;
     }
 
@@ -469,7 +469,7 @@ class Conditions {
 
     MorphemeState state;
 
-    public PreviousStateIsNot(MorphemeState state) {
+    PreviousStateIsNot(MorphemeState state) {
       this.state = state;
     }
 
@@ -490,7 +490,7 @@ class Conditions {
 
     String surface;
 
-    public RootSurfaceIs(String surface) {
+    RootSurfaceIs(String surface) {
       this.surface = surface;
     }
 
@@ -509,7 +509,7 @@ class Conditions {
 
     String[] surfaces;
 
-    public RootSurfaceIsAny(String... surfaces) {
+    RootSurfaceIsAny(String... surfaces) {
       this.surfaces = surfaces;
     }
 
@@ -533,7 +533,7 @@ class Conditions {
 
     MorphemeState state;
 
-    public CurrentStateIs(MorphemeState state) {
+    CurrentStateIs(MorphemeState state) {
       this.state = state;
     }
 
@@ -552,7 +552,7 @@ class Conditions {
 
     MorphemeState state;
 
-    public CurrentStateIsNot(MorphemeState state) {
+    CurrentStateIsNot(MorphemeState state) {
       this.state = state;
     }
 
@@ -571,7 +571,7 @@ class Conditions {
 
     Condition condition;
 
-    public NotCondition(Condition condition) {
+    NotCondition(Condition condition) {
       this.condition = condition;
     }
 
@@ -586,7 +586,7 @@ class Conditions {
     }
   }
 
-  public static Condition lastDerivationIs(MorphemeState state) {
+  static Condition lastDerivationIs(MorphemeState state) {
     return new LastDerivationIs(state);
   }
 
@@ -594,7 +594,7 @@ class Conditions {
 
     MorphemeState state;
 
-    public LastDerivationIs(MorphemeState state) {
+    LastDerivationIs(MorphemeState state) {
       this.state = state;
     }
 
@@ -639,7 +639,7 @@ class Conditions {
 
     Set<MorphemeState> states;
 
-    public LastDerivationIsAny(MorphemeState... states) {
+    LastDerivationIsAny(MorphemeState... states) {
       this.states = new HashSet<>(states.length);
       this.states.addAll(Arrays.asList(states));
     }
@@ -714,7 +714,7 @@ class Conditions {
 
     Set<MorphemeState> states;
 
-    public CurrentGroupContainsAny(MorphemeState... states) {
+    CurrentGroupContainsAny(MorphemeState... states) {
       this.states = new HashSet<>(states.length);
       this.states.addAll(Arrays.asList(states));
     }
@@ -747,7 +747,7 @@ class Conditions {
 
     Set<MorphemeState> states;
 
-    public PreviousGroupContains(MorphemeState... states) {
+    PreviousGroupContains(MorphemeState... states) {
       this.states = new HashSet<>(states.length);
       this.states.addAll(Arrays.asList(states));
     }
@@ -791,7 +791,7 @@ class Conditions {
 
     Set<Morpheme> morphemes;
 
-    public PreviousGroupContainsMorpheme(Morpheme... morphemes) {
+    PreviousGroupContainsMorpheme(Morpheme... morphemes) {
       this.morphemes = new HashSet<>(morphemes.length);
       this.morphemes.addAll(Arrays.asList(morphemes));
     }
@@ -858,7 +858,7 @@ class Conditions {
 
     Set<Morpheme> morphemes;
 
-    public ContainsMorpheme(Morpheme... morphemes) {
+    ContainsMorpheme(Morpheme... morphemes) {
       this.morphemes = new HashSet<>(morphemes.length);
       this.morphemes.addAll(Arrays.asList(morphemes));
     }
@@ -884,7 +884,7 @@ class Conditions {
 
     Set<Morpheme> morphemes;
 
-    public PreviousMorphemeIsAny(Morpheme... morphemes) {
+    PreviousMorphemeIsAny(Morpheme... morphemes) {
       this.morphemes = new HashSet<>(morphemes.length);
       this.morphemes.addAll(Arrays.asList(morphemes));
     }
@@ -906,7 +906,7 @@ class Conditions {
 
     Set<Morpheme> morphemes;
 
-    public CurrentMorphemeIsAny(Morpheme... morphemes) {
+    CurrentMorphemeIsAny(Morpheme... morphemes) {
       this.morphemes = new HashSet<>(morphemes.length);
       this.morphemes.addAll(Arrays.asList(morphemes));
     }
@@ -928,7 +928,7 @@ class Conditions {
 
     Set<MorphemeState> states;
 
-    public PreviousStateIsAny(MorphemeState... states) {
+    PreviousStateIsAny(MorphemeState... states) {
       this.states = new HashSet<>(states.length);
       this.states.addAll(Arrays.asList(states));
     }

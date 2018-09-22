@@ -23,10 +23,10 @@ public class MorphologyConsole extends ConsoleApp {
   public void run() {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     String input;
-    System.out.println("Enter word or sentence:");
+    System.out.println("Enter word or sentence. Type `quit` or `Ctrl+C` to exit.:");
     Scanner sc = new Scanner(System.in);
     input = sc.nextLine();
-    while (!input.equals("exit") && !input.equals("quit")) {
+    while (!input.equals("quit")) {
 
       if (input.trim().length() == 0) {
         System.out.println("Empty line cannot be processed.");

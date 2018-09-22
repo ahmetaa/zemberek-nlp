@@ -7,7 +7,7 @@ import zemberek.grpc.server.ZemberekGrpcServer;
 public class StartGrpcServer extends ConsoleApp {
 
   @Parameter(names = {"--port", "-p"},
-      description = "Service port. If not used, default port (6789) will be used ")
+      description = "Service port. If not used, default port (6789) will be used.")
   public int port = ZemberekGrpcServer.DEFAULT_PORT;
 
   @Override
