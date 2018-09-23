@@ -45,7 +45,7 @@ public class GramDataArray {
         data[i] = new byte[pageLength * blockSize];
         total += pageLength * blockSize;
       } else {
-        data[i] = new byte[count * blockSize - total];
+        data[i] = new byte[(int)((long)count * blockSize - total)];
       }
       dis.readFully(data[i]);
     }
