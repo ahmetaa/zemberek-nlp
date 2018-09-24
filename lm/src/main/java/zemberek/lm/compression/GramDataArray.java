@@ -34,7 +34,7 @@ public class GramDataArray {
     indexMask = (1 << pageShift - 1) - 1;
     long l = 0;
     int pageCounter = 0;
-    while (l < count * blockSize) {
+    while (l < (long)count * blockSize) {
       pageCounter++;
       l += (pageLength * blockSize);
     }
