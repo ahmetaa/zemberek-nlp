@@ -1319,7 +1319,7 @@ public class TurkishMorphotactics {
     // ------------------------
     // Case connections for all
     Condition nGroup = rootIsNone(ne, nere, falan, falanca, hep);
-    Condition yGroup = rootIsAny(ne, nere, falan, falanca, hep);
+    Condition yGroup = rootIsAny(ne, nere, falan, falanca, hep, herkes);
 
     pPnon_S.addEmpty(pNom_ST)
         // not allowing `ben-e` and `sen-e`. `ban-a` and `san-a` are using different states
@@ -1328,9 +1328,9 @@ public class TurkishMorphotactics {
         .add(pAcc_ST, "+nI", nGroup)
         .add(pAcc_ST, "+yI", yGroup)
         .add(pLoc_ST, "+ndA", nGroup)
-        .add(pLoc_ST, "dA", yGroup)
+        .add(pLoc_ST, ">dA", yGroup)
         .add(pAbl_ST, "+ndAn", nGroup)
-        .add(pAbl_ST, "dAn", yGroup)
+        .add(pAbl_ST, ">dAn", yGroup)
         .add(pGen_ST, "+nIn", nGroup.and(rootIsNone(biz, ben, sen)))
         .add(pGen_ST, "im", rootIsAny(ben, biz)) // benim, senin, bizim are genitive.
         .add(pGen_ST, "in", rootIs(sen))
@@ -1578,7 +1578,11 @@ public class TurkishMorphotactics {
   MorphemeState po2nA3pl_S = nonTerminal("po2nA3pl_S", a3pl);
 
   MorphemeState po2nP3sg_S = nonTerminal("po2nP3sg_S", p3sg);
+  MorphemeState po2nP1sg_S = nonTerminal("po2nP1sg_S", p1sg);
+  MorphemeState po2nP2sg_S = nonTerminal("po2nP2sg_S", p2sg);
+  MorphemeState po2nP1pl_S = nonTerminal("po2nP1pl_S", p1pl);
   MorphemeState po2nPnon_S = nonTerminal("po2nPnon_S", pnon);
+
 
   MorphemeState po2nNom_ST = terminal("po2nNom_ST", nom);
   MorphemeState po2nDat_ST = terminal("po2nDat_ST", dat);
@@ -1604,8 +1608,12 @@ public class TurkishMorphotactics {
     po2nRoot_S.addEmpty(po2nA3sg_S);
     po2nRoot_S.add(po2nA3pl_S, "lAr");
 
-    // gibisi
+    // gibisi, gibim-e, gibi-e, gibi-mize
     po2nA3sg_S.add(po2nP3sg_S, "+sI");
+    po2nA3sg_S.add(po2nP1sg_S, "m", Conditions.rootIsAny(gibiGen, gibiNom));
+    po2nA3sg_S.add(po2nP2sg_S, "n", Conditions.rootIsAny(gibiGen, gibiNom));
+    po2nA3sg_S.add(po2nP1pl_S, "miz", Conditions.rootIsAny(gibiGen, gibiNom));
+
     // gibileri
     po2nA3pl_S.add(po2nP3sg_S, "+sI");
     po2nA3pl_S.addEmpty(po2nPnon_S);
@@ -1628,6 +1636,10 @@ public class TurkishMorphotactics {
         .add(po2nGen_ST, "In")
         .add(po2nEqu_ST, "cA")
         .add(po2nAcc_ST, "I");
+
+    po2nP1sg_S.add(po2nDat_ST, "e");
+    po2nP2sg_S.add(po2nDat_ST, "e");
+    po2nP1pl_S.add(po2nDat_ST, "e");
   }
 
   // ------------- Verbs -----------------------------------
