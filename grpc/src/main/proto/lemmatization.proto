@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option java_package = "zemberek.proto";
+option java_multiple_files = true;
+
+package zemberek.lemmatization;
+
+message SentenceRequest {
+  string input = 1;
+}
+
+message AnalysisData {
+  string pos = 1;
+  string analysis = 2;
+  repeated string lemmas = 3;
+}
+
+message SentenceResponse {
+  string token = 1;
+  AnalysisData best = 2;
+  repeated AnalysisData all = 3;
+}
+
+service LemmatizationService {
+  rpc lemmatize (SentenceRequest) returns (SentenceResponse);
+}
