@@ -20,4 +20,8 @@ public class StartGrpcServer extends ConsoleApp {
     ZemberekGrpcServer server = new ZemberekGrpcServer(port);
     server.start();
   }
+
+  public static void main(String[] args) {
+    new StartGrpcServer().execute(args);
+  }
 }
