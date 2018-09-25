@@ -2,6 +2,7 @@ package zemberek.grpc.server;
 
 import io.grpc.stub.StreamObserver;
 import java.util.stream.Collectors;
+import zemberek.core.logging.Log;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SentenceAnalysis;
@@ -32,6 +33,7 @@ public class SimpleAnalysisServiceImpl extends SimpleAnalysisServiceImplBase {
       StreamObserver<SentenceAnalysis_P> responseObserver) {
     String sentence = request.getInput();
     SentenceAnalysis a = morphology.analyzeAndDisambiguate(sentence);
+    Log.info("Sentence = %s", sentence);
     responseObserver.onNext(toSentenceAnalysis(a));
     responseObserver.onCompleted();
   }

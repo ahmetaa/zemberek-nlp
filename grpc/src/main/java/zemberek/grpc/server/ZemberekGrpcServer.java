@@ -34,6 +34,7 @@ public class ZemberekGrpcServer {
         .addService(new LanguageIdServiceImpl())
         .addService(new PreprocessingServiceImpl())
         .addService(new NormalizationServiceImpl(context))
+        .addService(new SimpleAnalysisServiceImpl(context))
         .build()
         .start();
     Log.info("Zemberek grpc server started at port: " + port);

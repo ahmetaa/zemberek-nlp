@@ -45,6 +45,6 @@ message SentenceAnalysis_P {
 }
 
 service SimpleAnalysisService {
-  rpc analyzeSentence (SentenceRequest) returns (SentenceAnalysis_P);
-  rpc analyzeWord (WordRequest) returns (WordAnalysis_P);
+  rpc AnalyzeSentence (SentenceRequest) returns (SentenceAnalysis_P);
+  rpc AnalyzeWord (WordRequest) returns (WordAnalysis_P);
 }
