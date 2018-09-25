@@ -6,7 +6,7 @@ public class PronounsTest extends AnalyzerTestBase {
 
   @Test
   public void benSenTest1() {
-    AnalysisTester tester = getTester("ben [P:Pron,Pers ;A:Special]");
+    AnalysisTester tester = getTester("ben [P:Pron,Pers]");
     tester.expectSingle("ben", matchesTailLex("Pron + A1sg"));
     tester.expectSingle("bana", matchesTailLex("Pron + A1sg + Dat"));
     tester.expectSingle("beni", matchesTailLex("Pron + A1sg + Acc"));
@@ -23,7 +23,7 @@ public class PronounsTest extends AnalyzerTestBase {
         "benler"
     );
 
-    tester = getTester("sen [P:Pron,Pers ;A:Special]");
+    tester = getTester("sen [P:Pron,Pers]");
     tester.expectSingle("sen", matchesTailLex("Pron + A2sg"));
     tester.expectSingle("sana", matchesTailLex("Pron + A2sg + Dat"));
     tester.expectSingle("seni", matchesTailLex("Pron + A2sg + Acc"));
@@ -182,7 +182,7 @@ public class PronounsTest extends AnalyzerTestBase {
 
   @Test
   public void birbiriTest() {
-    AnalysisTester tester = getTester("birbiri [P:Pron,Quant; A:Special]");
+    AnalysisTester tester = getTester("birbiri [P:Pron,Quant]");
 
     tester.expectSingle("birbiri", matchesTailLex("Pron + A3sg + P3sg"));
     tester.expectSingle("birbirine", matchesTailLex("Pron + A3sg + P3sg + Dat"));
@@ -360,7 +360,7 @@ public class PronounsTest extends AnalyzerTestBase {
 
   @Test
   public void bircoguTest() {
-    AnalysisTester tester = getTester("birçoğu [P:Pron,Quant; A:Special]");
+    AnalysisTester tester = getTester("birçoğu [P:Pron,Quant]");
     tester.expectSingle("birçoğu", matchesTailLex("Pron + A3pl + P3pl"));
     tester.expectSingle("birçoğumuz", matchesTailLex("Pron + A1pl + P1pl"));
     tester.expectSingle("birçoğunuz", matchesTailLex("Pron + A2pl + P2pl"));
@@ -401,7 +401,7 @@ public class PronounsTest extends AnalyzerTestBase {
 
   @Test
   public void oburuTest() {
-    AnalysisTester tester = getTester("öbürü [P:Pron,Quant; A:Special]");
+    AnalysisTester tester = getTester("öbürü [P:Pron,Quant]");
     tester.expectSingle("öbürü", matchesTailLex("Pron + A3sg + P3sg"));
     tester.expectSingle("öbürüne", matchesTailLex("Pron + A3sg + P3sg + Dat"));
     tester.expectSingle("öbürünü", matchesTailLex("Pron + A3sg + P3sg + Acc"));

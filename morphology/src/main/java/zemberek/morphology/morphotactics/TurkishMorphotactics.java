@@ -1318,12 +1318,12 @@ public class TurkishMorphotactics {
 
     // ------------------------
     // Case connections for all
-    Condition nGroup = rootIsNone(ne, nere, falan, falanca, hep);
+    Condition nGroup = rootIsNone(ne, nere, falan, falanca, hep, herkes);
     Condition yGroup = rootIsAny(ne, nere, falan, falanca, hep, herkes);
 
     pPnon_S.addEmpty(pNom_ST)
         // not allowing `ben-e` and `sen-e`. `ban-a` and `san-a` are using different states
-        .add(pDat_ST, "+nA", rootIsNone(ben, sen, ne, nere, falan, falanca))
+        .add(pDat_ST, "+nA", rootIsNone(ben, sen, ne, nere, falan, falanca, herkes))
         .add(pDat_ST, "+yA", yGroup)
         .add(pAcc_ST, "+nI", nGroup)
         .add(pAcc_ST, "+yI", yGroup)
