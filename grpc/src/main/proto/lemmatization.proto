@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option java_package = "zemberek.proto";
+option java_package = "zemberek.proto.lemmatization";
 option java_multiple_files = true;
 
 package zemberek.lemmatization;
@@ -9,18 +9,40 @@ message SentenceRequest {
   string input = 1;
 }
 
+message WordRequest {
+  string input = 1;
+}
+
+message DictionaryItem {
+  string lemma = 1;
+  string pos = 2;
+  string pos2 = 3;
+}
+
 message AnalysisData {
   string pos = 1;
-  string analysis = 2;
-  repeated string lemmas = 3;
+  DictionaryItem dictionaryItem = 2;
+  string analysis = 3;
+  bool informal = 4;
+  bool runtime = 5;
+  repeated string lemmas = 6;
+}
+
+message WordResponse {
+  repeated AnalysisData analyses = 1;
+}
+
+message SentenceWordResponse {
+  string token = 1;
+  AnalysisData best = 2;
+  repeated AnalysisData analyses = 3;
 }
 
 message SentenceResponse {
-  string token = 1;
-  AnalysisData best = 2;
-  repeated AnalysisData all = 3;
+  repeated SentenceWordResponse results = 1;
 }
 
 service LemmatizationService {
-  rpc lemmatize (SentenceRequest) returns (SentenceResponse);
+  rpc lemmatizeSentence (SentenceRequest) returns (SentenceResponse);
+  rpc lemmatizeWord (WordRequest) returns (WordResponse);
 }
