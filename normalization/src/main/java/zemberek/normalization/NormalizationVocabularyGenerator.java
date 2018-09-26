@@ -12,6 +12,8 @@ import org.antlr.v4.runtime.Token;
 import zemberek.core.collections.Histogram;
 import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.logging.Log;
+import zemberek.core.text.MultiPathBlockTextLoader;
+import zemberek.core.text.TextChunk;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.TurkishMorphology;
@@ -54,8 +56,8 @@ public class NormalizationVocabularyGenerator {
     Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test-small");
     Path rootList = corporaRoot.resolve("vocab-list");
 
-    CorpusLinesProvider corpusProvider = CorpusLinesProvider
-        .fromCorporaRoot(corporaRoot, rootList, 100_000);
+    MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
+        .fromDirectoryRoot(corporaRoot, rootList, 100_000);
 
     Files.createDirectories(outRoot);
 
@@ -97,7 +99,7 @@ public class NormalizationVocabularyGenerator {
   }
 
   void createVocabulary(
-      CorpusLinesProvider corpora,
+      MultiPathBlockTextLoader corpora,
       int threadCount,
       Path outRoot) throws Exception {
 
@@ -111,7 +113,7 @@ public class NormalizationVocabularyGenerator {
     vocabulary.ignored.saveSortedByCounts(outRoot.resolve("ignored"), " ");
   }
 
-  Vocabulary collectVocabularyHistogram(CorpusLinesProvider corpora, int threadCount)
+  Vocabulary collectVocabularyHistogram(MultiPathBlockTextLoader corpora, int threadCount)
       throws Exception {
 
     ExecutorService executorService = new BlockingExecutor(threadCount);
@@ -139,7 +141,7 @@ public class NormalizationVocabularyGenerator {
     @Override
     public Vocabulary call() {
       Vocabulary local = new Vocabulary();
-      List<String> sentences = CorpusLinesProvider.cleanAndExtractSentences(chunk.getData());
+      List<String> sentences = TextCleaner.cleanAndExtractSentences(chunk.getData());
       for (String sentence : sentences) {
         List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
         for (Token token : tokens) {

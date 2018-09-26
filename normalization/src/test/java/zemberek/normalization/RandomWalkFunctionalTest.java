@@ -13,6 +13,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import zemberek.core.collections.IntIntMap;
+import zemberek.core.text.MultiPathBlockTextLoader;
 import zemberek.core.text.TextIO;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.lexicon.DictionarySerializer;
@@ -27,14 +28,14 @@ import zemberek.normalization.NormalizationVocabularyGenerator.Vocabulary;
 @FixMethodOrder(MethodSorters.JVM)
 public class RandomWalkFunctionalTest {
 
-  CorpusLinesProvider corpora;
+  MultiPathBlockTextLoader corpora;
 
   @Before
   public void setUp() throws Exception {
     Path tmp = Files.createTempFile("foo", "bar");
     List<String> lines = TextIO.loadLinesFromResource("normalization/mini-noisy-corpus.txt", "#");
     Files.write(tmp, lines);
-    corpora = CorpusLinesProvider.fromCorpusPaths(Collections.singletonList(tmp));
+    corpora = MultiPathBlockTextLoader.fromPaths(Collections.singletonList(tmp));
   }
 
   @After

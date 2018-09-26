@@ -34,6 +34,8 @@ import zemberek.core.collections.UIntValueMap;
 import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
+import zemberek.core.text.MultiPathBlockTextLoader;
+import zemberek.core.text.TextChunk;
 import zemberek.core.text.distance.CharDistance;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -98,8 +100,8 @@ public class NoisyWordsLexiconGenerator {
     Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test-small");
     Path rootList = corporaRoot.resolve("vocab-list");
 
-    CorpusLinesProvider corpusProvider = CorpusLinesProvider
-        .fromCorporaRoot(corporaRoot, rootList, 50_000);
+    MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
+        .fromDirectoryRoot(corporaRoot, rootList, 50_000);
 
     Files.createDirectories(outRoot);
 
@@ -537,7 +539,7 @@ public class NoisyWordsLexiconGenerator {
    * Generates and serializes a bipartite graph that represents contextual similarity.
    */
   ContextualSimilarityGraph buildGraph(
-      CorpusLinesProvider corpora,
+      MultiPathBlockTextLoader corpora,
       NormalizationVocabulary vocabulary,
       int contextSize,
       int threadCount) throws Exception {
@@ -578,7 +580,7 @@ public class NoisyWordsLexiconGenerator {
     }
 
     void build(
-        CorpusLinesProvider corpora,
+        MultiPathBlockTextLoader corpora,
         int threadCount) throws Exception {
 
       ExecutorService executorService = new BlockingExecutor(threadCount);
@@ -588,7 +590,7 @@ public class NoisyWordsLexiconGenerator {
         executorService.submit(() -> {
           Log.info("Processing %s", chunk.id);
           UIntMap<IntIntMap> localContextCounts = new UIntMap<>();
-          List<String> sentences = CorpusLinesProvider.cleanAndExtractSentences(chunk.getData());
+          List<String> sentences = TextCleaner.cleanAndExtractSentences(chunk.getData());
           for (String sentence : sentences) {
             List<String> tokens = getTokens(sentence);
 

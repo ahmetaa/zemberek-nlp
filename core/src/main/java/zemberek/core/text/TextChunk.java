@@ -1,11 +1,11 @@
-package zemberek.normalization;
+package zemberek.core.text;
 
 import java.util.List;
 
 public class TextChunk {
 
-  String id;
-  List<String> data;
+  public final String id;
+  private List<String> data;
 
   public TextChunk(String id, List<String> data) {
     this.id = id;

@@ -1,4 +1,4 @@
-package zemberek.normalization;
+package zemberek.core.text;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,12 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import zemberek.core.logging.Log;
-import zemberek.core.text.BlockTextLoader;
-import zemberek.core.text.TextIO;
-import zemberek.core.text.TextUtil;
-import zemberek.tokenization.TurkishSentenceExtractor;
 
-public class CorpusLinesProvider implements Iterable<TextChunk> {
+public class MultiPathBlockTextLoader implements Iterable<TextChunk> {
 
   public static final int DEFAULT_BLOCK_SIZE = 10_000;
 
@@ -30,18 +26,19 @@ public class CorpusLinesProvider implements Iterable<TextChunk> {
     return corpusPaths.size();
   }
 
-  CorpusLinesProvider(List<Path> corpusPaths, int blockSize) {
+  MultiPathBlockTextLoader(List<Path> corpusPaths, int blockSize) {
     this.corpusPaths = corpusPaths;
     this.blockSize = blockSize;
   }
 
-  static CorpusLinesProvider fromCorpusPaths(List<Path> corpora) {
-    return new CorpusLinesProvider(corpora, DEFAULT_BLOCK_SIZE);
+  public static MultiPathBlockTextLoader fromPaths(List<Path> corpora) {
+    return new MultiPathBlockTextLoader(corpora, DEFAULT_BLOCK_SIZE);
   }
 
-
-  static CorpusLinesProvider fromCorporaRoot(Path corporaRoot, Path folderListFile, int blockSize)
-      throws IOException {
+  public static MultiPathBlockTextLoader fromDirectoryRoot(
+      Path corporaRoot,
+      Path folderListFile,
+      int blockSize) throws IOException {
     List<String> rootNames = TextIO.loadLines(folderListFile, "#");
     List<Path> roots = new ArrayList<>();
     rootNames.forEach(s -> roots.add(corporaRoot.resolve(s)));
@@ -53,7 +50,7 @@ public class CorpusLinesProvider implements Iterable<TextChunk> {
           .collect(Collectors.toList()));
     }
     Log.info("There are %d corpus files.", corpora.size());
-    return new CorpusLinesProvider(corpora, blockSize);
+    return new MultiPathBlockTextLoader(corpora, blockSize);
   }
 
   @Override
@@ -112,14 +109,6 @@ public class CorpusLinesProvider implements Iterable<TextChunk> {
     public TextChunk next() {
       return current;
     }
-  }
-
-  static List<String> cleanAndExtractSentences(List<String> input) {
-    List<String> lines = input.stream()
-        .filter(s -> !s.startsWith("<"))
-        .map(TextUtil::normalizeSpacesAndSoftHyphens)
-        .collect(Collectors.toList());
-    return TurkishSentenceExtractor.DEFAULT.fromParagraphs(lines);
   }
 
 }
