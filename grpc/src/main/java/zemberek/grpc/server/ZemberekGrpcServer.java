@@ -45,5 +45,4 @@ public class ZemberekGrpcServer {
     new ZemberekGrpcServer().start();
   }
 
-
 }

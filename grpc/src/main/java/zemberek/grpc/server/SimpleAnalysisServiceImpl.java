@@ -76,6 +76,7 @@ public class SimpleAnalysisServiceImpl extends SimpleAnalysisServiceImplBase {
   SingleAnalysis_P toSingleAnalysisProto(SingleAnalysis s) {
     return SingleAnalysis_P.newBuilder()
         .setAnalysis(s.formatLong())
+        .setPos(s.getPos().shortForm)
         .setInformal(s.containsInformalMorpheme())
         .setDictionaryItem(toDictionaryItemProto(s.getDictionaryItem()))
         .setRuntime(s.isRuntime())
