@@ -136,5 +136,15 @@ public class TurkishMorphologyFunctionalTests {
     Assert.assertEquals(1, result.analysisCount());
   }
 
-
+  @Test
+  public void testAbbreviationVoicing_Issue_183() {
+    // Instance with no dictionary item.
+    TurkishMorphology morphology = getMorphology("Tübitak [P:Abbrv]");
+    WordAnalysis result = morphology.analyze("Tübitak'a");
+    Assert.assertEquals(1, result.analysisCount());
+    result = morphology.analyze("Tübitaka");
+    Assert.assertEquals(1, result.analysisCount());
+    result = morphology.analyze("Tübitağa");
+    Assert.assertEquals(0, result.analysisCount());
+  }
 }

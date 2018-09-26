@@ -492,6 +492,7 @@ public class TurkishDictionaryLoader {
           if (vowelCount > 1
               && alphabet.isStopConsonant(last)
               && posData.secondaryPos != SecondaryPos.ProperNoun
+              && posData.secondaryPos != SecondaryPos.Abbreviation
               && !attributes.contains(RootAttribute.NoVoicing)
               && !attributes.contains(RootAttribute.InverseHarmony)) {
             attributes.add(RootAttribute.Voicing);
