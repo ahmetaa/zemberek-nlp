@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -96,7 +97,7 @@ public class TurkishSentenceNormalizer {
     return String.join(" ", result);
   }
 
-  private boolean isWord(Token token) {
+  boolean isWord(Token token) {
     int type = token.getType();
     return type == TurkishLexer.Word
         || type == TurkishLexer.UnknownWord
@@ -200,6 +201,17 @@ public class TurkishSentenceNormalizer {
       }
     }
     return String.join(" ", result);
+  }
+
+  List<String> getSpellCandidates(Token currentToken, String previous, String next) {
+    String current = currentToken.getText();
+    if (isWord(currentToken) && (!hasAnalysis(current))) {
+      List<String> candidates = spellChecker.suggestForWord(current, previous, next, lm);
+      if (candidates.size() > 0) {
+        return candidates;
+      }
+    }
+    return Collections.emptyList();
   }
 
 

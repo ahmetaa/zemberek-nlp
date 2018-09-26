@@ -557,7 +557,6 @@ public class NoisyWordsLexiconGenerator {
   private static final String SENTENCE_START = "<s>";
   private static final String SENTENCE_END = "</s>";
 
-
   static class ContextualSimilarityGraph {
 
     UIntMap<IntIntMap> contextHashToWordCounts = new UIntMap<>();

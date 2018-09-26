@@ -13,6 +13,7 @@ import simple_analysis_pb2
 import simple_analysis_pb2_grpc
 
 channel = grpc.insecure_channel('localhost:6789')
+
 langid_stub = language_id_pb2_grpc.LanguageIdServiceStub(channel)
 normalization_stub = normalization_pb2_grpc.NormalizationServiceStub(channel)
 preprocess_stub = preprocess_pb2_grpc.PreprocessingServiceStub(channel)
@@ -63,9 +64,6 @@ def run():
         for l in best.lemmas:
           lemmas = lemmas + " " + l
         print("Word = " + a.token + ", Lemmas = " + lemmas + ", POS = [" + best.pos + "], Full Analysis = {" + best.analysis + "}")
-
-
-
 
 
 if __name__ == '__main__':
