@@ -1,6 +1,7 @@
 package zemberek.tokenization;
 
 class _Token {
+
   public final String content;
   public final Type type;
   public final int start;
