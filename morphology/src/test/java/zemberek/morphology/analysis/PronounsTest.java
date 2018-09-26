@@ -568,7 +568,21 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectAny("kendince", matchesTailLex("Pron + A2sg + P2sg + Equ"));
     tester.expectAny("kendinle", matchesTailLex("Pron + A2sg + P2sg + Ins"));
 
+  }
 
+  /**
+   * Test for issue
+   * <a href="https://github.com/ahmetaa/zemberek-nlp/issues/178">178</a>
+   */
+  @Test
+  public void herkesteTest_issue_178() {
+    AnalysisTester tester = getTester("herkes [P:Pron,Quant]");
+
+    tester.expectSingle("herkese", matchesTailLex("Pron + A3pl + Dat"));
+    tester.expectSingle("herkeste", matchesTailLex("Pron + A3pl + Loc"));
+    tester.expectSingle("herkesten", matchesTailLex("Pron + A3pl + Abl"));
+    tester.expectSingle("herkesçe", matchesTailLex("Pron + A3pl + Equ"));
+    tester.expectSingle("herkesle", matchesTailLex("Pron + A3pl + Ins"));
   }
 
 }

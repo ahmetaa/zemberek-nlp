@@ -1581,6 +1581,7 @@ public class TurkishMorphotactics {
   MorphemeState po2nP1sg_S = nonTerminal("po2nP1sg_S", p1sg);
   MorphemeState po2nP2sg_S = nonTerminal("po2nP2sg_S", p2sg);
   MorphemeState po2nP1pl_S = nonTerminal("po2nP1pl_S", p1pl);
+  MorphemeState po2nP2pl_S = nonTerminal("po2nP2pl_S", p2pl);
   MorphemeState po2nPnon_S = nonTerminal("po2nPnon_S", pnon);
 
 
@@ -1613,6 +1614,7 @@ public class TurkishMorphotactics {
     po2nA3sg_S.add(po2nP1sg_S, "m", Conditions.rootIsAny(gibiGen, gibiNom));
     po2nA3sg_S.add(po2nP2sg_S, "n", Conditions.rootIsAny(gibiGen, gibiNom));
     po2nA3sg_S.add(po2nP1pl_S, "miz", Conditions.rootIsAny(gibiGen, gibiNom));
+    po2nA3sg_S.add(po2nP2pl_S, "niz", Conditions.rootIsAny(gibiGen, gibiNom));
 
     // gibileri
     po2nA3pl_S.add(po2nP3sg_S, "+sI");
@@ -1640,6 +1642,7 @@ public class TurkishMorphotactics {
     po2nP1sg_S.add(po2nDat_ST, "e");
     po2nP2sg_S.add(po2nDat_ST, "e");
     po2nP1pl_S.add(po2nDat_ST, "e");
+    po2nP2pl_S.add(po2nDat_ST, "e");
   }
 
   // ------------- Verbs -----------------------------------
