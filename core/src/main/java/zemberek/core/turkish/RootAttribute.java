@@ -160,7 +160,7 @@ public enum RootAttribute implements StringEnum {
 
   // This means word is only used in informal language.
   // Some applications may want to analyze them with a given informal dictionary.
-  // Examples: kanka, mütahit, gaste, aliminyum, tırt, tweet
+  // Examples: kanka, beyfendi, mütahit, antreman, bilimum, gaste, aliminyum, tırt, tweet
   Informal,
 
   // This is used for temporary DictionaryItems created for words that cannot be analyzed.
