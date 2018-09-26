@@ -12,8 +12,6 @@ import zemberek.core.logging.Log;
 
 public class MultiPathBlockTextLoader implements Iterable<TextChunk> {
 
-  public static final int DEFAULT_BLOCK_SIZE = 10_000;
-
   List<Path> corpusPaths;
   int blockSize;
 
@@ -32,7 +30,7 @@ public class MultiPathBlockTextLoader implements Iterable<TextChunk> {
   }
 
   public static MultiPathBlockTextLoader fromPaths(List<Path> corpora) {
-    return new MultiPathBlockTextLoader(corpora, DEFAULT_BLOCK_SIZE);
+    return new MultiPathBlockTextLoader(corpora, BlockTextLoader.DEFAULT_BLOCK_SIZE);
   }
 
   public static MultiPathBlockTextLoader fromDirectoryRoot(

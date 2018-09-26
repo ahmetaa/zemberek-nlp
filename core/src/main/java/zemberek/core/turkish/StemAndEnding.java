@@ -1,10 +1,9 @@
 package zemberek.core.turkish;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import java.util.List;
 import zemberek.core.io.Strings;
+import zemberek.core.text.TextUtil;
 
 /**
  * Represents a word splitted as stem and ending. if there is only stem, ending is empty String ""
@@ -26,8 +25,7 @@ public class StemAndEnding {
   }
 
   public static StemAndEnding fromSpaceSepareted(String input) {
-    List<String> splitResult = Lists
-        .newArrayList(Splitter.on(" ").omitEmptyStrings().trimResults().split(input));
+    List<String> splitResult = TextUtil.SPACE_SPLITTER.splitToList(input);
     if (splitResult.size() == 1) {
       return new StemAndEnding(splitResult.get(0), "");
     } else if (splitResult.size() == 2) {

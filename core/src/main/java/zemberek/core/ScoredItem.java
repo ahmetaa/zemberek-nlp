@@ -13,8 +13,10 @@ public class ScoredItem<T> implements Comparable<ScoredItem> {
       (a, b) -> Float.compare(b.score, a.score);
   public static final Comparator<ScoredItem<String>> STRING_COMP_ASCENDING =
       (a, b) -> Float.compare(a.score, b.score);
+
   public final T item;
   public final float score;
+
   public ScoredItem(T item, float score) {
     this.item = item;
     this.score = score;
