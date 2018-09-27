@@ -48,7 +48,7 @@ public class TurkishAlphabet {
   private FixedBitVector turkishSpecificLookup = TextUtil.generateBitLookup(turkishSpecific);
 
   private String foreignDiacritics = "ÀÁÂÃÄÅÈÉÊËÌÍÎÏÑÒÓÔÕÙÚÛàáâãäåèéêëìíîïñòóôõùúû";
-  private String diaciritcsToTurkish = "AAAAAAEEEEIIIINOOOOUUUaaaaaaeeeeiiiinoooouuu";
+  private String diacriticsToTurkish = "AAAAAAEEEEIIIINOOOOUUUaaaaaaeeeeiiiinoooouuu";
   private IntIntMap foreignDiacriticsMap = new IntIntMap();
   private FixedBitVector foreignDiacriticsLookup = TextUtil.generateBitLookup(foreignDiacritics);
 
@@ -72,7 +72,7 @@ public class TurkishAlphabet {
     generateVoicingDevoicingLookups();
 
     populateCharMap(asciiMap, turkishSpecific, turkishAscii);
-    populateCharMap(foreignDiacriticsMap, foreignDiacritics, diaciritcsToTurkish);
+    populateCharMap(foreignDiacriticsMap, foreignDiacritics, diacriticsToTurkish);
   }
 
   public String toAscii(String in) {

@@ -61,9 +61,14 @@ public class NormalizationScripts {
         tweetRoot.resolve("tweets-2m-clean")
     );
     */
-    splitSingleFileCorpus(
+/*    splitSingleFileCorpus(
         tweetRoot.resolve("tweets-20m-clean.nodup"),
-        corporaRoot.resolve("tweets-20m"));
+        corporaRoot.resolve("tweets-20m"));*/
+
+    checkSuspiciousWords(
+        Paths.get("/home/aaa/data/normalization/vocab-clean"),
+        Paths.get("/home/aaa/data/normalization/vocab-noisy")
+    );
   }
 
   static void splitWords(Path wordFrequencyFile, Path splitFile, Path lmPath, int minWordCount)
@@ -392,6 +397,38 @@ public class NormalizationScripts {
       Files.write(blockPath, block, StandardCharsets.UTF_8);
       bc++;
     }
+  }
+
+  static void checkSuspiciousWords(Path cleanRoot, Path noisyRoot) throws IOException {
+    Histogram<String> correctFromNoisy =
+        Histogram.loadFromUtf8File(noisyRoot.resolve("correct"), ' ');
+    Log.info("Correct from noisy Loaded");
+    Histogram<String> correctFromClean =
+        Histogram.loadFromUtf8File(cleanRoot.resolve("correct"), ' ');
+    Log.info("Correct from clean Loaded");
+    Histogram<String> suspicious = new Histogram<>();
+
+    double nTotal = correctFromNoisy.totalCount();
+    double cTotal = correctFromClean.totalCount();
+
+    for (String s : correctFromNoisy) {
+
+      int nCount = correctFromNoisy.getCount(s);
+      double nFreq = nCount / nTotal;
+
+      if (!correctFromClean.contains(s)) {
+        suspicious.add(s, nCount);
+        continue;
+      }
+
+      double cFreq = correctFromClean.getCount(s) / cTotal;
+      if(cFreq / nFreq > 50) {
+        suspicious.add(s, nCount);
+      }
+
+    }
+    Log.info("Saving suspicious");
+    suspicious.saveSortedByCounts(noisyRoot.resolve("suspicious"), " ");
   }
 
 

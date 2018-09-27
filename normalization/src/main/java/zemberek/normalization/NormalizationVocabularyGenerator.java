@@ -38,7 +38,7 @@ public class NormalizationVocabularyGenerator {
 
     AnalysisCache cache = AnalysisCache
         .builder()
-        .dynamicCacheSize(200_000, 500_000).build();
+        .dynamicCacheSize(400_000, 800_000).build();
 
     RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
 
@@ -52,12 +52,12 @@ public class NormalizationVocabularyGenerator {
 
     NormalizationVocabularyGenerator generator = new NormalizationVocabularyGenerator(morphology);
 
-    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
-    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test-small");
-    Path rootList = corporaRoot.resolve("vocab-list");
+    Path corporaRoot = Paths.get("/home/aaa/data/corpora");
+    Path outRoot = Paths.get("/home/aaa/data/normalization/vocab-noisy");
+    Path rootList = corporaRoot.resolve("noisy-list");
 
     MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
-        .fromDirectoryRoot(corporaRoot, rootList, 100_000);
+        .fromDirectoryRoot(corporaRoot, rootList, 30_000);
 
     Files.createDirectories(outRoot);
 
@@ -77,7 +77,7 @@ public class NormalizationVocabularyGenerator {
 
     Histogram<String> correct = new Histogram<>(100_000);
     Histogram<String> incorrect = new Histogram<>(100_000);
-    Histogram<String> ignored = new Histogram<>(10_000);
+    Histogram<String> ignored = new Histogram<>(100_000);
 
     public Vocabulary() {
     }
@@ -161,12 +161,13 @@ public class NormalizationVocabularyGenerator {
               token.getType() == TurkishLexer.HashTag ||
               token.getType() == TurkishLexer.Mention ||
               token.getType() == TurkishLexer.Emoticon ||
+              token.getType() == TurkishLexer.Unknown ||
               local.ignored.contains(s) ||
               globalVocabulary.ignored.contains(s) ||
               TurkishAlphabet.INSTANCE.containsDigit(s) /*||
               TurkishAlphabet.INSTANCE.containsApostrophe(s) ||
               Character.isUpperCase(s.charAt(0))*/) {
-            //local.ignored.add(s);
+            local.ignored.add(s);
             continue;
           }
           s = s.toLowerCase(Turkish.LOCALE);
@@ -183,10 +184,12 @@ public class NormalizationVocabularyGenerator {
         lock.lock();
         globalVocabulary.correct.add(local.correct);
         globalVocabulary.incorrect.add(local.incorrect);
-        //global.ignored.add(local.ignored);
-        Log.info("Size of histogram = %d correct %d incorrect",
+        globalVocabulary.ignored.add(local.ignored);
+        Log.info("Size of histogram = %d correct %d incorrect %d ignored",
             globalVocabulary.correct.size(),
-            globalVocabulary.incorrect.size());
+            globalVocabulary.incorrect.size(),
+            globalVocabulary.ignored.size()
+        );
       } finally {
         lock.unlock();
       }
