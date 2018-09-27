@@ -10,7 +10,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -29,6 +31,7 @@ import zemberek.langid.LanguageIdentifier;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.AnalysisCache;
+import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.tokenization.TurkishTokenizer;
@@ -66,6 +69,7 @@ public class NormalizationScripts {
         corporaRoot.resolve("tweets-20m"));*/
 
     checkSuspiciousWords(
+        TurkishMorphology.createWithDefaults(),
         Paths.get("/home/aaa/data/normalization/vocab-clean"),
         Paths.get("/home/aaa/data/normalization/vocab-noisy")
     );
@@ -399,14 +403,22 @@ public class NormalizationScripts {
     }
   }
 
-  static void checkSuspiciousWords(Path cleanRoot, Path noisyRoot) throws IOException {
+  static void checkSuspiciousWords(
+      TurkishMorphology morphology,
+      Path cleanRoot,
+      Path noisyRoot) throws IOException {
     Histogram<String> correctFromNoisy =
         Histogram.loadFromUtf8File(noisyRoot.resolve("correct"), ' ');
     Log.info("Correct from noisy Loaded");
     Histogram<String> correctFromClean =
         Histogram.loadFromUtf8File(cleanRoot.resolve("correct"), ' ');
     Log.info("Correct from clean Loaded");
-    Histogram<String> suspicious = new Histogram<>();
+
+    Histogram<String> zero = new Histogram<>();
+    Histogram<String> zeroWordZeroLemma = new Histogram<>();
+    Histogram<String> zeroWordLowLemma = new Histogram<>();
+    Histogram<String> lowFreq = new Histogram<>();
+    Histogram<String> lowFreqLowLemmaFreq = new Histogram<>();
 
     double nTotal = correctFromNoisy.totalCount();
     double cTotal = correctFromClean.totalCount();
@@ -417,18 +429,50 @@ public class NormalizationScripts {
       double nFreq = nCount / nTotal;
 
       if (!correctFromClean.contains(s)) {
-        suspicious.add(s, nCount);
+        zero.add(s, nCount);
+        WordAnalysis an = morphology.analyze(s);
+        if(an.analysisCount()>0) {
+          Set<String> allLemmas = new HashSet<>();
+          for (SingleAnalysis analysis : an) {
+            allLemmas.addAll(analysis.getLemmas());
+          }
+
+          boolean none = true;
+          boolean lowLemmaRatio = true;
+
+          for (String l : allLemmas) {
+            if(correctFromClean.contains(l)) {
+              none = false;
+              double lnf = correctFromNoisy.getCount(l) / nTotal;
+              double lcf = correctFromClean.getCount(l) / nTotal;
+              if(lnf/ lcf > 10) {
+                 lowLemmaRatio = false;
+                 break;
+              }
+            }
+          }
+
+          if(none) {
+            zeroWordZeroLemma.add(s, nCount);
+          }
+          if(lowLemmaRatio) {
+            zeroWordLowLemma.add(s, nCount);
+          }
+        }
         continue;
       }
 
       double cFreq = correctFromClean.getCount(s) / cTotal;
-      if(cFreq / nFreq > 50) {
-        suspicious.add(s, nCount);
+      if (nFreq / cFreq > 30) {
+        lowFreq.add(s, nCount);
       }
 
     }
     Log.info("Saving suspicious");
-    suspicious.saveSortedByCounts(noisyRoot.resolve("suspicious"), " ");
+    zero.saveSortedByCounts(noisyRoot.resolve("suspicious-zero"), " ");
+    zeroWordZeroLemma.saveSortedByCounts(noisyRoot.resolve("suspicious-zero-no-lemma"), " ");
+    zeroWordLowLemma.saveSortedByCounts(noisyRoot.resolve("suspicious-zero-low-lemma"), " ");
+    lowFreq.saveSortedByCounts(noisyRoot.resolve("suspicious-lowfreq"), " ");
   }
 
 

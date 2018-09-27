@@ -23,6 +23,7 @@ import zemberek.core.enums.StringEnumMap;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
@@ -64,6 +65,15 @@ public class TurkishDictionaryLoader {
     List<String> lines = Lists.newArrayList();
     for (File file : DEFAULT_DICTIONARY_FILES) {
       lines.addAll(SimpleTextReader.trimmingUTF8Reader(file).asStringList());
+    }
+    return load(lines);
+  }
+
+  public static RootLexicon loadFromResources(String... resourcePaths)
+      throws IOException {
+    List<String> lines = Lists.newArrayList();
+    for (String resourcePath : resourcePaths) {
+      lines.addAll(TextIO.loadLinesFromResource(resourcePath, "##"));
     }
     return load(lines);
   }

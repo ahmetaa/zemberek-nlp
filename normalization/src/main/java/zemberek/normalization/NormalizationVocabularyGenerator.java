@@ -19,9 +19,8 @@ import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.AnalysisCache;
 import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.lexicon.DictionarySerializer;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
+import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 
@@ -40,21 +39,28 @@ public class NormalizationVocabularyGenerator {
         .builder()
         .dynamicCacheSize(400_000, 800_000).build();
 
-    RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
+    RootLexicon lexicon = TurkishDictionaryLoader.loadFromResources(
+        "tr/master-dictionary.dict",
+        "tr/non-tdk.dict",
+        "tr/proper.dict",
+        "tr/proper-from-corpus.dict",
+        "tr/abbreviations.dict",
+        "tr/person-names.dict"
+    );
 
     TurkishMorphology morphology = TurkishMorphology
         .builder()
         .useLexicon(lexicon)
         .disableUnidentifiedTokenAnalyzer()
-        .morphotactics(new InformalTurkishMorphotactics(lexicon))
+        //.morphotactics(new InformalTurkishMorphotactics(lexicon))
         .setCache(cache)
         .build();
 
     NormalizationVocabularyGenerator generator = new NormalizationVocabularyGenerator(morphology);
 
     Path corporaRoot = Paths.get("/home/aaa/data/corpora");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/vocab-noisy");
-    Path rootList = corporaRoot.resolve("noisy-list");
+    Path outRoot = Paths.get("/home/aaa/data/normalization/vocab-clean");
+    Path rootList = corporaRoot.resolve("clean-list");
 
     MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
         .fromDirectoryRoot(corporaRoot, rootList, 30_000);
@@ -106,11 +112,24 @@ public class NormalizationVocabularyGenerator {
     Log.info("Thread count = %d", threadCount);
     Vocabulary vocabulary = collectVocabularyHistogram(corpora, threadCount);
 
-    Path correct = outRoot.resolve("correct");
-    vocabulary.correct.saveSortedByCounts(correct, " ");
-    Path incorrect = outRoot.resolve("incorrect");
-    vocabulary.incorrect.saveSortedByCounts(incorrect, " ");
+    Log.info("Saving vocabularies.");
+
+    vocabulary.correct.saveSortedByCounts(outRoot.resolve("correct"), " ");
+    vocabulary.correct.saveSortedByKeys(
+        outRoot.resolve("correct.abc"),
+        " ", String::compareTo);
+
+    vocabulary.incorrect.saveSortedByCounts(outRoot.resolve("incorrect"), " ");
+    vocabulary.incorrect.saveSortedByKeys(
+        outRoot.resolve("incorrect.abc"),
+        " ",
+        String::compareTo);
+
     vocabulary.ignored.saveSortedByCounts(outRoot.resolve("ignored"), " ");
+    vocabulary.ignored.saveSortedByKeys(
+        outRoot.resolve("ignored.abc"),
+        " ",
+        String::compareTo);
   }
 
   Vocabulary collectVocabularyHistogram(MultiPathBlockTextLoader corpora, int threadCount)
@@ -185,7 +204,7 @@ public class NormalizationVocabularyGenerator {
         globalVocabulary.correct.add(local.correct);
         globalVocabulary.incorrect.add(local.incorrect);
         globalVocabulary.ignored.add(local.ignored);
-        Log.info("Size of histogram = %d correct %d incorrect %d ignored",
+        Log.info("Correct = %d, Incorrect = %d, Ignored = %d",
             globalVocabulary.correct.size(),
             globalVocabulary.incorrect.size(),
             globalVocabulary.ignored.size()
