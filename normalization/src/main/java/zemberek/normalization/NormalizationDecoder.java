@@ -4,12 +4,14 @@ import static zemberek.normalization.TurkishSentenceNormalizer.probablyRequiresD
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.dynamic.ActiveList;
 import zemberek.core.dynamic.Scorable;
+import zemberek.lm.compression.SmoothLm;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.tokenization.TurkishTokenizer;
 
@@ -25,6 +27,7 @@ public class NormalizationDecoder {
 
     // for a three gram model, holds the 2 history words.
     Candidate[] history;
+    Candidate current;
 
     // required for back tracking.
     Hypothesis previous;
@@ -34,6 +37,30 @@ public class NormalizationDecoder {
     @Override
     public float getScore() {
       return score;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      Hypothesis that = (Hypothesis) o;
+
+      if (!Arrays.equals(history, that.history)) {
+        return false;
+      }
+      return current.equals(that.current);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = Arrays.hashCode(history);
+      result = 31 * result + current.hashCode();
+      return result;
     }
   }
 
@@ -53,6 +80,25 @@ public class NormalizationDecoder {
     public Candidate(String content) {
       this.content = content;
       score = 1f;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      Candidate candidate = (Candidate) o;
+
+      return content.equals(candidate.content);
+    }
+
+    @Override
+    public int hashCode() {
+      return content.hashCode();
     }
   }
 
@@ -76,6 +122,8 @@ public class NormalizationDecoder {
 
 
   List<String> decode(String sentence) {
+
+    SmoothLm lm = normalizer.lm;
 
     List<Token> tokens = preprocess(sentence);
 
@@ -108,8 +156,28 @@ public class NormalizationDecoder {
       candidatesList.add(new Candidates("</s>", Collections.singletonList(END)));
     }
 
+    Candidates initial = candidatesList.get(lmOrder - 1);
+    for (Candidate c : initial.candidates) {
+      Hypothesis h = new Hypothesis();
+      h.history = new Candidate[]{START, START};
+      h.current = c;
+      int[] indexes = lm.getVocabulary().toIndexes(START.content, START.content, c.content);
+      h.score = lm.getTriGramProbability(indexes);
+      current.add(h);
+    }
+
     for (int i = lmOrder - 1; i < candidatesList.size() - lmOrder + 1; i++) {
-      Candidates candidates = candidatesList.get(i);
+      for(Candidate c : candidatesList.get(i).candidates) {
+        for (Hypothesis h : current) {
+          Hypothesis newHyp = new Hypothesis();
+          Candidate[] hist = new Candidate[lmOrder-1];
+          System.arraycopy(h.history, 1, hist, 0, lmOrder-1);
+          hist[hist.length-1] = h.current;
+          newHyp.current = c;
+
+        }
+      }
+
 
     }
     return null;
