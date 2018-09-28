@@ -14,6 +14,8 @@ import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.lexicon.RootLexicon;
+import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
@@ -21,12 +23,23 @@ import zemberek.tokenization.TurkishTokenizer;
 public class BotExperiment {
 
   public static void main(String[] args) throws IOException {
-    TurkishMorphology formal = TurkishMorphology.createWithDefaults();
-    TurkishMorphology informal = TurkishMorphology
+
+    RootLexicon lexicon = TurkishDictionaryLoader.loadFromResources(
+        "tr/master-dictionary.dict",
+        "tr/non-tdk.dict",
+        "tr/proper.dict",
+        "tr/proper-from-corpus.dict",
+        "tr/abbreviations.dict",
+        "tr/person-names.dict"
+    );
+
+    TurkishMorphology morphology = TurkishMorphology
         .builder()
-        .addDefaultBinaryDictionary()
-        .morphotactics(new InformalTurkishMorphotactics(formal.getLexicon()))
+        .useLexicon(lexicon)
+        .disableUnidentifiedTokenAnalyzer()
+        .morphotactics(new InformalTurkishMorphotactics(lexicon))
         .build();
+
     Path root = Paths.get("/home/aaa/data/normalization");
     Path splitList = root.resolve("split");
     Path rawLines = root.resolve("bot/raw");
@@ -40,11 +53,18 @@ public class BotExperiment {
     SmoothLm lm = SmoothLm.builder(lmPath).logBase(Math.E).build();
 
     TurkishSentenceNormalizer normalizer =
-        new TurkishSentenceNormalizer(informal, splitList, lm);
+        new TurkishSentenceNormalizer(morphology, splitList, lm);
 
     // preprocess(rawLines, nodup, sentencesNodup, sentencesNodupTokenized);
 
-    normalize(normalizer, sentencesNodupTokenized, output);
+    //normalize(normalizer, sentencesNodupTokenized, output);
+
+    //normalizer.decode("Acab yarn akram n ypsak");
+    String input = "Amet ee gldi";
+    List<String> seq = normalizer.decode(input);
+    Log.info(input);
+    Log.info(String.join(" ", seq));
+
     Log.info("Done.");
 
   }
@@ -106,7 +126,7 @@ public class BotExperiment {
       pw.println("Token count = " + tokenCount);
       double elapsed = sw.elapsed(TimeUnit.MILLISECONDS) / 1000d;
       pw.println("Time to process = " + String.format("%.2f", elapsed) + " seconds.");
-      pw.println("Speed = " + String.format("%.2f", tokenCount/elapsed) + " tokens/seconds.");
+      pw.println("Speed = " + String.format("%.2f", tokenCount / elapsed) + " tokens/seconds.");
     }
   }
 
