@@ -156,7 +156,8 @@ MetaTag: '<' AllTurkishAlphanumericalUnderscore+ '>';
 // Only a subset.
 // TODO: Add more, also consider Emoji tokens.
 Emoticon
-    : ':)'|':-)'|':-]'|':D'|':-D'|'8-)'|';)'|';‑)'|':('|':-('|':\'('
+    : ':)'|':-)'|':-]'|':D'|':-D'|'8-)'|';)'|';‑)'|':('|':-('|':\'('|':\')'
+    |':P'|':p'|':|'|'=|'|'=)'|'=('
     |':‑/'|':/'|':^)'|'¯\\_(ツ)_/¯'|'O_o'|'o_O'|'O_O'|'\\o/'|'<3';
 
 // Possible Roman numbers:

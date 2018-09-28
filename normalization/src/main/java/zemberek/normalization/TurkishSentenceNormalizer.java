@@ -297,7 +297,7 @@ public class TurkishSentenceNormalizer {
   /**
    * Makes a guess if input sentence requires deasciifier.
    */
-  public static boolean probablyRequiresDeasciifier(String sentence) {
+  static boolean probablyRequiresDeasciifier(String sentence) {
     int turkishSpecCount = 0;
     for (int i = 0; i < sentence.length(); i++) {
       char c = sentence.charAt(i);
@@ -367,12 +367,7 @@ public class TurkishSentenceNormalizer {
     final String content;
     final float score;
 
-    public Candidate(String content, float score) {
-      this.content = content;
-      this.score = score;
-    }
-
-    public Candidate(String content) {
+    Candidate(String content) {
       this.content = content;
       score = 1f;
     }
@@ -410,7 +405,7 @@ public class TurkishSentenceNormalizer {
     String word;
     List<Candidate> candidates;
 
-    public Candidates(String word,
+    Candidates(String word,
         List<Candidate> candidates) {
       this.word = word;
       this.candidates = candidates;
@@ -425,16 +420,16 @@ public class TurkishSentenceNormalizer {
     }
   }
 
-  ActiveList<Hypothesis> current = new ActiveList<>();
-  ActiveList<Hypothesis> next = new ActiveList<>();
+  private ActiveList<Hypothesis> current = new ActiveList<>();
+  private ActiveList<Hypothesis> next = new ActiveList<>();
 
-  static Candidate START = new Candidate("<s>");
-  static Candidate END = new Candidate("</s>");
+  private static Candidate START = new Candidate("<s>");
+  private static Candidate END = new Candidate("</s>");
 
 
   List<String> decode(String sentence) {
 
-    List<Token> tokens = preprocess(sentence);
+    List<Token> tokens = preProcess(sentence);
 
     List<Candidates> candidatesList = new ArrayList<>();
 
@@ -509,7 +504,7 @@ public class TurkishSentenceNormalizer {
   }
 
 
-  List<Token> preprocess(String sentence) {
+  private List<Token> preProcess(String sentence) {
     List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
     String s = combineNecessaryWords(tokens);
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
