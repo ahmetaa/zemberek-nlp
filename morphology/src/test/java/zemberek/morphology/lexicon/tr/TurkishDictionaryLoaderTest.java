@@ -36,13 +36,12 @@ public class TurkishDictionaryLoaderTest {
 
   @Test
   public void loadNounsFromFileTest() throws IOException {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
-    RootLexicon items = loader
+    RootLexicon items = TurkishDictionaryLoader
         .load(new File(Resources.getResource("test-lexicon-nouns.txt").getFile()));
 
     Assert.assertFalse(items.isEmpty());
     for (DictionaryItem item : items) {
-      Assert.assertTrue(item.primaryPos == Noun);
+      Assert.assertSame(item.primaryPos, Noun);
     }
   }
 
@@ -59,15 +58,13 @@ public class TurkishDictionaryLoaderTest {
     Assert.assertEquals(Noun, item.primaryPos);
   }
 
-  public DictionaryItem getItem(String itemStr) {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
-    return loader.loadFromString(itemStr);
+  private DictionaryItem getItem(String itemStr) {
+    return TurkishDictionaryLoader.loadFromString(itemStr);
   }
 
-  public DictionaryItem getLastItem(String... itemStr) {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
+  private DictionaryItem getLastItem(String... itemStr) {
     String last = Strings.subStringUntilFirst(itemStr[itemStr.length - 1], " ");
-    return loader.load(itemStr).getMatchingItems(last).get(0);
+    return TurkishDictionaryLoader.load(itemStr).getMatchingItems(last).get(0);
   }
 
   @Test
@@ -95,14 +92,13 @@ public class TurkishDictionaryLoaderTest {
 
   @Test
   public void voicingInferenceTest() {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
-    DictionaryItem item = loader.loadFromString("aort [A:NoVoicing]");
+    DictionaryItem item = TurkishDictionaryLoader.loadFromString("aort [A:NoVoicing]");
     Assert.assertEquals("aort", item.root);
     Assert.assertEquals(Noun, item.primaryPos);
     Assert.assertTrue(item.hasAttribute(RootAttribute.NoVoicing));
     Assert.assertFalse(item.hasAttribute(RootAttribute.Voicing));
 
-    item = loader.loadFromString("at");
+    item = TurkishDictionaryLoader.loadFromString("at");
     Assert.assertEquals("at", item.root);
     Assert.assertEquals(Noun, item.primaryPos);
     Assert.assertTrue(item.hasAttribute(RootAttribute.NoVoicing));
@@ -111,22 +107,20 @@ public class TurkishDictionaryLoaderTest {
 
   @Test
   public void punctuationTest() {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
-    DictionaryItem item = loader.loadFromString("… [P:Punc]");
+    DictionaryItem item = TurkishDictionaryLoader.loadFromString("… [P:Punc]");
     Assert.assertEquals("…", item.root);
     Assert.assertEquals(Punctuation, item.primaryPos);
   }
 
   @Test
   public void properNounsShouldNotHaveVoicingAutomaticallyTest() {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
-    DictionaryItem item = loader.loadFromString("Tokat");
+    DictionaryItem item = TurkishDictionaryLoader.loadFromString("Tokat");
     Assert.assertEquals("tokat", item.root);
     Assert.assertEquals(Noun, item.primaryPos);
     Assert.assertEquals(SecondaryPos.ProperNoun, item.secondaryPos);
     Assert.assertFalse(item.hasAttribute(RootAttribute.Voicing));
 
-    item = loader.loadFromString("Dink");
+    item = TurkishDictionaryLoader.loadFromString("Dink");
     Assert.assertEquals("dink", item.root);
     Assert.assertEquals(Noun, item.primaryPos);
     Assert.assertEquals(SecondaryPos.ProperNoun, item.secondaryPos);
@@ -135,18 +129,17 @@ public class TurkishDictionaryLoaderTest {
 
   @Test
   public void nounVoicingTest() {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
     String[] voicing = {"kabak", "kabak [A:Voicing]", "psikolog", "havuç", "turp [A:Voicing]",
         "galip", "nohut", "cenk", "kükürt"};
     for (String s : voicing) {
-      DictionaryItem item = loader.loadFromString(s);
+      DictionaryItem item = TurkishDictionaryLoader.loadFromString(s);
       Assert.assertEquals(Noun, item.primaryPos);
       Assert.assertTrue("error in:" + s, item.hasAttribute(RootAttribute.Voicing));
     }
 
     String[] novoicing = {"kek", "link [A:NoVoicing]", "top", "kulp", "takat [A:NoVoicing]"};
     for (String s : novoicing) {
-      DictionaryItem item = loader.loadFromString(s);
+      DictionaryItem item = TurkishDictionaryLoader.loadFromString(s);
       Assert.assertEquals(Noun, item.primaryPos);
       Assert.assertTrue("error in:" + s, item.hasAttribute(NoVoicing));
     }
@@ -154,10 +147,9 @@ public class TurkishDictionaryLoaderTest {
 
   @Test
   public void referenceTest1() {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
     String[] ref = {"ad", "ad [A:Doubling,InverseHarmony]", "soy",
         "soyadı [A:CompoundP3sg; Roots:soy-ad]"};
-    RootLexicon lexicon = loader.load(ref);
+    RootLexicon lexicon = TurkishDictionaryLoader.load(ref);
     DictionaryItem item = lexicon.getItemById("soyadı_Noun");
     Assert.assertNotNull(item);
     Assert.assertFalse(item.attributes.contains(RootAttribute.Doubling));
@@ -165,10 +157,9 @@ public class TurkishDictionaryLoaderTest {
 
   @Test
   public void referenceTest2() {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
     String[] ref = {"ad", "ad [A:Doubling,InverseHarmony;Index:1]", "soy",
         "soyadı [A:CompoundP3sg; Roots:soy-ad]"};
-    RootLexicon lexicon = loader.load(ref);
+    RootLexicon lexicon = TurkishDictionaryLoader.load(ref);
     DictionaryItem item = lexicon.getItemById("soyadı_Noun");
     Assert.assertNotNull(item);
     Assert.assertFalse(item.attributes.contains(RootAttribute.Doubling));
@@ -176,17 +167,14 @@ public class TurkishDictionaryLoaderTest {
 
   @Test
   public void implicitP3sgTest() {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
     String[] lines = {
         "üzeri [A:CompoundP3sg;Roots:üzer]"};
-    RootLexicon lexicon = loader.load(lines);
+    RootLexicon lexicon = TurkishDictionaryLoader.load(lines);
     Assert.assertEquals(2, lexicon.size());
   }
 
-
   @Test
   public void nounAttributesTest() {
-    TurkishDictionaryLoader loader = new TurkishDictionaryLoader();
 
     List<ItemAttrPair> testList = Lists.newArrayList(
         testPair("takat [A:NoVoicing, InverseHarmony]", NoVoicing, InverseHarmony),
@@ -194,7 +182,7 @@ public class TurkishDictionaryLoaderTest {
         testPair("ret [A:Voicing, Doubling]", Voicing, Doubling)
     );
     for (ItemAttrPair pair : testList) {
-      DictionaryItem item = loader.loadFromString(pair.str);
+      DictionaryItem item = TurkishDictionaryLoader.loadFromString(pair.str);
       Assert.assertEquals(Noun, item.primaryPos);
       Assert.assertEquals("error in:" + pair.str, pair.attrs, item.attributes);
     }
@@ -216,7 +204,7 @@ public class TurkishDictionaryLoaderTest {
   @Test
   @Ignore("Not a unit test")
   public void shouldPrintItemsInDevlDictionary() throws IOException {
-    RootLexicon items = new TurkishDictionaryLoader()
+    RootLexicon items = TurkishDictionaryLoader
         .load(new File(Resources.getResource("dev-lexicon.txt").getFile()));
     for (DictionaryItem item : items) {
       System.out.println(item);

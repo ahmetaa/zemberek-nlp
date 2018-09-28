@@ -78,11 +78,11 @@ public class TurkishDictionaryLoader {
     return load(lines);
   }
 
-  public RootLexicon load(File input) throws IOException {
+  public static RootLexicon load(File input) throws IOException {
     return Files.asCharSource(input, Charsets.UTF_8).readLines(new TextLexiconProcessor());
   }
 
-  public RootLexicon loadInto(RootLexicon lexicon, File input) throws IOException {
+  public static RootLexicon loadInto(RootLexicon lexicon, File input) throws IOException {
     return Files
         .asCharSource(input, Charsets.UTF_8).readLines(new TextLexiconProcessor(lexicon));
   }
