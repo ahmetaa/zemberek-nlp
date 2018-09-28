@@ -87,13 +87,23 @@ public class TurkishTokenizerTest {
   }
 
   @Test
+  public void testTags() {
+    TurkishTokenizer t = TurkishTokenizer.DEFAULT;
+    matchToken(t, "<kedi>", TurkishLexer.MetaTag, "<kedi>");
+    matchToken(
+        t,
+        "<kedi><eti><7>",
+        TurkishLexer.MetaTag,
+        "<kedi>", "<eti>", "<7>");
+  }
+
+  @Test
   public void testAlphaNumerical() {
     TurkishTokenizer t = TurkishTokenizer.DEFAULT;
     matchSentences(t,
         "F-16'yı, (H1N1) H1N1'den.",
         "F-16'yı , ( H1N1 ) H1N1'den .");
   }
-
 
   @Test
   public void testCapitalWords() {
@@ -311,6 +321,11 @@ public class TurkishTokenizerTest {
         "https://www.fo.baz.zip",
         "www.fo.tar.kar",
         "www.fo.bar",
+        "fo.com",
+        "fo.com.tr",
+        "fo.com.tr/index.html",
+        "fo.com.tr/index.html?",
+        "foo.net",
         "http://www.foo.net/showthread.php?134628-ucreti",
         "http://www.foo.net/showthread.php?1-34--628-ucreti+",
     };

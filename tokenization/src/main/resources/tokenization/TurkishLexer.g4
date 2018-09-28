@@ -140,7 +140,8 @@ fragment URLFragment
 
 URL :
     ('http://'|'https://') URLFragment |
-    ('http://'|'https://')? 'www.' URLFragment;
+    ('http://'|'https://')? 'www.' URLFragment |
+    [0-9a-zA-Z_]+ ('.com'| '.org' | '.edu' | '.gov'|'.net'|'.info') ('.tr')? ('/'URLFragment)?;
 
 Email
     :AllTurkishAlphanumericalUnderscore+ '.'? AllTurkishAlphanumericalUnderscore+ '@'
@@ -149,6 +150,8 @@ Email
 HashTag: '#' AllTurkishAlphanumerical+;
 
 Mention: '@' AllTurkishAlphanumerical+;
+
+MetaTag: '<' AllTurkishAlphanumericalUnderscore+ '>';
 
 // Only a subset.
 // TODO: Add more, also consider Emoji tokens.
@@ -176,15 +179,15 @@ WordWithSymbol
     : AllTurkishAlphanumerical+ '-'? AllTurkishAlphanumerical+ AposAndSuffix?;
 
 fragment PunctuationFragment
-    : Apostrophe | DoubleQuote | '‘' | '…' | '...' | '(!)' | '(?)'| [.,!?%$&*+@:;®™©℠]
-          | '\\' | '-' | '/' | '(' | ')' | '[' | ']' | '{' | '}';
+    : Apostrophe | DoubleQuote | '...' | '(!)' | '(?)'| [>‘…=.,!?%$&*+@:;®™©℠]
+          | '\\' | '-' | '/' | '(' | ')' | '[' | ']' | '{' | '}' | '^' ;
 
 Punctuation
     : PunctuationFragment;
 
 UnknownWord
-    : ~([ \n\r\t.,!?%$&*+@:;…®™©℠] | '\'' | '’' | '‘' | '"' | '”' | '“' | '»' | '«'
-    |'\\' | '-' |'(' | '/' | ')' | '[' | ']' | '{' | '}')+;
+    : ~([ \n\r\t.,!?%$&*+@:;…®™©℠=>] | '\'' | '’' | '‘' | '"' | '”' | '“' | '»' | '«'
+    |'\\' | '-' |'(' | '/' | ')' | '[' | ']' | '{' | '}' | '^')+;
 
 // Catch all remaining as Unknown.
 Unknown : .+? ;
