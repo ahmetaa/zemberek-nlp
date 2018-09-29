@@ -42,10 +42,13 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
       Morpheme.builder("NegInformal", "NegInformal")
           .informal().mappedMorpheme(neg).build());
 
+  public static final Morpheme unableInformal = addMorpheme(
+      Morpheme.builder("UnableInformal", "UnableInformal")
+          .informal().mappedMorpheme(unable).build());
+
   public static final Morpheme optInformal = addMorpheme(
       Morpheme.builder("OptInformal", "OptInformal")
           .informal().mappedMorpheme(opt).build());
-
 
   MorphemeState vA1pl_ST_Inf = terminal("vA1pl_ST_Inf", a1plInformal);
   MorphemeState vA1sg_ST_Inf = terminal("vA1sg_ST_Inf", a1sgInformal);
@@ -58,6 +61,7 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
   MorphemeState vQues_S_Inf = nonTerminal("vQues_S_Inf", quesSuffixInformal);
 
   MorphemeState vNeg_S_Inf = nonTerminal("vNeg_S_Inf", negInformal);
+  MorphemeState vUnable_S_Inf = nonTerminal("vUnable_S_Inf", unableInformal);
 
   MorphemeState vOpt_S_Inf = nonTerminal("vOpt_S_Inf", optInformal);
   MorphemeState vOpt_S_Empty_Inf = nonTerminal("vOpt_S_Empty_Inf", optInformal);
@@ -85,6 +89,7 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
         .add(vWhile_S, "ken");
 
     vNegProg1_S.add(vProgYor_S_Inf, "Iyo");
+    vUnableProg1_S.add(vProgYor_S_Inf, "Iyo");
 
     RootSurfaceIsAny diYiCondition = new RootSurfaceIsAny("di", "yi");
     vDeYeRoot_S
@@ -99,6 +104,7 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
     // yap-ıca-m yap-aca-m yap-ca-m
 
     verbRoot_S.add(vNeg_S_Inf, "mI");
+    verbRoot_S.add(vUnable_S_Inf, "+yAmI");
 
     verbRoot_S
         .add(vFut_S_Inf, "+ycA~k")  // yap-cak-sın oku-ycak
@@ -114,9 +120,21 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
         .add(vFut_S_Inf, "ycA!ğ")   // yap-mı-ycak-sın
         .add(vFut_S_Inf2, "ycA");   // yap-mı-ycak
 
+    vUnable_S_Inf
+        .add(vFut_S, "yAcA~k")  // yap-amı-yacak-sın
+        .add(vFut_S, "yAcA!ğ")  // yap-amı-yacağ-ım
+        .add(vFut_S_Inf, "ycA~k")   // yap-amı-ycağ-ım
+        .add(vFut_S_Inf, "ycA!ğ")   // yap-amı-ycak-sın
+        .add(vFut_S_Inf2, "ycA");   // yap-amı-ycak
+
     vNeg_S
         .add(vFut_S_Inf, "yAcA")   // yap-ma-yaca-m
         .add(vFut_S_Inf, "yAcAk");   // yap-ma-yacak-(A3sg|A3pl)
+
+    vUnable_S
+        .add(vFut_S_Inf, "yAcA")   // yap-ama-yaca-m
+        .add(vFut_S_Inf, "yAcAk");   // yap-ama-yacak-(A3sg|A3pl)
+
 
     vFut_S_Inf
         .add(vA1sg_ST, "+Im")

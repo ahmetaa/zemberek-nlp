@@ -239,6 +239,8 @@ public class TurkishMorphotactics {
 
   // Negative Verb
   public static final Morpheme neg = addMorpheme(instance("Negative", "Neg"));
+  // Unable (Negative - Ability such as "okuyamıyorum - I cannot read, I am unable to read.")
+  public static final Morpheme unable = addMorpheme(instance("Unable", "Unable"));
 
   // Tense
   public static final Morpheme pres = addMorpheme(instance("PresentTense", "Pres"));
@@ -1680,8 +1682,11 @@ public class TurkishMorphotactics {
   MorphemeState vCopBeforeA3pl_S = nonTerminal("vCopBeforeA3pl_S", cop);
 
   MorphemeState vNeg_S = nonTerminal("vNeg_S", neg);
+  MorphemeState vUnable_S = nonTerminal("vUnable_S", unable);
   // for negative before progressive-1 "Iyor"
   MorphemeState vNegProg1_S = nonTerminal("vNegProg1_S", neg);
+  MorphemeState vUnableProg1_S = nonTerminal("vUnableProg1_S", unable);
+
 
   MorphemeState vImp_S = nonTerminal("vImp_S", imp);
   MorphemeState vImpYemekYi_S = nonTerminal("vImpYemekYi_S", imp);
@@ -1870,10 +1875,7 @@ public class TurkishMorphotactics {
         .add(vEverSince_S, "yAgör")
         .add(vAfterDoing_S, "yIp")
         .add(vWhen_S, "yIncA")
-        .add(vWithoutBeingAbleToHaveDoneSo_S, "yAmAdAn")
         .add(vAsLongAs_S, "dIkçA")
-        .add(vWithoutHavingDoneSo_S, "mAdAn")
-        .add(vWithoutHavingDoneSo_S, "mAksIzIn")
         .add(vNotState_S, "mAzlI~k")
         .add(vNotState_S, "mAzlI!ğ")
         .add(vFeelLike_S, "yAsI");
@@ -1900,7 +1902,7 @@ public class TurkishMorphotactics {
     vAorNegEmpty_S
         .add(vA1sg_ST, "m")
         .add(vA1pl_ST, "yIz");
-    // okuma-maz-ım
+    // oku-maz-ım TODO: not sure here.
     vNeg_S.add(vAorPartNeg_S, "z");
     vAorPartNeg_S.addEmpty(adjAfterVerb_ST);
 
@@ -1910,8 +1912,6 @@ public class TurkishMorphotactics {
 
     vAble_S.addEmpty(verbRoot_S);
 
-    // Negative ability.
-    verbRoot_S.add(vAbleNeg_S, "+yA");
     // Also for ability that comes before negative, we add a new root state.
     // From there only negative connections is possible.
     vAbleNeg_S.addEmpty(vAbleNegDerivRoot_S);
@@ -1920,6 +1920,14 @@ public class TurkishMorphotactics {
 
     // it is possible to have abil derivation after negative.
     vNeg_S.add(vAble_S, "yAbil");
+
+    // Unable.
+    verbRoot_S
+        .add(vUnable_S, "+yAmA", Conditions.previousMorphemeIsNot(able));
+    // careful here. We copy all outgoing transitions to "unable"
+    vUnable_S.copyOutgoingTransitionsFrom(vNeg_S);
+    verbRoot_S.add(vUnableProg1_S, "+yAm");
+    vUnableProg1_S.add(vProgYor_S, "Iyor");
 
     // Infinitive 1 "mAk"
     // Causes Verb to Noun derivation. It is connected to a special noun root state.

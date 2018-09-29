@@ -89,9 +89,10 @@ public class SingleAnalysisTest extends AnalyzerTestBase {
     analysis = analyzer.analyze("okutturuluyor").get(0);
     Assert.assertEquals(toList("oku", "okut", "okuttur", "okutturul"), analysis.getStems());
     analysis = analyzer.analyze("okutturamıyor").get(0);
-    Assert.assertEquals(toList("oku", "okut", "okuttur", "okuttura"), analysis.getStems());
+    Assert.assertEquals(toList("oku", "okut", "okuttur"), analysis.getStems());
+    analysis = analyzer.analyze("okutturabiliyor").get(0);
+    Assert.assertEquals(toList("oku", "okut", "okuttur", "okutturabil"), analysis.getStems());
   }
-
 
   @Test
   public void getLemmasTest() {
@@ -119,7 +120,10 @@ public class SingleAnalysisTest extends AnalyzerTestBase {
     analysis = analyzer.analyze("okutturuluyor").get(0);
     Assert.assertEquals(toList("oku", "okut", "okuttur", "okutturul"), analysis.getLemmas());
     analysis = analyzer.analyze("okutturamıyor").get(0);
-    Assert.assertEquals(toList("oku", "okut", "okuttur", "okuttura"), analysis.getLemmas());
+    Assert.assertEquals(toList("oku", "okut", "okuttur"), analysis.getLemmas());
+    analysis = analyzer.analyze("okutturabiliyor").get(0);
+    Assert.assertEquals(toList("oku", "okut", "okuttur", "okutturabil"), analysis.getLemmas());
+
   }
 
   @Test

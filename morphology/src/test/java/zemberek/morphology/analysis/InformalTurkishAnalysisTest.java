@@ -83,14 +83,23 @@ public class InformalTurkishAnalysisTest extends AnalyzerTestBase {
     t.expectSingle("yazmıyosun", matchesTailLex("Verb + Neg + Prog1Informal + A2sg"));
     t.expectSingle("yazmıyo", matchesTailLex("Verb + Neg + Prog1Informal + A3sg"));
 
+    t.expectSingle("yazamıyom", matchesTailLex("Verb + Unable + Prog1Informal + A1sg"));
+    t.expectSingle("yazamıyosun", matchesTailLex("Verb + Unable + Prog1Informal + A2sg"));
+    t.expectSingle("yazamıyo", matchesTailLex("Verb + Unable + Prog1Informal + A3sg"));
+
     t = getTester("aramak");
 
     t.expectSingle("aramıyoz", matchesTailLex("Verb + Neg + Prog1Informal + A1pl"));
     t.expectSingle("aramıyosunuz", matchesTailLex("Verb + Neg + Prog1Informal + A2pl"));
     t.expectSingle("aramıyolar", matchesTailLex("Verb + Neg + Prog1Informal + A3pl"));
 
+    t.expectSingle("arayamıyoz", matchesTailLex("Verb + Unable + Prog1Informal + A1pl"));
+    t.expectSingle("arayamıyosunuz", matchesTailLex("Verb + Unable + Prog1Informal + A2pl"));
+    t.expectSingle("arayamıyolar", matchesTailLex("Verb + Unable + Prog1Informal + A3pl"));
+
     t = getTester("affetmek [A:Voicing]");
     t.expectSingle("affetmiyo", matchesTailLex("Verb + Neg + Prog1Informal + A3sg"));
+    t.expectSingle("affedemiyo", matchesTailLex("Verb + Unable + Prog1Informal + A3sg"));
 
   }
 
@@ -100,10 +109,14 @@ public class InformalTurkishAnalysisTest extends AnalyzerTestBase {
 
     t.expectSingle("yazak", matchesTailLex("Verb + Opt + A1plInformal"));
     t.expectSingle("yazmayak", matchesTailLex("Verb + Neg + Opt + A1plInformal"));
+    t.expectSingle("yazamayak", matchesTailLex("Verb + Unable + Opt + A1plInformal"));
+
 
     t = getTester("etmek [A:Voicing]");
     t.expectSingle("edek", matchesTailLex("Verb + Opt + A1plInformal"));
+
     t.expectAny("etmeyek", matchesTailLex("Verb + Neg + Opt + A1plInformal"));
+    t.expectAny("edemeyek", matchesTailLex("Verb + Unable + Opt + A1plInformal"));
   }
 
   @Test
@@ -115,6 +128,7 @@ public class InformalTurkishAnalysisTest extends AnalyzerTestBase {
     t.expectAny("yazıcam", matchesTailLex("Verb + FutInformal + A1sg"));
 
     t.expectAny("yazmıycam", matchesTailLex("Verb + NegInformal + FutInformal + A1sg"));
+    t.expectAny("yazamıycam", matchesTailLex("Verb + UnableInformal + FutInformal + A1sg"));
 
     // TODO: Add more tests.
   }
