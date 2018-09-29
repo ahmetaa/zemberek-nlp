@@ -41,7 +41,7 @@ public class NormalizationScripts {
 
   public static void main(String[] args) throws Exception {
 
-    Path root = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test");
+    Path root = Paths.get("/media/ahmetaa/depo/normalization/test");
 
     Path incorrect = root.resolve("incorrect");
     Path correct = root.resolve("correct");
@@ -57,22 +57,26 @@ public class NormalizationScripts {
     Path repetitive = root.resolve("repetitions.hist.txt");
     //multipleLetterRepetitionWords(incorrect, repetitive);
 
-    Path corporaRoot = Paths.get("/home/aaa/data/corpora");
-    Path tweetRoot = Paths.get("/media/aaa/Data/corpora/tweets");
-/*    cleanTwitterData(
-        tweetRoot.resolve("tweets-2m"),
-        tweetRoot.resolve("tweets-2m-clean")
+    Path corporaRoot = Paths.get("/media/ahmetaa/depo/corpora");
+    Path tweetRoot = Paths.get("/media/ahmetaa/depo/corpora");
+/*
+    cleanTwitterData(
+        tweetRoot.resolve("tweets-20m.txt"),
+        tweetRoot.resolve("tweets-20m-clean")
     );
-    */
+*/
+
 /*    splitSingleFileCorpus(
-        tweetRoot.resolve("tweets-20m-clean.nodup"),
+        corporaRoot.resolve("tweets-20m-clean.nodup"),
         corporaRoot.resolve("tweets-20m"));*/
+
 
     checkSuspiciousWords(
         TurkishMorphology.createWithDefaults(),
-        Paths.get("/home/aaa/data/normalization/vocab-clean"),
-        Paths.get("/home/aaa/data/normalization/vocab-noisy")
+        Paths.get("/media/ahmetaa/depo/normalization/vocab-clean"),
+        Paths.get("/media/ahmetaa/depo/normalization/vocab-noisy")
     );
+
   }
 
   static void splitWords(Path wordFrequencyFile, Path splitFile, Path lmPath, int minWordCount)
@@ -463,7 +467,7 @@ public class NormalizationScripts {
       }
 
       double cFreq = correctFromClean.getCount(s) / cTotal;
-      if (nFreq / cFreq > 30) {
+      if (nFreq / cFreq > 50) {
         lowFreq.add(s, nCount);
       }
 

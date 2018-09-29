@@ -485,8 +485,9 @@ public class TurkishMorphotactics {
     // ------
 
     // do not allow possessive suffixes for abbreviations or words like "annemler"
+    SecondaryPosIs abbreviation = new SecondaryPosIs(SecondaryPos.Abbreviation);
     Condition possessionCond = notHave(RootAttribute.FamilyMember)
-        .andNot(new SecondaryPosIs(SecondaryPos.Abbreviation));
+        .andNot(abbreviation);
 
     a3sg_S
         .addEmpty(pnon_S, notHave(RootAttribute.FamilyMember))        // ev
@@ -622,11 +623,11 @@ public class TurkishMorphotactics {
     // There are two almost identical suffix transitions with templates ">cI~k" and ">cI!ğ"
     // This was necessary for some simplification during analysis. This way there will be only one
     // surface form generated for each transition.
-    nom_ST.add(dim_S, ">cI~k", Conditions.HAS_NO_SURFACE);
-    nom_ST.add(dim_S, ">cI!ğ", Conditions.HAS_NO_SURFACE);
+    nom_ST.add(dim_S, ">cI~k", Conditions.HAS_NO_SURFACE.andNot(abbreviation));
+    nom_ST.add(dim_S, ">cI!ğ", Conditions.HAS_NO_SURFACE.andNot(abbreviation));
 
     // ev-ε-ε-ε-ceğiz (evceğiz)
-    nom_ST.add(dim_S, "cAğIz", Conditions.HAS_NO_SURFACE);
+    nom_ST.add(dim_S, "cAğIz", Conditions.HAS_NO_SURFACE.andNot(abbreviation));
 
     // connect dim to the noun root.
     dim_S.addEmpty(noun_S);
@@ -634,9 +635,15 @@ public class TurkishMorphotactics {
     Condition emptyAdjNounSeq = new ContainsMorphemeSequence(adj, zero, noun, a3sg, pnon, nom);
 
     nom_ST.add(ness_S, "lI~k",
-        Conditions.CURRENT_GROUP_EMPTY.andNot(containsNess).andNot(emptyAdjNounSeq));
+        Conditions.CURRENT_GROUP_EMPTY
+            .andNot(containsNess)
+            .andNot(emptyAdjNounSeq)
+            .andNot(abbreviation));
     nom_ST.add(ness_S, "lI!ğ",
-        Conditions.CURRENT_GROUP_EMPTY.andNot(containsNess).andNot(emptyAdjNounSeq));
+        Conditions.CURRENT_GROUP_EMPTY
+            .andNot(containsNess)
+            .andNot(emptyAdjNounSeq)
+            .andNot(abbreviation));
 
     // connect `ness` to the noun root.
     ness_S.addEmpty(noun_S);

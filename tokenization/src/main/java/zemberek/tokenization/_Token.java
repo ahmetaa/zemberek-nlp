@@ -16,6 +16,45 @@ class _Token {
     this.end = end;
   }
 
+  boolean isNumeral() {
+    return type == Type.CardinalNumber ||
+        type == Type.RealNumber ||
+        type == Type.Range ||
+        type == Type.Ratio ||
+        type == Type.OrdinalNumber ||
+        type == Type.RomanNumber ||
+        type == Type.Distribution ||
+        type == Type.Percent;
+  }
+
+  boolean isWhiteSpace() {
+    return type == Type.SpaceTab ||
+        type == Type.NewLine;
+  }
+
+  boolean isWebRelated() {
+    return
+        type == Type.HashTag ||
+            type == Type.Mention ||
+            type == Type.URL ||
+            type == Type.MetaTag ||
+            type == Type.Email;
+  }
+
+  boolean isEmoji() {
+    return type == Type.Emoji || type == Type.Emoticon;
+  }
+
+  boolean isUnidentified() {
+    return type == Type.Unknown || type == Type.UnknownWord;
+  }
+
+  boolean isWord() {
+    return type == Type.Word ||
+        type == Type.Abbreviation;
+  }
+
+
   enum Type {
 
     // white space
@@ -24,22 +63,19 @@ class _Token {
 
     // words
     Word,
-    WordAlphanumerical,
-    WordWithSymbol,
     Abbreviation,
-    AbbreviationWithDots,
 
     Punctuation,
 
-    // numerals
-    RomanNumeral,
-    RatioNumeral,
-    RangeNumeral,
-    RealNumeral,
-    DistributionNumeral,
-    OrdinalNumeral,
-    CardinalNumeral,
-    PercentNumeral,
+    // numerals. May contain suffixes.
+    RomanNumber,
+    Ratio,
+    Range,
+    RealNumber,
+    Distribution,
+    OrdinalNumber,
+    CardinalNumber,
+    Percent,
 
     // temporal
     Time,
@@ -50,6 +86,7 @@ class _Token {
     Email,
     HashTag,
     Mention,
+    MetaTag,
 
     Emoji,
     Emoticon,

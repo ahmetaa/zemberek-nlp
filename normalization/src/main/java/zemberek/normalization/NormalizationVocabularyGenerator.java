@@ -28,16 +28,23 @@ public class NormalizationVocabularyGenerator {
 
   private TurkishMorphology morphology;
   private ReentrantLock lock = new ReentrantLock();
+  boolean normalize;
 
   public NormalizationVocabularyGenerator(TurkishMorphology morphology) {
     this.morphology = morphology;
+    this.normalize = true;
+  }
+
+  public NormalizationVocabularyGenerator(TurkishMorphology morphology, boolean normalize) {
+    this.morphology = morphology;
+    this.normalize = normalize;
   }
 
   public static void main(String[] args) throws Exception {
 
     AnalysisCache cache = AnalysisCache
         .builder()
-        .dynamicCacheSize(400_000, 800_000).build();
+        .dynamicCacheSize(200_000, 400_000).build();
 
     RootLexicon lexicon = TurkishDictionaryLoader.loadFromResources(
         "tr/master-dictionary.dict",
@@ -58,9 +65,9 @@ public class NormalizationVocabularyGenerator {
 
     NormalizationVocabularyGenerator generator = new NormalizationVocabularyGenerator(morphology);
 
-    Path corporaRoot = Paths.get("/home/aaa/data/corpora");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/vocab-clean");
-    Path rootList = corporaRoot.resolve("clean-list");
+    Path corporaRoot = Paths.get("/media/ahmetaa/depo/corpora");
+    Path outRoot = Paths.get("/media/ahmetaa/depo/normalization/vocab-noisy");
+    Path rootList = corporaRoot.resolve("noisy-list");
 
     MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
         .fromDirectoryRoot(corporaRoot, rootList, 30_000);
@@ -189,8 +196,11 @@ public class NormalizationVocabularyGenerator {
             local.ignored.add(s);
             continue;
           }
-          s = s.toLowerCase(Turkish.LOCALE);
           WordAnalysis results = morphology.analyze(s);
+          if(normalize) {
+            s = s.toLowerCase(Turkish.LOCALE);
+            s = s.replaceAll("'","");
+          }
           if (results.analysisCount() == 0) {
             local.incorrect.add(s);
           } else {
