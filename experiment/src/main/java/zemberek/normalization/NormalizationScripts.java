@@ -70,11 +70,11 @@ public class NormalizationScripts {
         corporaRoot.resolve("tweets-20m-clean.nodup"),
         corporaRoot.resolve("tweets-20m"));*/
 
-
     checkSuspiciousWords(
         TurkishMorphology.createWithDefaults(),
-        Paths.get("/media/ahmetaa/depo/normalization/vocab-clean"),
-        Paths.get("/media/ahmetaa/depo/normalization/vocab-noisy")
+        Paths.get("/home/aaa/data/normalization/vocab-clean"),
+        Paths.get("/home/aaa/data/normalization/vocab-noisy"),
+        Paths.get("/home/aaa/data/normalization/test-large")
     );
 
   }
@@ -410,7 +410,8 @@ public class NormalizationScripts {
   static void checkSuspiciousWords(
       TurkishMorphology morphology,
       Path cleanRoot,
-      Path noisyRoot) throws IOException {
+      Path noisyRoot,
+      Path outRoot) throws IOException {
     Histogram<String> correctFromNoisy =
         Histogram.loadFromUtf8File(noisyRoot.resolve("correct"), ' ');
     Log.info("Correct from noisy Loaded");
@@ -435,7 +436,7 @@ public class NormalizationScripts {
       if (!correctFromClean.contains(s)) {
         zero.add(s, nCount);
         WordAnalysis an = morphology.analyze(s);
-        if(an.analysisCount()>0) {
+        if (an.analysisCount() > 0) {
           Set<String> allLemmas = new HashSet<>();
           for (SingleAnalysis analysis : an) {
             allLemmas.addAll(analysis.getLemmas());
@@ -443,23 +444,23 @@ public class NormalizationScripts {
 
           boolean none = true;
           boolean lowLemmaRatio = true;
-
+          // TODO: this is not the best way. try extracting lemma frequencies from correct from clean
           for (String l : allLemmas) {
-            if(correctFromClean.contains(l)) {
+            if (correctFromClean.contains(l)) {
               none = false;
               double lnf = correctFromNoisy.getCount(l) / nTotal;
               double lcf = correctFromClean.getCount(l) / nTotal;
-              if(lnf/ lcf > 10) {
-                 lowLemmaRatio = false;
-                 break;
+              if (lnf / lcf > 10) {
+                lowLemmaRatio = false;
+                break;
               }
             }
           }
 
-          if(none) {
+          if (none) {
             zeroWordZeroLemma.add(s, nCount);
           }
-          if(lowLemmaRatio) {
+          if (lowLemmaRatio) {
             zeroWordLowLemma.add(s, nCount);
           }
         }
@@ -467,7 +468,7 @@ public class NormalizationScripts {
       }
 
       double cFreq = correctFromClean.getCount(s) / cTotal;
-      if (nFreq / cFreq > 50) {
+      if (nFreq / cFreq > 30) {
         lowFreq.add(s, nCount);
       }
 
@@ -477,6 +478,55 @@ public class NormalizationScripts {
     zeroWordZeroLemma.saveSortedByCounts(noisyRoot.resolve("suspicious-zero-no-lemma"), " ");
     zeroWordLowLemma.saveSortedByCounts(noisyRoot.resolve("suspicious-zero-low-lemma"), " ");
     lowFreq.saveSortedByCounts(noisyRoot.resolve("suspicious-lowfreq"), " ");
+
+    Log.info("Creating vocabularies");
+
+    // ----------- noisy ------------
+    Histogram<String> noisy = new Histogram<>(1000_000);
+
+    Histogram<String> noisyFromCleanCorpora =
+        Histogram.loadFromUtf8File(cleanRoot.resolve("incorrect"), ' ');
+    Histogram<String> noisyFromNoisyCorpora =
+        Histogram.loadFromUtf8File(noisyRoot.resolve("incorrect"), ' ');
+    Log.info("Incorrect words loaded.");
+
+    noisy.add(noisyFromCleanCorpora);
+    noisy.add(noisyFromNoisyCorpora);
+
+    noisy.saveSortedByCounts(outRoot.resolve("incorrect")," ");
+    Log.info("Noisy saved.");
+
+    // ----------- maybe noisy -------------------
+    Histogram<String> maybeNoisy = new Histogram<>(1000_000);
+    maybeNoisy.add(zeroWordZeroLemma);
+    for (String lf : lowFreq) {
+      if (!maybeNoisy.contains(lf)) {
+        maybeNoisy.add(lf, zeroWordZeroLemma.getCount(lf));
+      }
+    }
+
+    int threshold = 2;
+
+    for (String z : zero) {
+      int c = zero.getCount(z);
+      if (!maybeNoisy.contains(z) && c > threshold) {
+        maybeNoisy.add(z, c);
+      }
+    }
+
+    maybeNoisy.saveSortedByCounts(outRoot.resolve("maybe-incorrect")," ");
+    Log.info("Maybe Noisy saved.");
+
+    // ---------- clean ------------------
+
+    Histogram<String> clean = new Histogram<>(1000_000);
+    clean.add(correctFromClean);
+    clean.add(correctFromNoisy);
+    clean.removeAll(maybeNoisy);
+
+    noisy.saveSortedByCounts(outRoot.resolve("correct")," ");
+    Log.info("Clean saved.");
+
   }
 
 
