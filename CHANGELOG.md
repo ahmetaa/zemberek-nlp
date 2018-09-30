@@ -12,10 +12,10 @@ Remote API is also subject to change until Version 1.0.0. Refer to the [document
 
 ##### Noisy Text Normalization
 
-We now include a sentence normalization mechanism. Before this, [normalization](normalization) 
+We now include a sentence normalization functionality. Before this, [normalization](normalization) 
 module only provided simple word based spell check suggestion mechanism. Now. system offers a
 best effort text normalization functionality. We used several heuristics and applied language model 
-based Viterbi search on candidate words collected with an offline contextual graph random walk mechanism.
+based Viterbi search on candidate words collected with an offline contextual graph random walk algorithm.
 
 ##### Informal Turkish Words Analysis
 We introduce a mechanism for analyzing Turkish informal words. For example, word `okuycam`, analysis
