@@ -136,7 +136,7 @@ public final class IntMap<T> implements Iterable<T> {
    */
   public T get(int key) {
     checkKey(key);
-    int slot = key & modulo;
+    int slot = rehash(key) & modulo;
     // Test the lucky first shot.
     if (key == keys[slot]) {
       return values[slot];
@@ -185,8 +185,14 @@ public final class IntMap<T> implements Iterable<T> {
     return result;
   }
 
+  private int rehash(int hash) {
+    // 0x9E3779B9 is int phi, it has some nice distributing characteristics.
+    final int h = hash * 0x9E3779B9;
+    return h ^ (h >> 16);
+  }
+
   private int locate(int key) {
-    int slot = key & modulo;
+    int slot = rehash(key) & modulo;
     while (true) {
       final int k = keys[slot];
       // If slot is empty, return its location
