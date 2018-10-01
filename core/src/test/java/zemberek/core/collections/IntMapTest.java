@@ -3,8 +3,14 @@ package zemberek.core.collections;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.google.common.base.Stopwatch;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class IntMapTest {
@@ -124,4 +130,35 @@ public class IntMapTest {
     assertTrue((m.capacity() & (m.capacity() - 1)) == 0);
   }
 
+  @Test
+  @Ignore(value = "Fails. When k = 1 million it passes.")
+  public void addingElementsFromAnotherIntMapMustBeFast() {
+    // create a map with 5 million keys.
+    int k = 2_000_000;
+    IntMap<String> map1 = new IntMap<>();
+    Set<Integer> intSet = new HashSet<>();
+    Random rnd = new Random(1);
+    while (intSet.size() < k) {
+      int r = rnd.nextInt(Integer.MAX_VALUE);
+      intSet.add(r);
+    }
+    for (Integer i : intSet) {
+      map1.put(i, String.valueOf(i));
+    }
+    System.out.println("Map initialized.");
+
+    // using keys with order in the map, copy key-values to another IntMap.
+    int[] keys = map1.getKeys();
+    IntMap<String> map2 = new IntMap<>();
+
+    Stopwatch sw = Stopwatch.createStarted();
+
+    for (int i : keys) {
+      map2.put(i, map1.get(i));
+      if (map2.size() % 10000 == 0) {
+        Assert.assertTrue(sw.elapsed(TimeUnit.MILLISECONDS) < 100);
+        sw.reset().start();
+      }
+    }
+  }
 }

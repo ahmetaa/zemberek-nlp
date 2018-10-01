@@ -41,20 +41,21 @@ public class NormalizationScripts {
 
   public static void main(String[] args) throws Exception {
 
-    Path root = Paths.get("/media/ahmetaa/depo/normalization/test");
+    Path root = Paths.get("/media/ahmetaa/depo/normalization");
+    Path testRoot = root.resolve("test");
 
-    Path incorrect = root.resolve("incorrect");
-    Path correct = root.resolve("correct");
+    Path incorrect = testRoot.resolve("test/incorrect");
+    Path correct = testRoot.resolve("test/correct");
 
-    Path s = root.resolve("split");
-    Path lm = root.resolve("lm.slm");
+    Path s = testRoot.resolve("split");
+    Path lm = testRoot.resolve("lm.slm");
     //splitWords(p, s, lm, 2);
 
-    Path quesOut = root.resolve("question-suffix");
+    Path quesOut = testRoot.resolve("question-suffix");
     //getQuestionSuffixes(s, quesOut);
     //convertTweetData();
 
-    Path repetitive = root.resolve("repetitions.hist.txt");
+    Path repetitive = testRoot.resolve("repetitions.hist.txt");
     //multipleLetterRepetitionWords(incorrect, repetitive);
 
     Path corporaRoot = Paths.get("/media/ahmetaa/depo/corpora");
@@ -70,11 +71,11 @@ public class NormalizationScripts {
         corporaRoot.resolve("tweets-20m-clean.nodup"),
         corporaRoot.resolve("tweets-20m"));*/
 
-    checkSuspiciousWords(
+    generateNormalizationVocabularies(
         TurkishMorphology.createWithDefaults(),
-        Paths.get("/home/aaa/data/normalization/vocab-clean"),
-        Paths.get("/home/aaa/data/normalization/vocab-noisy"),
-        Paths.get("/home/aaa/data/normalization/test-large")
+        root.resolve("vocab-clean"),
+        root.resolve("vocab-noisy"),
+        Paths.get("test-large")
     );
 
   }
@@ -154,7 +155,7 @@ public class NormalizationScripts {
           suf.startsWith("mu") ||
           suf.startsWith("mı") ||
           suf.startsWith("mü")
-          ) {
+      ) {
         endings.add(t2[1]);
       }
     }
@@ -407,11 +408,12 @@ public class NormalizationScripts {
     }
   }
 
-  static void checkSuspiciousWords(
+  static void generateNormalizationVocabularies(
       TurkishMorphology morphology,
       Path cleanRoot,
       Path noisyRoot,
       Path outRoot) throws IOException {
+    Files.createDirectories(outRoot);
     Histogram<String> correctFromNoisy =
         Histogram.loadFromUtf8File(noisyRoot.resolve("correct"), ' ');
     Log.info("Correct from noisy Loaded");
@@ -482,7 +484,7 @@ public class NormalizationScripts {
     Log.info("Creating vocabularies");
 
     // ----------- noisy ------------
-    Histogram<String> noisy = new Histogram<>(1000_000);
+    Histogram<String> noisy = new Histogram<>(1_000_000);
 
     Histogram<String> noisyFromCleanCorpora =
         Histogram.loadFromUtf8File(cleanRoot.resolve("incorrect"), ' ');
@@ -493,7 +495,7 @@ public class NormalizationScripts {
     noisy.add(noisyFromCleanCorpora);
     noisy.add(noisyFromNoisyCorpora);
 
-    noisy.saveSortedByCounts(outRoot.resolve("incorrect")," ");
+    noisy.saveSortedByCounts(outRoot.resolve("incorrect"), " ");
     Log.info("Noisy saved.");
 
     // ----------- maybe noisy -------------------
@@ -514,7 +516,7 @@ public class NormalizationScripts {
       }
     }
 
-    maybeNoisy.saveSortedByCounts(outRoot.resolve("maybe-incorrect")," ");
+    maybeNoisy.saveSortedByCounts(outRoot.resolve("maybe-incorrect"), " ");
     Log.info("Maybe Noisy saved.");
 
     // ---------- clean ------------------
@@ -524,7 +526,7 @@ public class NormalizationScripts {
     clean.add(correctFromNoisy);
     clean.removeAll(maybeNoisy);
 
-    noisy.saveSortedByCounts(outRoot.resolve("correct")," ");
+    noisy.saveSortedByCounts(outRoot.resolve("correct"), " ");
     Log.info("Clean saved.");
 
   }
