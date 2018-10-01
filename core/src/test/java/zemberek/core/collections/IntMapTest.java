@@ -131,35 +131,54 @@ public class IntMapTest {
   }
 
   @Test
-  @Ignore(value = "Fails. When k = 1 million it passes.")
+  @Ignore(value = "Not a test. Only a performance comparison.")
   public void addingElementsFromAnotherIntMapMustBeFast() {
     // create a map with 5 million keys.
-    int k = 2_000_000;
+    int k = 5_000_000;
     IntMap<String> map1 = initializeMapWithRandomNumbers(k);
     System.out.println("Map initialized.");
 
     // using keys with order in the map, copy key-values to another IntMap.
     int[] keys = map1.getKeys();
+    int[] keysShuffled = keys.clone();
+    TestUtils.shuffle(keysShuffled);
     IntMap<String> map2 = new IntMap<>();
 
     Stopwatch sw = Stopwatch.createStarted();
+    Stopwatch sw2 = Stopwatch.createStarted();
+
+    for (int i : keysShuffled) {
+      map2.put(i, map1.get(i));
+      if (map2.size() % 10000 == 0) {
+        //Assert.assertTrue(sw.elapsed(TimeUnit.MILLISECONDS) < 200);
+        sw.reset().start();
+      }
+    }
+
+    System.out.println("Shuffled Keys Elapsed = " + sw2.elapsed(TimeUnit.MILLISECONDS));
+
+    sw = Stopwatch.createStarted();
+    sw2 = Stopwatch.createStarted();
+    map2 = new IntMap<>();
 
     for (int i : keys) {
       map2.put(i, map1.get(i));
       if (map2.size() % 10000 == 0) {
-        Assert.assertTrue(sw.elapsed(TimeUnit.MILLISECONDS) < 100);
+        //Assert.assertTrue(sw.elapsed(TimeUnit.MILLISECONDS) < 200);
         sw.reset().start();
       }
     }
+    System.out.println("Keys Elapsed = " + sw2.elapsed(TimeUnit.MILLISECONDS));
+
   }
 
   private IntMap<String> initializeMapWithRandomNumbers(int k) {
-    IntMap<String> map = new IntMap<>();
+    IntMap<String> map = new IntMap<>(k);
     Set<Integer> intSet = new HashSet<>();
     Random rnd = new Random(1);
     while (intSet.size() < k) {
-      int r = rnd.nextInt(Integer.MAX_VALUE-10);
-      intSet.add(r+1);
+      int r = rnd.nextInt(Integer.MAX_VALUE - 10);
+      intSet.add(r + 1);
     }
     for (Integer i : intSet) {
       map.put(i, String.valueOf(i));
