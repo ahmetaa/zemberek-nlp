@@ -15,7 +15,7 @@ abstract class HashBase<T> {
   static final int INITIAL_SIZE = 4;
   // Used for marking slots of deleted keys.
   static final Object TOMB_STONE = new Object();
-  private static final double DEFAULT_LOAD_FACTOR = 0.7;
+  private static final double DEFAULT_LOAD_FACTOR = 0.55;
   // Key array.
   protected T[] keys;
   int keyCount;

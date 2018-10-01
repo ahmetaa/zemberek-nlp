@@ -14,7 +14,7 @@ public abstract class UIntKeyHashBase {
   protected static final int INITIAL_SIZE = 4;
   static final int EMPTY = -1;
   static final int DELETED = -2;
-  private static final double LOAD_FACTOR = 0.7;
+  private static final double LOAD_FACTOR = 0.55;
   // Array length is a value power of two, so we can use x & modulo instead of
   // x % size to calculate the slot
   protected int modulo;
@@ -40,17 +40,14 @@ public abstract class UIntKeyHashBase {
     modulo = k - 1;
   }
 
-  protected int firstProbe(int hashCode) {
-    return hashCode & modulo;
-  }
-
-  protected int nextProbe(int index) {
-    return index & modulo;
+  protected int hash(int key) {
+    final int h = key * 0x9E3779B9;
+    return (h ^ (h >> 16)) & 0x7fff_ffff;
   }
 
   protected int locate(int key) {
 
-    int slot = firstProbe(key);
+    int slot = hash(key);
     int pointer = -1;
     while (true) {
       final int k = keys[slot];
@@ -61,13 +58,13 @@ public abstract class UIntKeyHashBase {
         if (pointer < 0) {
           pointer = slot;
         }
-        slot = nextProbe(slot + 1);
+        slot = (slot + 1) & modulo;
         continue;
       }
       if (k == key) {
         return slot;
       }
-      slot = nextProbe(slot + 1);
+      slot = (slot + 1) & modulo;
     }
   }
 

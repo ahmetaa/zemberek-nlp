@@ -42,8 +42,7 @@ public class Histogram<T> implements Iterable<T> {
   }
 
   /**
-   * Loads from file with format:
-   * [key][delimiter][count]
+   * Loads from file with format: [key][delimiter][count]
    */
   public static Histogram<String> loadFromLines(List<String> lines, char delimiter) {
     return loadFromLines(lines, delimiter, true);
@@ -69,8 +68,8 @@ public class Histogram<T> implements Iterable<T> {
 
   /**
    * Loads a String Histogram from a file. Counts are supposedly delimited with `delimiter`
-   * character.
-   * format: [key][delimiter][count]
+   * character. format: [key][delimiter][count]
+   *
    * @param path file path
    * @param delimiter delimiter
    * @return a Histogram.
@@ -164,11 +163,7 @@ public class Histogram<T> implements Iterable<T> {
     if (otherSet == null) {
       throw new NullPointerException("Histogram cannot be null");
     }
-    //TODO: this is an interesting problem. If we get the keys from `keys` iterable,
-    //lookup function takes too much time. But if we put keys to a set (change the order)
-    // then it is fast. Fix here after fixing UIntValueMap implementation.
-    Set<T> keys = otherSet.getKeySet();
-    for (T t : keys) {
+    for (T t : otherSet) {
       add(t, otherSet.getCount(t));
     }
   }
