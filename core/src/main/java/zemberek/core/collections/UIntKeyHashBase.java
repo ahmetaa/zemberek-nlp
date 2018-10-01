@@ -47,7 +47,7 @@ public abstract class UIntKeyHashBase {
 
   protected int locate(int key) {
 
-    int slot = hash(key);
+    int slot = hash(key) & modulo;
     int pointer = -1;
     while (true) {
       final int k = keys[slot];

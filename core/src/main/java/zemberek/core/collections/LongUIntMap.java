@@ -44,7 +44,7 @@ public class LongUIntMap {
 
 
   private int locate(long key) {
-    int slot = hash(key);
+    int slot = hash(key) & modulo;
     int pointer = -1;
     while (true) {
       final int t = values[slot];
@@ -83,7 +83,7 @@ public class LongUIntMap {
    * @return count of the key
    */
   public int get(long key) {
-    int slot = hash(key);
+    int slot = hash(key) & modulo;
 
     while (true) {
       final int t = values[slot];

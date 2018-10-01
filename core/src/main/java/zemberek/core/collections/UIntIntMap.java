@@ -23,7 +23,7 @@ public class UIntIntMap extends UIntKeyHashBase {
     if (key < 0) {
       throw new IllegalArgumentException("Key cannot be negative: " + key);
     }
-    int slot = hash(key);
+    int slot = hash(key) & modulo;
     while (true) {
       final int t = keys[slot];
       if (t == EMPTY) {
