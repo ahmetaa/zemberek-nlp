@@ -135,16 +135,7 @@ public class IntMapTest {
   public void addingElementsFromAnotherIntMapMustBeFast() {
     // create a map with 5 million keys.
     int k = 2_000_000;
-    IntMap<String> map1 = new IntMap<>();
-    Set<Integer> intSet = new HashSet<>();
-    Random rnd = new Random(1);
-    while (intSet.size() < k) {
-      int r = rnd.nextInt(Integer.MAX_VALUE);
-      intSet.add(r);
-    }
-    for (Integer i : intSet) {
-      map1.put(i, String.valueOf(i));
-    }
+    IntMap<String> map1 = initializeMapWithRandomNumbers(k);
     System.out.println("Map initialized.");
 
     // using keys with order in the map, copy key-values to another IntMap.
@@ -160,5 +151,19 @@ public class IntMapTest {
         sw.reset().start();
       }
     }
+  }
+
+  private IntMap<String> initializeMapWithRandomNumbers(int k) {
+    IntMap<String> map = new IntMap<>();
+    Set<Integer> intSet = new HashSet<>();
+    Random rnd = new Random(1);
+    while (intSet.size() < k) {
+      int r = rnd.nextInt(Integer.MAX_VALUE-10);
+      intSet.add(r+1);
+    }
+    for (Integer i : intSet) {
+      map.put(i, String.valueOf(i));
+    }
+    return map;
   }
 }
