@@ -60,7 +60,7 @@ public class BotExperiment {
     //normalize(normalizer, sentencesNodupTokenized, output);
 
     //normalizer.decode("Acab yarn akram n ypsak");
-    String input = "Amet ee gldi";
+    String input = "orıya gidiceni bilmiyodum";
     List<String> seq = normalizer.decode(input);
     Log.info(input);
     Log.info(String.join(" ", seq));
