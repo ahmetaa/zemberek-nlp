@@ -106,7 +106,7 @@ public class UIntMap<T> extends UIntKeyHashBase implements Iterable<T> {
     int[] sortedKeys = getKeyArraySorted();
     List<T> result = new ArrayList<>(sortedKeys.length);
     for (int sortedKey : sortedKeys) {
-      result.add(values[sortedKey]);
+      result.add(get(sortedKey));
     }
     return result;
   }
