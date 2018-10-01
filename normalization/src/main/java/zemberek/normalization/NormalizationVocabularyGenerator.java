@@ -1,5 +1,6 @@
 package zemberek.normalization;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,26 +43,7 @@ public class NormalizationVocabularyGenerator {
 
   public static void main(String[] args) throws Exception {
 
-    AnalysisCache cache = AnalysisCache
-        .builder()
-        .dynamicCacheSize(200_000, 400_000).build();
-
-    RootLexicon lexicon = TurkishDictionaryLoader.loadFromResources(
-        "tr/master-dictionary.dict",
-        "tr/non-tdk.dict",
-        "tr/proper.dict",
-        "tr/proper-from-corpus.dict",
-        "tr/abbreviations.dict",
-        "tr/person-names.dict"
-    );
-
-    TurkishMorphology morphology = TurkishMorphology
-        .builder()
-        .useLexicon(lexicon)
-        .disableUnidentifiedTokenAnalyzer()
-        //.morphotactics(new InformalTurkishMorphotactics(lexicon))
-        .setCache(cache)
-        .build();
+    TurkishMorphology morphology = getTurkishMorphology();
 
     NormalizationVocabularyGenerator generator = new NormalizationVocabularyGenerator(morphology);
 
@@ -84,6 +66,29 @@ public class NormalizationVocabularyGenerator {
         corpusProvider,
         threadCount,
         outRoot);
+  }
+
+  static TurkishMorphology getTurkishMorphology() throws IOException {
+    AnalysisCache cache = AnalysisCache
+        .builder()
+        .dynamicCacheSize(200_000, 400_000).build();
+
+    RootLexicon lexicon = TurkishDictionaryLoader.loadFromResources(
+        "tr/master-dictionary.dict",
+        "tr/non-tdk.dict",
+        "tr/proper.dict",
+        "tr/proper-from-corpus.dict",
+        "tr/abbreviations.dict",
+        "tr/person-names.dict"
+    );
+
+    return TurkishMorphology
+        .builder()
+        .useLexicon(lexicon)
+        .disableUnidentifiedTokenAnalyzer()
+        //.morphotactics(new InformalTurkishMorphotactics(lexicon))
+        .setCache(cache)
+        .build();
   }
 
   static class Vocabulary {

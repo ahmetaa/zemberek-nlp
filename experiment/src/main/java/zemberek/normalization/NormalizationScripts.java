@@ -27,12 +27,15 @@ import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
 import zemberek.core.text.TextUtil;
+import zemberek.core.turkish.SecondaryPos;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.langid.LanguageIdentifier;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.AnalysisCache;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
@@ -72,10 +75,10 @@ public class NormalizationScripts {
         corporaRoot.resolve("tweets-20m"));*/
 
     generateNormalizationVocabularies(
-        TurkishMorphology.createWithDefaults(),
+        NormalizationVocabularyGenerator.getTurkishMorphology(),
         root.resolve("vocab-clean"),
         root.resolve("vocab-noisy"),
-        Paths.get("test-large")
+        root.resolve("test-large")
     );
 
   }
@@ -420,24 +423,38 @@ public class NormalizationScripts {
     Histogram<String> correctFromClean =
         Histogram.loadFromUtf8File(cleanRoot.resolve("correct"), ' ');
     Log.info("Correct from clean Loaded");
+    correctFromClean.removeSmaller(2);
+    correctFromNoisy.removeSmaller(2);
 
     Histogram<String> zero = new Histogram<>();
     Histogram<String> zeroWordZeroLemma = new Histogram<>();
     Histogram<String> zeroWordLowLemma = new Histogram<>();
     Histogram<String> lowFreq = new Histogram<>();
     Histogram<String> lowFreqLowLemmaFreq = new Histogram<>();
+    Histogram<String> unusualProper = new Histogram<>();
+    Histogram<String> ignore = new Histogram<>();
 
     double nTotal = correctFromNoisy.totalCount();
     double cTotal = correctFromClean.totalCount();
 
     for (String s : correctFromNoisy) {
 
+      if (s.contains(".")) {
+        ignore.add(s);
+        continue;
+      }
+
       int nCount = correctFromNoisy.getCount(s);
       double nFreq = nCount / nTotal;
 
+      WordAnalysis an = morphology.analyze(s);
+      if (unusualProper(an)) {
+        unusualProper.add(s, correctFromNoisy.getCount(s));
+        continue;
+      }
+
       if (!correctFromClean.contains(s)) {
         zero.add(s, nCount);
-        WordAnalysis an = morphology.analyze(s);
         if (an.analysisCount() > 0) {
           Set<String> allLemmas = new HashSet<>();
           for (SingleAnalysis analysis : an) {
@@ -491,6 +508,8 @@ public class NormalizationScripts {
     Histogram<String> noisyFromNoisyCorpora =
         Histogram.loadFromUtf8File(noisyRoot.resolve("incorrect"), ' ');
     Log.info("Incorrect words loaded.");
+    noisyFromCleanCorpora.removeSmaller(2);
+    noisyFromNoisyCorpora.removeSmaller(2);
 
     noisy.add(noisyFromCleanCorpora);
     noisy.add(noisyFromNoisyCorpora);
@@ -498,7 +517,6 @@ public class NormalizationScripts {
     noisy.saveSortedByCounts(outRoot.resolve("incorrect"), " ");
     Log.info("Noisy saved.");
 
-    // ----------- maybe noisy -------------------
     Histogram<String> maybeNoisy = new Histogram<>(1000_000);
     maybeNoisy.add(zeroWordZeroLemma);
     for (String lf : lowFreq) {
@@ -516,20 +534,75 @@ public class NormalizationScripts {
       }
     }
 
-    maybeNoisy.saveSortedByCounts(outRoot.resolve("maybe-incorrect"), " ");
-    Log.info("Maybe Noisy saved.");
-
-    // ---------- clean ------------------
-
     Histogram<String> clean = new Histogram<>(1000_000);
     clean.add(correctFromClean);
     clean.add(correctFromNoisy);
     clean.removeAll(maybeNoisy);
 
-    noisy.saveSortedByCounts(outRoot.resolve("correct"), " ");
+    for (String s : clean) {
+      if (s.contains(".")) {
+        ignore.add(s);
+      }
+    }
+    clean.removeAll(ignore);
+
+    Histogram<String> asciiDuplicates = getAsciiDuplicates(clean);
+    asciiDuplicates.saveSortedByCounts(outRoot.resolve("ascii-dups"), " ");
+
+    unusualProper.saveSortedByCounts(outRoot.resolve("unusual-proper"), " ");
+
+    maybeNoisy.add(asciiDuplicates);
+    for (String s : unusualProper) {
+      if (!maybeNoisy.contains(s)) {
+        maybeNoisy.add(s, unusualProper.getCount(s));
+      }
+    }
+    maybeNoisy.removeAll(ignore);
+    clean.removeAll(asciiDuplicates);
+    clean.removeAll(unusualProper);
+
+    clean.saveSortedByCounts(outRoot.resolve("correct"), " ");
     Log.info("Clean saved.");
+
+    maybeNoisy.saveSortedByCounts(outRoot.resolve("maybe-incorrect"), " ");
+    Log.info("Maybe Noisy saved.");
 
   }
 
+  static Histogram<String> getAsciiDuplicates(Histogram<String> list) {
+    Histogram<String> result = new Histogram<>(10_000);
+    for (String s : list) {
+      s = TurkishAlphabet.INSTANCE.normalizeCircumflex(s);
+      String ascii = TurkishAlphabet.INSTANCE.toAscii(s);
+      if (ascii.equals(s)) {
+        continue;
+      }
+      if (list.contains(ascii)) {
+        result.add(ascii, list.getCount(ascii));
+      }
+    }
+    return result;
+  }
+
+  static boolean unusualProper(WordAnalysis wa) {
+    for (SingleAnalysis s : wa) {
+      SecondaryPos spos = s.getDictionaryItem().secondaryPos;
+      if (spos == SecondaryPos.ProperNoun || spos == SecondaryPos.Abbreviation) {
+        if (!s.containsMorpheme(TurkishMorphotactics.verb) ||
+            !s.containsMorpheme(TurkishMorphotactics.a3pl) ||
+            !s.containsMorpheme(TurkishMorphotactics.p1sg) ||
+            !s.containsMorpheme(TurkishMorphotactics.p2sg) ||
+            !s.containsMorpheme(TurkishMorphotactics.p1pl) ||
+            !s.containsMorpheme(TurkishMorphotactics.p2pl) ||
+            !s.containsMorpheme(TurkishMorphotactics.p3pl)
+        ) {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
 
 }
