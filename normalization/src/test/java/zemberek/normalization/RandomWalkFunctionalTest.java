@@ -71,6 +71,7 @@ public class RandomWalkFunctionalTest {
   @Ignore(value = "Not working. Work in progress.")
   public void VocabularyGenerationTest() throws Exception {
 
+/*
     NormalizationVocabularyGenerator vocabularyGenerator =
         new NormalizationVocabularyGenerator(getDefaultMorphology());
 
@@ -81,10 +82,10 @@ public class RandomWalkFunctionalTest {
 
     NoisyWordsLexiconGenerator lexiconGenerator = new NoisyWordsLexiconGenerator();
     NormalizationVocabulary vocabulary = new NormalizationVocabulary(v, 1, 1);
-    Assert.assertTrue(vocabulary.isValid("akşam"));
-    Assert.assertTrue(vocabulary.isValid("kişi"));
+    Assert.assertTrue(vocabulary.isCorrect("akşam"));
+    Assert.assertTrue(vocabulary.isCorrect("kişi"));
 
-    Assert.assertFalse(vocabulary.isValid("ağşam"));
+    Assert.assertFalse(vocabulary.isCorrect("ağşam"));
 
     ContextualSimilarityGraph graph = lexiconGenerator.buildGraph(corpora, vocabulary, 1, 1);
 
@@ -113,6 +114,7 @@ public class RandomWalkFunctionalTest {
 
     WalkResult result = randomWalker.walk(10, 3, 1);
     Assert.assertTrue(result.allCandidates.get("ağşam").contains("akşam"));
+*/
 
   }
 }

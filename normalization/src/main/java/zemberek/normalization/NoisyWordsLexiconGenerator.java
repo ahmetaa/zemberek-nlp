@@ -39,7 +39,6 @@ import zemberek.core.text.TextChunk;
 import zemberek.core.text.distance.CharDistance;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
-import zemberek.normalization.NormalizationVocabularyGenerator.Vocabulary;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 
@@ -97,7 +96,7 @@ public class NoisyWordsLexiconGenerator {
     NoisyWordsLexiconGenerator generator = new NoisyWordsLexiconGenerator();
 
     Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
-    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test-small");
+    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test-large");
     Path rootList = corporaRoot.resolve("vocab-list");
 
     MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
@@ -107,10 +106,10 @@ public class NoisyWordsLexiconGenerator {
 
     Path correct = outRoot.resolve("correct");
     Path incorrect = outRoot.resolve("incorrect");
+    Path maybeIncorrect = outRoot.resolve("maybe-incorrect");
 
     NormalizationVocabulary vocabulary = new NormalizationVocabulary(
-        correct, incorrect, 1, 3
-    );
+        correct, incorrect, maybeIncorrect, 1, 3, 1);
 
     int threadCount = Runtime.getRuntime().availableProcessors() / 2;
     if (threadCount > 20) {
@@ -232,8 +231,8 @@ public class NoisyWordsLexiconGenerator {
       int batchSize = 5_000;
       IntVector vector = new IntVector(batchSize);
       for (int wordIndex : wordsToContextHashes.getKeys()) {
-        // only noisy words
-        if (vocabulary.isValid(wordIndex)) {
+        // only noisy or maybe-noisy words
+        if (vocabulary.isCorrect(wordIndex) || vocabulary.isMaybeIncorrect(wordIndex)) {
           continue;
         }
         vector.add(wordIndex);
@@ -373,7 +372,7 @@ public class NoisyWordsLexiconGenerator {
       CharDistance distanceCalculator = new CharDistance();
       for (int wordIndex : work.wordIndexes) {
         // Only noisy words. Check anyway, to be sure.
-        if (walker.vocabulary.isValid(wordIndex)) {
+        if (walker.vocabulary.isCorrect(wordIndex)) {
           continue;
         }
 
@@ -393,7 +392,7 @@ public class NoisyWordsLexiconGenerator {
             atWordNode = !atWordNode;
 
             // if we reach to a valid word ([...] --> [Context node] --> [Valid word node] )
-            if (atWordNode && nodeIndex != wordIndex && walker.vocabulary.isValid(nodeIndex)) {
+            if (atWordNode && nodeIndex != wordIndex && walker.vocabulary.isCorrect(nodeIndex)) {
               String word = walker.vocabulary.getWord(nodeIndex);
               WalkScore score = scores.get(word);
               if (score == null) {
@@ -482,19 +481,33 @@ public class NoisyWordsLexiconGenerator {
 
     List<String> words;
     UIntValueMap<String> indexes = new UIntValueMap<>();
-    int outWordStart;
+    int noisyWordStart;
+    int maybeIncorrectWordStart;
 
     NormalizationVocabulary(
-        Vocabulary vocabulary,
+        Path correct,
+        Path incorrect,
+        Path maybeIncorrect,
         int correctMinCount,
-        int incorrectMinCount) {
-      Histogram<String> inWords = vocabulary.correct;
-      Histogram<String> outWords = vocabulary.incorrect;
-      inWords.removeSmaller(correctMinCount);
-      outWords.removeSmaller(incorrectMinCount);
-      this.outWordStart = inWords.size();
-      this.words = new ArrayList<>(inWords.getSortedList());
-      words.addAll(outWords.getSortedList());
+        int incorrectMinCount,
+        int maybeIncorrectMinCount) throws IOException {
+      Histogram<String> correctWords = Histogram.loadFromUtf8File(correct, ' ');
+      Histogram<String> noisyWords = Histogram.loadFromUtf8File(incorrect, ' ');
+      Histogram<String> maybeIncorrectWords = new Histogram<>();
+      if (maybeIncorrect != null) {
+        maybeIncorrectWords = Histogram.loadFromUtf8File(incorrect, ' ');
+      }
+      correctWords.removeSmaller(correctMinCount);
+      noisyWords.removeSmaller(incorrectMinCount);
+      maybeIncorrectWords.removeSmaller(maybeIncorrectMinCount);
+      this.noisyWordStart = correctWords.size();
+
+      this.words = new ArrayList<>(correctWords.getSortedList());
+      words.addAll(noisyWords.getSortedList());
+
+      this.maybeIncorrectWordStart = words.size();
+      words.addAll(maybeIncorrectWords.getSortedList());
+
       int i = 0;
       for (String word : words) {
         indexes.put(word, i);
@@ -502,28 +515,32 @@ public class NoisyWordsLexiconGenerator {
       }
     }
 
-    NormalizationVocabulary(
-        Path correct,
-        Path incorrect,
-        int correctMinCount,
-        int incorrectMinCount) throws IOException {
-      this(new Vocabulary(
-              Histogram.loadFromUtf8File(correct, ' '),
-              Histogram.loadFromUtf8File(incorrect, ' '),
-              new Histogram<>()),
-          correctMinCount, incorrectMinCount);
-    }
-
     int totalSize() {
       return words.size();
     }
 
-    boolean isValid(int id) {
-      return id >= 0 && id < outWordStart && id < totalSize();
+    boolean isCorrect(int id) {
+      return id >= 0 && id < noisyWordStart;
     }
 
-    boolean isValid(String id) {
-      return isValid(getIndex(id));
+    boolean isCorrect(String id) {
+      return isCorrect(getIndex(id));
+    }
+
+    boolean isMaybeInCorrect(String id) {
+      return isMaybeIncorrect(getIndex(id));
+    }
+
+    boolean isMaybeIncorrect(int id) {
+      return id >= maybeIncorrectWordStart;
+    }
+
+    boolean isIncorrect(String id) {
+      return isIncorrect(getIndex(id));
+    }
+
+    boolean isIncorrect(int id) {
+      return id >= noisyWordStart && id < maybeIncorrectWordStart;
     }
 
     int getIndex(String word) {
@@ -708,7 +725,7 @@ public class NoisyWordsLexiconGenerator {
         if (m.size() < 5) {
           int noisyCount = 0;
           for (int wordIndex : m.getKeys()) {
-            if (!vocabulary.isValid(wordIndex)) {
+            if (vocabulary.isIncorrect(wordIndex)) {
               noisyCount++;
             } else {
               break;
