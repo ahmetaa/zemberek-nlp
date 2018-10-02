@@ -95,9 +95,9 @@ public class NoisyWordsLexiconGenerator {
 
     NoisyWordsLexiconGenerator generator = new NoisyWordsLexiconGenerator();
 
-    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora");
-    Path outRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/normalization/test-large");
-    Path rootList = corporaRoot.resolve("vocab-list");
+    Path corporaRoot = Paths.get("/home/aaa/data/corpora");
+    Path outRoot = Paths.get("/home/aaa/data/normalization/test-large");
+    Path rootList = corporaRoot.resolve("vocab-list-small");
 
     MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
         .fromDirectoryRoot(corporaRoot, rootList, 50_000);
@@ -112,8 +112,8 @@ public class NoisyWordsLexiconGenerator {
         correct, incorrect, maybeIncorrect, 1, 3, 1);
 
     int threadCount = Runtime.getRuntime().availableProcessors() / 2;
-    if (threadCount > 20) {
-      threadCount = 20;
+    if (threadCount > 8) {
+      threadCount = 8;
     }
 
     // create graph
@@ -371,7 +371,7 @@ public class NoisyWordsLexiconGenerator {
       WalkResult result = new WalkResult();
       CharDistance distanceCalculator = new CharDistance();
       for (int wordIndex : work.wordIndexes) {
-        // Only noisy words. Check anyway, to be sure.
+        // Only incorrect and maybe-incorrect words. Check anyway, to be sure.
         if (walker.vocabulary.isCorrect(wordIndex)) {
           continue;
         }
@@ -392,7 +392,8 @@ public class NoisyWordsLexiconGenerator {
             atWordNode = !atWordNode;
 
             // if we reach to a valid word ([...] --> [Context node] --> [Valid word node] )
-            if (atWordNode && nodeIndex != wordIndex && walker.vocabulary.isCorrect(nodeIndex)) {
+            if (atWordNode && nodeIndex != wordIndex
+                && walker.vocabulary.isCorrect(nodeIndex)) {
               String word = walker.vocabulary.getWord(nodeIndex);
               WalkScore score = scores.get(word);
               if (score == null) {

@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -26,6 +27,7 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
+import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -44,7 +46,8 @@ public class NormalizationScripts {
 
   public static void main(String[] args) throws Exception {
 
-    Path root = Paths.get("/media/ahmetaa/depo/normalization");
+    Path root = Paths.get("/home/aaa/data/normalization");
+    //Path root = Paths.get("/media/ahmetaa/depo/normalization");
     Path testRoot = root.resolve("test");
 
     Path incorrect = testRoot.resolve("test/incorrect");
@@ -158,7 +161,7 @@ public class NormalizationScripts {
           suf.startsWith("mu") ||
           suf.startsWith("mı") ||
           suf.startsWith("mü")
-      ) {
+          ) {
         endings.add(t2[1]);
       }
     }
@@ -432,6 +435,7 @@ public class NormalizationScripts {
     Histogram<String> lowFreq = new Histogram<>();
     Histogram<String> lowFreqLowLemmaFreq = new Histogram<>();
     Histogram<String> unusualProper = new Histogram<>();
+    Histogram<String> unusualRoots = new Histogram<>();
     Histogram<String> ignore = new Histogram<>();
 
     double nTotal = correctFromNoisy.totalCount();
@@ -450,6 +454,10 @@ public class NormalizationScripts {
       WordAnalysis an = morphology.analyze(s);
       if (unusualProper(an)) {
         unusualProper.add(s, correctFromNoisy.getCount(s));
+        continue;
+      }
+      if (unusualRoot(an)) {
+        unusualRoots.add(s, correctFromNoisy.getCount(s));
         continue;
       }
 
@@ -548,18 +556,25 @@ public class NormalizationScripts {
 
     Histogram<String> asciiDuplicates = getAsciiDuplicates(clean);
     asciiDuplicates.saveSortedByCounts(outRoot.resolve("ascii-dups"), " ");
+    maybeNoisy.add(asciiDuplicates);
 
     unusualProper.saveSortedByCounts(outRoot.resolve("unusual-proper"), " ");
-
-    maybeNoisy.add(asciiDuplicates);
     for (String s : unusualProper) {
       if (!maybeNoisy.contains(s)) {
         maybeNoisy.add(s, unusualProper.getCount(s));
       }
     }
+    unusualRoots.saveSortedByCounts(outRoot.resolve("unusual-root"), " ");
+    for (String s : unusualRoots) {
+      if (!maybeNoisy.contains(s)) {
+        maybeNoisy.add(s, unusualRoots.getCount(s));
+      }
+    }
+
     maybeNoisy.removeAll(ignore);
     clean.removeAll(asciiDuplicates);
     clean.removeAll(unusualProper);
+    clean.removeAll(unusualRoots);
 
     clean.saveSortedByCounts(outRoot.resolve("correct"), " ");
     Log.info("Clean saved.");
@@ -595,7 +610,7 @@ public class NormalizationScripts {
             !s.containsMorpheme(TurkishMorphotactics.p1pl) ||
             !s.containsMorpheme(TurkishMorphotactics.p2pl) ||
             !s.containsMorpheme(TurkishMorphotactics.p3pl)
-        ) {
+            ) {
           return false;
         }
       } else {
@@ -604,5 +619,26 @@ public class NormalizationScripts {
     }
     return true;
   }
+
+  static boolean unusualRoot(WordAnalysis wa) {
+    for (SingleAnalysis s : wa) {
+      if (!unusualRoots.contains(s.getDictionaryItem().root)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  static LinkedHashSet<String> unusualRoots = new LinkedHashSet<>();
+
+  static {
+    try {
+      unusualRoots = new LinkedHashSet<>(
+          TextIO.loadLinesFromResource("/normalization/possible-noisy-roots"));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
 
 }
