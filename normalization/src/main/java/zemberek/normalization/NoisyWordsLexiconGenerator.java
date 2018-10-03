@@ -112,12 +112,13 @@ public class NoisyWordsLexiconGenerator {
         correct, incorrect, maybeIncorrect, 1, 3, 1);
 
     int threadCount = Runtime.getRuntime().availableProcessors() / 2;
-    if (threadCount > 8) {
-      threadCount = 8;
+    if (threadCount > 4) {
+      threadCount = 4;
     }
 
     // create graph
     Path graphPath = outRoot.resolve("graph");
+/*
     ContextualSimilarityGraph graph = generator.buildGraph(
         corpusProvider,
         vocabulary,
@@ -126,6 +127,7 @@ public class NoisyWordsLexiconGenerator {
     Log.info("Serializing graph for random walk structure.");
     graph.serializeForRandomWalk(graphPath);
     Log.info("Serialized to %s", graphPath);
+*/
 
     // create Random Walker
     Log.info("Constructing random walk graph from %s", graphPath);
@@ -496,7 +498,7 @@ public class NoisyWordsLexiconGenerator {
       Histogram<String> noisyWords = Histogram.loadFromUtf8File(incorrect, ' ');
       Histogram<String> maybeIncorrectWords = new Histogram<>();
       if (maybeIncorrect != null) {
-        maybeIncorrectWords = Histogram.loadFromUtf8File(incorrect, ' ');
+        maybeIncorrectWords = Histogram.loadFromUtf8File(maybeIncorrect, ' ');
       }
       correctWords.removeSmaller(correctMinCount);
       noisyWords.removeSmaller(incorrectMinCount);
@@ -605,7 +607,7 @@ public class NoisyWordsLexiconGenerator {
       for (TextChunk chunk : corpora) {
 
         executorService.submit(() -> {
-          Log.info("Processing %s", chunk.id);
+          Log.info("Processing %s", chunk);
           UIntMap<IntIntMap> localContextCounts = new UIntMap<>();
           List<String> sentences = TextCleaner.cleanAndExtractSentences(chunk.getData());
           for (String sentence : sentences) {

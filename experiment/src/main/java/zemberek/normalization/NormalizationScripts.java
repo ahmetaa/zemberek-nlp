@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,14 +47,22 @@ public class NormalizationScripts {
 
     Path root = Paths.get("/home/aaa/data/normalization");
     //Path root = Paths.get("/media/ahmetaa/depo/normalization");
-    Path testRoot = root.resolve("test");
+    Path testRoot = root.resolve("test-large");
 
     Path incorrect = testRoot.resolve("test/incorrect");
     Path correct = testRoot.resolve("test/correct");
 
     Path s = testRoot.resolve("split");
-    Path lm = testRoot.resolve("lm.slm");
-    //splitWords(p, s, lm, 2);
+    Path lm = root.resolve("lm.slm");
+
+    Path allPossiblyNoisy = testRoot.resolve("incorrect");
+/*    splitWords(
+        allPossiblyNoisy,
+        s,
+        lm,
+        NormalizationVocabularyGenerator.getTurkishMorphology(),
+        5);
+*/
 
     Path quesOut = testRoot.resolve("question-suffix");
     //getQuestionSuffixes(s, quesOut);
@@ -79,20 +86,25 @@ public class NormalizationScripts {
 
     generateNormalizationVocabularies(
         NormalizationVocabularyGenerator.getTurkishMorphology(),
-        root.resolve("vocab-clean"),
-        root.resolve("vocab-noisy"),
-        root.resolve("test-large")
+        root.resolve("vocab-clean-small"),
+        root.resolve("vocab-noisy-small"),
+        root.resolve("test-small")
     );
-
   }
 
-  static void splitWords(Path wordFrequencyFile, Path splitFile, Path lmPath, int minWordCount)
+
+  static void splitWords(
+      Path noisyWordFrequencyFile,
+      Path splitFile,
+      Path lmPath,
+      TurkishMorphology morphology,
+      int minWordCount)
       throws IOException {
 
     SmoothLm lm = SmoothLm.builder(lmPath).logBase(Math.E).build();
     Log.info("Language model = %s", lm.info());
 
-    Histogram<String> wordFreq = Histogram.loadFromUtf8File(wordFrequencyFile, ' ');
+    Histogram<String> wordFreq = Histogram.loadFromUtf8File(noisyWordFrequencyFile, ' ');
     Log.info("%d words loaded.", wordFreq.size());
 
     wordFreq.removeSmaller(minWordCount);
@@ -103,12 +115,10 @@ public class NormalizationScripts {
       );
     }
 
-    List<String> words = wordFreq.getSortedList();
-
     int unkIndex = lm.getVocabulary().getUnknownWordIndex();
 
     try (PrintWriter pw = new PrintWriter(splitFile.toFile(), "utf-8")) {
-      for (String word : words) {
+      for (String word : wordFreq.getSortedList()) {
 
         if (word.length() < 5 || word.contains("-")) {
           continue;
@@ -119,10 +129,19 @@ public class NormalizationScripts {
         for (int i = 1; i < word.length() - 1; i++) {
           String head = word.substring(0, i);
           String tail = word.substring(i);
+
+          if (noSplitTails.contains(tail)) {
+            continue;
+          }
+
           int hi = lm.getVocabulary().indexOf(head);
           int ti = lm.getVocabulary().indexOf(tail);
 
           if (hi == unkIndex || ti == unkIndex) {
+            continue;
+          }
+
+          if ((tail.equals("de") || tail.equals("da")) && morphology.analyze(head).isCorrect()) {
             continue;
           }
 
@@ -137,8 +156,8 @@ public class NormalizationScripts {
 
         if (k.size() > 0) {
           ScoredItem<String> best = k.get(0);
-          if (best.score > -6) {
-            pw.println(word + " = " + best.item);
+          if (best.score > -5) {
+            pw.println(word + " = " + best.item + " " + wordFreq.getCount(word));
           }
         }
       }
@@ -463,7 +482,7 @@ public class NormalizationScripts {
 
       if (!correctFromClean.contains(s)) {
         zero.add(s, nCount);
-        if (an.analysisCount() > 0) {
+        /*if (an.analysisCount() > 0) {
           Set<String> allLemmas = new HashSet<>();
           for (SingleAnalysis analysis : an) {
             allLemmas.addAll(analysis.getLemmas());
@@ -490,7 +509,7 @@ public class NormalizationScripts {
           if (lowLemmaRatio) {
             zeroWordLowLemma.add(s, nCount);
           }
-        }
+        }*/
         continue;
       }
 
@@ -522,9 +541,6 @@ public class NormalizationScripts {
     noisy.add(noisyFromCleanCorpora);
     noisy.add(noisyFromNoisyCorpora);
 
-    noisy.saveSortedByCounts(outRoot.resolve("incorrect"), " ");
-    Log.info("Noisy saved.");
-
     Histogram<String> maybeNoisy = new Histogram<>(1000_000);
     maybeNoisy.add(zeroWordZeroLemma);
     for (String lf : lowFreq) {
@@ -545,7 +561,6 @@ public class NormalizationScripts {
     Histogram<String> clean = new Histogram<>(1000_000);
     clean.add(correctFromClean);
     clean.add(correctFromNoisy);
-    clean.removeAll(maybeNoisy);
 
     for (String s : clean) {
       if (s.contains(".")) {
@@ -575,13 +590,32 @@ public class NormalizationScripts {
     clean.removeAll(asciiDuplicates);
     clean.removeAll(unusualProper);
     clean.removeAll(unusualRoots);
+    clean.removeAll(maybeNoisy);
+
+    Set<String> intersectionOfKeys = noisy.getIntersectionOfKeys(clean);
+    int sharedKeyCount = intersectionOfKeys.size();
+    if (sharedKeyCount > 0) {
+      Log.warn("Incorrect and correct sets share %d keys", sharedKeyCount);
+    }
+    sharedKeyCount = noisy.getIntersectionOfKeys(maybeNoisy).size();
+    if (sharedKeyCount > 0) {
+      Log.warn("Incorrect and possibly incorrect sets share %d keys", sharedKeyCount);
+    }
+    sharedKeyCount = clean.getIntersectionOfKeys(maybeNoisy).size();
+    if (sharedKeyCount > 0) {
+      Log.warn("Correct and possibly incorrect sets share %d keys", sharedKeyCount);
+    }
+
+    Log.info("Saving sets.");
 
     clean.saveSortedByCounts(outRoot.resolve("correct"), " ");
     Log.info("Clean saved.");
 
+    noisy.saveSortedByCounts(outRoot.resolve("incorrect"), " ");
+    Log.info("Noisy saved.");
+
     maybeNoisy.saveSortedByCounts(outRoot.resolve("maybe-incorrect"), " ");
     Log.info("Maybe Noisy saved.");
-
   }
 
   static Histogram<String> getAsciiDuplicates(Histogram<String> list) {
@@ -630,11 +664,14 @@ public class NormalizationScripts {
   }
 
   static LinkedHashSet<String> unusualRoots = new LinkedHashSet<>();
+  static LinkedHashSet<String> noSplitTails = new LinkedHashSet<>();
 
   static {
     try {
       unusualRoots = new LinkedHashSet<>(
           TextIO.loadLinesFromResource("/normalization/possible-noisy-roots"));
+      noSplitTails = new LinkedHashSet<>(
+          TextIO.loadLinesFromResource("/normalization/no-split-tails"));
     } catch (IOException e) {
       e.printStackTrace();
     }

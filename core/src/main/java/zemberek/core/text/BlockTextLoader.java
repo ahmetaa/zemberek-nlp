@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * TODO: remove this class once finding a way to move iteratorFromCharIndex to MultiPathBlockTextLoader
+ * and rename MultiPathBlockTextLoader
  * This class can be used for working with large text files without loading all its contents.
  */
 public class BlockTextLoader implements Iterable<List<String>> {
