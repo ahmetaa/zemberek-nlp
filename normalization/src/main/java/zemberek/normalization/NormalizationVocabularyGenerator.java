@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -48,8 +49,8 @@ public class NormalizationVocabularyGenerator {
     NormalizationVocabularyGenerator generator = new NormalizationVocabularyGenerator(morphology);
 
     Path corporaRoot = Paths.get("/home/aaa/data/corpora");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/vocab-noisy-small");
-    Path rootList = corporaRoot.resolve("noisy-list-small");
+    Path outRoot = Paths.get("/home/aaa/data/normalization/vocab-clean-small");
+    Path rootList = corporaRoot.resolve("clean-list-small");
 
     MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
         .fromDirectoryRoot(corporaRoot, rootList, 30_000);
@@ -114,6 +115,22 @@ public class NormalizationVocabularyGenerator {
           ignored.size());
     }
 
+    void checkConsistency() {
+      Set<String> intersectionOfKeys = incorrect.getIntersectionOfKeys(correct);
+      int sharedKeyCount = intersectionOfKeys.size();
+      if (sharedKeyCount > 0) {
+        Log.warn("Incorrect and correct sets share %d keys", sharedKeyCount);
+      }
+      sharedKeyCount = incorrect.getIntersectionOfKeys(ignored).size();
+      if (sharedKeyCount > 0) {
+        Log.warn("Incorrect and ignored sets share %d keys", sharedKeyCount);
+      }
+      sharedKeyCount = correct.getIntersectionOfKeys(ignored).size();
+      if (sharedKeyCount > 0) {
+        Log.warn("Correct and ignored sets share %d keys", sharedKeyCount);
+      }
+    }
+
   }
 
   void createVocabulary(
@@ -123,6 +140,9 @@ public class NormalizationVocabularyGenerator {
 
     Log.info("Thread count = %d", threadCount);
     Vocabulary vocabulary = collectVocabularyHistogram(corpora, threadCount);
+
+    Log.info("Checking consistency.");
+    vocabulary.checkConsistency();
 
     Log.info("Saving vocabularies.");
 
@@ -201,11 +221,11 @@ public class NormalizationVocabularyGenerator {
             local.ignored.add(s);
             continue;
           }
-          WordAnalysis results = morphology.analyze(s);
-          if(normalize) {
+          if (normalize) {
             s = s.toLowerCase(Turkish.LOCALE);
-            s = s.replaceAll("'","");
+            s = s.replaceAll("'", "");
           }
+          WordAnalysis results = morphology.analyze(s);
           if (results.analysisCount() == 0) {
             local.incorrect.add(s);
           } else {
@@ -213,7 +233,7 @@ public class NormalizationVocabularyGenerator {
           }
         }
       }
-      Log.info("%s processed. %s", chunk.id, local.toString());
+      Log.info("%s processed. %s", chunk.toString(), local.toString());
       try {
         lock.lock();
         globalVocabulary.correct.add(local.correct);

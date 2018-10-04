@@ -69,14 +69,6 @@ abstract class HashBase<T> {
     return (int) size;
   }
 
-  protected int firstProbe(int hashCode) {
-    return hashCode & modulo;
-  }
-
-  protected int nextProbe(int index) {
-    return index & modulo;
-  }
-
   protected int hash(T key) {
     final int h = key.hashCode() * 0x9E3779B9;
     return (h ^ (h >> 16)) & 0x7fff_ffff;
