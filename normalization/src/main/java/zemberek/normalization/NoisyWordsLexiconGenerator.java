@@ -91,16 +91,25 @@ import zemberek.tokenization.antlr.TurkishLexer;
  */
 public class NoisyWordsLexiconGenerator {
 
+  NormalizationVocabulary vocabulary;
+  int threadCount;
+
+  public NoisyWordsLexiconGenerator(
+      NormalizationVocabulary vocabulary, int threadCount) {
+    this.vocabulary = vocabulary;
+    this.threadCount = threadCount;
+  }
+
   public static void main(String[] args) throws Exception {
 
-    NoisyWordsLexiconGenerator generator = new NoisyWordsLexiconGenerator();
+    int threadCount = Runtime.getRuntime().availableProcessors() / 2;
+    if (threadCount > 4) {
+      threadCount = 4;
+    }
 
     Path corporaRoot = Paths.get("/home/aaa/data/corpora");
     Path outRoot = Paths.get("/home/aaa/data/normalization/test-large");
     Path rootList = corporaRoot.resolve("vocab-list-small");
-
-    MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
-        .fromDirectoryRoot(corporaRoot, rootList, 50_000);
 
     Files.createDirectories(outRoot);
 
@@ -111,24 +120,24 @@ public class NoisyWordsLexiconGenerator {
     NormalizationVocabulary vocabulary = new NormalizationVocabulary(
         correct, incorrect, maybeIncorrect, 1, 3, 1);
 
-    int threadCount = Runtime.getRuntime().availableProcessors() / 2;
-    if (threadCount > 4) {
-      threadCount = 4;
-    }
+    NoisyWordsLexiconGenerator generator = new NoisyWordsLexiconGenerator(vocabulary, threadCount);
+
+    MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
+        .fromDirectoryRoot(corporaRoot, rootList, 50_000);
 
     // create graph
     Path graphPath = outRoot.resolve("graph");
-/*
-    ContextualSimilarityGraph graph = generator.buildGraph(
-        corpusProvider,
-        vocabulary,
-        1,
-        threadCount);
-    Log.info("Serializing graph for random walk structure.");
-    graph.serializeForRandomWalk(graphPath);
-    Log.info("Serialized to %s", graphPath);
-*/
+    generator.createGraph(corpusProvider, graphPath);
 
+    Histogram<String> incorrectWords = Histogram.loadFromUtf8File(incorrect, ' ');
+    incorrectWords.add(Histogram.loadFromUtf8File(maybeIncorrect, ' '));
+    generator.createCandidates(graphPath, outRoot, incorrectWords);
+
+    Log.info("Done");
+  }
+
+  void createCandidates(Path graphPath, Path outRoot, Histogram<String> noisyWords)
+      throws Exception {
     // create Random Walker
     Log.info("Constructing random walk graph from %s", graphPath);
     RandomWalker walker = RandomWalker.fromGraphFile(vocabulary, graphPath);
@@ -136,8 +145,6 @@ public class NoisyWordsLexiconGenerator {
     Log.info("Collecting candidates data.");
     WalkResult walkResult = walker.walk(1000, 10, threadCount);
     Path allCandidates = outRoot.resolve("all-candidates");
-
-    Histogram<String> noisyWords = Histogram.loadFromUtf8File(incorrect, ' ');
 
     try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8")) {
       List<String> words = new ArrayList<>(walkResult.allCandidates.keySet());
@@ -164,7 +171,13 @@ public class NoisyWordsLexiconGenerator {
       }
     }
 
-    Log.info("Done");
+  }
+
+  void createGraph(MultiPathBlockTextLoader corpusProvider, Path graphPath) throws Exception {
+    ContextualSimilarityGraph graph = buildGraph(corpusProvider, 1);
+    Log.info("Serializing graph for random walk structure.");
+    graph.serializeForRandomWalk(graphPath);
+    Log.info("Serialized to %s", graphPath);
   }
 
   static class RandomWalkNode {
@@ -560,9 +573,7 @@ public class NoisyWordsLexiconGenerator {
    */
   ContextualSimilarityGraph buildGraph(
       MultiPathBlockTextLoader corpora,
-      NormalizationVocabulary vocabulary,
-      int contextSize,
-      int threadCount) throws Exception {
+      int contextSize) throws Exception {
     ContextualSimilarityGraph graph = new ContextualSimilarityGraph(vocabulary, contextSize);
     graph.build(corpora, threadCount);
     Log.info("Context hash count before pruning = " + graph.contextHashCount());

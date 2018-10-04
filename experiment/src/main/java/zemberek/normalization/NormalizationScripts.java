@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -482,7 +483,7 @@ public class NormalizationScripts {
 
       if (!correctFromClean.contains(s)) {
         zero.add(s, nCount);
-        /*if (an.analysisCount() > 0) {
+        if (an.analysisCount() > 0) {
           Set<String> allLemmas = new HashSet<>();
           for (SingleAnalysis analysis : an) {
             allLemmas.addAll(analysis.getLemmas());
@@ -509,7 +510,7 @@ public class NormalizationScripts {
           if (lowLemmaRatio) {
             zeroWordLowLemma.add(s, nCount);
           }
-        }*/
+        }
         continue;
       }
 
@@ -519,11 +520,13 @@ public class NormalizationScripts {
       }
 
     }
-    Log.info("Saving suspicious");
-    zero.saveSortedByCounts(noisyRoot.resolve("suspicious-zero"), " ");
-    zeroWordZeroLemma.saveSortedByCounts(noisyRoot.resolve("suspicious-zero-no-lemma"), " ");
-    zeroWordLowLemma.saveSortedByCounts(noisyRoot.resolve("suspicious-zero-low-lemma"), " ");
-    lowFreq.saveSortedByCounts(noisyRoot.resolve("suspicious-lowfreq"), " ");
+    Log.info("Saving Possibly incorrect words.");
+    zero.saveSortedByCounts(noisyRoot.resolve("possibly-incorrect-zero"), " ");
+    zeroWordZeroLemma
+        .saveSortedByCounts(noisyRoot.resolve("possibly-incorrect-zero-no-lemma"), " ");
+    zeroWordLowLemma
+        .saveSortedByCounts(noisyRoot.resolve("possibly-incorrect-zero-low-lemma"), " ");
+    lowFreq.saveSortedByCounts(noisyRoot.resolve("possibly-incorrect-lowfreq"), " ");
 
     Log.info("Creating vocabularies");
 
@@ -541,11 +544,11 @@ public class NormalizationScripts {
     noisy.add(noisyFromCleanCorpora);
     noisy.add(noisyFromNoisyCorpora);
 
-    Histogram<String> maybeNoisy = new Histogram<>(1000_000);
-    maybeNoisy.add(zeroWordZeroLemma);
+    Histogram<String> possiblyIncorrect = new Histogram<>(1000_000);
+    possiblyIncorrect.add(zeroWordZeroLemma);
     for (String lf : lowFreq) {
-      if (!maybeNoisy.contains(lf)) {
-        maybeNoisy.add(lf, zeroWordZeroLemma.getCount(lf));
+      if (!possiblyIncorrect.contains(lf)) {
+        possiblyIncorrect.add(lf, zeroWordZeroLemma.getCount(lf));
       }
     }
 
@@ -553,8 +556,8 @@ public class NormalizationScripts {
 
     for (String z : zero) {
       int c = zero.getCount(z);
-      if (!maybeNoisy.contains(z) && c > threshold) {
-        maybeNoisy.add(z, c);
+      if (!possiblyIncorrect.contains(z) && c > threshold) {
+        possiblyIncorrect.add(z, c);
       }
     }
 
@@ -571,37 +574,37 @@ public class NormalizationScripts {
 
     Histogram<String> asciiDuplicates = getAsciiDuplicates(clean);
     asciiDuplicates.saveSortedByCounts(outRoot.resolve("ascii-dups"), " ");
-    maybeNoisy.add(asciiDuplicates);
+    possiblyIncorrect.add(asciiDuplicates);
 
     unusualProper.saveSortedByCounts(outRoot.resolve("unusual-proper"), " ");
     for (String s : unusualProper) {
-      if (!maybeNoisy.contains(s)) {
-        maybeNoisy.add(s, unusualProper.getCount(s));
+      if (!possiblyIncorrect.contains(s)) {
+        possiblyIncorrect.add(s, unusualProper.getCount(s));
       }
     }
     unusualRoots.saveSortedByCounts(outRoot.resolve("unusual-root"), " ");
     for (String s : unusualRoots) {
-      if (!maybeNoisy.contains(s)) {
-        maybeNoisy.add(s, unusualRoots.getCount(s));
+      if (!possiblyIncorrect.contains(s)) {
+        possiblyIncorrect.add(s, unusualRoots.getCount(s));
       }
     }
 
-    maybeNoisy.removeAll(ignore);
+    possiblyIncorrect.removeAll(ignore);
     clean.removeAll(asciiDuplicates);
     clean.removeAll(unusualProper);
     clean.removeAll(unusualRoots);
-    clean.removeAll(maybeNoisy);
+    clean.removeAll(possiblyIncorrect);
 
     Set<String> intersectionOfKeys = noisy.getIntersectionOfKeys(clean);
     int sharedKeyCount = intersectionOfKeys.size();
     if (sharedKeyCount > 0) {
       Log.warn("Incorrect and correct sets share %d keys", sharedKeyCount);
     }
-    sharedKeyCount = noisy.getIntersectionOfKeys(maybeNoisy).size();
+    sharedKeyCount = noisy.getIntersectionOfKeys(possiblyIncorrect).size();
     if (sharedKeyCount > 0) {
       Log.warn("Incorrect and possibly incorrect sets share %d keys", sharedKeyCount);
     }
-    sharedKeyCount = clean.getIntersectionOfKeys(maybeNoisy).size();
+    sharedKeyCount = clean.getIntersectionOfKeys(possiblyIncorrect).size();
     if (sharedKeyCount > 0) {
       Log.warn("Correct and possibly incorrect sets share %d keys", sharedKeyCount);
     }
@@ -609,13 +612,13 @@ public class NormalizationScripts {
     Log.info("Saving sets.");
 
     clean.saveSortedByCounts(outRoot.resolve("correct"), " ");
-    Log.info("Clean saved.");
+    Log.info("Correct words saved.");
 
     noisy.saveSortedByCounts(outRoot.resolve("incorrect"), " ");
-    Log.info("Noisy saved.");
+    Log.info("Incorrect words saved.");
 
-    maybeNoisy.saveSortedByCounts(outRoot.resolve("maybe-incorrect"), " ");
-    Log.info("Maybe Noisy saved.");
+    possiblyIncorrect.saveSortedByCounts(outRoot.resolve("possibly-incorrect"), " ");
+    Log.info("Possibly Incorrect words saved.");
   }
 
   static Histogram<String> getAsciiDuplicates(Histogram<String> list) {
@@ -637,13 +640,17 @@ public class NormalizationScripts {
     for (SingleAnalysis s : wa) {
       SecondaryPos spos = s.getDictionaryItem().secondaryPos;
       if (spos == SecondaryPos.ProperNoun || spos == SecondaryPos.Abbreviation) {
-        if (!s.containsMorpheme(TurkishMorphotactics.verb) ||
-            !s.containsMorpheme(TurkishMorphotactics.a3pl) ||
-            !s.containsMorpheme(TurkishMorphotactics.p1sg) ||
-            !s.containsMorpheme(TurkishMorphotactics.p2sg) ||
-            !s.containsMorpheme(TurkishMorphotactics.p1pl) ||
-            !s.containsMorpheme(TurkishMorphotactics.p2pl) ||
-            !s.containsMorpheme(TurkishMorphotactics.p3pl)
+        if (!s.containsAnyMorpheme(
+            TurkishMorphotactics.verb,
+            TurkishMorphotactics.a3pl,
+            TurkishMorphotactics.p1sg,
+            TurkishMorphotactics.p2sg,
+            TurkishMorphotactics.p1pl,
+            TurkishMorphotactics.p2pl,
+            TurkishMorphotactics.agt,
+            TurkishMorphotactics.justLike,
+            TurkishMorphotactics.dim,
+            TurkishMorphotactics.p3pl)
             ) {
           return false;
         }

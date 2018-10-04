@@ -327,6 +327,15 @@ public class SingleAnalysis {
     return new SingleAnalysis(item, morphemes, groupBoundaries);
   }
 
+  public boolean containsAnyMorpheme(Morpheme... morphemes) {
+    for (Morpheme morpheme : morphemes) {
+      if (containsMorpheme(morpheme)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * This method is used for modifying the dictionary item and stem of an analysis without changing
    * the suffix morphemes. This is used for generating result for inputs like "5'e"

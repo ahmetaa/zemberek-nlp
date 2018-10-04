@@ -71,6 +71,7 @@ public class MultiPathBlockTextLoader implements Iterable<TextChunk> {
     Iterator<List<String>> iterator;
     TextChunk current;
     int index;
+    int sourceIndex;
 
     CorpusLinesIterator(ArrayDeque<Path> paths) {
       this.paths = paths;
@@ -83,7 +84,7 @@ public class MultiPathBlockTextLoader implements Iterable<TextChunk> {
         nextPath();
       }
       if (iterator.hasNext()) {
-        current = new TextChunk(currentPath.toString(), index, iterator.next());
+        current = new TextChunk(currentPath.toString(), sourceIndex, index, iterator.next());
         index++;
         return true;
       }
@@ -95,7 +96,7 @@ public class MultiPathBlockTextLoader implements Iterable<TextChunk> {
       nextPath();
       if (iterator.hasNext()) {
         index = 0;
-        current = new TextChunk(currentPath.toString(), index, iterator.next());
+        current = new TextChunk(currentPath.toString(), sourceIndex, index, iterator.next());
         index++;
         return true;
       } else {
@@ -105,6 +106,7 @@ public class MultiPathBlockTextLoader implements Iterable<TextChunk> {
 
     private void nextPath() {
       Path p = paths.remove();
+      sourceIndex++;
       currentPath = p;
       loader = new BlockTextLoader(p, blockSize);
       iterator = loader.iterator();
