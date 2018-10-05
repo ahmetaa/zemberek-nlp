@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import zemberek.core.text.LetterMatcher;
 
 /**
  * A simple compact trie.
@@ -154,6 +155,11 @@ public class Trie<T> {
       }
     }
     return items;
+  }
+
+  List<T> getPrefixMatchingItems(String input, LetterMatcher matcher) {
+    throw new UnsupportedOperationException("getPrefixMatchingItems with a LetterMatcher "
+        + "is not yet implemented. ");
   }
 
   public String toString() {

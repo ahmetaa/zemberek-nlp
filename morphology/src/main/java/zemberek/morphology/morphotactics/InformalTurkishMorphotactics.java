@@ -6,6 +6,7 @@ import static zemberek.morphology.morphotactics.MorphemeState.terminal;
 
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.morphology.analysis.StemTransitionsMapBased;
+import zemberek.morphology.analysis.StemTransitionsTrieBased;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.Conditions.RootSurfaceIsAny;
 
@@ -15,7 +16,7 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
     this.lexicon = lexicon;
     makeGraph();
     addGraph();
-    this.stemTransitions = new StemTransitionsMapBased(lexicon, this);
+    this.stemTransitions = new StemTransitionsTrieBased(lexicon, this);
   }
 
   public static final Morpheme a1plInformal = addMorpheme(

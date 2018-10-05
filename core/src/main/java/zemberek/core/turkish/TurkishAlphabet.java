@@ -116,6 +116,28 @@ public class TurkishAlphabet {
         circumflexNormalized + circumflexNormalized.toUpperCase(TR));
   }
 
+  public IntIntMap getAsciiMap() {
+    return asciiMap;
+  }
+
+  public char getAsciiEqual(char c) {
+    int res = asciiMap.get(c);
+    return res == IntIntMap.NO_RESULT ? c : (char) res;
+  }
+
+  public boolean isAsciiEqual(char c1, char c2) {
+    if (c1 == c2) {
+      return true;
+    }
+    int a1 = asciiMap.get(c1);
+    if (a1 == IntIntMap.NO_RESULT) {
+      return false;
+    }
+    int a2 = asciiMap.get(c1);
+    return a1 == a2;
+  }
+
+
   private void populateCharMap(IntIntMap map, String inStr, String outStr) {
     for (int i = 0; i < inStr.length(); i++) {
       char in = inStr.charAt(i);

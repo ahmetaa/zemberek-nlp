@@ -350,6 +350,23 @@ public class TurkishDictionaryLoader {
         attributes.add(RootAttribute.PronunciationGuessed);
       }
 
+      // here if there is an item with same lemma and pos values but attributes are different,
+      // we increment the index.
+      while (true) {
+        String id = DictionaryItem.generateId(data.word, posInfo.primaryPos, secondaryPos, index);
+        DictionaryItem existingItem = rootLexicon.getItemById(id);
+        if (existingItem != null && existingItem.id.equals(id)) {
+          if (attributes.equals(existingItem.attributes)) {
+            Log.warn("Item already defined : %s" + existingItem);
+            break;
+          } else {
+            index++;
+          }
+        } else {
+          break;
+        }
+      }
+
       return new DictionaryItem(
           data.word,
           cleanWord,

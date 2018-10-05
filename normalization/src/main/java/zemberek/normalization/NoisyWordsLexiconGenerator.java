@@ -103,19 +103,19 @@ public class NoisyWordsLexiconGenerator {
   public static void main(String[] args) throws Exception {
 
     int threadCount = Runtime.getRuntime().availableProcessors() / 2;
-    if (threadCount > 4) {
-      threadCount = 4;
+    if (threadCount > 16) {
+      threadCount = 16;
     }
 
     Path corporaRoot = Paths.get("/home/aaa/data/corpora");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/test-large");
+    Path outRoot = Paths.get("/home/aaa/data/normalization/test-small");
     Path rootList = corporaRoot.resolve("vocab-list-small");
 
     Files.createDirectories(outRoot);
 
     Path correct = outRoot.resolve("correct");
     Path incorrect = outRoot.resolve("incorrect");
-    Path maybeIncorrect = outRoot.resolve("maybe-incorrect");
+    Path maybeIncorrect = outRoot.resolve("possibly-incorrect");
 
     NormalizationVocabulary vocabulary = new NormalizationVocabulary(
         correct, incorrect, maybeIncorrect, 1, 3, 1);
@@ -127,7 +127,7 @@ public class NoisyWordsLexiconGenerator {
 
     // create graph
     Path graphPath = outRoot.resolve("graph");
-    generator.createGraph(corpusProvider, graphPath);
+    //generator.createGraph(corpusProvider, graphPath);
 
     Histogram<String> incorrectWords = Histogram.loadFromUtf8File(incorrect, ' ');
     incorrectWords.add(Histogram.loadFromUtf8File(maybeIncorrect, ' '));
@@ -143,7 +143,7 @@ public class NoisyWordsLexiconGenerator {
     RandomWalker walker = RandomWalker.fromGraphFile(vocabulary, graphPath);
 
     Log.info("Collecting candidates data.");
-    WalkResult walkResult = walker.walk(1000, 10, threadCount);
+    WalkResult walkResult = walker.walk(100, 10, threadCount);
     Path allCandidates = outRoot.resolve("all-candidates");
 
     try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8")) {
@@ -196,6 +196,8 @@ public class NoisyWordsLexiconGenerator {
     UIntMap<RandomWalkNode> contextHashesToWords;
     UIntMap<RandomWalkNode> wordsToContextHashes;
     NormalizationVocabulary vocabulary;
+
+    ReentrantLock lock = new ReentrantLock();
     private static final Random rnd = new Random(1);
 
     RandomWalker(
@@ -247,7 +249,7 @@ public class NoisyWordsLexiconGenerator {
       IntVector vector = new IntVector(batchSize);
       for (int wordIndex : wordsToContextHashes.getKeys()) {
         // only noisy or maybe-noisy words
-        if (vocabulary.isCorrect(wordIndex) || vocabulary.isMaybeIncorrect(wordIndex)) {
+        if (vocabulary.isCorrect(wordIndex)) {
           continue;
         }
         vector.add(wordIndex);
@@ -262,28 +264,92 @@ public class NoisyWordsLexiconGenerator {
       }
 
       ExecutorService executorService = new BlockingExecutor(threadCount);
-      CompletionService<WalkResult> service =
-          new ExecutorCompletionService<>(executorService);
-
+      WalkResult globalResult = new WalkResult();
       for (Work work : workList) {
-        service.submit(new WalkTask(
-            this,
-            work,
-            walkCount,
-            maxHopCount
-        ));
+        executorService.submit(() -> {
+          WalkResult result = new WalkResult();
+          CharDistance distanceCalculator = new CharDistance();
+          for (int wordIndex : work.wordIndexes) {
+            // Only incorrect and maybe-incorrect words. Check anyway, to be sure.
+            if (vocabulary.isCorrect(wordIndex)) {
+              continue;
+            }
+
+            Map<String, WalkScore> scores = new HashMap<>();
+
+            for (int i = 0; i < walkCount; i++) {
+              int nodeIndex = wordIndex;
+              boolean atWordNode = true;
+              for (int j = 0; j < maxHopCount; j++) {
+
+                RandomWalkNode node = atWordNode ?
+                    wordsToContextHashes.get(nodeIndex) :
+                    contextHashesToWords.get(nodeIndex);
+
+                nodeIndex = selectFromDistribution(node);
+
+                atWordNode = !atWordNode;
+
+                // if we reach to a valid word ([...] --> [Context node] --> [Valid word node] )
+                if (atWordNode && nodeIndex != wordIndex
+                    && vocabulary.isCorrect(nodeIndex)) {
+                  String word = vocabulary.getWord(nodeIndex);
+                  WalkScore score = scores.get(word);
+                  if (score == null) {
+                    score = new WalkScore(word);
+                    scores.put(word, score);
+                  }
+                  score.update(j + 1);
+                  break;
+                }
+              }
+            }
+
+            // calculate contextual similarity probabilities.
+            float totalAverageHittingTime = 0;
+            for (WalkScore score : scores.values()) {
+              totalAverageHittingTime += score.getAverageHittingTime();
+            }
+
+            for (String s : scores.keySet()) {
+              WalkScore score = scores.get(s);
+              score.contextualSimilarity =
+                  score.getAverageHittingTime() /
+                      (totalAverageHittingTime - score.getAverageHittingTime());
+            }
+
+            // calculate lexical similarity cost. This is slow for now.
+            // convert to ascii and remove vowels and repetitions.
+            String word = vocabulary.getWord(wordIndex);
+            String reducedSource = reduceWord(word);
+
+            for (String s : scores.keySet()) {
+              String reducedTarget = reduceWord(s);
+              float editDistance =
+                  (float) distanceCalculator.distance(reducedSource, reducedTarget) + 1;
+
+              // longest commons substring ratio
+              float lcsr = longestCommonSubstring(word, s).length() * 1f /
+                  Math.max(s.length(), word.length());
+
+              WalkScore score = scores.get(s);
+              score.lexicalSimilarity = lcsr / editDistance;
+            }
+            result.allCandidates.putAll(word, scores.values());
+          }
+          try {
+            lock.lock();
+            globalResult.allCandidates.putAll(result.allCandidates);
+            Log.info("%d words processed.", globalResult.allCandidates.keySet().size());
+          } finally {
+            lock.unlock();
+          }
+        });
       }
       executorService.shutdown();
+      executorService.awaitTermination(1, TimeUnit.DAYS);
 
-      int workCount = 0;
-      WalkResult result = new WalkResult();
-      while (workCount < workList.size()) {
-        WalkResult threadResult = service.take().get();
-        result.allCandidates.putAll(threadResult.allCandidates);
-        Log.info("%d words processed.", result.allCandidates.keySet().size());
-        workCount++;
-      }
-      return result;
+      return globalResult;
     }
 
     /**
@@ -364,96 +430,6 @@ public class NoisyWordsLexiconGenerator {
 
     Work(int[] wordIndexes) {
       this.wordIndexes = wordIndexes;
-    }
-  }
-
-  private static class WalkTask implements Callable<WalkResult> {
-
-    RandomWalker walker;
-    Work work;
-    int walkCount;
-    int maxHopCount;
-
-    WalkTask(RandomWalker walker, Work work, int walkCount, int maxHopCount) {
-      this.walker = walker;
-      this.work = work;
-      this.walkCount = walkCount;
-      this.maxHopCount = maxHopCount;
-    }
-
-    @Override
-    public WalkResult call() {
-      WalkResult result = new WalkResult();
-      CharDistance distanceCalculator = new CharDistance();
-      for (int wordIndex : work.wordIndexes) {
-        // Only incorrect and maybe-incorrect words. Check anyway, to be sure.
-        if (walker.vocabulary.isCorrect(wordIndex)) {
-          continue;
-        }
-
-        Map<String, WalkScore> scores = new HashMap<>();
-
-        for (int i = 0; i < walkCount; i++) {
-          int nodeIndex = wordIndex;
-          boolean atWordNode = true;
-          for (int j = 0; j < maxHopCount; j++) {
-
-            RandomWalkNode node = atWordNode ?
-                walker.wordsToContextHashes.get(nodeIndex) :
-                walker.contextHashesToWords.get(nodeIndex);
-
-            nodeIndex = walker.selectFromDistribution(node);
-
-            atWordNode = !atWordNode;
-
-            // if we reach to a valid word ([...] --> [Context node] --> [Valid word node] )
-            if (atWordNode && nodeIndex != wordIndex
-                && walker.vocabulary.isCorrect(nodeIndex)) {
-              String word = walker.vocabulary.getWord(nodeIndex);
-              WalkScore score = scores.get(word);
-              if (score == null) {
-                score = new WalkScore(word);
-                scores.put(word, score);
-              }
-              score.update(j + 1);
-              break;
-            }
-          }
-        }
-
-        // calculate contextual similarity probabilities.
-        float totalAverageHittingTime = 0;
-        for (WalkScore score : scores.values()) {
-          totalAverageHittingTime += score.getAverageHittingTime();
-        }
-
-        for (String s : scores.keySet()) {
-          WalkScore score = scores.get(s);
-          score.contextualSimilarity =
-              score.getAverageHittingTime() /
-                  (totalAverageHittingTime - score.getAverageHittingTime());
-        }
-
-        // calculate lexical similarity cost. This is slow for now.
-        // convert to ascii and remove vowels and repetitions.
-        String word = walker.vocabulary.getWord(wordIndex);
-        String reducedSource = reduceWord(word);
-
-        for (String s : scores.keySet()) {
-          String reducedTarget = reduceWord(s);
-          float editDistance =
-              (float) distanceCalculator.distance(reducedSource, reducedTarget) + 1;
-
-          // longest commons substring ratio
-          float lcsr = longestCommonSubstring(word, s).length() * 1f /
-              Math.max(s.length(), word.length());
-
-          WalkScore score = scores.get(s);
-          score.lexicalSimilarity = lcsr / editDistance;
-        }
-        result.allCandidates.putAll(word, scores.values());
-      }
-      return result;
     }
   }
 
