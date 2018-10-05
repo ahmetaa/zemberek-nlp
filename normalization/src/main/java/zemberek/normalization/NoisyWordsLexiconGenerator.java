@@ -34,6 +34,7 @@ import zemberek.core.collections.UIntValueMap;
 import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
+import zemberek.core.math.LogMath;
 import zemberek.core.text.MultiPathBlockTextLoader;
 import zemberek.core.text.TextChunk;
 import zemberek.core.text.distance.CharDistance;
@@ -143,7 +144,7 @@ public class NoisyWordsLexiconGenerator {
     RandomWalker walker = RandomWalker.fromGraphFile(vocabulary, graphPath);
 
     Log.info("Collecting candidates data.");
-    WalkResult walkResult = walker.walk(100, 10, threadCount);
+    WalkResult walkResult = walker.walk(300, 10, threadCount);
     Path allCandidates = outRoot.resolve("all-candidates");
 
     try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8")) {
@@ -158,7 +159,7 @@ public class NoisyWordsLexiconGenerator {
         scores.sort(
             (a, b) -> Float.compare(b.getScore(lambda1, lambda2), a.getScore(lambda1, lambda2)));
         scores = scores.stream()
-            .filter(w -> w.getScore(lambda1, lambda2) >= 0.25)
+            .filter(w -> w.getScore(lambda1, lambda2) >= 0.15)
             .collect(Collectors.toList());
         pw.println(s);
         for (WalkScore score : scores) {
@@ -229,10 +230,16 @@ public class NoisyWordsLexiconGenerator {
         int totalCount = 0;
         for (int j = 0; j < size * 2; j++) {
           int val = dis.readInt();
-          keysCounts[j] = val;
+
           if ((j & 0x01) == 1) {
+            val = (int) LogMath.log(1.5, val);
+            if (val <= 0) {
+              val = 1;
+            }
             totalCount += val;
           }
+          keysCounts[j] = val;
+
         }
         edgeMap.put(key, new RandomWalkNode(keysCounts, totalCount));
         if (i > 0 && i % 500_000 == 0) {
@@ -242,8 +249,9 @@ public class NoisyWordsLexiconGenerator {
       return edgeMap;
     }
 
-    WalkResult walk(int walkCount, int maxHopCount, int threadCount)
-        throws Exception {
+    WalkResult walk(int walkCount, int maxHopCount, int threadCount) throws Exception {
+
+      // prepare work items for threads. Each work item contains 5000 words.
       List<Work> workList = new ArrayList<>();
       int batchSize = 5_000;
       IntVector vector = new IntVector(batchSize);
@@ -263,8 +271,9 @@ public class NoisyWordsLexiconGenerator {
         workList.add(new Work(vector.copyOf()));
       }
 
-      ExecutorService executorService = new BlockingExecutor(threadCount);
       WalkResult globalResult = new WalkResult();
+
+      ExecutorService executorService = new BlockingExecutor(threadCount);
       for (Work work : workList) {
         executorService.submit(() -> {
           WalkResult result = new WalkResult();
@@ -291,8 +300,9 @@ public class NoisyWordsLexiconGenerator {
                 atWordNode = !atWordNode;
 
                 // if we reach to a valid word ([...] --> [Context node] --> [Valid word node] )
-                if (atWordNode && nodeIndex != wordIndex
-                    && vocabulary.isCorrect(nodeIndex)) {
+                boolean maybeIncorrect = vocabulary.isMaybeIncorrect(nodeIndex);
+                if (atWordNode && (nodeIndex != wordIndex || maybeIncorrect)
+                    && (vocabulary.isCorrect(nodeIndex) || maybeIncorrect)) {
                   String word = vocabulary.getWord(nodeIndex);
                   WalkScore score = scores.get(word);
                   if (score == null) {

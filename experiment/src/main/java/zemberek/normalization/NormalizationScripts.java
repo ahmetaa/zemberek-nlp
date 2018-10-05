@@ -48,10 +48,10 @@ public class NormalizationScripts {
 
     Path root = Paths.get("/home/aaa/data/normalization");
     //Path root = Paths.get("/media/ahmetaa/depo/normalization");
-    Path testRoot = root.resolve("test-large");
+    Path testRoot = root.resolve("test-small");
 
-    Path incorrect = testRoot.resolve("test/incorrect");
-    Path correct = testRoot.resolve("test/correct");
+    Path incorrect = testRoot.resolve("incorrect");
+    Path correct = testRoot.resolve("correct");
 
     Path s = testRoot.resolve("split");
     Path lm = root.resolve("lm.slm");
@@ -70,7 +70,7 @@ public class NormalizationScripts {
     //convertTweetData();
 
     Path repetitive = testRoot.resolve("repetitions.hist.txt");
-    //multipleLetterRepetitionWords(incorrect, repetitive);
+    multipleLetterRepetitionWords(incorrect, repetitive);
 
     Path corporaRoot = Paths.get("/media/ahmetaa/depo/corpora");
     Path tweetRoot = Paths.get("/media/ahmetaa/depo/corpora");
@@ -85,12 +85,12 @@ public class NormalizationScripts {
         corporaRoot.resolve("tweets-20m-clean.nodup"),
         corporaRoot.resolve("tweets-20m"));*/
 
-    generateNormalizationVocabularies(
+/*    generateNormalizationVocabularies(
         NormalizationVocabularyGenerator.getTurkishMorphology(),
         root.resolve("vocab-clean-small"),
         root.resolve("vocab-noisy-small"),
         root.resolve("test-small")
-    );
+    );*/
   }
 
 
