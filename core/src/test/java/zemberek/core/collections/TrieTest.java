@@ -118,6 +118,14 @@ public class TrieTest {
   }
 
   @Test
+  public void getAllTest() {
+    List<Item> items = createitems("elma", "el", "arm", "armut", "a", "elmas");
+    additems(items);
+    List<Item> all = lt.getAll();
+    Assert.assertEquals(6, all.size());
+  }
+
+  @Test
   public void stemsSharingSamePrefixOrder1() {
     List<Item> items = createitems("elmas", "elma");
     additems(items);
@@ -178,7 +186,7 @@ public class TrieTest {
 
   @Test
   public void stemsWrongMatchTest3() {
-    List<Item> items = createitems("comple","complete");
+    List<Item> items = createitems("comple", "complete");
     additems(items);
     checkitemsExist(items);
     checkitemsMustNotMatch("complutense", createitems("complete"));

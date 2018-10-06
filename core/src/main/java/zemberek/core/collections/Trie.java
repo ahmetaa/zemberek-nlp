@@ -117,6 +117,8 @@ public class Trie<T> {
       for (Node<T> tNode : toWalk) {
         if (tNode.hasItem()) {
           items.addAll(tNode.items);
+        }
+        if (tNode.children != null && tNode.children.size() > 0) {
           n.addAll(tNode.children.getValues());
         }
       }
