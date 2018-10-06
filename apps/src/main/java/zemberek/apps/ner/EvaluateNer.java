@@ -30,7 +30,6 @@ public class EvaluateNer extends NerAppBase {
 
   @Parameter(
       names = {"--hypothesis", "-h"},
-      required = true,
       description = "This is the result of a NER system. If this file is provided, system will "
           + "evaluate it against reference file directly. Hypothesis and reference sentences count"
           + "and order must be the same. "
@@ -74,13 +73,13 @@ public class EvaluateNer extends NerAppBase {
       hypothesis = NerDataSet.load(hypothesisPath, annotationStyle);
     }
     Log.info("Hypothesis :");
-    Log.info(reference.info());
+    Log.info(hypothesis.info());
 
     Path reportPath = outDir.resolve("eval-report");
 
     PerceptronNerTrainer.evaluationReport(reference, hypothesis, reportPath);
 
-    TestResult result = PerceptronNerTrainer.testLog(reference, hypothesis);
+    TestResult result = PerceptronNerTrainer.collectEvaluationData(reference, hypothesis);
 
     Log.info("Evaluation Result:");
     Log.info(result.dump());

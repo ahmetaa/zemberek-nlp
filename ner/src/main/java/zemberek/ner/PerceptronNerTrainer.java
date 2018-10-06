@@ -97,7 +97,7 @@ public class PerceptronNerTrainer {
       PerceptronNer ner = new PerceptronNer(copyModel, morphology);
       if (devSet != null) {
         NerDataSet result = ner.evaluate(devSet);
-        testLog(devSet, result).dump();
+        Log.info(collectEvaluationData(devSet, result).dump());
       }
     }
 
@@ -177,7 +177,7 @@ public class PerceptronNerTrainer {
       pw.println("Evaluation Data Information:");
       pw.println(reference.info());
 
-      TestResult result = testLog(reference, prediction);
+      TestResult result = collectEvaluationData(reference, prediction);
       pw.println("Summary:");
       pw.println(result.dump());
       pw.println();
@@ -203,7 +203,7 @@ public class PerceptronNerTrainer {
     }
   }
 
-  public static TestResult testLog(NerDataSet reference, NerDataSet prediction) {
+  public static TestResult collectEvaluationData(NerDataSet reference, NerDataSet prediction) {
 
     int errorCount = 0;
     int tokenCount = 0;

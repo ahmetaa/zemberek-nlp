@@ -19,12 +19,11 @@ abstract class NerAppBase extends ConsoleApp {
 
   @Parameter(
       names = {"--annotationStyle", "-s"},
-      required = true,
-      description = "Annotation style. Default is ENAMEX. ENAMEX style example: " +
+      description = "Annotation style. Styles:ENAMEX|BRACKET|OPEN_NLP. ENAMEX style example: " +
           "'<b_enamex TYPE=\"LOC\"> İstanbul <e_enamex> güzel.'. BRACKET style example: " +
           "'[LOC İstanbul] güzel.'. OPEN_NLP style example: " +
           "'<START:LOC> İstanbul <END> güzel.'")
-  public NerDataSet.AnnotationStyle annotationStyle = NerDataSet.AnnotationStyle.ENAMEX;
+  public NerDataSet.AnnotationStyle annotationStyle;
 
   protected void initializeOutputDir() throws IOException {
     if (outDir == null) {

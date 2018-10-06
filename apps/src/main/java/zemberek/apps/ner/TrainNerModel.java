@@ -43,7 +43,7 @@ public class TrainNerModel extends NerAppBase {
   public void run() throws Exception {
 
     initializeOutputDir();
-    IOUtil.checkFileArgument(trainDataPath,"Training file");
+    IOUtil.checkFileArgument(trainDataPath, "Training file");
 
     Path modelRoot = outDir.resolve("model");
     Path logPath = outDir.resolve("train-log");
@@ -54,11 +54,13 @@ public class TrainNerModel extends NerAppBase {
     }
 
     NerDataSet trainingSet = NerDataSet.load(trainDataPath, annotationStyle);
+    Log.info("Training set information:");
     Log.info(trainingSet.info());
 
     NerDataSet devSet = null;
     if (developmentPath != null) {
       devSet = NerDataSet.load(developmentPath, annotationStyle);
+      Log.info("Development set information:");
       Log.info(devSet.info());
     }
 
