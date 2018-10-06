@@ -67,32 +67,41 @@ public class IOUtil {
     dos.writeInt(Integer.reverseBytes(value));
   }
 
-  public static void checkFileArgument(Path path) {
+  public static void checkFileArgument(Path path, String argumentInfo) {
+    if (path == null) {
+      throw new IllegalArgumentException(argumentInfo  + " path is null.");
+    }
     File f = path.toFile();
+    String fullPath = f.getAbsolutePath();
     if (!f.exists()) {
-      throw new IllegalArgumentException("File does not exist = " + f.getAbsolutePath());
+      throw new IllegalArgumentException(argumentInfo + " file does not exist = " + fullPath);
     }
     if (f.isDirectory()) {
       throw new IllegalArgumentException(
-          "A file is expected. But path is a directory = " + f.getAbsolutePath());
+          argumentInfo + " is expected to be a file. But path is a directory = " + fullPath);
     }
   }
 
-  public static void checkDirectoryArgument(Path path) {
+  public static void checkDirectoryArgument(Path path, String argumentInfo) {
+    if (path == null) {
+      throw new IllegalArgumentException(argumentInfo + " path is null.");
+    }
     File f = path.toFile();
+    String fullPath = f.getAbsolutePath();
     if (!f.exists()) {
-      throw new IllegalArgumentException("Directory does not exist = " + f.getAbsolutePath());
+      throw new IllegalArgumentException(argumentInfo + " directory does not exist = " + fullPath);
     }
     if (!f.isDirectory()) {
       throw new IllegalArgumentException(
-          "A directory is expected. But path is a file = " + f.getAbsolutePath());
+          argumentInfo + " is expected to be  directory. But path is a file = " + fullPath);
     }
   }
 
   public static void deleteTempDir(Path tempDir) throws IOException {
     String tmpRoot = System.getProperty("java.io.tmpdir");
     if (!tempDir.toFile().getAbsolutePath().startsWith(tmpRoot)) {
-      Log.info("Only directories within temporary system dir [%s] are allowed to be deleted recursively. But : %s",
+      Log.info(
+          "Only directories within temporary system dir [%s] are allowed to be deleted recursively. But : %s",
           tmpRoot,
           tempDir.toFile().getAbsolutePath());
       return;

@@ -6,3 +6,6 @@ zemberek.apps.fasttext.ClassificationConsole
 zemberek.apps.fasttext.EvaluateClassifier
 zemberek.apps.lm.CompressLm
 zemberek.apps.lm.GenerateVocabulary
+zemberek.apps.ner.EvaluateNer
+zemberek.apps.ner.TrainNerModel
+zemberek.apps.ner.FindNamedEntities

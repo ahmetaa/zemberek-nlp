@@ -16,6 +16,7 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.text.Regexps;
 import zemberek.core.text.TextIO;
+import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.Turkish;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
@@ -52,6 +53,10 @@ public class NerDataSet {
         typeIds.add(token.tokenId);
       }
     }
+  }
+
+  public List<NerSentence> getSentences() {
+    return sentences;
   }
 
   public enum AnnotationStyle {
@@ -116,6 +121,10 @@ public class NerDataSet {
 
     List<NerSentence> nerSentences = new ArrayList<>(lines.size());
     for (String line : lines) {
+      line = TextUtil.normalizeApostrophes(line);
+      line = TextUtil.normalizeQuotesHyphens(line);
+      line = TextUtil.normalizeSpacesAndSoftHyphens(line);
+
       if (line.trim().length() < 2) {
         continue;
       }
@@ -178,11 +187,11 @@ public class NerDataSet {
   /**
    * prints information about the data set.
    */
-  public void info() {
-    new Info(this).log();
+  public String info() {
+    return new Info(this).log();
   }
 
-  static class Info {
+  public static class Info {
 
     int numberOfSentences;
     Set<String> types;
@@ -206,16 +215,19 @@ public class NerDataSet {
       }
     }
 
-    void log() {
-      Log.info("Number of sentences      = %d", numberOfSentences);
-      Log.info("Number of tokens         = %d", numberOfTokens);
+    public String log() {
+      List<String> res = new ArrayList<>();
+      res.add(String.format("Number of sentences      = %d", numberOfSentences));
+      res.add(String.format("Number of tokens         = %d", numberOfTokens));
       for (String type : typeHistogram.getSortedList()) {
-        Log.info("Type = %s (Count = %d, Token Count = %d Av. Token = %.2f )",
+        res.add(String.format("Type = %s (Count = %d, Token Count = %d Av. Token = %.2f )",
             type,
             typeHistogram.getCount(type),
             tokenHistogram.getCount(type),
-            tokenHistogram.getCount(type) * 1f / typeHistogram.getCount(type));
+            tokenHistogram.getCount(type) * 1f / typeHistogram.getCount(type)));
       }
+      return String.join("\n", res);
     }
+
   }
 }

@@ -95,8 +95,10 @@ public class PerceptronNerTrainer {
       Map<String, ClassModel> copyModel = copyModel(model);
       averageWeights(averages, copyModel, counts);
       PerceptronNer ner = new PerceptronNer(copyModel, morphology);
-      NerDataSet result = ner.test(devSet);
-      testLog(devSet, result).dump();
+      if (devSet != null) {
+        NerDataSet result = ner.evaluate(devSet);
+        testLog(devSet, result).dump();
+      }
     }
 
     averageWeights(averages, model, counts);
@@ -126,7 +128,6 @@ public class PerceptronNerTrainer {
     }
   }
 
-
   public static class TestResult {
 
     int errorCount = 0;
@@ -141,7 +142,7 @@ public class PerceptronNerTrainer {
       return (errorCount * 1d) / tokenCount;
     }
 
-    double tokenPresicion() {
+    double tokenPrecision() {
       return (truePositives * 1d) / (truePositives + falsePositives);
     }
 
@@ -154,21 +155,34 @@ public class PerceptronNerTrainer {
       return (correctNamedEntityCount * 1d) / testNamedEntityCount;
     }
 
-    String dump() {
+    public String dump() {
       List<String> lines = new ArrayList<>();
       lines.add(String.format("Token Error ratio   = %.6f", tokenErrorRatio()));
-      Log.info(String.format("NE Token Precision  = %.6f", tokenPresicion()));
-      Log.info(String.format("NE Token Recall     = %.6f", tokenRecall()));
-      Log.info(String.format("Exact NER match     = %.6f", exactMatch()));
-      return String.join(" ", lines);
+      lines.add(String.format("NE Token Precision  = %.6f", tokenPrecision()));
+      lines.add(String.format("NE Token Recall     = %.6f", tokenRecall()));
+      lines.add(String.format("Exact NE match      = %.6f", exactMatch()));
+      return String.join("\n", lines);
     }
 
   }
 
-  static void testReport(NerDataSet reference, NerDataSet prediction, Path reportPath)
+  public static void evaluationReport(
+      NerDataSet reference,
+      NerDataSet prediction,
+      Path reportPath)
       throws IOException {
 
     try (PrintWriter pw = new PrintWriter(reportPath.toFile(), "UTF-8")) {
+
+      pw.println("Evaluation Data Information:");
+      pw.println(reference.info());
+
+      TestResult result = testLog(reference, prediction);
+      pw.println("Summary:");
+      pw.println(result.dump());
+      pw.println();
+      pw.println("Detailed Sentence Analysis:");
+
       List<NerSentence> testSentences = reference.sentences;
       for (int i = 0; i < testSentences.size(); i++) {
         NerSentence ts = testSentences.get(i);
@@ -184,13 +198,12 @@ public class PerceptronNerTrainer {
                 String.format("%s:%s %s -> %s", tt.word, tt.normalized, tt.tokenId, pt.tokenId));
           }
         }
+        pw.println();
       }
-      TestResult result = testLog(reference, prediction);
-      pw.println(result.dump());
     }
   }
 
-  static TestResult testLog(NerDataSet reference, NerDataSet prediction) {
+  public static TestResult testLog(NerDataSet reference, NerDataSet prediction) {
 
     int errorCount = 0;
     int tokenCount = 0;

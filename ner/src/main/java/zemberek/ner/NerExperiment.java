@@ -41,7 +41,7 @@ public class NerExperiment {
         if (sentence.contains("[") || sentence.contains("]")) {
           continue;
         }
-        tokenCount+=TurkishTokenizer.DEFAULT.tokenize(sentence).size();
+        tokenCount += TurkishTokenizer.DEFAULT.tokenize(sentence).size();
         NerSentence result = ner.findNamedEntities(sentence);
         pw.println(result.getAsTrainingSentence(AnnotationStyle.BRACKET));
       }
@@ -58,10 +58,10 @@ public class NerExperiment {
       Path reportPath) throws IOException {
 
     NerDataSet trainingSet = NerDataSet.load(trainPath, AnnotationStyle.BRACKET);
-    new NerDataSet.Info(trainingSet).log();
+    Log.info(trainingSet.info());
 
     NerDataSet testSet = NerDataSet.load(testPath, AnnotationStyle.BRACKET);
-    new NerDataSet.Info(testSet).log();
+    Log.info(testSet.info());
 
     TurkishMorphology morphology = TurkishMorphology.builder()
         .addDefaultBinaryDictionary()
@@ -74,9 +74,9 @@ public class NerExperiment {
     ner.saveModelAsText(modelRoot);
 
     Log.info("Testing %d sentences.", testSet.sentences.size());
-    NerDataSet testResult = ner.test(testSet);
+    NerDataSet testResult = ner.evaluate(testSet);
 
-    PerceptronNerTrainer.testReport(testSet, testResult, reportPath);
+    PerceptronNerTrainer.evaluationReport(testSet, testResult, reportPath);
     Log.info("Done.");
   }
 

@@ -56,7 +56,8 @@ public class PerceptronNer {
     }
   }
 
-  public static PerceptronNer loadModel(Path modelRoot, TurkishMorphology morphology) throws IOException {
+  public static PerceptronNer loadModel(Path modelRoot, TurkishMorphology morphology)
+      throws IOException {
     Map<String, ClassModel> weightsMap = new HashMap<>();
     List<Path> files = Files.walk(modelRoot, 1)
         .filter(s -> s.toFile().getName().endsWith(".ner.model"))
@@ -88,7 +89,7 @@ public class PerceptronNer {
     return scores.stream().max((a, b) -> Float.compare(a.score, b.score)).get();
   }
 
-  public NerDataSet test(NerDataSet set) {
+  public NerDataSet evaluate(NerDataSet set) {
 
     List<NerSentence> resultSentences = new ArrayList<>();
 
@@ -125,10 +126,7 @@ public class PerceptronNer {
     return new NerDataSet(resultSentences);
   }
 
-  public NerSentence findNamedEntities(String sentence) {
-
-    TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
-    List<String> words = tokenizer.tokenizeToStrings(sentence);
+  public NerSentence findNamedEntities(String sentence, List<String> words) {
     List<NerToken> tokens = new ArrayList<>();
     int index = 0;
     for (String word : words) {
@@ -169,6 +167,10 @@ public class PerceptronNer {
 
     }
     return new NerSentence(nerSentence.content, predictedTokens);
+  }
+
+  public NerSentence findNamedEntities(String sentence) {
+    return findNamedEntities(sentence, TurkishTokenizer.DEFAULT.tokenizeToStrings(sentence));
   }
 
   public static class ClassModel {
