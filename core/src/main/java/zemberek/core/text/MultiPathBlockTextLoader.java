@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ public class MultiPathBlockTextLoader implements Iterable<TextChunk> {
   }
 
   MultiPathBlockTextLoader(List<Path> corpusPaths, int blockSize) {
+    corpusPaths.sort(Comparator.comparing(a -> a.toFile().getAbsolutePath()));
     this.corpusPaths = corpusPaths;
     this.blockSize = blockSize;
   }
@@ -54,6 +56,7 @@ public class MultiPathBlockTextLoader implements Iterable<TextChunk> {
           .filter(s -> s.toFile().isFile())
           .collect(Collectors.toList()));
     }
+    corpora.sort(Comparator.comparing(a -> a.toFile().getAbsolutePath()));
     Log.info("There are %d corpus files.", corpora.size());
     return new MultiPathBlockTextLoader(corpora, blockSize);
   }

@@ -16,49 +16,73 @@ public class EvaluateNer extends NerAppBase {
 
   @Parameter(
       names = {"--modelRoot", "-m"},
-      required = true,
-      description = "Annotated training data file path. ")
+      description = "Model directory. "
+          + "This is required if only no separate hypothesis file is provided.")
   public Path modelRoot;
 
   @Parameter(
-      names = {"--testData", "-t"},
+      names = {"--reference", "-r"},
       required = true,
-      description = "Annotated test data file path. This is optional.")
-  public Path testPath;
+      description = "Annotated reference data file path. This is the reference data. "
+          + "If no hypothesis is provided, system will run NER on this file with given model and "
+          + "evaluate results against this data.")
+  public Path referencePath;
 
+  @Parameter(
+      names = {"--hypothesis", "-h"},
+      required = true,
+      description = "This is the result of a NER system. If this file is provided, system will "
+          + "evaluate it against reference file. If this is not provided, system will apply NER "
+          + " on reference with given model and evaluate its result against reference data.")
+  public Path hypothesisPath;
 
   @Override
   public String description() {
-    return "Evaluates an annotated NER data set with a model.";
+    return
+        "Evaluates an annotated NER data set (reference) by either actually running a with a "
+            + "given model. Or directly evaluating a hypothesis against reference";
   }
 
   @Override
   public void run() throws Exception {
 
     initializeOutputDir();
-    IOUtil.checkDirectoryArgument(modelRoot, "Model Root");
-    IOUtil.checkFileArgument(testPath, "Test File");
+    if (hypothesisPath == null) {
+      IOUtil.checkDirectoryArgument(modelRoot, "Model Root");
+    } else {
+      IOUtil.checkFileArgument(referencePath, "Hypothesis File");
+    }
+    IOUtil.checkFileArgument(referencePath, "Reference File");
 
-    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-    PerceptronNer ner = PerceptronNer.loadModel(modelRoot, morphology);
+    NerDataSet hypothesis;
 
-    NerDataSet testSet = NerDataSet.load(testPath, annotationStyle);
-    Log.info(testSet.info());
+    NerDataSet reference = NerDataSet.load(referencePath, annotationStyle);
+    Log.info("Reference :");
+    Log.info(reference.info());
 
-    Stopwatch sw = Stopwatch.createStarted();
-    NerDataSet testResult = ner.evaluate(testSet);
-    double secs = sw.elapsed(TimeUnit.MILLISECONDS) / 1000d;
-    Log.info("Test file processed in %.4f seconds.", secs);
+    if (hypothesisPath == null) {
+      TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+      PerceptronNer ner = PerceptronNer.loadModel(modelRoot, morphology);
+      Stopwatch sw = Stopwatch.createStarted();
+      hypothesis = ner.evaluate(reference);
+      double secs = sw.elapsed(TimeUnit.MILLISECONDS) / 1000d;
+      Log.info("NER is applied to reference data in %.4f seconds.", secs);
+    } else {
+      hypothesis = NerDataSet.load(hypothesisPath, annotationStyle);
+    }
+    Log.info("Hypothesis :");
+    Log.info(reference.info());
 
     Path reportPath = outDir.resolve("eval-report");
 
-    PerceptronNerTrainer.evaluationReport(testSet, testResult, reportPath);
+    PerceptronNerTrainer.evaluationReport(reference, hypothesis, reportPath);
 
-    TestResult result = PerceptronNerTrainer.testLog(testSet, testResult);
-    Log.info("Result:");
+    TestResult result = PerceptronNerTrainer.testLog(reference, hypothesis);
+
+    Log.info("Evaluation Result:");
     Log.info(result.dump());
 
-    Log.info("Evaluation report is written in %s", reportPath);
+    Log.info("Detailed evaluation report is written in %s", reportPath);
   }
 
   public static void main(String[] args) {
