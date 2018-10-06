@@ -34,7 +34,7 @@ public class GramDataArray {
     indexMask = (1 << pageShift - 1) - 1;
     long l = 0;
     int pageCounter = 0;
-    while (l < count * blockSize) {
+    while (l < (long)count * blockSize) {
       pageCounter++;
       l += (pageLength * blockSize);
     }
@@ -45,7 +45,7 @@ public class GramDataArray {
         data[i] = new byte[pageLength * blockSize];
         total += pageLength * blockSize;
       } else {
-        data[i] = new byte[count * blockSize - total];
+        data[i] = new byte[(int)((long)count * blockSize - total)];
       }
       dis.readFully(data[i]);
     }

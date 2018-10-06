@@ -12,6 +12,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import zemberek.core.logging.Log;
+import zemberek.core.text.StringMatcher;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.StemTransition;
@@ -101,6 +102,11 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
       lock.readLock().unlock();
     }
 
+  }
+
+  @Override
+  public List<StemTransition> getPrefixMatches(String stem, StringMatcher matcher) {
+    return null;
   }
 
   public List<StemTransition> getTransitions(DictionaryItem item) {

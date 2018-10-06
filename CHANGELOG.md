@@ -1,6 +1,49 @@
 CHANGE LOG
 ==========
 
+## 0.16.0 (Not Yet Released.)
+
+#### New features 
+
+##### grpc module
+Initial release of [**grpc**](grpc) remote procedure call module. This is an experimental module that allows fast access to some 
+functions of the project from other programming languages. We provide initial Python access codes for experimentation.
+Remote API is also subject to change until Version 1.0.0. Refer to the [documentation](grpc) for more information. 
+
+##### Noisy Text Normalization
+
+We now include a sentence normalization functionality. Before this, [normalization](normalization) 
+module only provided simple word based spell check suggestion mechanism. Now. system offers a
+best effort text normalization functionality. We used several heuristics and applied language model 
+based Viterbi search on candidate words collected with an offline contextual graph random walk algorithm.
+
+##### Informal Turkish Words Analysis
+We introduce a mechanism for analyzing Turkish informal words. For example, word `okuycam`, analysis
+may be:
+
+    [okumak:Verb] oku:Verb+yca:FutInformal+m:A1sg   
+
+Informal morpheme names (like `FutInformal`) have `Informal` suffix. 
+
+For enabling informal morphological analysis, TurkishMorphology class should be initialized like this:
+
+    Builder b = TurkishMorphology.builder();
+    RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
+    b.morphotactics(new InformalTurkishMorphotactics(lexicon));    
+    b.useLexicon(lexicon);
+    TurkishMorphology morphology = b.build(); 
+    morphology.analyze("okumuycam");
+
+In next releases probably there will be an easier way of enabling this mechanism. Note that 
+ambiguity resolution mechanism may not work well if sentence contains informal morphemes. 
+There is also a simple informal to formal conversion mechanism. For example: 
+
+#### Bug fixes
+
+#### Deprecations and breaking changes
+
+TODO
+
 ## 0.15.0
 
 #### New features 

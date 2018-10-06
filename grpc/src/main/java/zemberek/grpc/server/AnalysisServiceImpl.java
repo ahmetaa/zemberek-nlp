@@ -1,7 +1,6 @@
 package zemberek.grpc.server;
 
 import io.grpc.stub.StreamObserver;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,8 +18,8 @@ public class AnalysisServiceImpl extends AnalysisServiceImplBase {
 
   private final TurkishMorphology morphology;
 
-  public AnalysisServiceImpl() throws IOException {
-    morphology = TurkishMorphology.createWithDefaults();
+  public AnalysisServiceImpl(ZemberekContext context) {
+    morphology = context.morphology;
   }
 
   @Override
@@ -61,12 +60,14 @@ public class AnalysisServiceImpl extends AnalysisServiceImplBase {
   }
 
   zemberek.proto.Morpheme toMorphemeProto(Morpheme morpheme) {
-    zemberek.proto.Morpheme.Builder builder = zemberek.proto.Morpheme.newBuilder();
-    return builder.setId(morpheme.id)
+    zemberek.proto.Morpheme.Builder builder = zemberek.proto.Morpheme.newBuilder()
+        .setId(morpheme.id)
         .setName(morpheme.name)
-        .setPrimaryPos(morpheme.pos.shortForm)
-        .setDerivational(morpheme.derivational)
-        .build();
+        .setDerivational(morpheme.derivational);
+    if (morpheme.pos != null) {
+      builder.setPrimaryPos(morpheme.pos.shortForm);
+    }
+    return builder.build();
     // TODO Add other fields.
   }
 

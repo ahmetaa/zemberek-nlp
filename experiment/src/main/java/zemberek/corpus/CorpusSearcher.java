@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.custom.CustomAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -27,7 +28,9 @@ public class CorpusSearcher {
   List<String> search(String queryStr, int hitCount) throws Exception {
     IndexReader reader = DirectoryReader.open(FSDirectory.open(index));
     IndexSearcher searcher = new IndexSearcher(reader);
-    Analyzer analyzer = new StandardAnalyzer();
+    Analyzer analyzer = CustomAnalyzer.builder()
+        .withTokenizer("standard")
+        .build();
     QueryParser parser = new QueryParser("content", analyzer);
     Query query = parser.parse(queryStr);
     TopDocs results = searcher.search(query, hitCount);
@@ -41,10 +44,10 @@ public class CorpusSearcher {
   }
 
   public static void main(String[] args) throws Exception {
-    Path indexRoot = Paths.get("/home/aaa/data/zemberek/corpus-index");
+    Path indexRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpus-index-lemma");
     CorpusSearcher searcher = new CorpusSearcher(indexRoot);
 
-    List<String> hits = searcher.search("", 1000);
+    List<String> hits = searcher.search("\"şart koş\"", 1000);
 
     hits.forEach(System.out::println);
 

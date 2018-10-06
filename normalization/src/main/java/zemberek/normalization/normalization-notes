@@ -1,0 +1,121 @@
+words with [-]
+alem-i şehr-i etc.
+
+Need to train language identifier with asciified text as well.
+
+informal morphology
+---
+gelmişik
+patlıcaz
+patlıcak
+dayıcım
+yapıcaktım
+koyyim !
+dicem
+yapıcak
+diyecem
+
+---- informal
+
+nolur, naber, naparsak, naparsam, hanfendi, beyfendi, dimi, bişi,
+naptın, nittin, bikere, bune, hiçbi, bitek
+acık,
+ahanda
+
+ahmetlen odunlan
+
+hakkat (haggat)
+labalilik
+
+tşk
+eyw
+inş
+
+abey
+abicim
+
+
+
+--- dictionary
+
+mouse
+melanoma
+ekoterörist
+optokuplör
+haha
+hahaha
+apple
+email
+
+amk !
+kaale?
+emoji
+eyeliner
+c#
+
+--- wrong in zemberek
+
+birşeyler
+çoook
+
+-- common english words.
+
+-- False positives
+
+false positive words
+
+goyduk
+[Go:Noun,Abbrv] go:Noun+A3sg|Zero→Verb+ydu:Past+k:A1pl
+
+All abbreviations, proper nouns -> Zero + Verb + Person
+
+siciyim :)
+[Si:Noun,Abbrv] si:Noun+A3sg|ci:Agt→Noun+A3sg|Zero→Verb+Pres+yim:A1sg
+[si:Noun] si:Noun+A3sg|ci:Agt→Noun+A3sg|Zero→Verb+Pres+yim:A1sg*
+
+sevdimi
+[Sevdi:Noun,Prop] sevdi:Noun+A3sg+m:P1sg+i:Acc
+
+gizlicim
+[gizli:Adj] gizli:Adj|ci:Agt→Noun+A3sg+m:P1sg
+
+S:acmış
+acmış
+[Ac:Noun,Prop] ac:Noun+A3sg|Zero→Verb+mış:Narr+A3sg
+
+afedersinde
+[afedersin:Noun] afedersin:Noun+A3sg+de:Loc
+
+asılama
+[asılmak:Verb] asıl:Verb+ama:Unable+Imp+A2sg*
+[asmak:Verb] as:Verb|ıl:Pass→Verb+ama:Unable+Imp+A2sg
+
+S:baride
+baride
+[barit:Noun] barid:Noun+A3sg+e:Dat
+
+burclara
+[Burc:Noun,Prop] burc:Noun+lar:A3pl+a:Dat
+
+pese
+[pes:Adj] pes:Adj|Zero→Noun+A3sg+e:Dat
+
+simdik
+[sim:Adj] sim:Adj|Zero→Verb+di:Past+k:A1pl
+[sim:Noun] sim:Noun+A3sg|Zero→Verb+di:Past+k:A1pl*
+
+komsu
+[Ko:Noun,Abbrv] ko:Noun+A3sg|msu:JustLike→Adj
+[Kom:Noun,Prop] kom:Noun+A3sg|su:JustLike→Adj
+[kom:Noun] kom:Noun+A3sg|su:JustLike→Adj*
+
+kaççam
+[kaç:Adj] kaç:Adj|ça:AsIf→Adj|Zero→Noun+A3sg+m:P1sg
+
+S:duyuca
+duyuca
+[duyu:Noun] duyu:Noun+A3sg+ca:Equ
+
+
+tuslarla
+[Tus:Noun,Abbrv] tus:Noun+lar:A3pl+la:Ins  <---- abbrv + plural

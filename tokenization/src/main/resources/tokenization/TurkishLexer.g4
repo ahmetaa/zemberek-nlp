@@ -93,6 +93,9 @@ fragment TurkishLettersAll
 fragment AllTurkishAlphanumerical
     : [0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ];
 
+fragment AllTurkishAlphanumericalUnderscore
+    : [0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ_];
+
 fragment Apostrophe: ('\''|'’');
 
 fragment DoubleQuote: ('"'|'”'|'“'|'»'|'«');
@@ -119,7 +122,8 @@ Number
     : [+\-]? Integer [.,] Integer Exp? AposAndSuffix? // -1.35, 1.35E-9, 3,1'e
     | [+\-]? Integer Exp AposAndSuffix?     // 1e10 -3e4 1e10'dur
     | [+\-]? Integer AposAndSuffix?         // -3, 45
-    | (Integer '.')+ Integer AposAndSuffix? // 1.000.000 
+    | [+\-]? Integer '/' Integer AposAndSuffix?  // -1/2
+    | (Integer '.')+ Integer AposAndSuffix? // 1.000.000
     | (Integer ',')+ Integer AposAndSuffix? // 2,345,531
     | Integer '.'? AposAndSuffix?           // Ordinal 2. 34.      
     ;
@@ -132,30 +136,33 @@ fragment Exp
     : [Ee] [+\-]? Integer ;
 
 fragment URLFragment
-    : [0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ\-_]+;
-fragment URLFragmentWithDot
-    :'.'[0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ\-_/?&+;=]+;
+    : [0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ\-_/?&+;=[\].]+;
 
 URL :
-    ('http://'|'https://')? 'www.' URLFragment URLFragmentWithDot+;
+    ('http://'|'https://') URLFragment |
+    ('http://'|'https://')? 'www.' URLFragment |
+    [0-9a-zA-Z_]+ ('.com'| '.org' | '.edu' | '.gov'|'.net'|'.info') ('.tr')? ('/'URLFragment)?;
 
 Email
-    :AllTurkishAlphanumerical+ '.'? AllTurkishAlphanumerical+ '@'
+    :AllTurkishAlphanumericalUnderscore+ '.'? AllTurkishAlphanumericalUnderscore+ '@'
     (AllTurkishAlphanumerical+ '.' AllTurkishAlphanumerical+)+ ;
 
 HashTag: '#' AllTurkishAlphanumerical+;
 
 Mention: '@' AllTurkishAlphanumerical+;
 
+MetaTag: '<' AllTurkishAlphanumericalUnderscore+ '>';
+
 // Only a subset.
 // TODO: Add more, also consider Emoji tokens.
 Emoticon
-    : ':)'|':-)'|':-]'|':D'|':-D'|'8-)'|';)'|';‑)'|':('|':-('|':\'('
-    |':‑/'|':/'|':^)'|'¯\\_(ツ)_/¯'|'O_o'|'o_O'|'O_O'|'\\o/';
+    : ':)'|':-)'|':-]'|':D'|':-D'|'8-)'|';)'|';‑)'|':('|':-('|':\'('|':\')'
+    |':P'|':p'|':|'|'=|'|'=)'|'=('
+    |':‑/'|':/'|':^)'|'¯\\_(ツ)_/¯'|'O_o'|'o_O'|'O_O'|'\\o/'|'<3';
 
-// Roman numbers:
+// Possible Roman numbers:
 RomanNumeral
-    : ('I'|'II'|'III'|'IV'|'V'|'VI'|'VII'|'VIII'|'IX') '.'? AposAndSuffix? ;
+    : [ILVCDMX]+ '.'? AposAndSuffix? ;
 
 // I.B.M.
 AbbreviationWithDots
@@ -173,15 +180,15 @@ WordWithSymbol
     : AllTurkishAlphanumerical+ '-'? AllTurkishAlphanumerical+ AposAndSuffix?;
 
 fragment PunctuationFragment
-    : Apostrophe | DoubleQuote | '‘' | '…' | '...' | '(!)' | '(?)'| [.,!?%$&*+@:;]
-          | '\\' | '-' | '/' | '(' | ')' | '[' | ']' | '{' | '}';
+    : Apostrophe | DoubleQuote | '...' | '(!)' | '(?)'| [>‘…=.,!?%$&*+@:;®™©℠]
+          | '\\' | '-' | '/' | '(' | ')' | '[' | ']' | '{' | '}' | '^' ;
 
 Punctuation
     : PunctuationFragment;
 
 UnknownWord
-    : ~([ \n\r\t.,!?%$&*+@:;…] | '\'' | '’' | '‘' | '"' | '”' | '“' | '»' | '«'
-    |'\\' | '-' |'(' | '/' | ')' | '[' | ']' | '{' | '}')+;
+    : ~([ \n\r\t.,!?%$&*+@:;…®™©℠=>] | '\'' | '’' | '‘' | '"' | '”' | '“' | '»' | '«'
+    |'\\' | '-' |'(' | '/' | ')' | '[' | ']' | '{' | '}' | '^')+;
 
 // Catch all remaining as Unknown.
 Unknown : .+? ;

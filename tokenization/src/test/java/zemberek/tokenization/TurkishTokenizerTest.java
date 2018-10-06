@@ -75,6 +75,7 @@ public class TurkishTokenizerTest {
     matchToken(t, "100'e", TurkishLexer.Number, "100'e");
     matchToken(t, "3.14'ten", TurkishLexer.Number, "3.14'ten");
     matchToken(t, "%2.5'ten", TurkishLexer.PercentNumeral, "%2.5'ten");
+    matchToken(t, "%2", TurkishLexer.PercentNumeral, "%2");
   }
 
   @Test
@@ -86,13 +87,23 @@ public class TurkishTokenizerTest {
   }
 
   @Test
+  public void testTags() {
+    TurkishTokenizer t = TurkishTokenizer.DEFAULT;
+    matchToken(t, "<kedi>", TurkishLexer.MetaTag, "<kedi>");
+    matchToken(
+        t,
+        "<kedi><eti><7>",
+        TurkishLexer.MetaTag,
+        "<kedi>", "<eti>", "<7>");
+  }
+
+  @Test
   public void testAlphaNumerical() {
     TurkishTokenizer t = TurkishTokenizer.DEFAULT;
     matchSentences(t,
         "F-16'yı, (H1N1) H1N1'den.",
         "F-16'yı , ( H1N1 ) H1N1'den .");
   }
-
 
   @Test
   public void testCapitalWords() {
@@ -210,7 +221,9 @@ public class TurkishTokenizerTest {
   @Test
   public void testPunctuation() {
     TurkishTokenizer t = TurkishTokenizer.DEFAULT;
-    matchSentences(t, ".,!:;$%\"\'()[]{}&@", ". , ! : ; $ % \" \' ( ) [ ] { } & @");
+    matchSentences(t,
+        ".,!:;$%\"\'()[]{}&@®™©℠",
+        ". , ! : ; $ % \" \' ( ) [ ] { } & @ ® ™ © ℠");
     matchToken(t, "...", "...");
     matchToken(t, "(!)", "(!)");
   }
@@ -303,10 +316,16 @@ public class TurkishTokenizerTest {
     TurkishTokenizer t = TurkishTokenizer.DEFAULT;
 
     String[] urls = {
+        "http://t.co/gn32szS9",
         "http://www.fo.bar",
         "https://www.fo.baz.zip",
         "www.fo.tar.kar",
         "www.fo.bar",
+        "fo.com",
+        "fo.com.tr",
+        "fo.com.tr/index.html",
+        "fo.com.tr/index.html?",
+        "foo.net",
         "http://www.foo.net/showthread.php?134628-ucreti",
         "http://www.foo.net/showthread.php?1-34--628-ucreti+",
     };
@@ -334,7 +353,8 @@ public class TurkishTokenizerTest {
 
     String[] urls = {
         "fo@bar.baz",
-        "fo.bar@bar.baz"
+        "fo.bar@bar.baz",
+        "fo_.bar@bar.baz"
     };
     for (String s : urls) {
       matchToken(t, s, TurkishLexer.Email, s);

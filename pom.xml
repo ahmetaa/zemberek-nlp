@@ -99,7 +99,13 @@
         <version>3.1.0</version>
         <configuration>
           <excludes>
-            <include>**/*.dict</include>
+            <include>tr/master-dictionary.dict</include>
+            <include>tr/locations-tr.dict</include>
+            <include>tr/non-tdk.dict</include>
+            <include>tr/person-names.dict</include>
+            <include>tr/proper.dict</include>
+            <include>tr/proper-from-corpus.dict</include>
+            <include>tr/abbreviations.dict</include>
             <include>tr/ambiguity/model</include>
           </excludes>
         </configuration>
@@ -113,8 +119,6 @@
             <include>**/*.java</include>
           </includes>
           <excludes>
-            <include>**/*.dict</include>
-            <include>tr/ambiguity/model</include>
             <include>tr/*.*</include>
           </excludes>
         </configuration>

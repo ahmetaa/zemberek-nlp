@@ -71,9 +71,11 @@ public class MorphemeState {
     return builder(id, morpheme).terminal().build();
   }
 
+
   public static MorphemeState nonTerminal(String id, Morpheme morpheme) {
     return builder(id, morpheme).build();
   }
+
 
   public static MorphemeState terminalDerivative(String id, Morpheme morpheme) {
     return builder(id, morpheme).terminal().derivative().build();

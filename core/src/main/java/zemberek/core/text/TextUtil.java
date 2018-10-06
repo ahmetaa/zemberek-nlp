@@ -6,26 +6,23 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import zemberek.core.collections.FixedBitVector;
 import zemberek.core.io.IOs;
 import zemberek.core.io.KeyValueReader;
 import zemberek.core.logging.Log;
 
+//TODO: clean this class. remove unused methods.
 public class TextUtil {
 
   public static final Splitter SPACE_SPLITTER = Splitter.on(" ").omitEmptyStrings().trimResults();
+  public static final Splitter COMMA_SPLITTER = Splitter.on(",").omitEmptyStrings().trimResults();
+
   public static final String HTML_START = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
   public static final String META_CHARSET_UTF8 = "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>";
   public static Pattern HTML_TAG_CONTENT_PATTERN = Regexps.defaultPattern("<[^>]+>");
@@ -290,7 +287,7 @@ public class TextUtil {
    * @param input input which may contain html specific strings.
    * @return cleaned input.
    */
-  public static String convertAmpresandStrings(String input) {
+  public static String convertAmpersandStrings(String input) {
     return Regexps.replaceMap(AMPERSAND_PATTERN.matcher(input), HTML_STRING_TO_CHAR_MAP_FULL);
   }
 
@@ -324,7 +321,7 @@ public class TextUtil {
   }
 
   public static String cleanAllHtmlRelated(String input) {
-    return cleanHtmlTagsAndComments(removeAmpresandStrings(convertAmpresandStrings(input)));
+    return cleanHtmlTagsAndComments(removeAmpresandStrings(convertAmpersandStrings(input)));
   }
 
   /**

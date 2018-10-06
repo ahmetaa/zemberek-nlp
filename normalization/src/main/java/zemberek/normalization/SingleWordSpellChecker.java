@@ -37,7 +37,6 @@ public class SingleWordSpellChecker {
     TURKISH_FQ_NEAR_KEY_MAP.put('g', "fğh");
     TURKISH_FQ_NEAR_KEY_MAP.put('ğ', "gıpü");
     TURKISH_FQ_NEAR_KEY_MAP.put('h', "npgj");
-    TURKISH_FQ_NEAR_KEY_MAP.put('ğ', "gıpü");
     TURKISH_FQ_NEAR_KEY_MAP.put('ı', "ğou");
     TURKISH_FQ_NEAR_KEY_MAP.put('i', "ueş");
     TURKISH_FQ_NEAR_KEY_MAP.put('j', "öhk");
@@ -73,7 +72,6 @@ public class SingleWordSpellChecker {
     TURKISH_Q_NEAR_KEY_MAP.put('g', "fh");
     TURKISH_Q_NEAR_KEY_MAP.put('ğ', "pü");
     TURKISH_Q_NEAR_KEY_MAP.put('h', "gj");
-    TURKISH_Q_NEAR_KEY_MAP.put('ğ', "pü");
     TURKISH_Q_NEAR_KEY_MAP.put('ı', "ou");
     TURKISH_Q_NEAR_KEY_MAP.put('i', "ş");
     TURKISH_Q_NEAR_KEY_MAP.put('j', "hk");

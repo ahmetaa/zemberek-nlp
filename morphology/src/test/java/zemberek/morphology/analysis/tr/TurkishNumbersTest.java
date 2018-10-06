@@ -36,4 +36,13 @@ public class TurkishNumbersTest {
         , TurkishNumbers.seperateConnectedNumbers("birikiüç"));
   }
 
+  @Test
+  public void romanNumberTest() {
+    Assert.assertEquals(-1,
+        TurkishNumbers.romanToDecimal("foo"));
+    Assert.assertEquals(-1,
+        TurkishNumbers.romanToDecimal("IIIIIII"));
+    Assert.assertEquals(1987,
+        TurkishNumbers.romanToDecimal("MCMLXXXVII"));
+  }
 }

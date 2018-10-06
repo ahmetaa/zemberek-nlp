@@ -18,7 +18,7 @@ import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.corpus.WebCorpus;
 import zemberek.corpus.WebDocument;
-import zemberek.deasciifier.Deasciifier;
+import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.langid.LanguageIdentifier;
 import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;

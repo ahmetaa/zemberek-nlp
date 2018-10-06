@@ -32,21 +32,20 @@ public class UIntFloatMap extends UIntKeyHashBase {
     if (key < 0) {
       throw new IllegalArgumentException("Key cannot be negative: " + key);
     }
-
-    int slot = firstProbe(key);
+    int slot = hash(key) & modulo;
     while (true) {
       final int t = keys[slot];
       if (t == EMPTY) {
         return noKeyValue;
       }
       if (t == DELETED) {
-        slot = nextProbe(slot + 1);
+        slot = (slot + 1) & modulo;
         continue;
       }
       if (t == key) {
         return values[slot];
       }
-      slot = nextProbe(slot + 1);
+      slot = (slot + 1) & modulo;
     }
   }
 

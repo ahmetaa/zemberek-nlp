@@ -1,4 +1,4 @@
-package zemberek.deasciifier;
+package zemberek.normalization.deasciifier;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -353,7 +353,6 @@ public class Deasciifier {
     if (turkishPatternTable != null) {
       return;
     }
-
     turkishPatternTable = new HashMap<>();
     InputStream is = this.getClass().getResourceAsStream("/patterns/turkishPatternTable");
 

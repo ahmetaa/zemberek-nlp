@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+option java_package = "zemberek.proto.simple_analysis";
+option java_multiple_files = true;
+
+package zemberek.simple_analysis;
+
+message SentenceRequest {
+  string input = 1;
+}
+
+message WordRequest {
+  string input = 1;
+}
+
+message DictionaryItem_P {
+  string lemma = 1;
+  string pos = 2;
+  string pos2 = 3;
+}
+
+message SingleAnalysis_P {
+  string pos = 1;
+  DictionaryItem_P dictionaryItem = 2;
+  string analysis = 3;
+  bool informal = 4;
+  bool runtime = 5;
+  repeated string lemmas = 6;
+}
+
+message WordAnalysis_P {
+  string input = 1;
+  repeated SingleAnalysis_P analyses = 2;
+}
+
+message SentenceWordAnalysis_P {
+  string token = 1;
+  SingleAnalysis_P best = 2;
+  WordAnalysis_P all = 3;
+}
+
+message SentenceAnalysis_P {
+  string input = 1;
+  repeated SentenceWordAnalysis_P results = 2;
+}
+
+service SimpleAnalysisService {
+  rpc AnalyzeSentence (SentenceRequest) returns (SentenceAnalysis_P);
+  rpc AnalyzeWord (WordRequest) returns (WordAnalysis_P);
+}

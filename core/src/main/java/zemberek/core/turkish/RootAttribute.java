@@ -108,11 +108,6 @@ public enum RootAttribute implements StringEnum {
   // Such as zeytinyağı → zeytinyağ-lar-ı atkuyruğu → atkuyruklu
   CompoundP3sg,
 
-  // This is used for marking words that requires special handling. The operations on those words
-  // are usually requires coding. Such as vebs "demek, yemek" and pronouns "ben, sen".
-  // TODO: This is not required in new analyzer.
-  Special,
-
   // No suffix can be appended to this.
   // TODO: this is not yet used. But some words are marked in dictionary.
   NoSuffix,
@@ -163,6 +158,10 @@ public enum RootAttribute implements StringEnum {
   FamilyMember, // annemler etc.
   PronunciationGuessed,
 
+  // This means word is only used in informal language.
+  // Some applications may want to analyze them with a given informal dictionary.
+  // Examples: kanka, beyfendi, mütahit, antreman, bilimum, gaste, aliminyum, tırt, tweet
+  Informal,
 
   // This is used for temporary DictionaryItems created for words that cannot be analyzed.
   Unknown;

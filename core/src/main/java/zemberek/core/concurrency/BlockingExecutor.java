@@ -10,7 +10,7 @@ import zemberek.core.logging.Log;
 
 public class BlockingExecutor extends ThreadPoolExecutor {
 
-  final Semaphore semaphore;
+  private final Semaphore semaphore;
 
   public BlockingExecutor(int poolSize, int queueSize) {
     super(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingDeque<>());

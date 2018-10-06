@@ -4,14 +4,14 @@ Turkish Morphology
 ## Morphology
 
 Turkish is a morphologically rich language. 
-Project provides morphological analysis, morphological ambiguity resolution and word generation functions.
+Zemberek provides morphological analysis, morphological ambiguity resolution and word generation functions.
 
 ## Maven Usage
  
     <dependency>
         <groupId>zemberek-nlp</groupId>
         <artifactId>zemberek-morphology</artifactId>
-        <version>0.12.0</version>
+        <version>0.15.0</version>
     </dependency>
  
 

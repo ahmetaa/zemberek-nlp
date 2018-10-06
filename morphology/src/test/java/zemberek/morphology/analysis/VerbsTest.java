@@ -256,29 +256,29 @@ public class VerbsTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void abilityNegative() {
+  public void unable() {
     AnalysisTester t = getTester("yazmak");
 
-    t.expectSingle("yazama", matchesTailLex("Verb + Able + Verb + Neg + Imp + A2sg"));
-    t.expectAny("yazamaz", matchesTailLex("Verb + Able + Verb + Neg + Aor + A3sg"));
-    t.expectSingle("yazamıyor", matchesTailLex("Verb + Able + Verb + Neg + Prog1 + A3sg"));
+    t.expectSingle("yazama", matchesTailLex("Verb + Unable + Imp + A2sg"));
+    t.expectAny("yazamaz", matchesTailLex("Verb + Unable + Aor + A3sg"));
+    t.expectSingle("yazamıyor", matchesTailLex("Verb + Unable + Prog1 + A3sg"));
 
     t = getTester("okumak");
 
-    t.expectSingle("okuyama", matchesTailLex("Verb + Able + Verb + Neg + Imp + A2sg"));
-    t.expectSingle("okuyamadım", matchesTailLex("Verb + Able + Verb + Neg + Past + A1sg"));
+    t.expectSingle("okuyama", matchesTailLex("Verb + Unable + Imp + A2sg"));
+    t.expectSingle("okuyamadım", matchesTailLex("Verb + Unable + Past + A1sg"));
     t.expectAny("okutmayabilir",
         matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Aor + A3sg"));
     t.expectAny("okutamayabilir",
-        matchesTailLex("Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Aor + A3sg"));
+        matchesTailLex("Verb + Caus + Verb + Unable + Able + Verb + Aor + A3sg"));
     t.expectAny("okutamayabilirdik",
-        matchesTailLex("Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Aor + Past + A1pl"));
+        matchesTailLex("Verb + Caus + Verb + Unable + Able + Verb + Aor + Past + A1pl"));
 
     t.expectAny("okuyamayabilir",
-        matchesTailLex("Verb + Able + Verb + Neg + Able + Verb + Aor + A3sg"));
+        matchesTailLex("Verb + Unable + Able + Verb + Aor + A3sg"));
 
     t = getTester("yakmak");
-    t.expectSingle("yakamadım", matchesTailLex("Verb + Able + Verb + Neg + Past + A1sg"));
+    t.expectSingle("yakamadım", matchesTailLex("Verb + Unable + Past + A1sg"));
   }
 
   @Test
@@ -336,12 +336,12 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectAny("okunulmayabilir",
         matchesTailLex("Verb + Pass + Verb + Neg + Able + Verb + Aor + A3sg"));
     t.expectAny("okunulamayabilir",
-        matchesTailLex("Verb + Pass + Verb + Able + Verb + Neg + Able + Verb + Aor + A3sg"));
+        matchesTailLex("Verb + Pass + Verb + Unable + Able + Verb + Aor + A3sg"));
   }
 
   @Test
   public void passiveVazgecmek() {
-    AnalysisTester t = getTester("vazgeçmek [A:Aorist_A]","yenmek");
+    AnalysisTester t = getTester("vazgeçmek [A:Aorist_A]", "yenmek");
     t.expectSingle("vazgeçil", matchesTailLex("Verb + Pass + Verb + Imp + A2sg"));
     t.expectAny("vazgeçilmez", matchesTailLex("Verb + Pass + Verb + Neg + AorPart + Adj"));
     t.expectAny("yenilmez", matchesTailLex("Verb + Pass + Verb + Neg + AorPart + Adj"));
@@ -424,7 +424,7 @@ public class VerbsTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Fut + A1pl"));
     t.expectSingle("arattıramayabileceğiz",
         matchesTailLex(
-            "Verb + Caus + Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Fut + A1pl"));
+            "Verb + Caus + Verb + Caus + Verb + Unable + Able + Verb + Fut + A1pl"));
   }
 
   @Test
@@ -460,7 +460,7 @@ public class VerbsTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Caus + Verb + Neg + Able + Verb + Prog2 + A1pl"));
     t.expectAny("arattıramayabilmekteyiz",
         matchesTailLex(
-            "Verb + Caus + Verb + Caus + Verb + Able + Verb + Neg + Able + Verb + Prog2 + A1pl"));
+            "Verb + Caus + Verb + Caus + Verb + Unable + Able + Verb + Prog2 + A1pl"));
   }
 
 
@@ -742,5 +742,14 @@ public class VerbsTest extends AnalyzerTestBase {
     );
   }
 
-
+  /**
+   * For Issue https://github.com/ahmetaa/zemberek-nlp/issues/173
+   */
+  @Test
+  public void negativeShouldNotCOmeAfterAbility_173() {
+    AnalysisTester t = getTester("yazmak");
+    t.expectSingle("yazabil", matchesTailLex("Verb + Able + Verb + Imp + A2sg"));
+    // only analysis. There should not be a "Neg" solution.
+    t.expectSingle("yazabilme", matchesTailLex("Verb + Able + Verb + Inf2 + Noun + A3sg"));
+  }
 }

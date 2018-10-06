@@ -20,9 +20,6 @@ import java.util.zip.GZIPInputStream;
 
 public class TextIO {
 
-  public static final Splitter SPACE_SPLITTER = Splitter.on(" ").omitEmptyStrings().trimResults();
-  public static final Splitter COMMA_SPLITTER = Splitter.on(",").omitEmptyStrings().trimResults();
-
   public static String loadUtfAsString(Path filePath) throws IOException {
     return String.join("\n", Files.readAllLines(filePath, StandardCharsets.UTF_8));
   }

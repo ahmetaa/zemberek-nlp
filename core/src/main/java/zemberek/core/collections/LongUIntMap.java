@@ -7,7 +7,7 @@ public class LongUIntMap {
   public static final int EMPTY_VALUE = -1;
   public static final int DELETED_VALUE = -2;
   static final int INITIAL_SIZE = 8;
-  static final double DEFAULT_LOAD_FACTOR = 0.5;
+  static final double DEFAULT_LOAD_FACTOR = 0.55;
   // Key array.
   long[] keys;
   // Carries unsigned int values.
@@ -38,22 +38,13 @@ public class LongUIntMap {
     modulo = k - 1;
   }
 
-  private int firstProbe(int hashCode) {
-    return hashCode & modulo;
-  }
-
-  private int nextProbe(int previousIndex, int probeCount) {
-    return (previousIndex + probeCount) & modulo;
-  }
-
   private int hash(long key) {
     return Long.hashCode(key);
   }
 
+
   private int locate(long key) {
-    int probeCount = 0;
-    int firstProbe = firstProbe(hash(key));
-    int slot = firstProbe;
+    int slot = hash(key) & modulo;
     int pointer = -1;
     while (true) {
       final int t = values[slot];
@@ -64,13 +55,13 @@ public class LongUIntMap {
         if (pointer < 0) {
           pointer = slot;
         }
-        slot = nextProbe(firstProbe, ++probeCount);
+        slot = (slot + 1) & modulo;
         continue;
       }
       if (key == keys[slot]) {
         return slot;
       }
-      slot = nextProbe(firstProbe, ++probeCount);
+      slot = (slot + 1) & modulo;
     }
   }
 
@@ -92,22 +83,21 @@ public class LongUIntMap {
    * @return count of the key
    */
   public int get(long key) {
-    int probeCount = 0;
-    int firstProbe = firstProbe(hash(key));
-    int slot = firstProbe;
+    int slot = hash(key) & modulo;
+
     while (true) {
       final int t = values[slot];
       if (t == EMPTY_VALUE) {
         return -1;
       }
       if (t == DELETED_VALUE) {
-        slot = nextProbe(firstProbe, ++probeCount);
+        slot = (slot + 1) & modulo;
         continue;
       }
       if (keys[slot] == key) {
         return values[slot];
       }
-      slot = nextProbe(firstProbe, ++probeCount);
+      slot = (slot + 1) & modulo;
     }
   }
 

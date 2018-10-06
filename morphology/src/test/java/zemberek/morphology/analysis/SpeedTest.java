@@ -29,8 +29,7 @@ public class SpeedTest {
     //Path p = Paths.get("/media/aaa/Data/corpora/me-sentences/www.aljazeera.com.tr/2018-02-22");
     Path p = Paths.get("src/test/resources/corpora/cnn-turk-10k");
     List<String> sentences = getSentences(p);
-    TurkishMorphology morphology = TurkishMorphology.builder()
-        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES).build();
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     Stopwatch sw = Stopwatch.createStarted();
 
     int tokenCount = 0;
@@ -47,7 +46,7 @@ public class SpeedTest {
         WordAnalysis results = morphology.analyze(token.getText());
         if (!results.isCorrect()) {
           noAnalysis++;
-          //failedWords.add(token.getText());
+          failedWords.add(token.getText());
         }
       }
       sentenceCount++;

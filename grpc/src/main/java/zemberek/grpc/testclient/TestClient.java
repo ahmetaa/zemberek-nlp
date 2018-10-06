@@ -12,6 +12,10 @@ import zemberek.proto.DetectRequest;
 import zemberek.proto.DetectResponse;
 import zemberek.proto.LanguageIdServiceGrpc;
 import zemberek.proto.LanguageIdServiceGrpc.LanguageIdServiceBlockingStub;
+import zemberek.proto.NormalizationRequest;
+import zemberek.proto.NormalizationResponse;
+import zemberek.proto.NormalizationServiceGrpc;
+import zemberek.proto.NormalizationServiceGrpc.NormalizationServiceBlockingStub;
 import zemberek.proto.PreprocessingServiceGrpc;
 import zemberek.proto.PreprocessingServiceGrpc.PreprocessingServiceBlockingStub;
 import zemberek.proto.SentenceExtractionRequest;
@@ -23,7 +27,7 @@ public class TestClient {
 
   public static void main(String[] args) {
     ManagedChannel channel = ManagedChannelBuilder
-        .forAddress("localhost", ZemberekGrpcServer.PORT)
+        .forAddress("localhost", ZemberekGrpcServer.DEFAULT_PORT)
         .usePlaintext()
         .build();
     AnalysisServiceBlockingStub analysisServiceBlockingStub = AnalysisServiceGrpc
@@ -32,6 +36,8 @@ public class TestClient {
         .newBlockingStub(channel);
     PreprocessingServiceBlockingStub preprocessingServiceBlockingStub =
         PreprocessingServiceGrpc.newBlockingStub(channel);
+    NormalizationServiceBlockingStub normalizationServiceBlockingStub =
+        NormalizationServiceGrpc.newBlockingStub(channel);
 
     Log.info("----- Morphological Analysis ------------ ");
     String input = "tapirler";
@@ -53,6 +59,7 @@ public class TestClient {
     TokenizationResponse tokenizationResponse = preprocessingServiceBlockingStub
         .tokenize(TokenizationRequest.newBuilder()
             .setInput(tokenizationInput)
+            .setIncludeTokenBoundaries(true)
             .build());
     Log.info("Input: " + tokenizationInput);
     Log.info(tokenizationResponse);
@@ -65,5 +72,15 @@ public class TestClient {
             .build());
     Log.info("Input: " + sentenceExtractionInput);
     sentenceExtractionResponse.getSentencesList().forEach(Log::info);
+
+    Log.info("----- Normalization ------------ ");
+    String normalizationiInput = "Merhab ben Zemberk.";
+    NormalizationResponse normalizationResponse = normalizationServiceBlockingStub
+        .normalize(NormalizationRequest.newBuilder()
+            .setInput(normalizationiInput)
+            .build());
+    Log.info("Input: " + normalizationiInput);
+    Log.info("Response: " + normalizationResponse.getNormalizedInput());
+
   }
 }

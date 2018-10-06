@@ -22,8 +22,8 @@ public class CharacterGraphDecoder {
   static final float NEAR_KEY_SUBSTITUTION_PENALTY = 0.5f;
   static final float TRANSPOSITION_PENALTY = 1;
   private static final Locale tr = new Locale("tr");
-  public static DeasciifierMatcher ASCII_TOLERANT_MATCHER = new DeasciifierMatcher();
-  private static ExactMatcher EXACT_MATCHER = new ExactMatcher();
+  public static final DeasciifierMatcher ASCII_TOLERANT_MATCHER = new DeasciifierMatcher();
+  public static final ExactMatcher EXACT_MATCHER = new ExactMatcher();
 
   static {
     Map<Character, String> map = TURKISH_FQ_NEAR_KEY_MAP;
@@ -180,6 +180,11 @@ public class CharacterGraphDecoder {
   public List<String> getSuggestions(String input) {
     return new Decoder().decode(input).getKeyList();
   }
+
+  public List<String> getSuggestions(String input, CharMatcher matcher) {
+    return new Decoder(matcher).decode(input).getKeyList();
+  }
+
 
   public List<String> getSuggestionsSorted(String input) {
     List<ScoredItem<String>> s = getSuggestionsWithScores(input);

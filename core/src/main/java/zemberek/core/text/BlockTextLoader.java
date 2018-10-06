@@ -10,11 +10,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * TODO: remove this class once finding a way to move iteratorFromCharIndex to MultiPathBlockTextLoader
+ * and rename MultiPathBlockTextLoader
+ * This class can be used for working with large text files without loading all its contents.
+ */
 public class BlockTextLoader implements Iterable<List<String>> {
 
-  private Path path;
-  private int blockSize;
-  private Charset charset;
+  // by default load 10,000 lines.
+  public static final int DEFAULT_BLOCK_SIZE = 10_000;
+
+  public final Path path;
+  public final int blockSize;
+  public final Charset charset;
 
   public BlockTextLoader(Path path, Charset charset, int blockSize) {
     this.path = path;
@@ -26,6 +34,9 @@ public class BlockTextLoader implements Iterable<List<String>> {
     this(path, StandardCharsets.UTF_8, blockSize);
   }
 
+  /**
+   * Returns an Iterator that loads [blocksize] lines in each iteration.
+   */
   @Override
   public Iterator<List<String>> iterator() {
     try {
@@ -37,6 +48,10 @@ public class BlockTextLoader implements Iterable<List<String>> {
     }
   }
 
+  /**
+   * Returns an Iterator that loads [blocksize] lines in each iteration.
+   * It starts loading from [charIndex] value of the content.
+   */
   public Iterator<List<String>> iteratorFromCharIndex(long charIndex) {
     try {
       BufferedReader reader = Files.newBufferedReader(path, charset);

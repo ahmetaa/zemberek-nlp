@@ -6,12 +6,13 @@ public class PronounsTest extends AnalyzerTestBase {
 
   @Test
   public void benSenTest1() {
-    AnalysisTester tester = getTester("ben [P:Pron,Pers ;A:Special]");
+    AnalysisTester tester = getTester("ben [P:Pron,Pers]");
     tester.expectSingle("ben", matchesTailLex("Pron + A1sg"));
     tester.expectSingle("bana", matchesTailLex("Pron + A1sg + Dat"));
     tester.expectSingle("beni", matchesTailLex("Pron + A1sg + Acc"));
     tester.expectAny("benim", matchesTailLex("Pron + A1sg + Gen"));
     tester.expectAny("benken", matchesTailLex("Pron + A1sg + Zero + Verb + While + Adv"));
+    tester.expectSingle("benimle", matchesTailLex("Pron + A1sg + Ins"));
 
     tester.expectFail(
         "ban",
@@ -22,11 +23,12 @@ public class PronounsTest extends AnalyzerTestBase {
         "benler"
     );
 
-    tester = getTester("sen [P:Pron,Pers ;A:Special]");
+    tester = getTester("sen [P:Pron,Pers]");
     tester.expectSingle("sen", matchesTailLex("Pron + A2sg"));
     tester.expectSingle("sana", matchesTailLex("Pron + A2sg + Dat"));
     tester.expectSingle("seni", matchesTailLex("Pron + A2sg + Acc"));
     tester.expectSingle("senin", matchesTailLex("Pron + A2sg + Gen"));
+    tester.expectSingle("seninle", matchesTailLex("Pron + A2sg + Ins"));
 
     tester.expectFail(
         "san",
@@ -44,6 +46,8 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("onu", matchesTailLex("Pron + A3sg + Acc"));
     tester.expectSingle("onlar", matchesTailLex("Pron + A3pl"));
     tester.expectSingle("onlara", matchesTailLex("Pron + A3pl + Dat"));
+    tester.expectSingle("onunla", matchesTailLex("Pron + A3sg + Ins"));
+
   }
 
   @Test
@@ -71,6 +75,8 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("bizi", matchesTailLex("Pron + A1pl + Acc"));
     tester.expectSingle("bizim", matchesTailLex("Pron + A1pl + Gen"));
     tester.expectSingle("bizce", matchesTailLex("Pron + A1pl + Equ"));
+    tester.expectSingle("bizimle", matchesTailLex("Pron + A1pl + Ins"));
+
 
     tester.expectFail(
         "bizin"
@@ -176,7 +182,7 @@ public class PronounsTest extends AnalyzerTestBase {
 
   @Test
   public void birbiriTest() {
-    AnalysisTester tester = getTester("birbiri [P:Pron,Quant; A:Special]");
+    AnalysisTester tester = getTester("birbiri [P:Pron,Quant]");
 
     tester.expectSingle("birbiri", matchesTailLex("Pron + A3sg + P3sg"));
     tester.expectSingle("birbirine", matchesTailLex("Pron + A3sg + P3sg + Dat"));
@@ -354,7 +360,7 @@ public class PronounsTest extends AnalyzerTestBase {
 
   @Test
   public void bircoguTest() {
-    AnalysisTester tester = getTester("birçoğu [P:Pron,Quant; A:Special]");
+    AnalysisTester tester = getTester("birçoğu [P:Pron,Quant]");
     tester.expectSingle("birçoğu", matchesTailLex("Pron + A3pl + P3pl"));
     tester.expectSingle("birçoğumuz", matchesTailLex("Pron + A1pl + P1pl"));
     tester.expectSingle("birçoğunuz", matchesTailLex("Pron + A2pl + P2pl"));
@@ -395,7 +401,7 @@ public class PronounsTest extends AnalyzerTestBase {
 
   @Test
   public void oburuTest() {
-    AnalysisTester tester = getTester("öbürü [P:Pron,Quant; A:Special]");
+    AnalysisTester tester = getTester("öbürü [P:Pron,Quant]");
     tester.expectSingle("öbürü", matchesTailLex("Pron + A3sg + P3sg"));
     tester.expectSingle("öbürüne", matchesTailLex("Pron + A3sg + P3sg + Dat"));
     tester.expectSingle("öbürünü", matchesTailLex("Pron + A3sg + P3sg + Acc"));
@@ -538,6 +544,45 @@ public class PronounsTest extends AnalyzerTestBase {
     // kendine has 2 analyses
     tester.expectAny("kendine", matchesTailLex("Pron + A3sg + P3sg + Dat"));
     tester.expectAny("kendine", matchesTailLex("Pron + A2sg + P2sg + Dat"));
+  }
+
+  /**
+   * Test for issues
+   * <a href="https://github.com/ahmetaa/zemberek-nlp/issues/171">171</a>
+   * <a href="https://github.com/ahmetaa/zemberek-nlp/issues/172">172</a>
+   */
+  @Test
+  public void kendiTest_issues_171_172() {
+    AnalysisTester tester = getTester("kendi [P:Pron,Reflex]");
+
+    tester.expectSingle("kendime", matchesTailLex("Pron + A1sg + P1sg + Dat"));
+    tester.expectSingle("kendimde", matchesTailLex("Pron + A1sg + P1sg + Loc"));
+    tester.expectSingle("kendimden", matchesTailLex("Pron + A1sg + P1sg + Abl"));
+    tester.expectSingle("kendimce", matchesTailLex("Pron + A1sg + P1sg + Equ"));
+    tester.expectSingle("kendimle", matchesTailLex("Pron + A1sg + P1sg + Ins"));
+
+    // These also have A3sg analyses.
+    tester.expectAny("kendine", matchesTailLex("Pron + A2sg + P2sg + Dat"));
+    tester.expectAny("kendinde", matchesTailLex("Pron + A2sg + P2sg + Loc"));
+    tester.expectAny("kendinden", matchesTailLex("Pron + A2sg + P2sg + Abl"));
+    tester.expectAny("kendince", matchesTailLex("Pron + A2sg + P2sg + Equ"));
+    tester.expectAny("kendinle", matchesTailLex("Pron + A2sg + P2sg + Ins"));
+
+  }
+
+  /**
+   * Test for issue
+   * <a href="https://github.com/ahmetaa/zemberek-nlp/issues/178">178</a>
+   */
+  @Test
+  public void herkesteTest_issue_178() {
+    AnalysisTester tester = getTester("herkes [P:Pron,Quant]");
+
+    tester.expectSingle("herkese", matchesTailLex("Pron + A3pl + Dat"));
+    tester.expectSingle("herkeste", matchesTailLex("Pron + A3pl + Loc"));
+    tester.expectSingle("herkesten", matchesTailLex("Pron + A3pl + Abl"));
+    tester.expectSingle("herkesçe", matchesTailLex("Pron + A3pl + Equ"));
+    tester.expectSingle("herkesle", matchesTailLex("Pron + A3pl + Ins"));
   }
 
 }

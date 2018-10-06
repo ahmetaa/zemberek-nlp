@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Arrays;
 import zemberek.core.hash.LargeNgramMphf;
 import zemberek.core.hash.Mphf;
@@ -198,6 +199,10 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
     return new Builder(modelFile);
   }
 
+  public static Builder builder(Path modelFile) throws IOException {
+    return new Builder(modelFile.toFile());
+  }
+
   /**
    * Returns human readable information about the model.
    */
@@ -285,7 +290,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
    */
   @Override
   public boolean ngramExists(int... wordIndexes) {
-    if (wordIndexes.length < 1 || wordIndexes.length > order - 1) {
+    if (wordIndexes.length < 1 || wordIndexes.length > order) {
       throw new IllegalArgumentException("Amount of tokens must be between 1 and " +
           order + " But it is " + wordIndexes.length);
     }

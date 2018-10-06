@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,8 +43,7 @@ public class Histogram<T> implements Iterable<T> {
   }
 
   /**
-   * Loads from file with format:
-   * [key][delimiter][count]
+   * Loads from file with format: [key][delimiter][count]
    */
   public static Histogram<String> loadFromLines(List<String> lines, char delimiter) {
     return loadFromLines(lines, delimiter, true);
@@ -69,8 +69,8 @@ public class Histogram<T> implements Iterable<T> {
 
   /**
    * Loads a String Histogram from a file. Counts are supposedly delimited with `delimiter`
-   * character.
-   * format: [key][delimiter][count]
+   * character. format: [key][delimiter][count]
+   *
    * @param path file path
    * @param delimiter delimiter
    * @return a Histogram.
@@ -431,6 +431,23 @@ public class Histogram<T> implements Iterable<T> {
     List<T> l = Lists.newArrayListWithCapacity(map.size());
     l.addAll(getSortedEntryList().stream().map(entry -> entry.key).collect(Collectors.toList()));
     return l;
+  }
+
+  /**
+   * Returns keys that both histogram contain.
+   * @param other Another Histogram
+   * @return A set of keys that both histogram contain.
+   */
+  public Set<T> getIntersectionOfKeys(Histogram<T> other) {
+    LinkedHashSet<T> result = new LinkedHashSet<>();
+    Histogram<T> smaller = other.size() < size() ? other : this;
+    Histogram<T> larger = smaller == this ? other : this;
+    for (T t : smaller.getSortedList()) {
+      if (larger.contains(t)) {
+        result.add(t);
+      }
+    }
+    return result;
   }
 
   /**

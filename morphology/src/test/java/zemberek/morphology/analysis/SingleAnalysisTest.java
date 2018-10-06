@@ -76,7 +76,7 @@ public class SingleAnalysisTest extends AnalyzerTestBase {
     Assert.assertEquals(toList("kitap"), analysis.getStems());
 
     analysis = analyzer.analyze("kitabımmış").get(0);
-    Assert.assertEquals(toList("kitab","kitabım"), analysis.getStems());
+    Assert.assertEquals(toList("kitab", "kitabım"), analysis.getStems());
 
     analysis = analyzer.analyze("kitapçığa").get(0);
     Assert.assertEquals(toList("kitap", "kitapçığ"), analysis.getStems());
@@ -89,9 +89,10 @@ public class SingleAnalysisTest extends AnalyzerTestBase {
     analysis = analyzer.analyze("okutturuluyor").get(0);
     Assert.assertEquals(toList("oku", "okut", "okuttur", "okutturul"), analysis.getStems());
     analysis = analyzer.analyze("okutturamıyor").get(0);
-    Assert.assertEquals(toList("oku", "okut", "okuttur", "okuttura"), analysis.getStems());
+    Assert.assertEquals(toList("oku", "okut", "okuttur"), analysis.getStems());
+    analysis = analyzer.analyze("okutturabiliyor").get(0);
+    Assert.assertEquals(toList("oku", "okut", "okuttur", "okutturabil"), analysis.getStems());
   }
-
 
   @Test
   public void getLemmasTest() {
@@ -119,7 +120,26 @@ public class SingleAnalysisTest extends AnalyzerTestBase {
     analysis = analyzer.analyze("okutturuluyor").get(0);
     Assert.assertEquals(toList("oku", "okut", "okuttur", "okutturul"), analysis.getLemmas());
     analysis = analyzer.analyze("okutturamıyor").get(0);
-    Assert.assertEquals(toList("oku", "okut", "okuttur", "okuttura"), analysis.getLemmas());
+    Assert.assertEquals(toList("oku", "okut", "okuttur"), analysis.getLemmas());
+    analysis = analyzer.analyze("okutturabiliyor").get(0);
+    Assert.assertEquals(toList("oku", "okut", "okuttur", "okutturabil"), analysis.getLemmas());
+
+  }
+
+  @Test
+  public void getLemmasAfterZeroMorphemeTest_Issue_175() {
+    InterpretingAnalyzer analyzer = getAnalyzer("gün");
+    List<SingleAnalysis> analyses = analyzer.analyze("günlüğüm");
+    boolean found = false;
+    for (SingleAnalysis analysis : analyses) {
+      if (analysis.formatLong().contains("Ness→Noun+A3sg|Zero→Verb")) {
+        found = true;
+        Assert.assertEquals(toList("gün", "günlük"), analysis.getLemmas());
+      }
+    }
+    if (!found) {
+      Assert.fail("Counld not found an analysis with `Ness→Noun+A3sg|Zero→Verb` in it");
+    }
   }
 
 

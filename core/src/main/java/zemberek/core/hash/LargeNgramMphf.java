@@ -71,7 +71,7 @@ public class LargeNgramMphf implements Mphf {
     Splitter splitter = new Splitter(file, tmp, chunkBits);
     Log.info("Gram count: " + splitter.gramCount);
     Log.info("Segment count: " + splitter.pageCount);
-    Log.info("Avrg segment size: " + (1 << splitter.pageBit));
+    Log.info("Average segment size: " + (1 << splitter.pageBit));
     Log.info("Segmenting File...");
     splitter.split();
     int bucketBits = splitter.pageBit - 2;

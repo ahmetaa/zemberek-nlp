@@ -11,16 +11,17 @@ import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.ScoredItem;
 import zemberek.core.logging.Log;
+import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.lm.DummyLanguageModel;
 import zemberek.lm.LmVocabulary;
 import zemberek.lm.NgramLanguageModel;
 import zemberek.lm.compression.SmoothLm;
-import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.WordAnalysisSurfaceFormatter;
-import zemberek.core.turkish.Turkish;
+import zemberek.normalization.CharacterGraphDecoder.CharMatcher;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 
@@ -32,11 +33,12 @@ public class TurkishSpellChecker {
   WordAnalysisSurfaceFormatter formatter = new WordAnalysisSurfaceFormatter();
   CharacterGraphDecoder decoder;
   NgramLanguageModel unigramModel;
+  CharMatcher charMatcher = CharacterGraphDecoder.EXACT_MATCHER;
 
   public TurkishSpellChecker(TurkishMorphology morphology) throws IOException {
     this.morphology = morphology;
     StemEndingGraph graph = new StemEndingGraph(morphology);
-    decoder = new CharacterGraphDecoder(graph.stemGraph);
+    this.decoder = new CharacterGraphDecoder(graph.stemGraph);
     try (InputStream is = Resources.getResource("lm-unigram.slm").openStream()) {
       unigramModel = SmoothLm.builder(is).build();
     }
@@ -44,7 +46,16 @@ public class TurkishSpellChecker {
 
   public TurkishSpellChecker(TurkishMorphology morphology, CharacterGraph graph) {
     this.morphology = morphology;
-    decoder = new CharacterGraphDecoder(graph);
+    this.decoder = new CharacterGraphDecoder(graph);
+  }
+
+  public TurkishSpellChecker(
+      TurkishMorphology morphology,
+      CharacterGraphDecoder decoder,
+      CharMatcher matcher) {
+    this.morphology = morphology;
+    this.decoder = decoder;
+    this.charMatcher = matcher;
   }
 
   //TODO: this does not cover all token types.
@@ -104,7 +115,7 @@ public class TurkishSpellChecker {
 
   private List<String> getUnrankedSuggestions(String word) {
     String normalized = TurkishAlphabet.INSTANCE.normalize(word).replaceAll("['’]", "");
-    List<String> strings = decoder.getSuggestions(normalized);
+    List<String> strings = decoder.getSuggestions(normalized, charMatcher);
 
     WordAnalysisSurfaceFormatter.CaseType caseType = formatter.guessCase(word);
     if (caseType == WordAnalysisSurfaceFormatter.CaseType.MIXED_CASE ||

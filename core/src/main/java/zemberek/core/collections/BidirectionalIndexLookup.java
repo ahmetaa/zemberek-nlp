@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.List;
 import zemberek.core.StringPair;
 import zemberek.core.text.TextIO;
-import zemberek.core.text.TextUtil;
 
 public class BidirectionalIndexLookup<T> {
 

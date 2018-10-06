@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.custom.CustomAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
@@ -50,7 +51,10 @@ public class LuceneIndexer {
 
   public void addCorpora(List<Path> corpora, double ramBufferInMb) throws IOException {
     Directory dir = FSDirectory.open(indexPath);
-    Analyzer analyzer = new StandardAnalyzer();
+    Analyzer analyzer = CustomAnalyzer.builder()
+        .withTokenizer("standard")
+        .addTokenFilter(LuceneLemmaFilter.Factory.class)
+        .build();
     IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
 
     iwc.setOpenMode(OpenMode.CREATE_OR_APPEND);
@@ -70,15 +74,14 @@ public class LuceneIndexer {
   }
 
   public static void main(String[] args) throws IOException {
-    Path indexRoot = Paths.get("/home/aaa/data/zemberek/corpus-index");
+    Path indexRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpus-index-lemma");
     LuceneIndexer index = new LuceneIndexer(indexRoot);
 
-    Path corporaRoot = Paths.get("/media/aaa/Data/corpora/final/www.haberturk.com");
+    Path corporaRoot = Paths.get("/media/ahmetaa/depo/zemberek/data/corpora/www.cnnturk.com");
     List<Path> corpora = Files.walk(corporaRoot, 1)
         .filter(s -> s.toFile().isFile())
         .collect(Collectors.toList());
     index.addCorpora(corpora, 1024 * 4);
   }
-
 
 }

@@ -9,15 +9,16 @@ import java.util.List;
  * A simple hashmap with integer keys and T values. implements open address linear probing
  * algorithm.
  * <p> Constraints:
+ * <pre>
  * - Supports int key values in range (Integer.MIN_VALUE..Integer.MAX_VALUE];
  * - Does not implement Map interface
  * - Size can be max 1 << 29
  * - Does not support remove.
  * - Does not implement Iterable.
  * - Class is not thread safe.
- *
- * If created as an externally managed IntMap, it does not expand automatically when
- * capacity threshold is reached, and must be expanded by callers.
+ * </pre>
+ * If created as an externally managed IntMap, it does not expand automatically when capacity
+ * threshold is reached, and must be expanded by callers.
  */
 public final class IntMap<T> implements Iterable<T> {
 
@@ -26,7 +27,7 @@ public final class IntMap<T> implements Iterable<T> {
    * Capacity of the map is expanded when size reaches to capacity * LOAD_FACTOR. This value is
    * selected to fit max 5 elements to 8 and 10 elements to a 16 sized map.
    */
-  private static final float LOAD_FACTOR = 0.65f;
+  private static final float LOAD_FACTOR = 0.55f;
 
   private static final int MAX_CAPACITY = 1 << 29;
 
@@ -111,7 +112,9 @@ public final class IntMap<T> implements Iterable<T> {
   public boolean put(int key, T value) {
     checkKey(key);
     if (keyCount == threshold) {
-      if (managed) return false;
+      if (managed) {
+        return false;
+      }
       expandInternal();
     }
     int loc = locate(key);
@@ -133,7 +136,7 @@ public final class IntMap<T> implements Iterable<T> {
    */
   public T get(int key) {
     checkKey(key);
-    int slot = key & modulo;
+    int slot = rehash(key) & modulo;
     // Test the lucky first shot.
     if (key == keys[slot]) {
       return values[slot];
@@ -182,8 +185,14 @@ public final class IntMap<T> implements Iterable<T> {
     return result;
   }
 
+  private int rehash(int hash) {
+    // 0x9E3779B9 is int phi, it has some nice distributing characteristics.
+    final int h = hash * 0x9E3779B9;
+    return h ^ (h >> 16);
+  }
+
   private int locate(int key) {
-    int slot = key & modulo;
+    int slot = rehash(key) & modulo;
     while (true) {
       final int k = keys[slot];
       // If slot is empty, return its location

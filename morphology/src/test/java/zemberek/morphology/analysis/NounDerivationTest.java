@@ -68,8 +68,6 @@ public class NounDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Noun + A3sg + JustLike + Adj"));
     tester.expectAny("zeytinyağsı",
         matchesTailLex("Noun + A3sg + JustLike + Adj"));
-
-
   }
 
   // check for
@@ -508,8 +506,33 @@ public class NounDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Zero + Verb + Narr + A3sg + AsIf + Adv"));
     tester.expectSingle("dostmuşlarcasına",
         matchesTailLex("Zero + Verb + Narr + A3pl + AsIf + Adv"));
-
   }
 
+  /**
+   * Test for Issue 170.
+   * After justlike derivation, P2sg should not be allowed.
+   * Such as: "güzelsin"
+   */
+  @Test
+  public void justlikeTest_Issue_170() {
+    AnalysisTester tester = getTester("güzel [P:Adj]");
+    // no Justlike+Noun+A3sg+P2sg allowed
+    tester.expectSingle("güzelsin", matchesTailLex("Zero + Verb + Pres + A2sg"));
+    tester = getTester("odun");
+    // no Justlike+Adj+Zero+A3sg+P2sg allowed
+    tester.expectSingle("odunsun", matchesTailLex("Noun + A3sg + Zero + Verb + Pres + A2sg"));
+  }
+
+  /**
+   * Test for Issue 167.
+   * For adjective to noun derivation like `mor-luk`
+   * two analysis was produced. One was redundant.
+   */
+  @Test
+  public void nessTest_Issue_167() {
+    AnalysisTester tester = getTester("mor [P:Adj]");
+    // no Adj|Zero→Noun+A3sg|luk:Ness→Noun+A3sg
+    tester.expectSingle("morluk", matchesTailLex("Adj + Ness + Noun + A3sg"));
+  }
 
 }

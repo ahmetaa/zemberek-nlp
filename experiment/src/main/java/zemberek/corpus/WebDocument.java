@@ -67,7 +67,7 @@ public class WebDocument {
   private static String getAttribute(Pattern pattern, String content) {
     String str = Regexps.firstMatch(pattern, content, 2);
     str = str == null ? "" : str.replace('\"', ' ').trim();
-    return TextUtil.convertAmpresandStrings(str);
+    return TextUtil.convertAmpersandStrings(str);
   }
 
   public int contentLength() {

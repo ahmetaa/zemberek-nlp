@@ -15,7 +15,7 @@ abstract class HashBase<T> {
   static final int INITIAL_SIZE = 4;
   // Used for marking slots of deleted keys.
   static final Object TOMB_STONE = new Object();
-  private static final double DEFAULT_LOAD_FACTOR = 0.7;
+  private static final double DEFAULT_LOAD_FACTOR = 0.55;
   // Key array.
   protected T[] keys;
   int keyCount;
@@ -23,7 +23,7 @@ abstract class HashBase<T> {
   // When structure has this amount of keys, it expands the key and count arrays.
   int threshold;
   // This is the size-1 of the key and value array length. Array length is a value power of two
-  private int modulo;
+  protected int modulo;
 
   HashBase(int size) {
     if (size < 1) {
@@ -59,6 +59,8 @@ abstract class HashBase<T> {
     this.removeCount = 0;
   }
 
+  // TODO: here if key count is less than half of the values array should be shrunk.
+  // This may happen after lots of removal operations
   int newSize() {
     long size = keys.length * 2L;
     if (size > Integer.MAX_VALUE) {
@@ -67,16 +69,9 @@ abstract class HashBase<T> {
     return (int) size;
   }
 
-  protected int firstProbe(int hashCode) {
-    return hashCode & modulo;
-  }
-
-  protected int nextProbe(int index) {
-    return index & modulo;
-  }
-
   protected int hash(T key) {
-    return key.hashCode();
+    final int h = key.hashCode() * 0x9E3779B9;
+    return (h ^ (h >> 16)) & 0x7fff_ffff;
   }
 
   /**
@@ -103,7 +98,7 @@ abstract class HashBase<T> {
    * avoid the 0 index problem.
    */
   protected int locate(T key) {
-    int slot = firstProbe(hash(key));
+    int slot = hash(key) & modulo;
     int pointer = -1;
     while (true) {
       final T t = keys[slot];
@@ -114,13 +109,13 @@ abstract class HashBase<T> {
         if (pointer < 0) {
           pointer = slot; // marking the first deleted slot.
         }
-        slot = nextProbe(slot + 1);
+        slot = (slot + 1) & modulo;
         continue;
       }
       if (t.equals(key)) {
         return slot;
       }
-      slot = nextProbe(slot + 1);
+      slot = (slot + 1) & modulo;
     }
   }
 
@@ -210,7 +205,26 @@ abstract class HashBase<T> {
   }
 
   public String toString() {
-    return "[ Size = " + size() + " Keys = " + Joiner.on(", ").join(this.iterator()) + "]";
+    String keys;
+    if (keyCount < 100) {
+      keys = Joiner.on(", ").join(this.iterator());
+    } else {
+      StringBuilder sb = new StringBuilder();
+      Iterator<T> it = iterator();
+      int i = 0;
+      while (it.hasNext() && i < 100) {
+        sb.append(it.next().toString());
+        if (i < 99) {
+          sb.append(", ");
+        }
+        i++;
+      }
+      sb.append("...");
+      keys = sb.toString();
+    }
+    return "[ Size = " + size() + " Capacity = " + capacity() +
+        " Remove Count = " + removeCount + " Modulo = " + modulo +
+        " Keys = " + keys + " ]";
   }
 
   private class KeyIterator implements Iterator<T> {

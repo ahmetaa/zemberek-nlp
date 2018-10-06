@@ -162,9 +162,7 @@ public class UIntMapTest {
       }
 
       for (int key : keys) {
-        if (map.containsKey(key)) {
-          map.remove(key);
-        }
+        map.remove(key);
       }
     }
     System.out.println("Map Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));

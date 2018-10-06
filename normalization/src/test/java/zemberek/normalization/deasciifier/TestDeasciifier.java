@@ -1,4 +1,4 @@
-package zemberek.deasciifier;
+package zemberek.normalization.deasciifier;
 
 /**
  * Roughly tests deasciifying functionality. Planning to convert to a JUnit test.

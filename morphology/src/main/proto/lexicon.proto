@@ -76,23 +76,23 @@ enum RootAttribute {
   Doubling = 9;
   LastVowelDrop = 10;
   CompoundP3sg = 11;
-  Special = 12;
-  NoSuffix = 13;
-  NounConsInsert_n = 14;
-  NoQuote = 15;
-  CompoundP3sgRoot = 16;
-  Reflexive = 17;
-  Reciprocal = 18;
-  Ext = 19;
-  Runtime = 20;
-  Dummy = 21;
-  NonReciprocal = 22;
-  ImplicitDative = 23;
-  ImplicitPlural = 24;
-  ImplicitP1sg = 25;
-  ImplicitP2sg = 26;
-  FamilyMember = 27;
-  PronunciationGuessed = 28;
+  NoSuffix = 12;
+  NounConsInsert_n = 13;
+  NoQuote = 14;
+  CompoundP3sgRoot = 15;
+  Reflexive = 16;
+  Reciprocal = 17;
+  Ext = 18;
+  Runtime = 29;
+  Dummy = 20;
+  NonReciprocal = 21;
+  ImplicitDative = 22;
+  ImplicitPlural = 23;
+  ImplicitP1sg = 24;
+  ImplicitP2sg = 25;
+  FamilyMember = 26;
+  PronunciationGuessed = 27;
+  Informal = 28;
 }
 
 message DictionaryItem {

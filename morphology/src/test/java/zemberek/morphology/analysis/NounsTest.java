@@ -6,7 +6,6 @@ import org.junit.Test;
 
 public class NounsTest extends AnalyzerTestBase {
 
-
   @Test
   public void implicitDative_1() {
     AnalysisTester t = getTester("içeri [A:ImplicitDative]");
@@ -36,7 +35,7 @@ public class NounsTest extends AnalyzerTestBase {
 
   @Test
   public void lastVowelDropExceptionTest() {
-    AnalysisTester t = getTester("içeri [A:ImplicitDative, Special]");
+    AnalysisTester t = getTester("içeri [A:ImplicitDative]");
 
     t.expectAny("içeri", matchesTailLex("Noun + A3sg + Dat"));
     t.expectAny("içeride", matchesTailLex("Noun + A3sg + Loc"));

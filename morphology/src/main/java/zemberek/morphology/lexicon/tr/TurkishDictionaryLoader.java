@@ -23,6 +23,7 @@ import zemberek.core.enums.StringEnumMap;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
@@ -68,11 +69,20 @@ public class TurkishDictionaryLoader {
     return load(lines);
   }
 
-  public RootLexicon load(File input) throws IOException {
+  public static RootLexicon loadFromResources(String... resourcePaths)
+      throws IOException {
+    List<String> lines = Lists.newArrayList();
+    for (String resourcePath : resourcePaths) {
+      lines.addAll(TextIO.loadLinesFromResource(resourcePath, "##"));
+    }
+    return load(lines);
+  }
+
+  public static RootLexicon load(File input) throws IOException {
     return Files.asCharSource(input, Charsets.UTF_8).readLines(new TextLexiconProcessor());
   }
 
-  public RootLexicon loadInto(RootLexicon lexicon, File input) throws IOException {
+  public static RootLexicon loadInto(RootLexicon lexicon, File input) throws IOException {
     return Files
         .asCharSource(input, Charsets.UTF_8).readLines(new TextLexiconProcessor(lexicon));
   }
@@ -130,29 +140,6 @@ public class TurkishDictionaryLoader {
     @Override
     public String getStringForm() {
       return form;
-    }
-  }
-
-
-  public enum Digit {
-    CARDINAL("#", "^[+\\-]?\\d+$", SecondaryPos.Cardinal),
-    ORDINAL("#.", "^[+\\-]?[0-9]+[.]$", SecondaryPos.Ordinal),
-    RANGE("#-#", "^[+\\-]?[0-9]+-[0-9]+$", SecondaryPos.Range),
-    REAL("#,#", "^[+\\-]?[0-9]+[,][0-9]+$|^[+\\-]?[0-9]+[.][0-9]+$", SecondaryPos.Real),
-    DISTRIB("#DIS", "^\\d+[^0-9]+$", SecondaryPos.Distribution),
-    PERCENTAGE("%#", "^[%][0-9]+,[0-9]?+$|^[%][0-9]?+$|^[%][0-9].[0-9]?+$",
-        SecondaryPos.Percentage),
-    CLOCK("#:#", "^[0-9]{2}:[0-9]{2}$", SecondaryPos.Clock),
-    DATE("##.##.####", "^[0-9]{2}\\.[0-9]{2}\\.[1-9]{4}$", SecondaryPos.Date);
-
-    public String lemma;
-    public Pattern pattern;
-    public SecondaryPos secondaryPos;
-
-    Digit(String lemma, String patternStr, SecondaryPos secondaryPos) {
-      this.lemma = lemma;
-      this.pattern = Pattern.compile(patternStr);
-      this.secondaryPos = secondaryPos;
     }
   }
 
@@ -363,6 +350,23 @@ public class TurkishDictionaryLoader {
         attributes.add(RootAttribute.PronunciationGuessed);
       }
 
+      // here if there is an item with same lemma and pos values but attributes are different,
+      // we increment the index.
+      while (true) {
+        String id = DictionaryItem.generateId(data.word, posInfo.primaryPos, secondaryPos, index);
+        DictionaryItem existingItem = rootLexicon.getItemById(id);
+        if (existingItem != null && existingItem.id.equals(id)) {
+          if (attributes.equals(existingItem.attributes)) {
+            Log.warn("Item already defined : %s" + existingItem);
+            break;
+          } else {
+            index++;
+          }
+        } else {
+          break;
+        }
+      }
+
       return new DictionaryItem(
           data.word,
           cleanWord,
@@ -515,6 +519,7 @@ public class TurkishDictionaryLoader {
           if (vowelCount > 1
               && alphabet.isStopConsonant(last)
               && posData.secondaryPos != SecondaryPos.ProperNoun
+              && posData.secondaryPos != SecondaryPos.Abbreviation
               && !attributes.contains(RootAttribute.NoVoicing)
               && !attributes.contains(RootAttribute.InverseHarmony)) {
             attributes.add(RootAttribute.Voicing);
