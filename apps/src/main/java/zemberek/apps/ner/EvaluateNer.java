@@ -32,15 +32,17 @@ public class EvaluateNer extends NerAppBase {
       names = {"--hypothesis", "-h"},
       required = true,
       description = "This is the result of a NER system. If this file is provided, system will "
-          + "evaluate it against reference file. If this is not provided, system will apply NER "
+          + "evaluate it against reference file directly. Hypothesis and reference sentences count"
+          + "and order must be the same. "
+          + "If hypothesis is not provided, system will apply NER "
           + " on reference with given model and evaluate its result against reference data.")
   public Path hypothesisPath;
 
   @Override
   public String description() {
     return
-        "Evaluates an annotated NER data set (reference) by either actually running a with a "
-            + "given model. Or directly evaluating a hypothesis against reference";
+        "Evaluates an annotated NER data set (reference) by either actually running NER with a "
+            + "given model or against an already generated hypothesis data.";
   }
 
   @Override
@@ -61,6 +63,7 @@ public class EvaluateNer extends NerAppBase {
     Log.info(reference.info());
 
     if (hypothesisPath == null) {
+
       TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
       PerceptronNer ner = PerceptronNer.loadModel(modelRoot, morphology);
       Stopwatch sw = Stopwatch.createStarted();
