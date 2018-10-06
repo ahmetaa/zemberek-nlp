@@ -37,7 +37,7 @@ public class StemEndingGraph {
     }
   }
 
-  StemEndingGraph(TurkishMorphology morphology, List<String> endings) throws IOException {
+  StemEndingGraph(TurkishMorphology morphology, List<String> endings) {
     this.morphology = morphology;
     this.endingGraph = generateEndingGraph(endings);
     this.stemGraph = generateStemGraph();

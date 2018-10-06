@@ -281,7 +281,7 @@ public class TurkishMorphology {
       return this;
     }
 
-    public Builder useLexicon(RootLexicon lexicon) throws IOException {
+    public Builder useLexicon(RootLexicon lexicon) {
       this.lexicon = lexicon;
       return this;
     }

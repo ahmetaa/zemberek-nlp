@@ -12,7 +12,7 @@ public class StartGrpcServer extends ConsoleApp {
 
   @Override
   public String description() {
-    return "Starts Zemberek Grpc Server.";
+    return "Starts Zemberek gRPC Server.";
   }
 
   @Override

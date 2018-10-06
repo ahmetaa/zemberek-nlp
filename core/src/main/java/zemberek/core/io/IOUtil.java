@@ -69,16 +69,31 @@ public class IOUtil {
 
   public static void checkFileArgument(Path path, String argumentInfo) {
     if (path == null) {
-      throw new IllegalArgumentException(argumentInfo  + " path is null.");
+      throw new IllegalArgumentException(argumentInfo + " path is null.");
     }
     File f = path.toFile();
     String fullPath = f.getAbsolutePath();
     if (!f.exists()) {
-      throw new IllegalArgumentException(argumentInfo + " file does not exist = " + fullPath);
+      throw new IllegalArgumentException(argumentInfo + " file does not exist: " + fullPath);
     }
     if (f.isDirectory()) {
       throw new IllegalArgumentException(
-          argumentInfo + " is expected to be a file. But path is a directory = " + fullPath);
+          argumentInfo + " is expected to be a file. But path is a directory: " + fullPath);
+    }
+  }
+
+  public static void checkFileArgument(Path path) {
+    if (path == null) {
+      throw new IllegalArgumentException("Path is null.");
+    }
+    File f = path.toFile();
+    String fullPath = f.getAbsolutePath();
+    if (!f.exists()) {
+      throw new IllegalArgumentException("File does not exist: " + fullPath);
+    }
+    if (f.isDirectory()) {
+      throw new IllegalArgumentException(
+          "Path is expected to be a file. But it is a directory: " + fullPath);
     }
   }
 
@@ -89,11 +104,26 @@ public class IOUtil {
     File f = path.toFile();
     String fullPath = f.getAbsolutePath();
     if (!f.exists()) {
-      throw new IllegalArgumentException(argumentInfo + " directory does not exist = " + fullPath);
+      throw new IllegalArgumentException(argumentInfo + " directory does not exist: " + fullPath);
     }
     if (!f.isDirectory()) {
       throw new IllegalArgumentException(
-          argumentInfo + " is expected to be  directory. But path is a file = " + fullPath);
+          argumentInfo + " is expected to be a directory. But path is a file: " + fullPath);
+    }
+  }
+
+  public static void checkDirectoryArgument(Path path) {
+    if (path == null) {
+      throw new IllegalArgumentException("Path is null.");
+    }
+    File f = path.toFile();
+    String fullPath = f.getAbsolutePath();
+    if (!f.exists()) {
+      throw new IllegalArgumentException("Directory does not exist: " + fullPath);
+    }
+    if (!f.isDirectory()) {
+      throw new IllegalArgumentException(
+          "Path is expected to be a directory. But it is a file: " + fullPath);
     }
   }
 

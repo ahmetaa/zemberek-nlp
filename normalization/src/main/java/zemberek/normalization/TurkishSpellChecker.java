@@ -33,7 +33,9 @@ public class TurkishSpellChecker {
   WordAnalysisSurfaceFormatter formatter = new WordAnalysisSurfaceFormatter();
   CharacterGraphDecoder decoder;
   NgramLanguageModel unigramModel;
-  CharMatcher charMatcher = CharacterGraphDecoder.EXACT_MATCHER;
+
+  // Null means exact matcher will be used.
+  CharMatcher charMatcher = null;
 
   public TurkishSpellChecker(TurkishMorphology morphology) throws IOException {
     this.morphology = morphology;
