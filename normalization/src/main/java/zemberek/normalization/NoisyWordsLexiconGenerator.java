@@ -144,7 +144,7 @@ public class NoisyWordsLexiconGenerator {
     RandomWalker walker = RandomWalker.fromGraphFile(vocabulary, graphPath);
 
     Log.info("Collecting candidates data.");
-    WalkResult walkResult = walker.walk(300, 10, threadCount);
+    WalkResult walkResult = walker.walk(300, 7, threadCount);
     Path allCandidates = outRoot.resolve("all-candidates");
 
     try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8")) {
@@ -159,7 +159,7 @@ public class NoisyWordsLexiconGenerator {
         scores.sort(
             (a, b) -> Float.compare(b.getScore(lambda1, lambda2), a.getScore(lambda1, lambda2)));
         scores = scores.stream()
-            .filter(w -> w.getScore(lambda1, lambda2) >= 0.15)
+            .filter(w -> w.getScore(lambda1, lambda2) >= 0.40)
             .collect(Collectors.toList());
         pw.println(s);
         for (WalkScore score : scores) {

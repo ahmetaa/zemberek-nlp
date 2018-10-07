@@ -2,6 +2,7 @@ package zemberek.normalization;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
+import com.google.common.collect.HashMultimap;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
@@ -48,25 +49,35 @@ public class NormalizationScripts {
 
     Path root = Paths.get("/home/aaa/data/normalization");
     //Path root = Paths.get("/media/ahmetaa/depo/normalization");
-    Path testRoot = root.resolve("test-small");
+    Path testRoot = root.resolve("test-large");
 
     Path incorrect = testRoot.resolve("incorrect");
     Path correct = testRoot.resolve("correct");
+
+    Path asciiMapPath = testRoot.resolve("ascii-map");
+/*
+    findAsciiEquivalentFromNoisyAndClean(
+        root.resolve("vocab-clean"),
+        root.resolve("vocab-noisy"),
+        asciiMapPath
+    );
+*/
 
     Path s = testRoot.resolve("split");
     Path lm = root.resolve("lm.slm");
 
     Path allPossiblyNoisy = testRoot.resolve("incorrect");
-/*    splitWords(
+
+    splitWords(
         allPossiblyNoisy,
         s,
         lm,
+        asciiMapPath,
         NormalizationVocabularyGenerator.getTurkishMorphology(),
-        5);
-*/
+        2);
 
     Path quesOut = testRoot.resolve("question-suffix");
-    //getQuestionSuffixes(s, quesOut);
+    getQuestionSuffixes(s, quesOut);
     //convertTweetData();
 
     Path repetitive = testRoot.resolve("repetitions.hist.txt");
@@ -81,16 +92,72 @@ public class NormalizationScripts {
     );
 */
 
+
 /*    splitSingleFileCorpus(
         corporaRoot.resolve("tweets-20m-clean.nodup"),
         corporaRoot.resolve("tweets-20m"));*/
 
 /*    generateNormalizationVocabularies(
         NormalizationVocabularyGenerator.getTurkishMorphology(),
-        root.resolve("vocab-clean-small"),
-        root.resolve("vocab-noisy-small"),
-        root.resolve("test-small")
+        root.resolve("vocab-clean"),
+        root.resolve("vocab-noisy"),
+        root.resolve("test-large")
     );*/
+  }
+
+  static void findAsciiEquivalentFromNoisyAndClean(
+      Path cleanRoot,
+      Path noisyRoot,
+      Path outfile
+  ) throws IOException {
+
+    Histogram<String> correctFromClean = Histogram
+        .loadFromUtf8File(cleanRoot.resolve("correct"), ' ');
+    Histogram<String> incorrectFromNoisy = Histogram
+        .loadFromUtf8File(noisyRoot.resolve("incorrect"), ' ');
+    incorrectFromNoisy.removeSmaller(2);
+
+    HashMultimap<String, String> mmClean = HashMultimap.create();
+
+    for (String s : correctFromClean) {
+      String a = TurkishAlphabet.INSTANCE.toAscii(s);
+      if (a.equals(s)) {
+        continue;
+      }
+      if (correctFromClean.contains(a)) {
+        mmClean.put(a, s);
+      }
+    }
+
+    HashMultimap<String, String> mm = HashMultimap.create();
+
+    for (String s : correctFromClean) {
+      String a = TurkishAlphabet.INSTANCE.toAscii(s);
+      if (a.equals(s)) {
+        continue;
+      }
+      if (incorrectFromNoisy.contains(a)) {
+        mm.put(a, s);
+      }
+    }
+
+    for (String s : incorrectFromNoisy) {
+      String a = TurkishAlphabet.INSTANCE.toAscii(s);
+      if (a.equals(s)) {
+        continue;
+      }
+      if (mmClean.containsKey(a)) {
+        mm.putAll(a, mmClean.get(a));
+      }
+    }
+
+    List<String> lines = new ArrayList<>();
+    for (String k : mm.keySet()) {
+      lines.add(k + ":" + String.join(",", mm.get(k)));
+    }
+
+    Files.write(outfile, lines, StandardCharsets.UTF_8);
+
   }
 
 
@@ -98,9 +165,13 @@ public class NormalizationScripts {
       Path noisyWordFrequencyFile,
       Path splitFile,
       Path lmPath,
+      Path asciiMapPath,
       TurkishMorphology morphology,
       int minWordCount)
       throws IOException {
+
+    Set<String> asciiMapKeys = Files.readAllLines(asciiMapPath)
+        .stream().map(s -> s.substring(0, s.indexOf(':'))).collect(Collectors.toSet());
 
     SmoothLm lm = SmoothLm.builder(lmPath).logBase(Math.E).build();
     Log.info("Language model = %s", lm.info());
@@ -120,6 +191,10 @@ public class NormalizationScripts {
 
     try (PrintWriter pw = new PrintWriter(splitFile.toFile(), "utf-8")) {
       for (String word : wordFreq.getSortedList()) {
+
+        if (asciiMapKeys.contains(word)) {
+          continue;
+        }
 
         if (word.length() < 5 || word.contains("-")) {
           continue;
@@ -388,7 +463,7 @@ public class NormalizationScripts {
         // to prevent this, if language is identified as jv or id, we skip.
         // to remove this hack we need a better language identification model for Turkish
         // that is trained with also noisy text.
-        if (!lang.equals("jv") && !lang.equals("id") && TurkishSentenceNormalizer
+        if (!lang.equals("jv") && !lang.equals("id") && NormalizationPreprocessor
             .probablyRequiresDeasciifier(join)) {
           String k = new Deasciifier(join).convertToTurkish();
           // identify and check morphology to be sure.
@@ -636,6 +711,7 @@ public class NormalizationScripts {
     return result;
   }
 
+  // TODO: all short proper nouns with a suffix are also candidates.
   static boolean unusualProper(WordAnalysis wa) {
     for (SingleAnalysis s : wa) {
       SecondaryPos spos = s.getDictionaryItem().secondaryPos;
@@ -650,8 +726,7 @@ public class NormalizationScripts {
             TurkishMorphotactics.agt,
             TurkishMorphotactics.justLike,
             TurkishMorphotactics.dim,
-            TurkishMorphotactics.p3pl)
-            ) {
+            TurkishMorphotactics.p3pl)) {
           return false;
         }
       } else {

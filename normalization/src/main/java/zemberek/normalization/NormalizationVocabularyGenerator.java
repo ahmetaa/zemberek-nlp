@@ -49,8 +49,8 @@ public class NormalizationVocabularyGenerator {
     NormalizationVocabularyGenerator generator = new NormalizationVocabularyGenerator(morphology);
 
     Path corporaRoot = Paths.get("/home/aaa/data/corpora");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/vocab-noisy-small");
-    Path rootList = corporaRoot.resolve("noisy-list-small");
+    Path outRoot = Paths.get("/home/aaa/data/normalization/clean-large");
+    Path rootList = corporaRoot.resolve("clean-list");
 
     MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
         .fromDirectoryRoot(corporaRoot, rootList, 30_000);
@@ -59,8 +59,8 @@ public class NormalizationVocabularyGenerator {
 
     // create vocabularies
     int threadCount = Runtime.getRuntime().availableProcessors() / 2;
-    if (threadCount > 16) {
-      threadCount = 16;
+    if (threadCount > 22) {
+      threadCount = 22;
     }
 
     generator.createVocabulary(
@@ -184,7 +184,7 @@ public class NormalizationVocabularyGenerator {
     TextChunk chunk;
     Vocabulary globalVocabulary;
 
-    public WordCollectorTask(TextChunk chunk, Vocabulary globalVocabulary) {
+    WordCollectorTask(TextChunk chunk, Vocabulary globalVocabulary) {
       this.chunk = chunk;
       this.globalVocabulary = globalVocabulary;
     }
