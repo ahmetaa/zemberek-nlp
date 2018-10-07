@@ -232,7 +232,7 @@ public class NormalizationScripts {
 
         if (k.size() > 0) {
           ScoredItem<String> best = k.get(0);
-          if (best.score > -5) {
+          if (best.score > -6) {
             pw.println(word + " = " + best.item + " " + wordFreq.getCount(word));
           }
         }
