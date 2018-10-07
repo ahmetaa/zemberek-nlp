@@ -1,5 +1,6 @@
 package zemberek.core.collections;
 
+// TODO: make this aligned like IntIntMap
 public class UIntIntMap extends UIntKeyHashBase {
 
   protected int[] values;
@@ -14,6 +15,8 @@ public class UIntIntMap extends UIntKeyHashBase {
   }
 
   /**
+   * TODO: the return value may cause problems. Consider making a remove supported IntIntMap
+   *
    * Returns the value for the key. If key does not exist, returns 0.
    *
    * @param key key

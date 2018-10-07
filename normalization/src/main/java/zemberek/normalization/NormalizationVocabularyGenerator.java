@@ -48,9 +48,9 @@ public class NormalizationVocabularyGenerator {
 
     NormalizationVocabularyGenerator generator = new NormalizationVocabularyGenerator(morphology);
 
-    Path corporaRoot = Paths.get("/home/aaa/data/corpora");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/clean-large");
-    Path rootList = corporaRoot.resolve("clean-list");
+    Path corporaRoot = Paths.get("/media/ahmetaa/depo/corpora");
+    Path outRoot = Paths.get("/media/ahmetaa/depo/normalization/vocab-noisy-small");
+    Path rootList = corporaRoot.resolve("noisy-list-small");
 
     MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
         .fromDirectoryRoot(corporaRoot, rootList, 30_000);

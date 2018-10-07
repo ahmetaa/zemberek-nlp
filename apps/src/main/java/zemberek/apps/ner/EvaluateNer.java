@@ -34,7 +34,7 @@ public class EvaluateNer extends NerAppBase {
           + "evaluate it against reference file directly. Hypothesis and reference sentences count"
           + "and order must be the same. "
           + "If hypothesis is not provided, system will apply NER "
-          + " on reference with given model and evaluate its result against reference data.")
+          + "on reference with given model and evaluate its result against reference data.")
   public Path hypothesisPath;
 
   @Override

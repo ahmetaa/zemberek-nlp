@@ -15,10 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletionService;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -28,6 +25,7 @@ import zemberek.core.IntPair;
 import zemberek.core.collections.Histogram;
 import zemberek.core.collections.IntIntMap;
 import zemberek.core.collections.IntVector;
+import zemberek.core.collections.UIntIntMap;
 import zemberek.core.collections.UIntMap;
 import zemberek.core.collections.UIntSet;
 import zemberek.core.collections.UIntValueMap;
@@ -108,8 +106,8 @@ public class NoisyWordsLexiconGenerator {
       threadCount = 16;
     }
 
-    Path corporaRoot = Paths.get("/home/aaa/data/corpora");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/test-small");
+    Path corporaRoot = Paths.get("/media/ahmetaa/depo/corpora");
+    Path outRoot = Paths.get("/media/ahmetaa/depo/normalization/test-small");
     Path rootList = corporaRoot.resolve("vocab-list-small");
 
     Files.createDirectories(outRoot);
@@ -128,7 +126,7 @@ public class NoisyWordsLexiconGenerator {
 
     // create graph
     Path graphPath = outRoot.resolve("graph");
-    //generator.createGraph(corpusProvider, graphPath);
+//    generator.createGraph(corpusProvider, graphPath);
 
     Histogram<String> incorrectWords = Histogram.loadFromUtf8File(incorrect, ' ');
     incorrectWords.add(Histogram.loadFromUtf8File(maybeIncorrect, ' '));
@@ -567,7 +565,6 @@ public class NoisyWordsLexiconGenerator {
     Log.info("Context hash count after pruning  = " + graph.contextHashCount());
     Log.info("Edge count = %d", graph.edgeCount());
     Log.info("Creating Words -> Context counts.");
-    graph.createWordToContextMap();
     return graph;
   }
 
@@ -576,8 +573,14 @@ public class NoisyWordsLexiconGenerator {
 
   static class ContextualSimilarityGraph {
 
-    UIntMap<IntIntMap> contextHashToWordCounts = new UIntMap<>();
-    UIntMap<IntIntMap> wordToContexts = new UIntMap<>();
+    // this holds context hashes as keys.
+    // values are words and their counts for context hash keys.
+    UIntMap<IntIntMap> contextHashToWordCounts = new UIntMap<>(5_000_000);
+
+    // This is for memory optimization. It holds <hash, wordIndex> values.
+    // Context occurs only once and with count 1 stays in this.
+    // This may be discarded during pruning.
+    UIntIntMap singletons = new UIntIntMap(5_000_000);
 
     NormalizationVocabulary vocabulary;
     ReentrantLock lock = new ReentrantLock();
@@ -605,7 +608,9 @@ public class NoisyWordsLexiconGenerator {
 
         executorService.submit(() -> {
           Log.info("Processing %s", chunk);
-          UIntMap<IntIntMap> localContextCounts = new UIntMap<>();
+          UIntMap<IntIntMap> localContextCounts = new UIntMap<>(100_000);
+          UIntIntMap localSingletons = new UIntIntMap(100_000);
+
           List<String> sentences = TextCleaner.cleanAndExtractSentences(chunk.getData());
           for (String sentence : sentences) {
             List<String> tokens = getTokens(sentence);
@@ -634,13 +639,25 @@ public class NoisyWordsLexiconGenerator {
               }
               int hash = hash(context);
 
-              // update context -> word counts
-              IntIntMap wordCounts = localContextCounts.get(hash);
-              if (wordCounts == null) {
-                wordCounts = new IntIntMap(1);
-                localContextCounts.put(hash, wordCounts);
+              //first check singletons.
+              if (localSingletons.containsKey(hash)) {
+                int val = localSingletons.get(hash);
+                localSingletons.remove(hash);
+                IntIntMap m = new IntIntMap(2);
+                m.increment(val, 1);
+                m.increment(wordIndex, 1);
+                localContextCounts.put(hash, m);
+              } else {
+                // update context -> word counts
+                IntIntMap wordCounts = localContextCounts.get(hash);
+                if (wordCounts != null) {
+                  wordCounts = new IntIntMap(1);
+                  localContextCounts.put(hash, wordCounts);
+                  wordCounts.increment(wordIndex, 1);
+                } else {
+                  localSingletons.put(hash, wordIndex);
+                }
               }
-              wordCounts.increment(wordIndex, 1);
             }
           }
 
@@ -650,14 +667,42 @@ public class NoisyWordsLexiconGenerator {
               IntIntMap localMap = localContextCounts.get(key);
               IntIntMap globalMap = contextHashToWordCounts.get(key);
               if (globalMap == null) {
+                // remove it from global singletons if exist.
+                if (singletons.containsKey(key)) {
+                  int wordIndex = singletons.get(key);
+                  singletons.remove(key);
+                  localMap.increment(wordIndex, 1);
+                }
                 contextHashToWordCounts.put(key, localMap);
               } else {
-                for (int countKey : localMap.getKeys()) {
-                  globalMap.increment(countKey, localMap.get(countKey));
+                for (int word : localMap.getKeys()) {
+                  int localCount = localMap.get(word);
+                  globalMap.increment(word, localCount);
                 }
               }
             }
+            // now put singletons.
+            for (int key : localSingletons.getKeys()) {
+              int wordIndex = localSingletons.get(key);
+              IntIntMap mm = contextHashToWordCounts.get(key);
+              if (mm == null) {
+                if (singletons.containsKey(key)) {
+                  int w = singletons.get(key);
+                  singletons.remove(key);
+                  mm = new IntIntMap(1);
+                  mm.increment(w, 1);
+                  mm.increment(wordIndex, 1);
+                  contextHashToWordCounts.put(key, mm);
+                } else {
+                  singletons.put(key, wordIndex);
+                }
+              } else {
+                mm.increment(wordIndex, 1);
+              }
+            }
+
             Log.info("Context count = %d", contextHashToWordCounts.size());
+            Log.info("Singleton context counts = %d", singletons.size());
           } finally {
             lock.unlock();
           }
@@ -710,11 +755,14 @@ public class NoisyWordsLexiconGenerator {
     }
 
     void pruneContextNodes() {
+      // remove all singletons.
+      singletons = new UIntIntMap();
+
       UIntSet keysToPrune = new UIntSet();
       for (int contextHash : contextHashToWordCounts.getKeys()) {
         IntIntMap m = contextHashToWordCounts.get(contextHash);
 
-        // prune if a context appears only once.
+        // prune if a context only points to a single word.
         if (m.size() <= 1) {
           keysToPrune.add(contextHash);
           continue;
@@ -741,7 +789,9 @@ public class NoisyWordsLexiconGenerator {
       }
     }
 
-    void createWordToContextMap() {
+    void serializeForRandomWalk(Path p) throws IOException {
+
+      UIntMap<IntIntMap> wordToContexts = new UIntMap<>();
       for (int contextHash : contextHashToWordCounts.getKeys()) {
         IntIntMap m = contextHashToWordCounts.get(contextHash);
         for (int worIndex : m.getKeys()) {
@@ -754,9 +804,7 @@ public class NoisyWordsLexiconGenerator {
           contextCounts.put(contextHash, count);
         }
       }
-    }
 
-    void serializeForRandomWalk(Path p) throws IOException {
       try (DataOutputStream dos = IOUtil.getDataOutputStream(p)) {
         serializeEdges(dos, contextHashToWordCounts);
         serializeEdges(dos, wordToContexts);

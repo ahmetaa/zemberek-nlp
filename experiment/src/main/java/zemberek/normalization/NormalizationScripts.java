@@ -47,21 +47,20 @@ public class NormalizationScripts {
 
   public static void main(String[] args) throws Exception {
 
-    Path root = Paths.get("/home/aaa/data/normalization");
-    //Path root = Paths.get("/media/ahmetaa/depo/normalization");
-    Path testRoot = root.resolve("test-large");
+    //Path root = Paths.get("/home/aaa/data/normalization");
+    Path root = Paths.get("/media/ahmetaa/depo/normalization");
+    Path testRoot = root.resolve("test-small");
 
     Path incorrect = testRoot.resolve("incorrect");
     Path correct = testRoot.resolve("correct");
 
     Path asciiMapPath = testRoot.resolve("ascii-map");
-/*
+
     findAsciiEquivalentFromNoisyAndClean(
         root.resolve("vocab-clean"),
         root.resolve("vocab-noisy"),
         asciiMapPath
     );
-*/
 
     Path s = testRoot.resolve("split");
     Path lm = root.resolve("lm.slm");
@@ -97,12 +96,12 @@ public class NormalizationScripts {
         corporaRoot.resolve("tweets-20m-clean.nodup"),
         corporaRoot.resolve("tweets-20m"));*/
 
-/*    generateNormalizationVocabularies(
+    generateNormalizationVocabularies(
         NormalizationVocabularyGenerator.getTurkishMorphology(),
         root.resolve("vocab-clean"),
         root.resolve("vocab-noisy"),
-        root.resolve("test-large")
-    );*/
+        testRoot
+    );
   }
 
   static void findAsciiEquivalentFromNoisyAndClean(

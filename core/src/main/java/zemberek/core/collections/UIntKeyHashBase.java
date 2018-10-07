@@ -12,8 +12,8 @@ import java.util.List;
 public abstract class UIntKeyHashBase {
 
   protected static final int INITIAL_SIZE = 4;
-  static final int EMPTY = -1;
-  static final int DELETED = -2;
+  public static final int EMPTY = -1;
+  public static final int DELETED = -2;
   private static final double LOAD_FACTOR = 0.55;
   // Array length is a value power of two, so we can use x & modulo instead of
   // x % size to calculate the slot
@@ -94,7 +94,23 @@ public abstract class UIntKeyHashBase {
   }
 
   int newSize() {
-    long size = keys.length * 2L;
+
+    // we do not directly expand by [key capacity * 2] because there may be many removed keys.
+    // For such cases, actually array should be shrunk.
+    long t = keyCount * 2;
+    if (t == 0) {
+      t = 1;
+    }
+    if (t > threshold) {
+      t = threshold;
+    }
+
+    long size = 1;
+    while (size <= t) {
+      size = size * 2;
+    }
+    size = size * 2;
+
     if (size > Integer.MAX_VALUE) {
       throw new IllegalStateException("Too many items in collection " + this.getClass());
     }
