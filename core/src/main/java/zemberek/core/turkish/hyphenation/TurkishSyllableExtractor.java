@@ -13,6 +13,9 @@ import zemberek.core.turkish.TurkishAlphabet;
 public class TurkishSyllableExtractor implements SyllableExtractor {
 
   private final TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+
+  // if strict, words ending two consonants cannot be parsed. such as `kart`, `yoğurt`
+  // if not strict, it may allow parsing words like "kitapt"
   boolean strict = false;
 
   public void setStrict(boolean strict) {
@@ -20,14 +23,14 @@ public class TurkishSyllableExtractor implements SyllableExtractor {
   }
 
   public List<String> getSyllables(String str) {
-    int[] boudaries = syllableBoundaries(str);
+    int[] boundaries = syllableBoundaries(str);
     List<String> result = new ArrayList<>();
-    for (int i = 0; i < boudaries.length - 1; i++) {
-      int boudary = boudaries[i];
-      result.add(str.substring(boudary, boudaries[i + 1]));
+    for (int i = 0; i < boundaries.length - 1; i++) {
+      int boundary = boundaries[i];
+      result.add(str.substring(boundary, boundaries[i + 1]));
     }
-    if (boudaries.length > 0) {
-      result.add(str.substring(boudaries[boudaries.length - 1], str.length()));
+    if (boundaries.length > 0) {
+      result.add(str.substring(boundaries[boundaries.length - 1], str.length()));
     }
     return result;
   }
@@ -89,8 +92,8 @@ public class TurkishSyllableExtractor implements SyllableExtractor {
         if (endIndex == 3 || isVowel(chr[endIndex - 4])) {
           return 3;
         }
-        //word dort harfli ise yukaridaki kurallari gecmesi nedeniyle hecelenemez sayiyoruz.
-        // tren, strateji, krank, angstrom gibi kelimeler henuz hecelenmiyor.
+        // If the word is 4 letters and riles above passed, we assume this cannot be parsed.
+        // That is why words like tren, strateji, krank, angstrom cannot be parsed.
         if (endIndex == 4) {
           return -1;
         }
@@ -112,5 +115,4 @@ public class TurkishSyllableExtractor implements SyllableExtractor {
       }
     }
   }
-
 }
