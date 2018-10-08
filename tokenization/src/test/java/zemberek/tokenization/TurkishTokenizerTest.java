@@ -318,6 +318,7 @@ public class TurkishTokenizerTest {
     String[] urls = {
         "http://t.co/gn32szS9",
         "http://www.fo.bar",
+        "http://www.fo.bar'da",
         "https://www.fo.baz.zip",
         "www.fo.tar.kar",
         "www.fo.bar",
@@ -326,6 +327,8 @@ public class TurkishTokenizerTest {
         "fo.com.tr/index.html",
         "fo.com.tr/index.html?",
         "foo.net",
+        "foo.net'e",
+        "www.foo.net'te",
         "http://www.foo.net/showthread.php?134628-ucreti",
         "http://www.foo.net/showthread.php?1-34--628-ucreti+",
     };

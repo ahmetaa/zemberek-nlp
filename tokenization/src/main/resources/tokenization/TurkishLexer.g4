@@ -139,9 +139,9 @@ fragment URLFragment
     : [0-9a-zA-ZçğıöşüâîûÇĞİÖŞÜÂÎÛ\-_/?&+;=[\].]+;
 
 URL :
-    ('http://'|'https://') URLFragment |
-    ('http://'|'https://')? 'www.' URLFragment |
-    [0-9a-zA-Z_]+ ('.com'| '.org' | '.edu' | '.gov'|'.net'|'.info') ('.tr')? ('/'URLFragment)?;
+    ('http://'|'https://') URLFragment AposAndSuffix? |
+    ('http://'|'https://')? 'www.' URLFragment AposAndSuffix?|
+    [0-9a-zA-Z_]+ ('.com'| '.org' | '.edu' | '.gov'|'.net'|'.info') ('.tr')? ('/'URLFragment)? AposAndSuffix?;
 
 Email
     :AllTurkishAlphanumericalUnderscore+ '.'? AllTurkishAlphanumericalUnderscore+ '@'
