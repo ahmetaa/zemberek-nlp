@@ -14,11 +14,14 @@ public class TurkishSyllableExtractor implements SyllableExtractor {
 
   private final TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
 
+  public static TurkishSyllableExtractor STRICT = new TurkishSyllableExtractor(true);
+  public static TurkishSyllableExtractor DEFAULT = new TurkishSyllableExtractor(false);
+
   // if strict, words ending two consonants cannot be parsed. such as `kart`, `yoğurt`
   // if not strict, it may allow parsing words like "kitapt"
-  boolean strict = false;
+  public final boolean strict;
 
-  public void setStrict(boolean strict) {
+  private TurkishSyllableExtractor(boolean strict) {
     this.strict = strict;
   }
 
@@ -38,7 +41,7 @@ public class TurkishSyllableExtractor implements SyllableExtractor {
   public int[] syllableBoundaries(String str) {
     final int size = str.length();
     char[] chr = str.toCharArray();
-    int[] boundarIndexes = new int[size];
+    int[] boundaryIndexes = new int[size];
     int lastIndex = size;
     int index = 0;
     while (lastIndex > 0) {
@@ -46,12 +49,12 @@ public class TurkishSyllableExtractor implements SyllableExtractor {
       if (letterCount == -1) {
         return new int[0];
       }
-      boundarIndexes[index++] = lastIndex - letterCount;
+      boundaryIndexes[index++] = lastIndex - letterCount;
       lastIndex -= letterCount;
     }
     int[] result = new int[index];
     for (int i = 0; i < index; i++) {
-      result[i] = boundarIndexes[index - i - 1];
+      result[i] = boundaryIndexes[index - i - 1];
     }
     return result;
   }
