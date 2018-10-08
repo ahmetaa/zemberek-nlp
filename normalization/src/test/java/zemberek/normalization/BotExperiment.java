@@ -37,11 +37,11 @@ public class BotExperiment {
         .builder()
         .useLexicon(lexicon)
         .disableUnidentifiedTokenAnalyzer()
-        .morphotactics(new InformalTurkishMorphotactics(lexicon))
         .build();
 
-    Path root = Paths.get("/home/aaa/data/normalization");
-    Path splitList = root.resolve("split");
+    Path root = Paths.get("/media/ahmetaa/depo/normalization");
+    Path dataRoot = root.resolve("test-small");
+
     Path rawLines = root.resolve("bot/raw");
     Path nodup = root.resolve("bot/sentences-nodup");
     Path sentencesNodup = root.resolve("bot/sentences-nodup");
@@ -53,17 +53,18 @@ public class BotExperiment {
     SmoothLm lm = SmoothLm.builder(lmPath).logBase(Math.E).build();
 
     TurkishSentenceNormalizer normalizer =
-        new TurkishSentenceNormalizer(morphology, splitList, lm);
+        new TurkishSentenceNormalizer(morphology, dataRoot, lm);
 
     // preprocess(rawLines, nodup, sentencesNodup, sentencesNodupTokenized);
 
     //normalize(normalizer, sentencesNodupTokenized, output);
 
     //normalizer.decode("Acab yarn akram n ypsak");
-    String input = "orıya gidiceni bilmiyodum";
-    List<String> seq = normalizer.decode(input);
+    //String input = "tmm bu akşm dönücem sana";
+    String input = "canim aciba bu aksam balik mi yapak";
+    List<String> result = normalizer.normalize(input);
     Log.info(input);
-    Log.info(String.join(" ", seq));
+    Log.info(String.join(" ", result));
 
     Log.info("Done.");
 
@@ -112,7 +113,8 @@ public class BotExperiment {
       for (String line : lines) {
         tokenCount += TurkishTokenizer.DEFAULT.tokenize(line).size();
         lineCount++;
-        String n = normalizer.normalize(line);
+        List<String> k = normalizer.normalize(line);
+        String n = String.join(" ", k);
         if (!n.equals(line)) {
           pw.println(line);
           pw.println(n);

@@ -151,7 +151,7 @@ public class NormalizationScripts {
 
     List<String> lines = new ArrayList<>();
     for (String k : mm.keySet()) {
-      lines.add(k + ":" + String.join(",", mm.get(k)));
+      lines.add(k + "=" + String.join(",", mm.get(k)));
     }
 
     Files.write(outfile, lines, StandardCharsets.UTF_8);

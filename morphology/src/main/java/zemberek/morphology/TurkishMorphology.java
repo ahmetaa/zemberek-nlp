@@ -55,7 +55,7 @@ public class TurkishMorphology {
   private TurkishMorphology(Builder builder) {
 
     this.lexicon = builder.lexicon;
-    if(builder.morphotactics==null) {
+    if (builder.morphotactics == null) {
       this.morphotactics = new TurkishMorphotactics(this.lexicon);
     } else {
       this.morphotactics = builder.morphotactics;
@@ -86,6 +86,14 @@ public class TurkishMorphology {
             "Cannot initialize PerceptronAmbiguityResolver from resource " + resourcePath, e);
       }
     }
+  }
+
+  public InterpretingAnalyzer getAnalyzerInstance() {
+    return new InterpretingAnalyzer(morphotactics);
+  }
+
+  public InterpretingAnalyzer getAnalyzerInstance(TurkishMorphotactics morphotactics) {
+    return new InterpretingAnalyzer(morphotactics);
   }
 
   public UnidentifiedTokenAnalyzer getUnidentifiedTokenAnalyzer() {
@@ -260,6 +268,10 @@ public class TurkishMorphology {
 
   public WordGenerator getWordGenerator() {
     return wordGenerator;
+  }
+
+  public WordGenerator getWordGenerator(TurkishMorphotactics morphotactics) {
+    return new WordGenerator(morphotactics);
   }
 
   public static Builder builder() {

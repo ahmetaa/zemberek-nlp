@@ -114,14 +114,14 @@ public class NoisyWordsLexiconGenerator {
     }
 
     Path corporaRoot = Paths.get("/home/aaa/data/normalization/corpus");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/test-large");
-    Path rootList = corporaRoot.resolve("all-list");
+    Path workDir = Paths.get("/home/aaa/data/normalization/test-large");
+    Path corpusDirList = corporaRoot.resolve("all-list");
 
-    Files.createDirectories(outRoot);
+    Files.createDirectories(workDir);
 
-    Path correct = outRoot.resolve("correct");
-    Path incorrect = outRoot.resolve("incorrect");
-    Path maybeIncorrect = outRoot.resolve("possibly-incorrect");
+    Path correct = workDir.resolve("correct");
+    Path incorrect = workDir.resolve("incorrect");
+    Path maybeIncorrect = workDir.resolve("possibly-incorrect");
 
     NormalizationVocabulary vocabulary = new NormalizationVocabulary(
         correct, incorrect, maybeIncorrect, 1, 3, 1);
@@ -129,16 +129,15 @@ public class NoisyWordsLexiconGenerator {
     NoisyWordsLexiconGenerator generator = new NoisyWordsLexiconGenerator(vocabulary, threadCount);
 
     MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
-        .fromDirectoryRoot(corporaRoot, rootList, 50_000);
+        .fromDirectoryRoot(corporaRoot, corpusDirList, 50_000);
 
     // create graph
-
-    Path graphPath = outRoot.resolve("graph");
+    Path graphPath = workDir.resolve("graph");
     //generator.createGraph(corpusProvider, graphPath);
 
     Histogram<String> incorrectWords = Histogram.loadFromUtf8File(incorrect, ' ');
     incorrectWords.add(Histogram.loadFromUtf8File(maybeIncorrect, ' '));
-    generator.createCandidates(graphPath, outRoot, incorrectWords);
+    generator.createCandidates(graphPath, workDir, incorrectWords);
 
     Log.info("Done");
   }
@@ -191,7 +190,7 @@ public class NoisyWordsLexiconGenerator {
           candidates.add(score.candidate);
         }
         if (!candidates.isEmpty()) {
-          pwLookup.println(s + "=" + String.join("|", candidates));
+          pwLookup.println(s + "=" + String.join(",", candidates));
         }
       }
     }

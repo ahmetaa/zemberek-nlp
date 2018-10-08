@@ -2,22 +2,29 @@ package zemberek.normalization;
 
 import static zemberek.normalization.NormalizationPreprocessor.isWord;
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ArrayListMultimap;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.dynamic.ActiveList;
 import zemberek.core.dynamic.Scorable;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.InterpretingAnalyzer;
+import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.normalization.deasciifier.Deasciifier;
+import zemberek.morphology.generator.WordGenerator;
+import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
+import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.tokenization.TurkishTokenizer;
 
 /**
@@ -26,17 +33,23 @@ import zemberek.tokenization.TurkishTokenizer;
 public class TurkishSentenceNormalizer {
 
   TurkishMorphology morphology;
-  SmoothLm lm;
-  TurkishSpellChecker spellChecker;
+  private SmoothLm lm;
+  private TurkishSpellChecker spellChecker;
 
-  NormalizationPreprocessor preprocessor;
+  private NormalizationPreprocessor preprocessor;
+
+  private ArrayListMultimap<String, String> fromRandomWalk;
+  private ArrayListMultimap<String, String> asciiLookupFromCorpus;
+  private InterpretingAnalyzer informalAnalyzer;
+  private WordGenerator generator;
 
   public TurkishSentenceNormalizer(
       TurkishMorphology morphology,
-      Path commonSplit,
+      Path normalizationDataRoot,
       SmoothLm languageModel) throws IOException {
     Log.info("Language model = %s", languageModel.info());
     this.morphology = morphology;
+    this.generator = morphology.getWordGenerator();
 
     this.lm = languageModel;
 
@@ -47,32 +60,99 @@ public class TurkishSentenceNormalizer {
         decoder,
         CharacterGraphDecoder.ASCII_TOLERANT_MATCHER);
 
-    this.preprocessor = new NormalizationPreprocessor(morphology, commonSplit, lm);
+    this.preprocessor = new NormalizationPreprocessor(morphology, normalizationDataRoot, lm);
+    this.fromRandomWalk = loadMultiMap(normalizationDataRoot.resolve("lookup-from-graph"));
+    this.asciiLookupFromCorpus = loadMultiMap(normalizationDataRoot.resolve("ascii-map"));
+    this.informalAnalyzer = morphology.getAnalyzerInstance(
+        new InformalTurkishMorphotactics(morphology.getLexicon()));
   }
 
-  public String normalize(List<Token> tokens) {
-    String s = preprocessor.combineNecessaryWords(tokens);
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    s = preprocessor.splitNecessaryWords(tokens, false);
-    if (NormalizationPreprocessor.probablyRequiresDeasciifier(s)) {
-      Deasciifier deasciifier = new Deasciifier(s);
-      s = deasciifier.convertToTurkish();
+  // load data with line format: "key=val1,val2"
+  ArrayListMultimap<String, String> loadMultiMap(Path path) throws IOException {
+    List<String> lines = TextIO.loadLines(path);
+    ArrayListMultimap<String, String> result = ArrayListMultimap.create();
+    for (String line : lines) {
+      int index = line.indexOf("=");
+      if (index < 0) {
+        throw new IllegalStateException("Line needs to have `=` symbol. But it is:" +
+            line + " in " + path);
+      }
+      String key = line.substring(0, index).trim();
+      String value = line.substring(index + 1).trim();
+      if (value.indexOf(',') >= 0) {
+        for (String token : Splitter.on(",").trimResults().split(value)) {
+          result.put(key, token);
+        }
+      } else {
+        result.put(key, value);
+      }
     }
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    s = preprocessor.combineNecessaryWords(tokens);
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    s = preprocessor.splitNecessaryWords(tokens, true);
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-
-    s = preprocessor.useInformalAnalysis(tokens);
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    s = useSpellChecker(tokens);
-    return s;
+    return result;
   }
 
-  public String normalize(String input) {
-    List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(input);
-    return normalize(tokens);
+  public List<String> normalize(String sentence) {
+    String preprocesssed = preprocessor.preProcess(sentence);
+
+    List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(preprocesssed);
+
+    List<Candidates> candidatesList = new ArrayList<>();
+
+    for (int i = 0; i < tokens.size(); i++) {
+
+      Token currentToken = tokens.get(i);
+      String current = currentToken.getText();
+      String next = i == tokens.size() - 1 ? null : tokens.get(i + 1).getText();
+      String previous = i == 0 ? null : tokens.get(i - 1).getText();
+
+      LinkedHashSet<String> candidates = new LinkedHashSet<>(2);
+
+      // add matches from random walk
+      candidates.addAll(fromRandomWalk.get(current));
+
+      // add matches from ascii equivalents.
+      // TODO: this may decrease accuracy. Also, this can be eliminated with ascii tolerant analyzer.
+      candidates.addAll(asciiLookupFromCorpus.get(current));
+
+      // add matches from informal analysis to formal surface conversion.
+      boolean hasFormalAnalysis = false;
+      List<SingleAnalysis> analyses = informalAnalyzer.analyze(current);
+      for (SingleAnalysis analysis : analyses) {
+        if (analysis.containsInformalMorpheme()) {
+          List<Morpheme> formalMorphemes = preprocessor.toFormalMorphemeNames(analysis);
+          List<WordGenerator.Result> generations =
+              generator.generate(analysis.getDictionaryItem(), formalMorphemes);
+          if (generations.size() > 0) {
+            candidates.add(generations.get(0).surface);
+          }
+        } else {
+          hasFormalAnalysis = true;
+        }
+      }
+
+      // if there is no formal analysis and length is larger than 5,
+      // get 1 distance matches.
+      if ((!hasFormalAnalysis || analyses.size() == 0) && current.length() > 5) {
+        List<String> spellCandidates = getSpellCandidates(currentToken, previous, next);
+        if (spellCandidates.size() > 5) {
+          spellCandidates = new ArrayList<>(spellCandidates.subList(0, 5));
+        }
+        candidates.addAll(spellCandidates);
+      }
+
+      // if still there is no match, add the word itself.
+      if (candidates.isEmpty()) {
+        candidates.add(current);
+      }
+
+      Candidates result = new Candidates(
+          currentToken.getText(),
+          candidates.stream().map(Candidate::new).collect(Collectors.toList()));
+
+      candidatesList.add(result);
+    }
+
+    return decode(candidatesList);
+
   }
 
   String useSpellChecker(List<Token> tokens) {
@@ -233,37 +313,13 @@ public class TurkishSentenceNormalizer {
   private static Candidate END = new Candidate("</s>");
 
 
-  List<String> decode(String sentence) {
-
-    sentence = (preprocessor.preProcess(sentence));
-    List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
-
-    List<Candidates> candidatesList = new ArrayList<>();
-
-    int lmOrder = lm.getOrder();
-
-    for (int i = 0; i < tokens.size(); i++) {
-      Token currentToken = tokens.get(i);
-      String current = currentToken.getText();
-      String next = i == tokens.size() - 1 ? null : tokens.get(i + 1).getText();
-      String previous = i == 0 ? null : tokens.get(i - 1).getText();
-      List<String> spellCandidates = getSpellCandidates(currentToken, previous, next);
-      if (spellCandidates.size() > 5) {
-        spellCandidates = new ArrayList<>(spellCandidates.subList(0, 5));
-      }
-      if (spellCandidates.isEmpty()) {
-        spellCandidates = Lists.newArrayList(current);
-      }
-      Candidates candidates = new Candidates(
-          currentToken.getText(),
-          spellCandidates.stream().map(Candidate::new).collect(Collectors.toList()));
-      candidatesList.add(candidates);
-    }
+  List<String> decode(List<Candidates> candidatesList) {
 
     // Path with END tokens.
     candidatesList.add(new Candidates("</s>", Collections.singletonList(END)));
 
     Hypothesis initial = new Hypothesis();
+    int lmOrder = lm.getOrder();
     initial.history = new Candidate[lmOrder - 1];
     Arrays.fill(initial.history, START);
     initial.current = START;

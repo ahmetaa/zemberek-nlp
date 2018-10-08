@@ -21,7 +21,7 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
 
   public static final Morpheme a1plInformal = addMorpheme(
       Morpheme.builder("A1plInformal", "A1plInformal")
-          .informal().mappedMorpheme(p1pl).build());
+          .informal().mappedMorpheme(a1pl).build());
 
   public static final Morpheme a1sgInformal = addMorpheme(
       Morpheme.builder("A1sgInformal", "A1sgInformal")
