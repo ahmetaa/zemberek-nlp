@@ -102,13 +102,13 @@ public class NoisyWordsLexiconGenerator {
   public static void main(String[] args) throws Exception {
 
     int threadCount = Runtime.getRuntime().availableProcessors() / 2;
-    if (threadCount > 16) {
-      threadCount = 16;
+    if (threadCount > 22) {
+      threadCount = 22;
     }
 
-    Path corporaRoot = Paths.get("/media/ahmetaa/depo/corpora");
-    Path outRoot = Paths.get("/media/ahmetaa/depo/normalization/test-small");
-    Path rootList = corporaRoot.resolve("vocab-list-small");
+    Path corporaRoot = Paths.get("/home/aaa/data/corpora");
+    Path outRoot = Paths.get("/home/aaa/data/normalization/test-large");
+    Path rootList = corporaRoot.resolve("vocab-list");
 
     Files.createDirectories(outRoot);
 

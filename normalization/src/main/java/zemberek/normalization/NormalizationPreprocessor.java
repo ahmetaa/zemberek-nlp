@@ -14,6 +14,7 @@ import org.antlr.v4.runtime.Token;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.SecondaryPos;
+import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
@@ -29,32 +30,43 @@ public class NormalizationPreprocessor {
 
   TurkishMorphology morphology;
   Map<String, String> commonSplits = new HashMap<>();
+  Map<String, String> replacements = new HashMap<>();
   SmoothLm lm;
   HashSet<String> commonConnectedSuffixes = new HashSet<>();
   HashSet<String> commonLetterRepeatitionWords = new HashSet<>();
-  HashSet<String> commonReplacements = new HashSet<>();
 
   public NormalizationPreprocessor(
       TurkishMorphology morphology,
-      Path commonSplit,
+      Path modelRoot,
       SmoothLm languageModel) throws IOException {
     Log.info("Language model = %s", languageModel.info());
     this.morphology = morphology;
 
-    List<String> splitLines = Files.readAllLines(commonSplit, Charsets.UTF_8);
+    List<String> splitLines = Files.readAllLines(modelRoot.resolve("split"), Charsets.UTF_8);
     for (String splitLine : splitLines) {
       String[] tokens = splitLine.split("=");
       commonSplits.put(tokens[0].trim(), tokens[1].trim());
     }
     this.lm = languageModel;
 
-    this.commonConnectedSuffixes.addAll(TextIO.loadLinesFromResource("question-suffixes"));
+    this.commonConnectedSuffixes.addAll(TextIO.loadLinesFromResource(
+        "normalization/question-suffixes"));
     this.commonConnectedSuffixes.addAll(Arrays.asList("de", "da", "ki"));
+
+    List<String> replaceLines = TextIO.loadLinesFromResource(
+        "normalization/replacements");
+    for (String replaceLine : replaceLines) {
+      String[] tokens = replaceLine.split("=");
+      replacements.put(tokens[0].trim(), tokens[1].trim());
+    }
   }
 
   String preProcess(String sentence) {
+    sentence = sentence.toLowerCase(Turkish.LOCALE);
     List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
-    String s = combineNecessaryWords(tokens);
+    String s = replaceCommon(tokens);
+    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
+    s = combineNecessaryWords(tokens);
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
     s = splitNecessaryWords(tokens, false);
     if (probablyRequiresDeasciifier(s)) {
@@ -207,6 +219,16 @@ public class NormalizationPreprocessor {
     }
     return String.join(" ", result);
   }
+
+  String replaceCommon(List<Token> tokens) {
+    List<String> result = new ArrayList<>();
+    for (Token token : tokens) {
+      String text = token.getText();
+      result.add(replacements.getOrDefault(text, text));
+    }
+    return String.join(" ", result);
+  }
+
 
   String useInformalAnalysis(List<Token> tokens) {
     List<String> result = new ArrayList<>();
