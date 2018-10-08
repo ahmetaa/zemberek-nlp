@@ -99,11 +99,7 @@ public class PronunciationGuesser {
     return sb.toString();
   }
 
-  private static TurkishSyllableExtractor extractorForAbbrv = new TurkishSyllableExtractor();
-
-  static {
-    extractorForAbbrv.setStrict(true);
-  }
+  private static TurkishSyllableExtractor extractorForAbbrv = TurkishSyllableExtractor.STRICT;
 
   /**
    * Tries to guess turkish abbreviation pronunciation.
