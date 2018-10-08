@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import zemberek.core.concurrency.BlockingExecutor;
@@ -20,7 +21,7 @@ import zemberek.morphology.TurkishMorphology;
 
 public class ProcessNormalizationCorpus {
 
-  public static final int BLOCK_SIZE = 500_000;
+  public static final int BLOCK_SIZE = 1_000_000;
 
   NormalizationPreprocessor preprocessor;
 
@@ -28,7 +29,7 @@ public class ProcessNormalizationCorpus {
     this.preprocessor = preprocessor;
   }
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws Exception {
     TurkishMorphology morphology = getTurkishMorphology();
 
     Path normalizationDataRoot =
@@ -43,8 +44,8 @@ public class ProcessNormalizationCorpus {
     ProcessNormalizationCorpus processor = new ProcessNormalizationCorpus(preprocessor);
 
     Path corporaRoot = Paths.get("/home/aaa/data/corpora");
-    Path outRoot = Paths.get("/home/aaa/data/normalization/corpus/noisy");
-    Path rootList = corporaRoot.resolve("noisy-list-small");
+    Path outRoot = Paths.get("/home/aaa/data/normalization/corpus/clean");
+    Path rootList = corporaRoot.resolve("clean-list");
 
     Files.createDirectories(outRoot);
 
@@ -58,13 +59,14 @@ public class ProcessNormalizationCorpus {
     }
 
     processor.process(corpusProvider, threadCount, outRoot);
+    Log.info("Done.");
 
   }
 
   void process(
       MultiPathBlockTextLoader corpusProvider,
       int threadCount,
-      Path outRoot) throws IOException {
+      Path outRoot) throws Exception {
 
     ExecutorService service = new BlockingExecutor(threadCount);
     AtomicInteger c = new AtomicInteger(0);
@@ -80,13 +82,11 @@ public class ProcessNormalizationCorpus {
         } catch (IOException e) {
           e.printStackTrace();
         }
-        if (c.get() % 10 == 0) {
-          Log.info(c.get() * BLOCK_SIZE + " Lines processed.");
-        }
+        Log.info(c.get() * BLOCK_SIZE + " Lines processed.");
       });
-
-
     }
+    service.shutdown();
+    service.awaitTermination(1, TimeUnit.DAYS);
   }
 
 }

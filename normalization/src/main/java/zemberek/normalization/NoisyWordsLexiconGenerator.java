@@ -1,5 +1,6 @@
 package zemberek.normalization;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import java.io.DataInputStream;
@@ -90,6 +91,12 @@ import zemberek.tokenization.antlr.TurkishLexer;
  */
 public class NoisyWordsLexiconGenerator {
 
+  public static final double LOG_BASE_FOR_COUNTS = 1.4;
+  public static final int WALK_COUNT = 300;
+  public static final int MAX_HOP_COUNT = 7;
+  public static final double OVERALL_SCORE_THRESHOLD = 0.40;
+  public static final double LEXICAL_SIMLARITY_SCORE_THRESHOLD = 0.4;
+
   NormalizationVocabulary vocabulary;
   int threadCount;
 
@@ -106,9 +113,9 @@ public class NoisyWordsLexiconGenerator {
       threadCount = 22;
     }
 
-    Path corporaRoot = Paths.get("/home/aaa/data/corpora");
+    Path corporaRoot = Paths.get("/home/aaa/data/normalization/corpus");
     Path outRoot = Paths.get("/home/aaa/data/normalization/test-large");
-    Path rootList = corporaRoot.resolve("vocab-list");
+    Path rootList = corporaRoot.resolve("all-list");
 
     Files.createDirectories(outRoot);
 
@@ -125,8 +132,9 @@ public class NoisyWordsLexiconGenerator {
         .fromDirectoryRoot(corporaRoot, rootList, 50_000);
 
     // create graph
+
     Path graphPath = outRoot.resolve("graph");
-//    generator.createGraph(corpusProvider, graphPath);
+    //generator.createGraph(corpusProvider, graphPath);
 
     Histogram<String> incorrectWords = Histogram.loadFromUtf8File(incorrect, ' ');
     incorrectWords.add(Histogram.loadFromUtf8File(maybeIncorrect, ' '));
@@ -137,15 +145,19 @@ public class NoisyWordsLexiconGenerator {
 
   void createCandidates(Path graphPath, Path outRoot, Histogram<String> noisyWords)
       throws Exception {
+    Stopwatch sw = Stopwatch.createStarted();
+
     // create Random Walker
     Log.info("Constructing random walk graph from %s", graphPath);
     RandomWalker walker = RandomWalker.fromGraphFile(vocabulary, graphPath);
 
     Log.info("Collecting candidates data.");
-    WalkResult walkResult = walker.walk(300, 7, threadCount);
+    WalkResult walkResult = walker.walk(WALK_COUNT, MAX_HOP_COUNT, threadCount);
     Path allCandidates = outRoot.resolve("all-candidates");
+    Path lookup = outRoot.resolve("noisy-lookup-from-graph");
 
-    try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8")) {
+    try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8");
+        PrintWriter pwLookup = new PrintWriter(lookup.toFile(), "utf-8")) {
       List<String> words = new ArrayList<>(walkResult.allCandidates.keySet());
 
       words.sort((a, b) -> Integer.compare(noisyWords.getCount(b), noisyWords.getCount(a)));
@@ -157,26 +169,45 @@ public class NoisyWordsLexiconGenerator {
         scores.sort(
             (a, b) -> Float.compare(b.getScore(lambda1, lambda2), a.getScore(lambda1, lambda2)));
         scores = scores.stream()
-            .filter(w -> w.getScore(lambda1, lambda2) >= 0.40)
+            .filter(w -> w.getScore(lambda1, lambda2) >= OVERALL_SCORE_THRESHOLD)
             .collect(Collectors.toList());
         pw.println(s);
         for (WalkScore score : scores) {
           pw.println(String.format("%s:%.3f (%.3f - %.3f)",
-              score.candidate, score.getScore(lambda1, lambda2),
+              score.candidate,
+              score.getScore(lambda1, lambda2),
               score.contextualSimilarity,
               score.lexicalSimilarity));
         }
         pw.println();
+        List<String> candidates = new ArrayList<>();
+        for (WalkScore score : scores) {
+          if (score.lexicalSimilarity * lambda2 < LEXICAL_SIMLARITY_SCORE_THRESHOLD) {
+            continue;
+          }
+          if (score.candidate.equals(s)) {
+            continue;
+          }
+          candidates.add(score.candidate);
+        }
+        if (!candidates.isEmpty()) {
+          pwLookup.println(s + "=" + String.join("|", candidates));
+        }
       }
     }
-
+    Log.info("Candidates collected in %.3f seconds.",
+        sw.elapsed(TimeUnit.MILLISECONDS) / 1000d);
   }
 
   void createGraph(MultiPathBlockTextLoader corpusProvider, Path graphPath) throws Exception {
+    Stopwatch sw = Stopwatch.createStarted();
+
     ContextualSimilarityGraph graph = buildGraph(corpusProvider, 1);
     Log.info("Serializing graph for random walk structure.");
     graph.serializeForRandomWalk(graphPath);
     Log.info("Serialized to %s", graphPath);
+    Log.info("Graph created in %.3f seconds.",
+        sw.elapsed(TimeUnit.MILLISECONDS) / 1000d);
   }
 
   static class RandomWalkNode {
@@ -211,15 +242,15 @@ public class NoisyWordsLexiconGenerator {
     static RandomWalker fromGraphFile(NormalizationVocabulary vocabulary, Path path)
         throws IOException {
       try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
-        UIntMap<RandomWalkNode> contextHashesToWords = loadNodes(dis);
-        UIntMap<RandomWalkNode> wordsToContextHashes = loadNodes(dis);
+        UIntMap<RandomWalkNode> contextHashesToWords = loadNodes(dis,"context");
+        UIntMap<RandomWalkNode> wordsToContextHashes = loadNodes(dis, "word");
         return new RandomWalker(vocabulary, contextHashesToWords, wordsToContextHashes);
       }
     }
 
-    private static UIntMap<RandomWalkNode> loadNodes(DataInputStream dis) throws IOException {
+    private static UIntMap<RandomWalkNode> loadNodes(DataInputStream dis, String info) throws IOException {
       int nodeCount = dis.readInt();
-      Log.info("There are %d nodes.", nodeCount);
+      Log.info("There are %d %s nodes.", nodeCount, info);
       UIntMap<RandomWalkNode> edgeMap = new UIntMap<>(nodeCount / 2);
       for (int i = 0; i < nodeCount; i++) {
         int key = dis.readInt();
@@ -230,7 +261,7 @@ public class NoisyWordsLexiconGenerator {
           int val = dis.readInt();
 
           if ((j & 0x01) == 1) {
-            val = (int) LogMath.log(1.5, val);
+            val = (int) LogMath.log(LOG_BASE_FOR_COUNTS, val);
             if (val <= 0) {
               val = 1;
             }
@@ -241,7 +272,7 @@ public class NoisyWordsLexiconGenerator {
         }
         edgeMap.put(key, new RandomWalkNode(keysCounts, totalCount));
         if (i > 0 && i % 500_000 == 0) {
-          Log.info("%d node data loaded.", i);
+          Log.info("%d %s node loaded.", i, info);
         }
       }
       return edgeMap;
@@ -560,7 +591,7 @@ public class NoisyWordsLexiconGenerator {
       int contextSize) throws Exception {
     ContextualSimilarityGraph graph = new ContextualSimilarityGraph(vocabulary, contextSize);
     graph.build(corpora, threadCount);
-    Log.info("Context hash count before pruning = " + graph.contextHashCount());
+    Log.info("Context hash count before pruning (no singletons) = " + graph.contextHashCount());
     graph.pruneContextNodes();
     Log.info("Context hash count after pruning  = " + graph.contextHashCount());
     Log.info("Edge count = %d", graph.edgeCount());
@@ -700,9 +731,9 @@ public class NoisyWordsLexiconGenerator {
                 mm.increment(wordIndex, 1);
               }
             }
-
-            Log.info("Context count = %d", contextHashToWordCounts.size());
-            Log.info("Singleton context counts = %d", singletons.size());
+            long contextCount = contextHashToWordCounts.size() + singletons.size();
+            Log.info("Context count = %d, Singleton context count = ",
+                contextCount, singletons.size());
           } finally {
             lock.unlock();
           }

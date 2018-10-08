@@ -100,7 +100,6 @@ public class TurkishSentenceExtractorTest {
         markBoundariesParagraph("Ali gel. Okul açıldı... sınavda 2. oldum."));
   }
 
-
   @Test
   public void shouldReturn0ForEmptyff() {
     List<String> sentences = TurkishSentenceExtractor.DEFAULT.fromParagraph("");

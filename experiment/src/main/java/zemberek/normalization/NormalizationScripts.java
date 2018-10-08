@@ -48,8 +48,8 @@ public class NormalizationScripts {
   public static void main(String[] args) throws Exception {
 
     //Path root = Paths.get("/home/aaa/data/normalization");
-    Path root = Paths.get("/media/ahmetaa/depo/normalization");
-    Path testRoot = root.resolve("test-small");
+    Path root = Paths.get("/home/aaa/data/normalization");
+    Path testRoot = root.resolve("test-large");
 
     Path incorrect = testRoot.resolve("incorrect");
     Path correct = testRoot.resolve("correct");
@@ -65,10 +65,9 @@ public class NormalizationScripts {
     Path s = testRoot.resolve("split");
     Path lm = root.resolve("lm.slm");
 
-    Path allPossiblyNoisy = testRoot.resolve("incorrect");
-
     splitWords(
-        allPossiblyNoisy,
+        root.resolve("vocab-clean"),
+        root.resolve("vocab-noisy"),
         s,
         lm,
         asciiMapPath,
@@ -76,11 +75,11 @@ public class NormalizationScripts {
         2);
 
     Path quesOut = testRoot.resolve("question-suffix");
-    getQuestionSuffixes(s, quesOut);
+    //getQuestionSuffixes(s, quesOut);
     //convertTweetData();
 
-    Path repetitive = testRoot.resolve("repetitions.hist.txt");
-    multipleLetterRepetitionWords(incorrect, repetitive);
+/*    Path repetitive = testRoot.resolve("repetitions.hist.txt");
+    multipleLetterRepetitionWords(incorrect, repetitive);*/
 
     Path corporaRoot = Paths.get("/media/ahmetaa/depo/corpora");
     Path tweetRoot = Paths.get("/media/ahmetaa/depo/corpora");
@@ -161,7 +160,8 @@ public class NormalizationScripts {
 
 
   static void splitWords(
-      Path noisyWordFrequencyFile,
+      Path noisyVocab,
+      Path cleanVocab,
       Path splitFile,
       Path lmPath,
       Path asciiMapPath,
@@ -175,7 +175,8 @@ public class NormalizationScripts {
     SmoothLm lm = SmoothLm.builder(lmPath).logBase(Math.E).build();
     Log.info("Language model = %s", lm.info());
 
-    Histogram<String> wordFreq = Histogram.loadFromUtf8File(noisyWordFrequencyFile, ' ');
+    Histogram<String> wordFreq = Histogram.loadFromUtf8File(noisyVocab.resolve("incorrect"), ' ');
+    wordFreq.add(Histogram.loadFromUtf8File(cleanVocab.resolve("incorrect"), ' '));
     Log.info("%d words loaded.", wordFreq.size());
 
     wordFreq.removeSmaller(minWordCount);

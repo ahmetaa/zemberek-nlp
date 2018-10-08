@@ -23,6 +23,7 @@ import zemberek.morphology.analysis.AnalysisCache;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
+import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 
@@ -48,9 +49,9 @@ public class NormalizationVocabularyGenerator {
 
     NormalizationVocabularyGenerator generator = new NormalizationVocabularyGenerator(morphology);
 
-    Path corporaRoot = Paths.get("/media/ahmetaa/depo/corpora");
-    Path outRoot = Paths.get("/media/ahmetaa/depo/normalization/vocab-noisy-small");
-    Path rootList = corporaRoot.resolve("noisy-list-small");
+    Path corporaRoot = Paths.get("/home/aaa/data/normalization/corpus");
+    Path outRoot = Paths.get("/home/aaa/data/normalization/vocab-clean");
+    Path rootList = corporaRoot.resolve("clean-list");
 
     MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
         .fromDirectoryRoot(corporaRoot, rootList, 30_000);
@@ -87,7 +88,7 @@ public class NormalizationVocabularyGenerator {
         .builder()
         .useLexicon(lexicon)
         .disableUnidentifiedTokenAnalyzer()
-        //.morphotactics(new InformalTurkishMorphotactics(lexicon))
+        .morphotactics(new InformalTurkishMorphotactics(lexicon))
         .setCache(cache)
         .build();
   }
