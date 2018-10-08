@@ -6,19 +6,20 @@ import java.util.List;
 import zemberek.core.turkish.TurkishAlphabet;
 
 /**
- * This syllable service is designed for extracting syllable information from Turkish words. This
- * class uses a strict syllable extraction algorithm, meaning that it cannot parse words like
+ * This syllable service is designed for extracting syllable information from Turkish words.
+ * Algorithm cannot parse words like
  * "tren", "spor", "sfinks", "angstrom", "mavimtrak", "stetoskop" etc.
  */
 public class TurkishSyllableExtractor implements SyllableExtractor {
 
   private final TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
 
+  // STRICT extractor cannot parse words ending two consonants. Such as `kart`, `yoğurt`
   public static TurkishSyllableExtractor STRICT = new TurkishSyllableExtractor(true);
+
+  // DEFAULT extractor allows parsing words like "kitapt -> ki-tapt"
   public static TurkishSyllableExtractor DEFAULT = new TurkishSyllableExtractor(false);
 
-  // if strict, words ending two consonants cannot be parsed. such as `kart`, `yoğurt`
-  // if not strict, it may allow parsing words like "kitapt"
   public final boolean strict;
 
   private TurkishSyllableExtractor(boolean strict) {
@@ -60,7 +61,7 @@ public class TurkishSyllableExtractor implements SyllableExtractor {
   }
 
 
-  boolean isVowel(char c) {
+  private boolean isVowel(char c) {
     return alphabet.isVowel(c);
   }
 
