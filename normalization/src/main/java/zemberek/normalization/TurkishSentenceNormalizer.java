@@ -123,8 +123,11 @@ public class TurkishSentenceNormalizer {
               generator.generate(analysis.getDictionaryItem(), formalMorphemes);
           if (generations.size() > 0) {
             candidates.add(generations.get(0).surface);
+          } else {
+            candidates.add(current);
           }
         } else {
+          candidates.add(current);
           hasFormalAnalysis = true;
         }
       }
@@ -133,8 +136,8 @@ public class TurkishSentenceNormalizer {
       // get 1 distance matches.
       if ((!hasFormalAnalysis || analyses.size() == 0) && current.length() > 5) {
         List<String> spellCandidates = getSpellCandidates(currentToken, previous, next);
-        if (spellCandidates.size() > 5) {
-          spellCandidates = new ArrayList<>(spellCandidates.subList(0, 5));
+        if (spellCandidates.size() > 3) {
+          spellCandidates = new ArrayList<>(spellCandidates.subList(0, 3));
         }
         candidates.addAll(spellCandidates);
       }
@@ -358,6 +361,8 @@ public class TurkishSentenceNormalizer {
     Hypothesis best = current.getBest();
     List<String> seq = new ArrayList<>();
     Hypothesis h = best;
+    // skip </s>
+    h = best.previous;
     while (h != null && h.current != START) {
       seq.add(h.current.content);
       h = h.previous;

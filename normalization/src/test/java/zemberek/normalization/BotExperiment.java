@@ -55,16 +55,17 @@ public class BotExperiment {
     TurkishSentenceNormalizer normalizer =
         new TurkishSentenceNormalizer(morphology, dataRoot, lm);
 
-    // preprocess(rawLines, nodup, sentencesNodup, sentencesNodupTokenized);
+    preprocess(rawLines, nodup, sentencesNodup, sentencesNodupTokenized);
 
-    //normalize(normalizer, sentencesNodupTokenized, output);
+    normalize(normalizer, sentencesNodupTokenized, output);
 
-    //normalizer.decode("Acab yarn akram n ypsak");
     //String input = "tmm bu akşm dönücem sana";
+    //String input = "yaslı babam annem ve ben bayram tatilimizi geçirmek istiyoruz ege otellerinde";
     String input = "canim aciba bu aksam balik mi yapak";
     List<String> result = normalizer.normalize(input);
     Log.info(input);
     Log.info(String.join(" ", result));
+
 
     Log.info("Done.");
 
