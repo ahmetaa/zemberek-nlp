@@ -24,23 +24,8 @@ public class BotExperiment {
 
   public static void main(String[] args) throws IOException {
 
-    RootLexicon lexicon = TurkishDictionaryLoader.loadFromResources(
-        "tr/master-dictionary.dict",
-        "tr/non-tdk.dict",
-        "tr/proper.dict",
-        "tr/proper-from-corpus.dict",
-        "tr/abbreviations.dict",
-        "tr/person-names.dict"
-    );
-
-    TurkishMorphology morphology = TurkishMorphology
-        .builder()
-        .useLexicon(lexicon)
-        .disableUnidentifiedTokenAnalyzer()
-        .build();
-
-    Path root = Paths.get("/media/ahmetaa/depo/normalization");
-    Path dataRoot = root.resolve("test-small");
+    Path root = Paths.get("/home/aaa/data/normalization");
+    Path dataRoot = root.resolve("test-large");
 
     Path rawLines = root.resolve("bot/raw");
     Path nodup = root.resolve("bot/sentences-nodup");
@@ -52,6 +37,7 @@ public class BotExperiment {
     Path lmPath = root.resolve("lm.slm");
     SmoothLm lm = SmoothLm.builder(lmPath).logBase(Math.E).build();
 
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     TurkishSentenceNormalizer normalizer =
         new TurkishSentenceNormalizer(morphology, dataRoot, lm);
 
@@ -65,7 +51,6 @@ public class BotExperiment {
     List<String> result = normalizer.normalize(input);
     Log.info(input);
     Log.info(String.join(" ", result));
-
 
     Log.info("Done.");
 

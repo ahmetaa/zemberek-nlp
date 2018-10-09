@@ -23,10 +23,10 @@ public class ProcessNormalizationCorpus {
 
   public static final int BLOCK_SIZE = 1_000_000;
 
-  NormalizationPreprocessor preprocessor;
+  TurkishSentenceNormalizer normalizer;
 
-  public ProcessNormalizationCorpus(NormalizationPreprocessor preprocessor) {
-    this.preprocessor = preprocessor;
+  public ProcessNormalizationCorpus(TurkishSentenceNormalizer normalizer) {
+    this.normalizer = normalizer;
   }
 
   public static void main(String[] args) throws Exception {
@@ -38,10 +38,10 @@ public class ProcessNormalizationCorpus {
     SmoothLm lm = SmoothLm.builder(lmPath).logBase(Math.E).build();
     Log.info("Language model = %s", lm.info());
 
-    NormalizationPreprocessor preprocessor = new NormalizationPreprocessor(
+    TurkishSentenceNormalizer normalizationPreprocessor = new TurkishSentenceNormalizer(
         morphology, normalizationDataRoot, lm);
 
-    ProcessNormalizationCorpus processor = new ProcessNormalizationCorpus(preprocessor);
+    ProcessNormalizationCorpus processor = new ProcessNormalizationCorpus(normalizationPreprocessor);
 
     Path corporaRoot = Paths.get("/home/aaa/data/corpora");
     Path outRoot = Paths.get("/home/aaa/data/normalization/corpus/clean");
@@ -74,7 +74,7 @@ public class ProcessNormalizationCorpus {
       service.submit(() -> {
         List<String> sentences = TextCleaner.cleanAndExtractSentences(chunk.getData());
         sentences = sentences.stream()
-            .map(s -> preprocessor.preProcess(s))
+            .map(s -> normalizer.preProcess(s))
             .collect(Collectors.toList());
         Path p = outRoot.resolve(String.valueOf(c.getAndIncrement()));
         try {

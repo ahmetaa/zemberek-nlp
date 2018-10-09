@@ -94,7 +94,7 @@ public class NoisyWordsLexiconGenerator {
   public static final double LOG_BASE_FOR_COUNTS = 1.4;
   public static final int WALK_COUNT = 300;
   public static final int MAX_HOP_COUNT = 7;
-  public static final double OVERALL_SCORE_THRESHOLD = 0.40;
+  public static final double OVERALL_SCORE_THRESHOLD = 0.45;
   public static final double LEXICAL_SIMLARITY_SCORE_THRESHOLD = 0.4;
 
   NormalizationVocabulary vocabulary;
@@ -179,12 +179,18 @@ public class NoisyWordsLexiconGenerator {
               score.lexicalSimilarity));
         }
         pw.println();
+
+        if (scores.size() == 0) {
+          continue;
+        }
+        // if only match is word itself (comes from probably noisy)
+        if (scores.size() == 1 && scores.get(0).candidate.equals(s)) {
+          continue;
+        }
+
         List<String> candidates = new ArrayList<>();
         for (WalkScore score : scores) {
           if (score.lexicalSimilarity * lambda2 < LEXICAL_SIMLARITY_SCORE_THRESHOLD) {
-            continue;
-          }
-          if (score.candidate.equals(s)) {
             continue;
           }
           candidates.add(score.candidate);
@@ -241,13 +247,14 @@ public class NoisyWordsLexiconGenerator {
     static RandomWalker fromGraphFile(NormalizationVocabulary vocabulary, Path path)
         throws IOException {
       try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
-        UIntMap<RandomWalkNode> contextHashesToWords = loadNodes(dis,"context");
+        UIntMap<RandomWalkNode> contextHashesToWords = loadNodes(dis, "context");
         UIntMap<RandomWalkNode> wordsToContextHashes = loadNodes(dis, "word");
         return new RandomWalker(vocabulary, contextHashesToWords, wordsToContextHashes);
       }
     }
 
-    private static UIntMap<RandomWalkNode> loadNodes(DataInputStream dis, String info) throws IOException {
+    private static UIntMap<RandomWalkNode> loadNodes(DataInputStream dis, String info)
+        throws IOException {
       int nodeCount = dis.readInt();
       Log.info("There are %d %s nodes.", nodeCount, info);
       UIntMap<RandomWalkNode> edgeMap = new UIntMap<>(nodeCount / 2);

@@ -1,22 +1,28 @@
 package zemberek.normalization;
 
-import static zemberek.normalization.NormalizationPreprocessor.isWord;
-
+import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ArrayListMultimap;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.dynamic.ActiveList;
 import zemberek.core.dynamic.Scorable;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
+import zemberek.core.turkish.SecondaryPos;
+import zemberek.core.turkish.Turkish;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.InterpretingAnalyzer;
@@ -25,7 +31,9 @@ import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.generator.WordGenerator;
 import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
 import zemberek.morphology.morphotactics.Morpheme;
+import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.tokenization.TurkishTokenizer;
+import zemberek.tokenization.antlr.TurkishLexer;
 
 /**
  * Tries to normalize a sentence using lookup tables and heuristics.
@@ -36,17 +44,20 @@ public class TurkishSentenceNormalizer {
   private SmoothLm lm;
   private TurkishSpellChecker spellChecker;
 
-  private NormalizationPreprocessor preprocessor;
-
   private ArrayListMultimap<String, String> lookupFromGraph;
   private ArrayListMultimap<String, String> lookupFromAscii;
   private ArrayListMultimap<String, String> lookupManual;
   private InterpretingAnalyzer informalAnalyzer;
   private WordGenerator generator;
 
+  private Map<String, String> commonSplits = new HashMap<>();
+  private Map<String, String> replacements = new HashMap<>();
+  private HashSet<String> commonConnectedSuffixes = new HashSet<>();
+  private  HashSet<String> commonLetterRepeatitionWords = new HashSet<>();
+
   public TurkishSentenceNormalizer(
       TurkishMorphology morphology,
-      Path normalizationDataRoot,
+      Path dataRoot,
       SmoothLm languageModel) throws IOException {
     Log.info("Language model = %s", languageModel.info());
     this.morphology = morphology;
@@ -61,14 +72,30 @@ public class TurkishSentenceNormalizer {
         decoder,
         CharacterGraphDecoder.ASCII_TOLERANT_MATCHER);
 
-    this.preprocessor = new NormalizationPreprocessor(morphology, normalizationDataRoot, lm);
-    this.lookupFromGraph = loadMultiMap(normalizationDataRoot.resolve("lookup-from-graph"));
-    this.lookupFromAscii = loadMultiMap(normalizationDataRoot.resolve("ascii-map"));
+    this.lookupFromGraph = loadMultiMap(dataRoot.resolve("lookup-from-graph"));
+    this.lookupFromAscii = loadMultiMap(dataRoot.resolve("ascii-map"));
     List<String> manualLookup =
         TextIO.loadLinesFromResource("normalization/candidates-manual");
     this.lookupManual = loadMultiMap(manualLookup);
     this.informalAnalyzer = morphology.getAnalyzerInstance(
         new InformalTurkishMorphotactics(morphology.getLexicon()));
+
+    List<String> splitLines = Files.readAllLines(dataRoot.resolve("split"), Charsets.UTF_8);
+    for (String splitLine : splitLines) {
+      String[] tokens = splitLine.split("=");
+      commonSplits.put(tokens[0].trim(), tokens[1].trim());
+    }
+
+    this.commonConnectedSuffixes.addAll(TextIO.loadLinesFromResource(
+        "normalization/question-suffixes"));
+    this.commonConnectedSuffixes.addAll(Arrays.asList("de", "da", "ki"));
+
+    List<String> replaceLines = TextIO.loadLinesFromResource(
+        "normalization/multi-word-replacements");
+    for (String replaceLine : replaceLines) {
+      String[] tokens = replaceLine.split("=");
+      replacements.put(tokens[0].trim(), tokens[1].trim());
+    }
   }
 
   // load data with line format: "key=val1,val2"
@@ -99,9 +126,10 @@ public class TurkishSentenceNormalizer {
   }
 
   public List<String> normalize(String sentence) {
-    String preprocesssed = preprocessor.preProcess(sentence);
 
-    List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(preprocesssed);
+    String processed = preProcess(sentence);
+
+    List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(processed);
 
     List<Candidates> candidatesList = new ArrayList<>();
 
@@ -129,7 +157,7 @@ public class TurkishSentenceNormalizer {
       List<SingleAnalysis> analyses = informalAnalyzer.analyze(current);
       for (SingleAnalysis analysis : analyses) {
         if (analysis.containsInformalMorpheme()) {
-          List<Morpheme> formalMorphemes = preprocessor.toFormalMorphemeNames(analysis);
+          List<Morpheme> formalMorphemes = toFormalMorphemeNames(analysis);
           List<WordGenerator.Result> generations =
               generator.generate(analysis.getDictionaryItem(), formalMorphemes);
           if (generations.size() > 0) {
@@ -145,7 +173,9 @@ public class TurkishSentenceNormalizer {
 
       // if there is no formal analysis and length is larger than 5,
       // get top 3 1 distance matches.
-      if ((!hasFormalAnalysis || analyses.size() == 0) && current.length() > 5) {
+      float unigramProb = lm.getUnigramProbability(lm.getVocabulary().indexOf(current));
+      if ((!hasFormalAnalysis || analyses.size() == 0 || unigramProb < -5)
+          && current.length() > 4) {
         List<String> spellCandidates = getSpellCandidates(currentToken, previous, next);
         if (spellCandidates.size() > 3) {
           spellCandidates = new ArrayList<>(spellCandidates.subList(0, 3));
@@ -356,5 +386,181 @@ public class TurkishSentenceNormalizer {
     Collections.reverse(seq);
     return seq;
   }
+
+  String preProcess(String sentence) {
+    sentence = sentence.toLowerCase(Turkish.LOCALE);
+    List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
+    String s = replaceCommon(tokens);
+    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
+    s = combineNecessaryWords(tokens);
+    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
+    s = splitNecessaryWords(tokens, false);
+    if (probablyRequiresDeasciifier(s)) {
+      Deasciifier deasciifier = new Deasciifier(s);
+      s = deasciifier.convertToTurkish();
+    }
+    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
+    s = combineNecessaryWords(tokens);
+    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
+    return splitNecessaryWords(tokens, true);
+  }
+
+  /**
+   * Tries to combine words that are written separately using heuristics. If it cannot combine,
+   * returns empty string.
+   *
+   * Such as:
+   * <pre>
+   * göndere bilirler -> göndere bilirler
+   * elma lar -> elmalar
+   * ankara 'ya -> ankara'ya
+   * </pre>
+   */
+  String combineCommon(String i1, String i2) {
+    String combined = i1 + i2;
+    if (i2.startsWith("'") || i2.startsWith("bil")) {
+      if (hasAnalysis(combined)) {
+        return combined;
+      }
+    }
+    if (!hasRegularAnalysis(i2)) {
+      if (hasAnalysis(combined)) {
+        return combined;
+      }
+    }
+    return "";
+  }
+
+  /**
+   * Returns true if only word is analysed with internal dictionary and analysis dictionary item is
+   * not proper noun.
+   */
+  boolean hasRegularAnalysis(String s) {
+    WordAnalysis a = morphology.analyze(s);
+    return a.stream().anyMatch(k -> !k.isUnknown() && !k.isRuntime() &&
+        k.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun &&
+        k.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation
+    );
+  }
+
+  /**
+   * Tries to separate question words, conjunctions and common mistakes by looking from a lookup or
+   * using heuristics. Such as:
+   * <pre>
+   * gelecekmisin -> gelecek misin
+   * tutupda -> tutup da
+   * öyleki -> öyle ki
+   * olurya -> olur ya
+   * </pre>
+   */
+  String separateCommon(String input, boolean useLookup) {
+    if (useLookup && commonSplits.containsKey(input)) {
+      return commonSplits.get(input);
+    }
+    if (!hasRegularAnalysis(input)) {
+      for (int i = 1; i < input.length() - 1; i++) {
+        String tail = input.substring(i);
+        if (commonConnectedSuffixes.contains(tail)) {
+          String head = input.substring(0, i);
+          if (hasRegularAnalysis(head)) {
+            return head + " " + tail;
+          } else {
+            return input;
+          }
+        }
+      }
+    }
+    return input;
+  }
+
+  /**
+   * Makes a guess if input sentence requires deasciifier.
+   */
+  static boolean probablyRequiresDeasciifier(String sentence) {
+    int turkishSpecCount = 0;
+    for (int i = 0; i < sentence.length(); i++) {
+      char c = sentence.charAt(i);
+      if (TurkishAlphabet.INSTANCE.isTurkishSpecific(c)) {
+        turkishSpecCount++;
+      }
+    }
+    double ratio = turkishSpecCount * 1d / sentence.length();
+    return ratio < 0.05;
+  }
+
+  String combineNecessaryWords(List<Token> tokens) {
+    List<String> result = new ArrayList<>();
+    boolean combined = false;
+    for (int i = 0; i < tokens.size() - 1; i++) {
+      Token first = tokens.get(i);
+      Token second = tokens.get(i + 1);
+      String firstS = first.getText();
+      String secondS = second.getText();
+      if (!isWord(first) || !isWord(second)) {
+        combined = false;
+        result.add(firstS);
+        continue;
+      }
+      if (combined) {
+        combined = false;
+        continue;
+      }
+      String c = combineCommon(firstS, secondS);
+      if (c.length() > 0) {
+        result.add(c);
+        combined = true;
+      } else {
+        result.add(first.getText());
+        combined = false;
+      }
+    }
+    if (!combined) {
+      result.add(tokens.get(tokens.size() - 1).getText());
+    }
+    return String.join(" ", result);
+  }
+
+  static boolean isWord(Token token) {
+    int type = token.getType();
+    return type == TurkishLexer.Word
+        || type == TurkishLexer.UnknownWord
+        || type == TurkishLexer.WordAlphanumerical
+        || type == TurkishLexer.WordWithSymbol;
+  }
+
+  String splitNecessaryWords(List<Token> tokens, boolean useLookup) {
+    List<String> result = new ArrayList<>();
+    for (Token token : tokens) {
+      String text = token.getText();
+      if (isWord(token)) {
+        result.add(separateCommon(text, useLookup));
+      } else {
+        result.add(text);
+      }
+    }
+    return String.join(" ", result);
+  }
+
+  String replaceCommon(List<Token> tokens) {
+    List<String> result = new ArrayList<>();
+    for (Token token : tokens) {
+      String text = token.getText();
+      result.add(replacements.getOrDefault(text, text));
+    }
+    return String.join(" ", result);
+  }
+
+  List<Morpheme> toFormalMorphemeNames(SingleAnalysis a) {
+    List<Morpheme> transform = new ArrayList<>();
+    for (Morpheme m : a.getMorphemes()) {
+      if (m.informal && m.mappedMorpheme != null) {
+        transform.add(m.mappedMorpheme);
+      } else {
+        transform.add(m);
+      }
+    }
+    return transform;
+  }
+
 
 }
