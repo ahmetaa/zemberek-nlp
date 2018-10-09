@@ -94,7 +94,7 @@ public class NoisyWordsLexiconGenerator {
   public static final double LOG_BASE_FOR_COUNTS = 1.4;
   public static final int WALK_COUNT = 300;
   public static final int MAX_HOP_COUNT = 7;
-  public static final double OVERALL_SCORE_THRESHOLD = 0.45;
+  public static final double OVERALL_SCORE_THRESHOLD = 0.41;
   public static final double LEXICAL_SIMLARITY_SCORE_THRESHOLD = 0.4;
 
   NormalizationVocabulary vocabulary;
@@ -183,17 +183,19 @@ public class NoisyWordsLexiconGenerator {
         if (scores.size() == 0) {
           continue;
         }
-        // if only match is word itself (comes from probably noisy)
-        if (scores.size() == 1 && scores.get(0).candidate.equals(s)) {
-          continue;
-        }
 
         List<String> candidates = new ArrayList<>();
         for (WalkScore score : scores) {
           if (score.lexicalSimilarity * lambda2 < LEXICAL_SIMLARITY_SCORE_THRESHOLD) {
             continue;
           }
+          if (score.candidate.equals(s)) {
+            continue;
+          }
           candidates.add(score.candidate);
+        }
+        if (candidates.size() > 0 && vocabulary.isMaybeIncorrect(s)) {
+          candidates.add(s);
         }
         if (!candidates.isEmpty()) {
           pwLookup.println(s + "=" + String.join(",", candidates));
@@ -367,18 +369,25 @@ public class NoisyWordsLexiconGenerator {
             // convert to ascii and remove vowels and repetitions.
             String word = vocabulary.getWord(wordIndex);
             String reducedSource = reduceWord(word);
+            String asciiSource = TurkishAlphabet.INSTANCE.toAscii(word);
 
             for (String s : scores.keySet()) {
               String reducedTarget = reduceWord(s);
+              String asciiTarget = TurkishAlphabet.INSTANCE.toAscii(s);
               float editDistance =
                   (float) distanceCalculator.distance(reducedSource, reducedTarget) + 1;
+              float asciiEditDistance =
+                  (float) distanceCalculator.distance(asciiSource, asciiTarget) + 1;
 
               // longest commons substring ratio
-              float lcsr = longestCommonSubstring(word, s).length() * 1f /
+              float lcsr = longestCommonSubstring(asciiSource, asciiTarget, true).length() * 1f /
                   Math.max(s.length(), word.length());
 
               WalkScore score = scores.get(s);
-              score.lexicalSimilarity = lcsr / editDistance;
+              float l1 = lcsr / editDistance;
+              float l2 = lcsr / asciiEditDistance;
+
+              score.lexicalSimilarity = Math.max(l1, l2);
             }
             result.allCandidates.putAll(word, scores.values());
           }
@@ -564,7 +573,7 @@ public class NoisyWordsLexiconGenerator {
       return isCorrect(getIndex(id));
     }
 
-    boolean isMaybeInCorrect(String id) {
+    boolean isMaybeIncorrect(String id) {
       return isMaybeIncorrect(getIndex(id));
     }
 
@@ -898,14 +907,17 @@ public class NoisyWordsLexiconGenerator {
   /**
    * Finds the longest common substring of two strings.
    */
-  private static String longestCommonSubstring(String a, String b) {
+  private static String longestCommonSubstring(String a, String b, boolean asciiTolerant) {
     int[][] lengths = new int[a.length() + 1][b.length() + 1];
 
     // row 0 and column 0 are initialized to 0 already
 
     for (int i = 0; i < a.length(); i++) {
       for (int j = 0; j < b.length(); j++) {
-        if (a.charAt(i) == b.charAt(j)) {
+        boolean b1 = asciiTolerant ?
+            TurkishAlphabet.INSTANCE.isAsciiEqual(a.charAt(i), b.charAt(j)) :
+            a.charAt(i) == b.charAt(j);
+        if (b1) {
           lengths[i + 1][j + 1] = lengths[i][j] + 1;
         } else {
           lengths[i + 1][j + 1] =

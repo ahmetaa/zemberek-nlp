@@ -4,6 +4,8 @@ import zemberek.core.collections.IntMap;
 
 public class LetterMatchers {
 
+  public static LetterMatcher ASCII_MATCHER = new AsciiMatcher();
+
   static class AsciiMatcher implements LetterMatcher {
 
     static IntMap<char[]> map = new IntMap<>();
