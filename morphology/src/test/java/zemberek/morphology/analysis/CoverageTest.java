@@ -60,7 +60,7 @@ public class CoverageTest {
       throws IOException, InterruptedException, java.util.concurrent.ExecutionException {
     RootLexicon lexicon = TurkishDictionaryLoader.loadDefaultDictionaries();
     TurkishMorphotactics morphotactics = new TurkishMorphotactics(lexicon);
-    InterpretingAnalyzer analyzer = new InterpretingAnalyzer(morphotactics);
+    InterpretingAnalyzer analyzer = InterpretingAnalyzer.instance(morphotactics);
 
     int threadCount = Runtime.getRuntime().availableProcessors() / 2;
     Log.info("Thread count = %d", threadCount);

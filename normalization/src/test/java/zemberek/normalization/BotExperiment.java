@@ -14,9 +14,6 @@ import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
-import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 
@@ -24,8 +21,8 @@ public class BotExperiment {
 
   public static void main(String[] args) throws IOException {
 
-    Path root = Paths.get("/home/aaa/data/normalization");
-    Path dataRoot = root.resolve("test-large");
+    Path root = Paths.get("/media/ahmetaa/depo/normalization");
+    Path dataRoot = root.resolve("test-small");
 
     Path rawLines = root.resolve("bot/raw");
     Path nodup = root.resolve("bot/sentences-nodup");
@@ -46,7 +43,6 @@ public class BotExperiment {
     normalize(normalizer, sentencesNodupTokenized, output);
 
     String input = "tmm bu akşm dönücem sana";
-    //String input = "canim aciba bu aksam balik mi yapak";
     List<String> result = normalizer.normalize(input);
     Log.info(input);
     Log.info(String.join(" ", result));

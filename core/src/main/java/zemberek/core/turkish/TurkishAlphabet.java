@@ -401,4 +401,41 @@ public class TurkishAlphabet {
     return c < vector.length && vector.get(c);
   }
 
+  public boolean asciiTolerantEquals(String s1, String s2) {
+    if (s1 == null || s2 == null) {
+      return false;
+    }
+    if (s1.length() != s2.length()) {
+      return false;
+    }
+    for (int i = 0; i < s1.length(); i++) {
+      char c1 = s1.charAt(i);
+      char c2 = s2.charAt(i);
+      if (!isAsciiEqual(c1, c2)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Checks is s1 starts with s2 (compares ascii tolerant)
+   */
+  public boolean asciiTolerantStartsWith(String s1, String s2) {
+    if (s1 == null || s2 == null) {
+      return false;
+    }
+    if (s1.length() < s2.length()) {
+      return false;
+    }
+    for (int i = 0; i < s2.length(); i++) {
+      char c1 = s1.charAt(i);
+      char c2 = s2.charAt(i);
+      if (!isAsciiEqual(c1, c2)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
 }

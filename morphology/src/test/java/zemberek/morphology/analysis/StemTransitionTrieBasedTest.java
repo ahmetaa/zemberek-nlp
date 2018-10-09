@@ -21,17 +21,17 @@ public class StemTransitionTrieBasedTest {
         lexicon,
         new TurkishMorphotactics(lexicon));
 
-    List<StemTransition> matches = t.getPrefixMatches("kabağa");
+    List<StemTransition> matches = t.getPrefixMatches("kabağa", false);
     Assert.assertEquals(3, matches.size());
     Set<String> lemmas = matches.stream().map(s -> s.item.lemma).collect(Collectors.toSet());
     Assert.assertTrue(TestUtil.containsAll(lemmas, "kaba", "kabağ", "kabak"));
 
-    matches = t.getPrefixMatches("kabak");
+    matches = t.getPrefixMatches("kabak", false);
     Assert.assertEquals(2, matches.size());
     lemmas = matches.stream().map(s -> s.item.lemma).collect(Collectors.toSet());
     Assert.assertTrue(TestUtil.containsAll(lemmas, "kaba", "kabak"));
 
-    matches = t.getPrefixMatches("kapak");
+    matches = t.getPrefixMatches("kapak", false);
     Assert.assertEquals(3, matches.size());
     lemmas = matches.stream().map(s -> s.item.lemma).collect(Collectors.toSet());
     Assert.assertTrue(TestUtil.containsAll(lemmas, "kapak"));

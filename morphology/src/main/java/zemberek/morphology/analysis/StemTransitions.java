@@ -2,7 +2,6 @@ package zemberek.morphology.analysis;
 
 import java.util.Collection;
 import java.util.List;
-import zemberek.core.text.StringMatcher;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.StemTransition;
@@ -13,9 +12,7 @@ public interface StemTransitions {
 
   RootLexicon getLexicon();
 
-  List<StemTransition> getPrefixMatches(String stem);
-
-  List<StemTransition> getPrefixMatches(String stem, StringMatcher matcher);
+  List<StemTransition> getPrefixMatches(String stem, boolean asciiTolerant);
 
   List<StemTransition> getTransitions(DictionaryItem item);
 

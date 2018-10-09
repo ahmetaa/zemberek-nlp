@@ -60,7 +60,7 @@ public class TurkishMorphology {
     } else {
       this.morphotactics = builder.morphotactics;
     }
-    this.analyzer = new InterpretingAnalyzer(morphotactics);
+    this.analyzer = InterpretingAnalyzer.instance(morphotactics);
     this.wordGenerator = new WordGenerator(morphotactics);
     this.unidentifiedTokenAnalyzer = new UnidentifiedTokenAnalyzer(analyzer);
     this.tokenizer = builder.tokenizer;
@@ -89,11 +89,11 @@ public class TurkishMorphology {
   }
 
   public InterpretingAnalyzer getAnalyzerInstance() {
-    return new InterpretingAnalyzer(morphotactics);
+    return InterpretingAnalyzer.instance(morphotactics);
   }
 
   public InterpretingAnalyzer getAnalyzerInstance(TurkishMorphotactics morphotactics) {
-    return new InterpretingAnalyzer(morphotactics);
+    return InterpretingAnalyzer.instance(morphotactics);
   }
 
   public UnidentifiedTokenAnalyzer getUnidentifiedTokenAnalyzer() {

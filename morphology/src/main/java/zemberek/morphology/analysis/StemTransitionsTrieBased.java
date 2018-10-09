@@ -7,7 +7,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import zemberek.core.collections.Trie;
 import zemberek.core.logging.Log;
-import zemberek.core.text.StringMatcher;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.StemTransition;
@@ -43,19 +42,13 @@ public class StemTransitionsTrieBased extends StemTransitionsBase implements Ste
     return lexicon;
   }
 
-  public List<StemTransition> getPrefixMatches(String stem) {
+  public List<StemTransition> getPrefixMatches(String stem, boolean asciiTolerant) {
     lock.readLock().lock();
     try {
       return stemTransitionTrie.getPrefixMatchingItems(stem);
     } finally {
       lock.readLock().unlock();
     }
-  }
-
-  @Override
-  public List<StemTransition> getPrefixMatches(String stem, StringMatcher matcher) {
-    throw  new UnsupportedOperationException("getPrefixMatches(String stem, StringMatcher matcher)"
-        + "is not yet implemented.");
   }
 
   public List<StemTransition> getTransitions(DictionaryItem item) {

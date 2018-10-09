@@ -72,7 +72,7 @@ public class WordGenerator {
       Morpheme morpheme = TurkishMorphotactics.getMorpheme(morphemeId);
       morphemes.add(morpheme);
     }
-    List<StemTransition> candidates = stemTransitions.getPrefixMatches(stem);
+    List<StemTransition> candidates = stemTransitions.getPrefixMatches(stem, false);
     return generate(stem, candidates, morphemes);
   }
 

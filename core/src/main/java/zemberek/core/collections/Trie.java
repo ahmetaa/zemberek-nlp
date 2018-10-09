@@ -38,7 +38,7 @@ public class Trie<T> {
       // root-foo* <- bar ==> root-foo*
       //                         \-bar*
       // or
-      // root-foo* <- foobar ==> foor-foo*-bar*
+      // root-foo* <- foobar ==> root-foo*-bar*
       if (node == null) {
         previousNode.addChild(new Node<>(item, getSuffix(chars, i)));
         size++;

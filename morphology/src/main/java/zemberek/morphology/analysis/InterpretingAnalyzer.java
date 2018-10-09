@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import zemberek.core.collections.IntValueMap;
 import zemberek.core.turkish.PhoneticAttribute;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analysis.AnalysisDebugData.RejectedTransition;
 import zemberek.morphology.analysis.SurfaceTransition.SuffixTemplateToken;
 import zemberek.morphology.analysis.SurfaceTransition.TemplateTokenType;
@@ -18,8 +19,8 @@ import zemberek.morphology.morphotactics.SuffixTransition;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
 /**
- * This is a Morphological Analyser implementation. Instances of this class are not thread safe
- * if instantiated with forDebug() factory constructor method.
+ * This is a Morphological Analyser implementation. Instances of this class are not thread safe if
+ * instantiated with forDebug() factory constructor method.
  */
 public class InterpretingAnalyzer {
 
@@ -29,20 +30,44 @@ public class InterpretingAnalyzer {
   private StemTransitions stemTransitions;
   private boolean debugMode = false;
   private AnalysisDebugData debugData;
+  private boolean asciiTolerant = false;
 
-  public InterpretingAnalyzer(TurkishMorphotactics morphotactics) {
-    this.lexicon = morphotactics.getRootLexicon();
-    this.stemTransitions = morphotactics.getStemTransitions();
+  private InterpretingAnalyzer(
+      RootLexicon lexicon,
+      StemTransitions stemTransitions) {
+    this.lexicon = lexicon;
+    this.stemTransitions = stemTransitions;
+  }
+
+  public static InterpretingAnalyzer instance(TurkishMorphotactics morphotactics) {
+    return new InterpretingAnalyzer(
+        morphotactics.getRootLexicon(),
+        morphotactics.getStemTransitions());
+  }
+
+  static InterpretingAnalyzer asciiTolerantInstance(TurkishMorphotactics morphotactics) {
+    InterpretingAnalyzer analyzer = InterpretingAnalyzer.instance(morphotactics);
+    analyzer.asciiTolerant = true;
+    return analyzer;
   }
 
   /**
-   * Method returns a InterpretingAnalyzer instance.
-   * But when this factory constructor is used, an AnalysisDebugData object is generated after each
-   * call to generation methods. That object cen be retrieved with getDebugData method.
+   * Method returns an InterpretingAnalyzer instance. But when this factory constructor is used, an
+   * AnalysisDebugData object is generated after each call to generation methods. That object cen be
+   * retrieved with getDebugData method.
    */
   public static InterpretingAnalyzer forDebug(TurkishMorphotactics morphotactics) {
-    InterpretingAnalyzer analyzer = new InterpretingAnalyzer(morphotactics);
+    InterpretingAnalyzer analyzer = InterpretingAnalyzer.instance(morphotactics);
     analyzer.debugMode = true;
+    return analyzer;
+  }
+
+  static InterpretingAnalyzer forDebug(
+      TurkishMorphotactics morphotactics,
+      boolean asciiTolerant) {
+    InterpretingAnalyzer analyzer = InterpretingAnalyzer.instance(morphotactics);
+    analyzer.debugMode = true;
+    analyzer.asciiTolerant = asciiTolerant;
     return analyzer;
   }
 
@@ -63,7 +88,7 @@ public class InterpretingAnalyzer {
       debugData = new AnalysisDebugData();
     }
     // get stem candidates.
-    List<StemTransition> candidates = stemTransitions.getPrefixMatches(input);
+    List<StemTransition> candidates = stemTransitions.getPrefixMatches(input, asciiTolerant);
 
     if (debugMode) {
       debugData.input = input;
@@ -173,7 +198,11 @@ public class InterpretingAnalyzer {
           path.phoneticAttributes);
 
       // no need to go further if generated surface form is not a prefix of the paths's tail.
-      if (!path.tail.startsWith(surface)) {
+      boolean tailStartsWith =
+          asciiTolerant ?
+              TurkishAlphabet.INSTANCE.asciiTolerantStartsWith(path.tail, surface) :
+              path.tail.startsWith(surface);
+      if (!tailStartsWith) {
         if (debugMode) {
           debugData.rejectedTransitions.put(
               path,
@@ -214,7 +243,10 @@ public class InterpretingAnalyzer {
       SurfaceTransition surfaceTransition = new SurfaceTransition(surface, suffixTransition);
 
       //if tail is equal to surface, no need to calculate phonetic attributes.
-      AttributeSet<PhoneticAttribute> attributes = path.tail.equals(surface) ?
+      boolean tailEqualsSurface = asciiTolerant ?
+          TurkishAlphabet.INSTANCE.asciiTolerantEquals(path.tail, surface)
+          : path.tail.equals(surface);
+      AttributeSet<PhoneticAttribute> attributes = tailEqualsSurface ?
           path.phoneticAttributes.copy() :
           AttributesHelper.getMorphemicAttributes(surface, path.phoneticAttributes);
 

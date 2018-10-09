@@ -36,7 +36,16 @@ import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 
 /**
- * Tries to normalize a sentence using lookup tables and heuristics.
+ * Tries to normalize a sentence by collecting candidate words from
+ * <pre>
+ * - lookup tables (manual and collected from a large context graph)
+ * - split-combine heuristics
+ * - ascii tolerant analysis
+ * - informal morphological analysis
+ * - spell checker
+ * </pre>
+ * It then finds the most likely sequence using Viterbi search algorithm over candidate lists,
+ * using a compressed language model.
  */
 public class TurkishSentenceNormalizer {
 

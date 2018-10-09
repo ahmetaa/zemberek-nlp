@@ -1,10 +1,12 @@
 package zemberek.morphology.analysis;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,7 +14,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import zemberek.core.logging.Log;
-import zemberek.core.text.StringMatcher;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.StemTransition;
@@ -22,6 +24,9 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
 
   private ArrayListMultimap<String, StemTransition> multiStems =
       ArrayListMultimap.create(1000, 2);
+  private HashMultimap<String, String> asciiKeys =
+      HashMultimap.create(1000, 2);
+
 
   // contains a map that holds dictionary items that has
   // multiple or different than item.root stem surface forms.
@@ -36,6 +41,21 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
     this.lexicon = lexicon;
     this.morphotactics = morphotactics;
     lexicon.forEach(this::addDictionaryItem);
+    // generate MultiMap for ascii tolerant keys
+    for (String s : singleStems.keySet()) {
+      String ascii = TurkishAlphabet.INSTANCE.toAscii(s);
+      if (ascii.equals(s)) {
+        continue;
+      }
+      asciiKeys.put(ascii, s);
+    }
+    for (String s : multiStems.keySet()) {
+      String ascii = TurkishAlphabet.INSTANCE.toAscii(s);
+      if (ascii.equals(s)) {
+        continue;
+      }
+      asciiKeys.put(ascii, s);
+    }
   }
 
   public synchronized Set<StemTransition> getTransitions() {
@@ -74,6 +94,30 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
     }
   }
 
+  private LinkedHashSet<StemTransition> getTransitionsAsciiTolerant(String stem) {
+    lock.readLock().lock();
+    try {
+      // add actual
+      LinkedHashSet<StemTransition> result = new LinkedHashSet<>();
+      if (singleStems.containsKey(stem)) {
+        result.add(singleStems.get(stem));
+      } else if (multiStems.containsKey(stem)) {
+        result.addAll(multiStems.get(stem));
+      }
+      Set<String> asciiStems = asciiKeys.get(stem);
+      for (String st : asciiStems) {
+        if (singleStems.containsKey(st)) {
+          result.add(singleStems.get(st));
+        } else if (multiStems.containsKey(stem)) {
+          result.addAll(multiStems.get(st));
+        }
+      }
+      return result;
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
+
   private List<StemTransition> getTransitions(String stem) {
     lock.readLock().lock();
     try {
@@ -89,24 +133,22 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
     }
   }
 
-  public List<StemTransition> getPrefixMatches(String input) {
+  public List<StemTransition> getPrefixMatches(String input, boolean asciiTolerant) {
     lock.readLock().lock();
     try {
       List<StemTransition> matches = Lists.newArrayListWithCapacity(3);
       for (int i = 1; i <= input.length(); i++) {
         String stem = input.substring(0, i);
-        matches.addAll(getTransitions(stem));
+        if (asciiTolerant) {
+          matches.addAll(getTransitionsAsciiTolerant(stem));
+        } else {
+          matches.addAll(getTransitions(stem));
+        }
       }
       return matches;
     } finally {
       lock.readLock().unlock();
     }
-
-  }
-
-  @Override
-  public List<StemTransition> getPrefixMatches(String stem, StringMatcher matcher) {
-    return null;
   }
 
   public List<StemTransition> getTransitions(DictionaryItem item) {
