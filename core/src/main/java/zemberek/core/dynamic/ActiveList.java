@@ -3,17 +3,16 @@ package zemberek.core.dynamic;
 import java.util.Iterator;
 
 /**
- * This is a special set like data structure that can be used in beam-search like algorithms.
- * It holds objects with a {@link Scorable} interface.
+ * This is a special set like data structure that can be used in beam-search like algorithms. It
+ * holds objects with a {@link Scorable} interface.
  *
  * When an object is added to the ActiveList, it checks if an equivalent object exists. If not,
  * object is placed in the data structure using linear probing. If an equivalent object exists
  * object with lower score is replaced with the the other one.
- * @param <T>
  */
 public class ActiveList<T extends Scorable> implements Iterable<T> {
 
-  static float DEFAULT_LOAD_FACTOR = 0.65f;
+  static float DEFAULT_LOAD_FACTOR = 0.55f;
 
   static int DEFAULT_INITIAL_CAPACITY = 8;
 
@@ -40,21 +39,18 @@ public class ActiveList<T extends Scorable> implements Iterable<T> {
     modulo = k - 1;
   }
 
-  private int firstProbe(int hashCode) {
-    return hashCode & modulo;
-  }
-
-  private int nextProbe(int index) {
-    return index & modulo;
+  private int rehash(int key) {
+    final int h = key * 0x9E3779B9;
+    return (h ^ (h >> 16)) & 0x7fff_ffff;
   }
 
   /**
-   * Finds either an empty slot location in Hypotheses array or the location of an equivalent
-   * item. If an empty slot is found, it returns -(slot index)-1, if an equivalent
-   * item is found, returns equal item's slot index.
+   * Finds either an empty slot location in Hypotheses array or the location of an equivalent item.
+   * If an empty slot is found, it returns -(slot index)-1, if an equivalent item is found, returns
+   * equal item's slot index.
    */
   private int locate(T t) {
-    int slot = firstProbe(t.hashCode());
+    int slot = rehash(t.hashCode()) & modulo;
     while (true) {
       final Scorable h = items[slot];
       if (h == null) {
@@ -63,7 +59,7 @@ public class ActiveList<T extends Scorable> implements Iterable<T> {
       if (h.equals(t)) {
         return slot;
       }
-      slot = nextProbe(slot + 1);
+      slot = (slot + 1) & modulo;
     }
   }
 
@@ -98,14 +94,14 @@ public class ActiveList<T extends Scorable> implements Iterable<T> {
       if (t == null) {
         continue;
       }
-      int slot = firstProbe(t.hashCode());
+      int slot = rehash(t.hashCode()) & modulo;
       while (true) {
         final T h = expandedList.items[slot];
         if (h == null) {
           expandedList.items[slot] = t;
           break;
         }
-        slot = nextProbe(slot + 1);
+        slot = (slot + 1) & modulo;
       }
     }
     this.modulo = expandedList.modulo;

@@ -309,14 +309,13 @@ public class TurkishSentenceNormalizer {
     }
   }
 
-  private ActiveList<Hypothesis> current = new ActiveList<>();
-  private ActiveList<Hypothesis> next = new ActiveList<>();
-
   private static Candidate START = new Candidate("<s>");
   private static Candidate END = new Candidate("</s>");
 
+  private List<String> decode(List<Candidates> candidatesList) {
 
-  List<String> decode(List<Candidates> candidatesList) {
+    ActiveList<Hypothesis> current = new ActiveList<>();
+    ActiveList<Hypothesis> next = new ActiveList<>();
 
     // Path with END tokens.
     candidatesList.add(new Candidates("</s>", Collections.singletonList(END)));
@@ -362,7 +361,7 @@ public class TurkishSentenceNormalizer {
     List<String> seq = new ArrayList<>();
     Hypothesis h = best;
     // skip </s>
-    h = best.previous;
+    h = h.previous;
     while (h != null && h.current != START) {
       seq.add(h.current.content);
       h = h.previous;
