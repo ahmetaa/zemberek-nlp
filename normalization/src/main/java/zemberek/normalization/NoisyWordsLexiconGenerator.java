@@ -153,7 +153,7 @@ public class NoisyWordsLexiconGenerator {
     Log.info("Collecting candidates data.");
     WalkResult walkResult = walker.walk(WALK_COUNT, MAX_HOP_COUNT, threadCount);
     Path allCandidates = outRoot.resolve("all-candidates");
-    Path lookup = outRoot.resolve("noisy-lookup-from-graph");
+    Path lookup = outRoot.resolve("lookup-from-graph");
 
     try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8");
         PrintWriter pwLookup = new PrintWriter(lookup.toFile(), "utf-8")) {

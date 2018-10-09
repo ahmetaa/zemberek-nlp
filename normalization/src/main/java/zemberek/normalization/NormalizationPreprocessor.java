@@ -54,7 +54,7 @@ public class NormalizationPreprocessor {
     this.commonConnectedSuffixes.addAll(Arrays.asList("de", "da", "ki"));
 
     List<String> replaceLines = TextIO.loadLinesFromResource(
-        "normalization/replacements");
+        "normalization/multi-word-replacements");
     for (String replaceLine : replaceLines) {
       String[] tokens = replaceLine.split("=");
       replacements.put(tokens[0].trim(), tokens[1].trim());

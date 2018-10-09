@@ -95,12 +95,12 @@ public class NormalizationScripts {
         corporaRoot.resolve("tweets-20m-clean.nodup"),
         corporaRoot.resolve("tweets-20m"));*/
 
-    generateNormalizationVocabularies(
+/*    generateNormalizationVocabularies(
         NormalizationVocabularyGenerator.getTurkishMorphology(),
         root.resolve("vocab-clean"),
         root.resolve("vocab-noisy"),
         testRoot
-    );
+    );*/
   }
 
   static void findAsciiEquivalentFromNoisyAndClean(
@@ -170,7 +170,7 @@ public class NormalizationScripts {
       throws IOException {
 
     Set<String> asciiMapKeys = Files.readAllLines(asciiMapPath)
-        .stream().map(s -> s.substring(0, s.indexOf(':'))).collect(Collectors.toSet());
+        .stream().map(s -> s.substring(0, s.indexOf('='))).collect(Collectors.toSet());
 
     SmoothLm lm = SmoothLm.builder(lmPath).logBase(Math.E).build();
     Log.info("Language model = %s", lm.info());

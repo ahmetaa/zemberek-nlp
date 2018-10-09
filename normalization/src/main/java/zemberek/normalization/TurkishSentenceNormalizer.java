@@ -38,8 +38,9 @@ public class TurkishSentenceNormalizer {
 
   private NormalizationPreprocessor preprocessor;
 
-  private ArrayListMultimap<String, String> fromRandomWalk;
-  private ArrayListMultimap<String, String> asciiLookupFromCorpus;
+  private ArrayListMultimap<String, String> lookupFromGraph;
+  private ArrayListMultimap<String, String> lookupFromAscii;
+  private ArrayListMultimap<String, String> lookupManual;
   private InterpretingAnalyzer informalAnalyzer;
   private WordGenerator generator;
 
@@ -61,21 +62,28 @@ public class TurkishSentenceNormalizer {
         CharacterGraphDecoder.ASCII_TOLERANT_MATCHER);
 
     this.preprocessor = new NormalizationPreprocessor(morphology, normalizationDataRoot, lm);
-    this.fromRandomWalk = loadMultiMap(normalizationDataRoot.resolve("lookup-from-graph"));
-    this.asciiLookupFromCorpus = loadMultiMap(normalizationDataRoot.resolve("ascii-map"));
+    this.lookupFromGraph = loadMultiMap(normalizationDataRoot.resolve("lookup-from-graph"));
+    this.lookupFromAscii = loadMultiMap(normalizationDataRoot.resolve("ascii-map"));
+    List<String> manualLookup =
+        TextIO.loadLinesFromResource("normalization/candidates-manual");
+    this.lookupManual = loadMultiMap(manualLookup);
     this.informalAnalyzer = morphology.getAnalyzerInstance(
         new InformalTurkishMorphotactics(morphology.getLexicon()));
   }
 
   // load data with line format: "key=val1,val2"
-  ArrayListMultimap<String, String> loadMultiMap(Path path) throws IOException {
+  private ArrayListMultimap<String, String> loadMultiMap(Path path) throws IOException {
     List<String> lines = TextIO.loadLines(path);
+    return loadMultiMap(lines);
+  }
+
+  private ArrayListMultimap<String, String> loadMultiMap(List<String> lines) {
     ArrayListMultimap<String, String> result = ArrayListMultimap.create();
     for (String line : lines) {
       int index = line.indexOf("=");
       if (index < 0) {
         throw new IllegalStateException("Line needs to have `=` symbol. But it is:" +
-            line + " in " + path);
+            line);
       }
       String key = line.substring(0, index).trim();
       String value = line.substring(index + 1).trim();
@@ -106,12 +114,15 @@ public class TurkishSentenceNormalizer {
 
       LinkedHashSet<String> candidates = new LinkedHashSet<>(2);
 
+      // add matches from manual lookup
+      candidates.addAll(lookupManual.get(current));
+
       // add matches from random walk
-      candidates.addAll(fromRandomWalk.get(current));
+      candidates.addAll(lookupFromGraph.get(current));
 
       // add matches from ascii equivalents.
       // TODO: this may decrease accuracy. Also, this can be eliminated with ascii tolerant analyzer.
-      candidates.addAll(asciiLookupFromCorpus.get(current));
+      candidates.addAll(lookupFromAscii.get(current));
 
       // add matches from informal analysis to formal surface conversion.
       boolean hasFormalAnalysis = false;
@@ -133,7 +144,7 @@ public class TurkishSentenceNormalizer {
       }
 
       // if there is no formal analysis and length is larger than 5,
-      // get 1 distance matches.
+      // get top 3 1 distance matches.
       if ((!hasFormalAnalysis || analyses.size() == 0) && current.length() > 5) {
         List<String> spellCandidates = getSpellCandidates(currentToken, previous, next);
         if (spellCandidates.size() > 3) {
@@ -153,34 +164,10 @@ public class TurkishSentenceNormalizer {
 
       candidatesList.add(result);
     }
-
     return decode(candidatesList);
-
   }
 
-  String useSpellChecker(List<Token> tokens) {
-
-    List<String> result = new ArrayList<>();
-    for (int i = 0; i < tokens.size(); i++) {
-      Token currentToken = tokens.get(i);
-      String current = currentToken.getText();
-      String next = i == tokens.size() - 1 ? null : tokens.get(i + 1).getText();
-      String previous = i == 0 ? null : tokens.get(i - 1).getText();
-      if (isWord(currentToken) && (!hasAnalysis(current))) {
-        List<String> candidates = spellChecker.suggestForWord(current, previous, next, lm);
-        if (candidates.size() > 0) {
-          result.add(candidates.get(0));
-        } else {
-          result.add(current);
-        }
-      } else {
-        result.add(current);
-      }
-    }
-    return String.join(" ", result);
-  }
-
-  List<String> getSpellCandidates(Token currentToken, String previous, String next) {
+  private List<String> getSpellCandidates(Token currentToken, String previous, String next) {
     String current = currentToken.getText();
     if (isWord(currentToken) && (!hasAnalysis(current))) {
       List<String> candidates = spellChecker.suggestForWord(current, previous, next, lm);
@@ -192,7 +179,7 @@ public class TurkishSentenceNormalizer {
   }
 
 
-  boolean hasAnalysis(String s) {
+  private boolean hasAnalysis(String s) {
     WordAnalysis a = morphology.analyze(s);
     return a.analysisCount() > 0;
   }
