@@ -53,7 +53,7 @@ public class TurkishSentenceNormalizer {
   private Map<String, String> commonSplits = new HashMap<>();
   private Map<String, String> replacements = new HashMap<>();
   private HashSet<String> commonConnectedSuffixes = new HashSet<>();
-  private  HashSet<String> commonLetterRepeatitionWords = new HashSet<>();
+  private HashSet<String> commonLetterRepeatitionWords = new HashSet<>();
 
   public TurkishSentenceNormalizer(
       TurkishMorphology morphology,
@@ -153,8 +153,9 @@ public class TurkishSentenceNormalizer {
       candidates.addAll(lookupFromAscii.get(current));
 
       // add matches from informal analysis to formal surface conversion.
-      boolean hasFormalAnalysis = false;
-      List<SingleAnalysis> analyses = informalAnalyzer.analyze(current);
+      String normalized = TurkishMorphology.normalizeForAnalysis(current);
+
+      List<SingleAnalysis> analyses = informalAnalyzer.analyze(normalized);
       for (SingleAnalysis analysis : analyses) {
         if (analysis.containsInformalMorpheme()) {
           List<Morpheme> formalMorphemes = toFormalMorphemeNames(analysis);
@@ -167,16 +168,17 @@ public class TurkishSentenceNormalizer {
           }
         } else {
           candidates.add(current);
-          hasFormalAnalysis = true;
         }
       }
 
+      WordAnalysis a = morphology.analyze(current);
+
       // if there is no formal analysis and length is larger than 5,
       // get top 3 1 distance matches.
-      float unigramProb = lm.getUnigramProbability(lm.getVocabulary().indexOf(current));
-      if ((!hasFormalAnalysis || analyses.size() == 0 || unigramProb < -5)
-          && current.length() > 4) {
-        List<String> spellCandidates = getSpellCandidates(currentToken, previous, next);
+      if ((a.analysisCount() == 0) && normalized.length() > 4) {
+
+        List<String> spellCandidates = spellChecker
+            .suggestForWord(normalized, previous, next, lm);
         if (spellCandidates.size() > 3) {
           spellCandidates = new ArrayList<>(spellCandidates.subList(0, 3));
         }
@@ -197,23 +199,14 @@ public class TurkishSentenceNormalizer {
     return decode(candidatesList);
   }
 
-  private List<String> getSpellCandidates(Token currentToken, String previous, String next) {
-    String current = currentToken.getText();
-    if (isWord(currentToken) && (!hasAnalysis(current))) {
-      List<String> candidates = spellChecker.suggestForWord(current, previous, next, lm);
-      if (candidates.size() > 0) {
-        return candidates;
+  private boolean hasAnalysis(WordAnalysis w) {
+    for (SingleAnalysis s : w) {
+      if (!s.isRuntime() && !s.isUnknown()) {
+        return true;
       }
     }
-    return Collections.emptyList();
+    return false;
   }
-
-
-  private boolean hasAnalysis(String s) {
-    WordAnalysis a = morphology.analyze(s);
-    return a.analysisCount() > 0;
-  }
-
 
   private static class Hypothesis implements Scorable {
 
@@ -324,10 +317,13 @@ public class TurkishSentenceNormalizer {
           ", candidates=" + candidates +
           '}';
     }
+
   }
 
   private static Candidate START = new Candidate("<s>");
   private static Candidate END = new Candidate("</s>");
+  private static Candidates END_CANDIDATES =
+      new Candidates("</s>", Collections.singletonList(END));
 
   private List<String> decode(List<Candidates> candidatesList) {
 
@@ -335,7 +331,7 @@ public class TurkishSentenceNormalizer {
     ActiveList<Hypothesis> next = new ActiveList<>();
 
     // Path with END tokens.
-    candidatesList.add(new Candidates("</s>", Collections.singletonList(END)));
+    candidatesList.add(END_CANDIDATES);
 
     Hypothesis initial = new Hypothesis();
     int lmOrder = lm.getOrder();
@@ -346,6 +342,7 @@ public class TurkishSentenceNormalizer {
     current.add(initial);
 
     for (Candidates candidates : candidatesList) {
+
       for (Hypothesis h : current) {
         for (Candidate c : candidates.candidates) {
           Hypothesis newHyp = new Hypothesis();
@@ -374,6 +371,7 @@ public class TurkishSentenceNormalizer {
       next = new ActiveList<>();
     }
 
+    // back track to find best sequence.
     Hypothesis best = current.getBest();
     List<String> seq = new ArrayList<>();
     Hypothesis h = best;
@@ -419,12 +417,14 @@ public class TurkishSentenceNormalizer {
   String combineCommon(String i1, String i2) {
     String combined = i1 + i2;
     if (i2.startsWith("'") || i2.startsWith("bil")) {
-      if (hasAnalysis(combined)) {
+      WordAnalysis w = morphology.analyze(combined);
+      if (hasAnalysis(w)) {
         return combined;
       }
     }
     if (!hasRegularAnalysis(i2)) {
-      if (hasAnalysis(combined)) {
+      WordAnalysis w = morphology.analyze(combined);
+      if (hasAnalysis(w)) {
         return combined;
       }
     }

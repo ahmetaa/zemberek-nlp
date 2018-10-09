@@ -170,7 +170,7 @@ public class TurkishMorphology {
     return analyzeWithoutCache(tokens.get(0));
   }
 
-  private String normalizeForAnalysis(String word) {
+  public static String normalizeForAnalysis(String word) {
     String s = word.toLowerCase(Turkish.LOCALE);
     s = TurkishAlphabet.INSTANCE.normalizeCircumflex(s);
     String noDot = s.replace(".", "");

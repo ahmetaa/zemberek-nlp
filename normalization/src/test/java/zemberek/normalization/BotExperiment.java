@@ -45,9 +45,8 @@ public class BotExperiment {
 
     normalize(normalizer, sentencesNodupTokenized, output);
 
-    //String input = "tmm bu akşm dönücem sana";
-    //String input = "yaslı babam annem ve ben bayram tatilimizi geçirmek istiyoruz ege otellerinde";
-    String input = "canim aciba bu aksam balik mi yapak";
+    String input = "tmm bu akşm dönücem sana";
+    //String input = "canim aciba bu aksam balik mi yapak";
     List<String> result = normalizer.normalize(input);
     Log.info(input);
     Log.info(String.join(" ", result));

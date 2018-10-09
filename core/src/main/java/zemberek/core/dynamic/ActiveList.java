@@ -64,7 +64,7 @@ public class ActiveList<T extends Scorable> implements Iterable<T> {
   }
 
   /**
-   * Adds a new scoreable to the list.
+   * Adds a new scorable to the list.
    **/
   public void add(T t) {
 
