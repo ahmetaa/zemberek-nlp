@@ -47,7 +47,11 @@ public class TurkishAlphabet {
   private IntIntMap turkishToAsciiMap = new IntIntMap();
   private FixedBitVector turkishSpecificLookup = TextUtil.generateBitLookup(turkishSpecific);
 
+  private String asciiEqTr = "cCgGiIoOsSuUçÇğĞıİöÖşŞüÜ";
+  private String asciiEq = "çÇğĞıİöÖşŞüÜcCgGiIoOsSuU";
   private IntIntMap asciiEqualMap = new IntIntMap();
+  private FixedBitVector asciiTrLookup = TextUtil.generateBitLookup(asciiEqTr);
+
 
   private String foreignDiacritics = "ÀÁÂÃÄÅÈÉÊËÌÍÎÏÑÒÓÔÕÙÚÛàáâãäåèéêëìíîïñòóôõùúû";
   private String diacriticsToTurkish = "AAAAAAEEEEIIIINOOOOUUUaaaaaaeeeeiiiinoooouuu";
@@ -76,8 +80,6 @@ public class TurkishAlphabet {
     populateCharMap(turkishToAsciiMap, turkishSpecific, turkishAscii);
     populateCharMap(foreignDiacriticsMap, foreignDiacritics, diacriticsToTurkish);
 
-    String asciiEqTr = "cCgGiIoOsSuUçÇğĞıİöÖşŞüÜ";
-    String asciiEq =   "çÇğĞıİöÖşŞüÜcCgGiIoOsSuU";
     for (int i = 0; i < asciiEqTr.length(); i++) {
       char in = asciiEqTr.charAt(i);
       char out = asciiEq.charAt(i);
@@ -124,6 +126,16 @@ public class TurkishAlphabet {
     populateCharMap(circumflexMap,
         circumflex + circumflex.toUpperCase(TR),
         circumflexNormalized + circumflexNormalized.toUpperCase(TR));
+  }
+
+  public boolean containsAsciiRelated(String s) {
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (c < asciiTrLookup.length && asciiTrLookup.get(c)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public IntIntMap getTurkishToAsciiMap() {

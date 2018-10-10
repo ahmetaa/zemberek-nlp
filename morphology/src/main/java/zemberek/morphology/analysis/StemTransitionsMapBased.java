@@ -24,9 +24,7 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
 
   private ArrayListMultimap<String, StemTransition> multiStems =
       ArrayListMultimap.create(1000, 2);
-  private HashMultimap<String, String> asciiKeys =
-      HashMultimap.create(1000, 2);
-
+  private HashMultimap<String, String> asciiKeys = null;
 
   // contains a map that holds dictionary items that has
   // multiple or different than item.root stem surface forms.
@@ -46,23 +44,25 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
   //TODO: this is kind of a hack. Because StemTransitions may be shared between
   // analyzer classes, this may be necessary when one of them happens to be ascii tolerant
   // and other is not.
-  private synchronized void generateAsciiTolerantMap() {
+  private void generateAsciiTolerantMap() {
     lock.writeLock().lock();
+    asciiKeys = HashMultimap.create(1000, 2);
     try {
+
       // generate MultiMap for ascii tolerant keys
       for (String s : singleStems.keySet()) {
         String ascii = TurkishAlphabet.INSTANCE.toAscii(s);
-        if (ascii.equals(s)) {
-          continue;
+
+        if (TurkishAlphabet.INSTANCE.containsAsciiRelated(s)) {
+          asciiKeys.put(ascii, s);
         }
-        asciiKeys.put(ascii, s);
       }
-      for (String s : multiStems.keySet()) {
+      for (StemTransition st : multiStems.values()) {
+        String s = st.surface;
         String ascii = TurkishAlphabet.INSTANCE.toAscii(s);
-        if (ascii.equals(s)) {
-          continue;
+        if (TurkishAlphabet.INSTANCE.containsAsciiRelated(s)) {
+          asciiKeys.put(ascii, s);
         }
-        asciiKeys.put(ascii, s);
       }
     } finally {
       lock.writeLock().unlock();
@@ -115,7 +115,7 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
       } else if (multiStems.containsKey(stem)) {
         result.addAll(multiStems.get(stem));
       }
-      Set<String> asciiStems = asciiKeys.get(stem);
+      Set<String> asciiStems = asciiKeys.get(TurkishAlphabet.INSTANCE.toAscii(stem));
       for (String st : asciiStems) {
         if (singleStems.containsKey(st)) {
           result.add(singleStems.get(st));
@@ -145,15 +145,15 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
   }
 
   public List<StemTransition> getPrefixMatches(String input, boolean asciiTolerant) {
+    if (asciiKeys == null && asciiTolerant) {
+      generateAsciiTolerantMap();
+    }
     lock.readLock().lock();
     try {
       List<StemTransition> matches = Lists.newArrayListWithCapacity(3);
       for (int i = 1; i <= input.length(); i++) {
         String stem = input.substring(0, i);
         if (asciiTolerant) {
-          if (asciiKeys == null) {
-            generateAsciiTolerantMap();
-          }
           matches.addAll(getTransitionsAsciiTolerant(stem));
         } else {
           matches.addAll(getTransitions(stem));

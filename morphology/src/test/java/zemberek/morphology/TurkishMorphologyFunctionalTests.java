@@ -1,6 +1,5 @@
 package zemberek.morphology;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -169,9 +168,13 @@ public class TurkishMorphologyFunctionalTests {
   @Test
   public void testAsciiTolerantMorphology() {
     // Instance with no dictionary item.
-    TurkishMorphology morphology = getAsciiTolerantMorphology("sıra", "şıra", "armut", "kazan");
+    TurkishMorphology morphology = getAsciiTolerantMorphology(
+        "sıra", "şıra", "armut", "kazan", "ekonomik [P:Adj]");
     InterpretingAnalyzer analyzer = morphology.getAnalyzer();
-    List<SingleAnalysis> result = analyzer.analyze("sira");
+    List<SingleAnalysis> result;
+    result = analyzer.analyze("ekonomık");
+    Assert.assertTrue(containsAllDictionaryLemma(result, "ekonomik"));
+    result = analyzer.analyze("sira");
     Assert.assertEquals(2, result.size());
     Assert.assertTrue(containsAllDictionaryLemma(result, "sıra", "şıra"));
     result = analyzer.analyze("siraci");
@@ -184,6 +187,7 @@ public class TurkishMorphologyFunctionalTests {
     Assert.assertTrue(containsAllDictionaryLemma(result, "kazan"));
     result = analyzer.analyze("kazançiğimizdan");
     Assert.assertTrue(containsAllDictionaryLemma(result, "kazan"));
+
   }
 
   private boolean containsAllDictionaryLemma(List<SingleAnalysis> analyses, String... item) {
@@ -197,7 +201,7 @@ public class TurkishMorphologyFunctionalTests {
         }
       }
       if (fail) {
-        Log.info("Failed to find item %s in %s", i);
+        Log.info("Failed to find item %s", i);
         return false;
       }
     }
