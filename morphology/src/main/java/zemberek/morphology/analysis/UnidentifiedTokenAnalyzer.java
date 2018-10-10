@@ -201,8 +201,8 @@ public class UnidentifiedTokenAnalyzer {
 
   private StemAndEnding getFromNumeral(String s) {
     if (s.contains("'")) {
-      return new StemAndEnding(Strings.subStringUntilFirst(s, "'"),
-          Strings.subStringAfterFirst(s, "'"));
+      int i = s.indexOf('\'');
+      return new StemAndEnding(s.substring(0, i), s.substring(i + 1));
     }
     int j = 0;
     for (int i = s.length() - 1; i >= 0; i--) {
@@ -223,7 +223,13 @@ public class UnidentifiedTokenAnalyzer {
 
   private List<SingleAnalysis> getForRomanNumeral(Token token) {
     String content = token.getText();
-    StemAndEnding se = getFromNumeral(content);
+    StemAndEnding se;
+    if (content.contains("'")) {
+      int i = content.indexOf('\'');
+      se = new StemAndEnding(content.substring(0, i), content.substring(i + 1));
+    } else {
+      se = new StemAndEnding(content, "");
+    }
     String ss = se.stem;
     if (se.stem.endsWith(".")) {
       ss = se.stem.substring(0, se.stem.length() - 1);
@@ -309,6 +315,7 @@ public class UnidentifiedTokenAnalyzer {
     return results;
   }
 
+  // TODO: move this functionality to Lexer.
   public enum Numerals {
     CARDINAL("#", "^[+\\-]?\\d+$", SecondaryPos.Cardinal),
     ORDINAL("#.", "^[+\\-]?[0-9]+[.]$", SecondaryPos.Ordinal),

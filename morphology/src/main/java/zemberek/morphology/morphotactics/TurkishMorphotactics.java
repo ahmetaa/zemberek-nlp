@@ -385,7 +385,7 @@ public class TurkishMorphotactics {
   public TurkishMorphotactics(RootLexicon lexicon) {
     this.lexicon = lexicon;
     makeGraph();
-    this.stemTransitions = new StemTransitionsTrieBased(lexicon, this);
+    this.stemTransitions = new StemTransitionsMapBased(lexicon, this);
   }
 
   protected void makeGraph() {

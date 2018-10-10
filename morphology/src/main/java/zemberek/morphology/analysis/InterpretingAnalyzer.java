@@ -31,21 +31,23 @@ public class InterpretingAnalyzer {
   private boolean debugMode = false;
   private AnalysisDebugData debugData;
   private boolean asciiTolerant = false;
+  private TurkishMorphotactics morphotactics;
 
-  private InterpretingAnalyzer(
-      RootLexicon lexicon,
-      StemTransitions stemTransitions) {
-    this.lexicon = lexicon;
-    this.stemTransitions = stemTransitions;
+  private InterpretingAnalyzer(TurkishMorphotactics morphotactics) {
+    this.lexicon = morphotactics.getRootLexicon();
+    this.stemTransitions = morphotactics.getStemTransitions();
+    this.morphotactics = morphotactics;
+  }
+
+  public TurkishMorphotactics getMorphotactics() {
+    return morphotactics;
   }
 
   public static InterpretingAnalyzer instance(TurkishMorphotactics morphotactics) {
-    return new InterpretingAnalyzer(
-        morphotactics.getRootLexicon(),
-        morphotactics.getStemTransitions());
+    return new InterpretingAnalyzer(morphotactics);
   }
 
-  static InterpretingAnalyzer asciiTolerantInstance(TurkishMorphotactics morphotactics) {
+  public static InterpretingAnalyzer asciiTolerantInstance(TurkishMorphotactics morphotactics) {
     InterpretingAnalyzer analyzer = InterpretingAnalyzer.instance(morphotactics);
     analyzer.asciiTolerant = true;
     return analyzer;
@@ -62,7 +64,7 @@ public class InterpretingAnalyzer {
     return analyzer;
   }
 
-  static InterpretingAnalyzer forDebug(
+  public static InterpretingAnalyzer forDebug(
       TurkishMorphotactics morphotactics,
       boolean asciiTolerant) {
     InterpretingAnalyzer analyzer = InterpretingAnalyzer.instance(morphotactics);

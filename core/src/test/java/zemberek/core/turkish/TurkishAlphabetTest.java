@@ -73,4 +73,24 @@ public class TurkishAlphabetTest {
     Assert.assertEquals(oStr, alphabet.toAscii(iStr));
   }
 
+  @Test
+  public void asciiTolerantEquals1() {
+    TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+    String a[] = {"siraci", "ağac", "ağaç"};
+    String b[] = {"şıracı", "ağaç", "agac"};
+    for (int i = 0; i < a.length; i++) {
+      Assert.assertTrue(alphabet.asciiTolerantEquals(a[i], b[i]));
+    }
+  }
+
+  @Test
+  public void asciiTolerantStartsWith1() {
+    TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+    String a[] = {"siraci", "çağlayan"};
+    String b[] = {"şıracı", "cağ"};
+    for (int i = 0; i < a.length; i++) {
+      Assert.assertTrue(alphabet.asciiTolerantStartsWith(a[i], b[i]));
+    }
+  }
+
 }

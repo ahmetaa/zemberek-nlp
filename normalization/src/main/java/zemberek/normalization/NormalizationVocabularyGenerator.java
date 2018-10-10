@@ -20,6 +20,7 @@ import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.AnalysisCache;
+import zemberek.morphology.analysis.InterpretingAnalyzer;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
@@ -88,7 +89,7 @@ public class NormalizationVocabularyGenerator {
         .builder()
         .useLexicon(lexicon)
         .disableUnidentifiedTokenAnalyzer()
-        .morphotactics(new InformalTurkishMorphotactics(lexicon))
+        .useAnaylzer(InterpretingAnalyzer.instance(new InformalTurkishMorphotactics(lexicon)))
         .setCache(cache)
         .build();
   }

@@ -44,8 +44,8 @@ import zemberek.tokenization.antlr.TurkishLexer;
  * - informal morphological analysis
  * - spell checker
  * </pre>
- * It then finds the most likely sequence using Viterbi search algorithm over candidate lists,
- * using a compressed language model.
+ * It then finds the most likely sequence using Viterbi search algorithm over candidate lists, using
+ * a compressed language model.
  */
 public class TurkishSentenceNormalizer {
 
@@ -56,7 +56,7 @@ public class TurkishSentenceNormalizer {
   private ArrayListMultimap<String, String> lookupFromGraph;
   private ArrayListMultimap<String, String> lookupFromAscii;
   private ArrayListMultimap<String, String> lookupManual;
-  private InterpretingAnalyzer informalAnalyzer;
+  private TurkishMorphology informalAsciiTolerantMorphology;
   private WordGenerator generator;
 
   private Map<String, String> commonSplits = new HashMap<>();
@@ -86,8 +86,10 @@ public class TurkishSentenceNormalizer {
     List<String> manualLookup =
         TextIO.loadLinesFromResource("normalization/candidates-manual");
     this.lookupManual = loadMultiMap(manualLookup);
-    this.informalAnalyzer = morphology.getAnalyzerInstance(
-        new InformalTurkishMorphotactics(morphology.getLexicon()));
+    this.informalAsciiTolerantMorphology = TurkishMorphology.builder()
+        .useLexicon(morphology.getLexicon())
+        .useAnaylzer(InterpretingAnalyzer.asciiTolerantInstance(
+            new InformalTurkishMorphotactics(morphology.getLexicon()))).build();
 
     List<String> splitLines = Files.readAllLines(dataRoot.resolve("split"), Charsets.UTF_8);
     for (String splitLine : splitLines) {
@@ -164,7 +166,7 @@ public class TurkishSentenceNormalizer {
       // add matches from informal analysis to formal surface conversion.
       String normalized = TurkishMorphology.normalizeForAnalysis(current);
 
-      List<SingleAnalysis> analyses = informalAnalyzer.analyze(normalized);
+      WordAnalysis analyses = informalAsciiTolerantMorphology.analyze(normalized);
       for (SingleAnalysis analysis : analyses) {
         if (analysis.containsInformalMorpheme()) {
           List<Morpheme> formalMorphemes = toFormalMorphemeNames(analysis);

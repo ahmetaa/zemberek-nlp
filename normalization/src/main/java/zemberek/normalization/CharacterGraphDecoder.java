@@ -336,9 +336,6 @@ public class CharacterGraphDecoder {
       result = 31 * result + (ending != null ? ending.hashCode() : 0);
       return result;
     }
-
-
-
   }
 
   private static class AsciiMatcher implements CharMatcher {

@@ -1,9 +1,17 @@
 package zemberek.morphology;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
+import zemberek.core.logging.Log;
 import zemberek.core.turkish.SecondaryPos;
+import zemberek.morphology.analysis.InterpretingAnalyzer;
+import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.lexicon.RootLexicon;
+import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
 public class TurkishMorphologyFunctionalTests {
 
@@ -18,6 +26,16 @@ public class TurkishMorphologyFunctionalTests {
     return TurkishMorphology
         .builder()
         .addDictionaryLines(lines)
+        .disableCache()
+        .build();
+  }
+
+  private TurkishMorphology getAsciiTolerantMorphology(String... lines) {
+    RootLexicon lexicon = TurkishDictionaryLoader.load(lines);
+    return TurkishMorphology
+        .builder()
+        .useLexicon(lexicon)
+        .useAnaylzer(InterpretingAnalyzer.forDebug(new TurkishMorphotactics(lexicon), true))
         .disableCache()
         .build();
   }
@@ -147,4 +165,43 @@ public class TurkishMorphologyFunctionalTests {
     result = morphology.analyze("Tübitağa");
     Assert.assertEquals(0, result.analysisCount());
   }
+
+  @Test
+  public void testAsciiTolerantMorphology() {
+    // Instance with no dictionary item.
+    TurkishMorphology morphology = getAsciiTolerantMorphology("sıra", "şıra", "armut", "kazan");
+    InterpretingAnalyzer analyzer = morphology.getAnalyzer();
+    List<SingleAnalysis> result = analyzer.analyze("sira");
+    Assert.assertEquals(2, result.size());
+    Assert.assertTrue(containsAllDictionaryLemma(result, "sıra", "şıra"));
+    result = analyzer.analyze("siraci");
+    Assert.assertTrue(containsAllDictionaryLemma(result, "sıra", "şıra"));
+    result = analyzer.analyze("armutcuga");
+    Assert.assertTrue(containsAllDictionaryLemma(result, "armut"));
+    result = analyzer.analyze("kazancıga");
+    Assert.assertTrue(containsAllDictionaryLemma(result, "kazan"));
+    result = analyzer.analyze("kazanciga");
+    Assert.assertTrue(containsAllDictionaryLemma(result, "kazan"));
+    result = analyzer.analyze("kazançiğimizdan");
+    Assert.assertTrue(containsAllDictionaryLemma(result, "kazan"));
+  }
+
+  private boolean containsAllDictionaryLemma(List<SingleAnalysis> analyses, String... item) {
+
+    for (String i : item) {
+      boolean fail = true;
+      for (SingleAnalysis s : analyses) {
+        if (s.getDictionaryItem().lemma.contains(i)) {
+          fail = false;
+          break;
+        }
+      }
+      if (fail) {
+        Log.info("Failed to find item %s in %s", i);
+        return false;
+      }
+    }
+    return true;
+  }
+
 }

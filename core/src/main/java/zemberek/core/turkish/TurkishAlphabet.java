@@ -44,8 +44,10 @@ public class TurkishAlphabet {
 
   private String turkishSpecific = "çÇğĞıİöÖşŞüÜâîûÂÎÛ";
   private String turkishAscii = "cCgGiIoOsSuUaiuAIU";
-  private IntIntMap asciiMap = new IntIntMap();
+  private IntIntMap turkishToAsciiMap = new IntIntMap();
   private FixedBitVector turkishSpecificLookup = TextUtil.generateBitLookup(turkishSpecific);
+
+  private IntIntMap asciiEqualMap = new IntIntMap();
 
   private String foreignDiacritics = "ÀÁÂÃÄÅÈÉÊËÌÍÎÏÑÒÓÔÕÙÚÛàáâãäåèéêëìíîïñòóôõùúû";
   private String diacriticsToTurkish = "AAAAAAEEEEIIIINOOOOUUUaaaaaaeeeeiiiinoooouuu";
@@ -71,15 +73,23 @@ public class TurkishAlphabet {
     }
     generateVoicingDevoicingLookups();
 
-    populateCharMap(asciiMap, turkishSpecific, turkishAscii);
+    populateCharMap(turkishToAsciiMap, turkishSpecific, turkishAscii);
     populateCharMap(foreignDiacriticsMap, foreignDiacritics, diacriticsToTurkish);
+
+    String asciiEqTr = "cCgGiIoOsSuUçÇğĞıİöÖşŞüÜ";
+    String asciiEq =   "çÇğĞıİöÖşŞüÜcCgGiIoOsSuU";
+    for (int i = 0; i < asciiEqTr.length(); i++) {
+      char in = asciiEqTr.charAt(i);
+      char out = asciiEq.charAt(i);
+      asciiEqualMap.put(in, out);
+    }
   }
 
   public String toAscii(String in) {
     StringBuilder sb = new StringBuilder(in.length());
     for (int i = 0; i < in.length(); i++) {
       char c = in.charAt(i);
-      int res = asciiMap.get(c);
+      int res = turkishToAsciiMap.get(c);
       char map = res == IntIntMap.NO_RESULT ? c : (char) res;
       sb.append(map);
     }
@@ -116,12 +126,12 @@ public class TurkishAlphabet {
         circumflexNormalized + circumflexNormalized.toUpperCase(TR));
   }
 
-  public IntIntMap getAsciiMap() {
-    return asciiMap;
+  public IntIntMap getTurkishToAsciiMap() {
+    return turkishToAsciiMap;
   }
 
   public char getAsciiEqual(char c) {
-    int res = asciiMap.get(c);
+    int res = turkishToAsciiMap.get(c);
     return res == IntIntMap.NO_RESULT ? c : (char) res;
   }
 
@@ -129,12 +139,11 @@ public class TurkishAlphabet {
     if (c1 == c2) {
       return true;
     }
-    int a1 = asciiMap.get(c1);
+    int a1 = asciiEqualMap.get(c1);
     if (a1 == IntIntMap.NO_RESULT) {
       return false;
     }
-    int a2 = asciiMap.get(c1);
-    return a1 == a2;
+    return a1 == c2;
   }
 
 

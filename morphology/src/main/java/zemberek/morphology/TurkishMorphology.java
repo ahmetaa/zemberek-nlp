@@ -60,7 +60,11 @@ public class TurkishMorphology {
     } else {
       this.morphotactics = builder.morphotactics;
     }
-    this.analyzer = InterpretingAnalyzer.instance(morphotactics);
+    if (builder.analyzer == null) {
+      this.analyzer = InterpretingAnalyzer.instance(morphotactics);
+    } else {
+      analyzer = builder.analyzer;
+    }
     this.wordGenerator = new WordGenerator(morphotactics);
     this.unidentifiedTokenAnalyzer = new UnidentifiedTokenAnalyzer(analyzer);
     this.tokenizer = builder.tokenizer;
@@ -88,8 +92,8 @@ public class TurkishMorphology {
     }
   }
 
-  public InterpretingAnalyzer getAnalyzerInstance() {
-    return InterpretingAnalyzer.instance(morphotactics);
+  public InterpretingAnalyzer getAnalyzer() {
+    return analyzer;
   }
 
   public InterpretingAnalyzer getAnalyzerInstance(TurkishMorphotactics morphotactics) {
@@ -286,6 +290,7 @@ public class TurkishMorphology {
     AnalysisCache cache;
     AmbiguityResolver ambiguityResolver;
     TurkishMorphotactics morphotactics;
+    InterpretingAnalyzer analyzer;
     TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
 
     public Builder addBinaryDictionary(Path dictionaryPath) throws IOException {
@@ -331,8 +336,9 @@ public class TurkishMorphology {
       return this;
     }
 
-    public Builder morphotactics(TurkishMorphotactics morphotactics) {
-      this.morphotactics = morphotactics;
+    public Builder useAnaylzer(InterpretingAnalyzer analyzer) {
+      this.morphotactics = analyzer.getMorphotactics();
+      this.analyzer = analyzer;
       return this;
     }
 

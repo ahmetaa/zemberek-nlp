@@ -90,4 +90,13 @@ public class WordAnalysis implements Iterable<SingleAnalysis> {
     result = 31 * result + analysisResults.hashCode();
     return result;
   }
+
+  @Override
+  public String toString() {
+    return "WordAnalysis{" +
+        "input='" + input + '\'' +
+        ", normalizedInput='" + normalizedInput + '\'' +
+        ", analysisResults=" + analysisResults +
+        '}';
+  }
 }
