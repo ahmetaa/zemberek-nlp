@@ -32,14 +32,7 @@ public class AnalysisCache {
   private boolean staticCacheDisabled;
   private boolean dynamicCacheDisabled;
 
-  public static AnalysisCache DEFAULT_INSTANCE = Singleton.Instance.cache;
-
-  private enum Singleton {
-    Instance;
-    AnalysisCache cache = new AnalysisCache(new Builder());
-  }
-
-  private AnalysisCache(Builder builder) {
+  AnalysisCache(Builder builder) {
 
     this.dynamicCacheDisabled = builder._disableDynamicCache;
     this.staticCacheDisabled = builder._disableStaticCache;

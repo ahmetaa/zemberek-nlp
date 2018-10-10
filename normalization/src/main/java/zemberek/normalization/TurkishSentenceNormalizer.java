@@ -25,12 +25,12 @@ import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.InformalAnalysisConverter;
 import zemberek.morphology.analysis.InterpretingAnalyzer;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.generator.WordGenerator;
 import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
-import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
@@ -57,7 +57,7 @@ public class TurkishSentenceNormalizer {
   private ArrayListMultimap<String, String> lookupFromAscii;
   private ArrayListMultimap<String, String> lookupManual;
   private TurkishMorphology informalAsciiTolerantMorphology;
-  private WordGenerator generator;
+  private InformalAnalysisConverter analysisConverter;
 
   private Map<String, String> commonSplits = new HashMap<>();
   private Map<String, String> replacements = new HashMap<>();
@@ -70,7 +70,7 @@ public class TurkishSentenceNormalizer {
       SmoothLm languageModel) throws IOException {
     Log.info("Language model = %s", languageModel.info());
     this.morphology = morphology;
-    this.generator = morphology.getWordGenerator();
+    this.analysisConverter = new InformalAnalysisConverter(morphology.getWordGenerator());
 
     this.lm = languageModel;
 
@@ -164,16 +164,13 @@ public class TurkishSentenceNormalizer {
       candidates.addAll(lookupFromAscii.get(current));
 
       // add matches from informal analysis to formal surface conversion.
-      String normalized = TurkishMorphology.normalizeForAnalysis(current);
 
-      WordAnalysis analyses = informalAsciiTolerantMorphology.analyze(normalized);
+      WordAnalysis analyses = informalAsciiTolerantMorphology.analyze(current);
       for (SingleAnalysis analysis : analyses) {
         if (analysis.containsInformalMorpheme()) {
-          List<Morpheme> formalMorphemes = toFormalMorphemeNames(analysis);
-          List<WordGenerator.Result> generations =
-              generator.generate(analysis.getDictionaryItem(), formalMorphemes);
-          if (generations.size() > 0) {
-            candidates.add(generations.get(0).surface);
+          WordGenerator.Result result = analysisConverter.convert(current, analysis);
+          if (result != null) {
+            candidates.add(result.surface);
           } else {
             candidates.add(current);
           }
@@ -182,14 +179,12 @@ public class TurkishSentenceNormalizer {
         }
       }
 
-      WordAnalysis a = morphology.analyze(current);
-
       // if there is no formal analysis and length is larger than 5,
       // get top 3 1 distance matches.
-      if ((a.analysisCount() == 0) && normalized.length() > 4) {
+      if ((analyses.analysisCount() == 0) && current.length() > 4) {
 
         List<String> spellCandidates = spellChecker
-            .suggestForWord(normalized, previous, next, lm);
+            .suggestForWord(current, previous, next, lm);
         if (spellCandidates.size() > 3) {
           spellCandidates = new ArrayList<>(spellCandidates.subList(0, 3));
         }
@@ -560,18 +555,4 @@ public class TurkishSentenceNormalizer {
     }
     return String.join(" ", result);
   }
-
-  List<Morpheme> toFormalMorphemeNames(SingleAnalysis a) {
-    List<Morpheme> transform = new ArrayList<>();
-    for (Morpheme m : a.getMorphemes()) {
-      if (m.informal && m.mappedMorpheme != null) {
-        transform.add(m.mappedMorpheme);
-      } else {
-        transform.add(m);
-      }
-    }
-    return transform;
-  }
-
-
 }

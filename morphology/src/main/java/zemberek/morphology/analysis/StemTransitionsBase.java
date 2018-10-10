@@ -27,7 +27,7 @@ import zemberek.morphology.morphotactics.MorphemeState;
 import zemberek.morphology.morphotactics.StemTransition;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
-public abstract class StemTransitionsBase {
+abstract class StemTransitionsBase {
 
   TurkishMorphotactics morphotactics;
   private TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;

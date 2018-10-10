@@ -6,7 +6,6 @@ import static zemberek.morphology.morphotactics.MorphemeState.terminal;
 
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.morphology.analysis.StemTransitionsMapBased;
-import zemberek.morphology.analysis.StemTransitionsTrieBased;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.Conditions.RootSurfaceIsAny;
 
@@ -16,7 +15,7 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
     this.lexicon = lexicon;
     makeGraph();
     addGraph();
-    this.stemTransitions = new StemTransitionsTrieBased(lexicon, this);
+    this.stemTransitions = new StemTransitionsMapBased(lexicon, this);
   }
 
   public static final Morpheme a1plInformal = addMorpheme(
@@ -99,7 +98,7 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
     // yap-a-k
 
     vOpt_S
-        .add(vA1pl_ST_Inf,"k");
+        .add(vA1pl_ST_Inf, "k");
 
     // Future tense deformation
     // yap-ıca-m yap-aca-m yap-ca-m
@@ -135,7 +134,6 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
     vUnable_S
         .add(vFut_S_Inf, "yAcA")   // yap-ama-yaca-m
         .add(vFut_S_Inf, "yAcAk");   // yap-ama-yacak-(A3sg|A3pl)
-
 
     vFut_S_Inf
         .add(vA1sg_ST, "+Im")
@@ -179,7 +177,6 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
     // yap-tı-m-mı
     // After progressive, future, question can come before.
     // yap-ıyor-mu-yum yap-acak-mı-yız
-
 
   }
 

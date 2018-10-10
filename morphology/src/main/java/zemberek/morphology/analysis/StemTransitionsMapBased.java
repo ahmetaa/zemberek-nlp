@@ -41,20 +41,31 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
     this.lexicon = lexicon;
     this.morphotactics = morphotactics;
     lexicon.forEach(this::addDictionaryItem);
-    // generate MultiMap for ascii tolerant keys
-    for (String s : singleStems.keySet()) {
-      String ascii = TurkishAlphabet.INSTANCE.toAscii(s);
-      if (ascii.equals(s)) {
-        continue;
+  }
+
+  //TODO: this is kind of a hack. Because StemTransitions may be shared between
+  // analyzer classes, this may be necessary when one of them happens to be ascii tolerant
+  // and other is not.
+  private synchronized void generateAsciiTolerantMap() {
+    lock.writeLock().lock();
+    try {
+      // generate MultiMap for ascii tolerant keys
+      for (String s : singleStems.keySet()) {
+        String ascii = TurkishAlphabet.INSTANCE.toAscii(s);
+        if (ascii.equals(s)) {
+          continue;
+        }
+        asciiKeys.put(ascii, s);
       }
-      asciiKeys.put(ascii, s);
-    }
-    for (String s : multiStems.keySet()) {
-      String ascii = TurkishAlphabet.INSTANCE.toAscii(s);
-      if (ascii.equals(s)) {
-        continue;
+      for (String s : multiStems.keySet()) {
+        String ascii = TurkishAlphabet.INSTANCE.toAscii(s);
+        if (ascii.equals(s)) {
+          continue;
+        }
+        asciiKeys.put(ascii, s);
       }
-      asciiKeys.put(ascii, s);
+    } finally {
+      lock.writeLock().unlock();
     }
   }
 
@@ -140,6 +151,9 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
       for (int i = 1; i <= input.length(); i++) {
         String stem = input.substring(0, i);
         if (asciiTolerant) {
+          if (asciiKeys == null) {
+            generateAsciiTolerantMap();
+          }
           matches.addAll(getTransitionsAsciiTolerant(stem));
         } else {
           matches.addAll(getTransitions(stem));

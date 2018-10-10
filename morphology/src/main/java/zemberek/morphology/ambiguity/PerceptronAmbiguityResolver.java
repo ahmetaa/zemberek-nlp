@@ -26,9 +26,9 @@ import zemberek.morphology.analysis.WordAnalysis;
  *
  * @see <a href="http://www.cmpe.boun.edu.tr/~hasim">Haşim Sak</a>
  * <p>
- * This is code is adapted from the Author's original Perl implementation. However, this is not a
+ * This code is adapted from the Author's original Perl implementation. However, this is not a
  * direct port, many changes needed to be applied for Zemberek integration and it has a cleaner
- * design.
+ * and faster design.
  * <p>
  * For Training, use {@link PerceptronAmbiguityResolverTrainer} class.
  */

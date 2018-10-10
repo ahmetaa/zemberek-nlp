@@ -14,7 +14,13 @@ public class InformalTurkishAnalysisTest extends AnalyzerTestBase {
   }
 
   static AnalysisTester getTester(String... dictionaryLines) {
-    return new AnalysisTester(InterpretingAnalyzer.forDebug(getSpokenMorphotactics(dictionaryLines)));
+    return new AnalysisTester(
+        InterpretingAnalyzer.forDebug(getSpokenMorphotactics(dictionaryLines)));
+  }
+
+  static AnalysisTester getTesterAscii(String... dictionaryLines) {
+    return new AnalysisTester(InterpretingAnalyzer
+        .forDebug(getSpokenMorphotactics(dictionaryLines), true));
   }
 
   @Test
@@ -111,7 +117,6 @@ public class InformalTurkishAnalysisTest extends AnalyzerTestBase {
     t.expectSingle("yazmayak", matchesTailLex("Verb + Neg + Opt + A1plInformal"));
     t.expectSingle("yazamayak", matchesTailLex("Verb + Unable + Opt + A1plInformal"));
 
-
     t = getTester("etmek [A:Voicing]");
     t.expectSingle("edek", matchesTailLex("Verb + Opt + A1plInformal"));
 
@@ -130,7 +135,22 @@ public class InformalTurkishAnalysisTest extends AnalyzerTestBase {
     t.expectAny("yazmıycam", matchesTailLex("Verb + NegInformal + FutInformal + A1sg"));
     t.expectAny("yazamıycam", matchesTailLex("Verb + UnableInformal + FutInformal + A1sg"));
 
-    // TODO: Add more tests.
+    t = getTester("eğlenmek");
+    t.expectAny("eğlenicem", matchesTailLex("Verb + FutInformal + A1sg"));
+
+    t = getTester("etmek [A:Voicing]");
+    t.expectAny("edicem", matchesTailLex("Verb + FutInformal + A1sg"));
+
+  }
+
+  @Test
+  public void asciiTolerant1() {
+    AnalysisTester t = getTesterAscii("eğlenmek");
+    t.expectAny("eglenicem", matchesTailLex("Verb + FutInformal + A1sg"));
+
+    t = getTesterAscii("etmek [A:Voicing]");
+    t.expectAny("edıcem", matchesTailLex("Verb + FutInformal + A1sg"));
+
   }
 
 

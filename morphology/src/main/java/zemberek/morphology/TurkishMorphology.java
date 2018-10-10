@@ -71,7 +71,7 @@ public class TurkishMorphology {
 
     if (builder.useDynamicCache) {
       if (builder.cache == null) {
-        cache = AnalysisCache.DEFAULT_INSTANCE;
+        cache = new AnalysisCache.Builder().build();
       } else {
         cache = builder.cache;
       }
