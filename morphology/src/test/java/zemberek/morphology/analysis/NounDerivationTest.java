@@ -509,9 +509,7 @@ public class NounDerivationTest extends AnalyzerTestBase {
   }
 
   /**
-   * Test for Issue 170.
-   * After justlike derivation, P2sg should not be allowed.
-   * Such as: "güzelsin"
+   * Test for Issue 170. After justlike derivation, P2sg should not be allowed. Such as: "güzelsin"
    */
   @Test
   public void justlikeTest_Issue_170() {
@@ -524,15 +522,28 @@ public class NounDerivationTest extends AnalyzerTestBase {
   }
 
   /**
-   * Test for Issue 167.
-   * For adjective to noun derivation like `mor-luk`
-   * two analysis was produced. One was redundant.
+   * Test for Issue 167. For adjective to noun derivation like `mor-luk` two analysis was produced.
+   * One was redundant.
    */
   @Test
   public void nessTest_Issue_167() {
     AnalysisTester tester = getTester("mor [P:Adj]");
     // no Adj|Zero→Noun+A3sg|luk:Ness→Noun+A3sg
     tester.expectSingle("morluk", matchesTailLex("Adj + Ness + Noun + A3sg"));
+  }
+
+  /**
+   * Test for Issue 184 : Cannot analyze `abimsin` or any Noun+..+P1sg+..+Verb+..+A2sg
+   */
+  @Test
+  public void A2sgVerbAfterP1sgNounTest_Issue_184() {
+    AnalysisTester tester = getTester("abi");
+    tester.expectSingle(
+        "abimsin", matchesTailLex("Noun + A3sg + P1sg + Zero + Verb + Pres + A2sg"));
+    tester.expectSingle(
+        "abimsiniz", matchesTailLex("Noun + A3sg + P1sg + Zero + Verb + Pres + A2pl"));
+    tester.expectSingle(
+        "abinim", matchesTailLex("Noun + A3sg + P2sg + Zero + Verb + Pres + A1sg"));
   }
 
 }

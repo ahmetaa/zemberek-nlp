@@ -108,7 +108,6 @@ public class TurkishMorphotactics {
   public static final Morpheme p3pl = addMorpheme(
       instance("ThirdPersonPluralPossessive", "P3pl"));
 
-
   // Case suffixes
 
   // elma
@@ -499,7 +498,8 @@ public class TurkishMorphotactics {
         .addEmpty(p3sg_S,
             has(RootAttribute.CompoundP3sg))  // "zeytinyağı" has two analyses. Pnon and P3sg.
         .add(p1pl_S, "ImIz", possessionCond)     // evimiz
-        .add(p2pl_S, "InIz", possessionCond)     // eviniz
+        .add(p2pl_S, "InIz", possessionCond
+            .andNot(new Conditions.PreviousGroupContainsMorpheme(justLike)))  // eviniz
         .add(p3pl_S, "lArI", possessionCond);    // evleri
 
     // ev-ler-ε-?
@@ -990,7 +990,7 @@ public class TurkishMorphotactics {
             .andNot(verbDeriv);
     // elma-yım
     nPresent_S.add(nA1sg_ST, "+yIm", allowA1sgTrans);
-    nPresent_S.add(nA2sg_ST, "sIn", allowA1sgTrans);
+    nPresent_S.add(nA2sg_ST, "sIn", allowA2sgTrans);
 
     // elma-ε-ε-dır to non terminal A3sg. We do not allow ending with A3sg from empty Present tense.
     nPresent_S.addEmpty(nA3sg_S);
@@ -1017,9 +1017,9 @@ public class TurkishMorphotactics {
     nNarr_S.add(nA1pl_ST, "Iz", allowA1plTrans);
     nPresent_S.add(nA1pl_ST, "+yIz", allowA1plTrans);
 
-    nPast_S.add(nA2pl_ST, "InIz", allowA1plTrans);
-    nNarr_S.add(nA2pl_ST, "sInIz", allowA1plTrans);
-    nPresent_S.add(nA2pl_ST, "sInIz", allowA1plTrans);
+    nPast_S.add(nA2pl_ST, "InIz", allowA2plTrans);
+    nNarr_S.add(nA2pl_ST, "sInIz", allowA2plTrans);
+    nPresent_S.add(nA2pl_ST, "sInIz", allowA2plTrans);
 
     // elma-ydı-lar.
     nPast_S.add(nA3pl_ST, "lAr",
@@ -1397,7 +1397,7 @@ public class TurkishMorphotactics {
 
     Condition hepCnd = Conditions.rootIsAny(
         kendi, kim, ne, nere, biz, siz, biri, birbiri, birkaci, herbiri, hep, kimi, cogu, bircogu,
-        tumu,  topu, bazi, hicbiri);
+        tumu, topu, bazi, hicbiri);
     pP1pl_S
         .addEmpty(pNom_ST)
         .add(pDat_ST, "+nA", nGroup)
@@ -2548,39 +2548,6 @@ public class TurkishMorphotactics {
         return dupRoot_ST;
       default:
         return noun_S;
-    }
-  }
-
-  public static Morpheme getMorphemeForPrimaryPos(PrimaryPos pos) {
-    switch (pos) {
-      case Noun:
-        return noun;
-      case Adjective:
-        return adj;
-      case Verb:
-        return verb;
-      case Pronoun:
-        return pron;
-      case Adverb:
-        return adv;
-      case Conjunction:
-        return conj;
-      case Question:
-        return ques;
-      case Interjection:
-        return interj;
-      case Punctuation:
-        return punc;
-      case Determiner:
-        return det;
-      case PostPositive:
-        return postp;
-      case Numeral:
-        return num;
-      case Duplicator:
-        return dup;
-      default:
-        return noun;
     }
   }
 }
