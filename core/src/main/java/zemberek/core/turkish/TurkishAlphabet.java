@@ -377,6 +377,55 @@ public class TurkishAlphabet {
     return TurkicLetter.UNDEFINED;
   }
 
+  public TurkicLetter getFirstVowel(CharSequence s) {
+    if (s.length() == 0) {
+      return TurkicLetter.UNDEFINED;
+    }
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (isVowel(c)) {
+        return getLetter(c);
+      }
+    }
+    return TurkicLetter.UNDEFINED;
+  }
+
+  public boolean checkVowelHarmonyA(CharSequence source, CharSequence target) {
+    TurkicLetter sourceLastWovel = getLastVowel(source);
+    TurkicLetter targetFirstWovel = getLastVowel(target);
+    return checkVowelHarmonyA(sourceLastWovel, targetFirstWovel);
+  }
+
+  public boolean checkVowelHarmonyI(CharSequence source, CharSequence target) {
+    TurkicLetter sourceLastWovel = getLastVowel(source);
+    TurkicLetter targetFirstWovel = getLastVowel(target);
+    return checkVowelHarmonyI(sourceLastWovel, targetFirstWovel);
+  }
+
+  public boolean checkVowelHarmonyA(TurkicLetter source, TurkicLetter target) {
+    if (source == TurkicLetter.UNDEFINED || target == TurkicLetter.UNDEFINED) {
+      return false;
+    }
+    if (!source.isVowel() || !target.isVowel()) {
+      return false;
+    }
+    return (source.frontal && target.frontal) ||
+        (!source.frontal && !target.frontal);
+  }
+
+  public boolean checkVowelHarmonyI(TurkicLetter source, TurkicLetter target) {
+    if (source == TurkicLetter.UNDEFINED || target == TurkicLetter.UNDEFINED) {
+      return false;
+    }
+    if (!source.isVowel() || !target.isVowel()) {
+      return false;
+    }
+    return ((source.frontal && target.frontal) ||
+        (!source.frontal && !target.frontal)) &&
+        ((source.rounded && target.rounded) ||
+            (!source.rounded && !target.rounded));
+  }
+
   /**
    * Returns tru if input contains a vowel.
    */
