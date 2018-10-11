@@ -36,7 +36,7 @@ public class AnalysisFormatters {
    * Default lexical morphological analysis formatter. But it will not contain Dictionary item
    * related data.
    * <pre>
-   * kitap -> Noun+A3s
+   * kitap -> Noun+A3sg
    * kitaplarda -> Noun+A3pl+Loc
    * okut -> Verb|Caus→Verb+Imp+A2sg
    * </pre>
@@ -50,7 +50,7 @@ public class AnalysisFormatters {
    * <pre>
    *   kitaplarda -> kitap+Noun+A3pl+Loc
    *   kitapsız -> kitap+Noun+A3sg^DB+Adj+Without
-   *   kitaplardaymış -> kitap+Noun+A3pl+Loc^DB+Verb+Zero+Narr+A3sg   *
+   *   kitaplardaymış -> kitap+Noun+A3pl+Loc^DB+Verb+Zero+Narr+A3sg
    * </pre>
    */
   public static AnalysisFormatter OFLAZER_STYLE = new OflazerStyleFormatter();

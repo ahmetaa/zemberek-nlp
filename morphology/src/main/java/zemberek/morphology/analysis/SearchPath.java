@@ -15,9 +15,6 @@ import zemberek.morphology.lexicon.DictionaryItem;
  */
 public class SearchPath {
 
-  // letters that have been parsed.
-  String head;
-
   // letters to parse.
   String tail;
 
@@ -31,12 +28,11 @@ public class SearchPath {
   private boolean containsDerivation = false;
   private boolean containsSuffixWithSurface = false;
 
-  public static SearchPath initialPath(StemTransition stemTransition, String head, String tail) {
+  public static SearchPath initialPath(StemTransition stemTransition, String tail) {
     List<SurfaceTransition> morphemes = new ArrayList<>(4);
     SurfaceTransition root = new SurfaceTransition(stemTransition.surface, stemTransition);
     morphemes.add(root);
     return new SearchPath(
-        head,
         tail,
         stemTransition.to,
         morphemes,
@@ -45,13 +41,11 @@ public class SearchPath {
   }
 
   private SearchPath(
-      String head,
       String tail,
       MorphemeState currentState,
       List<SurfaceTransition> transitions,
       AttributeSet<PhoneticAttribute> phoneticAttributes,
       boolean terminal) {
-    this.head = head;
     this.tail = tail;
     this.currentState = currentState;
     this.transitions = transitions;
@@ -66,10 +60,8 @@ public class SearchPath {
     boolean isTerminal = surfaceNode.getState().terminal;
     ArrayList<SurfaceTransition> hist = new ArrayList<>(transitions);
     hist.add(surfaceNode);
-    String newHead = head + surfaceNode.surface;
     String newTail = tail.substring(surfaceNode.surface.length());
     SearchPath path = new SearchPath(
-        newHead,
         newTail,
         surfaceNode.getState(),
         hist,
@@ -87,9 +79,7 @@ public class SearchPath {
     boolean isTerminal = surfaceNode.getState().terminal;
     ArrayList<SurfaceTransition> hist = new ArrayList<>(transitions);
     hist.add(surfaceNode);
-    String newHead = head + surfaceNode.surface;
     SearchPath path = new SearchPath(
-        newHead,
         tail,
         surfaceNode.getState(),
         hist,
@@ -106,11 +96,7 @@ public class SearchPath {
         String.join(" + ", transitions.stream()
             .map(SurfaceTransition::toString)
             .collect(Collectors.toList()));
-    return "[(" + st.item.id + ")(" + head + "-" + tail + ") " + morphemeStr + "]";
-  }
-
-  public String getHead() {
-    return head;
+    return "[(" + st.item.id + ")(-" + tail + ") " + morphemeStr + "]";
   }
 
   public String getTail() {

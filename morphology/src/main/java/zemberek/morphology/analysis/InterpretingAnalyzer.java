@@ -101,9 +101,8 @@ public class InterpretingAnalyzer {
     List<SearchPath> paths = new ArrayList<>();
     for (StemTransition candidate : candidates) {
       int length = candidate.surface.length();
-      String head = input.substring(0, length);
       String tail = input.substring(length);
-      paths.add(SearchPath.initialPath(candidate, head, tail));
+      paths.add(SearchPath.initialPath(candidate, tail));
     }
 
     // search graph.

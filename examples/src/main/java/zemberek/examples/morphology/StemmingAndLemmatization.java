@@ -1,9 +1,8 @@
 package zemberek.examples.morphology;
 
-import java.io.IOException;
 import zemberek.core.logging.Log;
-import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 
 public class StemmingAndLemmatization {

@@ -662,51 +662,6 @@ class Conditions {
     }
   }
 
-  public static class SurfaceEndsWith extends AbstractCondition {
-
-    String suffix;
-
-    public SurfaceEndsWith(String suffix) {
-      this.suffix = suffix;
-    }
-
-    @Override
-    public boolean accept(SearchPath visitor) {
-      return visitor.getHead().endsWith(suffix);
-    }
-
-    @Override
-    public String toString() {
-      return "SurfaceEndsWith{" + suffix + '}';
-    }
-  }
-
-  public static class PreviousNonEmptyMorphemeIs extends AbstractCondition {
-
-    MorphemeState state;
-
-    public PreviousNonEmptyMorphemeIs(MorphemeState state) {
-      this.state = state;
-    }
-
-    @Override
-    public boolean accept(SearchPath visitor) {
-      List<SurfaceTransition> suffixes = visitor.getTransitions();
-      for (int i = suffixes.size() - 1; i > 0; i--) {
-        SurfaceTransition sf = suffixes.get(i);
-        if (sf.surface.isEmpty()) {
-          continue;
-        }
-        return sf.getState() == state;
-      }
-      return false;
-    }
-
-    @Override
-    public String toString() {
-      return "PreviousNonEmptyMorphemeIs{" + state + '}';
-    }
-  }
 
   // Checks if any of the "MorphemeState" in "states" exist in current Inflectional Group.
   // If previous group starts after a derivation, derivation MorphemeState is also checked.
