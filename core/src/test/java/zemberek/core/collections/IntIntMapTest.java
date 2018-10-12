@@ -321,6 +321,5 @@ public class IntIntMapTest {
     System.out.println("IntIntMap retrieval: " + sw.elapsed(TimeUnit.MILLISECONDS));
     System.out.println("Verification sum: " + val);
   }
-  
-  
+
 }

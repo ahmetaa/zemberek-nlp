@@ -14,16 +14,8 @@ import zemberek.core.IntPair;
  * - Class is not thread safe.
  * </pre>
  */
-public final class IntIntMap {
-
-  public static final int NO_RESULT = Integer.MIN_VALUE;
-  private static final int DEFAULT_INITIAL_CAPACITY = 4;
-  // Capacity of the map is expanded when size reaches to capacity * LOAD_FACTOR.
-  private static final float LOAD_FACTOR = 0.6f;
-  private static final int MAX_CAPACITY = 1 << 29;
-  // Special value to mark empty cells.
-  private static final int EMPTY = NO_RESULT;
-  private static final int DELETED = EMPTY + 1;
+public final class IntIntMap implements IntIntMapBase {
+  private static int MAX_CAPACITY = 1 << 29;
   // Backing array for keys and values. Key and value pairs are put next to each other instead of 2
   // separate arrays for better caching behavior.
   private int[] entries;
@@ -60,10 +52,9 @@ public final class IntIntMap {
    * @param capacity initial internal array size for capacity amount of key - values. It must be a
    * positive number. If value is not a power of two, size will be the nearest larger power of two.
    */
-  @SuppressWarnings("unchecked")
   public IntIntMap(int capacity) {
     // Backing array has always size = capacity * 2
-    capacity = nearestPowerOf2Capacity(capacity);
+    capacity = nearestPowerOf2Capacity(capacity, MAX_CAPACITY);
     // key value pairs are kept next to each other
     entries = new int[capacity * 2];
     Arrays.fill(entries, EMPTY);
@@ -72,38 +63,12 @@ public final class IntIntMap {
     threshold = (int) (capacity * LOAD_FACTOR);
   }
 
-  private int rehash(int hash) {
-    // 0x9E3779B9 is int phi, it has some nice distributing characteristics.
-    final int h = hash * 0x9E3779B9;
-    return h ^ (h >> 16);
-  }
-
-  private int nearestPowerOf2Capacity(int capacity) {
-    if (capacity < 1) {
-      throw new IllegalArgumentException("Capacity must be > 0: " + capacity);
-    }
-    long k = 1;
-    while (k <= capacity) {
-      k <<= 1;
-    }
-    if (k > MAX_CAPACITY) {
-      throw new IllegalArgumentException("Map too large: " + capacity);
-    }
-    return (int) k;
-  }
-
   public int capacity() {
     return entries.length >> 1;
   }
 
   public int size() {
     return keyCount;
-  }
-
-  private void checkKey(int key) {
-    if (key <= DELETED) {
-      throw new IllegalArgumentException("Illegal key: " + key);
-    }
   }
 
   public void put(int key, int value) {
@@ -250,7 +215,7 @@ public final class IntIntMap {
   }
 
   private int newCapacity() {
-    int newCapacity = nearestPowerOf2Capacity(keyCount) * 2;
+    int newCapacity = nearestPowerOf2Capacity(keyCount, MAX_CAPACITY) * 2;
     if (newCapacity > MAX_CAPACITY) {
       throw new RuntimeException("Map size is too large.");
     }
