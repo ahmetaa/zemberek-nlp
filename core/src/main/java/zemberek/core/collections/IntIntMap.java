@@ -29,6 +29,8 @@ public final class IntIntMap {
   private int[] entries;
   // Number of keys in the map = size of the map.
   private int keyCount;
+  // Number of Removed keys.
+  private int removedKeyCount;
   // When size reaches a threshold, backing arrays are expanded.
   private int threshold;
 
@@ -62,7 +64,7 @@ public final class IntIntMap {
   @SuppressWarnings("unchecked")
   public IntIntMap(int capacity) {
     // Backing array has always size = capacity * 2
-    capacity = adjustInitialCapacity(capacity);
+    capacity = nearestPowerOf2Capacity(capacity);
     // key value pairs are kept next to each other
     entries = new int[capacity * 2];
     Arrays.fill(entries, EMPTY);
@@ -77,7 +79,7 @@ public final class IntIntMap {
     return h ^ (h >> 16);
   }
 
-  private int adjustInitialCapacity(int capacity) {
+  private int nearestPowerOf2Capacity(int capacity) {
     if (capacity < 1) {
       throw new IllegalArgumentException("Capacity must be > 0: " + capacity);
     }
@@ -107,7 +109,7 @@ public final class IntIntMap {
 
   public void put(int key, int value) {
     checkKey(key);
-    if (keyCount > threshold) {
+    if (keyCount + removedKeyCount > threshold) {
       expand();
     }
     int loc = locate(key);
@@ -128,6 +130,7 @@ public final class IntIntMap {
     int loc = locate(key);
     if (loc >= 0) {
       entries[loc] = DELETED;
+      removedKeyCount++;
       keyCount--;
     }
   }
@@ -238,7 +241,7 @@ public final class IntIntMap {
   }
 
   private int newCapacity() {
-    int newCapacity = entries.length;
+    int newCapacity = nearestPowerOf2Capacity(keyCount) * 2;
     if (newCapacity > MAX_CAPACITY) {
       throw new RuntimeException("Map size is too large.");
     }
@@ -246,7 +249,7 @@ public final class IntIntMap {
   }
 
   /**
-   * Expands backing arrays by doubling their capacity.
+   * Resize backing arrays. If there are no removed keys, doubles the capacity.
    */
   private void expand() {
     int capacity = newCapacity();
