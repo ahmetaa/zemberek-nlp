@@ -268,11 +268,12 @@ public class IntIntMapTest {
   @Ignore("Not a unit test")
   public void speedAgainstHashMap() {
     Random r = new Random();
-    int[][] keyVals = new int[1000000][2];
+    int[][] keyVals = new int[1_000_000][2];
     final int iterCreation = 10;
     final int iterRetrieval = 50;
     for (int i = 0; i < keyVals.length; i++) {
-      keyVals[i][0] = r.nextInt(500000);
+      // We allow some duplications.
+      keyVals[i][0] = r.nextInt(5_000_000);
       keyVals[i][1] = r.nextInt(5000) + 1;
     }
     Stopwatch sw = Stopwatch.createStarted();
