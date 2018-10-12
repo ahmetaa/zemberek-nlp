@@ -8,8 +8,8 @@ import zemberek.core.IntPair;
  * algorithm. Constraints: <pre>
  * - Supports int key values in range (Integer.MIN_VALUE+1..Integer.MAX_VALUE];
  * - Does not implement Map interface
- * - Capacity can be max 1 << 30
- * - Max size is capacity * LOAD_FACTOR (~590M elements for 0.55 load factor)
+ * - Capacity can be max 1 << 29
+ * - Max size is capacity * LOAD_FACTOR (~322M elements for 0.6 load factor)
  * - Does not implement Iterable.
  * - Class is not thread safe.
  * </pre>
@@ -19,8 +19,8 @@ public final class IntIntMap {
   public static final int NO_RESULT = Integer.MIN_VALUE;
   private static final int DEFAULT_INITIAL_CAPACITY = 4;
   // Capacity of the map is expanded when size reaches to capacity * LOAD_FACTOR.
-  private static final float LOAD_FACTOR = 0.55f;
-  private static final int MAX_CAPACITY = 1 << 30;
+  private static final float LOAD_FACTOR = 0.6f;
+  private static final int MAX_CAPACITY = 1 << 29;
   // Special value to mark empty cells.
   private static final int EMPTY = NO_RESULT;
   private static final int DELETED = EMPTY + 1;
