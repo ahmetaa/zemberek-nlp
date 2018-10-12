@@ -6,10 +6,10 @@ import zemberek.core.IntPair;
 /**
  * A simple hashmap with integer keys and integer values. Implements open address linear probing
  * algorithm. Constraints: <pre>
- * - Supports int key values in range (Integer.MIN_VALUE..Integer.MAX_VALUE];
+ * - Supports int key values in range (Integer.MIN_VALUE+1..Integer.MAX_VALUE];
  * - Does not implement Map interface
- * - Capacity can be max 1 << 28
- * - Max size is capacity * LOAD_FACTOR = ~175M elements (For 0.65 load factor)
+ * - Capacity can be max 1 << 29
+ * - Max size is capacity * LOAD_FACTOR (~322M elements for 0.6 load factor)
  * - Does not implement Iterable.
  * - Class is not thread safe.
  * </pre>
@@ -18,13 +18,13 @@ public final class IntIntMap {
 
   public static final int NO_RESULT = Integer.MIN_VALUE;
   private static final int DEFAULT_INITIAL_CAPACITY = 4;
-  // Capacity of the map is expanded when size reaches to capacity * LOAD_FACTOR. This value is
-  // selected to fit max 5 elements to 8 and 10 elements to a 16 sized map.
+  // Capacity of the map is expanded when size reaches to capacity * LOAD_FACTOR.
   private static final float LOAD_FACTOR = 0.6f;
   private static final int MAX_CAPACITY = 1 << 29;
   // Special value to mark empty cells.
-  private static final int EMPTY = Integer.MIN_VALUE;
-  // Backing array for keys and values. key and value pairs are put next to each other instead of 2
+  private static final int EMPTY = NO_RESULT;
+  private static final int DELETED = EMPTY + 1;
+  // Backing array for keys and values. Key and value pairs are put next to each other instead of 2
   // separate arrays for better caching behavior.
   private int[] entries;
   // Number of keys in the map = size of the map.
@@ -100,7 +100,7 @@ public final class IntIntMap {
   }
 
   private void checkKey(int key) {
-    if (key == EMPTY) {
+    if (key <= DELETED) {
       throw new IllegalArgumentException("Illegal key: " + key);
     }
   }
@@ -121,6 +121,17 @@ public final class IntIntMap {
     }
   }
 
+  // Only marks the slot as DELETED. In get and locate methods, deleted slots are skipped.
+  // TODO: Maybe add compaction method for maps with a lot of deleted keys.
+  public void remove(int key) {
+    checkKey(key);
+    int loc = locate(key);
+    if (loc >= 0) {
+      entries[loc] = DELETED;
+      keyCount--;
+    }
+  }
+
   public void increment(int key, int value) {
     checkKey(key);
     if (keyCount > threshold) {
@@ -138,7 +149,7 @@ public final class IntIntMap {
   }
 
   /**
-   * @return The value {@code T} that is mapped to given {@code key}. or {@code Integer.MIN_VALUE}
+   * @return The value {@code T} that is mapped to given {@code key}. or {@code NO_RESULT}
    * If key does not exist,
    * @throws IllegalArgumentException if key is {@code Integer.MIN_VALUE}
    */
@@ -159,11 +170,16 @@ public final class IntIntMap {
       if (t == EMPTY) {
         return NO_RESULT;
       }
+      // DELETED slots are skipped.
     }
   }
 
   public boolean containsKey(int key) {
     return locate(key) >= 0;
+  }
+
+  private boolean hasKey(int i) {
+    return entries[i] > DELETED;
   }
 
   /**
@@ -173,7 +189,7 @@ public final class IntIntMap {
     int[] keyArray = new int[keyCount];
     int c = 0;
     for (int i = 0; i < entries.length; i += 2) {
-      if (entries[i] != EMPTY) {
+      if (hasKey(i)) {
         keyArray[c++] = entries[i];
       }
     }
@@ -197,7 +213,7 @@ public final class IntIntMap {
     IntPair[] pairs = new IntPair[keyCount];
     int c = 0;
     for (int i = 0; i < entries.length; i += 2) {
-      if (entries[i] != EMPTY) {
+      if (hasKey(i)) {
         pairs[c++] = new IntPair(entries[i], entries[i + 1]);
       }
     }
@@ -216,6 +232,7 @@ public final class IntIntMap {
       if (k == key) {
         return slot;
       }
+      // DELETED slots are ignored.
       slot = (slot + 2) & modulo2;
     }
   }
@@ -235,7 +252,7 @@ public final class IntIntMap {
     int capacity = newCapacity();
     IntIntMap h = new IntIntMap(capacity);
     for (int i = 0; i < entries.length; i += 2) {
-      if (entries[i] != EMPTY) {
+      if (hasKey(i)) {
         h.put(entries[i], entries[i + 1]);
       }
     }

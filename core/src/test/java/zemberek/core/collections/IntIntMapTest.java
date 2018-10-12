@@ -29,6 +29,7 @@ public class IntIntMapTest {
       im = new IntIntMap(-1);
       im = new IntIntMap(Integer.MAX_VALUE);
       im = new IntIntMap(Integer.MIN_VALUE);
+      im = new IntIntMap(Integer.MIN_VALUE + 1);
       im = new IntIntMap(1 << 29 + 1);
       Assert.fail("Illegal size should have thrown an exception.");
     } catch (RuntimeException e) {
@@ -70,6 +71,55 @@ public class IntIntMapTest {
   }
 
   @Test
+  public void removeRemovesCorrectly() {
+    IntIntMap im = new IntIntMap();
+    im.put(0,0);
+    assertEquals(im.get(0), 0);
+    im.remove(0);
+    assertEquals(im.get(0), IntIntMap.NO_RESULT);
+    assertEquals(im.size(), 0);
+    // remove again works
+    im.remove(0);
+    assertEquals(im.get(0), IntIntMap.NO_RESULT);
+    assertEquals(im.size(), 0);
+    im.put(0, 1);
+    assertEquals(im.size(), 1);
+    assertEquals(im.get(0), 1);
+  }
+
+  @Test
+  public void removeSpansWorksCorrectly() {
+    IntIntMap im = new IntIntMap();
+    insertSpan(im, 0, 99);
+    removeSpan(im, 1, 98);
+    assertEquals(im.size(), 2);
+    checkSpanRemoved(im, 1, 98);
+    insertSpan(im, 0, 99);
+    assertEquals(im.size(), 100);
+    checkSpan(im, 0, 99);
+  }
+
+  @Test
+  public void removeSpansWorksCorrectly2() {
+    IntIntMap im = new IntIntMap();
+    int limit = 9999;
+    insertSpan(im, 0, limit);
+    int[] r = TestUtils.createRandomUintArray(1000, limit);
+    for (int i : r) {
+      im.remove(i);
+    }
+    for (int i : r) {
+      assertEquals(im.get(i), IntIntMap.NO_RESULT);
+    }
+    insertSpan(im, 0, limit);
+    checkSpan(im, 0, limit);
+    removeSpan(im, 0, limit);
+    assertEquals(im.size(), 0);
+    insertSpan(im, -limit, limit);
+    checkSpan(im, -limit, limit);
+  }
+
+  @Test
   public void survivesSimpleFuzzing() {
     List<int[]> fuzzLists = TestUtils.createFuzzingLists();
     for (int[] arr : fuzzLists) {
@@ -86,6 +136,22 @@ public class IntIntMapTest {
         im.put(arr[i], arr[i] + 7);
         assertEquals(im.get(arr[i]), arr[i] + 7);
       }
+    }
+  }
+
+  private void removeSpan(IntIntMap im, int start, int end) {
+    int spanStart = Math.min(start, end);
+    int spanEnd = Math.max(start, end);
+    for (int i = spanStart; i <= spanEnd; i++) {
+      im.remove(i);
+    }
+  }
+
+  private void checkSpanRemoved(IntIntMap im, int start, int end) {
+    int spanStart = Math.min(start, end);
+    int spanEnd = Math.max(start, end);
+    for (int i = spanStart; i <= spanEnd; i++) {
+      assertEquals(im.get(i), IntIntMap.NO_RESULT);
     }
   }
 
