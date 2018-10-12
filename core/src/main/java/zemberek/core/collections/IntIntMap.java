@@ -124,7 +124,6 @@ public final class IntIntMap {
   }
 
   // Only marks the slot as DELETED. In get and locate methods, deleted slots are skipped.
-  // TODO: Maybe add compaction method for maps with a lot of deleted keys.
   public void remove(int key) {
     checkKey(key);
     int loc = locate(key);
@@ -154,7 +153,7 @@ public final class IntIntMap {
   /**
    * @return The value {@code T} that is mapped to given {@code key}. or {@code NO_RESULT}
    * If key does not exist,
-   * @throws IllegalArgumentException if key is {@code Integer.MIN_VALUE}
+   * @throws IllegalArgumentException if key is {@code EMPTY} or {@code DELETED}.
    */
   public int get(int key) {
     checkKey(key);
@@ -205,7 +204,7 @@ public final class IntIntMap {
   public int[] getValues() {
     int[] valueArray = new int[keyCount];
     for (int i = 0, j = 0; i < entries.length; i += 2) {
-      if (entries[i] != EMPTY) {
+      if (hasKey(i)) {
         valueArray[j++] = entries[i + 1];
       }
     }
