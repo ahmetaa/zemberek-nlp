@@ -137,7 +137,7 @@ public final class IntIntMap {
 
   public void increment(int key, int value) {
     checkKey(key);
-    if (keyCount > threshold) {
+    if (keyCount + removedKeyCount > threshold) {
       expand();
     }
     int loc = locate(key);
