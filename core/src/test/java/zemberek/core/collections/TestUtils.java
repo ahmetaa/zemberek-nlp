@@ -62,7 +62,7 @@ public class TestUtils {
     while (uIntSet.size() < size) {
       uIntSet.add(Math.abs(random.nextInt()));
     }
-    int[] res = uIntSet.keys;
+    int[] res = uIntSet.getKeys();
     shuffle(res);
     return res;
   }
@@ -73,7 +73,7 @@ public class TestUtils {
     while (uIntSet.size() < size) {
       uIntSet.add(Math.abs(random.nextInt(limit)));
     }
-    int[] res = uIntSet.keys;
+    int[] res = uIntSet.getKeys();
     shuffle(res);
     return res;
   }
