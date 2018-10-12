@@ -269,50 +269,56 @@ public class IntIntMapTest {
   public void speedAgainstHashMap() {
     Random r = new Random();
     int[][] keyVals = new int[1000000][2];
-    final int itCount = 10;
+    final int iterCreation = 10;
+    final int iterRetrieval = 50;
     for (int i = 0; i < keyVals.length; i++) {
       keyVals[i][0] = r.nextInt(500000);
       keyVals[i][1] = r.nextInt(5000) + 1;
     }
     Stopwatch sw = Stopwatch.createStarted();
-    for (int j = 0; j < itCount; j++) {
-
+    for (int j = 0; j < iterCreation; j++) {
       HashMap<Integer, Integer> map = new HashMap<>();
-
       for (int[] keyVal : keyVals) {
         map.put(keyVal[0], keyVal[1]);
       }
-
+    }
+    System.out.println("Map creation: " + sw.elapsed(TimeUnit.MILLISECONDS));
+    HashMap<Integer, Integer> map = new HashMap<>();
+    for (int[] keyVal : keyVals) {
+      map.put(keyVal[0], keyVal[1]);
+    }
+    long val = 0;
+    sw = Stopwatch.createStarted();
+    for (int j = 0; j < iterRetrieval; j++) {
       for (int[] keyVal : keyVals) {
-        map.get(keyVal[0]);
-      }
-
-      for (int[] keyVal : keyVals) {
-        if(map.containsKey(keyVal)) {
-          map.remove(keyVal[0]);
-        }
+        val += map.get(keyVal[0]);
       }
     }
-    System.out.println("Map Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
+    System.out.println("Map retrieval: " + sw.elapsed(TimeUnit.MILLISECONDS));
+    System.out.println("Verification sum: " + val);
 
-    IntIntMap countTable = new IntIntMap();
     sw = Stopwatch.createStarted();
-
-    for (int j = 0; j < itCount; j++) {
-
+    for (int j = 0; j < iterCreation; j++) {
+      IntIntMap countTable = new IntIntMap();
       for (int[] keyVal : keyVals) {
         countTable.put(keyVal[0], keyVal[1]);
       }
+    }
+    System.out.println("IntIntMap creation: " + sw.elapsed(TimeUnit.MILLISECONDS));
+
+    IntIntMap countTable = new IntIntMap();
+    for (int[] keyVal : keyVals) {
+      countTable.put(keyVal[0], keyVal[1]);
+    }
+    val = 0;
+    sw = Stopwatch.createStarted();
+    for (int j = 0; j < iterRetrieval; j++) {
       for (int[] keyVal : keyVals) {
-        countTable.get(keyVal[0]);
-      }
-      for (int[] keyVal : keyVals) {
-        if (countTable.containsKey(keyVal[0])) {
-          countTable.remove(keyVal[0]);
-        }
+        val += countTable.get(keyVal[0]);
       }
     }
-    System.out.println("IntIntMap Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
+    System.out.println("IntIntMap retrieval: " + sw.elapsed(TimeUnit.MILLISECONDS));
+    System.out.println("Verification sum: " + val);
   }
   
   
