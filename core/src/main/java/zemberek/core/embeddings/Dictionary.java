@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import zemberek.core.SpaceTabTokenizer;
+import zemberek.core.collections.IntIntMap;
 import zemberek.core.collections.IntVector;
-import zemberek.core.collections.UIntIntMap;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
 
@@ -36,7 +36,7 @@ class Dictionary {
   private int nlabels_;
   private long ntokens_;
   private int pruneidx_size_ = -1;
-  private UIntIntMap pruneidx_ = new UIntIntMap();
+  private IntIntMap pruneidx_ = new IntIntMap();
 
   private Dictionary(Args args) {
     args_ = args;

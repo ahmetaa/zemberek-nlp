@@ -26,7 +26,6 @@ import zemberek.core.IntPair;
 import zemberek.core.collections.Histogram;
 import zemberek.core.collections.IntIntMap;
 import zemberek.core.collections.IntVector;
-import zemberek.core.collections.UIntIntMap;
 import zemberek.core.collections.UIntMap;
 import zemberek.core.collections.UIntSet;
 import zemberek.core.collections.UIntValueMap;
@@ -626,7 +625,7 @@ public class NoisyWordsLexiconGenerator {
     // This is for memory optimization. It holds <hash, wordIndex> values.
     // Context occurs only once and with count 1 stays in this.
     // This may be discarded during pruning.
-    UIntIntMap singletons = new UIntIntMap(5_000_000);
+    IntIntMap singletons = new IntIntMap(5_000_000);
 
     NormalizationVocabulary vocabulary;
     ReentrantLock lock = new ReentrantLock();
@@ -655,7 +654,7 @@ public class NoisyWordsLexiconGenerator {
         executorService.submit(() -> {
           Log.info("Processing %s", chunk);
           UIntMap<IntIntMap> localContextCounts = new UIntMap<>(100_000);
-          UIntIntMap localSingletons = new UIntIntMap(100_000);
+          IntIntMap localSingletons = new IntIntMap(100_000);
 
           List<String> sentences = TextCleaner.cleanAndExtractSentences(chunk.getData());
           for (String sentence : sentences) {
@@ -802,7 +801,7 @@ public class NoisyWordsLexiconGenerator {
 
     void pruneContextNodes() {
       // remove all singletons.
-      singletons = new UIntIntMap();
+      singletons = new IntIntMap();
 
       UIntSet keysToPrune = new UIntSet();
       for (int contextHash : contextHashToWordCounts.getKeys()) {
