@@ -267,7 +267,7 @@ public class IntIntMapTest {
   @Test
   @Ignore("Not a unit test")
   public void speedAgainstHashMap() {
-    Random r = new Random();
+    Random r = new Random(0xBEEFCAFE);
     int[][] keyVals = new int[1_000_000][2];
     final int iterCreation = 10;
     final int iterRetrieval = 50;

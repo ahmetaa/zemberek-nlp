@@ -37,9 +37,9 @@ public final class IntIntMap {
   /**
    * Map capacity is always a power of 2. With this property, integer modulo operation (key %
    * capacity) can be replaced with (key & (capacity - 1)). We keep (capacity - 1) value in this
-   * variable. Because keys and values are always put next to each other, we keep
-   * the (capacity * 2 - 1) in a separate variable. First modulo is used to track logical array
-   * of key-value pairs second one operates on the whole array.
+   * variable. Because keys and values are always put next to each other, we keep the (capacity * 2
+   * - 1) in a separate variable. First modulo is used to track logical array of key-value pairs
+   * second one operates on the whole array.
    * <p>First modulo is used to find the index of the key-value pair given a hash value with:
    * <p>
    * slot = (hash(key) & modulo) << 1;  equivalent to  slot = (hash(key) % capacity) / 2
@@ -57,9 +57,8 @@ public final class IntIntMap {
   }
 
   /**
-   * @param capacity initial internal array size for capacity amount of key - values.
-   * It must be a positive number. If value is not a power of two, size will be the nearest
-   * larger power of two.
+   * @param capacity initial internal array size for capacity amount of key - values. It must be a
+   * positive number. If value is not a power of two, size will be the nearest larger power of two.
    */
   @SuppressWarnings("unchecked")
   public IntIntMap(int capacity) {
@@ -123,6 +122,22 @@ public final class IntIntMap {
     }
   }
 
+  /**
+   * Used only when expanding.
+   */
+  private void putSafe(int key, int value) {
+    int slot = (rehash(key) & modulo) << 1;
+    while (true) {
+      if (entries[slot] == EMPTY) {
+        entries[slot] = key;
+        entries[slot + 1] = value;
+        return;
+      }
+      slot = (slot + 2) & modulo2;
+    }
+  }
+
+
   // Only marks the slot as DELETED. In get and locate methods, deleted slots are skipped.
   public void remove(int key) {
     checkKey(key);
@@ -151,8 +166,8 @@ public final class IntIntMap {
   }
 
   /**
-   * @return The value {@code T} that is mapped to given {@code key}. or {@code NO_RESULT}
-   * If key does not exist,
+   * @return The value {@code T} that is mapped to given {@code key}. or {@code NO_RESULT} If key
+   * does not exist,
    * @throws IllegalArgumentException if key is {@code EMPTY} or {@code DELETED}.
    */
   public int get(int key) {
@@ -250,7 +265,7 @@ public final class IntIntMap {
     IntIntMap h = new IntIntMap(capacity);
     for (int i = 0; i < entries.length; i += 2) {
       if (hasKey(i)) {
-        h.put(entries[i], entries[i + 1]);
+        h.putSafe(entries[i], entries[i + 1]);
       }
     }
     this.entries = h.entries;
