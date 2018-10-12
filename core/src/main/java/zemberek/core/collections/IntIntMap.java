@@ -158,13 +158,7 @@ public final class IntIntMap {
   public int get(int key) {
     checkKey(key);
     int slot = (rehash(key) & modulo) << 1;
-    // Test the lucky first shot.
-    if (key == entries[slot]) {
-      return entries[slot + 1];
-    }
-    // Continue linear probing otherwise
     while (true) {
-      slot = (slot + 2) & modulo2;
       final int t = entries[slot];
       if (t == key) {
         return entries[slot + 1];
@@ -172,6 +166,7 @@ public final class IntIntMap {
       if (t == EMPTY) {
         return NO_RESULT;
       }
+      slot = (slot + 2) & modulo2;
       // DELETED slots are skipped.
     }
   }
@@ -262,5 +257,6 @@ public final class IntIntMap {
     this.threshold = h.threshold;
     this.modulo = h.modulo;
     this.modulo2 = h.modulo2;
+    this.removedKeyCount = 0;
   }
 }
