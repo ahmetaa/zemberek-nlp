@@ -51,4 +51,6 @@ public interface IntIntMapBase {
   int[] getKeys();
 
   int[] getValues();
+
+  boolean containsKey(int key);
 }
