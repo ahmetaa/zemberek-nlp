@@ -150,6 +150,7 @@ public class NoisyWordsLexiconGenerator {
     RandomWalker walker = RandomWalker.fromGraphFile(vocabulary, graphPath);
 
     Log.info("Collecting candidates data.");
+
     WalkResult walkResult = walker.walk(WALK_COUNT, MAX_HOP_COUNT, threadCount);
     Path allCandidates = outRoot.resolve("all-candidates");
     Path lookup = outRoot.resolve("lookup-from-graph");

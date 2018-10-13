@@ -72,6 +72,10 @@ public class NormalizationVocabularyGenerator {
   }
 
   static TurkishMorphology getTurkishMorphology() throws IOException {
+    return getTurkishMorphology(false);
+  }
+
+  static TurkishMorphology getTurkishMorphology(boolean asciiTolerant) throws IOException {
     AnalysisCache cache = AnalysisCache
         .builder()
         .dynamicCacheSize(200_000, 400_000).build();
@@ -85,13 +89,18 @@ public class NormalizationVocabularyGenerator {
         "tr/person-names.dict"
     );
 
-    return TurkishMorphology
+    InformalTurkishMorphotactics morphotactics = new InformalTurkishMorphotactics(lexicon);
+    TurkishMorphology.Builder builder = TurkishMorphology
         .builder()
         .useLexicon(lexicon)
         .disableUnidentifiedTokenAnalyzer()
-        .useAnaylzer(InterpretingAnalyzer.instance(new InformalTurkishMorphotactics(lexicon)))
-        .setCache(cache)
-        .build();
+        .setCache(cache);
+    if (asciiTolerant) {
+      builder.useAnaylzer(InterpretingAnalyzer.instance(morphotactics));
+    } else {
+      builder.useAnaylzer(InterpretingAnalyzer.asciiTolerantInstance(morphotactics));
+    }
+    return builder.build();
   }
 
   static class Vocabulary {

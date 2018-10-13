@@ -62,6 +62,7 @@ public class TurkishSentenceNormalizer {
   private Map<String, String> commonSplits = new HashMap<>();
   private Map<String, String> replacements = new HashMap<>();
   private HashSet<String> commonConnectedSuffixes = new HashSet<>();
+  private HashSet<String> noSplitWords = new HashSet<>();
   private HashSet<String> commonLetterRepeatitionWords = new HashSet<>();
 
   public TurkishSentenceNormalizer(
@@ -100,6 +101,9 @@ public class TurkishSentenceNormalizer {
     this.commonConnectedSuffixes.addAll(TextIO.loadLinesFromResource(
         "normalization/question-suffixes"));
     this.commonConnectedSuffixes.addAll(Arrays.asList("de", "da", "ki"));
+
+    this.noSplitWords.addAll(TextIO.loadLinesFromResource(
+        "normalization/no-split"));
 
     List<String> replaceLines = TextIO.loadLinesFromResource(
         "normalization/multi-word-replacements");
@@ -460,6 +464,9 @@ public class TurkishSentenceNormalizer {
    * </pre>
    */
   String separateCommon(String input, boolean useLookup) {
+    if (noSplitWords.contains(input)) {
+      return input;
+    }
     if (useLookup && commonSplits.containsKey(input)) {
       return commonSplits.get(input);
     }
@@ -468,6 +475,11 @@ public class TurkishSentenceNormalizer {
         String tail = input.substring(i);
         if (commonConnectedSuffixes.contains(tail)) {
           String head = input.substring(0, i);
+          if (tail.length() < 3) {
+            if (!lm.ngramExists(lm.getVocabulary().toIndexes(head, tail))) {
+              return input;
+            }
+          }
           if (hasRegularAnalysis(head)) {
             return head + " " + tail;
           } else {

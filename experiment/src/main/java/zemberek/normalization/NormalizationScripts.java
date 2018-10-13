@@ -71,7 +71,7 @@ public class NormalizationScripts {
         s,
         lm,
         asciiMapPath,
-        NormalizationVocabularyGenerator.getTurkishMorphology(),
+        NormalizationVocabularyGenerator.getTurkishMorphology(true),
         2);
 
     Path quesOut = testRoot.resolve("question-suffix");
@@ -189,7 +189,9 @@ public class NormalizationScripts {
 
     int unkIndex = lm.getVocabulary().getUnknownWordIndex();
 
-    try (PrintWriter pw = new PrintWriter(splitFile.toFile(), "utf-8")) {
+    try (PrintWriter pw = new PrintWriter(splitFile.toFile(), "utf-8");
+        PrintWriter pwFreq =
+            new PrintWriter(splitFile.toFile().getAbsolutePath() + "freq", "utf-8")) {
       for (String word : wordFreq.getSortedList()) {
 
         if (asciiMapKeys.contains(word)) {
@@ -232,8 +234,9 @@ public class NormalizationScripts {
 
         if (k.size() > 0) {
           ScoredItem<String> best = k.get(0);
-          if (best.score > -6) {
-            pw.println(word + " = " + best.item + " " + wordFreq.getCount(word));
+          if (best.score > -7) {
+            pw.println(word + " = " + best.item);
+            pwFreq.println(word + " = " + best.item + " " + wordFreq.getCount(word));
           }
         }
       }
@@ -256,7 +259,7 @@ public class NormalizationScripts {
           suf.startsWith("mu") ||
           suf.startsWith("mı") ||
           suf.startsWith("mü")
-          ) {
+      ) {
         endings.add(t2[1]);
       }
     }
