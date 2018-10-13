@@ -585,4 +585,26 @@ public class PronounsTest extends AnalyzerTestBase {
     tester.expectSingle("herkesle", matchesTailLex("Pron + A3pl + Ins"));
   }
 
+  /**
+   * Test for issue
+   * <a href="https://github.com/ahmetaa/zemberek-nlp/issues/188">178</a>
+   * Cannot analyze sendeki, bendeki etc.
+   */
+  @Test
+  public void sendekiTest_issue_188() {
+    AnalysisTester tester = getTester("ben [P:Pron,Pers]",
+        "sen [P:Pron,Pers]",
+        "o [P:Pron,Pers]",
+        "biz [P:Pron,Pers]",
+        "siz [P:Pron,Pers]"
+    );
+
+    tester.expectSingle("bendeki", matchesTailLex("Pron + A1sg + Loc + Rel + Adj"));
+    tester.expectSingle("sendeki", matchesTailLex("Pron + A2sg + Loc + Rel + Adj"));
+    tester.expectSingle("ondaki", matchesTailLex("Pron + A3sg + Loc + Rel + Adj"));
+    tester.expectSingle("bizdeki", matchesTailLex("Pron + A1pl + Loc + Rel + Adj"));
+    tester.expectSingle("sizdeki", matchesTailLex("Pron + A2pl + Loc + Rel + Adj"));
+    tester.expectSingle("onlardaki", matchesTailLex("Pron + A3pl + Loc + Rel + Adj"));
+  }
+
 }

@@ -1445,6 +1445,10 @@ public class TurkishMorphotactics {
         Conditions.rootIsAny(nere, bu, su, o_demons, ben, sen, o, biz, siz));
     pNom_ST.add(without_S, "+ysIz", Conditions.rootIsAny(ne));
     pGen_ST.add(rel_S, "ki", Conditions.rootIsAny(nere, bu, su, o_demons, ne, sen, o, biz, siz));
+
+    Condition notRelRepetition = new HasTailSequence(rel, adj, zero, noun, a3sg, pnon, loc).not();
+    pLoc_ST.add(rel_S, "ki", notRelRepetition);
+
     pIns_ST.add(vWhile_S, "+yken");
 
     //------------- Derivation connections ---------
