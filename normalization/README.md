@@ -64,3 +64,75 @@ If user provides a higher order language model (bi-gram models are sufficient) a
  - There may be junk results.
  - For shorter words, there will be a lot of suggestions (sometimes >50 ).
  - Suggestion function is not so fast (Around 500-1000 words/second).
+ 
+ ## Noisy Text Normalization (Not Yet Released)
+ 
+ Zemberek offers noisy text normalization function. This tool can be used correcting 
+ words written incorrectly or informal speech from noisy texts. Some examples:
+ 
+    Tmm, yarin havuza giricem ve aksama kadar yaticam :)    
+    ah aynen ya annemde fark etti siz evinizden çıkmayın diyo
+    gercek mı bu? Yuh! Artık unutulması bile beklenmiyo   
+    Hayır hayat telaşm olmasa alacam buraları gökdelen dikicem.
+    
+Some NLP tasks needs normalization as a pre-processing step before applying 
+actual algorithms to the text. Normalization especially helps improved results in areas like: 
+
+- Social media and forum texts
+- Chat, messaging or bot applications  
+- Mobil phone keyboards with no or bad spell correction.
+
+### Usage
+
+User needs to provide some lookup files and a language model. In this link, a usable language model 
+and necessary lookup tables are provided. But for specific needs, usually custom work is necessary. 
+
+After downloading the files, lets assume they will be in zemberek-data/normalization folder.
+We initialize TurkishSentenceNormalizer as:
+
+
+Then simple call normalize() method.
+
+Results for the above sentences:
+
+    Tmm, yarin havuza giricem ve aksama kadar yaticam :)
+    tamam , yarın havuza gireceğim ve akşama kadar yatacağım :)
+     
+    ah aynenya annemde fark ettı siz evinizden cıkmayın diyo
+    ah aynenya annemde fark etti siz evinizden çıkmasın diyor
+    
+    gercek mı bu? Yuh! Artık unutulması bile beklenmiyo
+    gerçek mı bu ? yuh ! artık unutulması bile beklenmiyor
+    
+    Hayır hayat telaşm olmasa alacam buraları gökdelen dikicem.
+    hayır hayat telaşı olmasa alacağım buraları gökdelen dikeceğim .
+
+As it is seen, some words were not corrected and output is all lower case.
+These problems will be fixed in upcoming releases. 
+
+### Method
+
+Zemberek uses several heuristics, lookup tables and language models for text normalization.
+Some of the work:
+- From clean and noisy corpora, vocabularies are created using morphological analysis.
+- With some heuristics and language model, words that should be split to two are found.
+- From corpora, correct, incorrect and possibly-incorrect sets are created.
+- For pre-processing, deasciifier, split and combine heuristics are applied. 
+- Using those sets and large corpora, a noisy to clean word lookup is 
+  generated using a modified version of Hassan and Menezes's 2013 work 
+  "Social Text Normalization using Contextual Graph Random Walks".
+- Then for a sentence, for every noisy word, candidates are collected from lookup tables, 
+informal and ascii-matching morphologcal analysis and spell checker. 
+- Most likely correct sequence is found running Viterbi algorithm using a language model on candidate words
+
+### Issues
+
+Normalization function:
+
+- may change correct words.
+- may change formatting and casing or remove punctuations.
+- may not work well for some cases.
+  
+
+ 
+ 

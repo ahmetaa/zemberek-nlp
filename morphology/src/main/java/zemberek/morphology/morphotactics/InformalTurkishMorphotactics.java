@@ -93,7 +93,7 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
 
     RootSurfaceIsAny diYiCondition = new RootSurfaceIsAny("di", "yi");
     vDeYeRoot_S
-        .add(vProgYor_S, "yo", diYiCondition);
+        .add(vProgYor_S_Inf, "yo", diYiCondition);
 
     // yap-a-k
 

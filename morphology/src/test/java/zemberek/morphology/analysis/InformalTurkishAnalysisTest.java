@@ -107,6 +107,8 @@ public class InformalTurkishAnalysisTest extends AnalyzerTestBase {
     t.expectSingle("affetmiyo", matchesTailLex("Verb + Neg + Prog1Informal + A3sg"));
     t.expectSingle("affedemiyo", matchesTailLex("Verb + Unable + Prog1Informal + A3sg"));
 
+    t = getTester("demek");
+    t.expectSingle("diyo", matchesTailLex("Verb + Prog1Informal + A3sg"));
   }
 
   @Test
