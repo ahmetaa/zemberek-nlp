@@ -45,11 +45,8 @@ public final class Log {
     ch.setLevel(currentLevel);
     logger.addHandler(ch);
     Thread.setDefaultUncaughtExceptionHandler(EXCEPTION_HANDLER);
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      public void run() {
-        handlers.values().forEach(FileHandler::close);
-      }
-    });
+    Runtime.getRuntime().addShutdownHook(
+        new Thread(() -> handlers.values().forEach(FileHandler::close)));
   }
 
   static {

@@ -9,7 +9,7 @@ import zemberek.core.IntPair;
  * - Supports int key values in range (Integer.MIN_VALUE+1..Integer.MAX_VALUE];
  * - Does not implement Map interface
  * - Capacity can be max 1 << 30
- * - Max size is capacity * LOAD_FACTOR (~322M elements for 0.6 load factor)
+ * - Max size is capacity * LOAD_FACTOR (~644M elements for 0.6 load factor)
  * - Does not implement Iterable.
  * - Class is not thread safe.
  * </pre>
@@ -66,7 +66,7 @@ public final class CompactIntMap implements IntIntMapBase {
   }
 
   private void setValue(int i, int value) {
-    entries[i] = (entries[i] & 0x0000_0000_FFFF_FFFFL) | ((long) value << 32);
+    entries[i] = (entries[i] & 0x0000_0000_FFFF_FFFFL) | ( (value & 0xFFFF_FFFFL) << 32);
   }
 
   private int getValue(int i) {
@@ -89,21 +89,28 @@ public final class CompactIntMap implements IntIntMapBase {
     }
   }
 
+  private int firstProbe(int key) {
+    return rehash(key) & modulo;
+  }
+
+  private int probe(int slot) {
+    return (slot + 1) & modulo;
+  }
+
   /**
    * Used only when expanding.
    */
   private void putSafe(int key, int value) {
-    int slot = (rehash(key) & modulo);
+    int slot = firstProbe(key);
     while (true) {
       if (getKey(slot) == EMPTY) {
         setKey(slot, key);
         setValue(slot, value);
         return;
       }
-      slot = (slot + 1) & modulo;
+      slot = probe(slot);
     }
   }
-
 
   // Only marks the slot as DELETED. In get and locate methods, deleted slots are skipped.
   public void remove(int key) {
@@ -139,7 +146,7 @@ public final class CompactIntMap implements IntIntMapBase {
    */
   public int get(int key) {
     checkKey(key);
-    int slot = rehash(key) & modulo;
+    int slot = firstProbe(key);
     while (true) {
       final long entry = entries[slot];
       final int t = (int) (entry & 0xFFFF_FFFFL);
@@ -149,7 +156,7 @@ public final class CompactIntMap implements IntIntMapBase {
       if (t == EMPTY) {
         return NO_RESULT;
       }
-      slot = (slot + 1) & modulo;
+      slot = probe(slot);
       // DELETED slots are skipped.
     }
   }
@@ -201,7 +208,7 @@ public final class CompactIntMap implements IntIntMapBase {
   }
 
   private int locate(int key) {
-    int slot = rehash(key) & modulo;
+    int slot = firstProbe(key);
     while (true) {
       final int k = getKey(slot);
       // If slot is empty, return its location
@@ -213,7 +220,7 @@ public final class CompactIntMap implements IntIntMapBase {
         return slot;
       }
       // DELETED slots are ignored.
-      slot = (slot + 1) & modulo;
+      slot = probe(slot);
     }
   }
 

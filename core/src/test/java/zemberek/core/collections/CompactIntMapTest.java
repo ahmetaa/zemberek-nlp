@@ -76,7 +76,7 @@ public class CompactIntMapTest {
   @Test
   public void removeRemovesCorrectly() {
     CompactIntMap im = new CompactIntMap();
-    im.put(0,0);
+    im.put(0, 0);
     assertEquals(im.get(0), 0);
     im.remove(0);
     assertEquals(im.get(0), CompactIntMap.NO_RESULT);
@@ -166,6 +166,34 @@ public class CompactIntMapTest {
     checkSpan(im, start, end);
   }
 
+  @Test
+  public void checkLargeValues() {
+    CompactIntMap map = new CompactIntMap();
+    int c = 0;
+    for (int i = Integer.MIN_VALUE; i < Integer.MAX_VALUE-1000; i += 1000) {
+      map.put(c, i);
+      c++;
+    }
+    c = 0;
+    for (int i = Integer.MIN_VALUE; i <  Integer.MAX_VALUE-1000; i += 1000) {
+      int val = map.get(c);
+      Assert.assertEquals(i, val);
+      c++;
+    }
+    c = 0;
+    for (int i = Integer.MIN_VALUE; i < Integer.MAX_VALUE-1000; i += 1000) {
+      map.increment(c, 1);
+      c++;
+    }
+
+    c = 0;
+    for (int i = Integer.MIN_VALUE; i <  Integer.MAX_VALUE-1000; i += 1000) {
+      int val = map.get(c);
+      Assert.assertEquals(i+1, val);
+      c++;
+    }
+  }
+
   private void insertSpan(CompactIntMap im, int start, int end) {
     int spanStart = Math.min(start, end);
     int spanEnd = Math.max(start, end);
@@ -199,13 +227,13 @@ public class CompactIntMapTest {
   @Test
   @Ignore("Not a unit test")
   public void testPerformance() {
-    int[] arr = TestUtils.createRandomUintArray(1_000_000, 1<<29);
-    long sum =0;
+    int[] arr = TestUtils.createRandomUintArray(1_000_000, 1 << 29);
+    long sum = 0;
     int iter = 100;
     long start = System.currentTimeMillis();
-    for (int i=0; i<iter; i++) {
+    for (int i = 0; i < iter; i++) {
       CompactIntMap imap = new CompactIntMap();
-      for (int j=0; j<arr.length; j++) {
+      for (int j = 0; j < arr.length; j++) {
         imap.put(arr[j], arr[j] + 1);
       }
     }
@@ -213,12 +241,12 @@ public class CompactIntMapTest {
     System.out.println("Creation: " + elapsed);
 
     CompactIntMap imap = new CompactIntMap();
-    for (int j=0; j<arr.length; j++) {
+    for (int j = 0; j < arr.length; j++) {
       imap.put(arr[j], arr[j] + 1);
     }
     start = System.currentTimeMillis();
-    for (int i=0; i<iter; i++) {
-      for (int j=arr.length-1; j >=0; j--) {
+    for (int i = 0; i < iter; i++) {
+      for (int j = arr.length - 1; j >= 0; j--) {
         sum += imap.get(arr[j]);
       }
     }

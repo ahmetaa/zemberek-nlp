@@ -141,6 +141,34 @@ public class IntIntMapTest {
     }
   }
 
+  @Test
+  public void checkLargeValues() {
+    IntIntMap map = new IntIntMap();
+    int c = 0;
+    for (int i = Integer.MIN_VALUE; i < Integer.MAX_VALUE-1000; i += 1000) {
+      map.put(c, i);
+      c++;
+    }
+    c = 0;
+    for (int i = Integer.MIN_VALUE; i <  Integer.MAX_VALUE-1000; i += 1000) {
+      int val = map.get(c);
+      Assert.assertEquals(i, val);
+      c++;
+    }
+    c = 0;
+    for (int i = Integer.MIN_VALUE; i < Integer.MAX_VALUE-1000; i += 1000) {
+      map.increment(c, 5);
+      c++;
+    }
+
+    c = 0;
+    for (int i = Integer.MIN_VALUE; i <  Integer.MAX_VALUE-1000; i += 1000) {
+      int val = map.get(c);
+      Assert.assertEquals(i+5, val);
+      c++;
+    }
+  }
+
   private void removeSpan(IntIntMap im, int start, int end) {
     int spanStart = Math.min(start, end);
     int spanEnd = Math.max(start, end);
