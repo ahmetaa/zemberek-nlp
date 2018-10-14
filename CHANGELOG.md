@@ -38,7 +38,29 @@ In next releases probably there will be an easier way of enabling this mechanism
 ambiguity resolution mechanism may not work well if sentence contains informal morphemes. 
 There is also a simple informal to formal conversion mechanism. For example: 
 
-#### Bug fixes
+#### Notable Bug fixes
+
+[#188](https://github.com/ahmetaa/zemberek-nlp/issues/188) Cannot analyze sendeki, bendeki etc
+
+[#184](https://github.com/ahmetaa/zemberek-nlp/issues/185) Cannot analyze `abimsin` or any Noun+..+P1sg+..+Verb+..+A2sg
+
+[#183](https://github.com/ahmetaa/zemberek-nlp/issues/183) Cannot analyze "Tübitak'a"
+
+[#178](https://github.com/ahmetaa/zemberek-nlp/issues/178) Anlaysis fails with `herkeste, gibime, gibimize`
+
+[#175](https://github.com/ahmetaa/zemberek-nlp/issues/175) Lemmatization may give incorrect results in Zero morpheme derivations
+
+[#174](https://github.com/ahmetaa/zemberek-nlp/issues/174) Add ®™©℠symbols as punctuation.
+
+[#167](https://github.com/ahmetaa/zemberek-nlp/issues/167) Redundant Adj -> Noun -> Noun conversion
+
+[#170](https://github.com/ahmetaa/zemberek-nlp/issues/170) Justlike morpheme should not appear in some cases.
+
+[#171](https://github.com/ahmetaa/zemberek-nlp/issues/171) Cannot analyze "kendimle"
+
+[#172](https://github.com/ahmetaa/zemberek-nlp/issues/172) Cannot analyze "kendimde, kendimden, kendimce"
+
+[#173](https://github.com/ahmetaa/zemberek-nlp/issues/173) "gelebilme" should not have an analysis with "Neg"
 
 #### Deprecations and breaking changes
 
