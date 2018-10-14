@@ -21,7 +21,7 @@ public interface IntIntMapBase {
       throw new IllegalArgumentException("Capacity must be > 0: " + capacity);
     }
     long k = 1;
-    while (k <= capacity) {
+    while (k < capacity) {
       k <<= 1;
     }
     if (k > maxCapacity) {

@@ -86,8 +86,7 @@ public final class CompactIntMap implements IntIntMapBase {
     if (loc >= 0) {
       setValue(loc, value);
     } else {
-      loc = -loc - 1;
-      setKeyValue(loc, key, value);
+      setKeyValue(-loc - 1, key, value);
       keyCount++;
     }
   }
@@ -134,8 +133,7 @@ public final class CompactIntMap implements IntIntMapBase {
     if (loc >= 0) {
       setValue(loc, value + getValue(loc));
     } else {
-      loc = -loc - 1;
-      setKeyValue(loc, key, value);
+      setKeyValue(-loc -1, key, value);
       keyCount++;
     }
   }
