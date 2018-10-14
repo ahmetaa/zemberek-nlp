@@ -35,13 +35,54 @@ public abstract class IntMapTestBase {
       im = createMap(0);
       im = createMap(-1);
       im = createMap(Integer.MAX_VALUE);
-      im = createMap(Integer.MIN_VALUE);
-      im = createMap(Integer.MIN_VALUE + 1);
       im = createMap(1 << 29 + 1);
       Assert.fail("Illegal size should have thrown an exception.");
     } catch (RuntimeException e) {
       // Nothing to do
     }
+  }
+
+  @Test
+  public void failsOnInvalidKeys() {
+    try {
+      IntIntMapBase im = createMap();
+      im.put(Integer.MAX_VALUE, 0);
+      im.put(Integer.MIN_VALUE + 1, 0);
+      Assert.fail("Illegal keys should have thrown an exception.");
+    } catch (RuntimeException e) {
+      // Nothing to do
+    }
+  }
+
+
+  @Test public void putGetWorksCorrectly() {
+    // Test edge conditions.
+    putGetCheck(0, 0);
+    putGetCheck(0, -1);
+    putGetCheck(0, 1);
+    putGetCheck(0, Integer.MAX_VALUE);
+    putGetCheck(0, Integer.MIN_VALUE);
+    putGetCheck(-1, 0);
+    putGetCheck(-1, -1);
+    putGetCheck(-1, 1);
+    putGetCheck(-1, Integer.MAX_VALUE);
+    putGetCheck(-1, Integer.MIN_VALUE);
+    putGetCheck(Integer.MAX_VALUE, 0);
+    putGetCheck(Integer.MAX_VALUE, -1);
+    putGetCheck(Integer.MAX_VALUE, 1);
+    putGetCheck(Integer.MAX_VALUE, Integer.MAX_VALUE);
+    putGetCheck(Integer.MAX_VALUE, Integer.MIN_VALUE);
+    putGetCheck(Integer.MIN_VALUE + 2, 0);
+    putGetCheck(Integer.MIN_VALUE + 2, -1);
+    putGetCheck(Integer.MIN_VALUE + 2, 1);
+    putGetCheck(Integer.MIN_VALUE + 2, Integer.MAX_VALUE);
+    putGetCheck(Integer.MIN_VALUE + 2, Integer.MIN_VALUE);
+  }
+
+  private void putGetCheck(int key, int value) {
+    IntIntMapBase im = createMap();
+    im.put(key, value);
+    assertEquals(value, im.get(key));
   }
 
   @Test

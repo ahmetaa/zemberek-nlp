@@ -69,6 +69,10 @@ public final class CompactIntMap implements IntIntMapBase {
     entries[i] = (entries[i] & 0x0000_0000_FFFF_FFFFL) | ( (value & 0xFFFF_FFFFL) << 32);
   }
 
+  private void setKeyValue(int i, int key, int value) {
+    entries[i] = (key & 0xFFFF_FFFFL) | ((long)value << 32);
+  }
+
   private int getValue(int i) {
     return (int) (entries[i] >>> 32);
   }
@@ -83,8 +87,7 @@ public final class CompactIntMap implements IntIntMapBase {
       setValue(loc, value);
     } else {
       loc = -loc - 1;
-      setKey(loc, key);
-      setValue(loc, value);
+      setKeyValue(loc, key, value);
       keyCount++;
     }
   }
@@ -101,14 +104,13 @@ public final class CompactIntMap implements IntIntMapBase {
    * Used only when expanding.
    */
   private void putSafe(int key, int value) {
-    int slot = firstProbe(key);
+    int loc = firstProbe(key);
     while (true) {
-      if (getKey(slot) == EMPTY) {
-        setKey(slot, key);
-        setValue(slot, value);
+      if (getKey(loc) == EMPTY) {
+        setKeyValue(loc, key, value);
         return;
       }
-      slot = probe(slot);
+      loc = probe(loc);
     }
   }
 
@@ -133,8 +135,7 @@ public final class CompactIntMap implements IntIntMapBase {
       setValue(loc, value + getValue(loc));
     } else {
       loc = -loc - 1;
-      setKey(loc, key);
-      setValue(loc, value);
+      setKeyValue(loc, key, value);
       keyCount++;
     }
   }
