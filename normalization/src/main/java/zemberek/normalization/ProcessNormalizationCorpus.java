@@ -35,11 +35,9 @@ public class ProcessNormalizationCorpus {
     Path normalizationDataRoot =
         Paths.get("/home/aaa/data/normalization/test-large");
     Path lmPath = Paths.get("/home/aaa/data/normalization/lm.slm");
-    SmoothLm lm = SmoothLm.builder(lmPath).logBase(Math.E).build();
-    Log.info("Language model = %s", lm.info());
 
     TurkishSentenceNormalizer normalizationPreprocessor = new TurkishSentenceNormalizer(
-        morphology, normalizationDataRoot, lm);
+        morphology, normalizationDataRoot, lmPath);
 
     ProcessNormalizationCorpus processor = new ProcessNormalizationCorpus(normalizationPreprocessor);
 

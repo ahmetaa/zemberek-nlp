@@ -4,10 +4,27 @@ import java.util.List;
 
 public abstract class TurkishHyphenator implements Hyphenator {
 
-  SyllableExtractor extractor;
+  SyllableExtractor syllableExtractor;
 
-  protected TurkishHyphenator(SyllableExtractor extractor) {
-    this.extractor = extractor;
+  public static final TurkishHyphenator DEFAULT =
+      new TurkishHyphenator(TurkishSyllableExtractor.DEFAULT) {
+        @Override
+        public int splitIndex(String input, int spaceAvailable) {
+          return super.splitIndex(input, spaceAvailable);
+        }
+      };
+
+  public static final TurkishHyphenator STRICT =
+      new TurkishHyphenator(TurkishSyllableExtractor.STRICT) {
+        @Override
+        public int splitIndex(String input, int spaceAvailable) {
+          return super.splitIndex(input, spaceAvailable);
+        }
+      };
+
+
+  protected TurkishHyphenator(SyllableExtractor syllableExtractor) {
+    this.syllableExtractor = syllableExtractor;
   }
 
   public int splitIndex(String input, int spaceAvailable) {
@@ -17,7 +34,7 @@ public abstract class TurkishHyphenator implements Hyphenator {
       return input.length();
     }
 
-    List<String> pieces = extractor.getSyllables(input);
+    List<String> pieces = syllableExtractor.getSyllables(input);
 
     // handle no syllable.
     if (pieces.isEmpty()) {

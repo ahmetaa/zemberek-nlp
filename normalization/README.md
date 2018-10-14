@@ -84,22 +84,38 @@ actual algorithms to the text. Normalization especially helps improved results i
 
 ### Usage
 
-User needs to provide some lookup files and a language model. In this link, a usable language model 
-and necessary lookup tables are provided. But for specific needs, usually custom work is necessary. 
+Text should be divided to sentences before normalization (see [tokenization] module).  
+To use text normalization, some lookup files and a language model is required. 
+In this [link](https://drive.google.com/drive/folders/1tztjRiUs9BOTH-tb1v7FWyixl-iUpydW)
+, there are two folders available for this. `lm` contains a compressed bi-gram language model, `normalization` 
+contains two lookup files. These model and lookup tables may not fit all scenarios but it can be
+used as a baseline. Usually domain specific normalization operations requires some degree of customization.  
 
-After downloading the files, lets assume they will be in zemberek-data/normalization folder.
-We initialize TurkishSentenceNormalizer as:
+For testing, Download those folders (Caution: download size is around ~100 MB). Let's assume they are in 
+`~/zemberek-data/lm` and `~/zemberek-data/normalization`   
 
+TurkishSentenceNormalizer class is initialized as:
 
-Then simple call normalize() method.
+    Path lookupRoot = Paths.get("~/zemberek-data/normalization")
+    Path lmFile = Paths.get("~/zemberek-data/lm/lm.slm")
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    TurkishSentenceNormalizer normalizer = new
+        TurkishSentenceNormalizer(morphology, lookupRoot, lmPath);
+
+Then, for normalizing a sentence, `normalize` method is used.
+
+    System.out.println(normalizer.normalize("Yrn okua gidicem"));
+    
+    Output:
+    > yarın okula gideceğim
 
 Results for the above sentences:
 
     Tmm, yarin havuza giricem ve aksama kadar yaticam :)
     tamam , yarın havuza gireceğim ve akşama kadar yatacağım :)
      
-    ah aynenya annemde fark ettı siz evinizden cıkmayın diyo
-    ah aynenya annemde fark etti siz evinizden çıkmasın diyor
+    ah aynen ya annemde fark ettı siz evinizden cıkmayın diyo
+    ah aynen ya annemde fark etti siz evinizden çıkmasın diyor
     
     gercek mı bu? Yuh! Artık unutulması bile beklenmiyo
     gerçek mı bu ? yuh ! artık unutulması bile beklenmiyor
@@ -108,7 +124,8 @@ Results for the above sentences:
     hayır hayat telaşı olmasa alacağım buraları gökdelen dikeceğim .
 
 As it is seen, some words were not corrected and output is all lower case.
-These problems will be fixed in upcoming releases. 
+We are aware of the sources of some of the problems. 
+Normalization hopefully work better in later releases. 
 
 ### Method
 
@@ -121,17 +138,26 @@ Some of the work:
 - Using those sets and large corpora, a noisy to clean word lookup is 
   generated using a modified version of Hassan and Menezes's 2013 work 
   "Social Text Normalization using Contextual Graph Random Walks".
-- Then for a sentence, for every noisy word, candidates are collected from lookup tables, 
+- For a sentence, for every noisy word, candidates are collected from lookup tables, 
 informal and ascii-matching morphologcal analysis and spell checker. 
 - Most likely correct sequence is found running Viterbi algorithm using a language model on candidate words
 
+### Speed
+
+According to our measurements speed is about 10 thousand tokens/second (with punctuations) using 
+a single core. Later versions may work slower due to additional heuristics.
+
+Test System: AMD FX(tm)-8320 3.2Ghz 
+
 ### Issues
 
-Normalization function:
+This work is the result of our initial exploration on the subject, expect many errors. 
+Therefore, normalization function:
 
-- may change correct words.
-- may change formatting and casing or remove punctuations.
-- may not work well for some cases.
+- may change correct words,
+- may change formatting and casing or remove punctuations,
+- may not work well for some cases,
+- may generate profanity words
   
 
  

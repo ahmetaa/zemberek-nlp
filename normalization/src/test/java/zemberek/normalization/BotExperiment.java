@@ -32,20 +32,18 @@ public class BotExperiment {
     Path output = root.resolve("bot/report.txt");
 
     Path lmPath = root.resolve("lm.slm");
-    SmoothLm lm = SmoothLm.builder(lmPath).logBase(Math.E).build();
 
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     TurkishSentenceNormalizer normalizer =
-        new TurkishSentenceNormalizer(morphology, dataRoot, lm);
+        new TurkishSentenceNormalizer(morphology, dataRoot, lmPath);
 
     preprocess(rawLines, nodup, sentencesNodup, sentencesNodupTokenized);
 
     normalize(normalizer, sentencesNodupTokenized, output);
 
     String input = "tmm bu akşm dönücem sana";
-    List<String> result = normalizer.normalize(input);
     Log.info(input);
-    Log.info(String.join(" ", result));
+    Log.info(String.join(" ", normalizer.normalize(input)));
 
     Log.info("Done.");
 
@@ -94,8 +92,7 @@ public class BotExperiment {
       for (String line : lines) {
         tokenCount += TurkishTokenizer.DEFAULT.tokenize(line).size();
         lineCount++;
-        List<String> k = normalizer.normalize(line);
-        String n = String.join(" ", k);
+        String n = normalizer.normalize(line);
         if (!n.equals(line)) {
           pw.println(line);
           pw.println(n);

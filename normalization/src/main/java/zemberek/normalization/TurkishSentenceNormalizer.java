@@ -63,18 +63,19 @@ public class TurkishSentenceNormalizer {
   private Map<String, String> replacements = new HashMap<>();
   private HashSet<String> commonConnectedSuffixes = new HashSet<>();
   private HashSet<String> noSplitWords = new HashSet<>();
-  private HashSet<String> commonLetterRepeatitionWords = new HashSet<>();
 
   public TurkishSentenceNormalizer(
       TurkishMorphology morphology,
       Path dataRoot,
-      SmoothLm languageModel) throws IOException {
-    Log.info("Language model = %s", languageModel.info());
+      Path languageModelPath) throws IOException {
+
     this.morphology = morphology;
     this.analysisConverter = new InformalAnalysisConverter(morphology.getWordGenerator());
-
+    SmoothLm languageModel = SmoothLm.builder(languageModelPath).logBase(Math.E).build();
+    Log.info("Language model = %s", languageModel.info());
     this.lm = languageModel;
 
+    // TODO: spell checker should be an external parameter.
     StemEndingGraph graph = new StemEndingGraph(morphology);
     CharacterGraphDecoder decoder = new CharacterGraphDecoder(graph.stemGraph);
     this.spellChecker = new TurkishSpellChecker(
@@ -140,7 +141,7 @@ public class TurkishSentenceNormalizer {
     return result;
   }
 
-  public List<String> normalize(String sentence) {
+  public String normalize(String sentence) {
 
     String processed = preProcess(sentence);
 
@@ -206,7 +207,8 @@ public class TurkishSentenceNormalizer {
 
       candidatesList.add(result);
     }
-    return decode(candidatesList);
+    return String.join(" ", decode(candidatesList));
+
   }
 
   private boolean hasAnalysis(WordAnalysis w) {
