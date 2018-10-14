@@ -8,17 +8,17 @@ import zemberek.core.IntPair;
  * algorithm. Constraints: <pre>
  * - Supports int key values in range (Integer.MIN_VALUE+1..Integer.MAX_VALUE];
  * - Does not implement Map interface
- * - Capacity can be max 1 << 29
- * - Max size is capacity * LOAD_FACTOR (~322M elements for 0.6 load factor)
+ * - Capacity can be max 1 << 30
+ * - Max size is capacity * LOAD_FACTOR (~644M elements for 0.6 load factor)
  * - Does not implement Iterable.
  * - Class is not thread safe.
  * </pre>
  */
 public final class IntIntMap implements IntIntMapBase {
-  private static int MAX_CAPACITY = 1 << 29;
-  // Backing array for keys and values. Key and value pairs are put next to each other instead of 2
-  // separate arrays for better caching behavior.
-  private int[] entries;
+  private static int MAX_CAPACITY = 1 << 30;
+  // Backing array for keys and values. Each 64 bit slot is used for storing
+  // 32 bit key, value pairs.
+  private long[] entries;
   // Number of keys in the map = size of the map.
   private int keyCount;
   // Number of Removed keys.
@@ -29,20 +29,9 @@ public final class IntIntMap implements IntIntMapBase {
   /**
    * Map capacity is always a power of 2. With this property, integer modulo operation (key %
    * capacity) can be replaced with (key & (capacity - 1)). We keep (capacity - 1) value in this
-   * variable. Because keys and values are always put next to each other, we keep the (capacity * 2
-   * - 1) in a separate variable. First modulo is used to track logical array of key-value pairs
-   * second one operates on the whole array.
-   * <p>First modulo is used to find the index of the key-value pair given a hash value with:
-   * <p>
-   * slot = (hash(key) & modulo) << 1;  equivalent to  slot = (hash(key) % capacity) / 2
-   * <p>
-   * second one is used for linearly walking on the array when moving to next pair:
-   * <p>
-   * next_slot = (slot + 2) & modulo2;  equivalent to next_slot = (slot + 2) % size
-   * <p>
+   * variable.
    */
   private int modulo;
-  private int modulo2;
 
   public IntIntMap() {
     this(DEFAULT_INITIAL_CAPACITY);
@@ -53,22 +42,39 @@ public final class IntIntMap implements IntIntMapBase {
    * positive number. If value is not a power of two, size will be the nearest larger power of two.
    */
   public IntIntMap(int capacity) {
-    // Backing array has always size = capacity * 2
     capacity = nearestPowerOf2Capacity(capacity, MAX_CAPACITY);
-    // key value pairs are kept next to each other
-    entries = new int[capacity * 2];
+    entries = new long[capacity];
     Arrays.fill(entries, EMPTY);
     modulo = capacity - 1;
-    modulo2 = capacity * 2 - 1;
     threshold = (int) (capacity * LOAD_FACTOR);
   }
 
   public int capacity() {
-    return entries.length >> 1;
+    return entries.length;
   }
 
   public int size() {
     return keyCount;
+  }
+
+  private void setKey(int i, int key) {
+    entries[i] = (entries[i] & 0xFFFF_FFFF_0000_0000L) | key;
+  }
+
+  private int getKey(int i) {
+    return (int) (entries[i] & 0xFFFF_FFFFL);
+  }
+
+  private void setValue(int i, int value) {
+    entries[i] = (entries[i] & 0x0000_0000_FFFF_FFFFL) | ( (value & 0xFFFF_FFFFL) << 32);
+  }
+
+  private void setKeyValue(int i, int key, int value) {
+    entries[i] = (key & 0xFFFF_FFFFL) | ((long)value << 32);
+  }
+
+  private int getValue(int i) {
+    return (int) (entries[i] >>> 32);
   }
 
   public void put(int key, int value) {
@@ -78,37 +84,41 @@ public final class IntIntMap implements IntIntMapBase {
     }
     int loc = locate(key);
     if (loc >= 0) {
-      entries[loc + 1] = value;
+      setValue(loc, value);
     } else {
-      loc = -loc - 1;
-      entries[loc] = key;
-      entries[loc + 1] = value;
+      setKeyValue(-loc - 1, key, value);
       keyCount++;
     }
+  }
+
+  private int firstProbe(int key) {
+    return rehash(key) & modulo;
+  }
+
+  private int probe(int slot) {
+    return (slot + 1) & modulo;
   }
 
   /**
    * Used only when expanding.
    */
   private void putSafe(int key, int value) {
-    int slot = (rehash(key) & modulo) << 1;
+    int loc = firstProbe(key);
     while (true) {
-      if (entries[slot] == EMPTY) {
-        entries[slot] = key;
-        entries[slot + 1] = value;
+      if (getKey(loc) == EMPTY) {
+        setKeyValue(loc, key, value);
         return;
       }
-      slot = (slot + 2) & modulo2;
+      loc = probe(loc);
     }
   }
-
 
   // Only marks the slot as DELETED. In get and locate methods, deleted slots are skipped.
   public void remove(int key) {
     checkKey(key);
     int loc = locate(key);
     if (loc >= 0) {
-      entries[loc] = DELETED;
+      setKey(loc, DELETED);
       removedKeyCount++;
       keyCount--;
     }
@@ -121,11 +131,9 @@ public final class IntIntMap implements IntIntMapBase {
     }
     int loc = locate(key);
     if (loc >= 0) {
-      entries[loc + 1] += value;
+      setValue(loc, value + getValue(loc));
     } else {
-      loc = -loc - 1;
-      entries[loc] = key;
-      entries[loc + 1] = value;
+      setKeyValue(-loc -1, key, value);
       keyCount++;
     }
   }
@@ -137,16 +145,17 @@ public final class IntIntMap implements IntIntMapBase {
    */
   public int get(int key) {
     checkKey(key);
-    int slot = (rehash(key) & modulo) << 1;
+    int slot = firstProbe(key);
     while (true) {
-      final int t = entries[slot];
+      final long entry = entries[slot];
+      final int t = (int) (entry & 0xFFFF_FFFFL);
       if (t == key) {
-        return entries[slot + 1];
+        return (int) (entry >>> 32);
       }
       if (t == EMPTY) {
         return NO_RESULT;
       }
-      slot = (slot + 2) & modulo2;
+      slot = probe(slot);
       // DELETED slots are skipped.
     }
   }
@@ -156,7 +165,7 @@ public final class IntIntMap implements IntIntMapBase {
   }
 
   private boolean hasKey(int i) {
-    return entries[i] > DELETED;
+    return getKey(i) > DELETED;
   }
 
   /**
@@ -165,9 +174,9 @@ public final class IntIntMap implements IntIntMapBase {
   public int[] getKeys() {
     int[] keyArray = new int[keyCount];
     int c = 0;
-    for (int i = 0; i < entries.length; i += 2) {
+    for (int i = 0; i < entries.length; i++) {
       if (hasKey(i)) {
-        keyArray[c++] = entries[i];
+        keyArray[c++] = getKey(i);
       }
     }
     return keyArray;
@@ -178,9 +187,9 @@ public final class IntIntMap implements IntIntMapBase {
    */
   public int[] getValues() {
     int[] valueArray = new int[keyCount];
-    for (int i = 0, j = 0; i < entries.length; i += 2) {
+    for (int i = 0, j = 0; i < entries.length; i++) {
       if (hasKey(i)) {
-        valueArray[j++] = entries[i + 1];
+        valueArray[j++] = getValue(i);
       }
     }
     return valueArray;
@@ -189,18 +198,18 @@ public final class IntIntMap implements IntIntMapBase {
   public IntPair[] getAsPairs() {
     IntPair[] pairs = new IntPair[keyCount];
     int c = 0;
-    for (int i = 0; i < entries.length; i += 2) {
+    for (int i = 0; i < entries.length; i++) {
       if (hasKey(i)) {
-        pairs[c++] = new IntPair(entries[i], entries[i + 1]);
+        pairs[c++] = new IntPair(getKey(i), getValue(i));
       }
     }
     return pairs;
   }
 
   private int locate(int key) {
-    int slot = (rehash(key) & modulo) << 1;
+    int slot = firstProbe(key);
     while (true) {
-      final int k = entries[slot];
+      final int k = getKey(slot);
       // If slot is empty, return its location
       // return -slot -1 to tell that slot is empty, -1 is for slot = 0.
       if (k == EMPTY) {
@@ -210,7 +219,7 @@ public final class IntIntMap implements IntIntMapBase {
         return slot;
       }
       // DELETED slots are ignored.
-      slot = (slot + 2) & modulo2;
+      slot = probe(slot);
     }
   }
 
@@ -228,15 +237,14 @@ public final class IntIntMap implements IntIntMapBase {
   private void expand() {
     int capacity = newCapacity();
     IntIntMap h = new IntIntMap(capacity);
-    for (int i = 0; i < entries.length; i += 2) {
+    for (int i = 0; i < entries.length; i++) {
       if (hasKey(i)) {
-        h.putSafe(entries[i], entries[i + 1]);
+        h.putSafe(getKey(i), getValue(i));
       }
     }
     this.entries = h.entries;
     this.threshold = h.threshold;
     this.modulo = h.modulo;
-    this.modulo2 = h.modulo2;
     this.removedKeyCount = 0;
   }
 }

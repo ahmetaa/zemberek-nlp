@@ -30,13 +30,16 @@ public abstract class IntMapTestBase {
 
   @Test
   public void failsOnInvalidSizes() {
+    checkInvalidSize(0);
+    checkInvalidSize(-1);
+    checkInvalidSize(Integer.MAX_VALUE);
+    checkInvalidSize(1 << 30 + 1);
+  }
+
+  private void checkInvalidSize(int size) {
     try {
-      IntIntMapBase im;
-      im = createMap(0);
-      im = createMap(-1);
-      im = createMap(Integer.MAX_VALUE);
-      im = createMap(1 << 29 + 1);
-      Assert.fail("Illegal size should have thrown an exception.");
+      createMap(size);
+      Assert.fail("Illegal size should have thrown an exception. Size: " + size);
     } catch (RuntimeException e) {
       // Nothing to do
     }
@@ -44,16 +47,19 @@ public abstract class IntMapTestBase {
 
   @Test
   public void failsOnInvalidKeys() {
+    checkInvalidKeys(Integer.MIN_VALUE);
+    checkInvalidKeys(Integer.MIN_VALUE + 1);
+  }
+
+  private void checkInvalidKeys(int key) {
     try {
       IntIntMapBase im = createMap();
-      im.put(Integer.MAX_VALUE, 0);
-      im.put(Integer.MIN_VALUE + 1, 0);
-      Assert.fail("Illegal keys should have thrown an exception.");
+      im.put(key, 1);
+      Assert.fail("Illegal key should have thrown an exception. Key: " + key);
     } catch (RuntimeException e) {
       // Nothing to do
     }
   }
-
 
   @Test public void putGetWorksCorrectly() {
     // Test edge conditions.
@@ -395,5 +401,4 @@ public abstract class IntMapTestBase {
     System.out.println("IntIntMapBase retrieval: " + sw.elapsed(TimeUnit.MILLISECONDS));
     System.out.println("Verification sum: " + val);
   }
-
 }
