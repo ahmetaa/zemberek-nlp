@@ -117,7 +117,7 @@ Then, for normalizing a sentence, `normalize` method is used.
 Results for the above sentences:
 
     Yrn okua gidicem
-    yarın okua gideceğim
+    yarın okula gideceğim
     
     Tmm, yarin havuza giricem ve aksama kadar yaticam :)
     tamam , yarın havuza gireceğim ve akşama kadar yatacağım :)

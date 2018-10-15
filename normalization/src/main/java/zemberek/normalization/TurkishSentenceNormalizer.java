@@ -195,7 +195,7 @@ public class TurkishSentenceNormalizer {
 
       // if there is no formal analysis and length is larger than 5,
       // get top 3 1 distance matches.
-      if ((analyses.analysisCount() == 0) && current.length() > 4) {
+      if ((analyses.analysisCount() == 0) && current.length() > 3) {
 
         List<String> spellCandidates = spellChecker
             .suggestForWord(current, previous, next, lm);
