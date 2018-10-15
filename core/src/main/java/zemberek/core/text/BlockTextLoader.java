@@ -25,6 +25,10 @@ public class BlockTextLoader implements Iterable<TextChunk> {
     return new ArrayList<>(corpusPaths);
   }
 
+  public int getBlockSize() {
+    return blockSize;
+  }
+
   public int pathCount() {
     return corpusPaths.size();
   }

@@ -21,6 +21,7 @@ import zemberek.core.logging.Log;
 public class TextUtil {
 
   public static final Splitter SPACE_SPLITTER = Splitter.on(" ").omitEmptyStrings().trimResults();
+  public static final Splitter TAB_SPLITTER = Splitter.on("\t").omitEmptyStrings().trimResults();
   public static final Splitter COMMA_SPLITTER = Splitter.on(",").omitEmptyStrings().trimResults();
 
   public static final String HTML_START = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
