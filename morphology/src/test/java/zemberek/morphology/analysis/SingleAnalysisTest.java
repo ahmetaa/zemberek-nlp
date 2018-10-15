@@ -11,7 +11,7 @@ public class SingleAnalysisTest extends AnalyzerTestBase {
 
   @Test
   public void stemEndingTest() {
-    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
+    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer("kitap");
     List<SingleAnalysis> analyses = analyzer.analyze("kitaplarda");
     Assert.assertEquals(1, analyses.size());
     SingleAnalysis analysis = analyses.get(0);
@@ -24,7 +24,7 @@ public class SingleAnalysisTest extends AnalyzerTestBase {
 
   @Test
   public void getPosTest() {
-    InterpretingAnalyzer analyzer = getAnalyzer("görmek");
+    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer("görmek");
     List<SingleAnalysis> analyses = analyzer.analyze("görmek");
     Assert.assertEquals(1, analyses.size());
     SingleAnalysis analysis = analyses.get(0);
@@ -36,7 +36,7 @@ public class SingleAnalysisTest extends AnalyzerTestBase {
 
   @Test
   public void morphemeGroupTest() {
-    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
+    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer("kitap");
 
     SingleAnalysis analysis = analyzer.analyze("kitaplarda").get(0);
 
@@ -65,7 +65,7 @@ public class SingleAnalysisTest extends AnalyzerTestBase {
 
   @Test
   public void getStemsTest() {
-    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
+    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer("kitap");
     SingleAnalysis analysis = analyzer.analyze("kitap").get(0);
     Assert.assertEquals(toList("kitap"), analysis.getStems());
 
@@ -96,7 +96,7 @@ public class SingleAnalysisTest extends AnalyzerTestBase {
 
   @Test
   public void getLemmasTest() {
-    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
+    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer("kitap");
     SingleAnalysis analysis = analyzer.analyze("kitap").get(0);
     Assert.assertEquals(toList("kitap"), analysis.getLemmas());
 
@@ -128,7 +128,7 @@ public class SingleAnalysisTest extends AnalyzerTestBase {
 
   @Test
   public void getLemmasAfterZeroMorphemeTest_Issue_175() {
-    InterpretingAnalyzer analyzer = getAnalyzer("gün");
+    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer("gün");
     List<SingleAnalysis> analyses = analyzer.analyze("günlüğüm");
     boolean found = false;
     for (SingleAnalysis analysis : analyses) {

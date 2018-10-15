@@ -6,7 +6,7 @@ import java.util.Scanner;
 import zemberek.apps.ConsoleApp;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.TurkishMorphology.Builder;
-import zemberek.morphology.analysis.InterpretingAnalyzer;
+import zemberek.morphology.analysis.RuleBasedMorphologicalAnalyzer;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
@@ -43,7 +43,7 @@ public class MorphologyConsole extends ConsoleApp {
     }
     RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
     if (enableInformalWordAnalysis) {
-      b.useAnaylzer(InterpretingAnalyzer.instance(new InformalTurkishMorphotactics(lexicon)));
+      b.useAnaylzer(RuleBasedMorphologicalAnalyzer.instance(new InformalTurkishMorphotactics(lexicon)));
     }
     b.useLexicon(lexicon);
     TurkishMorphology morphology = b.build();

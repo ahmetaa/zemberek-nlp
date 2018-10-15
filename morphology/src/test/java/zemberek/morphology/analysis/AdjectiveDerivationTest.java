@@ -39,7 +39,7 @@ public class AdjectiveDerivationTest extends AnalyzerTestBase {
 
   @Test
   public void expectsSingleResult() {
-    InterpretingAnalyzer analyzer = getAnalyzer("mavi [P:Adj]");
+    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer("mavi [P:Adj]");
     expectSuccess(analyzer, 1, "maviyim");
     expectSuccess(analyzer, 1, "maviydim");
     expectSuccess(analyzer, 1, "maviyimdir");

@@ -5,7 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.SecondaryPos;
-import zemberek.morphology.analysis.InterpretingAnalyzer;
+import zemberek.morphology.analysis.RuleBasedMorphologicalAnalyzer;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.RootLexicon;
@@ -34,7 +34,7 @@ public class TurkishMorphologyFunctionalTests {
     return TurkishMorphology
         .builder()
         .useLexicon(lexicon)
-        .useAnaylzer(InterpretingAnalyzer.forDebug(new TurkishMorphotactics(lexicon), true))
+        .useAnaylzer(RuleBasedMorphologicalAnalyzer.forDebug(new TurkishMorphotactics(lexicon), true))
         .disableCache()
         .build();
   }
@@ -170,7 +170,7 @@ public class TurkishMorphologyFunctionalTests {
     // Instance with no dictionary item.
     TurkishMorphology morphology = getAsciiTolerantMorphology(
         "sıra", "şıra", "armut", "kazan", "ekonomik [P:Adj]","insan");
-    InterpretingAnalyzer analyzer = morphology.getAnalyzer();
+    RuleBasedMorphologicalAnalyzer analyzer = morphology.getAnalyzer();
     List<SingleAnalysis> result;
     result = analyzer.analyze("ekonomık");
     Assert.assertTrue(containsAllDictionaryLemma(result, "ekonomik"));

@@ -18,20 +18,20 @@ public class AnalyzerTestBase {
     return new TurkishMorphotactics(lexicon);
   }
 
-  static InterpretingAnalyzer getAnalyzer(String... dictionaryLines) {
-    return InterpretingAnalyzer.forDebug(getMorphotactics(dictionaryLines));
+  static RuleBasedMorphologicalAnalyzer getAnalyzer(String... dictionaryLines) {
+    return RuleBasedMorphologicalAnalyzer.forDebug(getMorphotactics(dictionaryLines));
   }
 
-  static InterpretingAnalyzer getAnalyzer(TurkishMorphotactics morphotactics) {
-    return InterpretingAnalyzer.forDebug(morphotactics);
+  static RuleBasedMorphologicalAnalyzer getAnalyzer(TurkishMorphotactics morphotactics) {
+    return RuleBasedMorphologicalAnalyzer.forDebug(morphotactics);
   }
 
   static AnalysisTester getTester(String... dictionaryLines) {
-    return new AnalysisTester(InterpretingAnalyzer.forDebug(getMorphotactics(dictionaryLines)));
+    return new AnalysisTester(RuleBasedMorphologicalAnalyzer.forDebug(getMorphotactics(dictionaryLines)));
   }
 
   static AnalysisTester getTester(TurkishMorphotactics morphotactics) {
-    return new AnalysisTester(InterpretingAnalyzer.forDebug(morphotactics));
+    return new AnalysisTester(RuleBasedMorphologicalAnalyzer.forDebug(morphotactics));
   }
 
   boolean containsMorpheme(SingleAnalysis result, String morphemeName) {
@@ -71,7 +71,7 @@ public class AnalyzerTestBase {
     }
   }
 
-  static void expectFail(InterpretingAnalyzer analyzer, String... words) {
+  static void expectFail(RuleBasedMorphologicalAnalyzer analyzer, String... words) {
     for (String word : words) {
       List<SingleAnalysis> results = analyzer.analyze(word);
       if (results.size() != 0) {
@@ -81,7 +81,7 @@ public class AnalyzerTestBase {
     }
   }
 
-  static void expectSuccess(InterpretingAnalyzer analyzer, String... words) {
+  static void expectSuccess(RuleBasedMorphologicalAnalyzer analyzer, String... words) {
     for (String word : words) {
       List<SingleAnalysis> results = analyzer.analyze(word);
       if (results.size() == 0) {
@@ -93,7 +93,7 @@ public class AnalyzerTestBase {
     }
   }
 
-  static void expectSuccess(InterpretingAnalyzer analyzer, int solutionCount, String... words) {
+  static void expectSuccess(RuleBasedMorphologicalAnalyzer analyzer, int solutionCount, String... words) {
     for (String word : words) {
       List<SingleAnalysis> results = analyzer.analyze(word);
       if (results.size() != solutionCount) {
@@ -106,7 +106,7 @@ public class AnalyzerTestBase {
     }
   }
 
-  static SingleAnalysis getSingleAnalysis(InterpretingAnalyzer analyzer, String input) {
+  static SingleAnalysis getSingleAnalysis(RuleBasedMorphologicalAnalyzer analyzer, String input) {
     List<SingleAnalysis> results = analyzer.analyze(input);
     if (results.size() != 1) {
       printDebug(analyzer, input);
@@ -122,7 +122,7 @@ public class AnalyzerTestBase {
   }
 
   static List<SingleAnalysis> getMultipleAnalysis(
-      InterpretingAnalyzer analyzer, int count, String input) {
+      RuleBasedMorphologicalAnalyzer analyzer, int count, String input) {
     List<SingleAnalysis> results = analyzer.analyze(input);
     if (results.size() != count) {
       printDebug(analyzer, input);
@@ -137,7 +137,7 @@ public class AnalyzerTestBase {
     return results;
   }
 
-  static List<SingleAnalysis> getMultipleAnalysis(InterpretingAnalyzer analyzer, String input) {
+  static List<SingleAnalysis> getMultipleAnalysis(RuleBasedMorphologicalAnalyzer analyzer, String input) {
     List<SingleAnalysis> results = analyzer.analyze(input);
     if (results.size() == 0) {
       printDebug(analyzer, input);
@@ -149,7 +149,7 @@ public class AnalyzerTestBase {
 
 
   private static void printDebug(
-      InterpretingAnalyzer analyzer,
+      RuleBasedMorphologicalAnalyzer analyzer,
       String input) {
     analyzer.analyze(input);
     AnalysisDebugData debugData = analyzer.getDebugData();
@@ -158,9 +158,9 @@ public class AnalyzerTestBase {
 
   static class AnalysisTester {
 
-    InterpretingAnalyzer analyzer;
+    RuleBasedMorphologicalAnalyzer analyzer;
 
-    public AnalysisTester(InterpretingAnalyzer analyzer) {
+    public AnalysisTester(RuleBasedMorphologicalAnalyzer analyzer) {
       this.analyzer = analyzer;
     }
 

@@ -9,7 +9,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
-import zemberek.core.io.Strings;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
@@ -32,12 +31,12 @@ public class UnidentifiedTokenAnalyzer {
   public static final TurkishAlphabet ALPHABET = TurkishAlphabet.INSTANCE;
   private static Map<String, String> ordinalMap = TurkishNumbers.getOrdinalMap();
 
-  private InterpretingAnalyzer analyzer;
+  private RuleBasedMorphologicalAnalyzer analyzer;
   private RootLexicon lexicon;
   private TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
   private TurkishNumeralEndingMachine numeralEndingMachine = new TurkishNumeralEndingMachine();
 
-  public UnidentifiedTokenAnalyzer(InterpretingAnalyzer analyzer) {
+  public UnidentifiedTokenAnalyzer(RuleBasedMorphologicalAnalyzer analyzer) {
     this.analyzer = analyzer;
     this.lexicon = analyzer.getLexicon();
   }

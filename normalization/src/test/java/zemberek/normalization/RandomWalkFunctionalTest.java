@@ -14,7 +14,7 @@ import org.junit.runners.MethodSorters;
 import zemberek.core.text.BlockTextLoader;
 import zemberek.core.text.TextIO;
 import zemberek.morphology.TurkishMorphology;
-import zemberek.morphology.analysis.InterpretingAnalyzer;
+import zemberek.morphology.analysis.RuleBasedMorphologicalAnalyzer;
 import zemberek.morphology.lexicon.DictionarySerializer;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
@@ -55,7 +55,7 @@ public class RandomWalkFunctionalTest {
         .builder()
         .useLexicon(lexicon)
         .disableUnidentifiedTokenAnalyzer()
-        .useAnaylzer(InterpretingAnalyzer.instance(new InformalTurkishMorphotactics(lexicon)))
+        .useAnaylzer(RuleBasedMorphologicalAnalyzer.instance(new InformalTurkishMorphotactics(lexicon)))
 
         .disableCache()
         .build();

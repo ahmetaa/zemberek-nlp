@@ -9,7 +9,7 @@ public class AnalysisFormatterTest {
 
   @Test
   public void defaultSurfaceFormatterTest() {
-    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
+    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer("kitap");
     SingleAnalysis analysis = analyzer.analyze("kitaplarda").get(0);
 
     Assert.assertEquals("[kitap:Noun] kitap:Noun+lar:A3pl+da:Loc",
@@ -31,7 +31,7 @@ public class AnalysisFormatterTest {
 
   @Test
   public void defaultLexicalFormatterTest() {
-    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
+    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer("kitap");
     SingleAnalysis analysis = analyzer.analyze("kitaplarda").get(0);
 
     Assert.assertEquals("[kitap:Noun] Noun+A3pl+Loc",
@@ -53,7 +53,7 @@ public class AnalysisFormatterTest {
 
   @Test
   public void oflazerStyleFormatterTest() {
-    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
+    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer("kitap");
     SingleAnalysis analysis = analyzer.analyze("kitaplarda").get(0);
 
     Assert.assertEquals("kitap+Noun+A3pl+Loc",
@@ -80,7 +80,7 @@ public class AnalysisFormatterTest {
 
   @Test
   public void onlySurfaceFormatterTest() {
-    InterpretingAnalyzer analyzer = getAnalyzer("kitap");
+    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer("kitap");
     SingleAnalysis analysis = analyzer.analyze("kitaplarda").get(0);
 
     Assert.assertEquals("kitap lar da",

@@ -15,11 +15,11 @@ public class InformalTurkishAnalysisTest extends AnalyzerTestBase {
 
   static AnalysisTester getTester(String... dictionaryLines) {
     return new AnalysisTester(
-        InterpretingAnalyzer.forDebug(getSpokenMorphotactics(dictionaryLines)));
+        RuleBasedMorphologicalAnalyzer.forDebug(getSpokenMorphotactics(dictionaryLines)));
   }
 
   static AnalysisTester getTesterAscii(String... dictionaryLines) {
-    return new AnalysisTester(InterpretingAnalyzer
+    return new AnalysisTester(RuleBasedMorphologicalAnalyzer
         .forDebug(getSpokenMorphotactics(dictionaryLines), true));
   }
 

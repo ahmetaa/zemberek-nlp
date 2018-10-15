@@ -22,7 +22,7 @@ import zemberek.morphology.morphotactics.TurkishMorphotactics;
  * This is a Morphological Analyser implementation. Instances of this class are not thread safe if
  * instantiated with forDebug() factory constructor method.
  */
-public class InterpretingAnalyzer {
+public class RuleBasedMorphologicalAnalyzer {
 
   private static final int MAX_REPEATING_SUFFIX_TYPE_COUNT = 3;
 
@@ -33,7 +33,7 @@ public class InterpretingAnalyzer {
   private boolean asciiTolerant = false;
   private TurkishMorphotactics morphotactics;
 
-  private InterpretingAnalyzer(TurkishMorphotactics morphotactics) {
+  private RuleBasedMorphologicalAnalyzer(TurkishMorphotactics morphotactics) {
     this.lexicon = morphotactics.getRootLexicon();
     this.stemTransitions = morphotactics.getStemTransitions();
     this.morphotactics = morphotactics;
@@ -43,31 +43,31 @@ public class InterpretingAnalyzer {
     return morphotactics;
   }
 
-  public static InterpretingAnalyzer instance(TurkishMorphotactics morphotactics) {
-    return new InterpretingAnalyzer(morphotactics);
+  public static RuleBasedMorphologicalAnalyzer instance(TurkishMorphotactics morphotactics) {
+    return new RuleBasedMorphologicalAnalyzer(morphotactics);
   }
 
-  public static InterpretingAnalyzer asciiTolerantInstance(TurkishMorphotactics morphotactics) {
-    InterpretingAnalyzer analyzer = InterpretingAnalyzer.instance(morphotactics);
+  public static RuleBasedMorphologicalAnalyzer asciiTolerantInstance(TurkishMorphotactics morphotactics) {
+    RuleBasedMorphologicalAnalyzer analyzer = RuleBasedMorphologicalAnalyzer.instance(morphotactics);
     analyzer.asciiTolerant = true;
     return analyzer;
   }
 
   /**
-   * Method returns an InterpretingAnalyzer instance. But when this factory constructor is used, an
+   * Method returns an RuleBasedMorphologicalAnalyzer instance. But when this factory constructor is used, an
    * AnalysisDebugData object is generated after each call to generation methods. That object cen be
    * retrieved with getDebugData method.
    */
-  public static InterpretingAnalyzer forDebug(TurkishMorphotactics morphotactics) {
-    InterpretingAnalyzer analyzer = InterpretingAnalyzer.instance(morphotactics);
+  public static RuleBasedMorphologicalAnalyzer forDebug(TurkishMorphotactics morphotactics) {
+    RuleBasedMorphologicalAnalyzer analyzer = RuleBasedMorphologicalAnalyzer.instance(morphotactics);
     analyzer.debugMode = true;
     return analyzer;
   }
 
-  public static InterpretingAnalyzer forDebug(
+  public static RuleBasedMorphologicalAnalyzer forDebug(
       TurkishMorphotactics morphotactics,
       boolean asciiTolerant) {
-    InterpretingAnalyzer analyzer = InterpretingAnalyzer.instance(morphotactics);
+    RuleBasedMorphologicalAnalyzer analyzer = RuleBasedMorphologicalAnalyzer.instance(morphotactics);
     analyzer.debugMode = true;
     analyzer.asciiTolerant = asciiTolerant;
     return analyzer;
