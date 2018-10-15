@@ -68,12 +68,15 @@ If user provides a higher order language model (bi-gram models are sufficient) a
  ## Noisy Text Normalization (Not Yet Released)
  
  Zemberek offers noisy text normalization function. This tool can be used correcting 
- words written incorrectly or informal speech from noisy texts. Some examples:
- 
+ words written incorrectly or informal speech from noisy texts. Examples (some taken from actual text):
+
+    Yrn okua gidicem
     Tmm, yarin havuza giricem ve aksama kadar yaticam :)    
     ah aynen ya annemde fark etti siz evinizden çıkmayın diyo
     gercek mı bu? Yuh! Artık unutulması bile beklenmiyo   
     Hayır hayat telaşm olmasa alacam buraları gökdelen dikicem.
+    yok hocam kesınlıkle oyle birşey yok
+    herseyi soyle hayatında olmaması gerek bence boyle ınsanların falan baskı yapıyosa
     
 Some NLP tasks needs normalization as a pre-processing step before applying 
 actual algorithms to the text. Normalization especially helps improved results in areas like: 
@@ -92,12 +95,12 @@ contains two lookup files. These model and lookup tables may not fit all scenari
 used as a baseline. Usually domain specific normalization operations requires some degree of customization.  
 
 For testing, Download those folders (Caution: download size is around ~100 MB). Let's assume they are in 
-`~/zemberek-data/lm` and `~/zemberek-data/normalization`   
+`/home/aaa/zemberek-data/lm` and `/home/aaa/zemberek-data/normalization`
 
 TurkishSentenceNormalizer class is initialized as:
 
-    Path lookupRoot = Paths.get("~/zemberek-data/normalization")
-    Path lmFile = Paths.get("~/zemberek-data/lm/lm.slm")
+    Path lookupRoot = Paths.get("/home/aaa/zemberek-data/normalization")
+    Path lmFile = Paths.get("/home/aaa/zemberek-data/lm/lm.slm")
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     TurkishSentenceNormalizer normalizer = new
         TurkishSentenceNormalizer(morphology, lookupRoot, lmPath);
@@ -111,17 +114,26 @@ Then, for normalizing a sentence, `normalize` method is used.
 
 Results for the above sentences:
 
+    Yrn okua gidicem
+    yarın okua gideceğim
+    
     Tmm, yarin havuza giricem ve aksama kadar yaticam :)
     tamam , yarın havuza gireceğim ve akşama kadar yatacağım :)
-     
+    
     ah aynen ya annemde fark ettı siz evinizden cıkmayın diyo
-    ah aynen ya annemde fark etti siz evinizden çıkmasın diyor
+    ah aynen ya annemde fark etti siz evinizden çıkmayın diyor
     
     gercek mı bu? Yuh! Artık unutulması bile beklenmiyo
-    gerçek mı bu ? yuh ! artık unutulması bile beklenmiyor
+    gerçek mi bu ? yuh ! artık unutulması bile beklenmiyor
     
     Hayır hayat telaşm olmasa alacam buraları gökdelen dikicem.
     hayır hayat telaşı olmasa alacağım buraları gökdelen dikeceğim .
+    
+    yok hocam kesınlıkle oyle birşey yok
+    yok hocam kesinlikle öyle bir şey yok
+    
+    herseyi soyle hayatında olmaması gerek bence boyle ınsanların falan baskı yapıyosa
+    herşeyi söyle hayatında olmaması gerek bence böyle insanların falan baskı yapıyorsa
 
 As it is seen, some words were not corrected and output is all lower case.
 We are aware of the sources of some of the problems. 
@@ -132,15 +144,15 @@ Normalization hopefully work better in later releases.
 Zemberek uses several heuristics, lookup tables and language models for text normalization.
 Some of the work:
 - From clean and noisy corpora, vocabularies are created using morphological analysis.
-- With some heuristics and language model, words that should be split to two are found.
+- With some heuristics and language models, words that should be split to two are found.
 - From corpora, correct, incorrect and possibly-incorrect sets are created.
 - For pre-processing, deasciifier, split and combine heuristics are applied. 
 - Using those sets and large corpora, a noisy to clean word lookup is 
   generated using a modified version of Hassan and Menezes's 2013 work 
   "Social Text Normalization using Contextual Graph Random Walks".
 - For a sentence, for every noisy word, candidates are collected from lookup tables, 
-informal and ascii-matching morphologcal analysis and spell checker. 
-- Most likely correct sequence is found running Viterbi algorithm using a language model on candidate words
+informal and ascii-matching morphological analysis and spell checker.
+- Most likely correct sequence is found running Viterbi algorithm on candidate words with language model scoring.
 
 ### Speed
 
