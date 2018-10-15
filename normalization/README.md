@@ -67,8 +67,8 @@ If user provides a higher order language model (bi-gram models are sufficient) a
  
  ## Noisy Text Normalization (Not Yet Released)
  
- Zemberek offers noisy text normalization function. This tool can be used correcting 
- words written incorrectly or informal speech from noisy texts. Examples (some taken from actual text):
+ Zemberek-NLP offers noisy text normalization function. This tool can be used correcting 
+ words written incorrectly or informal speech from noisy texts. Some noisy text examples (most taken from actual text):
 
     Yrn okua gidicem
     Tmm, yarin havuza giricem ve aksama kadar yaticam :)    
@@ -84,6 +84,8 @@ actual algorithms to the text. Normalization especially helps improved results i
 - Social media and forum texts
 - Chat, messaging or bot applications  
 - Mobil phone keyboards with no or bad spell correction.
+
+This tool should **not** be used when high accuracy automatic correction is required.
 
 ### Usage
 
@@ -159,7 +161,7 @@ informal and ascii-matching morphological analysis and spell checker.
 According to our measurements speed is about 10 thousand tokens/second (with punctuations) using 
 a single core. Later versions may work slower due to additional heuristics.
 
-Test System: AMD FX(tm)-8320 3.2Ghz 
+Test System: AMD FX-8320 3.5Ghz 
 
 ### Issues
 
