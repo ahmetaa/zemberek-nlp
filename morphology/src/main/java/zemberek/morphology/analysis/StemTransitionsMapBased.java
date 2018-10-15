@@ -119,7 +119,7 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
       for (String st : asciiStems) {
         if (singleStems.containsKey(st)) {
           result.add(singleStems.get(st));
-        } else if (multiStems.containsKey(stem)) {
+        } else if (multiStems.containsKey(st)) {
           result.addAll(multiStems.get(st));
         }
       }

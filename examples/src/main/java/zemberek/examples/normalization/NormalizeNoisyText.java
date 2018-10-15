@@ -15,14 +15,16 @@ public class NormalizeNoisyText {
         "Tmm, yarin havuza giricem ve aksama kadar yaticam :)",
         "ah aynen ya annemde fark ettı siz evinizden cıkmayın diyo",
         "gercek mı bu? Yuh! Artık unutulması bile beklenmiyo",
-        "Hayır hayat telaşm olmasa alacam buraları gökdelen dikicem."
+        "Hayır hayat telaşm olmasa alacam buraları gökdelen dikicem.",
+        "yok hocam kesınlıkle oyle birşey yok",
+        "herseyi soyle hayatında olmaması gerek bence boyle ınsanların falan baskı yapıyosa"
     };
 
     // change paths with your normalization data root folder and language model file paths.
     // Example: https://drive.google.com/drive/folders/1tztjRiUs9BOTH-tb1v7FWyixl-iUpydW
     // download lm and normalization folders to some local directory.
-    Path lookupRoot = Paths.get("/home/ahmetaa/zemberek-data/normalization");
-    Path lmPath = Paths.get("/home/ahmetaa/zemberek-data/lm/lm.slm");
+    Path lookupRoot = Paths.get("/home/aaa/zemberek-data/normalization");
+    Path lmPath = Paths.get("/home/aaa/zemberek-data/lm/lm.slm");
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     TurkishSentenceNormalizer normalizer = new
         TurkishSentenceNormalizer(morphology, lookupRoot, lmPath);

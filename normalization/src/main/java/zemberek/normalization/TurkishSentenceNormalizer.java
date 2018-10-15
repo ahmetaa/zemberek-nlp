@@ -30,6 +30,7 @@ import zemberek.morphology.analysis.InterpretingAnalyzer;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.generator.WordGenerator;
+import zemberek.morphology.generator.WordGenerator.Result;
 import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.tokenization.TurkishTokenizer;
@@ -88,6 +89,10 @@ public class TurkishSentenceNormalizer {
     List<String> manualLookup =
         TextIO.loadLinesFromResource("normalization/candidates-manual");
     this.lookupManual = loadMultiMap(manualLookup);
+
+    // remove words that exists in lookupManual from lookupFromGraph
+    lookupManual.keySet().forEach(s -> lookupFromGraph.removeAll(s));
+
     this.informalAsciiTolerantMorphology = TurkishMorphology.builder()
         .useLexicon(morphology.getLexicon())
         .useAnaylzer(InterpretingAnalyzer.asciiTolerantInstance(
@@ -171,22 +176,26 @@ public class TurkishSentenceNormalizer {
       // add matches from informal analysis to formal surface conversion.
 
       WordAnalysis analyses = informalAsciiTolerantMorphology.analyze(current);
+
       for (SingleAnalysis analysis : analyses) {
         if (analysis.containsInformalMorpheme()) {
           WordGenerator.Result result = analysisConverter.convert(current, analysis);
           if (result != null) {
             candidates.add(result.surface);
-          } else {
-            candidates.add(current);
           }
         } else {
-          candidates.add(current);
+          List<WordGenerator.Result> results = morphology.getWordGenerator().generate(
+              analysis.getDictionaryItem(),
+              analysis.getMorphemes());
+          for (Result result : results) {
+            candidates.add(result.surface);
+          }
         }
       }
 
       // if there is no formal analysis and length is larger than 5,
       // get top 3 1 distance matches.
-      if ((analyses.analysisCount() == 0) && current.length() > 4) {
+      if ((analyses.analysisCount() == 0) && current.length() > 3) {
 
         List<String> spellCandidates = spellChecker
             .suggestForWord(current, previous, next, lm);
@@ -197,7 +206,7 @@ public class TurkishSentenceNormalizer {
       }
 
       // if still there is no match, add the word itself.
-      if (candidates.isEmpty()) {
+      if (candidates.isEmpty() || morphology.analyze(current).isCorrect()) {
         candidates.add(current);
       }
 

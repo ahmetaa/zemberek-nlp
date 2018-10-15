@@ -169,7 +169,7 @@ public class TurkishMorphologyFunctionalTests {
   public void testAsciiTolerantMorphology() {
     // Instance with no dictionary item.
     TurkishMorphology morphology = getAsciiTolerantMorphology(
-        "sıra", "şıra", "armut", "kazan", "ekonomik [P:Adj]");
+        "sıra", "şıra", "armut", "kazan", "ekonomik [P:Adj]","insan");
     InterpretingAnalyzer analyzer = morphology.getAnalyzer();
     List<SingleAnalysis> result;
     result = analyzer.analyze("ekonomık");
@@ -187,7 +187,8 @@ public class TurkishMorphologyFunctionalTests {
     Assert.assertTrue(containsAllDictionaryLemma(result, "kazan"));
     result = analyzer.analyze("kazançiğimizdan");
     Assert.assertTrue(containsAllDictionaryLemma(result, "kazan"));
-
+    result = analyzer.analyze("ınsanların");
+    Assert.assertTrue(containsAllDictionaryLemma(result, "insan"));
   }
 
   private boolean containsAllDictionaryLemma(List<SingleAnalysis> analyses, String... item) {

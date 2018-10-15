@@ -9,12 +9,20 @@ import zemberek.core.IntPair;
  * - Supports int key values in range (Integer.MIN_VALUE+1..Integer.MAX_VALUE];
  * - Does not implement Map interface
  * - Capacity can be max 1 << 30
- * - Max size is capacity * LOAD_FACTOR (~644M elements for 0.6 load factor)
+ * - Load factor is 0.5.
+ * - Max size is 2^29 (~537M elements)
  * - Does not implement Iterable.
  * - Class is not thread safe.
  * </pre>
  */
-public final class IntIntMap implements IntIntMapBase {
+public final class IntIntMap {
+
+  public static int NO_RESULT = Integer.MIN_VALUE;
+  private static int DEFAULT_INITIAL_CAPACITY = 4;
+  // Special values to mark empty and deleted cells.
+  private static int EMPTY = NO_RESULT;
+  private static int DELETED = EMPTY + 1;
+
   private static int MAX_CAPACITY = 1 << 30;
   // Backing array for keys and values. Each 64 bit slot is used for storing
   // 32 bit key, value pairs.
@@ -23,8 +31,6 @@ public final class IntIntMap implements IntIntMapBase {
   private int keyCount;
   // Number of Removed keys.
   private int removedKeyCount;
-  // When size reaches a threshold, backing arrays are expanded.
-  private int threshold;
 
   public IntIntMap() {
     this(DEFAULT_INITIAL_CAPACITY);
@@ -38,7 +44,32 @@ public final class IntIntMap implements IntIntMapBase {
     capacity = nearestPowerOf2Capacity(capacity, MAX_CAPACITY);
     entries = new long[capacity];
     Arrays.fill(entries, EMPTY);
-    threshold = (int) (capacity * LOAD_FACTOR);
+  }
+
+  private int rehash(int hash) {
+    // 0x9E3779B9 is int phi, it has some nice distributing characteristics.
+    final int h = hash * 0x9E3779B9;
+    return h ^ (h >> 16);
+  }
+
+  private int nearestPowerOf2Capacity(int capacity, int maxCapacity) {
+    if (capacity < 1) {
+      throw new IllegalArgumentException("Capacity must be > 0: " + capacity);
+    }
+    long k = 1;
+    while (k < capacity) {
+      k <<= 1;
+    }
+    if (k > maxCapacity) {
+      throw new IllegalArgumentException("Map too large: " + capacity);
+    }
+    return (int) k;
+  }
+
+  private void checkKey(int key) {
+    if (key <= DELETED) {
+      throw new IllegalArgumentException("Illegal key: " + key);
+    }
   }
 
   public int capacity() {
@@ -71,15 +102,19 @@ public final class IntIntMap implements IntIntMapBase {
 
   public void put(int key, int value) {
     checkKey(key);
-    if (keyCount + removedKeyCount > threshold) {
-      expand();
-    }
+    expandIfNecessary();
     int loc = locate(key);
     if (loc >= 0) {
       setValue(loc, value);
     } else {
       setKeyValue(-loc - 1, key, value);
       keyCount++;
+    }
+  }
+
+  private void expandIfNecessary() {
+    if (keyCount + removedKeyCount > entries.length >> 1) {
+      expand();
     }
   }
 
@@ -122,9 +157,7 @@ public final class IntIntMap implements IntIntMapBase {
 
   public void increment(int key, int value) {
     checkKey(key);
-    if (keyCount + removedKeyCount > threshold) {
-      expand();
-    }
+    expandIfNecessary();
     int loc = locate(key);
     if (loc >= 0) {
       setValue(loc, value + getValue(loc));
@@ -220,11 +253,11 @@ public final class IntIntMap implements IntIntMapBase {
   }
 
   private int newCapacity() {
-    long newCapacity = nearestPowerOf2Capacity(keyCount, MAX_CAPACITY) * 2;
+    int newCapacity = nearestPowerOf2Capacity(keyCount, MAX_CAPACITY) * 2;
     if (newCapacity > MAX_CAPACITY) {
       throw new RuntimeException("Map size is too large.");
     }
-    return (int) newCapacity;
+    return newCapacity;
   }
 
   /**
@@ -239,7 +272,6 @@ public final class IntIntMap implements IntIntMapBase {
       }
     }
     this.entries = h.entries;
-    this.threshold = h.threshold;
     this.removedKeyCount = 0;
   }
 }

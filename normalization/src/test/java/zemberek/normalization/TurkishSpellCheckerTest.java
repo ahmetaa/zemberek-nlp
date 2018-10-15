@@ -18,6 +18,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 import zemberek.lm.NgramLanguageModel;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
@@ -128,6 +129,7 @@ public class TurkishSpellCheckerTest {
     CharacterGraph graph = new CharacterGraph();
     Path r = Paths.get("../data/zemberek-oflazer/oflazer-zemberek-parsed.txt");
     List<String> words = Files.readAllLines(r, StandardCharsets.UTF_8).subList(0, 1000_000);
+    Log.info("Total word count = %d", words.size());
     words.forEach(s -> graph.addWord(s, Node.TYPE_WORD));
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology, graph);
     NgramLanguageModel lm = getLm("lm-unigram.slm");
@@ -139,10 +141,7 @@ public class TurkishSpellCheckerTest {
     Log.info("Node count with single connection= %d",
         spellChecker.decoder.getGraph().getAllNodes(a -> a.getAllChildNodes().size() == 1).size());
 
-    URI uri = ClassLoader.getSystemResource("10000_frequent_turkish_word").toURI();
-    Path r = Paths.get(uri);
-
-    List<String> words = Files.readAllLines(r, StandardCharsets.UTF_8);
+    List<String> words = TextIO.loadLinesFromResource("10000_frequent_turkish_word");
     int c = 0;
     Stopwatch sw = Stopwatch.createStarted();
     for (String word : words) {
@@ -163,9 +162,7 @@ public class TurkishSpellCheckerTest {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
     NgramLanguageModel lm = getLm("lm-bigram.slm");
-    Path testInput = Paths
-        .get(ClassLoader.getSystemResource("spell-checker-test-small.txt").toURI());
-    List<String> sentences = Files.readAllLines(testInput, StandardCharsets.UTF_8);
+    List<String> sentences = TextIO.loadLinesFromResource("spell-checker-test-small.txt");
     try (PrintWriter pw = new PrintWriter("bigram-test-result.txt")) {
       for (String sentence : sentences) {
         pw.println(sentence);

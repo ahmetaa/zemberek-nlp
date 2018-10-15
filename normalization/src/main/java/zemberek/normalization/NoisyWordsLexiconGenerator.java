@@ -95,6 +95,7 @@ public class NoisyWordsLexiconGenerator {
   public static final int MAX_HOP_COUNT = 7;
   public static final double OVERALL_SCORE_THRESHOLD = 0.41;
   public static final double LEXICAL_SIMLARITY_SCORE_THRESHOLD = 0.4;
+  public static final TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
 
   NormalizationVocabulary vocabulary;
   int threadCount;
@@ -155,6 +156,8 @@ public class NoisyWordsLexiconGenerator {
     Path allCandidates = outRoot.resolve("all-candidates");
     Path lookup = outRoot.resolve("lookup-from-graph");
 
+    Log.info("Saving candidates.");
+
     try (PrintWriter pw = new PrintWriter(allCandidates.toFile(), "utf-8");
         PrintWriter pwLookup = new PrintWriter(lookup.toFile(), "utf-8")) {
       List<String> words = new ArrayList<>(walkResult.allCandidates.keySet());
@@ -186,15 +189,24 @@ public class NoisyWordsLexiconGenerator {
 
         List<String> candidates = new ArrayList<>();
         for (WalkScore score : scores) {
-          if (score.lexicalSimilarity * lambda2 < LEXICAL_SIMLARITY_SCORE_THRESHOLD) {
+          if (score.candidate.equals(s)) {
             continue;
           }
-          if (score.candidate.equals(s)) {
+          // if there is an ascii equivalent (but not the same), only return that.
+          if (vocabulary.isMaybeIncorrect(s) &&
+              alphabet.toAscii(s).equals(alphabet.toAscii(score.candidate))) {
+            candidates = new ArrayList<>(1);
+            candidates.add(score.candidate);
+            break;
+          }
+
+          if (score.lexicalSimilarity * lambda2 < LEXICAL_SIMLARITY_SCORE_THRESHOLD) {
             continue;
           }
           candidates.add(score.candidate);
         }
-        if (candidates.size() > 0 && vocabulary.isMaybeIncorrect(s)) {
+
+        if (candidates.size() > 0 && vocabulary.isMaybeIncorrect(s) && !candidates.contains(s)) {
           candidates.add(s);
         }
         if (!candidates.isEmpty()) {
