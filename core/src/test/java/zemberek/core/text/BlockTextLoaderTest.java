@@ -11,7 +11,6 @@ import zemberek.core.io.TestUtil;
 
 public class BlockTextLoaderTest {
 
-
   @Test
   public void loadTest1() throws IOException {
     List<String> lines = new ArrayList<>();
@@ -21,36 +20,36 @@ public class BlockTextLoaderTest {
     }
     Path path = TestUtil.tempFileWithData(lines);
 
-    BlockTextLoader loader = new BlockTextLoader(path, 1000);
+    BlockTextLoader loader = BlockTextLoader.fromPath(path, 1000);
     int i = 0;
     List<String> read = new ArrayList<>();
-    for (List<String> block : loader) {
+    for (TextChunk block : loader) {
       i++;
-      read.addAll(block);
+      read.addAll(block.getData());
     }
 
     Assert.assertEquals(i, 10);
     Assert.assertEquals(lines, read);
 
-    loader = new BlockTextLoader(path, 1001);
+    loader = BlockTextLoader.fromPath(path, 1001);
 
     i = 0;
     read = new ArrayList<>();
-    for (List<String> block : loader) {
+    for (TextChunk block : loader) {
       i++;
-      read.addAll(block);
+      read.addAll(block.getData());
     }
 
     Assert.assertEquals(i, 10);
     Assert.assertEquals(lines, read);
 
-    loader = new BlockTextLoader(path, 100000);
+    loader = BlockTextLoader.fromPath(path, 100000);
 
     i = 0;
     read = new ArrayList<>();
-    for (List<String> block : loader) {
+    for (TextChunk block : loader) {
       i++;
-      read.addAll(block);
+      read.addAll(block.getData());
     }
 
     Assert.assertEquals(i, 1);

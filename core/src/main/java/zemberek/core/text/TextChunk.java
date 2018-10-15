@@ -1,8 +1,10 @@
 package zemberek.core.text;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
-public class TextChunk {
+public class TextChunk implements Iterable<String> {
 
   public final String id;
   public final int sourceIndex;
@@ -39,4 +41,15 @@ public class TextChunk {
   public String toString() {
     return id + "[" + sourceIndex + "-" + index + "]";
   }
+
+  @Override
+  public Iterator<String> iterator() {
+    return data.iterator();
+  }
+
+  @Override
+  public void forEach(Consumer<? super String> action) {
+    data.forEach(action);
+  }
+
 }

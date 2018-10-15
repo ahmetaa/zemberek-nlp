@@ -14,7 +14,7 @@ import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import zemberek.apps.ConsoleApp;
 import zemberek.core.logging.Log;
-import zemberek.core.text.MultiPathBlockTextLoader;
+import zemberek.core.text.BlockTextLoader;
 import zemberek.core.text.TextChunk;
 import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
@@ -128,7 +128,7 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
     try (PrintWriter pw = new PrintWriter(output.toFile(), "UTF-8")) {
       ProgressBar pb = new ProgressBar("Lines", totalLines, ProgressBarStyle.ASCII);
 
-      MultiPathBlockTextLoader loader = MultiPathBlockTextLoader.fromPaths(paths, 10_000);
+      BlockTextLoader loader = BlockTextLoader.fromPaths(paths, 10_000);
       for (TextChunk chunk : loader) {
         List<String> processed = chunk.getData().stream()
             .filter(s -> !s.startsWith("<"))

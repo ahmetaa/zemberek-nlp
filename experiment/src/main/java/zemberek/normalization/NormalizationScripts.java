@@ -28,6 +28,7 @@ import zemberek.core.collections.Histogram;
 import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
+import zemberek.core.text.TextChunk;
 import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.SecondaryPos;
@@ -344,13 +345,13 @@ public class NormalizationScripts {
         new ExecutorCompletionService<>(executorService);
 
     int blockSize = 20_000;
-    BlockTextLoader loader = new BlockTextLoader(in, blockSize);
+    BlockTextLoader loader = BlockTextLoader.fromPath(in, blockSize);
 
     Path foreign = Paths.get(out.toString() + ".foreign");
     TwitterSaver saver = new TwitterSaver(out, foreign, blockSize);
 
     int bc = 0;
-    for (List<String> block : loader) {
+    for (TextChunk block : loader) {
       service.submit(new TwitterTask(morphology, saver, block, bc));
       bc++;
     }
@@ -388,11 +389,11 @@ public class NormalizationScripts {
 
     TurkishMorphology morphology;
     TwitterSaver saver;
-    List<String> block;
+    TextChunk block;
     int blockIndex;
 
     public TwitterTask(TurkishMorphology morphology,
-        TwitterSaver saver, List<String> block, int blockIndex) {
+        TwitterSaver saver, TextChunk block, int blockIndex) {
       this.morphology = morphology;
       this.saver = saver;
       this.block = block;
@@ -500,11 +501,11 @@ public class NormalizationScripts {
 
   static void splitSingleFileCorpus(Path in, Path outRoot) throws IOException {
     int blockSize = 100_000;
-    BlockTextLoader loader = new BlockTextLoader(in, blockSize);
+    BlockTextLoader loader = BlockTextLoader.fromPath(in, blockSize);
     Files.createDirectories(outRoot);
 
     int bc = 0;
-    for (List<String> block : loader) {
+    for (TextChunk block : loader) {
       String name = in.toFile().getName();
       Path blockPath = outRoot.resolve(name + "." + String.valueOf(bc));
       Files.write(blockPath, block, StandardCharsets.UTF_8);

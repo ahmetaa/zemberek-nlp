@@ -33,7 +33,7 @@ import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
 import zemberek.core.math.LogMath;
-import zemberek.core.text.MultiPathBlockTextLoader;
+import zemberek.core.text.BlockTextLoader;
 import zemberek.core.text.TextChunk;
 import zemberek.core.text.distance.CharDistance;
 import zemberek.core.turkish.Turkish;
@@ -127,7 +127,7 @@ public class NoisyWordsLexiconGenerator {
 
     NoisyWordsLexiconGenerator generator = new NoisyWordsLexiconGenerator(vocabulary, threadCount);
 
-    MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
+    BlockTextLoader corpusProvider = BlockTextLoader
         .fromDirectoryRoot(corporaRoot, corpusDirList, 50_000);
 
     // create graph
@@ -206,7 +206,7 @@ public class NoisyWordsLexiconGenerator {
         sw.elapsed(TimeUnit.MILLISECONDS) / 1000d);
   }
 
-  void createGraph(MultiPathBlockTextLoader corpusProvider, Path graphPath) throws Exception {
+  void createGraph(BlockTextLoader corpusProvider, Path graphPath) throws Exception {
     Stopwatch sw = Stopwatch.createStarted();
 
     ContextualSimilarityGraph graph = buildGraph(corpusProvider, 1);
@@ -602,7 +602,7 @@ public class NoisyWordsLexiconGenerator {
    * Generates and serializes a bipartite graph that represents contextual similarity.
    */
   ContextualSimilarityGraph buildGraph(
-      MultiPathBlockTextLoader corpora,
+      BlockTextLoader corpora,
       int contextSize) throws Exception {
     ContextualSimilarityGraph graph = new ContextualSimilarityGraph(vocabulary, contextSize);
     graph.build(corpora, threadCount);
@@ -645,7 +645,7 @@ public class NoisyWordsLexiconGenerator {
     }
 
     void build(
-        MultiPathBlockTextLoader corpora,
+        BlockTextLoader corpora,
         int threadCount) throws Exception {
 
       ExecutorService executorService = new BlockingExecutor(threadCount);

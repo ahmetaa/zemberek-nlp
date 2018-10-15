@@ -15,6 +15,7 @@ import zemberek.core.collections.IntIntMap;
 import zemberek.core.collections.IntVector;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
+import zemberek.core.text.TextChunk;
 
 class Dictionary {
 
@@ -77,12 +78,12 @@ class Dictionary {
     Dictionary dictionary = new Dictionary(args);
 
     Log.info("Loading text.");
-    BlockTextLoader loader = new BlockTextLoader(file, 100_000);
+    BlockTextLoader loader = BlockTextLoader.fromPath(file, 100_000);
     SpaceTabTokenizer tokenizer = new SpaceTabTokenizer();
 
     int blockCounter = 1;
 
-    for (List<String> lines : loader) {
+    for (TextChunk lines : loader) {
       for (String line : lines) {
         List<String> split = tokenizer.splitToList(line);
         split.add(EOS);

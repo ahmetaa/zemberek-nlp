@@ -14,7 +14,7 @@ import org.antlr.v4.runtime.Token;
 import zemberek.core.collections.Histogram;
 import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.logging.Log;
-import zemberek.core.text.MultiPathBlockTextLoader;
+import zemberek.core.text.BlockTextLoader;
 import zemberek.core.text.TextChunk;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -54,7 +54,7 @@ public class NormalizationVocabularyGenerator {
     Path outRoot = Paths.get("/home/aaa/data/normalization/vocab-clean");
     Path rootList = corporaRoot.resolve("clean-list");
 
-    MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
+    BlockTextLoader corpusProvider = BlockTextLoader
         .fromDirectoryRoot(corporaRoot, rootList, 30_000);
 
     Files.createDirectories(outRoot);
@@ -145,7 +145,7 @@ public class NormalizationVocabularyGenerator {
   }
 
   void createVocabulary(
-      MultiPathBlockTextLoader corpora,
+      BlockTextLoader corpora,
       int threadCount,
       Path outRoot) throws Exception {
 
@@ -175,7 +175,7 @@ public class NormalizationVocabularyGenerator {
         String::compareTo);
   }
 
-  Vocabulary collectVocabularyHistogram(MultiPathBlockTextLoader corpora, int threadCount)
+  Vocabulary collectVocabularyHistogram(BlockTextLoader corpora, int threadCount)
       throws Exception {
 
     ExecutorService executorService = new BlockingExecutor(threadCount);

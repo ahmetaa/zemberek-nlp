@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import zemberek.core.collections.IntVector;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
+import zemberek.core.text.TextChunk;
 import zemberek.core.text.TextIO;
 
 public class FastTextTrainer {
@@ -96,6 +97,7 @@ public class FastTextTrainer {
   }
 
   public static class Progress {
+
     public long total;
     public long current;
     public float percentProgress;
@@ -152,13 +154,13 @@ public class FastTextTrainer {
       int etam = (eta - etah * 3600) / 60;
 
       Progress p = new Progress(
-          100*progress,
+          100 * progress,
           wst,
           lr,
           loss,
           String.format("%dh%dm", etah, etam)
       );
-      p.total = args_.epoch* dictionary.ntokens();
+      p.total = args_.epoch * dictionary.ntokens();
       p.current = tokenCount.get();
 
       eventBus.post(p);
@@ -213,12 +215,13 @@ public class FastTextTrainer {
 
       long ntokens = dictionary.ntokens();
       long localTokenCount = 0;
-      BlockTextLoader loader = new BlockTextLoader(input, StandardCharsets.UTF_8, 1000);
-      Iterator<List<String>> it = loader.iteratorFromCharIndex(startCharIndex);
+
+      Iterator<TextChunk> it = BlockTextLoader
+          .iteratorFromCharIndex(input, 1000, startCharIndex);
       float progress = 0f;
       while (true) {
         while (it.hasNext()) {
-          List<String> lines = it.next();
+          List<String> lines = it.next().getData();
           for (String lineStr : lines) {
             if (tokenCount.get() >= args_.epoch * ntokens) {
               if (threadId == 0 && args_.verbose > 0) {
@@ -251,7 +254,7 @@ public class FastTextTrainer {
           }
         }
         // start from the beginning again.
-        it = loader.iterator();
+        it = BlockTextLoader.singlePathIterator(input, 1000);
       }
     }
   }

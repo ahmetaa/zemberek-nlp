@@ -14,9 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.logging.Log;
-import zemberek.core.text.MultiPathBlockTextLoader;
+import zemberek.core.text.BlockTextLoader;
 import zemberek.core.text.TextChunk;
-import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
 
 public class ProcessNormalizationCorpus {
@@ -47,7 +46,7 @@ public class ProcessNormalizationCorpus {
 
     Files.createDirectories(outRoot);
 
-    MultiPathBlockTextLoader corpusProvider = MultiPathBlockTextLoader
+    BlockTextLoader corpusProvider = BlockTextLoader
         .fromDirectoryRoot(corporaRoot, rootList, BLOCK_SIZE);
 
     // create vocabularies
@@ -62,7 +61,7 @@ public class ProcessNormalizationCorpus {
   }
 
   void process(
-      MultiPathBlockTextLoader corpusProvider,
+      BlockTextLoader corpusProvider,
       int threadCount,
       Path outRoot) throws Exception {
 

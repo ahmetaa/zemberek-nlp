@@ -6,15 +6,14 @@ import com.google.common.hash.Hashing;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import zemberek.apps.ConsoleApp;
 import zemberek.core.collections.LongUIntMap;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
+import zemberek.core.text.TextChunk;
 import zemberek.core.turkish.TurkishAlphabet;
 
 public class RemoveDuplicateLines extends ConsoleApp {
@@ -63,9 +62,9 @@ public class RemoveDuplicateLines extends ConsoleApp {
 
   private void findDuplicates() {
 
-    BlockTextLoader loader = new BlockTextLoader(corpus, StandardCharsets.UTF_8, 10_000);
-    for (List<String> block : loader) {
-      for (String line : block) {
+    BlockTextLoader loader = BlockTextLoader.fromPath(corpus, 10_000);
+    for (TextChunk block : loader) {
+      for (String line : block.getData()) {
         String l = line;
         if (normalizeLines) {
           l = process(line);
@@ -101,9 +100,9 @@ public class RemoveDuplicateLines extends ConsoleApp {
     int writtenLines = 0;
     try (PrintWriter writer = new PrintWriter(
         new OutputStreamWriter(IOUtil.geBufferedOutputStream(output), "UTF-8"))) {
-      BlockTextLoader loader = new BlockTextLoader(corpus, StandardCharsets.UTF_8, 10_000);
-      for (List<String> block : loader) {
-        for (String line : block) {
+      BlockTextLoader loader = BlockTextLoader.fromPath(corpus, 10_000);
+      for (TextChunk block : loader) {
+        for (String line : block.getData()) {
           String l = line;
           if (normalizeLines) {
             l = process(line);

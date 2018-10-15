@@ -6,37 +6,30 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import zemberek.core.collections.IntIntMap;
-import zemberek.core.text.MultiPathBlockTextLoader;
+import zemberek.core.text.BlockTextLoader;
 import zemberek.core.text.TextIO;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.InterpretingAnalyzer;
 import zemberek.morphology.lexicon.DictionarySerializer;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
-import zemberek.normalization.NoisyWordsLexiconGenerator.ContextualSimilarityGraph;
-import zemberek.normalization.NoisyWordsLexiconGenerator.NormalizationVocabulary;
-import zemberek.normalization.NoisyWordsLexiconGenerator.RandomWalker;
-import zemberek.normalization.NoisyWordsLexiconGenerator.WalkResult;
-import zemberek.normalization.NormalizationVocabularyGenerator.Vocabulary;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class RandomWalkFunctionalTest {
 
-  MultiPathBlockTextLoader corpora;
+  BlockTextLoader corpora;
 
   @Before
   public void setUp() throws Exception {
     Path tmp = Files.createTempFile("foo", "bar");
     List<String> lines = TextIO.loadLinesFromResource("normalization/mini-noisy-corpus.txt", "#");
     Files.write(tmp, lines);
-    corpora = MultiPathBlockTextLoader.fromPaths(Collections.singletonList(tmp));
+    corpora = BlockTextLoader.fromPaths(Collections.singletonList(tmp));
   }
 
   @After
