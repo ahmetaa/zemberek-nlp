@@ -14,7 +14,15 @@ import zemberek.core.IntPair;
  * - Class is not thread safe.
  * </pre>
  */
-public final class IntIntMap implements IntIntMapBase {
+public final class IntIntMap {
+  public static int NO_RESULT = Integer.MIN_VALUE;
+  private static int DEFAULT_INITIAL_CAPACITY = 4;
+  // Capacity of the map is expanded when size reaches to capacity * LOAD_FACTOR.
+  private static float LOAD_FACTOR = 0.6f;
+  // Special values to mark empty and deleted cells.
+  private static int EMPTY = NO_RESULT;
+  private static int DELETED = EMPTY + 1;
+
   private static int MAX_CAPACITY = 1 << 30;
   // Backing array for keys and values. Each 64 bit slot is used for storing
   // 32 bit key, value pairs.
@@ -47,6 +55,32 @@ public final class IntIntMap implements IntIntMapBase {
     Arrays.fill(entries, EMPTY);
     modulo = capacity - 1;
     threshold = (int) (capacity * LOAD_FACTOR);
+  }
+
+  private int rehash(int hash) {
+    // 0x9E3779B9 is int phi, it has some nice distributing characteristics.
+    final int h = hash * 0x9E3779B9;
+    return h ^ (h >> 16);
+  }
+
+  private int nearestPowerOf2Capacity(int capacity, int maxCapacity) {
+    if (capacity < 1) {
+      throw new IllegalArgumentException("Capacity must be > 0: " + capacity);
+    }
+    long k = 1;
+    while (k < capacity) {
+      k <<= 1;
+    }
+    if (k > maxCapacity) {
+      throw new IllegalArgumentException("Map too large: " + capacity);
+    }
+    return (int) k;
+  }
+
+  private void checkKey(int key) {
+    if (key <= DELETED) {
+      throw new IllegalArgumentException("Illegal key: " + key);
+    }
   }
 
   public int capacity() {
