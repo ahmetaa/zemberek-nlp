@@ -9,16 +9,16 @@ import zemberek.core.IntPair;
  * - Supports int key values in range (Integer.MIN_VALUE+1..Integer.MAX_VALUE];
  * - Does not implement Map interface
  * - Capacity can be max 1 << 30
- * - Max size is capacity * LOAD_FACTOR (~644M elements for 0.6 load factor)
+ * - Load factor is 0.5.
+ * - Max size is 2^29 (~537M elements)
  * - Does not implement Iterable.
  * - Class is not thread safe.
  * </pre>
  */
 public final class IntIntMap {
+
   public static int NO_RESULT = Integer.MIN_VALUE;
   private static int DEFAULT_INITIAL_CAPACITY = 4;
-  // Capacity of the map is expanded when size reaches to capacity * LOAD_FACTOR.
-  private static float LOAD_FACTOR = 0.6f;
   // Special values to mark empty and deleted cells.
   private static int EMPTY = NO_RESULT;
   private static int DELETED = EMPTY + 1;
@@ -31,15 +31,6 @@ public final class IntIntMap {
   private int keyCount;
   // Number of Removed keys.
   private int removedKeyCount;
-  // When size reaches a threshold, backing arrays are expanded.
-  private int threshold;
-
-  /**
-   * Map capacity is always a power of 2. With this property, integer modulo operation (key %
-   * capacity) can be replaced with (key & (capacity - 1)). We keep (capacity - 1) value in this
-   * variable.
-   */
-  private int modulo;
 
   public IntIntMap() {
     this(DEFAULT_INITIAL_CAPACITY);
@@ -53,8 +44,6 @@ public final class IntIntMap {
     capacity = nearestPowerOf2Capacity(capacity, MAX_CAPACITY);
     entries = new long[capacity];
     Arrays.fill(entries, EMPTY);
-    modulo = capacity - 1;
-    threshold = (int) (capacity * LOAD_FACTOR);
   }
 
   private int rehash(int hash) {
@@ -100,11 +89,11 @@ public final class IntIntMap {
   }
 
   private void setValue(int i, int value) {
-    entries[i] = (entries[i] & 0x0000_0000_FFFF_FFFFL) | ( (value & 0xFFFF_FFFFL) << 32);
+    entries[i] = (entries[i] & 0x0000_0000_FFFF_FFFFL) | ((value & 0xFFFF_FFFFL) << 32);
   }
 
   private void setKeyValue(int i, int key, int value) {
-    entries[i] = (key & 0xFFFF_FFFFL) | ((long)value << 32);
+    entries[i] = (key & 0xFFFF_FFFFL) | ((long) value << 32);
   }
 
   private int getValue(int i) {
@@ -113,9 +102,7 @@ public final class IntIntMap {
 
   public void put(int key, int value) {
     checkKey(key);
-    if (keyCount + removedKeyCount > threshold) {
-      expand();
-    }
+    expandIfNecessary();
     int loc = locate(key);
     if (loc >= 0) {
       setValue(loc, value);
@@ -125,12 +112,22 @@ public final class IntIntMap {
     }
   }
 
+  private void expandIfNecessary() {
+    if (keyCount + removedKeyCount > entries.length >> 1) {
+      expand();
+    }
+  }
+
+  /**
+   * Map capacity is always a power of 2. With this property, integer modulo operation (key %
+   * capacity) can be replaced with (key & (capacity - 1)).
+   */
   private int firstProbe(int key) {
-    return rehash(key) & modulo;
+    return rehash(key) & (entries.length - 1);
   }
 
   private int probe(int slot) {
-    return (slot + 1) & modulo;
+    return (slot + 1) & (entries.length - 1);
   }
 
   /**
@@ -160,14 +157,12 @@ public final class IntIntMap {
 
   public void increment(int key, int value) {
     checkKey(key);
-    if (keyCount + removedKeyCount > threshold) {
-      expand();
-    }
+    expandIfNecessary();
     int loc = locate(key);
     if (loc >= 0) {
       setValue(loc, value + getValue(loc));
     } else {
-      setKeyValue(-loc -1, key, value);
+      setKeyValue(-loc - 1, key, value);
       keyCount++;
     }
   }
@@ -277,8 +272,6 @@ public final class IntIntMap {
       }
     }
     this.entries = h.entries;
-    this.threshold = h.threshold;
-    this.modulo = h.modulo;
     this.removedKeyCount = 0;
   }
 }

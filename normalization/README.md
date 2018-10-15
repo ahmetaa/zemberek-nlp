@@ -150,11 +150,14 @@ Some of the work:
 - From corpora, correct, incorrect and possibly-incorrect sets are created.
 - For pre-processing, deasciifier, split and combine heuristics are applied. 
 - Using those sets and large corpora, a noisy to clean word lookup is 
-  generated using a modified version of Hassan and Menezes's 2013 work 
-  "Social Text Normalization using Contextual Graph Random Walks".
+  generated using a modified version of Hassan and Menezes 2013 work [1]. 
 - For a sentence, for every noisy word, candidates are collected from lookup tables, 
 informal and ascii-matching morphological analysis and spell checker.
 - Most likely correct sequence is found running Viterbi algorithm on candidate words with language model scoring.
+
+[1] Hany Hassan and Arul Menezes. 2013. Social text normalization using contextual graph random walks. 
+In Proceedings of the 51st Annual Meeting of the Association for Computational Linguistics, 
+pages 1577–1586.
 
 ### Speed
 
