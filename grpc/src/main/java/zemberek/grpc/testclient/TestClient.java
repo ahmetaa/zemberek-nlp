@@ -4,14 +4,12 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import zemberek.core.logging.Log;
 import zemberek.grpc.server.ZemberekGrpcServer;
-import zemberek.proto.AnalysisRequest;
-import zemberek.proto.AnalysisResponse;
-import zemberek.proto.AnalysisServiceGrpc;
-import zemberek.proto.AnalysisServiceGrpc.AnalysisServiceBlockingStub;
 import zemberek.proto.DetectRequest;
 import zemberek.proto.DetectResponse;
 import zemberek.proto.LanguageIdServiceGrpc;
 import zemberek.proto.LanguageIdServiceGrpc.LanguageIdServiceBlockingStub;
+import zemberek.proto.NormalizationInitializationRequest;
+import zemberek.proto.NormalizationInitializationResponse;
 import zemberek.proto.NormalizationRequest;
 import zemberek.proto.NormalizationResponse;
 import zemberek.proto.NormalizationServiceGrpc;
@@ -22,6 +20,12 @@ import zemberek.proto.SentenceExtractionRequest;
 import zemberek.proto.SentenceExtractionResponse;
 import zemberek.proto.TokenizationRequest;
 import zemberek.proto.TokenizationResponse;
+import zemberek.proto.simple_analysis.SentenceAnalysisRequest;
+import zemberek.proto.simple_analysis.SentenceAnalysis_P;
+import zemberek.proto.simple_analysis.SimpleAnalysisServiceGrpc;
+import zemberek.proto.simple_analysis.SimpleAnalysisServiceGrpc.SimpleAnalysisServiceBlockingStub;
+import zemberek.proto.simple_analysis.WordAnalysisRequest;
+import zemberek.proto.simple_analysis.WordAnalysis_P;
 
 public class TestClient {
 
@@ -30,7 +34,7 @@ public class TestClient {
         .forAddress("localhost", ZemberekGrpcServer.DEFAULT_PORT)
         .usePlaintext()
         .build();
-    AnalysisServiceBlockingStub analysisServiceBlockingStub = AnalysisServiceGrpc
+    SimpleAnalysisServiceBlockingStub analysisService = SimpleAnalysisServiceGrpc
         .newBlockingStub(channel);
     LanguageIdServiceBlockingStub languageIdServiceBlockingStub = LanguageIdServiceGrpc
         .newBlockingStub(channel);
@@ -39,13 +43,22 @@ public class TestClient {
     NormalizationServiceBlockingStub normalizationServiceBlockingStub =
         NormalizationServiceGrpc.newBlockingStub(channel);
 
-    Log.info("----- Morphological Analysis ------------ ");
+    Log.info("----- Word Morphological Analysis ------------ ");
     String input = "tapirler";
-    AnalysisResponse response = analysisServiceBlockingStub.analyze(AnalysisRequest.newBuilder()
+    WordAnalysis_P response = analysisService.analyzeWord(WordAnalysisRequest.newBuilder()
         .setInput(input)
         .build());
     Log.info("Input: " + input);
     Log.info("Response: " + response);
+
+    Log.info("----- Sentence Morphological Analysis ------------ ");
+    String sentence = "Ali Kaan okula gitti mi?";
+    SentenceAnalysis_P sResponse = analysisService.analyzeSentence(
+        SentenceAnalysisRequest.newBuilder()
+            .setInput(sentence)
+            .build());
+    Log.info("Input: " + sentence);
+    Log.info("Response: " + sResponse);
 
     Log.info("----- Language Identification ------------ ");
     String langIdInput = "Merhaba dünya";
@@ -75,12 +88,23 @@ public class TestClient {
 
     Log.info("----- Normalization ------------ ");
     String normalizationiInput = "Merhab ben Zemberk.";
-    NormalizationResponse normalizationResponse = normalizationServiceBlockingStub
-        .normalize(NormalizationRequest.newBuilder()
-            .setInput(normalizationiInput)
+
+    NormalizationInitializationResponse nInitResponse = normalizationServiceBlockingStub
+        .initialize(NormalizationInitializationRequest.newBuilder()
+            .setNormalizationDataRoot("/home/ahmetaa/zemberek-data/normalization")
+            .setLanguageModelPath("/home/ahmetaa/zemberek-data/lm/lm.slm")
             .build());
-    Log.info("Input: " + normalizationiInput);
-    Log.info("Response: " + normalizationResponse.getNormalizedInput());
+
+    if (nInitResponse.getError().length() == 0) {
+      NormalizationResponse normalizationResponse = normalizationServiceBlockingStub
+          .normalize(NormalizationRequest.newBuilder()
+              .setInput(normalizationiInput)
+              .build());
+      Log.info("Input: " + normalizationiInput);
+      Log.info("Response: " + normalizationResponse.getNormalizedInput());
+    } else {
+      Log.warn("Error initializing normalization service. " + nInitResponse.getError());
+    }
 
   }
 }

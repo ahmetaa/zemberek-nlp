@@ -29,10 +29,10 @@ def tokenize(i):
 
 def normalize(i):
     response = normalization_stub.Normalize(normalization_pb2.NormalizationRequest(input=i))
-    return response.normalized_input
+    return response
 
 def analyze(i):
-    response = simple_analysis_stub.AnalyzeSentence(simple_analysis_pb2.SentenceRequest(input=i))
+    response = simple_analysis_stub.AnalyzeSentence(simple_analysis_pb2.SentenceAnalysisRequest(input=i))
     return response;
 
 def run():
@@ -46,13 +46,17 @@ def run():
     print('Tokens for input : ' + tokenization_input.decode("utf-8"))
     tokens = tokenize(tokenization_input)
     for t in tokens:
-         print(t.token + ':' + t.type)
+        print(t.token + ':' + t.type)
 
     print("")
     normalization_input = 'Mrhaba dnya'
     print('Normalization result for input : ' + normalization_input.decode("utf-8"))
-    normalized = normalize(normalization_input)
-    print(normalized)
+    n_response = normalize(normalization_input)
+    if n_response.normalized_input:
+        print(n_response.normalized_input)
+    else:
+        print('Problem normalizing input : ' + n_response.error)
+
 
     print("")
     analysis_input = 'Kavanozun kapağını açamadım.'

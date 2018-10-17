@@ -30,7 +30,6 @@ public class ZemberekGrpcServer {
 
   public void start() throws Exception {
     Server server = ServerBuilder.forPort(port)
-        .addService(new AnalysisServiceImpl(context))
         .addService(new LanguageIdServiceImpl())
         .addService(new PreprocessingServiceImpl())
         .addService(new NormalizationServiceImpl(context))

@@ -16,12 +16,12 @@ class SimpleAnalysisServiceStub(object):
     """
     self.AnalyzeSentence = channel.unary_unary(
         '/zemberek.simple_analysis.SimpleAnalysisService/AnalyzeSentence',
-        request_serializer=simple__analysis__pb2.SentenceRequest.SerializeToString,
+        request_serializer=simple__analysis__pb2.SentenceAnalysisRequest.SerializeToString,
         response_deserializer=simple__analysis__pb2.SentenceAnalysis_P.FromString,
         )
     self.AnalyzeWord = channel.unary_unary(
         '/zemberek.simple_analysis.SimpleAnalysisService/AnalyzeWord',
-        request_serializer=simple__analysis__pb2.WordRequest.SerializeToString,
+        request_serializer=simple__analysis__pb2.WordAnalysisRequest.SerializeToString,
         response_deserializer=simple__analysis__pb2.WordAnalysis_P.FromString,
         )
 
@@ -49,12 +49,12 @@ def add_SimpleAnalysisServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
       'AnalyzeSentence': grpc.unary_unary_rpc_method_handler(
           servicer.AnalyzeSentence,
-          request_deserializer=simple__analysis__pb2.SentenceRequest.FromString,
+          request_deserializer=simple__analysis__pb2.SentenceAnalysisRequest.FromString,
           response_serializer=simple__analysis__pb2.SentenceAnalysis_P.SerializeToString,
       ),
       'AnalyzeWord': grpc.unary_unary_rpc_method_handler(
           servicer.AnalyzeWord,
-          request_deserializer=simple__analysis__pb2.WordRequest.FromString,
+          request_deserializer=simple__analysis__pb2.WordAnalysisRequest.FromString,
           response_serializer=simple__analysis__pb2.WordAnalysis_P.SerializeToString,
       ),
   }

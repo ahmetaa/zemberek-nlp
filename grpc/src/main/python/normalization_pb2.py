@@ -7,7 +7,6 @@ from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
-from google.protobuf import descriptor_pb2
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
@@ -19,10 +18,80 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='normalization.proto',
   package='zemberek.normalization',
   syntax='proto3',
-  serialized_pb=_b('\n\x13normalization.proto\x12\x16zemberek.normalization\"%\n\x14NormalizationRequest\x12\r\n\x05input\x18\x01 \x01(\t\"1\n\x15NormalizationResponse\x12\x18\n\x10normalized_input\x18\x02 \x01(\t2\x80\x01\n\x14NormalizationService\x12h\n\tNormalize\x12,.zemberek.normalization.NormalizationRequest\x1a-.zemberek.normalization.NormalizationResponseB\x12\n\x0ezemberek.protoP\x01\x62\x06proto3')
+  serialized_options=_b('\n\016zemberek.protoP\001'),
+  serialized_pb=_b('\n\x13normalization.proto\x12\x16zemberek.normalization\"^\n\"NormalizationInitializationRequest\x12\x1d\n\x15normalizationDataRoot\x18\x01 \x01(\t\x12\x19\n\x11languageModelPath\x18\x02 \x01(\t\"4\n#NormalizationInitializationResponse\x12\r\n\x05\x65rror\x18\x01 \x01(\t\"%\n\x14NormalizationRequest\x12\r\n\x05input\x18\x01 \x01(\t\"@\n\x15NormalizationResponse\x12\x18\n\x10normalized_input\x18\x01 \x01(\t\x12\r\n\x05\x65rror\x18\x02 \x01(\t2\x88\x02\n\x14NormalizationService\x12h\n\tNormalize\x12,.zemberek.normalization.NormalizationRequest\x1a-.zemberek.normalization.NormalizationResponse\x12\x85\x01\n\nInitialize\x12:.zemberek.normalization.NormalizationInitializationRequest\x1a;.zemberek.normalization.NormalizationInitializationResponseB\x12\n\x0ezemberek.protoP\x01\x62\x06proto3')
 )
 
 
+
+
+_NORMALIZATIONINITIALIZATIONREQUEST = _descriptor.Descriptor(
+  name='NormalizationInitializationRequest',
+  full_name='zemberek.normalization.NormalizationInitializationRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='normalizationDataRoot', full_name='zemberek.normalization.NormalizationInitializationRequest.normalizationDataRoot', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='languageModelPath', full_name='zemberek.normalization.NormalizationInitializationRequest.languageModelPath', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=47,
+  serialized_end=141,
+)
+
+
+_NORMALIZATIONINITIALIZATIONRESPONSE = _descriptor.Descriptor(
+  name='NormalizationInitializationResponse',
+  full_name='zemberek.normalization.NormalizationInitializationResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='error', full_name='zemberek.normalization.NormalizationInitializationResponse.error', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=143,
+  serialized_end=195,
+)
 
 
 _NORMALIZATIONREQUEST = _descriptor.Descriptor(
@@ -38,21 +107,21 @@ _NORMALIZATIONREQUEST = _descriptor.Descriptor(
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=47,
-  serialized_end=84,
+  serialized_start=197,
+  serialized_end=234,
 )
 
 
@@ -65,30 +134,53 @@ _NORMALIZATIONRESPONSE = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='normalized_input', full_name='zemberek.normalization.NormalizationResponse.normalized_input', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='error', full_name='zemberek.normalization.NormalizationResponse.error', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=86,
-  serialized_end=135,
+  serialized_start=236,
+  serialized_end=300,
 )
 
+DESCRIPTOR.message_types_by_name['NormalizationInitializationRequest'] = _NORMALIZATIONINITIALIZATIONREQUEST
+DESCRIPTOR.message_types_by_name['NormalizationInitializationResponse'] = _NORMALIZATIONINITIALIZATIONRESPONSE
 DESCRIPTOR.message_types_by_name['NormalizationRequest'] = _NORMALIZATIONREQUEST
 DESCRIPTOR.message_types_by_name['NormalizationResponse'] = _NORMALIZATIONRESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+NormalizationInitializationRequest = _reflection.GeneratedProtocolMessageType('NormalizationInitializationRequest', (_message.Message,), dict(
+  DESCRIPTOR = _NORMALIZATIONINITIALIZATIONREQUEST,
+  __module__ = 'normalization_pb2'
+  # @@protoc_insertion_point(class_scope:zemberek.normalization.NormalizationInitializationRequest)
+  ))
+_sym_db.RegisterMessage(NormalizationInitializationRequest)
+
+NormalizationInitializationResponse = _reflection.GeneratedProtocolMessageType('NormalizationInitializationResponse', (_message.Message,), dict(
+  DESCRIPTOR = _NORMALIZATIONINITIALIZATIONRESPONSE,
+  __module__ = 'normalization_pb2'
+  # @@protoc_insertion_point(class_scope:zemberek.normalization.NormalizationInitializationResponse)
+  ))
+_sym_db.RegisterMessage(NormalizationInitializationResponse)
 
 NormalizationRequest = _reflection.GeneratedProtocolMessageType('NormalizationRequest', (_message.Message,), dict(
   DESCRIPTOR = _NORMALIZATIONREQUEST,
@@ -105,17 +197,16 @@ NormalizationResponse = _reflection.GeneratedProtocolMessageType('NormalizationR
 _sym_db.RegisterMessage(NormalizationResponse)
 
 
-DESCRIPTOR.has_options = True
-DESCRIPTOR._options = _descriptor._ParseOptions(descriptor_pb2.FileOptions(), _b('\n\016zemberek.protoP\001'))
+DESCRIPTOR._options = None
 
 _NORMALIZATIONSERVICE = _descriptor.ServiceDescriptor(
   name='NormalizationService',
   full_name='zemberek.normalization.NormalizationService',
   file=DESCRIPTOR,
   index=0,
-  options=None,
-  serialized_start=138,
-  serialized_end=266,
+  serialized_options=None,
+  serialized_start=303,
+  serialized_end=567,
   methods=[
   _descriptor.MethodDescriptor(
     name='Normalize',
@@ -124,7 +215,16 @@ _NORMALIZATIONSERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_NORMALIZATIONREQUEST,
     output_type=_NORMALIZATIONRESPONSE,
-    options=None,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='Initialize',
+    full_name='zemberek.normalization.NormalizationService.Initialize',
+    index=1,
+    containing_service=None,
+    input_type=_NORMALIZATIONINITIALIZATIONREQUEST,
+    output_type=_NORMALIZATIONINITIALIZATIONRESPONSE,
+    serialized_options=None,
   ),
 ])
 _sym_db.RegisterServiceDescriptor(_NORMALIZATIONSERVICE)

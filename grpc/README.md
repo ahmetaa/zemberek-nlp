@@ -6,10 +6,10 @@ Zemberek gRPC Server (Not Yet Released)
 Zemberek-NLP provides some of its functions via a remote procedure call framework called `gRPC`.
 [gRPC](https://grpc.io) is a high performance, open-source universal RPC framework. Once Zemberek-NLP 
 gRPC server is started, other applications can access remote services natively via automatically 
-generated client libraries. gRPC supports many languages out of the box (Java, Python, C++, C#, Node.js etc.).
+generated client libraries. gRPC supports many languages out of the box such as Java, Python, C++, C#, Node.js etc.
 
-Initially only a limited number of functions are available and only Java and Python client libraries
-are provided. 
+Initially only a limited number of functions are available and only Python client library
+is provided. 
 
 All remote API is subject to change without notice until version 1.0.0.
  
