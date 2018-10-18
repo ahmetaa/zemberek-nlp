@@ -42,7 +42,7 @@ There is also a simple informal to formal conversion mechanism. For example:
 
 [#188](https://github.com/ahmetaa/zemberek-nlp/issues/188) Cannot analyze sendeki, bendeki etc
 
-[#184](https://github.com/ahmetaa/zemberek-nlp/issues/185) Cannot analyze `abimsin` or any Noun+..+P1sg+..+Verb+..+A2sg
+[#185](https://github.com/ahmetaa/zemberek-nlp/issues/185) Cannot analyze `abimsin` or any Noun+..+P1sg+..+Verb+..+A2sg
 
 [#183](https://github.com/ahmetaa/zemberek-nlp/issues/183) Cannot analyze "Tübitak'a"
 
