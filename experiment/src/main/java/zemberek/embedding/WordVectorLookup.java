@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
-import zemberek.core.collections.UIntFloatMap;
+import zemberek.core.collections.IntFloatMap;
 import zemberek.core.collections.UIntMap;
 import zemberek.core.io.IOUtil;
 import zemberek.core.math.FloatArrays;
@@ -182,11 +182,11 @@ public class WordVectorLookup {
   public static class DistanceMatcher {
 
     WordVectorLookup lookup;
-    private UIntFloatMap cMap;
+    private IntFloatMap cMap;
 
     public DistanceMatcher(WordVectorLookup lookup) {
       this.lookup = lookup;
-      this.cMap = new UIntFloatMap(lookup.vectors.size());
+      this.cMap = new IntFloatMap(lookup.vectors.size());
       for (int i : lookup.vectors.getKeys()) {
         cMap.put(i, lookup.vectors.get(i).c());
       }
