@@ -39,7 +39,7 @@ Dictionary rules are explained [here](https://github.com/ahmetaa/zemberek-nlp/wi
 For adding this dictionary, builder mechanism is used for instantiation:
   
     TurkishMorphology analyzer = TurkishMorphology.builder()
-            .addDefaultDictionaries()
+            .addDefaultBinaryDictionary()
             .addTextDictionaries(new File("my-dictionary.txt"))
             .build();
   
@@ -114,6 +114,33 @@ Finds all morphological analyses, stems and lemmas of word "kitabımızsa"
  - Some words may not get analyzed correctly.
  - Words with circumflex letters may have problems.
  - Proper noun and Abbreviations may not be analyzed correctly
+ 
+### Informal Turkish Words Analysis
+
+As of version 0.16.0, There is a mechanism for analyzing Turkish informal words. For example, word `okuycam`, analysis
+may be:
+
+    [okumak:Verb] oku:Verb+yca:FutInformal+m:A1sg   
+
+Informal morpheme names (like `FutInformal`) have `Informal` suffix. 
+
+For enabling informal morphological analysis, TurkishMorphology class should be initialized like this:
+
+    RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
+    
+    TurkishMorphology morpholog = TurkishMorphology
+      .builder()
+      .useLexicon(lexicon)
+      .morphotactics(new InformalTurkishMorphotactics(lexicon))
+      .build();
+      
+    morphology.analyze("okumuycam");
+
+In next releases probably there will be an easier way of enabling this mechanism. Note that 
+ambiguity resolution mechanism may not work well if sentence contains informal morphemes. 
+There is also a simple informal to formal conversion mechanism. For example: 
+
+TODO
 
 ## Ambiguity Resolution
 
