@@ -85,7 +85,7 @@ actual algorithms to the text. Normalization especially helps improved results i
 - Chat, messaging or bot applications  
 - Mobil phone keyboards with no or bad spell correction.
 
-This tool should may not be suitable when very high accuracy automatic correction is required.
+This tool may not be suitable when very high accuracy automatic correction is required.
 
 ### Usage
 
