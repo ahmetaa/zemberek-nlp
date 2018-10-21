@@ -1,11 +1,9 @@
 package zemberek.grpc.server;
 
 import io.grpc.stub.StreamObserver;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.IOException;
+import zemberek.core.logging.Log;
 import zemberek.normalization.TurkishSentenceNormalizer;
-import zemberek.proto.NormalizationInitializationRequest;
-import zemberek.proto.NormalizationInitializationResponse;
 import zemberek.proto.NormalizationRequest;
 import zemberek.proto.NormalizationResponse;
 import zemberek.proto.NormalizationServiceGrpc.NormalizationServiceImplBase;
@@ -14,31 +12,18 @@ public class NormalizationServiceImpl extends NormalizationServiceImplBase {
 
   ZemberekContext context;
 
-  private Path dataRoot;
-  private Path lmPath;
   TurkishSentenceNormalizer sentenceNormalizer;
 
-  public NormalizationServiceImpl(ZemberekContext context) {
+  public NormalizationServiceImpl(ZemberekContext context) throws IOException {
     this.context = context;
-  }
-
-  @Override
-  public synchronized void initialize(NormalizationInitializationRequest request,
-      StreamObserver<NormalizationInitializationResponse> responseObserver) {
-    dataRoot = Paths.get(request.getNormalizationDataRoot());
-    lmPath = Paths.get(request.getLanguageModelPath());
-    String error = "";
-    try {
+    if (context.configuration.normalizationPathsAvailable()) {
       sentenceNormalizer = new TurkishSentenceNormalizer(
-          context.morphology, dataRoot, lmPath
-      );
-    } catch (Exception e) {
-      e.printStackTrace();
-      error = e.getMessage();
+          context.morphology,
+          context.configuration.normalizationDataRoot,
+          context.configuration.normalizationLmPath);
+    } else {
+      Log.warn("Normalization paths are not available. Normalization service is down.");
     }
-    responseObserver
-        .onNext(NormalizationInitializationResponse.newBuilder().setError(error).build());
-    responseObserver.onCompleted();
   }
 
   @Override

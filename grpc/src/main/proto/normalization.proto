@@ -5,15 +5,6 @@ option java_multiple_files = true;
 
 package zemberek.normalization;
 
-message NormalizationInitializationRequest {
-  string normalizationDataRoot = 1;
-  string languageModelPath = 2;
-}
-
-message NormalizationInitializationResponse {
-  string error = 1;
-}
-
 message NormalizationRequest {
   string input = 1;
 }
@@ -25,5 +16,4 @@ message NormalizationResponse {
 
 service NormalizationService {
   rpc Normalize (NormalizationRequest) returns (NormalizationResponse);
-  rpc Initialize (NormalizationInitializationRequest) returns (NormalizationInitializationResponse);
 }

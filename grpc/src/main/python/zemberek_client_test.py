@@ -9,15 +9,15 @@ import normalization_pb2
 import normalization_pb2_grpc
 import preprocess_pb2
 import preprocess_pb2_grpc
-import simple_analysis_pb2
-import simple_analysis_pb2_grpc
+import morphology_pb2
+import morphology_pb2_grpc
 
 channel = grpc.insecure_channel('localhost:6789')
 
 langid_stub = language_id_pb2_grpc.LanguageIdServiceStub(channel)
 normalization_stub = normalization_pb2_grpc.NormalizationServiceStub(channel)
 preprocess_stub = preprocess_pb2_grpc.PreprocessingServiceStub(channel)
-simple_analysis_stub = simple_analysis_pb2_grpc.SimpleAnalysisServiceStub(channel)
+morphology_stub = morphology_pb2_grpc.MorphologyServiceStub(channel)
 
 def find_lang_id(i):
     response = langid_stub.Detect(language_id_pb2.DetectRequest(input=i))
@@ -32,7 +32,7 @@ def normalize(i):
     return response
 
 def analyze(i):
-    response = simple_analysis_stub.AnalyzeSentence(simple_analysis_pb2.SentenceAnalysisRequest(input=i))
+    response = morphology_stub.AnalyzeSentence(morphology_pb2.SentenceAnalysisRequest(input=i))
     return response;
 
 def run():
@@ -56,7 +56,6 @@ def run():
         print(n_response.normalized_input)
     else:
         print('Problem normalizing input : ' + n_response.error)
-
 
     print("")
     analysis_input = 'Kavanozun kapağını açamadım.'

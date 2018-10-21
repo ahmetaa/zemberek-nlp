@@ -13,22 +13,22 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis.MorphemeData;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.DictionaryItem;
-import zemberek.proto.simple_analysis.DictionaryItem_P;
-import zemberek.proto.simple_analysis.MorphemeData_P;
-import zemberek.proto.simple_analysis.SentenceAnalysisRequest;
-import zemberek.proto.simple_analysis.SentenceAnalysis_P;
-import zemberek.proto.simple_analysis.SentenceWordAnalysis_P;
-import zemberek.proto.simple_analysis.SimpleAnalysisServiceGrpc.SimpleAnalysisServiceImplBase;
-import zemberek.proto.simple_analysis.SingleAnalysis_P;
-import zemberek.proto.simple_analysis.WordAnalysisRequest;
-import zemberek.proto.simple_analysis.WordAnalysis_P;
+import zemberek.proto.morphology.DictionaryItem_P;
+import zemberek.proto.morphology.MorphemeData_P;
+import zemberek.proto.morphology.MorphologyServiceGrpc.MorphologyServiceImplBase;
+import zemberek.proto.morphology.SentenceAnalysisRequest;
+import zemberek.proto.morphology.SentenceAnalysis_P;
+import zemberek.proto.morphology.SentenceWordAnalysis_P;
+import zemberek.proto.morphology.SingleAnalysis_P;
+import zemberek.proto.morphology.WordAnalysisRequest;
+import zemberek.proto.morphology.WordAnalysis_P;
 
 
-public class SimpleAnalysisServiceImpl extends SimpleAnalysisServiceImplBase {
+public class MorphologyServiceImpl extends MorphologyServiceImplBase {
 
   private final TurkishMorphology morphology;
 
-  public SimpleAnalysisServiceImpl(ZemberekContext context) {
+  public MorphologyServiceImpl(ZemberekContext context) {
     morphology = context.morphology;
   }
 

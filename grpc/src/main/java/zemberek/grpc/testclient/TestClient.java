@@ -8,8 +8,6 @@ import zemberek.proto.DetectRequest;
 import zemberek.proto.DetectResponse;
 import zemberek.proto.LanguageIdServiceGrpc;
 import zemberek.proto.LanguageIdServiceGrpc.LanguageIdServiceBlockingStub;
-import zemberek.proto.NormalizationInitializationRequest;
-import zemberek.proto.NormalizationInitializationResponse;
 import zemberek.proto.NormalizationRequest;
 import zemberek.proto.NormalizationResponse;
 import zemberek.proto.NormalizationServiceGrpc;
@@ -20,12 +18,12 @@ import zemberek.proto.SentenceExtractionRequest;
 import zemberek.proto.SentenceExtractionResponse;
 import zemberek.proto.TokenizationRequest;
 import zemberek.proto.TokenizationResponse;
-import zemberek.proto.simple_analysis.SentenceAnalysisRequest;
-import zemberek.proto.simple_analysis.SentenceAnalysis_P;
-import zemberek.proto.simple_analysis.SimpleAnalysisServiceGrpc;
-import zemberek.proto.simple_analysis.SimpleAnalysisServiceGrpc.SimpleAnalysisServiceBlockingStub;
-import zemberek.proto.simple_analysis.WordAnalysisRequest;
-import zemberek.proto.simple_analysis.WordAnalysis_P;
+import zemberek.proto.morphology.MorphologyServiceGrpc;
+import zemberek.proto.morphology.MorphologyServiceGrpc.MorphologyServiceBlockingStub;
+import zemberek.proto.morphology.SentenceAnalysisRequest;
+import zemberek.proto.morphology.SentenceAnalysis_P;
+import zemberek.proto.morphology.WordAnalysisRequest;
+import zemberek.proto.morphology.WordAnalysis_P;
 
 public class TestClient {
 
@@ -34,7 +32,7 @@ public class TestClient {
         .forAddress("localhost", ZemberekGrpcServer.DEFAULT_PORT)
         .usePlaintext()
         .build();
-    SimpleAnalysisServiceBlockingStub analysisService = SimpleAnalysisServiceGrpc
+    MorphologyServiceBlockingStub analysisService = MorphologyServiceGrpc
         .newBlockingStub(channel);
     LanguageIdServiceBlockingStub languageIdServiceBlockingStub = LanguageIdServiceGrpc
         .newBlockingStub(channel);
@@ -89,22 +87,11 @@ public class TestClient {
     Log.info("----- Normalization ------------ ");
     String normalizationiInput = "Merhab ben Zemberk.";
 
-    NormalizationInitializationResponse nInitResponse = normalizationServiceBlockingStub
-        .initialize(NormalizationInitializationRequest.newBuilder()
-            .setNormalizationDataRoot("/home/ahmetaa/zemberek-data/normalization")
-            .setLanguageModelPath("/home/ahmetaa/zemberek-data/lm/lm.slm")
+    NormalizationResponse normalizationResponse = normalizationServiceBlockingStub
+        .normalize(NormalizationRequest.newBuilder()
+            .setInput(normalizationiInput)
             .build());
-
-    if (nInitResponse.getError().length() == 0) {
-      NormalizationResponse normalizationResponse = normalizationServiceBlockingStub
-          .normalize(NormalizationRequest.newBuilder()
-              .setInput(normalizationiInput)
-              .build());
-      Log.info("Input: " + normalizationiInput);
-      Log.info("Response: " + normalizationResponse.getNormalizedInput());
-    } else {
-      Log.warn("Error initializing normalization service. " + nInitResponse.getError());
-    }
-
+    Log.info("Input: " + normalizationiInput);
+    Log.info("Response: " + normalizationResponse.getNormalizedInput());
   }
 }

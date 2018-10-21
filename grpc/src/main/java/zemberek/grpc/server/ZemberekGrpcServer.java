@@ -11,13 +11,9 @@ public class ZemberekGrpcServer {
   private final int port;
   private ZemberekContext context;
 
-  public ZemberekGrpcServer() {
-    this(DEFAULT_PORT);
-  }
-
-  public ZemberekGrpcServer(int port) {
+  public ZemberekGrpcServer(int port, ZemberekGrpcConfiguration configuration) {
     this.port = port;
-    context = new ZemberekContext();
+    context = new ZemberekContext(configuration);
   }
 
   public int getPort() {
@@ -33,7 +29,7 @@ public class ZemberekGrpcServer {
         .addService(new LanguageIdServiceImpl())
         .addService(new PreprocessingServiceImpl())
         .addService(new NormalizationServiceImpl(context))
-        .addService(new SimpleAnalysisServiceImpl(context))
+        .addService(new MorphologyServiceImpl(context))
         .build()
         .start();
     Log.info("Zemberek grpc server started at port: " + port);
@@ -41,7 +37,7 @@ public class ZemberekGrpcServer {
   }
 
   public static void main(String[] args) throws Exception {
-    new ZemberekGrpcServer().start();
+    new ZemberekGrpcServer(DEFAULT_PORT, null).start();
   }
 
 }

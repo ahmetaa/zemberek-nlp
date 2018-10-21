@@ -19,11 +19,6 @@ class NormalizationServiceStub(object):
         request_serializer=normalization__pb2.NormalizationRequest.SerializeToString,
         response_deserializer=normalization__pb2.NormalizationResponse.FromString,
         )
-    self.Initialize = channel.unary_unary(
-        '/zemberek.normalization.NormalizationService/Initialize',
-        request_serializer=normalization__pb2.NormalizationInitializationRequest.SerializeToString,
-        response_deserializer=normalization__pb2.NormalizationInitializationResponse.FromString,
-        )
 
 
 class NormalizationServiceServicer(object):
@@ -37,13 +32,6 @@ class NormalizationServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def Initialize(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
-    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-    context.set_details('Method not implemented!')
-    raise NotImplementedError('Method not implemented!')
-
 
 def add_NormalizationServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -51,11 +39,6 @@ def add_NormalizationServiceServicer_to_server(servicer, server):
           servicer.Normalize,
           request_deserializer=normalization__pb2.NormalizationRequest.FromString,
           response_serializer=normalization__pb2.NormalizationResponse.SerializeToString,
-      ),
-      'Initialize': grpc.unary_unary_rpc_method_handler(
-          servicer.Initialize,
-          request_deserializer=normalization__pb2.NormalizationInitializationRequest.FromString,
-          response_serializer=normalization__pb2.NormalizationInitializationResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

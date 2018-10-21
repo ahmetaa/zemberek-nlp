@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-option java_package = "zemberek.proto.simple_analysis";
+option java_package = "zemberek.proto.morphology";
 option java_multiple_files = true;
 
-package zemberek.simple_analysis;
+package zemberek.morphology;
 
 // Morphological analysis request for a single word.
 message WordAnalysisRequest {
@@ -74,7 +74,7 @@ message SentenceWordAnalysis_P {
   WordAnalysis_P all = 3;
 }
 
-service SimpleAnalysisService {
+service MorphologyService {
   rpc AnalyzeSentence (SentenceAnalysisRequest) returns (SentenceAnalysis_P);
   rpc AnalyzeWord (WordAnalysisRequest) returns (WordAnalysis_P);
 }
