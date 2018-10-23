@@ -21,9 +21,9 @@ import zemberek.proto.TokenizationResponse;
 import zemberek.proto.morphology.MorphologyServiceGrpc;
 import zemberek.proto.morphology.MorphologyServiceGrpc.MorphologyServiceBlockingStub;
 import zemberek.proto.morphology.SentenceAnalysisRequest;
-import zemberek.proto.morphology.SentenceAnalysis_P;
+import zemberek.proto.morphology.SentenceAnalysisProto;
 import zemberek.proto.morphology.WordAnalysisRequest;
-import zemberek.proto.morphology.WordAnalysis_P;
+import zemberek.proto.morphology.WordAnalysisProto;
 
 public class TestClient {
 
@@ -43,7 +43,7 @@ public class TestClient {
 
     Log.info("----- Word Morphological Analysis ------------ ");
     String input = "tapirler";
-    WordAnalysis_P response = analysisService.analyzeWord(WordAnalysisRequest.newBuilder()
+    WordAnalysisProto response = analysisService.analyzeWord(WordAnalysisRequest.newBuilder()
         .setInput(input)
         .build());
     Log.info("Input: " + input);
@@ -51,7 +51,7 @@ public class TestClient {
 
     Log.info("----- Sentence Morphological Analysis ------------ ");
     String sentence = "Ali Kaan okula gitti mi?";
-    SentenceAnalysis_P sResponse = analysisService.analyzeSentence(
+    SentenceAnalysisProto sResponse = analysisService.analyzeSentence(
         SentenceAnalysisRequest.newBuilder()
             .setInput(sentence)
             .build());

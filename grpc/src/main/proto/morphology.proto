@@ -12,18 +12,18 @@ message WordAnalysisRequest {
 
 // A dictionary item. Lemma and pos values are provided.
 // TODO: POS values should be enums.
-message DictionaryItem_P {
+message DictionaryItemProto {
   string lemma = 1;
   string primaryPos = 2;
   string secondaryPos = 3;
 }
 
 // represents a single morphological analysis result.
-message SingleAnalysis_P {
+message SingleAnalysisProto {
   // Defines the POS of the whole word.
   string pos = 1;
   // root word's dictionary information (contains lemma and pos values.)
-  DictionaryItem_P dictionaryItem = 2;
+  DictionaryItemProto dictionaryItem = 2;
   // This is the long formatted analysis string.
   string analysis = 3;
   // [true] if this analysis contain informal morphemes.
@@ -33,21 +33,21 @@ message SingleAnalysis_P {
   // all lemma values. Such as for input "kapattırdım" -> ["kapat","kapattır"]
   repeated string lemmas = 6;
   // all morpheme information.
-  repeated MorphemeData_P morphemes =7;
+  repeated MorphemeDataProto morphemes = 7;
 }
 
 // Contains surface form and id of the morpheme.
 // Like surface = "acak", morpheme = Fut
-message MorphemeData_P {
+message MorphemeDataProto {
   string surface = 1;
   string morpheme = 2;
 }
 
 // Contains all analyses of a word.
-message WordAnalysis_P {
+message WordAnalysisProto {
   // input word.
   string input = 1;
-  repeated SingleAnalysis_P analyses = 2;
+  repeated SingleAnalysisProto analyses = 2;
 }
 
 // Sentence analysis request.
@@ -59,22 +59,22 @@ message SentenceAnalysisRequest {
   bool containAllAnalyses =2;
 }
 
-message SentenceAnalysis_P {
+message SentenceAnalysisProto {
   // input sentence
   string input = 1;
   // for each token, result best morphological analysis and if requested, all
   // analyses.
-  repeated SentenceWordAnalysis_P results = 2;
+  repeated SentenceWordAnalysisProto results = 2;
 }
 
 // After disambiguation, a SentenceWordAnalysis_P object per use is used.
-message SentenceWordAnalysis_P {
+message SentenceWordAnalysisProto {
   string token = 1;
-  SingleAnalysis_P best = 2;
-  WordAnalysis_P all = 3;
+  SingleAnalysisProto best = 2;
+  WordAnalysisProto all = 3;
 }
 
 service MorphologyService {
-  rpc AnalyzeSentence (SentenceAnalysisRequest) returns (SentenceAnalysis_P);
-  rpc AnalyzeWord (WordAnalysisRequest) returns (WordAnalysis_P);
+  rpc AnalyzeSentence (SentenceAnalysisRequest) returns (SentenceAnalysisProto);
+  rpc AnalyzeWord (WordAnalysisRequest) returns (WordAnalysisProto);
 }

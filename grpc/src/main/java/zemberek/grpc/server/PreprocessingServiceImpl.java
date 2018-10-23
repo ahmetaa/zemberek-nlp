@@ -7,7 +7,7 @@ import org.antlr.v4.runtime.Token;
 import zemberek.proto.PreprocessingServiceGrpc.PreprocessingServiceImplBase;
 import zemberek.proto.SentenceExtractionRequest;
 import zemberek.proto.SentenceExtractionResponse;
-import zemberek.proto.Token.Builder;
+import zemberek.proto.TokenProto;
 import zemberek.proto.TokenizationRequest;
 import zemberek.proto.TokenizationResponse;
 import zemberek.tokenization.TurkishSentenceExtractor;
@@ -26,7 +26,7 @@ public class PreprocessingServiceImpl extends PreprocessingServiceImplBase {
 
   public void tokenize(TokenizationRequest request,
       StreamObserver<TokenizationResponse> responseObserver) {
-    List<zemberek.proto.Token> tokens =
+    List<TokenProto> tokens =
         tokenizer.tokenize(request.getInput())
             .stream()
             .map(token -> build(request, token))
@@ -38,8 +38,8 @@ public class PreprocessingServiceImpl extends PreprocessingServiceImplBase {
     responseObserver.onCompleted();
   }
 
-  private static zemberek.proto.Token build(TokenizationRequest request, Token token) {
-    Builder builder = zemberek.proto.Token.newBuilder().setToken(token.getText())
+  private static TokenProto build(TokenizationRequest request, Token token) {
+    TokenProto.Builder builder = TokenProto.newBuilder().setToken(token.getText())
         .setType(TurkishLexer.VOCABULARY.getDisplayName(token.getType()));
     if (request.getIncludeTokenBoundaries()) {
       builder.setStart(token.getStartIndex())
