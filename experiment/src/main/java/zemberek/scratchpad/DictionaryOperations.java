@@ -4,7 +4,10 @@ import com.google.common.collect.TreeMultimap;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import zemberek.core.logging.Log;
@@ -116,6 +119,66 @@ public class DictionaryOperations {
     Files.write(Paths.get("zemberek.proper.vocab"), list);
   }
 
+  public static void findAbbreviations() throws IOException {
+    //TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    RootLexicon lexicon = TurkishDictionaryLoader.loadFromResources(
+        "tr/non-tdk.dict"
+    );
+    Set<String> set = new HashSet<>();
+    for (DictionaryItem item : lexicon) {
+
+      String lemma = item.lemma;
+      if (item.attributes.contains(RootAttribute.Dummy)) {
+        continue;
+      }
+      if (item.secondaryPos != SecondaryPos.ProperNoun) {
+        continue;
+      }
+      TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+      if (!alphabet.containsVowel(lemma) ||
+          (lemma.length() > 3 && !alphabet.containsVowel(lemma.substring(0, 3)))) {
+        set.add(lemma + " [P:Abbrv]");
+      }
+    }
+    List<String> list = new ArrayList<>(set);
+    list.sort(Turkish.STRING_COMPARATOR_ASC);
+    Files.write(Paths.get("zemberek.possible.abbrv2"), list);
+  }
+
+  public static void checkAbbreviations() throws IOException {
+    LinkedHashSet<String> fromProper =
+        new LinkedHashSet<>(TextIO.loadLinesFromResource("tr/proper-from-corpus.dict"));
+    LinkedHashSet<String> fromAbbrv =
+        new LinkedHashSet<>(TextIO.loadLinesFromResource("tr/abbreviations.dict"));
+
+    Map<String, String> map = new HashMap<>();
+    putToMap(fromProper, map);
+    Map<String, String> mapAbbrv = new HashMap<>();
+    putToMap(fromAbbrv, mapAbbrv);
+
+    for (String s : mapAbbrv.keySet()) {
+      if (map.containsKey(s)) {
+        Log.info(s);
+        map.remove(s);
+      }
+    }
+
+    List<String> vals = new ArrayList<>(map.values());
+    vals.sort(Turkish.STRING_COMPARATOR_ASC);
+
+    Files.write(Paths.get("zemberek.prop.sorted"), vals);
+  }
+
+  private static void putToMap(LinkedHashSet<String> fromProper, Map<String, String> map) {
+    for (String s : fromProper) {
+      int i = s.indexOf(" ");
+      if (i > 0) {
+        map.put(s.substring(0, i), s);
+      } else {
+        map.put(s, s);
+      }
+    }
+  }
 
   public static void main(String[] args) throws IOException {
     //saveLemmas(1);
@@ -123,8 +186,10 @@ public class DictionaryOperations {
     Path root = Paths.get("/home/ahmetaa/data/tdk-out");
     Path out = Paths.get("foo.txt");
 
-    extractGroups(root, out);    //saveProperNouns();
+    //extractGroups(root, out);    //saveProperNouns();
     //matchingLines("P:Det", Paths.get("det.txt"));
+    //findAbbreviations();
+    checkAbbreviations();
   }
 
   public static void extractGroups(Path root, Path output) throws IOException {
@@ -143,10 +208,10 @@ public class DictionaryOperations {
       String s = TextIO.loadUtfAsString(file);
 
       List<String> matches = Regexps.getMatchesForGroup(s, p1, 2);
-      String name = URLDecoder.decode(file.toFile().getName().replaceAll("\\.html",""), "utf-8");
+      String name = URLDecoder.decode(file.toFile().getName().replaceAll("\\.html", ""), "utf-8");
       name = name.toLowerCase(TurkishAlphabet.TR);
       result.putAll(name, matches);
-      if(matches.size()>0) {
+      if (matches.size() > 0) {
         System.out.println(file);
         System.out.println("---");
         for (String match : matches) {
@@ -157,14 +222,14 @@ public class DictionaryOperations {
 
     }
 
-    try(PrintWriter pw = new PrintWriter(output.toFile(), "utf-8" )) {
-      for(String key : result.keySet()) {
+    try (PrintWriter pw = new PrintWriter(output.toFile(), "utf-8")) {
+      for (String key : result.keySet()) {
         List<String> vals = new ArrayList<>(result.get(key));
-        String v = String.join("|",vals);
-        if(v.length()==0) {
+        String v = String.join("|", vals);
+        if (v.length() == 0) {
           v = "_";
         }
-        pw.println(key+ " = "+ v );
+        pw.println(key + " = " + v);
       }
     }
 

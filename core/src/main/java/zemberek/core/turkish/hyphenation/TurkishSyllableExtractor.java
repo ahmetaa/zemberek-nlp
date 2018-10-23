@@ -1,14 +1,18 @@
 package zemberek.core.turkish.hyphenation;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 import zemberek.core.turkish.TurkishAlphabet;
 
 /**
  * This syllable service is designed for extracting syllable information from Turkish words.
- * Algorithm cannot parse words like
- * "tren", "spor", "sfinks", "angstrom", "mavimtrak", "stetoskop" etc.
+ * Algorithm cannot parse words like "tren", "spor", "sfinks", "angstrom", "mavimtrak", "stetoskop"
+ * etc.
  */
 public class TurkishSyllableExtractor implements SyllableExtractor {
 
@@ -21,6 +25,18 @@ public class TurkishSyllableExtractor implements SyllableExtractor {
   public static TurkishSyllableExtractor DEFAULT = new TurkishSyllableExtractor(false);
 
   public final boolean strict;
+
+  private static HashSet<String> acceptedSyllablePrefixes;
+
+  static {
+    acceptedSyllablePrefixes = new HashSet<>();
+    try {
+      acceptedSyllablePrefixes.addAll(TextIO.loadLinesFromResource(
+          "zemberek/core/syllable/accepted-syllable-prefixes"));
+    } catch (IOException e) {
+      Log.warn("Cannot find accepted syllable prefixes.");
+    }
+  }
 
   private TurkishSyllableExtractor(boolean strict) {
     this.strict = strict;
@@ -96,7 +112,7 @@ public class TurkishSyllableExtractor implements SyllableExtractor {
         if (endIndex == 3 || isVowel(chr[endIndex - 4])) {
           return 3;
         }
-        // If the word is 4 letters and riles above passed, we assume this cannot be parsed.
+        // If the word is 4 letters and rules above passed, we assume this cannot be parsed.
         // That is why words like tren, strateji, krank, angstrom cannot be parsed.
         if (endIndex == 4) {
           return -1;
