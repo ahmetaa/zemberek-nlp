@@ -7,6 +7,7 @@ from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
+from google.protobuf import descriptor_pb2
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
@@ -18,8 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='morphology.proto',
   package='zemberek.morphology',
   syntax='proto3',
-  serialized_options=_b('\n\031zemberek.proto.morphologyP\001'),
-  serialized_pb=_b('\n\x10morphology.proto\x12\x13zemberek.morphology\"$\n\x13WordAnalysisRequest\x12\r\n\x05input\x18\x01 \x01(\t\"K\n\x10\x44ictionaryItem_P\x12\r\n\x05lemma\x18\x01 \x01(\t\x12\x12\n\nprimaryPos\x18\x02 \x01(\t\x12\x14\n\x0csecondaryPos\x18\x03 \x01(\t\"\xdb\x01\n\x10SingleAnalysis_P\x12\x0b\n\x03pos\x18\x01 \x01(\t\x12=\n\x0e\x64ictionaryItem\x18\x02 \x01(\x0b\x32%.zemberek.morphology.DictionaryItem_P\x12\x10\n\x08\x61nalysis\x18\x03 \x01(\t\x12\x10\n\x08informal\x18\x04 \x01(\x08\x12\x0f\n\x07runtime\x18\x05 \x01(\x08\x12\x0e\n\x06lemmas\x18\x06 \x03(\t\x12\x36\n\tmorphemes\x18\x07 \x03(\x0b\x32#.zemberek.morphology.MorphemeData_P\"3\n\x0eMorphemeData_P\x12\x0f\n\x07surface\x18\x01 \x01(\t\x12\x10\n\x08morpheme\x18\x02 \x01(\t\"X\n\x0eWordAnalysis_P\x12\r\n\x05input\x18\x01 \x01(\t\x12\x37\n\x08\x61nalyses\x18\x02 \x03(\x0b\x32%.zemberek.morphology.SingleAnalysis_P\"D\n\x17SentenceAnalysisRequest\x12\r\n\x05input\x18\x01 \x01(\t\x12\x1a\n\x12\x63ontainAllAnalyses\x18\x02 \x01(\x08\"a\n\x12SentenceAnalysis_P\x12\r\n\x05input\x18\x01 \x01(\t\x12<\n\x07results\x18\x02 \x03(\x0b\x32+.zemberek.morphology.SentenceWordAnalysis_P\"\x8e\x01\n\x16SentenceWordAnalysis_P\x12\r\n\x05token\x18\x01 \x01(\t\x12\x33\n\x04\x62\x65st\x18\x02 \x01(\x0b\x32%.zemberek.morphology.SingleAnalysis_P\x12\x30\n\x03\x61ll\x18\x03 \x01(\x0b\x32#.zemberek.morphology.WordAnalysis_P2\xdb\x01\n\x11MorphologyService\x12h\n\x0f\x41nalyzeSentence\x12,.zemberek.morphology.SentenceAnalysisRequest\x1a\'.zemberek.morphology.SentenceAnalysis_P\x12\\\n\x0b\x41nalyzeWord\x12(.zemberek.morphology.WordAnalysisRequest\x1a#.zemberek.morphology.WordAnalysis_PB\x1d\n\x19zemberek.proto.morphologyP\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x10morphology.proto\x12\x13zemberek.morphology\"$\n\x13WordAnalysisRequest\x12\r\n\x05input\x18\x01 \x01(\t\"N\n\x13\x44ictionaryItemProto\x12\r\n\x05lemma\x18\x01 \x01(\t\x12\x12\n\nprimaryPos\x18\x02 \x01(\t\x12\x14\n\x0csecondaryPos\x18\x03 \x01(\t\"\xe4\x01\n\x13SingleAnalysisProto\x12\x0b\n\x03pos\x18\x01 \x01(\t\x12@\n\x0e\x64ictionaryItem\x18\x02 \x01(\x0b\x32(.zemberek.morphology.DictionaryItemProto\x12\x10\n\x08\x61nalysis\x18\x03 \x01(\t\x12\x10\n\x08informal\x18\x04 \x01(\x08\x12\x0f\n\x07runtime\x18\x05 \x01(\x08\x12\x0e\n\x06lemmas\x18\x06 \x03(\t\x12\x39\n\tmorphemes\x18\x07 \x03(\x0b\x32&.zemberek.morphology.MorphemeDataProto\"6\n\x11MorphemeDataProto\x12\x0f\n\x07surface\x18\x01 \x01(\t\x12\x10\n\x08morpheme\x18\x02 \x01(\t\"^\n\x11WordAnalysisProto\x12\r\n\x05input\x18\x01 \x01(\t\x12:\n\x08\x61nalyses\x18\x02 \x03(\x0b\x32(.zemberek.morphology.SingleAnalysisProto\"D\n\x17SentenceAnalysisRequest\x12\r\n\x05input\x18\x01 \x01(\t\x12\x1a\n\x12\x63ontainAllAnalyses\x18\x02 \x01(\x08\"g\n\x15SentenceAnalysisProto\x12\r\n\x05input\x18\x01 \x01(\t\x12?\n\x07results\x18\x02 \x03(\x0b\x32..zemberek.morphology.SentenceWordAnalysisProto\"\x97\x01\n\x19SentenceWordAnalysisProto\x12\r\n\x05token\x18\x01 \x01(\t\x12\x36\n\x04\x62\x65st\x18\x02 \x01(\x0b\x32(.zemberek.morphology.SingleAnalysisProto\x12\x33\n\x03\x61ll\x18\x03 \x01(\x0b\x32&.zemberek.morphology.WordAnalysisProto2\xe1\x01\n\x11MorphologyService\x12k\n\x0f\x41nalyzeSentence\x12,.zemberek.morphology.SentenceAnalysisRequest\x1a*.zemberek.morphology.SentenceAnalysisProto\x12_\n\x0b\x41nalyzeWord\x12(.zemberek.morphology.WordAnalysisRequest\x1a&.zemberek.morphology.WordAnalysisProtoB\x1d\n\x19zemberek.proto.morphologyP\x01\x62\x06proto3')
 )
 
 
@@ -38,14 +38,14 @@ _WORDANALYSISREQUEST = _descriptor.Descriptor(
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=None,
+  options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
@@ -56,197 +56,197 @@ _WORDANALYSISREQUEST = _descriptor.Descriptor(
 )
 
 
-_DICTIONARYITEM_P = _descriptor.Descriptor(
-  name='DictionaryItem_P',
-  full_name='zemberek.morphology.DictionaryItem_P',
+_DICTIONARYITEMPROTO = _descriptor.Descriptor(
+  name='DictionaryItemProto',
+  full_name='zemberek.morphology.DictionaryItemProto',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='lemma', full_name='zemberek.morphology.DictionaryItem_P.lemma', index=0,
+      name='lemma', full_name='zemberek.morphology.DictionaryItemProto.lemma', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='primaryPos', full_name='zemberek.morphology.DictionaryItem_P.primaryPos', index=1,
+      name='primaryPos', full_name='zemberek.morphology.DictionaryItemProto.primaryPos', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='secondaryPos', full_name='zemberek.morphology.DictionaryItem_P.secondaryPos', index=2,
+      name='secondaryPos', full_name='zemberek.morphology.DictionaryItemProto.secondaryPos', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=None,
+  options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
   serialized_start=79,
-  serialized_end=154,
+  serialized_end=157,
 )
 
 
-_SINGLEANALYSIS_P = _descriptor.Descriptor(
-  name='SingleAnalysis_P',
-  full_name='zemberek.morphology.SingleAnalysis_P',
+_SINGLEANALYSISPROTO = _descriptor.Descriptor(
+  name='SingleAnalysisProto',
+  full_name='zemberek.morphology.SingleAnalysisProto',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='pos', full_name='zemberek.morphology.SingleAnalysis_P.pos', index=0,
+      name='pos', full_name='zemberek.morphology.SingleAnalysisProto.pos', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='dictionaryItem', full_name='zemberek.morphology.SingleAnalysis_P.dictionaryItem', index=1,
+      name='dictionaryItem', full_name='zemberek.morphology.SingleAnalysisProto.dictionaryItem', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='analysis', full_name='zemberek.morphology.SingleAnalysis_P.analysis', index=2,
+      name='analysis', full_name='zemberek.morphology.SingleAnalysisProto.analysis', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='informal', full_name='zemberek.morphology.SingleAnalysis_P.informal', index=3,
+      name='informal', full_name='zemberek.morphology.SingleAnalysisProto.informal', index=3,
       number=4, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='runtime', full_name='zemberek.morphology.SingleAnalysis_P.runtime', index=4,
+      name='runtime', full_name='zemberek.morphology.SingleAnalysisProto.runtime', index=4,
       number=5, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='lemmas', full_name='zemberek.morphology.SingleAnalysis_P.lemmas', index=5,
+      name='lemmas', full_name='zemberek.morphology.SingleAnalysisProto.lemmas', index=5,
       number=6, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='morphemes', full_name='zemberek.morphology.SingleAnalysis_P.morphemes', index=6,
+      name='morphemes', full_name='zemberek.morphology.SingleAnalysisProto.morphemes', index=6,
       number=7, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=None,
+  options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=157,
-  serialized_end=376,
+  serialized_start=160,
+  serialized_end=388,
 )
 
 
-_MORPHEMEDATA_P = _descriptor.Descriptor(
-  name='MorphemeData_P',
-  full_name='zemberek.morphology.MorphemeData_P',
+_MORPHEMEDATAPROTO = _descriptor.Descriptor(
+  name='MorphemeDataProto',
+  full_name='zemberek.morphology.MorphemeDataProto',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='surface', full_name='zemberek.morphology.MorphemeData_P.surface', index=0,
+      name='surface', full_name='zemberek.morphology.MorphemeDataProto.surface', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='morpheme', full_name='zemberek.morphology.MorphemeData_P.morpheme', index=1,
+      name='morpheme', full_name='zemberek.morphology.MorphemeDataProto.morpheme', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=None,
+  options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=378,
-  serialized_end=429,
+  serialized_start=390,
+  serialized_end=444,
 )
 
 
-_WORDANALYSIS_P = _descriptor.Descriptor(
-  name='WordAnalysis_P',
-  full_name='zemberek.morphology.WordAnalysis_P',
+_WORDANALYSISPROTO = _descriptor.Descriptor(
+  name='WordAnalysisProto',
+  full_name='zemberek.morphology.WordAnalysisProto',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='input', full_name='zemberek.morphology.WordAnalysis_P.input', index=0,
+      name='input', full_name='zemberek.morphology.WordAnalysisProto.input', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='analyses', full_name='zemberek.morphology.WordAnalysis_P.analyses', index=1,
+      name='analyses', full_name='zemberek.morphology.WordAnalysisProto.analyses', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=None,
+  options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=431,
-  serialized_end=519,
+  serialized_start=446,
+  serialized_end=540,
 )
 
 
@@ -263,127 +263,127 @@ _SENTENCEANALYSISREQUEST = _descriptor.Descriptor(
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='containAllAnalyses', full_name='zemberek.morphology.SentenceAnalysisRequest.containAllAnalyses', index=1,
       number=2, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=None,
+  options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=521,
-  serialized_end=589,
+  serialized_start=542,
+  serialized_end=610,
 )
 
 
-_SENTENCEANALYSIS_P = _descriptor.Descriptor(
-  name='SentenceAnalysis_P',
-  full_name='zemberek.morphology.SentenceAnalysis_P',
+_SENTENCEANALYSISPROTO = _descriptor.Descriptor(
+  name='SentenceAnalysisProto',
+  full_name='zemberek.morphology.SentenceAnalysisProto',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='input', full_name='zemberek.morphology.SentenceAnalysis_P.input', index=0,
+      name='input', full_name='zemberek.morphology.SentenceAnalysisProto.input', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='results', full_name='zemberek.morphology.SentenceAnalysis_P.results', index=1,
+      name='results', full_name='zemberek.morphology.SentenceAnalysisProto.results', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=None,
+  options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=591,
-  serialized_end=688,
+  serialized_start=612,
+  serialized_end=715,
 )
 
 
-_SENTENCEWORDANALYSIS_P = _descriptor.Descriptor(
-  name='SentenceWordAnalysis_P',
-  full_name='zemberek.morphology.SentenceWordAnalysis_P',
+_SENTENCEWORDANALYSISPROTO = _descriptor.Descriptor(
+  name='SentenceWordAnalysisProto',
+  full_name='zemberek.morphology.SentenceWordAnalysisProto',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='token', full_name='zemberek.morphology.SentenceWordAnalysis_P.token', index=0,
+      name='token', full_name='zemberek.morphology.SentenceWordAnalysisProto.token', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='best', full_name='zemberek.morphology.SentenceWordAnalysis_P.best', index=1,
+      name='best', full_name='zemberek.morphology.SentenceWordAnalysisProto.best', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='all', full_name='zemberek.morphology.SentenceWordAnalysis_P.all', index=2,
+      name='all', full_name='zemberek.morphology.SentenceWordAnalysisProto.all', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=None,
+  options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=691,
-  serialized_end=833,
+  serialized_start=718,
+  serialized_end=869,
 )
 
-_SINGLEANALYSIS_P.fields_by_name['dictionaryItem'].message_type = _DICTIONARYITEM_P
-_SINGLEANALYSIS_P.fields_by_name['morphemes'].message_type = _MORPHEMEDATA_P
-_WORDANALYSIS_P.fields_by_name['analyses'].message_type = _SINGLEANALYSIS_P
-_SENTENCEANALYSIS_P.fields_by_name['results'].message_type = _SENTENCEWORDANALYSIS_P
-_SENTENCEWORDANALYSIS_P.fields_by_name['best'].message_type = _SINGLEANALYSIS_P
-_SENTENCEWORDANALYSIS_P.fields_by_name['all'].message_type = _WORDANALYSIS_P
+_SINGLEANALYSISPROTO.fields_by_name['dictionaryItem'].message_type = _DICTIONARYITEMPROTO
+_SINGLEANALYSISPROTO.fields_by_name['morphemes'].message_type = _MORPHEMEDATAPROTO
+_WORDANALYSISPROTO.fields_by_name['analyses'].message_type = _SINGLEANALYSISPROTO
+_SENTENCEANALYSISPROTO.fields_by_name['results'].message_type = _SENTENCEWORDANALYSISPROTO
+_SENTENCEWORDANALYSISPROTO.fields_by_name['best'].message_type = _SINGLEANALYSISPROTO
+_SENTENCEWORDANALYSISPROTO.fields_by_name['all'].message_type = _WORDANALYSISPROTO
 DESCRIPTOR.message_types_by_name['WordAnalysisRequest'] = _WORDANALYSISREQUEST
-DESCRIPTOR.message_types_by_name['DictionaryItem_P'] = _DICTIONARYITEM_P
-DESCRIPTOR.message_types_by_name['SingleAnalysis_P'] = _SINGLEANALYSIS_P
-DESCRIPTOR.message_types_by_name['MorphemeData_P'] = _MORPHEMEDATA_P
-DESCRIPTOR.message_types_by_name['WordAnalysis_P'] = _WORDANALYSIS_P
+DESCRIPTOR.message_types_by_name['DictionaryItemProto'] = _DICTIONARYITEMPROTO
+DESCRIPTOR.message_types_by_name['SingleAnalysisProto'] = _SINGLEANALYSISPROTO
+DESCRIPTOR.message_types_by_name['MorphemeDataProto'] = _MORPHEMEDATAPROTO
+DESCRIPTOR.message_types_by_name['WordAnalysisProto'] = _WORDANALYSISPROTO
 DESCRIPTOR.message_types_by_name['SentenceAnalysisRequest'] = _SENTENCEANALYSISREQUEST
-DESCRIPTOR.message_types_by_name['SentenceAnalysis_P'] = _SENTENCEANALYSIS_P
-DESCRIPTOR.message_types_by_name['SentenceWordAnalysis_P'] = _SENTENCEWORDANALYSIS_P
+DESCRIPTOR.message_types_by_name['SentenceAnalysisProto'] = _SENTENCEANALYSISPROTO
+DESCRIPTOR.message_types_by_name['SentenceWordAnalysisProto'] = _SENTENCEWORDANALYSISPROTO
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 WordAnalysisRequest = _reflection.GeneratedProtocolMessageType('WordAnalysisRequest', (_message.Message,), dict(
@@ -393,33 +393,33 @@ WordAnalysisRequest = _reflection.GeneratedProtocolMessageType('WordAnalysisRequ
   ))
 _sym_db.RegisterMessage(WordAnalysisRequest)
 
-DictionaryItem_P = _reflection.GeneratedProtocolMessageType('DictionaryItem_P', (_message.Message,), dict(
-  DESCRIPTOR = _DICTIONARYITEM_P,
+DictionaryItemProto = _reflection.GeneratedProtocolMessageType('DictionaryItemProto', (_message.Message,), dict(
+  DESCRIPTOR = _DICTIONARYITEMPROTO,
   __module__ = 'morphology_pb2'
-  # @@protoc_insertion_point(class_scope:zemberek.morphology.DictionaryItem_P)
+  # @@protoc_insertion_point(class_scope:zemberek.morphology.DictionaryItemProto)
   ))
-_sym_db.RegisterMessage(DictionaryItem_P)
+_sym_db.RegisterMessage(DictionaryItemProto)
 
-SingleAnalysis_P = _reflection.GeneratedProtocolMessageType('SingleAnalysis_P', (_message.Message,), dict(
-  DESCRIPTOR = _SINGLEANALYSIS_P,
+SingleAnalysisProto = _reflection.GeneratedProtocolMessageType('SingleAnalysisProto', (_message.Message,), dict(
+  DESCRIPTOR = _SINGLEANALYSISPROTO,
   __module__ = 'morphology_pb2'
-  # @@protoc_insertion_point(class_scope:zemberek.morphology.SingleAnalysis_P)
+  # @@protoc_insertion_point(class_scope:zemberek.morphology.SingleAnalysisProto)
   ))
-_sym_db.RegisterMessage(SingleAnalysis_P)
+_sym_db.RegisterMessage(SingleAnalysisProto)
 
-MorphemeData_P = _reflection.GeneratedProtocolMessageType('MorphemeData_P', (_message.Message,), dict(
-  DESCRIPTOR = _MORPHEMEDATA_P,
+MorphemeDataProto = _reflection.GeneratedProtocolMessageType('MorphemeDataProto', (_message.Message,), dict(
+  DESCRIPTOR = _MORPHEMEDATAPROTO,
   __module__ = 'morphology_pb2'
-  # @@protoc_insertion_point(class_scope:zemberek.morphology.MorphemeData_P)
+  # @@protoc_insertion_point(class_scope:zemberek.morphology.MorphemeDataProto)
   ))
-_sym_db.RegisterMessage(MorphemeData_P)
+_sym_db.RegisterMessage(MorphemeDataProto)
 
-WordAnalysis_P = _reflection.GeneratedProtocolMessageType('WordAnalysis_P', (_message.Message,), dict(
-  DESCRIPTOR = _WORDANALYSIS_P,
+WordAnalysisProto = _reflection.GeneratedProtocolMessageType('WordAnalysisProto', (_message.Message,), dict(
+  DESCRIPTOR = _WORDANALYSISPROTO,
   __module__ = 'morphology_pb2'
-  # @@protoc_insertion_point(class_scope:zemberek.morphology.WordAnalysis_P)
+  # @@protoc_insertion_point(class_scope:zemberek.morphology.WordAnalysisProto)
   ))
-_sym_db.RegisterMessage(WordAnalysis_P)
+_sym_db.RegisterMessage(WordAnalysisProto)
 
 SentenceAnalysisRequest = _reflection.GeneratedProtocolMessageType('SentenceAnalysisRequest', (_message.Message,), dict(
   DESCRIPTOR = _SENTENCEANALYSISREQUEST,
@@ -428,31 +428,32 @@ SentenceAnalysisRequest = _reflection.GeneratedProtocolMessageType('SentenceAnal
   ))
 _sym_db.RegisterMessage(SentenceAnalysisRequest)
 
-SentenceAnalysis_P = _reflection.GeneratedProtocolMessageType('SentenceAnalysis_P', (_message.Message,), dict(
-  DESCRIPTOR = _SENTENCEANALYSIS_P,
+SentenceAnalysisProto = _reflection.GeneratedProtocolMessageType('SentenceAnalysisProto', (_message.Message,), dict(
+  DESCRIPTOR = _SENTENCEANALYSISPROTO,
   __module__ = 'morphology_pb2'
-  # @@protoc_insertion_point(class_scope:zemberek.morphology.SentenceAnalysis_P)
+  # @@protoc_insertion_point(class_scope:zemberek.morphology.SentenceAnalysisProto)
   ))
-_sym_db.RegisterMessage(SentenceAnalysis_P)
+_sym_db.RegisterMessage(SentenceAnalysisProto)
 
-SentenceWordAnalysis_P = _reflection.GeneratedProtocolMessageType('SentenceWordAnalysis_P', (_message.Message,), dict(
-  DESCRIPTOR = _SENTENCEWORDANALYSIS_P,
+SentenceWordAnalysisProto = _reflection.GeneratedProtocolMessageType('SentenceWordAnalysisProto', (_message.Message,), dict(
+  DESCRIPTOR = _SENTENCEWORDANALYSISPROTO,
   __module__ = 'morphology_pb2'
-  # @@protoc_insertion_point(class_scope:zemberek.morphology.SentenceWordAnalysis_P)
+  # @@protoc_insertion_point(class_scope:zemberek.morphology.SentenceWordAnalysisProto)
   ))
-_sym_db.RegisterMessage(SentenceWordAnalysis_P)
+_sym_db.RegisterMessage(SentenceWordAnalysisProto)
 
 
-DESCRIPTOR._options = None
+DESCRIPTOR.has_options = True
+DESCRIPTOR._options = _descriptor._ParseOptions(descriptor_pb2.FileOptions(), _b('\n\031zemberek.proto.morphologyP\001'))
 
 _MORPHOLOGYSERVICE = _descriptor.ServiceDescriptor(
   name='MorphologyService',
   full_name='zemberek.morphology.MorphologyService',
   file=DESCRIPTOR,
   index=0,
-  serialized_options=None,
-  serialized_start=836,
-  serialized_end=1055,
+  options=None,
+  serialized_start=872,
+  serialized_end=1097,
   methods=[
   _descriptor.MethodDescriptor(
     name='AnalyzeSentence',
@@ -460,8 +461,8 @@ _MORPHOLOGYSERVICE = _descriptor.ServiceDescriptor(
     index=0,
     containing_service=None,
     input_type=_SENTENCEANALYSISREQUEST,
-    output_type=_SENTENCEANALYSIS_P,
-    serialized_options=None,
+    output_type=_SENTENCEANALYSISPROTO,
+    options=None,
   ),
   _descriptor.MethodDescriptor(
     name='AnalyzeWord',
@@ -469,8 +470,8 @@ _MORPHOLOGYSERVICE = _descriptor.ServiceDescriptor(
     index=1,
     containing_service=None,
     input_type=_WORDANALYSISREQUEST,
-    output_type=_WORDANALYSIS_P,
-    serialized_options=None,
+    output_type=_WORDANALYSISPROTO,
+    options=None,
   ),
 ])
 _sym_db.RegisterServiceDescriptor(_MORPHOLOGYSERVICE)

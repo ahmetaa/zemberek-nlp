@@ -17,12 +17,12 @@ class MorphologyServiceStub(object):
     self.AnalyzeSentence = channel.unary_unary(
         '/zemberek.morphology.MorphologyService/AnalyzeSentence',
         request_serializer=morphology__pb2.SentenceAnalysisRequest.SerializeToString,
-        response_deserializer=morphology__pb2.SentenceAnalysis_P.FromString,
+        response_deserializer=morphology__pb2.SentenceAnalysisProto.FromString,
         )
     self.AnalyzeWord = channel.unary_unary(
         '/zemberek.morphology.MorphologyService/AnalyzeWord',
         request_serializer=morphology__pb2.WordAnalysisRequest.SerializeToString,
-        response_deserializer=morphology__pb2.WordAnalysis_P.FromString,
+        response_deserializer=morphology__pb2.WordAnalysisProto.FromString,
         )
 
 
@@ -50,12 +50,12 @@ def add_MorphologyServiceServicer_to_server(servicer, server):
       'AnalyzeSentence': grpc.unary_unary_rpc_method_handler(
           servicer.AnalyzeSentence,
           request_deserializer=morphology__pb2.SentenceAnalysisRequest.FromString,
-          response_serializer=morphology__pb2.SentenceAnalysis_P.SerializeToString,
+          response_serializer=morphology__pb2.SentenceAnalysisProto.SerializeToString,
       ),
       'AnalyzeWord': grpc.unary_unary_rpc_method_handler(
           servicer.AnalyzeWord,
           request_deserializer=morphology__pb2.WordAnalysisRequest.FromString,
-          response_serializer=morphology__pb2.WordAnalysis_P.SerializeToString,
+          response_serializer=morphology__pb2.WordAnalysisProto.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

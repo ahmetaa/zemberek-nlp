@@ -7,6 +7,7 @@ from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
+from google.protobuf import descriptor_pb2
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
@@ -18,8 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='preprocess.proto',
   package='zemberek.preprocessor',
   syntax='proto3',
-  serialized_options=_b('\n\016zemberek.protoP\001'),
-  serialized_pb=_b('\n\x10preprocess.proto\x12\x15zemberek.preprocessor\"D\n\x13TokenizationRequest\x12\r\n\x05input\x18\x01 \x01(\t\x12\x1e\n\x16includeTokenBoundaries\x18\x02 \x01(\x08\"@\n\x05Token\x12\r\n\x05token\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\r\n\x05start\x18\x03 \x01(\x05\x12\x0b\n\x03\x65nd\x18\x04 \x01(\x05\"D\n\x14TokenizationResponse\x12,\n\x06tokens\x18\x01 \x03(\x0b\x32\x1c.zemberek.preprocessor.Token\"-\n\x19SentenceExtractionRequest\x12\x10\n\x08\x64ocument\x18\x01 \x01(\t\"/\n\x1aSentenceExtractionResponse\x12\x11\n\tsentences\x18\x01 \x03(\t2\xf4\x01\n\x14PreprocessingService\x12\x63\n\x08Tokenize\x12*.zemberek.preprocessor.TokenizationRequest\x1a+.zemberek.preprocessor.TokenizationResponse\x12w\n\x10\x45xtractSentences\x12\x30.zemberek.preprocessor.SentenceExtractionRequest\x1a\x31.zemberek.preprocessor.SentenceExtractionResponseB\x12\n\x0ezemberek.protoP\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x10preprocess.proto\x12\x15zemberek.preprocessor\"D\n\x13TokenizationRequest\x12\r\n\x05input\x18\x01 \x01(\t\x12\x1e\n\x16includeTokenBoundaries\x18\x02 \x01(\x08\"E\n\nTokenProto\x12\r\n\x05token\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\r\n\x05start\x18\x03 \x01(\x05\x12\x0b\n\x03\x65nd\x18\x04 \x01(\x05\"I\n\x14TokenizationResponse\x12\x31\n\x06tokens\x18\x01 \x03(\x0b\x32!.zemberek.preprocessor.TokenProto\"-\n\x19SentenceExtractionRequest\x12\x10\n\x08\x64ocument\x18\x01 \x01(\t\"/\n\x1aSentenceExtractionResponse\x12\x11\n\tsentences\x18\x01 \x03(\t2\xf4\x01\n\x14PreprocessingService\x12\x63\n\x08Tokenize\x12*.zemberek.preprocessor.TokenizationRequest\x1a+.zemberek.preprocessor.TokenizationResponse\x12w\n\x10\x45xtractSentences\x12\x30.zemberek.preprocessor.SentenceExtractionRequest\x1a\x31.zemberek.preprocessor.SentenceExtractionResponseB\x12\n\x0ezemberek.protoP\x01\x62\x06proto3')
 )
 
 
@@ -38,21 +38,21 @@ _TOKENIZATIONREQUEST = _descriptor.Descriptor(
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='includeTokenBoundaries', full_name='zemberek.preprocessor.TokenizationRequest.includeTokenBoundaries', index=1,
       number=2, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=None,
+  options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
@@ -63,55 +63,55 @@ _TOKENIZATIONREQUEST = _descriptor.Descriptor(
 )
 
 
-_TOKEN = _descriptor.Descriptor(
-  name='Token',
-  full_name='zemberek.preprocessor.Token',
+_TOKENPROTO = _descriptor.Descriptor(
+  name='TokenProto',
+  full_name='zemberek.preprocessor.TokenProto',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='token', full_name='zemberek.preprocessor.Token.token', index=0,
+      name='token', full_name='zemberek.preprocessor.TokenProto.token', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='type', full_name='zemberek.preprocessor.Token.type', index=1,
+      name='type', full_name='zemberek.preprocessor.TokenProto.type', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='start', full_name='zemberek.preprocessor.Token.start', index=2,
+      name='start', full_name='zemberek.preprocessor.TokenProto.start', index=2,
       number=3, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='end', full_name='zemberek.preprocessor.Token.end', index=3,
+      name='end', full_name='zemberek.preprocessor.TokenProto.end', index=3,
       number=4, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=None,
+  options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
   serialized_start=113,
-  serialized_end=177,
+  serialized_end=182,
 )
 
 
@@ -128,21 +128,21 @@ _TOKENIZATIONRESPONSE = _descriptor.Descriptor(
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=None,
+  options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=179,
-  serialized_end=247,
+  serialized_start=184,
+  serialized_end=257,
 )
 
 
@@ -159,21 +159,21 @@ _SENTENCEEXTRACTIONREQUEST = _descriptor.Descriptor(
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=None,
+  options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=249,
-  serialized_end=294,
+  serialized_start=259,
+  serialized_end=304,
 )
 
 
@@ -190,26 +190,26 @@ _SENTENCEEXTRACTIONRESPONSE = _descriptor.Descriptor(
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=None,
+  options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=296,
-  serialized_end=343,
+  serialized_start=306,
+  serialized_end=353,
 )
 
-_TOKENIZATIONRESPONSE.fields_by_name['tokens'].message_type = _TOKEN
+_TOKENIZATIONRESPONSE.fields_by_name['tokens'].message_type = _TOKENPROTO
 DESCRIPTOR.message_types_by_name['TokenizationRequest'] = _TOKENIZATIONREQUEST
-DESCRIPTOR.message_types_by_name['Token'] = _TOKEN
+DESCRIPTOR.message_types_by_name['TokenProto'] = _TOKENPROTO
 DESCRIPTOR.message_types_by_name['TokenizationResponse'] = _TOKENIZATIONRESPONSE
 DESCRIPTOR.message_types_by_name['SentenceExtractionRequest'] = _SENTENCEEXTRACTIONREQUEST
 DESCRIPTOR.message_types_by_name['SentenceExtractionResponse'] = _SENTENCEEXTRACTIONRESPONSE
@@ -222,12 +222,12 @@ TokenizationRequest = _reflection.GeneratedProtocolMessageType('TokenizationRequ
   ))
 _sym_db.RegisterMessage(TokenizationRequest)
 
-Token = _reflection.GeneratedProtocolMessageType('Token', (_message.Message,), dict(
-  DESCRIPTOR = _TOKEN,
+TokenProto = _reflection.GeneratedProtocolMessageType('TokenProto', (_message.Message,), dict(
+  DESCRIPTOR = _TOKENPROTO,
   __module__ = 'preprocess_pb2'
-  # @@protoc_insertion_point(class_scope:zemberek.preprocessor.Token)
+  # @@protoc_insertion_point(class_scope:zemberek.preprocessor.TokenProto)
   ))
-_sym_db.RegisterMessage(Token)
+_sym_db.RegisterMessage(TokenProto)
 
 TokenizationResponse = _reflection.GeneratedProtocolMessageType('TokenizationResponse', (_message.Message,), dict(
   DESCRIPTOR = _TOKENIZATIONRESPONSE,
@@ -251,16 +251,17 @@ SentenceExtractionResponse = _reflection.GeneratedProtocolMessageType('SentenceE
 _sym_db.RegisterMessage(SentenceExtractionResponse)
 
 
-DESCRIPTOR._options = None
+DESCRIPTOR.has_options = True
+DESCRIPTOR._options = _descriptor._ParseOptions(descriptor_pb2.FileOptions(), _b('\n\016zemberek.protoP\001'))
 
 _PREPROCESSINGSERVICE = _descriptor.ServiceDescriptor(
   name='PreprocessingService',
   full_name='zemberek.preprocessor.PreprocessingService',
   file=DESCRIPTOR,
   index=0,
-  serialized_options=None,
-  serialized_start=346,
-  serialized_end=590,
+  options=None,
+  serialized_start=356,
+  serialized_end=600,
   methods=[
   _descriptor.MethodDescriptor(
     name='Tokenize',
@@ -269,7 +270,7 @@ _PREPROCESSINGSERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_TOKENIZATIONREQUEST,
     output_type=_TOKENIZATIONRESPONSE,
-    serialized_options=None,
+    options=None,
   ),
   _descriptor.MethodDescriptor(
     name='ExtractSentences',
@@ -278,7 +279,7 @@ _PREPROCESSINGSERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_SENTENCEEXTRACTIONREQUEST,
     output_type=_SENTENCEEXTRACTIONRESPONSE,
-    serialized_options=None,
+    options=None,
   ),
 ])
 _sym_db.RegisterServiceDescriptor(_PREPROCESSINGSERVICE)

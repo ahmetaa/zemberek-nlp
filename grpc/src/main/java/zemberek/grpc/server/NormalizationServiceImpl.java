@@ -16,7 +16,7 @@ public class NormalizationServiceImpl extends NormalizationServiceImplBase {
 
   public NormalizationServiceImpl(ZemberekContext context) throws IOException {
     this.context = context;
-    if (context.configuration.normalizationPathsAvailable()) {
+    if (context.configuration != null && context.configuration.normalizationPathsAvailable()) {
       sentenceNormalizer = new TurkishSentenceNormalizer(
           context.morphology,
           context.configuration.normalizationDataRoot,
