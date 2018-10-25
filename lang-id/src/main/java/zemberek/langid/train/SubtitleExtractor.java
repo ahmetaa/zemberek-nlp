@@ -28,7 +28,7 @@ public class SubtitleExtractor {
   }
 
   public List<String> ExtractFromStream(InputStream is, int minLength)
-      throws XMLStreamException, IOException {
+      throws XMLStreamException {
     List<String> lines = Lists.newArrayList();
     XMLStreamReader staxXmlReader = XMLInputFactory.newInstance().createXMLStreamReader(is);
     List<String> line = Lists.newArrayList();

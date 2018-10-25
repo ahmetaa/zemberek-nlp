@@ -5,16 +5,16 @@ option java_multiple_files = true;
 
 package zemberek.langid;
 
-message DetectRequest {
+message LanguageIdRequest {
   string input = 1;
   int32 maxSampleCount = 2;
 }
 
-message DetectResponse {
+message LanguageIdResponse {
   string langId = 1;
 }
 
 service LanguageIdService {
-  rpc Detect (DetectRequest) returns (DetectResponse);
-  rpc DetectFast (DetectRequest) returns (DetectResponse);
+  rpc Detect (LanguageIdRequest) returns (LanguageIdResponse);
+  rpc DetectFast (LanguageIdRequest) returns (LanguageIdResponse);
 }

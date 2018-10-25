@@ -24,7 +24,49 @@ By default, it will start serving via port 6789. User can change the port with -
 ## Remote API
 
 gRPC remote services are defined in [protocol buffers](https://developers.google.com/protocol-buffers/) 3 
-Interface Definition Language (IDL).  
+Interface Definition Language (IDL). For example, for language identification (simplified):
 
+    message LanguageIdRequest {
+      string input = 1;
+    }
+    
+    message LanguageIdResponse {
+      string langId = 1;
+    }
+    
+    service LanguageIdService {
+      rpc Detect (LanguageIdRequest) returns (LanguageIdResponse);
+    }
 
+For accessing remote API from Python, you need to install grpc related libraries.
 
+    pip install grpcio-tools
+    pip install googleapis-common-protos  
+
+then, download and extract auto generated python grpc files to [project]/zemberek-grpc 
+
+    #!/usr/bin/env python
+    # -*- coding: utf-8 -*-
+    
+    import grpc
+
+    import zemberek_grpc.language_id_pb2 as z_langid
+    import zemberek_grpc.language_id_pb2_grpc as z_langid_g
+    
+    channel = grpc.insecure_channel('localhost:6789')
+    
+    langid_stub = z_langid_g.LanguageIdServiceStub(channel)
+    
+    def find_lang_id(i):
+        response = langid_stub.Detect(language_id_pb2.LangIdRequest(input=i))
+        return response.langId
+    
+    def run():
+        lang_detect_input = 'merhaba dünya'
+        lang_id = find_lang_id(lang_detect_input)
+        print("Language of [" + lang_detect_input.decode("utf-8") + "] is: " + lang_id)
+        
+    if __name__ == '__main__':
+        run() 
+
+For a full example check zemberek_client_text.py file.

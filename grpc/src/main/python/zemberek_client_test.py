@@ -3,43 +3,42 @@
 
 import grpc
 
-import language_id_pb2
-import language_id_pb2_grpc
-import normalization_pb2
-import normalization_pb2_grpc
-import preprocess_pb2
-import preprocess_pb2_grpc
-import morphology_pb2
-import morphology_pb2_grpc
+import zemberek_grpc.language_id_pb2 as z_langid
+import zemberek_grpc.language_id_pb2_grpc as z_langid_g
+import zemberek_grpc.normalization_pb2 as z_normalization
+import zemberek_grpc.normalization_pb2_grpc as z_normalization_g
+import zemberek_grpc.preprocess_pb2 as z_preprocess
+import zemberek_grpc.preprocess_pb2_grpc as z_preprocess_g
+import zemberek_grpc.morphology_pb2 as z_morphology
+import zemberek_grpc.morphology_pb2_grpc as z_morphology_g
 
 channel = grpc.insecure_channel('localhost:6789')
 
-langid_stub = language_id_pb2_grpc.LanguageIdServiceStub(channel)
-normalization_stub = normalization_pb2_grpc.NormalizationServiceStub(channel)
-preprocess_stub = preprocess_pb2_grpc.PreprocessingServiceStub(channel)
-morphology_stub = morphology_pb2_grpc.MorphologyServiceStub(channel)
+langid_stub = z_langid_g.LanguageIdServiceStub(channel)
+normalization_stub = z_normalization_g.NormalizationServiceStub(channel)
+preprocess_stub = z_preprocess_g.PreprocessingServiceStub(channel)
+morphology_stub = z_morphology_g.MorphologyServiceStub(channel)
 
 def find_lang_id(i):
-    response = langid_stub.Detect(language_id_pb2.DetectRequest(input=i))
+    response = langid_stub.Detect(z_langid.LanguageIdRequest(input=i))
     return response.langId
 
 def tokenize(i):
-    response = preprocess_stub.Tokenize(preprocess_pb2.TokenizationRequest(input=i))
+    response = preprocess_stub.Tokenize(z_preprocess.TokenizationRequest(input=i))
     return response.tokens
 
 def normalize(i):
-    response = normalization_stub.Normalize(normalization_pb2.NormalizationRequest(input=i))
+    response = normalization_stub.Normalize(z_normalization.NormalizationRequest(input=i))
     return response
 
 def analyze(i):
-    response = morphology_stub.AnalyzeSentence(morphology_pb2.SentenceAnalysisRequest(input=i))
+    response = morphology_stub.AnalyzeSentence(z_morphology.SentenceAnalysisRequest(input=i))
     return response;
 
 def run():
     lang_detect_input = 'merhaba dünya'
     lang_id = find_lang_id(lang_detect_input)
-    print("Language of : " + lang_detect_input.decode("utf-8"))
-    print(lang_id)
+    print("Language of [" + lang_detect_input.decode("utf-8") + "] is: " + lang_id)
 
     print("")
     tokenization_input = 'Merhaba dünya!'

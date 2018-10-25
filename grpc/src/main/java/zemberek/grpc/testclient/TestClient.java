@@ -4,8 +4,8 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import zemberek.core.logging.Log;
 import zemberek.grpc.server.ZemberekGrpcServer;
-import zemberek.proto.DetectRequest;
-import zemberek.proto.DetectResponse;
+import zemberek.proto.LanguageIdRequest;
+import zemberek.proto.LanguageIdResponse;
 import zemberek.proto.LanguageIdServiceGrpc;
 import zemberek.proto.LanguageIdServiceGrpc.LanguageIdServiceBlockingStub;
 import zemberek.proto.NormalizationRequest;
@@ -20,10 +20,10 @@ import zemberek.proto.TokenizationRequest;
 import zemberek.proto.TokenizationResponse;
 import zemberek.proto.morphology.MorphologyServiceGrpc;
 import zemberek.proto.morphology.MorphologyServiceGrpc.MorphologyServiceBlockingStub;
-import zemberek.proto.morphology.SentenceAnalysisRequest;
 import zemberek.proto.morphology.SentenceAnalysisProto;
-import zemberek.proto.morphology.WordAnalysisRequest;
+import zemberek.proto.morphology.SentenceAnalysisRequest;
 import zemberek.proto.morphology.WordAnalysisProto;
+import zemberek.proto.morphology.WordAnalysisRequest;
 
 public class TestClient {
 
@@ -60,8 +60,8 @@ public class TestClient {
 
     Log.info("----- Language Identification ------------ ");
     String langIdInput = "Merhaba dünya";
-    DetectResponse langIdResponse = languageIdServiceBlockingStub.detect(
-        DetectRequest.newBuilder().setInput(langIdInput).build());
+    LanguageIdResponse langIdResponse = languageIdServiceBlockingStub.detect(
+        LanguageIdRequest.newBuilder().setInput(langIdInput).build());
     Log.info("Input: " + langIdInput);
     Log.info("Response: " + langIdResponse.getLangId());
 
