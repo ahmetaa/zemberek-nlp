@@ -27,12 +27,16 @@ Informal morpheme names (like `FutInformal`) have `Informal` suffix.
 
 For enabling informal morphological analysis, TurkishMorphology class should be initialized like this:
 
-    Builder b = TurkishMorphology.builder();
     RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
-    b.morphotactics(new InformalTurkishMorphotactics(lexicon));    
-    b.useLexicon(lexicon);
-    TurkishMorphology morphology = b.build(); 
-    morphology.analyze("okumuycam");
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .useAnaylzer(
+            RuleBasedMorphologicalAnalyzer.instance(new InformalTurkishMorphotactics(lexicon)))
+        .useLexicon(lexicon)
+        .build();
+    for (SingleAnalysis analysis
+        : morphology.analyzeAndDisambiguate("vurucam kırbacı").bestAnalysis()) {
+      Log.info(analysis);
+    }
 
 In next releases probably there will be an easier way of enabling this mechanism. Note that 
 ambiguity resolution mechanism may not work well if sentence contains informal morphemes. 
