@@ -20,7 +20,7 @@ import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.AnalysisCache;
-import zemberek.morphology.analysis.RuleBasedMorphologicalAnalyzer;
+import zemberek.morphology.analysis.RuleBasedAnalyzer;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
@@ -96,9 +96,9 @@ public class NormalizationVocabularyGenerator {
         .disableUnidentifiedTokenAnalyzer()
         .setCache(cache);
     if (asciiTolerant) {
-      builder.useAnaylzer(RuleBasedMorphologicalAnalyzer.instance(morphotactics));
+      builder.useAnalyzer(RuleBasedAnalyzer.instance(morphotactics));
     } else {
-      builder.useAnaylzer(RuleBasedMorphologicalAnalyzer.asciiTolerantInstance(morphotactics));
+      builder.useAnalyzer(RuleBasedAnalyzer.ignoreDiacriticsInstance(morphotactics));
     }
     return builder.build();
   }

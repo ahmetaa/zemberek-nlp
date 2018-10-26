@@ -303,21 +303,21 @@ public class NounsTest extends AnalyzerTestBase {
 
   @Test
   public void family1() {
-    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer(
+    RuleBasedAnalyzer analyzer = getAnalyzer(
         "annemler [A:ImplicitPlural,ImplicitP1sg,FamilyMember]");
     expectFail(analyzer, "annemlerler", "annemlerim");
   }
 
   @Test
   public void family2() {
-    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer(
+    RuleBasedAnalyzer analyzer = getAnalyzer(
         "annemler [A:ImplicitPlural,ImplicitP1sg,FamilyMember]");
     expectSuccess(analyzer, 1, "annemler", "annemlere", "annemleri");
   }
 
   @Test
   public void family3() {
-    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer(
+    RuleBasedAnalyzer analyzer = getAnalyzer(
         "annemler [A:ImplicitPlural,ImplicitP1sg,FamilyMember]");
     String in = "annemleri";
     List<SingleAnalysis> results = analyzer.analyze(in);
@@ -352,7 +352,7 @@ public class NounsTest extends AnalyzerTestBase {
 
   @Test
   public void uzeri() {
-    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer(
+    RuleBasedAnalyzer analyzer = getAnalyzer(
         "üzeri [A:CompoundP3sg;Roots:üzer]");
     String in = "üzeri";
     List<SingleAnalysis> results = analyzer.analyze(in);

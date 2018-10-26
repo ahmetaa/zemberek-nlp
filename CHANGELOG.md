@@ -12,10 +12,17 @@ Remote API is also subject to change until Version 1.0.0. Refer to the [document
 
 ##### Noisy Text Normalization
 
-We now include a sentence normalization functionality. Before this, [normalization](normalization) 
-module only provided simple word based spell check suggestion mechanism. Now. system offers a
-best effort text normalization functionality. We used several heuristics and applied language model 
-based Viterbi search on candidate words collected with an offline contextual graph random walk algorithm.
+Now there is a sentence normalization functionality. Before this, [normalization](normalization) 
+module only provided simple 1 distance word based spell check suggestion mechanism. Now. system offers a
+best effort text normalization functionality. This may be useful for pre-processing noisy text inputs
+before applying other functions.  
+
+Candidate correct words for noisy words are collected using several heuristics, 
+informal morphotactics, distance matching and lookup tables generated with
+ an offline contextual graph random walk algorithm. After that best correct sequence is found
+  with Viterbi search on candidate words suing language model scores. 
+
+Note that this is our first attempt, expect many errors. 
 
 ##### Informal Turkish Words Analysis
 We introduce a mechanism for analyzing Turkish informal words. For example, word `okuycam`, analysis
@@ -28,19 +35,45 @@ Informal morpheme names (like `FutInformal`) have `Informal` suffix.
 For enabling informal morphological analysis, TurkishMorphology class should be initialized like this:
 
     RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
+    TurkishMorphotactics morphotactics = new InformalTurkishMorphotactics(lexicon);
+    
     TurkishMorphology morphology = TurkishMorphology.builder()
-        .useAnaylzer(
-            RuleBasedMorphologicalAnalyzer.instance(new InformalTurkishMorphotactics(lexicon)))
+        .useAnaylzer(RuleBasedAnalyzer.instance(morphotactics))
         .useLexicon(lexicon)
         .build();
-    for (SingleAnalysis analysis
-        : morphology.analyzeAndDisambiguate("vurucam kırbacı").bestAnalysis()) {
-      Log.info(analysis);
-    }
+
+    morphology.analyzeAndDisambiguate("vurucam kırbacı")
+        .bestAnalysis()
+        .forEach(System.out::println);
 
 In next releases probably there will be an easier way of enabling this mechanism. Note that 
 ambiguity resolution mechanism may not work well if sentence contains informal morphemes. 
-There is also a simple informal to formal conversion mechanism. For example: 
+There is also a simple informal to formal conversion mechanism `InformalAnalysisConverter` that
+generates formal surface form of an informal word analysis. 
+
+##### Diacritics Ignored Analysis
+
+Morphological analysis can be configured to ignore Turkish diacritics marks as used in characters
+"çğiöüş" For that purpose,`RuleBasedAnalyzer` can be instantiated with `ignoreDiacriticsInstance` method.
+For example:
+
+    RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
+    TurkishMorphotactics morphotactics = new InformalTurkishMorphotactics(lexicon);
+
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .useAnalyzer(RuleBasedAnalyzer.ignoreDiacriticsInstance(morphotactics))
+        .useLexicon(lexicon)
+        .build();
+
+    morphology.analyze("kisi").forEach(System.out::println);
+    
+Output will be:    
+
+    [kış:Noun,Time] kış:Noun+A3sg+ı:Acc
+    [kış:Noun,Time] kış:Noun+A3sg+ı:P3sg
+    [kişi:Noun] kişi:Noun+A3sg
+
+Note that same output will be generated for inputs "kısı, kışi, kişi, kışı" etc.    
 
 #### Notable Bug fixes
 

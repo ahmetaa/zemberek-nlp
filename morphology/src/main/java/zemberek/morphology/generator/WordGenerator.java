@@ -290,6 +290,11 @@ public class WordGenerator {
       this.surface = surface;
       this.analysis = analysis;
     }
+
+    @Override
+    public String toString() {
+      return surface + "-" + analysis;
+    }
   }
 
   static class GenerationPath {

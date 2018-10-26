@@ -187,7 +187,7 @@ public class NounDerivationTest extends AnalyzerTestBase {
 
   @Test
   public void noun2NounIncorrect_1() {
-    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer("kitap");
+    RuleBasedAnalyzer analyzer = getAnalyzer("kitap");
     expectFail(analyzer,
         "kitaplarcık", "kitapçıklarcık", "kitapçığ", "kitapcık", "kitabımcık",
         "kitaptacık", "kitapçıkçık", "kitabcığ", "kitabçığ", "kitabçık", "kitapçığ"
@@ -318,7 +318,7 @@ public class NounDerivationTest extends AnalyzerTestBase {
 
   @Test
   public void expectsSingleResult2() {
-    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer("elma");
+    RuleBasedAnalyzer analyzer = getAnalyzer("elma");
     expectSuccess(analyzer, 1, "elmayım");
     expectSuccess(analyzer, 1, "elmaydım");
     expectSuccess(analyzer, 1, "elmayımdır");
@@ -332,7 +332,7 @@ public class NounDerivationTest extends AnalyzerTestBase {
 
   @Test
   public void incorrect2() {
-    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer("elma");
+    RuleBasedAnalyzer analyzer = getAnalyzer("elma");
     expectFail(analyzer,
         "elmaydıdır",
         "elmayıdır",

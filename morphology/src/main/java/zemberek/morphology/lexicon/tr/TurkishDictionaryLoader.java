@@ -7,10 +7,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
-import com.google.common.io.Resources;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import zemberek.core.enums.StringEnum;
 import zemberek.core.enums.StringEnumMap;
-import zemberek.core.io.SimpleTextReader;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
@@ -42,8 +41,7 @@ public class TurkishDictionaryLoader {
       "tr/proper.dict",
       "tr/proper-from-corpus.dict",
       "tr/abbreviations.dict",
-      "tr/person-names.dict",
-      "tr/locations-tr.dict"
+      "tr/person-names.dict"
   );
   static final Pattern DASH_QUOTE_MATCHER = Pattern.compile("[\\-']");
   private static final Splitter METADATA_SPLITTER = Splitter.on(";").trimResults()
@@ -53,23 +51,15 @@ public class TurkishDictionaryLoader {
 
   public static RootLexicon loadDefaultDictionaries()
       throws IOException {
-    final List<File> DEFAULT_DICTIONARY_FILES = ImmutableList.of(
-        new File(Resources.getResource("tr/master-dictionary.dict").getFile()),
-        new File(Resources.getResource("tr/non-tdk.dict").getFile()),
-        new File(Resources.getResource("tr/proper.dict").getFile()),
-        new File(Resources.getResource("tr/proper-from-corpus.dict").getFile()),
-        new File(Resources.getResource("tr/abbreviations.dict").getFile()),
-        new File(Resources.getResource("tr/person-names.dict").getFile()),
-        new File(Resources.getResource("tr/locations-tr.dict").getFile())
-    );
-    List<String> lines = Lists.newArrayList();
-    for (File file : DEFAULT_DICTIONARY_FILES) {
-      lines.addAll(SimpleTextReader.trimmingUTF8Reader(file).asStringList());
-    }
-    return load(lines);
+    return loadFromResources(DEFAULT_DICTIONARY_RESOURCES);
   }
 
   public static RootLexicon loadFromResources(String... resourcePaths)
+      throws IOException {
+    return loadFromResources(Arrays.asList(resourcePaths));
+  }
+
+  public static RootLexicon loadFromResources(Collection<String> resourcePaths)
       throws IOException {
     List<String> lines = Lists.newArrayList();
     for (String resourcePath : resourcePaths) {

@@ -23,7 +23,7 @@ import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.ambiguity.AmbiguityResolver;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver;
 import zemberek.morphology.analysis.AnalysisCache;
-import zemberek.morphology.analysis.RuleBasedMorphologicalAnalyzer;
+import zemberek.morphology.analysis.RuleBasedAnalyzer;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.UnidentifiedTokenAnalyzer;
@@ -41,7 +41,7 @@ import zemberek.tokenization.TurkishTokenizer;
 public class TurkishMorphology {
 
   private RootLexicon lexicon;
-  private RuleBasedMorphologicalAnalyzer analyzer;
+  private RuleBasedAnalyzer analyzer;
   private WordGenerator wordGenerator;
   private UnidentifiedTokenAnalyzer unidentifiedTokenAnalyzer;
   private TurkishTokenizer tokenizer;
@@ -61,7 +61,7 @@ public class TurkishMorphology {
       this.morphotactics = builder.morphotactics;
     }
     if (builder.analyzer == null) {
-      this.analyzer = RuleBasedMorphologicalAnalyzer.instance(morphotactics);
+      this.analyzer = RuleBasedAnalyzer.instance(morphotactics);
     } else {
       analyzer = builder.analyzer;
     }
@@ -92,12 +92,12 @@ public class TurkishMorphology {
     }
   }
 
-  public RuleBasedMorphologicalAnalyzer getAnalyzer() {
+  public RuleBasedAnalyzer getAnalyzer() {
     return analyzer;
   }
 
-  public RuleBasedMorphologicalAnalyzer getAnalyzerInstance(TurkishMorphotactics morphotactics) {
-    return RuleBasedMorphologicalAnalyzer.instance(morphotactics);
+  public RuleBasedAnalyzer getAnalyzerInstance(TurkishMorphotactics morphotactics) {
+    return RuleBasedAnalyzer.instance(morphotactics);
   }
 
   public UnidentifiedTokenAnalyzer getUnidentifiedTokenAnalyzer() {
@@ -290,7 +290,7 @@ public class TurkishMorphology {
     AnalysisCache cache;
     AmbiguityResolver ambiguityResolver;
     TurkishMorphotactics morphotactics;
-    RuleBasedMorphologicalAnalyzer analyzer;
+    RuleBasedAnalyzer analyzer;
     TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
 
     public Builder addBinaryDictionary(Path dictionaryPath) throws IOException {
@@ -336,7 +336,7 @@ public class TurkishMorphology {
       return this;
     }
 
-    public Builder useAnaylzer(RuleBasedMorphologicalAnalyzer analyzer) {
+    public Builder useAnalyzer(RuleBasedAnalyzer analyzer) {
       this.morphotactics = analyzer.getMorphotactics();
       this.analyzer = analyzer;
       return this;
@@ -349,7 +349,7 @@ public class TurkishMorphology {
 
     public Builder removeDictionaryFiles(File... dictionaryFiles) throws IOException {
       for (File file : dictionaryFiles) {
-        lexicon.removeAll(new TurkishDictionaryLoader().load(file));
+        lexicon.removeAll(TurkishDictionaryLoader.load(file));
       }
       return this;
     }

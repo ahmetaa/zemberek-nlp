@@ -9,7 +9,7 @@ public class NounCompoundsTest extends AnalyzerTestBase {
 
   @Test
   public void incorrect1() {
-    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer(
+    RuleBasedAnalyzer analyzer = getAnalyzer(
         "zeytin",
         "yağ",
         "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
@@ -19,7 +19,7 @@ public class NounCompoundsTest extends AnalyzerTestBase {
 
   @Test
   public void incorrect2() {
-    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer(
+    RuleBasedAnalyzer analyzer = getAnalyzer(
         "bal",
         "kabak",
         "balkabağı [A:CompoundP3sg; Roots:bal-kabak]");
@@ -28,7 +28,7 @@ public class NounCompoundsTest extends AnalyzerTestBase {
 
   @Test
   public void expectsResult() {
-    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer(
+    RuleBasedAnalyzer analyzer = getAnalyzer(
         "zeytin",
         "yağ",
         "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
@@ -37,7 +37,7 @@ public class NounCompoundsTest extends AnalyzerTestBase {
 
   @Test
   public void expectsResult2() {
-    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer(
+    RuleBasedAnalyzer analyzer = getAnalyzer(
         "bal",
         "kabak",
         "balkabağı [A:CompoundP3sg; Roots:bal-kabak]");
@@ -46,7 +46,7 @@ public class NounCompoundsTest extends AnalyzerTestBase {
 
   @Test
   public void mustHaveTwoResults() {
-    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer(
+    RuleBasedAnalyzer analyzer = getAnalyzer(
         "zeytin",
         "yağ",
         "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");
@@ -56,7 +56,7 @@ public class NounCompoundsTest extends AnalyzerTestBase {
 
   @Test
   public void resultDictionaryItemCannotBeDummy() {
-    RuleBasedMorphologicalAnalyzer analyzer = getAnalyzer(
+    RuleBasedAnalyzer analyzer = getAnalyzer(
         "zeytin",
         "yağ",
         "zeytinyağı [A:CompoundP3sg; Roots:zeytin-yağ]");

@@ -101,7 +101,7 @@ public class ExtractTurkishCityDistrictNames {
   public static void main(String[] args) throws IOException {
     Path extracted = Paths.get("locations-tr.txt");
     extractSingleWords(
-        Paths.get("/media/depo/data/aaa/corpora/pk_list_29.04.2016.csv"),
+        Paths.get("/media/ahmetaa/depo/pk_2018_08_31.csv"),
         extracted);
     Path exceptZemberek = Paths.get("locations-tr.dict");
     removeZemberekDictionaryWordsFromList(extracted, exceptZemberek);

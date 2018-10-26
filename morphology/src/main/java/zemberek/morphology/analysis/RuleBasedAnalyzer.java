@@ -22,7 +22,7 @@ import zemberek.morphology.morphotactics.TurkishMorphotactics;
  * This is a Morphological Analyser implementation. Instances of this class are not thread safe if
  * instantiated with forDebug() factory constructor method.
  */
-public class RuleBasedMorphologicalAnalyzer {
+public class RuleBasedAnalyzer {
 
   private static final int MAX_REPEATING_SUFFIX_TYPE_COUNT = 3;
 
@@ -33,7 +33,7 @@ public class RuleBasedMorphologicalAnalyzer {
   private boolean asciiTolerant = false;
   private TurkishMorphotactics morphotactics;
 
-  private RuleBasedMorphologicalAnalyzer(TurkishMorphotactics morphotactics) {
+  private RuleBasedAnalyzer(TurkishMorphotactics morphotactics) {
     this.lexicon = morphotactics.getRootLexicon();
     this.stemTransitions = morphotactics.getStemTransitions();
     this.morphotactics = morphotactics;
@@ -43,31 +43,37 @@ public class RuleBasedMorphologicalAnalyzer {
     return morphotactics;
   }
 
-  public static RuleBasedMorphologicalAnalyzer instance(TurkishMorphotactics morphotactics) {
-    return new RuleBasedMorphologicalAnalyzer(morphotactics);
+  public static RuleBasedAnalyzer instance(TurkishMorphotactics morphotactics) {
+    return new RuleBasedAnalyzer(morphotactics);
   }
 
-  public static RuleBasedMorphologicalAnalyzer asciiTolerantInstance(TurkishMorphotactics morphotactics) {
-    RuleBasedMorphologicalAnalyzer analyzer = RuleBasedMorphologicalAnalyzer.instance(morphotactics);
+  /**
+   * Generates a RuleBasedAnalyzer instance that ignores the diacritic marks from the input. As a
+   * result, for input `siraci` or `şıraçi`  it generates both analyses "sıracı, şıracı"
+   */
+  public static RuleBasedAnalyzer ignoreDiacriticsInstance(
+      TurkishMorphotactics morphotactics) {
+    RuleBasedAnalyzer analyzer = RuleBasedAnalyzer.instance(morphotactics);
     analyzer.asciiTolerant = true;
     return analyzer;
   }
 
   /**
-   * Method returns an RuleBasedMorphologicalAnalyzer instance. But when this factory constructor is used, an
+   * Method returns an RuleBasedAnalyzer instance. But when this factory constructor is used, an
    * AnalysisDebugData object is generated after each call to generation methods. That object cen be
    * retrieved with getDebugData method.
    */
-  public static RuleBasedMorphologicalAnalyzer forDebug(TurkishMorphotactics morphotactics) {
-    RuleBasedMorphologicalAnalyzer analyzer = RuleBasedMorphologicalAnalyzer.instance(morphotactics);
+  public static RuleBasedAnalyzer forDebug(TurkishMorphotactics morphotactics) {
+    RuleBasedAnalyzer analyzer = RuleBasedAnalyzer.instance(morphotactics);
     analyzer.debugMode = true;
     return analyzer;
   }
 
-  public static RuleBasedMorphologicalAnalyzer forDebug(
+  public static RuleBasedAnalyzer forDebug(
       TurkishMorphotactics morphotactics,
       boolean asciiTolerant) {
-    RuleBasedMorphologicalAnalyzer analyzer = RuleBasedMorphologicalAnalyzer.instance(morphotactics);
+    RuleBasedAnalyzer analyzer = RuleBasedAnalyzer
+        .instance(morphotactics);
     analyzer.debugMode = true;
     analyzer.asciiTolerant = asciiTolerant;
     return analyzer;

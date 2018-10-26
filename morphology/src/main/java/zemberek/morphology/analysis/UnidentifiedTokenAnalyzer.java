@@ -31,12 +31,12 @@ public class UnidentifiedTokenAnalyzer {
   public static final TurkishAlphabet ALPHABET = TurkishAlphabet.INSTANCE;
   private static Map<String, String> ordinalMap = TurkishNumbers.getOrdinalMap();
 
-  private RuleBasedMorphologicalAnalyzer analyzer;
+  private RuleBasedAnalyzer analyzer;
   private RootLexicon lexicon;
   private TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
   private TurkishNumeralEndingMachine numeralEndingMachine = new TurkishNumeralEndingMachine();
 
-  public UnidentifiedTokenAnalyzer(RuleBasedMorphologicalAnalyzer analyzer) {
+  public UnidentifiedTokenAnalyzer(RuleBasedAnalyzer analyzer) {
     this.analyzer = analyzer;
     this.lexicon = analyzer.getLexicon();
   }
