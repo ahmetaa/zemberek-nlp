@@ -3,14 +3,14 @@ CHANGE LOG
 
 ## 0.16.0 (Not Yet Released.)
 
-#### New features 
+### New features 
 
-##### grpc module
+#### grpc module
 Initial release of [**grpc**](grpc) remote procedure call module. This is an experimental module that allows fast access to some 
 functions of the project from other programming languages. We provide initial Python access codes for experimentation.
 Remote API is also subject to change until Version 1.0.0. Refer to the [documentation](grpc) for more information. 
 
-##### Noisy Text Normalization
+#### Noisy Text Normalization
 
 Now there is a sentence normalization functionality. Before this, [normalization](normalization) 
 module only provided simple 1 distance word based spell check suggestion mechanism. Now. system offers a
@@ -24,7 +24,7 @@ informal morphotactics, distance matching and lookup tables generated with
 
 Note that this is our first attempt, expect many errors. 
 
-##### Informal Turkish Words Analysis
+#### Informal Turkish Words Analysis
 We introduce a mechanism for analyzing Turkish informal words. For example, word `okuycam`, analysis
 may be:
 
@@ -51,7 +51,7 @@ ambiguity resolution mechanism may not work well if sentence contains informal m
 There is also a simple informal to formal conversion mechanism `InformalAnalysisConverter` that
 generates formal surface form of an informal word analysis. 
 
-##### Diacritics Ignored Analysis
+#### Diacritics Ignored Analysis
 
 Morphological analysis can be configured to ignore Turkish diacritics marks as used in characters
 "çğiöüş" For that purpose,`RuleBasedAnalyzer` can be instantiated with `ignoreDiacriticsInstance` method.
@@ -75,7 +75,16 @@ Output will be:
 
 Note that same output will be generated for inputs "kısı, kışi, kişi, kışı" etc.    
 
-#### Notable Bug fixes
+### New command line applications
+
+There are several new command line applications.
+* `GenerateWordVectors`: Generates word vectors using a text corpus. 
+* `StartGrpcServer`: Starts Zemberek gRPC Server.
+* `TrainNerModel`: Generates Turkish Named Entity Recognition model.
+* `EvaluateNer`: Evaluates an annotated NER data set.
+* `FindNamedEntities`: Finds named entities from a Turkish text file.
+
+### Notable Bug fixes
 
 [#188](https://github.com/ahmetaa/zemberek-nlp/issues/188) Cannot analyze sendeki, bendeki etc
 
@@ -101,7 +110,8 @@ Note that same output will be generated for inputs "kısı, kışi, kişi, kış
 
 #### Deprecations and breaking changes
 
-TODO
+`InterpretingAnalyzer` is now `RuleBasedAnalyzer`
+
 
 ## 0.15.0
 

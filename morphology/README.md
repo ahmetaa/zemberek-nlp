@@ -173,7 +173,7 @@ Result will be:
 
 Informal Analysis is still experimental and only some cases are covered.
 
-##### Diacritics Ignored Analysis
+### Diacritics Ignored Analysis
 
 Morphological analysis can be configured to ignore Turkish diacritics marks as used in characters
 "çğiöüş" For that purpose,`RuleBasedAnalyzer` can be instantiated with `ignoreDiacriticsInstance` method.
