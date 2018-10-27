@@ -112,6 +112,8 @@ There are several new command line applications.
 
 `InterpretingAnalyzer` is now `RuleBasedAnalyzer`
 
+`locations-tr.dict` (contains city, village and district names) is removed from default binary dictionary because it was causing a lot of confusion.
+Users can add it manually.
 
 ## 0.15.0
 
