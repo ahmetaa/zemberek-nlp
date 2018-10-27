@@ -37,22 +37,23 @@ class GenerateDataWithRules extends AmbiguityScriptsBase {
     acceptWordPredicates.add(hasAnalysis());
     ignoreSentencePredicates.add(contains("\""));
     ignoreSentencePredicates.add(contains("…"));
+    ignoreSentencePredicates.add(tooMuchNumberAndPunctuation(5));
     ignoreSentencePredicates.add(probablyNotTurkish());
     ignoreSentencePredicates.add(p -> p.split("[ ]+").length > 25);
     ignoreSentencePredicates.add(TextUtil::containsCombiningDiacritics);
   }
 
   public static void main(String[] args) throws IOException {
-    //Path corporaRoot = Paths.get("/home/ahmetaa/data/zemberek/data/corpora");
-    Path corporaRoot = Paths.get("/media/aaa/Data/corpora/final");
+    Path corporaRoot = Paths.get("/media/ahmetaa/depo/corpora");
+    //Path corporaRoot = Paths.get("/media/aaa/Data/corpora/final");
     List<Path> roots = Lists.newArrayList(
         corporaRoot.resolve("www.aljazeera.com.tr"),
-        corporaRoot.resolve("open-subtitles"),
+        corporaRoot.resolve("open-subtitles-tr-2018"),
         corporaRoot.resolve("wowturkey.com"),
         corporaRoot.resolve("www.cnnturk.com"),
         corporaRoot.resolve("www.haberturk.com"));
 
-    Path outRoot = Paths.get("data/ambiguity");
+    Path outRoot = Paths.get("/media/ahmetaa/depo/ambiguity");
     Files.createDirectories(outRoot);
     GenerateDataWithRules app = new GenerateDataWithRules();
 

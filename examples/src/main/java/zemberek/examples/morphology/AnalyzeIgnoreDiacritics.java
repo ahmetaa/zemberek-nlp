@@ -8,7 +8,11 @@ import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
-public class AnalyzeAsciiTolerant {
+/**
+ * This is example for morphological analysis that ignores diacritics marks.
+ * So, for input `kisi` analysis will include `kişi` and `kışı`.
+ */
+public class AnalyzeIgnoreDiacritics {
 
   public static void main(String[] args) throws IOException {
     RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");

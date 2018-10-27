@@ -183,6 +183,8 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
       //feats.addOrIncrement("8:" + r1 + "-" + r3);
       feats.addOrIncrement("9:" + r2 + "-" + r3);
       feats.addOrIncrement("10:" + r3);
+      feats.addOrIncrement("10b:" + r2);
+      feats.addOrIncrement("10c:" + r1);
 
       //feats.addOrIncrement("11:" + ig1 + "-" + ig2 + "-" + ig3);
       //feats.addOrIncrement("12:" + ig1 + "-" + ig3);

@@ -102,7 +102,7 @@ For testing, Download those folders (Caution: download size is around ~100 MB). 
 TurkishSentenceNormalizer class is initialized as:
 
     Path lookupRoot = Paths.get("/home/aaa/zemberek-data/normalization")
-    Path lmFile = Paths.get("/home/aaa/zemberek-data/lm/lm.slm")
+    Path lmFile = Paths.get("/home/aaa/zemberek-data/lm/lm.2gram.slm")
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     TurkishSentenceNormalizer normalizer = new
         TurkishSentenceNormalizer(morphology, lookupRoot, lmPath);
@@ -169,13 +169,11 @@ Test System: AMD FX-8320 3.5Ghz
 ### Issues
 
 This work is the result of our initial exploration on the subject, expect many errors. 
-Therefore, normalization function:
+Therefore, normalization operation:
 
 - may change correct words,
 - may change formatting and casing or remove punctuations,
 - may not work well for some cases,
 - may generate profanity words
-  
+ 
 
- 
- 

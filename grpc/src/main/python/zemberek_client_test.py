@@ -59,8 +59,8 @@ def run():
     print("")
     analysis_input = 'Kavanozun kapağını açamadım.'
     print('Analysis result for input : ' + analysis_input.decode("utf-8"))
-    analysisResult = analyze(analysis_input)
-    for a in analysisResult.results:
+    analysis_result = analyze(analysis_input)
+    for a in analysis_result.results:
         best = a.best
         lemmas = ""
         for l in best.lemmas:

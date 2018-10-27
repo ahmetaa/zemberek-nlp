@@ -71,9 +71,9 @@ public class DataConverter {
 
   public static void main(String[] args) throws IOException {
 
-    //Path dataPath = Paths.get("/home/ahmetaa/apps/Hasim_Sak_Data/data.dev.txt");
-    Path dataPath = Paths.get("/home/aaa/apps/MD-Release/data.test.txt");
-    Path output = Paths.get("data/ambiguity/sak.test");
+    Path dataPath = Paths.get("/home/ahmetaa/apps/Hasim_Sak_Data/data.dev.txt");
+    //Path dataPath = Paths.get("/home/aaa/apps/MD-Release/data.test.txt");
+    Path output = Paths.get("/media/ahmetaa/depo/ambiguity/sak.dev");
 
     extract(dataPath, output);
 
@@ -89,8 +89,7 @@ public class DataConverter {
         "tr/proper.dict",
         "tr/proper-from-corpus.dict",
         "tr/abbreviations.dict",
-        "tr/person-names.dict",
-        "tr/locations-tr.dict").build();
+        "tr/person-names.dict").build();
 
     List<SentenceAnalysis> result = new ArrayList<>();
     Histogram<String> parseFails = new Histogram<>();
@@ -117,6 +116,7 @@ public class DataConverter {
         p = p.toLowerCase(Turkish.LOCALE);
         p = p.replaceAll("adverb", "adv");
         p = p.replaceAll("\\+cop\\+a3sg", "+a3sg+cop");
+        p = p.replaceAll("\\+Unable", "^DB+Verb+Able+Neg");
         if(lookup.containsKey(p)) {
           p = lookup.get(p);
         }

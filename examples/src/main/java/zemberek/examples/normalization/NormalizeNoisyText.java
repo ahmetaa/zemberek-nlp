@@ -23,8 +23,11 @@ public class NormalizeNoisyText {
     // change paths with your normalization data root folder and language model file paths.
     // Example: https://drive.google.com/drive/folders/1tztjRiUs9BOTH-tb1v7FWyixl-iUpydW
     // download lm and normalization folders to some local directory.
-    Path lookupRoot = Paths.get("/home/aaa/zemberek-data/normalization");
-    Path lmPath = Paths.get("/home/aaa/zemberek-data/lm/lm.slm");
+
+    Path zemberekDataRoot = Paths.get("/home/aaa/zemberek-data");
+
+    Path lookupRoot = zemberekDataRoot.resolve("normalization");
+    Path lmPath = zemberekDataRoot.resolve("lm/lm.2gram.slm");
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     TurkishSentenceNormalizer normalizer = new
         TurkishSentenceNormalizer(morphology, lookupRoot, lmPath);

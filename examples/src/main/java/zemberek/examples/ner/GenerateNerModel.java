@@ -11,6 +11,10 @@ import zemberek.ner.NerDataSet.AnnotationStyle;
 import zemberek.ner.PerceptronNer;
 import zemberek.ner.PerceptronNerTrainer;
 
+/**
+ * This example shows how programmatically train NER model.
+ * Alternatively, {@link zemberek.apps.ner.TrainNerModel} console application can be used.
+ */
 public class GenerateNerModel {
 
   public static void main(String[] args) throws IOException {

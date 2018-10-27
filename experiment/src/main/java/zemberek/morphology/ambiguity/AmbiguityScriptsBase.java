@@ -14,6 +14,8 @@ import zemberek.langid.LanguageIdentifier;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.tokenization.TurkishSentenceExtractor;
+import zemberek.tokenization.TurkishTokenizer;
+import zemberek.tokenization.antlr.TurkishLexer;
 
 public class AmbiguityScriptsBase {
 
@@ -34,8 +36,7 @@ public class AmbiguityScriptsBase {
         "tr/proper.dict",
         "tr/proper-from-corpus.dict",
         "tr/abbreviations.dict",
-        "tr/person-names.dict",
-        "tr/locations-tr.dict"
+        "tr/person-names.dict"
     ).build();
   }
 
@@ -53,6 +54,12 @@ public class AmbiguityScriptsBase {
 
   Predicate<String> probablyNotTurkish() {
     return p -> !identifier.identify(p).equals("tr");
+  }
+
+  Predicate<String> tooMuchNumberAndPunctuation(int k) {
+    return p -> TurkishTokenizer.DEFAULT.tokenize(p).stream()
+        .filter(s -> s.getType() == TurkishLexer.Punctuation || s.getType() == TurkishLexer.Number)
+        .count() > k;
   }
 
   Predicate<String> tooLongSentence(int tokenCount) {
