@@ -19,8 +19,8 @@ before applying other functions.
 
 Candidate correct words for noisy words are collected using several heuristics, 
 informal morphotactics, distance matching and lookup tables generated with
- an offline contextual graph random walk algorithm. After that best correct sequence is found
-  with Viterbi search on candidate words suing language model scores. 
+ an offline contextual graph random walk algorithm. After that, best correct sequence is found
+  with Viterbi search on candidate words using language model scores. 
 
 Note that this is our first attempt, expect many errors. 
 
