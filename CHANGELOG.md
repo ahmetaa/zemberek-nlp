@@ -18,9 +18,9 @@ best effort text normalization functionality. This may be useful for pre-process
 before applying other functions.  
 
 Candidate correct words for noisy words are collected using several heuristics, 
-informal morphotactics, distance matching and lookup tables generated with
+informal morphotactics, distance matching and lookup tables that generated with
  an offline contextual graph random walk algorithm. After that, best correct sequence is found
-  with Viterbi search on candidate words using language model scores. 
+  with Viterbi search on candidate words using n-gram language model scores. 
 
 Note that this is our first attempt, expect many errors. 
 
@@ -48,8 +48,7 @@ Output:
     [vurmak:Verb] vur:Verb+uca:FutInformal+m:A1sg
     [kırbaç:Noun] kırbac:Noun+A3sg+ı:P3sg
 
-Note that 
-ambiguity resolution mechanism may not work well if sentence contains informal morphemes. 
+Ambiguity resolution mechanism may not work well if sentence contains informal morphemes. 
 There is also a simple informal to formal conversion mechanism `InformalAnalysisConverter` that
 generates formal surface form of an informal word analysis. 
 
@@ -71,7 +70,7 @@ Output will be:
     [kış:Noun,Time] kış:Noun+A3sg+ı:P3sg
     [kişi:Noun] kişi:Noun+A3sg
 
-Note that same output will be generated for inputs "kısı, kışi, kişi, kışı" etc.    
+Same output will be generated for inputs "kısı, kışi, kişi, kışı" etc.    
 
 #### New command line applications
 
@@ -133,8 +132,9 @@ binary dictionary because it was causing a lot of confusion. Users can add it ma
 
 [#173](https://github.com/ahmetaa/zemberek-nlp/issues/173) "gelebilme" should not have an analysis with "Neg"
 
+## 0.15.0 
 
-## 0.15.0
+August 2nd 2018
 
 #### New features 
 
