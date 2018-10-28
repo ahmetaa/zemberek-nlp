@@ -1,20 +1,14 @@
 package zemberek.morphology;
 
 import com.google.common.base.Stopwatch;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.logging.Log;
-import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.StemAndEnding;
@@ -29,9 +23,8 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.UnidentifiedTokenAnalyzer;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.generator.WordGenerator;
-import zemberek.morphology.lexicon.DictionarySerializer;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
+import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.tokenization.TurkishTokenizer;
 
@@ -55,16 +48,17 @@ public class TurkishMorphology {
   private TurkishMorphology(Builder builder) {
 
     this.lexicon = builder.lexicon;
-    if (builder.morphotactics == null) {
-      this.morphotactics = new TurkishMorphotactics(this.lexicon);
-    } else {
-      this.morphotactics = builder.morphotactics;
+    if (lexicon.isEmpty()) {
+      Log.warn("TurkishMorphology class is being instantiated with empty root lexicon.");
     }
-    if (builder.analyzer == null) {
-      this.analyzer = RuleBasedAnalyzer.instance(morphotactics);
-    } else {
-      analyzer = builder.analyzer;
-    }
+
+    this.morphotactics = builder.informalAnalysis ?
+        new InformalTurkishMorphotactics(this.lexicon) : new TurkishMorphotactics(this.lexicon);
+
+    this.analyzer = builder.ignoreDiacriticsInAnalysis ?
+        RuleBasedAnalyzer.ignoreDiacriticsInstance(morphotactics) :
+        RuleBasedAnalyzer.instance(morphotactics);
+
     this.wordGenerator = new WordGenerator(morphotactics);
     this.unidentifiedTokenAnalyzer = new UnidentifiedTokenAnalyzer(analyzer);
     this.tokenizer = builder.tokenizer;
@@ -96,37 +90,19 @@ public class TurkishMorphology {
     return analyzer;
   }
 
-  public RuleBasedAnalyzer getAnalyzerInstance(TurkishMorphotactics morphotactics) {
-    return RuleBasedAnalyzer.instance(morphotactics);
-  }
-
   public UnidentifiedTokenAnalyzer getUnidentifiedTokenAnalyzer() {
     return unidentifiedTokenAnalyzer;
   }
 
   public static TurkishMorphology createWithDefaults() {
     Stopwatch sw = Stopwatch.createStarted();
-    TurkishMorphology instance = new Builder().addDefaultBinaryDictionary().build();
+    TurkishMorphology instance = new Builder().setLexicon(RootLexicon.DEFAULT).build();
     Log.info("Initialized in %d ms.", sw.elapsed(TimeUnit.MILLISECONDS));
     return instance;
   }
 
-  /**
-   * Adds internal text dictionaries. This is used only for debugging and will throw exception in
-   * jar distributions as they only contain binary dictionaries.
-   *
-   * @return same builder instance
-   * @throws IOException I/O Error
-   * @deprecated this method will be removed in 0.16.0 because it causes confusion, use builder
-   * mechanism, and {@link Builder#addDefaultBinaryDictionary()} or {@link
-   * Builder#addTextDictionaryResources(String...)} instead.
-   */
-  public static TurkishMorphology createWithTextDictionaries() throws IOException {
-    Stopwatch sw = Stopwatch.createStarted();
-    TurkishMorphology instance = new Builder()
-        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES).build();
-    Log.info("Initialized in %d ms.", sw.elapsed(TimeUnit.MILLISECONDS));
-    return instance;
+  public static TurkishMorphology create(RootLexicon lexicon) {
+    return new Builder().setLexicon(lexicon).build();
   }
 
   public TurkishMorphotactics getMorphotactics() {
@@ -282,6 +258,10 @@ public class TurkishMorphology {
     return new Builder();
   }
 
+  public static Builder builder(RootLexicon lexicon) {
+    return new Builder().setLexicon(lexicon);
+  }
+
   public static class Builder {
 
     RootLexicon lexicon = new RootLexicon();
@@ -289,68 +269,27 @@ public class TurkishMorphology {
     boolean useUnidentifiedTokenAnalyzer = true;
     AnalysisCache cache;
     AmbiguityResolver ambiguityResolver;
-    TurkishMorphotactics morphotactics;
-    RuleBasedAnalyzer analyzer;
     TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
+    boolean informalAnalysis = false;
+    boolean ignoreDiacriticsInAnalysis = false;
 
-    public Builder addBinaryDictionary(Path dictionaryPath) throws IOException {
-      lexicon.addAll(DictionarySerializer.load(dictionaryPath).getAllItems());
-      return this;
-    }
-
-    public Builder useLexicon(RootLexicon lexicon) {
+    public Builder setLexicon(RootLexicon lexicon) {
       this.lexicon = lexicon;
       return this;
     }
 
-    public Builder addDefaultBinaryDictionary() {
-      try {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
-        Log.info("Dictionary generated in %d ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-      } catch (IOException e) {
-        throw new RuntimeException(
-            "Cannot load default binary dictionary. Reason:" + e.getMessage(), e);
-      }
+    public Builder setLexicon(String... dictionaryLines) {
+      this.lexicon = RootLexicon.fromLines(dictionaryLines);
       return this;
     }
 
-    public Builder addTextDictionaries(File... dictionaryFiles) throws IOException {
-      List<String> lines = new ArrayList<>();
-      for (File file : dictionaryFiles) {
-        lines.addAll(Files.readAllLines(file.toPath()));
-      }
-      lexicon.addAll(TurkishDictionaryLoader.load(lines));
+    public Builder useInformalAnalysis() {
+      this.informalAnalysis = true;
       return this;
     }
 
-    public Builder addTextDictionaries(Path... dictionaryPaths) throws IOException {
-      for (Path dictionaryPath : dictionaryPaths) {
-        addTextDictionaries(dictionaryPath.toFile());
-      }
-      return this;
-    }
-
-    public Builder addDictionaryLines(String... lines) {
-      lexicon.addAll(TurkishDictionaryLoader.load(lines));
-      return this;
-    }
-
-    public Builder useAnalyzer(RuleBasedAnalyzer analyzer) {
-      this.morphotactics = analyzer.getMorphotactics();
-      this.analyzer = analyzer;
-      return this;
-    }
-
-    public Builder addDictionaryLines(Collection<String> lines) {
-      lexicon.addAll(TurkishDictionaryLoader.load(lines));
-      return this;
-    }
-
-    public Builder removeDictionaryFiles(File... dictionaryFiles) throws IOException {
-      for (File file : dictionaryFiles) {
-        lexicon.removeAll(TurkishDictionaryLoader.load(file));
-      }
+    public Builder ignoreDiacriticsInAnalysis() {
+      this.ignoreDiacriticsInAnalysis = true;
       return this;
     }
 
@@ -376,30 +315,6 @@ public class TurkishMorphology {
 
     public Builder disableUnidentifiedTokenAnalyzer() {
       useUnidentifiedTokenAnalyzer = false;
-      return this;
-    }
-
-    public Builder addTextDictionaryResources(Collection<String> resources) throws IOException {
-      Log.info("Dictionaries :%s", String.join(", ", resources));
-      List<String> lines = new ArrayList<>();
-      for (String resource : resources) {
-        lines.addAll(TextIO.loadLinesFromResource(resource));
-      }
-      lexicon.addAll(TurkishDictionaryLoader.load(lines));
-      return this;
-    }
-
-    public Builder addTextDictionaryResources(String... resources) throws IOException {
-      return addTextDictionaryResources(Arrays.asList(resources));
-    }
-
-    public Builder removeItems(Iterable<String> dictionaryString) {
-      lexicon.removeAll(TurkishDictionaryLoader.load(dictionaryString));
-      return this;
-    }
-
-    public Builder removeAllLemmas(Iterable<String> lemmas) {
-      lexicon.removeAllLemmas(lemmas);
       return this;
     }
 

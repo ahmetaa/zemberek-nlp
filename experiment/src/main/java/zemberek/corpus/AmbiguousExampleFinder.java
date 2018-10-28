@@ -54,8 +54,7 @@ public class AmbiguousExampleFinder {
   }
 
   public static void main(String[] args) throws Exception {
-    TurkishMorphology morphology =  TurkishMorphology.builder()
-        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES).build();
+    TurkishMorphology morphology =  TurkishMorphology.createWithDefaults();
     Path indexRoot = Paths.get("/home/aaa/data/zemberek/corpus-index");
     CorpusSearcher searcher = new CorpusSearcher(indexRoot);
     AmbiguousExampleFinder finder = new AmbiguousExampleFinder(searcher);

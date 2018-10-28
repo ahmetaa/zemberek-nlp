@@ -8,6 +8,7 @@ import java.util.List;
 import zemberek.core.data.Weights;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolverTrainer.DataSet;
+import zemberek.morphology.lexicon.RootLexicon;
 
 public class PerceptronAmbiguityResolverEvaluation {
 
@@ -28,14 +29,15 @@ public class PerceptronAmbiguityResolverEvaluation {
     Path model = Paths.get("morphology/src/main/resources/tr/ambiguity/model");
     Path modelCompressed = Paths.get("morphology/src/main/resources/tr/ambiguity/model-compressed");
 
-    TurkishMorphology morphology = TurkishMorphology.builder().addTextDictionaryResources(
-        "tr/master-dictionary.dict",
-        "tr/non-tdk.dict",
-        "tr/proper.dict",
-        "tr/proper-from-corpus.dict",
-        "tr/abbreviations.dict",
-        "tr/person-names.dict"
-    ).build();
+    TurkishMorphology morphology = TurkishMorphology.create(
+        RootLexicon.builder().addTextDictionaryResources(
+            "tr/master-dictionary.dict",
+            "tr/non-tdk.dict",
+            "tr/proper.dict",
+            "tr/proper-from-corpus.dict",
+            "tr/abbreviations.dict",
+            "tr/person-names.dict"
+        ).build());
 
     DataSet trainingSet = new DataSet();
     for (Path path : paths) {

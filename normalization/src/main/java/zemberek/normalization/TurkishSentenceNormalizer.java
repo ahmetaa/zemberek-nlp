@@ -26,12 +26,10 @@ import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.InformalAnalysisConverter;
-import zemberek.morphology.analysis.RuleBasedAnalyzer;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.generator.WordGenerator;
 import zemberek.morphology.generator.WordGenerator.Result;
-import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
@@ -94,9 +92,10 @@ public class TurkishSentenceNormalizer {
     lookupManual.keySet().forEach(s -> lookupFromGraph.removeAll(s));
 
     this.informalAsciiTolerantMorphology = TurkishMorphology.builder()
-        .useLexicon(morphology.getLexicon())
-        .useAnalyzer(RuleBasedAnalyzer.ignoreDiacriticsInstance(
-            new InformalTurkishMorphotactics(morphology.getLexicon()))).build();
+        .setLexicon(morphology.getLexicon())
+        .useInformalAnalysis()
+        .ignoreDiacriticsInAnalysis()
+        .build();
 
     List<String> splitLines = Files.readAllLines(dataRoot.resolve("split"), Charsets.UTF_8);
     for (String splitLine : splitLines) {

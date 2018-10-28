@@ -89,16 +89,13 @@ public class NormalizationVocabularyGenerator {
         "tr/person-names.dict"
     );
 
-    InformalTurkishMorphotactics morphotactics = new InformalTurkishMorphotactics(lexicon);
     TurkishMorphology.Builder builder = TurkishMorphology
         .builder()
-        .useLexicon(lexicon)
+        .setLexicon(lexicon)
         .disableUnidentifiedTokenAnalyzer()
         .setCache(cache);
     if (asciiTolerant) {
-      builder.useAnalyzer(RuleBasedAnalyzer.instance(morphotactics));
-    } else {
-      builder.useAnalyzer(RuleBasedAnalyzer.ignoreDiacriticsInstance(morphotactics));
+      builder.ignoreDiacriticsInAnalysis();
     }
     return builder.build();
   }

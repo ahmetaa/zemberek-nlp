@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import zemberek.langid.LanguageIdentifier;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
@@ -30,14 +31,15 @@ public class AmbiguityScriptsBase {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    this.morphology = TurkishMorphology.builder().addTextDictionaryResources(
-        "tr/master-dictionary.dict",
-        "tr/non-tdk.dict",
-        "tr/proper.dict",
-        "tr/proper-from-corpus.dict",
-        "tr/abbreviations.dict",
-        "tr/person-names.dict"
-    ).build();
+    this.morphology = TurkishMorphology.create(RootLexicon.builder()
+        .addTextDictionaryResources(
+            "tr/master-dictionary.dict",
+            "tr/non-tdk.dict",
+            "tr/proper.dict",
+            "tr/proper-from-corpus.dict",
+            "tr/abbreviations.dict",
+            "tr/person-names.dict"
+        ).build());
   }
 
   Predicate<WordAnalysis> hasAnalysis() {

@@ -57,8 +57,10 @@ public class TurkishSpellCheckerTest {
 
   @Test
   public void checkProperNounsTest() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder().disableCache()
-        .addDictionaryLines("Ankara", "Iphone [Pr:ayfon]", "Google [Pr:gugıl]").build();
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .disableCache()
+        .setLexicon("Ankara", "Iphone [Pr:ayfon]", "Google [Pr:gugıl]")
+        .build();
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
 
     String[] correct = {"Ankara", "ANKARA", "Ankara'da", "ANKARA'DA", "ANKARA'da",
@@ -77,8 +79,9 @@ public class TurkishSpellCheckerTest {
   //TODO: check for ordinals.
   @Test
   public void formatNumbersTest() throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder().disableCache()
-        .addDictionaryLines("bir [P:Num]", "dört [P:Num;A:Voicing]", "üç [P:Num]", "beş [P:Num]")
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .disableCache()
+        .setLexicon("bir [P:Num]", "dört [P:Num;A:Voicing]", "üç [P:Num]", "beş [P:Num]")
         .build();
 
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology);
@@ -107,7 +110,7 @@ public class TurkishSpellCheckerTest {
   @Ignore("Slow. Uses actual data.")
   public void suggestWord1() throws Exception {
     TurkishMorphology morphology = TurkishMorphology.builder()
-        .addDictionaryLines("Türkiye", "Bayram").build();
+        .setLexicon("Türkiye", "Bayram").build();
     List<String> endings = Lists.newArrayList("ında", "de");
     StemEndingGraph graph = new StemEndingGraph(morphology, endings);
     TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology, graph.stemGraph);

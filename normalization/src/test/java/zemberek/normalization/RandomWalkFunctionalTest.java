@@ -44,7 +44,7 @@ public class RandomWalkFunctionalTest {
   TurkishMorphology getDefaultMorphology() {
     return TurkishMorphology
         .builder()
-        .addDefaultBinaryDictionary()
+        .setLexicon(RootLexicon.DEFAULT)
         .disableCache()
         .build();
   }
@@ -53,10 +53,9 @@ public class RandomWalkFunctionalTest {
     RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
     return TurkishMorphology
         .builder()
-        .useLexicon(lexicon)
+        .setLexicon(lexicon)
         .disableUnidentifiedTokenAnalyzer()
-        .useAnalyzer(RuleBasedAnalyzer.instance(new InformalTurkishMorphotactics(lexicon)))
-
+        .useInformalAnalysis()
         .disableCache()
         .build();
   }

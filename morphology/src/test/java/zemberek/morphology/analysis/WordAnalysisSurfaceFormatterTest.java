@@ -1,18 +1,20 @@
 package zemberek.morphology.analysis;
 
-import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.lexicon.RootLexicon;
 
 public class WordAnalysisSurfaceFormatterTest {
 
   @Test
   public void formatNonProperNoun() {
-    TurkishMorphology morphology = TurkishMorphology.builder().disableCache()
-        .addDictionaryLines("elma", "kitap", "demek", "evet").build();
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .disableCache()
+        .setLexicon("elma", "kitap", "demek", "evet")
+        .build();
 
     String[] inputs = {"elmamadaki", "elma", "kitalarımdan", "kitabımızsa", "diyebileceğimiz",
         "dedi", "evet"};
@@ -29,8 +31,10 @@ public class WordAnalysisSurfaceFormatterTest {
 
   @Test
   public void formatKnownProperNouns() {
-    TurkishMorphology morphology = TurkishMorphology.builder().disableCache()
-        .addDictionaryLines("Ankara", "Iphone [Pr:ayfon]", "Google [Pr:gugıl]").build();
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .disableCache()
+        .setLexicon(RootLexicon.fromLines("Ankara", "Iphone [Pr:ayfon]", "Google [Pr:gugıl]"))
+        .build();
 
     String[] inputs = {"ankarada", "ıphonumun", "googledan", "Iphone", "Google", "Googlesa"};
     String[] expected = {"Ankara'da", "Iphone'umun", "Google'dan", "Iphone", "Google", "Google'sa"};
@@ -56,8 +60,9 @@ public class WordAnalysisSurfaceFormatterTest {
 
   @Test
   public void formatKnownProperNounsNoQuote() {
-    TurkishMorphology morphology = TurkishMorphology.builder().disableCache()
-        .addDictionaryLines("Blah [A:NoQuote]").build();
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .disableCache()
+        .setLexicon("Blah [A:NoQuote]").build();
 
     String[] inputs = {"blaha", "Blahta"};
     String[] expected = {"Blaha", "Blahta"};
@@ -89,8 +94,10 @@ public class WordAnalysisSurfaceFormatterTest {
 
   @Test
   public void formatToCase() {
-    TurkishMorphology morphology = TurkishMorphology.builder().disableCache()
-        .addDictionaryLines("kış", "şiir", "Aydın", "Google [Pr:gugıl]").build();
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .disableCache()
+        .setLexicon("kış", "şiir", "Aydın", "Google [Pr:gugıl]")
+        .build();
 
     String[] inputs =
         {"aydında", "googledan", "Google", "şiirde", "kışçığa", "kış"};
@@ -108,8 +115,10 @@ public class WordAnalysisSurfaceFormatterTest {
 
     testCaseType(morphology, inputs, expectedDefaultCase,
         WordAnalysisSurfaceFormatter.CaseType.DEFAULT_CASE);
-    testCaseType(morphology, inputs, expectedLowerCase, WordAnalysisSurfaceFormatter.CaseType.LOWER_CASE);
-    testCaseType(morphology, inputs, expectedUpperCase, WordAnalysisSurfaceFormatter.CaseType.UPPER_CASE);
+    testCaseType(morphology, inputs, expectedLowerCase,
+        WordAnalysisSurfaceFormatter.CaseType.LOWER_CASE);
+    testCaseType(morphology, inputs, expectedUpperCase,
+        WordAnalysisSurfaceFormatter.CaseType.UPPER_CASE);
     testCaseType(morphology, inputs, expectedCapitalCase,
         WordAnalysisSurfaceFormatter.CaseType.TITLE_CASE);
     testCaseType(morphology, inputs, expectedUpperRootLowerEndingCase,

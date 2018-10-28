@@ -13,9 +13,10 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.lexicon.DictionaryItem;
-import zemberek.core.turkish.Turkish;
+import zemberek.morphology.lexicon.RootLexicon;
 
 /**
  * Extracts city, district and village names from a csv file. File is downloaded from public postal
@@ -112,13 +113,14 @@ public class ExtractTurkishCityDistrictNames {
     LinkedHashSet<String> list = new LinkedHashSet<>(
         Files.readAllLines(input, StandardCharsets.UTF_8));
     System.out.println("Total amount of lines = " + list.size());
-    TurkishMorphology morphology = TurkishMorphology.builder().addTextDictionaryResources(
-        "tr/master-dictionary.dict",
-        "tr/non-tdk.dict",
-        "tr/proper.dict",
-        "tr/proper-from-corpus.dict",
-        "tr/abbreviations.dict"
-    ).build();
+    TurkishMorphology morphology = TurkishMorphology.create(
+        RootLexicon.builder().addTextDictionaryResources(
+            "tr/master-dictionary.dict",
+            "tr/non-tdk.dict",
+            "tr/proper.dict",
+            "tr/proper-from-corpus.dict",
+            "tr/abbreviations.dict"
+        ).build());
     List<String> toRemove = new ArrayList<>();
     for (DictionaryItem item : morphology.getLexicon()) {
       if (list.contains(item.lemma)) {

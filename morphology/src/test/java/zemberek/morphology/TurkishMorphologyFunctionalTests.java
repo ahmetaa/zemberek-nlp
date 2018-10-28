@@ -10,7 +10,6 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
 public class TurkishMorphologyFunctionalTests {
 
@@ -24,7 +23,7 @@ public class TurkishMorphologyFunctionalTests {
   private TurkishMorphology getMorphology(String... lines) {
     return TurkishMorphology
         .builder()
-        .addDictionaryLines(lines)
+        .setLexicon(lines)
         .disableCache()
         .build();
   }
@@ -33,8 +32,9 @@ public class TurkishMorphologyFunctionalTests {
     RootLexicon lexicon = TurkishDictionaryLoader.load(lines);
     return TurkishMorphology
         .builder()
-        .useLexicon(lexicon)
-        .useAnalyzer(RuleBasedAnalyzer.forDebug(new TurkishMorphotactics(lexicon), true))
+        .setLexicon(lines)
+        .setLexicon(lexicon)
+        .ignoreDiacriticsInAnalysis()
         .disableCache()
         .build();
   }
@@ -169,7 +169,7 @@ public class TurkishMorphologyFunctionalTests {
   public void testAsciiTolerantMorphology() {
     // Instance with no dictionary item.
     TurkishMorphology morphology = getAsciiTolerantMorphology(
-        "sıra", "şıra", "armut", "kazan", "ekonomik [P:Adj]","insan");
+        "sıra", "şıra", "armut", "kazan", "ekonomik [P:Adj]", "insan");
     RuleBasedAnalyzer analyzer = morphology.getAnalyzer();
     List<SingleAnalysis> result;
     result = analyzer.analyze("ekonomık");

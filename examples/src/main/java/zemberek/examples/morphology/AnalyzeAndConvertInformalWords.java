@@ -13,14 +13,11 @@ import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
 public class AnalyzeAndConvertInformalWords {
 
-  public static void main(String[] args) throws IOException {
-
-    RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
-    TurkishMorphotactics morphotactics = new InformalTurkishMorphotactics(lexicon);
+  public static void main(String[] args) {
 
     TurkishMorphology morphology = TurkishMorphology.builder()
-        .useAnalyzer(RuleBasedAnalyzer.instance(morphotactics))
-        .useLexicon(lexicon)
+        .setLexicon(RootLexicon.DEFAULT)
+        .useInformalAnalysis()
         .build();
 
     List<SingleAnalysis> analyses = morphology

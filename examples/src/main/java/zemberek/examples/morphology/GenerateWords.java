@@ -14,7 +14,7 @@ public class GenerateWords {
     String[] cases = {"Dat", "Loc", "Abl"};
 
     TurkishMorphology morphology =
-        TurkishMorphology.builder().addDictionaryLines("armut").disableCache().build();
+        TurkishMorphology.builder().setLexicon("armut").disableCache().build();
 
     DictionaryItem item = morphology.getLexicon().getMatchingItems("armut").get(0);
     for (String numberM : number) {

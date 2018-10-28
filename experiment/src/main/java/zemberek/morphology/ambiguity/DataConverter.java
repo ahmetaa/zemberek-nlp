@@ -20,6 +20,7 @@ import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.old_ambiguity.AbstractDisambiguator.DataSet;
 import zemberek.morphology.old_ambiguity.AbstractDisambiguator.DataSetLoader;
 import zemberek.morphology.old_ambiguity.AbstractDisambiguator.SentenceData;
@@ -27,45 +28,46 @@ import zemberek.morphology.old_ambiguity.AbstractDisambiguator.SentenceData;
 public class DataConverter {
 
   static Map<String, String> lookup = new HashMap<>();
+
   static {
-    lookup.put("yabancı+noun+a3sg","yabancı+adj");
-    lookup.put("değil+verb+pres+a3sg","değil+verb+neg+pres+a3sg");
-    lookup.put("yetkili+noun+a3pl+p3sg","yetkili+adj^db+noun+zero+a3pl+acc");
-    lookup.put("herkes+noun+a3sg","herkes+pron+quant+a3pl");
-    lookup.put("soyad+noun+a3sg+p3sg","soyadı+noun+a3sg+p3sg");
-    lookup.put("kamuoy+noun+a3sg+p3sg","kamuoyu+noun+a3sg+p3sg");
-    lookup.put("muhafazakar+noun+a3sg","muhafazakar+adj");
-    lookup.put("gazeteci+noun+a3sg","gazete+noun+a3sg^db+noun+agt+a3sg");
-    lookup.put("türk+noun+a3sg","türk+noun+prop+a3sg");
-    lookup.put("ilgili+noun+a3sg","ilgili+adj");
-    lookup.put("üzer+noun+a3sg+p3sg+dat","üzeri+noun+a3sg+p3sg+dat");
-    lookup.put("üzer+noun+a3sg+p3sg+loc","üzeri+noun+a3sg+p3sg+loc");
-    lookup.put("türkçe+adj","türkçe+noun+prop+a3sg");
-    lookup.put("cumhurbaşkan+noun+a3sg+p3sg","cumhurbaşkanı+noun+a3sg+p3sg");
-    lookup.put("yılbaş+noun+a3sg+p3sg","yılbaşı+noun+a3sg+p3sg");
-    lookup.put("değil+verb+pres+a3sg+cop","değil+verb+neg+pres+a3sg+cop");
-    lookup.put("ünlü+noun+a3sg","ün+noun+a3sg^db+adj+with");
-    lookup.put("gerek+noun+a3sg^db+adj+with","gerekli+adj");
-    lookup.put("erken+adj","erken+adv");
-    lookup.put("milletvekil+noun+a3sg+p3sg","milletvekili+noun+a3sg+p3sg");
-    lookup.put("işbirlik+noun+a3sg+p3sg","işbirliği+noun+a3sg+p3sg");
-    lookup.put("Meral","işbirliği+noun+a3sg+p3sg");
-    lookup.put("islami+adj","islami+adj+prop");
-    lookup.put("bir+num+dist","birer+num+dist");
-    lookup.put("müdürlük+noun+a3sg+p3sg","müdürlüğü+noun+a3sg+p3sg");
-    lookup.put("toplumsal+adj","toplum+noun+a3sg^db+adj+related");
-    lookup.put("üzer+noun+a3sg+p3sg+loc^db+adj+rel","üzeri+noun+a3sg+loc+adj+rel");
-    lookup.put("ol+verb^db+adj+prespart^db+noun+zero+a3pl","ol+verb^db+noun+prespart+a3pl");
-    lookup.put("herkes+noun+a3sg+gen","herkes+pron+quant+a3pl+gen");
-    lookup.put("müslüman+adj","müslüman+noun+prop+a3sg");
-    lookup.put("yazılı+noun+a3sg","yazılı+adj");
-    lookup.put("sorumlu+noun+a3sg^db+noun+ness+a3sg","sorumluluk+noun+a3sg");
-    lookup.put("işadam+noun+a3sg+p3sg","işadamı+noun+a3sg+p3sg");
-    lookup.put("değil+verb+pres+a1pl","değil+verb+neg+pres+a1pl");
-    lookup.put("değil+verb+pres+a1sg","değil+verb+neg+pres+a1sg");
-    lookup.put("değil+verb+past+a3sg","değil+verb+neg+past+a3sg");
-    lookup.put("kamuoy+noun+a3sg+p3sg+loc","kamuoyu+noun+a3sg+p3sg+loc");
-    lookup.put("çık+verb^db+verb+caus+past+a3sg","çıkar+verb+past+a3sg");
+    lookup.put("yabancı+noun+a3sg", "yabancı+adj");
+    lookup.put("değil+verb+pres+a3sg", "değil+verb+neg+pres+a3sg");
+    lookup.put("yetkili+noun+a3pl+p3sg", "yetkili+adj^db+noun+zero+a3pl+acc");
+    lookup.put("herkes+noun+a3sg", "herkes+pron+quant+a3pl");
+    lookup.put("soyad+noun+a3sg+p3sg", "soyadı+noun+a3sg+p3sg");
+    lookup.put("kamuoy+noun+a3sg+p3sg", "kamuoyu+noun+a3sg+p3sg");
+    lookup.put("muhafazakar+noun+a3sg", "muhafazakar+adj");
+    lookup.put("gazeteci+noun+a3sg", "gazete+noun+a3sg^db+noun+agt+a3sg");
+    lookup.put("türk+noun+a3sg", "türk+noun+prop+a3sg");
+    lookup.put("ilgili+noun+a3sg", "ilgili+adj");
+    lookup.put("üzer+noun+a3sg+p3sg+dat", "üzeri+noun+a3sg+p3sg+dat");
+    lookup.put("üzer+noun+a3sg+p3sg+loc", "üzeri+noun+a3sg+p3sg+loc");
+    lookup.put("türkçe+adj", "türkçe+noun+prop+a3sg");
+    lookup.put("cumhurbaşkan+noun+a3sg+p3sg", "cumhurbaşkanı+noun+a3sg+p3sg");
+    lookup.put("yılbaş+noun+a3sg+p3sg", "yılbaşı+noun+a3sg+p3sg");
+    lookup.put("değil+verb+pres+a3sg+cop", "değil+verb+neg+pres+a3sg+cop");
+    lookup.put("ünlü+noun+a3sg", "ün+noun+a3sg^db+adj+with");
+    lookup.put("gerek+noun+a3sg^db+adj+with", "gerekli+adj");
+    lookup.put("erken+adj", "erken+adv");
+    lookup.put("milletvekil+noun+a3sg+p3sg", "milletvekili+noun+a3sg+p3sg");
+    lookup.put("işbirlik+noun+a3sg+p3sg", "işbirliği+noun+a3sg+p3sg");
+    lookup.put("Meral", "işbirliği+noun+a3sg+p3sg");
+    lookup.put("islami+adj", "islami+adj+prop");
+    lookup.put("bir+num+dist", "birer+num+dist");
+    lookup.put("müdürlük+noun+a3sg+p3sg", "müdürlüğü+noun+a3sg+p3sg");
+    lookup.put("toplumsal+adj", "toplum+noun+a3sg^db+adj+related");
+    lookup.put("üzer+noun+a3sg+p3sg+loc^db+adj+rel", "üzeri+noun+a3sg+loc+adj+rel");
+    lookup.put("ol+verb^db+adj+prespart^db+noun+zero+a3pl", "ol+verb^db+noun+prespart+a3pl");
+    lookup.put("herkes+noun+a3sg+gen", "herkes+pron+quant+a3pl+gen");
+    lookup.put("müslüman+adj", "müslüman+noun+prop+a3sg");
+    lookup.put("yazılı+noun+a3sg", "yazılı+adj");
+    lookup.put("sorumlu+noun+a3sg^db+noun+ness+a3sg", "sorumluluk+noun+a3sg");
+    lookup.put("işadam+noun+a3sg+p3sg", "işadamı+noun+a3sg+p3sg");
+    lookup.put("değil+verb+pres+a1pl", "değil+verb+neg+pres+a1pl");
+    lookup.put("değil+verb+pres+a1sg", "değil+verb+neg+pres+a1sg");
+    lookup.put("değil+verb+past+a3sg", "değil+verb+neg+past+a3sg");
+    lookup.put("kamuoy+noun+a3sg+p3sg+loc", "kamuoyu+noun+a3sg+p3sg+loc");
+    lookup.put("çık+verb^db+verb+caus+past+a3sg", "çıkar+verb+past+a3sg");
   }
 
 
@@ -83,20 +85,21 @@ public class DataConverter {
     DataSet set = com.google.common.io.Files
         .asCharSource(dataPath.toFile(), Charsets.UTF_8).readLines(new DataSetLoader());
 
-    TurkishMorphology morphology = TurkishMorphology.builder().addTextDictionaryResources(
-        "tr/master-dictionary.dict",
-        "tr/non-tdk.dict",
-        "tr/proper.dict",
-        "tr/proper-from-corpus.dict",
-        "tr/abbreviations.dict",
-        "tr/person-names.dict").build();
+    TurkishMorphology morphology = TurkishMorphology.create(
+        RootLexicon.builder().addTextDictionaryResources(
+            "tr/master-dictionary.dict",
+            "tr/non-tdk.dict",
+            "tr/proper.dict",
+            "tr/proper-from-corpus.dict",
+            "tr/abbreviations.dict",
+            "tr/person-names.dict").build());
 
     List<SentenceAnalysis> result = new ArrayList<>();
     Histogram<String> parseFails = new Histogram<>();
     for (SentenceData sentenceData : set) {
       //System.out.println(sentenceData.correctParse);
       List<String> tokens = Splitter.on(" ").splitToList(sentenceData.sentence());
-      if(tokens.size()==0 || tokens.size()!=sentenceData.correctParse.size()) {
+      if (tokens.size() == 0 || tokens.size() != sentenceData.correctParse.size()) {
         continue;
       }
 
@@ -117,7 +120,7 @@ public class DataConverter {
         p = p.replaceAll("adverb", "adv");
         p = p.replaceAll("\\+cop\\+a3sg", "+a3sg+cop");
         p = p.replaceAll("\\+Unable", "^DB+Verb+Able+Neg");
-        if(lookup.containsKey(p)) {
+        if (lookup.containsKey(p)) {
           p = lookup.get(p);
         }
 
@@ -135,7 +138,7 @@ public class DataConverter {
         }
         if (best == null) {
           if (Character.isUpperCase(s.charAt(0)) && (p.contains("+noun") && !p.contains("prop"))) {
-            String pp = p.replaceFirst("\\+noun","\\+noun+prop");
+            String pp = p.replaceFirst("\\+noun", "\\+noun+prop");
             for (SingleAnalysis analysis : a) {
               String of = convert(analysis);
               if (of.equals(pp)) {
@@ -149,7 +152,7 @@ public class DataConverter {
           List<String> z = a.getAnalysisResults().stream()
               .map(DataConverter::convert)
               .collect(Collectors.toList());
-          parseFails.add(s+" " +p);
+          parseFails.add(s + " " + p);
 
         } else {
           correctList.add(new SentenceWordAnalysis(best, a));
@@ -164,12 +167,13 @@ public class DataConverter {
     Scripts.saveUnambiguous(result, output);
 
     parseFails.removeSmaller(3);
-    parseFails.saveSortedByCounts(Paths.get("parse-fails.txt")," ");
+    parseFails.saveSortedByCounts(Paths.get("parse-fails.txt"), " ");
 
     System.out.format("Full Sentence Match  = %d in %d%n", result.size(), set.sentences.size());
   }
 
-  static AnalysisFormatter formatter = AnalysisFormatters.OflazerStyleFormatter.usingDictionaryRoot();
+  static AnalysisFormatter formatter = AnalysisFormatters.OflazerStyleFormatter
+      .usingDictionaryRoot();
 
   private static String convert(SingleAnalysis analysis) {
     String of = formatter.format(analysis);
@@ -184,7 +188,6 @@ public class DataConverter {
 
     return of;
   }
-
 
 
 }

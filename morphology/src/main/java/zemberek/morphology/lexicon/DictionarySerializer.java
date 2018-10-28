@@ -51,9 +51,10 @@ public class DictionarySerializer {
   }
 
   public static void createDefaultDictionary(Path path) throws IOException {
-    TurkishMorphology morphology = TurkishMorphology.builder()
-        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES).build();
-    save(morphology.getLexicon(), path);
+    RootLexicon lexicon = RootLexicon.builder()
+        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES)
+        .build();
+    save(lexicon, path);
   }
 
   private static RootLexicon getDictionaryItems(byte[] bytes)
@@ -110,7 +111,7 @@ public class DictionarySerializer {
     }
     Dictionary dictionary = builder.build();
     System.out.println("Total size of serialized dictionary: " + dictionary.getSerializedSize());
-    Path f = Files.createTempFile("lexicon",".bin");
+    Path f = Files.createTempFile("lexicon", ".bin");
     BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(f.toFile()));
     bos.write(dictionary.toByteArray());
     bos.close();

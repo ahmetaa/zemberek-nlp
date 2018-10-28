@@ -1,23 +1,40 @@
 package zemberek.morphology.lexicon;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
+import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 
 /**
  * This is the collection of all Dictionary Items.
  */
 public class RootLexicon implements Iterable<DictionaryItem> {
+
+  public static RootLexicon DEFAULT = Singleton.Instance.defaultLexicon;
+
+  private enum Singleton {
+    Instance;
+    RootLexicon defaultLexicon = defaultBinaryLexicon();
+  }
 
   private Multimap<String, DictionaryItem> itemMap = HashMultimap.create(100000, 1);
   private Map<String, DictionaryItem> idMap = Maps.newHashMap();
@@ -111,6 +128,18 @@ public class RootLexicon implements Iterable<DictionaryItem> {
     return matches;
   }
 
+  public static RootLexicon fromLines(String... lines) {
+    return builder().addDictionaryLines(lines).build();
+  }
+
+  public static RootLexicon fromResources(String... resources) throws IOException {
+    return builder().addTextDictionaryResources(resources).build();
+  }
+
+  public static RootLexicon fromResources(Collection<String> resources) throws IOException {
+    return builder().addTextDictionaryResources(resources).build();
+  }
+
   public boolean isEmpty() {
     return itemSet.isEmpty();
   }
@@ -122,5 +151,107 @@ public class RootLexicon implements Iterable<DictionaryItem> {
   @Override
   public Iterator<DictionaryItem> iterator() {
     return itemSet.iterator();
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+
+    RootLexicon lexicon = new RootLexicon();
+
+    public Builder addBinaryDictionary(Path dictionaryPath) throws IOException {
+      lexicon.addAll(DictionarySerializer.load(dictionaryPath).getAllItems());
+      return this;
+    }
+
+    public Builder setDefaultLexicon(RootLexicon lexicon) {
+      this.lexicon = DEFAULT;
+      return this;
+    }
+
+    public Builder setLexicon(RootLexicon lexicon) {
+      this.lexicon = lexicon;
+      return this;
+    }
+
+    public Builder addLexicon(RootLexicon lexicon) {
+      this.lexicon.addAll(lexicon.getAllItems());
+      return this;
+    }
+
+    public Builder addTextDictionaries(File... dictionaryFiles) throws IOException {
+      List<String> lines = new ArrayList<>();
+      for (File file : dictionaryFiles) {
+        lines.addAll(Files.readAllLines(file.toPath()));
+      }
+      lexicon.addAll(TurkishDictionaryLoader.load(lines));
+      return this;
+    }
+
+    public Builder addTextDictionaries(Path... dictionaryPaths) throws IOException {
+      for (Path dictionaryPath : dictionaryPaths) {
+        addTextDictionaries(dictionaryPath.toFile());
+      }
+      return this;
+    }
+
+    public Builder addDictionaryLines(String... lines) {
+      lexicon.addAll(TurkishDictionaryLoader.load(lines));
+      return this;
+    }
+
+    public Builder removeDictionaryFiles(File... dictionaryFiles) throws IOException {
+      for (File file : dictionaryFiles) {
+        lexicon.removeAll(TurkishDictionaryLoader.load(file));
+      }
+      return this;
+    }
+
+    public Builder addTextDictionaryResources(Collection<String> resources) throws IOException {
+      Log.info("Dictionaries :%s", String.join(", ", resources));
+      List<String> lines = new ArrayList<>();
+      for (String resource : resources) {
+        lines.addAll(TextIO.loadLinesFromResource(resource));
+      }
+      lexicon.addAll(TurkishDictionaryLoader.load(lines));
+      return this;
+    }
+
+    public Builder addTextDictionaryResources(String... resources) throws IOException {
+      return addTextDictionaryResources(Arrays.asList(resources));
+    }
+
+    public Builder removeItems(Iterable<String> dictionaryString) {
+      lexicon.removeAll(TurkishDictionaryLoader.load(dictionaryString));
+      return this;
+    }
+
+    public Builder removeAllLemmas(Iterable<String> lemmas) {
+      lexicon.removeAllLemmas(lemmas);
+      return this;
+    }
+
+    public Builder addDictionaryLines(Collection<String> lines) {
+      lexicon.addAll(TurkishDictionaryLoader.load(lines));
+      return this;
+    }
+
+    public RootLexicon build() {
+      return lexicon;
+    }
+  }
+
+  private static RootLexicon defaultBinaryLexicon() {
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
+      Log.info("Dictionary generated in %d ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+      return lexicon;
+    } catch (IOException e) {
+      throw new RuntimeException(
+          "Cannot load default binary dictionary. Reason:" + e.getMessage(), e);
+    }
   }
 }

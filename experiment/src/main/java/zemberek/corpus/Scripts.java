@@ -20,6 +20,7 @@ import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.DictionaryItem;
+import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
@@ -52,8 +53,7 @@ public class Scripts {
     Path goldTest = Paths.get("data/gold/gold-test.sentences");
     //Path goldTest = Paths.get("data/gold/test.txt");
     Path goldTestOut = Paths.get("data/gold/gold-test.txt");
-    TurkishMorphology morphology =  TurkishMorphology.builder()
-        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES).build();
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     saveUnambiguous(clean(Files.readAllLines(goldTest)), morphology, goldTestOut);
   }
 
@@ -69,35 +69,33 @@ public class Scripts {
     Path path = Paths
         .get("/home/aaa/projects/zemberek-nlp/morphology/src/main/resources/tr/person-names.dict");
     Path path2 = Paths
-        .get("/home/aaa/projects/zemberek-nlp/morphology/src/main/resources/tr/person-names-reduced.dict");
+        .get(
+            "/home/aaa/projects/zemberek-nlp/morphology/src/main/resources/tr/person-names-reduced.dict");
 
     List<String> bb = Files.readAllLines(path);
 
+    TurkishMorphology morphology = TurkishMorphology.create(
+        RootLexicon.builder().addTextDictionaryResources(
+            "tr/master-dictionary.dict",
+            "tr/non-tdk.dict",
+            "tr/proper.dict",
+            "tr/proper-from-corpus.dict",
+            "tr/abbreviations.dict").build());
 
-    TurkishMorphology morphology = TurkishMorphology.builder().addTextDictionaryResources(
-        "tr/master-dictionary.dict",
-        "tr/non-tdk.dict",
-        "tr/proper.dict",
-        "tr/proper-from-corpus.dict",
-        "tr/abbreviations.dict",
-        "tr/locations-tr.dict").build();
-
-List<String> r = new ArrayList<>();
+    List<String> r = new ArrayList<>();
     for (String s : bb) {
-      if(s.trim().length()==0)
+      if (s.trim().length() == 0) {
         continue;
-      s = s.replaceAll("[ ]+"," ").trim();
+      }
+      s = s.replaceAll("[ ]+", " ").trim();
       DictionaryItem d = TurkishDictionaryLoader.loadFromString(s);
-      if(!morphology.getLexicon().containsItem(d)) {
+      if (!morphology.getLexicon().containsItem(d)) {
         r.add(s.trim());
       }
     }
     r.sort(Turkish.STRING_COMPARATOR_ASC);
 
     Files.write(path2, r);
-
-
-
 
 
   }

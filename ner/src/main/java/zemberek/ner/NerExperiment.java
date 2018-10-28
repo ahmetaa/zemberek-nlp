@@ -63,9 +63,7 @@ public class NerExperiment {
     NerDataSet testSet = NerDataSet.load(testPath, AnnotationStyle.BRACKET);
     Log.info(testSet.info());
 
-    TurkishMorphology morphology = TurkishMorphology.builder()
-        .addDefaultBinaryDictionary()
-        .build();
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
     PerceptronNer ner = new PerceptronNerTrainer(morphology)
         .train(trainingSet, testSet, 7, 0.1f);

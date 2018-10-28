@@ -579,7 +579,7 @@ public class ZemberekNlpScripts {
     TurkishDictionaryLoader dictionaryLoader = new TurkishDictionaryLoader();
     //dictionaryLoader.load("elma");
     TurkishMorphology morphology =
-        TurkishMorphology.builder().addDictionaryLines("elma").disableCache().build();
+        TurkishMorphology.builder().setLexicon("elma").disableCache().build();
 
     Multimap<String, String> res = HashMultimap.create(100000, 3);
 
@@ -678,7 +678,7 @@ public class ZemberekNlpScripts {
     );
 
     TurkishMorphology analyzer = TurkishMorphology.builder()
-        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES)
+        .setLexicon(RootLexicon.DEFAULT)
         .disableUnidentifiedTokenAnalyzer()
         .disableCache()
         .build();
@@ -759,7 +759,7 @@ public class ZemberekNlpScripts {
     List<String> words = Files.readAllLines(Paths.get("dunya"));
     TurkishMorphology parser = TurkishMorphology
         .builder()
-        .addTextDictionaryResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES)
+        .setLexicon(RootLexicon.fromResources(TurkishDictionaryLoader.DEFAULT_DICTIONARY_RESOURCES))
         //.disableCache()
         //.disableUnidentifiedTokenAnalyzer()
         .build();

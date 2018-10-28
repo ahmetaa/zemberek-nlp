@@ -34,19 +34,21 @@ Informal morpheme names (like `FutInformal`) have `Informal` suffix.
 
 For enabling informal morphological analysis, TurkishMorphology class should be initialized like this:
 
-    RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
-    TurkishMorphotactics morphotactics = new InformalTurkishMorphotactics(lexicon);
-    
-    TurkishMorphology morphology = TurkishMorphology.builder()
-        .useAnaylzer(RuleBasedAnalyzer.instance(morphotactics))
-        .useLexicon(lexicon)
+    TurkishMorphology morphology = TurkishMorphology.builder()        
+        .setLexicon(RootLexicon.DEFAULT)
+        .useInformalAnalysis()
         .build();
 
     morphology.analyzeAndDisambiguate("vurucam kırbacı")
         .bestAnalysis()
         .forEach(System.out::println);
 
-In next releases probably there will be an easier way of enabling this mechanism. Note that 
+Output:
+
+    [vurmak:Verb] vur:Verb+uca:FutInformal+m:A1sg
+    [kırbaç:Noun] kırbac:Noun+A3sg+ı:P3sg
+
+Note that 
 ambiguity resolution mechanism may not work well if sentence contains informal morphemes. 
 There is also a simple informal to formal conversion mechanism `InformalAnalysisConverter` that
 generates formal surface form of an informal word analysis. 
@@ -57,12 +59,9 @@ Morphological analysis can be configured to ignore Turkish diacritics marks as u
 "çğiöüş" For that purpose,`RuleBasedAnalyzer` can be instantiated with `ignoreDiacriticsInstance` method.
 For example:
 
-    RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
-    TurkishMorphotactics morphotactics = new InformalTurkishMorphotactics(lexicon);
-
-    TurkishMorphology morphology = TurkishMorphology.builder()
-        .useAnalyzer(RuleBasedAnalyzer.ignoreDiacriticsInstance(morphotactics))
-        .useLexicon(lexicon)
+    TurkishMorphology morphology = TurkishMorphology.builder()        
+        .setLexicon(RootLexicon.DEFAULT)
+        .ignoreDiacriticsInAnalysis()
         .build();
 
     morphology.analyze("kisi").forEach(System.out::println);
@@ -75,7 +74,7 @@ Output will be:
 
 Note that same output will be generated for inputs "kısı, kışi, kişi, kışı" etc.    
 
-### New command line applications
+#### New command line applications
 
 There are several new command line applications.
 * `GenerateWordVectors`: Generates word vectors using a text corpus. 
@@ -83,6 +82,33 @@ There are several new command line applications.
 * `TrainNerModel`: Generates Turkish Named Entity Recognition model.
 * `EvaluateNer`: Evaluates an annotated NER data set.
 * `FindNamedEntities`: Finds named entities from a Turkish text file.
+
+### Deprecations and breaking changes
+
+* Most lexicon building methods in TurkishMorphology is now moved to RootLexicon's Builder mechanism.
+We did not go through a deprecation stage for this because there were too much changes.
+`RootLexicon.DEFAULT` is now contains default dictionary items. So if user wants to create a custom 
+dictionary and add it to default, or remove items during instantiation, RootLexicon builder mechanism
+needs to be used. Example:
+
+      RootLexicon myLexicon = RootLexicon.builder()
+          .setLexicon(RootLexicon.DEFAULT) // start with default
+          .addDictionaryLines("foo", "rar") // add two new nouns
+          .addTextDictionaries(Paths.get("my-own-dictionary-file")) // add from file
+          .build();
+
+* `InterpretingAnalyzer` is now `RuleBasedAnalyzer`
+
+* `locations-tr.dict` (contains mostly village and district names) is removed from default 
+binary dictionary because it was causing a lot of confusion. Users can add it manually.
+
+* Instead of using Ability+Negative suffix couple, there is now a new morpheme called `Unable`.
+ New suffix does not cause a Verb to Verb derivation. For example, for word `okuyamadım`: 
+
+      Before: oku:Verb|ya:Abil→Verb+ma:Neg+dı:Past+m:A1sg
+      After : oku:Verb+yama:Unable+dı:Past+m:A1sg
+      
+* Deprecated createWithTextDictionaries() method in TurkishMorphology is now removed.
 
 ### Notable Bug fixes
 
@@ -108,12 +134,6 @@ There are several new command line applications.
 
 [#173](https://github.com/ahmetaa/zemberek-nlp/issues/173) "gelebilme" should not have an analysis with "Neg"
 
-#### Deprecations and breaking changes
-
-`InterpretingAnalyzer` is now `RuleBasedAnalyzer`
-
-`locations-tr.dict` (contains city, village and district names) is removed from default binary dictionary because it was causing a lot of confusion.
-Users can add it manually.
 
 ## 0.15.0
 

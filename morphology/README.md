@@ -36,16 +36,37 @@ After this, Turkish suffix graph is generated, internal dictionaries are loaded 
     
 Dictionary rules are explained [here](https://github.com/ahmetaa/zemberek-nlp/wiki/Text-Dictionary-Rules)
 
-For adding this dictionary, builder mechanism is used for instantiation:
+For adding this dictionary, RootLexicon builder mechanism can be used like this:
   
+    RootLexicon lexicon = RootLexicon.builder()
+        .addDefaultBinaryDictionary()
+        .addTextDictionaries(Paths.get("my-dictionary.txt"))
+        .build();
+
     TurkishMorphology analyzer = TurkishMorphology.builder()
-            .addDefaultBinaryDictionary()
-            .addTextDictionaries(new File("my-dictionary.txt"))
-            .build();
+        .setLexicon(lexicon)
+        .build();
+
+Or alternatively:
+        
+    TurkishMorphology analyzer = TurkishMorphology.create(lexicon);
   
 There are other options available for building the object.
 Turkish morphology class contain a built in cache, so in time analysis speed will get faster. There 
-is an option to disable the cache if builder mechanism is used.  
+is an option to disable the cache if builder mechanism is used. For example:
+
+    TurkishMorphology analyzer = TurkishMorphology.builder()
+        .setLexicon(RootLexicon.DEFAULT)
+        .disableCache()
+        .build();
+
+Generating your own dictionary can be liked this:
+
+      RootLexicon myLexicon = RootLexicon.builder()
+          .setLexicon(RootLexicon.DEFAULT) // start with default
+          .addDictionaryLines("foo", "rar") // add two new nouns
+          .addTextDictionaries(Paths.get("my-own-dictionary-file")) // add from file
+          .build();
 
 ### Single word morphological analysis
 
@@ -125,19 +146,21 @@ Informal morpheme names (like `FutInformal`) have `Informal` suffix.
 
 For enabling informal morphological analysis, TurkishMorphology class should be initialized like this:
 
-    RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
-    TurkishMorphotactics morphotactics = new InformalTurkishMorphotactics(lexicon);
-    
-    TurkishMorphology morphology = TurkishMorphology.builder()
-        .useAnaylzer(RuleBasedAnalyzer.instance(morphotactics))
-        .useLexicon(lexicon)
+    TurkishMorphology morphology = TurkishMorphology.builder()        
+        .setLexicon(RootLexicon.DEFAULT)
+        .useInformalAnalysis()
         .build();
 
     morphology.analyzeAndDisambiguate("vurucam kırbacı")
         .bestAnalysis()
         .forEach(System.out::println);
 
-In next releases probably there will be an easier way of enabling this mechanism. Note that 
+Output:
+
+    [vurmak:Verb] vur:Verb+uca:FutInformal+m:A1sg
+    [kırbaç:Noun] kırbac:Noun+A3sg+ı:P3sg
+        
+Note that 
 ambiguity resolution mechanism may not work well if sentence contains informal morphemes. 
 There is also a simple informal to formal conversion mechanism `InformalAnalysisConverter` that
 generates formal surface form of an informal word analysis. 
@@ -179,12 +202,9 @@ Morphological analysis can be configured to ignore Turkish diacritics marks as u
 "çğiöüş" For that purpose,`RuleBasedAnalyzer` can be instantiated with `ignoreDiacriticsInstance` method.
 For example:
 
-    RootLexicon lexicon = DictionarySerializer.loadFromResources("/tr/lexicon.bin");
-    TurkishMorphotactics morphotactics = new InformalTurkishMorphotactics(lexicon);
-
-    TurkishMorphology morphology = TurkishMorphology.builder()
-        .useAnalyzer(RuleBasedAnalyzer.ignoreDiacriticsInstance(morphotactics))
-        .useLexicon(lexicon)
+    TurkishMorphology morphology = TurkishMorphology.builder()        
+        .setLexicon(RootLexicon.DEFAULT)
+        .ignoreDiacriticsInAnalysis()
         .build();
 
     morphology.analyze("kisi").forEach(System.out::println);
@@ -315,4 +335,3 @@ Output:
     armutlarına
     armutlarında
     armutlarından
-

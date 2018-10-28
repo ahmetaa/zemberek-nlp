@@ -39,6 +39,7 @@ import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.AnalysisCache;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
+import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.tokenization.TurkishTokenizer;
@@ -331,7 +332,7 @@ public class NormalizationScripts {
     TurkishMorphology morphology = TurkishMorphology
         .builder()
         .setCache(cache)
-        .addDefaultBinaryDictionary()
+        .setLexicon(RootLexicon.DEFAULT)
         .disableUnidentifiedTokenAnalyzer()
         .build();
 

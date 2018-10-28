@@ -64,9 +64,7 @@ public class TrainNerModel extends NerAppBase {
       Log.info(devSet.info());
     }
 
-    TurkishMorphology morphology = TurkishMorphology.builder()
-        .addDefaultBinaryDictionary()
-        .build();
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
     Log.info("------------ Training Started --------------------");
     PerceptronNer ner = new PerceptronNerTrainer(morphology)
