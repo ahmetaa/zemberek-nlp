@@ -56,8 +56,7 @@ generates formal surface form of an informal word analysis.
 #### Diacritics Ignored Analysis
 
 Morphological analysis can be configured to ignore Turkish diacritics marks as used in characters
-"çğiöüş" For that purpose,`RuleBasedAnalyzer` can be instantiated with `ignoreDiacriticsInstance` method.
-For example:
+**[ç,ğ,i,ö,ü,ş]** For that purpose ignoreDiacriticsInAnalysis() method is used. For example:
 
     TurkishMorphology morphology = TurkishMorphology.builder()        
         .setLexicon(RootLexicon.DEFAULT)
