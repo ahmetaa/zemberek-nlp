@@ -3,6 +3,8 @@ CHANGE LOG
 
 ## 0.16.0 (Not Yet Released.)
 
+This is a major release with breaking changes and new features.
+
 ### New features 
 
 #### grpc module
