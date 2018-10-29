@@ -1,5 +1,15 @@
+
 Turkish Text Normalization
 ============
+
+  * [Turkish Spell Checker](#turkish-spell-checker)
+  * [Spelling Suggestion](#spelling-suggestion)
+    + [Limitations](#limitations)
+  * [Noisy Text Normalization](#noisy-text-normalization)
+    + [Usage](#usage)
+    + [Method](#method)
+    + [Speed](#speed)
+    + [Issues](#issues)
 
 ## Turkish Spell Checker
 

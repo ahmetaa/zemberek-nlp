@@ -1,12 +1,27 @@
 Turkish Morphology
 ============
 
+  * [Morphology](#morphology)
+    + [Maven Usage](#maven-usage)
+    + [Creating TurkishMorphology object](#creating-turkishmorphology-object)
+    + [Single word morphological analysis](#single-word-morphological-analysis)
+    + [Examples](#examples)
+    + [Stemming and Lemmatization Example](#stemming-and-lemmatization-example)
+    + [Known Issues](#known-issues)
+    + [Informal Turkish Words Analysis](#informal-turkish-words-analysis)
+    + [Diacritics Ignored Analysis](#diacritics-ignored-analysis)
+  * [Ambiguity Resolution](#ambiguity-resolution)
+    + [Example](#example)
+    + [Known Issues](#known-issues-1)
+  * [Word Generation](#word-generation)
+    + [Example](#example-1)
+
 ## Morphology
 
 Turkish is a morphologically rich language. 
 Zemberek provides morphological analysis, morphological ambiguity resolution and word generation functions.
 
-## Maven Usage
+### Maven Usage
  
     <dependency>
         <groupId>zemberek-nlp</groupId>
