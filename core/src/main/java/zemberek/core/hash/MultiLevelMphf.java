@@ -539,7 +539,7 @@ public class MultiLevelMphf implements Mphf {
 
       int failedBucketAmount = (int) (failedKeyCount / averageKeysPerBucket);
       if (Log.isDebug()) {
-        Log.debug("Failed key Count:%d " + failedKeyCount);
+        Log.debug("Failed key Count:%d " , failedKeyCount);
       }
 
       // this is a worst case scenario. No empty slot find for any buckets and we are already using buckets where bucket Amount>=keyAmount

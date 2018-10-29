@@ -65,7 +65,7 @@ If user provides a higher order language model (bi-gram models are sufficient) a
  - For shorter words, there will be a lot of suggestions (sometimes >50 ).
  - Suggestion function is not so fast (Around 500-1000 words/second).
  
- ## Noisy Text Normalization (Not Yet Released)
+ ## Noisy Text Normalization
  
  Zemberek-NLP offers noisy text normalization function. This tool can be used correcting 
  words written incorrectly or informal speech from noisy texts. Some noisy text examples (most taken from actual text):
@@ -176,4 +176,3 @@ Therefore, normalization operation:
 - may not work well for some cases,
 - may generate profanity words
  
-

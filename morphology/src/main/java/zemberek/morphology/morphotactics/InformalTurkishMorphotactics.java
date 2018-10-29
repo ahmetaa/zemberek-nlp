@@ -19,35 +19,36 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
   }
 
   public static final Morpheme a1plInformal = addMorpheme(
-      Morpheme.builder("A1plInformal", "A1plInformal")
+      Morpheme.builder("A1pl_Informal", "A1pl_Informal")
           .informal().mappedMorpheme(a1pl).build());
 
   public static final Morpheme a1sgInformal = addMorpheme(
-      Morpheme.builder("A1sgInformal", "A1sgInformal")
+      Morpheme.builder("A1sg_Informal", "A1sg_Informal")
           .informal().mappedMorpheme(a1sg).build());
 
   public static final Morpheme prog1Informal = addMorpheme(
-      Morpheme.builder("Prog1Informal", "Prog1Informal")
+      Morpheme.builder("Prog1_Informal", "Prog1_Informal")
           .informal().mappedMorpheme(prog1).build());
 
   public static final Morpheme futInformal = addMorpheme(
-      Morpheme.builder("FutInformal", "FutInformal")
+      Morpheme.builder("Fut_Informal", "Fut_Informal")
           .informal().mappedMorpheme(fut).build());
 
+  // TODO: not used yet.
   public static final Morpheme quesSuffixInformal = addMorpheme(
-      Morpheme.builder("QuesSuffixInformal", "QuesSuffixInformal")
+      Morpheme.builder("QuesSuffix_Informal", "QuesSuffix_Informal")
           .informal().mappedMorpheme(ques).build());
 
   public static final Morpheme negInformal = addMorpheme(
-      Morpheme.builder("NegInformal", "NegInformal")
+      Morpheme.builder("Neg_Informal", "Neg_Informal")
           .informal().mappedMorpheme(neg).build());
 
   public static final Morpheme unableInformal = addMorpheme(
-      Morpheme.builder("UnableInformal", "UnableInformal")
+      Morpheme.builder("Unable_Informal", "Unable_Informal")
           .informal().mappedMorpheme(unable).build());
 
   public static final Morpheme optInformal = addMorpheme(
-      Morpheme.builder("OptInformal", "OptInformal")
+      Morpheme.builder("Opt_Informal", "Opt_Informal")
           .informal().mappedMorpheme(opt).build());
 
   MorphemeState vA1pl_ST_Inf = terminal("vA1pl_ST_Inf", a1plInformal);

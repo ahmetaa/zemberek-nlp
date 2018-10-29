@@ -140,9 +140,9 @@ Finds all morphological analyses, stems and lemmas of word "kitabımızsa"
 
 As of version 0.16.0, There is a mechanism for analyzing Turkish informal words. For example, word `okuycam`, analysis:
 
-    [okumak:Verb] oku:Verb+yca:FutInformal+m:A1sg   
+    [okumak:Verb] oku:Verb+yca:Fut_Informal+m:A1sg   
 
-Informal morpheme names (like `FutInformal`) have `Informal` suffix. 
+Informal morpheme names (like `Fut_Informal`) have `_Informal` suffix. 
 
 For enabling informal morphological analysis, TurkishMorphology class should be initialized like this:
 
@@ -157,7 +157,7 @@ For enabling informal morphological analysis, TurkishMorphology class should be 
 
 Output:
 
-    [vurmak:Verb] vur:Verb+uca:FutInformal+m:A1sg
+    [vurmak:Verb] vur:Verb+uca:Fut_Informal+m:A1sg
     [kırbaç:Noun] kırbac:Noun+A3sg+ı:P3sg
         
 Note that 
@@ -186,8 +186,8 @@ For example lets assume we used the TurkishMorhology instance created in the pre
 
 Result will be:
 
-    okuycam-[okumak:Verb] oku:Verb+yca:FutInformal+m:A1sg
-    diyo-[demek:Verb] di:Verb+yo:Prog1Informal+A3sg
+    okuycam-[okumak:Verb] oku:Verb+yca:Fut_Informal+m:A1sg
+    diyo-[demek:Verb] di:Verb+yo:Prog1_Informal+A3sg
     
     Converting formal surface form:
     

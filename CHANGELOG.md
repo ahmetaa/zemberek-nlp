@@ -1,7 +1,9 @@
 CHANGE LOG
 ==========
 
-## 0.16.0 (Not Yet Released.)
+## 0.16.0 
+
+(October 29th 2018)
 
 This is a major release with breaking changes and new features.
 
@@ -30,9 +32,9 @@ Note that this is our first attempt, expect many errors.
 We introduce a mechanism for analyzing Turkish informal words. For example, word `okuycam`, analysis
 may be:
 
-    [okumak:Verb] oku:Verb+yca:FutInformal+m:A1sg   
+    [okumak:Verb] oku:Verb+yca:Fut_Informal+m:A1sg   
 
-Informal morpheme names (like `FutInformal`) have `Informal` suffix. 
+Informal morpheme names (like `Fut_Informal`) have `_Informal` suffix. 
 
 For enabling informal morphological analysis, TurkishMorphology class should be initialized like this:
 
@@ -47,7 +49,7 @@ For enabling informal morphological analysis, TurkishMorphology class should be 
 
 Output:
 
-    [vurmak:Verb] vur:Verb+uca:FutInformal+m:A1sg
+    [vurmak:Verb] vur:Verb+uca:Fut_Informal+m:A1sg
     [kırbaç:Noun] kırbac:Noun+A3sg+ı:P3sg
 
 Ambiguity resolution mechanism may not work well if sentence contains informal morphemes. 
@@ -86,7 +88,7 @@ There are several new command line applications.
 ### Deprecations and breaking changes
 
 * Most lexicon building methods in TurkishMorphology is now moved to RootLexicon's Builder mechanism.
-We did not go through a deprecation stage for this because there were too much changes.
+We did not go through a deprecation stage for this because there were too many changes.
 `RootLexicon.DEFAULT` is now contains default dictionary items. So if user wants to create a custom 
 dictionary and add it to default, or remove items during instantiation, RootLexicon builder mechanism
 needs to be used. Example:
