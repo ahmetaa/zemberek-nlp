@@ -137,7 +137,7 @@ binary dictionary because it was causing a lot of confusion. Users can add it ma
 [#173](https://github.com/ahmetaa/zemberek-nlp/issues/173) "gelebilme" should not have an analysis with "Neg"
 
 We thank everybody for their contributions.
-Special thanks to Müge for finding numerous morphology bugs and bojie for 
+Special thanks to Müge for finding numerous morphology bugs and @bojie for 
 fixing Language Model compression problem.
 
 ## 0.15.0 
