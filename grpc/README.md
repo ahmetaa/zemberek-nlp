@@ -43,7 +43,9 @@ For accessing remote API from Python, you need to install grpc related libraries
     pip install grpcio-tools
     pip install googleapis-common-protos  
 
-then, [download](https://drive.google.com/drive/folders/1YkFmD5TrMzvRiUrKGSMjPWYJA1aS97GC) and copy zemberek-grpc folder to [project]/zemberek-grpc 
+then, go to [distributions page](https://drive.google.com/drive/folders/0B9TrB39LQKZWX1RSang3M1VkYjQ) and
+desired version directory. 
+Download the grpc-python.tar.gz file. Extrac it, copy zemberek-grpc folder to [project]/zemberek-grpc 
 
     #!/usr/bin/env python
     # -*- coding: utf-8 -*-
