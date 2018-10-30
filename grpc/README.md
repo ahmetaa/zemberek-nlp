@@ -43,7 +43,7 @@ For accessing remote API from Python, you need to install grpc related libraries
     pip install grpcio-tools
     pip install googleapis-common-protos  
 
-then, download and extract auto generated python grpc files to [project]/zemberek-grpc 
+then, [download](https://drive.google.com/drive/folders/1YkFmD5TrMzvRiUrKGSMjPWYJA1aS97GC) and copy zemberek-grpc folder to [project]/zemberek-grpc 
 
     #!/usr/bin/env python
     # -*- coding: utf-8 -*-
@@ -69,4 +69,5 @@ then, download and extract auto generated python grpc files to [project]/zembere
     if __name__ == '__main__':
         run() 
 
-For a full example check zemberek_client_text.py file.
+For a full example check zemberek_client_text.py file in downloaded content or from 
+[here](https://github.com/ahmetaa/zemberek-nlp/tree/master/grpc/src/main/python) .
