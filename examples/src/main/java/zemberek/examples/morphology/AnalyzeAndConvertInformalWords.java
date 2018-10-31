@@ -16,7 +16,7 @@ public class AnalyzeAndConvertInformalWords {
   public static void main(String[] args) {
 
     TurkishMorphology morphology = TurkishMorphology.builder()
-        .setLexicon(RootLexicon.DEFAULT)
+        .setLexicon(RootLexicon.getDefault())
         .useInformalAnalysis()
         .build();
 

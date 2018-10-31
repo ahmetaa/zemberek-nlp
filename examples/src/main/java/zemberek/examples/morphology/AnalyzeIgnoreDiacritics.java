@@ -14,7 +14,7 @@ public class AnalyzeIgnoreDiacritics {
 
     TurkishMorphology morphology = TurkishMorphology.builder()
         .ignoreDiacriticsInAnalysis()
-        .setLexicon(RootLexicon.DEFAULT)
+        .setLexicon(RootLexicon.getDefault())
         .build();
 
     morphology.analyze("kisi").forEach(System.out::println);

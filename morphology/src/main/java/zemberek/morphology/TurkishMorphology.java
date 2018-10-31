@@ -96,7 +96,7 @@ public class TurkishMorphology {
 
   public static TurkishMorphology createWithDefaults() {
     Stopwatch sw = Stopwatch.createStarted();
-    TurkishMorphology instance = new Builder().setLexicon(RootLexicon.DEFAULT).build();
+    TurkishMorphology instance = new Builder().setLexicon(RootLexicon.getDefault()).build();
     Log.info("Initialized in %d ms.", sw.elapsed(TimeUnit.MILLISECONDS));
     return instance;
   }

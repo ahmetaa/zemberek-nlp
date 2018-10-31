@@ -29,11 +29,13 @@ import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
  */
 public class RootLexicon implements Iterable<DictionaryItem> {
 
-  public static RootLexicon DEFAULT = Singleton.Instance.defaultLexicon;
-
   private enum Singleton {
     Instance;
     RootLexicon defaultLexicon = defaultBinaryLexicon();
+  }
+
+  public static RootLexicon getDefault() {
+    return Singleton.Instance.defaultLexicon;
   }
 
   private Multimap<String, DictionaryItem> itemMap = HashMultimap.create(100000, 1);
@@ -167,7 +169,7 @@ public class RootLexicon implements Iterable<DictionaryItem> {
     }
 
     public Builder setDefaultLexicon(RootLexicon lexicon) {
-      this.lexicon = DEFAULT;
+      this.lexicon = getDefault();
       return this;
     }
 

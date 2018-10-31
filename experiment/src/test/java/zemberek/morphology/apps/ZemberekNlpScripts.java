@@ -678,7 +678,7 @@ public class ZemberekNlpScripts {
     );
 
     TurkishMorphology analyzer = TurkishMorphology.builder()
-        .setLexicon(RootLexicon.DEFAULT)
+        .setLexicon(RootLexicon.getDefault())
         .disableUnidentifiedTokenAnalyzer()
         .disableCache()
         .build();

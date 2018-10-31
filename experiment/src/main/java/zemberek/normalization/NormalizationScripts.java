@@ -332,7 +332,7 @@ public class NormalizationScripts {
     TurkishMorphology morphology = TurkishMorphology
         .builder()
         .setCache(cache)
-        .setLexicon(RootLexicon.DEFAULT)
+        .setLexicon(RootLexicon.getDefault())
         .disableUnidentifiedTokenAnalyzer()
         .build();
 

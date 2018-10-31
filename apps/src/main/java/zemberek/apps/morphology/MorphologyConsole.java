@@ -33,7 +33,7 @@ public class MorphologyConsole extends ConsoleApp {
 
   @Override
   public void run() {
-    Builder b = TurkishMorphology.builder().setLexicon(RootLexicon.DEFAULT);
+    Builder b = TurkishMorphology.builder().setLexicon(RootLexicon.getDefault());
     if (disableUnknownAnalysis) {
       b.disableUnidentifiedTokenAnalyzer();
     }

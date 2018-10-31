@@ -44,7 +44,7 @@ public class RandomWalkFunctionalTest {
   TurkishMorphology getDefaultMorphology() {
     return TurkishMorphology
         .builder()
-        .setLexicon(RootLexicon.DEFAULT)
+        .setLexicon(RootLexicon.getDefault())
         .disableCache()
         .build();
   }
