@@ -1,4 +1,4 @@
-Zemberek gRPC Server (Not Yet Released)
+Zemberek gRPC Server
 ============
 
 ## Introduction
