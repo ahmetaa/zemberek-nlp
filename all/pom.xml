@@ -46,6 +46,14 @@
                   <pattern>javax</pattern>
                   <shadedPattern>_zem.javax</shadedPattern>
                 </relocation>
+                <relocation>
+                  <pattern>io</pattern>
+                  <shadedPattern>_zem.io</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>me</pattern>
+                  <shadedPattern>_zem.me</shadedPattern>
+                </relocation>
               </relocations>
             </configuration>
           </execution>
