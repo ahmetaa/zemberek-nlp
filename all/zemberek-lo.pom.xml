@@ -24,6 +24,7 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <finalName>zemberek-lo</finalName>
               <relocations>
                 <relocation>
                   <pattern>org</pattern>

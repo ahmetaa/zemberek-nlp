@@ -15,38 +15,44 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <!-- get all project dependencies -->
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-          <finalName>zemberek-full</finalName>
-          <appendAssemblyId>false</appendAssemblyId>
-          <archive>
-            <manifest>
-              <mainClass>zemberek.apps.ApplicationRunner</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.0</version>
         <executions>
           <execution>
-            <id>make-assembly</id>
-            <!-- bind to the packaging phase -->
             <phase>package</phase>
             <goals>
-              <goal>single</goal>
+              <goal>shade</goal>
             </goals>
+            <configuration>
+              <finalName>zemberek-full</finalName>
+              <relocations>
+                <relocation>
+                  <pattern>org</pattern>
+                  <shadedPattern>_zem.org</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>google</pattern>
+                  <shadedPattern>_zem.google</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com</pattern>
+                  <shadedPattern>_zem.com</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>afu</pattern>
+                  <shadedPattern>_zem.afu</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>javax</pattern>
+                  <shadedPattern>_zem.javax</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
           </execution>
         </executions>
       </plugin>
     </plugins>
   </build>
-
   <dependencies>
     <dependency>
       <groupId>zemberek-nlp</groupId>
