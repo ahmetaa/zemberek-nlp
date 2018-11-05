@@ -210,7 +210,7 @@ public class TurkishMorphology {
       return Collections.emptyList();
     }
 
-    // TODO: this is somewhat a hack.Correcty here once we decide what to do about
+    // TODO: this is somewhat a hack.Correct here once we decide what to do about
     // words like "Hastanesi'ne". Should we accept Hastanesi or Hastane?
     return noQuotesParses.stream()
         .filter(

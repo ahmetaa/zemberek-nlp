@@ -38,6 +38,9 @@ public class TurkishSpellChecker {
   // Null means exact matcher will be used.
   CharMatcher charMatcher = null;
 
+  // can be used for filtering analysis results.
+  Predicate<SingleAnalysis> analysisPredicate;
+
   public TurkishSpellChecker(TurkishMorphology morphology) throws IOException {
     this.morphology = morphology;
     StemEndingGraph graph = new StemEndingGraph(morphology);
@@ -59,6 +62,11 @@ public class TurkishSpellChecker {
     this.morphology = morphology;
     this.decoder = decoder;
     this.charMatcher = matcher;
+  }
+
+  // TODO: this is a temporary hack.
+  public void setAnalysisPredicate(Predicate<SingleAnalysis> analysisPredicate) {
+    this.analysisPredicate = analysisPredicate;
   }
 
   //TODO: this does not cover all token types.
@@ -83,10 +91,6 @@ public class TurkishSpellChecker {
   }
 
   public boolean check(String input) {
-    return check(input, null);
-  }
-
-  public boolean check(String input, Predicate<SingleAnalysis> analysisPredicate) {
     WordAnalysis analyses = morphology.analyze(input);
     WordAnalysisSurfaceFormatter.CaseType caseType = formatter.guessCase(input);
     for (SingleAnalysis analysis : analyses) {
@@ -138,6 +142,9 @@ public class TurkishSpellChecker {
       WordAnalysis analyses = morphology.analyze(string);
       for (SingleAnalysis analysis : analyses) {
         if (analysis.isUnknown()) {
+          continue;
+        }
+        if (analysisPredicate != null && !analysisPredicate.test(analysis)) {
           continue;
         }
         String formatted = formatter.formatToCase(analysis, caseType, getApostrophe(word));
