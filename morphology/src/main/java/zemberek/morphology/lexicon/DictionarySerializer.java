@@ -36,11 +36,8 @@ public class DictionarySerializer {
       EnumConverter.createConverter(RootAttribute.class, LexiconProto.RootAttribute.class);
 
   public static RootLexicon loadFromResources(String resourcePathString) throws IOException {
-    long start = System.currentTimeMillis();
     try (InputStream is = DictionarySerializer.class.getResourceAsStream(resourcePathString)) {
       byte[] bytes = ByteStreams.toByteArray(is);
-      long end = System.currentTimeMillis();
-      Log.info("Binary lexicon read from resource in %d ms.", (end - start));
       return getDictionaryItems(bytes);
     }
   }

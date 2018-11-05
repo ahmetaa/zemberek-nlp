@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import zemberek.core.ScoredItem;
@@ -82,10 +83,17 @@ public class TurkishSpellChecker {
   }
 
   public boolean check(String input) {
+    return check(input, null);
+  }
+
+  public boolean check(String input, Predicate<SingleAnalysis> analysisPredicate) {
     WordAnalysis analyses = morphology.analyze(input);
     WordAnalysisSurfaceFormatter.CaseType caseType = formatter.guessCase(input);
     for (SingleAnalysis analysis : analyses) {
       if (analysis.isUnknown()) {
+        continue;
+      }
+      if (analysisPredicate != null && !analysisPredicate.test(analysis)) {
         continue;
       }
       String apostrophe = getApostrophe(input);
@@ -99,6 +107,7 @@ public class TurkishSpellChecker {
     }
     return false;
   }
+
 
   private String getApostrophe(String input) {
     String apostrophe;
