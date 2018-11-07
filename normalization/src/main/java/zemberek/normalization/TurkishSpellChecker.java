@@ -41,6 +41,10 @@ public class TurkishSpellChecker {
   // can be used for filtering analysis results.
   Predicate<SingleAnalysis> analysisPredicate;
 
+  public NgramLanguageModel getUnigramLanguageModel() {
+    return unigramModel;
+  }
+
   public TurkishSpellChecker(TurkishMorphology morphology) throws IOException {
     this.morphology = morphology;
     StemEndingGraph graph = new StemEndingGraph(morphology);
@@ -111,7 +115,6 @@ public class TurkishSpellChecker {
     }
     return false;
   }
-
 
   private String getApostrophe(String input) {
     String apostrophe;

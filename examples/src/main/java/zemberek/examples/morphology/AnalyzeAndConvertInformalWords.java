@@ -1,15 +1,10 @@
 package zemberek.examples.morphology;
 
-import java.io.IOException;
 import java.util.List;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.InformalAnalysisConverter;
-import zemberek.morphology.analysis.RuleBasedAnalyzer;
 import zemberek.morphology.analysis.SingleAnalysis;
-import zemberek.morphology.lexicon.DictionarySerializer;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
-import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
 public class AnalyzeAndConvertInformalWords {
 
