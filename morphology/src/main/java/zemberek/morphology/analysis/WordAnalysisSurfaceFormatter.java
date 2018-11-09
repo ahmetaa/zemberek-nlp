@@ -79,7 +79,8 @@ public class WordAnalysisSurfaceFormatter {
 
   //TODO: write tests.
   public boolean canBeFormatted(SingleAnalysis analysis, CaseType type) {
-    boolean proper = analysis.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun;
+    boolean proper = analysis.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun ||
+        analysis.getDictionaryItem().secondaryPos == SecondaryPos.Abbreviation;
     switch (type) {
       case LOWER_CASE:
         return !proper;
@@ -96,6 +97,7 @@ public class WordAnalysisSurfaceFormatter {
 
   /**
    * Guesses the current case type of the word.
+   * <pre>
    * for example,
    * "ankaraya"  -> CaseType.LOWER_CASE
    * "Ankara'ya" -> CaseType.TITLE_CASE
@@ -106,7 +108,7 @@ public class WordAnalysisSurfaceFormatter {
    * "12'de"     -> CaseType.LOWER_CASE
    * "A"         -> CaseType.UPPER_CASE
    * "A1"        -> CaseType.UPPER_CASE
-   *
+   * </pre>
    * @param input input word
    * @return guessed CaseType
    */
