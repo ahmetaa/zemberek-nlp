@@ -10,8 +10,8 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 
 /**
- * Post processes named entities by removing suffixes from last word.
- * TODO: requires some refactoring.
+ * Post processes named entities by removing suffixes from last word. TODO: requires some
+ * refactoring.
  *
  * Originally written by Ayça Müge Sevinç. *
  */
@@ -56,7 +56,8 @@ public class PostProcessedNE {
     if (lemma.length() == 0) {
       return lemma;
     }
-    return lemma.substring(0, 1).toUpperCase(Turkish.LOCALE) + lemma.substring(1);
+    String first = lemma.substring(0, 1).toUpperCase(Turkish.LOCALE);
+    return lemma.length() < 2 ? first : first + lemma.substring(1);
   }
 
   /// Check if there is  apostrophe in the last word,
