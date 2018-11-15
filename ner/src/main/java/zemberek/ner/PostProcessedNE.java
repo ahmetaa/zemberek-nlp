@@ -100,8 +100,7 @@ public class PostProcessedNE {
         tokens.add(new NerToken(i, s, type, position));
       }
     }
-    NamedEntity postProcessedNE = new NamedEntity(type, tokens);
-    return postProcessedNE;
+    return new NamedEntity(type, tokens);
   }
 
   /// This method checks the derived forms to point out the parses that we want to skip.
@@ -119,7 +118,8 @@ public class PostProcessedNE {
       firstIG = firstIG.substring(firstIG.indexOf("] ") + 1);
       firstIG = firstIG.substring(firstIG.indexOf(":") + 1);
 
-      //  check whether its final IG is a noun, or it is a predicate derived from a noun.  If these two does not hold, skip that parse.
+      //  check whether its final IG is a noun, or it is a predicate derived from a noun.
+      // If these two does not hold, skip that parse.
       boolean isLastIGNominalPossessive3rdPerson =
           lastIG.contains("Noun") && (lastIG.contains("P2sg") || lastIG.contains("P2pl") ||
               lastIG.contains("P1pl") ||
@@ -139,7 +139,7 @@ public class PostProcessedNE {
       }
 
       // if it is derived adjective (rel ki) from the nominal, remove those IGs
-      // Ex: Izmirdeki,  [İzmir:Noun,Prop] izmir:Noun+A3sg+de:Loc|ki:Rel→Adj   --> [İzmir:Noun,Prop] izmir:Noun+A3sg+de:Loc
+      // Ex: Izmirdeki,  [İzmir:Noun,Prop] izmir:Noun+A3sg+de:Loc|ki:Rel→Adj --> [İzmir:Noun,Prop] izmir:Noun+A3sg+de:Loc
       while (longFormat.contains("ki:Rel→")) {
         longFormat = longFormat.substring(0, longFormat.lastIndexOf("|"));
         if (longFormat.contains("|")) {
@@ -156,7 +156,8 @@ public class PostProcessedNE {
   // This method returns true if it is not a nominal or if it is a nominal with incorrect possesive markers
   private boolean unInflectedNominalForm(String longFormat) {
 
-    // if it is not derived form, check if it is a noun and also check if the appropriate possesive forms , i.e., Pnon, P3sg, P3pl
+    // if it is not derived form, check if it is a noun and also check if the appropriate
+    // possessive forms , i.e., Pnon, P3sg, P3pl
     boolean isNomimalPossesive3rdPerson =
         longFormat.contains("Noun") && (longFormat.contains("P2sg") || longFormat.contains("P2pl")
             || longFormat.contains("P1pl") || longFormat.contains("P1sg"));
@@ -182,7 +183,8 @@ public class PostProcessedNE {
       //get all the morphological analysis for the last word in the namedEntity
       WordAnalysis results = morphology.analyze(lastWord);
 
-      // if there are no parses returned for the morphological analyses, it means that  the lastWord is unknown, hence return the namedEntity without changing it
+      // if there are no parses returned for the morphological analyses, it means that
+      // the lastWord is unknown, hence return the namedEntity without changing it
       if (results.analysisCount() == 0) {
         //return the the original namedEntity
         return orginalNE;
@@ -195,7 +197,9 @@ public class PostProcessedNE {
         // if (log) System.out.print("longFormat:  " + longFormat + '\n');
 
         if (derivedForms(longFormat)) {
-          continue; // skip the parses which contain non-predicate forms, or a derived nominal with incoorect possesives, or a form derived from a nominal with the incorrect possesive markers
+          // skip the parses which contain non-predicate forms, or a derived nominal
+          // with incoorect possesives, or a form derived from a nominal with the incorrect possesive markers
+          continue;
         } else if (unInflectedNominalForm(longFormat)) {
           continue; // skip the parses which are not nominals or which are nominals with incorrect possesive markers
         }
@@ -213,7 +217,9 @@ public class PostProcessedNE {
         String LastLemma = ListOfLemmas.get(ListOfLemmas.size() - 1);
         String LastStem = ListOfStems.get(ListOfStems.size() - 1);
 
-        // Check if the last lemma in the list of lemmas is a derived adjective (with the suffix rel -ki, if so, strip that suffix, then continue checking with the next longest lemma in the list
+        // Check if the last lemma in the list of lemmas is a derived adjective
+        // (with the suffix rel -ki, if so, strip that suffix, then continue checking with the next
+        // longest lemma in the list
         // ki is recursive it may be added many times: izmirdeki, istanbuldakilerinki, ...
         int x = 0;
         while (relKiCount > 0 && LastLemma.endsWith("ki") && LastStem.endsWith("ki")) {
@@ -227,14 +233,16 @@ public class PostProcessedNE {
         String CLastLemma = capitalize(LastLemma);
         String CLastStem = capitalize(LastStem);
 
-        // if CLastLemma for the proper noun is longer than the previous longest lemma of any previous parses, then update longestLemma
+        // if CLastLemma for the proper noun is longer than the previous longest lemma of any
+        // previous parses, then update longestLemma
         if (longestLemma.length() <= CLastLemma.length() && (longFormat.contains("Noun,Prop]")
             || longFormat.contains("Noun,Abbrv]"))) {
           longestLemma = CLastLemma;
           longFormatforLongestLemma = longFormat;
         }
 
-        // if CLastLemma for the common noun is longer than the previous longest lemma for the noun of any previous parses, then update longestNLemma
+        // if CLastLemma for the common noun is longer than the previous longest lemma
+        // for the noun of any previous parses, then update longestNLemma
         if (longestNLemma.length() <= CLastLemma.length() && longFormat.contains("Noun]")) {
           longestNLemma = CLastLemma;
           longFormatforNLongestLemma = longFormat;
@@ -262,40 +270,46 @@ public class PostProcessedNE {
       }
 
       // in the case of there is no proper noun reading, make use of the common noun reading
-      if (longestLemma == "" && longestNLemma != "") {
+      if (longestLemma.length() == 0 && longestNLemma.length() > 0) {
         longestLemma = longestNLemma;
         longFormatforLongestLemma = longFormatforNLongestLemma;
       }
-      // if there are no parses left after skipping the irrelevant ones, then return the original namedEntity
-      if (longestLemma == "" && longestNLemma == "") {
+      // if there are no parses left after skipping the irrelevant ones,
+      // then return the original namedEntity
+      if (longestLemma.length() == 0 && longestNLemma.length() == 0) {
         return orginalNE; //return the same as the input named entity
       }
 
-      // Choose one of the above determined longest lemmas based on the named entity type: PERSON, ORGANIZATION, LOCATION
+      // Choose one of the above determined longest lemmas based on the named entity type:
+      // PERSON, ORGANIZATION, LOCATION
       postProcessedNE = chooseBestLemmaBasedOnNamedEntityType();
       return postProcessedNE;
     }
   }
 
-  /// Based on the named entity type (PERSON, ORGANIZATION, LOCATION), it decides the best lemma to choose
+  // Based on the named entity type (PERSON, ORGANIZATION, LOCATION),
+  // it decides the best lemma to choose
   private NamedEntity chooseBestLemmaBasedOnNamedEntityType() {
 
-    // if there is no  apostrophe and there is only one word in ner (Kaan, Kaana, istanbulda, Komutanlıgı)
-    // return the longest lemma
+    // if there is no  apostrophe and there is only one word in ner
+    // (Kaan, Kaana, istanbulda, Komutanlıgı) return the longest lemma
     if (wordList.length == 1) {
       postProcessedNE = updateLastWord(orginalNE, longestLemma);
       return postProcessedNE;
     }
-    // if there is no  apostrophe and there are more than one word in ne (Toros Daglarinda, Kaan Irmak, Kaan Irmagı)
+    // if there is no  apostrophe and there are more than one word in NE
+    // (Toros Daglarinda, Kaan Irmak, Kaan Irmagı)
     else {
-      // When the type is person we expect it to be in an uninflected form in NE, so we just return the longest lemma (without any inflections)
+      // When the type is person we expect it to be in an uninflected form in NE,
+      // so we just return the longest lemma (without any inflections)
       //Ex: deneyim, birligi
       if (type.equals("PERSON")) {
         postProcessedNE = updateLastWord(orginalNE, longestLemma);
         return postProcessedNE;
-
       }
-      // When the type is organization or location,  we return the longest nominal lemma (with the inflections p3sg or p3pl)
+
+      // When the type is organization or location,  we return the longest nominal lemma
+      // (with the inflections p3sg or p3pl)
       else if (type.equals("ORGANIZATION") || type.equals("LOCATION")) { //organization or location
         String lemmaPos = longFormatforLongestLemma
             .substring(0, longFormatforLongestLemma.indexOf(']'));
@@ -333,9 +347,11 @@ public class PostProcessedNE {
 
           }
         }
-        // if there is no common noun reading for the location or organization, then we use the proper noun reading
-        else if (longestNLemma.equals("") && (pos.equals("Noun,Prop") || pos.equals("Noun,Abbrv"))
-            && lemma.equals(longestLemma)) {
+        // if there is no common noun reading for the location or organization,
+        // then we use the proper noun reading
+        else if (longestNLemma.equals("") &&
+            (pos.equals("Noun,Prop") || pos.equals("Noun,Abbrv")) &&
+            lemma.equals(longestLemma)) {
 
           postProcessedNE = updateLastWord(orginalNE, longestLemma);
           return postProcessedNE;
@@ -349,12 +365,14 @@ public class PostProcessedNE {
   /// This method post-process the named entity to strip any suffixes that are attached to them
   public NamedEntity postProcessNER(TurkishMorphology morphology) {
 
-    // check if there is  apostrophe in the last word, if so remove the part including and following it from the namedEntity
+    // check if there is  apostrophe in the last word,
+    // if so remove the part including and following it from the namedEntity
     if (lastWord.contains("\'") || lastWord.contains("’")) {
       return apostropheRemoved();
     }
 
-    // check for the best nominal analysis depending on the type of the namedEntity, strip the suffixes on the named entity
+    // check for the best nominal analysis depending on the type of the namedEntity,
+    // strip the suffixes on the named entity
     return MorphologicalAnalysisForNamedEntity(morphology);
   }
 }
