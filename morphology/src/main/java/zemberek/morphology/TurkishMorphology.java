@@ -83,6 +83,8 @@ public class TurkishMorphology {
         throw new RuntimeException(
             "Cannot initialize PerceptronAmbiguityResolver from resource " + resourcePath, e);
       }
+    } else {
+      this.ambiguityResolver = builder.ambiguityResolver;
     }
   }
 
