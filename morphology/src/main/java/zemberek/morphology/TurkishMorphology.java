@@ -74,7 +74,7 @@ public class TurkishMorphology {
     this.useCache = builder.useDynamicCache;
     this.useUnidentifiedTokenAnalyzer = builder.useUnidentifiedTokenAnalyzer;
 
-    if (ambiguityResolver == null) {
+    if (builder.ambiguityResolver == null) {
       String resourcePath = "/tr/ambiguity/model-compressed";
       try {
         this.ambiguityResolver =
