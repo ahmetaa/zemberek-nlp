@@ -215,6 +215,7 @@ public class TurkishSentenceNormalizer {
 
       candidatesList.add(result);
     }
+    // Apply Viterbi decoding and return result.
     return String.join(" ", decode(candidatesList));
 
   }
@@ -350,7 +351,7 @@ public class TurkishSentenceNormalizer {
     ActiveList<Hypothesis> current = new ActiveList<>();
     ActiveList<Hypothesis> next = new ActiveList<>();
 
-    // Path with END tokens.
+    // Pad with END tokens.
     candidatesList.add(END_CANDIDATES);
 
     Hypothesis initial = new Hypothesis();

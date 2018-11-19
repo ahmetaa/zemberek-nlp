@@ -43,6 +43,13 @@ public class BlockTextLoader implements Iterable<TextChunk> {
     return new BlockTextLoader(corpora, _SingleLoader.DEFAULT_BLOCK_SIZE);
   }
 
+  public static BlockTextLoader fromDirectory(Path directoryPath) throws IOException {
+    List<Path> paths = Files.walk(directoryPath, 1)
+        .filter(s -> s.toFile().isFile())
+        .collect(Collectors.toList());
+    return new BlockTextLoader(paths, _SingleLoader.DEFAULT_BLOCK_SIZE);
+  }
+
   public static BlockTextLoader fromPaths(List<Path> corpora, int blockSize) {
     return new BlockTextLoader(corpora, blockSize);
   }

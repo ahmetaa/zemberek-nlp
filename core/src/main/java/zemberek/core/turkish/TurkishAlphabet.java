@@ -167,7 +167,7 @@ public class TurkishAlphabet {
     }
   }
 
-  List<TurkicLetter> generateLetters() {
+  private List<TurkicLetter> generateLetters() {
     List<TurkicLetter> letters = Lists.newArrayList(
         builder('a').vowel().build(),
         builder('e').vowel().frontalVowel().build(),
