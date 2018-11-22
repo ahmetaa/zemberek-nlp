@@ -502,6 +502,20 @@ public class TurkishSentenceNormalizer {
     return input;
   }
 
+  String separateBrute(String input, int minSize) {
+    if (!hasRegularAnalysis(input)) {
+      for (int i = minSize; i < input.length() - minSize; i++) {
+        String head = input.substring(0, i);
+        String tail = input.substring(i);
+        if (hasRegularAnalysis(head) && hasRegularAnalysis(tail)) {
+          return head + " " + tail;
+        }
+      }
+    }
+    return input;
+  }
+
+
   /**
    * Makes a guess if input sentence requires deasciifier.
    */
@@ -563,6 +577,19 @@ public class TurkishSentenceNormalizer {
       String text = token.getText();
       if (isWord(token)) {
         result.add(separateCommon(text, useLookup));
+      } else {
+        result.add(text);
+      }
+    }
+    return String.join(" ", result);
+  }
+
+  String splitBruteForce(List<Token> tokens, int minSize) {
+    List<String> result = new ArrayList<>();
+    for (Token token : tokens) {
+      String text = token.getText();
+      if (isWord(token)) {
+        result.add(separateBrute(text, minSize));
       } else {
         result.add(text);
       }

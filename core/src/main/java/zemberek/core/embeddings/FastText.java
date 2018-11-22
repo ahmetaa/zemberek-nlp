@@ -308,7 +308,7 @@ public class FastText {
     }
   }
 
-  EvaluationResult test(Path in, int k, float threshold) throws IOException {
+  public EvaluationResult test(Path in, int k, float threshold) throws IOException {
     int nexamples = 0, nlabels = 0;
     float precision = 0.0f;
     String lineStr;
@@ -317,8 +317,7 @@ public class FastText {
       IntVector words = new IntVector(), labels = new IntVector();
       dict_.getLine(lineStr, words, labels);
       if (labels.size() > 0 && words.size() > 0) {
-        List<Model.FloatIntPair> modelPredictions =
-            model_.predict(words.copyOf(), threshold, k);
+        List<Model.FloatIntPair> modelPredictions = model_.predict(words.copyOf(), threshold, k);
 
         for (Model.FloatIntPair pair : modelPredictions) {
           if (labels.contains(pair.second)) {

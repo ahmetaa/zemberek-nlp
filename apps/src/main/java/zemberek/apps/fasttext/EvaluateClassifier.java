@@ -34,6 +34,10 @@ public class EvaluateClassifier extends ConsoleApp {
       description = "Amount of top predictions.")
   int predictionCount = 1;
 
+  @Parameter(names = {"--threshold", "-th"},
+      description = "Minimum score threshold. Lower values will not be included in prediction.")
+  float threshold = -100f;
+
   @Override
   public String description() {
     return "Evaluates classifier with a test set.";
@@ -45,7 +49,7 @@ public class EvaluateClassifier extends ConsoleApp {
     System.out.println("Loading classification model...");
 
     FastTextClassifier classifier = FastTextClassifier.load(model);
-    EvaluationResult result = classifier.evaluate(input, predictionCount);
+    EvaluationResult result = classifier.evaluate(input, predictionCount, threshold);
 
     System.out.println("Result = " + result.toString());
 
@@ -61,7 +65,8 @@ public class EvaluateClassifier extends ConsoleApp {
         List<String> predictedCategories = new ArrayList<>();
         for (ScoredItem<String> re : res) {
           predictedCategories.add(String.format("%s (%.6f)",
-              re.item.replaceAll("__label__", "").replaceAll("_", " "), re.score));
+              re.item.replaceAll("__label__", "")
+              /*.replaceAll("_", " ")*/, re.score));
         }
         pw.println(testLine);
         pw.println("Predictions   = " + String.join(", ", predictedCategories));

@@ -10,8 +10,8 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 
 /**
- * Post processes named entities by removing suffixes from last word. TODO: requires some
- * refactoring.
+ * Post processes named entities by removing suffixes from last word.
+ * TODO: requires some refactoring.
  *
  * Originally written by Ayça Müge Sevinç. *
  */

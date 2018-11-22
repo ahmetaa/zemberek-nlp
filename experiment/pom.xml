@@ -54,6 +54,11 @@
       <version>${project.parent.version}</version>
     </dependency>
     <dependency>
+      <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-examples</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <version>1.4.197</version>

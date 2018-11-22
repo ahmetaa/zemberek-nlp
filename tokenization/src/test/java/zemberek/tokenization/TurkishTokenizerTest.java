@@ -317,6 +317,7 @@ public class TurkishTokenizerTest {
 
     String[] urls = {
         "http://t.co/gn32szS9",
+        "http://foo.im/lrıvn",
         "http://www.fo.bar",
         "http://www.fo.bar'da",
         "https://www.fo.baz.zip",

@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 import zemberek.apps.fasttext.EvaluateClassifier;
 import zemberek.apps.fasttext.TrainClassifier;
 import zemberek.core.collections.Histogram;
@@ -16,17 +18,17 @@ import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.normalization.TurkishSentenceNormalizer;
 
-public class SentimentClassifier extends ClassificationBase {
+public class ClassificationExperiment extends ClassificationBase {
 
-  static Path root = Paths.get("/home/aaa/data/sentiment");
-  static Path t1out = root.resolve("t1");
+  static Path root = Paths.get("/home/aaa/data/classification");
+  static Path t1out = root.resolve("t3");
   static Path trainRaw = t1out.resolve("train-raw");
   static Path testRaw = t1out.resolve("test-raw");
 
 
   public static void main(String[] args) throws IOException {
 
-    SentimentClassifier experiment = new SentimentClassifier();
+    ClassificationExperiment experiment = new ClassificationExperiment();
     morphology = TurkishMorphology.builder()
         .setLexicon(RootLexicon.getDefault())
         .build();
@@ -37,7 +39,7 @@ public class SentimentClassifier extends ClassificationBase {
         dataRoot.resolve("normalization"),
         dataRoot.resolve("lm/lm.2gram.slm"));
 
-    experiment.generateData();
+    experiment.generateData(200);
 
     List<String> trainRawLines = TextIO.loadLines(trainRaw);
     List<String> testRawLines = TextIO.loadLines(testRaw);
@@ -47,7 +49,7 @@ public class SentimentClassifier extends ClassificationBase {
     Log.info("Test data:");
     experiment.dataInfo(testRawLines);
 
-    Path tokenizedTrain = t1out.resolve("train-tokenized");
+/*    Path tokenizedTrain = t1out.resolve("train-tokenized");
     Path tokenizedTest = t1out.resolve("test-tokenized");
 
     experiment.generateSetTokenized(trainRawLines, tokenizedTrain);
@@ -61,7 +63,7 @@ public class SentimentClassifier extends ClassificationBase {
     experiment.generateSetWithLemmas(trainRawLines, lemmaTrain);
     experiment.generateSetWithLemmas(testRawLines, lemmaTest);
 
-    experiment.evaluate(t1out, lemmaTrain, lemmaTest, "lemma");
+    experiment.evaluate(t1out, lemmaTrain, lemmaTest, "lemma");*/
 
     Path splitTrain = t1out.resolve("train-split");
     Path splitTest = t1out.resolve("test-split");
@@ -73,28 +75,29 @@ public class SentimentClassifier extends ClassificationBase {
 
   }
 
-  void generateData() throws IOException {
-    Path t1Train = root.resolve("raw/t1/train.csv");
-    Path t1Test = root.resolve("raw/t1/test.csv");
-    Files.createDirectories(t1out);
-    Files.write(trainRaw, addLabels(t1Train));
-    Files.write(testRaw, addLabels(t1Test));
-  }
+  void generateData(int testSize) throws IOException {
+    Path raw = root.resolve("raw3/all");
+    Random r = new Random(1);
+    List<String> lines = TextIO.loadLines(raw);
+    Collections.shuffle(lines, r);
 
-  static List<String> addLabels(Path input) throws IOException {
-    List<String> lines = TextIO.loadLines(input);
-    List<String> result = new ArrayList<>();
-    for (String line : lines) {
-      int i = line.indexOf('\t');
-      if (i == -1) {
-        continue;
-      }
-      String content = line.substring(0, i).trim();
-      content = normalizer.normalize(content);
-      String label = "__label__" + line.substring(i).trim();
-      result.add(label + " " + content);
-    }
-    return result;
+    List<String> test = lines.subList(0, testSize);
+    List<String> train = lines.subList(testSize, lines.size() - 1);
+
+    train = train.stream()
+        .filter(s -> s.contains("__label__"))
+        .map(s -> s.replaceAll("^\"", ""))
+        .map(s -> normalizer.normalize(s))
+        .collect(Collectors.toList());
+    test = test.stream()
+        .filter(s -> s.contains("__label__"))
+        .map(s -> s.replaceAll("^\"", ""))
+        .map(s -> normalizer.normalize(s))
+        .collect(Collectors.toList());
+
+    Files.createDirectories(t1out);
+    Files.write(trainRaw, train);
+    Files.write(testRaw, test);
   }
 
   private void evaluate(Path root, Path train, Path test, String name) {
@@ -108,7 +111,7 @@ public class SentimentClassifier extends ClassificationBase {
           "--learningRate", "0.1",
           "--epochCount", "70",
           "--dimension", "100",
-          "--wordNGrams", "3"/*,
+          "--wordNGrams", "2"/*,
           "--applyQuantization",
           "--cutOff", "25000"*/
       );
@@ -127,7 +130,8 @@ public class SentimentClassifier extends ClassificationBase {
         "-i", testPath.toString(),
         "-m", modelPath.toString(),
         "-o", predictionsPath.toString(),
-        "-k", "1"
+        "-k", "2",
+        "-th", "-2"
     );
   }
 
@@ -144,4 +148,5 @@ public class SentimentClassifier extends ClassificationBase {
   }
 
 }
+
 
