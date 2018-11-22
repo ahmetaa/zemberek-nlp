@@ -47,7 +47,8 @@ public class PerceptronNer {
       List<String> types = TextIO.loadLinesFromResource(resourceRoot + "/ner-types");
       Map<String, ClassModel> weightsMap = new HashMap<>();
       for (String type : types) {
-        ClassModel weights = ClassModel.loadFromResource(resourceRoot + "/" + type + ".ner.model");
+        String resourcePath = resourceRoot + "/" + type + ".ner.model";
+        ClassModel weights = ClassModel.loadFromResource(type, resourcePath);
         weightsMap.put(weights.id, weights);
       }
       return new PerceptronNer(weightsMap, morphology);
@@ -215,8 +216,8 @@ public class PerceptronNer {
       return new ClassModel(id, Weights.loadFromFile(modelFile));
     }
 
-    public static ClassModel loadFromResource(String id) throws IOException {
-      List<String> lines = TextIO.loadLinesFromResource(id + "ner.model");
+    public static ClassModel loadFromResource(String id, String resourcePath) throws IOException {
+      List<String> lines = TextIO.loadLinesFromResource(resourcePath);
       return new ClassModel(id, Weights.loadFromLines(lines));
     }
   }

@@ -22,7 +22,7 @@ public class FindNamedEntities extends NerAppBase {
   @Parameter(
       names = {"--modelRoot", "-m"},
       required = true,
-      description = "Annotated training data file path. ")
+      description = "Model files root. ")
   public Path modelRoot;
 
   @Parameter(
