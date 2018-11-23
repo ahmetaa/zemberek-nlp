@@ -214,6 +214,9 @@ class Model {
     return -log(output_.data_[target]);
   }
 
+  // input[] is the word indexes.
+  // it creates a vector for hidden weights with size of [dimension]
+  // then sums all current word embeddings of input[] to this vector and averages it.
   Vector computeHidden(int[] input) {
     Vector hidden = new Vector(hsz_);
     for (int i : input) {
@@ -317,6 +320,9 @@ class Model {
   }
 
 
+  // input is word indexes of the sentence
+  // target is the label
+  // lr is the current learning rate.
   void update(int[] input, int target, float lr) {
     assert (target >= 0);
     assert (target < osz_);

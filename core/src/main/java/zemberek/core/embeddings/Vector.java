@@ -29,7 +29,7 @@ class Vector {
     FloatArrays.scaleInPlace(data_, a);
   }
 
-
+  // Sums matrix[i] row values to this vector values.
   void addRow(Matrix A, int i) {
     assert (i >= 0);
     assert (i < A.m_);

@@ -63,6 +63,13 @@ class Dictionary {
     return h & 0x7fff_ffff;
   }
 
+  // original fasttext code uses this code:
+  // uint32_t h = 2166136261;
+  // for (size_t i = 0; i < str.size(); i++) {
+  //   h = h ^ uint32_t(int8_t(str[i]));
+  //   h = h * 16777619;
+  // }
+  //
   static int hash(String str, int start, int end) {
     int h = 0x811C_9DC5;
     for (int i = start; i < end; i++) {
