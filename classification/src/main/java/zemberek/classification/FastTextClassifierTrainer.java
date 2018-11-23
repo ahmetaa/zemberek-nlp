@@ -7,7 +7,6 @@ import zemberek.core.concurrency.ConcurrencyUtil;
 import zemberek.core.embeddings.Args;
 import zemberek.core.embeddings.Args.loss_name;
 import zemberek.core.embeddings.EmbeddingHashProviders.EmptySubwordHashProvider;
-import zemberek.core.embeddings.FastText;
 import zemberek.core.embeddings.FastTextTrainer;
 import zemberek.core.embeddings.SubWordHashProvider;
 
@@ -45,8 +44,7 @@ public class FastTextClassifierTrainer {
 
     LossType type = LossType.SOFTMAX;
     int wordNgramOrder = DEFAULT_WORD_NGRAM;
-    SubWordHashProvider subWordHashProvider =
-        new EmptySubwordHashProvider();
+    SubWordHashProvider subWordHashProvider = new EmptySubwordHashProvider();
     float learningRate = DEFAULT_LR;
     int threadCount = DEFAULT_TC;
     int contextWindowSize = DEFAULT_CONTEXT_WINDOW_SIZE;
@@ -92,6 +90,11 @@ public class FastTextClassifierTrainer {
 
     public Builder contextWindowSize(int contextWindowSize) {
       this.contextWindowSize = contextWindowSize;
+      return this;
+    }
+
+    public Builder subWordHashProvider(SubWordHashProvider provider) {
+      this.subWordHashProvider = provider;
       return this;
     }
 
