@@ -62,6 +62,7 @@ public class TurkishSentenceNormalizer {
   private Map<String, String> replacements = new HashMap<>();
   private HashSet<String> commonConnectedSuffixes = new HashSet<>();
   private HashSet<String> noSplitWords = new HashSet<>();
+  boolean alwaysApplyDeasciifier = false;
 
   public TurkishSentenceNormalizer(
       TurkishMorphology morphology,
@@ -116,6 +117,10 @@ public class TurkishSentenceNormalizer {
       String[] tokens = replaceLine.split("=");
       replacements.put(tokens[0].trim(), tokens[1].trim());
     }
+  }
+
+  public void setAlwaysApplyDeasciifier(boolean alwaysApplyDeasciifier) {
+    this.alwaysApplyDeasciifier = alwaysApplyDeasciifier;
   }
 
   // load data with line format: "key=val1,val2"
@@ -414,7 +419,7 @@ public class TurkishSentenceNormalizer {
     s = combineNecessaryWords(tokens);
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
     s = splitNecessaryWords(tokens, false);
-    if (probablyRequiresDeasciifier(s)) {
+    if (alwaysApplyDeasciifier || probablyRequiresDeasciifier(s)) {
       Deasciifier deasciifier = new Deasciifier(s);
       s = deasciifier.convertToTurkish();
     }
@@ -523,12 +528,15 @@ public class TurkishSentenceNormalizer {
     int turkishSpecCount = 0;
     for (int i = 0; i < sentence.length(); i++) {
       char c = sentence.charAt(i);
+      if (c == 'ı' || c == 'I') {
+        continue;
+      }
       if (TurkishAlphabet.INSTANCE.isTurkishSpecific(c)) {
         turkishSpecCount++;
       }
     }
     double ratio = turkishSpecCount * 1d / sentence.length();
-    return ratio < 0.05;
+    return ratio < 0.1;
   }
 
   String combineNecessaryWords(List<Token> tokens) {

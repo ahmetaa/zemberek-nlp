@@ -76,7 +76,7 @@ public class FastTextClassifierTrainer {
     }
 
     public Builder threadCount(int threadCount) {
-      ConcurrencyUtil.validateCpuThreadCount(threadCount);
+      this.threadCount = ConcurrencyUtil.validateCpuThreadCount(threadCount);
       return this;
     }
 
@@ -139,6 +139,5 @@ public class FastTextClassifierTrainer {
   public void trainingProgress(FastTextTrainer.Progress progress) {
     this.eventBus.post(progress);
   }
-
 
 }

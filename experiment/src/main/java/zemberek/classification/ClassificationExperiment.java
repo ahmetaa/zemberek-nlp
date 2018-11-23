@@ -38,22 +38,28 @@ public class ClassificationExperiment extends ClassificationBase {
         morphology,
         dataRoot.resolve("normalization"),
         dataRoot.resolve("lm/lm.2gram.slm"));
+    normalizer.setAlwaysApplyDeasciifier(true);
 
     experiment.generateData(200);
 
     List<String> trainRawLines = TextIO.loadLines(trainRaw);
     List<String> testRawLines = TextIO.loadLines(testRaw);
 
+    countTokens(trainRaw, testRaw);
+
     Log.info("Train data:");
     experiment.dataInfo(trainRawLines);
     Log.info("Test data:");
     experiment.dataInfo(testRawLines);
 
-/*    Path tokenizedTrain = t1out.resolve("train-tokenized");
+/*
+    Path tokenizedTrain = t1out.resolve("train-tokenized");
     Path tokenizedTest = t1out.resolve("test-tokenized");
 
     experiment.generateSetTokenized(trainRawLines, tokenizedTrain);
     experiment.generateSetTokenized(testRawLines, tokenizedTest);
+
+    countTokens(tokenizedTrain, tokenizedTest);
 
     experiment.evaluate(t1out, tokenizedTrain, tokenizedTest, "tokenized");
 
@@ -63,7 +69,10 @@ public class ClassificationExperiment extends ClassificationBase {
     experiment.generateSetWithLemmas(trainRawLines, lemmaTrain);
     experiment.generateSetWithLemmas(testRawLines, lemmaTest);
 
-    experiment.evaluate(t1out, lemmaTrain, lemmaTest, "lemma");*/
+    countTokens(lemmaTrain, lemmaTest);
+
+    experiment.evaluate(t1out, lemmaTrain, lemmaTest, "lemma");
+*/
 
     Path splitTrain = t1out.resolve("train-split");
     Path splitTest = t1out.resolve("test-split");
@@ -71,9 +80,36 @@ public class ClassificationExperiment extends ClassificationBase {
     experiment.generateSetWithSplit(trainRawLines, splitTrain);
     experiment.generateSetWithSplit(testRawLines, splitTest);
 
-    experiment.evaluate(t1out, splitTrain, splitTest, "split");
+    countTokens(splitTrain, splitTest);
 
+    experiment.evaluate(t1out, splitTrain, splitTest, "split");
   }
+
+  static void countTokens(Path... paths) throws IOException {
+    for (Path path : paths) {
+      List<String> lines = TextIO.loadLines(path);
+      Histogram<String> hw = new Histogram<>();
+      Histogram<String> hl = new Histogram<>();
+      for (String l : lines) {
+        for (String s : l.split("[\\s]+")) {
+          if (s.contains("__label__")) {
+            if(s.contains("-")) {
+              Log.warn(l);
+            }
+            hl.add(s);
+          } else {
+            hw.add(s);
+          }
+        }
+      }
+      Log.info("There are %d lines, %d words, %d labels in %s",
+          lines.size(),
+          hw.size(),
+          hl.size(),
+          path);
+    }
+  }
+
 
   void generateData(int testSize) throws IOException {
     Path raw = root.resolve("raw3/all");
@@ -83,6 +119,8 @@ public class ClassificationExperiment extends ClassificationBase {
 
     List<String> test = lines.subList(0, testSize);
     List<String> train = lines.subList(testSize, lines.size() - 1);
+
+    Log.info("Train = %d, Test = %d lines.", train.size(), test.size());
 
     train = train.stream()
         .filter(s -> s.contains("__label__"))
@@ -94,6 +132,8 @@ public class ClassificationExperiment extends ClassificationBase {
         .map(s -> s.replaceAll("^\"", ""))
         .map(s -> normalizer.normalize(s))
         .collect(Collectors.toList());
+
+    Log.info("After pre-process, Train = %d, Test = %d lines.", train.size(), test.size());
 
     Files.createDirectories(t1out);
     Files.write(trainRaw, train);
@@ -111,7 +151,7 @@ public class ClassificationExperiment extends ClassificationBase {
           "--learningRate", "0.1",
           "--epochCount", "70",
           "--dimension", "100",
-          "--wordNGrams", "2"/*,
+          "--wordNGrams", "2" /*,
           "--applyQuantization",
           "--cutOff", "25000"*/
       );
