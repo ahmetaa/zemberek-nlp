@@ -318,7 +318,6 @@ public class FastText {
       dict_.getLine(lineStr, words, labels);
       if (labels.size() > 0 && words.size() > 0) {
         List<Model.FloatIntPair> modelPredictions = model_.predict(words.copyOf(), threshold, k);
-
         for (Model.FloatIntPair pair : modelPredictions) {
           if (labels.contains(pair.second)) {
             precision += 1.0f;
@@ -333,6 +332,19 @@ public class FastText {
         precision / nlabels,
         k,
         nexamples);
+  }
+
+  public void test(Path in, int k, float threshold, Meter meter) throws IOException {
+    String lineStr;
+    BufferedReader reader = Files.newBufferedReader(in, StandardCharsets.UTF_8);
+    while ((lineStr = reader.readLine()) != null) {
+      IntVector words = new IntVector(), labels = new IntVector();
+      dict_.getLine(lineStr, words, labels);
+      if (labels.size() > 0 && words.size() > 0) {
+        List<Model.FloatIntPair> modelPredictions = model_.predict(words.copyOf(), threshold, k);
+        meter.log(labels, modelPredictions);
+      }
+    }
   }
 
   Vector textVectors(List<String> paragraph) {
