@@ -10,6 +10,26 @@ public class TurkishNumbersTest {
   public void cardinalTest() {
     Assert.assertEquals("sıfır", TurkishNumbers.convertToString(0));
     Assert.assertEquals("bin", TurkishNumbers.convertToString(1000));
+    Assert.assertEquals("bir", TurkishNumbers.convertToString(1));
+    Assert.assertEquals("on bir", TurkishNumbers.convertToString(11));
+    Assert.assertEquals("yüz on bir", TurkishNumbers.convertToString(111));
+    Assert.assertEquals("yüz on bir bin", TurkishNumbers.convertToString(111000));
+  }
+
+  @Test
+  public void cardinalTest2() {
+    Assert.assertEquals("sıfır", TurkishNumbers.convertNumberToString("0"));
+    Assert.assertEquals("sıfır sıfır", TurkishNumbers.convertNumberToString("00"));
+    Assert.assertEquals("sıfır sıfır sıfır", TurkishNumbers.convertNumberToString("000"));
+    Assert.assertEquals("sıfır sıfır sıfır bir", TurkishNumbers.convertNumberToString("0001"));
+    Assert.assertEquals("bin", TurkishNumbers.convertNumberToString("1000"));
+    Assert.assertEquals("bir", TurkishNumbers.convertNumberToString("1"));
+    Assert.assertEquals("on bir", TurkishNumbers.convertNumberToString("11"));
+    Assert.assertEquals("yüz on bir", TurkishNumbers.convertNumberToString("111"));
+    Assert.assertEquals("yüz on bir bin", TurkishNumbers.convertNumberToString("111000"));
+    Assert.assertEquals("sıfır yüz on bir bin", TurkishNumbers.convertNumberToString("0111000"));
+    Assert.assertEquals("sıfır sıfır yüz on bir bin",
+        TurkishNumbers.convertNumberToString("00111000"));
   }
 
   @Test

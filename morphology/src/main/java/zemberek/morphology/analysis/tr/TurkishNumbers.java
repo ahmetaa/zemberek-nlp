@@ -176,28 +176,26 @@ public class TurkishNumbers {
     if (input.startsWith("+")) {
       input = input.substring(1);
     }
-    StringBuilder sb = new StringBuilder();
+    List<String> sb = new ArrayList<>();
     int i;
     for (i = 0; i < input.length(); i++) {
       if (input.charAt(i) == '0') {
-        sb.append(" ").append(SIFIR).append(" ");
+        sb.add(SIFIR);
       } else {
         break;
       }
     }
     String rest = input.substring(i);
-    if (rest.length() == 0) {
-      return sb.toString().trim();
+    if (rest.length() > 0) {
+      sb.add(convertToString(Long.parseLong(rest)));
     }
 
-    return (Strings
-        .whiteSpacesToSingleSpace(sb.toString() + " " + convertToString(Long.parseLong(rest))))
-        .trim();
+    return String.join(" ", sb);
   }
 
   /**
-   * return the value of a single key number value. those values are limited.
-   * key should not contain any spaces and must be in lowercase.
+   * return the value of a single key number value. those values are limited. key should not contain
+   * any spaces and must be in lowercase.
    *
    * @param word the Turkish representation of a single key number string.
    * @return the
@@ -212,8 +210,8 @@ public class TurkishNumbers {
   }
 
   /**
-   * replaces all number strings with actual numbers.
-   * Such as: ["hello bir on iki nokta otuz beş hello"] -> ["hello 1 10 2 nokta 30 5 hello"]
+   * replaces all number strings with actual numbers. Such as: ["hello bir on iki nokta otuz beş
+   * hello"] -> ["hello 1 10 2 nokta 30 5 hello"]
    *
    * @param inputSequence a sequence of words.
    * @return same as input but string representations of numbers are replaced with numbers.
@@ -231,8 +229,8 @@ public class TurkishNumbers {
   }
 
   /**
-   * seperates connected number texts. such as
-   * ["oniki","otuzbeş","ikiiii"] -> ["on","iki","otuz","beş","ikiiii"]
+   * seperates connected number texts. such as ["oniki","otuzbeş","ikiiii"] ->
+   * ["on","iki","otuz","beş","ikiiii"]
    *
    * @param inputSequence a sequence of words.
    * @return same list with strings where connected number strings are separated.
@@ -250,8 +248,8 @@ public class TurkishNumbers {
   }
 
   /**
-   * seperates connected number texts. such as
-   * ["oniki","otuzbes","ikiiii"] -> ["on","iki","otuz","bes","ikiiii"]
+   * seperates connected number texts. such as ["oniki","otuzbes","ikiiii"] ->
+   * ["on","iki","otuz","bes","ikiiii"]
    *
    * @param input a single key.
    * @return same list with strings where connected number strings are separated.
@@ -338,8 +336,8 @@ public class TurkishNumbers {
           Pattern.CASE_INSENSITIVE);
 
   /**
-   * Convert a roman numeral to decimal numbers.
-   * Copied from public domain source (https://stackoverflow.com/a/19392801).
+   * Convert a roman numeral to decimal numbers. Copied from public domain source
+   * (https://stackoverflow.com/a/19392801).
    *
    * @param s roman numeral
    * @return decimal equivalent. if it cannot be converted, -1.
