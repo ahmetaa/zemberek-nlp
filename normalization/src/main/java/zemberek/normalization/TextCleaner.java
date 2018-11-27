@@ -5,9 +5,9 @@ import java.util.stream.Collectors;
 import zemberek.core.text.TextUtil;
 import zemberek.tokenization.TurkishSentenceExtractor;
 
-class TextCleaner {
+public class TextCleaner {
 
-  static List<String> cleanAndExtractSentences(List<String> input) {
+  public static List<String> cleanAndExtractSentences(List<String> input) {
     List<String> lines = input.stream()
         .filter(s -> !s.startsWith("<"))
         .map(TextUtil::normalizeSpacesAndSoftHyphens)

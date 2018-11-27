@@ -133,7 +133,7 @@ public class NoisyWordsLexiconGenerator {
 
     // create graph
     Path graphPath = workDir.resolve("graph");
-    //generator.createGraph(corpusProvider, graphPath);
+    generator.createGraph(corpusProvider, graphPath);
 
     Histogram<String> incorrectWords = Histogram.loadFromUtf8File(incorrect, ' ');
     incorrectWords.add(Histogram.loadFromUtf8File(maybeIncorrect, ' '));

@@ -16,6 +16,14 @@ public class NamedEntity {
     this.tokens = tokens;
   }
 
+  public List<String> getWords() {
+    List<String> s = new ArrayList<>(tokens.size());
+    for (NerToken token : tokens) {
+      s.add(token.word);
+    }
+    return s;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

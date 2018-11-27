@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import zemberek.ner.NerDataSet.AnnotationStyle;
 
 public class NerSentence {
 
@@ -21,7 +20,7 @@ public class NerSentence {
         .filter(s -> !s.type.equals(NerDataSet.OUT_TOKEN_TYPE)).collect(Collectors.toList());
   }
 
-  public  List<NamedEntity> getAllEntities() {
+  public List<NamedEntity> getAllEntities() {
     List<NamedEntity> namedEntities = new ArrayList<>();
     List<NerToken> neTokens = new ArrayList<>();
     for (NerToken token : tokens) {
@@ -45,18 +44,30 @@ public class NerSentence {
       if (namedEntity.type.equals(NerDataSet.OUT_TOKEN_TYPE)) {
         tokens.add(namedEntity.tokens.get(0).word);
       } else {
-        if (style == AnnotationStyle.ENAMEX) {
-          tokens.add("<b_enamex TYPE=\"" + namedEntity.type + "\">");
-        } else {
-          tokens.add("[" + namedEntity.type);
+        switch (style) {
+          case ENAMEX:
+            tokens.add("<b_enamex TYPE=\"" + namedEntity.type + "\">");
+            break;
+          case OPEN_NLP:
+            tokens.add("<START:" + namedEntity.type + ">");
+            break;
+          case BRACKET:
+            tokens.add("[" + namedEntity.type);
+            break;
         }
         for (NerToken token : namedEntity.tokens) {
           tokens.add(token.word);
         }
-        if (style == AnnotationStyle.ENAMEX) {
-          tokens.add("<e_enamex>");
-        } else {
-          tokens.add("]");
+        switch (style) {
+          case ENAMEX:
+            tokens.add("<e_enamex>");
+            break;
+          case OPEN_NLP:
+            tokens.add("<END>");
+            break;
+          case BRACKET:
+            tokens.add("]");
+            break;
         }
       }
     }
