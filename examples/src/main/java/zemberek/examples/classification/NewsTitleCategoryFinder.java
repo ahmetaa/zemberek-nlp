@@ -13,7 +13,7 @@ import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.lexicon.RootLexicon;
 
-public class NewsTitleCategoryFinder extends ClassificationBase {
+public class NewsTitleCategoryFinder extends ClassificationExampleBase {
 
   public static final int TEST_SIZE = 1000;
 

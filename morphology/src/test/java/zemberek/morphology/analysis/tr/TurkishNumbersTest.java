@@ -14,6 +14,13 @@ public class TurkishNumbersTest {
     Assert.assertEquals("on bir", TurkishNumbers.convertToString(11));
     Assert.assertEquals("yüz on bir", TurkishNumbers.convertToString(111));
     Assert.assertEquals("yüz on bir bin", TurkishNumbers.convertToString(111000));
+    Assert.assertEquals(
+        "bir milyon iki yüz otuz dört bin beş yüz altmış yedi",
+        TurkishNumbers.convertToString(1_234_567));
+    Assert.assertEquals(
+        "bir milyar iki yüz otuz dört milyon beş yüz altmış yedi bin sekiz yüz doksan",
+        TurkishNumbers.convertToString(1_234_567_890));
+
   }
 
   @Test

@@ -13,12 +13,12 @@ import zemberek.apps.fasttext.TrainClassifier;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
-import zemberek.examples.classification.ClassificationBase;
+import zemberek.examples.classification.ClassificationExampleBase;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.normalization.TurkishSentenceNormalizer;
 
-public class ClassificationExperiment extends ClassificationBase {
+public class ClassificationExperiment extends ClassificationExampleBase {
 
   static Path root = Paths.get("/home/aaa/data/classification");
   static Path t1out = root.resolve("t3");

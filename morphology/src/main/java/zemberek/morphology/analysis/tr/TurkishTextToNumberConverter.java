@@ -7,7 +7,7 @@ public class TurkishTextToNumberConverter {
 
   private long total;
   private long valueToAdd;
-  private Transition previousMil = new Transition(TurkishNumbers.SIFIR);
+  private Transition previousMil = new Transition("sıfır");
 
   private static int digitCount(long num) {
     int i = 0;

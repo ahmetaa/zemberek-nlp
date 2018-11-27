@@ -17,7 +17,7 @@ import zemberek.normalization.TurkishSentenceNormalizer;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.antlr.TurkishLexer;
 
-public class ClassificationBase {
+public class ClassificationExampleBase {
 
   protected static TurkishMorphology morphology;
   protected static TurkishSentenceNormalizer normalizer;
