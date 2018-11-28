@@ -10,7 +10,7 @@ public class StemmingAndLemmatization {
   public static void main(String[] args) {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
-    String word = "kitabımızsa";
+    String word = "kutucuğumuz";
 
     Log.info("Word = " + word);
 

@@ -19,7 +19,7 @@ import zemberek.morphology.morphotactics.SuffixTransition;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
 /**
- * This is a Morphological Analyser implementation. Instances of this class are not thread safe if
+ * This is a Morphological Analyzer implementation. Instances of this class are not thread safe if
  * instantiated with forDebug() factory constructor method.
  */
 public class RuleBasedAnalyzer {
@@ -207,7 +207,7 @@ public class RuleBasedAnalyzer {
       // no need to go further if generated surface form is not a prefix of the paths's tail.
       boolean tailStartsWith =
           asciiTolerant ?
-              TurkishAlphabet.INSTANCE.asciiTolerantStartsWith(path.tail, surface) :
+              TurkishAlphabet.INSTANCE.startsWithIgnoreDiacritics(path.tail, surface) :
               path.tail.startsWith(surface);
       if (!tailStartsWith) {
         if (debugMode) {
@@ -251,7 +251,7 @@ public class RuleBasedAnalyzer {
 
       //if tail is equal to surface, no need to calculate phonetic attributes.
       boolean tailEqualsSurface = asciiTolerant ?
-          TurkishAlphabet.INSTANCE.asciiTolerantEquals(path.tail, surface)
+          TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(path.tail, surface)
           : path.tail.equals(surface);
       AttributeSet<PhoneticAttribute> attributes = tailEqualsSurface ?
           path.phoneticAttributes.copy() :
