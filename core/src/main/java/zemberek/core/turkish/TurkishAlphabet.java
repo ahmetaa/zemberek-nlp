@@ -390,18 +390,44 @@ public class TurkishAlphabet {
     return TurkicLetter.UNDEFINED;
   }
 
+  /**
+   * Returns true if target string matches source string with A-Type harmony
+   * <pre>
+   *   elma, ya -> true
+   *   kedi, ye -> true
+   *   kalem, a -> false
+   * </pre>
+   */
   public boolean checkVowelHarmonyA(CharSequence source, CharSequence target) {
     TurkicLetter sourceLastWovel = getLastVowel(source);
     TurkicLetter targetFirstWovel = getLastVowel(target);
     return checkVowelHarmonyA(sourceLastWovel, targetFirstWovel);
   }
 
+  /**
+   * Returns true if target string matches source string with I-Type harmony
+   * <pre>
+   *   elma, yı  -> true
+   *   kedi, yi  -> true
+   *   kalem, ü  -> false
+   *   yogurt, u -> true
+   * </pre>
+   */
   public boolean checkVowelHarmonyI(CharSequence source, CharSequence target) {
     TurkicLetter sourceLastWovel = getLastVowel(source);
     TurkicLetter targetFirstWovel = getLastVowel(target);
     return checkVowelHarmonyI(sourceLastWovel, targetFirstWovel);
   }
 
+  /**
+   * Returns true if target letter matches source letter with A-Type harmony
+   * <pre>
+   *   i, e -> true
+   *   i, a -> false
+   *   u, a -> true
+   *   c, b -> false
+   * </pre>
+   */
   public boolean checkVowelHarmonyA(TurkicLetter source, TurkicLetter target) {
     if (source == TurkicLetter.UNDEFINED || target == TurkicLetter.UNDEFINED) {
       return false;
@@ -413,6 +439,15 @@ public class TurkishAlphabet {
         (!source.frontal && !target.frontal);
   }
 
+  /**
+   * Returns true if target letter matches source letter with I-Type harmony
+   * <pre>
+   *   e, i -> true
+   *   a, i -> false
+   *   o, u -> true
+   *   c, b -> false
+   * </pre>
+   */
   public boolean checkVowelHarmonyI(TurkicLetter source, TurkicLetter target) {
     if (source == TurkicLetter.UNDEFINED || target == TurkicLetter.UNDEFINED) {
       return false;
@@ -443,6 +478,7 @@ public class TurkishAlphabet {
 
   /**
    * Returns the vowel count in a word.
+   * It only checks Turkish vowels.
    */
   public int vowelCount(String s) {
     int result = 0;
@@ -454,6 +490,10 @@ public class TurkishAlphabet {
     return result;
   }
 
+  /**
+   * Returns true if `s` contains a digit.
+   * If s is empty or has no digit, returns false.
+   */
   public boolean containsDigit(String s) {
     if (s.isEmpty()) {
       return false;
@@ -471,7 +511,17 @@ public class TurkishAlphabet {
     return c < vector.length && vector.get(c);
   }
 
-  public boolean asciiTolerantEquals(String s1, String s2) {
+  /**
+   * Compares two strings ignoring diacritics symbols.
+   * <pre>
+   *   i, ı -> true
+   *   i, î -> true
+   *   s, ş -> true
+   *   g, ğ -> true
+   *   kişi, kışı -> true
+   * </pre>
+   */
+  public boolean equalsIgnoreDiacritics(String s1, String s2) {
     if (s1 == null || s2 == null) {
       return false;
     }
@@ -489,9 +539,13 @@ public class TurkishAlphabet {
   }
 
   /**
-   * Checks is s1 starts with s2 (compares ascii tolerant)
+   * Checks if s1 starts with s2 ignoring diacritics symbols.
+   * <pre>
+   *   kışı, kis -> true
+   *   pîr, pi   -> true
+   * </pre>
    */
-  public boolean asciiTolerantStartsWith(String s1, String s2) {
+  public boolean startsWithIgnoreDiacritics(String s1, String s2) {
     if (s1 == null || s2 == null) {
       return false;
     }
