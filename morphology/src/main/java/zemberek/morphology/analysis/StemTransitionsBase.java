@@ -97,7 +97,7 @@ abstract class StemTransitionsBase {
       // generate other boundary attributes and modified root state.
       switch (attribute) {
         case Voicing:
-          char last = alphabet.getLastChar(modifiedSeq);
+          char last = alphabet.lastChar(modifiedSeq);
           char voiced = alphabet.voice(last);
           if (last == voiced) {
             throw new LexiconException("Voicing letter is not proper in:" + dicItem);
@@ -113,7 +113,7 @@ abstract class StemTransitionsBase {
           modifiedAttrs.add(PhoneticAttribute.CannotTerminate);
           break;
         case Doubling:
-          modifiedSeq.append(alphabet.getLastChar(modifiedSeq));
+          modifiedSeq.append(alphabet.lastChar(modifiedSeq));
           originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
           modifiedAttrs.add(PhoneticAttribute.ExpectsVowel);
           modifiedAttrs.add(PhoneticAttribute.CannotTerminate);
