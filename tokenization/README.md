@@ -158,15 +158,16 @@ Tokenizer currently tokenizes these types:
     Email=9
     HashTag=10
     Mention=11
-    Emoticon=12
-    RomanNumeral=13
-    AbbreviationWithDots=14
-    Word=15
-    WordAlphanumerical=16
-    WordWithSymbol=17
-    Punctuation=18
-    UnknownWord=19
-    Unknown=20
+    MetaTag=12
+    Emoticon=13
+    RomanNumeral=14
+    AbbreviationWithDots=15
+    Word=16
+    WordAlphanumerical=17
+    WordWithSymbol=18
+    Punctuation=19
+    UnknownWord=20
+    Unknown=21
 
 ### Speed
 
