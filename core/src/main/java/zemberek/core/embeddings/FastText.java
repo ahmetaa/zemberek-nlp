@@ -301,9 +301,10 @@ public class FastText {
     @Override
     public String toString() {
       return String.format(
-          "P@%d: %.3f  R@%d: %.3f  Number of examples = %d",
+          "P@%d: %.3f  R@%d: %.3f F@%d %.3f  Number of examples = %d",
           k, precision,
           k, recall,
+          k, (2 * precision * recall) / (precision + recall),
           numberOfExamples);
     }
   }
@@ -418,7 +419,7 @@ public class FastText {
     return predict(line, k, -100f);
   }
 
-  List<ScoredItem<String>> predict(String line, int k, float threshold) {
+  public List<ScoredItem<String>> predict(String line, int k, float threshold) {
     IntVector words = new IntVector();
     IntVector labels = new IntVector();
     dict_.getLine(line, words, labels);

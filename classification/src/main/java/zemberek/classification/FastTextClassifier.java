@@ -39,6 +39,11 @@ public class FastTextClassifier {
     return fastText.predict(input, k);
   }
 
+  public List<ScoredItem<String>> predict(String input, int k, float threshold) {
+    return fastText.predict(input, k, threshold);
+  }
+
+
   public List<String> getLabels() {
     return fastText.getLabels();
   }

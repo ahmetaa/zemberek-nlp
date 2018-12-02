@@ -122,7 +122,7 @@ public class UnidentifiedTokenAnalyzer {
   private List<SingleAnalysis> tryWithoutApostrophe(String word) {
     String normalized = null;
     TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
-    if (alphabet.containsAsciiForeignDiacritics(word)) {
+    if (alphabet.containsForeignDiacritics(word)) {
       normalized = alphabet.foreignDiacriticsToTurkish(word);
     }
     normalized = normalized == null ?

@@ -128,6 +128,10 @@ public class TurkishAlphabet {
         circumflexNormalized + circumflexNormalized.toUpperCase(TR));
   }
 
+  private boolean lookup(FixedBitVector vector, char c) {
+    return c < vector.length && vector.get(c);
+  }
+
   public boolean containsAsciiRelated(String s) {
     for (int i = 0; i < s.length(); i++) {
       char c = s.charAt(i);
@@ -216,11 +220,6 @@ public class TurkishAlphabet {
     return letters;
   }
 
-  public char devoice(char c) {
-    int res = devoicingMap.get(c);
-    return res == IntIntMap.NO_RESULT ? c : (char) res;
-  }
-
   public boolean allCapital(String input) {
     for (int i = 0; i < input.length(); i++) {
       if (!Character.isUpperCase(input.charAt(i))) {
@@ -261,7 +260,7 @@ public class TurkishAlphabet {
     return checkLookup(apostropheLookup, s);
   }
 
-  public boolean containsAsciiForeignDiacritics(String s) {
+  public boolean containsForeignDiacritics(String s) {
     return checkLookup(foreignDiacriticsLookup, s);
   }
 
@@ -287,6 +286,10 @@ public class TurkishAlphabet {
     return uppercase;
   }
 
+  /**
+   * Converts Turkish letters with circumflex symbols to letters without circumflexes. â->a î->i
+   * û->u
+   */
   public String normalizeCircumflex(String s) {
     if (!containsCircumflex(s)) {
       return s;
@@ -319,51 +322,97 @@ public class TurkishAlphabet {
     return sb.toString();
   }
 
-
+  /**
+   * If there is a voiced char for `c`, returns it. Otherwise Returns the original input. ç->c g->ğ
+   * k->ğ p->b t->d
+   */
   public char voice(char c) {
     int res = voicingMap.get(c);
     return res == IntIntMap.NO_RESULT ? c : (char) res;
   }
 
+  /**
+   * If there is a devoiced char for `c`, returns it. Otherwise Returns the original input. b->p
+   * c->ç d->t g->k ğ->k
+   */
+  public char devoice(char c) {
+    int res = devoicingMap.get(c);
+    return res == IntIntMap.NO_RESULT ? c : (char) res;
+  }
+
+
+  /**
+   * Returns the TurkicLetter object for a character. If it does not exist, returns
+   * TurkicLetter.UNDEFINED
+   */
   public TurkicLetter getLetter(char c) {
     TurkicLetter letter = letterMap.get(c);
     return letter == null ? TurkicLetter.UNDEFINED : letter;
   }
 
+  /**
+   * Returns the last letter of the input as "TurkicLetter". If input is empty or the last character
+   * does not belong to alphabet, returns TurkicLetter.UNDEFINED.
+   */
   public TurkicLetter getLastLetter(CharSequence s) {
     if (s.length() == 0) {
       return TurkicLetter.UNDEFINED;
     }
-    return letterMap.get(s.charAt(s.length() - 1));
+    return getLetter(s.charAt(s.length() - 1));
   }
 
-  public char getLastChar(CharSequence s) {
+  public char lastChar(CharSequence s) {
     return s.charAt(s.length() - 1);
   }
 
+  /**
+   * Returns the first letter of the input as "TurkicLetter". If input is empty or the first
+   * character does not belong to alphabet, returns TurkicLetter.UNDEFINED.
+   */
   public TurkicLetter getFirstLetter(CharSequence s) {
     if (s.length() == 0) {
       return TurkicLetter.UNDEFINED;
     }
-    return letterMap.get(s.charAt(0));
+    TurkicLetter letter = letterMap.get(s.charAt(0));
+    return getLetter(s.charAt(0));
   }
 
+  /**
+   * Returns is `c` is a Turkish vowel. Input can be lower or upper case. Turkish letters with
+   * circumflex are included.
+   */
   public boolean isVowel(char c) {
     return lookup(vowelLookup, c);
   }
 
+  /**
+   * Returns true if `c` is a member of set Turkish alphabet and three english letters w,x and q.
+   * Turkish letters with circumflex are included. Input can be lower or upper case.
+   */
   public boolean isDictionaryLetter(char c) {
     return lookup(dictionaryLettersLookup, c);
   }
 
+  /**
+   * Returns true if `c` is a stop consonant. Stop consonants for Turkish are: `ç,k,p,t`. Input can
+   * be lower or upper case.
+   */
   public boolean isStopConsonant(char c) {
     return lookup(stopConsonantLookup, c);
   }
 
+  /**
+   * Returns true if `c` is a stop consonant. Voiceless consonants for Turkish are:
+   * `ç,f,h,k,p,s,ş,t`. Input can be lower or upper case.
+   */
   public boolean isVoicelessConsonant(char c) {
     return lookup(voicelessConsonantsLookup, c);
   }
 
+  /**
+   * Returns the last vowel of the input as "TurkicLetter". If input is empty or there is no vowel,
+   * returns TurkicLetter.UNDEFINED.
+   */
   public TurkicLetter getLastVowel(CharSequence s) {
     if (s.length() == 0) {
       return TurkicLetter.UNDEFINED;
@@ -377,6 +426,10 @@ public class TurkishAlphabet {
     return TurkicLetter.UNDEFINED;
   }
 
+  /**
+   * Returns the first vowel of the input as "TurkicLetter". If input is empty or there is no vowel,
+   * returns TurkicLetter.UNDEFINED.
+   */
   public TurkicLetter getFirstVowel(CharSequence s) {
     if (s.length() == 0) {
       return TurkicLetter.UNDEFINED;
@@ -399,9 +452,9 @@ public class TurkishAlphabet {
    * </pre>
    */
   public boolean checkVowelHarmonyA(CharSequence source, CharSequence target) {
-    TurkicLetter sourceLastWovel = getLastVowel(source);
-    TurkicLetter targetFirstWovel = getLastVowel(target);
-    return checkVowelHarmonyA(sourceLastWovel, targetFirstWovel);
+    TurkicLetter sourceLastVowel = getLastVowel(source);
+    TurkicLetter targetFirstVowel = getLastVowel(target);
+    return checkVowelHarmonyA(sourceLastVowel, targetFirstVowel);
   }
 
   /**
@@ -414,9 +467,9 @@ public class TurkishAlphabet {
    * </pre>
    */
   public boolean checkVowelHarmonyI(CharSequence source, CharSequence target) {
-    TurkicLetter sourceLastWovel = getLastVowel(source);
-    TurkicLetter targetFirstWovel = getLastVowel(target);
-    return checkVowelHarmonyI(sourceLastWovel, targetFirstWovel);
+    TurkicLetter sourceLastVowel = getLastVowel(source);
+    TurkicLetter targetFirstVowel = getLastVowel(target);
+    return checkVowelHarmonyI(sourceLastVowel, targetFirstVowel);
   }
 
   /**
@@ -477,8 +530,7 @@ public class TurkishAlphabet {
   }
 
   /**
-   * Returns the vowel count in a word.
-   * It only checks Turkish vowels.
+   * Returns the vowel count in a word. It only checks Turkish vowels.
    */
   public int vowelCount(String s) {
     int result = 0;
@@ -491,8 +543,7 @@ public class TurkishAlphabet {
   }
 
   /**
-   * Returns true if `s` contains a digit.
-   * If s is empty or has no digit, returns false.
+   * Returns true if `s` contains a digit. If s is empty or has no digit, returns false.
    */
   public boolean containsDigit(String s) {
     if (s.isEmpty()) {
@@ -505,10 +556,6 @@ public class TurkishAlphabet {
       }
     }
     return false;
-  }
-
-  private boolean lookup(FixedBitVector vector, char c) {
-    return c < vector.length && vector.get(c);
   }
 
   /**

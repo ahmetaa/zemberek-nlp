@@ -90,6 +90,7 @@ public class SentimentClassifier extends ClassificationExampleBase {
         continue;
       }
       String content = line.substring(0, i).trim();
+      normalizer.setAlwaysApplyDeasciifier(true);
       content = normalizer.normalize(content);
       String label = "__label__" + line.substring(i).trim();
       result.add(label + " " + content);
