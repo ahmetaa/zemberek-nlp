@@ -64,6 +64,15 @@ public class TurkishNumbersTest {
   }
 
   @Test
+  public void testTextToNumber1() {
+    Assert.assertEquals(11, TurkishNumbers.convertToNumber("on bir"));
+    Assert.assertEquals(111, TurkishNumbers.convertToNumber("yüz on bir"));
+    Assert.assertEquals(101, TurkishNumbers.convertToNumber("yüz bir"));
+    Assert.assertEquals(1000_000, TurkishNumbers.convertToNumber("bir milyon"));
+    Assert.assertEquals(-1, TurkishNumbers.convertToNumber("bir bin"));
+  }
+
+  @Test
   public void romanNumberTest() {
     Assert.assertEquals(-1,
         TurkishNumbers.romanToDecimal("foo"));

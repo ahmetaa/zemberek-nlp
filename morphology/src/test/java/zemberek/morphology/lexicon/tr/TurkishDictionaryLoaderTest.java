@@ -166,6 +166,19 @@ public class TurkishDictionaryLoaderTest {
   }
 
   @Test
+  public void pronunciation1() {
+    String[] ref = {
+        "VST [P:Noun, Abbrv; Pr:viesti]",
+        "VST [P:Noun, Abbrv; Pr:vesete; Ref:VST_Noun_Abbrv; Index:2]"};
+    RootLexicon lexicon = TurkishDictionaryLoader.load(ref);
+    DictionaryItem item = lexicon.getItemById("VST_Noun_Abbrv");
+    Assert.assertNotNull(item);
+    DictionaryItem item2 = lexicon.getItemById("VST_Noun_Abbrv_2");
+    Assert.assertNotNull(item2);
+    Assert.assertEquals(item, item2.getReferenceItem());
+  }
+
+  @Test
   public void implicitP3sgTest() {
     String[] lines = {
         "üzeri [A:CompoundP3sg;Roots:üzer]"};

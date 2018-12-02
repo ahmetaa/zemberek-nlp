@@ -1,22 +1,12 @@
 package zemberek.morphology.analysis.tr;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 /**
- * Converts a number from text form to digit form for turkish
+ * Converts a number from text form to digit form for turkish.
  */
 public class TurkishTextToNumberConverter {
-
-  private long total;
-  private long valueToAdd;
-  private Transition previousMil = new Transition("sıfır");
-
-  private static int digitCount(long num) {
-    int i = 0;
-    do {
-      num = num / 10;
-      i++;
-    } while (num > 0);
-    return i;
-  }
 
   /**
    * Converts an array of digit text Strings to a long number.
@@ -26,162 +16,183 @@ public class TurkishTextToNumberConverter {
    * <p>[seksen,iki,milyon,iki] returns 82000002
    *
    * @param words digit string array
-   * @return number equivalent of the word array, or -1 if word array is parsable like [bir,bin]
-   * [milyon] [on,bir,iki]
+   * @return number equivalent of the word array, or -1 if word array is not parseable like
+   * [bir,bin] [milyon] [on,bir,iki]
    */
   public long convert(String... words) {
+    return convert(Arrays.asList(words));
+  }
+
+  public long convert(Collection<String> words) {
+    Context context = new Context();
     State state = State.START;
     for (String word : words) {
-      state = acceptTransition(state, new Transition(word));
+      state = context.acceptTransition(state, new Transition(word));
       if (state == State.ERROR) {
         return -1;
       }
     }
-    return valueToAdd + total;
+    return context.valueToAdd + context.total;
   }
 
-  private State acceptTransition(State currentState, Transition transition) {
+  private static class Context {
 
-    switch (transition.type) {
+    private long total;
+    private long valueToAdd;
+    private Transition previousMil = new Transition("sıfır");
 
-      case T_ZERO:
-        switch (currentState) {
-          case START:
+    private State acceptTransition(State currentState, Transition transition) {
+
+      switch (transition.type) {
+
+        case T_ZERO:
+          if (currentState == State.START) {
             return total == 0 ? State.END : State.ERROR;
-        }
-        break;
+          }
+          break;
 
-      case T_ONE:
-        switch (currentState) {
-          case START:
-            add(1);
-            return State.ST_ONES_1;
-          case ST_TENS_1:
-            add(1);
-            return State.ST_ONES_3;
-          case ST_TENS_2:
-          case ST_HUNDREDS_1:
-            add(1);
-            return State.ST_ONES_4;
-          case ST_TENS_3:
-          case ST_HUNDREDS_2:
-          case ST_THOUSAND:
-            add(1);
-            return State.ST_ONES_5;
-        }
-        break;
+        case T_ONE:
+          switch (currentState) {
+            case START:
+              add(1);
+              return State.ST_ONES_1;
+            case ST_TENS_1:
+              add(1);
+              return State.ST_ONES_3;
+            case ST_TENS_2:
+            case ST_HUNDREDS_1:
+              add(1);
+              return State.ST_ONES_4;
+            case ST_TENS_3:
+            case ST_HUNDREDS_2:
+            case ST_THOUSAND:
+              add(1);
+              return State.ST_ONES_5;
+          }
+          break;
 
-      case T_TWO_TO_NINE:
-        switch (currentState) {
-          case START:
-            add(transition.value);
-            return State.ST_ONES_2;
-          case ST_TENS_1:
-            add(transition.value);
-            return State.ST_ONES_3;
-          case ST_TENS_2:
-          case ST_HUNDREDS_1:
-            add(transition.value);
-            return State.ST_ONES_4;
-          case ST_TENS_3:
-          case ST_HUNDREDS_2:
-            add(transition.value);
-            return State.ST_ONES_5;
-          case ST_THOUSAND:
-            add(transition.value);
-            return State.ST_ONES_6;
-        }
-        break;
+        case T_TWO_TO_NINE:
+          switch (currentState) {
+            case START:
+              add(transition.value);
+              return State.ST_ONES_2;
+            case ST_TENS_1:
+              add(transition.value);
+              return State.ST_ONES_3;
+            case ST_TENS_2:
+            case ST_HUNDREDS_1:
+              add(transition.value);
+              return State.ST_ONES_4;
+            case ST_TENS_3:
+            case ST_HUNDREDS_2:
+              add(transition.value);
+              return State.ST_ONES_5;
+            case ST_THOUSAND:
+              add(transition.value);
+              return State.ST_ONES_6;
+          }
+          break;
 
-      case T_TENS:
-        switch (currentState) {
-          case START:
-            add(transition.value);
-            return State.ST_TENS_1;
-          case ST_HUNDREDS_1:
-            add(transition.value);
-            return State.ST_TENS_2;
-          case ST_HUNDREDS_2:
-          case ST_THOUSAND:
-            add(transition.value);
-            return State.ST_TENS_3;
-        }
-        break;
+        case T_TENS:
+          switch (currentState) {
+            case START:
+              add(transition.value);
+              return State.ST_TENS_1;
+            case ST_HUNDREDS_1:
+              add(transition.value);
+              return State.ST_TENS_2;
+            case ST_HUNDREDS_2:
+            case ST_THOUSAND:
+              add(transition.value);
+              return State.ST_TENS_3;
+          }
+          break;
 
-      case T_HUNDRED:
-        switch (currentState) {
-          case START:
-          case ST_ONES_2:
-            mul(100);
-            return State.ST_HUNDREDS_1;
-          case ST_THOUSAND:
-          case ST_ONES_6:
-            mul(100);
-            return State.ST_HUNDREDS_2;
-        }
-        break;
+        case T_HUNDRED:
+          switch (currentState) {
+            case START:
+            case ST_ONES_2:
+              mul100();
+              return State.ST_HUNDREDS_1;
+            case ST_THOUSAND:
+            case ST_ONES_6:
+              mul100();
+              return State.ST_HUNDREDS_2;
+          }
+          break;
 
-      case T_THOUSAND:
-        switch (currentState) {
-          case START:
-          case ST_ONES_2:
-          case ST_ONES_3:
-          case ST_ONES_4:
-          case ST_TENS_1:
-          case ST_TENS_2:
-          case ST_HUNDREDS_1:
-            addToTotal(transition.value);
-            return State.ST_THOUSAND;
-        }
-        break;
-
-      case T_MILLION:
-      case T_BILLION:
-      case T_TRILLION:
-      case T_QUADRILLION:
-        switch (currentState) {
-          case ST_ONES_1:
-          case ST_ONES_2:
-          case ST_ONES_3:
-          case ST_ONES_4:
-          case ST_TENS_1:
-          case ST_TENS_2:
-          case ST_HUNDREDS_1:
-            // millions, billions etc behaves the same.
-            // here we prevent "billion" comes after a "million"
-            // for this, we remember the last big number in previousMil variable..
-            if (previousMil.value == 0 || previousMil.value > transition.value) {
-              previousMil = transition;
+        case T_THOUSAND:
+          switch (currentState) {
+            case START:
+            case ST_ONES_2:
+            case ST_ONES_3:
+            case ST_ONES_4:
+            case ST_TENS_1:
+            case ST_TENS_2:
+            case ST_HUNDREDS_1:
               addToTotal(transition.value);
-              return State.START;
-            } else {
-              return State.ERROR;
-            }
-        }
+              return State.ST_THOUSAND;
+          }
+          break;
 
+        case T_MILLION:
+        case T_BILLION:
+        case T_TRILLION:
+        case T_QUADRILLION:
+          switch (currentState) {
+            case ST_ONES_1:
+            case ST_ONES_2:
+            case ST_ONES_3:
+            case ST_ONES_4:
+            case ST_TENS_1:
+            case ST_TENS_2:
+            case ST_HUNDREDS_1:
+              // millions, billions etc behaves the same.
+              // here we prevent "billion" comes after a "million"
+              // for this, we remember the last big number in previousMil variable..
+              if (previousMil.value == 0 || previousMil.value > transition.value) {
+                previousMil = transition;
+                addToTotal(transition.value);
+                return State.START;
+              } else {
+                return State.ERROR;
+              }
+          }
+
+      }
+      return State.ERROR;
     }
-    return State.ERROR;
+
+    private void add(long val) {
+      valueToAdd += val;
+    }
+
+    private void mul100() {
+      if (valueToAdd == 0) {
+        valueToAdd = 100;
+      } else {
+        valueToAdd = valueToAdd * 100;
+      }
+    }
+
+    private void addToTotal(long val) {
+      if (valueToAdd == 0) {
+        total += val;
+      } else {
+        total += valueToAdd * val;
+      }
+      valueToAdd = 0;
+    }
   }
 
-  private void add(long val) {
-    valueToAdd += val;
-  }
 
-  private void mul(long val) {
-    if (valueToAdd == 0) {
-      valueToAdd = val;
-    } else {
-      valueToAdd = valueToAdd * val;
-    }
-  }
-
-  private void addToTotal(long val) {
-    if (valueToAdd == 0) {
-      total += val;
-    } else {
-      total += valueToAdd * val;
-    }
-    valueToAdd = 0;
+  private static int digitCount(long num) {
+    int i = 0;
+    do {
+      num = num / 10;
+      i++;
+    } while (num > 0);
+    return i;
   }
 
   private enum State {
@@ -236,12 +247,12 @@ public class TurkishTextToNumberConverter {
     }
   }
 
-  private class Transition {
+  private static class Transition {
 
     final long value;
     final TransitionType type;
 
-    public Transition(String str) {
+    Transition(String str) {
       this.value = TurkishNumbers.singleWordNumberValue(str);
       this.type = TransitionType.getTypeByValue(this.value);
     }
@@ -250,4 +261,5 @@ public class TurkishTextToNumberConverter {
       return "[" + type.name() + ":" + value + "]";
     }
   }
+
 }

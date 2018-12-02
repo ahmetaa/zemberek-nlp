@@ -169,8 +169,8 @@ public class TurkishNumbers {
   }
 
   /**
-   * Returns the value of a single word number value. those values are limited.
-   * Word should not contain any spaces and must be in lowercase.
+   * Returns the value of a single word number value. those values are limited. Word should not
+   * contain any spaces and must be in lowercase.
    *
    * @param word the Turkish representation of a single key number string.
    * @return the
@@ -256,8 +256,36 @@ public class TurkishNumbers {
     return words;
   }
 
+  private static TurkishTextToNumberConverter textToNumber = new TurkishTextToNumberConverter();
+
+  /**
+   * Converts an array of number strings to number, if possible. Returns -1 if conversion is not possible.
+   * <pre>
+   *   "bir" -> 1
+   *   "on", "bir" -> 11
+   *   "bir", "bin" -> -1
+   *   "bir", "armut" -> -1
+   * </pre>
+   * @param words Array of number strings.
+   * @return number representation, or -1 if not possible to convert.
+   */
   public static long convertToNumber(String... words) {
-    return new TurkishTextToNumberConverter().convert(words);
+    return textToNumber.convert(words);
+  }
+
+  /**
+   * Converts a text to number, if possible. Returns -1 if conversion is not possible.
+   * <pre>
+   *   "bir" -> 1
+   *   "on bir" -> 11
+   *   "bir bin" -> -1
+   *   "bir armut" -> -1
+   * </pre>
+   * @param text a string.
+   * @return number representation of input string, or -1 if not possible to convert.
+   */
+  public static long convertToNumber(String text) {
+    return textToNumber.convert(text.split("[ ]+"));
   }
 
   public static String convertOrdinalNumberString(String input) {
