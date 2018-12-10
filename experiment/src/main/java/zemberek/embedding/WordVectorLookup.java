@@ -15,6 +15,7 @@ import java.util.PriorityQueue;
 import zemberek.core.collections.IntFloatMap;
 import zemberek.core.collections.UIntMap;
 import zemberek.core.io.IOUtil;
+import zemberek.core.logging.Log;
 import zemberek.core.math.FloatArrays;
 import zemberek.lm.LmVocabulary;
 
@@ -123,25 +124,56 @@ public class WordVectorLookup {
     return new WordVectorLookup(vocabulary, vectors);
   }
 
+  public static WordVectorLookup loadFromBinary(Path vectorFile, Path vocabularyFile)
+      throws IOException {
+
+    LmVocabulary vocabulary = LmVocabulary.loadFromBinary(vocabularyFile.toFile());
+
+    try (DataInputStream dis = IOUtil.getDataInputStream(vectorFile)) {
+      int wordCount = dis.readInt();
+      int vectorDimension = dis.readInt();
+      Vector[] vectors = new Vector[wordCount];
+
+      for(int  i = 0; i < wordCount ; i++) {
+        int index = dis.readInt();
+        if(index>wordCount || index<0) {
+          throw new IllegalStateException("Bad word index " + index);
+        }
+        float[] vec = FloatArrays.deserializeRaw(dis, vectorDimension);
+        vectors[i] = new Vector(index, vec);
+      }
+      return new WordVectorLookup(vocabulary, vectors);
+    }
+  }
+
+
   public Iterable<Vector> getVectors() {
     return vectors.getValues();
   }
 
   public void saveToFolder(Path out, String id) throws IOException {
     Files.createDirectories(out);
-    vocabulary.saveBinary(out.resolve(id + ".vocab").toFile());
-    try (DataOutputStream dos = IOUtil.getDataOutputStream(out.resolve(id + ".vec.bin"))) {
+    Path vocab = out.resolve(id + ".vocab");
+    vocabulary.saveBinary(vocab.toFile());
+    Log.info("Vocabulary %s is written.", vocab);
+    Path vecPath = out.resolve(id + ".vec.bin");
+    try (DataOutputStream dos = IOUtil.getDataOutputStream(vecPath)) {
       dos.writeInt(vectors.size());
       dos.writeInt(dimension);
       for (Vector ve : vectors.getValuesSortedByKey()) {
+        if(ve.wordIndex<0 || ve.wordIndex>vocabulary.size()) {
+          throw new IllegalStateException("Negative index!");
+        }
         dos.writeInt(ve.wordIndex);
         FloatArrays.serializeRaw(dos, ve.data);
       }
     }
+    Log.info("Binary Vector file %s is written.", vecPath);
+
   }
 
-  public float[] getVector(String word) {
-    return vectors.get(vocabulary.indexOf(word)).data;
+  public Vector getVector(String word) {
+    return vectors.get(vocabulary.indexOf(word));
   }
 
   public boolean containsWord(String word) {
@@ -229,7 +261,7 @@ public class WordVectorLookup {
       }
 
       ArrayList<WordDistances.Distance> result = new ArrayList<>(queue);
-      Collections.sort(result);
+      Collections.reverse(result);
       return result;
     }
   }

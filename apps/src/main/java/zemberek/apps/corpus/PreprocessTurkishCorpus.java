@@ -9,10 +9,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import zemberek.apps.ConsoleApp;
+import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
 import zemberek.core.text.TextChunk;
@@ -100,7 +102,7 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
               .collect(Collectors.toList());
 
       for (Path directory : directories) {
-        if (!dirNamesToProcess.contains(directory.toFile().getName())) {
+        if (dirList!=null && !dirNamesToProcess.contains(directory.toFile().getName())) {
           continue;
         }
         paths.addAll(Files.walk(directory, 1)
@@ -119,7 +121,7 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
       System.exit(0);
     }
 
-    long sentenceCount = 0;
+    AtomicLong sentenceCount = new AtomicLong(0);
 
     if (operation == Operation.LEMMA) {
       morphology = TurkishMorphology.createWithDefaults();
@@ -129,34 +131,41 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
       ProgressBar pb = new ProgressBar("Lines", totalLines, ProgressBarStyle.ASCII);
 
       BlockTextLoader loader = BlockTextLoader.fromPaths(paths, 10_000);
+      BlockingExecutor executor =
+          new BlockingExecutor(Runtime.getRuntime().availableProcessors());
+
       for (TextChunk chunk : loader) {
-        List<String> processed = chunk.getData().stream()
-            .filter(s -> !s.startsWith("<"))
-            .map(TextUtil::normalizeSpacesAndSoftHyphens)
-            .collect(Collectors.toList());
+        executor.submit(()-> {
+          List<String> processed = chunk.getData().stream()
+              .filter(s -> !s.startsWith("<")) // ignore meta tag lines.
+              .map(TextUtil::normalizeSpacesAndSoftHyphens)
+              .collect(Collectors.toList());
 
-        List<String> sentences = TurkishSentenceExtractor.DEFAULT.fromParagraphs(processed);
-        sentences = sentences.stream()
-            .filter(s -> !TextUtil.containsCombiningDiacritics(s))
-            .map(s -> {
-              if (operation == Operation.LEMMA) {
-                return replaceWordsWithLemma(s);
-              } else {
-                return String.join(" ", TurkishTokenizer.DEFAULT.tokenizeToStrings(s));
-              }
-            })
-            .map(s -> toLowercase ? s.toLowerCase(Turkish.LOCALE) : s)
-            .collect(Collectors.toList());
+          List<String> sentences = TurkishSentenceExtractor.DEFAULT.fromParagraphs(processed);
+          sentences = sentences.stream()
+              .filter(s -> !TextUtil.containsCombiningDiacritics(s))
+              .map(s -> {
+                if (operation == Operation.LEMMA) {
+                  return replaceWordsWithLemma(s);
+                } else {
+                  return String.join(" ", TurkishTokenizer.DEFAULT.tokenizeToStrings(s));
+                }
+              })
+              .map(s -> toLowercase ? s.toLowerCase(Turkish.LOCALE) : s)
+              .collect(Collectors.toList());
 
-        sentences.forEach(pw::println);
-
-        sentenceCount += sentences.size();
-        pb.stepBy(chunk.size());
+          synchronized (this) {
+            sentences.forEach(pw::println);
+            sentenceCount.addAndGet(sentences.size());
+            pb.stepBy(chunk.size());
+          }
+        });
       }
-
+      executor.shutdown();
       pb.close();
     }
-    Log.info("%d sentences are written in %s", sentenceCount, output);
+
+    Log.info("%d sentences are written in %s", sentenceCount.get(), output);
   }
 
   private String replaceWordsWithLemma(String sentence) {
@@ -169,7 +178,7 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
         continue;
       }
       List<String> lemmas = best.getLemmas();
-      res.add(lemmas.get(lemmas.size() - 1));
+      res.add(lemmas.get(0));
     }
     return String.join(" ", res);
   }
