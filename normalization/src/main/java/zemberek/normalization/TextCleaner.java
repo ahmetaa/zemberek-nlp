@@ -12,6 +12,8 @@ public class TextCleaner {
         .filter(s -> !s.startsWith("<"))
         .map(TextUtil::normalizeSpacesAndSoftHyphens)
         .collect(Collectors.toList());
-    return TurkishSentenceExtractor.DEFAULT.fromParagraphs(lines);
+    return TurkishSentenceExtractor.DEFAULT.fromParagraphs(lines).stream()
+        .filter(s->!TextUtil.containsCombiningDiacritics(s))
+        .collect(Collectors.toList());
   }
 }

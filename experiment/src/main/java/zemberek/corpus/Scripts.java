@@ -24,7 +24,7 @@ import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
-import zemberek.tokenization.TurkishSentenceExtractor;
+import zemberek.normalization.TextCleaner;
 
 public class Scripts {
 
@@ -125,9 +125,8 @@ public class Scripts {
   }
 
   private static LinkedHashSet<String> getSentences(Path file) throws IOException {
-    List<String> lines = Files.readAllLines(file, StandardCharsets.UTF_8).stream()
-        .filter(s -> !s.startsWith("<")).collect(Collectors.toList());
-    return new LinkedHashSet<>(TurkishSentenceExtractor.DEFAULT.fromParagraphs(lines));
+    List<String> lines = Files.readAllLines(file, StandardCharsets.UTF_8);
+    return new LinkedHashSet<>(TextCleaner.cleanAndExtractSentences(lines));
   }
 
   private static List<String> clean(List<String> input) {

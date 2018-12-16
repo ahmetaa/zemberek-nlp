@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.custom.CustomAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.TextField;
@@ -18,7 +17,7 @@ import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import zemberek.core.logging.Log;
-import zemberek.tokenization.TurkishSentenceExtractor;
+import zemberek.normalization.TextCleaner;
 import zemberek.tokenization.TurkishTokenizer;
 
 public class LuceneIndexer {
@@ -32,16 +31,12 @@ public class LuceneIndexer {
   public void addDocs(IndexWriter writer, Path corpusFile) throws IOException {
     List<WebDocument> corpus = WebCorpus.loadDocuments(corpusFile);
     for (WebDocument d : corpus) {
-      List<String> paragraphs = d.lines.stream()
-          .map(s -> s.replace('\u00a0', ' ')
-              .replaceAll("[\\u00ad]", "").trim())
-          .collect(Collectors.toList());
-
-      List<String> sentences = TurkishSentenceExtractor.DEFAULT.fromParagraphs(paragraphs);
+      List<String> sentences = TextCleaner.cleanAndExtractSentences(d.lines);
 
       for (String sentence : sentences) {
         sentence = sentence.replaceAll("\\s+", " ");
-        String tokenized = String.join(" ", TurkishTokenizer.DEFAULT.tokenizeToStrings(sentence));
+        String tokenized = String.join(" ",
+            TurkishTokenizer.DEFAULT.tokenizeToStrings(sentence));
         Document doc = new Document();
         doc.add(new TextField("content", tokenized, Store.YES));
         writer.addDocument(doc);
