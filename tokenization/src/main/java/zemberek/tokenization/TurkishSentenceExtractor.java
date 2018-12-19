@@ -136,7 +136,7 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
         continue;
       }
 
-      // skip is break is not allowed when in double quotes.
+      // skip if breaking is not allowed between double quotes.
       if (doNotSplitInDoubleQuotes && quoteSpans != null && inSpan(j, quoteSpans)) {
         continue;
       }
