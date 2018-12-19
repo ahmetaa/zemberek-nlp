@@ -15,6 +15,7 @@ import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import zemberek.apps.ConsoleApp;
 import zemberek.core.concurrency.BlockingExecutor;
+import zemberek.core.concurrency.ConcurrencyUtil;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
 import zemberek.core.text.TextChunk;
@@ -62,6 +63,10 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
           + "longest lemmas. By default sentence segmentation and tokenization is applied.")
   private Operation operation = Operation.NONE;
 
+  @Parameter(names = {"--threadCount", "-tc"},
+      description = "Thread Count.")
+  int threadCount = ConcurrencyUtil.getHalfCpuCount();
+
   @Override
   public String description() {
     return "Applies Turkish Sentence boundary detection and tokenization to a corpus file or a "
@@ -102,7 +107,7 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
               .collect(Collectors.toList());
 
       for (Path directory : directories) {
-        if (dirList!=null && !dirNamesToProcess.contains(directory.toFile().getName())) {
+        if (dirList != null && !dirNamesToProcess.contains(directory.toFile().getName())) {
           continue;
         }
         paths.addAll(Files.walk(directory, 1)
@@ -128,14 +133,13 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
     }
 
     try (PrintWriter pw = new PrintWriter(output.toFile(), "UTF-8")) {
-      ProgressBar pb = new ProgressBar("Lines", totalLines, ProgressBarStyle.ASCII);
+      ProgressBar progressBar = new ProgressBar("Lines", totalLines, ProgressBarStyle.ASCII);
 
       BlockTextLoader loader = BlockTextLoader.fromPaths(paths, 10_000);
-      BlockingExecutor executor =
-          new BlockingExecutor(Runtime.getRuntime().availableProcessors());
+      BlockingExecutor executor = new BlockingExecutor(threadCount);
 
       for (TextChunk chunk : loader) {
-        executor.submit(()-> {
+        executor.submit(() -> {
           List<String> processed = chunk.getData().stream()
               .filter(s -> !s.startsWith("<")) // ignore meta tag lines.
               .map(TextUtil::normalizeSpacesAndSoftHyphens)
@@ -157,12 +161,12 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
           synchronized (this) {
             sentences.forEach(pw::println);
             sentenceCount.addAndGet(sentences.size());
-            pb.stepBy(chunk.size());
+            progressBar.stepBy(chunk.size());
           }
         });
       }
       executor.shutdown();
-      pb.close();
+      progressBar.close();
     }
 
     Log.info("%d sentences are written in %s", sentenceCount.get(), output);

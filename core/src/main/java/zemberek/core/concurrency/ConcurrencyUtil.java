@@ -29,4 +29,24 @@ public class ConcurrencyUtil {
     }
   }
 
+  public static int getHalfCpuCount() {
+    int availableProcessors = Runtime.getRuntime().availableProcessors();
+    if (availableProcessors == 1) {
+      return 1;
+    }
+    return availableProcessors / 2;
+  }
+
+  public static int getMostCpuCount(int leaveCount) {
+    if (leaveCount < 0) {
+      throw new IllegalArgumentException("Remaining count cannot be negative");
+    }
+    int availableProcessors = Runtime.getRuntime().availableProcessors();
+    int count = availableProcessors - leaveCount;
+    if (count <= 0) {
+      return 1;
+    }
+    return count;
+  }
+
 }

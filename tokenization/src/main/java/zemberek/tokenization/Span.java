@@ -56,4 +56,7 @@ public class Span {
     return input.substring(start, end);
   }
 
+  public boolean inSpan(int i) {
+    return i >= start && i < end;
+  }
 }

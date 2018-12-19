@@ -30,23 +30,64 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
    * A singleton instance that is generated from the default internal model.
    */
   public static final TurkishSentenceExtractor DEFAULT = Singleton.Instance.extractor;
+
   static final String BOUNDARY_CHARS = ".!?…";
   private static final Pattern LINE_BREAK_PATTERN = Pattern.compile("[\n\r]+");
+  private boolean doNotSplitInDoubleQuotes = false;
 
   private TurkishSentenceExtractor(FloatValueMap<String> weights) {
     this.weights = weights;
   }
 
-  public static TurkishSentenceExtractor loadFromBinaryFile(Path file) throws IOException {
-    try (DataInputStream dis = IOUtil.getDataInputStream(file)) {
-      return new TurkishSentenceExtractor(load(dis));
-    }
+  private TurkishSentenceExtractor(FloatValueMap<String> weights,
+      boolean doNotSplitInDoubleQuotes) {
+    this.weights = weights;
+    this.doNotSplitInDoubleQuotes = doNotSplitInDoubleQuotes;
   }
 
   private static TurkishSentenceExtractor fromDefaultModel() throws IOException {
     try (DataInputStream dis = IOUtil.getDataInputStream(
         Resources.getResource("tokenization/sentence-boundary-model.bin").openStream())) {
       return new TurkishSentenceExtractor(load(dis));
+    }
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+
+    boolean _doNotSplitInDoubleQuotes = false;
+    FloatValueMap<String> _model;
+
+    Builder doNotSplitInDoubleQuotes() {
+      this._doNotSplitInDoubleQuotes = true;
+      return this;
+    }
+
+    Builder useModelFromResource(String resource) throws IOException {
+      try (DataInputStream dis = IOUtil.getDataInputStream(
+          Resources.getResource(resource).openStream())) {
+        this._model = load(dis);
+      }
+      return this;
+    }
+
+    Builder useModelFromPath(Path path) throws IOException {
+      try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
+        this._model = load(dis);
+      }
+      return this;
+    }
+
+    Builder useDefaultModel() throws IOException {
+      useModelFromResource("tokenization/sentence-boundary-model.bin");
+      return this;
+    }
+
+    TurkishSentenceExtractor build() {
+      return new TurkishSentenceExtractor(_model, _doNotSplitInDoubleQuotes);
     }
   }
 
@@ -78,15 +119,28 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
     return indexes;
   }
 
+  // TODO: doNotSplitInDoubleQuotes may not be suitable for some cases.
+  // such as for paragraph: "Merhaba. Nasılsın?"
   private List<Span> extractToSpans(String paragraph) {
     List<Span> spans = new ArrayList<>();
+    List<Span> quoteSpans = null;
+    if (doNotSplitInDoubleQuotes) {
+      quoteSpans = doubleQuoteSpans(paragraph);
+    }
     int begin = 0;
     for (int j = 0; j < paragraph.length(); j++) {
+
       // skip if char cannot be a boundary char.
       char chr = paragraph.charAt(j);
       if (BOUNDARY_CHARS.indexOf(chr) < 0) {
         continue;
       }
+
+      // skip is break is not allowed when in double quotes.
+      if (doNotSplitInDoubleQuotes && quoteSpans != null && inSpan(j, quoteSpans)) {
+        continue;
+      }
+
       BoundaryData boundaryData = new BoundaryData(paragraph, j);
       if (boundaryData.nonBoundaryCheck()) {
         continue;
@@ -113,6 +167,44 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
     }
     return spans;
   }
+
+  private static String doubleQuotes = "\"”“»«";
+
+  /**
+   * Finds double quote spans.
+   */
+  private List<Span> doubleQuoteSpans(String input) {
+    List<Span> spans = new ArrayList<>();
+
+    int start = -1;
+    boolean started = false;
+    for (int j = 0; j < input.length(); j++) {
+      char c = input.charAt(j);
+      if (doubleQuotes.indexOf(c) >= 0) {
+        if (!started) {
+          start = j;
+          started = true;
+        } else {
+          spans.add(new Span(start, j));
+          started = false;
+        }
+      }
+    }
+    return spans;
+  }
+
+  private boolean inSpan(int index, List<Span> spans) {
+    for (Span span : spans) {
+      if (span.start > index) {
+        return false;
+      }
+      if (span.inSpan(index)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
 
   /**
    * Extracts sentences from a paragraph string. This method does not split from line breaks

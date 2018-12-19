@@ -67,14 +67,19 @@ public class TurkishSentenceExtractorTest {
 
   }
 
-  private String markBoundariesDocument(String input) throws IOException {
+  private String markBoundariesDocument(String input) {
     List<String> list = TurkishSentenceExtractor.DEFAULT.fromDocument(input);
     return Joiner.on("|").join(list);
   }
 
 
-  private String markBoundariesParagraph(String input) throws IOException {
+  private String markBoundariesParagraph(String input) {
     List<String> list = TurkishSentenceExtractor.DEFAULT.fromParagraph(input);
+    return Joiner.on("|").join(list);
+  }
+
+  private String markBoundariesParagraph(TurkishSentenceExtractor extractor, String input) {
+    List<String> list = extractor.fromParagraph(input);
     return Joiner.on("|").join(list);
   }
 
@@ -105,4 +110,25 @@ public class TurkishSentenceExtractorTest {
     List<String> sentences = TurkishSentenceExtractor.DEFAULT.fromParagraph("");
     Assert.assertEquals(0, sentences.size());
   }
+
+  @Test
+  public void testDoubleQuotes() throws IOException {
+
+    TurkishSentenceExtractor e = TurkishSentenceExtractor
+        .builder()
+        .doNotSplitInDoubleQuotes()
+        .useDefaultModel().build();
+
+    Assert.assertEquals(
+        "\"Merhaba! Bugün hava çok güzel. Ne dersin?\" dedi tavşan.|Havucu kemirirken.",
+        markBoundariesParagraph(
+            e,
+            "\"Merhaba! Bugün hava çok güzel. Ne dersin?\" dedi tavşan. Havucu kemirirken."));
+
+    Assert.assertEquals(
+        "\"Buna hakkı yok!\" diye öfkeyle konuşmaya başladı Baba Kurt.",
+        markBoundariesParagraph(
+            e, "\"Buna hakkı yok!\" diye öfkeyle konuşmaya başladı Baba Kurt."));
+  }
+
 }
