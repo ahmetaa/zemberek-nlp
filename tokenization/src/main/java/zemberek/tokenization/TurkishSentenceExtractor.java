@@ -86,7 +86,10 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
       return this;
     }
 
-    TurkishSentenceExtractor build() {
+    TurkishSentenceExtractor build() throws IOException {
+      if (_model == null) {
+        useDefaultModel();
+      }
       return new TurkishSentenceExtractor(_model, _doNotSplitInDoubleQuotes);
     }
   }
@@ -168,7 +171,7 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
     return spans;
   }
 
-  private static String doubleQuotes = "\"”“»«";
+  private static final String doubleQuotes = "\"”“»«";
 
   /**
    * Finds double quote spans.
