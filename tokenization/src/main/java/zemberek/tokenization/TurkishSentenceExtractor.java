@@ -17,6 +17,7 @@ import zemberek.core.collections.UIntSet;
 import zemberek.core.io.IOUtil;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
+import zemberek.core.turkish.TurkishAlphabet;
 
 /**
  * This class is used for extracting sentences from paragraphs. For making boundary decisions it
@@ -530,7 +531,7 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
       if (rightChunk.length() > 0) {
         features.add("7r:" + Character.isUpperCase(rightChunk.charAt(0)));
         features.add("9r:" + getMetaChars(rightChunk));
-        if (!containsVowel(rightChunk)) {
+        if (!TurkishAlphabet.INSTANCE.containsVowel(rightChunk)) {
           features.add("rcc:true");
         }
       }
@@ -540,7 +541,7 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
       }
 
       if (leftChunk.length() > 0) {
-        if (!containsVowel(leftChunk)) {
+        if (!TurkishAlphabet.INSTANCE.containsVowel(leftChunk)) {
           features.add("lcc:true");
         }
       }

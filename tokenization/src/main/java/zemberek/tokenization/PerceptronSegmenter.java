@@ -1,17 +1,17 @@
 package zemberek.tokenization;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
-import com.google.common.io.Resources;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.io.IOUtil;
+import zemberek.core.text.TextIO;
 
 abstract class PerceptronSegmenter {
 
@@ -24,11 +24,11 @@ abstract class PerceptronSegmenter {
 
   static {
     try {
-      for (String line : Resources
-          .readLines(Resources.getResource("tokenization/abbreviations.txt"), Charsets.UTF_8)) {
+      List<String> lines = TextIO.loadLinesFromResource("tokenization/abbreviations.txt");
+      for (String line : lines) {
         if (line.trim().length() > 0) {
           final String abbr = line.trim().replaceAll("\\s+", ""); // erase spaces
-          TurkishAbbreviationSet.add(abbr.replaceAll("\\.$", "")); // erase last dot amd add.
+          TurkishAbbreviationSet.add(abbr.replaceAll("\\.$", "")); // erase last dot and add.
           TurkishAbbreviationSet
               .add(abbr.toLowerCase(localeTr).replaceAll("\\.$", "")); // lowercase and add.
         }
@@ -74,16 +74,6 @@ abstract class PerceptronSegmenter {
       c = '-';
     }
     return c;
-  }
-
-  static boolean containsVowel(String input) {
-    for (int i = 0; i < input.length(); i++) {
-      char c = input.charAt(i);
-      if (lowerCaseVowels.indexOf(c) > 0 || upperCaseVowels.indexOf(c) > 0) {
-        return true;
-      }
-    }
-    return false;
   }
 
   static String getMetaChars(String str) {
