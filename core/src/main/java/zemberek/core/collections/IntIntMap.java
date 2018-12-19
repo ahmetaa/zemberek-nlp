@@ -32,6 +32,8 @@ public final class IntIntMap {
   // Number of Removed keys.
   private int removedKeyCount;
 
+  private int threshold;
+
   public IntIntMap() {
     this(DEFAULT_INITIAL_CAPACITY);
   }
@@ -44,6 +46,26 @@ public final class IntIntMap {
     capacity = nearestPowerOf2Capacity(capacity, MAX_CAPACITY);
     entries = new long[capacity];
     Arrays.fill(entries, EMPTY);
+    threshold = (int) (capacity * calculateLoadFactor());
+  }
+
+  private float calculateLoadFactor() {
+    int capacity = entries.length;
+    if (capacity <= 2) {
+      return 1.0f;
+    } else if (capacity <= 8) {
+      return 0.75f;
+    } else if (capacity <= 32) {
+      return 0.70f;
+    } else if (capacity <= 128) {
+      return 0.65f;
+    } else if (capacity <= 512) {
+      return 0.60f;
+    } else if (capacity <= 2048) {
+      return 0.55f;
+    } else {
+      return 0.5f;
+    }
   }
 
   private int rehash(int hash) {
@@ -113,7 +135,7 @@ public final class IntIntMap {
   }
 
   private void expandIfNecessary() {
-    if (keyCount + removedKeyCount > entries.length >> 1) {
+    if (keyCount + removedKeyCount > threshold) {
       expand();
     }
   }
@@ -273,5 +295,6 @@ public final class IntIntMap {
     }
     this.entries = h.entries;
     this.removedKeyCount = 0;
+    this.threshold = h.threshold;
   }
 }
