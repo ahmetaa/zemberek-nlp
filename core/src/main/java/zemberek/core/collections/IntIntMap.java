@@ -31,7 +31,7 @@ public final class IntIntMap {
   private int keyCount;
   // Number of Removed keys.
   private int removedKeyCount;
-
+  // Threshold value for map expansion.
   private int threshold;
 
   public IntIntMap() {
@@ -51,18 +51,16 @@ public final class IntIntMap {
 
   private float calculateLoadFactor() {
     int capacity = entries.length;
-    if (capacity <= 2) {
+    if (capacity <= 4) {
       return 1.0f;
-    } else if (capacity <= 8) {
+    } else if (capacity <= 16) {
       return 0.75f;
-    } else if (capacity <= 32) {
-      return 0.70f;
     } else if (capacity <= 128) {
-      return 0.65f;
+      return 0.70f;
     } else if (capacity <= 512) {
-      return 0.60f;
+      return 0.65f;
     } else if (capacity <= 2048) {
-      return 0.55f;
+      return 0.60f;
     } else {
       return 0.5f;
     }
