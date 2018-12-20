@@ -50,11 +50,11 @@ public abstract class CompactIntMapBase {
       return 1.0f;
     } else if (capacity <= 16) {
       return 0.75f;
-    } else if (capacity <= 64) {
+    } else if (capacity <= 128) {
       return 0.70f;
-    } else if (capacity <= 256) {
+    } else if (capacity <= 512) {
       return 0.65f;
-    } else if (capacity <= 1024) {
+    } else if (capacity <= 2048) {
       return 0.60f;
     } else {
       return 0.5f;
