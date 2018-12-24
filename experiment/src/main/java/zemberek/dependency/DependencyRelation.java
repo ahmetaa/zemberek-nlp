@@ -32,7 +32,7 @@ public enum DependencyRelation {
   POSSESSOR,
   UNDEFINED;
 
-  private static Map<String, DependencyRelation> mapz = new HashMap<String, DependencyRelation>();
+  private static Map<String, DependencyRelation> mapz = new HashMap<>();
 
   static {
     for (DependencyRelation tag : DependencyRelation.values()) {

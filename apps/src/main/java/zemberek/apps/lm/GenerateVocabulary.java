@@ -29,13 +29,11 @@ public class GenerateVocabulary extends ConsoleApp {
   File corpus;
 
   @Parameter(names = {"-include"},
-      description = "A file that contains a word per line. All words in this file will be added to vocabulary.",
-      required = false)
+      description = "A file that contains a word per line. All words in this file will be added to vocabulary.")
   File includeFile;
 
   @Parameter(names = {"-exclude"},
-      description = "A file that contains a word per line. All words in this file will be removed from vocabulary.",
-      required = false)
+      description = "A file that contains a word per line. All words in this file will be removed from vocabulary.")
   File excludeFile;
 
   @Parameter(names = {"-top"},
@@ -130,7 +128,7 @@ public class GenerateVocabulary extends ConsoleApp {
       Log.info("Total size of vocabulary: %d", result.size());
       if (ordered) {
         Log.info("Sorting file with word order.");
-        Collections.sort(result, collator);
+        result.sort(collator);
       }
       com.google.common.io.Files.createParentDirs(outFile);
       Log.info("Saving to vocabulary file: %s", outFile);

@@ -75,7 +75,7 @@ public class UncompressedToSmoothLmConverter {
             i,
             mphf.size(),
             mphf.averageBitsPerKey());
-        File mphfFile = new File(tempDir, lmFile.getName() + String.valueOf(i) + "gram.mphf");
+        File mphfFile = new File(tempDir, lmFile.getName() + i + "gram.mphf");
         phfFiles[i] = mphfFile;
         mphf.serialize(mphfFile);
       }

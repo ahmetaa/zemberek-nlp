@@ -431,7 +431,7 @@ public class SingleWordSpellChecker {
 
   static class Hypothesis implements Comparable<Hypothesis> {
 
-    Operation operation = Operation.N_A;
+    Operation operation;
     Hypothesis previous;
     Node node;
     float penalty;

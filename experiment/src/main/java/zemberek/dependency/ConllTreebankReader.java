@@ -138,8 +138,7 @@ public class ConllTreebankReader {
   public void separateShortAndLongSentences(List<DependencySentence> sentences, int shortAmount)
       throws IOException {
     List<DependencySentence> sentencesToBeSorted = new ArrayList<>(sentences);
-    Collections.sort(sentencesToBeSorted,
-        (o1, o2) -> Ints.compare(o1.items.size(), o2.items.size()));
+    sentencesToBeSorted.sort((o1, o2) -> Ints.compare(o1.items.size(), o2.items.size()));
     SimpleTextWriter stw = SimpleTextWriter.keepOpenUTF8Writer(new File("shorts.conll"));
     List<DependencySentence> shorts = new ArrayList<>();
     List<DependencySentence> longs = new ArrayList<>();

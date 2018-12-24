@@ -296,8 +296,8 @@ class Dictionary {
   private int[] computeSubWords(String word, int wordId) {
     int[] hashes = args_.subWordHashProvider.getHashes(word, wordId);
     IntVector k = new IntVector();
-    for (int i = 0; i < hashes.length; i++) {
-      pushHash(k, hashes[i] % args_.bucket);
+    for (int hash : hashes) {
+      pushHash(k, hash % args_.bucket);
     }
     return k.copyOf();
   }

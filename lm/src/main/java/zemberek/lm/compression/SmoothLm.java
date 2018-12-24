@@ -736,7 +736,7 @@ public class SmoothLm extends BaseLanguageModel implements NgramLanguageModel {
     return logBase;
   }
 
-  public static enum MphfType {
+  public enum MphfType {
     SMALL, LARGE
   }
 

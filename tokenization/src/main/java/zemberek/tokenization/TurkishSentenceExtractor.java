@@ -456,7 +456,7 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
           rightChunk : input.substring(pointer + 1, nextBoundaryOrSpace);
 
       currentChar = input.charAt(pointer);
-      currentWord = leftChunk + String.valueOf(currentChar) + rightChunk;
+      currentWord = leftChunk + currentChar + rightChunk;
       currentWordNoPunctuation = currentWord.replaceAll("[.!?…]", "");
 
       StringBuilder sb = new StringBuilder();

@@ -1,6 +1,7 @@
 package zemberek.dependency;
 
 import java.util.List;
+import java.util.Objects;
 
 public class DependencySentence {
 
@@ -84,7 +85,7 @@ public class DependencySentence {
 
     DependencySentence that = (DependencySentence) o;
 
-    if (items != null ? !items.equals(that.items) : that.items != null) {
+    if (!Objects.equals(items, that.items)) {
       return false;
     }
 

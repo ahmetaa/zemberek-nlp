@@ -1,5 +1,7 @@
 package zemberek.dependency;
 
+import java.util.Objects;
+
 public class DependencyItem {
 
   public int id;
@@ -123,10 +125,10 @@ public class DependencyItem {
     if (id != that.id) {
       return false;
     }
-    if (form != null ? !form.equals(that.form) : that.form != null) {
+    if (!Objects.equals(form, that.form)) {
       return false;
     }
-    if (lemma != null ? !lemma.equals(that.lemma) : that.lemma != null) {
+    if (!Objects.equals(lemma, that.lemma)) {
       return false;
     }
 

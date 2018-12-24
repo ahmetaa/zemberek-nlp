@@ -193,7 +193,7 @@ public class UnsupervisedKeyPhraseExtractor {
     for (ScoredItem<Term> si : initialScores) {
       Term term = si.item;
       // position of first occurrence
-      double pfo = (double) Math.log(DEFAULT_CUTOFF_POSITION / (si.item.firstOccurrenceIndex + 1));
+      double pfo = Math.log(DEFAULT_CUTOFF_POSITION / (si.item.firstOccurrenceIndex + 1));
       double termLength = Math.sqrt(term.order());
       double tf = termCount - subSumCount(term, histograms, initialScores.subList(0, 100));
       // add 1 for smoothing.

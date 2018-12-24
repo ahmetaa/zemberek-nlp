@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import zemberek.core.ScoredItem;
@@ -320,10 +321,10 @@ public class CharacterGraphDecoder {
       if (!node.equals(that.node)) {
         return false;
       }
-      if (word != null ? !word.equals(that.word) : that.word != null) {
+      if (!Objects.equals(word, that.word)) {
         return false;
       }
-      return ending != null ? ending.equals(that.ending) : that.ending == null;
+      return Objects.equals(ending, that.ending);
     }
 
     @Override

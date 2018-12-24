@@ -50,7 +50,7 @@ public class TurkishSyllableExtractor implements SyllableExtractor {
       result.add(str.substring(boundary, boundaries[i + 1]));
     }
     if (boundaries.length > 0) {
-      result.add(str.substring(boundaries[boundaries.length - 1], str.length()));
+      result.add(str.substring(boundaries[boundaries.length - 1]));
     }
     return result;
   }

@@ -26,8 +26,8 @@ import zemberek.lm.NgramLanguageModel;
 public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramLanguageModel {
 
   public final double unigramWeight;
-  private Map<NgramData, NgramProb> probabilities = new HashMap<>();
-  private List<Integer> counts = new ArrayList<>(5);
+  private Map<NgramData, NgramProb> probabilities;
+  private List<Integer> counts;
 
   private SimpleBackoffNgramModel(
       int order,
@@ -213,7 +213,7 @@ public class SimpleBackoffNgramModel extends BaseLanguageModel implements NgramL
 
     @Override
     public String toString() {
-      return String.valueOf(prob) + " " + String.valueOf(backoff);
+      return prob + " " + backoff;
     }
 
   }

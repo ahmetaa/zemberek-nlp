@@ -169,7 +169,7 @@ public class TurkishSpellCheckerTest {
     try (PrintWriter pw = new PrintWriter("bigram-test-result.txt")) {
       for (String sentence : sentences) {
         pw.println(sentence);
-        List<String> input = spellChecker.tokenizeForSpelling(sentence);
+        List<String> input = TurkishSpellChecker.tokenizeForSpelling(sentence);
         for (int i = 0; i < input.size(); i++) {
           String left = i == 0 ? null : input.get(i - 1);
           String right = i == input.size() - 1 ? null : input.get(i + 1);

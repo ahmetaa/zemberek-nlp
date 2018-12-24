@@ -55,7 +55,7 @@ public class DisambiguatorPreprocessor {
         sentenceStarted = false;
         sakFile.writeLine("#\t#\t+Punc");
         sakFile.writeLine("</S>");
-        parses = new ArrayList<String>();
+        parses = new ArrayList<>();
       }
     }
     sakFile.close();
@@ -68,7 +68,7 @@ public class DisambiguatorPreprocessor {
     yuretFileWriter.writeLine();
     LineIterator li = new SimpleTextReader(oflazerResult, "UTF-8").getLineIterator();
     boolean sentenceStarted = false;
-    List<String> parses = new ArrayList<String>();
+    List<String> parses = new ArrayList<>();
     while (li.hasNext()) {
       String line = li.next().trim().replaceAll("AorPart", "PresPart");
 
@@ -104,7 +104,7 @@ public class DisambiguatorPreprocessor {
       if (word.equals("#")) {
         sentenceStarted = false;
         yuretFileWriter.writeLine("</S>\t</S>\n");
-        parses = new ArrayList<String>();
+        parses = new ArrayList<>();
       }
     }
     yuretFileWriter.writeLine("</DOC>\t</DOC>");

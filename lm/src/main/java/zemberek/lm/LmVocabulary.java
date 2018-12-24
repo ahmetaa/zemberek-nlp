@@ -363,7 +363,7 @@ public class LmVocabulary {
 
   public Iterable<String> wordsSorted(Locale locale) {
     List<String> sorted = new ArrayList<>(vocabulary);
-    Collections.sort(sorted, Collator.getInstance(locale));
+    sorted.sort(Collator.getInstance(locale));
     return sorted;
   }
 
@@ -577,11 +577,7 @@ public class LmVocabulary {
      * @return index of input. -1 if input does not exist.
      */
     public int indexOf(String key) {
-      if (map.containsKey(key)) {
-        return map.get(key);
-      } else {
-        return -1;
-      }
+      return map.getOrDefault(key, -1);
     }
 
     /**

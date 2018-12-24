@@ -114,7 +114,7 @@ public class TurkicLetter {
 
   public static class Builder {
 
-    private char _charValue = 0;
+    private char _charValue;
     private boolean _vowel = false;
     private boolean _frontalVowel = false;
     private boolean _roundedVowel = false;

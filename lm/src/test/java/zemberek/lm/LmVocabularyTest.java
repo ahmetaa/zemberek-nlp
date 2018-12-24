@@ -130,7 +130,7 @@ public class LmVocabularyTest {
   @Test
   public void encodedTrigramTest() throws IOException {
     LmVocabulary vocabulary = new LmVocabulary("a", "b", "c", "d", "e");
-    long k = ((1l << 21 | 2l) << 21) | 3l;
+    long k = ((1L << 21 | 2L) << 21) | 3L;
     Assert.assertEquals(k, vocabulary.encodeTrigram(3, 2, 1));
     Assert.assertEquals(k, vocabulary.encodeTrigram(3, 2, 1));
   }

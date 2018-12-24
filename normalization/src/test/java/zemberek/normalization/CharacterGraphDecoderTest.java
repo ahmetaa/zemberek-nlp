@@ -147,8 +147,7 @@ public class CharacterGraphDecoderTest {
   }
 
   private void assertContainsAll(List<ScoredItem<String>> list, String... words) {
-    Set<String> set = new HashSet<>();
-    set.addAll(list.stream().map(s1 -> s1.item).collect(Collectors.toList()));
+    Set<String> set = list.stream().map(s1 -> s1.item).collect(Collectors.toSet());
     for (String word : words) {
       Assert.assertTrue(set.contains(word));
     }

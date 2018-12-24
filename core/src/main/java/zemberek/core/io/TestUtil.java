@@ -81,8 +81,9 @@ public class TestUtil {
 
   @SafeVarargs
   public static <T> boolean containsAll(List<ScoredItem<T>> list, T... items) {
-    Set<T> set = new HashSet<>();
-    set.addAll(list.stream().map(s1 -> s1.item).collect(Collectors.toList()));
+    Set<T> set = list.stream()
+        .map(s1 -> s1.item)
+        .collect(Collectors.toSet());
     for (T item : items) {
       if (!set.contains(item)) {
         return false;

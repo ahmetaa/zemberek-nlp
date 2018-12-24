@@ -35,6 +35,6 @@ public class StringInt implements Comparable<StringInt> {
 
   @Override
   public String toString() {
-    return string + ":" + String.valueOf(value);
+    return string + ":" + value;
   }
 }

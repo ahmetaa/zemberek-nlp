@@ -37,7 +37,7 @@ public enum PosTag {
   Card,
   Undefined;
 
-  private static Map<String, PosTag> mapz = new HashMap<String, PosTag>();
+  private static Map<String, PosTag> mapz = new HashMap<>();
 
   static {
     for (PosTag tag : PosTag.values()) {

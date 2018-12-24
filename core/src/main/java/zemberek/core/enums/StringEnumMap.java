@@ -16,7 +16,7 @@ public class StringEnumMap<T extends StringEnum> {
 
   private final ImmutableMap<String, T> map;
   private final Class<T> clazz;
-  private boolean ignoreCase = false;
+  private boolean ignoreCase;
 
   private StringEnumMap(Class<T> clazz) {
     this(clazz, true);

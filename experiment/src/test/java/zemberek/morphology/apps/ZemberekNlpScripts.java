@@ -599,8 +599,8 @@ public class ZemberekNlpScripts {
         }
         List<DictionaryItem> items = new ArrayList<>(3);
 
-        items.add(dictionaryLoader.loadFromString(candidateRoot)); //assumes noun.
-        items.add(dictionaryLoader.loadFromString(candidateRoot + " [P:Verb]")); //assumes noun.
+        items.add(TurkishDictionaryLoader.loadFromString(candidateRoot)); //assumes noun.
+        items.add(TurkishDictionaryLoader.loadFromString(candidateRoot + " [P:Verb]")); //assumes noun.
         char last = candidateRoot.charAt(candidateRoot.length() - 1);
         if (i < s.length() - 1) {
           char next = s.charAt(candidateRoot.length());
@@ -617,7 +617,7 @@ public class ZemberekNlpScripts {
               f = candidateRoot.substring(0, candidateRoot.length() - 1) + 't';
             }
             if (f.length() > 0) {
-              items.add(dictionaryLoader.loadFromString(f));
+              items.add(TurkishDictionaryLoader.loadFromString(f));
             }
           }
         }

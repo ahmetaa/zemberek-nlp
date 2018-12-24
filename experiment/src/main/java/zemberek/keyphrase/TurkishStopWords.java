@@ -21,7 +21,7 @@ import zemberek.core.turkish.Turkish;
 public class TurkishStopWords {
 
   public static TurkishStopWords DEFAULT = Languages.TR.instance;
-  private Set<String> stopWords = new LinkedHashSet<>();
+  private Set<String> stopWords;
 
   TurkishStopWords(Set<String> stopWords) {
     this.stopWords = stopWords;

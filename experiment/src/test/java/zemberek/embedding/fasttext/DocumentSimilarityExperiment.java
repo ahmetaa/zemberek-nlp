@@ -110,7 +110,7 @@ public class DocumentSimilarityExperiment {
   public List<ScoredItem<WebDocument>> nearestK(DocumentSimilarity source,
       List<DocumentSimilarity> sims, int k) {
     PriorityQueue<ScoredItem<WebDocument>> queue = new PriorityQueue<>(k,
-        (a, b) -> Double.compare(a.score, b.score));
+        Comparator.comparingDouble(a -> a.score));
 
     for (DocumentSimilarity sim : sims) {
       // skip self.

@@ -26,7 +26,7 @@ public class WebDocument {
   String category;
   String title;
   long hash;
-  List<String> lines = new ArrayList<>();
+  List<String> lines;
 
   public WebDocument(String source,
       String id,

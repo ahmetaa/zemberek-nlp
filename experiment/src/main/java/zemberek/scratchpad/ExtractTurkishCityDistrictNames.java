@@ -84,7 +84,7 @@ public class ExtractTurkishCityDistrictNames {
     List<String> words = Splitter.on(' ').trimResults().omitEmptyStrings().splitToList(in);
     List<String> result = new ArrayList<>();
     for (final String word : words) {
-      if (avoid.stream().filter(s -> s.contains(word)).count() > 0) {
+      if (avoid.stream().anyMatch(s -> s.contains(word))) {
         continue;
       }
       if (word.matches("[\\d ]+|^\\d+.*|")) {

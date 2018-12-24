@@ -6,7 +6,7 @@ import java.util.Map;
 public enum CoarsePosTag {
   Noun, Postp, Num, Dup, Det, Adv, Zero, Verb, Interj, Ques, Punc, Pron, Conj, Adj, Undefined;
 
-  private static Map<String, CoarsePosTag> mapz = new HashMap<String, CoarsePosTag>();
+  private static Map<String, CoarsePosTag> mapz = new HashMap<>();
 
   static {
     for (CoarsePosTag tag : CoarsePosTag.values()) {

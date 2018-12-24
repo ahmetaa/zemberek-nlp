@@ -185,17 +185,17 @@ public class IntFloatMapTest {
     List<int[]> fuzzLists = TestUtils.createFuzzingLists();
     for (int[] arr : fuzzLists) {
       IntFloatMap im = createMap();
-      for (int i = 0; i < arr.length; i++) {
-        im.put(arr[i], arr[i] + 7);
-        assertEqualsF(im.get(arr[i]), arr[i] + 7);
+      for (int i : arr) {
+        im.put(i, i + 7);
+        assertEqualsF(im.get(i), i + 7);
       }
     }
 
     IntFloatMap im = createMap();
     for (int[] arr : fuzzLists) {
-      for (int i = 0; i < arr.length; i++) {
-        im.put(arr[i], arr[i] + 7);
-        assertEqualsF(im.get(arr[i]), arr[i] + 7);
+      for (int i1 : arr) {
+        im.put(i1, i1 + 7);
+        assertEqualsF(im.get(i1), i1 + 7);
       }
     }
   }
@@ -263,16 +263,16 @@ public class IntFloatMapTest {
     long start = System.currentTimeMillis();
     for (int i = 0; i < iter; i++) {
       IntFloatMap imap = createMap();
-      for (int j = 0; j < arr.length; j++) {
-        imap.put(arr[j], arr[j] + 1);
+      for (int i1 : arr) {
+        imap.put(i1, i1 + 1);
       }
     }
     long elapsed = System.currentTimeMillis() - start;
     System.out.println("Creation: " + elapsed);
 
     IntFloatMap imap = createMap();
-    for (int j = 0; j < arr.length; j++) {
-      imap.put(arr[j], arr[j] + 1);
+    for (int i1 : arr) {
+      imap.put(i1, i1 + 1);
     }
     start = System.currentTimeMillis();
     for (int i = 0; i < iter; i++) {

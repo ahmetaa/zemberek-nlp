@@ -168,7 +168,7 @@ public class ConfusionTest {
 
   public List<String> slice(String chunk, int sliceCount, int sliceSize) {
     int point;
-    List<String> testStrings = new ArrayList<String>();
+    List<String> testStrings = new ArrayList<>();
     for (int i = 0; i < sliceCount; i++) {
       point = i * sliceSize;
       if (point + sliceSize > chunk.length()) {

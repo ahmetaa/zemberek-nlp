@@ -86,16 +86,16 @@ public class AnalysisFormatters {
   public static AnalysisFormatter SURFACE_SEQUENCE = new OnlySurfaceFormatter();
 
   static AnalysisFormatter lexicalSequenceFormatter() {
-    return analysis -> String.join(" + ", analysis.getMorphemeDataList().stream()
+    return analysis -> analysis.getMorphemeDataList().stream()
         .map(s -> s.morpheme.id)
-        .collect(Collectors.toList()));
+        .collect(Collectors.joining(" + "));
   }
 
   static AnalysisFormatter surfaceSequenceFormatter() {
     return analysis ->
-        String.join(" + ", analysis.getMorphemeDataList().stream()
+        analysis.getMorphemeDataList().stream()
             .map(MorphemeData::toMorphemeString)
-            .collect(Collectors.toList()));
+            .collect(Collectors.joining(" + "));
   }
 
   public static class OflazerStyleFormatter implements AnalysisFormatter {

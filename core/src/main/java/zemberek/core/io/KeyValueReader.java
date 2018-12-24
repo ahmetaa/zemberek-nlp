@@ -73,7 +73,7 @@ public class KeyValueReader {
     if (lines.size() == 0) {
       return Collections.emptyMap();
     }
-    Map<String, String> result = new LinkedHashMap<String, String>();
+    Map<String, String> result = new LinkedHashMap<>();
     for (String line : lines) {
       if (!line.contains(separator)) {
         throw new IllegalArgumentException("line: [" + line + "] has no separator:" + separator);

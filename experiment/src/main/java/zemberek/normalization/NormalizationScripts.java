@@ -508,7 +508,7 @@ public class NormalizationScripts {
     int bc = 0;
     for (TextChunk block : loader) {
       String name = in.toFile().getName();
-      Path blockPath = outRoot.resolve(name + "." + String.valueOf(bc));
+      Path blockPath = outRoot.resolve(name + "." + bc);
       Files.write(blockPath, block, StandardCharsets.UTF_8);
       bc++;
     }

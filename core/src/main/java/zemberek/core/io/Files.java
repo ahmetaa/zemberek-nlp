@@ -112,7 +112,7 @@ public class Files {
   public static List<File> getFilesSorted(File dir, Comparator<File> comparator) {
     checkExistingDirectory(dir);
     List<File> files = Arrays.asList(dir.listFiles());
-    Collections.sort(files, comparator);
+    files.sort(comparator);
     return files;
   }
 
@@ -127,7 +127,7 @@ public class Files {
   public static List<File> getFilesSorted(File dir, Comparator<File> comparator,
       FileFilter... filters) {
     checkExistingDirectory(dir);
-    List<File> files = new ArrayList<File>();
+    List<File> files = new ArrayList<>();
     for (File file : dir.listFiles()) {
       if (filters.length == 0) {
         files.add(file);
@@ -140,7 +140,7 @@ public class Files {
         }
       }
     }
-    Collections.sort(files, comparator);
+    files.sort(comparator);
     return files;
   }
 
@@ -168,7 +168,7 @@ public class Files {
   public static List<File> crawlDirectory(File dir, boolean recurseSubDirs, FileFilter... filters) {
     checkNotNull(dir, "File is null!");
     checkExistingDirectory(dir);
-    List<File> files = new ArrayList<File>();
+    List<File> files = new ArrayList<>();
     for (File file : dir.listFiles()) {
       if (file.isDirectory() && recurseSubDirs) {
         files.addAll(crawlDirectory(file, true, filters));

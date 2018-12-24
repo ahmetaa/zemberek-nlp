@@ -64,7 +64,7 @@ public class SimpleTextWriterTest {
 
   @Test
   public void WriteMultiLineStringTest() throws IOException {
-    List<String> strs = new ArrayList<String>(Arrays.asList("Merhaba", "Dunya", ""));
+    List<String> strs = new ArrayList<>(Arrays.asList("Merhaba", "Dunya", ""));
     new SimpleTextWriter(tmpFile).writeLines(strs);
     List<String> read = new SimpleTextReader(tmpFile).asStringList();
     for (int i = 0; i < read.size(); i++) {

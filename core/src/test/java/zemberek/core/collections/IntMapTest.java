@@ -77,17 +77,17 @@ public class IntMapTest {
     List<int[]> fuzzLists = TestUtils.createFuzzingLists();
     for (int[] arr : fuzzLists) {
       IntMap<String> im = new IntMap<>();
-      for (int i = 0; i < arr.length; i++) {
-        im.put(arr[i], "" + arr[i]);
-        assertEquals(im.get(arr[i]), "" + arr[i]);
+      for (int i1 : arr) {
+        im.put(i1, "" + i1);
+        assertEquals(im.get(i1), "" + i1);
       }
     }
 
     IntMap<String> im = new IntMap<>();
     for (int[] arr : fuzzLists) {
-      for (int i = 0; i < arr.length; i++) {
-        im.put(arr[i], "" + arr[i]);
-        assertEquals(im.get(arr[i]), "" + arr[i]);
+      for (int i1 : arr) {
+        im.put(i1, "" + i1);
+        assertEquals(im.get(i1), "" + i1);
       }
     }
   }

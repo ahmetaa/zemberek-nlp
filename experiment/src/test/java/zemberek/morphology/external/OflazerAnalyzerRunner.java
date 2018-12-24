@@ -61,7 +61,7 @@ public class OflazerAnalyzerRunner {
       }
     }
     List<String> sorted = Lists.newArrayList(remains);
-    Collections.sort(sorted, Collator.getInstance(new Locale("tr")));
+    sorted.sort(Collator.getInstance(new Locale("tr")));
     SimpleTextWriter.oneShotUTF8Writer(output).writeLines(sorted);
   }
 
@@ -88,7 +88,7 @@ public class OflazerAnalyzerRunner {
       roots.add(root);
     }
     ArrayList<String> sorted = Lists.newArrayList(roots);
-    Collections.sort(sorted, ctr);
+    sorted.sort(ctr);
     SimpleTextWriter.oneShotUTF8Writer(output).writeLines(sorted);
   }
 
@@ -145,7 +145,7 @@ public class OflazerAnalyzerRunner {
       roots.add(data.toString());
     }
     ArrayList<String> sorted = Lists.newArrayList(roots);
-    Collections.sort(sorted, ctr);
+    sorted.sort(ctr);
     SimpleTextWriter.oneShotUTF8Writer(output).writeLines(sorted);
   }
 
@@ -159,7 +159,7 @@ public class OflazerAnalyzerRunner {
       words.add(root);
     }
     ArrayList<String> sorted = Lists.newArrayList(words);
-    Collections.sort(sorted, ctr);
+    sorted.sort(ctr);
     SimpleTextWriter.oneShotUTF8Writer(output).writeLines(sorted);
   }
 

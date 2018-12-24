@@ -2,6 +2,7 @@ package zemberek.core.turkish;
 
 import com.google.common.base.Preconditions;
 import java.util.List;
+import java.util.Objects;
 import zemberek.core.io.Strings;
 import zemberek.core.text.TextUtil;
 
@@ -58,10 +59,10 @@ public class StemAndEnding {
 
     StemAndEnding that = (StemAndEnding) o;
 
-    if (ending != null ? !ending.equals(that.ending) : that.ending != null) {
+    if (!Objects.equals(ending, that.ending)) {
       return false;
     }
-    if (stem != null ? !stem.equals(that.stem) : that.stem != null) {
+    if (!Objects.equals(stem, that.stem)) {
       return false;
     }
 

@@ -93,9 +93,9 @@ public class SearchPath {
   public String toString() {
     StemTransition st = getStemTransition();
     String morphemeStr =
-        String.join(" + ", transitions.stream()
+        transitions.stream()
             .map(SurfaceTransition::toString)
-            .collect(Collectors.toList()));
+            .collect(Collectors.joining(" + "));
     return "[(" + st.item.id + ")(-" + tail + ") " + morphemeStr + "]";
   }
 

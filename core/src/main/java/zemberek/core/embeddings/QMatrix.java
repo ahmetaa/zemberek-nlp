@@ -29,8 +29,12 @@ class QMatrix {
     qnorm_ = qnorm;
     m_ = mat.m_;
     n_ = mat.n_;
-    codesize_ = (int) (m_ * Math.ceil(n_ / dsub));
-    codes_ = new byte[codesize_];
+    codesize_ = m_ * ((n_ + dsub - 1) / dsub);
+    if(codesize_>0) {
+      codes_ = new byte[codesize_];
+    } else {
+      throw new IllegalStateException("Code size must be a positive number.");
+    }
     pq_ = new ProductQuantizer(n_, dsub);
     if (qnorm_) {
       norm_codes_ = new byte[m_];

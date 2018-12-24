@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.IllegalFormatException;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
@@ -233,7 +234,7 @@ public final class Log {
   }
 
   public static void flushFileHandlers() {
-    handlers.values().stream().filter(handler -> handler != null).forEach(Handler::flush);
+    handlers.values().stream().filter(Objects::nonNull).forEach(Handler::flush);
   }
 
   public static void removeHandler(Path path) {

@@ -159,7 +159,7 @@ public class CorpusDb {
   public CorpusDocument loadDocumentByKey(int key) {
     String sql =
         "SELECT ID, DOC_ID, SOURCE_ID, SOURCE_DATE, PROCESS_DATE, CONTENT FROM DOCUMENT_TABLE " +
-            "WHERE ID = " + String.valueOf(key);
+            "WHERE ID = " + key;
     return getDocument(sql);
   }
 

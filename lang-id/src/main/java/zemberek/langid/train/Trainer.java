@@ -166,7 +166,7 @@ public class Trainer {
   }
 
   public List<File> getFilesForModel(List<String> languageIds) {
-    List<File> filesInGroup = new ArrayList<File>();
+    List<File> filesInGroup = new ArrayList<>();
     for (String languageId : languageIds) {
       String key = languageId.toLowerCase();
       if (langFileMap.containsKey(key)) {
@@ -183,11 +183,11 @@ public class Trainer {
   }
 
   public List<String> getGarbageModelFiles(List<String> excludedLangIds) {
-    List<String> lowercaseIds = new ArrayList<String>();
+    List<String> lowercaseIds = new ArrayList<>();
     for (String modelId : excludedLangIds) {
       lowercaseIds.add(modelId.toLowerCase());
     }
-    List<String> garbageIds = new ArrayList<String>();
+    List<String> garbageIds = new ArrayList<>();
     for (String id : langFileMap.keySet()) {
       if (!lowercaseIds.contains(id)) {
         garbageIds.add(id);
@@ -217,18 +217,15 @@ public class Trainer {
     ExecutorService service = Executors
         .newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     for (final String modelId : modelIds) {
-      futures.add(service.submit(new Callable<String>() {
-        @Override
-        public String call() throws Exception {
-          String id = modelId.toLowerCase();
-          System.out.println("Model:" + id);
-          List<File> filesForModel = getFilesForModel(id);
-          System.out.println("Files for model:" + filesForModel);
-          ModelGenerator.ModelTrainData td = new ModelGenerator.ModelTrainData(order, id,
-              filesForModel, cutOffs);
-          train(td);
-          return id;
-        }
+      futures.add(service.submit(() -> {
+        String id = modelId.toLowerCase();
+        System.out.println("Model:" + id);
+        List<File> filesForModel = getFilesForModel(id);
+        System.out.println("Files for model:" + filesForModel);
+        ModelGenerator.ModelTrainData td = new ModelGenerator.ModelTrainData(order, id,
+            filesForModel, cutOffs);
+        train(td);
+        return id;
       }));
     }
     service.shutdown();
