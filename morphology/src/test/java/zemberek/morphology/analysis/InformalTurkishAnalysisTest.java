@@ -146,6 +146,13 @@ public class InformalTurkishAnalysisTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void futureDeformation2() {
+    AnalysisTester t = getTester("gitmek");
+    t.expectAny("gidicem", matchesTailLex("Verb + Fut_Informal + A1sg"));
+  }
+
+
+  @Test
   public void asciiTolerant1() {
     AnalysisTester t = getTesterAscii("eğlenmek");
     t.expectAny("eglenicem", matchesTailLex("Verb + Fut_Informal + A1sg"));
