@@ -63,7 +63,7 @@ public class DocumentSimilarityExperiment {
       }
       String str = doc.getContentAsString();
       str = str.length() > 200 ? str.substring(0, 200) : str;
-      float[] vec = fastText.textVector(str).clone();
+      float[] vec = fastText.sentenceVector(str).clone();
       //float[] vec = fastText.textVectors(doc.getLines()).data_.clone();
       sims.add(new DocumentSimilarity(doc, vec));
     }
