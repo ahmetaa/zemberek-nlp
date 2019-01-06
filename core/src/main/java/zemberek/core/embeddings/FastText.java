@@ -365,20 +365,44 @@ public class FastText {
     return vec;
   }
 
-  //TODO: this method does not exist in original c++ code. check python bindings
-  public float[] textVector(String s) {
-    Vector vec = new Vector(args_.dim);
+  public float[] sentenceVector(String s) {
+    Vector svec = new Vector(args_.dim);
+
+    if (args_.model == model_name.supervised) {
+      IntVector line = new IntVector();
+      dict_.getLine(s, line, model_.getRng());
+      for (int i : line.copyOf()) {
+        addInputVector(svec, i);
+      }
+      if(line.size()>0) {
+        svec.mul(1f/line.size());
+      }
+      return svec.getData();
+    }
+
     IntVector line = new IntVector();
     dict_.getLine(s, line, model_.getRng());
     dict_.addWordNgramHashes(line, args_.wordNgrams);
     if (line.size() == 0) {
-      return vec.getData();
+      return svec.getData();
     }
+
+    int count = 0;
     for (int i : line.copyOf()) {
-      vec.addRow(model_.wi_, i);
+
+      Vector vec = getWordVector(dict_.getWord(i));
+      float norm = vec.norm();
+
+      if (norm > 0) {
+        vec.mul(1f / norm);
+        svec.addVector(vec);
+        count++;
+      }
     }
-    vec.mul((float) (1.0 / line.size()));
-    return vec.getData();
+    if (count > 0) {
+      svec.mul(1f / count);
+    }
+    return svec.getData();
   }
 
   Vector getSentenceVector(String s) {
