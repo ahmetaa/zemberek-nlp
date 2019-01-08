@@ -39,7 +39,7 @@ public class ItemFindExperiment {
     Path labeled = Paths.get("/home/aaa/data/foo/true.txt");
     Path train = Paths.get("/home/aaa/data/foo/train.txt");
 
-    generateTraining(labeled, corpus, 10000, train);
+    generateTraining(labeled, corpus, 30000, train);
     createTestSet(none, labeled, test);
 
     trainModel(root, train, "foo");
@@ -83,26 +83,43 @@ public class ItemFindExperiment {
       List<String> all = Files.readAllLines(test);
       for (String s : all) {
         List<String> tokens = Splitter.on(" ").splitToList(s);
-        String actualLabel = tokens.get(0);
-        List<String> rest = tokens.subList(0, tokens.size());
+        List<String> rest = tokens.subList(1, tokens.size());
 
         List<String> grams = getGrams(rest, 7);
-        List<ScoredItem<String>> hits = new ArrayList<>();
+        List<Hit> hits = new ArrayList<>();
         for (String gram : grams) {
-          List<ScoredItem<String>> res = classifier.predict(gram, 1);
-          ScoredItem<String> r = res.get(0);
-          if (r.item.equals(labelTarget)) {
-            hits.add(r);
+          List<ScoredItem<String>> res = classifier.predict(gram, 2);
+          for (ScoredItem<String> re : res) {
+            float p = (float) Math.exp(re.score);
+            if (re.item.equals(labelTarget) && p > 0.45) {
+              hits.add(new Hit(gram, re));
+            }
           }
         }
 
         pw.println(s);
-        for (ScoredItem<String> hit : hits) {
+        for (Hit hit : hits) {
           pw.println(hit);
         }
         pw.println("-----------------------");
 
       }
+    }
+  }
+
+  static class Hit {
+
+    String ngram;
+    ScoredItem<String> item;
+
+    public Hit(String ngram, ScoredItem<String> item) {
+      this.ngram = ngram;
+      this.item = new ScoredItem<>(item.item, (float)Math.exp(item.score));
+    }
+
+    @Override
+    public String toString() {
+      return ngram + " " + item.item.replace("__label__", "") + " " + item.score;
     }
   }
 
@@ -165,7 +182,7 @@ public class ItemFindExperiment {
       set.add("__label__none " + s);
     }
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 5; i++) {
       for (String s : allTrue) {
         set.add("__label__rec_notice " + s);
       }
