@@ -147,7 +147,7 @@ public class InformalTurkishAnalysisTest extends AnalyzerTestBase {
 
   @Test
   public void futureDeformation2() {
-    AnalysisTester t = getTester("gitmek");
+    AnalysisTester t = getTester("gitmek [A:Voicing]");
     t.expectAny("gidicem", matchesTailLex("Verb + Fut_Informal + A1sg"));
   }
 
