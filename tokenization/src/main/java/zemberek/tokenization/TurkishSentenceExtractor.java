@@ -62,12 +62,12 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
     boolean _doNotSplitInDoubleQuotes = false;
     FloatValueMap<String> _model;
 
-    Builder doNotSplitInDoubleQuotes() {
+    public Builder doNotSplitInDoubleQuotes() {
       this._doNotSplitInDoubleQuotes = true;
       return this;
     }
 
-    Builder useModelFromResource(String resource) throws IOException {
+    public Builder useModelFromResource(String resource) throws IOException {
       try (DataInputStream dis = IOUtil.getDataInputStream(
           Resources.getResource(resource).openStream())) {
         this._model = load(dis);
@@ -75,19 +75,19 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
       return this;
     }
 
-    Builder useModelFromPath(Path path) throws IOException {
+    public Builder useModelFromPath(Path path) throws IOException {
       try (DataInputStream dis = IOUtil.getDataInputStream(path)) {
         this._model = load(dis);
       }
       return this;
     }
 
-    Builder useDefaultModel() throws IOException {
+    public Builder useDefaultModel() throws IOException {
       useModelFromResource("tokenization/sentence-boundary-model.bin");
       return this;
     }
 
-    TurkishSentenceExtractor build() throws IOException {
+    public TurkishSentenceExtractor build() throws IOException {
       if (_model == null) {
         useDefaultModel();
       }
