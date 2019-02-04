@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -113,12 +115,17 @@ public class ClassificationExperiment extends ClassificationExampleBase {
 
   void generateData(int testSize) throws IOException {
     Path raw = root.resolve("raw3/all");
-    Random r = new Random(1);
-    List<String> lines = TextIO.loadLines(raw);
+
+    Random r = new Random(19754);
+    List<String> allll = TextIO.loadLines(raw);
+    Log.info(allll.size());
+    List<String> lines = new ArrayList<>(new LinkedHashSet<>(allll));
+    Log.info(lines.size());
+
     Collections.shuffle(lines, r);
 
-    List<String> test = lines.subList(0, testSize);
-    List<String> train = lines.subList(testSize, lines.size() - 1);
+    List<String> test = lines.subList(lines.size() - testSize, lines.size());
+    List<String> train = lines.subList(0, lines.size() - testSize);
 
     Log.info("Train = %d, Test = %d lines.", train.size(), test.size());
 
@@ -139,6 +146,8 @@ public class ClassificationExperiment extends ClassificationExampleBase {
     Files.write(trainRaw, train);
     Files.write(testRaw, test);
   }
+
+
 
   private void evaluate(Path root, Path train, Path test, String name) {
 

@@ -82,12 +82,17 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
       return this;
     }
 
-    public Builder useDefaultModel() throws IOException {
-      useModelFromResource("tokenization/sentence-boundary-model.bin");
+    public Builder useDefaultModel() {
+      String resource = "tokenization/sentence-boundary-model.bin";
+      try {
+        useModelFromResource(resource);
+      } catch (IOException e) {
+        throw new IllegalStateException("Cannot find internal resource:" + resource);
+      }
       return this;
     }
 
-    public TurkishSentenceExtractor build() throws IOException {
+    public TurkishSentenceExtractor build() {
       if (_model == null) {
         useDefaultModel();
       }

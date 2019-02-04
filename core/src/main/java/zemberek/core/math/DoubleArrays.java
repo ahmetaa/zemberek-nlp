@@ -769,4 +769,13 @@ public class DoubleArrays {
     return newArr;
   }
 
+  public static float[] fromDelimitedString(String input, String delimiter) {
+    List<String> tokens = Splitter.on(delimiter).omitEmptyStrings().trimResults().splitToList(input);
+    float[] result = new float[tokens.size()];
+    for (int i = 0; i < tokens.size(); i++) {
+      result[i] = Float.parseFloat(tokens.get(i));
+    }
+    return result;
+  }
+
 }

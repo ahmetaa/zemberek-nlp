@@ -10,7 +10,6 @@ import java.util.PriorityQueue;
 import java.util.Random;
 import zemberek.core.collections.IntVector;
 import zemberek.core.embeddings.Args.model_name;
-import zemberek.core.logging.Log;
 import zemberek.core.math.FloatArrays;
 
 class Model {
@@ -495,7 +494,7 @@ class Model {
    * @param x input
    */
   private float stdLog(float x) {
-    return (float) Math.log(x + 1e-5);
+    return (float) Math.log(x + 1e-7);
   }
 
   private float sigmoid(float x) {

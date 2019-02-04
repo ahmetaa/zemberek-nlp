@@ -2,6 +2,7 @@ package zemberek.core.logging;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -11,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.IllegalFormatException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -22,6 +24,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import zemberek.core.io.Strings;
 
 /**
@@ -32,7 +35,7 @@ public final class Log {
   public static final Thread.UncaughtExceptionHandler EXCEPTION_HANDLER = new ExceptionLoggerHandler();
   static final CUSTOM_FORMAT formatter = new CUSTOM_FORMAT();
   private static final Logger logger = Logger.getLogger("zemberek-logger");
-  private static final Map<Path, FileHandler> handlers = new ConcurrentHashMap<>();
+  private static final Map<File, FileHandler> fileHandlers = new ConcurrentHashMap<>();
   private static final Map<String, LogLevel> classLevelMap = new ConcurrentHashMap<>();
   public static OutputStream fileStream;
   static Level currentLevel = Level.INFO;
@@ -40,14 +43,18 @@ public final class Log {
   static Map<Level, String> levelShortStringMap = new HashMap<>();
 
   static {
+    reset();
+  }
+
+  public static void reset() {
     logger.setUseParentHandlers(false);
     ConsoleHandler ch = new ConsoleHandler();
     ch.setFormatter(new CUSTOM_FORMAT());
     ch.setLevel(currentLevel);
     logger.addHandler(ch);
     Thread.setDefaultUncaughtExceptionHandler(EXCEPTION_HANDLER);
-    Runtime.getRuntime().addShutdownHook(
-        new Thread(() -> handlers.values().forEach(FileHandler::close)));
+    Runtime.getRuntime()
+        .addShutdownHook(new Thread(() -> fileHandlers.values().forEach(FileHandler::close)));
   }
 
   static {
@@ -226,22 +233,36 @@ public final class Log {
   }
 
   public static void addFileHandler(Path path) throws IOException {
+
+    if (fileHandlers.containsKey(path.toFile())) {
+      Log.info("Log File %s already exist. Appending.", path.toFile());
+      return;
+    }
+
     final FileHandler handler = new FileHandler(path.toFile().getAbsolutePath(), true);
     handler.setFormatter(formatter);
     handler.setLevel(currentLevel);
     logger.addHandler(handler);
-    handlers.put(path, handler);
+    fileHandlers.put(path.toFile(), handler);
   }
 
   public static void flushFileHandlers() {
-    handlers.values().stream().filter(Objects::nonNull).forEach(Handler::flush);
+    fileHandlers.values().stream().filter(Objects::nonNull).forEach(Handler::flush);
   }
 
-  public static void removeHandler(Path path) {
-    if (handlers.containsKey(path)) {
-      FileHandler handler = handlers.remove(path);
+  public static void removeFileHandler(File file) {
+    if (fileHandlers.containsKey(file)) {
+      FileHandler handler = fileHandlers.remove(file);
       logger.removeHandler(handler);
     }
+  }
+
+  public static void removeFileHandler(Path path) {
+    removeFileHandler(path.toFile());
+  }
+
+  public static List<Path> getCurrentLogFiles() {
+    return fileHandlers.keySet().stream().map(File::toPath).collect(Collectors.toList());
   }
 
   public static synchronized void log(Level level, String message, Object... params) {
