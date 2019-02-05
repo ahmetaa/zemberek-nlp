@@ -19,7 +19,13 @@ For starting the gRPC server, use zemberek-full.jar and run:
 
     java -jar zemberek-full.jar StartGrpcServer
 
-By default, it will start serving via port 6789. User can change the port with --port parameter.
+By default, it will start serving via port 6789. User can change the port with `--port` parameter.
+
+For some functions like normalization, model files may be necessary. For this, user should provide
+data root directory with `--dataRoot` parameter. For example, if data folder is 
+`/home/aaa/zemberek-data` user should run the server with:
+
+    java -jar zemberek-full.jar StartGrpcServer --dataRoot /home/aaa/zemberek-data
 
 ## Remote API
 
