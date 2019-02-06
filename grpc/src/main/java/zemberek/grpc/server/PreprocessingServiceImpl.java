@@ -33,8 +33,7 @@ public class PreprocessingServiceImpl extends PreprocessingServiceImplBase {
             .collect(Collectors.toList());
     responseObserver.onNext(TokenizationResponse.newBuilder()
         .addAllTokens(tokens)
-        .build()
-    );
+        .build());
     responseObserver.onCompleted();
   }
 

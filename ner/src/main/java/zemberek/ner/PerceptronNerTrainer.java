@@ -120,8 +120,8 @@ public class PerceptronNerTrainer {
       Map<String, ClassModel> model,
       IntValueMap<String> counts) {
     for (String typeId : model.keySet()) {
-      Weights w = model.get(typeId).sparseWeights;
-      Weights a = averages.get(typeId).sparseWeights;
+      Weights w = (Weights) model.get(typeId).sparseWeights;
+      Weights a = (Weights) averages.get(typeId).sparseWeights;
       for (String s : w) {
         w.put(s, w.get(s) - a.get(s) / counts.get(typeId));
       }

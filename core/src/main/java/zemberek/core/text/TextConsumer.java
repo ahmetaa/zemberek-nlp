@@ -49,4 +49,12 @@ public class TextConsumer {
     return r;
   }
 
+  public List<String> getUntilEnd() {
+    List<String> result = new ArrayList<>();
+    while (!finished()) {
+      result.add(getAndAdvance());
+    }
+    return result;
+  }
+
 }

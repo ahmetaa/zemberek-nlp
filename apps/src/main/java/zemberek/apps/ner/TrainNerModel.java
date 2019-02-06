@@ -36,7 +36,11 @@ public class TrainNerModel extends NerAppBase {
 
   @Override
   public String description() {
-    return "Generates Turkish Named Entity Recognition model.";
+    return "Generates Turkish Named Entity Recognition model. There will be two model sets in the "
+        + "output directory, one is text models (in [model] directory)"
+        + ", other is compressed lossy model"
+        + " (in [model-compressed] directory). Usually compressed"
+        + " model is four times smaller than the text model.";
   }
 
   @Override
@@ -46,6 +50,7 @@ public class TrainNerModel extends NerAppBase {
     IOUtil.checkFileArgument(trainDataPath, "Training file");
 
     Path modelRoot = outDir.resolve("model");
+    Path modelRootCompressed = outDir.resolve("model-compressed");
     Path logPath = outDir.resolve("train-log");
     Log.addFileHandler(logPath);
 
@@ -71,8 +76,11 @@ public class TrainNerModel extends NerAppBase {
         .train(trainingSet, devSet, iterationCount, learningRate);
 
     Files.createDirectories(modelRoot);
+    Files.createDirectories(modelRootCompressed);
     ner.saveModelAsText(modelRoot);
-    Log.info("NER model is created in %s", modelRoot);
+    ner.saveModelCompressed(modelRootCompressed);
+    Log.info("Text model is created in %s", modelRoot);
+    Log.info("Compressed model is created in %s", modelRootCompressed);
   }
 
   public static void main(String[] args) {
