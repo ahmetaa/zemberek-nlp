@@ -76,6 +76,8 @@ public class TurkishTokenizerTest {
     matchToken(t, "3.14'ten", TurkishLexer.Number, "3.14'ten");
     matchToken(t, "%2.5'ten", TurkishLexer.PercentNumeral, "%2.5'ten");
     matchToken(t, "%2", TurkishLexer.PercentNumeral, "%2");
+    matchToken(t, "2.5'a", TurkishLexer.Number, "2.5'a");
+    matchToken(t, "2.5’a", TurkishLexer.Number, "2.5’a");
   }
 
   @Test
@@ -332,6 +334,7 @@ public class TurkishTokenizerTest {
         "www.foo.net'te",
         "http://www.foo.net/showthread.php?134628-ucreti",
         "http://www.foo.net/showthread.php?1-34--628-ucreti+",
+        "https://www.hepsiburada.com'dan",
     };
     for (String s : urls) {
       matchToken(t, s, TurkishLexer.URL, s);
@@ -355,13 +358,42 @@ public class TurkishTokenizerTest {
   public void testEmail() {
     TurkishTokenizer t = TurkishTokenizer.DEFAULT;
 
-    String[] urls = {
+    String[] emails = {
         "fo@bar.baz",
         "fo.bar@bar.baz",
-        "fo_.bar@bar.baz"
+        "fo_.bar@bar.baz",
+        "ali@gmail.com'u"
     };
-    for (String s : urls) {
+    for (String s : emails) {
       matchToken(t, s, TurkishLexer.Email, s);
+    }
+  }
+
+  @Test
+  public void mentionTest() {
+    TurkishTokenizer t = TurkishTokenizer.DEFAULT;
+
+    String[] ss = {
+        "@bar",
+        "@foo_bar",
+        "@kemal'in"
+    };
+    for (String s : ss) {
+      matchToken(t, s, TurkishLexer.Mention, s);
+    }
+  }
+
+  @Test
+  public void hashTagTest() {
+    TurkishTokenizer t = TurkishTokenizer.DEFAULT;
+
+    String[] ss = {
+        "#foo",
+        "#foo_bar",
+        "#foo_bar'a"
+    };
+    for (String s : ss) {
+      matchToken(t, s, TurkishLexer.HashTag, s);
     }
   }
 
