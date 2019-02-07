@@ -8,6 +8,7 @@ package zemberek.preprocessor;
 message TokenizationRequest {
   string input = 1;
   bool includeTokenBoundaries = 2;
+  bool ignoreDoubleQuotes = 3;
   // TODO: Add options (ignore etc.)
 }
 
@@ -25,6 +26,7 @@ message TokenizationResponse {
 
 message SentenceExtractionRequest {
   string document = 1;
+  bool doNotSplitInDoubleQuotes = 2;
 }
 
 message SentenceExtractionResponse {

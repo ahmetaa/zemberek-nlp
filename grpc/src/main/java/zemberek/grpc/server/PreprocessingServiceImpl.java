@@ -17,11 +17,18 @@ import zemberek.tokenization.antlr.TurkishLexer;
 public class PreprocessingServiceImpl extends PreprocessingServiceImplBase {
 
   private final TurkishTokenizer tokenizer;
-  private final TurkishSentenceExtractor extractor;
+  private final TurkishSentenceExtractor defaultExtractor;
+
+  // this extractor does not split sentences in double qouotes.
+  private final TurkishSentenceExtractor doubleQuoteIgnoreExtractor;
 
   public PreprocessingServiceImpl() {
     tokenizer = TurkishTokenizer.DEFAULT;
-    extractor = TurkishSentenceExtractor.DEFAULT;
+    defaultExtractor = TurkishSentenceExtractor.DEFAULT;
+    doubleQuoteIgnoreExtractor = TurkishSentenceExtractor
+        .builder()
+        .doNotSplitInDoubleQuotes()
+        .build();
   }
 
   public void tokenize(TokenizationRequest request,
@@ -49,6 +56,8 @@ public class PreprocessingServiceImpl extends PreprocessingServiceImplBase {
 
   public void extractSentences(SentenceExtractionRequest request,
       StreamObserver<SentenceExtractionResponse> responseObserver) {
+    TurkishSentenceExtractor extractor = request.getDoNotSplitInDoubleQuotes() ?
+        defaultExtractor : doubleQuoteIgnoreExtractor;
     responseObserver.onNext(SentenceExtractionResponse.newBuilder()
         .addAllSentences(extractor.fromDocument(request.getDocument()))
         .build());
