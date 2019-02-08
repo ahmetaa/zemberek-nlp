@@ -56,7 +56,8 @@ public class UnidentifiedTokenAnalyzer {
       if (alphabet.containsDigit(word)) {
         return tryNumeral(token);
       } else {
-        return analyzeWord(word);
+        return analyzeWord(word,
+            word.contains(".") ? SecondaryPos.Abbreviation : SecondaryPos.ProperNoun);
       }
     }
 
@@ -70,6 +71,13 @@ public class UnidentifiedTokenAnalyzer {
     //TODO: consider returning analysis results without interfering with analyzer.
     String normalized = nonLettersPattern.matcher(word).replaceAll("");
     DictionaryItem item = new DictionaryItem(word, word, normalized, PrimaryPos.Noun, sPos);
+
+    if (sPos == SecondaryPos.HashTag ||
+        sPos == SecondaryPos.Email ||
+        sPos == SecondaryPos.Url ||
+        sPos == SecondaryPos.Mention) {
+      return analyzeWord(word, sPos);
+    }
 
     boolean itemDoesNotExist = !lexicon.containsItem(item);
     if (itemDoesNotExist) {
@@ -109,17 +117,22 @@ public class UnidentifiedTokenAnalyzer {
     }
   }
 
-  public synchronized List<SingleAnalysis> analyzeWord(String word) {
+
+  public synchronized List<SingleAnalysis> analyzeWord(String word, SecondaryPos secondaryPos) {
     int index = word.indexOf('\'');
     if (index >= 0) {
-      return tryWordWithApostrophe(word);
-    } else if (Character.isUpperCase(word.charAt(0))) {
-      return tryWithoutApostrophe(word);
+      return tryWordWithApostrophe(word, secondaryPos);
+    } else if (secondaryPos == SecondaryPos.ProperNoun
+        || secondaryPos == SecondaryPos.Abbreviation) {
+      // TODO: should we allow analysis of unknown words that starts wıth a capital letter
+      // without apostrophe as Proper nouns?
+        return Collections.emptyList();
+    } else {
+      return tryWithoutApostrophe(word, secondaryPos);
     }
-    return Collections.emptyList();
   }
 
-  private List<SingleAnalysis> tryWithoutApostrophe(String word) {
+  private List<SingleAnalysis> tryWithoutApostrophe(String word, SecondaryPos secondaryPos) {
     String normalized = null;
     TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
     if (alphabet.containsForeignDiacritics(word)) {
@@ -129,35 +142,46 @@ public class UnidentifiedTokenAnalyzer {
         alphabet.normalize(word) :
         alphabet.normalize(normalized);
 
+    boolean capitalize = secondaryPos == SecondaryPos.ProperNoun ||
+        secondaryPos == SecondaryPos.Abbreviation;
+
     //TODO: should we remove dots with normalization?
     String pronunciation = guessPronunciation(normalized.replaceAll("[.]", ""));
-    DictionaryItem itemProp = new DictionaryItem(
-        Turkish.capitalize(normalized),
+
+    DictionaryItem item = new DictionaryItem(
+        capitalize ? Turkish.capitalize(normalized) : normalized,
         normalized,
         pronunciation,
         PrimaryPos.Noun,
-        word.contains(".") ? SecondaryPos.Abbreviation : SecondaryPos.ProperNoun);
+        secondaryPos);
 
-    boolean itemDoesNotExist = !lexicon.containsItem(itemProp);
-
-    if (!itemDoesNotExist) {
-      itemProp.attributes.add(RootAttribute.Runtime);
-      analyzer.getStemTransitions().addDictionaryItem(itemProp);
+    if (!alphabet.containsVowel(pronunciation)) {
+      List<SingleAnalysis> result = new ArrayList<>(1);
+      result.add(SingleAnalysis.dummy(word, item));
+      return result;
     }
-    List<SingleAnalysis> properResults = analyzer.analyze(normalized);
+
+    boolean itemDoesNotExist = !lexicon.containsItem(item);
+
     if (itemDoesNotExist) {
-      analyzer.getStemTransitions().removeDictionaryItem(itemProp);
+      item.attributes.add(RootAttribute.Runtime);
+      analyzer.getStemTransitions().addDictionaryItem(item);
     }
-    return properResults;
+    List<SingleAnalysis> results = analyzer.analyze(normalized);
+    if (itemDoesNotExist) {
+      analyzer.getStemTransitions().removeDictionaryItem(item);
+    }
+    return results;
   }
 
-  private List<SingleAnalysis> tryWordWithApostrophe(String word) {
+  private List<SingleAnalysis> tryWordWithApostrophe(String word, SecondaryPos secondaryPos) {
     String normalized = TurkishAlphabet.INSTANCE.normalizeApostrophe(word);
 
     int index = normalized.indexOf('\'');
     if (index <= 0 || index == normalized.length() - 1) {
       return Collections.emptyList();
     }
+
     String stem = normalized.substring(0, index);
     String ending = normalized.substring(index + 1);
 
@@ -166,22 +190,33 @@ public class UnidentifiedTokenAnalyzer {
     String stemNormalized = TurkishAlphabet.INSTANCE.normalize(se.stem).replaceAll("[.]", "");
     String endingNormalized = TurkishAlphabet.INSTANCE.normalize(se.ending);
     String pronunciation = guessPronunciation(stemNormalized);
-    DictionaryItem itemProp = new DictionaryItem(
-        Turkish.capitalize(stemNormalized),
+
+    boolean capitalize = secondaryPos == SecondaryPos.ProperNoun ||
+        secondaryPos == SecondaryPos.Abbreviation;
+
+    DictionaryItem item = new DictionaryItem(
+        capitalize ? Turkish.capitalize(normalized) : normalized,
         stemNormalized,
         pronunciation,
         PrimaryPos.Noun,
-        SecondaryPos.ProperNoun);
-    boolean itemDoesNotExist = !lexicon.containsItem(itemProp);
+        secondaryPos);
+
+    if (!alphabet.containsVowel(pronunciation)) {
+      List<SingleAnalysis> result = new ArrayList<>(1);
+      result.add(SingleAnalysis.dummy(word, item));
+      return result;
+    }
+
+    boolean itemDoesNotExist = !lexicon.containsItem(item);
     if (itemDoesNotExist) {
-      itemProp.attributes.add(RootAttribute.Runtime);
-      analyzer.getStemTransitions().addDictionaryItem(itemProp);
+      item.attributes.add(RootAttribute.Runtime);
+      analyzer.getStemTransitions().addDictionaryItem(item);
     }
     String toParse = stemNormalized + endingNormalized;
 
     List<SingleAnalysis> noQuotesParses = analyzer.analyze(toParse);
     if (itemDoesNotExist) {
-      analyzer.getStemTransitions().removeDictionaryItem(itemProp);
+      analyzer.getStemTransitions().removeDictionaryItem(item);
     }
     return noQuotesParses.stream()
         .filter(noQuotesParse -> noQuotesParse.getStem().equals(stemNormalized))

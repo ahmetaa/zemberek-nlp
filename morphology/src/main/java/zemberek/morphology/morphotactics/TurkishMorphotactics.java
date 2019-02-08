@@ -2499,6 +2499,7 @@ public class TurkishMorphotactics {
           case Url:
           case HashTag:
           case Mention:
+            return nounProper_S;
           case Emoticon:
           case RomanNumeral:
             return nounNoSuffix_S;

@@ -91,7 +91,7 @@ public class SurfaceTransition {
           } else if (attrs.contains(LastVowelFrontal)) {
             sb.append('e');
           } else {
-            throw new IllegalArgumentException("Cannot generate A form!");
+            throw new IllegalArgumentException("Cannot generate A form! ");
           }
           break;
 

@@ -50,6 +50,12 @@ public class SingleAnalysis {
     return new SingleAnalysis(item, Collections.singletonList(s), boundaries);
   }
 
+  public static SingleAnalysis dummy(String input, DictionaryItem item) {
+    MorphemeData s = new MorphemeData(Morpheme.UNKNOWN, input);
+    int[] boundaries = {0};
+    return new SingleAnalysis(item, Collections.singletonList(s), boundaries);
+  }
+
   public String surfaceForm() {
     return getStem() + getEnding();
   }

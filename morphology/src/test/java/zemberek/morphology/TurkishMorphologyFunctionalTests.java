@@ -102,6 +102,92 @@ public class TurkishMorphologyFunctionalTests {
   }
 
   @Test
+  public void testDate2() {
+    TurkishMorphology morphology = getMorphology("dört [P:Num,Card;A:Voicing]");
+    WordAnalysis result = morphology.analyze("1.1.2014'te");
+    Assert.assertEquals(1, result.analysisCount());
+    Assert.assertEquals(
+        SecondaryPos.Date,
+        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
+    String lexical = result.getAnalysisResults().get(0).formatLexical();
+    Assert.assertTrue(lexical.endsWith("A3sg+Loc"));
+  }
+
+  @Test
+  public void testUrl() {
+    TurkishMorphology morphology = getMorphology();
+    WordAnalysis result = morphology.analyze("www.foo.com");
+    Assert.assertEquals(1, result.analysisCount());
+    Assert.assertEquals(
+        SecondaryPos.Url,
+        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
+    String lexical = result.getAnalysisResults().get(0).formatLexical();
+    Assert.assertTrue(lexical.endsWith("A3sg"));
+  }
+
+  @Test
+  public void testUrl2() {
+    TurkishMorphology morphology = getMorphology();
+    WordAnalysis result = morphology.analyze("www.foo.com'da");
+    Assert.assertEquals(1, result.analysisCount());
+    Assert.assertEquals(
+        SecondaryPos.Url,
+        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
+    String lexical = result.getAnalysisResults().get(0).formatLexical();
+    Assert.assertTrue(lexical.endsWith("A3sg+Loc"));
+  }
+
+  @Test
+  public void testHashTag() {
+    TurkishMorphology morphology = getMorphology();
+    WordAnalysis result = morphology.analyze("#haha_ha'ya");
+    Assert.assertEquals(1, result.analysisCount());
+    Assert.assertEquals(
+        SecondaryPos.HashTag,
+        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
+    String lexical = result.getAnalysisResults().get(0).formatLexical();
+    Assert.assertTrue(lexical.endsWith("A3sg+Dat"));
+  }
+
+  @Test
+  public void testHashTag2() {
+    TurkishMorphology morphology = getMorphology();
+    WordAnalysis result = morphology.analyze("#123'efefe");
+    Assert.assertEquals(1, result.analysisCount());
+    SingleAnalysis analysis = result.getAnalysisResults().get(0);
+    Assert.assertEquals(
+        SecondaryPos.HashTag,
+        analysis.getDictionaryItem().secondaryPos);
+    Assert.assertEquals(
+        "#123'efefe",
+        analysis.getDictionaryItem().lemma);
+  }
+
+  @Test
+  public void testMention() {
+    TurkishMorphology morphology = getMorphology();
+    WordAnalysis result = morphology.analyze("@haha_ha'ya");
+    Assert.assertEquals(1, result.analysisCount());
+    Assert.assertEquals(
+        SecondaryPos.Mention,
+        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
+    String lexical = result.getAnalysisResults().get(0).formatLexical();
+    Assert.assertTrue(lexical.endsWith("A3sg+Dat"));
+  }
+
+  @Test
+  public void testEmail() {
+    TurkishMorphology morphology = getMorphology();
+    WordAnalysis result = morphology.analyze("foo@bar.com'a");
+    Assert.assertEquals(1, result.analysisCount());
+    Assert.assertEquals(
+        SecondaryPos.Email,
+        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
+    String lexical = result.getAnalysisResults().get(0).formatLexical();
+    Assert.assertTrue(lexical.endsWith("A3sg+Dat"));
+  }
+
+  @Test
   public void testTime() {
     TurkishMorphology morphology = getMorphology("otuz [P:Num,Card]");
     WordAnalysis result = morphology.analyze("20:30'da");
@@ -151,6 +237,13 @@ public class TurkishMorphologyFunctionalTests {
     TurkishMorphology morphology = getEmptyTurkishMorphology();
     WordAnalysis result = morphology.analyze("Blah-Foo'ya");
     Assert.assertEquals(1, result.analysisCount());
+  }
+
+  @Test
+  public void testUnidentifiedWordNoVowel() {
+    TurkishMorphology morphology = getMorphology();
+    WordAnalysis result = morphology.analyze("gnctrkcll");
+    Assert.assertEquals(0, result.analysisCount());
   }
 
   @Test
