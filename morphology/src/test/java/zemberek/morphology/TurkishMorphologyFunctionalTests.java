@@ -47,7 +47,7 @@ public class TurkishMorphologyFunctionalTests {
   }
 
   @Test
-  public void test2() {
+  public void testPossibleProper2() {
     TurkishMorphology morphology = getMorphology("Air");
     Assert.assertEquals(0, morphology.analyze("Air'rrr").analysisCount());
     Assert.assertEquals(1, morphology.analyze("Air").analysisCount());
@@ -106,10 +106,11 @@ public class TurkishMorphologyFunctionalTests {
     TurkishMorphology morphology = getMorphology("dört [P:Num,Card;A:Voicing]");
     WordAnalysis result = morphology.analyze("1.1.2014'te");
     Assert.assertEquals(1, result.analysisCount());
+    SingleAnalysis analysis = result.getAnalysisResults().get(0);
     Assert.assertEquals(
         SecondaryPos.Date,
-        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
-    String lexical = result.getAnalysisResults().get(0).formatLexical();
+        analysis.getDictionaryItem().secondaryPos);
+    String lexical = analysis.formatLexical();
     Assert.assertTrue(lexical.endsWith("A3sg+Loc"));
   }
 
@@ -130,11 +131,13 @@ public class TurkishMorphologyFunctionalTests {
     TurkishMorphology morphology = getMorphology();
     WordAnalysis result = morphology.analyze("www.foo.com'da");
     Assert.assertEquals(1, result.analysisCount());
+    SingleAnalysis analysis = result.getAnalysisResults().get(0);
     Assert.assertEquals(
         SecondaryPos.Url,
-        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
-    String lexical = result.getAnalysisResults().get(0).formatLexical();
+        analysis.getDictionaryItem().secondaryPos);
+    String lexical = analysis.formatLexical();
     Assert.assertTrue(lexical.endsWith("A3sg+Loc"));
+    Assert.assertEquals("www.foo.com", analysis.getDictionaryItem().lemma);
   }
 
   @Test
@@ -142,11 +145,13 @@ public class TurkishMorphologyFunctionalTests {
     TurkishMorphology morphology = getMorphology();
     WordAnalysis result = morphology.analyze("#haha_ha'ya");
     Assert.assertEquals(1, result.analysisCount());
+    SingleAnalysis analysis = result.getAnalysisResults().get(0);
     Assert.assertEquals(
         SecondaryPos.HashTag,
-        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
-    String lexical = result.getAnalysisResults().get(0).formatLexical();
+        analysis.getDictionaryItem().secondaryPos);
+    String lexical = analysis.formatLexical();
     Assert.assertTrue(lexical.endsWith("A3sg+Dat"));
+    Assert.assertEquals("#haha_ha", analysis.getDictionaryItem().lemma);
   }
 
   @Test
@@ -168,11 +173,14 @@ public class TurkishMorphologyFunctionalTests {
     TurkishMorphology morphology = getMorphology();
     WordAnalysis result = morphology.analyze("@haha_ha'ya");
     Assert.assertEquals(1, result.analysisCount());
+    SingleAnalysis analysis = result.getAnalysisResults().get(0);
     Assert.assertEquals(
         SecondaryPos.Mention,
-        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
-    String lexical = result.getAnalysisResults().get(0).formatLexical();
+        analysis.getDictionaryItem().secondaryPos);
+    String lexical = analysis.formatLexical();
     Assert.assertTrue(lexical.endsWith("A3sg+Dat"));
+    Assert.assertEquals("@haha_ha", analysis.getDictionaryItem().lemma);
+    Assert.assertTrue(lexical.contains("@haha_ha"));
   }
 
   @Test
@@ -180,11 +188,13 @@ public class TurkishMorphologyFunctionalTests {
     TurkishMorphology morphology = getMorphology();
     WordAnalysis result = morphology.analyze("foo@bar.com'a");
     Assert.assertEquals(1, result.analysisCount());
+    SingleAnalysis analysis = result.getAnalysisResults().get(0);
     Assert.assertEquals(
         SecondaryPos.Email,
-        result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
-    String lexical = result.getAnalysisResults().get(0).formatLexical();
+        analysis.getDictionaryItem().secondaryPos);
+    String lexical = analysis.formatLexical();
     Assert.assertTrue(lexical.endsWith("A3sg+Dat"));
+    Assert.assertEquals("foo@bar.com", analysis.getDictionaryItem().lemma);
   }
 
   @Test
@@ -195,6 +205,20 @@ public class TurkishMorphologyFunctionalTests {
     Assert.assertEquals(
         SecondaryPos.Clock,
         result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
+  }
+
+
+  @Test
+  public void testTime2() {
+    TurkishMorphology morphology = getMorphology("dört [P:Num,Card;A:Voicing]");
+    WordAnalysis result = morphology.analyze("10:24'te");
+    Assert.assertEquals(1, result.analysisCount());
+    SingleAnalysis analysis = result.getAnalysisResults().get(0);
+    Assert.assertEquals(
+        SecondaryPos.Clock,
+        analysis.getDictionaryItem().secondaryPos);
+    String lexical = analysis.formatLexical();
+    Assert.assertTrue(lexical.endsWith("A3sg+Loc"));
   }
 
   @Test

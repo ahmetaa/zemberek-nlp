@@ -64,7 +64,7 @@ public class UnidentifiedTokenAnalyzer {
     if (sPos == SecondaryPos.RomanNumeral) {
       return getForRomanNumeral(token);
     }
-    if (sPos == SecondaryPos.Date || sPos == SecondaryPos.Time) {
+    if (sPos == SecondaryPos.Date || sPos == SecondaryPos.Clock) {
       return tryNumeral(token);
     }
 
@@ -126,7 +126,7 @@ public class UnidentifiedTokenAnalyzer {
         || secondaryPos == SecondaryPos.Abbreviation) {
       // TODO: should we allow analysis of unknown words that starts wıth a capital letter
       // without apostrophe as Proper nouns?
-        return Collections.emptyList();
+      return Collections.emptyList();
     } else {
       return tryWithoutApostrophe(word, secondaryPos);
     }
@@ -194,14 +194,16 @@ public class UnidentifiedTokenAnalyzer {
     boolean capitalize = secondaryPos == SecondaryPos.ProperNoun ||
         secondaryPos == SecondaryPos.Abbreviation;
 
+    boolean pronunciationPossible = alphabet.containsVowel(pronunciation);
+
     DictionaryItem item = new DictionaryItem(
-        capitalize ? Turkish.capitalize(normalized) : normalized,
+        capitalize ? Turkish.capitalize(normalized) : (pronunciationPossible ? stem : word),
         stemNormalized,
         pronunciation,
         PrimaryPos.Noun,
         secondaryPos);
 
-    if (!alphabet.containsVowel(pronunciation)) {
+    if (!pronunciationPossible) {
       List<SingleAnalysis> result = new ArrayList<>(1);
       result.add(SingleAnalysis.dummy(word, item));
       return result;
@@ -215,12 +217,16 @@ public class UnidentifiedTokenAnalyzer {
     String toParse = stemNormalized + endingNormalized;
 
     List<SingleAnalysis> noQuotesParses = analyzer.analyze(toParse);
+
     if (itemDoesNotExist) {
       analyzer.getStemTransitions().removeDictionaryItem(item);
     }
-    return noQuotesParses.stream()
+
+    List<SingleAnalysis> analyses = noQuotesParses.stream()
         .filter(noQuotesParse -> noQuotesParse.getStem().equals(stemNormalized))
         .collect(Collectors.toList());
+
+    return analyses;
   }
 
   PronunciationGuesser guesser = new PronunciationGuesser();
@@ -358,7 +364,7 @@ public class UnidentifiedTokenAnalyzer {
     REAL("#,#", "^[+\\-]?[0-9]+[,][0-9]+$|^[+\\-]?[0-9]+[.][0-9]+$", SecondaryPos.Real),
     DISTRIB("#DIS", "^\\d+[^0-9]+$", SecondaryPos.Distribution),
     PERCENTAGE_BEFORE("%#", "(^|[+\\-])(%)(\\d+)((([.]|[,])(\\d+))|)$", SecondaryPos.Percentage),
-    TIME("#:#", "^([012][0-9]|[1-9])([.]|[:])([0-5][0-9])$", SecondaryPos.Time),
+    TIME("#:#", "^([012][0-9]|[1-9])([.]|[:])([0-5][0-9])$", SecondaryPos.Clock),
     DATE("##.##.####", "^([0-3][0-9]|[1-9])([.]|[/])([01][0-9]|[1-9])([.]|[/])(\\d{4})$",
         SecondaryPos.Date);
 
