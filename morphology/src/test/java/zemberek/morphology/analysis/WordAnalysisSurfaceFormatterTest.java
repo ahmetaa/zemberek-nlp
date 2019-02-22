@@ -24,7 +24,7 @@ public class WordAnalysisSurfaceFormatterTest {
     for (String input : inputs) {
       WordAnalysis results = morphology.analyze(input);
       for (SingleAnalysis result : results) {
-        Assert.assertEquals(input, formatter.format(result, "'"));
+        Assert.assertEquals(input, formatter.format(result, null));
       }
     }
   }
@@ -39,10 +39,10 @@ public class WordAnalysisSurfaceFormatterTest {
     String[] inputs = {"ankarada", "ıphonumun", "googledan", "Iphone", "Google", "Googlesa"};
     String[] expected = {"Ankara'da", "Iphone'umun", "Google'dan", "Iphone", "Google", "Google'sa"};
 
-    check(morphology, inputs, expected);
+    check(morphology, inputs, expected,"'");
   }
 
-  private void check(TurkishMorphology morphology, String[] inputs, String[] expected) {
+  private void check(TurkishMorphology morphology, String[] inputs, String[] expected, String apostrophe) {
     WordAnalysisSurfaceFormatter formatter = new WordAnalysisSurfaceFormatter();
 
     int i = 0;
@@ -50,7 +50,7 @@ public class WordAnalysisSurfaceFormatterTest {
       WordAnalysis results = morphology.analyze(input);
       for (SingleAnalysis result : results) {
         if (result.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun) {
-          String format = formatter.format(result, "'");
+          String format = formatter.format(result, apostrophe);
           Assert.assertEquals(expected[i], format);
         }
       }
@@ -67,9 +67,22 @@ public class WordAnalysisSurfaceFormatterTest {
     String[] inputs = {"blaha", "Blahta"};
     String[] expected = {"Blaha", "Blahta"};
 
-    check(morphology, inputs, expected);
+    check(morphology, inputs, expected,null);
   }
 
+  @Test
+  public void formatVerbs() {
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .disableCache()
+        .setLexicon("olmak").build();
+
+    String[] inputs = {"olarak", "Olarak"};
+    String[] expected = {"olarak", "Olarak"};
+
+    check(morphology, inputs, expected,null);
+    // giving apostrophe should not effect the output.
+    check(morphology, inputs, expected,"'");
+  }
 
   @Test
   public void formatNumerals() {
@@ -137,7 +150,7 @@ public class WordAnalysisSurfaceFormatterTest {
     for (String input : inputs) {
       WordAnalysis results = morphology.analyze(input);
       for (SingleAnalysis result : results) {
-        Assert.assertEquals(expected[i], formatter.formatToCase(result, caseType, "'"));
+        Assert.assertEquals(expected[i], formatter.formatToCase(result, caseType ));
       }
       i++;
     }

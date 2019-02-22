@@ -117,13 +117,12 @@ public class TurkishSpellChecker {
   }
 
   private String getApostrophe(String input) {
-    String apostrophe;
     if (input.indexOf('’') > 0) {
-      apostrophe = "’";
-    } else {
-      apostrophe = "'";
+      return "’";
+    } else if (input.indexOf('\'') > 0) {
+      return "'";
     }
-    return apostrophe;
+    return null;
   }
 
   public List<String> suggestForWord(String word, NgramLanguageModel lm) {
@@ -132,7 +131,7 @@ public class TurkishSpellChecker {
   }
 
   private List<String> getUnrankedSuggestions(String word) {
-    String normalized = TurkishAlphabet.INSTANCE.normalize(word).replaceAll("['’]", "");
+    String normalized = TurkishAlphabet.INSTANCE.normalize(word.replaceAll("['’]", ""));
     List<String> strings = decoder.getSuggestions(normalized, charMatcher);
 
     WordAnalysisSurfaceFormatter.CaseType caseType = formatter.guessCase(word);
@@ -163,6 +162,10 @@ public class TurkishSpellChecker {
       String rightContext,
       NgramLanguageModel lm) {
     List<String> unRanked = getUnrankedSuggestions(word);
+    if (lm == null) {
+      Log.warn("No language model provided. Returning unraked results.");
+      return unRanked;
+    }
     if (lm.getOrder() < 2) {
       Log.warn("Language model order is 1. For context ranking it should be at least 2. " +
           "Unigram ranking will be applied.");
@@ -215,6 +218,10 @@ public class TurkishSpellChecker {
   }
 
   public List<String> rankWithUnigramProbability(List<String> strings, NgramLanguageModel lm) {
+    if (lm == null) {
+      Log.warn("No language model provided. Returning unraked results.");
+      return strings;
+    }
     List<ScoredItem<String>> results = new ArrayList<>(strings.size());
     for (String string : strings) {
       String w = normalizeForLm(string);

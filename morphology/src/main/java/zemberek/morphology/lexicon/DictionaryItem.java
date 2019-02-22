@@ -67,7 +67,8 @@ public class DictionaryItem {
     this.id = generateId(lemma, primaryPos, secondaryPos, 0);
   }
 
-  public DictionaryItem(String lemma,
+  public DictionaryItem(
+      String lemma,
       String root,
       String pronunciation,
       PrimaryPos primaryPos,
@@ -150,8 +151,11 @@ public class DictionaryItem {
     return false;
   }
 
+  /**
+   * @return if this is a Verb, removes -mek -mak suffix. Otherwise returns the `lemma`
+   */
   public String normalizedLemma() {
-    return lemma.toLowerCase(Turkish.LOCALE);
+    return primaryPos == PrimaryPos.Verb ? lemma.substring(0, lemma.length() - 3) : lemma;
   }
 
   public String getId() {

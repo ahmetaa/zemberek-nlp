@@ -119,6 +119,30 @@ public class TurkishSpellCheckerTest {
     // TODO: "Bayramı'nda" fails.
   }
 
+  @Test
+  public void suggestVerb1() {
+    TurkishMorphology morphology = TurkishMorphology.builder().setLexicon("okumak").build();
+
+    List<String> endings = Lists.newArrayList("dum");
+    StemEndingGraph graph = new StemEndingGraph(morphology, endings);
+    TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology, graph.stemGraph);
+
+    List<String> res = spellChecker.suggestForWord("okudm");
+    Assert.assertTrue(res.contains("okudum"));
+  }
+
+
+  @Test
+  public void checkVerb1() {
+    TurkishMorphology morphology = TurkishMorphology.builder().setLexicon("okumak").build();
+
+    List<String> endings = Lists.newArrayList("dum");
+    StemEndingGraph graph = new StemEndingGraph(morphology, endings);
+    TurkishSpellChecker spellChecker = new TurkishSpellChecker(morphology, graph.stemGraph);
+
+    Assert.assertTrue(spellChecker.check("okudum"));
+  }
+
   private void check(TurkishSpellChecker spellChecker, NgramLanguageModel lm, String input,
       String expected) throws Exception {
     List<String> res = spellChecker.suggestForWord(input, lm);

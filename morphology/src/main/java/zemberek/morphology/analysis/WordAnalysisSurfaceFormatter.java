@@ -18,19 +18,28 @@ public class WordAnalysisSurfaceFormatter {
   public String format(SingleAnalysis analysis, String apostrophe) {
     DictionaryItem item = analysis.getDictionaryItem();
     String ending = analysis.getEnding();
-    if (apostropheRequired(analysis)) {
-      return ending.length() > 0 ? item.lemma + apostrophe + ending : item.lemma;
+    if (apostrophe != null || apostropheRequired(analysis)) {
+      if (apostrophe == null) {
+        apostrophe = "'";
+      }
+      return ending.length() > 0 ?
+          item.normalizedLemma() + apostrophe + ending : item.normalizedLemma();
     } else {
       // because NoQuote is only used in Proper nouns, we can use the lemma. Otherwise root form is used
-      // because it may be different than DictionaryItem. For example lemma is `kitap` but root in analysis is
+      // because it may be different than DictionaryItem. For example lemma is `kitap` but stem in analysis is
       // `kitab`
       if (item.attributes.contains(RootAttribute.NoQuote)) {
-        return item.lemma + ending;
+        return item.normalizedLemma() + ending;
       } else {
         return analysis.getStem() + ending;
       }
     }
   }
+
+  public String format(SingleAnalysis analysis) {
+    return format(analysis, null);
+  }
+
 
   private boolean apostropheRequired(SingleAnalysis analysis) {
     DictionaryItem item = analysis.getDictionaryItem();
@@ -63,11 +72,14 @@ public class WordAnalysisSurfaceFormatter {
         return Turkish.capitalize(formatted);
       case UPPER_CASE_ROOT_LOWER_CASE_ENDING:
         String ending = analysis.getEnding();
-        String lemmaUpper = analysis.getDictionaryItem().lemma.toUpperCase(Turkish.LOCALE);
+        String lemmaUpper = analysis.getDictionaryItem().normalizedLemma().toUpperCase(Turkish.LOCALE);
         if (ending.length() == 0) {
           return lemmaUpper;
         }
-        if (apostropheRequired(analysis)) {
+        if (apostrophe != null || apostropheRequired(analysis)) {
+          if (apostrophe == null) {
+            apostrophe = "'";
+          }
           return lemmaUpper + apostrophe + ending;
         } else {
           return lemmaUpper + ending;
@@ -76,6 +88,11 @@ public class WordAnalysisSurfaceFormatter {
         return "";
     }
   }
+
+  public String formatToCase(SingleAnalysis analysis, CaseType type) {
+    return formatToCase(analysis, type, null);
+  }
+
 
   //TODO: write tests.
   public boolean canBeFormatted(SingleAnalysis analysis, CaseType type) {
@@ -109,6 +126,7 @@ public class WordAnalysisSurfaceFormatter {
    * "A"         -> CaseType.UPPER_CASE
    * "A1"        -> CaseType.UPPER_CASE
    * </pre>
+   *
    * @param input input word
    * @return guessed CaseType
    */
