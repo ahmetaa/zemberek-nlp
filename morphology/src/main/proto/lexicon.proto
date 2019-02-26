@@ -2,7 +2,6 @@ syntax = "proto3";
 
 option java_package = "zemberek.morphology.lexicon.proto";
 option java_outer_classname = "LexiconProto";
-option optimize_for = LITE_RUNTIME;
 
 // Keep in synnc with zemberek.core.turkish.PrimaryPos
 enum PrimaryPos {
