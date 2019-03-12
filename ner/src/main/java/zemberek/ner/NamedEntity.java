@@ -24,6 +24,10 @@ public class NamedEntity {
     return s;
   }
 
+  public List<NerToken> getTokens() {
+    return tokens;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

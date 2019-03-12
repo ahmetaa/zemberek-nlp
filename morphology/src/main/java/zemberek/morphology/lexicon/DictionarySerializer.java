@@ -9,10 +9,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 import zemberek.core.enums.EnumConverter;
@@ -165,20 +164,21 @@ public class DictionarySerializer {
   }
 
   private static DictionaryItem convertToDictionaryItem(LexiconProto.DictionaryItem item) {
-    List<RootAttribute> rootAttributes = new ArrayList<>();
+    EnumSet<RootAttribute> attributes = EnumSet.noneOf(RootAttribute.class);
     for (LexiconProto.RootAttribute rootAttribute : item.getRootAttributesList()) {
-      rootAttributes.add(rootAttributeConverter.convertBack(rootAttribute, RootAttribute.Unknown));
+      attributes.add(rootAttributeConverter.convertBack(rootAttribute, RootAttribute.Unknown));
     }
-    String lowercaseLemma = item.getLemma().toLowerCase(Turkish.LOCALE);
-    return new DictionaryItem(item.getLemma(),
+    Locale locale = attributes.contains(RootAttribute.LocaleEn) ? Locale.ENGLISH : Turkish.LOCALE;
+    String lowercaseLemma = item.getLemma().toLowerCase(locale);
+    return new DictionaryItem(
+        item.getLemma(),
         item.getRoot().isEmpty() ? lowercaseLemma : item.getRoot(),
         item.getPronunciation().isEmpty() ? lowercaseLemma : item.getPronunciation(),
         primaryPosConverter.convertBack(item.getPrimaryPos(), PrimaryPos.Unknown),
         item.getSecondaryPos() == LexiconProto.SecondaryPos.SecondaryPos_Unknown
             ? SecondaryPos.None
             : secondaryPosConverter.convertBack(item.getSecondaryPos(), SecondaryPos.UnknownSec),
-        !rootAttributes.isEmpty() ? EnumSet.copyOf(rootAttributes)
-            : EnumSet.noneOf(RootAttribute.class),
+        attributes,
         item.getIndex());
   }
 

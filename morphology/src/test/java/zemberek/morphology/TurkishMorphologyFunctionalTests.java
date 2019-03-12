@@ -256,6 +256,18 @@ public class TurkishMorphologyFunctionalTests {
   }
 
   @Test
+  public void testForeingLocale() {
+    TurkishMorphology morphology = getMorphology("UNICEF [A:LocaleEn]");
+
+    WordAnalysis result = morphology.analyze("Unicefte");
+    Assert.assertEquals(1, result.analysisCount());
+
+    morphology = getMorphology("UNICEF");
+    result = morphology.analyze("Unicefte");
+    Assert.assertEquals(0, result.analysisCount());
+  }
+
+  @Test
   public void testWordsWithDash() {
     // Instance with no dictionary item.
     TurkishMorphology morphology = getEmptyTurkishMorphology();

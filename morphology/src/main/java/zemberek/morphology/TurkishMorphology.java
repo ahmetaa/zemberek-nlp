@@ -153,6 +153,7 @@ public class TurkishMorphology {
   }
 
   public static String normalizeForAnalysis(String word) {
+    // TODO: This may cause problems for some foreign words with letter I.
     String s = word.toLowerCase(Turkish.LOCALE);
     s = TurkishAlphabet.INSTANCE.normalizeCircumflex(s);
     String noDot = s.replace(".", "");

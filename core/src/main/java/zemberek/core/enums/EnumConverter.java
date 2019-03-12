@@ -10,7 +10,8 @@ public class EnumConverter<E extends Enum<E>, P extends Enum<P>> {
   Map<String, P> conversionFromEToP;
   Map<String, E> conversionFromPToE;
 
-  private EnumConverter(Map<String, P> conversionFromEToP,
+  private EnumConverter(
+      Map<String, P> conversionFromEToP,
       Map<String, E> conversionFromPToE) {
     this.conversionFromEToP = conversionFromEToP;
     this.conversionFromPToE = conversionFromPToE;

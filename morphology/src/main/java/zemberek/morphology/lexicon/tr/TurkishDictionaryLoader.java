@@ -47,7 +47,7 @@ public class TurkishDictionaryLoader {
   private static final Splitter METADATA_SPLITTER = Splitter.on(";").trimResults()
       .omitEmptyStrings();
   private static final Splitter POS_SPLITTER = Splitter.on(",").trimResults();
-  private static final Splitter MORPHEMIC_ATTR_SPLITTER = Splitter.on(",").trimResults();
+  private static final Splitter ATTRIBUTE_SPLITTER = Splitter.on(",").trimResults();
 
   public static RootLexicon loadDefaultDictionaries()
       throws IOException {
@@ -195,7 +195,7 @@ public class TurkishDictionaryLoader {
   static class TextLexiconProcessor implements LineProcessor<RootLexicon> {
 
     static final TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
-    static Locale locale = new Locale("tr");
+
     RootLexicon rootLexicon = new RootLexicon();
     List<LineData> lateEntries = Lists.newArrayList();
 
@@ -260,7 +260,7 @@ public class TurkishDictionaryLoader {
           List<DictionaryItem> refItems = rootLexicon
               .getMatchingItems(r); // check lexicon for [kuyruk]
 
-          EnumSet<RootAttribute> attrSet;
+          EnumSet<RootAttribute> attrSet  = EnumSet.noneOf(RootAttribute.class);
           DictionaryItem refItem;
           if (refItems.size() > 0) {
             // use the item with lowest index value.
@@ -269,7 +269,7 @@ public class TurkishDictionaryLoader {
             refItem = refItems.get(0);
             attrSet = refItem.attributes.clone();
           } else {
-            attrSet = morphemicAttributes(null, root, posInfo);
+            inferMorphemicAttributes(root, posInfo, attrSet);
           }
           attrSet.add(RootAttribute.CompoundP3sgRoot);
           if (item.attributes.contains(RootAttribute.Ext)) {
@@ -303,7 +303,14 @@ public class TurkishDictionaryLoader {
 
     DictionaryItem getItem(LineData data) {
       PosInfo posInfo = getPosData(data.getMetaData(MetaDataId.POS), data.word);
-      String cleanWord = generateRoot(data.word, posInfo);
+      String attributesString = data.getMetaData(MetaDataId.ATTRIBUTES);
+
+      Locale locale = Turkish.LOCALE;
+      if(attributesString!=null && attributesString.contains(RootAttribute.LocaleEn.name())) {
+        locale = Locale.ENGLISH;
+      }
+
+      String cleanWord = generateRoot(data.word, posInfo, locale);
 
       String indexStr = data.getMetaData(MetaDataId.INDEX);
       int index = 0;
@@ -327,11 +334,11 @@ public class TurkishDictionaryLoader {
           pronunciation = pronunciationGuesser.toTurkishLetterPronunciations(cleanWord);
         }
       } else {
-        pronunciation = pronunciation.toLowerCase(Turkish.LOCALE);
+        pronunciation = pronunciation.toLowerCase(locale);
       }
 
       EnumSet<RootAttribute> attributes = morphemicAttributes(
-          data.getMetaData(MetaDataId.ATTRIBUTES),
+          attributesString,
           pronunciation,
           posInfo);
 
@@ -367,7 +374,7 @@ public class TurkishDictionaryLoader {
           index);
     }
 
-    String generateRoot(String word, PosInfo posInfo) {
+    String generateRoot(String word, PosInfo posInfo, Locale locale) {
       if (posInfo.primaryPos == PrimaryPos.Punctuation) {
         return word;
       }
@@ -458,7 +465,7 @@ public class TurkishDictionaryLoader {
         //  if (!posData.primaryPos.equals(PrimaryPos.Punctuation))
         inferMorphemicAttributes(word, posData, attributesList);
       } else {
-        for (String s : MORPHEMIC_ATTR_SPLITTER.split(data)) {
+        for (String s : ATTRIBUTE_SPLITTER.split(data)) {
           if (!RootAttribute.converter().enumExists(s)) {
             throw new RuntimeException(
                 "Unrecognized attribute data [" + s + "] in data chunk :[" + data + "]");

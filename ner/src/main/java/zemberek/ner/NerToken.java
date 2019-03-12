@@ -2,12 +2,12 @@ package zemberek.ner;
 
 public class NerToken {
 
-  int index;
-  String word;
-  String normalized;
-  String type;
-  String tokenId;
-  NePosition position;
+  public final int index;
+  public final String word;
+  public final String normalized;
+  public final String type;
+  public final String tokenId;
+  public final NePosition position;
 
   public NerToken(int index, String word, String normalized, String type, NePosition position) {
     this.index = index;
@@ -25,6 +25,26 @@ public class NerToken {
     this.type = type;
     this.position = position;
     this.tokenId = getTokenId();
+  }
+
+  public int getIndex() {
+    return index;
+  }
+
+  public String getWord() {
+    return word;
+  }
+
+  public String getNormalized() {
+    return normalized;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public NePosition getPosition() {
+    return position;
   }
 
   static NerToken fromTypePositionString(int index, String word, String normalized, String id) {

@@ -1,11 +1,12 @@
 package zemberek.morphology.analysis;
 
+import static zemberek.morphology.analysis.WordAnalysisSurfaceFormatter.CaseType.*;
+
 import org.junit.Assert;
 import org.junit.Test;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.TurkishMorphology;
-import zemberek.morphology.lexicon.RootLexicon;
 
 public class WordAnalysisSurfaceFormatterTest {
 
@@ -33,7 +34,7 @@ public class WordAnalysisSurfaceFormatterTest {
   public void formatKnownProperNouns() {
     TurkishMorphology morphology = TurkishMorphology.builder()
         .disableCache()
-        .setLexicon(RootLexicon.fromLines("Ankara", "Iphone [Pr:ayfon]", "Google [Pr:gugıl]"))
+        .setLexicon("Ankara", "Iphone [Pr:ayfon, A:LocaleEn]", "Google [Pr:gugıl]")
         .build();
 
     String[] inputs = {"ankarada", "ıphonumun", "googledan", "Iphone", "Google", "Googlesa"};
@@ -127,15 +128,15 @@ public class WordAnalysisSurfaceFormatterTest {
         {"AYDIN'da", "GOOGLE'dan", "GOOGLE", "ŞİİRde", "KIŞçığa", "KIŞ"};
 
     testCaseType(morphology, inputs, expectedDefaultCase,
-        WordAnalysisSurfaceFormatter.CaseType.DEFAULT_CASE);
+        DEFAULT_CASE);
     testCaseType(morphology, inputs, expectedLowerCase,
-        WordAnalysisSurfaceFormatter.CaseType.LOWER_CASE);
+        LOWER_CASE);
     testCaseType(morphology, inputs, expectedUpperCase,
-        WordAnalysisSurfaceFormatter.CaseType.UPPER_CASE);
+        UPPER_CASE);
     testCaseType(morphology, inputs, expectedCapitalCase,
-        WordAnalysisSurfaceFormatter.CaseType.TITLE_CASE);
+        TITLE_CASE);
     testCaseType(morphology, inputs, expectedUpperRootLowerEndingCase,
-        WordAnalysisSurfaceFormatter.CaseType.UPPER_CASE_ROOT_LOWER_CASE_ENDING);
+        UPPER_CASE_ROOT_LOWER_CASE_ENDING);
   }
 
   private void testCaseType(
@@ -163,17 +164,17 @@ public class WordAnalysisSurfaceFormatterTest {
     String[] inputs = {"abc", "Abc", "ABC", "Abc'de", "ABC'DE", "ABC.", "ABC'de", "a", "12", "A",
         "A1"};
     WordAnalysisSurfaceFormatter.CaseType[] expected = {
-        WordAnalysisSurfaceFormatter.CaseType.LOWER_CASE,
-        WordAnalysisSurfaceFormatter.CaseType.TITLE_CASE,
-        WordAnalysisSurfaceFormatter.CaseType.UPPER_CASE,
-        WordAnalysisSurfaceFormatter.CaseType.TITLE_CASE,
-        WordAnalysisSurfaceFormatter.CaseType.UPPER_CASE,
-        WordAnalysisSurfaceFormatter.CaseType.UPPER_CASE,
-        WordAnalysisSurfaceFormatter.CaseType.UPPER_CASE_ROOT_LOWER_CASE_ENDING,
-        WordAnalysisSurfaceFormatter.CaseType.LOWER_CASE,
-        WordAnalysisSurfaceFormatter.CaseType.DEFAULT_CASE,
-        WordAnalysisSurfaceFormatter.CaseType.UPPER_CASE,
-        WordAnalysisSurfaceFormatter.CaseType.UPPER_CASE,
+        LOWER_CASE,
+        TITLE_CASE,
+        UPPER_CASE,
+        TITLE_CASE,
+        UPPER_CASE,
+        UPPER_CASE,
+        UPPER_CASE_ROOT_LOWER_CASE_ENDING,
+        LOWER_CASE,
+        DEFAULT_CASE,
+        UPPER_CASE,
+        UPPER_CASE,
     };
 
     WordAnalysisSurfaceFormatter formatter = new WordAnalysisSurfaceFormatter();

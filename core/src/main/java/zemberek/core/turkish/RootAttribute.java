@@ -163,6 +163,10 @@ public enum RootAttribute implements StringEnum {
   // Examples: kanka, beyfendi, mütahit, antreman, bilimum, gaste, aliminyum, tırt, tweet
   Informal,
 
+  // This is used for words that requires English rules when applying lowercasing and uppercasing.
+  // This way, words like "UNICEF" will be lowercased as "unicef", not "unıcef"
+  LocaleEn,
+
   // This is used for temporary DictionaryItems created for words that cannot be analyzed.
   Unknown;
 
