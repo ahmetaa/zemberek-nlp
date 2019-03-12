@@ -33,7 +33,7 @@ Bracket Style annotation
     
 OpenNLP Style annotation
 
-    <START:ORG> Enerji Verimliliği Merkezi <END> kurucu başkanı <START:PER> Bülent Yeşilata , <START:LOC> Ankara'da <END> bir toplantıya katıldı.
+    <START:ORG> Enerji Verimliliği Merkezi <END> kurucu başkanı <START:PER> Bülent Yeşilata <END> , <START:LOC> Ankara'da <END> bir toplantıya katıldı.
     
 Enamex Style annotation
 
