@@ -2,12 +2,12 @@ package zemberek.ner;
 
 public class NerToken {
 
-  public final int index;
-  public final String word;
-  public final String normalized;
-  public final String type;
-  public final String tokenId;
-  public final NePosition position;
+  public int index;
+  public String word;
+  public String normalized;
+  public String type;
+  public String tokenId;
+  public NePosition position;
 
   public NerToken(int index, String word, String normalized, String type, NePosition position) {
     this.index = index;
