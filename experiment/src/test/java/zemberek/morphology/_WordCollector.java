@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.antlr.v4.runtime.Token;
 import zemberek.core.collections.Histogram;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
@@ -16,6 +15,7 @@ import zemberek.morphology._MorphologicalAmbiguityResolverExperiment.SingleAnaly
 import zemberek.core.turkish.Turkish;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
+import zemberek.tokenization.Token;
 
 public class _WordCollector {
 

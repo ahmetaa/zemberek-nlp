@@ -7,16 +7,18 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.antlr.v4.runtime.Token;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.logging.Log;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token.Type;
 
 public class TurkishTokenizerTest {
 
-  private void matchToken(TurkishTokenizer tokenizer, String input, int tokenType,
+  private void matchToken(
+      TurkishTokenizer tokenizer,
+      String input,
+      Token.Type tokenType,
       String... expectedTokens) {
     List<Token> tokens = tokenizer.tokenize(input);
     Assert.assertNotNull("Token list is null.", tokens);
@@ -28,7 +30,7 @@ public class TurkishTokenizerTest {
       Token token = tokens.get(i);
       Assert.assertEquals(expectedToken + " is not equal to " + token.getText(),
           expectedToken, token.getText());
-      if (tokenType != -1) {
+      if (tokenType != null) {
         Assert.assertEquals(tokenType, token.getType());
       }
       i++;
@@ -41,10 +43,12 @@ public class TurkishTokenizerTest {
   }
 
   private void matchToken(TurkishTokenizer tokenizer, String input, String... expectedTokens) {
-    matchToken(tokenizer, input, -1, expectedTokens);
+    matchToken(tokenizer, input, null, expectedTokens);
   }
 
-  private void matchSentences(TurkishTokenizer tokenizer, String input,
+  private void matchSentences(
+      TurkishTokenizer tokenizer,
+      String input,
       String expectedJoinedTokens) {
     String actual = getTokensAsString(tokenizer, input);
     Assert.assertEquals(expectedJoinedTokens, actual);
@@ -59,31 +63,31 @@ public class TurkishTokenizerTest {
     t = TurkishTokenizer.ALL;
     matchToken(t, " a b\t\n\rc", " ", "a", " ", "b", "\t", "\n", "\r", "c");
     // A tokenizer only catches Number type (not date or times).
-    t = TurkishTokenizer.builder().ignoreAll().acceptTypes(TurkishLexer.Number).build();
+    t = TurkishTokenizer.builder().ignoreAll().acceptTypes(Type.Number).build();
     matchToken(t, "www.foo.bar 12,4'ü a@a.v ; ^% 2 adf 12 \r \n ", "12,4'ü", "2", "12");
   }
 
   @Test
   public void testNumbers() {
     TurkishTokenizer t = TurkishTokenizer.DEFAULT;
-    matchToken(t, "1", TurkishLexer.Number, "1");
-    matchToken(t, "12", TurkishLexer.Number, "12");
-    matchToken(t, "3.14", TurkishLexer.Number, "3.14");
-    matchToken(t, "-1", TurkishLexer.Number, "-1");
-    matchToken(t, "-1.34", TurkishLexer.Number, "-1.34");
-    matchToken(t, "-3,14", TurkishLexer.Number, "-3,14");
-    matchToken(t, "100'e", TurkishLexer.Number, "100'e");
-    matchToken(t, "3.14'ten", TurkishLexer.Number, "3.14'ten");
-    matchToken(t, "%2.5'ten", TurkishLexer.PercentNumeral, "%2.5'ten");
-    matchToken(t, "%2", TurkishLexer.PercentNumeral, "%2");
-    matchToken(t, "2.5'a", TurkishLexer.Number, "2.5'a");
-    matchToken(t, "2.5’a", TurkishLexer.Number, "2.5’a");
+    matchToken(t, "1", Type.Number, "1");
+    matchToken(t, "12", Type.Number, "12");
+    matchToken(t, "3.14", Type.Number, "3.14");
+    matchToken(t, "-1", Type.Number, "-1");
+    matchToken(t, "-1.34", Type.Number, "-1.34");
+    matchToken(t, "-3,14", Type.Number, "-3,14");
+    matchToken(t, "100'e", Type.Number, "100'e");
+    matchToken(t, "3.14'ten", Type.Number, "3.14'ten");
+    matchToken(t, "%2.5'ten", Type.PercentNumeral, "%2.5'ten");
+    matchToken(t, "%2", Type.PercentNumeral, "%2");
+    matchToken(t, "2.5'a", Type.Number, "2.5'a");
+    matchToken(t, "2.5’a", Type.Number, "2.5’a");
   }
 
   @Test
   public void testWords() {
     TurkishTokenizer t = TurkishTokenizer.DEFAULT;
-    matchToken(t, "kedi", TurkishLexer.Word, "kedi");
+    matchToken(t, "kedi", Type.Word, "kedi");
     matchToken(t, "Kedi", "Kedi");
     matchToken(t, "Ahmet'e", "Ahmet'e");
   }
@@ -91,11 +95,11 @@ public class TurkishTokenizerTest {
   @Test
   public void testTags() {
     TurkishTokenizer t = TurkishTokenizer.DEFAULT;
-    matchToken(t, "<kedi>", TurkishLexer.MetaTag, "<kedi>");
+    matchToken(t, "<kedi>", Type.MetaTag, "<kedi>");
     matchToken(
         t,
         "<kedi><eti><7>",
-        TurkishLexer.MetaTag,
+        Type.MetaTag,
         "<kedi>", "<eti>", "<7>");
   }
 
@@ -146,39 +150,38 @@ public class TurkishTokenizerTest {
     List<Token> tokens = t.tokenize("bir av. geldi.");
     Token t0 = tokens.get(0);
     Assert.assertEquals("bir", t0.getText());
-    Assert.assertEquals(0, t0.getStartIndex());
-    Assert.assertEquals(2, t0.getStopIndex());
-    Assert.assertEquals(0, t0.getCharPositionInLine());
+    Assert.assertEquals(0, t0.getStart());
+    Assert.assertEquals(2, t0.getEnd());
+    
 
     Token t1 = tokens.get(1);
     Assert.assertEquals(" ", t1.getText());
-    Assert.assertEquals(3, t1.getStartIndex());
-    Assert.assertEquals(3, t1.getStopIndex());
-    Assert.assertEquals(3, t1.getCharPositionInLine());
+    Assert.assertEquals(3, t1.getStart());
+    Assert.assertEquals(3, t1.getEnd());
+    
 
     Token t2 = tokens.get(2);
     Assert.assertEquals("av.", t2.getText());
-    Assert.assertEquals(4, t2.getStartIndex());
-    Assert.assertEquals(6, t2.getStopIndex());
-    Assert.assertEquals(4, t2.getCharPositionInLine());
+    Assert.assertEquals(4, t2.getStart());
+    Assert.assertEquals(6, t2.getEnd());
 
     Token t3 = tokens.get(3);
     Assert.assertEquals(" ", t3.getText());
-    Assert.assertEquals(7, t3.getStartIndex());
-    Assert.assertEquals(7, t3.getStopIndex());
-    Assert.assertEquals(7, t3.getCharPositionInLine());
+    Assert.assertEquals(7, t3.getStart());
+    Assert.assertEquals(7, t3.getEnd());
+    
 
     Token t4 = tokens.get(4);
     Assert.assertEquals("geldi", t4.getText());
-    Assert.assertEquals(8, t4.getStartIndex());
-    Assert.assertEquals(12, t4.getStopIndex());
-    Assert.assertEquals(8, t4.getCharPositionInLine());
+    Assert.assertEquals(8, t4.getStart());
+    Assert.assertEquals(12, t4.getEnd());
+    
 
     Token t5 = tokens.get(5);
     Assert.assertEquals(".", t5.getText());
-    Assert.assertEquals(13, t5.getStartIndex());
-    Assert.assertEquals(13, t5.getStopIndex());
-    Assert.assertEquals(13, t5.getCharPositionInLine());
+    Assert.assertEquals(13, t5.getStart());
+    Assert.assertEquals(13, t5.getEnd());
+    
   }
 
   @Test
@@ -279,14 +282,14 @@ public class TurkishTokenizerTest {
     matchSentences(t,
         "Saat, 10:20 ile 00:59 arasinda.",
         "Saat , 10:20 ile 00:59 arasinda .");
-    matchToken(t, "10:20", TurkishLexer.Time, "10:20");
+    matchToken(t, "10:20", Type.Time, "10:20");
   }
 
   @Test
   public void testTimeTokenSeconds() {
     TurkishTokenizer t = TurkishTokenizer.DEFAULT;
-    matchToken(t, "10:20:53", TurkishLexer.Time, "10:20:53");
-    matchToken(t, "10.20.00'da", TurkishLexer.Time, "10.20.00'da");
+    matchToken(t, "10:20:53", Type.Time, "10:20:53");
+    matchToken(t, "10.20.00'da", Type.Time, "10.20.00'da");
   }
 
   @Test
@@ -296,8 +299,8 @@ public class TurkishTokenizerTest {
     matchSentences(t,
         "1/1/2011 02.12.1998'de.",
         "1/1/2011 02.12.1998'de .");
-    matchToken(t, "1/1/2011", TurkishLexer.Date, "1/1/2011");
-    matchToken(t, "02.12.1998'de", TurkishLexer.Date, "02.12.1998'de");
+    matchToken(t, "1/1/2011", Type.Date, "1/1/2011");
+    matchToken(t, "02.12.1998'de", Type.Date, "02.12.1998'de");
   }
 
   @Test
@@ -309,7 +312,7 @@ public class TurkishTokenizerTest {
         ":'(", ":‑/", ":/", ":^)", "¯\\_(ツ)_/¯", "O_o", "o_O", "O_O", "\\o/"
     };
     for (String s : emoticons) {
-      matchToken(t, s, TurkishLexer.Emoticon, s);
+      matchToken(t, s, Type.Emoticon, s);
     }
   }
 
@@ -337,7 +340,7 @@ public class TurkishTokenizerTest {
         "https://www.hepsiburada.com'dan",
     };
     for (String s : urls) {
-      matchToken(t, s, TurkishLexer.URL, s);
+      matchToken(t, s, Type.URL, s);
     }
   }
 
@@ -350,7 +353,7 @@ public class TurkishTokenizerTest {
         "https://www.google.com.tr/search?q=bla+foo&oq=blah+net&aqs=chrome.0.0l6.5486j0j4&sourceid=chrome&ie=UTF-8"
     };
     for (String s : urls) {
-      matchToken(t, s, TurkishLexer.URL, s);
+      matchToken(t, s, Type.URL, s);
     }
   }
 
@@ -365,7 +368,7 @@ public class TurkishTokenizerTest {
         "ali@gmail.com'u"
     };
     for (String s : emails) {
-      matchToken(t, s, TurkishLexer.Email, s);
+      matchToken(t, s, Type.Email, s);
     }
   }
 
@@ -379,7 +382,7 @@ public class TurkishTokenizerTest {
         "@kemal'in"
     };
     for (String s : ss) {
-      matchToken(t, s, TurkishLexer.Mention, s);
+      matchToken(t, s, Type.Mention, s);
     }
   }
 
@@ -393,7 +396,7 @@ public class TurkishTokenizerTest {
         "#foo_bar'a"
     };
     for (String s : ss) {
-      matchToken(t, s, TurkishLexer.HashTag, s);
+      matchToken(t, s, Type.HashTag, s);
     }
   }
 

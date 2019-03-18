@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.antlr.v4.runtime.Token;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
@@ -19,7 +18,7 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.core.turkish.Turkish;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token;
 
 /**
  * Based on [SGRank: Combining Statistical and Graphical Methods to Improve the State of the Art in
@@ -76,17 +75,17 @@ public class UnsupervisedKeyPhraseExtractor {
   }
 
   static boolean tokenTypeAccpetable(Token t) {
-    return !(t.getType() == TurkishLexer.Punctuation ||
-        t.getType() == TurkishLexer.Number ||
-        t.getType() == TurkishLexer.RomanNumeral ||
-        t.getType() == TurkishLexer.PercentNumeral ||
-        t.getType() == TurkishLexer.Time ||
-        t.getType() == TurkishLexer.Date ||
-        t.getType() == TurkishLexer.Emoticon ||
-        t.getType() == TurkishLexer.URL ||
-        t.getType() == TurkishLexer.Email ||
-        t.getType() == TurkishLexer.HashTag ||
-        t.getType() == TurkishLexer.Unknown);
+    return !(t.getType() == Token.Type.Punctuation ||
+        t.getType() == Token.Type.Number ||
+        t.getType() == Token.Type.RomanNumeral ||
+        t.getType() == Token.Type.PercentNumeral ||
+        t.getType() == Token.Type.Time ||
+        t.getType() == Token.Type.Date ||
+        t.getType() == Token.Type.Emoticon ||
+        t.getType() == Token.Type.URL ||
+        t.getType() == Token.Type.Email ||
+        t.getType() == Token.Type.HashTag ||
+        t.getType() == Token.Type.Unknown);
   }
 
   static boolean analysisAcceptable(SingleAnalysis t) {

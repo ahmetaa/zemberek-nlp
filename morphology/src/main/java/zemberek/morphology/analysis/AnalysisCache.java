@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import org.antlr.v4.runtime.Token;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
+import zemberek.tokenization.Token;
 
 /**
  * A simple analysis cache. Can be shared between threads.

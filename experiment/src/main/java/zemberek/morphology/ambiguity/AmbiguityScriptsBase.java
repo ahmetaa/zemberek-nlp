@@ -16,7 +16,7 @@ import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token;
 
 public class AmbiguityScriptsBase {
 
@@ -60,7 +60,7 @@ public class AmbiguityScriptsBase {
 
   Predicate<String> tooMuchNumberAndPunctuation(int k) {
     return p -> TurkishTokenizer.DEFAULT.tokenize(p).stream()
-        .filter(s -> s.getType() == TurkishLexer.Punctuation || s.getType() == TurkishLexer.Number)
+        .filter(s -> s.getType() == Token.Type.Punctuation || s.getType() == Token.Type.Number)
         .count() > k;
   }
 

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.antlr.v4.runtime.Token;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.Histogram;
 import zemberek.core.embeddings.Args;
@@ -27,7 +26,7 @@ import zemberek.corpus.WebCorpus;
 import zemberek.corpus.WebDocument;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token;
 
 public class DocumentSimilarityExperiment {
 
@@ -247,13 +246,13 @@ public class DocumentSimilarityExperiment {
     List<Token> tokens = lexer.tokenize(input);
     List<String> reduced = new ArrayList<>();
     for (Token token : tokens) {
-      if (token.getType() == TurkishLexer.PercentNumeral ||
-          token.getType() == TurkishLexer.Number ||
+      if (token.getType() == Token.Type.PercentNumeral ||
+          token.getType() == Token.Type.Number ||
           //token.getType() == TurkishLexer.Punctuation ||
-          token.getType() == TurkishLexer.RomanNumeral ||
-          token.getType() == TurkishLexer.Time ||
-          token.getType() == TurkishLexer.UnknownWord ||
-          token.getType() == TurkishLexer.Unknown) {
+          token.getType() == Token.Type.RomanNumeral ||
+          token.getType() == Token.Type.Time ||
+          token.getType() == Token.Type.UnknownWord ||
+          token.getType() == Token.Type.Unknown) {
         continue;
       }
       String tokenStr = token.getText();

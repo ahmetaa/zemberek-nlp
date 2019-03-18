@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.antlr.v4.runtime.Token;
 import zemberek.core.collections.Histogram;
 import zemberek.core.io.Strings;
 import zemberek.core.logging.Log;
@@ -25,6 +24,7 @@ import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.core.turkish.Turkish;
 import zemberek.tokenization.TurkishSentenceExtractor;
 import zemberek.tokenization.TurkishTokenizer;
+import zemberek.tokenization.Token;
 
 public class _MorphologicalAmbiguityResolverExperiment {
 

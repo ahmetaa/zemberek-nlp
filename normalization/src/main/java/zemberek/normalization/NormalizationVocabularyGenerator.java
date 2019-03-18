@@ -10,7 +10,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
-import org.antlr.v4.runtime.Token;
 import zemberek.core.collections.Histogram;
 import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.logging.Log;
@@ -20,13 +19,12 @@ import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.AnalysisCache;
-import zemberek.morphology.analysis.RuleBasedAnalyzer;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
 import zemberek.tokenization.TurkishTokenizer;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token;
+import zemberek.tokenization.Token.Type;
 
 public class NormalizationVocabularyGenerator {
 
@@ -214,13 +212,13 @@ public class NormalizationVocabularyGenerator {
             continue;
           }
           // TODO: fix below.
-          if (token.getType() == TurkishLexer.URL ||
-              token.getType() == TurkishLexer.Punctuation ||
-              token.getType() == TurkishLexer.Email ||
-              token.getType() == TurkishLexer.HashTag ||
-              token.getType() == TurkishLexer.Mention ||
-              token.getType() == TurkishLexer.Emoticon ||
-              token.getType() == TurkishLexer.Unknown ||
+          if (token.getType() == Type.URL ||
+              token.getType() == Type.Punctuation ||
+              token.getType() == Type.Email ||
+              token.getType() == Type.HashTag ||
+              token.getType() == Type.Mention ||
+              token.getType() == Type.Emoticon ||
+              token.getType() == Type.Unknown ||
               local.ignored.contains(s) ||
               globalVocabulary.ignored.contains(s) ||
               TurkishAlphabet.INSTANCE.containsDigit(s) /*||

@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.antlr.v4.runtime.Token;
 import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SentenceAnalysis;
@@ -15,7 +14,8 @@ import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.normalization.TurkishSentenceNormalizer;
 import zemberek.tokenization.TurkishTokenizer;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token;
+import zemberek.tokenization.Token.Type;
 
 public class ClassificationExampleBase {
 
@@ -134,16 +134,16 @@ public class ClassificationExampleBase {
         continue;
       }
 
-      int type = token.getType();
+      Token.Type type = token.getType();
       if (
-          type == TurkishLexer.Mention ||
-              type == TurkishLexer.HashTag ||
-              type == TurkishLexer.URL ||
-              type == TurkishLexer.Punctuation ||
-              type == TurkishLexer.RomanNumeral ||
-              type == TurkishLexer.Time ||
-              type == TurkishLexer.UnknownWord ||
-              type == TurkishLexer.Unknown) {
+          type == Token.Type.Mention ||
+              type == Token.Type.HashTag ||
+              type == Token.Type.URL ||
+              type == Token.Type.Punctuation ||
+              type == Type.RomanNumeral ||
+              type == Token.Type.Time ||
+              type == Token.Type.UnknownWord ||
+              type == Token.Type.Unknown) {
         continue;
       }
       reduced.add(text);

@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.antlr.v4.runtime.Token;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.PrimaryPos;
@@ -27,6 +26,7 @@ import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.tokenization.TurkishTokenizer;
+import zemberek.tokenization.Token;
 
 // TODO: mothods require some re-thinking.
 // analysis method should probably not apply unidentified token analysis.

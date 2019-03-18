@@ -23,7 +23,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.antlr.v4.runtime.Token;
 import org.junit.Ignore;
 import org.junit.Test;
 import zemberek.core.collections.Histogram;
@@ -44,7 +43,7 @@ import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.morphotactics.Morpheme;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.tokenization.TurkishTokenizer;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token;
 
 public class ZemberekNlpScripts {
 
@@ -693,11 +692,11 @@ public class ZemberekNlpScripts {
     for (String line : lines) {
       List<Token> tokens = lexer.tokenize(line);
       tokenCount += tokens.stream()
-          .filter(s -> (s.getType() != TurkishLexer.SpaceTab))
+          .filter(s -> (s.getType() != Token.Type.SpaceTab))
           .count();
       tokenCountNoPunct += tokens.stream()
-          .filter(s -> (s.getType() != TurkishLexer.Punctuation
-              && s.getType() != TurkishLexer.SpaceTab))
+          .filter(s -> (s.getType() != Token.Type.Punctuation
+              && s.getType() != Token.Type.SpaceTab))
           .count();
     }
     long elapsed = clock.elapsed(TimeUnit.MILLISECONDS);

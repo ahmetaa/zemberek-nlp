@@ -10,7 +10,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.Lexer;
-import org.antlr.v4.runtime.Token;
+import zemberek.tokenization.Token.Type;
 import zemberek.tokenization.antlr.TurkishLexer;
 
 
@@ -23,7 +23,7 @@ public class TurkishTokenizer {
   private static final int MAX_TOKEN_TYPE = TurkishLexer.VOCABULARY.getMaxTokenType();
   public static final TurkishTokenizer DEFAULT = builder()
       .acceptAll()
-      .ignoreTypes(TurkishLexer.NewLine, TurkishLexer.SpaceTab)
+      .ignoreTypes(Token.Type.NewLine, Token.Type.SpaceTab)
       .build();
 
   private static final BaseErrorListener IGNORING_ERROR_LISTENER = new ConsoleErrorListener();
@@ -38,17 +38,6 @@ public class TurkishTokenizer {
     return new Builder();
   }
 
-  private static void validateType(int i) {
-    if (i < 0) {
-      throw new IllegalStateException("Token index cannot be negative. But it is : " + i);
-    }
-
-    if (i > MAX_TOKEN_TYPE) {
-      throw new IllegalStateException("Token index cannot be larger than " + MAX_TOKEN_TYPE
-          + ". But it is : " + i);
-    }
-  }
-
   private static TurkishLexer lexerInstance(CharStream inputStream) {
     TurkishLexer lexer = new TurkishLexer(inputStream);
     lexer.removeErrorListeners();
@@ -56,22 +45,20 @@ public class TurkishTokenizer {
     return lexer;
   }
 
-  public boolean isTypeAccepted(int i) {
-    validateType(i);
+  public boolean isTypeAccepted(Token.Type i) {
     return !typeAccepted(i);
   }
 
-  public boolean isTypeIgnored(int i) {
-    validateType(i);
+  public boolean isTypeIgnored(Token.Type i) {
     return !typeAccepted(i);
   }
 
-  private boolean typeAccepted(int i) {
-    return (acceptedTypeBits & (1L << i)) != 0;
+  private boolean typeAccepted(Token.Type i) {
+    return (acceptedTypeBits & (1L << i.ordinal())) != 0;
   }
 
-  private boolean typeIgnored(int i) {
-    return (acceptedTypeBits & (1L << i)) == 0;
+  private boolean typeIgnored(Token.Type i) {
+    return (acceptedTypeBits & (1L << i.ordinal())) == 0;
   }
 
 
@@ -102,34 +89,90 @@ public class TurkishTokenizer {
 
   private List<Token> getAllTokens(Lexer lexer) {
     List<Token> tokens = new ArrayList<>();
-    for (Token token = lexer.nextToken();
-        token.getType() != Token.EOF;
+    for (org.antlr.v4.runtime.Token token = lexer.nextToken();
+        token.getType() != org.antlr.v4.runtime.Token.EOF;
         token = lexer.nextToken()) {
-      int type = token.getType();
+      Token.Type type = convertType(token);
       if (typeIgnored(type)) {
         continue;
       }
-      tokens.add(token);
+      tokens.add(convert(token));
     }
     return tokens;
+  }
+
+  public static Token convert(org.antlr.v4.runtime.Token token) {
+    return new Token(token.getText(), convertType(token), token.getStartIndex(), token.getStopIndex());
+  }
+
+  public static Token convert(org.antlr.v4.runtime.Token token, Token.Type type) {
+    return new Token(token.getText(), type, token.getStartIndex(), token.getStopIndex());
+  }
+
+  public static Token.Type convertType(org.antlr.v4.runtime.Token token) {
+    switch (token.getType()) {
+      case TurkishLexer.SpaceTab:
+        return Type.SpaceTab;
+      case TurkishLexer.Word:
+        return Type.Word;
+      case TurkishLexer.Number:
+        return Type.Number;
+      case TurkishLexer.Abbreviation:
+        return Type.Abbreviation;
+      case TurkishLexer.AbbreviationWithDots:
+        return Type.AbbreviationWithDots;
+      case TurkishLexer.Date:
+        return Type.Date;
+      case TurkishLexer.Email:
+        return Type.Email;
+      case TurkishLexer.Emoticon:
+        return Type.Emoticon;
+      case TurkishLexer.HashTag:
+        return Type.HashTag;
+      case TurkishLexer.Mention:
+        return Type.Mention;
+      case TurkishLexer.MetaTag:
+        return Type.MetaTag;
+      case TurkishLexer.NewLine:
+        return Type.NewLine;
+      case TurkishLexer.RomanNumeral:
+        return Type.RomanNumeral;
+      case TurkishLexer.PercentNumeral:
+        return Type.PercentNumeral;
+      case TurkishLexer.Time:
+        return Type.Time;
+      case TurkishLexer.Unknown:
+        return Type.Unknown;
+      case TurkishLexer.UnknownWord:
+        return Type.UnknownWord;
+      case TurkishLexer.URL:
+        return Type.URL;
+      case TurkishLexer.Punctuation:
+        return Type.Punctuation;
+      case TurkishLexer.WordAlphanumerical:
+        return Type.WordAlphanumerical;
+      case TurkishLexer.WordWithSymbol:
+        return Type.WordWithSymbol;
+      default:
+        throw new IllegalStateException("Unidentified token type =" +
+            TurkishLexer.VOCABULARY.getDisplayName(token.getType()));
+    }
   }
 
   public static class Builder {
 
     private long acceptedTypeBits = ~0L;
 
-    public Builder acceptTypes(int... types) {
-      for (int i : types) {
-        validateType(i);
-        this.acceptedTypeBits |= (1L << i);
+    public Builder acceptTypes(Token.Type... types) {
+      for (Token.Type i : types) {
+        this.acceptedTypeBits |= (1L << i.ordinal());
       }
       return this;
     }
 
-    public Builder ignoreTypes(int... types) {
-      for (int i : types) {
-        validateType(i);
-        this.acceptedTypeBits &= ~(1L << i);
+    public Builder ignoreTypes(Token.Type... types) {
+      for (Token.Type i : types) {
+        this.acceptedTypeBits &= ~(1L << i.ordinal());
       }
       return this;
     }
@@ -153,7 +196,8 @@ public class TurkishTokenizer {
 
     TurkishLexer lexer;
     TurkishTokenizer tokenizer;
-    Token token;
+    org.antlr.v4.runtime.Token token;
+    Token.Type type;
 
     private TokenIterator(TurkishTokenizer tokenizer, TurkishLexer lexer) {
       this.tokenizer = tokenizer;
@@ -162,13 +206,15 @@ public class TurkishTokenizer {
 
     @Override
     public boolean hasNext() {
-      Token token = lexer.nextToken();
-      if (token.getType() == Token.EOF) {
+      org.antlr.v4.runtime.Token token = lexer.nextToken();
+      if (token.getType() == org.antlr.v4.runtime.Token.EOF) {
         return false;
       }
-      while (tokenizer.typeIgnored(token.getType())) {
+      type = convertType(token);
+      while (tokenizer.typeIgnored(type)) {
         token = lexer.nextToken();
-        if (token.getType() == Token.EOF) {
+        type = convertType(token);
+        if (token.getType() == org.antlr.v4.runtime.Token.EOF) {
           return false;
         }
       }
@@ -178,7 +224,7 @@ public class TurkishTokenizer {
 
     @Override
     public Token next() {
-      return token;
+      return convert(token, type);
     }
 
     @Override

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.antlr.v4.runtime.Token;
 import zemberek.core.ScoredItem;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.Turkish;
@@ -24,7 +23,7 @@ import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.WordAnalysisSurfaceFormatter;
 import zemberek.normalization.CharacterGraphDecoder.CharMatcher;
 import zemberek.tokenization.TurkishTokenizer;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token;
 
 public class TurkishSpellChecker {
 
@@ -78,15 +77,15 @@ public class TurkishSpellChecker {
     List<Token> tokens = tokenizer.tokenize(sentence);
     List<String> result = new ArrayList<>(tokens.size());
     for (Token token : tokens) {
-      if (token.getType() == TurkishLexer.Unknown ||
-          token.getType() == TurkishLexer.UnknownWord ||
-          token.getType() == TurkishLexer.Punctuation) {
+      if (token.getType() == Token.Type.Unknown ||
+          token.getType() == Token.Type.UnknownWord ||
+          token.getType() == Token.Type.Punctuation) {
         continue;
       }
       String w = token.getText();
-      if (token.getType() == TurkishLexer.Word) {
+      if (token.getType() == Token.Type.Word) {
         w = w.toLowerCase(Turkish.LOCALE);
-      } else if (token.getType() == TurkishLexer.WordWithSymbol) {
+      } else if (token.getType() == Token.Type.WordWithSymbol) {
         w = Turkish.capitalize(w);
       }
       result.add(w);

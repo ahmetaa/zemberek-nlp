@@ -21,7 +21,6 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.antlr.v4.runtime.Token;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.FixedBitVector;
 import zemberek.core.collections.Histogram;
@@ -43,7 +42,7 @@ import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.tokenization.TurkishTokenizer;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token;
 
 public class NormalizationScripts {
 
@@ -446,9 +445,9 @@ public class NormalizationScripts {
 
         List<String> tokens = TurkishTokenizer.DEFAULT.tokenize(s)
             .stream().filter(
-                k -> k.getType() != TurkishLexer.HashTag &&
-                    k.getType() != TurkishLexer.Mention &&
-                    k.getType() != TurkishLexer.URL &&
+                k -> k.getType() != Token.Type.HashTag &&
+                    k.getType() != Token.Type.Mention &&
+                    k.getType() != Token.Type.URL &&
                     k.getText().indexOf('_') < 0 &&
                     k.getText().indexOf('#') < 0 &&
                     k.getText().indexOf('@') < 0 &&

@@ -12,7 +12,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-import org.antlr.v4.runtime.Token;
 import zemberek.apps.fasttext.EvaluateClassifier;
 import zemberek.apps.fasttext.TrainClassifier;
 import zemberek.core.collections.Histogram;
@@ -25,7 +24,8 @@ import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.tokenization.TurkishTokenizer;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token;
+import zemberek.tokenization.Token.Type;
 
 public class QuestionClassifier {
 
@@ -195,13 +195,13 @@ public class QuestionClassifier {
     List<String> reduced = new ArrayList<>(docTokens.size());
     for (Token token : docTokens) {
       if (!token.getText().equals("?") && (
-          token.getType() == TurkishLexer.PercentNumeral ||
-              token.getType() == TurkishLexer.Number ||
-              token.getType() == TurkishLexer.Punctuation ||
-              token.getType() == TurkishLexer.RomanNumeral ||
-              token.getType() == TurkishLexer.Time ||
-              token.getType() == TurkishLexer.UnknownWord ||
-              token.getType() == TurkishLexer.Unknown)) {
+          token.getType() == Type.PercentNumeral ||
+              token.getType() == Token.Type.Number ||
+              token.getType() == Token.Type.Punctuation ||
+              token.getType() == Token.Type.RomanNumeral ||
+              token.getType() == Token.Type.Time ||
+              token.getType() == Token.Type.UnknownWord ||
+              token.getType() == Token.Type.Unknown)) {
         if (!token.getText().contains("__")) {
           continue;
         }

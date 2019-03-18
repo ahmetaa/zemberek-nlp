@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.antlr.v4.runtime.Token;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
@@ -20,7 +19,8 @@ import zemberek.morphology.analysis.tr.TurkishNumbers;
 import zemberek.morphology.analysis.tr.TurkishNumeralEndingMachine;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token;
+
 
 //TODO: Code requires serious testing and review.
 //TODO: For unknown pronouns, do not analyze as regular nouns if apostrophe is not in the
@@ -93,23 +93,23 @@ public class UnidentifiedTokenAnalyzer {
 
   private SecondaryPos guessSecondaryPosType(Token token) {
     switch (token.getType()) {
-      case TurkishLexer.Email:
+      case Email:
         return SecondaryPos.Email;
-      case TurkishLexer.URL:
+      case URL:
         return SecondaryPos.Url;
-      case TurkishLexer.HashTag:
+      case HashTag:
         return SecondaryPos.HashTag;
-      case TurkishLexer.Mention:
+      case Mention:
         return SecondaryPos.Mention;
-      case TurkishLexer.Emoticon:
+      case Emoticon:
         return SecondaryPos.Emoticon;
-      case TurkishLexer.RomanNumeral:
+      case RomanNumeral:
         return SecondaryPos.RomanNumeral;
-      case TurkishLexer.AbbreviationWithDots:
+      case Abbreviation:
         return SecondaryPos.Abbreviation;
-      case TurkishLexer.Date:
+      case Date:
         return SecondaryPos.Date;
-      case TurkishLexer.Time: // TODO: consider SecondaryPos.Time -> Temporal and Clock -> Time
+      case Time: // TODO: consider SecondaryPos.Time -> Temporal and Clock -> Time
         return SecondaryPos.Clock;
 
       default:

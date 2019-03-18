@@ -1,12 +1,10 @@
 package zemberek.apps.fasttext;
 
 import com.beust.jcommander.Parameter;
-import com.google.common.base.Splitter;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import org.antlr.v4.runtime.Token;
 import zemberek.apps.ConsoleApp;
 import zemberek.classification.FastTextClassifier;
 import zemberek.core.ScoredItem;
@@ -17,7 +15,8 @@ import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.tokenization.TurkishTokenizer;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token;
+import zemberek.tokenization.Token.Type;
 
 public class ClassificationConsole extends ConsoleApp {
 
@@ -121,13 +120,13 @@ public class ClassificationConsole extends ConsoleApp {
     List<String> reduced = new ArrayList<>(docTokens.size());
     for (Token token : docTokens) {
       if (
-          token.getType() == TurkishLexer.PercentNumeral ||
-              token.getType() == TurkishLexer.Number ||
-              token.getType() == TurkishLexer.Punctuation ||
-              token.getType() == TurkishLexer.RomanNumeral ||
-              token.getType() == TurkishLexer.Time ||
-              token.getType() == TurkishLexer.UnknownWord ||
-              token.getType() == TurkishLexer.Unknown) {
+          token.getType() == Type.PercentNumeral ||
+              token.getType() == Type.Number ||
+              token.getType() == Type.Punctuation ||
+              token.getType() == Type.RomanNumeral ||
+              token.getType() == Type.Time ||
+              token.getType() == Type.UnknownWord ||
+              token.getType() == Type.Unknown) {
         if (!token.getText().contains("__")) {
           continue;
         }

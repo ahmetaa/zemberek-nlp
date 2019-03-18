@@ -11,7 +11,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.antlr.v4.runtime.Token;
 import zemberek.core.collections.Histogram;
 import zemberek.core.logging.Log;
 import zemberek.core.text.Regexps;
@@ -19,7 +18,8 @@ import zemberek.core.text.TextIO;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.Turkish;
 import zemberek.tokenization.TurkishTokenizer;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token;
+import zemberek.tokenization.Token.Type;
 
 public class NerDataSet {
 
@@ -101,8 +101,8 @@ public class NerDataSet {
     List<String> result = new ArrayList<>();
     for (Token t : TurkishTokenizer.DEFAULT.tokenize(input)) {
       String s = t.getText();
-      if (t.getType() == TurkishLexer.Date || t.getType() == TurkishLexer.Number
-          || t.getType() == TurkishLexer.Time) {
+      if (t.getType() == Token.Type.Date || t.getType() == Type.Number
+          || t.getType() == Token.Type.Time) {
         s = "*" + s.replaceAll("[0-9]", "D") + "*";
       }
       result.add(s);

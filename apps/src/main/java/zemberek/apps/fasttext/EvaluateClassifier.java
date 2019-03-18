@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import zemberek.apps.ConsoleApp;
 import zemberek.classification.FastTextClassifier;
 import zemberek.core.ScoredItem;
@@ -30,12 +31,13 @@ public class EvaluateClassifier extends ConsoleApp {
           + " If not provided, [input].predictions will be generated.")
   Path predictions;
 
-  @Parameter(names = {"--predictionCount", "-k"},
-      description = "Amount of top predictions.")
-  int predictionCount = 1;
+  @Parameter(names = {"--maxPrediction", "-k"},
+      description = "Amount of top predictions. "
+          + "Predictions with lower than --threshold values will not be included.")
+  int maxPrediction = 1;
 
   @Parameter(names = {"--threshold", "-th"},
-      description = "Minimum score threshold. Lower values will not be included in prediction.")
+      description = "Minimum score threshold. Lower values will not be included in predictions.")
   float threshold = -100f;
 
   @Override
@@ -49,7 +51,7 @@ public class EvaluateClassifier extends ConsoleApp {
     System.out.println("Loading classification model...");
 
     FastTextClassifier classifier = FastTextClassifier.load(model);
-    EvaluationResult result = classifier.evaluate(input, predictionCount, threshold);
+    EvaluationResult result = classifier.evaluate(input, maxPrediction, threshold);
 
     System.out.println("Result = " + result.toString());
 
@@ -61,12 +63,15 @@ public class EvaluateClassifier extends ConsoleApp {
     List<String> testLines = Files.readAllLines(input, StandardCharsets.UTF_8);
     try (PrintWriter pw = new PrintWriter(predictions.toFile(), "utf-8")) {
       for (String testLine : testLines) {
-        List<ScoredItem<String>> res = classifier.predict(testLine, 3);
+        List<ScoredItem<String>> res = classifier.predict(testLine, maxPrediction);
+
+        res = res.stream().filter(s->s.score >= threshold).collect(Collectors.toList());
+
         List<String> predictedCategories = new ArrayList<>();
         for (ScoredItem<String> re : res) {
           predictedCategories.add(String.format("%s (%.6f)",
-              re.item.replaceAll("__label__", "")
-              /*.replaceAll("_", " ")*/, re.score));
+              re.item.replaceAll("__label__", ""),
+              Math.exp(re.score)));
         }
         pw.println(testLine);
         pw.println("Predictions   = " + String.join(", ", predictedCategories));

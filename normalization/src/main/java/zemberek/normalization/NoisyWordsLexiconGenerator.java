@@ -21,7 +21,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
-import org.antlr.v4.runtime.Token;
 import zemberek.core.IntPair;
 import zemberek.core.collections.Histogram;
 import zemberek.core.collections.IntIntMap;
@@ -39,7 +38,8 @@ import zemberek.core.text.distance.CharDistance;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.tokenization.TurkishTokenizer;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token;
+import zemberek.tokenization.Token.Type;
 
 /**
  * A modified implementation of Hassan and Menezes's 2013 paper "Social Text Normalization using
@@ -782,24 +782,24 @@ public class NoisyWordsLexiconGenerator {
 
       // use substitute values for numbers, urls etc.
       for (Token token : raw) {
-        if (token.getType() == TurkishLexer.Punctuation) {
+        if (token.getType() == Type.Punctuation) {
           continue;
         }
         String text = token.getText();
         switch (token.getType()) {
-          case TurkishLexer.Time:
-          case TurkishLexer.PercentNumeral:
-          case TurkishLexer.Number:
-          case TurkishLexer.Date:
+          case Time:
+          case PercentNumeral:
+          case Number:
+          case Date:
             text = text.replaceAll("\\d+", "_d");
             break;
-          case TurkishLexer.URL:
+          case URL:
             text = "<url>";
             break;
-          case TurkishLexer.HashTag:
+          case HashTag:
             text = "<hashtag>";
             break;
-          case TurkishLexer.Email:
+          case Email:
             text = "<email>";
             break;
         }

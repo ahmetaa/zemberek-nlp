@@ -15,7 +15,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.antlr.v4.runtime.Token;
 import zemberek.core.dynamic.ActiveList;
 import zemberek.core.dynamic.Scorable;
 import zemberek.core.logging.Log;
@@ -32,7 +31,8 @@ import zemberek.morphology.generator.WordGenerator;
 import zemberek.morphology.generator.WordGenerator.Result;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.tokenization.TurkishTokenizer;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token;
+import zemberek.tokenization.Token.Type;
 
 /**
  * Tries to normalize a sentence by collecting candidate words from
@@ -572,11 +572,11 @@ public class TurkishSentenceNormalizer {
   }
 
   static boolean isWord(Token token) {
-    int type = token.getType();
-    return type == TurkishLexer.Word
-        || type == TurkishLexer.UnknownWord
-        || type == TurkishLexer.WordAlphanumerical
-        || type == TurkishLexer.WordWithSymbol;
+    Token.Type type = token.getType();
+    return type == Type.Word
+        || type == Type.WordWithSymbol
+        || type == Type.WordAlphanumerical
+        || type == Type.UnknownWord;
   }
 
   String splitNecessaryWords(List<Token> tokens, boolean useLookup) {

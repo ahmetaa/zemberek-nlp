@@ -2,12 +2,12 @@ package zemberek.examples.normalization;
 
 import java.io.IOException;
 import java.util.List;
-import org.antlr.v4.runtime.Token;
 import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.normalization.TurkishSpellChecker;
 import zemberek.tokenization.TurkishTokenizer;
-import zemberek.tokenization.antlr.TurkishLexer;
+import zemberek.tokenization.Token;
+import zemberek.tokenization.Token.Type;
 
 
 public class CorrectDocument {
@@ -109,10 +109,10 @@ public class CorrectDocument {
   }
 
   static boolean analyzeToken(Token token) {
-    return token.getType() != TurkishLexer.NewLine
-        && token.getType() != TurkishLexer.SpaceTab
-        && token.getType() != TurkishLexer.UnknownWord
-        && token.getType() != TurkishLexer.RomanNumeral
-        && token.getType() != TurkishLexer.Unknown;
+    return token.getType() != Type.NewLine
+        && token.getType() != Type.SpaceTab
+        && token.getType() != Type.UnknownWord
+        && token.getType() != Type.RomanNumeral
+        && token.getType() != Type.Unknown;
   }
 }
