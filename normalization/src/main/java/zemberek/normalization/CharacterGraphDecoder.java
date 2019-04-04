@@ -25,7 +25,8 @@ public class CharacterGraphDecoder {
   static final float NEAR_KEY_SUBSTITUTION_PENALTY = 0.5f;
   static final float TRANSPOSITION_PENALTY = 1;
   private static final Locale tr = new Locale("tr");
-  public static final AsciiMatcher ASCII_TOLERANT_MATCHER = new AsciiMatcher();
+  public static final DiacriticsIgnoringMatcher DIACRITICS_IGNORING_MATCHER =
+      new DiacriticsIgnoringMatcher();
 
   static {
     Map<Character, String> map = TURKISH_FQ_NEAR_KEY_MAP;
@@ -145,7 +146,7 @@ public class CharacterGraphDecoder {
     }
   }
 
-  public void buildDictionary(List<String> vocabulary) {
+  public void addWords(List<String> vocabulary) {
     for (String s : vocabulary) {
       graph.addWord(process(s), Node.TYPE_WORD);
     }
@@ -339,11 +340,11 @@ public class CharacterGraphDecoder {
     }
   }
 
-  private static class AsciiMatcher implements CharMatcher {
+  private static class DiacriticsIgnoringMatcher implements CharMatcher {
 
     static IntMap<char[]> map = new IntMap<>();
 
-    public AsciiMatcher() {
+    public DiacriticsIgnoringMatcher() {
       String allLetters = TurkishAlphabet.INSTANCE.getAllLetters() + "+.,'-";
 
       for (int i = 0; i < allLetters.length(); i++) {

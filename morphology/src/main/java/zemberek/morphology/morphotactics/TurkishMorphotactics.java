@@ -484,10 +484,12 @@ public class TurkishMorphotactics {
 
     // ------
 
+
     // do not allow possessive suffixes for abbreviations or words like "annemler"
-    SecondaryPosIs abbreviation = new SecondaryPosIs(SecondaryPos.Abbreviation);
+    Condition rootIsAbbrv = new SecondaryPosIs(SecondaryPos.Abbreviation);
+
     Condition possessionCond = notHave(RootAttribute.FamilyMember)
-        .andNot(abbreviation);
+        .andNot(rootIsAbbrv);
 
     a3sg_S
         .addEmpty(pnon_S, notHave(RootAttribute.FamilyMember))        // ev
@@ -624,11 +626,11 @@ public class TurkishMorphotactics {
     // There are two almost identical suffix transitions with templates ">cI~k" and ">cI!ğ"
     // This was necessary for some simplification during analysis. This way there will be only one
     // surface form generated for each transition.
-    nom_ST.add(dim_S, ">cI~k", Conditions.HAS_NO_SURFACE.andNot(abbreviation));
-    nom_ST.add(dim_S, ">cI!ğ", Conditions.HAS_NO_SURFACE.andNot(abbreviation));
+    nom_ST.add(dim_S, ">cI~k", Conditions.HAS_NO_SURFACE.andNot(rootIsAbbrv));
+    nom_ST.add(dim_S, ">cI!ğ", Conditions.HAS_NO_SURFACE.andNot(rootIsAbbrv));
 
     // ev-ε-ε-ε-ceğiz (evceğiz)
-    nom_ST.add(dim_S, "cAğIz", Conditions.HAS_NO_SURFACE.andNot(abbreviation));
+    nom_ST.add(dim_S, "cAğIz", Conditions.HAS_NO_SURFACE.andNot(rootIsAbbrv));
 
     // connect dim to the noun root.
     dim_S.addEmpty(noun_S);
@@ -639,12 +641,12 @@ public class TurkishMorphotactics {
         Conditions.CURRENT_GROUP_EMPTY
             .andNot(containsNess)
             .andNot(emptyAdjNounSeq)
-            .andNot(abbreviation));
+            .andNot(rootIsAbbrv));
     nom_ST.add(ness_S, "lI!ğ",
         Conditions.CURRENT_GROUP_EMPTY
             .andNot(containsNess)
             .andNot(emptyAdjNounSeq)
-            .andNot(abbreviation));
+            .andNot(rootIsAbbrv));
 
     // connect `ness` to the noun root.
     ness_S.addEmpty(noun_S);
@@ -661,6 +663,7 @@ public class TurkishMorphotactics {
     Condition noun2VerbZeroDerivationCondition = Conditions.HAS_TAIL
         .andNot(Conditions.CURRENT_GROUP_EMPTY
             .and(new Conditions.LastDerivationIs(adjZeroDeriv_S)));
+
     nom_ST.addEmpty(nounZeroDeriv_S, noun2VerbZeroDerivationCondition);
 
     // elma-ya-yım elma-ya-ydı
@@ -684,24 +687,29 @@ public class TurkishMorphotactics {
     Condition noSurfaceAfterDerivation = new NoSurfaceAfterDerivation();
     nom_ST.add(with_S, "lI",
         noSurfaceAfterDerivation
-            .andNot(new ContainsMorpheme(with, without)));
+            .andNot(new ContainsMorpheme(with, without))
+            .andNot(rootIsAbbrv));
 
     nom_ST.add(without_S, "sIz",
         noSurfaceAfterDerivation
-            .andNot(new ContainsMorpheme(with, without, inf1)));
+            .andNot(new ContainsMorpheme(with, without, inf1))
+            .andNot(rootIsAbbrv));
 
     nom_ST.add(justLike_S, "+msI",
         noSurfaceAfterDerivation
-            .andNot(new ContainsMorpheme(justLike, futPart, pastPart, presPart, adj)));
+            .andNot(new ContainsMorpheme(justLike, futPart, pastPart, presPart, adj))
+            .andNot(rootIsAbbrv));
 
     nom_ST.add(justLike_S, "ImsI",
         notHave(PhoneticAttribute.LastLetterVowel)
             .and(noSurfaceAfterDerivation)
-            .andNot(new ContainsMorpheme(justLike, futPart, pastPart, presPart, adj)));
+            .andNot(new ContainsMorpheme(justLike, futPart, pastPart, presPart, adj))
+            .andNot(rootIsAbbrv));
 
     nom_ST.add(related_S, "sAl",
         noSurfaceAfterDerivation
-            .andNot(new ContainsMorpheme(with, without, related)));
+            .andNot(new ContainsMorpheme(with, without, related))
+            .andNot(rootIsAbbrv));
 
     // connect With to Adjective root.
     with_S.addEmpty(adjectiveRoot_ST);
@@ -740,12 +748,14 @@ public class TurkishMorphotactics {
 
     nom_ST.add(become_S, "lAş",
         noSurfaceAfterDerivation.andNot(new ContainsMorpheme(adj))
-            .andNot(verbDeriv));
+            .andNot(verbDeriv)
+            .andNot(rootIsAbbrv));
     become_S.addEmpty(verbRoot_S);
 
     nom_ST.add(acquire_S, "lAn",
         noSurfaceAfterDerivation.andNot(new ContainsMorpheme(adj))
-            .andNot(verbDeriv));
+            .andNot(verbDeriv)
+            .andNot(rootIsAbbrv));
 
     acquire_S.addEmpty(verbRoot_S);
 

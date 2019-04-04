@@ -284,13 +284,21 @@ public class TurkishMorphologyFunctionalTests {
 
   @Test
   public void testAbbreviationVoicing_Issue_183() {
-    // Instance with no dictionary item.
     TurkishMorphology morphology = getMorphology("Tübitak [P:Abbrv]");
     WordAnalysis result = morphology.analyze("Tübitak'a");
     Assert.assertEquals(1, result.analysisCount());
     result = morphology.analyze("Tübitaka");
     Assert.assertEquals(1, result.analysisCount());
     result = morphology.analyze("Tübitağa");
+    Assert.assertEquals(0, result.analysisCount());
+  }
+
+  @Test
+  public void testAbbreviationShouldNotGetBecomeOrAcquire_Issue218() {
+    TurkishMorphology morphology = getMorphology("aa [P:Abbrv]");
+    WordAnalysis result = morphology.analyze("aalaş");
+    Assert.assertEquals(0, result.analysisCount());
+    result = morphology.analyze("aalan");
     Assert.assertEquals(0, result.analysisCount());
   }
 

@@ -10,7 +10,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import zemberek.core.logging.Log;
+import zemberek.core.text.TextIO;
 import zemberek.core.turkish.Turkish;
 
 public class MultiWordPhreaseList {
@@ -32,15 +35,62 @@ public class MultiWordPhreaseList {
     sorted.sort(Turkish.COLLATOR);
 
     Files.write(output, sorted, StandardCharsets.UTF_8);
-
-
   }
 
+  static void processRaw2(Path input, Path output) throws IOException {
+    List<String> lines = TextIO.loadLines(input);
+    List<String> result = new ArrayList<>();
+    for (String line : lines) {
+      if (line.startsWith("...")) {
+        continue;
+      }
+      if (line.contains("(")) {
+        result.add(line);
+      }
+    }
+    Files.write(output, result, StandardCharsets.UTF_8);
+  }
+
+  static void processParenthesis(Path input) throws IOException {
+    List<String> lines = TextIO.loadLines(input);
+    for (String line : lines) {
+      List<Foo> foos = new ArrayList<>();
+      List<String> words = new ArrayList<>();
+
+
+    }
+  }
+
+  static String baz(String line) {
+    Pattern pattern =Pattern.compile("[(](.+?)[)]");
+    Matcher m = pattern.matcher(line);
+
+    StringBuffer b = new StringBuffer();
+    while(m.find()) {
+
+      String g = m.group();
+      g = g.replaceAll("[()]","");
+      m.appendReplacement(b, "_"+g.replaceAll(" ","_"));
+    }
+    m.appendTail(b);
+
+    return b.toString();
+  }
+
+  class Foo {
+    String word;
+    List<String> alternatives;
+  }
+
+
   public static void main(String[] args) throws IOException {
-    processRaw(
-        Paths.get("data/phrase/raw-phrases.txt"),
-        Paths.get("data/phrase/raw-phrases2.txt")
-        );
+    Path r1 = Paths.get("data/phrase/raw-phrases.txt");
+    Path r2 = Paths.get("data/phrase/raw-phrases2.txt");
+    Path paranthesis = Paths.get("data/phrase/raw-paranthesis.txt");
+    //processRaw(r1, r2);
+    //processRaw2(r2, paranthesis);
+    String s = baz("boo foo (haha aha) gfgf (foo) bar ");
+    System.out.println(s);
   }
 
 }

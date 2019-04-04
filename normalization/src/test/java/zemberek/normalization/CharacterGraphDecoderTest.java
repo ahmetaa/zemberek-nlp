@@ -1,7 +1,6 @@
 package zemberek.normalization;
 
 import com.google.common.collect.Lists;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -76,7 +75,7 @@ public class CharacterGraphDecoderTest {
   public void asciiTolerantTest() {
     CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(1);
     spellChecker.addWords("şıra", "sıra", "kömür", "giriş");
-    CharacterGraphDecoder.CharMatcher matcher = CharacterGraphDecoder.ASCII_TOLERANT_MATCHER;
+    CharacterGraphDecoder.CharMatcher matcher = CharacterGraphDecoder.DIACRITICS_IGNORING_MATCHER;
     List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("komur", matcher);
     Assert.assertEquals(1, res.size());
     Assert.assertEquals("kömür", res.get(0).item);
@@ -125,7 +124,7 @@ public class CharacterGraphDecoderTest {
     Path r = Paths.get(ClassLoader.getSystemResource("zemberek-parsed-words-min30.txt").toURI());
     List<String> words = Files.readAllLines(r, StandardCharsets.UTF_8);
     CharacterGraphDecoder spellChecker = new CharacterGraphDecoder(1);
-    spellChecker.buildDictionary(words);
+    spellChecker.addWords(words);
     long start = System.currentTimeMillis();
     int solutionCount = 0;
     int c = 0;

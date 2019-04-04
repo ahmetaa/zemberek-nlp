@@ -1,35 +1,37 @@
 package zemberek.scratchpad;
 
 import com.google.common.collect.TreeMultimap;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import zemberek.core.logging.Log;
 import zemberek.core.text.Regexps;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
+import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
-import zemberek.core.turkish.Turkish;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import zemberek.normalization.CharacterGraphDecoder;
+import zemberek.normalization.CharacterGraphDecoder.CharMatcher;
 
 public class DictionaryOperations {
 
@@ -189,7 +191,8 @@ public class DictionaryOperations {
     //extractGroups(root, out);    //saveProperNouns();
     //matchingLines("P:Det", Paths.get("det.txt"));
     //findAbbreviations();
-    checkAbbreviations();
+    //checkAbbreviations();
+    findBadDictionaryItems();
   }
 
   public static void extractGroups(Path root, Path output) throws IOException {
@@ -232,7 +235,35 @@ public class DictionaryOperations {
         pw.println(key + " = " + v);
       }
     }
+  }
 
+  private static void findBadDictionaryItems() throws IOException {
+    CharacterGraphDecoder decoder = new CharacterGraphDecoder(0f);
+    CharMatcher matcher = CharacterGraphDecoder.DIACRITICS_IGNORING_MATCHER;
+
+    List<String> words = TextIO.loadLinesFromResource("tr/proper-from-corpus.dict", "#")
+        .stream().map(s -> s.trim().replaceAll("[ ]+.+?$", "").toLowerCase(Turkish.LOCALE))
+        .collect(Collectors.toList());
+
+    decoder.addWords(words);
+    Set<String> res = new LinkedHashSet<>();
+
+    for (String word : words) {
+      if(word.length()<5) {
+        continue;
+      }
+      List<String> matches = decoder.getSuggestions(word, matcher);
+      //matches.sort(Turkish.STRING_COMPARATOR_ASC);
+      String s = String.join(" ", matches);
+      if (matches.size() > 1) {
+        res.add(word + " - " + s);
+      }
+    }
+
+    List<String> r = new ArrayList<>(res);
+    r.sort(Turkish.STRING_COMPARATOR_ASC);
+
+    Files.write(Paths.get("similar-words-0-distance"), r);
 
   }
 

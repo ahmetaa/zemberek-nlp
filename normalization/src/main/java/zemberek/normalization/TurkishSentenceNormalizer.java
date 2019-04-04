@@ -81,7 +81,7 @@ public class TurkishSentenceNormalizer {
     this.spellChecker = new TurkishSpellChecker(
         morphology,
         decoder,
-        CharacterGraphDecoder.ASCII_TOLERANT_MATCHER);
+        CharacterGraphDecoder.DIACRITICS_IGNORING_MATCHER);
 
     this.lookupFromGraph = loadMultiMap(dataRoot.resolve("lookup-from-graph"));
     this.lookupFromAscii = loadMultiMap(dataRoot.resolve("ascii-map"));
