@@ -11892,7 +11892,7 @@ kalorimetri
 kalotip
 kalp [A:Voicing, InverseHarmony]
 kalp [A:Voicing; Index:1]
-kalp [P:Adj]
+kalp [P:Adj; A:NoVoicing]
 kalpak
 kalpazan
 kalseduan
