@@ -16,7 +16,7 @@ import zemberek.morphology.analysis.WordAnalysis;
  * Originally written by Ayça Müge Sevinç. *
  */
 
-public class PostProcessedNE {
+public class NEPostProcessor {
 
   public String type;
   public String wordList[];
@@ -34,7 +34,7 @@ public class PostProcessedNE {
   public NamedEntity orginalNE;
   public NamedEntity postProcessedNE;
 
-  public PostProcessedNE(NamedEntity namedEntity) {
+  public NEPostProcessor(NamedEntity namedEntity) {
 
     longestLemma = "";
     longFormatforLongestLemma = "";

@@ -172,8 +172,12 @@ public class RootLexicon implements Iterable<DictionaryItem> {
       return this;
     }
 
-    public Builder setDefaultLexicon(RootLexicon lexicon) {
-      this.lexicon = getDefault();
+    public Builder addDefaultLexicon() {
+      if(lexicon.size()==0) {
+        lexicon = getDefault();
+      } else {
+        addLexicon(getDefault());
+      }
       return this;
     }
 
