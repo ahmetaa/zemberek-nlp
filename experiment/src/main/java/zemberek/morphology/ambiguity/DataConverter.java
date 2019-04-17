@@ -73,9 +73,8 @@ public class DataConverter {
 
   public static void main(String[] args) throws IOException {
 
-    Path dataPath = Paths.get("/home/ahmetaa/apps/Hasim_Sak_Data/data.dev.txt");
-    //Path dataPath = Paths.get("/home/aaa/apps/MD-Release/data.test.txt");
-    Path output = Paths.get("/media/ahmetaa/depo/ambiguity/sak.dev");
+    Path dataPath = Paths.get("/home/ahmetaa/apps/Hasim_Sak_Data/data.test.txt");
+    Path output = Paths.get("/media/ahmetaa/depo/ambiguity/sak.test");
 
     extract(dataPath, output);
 

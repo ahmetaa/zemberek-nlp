@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -45,20 +46,28 @@ class GenerateDataWithRules extends AmbiguityScriptsBase {
 
   public static void main(String[] args) throws IOException {
     Path corporaRoot = Paths.get("/media/ahmetaa/depo/corpora");
-    //Path corporaRoot = Paths.get("/media/aaa/Data/corpora/final");
+/*
     List<Path> roots = Lists.newArrayList(
         corporaRoot.resolve("www.aljazeera.com.tr"),
-        corporaRoot.resolve("open-subtitles-tr-2018"),
+        corporaRoot.resolve("open-subtitles-tr-2018")
         corporaRoot.resolve("wowturkey.com"),
         corporaRoot.resolve("www.cnnturk.com"),
-        corporaRoot.resolve("www.haberturk.com"));
-
+        corporaRoot.resolve("www.haberturk.com")
+        );
+*/
+    List<Path> roots = Collections.singletonList(
+        //corporaRoot.resolve("www.aljazeera.com.tr"),
+        corporaRoot.resolve("open-subtitles-tr-2018")
+        //corporaRoot.resolve("wowturkey.com"),
+        //corporaRoot.resolve("www.cnnturk.com"),
+        //corporaRoot.resolve("www.haberturk.com")
+    );
     Path outRoot = Paths.get("/media/ahmetaa/depo/ambiguity");
     Files.createDirectories(outRoot);
     GenerateDataWithRules app = new GenerateDataWithRules();
 
     for (Path root : roots) {
-      app.extractData(root, outRoot, 15000, 0);
+      app.extractData(root, outRoot,  45000, 0);
     }
   }
 
