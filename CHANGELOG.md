@@ -1,7 +1,7 @@
 CHANGE LOG
 ==========
 
-## 0.17.0 (Not yet released) 
+## 0.17.0 
 
 This is a small release with breaking changes.
 
@@ -11,8 +11,6 @@ Tokenization module now can be configured to ignore text in double quotes.
 
 Zemberek now uses it's own Token class instead of using Antlr's Token class. This is 
 a breaking change.
-
-normalizedLemma() in DictionaryItem now removes -mek -mak suffixes and converts to lowercase.
 
 Behavior of two methods and add two methods in WordAnalysisSurfaceFormatter are changed. Now if apostrophe is provided, it will use it even in regular words.
 
@@ -24,14 +22,30 @@ TurkishTextToNumberConverter is now thread safe and stateless.
 
 There is a NER postprocessor NEPostProcessor (Provided by Ayça Müge Sevinç).
 
+Use shade plugin so that when using single jar library, dependent libraries will not conflict with ohter versions.
+
+### Deprecations and breaking changes
+
+`RootLexicon.DEFAULT` is now inaccessible. Use `RootLexicon.getDefault()` for accessing
+default lexicon.
+
+`RootLexicon.builder().addDefaultLexicon()` is renamed as `RootLexicon.builder().addDefaultLexicon()`
+
+Zemberek now uses it's own Token class instead of using Antlr's Token class.
+
+normalizedLemma() in DictionaryItem now removes -mek -mak suffixes and converts to lowercase.
+
 Some method names in TurkishAlphabet is changed. Such as
 asciiTolerantEquals -> equalsIgnoreDiacritics and
 asciiTolerantStartsWith -> startsWithIgnoreDiacritics
 
-Use shade plugin so that when using single jar library, dependent libraries will not conflict with ohter versions.
+### Notable Bug Fixes
 
+A possible small memory leak caused by analysis of unidentified tokens is fixed. 
 
-### New features 
+We thank everybody for their contributions.
+Special thanks to Müge for her feedback on morphology and NER modules.
+
 
 ## 0.16.0 
 

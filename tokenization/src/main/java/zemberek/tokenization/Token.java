@@ -62,7 +62,7 @@ public class Token {
             type == Type.Email;
   }
 
-  public String getText(){
+  public String getText() {
     return content;
   }
 
@@ -76,6 +76,11 @@ public class Token {
 
   boolean isWord() {
     return type == Type.Word || type == Type.Abbreviation;
+  }
+
+  @Override
+  public String toString() {
+    return "[" + content + " " + type + " " + start + "-" + end + "]";
   }
 
   public enum Type {

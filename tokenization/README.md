@@ -105,30 +105,26 @@ This will output
     Start = 10
     Stop  = 10
 
-Token is org.antlr.v4.runtime.Token implementation instance. User can reach several information
- such as type, start and stop character indexes.
+Note: until 0.17.0, Token class was and `org.antlr.v4.runtime.Token` implementation instance.
+However as of 0.17.0 it is an internal Zemberek class `zemberek.tokenization.Token`. 
+User can reach several information from this class  such as type, start and stop character indexes.
 
 User can customize a TurkishTokenizer. 
 For example if punctuations and white spaces are needed to be ignored:
  
     TurkishTokenizer tokenizer = TurkishTokenizer
             .builder()
-            .ignoreTypes(TurkishLexer.Punctuation, TurkishLexer.NewLine, TurkishLexer.SpaceTab)
+            .ignoreTypes(Token.Type.Punctuation, Token.Type.NewLine, Token.Type.SpaceTab)
             .build();
     List<Token> tokens = tokenizer.tokenize("Saat, 12:00.");
     for (Token token : tokens) {
-        System.out.println("Content = " + token.getText());
-        System.out.println("Type = " + TurkishLexer.VOCABULARY.getDisplayName(token.getType()));
-        System.out.println();
+        System.out.println(token);
     } 
 
 This will output 
 
-    Content = Saat
-    Type = Word
-    
-    Content = 12:00
-    Type = Time
+    [Saat Word 0-3]
+    [12:00 Time 6-10]
 
 If user only interested in String values of the tokens, this method can be used:
 
@@ -147,27 +143,43 @@ Code will print out:
 
 Tokenizer currently tokenizes these types:
 
-    Abbreviation=1
-    SpaceTab=2
-    NewLine=3
-    Time=4
-    Date=5
-    PercentNumeral=6
-    Number=7
-    URL=8
-    Email=9
-    HashTag=10
-    Mention=11
-    MetaTag=12
-    Emoticon=13
-    RomanNumeral=14
-    AbbreviationWithDots=15
-    Word=16
-    WordAlphanumerical=17
-    WordWithSymbol=18
-    Punctuation=19
-    UnknownWord=20
-    Unknown=21
+    public enum Type {
+  
+      // white space
+      SpaceTab,
+      NewLine,
+  
+      // words
+      Word,
+      WordAlphanumerical,
+      WordWithSymbol,
+      Abbreviation,
+      AbbreviationWithDots,
+  
+      Punctuation,
+  
+      // numerals. May contain suffixes.
+      RomanNumeral,
+      Number,
+      PercentNumeral,
+  
+      // temporal
+      Time,
+      Date,
+  
+      // web related
+      URL,
+      Email,
+      HashTag,
+      Mention,
+      MetaTag,
+  
+      Emoji,
+      Emoticon,
+  
+      UnknownWord,
+      Unknown,
+    }
 
 ### Speed
 

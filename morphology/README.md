@@ -26,7 +26,7 @@ Zemberek provides morphological analysis, morphological ambiguity resolution and
     <dependency>
         <groupId>zemberek-nlp</groupId>
         <artifactId>zemberek-morphology</artifactId>
-        <version>0.16.0</version>
+        <version>0.17.0</version>
     </dependency>
  
 
@@ -42,7 +42,7 @@ After this, Turkish suffix graph is generated, internal dictionaries are loaded 
  a single instance should be used throughout the life of an application.
   
   You can add your own dictionaries or remove existing items during creation of the TurkishMorphology class. For example, you have
-  a dictionary file *my-dictionary.txt* in this form:
+  a dictionary file *my-dictionary.txt* in this form (albeit terrible words):
   
     show 
     relaks [P:Adj]
@@ -54,7 +54,7 @@ Dictionary rules are explained [here](https://github.com/ahmetaa/zemberek-nlp/wi
 For adding this dictionary, RootLexicon builder mechanism can be used like this:
   
     RootLexicon lexicon = RootLexicon.builder()
-        .addDefaultBinaryDictionary()
+        .addDefaultLexicon()
         .addTextDictionaries(Paths.get("my-dictionary.txt"))
         .build();
 
@@ -71,14 +71,14 @@ Turkish morphology class contain a built in cache, so in time analysis speed wil
 is an option to disable the cache if builder mechanism is used. For example:
 
     TurkishMorphology analyzer = TurkishMorphology.builder()
-        .setLexicon(RootLexicon.DEFAULT)
+        .setLexicon(RootLexicon.getDefault())
         .disableCache()
         .build();
 
 Generating your own dictionary can be liked this:
 
       RootLexicon myLexicon = RootLexicon.builder()
-          .setLexicon(RootLexicon.DEFAULT) // start with default
+          .setLexicon(RootLexicon.getDefault) // start with default
           .addDictionaryLines("foo", "rar") // add two new nouns
           .addTextDictionaries(Paths.get("my-own-dictionary-file")) // add from file
           .build();
