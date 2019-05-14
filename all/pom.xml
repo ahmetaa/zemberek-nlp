@@ -24,6 +24,11 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>zemberek.apps.ApplicationRunner</mainClass>
+                </transformer>
+              </transformers>
               <finalName>zemberek-full</finalName>
               <relocations>
                 <relocation>
@@ -41,10 +46,6 @@
                 <relocation>
                   <pattern>afu</pattern>
                   <shadedPattern>_zem.afu</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>javax</pattern>
-                  <shadedPattern>_zem.javax</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>io</pattern>

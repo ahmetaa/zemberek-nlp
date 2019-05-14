@@ -1,7 +1,7 @@
 package zemberek.grpc.server;
 
 import io.grpc.Server;
-import io.grpc.ServerBuilder;
+import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import zemberek.core.logging.Log;
 
 public class ZemberekGrpcServer {
@@ -25,7 +25,7 @@ public class ZemberekGrpcServer {
   }
 
   public void start() throws Exception {
-    Server server = ServerBuilder.forPort(port)
+    Server server = NettyServerBuilder.forPort(port)
         .addService(new LanguageIdServiceImpl())
         .addService(new PreprocessingServiceImpl())
         .addService(new NormalizationServiceImpl(context))

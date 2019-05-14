@@ -1,6 +1,6 @@
 #!/bin/bash
 mkdir zemberek-grpc
-python -m grpc_tools.protoc -I../proto --python_out=zemberek-grpc --grpc_python_out=zemberek-grpc\
+python3 -m grpc_tools.protoc -I../proto --python_out=zemberek-grpc --grpc_python_out=zemberek-grpc\
  ./../proto/language_id.proto \
  ./../proto/morphology.proto \
  ./../proto/preprocess.proto \
