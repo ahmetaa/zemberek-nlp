@@ -38,18 +38,18 @@ def analyze(i):
 def run():
     lang_detect_input = 'merhaba dünya'
     lang_id = find_lang_id(lang_detect_input)
-    print("Language of [" + lang_detect_input.decode("utf-8") + "] is: " + lang_id)
+    print("Language of [" + lang_detect_input + "] is: " + lang_id)
 
     print("")
     tokenization_input = 'Merhaba dünya!'
-    print('Tokens for input : ' + tokenization_input.decode("utf-8"))
+    print('Tokens for input : ' + tokenization_input)
     tokens = tokenize(tokenization_input)
     for t in tokens:
         print(t.token + ':' + t.type)
 
     print("")
     normalization_input = 'Mrhaba dnya'
-    print('Normalization result for input : ' + normalization_input.decode("utf-8"))
+    print('Normalization result for input : ' + normalization_input)
     n_response = normalize(normalization_input)
     if n_response.normalized_input:
         print(n_response.normalized_input)
@@ -58,7 +58,7 @@ def run():
 
     print("")
     analysis_input = 'Kavanozun kapağını açamadım.'
-    print('Analysis result for input : ' + analysis_input.decode("utf-8"))
+    print('Analysis result for input : ' + analysis_input)
     analysis_result = analyze(analysis_input)
     for a in analysis_result.results:
         best = a.best

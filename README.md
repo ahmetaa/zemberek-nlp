@@ -62,7 +62,7 @@ It will list available console applications.
 ### For Develpoers 
 
 [Here](https://github.com/ahmetaa/zemberek-nlp/wiki/Zemberek-For-Developers) information about 
-how to compile the code and generate jar file from the project is explained. 
+how to compile the code and generate jar files from the project is explained. 
 
 ### Examples
 
@@ -72,7 +72,6 @@ Also, there is a separate project with same examples that uses Zemberek-NLP as m
 [Turkish-nlp-examples](https://github.com/ahmetaa/turkish-nlp-examples)
 
 ## Known Issues and Limitations
-- Project requires Java 8 or higher.
 - NER module does not provide a model yet.
 - Library is not well-tested for multi-threaded usage.
 
