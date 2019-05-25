@@ -59,7 +59,7 @@ When it is run directly with
 
 It will list available console applications.  
 
-### For Develpoers 
+### For Developers 
 
 [Here](https://github.com/ahmetaa/zemberek-nlp/wiki/Zemberek-For-Developers) information about 
 how to compile the code and generate jar files from the project is explained. 
