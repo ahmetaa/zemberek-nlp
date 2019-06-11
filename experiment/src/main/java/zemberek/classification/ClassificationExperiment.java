@@ -132,12 +132,12 @@ public class ClassificationExperiment extends ClassificationExampleBase {
     train = train.stream()
         .filter(s -> s.contains("__label__"))
         .map(s -> s.replaceAll("^\"", ""))
-        .map(s -> normalizer.normalize(s))
+        .map(s -> normalizer.normalize(s).toString())
         .collect(Collectors.toList());
     test = test.stream()
         .filter(s -> s.contains("__label__"))
         .map(s -> s.replaceAll("^\"", ""))
-        .map(s -> normalizer.normalize(s))
+        .map(s -> normalizer.normalize(s).toString())
         .collect(Collectors.toList());
 
     Log.info("After pre-process, Train = %d, Test = %d lines.", train.size(), test.size());

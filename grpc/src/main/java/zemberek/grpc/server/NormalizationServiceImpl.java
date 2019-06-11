@@ -33,7 +33,7 @@ public class NormalizationServiceImpl extends NormalizationServiceImplBase {
     String normalized;
     if (sentenceNormalizer != null) {
       String s = request.getInput();
-      normalized = sentenceNormalizer.normalize(s);
+      normalized = sentenceNormalizer.normalize(s).toString();
       responseObserver.onNext(NormalizationResponse.newBuilder()
           .setNormalizedInput(normalized)
           .build());

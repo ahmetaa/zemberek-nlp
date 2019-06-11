@@ -42,7 +42,7 @@ public class BotExperiment {
 
     String input = "tmm bu akşm dönücem sana";
     Log.info(input);
-    Log.info(String.join(" ", normalizer.normalize(input)));
+    Log.info(String.join(" ", normalizer.normalize(input).toString()));
 
     Log.info("Done.");
 
@@ -91,7 +91,7 @@ public class BotExperiment {
       for (String line : lines) {
         tokenCount += TurkishTokenizer.DEFAULT.tokenize(line).size();
         lineCount++;
-        String n = normalizer.normalize(line);
+        String n = normalizer.normalize(line).toString();
         if (!n.equals(line)) {
           pw.println(line);
           pw.println(n);

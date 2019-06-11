@@ -71,7 +71,7 @@ public class ProcessNormalizationCorpus {
       service.submit(() -> {
         List<String> sentences = TextCleaner.cleanAndExtractSentences(chunk.getData());
         sentences = sentences.stream()
-            .map(s -> normalizer.preProcess(s))
+            .map(s -> normalizer.preProcess(s).toString())
             .collect(Collectors.toList());
         Path p = outRoot.resolve(String.valueOf(c.getAndIncrement()));
         try {

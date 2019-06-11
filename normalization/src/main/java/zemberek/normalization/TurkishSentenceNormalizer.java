@@ -150,11 +150,11 @@ public class TurkishSentenceNormalizer {
     return result;
   }
 
-  public String normalize(String sentence) {
+  public IndexedString normalize(String sentence) {
 
-    String processed = preProcess(sentence);
+    IndexedString processed = preProcess(sentence);
 
-    List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(processed);
+    List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(processed.toString());
 
     List<Candidates> candidatesList = new ArrayList<>();
 
@@ -216,12 +216,13 @@ public class TurkishSentenceNormalizer {
 
       Candidates result = new Candidates(
           currentToken.getText(),
-          candidates.stream().map(Candidate::new).collect(Collectors.toList()));
+          candidates.stream().map(Candidate::new).collect(Collectors.toList()),
+              currentToken.getStart(), currentToken.getEnd());
 
       candidatesList.add(result);
     }
     // Apply Viterbi decoding and return result.
-    return String.join(" ", decode(candidatesList));
+    return decode(candidatesList, processed);
 
   }
 
@@ -291,10 +292,17 @@ public class TurkishSentenceNormalizer {
 
     final String content;
     final float score;
+    int startIndex;
+    int stopIndex;
 
     Candidate(String content) {
       this.content = content;
       score = 1f;
+    }
+
+    void setIndices(int startIndex, int stopIndex) {
+      this.startIndex = startIndex;
+      this.stopIndex = stopIndex;
     }
 
     @Override
@@ -331,9 +339,10 @@ public class TurkishSentenceNormalizer {
     List<Candidate> candidates;
 
     Candidates(String word,
-        List<Candidate> candidates) {
+        List<Candidate> candidates, int startIndex, int endIndex) {
       this.word = word;
       this.candidates = candidates;
+      this.candidates.stream().forEach(c -> c.setIndices(startIndex, endIndex));
     }
 
     @Override
@@ -349,9 +358,9 @@ public class TurkishSentenceNormalizer {
   private static Candidate START = new Candidate("<s>");
   private static Candidate END = new Candidate("</s>");
   private static Candidates END_CANDIDATES =
-      new Candidates("</s>", Collections.singletonList(END));
+      new Candidates("</s>", Collections.singletonList(END), -1, -1);
 
-  private List<String> decode(List<Candidates> candidatesList) {
+  private IndexedString decode(List<Candidates> candidatesList, IndexedString ns) {
 
     ActiveList<Hypothesis> current = new ActiveList<>();
     ActiveList<Hypothesis> next = new ActiveList<>();
@@ -399,34 +408,35 @@ public class TurkishSentenceNormalizer {
 
     // back track to find best sequence.
     Hypothesis best = current.getBest();
-    List<String> seq = new ArrayList<>();
+    IndexedString seq = new IndexedString();
     Hypothesis h = best;
     // skip </s>
     h = h.previous;
     while (h != null && h.current != START) {
-      seq.add(h.current.content);
+      seq.add(new StringBuilder(h.current.content).reverse().toString(), h.current.startIndex, h.current.stopIndex, ns);
       h = h.previous;
     }
-    Collections.reverse(seq);
+    seq.reverse();
     return seq;
   }
 
-  String preProcess(String sentence) {
+  IndexedString preProcess(String sentence) {
     sentence = sentence.toLowerCase(Turkish.LOCALE);
-    List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
-    String s = replaceCommon(tokens);
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    s = combineNecessaryWords(tokens);
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    s = splitNecessaryWords(tokens, false);
-    if (alwaysApplyDeasciifier || probablyRequiresDeasciifier(s)) {
-      Deasciifier deasciifier = new Deasciifier(s);
-      s = deasciifier.convertToTurkish();
+    IndexedString s = new IndexedString(sentence);
+    List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(s.toString());
+    s = replaceCommon(tokens, s);
+    tokens = TurkishTokenizer.DEFAULT.tokenize(s.toString());
+    s = combineNecessaryWords(tokens, s);
+    tokens = TurkishTokenizer.DEFAULT.tokenize(s.toString());
+    s = splitNecessaryWords(tokens, false, s);
+    if (alwaysApplyDeasciifier || probablyRequiresDeasciifier(s.toString())) {
+      Deasciifier deasciifier = new Deasciifier(s.toString());
+      s = new IndexedString(deasciifier.convertToTurkish(), s.getIndices());
     }
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    s = combineNecessaryWords(tokens);
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    return splitNecessaryWords(tokens, true);
+    tokens = TurkishTokenizer.DEFAULT.tokenize(s.toString());
+    s = combineNecessaryWords(tokens, s);
+    tokens = TurkishTokenizer.DEFAULT.tokenize(s.toString());
+    return splitNecessaryWords(tokens, true, s);
   }
 
   /**
@@ -539,8 +549,8 @@ public class TurkishSentenceNormalizer {
     return ratio < 0.1;
   }
 
-  String combineNecessaryWords(List<Token> tokens) {
-    List<String> result = new ArrayList<>();
+  IndexedString combineNecessaryWords(List<Token> tokens, IndexedString ns) {
+    IndexedString result = new IndexedString();
     boolean combined = false;
     for (int i = 0; i < tokens.size() - 1; i++) {
       Token first = tokens.get(i);
@@ -549,7 +559,7 @@ public class TurkishSentenceNormalizer {
       String secondS = second.getText();
       if (!isWord(first) || !isWord(second)) {
         combined = false;
-        result.add(firstS);
+        result.add(firstS,first.getStart(), first.getEnd(), ns);
         continue;
       }
       if (combined) {
@@ -558,17 +568,18 @@ public class TurkishSentenceNormalizer {
       }
       String c = combineCommon(firstS, secondS);
       if (c.length() > 0) {
-        result.add(c);
+        result.add(c, first.getStart(), second.getEnd(), ns);
         combined = true;
       } else {
-        result.add(first.getText());
+        result.add(firstS, first.getStart(), first.getEnd(), ns);
         combined = false;
       }
     }
     if (!combined) {
-      result.add(tokens.get(tokens.size() - 1).getText());
+      Token lastToken = tokens.get(tokens.size()-1);
+      result.add(lastToken.getText(), lastToken.getStart(), lastToken.getEnd(), ns);
     }
-    return String.join(" ", result);
+    return result;
   }
 
   static boolean isWord(Token token) {
@@ -579,18 +590,19 @@ public class TurkishSentenceNormalizer {
         || type == Type.UnknownWord;
   }
 
-  String splitNecessaryWords(List<Token> tokens, boolean useLookup) {
-    List<String> result = new ArrayList<>();
+  IndexedString splitNecessaryWords(List<Token> tokens, boolean useLookup, IndexedString ns) {
+    IndexedString result = new IndexedString();
     for (Token token : tokens) {
       String text = token.getText();
       if (isWord(token)) {
-        result.add(separateCommon(text, useLookup));
+        result.add(separateCommon(text, useLookup), token.getStart(), token.getEnd(), ns);
       } else {
-        result.add(text);
+        result.add(text, token.getStart(), token.getEnd(), ns);
       }
     }
-    return String.join(" ", result);
+    return result;
   }
+
 
   String splitBruteForce(List<Token> tokens, int minSize) {
     List<String> result = new ArrayList<>();
@@ -605,12 +617,13 @@ public class TurkishSentenceNormalizer {
     return String.join(" ", result);
   }
 
-  String replaceCommon(List<Token> tokens) {
-    List<String> result = new ArrayList<>();
+  IndexedString replaceCommon(List<Token> tokens, IndexedString prevIndexedString) {
+    IndexedString result = new IndexedString();
     for (Token token : tokens) {
       String text = token.getText();
-      result.add(replacements.getOrDefault(text, text));
+      String modified = replacements.getOrDefault(text, text);
+      result.add(modified, token.getStart(), token.getEnd(), prevIndexedString);
     }
-    return String.join(" ", result);
+    return result;
   }
 }
