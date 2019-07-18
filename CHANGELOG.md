@@ -3,7 +3,7 @@ CHANGE LOG
 
 ## 0.17.1 (Not Yet Released)
 
-This is a small release with bug breaking changes.
+This is a small release with bug fixes.
 
 ## 0.17.0 
 
