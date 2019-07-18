@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+## 0.17.1 (Not Yet Released)
+
+This is a small release with bug breaking changes.
+
 ## 0.17.0 
 
 (April 17th 2019)
