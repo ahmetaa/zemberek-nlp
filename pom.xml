@@ -39,7 +39,7 @@
     <protobuf.input.directory>${project.basedir}/src/main/proto</protobuf.input.directory>
     <protobuf.output.directory.java>${project.basedir}/src/main/generated/java
     </protobuf.output.directory.java>
-    <protobuf.version>3.6.0</protobuf.version>
+    <protobuf.version>3.9.0</protobuf.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
@@ -213,11 +213,6 @@
       <artifactId>opennlp-tools</artifactId>
       <version>1.7.0</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java</artifactId>
-      <version>${protobuf.version}</version>
     </dependency>
   </dependencies>
 

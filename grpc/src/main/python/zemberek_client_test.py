@@ -3,14 +3,14 @@
 
 import grpc
 
-import zemberek_grpc.language_id_pb2 as z_langid
-import zemberek_grpc.language_id_pb2_grpc as z_langid_g
-import zemberek_grpc.normalization_pb2 as z_normalization
-import zemberek_grpc.normalization_pb2_grpc as z_normalization_g
-import zemberek_grpc.preprocess_pb2 as z_preprocess
-import zemberek_grpc.preprocess_pb2_grpc as z_preprocess_g
-import zemberek_grpc.morphology_pb2 as z_morphology
-import zemberek_grpc.morphology_pb2_grpc as z_morphology_g
+import language_id_pb2 as z_langid
+import language_id_pb2_grpc as z_langid_g
+import normalization_pb2 as z_normalization
+import normalization_pb2_grpc as z_normalization_g
+import preprocess_pb2 as z_preprocess
+import preprocess_pb2_grpc as z_preprocess_g
+import morphology_pb2 as z_morphology
+import morphology_pb2_grpc as z_morphology_g
 
 channel = grpc.insecure_channel('localhost:6789')
 

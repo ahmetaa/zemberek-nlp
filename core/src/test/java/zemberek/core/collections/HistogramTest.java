@@ -3,10 +3,7 @@ package zemberek.core.collections;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -77,8 +74,37 @@ public class HistogramTest {
     System.out.println("Elapsed:" + sw.elapsed(TimeUnit.MILLISECONDS));
   }
 
+  @Test
+  public void stressTestRemoveSmaller() {
+    Histogram<String> h = new Histogram<>(100_000);
+    Random r  =  new Random();
+    for (int i = 0; i < 10; i++) {
+       List<String> strings = randomStrings(100_000, 4);
+       h.add(strings);
+        System.out.println("before " + h.size());
+       h.removeSmaller(3);
+        System.out.println("after " +  h.size());
+        for (String s : h) {
+            Assert.assertTrue(h.getCount(s) >= 3);
+        }
+    }
+  }
+
   public Set<String> uniqueStrings(int amount, int stringLength) {
     Set<String> set = new HashSet<>(amount);
+    Random r = new Random();
+    while (set.size() < amount) {
+      StringBuilder sb = new StringBuilder(stringLength);
+      for (int i = 0; i < stringLength; i++) {
+        sb.append((char) (r.nextInt(26) + 'a'));
+      }
+      set.add(sb.toString());
+    }
+    return set;
+  }
+
+  public List<String> randomStrings(int amount, int stringLength) {
+    List<String> set = new ArrayList<>(amount);
     Random r = new Random();
     while (set.size() < amount) {
       StringBuilder sb = new StringBuilder(stringLength);
