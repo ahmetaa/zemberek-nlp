@@ -1,7 +1,7 @@
 CHANGE LOG
 ==========
 
-## 0.17.1 (Not Yet Released)
+## 0.17.1
 
 This is a minor release with bug fixes.
 Running zemberek-full.jar now lists available applications correctly. 
