@@ -32,7 +32,7 @@ import zemberek.core.io.Strings;
  */
 public final class Log {
 
-  public static final Thread.UncaughtExceptionHandler EXCEPTION_HANDLER = new ExceptionLoggerHandler();
+
   static final CUSTOM_FORMAT formatter = new CUSTOM_FORMAT();
   private static final Logger logger = Logger.getLogger("zemberek-logger");
   private static final Map<File, FileHandler> fileHandlers = new ConcurrentHashMap<>();
@@ -52,7 +52,6 @@ public final class Log {
     ch.setFormatter(new CUSTOM_FORMAT());
     ch.setLevel(currentLevel);
     logger.addHandler(ch);
-    Thread.setDefaultUncaughtExceptionHandler(EXCEPTION_HANDLER);
     Runtime.getRuntime()
         .addShutdownHook(new Thread(() -> fileHandlers.values().forEach(FileHandler::close)));
   }
