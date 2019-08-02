@@ -34,7 +34,7 @@ public class GenerateWords {
         for (String caseM : cases) {
           List<Result> results =
               morphology.getWordGenerator().generate(item, numberM, possessiveM, caseM);
-          results.forEach(s->System.out.println(s.surface));
+          results.forEach(s -> System.out.println(s.surface));
         }
       }
     }
@@ -47,21 +47,28 @@ public class GenerateWords {
 
     String[] positiveNegatives = {"", "Neg"};
     String[] times = {"Imp", "Aor", "Past", "Prog1", "Prog2", "Narr", "Fut"};
-    String[] persons = {"A1sg", "A2sg", "A3sg", "A1pl","A2pl","A3pl"};
+    String[] persons = {"A1sg", "A2sg", "A3sg", "A1pl", "A2pl", "A3pl"};
 
     TurkishMorphology morphology =
-            TurkishMorphology.builder().setLexicon("okumak").disableCache().build();
+        TurkishMorphology.builder().setLexicon("okumak").disableCache().build();
 
     for (String posNeg : positiveNegatives) {
       for (String time : times) {
         for (String person : persons) {
           List<String> seq = Stream.of(posNeg, time, person)
-                  .filter(s->s.length()>0)
-                  .collect(Collectors.toList());
+              .filter(s -> s.length() > 0)
+              .collect(Collectors.toList());
 
+          String stem = "oku";
           List<Result> results =
-                  morphology.getWordGenerator().generate("oku", seq);
-          results.forEach(s->System.out.println(s.surface));
+              morphology.getWordGenerator().generate(stem, seq);
+          if (results.size() == 0) {
+            System.out.println("Cennot generate Stem = [" + stem + "] Morphemes = " + seq);
+            continue;
+          }
+          System.out.println(results.stream()
+              .map(s -> s.surface)
+              .collect(Collectors.joining(" ")) + " " + seq);
         }
       }
     }
