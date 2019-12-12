@@ -115,7 +115,7 @@ TurkishSentenceNormalizer class is initialized as:
     Path lmFile = Paths.get("/home/aaa/zemberek-data/lm/lm.2gram.slm")
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     TurkishSentenceNormalizer normalizer = new
-        TurkishSentenceNormalizer(morphology, lookupRoot, lmPath);
+        TurkishSentenceNormalizer(morphology, lookupRoot, lmFile);
 
 Then, for normalizing a sentence, `normalize` method is used.
 

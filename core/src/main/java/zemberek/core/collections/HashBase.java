@@ -47,6 +47,9 @@ abstract class HashBase<T> {
   }
 
   final boolean hasValidKey(int i) {
+    if(i>=keys.length) {
+        return false;
+    }
     final T key = keys[i];
     return key != null && key != TOMB_STONE;
   }
@@ -231,20 +234,26 @@ abstract class HashBase<T> {
 
     int i;
     int k;
+    T key;
 
     @Override
     public boolean hasNext() {
-      return k < keyCount;
+        if(k>=keyCount) {
+            return false;
+        }
+        while (!hasValidKey(i) && i<keys.length) {
+            i++;
+        }
+        if(i<keys.length) {
+            key = keys[i];
+            i++;
+            k++;
+            return true;
+        } else return false;
     }
 
     @Override
     public T next() {
-      while (!hasValidKey(i)) {
-        i++;
-      }
-      T key = keys[i];
-      i++;
-      k++;
       return key;
     }
 

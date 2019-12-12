@@ -241,6 +241,47 @@ public class IntValueMapTest {
   }
 
   @Test
+  public void keyIteratorStressTest() {
+    Random rand = new Random(1);
+    for (int i = 0; i < 5; i++) {
+      IntValueMap<Integer> siv = new IntValueMap<>();
+      Set<Integer> uniqueKeys = new HashSet<>();
+      for (int j = 0; j < 500_000; j++) {
+        uniqueKeys.add(rand.nextInt(500_000));
+      }
+      for (int k : uniqueKeys) {
+        siv.put(k, k+1);
+      }
+
+
+      int itLen = 0;
+      for(Integer k  : siv) {
+        itLen++;
+      }
+      Assert.assertEquals(itLen, uniqueKeys.size());
+
+      Set<Integer> readValues = new HashSet<>();
+      Set<Integer> readKeys = new HashSet<>();
+      for (Integer key : siv) {
+        readValues.add(siv.get(key)-1);
+        readKeys.add(key);
+      }
+      Assert.assertEquals(uniqueKeys, readValues);
+      Assert.assertEquals(uniqueKeys, readKeys);
+
+      int j = 0;
+      for(Integer ke : uniqueKeys) {
+        if(j>50_000) {
+          break;
+        }
+
+
+      }
+
+    }
+  }
+
+  @Test
   public void stressTest() {
     Random rand = new Random(System.currentTimeMillis());
     for (int i = 0; i < 10; i++) {

@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+## 0.17.1
+
+This is a minor release with bug fixes.
+Running zemberek-full.jar now lists available applications correctly. 
+
 ## 0.17.0 
 
 (April 17th 2019)

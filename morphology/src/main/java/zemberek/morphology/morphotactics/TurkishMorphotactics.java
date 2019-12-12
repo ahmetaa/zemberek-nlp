@@ -376,6 +376,9 @@ public class TurkishMorphotactics {
   public List<Morpheme> getMorphemes(String... ids) {
     List<Morpheme> morphemes = new ArrayList<>(ids.length);
     for (String id : ids) {
+      if(id.length()==0) {
+        continue;
+      }
       morphemes.add(getMorpheme(id));
     }
     return morphemes;
@@ -2120,7 +2123,7 @@ public class TurkishMorphotactics {
     // `demek` and `yemek` are special because they are the only two verbs with two letters
     // and ends with a vowel.
     // Their root transform as:
-    // No chabge: de-di, de-miş, de-dir
+    // No change: de-di, de-miş, de-dir
     // Change : di-yecek di-yor de-r
     // "ye" has similar behavior but not the same. Such as "yi-yin" but for "de", "de-yin"
     // TODO: this can be achieved with less repetition.
