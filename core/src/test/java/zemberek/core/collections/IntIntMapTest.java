@@ -96,6 +96,32 @@ public class IntIntMapTest {
   }
 
   @Test
+  public void handlesExpansionEdgeCases() {
+    // If load factor is 1 this means backing array is filled completely
+    // and this causes an infinite loop in case a non existing element is
+    // searched in the map. This happens because we expect at least an
+    // empty slot in the map to decide the element does not exist in the
+    // map.
+    IntIntMap im = new IntIntMap(2);
+    im.put(1, 3);
+    im.put(2, 5);
+    // If backing array has no  empty element this call would cause an
+    // infinite loop.
+    assertEquals(im.get(3), IntIntMap.EMPTY);
+
+    im = new IntIntMap(4);
+    im.put(1, 3);
+    im.put(2, 5);
+    im.put(3, 5);
+    im.put(4, 5);
+    assertEquals(im.get(5), IntIntMap.EMPTY);
+
+    im = new IntIntMap(1);
+    im.put(1, 2);
+    assertEquals(im.get(3), IntIntMap.EMPTY);
+  }
+
+  @Test
   public void expandsCorrectly() {
     // Create maps with different sizes and add size * 10 elements to each.
     for (int i = 1; i < 100; i++) {

@@ -46,8 +46,10 @@ public abstract class CompactIntMapBase {
   }
 
   static float calculateLoadFactor(int capacity) {
+    // Note: Never return 1.0 as load factor. Backing array should have
+    // at least one empty slot.
     if (capacity <= 4) {
-      return 1.0f;
+      return 0.9f;
     } else if (capacity <= 16) {
       return 0.75f;
     } else if (capacity <= 128) {
@@ -126,8 +128,10 @@ public abstract class CompactIntMapBase {
     }
   }
 
+  // This method is only used during expansion of the map. New capacity is calculated as
+  // old capacity * 2
   int newCapacity() {
-    int newCapacity = nearestPowerOf2Capacity(keyCount, MAX_CAPACITY) * 2;
+    int newCapacity = nearestPowerOf2Capacity(capacity(), MAX_CAPACITY) * 2;
     if (newCapacity > MAX_CAPACITY) {
       throw new RuntimeException("Map size is too large.");
     }
