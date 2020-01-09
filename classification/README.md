@@ -62,6 +62,7 @@ Once a model is generated, applying it to documents is straight forward. One imp
 
 Here is an example:
 
+```java
     FastTextClassifier classifier = FastTextClassifier.load(modelPath);
 
     String s = "Beşiktaş berabere kaldı."
@@ -75,7 +76,8 @@ Here is an example:
     
     for (ScoredItem<String> re : res) {
        System.out.println(re);
-    }   
+    }
+```
 
 Output may look like this:
 
