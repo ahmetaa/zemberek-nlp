@@ -30,6 +30,7 @@ Please read the [FAQ](https://github.com/ahmetaa/zemberek-nlp/wiki/FAQ) for comm
 
 Add this to pom.xml file
 
+```xml
     <repositories>
         <repository>
             <id>zemberek-repo</id>
@@ -37,9 +38,11 @@ Add this to pom.xml file
             <url>https://raw.github.com/ahmetaa/maven-repo/master</url>
         </repository>
     </repositories>
+```
 
 And dependencies (For example morphology):
 
+```xml
     <dependencies>
         <dependency>
             <groupId>zemberek-nlp</groupId>
@@ -47,6 +50,7 @@ And dependencies (For example morphology):
             <version>0.17.1</version>
         </dependency>
     </dependencies>
+```
 
 ### Jar distributions
 
