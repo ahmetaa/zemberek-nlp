@@ -78,6 +78,7 @@ TurkishTokenizer instances are thread safe.
 There are several helper methods in the tokenizer.
 If detailed token information is required:
 
+```java
     TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
     List<Token> tokens = tokenizer.tokenize("Saat 12:00.");
     for (Token token : tokens) {
@@ -87,6 +88,7 @@ If detailed token information is required:
         System.out.println("Stop  = " + token.getStopIndex());
         System.out.println();
     }
+```
 
 This will output 
 

@@ -65,15 +65,18 @@ SmoothLm does not provide a constructor. It can be instantiated with Builder pat
 
 There are several parameters can be used during the instantiation.
 
+```java
     SmoothLm lm = SmoothLm.builder(new File("lm.smooth"))
         .logBase(Math.E)
         .unigramSmoothing(0.8)
         .build();
+```
 
 Here model probability and backoff values are converted to e and additional unigram smoothing is applied.
 
 After Language model is instantiated several methods are available. Some Examples:
 
+```java
     // Model information.
     System.out.println(lm.info());
 
@@ -85,5 +88,5 @@ After Language model is instantiated several methods are available. Some Example
 
     // explains how probability is calculated.
     System.out.println(lm.explain(wordIds));
-
+```
 

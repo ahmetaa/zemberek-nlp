@@ -59,11 +59,13 @@ Will give these suggestions:
 
 If user provides a higher order language model (bi-gram models are sufficient) and context words, ranking of the suggestions may improve. Method below is used for this. 
 
+```java
     public List<String> suggestForWord(
                 String word,
                 String leftContext,
                 String rightContext,
                 NgramLanguageModel lm)
+```
     
 ### Limitations
 
