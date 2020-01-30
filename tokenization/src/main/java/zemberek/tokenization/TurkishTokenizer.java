@@ -213,10 +213,10 @@ public class TurkishTokenizer {
       type = convertType(token);
       while (tokenizer.typeIgnored(type)) {
         token = lexer.nextToken();
-        type = convertType(token);
         if (token.getType() == org.antlr.v4.runtime.Token.EOF) {
           return false;
         }
+        type = convertType(token);
       }
       this.token = token;
       return true;
