@@ -4,6 +4,7 @@ import com.beust.jcommander.Parameter;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 import zemberek.apps.ConsoleApp;
 import zemberek.classification.FastTextClassifier;
@@ -88,7 +89,7 @@ public class ClassificationConsole extends ConsoleApp {
       List<ScoredItem<String>> res = classifier.predict(processed, predictionCount);
       List<String> predictedCategories = new ArrayList<>();
       for (ScoredItem<String> re : res) {
-        predictedCategories.add(String.format("%s (%.6f)",
+        predictedCategories.add(String.format(Locale.ENGLISH,"%s (%.6f)",
             re.item.replaceAll("__label__", ""), re.score));
       }
       System.out.println("Predictions   = " + String.join(", ", predictedCategories));

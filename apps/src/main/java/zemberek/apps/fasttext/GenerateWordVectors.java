@@ -58,9 +58,6 @@ public class GenerateWordVectors extends FastTextAppBase {
     trainer.getEventBus().register(this);
 
     FastText fastText = trainer.train(input);
-    if(progressBar !=null) {
-      progressBar.close();
-    }
 
     Log.info("Saving vectors in text format to %s", output);
     fastText.saveVectors(output);

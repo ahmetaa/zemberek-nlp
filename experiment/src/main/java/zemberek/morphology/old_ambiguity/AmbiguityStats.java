@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import zemberek.core.collections.Histogram;
@@ -57,11 +58,11 @@ public class AmbiguityStats {
   }
 
   public String percentStr(int p1, int p2) {
-    return String.format("%.2f", pct(p1, p2));
+    return String.format(Locale.ENGLISH,"%.2f", pct(p1, p2));
   }
 
   public String percentStr3(int p1, int p2) {
-    return String.format("%.3f", pct(p1, p2));
+    return String.format(Locale.ENGLISH,"%.3f", pct(p1, p2));
   }
 
   public double pct(int p1, int p2) {

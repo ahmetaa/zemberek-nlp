@@ -89,10 +89,6 @@ public class TrainClassifier extends FastTextAppBase {
 
     FastTextClassifier classifier = trainer.train(input);
 
-    if (progressBar != null) {
-      progressBar.close();
-    }
-
     Log.info("Saving classification model to %s", output);
     FastText fastText = classifier.getFastText();
     fastText.saveModel(output);

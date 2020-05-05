@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -92,12 +93,12 @@ public class ConfusionTest {
         falsePositives += result.getCount(language);
       }
       double elapsed = sw.elapsed(TimeUnit.MILLISECONDS);
-      System.out.println(String.format("Id per second: %.2f", (1000d * totalCount / elapsed)));
+      System.out.println(String.format(Locale.ENGLISH, "Id per second: %.2f", (1000d * totalCount / elapsed)));
       System.out.println("False positive count: " + falsePositives);
       System.out.println("All: " + totalCount);
-      System.out.println(String.format("Precision:%.2f ", (100d * correctlyFound / correctAmount)));
+      System.out.println(String.format(Locale.ENGLISH, "Precision:%.2f ", (100d * correctlyFound / correctAmount)));
       System.out.println(
-          String.format("Recall: %.2f", (100d * (totalCount - falsePositives) / totalCount)));
+          String.format(Locale.ENGLISH, "Recall: %.2f", (100d * (totalCount - falsePositives) / totalCount)));
     }
   }
 
@@ -157,12 +158,12 @@ public class ConfusionTest {
         falsePositives += result.getCount(language);
       }
       double elapsed = sw.elapsed(TimeUnit.MILLISECONDS);
-      System.out.println(String.format("Id per second: %.2f", (1000d * totalCount / elapsed)));
+      System.out.println(String.format(Locale.ENGLISH, "Id per second: %.2f", (1000d * totalCount / elapsed)));
       System.out.println("False positive count: " + falsePositives);
       System.out.println("All: " + totalCount);
-      System.out.println(String.format("Precision:%.2f ", (100d * correctlyFound / correctAmount)));
+      System.out.println(String.format(Locale.ENGLISH,"Precision:%.2f ", (100d * correctlyFound / correctAmount)));
       System.out.println(
-          String.format("Recall: %.2f", (100d * (totalCount - falsePositives) / totalCount)));
+          String.format(Locale.ENGLISH,"Recall: %.2f", (100d * (totalCount - falsePositives) / totalCount)));
     }
   }
 

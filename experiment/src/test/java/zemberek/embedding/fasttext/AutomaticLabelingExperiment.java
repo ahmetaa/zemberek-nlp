@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -127,7 +128,7 @@ public class AutomaticLabelingExperiment {
         List<ScoredItem<String>> res = fastText.predict(testLine, 7);
         List<String> predictedLabels = new ArrayList<>();
         for (ScoredItem<String> re : res) {
-          predictedLabels.add(String.format("%s (%.2f)",
+          predictedLabels.add(String.format(Locale.ENGLISH, "%s (%.2f)",
               re.item.replaceAll("__label__", "").replaceAll("_", " "), re.score));
         }
 

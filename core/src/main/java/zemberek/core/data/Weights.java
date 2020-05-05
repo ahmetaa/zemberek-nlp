@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.compression.LossyIntLookup;
 import zemberek.core.io.Strings;
@@ -55,7 +56,7 @@ public class Weights implements WeightLookup, Iterable<String> {
   public void saveAsText(Path file) throws IOException {
     try (PrintWriter pw = new PrintWriter(file.toFile(), "utf-8")) {
       for (String s : data.getKeyList()) {
-        pw.println(String.format("%.3f %s", data.get(s), s));
+        pw.println(String.format(Locale.ENGLISH, "%.3f %s", data.get(s), s));
       }
     }
   }

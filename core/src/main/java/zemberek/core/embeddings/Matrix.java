@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.Locale;
 import java.util.Random;
 import zemberek.core.math.FloatArrays;
 
@@ -261,7 +262,7 @@ class Matrix {
     int n = amount > n_ ? n_ : amount;
     System.out.print(s + "[" + i + "] = ");
     for (int k = 0; k < n; k++) {
-      System.out.print(String.format("%.4f ", data_[i][k]));
+      System.out.print(String.format(Locale.ENGLISH,"%.4f ", data_[i][k]));
     }
     System.out.println();
   }

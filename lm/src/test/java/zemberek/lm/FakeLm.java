@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import zemberek.core.io.SimpleTextWriter;
 
@@ -99,9 +100,9 @@ public class FakeLm {
       for (FakeGram prob : probs) {
         if (o < order) {
           sw.writeLine(String
-              .format("%.4f %s %.4f", prob.prob, Joiner.on(" ").join(prob.vals), prob.backoff));
+              .format(Locale.ENGLISH,"%.4f %s %.4f", prob.prob, Joiner.on(" ").join(prob.vals), prob.backoff));
         } else {
-          sw.writeLine(String.format("%.4f %s", prob.prob, Joiner.on(" ").join(prob.vals)));
+          sw.writeLine(String.format(Locale.ENGLISH, "%.4f %s", prob.prob, Joiner.on(" ").join(prob.vals)));
         }
       }
     }

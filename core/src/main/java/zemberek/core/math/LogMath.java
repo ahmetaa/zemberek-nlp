@@ -1,5 +1,9 @@
 package zemberek.core.math;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 public class LogMath {
 
   public static final double LOG_ZERO = -Math.log(Double.MAX_VALUE);
@@ -149,6 +153,36 @@ public class LogMath {
       for (int i = 0; i < lookup.length; i++) {
         lookup[i] = (float) log(base, 1.0 + Math.pow(base, (double) -i / scale));
       }
+    }
+
+    public void dump() {
+      int chunk = 10;
+      int start = 0;
+      int end = chunk;
+      System.out.println("{");
+      while(end<lookup.length) {
+        List<String> line = new ArrayList<>();
+
+        for(int i = start; i<end; i++) {
+          line.add(String.format(Locale.ENGLISH, "%.6f", lookup[i]));
+        }
+
+        String join = String.join(", ", line);
+        if(end<lookup.length) {
+          System.out.println(join + ",");
+        } else {
+          System.out.println(join);
+        }
+
+        start = end;
+        end = start + chunk;
+        if(end >= lookup.length) {
+          end = lookup.length;
+        }
+
+      }
+        System.out.println("};");
+
     }
 
     /**
@@ -316,4 +350,8 @@ public class LogMath {
       }
     }
   }
+
+    public static void main(String[] args) {
+        LOG_SUM_FLOAT.dump();
+    }
 }

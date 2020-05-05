@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import zemberek.apps.ConsoleApp;
 import zemberek.classification.FastTextClassifier;
@@ -69,7 +70,7 @@ public class EvaluateClassifier extends ConsoleApp {
 
         List<String> predictedCategories = new ArrayList<>();
         for (ScoredItem<String> re : res) {
-          predictedCategories.add(String.format("%s (%.6f)",
+          predictedCategories.add(String.format(Locale.ENGLISH, "%s (%.6f)",
               re.item.replaceAll("__label__", ""),
               Math.exp(re.score)));
         }

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -220,7 +221,7 @@ public class NerDataSet {
       res.add(String.format("Number of sentences      = %d", numberOfSentences));
       res.add(String.format("Number of tokens         = %d", numberOfTokens));
       for (String type : typeHistogram.getSortedList()) {
-        res.add(String.format("Type = %s (Count = %d, Token Count = %d Av. Token = %.2f )",
+        res.add(String.format(Locale.ENGLISH,"Type = %s (Count = %d, Token Count = %d Av. Token = %.2f )",
             type,
             typeHistogram.getCount(type),
             tokenHistogram.getCount(type),

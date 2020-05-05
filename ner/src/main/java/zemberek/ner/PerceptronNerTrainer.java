@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.IntValueMap;
@@ -157,10 +158,10 @@ public class PerceptronNerTrainer {
 
     public String dump() {
       List<String> lines = new ArrayList<>();
-      lines.add(String.format("Token Error ratio   = %.6f", tokenErrorRatio()));
-      lines.add(String.format("NE Token Precision  = %.6f", tokenPrecision()));
-      lines.add(String.format("NE Token Recall     = %.6f", tokenRecall()));
-      lines.add(String.format("Exact NE match      = %.6f", exactMatch()));
+      lines.add(String.format(Locale.ENGLISH,"Token Error ratio   = %.6f", tokenErrorRatio()));
+      lines.add(String.format(Locale.ENGLISH,"NE Token Precision  = %.6f", tokenPrecision()));
+      lines.add(String.format(Locale.ENGLISH,"NE Token Recall     = %.6f", tokenRecall()));
+      lines.add(String.format(Locale.ENGLISH,"Exact NE match      = %.6f", exactMatch()));
       return String.join("\n", lines);
     }
 

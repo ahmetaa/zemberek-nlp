@@ -18,9 +18,9 @@ import zemberek.tokenization.Token;
  */
 public class AnalysisCache {
 
-  private static final int STATIC_CACHE_CAPACITY = 3000;
-  private static final int DEFAULT_INITIAL_DYNAMIC_CACHE_CAPACITY = 1000;
-  private static final int DEFAULT_MAX_DYNAMIC_CACHE_CAPACITY = 10000;
+  private static final int STATIC_CACHE_CAPACITY = 5000;
+  private static final int DEFAULT_INITIAL_DYNAMIC_CACHE_CAPACITY = 3000;
+  private static final int DEFAULT_MAX_DYNAMIC_CACHE_CAPACITY = 30_000;
   private static final int DYNAMIC_CACHE_CAPACITY_LIMIT = 1_000_000;
 
   private static final String MOST_USED_WORDS_FILE = "/tr/first-10K";

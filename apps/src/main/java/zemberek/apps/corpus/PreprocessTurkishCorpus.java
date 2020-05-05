@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarStyle;
 import zemberek.apps.ConsoleApp;
 import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.concurrency.ConcurrencyUtil;
@@ -84,9 +84,8 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
   private TurkishMorphology morphology;
 
   @Override
-  public void run() throws IOException {
+  public void run() throws IOException, InterruptedException {
 
-    System.setProperty("org.jline.terminal.dumb", "true");
     List<Path> paths = new ArrayList<>();
     if (input.toFile().isFile()) {
       paths.add(input);
@@ -120,6 +119,7 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
     for (Path path : paths) {
       totalLines += TextIO.lineCount(path);
     }
+    final long total = totalLines;
 
     if (paths.size() == 0) {
       Log.info("No corpus files found for input : %s", input);
@@ -133,10 +133,11 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
     }
 
     try (PrintWriter pw = new PrintWriter(output.toFile(), "UTF-8")) {
-      ProgressBar progressBar = new ProgressBar("Lines", totalLines, ProgressBarStyle.ASCII);
 
       BlockTextLoader loader = BlockTextLoader.fromPaths(paths, 10_000);
       BlockingExecutor executor = new BlockingExecutor(threadCount);
+
+      AtomicInteger count = new AtomicInteger(0);
 
       for (TextChunk chunk : loader) {
         executor.submit(() -> {
@@ -161,12 +162,13 @@ public class PreprocessTurkishCorpus extends ConsoleApp {
           synchronized (this) {
             sentences.forEach(pw::println);
             sentenceCount.addAndGet(sentences.size());
-            progressBar.stepBy(chunk.size());
+            int c = count.addAndGet(chunk.size());
+            System.out.println(String.format("(%d of %d lines) processed.", c, total));
           }
         });
       }
       executor.shutdown();
-      progressBar.close();
+      executor.awaitTermination(1, TimeUnit.DAYS);
     }
 
     Log.info("%d sentences are written in %s", sentenceCount.get(), output);

@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarStyle;
 import zemberek.core.concurrency.BlockingExecutor;
 import zemberek.core.logging.Log;
 import zemberek.core.text.BlockTextLoader;
@@ -101,7 +99,6 @@ public class StemDisambiguationExperiment {
 
     try (
         PrintWriter pw = new PrintWriter(output.toFile(), "UTF-8")) {
-      ProgressBar pb = new ProgressBar("Lines", totalLines, ProgressBarStyle.ASCII);
 
       BlockTextLoader loader = BlockTextLoader.fromPaths(paths, 30_000);
       BlockingExecutor executor =
@@ -119,12 +116,11 @@ public class StemDisambiguationExperiment {
           synchronized (this) {
             sentences.forEach(pw::println);
             sentenceCount.addAndGet(sentences.size());
-            pb.stepBy(chunk.size());
+            System.out.println(chunk.size());
           }
         });
       }
       executor.shutdown();
-      pb.close();
     }
 
     Log.info("%d sentences are written in %s", sentenceCount.get(), output);

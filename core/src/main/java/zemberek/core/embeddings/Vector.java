@@ -3,6 +3,7 @@ package zemberek.core.embeddings;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import zemberek.core.math.FloatArrays;
 
 class Vector {
@@ -99,7 +100,7 @@ class Vector {
   String asString() {
     List<String> values = new ArrayList<>(data_.length);
     for (float v : data_) {
-      values.add(String.format("%.6f", v));
+      values.add(String.format(Locale.ENGLISH, "%.6f", v));
     }
     return String.join(" ", values);
   }

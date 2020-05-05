@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
@@ -104,8 +105,8 @@ public class BotExperiment {
       pw.println("Line count = " + lineCount);
       pw.println("Token count = " + tokenCount);
       double elapsed = sw.elapsed(TimeUnit.MILLISECONDS) / 1000d;
-      pw.println("Time to process = " + String.format("%.2f", elapsed) + " seconds.");
-      pw.println("Speed = " + String.format("%.2f", tokenCount / elapsed) + " tokens/seconds.");
+      pw.println("Time to process = " + String.format(Locale.ENGLISH,"%.2f", elapsed) + " seconds.");
+      pw.println("Speed = " + String.format(Locale.ENGLISH,"%.2f", tokenCount / elapsed) + " tokens/seconds.");
     }
   }
 

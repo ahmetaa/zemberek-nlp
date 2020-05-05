@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.Histogram;
@@ -103,7 +104,7 @@ public class CategoryPredictionExperiment {
           if (re.score < -10) {
             continue;
           }
-          predictedCategories.add(String.format("%s (%.2f)",
+          predictedCategories.add(String.format(Locale.ENGLISH, "%s (%.2f)",
               re.item.replaceAll("__label__", "").replaceAll("_", " "), re.score));
         }
         pw.println("id = " + id);

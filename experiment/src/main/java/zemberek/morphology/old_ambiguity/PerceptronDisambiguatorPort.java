@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -284,7 +285,8 @@ class PerceptronDisambiguatorPort extends AbstractDisambiguator {
     }
     Log.info("Elapsed: " + sw.elapsed(TimeUnit.MILLISECONDS));
     Log.info(
-        "Word count:" + total + " hit=" + hit + String.format(" Accuracy:%f", hit * 1.0 / total));
+        "Word count:" + total + " hit=" + hit + String.format(
+            Locale.ENGLISH, " Accuracy:%f", hit * 1.0 / total));
   }
 
   static class Hypothesis implements Scorable {

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -379,7 +380,8 @@ public class PerceptronAmbiguityResolverTrainer {
     }
     Log.info("Elapsed: " + sw.elapsed(TimeUnit.MILLISECONDS));
     Log.info(
-        "Word count:" + total + " hit=" + hit + String.format(" Accuracy:%f", hit * 1.0 / total));
+        "Word count:" + total + " hit=" + hit + String.format(
+            Locale.ENGLISH," Accuracy:%f", hit * 1.0 / total));
   }
 
 
