@@ -113,6 +113,8 @@ public class TurkishTokenizer {
     switch (token.getType()) {
       case TurkishLexer.SpaceTab:
         return Type.SpaceTab;
+      case TurkishLexer.Question:
+        return Type.Question;
       case TurkishLexer.Word:
         return Type.Word;
       case TurkishLexer.Number:
@@ -213,10 +215,10 @@ public class TurkishTokenizer {
       type = convertType(token);
       while (tokenizer.typeIgnored(type)) {
         token = lexer.nextToken();
-        type = convertType(token);
         if (token.getType() == org.antlr.v4.runtime.Token.EOF) {
           return false;
         }
+        type = convertType(token);
       }
       this.token = token;
       return true;
