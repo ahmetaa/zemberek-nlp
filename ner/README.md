@@ -49,10 +49,19 @@ NER annotation is not an easy task. Sometimes it is hard to decide the boundary 
 It is usually a good idea to separate 1/10 of the data for testing. We call this data `test set`.
 Normally another set `development set` is used for parameter tuning but we will not use it in this example. 
 
-### Training
+### Training with CL application
 
-Here is a code for training:
+If you use zemberek jar file, training is straight forward.
 
+```
+java -jar zemberek-full.jar TrainNerModel -s ENAMEX -t NE-enamex.train.txt -o test-model
+```
+
+This will create two model directories under `test-model` directory. One is for text model, other is for compressed binary model.   
+
+### Training NER programatically
+
+You can also train a NER model programatically:
    
     Path trainPath = Paths.get("ner-train");
     Path testPath = Paths.get("ner-test");
@@ -77,7 +86,15 @@ Here is a code for training:
 If code ends with success, several files will be created in `modelRoot` directory. From now on 
 these model directory will represent our NER model.
 
-## Using NER
+## Evaluating NER 
+
+For evaluating a NER model, there is a command line application.
+
+```
+java -jar zemberek-full.jar EvaluateNer -s ENAMEX -r NE-enamex.test.txt -m test-model/model
+```
+
+## Using NER programatically
 
 Once a model is generated, applying it to sentences is straight forward.
 
