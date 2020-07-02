@@ -113,8 +113,6 @@ public class TurkishTokenizer {
     switch (token.getType()) {
       case TurkishLexer.SpaceTab:
         return Type.SpaceTab;
-      case TurkishLexer.Question:
-        return Type.Question;
       case TurkishLexer.Word:
         return Type.Word;
       case TurkishLexer.Number:
