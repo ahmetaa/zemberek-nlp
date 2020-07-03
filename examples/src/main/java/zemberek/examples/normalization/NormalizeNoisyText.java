@@ -34,7 +34,7 @@ public class NormalizeNoisyText {
 
     for (String example : examples) {
       System.out.println(example);
-      System.out.println(normalizer.normalize(example));
+      System.out.println(normalizer.normalize(example).toString());
       System.out.println();
     }
 
