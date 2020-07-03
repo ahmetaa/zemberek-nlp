@@ -152,6 +152,10 @@ public class TurkishSentenceNormalizer {
 
   public String normalize(String sentence) {
 
+    if(sentence.matches("^\\P{L}*$")) {
+      return sentence;
+    }
+
     String processed = preProcess(sentence);
 
     List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(processed);
