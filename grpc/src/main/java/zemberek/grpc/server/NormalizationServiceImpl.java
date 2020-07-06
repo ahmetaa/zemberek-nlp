@@ -10,9 +10,9 @@ import zemberek.proto.NormalizationServiceGrpc.NormalizationServiceImplBase;
 
 public class NormalizationServiceImpl extends NormalizationServiceImplBase {
 
-  ZemberekContext context;
+  private ZemberekContext context;
 
-  TurkishSentenceNormalizer sentenceNormalizer;
+  private TurkishSentenceNormalizer sentenceNormalizer;
 
   public NormalizationServiceImpl(ZemberekContext context) throws IOException {
     this.context = context;
