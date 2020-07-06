@@ -1,16 +1,11 @@
 package zemberek.grpc.server;
 
 import io.grpc.stub.StreamObserver;
-import zemberek.core.turkish.SecondaryPos;
 import zemberek.langid.LanguageIdentifier;
-import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.proto.*;
 import zemberek.proto.LanguageIdServiceGrpc.LanguageIdServiceImplBase;
-import zemberek.proto.morphology.DictionaryItemProto;
-import zemberek.proto.morphology.SentenceAnalysisProto;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class LanguageIdServiceImpl extends LanguageIdServiceImplBase {
 
