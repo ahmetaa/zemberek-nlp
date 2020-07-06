@@ -15,9 +15,11 @@ import java.util.stream.Collectors;
 public class LanguageIdServiceImpl extends LanguageIdServiceImplBase {
 
   private final LanguageIdentifier languageIdentifier;
+  private final LanguageIdentifier languageIdentifierTr;
 
   public LanguageIdServiceImpl() throws Exception {
     languageIdentifier = LanguageIdentifier.fromInternalModels();
+    languageIdentifierTr = LanguageIdentifier.fromInternalModelGroup("tr_group");
   }
 
   @Override
@@ -51,6 +53,42 @@ public class LanguageIdServiceImpl extends LanguageIdServiceImplBase {
   public void getScoresFast(LanguageIdRequest request,
                         StreamObserver<LanguageIdScoresResponse> responseObserver) {
     List<LanguageIdentifier.IdResult> idResult = languageIdentifier.getScoresFast(request.getInput(), request.getMaxSampleCount());
+
+    responseObserver.onNext(toLangIdResult(idResult));
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void detectTr(LanguageIdRequest request,
+                     StreamObserver<LanguageIdResponse> responseObserver) {
+    String id = languageIdentifierTr.identify(request.getInput(), request.getMaxSampleCount());
+
+    responseObserver.onNext(LanguageIdResponse.newBuilder().setLangId(id).build());
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void detectFastTr(LanguageIdRequest request,
+                         StreamObserver<LanguageIdResponse> responseObserver) {
+    String id = languageIdentifierTr.identifyFast(request.getInput(), request.getMaxSampleCount());
+
+    responseObserver.onNext(LanguageIdResponse.newBuilder().setLangId(id).build());
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void getScoresTr(LanguageIdRequest request,
+                        StreamObserver<LanguageIdScoresResponse> responseObserver) {
+    List<LanguageIdentifier.IdResult> idResult = languageIdentifierTr.getScores(request.getInput(), request.getMaxSampleCount());
+
+    responseObserver.onNext(toLangIdResult(idResult));
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void getScoresFastTr(LanguageIdRequest request,
+                            StreamObserver<LanguageIdScoresResponse> responseObserver) {
+    List<LanguageIdentifier.IdResult> idResult = languageIdentifierTr.getScoresFast(request.getInput(), request.getMaxSampleCount());
 
     responseObserver.onNext(toLangIdResult(idResult));
     responseObserver.onCompleted();

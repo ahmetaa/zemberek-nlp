@@ -28,4 +28,8 @@ service LanguageIdService {
   rpc DetectFast (LanguageIdRequest) returns (LanguageIdResponse);
   rpc getScores (LanguageIdRequest) returns (LanguageIdScoresResponse);
   rpc getScoresFast (LanguageIdRequest) returns (LanguageIdScoresResponse);
+  rpc DetectTr (LanguageIdRequest) returns (LanguageIdResponse);
+  rpc DetectFastTr (LanguageIdRequest) returns (LanguageIdResponse);
+  rpc getScoresTr (LanguageIdRequest) returns (LanguageIdScoresResponse);
+  rpc getScoresFastTr (LanguageIdRequest) returns (LanguageIdScoresResponse);
 }
