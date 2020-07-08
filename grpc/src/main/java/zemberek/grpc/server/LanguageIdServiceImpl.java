@@ -20,81 +20,39 @@ public class LanguageIdServiceImpl extends LanguageIdServiceImplBase {
   @Override
   public void detect(LanguageIdRequest request,
       StreamObserver<LanguageIdResponse> responseObserver) {
-    String id = languageIdentifier.identify(request.getInput(), request.getMaxSampleCount());
+    LanguageIdentifier identifier = request.getTrGroup() ? languageIdentifierTr : languageIdentifier;
 
-    responseObserver.onNext(LanguageIdResponse.newBuilder().setLangId(id).build());
+    String id = identifier.identify(request.getInput(), request.getMaxSampleCount());
+
+    LanguageIdResponse.Builder builder = LanguageIdResponse.newBuilder().setLangId(id);
+    if(request.getIncludeScores()){
+      List<LanguageIdentifier.IdResult> scores = identifier.getScores(request.getInput(), request.getMaxSampleCount());
+      for (LanguageIdentifier.IdResult item : scores) {
+        builder.addIdResult(IdResult.newBuilder().setId(item.id).setScore(item.score).build());
+      }
+    }
+
+    responseObserver.onNext(builder.build());
     responseObserver.onCompleted();
   }
 
   @Override
   public void detectFast(LanguageIdRequest request,
       StreamObserver<LanguageIdResponse> responseObserver) {
-    String id = languageIdentifier.identifyFast(request.getInput(), request.getMaxSampleCount());
+    LanguageIdentifier identifier = request.getTrGroup() ? languageIdentifierTr : languageIdentifier;
 
-    responseObserver.onNext(LanguageIdResponse.newBuilder().setLangId(id).build());
-    responseObserver.onCompleted();
-  }
+    String id = identifier.identifyFast(request.getInput(), request.getMaxSampleCount());
 
-  @Override
-  public void getScores(LanguageIdRequest request,
-                         StreamObserver<LanguageIdScoresResponse> responseObserver) {
-    List<LanguageIdentifier.IdResult> idResult = languageIdentifier.getScores(request.getInput(), request.getMaxSampleCount());
-
-    responseObserver.onNext(toLangIdResult(idResult));
-    responseObserver.onCompleted();
-  }
-
-  @Override
-  public void getScoresFast(LanguageIdRequest request,
-                        StreamObserver<LanguageIdScoresResponse> responseObserver) {
-    List<LanguageIdentifier.IdResult> idResult = languageIdentifier.getScoresFast(request.getInput(), request.getMaxSampleCount());
-
-    responseObserver.onNext(toLangIdResult(idResult));
-    responseObserver.onCompleted();
-  }
-
-  @Override
-  public void detectTr(LanguageIdRequest request,
-                     StreamObserver<LanguageIdResponse> responseObserver) {
-    String id = languageIdentifierTr.identify(request.getInput(), request.getMaxSampleCount());
-
-    responseObserver.onNext(LanguageIdResponse.newBuilder().setLangId(id).build());
-    responseObserver.onCompleted();
-  }
-
-  @Override
-  public void detectFastTr(LanguageIdRequest request,
-                         StreamObserver<LanguageIdResponse> responseObserver) {
-    String id = languageIdentifierTr.identifyFast(request.getInput(), request.getMaxSampleCount());
-
-    responseObserver.onNext(LanguageIdResponse.newBuilder().setLangId(id).build());
-    responseObserver.onCompleted();
-  }
-
-  @Override
-  public void getScoresTr(LanguageIdRequest request,
-                        StreamObserver<LanguageIdScoresResponse> responseObserver) {
-    List<LanguageIdentifier.IdResult> idResult = languageIdentifierTr.getScores(request.getInput(), request.getMaxSampleCount());
-
-    responseObserver.onNext(toLangIdResult(idResult));
-    responseObserver.onCompleted();
-  }
-
-  @Override
-  public void getScoresFastTr(LanguageIdRequest request,
-                            StreamObserver<LanguageIdScoresResponse> responseObserver) {
-    List<LanguageIdentifier.IdResult> idResult = languageIdentifierTr.getScoresFast(request.getInput(), request.getMaxSampleCount());
-
-    responseObserver.onNext(toLangIdResult(idResult));
-    responseObserver.onCompleted();
-  }
-
-  LanguageIdScoresResponse toLangIdResult(List<LanguageIdentifier.IdResult> idResult) {
-    LanguageIdScoresResponse.Builder builder = LanguageIdScoresResponse.newBuilder();
-    for (LanguageIdentifier.IdResult item : idResult) {
-      builder.addIdResult(IdResult.newBuilder().setId(item.id).setScore(item.score).build());
+    LanguageIdResponse.Builder builder = LanguageIdResponse.newBuilder().setLangId(id);
+    if(request.getIncludeScores()){
+      List<LanguageIdentifier.IdResult> scores = identifier.getScoresFast(request.getInput(), request.getMaxSampleCount());
+      for (LanguageIdentifier.IdResult item : scores) {
+        builder.addIdResult(IdResult.newBuilder().setId(item.id).setScore(item.score).build());
+      }
     }
-    return builder.build();
+
+    responseObserver.onNext(builder.build());
+    responseObserver.onCompleted();
   }
 
 }

@@ -8,10 +8,13 @@ package zemberek.langid;
 message LanguageIdRequest {
   string input = 1;
   int32 maxSampleCount = 2;
+  bool trGroup = 3;
+  bool includeScores = 4;
 }
 
 message LanguageIdResponse {
   string langId = 1;
+  repeated IdResult idResult = 2;
 }
 
 message IdResult {
@@ -19,17 +22,7 @@ message IdResult {
   double score = 2;
 }
 
-message LanguageIdScoresResponse{
-  repeated IdResult idResult = 1;
-}
-
 service LanguageIdService {
   rpc Detect (LanguageIdRequest) returns (LanguageIdResponse);
   rpc DetectFast (LanguageIdRequest) returns (LanguageIdResponse);
-  rpc getScores (LanguageIdRequest) returns (LanguageIdScoresResponse);
-  rpc getScoresFast (LanguageIdRequest) returns (LanguageIdScoresResponse);
-  rpc DetectTr (LanguageIdRequest) returns (LanguageIdResponse);
-  rpc DetectFastTr (LanguageIdRequest) returns (LanguageIdResponse);
-  rpc getScoresTr (LanguageIdRequest) returns (LanguageIdScoresResponse);
-  rpc getScoresFastTr (LanguageIdRequest) returns (LanguageIdScoresResponse);
 }
