@@ -13,7 +13,7 @@ func GetScores(text string, maxSampleCount int32) []*pb.IdResult {
 
 	c := pb.NewLanguageIdServiceClient(*conn)
 
-	response, err := c.GetScores(context.Background(), &pb.LanguageIdRequest{Input: text, MaxSampleCount: maxSampleCount})
+	response, err := c.DetectFast(context.Background(), &pb.LanguageIdRequest{Input: text, MaxSampleCount: maxSampleCount, IncludeScores: true, TrGroup: true})
 	if err != nil {
 		log.Fatalf("Error when calling SayHello: %s", err)
 	}
