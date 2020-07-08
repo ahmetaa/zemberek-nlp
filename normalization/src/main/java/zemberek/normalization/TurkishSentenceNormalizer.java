@@ -152,7 +152,7 @@ public class TurkishSentenceNormalizer {
 
   public String normalize(String sentence) {
 
-    if(sentence.matches("^\\P{L}*$")) {
+    if(sentence.trim().length() == 0) {
       return sentence;
     }
 
