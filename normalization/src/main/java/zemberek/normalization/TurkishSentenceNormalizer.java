@@ -152,6 +152,10 @@ public class TurkishSentenceNormalizer {
 
   public String normalize(String sentence) {
 
+    if(sentence.trim().length() == 0) {
+      return sentence;
+    }
+
     String processed = preProcess(sentence);
 
     List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(processed);
