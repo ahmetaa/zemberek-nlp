@@ -89,7 +89,7 @@ public class WordHistogram {
       String turkishChrs = chunk.replaceAll("[^çÇöÖğĞüÜıİşŞâî]", "");
       double ratio = turkishChrs.length() * 1d / withoutSpaces.length();
       if (ratio < 0.01) {
-        result.add(new Deasciifier(tokenStr).convertToTurkish());
+        result.add(Deasciifier.deasciify(tokenStr));
       } else {
         result.add(chunk);
       }
