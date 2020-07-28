@@ -1,14 +1,12 @@
 package zemberek.normalization.deasciifier;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Scanner;
 
 /**
  * This class provides functionality to deasciify a given ASCII based Turkish text. <p> <p> Note:
@@ -29,19 +27,12 @@ import java.util.Scanner;
  */
 public final class Deasciifier {
 
-  static HashMap<String, HashMap<String, Integer>> turkishPatternTable = null;
+  private static HashMap<String, HashMap<String, Integer>> turkishPatternTable = getPatternTableFromResource();
 
-  static {
-    turkishPatternTable = getPatternTable();
-  }
-
-  static HashMap<Character, Character> turkishAsciifyTable = new HashMap<>();
-  static Character[] uppercaseLetters = {'A', 'B', 'C', 'D', 'E', 'F', 'G',
-      'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-      'U', 'V', 'W', 'X', 'Y', 'Z'};
-  static HashMap<Character, Character> turkishDowncaseAsciifyTable = new HashMap<>();
-  static HashMap<Character, Character> turkishUpcaseAccentsTable = new HashMap<>();
-  static HashMap<Character, Character> turkishToggleAccentTable = new HashMap<>();
+  private static HashMap<Character, Character> turkishAsciifyTable = new HashMap<>();
+  private static HashMap<Character, Character> turkishDowncaseAsciifyTable = new HashMap<>();
+  private static HashMap<Character, Character> turkishUpcaseAccentsTable = new HashMap<>();
+  private static HashMap<Character, Character> turkishToggleAccentTable = new HashMap<>();
 
   static {
     turkishAsciifyTable.put('ç', 'c');
@@ -123,39 +114,6 @@ public final class Deasciifier {
     turkishToggleAccentTable.put('İ', 'I');
     turkishToggleAccentTable.put('ş', 's');
     turkishToggleAccentTable.put('Ş', 'S');
-  }
-
-  public static String readFromFile(final String filePath) {
-    final StringBuilder s = new StringBuilder();
-    final File f = new File(filePath);
-
-    Scanner scan;
-    try {
-      scan = new Scanner(f);
-      while (scan.hasNext()) {
-        final String line = scan.nextLine();
-        if (line != null) {
-          s.append(line); // + '\n' ?
-        }
-      }
-      scan.close();
-    } catch (final FileNotFoundException e) {
-      System.out.println(e);
-      e.printStackTrace();
-    }
-    return s.toString();
-  }
-
-  public static void savePatternTable(final String filename) {
-
-    try {
-      final FileOutputStream f = new FileOutputStream(filename);
-      final ObjectOutputStream out = new ObjectOutputStream(f);
-      out.writeObject(turkishPatternTable);
-      out.close();
-    } catch (final Exception e) {
-      e.printStackTrace();
-    }
   }
 
   private static char turkishToggleAccent(final char c) {
@@ -295,14 +253,36 @@ public final class Deasciifier {
     return deasciify(buffer, length, 10);
   }
 
-  private static HashMap<String, HashMap<String, Integer>> getPatternTable() {
+  private static HashMap<String, HashMap<String, Integer>> getPatternTableFromResource() {
     final InputStream is = Deasciifier.class.getResourceAsStream("/patterns/turkishPatternTable");
+    return getPatternTable(is);
+  }
 
+  private static HashMap<String, HashMap<String, Integer>> getPatternTable(InputStream is) {
     try(final ObjectInputStream ois = new ObjectInputStream(is)) {
       return (HashMap<String, HashMap<String, Integer>>) ois.readObject();
     } catch (final Exception e) {
       e.printStackTrace();
       return null;
+    }
+  }
+
+  public static synchronized void loadPatternTable(final String filename) {
+    try(final FileInputStream f = new FileInputStream(filename)) {
+       turkishPatternTable = getPatternTable(f);
+    } catch (final Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void savePatternTable(final String filename) {
+    try {
+      final FileOutputStream f = new FileOutputStream(filename);
+      final ObjectOutputStream out = new ObjectOutputStream(f);
+      out.writeObject(turkishPatternTable);
+      out.close();
+    } catch (final Exception e) {
+      e.printStackTrace();
     }
   }
 }
