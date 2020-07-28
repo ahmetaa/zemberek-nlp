@@ -143,7 +143,8 @@ public final class Deasciifier {
   }
 
   private static char[] turkishGetContext(final char[] buffer, final int size, final int point) {
-    char[] s = new String(new char[1 + (2 * size)]).replace('\0', ' ').toCharArray();
+    char[] s = new char[1 + (2 * size)];
+    Arrays.fill(s, ' ');
     s[size] = 'X';
 
     int i = size + 1;
@@ -169,7 +170,7 @@ public final class Deasciifier {
     space = false;
 
     while (i >= 0 && index >= 0) {
-      char currentChar = buffer[index];
+      final char currentChar = buffer[index];
       if (turkishUpcaseAccentsTable.containsKey(currentChar)) {
         final char x = turkishUpcaseAccentsTable.get(currentChar);
         s[i] = x;
@@ -221,7 +222,7 @@ public final class Deasciifier {
    *
    * @return Deasciified text.
    */
-  public static String deasciify(String asciiString) {
+  public static String deasciify(final String asciiString) {
     return deasciify(asciiString, 10);
   }
 
@@ -258,7 +259,7 @@ public final class Deasciifier {
     return getPatternTable(is);
   }
 
-  private static HashMap<String, HashMap<String, Integer>> getPatternTable(InputStream is) {
+  private static HashMap<String, HashMap<String, Integer>> getPatternTable(final InputStream is) {
     try(final ObjectInputStream ois = new ObjectInputStream(is)) {
       return (HashMap<String, HashMap<String, Integer>>) ois.readObject();
     } catch (final Exception e) {
