@@ -334,7 +334,7 @@ public class FloatArrays {
     String formatStr = "%." + fractionDigits + "f";
     int i = 0;
     for (float v : input) {
-      String num = String.format(formatStr, v);
+      String num = String.format(Locale.ENGLISH, formatStr, v);
       sb.append(String.format(Locale.ENGLISH, "%-" + rightPad + "s", num));
       if (i++ < input.length - 1) {
         sb.append(delimiter);
