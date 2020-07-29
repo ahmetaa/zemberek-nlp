@@ -117,6 +117,10 @@ public final class Deasciifier {
     turkishToggleAccentTable.put('Ş', 'S');
   }
 
+  private Deasciifier() {
+    // prevent instances
+  }
+
   private static char turkishToggleAccent(final char c) {
     return turkishToggleAccentTable.containsKey(c) ? turkishToggleAccentTable.get(c) : c;
   }
