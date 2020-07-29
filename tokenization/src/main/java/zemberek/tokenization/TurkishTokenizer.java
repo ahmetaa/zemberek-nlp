@@ -2,6 +2,7 @@ package zemberek.tokenization;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -70,6 +71,10 @@ public class TurkishTokenizer {
     return getAllTokens(lexerInstance(CharStreams.fromString(input)));
   }
 
+  public List<Token> tokenize(Reader reader) throws IOException {
+    return getAllTokens(lexerInstance(CharStreams.fromReader(reader)));
+  }
+
   public List<String> tokenizeToStrings(String input) {
     List<Token> tokens = tokenize(input);
     List<String> tokenStrings = new ArrayList<>(tokens.size());
@@ -85,6 +90,10 @@ public class TurkishTokenizer {
 
   public Iterator<Token> getTokenIterator(File file) throws IOException {
     return new TokenIterator(this, lexerInstance(CharStreams.fromPath(file.toPath())));
+  }
+
+  public Iterator<Token> getTokenIterator(Reader reader) throws IOException {
+    return new TokenIterator(this, lexerInstance(CharStreams.fromReader(reader)));
   }
 
   private List<Token> getAllTokens(Lexer lexer) {
