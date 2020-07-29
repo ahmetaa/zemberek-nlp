@@ -2,6 +2,7 @@ package zemberek.normalization.deasciifier;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -9,25 +10,42 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 /**
- * This class provides functionality to deasciify a given ASCII based Turkish text. <p> <p> Note:
- * Adapted from Emre Sevinc's Turkish deasciifier for Python which was influenced from Deniz Yuret's
- * Emacs Turkish Mode implementation which is was inspired by Gokhan Tur's Turkish Text Deasciifier.
- * </p> <p> <p> See: <a href="http://denizyuret.blogspot.com/2006/11/emacs-turkish-mode.html">Deniz
- * Yuret's Emacs Turkish Mode</a><br /> <a href="http://ileriseviye.org/blog/?p=3274">Turkish
- * Deasciifier on Emre Sevinc's Blog</a><br /> <a href="http://github.com/emres/turkish-deasciifier/">Turkish
- * Deasciifier for Python on Emre Sevinc's Github Repo</a><br /> </p> <p> <p> <h3>Usage</h3> <p>
+ * This class provides functionality to deasciify a given ASCII based Turkish
+ * text.
+ * <p>
+ * <p>
+ * Note: Adapted from Emre Sevinc's Turkish deasciifier for Python which was
+ * influenced from Deniz Yuret's Emacs Turkish Mode implementation which is was
+ * inspired by Gokhan Tur's Turkish Text Deasciifier.
+ * </p>
+ * <p>
+ * <p>
+ * See: <a href=
+ * "http://denizyuret.blogspot.com/2006/11/emacs-turkish-mode.html">Deniz
+ * Yuret's Emacs Turkish Mode</a><br />
+ * <a href="http://ileriseviye.org/blog/?p=3274">Turkish Deasciifier on Emre
+ * Sevinc's Blog</a><br />
+ * <a href="http://github.com/emres/turkish-deasciifier/">Turkish Deasciifier
+ * for Python on Emre Sevinc's Github Repo</a><br />
+ * </p>
+ * <p>
+ * <p>
+ * <h3>Usage</h3>
+ * <p>
+ * 
  * <pre>
  * String deasciified = Deasciifier.deasciify(&quot;Hadi bir masal uyduralim, icinde mutlu, doygun, 
  * telassiz durdugumuz.&quot;);
  * System.out.println(deasciified);
  * </pre>
- * <p> </p>
+ * <p>
+ * </p>
  *
  * @author Ahmet Alp Balkan <ahmet at ahmetalpbalkan.com>
  */
 public final class Deasciifier {
 
-  private static HashMap<String, HashMap<String, Integer>> turkishPatternTable = getPatternTableFromResource();
+  private static HashMap<Character, HashMap<String, Integer>> turkishPatternTable = getPatternTableFromResource();
 
   private static HashMap<Character, Character> turkishAsciifyTable = new HashMap<>();
   private static HashMap<Character, Character> turkishDowncaseAsciifyTable = new HashMap<>();
@@ -117,12 +135,11 @@ public final class Deasciifier {
   }
 
   private static char turkishToggleAccent(final char c) {
-    return turkishToggleAccentTable.containsKey(c) 
-      ? turkishToggleAccentTable.get(c)
-      : c;
+    return turkishToggleAccentTable.containsKey(c) ? turkishToggleAccentTable.get(c) : c;
   }
 
-  private static boolean turkishMatchPattern(final char[] buffer, final HashMap<String, Integer> dlist, final int point, final int turkishContextSize) {
+  private static boolean turkishMatchPattern(final char[] buffer, final HashMap<String, Integer> dlist, final int point,
+      final int turkishContextSize) {
     Integer rank = dlist.size() * 2;
     final char[] context = turkishGetContext(buffer, turkishContextSize, point);
     int start = 0;
@@ -153,7 +170,7 @@ public final class Deasciifier {
 
     while (i < s.length && !space && index < buffer.length) {
       char currentChar = buffer[index];
-      if(turkishDowncaseAsciifyTable.containsKey(currentChar)) {
+      if (turkishDowncaseAsciifyTable.containsKey(currentChar)) {
         final char x = turkishDowncaseAsciifyTable.get(currentChar);
         s[i] = x;
       } else {
@@ -177,7 +194,7 @@ public final class Deasciifier {
         i--;
         space = false;
       } else {
-        if (!space){
+        if (!space) {
           i--;
           space = true;
         }
@@ -187,13 +204,12 @@ public final class Deasciifier {
     return s;
   }
 
-  private static boolean turkishNeedCorrection(final char[] buffer, final char c, final int point, final int turkishContextSize) {
+  private static boolean turkishNeedCorrection(final char[] buffer, final char c, final int point,
+      final int turkishContextSize) {
 
-    final char tr = turkishAsciifyTable.containsKey(c) 
-      ? turkishAsciifyTable.get(c)
-      : c;
+    final char tr = turkishAsciifyTable.containsKey(c) ? turkishAsciifyTable.get(c) : c;
 
-    final HashMap<String, Integer> pl = turkishPatternTable.get(String.valueOf(Character.toLowerCase(tr)));
+    final HashMap<String, Integer> pl = turkishPatternTable.get(Character.toLowerCase(tr));
 
     boolean m = false;
     if (pl != null) {
@@ -227,15 +243,16 @@ public final class Deasciifier {
   }
 
   /**
-   * Convert a char buffer with ASCII-only letters into one with Turkish letters (in-place).
+   * Convert a char buffer with ASCII-only letters into one with Turkish letters
+   * (in-place).
    *
    * @return true if any modification has been made.
    */
   public static boolean deasciify(final char[] buffer, final int length, final int turkishContextSize) {
     boolean altered = false;
-    for(int i = 0;i<length;i++){
+    for (int i = 0; i < length; i++) {
       final char c = buffer[i];
-      if(turkishNeedCorrection(buffer, c, i, turkishContextSize)){
+      if (turkishNeedCorrection(buffer, c, i, turkishContextSize)) {
         buffer[i] = turkishToggleAccent(c);
         altered = true;
       } else {
@@ -246,7 +263,8 @@ public final class Deasciifier {
   }
 
   /**
-   * Convert a char buffer with ASCII-only letters into one with Turkish letters (in-place).
+   * Convert a char buffer with ASCII-only letters into one with Turkish letters
+   * (in-place).
    *
    * @return true if any modification has been made.
    */
@@ -254,36 +272,45 @@ public final class Deasciifier {
     return deasciify(buffer, length, 10);
   }
 
-  private static HashMap<String, HashMap<String, Integer>> getPatternTableFromResource() {
+  private static HashMap<Character, HashMap<String, Integer>> getPatternTableFromResource() {
     final InputStream is = Deasciifier.class.getResourceAsStream("/patterns/turkishPatternTable");
     return getPatternTable(is);
   }
 
-  private static HashMap<String, HashMap<String, Integer>> getPatternTable(final InputStream is) {
-    try(final ObjectInputStream ois = new ObjectInputStream(is)) {
-      return (HashMap<String, HashMap<String, Integer>>) ois.readObject();
+  private static HashMap<Character, HashMap<String, Integer>> getPatternTable(final InputStream is) {
+    try (final ObjectInputStream ois = new ObjectInputStream(is)) {
+      return (HashMap<Character, HashMap<String, Integer>>) ois.readObject();
     } catch (final Exception e) {
       e.printStackTrace();
       return null;
     }
   }
 
-  public static synchronized void loadPatternTable(final String filename) {
-    try(final FileInputStream f = new FileInputStream(filename)) {
-       turkishPatternTable = getPatternTable(f);
-    } catch (final Exception e) {
-      e.printStackTrace();
+  public static synchronized void loadPatternTable(final String filename) throws IOException {
+    FileInputStream f = null;
+    try {
+      f = new FileInputStream(filename);
+      turkishPatternTable = getPatternTable(f);
+    }
+    finally {
+      if (f != null) {
+        f.close();
+      }
     }
   }
 
-  public static void savePatternTable(final String filename) {
+  public static void savePatternTable(final String filename) throws IOException {
+    FileOutputStream f = null;
     try {
-      final FileOutputStream f = new FileOutputStream(filename);
+      f = new FileOutputStream(filename);
       final ObjectOutputStream out = new ObjectOutputStream(f);
       out.writeObject(turkishPatternTable);
       out.close();
-    } catch (final Exception e) {
-      e.printStackTrace();
+    }
+    finally {
+      if (f != null) {
+        f.close();
+      }
     }
   }
 }
