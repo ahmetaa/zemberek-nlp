@@ -10,36 +10,19 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 /**
- * This class provides functionality to deasciify a given ASCII based Turkish
- * text.
- * <p>
- * <p>
- * Note: Adapted from Emre Sevinc's Turkish deasciifier for Python which was
- * influenced from Deniz Yuret's Emacs Turkish Mode implementation which is was
- * inspired by Gokhan Tur's Turkish Text Deasciifier.
- * </p>
- * <p>
- * <p>
- * See: <a href=
- * "http://denizyuret.blogspot.com/2006/11/emacs-turkish-mode.html">Deniz
- * Yuret's Emacs Turkish Mode</a><br />
- * <a href="http://ileriseviye.org/blog/?p=3274">Turkish Deasciifier on Emre
- * Sevinc's Blog</a><br />
- * <a href="http://github.com/emres/turkish-deasciifier/">Turkish Deasciifier
- * for Python on Emre Sevinc's Github Repo</a><br />
- * </p>
- * <p>
- * <p>
- * <h3>Usage</h3>
- * <p>
- * 
+ * This class provides functionality to deasciify a given ASCII based Turkish text. <p> <p> Note:
+ * Adapted from Emre Sevinc's Turkish deasciifier for Python which was influenced from Deniz Yuret's
+ * Emacs Turkish Mode implementation which is was inspired by Gokhan Tur's Turkish Text Deasciifier.
+ * </p> <p> <p> See: <a href="http://denizyuret.blogspot.com/2006/11/emacs-turkish-mode.html">Deniz
+ * Yuret's Emacs Turkish Mode</a><br /> <a href="http://ileriseviye.org/blog/?p=3274">Turkish
+ * Deasciifier on Emre Sevinc's Blog</a><br /> <a href="http://github.com/emres/turkish-deasciifier/">Turkish
+ * Deasciifier for Python on Emre Sevinc's Github Repo</a><br /> </p> <p> <p> <h3>Usage</h3> <p>
  * <pre>
  * String deasciified = Deasciifier.deasciify(&quot;Hadi bir masal uyduralim, icinde mutlu, doygun, 
  * telassiz durdugumuz.&quot;);
  * System.out.println(deasciified);
  * </pre>
- * <p>
- * </p>
+ * <p> </p>
  *
  * @author Ahmet Alp Balkan <ahmet at ahmetalpbalkan.com>
  */
