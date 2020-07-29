@@ -424,8 +424,7 @@ public class TurkishSentenceNormalizer {
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
     s = splitNecessaryWords(tokens, false);
     if (alwaysApplyDeasciifier || probablyRequiresDeasciifier(s)) {
-      Deasciifier deasciifier = new Deasciifier(s);
-      s = deasciifier.convertToTurkish();
+      s = Deasciifier.deasciify(s);
     }
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
     s = combineNecessaryWords(tokens);

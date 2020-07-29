@@ -28,7 +28,7 @@ public class TestDeasciifier {
       System.out.println("Test "
           + (i + 1)
           + " : "
-          + new Deasciifier(asciiStrings[i]).convertToTurkish()
+          + Deasciifier.deasciify(asciiStrings[i])
           .equals(turkishStrings[i]));
     }
   }

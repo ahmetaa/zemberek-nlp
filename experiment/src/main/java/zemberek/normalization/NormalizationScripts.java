@@ -469,7 +469,7 @@ public class NormalizationScripts {
         // that is trained with also noisy text.
         if (!lang.equals("jv") && !lang.equals("id") &&
             TurkishSentenceNormalizer.probablyRequiresDeasciifier(join)) {
-          String k = new Deasciifier(join).convertToTurkish();
+          String k = Deasciifier.deasciify(join);
           // identify and check morphology to be sure.
           String l = lid.identify(join);
           if (l.equals("tr")) {

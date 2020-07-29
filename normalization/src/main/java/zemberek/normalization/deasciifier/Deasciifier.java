@@ -1,15 +1,13 @@
 package zemberek.normalization.deasciifier;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Locale;
-import java.util.Scanner;
 
 /**
  * This class provides functionality to deasciify a given ASCII based Turkish text. <p> <p> Note:
@@ -20,207 +18,124 @@ import java.util.Scanner;
  * Deasciifier on Emre Sevinc's Blog</a><br /> <a href="http://github.com/emres/turkish-deasciifier/">Turkish
  * Deasciifier for Python on Emre Sevinc's Github Repo</a><br /> </p> <p> <p> <h3>Usage</h3> <p>
  * <pre>
- * Deasciifier d = new Deasciifier();
- * d.setAsciiString(&quot;Hadi bir masal uyduralim, icinde mutlu, doygun, telassiz
- * durdugumuz.&quot;);
- * System.out.println(d.convertToTurkish());
+ * String deasciified = Deasciifier.deasciify(&quot;Hadi bir masal uyduralim, icinde mutlu, doygun, 
+ * telassiz durdugumuz.&quot;);
+ * System.out.println(deasciified);
  * </pre>
  * <p> </p>
  *
  * @author Ahmet Alp Balkan <ahmet at ahmetalpbalkan.com>
  */
-public class Deasciifier {
+public final class Deasciifier {
 
-  static int turkishContextSize = 10;
+  private static HashMap<Character, HashMap<String, Integer>> turkishPatternTable = getPatternTableFromResource();
 
-  static HashMap<String, HashMap<String, Integer>> turkishPatternTable = null;
-
-  static HashMap<String, String> turkishAsciifyTable = new HashMap<>();
-  static String[] uppercaseLetters = {"A", "B", "C", "D", "E", "F", "G",
-      "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
-      "U", "V", "W", "X", "Y", "Z"};
-  static HashMap<String, String> turkishDowncaseAsciifyTable = new HashMap<>();
-  static HashMap<String, String> turkishUpcaseAccentsTable = new HashMap<>();
-  static HashMap<String, String> turkishToggleAccentTable = new HashMap<>();
+  private static HashMap<Character, Character> turkishAsciifyTable = new HashMap<>();
+  private static HashMap<Character, Character> turkishDowncaseAsciifyTable = new HashMap<>();
+  private static HashMap<Character, Character> turkishUpcaseAccentsTable = new HashMap<>();
+  private static HashMap<Character, Character> turkishToggleAccentTable = new HashMap<>();
 
   static {
-    turkishAsciifyTable.put("ç", "c");
-    turkishAsciifyTable.put("Ç", "C");
-    turkishAsciifyTable.put("ğ", "g");
-    turkishAsciifyTable.put("Ğ", "G");
-    turkishAsciifyTable.put("ö", "o");
-    turkishAsciifyTable.put("Ö", "O");
-    turkishAsciifyTable.put("ı", "i");
-    turkishAsciifyTable.put("İ", "I");
-    turkishAsciifyTable.put("ş", "s");
-    turkishAsciifyTable.put("Ş", "S");
+    turkishAsciifyTable.put('ç', 'c');
+    turkishAsciifyTable.put('Ç', 'C');
+    turkishAsciifyTable.put('ğ', 'g');
+    turkishAsciifyTable.put('Ğ', 'G');
+    turkishAsciifyTable.put('ö', 'o');
+    turkishAsciifyTable.put('Ö', 'O');
+    turkishAsciifyTable.put('ı', 'i');
+    turkishAsciifyTable.put('İ', 'I');
+    turkishAsciifyTable.put('ş', 's');
+    turkishAsciifyTable.put('Ş', 'S');
   }
 
   static {
-    for (String c : uppercaseLetters) {
-      turkishDowncaseAsciifyTable.put(c, c.toLowerCase(Locale.US));
-      turkishDowncaseAsciifyTable.put(c.toLowerCase(Locale.US), c.toLowerCase(Locale.US));
+    for (Character c = 'A'; c <= 'Z'; c++) {
+      Character lowerCaseCharacter = Character.toLowerCase(c);
+      turkishDowncaseAsciifyTable.put(c, lowerCaseCharacter);
+      turkishDowncaseAsciifyTable.put(lowerCaseCharacter, lowerCaseCharacter);
     }
 
-    turkishDowncaseAsciifyTable.put("ç", "c");
-    turkishDowncaseAsciifyTable.put("Ç", "c");
-    turkishDowncaseAsciifyTable.put("ğ", "g");
-    turkishDowncaseAsciifyTable.put("Ğ", "g");
-    turkishDowncaseAsciifyTable.put("ö", "o");
-    turkishDowncaseAsciifyTable.put("Ö", "o");
-    turkishDowncaseAsciifyTable.put("ı", "i");
-    turkishDowncaseAsciifyTable.put("İ", "i");
-    turkishDowncaseAsciifyTable.put("ş", "s");
-    turkishDowncaseAsciifyTable.put("Ş", "s");
-    turkishDowncaseAsciifyTable.put("ü", "u");
-    turkishDowncaseAsciifyTable.put("Ü", "u");
+    turkishDowncaseAsciifyTable.put('ç', 'c');
+    turkishDowncaseAsciifyTable.put('Ç', 'c');
+    turkishDowncaseAsciifyTable.put('ğ', 'g');
+    turkishDowncaseAsciifyTable.put('Ğ', 'g');
+    turkishDowncaseAsciifyTable.put('ö', 'o');
+    turkishDowncaseAsciifyTable.put('Ö', 'o');
+    turkishDowncaseAsciifyTable.put('ı', 'i');
+    turkishDowncaseAsciifyTable.put('İ', 'i');
+    turkishDowncaseAsciifyTable.put('ş', 's');
+    turkishDowncaseAsciifyTable.put('Ş', 's');
+    turkishDowncaseAsciifyTable.put('ü', 'u');
+    turkishDowncaseAsciifyTable.put('Ü', 'u');
   }
 
   static {
-    for (String c : uppercaseLetters) {
-      turkishUpcaseAccentsTable.put(c, c.toLowerCase(Locale.US));
-      turkishUpcaseAccentsTable.put(c.toLowerCase(Locale.US), c.toLowerCase(Locale.US));
+    for (Character c = 'A'; c <= 'Z'; c++) {
+      Character lowerCaseCharacter = Character.toLowerCase(c);
+      turkishUpcaseAccentsTable.put(c, lowerCaseCharacter);
+      turkishUpcaseAccentsTable.put(lowerCaseCharacter, lowerCaseCharacter);
     }
 
-    turkishUpcaseAccentsTable.put("ç", "C");
-    turkishUpcaseAccentsTable.put("Ç", "C");
-    turkishUpcaseAccentsTable.put("ğ", "G");
-    turkishUpcaseAccentsTable.put("Ğ", "G");
-    turkishUpcaseAccentsTable.put("ö", "O");
-    turkishUpcaseAccentsTable.put("Ö", "O");
-    turkishUpcaseAccentsTable.put("ı", "I");
-    turkishUpcaseAccentsTable.put("İ", "i");
-    turkishUpcaseAccentsTable.put("ş", "S");
-    turkishUpcaseAccentsTable.put("Ş", "S");
-    turkishUpcaseAccentsTable.put("ü", "U");
-    turkishUpcaseAccentsTable.put("Ü", "U");
+    turkishUpcaseAccentsTable.put('ç', 'C');
+    turkishUpcaseAccentsTable.put('Ç', 'C');
+    turkishUpcaseAccentsTable.put('ğ', 'G');
+    turkishUpcaseAccentsTable.put('Ğ', 'G');
+    turkishUpcaseAccentsTable.put('ö', 'O');
+    turkishUpcaseAccentsTable.put('Ö', 'O');
+    turkishUpcaseAccentsTable.put('ı', 'I');
+    turkishUpcaseAccentsTable.put('İ', 'i');
+    turkishUpcaseAccentsTable.put('ş', 'S');
+    turkishUpcaseAccentsTable.put('Ş', 'S');
+    turkishUpcaseAccentsTable.put('ü', 'U');
+    turkishUpcaseAccentsTable.put('Ü', 'U');
   }
 
   static {
-    turkishToggleAccentTable.put("c", "ç"); // initial direction
-    turkishToggleAccentTable.put("C", "Ç");
-    turkishToggleAccentTable.put("g", "ğ");
-    turkishToggleAccentTable.put("G", "Ğ");
-    turkishToggleAccentTable.put("o", "ö");
-    turkishToggleAccentTable.put("O", "Ö");
-    turkishToggleAccentTable.put("u", "ü");
-    turkishToggleAccentTable.put("U", "Ü");
-    turkishToggleAccentTable.put("i", "ı");
-    turkishToggleAccentTable.put("I", "İ");
-    turkishToggleAccentTable.put("s", "ş");
-    turkishToggleAccentTable.put("S", "Ş");
-    turkishToggleAccentTable.put("ç", "c"); // other direction
-    turkishToggleAccentTable.put("Ç", "C");
-    turkishToggleAccentTable.put("ğ", "g");
-    turkishToggleAccentTable.put("Ğ", "G");
-    turkishToggleAccentTable.put("ö", "o");
-    turkishToggleAccentTable.put("Ö", "O");
-    turkishToggleAccentTable.put("ü", "u");
-    turkishToggleAccentTable.put("Ü", "U");
-    turkishToggleAccentTable.put("ı", "i");
-    turkishToggleAccentTable.put("İ", "I");
-    turkishToggleAccentTable.put("ş", "s");
-    turkishToggleAccentTable.put("Ş", "S");
+    turkishToggleAccentTable.put('c', 'ç'); // initial direction
+    turkishToggleAccentTable.put('C', 'Ç');
+    turkishToggleAccentTable.put('g', 'ğ');
+    turkishToggleAccentTable.put('G', 'Ğ');
+    turkishToggleAccentTable.put('o', 'ö');
+    turkishToggleAccentTable.put('O', 'Ö');
+    turkishToggleAccentTable.put('u', 'ü');
+    turkishToggleAccentTable.put('U', 'Ü');
+    turkishToggleAccentTable.put('i', 'ı');
+    turkishToggleAccentTable.put('I', 'İ');
+    turkishToggleAccentTable.put('s', 'ş');
+    turkishToggleAccentTable.put('S', 'Ş');
+    turkishToggleAccentTable.put('ç', 'c'); // other direction
+    turkishToggleAccentTable.put('Ç', 'C');
+    turkishToggleAccentTable.put('ğ', 'g');
+    turkishToggleAccentTable.put('Ğ', 'G');
+    turkishToggleAccentTable.put('ö', 'o');
+    turkishToggleAccentTable.put('Ö', 'O');
+    turkishToggleAccentTable.put('ü', 'u');
+    turkishToggleAccentTable.put('Ü', 'U');
+    turkishToggleAccentTable.put('ı', 'i');
+    turkishToggleAccentTable.put('İ', 'I');
+    turkishToggleAccentTable.put('ş', 's');
+    turkishToggleAccentTable.put('Ş', 'S');
   }
 
-
-  private String asciiString;
-  private String turkishString;
-
-  public Deasciifier() {
-    loadPatternTable();
+  private Deasciifier() {
+    // prevent instances
   }
 
-  public Deasciifier(String asciiString) {
-    this();
-    this.asciiString = asciiString;
-    this.turkishString = asciiString;
+  private static char turkishToggleAccent(final char c) {
+    return turkishToggleAccentTable.containsKey(c) ? turkishToggleAccentTable.get(c) : c;
   }
 
-  public static String setCharAt(String mystr, int pos, String c) {
-    return mystr.substring(0, pos).concat(c).concat(
-        mystr.substring(pos + 1, mystr.length()));
-  }
-
-  public static String repeatString(String haystack, int times) {
-    StringBuilder tmp = new StringBuilder();
-    for (int i = 0; i < times; i++) {
-      tmp.append(haystack);
-    }
-
-    return tmp.toString();
-  }
-
-  public static String charAt(String source, int index) {
-    return Character.toString(source.charAt(index));
-  }
-
-  public static String readFromFile(String filePath) {
-    StringBuilder s = new StringBuilder();
-    File f = new File(filePath);
-
-    Scanner scan;
-    try {
-      scan = new Scanner(f);
-      while (scan.hasNext()) {
-        String line = scan.nextLine();
-        if (line != null) {
-          s.append(line); // + "\n" ?
-        }
-      }
-      scan.close();
-    } catch (FileNotFoundException e) {
-      System.out.println(e);
-      e.printStackTrace();
-    }
-    return s.toString();
-  }
-
-  public static void savePatternTable(String filename) {
-
-    try {
-      FileOutputStream f = new FileOutputStream(filename);
-      ObjectOutputStream out = new ObjectOutputStream(f);
-      out.writeObject(turkishPatternTable);
-      out.close();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  public void setAsciiString(String asciiString) {
-    this.asciiString = asciiString;
-    this.turkishString = asciiString;
-  }
-
-  public void printTurkishString() {
-    System.out.println(turkishString); // with a trailing new line
-  }
-
-  public void printTurkishString(PrintWriter writer) {
-    writer.println(turkishString); // without a trailing new line
-  }
-
-  public String turkishToggleAccent(String c) {
-    String result = turkishToggleAccentTable.get(c);
-    return (result == null) ? c : result;
-  }
-
-  public boolean turkishMatchPattern(HashMap<String, Integer> dlist, int point) {
-    int rank = dlist.size() * 2;
-    String str = turkishGetContext(turkishContextSize, point);
-
+  private static boolean turkishMatchPattern(final char[] buffer, final HashMap<String, Integer> dlist, final int point,
+      final int turkishContextSize) {
+    Integer rank = dlist.size() * 2;
+    final char[] context = turkishGetContext(buffer, turkishContextSize, point);
     int start = 0;
-    int end = 0;
-    int _len = str.length();
-
+    final int contextLength = context.length;
     while (start <= turkishContextSize) {
-      end = turkishContextSize + 1;
-      while (end <= _len) {
-        String s = str.substring(start, end);
-
-        Integer r = dlist.get(s);
-
+      int end = turkishContextSize + 1;
+      while (end <= contextLength) {
+        final String s = new String(context, start, end - start);
+        final Integer r = dlist.get(s);
         if (r != null && Math.abs(r) < Math.abs(rank)) {
           rank = r;
         }
@@ -231,99 +146,67 @@ public class Deasciifier {
     return rank > 0;
   }
 
-  public boolean turkishMatchPattern(HashMap<String, Integer> dlist) {
-    return turkishMatchPattern(dlist, 0);
-  }
-
-  public String turkishGetContext(int size, int point) {
-    String s = repeatString(" ", (1 + (2 * size)));
-    s = setCharAt(s, size, "X");
+  private static char[] turkishGetContext(final char[] buffer, final int size, final int point) {
+    char[] s = new char[1 + (2 * size)];
+    Arrays.fill(s, ' ');
+    s[size] = 'X';
 
     int i = size + 1;
     boolean space = false;
-    int index = point;
-    index++;
+    int index = point + 1;
 
-    String currentChar;
-
-    while (i < s.length() && !space && index < asciiString.length()) {
-      currentChar = charAt(turkishString, index);
-
-      String x = turkishDowncaseAsciifyTable.get(currentChar);
-
-      if (x == null) {
-        if (!space) {
-          i++;
-          space = true;
-        }
+    while (i < s.length && !space && index < buffer.length) {
+      char currentChar = buffer[index];
+      if (turkishDowncaseAsciifyTable.containsKey(currentChar)) {
+        final char x = turkishDowncaseAsciifyTable.get(currentChar);
+        s[i] = x;
       } else {
-        s = setCharAt(s, i, x);
-        i++;
-        space = false;
+        space = true;
       }
+      i++;
       index++;
     }
 
-    s = s.substring(0, i);
+    s = Arrays.copyOf(s, i);
 
-    index = point;
+    index = point - 1;
     i = size - 1;
     space = false;
 
-    index--;
-
     while (i >= 0 && index >= 0) {
-      currentChar = charAt(turkishString, index);
-      String x = turkishUpcaseAccentsTable.get(currentChar);
-
-      if (x == null) {
+      final char currentChar = buffer[index];
+      if (turkishUpcaseAccentsTable.containsKey(currentChar)) {
+        final char x = turkishUpcaseAccentsTable.get(currentChar);
+        s[i] = x;
+        i--;
+        space = false;
+      } else {
         if (!space) {
           i--;
           space = true;
         }
-      } else {
-        s
-            = setCharAt(s, i, x);
-        i--;
-        space = false;
       }
       index--;
     }
-
     return s;
   }
 
-  public boolean turkishNeedCorrection(String c, int point) {
+  private static boolean turkishNeedCorrection(final char[] buffer, final char c, final int point,
+      final int turkishContextSize) {
 
-    String tr = turkishAsciifyTable.get(c);
-    if (tr == null) {
-      tr = c;
-    }
+    final char tr = turkishAsciifyTable.containsKey(c) ? turkishAsciifyTable.get(c) : c;
 
-    HashMap<String, Integer> pl = turkishPatternTable.get(tr.toLowerCase(Locale.US));
+    final HashMap<String, Integer> pl = turkishPatternTable.get(Character.toLowerCase(tr));
 
     boolean m = false;
     if (pl != null) {
-      m = turkishMatchPattern(pl, point);
+      m = turkishMatchPattern(buffer, pl, point, turkishContextSize);
     }
 
-    if (tr.equals("I")) {
-      if (c.equals(tr)) {
-        return !m;
-      } else {
-        return m;
-      }
-    } else {
-      if (c.equals(tr)) {
-        return m;
-      } else {
-        return !m;
-      }
+    if (tr == 'I') {
+      return c == tr ? !m : m;
     }
-  }
-
-  public boolean turkishNeedCorrection(String c) {
-    return turkishNeedCorrection(c, 0);
+    return c == tr ? m : !m;
   }
 
   /**
@@ -331,39 +214,90 @@ public class Deasciifier {
    *
    * @return Deasciified text.
    */
-  public String convertToTurkish() {
-    for (int i = 0; i < turkishString.length(); i++) {
-      String c = charAt(turkishString, i);
+  public static String deasciify(final String asciiString, final int turkishContextSize) {
+    final char[] buffer = asciiString.toCharArray();
+    deasciify(buffer, buffer.length, turkishContextSize);
+    return new String(buffer);
+  }
 
-      if (turkishNeedCorrection(c, i)) {
-        turkishString = setCharAt(turkishString, i,
-            turkishToggleAccent(c));
+  /**
+   * Convert a string with ASCII-only letters into one with Turkish letters.
+   *
+   * @return Deasciified text.
+   */
+  public static String deasciify(final String asciiString) {
+    return deasciify(asciiString, 10);
+  }
+
+  /**
+   * Convert a char buffer with ASCII-only letters into one with Turkish letters
+   * (in-place).
+   *
+   * @return true if any modification has been made.
+   */
+  public static boolean deasciify(final char[] buffer, final int length, final int turkishContextSize) {
+    boolean altered = false;
+    for (int i = 0; i < length; i++) {
+      final char c = buffer[i];
+      if (turkishNeedCorrection(buffer, c, i, turkishContextSize)) {
+        buffer[i] = turkishToggleAccent(c);
+        altered = true;
       } else {
-        turkishString = setCharAt(turkishString, i, c);
+        buffer[i] = c;
       }
     }
-    return turkishString;
+    return altered;
   }
 
-  public String turkishGetContext() {
-    return turkishGetContext(turkishContextSize, 0);
+  /**
+   * Convert a char buffer with ASCII-only letters into one with Turkish letters
+   * (in-place).
+   *
+   * @return true if any modification has been made.
+   */
+  public static boolean deasciify(final char[] buffer, final int length) {
+    return deasciify(buffer, length, 10);
   }
 
-  private void loadPatternTable() {
-    if (turkishPatternTable != null) {
-      return;
-    }
-    turkishPatternTable = new HashMap<>();
-    InputStream is = this.getClass().getResourceAsStream("/patterns/turkishPatternTable");
+  private static HashMap<Character, HashMap<String, Integer>> getPatternTableFromResource() {
+    final InputStream is = Deasciifier.class.getResourceAsStream("/patterns/turkishPatternTable");
+    return getPatternTable(is);
+  }
 
-    try {
-      ObjectInputStream ois = new ObjectInputStream(is);
-
-      turkishPatternTable = (HashMap) ois.readObject();
-      ois.close();
-    } catch (Exception e) {
+  private static HashMap<Character, HashMap<String, Integer>> getPatternTable(final InputStream is) {
+    try (final ObjectInputStream ois = new ObjectInputStream(is)) {
+      return (HashMap<Character, HashMap<String, Integer>>) ois.readObject();
+    } catch (final Exception e) {
       e.printStackTrace();
+      return null;
     }
   }
 
+  public static synchronized void loadPatternTable(final String filename) throws IOException {
+    FileInputStream f = null;
+    try {
+      f = new FileInputStream(filename);
+      turkishPatternTable = getPatternTable(f);
+    }
+    finally {
+      if (f != null) {
+        f.close();
+      }
+    }
+  }
+
+  public static void savePatternTable(final String filename) throws IOException {
+    FileOutputStream f = null;
+    try {
+      f = new FileOutputStream(filename);
+      final ObjectOutputStream out = new ObjectOutputStream(f);
+      out.writeObject(turkishPatternTable);
+      out.close();
+    }
+    finally {
+      if (f != null) {
+        f.close();
+      }
+    }
+  }
 }
