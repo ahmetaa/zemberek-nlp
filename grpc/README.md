@@ -53,7 +53,7 @@ For accessing remote API from Python, you need to install grpc related libraries
 for accessing grpc server can be found. An example usage:
  
 
-    #!/usr/bin/env python
+    #!/usr/bin/env python3
     # -*- coding: utf-8 -*-
     
     import grpc
@@ -66,13 +66,13 @@ for accessing grpc server can be found. An example usage:
     langid_stub = z_langid_g.LanguageIdServiceStub(channel)
     
     def find_lang_id(i):
-        response = langid_stub.Detect(language_id_pb2.LangIdRequest(input=i))
+        response = langid_stub.Detect(z_langid.LanguageIdRequest(input=i))
         return response.langId
     
     def run():
         lang_detect_input = 'merhaba dünya'
         lang_id = find_lang_id(lang_detect_input)
-        print("Language of [" + lang_detect_input.decode("utf-8") + "] is: " + lang_id)
+        print("Language of %s is: %s" % (lang_detect_input, lang_id))
         
     if __name__ == '__main__':
         run() 
