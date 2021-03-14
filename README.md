@@ -1,8 +1,9 @@
 Zemberek-NLP
 ============
 
+**This project is now in slow maintenance mode.**
+
 Zemberek-NLP provides Natural Language Processing tools for Turkish.
-Please note that **all APIs are subject to change until version 1.0.0**
 
 Latest version is 0.17.1 (July 23th 2019). [Change Log](CHANGELOG.md)
 
