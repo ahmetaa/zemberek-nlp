@@ -1,0 +1,439 @@
+# Syntax: [input] [preferred] [ignored] [left] [right]
+# left and right are optional. Syntax for input, left and right
+# * = any
+# foo* = prefix match
+# foo$ = ends-with
+# foo = exact match
+# foo|bar* = checks for any `foo` and 'bar*' matches.
+
+* [uzlaşmak:Verb] [uz:Adj]
+
+# "bu evin" evin -> Gen, not P2sg
+* A3sg+Gen$ A3sg+P2sg$ bu|Bu *
+
+göre [göre:Postp,PCDat] [görmek:Verb]
+
+* [genel:Adj] [genelmek:Verb]
+
+* [Türkiye:Noun,Prop] *
+
+de [de:Conj] *
+
+özellikle [özellikle:Adv] *
+
+yatırım [yatırım:Noun] *
+
+ağırlık [ağırlık:Noun] *
+
+konu [konu:Noun] *
+
+bu [bu:Det] *
+Bu [bu:Det] *
+
+kararın [karar:Noun] [kararmak:Verb]
+
+* [süreç:Noun] [süre:Noun]
+
+ise [ise:Adv] *
+
+## peki pek-i
+
+peki [peki:Adv] *
+Peki [peki:Adv] *
+
+* Noun+A3pl+P1sg$ Noun+A3pl|Zero→Verb+Pres+A1sg
+* Noun+A3pl+P2sg$ Noun+A3pl|Zero→Verb+Pres+A2sg
+* Noun+A3pl$ Noun+A3sg|Zero→Verb+Pres+A3pl
+
+* [şura:Noun] [şûra:Noun]
+
+* [merhaba:Interj] [merhaba:Noun]
+
+* [ben:Pron,Pers] [ben:Noun]
+
+benim ben:Pron+A1sg+im:Gen *
+
+* [konuşmak:Verb] [konmak:Verb]
+
+* [bura:Noun] [Burada:Noun,Prop]
+
+* [ama:Conj] [am:Noun]
+
+* [ama:Conj] [âmâ:Adj]
+
+* [bacak:Noun] [Bacak:Noun,Prop]
+
+* [görüşmek:Verb] [görmek:Verb]
+
+* [defalarca:Adv] [defa:Noun]
+
+* [istemek:Verb] [ister:Noun]
+
+* [iğrenç:Adj] [iğrenç:Adv]
+
+* Inf2→Noun Neg+Opt
+
+* [iğrenç:Adj] [iğrenç:Adv]
+
+* [uyanmak:Verb] [uymak:Verb]
+
+* [bilmek:Verb] [bilemek:Verb]
+
+* [öldürmek:Verb] [ölmek:Verb]
+
+* [sıkışmak:Verb] [sıkmak:Verb]
+
+* [dönüşmek:Verb] [dönmek:Verb]
+
+* [yardım:Noun] [yarmak:Verb]
+
+* [yardım:Noun] [yar:Noun]
+
+* [mi:Ques] *
+
+* :Noun+A3pl Inf3→Noun+A3pl
+
+* [sen:Pron,Pers] [se:Noun]
+
+* [az:Adj] [azı:Noun]
+
+* [dolar:Noun] [do:Noun]
+
+var [var:Adj] [varmak:Verb]
+
+* [değil:Verb] [değmek:Verb]
+
+değil [değil:Verb] [değil:Conj]
+değil [değil:Verb] [değmek:Verb]
+
+Adam*|adam* [adam:Noun] [ada:Noun]
+
+Delik|delik [delik:Noun] *
+Deliğ*|deliğ* [delik:Noun] *
+
+Büyük|büyük [büyük:Adj] [büyük:Noun]
+
+Karşılık [karşılık:Noun] *
+
+karşılık [karşılık:Noun] *
+
+* [ben:Pron,Pers] [be:Noun]
+
+hızlı* [hızlı:Adj] [hız:Noun]
+
+* [olasılık:Noun] *
+
+* [pahalı:Adj] *
+
+anla [anlamak:Verb] *
+
+Burada|burada [bura:Noun] *
+
+gelen* [gelmek:Verb] *
+
+çöplü* [çöplük:Noun] *
+
+# for `kullanılmakta` prefer Prog2
+* Verb|Pass→Verb+Prog2+A3sg Verb|Pass→Verb|Inf1→Noun+A3sg+Loc
+
+Günümüz|günümüz [gün:Noun,Time]  *
+
+orta*|Orta* [orta:Noun] [orta:Adj]
+
+kırık [kırık:Adj] *
+
+başka [başka:Postp,PCAbl] *
+
+ile [ile:Conj] *
+
+yada * *
+
+# this is actually a bug.
+
+* Adj|Ness→Noun+A3sg Adj|Zero→Noun+A3sg|Ness→Noun+A3sg
+
+beton* [beton:Noun] *
+
+kamyon* [kamyon:Noun] *
+
+çalış* [çalışmak:Verb] *
+
+# "istediğin"
+* PastPart→Noun+A3sg+Gen PastPart→Noun+A3sg+P2sg
+
+alınarak [almak:Verb] [alınmak:Verb]
+
+güzel [güzel:Adj] *
+
+gibi* [gibi:Postp,PCGen] *
+
+tahta|Tahta [taht:Noun] * * otur*|çık*
+
+tahta|Tahta [tahta:Noun] *
+
+al* [almak:Verb] * baz|söz|yer *
+
+kar|kâr [kâr:Noun] * * et*
+kar [kar:Noun] *
+
+en [en:Adv] * * doğru|az|çok
+
+doğru [doğru:Adj] * en|çok|bunu *
+
+biz* [biz:Pron,Pers] [biz:Noun]
+
+yapılan [yapmak:Verb] *
+
+aynı [aynı:Adj] *
+
+oluş* [oluşmak:Verb] [olmak:Verb]
+
+Sadece|sadece [sadece:Adv] *
+
+ile * [ilmek:Verb]
+
+Kesinlikle|Kesinlikle [kesinlikle:Adv] [kesin:Adj]
+
+* [katılmak:Verb] [katmak:Verb]
+
+bu* [bu:Pron,Demons] [bun:Noun]
+Bunun* [bu:Pron,Demons] [bun:Noun]
+
+umar* [ummak:Verb] [umar:Noun]
+
+yıldır * [yılmak:Verb]
+
+bend*|Bend* [ben:Pron,Pers] [bent:Noun]
+
+bazı|Bazı [bazı:Det] *
+
+adam|Adam [adam:Noun] [ada:Noun]
+
+Tarihi|tarihi|tarihî [tarihî:Adj] * * yarımada|ev|bina|eser
+
+ne|Ne * [Ne:Noun,Abbrv]
+
+yine|Yine [yine:Adv] *
+
+tarafından [tarafından:Adv] *
+
+sırasında [sırasında:Adv] *
+
+tartışabil* [tartışmak:Verb] *
+
+yetiş* [yetişmek:Verb] [yetmek:Verb]
+
+kısacası [kısacası:Adv] *
+
+iman* [iman:Noun] *
+
+etti* [etmek:Verb] *
+
+Türkler* [Türk:Noun,Prop] *
+Kürtler* [Kürt:Noun,Prop] *
+
+* [kibar:Adj] [kibar:Noun]
+
+Bana*|bana* [ben:Pron,Pers] *
+Sana*|sana* [sen:Pron,Pers] *
+
+lazım [lazım:Adj] *
+
+# "yapacaktır" Prefer Fut against FutPart->Noun conversion
+# There may be some false positives.
+
+* Fut+A3sg+Cop FutPart→Noun+A3sg|Zero→Verb+Pres+A3sg+Cop
+
+para* [para:Noun] [par:Noun]
+
+Türkçe [Türkçe:Noun,Prop] *
+Kürtçe [Kürtçe:Noun,Prop] *
+
+bile * [bilmek:Verb]
+# for now.
+bile [bile:Adv] *
+
+sağ * [sağmak:Verb]
+
+birleş*  * [bir:Num,Card]
+
+ay * [aymak:Verb]
+
+sol * [solmak:Verb]
+
+İnce|ince * Equ
+
+diliyor* * [dilmek:Verb]
+
+yıl * [yılmak:Verb]
+
+Aslan * [As:Noun,Prop]
+
+takım * [tak:Noun]
+
+arıza* * [arız:Adj]
+
+uğraş* * Recip→Verb
+paylaş* * [pay:Noun]
+
+Çünkü|çünkü * [Çünk:Noun,Prop]
+
+her|Her [her:Det] *
+
+Baş*|baş* [baş:Noun] Prop
+
+İki*|iki* [iki:Num,Card] Prop
+
+Aklı*|aklı* [akıl:Noun] *
+
+kimse* [kimse:Noun] * Hiç|hiç *
+Hiç|hiç [hiç:Noun] * * kimse*
+Hiç|hiç [hiç:Adv] * * bir
+
+# ne hale geldik
+hale [hâl:Noun] * * ge*
+
+Şarkı|şarkı [şarkı:Noun] *
+
+güzel [güzel:Adj] *
+
+kırmızı|Kırmızı [kırmızı:Adj] *
+
+şu|Şu [şu:Det] * * an*
+
+an* [an:Noun,Time] * şu*|Şu*|o|O *
+o|O [o:Det] * * an*
+
+edi* [etmek:Verb] [edi:Noun]
+
+## Risky but necessary for now.
+bir|Bir [bir:Det] *
+
+değerlendir* [değerlendirmek:Verb] *
+
+bunu|Bunu [bu:Pron,Demons] *
+
+daha|Daha [daha:Adv] *
+
+Topla*|topla* [toplamak:Verb] *
+
+galibi Zero→Noun+A3sg+i:Acc Zero→Noun+A3sg+i:P3sg
+
+* P3sg+Dat$ P2sg+Dat$
+
+* P3sg+Loc$ P2sg+Loc$
+
+* P3sg+Abl$ P2sg+Abl$
+
+* P3sg+Ins$ P2sg+Ins$
+
+* P3sg+Gen$ P2sg+Gen$
+
+bura* [bura:Noun] [burmak:Verb]
+
+erişim [erişim:Noun] [ermek:Verb]
+
+düşüş* Inf3→Noun Recip→Verb
+
+kımıld* [kımıldamak:Verb] *
+
+yattı* [yatmak:Verb] *
+
+ed* [etmek:Verb] *
+
+#ya da
+ya [ya:Conj] * * da
+
+# for now accept all `ya` as conjunction.
+ya|Ya [ya:Conj] *
+
+devam [devam:Noun] *
+
+ağır|Ağır [ağır:Adj] *
+
+memnun|Memnun [memnun:Adj] *
+
+izin [izin:Noun] * * al*|ver*
+
+uzun|Uzun [uzun:Adj] *
+
+kötü|Kötü [kötü:Adj] *
+
+böyle|Böyle [böyle:Adj] *
+
+takım* [takım:Noun] *
+
+oyund* [oyun:Noun] [oy:Noun]
+
+olmadığ* [olmak:Verb] *
+
+durum [durum:Noun] [duru:Adj]
+
+bizim biz:Pron+A1pl+im:P1pl *
+
+yarın|Yarın [yarın:Noun,Time] *
+
+# * A3sg+P3sg+Acc A3sg+P2sg+Acc
+
+sürücü*|Sürücü* [sürücü:Noun] *
+
+kurulum*|Kurulum* [kurulum:Noun] *
+
+güvence*|Güvence* [güvence:Noun] *
+
+kelime*|Kelime* [kelime:Noun] *
+
+yakalar* [yakalamak:Verb] *
+
+koşanlar* koş:Verb|PresPart→Noun+A3pl *
+
+şemsiye* [şemsiye:Noun] *
+
+güvence* [güvence:Noun] *
+
+yakınsa [yakın:Noun] *
+
+basına|Basına [basın:Noun] *
+
+altındasınız [alt:Noun] *
+
+satıcılar [satıcı:Noun] *
+
+zenginler [zengin:Adj] *
+
+odalar [oda:Noun] *
+
+yerine [yerine:Adv] *
+
+eski [eski:Adj] *
+
+* * [Ne:Noun,Abbrv]
+
+* * [Hayır:Noun,Prop]
+
+yayın|Yayin [yayın:Noun] *
+
+bir [bir:Num,Card] * * numara*
+
+hayır [hayır:Noun] * iş*|haber*|kurum* *
+
+açıklamada [açıklama:Noun] *
+
+görüştü [görüş:Noun] * bir *
+
+belli * [bel:Noun] ince|kalın *
+
+belli|Belli [belli:Adj] *
+
+yüzde [yüzde:Noun] *
+
+Üzer*|üzer* * Noun,Prop
+
+Sıcak|sicak [sıcak:Adj] *
+
+önce|Önce * [ön:
+önce|Önce * [Ön:
+önce|Önce [önce:Postp,PCAbl] * *den|*dan|*ten|*tan *
+önce|Önce [önce:Adv] *
+
+milli [millî:Adj] *

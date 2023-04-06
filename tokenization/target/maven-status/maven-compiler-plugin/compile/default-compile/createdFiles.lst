@@ -1,0 +1,17 @@
+zemberek\tokenization\Span.class
+zemberek\tokenization\TurkishSentenceExtractor$BoundaryData.class
+zemberek\tokenization\TurkishSentenceExtractor$Trainer.class
+zemberek\tokenization\TurkishTokenizer$Builder.class
+zemberek\tokenization\Token$Type.class
+zemberek\tokenization\TurkishTokenizer$TokenIterator.class
+zemberek\tokenization\TurkishSentenceExtractor$Singleton.class
+zemberek\tokenization\antlr\CustomLexerATNSimulator.class
+zemberek\tokenization\antlr\TurkishLexer.class
+zemberek\tokenization\PerceptronSegmenter.class
+zemberek\tokenization\TurkishTokenizer.class
+zemberek\tokenization\TurkishSentenceExtractor.class
+zemberek\tokenization\TurkishSentenceExtractor$1.class
+zemberek\tokenization\TurkishTokenizer$1.class
+zemberek\tokenization\TurkishSentenceExtractor$Builder.class
+zemberek\tokenization\TurkishSentenceExtractor$TrainerBuilder.class
+zemberek\tokenization\Token.class

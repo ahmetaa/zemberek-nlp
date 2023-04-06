@@ -1,0 +1,10 @@
+D:\zemberek-nlp\lang-id\src\main\java\zemberek\langid\train\Trainer.java
+D:\zemberek-nlp\lang-id\src\main\java\zemberek\langid\model\BaseCharNgramModel.java
+D:\zemberek-nlp\lang-id\src\main\java\zemberek\langid\model\CharNgramCountModel.java
+D:\zemberek-nlp\lang-id\src\main\java\zemberek\langid\train\SubtitleExtractor.java
+D:\zemberek-nlp\lang-id\src\main\java\zemberek\langid\model\CompressedCharNgramModel.java
+D:\zemberek-nlp\lang-id\src\main\java\zemberek\langid\model\CharNgramLanguageModel.java
+D:\zemberek-nlp\lang-id\src\main\java\zemberek\langid\model\MapBasedCharNgramLanguageModel.java
+D:\zemberek-nlp\lang-id\src\main\java\zemberek\langid\train\ModelGenerator.java
+D:\zemberek-nlp\lang-id\src\main\java\zemberek\langid\LanguageIdentifier.java
+D:\zemberek-nlp\lang-id\src\main\java\zemberek\langid\Language.java

@@ -1,0 +1,4 @@
+zemberek\classification\FastTextClassifierTrainer.class
+zemberek\classification\FastTextClassifierTrainer$LossType.class
+zemberek\classification\FastTextClassifier.class
+zemberek\classification\FastTextClassifierTrainer$Builder.class

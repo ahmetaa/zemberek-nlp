@@ -1,0 +1,12 @@
+zemberek.apps.morphology.MorphologyConsole
+zemberek.apps.corpus.PreprocessTurkishCorpus
+zemberek.apps.fasttext.TrainClassifier
+zemberek.apps.fasttext.GenerateWordVectors
+zemberek.apps.fasttext.ClassificationConsole
+zemberek.apps.fasttext.EvaluateClassifier
+zemberek.apps.lm.CompressLm
+zemberek.apps.lm.GenerateVocabulary
+zemberek.apps.grpc.StartGrpcServer
+zemberek.apps.ner.EvaluateNer
+zemberek.apps.ner.TrainNerModel
+zemberek.apps.ner.FindNamedEntities
