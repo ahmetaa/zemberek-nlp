@@ -25,6 +25,35 @@ import java.util.stream.Collectors;
  */
 public class Histogram<T> implements Iterable<T> {
 
+  public static class LoadHistogram{
+     public static Histogram<String> loadFromLines(
+            List<String> lines,
+            char delimiter,
+            boolean keyComesFirst) {
+      Histogram<String> result = new Histogram<>(lines.size());
+      for (String s : lines) {
+        int index = s.indexOf(delimiter);
+        if (index <= 0) {
+          throw new IllegalStateException("Bad histogram line = " + s);
+        }
+        String item = keyComesFirst ? s.substring(0, index) : s.substring(index + 1);
+        String countStr = keyComesFirst ? s.substring(index + 1) : s.substring(0, index);
+        int count = Integer.parseInt(countStr);
+        result.add(item, count);
+      }
+      return result;
+    }
+
+    public static Histogram<String> loadFromUtf8File(
+            Path path,
+            char delimiter,
+            boolean keyComesFirst) throws IOException {
+      List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+      return loadFromLines(lines, delimiter, keyComesFirst);
+    }
+
+  }
+
   private final UIntValueMap<T> map;
 
   public Histogram(int initialSize) {
@@ -46,26 +75,27 @@ public class Histogram<T> implements Iterable<T> {
    * Loads from file with format: [key][delimiter][count]
    */
   public static Histogram<String> loadFromLines(List<String> lines, char delimiter) {
-    return loadFromLines(lines, delimiter, true);
+    LoadHistogram histogram = new LoadHistogram();
+    return histogram.loadFromLines(lines, delimiter, true);
   }
 
-  public static Histogram<String> loadFromLines(
-      List<String> lines,
-      char delimiter,
-      boolean keyComesFirst) {
-    Histogram<String> result = new Histogram<>(lines.size());
-    for (String s : lines) {
-      int index = s.indexOf(delimiter);
-      if (index <= 0) {
-        throw new IllegalStateException("Bad histogram line = " + s);
-      }
-      String item = keyComesFirst ? s.substring(0, index) : s.substring(index + 1);
-      String countStr = keyComesFirst ? s.substring(index + 1) : s.substring(0, index);
-      int count = Integer.parseInt(countStr);
-      result.add(item, count);
-    }
-    return result;
-  }
+//  public static Histogram<String> loadFromLines(
+//      List<String> lines,
+//      char delimiter,
+//      boolean keyComesFirst) {
+//    Histogram<String> result = new Histogram<>(lines.size());
+//    for (String s : lines) {
+//      int index = s.indexOf(delimiter);
+//      if (index <= 0) {
+//        throw new IllegalStateException("Bad histogram line = " + s);
+//      }
+//      String item = keyComesFirst ? s.substring(0, index) : s.substring(index + 1);
+//      String countStr = keyComesFirst ? s.substring(index + 1) : s.substring(0, index);
+//      int count = Integer.parseInt(countStr);
+//      result.add(item, count);
+//    }
+//    return result;
+//  }
 
   /**
    * Loads a String Histogram from a file. Counts are supposedly delimited with `delimiter`
@@ -80,14 +110,13 @@ public class Histogram<T> implements Iterable<T> {
     return loadFromLines(lines, delimiter);
   }
 
-  public static Histogram<String> loadFromUtf8File(
-      Path path,
-      char delimiter,
-      boolean keyComesFirst) throws IOException {
-    List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-    return loadFromLines(lines, delimiter, keyComesFirst);
-  }
-
+//  public static Histogram<String> loadFromUtf8File(
+//      Path path,
+//      char delimiter,
+//      boolean keyComesFirst) throws IOException {
+//    List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+//    return loadFromLines(lines, delimiter, keyComesFirst);
+//  }
 
   public static void serializeStringHistogram(Histogram<String> h, DataOutputStream dos)
       throws IOException {
@@ -221,15 +250,7 @@ public class Histogram<T> implements Iterable<T> {
   }
 
   public int decrementIfPositive(T t) {
-    if (t == null) {
-      throw new NullPointerException("Element cannot be null");
-    }
-    int c = map.get(t);
-    if (c > 0) {
-      return map.decrement(t);
-    } else {
-      return 0;
-    }
+    return map.decrementIfPositive(t);
   }
 
   /**
