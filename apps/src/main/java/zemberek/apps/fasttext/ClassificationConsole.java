@@ -119,15 +119,9 @@ public class ClassificationConsole extends ConsoleApp {
   private String removeNonWords(String sentence) {
     List<Token> docTokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
     List<String> reduced = new ArrayList<>(docTokens.size());
+
     for (Token token : docTokens) {
-      if (
-          token.getType() == Type.PercentNumeral ||
-              token.getType() == Type.Number ||
-              token.getType() == Type.Punctuation ||
-              token.getType() == Type.RomanNumeral ||
-              token.getType() == Type.Time ||
-              token.getType() == Type.UnknownWord ||
-              token.getType() == Type.Unknown) {
+      if (isTokenNonWord(token)) {
         if (!token.getText().contains("__")) {
           continue;
         }
@@ -136,6 +130,16 @@ public class ClassificationConsole extends ConsoleApp {
       reduced.add(tokenStr);
     }
     return String.join(" ", reduced);
+  }
+
+  private Boolean isTokenNonWord(Token token) {
+    return token.getType() == Type.PercentNumeral ||
+            token.getType() == Type.Number ||
+            token.getType() == Type.Punctuation ||
+            token.getType() == Type.RomanNumeral ||
+            token.getType() == Type.Time ||
+            token.getType() == Type.UnknownWord ||
+            token.getType() == Type.Unknown;
   }
 
   public static void main(String[] args) {
