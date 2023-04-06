@@ -1,0 +1,7 @@
+D:\zemberek-nlp\tokenization\src\main\java\zemberek\tokenization\TurkishSentenceExtractor.java
+D:\zemberek-nlp\tokenization\src\main\java\zemberek\tokenization\Token.java
+D:\zemberek-nlp\tokenization\src\main\java\zemberek\tokenization\antlr\TurkishLexer.java
+D:\zemberek-nlp\tokenization\src\main\java\zemberek\tokenization\Span.java
+D:\zemberek-nlp\tokenization\src\main\java\zemberek\tokenization\TurkishTokenizer.java
+D:\zemberek-nlp\tokenization\src\main\java\zemberek\tokenization\antlr\CustomLexerATNSimulator.java
+D:\zemberek-nlp\tokenization\src\main\java\zemberek\tokenization\PerceptronSegmenter.java

@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="b88d3d1a-1464-4322-aa80-02a04e022dec" name="Changes" comment="Update README.md">
       <changelist_data name="Ahmet A. Akın" email="ahmetaa@gmail.com" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/zemberek/core/collections/Histogram.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/zemberek/core/collections/Histogram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/zemberek/core/collections/UIntValueMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/zemberek/core/collections/UIntValueMap.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/morphology/src/main/java/zemberek/morphology/morphotactics/AbstractCondition.java" beforeDir="false" afterPath="$PROJECT_DIR$/morphology/src/main/java/zemberek/morphology/morphotactics/AbstractCondition.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/morphology/src/main/java/zemberek/morphology/morphotactics/Condition.java" beforeDir="false" afterPath="$PROJECT_DIR$/morphology/src/main/java/zemberek/morphology/morphotactics/Condition.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -50,7 +50,7 @@
       <option name="presentableId" value="Default" />
       <updated>1680791954209</updated>
       <workItem from="1680791961337" duration="1290000" />
-      <workItem from="1680817039382" duration="464000" />
+      <workItem from="1680817039382" duration="2183000" />
     </task>
     <servers />
   </component>

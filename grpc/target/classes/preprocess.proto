@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+option java_package = "zemberek.proto";
+option java_multiple_files = true;
+
+package zemberek.preprocessor;
+
+message TokenizationRequest {
+  string input = 1;
+  bool includeTokenBoundaries = 2;
+  bool ignoreDoubleQuotes = 3;
+  // TODO: Add options (ignore etc.)
+}
+
+message TokenProto {
+  string token = 1;
+  // TODO: Types should be enums.
+  string type = 2;
+  int32 start = 3;
+  int32 end = 4;
+}
+
+message TokenizationResponse {
+  repeated TokenProto tokens = 1;
+}
+
+message SentenceExtractionRequest {
+  string document = 1;
+  bool doNotSplitInDoubleQuotes = 2;
+}
+
+message SentenceExtractionResponse {
+  repeated string sentences = 1;
+}
+
+service PreprocessingService {
+  rpc Tokenize (TokenizationRequest) returns (TokenizationResponse);
+  rpc ExtractSentences (SentenceExtractionRequest) returns (SentenceExtractionResponse);
+}
