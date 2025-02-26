@@ -5,7 +5,7 @@
   <parent>
     <artifactId>zemberek-nlp</artifactId>
     <groupId>zemberek-nlp</groupId>
-    <version>0.17.1</version>
+    <version>0.17.2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +15,7 @@
     <dependency>
       <groupId>com.beust</groupId>
       <artifactId>jcommander</artifactId>
-      <version>1.72</version>
+      <version>1.78</version>
     </dependency>
     <dependency>
       <groupId>zemberek-nlp</groupId>
