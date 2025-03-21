@@ -39,7 +39,8 @@ public class ApplicationRunner {
       String simpleName = app.getClass().getSimpleName();
       System.out.println(simpleName);
       System.out.println(Strings.repeat("-", simpleName.length()));
-      String wrapped = wrap(app.description(), 80);
+      int wrappedDescriptionLengthLimit = 80;
+      String wrapped = wrap(app.description(), wrappedDescriptionLengthLimit);
       System.out.println(wrapped);
       System.out.println();
     }

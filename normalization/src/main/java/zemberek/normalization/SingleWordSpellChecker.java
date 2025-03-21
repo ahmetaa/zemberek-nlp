@@ -524,10 +524,10 @@ public class SingleWordSpellChecker {
     @Override
     public int hashCode() {
       int result;
-      long temp;
+      long penaltyAsLongVariable;
       result = node.hashCode();
-      temp = Double.doubleToLongBits(penalty);
-      result = 31 * result + (int) (temp ^ (temp >>> 32));
+      penaltyAsLongVariable = Double.doubleToLongBits(penalty);
+      result = 31 * result + (int) (penaltyAsLongVariable ^ (penaltyAsLongVariable >>> 32));
       result = 31 * result + index;
       return result;
     }
