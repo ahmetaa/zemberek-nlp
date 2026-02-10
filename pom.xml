@@ -40,7 +40,7 @@
     <protobuf.input.directory>${project.basedir}/src/main/proto</protobuf.input.directory>
     <protobuf.output.directory.java>${project.basedir}/src/main/generated/java
     </protobuf.output.directory.java>
-    <protobuf.version>4.27.2</protobuf.version>
+    <protobuf.version>4.33.5</protobuf.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
@@ -73,7 +73,7 @@
         <artifactId>protobuf-maven-plugin</artifactId>
         <version>0.6.1</version>
         <configuration>
-          <protocArtifact>com.google.protobuf:protoc:3.24.4:exe:${os.detected.classifier}</protocArtifact>
+          <protocArtifact>com.google.protobuf:protoc:4.33.5:exe:${os.detected.classifier}</protocArtifact>
           <pluginId>grpc-java</pluginId>
           <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.43.3:exe:${os.detected.classifier}</pluginArtifact>
         </configuration>
