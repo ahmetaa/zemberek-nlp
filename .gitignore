@@ -1,9 +1,5 @@
-*.class
-
-# Package Files #
-*.jar
-*.war
-*.ear
+dependencies/
+**/target/
 
 # Intellij idea #
 *.iws
