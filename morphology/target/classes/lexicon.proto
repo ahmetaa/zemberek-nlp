@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+option java_package = "zemberek.morphology.lexicon.proto";
+option java_outer_classname = "LexiconProto";
+
+// Keep in synnc with zemberek.core.turkish.PrimaryPos
+enum PrimaryPos {
+  PrimaryPos_Unknown = 0;
+  Noun = 1;
+  Adjective = 2;
+  Adverb = 3;
+  Conjunction = 4;
+  Interjection = 5;
+  Verb = 6;
+  Pronoun = 7;
+  Numeral = 8;
+  Determiner = 9;
+  PostPositive = 10;
+  Question = 11;
+  Duplicator = 12;
+  Punctuation = 13;
+}
+
+// Keep in sync with zemberek.core.turkish.SecondaryPos
+enum SecondaryPos {
+  SecondaryPos_Unknown = 0;
+  DemonstrativePron = 1;
+  Time = 2;
+  QuantitivePron = 3;
+  QuestionPron = 4;
+  ProperNoun = 5;
+  PersonalPron = 6;
+  ReflexivePron = 7;
+  None = 8;
+  Ordinal = 9;
+  Cardinal = 10;
+  Percentage = 11;
+  Ratio = 12;
+  Range = 13;
+  Real = 14;
+  Distribution = 15;
+  Clock = 16;
+  Date = 17;
+  RegularAbbreviation = 18;
+  Abbreviation = 19;
+
+  Email = 20;
+  Url = 21;
+  Mention = 22;
+  HashTag = 23;
+  Emoticon=24;
+  RomanNumeral=25;
+
+  // Below POS information is for compatibility with K. Oflazer's notation.
+  // They indicate that words before Post positive words should end with certain suffixes.
+  PCDat = 50;
+  PCAcc = 51;
+  PCIns = 52;
+  PCNom = 53;
+  PCGen = 54;
+  PCAbl = 55;
+}
+
+// Keep in sync with zemberek.core.turkish.RootAttribute
+enum RootAttribute {
+  RootAttribute_Unknown = 0;
+  Aorist_I = 1;
+  Aorist_A = 2;
+  ProgressiveVowelDrop = 3;
+  Passive_In = 4;
+  Causative_t = 5;
+  Voicing = 6;
+  NoVoicing = 7;
+  InverseHarmony = 8;
+  Doubling = 9;
+  LastVowelDrop = 10;
+  CompoundP3sg = 11;
+  NoSuffix = 12;
+  NounConsInsert_n = 13;
+  NoQuote = 14;
+  CompoundP3sgRoot = 15;
+  Reflexive = 16;
+  Reciprocal = 17;
+  Ext = 18;
+  Runtime = 29;
+  Dummy = 20;
+  NonReciprocal = 21;
+  ImplicitDative = 22;
+  ImplicitPlural = 23;
+  ImplicitP1sg = 24;
+  ImplicitP2sg = 25;
+  FamilyMember = 26;
+  PronunciationGuessed = 27;
+  Informal = 28;
+}
+
+message DictionaryItem {
+  string lemma = 1;
+  string root = 2;
+  string pronunciation = 3;
+  string reference = 4;
+  PrimaryPos primary_pos = 5;
+  SecondaryPos secondary_pos = 6;
+  repeated RootAttribute root_attributes = 7;
+  int32 index = 8;
+}
+
+message Dictionary {
+  enum Creator {
+    Unknown = 0;
+    Robot = 1;
+    Manual = 2;
+  }
+  int64 generation_timestamp = 1;
+  string generation_time = 2; // Human readable.
+  string name = 3;
+  repeated string sources = 4; // Original sources;
+  bool ignore = 5; // For debugging etc.
+  repeated DictionaryItem items = 6;
+}
+
+// Maybe not needed.
+message MasterDictionary {
+  repeated Dictionary dictionaries = 1;
+}

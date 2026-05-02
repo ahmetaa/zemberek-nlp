@@ -1,0 +1,17 @@
+zemberek\ner\NamedEntity.class
+zemberek\ner\NerExperiment.class
+zemberek\ner\NePosition.class
+zemberek\ner\PerceptronNer$ClassModel.class
+zemberek\ner\PerceptronNerTrainer$TestResult.class
+zemberek\ner\PerceptronNer$FeatureData.class
+zemberek\ner\NerDataSet$1.class
+zemberek\ner\NEPostProcessor.class
+zemberek\ner\PerceptronNer$DenseWeights.class
+zemberek\ner\PerceptronNer.class
+zemberek\ner\NerSentence$1.class
+zemberek\ner\NerDataSet.class
+zemberek\ner\NerToken.class
+zemberek\ner\PerceptronNerTrainer.class
+zemberek\ner\NerSentence.class
+zemberek\ner\NerDataSet$Info.class
+zemberek\ner\NerDataSet$AnnotationStyle.class

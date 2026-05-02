@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option java_package = "zemberek.proto";
+option java_multiple_files = true;
+
+package zemberek.langid;
+
+message LanguageIdRequest {
+  string input = 1;
+  int32 maxSampleCount = 2;
+  bool trGroup = 3;
+  bool includeScores = 4;
+}
+
+message LanguageIdResponse {
+  string langId = 1;
+  repeated IdResult idResult = 2;
+}
+
+message IdResult {
+  string id = 1;
+  double score = 2;
+}
+
+service LanguageIdService {
+  rpc Detect (LanguageIdRequest) returns (LanguageIdResponse);
+  rpc DetectFast (LanguageIdRequest) returns (LanguageIdResponse);
+}

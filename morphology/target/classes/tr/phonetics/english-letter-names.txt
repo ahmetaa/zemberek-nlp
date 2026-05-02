@@ -1,0 +1,27 @@
+## Bu dosyada ingilizce harflerin türkçe okunuşları
+a=ey
+b=bi
+c=si
+d=di
+e=iy
+f=ef
+g=ci
+h=eyç
+i=ay
+j=cey
+k=key
+l=el
+m=em
+n=en
+o=o
+p=pi
+q=kü
+r=ar
+s=es
+t=ti
+u=yu
+v=vi
+w=dabılyu
+x=iks
+y=vay
+z=zet

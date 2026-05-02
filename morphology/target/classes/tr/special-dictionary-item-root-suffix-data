@@ -1,0 +1,8 @@
+# Line below contains dictionary item ids and root suffix names.
+# During graph generation those items are connected to related root suffix nodes.
+
+su_Noun Noun_Su_Root
+akarsu_Noun Noun_Su_Root
+aksu_Noun Noun_Su_Root
+biz_Pron_Pers PersPron_Biz
+siz_Pron_Pers PersPron_Siz

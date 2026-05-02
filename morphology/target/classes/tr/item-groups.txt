@@ -1,0 +1,35 @@
+## This file contains item groups. This is simply a groups items with an id.
+
+değil:
+değil_Verb
+
+su_Group:
+su_Noun
+akarsu_Noun
+
+## for Adv->Verb derivation. "şöyleyim, böyleydi.."
+adv_1
+öyle_Adv
+böyle_Adv
+şöyle_Adv
+
+## for uses of "babamlar, dayınlar"
+family:
+anne
+baba
+dayı
+amca
+teyze
+yenge
+enişte
+hala
+dede
+babaanne
+anneanne
+nine
+büyükbaba
+büyükanne
+görümce
+abi
+abla
+

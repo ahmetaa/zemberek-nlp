@@ -12,7 +12,7 @@ public interface Condition {
 
   Condition or(Condition other);
 
-  Condition orNot(Condition other);
+//  Condition orNot(Condition other);
 
   Condition not();
 

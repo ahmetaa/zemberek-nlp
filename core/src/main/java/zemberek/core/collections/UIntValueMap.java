@@ -303,4 +303,16 @@ public class UIntValueMap<T> extends HashBase<T> implements Iterable<T> {
     }
   }
 
+  public int decrementIfPositive(T t) {
+    if (t == null) {
+      throw new NullPointerException("Element cannot be null");
+    }
+    int c = this.get(t);
+    if (c > 0) {
+      return this.decrement(t);
+    } else {
+      return 0;
+    }
+  }
+
 }

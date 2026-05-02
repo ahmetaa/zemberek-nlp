@@ -1,0 +1,17 @@
+zemberek\langid\Language.class
+zemberek\langid\train\ModelGenerator.class
+zemberek\langid\LanguageIdentifier$IdResult.class
+zemberek\langid\model\CompressedCharNgramModel$ProbData.class
+zemberek\langid\model\CompressedCharNgramModel.class
+zemberek\langid\model\CompressedCharNgramModel$StringListKeyProvider.class
+zemberek\langid\LanguageIdentifier$1.class
+zemberek\langid\model\CharNgramLanguageModel.class
+zemberek\langid\train\Trainer.class
+zemberek\langid\model\MapBasedCharNgramLanguageModel.class
+zemberek\langid\model\MapBasedCharNgramLanguageModel$GramLogProbData.class
+zemberek\langid\model\CharNgramCountModel.class
+zemberek\langid\train\SubtitleExtractor.class
+zemberek\langid\LanguageIdentifier.class
+zemberek\langid\LanguageIdentifier$ModelScore.class
+zemberek\langid\model\BaseCharNgramModel.class
+zemberek\langid\train\ModelGenerator$ModelTrainData.class
