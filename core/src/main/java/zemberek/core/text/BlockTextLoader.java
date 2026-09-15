@@ -182,7 +182,7 @@ public class BlockTextLoader implements Iterable<TextChunk> {
         BufferedReader reader = Files.newBufferedReader(path, charset);
         return new TextIterator(reader);
       } catch (IOException e) {
-        e.printStackTrace();
+        Log.exception(e);
         throw new RuntimeException(e);
       }
     }
@@ -203,7 +203,7 @@ public class BlockTextLoader implements Iterable<TextChunk> {
         }
         return new TextIterator(reader);
       } catch (IOException e) {
-        e.printStackTrace();
+        Log.exception(e);
         throw new RuntimeException(e);
       }
     }
@@ -241,7 +241,7 @@ public class BlockTextLoader implements Iterable<TextChunk> {
           }
           return currentBlock.size() > 0;
         } catch (IOException e) {
-          e.printStackTrace();
+          Log.exception(e);
           throw new RuntimeException(e);
         }
       }
