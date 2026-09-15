@@ -40,11 +40,11 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
     this.decoder = new Decoder(averagedModel, extractor);
   }
 
-  WeightLookup getModel() {
+  public WeightLookup getModel() {
     return decoder.model;
   }
 
-  Decoder getDecoder() {
+  public Decoder getDecoder() {
     return decoder;
   }
 

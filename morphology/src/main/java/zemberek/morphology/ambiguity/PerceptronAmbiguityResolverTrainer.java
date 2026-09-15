@@ -47,11 +47,11 @@ public class PerceptronAmbiguityResolverTrainer {
   // during model updates, keys with lower than this value will be removed from the model.
   private double minPruneWeight = 0;
 
-  PerceptronAmbiguityResolverTrainer(TurkishMorphology analyzer) {
+  public PerceptronAmbiguityResolverTrainer(TurkishMorphology analyzer) {
     this.analyzer = analyzer;
   }
 
-  PerceptronAmbiguityResolverTrainer(TurkishMorphology analyzer, double weightThreshold) {
+  public PerceptronAmbiguityResolverTrainer(TurkishMorphology analyzer, double weightThreshold) {
     this.analyzer = analyzer;
     this.minPruneWeight = weightThreshold;
   }
@@ -90,7 +90,7 @@ public class PerceptronAmbiguityResolverTrainer {
         updateModel(correctFeatures, bestFeatures, numExamples);
       }
 
-      for (String feat : averagedWeights) {
+      for (String feat : counts) {
         updateAveragedWeights(feat, numExamples);
         counts.put(feat, numExamples);
       }
@@ -100,6 +100,13 @@ public class PerceptronAmbiguityResolverTrainer {
           new PerceptronAmbiguityResolver(averagedWeights, extractor);
       test(devSet, disambiguator);
 
+    }
+    if (minPruneWeight > 0) {
+      for (String feat : averagedWeights.getData().getKeyList()) {
+        if (Math.abs(averagedWeights.get(feat)) <= minPruneWeight) {
+          averagedWeights.getData().remove(feat);
+        }
+      }
     }
     return new PerceptronAmbiguityResolver(averagedWeights, new FeatureExtractor(false));
   }
@@ -129,15 +136,7 @@ public class PerceptronAmbiguityResolverTrainer {
 
       counts.put(feat, numExamples);
 
-      // reduce model by eliminating near zero weights.
-      float wa = averagedWeights.get(feat);
-      if (Math.abs(wa) <= minPruneWeight) {
-        averagedWeights.getData().remove(feat);
-      }
-      float w = weights.get(feat);
-      if (Math.abs(w) <= minPruneWeight) {
-        weights.getData().remove(feat);
-      }
+
     }
   }
 
@@ -153,9 +152,9 @@ public class PerceptronAmbiguityResolverTrainer {
   }
 
 
-  static class DataSet {
+  public static class DataSet {
 
-    List<SentenceAnalysis> sentences;
+    public List<SentenceAnalysis> sentences;
     Random rnd = new Random(0xbeef);
 
     public void shuffle() {
@@ -166,15 +165,15 @@ public class PerceptronAmbiguityResolverTrainer {
       sentences = new ArrayList<>();
     }
 
-    DataSet(List<SentenceAnalysis> sentences) {
+    public DataSet(List<SentenceAnalysis> sentences) {
       this.sentences = sentences;
     }
 
-    void add(DataSet other) {
+    public void add(DataSet other) {
       this.sentences.addAll(other.sentences);
     }
 
-    static DataSet load(Path path, TurkishMorphology analyzer) throws IOException {
+    public static DataSet load(Path path, TurkishMorphology analyzer) throws IOException {
       List<SentenceDataStr> sentencesFromTextFile = DataSet.loadTrainingDataText(path);
       return new DataSet(DataSet.convert(sentencesFromTextFile, analyzer));
     }
@@ -249,7 +248,7 @@ public class PerceptronAmbiguityResolverTrainer {
       return sentences;
     }
 
-    void info() {
+    public void info() {
       Log.info("There are %d sentences and %d tokens.",
           sentences.size(),
           sentences.stream().mapToInt(SentenceAnalysis::size).sum());
@@ -284,23 +283,20 @@ public class PerceptronAmbiguityResolverTrainer {
               .collect(Collectors.toList());
 
           String selected = null;
-          if (analysesFromLines.size() == 1) {
+          int i = 0;
+          int index = -1;
+          for (String s : analysesFromLines) {
+            if (s.endsWith("*")) {
+              selected = s.substring(0, s.length() - 1);
+              index = i;
+              break;
+            }
+            i++;
+          }
+          if (index >= 0) {
+            analysesFromLines.set(index, selected);
+          } else if (analysesFromLines.size() == 1) {
             selected = analysesFromLines.get(0);
-            analysesFromLines.set(0, selected);
-          } else {
-            int i = 0;
-            int index = -1;
-            for (String s : analysesFromLines) {
-              if (s.endsWith("*")) {
-                selected = s.substring(0, s.length() - 1);
-                index = i;
-                break;
-              }
-              i++;
-            }
-            if (index >= 0) {
-              analysesFromLines.set(index, selected);
-            }
           }
 
           WordDataStr w = new WordDataStr(word, selected, analysesFromLines);

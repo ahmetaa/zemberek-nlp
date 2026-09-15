@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "dataset_name": "turkish_morphology_disambiguation_candidates",
+  "provenance": {
+    "source_file": "gemini_turkish_test_100.txt",
+    "parser": "zemberek-nlp",
+    "parser_version": "0.17.2",
+    "java_version": "21.0.12",
+    "created_at": "2026-09-15T13:33:38.995334468Z"
+  },
+  "zemberek_settings": {
+    "informal_analysis": false,
+    "ignore_diacritics": false,
+    "only_ambiguous_sentences": false
+  },
+  "statistics": {
+    "sentence_count": 100,
+    "token_count": 1066,
+    "ambiguous_token_count": 616,
+    "ambiguity_rate": 0.5779
+  },
+  "annotation": {
+    "status": "pending_llm_selection"
+  }
+}
