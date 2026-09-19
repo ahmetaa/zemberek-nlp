@@ -94,14 +94,14 @@ public class ActiveList<T extends Scorable> implements Iterable<T> {
       if (t == null) {
         continue;
       }
-      int slot = rehash(t.hashCode()) & modulo;
+      int slot = rehash(t.hashCode()) & expandedList.modulo;
       while (true) {
         final T h = expandedList.items[slot];
         if (h == null) {
           expandedList.items[slot] = t;
           break;
         }
-        slot = (slot + 1) & modulo;
+        slot = (slot + 1) & expandedList.modulo;
       }
     }
     this.modulo = expandedList.modulo;
