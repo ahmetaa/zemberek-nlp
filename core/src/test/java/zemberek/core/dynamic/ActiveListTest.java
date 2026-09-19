@@ -63,5 +63,45 @@ public class ActiveListTest {
     Assert.assertEquals(99.0f, list.getBest().score, 0.001f);
     Assert.assertEquals(2, list.getBest().id);
   }
+
+  @Test
+  public void testCapacityOneExpansion() {
+    ActiveList<Item> list = new ActiveList<>(1);
+    list.add(new Item(1, 10.0f));
+    list.add(new Item(2, 20.0f));
+    list.add(new Item(3, 30.0f));
+
+    Assert.assertEquals(30.0f, list.getBest().score, 0.001f);
+    Assert.assertEquals(3, list.getBest().id);
+  }
+
+  @Test
+  public void testIteratorContract() {
+    ActiveList<Item> list = new ActiveList<>(8);
+    list.add(new Item(1, 10.0f));
+    list.add(new Item(2, 20.0f));
+
+    java.util.Iterator<Item> it = list.iterator();
+    // Multiple hasNext() calls should not advance pointer or skip items
+    Assert.assertTrue(it.hasNext());
+    Assert.assertTrue(it.hasNext());
+    Assert.assertTrue(it.hasNext());
+
+    Item first = it.next();
+    Assert.assertNotNull(first);
+
+    Assert.assertTrue(it.hasNext());
+    Item second = it.next();
+    Assert.assertNotNull(second);
+    Assert.assertNotEquals(first.id, second.id);
+
+    Assert.assertFalse(it.hasNext());
+    try {
+      it.next();
+      Assert.fail("Should have thrown NoSuchElementException");
+    } catch (java.util.NoSuchElementException expected) {
+      // Expected
+    }
+  }
 }
 

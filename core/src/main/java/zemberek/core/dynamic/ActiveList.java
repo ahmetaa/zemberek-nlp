@@ -35,7 +35,7 @@ public class ActiveList<T extends Scorable> implements Iterable<T> {
       k <<= 1;
     }
     items = (T[]) new Scorable[k];
-    expandLimit = (int) (k * DEFAULT_LOAD_FACTOR);
+    expandLimit = Math.max(1, (int) (k * DEFAULT_LOAD_FACTOR));
     modulo = k - 1;
   }
 
@@ -81,7 +81,7 @@ public class ActiveList<T extends Scorable> implements Iterable<T> {
         items[slot] = t;
       }
     }
-    if (size == expandLimit) {
+    if (size >= expandLimit) {
       expand();
     }
   }
@@ -131,25 +131,24 @@ public class ActiveList<T extends Scorable> implements Iterable<T> {
 
     int pointer = 0;
     int count = 0;
-    T current;
 
     @Override
     public boolean hasNext() {
-      if (count == size) {
-        return false;
-      }
-      while (items[pointer] == null) {
-        pointer++;
-      }
-      current = items[pointer];
-      count++;
-      pointer++;
-      return true;
+      return count < size;
     }
 
     @Override
     public T next() {
-      return current;
+      if (!hasNext()) {
+        throw new java.util.NoSuchElementException("No more elements in ActiveList");
+      }
+      while (pointer < items.length && items[pointer] == null) {
+        pointer++;
+      }
+      T result = items[pointer];
+      pointer++;
+      count++;
+      return result;
     }
   }
 }
