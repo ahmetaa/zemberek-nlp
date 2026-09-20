@@ -51,7 +51,8 @@ public class TdkLoader {
             "Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
         .referrer("http://www.google.com")
         .get();
-    doc = doc.normalise();
+    // Documents returned by the parser are already normalised; Document.normalise()
+    // was removed from the public API in jsoup 1.21.
     String htmlContent = doc.toString();
     Files.write(
         out,

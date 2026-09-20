@@ -19,8 +19,6 @@
     <module>experiment</module>
     <module>lang-id</module>
     <module>grpc</module>
-    <!-- disable server modules for the time being.-->
-    <!--<module>server</module>-->
     <module>normalization</module>
     <module>examples</module>
     <module>ner</module>
@@ -40,7 +38,7 @@
     <protobuf.input.directory>${project.basedir}/src/main/proto</protobuf.input.directory>
     <protobuf.output.directory.java>${project.basedir}/src/main/generated/java
     </protobuf.output.directory.java>
-    <protobuf.version>4.33.5</protobuf.version>
+    <protobuf.version>4.36.2</protobuf.version>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
   </properties>
@@ -83,9 +81,9 @@
         <artifactId>protobuf-maven-plugin</artifactId>
         <version>0.6.1</version>
         <configuration>
-          <protocArtifact>com.google.protobuf:protoc:4.33.5:exe:${os.detected.classifier}</protocArtifact>
+          <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
           <pluginId>grpc-java</pluginId>
-          <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.43.3:exe:${os.detected.classifier}</pluginArtifact>
+          <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.84.0:exe:${os.detected.classifier}</pluginArtifact>
         </configuration>
         <executions>
           <execution>
@@ -168,10 +166,10 @@
               <overWriteIfNewer>true</overWriteIfNewer>
               <!--<excludeTransitive>true</excludeTransitive>-->
               <excludeGroupIds>
-                junit,org.hamcrest,org.mockito,org.powermock,${project.groupId},server,examples,experiment,all
+                junit,org.hamcrest,org.powermock,${project.groupId},examples,experiment,all
               </excludeGroupIds>
               <excludeArtifactIds>
-                all, server, examples, experiment
+                all, examples, experiment
               </excludeArtifactIds>
             </configuration>
           </execution>
@@ -191,13 +189,13 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.2.1-jre</version>
+      <version>33.7.1-jre</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.13.1</version>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -207,15 +205,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.9.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.opennlp</groupId>
       <artifactId>opennlp-tools</artifactId>
-      <version>1.8.2</version>
+      <version>2.5.12</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
