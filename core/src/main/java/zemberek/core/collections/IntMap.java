@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * A simple hashmap with integer keys and T values. implements open address linear probing
@@ -14,7 +15,7 @@ import java.util.List;
  * - Does not implement Map interface
  * - Size can be max 1 << 29
  * - Does not support remove.
- * - Does not implement Iterable.
+ * - Implements Iterable<T> over values.
  * - Class is not thread safe.
  * </pre>
  * If created as an externally managed IntMap, it does not expand automatically when capacity
@@ -111,50 +112,40 @@ public final class IntMap<T> implements Iterable<T> {
 
   public boolean put(int key, T value) {
     checkKey(key);
+    int loc = locate(key);
+    if (loc >= 0) {
+      values[loc] = value;
+      return true;
+    }
     if (keyCount == threshold) {
       if (managed) {
         return false;
       }
       expandInternal();
+      loc = locate(key);
     }
-    int loc = locate(key);
-    if (loc >= 0) {
-      values[loc] = value;
-    } else {
-      loc = -loc - 1;
-      keys[loc] = key;
-      values[loc] = value;
-      keyCount++;
-    }
+    loc = -loc - 1;
+    keys[loc] = key;
+    values[loc] = value;
+    keyCount++;
     return true;
   }
 
   /**
-   * @return The value {@code T} taht is mapped to given {@code key}. or  {@code null} If key does
+   * @return The value {@code T} that is mapped to given {@code key}. or  {@code null} If key does
    * not exist,
-   * @throws IllegalArgumentException if key is {@code Integer.MIN_INT}
+   * @throws IllegalArgumentException if key is {@code Integer.MIN_VALUE}
    */
   public T get(int key) {
     checkKey(key);
-    int slot = rehash(key) & modulo;
-    // Test the lucky first shot.
-    if (key == keys[slot]) {
-      return values[slot];
-    }
-    // Continue linear probing otherwise
-    while (true) {
-      slot = (slot + 1) & modulo;
-      final int t = keys[slot];
-      if (t == key) {
-        return values[slot];
-      }
-      if (t == EMPTY) {
-        return null;
-      }
-    }
+    int loc = locate(key);
+    return loc >= 0 ? values[loc] : null;
   }
 
   public boolean containsKey(int key) {
+    if (key == EMPTY) {
+      return false;
+    }
     return locate(key) >= 0;
   }
 
@@ -173,12 +164,12 @@ public final class IntMap<T> implements Iterable<T> {
   }
 
   /**
-   * Returns the array of keys in the map.
+   * Returns the list of values in the map.
    */
   public List<T> getValues() {
-    List<T> result = new ArrayList<>();
+    List<T> result = new ArrayList<>(keyCount);
     for (int i = 0; i < keys.length; i++) {
-      if (keys[i] >= 0) {
+      if (keys[i] != EMPTY) {
         result.add(values[i]);
       }
     }
@@ -208,7 +199,7 @@ public final class IntMap<T> implements Iterable<T> {
 
   private int newCapacity() {
     long size = (long) (keys.length * 2);
-    if (keys.length > MAX_CAPACITY) {
+    if (keys.length >= MAX_CAPACITY) {
       throw new RuntimeException("Map is too large.");
     }
     return (int) size;
@@ -250,30 +241,31 @@ public final class IntMap<T> implements Iterable<T> {
 
   private class ValueIterator implements Iterator<T> {
 
-    int keyCounter = 0;
-    int counter = 0;
-    T item;
+    private int pointer = 0;
+    private int count = 0;
 
     @Override
     public boolean hasNext() {
-      if (counter == keyCount) {
-        return false;
-      }
-      while (true) {
-        if (keys[keyCounter] != EMPTY) {
-          keyCounter++;
-          break;
-        }
-        keyCounter++;
-      }
-      item = values[keyCounter - 1];
-      counter++;
-      return true;
+      return count < keyCount;
     }
 
     @Override
     public T next() {
-      return item;
+      if (!hasNext()) {
+        throw new NoSuchElementException("No more elements in IntMap");
+      }
+      while (pointer < keys.length && keys[pointer] == EMPTY) {
+        pointer++;
+      }
+      T result = values[pointer];
+      pointer++;
+      count++;
+      return result;
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException("IntMap does not support remove.");
     }
   }
 }
