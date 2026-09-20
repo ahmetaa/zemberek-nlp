@@ -49,8 +49,12 @@ public class NGramPriorStore {
     return Math.min(10, Math.max(1, bin));
   }
 
+  public boolean isEmpty() {
+    return bigrams.size() == 0 && trigrams.size() == 0 && collocations.size() == 0;
+  }
+
   public int getBigramCount(String w1, String w2) {
-    if (w1 == null || w2 == null) {
+    if (w1 == null || w2 == null || bigrams.size() == 0) {
       return 0;
     }
     String key = (w1.toLowerCase(TR) + " " + w2.toLowerCase(TR)).trim();
@@ -58,7 +62,7 @@ public class NGramPriorStore {
   }
 
   public int getTrigramCount(String w1, String w2, String w3) {
-    if (w1 == null || w2 == null || w3 == null) {
+    if (w1 == null || w2 == null || w3 == null || trigrams.size() == 0) {
       return 0;
     }
     String key = (w1.toLowerCase(TR) + " " + w2.toLowerCase(TR) + " " + w3.toLowerCase(TR)).trim();
@@ -66,15 +70,21 @@ public class NGramPriorStore {
   }
 
   public int getBigramBin(String w1, String w2) {
+    if (bigrams.size() == 0) {
+      return 0;
+    }
     return getLogBin(getBigramCount(w1, w2));
   }
 
   public int getTrigramBin(String w1, String w2, String w3) {
+    if (trigrams.size() == 0) {
+      return 0;
+    }
     return getLogBin(getTrigramCount(w1, w2, w3));
   }
 
   public boolean hasCollocation(String w1, String w2) {
-    if (w1 == null || w2 == null) {
+    if (w1 == null || w2 == null || collocations.size() == 0) {
       return false;
     }
     String key = (w1.toLowerCase(TR) + " " + w2.toLowerCase(TR)).trim();
