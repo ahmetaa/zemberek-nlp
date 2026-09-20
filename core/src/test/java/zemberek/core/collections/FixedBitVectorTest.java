@@ -97,6 +97,26 @@ public class FixedBitVectorTest {
   }
 
   @Test
+  public void largeLengthConstructorDoesNotOverflow() {
+    try {
+      FixedBitVector vector = new FixedBitVector(Integer.MAX_VALUE - 30);
+      Assert.assertEquals(Integer.MAX_VALUE - 30, vector.length);
+    } catch (OutOfMemoryError e) {
+      // In constrained memory environments, OOM is acceptable,
+      // but it must never throw NegativeArraySizeException.
+    }
+  }
+
+  @Test
+  public void zeroLengthVector() {
+    FixedBitVector vector = new FixedBitVector(0);
+    Assert.assertEquals(0, vector.length);
+    Assert.assertEquals(0, vector.numberOfOnes());
+    Assert.assertEquals(0, vector.numberOfZeroes());
+    Assert.assertEquals(0, vector.zeroIndexes().length);
+  }
+
+  @Test
   @Ignore("Not a test.")
   public void performanceTest() {
     int itCount = 5;

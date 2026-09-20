@@ -57,7 +57,7 @@ public class LongBitVector {
    * @param size vector size.
    */
   public LongBitVector(long[] words, long size) {
-    if (size < 0 || size > words.length * 64) {
+    if (size < 0 || size > words.length * 64L) {
       throw new IllegalArgumentException("Cannot create vector with size:" + size);
     }
     this.size = size;
@@ -78,7 +78,11 @@ public class LongBitVector {
     }
     this.capacityInterval = capacityInterval;
     ensureSize(initialCapcity);
-    words = new long[(int) (initialCapcity >>> 6) + capacityInterval];
+    long wordCount = (initialCapcity >>> 6) + capacityInterval;
+    if (wordCount > Integer.MAX_VALUE - 8 || wordCount < 0) {
+      throw new IllegalArgumentException("Capacity too large: " + initialCapcity);
+    }
+    words = new long[(int) wordCount];
     this.size = 0;
   }
 
@@ -140,12 +144,22 @@ public class LongBitVector {
    * @param bitValue bit value to fill.
    */
   public void fill(boolean bitValue) {
+    if (size == 0) {
+      Arrays.fill(words, 0L);
+      return;
+    }
     if (bitValue) {
-      Arrays.fill(words, 0xffffffffffffffffL);
-      int last = (int) (size / 64);
-      words[last] &= cutMasks[(int) (size & mod64Mask)] >>> 1;
+      int fullWords = (int) (size >>> 6);
+      int remainder = (int) (size & mod64Mask);
+      Arrays.fill(words, 0, fullWords, 0xffffffffffffffffL);
+      if (remainder > 0) {
+        words[fullWords] = (1L << remainder) - 1L;
+        Arrays.fill(words, fullWords + 1, words.length, 0L);
+      } else {
+        Arrays.fill(words, fullWords, words.length, 0L);
+      }
     } else {
-      Arrays.fill(words, 0);
+      Arrays.fill(words, 0L);
     }
   }
 
@@ -166,7 +180,11 @@ public class LongBitVector {
    * @return zero bit indexes.
    */
   public long[] zeroIndexes() {
-    long[] zeroIndexes = new long[(int) numberOfZeros()];
+    long zeroCount = numberOfZeros();
+    if (zeroCount > Integer.MAX_VALUE - 8) {
+      throw new IllegalStateException("Too many zeros to fit in array: " + zeroCount);
+    }
+    long[] zeroIndexes = new long[(int) zeroCount];
 
     int j = 0;
     for (long i = 0; i < size; i++) {
@@ -183,12 +201,16 @@ public class LongBitVector {
    * @return zero bit indexes.
    */
   public int[] zeroIntIndexes() {
-    int[] zeroIndexes = new int[(int) numberOfZeros()];
+    long zeroCount = numberOfZeros();
+    if (zeroCount > Integer.MAX_VALUE - 8) {
+      throw new IllegalStateException("Too many zeros to fit in array: " + zeroCount);
+    }
+    int[] zeroIndexes = new int[(int) zeroCount];
 
     int j = 0;
-    for (int i = 0; i < size; i++) {
+    for (long i = 0; i < size; i++) {
       if (!get(i)) {
-        zeroIndexes[j++] = i;
+        zeroIndexes[j++] = (int) i;
       }
     }
     return zeroIndexes;
@@ -196,7 +218,7 @@ public class LongBitVector {
 
   private void ensureSize(long _size) {
     if (_size < 0 || _size > MAX_ARRAY_SIZE) {
-      throw new IllegalArgumentException("Cannot create vector with size:" + size);
+      throw new IllegalArgumentException("Cannot create vector with size:" + _size);
     }
   }
 
@@ -215,8 +237,8 @@ public class LongBitVector {
    * @param b bit value
    */
   public void add(boolean b) {
-    if (words.length << 6 == size + 1) {
-      ensureCapacity(capacityInterval);
+    if (size >= ((long) words.length) << 6) {
+      ensureCapacity(Math.max(1, capacityInterval));
     }
     if (b) {
       set(size);
@@ -238,8 +260,12 @@ public class LongBitVector {
   }
 
   public long getLong(long start, int bitAmount) {
+    if (bitAmount <= 0 || bitAmount > 64) {
+      throw new IllegalArgumentException(
+          "Bit amount cannot be negative, zero, or larger than 64:" + bitAmount);
+    }
     final int startInd = (int) (start >>> 6);
-    final int endInd = (int) ((start + bitAmount) >>> 6);
+    final int endInd = (int) ((start + bitAmount - 1) >>> 6);
     final long startMod = start & mod64Mask;
     if (startInd == endInd) {
       return (words[startInd] >>> startMod) & cutMasks[bitAmount - 1];
@@ -255,8 +281,11 @@ public class LongBitVector {
       throw new IllegalArgumentException(
           "Bit length cannot be negative or larger than 32:" + bitLength);
     }
-    if (words.length << 6 < size + 1) {
-      ensureCapacity(7);
+    long newSize = size + bitLength;
+    if (newSize > ((long) words.length) << 6) {
+      long requiredWords = (newSize + 63) >>> 6;
+      int longsToExpand = (int) (requiredWords - words.length) + capacityInterval;
+      ensureCapacity(longsToExpand);
     }
     for (int i = 0; i < bitLength; i++) {
       if ((a & intSetMasks[i]) != 0) {
@@ -270,8 +299,11 @@ public class LongBitVector {
     if (amount < 0) {
       throw new IllegalArgumentException("Amount cannot be negative:" + amount);
     }
-    if (words.length << 6 < size + 1 + amount >> 6) {
-      ensureCapacity(capacityInterval + amount >> 6);
+    long newSize = size + amount;
+    if (newSize > ((long) words.length) << 6) {
+      long requiredWords = (newSize + 63) >>> 6;
+      int longsToExpand = (int) (requiredWords - words.length) + capacityInterval;
+      ensureCapacity(longsToExpand);
     }
     for (int i = 0; i < amount; i++) {
       if (bit) {
@@ -284,10 +316,13 @@ public class LongBitVector {
   public void add(long a, int bitLength) {
     if (bitLength < 0 || bitLength > 64) {
       throw new IllegalArgumentException(
-          "Bit length cannot be negative or lareger than 64:" + bitLength);
+          "Bit length cannot be negative or larger than 64:" + bitLength);
     }
-    if (words.length << 6 < size + 1) {
-      ensureCapacity(capacityInterval);
+    long newSize = size + bitLength;
+    if (newSize > ((long) words.length) << 6) {
+      long requiredWords = (newSize + 63) >>> 6;
+      int longsToExpand = (int) (requiredWords - words.length) + capacityInterval;
+      ensureCapacity(longsToExpand);
     }
     for (int i = 0; i < bitLength; i++) {
       if ((a & longSetMasks[i]) != 0) {
@@ -299,8 +334,14 @@ public class LongBitVector {
 
   public long numberOfOnes() {
     long count = 0;
-    for (long word : words) {
-      count += Long.bitCount(word);
+    int fullWords = (int) (size >>> 6);
+    int remainder = (int) (size & mod64Mask);
+    for (int i = 0; i < fullWords && i < words.length; i++) {
+      count += Long.bitCount(words[i]);
+    }
+    if (remainder > 0 && fullWords < words.length) {
+      long mask = (1L << remainder) - 1L;
+      count += Long.bitCount(words[fullWords] & mask);
     }
     return count;
   }
@@ -310,7 +351,14 @@ public class LongBitVector {
   }
 
   private void ensureCapacity(int longsToExpand) {
-    long[] newData = new long[words.length + longsToExpand];
+    if (longsToExpand <= 0) {
+      return;
+    }
+    long newLen = (long) words.length + longsToExpand;
+    if (newLen > Integer.MAX_VALUE - 8) {
+      throw new IllegalStateException("Vector too large to expand: " + newLen);
+    }
+    long[] newData = new long[(int) newLen];
     System.arraycopy(words, 0, newData, 0, words.length);
     words = newData;
   }
@@ -322,8 +370,11 @@ public class LongBitVector {
    * @param bitAmount keyAmount of bits to check.
    */
   public void checkAndEnsureCapacity(int bitAmount) {
-    if (words.length << 6 < size + bitAmount + 1) {
-      ensureCapacity(capacityInterval);
+    long newSize = size + bitAmount;
+    if (newSize > ((long) words.length) << 6) {
+      long requiredWords = (newSize + 63) >>> 6;
+      int longsToExpand = (int) (requiredWords - words.length) + capacityInterval;
+      ensureCapacity(longsToExpand);
     }
   }
 
@@ -343,8 +394,12 @@ public class LongBitVector {
    * eliminates the long values that do not carry actual bits.
    */
   void compress() {
-    long[] newData = new long[(int) (size >> 6) + 1];
-    System.arraycopy(words, 0, newData, 0, (int) (size >> 6) + 1);
+    int targetLen = (int) ((size + 63) >>> 6);
+    if (targetLen == words.length) {
+      return;
+    }
+    long[] newData = new long[targetLen];
+    System.arraycopy(words, 0, newData, 0, Math.min(words.length, targetLen));
     words = newData;
   }
 

@@ -23,7 +23,7 @@ public class FixedBitVector {
       throw new IllegalArgumentException("Length cannot be negative. But it is:" + length);
     }
     this.length = length;
-    int wordCount = ((length + 31) >> 5);
+    int wordCount = (int) (((long) length + 31) >>> 5);
     words = new int[wordCount];
   }
 
