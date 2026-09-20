@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import zemberek.apps.ConsoleApp;
 import zemberek.core.data.CompressedWeights;
@@ -22,6 +23,10 @@ import zemberek.morphology.ambiguity.PerceptronAmbiguityResolverTrainer.DataSet;
 import zemberek.morphology.ambiguity.dataset.DisambiguationCandidateExtractor.CandidateRecord;
 import zemberek.morphology.ambiguity.dataset.DisambiguationCandidateExtractor.SentenceRecord;
 import zemberek.morphology.ambiguity.dataset.DisambiguationCandidateExtractor.TokenRecord;
+import zemberek.morphology.analysis.SentenceAnalysis;
+import zemberek.morphology.analysis.SentenceWordAnalysis;
+import zemberek.morphology.analysis.SingleAnalysis;
+import zemberek.morphology.analysis.WordAnalysis;
 
 /**
  * Trains an Averaged Perceptron Morphological Disambiguator model from annotated datasets
@@ -93,17 +98,13 @@ public class TrainAmbiguityModel extends ConsoleApp {
   public static TrainingResult train(Config config) throws IOException {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
-    Path effectiveTrainTxt = ensureTextFormat(config.trainPath);
-    Path effectiveDevTxt = config.devPath != null
-        ? ensureTextFormat(config.devPath)
-        : effectiveTrainTxt;
-
-    Log.info("Loading training dataset from: %s", effectiveTrainTxt);
-    DataSet trainingSet = DataSet.load(effectiveTrainTxt, morphology);
+    Log.info("Loading training dataset from: %s", config.trainPath);
+    DataSet trainingSet = loadDataSet(config.trainPath, morphology);
     trainingSet.info();
 
-    Log.info("Loading development dataset from: %s", effectiveDevTxt);
-    DataSet devSet = DataSet.load(effectiveDevTxt, morphology);
+    Path dev = config.devPath != null ? config.devPath : config.trainPath;
+    Log.info("Loading development dataset from: %s", dev);
+    DataSet devSet = loadDataSet(dev, morphology);
     devSet.info();
 
     PerceptronAmbiguityResolverTrainer trainer =
@@ -139,9 +140,125 @@ public class TrainAmbiguityModel extends ConsoleApp {
   }
 
   /**
+   * Loads a dataset either directly from JSONL in-memory or from Zemberek's native text format.
+   */
+  public static DataSet loadDataSet(Path path, TurkishMorphology morphology) throws IOException {
+    if (path.toString().endsWith(".jsonl")) {
+      return loadDataSetFromJsonl(path, morphology);
+    }
+    return DataSet.load(path, morphology);
+  }
+
+  /**
+   * Reads an annotated JSONL file directly into a DataSet without writing temporary text files to disk.
+   */
+  public static DataSet loadDataSetFromJsonl(Path jsonlPath, TurkishMorphology morphology) throws IOException {
+    Gson gson = new Gson();
+    List<SentenceAnalysis> sentences = new ArrayList<>();
+
+    try (BufferedReader reader = Files.newBufferedReader(jsonlPath, StandardCharsets.UTF_8)) {
+      String line;
+      int lineNum = 0;
+      while ((line = reader.readLine()) != null) {
+        lineNum++;
+        line = line.trim();
+        if (line.isEmpty()) {
+          continue;
+        }
+
+        SentenceRecord record;
+        try {
+          record = gson.fromJson(line, SentenceRecord.class);
+        } catch (Exception e) {
+          Log.warn("Failed to parse JSON on line %d of %s: %s", lineNum, jsonlPath, e.getMessage());
+          continue;
+        }
+
+        if (record == null || record.text == null || record.tokens == null || record.tokens.isEmpty()) {
+          continue;
+        }
+
+        List<WordAnalysis> wordAnalyses = morphology.analyzeSentence(record.text);
+        if (wordAnalyses.size() != record.tokens.size()) {
+          Log.warn("Sentence [%s] at line %d token size mismatch (analyzer=%d, json=%d). Skipping.",
+              record.text, lineNum, wordAnalyses.size(), record.tokens.size());
+          continue;
+        }
+
+        List<SentenceWordAnalysis> unambigiousAnalyses = new ArrayList<>(wordAnalyses.size());
+        boolean sentenceValid = true;
+
+        for (int i = 0; i < wordAnalyses.size(); i++) {
+          WordAnalysis wa = wordAnalyses.get(i);
+          TokenRecord tr = record.tokens.get(i);
+
+          if (tr.candidates == null || tr.candidates.isEmpty()) {
+            sentenceValid = false;
+            break;
+          }
+
+          int selectedId = 0;
+          if (tr.is_ambiguous) {
+            if (tr.selected_candidate_id != null) {
+              selectedId = tr.selected_candidate_id;
+            } else {
+              selectedId = extractSelectedCandidateId(line, tr.index);
+            }
+          }
+
+          CandidateRecord chosenCandidate = null;
+          for (CandidateRecord cr : tr.candidates) {
+            if (cr.id == selectedId) {
+              chosenCandidate = cr;
+              break;
+            }
+          }
+          if (chosenCandidate == null) {
+            chosenCandidate = tr.candidates.get(0);
+          }
+
+          SingleAnalysis matchedAnalysis = null;
+          if (chosenCandidate.zemberek_key != null) {
+            for (SingleAnalysis sa : wa) {
+              if (sa.formatLong().equals(chosenCandidate.zemberek_key)) {
+                matchedAnalysis = sa;
+                break;
+              }
+            }
+          }
+
+          if (matchedAnalysis == null) {
+            if (selectedId >= 0 && selectedId < wa.analysisCount()) {
+              matchedAnalysis = wa.getAnalysisResults().get(selectedId);
+            } else if (wa.analysisCount() > 0) {
+              matchedAnalysis = wa.getAnalysisResults().get(0);
+            }
+          }
+
+          if (matchedAnalysis != null) {
+            unambigiousAnalyses.add(new SentenceWordAnalysis(matchedAnalysis, wa));
+          } else {
+            sentenceValid = false;
+            break;
+          }
+        }
+
+        if (sentenceValid && unambigiousAnalyses.size() == record.tokens.size()) {
+          sentences.add(new SentenceAnalysis(record.text, unambigiousAnalyses));
+        }
+      }
+    }
+
+    Log.info("Loaded %d sentences directly from JSONL: %s", sentences.size(), jsonlPath);
+    return new DataSet(sentences);
+  }
+
+  /**
    * Converts a JSONL file to Zemberek training text format if needed.
    * If the input is already a .txt file, returns it as-is.
+   * @deprecated Use {@link #loadDataSet(Path, TurkishMorphology)} for direct in-memory loading.
    */
+  @Deprecated
   public static Path ensureTextFormat(Path path) throws IOException {
     if (path.toString().endsWith(".jsonl")) {
       Path txtPath = Paths.get(path.toString().substring(0, path.toString().length() - 6) + ".zemberek.txt");
