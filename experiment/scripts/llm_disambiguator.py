@@ -44,21 +44,20 @@ def load_env(filepath: str = ".env") -> None:
         print(f"[INFO] Loaded environment variables from {filepath}")
 
 
-SYSTEM_INSTRUCTION_COMPACT = """You are an expert Turkish computational linguist.
-Your task is morphological disambiguation of Turkish sentences.
-Given a Turkish sentence and one or more ambiguous words with candidate morphological analyses from Zemberek,
-select the single most accurate morphological analysis for each target word in this context.
+SYSTEM_INSTRUCTION_COMPACT = """You are an expert Turkish computational linguist specialized in morphological disambiguation.
+Your task is to select the single most accurate morphological analysis for each ambiguous word in a Turkish sentence context.
+Candidate analyses are represented in standard Oflazer morphological notation with lemma and POS.
 
-Return a valid JSON object matching this exact schema:
-{
-  "selections": [
-    {
-      "token_index": <int>,
-      "selected_candidate_id": <int>
-    }
-  ]
-}
-Do not output markdown code fences (```json ... ```), only the raw JSON object.
+Key Linguistic Guidelines:
+1. Accusative (-i) vs. 3sg Possessive (-i): Distinguish direct objects (belirtili nesne) from possessive constructions (iyelik).
+2. Copula vs. Finite Verb: Differentiate nominal predicates with copula (e.g., var+Noun+Zero+Past 'there was') from verbal predicates (e.g., var+Verb+Past 'arrived').
+3. Participle vs. Main Verb: Differentiate relative clause participles (-an, -dık, -acak) from matrix finite verbs.
+4. Part of Speech: Distinguish zero-derivation Adjectives vs. Nouns (e.g., genç, hasta) and Adjective vs. Adverb modifiers.
+
+Return a compact JSON object mapping string token index to chosen candidate ID:
+{"<token_index>": <chosen_candidate_id>}
+Example: {"0": 3, "1": 0, "4": 1}
+Do not output markdown code fences, only the raw JSON object.
 """
 
 SYSTEM_INSTRUCTION_VERBOSE = """You are an expert Turkish computational linguist.
@@ -92,8 +91,8 @@ class TokenMonitor:
         max_output_tokens_per_call: int = 400,
         max_total_output_tokens: int = 500_000,
         max_budget_usd: float = 5.0,
-        price_per_1m_input: float = 0.15,
-        price_per_1m_output: float = 0.60
+        price_per_1m_input: float = 0.75,
+        price_per_1m_output: float = 3.75
     ):
         self.lock = threading.Lock()
         self.total_prompt_tokens = 0
@@ -161,54 +160,37 @@ class TokenMonitor:
 
 
 def format_sentence_prompt(record: Dict[str, Any]) -> str:
-    """Constructs a detailed prompt for ambiguous tokens in a sentence,
-
-    providing the full sentence context, both Zemberek's internal transition analysis
-    and Oflazer's standard morphological tag parse, lemma, and POS.
+    """Constructs a clean, compact prompt for ambiguous tokens in a sentence,
+    using standard Oflazer morphological notation with lemma and POS.
     """
     sentence = record["text"]
     ambiguous_tokens = [t for t in record["tokens"] if t.get("is_ambiguous", False)]
 
     lines = [
-        f'Turkish Sentence: "{sentence}"',
+        f'Sentence: "{sentence}"',
         "",
-        f"There are {len(ambiguous_tokens)} ambiguous word(s) to disambiguate in this sentence context:",
+        f"Ambiguous words to disambiguate in this sentence ({len(ambiguous_tokens)} words):",
         ""
     ]
 
     for t in ambiguous_tokens:
-        lines.append(f"--- Word: \"{t['surface']}\" (token index: {t['index']}) ---")
-        lines.append("Candidate Analyses:")
+        lines.append(f"- Word #{t['index']} \"{t['surface']}\":")
         for c in t.get("candidates", []):
             c_id = c.get("id", 0)
             lemma = c.get("lemma", "")
-            pos = c.get("pos", "")
-            sec_pos = c.get("secondary_pos", "")
-            zemberek = c.get("zemberek_key", "")
             oflazer = c.get("oflazer_style", "")
             informal = " [Informal]" if c.get("is_informal") else ""
-            pos_info = f"{pos}" + (f", {sec_pos}" if sec_pos and sec_pos != "None" else "")
-
-            lines.append(
-                f"  [{c_id}] Lemma: '{lemma}' ({pos_info}){informal}\n"
-                f"       Zemberek Analysis : {zemberek}\n"
-                f"       Oflazer Standard  : {oflazer}"
-            )
+            lines.append(f"    [{c_id}] {oflazer}{informal} (lemma: {lemma})")
         lines.append("")
 
-    lines.append(
-        "Carefully analyze how each word functions in the sentence syntax "
-        "(e.g., modifier vs. head, finite verb vs. participle/converb, "
-        "accusative vs. possessive object, noun vs. adjective) "
-        "and select the single most accurate candidate ID for each ambiguous word."
-    )
+    lines.append('Return a JSON map of {"<token_index>": <chosen_candidate_id>}.')
     return "\n".join(lines)
 
 
 def call_gemini_sdk(
     client: Any,
     prompt: str,
-    model: str = "gemini-flash-latest",
+    model: str = "gemini-3.8-flash",
     temperature: float = 0.0,
     thinking_budget: int = 0,
     system_instruction: str = SYSTEM_INSTRUCTION_COMPACT,
@@ -254,7 +236,7 @@ def call_gemini_sdk(
 def call_gemini_rest(
     api_key: str,
     prompt: str,
-    model: str = "gemini-flash-latest",
+    model: str = "gemini-3.8-flash",
     temperature: float = 0.0,
     thinking_budget: int = 0,
     system_instruction: str = SYSTEM_INSTRUCTION_COMPACT,
@@ -334,9 +316,24 @@ def parse_llm_json(response_text: str) -> Optional[Dict[str, Any]]:
 
 
 def apply_selections(record: Dict[str, Any], selections_data: Dict[str, Any]) -> int:
-    """Applies the LLM's selected_candidate_id to the ambiguous tokens in record."""
-    selections = selections_data.get("selections", [])
-    sel_map = {s["token_index"]: s for s in selections if "token_index" in s}
+    """Applies the LLM's selected_candidate_id to the ambiguous tokens in record.
+    Supports both compact flat dict {"0": 3, "1": 0} and legacy {"selections": [...]}.
+    """
+    sel_map = {}
+    if isinstance(selections_data, dict):
+        if "selections" in selections_data and isinstance(selections_data["selections"], list):
+            for s in selections_data["selections"]:
+                if isinstance(s, dict) and "token_index" in s:
+                    sel_map[int(s["token_index"])] = s.get("selected_candidate_id")
+        else:
+            for k, v in selections_data.items():
+                try:
+                    if isinstance(v, dict):
+                        sel_map[int(k)] = v.get("selected_candidate_id")
+                    else:
+                        sel_map[int(k)] = int(v)
+                except (ValueError, TypeError):
+                    continue
 
     applied_count = 0
     for token in record["tokens"]:
@@ -346,12 +343,13 @@ def apply_selections(record: Dict[str, Any], selections_data: Dict[str, Any]) ->
         idx = token["index"]
         if idx in sel_map:
             sel = sel_map[idx]
-            chosen_id = sel.get("selected_candidate_id")
+            chosen_id = sel.get("selected_candidate_id") if isinstance(sel, dict) else sel
+            reasoning = sel.get("reasoning", "") if isinstance(sel, dict) else ""
             # Validate that chosen_id exists in candidates
             valid_ids = [c["id"] for c in token.get("candidates", [])]
             if chosen_id in valid_ids:
                 token["selected_candidate_id"] = chosen_id
-                token["selection_reasoning"] = sel.get("reasoning", "")
+                token["selection_reasoning"] = reasoning
                 applied_count += 1
             else:
                 print(f"[WARN] Candidate ID {chosen_id} is out of bounds for token '{token['surface']}'. Valid: {valid_ids}")
@@ -370,7 +368,7 @@ def process_file(
     input_path: str,
     output_path: str,
     api_key: Optional[str],
-    model: str = "gemini-flash-latest",
+    model: str = "gemini-3.8-flash",
     thinking_budget: int = 0,
     with_reasoning: bool = False,
     max_output_per_call: int = 400,
@@ -571,7 +569,7 @@ def main():
     )
     parser.add_argument("-i", "--input", required=True, help="Input JSONL file produced by DisambiguationCandidateExtractor")
     parser.add_argument("-o", "--output", required=True, help="Output JSONL file to store annotations")
-    parser.add_argument("-m", "--model", default="gemini-flash-latest", help="Gemini model name")
+    parser.add_argument("-m", "--model", default="gemini-3.8-flash", help="Gemini model name")
     parser.add_argument("--thinking-budget", type=int, default=0, help="Thinking token budget (0 disables hidden reasoning tokens)")
     parser.add_argument("--with-reasoning", action="store_true", help="Include natural language explanations (higher output token cost)")
     parser.add_argument("--max-output-per-call", type=int, default=400, help="Warning threshold for output tokens per single API call")
