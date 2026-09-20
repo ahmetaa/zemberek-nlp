@@ -5,7 +5,9 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.base.Stopwatch;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -128,6 +130,160 @@ public class IntMapTest {
     assertTrue(m.capacity() > m.size());
     // Check capacity is 2^n
     assertTrue((m.capacity() & (m.capacity() - 1)) == 0);
+  }
+
+  @Test
+  public void getValuesIncludesNegativeKeys() {
+    IntMap<String> map = new IntMap<>();
+    map.put(-10, "minus_ten");
+    map.put(-1, "minus_one");
+    map.put(0, "zero");
+    map.put(5, "five");
+    map.put(-999, "minus_nine_nine_nine");
+
+    List<String> values = map.getValues();
+    assertEquals(5, values.size());
+    assertTrue(values.contains("minus_ten"));
+    assertTrue(values.contains("minus_one"));
+    assertTrue(values.contains("zero"));
+    assertTrue(values.contains("five"));
+    assertTrue(values.contains("minus_nine_nine_nine"));
+  }
+
+  @Test
+  public void putExistingKeyDoesNotExpandWhenAtThreshold() {
+    // Initial capacity 8 -> threshold = (int)(8 * 0.55f) = 4
+    IntMap<String> map = new IntMap<>(8);
+    map.put(1, "one");
+    map.put(2, "two");
+    map.put(3, "three");
+    map.put(4, "four");
+    assertEquals(4, map.size());
+    int capBefore = map.capacity();
+    assertEquals(8, capBefore);
+
+    // Updating an existing key while size == threshold
+    boolean updated = map.put(2, "two_updated");
+    assertTrue(updated);
+    assertEquals(4, map.size());
+    assertEquals("two_updated", map.get(2));
+    assertEquals(capBefore, map.capacity()); // capacity should not change
+
+    // Inserting a 5th element should trigger expansion
+    boolean inserted = map.put(5, "five");
+    assertTrue(inserted);
+    assertEquals(5, map.size());
+    assertTrue(map.capacity() > capBefore);
+    assertEquals("two_updated", map.get(2));
+    assertEquals("five", map.get(5));
+  }
+
+  @Test
+  public void managedMapAllowsUpdatingExistingKeyAtThreshold() {
+    // Initial capacity 4 -> threshold = (int)(4 * 0.55f) = 2
+    IntMap<String> map = new IntMap<>(4, true);
+    assertTrue(map.put(10, "val10"));
+    assertTrue(map.put(20, "val20"));
+    assertEquals(2, map.size());
+
+    // Managed map is at threshold; new key must fail
+    Assert.assertFalse(map.put(30, "val30"));
+
+    // Updating existing key must succeed and not expand
+    assertTrue(map.put(10, "val10_new"));
+    assertEquals("val10_new", map.get(10));
+    assertEquals(2, map.size());
+  }
+
+  @Test
+  public void iteratorIsIdempotent() {
+    IntMap<String> map = new IntMap<>();
+    map.put(1, "one");
+    map.put(2, "two");
+    map.put(3, "three");
+
+    Iterator<String> it = map.iterator();
+    // Multiple hasNext() calls must not advance iterator
+    assertTrue(it.hasNext());
+    assertTrue(it.hasNext());
+    assertTrue(it.hasNext());
+
+    Set<String> iterated = new HashSet<>();
+    while (it.hasNext()) {
+      assertTrue(it.hasNext());
+      iterated.add(it.next());
+    }
+
+    assertEquals(3, iterated.size());
+    assertTrue(iterated.contains("one"));
+    assertTrue(iterated.contains("two"));
+    assertTrue(iterated.contains("three"));
+    Assert.assertFalse(it.hasNext());
+  }
+
+  @Test(expected = NoSuchElementException.class)
+  public void iteratorThrowsOnEmptyMap() {
+    IntMap<String> map = new IntMap<>();
+    map.iterator().next();
+  }
+
+  @Test(expected = NoSuchElementException.class)
+  public void iteratorThrowsWhenExhausted() {
+    IntMap<String> map = new IntMap<>();
+    map.put(42, "answer");
+    Iterator<String> it = map.iterator();
+    assertEquals("answer", it.next());
+    it.next(); // Should throw NoSuchElementException
+  }
+
+  @Test
+  public void iteratorNextWithoutHasNext() {
+    IntMap<String> map = new IntMap<>();
+    map.put(1, "a");
+    map.put(2, "b");
+    Iterator<String> it = map.iterator();
+    Set<String> vals = new HashSet<>();
+    vals.add(it.next());
+    vals.add(it.next());
+    assertEquals(2, vals.size());
+    assertTrue(vals.contains("a"));
+    assertTrue(vals.contains("b"));
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void iteratorRemoveThrows() {
+    IntMap<String> map = new IntMap<>();
+    map.put(1, "a");
+    Iterator<String> it = map.iterator();
+    it.next();
+    it.remove();
+  }
+
+  @Test
+  public void containsKeyHandlesNegativeAndEmptyKeys() {
+    IntMap<String> map = new IntMap<>();
+    map.put(-7, "minus_seven");
+    map.put(7, "seven");
+
+    assertTrue(map.containsKey(-7));
+    assertTrue(map.containsKey(7));
+    Assert.assertFalse(map.containsKey(0));
+    Assert.assertFalse(map.containsKey(Integer.MIN_VALUE));
+  }
+
+  @Test
+  public void getReturnsNullForMissingKeys() {
+    IntMap<String> map = new IntMap<>(8);
+    map.put(1, "one");
+    Assert.assertNull(map.get(2));
+    Assert.assertNull(map.get(100));
+    Assert.assertNull(map.get(-100));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void getThrowsOnIllegalEmptyKey() {
+    IntMap<String> map = new IntMap<>();
+    map.get(Integer.MIN_VALUE);
   }
 
   @Test
