@@ -35,9 +35,17 @@ public class IntIntMapTest {
 
   @Test
   public void failsOnInvalidSizes() {
-    checkInvalidSize(0);
     checkInvalidSize(-1);
     checkInvalidSize(Integer.MAX_VALUE);
+  }
+
+  @Test
+  public void acceptsZeroSize() {
+    // A capacity of 0 is legal, callers may size the map from a possibly empty input.
+    IntIntMap map = createMap(0);
+    Assert.assertEquals(0, map.size());
+    map.put(5, 7);
+    Assert.assertEquals(1, map.size());
   }
 
   private void checkInvalidSize(int size) {

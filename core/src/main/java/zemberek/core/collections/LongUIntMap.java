@@ -7,6 +7,8 @@ public class LongUIntMap {
   public static final int EMPTY_VALUE = -1;
   public static final int DELETED_VALUE = -2;
   static final int INITIAL_SIZE = 8;
+  // Largest power of two that fits in an int. Key array length can not exceed this.
+  static final int MAX_CAPACITY = 1 << 30;
   static final double DEFAULT_LOAD_FACTOR = 0.55;
   // Key array.
   long[] keys;
@@ -24,10 +26,17 @@ public class LongUIntMap {
   }
 
   public LongUIntMap(int size) {
-    if (size < 1) {
-      throw new IllegalArgumentException("Size must be a positive value. But it is " + size);
+    if (size < 0) {
+      throw new IllegalArgumentException("Size can not be negative. But it is " + size);
     }
-    int k = 1;
+    if (size > MAX_CAPACITY) {
+      throw new IllegalArgumentException(
+          "Size can not be larger than " + MAX_CAPACITY + ". But it is " + size);
+    }
+    // A size of 0 is allowed so callers can size the map from a possibly empty input without
+    // special casing it. INITIAL_SIZE is the lower bound because smaller tables are degenerate:
+    // their threshold rounds down to 0.
+    int k = INITIAL_SIZE;
     while (k < size) {
       k <<= 1;
     }
@@ -155,12 +164,37 @@ public class LongUIntMap {
     removeCount++;
   }
 
+  /**
+   * Capacity is derived from the number of live keys, not from the current array length: a map
+   * whose slots are mostly tombstones is rehashed at the same size or even shrunk instead of
+   * doubling forever.
+   *
+   * @return the smallest power of two capacity whose threshold leaves room for the live keys, the
+   * key that triggered the expansion, and at least one empty slot.
+   */
   private int newCapacity() {
-    long size = (long) values.length * 2L;
-    if (size > (1 << 30)) {
-      throw new IllegalStateException("Map size is too large.");
+    // Room for the live keys, the key that triggered the expansion, and an always empty slot.
+    final long needed = keyCount + 1L;
+    // When the expansion was triggered by tombstones rather than by growth, ask for twice that
+    // much so a map under put/remove churn does not rehash on almost every removal.
+    final long preferred = removeCount > 0 ? keyCount * 2L + 1 : needed;
+    long smallestFit = -1;
+    long capacity = INITIAL_SIZE;
+    while (capacity <= MAX_CAPACITY) {
+      long slack = (int) (capacity * DEFAULT_LOAD_FACTOR);
+      if (smallestFit < 0 && needed < slack) {
+        smallestFit = capacity;
+      }
+      if (preferred < slack) {
+        return (int) capacity;
+      }
+      capacity <<= 1;
     }
-    return (int) size;
+    // The headroom does not fit but the keys themselves still may.
+    if (smallestFit > 0) {
+      return (int) smallestFit;
+    }
+    throw new IllegalStateException("Map size is too large.");
   }
 
   private void expand() {

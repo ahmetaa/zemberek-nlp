@@ -19,7 +19,7 @@ public class IntVector {
   public IntVector(int initialCapacity) {
     if (initialCapacity < 0) {
       throw new IllegalArgumentException(
-          "Initial capacity must be positive. But it is " + initialCapacity);
+          "Initial capacity can not be negative. But it is " + initialCapacity);
     }
     data = new int[initialCapacity];
   }
@@ -120,12 +120,17 @@ public class IntVector {
   }
 
   private void expand(int offset) {
-    if (size + offset >= Integer.MAX_VALUE) {
+    if ((long) size + offset >= Integer.MAX_VALUE) {
       throw new IllegalStateException("List size exceeded positive integer limit.");
     }
     long newSize = size * 2L + offset;
+    // Doubling makes no room when the vector was created with a zero or very small capacity,
+    // so always grow past the current array by at least the default amount.
+    if (newSize < data.length + offset + DEFAULT_INITIAL_CAPACITY) {
+      newSize = (long) data.length + offset + DEFAULT_INITIAL_CAPACITY;
+    }
     if (newSize > Integer.MAX_VALUE) {
-      size = Integer.MAX_VALUE;
+      newSize = Integer.MAX_VALUE;
     }
     data = Arrays.copyOf(data, (int) newSize);
   }

@@ -83,10 +83,12 @@ public final class IntMap<T> implements Iterable<T> {
   }
 
   private int adjustInitialCapacity(int capacity) {
-    if (capacity < 1) {
-      throw new IllegalArgumentException("Capacity must > 0: " + capacity);
+    if (capacity < 0) {
+      throw new IllegalArgumentException("Capacity can not be negative: " + capacity);
     }
-    long k = 1;
+    // A capacity of 0 is allowed so callers can size the map from a possibly empty input without
+    // special casing it. Smaller tables than the default are degenerate, so it is the lower bound.
+    long k = DEFAULT_INITIAL_CAPACITY;
     while (k < capacity) {
       k <<= 1;
     }

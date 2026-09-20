@@ -29,14 +29,17 @@ public abstract class UIntKeyHashBase {
   protected int threshold;
 
   UIntKeyHashBase(int size) {
-    if (size < 1) {
-      throw new IllegalArgumentException("Size must be a positive value. But it is " + size);
+    if (size < 0) {
+      throw new IllegalArgumentException("Size can not be negative. But it is " + size);
     }
     if (size > MAX_CAPACITY) {
       throw new IllegalArgumentException(
           "Size can not be larger than " + MAX_CAPACITY + ". But it is " + size);
     }
-    int k = 1;
+    // A size of 0 is allowed so callers can size a table from a possibly empty input without
+    // special casing it. INITIAL_SIZE is the lower bound because smaller tables are degenerate:
+    // their threshold rounds down to 0.
+    int k = INITIAL_SIZE;
     while (k < size) {
       k <<= 1;
     }
