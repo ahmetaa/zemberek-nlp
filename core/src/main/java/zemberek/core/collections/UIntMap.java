@@ -52,7 +52,7 @@ public class UIntMap<T> extends UIntKeyHashBase implements Iterable<T> {
   }
 
   private void expand() {
-    UIntMap<T> h = new UIntMap<>(values.length * 2);
+    UIntMap<T> h = new UIntMap<>(newSize());
     for (int i = 0; i < keys.length; i++) {
       if (keys[i] >= 0) {
         h.put(keys[i], values[i]);
@@ -77,6 +77,9 @@ public class UIntMap<T> extends UIntKeyHashBase implements Iterable<T> {
       values[loc] = value;
     } else {
       loc = -loc - 1;
+      if (keys[loc] == DELETED) {
+        removeCount--;
+      }
       keys[loc] = key;
       values[loc] = value;
       keyCount++;

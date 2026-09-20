@@ -43,6 +43,9 @@ public class LookupSet<T> extends HashBase<T> implements Iterable<T> {
       return old;
     } else {
       loc = -loc - 1;
+      if (keys[loc] == TOMB_STONE) {
+        removeCount--;
+      }
       keys[loc] = key;
       keyCount++;
       return null;
@@ -80,6 +83,9 @@ public class LookupSet<T> extends HashBase<T> implements Iterable<T> {
       return false;
     } else {
       loc = -loc - 1;
+      if (keys[loc] == TOMB_STONE) {
+        removeCount--;
+      }
       keys[loc] = key;
       keyCount++;
       return true;
@@ -103,6 +109,9 @@ public class LookupSet<T> extends HashBase<T> implements Iterable<T> {
       return keys[loc];
     } else {
       loc = -loc - 1;
+      if (keys[loc] == TOMB_STONE) {
+        removeCount--;
+      }
       keys[loc] = key;
       keyCount++;
       return key;

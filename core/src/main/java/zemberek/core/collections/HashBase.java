@@ -13,6 +13,8 @@ import java.util.Set;
 abstract class HashBase<T> {
 
   static final int INITIAL_SIZE = 4;
+  // Largest power of two that fits in an int. Key array length can not exceed this.
+  static final int MAX_CAPACITY = 1 << 30;
   // Used for marking slots of deleted keys.
   static final Object TOMB_STONE = new Object();
   private static final double DEFAULT_LOAD_FACTOR = 0.55;
@@ -28,6 +30,10 @@ abstract class HashBase<T> {
   HashBase(int size) {
     if (size < 1) {
       throw new IllegalArgumentException("Size must be a positive value. But it is " + size);
+    }
+    if (size > MAX_CAPACITY) {
+      throw new IllegalArgumentException(
+          "Size can not be larger than " + MAX_CAPACITY + ". But it is " + size);
     }
     int k = 1;
     while (k < size) {
@@ -62,10 +68,24 @@ abstract class HashBase<T> {
     this.removeCount = 0;
   }
 
-  // TODO: here if key count is less than half of the values array should be shrunk.
-  // This may happen after lots of removal operations
   int newSize() {
-    long size = keys.length * 2L;
+
+    // we do not directly expand by [key capacity * 2] because there may be many removed keys.
+    // For such cases, actually array should be shrunk.
+    long t = keyCount * 2L;
+    if (t == 0) {
+      t = 1;
+    }
+    if (t > threshold) {
+      t = threshold;
+    }
+
+    long size = 1;
+    while (size <= t) {
+      size = size * 2;
+    }
+    size = size * 2;
+
     if (size > Integer.MAX_VALUE) {
       throw new IllegalStateException("Too many items in collection " + this.getClass());
     }

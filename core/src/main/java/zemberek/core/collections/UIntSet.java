@@ -47,6 +47,9 @@ public class UIntSet extends UIntKeyHashBase {
       return false;
     } else {
       loc = -loc - 1;
+      if (keys[loc] == DELETED) {
+        removeCount--;
+      }
       keys[loc] = key;
       keyCount++;
       return true;
