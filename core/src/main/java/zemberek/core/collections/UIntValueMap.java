@@ -3,6 +3,7 @@ package zemberek.core.collections;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class UIntValueMap<T> extends HashBase<T> implements Iterable<T> {
 
@@ -130,6 +131,11 @@ public class UIntValueMap<T> extends HashBase<T> implements Iterable<T> {
     }
     int l = locate(key);
     if (l < 0) {
+      // Values of this map are unsigned. The check has to happen before anything is written,
+      // otherwise a failed increment leaves a negative value in the map.
+      if (amount < 0) {
+        throw new IllegalStateException("Value reached to negative.");
+      }
       l = -l - 1;
       if (keys[l] == TOMB_STONE) {
         removeCount--;
@@ -137,16 +143,14 @@ public class UIntValueMap<T> extends HashBase<T> implements Iterable<T> {
       values[l] = amount;
       keys[l] = key;
       keyCount++;
-      if (values[l] < 0) {
-        throw new IllegalStateException("Value reached to negative.");
-      }
       return values[l];
     } else {
-      values[l] += amount;
-      if (values[l] < 0) {
+      int newValue = values[l] + amount;
+      if (newValue < 0) {
         throw new IllegalStateException("Value reached to negative.");
       }
-      return values[l];
+      values[l] = newValue;
+      return newValue;
     }
   }
 
@@ -294,8 +298,11 @@ public class UIntValueMap<T> extends HashBase<T> implements Iterable<T> {
 
     @Override
     public IntValueMap.Entry<T> next() {
-      while (!hasValidKey(i)) {
+      while (i < keys.length && !hasValidKey(i)) {
         i++;
+      }
+      if (i == keys.length) {
+        throw new NoSuchElementException();
       }
       IntValueMap.Entry<T> te = new IntValueMap.Entry<>(keys[i], values[i]);
       i++;

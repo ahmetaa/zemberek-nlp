@@ -4,13 +4,13 @@ import java.util.Arrays;
 
 public abstract class CompactIntMapBase {
 
-  public static int NO_RESULT = Integer.MIN_VALUE;
-  static int DEFAULT_INITIAL_CAPACITY = 4;
+  public static final int NO_RESULT = Integer.MIN_VALUE;
+  static final int DEFAULT_INITIAL_CAPACITY = 4;
   // Special values to mark empty and deleted cells.
-  static int EMPTY = NO_RESULT;
-  static int DELETED = EMPTY + 1;
+  static final int EMPTY = NO_RESULT;
+  static final int DELETED = EMPTY + 1;
 
-  static int MAX_CAPACITY = 1 << 30;
+  static final int MAX_CAPACITY = 1 << 30;
   // Backing array for keys and values. Each 64 bit slot is used for storing
   // 32 bit key, value pairs.
   long[] entries;
@@ -32,10 +32,13 @@ public abstract class CompactIntMapBase {
   }
 
   static int nearestPowerOf2Capacity(int capacity, int maxCapacity) {
-    if (capacity < 1) {
-      throw new IllegalArgumentException("Capacity must be > 0: " + capacity);
+    if (capacity < 0) {
+      throw new IllegalArgumentException("Capacity can not be negative: " + capacity);
     }
-    long k = 1;
+    // A capacity of 0 is allowed so that callers can size a map from a possibly empty
+    // input without having to special case it. Tables smaller than the default are
+    // degenerate (their threshold rounds down to 0), so the default is the lower bound.
+    long k = DEFAULT_INITIAL_CAPACITY;
     while (k < capacity) {
       k <<= 1;
     }
@@ -100,7 +103,8 @@ public abstract class CompactIntMapBase {
   }
 
   final void setKey(int i, int key) {
-    entries[i] = (entries[i] & 0xFFFF_FFFF_0000_0000L) | key;
+    // key must be masked, otherwise a negative key sign extends over the value half.
+    entries[i] = (entries[i] & 0xFFFF_FFFF_0000_0000L) | (key & 0xFFFF_FFFFL);
   }
 
   public boolean containsKey(int key) {
@@ -128,29 +132,73 @@ public abstract class CompactIntMapBase {
     }
   }
 
-  // This method is only used during expansion of the map. New capacity is calculated as
-  // old capacity * 2
+  /**
+   * This method is only used during expansion of the map. Capacity is derived from the number of
+   * live keys, not from the current capacity: a table whose slots are mostly tombstones is
+   * rehashed at the same size or even shrunk instead of doubling forever.
+   *
+   * @return the smallest power of two capacity whose threshold leaves room for the live keys, the
+   * key that triggered the expansion, and at least one empty slot.
+   */
   int newCapacity() {
-    int newCapacity = nearestPowerOf2Capacity(capacity(), MAX_CAPACITY) * 2;
-    if (newCapacity > MAX_CAPACITY) {
-      throw new RuntimeException("Map size is too large.");
+    // Room for the live keys, the key that triggered the expansion, and an always empty slot.
+    final long needed = keyCount + 1L;
+    // When the expansion was triggered by tombstones rather than by growth, ask for twice that
+    // much so a map under put/remove churn does not rehash on almost every removal.
+    final long preferred = removedKeyCount > 0 ? keyCount * 2L + 1 : needed;
+    long smallestFit = -1;
+    long capacity = DEFAULT_INITIAL_CAPACITY;
+    while (capacity <= MAX_CAPACITY) {
+      long slack = (int) (capacity * calculateLoadFactor((int) capacity));
+      if (smallestFit < 0 && needed < slack) {
+        smallestFit = capacity;
+      }
+      if (preferred < slack) {
+        return (int) capacity;
+      }
+      capacity <<= 1;
     }
-    return newCapacity;
+    // The headroom does not fit but the keys themselves still may.
+    if (smallestFit > 0) {
+      return (int) smallestFit;
+    }
+    throw new IllegalStateException("Map size is too large.");
+  }
+
+  /**
+   * Marks the slot returned by {@link #locate(int)} for a key that is about to be inserted and
+   * updates the key counters. If the slot held a tombstone, the removed key count is given back.
+   *
+   * @param locateResult the negative value returned by {@link #locate(int)}
+   * @return the slot index the caller must write the new key and value to.
+   */
+  final int claimSlot(int locateResult) {
+    int slot = -locateResult - 1;
+    if (getKey(slot) == DELETED) {
+      removedKeyCount--;
+    }
+    keyCount++;
+    return slot;
   }
 
   final int locate(int key) {
     int slot = firstProbe(key);
+    // Index of the first tombstone seen on the probe path, if any. Reusing it keeps deleted
+    // slots from accumulating until the next expansion.
+    int firstDeleted = -1;
     while (true) {
       final int k = getKey(slot);
-      // If slot is empty, return its location
-      // return -slot -1 to tell that slot is empty, -1 is for slot = 0.
+      // If slot is empty, return the insertion point: the first tombstone on the path, or this
+      // slot. Return -slot -1 to tell the slot is free, -1 is for slot = 0.
       if (k == EMPTY) {
-        return -slot - 1;
+        return firstDeleted < 0 ? -slot - 1 : -firstDeleted - 1;
       }
       if (k == key) {
         return slot;
       }
-      // DELETED slots are ignored.
+      if (k == DELETED && firstDeleted < 0) {
+        firstDeleted = slot;
+      }
       slot = probe(slot);
     }
   }

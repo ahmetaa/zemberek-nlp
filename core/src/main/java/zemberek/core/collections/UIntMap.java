@@ -3,6 +3,7 @@ package zemberek.core.collections;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * A map like structure that has unsigned integer keys and T values.
@@ -116,30 +117,24 @@ public class UIntMap<T> extends UIntKeyHashBase implements Iterable<T> {
 
   private class ValueIterator implements Iterator<T> {
 
-    int keyCounter = 0;
-    int counter = 0;
-    T item;
+    // Index of the next slot to inspect. hasNext() only skips over empty and tombstoned slots,
+    // so it is idempotent and next() is the only method that consumes an element.
+    int i = 0;
 
     @Override
     public boolean hasNext() {
-      if (counter == keyCount) {
-        return false;
+      while (i < keys.length && keys[i] < 0) {
+        i++;
       }
-      while (true) {
-        if (keys[keyCounter] >= 0) {
-          keyCounter++;
-          break;
-        }
-        keyCounter++;
-      }
-      item = values[keyCounter - 1];
-      counter++;
-      return true;
+      return i < keys.length;
     }
 
     @Override
     public T next() {
-      return item;
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+      return values[i++];
     }
   }
 

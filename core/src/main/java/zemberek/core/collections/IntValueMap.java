@@ -3,6 +3,7 @@ package zemberek.core.collections;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * A memory efficient and fast set like data structure with Integer values. Values can be between
@@ -210,8 +211,11 @@ public class IntValueMap<T> extends HashBase<T> implements Iterable<T> {
 
     @Override
     public Entry<T> next() {
-      while (!hasValidKey(i)) {
+      while (i < keys.length && !hasValidKey(i)) {
         i++;
+      }
+      if (i == keys.length) {
+        throw new NoSuchElementException();
       }
       Entry<T> te = new Entry<>(keys[i], values[i]);
       i++;
