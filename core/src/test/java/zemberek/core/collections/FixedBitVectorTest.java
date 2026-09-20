@@ -117,6 +117,47 @@ public class FixedBitVectorTest {
   }
 
   @Test
+  public void numberOfOnesIgnoresPaddingBits() {
+    FixedBitVector vector = new FixedBitVector(10);
+    // set() is unchecked, so this lands on a padding bit of the single backing word.
+    vector.set(20);
+    Assert.assertEquals(0, vector.numberOfOnes());
+    Assert.assertEquals(10, vector.numberOfZeroes());
+    Assert.assertEquals(10, vector.zeroIndexes().length);
+    vector.set(3);
+    Assert.assertEquals(1, vector.numberOfOnes());
+    Assert.assertEquals(9, vector.zeroIndexes().length);
+  }
+
+  @Test
+  public void numberOfOnesAtWordBoundary() {
+    FixedBitVector vector = new FixedBitVector(32);
+    for (int i = 0; i < 32; i++) {
+      vector.set(i);
+    }
+    Assert.assertEquals(32, vector.numberOfOnes());
+    Assert.assertEquals(0, vector.numberOfZeroes());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void differentBitCountRejectsLengthMismatch() {
+    new FixedBitVector(100).differentBitCount(new FixedBitVector(5));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void numberOfNewOneBitCountRejectsLengthMismatch() {
+    new FixedBitVector(100).numberOfNewOneBitCount(new FixedBitVector(5));
+  }
+
+  @Test
+  public void comparisonsAcceptEqualLengths() {
+    FixedBitVector a = FixedBitVector.fromBinaryString("1100");
+    FixedBitVector b = FixedBitVector.fromBinaryString("1010");
+    Assert.assertEquals(2, a.differentBitCount(b));
+    Assert.assertEquals(1, a.numberOfNewOneBitCount(b));
+  }
+
+  @Test
   @Ignore("Not a test.")
   public void performanceTest() {
     int itCount = 5;

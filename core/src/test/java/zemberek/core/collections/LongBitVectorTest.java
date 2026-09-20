@@ -292,4 +292,52 @@ public class LongBitVectorTest {
       Assert.assertTrue(e.getMessage().contains("-5"));
     }
   }
+
+  @Test
+  @Ignore("Allocates ~256MB. Run manually.")
+  public void zeroIntIndexesRejectsSizesAboveIntRange() {
+    LongBitVector vector;
+    try {
+      long size = (1L << 31) + 5;
+      long[] words = new long[(int) ((size + 63) >>> 6)];
+      java.util.Arrays.fill(words, -1L);
+      vector = new LongBitVector(words, size);
+      vector.clear(size - 1);
+      vector.clear(size - 2);
+    } catch (OutOfMemoryError e) {
+      // Needs ~256MB of backing array. Skip rather than fail on a small heap.
+      return;
+    }
+    // The long-indexed variant stays exact.
+    Assert.assertArrayEquals(
+        new long[]{(1L << 31) + 3, (1L << 31) + 4}, vector.zeroIndexes());
+    // The int-indexed variant cannot represent those indexes and must say so.
+    try {
+      vector.zeroIntIndexes();
+      Assert.fail("Should throw IllegalStateException");
+    } catch (IllegalStateException expected) {
+      // expected
+    }
+  }
+
+  @Test
+  public void zeroIntIndexesWorksAtIntBoundarySize() {
+    LongBitVector vector = new LongBitVector(128, 0);
+    vector.add(128, true);
+    vector.clear(7);
+    vector.clear(64);
+    Assert.assertArrayEquals(new int[]{7, 64}, vector.zeroIntIndexes());
+  }
+
+  @Test
+  public void addGrowsWithZeroCapacityInterval() {
+    LongBitVector vector = new LongBitVector(0, 0);
+    for (int i = 0; i < 1000; i++) {
+      vector.add(i % 3 == 0);
+    }
+    assertEquals(1000, vector.size());
+    for (int i = 0; i < 1000; i++) {
+      assertEquals(i % 3 == 0, vector.get(i));
+    }
+  }
 }

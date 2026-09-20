@@ -53,7 +53,7 @@ public class FixedBitVector {
 
   public boolean safeGet(int n) {
     check(n);
-    return (words[n >> 5] & setMasks[n & 31]) != 0;
+    return get(n);
   }
 
   private void check(int n) {
@@ -69,7 +69,7 @@ public class FixedBitVector {
 
   public void safeSet(int n) {
     check(n);
-    words[n >> 5] |= setMasks[n & 31];
+    set(n);
   }
 
   public void clear(int n) {
@@ -78,18 +78,34 @@ public class FixedBitVector {
 
   public void safeClear(int n) {
     check(n);
-    words[n >> 5] &= resetMasks[n & 31];
+    clear(n);
   }
 
   public int numberOfOnes() {
     int count = 0;
-    for (int word : words) {
-      count += Integer.bitCount(word);
+    int fullWords = length >>> 5;
+    int remainder = length & 31;
+    for (int i = 0; i < fullWords; i++) {
+      count += Integer.bitCount(words[i]);
+    }
+    if (remainder > 0) {
+      count += Integer.bitCount(words[fullWords] & ((1 << remainder) - 1));
     }
     return count;
   }
 
+  private void checkSameLength(FixedBitVector other) {
+    if (other == null) {
+      throw new IllegalArgumentException("Other vector cannot be null.");
+    }
+    if (other.length != length) {
+      throw new IllegalArgumentException(
+          "Vector lengths must be equal. This: " + length + " other: " + other.length);
+    }
+  }
+
   public int numberOfNewOneBitCount(FixedBitVector other) {
+    checkSameLength(other);
     int total = 0;
     for (int i = 0; i < this.length; i++) {
       if (!this.get(i) && other.get(i)) {
@@ -100,6 +116,7 @@ public class FixedBitVector {
   }
 
   public int differentBitCount(FixedBitVector other) {
+    checkSameLength(other);
     int total = 0;
     for (int i = 0; i < this.length; i++) {
       if (this.get(i) != other.get(i)) {
