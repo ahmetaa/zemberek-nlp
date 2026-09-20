@@ -254,4 +254,70 @@ public class TrieTest {
     }
   }
 
+  @Test
+  public void testContainsAndGetItemsExactMatch() {
+    Trie<String> trie = new Trie<>();
+    trie.add("apple", "A");
+    assertTrue(trie.containsItem("apple", "A"));
+    assertEquals(1, trie.getItems("apple").size());
+    assertEquals("A", trie.getItems("apple").get(0));
+
+    // Prefix "app" must not match
+    assertFalse(trie.containsItem("app", "A"));
+    assertTrue(trie.getItems("app").isEmpty());
+
+    // Partial mismatch "apk" must not match
+    assertFalse(trie.containsItem("apk", "A"));
+    assertTrue(trie.getItems("apk").isEmpty());
+
+    // Longer string "applepie" must not match
+    assertFalse(trie.containsItem("applepie", "A"));
+    assertTrue(trie.getItems("applepie").isEmpty());
+
+    // Now add "app"
+    trie.add("app", "B");
+    assertTrue(trie.containsItem("app", "B"));
+    assertFalse(trie.containsItem("app", "A"));
+    assertTrue(trie.containsItem("apple", "A"));
+    assertFalse(trie.containsItem("apple", "B"));
+  }
+
+  @Test
+  public void testRemoveNonExistentItemDoesNotDecrementSize() {
+    Trie<String> trie = new Trie<>();
+    trie.add("apple", "A");
+    assertEquals(1, trie.size());
+
+    // Remove non-existent key
+    trie.remove("app", "A");
+    assertEquals(1, trie.size());
+
+    // Remove non-existent item from existing key
+    trie.remove("apple", "B");
+    assertEquals(1, trie.size());
+
+    // Remove existing item
+    trie.remove("apple", "A");
+    assertEquals(0, trie.size());
+    assertFalse(trie.containsItem("apple", "A"));
+
+    // Remove again
+    trie.remove("apple", "A");
+    assertEquals(0, trie.size());
+  }
+
+  @Test
+  public void testEmptyString() {
+    Trie<String> trie = new Trie<>();
+    trie.add("", "EMPTY");
+    assertEquals(1, trie.size());
+    assertTrue(trie.containsItem("", "EMPTY"));
+    assertEquals(1, trie.getItems("").size());
+    assertEquals("EMPTY", trie.getItems("").get(0));
+
+    trie.remove("", "EMPTY");
+    assertEquals(0, trie.size());
+    assertFalse(trie.containsItem("", "EMPTY"));
+  }
+
 }

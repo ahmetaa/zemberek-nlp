@@ -9,7 +9,7 @@ public class TestUtils {
   public static List<int[]> createFuzzingLists() {
     List<int[]> fuzzLists = new ArrayList<>(5000);
     int maxListSize = 300;
-    Random r = new Random(0xBEEFCAFE);
+    Random r = new Random(0xBEEFCAFEL);
     // Random sized lists with values in [0..n] shuffled.
     for (int i = 0; i < 1000; i++) {
       int[] arr = new int[r.nextInt(maxListSize) + 1];
@@ -47,7 +47,7 @@ public class TestUtils {
   // Fisher yates shuffle
   public static void shuffle(int[] array) {
     int index, temp;
-    Random random = new Random(0xCAFEBABE);
+    Random random = new Random(0xCAFEBABEL);
     for (int i = array.length - 1; i > 0; i--) {
       index = random.nextInt(i + 1);
       temp = array[index];
@@ -57,7 +57,7 @@ public class TestUtils {
   }
 
   public static int[] createRandomUintArray(int size) {
-    Random random = new Random(0xCAFEBEEF);
+    Random random = new Random(0xCAFEBEEFL);
     UIntSet uIntSet = new UIntSet();
     while (uIntSet.size() < size) {
       uIntSet.add(Math.abs(random.nextInt()));
@@ -68,7 +68,7 @@ public class TestUtils {
   }
 
   public static int[] createRandomUintArray(int size, int limit) {
-    Random random = new Random(0xCAFEBEEF);
+    Random random = new Random(0xCAFEBEEFL);
     UIntSet uIntSet = new UIntSet();
     while (uIntSet.size() < size) {
       uIntSet.add(Math.abs(random.nextInt(limit)));
