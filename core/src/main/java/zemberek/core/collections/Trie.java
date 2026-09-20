@@ -16,8 +16,17 @@ public class Trie<T> {
   private int size = 0;
 
   public void add(String s, T item) {
+    if (s == null) {
+      throw new NullPointerException("Input string cannot be null");
+    }
     if (item == null) {
-      throw new NullPointerException("Input key can not be null");
+      throw new NullPointerException("Item cannot be null");
+    }
+    if (s.isEmpty()) {
+      if (root.addItem(item)) {
+        size++;
+      }
+      return;
     }
     char[] chars = s.toCharArray();
     Node<T> node = root;
@@ -87,10 +96,11 @@ public class Trie<T> {
 
   // Remove does not apply compaction, just removes the item from node.
   public void remove(String s, T item) {
-    Node node = walkToNode(s);
+    Node<T> node = walkToNode(s);
     if (node != null && node.hasItem()) {
-      node.items.remove(item);
-      size--;
+      if (node.items.remove(item)) {
+        size--;
+      }
     }
   }
 
@@ -100,18 +110,18 @@ public class Trie<T> {
 
   public boolean containsItem(String s, T item) {
     Node<T> node = walkToNode(s);
-    return (node != null && node.items.contains(item));
+    return (node != null && node.hasItem() && node.items.contains(item));
   }
 
   public List<T> getItems(String s) {
     Node<T> node = walkToNode(s);
-    return node == null ? new ArrayList<>(0) : new ArrayList<>(node.items);
+    return (node == null || !node.hasItem()) ? new ArrayList<>(0) : new ArrayList<>(node.items);
   }
 
   public List<T> getAll() {
     List<T> items = new ArrayList<>(size);
     List<Node<T>> toWalk = Lists.newArrayList(root);
-    while (toWalk.size() > 0) {
+    while (!toWalk.isEmpty()) {
       List<Node<T>> n = new ArrayList<>();
       for (Node<T> tNode : toWalk) {
         if (tNode.hasItem()) {
@@ -127,7 +137,16 @@ public class Trie<T> {
   }
 
   public List<T> getPrefixMatchingItems(String input) {
+    if (input == null) {
+      return new ArrayList<>(0);
+    }
     List<T> items = new ArrayList<>(2);
+    if (root.hasItem()) {
+      items.addAll(root.items);
+    }
+    if (input.isEmpty()) {
+      return items;
+    }
     Node<T> node = root;
     char[] chars = input.toCharArray();
     int i = 0;
@@ -163,21 +182,26 @@ public class Trie<T> {
   }
 
   private Node<T> walkToNode(String input) {
+    if (input == null) {
+      return null;
+    }
+    if (input.isEmpty()) {
+      return root;
+    }
     Node<T> node = root;
     int i = 0;
     while (i < input.length()) {
       node = node.getChildNode(input.charAt(i));
-      // if there are no child node with input char, break
       if (node == null) {
-        break;
+        return null;
       }
       char[] fragment = node.fragment;
-      // Compare fragment and input.
-      int j;
-      //TODO: code below may be simplified
-      for (j = 0; j < fragment.length && i < input.length(); j++, i++) {
+      if (fragment == null || i + fragment.length > input.length()) {
+        return null;
+      }
+      for (int j = 0; j < fragment.length; j++, i++) {
         if (fragment[j] != input.charAt(i)) {
-          break;
+          return null;
         }
       }
     }
