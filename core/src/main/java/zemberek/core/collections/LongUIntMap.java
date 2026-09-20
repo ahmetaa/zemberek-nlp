@@ -15,9 +15,9 @@ public class LongUIntMap {
   int keyCount;
   int removeCount;
   // When structure has this amount of keys, it expands the key and count arrays.
-  int threshold = (int) (INITIAL_SIZE * DEFAULT_LOAD_FACTOR);
+  int threshold;
   // This is the size-1 of the key and value array length. Array length is a value power of two
-  private int modulo = INITIAL_SIZE - 1;
+  private int modulo;
 
   public LongUIntMap() {
     this(INITIAL_SIZE);
@@ -33,15 +33,15 @@ public class LongUIntMap {
     }
     keys = new long[k];
     values = new int[k];
-    Arrays.fill(values, -1);
+    Arrays.fill(values, EMPTY_VALUE);
     threshold = (int) (k * DEFAULT_LOAD_FACTOR);
     modulo = k - 1;
   }
 
   private int hash(long key) {
-    return Long.hashCode(key);
+    long h = key * 0x9E3779B97F4A7C15L;
+    return (int) (h ^ (h >>> 32));
   }
-
 
   private int locate(long key) {
     int slot = hash(key) & modulo;
@@ -70,17 +70,17 @@ public class LongUIntMap {
    * by 1.
    *
    * @param key key
-   * @return the new count value after addOrIncrement
+   * @return the new count value after increment
    */
   public int increment(long key) {
     return incrementByAmount(key, 1);
   }
 
   /**
-   * Returns the count of the key. If key does not exist, returns 0.
+   * Returns the value of the key. If key does not exist, returns -1.
    *
    * @param key key
-   * @return count of the key
+   * @return value of the key, or -1 if key does not exist
    */
   public int get(long key) {
     int slot = hash(key) & modulo;
@@ -110,31 +110,39 @@ public class LongUIntMap {
   }
 
   /**
-   * addOrIncrement the value by "amount". If value does not exist, it a applies set() operation.
+   * Increment the value by "amount". If key does not exist, it inserts it with value "amount".
    *
    * @param key key
-   * @param amount amount to addOrIncrement
+   * @param amount amount to increment
    * @return incremented value
    */
   public int incrementByAmount(long key, int amount) {
-    if (keyCount + removeCount == threshold) {
-      expand();
-    }
-    int l = locate(key);
-    if (l < 0) {
-      l = -l - 1;
-      values[l] = amount;
-      keys[l] = key;
-      keyCount++;
-      return values[l];
-    } else {
-      values[l] += amount;
-      if (values[l] < 0) {
+    int loc = locate(key);
+    if (loc >= 0) {
+      long newVal = (long) values[loc] + amount;
+      if (newVal < 0 || newVal > Integer.MAX_VALUE) {
         throw new IllegalStateException(
-            "Negative Value calculated after incrementing with " + amount);
+            "Value out of bounds after incrementing with " + amount + ": " + newVal);
       }
-      return values[l];
+      values[loc] = (int) newVal;
+      return values[loc];
     }
+    if (amount < 0) {
+      throw new IllegalStateException(
+          "Cannot decrement non-existent key: " + key);
+    }
+    if (keyCount + removeCount >= threshold) {
+      expand();
+      loc = locate(key);
+    }
+    loc = -loc - 1;
+    if (values[loc] == DELETED_VALUE) {
+      removeCount--;
+    }
+    values[loc] = amount;
+    keys[loc] = key;
+    keyCount++;
+    return values[loc];
   }
 
   public void remove(long key) {
@@ -147,8 +155,16 @@ public class LongUIntMap {
     removeCount++;
   }
 
+  private int newCapacity() {
+    long size = (long) values.length * 2L;
+    if (size > (1 << 30)) {
+      throw new IllegalStateException("Map size is too large.");
+    }
+    return (int) size;
+  }
+
   private void expand() {
-    LongUIntMap h = new LongUIntMap(values.length * 2);
+    LongUIntMap h = new LongUIntMap(newCapacity());
     for (int i = 0; i < keys.length; i++) {
       if (values[i] != EMPTY_VALUE && values[i] != DELETED_VALUE) {
         h.put(keys[i], values[i]);
@@ -167,18 +183,22 @@ public class LongUIntMap {
     if (value < 0) {
       throw new IllegalArgumentException("Cannot put negative value = " + value);
     }
-    if (keyCount + removeCount == threshold) {
-      expand();
-    }
     int loc = locate(key);
     if (loc >= 0) {
       values[loc] = value;
-    } else {
-      loc = -loc - 1;
-      keys[loc] = key;
-      values[loc] = value;
-      keyCount++;
+      return;
     }
+    if (keyCount + removeCount >= threshold) {
+      expand();
+      loc = locate(key);
+    }
+    loc = -loc - 1;
+    if (values[loc] == DELETED_VALUE) {
+      removeCount--;
+    }
+    keys[loc] = key;
+    values[loc] = value;
+    keyCount++;
   }
 
   /**
@@ -188,21 +208,35 @@ public class LongUIntMap {
     return keyCount;
   }
 
-  /**
-   * @return a clone of value array.
-   */
-  public int[] copyOfValues() {
-    return values.clone();
+  public int capacity() {
+    return values.length;
   }
 
-  public long[] keyArray() {
-    long[] keys = new long[size()];
+  /**
+   * @return a copy of active values.
+   */
+  public int[] copyOfValues() {
+    int[] result = new int[keyCount];
     int j = 0;
-    for (int i = 0; i < keys.length; i++) {
-      if (values[i] != EMPTY_VALUE || values[i] != DELETED_VALUE) {
-        keys[j++] = keys[i];
+    for (int i = 0; i < values.length; i++) {
+      if (values[i] != EMPTY_VALUE && values[i] != DELETED_VALUE) {
+        result[j++] = values[i];
       }
     }
-    return keys;
+    return result;
+  }
+
+  /**
+   * @return an array containing all active keys in the map.
+   */
+  public long[] keyArray() {
+    long[] result = new long[keyCount];
+    int j = 0;
+    for (int i = 0; i < keys.length; i++) {
+      if (values[i] != EMPTY_VALUE && values[i] != DELETED_VALUE) {
+        result[j++] = keys[i];
+      }
+    }
+    return result;
   }
 }
