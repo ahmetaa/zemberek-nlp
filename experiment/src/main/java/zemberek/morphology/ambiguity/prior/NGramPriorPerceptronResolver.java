@@ -2,17 +2,15 @@ package zemberek.morphology.ambiguity.prior;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import zemberek.core.collections.IntValueMap;
 import zemberek.core.data.CompressedWeights;
 import zemberek.core.data.WeightLookup;
-import zemberek.core.data.Weights;
-import zemberek.core.dynamic.ActiveList;
 import zemberek.core.dynamic.Scorable;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
@@ -29,6 +27,13 @@ import zemberek.morphology.analysis.WordAnalysis;
  */
 public class NGramPriorPerceptronResolver implements AmbiguityResolver {
 
+  public enum DecodeMode {
+    VITERBI,
+    BEAM,
+    GREEDY
+  }
+
+  public static final DecodeMode DEFAULT_MODE = DecodeMode.VITERBI;
   public static final int DEFAULT_BEAM_SIZE = 8;
 
   private final PriorDecoder decoder;
@@ -64,6 +69,22 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
     return priorStore;
   }
 
+  public DecodeMode getDecodeMode() {
+    return decoder.getDecodeMode();
+  }
+
+  public void setDecodeMode(DecodeMode mode) {
+    decoder.setDecodeMode(mode);
+  }
+
+  public boolean isExactViterbi() {
+    return decoder.isExactViterbi();
+  }
+
+  public void setExactViterbi() {
+    decoder.setExactViterbi();
+  }
+
   public void setBeamSize(int beamSize) {
     decoder.setBeamSize(beamSize);
   }
@@ -78,10 +99,6 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
 
   public boolean isGreedy() {
     return decoder.isGreedy();
-  }
-
-  public void setExactViterbi() {
-    decoder.setExactViterbi();
   }
 
   @Override
@@ -142,6 +159,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
   public static class PriorFeatureExtractor {
     private final boolean useCache;
     private final NGramPriorStore priorStore;
+    private final boolean hasPriors;
 
     private static final class TrigramKey {
       final SingleAnalysis a1, a2, a3;
@@ -176,6 +194,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
     public PriorFeatureExtractor(boolean useCache, NGramPriorStore priorStore) {
       this.useCache = useCache;
       this.priorStore = priorStore != null ? priorStore : new NGramPriorStore();
+      this.hasPriors = !this.priorStore.isEmpty();
     }
 
     public NGramPriorStore getPriorStore() {
@@ -183,7 +202,9 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
     }
 
     public IntValueMap<String> extractFeatureCounts(List<SingleAnalysis> bestSequence) {
-      List<SingleAnalysis> seq = Lists.newArrayList(sentenceBegin, sentenceBegin);
+      List<SingleAnalysis> seq = new ArrayList<>(bestSequence.size() + 3);
+      seq.add(sentenceBegin);
+      seq.add(sentenceBegin);
       seq.addAll(bestSequence);
       seq.add(sentenceEnd);
       IntValueMap<String> featureCounts = new IntValueMap<>();
@@ -276,7 +297,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       }
 
       // --- N-Gram Prior Features ---
-      if (!s2.startsWith("<") && !s3.startsWith("<")) {
+      if (hasPriors && !s2.startsWith("<") && !s3.startsWith("<")) {
         int biBin = priorStore.getBigramBin(s2, s3);
         if (biBin > 0) {
           feats.addOrIncrement("P:BI_BIN:" + biBin);
@@ -294,7 +315,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
         }
       }
 
-      if (!s1.startsWith("<") && !s2.startsWith("<") && !s3.startsWith("<")) {
+      if (hasPriors && !s1.startsWith("<") && !s2.startsWith("<") && !s3.startsWith("<")) {
         int triBin = priorStore.getTrigramBin(s1, s2, s3);
         if (triBin > 0) {
           feats.addOrIncrement("P:TRI_BIN:" + triBin);
@@ -382,20 +403,53 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
   public static class PriorDecoder {
     public final WeightLookup model;
     public final PriorFeatureExtractor extractor;
+    public final boolean hasPriors;
     private final CandidateContext beginContext;
     private final CandidateContext endContext;
-    private int beamSize = DEFAULT_BEAM_SIZE;
-    private boolean greedy = false;
+    private DecodeMode mode = DEFAULT_MODE;
+    private int beamSize = -1;
 
     public PriorDecoder(WeightLookup model, PriorFeatureExtractor extractor) {
       this.model = model;
       this.extractor = extractor != null ? extractor : new PriorFeatureExtractor(false, null);
+      this.hasPriors = !this.extractor.getPriorStore().isEmpty();
       this.beginContext = new CandidateContext(sentenceBegin, model, false, 0);
       this.endContext = new CandidateContext(sentenceEnd, model, false, 0);
     }
 
+    public DecodeMode getDecodeMode() {
+      return this.mode;
+    }
+
+    public void setDecodeMode(DecodeMode mode) {
+      if (mode == null) {
+        throw new IllegalArgumentException("DecodeMode cannot be null");
+      }
+      this.mode = mode;
+      if (mode == DecodeMode.VITERBI) {
+        this.beamSize = -1;
+      } else if (mode == DecodeMode.BEAM) {
+        if (this.beamSize <= 0) {
+          this.beamSize = DEFAULT_BEAM_SIZE;
+        }
+      }
+    }
+
+    public boolean isExactViterbi() {
+      return this.mode == DecodeMode.VITERBI;
+    }
+
+    public void setExactViterbi() {
+      setDecodeMode(DecodeMode.VITERBI);
+    }
+
     public void setBeamSize(int beamSize) {
-      this.beamSize = beamSize;
+      if (beamSize <= 0) {
+        setDecodeMode(DecodeMode.VITERBI);
+      } else {
+        this.mode = DecodeMode.BEAM;
+        this.beamSize = beamSize;
+      }
     }
 
     public int getBeamSize() {
@@ -403,16 +457,15 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
     }
 
     public void setGreedy(boolean greedy) {
-      this.greedy = greedy;
+      if (greedy) {
+        setDecodeMode(DecodeMode.GREEDY);
+      } else {
+        setDecodeMode(DecodeMode.VITERBI);
+      }
     }
 
     public boolean isGreedy() {
-      return this.greedy;
-    }
-
-    public void setExactViterbi() {
-      this.beamSize = -1;
-      this.greedy = false;
+      return this.mode == DecodeMode.GREEDY;
     }
 
     public float computeBigramScore(CandidateContext w2, CandidateContext w3) {
@@ -430,7 +483,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
         }
       }
 
-      if (!w2.isSpecial && !w3.isSpecial) {
+      if (hasPriors && !w2.isSpecial && !w3.isSpecial) {
         NGramPriorStore store = extractor.getPriorStore();
         int biBin = store.getBigramBin(w2.surface, w3.surface);
         if (biBin > 0) {
@@ -461,7 +514,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
         score += model.get("15:" + w1w2 + "-" + ig);
       }
 
-      if (!w1.isSpecial && !w2.isSpecial && !w3.isSpecial) {
+      if (hasPriors && !w1.isSpecial && !w2.isSpecial && !w3.isSpecial) {
         int triBin = extractor.getPriorStore().getTrigramBin(w1.surface, w2.surface, w3.surface);
         if (triBin > 0) {
           String triBinKey = (triBin < TRI_BIN_KEYS.length) ? TRI_BIN_KEYS[triBin] : ("P:TRI_BIN:" + triBin);
@@ -472,15 +525,13 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       return score;
     }
 
-    public float computeTrigramScore(PriorHypothesis h, CandidateContext w3) {
-      float score = 0;
-      score += model.get("2:" + h.prevCtx.rIg + "-" + w3.rIg);
-      score += h.prevCtx.c10cScore;
+    public float computeTrigramScore(PriorHypothesis h, CandidateContext w3, float f2Score) {
+      float score = f2Score;
       for (String ig : w3.igs) {
-        score += model.get("15:" + h.w1w2LastGroup + "-" + ig);
+        score += model.get(h.f15Prefix + ig);
       }
 
-      if (!h.prevCtx.isSpecial && !h.currCtx.isSpecial && !w3.isSpecial) {
+      if (hasPriors && !h.prevCtx.isSpecial && !h.currCtx.isSpecial && !w3.isSpecial) {
         int triBin = extractor.getPriorStore().getTrigramBin(h.prevCtx.surface, h.currCtx.surface, w3.surface);
         if (triBin > 0) {
           String triBinKey = (triBin < TRI_BIN_KEYS.length) ? TRI_BIN_KEYS[triBin] : ("P:TRI_BIN:" + triBin);
@@ -491,6 +542,11 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       return score;
     }
 
+    public float computeTrigramScore(PriorHypothesis h, CandidateContext w3) {
+      float f2 = model.get("2:" + h.prevCtx.rIg + "-" + w3.rIg) + h.prevCtx.c10cScore;
+      return computeTrigramScore(h, w3, f2);
+    }
+
     public PriorDecodeResult bestPath(List<WordAnalysis> sentence) {
       if (sentence.isEmpty()) {
         throw new IllegalArgumentException("bestPath cannot be called with empty sentence.");
@@ -499,6 +555,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       List<PriorHypothesis> currentList = Collections.singletonList(
           new PriorHypothesis(beginContext, beginContext, null, 0));
 
+      List<CandidateContext> prevPrevCandidates = Collections.singletonList(beginContext);
       List<CandidateContext> prevCandidates = Collections.singletonList(beginContext);
 
       for (int wordIdx = 0; wordIdx < sentence.size(); wordIdx++) {
@@ -523,19 +580,35 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
           }
         }
 
+        // Precompute Feature 2 scores for all (prevPrevCandidate, candidate) pairs
+        float[][] f2Scores = new float[prevPrevCandidates.size()][candidates.size()];
+        for (int pp = 0; pp < prevPrevCandidates.size(); pp++) {
+          CandidateContext prevPrev = prevPrevCandidates.get(pp);
+          String prefix = "2:" + prevPrev.rIg + "-";
+          float c10c = prevPrev.c10cScore;
+          for (int k = 0; k < candidates.size(); k++) {
+            f2Scores[pp][k] = model.get(prefix + candidates.get(k).rIg) + c10c;
+          }
+        }
+
         // 2nd-order Markov grid recombination: state is (candidate at t-1, candidate at t)
-        PriorHypothesis[][] nextGrid = new PriorHypothesis[prevCandidates.size()][candidates.size()];
+        float[][] bestScoreGrid = new float[prevCandidates.size()][candidates.size()];
+        PriorHypothesis[][] bestParentGrid = new PriorHypothesis[prevCandidates.size()][candidates.size()];
+        for (float[] row : bestScoreGrid) {
+          Arrays.fill(row, -Float.MAX_VALUE);
+        }
+
         for (CandidateContext cand : candidates) {
           float uni = cand.uniScore;
           int candIdx = cand.index;
           for (PriorHypothesis h : currentList) {
             int prevIdx = h.currCtx.index;
             float bi = biScores[prevIdx][candIdx];
-            float tri = computeTrigramScore(h, cand);
+            float tri = computeTrigramScore(h, cand, f2Scores[h.prevCtx.index][candIdx]);
             float totalScore = h.score + uni + bi + tri;
-            PriorHypothesis existing = nextGrid[prevIdx][candIdx];
-            if (existing == null || totalScore > existing.score) {
-              nextGrid[prevIdx][candIdx] = new PriorHypothesis(h.currCtx, cand, h, totalScore);
+            if (totalScore > bestScoreGrid[prevIdx][candIdx]) {
+              bestScoreGrid[prevIdx][candIdx] = totalScore;
+              bestParentGrid[prevIdx][candIdx] = h;
             }
           }
         }
@@ -543,20 +616,21 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
         List<PriorHypothesis> nextList = new ArrayList<>(prevCandidates.size() * candidates.size());
         for (int j = 0; j < prevCandidates.size(); j++) {
           for (int k = 0; k < candidates.size(); k++) {
-            PriorHypothesis h = nextGrid[j][k];
-            if (h != null) {
-              nextList.add(h);
+            PriorHypothesis parent = bestParentGrid[j][k];
+            if (parent != null) {
+              nextList.add(new PriorHypothesis(parent.currCtx, candidates.get(k), parent, bestScoreGrid[j][k]));
             }
           }
         }
 
-        if (beamSize > 0 && nextList.size() > beamSize) {
+        if (mode == DecodeMode.BEAM && beamSize > 0 && nextList.size() > beamSize) {
           nextList.sort((a, b) -> Float.compare(b.score, a.score));
           currentList = new ArrayList<>(nextList.subList(0, beamSize));
         } else {
           currentList = nextList;
         }
 
+        prevPrevCandidates = prevCandidates;
         prevCandidates = candidates;
       }
 
@@ -565,12 +639,17 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       for (int j = 0; j < prevCandidates.size(); j++) {
         endBiScores[j] = computeBigramScore(prevCandidates.get(j), endContext);
       }
+      float[] endF2Scores = new float[prevPrevCandidates.size()];
+      for (int pp = 0; pp < prevPrevCandidates.size(); pp++) {
+        CandidateContext prevPrev = prevPrevCandidates.get(pp);
+        endF2Scores[pp] = model.get("2:" + prevPrev.rIg + "-" + endContext.rIg) + prevPrev.c10cScore;
+      }
       float endUni = endContext.uniScore;
 
       PriorHypothesis best = null;
       for (PriorHypothesis h : currentList) {
         float bi = endBiScores[h.currCtx.index];
-        float tri = computeTrigramScore(h, endContext);
+        float tri = computeTrigramScore(h, endContext, endF2Scores[h.prevCtx.index]);
         h.score += (endUni + bi + tri);
         if (best == null || h.score > best.score) {
           best = h;
@@ -578,7 +657,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       }
 
       float bestScore = (best != null) ? best.score : 0;
-      List<SingleAnalysis> result = Lists.newArrayList();
+      List<SingleAnalysis> result = new ArrayList<>();
 
       while (best != null && best.previous != null) {
         result.add(best.current);
@@ -655,6 +734,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
     public final CandidateContext currCtx;
     public final PriorHypothesis previous;
     public final String w1w2LastGroup;
+    public final String f15Prefix;
     public float score;
     private final int hash;
 
@@ -668,6 +748,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       this.prev = prevCtx.sa;
       this.current = currCtx.sa;
       this.w1w2LastGroup = prevCtx.lastGroup + "-" + currCtx.lastGroup;
+      this.f15Prefix = "15:" + this.w1w2LastGroup + "-";
       this.previous = previous;
       this.score = score;
       this.hash = 31 * this.prev.hashCode() + this.current.hashCode();
@@ -683,6 +764,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       this.prevCtx = null;
       this.currCtx = null;
       this.w1w2LastGroup = "";
+      this.f15Prefix = "15:-";
       this.previous = previous;
       this.score = score;
       this.hash = 31 * prev.hashCode() + current.hashCode();

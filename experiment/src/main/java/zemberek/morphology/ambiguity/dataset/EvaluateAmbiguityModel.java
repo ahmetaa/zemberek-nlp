@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import zemberek.apps.ConsoleApp;
@@ -88,8 +87,8 @@ public class EvaluateAmbiguityModel extends ConsoleApp {
 
   @Parameter(
       names = {"--beamSize", "-b"},
-      description = "Beam size for NGramPriorPerceptronResolver (default 8). Use -1 for exact Viterbi.")
-  public int beamSize = 8;
+      description = "Beam size for NGramPriorPerceptronResolver (default -1 for exact Viterbi).")
+  public int beamSize = -1;
 
   @Parameter(
       names = {"--greedy", "-g"},
@@ -149,6 +148,12 @@ public class EvaluateAmbiguityModel extends ConsoleApp {
       AmbiguityResolver model2Resolver = m2Prior
           ? NGramPriorPerceptronResolver.fromModelFile(model2Path, priorStore)
           : PerceptronAmbiguityResolver.fromModelFile(model2Path);
+
+      if (model2Resolver instanceof NGramPriorPerceptronResolver) {
+        NGramPriorPerceptronResolver pr2 = (NGramPriorPerceptronResolver) model2Resolver;
+        pr2.setBeamSize(beamSize);
+        pr2.setGreedy(greedy);
+      }
 
       model2Morphology = TurkishMorphology.builder()
           .setLexicon(RootLexicon.getDefault())

@@ -14,12 +14,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 import zemberek.apps.ConsoleApp;
 import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
@@ -32,8 +29,6 @@ import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.RootLexicon;
-import zemberek.tokenization.Token;
-import zemberek.tokenization.TurkishTokenizer;
 
 /**
  * High-precision performance and throughput benchmarking tool for Zemberek Morphological
@@ -191,8 +186,7 @@ public class BenchmarkAmbiguityResolver extends ConsoleApp {
         NGramPriorPerceptronResolver priorResolver = (NGramPriorPerceptronResolver) customResolver;
 
         // Mode 1: Exact Viterbi
-        priorResolver.setGreedy(false);
-        priorResolver.setBeamSize(-1);
+        priorResolver.setDecodeMode(NGramPriorPerceptronResolver.DecodeMode.VITERBI);
         BenchmarkResult rExact = runBenchmark(
             modelLabel + " [Exact Viterbi]",
             customMorphology,
@@ -204,7 +198,7 @@ public class BenchmarkAmbiguityResolver extends ConsoleApp {
         printResult(rExact);
 
         // Mode 2: Beam Search (beam = 8)
-        priorResolver.setGreedy(false);
+        priorResolver.setDecodeMode(NGramPriorPerceptronResolver.DecodeMode.BEAM);
         priorResolver.setBeamSize(8);
         BenchmarkResult rBeam = runBenchmark(
             modelLabel + " [Beam-8]",
@@ -217,7 +211,7 @@ public class BenchmarkAmbiguityResolver extends ConsoleApp {
         printResult(rBeam);
 
         // Mode 3: Greedy
-        priorResolver.setGreedy(true);
+        priorResolver.setDecodeMode(NGramPriorPerceptronResolver.DecodeMode.GREEDY);
         BenchmarkResult rGreedy = runBenchmark(
             modelLabel + " [Greedy]",
             customMorphology,

@@ -218,34 +218,51 @@ public class NGramPriorResolverTest {
         .setAmbiguityResolver(resolver)
         .build();
 
-    // 1. Default (Beam-8)
-    Assert.assertEquals(NGramPriorPerceptronResolver.DEFAULT_BEAM_SIZE, resolver.getBeamSize());
-    Assert.assertEquals(8, resolver.getBeamSize());
+    // 1. Default (Exact Viterbi)
+    Assert.assertEquals(NGramPriorPerceptronResolver.DEFAULT_MODE, resolver.getDecodeMode());
+    Assert.assertEquals(NGramPriorPerceptronResolver.DecodeMode.VITERBI, resolver.getDecodeMode());
+    Assert.assertTrue(resolver.isExactViterbi());
+    Assert.assertEquals(-1, resolver.getBeamSize());
     Assert.assertFalse(resolver.isGreedy());
     SentenceAnalysis defaultResult = customMorphology.analyzeAndDisambiguate("Büyük beyaz ev.");
     Assert.assertEquals(4, defaultResult.size());
     Assert.assertEquals("ev", defaultResult.bestAnalysis().get(2).getDictionaryItem().lemma);
 
-    // 2. Exact Viterbi mode
+    // 2. Beam search (custom beam = 4)
+    resolver.setBeamSize(4);
+    Assert.assertEquals(NGramPriorPerceptronResolver.DecodeMode.BEAM, resolver.getDecodeMode());
+    Assert.assertEquals(4, resolver.getBeamSize());
+    Assert.assertFalse(resolver.isExactViterbi());
+    Assert.assertFalse(resolver.isGreedy());
+    SentenceAnalysis beamResult = customMorphology.analyzeAndDisambiguate("Büyük beyaz ev.");
+    Assert.assertEquals(4, beamResult.size());
+    Assert.assertEquals("ev", beamResult.bestAnalysis().get(2).getDictionaryItem().lemma);
+
+    // 3. Switch back to Exact Viterbi mode explicitly
     resolver.setExactViterbi();
     Assert.assertEquals(-1, resolver.getBeamSize());
+    Assert.assertEquals(NGramPriorPerceptronResolver.DecodeMode.VITERBI, resolver.getDecodeMode());
+    Assert.assertTrue(resolver.isExactViterbi());
     Assert.assertFalse(resolver.isGreedy());
     SentenceAnalysis exactResult = customMorphology.analyzeAndDisambiguate("Büyük beyaz ev.");
     Assert.assertEquals(4, exactResult.size());
     Assert.assertEquals("ev", exactResult.bestAnalysis().get(2).getDictionaryItem().lemma);
 
-    // 3. Beam search (custom beam = 4)
-    resolver.setBeamSize(4);
-    Assert.assertEquals(4, resolver.getBeamSize());
-    SentenceAnalysis beamResult = customMorphology.analyzeAndDisambiguate("Büyük beyaz ev.");
-    Assert.assertEquals(4, beamResult.size());
-    Assert.assertEquals("ev", beamResult.bestAnalysis().get(2).getDictionaryItem().lemma);
-
     // 4. Greedy mode
     resolver.setGreedy(true);
+    Assert.assertEquals(NGramPriorPerceptronResolver.DecodeMode.GREEDY, resolver.getDecodeMode());
     Assert.assertTrue(resolver.isGreedy());
+    Assert.assertFalse(resolver.isExactViterbi());
     SentenceAnalysis greedyResult = customMorphology.analyzeAndDisambiguate("Büyük beyaz ev.");
     Assert.assertEquals(4, greedyResult.size());
     Assert.assertEquals("ev", greedyResult.bestAnalysis().get(2).getDictionaryItem().lemma);
+
+    // 5. DecodeMode enum switching directly
+    resolver.setDecodeMode(NGramPriorPerceptronResolver.DecodeMode.BEAM);
+    Assert.assertEquals(NGramPriorPerceptronResolver.DecodeMode.BEAM, resolver.getDecodeMode());
+    Assert.assertEquals(NGramPriorPerceptronResolver.DEFAULT_BEAM_SIZE, resolver.getBeamSize());
+    resolver.setDecodeMode(NGramPriorPerceptronResolver.DecodeMode.VITERBI);
+    Assert.assertTrue(resolver.isExactViterbi());
+    Assert.assertEquals(-1, resolver.getBeamSize());
   }
 }
