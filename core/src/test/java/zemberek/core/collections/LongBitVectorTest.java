@@ -195,4 +195,149 @@ public class LongBitVectorTest {
     assertEquals(Long.toBinaryString(0xbfffffffffffffffL),
         Long.toBinaryString(vector.getLong(1, 64)));
   }
+
+  @Test
+  public void addLargeAmountBoolean() {
+    LongBitVector vector = new LongBitVector(64);
+    vector.add(200, true);
+    assertEquals(200, vector.size());
+    for (int i = 0; i < 200; i++) {
+      Assert.assertTrue(vector.get(i));
+    }
+    vector.add(500, false);
+    assertEquals(700, vector.size());
+    for (int i = 0; i < 200; i++) {
+      Assert.assertTrue(vector.get(i));
+    }
+    for (int i = 200; i < 700; i++) {
+      Assert.assertFalse(vector.get(i));
+    }
+  }
+
+  @Test
+  public void fillMultipleOf64DoesNotOverflow() {
+    LongBitVector vector = new LongBitVector(64, 0);
+    vector.add(64, false);
+    vector.fill(true);
+    assertEquals(64, vector.numberOfOnes());
+    assertEquals(0, vector.numberOfZeros());
+    assertEquals(0, vector.zeroIndexes().length);
+    for (int i = 0; i < 64; i++) {
+      Assert.assertTrue(vector.get(i));
+    }
+  }
+
+  @Test
+  public void fillDoesNotCorruptUnusedCapacityWords() {
+    LongBitVector vector = new LongBitVector(10, 10);
+    vector.add(10, false);
+    vector.fill(true);
+    assertEquals(10, vector.numberOfOnes());
+    assertEquals(0, vector.numberOfZeros());
+    assertEquals(0, vector.zeroIndexes().length);
+  }
+
+  @Test
+  public void fillZeroSizeVector() {
+    LongBitVector vector = new LongBitVector(0, 0);
+    vector.fill(true);
+    assertEquals(0, vector.numberOfOnes());
+    assertEquals(0, vector.numberOfZeros());
+    vector.fill(false);
+    assertEquals(0, vector.numberOfOnes());
+    assertEquals(0, vector.numberOfZeros());
+  }
+
+  @Test
+  public void getLongFullWordAtZero() {
+    LongBitVector vector = new LongBitVector(64, 0);
+    vector.add(64, false);
+    vector.set(0);
+    vector.set(63);
+    long val = vector.getLong(0, 64);
+    assertEquals(0x8000000000000001L, val);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void getLongInvalidZeroBitAmount() {
+    LongBitVector vector = new LongBitVector(64);
+    vector.getLong(0, 0);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void getLongInvalidTooLargeBitAmount() {
+    LongBitVector vector = new LongBitVector(64);
+    vector.getLong(0, 65);
+  }
+
+  @Test
+  public void compressHandlesMultiplesOf64AndEmpty() {
+    LongBitVector empty = new LongBitVector(0, 5);
+    empty.compress();
+    assertEquals(0, empty.size());
+
+    LongBitVector vector = new LongBitVector(64, 10);
+    vector.add(64, true);
+    vector.compress();
+    assertEquals(64, vector.size());
+    assertEquals(1, vector.getLongArray().length);
+  }
+
+  @Test
+  public void ensureSizeErrorMessageHasActualSize() {
+    try {
+      new LongBitVector(-5);
+      Assert.fail("Should throw IllegalArgumentException");
+    } catch (IllegalArgumentException e) {
+      Assert.assertTrue(e.getMessage().contains("-5"));
+    }
+  }
+
+  @Test
+  @Ignore("Allocates ~256MB. Run manually.")
+  public void zeroIntIndexesRejectsSizesAboveIntRange() {
+    LongBitVector vector;
+    try {
+      long size = (1L << 31) + 5;
+      long[] words = new long[(int) ((size + 63) >>> 6)];
+      java.util.Arrays.fill(words, -1L);
+      vector = new LongBitVector(words, size);
+      vector.clear(size - 1);
+      vector.clear(size - 2);
+    } catch (OutOfMemoryError e) {
+      // Needs ~256MB of backing array. Skip rather than fail on a small heap.
+      return;
+    }
+    // The long-indexed variant stays exact.
+    Assert.assertArrayEquals(
+        new long[]{(1L << 31) + 3, (1L << 31) + 4}, vector.zeroIndexes());
+    // The int-indexed variant cannot represent those indexes and must say so.
+    try {
+      vector.zeroIntIndexes();
+      Assert.fail("Should throw IllegalStateException");
+    } catch (IllegalStateException expected) {
+      // expected
+    }
+  }
+
+  @Test
+  public void zeroIntIndexesWorksAtIntBoundarySize() {
+    LongBitVector vector = new LongBitVector(128, 0);
+    vector.add(128, true);
+    vector.clear(7);
+    vector.clear(64);
+    Assert.assertArrayEquals(new int[]{7, 64}, vector.zeroIntIndexes());
+  }
+
+  @Test
+  public void addGrowsWithZeroCapacityInterval() {
+    LongBitVector vector = new LongBitVector(0, 0);
+    for (int i = 0; i < 1000; i++) {
+      vector.add(i % 3 == 0);
+    }
+    assertEquals(1000, vector.size());
+    for (int i = 0; i < 1000; i++) {
+      assertEquals(i % 3 == 0, vector.get(i));
+    }
+  }
 }
