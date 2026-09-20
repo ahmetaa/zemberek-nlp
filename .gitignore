@@ -1,5 +1,6 @@
 dependencies/
 **/target/
+**/src/main/generated/
 
 # Intellij idea #
 *.iws
@@ -7,3 +8,7 @@ dependencies/
 *.ipr
 */.idea/workspace.xml 
 */.idea/tasks.xml
+
+# External corpora / sources
+data/ambiguity/sources/
+data/ambiguity/source/

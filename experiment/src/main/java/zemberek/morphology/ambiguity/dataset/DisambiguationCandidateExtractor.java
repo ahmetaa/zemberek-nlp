@@ -75,6 +75,11 @@ public class DisambiguationCandidateExtractor extends ConsoleApp {
       description = "Ignore Turkish diacritics in analysis.")
   public boolean ignoreDiacritics = false;
 
+  @Parameter(
+      names = {"--oneSentencePerLine", "-single_sentence"},
+      description = "Treat each line of input as a single pre-segmented sentence without running sentence boundary detection.")
+  public boolean oneSentencePerLine = false;
+
   public static void main(String[] args) {
     new DisambiguationCandidateExtractor().execute(args);
   }
@@ -94,6 +99,7 @@ public class DisambiguationCandidateExtractor extends ConsoleApp {
         .includeAllSentences(includeAllSentences)
         .enableInformal(enableInformal)
         .ignoreDiacritics(ignoreDiacritics)
+        .oneSentencePerLine(oneSentencePerLine)
         .build();
 
     ExtractionResult result = extract(config);
@@ -152,7 +158,9 @@ public class DisambiguationCandidateExtractor extends ConsoleApp {
           continue;
         }
 
-        List<String> sentences = sentenceExtractor.fromParagraph(line);
+        List<String> sentences = config.oneSentencePerLine
+            ? java.util.Collections.singletonList(line)
+            : sentenceExtractor.fromParagraph(line);
         for (String sentenceStr : sentences) {
           sentenceStr = sentenceStr.trim();
           if (sentenceStr.isEmpty()) {
@@ -272,6 +280,7 @@ public class DisambiguationCandidateExtractor extends ConsoleApp {
     public final boolean includeAllSentences;
     public final boolean enableInformal;
     public final boolean ignoreDiacritics;
+    public final boolean oneSentencePerLine;
 
     private Config(Builder b) {
       this.inputPath = b.inputPath;
@@ -281,6 +290,7 @@ public class DisambiguationCandidateExtractor extends ConsoleApp {
       this.includeAllSentences = b.includeAllSentences;
       this.enableInformal = b.enableInformal;
       this.ignoreDiacritics = b.ignoreDiacritics;
+      this.oneSentencePerLine = b.oneSentencePerLine;
     }
 
     public Path getEffectiveMetaPath() {
@@ -302,6 +312,7 @@ public class DisambiguationCandidateExtractor extends ConsoleApp {
       boolean includeAllSentences = false;
       boolean enableInformal = false;
       boolean ignoreDiacritics = false;
+      boolean oneSentencePerLine = false;
 
       public Builder inputPath(Path inputPath) {
         this.inputPath = inputPath;
@@ -335,6 +346,11 @@ public class DisambiguationCandidateExtractor extends ConsoleApp {
 
       public Builder ignoreDiacritics(boolean ignoreDiacritics) {
         this.ignoreDiacritics = ignoreDiacritics;
+        return this;
+      }
+
+      public Builder oneSentencePerLine(boolean oneSentencePerLine) {
+        this.oneSentencePerLine = oneSentencePerLine;
         return this;
       }
 

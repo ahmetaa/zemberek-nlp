@@ -12,8 +12,9 @@ import sys
 import json
 import time
 import argparse
+import threading
 from datetime import datetime, timezone
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
 # Try to import google.genai, fallback to requests REST API
 try:
@@ -43,7 +44,24 @@ def load_env(filepath: str = ".env") -> None:
         print(f"[INFO] Loaded environment variables from {filepath}")
 
 
-SYSTEM_INSTRUCTION = """You are an expert Turkish computational linguist.
+SYSTEM_INSTRUCTION_COMPACT = """You are an expert Turkish computational linguist.
+Your task is morphological disambiguation of Turkish sentences.
+Given a Turkish sentence and one or more ambiguous words with candidate morphological analyses from Zemberek,
+select the single most accurate morphological analysis for each target word in this context.
+
+Return a valid JSON object matching this exact schema:
+{
+  "selections": [
+    {
+      "token_index": <int>,
+      "selected_candidate_id": <int>
+    }
+  ]
+}
+Do not output markdown code fences (```json ... ```), only the raw JSON object.
+"""
+
+SYSTEM_INSTRUCTION_VERBOSE = """You are an expert Turkish computational linguist.
 Your task is morphological disambiguation of Turkish sentences.
 Given a Turkish sentence and one or more ambiguous words with candidate morphological analyses from Zemberek,
 select the single most accurate morphological analysis for each target word in this context.
@@ -61,6 +79,85 @@ Return a valid JSON object matching this exact schema:
 }
 Do not output markdown code fences (```json ... ```), only the raw JSON object.
 """
+
+# Default to compact schema to prevent generating thousands of unnecessary reasoning tokens
+SYSTEM_INSTRUCTION = SYSTEM_INSTRUCTION_COMPACT
+
+
+class TokenMonitor:
+    """Thread-safe token usage tracker, cost estimator, and circuit-breaker."""
+
+    def __init__(
+        self,
+        max_output_tokens_per_call: int = 400,
+        max_total_output_tokens: int = 500_000,
+        max_budget_usd: float = 5.0,
+        price_per_1m_input: float = 0.15,
+        price_per_1m_output: float = 0.60
+    ):
+        self.lock = threading.Lock()
+        self.total_prompt_tokens = 0
+        self.total_candidates_tokens = 0
+        self.total_thoughts_tokens = 0
+        self.total_calls = 0
+        self.max_output_tokens_per_call = max_output_tokens_per_call
+        self.max_total_output_tokens = max_total_output_tokens
+        self.max_budget_usd = max_budget_usd
+        self.price_per_1m_input = price_per_1m_input
+        self.price_per_1m_output = price_per_1m_output
+        self.circuit_broken = False
+        self.circuit_break_reason = ""
+
+    def record(self, usage: Dict[str, Any], sentence_id: str = "") -> None:
+        if not usage:
+            return
+        prompt_t = usage.get("promptTokenCount", 0)
+        cand_t = usage.get("candidatesTokenCount", 0)
+        thought_t = usage.get("thoughtsTokenCount", 0)
+        total_billed_output = cand_t + thought_t
+
+        with self.lock:
+            self.total_calls += 1
+            self.total_prompt_tokens += prompt_t
+            self.total_candidates_tokens += cand_t
+            self.total_thoughts_tokens += thought_t
+
+            # Check single call spike
+            if total_billed_output > self.max_output_tokens_per_call:
+                print(
+                    f"\n[ALERT] High output token spike on sentence {sentence_id}: {total_billed_output} tokens "
+                    f"({cand_t} output + {thought_t} thoughts, threshold: {self.max_output_tokens_per_call})"
+                )
+
+            # Cumulative circuit-breaker checks
+            cumulative_output = self.total_candidates_tokens + self.total_thoughts_tokens
+            cost = self.estimated_cost_usd()
+
+            if cumulative_output > self.max_total_output_tokens:
+                self.circuit_broken = True
+                self.circuit_break_reason = (
+                    f"Cumulative output tokens ({cumulative_output:,}) exceeded limit of {self.max_total_output_tokens:,}."
+                )
+
+            if cost > self.max_budget_usd:
+                self.circuit_broken = True
+                self.circuit_break_reason = (
+                    f"Estimated cost (${cost:.2f}) exceeded budget of ${self.max_budget_usd:.2f}."
+                )
+
+    def estimated_cost_usd(self) -> float:
+        input_cost = (self.total_prompt_tokens / 1_000_000.0) * self.price_per_1m_input
+        output_cost = ((self.total_candidates_tokens + self.total_thoughts_tokens) / 1_000_000.0) * self.price_per_1m_output
+        return input_cost + output_cost
+
+    def summary_str(self) -> str:
+        with self.lock:
+            out_total = self.total_candidates_tokens + self.total_thoughts_tokens
+            return (
+                f"[TOKENS] Calls: {self.total_calls} | In: {self.total_prompt_tokens:,} | "
+                f"Out: {self.total_candidates_tokens:,} | Thoughts: {self.total_thoughts_tokens:,} "
+                f"(Total Out: {out_total:,}) | Est Cost: ${self.estimated_cost_usd():.3f}"
+            )
 
 
 def format_sentence_prompt(record: Dict[str, Any]) -> str:
@@ -113,27 +210,45 @@ def call_gemini_sdk(
     prompt: str,
     model: str = "gemini-flash-latest",
     temperature: float = 0.0,
+    thinking_budget: int = 0,
+    system_instruction: str = SYSTEM_INSTRUCTION_COMPACT,
     max_retries: int = 4
-) -> Optional[str]:
+) -> Tuple[Optional[str], Dict[str, Any]]:
     """Calls Gemini API using the official google-genai SDK."""
     for attempt in range(max_retries):
         try:
-            config = types.GenerateContentConfig(
-                temperature=temperature,
-                response_mime_type="application/json",
-                system_instruction=SYSTEM_INSTRUCTION
-            )
+            config_kwargs: Dict[str, Any] = {
+                "temperature": temperature,
+                "response_mime_type": "application/json",
+                "system_instruction": system_instruction,
+            }
+            if thinking_budget is not None:
+                try:
+                    config_kwargs["thinking_config"] = types.ThinkingConfig(thinking_budget=thinking_budget)
+                except Exception:
+                    config_kwargs["thinking_config"] = {"thinking_budget": thinking_budget}
+
+            config = types.GenerateContentConfig(**config_kwargs)
             response = client.models.generate_content(
                 model=model,
                 contents=prompt,
                 config=config
             )
-            return response.text.strip()
+            usage: Dict[str, Any] = {}
+            if hasattr(response, "usage_metadata") and response.usage_metadata:
+                um = response.usage_metadata
+                usage = {
+                    "promptTokenCount": getattr(um, "prompt_token_count", 0),
+                    "candidatesTokenCount": getattr(um, "candidates_token_count", 0),
+                    "thoughtsTokenCount": getattr(um, "thoughts_token_count", 0),
+                    "totalTokenCount": getattr(um, "total_token_count", 0),
+                }
+            return response.text.strip(), usage
         except Exception as e:
             wait = 2 ** attempt
             print(f"[WARN] Gemini SDK call failed (attempt {attempt + 1}/{max_retries}): {e}. Retrying in {wait}s...")
             time.sleep(wait)
-    return None
+    return None, {}
 
 
 def call_gemini_rest(
@@ -141,26 +256,34 @@ def call_gemini_rest(
     prompt: str,
     model: str = "gemini-flash-latest",
     temperature: float = 0.0,
+    thinking_budget: int = 0,
+    system_instruction: str = SYSTEM_INSTRUCTION_COMPACT,
     max_retries: int = 4
-) -> Optional[str]:
+) -> Tuple[Optional[str], Dict[str, Any]]:
     """Calls Gemini REST API directly using requests."""
     if not HAS_REQUESTS:
         raise RuntimeError("Neither google-genai nor requests is available. Please install one of them.")
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+    generation_config: Dict[str, Any] = {
+        "temperature": temperature,
+        "responseMimeType": "application/json"
+    }
+    if thinking_budget is not None:
+        generation_config["thinkingConfig"] = {
+            "thinkingBudget": thinking_budget
+        }
+
     payload = {
         "system_instruction": {
-            "parts": [{"text": SYSTEM_INSTRUCTION}]
+            "parts": [{"text": system_instruction}]
         },
         "contents": [
             {
                 "parts": [{"text": prompt}]
             }
         ],
-        "generationConfig": {
-            "temperature": temperature,
-            "responseMimeType": "application/json"
-        }
+        "generationConfig": generation_config
     }
 
     for attempt in range(max_retries):
@@ -168,11 +291,12 @@ def call_gemini_rest(
             resp = requests.post(url, json=payload, timeout=30)
             if resp.status_code == 200:
                 data = resp.json()
+                usage = data.get("usageMetadata", {})
                 candidates = data.get("candidates", [])
                 if candidates:
                     parts = candidates[0].get("content", {}).get("parts", [])
                     if parts:
-                        return parts[0].get("text", "").strip()
+                        return parts[0].get("text", "").strip(), usage
             elif resp.status_code == 429:
                 wait = (2 ** attempt) * 2
                 print(f"[WARN] Rate limited (429). Retrying in {wait}s...")
@@ -185,7 +309,7 @@ def call_gemini_rest(
             wait = 2 ** attempt
             print(f"[WARN] REST call error: {e}. Retrying in {wait}s...")
             time.sleep(wait)
-    return None
+    return None, {}
 
 
 def parse_llm_json(response_text: str) -> Optional[Dict[str, Any]]:
@@ -247,13 +371,18 @@ def process_file(
     output_path: str,
     api_key: Optional[str],
     model: str = "gemini-flash-latest",
+    thinking_budget: int = 0,
+    with_reasoning: bool = False,
+    max_output_per_call: int = 400,
+    max_total_output_tokens: int = 500_000,
+    max_budget_usd: float = 5.0,
     max_sentences: int = -1,
     delay: float = 0.0,
     concurrency: int = 5,
     meta_path: Optional[str] = None,
     dry_run: bool = False
 ) -> None:
-    """Main processing loop with optional concurrency."""
+    """Main processing loop with optional concurrency, token monitoring, and circuit breaking."""
     import concurrent.futures
 
     client = None
@@ -261,10 +390,17 @@ def process_file(
         if not api_key:
             raise ValueError("GEMINI_API_KEY must be provided via environment variable, .env, or --api-key.")
         if HAS_GOOGLE_GENAI:
-            print(f"[INFO] Using google-genai SDK with model: {model}")
+            print(f"[INFO] Using google-genai SDK with model: {model} (thinkingBudget={thinking_budget})")
             client = genai.Client(api_key=api_key)
         else:
-            print(f"[INFO] google-genai SDK not installed. Falling back to REST API with model: {model}")
+            print(f"[INFO] google-genai SDK not installed. Falling back to REST API with model: {model} (thinkingBudget={thinking_budget})")
+
+    system_instruction = SYSTEM_INSTRUCTION_VERBOSE if with_reasoning else SYSTEM_INSTRUCTION_COMPACT
+    token_monitor = TokenMonitor(
+        max_output_tokens_per_call=max_output_per_call,
+        max_total_output_tokens=max_total_output_tokens,
+        max_budget_usd=max_budget_usd
+    )
 
     output_dir = os.path.dirname(output_path)
     if output_dir:
@@ -281,6 +417,8 @@ def process_file(
                 break
 
     print(f"[INFO] Loaded {len(records)} sentences from {input_path}. Concurrency: {concurrency}")
+    print(f"[INFO] Cost Safeguards: thinkingBudget={thinking_budget} | max_output_per_call={max_output_per_call} | "
+          f"max_total_output={max_total_output_tokens:,} | max_budget=${max_budget_usd:.2f}")
 
     # Check for existing completed sentences (resume capability)
     existing_done_ids = set()
@@ -322,6 +460,11 @@ def process_file(
         ambiguous_tokens = [t for t in record["tokens"] if t.get("is_ambiguous", False)]
         if not ambiguous_tokens:
             return line_num, record, 0, False
+
+        # Circuit breaker check: immediately abort if budget/token limit exceeded
+        if token_monitor.circuit_broken:
+            return line_num, record, 0, False
+
         if dry_run:
             for t in ambiguous_tokens:
                 t["selected_candidate_id"] = 0
@@ -329,17 +472,24 @@ def process_file(
             return line_num, record, len(ambiguous_tokens), True
 
         prompt = format_sentence_prompt(record)
+        sid = record.get("sentence_id", str(line_num))
         if client is not None:
-            response_text = call_gemini_sdk(client, prompt, model=model)
+            response_text, usage = call_gemini_sdk(
+                client, prompt, model=model, thinking_budget=thinking_budget, system_instruction=system_instruction
+            )
         else:
-            response_text = call_gemini_rest(api_key, prompt, model=model)
+            response_text, usage = call_gemini_rest(
+                api_key, prompt, model=model, thinking_budget=thinking_budget, system_instruction=system_instruction
+            )
+
+        token_monitor.record(usage, sentence_id=sid)
 
         applied = 0
         parsed_json = parse_llm_json(response_text)
         if parsed_json:
             applied = apply_selections(record, parsed_json)
         else:
-            print(f"[ERROR] Skipping LLM annotation for sentence {record.get('sentence_id')} due to API failure")
+            print(f"[ERROR] Skipping LLM annotation for sentence {sid} due to API failure")
 
         if delay > 0:
             time.sleep(delay)
@@ -353,6 +503,11 @@ def process_file(
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
             results = executor.map(process_item, remaining_records)
             for line_num, rec, applied, was_annotated in results:
+                if token_monitor.circuit_broken:
+                    print(f"\n[CIRCUIT BREAKER TRIGGERED] {token_monitor.circuit_break_reason}")
+                    print(f"[HALTING] Stopping pipeline to prevent unwanted charges. Progress so far has been flushed to {output_path}.")
+                    break
+
                 out_f.write(json.dumps(rec, ensure_ascii=False) + "\n")
                 out_f.flush()
                 total_sentences += 1
@@ -361,11 +516,12 @@ def process_file(
                     annotated_tokens += applied
 
                 if total_sentences % 25 == 0 or total_sentences == len(records):
-                    print(f"[PROGRESS] Completed {total_sentences}/{len(records)} sentences (annotated {annotated_sentences} sentences, {annotated_tokens} tokens)...")
+                    print(f"[PROGRESS] Completed {total_sentences}/{len(records)} sentences | {token_monitor.summary_str()}")
 
     print(f"\n[DONE] Finished processing {total_sentences} sentences.")
     print(f"       Annotated sentences with LLM: {annotated_sentences}")
     print(f"       Annotated ambiguous tokens:   {annotated_tokens}")
+    print(f"       {token_monitor.summary_str()}")
     print(f"       Output written to:            {output_path}")
 
     # Update companion metadata file if present or requested
@@ -381,11 +537,19 @@ def process_file(
                 meta = json.load(f)
 
             meta["annotation"] = {
-                "status": "completed",
+                "status": "circuit_broken" if token_monitor.circuit_broken else "completed",
                 "annotator_model": "dry-run" if dry_run else model,
                 "annotated_at": datetime.now(timezone.utc).isoformat(),
                 "annotated_sentences": annotated_sentences,
                 "annotated_tokens": annotated_tokens,
+                "thinking_budget": thinking_budget,
+                "token_usage": {
+                    "prompt_tokens": token_monitor.total_prompt_tokens,
+                    "candidates_tokens": token_monitor.total_candidates_tokens,
+                    "thoughts_tokens": token_monitor.total_thoughts_tokens,
+                    "total_output_tokens": token_monitor.total_candidates_tokens + token_monitor.total_thoughts_tokens,
+                    "estimated_cost_usd": round(token_monitor.estimated_cost_usd(), 4)
+                },
                 "output_file": os.path.basename(output_path)
             }
 
@@ -402,12 +566,17 @@ def main():
     load_env(".env.local")
 
     parser = argparse.ArgumentParser(
-        description="Disambiguate Turkish morphological candidates using Google Gemini.",
+        description="Disambiguate Turkish morphological candidates using Google Gemini with cost safeguards and monitoring.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument("-i", "--input", required=True, help="Input JSONL file produced by DisambiguationCandidateExtractor")
     parser.add_argument("-o", "--output", required=True, help="Output JSONL file to store annotations")
     parser.add_argument("-m", "--model", default="gemini-flash-latest", help="Gemini model name")
+    parser.add_argument("--thinking-budget", type=int, default=0, help="Thinking token budget (0 disables hidden reasoning tokens)")
+    parser.add_argument("--with-reasoning", action="store_true", help="Include natural language explanations (higher output token cost)")
+    parser.add_argument("--max-output-per-call", type=int, default=400, help="Warning threshold for output tokens per single API call")
+    parser.add_argument("--max-total-output-tokens", type=int, default=500_000, help="Circuit breaker: stop if cumulative output tokens exceed this")
+    parser.add_argument("--max-budget-usd", type=float, default=5.0, help="Circuit breaker: stop if estimated cost in USD exceeds this")
     parser.add_argument("--api-key", default=None, help="Gemini API key (defaults to GEMINI_API_KEY environment variable)")
     parser.add_argument("--max-sentences", "-max", type=int, default=-1, help="Max sentences to process (-1 for unlimited)")
     parser.add_argument("--delay", "-d", type=float, default=0.0, help="Delay between API requests in seconds")
@@ -428,6 +597,11 @@ def main():
         output_path=args.output,
         api_key=api_key,
         model=args.model,
+        thinking_budget=args.thinking_budget,
+        with_reasoning=args.with_reasoning,
+        max_output_per_call=args.max_output_per_call,
+        max_total_output_tokens=args.max_total_output_tokens,
+        max_budget_usd=args.max_budget_usd,
         max_sentences=args.max_sentences,
         delay=args.delay,
         concurrency=args.concurrency,

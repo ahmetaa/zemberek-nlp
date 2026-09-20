@@ -15,10 +15,13 @@ import java.util.List;
 import zemberek.apps.ConsoleApp;
 import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.ambiguity.AmbiguityResolver;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver;
 import zemberek.morphology.ambiguity.dataset.DisambiguationCandidateExtractor.CandidateRecord;
 import zemberek.morphology.ambiguity.dataset.DisambiguationCandidateExtractor.SentenceRecord;
 import zemberek.morphology.ambiguity.dataset.DisambiguationCandidateExtractor.TokenRecord;
+import zemberek.morphology.ambiguity.prior.NGramPriorPerceptronResolver;
+import zemberek.morphology.ambiguity.prior.NGramPriorStore;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.lexicon.RootLexicon;
@@ -48,10 +51,50 @@ public class EvaluateAmbiguityModel extends ConsoleApp {
   public Path model2Path;
 
   @Parameter(
+      names = {"--priorBigrams"},
+      description = "Path to unambiguous bigrams text file for prior-enhanced model")
+  public Path priorBigramsPath;
+
+  @Parameter(
+      names = {"--priorTrigrams"},
+      description = "Path to unambiguous trigrams text file for prior-enhanced model")
+  public Path priorTrigramsPath;
+
+  @Parameter(
+      names = {"--priorCollocations"},
+      description = "Path to significant collocations text file for prior-enhanced model")
+  public Path priorCollocationsPath;
+
+  @Parameter(
+      names = {"--priorMinCount"},
+      description = "Minimum count threshold for including an N-gram. Default is 3.")
+  public int priorMinCount = 3;
+
+  @Parameter(
+      names = {"--model1HasPriors"},
+      description = "Explicitly specify whether model 1 uses N-gram prior feature extractor")
+  public Boolean model1HasPriors = null;
+
+  @Parameter(
+      names = {"--model2HasPriors"},
+      description = "Explicitly specify whether model 2 uses N-gram prior feature extractor")
+  public Boolean model2HasPriors = null;
+
+  @Parameter(
       names = {"--output", "-o"},
       required = true,
       description = "Path to save detailed JSON evaluation report")
   public Path outputPath;
+
+  @Parameter(
+      names = {"--beamSize", "-b"},
+      description = "Beam size for NGramPriorPerceptronResolver (default 8). Use -1 for exact Viterbi.")
+  public int beamSize = 8;
+
+  @Parameter(
+      names = {"--greedy", "-g"},
+      description = "Enable greedy decoding mode for NGramPriorPerceptronResolver")
+  public boolean greedy = false;
 
   public static void main(String[] args) {
     new EvaluateAmbiguityModel().execute(args);
@@ -64,8 +107,33 @@ public class EvaluateAmbiguityModel extends ConsoleApp {
 
   @Override
   public void run() throws Exception {
-    Log.info("Loading primary trained model from: %s", modelPath);
-    PerceptronAmbiguityResolver trainedResolver = PerceptronAmbiguityResolver.fromModelFile(modelPath);
+    boolean hasPriorFiles = priorBigramsPath != null || priorTrigramsPath != null || priorCollocationsPath != null;
+    NGramPriorStore priorStore = null;
+    if (hasPriorFiles) {
+      Log.info("Loading N-gram priors for evaluation...");
+      priorStore = NGramPriorStore.builder()
+          .bigramsPath(priorBigramsPath)
+          .trigramsPath(priorTrigramsPath)
+          .collocationsPath(priorCollocationsPath)
+          .minCount(priorMinCount)
+          .build();
+      Log.info("Loaded priors: %d bigrams, %d trigrams, %d collocations.",
+          priorStore.bigramSize(), priorStore.trigramSize(), priorStore.collocationSize());
+    }
+
+    boolean m1Prior = (model1HasPriors != null) ? model1HasPriors :
+        (priorStore != null || modelPath.getFileName().toString().contains("disambiguation") || modelPath.getFileName().toString().contains("contrastive") || modelPath.getFileName().toString().contains("prior"));
+
+    Log.info("Loading primary trained model from: %s (with priors: %s)", modelPath, m1Prior);
+    AmbiguityResolver trainedResolver = m1Prior
+        ? NGramPriorPerceptronResolver.fromModelFile(modelPath, priorStore)
+        : PerceptronAmbiguityResolver.fromModelFile(modelPath);
+
+    if (trainedResolver instanceof NGramPriorPerceptronResolver) {
+      NGramPriorPerceptronResolver pr = (NGramPriorPerceptronResolver) trainedResolver;
+      pr.setBeamSize(beamSize);
+      pr.setGreedy(greedy);
+    }
 
     TurkishMorphology trainedMorphology = TurkishMorphology.builder()
         .setLexicon(RootLexicon.getDefault())
@@ -74,8 +142,14 @@ public class EvaluateAmbiguityModel extends ConsoleApp {
 
     TurkishMorphology model2Morphology = null;
     if (model2Path != null) {
-      Log.info("Loading second trained model from: %s", model2Path);
-      PerceptronAmbiguityResolver model2Resolver = PerceptronAmbiguityResolver.fromModelFile(model2Path);
+      boolean m2Prior = (model2HasPriors != null) ? model2HasPriors :
+          (priorStore != null && (model2Path.getFileName().toString().contains("disambiguation") || model2Path.getFileName().toString().contains("contrastive") || model2Path.getFileName().toString().contains("prior")));
+
+      Log.info("Loading second trained model from: %s (with priors: %s)", model2Path, m2Prior);
+      AmbiguityResolver model2Resolver = m2Prior
+          ? NGramPriorPerceptronResolver.fromModelFile(model2Path, priorStore)
+          : PerceptronAmbiguityResolver.fromModelFile(model2Path);
+
       model2Morphology = TurkishMorphology.builder()
           .setLexicon(RootLexicon.getDefault())
           .setAmbiguityResolver(model2Resolver)
@@ -318,9 +392,6 @@ public class EvaluateAmbiguityModel extends ConsoleApp {
   }
 
   private static void printSummary(EvaluationReport r) {
-    System.out.println("\n====================================================================");
-    System.out.printf("                    DISAMBIGUATION EVALUATION REPORT                \n");
-    System.out.println("====================================================================");
     System.out.println("\n==========================================================================================");
     System.out.printf("                             DISAMBIGUATION EVALUATION REPORT                             \n");
     System.out.println("==========================================================================================");
@@ -328,19 +399,6 @@ public class EvaluateAmbiguityModel extends ConsoleApp {
     System.out.printf("Total Tokens:      %d\n", r.total_tokens);
     System.out.printf("Ambiguous Tokens:  %d (%.2f%%)\n", r.ambiguous_tokens,
         (100.0 * r.ambiguous_tokens / Math.max(1, r.total_tokens)));
-    System.out.println("--------------------------------------------------------------------");
-    System.out.printf("Metric                           Trained Model (500)    Default Baseline\n");
-    System.out.println("--------------------------------------------------------------------");
-    System.out.printf("Ambiguity Accuracy (Hard):       %6.2f%% (%4d/%4d)      %6.2f%% (%4d/%4d)\n",
-        r.trained_ambiguity_accuracy * 100.0, r.trained_ambiguous_matches, r.ambiguous_tokens,
-        r.default_ambiguity_accuracy * 100.0, r.default_ambiguous_matches, r.ambiguous_tokens);
-    System.out.printf("Overall Token Accuracy:          %6.2f%% (%4d/%4d)      %6.2f%% (%4d/%4d)\n",
-        r.trained_overall_accuracy * 100.0, r.trained_overall_matches, r.total_tokens,
-        r.default_overall_accuracy * 100.0, r.default_overall_matches, r.total_tokens);
-    System.out.printf("Sentence Exact Match:            %6.2f%% (%4d/%4d)      %6.2f%% (%4d/%4d)\n",
-        r.trained_sentence_exact_match_rate * 100.0, r.trained_sentence_exact_matches, r.total_sentences,
-        r.default_sentence_exact_match_rate * 100.0, r.default_sentence_exact_matches, r.total_sentences);
-    System.out.println("====================================================================\n");
     System.out.println("------------------------------------------------------------------------------------------");
 
     if (r.has_model2) {

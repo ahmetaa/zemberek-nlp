@@ -23,7 +23,7 @@ import os
 import sys
 import time
 from pathlib import Path
-from typing import List, Set
+from typing import List, Set, Tuple, Dict, Any
 
 try:
     from google import genai
@@ -273,48 +273,59 @@ def call_gemini_batch(
     api_key: str,
     topic_info: dict,
     batch_size: int = 25,
-    model: str = "gemini-flash-latest"
-) -> List[str]:
-    """Generates batch_size Turkish sentences for a given topic using Gemini."""
+    model: str = "gemini-flash-latest",
+    thinking_budget: int = 0
+) -> Tuple[List[str], Dict[str, Any]]:
+    """Generates batch_size Turkish sentences for a given topic using Gemini with thinkingBudget controls."""
     system_instruction = (
-        "Sen Türk dili ve edebiyatı konusunda uzman bir dilbilimci ve yazarsın. "
-        "Görevin, Türkçe morfolojik analiz ve dil işleme modellerini eğitmek ve test etmek için "
-        "dilbilgisi kurallarına eksiksiz uyan, son derece çeşitli, akıcı ve doğal Türkçe cümleler üretmektir."
+        "You are an expert computational linguist and native Turkish prose writer. "
+        "Your task is to generate grammatically flawless, highly varied, fluent, and authentic "
+        "Turkish sentences to train and benchmark Turkish morphological disambiguation and NLP models."
     )
 
-    prompt = f"""Lütfen şu tema ve üslup altında tam olarak {batch_size} adet yüksek kaliteli, birbirinden tamamen bağımsız Türkçe cümle üret:
-Tema: {topic_info['title']}
-Açıklama: {topic_info['prompt']}
-Üslup Özelliği: {topic_info.get('style', 'Doğal ve akıcı.')}
+    prompt = f"""Generate exactly {batch_size} high-quality, completely independent Turkish sentences adhering to the following theme and style:
+Topic: {topic_info['title']}
+Context & Theme: {topic_info['prompt']}
+Stylistic Register: {topic_info.get('style', 'Natural, fluent Turkish.')}
 
-Kurallar:
-1. Cümle yapıları ve uzunlukları yüksek varyansa sahip olmalıdır:
-   - Bazı cümleler kısa konuşma replikleri veya diyaloglar olmalıdır (3-6 kelime).
-   - Bazı cümleler orta uzunlukta olmalıdır (7-14 kelime).
-   - Bazı cümleler birleşik, zarf-fiil veya şart kipi içeren uzun cümleler olmalıdır (15-25 kelime).
-2. Morfolojik çeşitlilik zengin olmalıdır: farklı zaman ve kipler (şimdiki, gelecek, geçmiş, geniş zaman, gereklilik, istek, şart), durum ekleri (-e, -de, -den, -i), iyelik ekleri, sıfat-fiil ve zarf-fiil ekleri (-erek, -ince, -dikçe, -ken, -en, -dik), soru edatları bulunmalıdır.
-3. Cümleler birbirini tekrar etmemeli, her biri özgün bir bağlamı anlatmalıdır.
-4. Yazım ve noktalama kurallarına (TDK) harfiyen uyulmalıdır.
+Guidelines & Constraints:
+1. Varied Sentence Length and Structure:
+   - Short conversational dialogue turns or colloquial remarks (3-6 words).
+   - Medium-length descriptive or declarative statements (7-14 words).
+   - Complex compound sentences containing converbial clauses (-erek, -ince, -dikçe, -ken), relative participles (-en, -dik, -ecek), or conditional moods (15-25 words).
+2. Rich Morphological Diversity:
+   - Use diverse verb tenses and modalities (progressive, future, past, aorist, necessitative, optative, conditional).
+   - Include diverse noun case markers (accusative, dative, locative, ablative), possessive suffixes (1st, 2nd, 3rd person singular/plural), and question particles (mı/mi/mu/mü).
+3. Contextual Novelty: Sentences must not repeat patterns, cliches, or vocabulary within the batch; each sentence must depict an original, distinct scenario.
+4. Orthography: Strictly follow Turkish Language Association (TDK) orthographic, apostrophe, and punctuation rules.
+5. Target Language: Every generated sentence in the output array MUST be in natural, authentic Turkish.
 
-Çıktıyı SADECE geçerli bir JSON nesnesi olarak şu formatta ver:
+Output Format:
+Return ONLY a valid JSON object matching the following structure (no markdown formatting or fences, raw JSON only):
 {{
   "sentences": [
-    "Cümle 1...",
-    "Cümle 2..."
+    "Turkish sentence 1...",
+    "Turkish sentence 2..."
   ]
 }}
-Markdown kodu (```json) kullanma, sadece doğrudan JSON döndür.
 """
 
     # 1. Try official SDK
     if HAS_GOOGLE_GENAI:
         try:
             client = genai.Client(api_key=api_key)
-            config = types.GenerateContentConfig(
-                temperature=0.85,
-                response_mime_type="application/json",
-                system_instruction=system_instruction,
-            )
+            config_kwargs: Dict[str, Any] = {
+                "temperature": 0.85,
+                "response_mime_type": "application/json",
+                "system_instruction": system_instruction,
+            }
+            if thinking_budget is not None:
+                try:
+                    config_kwargs["thinking_config"] = types.ThinkingConfig(thinking_budget=thinking_budget)
+                except Exception:
+                    config_kwargs["thinking_config"] = {"thinking_budget": thinking_budget}
+
+            config = types.GenerateContentConfig(**config_kwargs)
             response = client.models.generate_content(
                 model=model,
                 contents=prompt,
@@ -322,33 +333,49 @@ Markdown kodu (```json) kullanma, sadece doğrudan JSON döndür.
             )
             raw = response.text
             sentences = parse_sentences_json(raw)
+            usage: Dict[str, Any] = {}
+            if hasattr(response, "usage_metadata") and response.usage_metadata:
+                um = response.usage_metadata
+                usage = {
+                    "promptTokenCount": getattr(um, "prompt_token_count", 0),
+                    "candidatesTokenCount": getattr(um, "candidates_token_count", 0),
+                    "thoughtsTokenCount": getattr(um, "thoughts_token_count", 0),
+                    "totalTokenCount": getattr(um, "total_token_count", 0),
+                }
             if sentences:
-                return sentences
+                return sentences, usage
         except Exception as e:
             print(f"[WARN] SDK call failed ({e}), falling back to REST...")
 
     # 2. Try REST API with retry & backoff
     if HAS_REQUESTS:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        generation_config: Dict[str, Any] = {
+            "temperature": 0.85,
+            "responseMimeType": "application/json"
+        }
+        if thinking_budget is not None:
+            generation_config["thinkingConfig"] = {
+                "thinkingBudget": thinking_budget
+            }
+
         payload = {
             "system_instruction": {"parts": [{"text": system_instruction}]},
             "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {
-                "temperature": 0.85,
-                "responseMimeType": "application/json"
-            }
+            "generationConfig": generation_config
         }
         for attempt in range(5):
             try:
                 resp = requests.post(url, json=payload, timeout=45)
                 if resp.status_code == 200:
                     data = resp.json()
+                    usage = data.get("usageMetadata", {})
                     parts = data.get("candidates", [])[0].get("content", {}).get("parts", [])
                     if parts:
                         raw = parts[0].get("text", "")
                         sentences = parse_sentences_json(raw)
                         if sentences:
-                            return sentences
+                            return sentences, usage
                 elif resp.status_code in (429, 503):
                     wait = 2 * (attempt + 1)
                     print(f"[WARN] HTTP {resp.status_code} (Demand/Rate). Retrying in {wait}s...")
@@ -360,7 +387,7 @@ Markdown kodu (```json) kullanma, sadece doğrudan JSON döndür.
                 print(f"[ERROR] REST request exception: {e}. Retrying in 2s...")
                 time.sleep(2)
 
-    return []
+    return [], {}
 
 
 def parse_sentences_json(raw: str) -> List[str]:
@@ -422,9 +449,11 @@ def load_existing(file_path: Path) -> List[str]:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate diverse Turkish sentences with Gemini in small batches")
+    parser = argparse.ArgumentParser(description="Generate diverse Turkish sentences with Gemini in small batches with token monitoring")
     parser.add_argument("-o", "--output", default="data/ambiguity/gemini_turkish_sentences_2500.txt", help="Output text file")
     parser.add_argument("-m", "--model", default="gemini-flash-latest", help="Gemini model name")
+    parser.add_argument("--thinking-budget", type=int, default=0, help="Thinking token budget (0 disables hidden reasoning tokens)")
+    parser.add_argument("--max-budget-usd", type=float, default=5.0, help="Circuit breaker: stop if estimated cost in USD exceeds this")
     parser.add_argument("--count", type=int, default=2500, help="Target total sentence count (default: 2500)")
     parser.add_argument("--batch-size", type=int, default=25, help="Batch size per Gemini API call (default: 25)")
     parser.add_argument("--api-key", default=None, help="Gemini API key")
@@ -452,11 +481,15 @@ def main():
         return
 
     print(f"[INFO] Target: {args.count} sentences across {len(TOPICS)} diverse topics.")
-    print(f"[INFO] Batch size: {args.batch_size} sentences per call | Model: {args.model}")
+    print(f"[INFO] Batch size: {args.batch_size} sentences per call | Model: {args.model} | thinkingBudget={args.thinking_budget}")
+    print(f"[INFO] Cost Safeguards: max_budget=${args.max_budget_usd:.2f}")
     print(f"[INFO] Saving incrementally to: {out_path.resolve()}\n")
 
     topic_idx = 0
     batch_num = 0
+    cum_prompt_tokens = 0
+    cum_output_tokens = 0
+    cum_thoughts_tokens = 0
 
     # Open in append mode so every batch is saved immediately
     with open(out_path, "a", encoding="utf-8") as out_file:
@@ -468,12 +501,20 @@ def main():
             batch_num += 1
             print(f"[Batch {batch_num:3d}] Requesting {curr_batch_size} sentences on topic: '{topic['title']}'...")
 
-            batch_sentences = call_gemini_batch(
+            batch_sentences, usage = call_gemini_batch(
                 api_key=api_key,
                 topic_info=topic,
                 batch_size=curr_batch_size,
-                model=args.model
+                model=args.model,
+                thinking_budget=args.thinking_budget
             )
+
+            prompt_t = usage.get("promptTokenCount", 0)
+            cand_t = usage.get("candidatesTokenCount", 0)
+            thought_t = usage.get("thoughtsTokenCount", 0)
+            cum_prompt_tokens += prompt_t
+            cum_output_tokens += cand_t
+            cum_thoughts_tokens += thought_t
 
             added_this_batch = 0
             for s in batch_sentences:
@@ -486,7 +527,14 @@ def main():
                     if total_collected >= args.count:
                         break
 
+            est_cost = (cum_prompt_tokens / 1_000_000.0 * 0.15) + ((cum_output_tokens + cum_thoughts_tokens) / 1_000_000.0 * 0.60)
             print(f"            Added {added_this_batch}/{len(batch_sentences)} valid unique sentences. (Progress: {total_collected}/{args.count} - {total_collected/args.count*100:.1f}%)")
+            print(f"            [TOKENS] Batch: {cand_t} out, {thought_t} thoughts | Total Out: {cum_output_tokens + cum_thoughts_tokens:,} | Est Cost: ${est_cost:.3f}")
+
+            if est_cost > args.max_budget_usd:
+                print(f"\n[CIRCUIT BREAKER TRIGGERED] Estimated cost (${est_cost:.2f}) exceeded budget of ${args.max_budget_usd:.2f}!")
+                print(f"[HALTING] Stopping sentence generation to prevent unexpected charges. Saved {total_collected} sentences.")
+                break
 
             topic_idx += 1
             time.sleep(0.3)
