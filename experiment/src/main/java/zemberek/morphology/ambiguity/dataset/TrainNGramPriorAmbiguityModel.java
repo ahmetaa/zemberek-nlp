@@ -124,6 +124,9 @@ public class TrainNGramPriorAmbiguityModel extends ConsoleApp {
     }
 
     Weights finalWeights = trainer.getAveragedWeights();
+    Log.info("Pruning exact and near-zero weights (|w| <= 0.0001)...");
+    finalWeights.pruneNearZeroWeights();
+
     if (pruneWeight > 0) {
       Log.info("Pruning weights with absolute value <= %.4f...", pruneWeight);
       FloatValueMap<String> data = finalWeights.getData();
