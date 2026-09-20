@@ -8,7 +8,7 @@ import zemberek.core.IntPair;
  * - Supports int key values in range (Integer.MIN_VALUE+1..Integer.MAX_VALUE];
  * - Does not implement Map interface
  * - Capacity can be max 1 << 30
- * - Load factor is 0.5.
+ * - Load factor is between 0.9 and 0.5, it gets smaller as the map grows.
  * - Max size is 2^29 (~537M elements)
  * - Does not implement Iterable.
  * - Class is not thread safe.
@@ -43,8 +43,7 @@ public final class IntIntMap extends CompactIntMapBase {
     if (loc >= 0) {
       setValue(loc, value);
     } else {
-      setKeyValue(-loc - 1, key, value);
-      keyCount++;
+      setKeyValue(claimSlot(loc), key, value);
     }
   }
 
@@ -69,14 +68,17 @@ public final class IntIntMap extends CompactIntMapBase {
     if (loc >= 0) {
       setValue(loc, value + getValue(loc));
     } else {
-      setKeyValue(-loc - 1, key, value);
-      keyCount++;
+      setKeyValue(claimSlot(loc), key, value);
     }
   }
 
   /**
-   * @return The value {@code T} that is mapped to given {@code key}. or {@code NO_RESULT} If key
-   * does not exist,
+   * Note that {@code NO_RESULT} is itself a legal value, so a key mapped to it can not be told
+   * apart from a missing key by the return value alone. Use {@link #containsKey(int)} when the
+   * map may hold {@code NO_RESULT} as a value.
+   *
+   * @return The value that is mapped to given {@code key}, or {@code NO_RESULT} if key does not
+   * exist.
    * @throws IllegalArgumentException if key is {@code EMPTY} or {@code DELETED}.
    */
   public int get(int key) {
@@ -121,7 +123,9 @@ public final class IntIntMap extends CompactIntMapBase {
   }
 
   /**
-   * Resize backing arrays. If there are no removed keys, doubles the capacity.
+   * Rehashes the map into a backing array sized by {@link #newCapacity()}. Because that size is
+   * derived from the live key count, a map with many removed keys may keep or even shrink its
+   * capacity here instead of growing.
    */
   void expand() {
     int capacity = newCapacity();

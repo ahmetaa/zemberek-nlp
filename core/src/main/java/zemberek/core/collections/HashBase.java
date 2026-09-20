@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
@@ -28,14 +29,17 @@ abstract class HashBase<T> {
   protected int modulo;
 
   HashBase(int size) {
-    if (size < 1) {
-      throw new IllegalArgumentException("Size must be a positive value. But it is " + size);
+    if (size < 0) {
+      throw new IllegalArgumentException("Size can not be negative. But it is " + size);
     }
     if (size > MAX_CAPACITY) {
       throw new IllegalArgumentException(
           "Size can not be larger than " + MAX_CAPACITY + ". But it is " + size);
     }
-    int k = 1;
+    // A size of 0 is allowed so callers can size a table from a possibly empty input without
+    // special casing it. INITIAL_SIZE is the lower bound because smaller tables are degenerate:
+    // their threshold rounds down to 0.
+    int k = INITIAL_SIZE;
     while (k < size) {
       k <<= 1;
     }
@@ -252,29 +256,24 @@ abstract class HashBase<T> {
 
   private class KeyIterator implements Iterator<T> {
 
+    // Index of the next slot to inspect. hasNext() only skips over empty and tombstoned slots,
+    // so it is idempotent and next() is the only method that consumes an element.
     int i;
-    int k;
-    T key;
 
     @Override
     public boolean hasNext() {
-        if(k>=keyCount) {
-            return false;
-        }
-        while (!hasValidKey(i) && i<keys.length) {
-            i++;
-        }
-        if(i<keys.length) {
-            key = keys[i];
-            i++;
-            k++;
-            return true;
-        } else return false;
+      while (i < keys.length && !hasValidKey(i)) {
+        i++;
+      }
+      return i < keys.length;
     }
 
     @Override
     public T next() {
-      return key;
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+      return keys[i++];
     }
 
     @Override

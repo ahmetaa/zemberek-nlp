@@ -123,9 +123,15 @@ public class LongUIntMapTest {
     Assert.assertEquals(1, map.size());
     Assert.assertEquals(10, map.get(1L));
 
+    // A capacity of 0 is legal, callers may size the map from a possibly empty input.
+    LongUIntMap empty = new LongUIntMap(0);
+    Assert.assertEquals(0, empty.size());
+    empty.put(5L, 7);
+    Assert.assertEquals(7, empty.get(5L));
+
     try {
-      new LongUIntMap(0);
-      Assert.fail("Should have thrown IllegalArgumentException for capacity 0");
+      new LongUIntMap(-1);
+      Assert.fail("Should have thrown IllegalArgumentException for a negative capacity");
     } catch (IllegalArgumentException e) {
       // Expected
     }
