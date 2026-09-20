@@ -100,6 +100,9 @@ public class IntValueMap<T> extends HashBase<T> implements Iterable<T> {
     int l = locate(key);
     if (l < 0) {
       l = -l - 1;
+      if (keys[l] == TOMB_STONE) {
+        removeCount--;
+      }
       values[l] = amount;
       keys[l] = key;
       keyCount++;
@@ -133,6 +136,9 @@ public class IntValueMap<T> extends HashBase<T> implements Iterable<T> {
       values[loc] = value;
     } else {
       loc = -loc - 1;
+      if (keys[loc] == TOMB_STONE) {
+        removeCount--;
+      }
       keys[loc] = key;
       values[loc] = value;
       keyCount++;

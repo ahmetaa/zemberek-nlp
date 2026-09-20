@@ -12,6 +12,8 @@ import java.util.List;
 public abstract class UIntKeyHashBase {
 
   protected static final int INITIAL_SIZE = 4;
+  // Largest power of two that fits in an int. Key array length can not exceed this.
+  protected static final int MAX_CAPACITY = 1 << 30;
   public static final int EMPTY = -1;
   public static final int DELETED = -2;
   private static final double LOAD_FACTOR = 0.55;
@@ -29,6 +31,10 @@ public abstract class UIntKeyHashBase {
   UIntKeyHashBase(int size) {
     if (size < 1) {
       throw new IllegalArgumentException("Size must be a positive value. But it is " + size);
+    }
+    if (size > MAX_CAPACITY) {
+      throw new IllegalArgumentException(
+          "Size can not be larger than " + MAX_CAPACITY + ". But it is " + size);
     }
     int k = 1;
     while (k < size) {
@@ -97,7 +103,7 @@ public abstract class UIntKeyHashBase {
 
     // we do not directly expand by [key capacity * 2] because there may be many removed keys.
     // For such cases, actually array should be shrunk.
-    long t = keyCount * 2;
+    long t = keyCount * 2L;
     if (t == 0) {
       t = 1;
     }
