@@ -115,9 +115,7 @@ public final class IntFloatMap extends CompactIntMapBase {
   }
 
   /**
-   * Rehashes the map into a backing array sized by {@link #newCapacity()}. Because that size is
-   * derived from the live key count, a map with many removed keys may keep or even shrink its
-   * capacity here instead of growing.
+   * Rehashes the map into a backing array sized by {@link #newCapacity()}.
    */
   void expand() {
     int capacity = newCapacity();

@@ -124,8 +124,8 @@ public class IntVector {
       throw new IllegalStateException("List size exceeded positive integer limit.");
     }
     long newSize = size * 2L + offset;
-    // Doubling makes no room when the vector was created with a zero or very small capacity,
-    // so always grow past the current array by at least the default amount.
+    // Doubling a zero or very small capacity makes no room, so always grow past the current
+    // array by at least the default amount.
     if (newSize < data.length + offset + DEFAULT_INITIAL_CAPACITY) {
       newSize = (long) data.length + offset + DEFAULT_INITIAL_CAPACITY;
     }

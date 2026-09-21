@@ -33,9 +33,7 @@ public class LongUIntMap {
       throw new IllegalArgumentException(
           "Size can not be larger than " + MAX_CAPACITY + ". But it is " + size);
     }
-    // A size of 0 is allowed so callers can size the map from a possibly empty input without
-    // special casing it. INITIAL_SIZE is the lower bound because smaller tables are degenerate:
-    // their threshold rounds down to 0.
+    // Tables smaller than INITIAL_SIZE are degenerate: their threshold rounds down to 0.
     int k = INITIAL_SIZE;
     while (k < size) {
       k <<= 1;
@@ -165,9 +163,8 @@ public class LongUIntMap {
   }
 
   /**
-   * Capacity is derived from the number of live keys, not from the current array length: a map
-   * whose slots are mostly tombstones is rehashed at the same size or even shrunk instead of
-   * doubling forever.
+   * Capacity is derived from the number of live keys rather than from the current array length,
+   * so a map whose slots are mostly tombstones is rehashed at the same size or shrunk.
    *
    * @return the smallest power of two capacity whose threshold leaves room for the live keys, the
    * key that triggered the expansion, and at least one empty slot.

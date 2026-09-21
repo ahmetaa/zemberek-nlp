@@ -36,9 +36,7 @@ abstract class HashBase<T> {
       throw new IllegalArgumentException(
           "Size can not be larger than " + MAX_CAPACITY + ". But it is " + size);
     }
-    // A size of 0 is allowed so callers can size a table from a possibly empty input without
-    // special casing it. INITIAL_SIZE is the lower bound because smaller tables are degenerate:
-    // their threshold rounds down to 0.
+    // Tables smaller than INITIAL_SIZE are degenerate: their threshold rounds down to 0.
     int k = INITIAL_SIZE;
     while (k < size) {
       k <<= 1;
@@ -256,8 +254,8 @@ abstract class HashBase<T> {
 
   private class KeyIterator implements Iterator<T> {
 
-    // Index of the next slot to inspect. hasNext() only skips over empty and tombstoned slots,
-    // so it is idempotent and next() is the only method that consumes an element.
+    // Index of the next slot to inspect. hasNext() only skips empty and tombstoned slots;
+    // next() is the only method that consumes an element.
     int i;
 
     @Override
