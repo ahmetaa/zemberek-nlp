@@ -42,9 +42,9 @@ import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;
-import zemberek.morphology.ambiguity.prior.NGramPriorPerceptronResolver;
-import zemberek.morphology.ambiguity.prior.NGramPriorPerceptronResolver.CandidateContext;
-import zemberek.morphology.ambiguity.prior.NGramPriorPerceptronResolver.PriorDecoder;
+import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolver;
+import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolver.CandidateContext;
+import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolver.FastDecoder;
 import zemberek.morphology.analysis.AnalysisFormatters;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
@@ -237,12 +237,12 @@ public class ActiveLearningDistillation extends ConsoleApp {
       Log.warn("Ambiguous words file not found at %s. Relying on core homonyms only.", ambiguousWordsPath);
     }
 
-    // 2. Initialize Shared TurkishMorphology and NGramPriorPerceptronResolver
+    // 2. Initialize Shared TurkishMorphology and FastPerceptronAmbiguityResolver
     Log.info("Initializing RootLexicon and TurkishMorphology...");
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
-    Log.info("Loading NGramPriorPerceptronResolver from: %s", modelPath);
-    NGramPriorPerceptronResolver resolver = NGramPriorPerceptronResolver.fromModelFile(modelPath);
+    Log.info("Loading FastPerceptronAmbiguityResolver from: %s", modelPath);
+    FastPerceptronAmbiguityResolver resolver = FastPerceptronAmbiguityResolver.fromModelFile(modelPath);
     resolver.setBeamSize(8);
 
     // 3. Discover Raw Corpora Files
@@ -478,7 +478,7 @@ public class ActiveLearningDistillation extends ConsoleApp {
       Path corpusFile,
       String domainName,
       TurkishMorphology morphology,
-      NGramPriorPerceptronResolver resolver,
+      FastPerceptronAmbiguityResolver resolver,
       Set<String> ambiguousVocab,
       Path byDomainDir,
       Set<String> globalSeenDistilled) throws IOException, InterruptedException {
@@ -942,7 +942,7 @@ public class ActiveLearningDistillation extends ConsoleApp {
       int seqId,
       String sentence,
       TurkishMorphology morphology,
-      NGramPriorPerceptronResolver resolver,
+      FastPerceptronAmbiguityResolver resolver,
       ConcurrentHashMap<String, UnrecognizedWordInfo> unrecognizedMap,
       AtomicLong unrecognizedTokensCounter,
       AtomicLong tokensAnalyzedCounter,
@@ -997,11 +997,11 @@ public class ActiveLearningDistillation extends ConsoleApp {
     SentenceAnalysis sentenceAnalysis = resolver.disambiguate(normalized, analyses);
     List<SingleAnalysis> bestParse = sentenceAnalysis.bestAnalysis();
 
-    PriorDecoder decoder = resolver.getDecoder();
+    FastDecoder decoder = resolver.getDecoder();
     WeightLookup model = resolver.getModel();
 
     CandidateContext cSentenceBegin = new CandidateContext(
-        NGramPriorPerceptronResolver.sentenceBegin, model, false, 0);
+        FastPerceptronAmbiguityResolver.sentenceBegin, model, false, 0);
 
     // Precompute candidate contexts for best parse sequence to avoid repeated object creation
     CandidateContext[] bestParseContexts = new CandidateContext[totalTokens];

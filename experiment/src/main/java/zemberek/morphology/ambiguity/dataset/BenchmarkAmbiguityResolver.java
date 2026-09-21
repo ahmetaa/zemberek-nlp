@@ -21,10 +21,8 @@ import zemberek.apps.ConsoleApp;
 import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.ambiguity.AmbiguityResolver;
-import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver;
 import zemberek.morphology.ambiguity.dataset.DisambiguationCandidateExtractor.SentenceRecord;
-import zemberek.morphology.ambiguity.prior.NGramPriorPerceptronResolver;
-import zemberek.morphology.ambiguity.prior.NGramPriorStore;
+import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolver;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
@@ -60,31 +58,6 @@ public class BenchmarkAmbiguityResolver extends ConsoleApp {
   public boolean compareBaseline = false;
 
   @Parameter(
-      names = {"--priorBigrams"},
-      description = "Path to bigrams prior file (if benchmarking prior-enhanced model).")
-  public Path priorBigramsPath;
-
-  @Parameter(
-      names = {"--priorTrigrams"},
-      description = "Path to trigrams prior file (if benchmarking prior-enhanced model).")
-  public Path priorTrigramsPath;
-
-  @Parameter(
-      names = {"--priorCollocations"},
-      description = "Path to collocations prior file (if benchmarking prior-enhanced model).")
-  public Path priorCollocationsPath;
-
-  @Parameter(
-      names = {"--priorMinCount"},
-      description = "Minimum count threshold for N-gram priors. Default is 3.")
-  public int priorMinCount = 3;
-
-  @Parameter(
-      names = {"--hasPriors"},
-      description = "Explicitly specify whether the custom model uses N-gram priors.")
-  public Boolean hasPriors = null;
-
-  @Parameter(
       names = {"--warmup", "-w"},
       description = "Number of warmup iterations to allow HotSpot JIT optimization. Default is 2.")
   public int warmupIterations = 2;
@@ -111,17 +84,17 @@ public class BenchmarkAmbiguityResolver extends ConsoleApp {
 
   @Parameter(
       names = {"--beamSize", "-b"},
-      description = "Beam size for NGramPriorPerceptronResolver (default -1 for exact Viterbi).")
+      description = "Beam size for FastPerceptronAmbiguityResolver (default -1 for exact Viterbi).")
   public int beamSize = -1;
 
   @Parameter(
       names = {"--greedy", "-g"},
-      description = "Enable greedy decoding mode for NGramPriorPerceptronResolver.")
+      description = "Enable greedy decoding mode for FastPerceptronAmbiguityResolver.")
   public boolean greedy = false;
 
   @Parameter(
       names = {"--benchmarkAllModes"},
-      description = "Benchmark all decoding modes (Exact Viterbi, Beam-8, Greedy) for NGramPriorPerceptronResolver.")
+      description = "Benchmark all decoding modes (Exact Viterbi, Beam-8, Greedy) for FastPerceptronAmbiguityResolver.")
   public boolean benchmarkAllModes = false;
 
   public static void main(String[] args) {
@@ -145,36 +118,14 @@ public class BenchmarkAmbiguityResolver extends ConsoleApp {
     }
     Log.info("Loaded %d sentences for benchmarking.", sentences.size());
 
-    // N-gram prior store (if applicable)
-    NGramPriorStore priorStore = null;
-    boolean hasPriorFiles = priorBigramsPath != null || priorTrigramsPath != null || priorCollocationsPath != null;
-    if (hasPriorFiles) {
-      Log.info("Loading N-gram priors for benchmark...");
-      priorStore = NGramPriorStore.builder()
-          .bigramsPath(priorBigramsPath)
-          .trigramsPath(priorTrigramsPath)
-          .collocationsPath(priorCollocationsPath)
-          .minCount(priorMinCount)
-          .build();
-    }
-
     BenchmarkSuiteReport suiteReport = new BenchmarkSuiteReport();
     suiteReport.corpusPath = effectiveCorpus.toString();
     suiteReport.sentenceCount = sentences.size();
 
     // 1. Benchmark custom model (if specified)
     if (modelPath != null) {
-      boolean modelHasPrior = (hasPriors != null)
-          ? hasPriors
-          : (priorStore != null 
-             || modelPath.getFileName().toString().contains("disambiguation")
-             || modelPath.getFileName().toString().contains("contrastive")
-             || modelPath.getFileName().toString().contains("prior"));
-
-      Log.info("Initializing custom model: %s (priors: %s)", modelPath, modelHasPrior);
-      AmbiguityResolver customResolver = modelHasPrior
-          ? NGramPriorPerceptronResolver.fromModelFile(modelPath, priorStore)
-          : PerceptronAmbiguityResolver.fromModelFile(modelPath);
+      Log.info("Initializing custom model: %s", modelPath);
+      AmbiguityResolver customResolver = FastPerceptronAmbiguityResolver.fromModelFile(modelPath);
 
       TurkishMorphology customMorphology = TurkishMorphology.builder()
           .setLexicon(RootLexicon.getDefault())
@@ -182,11 +133,11 @@ public class BenchmarkAmbiguityResolver extends ConsoleApp {
           .build();
 
       String modelLabel = modelPath.getFileName().toString();
-      if (customResolver instanceof NGramPriorPerceptronResolver && benchmarkAllModes) {
-        NGramPriorPerceptronResolver priorResolver = (NGramPriorPerceptronResolver) customResolver;
+      if (customResolver instanceof FastPerceptronAmbiguityResolver && benchmarkAllModes) {
+        FastPerceptronAmbiguityResolver fastResolver = (FastPerceptronAmbiguityResolver) customResolver;
 
         // Mode 1: Exact Viterbi
-        priorResolver.setDecodeMode(NGramPriorPerceptronResolver.DecodeMode.VITERBI);
+        fastResolver.setDecodeMode(FastPerceptronAmbiguityResolver.DecodeMode.VITERBI);
         BenchmarkResult rExact = runBenchmark(
             modelLabel + " [Exact Viterbi]",
             customMorphology,
@@ -198,8 +149,8 @@ public class BenchmarkAmbiguityResolver extends ConsoleApp {
         printResult(rExact);
 
         // Mode 2: Beam Search (beam = 8)
-        priorResolver.setDecodeMode(NGramPriorPerceptronResolver.DecodeMode.BEAM);
-        priorResolver.setBeamSize(8);
+        fastResolver.setDecodeMode(FastPerceptronAmbiguityResolver.DecodeMode.BEAM);
+        fastResolver.setBeamSize(8);
         BenchmarkResult rBeam = runBenchmark(
             modelLabel + " [Beam-8]",
             customMorphology,
@@ -211,7 +162,7 @@ public class BenchmarkAmbiguityResolver extends ConsoleApp {
         printResult(rBeam);
 
         // Mode 3: Greedy
-        priorResolver.setDecodeMode(NGramPriorPerceptronResolver.DecodeMode.GREEDY);
+        fastResolver.setDecodeMode(FastPerceptronAmbiguityResolver.DecodeMode.GREEDY);
         BenchmarkResult rGreedy = runBenchmark(
             modelLabel + " [Greedy]",
             customMorphology,
@@ -222,10 +173,10 @@ public class BenchmarkAmbiguityResolver extends ConsoleApp {
         suiteReport.results.add(rGreedy);
         printResult(rGreedy);
       } else {
-        if (customResolver instanceof NGramPriorPerceptronResolver) {
-          NGramPriorPerceptronResolver priorResolver = (NGramPriorPerceptronResolver) customResolver;
-          priorResolver.setBeamSize(beamSize);
-          priorResolver.setGreedy(greedy);
+        if (customResolver instanceof FastPerceptronAmbiguityResolver) {
+          FastPerceptronAmbiguityResolver fastResolver = (FastPerceptronAmbiguityResolver) customResolver;
+          fastResolver.setBeamSize(beamSize);
+          fastResolver.setGreedy(greedy);
           if (greedy) {
             modelLabel += " [Greedy]";
           } else if (beamSize > 0) {

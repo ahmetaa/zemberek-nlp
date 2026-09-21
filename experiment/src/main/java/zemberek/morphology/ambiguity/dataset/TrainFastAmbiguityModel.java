@@ -16,18 +16,17 @@ import zemberek.core.data.Weights;
 import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.ambiguity.PerceptronAmbiguityResolverTrainer.DataSet;
-import zemberek.morphology.ambiguity.prior.NGramPriorPerceptronResolver;
-import zemberek.morphology.ambiguity.prior.NGramPriorPerceptronResolver.PriorDecodeResult;
-import zemberek.morphology.ambiguity.prior.NGramPriorPerceptronResolver.PriorDecoder;
-import zemberek.morphology.ambiguity.prior.NGramPriorPerceptronResolver.PriorFeatureExtractor;
-import zemberek.morphology.ambiguity.prior.NGramPriorStore;
+import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolver;
+import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolver.FastDecodeResult;
+import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolver.FastDecoder;
+import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolver.FastFeatureExtractor;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 
 /**
- * Trains an Averaged Perceptron morphological disambiguation model with N-gram statistical priors.
+ * Trains a Fast Averaged Perceptron morphological disambiguation model.
  */
-public class TrainNGramPriorAmbiguityModel extends ConsoleApp {
+public class TrainFastAmbiguityModel extends ConsoleApp {
 
   @Parameter(
       names = {"--train", "-t"},
@@ -47,26 +46,6 @@ public class TrainNGramPriorAmbiguityModel extends ConsoleApp {
   public Path outputPath;
 
   @Parameter(
-      names = {"--bigrams"},
-      description = "Path to unambiguous bigrams text file (e.g. unambiguous_bigrams.txt)")
-  public Path bigramsPath;
-
-  @Parameter(
-      names = {"--trigrams"},
-      description = "Path to unambiguous trigrams text file (e.g. unambiguous_trigrams.txt)")
-  public Path trigramsPath;
-
-  @Parameter(
-      names = {"--collocations"},
-      description = "Path to significant collocations text file (e.g. significant-bigrams.txt)")
-  public Path collocationsPath;
-
-  @Parameter(
-      names = {"--minCount"},
-      description = "Minimum count threshold for including an N-gram. Default is 3.")
-  public int minCount = 3;
-
-  @Parameter(
       names = {"--iterations", "-it"},
       description = "Number of perceptron training iterations (epochs). Default is 7.")
   public int iterationCount = 7;
@@ -82,29 +61,17 @@ public class TrainNGramPriorAmbiguityModel extends ConsoleApp {
   public boolean exportText = false;
 
   public static void main(String[] args) {
-    new TrainNGramPriorAmbiguityModel().execute(args);
+    new TrainFastAmbiguityModel().execute(args);
   }
 
   @Override
   public String description() {
-    return "Trains an Averaged Perceptron morphological ambiguity resolver equipped with N-gram statistical priors.";
+    return "Trains a Fast Averaged Perceptron morphological ambiguity resolver.";
   }
 
   @Override
   public void run() throws Exception {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-
-    // Load N-gram priors
-    Log.info("Loading N-gram priors...");
-    NGramPriorStore priorStore = NGramPriorStore.builder()
-        .bigramsPath(bigramsPath)
-        .trigramsPath(trigramsPath)
-        .collocationsPath(collocationsPath)
-        .minCount(minCount)
-        .build();
-
-    Log.info("Loaded priors: %d bigrams, %d trigrams, %d collocations.",
-        priorStore.bigramSize(), priorStore.trigramSize(), priorStore.collocationSize());
 
     Log.info("Loading training dataset from: %s", trainPath);
     DataSet trainingSet = TrainAmbiguityModel.loadDataSet(trainPath, morphology);
@@ -115,9 +82,9 @@ public class TrainNGramPriorAmbiguityModel extends ConsoleApp {
     DataSet devSet = TrainAmbiguityModel.loadDataSet(dev, morphology);
     devSet.info();
 
-    NGramPriorTrainer trainer = new NGramPriorTrainer(priorStore, pruneWeight);
-    Log.info("Starting N-gram prior-enhanced perceptron training (%d iterations)...", iterationCount);
-    NGramPriorPerceptronResolver resolver = trainer.train(trainingSet, devSet, iterationCount);
+    FastPerceptronTrainer trainer = new FastPerceptronTrainer(pruneWeight);
+    Log.info("Starting perceptron training (%d iterations)...", iterationCount);
+    FastPerceptronAmbiguityResolver resolver = trainer.train(trainingSet, devSet, iterationCount);
 
     if (outputPath.getParent() != null) {
       Files.createDirectories(outputPath.getParent());
@@ -137,31 +104,29 @@ public class TrainNGramPriorAmbiguityModel extends ConsoleApp {
       }
     }
 
-    Log.info("Compressing and saving model to: %s", outputPath);
-    CompressedWeights compressed = finalWeights.compress();
-    compressed.serialize(outputPath);
+    Log.info("Saving compressed model to: %s", outputPath);
+    CompressedWeights compressedWeights = finalWeights.compress();
+    compressedWeights.serialize(outputPath);
 
     if (exportText) {
-      Path textPath = outputPath.resolveSibling(outputPath.getFileName().toString().replaceAll("\\.bin$", ".txt"));
+      Path textPath = outputPath.resolveSibling(outputPath.getFileName().toString().replace(".bin", ".txt"));
       Log.info("Exporting readable weights to: %s", textPath);
       finalWeights.saveAsText(textPath);
     }
 
-    Log.info("Prior-enhanced training finished successfully. Feature count: %d", finalWeights.size());
+    Log.info("Training finished successfully. Feature count: %d", finalWeights.size());
   }
 
   // --- Internal Trainer Implementation ---
 
-  public static class NGramPriorTrainer {
-    private final NGramPriorStore priorStore;
+  public static class FastPerceptronTrainer {
     private final double pruneThreshold;
     private final Weights weights = new Weights();
     private final Weights averagedWeights = new Weights();
     private Weights bestAveragedWeights = null;
     private final IntValueMap<String> counts = new IntValueMap<>();
 
-    public NGramPriorTrainer(NGramPriorStore priorStore, double pruneThreshold) {
-      this.priorStore = priorStore;
+    public FastPerceptronTrainer(double pruneThreshold) {
       this.pruneThreshold = pruneThreshold;
     }
 
@@ -169,13 +134,13 @@ public class TrainNGramPriorAmbiguityModel extends ConsoleApp {
       return bestAveragedWeights != null ? bestAveragedWeights : averagedWeights;
     }
 
-    public NGramPriorPerceptronResolver train(
+    public FastPerceptronAmbiguityResolver train(
         DataSet trainingSet,
         DataSet devSet,
         int iterationCount) {
 
-      PriorFeatureExtractor extractor = new PriorFeatureExtractor(false, priorStore);
-      PriorDecoder decoder = new PriorDecoder(weights, extractor);
+      FastFeatureExtractor extractor = new FastFeatureExtractor(false);
+      FastDecoder decoder = new FastDecoder(weights, extractor);
 
       Weights bestWeights = null;
       double bestDevAccuracy = -1.0;
@@ -194,7 +159,7 @@ public class TrainNGramPriorAmbiguityModel extends ConsoleApp {
           numExamples++;
           sentenceIndex++;
 
-          PriorDecodeResult result = decoder.bestPath(sentence.ambiguousAnalysis());
+          FastDecodeResult result = decoder.bestPath(sentence.ambiguousAnalysis());
           if (sentence.bestAnalysis().equals(result.bestParse)) {
             continue;
           }
@@ -213,7 +178,7 @@ public class TrainNGramPriorAmbiguityModel extends ConsoleApp {
         }
 
         Log.info("Testing on development set after iteration %d...", it);
-        double devAcc = test(devSet, new NGramPriorPerceptronResolver(averagedWeights, extractor, priorStore));
+        double devAcc = test(devSet, new FastPerceptronAmbiguityResolver(averagedWeights, extractor));
         if (devAcc > bestDevAccuracy) {
           bestDevAccuracy = devAcc;
           bestIteration = it;
@@ -226,8 +191,8 @@ public class TrainNGramPriorAmbiguityModel extends ConsoleApp {
       Log.info("Selected optimal model from iteration %d with dev token accuracy %.2f%%",
           bestIteration, bestDevAccuracy * 100.0);
 
-      PriorFeatureExtractor testExtractor = new PriorFeatureExtractor(true, priorStore);
-      return new NGramPriorPerceptronResolver(bestAveragedWeights, testExtractor, priorStore);
+      FastFeatureExtractor testExtractor = new FastFeatureExtractor(true);
+      return new FastPerceptronAmbiguityResolver(bestAveragedWeights, testExtractor);
     }
 
     private void updateModel(
@@ -253,14 +218,14 @@ public class TrainNGramPriorAmbiguityModel extends ConsoleApp {
       averagedWeights.put(feat, updatedWeight);
     }
 
-    public static double test(DataSet set, NGramPriorPerceptronResolver disambiguator) {
+    public static double test(DataSet set, FastPerceptronAmbiguityResolver disambiguator) {
       int hit = 0;
       int total = 0;
       for (SentenceAnalysis sentence : set.sentences) {
         if (sentence.size() == 0) {
           continue;
         }
-        PriorDecodeResult result = disambiguator.getDecoder().bestPath(sentence.ambiguousAnalysis());
+        FastDecodeResult result = disambiguator.getDecoder().bestPath(sentence.ambiguousAnalysis());
         List<SingleAnalysis> bestExpected = sentence.bestAnalysis();
         for (int i = 0; i < result.bestParse.size(); i++) {
           if (bestExpected.get(i).equals(result.bestParse.get(i))) {
