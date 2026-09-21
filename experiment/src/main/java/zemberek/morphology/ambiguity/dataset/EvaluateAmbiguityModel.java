@@ -15,12 +15,10 @@ import zemberek.apps.ConsoleApp;
 import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.ambiguity.AmbiguityResolver;
-import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver;
 import zemberek.morphology.ambiguity.dataset.DisambiguationCandidateExtractor.CandidateRecord;
 import zemberek.morphology.ambiguity.dataset.DisambiguationCandidateExtractor.SentenceRecord;
 import zemberek.morphology.ambiguity.dataset.DisambiguationCandidateExtractor.TokenRecord;
-import zemberek.morphology.ambiguity.prior.NGramPriorPerceptronResolver;
-import zemberek.morphology.ambiguity.prior.NGramPriorStore;
+import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolver;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.lexicon.RootLexicon;
@@ -50,36 +48,6 @@ public class EvaluateAmbiguityModel extends ConsoleApp {
   public Path model2Path;
 
   @Parameter(
-      names = {"--priorBigrams"},
-      description = "Path to unambiguous bigrams text file for prior-enhanced model")
-  public Path priorBigramsPath;
-
-  @Parameter(
-      names = {"--priorTrigrams"},
-      description = "Path to unambiguous trigrams text file for prior-enhanced model")
-  public Path priorTrigramsPath;
-
-  @Parameter(
-      names = {"--priorCollocations"},
-      description = "Path to significant collocations text file for prior-enhanced model")
-  public Path priorCollocationsPath;
-
-  @Parameter(
-      names = {"--priorMinCount"},
-      description = "Minimum count threshold for including an N-gram. Default is 3.")
-  public int priorMinCount = 3;
-
-  @Parameter(
-      names = {"--model1HasPriors"},
-      description = "Explicitly specify whether model 1 uses N-gram prior feature extractor")
-  public Boolean model1HasPriors = null;
-
-  @Parameter(
-      names = {"--model2HasPriors"},
-      description = "Explicitly specify whether model 2 uses N-gram prior feature extractor")
-  public Boolean model2HasPriors = null;
-
-  @Parameter(
       names = {"--output", "-o"},
       required = true,
       description = "Path to save detailed JSON evaluation report")
@@ -87,12 +55,12 @@ public class EvaluateAmbiguityModel extends ConsoleApp {
 
   @Parameter(
       names = {"--beamSize", "-b"},
-      description = "Beam size for NGramPriorPerceptronResolver (default -1 for exact Viterbi).")
+      description = "Beam size for FastPerceptronAmbiguityResolver (default -1 for exact Viterbi).")
   public int beamSize = -1;
 
   @Parameter(
       names = {"--greedy", "-g"},
-      description = "Enable greedy decoding mode for NGramPriorPerceptronResolver")
+      description = "Enable greedy decoding mode for FastPerceptronAmbiguityResolver")
   public boolean greedy = false;
 
   public static void main(String[] args) {
@@ -106,30 +74,11 @@ public class EvaluateAmbiguityModel extends ConsoleApp {
 
   @Override
   public void run() throws Exception {
-    boolean hasPriorFiles = priorBigramsPath != null || priorTrigramsPath != null || priorCollocationsPath != null;
-    NGramPriorStore priorStore = null;
-    if (hasPriorFiles) {
-      Log.info("Loading N-gram priors for evaluation...");
-      priorStore = NGramPriorStore.builder()
-          .bigramsPath(priorBigramsPath)
-          .trigramsPath(priorTrigramsPath)
-          .collocationsPath(priorCollocationsPath)
-          .minCount(priorMinCount)
-          .build();
-      Log.info("Loaded priors: %d bigrams, %d trigrams, %d collocations.",
-          priorStore.bigramSize(), priorStore.trigramSize(), priorStore.collocationSize());
-    }
+    Log.info("Loading primary trained model from: %s", modelPath);
+    AmbiguityResolver trainedResolver = FastPerceptronAmbiguityResolver.fromModelFile(modelPath);
 
-    boolean m1Prior = (model1HasPriors != null) ? model1HasPriors :
-        (priorStore != null || modelPath.getFileName().toString().contains("disambiguation") || modelPath.getFileName().toString().contains("contrastive") || modelPath.getFileName().toString().contains("prior"));
-
-    Log.info("Loading primary trained model from: %s (with priors: %s)", modelPath, m1Prior);
-    AmbiguityResolver trainedResolver = m1Prior
-        ? NGramPriorPerceptronResolver.fromModelFile(modelPath, priorStore)
-        : PerceptronAmbiguityResolver.fromModelFile(modelPath);
-
-    if (trainedResolver instanceof NGramPriorPerceptronResolver) {
-      NGramPriorPerceptronResolver pr = (NGramPriorPerceptronResolver) trainedResolver;
+    if (trainedResolver instanceof FastPerceptronAmbiguityResolver) {
+      FastPerceptronAmbiguityResolver pr = (FastPerceptronAmbiguityResolver) trainedResolver;
       pr.setBeamSize(beamSize);
       pr.setGreedy(greedy);
     }
@@ -141,16 +90,11 @@ public class EvaluateAmbiguityModel extends ConsoleApp {
 
     TurkishMorphology model2Morphology = null;
     if (model2Path != null) {
-      boolean m2Prior = (model2HasPriors != null) ? model2HasPriors :
-          (priorStore != null && (model2Path.getFileName().toString().contains("disambiguation") || model2Path.getFileName().toString().contains("contrastive") || model2Path.getFileName().toString().contains("prior")));
+      Log.info("Loading second trained model from: %s", model2Path);
+      AmbiguityResolver model2Resolver = FastPerceptronAmbiguityResolver.fromModelFile(model2Path);
 
-      Log.info("Loading second trained model from: %s (with priors: %s)", model2Path, m2Prior);
-      AmbiguityResolver model2Resolver = m2Prior
-          ? NGramPriorPerceptronResolver.fromModelFile(model2Path, priorStore)
-          : PerceptronAmbiguityResolver.fromModelFile(model2Path);
-
-      if (model2Resolver instanceof NGramPriorPerceptronResolver) {
-        NGramPriorPerceptronResolver pr2 = (NGramPriorPerceptronResolver) model2Resolver;
+      if (model2Resolver instanceof FastPerceptronAmbiguityResolver) {
+        FastPerceptronAmbiguityResolver pr2 = (FastPerceptronAmbiguityResolver) model2Resolver;
         pr2.setBeamSize(beamSize);
         pr2.setGreedy(greedy);
       }

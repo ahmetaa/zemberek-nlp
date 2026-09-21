@@ -1,4 +1,4 @@
-package zemberek.morphology.ambiguity.prior;
+package zemberek.morphology.ambiguity.fast;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -21,11 +21,11 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 
 /**
- * An Averaged Perceptron Morphological Ambiguity Resolver enhanced with N-gram statistical priors.
- * Evaluates candidate analyses using both local structural morphotactic features and large-corpus
- * unigram/bigram/trigram collocation priors.
+ * A high-throughput, factored Averaged Perceptron Morphological Ambiguity Resolver.
+ * Evaluates candidate analyses using local structural morphotactic features, linguistic surface
+ * rules, factored scoring prefixes, and multi-mode decoding (Viterbi, Beam Search, Greedy).
  */
-public class NGramPriorPerceptronResolver implements AmbiguityResolver {
+public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
   public enum DecodeMode {
     VITERBI,
@@ -36,37 +36,30 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
   public static final DecodeMode DEFAULT_MODE = DecodeMode.VITERBI;
   public static final int DEFAULT_BEAM_SIZE = 8;
 
-  private final PriorDecoder decoder;
-  private final NGramPriorStore priorStore;
+  private final FastDecoder decoder;
 
-  public NGramPriorPerceptronResolver(
+  public FastPerceptronAmbiguityResolver(
       WeightLookup model,
-      PriorFeatureExtractor extractor,
-      NGramPriorStore priorStore) {
-    this.priorStore = priorStore != null ? priorStore : new NGramPriorStore();
-    this.decoder = new PriorDecoder(model, extractor);
+      FastFeatureExtractor extractor) {
+    this.decoder = new FastDecoder(model, extractor);
   }
 
-  public static NGramPriorPerceptronResolver fromModelFile(Path modelFile, NGramPriorStore priorStore) throws IOException {
+  public FastPerceptronAmbiguityResolver(WeightLookup model) {
+    this(model, new FastFeatureExtractor(false));
+  }
+
+  public static FastPerceptronAmbiguityResolver fromModelFile(Path modelFile) throws IOException {
     CompressedWeights weights = CompressedWeights.deserialize(modelFile);
-    PriorFeatureExtractor extractor = new PriorFeatureExtractor(true, priorStore);
-    return new NGramPriorPerceptronResolver(weights, extractor, priorStore);
-  }
-
-  public static NGramPriorPerceptronResolver fromModelFile(Path modelFile) throws IOException {
-    return fromModelFile(modelFile, new NGramPriorStore());
+    FastFeatureExtractor extractor = new FastFeatureExtractor(true);
+    return new FastPerceptronAmbiguityResolver(weights, extractor);
   }
 
   public WeightLookup getModel() {
     return decoder.model;
   }
 
-  public PriorDecoder getDecoder() {
+  public FastDecoder getDecoder() {
     return decoder;
-  }
-
-  public NGramPriorStore getPriorStore() {
-    return priorStore;
   }
 
   public DecodeMode getDecodeMode() {
@@ -106,7 +99,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
     if (allAnalyses.isEmpty()) {
       return new SentenceAnalysis(sentence, Collections.emptyList());
     }
-    PriorDecodeResult best = decoder.isGreedy()
+    FastDecodeResult best = decoder.isGreedy()
         ? decoder.bestPathGreedy(allAnalyses)
         : decoder.bestPath(allAnalyses);
     List<SentenceWordAnalysis> list = new ArrayList<>(allAnalyses.size());
@@ -152,14 +145,15 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
     }
 
     public String lastGroup() {
+      if (igs.isEmpty()) {
+        return "";
+      }
       return igs.get(igs.size() - 1);
     }
   }
 
-  public static class PriorFeatureExtractor {
+  public static class FastFeatureExtractor {
     private final boolean useCache;
-    private final NGramPriorStore priorStore;
-    private final boolean hasPriors;
 
     private static final class TrigramKey {
       final SingleAnalysis a1, a2, a3;
@@ -169,7 +163,10 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
         this.a1 = a1;
         this.a2 = a2;
         this.a3 = a3;
-        this.hash = 31 * (31 * a1.hashCode() + a2.hashCode()) + a3.hashCode();
+        int h = a1.hashCode();
+        h = 31 * h + a2.hashCode();
+        h = 31 * h + a3.hashCode();
+        this.hash = h;
       }
 
       @Override
@@ -191,14 +188,8 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
             .maximumSize(50_000)
             .build();
 
-    public PriorFeatureExtractor(boolean useCache, NGramPriorStore priorStore) {
+    public FastFeatureExtractor(boolean useCache) {
       this.useCache = useCache;
-      this.priorStore = priorStore != null ? priorStore : new NGramPriorStore();
-      this.hasPriors = !this.priorStore.isEmpty();
-    }
-
-    public NGramPriorStore getPriorStore() {
-      return priorStore;
     }
 
     public IntValueMap<String> extractFeatureCounts(List<SingleAnalysis> bestSequence) {
@@ -296,46 +287,10 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
         }
       }
 
-      // --- N-Gram Prior Features ---
-      if (hasPriors && !s2.startsWith("<") && !s3.startsWith("<")) {
-        int biBin = priorStore.getBigramBin(s2, s3);
-        if (biBin > 0) {
-          feats.addOrIncrement("P:BI_BIN:" + biBin);
-          feats.addOrIncrement("P:BI_POS:" + biBin + "_" + w3.lastGroup());
-        }
-
-        if (priorStore.hasCollocation(s2, s3)) {
-          feats.addOrIncrement("P:COLLOC");
-          feats.addOrIncrement("P:COLLOC_POS:" + w3.lastGroup());
-        }
-
-        int lemmaBiBin = priorStore.getBigramBin(r2, r3);
-        if (lemmaBiBin > 0) {
-          feats.addOrIncrement("P:LEMMA_BI:" + lemmaBiBin);
-        }
-      }
-
-      if (hasPriors && !s1.startsWith("<") && !s2.startsWith("<") && !s3.startsWith("<")) {
-        int triBin = priorStore.getTrigramBin(s1, s2, s3);
-        if (triBin > 0) {
-          feats.addOrIncrement("P:TRI_BIN:" + triBin);
-          feats.addOrIncrement("P:TRI_POS:" + triBin + "_" + w3.lastGroup());
-        }
-      }
-
       if (useCache && key != null) {
         featureCache.put(key, feats);
       }
       return feats;
-    }
-  }
-
-  private static final String[] BI_BIN_KEYS = new String[20];
-  private static final String[] TRI_BIN_KEYS = new String[20];
-  static {
-    for (int i = 0; i < 20; i++) {
-      BI_BIN_KEYS[i] = "P:BI_BIN:" + i;
-      TRI_BIN_KEYS[i] = "P:TRI_BIN:" + i;
     }
   }
 
@@ -409,25 +364,21 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
     }
   }
 
-  public static class PriorDecoder {
+  public static class FastDecoder {
     public final WeightLookup model;
-    public final PriorFeatureExtractor extractor;
-    public final boolean hasPriors;
+    public final FastFeatureExtractor extractor;
     private final CandidateContext beginContext;
     private final CandidateContext endContext;
     private final float pEndsVerbScore;
-    private final float pCollocScore;
     private DecodeMode mode = DEFAULT_MODE;
     private int beamSize = -1;
 
-    public PriorDecoder(WeightLookup model, PriorFeatureExtractor extractor) {
+    public FastDecoder(WeightLookup model, FastFeatureExtractor extractor) {
       this.model = model;
-      this.extractor = extractor != null ? extractor : new PriorFeatureExtractor(false, null);
-      this.hasPriors = !this.extractor.getPriorStore().isEmpty();
+      this.extractor = extractor != null ? extractor : new FastFeatureExtractor(false);
       this.beginContext = new CandidateContext(sentenceBegin, model, false, 0);
       this.endContext = new CandidateContext(sentenceEnd, model, false, 0);
       this.pEndsVerbScore = model.get("P:ENDSVERB");
-      this.pCollocScore = model.get("P:COLLOC");
     }
 
     public DecodeMode getDecodeMode() {
@@ -497,26 +448,6 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
           score += pEndsVerbScore;
         }
       }
-
-      if (hasPriors && !w2.isSpecial && !w3.isSpecial) {
-        NGramPriorStore store = extractor.getPriorStore();
-        int biBin = store.getBigramBin(w2.surface, w3.surface);
-        if (biBin > 0) {
-          String biBinKey = (biBin < BI_BIN_KEYS.length) ? BI_BIN_KEYS[biBin] : ("P:BI_BIN:" + biBin);
-          score += model.get(biBinKey);
-          score += model.get("P:BI_POS:" + biBin + "_" + w3.lastGroup);
-        }
-
-        if (store.hasCollocation(w2.surface, w3.surface)) {
-          score += pCollocScore;
-          score += model.get("P:COLLOC_POS:" + w3.lastGroup);
-        }
-
-        int lemmaBiBin = store.getBigramBin(w2.lemma, w3.lemma);
-        if (lemmaBiBin > 0) {
-          score += model.get("P:LEMMA_BI:" + lemmaBiBin);
-        }
-      }
       return score;
     }
 
@@ -529,48 +460,30 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       for (int i = 0; i < w3Igs.size(); i++) {
         score += model.get("15:" + w1w2 + "-" + w3Igs.get(i));
       }
-
-      if (hasPriors && !w1.isSpecial && !w2.isSpecial && !w3.isSpecial) {
-        int triBin = extractor.getPriorStore().getTrigramBin(w1.surface, w2.surface, w3.surface);
-        if (triBin > 0) {
-          String triBinKey = (triBin < TRI_BIN_KEYS.length) ? TRI_BIN_KEYS[triBin] : ("P:TRI_BIN:" + triBin);
-          score += model.get(triBinKey);
-          score += model.get("P:TRI_POS:" + triBin + "_" + w3.lastGroup);
-        }
-      }
       return score;
     }
 
-    public float computeTrigramScore(PriorHypothesis h, CandidateContext w3, float f2Score) {
+    public float computeTrigramScore(FastHypothesis h, CandidateContext w3, float f2Score) {
       float score = f2Score;
       List<String> w3Igs = w3.igs;
       for (int i = 0; i < w3Igs.size(); i++) {
         score += model.get(h.f15Prefix + w3Igs.get(i));
       }
-
-      if (hasPriors && !h.prevCtx.isSpecial && !h.currCtx.isSpecial && !w3.isSpecial) {
-        int triBin = extractor.getPriorStore().getTrigramBin(h.prevCtx.surface, h.currCtx.surface, w3.surface);
-        if (triBin > 0) {
-          String triBinKey = (triBin < TRI_BIN_KEYS.length) ? TRI_BIN_KEYS[triBin] : ("P:TRI_BIN:" + triBin);
-          score += model.get(triBinKey);
-          score += model.get("P:TRI_POS:" + triBin + "_" + w3.lastGroup);
-        }
-      }
       return score;
     }
 
-    public float computeTrigramScore(PriorHypothesis h, CandidateContext w3) {
+    public float computeTrigramScore(FastHypothesis h, CandidateContext w3) {
       float f2 = model.get(h.prevCtx.f2Prefix + w3.rIg) + h.prevCtx.c10cScore;
       return computeTrigramScore(h, w3, f2);
     }
 
-    public PriorDecodeResult bestPath(List<WordAnalysis> sentence) {
+    public FastDecodeResult bestPath(List<WordAnalysis> sentence) {
       if (sentence.isEmpty()) {
         throw new IllegalArgumentException("bestPath cannot be called with empty sentence.");
       }
 
-      List<PriorHypothesis> currentList = Collections.singletonList(
-          new PriorHypothesis(beginContext, beginContext, null, 0));
+      List<FastHypothesis> currentList = Collections.singletonList(
+          new FastHypothesis(beginContext, beginContext, null, 0));
 
       List<CandidateContext> prevPrevCandidates = Collections.singletonList(beginContext);
       List<CandidateContext> prevCandidates = Collections.singletonList(beginContext);
@@ -610,7 +523,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
 
         // 2nd-order Markov grid recombination: state is (candidate at t-1, candidate at t)
         float[][] bestScoreGrid = new float[prevCandidates.size()][candidates.size()];
-        PriorHypothesis[][] bestParentGrid = new PriorHypothesis[prevCandidates.size()][candidates.size()];
+        FastHypothesis[][] bestParentGrid = new FastHypothesis[prevCandidates.size()][candidates.size()];
         for (float[] row : bestScoreGrid) {
           Arrays.fill(row, -Float.MAX_VALUE);
         }
@@ -618,7 +531,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
         for (CandidateContext cand : candidates) {
           float uni = cand.uniScore;
           int candIdx = cand.index;
-          for (PriorHypothesis h : currentList) {
+          for (FastHypothesis h : currentList) {
             int prevIdx = h.currCtx.index;
             float bi = biScores[prevIdx][candIdx];
             float tri = computeTrigramScore(h, cand, f2Scores[h.prevCtx.index][candIdx]);
@@ -630,12 +543,12 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
           }
         }
 
-        List<PriorHypothesis> nextList = new ArrayList<>(prevCandidates.size() * candidates.size());
+        List<FastHypothesis> nextList = new ArrayList<>(prevCandidates.size() * candidates.size());
         for (int j = 0; j < prevCandidates.size(); j++) {
           for (int k = 0; k < candidates.size(); k++) {
-            PriorHypothesis parent = bestParentGrid[j][k];
+            FastHypothesis parent = bestParentGrid[j][k];
             if (parent != null) {
-              nextList.add(new PriorHypothesis(parent.currCtx, candidates.get(k), parent, bestScoreGrid[j][k]));
+              nextList.add(new FastHypothesis(parent.currCtx, candidates.get(k), parent, bestScoreGrid[j][k]));
             }
           }
         }
@@ -663,8 +576,8 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       }
       float endUni = endContext.uniScore;
 
-      PriorHypothesis best = null;
-      for (PriorHypothesis h : currentList) {
+      FastHypothesis best = null;
+      for (FastHypothesis h : currentList) {
         float bi = endBiScores[h.currCtx.index];
         float tri = computeTrigramScore(h, endContext, endF2Scores[h.prevCtx.index]);
         h.score += (endUni + bi + tri);
@@ -682,10 +595,10 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       }
 
       Collections.reverse(result);
-      return new PriorDecodeResult(result, bestScore);
+      return new FastDecodeResult(result, bestScore);
     }
 
-    public PriorDecodeResult bestPathGreedy(List<WordAnalysis> sentence) {
+    public FastDecodeResult bestPathGreedy(List<WordAnalysis> sentence) {
       if (sentence.isEmpty()) {
         throw new IllegalArgumentException("bestPath cannot be called with empty sentence.");
       }
@@ -730,35 +643,35 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
           + computeTrigramScore(prevPrev, prev, endContext);
       totalScore += endStepScore;
 
-      return new PriorDecodeResult(result, totalScore);
+      return new FastDecodeResult(result, totalScore);
     }
   }
 
-  public static class PriorDecodeResult {
+  public static class FastDecodeResult {
     public final List<SingleAnalysis> bestParse;
     public final float score;
 
-    public PriorDecodeResult(List<SingleAnalysis> bestParse, float score) {
+    public FastDecodeResult(List<SingleAnalysis> bestParse, float score) {
       this.bestParse = bestParse;
       this.score = score;
     }
   }
 
-  public static class PriorHypothesis implements Scorable {
+  public static class FastHypothesis implements Scorable {
     public final SingleAnalysis prev;
     public final SingleAnalysis current;
     public final CandidateContext prevCtx;
     public final CandidateContext currCtx;
-    public final PriorHypothesis previous;
+    public final FastHypothesis previous;
     public final String w1w2LastGroup;
     public final String f15Prefix;
     public float score;
     private final int hash;
 
-    public PriorHypothesis(
+    public FastHypothesis(
         CandidateContext prevCtx,
         CandidateContext currCtx,
-        PriorHypothesis previous,
+        FastHypothesis previous,
         float score) {
       this.prevCtx = prevCtx;
       this.currCtx = currCtx;
@@ -771,10 +684,10 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       this.hash = 31 * this.prev.hashCode() + this.current.hashCode();
     }
 
-    public PriorHypothesis(
+    public FastHypothesis(
         SingleAnalysis prev,
         SingleAnalysis current,
-        PriorHypothesis previous,
+        FastHypothesis previous,
         float score) {
       this.prev = prev;
       this.current = current;
@@ -791,7 +704,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
     public boolean equals(Object o) {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
-      PriorHypothesis that = (PriorHypothesis) o;
+      FastHypothesis that = (FastHypothesis) o;
       return prev.equals(that.prev) && current.equals(that.current);
     }
 
