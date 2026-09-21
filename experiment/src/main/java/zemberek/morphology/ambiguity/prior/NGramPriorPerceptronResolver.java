@@ -355,6 +355,10 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
     public final float c10bScore;
     public final float c10cScore;
     public final int index;
+    public final String f2Prefix;
+    public final String f3Prefix;
+    public final String f9Prefix;
+    public final String f17Prefix;
 
     public CandidateContext(SingleAnalysis sa, WeightLookup model, boolean isSentenceInitial, int index) {
       this.sa = sa;
@@ -370,6 +374,11 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       this.isProperNoun = (!isSpecial && sa.getDictionaryItem() != null && sa.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun);
       this.isVerb = (!isSpecial && sa.getDictionaryItem() != null && sa.getDictionaryItem().primaryPos == PrimaryPos.Verb);
       this.groupCount = sa.groupCount();
+
+      this.f2Prefix = "2:" + rIg + "-";
+      this.f3Prefix = "3:" + rIg + "-";
+      this.f9Prefix = "9:" + lemma + "-";
+      this.f17Prefix = "17:" + lastGroup + "-";
 
       this.c10bScore = model.get("10b:" + lemma);
       this.c10cScore = model.get("10c:" + lemma);
@@ -406,6 +415,8 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
     public final boolean hasPriors;
     private final CandidateContext beginContext;
     private final CandidateContext endContext;
+    private final float pEndsVerbScore;
+    private final float pCollocScore;
     private DecodeMode mode = DEFAULT_MODE;
     private int beamSize = -1;
 
@@ -415,6 +426,8 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       this.hasPriors = !this.extractor.getPriorStore().isEmpty();
       this.beginContext = new CandidateContext(sentenceBegin, model, false, 0);
       this.endContext = new CandidateContext(sentenceEnd, model, false, 0);
+      this.pEndsVerbScore = model.get("P:ENDSVERB");
+      this.pCollocScore = model.get("P:COLLOC");
     }
 
     public DecodeMode getDecodeMode() {
@@ -470,16 +483,18 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
 
     public float computeBigramScore(CandidateContext w2, CandidateContext w3) {
       float score = 0;
-      score += model.get("3:" + w2.rIg + "-" + w3.rIg);
-      score += model.get("9:" + w2.lemma + "-" + w3.lemma);
+      score += model.get(w2.f3Prefix + w3.rIg);
+      score += model.get(w2.f9Prefix + w3.lemma);
       score += w2.c10bScore;
-      for (String ig : w3.igs) {
-        score += model.get("17:" + w2.lastGroup + "-" + ig);
+      String f17 = w2.f17Prefix;
+      List<String> w3Igs = w3.igs;
+      for (int i = 0; i < w3Igs.size(); i++) {
+        score += model.get(f17 + w3Igs.get(i));
       }
 
       if (w3.sa == sentenceEnd || (w3.surface != null && w3.surface.equals("."))) {
         if (w2.sa != sentenceBegin && w2.isVerb) {
-          score += model.get("P:ENDSVERB");
+          score += pEndsVerbScore;
         }
       }
 
@@ -493,7 +508,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
         }
 
         if (store.hasCollocation(w2.surface, w3.surface)) {
-          score += model.get("P:COLLOC");
+          score += pCollocScore;
           score += model.get("P:COLLOC_POS:" + w3.lastGroup);
         }
 
@@ -507,11 +522,12 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
 
     public float computeTrigramScore(CandidateContext w1, CandidateContext w2, CandidateContext w3) {
       float score = 0;
-      score += model.get("2:" + w1.rIg + "-" + w3.rIg);
+      score += model.get(w1.f2Prefix + w3.rIg);
       score += w1.c10cScore;
       String w1w2 = w1.lastGroup + "-" + w2.lastGroup;
-      for (String ig : w3.igs) {
-        score += model.get("15:" + w1w2 + "-" + ig);
+      List<String> w3Igs = w3.igs;
+      for (int i = 0; i < w3Igs.size(); i++) {
+        score += model.get("15:" + w1w2 + "-" + w3Igs.get(i));
       }
 
       if (hasPriors && !w1.isSpecial && !w2.isSpecial && !w3.isSpecial) {
@@ -527,8 +543,9 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
 
     public float computeTrigramScore(PriorHypothesis h, CandidateContext w3, float f2Score) {
       float score = f2Score;
-      for (String ig : w3.igs) {
-        score += model.get(h.f15Prefix + ig);
+      List<String> w3Igs = w3.igs;
+      for (int i = 0; i < w3Igs.size(); i++) {
+        score += model.get(h.f15Prefix + w3Igs.get(i));
       }
 
       if (hasPriors && !h.prevCtx.isSpecial && !h.currCtx.isSpecial && !w3.isSpecial) {
@@ -543,7 +560,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
     }
 
     public float computeTrigramScore(PriorHypothesis h, CandidateContext w3) {
-      float f2 = model.get("2:" + h.prevCtx.rIg + "-" + w3.rIg) + h.prevCtx.c10cScore;
+      float f2 = model.get(h.prevCtx.f2Prefix + w3.rIg) + h.prevCtx.c10cScore;
       return computeTrigramScore(h, w3, f2);
     }
 
@@ -584,7 +601,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
         float[][] f2Scores = new float[prevPrevCandidates.size()][candidates.size()];
         for (int pp = 0; pp < prevPrevCandidates.size(); pp++) {
           CandidateContext prevPrev = prevPrevCandidates.get(pp);
-          String prefix = "2:" + prevPrev.rIg + "-";
+          String prefix = prevPrev.f2Prefix;
           float c10c = prevPrev.c10cScore;
           for (int k = 0; k < candidates.size(); k++) {
             f2Scores[pp][k] = model.get(prefix + candidates.get(k).rIg) + c10c;
@@ -642,7 +659,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       float[] endF2Scores = new float[prevPrevCandidates.size()];
       for (int pp = 0; pp < prevPrevCandidates.size(); pp++) {
         CandidateContext prevPrev = prevPrevCandidates.get(pp);
-        endF2Scores[pp] = model.get("2:" + prevPrev.rIg + "-" + endContext.rIg) + prevPrev.c10cScore;
+        endF2Scores[pp] = model.get(prevPrev.f2Prefix + endContext.rIg) + prevPrev.c10cScore;
       }
       float endUni = endContext.uniScore;
 
