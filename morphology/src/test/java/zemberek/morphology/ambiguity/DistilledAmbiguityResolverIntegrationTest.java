@@ -78,4 +78,21 @@ public class DistilledAmbiguityResolverIntegrationTest {
     SentenceWordAnalysis verb = analyses.get(3);
     Assert.assertEquals("gitmek", verb.getBestAnalysis().getDictionaryItem().lemma);
   }
+
+  @Test
+  public void testNounCompoundHeadDisambiguation() {
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    String sentence = "Sevimli karakterli peluş dolgulu pofuduk çocuk tacı";
+    SentenceAnalysis result = morphology.analyzeAndDisambiguate(sentence);
+
+    Assert.assertNotNull(result);
+    List<SentenceWordAnalysis> analyses = result.getWordAnalyses();
+
+    // Verify 'tacı' resolves to taç + P3sg (indefinite noun compound head), not Tac (Abbrv) + Acc
+    SentenceWordAnalysis taciWord = analyses.get(analyses.size() - 1);
+    Assert.assertEquals("tacı", taciWord.getWordAnalysis().getInput());
+    Assert.assertEquals("taç", taciWord.getBestAnalysis().getDictionaryItem().lemma);
+    Assert.assertTrue("Head of 'çocuk tacı' must carry 3rd person possessive (P3sg)",
+        taciWord.getBestAnalysis().formatLong().contains("P3sg"));
+  }
 }
