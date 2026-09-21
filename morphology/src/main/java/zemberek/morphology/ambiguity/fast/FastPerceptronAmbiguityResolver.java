@@ -11,6 +11,7 @@ import java.util.List;
 import zemberek.core.collections.IntValueMap;
 import zemberek.core.data.CompressedWeights;
 import zemberek.core.data.WeightLookup;
+import zemberek.core.data.Weights;
 import zemberek.core.dynamic.Scorable;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
@@ -49,9 +50,22 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
   }
 
   public static FastPerceptronAmbiguityResolver fromModelFile(Path modelFile) throws IOException {
-    CompressedWeights weights = CompressedWeights.deserialize(modelFile);
+    WeightLookup weights = CompressedWeights.isCompressed(modelFile)
+        ? CompressedWeights.deserialize(modelFile)
+        : Weights.loadFromFile(modelFile);
     FastFeatureExtractor extractor = new FastFeatureExtractor(true);
     return new FastPerceptronAmbiguityResolver(weights, extractor);
+  }
+
+  public static FastPerceptronAmbiguityResolver fromResource(String resourcePath) throws IOException {
+    WeightLookup lookup;
+    if (CompressedWeights.isCompressed(resourcePath)) {
+      lookup = CompressedWeights.deserialize(resourcePath);
+    } else {
+      lookup = Weights.loadFromResource(resourcePath);
+    }
+    FastFeatureExtractor extractor = new FastFeatureExtractor(true);
+    return new FastPerceptronAmbiguityResolver(lookup, extractor);
   }
 
   public WeightLookup getModel() {
