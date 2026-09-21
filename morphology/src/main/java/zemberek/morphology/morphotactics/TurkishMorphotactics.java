@@ -2150,7 +2150,7 @@ public class TurkishMorphotactics {
         .add(vSinceDoingSo_S, "yeli", diYiCondition)
         .add(vByDoingSo_S, "yerek", diYiCondition)
         .add(vFeelLike_S, "yesi", diYiCondition)
-        .add(vAfterDoing_S, "yip", diYiCondition)
+        .add(vAfterDoing_S, "yip", new RootSurfaceIsAny("de"))
         .add(vWithoutBeingAbleToHaveDoneSo_S, "yemeden", diYiCondition)
         .add(vOpt_S, "ye", diYiCondition);
 
@@ -2178,6 +2178,7 @@ public class TurkishMorphotactics {
         .add(vNeces_S, "meli")
         .add(vNotState_S, "mezli~k")
         .add(vNotState_S, "mezli!ğ")
+        .add(vAfterDoing_S, "yip", new RootSurfaceIsAny("yi"))
         .addEmpty(vImp_S, new RootSurfaceIs("de"))
         .addEmpty(vImpYemekYe_S, new RootSurfaceIs("ye"))
         .addEmpty(vImpYemekYi_S, new RootSurfaceIs("yi"));
