@@ -471,6 +471,7 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("de", matchesTailLex("Verb + Imp + A2sg"));
     t.expectAny("deme", matchesTailLex("Verb + Neg + Imp + A2sg"));
     t.expectSingle("dedi", matchesTailLex("Verb + Past + A3sg"));
+    t.expectSingle("deyip", matchesTailLex("Verb + AfterDoingSo + Adv"));
     t.expectAny("demiş", matchesTailLex("Verb + Narr + A3sg"));
     t.expectSingle("den", matchesTailLex("Verb + Pass + Verb + Imp + A2sg"));
     t.expectSingle("denil", matchesTailLex("Verb + Pass + Verb + Imp + A2sg"));
@@ -492,6 +493,7 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("ye", matchesTailLex("Verb + Imp + A2sg"));
     t.expectSingle("yesin", matchesTailLex("Verb + Imp + A3sg"));
     t.expectSingle("yiyin", matchesTailLex("Verb + Imp + A2pl"));
+    t.expectSingle("yiyip", matchesTailLex("Verb + AfterDoingSo + Adv"));
     t.expectSingle("yiyiniz", matchesTailLex("Verb + Imp + A2pl"));
     t.expectSingle("yesinler", matchesTailLex("Verb + Imp + A3pl"));
     t.expectSingle("yiyesim", matchesTailLex("Verb + FeelLike + Noun + A3sg + P1sg"));
@@ -500,6 +502,7 @@ public class VerbsTest extends AnalyzerTestBase {
         "dir",
         "dimez",
         "di",
+        "diyip",
         "din",
         "didir",
         "deyor",
@@ -524,6 +527,7 @@ public class VerbsTest extends AnalyzerTestBase {
         "yeyor",
         "yeyecek",
         "yidi",
+        "yeyip",
         "yeyiş",
         "yimek",
         "yime",
