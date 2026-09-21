@@ -406,6 +406,8 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
     public final boolean hasPriors;
     private final CandidateContext beginContext;
     private final CandidateContext endContext;
+    private final float pEndsVerbScore;
+    private final float pCollocScore;
     private DecodeMode mode = DEFAULT_MODE;
     private int beamSize = -1;
 
@@ -415,6 +417,8 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       this.hasPriors = !this.extractor.getPriorStore().isEmpty();
       this.beginContext = new CandidateContext(sentenceBegin, model, false, 0);
       this.endContext = new CandidateContext(sentenceEnd, model, false, 0);
+      this.pEndsVerbScore = model.get("P:ENDSVERB");
+      this.pCollocScore = model.get("P:COLLOC");
     }
 
     public DecodeMode getDecodeMode() {
@@ -473,13 +477,14 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       score += model.get("3:" + w2.rIg + "-" + w3.rIg);
       score += model.get("9:" + w2.lemma + "-" + w3.lemma);
       score += w2.c10bScore;
-      for (String ig : w3.igs) {
-        score += model.get("17:" + w2.lastGroup + "-" + ig);
+      List<String> w3Igs = w3.igs;
+      for (int i = 0; i < w3Igs.size(); i++) {
+        score += model.get("17:" + w2.lastGroup + "-" + w3Igs.get(i));
       }
 
       if (w3.sa == sentenceEnd || (w3.surface != null && w3.surface.equals("."))) {
         if (w2.sa != sentenceBegin && w2.isVerb) {
-          score += model.get("P:ENDSVERB");
+          score += pEndsVerbScore;
         }
       }
 
@@ -493,7 +498,7 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
         }
 
         if (store.hasCollocation(w2.surface, w3.surface)) {
-          score += model.get("P:COLLOC");
+          score += pCollocScore;
           score += model.get("P:COLLOC_POS:" + w3.lastGroup);
         }
 
@@ -510,8 +515,9 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
       score += model.get("2:" + w1.rIg + "-" + w3.rIg);
       score += w1.c10cScore;
       String w1w2 = w1.lastGroup + "-" + w2.lastGroup;
-      for (String ig : w3.igs) {
-        score += model.get("15:" + w1w2 + "-" + ig);
+      List<String> w3Igs = w3.igs;
+      for (int i = 0; i < w3Igs.size(); i++) {
+        score += model.get("15:" + w1w2 + "-" + w3Igs.get(i));
       }
 
       if (hasPriors && !w1.isSpecial && !w2.isSpecial && !w3.isSpecial) {
@@ -527,8 +533,9 @@ public class NGramPriorPerceptronResolver implements AmbiguityResolver {
 
     public float computeTrigramScore(PriorHypothesis h, CandidateContext w3, float f2Score) {
       float score = f2Score;
-      for (String ig : w3.igs) {
-        score += model.get(h.f15Prefix + ig);
+      List<String> w3Igs = w3.igs;
+      for (int i = 0; i < w3Igs.size(); i++) {
+        score += model.get(h.f15Prefix + w3Igs.get(i));
       }
 
       if (hasPriors && !h.prevCtx.isSpecial && !h.currCtx.isSpecial && !w3.isSpecial) {
