@@ -131,8 +131,7 @@ public class UIntValueMap<T> extends HashBase<T> implements Iterable<T> {
     }
     int l = locate(key);
     if (l < 0) {
-      // Values of this map are unsigned. The check has to happen before anything is written,
-      // otherwise a failed increment leaves a negative value in the map.
+      // Values of this map are unsigned, so validate before writing anything.
       if (amount < 0) {
         throw new IllegalStateException("Value reached to negative.");
       }

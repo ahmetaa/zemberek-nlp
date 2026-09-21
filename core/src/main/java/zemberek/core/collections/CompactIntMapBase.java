@@ -21,8 +21,9 @@ public abstract class CompactIntMapBase {
   int threshold;
 
   /**
-   * @param capacity initial internal array size for capacity amount of key - values. It must be a
-   * positive number. If value is not a power of two, size will be the nearest larger power of two.
+   * @param capacity initial internal array size for capacity amount of key - values. It can not
+   * be negative, but it can be zero. If value is not a power of two, size will be the nearest
+   * larger power of two.
    */
   CompactIntMapBase(int capacity) {
     capacity = nearestPowerOf2Capacity(capacity, MAX_CAPACITY);
@@ -35,9 +36,7 @@ public abstract class CompactIntMapBase {
     if (capacity < 0) {
       throw new IllegalArgumentException("Capacity can not be negative: " + capacity);
     }
-    // A capacity of 0 is allowed so that callers can size a map from a possibly empty
-    // input without having to special case it. Tables smaller than the default are
-    // degenerate (their threshold rounds down to 0), so the default is the lower bound.
+    // Tables smaller than the default are degenerate: their threshold rounds down to 0.
     long k = DEFAULT_INITIAL_CAPACITY;
     while (k < capacity) {
       k <<= 1;
@@ -133,9 +132,8 @@ public abstract class CompactIntMapBase {
   }
 
   /**
-   * This method is only used during expansion of the map. Capacity is derived from the number of
-   * live keys, not from the current capacity: a table whose slots are mostly tombstones is
-   * rehashed at the same size or even shrunk instead of doubling forever.
+   * Capacity is derived from the number of live keys rather than from the current capacity, so a
+   * table whose slots are mostly tombstones is rehashed at the same size or shrunk.
    *
    * @return the smallest power of two capacity whose threshold leaves room for the live keys, the
    * key that triggered the expansion, and at least one empty slot.

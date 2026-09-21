@@ -117,8 +117,8 @@ public class UIntMap<T> extends UIntKeyHashBase implements Iterable<T> {
 
   private class ValueIterator implements Iterator<T> {
 
-    // Index of the next slot to inspect. hasNext() only skips over empty and tombstoned slots,
-    // so it is idempotent and next() is the only method that consumes an element.
+    // Index of the next slot to inspect. hasNext() only skips empty and tombstoned slots;
+    // next() is the only method that consumes an element.
     int i = 0;
 
     @Override

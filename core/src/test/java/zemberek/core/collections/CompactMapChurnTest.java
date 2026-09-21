@@ -8,15 +8,15 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Tests for the defects found while auditing the primitive hash tables: unbounded capacity growth
- * under put/remove churn, iterator contract violations and zero capacity construction.
+ * Capacity, iterator and construction contracts of the primitive hash tables: capacity must track
+ * the live key count under put/remove churn, iterators must not consume elements in
+ * {@code hasNext()}, and a zero capacity table must be usable.
  */
 public class CompactMapChurnTest {
 
   /**
-   * A map that is emptied again and again must not keep the capacity it once needed. Before the
-   * fix this ended up with a 262144 slot table for an empty map, because deleted slots were never
-   * reused and the new capacity was always the old capacity doubled.
+   * A map that is emptied again and again must not keep the capacity it once needed. Deleted
+   * slots have to be reused, and the capacity of an empty map has to fall back to the default.
    */
   @Test
   public void intIntMapDoesNotGrowWhenKeysAreRemovedAgain() {
@@ -72,7 +72,7 @@ public class CompactMapChurnTest {
     }
     Assert.assertEquals(live, intMap.size());
     Assert.assertEquals(live, longMap.size());
-    // 16 times the live key count is still very generous. Before the fix this was over 2000 times.
+    // A generous bound: the table only has to stay proportional to the live key count.
     Assert.assertTrue("capacity was " + intMap.capacity(), intMap.capacity() <= live * 16);
     Assert.assertTrue("capacity was " + longMap.capacity(), longMap.capacity() <= live * 16);
   }
@@ -146,8 +146,8 @@ public class CompactMapChurnTest {
   }
 
   /**
-   * {@code hasNext()} must not consume elements. Calling it more than once per element used to
-   * skip every other entry.
+   * {@code hasNext()} must not consume elements: calling it more than once per element must
+   * report the same thing and must not skip entries.
    */
   @Test
   public void iteratorHasNextIsIdempotent() {

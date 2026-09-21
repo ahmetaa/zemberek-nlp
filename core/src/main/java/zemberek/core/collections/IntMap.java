@@ -64,8 +64,8 @@ public final class IntMap<T> implements Iterable<T> {
   }
 
   /**
-   * @param capacity initial internal array size. It must be a positive number. If value is not a
-   * power of two, size will be the nearest larger power of two.
+   * @param capacity initial internal array size. It can not be negative, but it can be zero. If
+   * value is not a power of two, size will be the nearest larger power of two.
    */
   @SuppressWarnings("unchecked")
   public IntMap(int capacity, boolean managed) {
@@ -86,8 +86,7 @@ public final class IntMap<T> implements Iterable<T> {
     if (capacity < 0) {
       throw new IllegalArgumentException("Capacity can not be negative: " + capacity);
     }
-    // A capacity of 0 is allowed so callers can size the map from a possibly empty input without
-    // special casing it. Smaller tables than the default are degenerate, so it is the lower bound.
+    // Tables smaller than the default are degenerate: their threshold rounds down to 0.
     long k = DEFAULT_INITIAL_CAPACITY;
     while (k < capacity) {
       k <<= 1;
