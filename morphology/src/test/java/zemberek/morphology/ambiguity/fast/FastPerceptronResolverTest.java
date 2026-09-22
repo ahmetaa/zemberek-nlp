@@ -215,4 +215,57 @@ public class FastPerceptronResolverTest {
     Assert.assertTrue(resolver.isExactViterbi());
     Assert.assertEquals(-1, resolver.getBeamSize());
   }
+
+  @Test
+  public void testFeatures13And19ParityAndScoring() {
+    FastPerceptronAmbiguityResolver.FastFeatureExtractor extractor =
+        new FastPerceptronAmbiguityResolver.FastFeatureExtractor(false);
+
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    SingleAnalysis sa1 = morphology.analyze("büyük").getAnalysisResults().get(0);
+    SingleAnalysis sa2 = morphology.analyze("bir").getAnalysisResults().get(0);
+    SingleAnalysis sa3 = morphology.analyze("güzellik").getAnalysisResults().get(0);
+
+    SingleAnalysis[] trigram = {sa1, sa2, sa3};
+    IntValueMap<String> features = extractor.extractFromTrigram(trigram);
+
+    FastPerceptronAmbiguityResolver.WordData wd2 = FastPerceptronAmbiguityResolver.WordData.fromAnalysis(sa2);
+    FastPerceptronAmbiguityResolver.WordData wd3 = FastPerceptronAmbiguityResolver.WordData.fromAnalysis(sa3);
+    String ig2 = String.join("+", wd2.igs);
+    String ig3 = String.join("+", wd3.igs);
+    Assert.assertTrue("Should contain Feature 13", features.contains("13:" + ig2 + "-" + ig3));
+
+    if (sa3.groupCount() > 1) {
+      Assert.assertTrue("Should contain Feature 19",
+          features.contains("19:" + wd3.igs.get(0) + "-" + wd3.igs.get(1)));
+    }
+
+    Weights weights = new Weights();
+    weights.put("13:" + ig2 + "-" + ig3, 2.5f);
+    if (sa3.groupCount() > 1) {
+      weights.put("19:" + wd3.igs.get(0) + "-" + wd3.igs.get(1), 1.8f);
+    }
+
+    FastPerceptronAmbiguityResolver.FastDecoder decoder =
+        new FastPerceptronAmbiguityResolver.FastDecoder(weights, extractor);
+
+    FastPerceptronAmbiguityResolver.CandidateContext ctx1 =
+        new FastPerceptronAmbiguityResolver.CandidateContext(sa1, weights, false, 0);
+    FastPerceptronAmbiguityResolver.CandidateContext ctx2 =
+        new FastPerceptronAmbiguityResolver.CandidateContext(sa2, weights, false, 0);
+    FastPerceptronAmbiguityResolver.CandidateContext ctx3 =
+        new FastPerceptronAmbiguityResolver.CandidateContext(sa3, weights, false, 0);
+
+    float expectedScore = 0;
+    for (String k : features) {
+      expectedScore += weights.get(k) * features.get(k);
+    }
+
+    float factoredScore = ctx3.uniScore
+        + decoder.computeBigramScore(ctx2, ctx3)
+        + decoder.computeTrigramScore(ctx1, ctx2, ctx3);
+
+    Assert.assertEquals("Factored score must match unfactored score for Features 13 & 19",
+        expectedScore, factoredScore, 1e-5f);
+  }
 }

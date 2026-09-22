@@ -188,7 +188,7 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
 
       //feats.addOrIncrement("11:" + ig1 + "-" + ig2 + "-" + ig3);
       //feats.addOrIncrement("12:" + ig1 + "-" + ig3);
-      //feats.addOrIncrement("13:" + ig2 + "-" + ig3);
+      feats.addOrIncrement("13:" + ig2 + "-" + ig3);
       //feats.addOrIncrement("14:" + ig3);
 
       String w1LastGroup = w1.lastGroup();
@@ -201,9 +201,9 @@ public class PerceptronAmbiguityResolver implements AmbiguityResolver {
         //feats.addOrIncrement("18:" + ig);
       }
 
-//      for (int k = 0; k < w3.igs.size() - 1; k++) {
-//        feats.addOrIncrement("19:" + w3.igs.get(k) + "-" + w3.igs.get(k + 1));
-//      }
+      for (int k = 0; k < w3.igs.size() - 1; k++) {
+        feats.addOrIncrement("19:" + w3.igs.get(k) + "-" + w3.igs.get(k + 1));
+      }
 
       for (int k = 0; k < w3.igs.size(); k++) {
         feats.addOrIncrement("20:" + k + "-" + w3.igs.get(k));

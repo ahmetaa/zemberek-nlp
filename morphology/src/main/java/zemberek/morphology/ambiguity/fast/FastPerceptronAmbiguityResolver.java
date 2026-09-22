@@ -261,6 +261,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       feats.addOrIncrement("10:" + r3);
       feats.addOrIncrement("10b:" + r2);
       feats.addOrIncrement("10c:" + r1);
+      feats.addOrIncrement("13:" + ig2 + "-" + ig3);
 
       String w1LastGroup = w1.lastGroup();
       String w2LastGroup = w2.lastGroup();
@@ -268,6 +269,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       for (String ig : w3.igs) {
         feats.addOrIncrement("15:" + w1LastGroup + "-" + w2LastGroup + "-" + ig);
         feats.addOrIncrement("17:" + w2LastGroup + "-" + ig);
+      }
+
+      for (int k = 0; k < w3.igs.size() - 1; k++) {
+        feats.addOrIncrement("19:" + w3.igs.get(k) + "-" + w3.igs.get(k + 1));
       }
 
       for (int k = 0; k < w3.igs.size(); k++) {
@@ -328,6 +333,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     public final String f2Prefix;
     public final String f3Prefix;
     public final String f9Prefix;
+    public final String f13Prefix;
     public final String f17Prefix;
 
     public CandidateContext(SingleAnalysis sa, WeightLookup model, boolean isSentenceInitial, int index) {
@@ -348,6 +354,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       this.f2Prefix = "2:" + rIg + "-";
       this.f3Prefix = "3:" + rIg + "-";
       this.f9Prefix = "9:" + lemma + "-";
+      this.f13Prefix = "13:" + igJoined + "-";
       this.f17Prefix = "17:" + lastGroup + "-";
 
       this.c10bScore = model.get("10b:" + lemma);
@@ -357,6 +364,9 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       float score = 0;
       score += model.get("4:" + rIg);
       score += model.get("10:" + lemma);
+      for (int k = 0; k < igs.size() - 1; k++) {
+        score += model.get("19:" + igs.get(k) + "-" + igs.get(k + 1));
+      }
       for (int k = 0; k < igs.size(); k++) {
         score += model.get("20:" + k + "-" + igs.get(k));
       }
@@ -449,6 +459,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       float score = 0;
       score += model.get(w2.f3Prefix + w3.rIg);
       score += model.get(w2.f9Prefix + w3.lemma);
+      score += model.get(w2.f13Prefix + w3.igJoined);
       score += w2.c10bScore;
       String f17 = w2.f17Prefix;
       List<String> w3Igs = w3.igs;
