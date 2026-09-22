@@ -249,11 +249,12 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       String ig2 = String.join("+", w2.igs);
       String ig3 = String.join("+", w3.igs);
 
+      String r1Ig1 = r1 + "+" + ig1;
       String r2Ig2 = r2 + "+" + ig2;
       String r3Ig3 = r3 + "+" + ig3;
 
       // Baseline Perceptron features
-      feats.addOrIncrement("2:" + r1 + "-" + ig1 + "-" + r3 + "-" + ig3);
+      feats.addOrIncrement("2:" + r1Ig1 + "-" + r3Ig3);
       feats.addOrIncrement("3:" + r2Ig2 + "-" + r3Ig3);
       feats.addOrIncrement("4:" + r3Ig3);
       feats.addOrIncrement("9:" + r2 + "-" + r3);

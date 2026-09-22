@@ -82,6 +82,8 @@ public class FastPerceptronResolverTest {
     weights.put("10:bir", -0.5f);
     weights.put("10:gün", 2.0f);
     weights.put("4:gün+Noun+A3sg+Pnon+Nom", 0.7f);
+    weights.put("2:güzel+Adj-gün+Noun+A3sg+Pnon+Nom", 3.14f);
+    weights.put("3:bir+Det-gün+Noun+A3sg+Pnon+Nom", 1.82f);
     weights.put("P:ENDSVERB", 2.25f);
     weights.put("P:LOWER_PROPER", -9.61f);
 
@@ -121,6 +123,36 @@ public class FastPerceptronResolverTest {
     float hypothesisTrigramScore = decoder.computeTrigramScore(h, ctx3);
     Assert.assertEquals("Hypothesis trigram score must match direct trigram score",
         decoder.computeTrigramScore(ctx1, ctx2, ctx3), hypothesisTrigramScore, 1e-5f);
+  }
+
+  @Test
+  public void testFullSentenceScoreParity() {
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    FastPerceptronAmbiguityResolver.FastFeatureExtractor extractor =
+        new FastPerceptronAmbiguityResolver.FastFeatureExtractor(false);
+
+    Weights weights = new Weights();
+    weights.put("10:bugün", 1.2f);
+    weights.put("10:okul", 0.8f);
+    weights.put("10:gitmek", 2.1f);
+    weights.put("2:bugün+Noun+A3sg+Pnon+Nom-gitmek+Verb+Past+A1sg", 3.5f);
+    weights.put("3:okul+Noun+A3sg+Pnon+Dat-gitmek+Verb+Past+A1sg", 1.9f);
+    weights.put("P:ENDSVERB", 2.0f);
+
+    FastPerceptronAmbiguityResolver.FastDecoder decoder =
+        new FastPerceptronAmbiguityResolver.FastDecoder(weights, extractor);
+
+    java.util.List<WordAnalysis> waList = morphology.analyzeSentence("Bugün okula gittim.");
+    FastPerceptronAmbiguityResolver.FastDecodeResult result = decoder.bestPath(waList);
+
+    IntValueMap<String> counts = extractor.extractFeatureCounts(result.bestParse);
+    float dotProduct = 0;
+    for (IntValueMap.Entry<String> entry : counts.iterableEntries()) {
+      dotProduct += weights.get(entry.key) * entry.count;
+    }
+
+    Assert.assertEquals("Full sentence decoder score must equal feature dot product",
+        dotProduct, result.score, 1e-4f);
   }
 
   @Test
