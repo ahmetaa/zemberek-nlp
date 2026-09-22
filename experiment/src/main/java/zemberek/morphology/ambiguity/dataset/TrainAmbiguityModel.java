@@ -68,8 +68,8 @@ public class TrainAmbiguityModel extends ConsoleApp {
 
   @Parameter(
       names = {"--filterUnreachable", "-fu"},
-      description = "Filter out sentences containing unreachable gold analyses. Default is false.")
-  public boolean filterUnreachable = false;
+      description = "Filter out sentences containing unreachable gold analyses. Default is true.")
+  public boolean filterUnreachable = true;
 
   public static void main(String[] args) {
     new TrainAmbiguityModel().execute(args);
@@ -149,7 +149,7 @@ public class TrainAmbiguityModel extends ConsoleApp {
    * Loads a dataset either directly from JSONL in-memory or from Zemberek's native text format.
    */
   public static DataSet loadDataSet(Path path, TurkishMorphology morphology) throws IOException {
-    return loadDataSet(path, morphology, false);
+    return loadDataSet(path, morphology, true);
   }
 
   public static DataSet loadDataSet(Path path, TurkishMorphology morphology, boolean filterUnreachable) throws IOException {
@@ -160,7 +160,7 @@ public class TrainAmbiguityModel extends ConsoleApp {
   }
 
   public static DataSet loadDataSetFromJsonl(Path jsonlPath, TurkishMorphology morphology) throws IOException {
-    return loadDataSetFromJsonl(jsonlPath, morphology, false);
+    return loadDataSetFromJsonl(jsonlPath, morphology, true);
   }
 
   /**
@@ -398,7 +398,7 @@ public class TrainAmbiguityModel extends ConsoleApp {
       boolean exportText = false;
       int iterationCount = 7;
       double pruneWeight = 0.0;
-      boolean filterUnreachable = false;
+      boolean filterUnreachable = true;
 
       public Builder trainPath(Path trainPath) {
         this.trainPath = trainPath;

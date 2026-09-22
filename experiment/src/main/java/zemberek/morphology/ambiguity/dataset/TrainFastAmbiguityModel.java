@@ -62,8 +62,8 @@ public class TrainFastAmbiguityModel extends ConsoleApp {
 
   @Parameter(
       names = {"--filterUnreachable", "-fu"},
-      description = "Filter out sentences containing unreachable gold analyses. Default is false.")
-  public boolean filterUnreachable = false;
+      description = "Filter out sentences containing unreachable gold analyses. Default is true.")
+  public boolean filterUnreachable = true;
 
   public static void main(String[] args) {
     new TrainFastAmbiguityModel().execute(args);
