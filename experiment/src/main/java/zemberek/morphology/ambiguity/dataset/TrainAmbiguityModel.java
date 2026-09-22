@@ -66,6 +66,11 @@ public class TrainAmbiguityModel extends ConsoleApp {
       description = "Prune threshold for removing near-zero weights. Default is 0.0")
   public double pruneWeight = 0.0;
 
+  @Parameter(
+      names = {"--filterUnreachable", "-fu"},
+      description = "Filter out sentences containing unreachable gold analyses. Default is true.")
+  public boolean filterUnreachable = true;
+
   public static void main(String[] args) {
     new TrainAmbiguityModel().execute(args);
   }
@@ -84,6 +89,7 @@ public class TrainAmbiguityModel extends ConsoleApp {
         .exportText(exportText)
         .iterationCount(iterationCount)
         .pruneWeight(pruneWeight)
+        .filterUnreachable(filterUnreachable)
         .build();
 
     TrainingResult result = train(config);
@@ -99,12 +105,12 @@ public class TrainAmbiguityModel extends ConsoleApp {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
     Log.info("Loading training dataset from: %s", config.trainPath);
-    DataSet trainingSet = loadDataSet(config.trainPath, morphology);
+    DataSet trainingSet = loadDataSet(config.trainPath, morphology, config.filterUnreachable);
     trainingSet.info();
 
     Path dev = config.devPath != null ? config.devPath : config.trainPath;
     Log.info("Loading development dataset from: %s", dev);
-    DataSet devSet = loadDataSet(dev, morphology);
+    DataSet devSet = loadDataSet(dev, morphology, config.filterUnreachable);
     devSet.info();
 
     PerceptronAmbiguityResolverTrainer trainer =
@@ -143,18 +149,29 @@ public class TrainAmbiguityModel extends ConsoleApp {
    * Loads a dataset either directly from JSONL in-memory or from Zemberek's native text format.
    */
   public static DataSet loadDataSet(Path path, TurkishMorphology morphology) throws IOException {
+    return loadDataSet(path, morphology, true);
+  }
+
+  public static DataSet loadDataSet(Path path, TurkishMorphology morphology, boolean filterUnreachable) throws IOException {
     if (path.toString().endsWith(".jsonl")) {
-      return loadDataSetFromJsonl(path, morphology);
+      return loadDataSetFromJsonl(path, morphology, filterUnreachable);
     }
     return DataSet.load(path, morphology);
+  }
+
+  public static DataSet loadDataSetFromJsonl(Path jsonlPath, TurkishMorphology morphology) throws IOException {
+    return loadDataSetFromJsonl(jsonlPath, morphology, true);
   }
 
   /**
    * Reads an annotated JSONL file directly into a DataSet without writing temporary text files to disk.
    */
-  public static DataSet loadDataSetFromJsonl(Path jsonlPath, TurkishMorphology morphology) throws IOException {
+  public static DataSet loadDataSetFromJsonl(Path jsonlPath, TurkishMorphology morphology, boolean filterUnreachable) throws IOException {
     Gson gson = new Gson();
     List<SentenceAnalysis> sentences = new ArrayList<>();
+    int totalTokens = 0;
+    int totalUnreachableTokens = 0;
+    int totalUnreachableSentences = 0;
 
     try (BufferedReader reader = Files.newBufferedReader(jsonlPath, StandardCharsets.UTF_8)) {
       String line;
@@ -187,8 +204,10 @@ public class TrainAmbiguityModel extends ConsoleApp {
 
         List<SentenceWordAnalysis> unambigiousAnalyses = new ArrayList<>(wordAnalyses.size());
         boolean sentenceValid = true;
+        int unreachableInSentence = 0;
 
         for (int i = 0; i < wordAnalyses.size(); i++) {
+          totalTokens++;
           WordAnalysis wa = wordAnalyses.get(i);
           TokenRecord tr = record.tokens.get(i);
 
@@ -228,6 +247,12 @@ public class TrainAmbiguityModel extends ConsoleApp {
           }
 
           if (matchedAnalysis == null) {
+            unreachableInSentence++;
+            totalUnreachableTokens++;
+            if (filterUnreachable) {
+              sentenceValid = false;
+              break;
+            }
             if (selectedId >= 0 && selectedId < wa.analysisCount()) {
               matchedAnalysis = wa.getAnalysisResults().get(selectedId);
             } else if (wa.analysisCount() > 0) {
@@ -243,13 +268,20 @@ public class TrainAmbiguityModel extends ConsoleApp {
           }
         }
 
+        if (unreachableInSentence > 0) {
+          totalUnreachableSentences++;
+        }
+
         if (sentenceValid && unambigiousAnalyses.size() == record.tokens.size()) {
           sentences.add(new SentenceAnalysis(record.text, unambigiousAnalyses));
         }
       }
     }
 
-    Log.info("Loaded %d sentences directly from JSONL: %s", sentences.size(), jsonlPath);
+    double unreachableRate = totalTokens > 0 ? (100.0 * totalUnreachableTokens / totalTokens) : 0.0;
+    Log.info("Loaded %d sentences directly from JSONL: %s (Unreachable gold parses: %d/%d tokens [%.2f%%] across %d sentences%s)",
+        sentences.size(), jsonlPath, totalUnreachableTokens, totalTokens, unreachableRate, totalUnreachableSentences,
+        filterUnreachable ? " - filtered out" : "");
     return new DataSet(sentences);
   }
 
@@ -339,6 +371,7 @@ public class TrainAmbiguityModel extends ConsoleApp {
     public final boolean exportText;
     public final int iterationCount;
     public final double pruneWeight;
+    public final boolean filterUnreachable;
 
     private Config(Builder b) {
       this.trainPath = b.trainPath;
@@ -347,6 +380,7 @@ public class TrainAmbiguityModel extends ConsoleApp {
       this.exportText = b.exportText;
       this.iterationCount = b.iterationCount;
       this.pruneWeight = b.pruneWeight;
+      this.filterUnreachable = b.filterUnreachable;
     }
 
     public Path getTextWeightsPath() {
@@ -364,6 +398,7 @@ public class TrainAmbiguityModel extends ConsoleApp {
       boolean exportText = false;
       int iterationCount = 7;
       double pruneWeight = 0.0;
+      boolean filterUnreachable = true;
 
       public Builder trainPath(Path trainPath) {
         this.trainPath = trainPath;
@@ -392,6 +427,11 @@ public class TrainAmbiguityModel extends ConsoleApp {
 
       public Builder pruneWeight(double pruneWeight) {
         this.pruneWeight = pruneWeight;
+        return this;
+      }
+
+      public Builder filterUnreachable(boolean filterUnreachable) {
+        this.filterUnreachable = filterUnreachable;
         return this;
       }
 
