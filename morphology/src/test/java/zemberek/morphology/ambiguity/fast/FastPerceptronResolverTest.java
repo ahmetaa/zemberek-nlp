@@ -215,4 +215,94 @@ public class FastPerceptronResolverTest {
     Assert.assertTrue(resolver.isExactViterbi());
     Assert.assertEquals(-1, resolver.getBeamSize());
   }
+
+  @Test
+  public void testPrecomputedTrigramMatrixEquivalence() {
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    FastPerceptronAmbiguityResolver.FastFeatureExtractor extractor =
+        new FastPerceptronAmbiguityResolver.FastFeatureExtractor(false);
+
+    Weights weights = new Weights();
+    // Unigrams
+    weights.put("10:küçük", 1.0f);
+    weights.put("10:çocuk", 1.5f);
+    weights.put("10:ev", 2.0f);
+    weights.put("10:koşmak", 2.5f);
+    // Feature 15 (Trigram morpheme transition features)
+    weights.put("15:Noun+A3sg-Noun+A3sg-Noun+A3sg", 3.2f);
+    weights.put("15:Adj-Noun+A3sg-Verb+Past", 4.1f);
+    weights.put("15:Noun+A3sg-Verb+Past-</s>", 1.8f);
+    // Bigrams
+    weights.put("3:küçük+Adj-çocuk+Noun+A3sg+Pnon+Nom", 2.1f);
+    weights.put("17:Noun+A3sg-Verb+Past", 1.4f);
+    weights.put("P:ENDSVERB", 2.0f);
+
+    FastPerceptronAmbiguityResolver.FastDecoder decoder =
+        new FastPerceptronAmbiguityResolver.FastDecoder(weights, extractor);
+
+    String[] testSentences = {
+        "Küçük çocuk eve koştu.",
+        "Bugün hava çok güzel.",
+        "O adam yeni bir kitap aldı."
+    };
+
+    for (String s : testSentences) {
+      java.util.List<WordAnalysis> waList = morphology.analyzeSentence(s);
+      FastPerceptronAmbiguityResolver.FastDecodeResult result = decoder.bestPath(waList);
+
+      IntValueMap<String> counts = extractor.extractFeatureCounts(result.bestParse);
+      float dotProduct = 0;
+      for (IntValueMap.Entry<String> entry : counts.iterableEntries()) {
+        dotProduct += weights.get(entry.key) * entry.count;
+      }
+
+      Assert.assertEquals(
+          "Sentence '" + s + "' decoder score must exactly equal feature dot product",
+          dotProduct, result.score, 1e-4f);
+    }
+  }
+
+  @Test
+  public void testTrigramFeature15DirectDisambiguationImpact() {
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    FastPerceptronAmbiguityResolver.FastFeatureExtractor extractor =
+        new FastPerceptronAmbiguityResolver.FastFeatureExtractor(false);
+
+    java.util.List<WordAnalysis> waList = morphology.analyzeSentence("Çocuk eve gitti.");
+    SingleAnalysis a1 = waList.get(0).getAnalysisResults().get(0);
+    SingleAnalysis a2 = waList.get(1).getAnalysisResults().get(0);
+    SingleAnalysis a3 = waList.get(2).getAnalysisResults().get(0);
+
+    SingleAnalysis[] trigram = {a1, a2, a3};
+    IntValueMap<String> sampleFeatures = extractor.extractFromTrigram(trigram);
+    String targetF15 = null;
+    for (String key : sampleFeatures) {
+      if (key.startsWith("15:")) {
+        targetF15 = key;
+        break;
+      }
+    }
+    Assert.assertNotNull("Trigram should generate at least one Feature 15", targetF15);
+
+    // Setup weights where this Feature 15 has high positive weight
+    Weights weights = new Weights();
+    weights.put(targetF15, 12.5f);
+    weights.put("P:ENDSVERB", 2.0f);
+
+    FastPerceptronAmbiguityResolver.FastDecoder decoder =
+        new FastPerceptronAmbiguityResolver.FastDecoder(weights, extractor);
+
+    FastPerceptronAmbiguityResolver.FastDecodeResult result = decoder.bestPath(waList);
+
+    IntValueMap<String> counts = extractor.extractFeatureCounts(result.bestParse);
+    float dotProduct = 0;
+    for (IntValueMap.Entry<String> entry : counts.iterableEntries()) {
+      dotProduct += weights.get(entry.key) * entry.count;
+    }
+
+    Assert.assertEquals("Decoder score must equal dot product with Feature 15 active",
+        dotProduct, result.score, 1e-4f);
+    Assert.assertTrue("Should trigger target Feature 15 in winning sequence",
+        counts.contains(targetF15));
+  }
 }

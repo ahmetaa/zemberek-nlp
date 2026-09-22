@@ -534,6 +534,23 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
           }
         }
 
+        // Precompute Feature 15 (trigram morpheme transition) scores for all (pp, p, k) triplets
+        float[][][] f15Scores = new float[prevPrevCandidates.size()][prevCandidates.size()][candidates.size()];
+        for (int pp = 0; pp < prevPrevCandidates.size(); pp++) {
+          String w1Last = prevPrevCandidates.get(pp).lastGroup;
+          for (int p = 0; p < prevCandidates.size(); p++) {
+            String prefix = "15:" + w1Last + "-" + prevCandidates.get(p).lastGroup + "-";
+            for (int k = 0; k < candidates.size(); k++) {
+              float score = 0;
+              List<String> igs = candidates.get(k).igs;
+              for (int i = 0; i < igs.size(); i++) {
+                score += model.get(prefix + igs.get(i));
+              }
+              f15Scores[pp][p][k] = score;
+            }
+          }
+        }
+
         // 2nd-order Markov grid recombination: state is (candidate at t-1, candidate at t)
         float[][] bestScoreGrid = new float[prevCandidates.size()][candidates.size()];
         FastHypothesis[][] bestParentGrid = new FastHypothesis[prevCandidates.size()][candidates.size()];
@@ -546,8 +563,9 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
           int candIdx = cand.index;
           for (FastHypothesis h : currentList) {
             int prevIdx = h.currCtx.index;
+            int ppIdx = h.prevCtx.index;
             float bi = biScores[prevIdx][candIdx];
-            float tri = computeTrigramScore(h, cand, f2Scores[h.prevCtx.index][candIdx]);
+            float tri = f2Scores[ppIdx][candIdx] + f15Scores[ppIdx][prevIdx][candIdx];
             float totalScore = h.score + uni + bi + tri;
             if (totalScore > bestScoreGrid[prevIdx][candIdx]) {
               bestScoreGrid[prevIdx][candIdx] = totalScore;
@@ -587,12 +605,27 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         CandidateContext prevPrev = prevPrevCandidates.get(pp);
         endF2Scores[pp] = model.get(prevPrev.f2Prefix + endContext.rIg) + prevPrev.c10cScore;
       }
+      float[][] endF15Scores = new float[prevPrevCandidates.size()][prevCandidates.size()];
+      for (int pp = 0; pp < prevPrevCandidates.size(); pp++) {
+        String w1Last = prevPrevCandidates.get(pp).lastGroup;
+        for (int p = 0; p < prevCandidates.size(); p++) {
+          String prefix = "15:" + w1Last + "-" + prevCandidates.get(p).lastGroup + "-";
+          float score = 0;
+          List<String> igs = endContext.igs;
+          for (int i = 0; i < igs.size(); i++) {
+            score += model.get(prefix + igs.get(i));
+          }
+          endF15Scores[pp][p] = score;
+        }
+      }
       float endUni = endContext.uniScore;
 
       FastHypothesis best = null;
       for (FastHypothesis h : currentList) {
-        float bi = endBiScores[h.currCtx.index];
-        float tri = computeTrigramScore(h, endContext, endF2Scores[h.prevCtx.index]);
+        int prevIdx = h.currCtx.index;
+        int ppIdx = h.prevCtx.index;
+        float bi = endBiScores[prevIdx];
+        float tri = endF2Scores[ppIdx] + endF15Scores[ppIdx][prevIdx];
         h.score += (endUni + bi + tri);
         if (best == null || h.score > best.score) {
           best = h;
