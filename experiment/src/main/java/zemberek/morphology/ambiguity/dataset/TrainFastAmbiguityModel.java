@@ -60,6 +60,11 @@ public class TrainFastAmbiguityModel extends ConsoleApp {
       description = "Also export uncompressed human-readable weights file (.txt)")
   public boolean exportText = false;
 
+  @Parameter(
+      names = {"--filterUnreachable", "-fu"},
+      description = "Filter out sentences containing unreachable gold analyses. Default is false.")
+  public boolean filterUnreachable = false;
+
   public static void main(String[] args) {
     new TrainFastAmbiguityModel().execute(args);
   }
@@ -74,12 +79,12 @@ public class TrainFastAmbiguityModel extends ConsoleApp {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
     Log.info("Loading training dataset from: %s", trainPath);
-    DataSet trainingSet = TrainAmbiguityModel.loadDataSet(trainPath, morphology);
+    DataSet trainingSet = TrainAmbiguityModel.loadDataSet(trainPath, morphology, filterUnreachable);
     trainingSet.info();
 
     Path dev = devPath != null ? devPath : trainPath;
     Log.info("Loading development dataset from: %s", dev);
-    DataSet devSet = TrainAmbiguityModel.loadDataSet(dev, morphology);
+    DataSet devSet = TrainAmbiguityModel.loadDataSet(dev, morphology, filterUnreachable);
     devSet.info();
 
     FastPerceptronTrainer trainer = new FastPerceptronTrainer(pruneWeight);
@@ -139,7 +144,7 @@ public class TrainFastAmbiguityModel extends ConsoleApp {
         DataSet devSet,
         int iterationCount) {
 
-      FastFeatureExtractor extractor = new FastFeatureExtractor(false);
+      FastFeatureExtractor extractor = new FastFeatureExtractor(true);
       FastDecoder decoder = new FastDecoder(weights, extractor);
 
       Weights bestWeights = null;
@@ -150,6 +155,7 @@ public class TrainFastAmbiguityModel extends ConsoleApp {
       for (int it = 0; it < iterationCount; it++) {
         Log.info("Iteration: %d", it);
         trainingSet.shuffle();
+        decoder = new FastDecoder(weights, extractor);
         int sentenceIndex = 0;
 
         for (SentenceAnalysis sentence : trainingSet.sentences) {
@@ -191,7 +197,7 @@ public class TrainFastAmbiguityModel extends ConsoleApp {
       Log.info("Selected optimal model from iteration %d with dev token accuracy %.2f%%",
           bestIteration, bestDevAccuracy * 100.0);
 
-      FastFeatureExtractor testExtractor = new FastFeatureExtractor(true);
+      FastFeatureExtractor testExtractor = new FastFeatureExtractor(false);
       return new FastPerceptronAmbiguityResolver(bestAveragedWeights, testExtractor);
     }
 

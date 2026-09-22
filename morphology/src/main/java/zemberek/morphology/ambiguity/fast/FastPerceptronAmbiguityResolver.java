@@ -53,7 +53,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     WeightLookup weights = CompressedWeights.isCompressed(modelFile)
         ? CompressedWeights.deserialize(modelFile)
         : Weights.loadFromFile(modelFile);
-    FastFeatureExtractor extractor = new FastFeatureExtractor(true);
+    FastFeatureExtractor extractor = new FastFeatureExtractor(false);
     return new FastPerceptronAmbiguityResolver(weights, extractor);
   }
 
@@ -64,7 +64,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     } else {
       lookup = Weights.loadFromResource(resourcePath);
     }
-    FastFeatureExtractor extractor = new FastFeatureExtractor(true);
+    FastFeatureExtractor extractor = new FastFeatureExtractor(false);
     return new FastPerceptronAmbiguityResolver(lookup, extractor);
   }
 
@@ -384,7 +384,6 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     public final FastFeatureExtractor extractor;
     private final CandidateContext beginContext;
     private final CandidateContext endContext;
-    private final float pEndsVerbScore;
     private DecodeMode mode = DEFAULT_MODE;
     private int beamSize = -1;
 
@@ -393,7 +392,6 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       this.extractor = extractor != null ? extractor : new FastFeatureExtractor(false);
       this.beginContext = new CandidateContext(sentenceBegin, model, false, 0);
       this.endContext = new CandidateContext(sentenceEnd, model, false, 0);
-      this.pEndsVerbScore = model.get("P:ENDSVERB");
     }
 
     public DecodeMode getDecodeMode() {
@@ -460,7 +458,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
       if (w3.sa == sentenceEnd || (w3.surface != null && w3.surface.equals("."))) {
         if (w2.sa != sentenceBegin && w2.isVerb) {
-          score += pEndsVerbScore;
+          score += model.get("P:ENDSVERB");
         }
       }
       return score;
