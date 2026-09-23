@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import zemberek.core.collections.IntValueMap;
 import zemberek.core.data.CompressedWeights;
 import zemberek.core.data.WeightLookup;
@@ -27,6 +28,9 @@ import zemberek.morphology.analysis.WordAnalysis;
  * rules, factored scoring prefixes, and multi-mode decoding (Viterbi, Beam Search, Greedy).
  */
 public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
+
+  public static final SingleAnalysis sentenceBegin = SingleAnalysis.unknown("<s>");
+  public static final SingleAnalysis sentenceEnd = SingleAnalysis.unknown("</s>");
 
   public enum DecodeMode {
     VITERBI,
@@ -53,8 +57,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     WeightLookup weights = CompressedWeights.isCompressed(modelFile)
         ? CompressedWeights.deserialize(modelFile)
         : Weights.loadFromFile(modelFile);
-    FastFeatureExtractor extractor = new FastFeatureExtractor(false);
-    return new FastPerceptronAmbiguityResolver(weights, extractor);
+    return new FastPerceptronAmbiguityResolver(weights);
   }
 
   public static FastPerceptronAmbiguityResolver fromResource(String resourcePath) throws IOException {
@@ -64,8 +67,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     } else {
       lookup = Weights.loadFromResource(resourcePath);
     }
-    FastFeatureExtractor extractor = new FastFeatureExtractor(false);
-    return new FastPerceptronAmbiguityResolver(lookup, extractor);
+    return new FastPerceptronAmbiguityResolver(lookup);
   }
 
   public WeightLookup getModel() {
@@ -110,7 +112,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
   @Override
   public SentenceAnalysis disambiguate(String sentence, List<WordAnalysis> allAnalyses) {
-    if (allAnalyses.isEmpty()) {
+    if (allAnalyses == null || allAnalyses.isEmpty()) {
       return new SentenceAnalysis(sentence, Collections.emptyList());
     }
     FastDecodeResult best = decoder.isGreedy()
@@ -276,8 +278,6 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       feats.addOrIncrement("22:" + trigram[2].groupCount());
 
       // --- Surface & Linguistic Rules (PROPER & ENDSVERB) ---
-      String s1 = trigram[0].surfaceForm();
-      String s2 = trigram[1].surfaceForm();
       String s3 = trigram[2].surfaceForm();
 
       if (!s3.isEmpty() && trigram[2] != sentenceEnd && !s3.startsWith("<")) {
@@ -313,14 +313,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     public final SingleAnalysis sa;
     public final String lemma;
     public final List<String> igs;
-    public final String igJoined;
     public final String rIg;
     public final String lastGroup;
     public final String surface;
-    public final boolean isSpecial;
-    public final boolean isProperNoun;
     public final boolean isVerb;
-    public final int groupCount;
     public final float uniScore;
     public final float c10bScore;
     public final float c10cScore;
@@ -336,14 +332,14 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       WordData wd = WordData.fromAnalysis(sa);
       this.lemma = wd.lemma;
       this.igs = wd.igs;
-      this.igJoined = String.join("+", igs);
+      String igJoined = String.join("+", igs);
       this.rIg = lemma + "+" + igJoined;
       this.lastGroup = wd.lastGroup();
       this.surface = sa.surfaceForm();
-      this.isSpecial = (sa == sentenceBegin || sa == sentenceEnd || (surface != null && surface.startsWith("<")));
-      this.isProperNoun = (!isSpecial && sa.getDictionaryItem() != null && sa.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun);
+      boolean isSpecial = (sa == sentenceBegin || sa == sentenceEnd || (surface != null && surface.startsWith("<")));
+      boolean isProperNoun = (!isSpecial && sa.getDictionaryItem() != null && sa.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun);
       this.isVerb = (!isSpecial && sa.getDictionaryItem() != null && sa.getDictionaryItem().primaryPos == PrimaryPos.Verb);
-      this.groupCount = sa.groupCount();
+      int groupCount = sa.groupCount();
 
       this.f2Prefix = "2:" + rIg + "-";
       this.f3Prefix = "3:" + rIg + "-";
@@ -388,10 +384,14 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     private int beamSize = -1;
 
     public FastDecoder(WeightLookup model, FastFeatureExtractor extractor) {
-      this.model = model;
+      this.model = Objects.requireNonNull(model, "model cannot be null");
       this.extractor = extractor != null ? extractor : new FastFeatureExtractor(false);
       this.beginContext = new CandidateContext(sentenceBegin, model, false, 0);
       this.endContext = new CandidateContext(sentenceEnd, model, false, 0);
+    }
+
+    public FastDecoder(WeightLookup model) {
+      this(model, new FastFeatureExtractor(false));
     }
 
     public DecodeMode getDecodeMode() {
@@ -709,7 +709,6 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     public final CandidateContext prevCtx;
     public final CandidateContext currCtx;
     public final FastHypothesis previous;
-    public final String w1w2LastGroup;
     public final String f15Prefix;
     public float score;
     private final int hash;
@@ -723,27 +722,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       this.currCtx = currCtx;
       this.prev = prevCtx.sa;
       this.current = currCtx.sa;
-      this.w1w2LastGroup = prevCtx.lastGroup + "-" + currCtx.lastGroup;
-      this.f15Prefix = "15:" + this.w1w2LastGroup + "-";
+      this.f15Prefix = "15:" + prevCtx.lastGroup + "-" + currCtx.lastGroup + "-";
       this.previous = previous;
       this.score = score;
       this.hash = 31 * this.prev.hashCode() + this.current.hashCode();
-    }
-
-    public FastHypothesis(
-        SingleAnalysis prev,
-        SingleAnalysis current,
-        FastHypothesis previous,
-        float score) {
-      this.prev = prev;
-      this.current = current;
-      this.prevCtx = null;
-      this.currCtx = null;
-      this.w1w2LastGroup = "";
-      this.f15Prefix = "15:-";
-      this.previous = previous;
-      this.score = score;
-      this.hash = 31 * prev.hashCode() + current.hashCode();
     }
 
     @Override
@@ -764,7 +746,4 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       return score;
     }
   }
-
-  public static final SingleAnalysis sentenceBegin = SingleAnalysis.unknown("<s>");
-  public static final SingleAnalysis sentenceEnd = SingleAnalysis.unknown("</s>");
 }
