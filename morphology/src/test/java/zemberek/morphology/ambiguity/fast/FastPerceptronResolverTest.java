@@ -305,4 +305,34 @@ public class FastPerceptronResolverTest {
     Assert.assertTrue("Should trigger target Feature 15 in winning sequence",
         counts.contains(targetF15));
   }
+
+  @Test
+  public void testFastDecoderConstructorsAndValidation() {
+    Weights weights = new Weights();
+    // 1. Single argument constructor
+    FastPerceptronAmbiguityResolver.FastDecoder decoder =
+        new FastPerceptronAmbiguityResolver.FastDecoder(weights);
+    Assert.assertNotNull(decoder);
+    Assert.assertEquals(FastPerceptronAmbiguityResolver.DecodeMode.VITERBI, decoder.getDecodeMode());
+
+    // 2. Null model validation
+    try {
+      new FastPerceptronAmbiguityResolver.FastDecoder(null);
+      Assert.fail("Expected NullPointerException when model is null");
+    } catch (NullPointerException expected) {
+      Assert.assertTrue(expected.getMessage().contains("model cannot be null"));
+    }
+  }
+
+  @Test
+  public void testDisambiguateNullAndEmptySafety() {
+    Weights weights = new Weights();
+    FastPerceptronAmbiguityResolver resolver = new FastPerceptronAmbiguityResolver(weights);
+
+    SentenceAnalysis emptyResult = resolver.disambiguate("boş", java.util.Collections.emptyList());
+    Assert.assertEquals(0, emptyResult.size());
+
+    SentenceAnalysis nullResult = resolver.disambiguate("boş", null);
+    Assert.assertEquals(0, nullResult.size());
+  }
 }
