@@ -101,7 +101,7 @@ public class FastPerceptronAmbiguityResolverTrainer {
 
       if (devSet != null) {
         Log.info("Testing on development set after iteration %d...", it);
-        test(devSet, new FastPerceptronAmbiguityResolver(averagedWeights, extractor));
+        evaluateAccuracy(devSet, new FastPerceptronAmbiguityResolver(averagedWeights, extractor));
       }
     }
 
@@ -159,7 +159,7 @@ public class FastPerceptronAmbiguityResolverTrainer {
   /**
    * Evaluates a model on a given dataset and returns token accuracy.
    */
-  public static double test(DataSet set, FastPerceptronAmbiguityResolver disambiguator) {
+  public static double evaluateAccuracy(DataSet set, FastPerceptronAmbiguityResolver disambiguator) {
     int hit = 0;
     int total = 0;
     for (SentenceAnalysis sentence : set.sentences) {
@@ -180,12 +180,31 @@ public class FastPerceptronAmbiguityResolverTrainer {
     return acc;
   }
 
-  public static double test(
+  public static double evaluateAccuracy(
       Path testFilePath,
       TurkishMorphology morphology,
       FastPerceptronAmbiguityResolver resolver) throws IOException {
     DataSet testSet = DataSet.load(testFilePath, morphology);
-    return test(testSet, resolver);
+    return evaluateAccuracy(testSet, resolver);
+  }
+
+  /**
+   * @deprecated Use {@link #evaluateAccuracy(DataSet, FastPerceptronAmbiguityResolver)} instead.
+   */
+  @Deprecated
+  public static double test(DataSet set, FastPerceptronAmbiguityResolver disambiguator) {
+    return evaluateAccuracy(set, disambiguator);
+  }
+
+  /**
+   * @deprecated Use {@link #evaluateAccuracy(Path, TurkishMorphology, FastPerceptronAmbiguityResolver)} instead.
+   */
+  @Deprecated
+  public static double test(
+      Path testFilePath,
+      TurkishMorphology morphology,
+      FastPerceptronAmbiguityResolver resolver) throws IOException {
+    return evaluateAccuracy(testFilePath, morphology, resolver);
   }
 
   /**

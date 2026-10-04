@@ -55,7 +55,7 @@ public class FastPerceptronTrainerTest {
     Assert.assertTrue("Averaged weights should contain features", weights.size() > 0);
 
     // Evaluate
-    double acc = FastPerceptronAmbiguityResolverTrainer.test(dataset, resolver);
+    double acc = FastPerceptronAmbiguityResolverTrainer.evaluateAccuracy(dataset, resolver);
     Assert.assertTrue("Accuracy should be positive", acc > 0.0);
   }
 
