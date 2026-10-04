@@ -100,7 +100,7 @@ public class FastPerceptronAmbiguityResolverTrainer {
       }
 
       if (devSet != null) {
-        Log.info("Testing on development set after iteration %d...", it);
+        Log.info("Evaluating on development set after iteration %d...", it);
         evaluateAccuracy(devSet, new FastPerceptronAmbiguityResolver(averagedWeights, extractor));
       }
     }
@@ -168,15 +168,16 @@ public class FastPerceptronAmbiguityResolverTrainer {
       }
       FastDecodeResult result = disambiguator.getDecoder().bestPath(sentence.ambiguousAnalysis());
       List<SingleAnalysis> bestExpected = sentence.bestAnalysis();
-      for (int i = 0; i < result.bestParse.size(); i++) {
+      int tokenCount = Math.min(bestExpected.size(), result.bestParse.size());
+      for (int i = 0; i < tokenCount; i++) {
         if (bestExpected.get(i).equals(result.bestParse.get(i))) {
           hit++;
         }
-        total++;
       }
+      total += Math.max(bestExpected.size(), result.bestParse.size());
     }
     double acc = total > 0 ? (double) hit / total : 0.0;
-    Log.info("Dev Token Accuracy: %.2f%% (%d / %d)", (100.0 * acc), hit, total);
+    Log.info("Token Accuracy: %.2f%% (%d / %d)", (100.0 * acc), hit, total);
     return acc;
   }
 
