@@ -126,6 +126,17 @@ Finds all morphological analyses of word "kalemin"
     [kalem:Noun] kalem:Noun+A3sg+in:Gen
     [kalem:Noun] kalem:Noun+A3sg+in:P2sg
 
+### Reading morpheme labels
+
+`formatLong()` writes analyses as surface forms paired with morpheme labels. In each `surface:label` pair, the text before `:` is the surface form and the text after it is the label. `+` separates inflectional morphemes; derivational boundaries use `|` and `→`. The labels are compact grammatical tags. For example:
+
+| Label | Meaning |
+| --- | --- |
+| `A1pl` | First-person plural agreement |
+| `Fut` | Future tense |
+| `Cond` | Conditional |
+
+For a fuller explanation of the tag notation, see [Chapter 7 of this reference](https://research.sabanciuniv.edu/id/eprint/8521/1/3021800000064.pdf) (the chapter suggested in [issue #281](https://github.com/ahmetaa/zemberek-nlp/issues/281)).
 
 ### Stemming and Lemmatization Example
 
