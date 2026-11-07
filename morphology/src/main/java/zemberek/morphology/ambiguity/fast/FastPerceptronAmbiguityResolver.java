@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import zemberek.core.collections.IntValueMap;
 import zemberek.core.data.CompressedWeights;
 import zemberek.core.data.WeightLookup;
@@ -129,6 +131,201 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
   // --- Internal Data Structures ---
 
+  /**
+   * Immutable, model-independent structural representation of a {@link SingleAnalysis}.
+   * Cached globally in a {@link ConcurrentHashMap} backed by an L1 reference table so
+   * morphological decomposition, surface reconstruction, integer state IDs, and feature key
+   * prefixes are computed strictly once per unique analysis.
+   */
+  static final class AnalysisTemplate {
+    private static final int L1_SIZE = 1 << 16; // 65,536 slots
+    private static final int L1_MASK = L1_SIZE - 1;
+    private static final int MAX_MAP_ENTRIES = 1 << 17; // 131,072 cap against unbounded growth
+    private static final AnalysisTemplate[] L1_CACHE = new AnalysisTemplate[L1_SIZE];
+    private static final ConcurrentHashMap<SingleAnalysis, AnalysisTemplate> MAP =
+        new ConcurrentHashMap<>(32_768);
+
+    private static final ConcurrentHashMap<String, Integer> LEMMA_IDS = new ConcurrentHashMap<>(16_384);
+    private static final ConcurrentHashMap<String, Integer> LAST_GROUP_IDS = new ConcurrentHashMap<>(4_096);
+    private static final ConcurrentHashMap<String, Integer> IG_JOINED_IDS = new ConcurrentHashMap<>(8_192);
+    private static final ConcurrentHashMap<String, Integer> RIG_IDS = new ConcurrentHashMap<>(32_768);
+
+    private static final AtomicInteger NEXT_LEMMA_ID = new AtomicInteger(1);
+    private static final AtomicInteger NEXT_LAST_GROUP_ID = new AtomicInteger(1);
+    private static final AtomicInteger NEXT_IG_JOINED_ID = new AtomicInteger(1);
+    private static final AtomicInteger NEXT_RIG_ID = new AtomicInteger(1);
+
+    static final AnalysisTemplate BEGIN_TEMPLATE = new AnalysisTemplate(sentenceBegin);
+    static final AnalysisTemplate END_TEMPLATE = new AnalysisTemplate(sentenceEnd);
+
+    private static int assignId(ConcurrentHashMap<String, Integer> map, AtomicInteger counter, String key) {
+      Integer existing = map.get(key);
+      if (existing != null) {
+        return existing;
+      }
+      int created = counter.getAndIncrement();
+      if (map.size() < MAX_MAP_ENTRIES) {
+        Integer prev = map.putIfAbsent(key, created);
+        return prev != null ? prev : created;
+      }
+      return created;
+    }
+
+    final SingleAnalysis sa;
+    final WordData wordData;
+    final String lemma;
+    final List<String> igs;
+    final String[] igsArray;
+    final String igJoined;
+    final String rIg;
+    final String lastGroup;
+    final String surface;
+    final boolean isSpecial;
+    final boolean isProperNoun;
+    final boolean isVerb;
+    final boolean isNonBeginVerb;
+    final boolean isEndOrDot;
+    final boolean firstCharUpperProper;
+    final boolean firstCharLowerProper;
+
+    final int lemmaId;
+    final int lastGroupId;
+    final int igJoinedId;
+    final int rIgId;
+    final int biStateId;
+
+    final String f2Prefix;
+    final String f3Prefix;
+    final String f9Prefix;
+    final String f17Prefix;
+    final String f4Key;
+    final String f10Key;
+    final String f10bKey;
+    final String f10cKey;
+    final String[] f20Keys;
+    final String f22Key;
+    final String initProperKey;
+    final String properLemmaKey;
+
+    private AnalysisTemplate(SingleAnalysis sa) {
+      this.sa = sa;
+      if (sa == sentenceBegin) {
+        this.lemma = "<s>";
+        this.igsArray = new String[]{this.lemma};
+        this.igs = Collections.singletonList(this.lemma);
+        this.wordData = new WordData(this.lemma, this.igs);
+        this.igJoined = this.lemma;
+        this.rIg = "<s>+<s>";
+        this.lastGroup = this.lemma;
+        this.surface = "<s>";
+        this.isSpecial = true;
+      } else if (sa == sentenceEnd) {
+        this.lemma = "</s>";
+        this.igsArray = new String[]{this.lemma};
+        this.igs = Collections.singletonList(this.lemma);
+        this.wordData = new WordData(this.lemma, this.igs);
+        this.igJoined = this.lemma;
+        this.rIg = "</s>+</s>";
+        this.lastGroup = this.lemma;
+        this.surface = "</s>";
+        this.isSpecial = true;
+      } else {
+        String rawLemma = sa.getDictionaryItem().lemma;
+        this.lemma = rawLemma != null ? rawLemma : "";
+        SecondaryPos secPos = sa.getDictionaryItem().secondaryPos;
+        String sp = secPos == SecondaryPos.None ? "" : secPos.name();
+
+        int groupCount = sa.groupCount();
+        String[] arr = new String[groupCount];
+        List<String> igList = new ArrayList<>(groupCount);
+        for (int i = 0; i < groupCount; i++) {
+          String s = sa.getGroup(i).lexicalForm();
+          if (i == 0 && !sp.isEmpty()) {
+            s = sp + s;
+          }
+          arr[i] = s;
+          igList.add(s);
+        }
+        this.igsArray = arr;
+        this.igs = Collections.unmodifiableList(igList);
+        this.wordData = new WordData(this.lemma, this.igs);
+        this.igJoined = (groupCount == 1 ? arr[0] : String.join("+", arr));
+        this.rIg = this.lemma + "+" + this.igJoined;
+        this.lastGroup = (groupCount > 0 ? arr[groupCount - 1] : "");
+        this.surface = sa.surfaceForm();
+        this.isSpecial = (this.surface != null && this.surface.startsWith("<"));
+      }
+
+      this.isProperNoun = (!this.isSpecial
+          && sa.getDictionaryItem() != null
+          && sa.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun);
+      this.isVerb = (!this.isSpecial
+          && sa.getDictionaryItem() != null
+          && sa.getDictionaryItem().primaryPos == PrimaryPos.Verb);
+      this.isNonBeginVerb = (sa != sentenceBegin && this.isVerb);
+      this.isEndOrDot = (sa == sentenceEnd || ".".equals(this.surface));
+
+      if (!this.isSpecial && this.isProperNoun && this.surface != null && !this.surface.isEmpty()) {
+        char firstChar = this.surface.charAt(0);
+        this.firstCharUpperProper = Character.isUpperCase(firstChar);
+        this.firstCharLowerProper = Character.isLowerCase(firstChar);
+      } else {
+        this.firstCharUpperProper = false;
+        this.firstCharLowerProper = false;
+      }
+
+      this.lemmaId = assignId(LEMMA_IDS, NEXT_LEMMA_ID, this.lemma);
+      this.lastGroupId = assignId(LAST_GROUP_IDS, NEXT_LAST_GROUP_ID, this.lastGroup);
+      this.igJoinedId = assignId(IG_JOINED_IDS, NEXT_IG_JOINED_ID, this.igJoined);
+      this.rIgId = assignId(RIG_IDS, NEXT_RIG_ID, this.rIg);
+      this.biStateId = (this.rIgId << 2) | (this.isNonBeginVerb ? 2 : 0) | (this.isEndOrDot ? 1 : 0);
+
+      this.f2Prefix = "2:" + this.rIg + "-";
+      this.f3Prefix = "3:" + this.rIg + "-";
+      this.f9Prefix = "9:" + this.lemma + "-";
+      this.f17Prefix = "17:" + this.lastGroup + "-";
+
+      this.f4Key = "4:" + this.rIg;
+      this.f10Key = "10:" + this.lemma;
+      this.f10bKey = "10b:" + this.lemma;
+      this.f10cKey = "10c:" + this.lemma;
+      String[] f20 = new String[this.igsArray.length];
+      for (int k = 0; k < this.igsArray.length; k++) {
+        f20[k] = "20:" + k + "-" + this.igsArray[k];
+      }
+      this.f20Keys = f20;
+      this.f22Key = "22:" + sa.groupCount();
+      this.initProperKey = this.firstCharUpperProper ? ("P:INIT_PROPER:" + this.lemma) : null;
+      this.properLemmaKey = this.firstCharUpperProper ? ("P:PROPER:" + this.lemma) : null;
+    }
+
+    static AnalysisTemplate get(SingleAnalysis sa) {
+      if (sa == sentenceBegin) {
+        return BEGIN_TEMPLATE;
+      }
+      if (sa == sentenceEnd) {
+        return END_TEMPLATE;
+      }
+      int slot = (int) ((sa.hashCode() * 0x9E3779B97F4A7C15L) >>> 47) & L1_MASK;
+      AnalysisTemplate l1 = L1_CACHE[slot];
+      if (l1 != null && (l1.sa == sa || l1.sa.equals(sa))) {
+        return l1;
+      }
+      AnalysisTemplate cached = MAP.get(sa);
+      if (cached == null) {
+        cached = new AnalysisTemplate(sa);
+        if (MAP.size() < MAX_MAP_ENTRIES) {
+          AnalysisTemplate prev = MAP.putIfAbsent(sa, cached);
+          if (prev != null) {
+            cached = prev;
+          }
+        }
+      }
+      L1_CACHE[slot] = cached;
+      return cached;
+    }
+  }
+
   public static class WordData {
     public final String lemma;
     public final List<String> igs;
@@ -139,25 +336,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     }
 
     public static WordData fromAnalysis(SingleAnalysis sa) {
-      if (sa == sentenceBegin) {
-        return new WordData("<s>", Collections.singletonList("<s>"));
-      }
-      if (sa == sentenceEnd) {
-        return new WordData("</s>", Collections.singletonList("</s>"));
-      }
-      String lemma = sa.getDictionaryItem().lemma;
-      SecondaryPos secPos = sa.getDictionaryItem().secondaryPos;
-      String sp = secPos == SecondaryPos.None ? "" : secPos.name();
-
-      List<String> igs = new ArrayList<>(sa.groupCount());
-      for (int i = 0; i < sa.groupCount(); i++) {
-        String s = sa.getGroup(i).lexicalForm();
-        if (i == 0) {
-          s = sp + s;
-        }
-        igs.add(s);
-      }
-      return new WordData(lemma, igs);
+      return AnalysisTemplate.get(sa).wordData;
     }
 
     public String lastGroup() {
@@ -239,67 +418,49 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       }
 
       IntValueMap<String> feats = new IntValueMap<>();
-      WordData w1 = WordData.fromAnalysis(trigram[0]);
-      WordData w2 = WordData.fromAnalysis(trigram[1]);
-      WordData w3 = WordData.fromAnalysis(trigram[2]);
-
-      String r1 = w1.lemma;
-      String r2 = w2.lemma;
-      String r3 = w3.lemma;
-
-      String ig1 = String.join("+", w1.igs);
-      String ig2 = String.join("+", w2.igs);
-      String ig3 = String.join("+", w3.igs);
-
-      String r1Ig1 = r1 + "+" + ig1;
-      String r2Ig2 = r2 + "+" + ig2;
-      String r3Ig3 = r3 + "+" + ig3;
+      AnalysisTemplate t1 = AnalysisTemplate.get(trigram[0]);
+      AnalysisTemplate t2 = AnalysisTemplate.get(trigram[1]);
+      AnalysisTemplate t3 = AnalysisTemplate.get(trigram[2]);
 
       // Baseline Perceptron features
-      feats.addOrIncrement("2:" + r1Ig1 + "-" + r3Ig3);
-      feats.addOrIncrement("3:" + r2Ig2 + "-" + r3Ig3);
-      feats.addOrIncrement("4:" + r3Ig3);
-      feats.addOrIncrement("9:" + r2 + "-" + r3);
-      feats.addOrIncrement("10:" + r3);
-      feats.addOrIncrement("10b:" + r2);
-      feats.addOrIncrement("10c:" + r1);
+      feats.addOrIncrement(t1.f2Prefix + t3.rIg);
+      feats.addOrIncrement(t2.f3Prefix + t3.rIg);
+      feats.addOrIncrement(t3.f4Key);
+      feats.addOrIncrement(t2.f9Prefix + t3.lemma);
+      feats.addOrIncrement(t3.f10Key);
+      feats.addOrIncrement(t2.f10bKey);
+      feats.addOrIncrement(t1.f10cKey);
 
-      String w1LastGroup = w1.lastGroup();
-      String w2LastGroup = w2.lastGroup();
-
-      for (String ig : w3.igs) {
-        feats.addOrIncrement("15:" + w1LastGroup + "-" + w2LastGroup + "-" + ig);
-        feats.addOrIncrement("17:" + w2LastGroup + "-" + ig);
+      String f15Prefix = "15:" + t1.lastGroup + "-" + t2.lastGroup + "-";
+      String f17Prefix = t2.f17Prefix;
+      String[] w3Igs = t3.igsArray;
+      for (int i = 0; i < w3Igs.length; i++) {
+        String ig = w3Igs[i];
+        feats.addOrIncrement(f15Prefix + ig);
+        feats.addOrIncrement(f17Prefix + ig);
       }
 
-      for (int k = 0; k < w3.igs.size(); k++) {
-        feats.addOrIncrement("20:" + k + "-" + w3.igs.get(k));
+      String[] f20Keys = t3.f20Keys;
+      for (int k = 0; k < f20Keys.length; k++) {
+        feats.addOrIncrement(f20Keys[k]);
       }
-      feats.addOrIncrement("22:" + trigram[2].groupCount());
+      feats.addOrIncrement(t3.f22Key);
 
       // --- Surface & Linguistic Rules (PROPER & ENDSVERB) ---
-      String s3 = trigram[2].surfaceForm();
-
-      if (!s3.isEmpty() && trigram[2] != sentenceEnd && !s3.startsWith("<")) {
-        char firstChar = s3.charAt(0);
-        boolean isProperNoun = (trigram[2].getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun);
+      if (t3.firstCharUpperProper) {
         boolean isSentenceInitial = (trigram[0] == sentenceBegin && trigram[1] == sentenceBegin);
-        if (Character.isUpperCase(firstChar) && isProperNoun) {
-          if (isSentenceInitial) {
-            feats.addOrIncrement("P:INIT_PROPER:" + r3);
-          } else {
-            feats.addOrIncrement("P:PROPER");
-            feats.addOrIncrement("P:PROPER:" + r3);
-          }
-        } else if (Character.isLowerCase(firstChar) && isProperNoun) {
-          feats.addOrIncrement("P:LOWER_PROPER");
+        if (isSentenceInitial) {
+          feats.addOrIncrement(t3.initProperKey);
+        } else {
+          feats.addOrIncrement("P:PROPER");
+          feats.addOrIncrement(t3.properLemmaKey);
         }
+      } else if (t3.firstCharLowerProper) {
+        feats.addOrIncrement("P:LOWER_PROPER");
       }
 
-      if (trigram[2] == sentenceEnd || s3.equals(".")) {
-        if (trigram[1] != sentenceBegin && trigram[1].getDictionaryItem().primaryPos == PrimaryPos.Verb) {
-          feats.addOrIncrement("P:ENDSVERB");
-        }
+      if (t3.isEndOrDot && t2.isNonBeginVerb) {
+        feats.addOrIncrement("P:ENDSVERB");
       }
 
       if (useCache && key != null) {
@@ -326,72 +487,377 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     public final String f9Prefix;
     public final String f17Prefix;
 
+    final String[] igsArray;
+    final String igJoined;
+    final boolean isNonBeginVerb;
+    final boolean isEndOrDot;
+    final int lemmaId;
+    final int lastGroupId;
+    final int igJoinedId;
+    final int rIgId;
+    final int biStateId;
+
     public CandidateContext(SingleAnalysis sa, WeightLookup model, boolean isSentenceInitial, int index) {
-      this.sa = sa;
+      this(AnalysisTemplate.get(sa), model, isSentenceInitial, index);
+    }
+
+    CandidateContext(AnalysisTemplate t, WeightLookup model, boolean isSentenceInitial, int index) {
+      this.sa = t.sa;
       this.index = index;
-      WordData wd = WordData.fromAnalysis(sa);
-      this.lemma = wd.lemma;
-      this.igs = wd.igs;
-      String igJoined = String.join("+", igs);
-      this.rIg = lemma + "+" + igJoined;
-      this.lastGroup = wd.lastGroup();
-      this.surface = sa.surfaceForm();
-      boolean isSpecial = (sa == sentenceBegin || sa == sentenceEnd || (surface != null && surface.startsWith("<")));
-      boolean isProperNoun = (!isSpecial && sa.getDictionaryItem() != null && sa.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun);
-      this.isVerb = (!isSpecial && sa.getDictionaryItem() != null && sa.getDictionaryItem().primaryPos == PrimaryPos.Verb);
-      int groupCount = sa.groupCount();
+      this.lemma = t.lemma;
+      this.igs = t.igs;
+      this.igsArray = t.igsArray;
+      this.igJoined = t.igJoined;
+      this.rIg = t.rIg;
+      this.lastGroup = t.lastGroup;
+      this.surface = t.surface;
+      this.isVerb = t.isVerb;
+      this.isNonBeginVerb = t.isNonBeginVerb;
+      this.isEndOrDot = t.isEndOrDot;
+      this.lemmaId = t.lemmaId;
+      this.lastGroupId = t.lastGroupId;
+      this.igJoinedId = t.igJoinedId;
+      this.rIgId = t.rIgId;
+      this.biStateId = t.biStateId;
 
-      this.f2Prefix = "2:" + rIg + "-";
-      this.f3Prefix = "3:" + rIg + "-";
-      this.f9Prefix = "9:" + lemma + "-";
-      this.f17Prefix = "17:" + lastGroup + "-";
+      this.f2Prefix = t.f2Prefix;
+      this.f3Prefix = t.f3Prefix;
+      this.f9Prefix = t.f9Prefix;
+      this.f17Prefix = t.f17Prefix;
 
-      this.c10bScore = model.get("10b:" + lemma);
-      this.c10cScore = model.get("10c:" + lemma);
+      this.c10bScore = model.get(t.f10bKey);
+      this.c10cScore = model.get(t.f10cKey);
 
       // Precompute unigram score against model
-      float score = 0;
-      score += model.get("4:" + rIg);
-      score += model.get("10:" + lemma);
-      for (int k = 0; k < igs.size(); k++) {
-        score += model.get("20:" + k + "-" + igs.get(k));
+      float score = model.get(t.f4Key) + model.get(t.f10Key) + model.get(t.f22Key);
+      String[] f20Keys = t.f20Keys;
+      for (int k = 0; k < f20Keys.length; k++) {
+        score += model.get(f20Keys[k]);
       }
-      score += model.get("22:" + groupCount);
 
-      if (surface != null && !surface.isEmpty() && sa != sentenceEnd && !surface.startsWith("<")) {
-        char firstChar = surface.charAt(0);
-        if (Character.isUpperCase(firstChar) && isProperNoun) {
-          if (isSentenceInitial) {
-            score += model.get("P:INIT_PROPER:" + lemma);
-          } else {
-            score += model.get("P:PROPER");
-            score += model.get("P:PROPER:" + lemma);
-          }
-        } else if (Character.isLowerCase(firstChar) && isProperNoun) {
-          score += model.get("P:LOWER_PROPER");
+      if (t.firstCharUpperProper) {
+        if (isSentenceInitial) {
+          score += model.get(t.initProperKey);
+        } else {
+          score += model.get("P:PROPER") + model.get(t.properLemmaKey);
         }
+      } else if (t.firstCharLowerProper) {
+        score += model.get("P:LOWER_PROPER");
       }
       this.uniScore = score;
+    }
+
+    CandidateContext(
+        AnalysisTemplate t,
+        float uniScore,
+        float c10bScore,
+        float c10cScore,
+        int index) {
+      this.sa = t.sa;
+      this.index = index;
+      this.lemma = t.lemma;
+      this.igs = t.igs;
+      this.igsArray = t.igsArray;
+      this.igJoined = t.igJoined;
+      this.rIg = t.rIg;
+      this.lastGroup = t.lastGroup;
+      this.surface = t.surface;
+      this.isVerb = t.isVerb;
+      this.isNonBeginVerb = t.isNonBeginVerb;
+      this.isEndOrDot = t.isEndOrDot;
+      this.lemmaId = t.lemmaId;
+      this.lastGroupId = t.lastGroupId;
+      this.igJoinedId = t.igJoinedId;
+      this.rIgId = t.rIgId;
+      this.biStateId = t.biStateId;
+      this.f2Prefix = t.f2Prefix;
+      this.f3Prefix = t.f3Prefix;
+      this.f9Prefix = t.f9Prefix;
+      this.f17Prefix = t.f17Prefix;
+      this.uniScore = uniScore;
+      this.c10bScore = c10bScore;
+      this.c10cScore = c10cScore;
     }
   }
 
   public static class FastDecoder {
+    private static final int L1_SCORED_SIZE = 1 << 17; // 131,072 slots
+    private static final int L1_SCORED_MASK = L1_SCORED_SIZE - 1;
+    private static final int TRANSITION_CACHE_BITS = 20;
+    private static final int TRANSITION_CACHE_SIZE = 1 << TRANSITION_CACHE_BITS; // 1,048,576 slots
+    private static final int TRANSITION_CACHE_MASK = TRANSITION_CACHE_SIZE - 1;
+    private static final int TRANSITION_HASH_SHIFT = 64 - TRANSITION_CACHE_BITS;
+    private static final int PREALLOCATED_INDEX_LIMIT = 16;
+
+    private static int mixSlot(long key) {
+      long z = (key ^ (key >>> 30)) * 0xbf58476d1ce4e5b9L;
+      z = (z ^ (z >>> 27)) * 0x94d049bb133111ebL;
+      return (int) (z >>> TRANSITION_HASH_SHIFT);
+    }
+
+    private static final class ScoredCandidate {
+      final SingleAnalysis sa;
+      final AnalysisTemplate template;
+      final float uniScoreNonInitial;
+      final float uniScoreInitial;
+      final float c10bScore;
+      final float c10cScore;
+      final CandidateContext[] nonInitialByIndex = new CandidateContext[PREALLOCATED_INDEX_LIMIT];
+      final CandidateContext[] initialByIndex = new CandidateContext[PREALLOCATED_INDEX_LIMIT];
+
+      ScoredCandidate(
+          AnalysisTemplate t,
+          WeightLookup model,
+          float properWeight,
+          float lowerProperWeight) {
+        this.sa = t.sa;
+        this.template = t;
+        this.c10bScore = model.get(t.f10bKey);
+        this.c10cScore = model.get(t.f10cKey);
+
+        float base = model.get(t.f4Key) + model.get(t.f10Key) + model.get(t.f22Key);
+        String[] f20Keys = t.f20Keys;
+        for (int k = 0; k < f20Keys.length; k++) {
+          base += model.get(f20Keys[k]);
+        }
+        if (t.firstCharUpperProper) {
+          this.uniScoreInitial = base + model.get(t.initProperKey);
+          this.uniScoreNonInitial = base + properWeight + model.get(t.properLemmaKey);
+        } else if (t.firstCharLowerProper) {
+          float s = base + lowerProperWeight;
+          this.uniScoreInitial = s;
+          this.uniScoreNonInitial = s;
+        } else {
+          this.uniScoreInitial = base;
+          this.uniScoreNonInitial = base;
+        }
+      }
+
+      CandidateContext context(boolean isSentenceInitial, int index) {
+        float uni = isSentenceInitial ? uniScoreInitial : uniScoreNonInitial;
+        if (index >= 0 && index < PREALLOCATED_INDEX_LIMIT) {
+          CandidateContext[] arr = isSentenceInitial ? initialByIndex : nonInitialByIndex;
+          CandidateContext ctx = arr[index];
+          if (ctx == null) {
+            ctx = new CandidateContext(template, uni, c10bScore, c10cScore, index);
+            arr[index] = ctx;
+          }
+          return ctx;
+        }
+        return new CandidateContext(template, uni, c10bScore, c10cScore, index);
+      }
+    }
+
+    private static final class DecoderCache {
+      final ScoredCandidate[] l1Scored = new ScoredCandidate[L1_SCORED_SIZE];
+      final long[] biKeys = new long[TRANSITION_CACHE_SIZE];
+      final float[] biVals = new float[TRANSITION_CACHE_SIZE];
+      final long[] f2Keys = new long[TRANSITION_CACHE_SIZE];
+      final float[] f2Vals = new float[TRANSITION_CACHE_SIZE];
+      final long[] f15Keys = new long[TRANSITION_CACHE_SIZE];
+      final float[] f15Vals = new float[TRANSITION_CACHE_SIZE];
+      final long[] f17Keys = new long[TRANSITION_CACHE_SIZE];
+      final float[] f17Vals = new float[TRANSITION_CACHE_SIZE];
+    }
+
     public final WeightLookup model;
     public final FastFeatureExtractor extractor;
+    private final boolean immutableModel;
+    private final float properWeight;
+    private final float lowerProperWeight;
+    private final float endsVerbWeight;
+    private final ConcurrentHashMap<SingleAnalysis, ScoredCandidate> scoredMap;
+    private final Thread ownerThread;
+    private final DecoderCache mainCache;
+    private final ThreadLocal<DecoderCache> localCache;
     private final CandidateContext beginContext;
     private final CandidateContext endContext;
+    private final CandidateContext[] beginCandidates;
     private DecodeMode mode = DEFAULT_MODE;
     private int beamSize = -1;
 
     public FastDecoder(WeightLookup model, FastFeatureExtractor extractor) {
       this.model = Objects.requireNonNull(model, "model cannot be null");
       this.extractor = extractor != null ? extractor : new FastFeatureExtractor(false);
-      this.beginContext = new CandidateContext(sentenceBegin, model, false, 0);
-      this.endContext = new CandidateContext(sentenceEnd, model, false, 0);
+      this.immutableModel = (model instanceof CompressedWeights);
+      if (this.immutableModel) {
+        this.properWeight = model.get("P:PROPER");
+        this.lowerProperWeight = model.get("P:LOWER_PROPER");
+        this.endsVerbWeight = model.get("P:ENDSVERB");
+        this.scoredMap = new ConcurrentHashMap<>(32_768);
+        this.ownerThread = Thread.currentThread();
+        this.mainCache = new DecoderCache();
+        this.localCache = ThreadLocal.withInitial(DecoderCache::new);
+      } else {
+        this.properWeight = 0f;
+        this.lowerProperWeight = 0f;
+        this.endsVerbWeight = 0f;
+        this.scoredMap = null;
+        this.ownerThread = null;
+        this.mainCache = null;
+        this.localCache = null;
+      }
+      this.beginContext = new CandidateContext(AnalysisTemplate.BEGIN_TEMPLATE, model, false, 0);
+      this.endContext = new CandidateContext(AnalysisTemplate.END_TEMPLATE, model, false, 0);
+      this.beginCandidates = new CandidateContext[]{this.beginContext};
     }
 
     public FastDecoder(WeightLookup model) {
       this(model, new FastFeatureExtractor(false));
+    }
+
+    private DecoderCache currentCache() {
+      if (!immutableModel) {
+        return null;
+      }
+      return (Thread.currentThread() == ownerThread) ? mainCache : localCache.get();
+    }
+
+    private CandidateContext getCandidateContext(
+        DecoderCache cache,
+        SingleAnalysis sa,
+        boolean isSentenceInitial,
+        int index) {
+      if (cache != null) {
+        int slot = (int) ((sa.hashCode() * 0x9E3779B97F4A7C15L) >>> 47) & L1_SCORED_MASK;
+        ScoredCandidate sc = cache.l1Scored[slot];
+        if (sc == null || (sc.sa != sa && !sc.sa.equals(sa))) {
+          sc = scoredMap.get(sa);
+          if (sc == null) {
+            sc = new ScoredCandidate(AnalysisTemplate.get(sa), model, properWeight, lowerProperWeight);
+            if (scoredMap.size() < AnalysisTemplate.MAX_MAP_ENTRIES) {
+              ScoredCandidate prev = scoredMap.putIfAbsent(sa, sc);
+              if (prev != null) {
+                sc = prev;
+              }
+            }
+          }
+          cache.l1Scored[slot] = sc;
+        }
+        return sc.context(isSentenceInitial, index);
+      }
+      return new CandidateContext(AnalysisTemplate.get(sa), model, isSentenceInitial, index);
+    }
+
+    private float getEndsVerbWeight() {
+      return immutableModel ? endsVerbWeight : model.get("P:ENDSVERB");
+    }
+
+    private float getCachedF17(DecoderCache cache, CandidateContext w2, CandidateContext w3) {
+      long key = (((long) w2.lastGroupId) << 32) | (w3.igJoinedId & 0xFFFFFFFFL);
+      long[] keys = cache.f17Keys;
+      float[] vals = cache.f17Vals;
+      int slot = mixSlot(key);
+      if (keys[slot] == key) {
+        return vals[slot];
+      }
+      int slot2 = (slot + 1) & TRANSITION_CACHE_MASK;
+      if (keys[slot2] == key) {
+        return vals[slot2];
+      }
+      float s17 = 0f;
+      String f17Prefix = w2.f17Prefix;
+      String[] w3Igs = w3.igsArray;
+      for (int i = 0; i < w3Igs.length; i++) {
+        s17 += model.get(f17Prefix + w3Igs[i]);
+      }
+      keys[slot2] = keys[slot];
+      vals[slot2] = vals[slot];
+      keys[slot] = key;
+      vals[slot] = s17;
+      return s17;
+    }
+
+    private float getCachedBigram(DecoderCache cache, CandidateContext w2, CandidateContext w3) {
+      if (cache == null) {
+        return computeBigramScore(w2, w3);
+      }
+      long key = (((long) w2.biStateId) << 32) | (w3.biStateId & 0xFFFFFFFFL);
+      long[] keys = cache.biKeys;
+      float[] vals = cache.biVals;
+      int slot = mixSlot(key);
+      if (keys[slot] == key) {
+        return vals[slot];
+      }
+      int slot2 = (slot + 1) & TRANSITION_CACHE_MASK;
+      if (keys[slot2] == key) {
+        return vals[slot2];
+      }
+      float score = model.get(w2.f3Prefix + w3.rIg)
+          + model.get(w2.f9Prefix + w3.lemma)
+          + w2.c10bScore
+          + getCachedF17(cache, w2, w3);
+      if (w3.isEndOrDot && w2.isNonBeginVerb) {
+        score += endsVerbWeight;
+      }
+      keys[slot2] = keys[slot];
+      vals[slot2] = vals[slot];
+      keys[slot] = key;
+      vals[slot] = score;
+      return score;
+    }
+
+    private float getCachedF2(DecoderCache cache, CandidateContext w1, CandidateContext w3) {
+      if (cache == null) {
+        return model.get(w1.f2Prefix + w3.rIg) + w1.c10cScore;
+      }
+      long key = (((long) w1.rIgId) << 32) | (w3.rIgId & 0xFFFFFFFFL);
+      long[] keys = cache.f2Keys;
+      float[] vals = cache.f2Vals;
+      int slot = mixSlot(key);
+      if (keys[slot] == key) {
+        return vals[slot];
+      }
+      int slot2 = (slot + 1) & TRANSITION_CACHE_MASK;
+      if (keys[slot2] == key) {
+        return vals[slot2];
+      }
+      float score = model.get(w1.f2Prefix + w3.rIg) + w1.c10cScore;
+      keys[slot2] = keys[slot];
+      vals[slot2] = vals[slot];
+      keys[slot] = key;
+      vals[slot] = score;
+      return score;
+    }
+
+    private float getCachedF15(
+        DecoderCache cache,
+        CandidateContext w1,
+        CandidateContext w2,
+        CandidateContext w3) {
+      if (cache == null || ((w1.lastGroupId | w2.lastGroupId | w3.igJoinedId) >>> 21) != 0) {
+        String prefix = "15:" + w1.lastGroup + "-" + w2.lastGroup + "-";
+        float score = 0f;
+        String[] igs = w3.igsArray;
+        for (int i = 0; i < igs.length; i++) {
+          score += model.get(prefix + igs[i]);
+        }
+        return score;
+      }
+      long key = (((long) w1.lastGroupId) << 42)
+          | (((long) w2.lastGroupId) << 21)
+          | (w3.igJoinedId & 0x1FFFFFL);
+      long[] keys = cache.f15Keys;
+      float[] vals = cache.f15Vals;
+      int slot = mixSlot(key);
+      if (keys[slot] == key) {
+        return vals[slot];
+      }
+      int slot2 = (slot + 1) & TRANSITION_CACHE_MASK;
+      if (keys[slot2] == key) {
+        return vals[slot2];
+      }
+      String prefix = "15:" + w1.lastGroup + "-" + w2.lastGroup + "-";
+      float score = 0f;
+      String[] igs = w3.igsArray;
+      for (int i = 0; i < igs.length; i++) {
+        score += model.get(prefix + igs[i]);
+      }
+      keys[slot2] = keys[slot];
+      vals[slot2] = vals[slot];
+      keys[slot] = key;
+      vals[slot] = score;
+      return score;
     }
 
     public DecodeMode getDecodeMode() {
@@ -446,41 +912,37 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     }
 
     public float computeBigramScore(CandidateContext w2, CandidateContext w3) {
-      float score = 0;
-      score += model.get(w2.f3Prefix + w3.rIg);
-      score += model.get(w2.f9Prefix + w3.lemma);
-      score += w2.c10bScore;
+      float score = model.get(w2.f3Prefix + w3.rIg)
+          + model.get(w2.f9Prefix + w3.lemma)
+          + w2.c10bScore;
       String f17 = w2.f17Prefix;
-      List<String> w3Igs = w3.igs;
-      for (int i = 0; i < w3Igs.size(); i++) {
-        score += model.get(f17 + w3Igs.get(i));
+      String[] w3Igs = w3.igsArray;
+      for (int i = 0; i < w3Igs.length; i++) {
+        score += model.get(f17 + w3Igs[i]);
       }
 
-      if (w3.sa == sentenceEnd || (w3.surface != null && w3.surface.equals("."))) {
-        if (w2.sa != sentenceBegin && w2.isVerb) {
-          score += model.get("P:ENDSVERB");
-        }
+      if (w3.isEndOrDot && w2.isNonBeginVerb) {
+        score += getEndsVerbWeight();
       }
       return score;
     }
 
     public float computeTrigramScore(CandidateContext w1, CandidateContext w2, CandidateContext w3) {
-      float score = 0;
-      score += model.get(w1.f2Prefix + w3.rIg);
-      score += w1.c10cScore;
-      String w1w2 = w1.lastGroup + "-" + w2.lastGroup;
-      List<String> w3Igs = w3.igs;
-      for (int i = 0; i < w3Igs.size(); i++) {
-        score += model.get("15:" + w1w2 + "-" + w3Igs.get(i));
+      float score = model.get(w1.f2Prefix + w3.rIg) + w1.c10cScore;
+      String prefix = "15:" + w1.lastGroup + "-" + w2.lastGroup + "-";
+      String[] w3Igs = w3.igsArray;
+      for (int i = 0; i < w3Igs.length; i++) {
+        score += model.get(prefix + w3Igs[i]);
       }
       return score;
     }
 
     public float computeTrigramScore(FastHypothesis h, CandidateContext w3, float f2Score) {
       float score = f2Score;
-      List<String> w3Igs = w3.igs;
-      for (int i = 0; i < w3Igs.size(); i++) {
-        score += model.get(h.f15Prefix + w3Igs.get(i));
+      String prefix = h.getF15Prefix();
+      String[] w3Igs = w3.igsArray;
+      for (int i = 0; i < w3Igs.length; i++) {
+        score += model.get(prefix + w3Igs[i]);
       }
       return score;
     }
@@ -491,104 +953,247 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     }
 
     public FastDecodeResult bestPath(List<WordAnalysis> sentence) {
-      if (sentence.isEmpty()) {
+      int sentenceSize = sentence.size();
+      if (sentenceSize == 0) {
         throw new IllegalArgumentException("bestPath cannot be called with empty sentence.");
       }
 
-      List<FastHypothesis> currentList = Collections.singletonList(
-          new FastHypothesis(beginContext, beginContext, null, 0));
+      final DecoderCache cache = currentCache();
+      FastHypothesis[] currentList = new FastHypothesis[]{
+          new FastHypothesis(beginContext, beginContext, null, 0f)
+      };
+      int currentSize = 1;
 
-      List<CandidateContext> prevPrevCandidates = Collections.singletonList(beginContext);
-      List<CandidateContext> prevCandidates = Collections.singletonList(beginContext);
+      CandidateContext[] prevPrevCandidates = beginCandidates;
+      CandidateContext[] prevCandidates = beginCandidates;
+      boolean isBeam = (mode == DecodeMode.BEAM && beamSize > 0);
 
-      for (int wordIdx = 0; wordIdx < sentence.size(); wordIdx++) {
+      for (int wordIdx = 0; wordIdx < sentenceSize; wordIdx++) {
         WordAnalysis analysisData = sentence.get(wordIdx);
         List<SingleAnalysis> analyses = analysisData.getAnalysisResults();
-        if (analyses.isEmpty()) {
-          analyses = Collections.singletonList(SingleAnalysis.unknown(analysisData.getInput()));
-        }
-
+        int K = analyses.size();
         boolean isSentenceInitial = (wordIdx == 0);
-        List<CandidateContext> candidates = new ArrayList<>(analyses.size());
-        for (int i = 0; i < analyses.size(); i++) {
-          candidates.add(new CandidateContext(analyses.get(i), model, isSentenceInitial, i));
-        }
-
-        // Precompute bigram scores for all (prevCandidate, candidate) pairs
-        float[][] biScores = new float[prevCandidates.size()][candidates.size()];
-        for (int j = 0; j < prevCandidates.size(); j++) {
-          CandidateContext p = prevCandidates.get(j);
-          for (int k = 0; k < candidates.size(); k++) {
-            biScores[j][k] = computeBigramScore(p, candidates.get(k));
+        CandidateContext[] candidates;
+        if (K == 0) {
+          K = 1;
+          candidates = new CandidateContext[]{
+              getCandidateContext(cache, SingleAnalysis.unknown(analysisData.getInput()), isSentenceInitial, 0)
+          };
+        } else {
+          candidates = new CandidateContext[K];
+          for (int i = 0; i < K; i++) {
+            candidates[i] = getCandidateContext(cache, analyses.get(i), isSentenceInitial, i);
           }
         }
 
-        // Precompute Feature 2 scores for all (prevPrevCandidate, candidate) pairs
-        float[][] f2Scores = new float[prevPrevCandidates.size()][candidates.size()];
-        for (int pp = 0; pp < prevPrevCandidates.size(); pp++) {
-          CandidateContext prevPrev = prevPrevCandidates.get(pp);
-          String prefix = prevPrev.f2Prefix;
-          float c10c = prevPrev.c10cScore;
-          for (int k = 0; k < candidates.size(); k++) {
-            f2Scores[pp][k] = model.get(prefix + candidates.get(k).rIg) + c10c;
-          }
-        }
+        // Fast path when there is only 1 active parent hypothesis (always true at wordIdx == 0
+        // and immediately after any pair of unambiguous tokens)
+        if (currentSize == 1) {
+          FastHypothesis h = currentList[0];
+          CandidateContext w1 = h.prevCtx;
+          CandidateContext w2 = h.currCtx;
+          if (K == 1) {
+            CandidateContext cand = candidates[0];
+            float totalScore = h.score
+                + cand.uniScore
+                + getCachedBigram(cache, w2, cand)
+                + getCachedF2(cache, w1, cand)
+                + getCachedF15(cache, w1, w2, cand);
+            currentList = new FastHypothesis[]{new FastHypothesis(w2, cand, h, totalScore)};
+            currentSize = 1;
+          } else {
+            FastHypothesis[] nextList = new FastHypothesis[K];
+            float hScore = h.score;
+            for (int k = 0; k < K; k++) {
+              CandidateContext cand = candidates[k];
+              float totalScore = hScore
+                  + cand.uniScore
+                  + getCachedBigram(cache, w2, cand)
+                  + getCachedF2(cache, w1, cand)
+                  + getCachedF15(cache, w1, w2, cand);
+              nextList[k] = new FastHypothesis(w2, cand, h, totalScore);
+            }
 
-        // Precompute Feature 15 (trigram morpheme transition) scores for all (pp, p, k) triplets
-        float[][][] f15Scores = new float[prevPrevCandidates.size()][prevCandidates.size()][candidates.size()];
-        for (int pp = 0; pp < prevPrevCandidates.size(); pp++) {
-          String w1Last = prevPrevCandidates.get(pp).lastGroup;
-          for (int p = 0; p < prevCandidates.size(); p++) {
-            String prefix = "15:" + w1Last + "-" + prevCandidates.get(p).lastGroup + "-";
-            for (int k = 0; k < candidates.size(); k++) {
-              float score = 0;
-              List<String> igs = candidates.get(k).igs;
-              for (int i = 0; i < igs.size(); i++) {
-                score += model.get(prefix + igs.get(i));
-              }
-              f15Scores[pp][p][k] = score;
+            if (isBeam && K > beamSize) {
+              Arrays.sort(nextList, (a, b) -> Float.compare(b.score, a.score));
+              currentList = Arrays.copyOf(nextList, beamSize);
+              currentSize = beamSize;
+            } else {
+              currentList = nextList;
+              currentSize = K;
             }
           }
+          prevPrevCandidates = prevCandidates;
+          prevCandidates = candidates;
+          continue;
+        }
+
+        int PP = prevPrevCandidates.length;
+        int P = prevCandidates.length;
+
+        // Precompute bigram scores for all (prevCandidate, candidate) pairs with state ID deduplication
+        float[][] biScores = new float[P][];
+        for (int j = 0; j < P; j++) {
+          CandidateContext p = prevCandidates[j];
+          int pBiId = p.biStateId;
+          int sameJ = -1;
+          for (int j0 = 0; j0 < j; j0++) {
+            if (prevCandidates[j0].biStateId == pBiId) {
+              sameJ = j0;
+              break;
+            }
+          }
+          if (sameJ >= 0) {
+            biScores[j] = biScores[sameJ];
+            continue;
+          }
+
+          float[] biRow = new float[K];
+          for (int k = 0; k < K; k++) {
+            CandidateContext cand = candidates[k];
+            int cBiId = cand.biStateId;
+            int sameK = -1;
+            for (int k0 = 0; k0 < k; k0++) {
+              if (candidates[k0].biStateId == cBiId) {
+                sameK = k0;
+                break;
+              }
+            }
+            biRow[k] = (sameK >= 0) ? biRow[sameK] : getCachedBigram(cache, p, cand);
+          }
+          biScores[j] = biRow;
+        }
+
+        // Precompute Feature 2 scores for all (prevPrevCandidate, candidate) pairs with rIgId deduplication
+        float[][] f2Scores = new float[PP][];
+        for (int pp = 0; pp < PP; pp++) {
+          CandidateContext prevPrev = prevPrevCandidates[pp];
+          int ppRigId = prevPrev.rIgId;
+          int samePp = -1;
+          for (int pp0 = 0; pp0 < pp; pp0++) {
+            if (prevPrevCandidates[pp0].rIgId == ppRigId) {
+              samePp = pp0;
+              break;
+            }
+          }
+          if (samePp >= 0) {
+            f2Scores[pp] = f2Scores[samePp];
+            continue;
+          }
+          float[] row = new float[K];
+          for (int k = 0; k < K; k++) {
+            CandidateContext cand = candidates[k];
+            int cRigId = cand.rIgId;
+            int sameK = -1;
+            for (int k0 = 0; k0 < k; k0++) {
+              if (candidates[k0].rIgId == cRigId) {
+                sameK = k0;
+                break;
+              }
+            }
+            row[k] = (sameK >= 0) ? row[sameK] : getCachedF2(cache, prevPrev, cand);
+          }
+          f2Scores[pp] = row;
+        }
+
+        // Precompute Feature 15 (trigram morpheme transition) scores with 3-level ID deduplication
+        float[][][] f15Scores = new float[PP][][];
+        for (int pp = 0; pp < PP; pp++) {
+          CandidateContext prevPrev = prevPrevCandidates[pp];
+          int w1LastId = prevPrev.lastGroupId;
+          int samePp = -1;
+          for (int pp0 = 0; pp0 < pp; pp0++) {
+            if (prevPrevCandidates[pp0].lastGroupId == w1LastId) {
+              samePp = pp0;
+              break;
+            }
+          }
+          if (samePp >= 0) {
+            f15Scores[pp] = f15Scores[samePp];
+            continue;
+          }
+
+          float[][] slice = new float[P][];
+          for (int p = 0; p < P; p++) {
+            CandidateContext prev = prevCandidates[p];
+            int w2LastId = prev.lastGroupId;
+            int sameP = -1;
+            for (int p0 = 0; p0 < p; p0++) {
+              if (prevCandidates[p0].lastGroupId == w2LastId) {
+                sameP = p0;
+                break;
+              }
+            }
+            if (sameP >= 0) {
+              slice[p] = slice[sameP];
+              continue;
+            }
+
+            float[] row = new float[K];
+            for (int k = 0; k < K; k++) {
+              CandidateContext cand = candidates[k];
+              int cIgId = cand.igJoinedId;
+              int sameK = -1;
+              for (int k0 = 0; k0 < k; k0++) {
+                if (candidates[k0].igJoinedId == cIgId) {
+                  sameK = k0;
+                  break;
+                }
+              }
+              row[k] = (sameK >= 0) ? row[sameK] : getCachedF15(cache, prevPrev, prev, cand);
+            }
+            slice[p] = row;
+          }
+          f15Scores[pp] = slice;
         }
 
         // 2nd-order Markov grid recombination: state is (candidate at t-1, candidate at t)
-        float[][] bestScoreGrid = new float[prevCandidates.size()][candidates.size()];
-        FastHypothesis[][] bestParentGrid = new FastHypothesis[prevCandidates.size()][candidates.size()];
-        for (float[] row : bestScoreGrid) {
-          Arrays.fill(row, -Float.MAX_VALUE);
+        float[][] bestScoreGrid = new float[P][K];
+        FastHypothesis[][] bestParentGrid = new FastHypothesis[P][K];
+        for (int j = 0; j < P; j++) {
+          Arrays.fill(bestScoreGrid[j], -Float.MAX_VALUE);
         }
 
-        for (CandidateContext cand : candidates) {
-          float uni = cand.uniScore;
-          int candIdx = cand.index;
-          for (FastHypothesis h : currentList) {
-            int prevIdx = h.currCtx.index;
-            int ppIdx = h.prevCtx.index;
-            float bi = biScores[prevIdx][candIdx];
-            float tri = f2Scores[ppIdx][candIdx] + f15Scores[ppIdx][prevIdx][candIdx];
-            float totalScore = h.score + uni + bi + tri;
-            if (totalScore > bestScoreGrid[prevIdx][candIdx]) {
-              bestScoreGrid[prevIdx][candIdx] = totalScore;
-              bestParentGrid[prevIdx][candIdx] = h;
+        for (int hIdx = 0; hIdx < currentSize; hIdx++) {
+          FastHypothesis h = currentList[hIdx];
+          int prevIdx = h.currCtx.index;
+          int ppIdx = h.prevCtx.index;
+          float hScore = h.score;
+          float[] biRow = biScores[prevIdx];
+          float[] f2Row = f2Scores[ppIdx];
+          float[] f15Row = f15Scores[ppIdx][prevIdx];
+          float[] bestScoreRow = bestScoreGrid[prevIdx];
+          FastHypothesis[] bestParentRow = bestParentGrid[prevIdx];
+
+          for (int k = 0; k < K; k++) {
+            float totalScore = hScore + candidates[k].uniScore + biRow[k] + f2Row[k] + f15Row[k];
+            if (totalScore > bestScoreRow[k]) {
+              bestScoreRow[k] = totalScore;
+              bestParentRow[k] = h;
             }
           }
         }
 
-        List<FastHypothesis> nextList = new ArrayList<>(prevCandidates.size() * candidates.size());
-        for (int j = 0; j < prevCandidates.size(); j++) {
-          for (int k = 0; k < candidates.size(); k++) {
-            FastHypothesis parent = bestParentGrid[j][k];
+        FastHypothesis[] nextList = new FastHypothesis[P * K];
+        int nextSize = 0;
+        for (int j = 0; j < P; j++) {
+          FastHypothesis[] parentRow = bestParentGrid[j];
+          float[] scoreRow = bestScoreGrid[j];
+          for (int k = 0; k < K; k++) {
+            FastHypothesis parent = parentRow[k];
             if (parent != null) {
-              nextList.add(new FastHypothesis(parent.currCtx, candidates.get(k), parent, bestScoreGrid[j][k]));
+              nextList[nextSize++] = new FastHypothesis(parent.currCtx, candidates[k], parent, scoreRow[k]);
             }
           }
         }
 
-        if (mode == DecodeMode.BEAM && beamSize > 0 && nextList.size() > beamSize) {
-          nextList.sort((a, b) -> Float.compare(b.score, a.score));
-          currentList = new ArrayList<>(nextList.subList(0, beamSize));
+        if (isBeam && nextSize > beamSize) {
+          Arrays.sort(nextList, 0, nextSize, (a, b) -> Float.compare(b.score, a.score));
+          currentList = Arrays.copyOf(nextList, beamSize);
+          currentSize = beamSize;
         } else {
           currentList = nextList;
+          currentSize = nextSize;
         }
 
         prevPrevCandidates = prevCandidates;
@@ -596,52 +1201,98 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       }
 
       // Sentence end scoring
-      float[] endBiScores = new float[prevCandidates.size()];
-      for (int j = 0; j < prevCandidates.size(); j++) {
-        endBiScores[j] = computeBigramScore(prevCandidates.get(j), endContext);
-      }
-      float[] endF2Scores = new float[prevPrevCandidates.size()];
-      for (int pp = 0; pp < prevPrevCandidates.size(); pp++) {
-        CandidateContext prevPrev = prevPrevCandidates.get(pp);
-        endF2Scores[pp] = model.get(prevPrev.f2Prefix + endContext.rIg) + prevPrev.c10cScore;
-      }
-      float[][] endF15Scores = new float[prevPrevCandidates.size()][prevCandidates.size()];
-      for (int pp = 0; pp < prevPrevCandidates.size(); pp++) {
-        String w1Last = prevPrevCandidates.get(pp).lastGroup;
-        for (int p = 0; p < prevCandidates.size(); p++) {
-          String prefix = "15:" + w1Last + "-" + prevCandidates.get(p).lastGroup + "-";
-          float score = 0;
-          List<String> igs = endContext.igs;
-          for (int i = 0; i < igs.size(); i++) {
-            score += model.get(prefix + igs.get(i));
-          }
-          endF15Scores[pp][p] = score;
-        }
-      }
+      int PP = prevPrevCandidates.length;
+      int P = prevCandidates.length;
       float endUni = endContext.uniScore;
 
       FastHypothesis best = null;
-      for (FastHypothesis h : currentList) {
-        int prevIdx = h.currCtx.index;
-        int ppIdx = h.prevCtx.index;
-        float bi = endBiScores[prevIdx];
-        float tri = endF2Scores[ppIdx] + endF15Scores[ppIdx][prevIdx];
-        h.score += (endUni + bi + tri);
-        if (best == null || h.score > best.score) {
-          best = h;
+      if (currentSize == 1) {
+        FastHypothesis h = currentList[0];
+        h.score += endUni
+            + getCachedBigram(cache, h.currCtx, endContext)
+            + getCachedF2(cache, h.prevCtx, endContext)
+            + getCachedF15(cache, h.prevCtx, h.currCtx, endContext);
+        best = h;
+      } else {
+        float[] endBiScores = new float[P];
+        for (int j = 0; j < P; j++) {
+          CandidateContext p = prevCandidates[j];
+          int pBiId = p.biStateId;
+          int sameJ = -1;
+          for (int j0 = 0; j0 < j; j0++) {
+            if (prevCandidates[j0].biStateId == pBiId) {
+              sameJ = j0;
+              break;
+            }
+          }
+          endBiScores[j] = (sameJ >= 0) ? endBiScores[sameJ] : getCachedBigram(cache, p, endContext);
+        }
+
+        float[] endF2Scores = new float[PP];
+        for (int pp = 0; pp < PP; pp++) {
+          CandidateContext prevPrev = prevPrevCandidates[pp];
+          int ppRigId = prevPrev.rIgId;
+          int samePp = -1;
+          for (int pp0 = 0; pp0 < pp; pp0++) {
+            if (prevPrevCandidates[pp0].rIgId == ppRigId) {
+              samePp = pp0;
+              break;
+            }
+          }
+          endF2Scores[pp] = (samePp >= 0) ? endF2Scores[samePp] : getCachedF2(cache, prevPrev, endContext);
+        }
+
+        float[][] endF15Scores = new float[PP][];
+        for (int pp = 0; pp < PP; pp++) {
+          CandidateContext prevPrev = prevPrevCandidates[pp];
+          int w1LastId = prevPrev.lastGroupId;
+          int samePp = -1;
+          for (int pp0 = 0; pp0 < pp; pp0++) {
+            if (prevPrevCandidates[pp0].lastGroupId == w1LastId) {
+              samePp = pp0;
+              break;
+            }
+          }
+          if (samePp >= 0) {
+            endF15Scores[pp] = endF15Scores[samePp];
+            continue;
+          }
+          float[] row = new float[P];
+          for (int p = 0; p < P; p++) {
+            CandidateContext prev = prevCandidates[p];
+            int w2LastId = prev.lastGroupId;
+            int sameP = -1;
+            for (int p0 = 0; p0 < p; p0++) {
+              if (prevCandidates[p0].lastGroupId == w2LastId) {
+                sameP = p0;
+                break;
+              }
+            }
+            row[p] = (sameP >= 0) ? row[sameP] : getCachedF15(cache, prevPrev, prev, endContext);
+          }
+          endF15Scores[pp] = row;
+        }
+
+        for (int hIdx = 0; hIdx < currentSize; hIdx++) {
+          FastHypothesis h = currentList[hIdx];
+          int prevIdx = h.currCtx.index;
+          int ppIdx = h.prevCtx.index;
+          h.score += endUni + endBiScores[prevIdx] + endF2Scores[ppIdx] + endF15Scores[ppIdx][prevIdx];
+          if (best == null || h.score > best.score) {
+            best = h;
+          }
         }
       }
 
       float bestScore = (best != null) ? best.score : 0;
-      List<SingleAnalysis> result = new ArrayList<>();
-
-      while (best != null && best.previous != null) {
-        result.add(best.current);
+      SingleAnalysis[] parsed = new SingleAnalysis[sentenceSize];
+      int pos = sentenceSize - 1;
+      while (best != null && best.previous != null && pos >= 0) {
+        parsed[pos--] = best.current;
         best = best.previous;
       }
 
-      Collections.reverse(result);
-      return new FastDecodeResult(result, bestScore);
+      return new FastDecodeResult(Arrays.asList(parsed), bestScore);
     }
 
     public FastDecodeResult bestPathGreedy(List<WordAnalysis> sentence) {
@@ -649,6 +1300,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         throw new IllegalArgumentException("bestPath cannot be called with empty sentence.");
       }
 
+      final DecoderCache cache = currentCache();
       CandidateContext prevPrev = beginContext;
       CandidateContext prev = beginContext;
       float totalScore = 0;
@@ -667,10 +1319,11 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
         for (int i = 0; i < analyses.size(); i++) {
           SingleAnalysis sa = analyses.get(i);
-          CandidateContext cand = new CandidateContext(sa, model, isSentenceInitial, i);
+          CandidateContext cand = getCandidateContext(cache, sa, isSentenceInitial, i);
           float stepScore = cand.uniScore
-              + computeBigramScore(prev, cand)
-              + computeTrigramScore(prevPrev, prev, cand);
+              + getCachedBigram(cache, prev, cand)
+              + getCachedF2(cache, prevPrev, cand)
+              + getCachedF15(cache, prevPrev, prev, cand);
           if (stepScore > bestStepScore || bestCandidate == null) {
             bestStepScore = stepScore;
             bestCandidate = cand;
@@ -685,8 +1338,9 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
       // Sentence end scoring
       float endStepScore = endContext.uniScore
-          + computeBigramScore(prev, endContext)
-          + computeTrigramScore(prevPrev, prev, endContext);
+          + getCachedBigram(cache, prev, endContext)
+          + getCachedF2(cache, prevPrev, endContext)
+          + getCachedF15(cache, prevPrev, prev, endContext);
       totalScore += endStepScore;
 
       return new FastDecodeResult(result, totalScore);
@@ -709,9 +1363,9 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     public final CandidateContext prevCtx;
     public final CandidateContext currCtx;
     public final FastHypothesis previous;
-    public final String f15Prefix;
+    private String f15Prefix;
     public float score;
-    private final int hash;
+    private int hash;
 
     public FastHypothesis(
         CandidateContext prevCtx,
@@ -722,10 +1376,17 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       this.currCtx = currCtx;
       this.prev = prevCtx.sa;
       this.current = currCtx.sa;
-      this.f15Prefix = "15:" + prevCtx.lastGroup + "-" + currCtx.lastGroup + "-";
       this.previous = previous;
       this.score = score;
-      this.hash = 31 * this.prev.hashCode() + this.current.hashCode();
+    }
+
+    public String getF15Prefix() {
+      String p = this.f15Prefix;
+      if (p == null) {
+        p = "15:" + prevCtx.lastGroup + "-" + currCtx.lastGroup + "-";
+        this.f15Prefix = p;
+      }
+      return p;
     }
 
     @Override
@@ -738,7 +1399,12 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
     @Override
     public int hashCode() {
-      return hash;
+      int h = this.hash;
+      if (h == 0) {
+        h = 31 * this.prev.hashCode() + this.current.hashCode();
+        this.hash = h;
+      }
+      return h;
     }
 
     @Override

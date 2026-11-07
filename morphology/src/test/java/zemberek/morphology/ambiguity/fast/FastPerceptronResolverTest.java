@@ -335,4 +335,56 @@ public class FastPerceptronResolverTest {
     SentenceAnalysis nullResult = resolver.disambiguate("boş", null);
     Assert.assertEquals(0, nullResult.size());
   }
+
+  @Test
+  public void testCompressedWeightsCacheAndMultiPassParity() throws Exception {
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    FastPerceptronAmbiguityResolver resolver =
+        (FastPerceptronAmbiguityResolver) morphology.getAmbiguityResolver();
+    FastPerceptronAmbiguityResolver.FastDecoder decoder = resolver.getDecoder();
+    FastPerceptronAmbiguityResolver.FastFeatureExtractor extractor =
+        new FastPerceptronAmbiguityResolver.FastFeatureExtractor(false);
+
+    String[] sentences = {
+        "Türkiye Büyük Millet Meclisi bugün toplandı.",
+        "Küçük çocuk bahçedeki elmaları topladı ve eve koştu.",
+        "Bu kitapta yer alan konular oldukça önemli görünüyor.",
+        "Yarın sabah erken kalkıp işe gideceğim.",
+        "Gözlerinden akan yaşları silerek pencereden dışarı baktı."
+    };
+
+    for (String s : sentences) {
+      java.util.List<WordAnalysis> analyses = morphology.analyzeSentence(s);
+
+      // Pass 1 (cold cache)
+      FastPerceptronAmbiguityResolver.FastDecodeResult pass1 = decoder.bestPath(analyses);
+      // Pass 2 (warm cache)
+      FastPerceptronAmbiguityResolver.FastDecodeResult pass2 = decoder.bestPath(analyses);
+
+      Assert.assertEquals("Cold and warm cache parses must be identical for: " + s,
+          pass1.bestParse, pass2.bestParse);
+      Assert.assertEquals("Cold and warm cache scores must be identical for: " + s,
+          pass1.score, pass2.score, 1e-5f);
+
+      // Verify exact parity with unfactored feature dot product
+      IntValueMap<String> counts = extractor.extractFeatureCounts(pass1.bestParse);
+      float expectedDot = 0f;
+      for (IntValueMap.Entry<String> entry : counts.iterableEntries()) {
+        expectedDot += decoder.model.get(entry.key) * entry.count;
+      }
+      Assert.assertEquals("CompressedWeights decoder score must match unfactored dot product",
+          expectedDot, pass1.score, 1e-4f);
+
+      // Verify multi-threaded fallback cache parity
+      final FastPerceptronAmbiguityResolver.FastDecodeResult[] workerResult =
+          new FastPerceptronAmbiguityResolver.FastDecodeResult[1];
+      Thread worker = new Thread(() -> workerResult[0] = decoder.bestPath(analyses));
+      worker.start();
+      worker.join();
+      Assert.assertEquals("Worker thread parse must match owner thread parse",
+          pass1.bestParse, workerResult[0].bestParse);
+      Assert.assertEquals("Worker thread score must match owner thread score",
+          pass1.score, workerResult[0].score, 1e-5f);
+    }
+  }
 }
