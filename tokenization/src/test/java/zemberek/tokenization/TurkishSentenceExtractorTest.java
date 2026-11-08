@@ -131,4 +131,32 @@ public class TurkishSentenceExtractorTest {
             e, "\"Buna hakkı yok!\" diye öfkeyle konuşmaya başladı Baba Kurt."));
   }
 
+  @Test
+  public void testAcronymCollisionWordsAndInflectedNumbers() {
+    Assert.assertEquals("İstanbul çok güzel bir şehir.|Herkes görmeli.",
+        markBoundariesParagraph("İstanbul çok güzel bir şehir. Herkes görmeli."));
+    Assert.assertEquals("Bana yardım et.|Çok zor durumdayım.",
+        markBoundariesParagraph("Bana yardım et. Çok zor durumdayım."));
+    Assert.assertEquals("Cevabı kendin bul.|Sonra konuşalım.",
+        markBoundariesParagraph("Cevabı kendin bul. Sonra konuşalım."));
+    Assert.assertEquals("Burada biraz kal.|Hemen döneceğim.",
+        markBoundariesParagraph("Burada biraz kal. Hemen döneceğim."));
+    Assert.assertEquals("Topu bana at.|Hemen koş.",
+        markBoundariesParagraph("Topu bana at. Hemen koş."));
+    Assert.assertEquals("Bu çok değerli bir taş.|Müzeye konmalı.",
+        markBoundariesParagraph("Bu çok değerli bir taş. Müzeye konmalı."));
+    Assert.assertEquals(
+        "Telpa 06.01.2014'de teslim aldığı ürünü 17.02.2014'de anca yolladı.",
+        markBoundariesParagraph(
+            "Telpa 06.01.2014'de teslim aldığı ürünü 17.02.2014'de anca yolladı."));
+    Assert.assertEquals("Fiyatı oldukça cazip 49.90'dan 19.90'a indirilmiş.",
+        markBoundariesParagraph("Fiyatı oldukça cazip 49.90'dan 19.90'a indirilmiş."));
+    Assert.assertEquals(
+        "Uçaklarımızın zamanında kalkma oranı yüzde 95.63.|Fazla bagaj konusunda taviz vermiyoruz.",
+        markBoundariesParagraph(
+            "Uçaklarımızın zamanında kalkma oranı yüzde 95.63. Fazla bagaj konusunda taviz vermiyoruz."));
+    Assert.assertEquals("10 TL. dedi görevli.",
+        markBoundariesParagraph("10 TL. dedi görevli."));
+  }
+
 }

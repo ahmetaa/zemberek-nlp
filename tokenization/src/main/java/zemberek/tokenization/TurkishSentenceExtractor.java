@@ -346,10 +346,11 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
         int boundaryIndexCounter;
         int sentenceCounter = 0;
         if (builder.shuffleInput) {
-          Collections.shuffle(sentences);
+          Collections.shuffle(sentences, rnd);
         }
         for (String sentence : sentences) {
-          if (sentence.trim().length() == 0) {
+          sentence = sentence.replace("\ufeff", "").trim();
+          if (sentence.length() == 0) {
             continue;
           }
           // sometimes make first letter of the sentence lower case.
@@ -395,14 +396,8 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
           updateCount++;
           if (update != 0) {
             for (String feature : features) {
-              double d = weights.incrementByAmount(feature, update);
-              if (d == 0.0) {
-                weights.remove(feature);
-              }
-              d = averages.incrementByAmount(feature, updateCount * update);
-              if (d == 0.0) {
-                averages.remove(feature);
-              }
+              weights.incrementByAmount(feature, update);
+              averages.incrementByAmount(feature, updateCount * update);
             }
           }
         }
@@ -426,17 +421,16 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
     String nextWord;
     String currentWordNoPunctuation;
     String rightChunk;
-    String rightChunkUntilBoundary;
     String leftChunk;
     String leftChunkUntilBoundary;
 
     BoundaryData(String input, int pointer) {
 
       previousLetter = pointer > 0 ? input.charAt(pointer - 1) : '_';
-      nextLetter = pointer < input.length() - 1 ? nextLetter = input.charAt(pointer + 1) : '_';
-      previousTwoLetters = pointer > 2 ? input.substring(pointer - 2, pointer) : "__";
+      nextLetter = pointer < input.length() - 1 ? input.charAt(pointer + 1) : '_';
+      previousTwoLetters = pointer >= 2 ? input.substring(pointer - 2, pointer) : "__";
       nextTwoLetters =
-          pointer < input.length() - 3 ? input.substring(pointer + 1, pointer + 3) : "__";
+          pointer <= input.length() - 3 ? input.substring(pointer + 1, pointer + 3) : "__";
 
       int previousSpace = findBackwardsSpace(input, pointer);
       if (previousSpace < 0) {
@@ -456,16 +450,13 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
       if (pointer < input.length() - 1) {
         rightChunk = input.substring(pointer + 1, nextSpace);
       }
-      int nextBoundaryOrSpace = findForwardsSpaceOrChar(input, pointer, '.');
-      rightChunkUntilBoundary = nextSpace == nextBoundaryOrSpace ?
-          rightChunk : input.substring(pointer + 1, nextBoundaryOrSpace);
 
       currentChar = input.charAt(pointer);
       currentWord = leftChunk + currentChar + rightChunk;
-      currentWordNoPunctuation = currentWord.replaceAll("[.!?…]", "");
+      currentWordNoPunctuation = leftChunk + rightChunk;
 
       StringBuilder sb = new StringBuilder();
-      int j = nextSpace;
+      int j = nextSpace + 1;
       while (j < input.length()) {
         char c = input.charAt(j);
         if (c == ' ') {
@@ -511,7 +502,12 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
     }
 
     boolean nonBoundaryCheck() {
+      if (currentChar != '.') {
+        return nextLetter == '\'' || nextLetter == ')' || BOUNDARY_CHARS.indexOf(nextLetter) >= 0;
+      }
       return (leftChunkUntilBoundary.length() == 1)
+          || (previousLetter == '.' && leftChunk.length() == 2)
+          || (Character.isDigit(previousLetter) && Character.isDigit(nextLetter))
           || nextLetter == '\''
           || BOUNDARY_CHARS.indexOf(nextLetter) >= 0
           || TurkishAbbreviationSet.contains(currentWord)
@@ -542,13 +538,12 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
       }
       if (nextWord.length() > 0) {
         features.add("7n:" + Character.isUpperCase(nextWord.charAt(0)));
-        features.add("9n:" + getMetaChars(nextWord));
       }
 
-      if (leftChunk.length() > 0) {
-        if (!TurkishAlphabet.INSTANCE.containsVowel(leftChunk)) {
-          features.add("lcc:true");
-        }
+      if (leftChunk.length() > 0
+          && !TurkishAlphabet.INSTANCE.containsVowel(leftChunk)
+          && !TurkishAlphabet.INSTANCE.containsDigit(leftChunk)) {
+        features.add("lcc:true");
       }
 
       if (currentWordNoPunctuation.length() > 0) {
