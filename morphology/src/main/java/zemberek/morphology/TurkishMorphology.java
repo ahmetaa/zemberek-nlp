@@ -86,7 +86,7 @@ public class TurkishMorphology {
               "Cannot initialize PerceptronAmbiguityResolver from resource " + resourcePath, e);
         }
       } else {
-        String resourcePath = "/tr/ambiguity/model-distilled-33k-th20k.bin";
+        String resourcePath = "/tr/ambiguity/model_10k_argon_v24.bin";
         try {
           this.ambiguityResolver =
               FastPerceptronAmbiguityResolver.fromResource(resourcePath);
