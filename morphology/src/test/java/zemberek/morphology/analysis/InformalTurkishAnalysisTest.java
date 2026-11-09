@@ -132,6 +132,7 @@ public class InformalTurkishAnalysisTest extends AnalyzerTestBase {
 
     t.expectAny("yazacam", matchesTailLex("Verb + Fut_Informal + A1sg"));
     t.expectAny("yazcam", matchesTailLex("Verb + Fut_Informal + A1sg"));
+    t.expectAny("yazcanız", matchesTailLex("Verb + Fut_Informal + A2pl"));
     t.expectAny("yazıcam", matchesTailLex("Verb + Fut_Informal + A1sg"));
 
     t.expectAny("yazmıycam", matchesTailLex("Verb + Neg_Informal + Fut_Informal + A1sg"));

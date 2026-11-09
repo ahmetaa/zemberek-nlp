@@ -690,13 +690,11 @@ public class TurkishMorphotactics {
     Condition noSurfaceAfterDerivation = new NoSurfaceAfterDerivation();
     nom_ST.add(with_S, "lI",
         noSurfaceAfterDerivation
-            .andNot(new ContainsMorpheme(with, without))
-            .andNot(rootIsAbbrv));
+            .andNot(new ContainsMorpheme(with, without)));
 
     nom_ST.add(without_S, "sIz",
         noSurfaceAfterDerivation
-            .andNot(new ContainsMorpheme(with, without, inf1))
-            .andNot(rootIsAbbrv));
+            .andNot(new ContainsMorpheme(with, without, inf1)));
 
     nom_ST.add(justLike_S, "+msI",
         noSurfaceAfterDerivation
@@ -849,7 +847,7 @@ public class TurkishMorphotactics {
   MorphemeState aP1sg_ST = terminal("aP1sg_ST", p1sg);
   MorphemeState aP2sg_ST = terminal("aP2sg_ST", p2sg);
   MorphemeState aP3sg_ST = terminal("aP3sg_ST", p3sg);
-  MorphemeState aP1pl_ST = terminal("aP3sg_ST", p1pl);
+  MorphemeState aP1pl_ST = terminal("aP1pl_ST", p1pl);
   MorphemeState aP2pl_ST = terminal("aP2pl_ST", p2pl);
   MorphemeState aP3pl_ST = terminal("aP3pl_ST", p3pl);
 
@@ -977,8 +975,9 @@ public class TurkishMorphotactics {
     Condition noFamily = notHave(RootAttribute.FamilyMember);
     // for preventing elmamım, elmamdım
     // pP1sg_S, pDat_ST, pA1sg_S, pA1pl_S, pA3pl_S, pP2sg_S, pP1pl_S, pP3sg_S, pP1sg_S
-    // TODO: below causes "beklemedeyiz" to fail.
-    ContainsMorpheme verbDeriv = new ContainsMorpheme(inf1, inf2, inf3, pastPart, futPart);
+    Condition verbDeriv = new ContainsMorpheme(inf1)
+        .or(new ContainsMorpheme(inf2, inf3, pastPart, futPart)
+            .andNot(new Conditions.PreviousGroupContains(loc_ST, abl_ST, ins_ST)));
     Condition allowA1sgTrans =
         noFamily
             .andNot(new Conditions.ContainsMorphemeSequence(p1sg, nom))
@@ -1515,7 +1514,7 @@ public class TurkishMorphotactics {
     pvPresent_S.add(pvA1sg_ST, "+yIm", allowA1sgTrans);
     pvPresent_S.add(pvA2sg_ST, "sIn", allowA2sgTrans);
     // We do not allow ending with A3sg from empty Present tense.
-    pvPresent_S.addEmpty(nA3sg_S);
+    pvPresent_S.addEmpty(pvA3sg_S);
     pvPresent_S.add(pvA1pl_ST, "+yIz", allowA1plTrans);
     pvPresent_S.add(pvA2pl_ST, "sInIz");
     pvPresent_S.add(pvA3pl_ST, "lAr", new Conditions.PreviousGroupContains(pLoc_ST));
@@ -1564,7 +1563,7 @@ public class TurkishMorphotactics {
   // ------------- Adverbs -----------------
 
   MorphemeState advRoot_ST = builder("advRoot_ST", adv).posRoot().terminal().build();
-  MorphemeState advNounRoot_ST = builder("advRoot_ST", adv).posRoot().terminal().build();
+  MorphemeState advNounRoot_ST = builder("advNounRoot_ST", adv).posRoot().terminal().build();
   MorphemeState advForVerbDeriv_ST =
       builder("advForVerbDeriv_ST", adv).posRoot().terminal().build();
 
@@ -2172,12 +2171,12 @@ public class TurkishMorphotactics {
         .add(vPastPart_S, "di!ğ", deYeCondition)
         .add(vNarrPart_S, "miş", deYeCondition)
         .add(vHastily_S, "yiver", diYiCondition.and(cMultiVerb))
-        .add(vAsLongAs_S, "dikçe")
-        .add(vWithoutHavingDoneSo_S, "meden")
-        .add(vWithoutHavingDoneSo_S, "meksizin")
-        .add(vNeces_S, "meli")
-        .add(vNotState_S, "mezli~k")
-        .add(vNotState_S, "mezli!ğ")
+        .add(vAsLongAs_S, "dikçe", deYeCondition)
+        .add(vWithoutHavingDoneSo_S, "meden", deYeCondition)
+        .add(vWithoutHavingDoneSo_S, "meksizin", deYeCondition)
+        .add(vNeces_S, "meli", deYeCondition)
+        .add(vNotState_S, "mezli~k", deYeCondition)
+        .add(vNotState_S, "mezli!ğ", deYeCondition)
         .add(vAfterDoing_S, "yip", new RootSurfaceIsAny("yi"))
         .addEmpty(vImp_S, new RootSurfaceIs("de"))
         .addEmpty(vImpYemekYe_S, new RootSurfaceIs("ye"))
@@ -2385,7 +2384,7 @@ public class TurkishMorphotactics {
     qA2pl_ST.add(qCop_ST, "dIr", rejectNoCopula);
 
     // Copula can come before A3pl.
-    qPresent_S.add(pvCopBeforeA3pl_S, "dIr");
+    qPresent_S.add(qCopBeforeA3pl_S, ">dIr");
     qCopBeforeA3pl_S.add(qA3pl_ST, "lAr");
   }
 
@@ -2405,7 +2404,7 @@ public class TurkishMorphotactics {
   MorphemeState imekA2pl_ST = terminal("imekA2pl_ST", a2pl);
   MorphemeState imekA3pl_ST = terminal("imekA3pl_ST", a3pl);
 
-  MorphemeState imekCop_ST = terminal("qCop_ST", cop);
+  MorphemeState imekCop_ST = terminal("imekCop_ST", cop);
 
   private void connectImek() {
     // idi

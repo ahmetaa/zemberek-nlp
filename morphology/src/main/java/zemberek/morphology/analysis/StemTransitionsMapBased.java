@@ -100,7 +100,7 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
         && singleStems.get(surfaceForm).item.equals(stemTransition.item)) {
       singleStems.remove(surfaceForm);
     }
-    if (!differentStemItems.containsEntry(stemTransition.item, stemTransition)) {
+    if (differentStemItems.containsEntry(stemTransition.item, stemTransition)) {
       differentStemItems.remove(stemTransition.item, stemTransition);
     }
   }

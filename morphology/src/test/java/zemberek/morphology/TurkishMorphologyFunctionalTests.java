@@ -273,6 +273,52 @@ public class TurkishMorphologyFunctionalTests {
     TurkishMorphology morphology = getEmptyTurkishMorphology();
     WordAnalysis result = morphology.analyze("Blah-Foo'ya");
     Assert.assertEquals(1, result.analysisCount());
+    Assert.assertEquals("Blah-foo", result.getAnalysisResults().get(0).getDictionaryItem().lemma);
+  }
+
+  @Test
+  public void testSingleQuotePunctuation() {
+    TurkishMorphology morphology = getMorphology("' [P:Punc]");
+    WordAnalysis result = morphology.analyze("'");
+    Assert.assertEquals(1, result.analysisCount());
+    Assert.assertEquals("'", result.getAnalysisResults().get(0).getDictionaryItem().lemma);
+  }
+
+  @Test
+  public void testAnalyzeSentenceWithDisabledCache() {
+    TurkishMorphology morphology = getMorphology("elma", "' [P:Punc]");
+    List<WordAnalysis> analyses = morphology.analyzeSentence("elma '");
+    Assert.assertEquals(2, analyses.size());
+    Assert.assertEquals(1, analyses.get(0).analysisCount());
+    Assert.assertEquals(1, analyses.get(1).analysisCount());
+  }
+
+  @Test
+  public void testMultiApostropheWords() {
+    TurkishMorphology morphology = getMorphology("Kur'an [P:Prop]");
+    WordAnalysis result = morphology.analyze("Kur'an'da");
+    Assert.assertEquals(1, result.analysisCount());
+
+    TurkishMorphology emptyMorphology = getEmptyTurkishMorphology();
+    WordAnalysis oovResult = emptyMorphology.analyze("Eto'o'nun");
+    Assert.assertEquals(2, oovResult.analysisCount());
+    Assert.assertEquals("Eto'o", oovResult.getAnalysisResults().get(0).getDictionaryItem().lemma);
+  }
+
+  @Test
+  public void testAbbreviationWithAndWithoutDerivations() {
+    TurkishMorphology morphology = getMorphology("ABD [P:Abbrv; Pr:abede]");
+    Assert.assertEquals(1, morphology.analyze("ABD'li").analysisCount());
+    Assert.assertEquals(1, morphology.analyze("ABD'siz").analysisCount());
+  }
+
+  @Test
+  public void testAlphanumericAndCountryCodeUrlTokens() {
+    TurkishMorphology morphology = getEmptyTurkishMorphology();
+    Assert.assertEquals(2, morphology.analyze("S3'ün").analysisCount());
+    Assert.assertEquals(2, morphology.analyze("A3'ün").analysisCount());
+    Assert.assertEquals(1, morphology.analyze("3G'ye").analysisCount());
+    Assert.assertEquals(1, morphology.analyze("meb.gov.tr'den").analysisCount());
   }
 
   @Test

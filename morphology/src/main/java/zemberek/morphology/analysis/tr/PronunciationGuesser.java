@@ -69,6 +69,8 @@ public class PronunciationGuesser {
         continue;
       }
       if (i < pieces.size() - 1) {
+        sb.append(guessForAbbreviation(piece));
+      } else if (!alphabet.containsVowel(piece)) {
         sb.append(toTurkishLetterPronunciations(piece));
       } else {
         sb.append(replaceEnglishSpecificChars(piece));

@@ -161,7 +161,7 @@ public class MorphemeState {
     for (MorphemeTransition transition : state.outgoing) {
       MorphemeTransition copy = transition.getCopy();
       copy.from = this;
-      this.addOutgoing(transition);
+      this.addOutgoing(copy);
     }
   }
 

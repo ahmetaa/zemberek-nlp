@@ -85,6 +85,10 @@ public class VerbDerivationTest extends AnalyzerTestBase {
 
     tester.expectAny("okutmamadan",
         matchesTailLex("Verb + Caus + Verb + Neg + Inf2 + Noun + A3sg + Abl"));
+    tester.expectAny("okumadayım",
+        matchesTailLex("Verb + Inf2 + Noun + A3sg + Loc + Zero + Verb + Pres + A1sg"));
+    tester.expectAny("okumadayız",
+        matchesTailLex("Verb + Inf2 + Noun + A3sg + Loc + Zero + Verb + Pres + A1pl"));
   }
 
 
@@ -100,6 +104,8 @@ public class VerbDerivationTest extends AnalyzerTestBase {
         matchesTailLex("Verb + Caus + Verb + Neg + Inf3 + Noun + A3sg"));
     tester.expectSingle("okutmayıştan",
         matchesTailLex("Verb + Caus + Verb + Neg + Inf3 + Noun + A3sg + Abl"));
+    tester.expectSingle("okuyuştayız",
+        matchesTailLex("Verb + Inf3 + Noun + A3sg + Loc + Zero + Verb + Pres + A1pl"));
   }
 
   @Test

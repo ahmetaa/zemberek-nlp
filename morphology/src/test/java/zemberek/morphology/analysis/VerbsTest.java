@@ -497,6 +497,12 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("yiyiniz", matchesTailLex("Verb + Imp + A2pl"));
     t.expectSingle("yesinler", matchesTailLex("Verb + Imp + A3pl"));
     t.expectSingle("yiyesim", matchesTailLex("Verb + FeelLike + Noun + A3sg + P1sg"));
+    t.expectSingle("dedikçe", matchesTailLex("Verb + AsLongAs + Adv"));
+    t.expectAny("demeden", matchesTailLex("Verb + WithoutHavingDoneSo + Adv"));
+    t.expectAny("demeli", matchesTailLex("Verb + Neces + A3sg"));
+    t.expectSingle("yedikçe", matchesTailLex("Verb + AsLongAs + Adv"));
+    t.expectAny("yemeden", matchesTailLex("Verb + WithoutHavingDoneSo + Adv"));
+    t.expectAny("yemeli", matchesTailLex("Verb + Neces + A3sg"));
 
     t.expectFail(
         "dir",
@@ -515,7 +521,12 @@ public class VerbsTest extends AnalyzerTestBase {
         "yime",
         "yimek",
         "dimiş",
-        "dimiyor"
+        "dimiyor",
+        "didikçe",
+        "dimeden",
+        "dimeksizin",
+        "dimeli",
+        "dimezlik"
     );
 
     t.expectFail(
@@ -540,7 +551,12 @@ public class VerbsTest extends AnalyzerTestBase {
         "yimek",
         "yimek",
         "yimiş",
-        "yimiyor"
+        "yimiyor",
+        "yidikçe",
+        "yimeden",
+        "yimeksizin",
+        "yimeli",
+        "yimezlik"
     );
   }
 
