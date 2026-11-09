@@ -1,6 +1,56 @@
 CHANGE LOG
 ==========
 
+## 0.17.2
+
+Zemberek `0.17.2` brings major improvements in **disambiguation accuracy**, **end-to-end processing speed (~8x faster than `0.17.1`)**, **morphological coverage**, and **tokenization/sentence segmentation quality**, along with updated dependencies and Java 21 baseline support.
+
+### Highlights at a Glance (`0.17.1` → `0.17.2`)
+
+| Area | `0.17.1` | `0.17.2` | What Changed |
+| :--- | :---: | :---: | :--- |
+| **End-to-End Pipeline Speed** | ~23.5k tokens/sec | **~190k tokens/sec** | **~8.1x faster** full pipeline (segment → tokenize → analyze → disambiguate) |
+| **Disambiguation Accuracy** *(Ambiguous Tokens)* | ~77.5% | **~92.8%** | **~68% fewer disambiguation errors**; **~2.7x more** sentences disambiguated with 100% exact match |
+| **Disambiguation Speed** (`analyzeAndDisambiguate`) | ~23.9k tokens/sec | **~180k tokens/sec** | **~7.5x faster** via `FastPerceptronAmbiguityResolver` |
+| **Warm Morphological Analysis Speed** | ~146k tokens/sec | **~572k tokens/sec** | **~3.9x faster** with a unified 50k Caffeine cache (`93.7%` hit rate) |
+| **Sentence Segmentation Speed** | ~294k sentences/sec | **~393k – 825k sentences/sec** | **1.3x – 2.5x faster** with higher boundary precision |
+| **Tokenizer Speed** | ~4.6M tokens/sec | **~6.6M tokens/sec** | **~1.4x faster** by skipping intermediate token allocations and fixing ANTLR EOF DFA caching |
+
+### What's New & Improved
+
+#### 1. Morphological Disambiguation
+- **New Default Ambiguity Resolver & Model (`FastPerceptronAmbiguityResolver`)**:
+  - Replaced the legacy disambiguator with `FastPerceptronAmbiguityResolver` using Exact Viterbi decoding and a new compact default model (`model_10k_argon_v24.bin`, 2.16 MB).
+  - Improves ambiguous-word accuracy from **~77.5% to ~92.8%** (overall token accuracy **~86.8% → ~95.6%**) while running **~7.5x faster**.
+  - Added `FastPerceptronAmbiguityResolverTrainer` for training custom models.
+  - The legacy resolver remains available via `TurkishMorphology.createWithLegacyAmbiguityResolver()`.
+
+#### 2. Morphological Analysis & Caching
+- **Better Morphotactics & OOV Handling (`TurkishMorphotactics`, `UnidentifiedTokenAnalyzer`)**:
+  - Added support for `deyip` / `yiyip` converb forms, verbal nouns in `-mada/-mede/-yışta` with copula (`beklemedeyiz`, `okumadayım`), derived abbreviations (`ABD'li`, `ABD'siz`), multi-apostrophe words (`Kur'an'da`, `Eto'o'nun`), hyphenated proper nouns, and alphanumeric/domain tokens (`3G'ye`, `S3'ün`, `meb.gov.tr'den`).
+  - Reduced unknown (unparsed) tokens on news corpora by **~27%**.
+- **Simplified & Faster Cache (`AnalysisCache`)**:
+  - Unified the two-level static/dynamic cache into a single thread-safe Caffeine cache (default capacity increased to 50,000 entries), improving warm analysis throughput by **~3.9x**.
+
+#### 3. Sentence Segmentation & Tokenization
+- **More Accurate & Faster Sentence Extractor (`TurkishSentenceExtractor`)**:
+  - Added ellipsis (`…`) boundary support, retrained `sentence-boundary-model.bin`, and fixed false non-boundary vetoes when sentences end with words that share spelling with uppercase abbreviations (e.g., *et.*, *bul.*, *kal.*, *at.*, *taş.*, *gör.*) or inflected dates/decimals (`06.01.2014'de`, `49.90'dan`).
+  - Optimized boundary scanning and feature extraction (**~1.3x–2.5x faster** than `0.17.1`).
+- **Cleaner & Faster Tokenizer (`TurkishTokenizer`)**:
+  - Fixed tokenization of single-letter stems with apostrophes (`O'na`, `A'dan`), initials (`M. Kemal`), acronyms (`CD'ye`, `DVD'de`), sentence-ending URLs/emails, and currency/punctuation symbols (`₺`, `€`, `–`, `—`, `°`).
+  - Eliminated intermediate `CommonToken` and whitespace token allocations and fixed ANTLR EOF DFA caching in `CustomLexerATNSimulator`.
+
+#### 4. Core Collections, Build & Dependencies
+- **Hardened Primitive Collections (`zemberek-core`)**:
+  - Fixed edge-case bugs in `UIntMap`, `IntMap`, `LongUIntMap`, `ActiveList`, `LongBitVector`, `Trie`, and hash-table tombstone/resize handling under heavy remove/insert churn.
+- **Build & Dependency Updates**:
+  - Updated compiler source/target baseline from Java 8 to **Java 21**.
+  - Upgraded core dependencies (`Guava 33.7.1`, `Protobuf 4.36.2`, `Caffeine 3.2.0`, `gRPC 1.84.0`, `OpenNLP 2.5.12`, `JUnit 4.13.2`) to address security advisories.
+  - Removed the deprecated `server` module and `progressbar` dependency for cleaner fat/shaded JAR packaging.
+
+*Assisted by Gemini and Antigravity*
+
+
 ## 0.17.1
 
 This is a minor release with bug fixes.
