@@ -26,6 +26,10 @@ public class CustomLexerATNSimulator extends LexerATNSimulator {
     super(recog, atn, decisionToDFA, sharedContextCache);
   }
 
+  public int getTokenStartIndex() {
+    return startIndex;
+  }
+
   @Override
   protected DFAState getExistingTargetState(DFAState s, int t) {
     if (s.edges == null || t < MIN_DFA_EDGE || t > MAX_DFA_EDGE) {
