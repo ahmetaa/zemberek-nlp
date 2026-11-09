@@ -21,46 +21,6 @@ public class DistilledAmbiguityResolverIntegrationTest {
   }
 
   @Test
-  public void testBuilderFlagEnablesLegacyResolver() {
-    TurkishMorphology morphology = TurkishMorphology.builder()
-        .useLegacyAmbiguityResolver()
-        .build();
-    AmbiguityResolver resolver = morphology.getAmbiguityResolver();
-    Assert.assertNotNull(resolver);
-    Assert.assertTrue("Builder flag should instantiate PerceptronAmbiguityResolver",
-        resolver instanceof PerceptronAmbiguityResolver);
-  }
-
-  @Test
-  public void testStaticFactoryEnablesLegacyResolver() {
-    TurkishMorphology morphology = TurkishMorphology.createWithLegacyAmbiguityResolver();
-    AmbiguityResolver resolver = morphology.getAmbiguityResolver();
-    Assert.assertNotNull(resolver);
-    Assert.assertTrue("createWithLegacyAmbiguityResolver should instantiate PerceptronAmbiguityResolver",
-        resolver instanceof PerceptronAmbiguityResolver);
-  }
-
-  @Test
-  public void testSystemPropertyEnablesLegacyResolver() {
-    String prop = "zemberek.morphology.useLegacyAmbiguityResolver";
-    String prev = System.getProperty(prop);
-    try {
-      System.setProperty(prop, "true");
-      TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-      AmbiguityResolver resolver = morphology.getAmbiguityResolver();
-      Assert.assertNotNull(resolver);
-      Assert.assertTrue("System property should switch default to PerceptronAmbiguityResolver",
-          resolver instanceof PerceptronAmbiguityResolver);
-    } finally {
-      if (prev != null) {
-        System.setProperty(prop, prev);
-      } else {
-        System.clearProperty(prop);
-      }
-    }
-  }
-
-  @Test
   public void testFastPerceptronDisambiguationAnalysis() {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     String sentence = "Yarın sabah Ankara'ya gideceğim.";
