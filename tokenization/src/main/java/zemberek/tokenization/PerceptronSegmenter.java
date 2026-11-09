@@ -1,6 +1,5 @@
 package zemberek.tokenization;
 
-import com.google.common.collect.Sets;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -16,14 +15,18 @@ import zemberek.core.turkish.TurkishAlphabet;
 
 abstract class PerceptronSegmenter {
 
-  private static final Set<String> webWords =
-      Sets.newHashSet("http:", ".html", "www", ".tr", ".edu", ".com", ".net", ".gov", ".org", "@");
+  private static final String[] webWords =
+      {"http:", ".html", "www", ".tr", ".edu", ".com", ".net", ".gov", ".org", "@"};
   static Set<String> TurkishAbbreviationSet = new HashSet<>();
   private static Locale localeTr = new Locale("tr");
   private static String lowerCaseVowels = "aeıioöuüâîû";
   private static String upperCaseVowels = "AEIİOÖUÜÂÎÛ";
+  private static final char[] META_CHAR_LOOKUP = new char[1024];
 
   static {
+    for (int i = 0; i < META_CHAR_LOOKUP.length; i++) {
+      META_CHAR_LOOKUP[i] = computeMetaChar((char) i);
+    }
     try {
       List<String> lines = TextIO.loadLinesFromResource("tokenization/abbreviations.txt");
       for (String line : lines) {
@@ -65,6 +68,10 @@ abstract class PerceptronSegmenter {
   }
 
   private static char getMetaChar(char letter) {
+    return letter < META_CHAR_LOOKUP.length ? META_CHAR_LOOKUP[letter] : computeMetaChar(letter);
+  }
+
+  private static char computeMetaChar(char letter) {
     char c;
     if (Character.isUpperCase(letter)) {
       c = upperCaseVowels.indexOf(letter) >= 0 ? 'V' : 'C';
@@ -84,6 +91,15 @@ abstract class PerceptronSegmenter {
 
   static String getMetaChars(String str) {
     StringBuilder sb = new StringBuilder(str.length());
+    for (int i = 0; i < str.length(); i++) {
+      sb.append(getMetaChar(str.charAt(i)));
+    }
+    return sb.toString();
+  }
+
+  static String getMetaChars(String prefix, String str) {
+    StringBuilder sb = new StringBuilder(prefix.length() + str.length());
+    sb.append(prefix);
     for (int i = 0; i < str.length(); i++) {
       sb.append(getMetaChar(str.charAt(i)));
     }
