@@ -1,13 +1,13 @@
 CHANGE LOG
 ==========
 
-## 0.17.2
+## 0.18.0
 
-Zemberek `0.17.2` brings major improvements in **disambiguation accuracy**, **end-to-end processing speed (~8x faster than `0.17.1`)**, **morphological coverage**, and **tokenization/sentence segmentation quality**, along with updated dependencies and Java 21 baseline support.
+Zemberek `0.18.0` brings major improvements in **disambiguation accuracy**, **end-to-end processing speed (~8x faster than `0.17.1`)**, **morphological coverage**, and **tokenization/sentence segmentation quality**, along with updated dependencies and Java 21 baseline support.
 
-### Highlights at a Glance (`0.17.1` → `0.17.2`)
+### Highlights at a Glance (`0.17.1` → `0.18.0`)
 
-| Area | `0.17.1` | `0.17.2` | What Changed |
+| Area | `0.17.1` | `0.18.0` | What Changed |
 | :--- | :---: | :---: | :--- |
 | **End-to-End Pipeline Speed** | ~23.5k tokens/sec | **~190k tokens/sec** | **~8.1x faster** full pipeline (segment → tokenize → analyze → disambiguate) |
 | **Disambiguation Accuracy** *(Ambiguous Tokens)* | ~77.5% | **~92.8%** | **~68% fewer disambiguation errors**; **~2.7x more** sentences disambiguated with 100% exact match |
