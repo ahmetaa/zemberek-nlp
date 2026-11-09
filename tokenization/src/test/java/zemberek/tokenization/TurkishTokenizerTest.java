@@ -3,9 +3,13 @@ package zemberek.tokenization;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -262,9 +266,7 @@ public class TurkishTokenizerTest {
   }
 
 
-  //TODO: failing.
   @Test
-  @Ignore
   public void testUnknownWord() {
     TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
     matchSentences(tokenizer, "L'Oréal", "L'Oréal");
@@ -404,6 +406,180 @@ public class TurkishTokenizerTest {
   public void testEllipsis() {
     TurkishTokenizer t = TurkishTokenizer.DEFAULT;
     matchSentences(t, "Merhaba, Kaya Ivır ve Tunç Zıvır…", "Merhaba , Kaya Ivır ve Tunç Zıvır …");
+  }
+
+  @Test
+  public void testTypeAcceptanceAndBuilder() {
+    TurkishTokenizer def = TurkishTokenizer.DEFAULT;
+    Assert.assertTrue(def.isTypeAccepted(Type.Word));
+    Assert.assertFalse(def.isTypeIgnored(Type.Word));
+    Assert.assertFalse(def.isTypeAccepted(Type.SpaceTab));
+    Assert.assertTrue(def.isTypeIgnored(Type.SpaceTab));
+    Assert.assertFalse(def.isTypeAccepted(Type.NewLine));
+    Assert.assertTrue(def.isTypeIgnored(Type.NewLine));
+
+    TurkishTokenizer all = TurkishTokenizer.ALL;
+    for (Type type : Type.values()) {
+      Assert.assertTrue(all.isTypeAccepted(type));
+      Assert.assertFalse(all.isTypeIgnored(type));
+    }
+
+    TurkishTokenizer custom = TurkishTokenizer.builder()
+        .ignoreAll()
+        .acceptTypes(Type.Word, Type.Number)
+        .ignoreTypes(Type.Number)
+        .build();
+    Assert.assertTrue(custom.isTypeAccepted(Type.Word));
+    Assert.assertFalse(custom.isTypeAccepted(Type.Number));
+    Assert.assertTrue(custom.isTypeIgnored(Type.Number));
+  }
+
+  @Test
+  public void testTokenIteratorContract() throws IOException {
+    TurkishTokenizer t = TurkishTokenizer.DEFAULT;
+    String input = "Merhaba dünya, bugün 200 TL.";
+
+    // Calling hasNext() repeatedly must not skip tokens.
+    Iterator<Token> it1 = t.getTokenIterator(input);
+    List<Token> fromRepeatedHasNext = new ArrayList<>();
+    while (it1.hasNext()) {
+      Assert.assertTrue(it1.hasNext());
+      Assert.assertTrue(it1.hasNext());
+      fromRepeatedHasNext.add(it1.next());
+    }
+    Assert.assertFalse(it1.hasNext());
+    Assert.assertEquals(t.tokenize(input).toString(), fromRepeatedHasNext.toString());
+
+    // Calling next() after exhaustion must throw NoSuchElementException.
+    try {
+      it1.next();
+      Assert.fail("Expected NoSuchElementException");
+    } catch (NoSuchElementException expected) {
+      // expected
+    }
+
+    // Calling next() directly without calling hasNext() first must still work.
+    Iterator<Token> it2 = t.getTokenIterator(new StringReader(input));
+    List<Token> fromDirectNext = new ArrayList<>();
+    for (int i = 0; i < fromRepeatedHasNext.size(); i++) {
+      fromDirectNext.add(it2.next());
+    }
+    Assert.assertFalse(it2.hasNext());
+    Assert.assertEquals(fromRepeatedHasNext.toString(), fromDirectNext.toString());
+  }
+
+  @Test
+  public void testSingleLetterStemsAndHyphenatedWords() {
+    TurkishTokenizer t = TurkishTokenizer.DEFAULT;
+    matchToken(t, "O'na", Type.WordWithSymbol, "O'na");
+    matchToken(t, "O'nu", Type.WordWithSymbol, "O'nu");
+    matchToken(t, "A'dan", Type.WordWithSymbol, "A'dan");
+    matchToken(t, "Z'ye", Type.WordWithSymbol, "Z'ye");
+    matchToken(t, "Kur'an'da", Type.WordWithSymbol, "Kur'an'da");
+    matchToken(t, "check-up'ı", Type.WordWithSymbol, "check-up'ı");
+    matchToken(t, "doğu-güney-batı", Type.WordWithSymbol, "doğu-güney-batı");
+    matchToken(t, "kuzey-doğu'dan", Type.WordWithSymbol, "kuzey-doğu'dan");
+    matchSentences(t, "O'na A'dan Z'ye her şeyi anlattım.", "O'na A'dan Z'ye her şeyi anlattım .");
+  }
+
+  @Test
+  public void testLowercaseWordsCollidingWithAbbreviations() {
+    TurkishTokenizer t = TurkishTokenizer.DEFAULT;
+    matchSentences(t, "Onu hemen bul.", "Onu hemen bul .");
+    matchSentences(t, "Bunu kendin gör.", "Bunu kendin gör .");
+    matchSentences(t, "Sofrayı kur.", "Sofrayı kur .");
+    matchSentences(t, "Ekmeği ikiye böl.", "Ekmeği ikiye böl .");
+    matchSentences(t, "Kapıyı it.", "Kapıyı it .");
+    matchSentences(t, "Ceketini as.", "Ceketini as .");
+    matchSentences(t, "Ellerini cebine sok.", "Ellerini cebine sok .");
+    matchSentences(t, "Elindeki sadece bir top.", "Elindeki sadece bir top .");
+    matchSentences(t, "Elindeki sadece bir yay.", "Elindeki sadece bir yay .");
+
+    // Capitalized abbreviations and genuine lowercase abbreviations still remain single tokens:
+    matchSentences(t, "Atatürk Bul. ve Gül Sok. kesişimi.", "Atatürk Bul. ve Gül Sok. kesişimi .");
+    matchSentences(t, "Arş. Gör. Ahmet Bey geldi.", "Arş. Gör. Ahmet Bey geldi .");
+    matchSentences(t, "Elma, armut vb. meyveler.", "Elma , armut vb. meyveler .");
+    matchSentences(t, "19. yy. sonlarında.", "19. yy. sonlarında .");
+    matchSentences(t, "Ücreti 200 TL. olarak belirlendi.", "Ücreti 200 TL. olarak belirlendi .");
+  }
+
+  @Test
+  public void testRomanNumeralsVsAcronymsAndInitials() {
+    TurkishTokenizer t = TurkishTokenizer.DEFAULT;
+
+    // Valid Roman numerals:
+    matchToken(t, "I", Type.RomanNumeral, "I");
+    matchToken(t, "IV", Type.RomanNumeral, "IV");
+    matchToken(t, "XVI.", Type.RomanNumeral, "XVI.");
+    matchToken(t, "XXI.", Type.RomanNumeral, "XXI.");
+    matchToken(t, "XXIV.", Type.RomanNumeral, "XXIV.");
+    matchToken(t, "XXIV'ten", Type.RomanNumeral, "XXIV'ten");
+
+    // Single-letter initials that are not Roman numerals I, V, X:
+    matchToken(t, "M.", Type.AbbreviationWithDots, "M.");
+    matchToken(t, "C.", Type.AbbreviationWithDots, "C.");
+    matchToken(t, "D.", Type.AbbreviationWithDots, "D.");
+    matchToken(t, "L.", Type.AbbreviationWithDots, "L.");
+    matchSentences(t, "M. Kemal Atatürk", "M. Kemal Atatürk");
+
+    // Common acronyms composed of [ILVCDMX] letters:
+    matchToken(t, "CD", Type.Word, "CD");
+    matchToken(t, "CD'ye", Type.WordWithSymbol, "CD'ye");
+    matchToken(t, "DVD", Type.Word, "DVD");
+    matchToken(t, "DVD'de", Type.WordWithSymbol, "DVD'de");
+    matchToken(t, "LCD", Type.Word, "LCD");
+    matchToken(t, "XML", Type.Word, "XML");
+    matchToken(t, "CV", Type.Word, "CV");
+    matchToken(t, "DM", Type.Word, "DM");
+    matchToken(t, "ML", Type.Word, "ML");
+  }
+
+  @Test
+  public void testTimeVsDecimalNumbers() {
+    TurkishTokenizer t = TurkishTokenizer.DEFAULT;
+
+    // Valid 24-hour times:
+    matchToken(t, "00:00", Type.Time, "00:00");
+    matchToken(t, "23:59", Type.Time, "23:59");
+    matchToken(t, "10.20'de", Type.Time, "10.20'de");
+    matchToken(t, "10:20:53", Type.Time, "10:20:53");
+    matchToken(t, "10.20.00'da", Type.Time, "10.20.00'da");
+
+    // Numbers outside 24-hour/60-minute bounds must be Number, not Time:
+    matchToken(t, "24.30", Type.Number, "24.30");
+    matchToken(t, "29.59", Type.Number, "29.59");
+    matchToken(t, "12.75", Type.Number, "12.75");
+    matchToken(t, "95.63'ten", Type.Number, "95.63'ten");
+  }
+
+  @Test
+  public void testExtendedPunctuationAndCurrencySymbols() {
+    TurkishTokenizer t = TurkishTokenizer.DEFAULT;
+    matchSentences(t, "İstanbul–Ankara yolu", "İstanbul – Ankara yolu");
+    matchSentences(t, "geldi—ama gitmedi", "geldi — ama gitmedi");
+    matchSentences(t, "Fiyatı 100₺, 50€ veya 40£ oldu.", "Fiyatı 100 ₺ , 50 € veya 40 £ oldu .");
+    matchSentences(t, "x < y ve y > z", "x < y ve y > z");
+    matchSentences(t, "Hava 25°C civarında.", "Hava 25 ° C civarında .");
+    matchSentences(t, "Ali|Veli~Test", "Ali | Veli ~ Test");
+    matchSentences(t, "Merhaba\u00a0dünya", "Merhaba dünya");
+  }
+
+  @Test
+  public void testEmailAndUrlEdgeCases() {
+    TurkishTokenizer t = TurkishTokenizer.DEFAULT;
+    matchToken(t, "a@b.com", Type.Email, "a@b.com");
+    matchToken(t, "first.middle.last@sub.example.co.uk", Type.Email,
+        "first.middle.last@sub.example.co.uk");
+    matchToken(t, "user-name+tag@my-domain.org'dan", Type.Email,
+        "user-name+tag@my-domain.org'dan");
+    matchSentences(t, "Bana a@b.com.", "Bana a@b.com .");
+
+    // URLs at sentence end must not swallow the sentence-ending period:
+    matchSentences(t, "Siteye https://www.google.com.tr. adresinden",
+        "Siteye https://www.google.com.tr . adresinden");
+    matchSentences(t, "Adresi www.fo.bar.", "Adresi www.fo.bar .");
+    matchToken(t, "http://localhost:8080/api/v1?q=a%20b#top", Type.URL,
+        "http://localhost:8080/api/v1?q=a%20b#top");
   }
 
   @Test
