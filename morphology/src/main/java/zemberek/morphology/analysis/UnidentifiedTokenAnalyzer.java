@@ -189,10 +189,15 @@ public class UnidentifiedTokenAnalyzer {
 
     StemAndEnding se = new StemAndEnding(stem, ending);
     //TODO: should we remove dots with normalization?
-    String stemNormalized =
-        TurkishAlphabet.INSTANCE.normalize(se.stem.replace("'", "")).replaceAll("[.]", "");
+    String cleanStem = se.stem.replace("'", "");
+    boolean alphanumericStem =
+        (secondaryPos == SecondaryPos.ProperNoun || secondaryPos == SecondaryPos.Abbreviation)
+            && alphabet.containsDigit(cleanStem);
+    String stemNormalized = alphanumericStem
+        ? alphabet.normalizeCircumflex(cleanStem.toLowerCase(Turkish.LOCALE)).replaceAll("[.]", "")
+        : TurkishAlphabet.INSTANCE.normalize(cleanStem).replaceAll("[.]", "");
     String endingNormalized = TurkishAlphabet.INSTANCE.normalize(se.ending);
-    String pronunciation = guessStemPronunciation(se.stem, stemNormalized, secondaryPos);
+    String pronunciation = guessStemPronunciation(cleanStem, stemNormalized, secondaryPos);
 
     boolean capitalize = secondaryPos == SecondaryPos.ProperNoun ||
         secondaryPos == SecondaryPos.Abbreviation;
@@ -242,9 +247,22 @@ public class UnidentifiedTokenAnalyzer {
     }
   }
 
+  /**
+   * Estimates the Turkish pronunciation of an unidentified stem before suffix analysis so that
+   * vowel harmony and consonant voicing match how the stem is read aloud:
+   * <ul>
+   *   <li>Alphanumeric stems (e.g. {@code "S3"}, {@code "3G"}, {@code "F-16"}) are expanded using
+   *       Turkish letter and number pronunciations.</li>
+   *   <li>Dot-separated stems ending with a vowelless segment (e.g. {@code ".tr"} in
+   *       {@code "meb.gov.tr"}) pronounce the trailing segment letter-by-letter.</li>
+   *   <li>Abbreviations (e.g. {@code "Ö.D."}) use abbreviation syllable/letter pronunciation rules.</li>
+   *   <li>All other stems fall back to {@link #guessPronunciation(String)}.</li>
+   * </ul>
+   */
   private String guessStemPronunciation(
       String rawStem, String stemNormalized, SecondaryPos secondaryPos) {
-    if (secondaryPos != SecondaryPos.HashTag && alphabet.containsDigit(rawStem)) {
+    if ((secondaryPos == SecondaryPos.ProperNoun || secondaryPos == SecondaryPos.Abbreviation)
+        && alphabet.containsDigit(rawStem)) {
       return guesser.toTurkishLetterPronunciations(
           rawStem.toLowerCase(Turkish.LOCALE).replaceAll("[.]", ""));
     }
