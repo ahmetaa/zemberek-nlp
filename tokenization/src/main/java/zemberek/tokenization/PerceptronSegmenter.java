@@ -12,6 +12,7 @@ import java.util.Set;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.io.IOUtil;
 import zemberek.core.text.TextIO;
+import zemberek.core.turkish.TurkishAlphabet;
 
 abstract class PerceptronSegmenter {
 
@@ -26,11 +27,16 @@ abstract class PerceptronSegmenter {
     try {
       List<String> lines = TextIO.loadLinesFromResource("tokenization/abbreviations.txt");
       for (String line : lines) {
-        if (line.trim().length() > 0) {
-          final String abbr = line.trim().replaceAll("\\s+", ""); // erase spaces
-          TurkishAbbreviationSet.add(abbr.replaceAll("\\.$", "")); // erase last dot and add.
-          TurkishAbbreviationSet
-              .add(abbr.toLowerCase(localeTr).replaceAll("\\.$", "")); // lowercase and add.
+        line = line.trim();
+        if (line.isEmpty()) {
+          continue;
+        }
+        String abbr = line.replaceAll("\\s+", "").replaceAll("\\.$", "");
+        if (line.endsWith(".") || Character.isUpperCase(abbr.charAt(0))) {
+          TurkishAbbreviationSet.add(abbr);
+        }
+        if (!TurkishAlphabet.INSTANCE.containsVowel(abbr)) {
+          TurkishAbbreviationSet.add(abbr.toLowerCase(localeTr));
         }
       }
     } catch (IOException e) {
@@ -61,14 +67,14 @@ abstract class PerceptronSegmenter {
   private static char getMetaChar(char letter) {
     char c;
     if (Character.isUpperCase(letter)) {
-      c = upperCaseVowels.indexOf(letter) > 0 ? 'V' : 'C';
+      c = upperCaseVowels.indexOf(letter) >= 0 ? 'V' : 'C';
     } else if (Character.isLowerCase(letter)) {
-      c = lowerCaseVowels.indexOf(letter) > 0 ? 'v' : 'c';
+      c = lowerCaseVowels.indexOf(letter) >= 0 ? 'v' : 'c';
     } else if (Character.isDigit(letter)) {
       c = 'd';
     } else if (Character.isWhitespace(letter)) {
       c = ' ';
-    } else if (letter == '.' || letter == '!' || letter == '?') {
+    } else if (letter == '.' || letter == '!' || letter == '?' || letter == '…') {
       return letter;
     } else {
       c = '-';
