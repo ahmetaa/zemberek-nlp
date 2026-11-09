@@ -40,9 +40,7 @@ public class TurkishTokenizer {
   }
 
   private static TurkishLexer lexerInstance(CharStream inputStream) {
-    TurkishLexer lexer = new TurkishLexer(inputStream);
-    lexer.removeErrorListeners();
-    return lexer;
+    return TurkishLexer.create(inputStream);
   }
 
   public boolean isTypeAccepted(Token.Type i) {
@@ -213,7 +211,7 @@ public class TurkishTokenizer {
       this.tokenizer = tokenizer;
       this.lexer = lexer;
       this.input = lexer.getInputStream();
-      this.interp = (CustomLexerATNSimulator) lexer.getInterpreter();
+      this.interp = lexer.getInterpreter();
       this.nextToken = fetchNext();
     }
 
