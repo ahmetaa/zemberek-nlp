@@ -148,7 +148,7 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
         .add(vA1sg_ST, "m") // yap-ca-m
         .add(vA2sg_ST, "n") // yap-ca-n
         .add(vA1pl_ST, "z") // yap-ca-z
-        .add(vA1pl_ST, "nIz"); // yap-ca-nız
+        .add(vA2pl_ST, "nIz"); // yap-ca-nız
 
     vFut_S_Inf.add(vCond_S, "sA");
     vFut_S_Inf.add(vPastAfterTense_S, "tI");

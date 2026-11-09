@@ -146,7 +146,7 @@ public class TurkishMorphology {
   }
 
   public WordAnalysis analyze(Token token) {
-    return cache.getAnalysis(token, this::analyzeWithoutCache);
+    return useCache ? cache.getAnalysis(token, this::analyzeWithoutCache) : analyzeWithoutCache(token);
   }
 
   private WordAnalysis analyzeWithCache(String word) {
@@ -177,6 +177,12 @@ public class TurkishMorphology {
 
     List<Token> tokens = tokenizer.tokenize(word);
     if (tokens.size() != 1) {
+      if (tokens.size() > 1
+          && TurkishAlphabet.INSTANCE.containsApostrophe(word)
+          && !word.contains(" ")) {
+        return analyzeWithoutCache(
+            new Token(word, Token.Type.WordAlphanumerical, 0, word.length() - 1));
+      }
       return new WordAnalysis(word, word, new ArrayList<>(0));
     }
     return analyzeWithoutCache(tokens.get(0));
@@ -206,7 +212,7 @@ public class TurkishMorphology {
 
     if (TurkishAlphabet.INSTANCE.containsApostrophe(s)) {
       s = TurkishAlphabet.INSTANCE.normalizeApostrophe(s);
-      result = analyzeWordsWithApostrophe(s);
+      result = s.length() > 1 ? analyzeWordsWithApostrophe(s) : analyzer.analyze(s);
     } else {
       result = analyzer.analyze(s);
     }
@@ -224,7 +230,7 @@ public class TurkishMorphology {
 
   public List<SingleAnalysis> analyzeWordsWithApostrophe(String word) {
 
-    int index = word.indexOf('\'');
+    int index = word.lastIndexOf('\'');
 
     if (index <= 0 || index == word.length() - 1) {
       return Collections.emptyList();
@@ -234,7 +240,7 @@ public class TurkishMorphology {
         word.substring(0, index),
         word.substring(index + 1));
 
-    String stem = TurkishAlphabet.INSTANCE.normalize(se.stem);
+    String stem = TurkishAlphabet.INSTANCE.normalize(se.stem.replace("'", ""));
 
     String withoutQuote = word.replace("'", "");
 
