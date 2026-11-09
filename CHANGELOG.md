@@ -16,6 +16,8 @@ Zemberek `0.17.2` brings major improvements in **disambiguation accuracy**, **en
 | **Sentence Segmentation Speed** | ~294k sentences/sec | **~393k – 825k sentences/sec** | **1.3x – 2.5x faster** with higher boundary precision |
 | **Tokenizer Speed** | ~4.6M tokens/sec | **~6.6M tokens/sec** | **~1.4x faster** by skipping intermediate token allocations and fixing ANTLR EOF DFA caching |
 
+> **Benchmark Setup:** Single-threaded (single-core) execution on an AMD Ryzen 7 1700X (x86_64 Linux), running on Eclipse Temurin OpenJDK 25.0.4.1 64-Bit Server VM (`-Xmx4g`) with warmup passes prior to measurement. Throughput was measured on `cnn-turk-10k` (10,000 news paragraphs, 22,695 sentences, 326,144 tokens) and disambiguation accuracy on a held-out 1,000-sentence / 11,582-token evaluation set (`test_slice_001`, 6,587 ambiguous tokens).
+
 ### What's New & Improved
 
 #### 1. Morphological Disambiguation
