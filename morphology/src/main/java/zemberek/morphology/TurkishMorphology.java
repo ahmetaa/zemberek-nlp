@@ -14,7 +14,6 @@ import zemberek.core.turkish.StemAndEnding;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.ambiguity.AmbiguityResolver;
-import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver;
 import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolver;
 import zemberek.morphology.analysis.AnalysisCache;
 import zemberek.morphology.analysis.RuleBasedAnalyzer;
@@ -75,24 +74,13 @@ public class TurkishMorphology {
     this.useUnidentifiedTokenAnalyzer = builder.useUnidentifiedTokenAnalyzer;
 
     if (builder.ambiguityResolver == null) {
-      if (builder.useLegacyAmbiguityResolver) {
-        String resourcePath = "/tr/ambiguity/model-compressed";
-        try {
-          this.ambiguityResolver =
-              PerceptronAmbiguityResolver.fromResource(resourcePath);
-        } catch (IOException e) {
-          throw new RuntimeException(
-              "Cannot initialize PerceptronAmbiguityResolver from resource " + resourcePath, e);
-        }
-      } else {
-        String resourcePath = "/tr/ambiguity/model_10k_argon_v24.bin";
-        try {
-          this.ambiguityResolver =
-              FastPerceptronAmbiguityResolver.fromResource(resourcePath);
-        } catch (IOException e) {
-          throw new RuntimeException(
-              "Cannot initialize FastPerceptronAmbiguityResolver from resource " + resourcePath, e);
-        }
+      String resourcePath = "/tr/ambiguity/model_10k_argon_v24.bin";
+      try {
+        this.ambiguityResolver =
+            FastPerceptronAmbiguityResolver.fromResource(resourcePath);
+      } catch (IOException e) {
+        throw new RuntimeException(
+            "Cannot initialize FastPerceptronAmbiguityResolver from resource " + resourcePath, e);
       }
     } else {
       this.ambiguityResolver = builder.ambiguityResolver;
@@ -116,20 +104,6 @@ public class TurkishMorphology {
     TurkishMorphology instance = new Builder().setLexicon(RootLexicon.getDefault()).build();
     Log.info("Initialized in %d ms.", sw.elapsed(TimeUnit.MILLISECONDS));
     return instance;
-  }
-
-  public static TurkishMorphology createWithLegacyAmbiguityResolver() {
-    Stopwatch sw = Stopwatch.createStarted();
-    TurkishMorphology instance = new Builder()
-        .setLexicon(RootLexicon.getDefault())
-        .useLegacyAmbiguityResolver()
-        .build();
-    Log.info("Initialized with legacy ambiguity resolver in %d ms.", sw.elapsed(TimeUnit.MILLISECONDS));
-    return instance;
-  }
-
-  public static TurkishMorphology createWithDistilledAmbiguityResolver() {
-    return createWithDefaults();
   }
 
   public static TurkishMorphology create(RootLexicon lexicon) {
@@ -310,28 +284,6 @@ public class TurkishMorphology {
     TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
     boolean informalAnalysis = false;
     boolean ignoreDiacriticsInAnalysis = false;
-    boolean useLegacyAmbiguityResolver =
-        Boolean.getBoolean("zemberek.morphology.useLegacyAmbiguityResolver");
-
-    public Builder useLegacyAmbiguityResolver() {
-      this.useLegacyAmbiguityResolver = true;
-      return this;
-    }
-
-    public Builder useLegacyAmbiguityResolver(boolean use) {
-      this.useLegacyAmbiguityResolver = use;
-      return this;
-    }
-
-    public Builder useDistilledAmbiguityResolver() {
-      this.useLegacyAmbiguityResolver = false;
-      return this;
-    }
-
-    public Builder useDistilledAmbiguityResolver(boolean use) {
-      this.useLegacyAmbiguityResolver = !use;
-      return this;
-    }
 
     public Builder setLexicon(RootLexicon lexicon) {
       this.lexicon = lexicon;
