@@ -29,7 +29,7 @@ Zemberek `0.18.0` brings major improvements in **disambiguation accuracy**, **en
 #### 2. Morphological Analysis & Caching
 - **Better Morphotactics & OOV Handling (`TurkishMorphotactics`, `UnidentifiedTokenAnalyzer`)**:
   - Added support for `deyip` / `yiyip` converb forms, verbal nouns in `-mada/-mede/-yışta` with copula (`beklemedeyiz`, `okumadayım`), derived abbreviations (`ABD'li`, `ABD'siz`), multi-apostrophe words (`Kur'an'da`, `Eto'o'nun`), hyphenated proper nouns, and alphanumeric/domain tokens (`3G'ye`, `S3'ün`, `meb.gov.tr'den`).
-  - Reduced unknown (unparsed) tokens on news corpora by **~27%**.
+  - Improved token parse coverage on `cnn-turk-10k` from **97.89% to 98.47%** (reducing unparsed `UNK` tokens from **2.11% to 1.53%**, or `6,880` → `4,996` tokens).
 - **Simplified & Faster Cache (`AnalysisCache`)**:
   - Unified the two-level static/dynamic cache into a single thread-safe Caffeine cache (default capacity increased to 50,000 entries), improving warm analysis throughput by **~3.9x**.
 
