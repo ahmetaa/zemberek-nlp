@@ -20,10 +20,9 @@ Zemberek `0.17.2` brings major improvements in **disambiguation accuracy**, **en
 
 #### 1. Morphological Disambiguation
 - **New Default Ambiguity Resolver & Model (`FastPerceptronAmbiguityResolver`)**:
-  - Replaced the legacy disambiguator with `FastPerceptronAmbiguityResolver` using Exact Viterbi decoding and a new compact default model (`model_10k_argon_v24.bin`, 2.16 MB).
+  - Replaced the legacy disambiguator and old model files with `FastPerceptronAmbiguityResolver` using Exact Viterbi decoding and a new compact default model (`model_10k_argon_v24.bin`, 2.16 MB).
   - Improves ambiguous-word accuracy from **~77.5% to ~92.8%** (overall token accuracy **~86.8% → ~95.6%**) while running **~7.5x faster**.
   - Added `FastPerceptronAmbiguityResolverTrainer` for training custom models.
-  - The legacy resolver remains available via `TurkishMorphology.createWithLegacyAmbiguityResolver()`.
 
 #### 2. Morphological Analysis & Caching
 - **Better Morphotactics & OOV Handling (`TurkishMorphotactics`, `UnidentifiedTokenAnalyzer`)**:
