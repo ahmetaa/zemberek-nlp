@@ -6,10 +6,9 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.antlr.v4.runtime.BaseErrorListener;
+import java.util.NoSuchElementException;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.Lexer;
 import zemberek.tokenization.Token.Type;
 import zemberek.tokenization.antlr.TurkishLexer;
@@ -21,15 +20,12 @@ import zemberek.tokenization.antlr.TurkishLexer;
 public class TurkishTokenizer {
 
   public static final TurkishTokenizer ALL = builder().acceptAll().build();
-  private static final int MAX_TOKEN_TYPE = TurkishLexer.VOCABULARY.getMaxTokenType();
   public static final TurkishTokenizer DEFAULT = builder()
       .acceptAll()
       .ignoreTypes(Token.Type.NewLine, Token.Type.SpaceTab)
       .build();
 
-  private static final BaseErrorListener IGNORING_ERROR_LISTENER = new ConsoleErrorListener();
-
-  private long acceptedTypeBits;
+  private final long acceptedTypeBits;
 
   private TurkishTokenizer(long acceptedTypeBits) {
     this.acceptedTypeBits = acceptedTypeBits;
@@ -42,12 +38,11 @@ public class TurkishTokenizer {
   private static TurkishLexer lexerInstance(CharStream inputStream) {
     TurkishLexer lexer = new TurkishLexer(inputStream);
     lexer.removeErrorListeners();
-    lexer.addErrorListener(IGNORING_ERROR_LISTENER);
     return lexer;
   }
 
   public boolean isTypeAccepted(Token.Type i) {
-    return !typeAccepted(i);
+    return typeAccepted(i);
   }
 
   public boolean isTypeIgnored(Token.Type i) {
@@ -61,7 +56,6 @@ public class TurkishTokenizer {
   private boolean typeIgnored(Token.Type i) {
     return (acceptedTypeBits & (1L << i.ordinal())) == 0;
   }
-
 
   public List<Token> tokenize(File file) throws IOException {
     return getAllTokens(lexerInstance(CharStreams.fromPath(file.toPath())));
@@ -203,37 +197,42 @@ public class TurkishTokenizer {
 
   private static class TokenIterator implements Iterator<Token> {
 
-    TurkishLexer lexer;
-    TurkishTokenizer tokenizer;
-    org.antlr.v4.runtime.Token token;
-    Token.Type type;
+    private final TurkishLexer lexer;
+    private final TurkishTokenizer tokenizer;
+    private Token nextToken;
 
     private TokenIterator(TurkishTokenizer tokenizer, TurkishLexer lexer) {
       this.tokenizer = tokenizer;
       this.lexer = lexer;
+      this.nextToken = fetchNext();
+    }
+
+    private Token fetchNext() {
+      while (true) {
+        org.antlr.v4.runtime.Token token = lexer.nextToken();
+        if (token.getType() == org.antlr.v4.runtime.Token.EOF) {
+          return null;
+        }
+        Token.Type type = convertType(token);
+        if (!tokenizer.typeIgnored(type)) {
+          return convert(token, type);
+        }
+      }
     }
 
     @Override
     public boolean hasNext() {
-      org.antlr.v4.runtime.Token token = lexer.nextToken();
-      if (token.getType() == org.antlr.v4.runtime.Token.EOF) {
-        return false;
-      }
-      type = convertType(token);
-      while (tokenizer.typeIgnored(type)) {
-        token = lexer.nextToken();
-        if (token.getType() == org.antlr.v4.runtime.Token.EOF) {
-          return false;
-        }
-        type = convertType(token);
-      }
-      this.token = token;
-      return true;
+      return nextToken != null;
     }
 
     @Override
     public Token next() {
-      return convert(token, type);
+      if (nextToken == null) {
+        throw new NoSuchElementException("No more tokens");
+      }
+      Token current = nextToken;
+      nextToken = fetchNext();
+      return current;
     }
 
     @Override
