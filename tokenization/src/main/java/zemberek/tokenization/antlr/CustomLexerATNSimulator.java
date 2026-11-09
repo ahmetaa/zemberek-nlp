@@ -1,5 +1,6 @@
 package zemberek.tokenization.antlr;
 
+import org.antlr.v4.runtime.IntStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.atn.ATN;
 import org.antlr.v4.runtime.atn.LexerATNSimulator;
@@ -12,6 +13,7 @@ import org.antlr.v4.runtime.dfa.DFAState;
 
 public class CustomLexerATNSimulator extends LexerATNSimulator {
 
+  public static final int MIN_DFA_EDGE = IntStream.EOF;
   public static final int MAX_DFA_EDGE = 368;
 
   public CustomLexerATNSimulator(ATN atn, DFA[] decisionToDFA,

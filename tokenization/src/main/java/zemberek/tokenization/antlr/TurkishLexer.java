@@ -105,7 +105,7 @@ public class TurkishLexer extends Lexer {
 
   private static final Locale LOCALE_TR = new Locale("tr");
   private static final Set<String> abbreviations = loadAbbreviations();
-  private java.util.Queue<Token> queue = new java.util.LinkedList<Token>();
+  private Token deferredToken;
 
   private static Set<String> loadAbbreviations() {
     Set<String> set = Sets.newHashSet();
@@ -134,19 +134,21 @@ public class TurkishLexer extends Lexer {
 
   @Override
   public Token nextToken() {
-    if (!queue.isEmpty()) {
-      return queue.poll();
+    if (deferredToken != null) {
+      Token res = deferredToken;
+      deferredToken = null;
+      return res;
     }
 
     Token next = super.nextToken();
-    if (next.getType() != Word) {
+    if (next.getType() != Word || _input.LA(1) != '.') {
       return next;
     }
 
     Token next2 = super.nextToken();
-    if (next2.getType() == Punctuation && next2.getText().equals(".")) {
+    if (next2.getType() == Punctuation && next2.getStartIndex() == next2.getStopIndex()) {
       String abbrev = next.getText() + ".";
-      if (abbreviations != null && abbreviations.contains(abbrev)) {
+      if (abbreviations.contains(abbrev)) {
         CommonToken commonToken = new CommonToken(Abbreviation, abbrev);
         commonToken.setStartIndex(next.getStartIndex());
         commonToken.setStopIndex(next2.getStopIndex());
@@ -156,7 +158,7 @@ public class TurkishLexer extends Lexer {
         return commonToken;
       }
     }
-    queue.offer(next2);
+    deferredToken = next2;
     return next;
   }
 

@@ -99,7 +99,7 @@ public class TurkishTokenizer {
       if (typeIgnored(type)) {
         continue;
       }
-      tokens.add(convert(token));
+      tokens.add(convert(token, type));
     }
     return tokens;
   }
