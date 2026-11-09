@@ -1,15 +1,18 @@
 package zemberek.morphology;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Assert;
 import org.junit.Test;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.SecondaryPos;
+import zemberek.morphology.analysis.AnalysisCache;
 import zemberek.morphology.analysis.RuleBasedAnalyzer;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
+import zemberek.tokenization.Token;
 
 public class TurkishMorphologyFunctionalTests {
 
@@ -319,6 +322,45 @@ public class TurkishMorphologyFunctionalTests {
     Assert.assertEquals(2, morphology.analyze("A3'ün").analysisCount());
     Assert.assertEquals(1, morphology.analyze("3G'ye").analysisCount());
     Assert.assertEquals(1, morphology.analyze("meb.gov.tr'den").analysisCount());
+  }
+
+  @Test
+  public void testAnalysisCache() {
+    AnalysisCache cache = AnalysisCache.builder().dynamicCacheSize(16, 128).build();
+    AtomicInteger stringCalls = new AtomicInteger();
+    AtomicInteger tokenCalls = new AtomicInteger();
+
+    cache.getAnalysis("elma", k -> {
+      stringCalls.incrementAndGet();
+      return WordAnalysis.EMPTY_INPUT_RESULT;
+    });
+    cache.getAnalysis("elma", k -> {
+      stringCalls.incrementAndGet();
+      return WordAnalysis.EMPTY_INPUT_RESULT;
+    });
+    Assert.assertEquals(1, stringCalls.get());
+
+    Token token = new Token("armut", Token.Type.Word, 0, 4);
+    cache.getAnalysis(token, t -> {
+      tokenCalls.incrementAndGet();
+      return WordAnalysis.EMPTY_INPUT_RESULT;
+    });
+    cache.getAnalysis(token, t -> {
+      tokenCalls.incrementAndGet();
+      return WordAnalysis.EMPTY_INPUT_RESULT;
+    });
+    Assert.assertEquals(1, tokenCalls.get());
+    Assert.assertTrue(cache.toString().contains("Hit rate:"));
+
+    cache.invalidateDynamicCache();
+    cache.getAnalysis("elma", k -> {
+      stringCalls.incrementAndGet();
+      return WordAnalysis.EMPTY_INPUT_RESULT;
+    });
+    Assert.assertEquals(2, stringCalls.get());
+
+    AnalysisCache disabled = AnalysisCache.builder().disableDynamicCache().build();
+    Assert.assertEquals("Cache is disabled.", disabled.toString());
   }
 
   @Test
