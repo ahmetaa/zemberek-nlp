@@ -128,6 +128,10 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
     return indexes;
   }
 
+  private static boolean isBoundaryChar(char c) {
+    return c == '.' || c == '!' || c == '?' || c == '…';
+  }
+
   // TODO: doNotSplitInDoubleQuotes may not be suitable for some cases.
   // such as for paragraph: "Merhaba. Nasılsın?"
   private List<Span> extractToSpans(String paragraph) {
@@ -141,7 +145,7 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
 
       // skip if char cannot be a boundary char.
       char chr = paragraph.charAt(j);
-      if (BOUNDARY_CHARS.indexOf(chr) < 0) {
+      if (!isBoundaryChar(chr)) {
         continue;
       }
 
@@ -227,9 +231,16 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
     List<Span> spans = extractToSpans(paragraph);
     List<String> sentences = new ArrayList<>(spans.size());
     for (Span span : spans) {
-      String sentence = span.getSubstring(paragraph).trim();
-      if (sentence.length() > 0) {
-        sentences.add(sentence);
+      int s = span.start;
+      int e = span.end;
+      while (s < e && paragraph.charAt(s) <= ' ') {
+        s++;
+      }
+      while (e > s && paragraph.charAt(e - 1) <= ' ') {
+        e--;
+      }
+      if (s < e) {
+        sentences.add(paragraph.substring(s, e));
       }
     }
     return sentences;
@@ -372,7 +383,7 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
         for (int j = 0; j < joinedSentence.length(); j++) {
           // skip if char cannot be a boundary char.
           char chr = joinedSentence.charAt(j);
-          if (BOUNDARY_CHARS.indexOf(chr) < 0) {
+          if (!isBoundaryChar(chr)) {
             continue;
           }
           BoundaryData boundaryData = new BoundaryData(joinedSentence, j);
@@ -418,11 +429,11 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
     String previousTwoLetters;
     String nextTwoLetters;
     String currentWord;
-    String nextWord;
     String currentWordNoPunctuation;
     String rightChunk;
     String leftChunk;
     String leftChunkUntilBoundary;
+    int nextWordFirstChar;
 
     BoundaryData(String input, int pointer) {
 
@@ -452,20 +463,14 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
       }
 
       currentChar = input.charAt(pointer);
-      currentWord = leftChunk + currentChar + rightChunk;
-      currentWordNoPunctuation = leftChunk + rightChunk;
+      currentWord = input.substring(previousSpace, pointer < input.length() - 1 ? nextSpace : pointer + 1);
+      currentWordNoPunctuation = rightChunk.isEmpty() ? leftChunk : leftChunk + rightChunk;
 
-      StringBuilder sb = new StringBuilder();
-      int j = nextSpace + 1;
-      while (j < input.length()) {
-        char c = input.charAt(j);
-        if (c == ' ') {
-          break;
-        }
-        sb.append(c);
-        j++;
-      }
-      nextWord = sb.toString();
+      int nextWordStart = nextSpace + 1;
+      nextWordFirstChar =
+          (nextWordStart < input.length() && input.charAt(nextWordStart) != ' ')
+              ? input.charAt(nextWordStart)
+              : -1;
     }
 
     int findBackwardsSpace(String input, int pos) {
@@ -503,41 +508,41 @@ public class TurkishSentenceExtractor extends PerceptronSegmenter {
 
     boolean nonBoundaryCheck() {
       if (currentChar != '.') {
-        return nextLetter == '\'' || nextLetter == ')' || BOUNDARY_CHARS.indexOf(nextLetter) >= 0;
+        return nextLetter == '\'' || nextLetter == ')' || isBoundaryChar(nextLetter);
       }
       return (leftChunkUntilBoundary.length() == 1)
           || (previousLetter == '.' && leftChunk.length() == 2)
           || (Character.isDigit(previousLetter) && Character.isDigit(nextLetter))
           || nextLetter == '\''
-          || BOUNDARY_CHARS.indexOf(nextLetter) >= 0
+          || isBoundaryChar(nextLetter)
           || TurkishAbbreviationSet.contains(currentWord)
           || TurkishAbbreviationSet.contains(leftChunkUntilBoundary)
           || potentialWebSite(currentWord);
     }
 
     List<String> extractFeatures() {
-      List<String> features = new ArrayList<>();
-      features.add("1:" + Character.isUpperCase(previousLetter));
-      features.add("1b:" + Character.isWhitespace(nextLetter));
+      List<String> features = new ArrayList<>(12);
+      features.add(Character.isUpperCase(previousLetter) ? "1:true" : "1:false");
+      features.add(Character.isWhitespace(nextLetter) ? "1b:true" : "1b:false");
       features.add("1a:" + previousLetter);
       features.add("1b:" + nextLetter);
       features.add("2p:" + previousTwoLetters);
       features.add("2n:" + nextTwoLetters);
 
       if (currentWord.length() > 0) {
-        features.add("7c:" + Character.isUpperCase(currentWord.charAt(0)));
-        features.add("9c:" + getMetaChars(currentWord));
+        features.add(Character.isUpperCase(currentWord.charAt(0)) ? "7c:true" : "7c:false");
+        features.add(getMetaChars("9c:", currentWord));
       }
 
       if (rightChunk.length() > 0) {
-        features.add("7r:" + Character.isUpperCase(rightChunk.charAt(0)));
-        features.add("9r:" + getMetaChars(rightChunk));
+        features.add(Character.isUpperCase(rightChunk.charAt(0)) ? "7r:true" : "7r:false");
+        features.add(getMetaChars("9r:", rightChunk));
         if (!TurkishAlphabet.INSTANCE.containsVowel(rightChunk)) {
           features.add("rcc:true");
         }
       }
-      if (nextWord.length() > 0) {
-        features.add("7n:" + Character.isUpperCase(nextWord.charAt(0)));
+      if (nextWordFirstChar >= 0) {
+        features.add(Character.isUpperCase((char) nextWordFirstChar) ? "7n:true" : "7n:false");
       }
 
       if (leftChunk.length() > 0
