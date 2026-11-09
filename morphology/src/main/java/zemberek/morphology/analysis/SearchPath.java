@@ -24,6 +24,8 @@ public class SearchPath {
 
   AttributeSet<PhoneticAttribute> phoneticAttributes;
 
+  // Cached root transition to avoid repeated list index and cast in condition checks.
+  private final StemTransition stemTransition;
   private boolean terminal;
   private boolean containsDerivation = false;
   private boolean containsSuffixWithSurface = false;
@@ -33,19 +35,22 @@ public class SearchPath {
     SurfaceTransition root = new SurfaceTransition(stemTransition.surface, stemTransition);
     morphemes.add(root);
     return new SearchPath(
+        stemTransition,
         tail,
         stemTransition.to,
         morphemes,
-        stemTransition.getPhoneticAttributes().copy(),
+        stemTransition.getPhoneticAttributes(),
         stemTransition.to.terminal);
   }
 
   private SearchPath(
+      StemTransition stemTransition,
       String tail,
       MorphemeState currentState,
       List<SurfaceTransition> transitions,
       AttributeSet<PhoneticAttribute> phoneticAttributes,
       boolean terminal) {
+    this.stemTransition = stemTransition;
     this.tail = tail;
     this.currentState = currentState;
     this.transitions = transitions;
@@ -58,10 +63,16 @@ public class SearchPath {
       AttributeSet<PhoneticAttribute> phoneticAttributes) {
 
     boolean isTerminal = surfaceNode.getState().terminal;
-    ArrayList<SurfaceTransition> hist = new ArrayList<>(transitions);
+    // Pre-size to transitions.size() + 1 so adding surfaceNode does not trigger ArrayList.grow().
+    ArrayList<SurfaceTransition> hist = new ArrayList<>(transitions.size() + 1);
+    for (int i = 0, n = transitions.size(); i < n; i++) {
+      hist.add(transitions.get(i));
+    }
     hist.add(surfaceNode);
-    String newTail = tail.substring(surfaceNode.surface.length());
+    String newTail =
+        surfaceNode.surface.isEmpty() ? tail : tail.substring(surfaceNode.surface.length());
     SearchPath path = new SearchPath(
+        stemTransition,
         newTail,
         surfaceNode.getState(),
         hist,
@@ -77,9 +88,13 @@ public class SearchPath {
       AttributeSet<PhoneticAttribute> phoneticAttributes) {
 
     boolean isTerminal = surfaceNode.getState().terminal;
-    ArrayList<SurfaceTransition> hist = new ArrayList<>(transitions);
+    ArrayList<SurfaceTransition> hist = new ArrayList<>(transitions.size() + 1);
+    for (int i = 0, n = transitions.size(); i < n; i++) {
+      hist.add(transitions.get(i));
+    }
     hist.add(surfaceNode);
     SearchPath path = new SearchPath(
+        stemTransition,
         tail,
         surfaceNode.getState(),
         hist,
@@ -104,7 +119,7 @@ public class SearchPath {
   }
 
   public StemTransition getStemTransition() {
-    return (StemTransition) transitions.get(0).lexicalTransition;
+    return stemTransition;
   }
 
   public MorphemeState getCurrentState() {

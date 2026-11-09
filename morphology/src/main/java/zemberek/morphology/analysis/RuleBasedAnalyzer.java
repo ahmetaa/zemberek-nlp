@@ -104,7 +104,7 @@ public class RuleBasedAnalyzer {
     }
 
     // generate initial search paths.
-    List<SearchPath> paths = new ArrayList<>();
+    List<SearchPath> paths = new ArrayList<>(candidates.size());
     for (StemTransition candidate : candidates) {
       int length = candidate.surface.length();
       String tail = input.substring(length);
@@ -158,14 +158,17 @@ public class RuleBasedAnalyzer {
         }
 
         // Creates new paths with outgoing and matching transitions.
-        List<SearchPath> newPaths = advance(path);
-        allNewPaths.addAll(newPaths);
-
+        // In non-debug mode, append directly to allNewPaths to avoid per-path list allocations.
         if (debugMode) {
+          List<SearchPath> newPaths = new ArrayList<>(2);
+          advance(path, newPaths);
+          allNewPaths.addAll(newPaths);
           if (newPaths.isEmpty()) {
             debugData.failedPaths.put(path, "No Transition");
           }
           debugData.paths.addAll(newPaths);
+        } else {
+          advance(path, allNewPaths);
         }
       }
       currentPaths = allNewPaths;
@@ -181,17 +184,26 @@ public class RuleBasedAnalyzer {
   // for all allowed matching outgoing transitions, new paths are generated.
   // Transition `conditions` are used for checking if a `search path`
   // is allowed to pass a transition.
-  private List<SearchPath> advance(SearchPath path) {
-
-    List<SearchPath> newPaths = new ArrayList<>(2);
+  private void advance(SearchPath path, List<SearchPath> newPaths) {
 
     // for all outgoing transitions.
     for (MorphemeTransition transition : path.currentState.getOutgoing()) {
 
       SuffixTransition suffixTransition = (SuffixTransition) transition;
 
+      // Fast-path epsilon (empty) transitions: skip surface generation and prefix matching.
+      if (!suffixTransition.hasSurfaceForm()) {
+        if (!debugMode ? !suffixTransition.canPass(path) : !checkDebugCondition(path, suffixTransition)) {
+          continue;
+        }
+        newPaths.add(path.getCopy(
+            new SurfaceTransition("", suffixTransition),
+            path.phoneticAttributes));
+        continue;
+      }
+
       // if tail is empty and this transitions surface is not empty, no need to check.
-      if (path.tail.isEmpty() && suffixTransition.hasSurfaceForm()) {
+      if (path.tail.isEmpty()) {
         if (debugMode) {
           debugData.rejectedTransitions.put(
               path,
@@ -205,10 +217,12 @@ public class RuleBasedAnalyzer {
           path.phoneticAttributes);
 
       // no need to go further if generated surface form is not a prefix of the paths's tail.
+      // Check first char before calling startsWith to avoid ArraysSupport.mismatch overhead.
       boolean tailStartsWith =
           asciiTolerant ?
               TurkishAlphabet.INSTANCE.startsWithIgnoreDiacritics(path.tail, surface) :
-              path.tail.startsWith(surface);
+              (surface.isEmpty()
+                  || (path.tail.charAt(0) == surface.charAt(0) && path.tail.startsWith(surface)));
       if (!tailStartsWith) {
         if (debugMode) {
           debugData.rejectedTransitions.put(
@@ -218,41 +232,16 @@ public class RuleBasedAnalyzer {
         continue;
       }
 
-      // if transition condition fails, add it to debug data.
-      if (debugMode && suffixTransition.getCondition() != null) {
-        Condition condition = suffixTransition.getCondition();
-        Condition failed;
-        if (condition instanceof CombinedCondition) {
-          failed = ((CombinedCondition) condition).getFailingCondition(path);
-        } else {
-          failed = condition.accept(path) ? null : condition;
-        }
-        if (failed != null) {
-          debugData.rejectedTransitions.put(
-              path,
-              new RejectedTransition(suffixTransition, "Condition → " + failed.toString()));
-        }
-      }
-
       // check conditions.
-      if (!suffixTransition.canPass(path)) {
-        continue;
-      }
-
-      // epsilon (empty) transition. Add and continue. Use existing attributes.
-      if (!suffixTransition.hasSurfaceForm()) {
-        newPaths.add(path.getCopy(
-            new SurfaceTransition("", suffixTransition),
-            path.phoneticAttributes));
+      if (!debugMode ? !suffixTransition.canPass(path) : !checkDebugCondition(path, suffixTransition)) {
         continue;
       }
 
       SurfaceTransition surfaceTransition = new SurfaceTransition(surface, suffixTransition);
 
       //if tail is equal to surface, no need to calculate phonetic attributes.
-      boolean tailEqualsSurface = asciiTolerant ?
-          TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(path.tail, surface)
-          : path.tail.equals(surface);
+      // Since tailStartsWith is already true, equality holds iff lengths match.
+      boolean tailEqualsSurface = path.tail.length() == surface.length();
       AttributeSet<PhoneticAttribute> attributes = tailEqualsSurface ?
           path.phoneticAttributes.copy() :
           AttributesHelper.getMorphemicAttributes(surface, path.phoneticAttributes);
@@ -275,7 +264,25 @@ public class RuleBasedAnalyzer {
           attributes);
       newPaths.add(p);
     }
-    return newPaths;
+  }
+
+  // if transition condition fails, add it to debug data.
+  private boolean checkDebugCondition(SearchPath path, SuffixTransition suffixTransition) {
+    if (suffixTransition.getCondition() != null) {
+      Condition condition = suffixTransition.getCondition();
+      Condition failed;
+      if (condition instanceof CombinedCondition) {
+        failed = ((CombinedCondition) condition).getFailingCondition(path);
+      } else {
+        failed = condition.accept(path) ? null : condition;
+      }
+      if (failed != null) {
+        debugData.rejectedTransitions.put(
+            path,
+            new RejectedTransition(suffixTransition, "Condition → " + failed.toString()));
+      }
+    }
+    return suffixTransition.canPass(path);
   }
 
   // for preventing excessive branching during search, we remove paths that has more than
