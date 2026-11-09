@@ -70,7 +70,6 @@ public class TurkishMorphology {
       } else {
         cache = builder.cache;
       }
-      cache.initializeStaticCache(this::analyzeWithoutCache);
     }
     this.useCache = builder.useDynamicCache;
     this.useUnidentifiedTokenAnalyzer = builder.useUnidentifiedTokenAnalyzer;
