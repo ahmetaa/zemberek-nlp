@@ -22,6 +22,10 @@ private static final Locale LOCALE_TR = new Locale("tr");
 private static final Set<String> abbreviations = loadAbbreviations();
 private Token deferredToken;
 
+public static boolean isAbbreviation(String wordWithDot) {
+  return abbreviations.contains(wordWithDot);
+}
+
 private static Set<String> loadAbbreviations() {
   Set<String> set = Sets.newHashSet();
   try {

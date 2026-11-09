@@ -9,8 +9,12 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.IntStream;
 import org.antlr.v4.runtime.Lexer;
+import org.antlr.v4.runtime.LexerNoViableAltException;
+import org.antlr.v4.runtime.misc.Interval;
 import zemberek.tokenization.Token.Type;
+import zemberek.tokenization.antlr.CustomLexerATNSimulator;
 import zemberek.tokenization.antlr.TurkishLexer;
 
 
@@ -90,16 +94,11 @@ public class TurkishTokenizer {
     return new TokenIterator(this, lexerInstance(CharStreams.fromReader(reader)));
   }
 
-  private List<Token> getAllTokens(Lexer lexer) {
+  private List<Token> getAllTokens(TurkishLexer lexer) {
     List<Token> tokens = new ArrayList<>();
-    for (org.antlr.v4.runtime.Token token = lexer.nextToken();
-        token.getType() != org.antlr.v4.runtime.Token.EOF;
-        token = lexer.nextToken()) {
-      Token.Type type = convertType(token);
-      if (typeIgnored(type)) {
-        continue;
-      }
-      tokens.add(convert(token, type));
+    TokenIterator iterator = new TokenIterator(this, lexer);
+    while (iterator.hasNext()) {
+      tokens.add(iterator.next());
     }
     return tokens;
   }
@@ -113,7 +112,11 @@ public class TurkishTokenizer {
   }
 
   public static Token.Type convertType(org.antlr.v4.runtime.Token token) {
-    switch (token.getType()) {
+    return convertType(token.getType());
+  }
+
+  private static Token.Type convertType(int tokenType) {
+    switch (tokenType) {
       case TurkishLexer.SpaceTab:
         return Type.SpaceTab;
       case TurkishLexer.Word:
@@ -158,7 +161,7 @@ public class TurkishTokenizer {
         return Type.WordWithSymbol;
       default:
         throw new IllegalStateException("Unidentified token type =" +
-            TurkishLexer.VOCABULARY.getDisplayName(token.getType()));
+            TurkishLexer.VOCABULARY.getDisplayName(tokenType));
     }
   }
 
@@ -197,26 +200,87 @@ public class TurkishTokenizer {
 
   private static class TokenIterator implements Iterator<Token> {
 
-    private final TurkishLexer lexer;
     private final TurkishTokenizer tokenizer;
+    private final TurkishLexer lexer;
+    private final CharStream input;
+    private final CustomLexerATNSimulator interp;
+    private int deferredType;
+    private int deferredStart;
+    private int deferredStop;
     private Token nextToken;
 
     private TokenIterator(TurkishTokenizer tokenizer, TurkishLexer lexer) {
       this.tokenizer = tokenizer;
       this.lexer = lexer;
+      this.input = lexer.getInputStream();
+      this.interp = (CustomLexerATNSimulator) lexer.getInterpreter();
       this.nextToken = fetchNext();
+    }
+
+    private int matchNextToken() {
+      while (true) {
+        if (input.LA(1) == IntStream.EOF) {
+          return org.antlr.v4.runtime.Token.EOF;
+        }
+        try {
+          int ttype = interp.match(input, Lexer.DEFAULT_MODE);
+          if (ttype != Lexer.SKIP) {
+            return ttype;
+          }
+        } catch (LexerNoViableAltException e) {
+          lexer.recover(e);
+        }
+      }
     }
 
     private Token fetchNext() {
       while (true) {
-        org.antlr.v4.runtime.Token token = lexer.nextToken();
-        if (token.getType() == org.antlr.v4.runtime.Token.EOF) {
-          return null;
+        int antlrType;
+        int start;
+        int stop;
+
+        if (deferredType != 0) {
+          antlrType = deferredType;
+          start = deferredStart;
+          stop = deferredStop;
+          deferredType = 0;
+        } else {
+          antlrType = matchNextToken();
+          if (antlrType == org.antlr.v4.runtime.Token.EOF) {
+            return null;
+          }
+          start = interp.getTokenStartIndex();
+          stop = input.index() - 1;
         }
-        Token.Type type = convertType(token);
-        if (!tokenizer.typeIgnored(type)) {
-          return convert(token, type);
+
+        if ((antlrType == TurkishLexer.SpaceTab && tokenizer.typeIgnored(Type.SpaceTab))
+            || (antlrType == TurkishLexer.NewLine && tokenizer.typeIgnored(Type.NewLine))) {
+          continue;
         }
+
+        if (antlrType == TurkishLexer.Word && input.LA(1) == '.') {
+          int next2Type = matchNextToken();
+          int next2Start = interp.getTokenStartIndex();
+          int next2Stop = input.index() - 1;
+          if (next2Type == TurkishLexer.Punctuation && next2Start == next2Stop) {
+            String abbrev = input.getText(Interval.of(start, next2Stop));
+            if (TurkishLexer.isAbbreviation(abbrev)) {
+              if (tokenizer.typeIgnored(Type.Abbreviation)) {
+                continue;
+              }
+              return new Token(abbrev, Type.Abbreviation, start, next2Stop);
+            }
+          }
+          deferredType = next2Type;
+          deferredStart = next2Start;
+          deferredStop = next2Stop;
+        }
+
+        Token.Type type = convertType(antlrType);
+        if (tokenizer.typeIgnored(type)) {
+          continue;
+        }
+        return new Token(input.getText(Interval.of(start, stop)), type, start, stop);
       }
     }
 
