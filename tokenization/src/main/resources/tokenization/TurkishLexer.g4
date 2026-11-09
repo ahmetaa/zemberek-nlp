@@ -22,6 +22,25 @@ private static final Locale LOCALE_TR = new Locale("tr");
 private static final Set<String> abbreviations = loadAbbreviations();
 private Token deferredToken;
 
+private TurkishLexer(CharStream input, boolean useCustomSimulator) {
+  super(input);
+  _interp = new CustomLexerATNSimulator(this, _ATN, _decisionToDFA, _sharedContextCache);
+}
+
+public static TurkishLexer create(CharStream input) {
+  TurkishLexer lexer = new TurkishLexer(input, true);
+  lexer.removeErrorListeners();
+  return lexer;
+}
+
+@Override
+public CustomLexerATNSimulator getInterpreter() {
+  if (!(_interp instanceof CustomLexerATNSimulator)) {
+    _interp = new CustomLexerATNSimulator(this, _ATN, _decisionToDFA, _sharedContextCache);
+  }
+  return (CustomLexerATNSimulator) _interp;
+}
+
 public static boolean isAbbreviation(String wordWithDot) {
   return abbreviations.contains(wordWithDot);
 }

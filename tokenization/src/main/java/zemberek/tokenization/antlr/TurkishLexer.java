@@ -107,6 +107,25 @@ public class TurkishLexer extends Lexer {
   private static final Set<String> abbreviations = loadAbbreviations();
   private Token deferredToken;
 
+  private TurkishLexer(CharStream input, boolean useCustomSimulator) {
+    super(input);
+    _interp = new CustomLexerATNSimulator(this, _ATN, _decisionToDFA, _sharedContextCache);
+  }
+
+  public static TurkishLexer create(CharStream input) {
+    TurkishLexer lexer = new TurkishLexer(input, true);
+    lexer.removeErrorListeners();
+    return lexer;
+  }
+
+  @Override
+  public CustomLexerATNSimulator getInterpreter() {
+    if (!(_interp instanceof CustomLexerATNSimulator)) {
+      _interp = new CustomLexerATNSimulator(this, _ATN, _decisionToDFA, _sharedContextCache);
+    }
+    return (CustomLexerATNSimulator) _interp;
+  }
+
   public static boolean isAbbreviation(String wordWithDot) {
     return abbreviations.contains(wordWithDot);
   }
@@ -169,7 +188,7 @@ public class TurkishLexer extends Lexer {
 
   public TurkishLexer(CharStream input) {
     super(input);
-    _interp = new CustomLexerATNSimulator(this, _ATN, _decisionToDFA, _sharedContextCache);
+    _interp = new LexerATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
   }
 
   @Override
