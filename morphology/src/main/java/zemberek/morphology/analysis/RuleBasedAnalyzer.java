@@ -9,6 +9,7 @@ import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analysis.AnalysisDebugData.RejectedTransition;
 import zemberek.morphology.analysis.SurfaceTransition.SuffixTemplateToken;
 import zemberek.morphology.analysis.SurfaceTransition.TemplateTokenType;
+import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.AttributeSet;
 import zemberek.morphology.morphotactics.CombinedCondition;
@@ -121,6 +122,13 @@ public class RuleBasedAnalyzer {
       result.add(analysis);
       if (debugMode) {
         debugData.results.add(analysis);
+      }
+    }
+    if (result.size() > 1) {
+      deduplicateAnalyses(result);
+      if (debugMode && debugData.results.size() != result.size()) {
+        debugData.results.clear();
+        debugData.results.addAll(result);
       }
     }
     return result;
@@ -303,5 +311,36 @@ public class RuleBasedAnalyzer {
       }
     }
     return result;
+  }
+
+  private static void deduplicateAnalyses(List<SingleAnalysis> analyses) {
+    int size = analyses.size();
+    for (int i = 1; i < size; i++) {
+      var candidate = analyses.get(i);
+      for (int j = 0; j < i; j++) {
+        var existing = analyses.get(j);
+        if (isSameAnalysis(existing, candidate)) {
+          if (candidate.getDictionaryItem().index < existing.getDictionaryItem().index) {
+            analyses.set(j, candidate);
+          }
+          analyses.remove(i);
+          i--;
+          size--;
+          break;
+        }
+      }
+    }
+  }
+
+  private static boolean isSameAnalysis(SingleAnalysis a, SingleAnalysis b) {
+    if (a.groupCount() != b.groupCount()) {
+      return false;
+    }
+    var ia = a.getDictionaryItem();
+    var ib = b.getDictionaryItem();
+    return ia.primaryPos == ib.primaryPos
+        && ia.secondaryPos == ib.secondaryPos
+        && (ia == ib || ia.lemma.equals(ib.lemma))
+        && a.getMorphemeDataList().equals(b.getMorphemeDataList());
   }
 }
