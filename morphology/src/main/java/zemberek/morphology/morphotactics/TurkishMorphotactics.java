@@ -1314,12 +1314,16 @@ public class TurkishMorphotactics {
         .add(pP2sg_S, "In", rootIsNot(ne))
         .add(pP2sg_S, "yIn", rootIs(ne))
         .add(pP1pl_S, "ImIz", rootIsNot(ne))
-        .add(pP1pl_S, "yImIz", rootIs(ne));
+        .add(pP1pl_S, "yImIz", rootIs(ne))
+        .add(pP2pl_S, "InIz", rootIsNot(ne))
+        .add(pP2pl_S, "yInIz", rootIs(ne));
 
     pQuesA3pl_S.addEmpty(pPnon_S)
         .add(pP3sg_S, "I")
         .add(pP1sg_S, "Im")
-        .add(pP1pl_S, "ImIz");
+        .add(pP2sg_S, "In")
+        .add(pP1pl_S, "ImIz")
+        .add(pP2pl_S, "InIz");
 
     //------------ Reflexive Pronouns ----------------------------
     // `kendi`
@@ -1456,7 +1460,10 @@ public class TurkishMorphotactics {
     pNom_ST.add(without_S, "+nsIz",
         Conditions.rootIsAny(nere, bu, su, o_demons, ben, sen, o, biz, siz));
     pNom_ST.add(without_S, "+ysIz", Conditions.rootIsAny(ne));
-    pGen_ST.add(rel_S, "ki", Conditions.rootIsAny(nere, bu, su, o_demons, ne, sen, o, biz, siz));
+    pGen_ST.add(
+        relToPron_S,
+        "ki",
+        Conditions.rootIsAny(nere, bu, su, o_demons, ne, ben, sen, o, biz, siz, kim, kendi));
 
     Condition notRelRepetition = new HasTailSequence(rel, adj, zero, noun, a3sg, pnon, loc).not();
     pLoc_ST.add(rel_S, "ki", notRelRepetition);
