@@ -1,35 +1,23 @@
 package zemberek.morphology.morphotactics;
 
-import zemberek.core.collections.IntMap;
-
 /**
  * A cache for set of morphemic attributes to surface forms.
  *
- * For thread safety, writes to map are synchronized, when map needs expanding
- * writer thread creates the expanded version and replaces the map. The map
- * reference is volatile so readers always see a consistent albeit possibly
- * stale version of the map.
- *
- * This is also knows as cheap read-write lock trick (see item #5 in the link)
- * https://www.ibm.com/developerworks/java/library/j-jtp06197/index.html
+ * Surface generation only depends on the lowest 7 PhoneticAttribute bits (ordinals 0..6:
+ * LastLetterVowel through LastLetterVoiceless), so a fixed 128-element array indexed by
+ * {@code attributes & 0x7f} provides lock-free O(1) lookup.
  */
- class AttributeToSurfaceCache {
+class AttributeToSurfaceCache {
 
-  // volatile guarantees atomic reference copy.
-  private volatile IntMap<String> attributeMap;
+  // Mask for PhoneticAttribute ordinals 0..6 used during surface generation.
+  private static final int ATTRIBUTE_MASK = 0x7f;
+  private final String[] attributeMap = new String[ATTRIBUTE_MASK + 1];
 
-  AttributeToSurfaceCache() {
-    attributeMap = IntMap.createManaged();
-  }
-
-  synchronized void addSurface(int attributes, String surface) {
-    while (!attributeMap.put(attributes, surface)) {
-      attributeMap = attributeMap.expand();
-    }
+  void addSurface(int attributes, String surface) {
+    attributeMap[attributes & ATTRIBUTE_MASK] = surface;
   }
 
   String getSurface(int attributes) {
-    IntMap<String> map = attributeMap;
-    return map.get(attributes);
+    return attributeMap[attributes & ATTRIBUTE_MASK];
   }
 }
