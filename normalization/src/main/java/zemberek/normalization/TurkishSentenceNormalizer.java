@@ -416,6 +416,7 @@ public class TurkishSentenceNormalizer {
   }
 
   String preProcess(String sentence) {
+    boolean requiresDeasciifier = alwaysApplyDeasciifier || probablyRequiresDeasciifier(sentence);
     sentence = sentence.toLowerCase(Turkish.LOCALE);
     List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
     String s = replaceCommon(tokens);
@@ -423,13 +424,35 @@ public class TurkishSentenceNormalizer {
     s = combineNecessaryWords(tokens);
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
     s = splitNecessaryWords(tokens, false);
-    if (alwaysApplyDeasciifier || probablyRequiresDeasciifier(s)) {
-      s = Deasciifier.deasciify(s);
+    if (requiresDeasciifier) {
+      s = deasciifyValidWords(s);
     }
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
     s = combineNecessaryWords(tokens);
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
     return splitNecessaryWords(tokens, true);
+  }
+
+  String deasciifyValidWords(String s) {
+    String deasciified = Deasciifier.deasciify(s);
+    if (deasciified.equals(s) || deasciified.length() != s.length()) {
+      return deasciified;
+    }
+    List<Token> origTokens = TurkishTokenizer.DEFAULT.tokenize(s);
+    StringBuilder sb = new StringBuilder(s);
+    for (Token token : origTokens) {
+      int start = token.getStart();
+      int end = token.getEnd() + 1;
+      if (start < 0 || end > deasciified.length()) {
+        continue;
+      }
+      String origWord = s.substring(start, end);
+      String deascWord = deasciified.substring(start, end);
+      if (!origWord.equals(deascWord) && isWord(token) && morphology.analyze(deascWord).isCorrect()) {
+        sb.replace(start, end, deascWord);
+      }
+    }
+    return sb.toString();
   }
 
   /**
@@ -528,10 +551,13 @@ public class TurkishSentenceNormalizer {
    * Makes a guess if input sentence requires deasciifier.
    */
   static boolean probablyRequiresDeasciifier(String sentence) {
+    if (sentence.isEmpty()) {
+      return false;
+    }
     int turkishSpecCount = 0;
     for (int i = 0; i < sentence.length(); i++) {
       char c = sentence.charAt(i);
-      if (c == 'ı' || c == 'I') {
+      if (c == 'I') {
         continue;
       }
       if (TurkishAlphabet.INSTANCE.isTurkishSpecific(c)) {
