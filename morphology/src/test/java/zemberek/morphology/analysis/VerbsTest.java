@@ -1,7 +1,9 @@
 package zemberek.morphology.analysis;
 
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import zemberek.morphology.TurkishMorphology;
 
 public class VerbsTest extends AnalyzerTestBase {
 
@@ -771,5 +773,18 @@ public class VerbsTest extends AnalyzerTestBase {
     t.expectSingle("yazabil", matchesTailLex("Verb + Able + Verb + Imp + A2sg"));
     // only analysis. There should not be a "Neg" solution.
     t.expectSingle("yazabilme", matchesTailLex("Verb + Able + Verb + Inf2 + Noun + A3sg"));
+  }
+
+  /**
+   * For Issue https://github.com/ahmetaa/zemberek-nlp/issues/196
+   */
+  @Test
+  public void karsilasmakShouldNotHaveReciprocal_196() {
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    WordAnalysis analyses = morphology.analyze("karşılaşmak");
+    Assert.assertTrue(analyses.stream().anyMatch(
+        a -> "[karşılaşmak:Verb] karşılaş:Verb|mak:Inf1→Noun+A3sg".equals(a.formatLong())));
+    Assert.assertFalse(analyses.stream().anyMatch(
+        a -> a.formatLong().contains("Recip")));
   }
 }
