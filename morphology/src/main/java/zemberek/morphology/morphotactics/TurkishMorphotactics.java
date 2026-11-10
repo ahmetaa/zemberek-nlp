@@ -855,6 +855,12 @@ public class TurkishMorphotactics {
   MorphemeState aAsIf_S = nonTerminalDerivative("aAsIf_S", asIf);
   MorphemeState aAgt_S = nonTerminalDerivative("aAgt_S", agt);
 
+  MorphemeState aorPartNegZero_S = nonTerminalDerivative("aorPartNegZero_S", zero);
+  MorphemeState aorPartNegNoun_S = builder("aorPartNegNoun_S", noun).posRoot().build();
+  MorphemeState aorPartNegA3sg_S = nonTerminal("aorPartNegA3sg_S", a3sg);
+  MorphemeState aorPartNegPnon_S = nonTerminal("aorPartNegPnon_S", pnon);
+  MorphemeState aorPartNegAbl_ST = terminal("aorPartNegAbl_ST", abl);
+
   private void connectAdjectiveStates() {
 
     // zero morpheme derivation. Words like "yeşil-i" requires Adj to Noun conversion.
@@ -904,6 +910,13 @@ public class TurkishMorphotactics {
 
     adjAfterVerb_ST.add(ness_S, "lI~k", new Conditions.PreviousMorphemeIs(aorPart));
     adjAfterVerb_ST.add(ness_S, "lI!ğ", new Conditions.PreviousMorphemeIs(aorPart));
+
+    // Allow adverbial ablative after negative aorist participle: "bilmezden", "görmezden".
+    adjAfterVerb_ST.addEmpty(aorPartNegZero_S, Conditions.previousStateIs(vAorPartNeg_S));
+    aorPartNegZero_S.addEmpty(aorPartNegNoun_S);
+    aorPartNegNoun_S.addEmpty(aorPartNegA3sg_S);
+    aorPartNegA3sg_S.addEmpty(aorPartNegPnon_S);
+    aorPartNegPnon_S.add(aorPartNegAbl_ST, "dAn");
   }
 
   //--------------------- Numeral Root --------------------------------------------------
@@ -962,7 +975,7 @@ public class TurkishMorphotactics {
 
     nVerb_S.add(nCond_S, "+ysA");
 
-    nVerb_S.add(vWhile_S, "+yken");
+    nVerb_S.add(vWhile_S, "+yken", new HasTailSequence(narrPart, adj, zero, verb).not());
 
     // word "değil" is special. It contains negative suffix implicitly. Also it behaves like
     // noun->Verb Zero morpheme derivation. because it cannot have most Verb suffixes.
@@ -976,7 +989,7 @@ public class TurkishMorphotactics {
     // for preventing elmamım, elmamdım
     // pP1sg_S, pDat_ST, pA1sg_S, pA1pl_S, pA3pl_S, pP2sg_S, pP1pl_S, pP3sg_S, pP1sg_S
     Condition verbDeriv = new ContainsMorpheme(inf1)
-        .or(new ContainsMorpheme(inf2, inf3, pastPart, futPart)
+        .or(new ContainsMorpheme(inf2, inf3, pastPart, futPart, feelLike)
             .andNot(new Conditions.PreviousGroupContains(loc_ST, abl_ST, ins_ST)));
     Condition allowA1sgTrans =
         noFamily
@@ -1082,9 +1095,18 @@ public class TurkishMorphotactics {
     nA2pl_ST.add(vAsIf_S, ">cAsInA", asIfCond);
     nA3pl_ST.add(vAsIf_S, ">cAsInA", asIfCond);
 
+    // Allow A3pl before Past/Narr/Cond/While on oblique nominal predicates: "evdelerdi", "evdelermiş".
+    Condition nA3plAfterCase = Conditions.previousStateIs(nPresent_S)
+        .and(new Conditions.PreviousGroupContains(loc_ST, abl_ST, dat_ST, ins_ST));
+    nA3pl_ST.add(vPastAfterTense_ST, "dI", nA3plAfterCase);
+    nA3pl_ST.add(vNarrAfterTense_ST, "mIş", nA3plAfterCase);
+    nA3pl_ST.add(vCond_ST, "sA", nA3plAfterCase);
+    nA3pl_ST.add(vWhile_S, "ken", nA3plAfterCase);
+
     // Copula can come before A3pl.
     nPresent_S.add(nCopBeforeA3pl_S, ">dIr");
-    nCopBeforeA3pl_S.add(nA3pl_ST, "lAr");
+    nCopBeforeA3pl_S.add(nA3pl_ST, "lAr",
+        notHave(RootAttribute.CompoundP3sg).and(allowA3plTrans));
 
   }
 
@@ -1553,6 +1575,12 @@ public class TurkishMorphotactics {
     pvA3sg_S.add(pvCop_ST, ">dIr", rejectNoCopula);
 
     pvA3pl_ST.add(pvCop_ST, "dIr", rejectNoCopula);
+
+    Condition pvA3plAfterLoc = Conditions.previousStateIs(pvPresent_S);
+    pvA3pl_ST.add(vPastAfterTense_ST, "dI", pvA3plAfterLoc);
+    pvA3pl_ST.add(vNarrAfterTense_ST, "mIş", pvA3plAfterLoc);
+    pvA3pl_ST.add(vCond_ST, "sA", pvA3plAfterLoc);
+    pvA3pl_ST.add(vWhile_S, "ken", pvA3plAfterLoc);
 
     // Copula can come before A3pl.
     pvPresent_S.add(pvCopBeforeA3pl_S, ">dIr");
