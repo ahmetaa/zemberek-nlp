@@ -3,40 +3,41 @@ CHANGE LOG
 
 ## 0.18.0
 
-Zemberek `0.18.0` brings major improvements in **disambiguation accuracy**, **end-to-end processing speed (~8x faster than `0.17.1`)**, **morphological coverage**, and **tokenization/sentence segmentation quality**, along with updated dependencies and Java 21 baseline support.
+Zemberek `0.18.0` brings major improvements in **disambiguation accuracy**, **end-to-end processing speed (~4x faster than `0.17.1`)**, **morphological coverage**, and **tokenization/sentence segmentation quality**, along with updated dependencies and Java 21 baseline support.
 
 ### Highlights at a Glance (`0.17.1` → `0.18.0`)
 
 | Area | `0.17.1` | `0.18.0` | What Changed |
 | :--- | :---: | :---: | :--- |
-| **End-to-End Pipeline Speed** | ~23.5k tokens/sec | **~190k tokens/sec** | **~8.1x faster** full pipeline (segment → tokenize → analyze → disambiguate) |
+| **End-to-End Pipeline Speed** | ~22.0k tokens/sec | **~88.6k tokens/sec** | **~4.0x faster** full pipeline (segment → tokenize → analyze → disambiguate) |
 | **Disambiguation Accuracy** *(Ambiguous Tokens)* | ~77.5% | **~92.8%** | **~68% fewer disambiguation errors**; **~2.7x more** sentences disambiguated with 100% exact match |
-| **Disambiguation Speed** (`analyzeAndDisambiguate`) | ~23.9k tokens/sec | **~180k tokens/sec** | **~7.5x faster** via `FastPerceptronAmbiguityResolver` |
-| **Warm Morphological Analysis Speed** | ~146k tokens/sec | **~572k tokens/sec** | **~3.9x faster** with a unified 50k Caffeine cache (`93.7%` hit rate) |
-| **Sentence Segmentation Speed** | ~294k sentences/sec | **~393k – 825k sentences/sec** | **1.3x – 2.5x faster** with higher boundary precision |
-| **Tokenizer Speed** | ~4.6M tokens/sec | **~6.6M tokens/sec** | **~1.4x faster** by skipping intermediate token allocations and fixing ANTLR EOF DFA caching |
+| **Disambiguation Speed** (`analyzeAndDisambiguate`) | ~22.2k tokens/sec | **~90.0k tokens/sec** | **~4.0x faster** via `FastPerceptronAmbiguityResolver` |
+| **Morphological Analysis Speed (Cached)** | ~140k – 146k tokens/sec | **~283k – 395k tokens/sec** | **~2.0x – 2.7x faster** (cold / warm) with a unified 50k Caffeine cache (`88.9%–90.1%` hit rate) |
+| **Morphological Analysis Speed (Uncached)** | ~52.4k tokens/sec | **~73.6k tokens/sec** | **~1.4x faster** uncached stem/morphotactic search and surface formatting |
+| **Sentence Segmentation Speed** | ~184k sentences/sec | **~255k sentences/sec** | **~1.4x faster** with higher boundary precision |
+| **Tokenizer Speed** | ~3.5M tokens/sec | **~4.1M tokens/sec** | **~1.2x faster** by skipping intermediate token allocations and fixing ANTLR EOF DFA caching |
 
-> **Benchmark Setup:** Single-threaded (single-core) execution on an AMD Ryzen 7 1700X (x86_64 Linux), running on Eclipse Temurin OpenJDK 25.0.4.1 64-Bit Server VM (`-Xmx4g`) with warmup passes prior to measurement. Throughput was measured on `cnn-turk-10k` (10,000 news paragraphs, 22,695 sentences, 326,144 tokens) and disambiguation accuracy on a held-out 1,000-sentence / 11,582-token evaluation set (`test_slice_001`, 6,587 ambiguous tokens).
+> **Benchmark Setup:** Single-threaded (single-core), single-pass execution on an AMD Ryzen 7 1700X (x86_64 Linux), running on Eclipse Temurin OpenJDK 25.0.4.1 64-Bit Server VM (`-Xmx8g`). Throughput and coverage were measured on a 100,000-paragraph news corpus (`cnn-turk`, 24.6M chars / 25.8 MB, 211,232 sentences, 3,686,164 tokens, 229,161 unique word types) and disambiguation accuracy on a held-out 1,000-sentence / 11,582-token evaluation set (`test_slice_001`, 6,587 ambiguous tokens).
 
 ### What's New & Improved
 
 #### 1. Morphological Disambiguation
 - **New Default Ambiguity Resolver & Model (`FastPerceptronAmbiguityResolver`)**:
   - Replaced the legacy disambiguator and old model files with `FastPerceptronAmbiguityResolver` using Exact Viterbi decoding and a new compact default model (`model_10k_argon_v24.bin`, 2.16 MB).
-  - Improves ambiguous-word accuracy from **~77.5% to ~92.8%** (overall token accuracy **~86.8% → ~95.6%**) while running **~7.5x faster**.
+  - Improves ambiguous-word accuracy from **~77.5% to ~92.8%** (overall token accuracy **~86.8% → ~95.6%**) while running **~4.0x faster**.
   - Added `FastPerceptronAmbiguityResolverTrainer` for training custom models.
 
 #### 2. Morphological Analysis & Caching
 - **Better Morphotactics & OOV Handling (`TurkishMorphotactics`, `UnidentifiedTokenAnalyzer`)**:
   - Added support for `deyip` / `yiyip` converb forms, verbal nouns in `-mada/-mede/-yışta` with copula (`beklemedeyiz`, `okumadayım`), derived abbreviations (`ABD'li`, `ABD'siz`), multi-apostrophe words (`Kur'an'da`, `Eto'o'nun`), hyphenated proper nouns, and alphanumeric/domain tokens (`3G'ye`, `S3'ün`, `meb.gov.tr'den`).
-  - Improved token parse coverage on `cnn-turk-10k` from **97.89% to 98.47%** (reducing unparsed `UNK` tokens from **2.11% to 1.53%**, or `6,880` → `4,996` tokens).
-- **Simplified & Faster Cache (`AnalysisCache`)**:
-  - Unified the two-level static/dynamic cache into a single thread-safe Caffeine cache (default capacity increased to 50,000 entries), improving warm analysis throughput by **~3.9x**.
+  - Improved token parse coverage on the 100k-paragraph corpus from **97.95% to 98.87%** (reducing unparsed `UNK` tokens by **45%**, from **2.05% to 1.13%**, or `75,437` → `41,489` tokens).
+- **Simplified Cache & Faster Uncached Analysis (`AnalysisCache`, `RuleBasedAnalyzer`)**:
+  - Unified the two-level static/dynamic cache into a single thread-safe Caffeine cache (default capacity increased to 50,000 entries) and optimized uncached morphotactic search and surface formatting (**~2.0x faster** cold cached analysis, **~2.7x faster** warm cached analysis, and **~1.4x faster** uncached analysis).
 
 #### 3. Sentence Segmentation & Tokenization
 - **More Accurate & Faster Sentence Extractor (`TurkishSentenceExtractor`)**:
   - Added ellipsis (`…`) boundary support, retrained `sentence-boundary-model.bin`, and fixed false non-boundary vetoes when sentences end with words that share spelling with uppercase abbreviations (e.g., *et.*, *bul.*, *kal.*, *at.*, *taş.*, *gör.*) or inflected dates/decimals (`06.01.2014'de`, `49.90'dan`).
-  - Optimized boundary scanning and feature extraction (**~1.3x–2.5x faster** than `0.17.1`).
+  - Optimized boundary scanning and feature extraction (**~1.4x faster** than `0.17.1`).
 - **Cleaner & Faster Tokenizer (`TurkishTokenizer`)**:
   - Fixed tokenization of single-letter stems with apostrophes (`O'na`, `A'dan`), initials (`M. Kemal`), acronyms (`CD'ye`, `DVD'de`), sentence-ending URLs/emails, and currency/punctuation symbols (`₺`, `€`, `–`, `—`, `°`).
   - Eliminated intermediate `CommonToken` and whitespace token allocations and fixed ANTLR EOF DFA caching in `CustomLexerATNSimulator`.
