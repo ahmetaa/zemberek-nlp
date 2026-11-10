@@ -58,6 +58,10 @@ abstract class StemTransitionsBase {
       return generateModifiedRootNodes(item);
     } else {
       AttributeSet<PhoneticAttribute> phoneticAttributes = calculateAttributes(item.pronunciation);
+      if (isNonDroppedLastVowelDropVariant(item)) {
+        phoneticAttributes.add(PhoneticAttribute.ExpectsVowel);
+        phoneticAttributes.add(PhoneticAttribute.CannotTerminate);
+      }
       StemTransition transition = new StemTransition(
           item.root,
           item,
@@ -67,6 +71,14 @@ abstract class StemTransitionsBase {
 
       return Lists.newArrayList(transition);
     }
+  }
+
+  private boolean isNonDroppedLastVowelDropVariant(DictionaryItem item) {
+    DictionaryItem ref = item.getReferenceItem();
+    return ref != null
+        && ref.hasAttribute(RootAttribute.LastVowelDrop)
+        && !item.hasAttribute(RootAttribute.LastVowelDrop)
+        && item.root.equals(ref.root);
   }
 
   private boolean hasModifierAttribute(DictionaryItem item) {
@@ -178,6 +190,9 @@ abstract class StemTransitionsBase {
 
     if (original.equals(modified)) {
       return Collections.singletonList(original);
+    }
+    if (isNonDroppedLastVowelDropVariant(dicItem) && dicItem.hasAttribute(RootAttribute.Voicing)) {
+      return Collections.singletonList(modified);
     }
     return Lists.newArrayList(original, modified);
   }
