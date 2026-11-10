@@ -20,6 +20,11 @@ public class CompressedWeights implements WeightLookup {
   }
 
   @Override
+  public float get(String prefix, String suffix) {
+    return lookup.getAsFloat(prefix, suffix);
+  }
+
+  @Override
   public int size() {
     return lookup.size();
   }

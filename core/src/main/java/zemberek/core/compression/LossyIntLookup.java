@@ -20,19 +20,40 @@ import zemberek.core.io.IOUtil;
  */
 public class LossyIntLookup {
 
+  private static final int BITMAP_MASK = 0xffffff;
+  private static final int[] POW31 = new int[256];
+
+  static {
+    POW31[0] = 1;
+    for (int i = 1; i < POW31.length; i++) {
+      POW31[i] = POW31[i - 1] * 31;
+    }
+  }
+
   private Mphf mphf; // Minimal perfect hash function that provides string to integer index lookup.
   private int[] data; // contains fingerprints and actual data.
+  private final long[] fingerprintBitmap;
 
   private static final int MAGIC = 0xcafebeef;
 
   private LossyIntLookup(Mphf mphf, int[] data) {
     this.mphf = mphf;
     this.data = data;
+    long[] bitmap = new long[1 << (24 - 6)];
+    for (int i = 0; i < data.length; i += 2) {
+      int fp = data[i] & BITMAP_MASK;
+      bitmap[fp >>> 6] |= (1L << fp);
+    }
+    this.fingerprintBitmap = bitmap;
   }
 
   public int get(String s) {
-    int index = mphf.get(s) * 2;
     int fingerprint = getFingerprint(s);
+    int b = fingerprint & BITMAP_MASK;
+    if ((fingerprintBitmap[b >>> 6] & (1L << b)) == 0L) {
+      return 0;
+    }
+    int index = mphf.get(s) * 2;
     if (fingerprint == data[index]) {
       return data[index + 1];
     } else {
@@ -46,6 +67,21 @@ public class LossyIntLookup {
 
   public float getAsFloat(String s) {
     return Float.intBitsToFloat(get(s));
+  }
+
+  /**
+   * Evaluates {@code getAsFloat(prefix + suffix)}, using the 24-bit fingerprint bitmap and
+   * polynomial string hash to reject absent keys without allocating the concatenated string.
+   */
+  public float getAsFloat(String prefix, String suffix) {
+    int sLen = suffix.length();
+    if (sLen < POW31.length) {
+      int b = (prefix.hashCode() * POW31[sLen] + suffix.hashCode()) & BITMAP_MASK;
+      if ((fingerprintBitmap[b >>> 6] & (1L << b)) == 0L) {
+        return 0f;
+      }
+    }
+    return Float.intBitsToFloat(get(prefix + suffix));
   }
 
   private static int getFingerprint(String s) {
