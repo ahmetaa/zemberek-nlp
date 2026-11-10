@@ -127,6 +127,51 @@ Finds all morphological analyses of word "kalemin"
     [kalem:Noun] kalem:Noun+A3sg+in:P2sg
 
 
+### Reading Analysis Output & Morpheme Abbreviations
+
+`SingleAnalysis.formatLong()` prints the dictionary root in brackets (`[lemma:POS]`) followed by `surface:Morpheme` tokens:
+
+- `:` pairs an actual surface segment with its morpheme ID (e.g. `in:Gen`); morphemes with empty surface form omit the prefix (e.g. `A3sg`). Note that `Nom` (Nominative) and `Pnon` (No possessive) are omitted from `SingleAnalysis` output to reduce visual noise.
+- `+` separates inflectional morphemes within an inflectional group (IG).
+- `|` marks a derivational boundary, and `→` separates the derivational morpheme from the resulting part of speech (e.g. `kitab:Noun+A3sg+ımız:P1pl|Zero→Verb+sa:Cond+A3sg`).
+
+#### Primary & Common Secondary POS Tags
+
+| Tag | Meaning | Tag | Meaning |
+| :--- | :--- | :--- | :--- |
+| `Noun` | Noun | `Prop` | Proper noun (`[Ankara:Noun,Prop]`) |
+| `Verb` | Verb | `Time` | Temporal noun (`[yarın:Noun,Time]`) |
+| `Adj` | Adjective | `Abbrv` / `RegAbbrv` | Abbreviation |
+| `Adv` | Adverb | `Pers` / `Demons` / `Quant` / `Ques` / `Reflex` | Pronoun subtypes |
+| `Pron` | Pronoun | `Card` / `Ord` / `Dist` / `Range` / `Percent` / `Ratio` / `Real` | Numeral subtypes |
+| `Det` | Determiner | `PCDat` / `PCAbl` / `PCIns` / `PCNom` / `PCGen` / `PCAcc` | Postposition required complement case |
+| `Num` | Numeral | `Clock` / `Date` / `Email` / `Url` / `Mention` / `HashTag` / `Emoticon` / `RomanNumeral` | Special token subtypes |
+| `Postp` | Postposition | `Conj` | Conjunction |
+| `Ques` | Question particle (`mi`) | `Interj` / `Dup` / `Punc` | Interjection / Duplicator / Punctuation |
+
+#### Inflectional Morphemes
+
+| Category | Tags & Meanings |
+| :--- | :--- |
+| **Person / Number Agreement** | `A1sg` (1st sg), `A2sg` (2nd sg), `A3sg` (3rd sg), `A1pl` (1st pl), `A2pl` (2nd pl), `A3pl` (3rd pl, `-lAr`) |
+| **Possessive** | `Pnon` (none, omitted), `P1sg` (`-(I)m`), `P2sg` (`-(I)n`), `P3sg` (`-(s)I(n)`), `P1pl` (`-(I)mIz`), `P2pl` (`-(I)nIz`), `P3pl` (`-lArI`) |
+| **Case** | `Nom` (nominative, omitted), `Dat` (dative `-(y)A`), `Acc` (accusative `-(y)I`), `Abl` (ablative `-dAn`), `Loc` (locative `-dA`), `Ins` (instrumental `-(y)lA`), `Gen` (genitive `-(n)In`), `Equ` (equative `-cA`) |
+| **Verb Polarity & Copula** | `Neg` (negative `-mA`), `Unable` (impotential `-AmA`, e.g. *okuyamıyorum*), `Cop` (emphatic copula `-dIr`) |
+| **Verb Tense / Aspect / Mood** | `Pres` (present copula), `Past` (definite past `-dI`), `Narr` (narrative/evidential `-mIş`), `Cond` (conditional `-sA`), `Prog1` (`-(I)yor`), `Prog2` (`-mAktA`), `Aor` (aorist `-(I/A)r` / `-z`), `Fut` (future `-(y)AcAk`), `Imp` (imperative), `Opt` (optative `-(y)A`), `Desr` (desiderative `-sA`), `Neces` (necessitative `-mAlI`) |
+
+#### Derivational Morphemes
+
+| Category | Tags & Examples |
+| :--- | :--- |
+| **Nominal / Adjectival** | `Dim` (`-cIk`, *elmacık*), `Ness` (`-lIk`, *elmalık*), `With` (`-lI`, *elmalı*), `Without` (`-sIz`, *elmasız*), `Related` (`-sAl`, *elmasal*), `JustLike` (`-(I)msI` / `-sI`, *tahtamsı*), `Rel` (`-ki`, *evdeki*), `Agt` (`-cI`, *elmacı*), `Become` (`-lAş`, *tahtalaş*), `Acquire` (`-lAn`, *tahtalan*), `Ly` (`-cA`, *yeşilce*), `Zero` (zero-morpheme POS/copula derivation) |
+| **Verbal Voice & Modality** | `Caus` (causative `-dIr` / `-t`), `Pass` (passive `-Il` / `-In`), `Recip` (reciprocal `-(I)ş`), `Reflex` (reflexive `-(I)n`), `Able` (ability `-(y)Abil`) |
+| **Verbal Nouns (Infinitives)** | `Inf1` (`-mAk`, *okumak*), `Inf2` (`-mA`, *okuma*), `Inf3` (`-(y)Iş`, *okuyuş*), `ActOf` (`-mAcA`, *okumaca*), `NotState` (`-mAzlIk`, *okumazlık*) |
+| **Participles** | `PresPart` (`-(y)An`, *okuyan*), `PastPart` (`-dIk`, *okuduğum*), `NarrPart` (`-mIş`, *okumuş*), `FutPart` (`-(y)AcAk`, *okuyacağım*), `AorPart` (`-(I/A)r` / `-mAz`, *okur*), `FeelLike` (`-(y)AsI`, *okuyası*) |
+| **Converbs (Adverbials)** | `While` (`-ken`, *okurken*), `When` (`-(y)IncA`, *okuyunca*), `SinceDoingSo` (`-(y)AlI`, *okuyalı*), `AsLongAs` (`-dIkçA`, *okudukça*), `ByDoingSo` (`-(y)ArAk`, *okuyarak*), `Adamantly` (`-(y)AsIyA`, *okuyasıya*), `AfterDoingSo` (`-(y)Ip`, *okuyup*), `WithoutHavingDoneSo` (`-mAdAn` / `-mAksIzIn`, *okumadan*), `WithoutBeingAbleToHaveDoneSo` (`-(y)AmAdAn`, *okuyamadan*), `AsIf` (`-cAsInA`, *okurcasına*) |
+| **Compound Aspectual Verbs** | `Hastily` (`-(y)Iver`, *okuyuver*), `EverSince` (`-(y)Agel`, *okuyagel*), `Repeat` (`-(y)Adur` / `-(y)Agör`, *okuyadur*), `Almost` (`-(y)Ayaz`, *okuyayaz*), `Stay` (`-(y)Akal`, *okuyakal*), `Start` (`-(y)Akoy`, *okuyakoy*) |
+
+For additional background on Oflazer-style Turkish morphological tagsets, see [Chapter 7 of Oflazer et al.](https://research.sabanciuniv.edu/id/eprint/8521/1/3021800000064.pdf).
+
 ### Stemming and Lemmatization Example
 
 Finds all morphological analyses, stems and lemmas of word "kitabımızsa"
