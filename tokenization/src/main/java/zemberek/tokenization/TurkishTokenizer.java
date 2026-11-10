@@ -80,6 +80,14 @@ public class TurkishTokenizer {
     return tokenStrings;
   }
 
+  public String detokenize(List<String> tokens) {
+    return TurkishDetokenizer.DEFAULT.detokenize(tokens);
+  }
+
+  public String detokenizeTokens(List<Token> tokens) {
+    return TurkishDetokenizer.DEFAULT.detokenizeTokens(tokens);
+  }
+
   public Iterator<Token> getTokenIterator(String input) {
     return new TokenIterator(this, lexerInstance(CharStreams.fromString(input)));
   }
