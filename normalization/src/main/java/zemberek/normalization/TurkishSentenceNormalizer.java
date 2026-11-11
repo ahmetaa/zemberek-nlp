@@ -445,7 +445,7 @@ public class TurkishSentenceNormalizer {
    */
   String combineCommon(String i1, String i2) {
     String combined = i1 + i2;
-    if (i2.startsWith("'") || i2.startsWith("bil")) {
+    if (i2.startsWith("'") || i2.startsWith("bil") || isAlwaysSolidCompound(i1, i2)) {
       WordAnalysis w = morphology.analyze(combined);
       if (hasAnalysis(w)) {
         return combined;
@@ -458,6 +458,14 @@ public class TurkishSentenceNormalizer {
       }
     }
     return "";
+  }
+
+  private static boolean isAlwaysSolidCompound(String i1, String i2) {
+    return (("uluslar".equals(i1) || "milletler".equals(i1)) && i2.startsWith("arası"))
+        || ("hiç".equals(i1) && i2.startsWith("bir"))
+        || ("bir".equals(i1) && i2.startsWith("kaç"))
+        || ("her".equals(i1) && i2.startsWith("hangi"))
+        || ("vaz".equals(i1) && i2.startsWith("geç"));
   }
 
   /**
