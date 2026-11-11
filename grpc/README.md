@@ -27,6 +27,20 @@ data root directory with `--dataRoot` parameter. For example, if data folder is
 
     java -jar zemberek-full.jar StartGrpcServer --dataRoot /home/aaa/zemberek-data
 
+Alternatively, server port, data/model paths, and morphology parameters can be passed via a
+`key=value` configuration file (`--config` or `-c`):
+
+    java -jar zemberek-full.jar StartGrpcServer --config server.conf
+
+Example `server.conf`:
+
+    port = 6789
+    normalization.lm = /home/aaa/zemberek-data/lm/lm.2gram.slm
+    normalization.dataRoot = /home/aaa/zemberek-data/normalization
+    # Optional custom dictionaries and diacritics flag:
+    # morphology.extraDictionaries = /home/aaa/custom.dict
+    # morphology.ignoreDiacritics = false
+
 ## Remote API
 
 gRPC remote services are defined in [protocol buffers](https://developers.google.com/protocol-buffers/) 3 
