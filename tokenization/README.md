@@ -141,6 +141,18 @@ Code will print out:
     12:00
     .
 
+### Detokenization
+
+Token lists or `Token` sequences can be converted back into naturally spaced Turkish text using
+`TurkishTokenizer.detokenize(...)` or `TurkishDetokenizer.DEFAULT`:
+
+```java
+    TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
+    List<String> tokens = tokenizer.tokenizeToStrings("Merhaba, nasılsın?");
+    String text = tokenizer.detokenize(tokens);
+    // text -> "Merhaba, nasılsın?"
+```
+
 ### Token Types
 
 Tokenizer currently tokenizes these types:
