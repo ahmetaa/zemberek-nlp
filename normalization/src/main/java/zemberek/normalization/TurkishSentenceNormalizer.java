@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import zemberek.core.dynamic.ActiveList;
 import zemberek.core.dynamic.Scorable;
@@ -63,6 +64,7 @@ public class TurkishSentenceNormalizer {
   private HashSet<String> commonConnectedSuffixes = new HashSet<>();
   private HashSet<String> noSplitWords = new HashSet<>();
   boolean alwaysApplyDeasciifier = false;
+  private Boolean spellCheckCapitalizedWords = null;
 
   public TurkishSentenceNormalizer(
       TurkishMorphology morphology,
@@ -123,6 +125,18 @@ public class TurkishSentenceNormalizer {
     this.alwaysApplyDeasciifier = alwaysApplyDeasciifier;
   }
 
+  /**
+   * Controls whether out-of-vocabulary capitalized words are passed to the edit-distance spell
+   * checker. When {@code false}, all capitalized OOV words in non-ALL-CAPS sentences are preserved
+   * without edit-distance replacement (useful for mixed-language text and foreign proper nouns).
+   * When {@code true}, all capitalized OOV words are spell-checked. When unset (default),
+   * non-sentence-initial capitalized OOV words in mixed-case sentences are preserved while
+   * sentence-initial words are still spell-checked.
+   */
+  public void setSpellCheckCapitalizedWords(boolean spellCheckCapitalizedWords) {
+    this.spellCheckCapitalizedWords = spellCheckCapitalizedWords;
+  }
+
   // load data with line format: "key=val1,val2"
   private ArrayListMultimap<String, String> loadMultiMap(Path path) throws IOException {
     List<String> lines = TextIO.loadLines(path);
@@ -164,6 +178,7 @@ public class TurkishSentenceNormalizer {
     }
 
     List<Candidates> candidatesList = new ArrayList<>();
+    Set<String> protectedCapitalizedWords = collectProtectedCapitalizedWords(sentence);
 
     for (int i = 0; i < tokens.size(); i++) {
 
@@ -208,9 +223,11 @@ public class TurkishSentenceNormalizer {
         }
       }
 
-      // if there is no formal analysis and length is larger than 5,
-      // get top 3 1 distance matches.
-      if ((analyses.analysisCount() == 0) && current.length() > 3) {
+      // if there is no formal analysis and length is larger than 3,
+      // get top 3 1-distance matches unless protected as a capitalized OOV word.
+      if ((analyses.analysisCount() == 0)
+          && current.length() > 3
+          && !protectedCapitalizedWords.contains(current)) {
 
         List<String> spellCandidates = spellChecker
             .suggestForWord(current, previous, next, lm);
@@ -635,5 +652,63 @@ public class TurkishSentenceNormalizer {
       result.add(replacements.getOrDefault(text, text));
     }
     return String.join(" ", result);
+  }
+
+  private Set<String> collectProtectedCapitalizedWords(String sentence) {
+    if (Boolean.TRUE.equals(spellCheckCapitalizedWords) || !containsLowercaseLetter(sentence)) {
+      return Collections.emptySet();
+    }
+    List<Token> rawTokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
+    if (Boolean.FALSE.equals(spellCheckCapitalizedWords)) {
+      Set<String> result = new HashSet<>();
+      for (Token token : rawTokens) {
+        String text = token.getText();
+        if (isWord(token) && !text.isEmpty() && Character.isUpperCase(text.charAt(0))) {
+          result.add(text.toLowerCase(Turkish.LOCALE));
+        }
+      }
+      return result;
+    }
+    boolean hasLowercaseInitialWord = false;
+    for (Token token : rawTokens) {
+      String text = token.getText();
+      if (isWord(token) && !text.isEmpty() && Character.isLowerCase(text.charAt(0))) {
+        hasLowercaseInitialWord = true;
+        break;
+      }
+    }
+    if (!hasLowercaseInitialWord) {
+      return Collections.emptySet();
+    }
+    Set<String> result = new HashSet<>();
+    boolean atSentenceStart = true;
+    for (Token token : rawTokens) {
+      String text = token.getText();
+      if (isWord(token) && !text.isEmpty()) {
+        if (!atSentenceStart && Character.isUpperCase(text.charAt(0))) {
+          result.add(text.toLowerCase(Turkish.LOCALE));
+        }
+        atSentenceStart = false;
+      } else if (isSentenceBoundary(text)) {
+        atSentenceStart = true;
+      }
+    }
+    return result;
+  }
+
+  private static boolean containsLowercaseLetter(String s) {
+    for (int i = 0; i < s.length(); i++) {
+      if (Character.isLowerCase(s.charAt(i))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean isSentenceBoundary(String tokenText) {
+    return ".".equals(tokenText)
+        || "!".equals(tokenText)
+        || "?".equals(tokenText)
+        || "...".equals(tokenText);
   }
 }
