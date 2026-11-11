@@ -37,24 +37,12 @@ public final class Log {
   private static final Logger logger = Logger.getLogger("zemberek-logger");
   private static final Map<File, FileHandler> fileHandlers = new ConcurrentHashMap<>();
   private static final Map<String, LogLevel> classLevelMap = new ConcurrentHashMap<>();
+  private static final String LOG_CLASS_NAME = Log.class.getName();
+  private static Thread shutdownHook;
   public static OutputStream fileStream;
-  static Level currentLevel = Level.INFO;
+  static volatile Level currentLevel = Level.INFO;
   static SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS", Locale.ENGLISH);
   static Map<Level, String> levelShortStringMap = new HashMap<>();
-
-  static {
-    reset();
-  }
-
-  public static void reset() {
-    logger.setUseParentHandlers(false);
-    ConsoleHandler ch = new ConsoleHandler();
-    ch.setFormatter(new CUSTOM_FORMAT());
-    ch.setLevel(currentLevel);
-    logger.addHandler(ch);
-    Runtime.getRuntime()
-        .addShutdownHook(new Thread(() -> fileHandlers.values().forEach(FileHandler::close)));
-  }
 
   static {
     levelShortStringMap.put(Level.FINEST, "-");
@@ -66,6 +54,64 @@ public final class Log {
     levelShortStringMap.put(Level.WARNING, "W");
     levelShortStringMap.put(Level.INFO, "I");
     levelShortStringMap.put(Level.SEVERE, "E");
+    reset();
+  }
+
+  public static synchronized void reset() {
+    closeAllFileHandlers();
+    unregisterShutdownHook();
+    for (Handler handler : logger.getHandlers()) {
+      logger.removeHandler(handler);
+    }
+    classLevelMap.clear();
+    currentLevel = Level.INFO;
+    logger.setUseParentHandlers(false);
+    logger.setLevel(currentLevel);
+    ConsoleHandler ch = new ConsoleHandler();
+    ch.setFormatter(formatter);
+    ch.setLevel(currentLevel);
+    logger.addHandler(ch);
+  }
+
+  /**
+   * Closes all file handlers, removes all logger handlers (including console), clears per-class
+   * overrides, and unregisters any JVM shutdown hook registered by this class.
+   */
+  public static synchronized void shutdown() {
+    closeAllFileHandlers();
+    unregisterShutdownHook();
+    for (Handler handler : logger.getHandlers()) {
+      logger.removeHandler(handler);
+    }
+    classLevelMap.clear();
+    currentLevel = Level.OFF;
+    logger.setLevel(Level.OFF);
+  }
+
+  private static void ensureShutdownHookRegistered() {
+    if (shutdownHook == null) {
+      shutdownHook = new Thread(Log::closeAllFileHandlers, "zemberek-log-closer");
+      Runtime.getRuntime().addShutdownHook(shutdownHook);
+    }
+  }
+
+  private static void unregisterShutdownHook() {
+    if (shutdownHook != null) {
+      try {
+        Runtime.getRuntime().removeShutdownHook(shutdownHook);
+      } catch (IllegalStateException ignored) {
+        // JVM shutdown already in progress.
+      }
+      shutdownHook = null;
+    }
+  }
+
+  private static void closeAllFileHandlers() {
+    for (FileHandler handler : fileHandlers.values()) {
+      logger.removeHandler(handler);
+      handler.close();
+    }
+    fileHandlers.clear();
   }
 
   private Log() {
@@ -144,7 +190,9 @@ public final class Log {
   }
 
   public static void trace(Object object) {
-    log(Level.FINER, object.toString());
+    if (!classLevelMap.isEmpty() || checkLevel(Level.FINER)) {
+      log(Level.FINER, String.valueOf(object));
+    }
   }
 
   public static void debug(String message, Object... params) {
@@ -158,7 +206,9 @@ public final class Log {
   }
 
   public static void debug(Object object) {
-    log(Level.FINE, object.toString());
+    if (!classLevelMap.isEmpty() || checkLevel(Level.FINE)) {
+      log(Level.FINE, String.valueOf(object));
+    }
   }
 
   public static void info() {
@@ -176,7 +226,9 @@ public final class Log {
   }
 
   public static void info(Object object) {
-    log(Level.INFO, object.toString());
+    if (!classLevelMap.isEmpty() || checkLevel(Level.INFO)) {
+      log(Level.INFO, String.valueOf(object));
+    }
   }
 
   public static void warn(String message, Object... params) {
@@ -194,7 +246,9 @@ public final class Log {
   }
 
   public static void warn(Object object) {
-    log(Level.WARNING, object.toString());
+    if (!classLevelMap.isEmpty() || checkLevel(Level.WARNING)) {
+      log(Level.WARNING, String.valueOf(object));
+    }
   }
 
   public static void error(String message, Object... params) {
@@ -208,7 +262,9 @@ public final class Log {
   }
 
   public static void error(Object object) {
-    log(Level.SEVERE, object.toString());
+    if (!classLevelMap.isEmpty() || checkLevel(Level.SEVERE)) {
+      log(Level.SEVERE, String.valueOf(object));
+    }
   }
 
   public static void setError() {
@@ -231,28 +287,33 @@ public final class Log {
     setLevel(Level.FINER);
   }
 
-  public static void addFileHandler(Path path) throws IOException {
-
-    if (fileHandlers.containsKey(path.toFile())) {
-      Log.info("Log File %s already exist. Appending.", path.toFile());
+  public static synchronized void addFileHandler(Path path) throws IOException {
+    File file = path.toFile();
+    if (fileHandlers.containsKey(file)) {
+      Log.info("Log File %s already exist. Appending.", file);
       return;
     }
 
-    final FileHandler handler = new FileHandler(path.toFile().getAbsolutePath(), true);
+    final FileHandler handler = new FileHandler(file.getAbsolutePath(), true);
     handler.setFormatter(formatter);
     handler.setLevel(currentLevel);
     logger.addHandler(handler);
-    fileHandlers.put(path.toFile(), handler);
+    fileHandlers.put(file, handler);
+    ensureShutdownHookRegistered();
   }
 
   public static void flushFileHandlers() {
     fileHandlers.values().stream().filter(Objects::nonNull).forEach(Handler::flush);
   }
 
-  public static void removeFileHandler(File file) {
-    if (fileHandlers.containsKey(file)) {
-      FileHandler handler = fileHandlers.remove(file);
+  public static synchronized void removeFileHandler(File file) {
+    FileHandler handler = fileHandlers.remove(file);
+    if (handler != null) {
       logger.removeHandler(handler);
+      handler.close();
+      if (fileHandlers.isEmpty()) {
+        unregisterShutdownHook();
+      }
     }
   }
 
@@ -264,34 +325,31 @@ public final class Log {
     return fileHandlers.keySet().stream().map(File::toPath).collect(Collectors.toList());
   }
 
-  public static synchronized void log(Level level, String message, Object... params) {
-    final int stackPositionOfCaller = 2;
-    StackTraceElement caller = new Throwable().getStackTrace()[stackPositionOfCaller];
-    String className = caller.getClassName();
-
-    boolean logIt = false;
-
-    Level temp = currentLevel;
-    if (classLevelMap.containsKey(className)) {
-      Log.setLevel(classLevelMap.get(className).level);
+  public static void log(Level level, String message, Object... params) {
+    if (classLevelMap.isEmpty() && level.intValue() < currentLevel.intValue()) {
+      return;
     }
 
-    if (logger.isLoggable(level)) {
-      logIt = true;
-    }
+    StackTraceElement caller = findCaller();
+    String className = caller != null ? caller.getClassName() : LOG_CLASS_NAME;
+    String methodName = caller != null ? caller.getMethodName() : "log";
 
-    if (!logIt) {
+    LogLevel classLevel = classLevelMap.get(className);
+    Level effectiveLevel = classLevel != null ? classLevel.level : currentLevel;
+    if (level.intValue() < effectiveLevel.intValue()) {
       return;
     }
 
     Throwable thrown = null;
-    if (params.length > 0) {
+    if (params != null && params.length > 0) {
       Object last = params[params.length - 1];
       if (last instanceof Throwable) {
         if (params.length > 1) {
           Object[] subParams = new Object[params.length - 1];
           System.arraycopy(params, 0, subParams, 0, subParams.length);
           params = subParams;
+        } else {
+          params = new Object[0];
         }
         thrown = (Throwable) last;
       }
@@ -299,12 +357,38 @@ public final class Log {
     LogRecord record = new LogRecord(level, message);
     record.setLoggerName(logger.getName());
     record.setSourceClassName(className);
-    record.setSourceMethodName(caller.getMethodName());
+    record.setSourceMethodName(methodName);
     record.setThrown(thrown);
     record.setParameters(params);
-    logger.log(record);
-    Log.setLevel(temp);
 
+    synchronized (Log.class) {
+      Level savedLevel = currentLevel;
+      boolean adjustLevel = effectiveLevel.intValue() < savedLevel.intValue();
+      if (adjustLevel) {
+        setLevel(effectiveLevel);
+      }
+      try {
+        logger.log(record);
+      } finally {
+        if (adjustLevel) {
+          setLevel(savedLevel);
+        }
+      }
+    }
+  }
+
+  private static StackTraceElement findCaller() {
+    StackTraceElement[] frames = Thread.currentThread().getStackTrace();
+    boolean seenLogClass = false;
+    for (int i = 1; i < frames.length; i++) {
+      boolean isLogClass = LOG_CLASS_NAME.equals(frames[i].getClassName());
+      if (isLogClass) {
+        seenLogClass = true;
+      } else if (seenLogClass) {
+        return frames[i];
+      }
+    }
+    return frames.length > 2 ? frames[2] : null;
   }
 
   private static String shortenName(String name, int length) {
@@ -333,15 +417,6 @@ public final class Log {
 
     LogLevel(Level level) {
       this.level = level;
-    }
-  }
-
-  private static class ExceptionLoggerHandler implements Thread.UncaughtExceptionHandler {
-
-    @Override
-    public void uncaughtException(Thread t, Throwable e) {
-      Log.error("Exception occurred in thread :" + t.getName(), e);
-      e.printStackTrace();
     }
   }
 
