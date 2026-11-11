@@ -159,6 +159,9 @@ public class TurkishSentenceNormalizer {
     String processed = preProcess(sentence);
 
     List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(processed);
+    if (tokens.isEmpty()) {
+      return "";
+    }
 
     List<Candidates> candidatesList = new ArrayList<>();
 
@@ -378,9 +381,11 @@ public class TurkishSentenceNormalizer {
           Hypothesis newHyp = new Hypothesis();
           Candidate[] hist = new Candidate[lmOrder - 1];
           if (lmOrder > 2) {
-            System.arraycopy(h.history, 1, hist, 0, lmOrder - 1);
+            System.arraycopy(h.history, 1, hist, 0, lmOrder - 2);
           }
-          hist[hist.length - 1] = h.current;
+          if (hist.length > 0) {
+            hist[hist.length - 1] = h.current;
+          }
           newHyp.current = c;
           newHyp.history = hist;
           newHyp.previous = h;
@@ -551,6 +556,9 @@ public class TurkishSentenceNormalizer {
   }
 
   String combineNecessaryWords(List<Token> tokens) {
+    if (tokens.isEmpty()) {
+      return "";
+    }
     List<String> result = new ArrayList<>();
     boolean combined = false;
     for (int i = 0; i < tokens.size() - 1; i++) {
