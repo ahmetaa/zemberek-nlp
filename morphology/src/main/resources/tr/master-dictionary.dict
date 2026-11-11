@@ -2822,7 +2822,7 @@ beri [P:Postp,PCAbl]
 beribenzer [P:Adj]
 beriberi
 beriki [P:Adj]
-beriki [P:Pron]
+beriki [P:Pron, Quant]
 beril
 berilyum
 berjer
@@ -7511,9 +7511,9 @@ fal
 falaka
 falan
 falan [P:Adj]
-falan [P:Pron]
+falan [P:Pron, Pers]
 falanca [P:Adj]
-falanca [P:Pron]
+falanca [P:Pron, Pers]
 falanj
 falanjist [A:NoVoicing]
 falçata
@@ -17836,7 +17836,6 @@ nütasyon
 nüve
 nüzul [A:InverseHarmony]
 o [P:Det]
-o [P:Adj]
 o [P:Pron, Demons; Index:1]
 o [P:Pron, Pers]
 oba
@@ -22668,7 +22667,6 @@ süzüntü
 şövalye
 şöyle [P:Adv]
 şöylesine [P:Adv]
-şu [P:Adj]
 şu [P:Pron, Demons]
 şu [P:Det]
 şua
@@ -28573,10 +28571,6 @@ zencefilgiller [A:ImplicitPlural]
 zeytingiller [A:ImplicitPlural]
 zürafagiller [A:ImplicitPlural]
 
-benimki [P:Adj]
-benimki [P:Pron]
-bizimki [P:Adj]
-bizimki [P:Pron]
 şimdikiler
 
 ahir [P:Adv]
