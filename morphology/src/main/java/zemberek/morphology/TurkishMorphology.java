@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextUtil;
 import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.RootAttribute;
+import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.StemAndEnding;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -192,6 +194,18 @@ public class TurkishMorphology {
 
     if (result.size() == 0 && useUnidentifiedTokenAnalyzer) {
       result = unidentifiedTokenAnalyzer.analyze(token);
+    } else if (useUnidentifiedTokenAnalyzer
+        && s.indexOf('\'') > 0
+        && !word.isEmpty()
+        && Character.isUpperCase(word.charAt(0))
+        && shouldAddProperNounForApostrophe(s, result)) {
+      for (SingleAnalysis prop : unidentifiedTokenAnalyzer.analyze(token)) {
+        SecondaryPos sPos = prop.getDictionaryItem().secondaryPos;
+        if ((sPos == SecondaryPos.ProperNoun || sPos == SecondaryPos.Abbreviation)
+            && !result.contains(prop)) {
+          result.add(prop);
+        }
+      }
     }
 
     if (result.size() == 1 && result.get(0).getDictionaryItem().isUnknown()) {
@@ -333,5 +347,26 @@ public class TurkishMorphology {
     public TurkishMorphology build() {
       return new TurkishMorphology(this);
     }
+  }
+
+  private boolean shouldAddProperNounForApostrophe(String normalized, List<SingleAnalysis> result) {
+    int index = normalized.lastIndexOf('\'');
+    if (index <= 0 || index == normalized.length() - 1) {
+      return false;
+    }
+    String stem =
+        TurkishAlphabet.INSTANCE.normalize(normalized.substring(0, index).replace("'", ""));
+    boolean hasDirectCommonNounStem = false;
+    for (SingleAnalysis a : result) {
+      SecondaryPos sPos = a.getDictionaryItem().secondaryPos;
+      if (sPos != SecondaryPos.None && sPos != SecondaryPos.Time) {
+        return false;
+      }
+      if (a.getStem().equals(stem)
+          && !a.getDictionaryItem().hasAttribute(RootAttribute.CompoundP3sg)) {
+        hasDirectCommonNounStem = true;
+      }
+    }
+    return hasDirectCommonNounStem;
   }
 }
