@@ -198,8 +198,12 @@ public class TurkishSentenceNormalizer {
           List<WordGenerator.Result> results = morphology.getWordGenerator().generate(
               analysis.getDictionaryItem(),
               analysis.getMorphemes());
+          String normalizedCurrent =
+              TurkishMorphology.normalizeForAnalysis(current).replace("'", "");
           for (Result result : results) {
-            candidates.add(result.surface);
+            if (TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(normalizedCurrent, result.surface)) {
+              candidates.add(result.surface);
+            }
           }
         }
       }
