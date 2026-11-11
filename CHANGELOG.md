@@ -3,6 +3,8 @@ CHANGE LOG
 
 ## 0.18.0
 
+(November 10th 2026)
+
 Zemberek `0.18.0` brings major improvements in **disambiguation accuracy**, **end-to-end processing speed (~4x faster than `0.17.1`)**, **morphological coverage**, and **tokenization/sentence segmentation quality**, along with updated dependencies and Java 21 baseline support.
 
 ### Highlights at a Glance (`0.17.1` → `0.18.0`)
