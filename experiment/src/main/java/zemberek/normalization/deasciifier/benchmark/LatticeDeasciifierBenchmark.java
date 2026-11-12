@@ -77,13 +77,12 @@ public final class LatticeDeasciifierBenchmark {
   public static void main(String[] args) throws Exception {
     int perceptronCount = args.length > 0 ? Integer.parseInt(args[0]) : 800_000;
     int lexiconMineCount = args.length > 1 ? Integer.parseInt(args[1]) : Math.max(perceptronCount, 2_000_000);
-    Path resourceGzPath =
+    Path modelPath =
         args.length > 2
             ? Paths.get(args[2])
-            : Paths.get("normalization/src/main/resources/deasciifier/lattice_deasciifier.bin.gz");
+            : Paths.get("normalization/src/main/resources/deasciifier/lattice_deasciifier.bin");
     String modeArg = args.length > 3 ? args[3] : "train";
     boolean reuseExisting = "reuse".equalsIgnoreCase(modeArg);
-    Path rawBinPath = Paths.get("/tmp/zemberek-deasciify-clean/lattice_deasciifier_v2.bin");
 
     Path dataRoot = Paths.get("/home/dndara/data/turkish");
     Path refinedTestDir = dataRoot.resolve("refined_test");
@@ -161,13 +160,13 @@ public final class LatticeDeasciifierBenchmark {
         allForbidden.size());
 
     DeasciifierModel model;
-    if (reuseExisting && Files.exists(resourceGzPath)) {
-      model = DeasciifierModel.load(resourceGzPath);
+    if (reuseExisting && Files.exists(modelPath)) {
+      model = DeasciifierModel.load(modelPath);
       System.out.printf(
           Locale.ROOT,
-          "%n=== 2. Loaded Existing Model: %s (%.2f KB gz) ===%n",
-          resourceGzPath,
-          Files.size(resourceGzPath) / 1024.0);
+          "%n=== 2. Loaded Existing Model: %s (%.2f MB) ===%n",
+          modelPath,
+          Files.size(modelPath) / (1024.0 * 1024.0));
     } else {
       model =
           trainAndSaveProductionModel(
@@ -176,11 +175,10 @@ public final class LatticeDeasciifierBenchmark {
               perceptronCount,
               allForbidden,
               sharedMorphGen,
-              rawBinPath,
-              resourceGzPath);
+              modelPath);
     }
 
-    printModelMemorySummary(model, rawBinPath, resourceGzPath);
+    printModelMemorySummary(model, modelPath);
 
     LatticeDeasciifier latticeDeasciifier = new LatticeDeasciifier(model);
     List<DeasciifyFn> systems =
@@ -248,8 +246,7 @@ public final class LatticeDeasciifierBenchmark {
       int perceptronCount,
       Set<Long> forbidden,
       MorphologicalCandidateGenerator morphGen,
-      Path rawBinPath,
-      Path resourceGzPath)
+      Path modelPath)
       throws Exception {
     long tLoad0 = System.currentTimeMillis();
     StratifiedCorpus fullCorpus =
@@ -274,35 +271,30 @@ public final class LatticeDeasciifierBenchmark {
             morphGen,
             cfg);
 
-    trained.save(rawBinPath);
-    trained.saveCompressed(resourceGzPath);
-    DeasciifierModel reloaded = DeasciifierModel.load(resourceGzPath);
+    trained.save(modelPath);
+    DeasciifierModel reloaded = DeasciifierModel.load(modelPath);
     System.out.printf(
         Locale.ROOT,
-        "Trained & saved in %.2fs -> %s (%.2f MB raw) & %s (%.2f MB gz)%n",
+        "Trained & saved in %.2fs -> %s (%.2f MB)%n",
         (System.currentTimeMillis() - tTrain0) / 1000.0,
-        rawBinPath,
-        Files.size(rawBinPath) / (1024.0 * 1024.0),
-        resourceGzPath,
-        Files.size(resourceGzPath) / (1024.0 * 1024.0));
+        modelPath,
+        Files.size(modelPath) / (1024.0 * 1024.0));
     return reloaded;
   }
 
-  private static void printModelMemorySummary(
-      DeasciifierModel model, Path rawBinPath, Path resourceGzPath) throws Exception {
-    long rawBytes = Files.exists(rawBinPath) ? Files.size(rawBinPath) : -1L;
-    long gzBytes = Files.exists(resourceGzPath) ? Files.size(resourceGzPath) : -1L;
+  private static void printModelMemorySummary(DeasciifierModel model, Path modelPath)
+      throws Exception {
+    long modelBytes = Files.exists(modelPath) ? Files.size(modelPath) : -1L;
     System.out.printf(
         Locale.ROOT,
-        "Model Stats: commonConfusions=%,d | properConfusions=%,d | lemmaPriors=%,d | charFeats=%,d | sentFeats=%,d (sentTableRAM=%.2f MB) | diskRaw=%.2f MB | diskGz=%.2f MB%n",
+        "Model Stats: commonConfusions=%,d | properConfusions=%,d | lemmaPriors=%,d | charFeats=%,d | sentFeats=%,d (sentTableRAM=%.2f MB) | disk=%.2f MB%n",
         model.lexiconPriors().commonConfusionSize(),
         model.lexiconPriors().properConfusionSize(),
         model.lexiconPriors().lemmaPriorSize(),
         model.characterModel().featureCount(),
         model.sentenceWeights().size(),
         model.sentenceWeights().ramBytesUsed() / (1024.0 * 1024.0),
-        rawBytes > 0 ? rawBytes / (1024.0 * 1024.0) : 0.0,
-        gzBytes > 0 ? gzBytes / (1024.0 * 1024.0) : 0.0);
+        modelBytes > 0 ? modelBytes / (1024.0 * 1024.0) : 0.0);
   }
 
   private static void benchmarkThroughputAndInjectionModes(

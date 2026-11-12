@@ -384,15 +384,7 @@ public final class CorpusMixSampler {
 
     Random rng = new Random(seed);
     Collections.shuffle(collected, rng);
-    int finalCount = Math.min(targetCount, collected.size());
-    List<String> sentences = new ArrayList<>(finalCount);
-    boolean[] circ = new boolean[finalCount];
-    for (int i = 0; i < finalCount; i++) {
-      TaggedItem ts = collected.get(i);
-      sentences.add(ts.text());
-      circ[i] = ts.circIntact();
-    }
-    return new StratifiedCorpus(sentences, circ);
+    return toStratifiedCorpus(collected, targetCount);
   }
 
   private static StratifiedCorpus sampleFormalCleanRoundRobin(
@@ -421,12 +413,17 @@ public final class CorpusMixSampler {
     Set<Long> seen = new HashSet<>(targetCount * 2);
     var tagged = readRoundRobinFromFiles(files, targetCount, forbiddenSignatures, seen);
     Collections.shuffle(tagged, new Random(seed));
-    int n = Math.min(targetCount, tagged.size());
+    return toStratifiedCorpus(tagged, targetCount);
+  }
+
+  private static StratifiedCorpus toStratifiedCorpus(List<TaggedItem> items, int targetCount) {
+    int n = Math.min(targetCount, items.size());
     List<String> sentences = new ArrayList<>(n);
     boolean[] circ = new boolean[n];
     for (int i = 0; i < n; i++) {
-      sentences.add(tagged.get(i).text());
-      circ[i] = tagged.get(i).circIntact();
+      TaggedItem ts = items.get(i);
+      sentences.add(ts.text());
+      circ[i] = ts.circIntact();
     }
     return new StratifiedCorpus(sentences, circ);
   }
@@ -568,7 +565,7 @@ public final class CorpusMixSampler {
       }
       String low = TurkishTextCodec.toTurkishLower(tok.original());
       if (TurkishTextCodec.hasLetterElongation(tok.asciiLower())
-          || hasFinalDoubleLetter(tok.asciiLower())) {
+          || TurkishTextCodec.hasWordFinalDoubleLetter(tok.asciiLower())) {
         return true;
       }
       if (low.endsWith("cam")
@@ -617,15 +614,6 @@ public final class CorpusMixSampler {
       }
     }
     return false;
-  }
-
-  private static boolean hasFinalDoubleLetter(String asciiLower) {
-    int n = asciiLower.length();
-    if (n < 5) {
-      return false;
-    }
-    char c = asciiLower.charAt(n - 1);
-    return c >= 'a' && c <= 'z' && c == asciiLower.charAt(n - 2);
   }
 
   private static List<Path> existingFiles(Path... candidates) {

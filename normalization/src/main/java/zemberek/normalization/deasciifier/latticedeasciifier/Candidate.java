@@ -1,5 +1,6 @@
 package zemberek.normalization.deasciifier.latticedeasciifier;
 
+import java.util.List;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 
@@ -152,6 +153,23 @@ public final class Candidate {
       }
     }
     return 0;
+  }
+
+  public static boolean containsSurface(List<Candidate> candidates, String surface) {
+    for (Candidate c : candidates) {
+      if (c.surface.equals(surface)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public static boolean addIfSurfaceAbsent(List<Candidate> candidates, Candidate candidate) {
+    if (containsSurface(candidates, candidate.surface)) {
+      return false;
+    }
+    candidates.add(candidate);
+    return true;
   }
 
   private static boolean computeIsContentWord(PrimaryPos pos, String surface, boolean oov) {

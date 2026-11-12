@@ -134,7 +134,7 @@ public final class LatticeDeasciifierTrainer {
         }
 
         TokenLattice[] lattice = latticeBuilder.buildSentenceLattice(input, tokens);
-        if (!hasAnyAmbiguous(lattice)) {
+        if (!LatticeDeasciifier.hasAmbiguousToken(lattice)) {
           continue;
         }
 
@@ -190,21 +190,8 @@ public final class LatticeDeasciifierTrainer {
               goldIdx = ci;
             }
             float score =
-                col.unaryScores[ci]
-                    + SentenceLatticeScorer.scoreTransition(
-                        prev2, prev1, cand, onlineWeights, featBuf);
-            if (next1 != null) {
-              score +=
-                  SentenceLatticeScorer.scoreTransition(
-                      prev1, cand, next1, onlineWeights, featBuf);
-              if (next2 != null) {
-                score +=
-                    SentenceLatticeScorer.scoreTrigramOnly(
-                        cand, next1, next2, onlineWeights, featBuf);
-              }
-            }
-            score +=
-                SentenceLatticeScorer.scoreWideContext(i, predicted, n, cand, onlineWeights, featBuf);
+                SentenceLatticeScorer.scoreCandidateInSequence(
+                    i, predicted, n, cand, col.unaryScores[ci], onlineWeights, featBuf);
 
             float loss =
                 cand == goldCand
@@ -322,15 +309,6 @@ public final class LatticeDeasciifierTrainer {
         if (strippedI.equals(TurkishTextCodec.stripCircumflex(cands.get(j).surface))) {
           return true;
         }
-      }
-    }
-    return false;
-  }
-
-  private static boolean hasAnyAmbiguous(TokenLattice[] lattice) {
-    for (TokenLattice col : lattice) {
-      if (col.isAmbiguous()) {
-        return true;
       }
     }
     return false;

@@ -11,8 +11,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 /**
  * Immutable binary model container for {@link LatticeDeasciifier}, bundling:
@@ -22,16 +20,13 @@ import java.util.zip.GZIPOutputStream;
  *   <li>{@link CharacterHarmonyModel} (5-state vowel-harmony character Perceptron)
  *   <li>{@link QuantizedWeightTable} (sentence-level Lattice Margin-Perceptron weights)
  * </ol>
- *
- * <p>{@link #load(InputStream)} and {@link #load(Path)} transparently accept both raw {@code .bin}
- * and GZIP-compressed {@code .bin.gz} streams.
  */
 public record DeasciifierModel(
     LexiconPriors lexiconPriors,
     CharacterHarmonyModel characterModel,
     QuantizedWeightTable sentenceWeights) {
 
-  public static final String DEFAULT_RESOURCE_PATH = "/deasciifier/lattice_deasciifier.bin.gz";
+  public static final String DEFAULT_RESOURCE_PATH = "/deasciifier/lattice_deasciifier.bin";
 
   private static final int MAGIC = 0x5A4C444D; // "ZLDM"
   private static final int VERSION = 1;
@@ -66,39 +61,19 @@ public record DeasciifierModel(
     return DefaultHolder.INSTANCE;
   }
 
-  /** Saves the model as an uncompressed binary file (or GZIP if {@code path} ends with {@code .gz}). */
+  /** Saves the model as an uncompressed binary file. */
   public void save(Path path) throws IOException {
-    if (path.getFileName().toString().endsWith(".gz")) {
-      saveCompressed(path);
-      return;
-    }
     if (path.getParent() != null) {
       Files.createDirectories(path.getParent());
     }
     try (OutputStream fos = Files.newOutputStream(path);
         DataOutputStream out = new DataOutputStream(new BufferedOutputStream(fos, 65_536))) {
-      writeTo(out);
+      out.writeInt(MAGIC);
+      out.writeInt(VERSION);
+      lexiconPriors.serialize(out);
+      characterModel.serialize(out);
+      sentenceWeights.serialize(out);
     }
-  }
-
-  /** Saves the model in GZIP-compressed binary format. */
-  public void saveCompressed(Path path) throws IOException {
-    if (path.getParent() != null) {
-      Files.createDirectories(path.getParent());
-    }
-    try (OutputStream fos = Files.newOutputStream(path);
-        GZIPOutputStream gz = new GZIPOutputStream(new BufferedOutputStream(fos, 65_536));
-        DataOutputStream out = new DataOutputStream(new BufferedOutputStream(gz, 65_536))) {
-      writeTo(out);
-    }
-  }
-
-  private void writeTo(DataOutputStream out) throws IOException {
-    out.writeInt(MAGIC);
-    out.writeInt(VERSION);
-    lexiconPriors.serialize(out);
-    characterModel.serialize(out);
-    sentenceWeights.serialize(out);
   }
 
   public static DeasciifierModel load(Path path) throws IOException {
@@ -108,14 +83,7 @@ public record DeasciifierModel(
   }
 
   public static DeasciifierModel load(InputStream stream) throws IOException {
-    BufferedInputStream buffered = new BufferedInputStream(stream, 65_536);
-    buffered.mark(4);
-    int b0 = buffered.read();
-    int b1 = buffered.read();
-    buffered.reset();
-    InputStream decoded =
-        (b0 == 0x1F && b1 == 0x8B) ? new GZIPInputStream(buffered, 65_536) : buffered;
-    try (DataInputStream in = new DataInputStream(new BufferedInputStream(decoded, 65_536))) {
+    try (DataInputStream in = new DataInputStream(new BufferedInputStream(stream, 65_536))) {
       int magic = in.readInt();
       if (magic != MAGIC) {
         throw new IOException("Invalid DeasciifierModel magic: " + Integer.toHexString(magic));

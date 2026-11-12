@@ -95,7 +95,30 @@ public final class TurkishTextCodec {
           "^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)+\\.(?:com|org|net|edu|gov|tr|io|dev|ai|co|info|biz)(?:/.*)?$",
           Pattern.CASE_INSENSITIVE);
 
+  @FunctionalInterface
+  private interface CharMapper {
+    char map(char c);
+  }
+
+  private record ScannedSpan(int end, int apostropheIndex) {}
+
   private TurkishTextCodec() {}
+
+  private static String mapChars(String s, CharMapper mapper) {
+    int n = s.length();
+    char[] out = null;
+    for (int i = 0; i < n; i++) {
+      char c = s.charAt(i);
+      char mapped = mapper.map(c);
+      if (mapped != c && out == null) {
+        out = s.toCharArray();
+      }
+      if (out != null) {
+        out[i] = mapped;
+      }
+    }
+    return out == null ? s : new String(out);
+  }
 
   public static boolean isApostrophe(char c) {
     return c == '\'' || c == '’' || c == '‘' || c == '`';
@@ -166,19 +189,7 @@ public final class TurkishTextCodec {
   }
 
   public static String toTurkishLower(String s) {
-    int n = s.length();
-    char[] out = null;
-    for (int i = 0; i < n; i++) {
-      char c = s.charAt(i);
-      char lower = toTurkishLower(c);
-      if (lower != c && out == null) {
-        out = s.toCharArray();
-      }
-      if (out != null) {
-        out[i] = lower;
-      }
-    }
-    return out == null ? s : new String(out);
+    return mapChars(s, TurkishTextCodec::toTurkishLower);
   }
 
   public static char toTurkishUpper(char c) {
@@ -224,19 +235,7 @@ public final class TurkishTextCodec {
   }
 
   public static String toAsciiLower(String s) {
-    int n = s.length();
-    char[] out = null;
-    for (int i = 0; i < n; i++) {
-      char c = s.charAt(i);
-      char mapped = toAsciiLower(c);
-      if (mapped != c && out == null) {
-        out = s.toCharArray();
-      }
-      if (out != null) {
-        out[i] = mapped;
-      }
-    }
-    return out == null ? s : new String(out);
+    return mapChars(s, TurkishTextCodec::toAsciiLower);
   }
 
   public static char toAsciiPreserveCase(char c) {
@@ -260,37 +259,86 @@ public final class TurkishTextCodec {
   }
 
   public static String asciify(String text) {
-    int n = text.length();
-    char[] out = new char[n];
-    for (int i = 0; i < n; i++) {
-      out[i] = toAsciiPreserveCase(text.charAt(i));
-    }
-    return new String(out);
+    return mapChars(text, TurkishTextCodec::toAsciiPreserveCase);
+  }
+
+  public static char stripCircumflex(char c) {
+    return switch (c) {
+      case 'â' -> 'a';
+      case 'Â' -> 'A';
+      case 'î' -> 'i';
+      case 'Î' -> 'I';
+      case 'û' -> 'u';
+      case 'Û' -> 'U';
+      default -> c;
+    };
   }
 
   public static String stripCircumflex(String s) {
-    int n = s.length();
-    char[] out = null;
-    for (int i = 0; i < n; i++) {
-      char c = s.charAt(i);
-      char mapped =
-          switch (c) {
-            case 'â' -> 'a';
-            case 'Â' -> 'A';
-            case 'î' -> 'i';
-            case 'Î' -> 'I';
-            case 'û' -> 'u';
-            case 'Û' -> 'U';
-            default -> c;
-          };
-      if (mapped != c && out == null) {
-        out = s.toCharArray();
-      }
-      if (out != null) {
-        out[i] = mapped;
+    return mapChars(s, TurkishTextCodec::stripCircumflex);
+  }
+
+  public static boolean hasAmbiguousAscii(String asciiLower) {
+    for (int i = 0; i < asciiLower.length(); i++) {
+      switch (asciiLower.charAt(i)) {
+        case 'a', 'c', 'g', 'i', 'o', 's', 'u' -> {
+          return true;
+        }
+        default -> {}
       }
     }
-    return out == null ? s : new String(out);
+    return false;
+  }
+
+  public static boolean hasCoreDiacriticAscii(String asciiLower) {
+    for (int i = 0; i < asciiLower.length(); i++) {
+      switch (asciiLower.charAt(i)) {
+        case 'c', 'g', 'i', 'o', 's', 'u' -> {
+          return true;
+        }
+        default -> {}
+      }
+    }
+    return false;
+  }
+
+  public static boolean hasWordFinalDoubleLetter(String asciiLower) {
+    int n = asciiLower.length();
+    if (n < 5) {
+      return false;
+    }
+    char last = asciiLower.charAt(n - 1);
+    return last >= 'a' && last <= 'z' && last == asciiLower.charAt(n - 2);
+  }
+
+  public static int vowelIndex(char c) {
+    return switch (c) {
+      case 'a', 'â' -> 0;
+      case 'e' -> 1;
+      case 'ı' -> 2;
+      case 'i', 'î' -> 3;
+      case 'o' -> 4;
+      case 'ö' -> 5;
+      case 'u' -> 6;
+      case 'ü', 'û' -> 7;
+      default -> -1;
+    };
+  }
+
+  public static boolean isTurkishVowel(char c) {
+    return vowelIndex(c) >= 0;
+  }
+
+  public static boolean isFrontVowel(char c) {
+    return c == 'e' || c == 'i' || c == 'î' || c == 'ö' || c == 'ü' || c == 'û';
+  }
+
+  public static boolean isRoundedVowel(char c) {
+    return c == 'o' || c == 'ö' || c == 'u' || c == 'ü' || c == 'û';
+  }
+
+  public static char highHarmonicVowel(boolean front, boolean rounded) {
+    return front ? (rounded ? 'ü' : 'i') : (rounded ? 'u' : 'ı');
   }
 
   /**
@@ -469,97 +517,107 @@ public final class TurkishTextCodec {
 
         int tokStart = i;
         boolean startsWithDigit = Character.isDigit(c);
-        int aposRel = -1;
+        ScannedSpan span =
+            startsWithDigit
+                ? scanNumberSpan(text, tokStart, chunkEnd)
+                : scanWordSpan(text, tokStart, chunkEnd);
+        i = span.end();
 
-        if (startsWithDigit) {
-          while (i < chunkEnd) {
-            char ch = text.charAt(i);
-            if (Character.isDigit(ch)) {
-              i++;
-            } else if ((ch == '.' || ch == ',')
-                && i + 1 < chunkEnd
-                && Character.isDigit(text.charAt(i + 1))) {
-              i++;
-            } else if (aposRel < 0
-                && isApostrophe(ch)
-                && i + 1 < chunkEnd
-                && isLetter(text.charAt(i + 1))) {
-              aposRel = i - tokStart;
-              i++;
-            } else if (aposRel >= 0 && isLetter(ch)) {
-              i++;
-            } else {
-              break;
-            }
-          }
-        } else {
-          while (i < chunkEnd) {
-            char ch = text.charAt(i);
-            if (isLetter(ch) || Character.isDigit(ch)) {
-              i++;
-            } else if (isApostrophe(ch) && i + 1 < chunkEnd && isLetter(text.charAt(i + 1))) {
-              if (aposRel < 0) {
-                aposRel = i - tokStart;
-              }
-              i++;
-            } else {
-              break;
-            }
-          }
-        }
-
-        int tokEnd = i;
-        char rightPunct = findRightPunct(text, tokEnd, chunkEnd, length);
-        String orig = text.substring(tokStart, tokEnd);
-        boolean numeralApos = startsWithDigit && aposRel > 0;
-
-        if (startsWithDigit && !numeralApos) {
-          tokens.add(
-              new Token(
-                  tokStart,
-                  tokEnd,
-                  orig,
-                  orig,
-                  Casing.LOWER,
-                  -1,
-                  false,
-                  true,
-                  nextIsSentenceStart,
-                  rightPunct,
-                  false));
-        } else {
-          String asciiLower = toAsciiLower(orig);
-          Casing casing = detectCasing(orig, aposRel > 0 ? aposRel : orig.length());
-          boolean hasPins = containsPinnedTurkish(orig);
-          // Un-apostrophized alphanumeric tokens ("cimcime50", "covid19", "mp3") are usernames/codes.
-          boolean immutable =
-              isRomanNumeral(orig, rightPunct)
-                  || (aposRel < 0 && (isCamelCaseIdentifier(orig) || containsDigit(orig)));
-          tokens.add(
-              new Token(
-                  tokStart,
-                  tokEnd,
-                  orig,
-                  asciiLower,
-                  casing,
-                  aposRel,
-                  numeralApos,
-                  immutable,
-                  nextIsSentenceStart,
-                  rightPunct,
-                  hasPins));
-        }
+        char rightPunct = findRightPunct(text, span.end(), chunkEnd, length);
+        Token tok =
+            buildSpanToken(
+                text,
+                tokStart,
+                span,
+                startsWithDigit,
+                nextIsSentenceStart,
+                rightPunct);
+        tokens.add(tok);
 
         nextIsSentenceStart =
             (rightPunct == '.' || rightPunct == '!' || rightPunct == '?')
-                && !(casingLooksLikeInitialOrRoman(orig) && rightPunct == '.');
+                && !(casingLooksLikeInitialOrRoman(tok.original()) && rightPunct == '.');
       }
     }
     return tokens;
   }
 
+  private static ScannedSpan scanNumberSpan(String text, int start, int chunkEnd) {
+    int i = start;
+    int aposRel = -1;
+    while (i < chunkEnd) {
+      char ch = text.charAt(i);
+      if (Character.isDigit(ch)) {
+        i++;
+      } else if ((ch == '.' || ch == ',') && i + 1 < chunkEnd && Character.isDigit(text.charAt(i + 1))) {
+        i++;
+      } else if (aposRel < 0 && isApostrophe(ch) && i + 1 < chunkEnd && isLetter(text.charAt(i + 1))) {
+        aposRel = i - start;
+        i++;
+      } else if (aposRel >= 0 && isLetter(ch)) {
+        i++;
+      } else {
+        break;
+      }
+    }
+    return new ScannedSpan(i, aposRel);
+  }
+
+  private static ScannedSpan scanWordSpan(String text, int start, int chunkEnd) {
+    int i = start;
+    int aposRel = -1;
+    while (i < chunkEnd) {
+      char ch = text.charAt(i);
+      if (isLetter(ch) || Character.isDigit(ch)) {
+        i++;
+      } else if (isApostrophe(ch) && i + 1 < chunkEnd && isLetter(text.charAt(i + 1))) {
+        if (aposRel < 0) {
+          aposRel = i - start;
+        }
+        i++;
+      } else {
+        break;
+      }
+    }
+    return new ScannedSpan(i, aposRel);
+  }
+
+  private static Token buildSpanToken(
+      String text,
+      int tokStart,
+      ScannedSpan span,
+      boolean startsWithDigit,
+      boolean sentenceStart,
+      char rightPunct) {
+    int tokEnd = span.end();
+    int aposRel = span.apostropheIndex();
+    String orig = text.substring(tokStart, tokEnd);
+    boolean numeralApos = startsWithDigit && aposRel > 0;
+    if (startsWithDigit && !numeralApos) {
+      return new Token(
+          tokStart, tokEnd, orig, orig, Casing.LOWER, -1, false, true, sentenceStart, rightPunct, false);
+    }
+    Casing casing = detectCasing(orig, aposRel > 0 ? aposRel : orig.length());
+    // Un-apostrophized alphanumeric tokens ("cimcime50", "covid19", "mp3") are usernames/codes.
+    boolean immutable =
+        isRomanNumeral(orig)
+            || (aposRel < 0 && (isCamelCaseIdentifier(orig) || containsDigit(orig)));
+    return new Token(
+        tokStart,
+        tokEnd,
+        orig,
+        toAsciiLower(orig),
+        casing,
+        aposRel,
+        numeralApos,
+        immutable,
+        sentenceStart,
+        rightPunct,
+        containsPinnedTurkish(orig));
+  }
+
   private static boolean casingLooksLikeInitialOrRoman(String orig) {
-    return orig.length() == 1 || isRomanNumeral(orig, '.');
+    return orig.length() == 1 || isRomanNumeral(orig);
   }
 
   private static char findRightPunct(String text, int tokEnd, int chunkEnd, int totalLen) {
@@ -579,7 +637,7 @@ public final class TurkishTextCodec {
     return ' ';
   }
 
-  private static boolean isRomanNumeral(String orig, char rightPunct) {
+  private static boolean isRomanNumeral(String orig) {
     if (orig.length() < 2 || orig.length() > 8) {
       return false;
     }
@@ -589,7 +647,7 @@ public final class TurkishTextCodec {
         return false;
       }
     }
-    return ROMAN_NUMERAL.matcher(orig).matches() && (rightPunct == '.' || orig.length() >= 2);
+    return ROMAN_NUMERAL.matcher(orig).matches();
   }
 
   private static boolean isImmutableChunk(String text, int start, int end) {
@@ -716,9 +774,9 @@ public final class TurkishTextCodec {
     boolean rounded = false;
     for (int i = spokenWord.length() - 1; i >= 0; i--) {
       char v = spokenWord.charAt(i);
-      if ("aeıioöuü".indexOf(v) >= 0) {
-        front = (v == 'e' || v == 'i' || v == 'ö' || v == 'ü');
-        rounded = (v == 'o' || v == 'ö' || v == 'u' || v == 'ü');
+      if (isTurkishVowel(v)) {
+        front = isFrontVowel(v);
+        rounded = isRoundedVowel(v);
         break;
       }
     }
@@ -732,9 +790,9 @@ public final class TurkishTextCodec {
       if (token.hasPinnedTurkish && isPinnedTurkishDiacritic(raw)) {
         char tl = toTurkishLower(raw);
         suffix[i] = tl;
-        if ("aeıioöuü".indexOf(tl) >= 0) {
-          front = (tl == 'e' || tl == 'i' || tl == 'ö' || tl == 'ü');
-          rounded = (tl == 'o' || tl == 'ö' || tl == 'u' || tl == 'ü');
+        if (isTurkishVowel(tl)) {
+          front = isFrontVowel(tl);
+          rounded = isRoundedVowel(tl);
         }
         continue;
       }
@@ -750,7 +808,7 @@ public final class TurkishTextCodec {
         rounded = false;
         suffix[i] = 'a';
       } else if (c == 'i' || c == 'u') {
-        suffix[i] = front ? (rounded ? 'ü' : 'i') : (rounded ? 'u' : 'ı');
+        suffix[i] = highHarmonicVowel(front, rounded);
       } else {
         suffix[i] = c;
       }

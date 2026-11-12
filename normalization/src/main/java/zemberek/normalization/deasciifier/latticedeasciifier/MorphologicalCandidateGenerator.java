@@ -215,10 +215,9 @@ public final class MorphologicalCandidateGenerator {
       return base;
     }
     for (Candidate c : base) {
-      if ((!token.hasPinnedTurkish()
-              || TurkishTextCodec.isCompatibleWithInput(token.original(), c.surface, true))
-          && !containsSurface(out, c.surface)) {
-        out.add(c);
+      if (!token.hasPinnedTurkish()
+          || TurkishTextCodec.isCompatibleWithInput(token.original(), c.surface, true)) {
+        Candidate.addIfSurfaceAbsent(out, c);
       }
     }
     return out;
@@ -239,10 +238,9 @@ public final class MorphologicalCandidateGenerator {
         SqueezedWord squeezed = TurkishTextCodec.squeezeElongations(asciiLower, maxRun);
         for (Candidate mc : analyzePlainAsciiUncached(squeezed.squeezedAscii())) {
           String projected = squeezed.projectToOriginalLength(mc.surface);
-          if ((originalForPins == null
-                  || TurkishTextCodec.isCompatibleWithInput(originalForPins, projected))
-              && !containsSurface(out, projected)) {
-            out.add(copyWithSurface(mc, projected, mc.informal, mc.question));
+          if (originalForPins == null
+              || TurkishTextCodec.isCompatibleWithInput(originalForPins, projected)) {
+            Candidate.addIfSurfaceAbsent(out, copyWithSurface(mc, projected, mc.informal, mc.question));
           }
         }
       }
@@ -252,17 +250,16 @@ public final class MorphologicalCandidateGenerator {
       // [Sevdi:Noun,Prop]+m+i blocking glued question clitic "sevdi+mi").
       addGluedCliticCandidates(asciiLower, originalForPins, out);
     }
-    if (out.isEmpty() && hasWordFinalDoubleLetter(asciiLower)) {
+    if (out.isEmpty() && TurkishTextCodec.hasWordFinalDoubleLetter(asciiLower)) {
       String trimmed = asciiLower.substring(0, asciiLower.length() - 1);
       for (Candidate mc : analyzePlainAsciiUncached(trimmed)) {
         if (mc.morphemeGroupCount > 2 || mc.informal) {
           continue;
         }
         String projected = mc.surface + mc.surface.charAt(mc.surface.length() - 1);
-        if ((originalForPins == null
-                || TurkishTextCodec.isCompatibleWithInput(originalForPins, projected))
-            && !containsSurface(out, projected)) {
-          out.add(copyWithSurface(mc, projected, true, mc.question));
+        if (originalForPins == null
+            || TurkishTextCodec.isCompatibleWithInput(originalForPins, projected)) {
+          Candidate.addIfSurfaceAbsent(out, copyWithSurface(mc, projected, true, mc.question));
         }
       }
     }
@@ -274,7 +271,7 @@ public final class MorphologicalCandidateGenerator {
     if (analysis.isEmpty()) {
       return Collections.emptyList();
     }
-    Map<String, Candidate> bySurface = new LinkedHashMap<>(4);
+    CandidateCollector collector = new CandidateCollector(4);
     for (SingleAnalysis sa : analysis) {
       if (sa.isUnknown()) {
         continue;
@@ -294,30 +291,24 @@ public final class MorphologicalCandidateGenerator {
         continue;
       }
 
-      WordGenerator generator =
-          sa.containsInformalMorpheme() ? informalGenerator : formalGenerator;
-      for (WordGenerator.Result generated : generator.generate(item, sa.getMorphemes())) {
+      for (WordGenerator.Result generated : generatorFor(sa).generate(item, sa.getMorphemes())) {
         String surf = generated.surface.toLowerCase(Turkish.LOCALE);
         if (surf.length() != asciiLower.length()
             || !TurkishTextCodec.toAsciiLower(surf).equals(asciiLower)) {
           continue;
         }
-        registerCandidate(bySurface, surf, sa, false, 0);
+        collector.register(surf, sa, false, 0);
 
-        String normLemma = item.normalizedLemma().toLowerCase(Turkish.LOCALE);
-        if (TurkishAlphabet.INSTANCE.containsCircumflex(normLemma)) {
-          String circSurf = projectLemmaCircumflex(surf, normLemma);
-          if (!circSurf.equals(surf)
-              && TurkishTextCodec.toAsciiLower(circSurf).equals(asciiLower)) {
-            registerCandidate(bySurface, circSurf, sa, true, 0);
-          }
+        String circSurf = projectCircumflexIfPresent(surf, item);
+        if (circSurf != null && TurkishTextCodec.toAsciiLower(circSurf).equals(asciiLower)) {
+          collector.register(circSurf, sa, true, 0);
         }
       }
     }
-    if (bySurface.isEmpty()) {
+    if (collector.isEmpty()) {
       return Collections.emptyList();
     }
-    List<Candidate> sorted = new ArrayList<>(bySurface.values());
+    List<Candidate> sorted = collector.toList();
     sorted.sort(
         (a, b) -> {
           int cmp = Integer.compare(a.morphemeGroupCount, b.morphemeGroupCount);
@@ -361,28 +352,26 @@ public final class MorphologicalCandidateGenerator {
     for (String proto : selectPrototypeNouns(pronunciationSource, isUpperAcronym)) {
       String probe = TurkishTextCodec.toAsciiLower(proto) + suffixAscii;
       List<SingleAnalysis> analysis = analyzeAsciiInformal(probe);
-      Map<String, Candidate> bySurface = new LinkedHashMap<>(2);
+      CandidateCollector collector = new CandidateCollector(2);
       for (SingleAnalysis sa : analysis) {
         if (sa.isUnknown()
             || !TurkishTextCodec.toAsciiLower(sa.getStemAndEnding().stem)
                 .equals(TurkishTextCodec.toAsciiLower(proto))) {
           continue;
         }
-        WordGenerator generator =
-            sa.containsInformalMorpheme() ? informalGenerator : formalGenerator;
         for (WordGenerator.Result r :
-            generator.generate(sa.getDictionaryItem(), sa.getMorphemes())) {
+            generatorFor(sa).generate(sa.getDictionaryItem(), sa.getMorphemes())) {
           String surf = r.surface.toLowerCase(Turkish.LOCALE);
           if (surf.length() == proto.length() + suffixAscii.length() && surf.startsWith(proto)) {
             String full = chosenStemLower + apostropheChar + surf.substring(proto.length());
             if (TurkishTextCodec.isCompatibleWithInput(originalToken, full, pinDotlessI)) {
-              registerCandidate(bySurface, full, sa, false, foreignStemLen);
+              collector.register(full, sa, false, foreignStemLen);
             }
           }
         }
       }
-      if (!bySurface.isEmpty()) {
-        return new ArrayList<>(bySurface.values());
+      if (!collector.isEmpty()) {
+        return collector.toList();
       }
     }
     return Collections.emptyList();
@@ -413,9 +402,7 @@ public final class MorphologicalCandidateGenerator {
     if (best == null) {
       return null;
     }
-    Map<String, Candidate> single = new LinkedHashMap<>(1);
-    registerCandidate(single, lowerTurkishWord, best, hasCircumflex, 0);
-    return single.values().iterator().next();
+    return buildCandidate(lowerTurkishWord, best, hasCircumflex, 0);
   }
 
   private List<Candidate> generateApostropheWordCandidates(Token token, LexiconPriors priors) {
@@ -457,7 +444,7 @@ public final class MorphologicalCandidateGenerator {
 
     String withoutQuoteAscii = stemAscii + suffixAscii;
     List<SingleAnalysis> analysis = analyzeAsciiInformal(withoutQuoteAscii);
-    Map<String, Candidate> bySurface = new LinkedHashMap<>(4);
+    CandidateCollector collector = new CandidateCollector(4);
     for (SingleAnalysis sa : analysis) {
       if (sa.isUnknown()) {
         continue;
@@ -474,34 +461,28 @@ public final class MorphologicalCandidateGenerator {
       if (isCorruptedDotlessProperNoun(item)) {
         continue;
       }
-      String normLemma = item.normalizedLemma().toLowerCase(Turkish.LOCALE);
-      boolean hasLemmaCirc = TurkishAlphabet.INSTANCE.containsCircumflex(normLemma);
-      WordGenerator generator =
-          sa.containsInformalMorpheme() ? informalGenerator : formalGenerator;
-      for (WordGenerator.Result r : generator.generate(item, sa.getMorphemes())) {
+      for (WordGenerator.Result r : generatorFor(sa).generate(item, sa.getMorphemes())) {
         String surfNoQuote = r.surface.toLowerCase(Turkish.LOCALE);
         if (surfNoQuote.length() != withoutQuoteAscii.length()) {
           continue;
         }
         String withApos = surfNoQuote.substring(0, apos) + aposChar + surfNoQuote.substring(apos);
         if (TurkishTextCodec.isCompatibleWithInput(token.original(), withApos, pinDotlessI)) {
-          registerCandidate(bySurface, withApos, sa, false, 0);
+          collector.register(withApos, sa, false, 0);
         }
-        if (hasLemmaCirc) {
-          String circNoQuote = projectLemmaCircumflex(surfNoQuote, normLemma);
-          if (!circNoQuote.equals(surfNoQuote)) {
-            String circWithApos =
-                circNoQuote.substring(0, apos) + aposChar + circNoQuote.substring(apos);
-            if (TurkishTextCodec.isCompatibleWithInput(
-                token.original(), circWithApos, pinDotlessI)) {
-              registerCandidate(bySurface, circWithApos, sa, true, 0);
-            }
+        String circNoQuote = projectCircumflexIfPresent(surfNoQuote, item);
+        if (circNoQuote != null) {
+          String circWithApos =
+              circNoQuote.substring(0, apos) + aposChar + circNoQuote.substring(apos);
+          if (TurkishTextCodec.isCompatibleWithInput(
+              token.original(), circWithApos, pinDotlessI)) {
+            collector.register(circWithApos, sa, true, 0);
           }
         }
       }
     }
-    if (!bySurface.isEmpty()) {
-      return new ArrayList<>(bySurface.values());
+    if (!collector.isEmpty()) {
+      return collector.toList();
     }
 
     List<Candidate> stemCandidates = analyzePlainAsciiUncached(stemAscii);
@@ -511,9 +492,7 @@ public final class MorphologicalCandidateGenerator {
         for (Candidate hc :
             harmonizeSuffixAfterStem(
                 sc.surface, aposChar, suffixAscii, sc.surface, 0, token.original(), pinDotlessI)) {
-          if (!containsSurface(merged, hc.surface)) {
-            merged.add(hc);
-          }
+          Candidate.addIfSurfaceAbsent(merged, hc);
         }
       }
       if (!merged.isEmpty()) {
@@ -563,8 +542,8 @@ public final class MorphologicalCandidateGenerator {
         String full = stemCand.surface + restoredClitic;
         if ((originalForPins == null
                 || TurkishTextCodec.isCompatibleWithInput(originalForPins, full))
-            && !containsSurface(out, full)) {
-          out.add(copyWithSurface(stemCand, full, true, clitic.startsWith("m")));
+            && Candidate.addIfSurfaceAbsent(
+                out, copyWithSurface(stemCand, full, true, clitic.startsWith("m")))) {
           added = true;
         }
       }
@@ -572,6 +551,19 @@ public final class MorphologicalCandidateGenerator {
         return;
       }
     }
+  }
+
+  private WordGenerator generatorFor(SingleAnalysis sa) {
+    return sa.containsInformalMorpheme() ? informalGenerator : formalGenerator;
+  }
+
+  private static String projectCircumflexIfPresent(String generatedLower, DictionaryItem item) {
+    String normLemma = item.normalizedLemma().toLowerCase(Turkish.LOCALE);
+    if (!TurkishAlphabet.INSTANCE.containsCircumflex(normLemma)) {
+      return null;
+    }
+    String projected = projectLemmaCircumflex(generatedLower, normLemma);
+    return projected.equals(generatedLower) ? null : projected;
   }
 
   private static boolean isOnlyProperOrAbbrev(List<Candidate> cands) {
@@ -591,7 +583,7 @@ public final class MorphologicalCandidateGenerator {
         || asciiClitic.equals("te")) {
       return "" + asciiClitic.charAt(0) + (front ? 'e' : 'a');
     }
-    char highVowel = front ? (rounded ? 'ü' : 'i') : (rounded ? 'u' : 'ı');
+    char highVowel = TurkishTextCodec.highHarmonicVowel(front, rounded);
     StringBuilder sb = new StringBuilder(asciiClitic.length());
     for (int i = 0; i < asciiClitic.length(); i++) {
       char c = asciiClitic.charAt(i);
@@ -637,7 +629,7 @@ public final class MorphologicalCandidateGenerator {
     }
     boolean anyVowel = false;
     for (int i = 0; i < lower.length(); i++) {
-      if (vowelIndex(lower.charAt(i)) >= 0) {
+      if (TurkishTextCodec.isTurkishVowel(lower.charAt(i))) {
         anyVowel = true;
         break;
       }
@@ -646,14 +638,15 @@ public final class MorphologicalCandidateGenerator {
       return true;
     }
     int n = lower.length();
-    return vowelIndex(lower.charAt(n - 1)) < 0 && vowelIndex(lower.charAt(n - 2)) < 0;
+    return !TurkishTextCodec.isTurkishVowel(lower.charAt(n - 1))
+        && !TurkishTextCodec.isTurkishVowel(lower.charAt(n - 2));
   }
 
   private static String selectWordPrototypeNoun(String spoken) {
     String lower = spoken.toLowerCase(Turkish.LOCALE);
     int vowelClass = -1;
     for (int i = lower.length() - 1; i >= 0; i--) {
-      vowelClass = vowelIndex(lower.charAt(i));
+      vowelClass = TurkishTextCodec.vowelIndex(lower.charAt(i));
       if (vowelClass >= 0) {
         break;
       }
@@ -663,38 +656,16 @@ public final class MorphologicalCandidateGenerator {
       return lastChar == 'k' ? "oda" : "kale";
     }
     char last = lower.charAt(lower.length() - 1);
-    int endingType = vowelIndex(last) >= 0 ? 0 : ("fstkçşhp".indexOf(last) >= 0 ? 2 : 1);
+    int endingType =
+        TurkishTextCodec.isTurkishVowel(last) ? 0 : ("fstkçşhp".indexOf(last) >= 0 ? 2 : 1);
     return PROTOTYPE_STEMS[vowelClass][endingType];
-  }
-
-  private static boolean hasWordFinalDoubleLetter(String asciiLower) {
-    int n = asciiLower.length();
-    if (n < 5) {
-      return false;
-    }
-    char last = asciiLower.charAt(n - 1);
-    return last >= 'a' && last <= 'z' && last == asciiLower.charAt(n - 2);
-  }
-
-  private static int vowelIndex(char c) {
-    return switch (c) {
-      case 'a', 'â' -> 0;
-      case 'e' -> 1;
-      case 'ı' -> 2;
-      case 'i', 'î' -> 3;
-      case 'o' -> 4;
-      case 'ö' -> 5;
-      case 'u' -> 6;
-      case 'ü', 'û' -> 7;
-      default -> -1;
-    };
   }
 
   private static boolean isFrontVowelWord(String s) {
     for (int i = s.length() - 1; i >= 0; i--) {
-      int v = vowelIndex(s.charAt(i));
-      if (v >= 0) {
-        return v == 1 || v == 3 || v == 5 || v == 7;
+      char c = s.charAt(i);
+      if (TurkishTextCodec.isTurkishVowel(c)) {
+        return TurkishTextCodec.isFrontVowel(c);
       }
     }
     return true;
@@ -702,9 +673,9 @@ public final class MorphologicalCandidateGenerator {
 
   private static boolean isRoundedVowelWord(String s) {
     for (int i = s.length() - 1; i >= 0; i--) {
-      int v = vowelIndex(s.charAt(i));
-      if (v >= 0) {
-        return v == 4 || v == 5 || v == 6 || v == 7;
+      char c = s.charAt(i);
+      if (TurkishTextCodec.isTurkishVowel(c)) {
+        return TurkishTextCodec.isRoundedVowel(c);
       }
     }
     return false;
@@ -767,26 +738,43 @@ public final class MorphologicalCandidateGenerator {
         src.morphemeGroupCount);
   }
 
-  private static void registerCandidate(
-      Map<String, Candidate> map,
-      String surface,
-      SingleAnalysis sa,
-      boolean isCircumflexVariant,
-      int foreignStemLen) {
-    Candidate existing = map.get(surface);
-    int scoreNew = preferenceScore(sa, isCircumflexVariant);
-    if (existing != null) {
-      int scoreOld =
-          (existing.morphemeGroupCount * -10)
-              + Math.min(8, existing.lemma.length()) * 2
-              + (existing.secondaryPos == SecondaryPos.ProperNoun ? -4 : 0)
-              + (existing.secondaryPos == SecondaryPos.Abbreviation ? -6 : 0)
-              + (existing.informal ? -8 : 0);
-      if (scoreNew <= scoreOld) {
-        return;
-      }
+  private static final class CandidateCollector {
+    private record ScoredCandidate(Candidate candidate, int score) {}
+
+    private final Map<String, ScoredCandidate> bySurface;
+
+    CandidateCollector(int expectedSize) {
+      this.bySurface = new LinkedHashMap<>(expectedSize);
     }
 
+    boolean isEmpty() {
+      return bySurface.isEmpty();
+    }
+
+    void register(
+        String surface, SingleAnalysis sa, boolean isCircumflexVariant, int foreignStemLen) {
+      int scoreNew = preferenceScore(sa, isCircumflexVariant);
+      ScoredCandidate existing = bySurface.get(surface);
+      if (existing != null && scoreNew < existing.score()) {
+        return;
+      }
+      bySurface.put(
+          surface,
+          new ScoredCandidate(
+              buildCandidate(surface, sa, isCircumflexVariant, foreignStemLen), scoreNew));
+    }
+
+    List<Candidate> toList() {
+      List<Candidate> list = new ArrayList<>(bySurface.size());
+      for (ScoredCandidate sc : bySurface.values()) {
+        list.add(sc.candidate());
+      }
+      return list;
+    }
+  }
+
+  private static Candidate buildCandidate(
+      String surface, SingleAnalysis sa, boolean isCircumflexVariant, int foreignStemLen) {
     DictionaryItem item = sa.getDictionaryItem();
     String caseId = "Nom";
     String possId = "Pnon";
@@ -810,24 +798,22 @@ public final class MorphologicalCandidateGenerator {
       lemma = TurkishAlphabet.INSTANCE.normalizeCircumflex(lemma);
     }
 
-    map.put(
+    return new Candidate(
         surface,
-        new Candidate(
-            surface,
-            lemma,
-            item.primaryPos,
-            item.secondaryPos,
-            sa.getPos(),
-            caseId,
-            possId,
-            plural,
-            sa.containsInformalMorpheme(),
-            negOrImp,
-            question,
-            isCircumflexVariant,
-            false,
-            foreignStemLen,
-            sa.groupCount()));
+        lemma,
+        item.primaryPos,
+        item.secondaryPos,
+        sa.getPos(),
+        caseId,
+        possId,
+        plural,
+        sa.containsInformalMorpheme(),
+        negOrImp,
+        question,
+        isCircumflexVariant,
+        false,
+        foreignStemLen,
+        sa.groupCount());
   }
 
   private static SingleAnalysis selectBestLexiconAnalysis(
@@ -905,14 +891,5 @@ public final class MorphologicalCandidateGenerator {
       s += 4;
     }
     return s;
-  }
-
-  private static boolean containsSurface(List<Candidate> list, String surface) {
-    for (Candidate c : list) {
-      if (c.surface.equals(surface)) {
-        return true;
-      }
-    }
-    return false;
   }
 }

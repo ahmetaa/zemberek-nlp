@@ -323,7 +323,8 @@ public final class CharacterHarmonyModel {
           }
           String goldWord =
               TurkishTextCodec.toTurkishLower(gold.substring(tok.start(), tok.end()));
-          if (goldWord.length() != tok.original().length() || !hasCoreAmbiguousAscii(tok.asciiLower())) {
+          if (goldWord.length() != tok.original().length()
+              || !TurkishTextCodec.hasAmbiguousAscii(tok.asciiLower())) {
             continue;
           }
           if (!circOk && priors != null && priors.hasCircumflexReading(tok.asciiLower())) {
@@ -454,16 +455,22 @@ public final class CharacterHarmonyModel {
   }
 
   private static long encodeSurroundingWindow(String sentence, int centerIndex) {
+    return encodeWindowSide(sentence, centerIndex - 1, -1)
+        | (encodeWindowSide(sentence, centerIndex + 1, 1) << 32);
+  }
+
+  private static long encodeWindowSide(String sentence, int startIndex, int step) {
     int n = sentence.length();
-    long leftPacked = 0L;
-    int p = centerIndex - 1;
+    long packed = 0L;
+    int p = startIndex;
     boolean hitSpace = false;
     for (int k = 0; k < CONTEXT_RADIUS; k++) {
       int sym;
-      if (p < 0) {
+      if (p < 0 || p >= n) {
         sym = 27;
       } else {
-        char c = sentence.charAt(p--);
+        char c = sentence.charAt(p);
+        p += step;
         if (Character.isWhitespace(c)) {
           if (hitSpace) {
             sym = 27;
@@ -475,32 +482,9 @@ public final class CharacterHarmonyModel {
           sym = encodeSymbol5Bit(c);
         }
       }
-      leftPacked |= ((long) sym) << (k * 5);
+      packed |= ((long) sym) << (k * 5);
     }
-
-    long rightPacked = 0L;
-    p = centerIndex + 1;
-    hitSpace = false;
-    for (int k = 0; k < CONTEXT_RADIUS; k++) {
-      int sym;
-      if (p >= n) {
-        sym = 27;
-      } else {
-        char c = sentence.charAt(p++);
-        if (Character.isWhitespace(c)) {
-          if (hitSpace) {
-            sym = 27;
-          } else {
-            hitSpace = true;
-            sym = 28;
-          }
-        } else {
-          sym = encodeSymbol5Bit(c);
-        }
-      }
-      rightPacked |= ((long) sym) << (k * 5);
-    }
-    return leftPacked | (rightPacked << 32);
+    return packed;
   }
 
   private static int encodeSymbol5Bit(char c) {
@@ -518,23 +502,19 @@ public final class CharacterHarmonyModel {
   }
 
   private static long packSurroundingAsciiVowels(String wordAscii, int pos) {
-    char prevV = '_';
-    for (int i = pos - 1; i >= 0; i--) {
-      char c = wordAscii.charAt(i);
-      if (isAsciiVowel(c)) {
-        prevV = c;
-        break;
-      }
-    }
-    char nextV = '_';
-    for (int i = pos + 1; i < wordAscii.length(); i++) {
-      char c = wordAscii.charAt(i);
-      if (isAsciiVowel(c)) {
-        nextV = c;
-        break;
-      }
-    }
+    char prevV = findNearestAsciiVowel(wordAscii, pos - 1, -1);
+    char nextV = findNearestAsciiVowel(wordAscii, pos + 1, 1);
     return ((long) prevV << 16) | nextV;
+  }
+
+  private static char findNearestAsciiVowel(String wordAscii, int start, int step) {
+    for (int i = start; i >= 0 && i < wordAscii.length(); i += step) {
+      char c = wordAscii.charAt(i);
+      if (isAsciiVowel(c)) {
+        return c;
+      }
+    }
+    return '_';
   }
 
   private static boolean isAsciiVowel(char c) {
@@ -567,18 +547,6 @@ public final class CharacterHarmonyModel {
       case 'u' -> OPTS_U;
       default -> new char[] {asciiLower};
     };
-  }
-
-  private static boolean hasCoreAmbiguousAscii(String asciiLower) {
-    for (int i = 0; i < asciiLower.length(); i++) {
-      switch (asciiLower.charAt(i)) {
-        case 'a', 'c', 'g', 'i', 'o', 's', 'u' -> {
-          return true;
-        }
-        default -> {}
-      }
-    }
-    return false;
   }
 
   private static boolean containsSurface(List<ScoredSurface> list, String surface) {

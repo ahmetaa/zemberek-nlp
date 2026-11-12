@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.normalization.deasciifier.latticedeasciifier.TurkishTextCodec.Casing;
 import zemberek.normalization.deasciifier.latticedeasciifier.TurkishTextCodec.Token;
 
@@ -271,7 +272,7 @@ public final class LexiconPriors {
       return false;
     }
     for (String s : cs.surfaces) {
-      if (containsCircumflex(s)) {
+      if (TurkishAlphabet.INSTANCE.containsCircumflex(s)) {
         return true;
       }
     }
@@ -364,7 +365,7 @@ public final class LexiconPriors {
       throw new IOException("Invalid LexiconPriors magic: " + Integer.toHexString(magic));
     }
     int version = in.readInt();
-    if (version != 1 && version != VERSION) {
+    if (version != VERSION) {
       throw new IOException("Unsupported LexiconPriors version: " + version);
     }
 
@@ -375,7 +376,7 @@ public final class LexiconPriors {
     }
 
     Map<String, ConfusionSet> conf = readConfusionMap(in);
-    Map<String, ConfusionSet> properConf = (version >= 2) ? readConfusionMap(in) : Map.of();
+    Map<String, ConfusionSet> properConf = readConfusionMap(in);
     QuantizedWeightTable lemmaLogCounts = QuantizedWeightTable.deserialize(in);
     return new LexiconPriors(extraForeign, conf, properConf, lemmaLogCounts);
   }
@@ -440,38 +441,17 @@ public final class LexiconPriors {
 
         String trLower = TurkishTextCodec.toTurkishLower(orig);
         String asciiLower = TurkishTextCodec.toAsciiLower(trLower);
-        if (!hasAnyAmbiguousAscii(asciiLower)) {
+        if (!TurkishTextCodec.hasAmbiguousAscii(asciiLower)) {
           eOnlySurfaceCounts.merge(trLower, 1, Integer::sum);
           continue;
         }
 
         if (!tok.sentenceStart() && tok.casing() == Casing.TITLE) {
-          properBuckets
-              .computeIfAbsent(asciiLower, k -> new HashMap<>(2))
-              .merge(trLower, 1, Integer::sum);
-          if (circOk) {
-            properCircBuckets
-                .computeIfAbsent(asciiLower, k -> new HashMap<>(2))
-                .merge(trLower, 1, Integer::sum);
-          }
+          recordSurfaceObservation(properBuckets, properCircBuckets, circOk, asciiLower, trLower);
         } else if (tok.casing() == Casing.LOWER) {
-          lowerBuckets
-              .computeIfAbsent(asciiLower, k -> new HashMap<>(2))
-              .merge(trLower, 1, Integer::sum);
-          if (circOk) {
-            lowerCircBuckets
-                .computeIfAbsent(asciiLower, k -> new HashMap<>(2))
-                .merge(trLower, 1, Integer::sum);
-          }
+          recordSurfaceObservation(lowerBuckets, lowerCircBuckets, circOk, asciiLower, trLower);
         } else if (tok.sentenceStart() && tok.casing() == Casing.TITLE) {
-          sentStartBuckets
-              .computeIfAbsent(asciiLower, k -> new HashMap<>(2))
-              .merge(trLower, 1, Integer::sum);
-          if (circOk) {
-            lowerCircBuckets
-                .computeIfAbsent(asciiLower, k -> new HashMap<>(2))
-                .merge(trLower, 1, Integer::sum);
-          }
+          recordSurfaceObservation(sentStartBuckets, lowerCircBuckets, circOk, asciiLower, trLower);
         }
 
         if (orig.equals(TurkishTextCodec.asciify(orig)) && !tok.sentenceStart()) {
@@ -527,7 +507,7 @@ public final class LexiconPriors {
       String ascii = e.getKey();
       int pureCount = e.getValue();
       if (pureCount < 15
-          || !hasCoreDiacriticCandidate(ascii)
+          || !TurkishTextCodec.hasCoreDiacriticAscii(ascii)
           || ALLCAPS_TURKISH_ACRONYMS.containsKey(ascii)
           || validSurfaces.contains(ascii)) {
         continue;
@@ -645,7 +625,9 @@ public final class LexiconPriors {
       String topSurf = valid.getFirst().getKey();
       boolean multiSurface = valid.size() >= 2;
       boolean singleCircumflexWord =
-          circumflexBucket && valid.size() == 1 && containsCircumflex(topSurf);
+          circumflexBucket
+              && valid.size() == 1
+              && TurkishAlphabet.INSTANCE.containsCircumflex(topSurf);
       boolean singleUseful =
           properMode
               ? (valid.size() == 1 && keptTotal >= 12)
@@ -711,48 +693,26 @@ public final class LexiconPriors {
     return s;
   }
 
+  private static void recordSurfaceObservation(
+      Map<String, Map<String, Integer>> primaryBuckets,
+      Map<String, Map<String, Integer>> circBuckets,
+      boolean circOk,
+      String asciiLower,
+      String trLower) {
+    primaryBuckets.computeIfAbsent(asciiLower, k -> new HashMap<>(2)).merge(trLower, 1, Integer::sum);
+    if (circOk) {
+      circBuckets.computeIfAbsent(asciiLower, k -> new HashMap<>(2)).merge(trLower, 1, Integer::sum);
+    }
+  }
+
   private static boolean hasEmpiricalCircumflexSurface(
       Map<String, Integer> circSurfaces, int circTotal) {
     int circCount = 0;
     for (var e : circSurfaces.entrySet()) {
-      if (containsCircumflex(e.getKey())) {
+      if (TurkishAlphabet.INSTANCE.containsCircumflex(e.getKey())) {
         circCount += e.getValue();
       }
     }
     return circCount >= 3 && circTotal > 0 && (double) circCount / circTotal >= 0.002;
-  }
-
-  private static boolean containsCircumflex(String s) {
-    for (int i = 0; i < s.length(); i++) {
-      char c = s.charAt(i);
-      if (c == 'â' || c == 'Â' || c == 'î' || c == 'Î' || c == 'û' || c == 'Û') {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static boolean hasCoreDiacriticCandidate(String asciiLower) {
-    for (int i = 0; i < asciiLower.length(); i++) {
-      switch (asciiLower.charAt(i)) {
-        case 'c', 'g', 'i', 'o', 's', 'u' -> {
-          return true;
-        }
-        default -> {}
-      }
-    }
-    return false;
-  }
-
-  private static boolean hasAnyAmbiguousAscii(String asciiLower) {
-    for (int i = 0; i < asciiLower.length(); i++) {
-      switch (asciiLower.charAt(i)) {
-        case 'a', 'c', 'g', 'i', 'o', 's', 'u' -> {
-          return true;
-        }
-        default -> {}
-      }
-    }
-    return false;
   }
 }

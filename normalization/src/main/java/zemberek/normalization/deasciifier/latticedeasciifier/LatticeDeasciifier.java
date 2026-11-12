@@ -58,10 +58,7 @@ public final class LatticeDeasciifier {
   }
 
   private record CachedPlainToken(
-      List<Candidate> baseMorph,
-      List<Candidate> mergedCandidates,
-      float[] empiricalLogPriors,
-      boolean midSentenceTitleReady) {}
+      List<Candidate> baseMorph, List<Candidate> resolvedCandidates, float[] empiricalLogPriors) {}
 
   private record BeamHyp(
       Candidate prev1, Candidate current, float score, BeamHyp previous) {}
@@ -213,15 +210,9 @@ public final class LatticeDeasciifier {
 
       if (tok.isPlainCacheableWord()) {
         CachedPlainToken cached = getOrBuildPlainToken(tok.asciiLower());
-        boolean readyDirectly =
-            cached.mergedCandidates != null
-                && (tok.casing() == Casing.LOWER
-                    || (tok.sentenceStart()
-                        && (model.lexiconPriors().hasLowercaseConfusion(tok.asciiLower())
-                            || !model.lexiconPriors().hasProperConfusion(tok.asciiLower())))
-                    || cached.midSentenceTitleReady);
-        if (readyDirectly) {
-          List<Candidate> cands = cached.mergedCandidates;
+        if (cached.resolvedCandidates != null
+            && (tok.casing() == Casing.LOWER || tok.sentenceStart())) {
+          List<Candidate> cands = cached.resolvedCandidates;
           float[] charScores =
               cands.size() >= 2
                   ? model.characterModel().scoreCandidateDifferences(text, tok, cands)
@@ -257,47 +248,25 @@ public final class LatticeDeasciifier {
     LexiconPriors priors = model.lexiconPriors();
     if (priors.isForeignAsciiKeep(asciiLower, Casing.LOWER)) {
       List<Candidate> keep = List.of(Candidate.oov(asciiLower, asciiLower.length()));
-      return new CachedPlainToken(keep, keep, SINGLE_ZERO_PRIOR, false);
+      return new CachedPlainToken(keep, keep, SINGLE_ZERO_PRIOR);
     }
 
     List<Candidate> baseMorph = morphGenerator.analyzePlainWithFallbacks(asciiLower, null);
     ConfusionSet confusion = priors.getConfusion(asciiLower, Casing.LOWER, false);
-
-    if (baseMorph.isEmpty() && confusion == null) {
-      return new CachedPlainToken(baseMorph, null, SINGLE_ZERO_PRIOR, false);
-    }
-    if (!baseMorph.isEmpty() && confusion == null && isObscureOnlyMatch(baseMorph)) {
-      return new CachedPlainToken(baseMorph, null, SINGLE_ZERO_PRIOR, false);
+    if ((baseMorph.isEmpty() && confusion == null)
+        || (!baseMorph.isEmpty() && confusion == null && isObscureOnlyMatch(baseMorph))) {
+      return new CachedPlainToken(baseMorph, null, SINGLE_ZERO_PRIOR);
     }
 
     List<Candidate> merged = new ArrayList<>(baseMorph.size() + 2);
     merged.addAll(baseMorph);
-    if (confusion != null) {
-      for (String surf : confusion.surfaces()) {
-        if (surf.length() == asciiLower.length()
-            && TurkishTextCodec.toAsciiLower(surf).equals(asciiLower)
-            && !containsSurface(merged, surf)) {
-          merged.add(Candidate.oov(surf, 0));
-        }
-      }
-    }
+    mergeConfusionCandidates(merged, confusion, asciiLower, false);
     if (merged.isEmpty()) {
-      return new CachedPlainToken(baseMorph, null, SINGLE_ZERO_PRIOR, false);
+      return new CachedPlainToken(baseMorph, null, SINGLE_ZERO_PRIOR);
     }
 
-    boolean hasProperNoun = false;
-    for (Candidate c : merged) {
-      if (c.secondaryPos == SecondaryPos.ProperNoun) {
-        hasProperNoun = true;
-        break;
-      }
-    }
-    boolean midTitleReady =
-        !priors.hasProperConfusion(asciiLower)
-            && (confusion != null || hasProperNoun)
-            && !isObscureOnlyMatch(merged);
-    float[] logPriors = buildEmpiricalPriors(merged, confusion);
-    return new CachedPlainToken(baseMorph, List.copyOf(merged), logPriors, midTitleReady);
+    return new CachedPlainToken(
+        baseMorph, List.copyOf(merged), buildEmpiricalPriors(merged, confusion));
   }
 
   private TokenLattice buildGeneralTokenLattice(
@@ -310,14 +279,7 @@ public final class LatticeDeasciifier {
 
     ConfusionSet confusion =
         priors.getConfusion(token.asciiLower(), token.casing(), token.sentenceStart());
-    if (confusion != null) {
-      for (String surf : confusion.surfaces()) {
-        if (TurkishTextCodec.isCompatibleWithInput(token.original(), surf, pinDotlessI)
-            && !containsSurface(candidates, surf)) {
-          candidates.add(Candidate.oov(surf, 0));
-        }
-      }
-    }
+    mergeConfusionCandidates(candidates, confusion, token.original(), pinDotlessI);
 
     boolean supplementWithCharModel =
         candidates.isEmpty()
@@ -331,9 +293,8 @@ public final class LatticeDeasciifier {
       int maxCharCands = candidates.isEmpty() ? 2 : 1;
       for (ScoredSurface cs :
           model.characterModel().decodeTopCandidates(text, token, maxCharCands)) {
-        if (TurkishTextCodec.isCompatibleWithInput(token.original(), cs.surface(), pinDotlessI)
-            && !containsSurface(candidates, cs.surface())) {
-          candidates.add(Candidate.oov(cs.surface(), 0));
+        if (TurkishTextCodec.isCompatibleWithInput(token.original(), cs.surface(), pinDotlessI)) {
+          Candidate.addIfSurfaceAbsent(candidates, Candidate.oov(cs.surface(), 0));
         }
       }
 
@@ -341,9 +302,9 @@ public final class LatticeDeasciifier {
           && ((!token.sentenceStart() && token.casing() == Casing.TITLE)
               || token.casing() == Casing.UPPER)
           && TurkishTextCodec.isCompatibleWithInput(
-              token.original(), token.asciiLower(), pinDotlessI)
-          && !containsSurface(candidates, token.asciiLower())) {
-        candidates.add(Candidate.oov(token.asciiLower(), token.original().length()));
+              token.original(), token.asciiLower(), pinDotlessI)) {
+        Candidate.addIfSurfaceAbsent(
+            candidates, Candidate.oov(token.asciiLower(), token.original().length()));
       }
     }
 
@@ -359,6 +320,18 @@ public final class LatticeDeasciifier {
             ? model.characterModel().scoreCandidateDifferences(text, token, candidates)
             : SINGLE_ZERO_PRIOR;
     return new TokenLattice(candidates, logPriors, charScores);
+  }
+
+  private static void mergeConfusionCandidates(
+      List<Candidate> candidates, ConfusionSet confusion, String inputOriginal, boolean pinDotlessI) {
+    if (confusion == null) {
+      return;
+    }
+    for (String surf : confusion.surfaces()) {
+      if (TurkishTextCodec.isCompatibleWithInput(inputOriginal, surf, pinDotlessI)) {
+        Candidate.addIfSurfaceAbsent(candidates, Candidate.oov(surf, 0));
+      }
+    }
   }
 
   private void addUnlistedApostropheCandidates(
@@ -392,24 +365,24 @@ public final class LatticeDeasciifier {
               0,
               token.original(),
               token.hasPinnedTurkish())) {
-        if (!containsSurface(outCandidates, harmonized.surface)) {
-          outCandidates.add(harmonized);
-        }
+        Candidate.addIfSurfaceAbsent(outCandidates, harmonized);
       }
     }
+  }
+
+  static boolean hasAmbiguousToken(TokenLattice[] lattice) {
+    for (TokenLattice col : lattice) {
+      if (col.isAmbiguous()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private Candidate[] decodeSentence(
       List<Token> tokens, TokenLattice[] lattice, WeightTable sentenceWeights) {
     int n = tokens.size();
-    boolean anyAmbiguous = false;
-    for (TokenLattice col : lattice) {
-      if (col.isAmbiguous()) {
-        anyAmbiguous = true;
-        break;
-      }
-    }
-    if (!anyAmbiguous) {
+    if (!hasAmbiguousToken(lattice)) {
       Candidate[] trivial = new Candidate[n];
       for (int i = 0; i < n; i++) {
         trivial[i] = lattice[i].candidates.getFirst();
@@ -478,20 +451,7 @@ public final class LatticeDeasciifier {
       }
 
       if (k == 1 && i >= 1 && !lattice[i - 1].isAmbiguous()) {
-        Candidate onlyCand = cands.getFirst();
-        BeamHyp bestParent = beam.getFirst();
-        float bestScore = Float.NEGATIVE_INFINITY;
-        for (BeamHyp hyp : beam) {
-          float s =
-              hyp.score
-                  + SentenceLatticeScorer.scoreTrigramOnly(
-                      hyp.prev1, hyp.current, onlyCand, sentenceWeights, featBuf);
-          if (s > bestScore) {
-            bestScore = s;
-            bestParent = hyp;
-          }
-        }
-        beam = List.of(new BeamHyp(bestParent.current, onlyCand, bestScore, bestParent));
+        beam = List.of(collapseBeamAtUnambiguousPair(beam, cands.getFirst(), sentenceWeights, featBuf));
         continue;
       }
 
@@ -519,6 +479,23 @@ public final class LatticeDeasciifier {
       cur = cur.previous;
     }
     return chosen;
+  }
+
+  private static BeamHyp collapseBeamAtUnambiguousPair(
+      List<BeamHyp> beam, Candidate onlyCand, WeightTable sentenceWeights, long[] featBuf) {
+    BeamHyp bestParent = beam.getFirst();
+    float bestScore = Float.NEGATIVE_INFINITY;
+    for (BeamHyp hyp : beam) {
+      float s =
+          hyp.score
+              + SentenceLatticeScorer.scoreTrigramOnly(
+                  hyp.prev1, hyp.current, onlyCand, sentenceWeights, featBuf);
+      if (s > bestScore) {
+        bestScore = s;
+        bestParent = hyp;
+      }
+    }
+    return new BeamHyp(bestParent.current, onlyCand, bestScore, bestParent);
   }
 
   private static void insertTopBeam(List<BeamHyp> beam, BeamHyp candidate, int maxBeam) {
@@ -552,31 +529,14 @@ public final class LatticeDeasciifier {
         if (!col.isAmbiguous()) {
           continue;
         }
-        Candidate prev2 = i >= 2 ? chosen[i - 2] : Candidate.BOUNDARY;
-        Candidate prev1 = i >= 1 ? chosen[i - 1] : Candidate.BOUNDARY;
-        Candidate next1 = i + 1 < n ? chosen[i + 1] : null;
-        Candidate next2 = i + 2 < n ? chosen[i + 2] : null;
-
         Candidate bestCand = chosen[i];
         float bestScore = Float.NEGATIVE_INFINITY;
         List<Candidate> cands = col.candidates;
         for (int ci = 0; ci < cands.size(); ci++) {
           Candidate cand = cands.get(ci);
           float s =
-              col.unaryScores[ci]
-                  + SentenceLatticeScorer.scoreTransition(
-                      prev2, prev1, cand, sentenceWeights, featBuf);
-          if (next1 != null) {
-            s +=
-                SentenceLatticeScorer.scoreTransition(
-                    prev1, cand, next1, sentenceWeights, featBuf);
-            if (next2 != null) {
-              s +=
-                  SentenceLatticeScorer.scoreTrigramOnly(
-                      cand, next1, next2, sentenceWeights, featBuf);
-            }
-          }
-          s += SentenceLatticeScorer.scoreWideContext(i, chosen, n, cand, sentenceWeights, featBuf);
+              SentenceLatticeScorer.scoreCandidateInSequence(
+                  i, chosen, n, cand, col.unaryScores[ci], sentenceWeights, featBuf);
           if (s > bestScore) {
             bestScore = s;
             bestCand = cand;
@@ -674,15 +634,6 @@ public final class LatticeDeasciifier {
         }
       }
       return true;
-    }
-    return false;
-  }
-
-  private static boolean containsSurface(List<Candidate> list, String surface) {
-    for (Candidate c : list) {
-      if (c.surface.equals(surface)) {
-        return true;
-      }
     }
     return false;
   }

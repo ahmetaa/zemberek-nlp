@@ -112,13 +112,17 @@ public final class QuantizedWeightTable implements WeightTable {
 
     for (int i = 0; i < count; i++) {
       long k = finalKeys[i];
-      int k0 = (int) k;
-      int k1 = (int) (k >>> 32);
-      int slot = mphf.get(k0, k1, MultiLevelMphf.hash(k0, k1, -1));
+      int slot = slotOf(mphf, k);
       fingerprints[slot] = FeatureHash.fingerprint16(k);
       codes[slot] = (byte) nearestCentroid(codebook, keptVals[i]);
     }
     return new QuantizedWeightTable(mphf, fingerprints, codes, codebook);
+  }
+
+  private static int slotOf(MultiLevelMphf mphf, long featureKey) {
+    int k0 = (int) featureKey;
+    int k1 = (int) (featureKey >>> 32);
+    return mphf.get(k0, k1, MultiLevelMphf.hash(k0, k1, -1));
   }
 
   @Override
@@ -136,30 +140,10 @@ public final class QuantizedWeightTable implements WeightTable {
     if (mphf == null || codes.length == 0) {
       return 0.0f;
     }
-    int k0 = (int) featureKey;
-    int k1 = (int) (featureKey >>> 32);
-    int idx = mphf.get(k0, k1, MultiLevelMphf.hash(k0, k1, -1));
+    int idx = slotOf(mphf, featureKey);
     return fingerprints[idx] == FeatureHash.fingerprint16(featureKey)
         ? codebook[codes[idx] & 0xFF]
         : 0.0f;
-  }
-
-  @Override
-  public float sum(long[] keys, int count) {
-    if (mphf == null || codes.length == 0 || count <= 0) {
-      return 0.0f;
-    }
-    float total = 0.0f;
-    for (int i = 0; i < count; i++) {
-      long key = keys[i];
-      int k0 = (int) key;
-      int k1 = (int) (key >>> 32);
-      int idx = mphf.get(k0, k1, MultiLevelMphf.hash(k0, k1, -1));
-      if (fingerprints[idx] == FeatureHash.fingerprint16(key)) {
-        total += codebook[codes[idx] & 0xFF];
-      }
-    }
-    return total;
   }
 
   public void serialize(DataOutputStream out) throws IOException {

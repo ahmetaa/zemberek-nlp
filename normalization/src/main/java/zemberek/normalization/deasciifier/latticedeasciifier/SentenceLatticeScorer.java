@@ -294,6 +294,31 @@ final class SentenceLatticeScorer {
     return m;
   }
 
+  /**
+   * Computes the full neighborhood + wide-context score for {@code cand} at {@code tokenIndex}
+   * within {@code sequence}, shared by Pass-2 refinement and online Margin-Perceptron updates.
+   */
+  static float scoreCandidateInSequence(
+      int tokenIndex,
+      Candidate[] sequence,
+      int seqLen,
+      Candidate cand,
+      float unaryScore,
+      WeightTable weights,
+      long[] featBuf) {
+    Candidate prev2 = tokenIndex >= 2 ? sequence[tokenIndex - 2] : Candidate.BOUNDARY;
+    Candidate prev1 = tokenIndex >= 1 ? sequence[tokenIndex - 1] : Candidate.BOUNDARY;
+    float score = unaryScore + scoreTransition(prev2, prev1, cand, weights, featBuf);
+    if (tokenIndex + 1 < seqLen && sequence[tokenIndex + 1] != null) {
+      Candidate next1 = sequence[tokenIndex + 1];
+      score += scoreTransition(prev1, cand, next1, weights, featBuf);
+      if (tokenIndex + 2 < seqLen && sequence[tokenIndex + 2] != null) {
+        score += scoreTrigramOnly(cand, next1, sequence[tokenIndex + 2], weights, featBuf);
+      }
+    }
+    return score + scoreWideContext(tokenIndex, sequence, seqLen, cand, weights, featBuf);
+  }
+
   static float scoreWideContext(
       int tokenIndex,
       Candidate[] sequence,

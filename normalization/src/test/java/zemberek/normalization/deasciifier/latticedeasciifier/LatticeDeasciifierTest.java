@@ -253,7 +253,8 @@ public class LatticeDeasciifierTest {
   }
 
   @Test
-  public void supportsMiniatureTrainingAndCompressedSerializationRoundTrip() throws Exception {
+  public void supportsMiniatureTrainingAndSerializationRoundTrip() throws Exception {
+    assertEquals("/deasciifier/lattice_deasciifier.bin", DeasciifierModel.DEFAULT_RESOURCE_PATH);
     List<String> base =
         List.of(
             "Bu önemli sırrı kimseye sakın söyleme!",
@@ -270,17 +271,17 @@ public class LatticeDeasciifierTest {
     cfg.sentenceEpochs = 3;
 
     DeasciifierModel trained = LatticeDeasciifierTrainer.train(miniCorpus, morphGen, cfg);
-    Path tempGz = Files.createTempFile("lattice_mini_", ".bin.gz");
+    Path tempBin = Files.createTempFile("lattice_mini_", ".bin");
     try {
-      trained.saveCompressed(tempGz);
-      assertTrue(Files.size(tempGz) > 100);
-      DeasciifierModel reloaded = DeasciifierModel.load(tempGz);
+      trained.save(tempBin);
+      assertTrue(Files.size(tempBin) > 100);
+      DeasciifierModel reloaded = DeasciifierModel.load(tempBin);
       LatticeDeasciifier mini = new LatticeDeasciifier(reloaded, sharedStrictMorph);
       assertEquals(
           "Üniversite öğrencileri bilimsel araştırmalar için kütüphanede buluştu.",
           mini.deasciify("Universite ogrencileri bilimsel arastirmalar icin kutuphanede bulustu."));
     } finally {
-      Files.deleteIfExists(tempGz);
+      Files.deleteIfExists(tempBin);
     }
   }
 }
