@@ -6,6 +6,7 @@ Turkish Morphology
     + [Creating TurkishMorphology object](#creating-turkishmorphology-object)
     + [Single word morphological analysis](#single-word-morphological-analysis)
     + [Examples](#examples)
+    + [Reading Analysis Output & Morpheme Abbreviations](#reading-analysis-output--morpheme-abbreviations)
     + [Stemming and Lemmatization Example](#stemming-and-lemmatization-example)
     + [Known Issues](#known-issues)
     + [Informal Turkish Words Analysis](#informal-turkish-words-analysis)
@@ -126,6 +127,155 @@ Finds all morphological analyses of word "kalemin"
     [kalem:Noun] kalem:Noun+A3sg+in:Gen
     [kalem:Noun] kalem:Noun+A3sg+in:P2sg
 
+
+### Reading Analysis Output & Morpheme Abbreviations
+
+`SingleAnalysis.formatLong()` prints the dictionary root in brackets (`[lemma:POS]`) followed by `surface:Morpheme` tokens:
+
+- `:` pairs an actual surface segment with its morpheme ID (e.g. `in:Gen`); morphemes with empty surface form omit the prefix (e.g. `A3sg`). Note that `Nom` (Nominative) and `Pnon` (No possessive) are omitted from `SingleAnalysis` output to reduce visual noise.
+- `+` separates inflectional morphemes within an inflectional group (IG).
+- `|` marks a derivational boundary, and `→` separates the derivational morpheme from the resulting part of speech (e.g. `kitab:Noun+A3sg+ımız:P1pl|Zero→Verb+sa:Cond+A3sg`).
+
+#### Primary POS (Part-of-Speech) Tags
+
+| Tag | Meaning | Example Word & Analysis |
+| :--- | :--- | :--- |
+| `Noun` | Noun | *kitap* (`[kitap:Noun] kitap:Noun+A3sg`) |
+| `Verb` | Verb | *okudu* (`[okumak:Verb] oku:Verb+du:Past+A3sg`) |
+| `Adj` | Adjective | *güzel* (`[güzel:Adj] güzel:Adj`) |
+| `Adv` | Adverb | *hızlıca* (`[hızlıca:Adv] hızlıca:Adv`) |
+| `Pron` | Pronoun | *ben* (`[ben:Pron,Pers] ben:Pron+A1sg`) |
+| `Det` | Determiner | *bir* (`[bir:Det] bir:Det`) |
+| `Num` | Numeral | *üç* (`[üç:Num,Card] üç:Num`) |
+| `Postp` | Postposition | *için* (`[için:Postp,PCNom] için:Postp`) |
+| `Conj` | Conjunction | *ve* (`[ve:Conj] ve:Conj`) |
+| `Ques` | Question particle / clitic | *mi* (`[mi:Ques] mi:Ques+Pres+A3sg`) |
+| `Interj` | Interjection | *eyvah* (`[eyvah:Interj] eyvah:Interj`) |
+| `Dup` | Echoic / reduplicative element (duplicator) | *mırıl* (`[mırıl:Dup] mırıl:Dup`, in *mırıl mırıl*) |
+| `Punc` | Punctuation | `.` (`[.:Punc] .:Punc`) |
+| `Unk` | Unknown / out-of-vocabulary token | *xyz* (`[xyz:Unk] xyz:Unk`) |
+
+#### Secondary POS Tags
+
+| Tag | Meaning | Example Word & Analysis |
+| :--- | :--- | :--- |
+| `Prop` | Proper noun | *Ankara* (`[Ankara:Noun,Prop] ankara:Noun+A3sg`) |
+| `Time` | Temporal noun | *yarın* (`[yarın:Noun,Time] yarın:Noun+A3sg`) |
+| `Abbrv` | Abbreviation / acronym | *TBMM* (`[TBMM:Noun,Abbrv] tbmm:Noun+A3sg`) |
+| `RegAbbrv` | Regular abbreviation ending with a period | *Prof.* (`[Prof.:Noun,RegAbbrv] prof:Noun+A3sg`) |
+| `Pers` | Personal pronoun | *ben*, *biz* (`[ben:Pron,Pers] ben:Pron+A1sg`) |
+| `Demons` | Demonstrative pronoun | *bu*, *şunlar* (`[bu:Pron,Demons] bu:Pron+A3sg`) |
+| `Quant` | Quantificational / indefinite pronoun | *bazısı*, *hepsi* (`[hepsi:Pron,Quant] hepsi:Pron+A3pl+P3pl`) |
+| `Ques` | Interrogative pronoun (secondary tag on `Pron`) | *kim*, *ne* (`[kim:Pron,Ques] kim:Pron+A3sg`) |
+| `Reflex` | Reflexive pronoun | *kendi* (`[kendi:Pron,Reflex] kendi:Pron+A3sg+P3sg`) |
+| `Card` | Cardinal numeral | *beş*, *15* (`[beş:Num,Card] beş:Num`) |
+| `Ord` | Ordinal numeral | *beşinci*, *5.* (`[beşinci:Num,Ord] beşinci:Num`) |
+| `Dist` | Distributive numeral | *beşer* (`[beşer:Num,Dist] beşer:Num`) |
+| `Real` | Real / decimal number | *3,14* (`[3,14:Num,Real] 3,14:Num`) |
+| `Range` | Numeric range | *10-15* (`[10-15:Num,Range] 10-15:Num`) |
+| `Percent` | Percentage numeral | *%25* (`[%25:Num,Percent] %25:Num`) |
+| `Ratio` | Ratio numeral | *1/4* (`[1/4:Num,Ratio] 1/4:Num`) |
+| `RomanNumeral` | Roman numeral | *XIV.* (`[XIV.:Num,RomanNumeral] xiv:Num`) |
+| `PCDat` | Postposition requiring a Dative complement (`-(y)A`) | *kadar* (*eve kadar* — `[kadar:Postp,PCDat]`) |
+| `PCAbl` | Postposition requiring an Ablative complement (`-dAn`) | *sonra* (*evden sonra* — `[sonra:Postp,PCAbl]`) |
+| `PCIns` | Postposition requiring an Instrumental complement (`-(y)lA`) | *birlikte* (*seninle birlikte* — `[birlikte:Postp,PCIns]`) |
+| `PCNom` | Postposition requiring a Nominative complement | *için* (*kitap için* — `[için:Postp,PCNom]`) |
+| `PCGen` | Postposition requiring a Genitive complement | *gibi* (*benim gibi* — `[gibi:Postp,PCGen]`) |
+| `PCAcc` | Postposition requiring an Accusative complement (`-(y)I`) | *müteakip* (*toplantıyı müteakip* — `[müteakip:Postp,PCAcc]`) |
+| `Clock` / `Date` | Time-of-day / calendar date expression | *14:30* (`Clock`), *12.05.2024* (`Date`) |
+| `Email` / `Url` / `Mention` / `HashTag` / `Emoticon` | Web and social-media token subtypes | *a@b.com*, *https://...*, *@ad*, *#etiket*, *:)* |
+
+#### Inflectional Morphemes
+
+| Category | Tag | Meaning / Explanation | Example Word & Analysis |
+| :--- | :--- | :--- | :--- |
+| **Person / Number** | `A1sg` | 1st person singular agreement | *geldim* (`gel:Verb+di:Past+m:A1sg`) |
+| | `A2sg` | 2nd person singular agreement | *geldin* (`gel:Verb+di:Past+n:A2sg`) |
+| | `A3sg` | 3rd person singular agreement (null suffix) | *ev* (`ev:Noun+A3sg`), *geldi* (`gel:Verb+di:Past+A3sg`) |
+| | `A1pl` | 1st person plural agreement | *geldik* (`gel:Verb+di:Past+k:A1pl`) |
+| | `A2pl` | 2nd person plural agreement | *geldiniz* (`gel:Verb+di:Past+niz:A2pl`) |
+| | `A3pl` | 3rd person plural agreement (`-lAr`) | *evler* (`ev:Noun+ler:A3pl`), *geldiler* (`gel:Verb+di:Past+ler:A3pl`) |
+| **Possessive** | `Pnon` | No possessive suffix (omitted in `formatLong`) | *elma* (`elma:Noun+A3sg`) |
+| | `P1sg` | 1st person singular possessive (`-(I)m`, "my") | *elmam* (`elma:Noun+A3sg+m:P1sg`) |
+| | `P2sg` | 2nd person singular possessive (`-(I)n`, "your") | *elman* (`elma:Noun+A3sg+n:P2sg`) |
+| | `P3sg` | 3rd person singular possessive (`-(s)I(n)`, "his/her/its") | *elması* (`elma:Noun+A3sg+sı:P3sg`) |
+| | `P1pl` | 1st person plural possessive (`-(I)mIz`, "our") | *elmamız* (`elma:Noun+A3sg+mız:P1pl`) |
+| | `P2pl` | 2nd person plural possessive (`-(I)nIz`, "your [pl.]") | *elmanız* (`elma:Noun+A3sg+nız:P2pl`) |
+| | `P3pl` | 3rd person plural possessive (`-lArI`, "their") | *elmaları* (`elma:Noun+A3sg+ları:P3pl`) |
+| **Case** | `Nom` | Nominative / unmarked case (omitted in `formatLong`) | *elma* (`elma:Noun+A3sg`) |
+| | `Dat` | Dative case (`-(y)A`, "to / toward") | *elmaya* (`elma:Noun+A3sg+ya:Dat`) |
+| | `Acc` | Accusative / definite object case (`-(y)I`) | *elmayı* (`elma:Noun+A3sg+yı:Acc`) |
+| | `Abl` | Ablative case (`-dAn`, "from") | *elmadan* (`elma:Noun+A3sg+dan:Abl`) |
+| | `Loc` | Locative case (`-dA`, "in / at / on") | *elmada* (`elma:Noun+A3sg+da:Loc`) |
+| | `Ins` | Instrumental / comitative case (`-(y)lA`, "with / by") | *elmayla* (`elma:Noun+A3sg+yla:Ins`) |
+| | `Gen` | Genitive case (`-(n)In`, "of") | *elmanın* (`elma:Noun+A3sg+nın:Gen`) |
+| | `Equ` | Equative case (`-cA`, "according to / like") | *bence* (`ben:Pron+A1sg+ce:Equ`) |
+| **Polarity & Copula** | `Neg` | Verbal negation (`-mA`) | *gelmedi* (`gel:Verb+me:Neg+di:Past+A3sg`) |
+| | `Unable` | Impotential / inability (`-(y)AmA`, "cannot") | *okuyamıyorum* (`oku:Verb+yama:Unable+yor:Prog1+um:A1sg`) |
+| | `Cop` | Emphatic / generalizing copula (`-dIr`) | *güzeldir* (`güzel:Adj|Zero→Verb+Pres+A3sg+dir:Cop`) |
+| **Tense / Aspect / Mood** | `Pres` | Present copula tense | *öğrenciyim* (`öğrenci:Noun+A3sg|Zero→Verb+Pres+yim:A1sg`) |
+| | `Past` | Definite / witnessed past tense (`-dI`) | *okudu* (`oku:Verb+du:Past+A3sg`) |
+| | `Narr` | Narrative / evidential past tense (`-mIş`) | *okumuş* (`oku:Verb+muş:Narr+A3sg`) |
+| | `Prog1` | Progressive / continuous tense (`-(I)yor`) | *okuyor* (`oku:Verb+yor:Prog1+A3sg`) |
+| | `Prog2` | Formal progressive tense (`-mAktA`) | *okumakta* (`oku:Verb+makta:Prog2+A3sg`) |
+| | `Aor` | Aorist / habitual tense (`-(I/A)r`, neg. `-z`) | *okur* (`oku:Verb+r:Aor+A3sg`) |
+| | `Fut` | Future tense (`-(y)AcAk`) | *okuyacak* (`oku:Verb+yacak:Fut+A3sg`) |
+| | `Cond` | Conditional mood (`-sA`, copular/secondary) | *okursa* (`oku:Verb+r:Aor+sa:Cond+A3sg`) |
+| | `Desr` | Desiderative / conditional root mood (`-sA`) | *okusa* (`oku:Verb+sa:Desr+A3sg`) |
+| | `Imp` | Imperative mood | *oku* (`oku:Verb+Imp+A2sg`), *gelsin* (`gel:Verb+Imp+sin:A3sg`) |
+| | `Opt` | Optative / voluntative mood (`-(y)A`, `-(y)AyIm`) | *okuyayım* (`oku:Verb+ya:Opt+yım:A1sg`) |
+| | `Neces` | Necessitative mood (`-mAlI`, "must / should") | *okumalı* (`oku:Verb+malı:Neces+A3sg`) |
+
+#### Derivational Morphemes
+
+| Category | Tag | Meaning / Explanation | Example Word & Analysis |
+| :--- | :--- | :--- | :--- |
+| **Nominal / Adjectival** | `Dim` | Diminutive noun (`-cIk` / `-cAğIz`) | *elmacık* (`elma:Noun+A3sg|cık:Dim→Noun+A3sg`) |
+| | `Ness` | Abstract / state / place noun (`-lIk`) | *iyilik* (`iyi:Adj|lik:Ness→Noun+A3sg`) |
+| | `With` | Proprietive adjective ("having / with", `-lI`) | *elmalı* (`elma:Noun+A3sg|lı:With→Adj`) |
+| | `Without` | Privative adjective ("without", `-sIz`) | *elmasız* (`elma:Noun+A3sg|sız:Without→Adj`) |
+| | `Related` | Relational adjective (`-sAl`) | *bilimsel* (`bilim:Noun+A3sg|sel:Related→Adj`) |
+| | `JustLike` | Similative adjective ("-ish / like", `-(I)msI`, `-sI`) | *tahtamsı* (`tahta:Noun+A3sg|msı:JustLike→Adj`) |
+| | `Rel` | Relative adjective / pronoun (`-ki`) | *evdeki* (`ev:Noun+A3sg+de:Loc|ki:Rel→Adj`) |
+| | `Agt` | Agentive / occupational noun (`-cI`) | *kitapçı* (`kitap:Noun+A3sg|çı:Agt→Noun+A3sg`) |
+| | `Become` | Inchoative verb ("become X", `-lAş`) | *taşlaştı* (`taş:Noun+A3sg|laş:Become→Verb+tı:Past+A3sg`) |
+| | `Acquire` | Acquire verb ("gain X", `-lAn`) | *evlendi* (`ev:Noun+A3sg|len:Acquire→Verb+di:Past+A3sg`) |
+| | `Ly` | Manner adverb from adjective (`-cA`) | *güzelce* (`güzel:Adj|ce:Ly→Adv`) |
+| | `Zero` | Zero-morpheme POS conversion or copula carrier | *güzeller* (`güzel:Adj|Zero→Noun+ler:A3pl`) |
+| **Verbal Voice & Modality** | `Caus` | Causative voice (`-dIr`, `-t`, `-Ir`, `-Ar`) | *okuttu* (`oku:Verb|t:Caus→Verb+tu:Past+A3sg`) |
+| | `Pass` | Passive voice (`-Il`, `-In`) | *okundu* (`oku:Verb|n:Pass→Verb+du:Past+A3sg`) |
+| | `Recip` | Reciprocal / cooperative voice (`-(I)ş`) | *bakıştılar* (`bak:Verb|ış:Recip→Verb+tı:Past+lar:A3pl`) |
+| | `Reflex` | Reflexive voice (`-(I)n`) | *kaşındı* (`kaşın:Verb...` / implicit reflexive) |
+| | `Able` | Potential / ability verb (`-(y)Abil`, "can") | *okuyabilir* (`oku:Verb|yabil:Able→Verb+ir:Aor+A3sg`) |
+| **Verbal Nouns** | `Inf1` | Full infinitive (`-mAk`) | *okumak* (`oku:Verb|mak:Inf1→Noun+A3sg`) |
+| | `Inf2` | Short infinitive / verbal noun (`-mA`) | *okuma* (`oku:Verb|ma:Inf2→Noun+A3sg`) |
+| | `Inf3` | Manner verbal noun (`-(y)Iş`) | *okuyuş* (`oku:Verb|yuş:Inf3→Noun+A3sg`) |
+| | `ActOf` | Activity / game noun (`-mAcA`) | *bulmaca* (`bul:Verb|maca:ActOf→Noun+A3sg`) |
+| | `NotState` | Negative state noun (`-mAzlIk` / `-mAmAzlIk`) | *okumazlık* (`oku:Verb|mazlık:NotState→Noun+A3sg`) |
+| **Participles** | `PresPart` | Present / subject participle (`-(y)An`) | *okuyan* (`oku:Verb|yan:PresPart→Adj`) |
+| | `PastPart` | Past / factive participle (`-dIk`) | *okuduğum* (`oku:Verb|duğ:PastPart→Noun+A3sg+um:P1sg`) |
+| | `NarrPart` | Narrative / perfect participle (`-mIş`) | *okumuş* (`oku:Verb|muş:NarrPart→Adj`) |
+| | `FutPart` | Future participle (`-(y)AcAk`) | *okuyacağım* (`oku:Verb|yacağ:FutPart→Noun+A3sg+ım:P1sg`) |
+| | `AorPart` | Aorist participle (`-(I/A)r` / `-mAz`) | *akarsu* / *okur* (`oku:Verb|r:AorPart→Adj`) |
+| | `FeelLike` | Desiderative / worthy participle (`-(y)AsI`) | *öpülesi* (`öp:Verb|ül:Pass→Verb|esi:FeelLike→Adj`) |
+| **Converbs (Adverbials)** | `While` | Temporal simultaneous converb (`-ken`, "while") | *okurken* (`oku:Verb+r:Aor|ken:While→Adv`) |
+| | `When` | Temporal sequential converb (`-(y)IncA`, "when") | *okuyunca* (`oku:Verb|yunca:When→Adv`) |
+| | `SinceDoingSo` | Elapsed-time converb (`-(y)AlI`, "since") | *okuyalı* (`oku:Verb|yalı:SinceDoingSo→Adv`) |
+| | `AsLongAs` | Proportional / durational converb (`-dIkçA`) | *okudukça* (`oku:Verb|dukça:AsLongAs→Adv`) |
+| | `ByDoingSo` | Manner converb (`-(y)ArAk`, "by doing") | *okuyarak* (`oku:Verb|yarak:ByDoingSo→Adv`) |
+| | `Adamantly` | Intensive converb (`-(y)AsIyA`, "to the point of") | *ölesiye* (`öl:Verb|esiye:Adamantly→Adv`) |
+| | `AfterDoingSo` | Consecutive converb (`-(y)Ip`, "having done / and") | *okuyup* (`oku:Verb|yup:AfterDoingSo→Adv`) |
+| | `WithoutHavingDoneSo` | Negative manner converb (`-mAdAn` / `-mAksIzIn`) | *okumadan* (`oku:Verb|madan:WithoutHavingDoneSo→Adv`) |
+| | `WithoutBeingAbleToHaveDoneSo` | Negative potential converb (`-(y)AmAdAn`) | *okuyamadan* (`oku:Verb|yamadan:WithoutBeingAbleToHaveDoneSo→Adv`) |
+| | `AsIf` | Equative / similative converb (`-cAsInA`, "as if") | *uçarcasına* (`uç:Verb+ar:Aor|casına:AsIf→Adv`) |
+| **Compound Aspectual** | `Hastily` | Swift / sudden action (`-(y)Iver`) | *okuyuverdi* (`oku:Verb|yuver:Hastily→Verb+di:Past+A3sg`) |
+| | `EverSince` | Continuative / tradition (`-(y)Agel`) | *süregeldi* (`sür:Verb|egel:EverSince→Verb+di:Past+A3sg`) |
+| | `Repeat` | Durative / persistence (`-(y)Adur`, `-(y)Agör`) | *okuyadur* (`oku:Verb|yadur:Repeat→Verb+Imp+A2sg`) |
+| | `Almost` | Approximative / near-event (`-(y)Ayaz`, "almost") | *düşeyazdı* (`düş:Verb|eyaz:Almost→Verb+dı:Past+A3sg`) |
+| | `Stay` | Frozen / prolonged state (`-(y)Akal`) | *bakakaldı* (`bak:Verb|akal:Stay→Verb+dı:Past+A3sg`) |
+| | `Start` | Inceptive / go-ahead action (`-(y)Akoy`) | *gidikoy* / *okuyakoy* (`oku:Verb|yakoy:Start→Verb+Imp+A2sg`) |
+
+For additional background on Oflazer-style Turkish morphological tagsets, see [Chapter 7 of Oflazer et al.](https://research.sabanciuniv.edu/id/eprint/8521/1/3021800000064.pdf).
 
 ### Stemming and Lemmatization Example
 
