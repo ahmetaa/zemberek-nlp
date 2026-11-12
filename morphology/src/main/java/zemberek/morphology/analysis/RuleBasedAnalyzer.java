@@ -3,12 +3,17 @@ package zemberek.morphology.analysis;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import zemberek.core.collections.IntValueMap;
 import zemberek.core.turkish.PhoneticAttribute;
+import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.RootAttribute;
+import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analysis.AnalysisDebugData.RejectedTransition;
 import zemberek.morphology.analysis.SurfaceTransition.SuffixTemplateToken;
 import zemberek.morphology.analysis.SurfaceTransition.TemplateTokenType;
+import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.morphotactics.AttributeSet;
 import zemberek.morphology.morphotactics.CombinedCondition;
@@ -92,11 +97,26 @@ public class RuleBasedAnalyzer {
   }
 
   public List<SingleAnalysis> analyze(String input) {
+    var searchInput = TurkishAlphabet.INSTANCE.normalizeCircumflex(input);
+    return analyze(input, searchInput, searchInput != input);
+  }
+
+  public List<SingleAnalysis> analyze(
+      String input, String searchInput, boolean hasCircumflex) {
     if (debugMode) {
       debugData = new AnalysisDebugData();
     }
+
     // get stem candidates.
-    List<StemTransition> candidates = stemTransitions.getPrefixMatches(input, asciiTolerant);
+    List<StemTransition> candidates = stemTransitions.getPrefixMatches(searchInput, asciiTolerant);
+    boolean checkCircumflex = hasCircumflex && !asciiTolerant;
+    if (checkCircumflex) {
+      var rawCandidates = stemTransitions.getPrefixMatches(input, false);
+      if (!rawCandidates.isEmpty()) {
+        candidates = new ArrayList<>(candidates);
+        candidates.addAll(rawCandidates);
+      }
+    }
 
     if (debugMode) {
       debugData.input = input;
@@ -107,7 +127,7 @@ public class RuleBasedAnalyzer {
     List<SearchPath> paths = new ArrayList<>(candidates.size());
     for (StemTransition candidate : candidates) {
       int length = candidate.surface.length();
-      String tail = input.substring(length);
+      String tail = searchInput.substring(length);
       paths.add(SearchPath.initialPath(candidate, tail));
     }
 
@@ -117,6 +137,9 @@ public class RuleBasedAnalyzer {
     // generate results from successful paths.
     List<SingleAnalysis> result = new ArrayList<>(resultPaths.size());
     for (SearchPath path : resultPaths) {
+      if (checkCircumflex && !matchesCircumflex(path, input)) {
+        continue;
+      }
       SingleAnalysis analysis = SingleAnalysis.fromSearchPath(path);
       result.add(analysis);
       if (debugMode) {
@@ -124,6 +147,48 @@ public class RuleBasedAnalyzer {
       }
     }
     return result;
+  }
+
+  private static boolean matchesCircumflex(SearchPath path, String inputWithCircumflex) {
+    int stemLen = path.getStemTransition().surface.length();
+    String lemmaStem = null;
+    for (int i = 0; i < inputWithCircumflex.length(); i++) {
+      char c = inputWithCircumflex.charAt(i);
+      if (TurkishAlphabet.INSTANCE.normalizeCircumflex(c) == c) {
+        continue;
+      }
+      // Suffixes do not carry circumflexes; reject if input circumflex falls on a suffix character.
+      if (i >= stemLen) {
+        return false;
+      }
+      if (lemmaStem == null) {
+        var item = path.getDictionaryItem();
+        if (item.hasAttribute(RootAttribute.Dummy)) {
+          item = item.getReferenceItem();
+        }
+        lemmaStem = normalizedLemmaPreservingCircumflex(item);
+      }
+      if (i >= lemmaStem.length() || lemmaStem.charAt(i) != c) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static String normalizedLemmaPreservingCircumflex(DictionaryItem item) {
+    if (item.primaryPos == PrimaryPos.Punctuation) {
+      return item.lemma;
+    }
+    Locale locale = item.hasAttribute(RootAttribute.LocaleEn) ? Locale.ENGLISH : Turkish.LOCALE;
+    String w = TurkishAlphabet.INSTANCE.normalizeApostrophe(item.normalizedLemma().toLowerCase(locale));
+    StringBuilder sb = new StringBuilder(w.length());
+    for (int i = 0; i < w.length(); i++) {
+      char ch = w.charAt(i);
+      if (ch != '.' && ch != '-' && ch != '\'') {
+        sb.append(ch);
+      }
+    }
+    return sb.toString();
   }
 
   // searches through morphotactics graph.

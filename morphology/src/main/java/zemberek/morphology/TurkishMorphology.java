@@ -164,9 +164,12 @@ public class TurkishMorphology {
   }
 
   public static String normalizeForAnalysis(String word) {
+    return TurkishAlphabet.INSTANCE.normalizeCircumflex(normalizePreservingCircumflex(word));
+  }
+
+  private static String normalizePreservingCircumflex(String word) {
     // TODO: This may cause problems for some foreign words with letter I.
     String s = word.toLowerCase(Turkish.LOCALE);
-    s = TurkishAlphabet.INSTANCE.normalizeCircumflex(s);
     String noDot = s.replace(".", "");
     if (noDot.length() == 0) {
       noDot = s;
@@ -176,20 +179,26 @@ public class TurkishMorphology {
 
   private WordAnalysis analyzeWithoutCache(Token token) {
 
-    String word = token.getText();
-    String s = normalizeForAnalysis(word);
-
-    if (s.length() == 0) {
+    var word = token.getText();
+    var rawNormalized = normalizePreservingCircumflex(word);
+    if (rawNormalized.isEmpty()) {
       return WordAnalysis.EMPTY_INPUT_RESULT;
     }
 
+    // normalizeCircumflex returns the exact same String reference when no circumflex is present.
+    var s = TurkishAlphabet.INSTANCE.normalizeCircumflex(rawNormalized);
+    boolean hasCircumflex = s != rawNormalized;
+
     List<SingleAnalysis> result;
 
-    if (TurkishAlphabet.INSTANCE.containsApostrophe(s)) {
-      s = TurkishAlphabet.INSTANCE.normalizeApostrophe(s);
-      result = s.length() > 1 ? analyzeWordsWithApostrophe(s) : analyzer.analyze(s);
+    if (TurkishAlphabet.INSTANCE.containsApostrophe(rawNormalized)) {
+      rawNormalized = TurkishAlphabet.INSTANCE.normalizeApostrophe(rawNormalized);
+      s = hasCircumflex ? TurkishAlphabet.INSTANCE.normalizeApostrophe(s) : rawNormalized;
+      result = rawNormalized.length() > 1
+          ? analyzeWordsWithApostrophe(rawNormalized)
+          : analyzer.analyze(rawNormalized, s, hasCircumflex);
     } else {
-      result = analyzer.analyze(s);
+      result = analyzer.analyze(rawNormalized, s, hasCircumflex);
     }
 
     if (result.size() == 0 && useUnidentifiedTokenAnalyzer) {
@@ -227,7 +236,8 @@ public class TurkishMorphology {
         word.substring(0, index),
         word.substring(index + 1));
 
-    String stem = TurkishAlphabet.INSTANCE.normalize(se.stem.replace("'", ""));
+    String stem = TurkishAlphabet.INSTANCE.normalizeCircumflex(
+        TurkishAlphabet.INSTANCE.normalize(se.stem.replace("'", "")));
 
     String withoutQuote = word.replace("'", "");
 
