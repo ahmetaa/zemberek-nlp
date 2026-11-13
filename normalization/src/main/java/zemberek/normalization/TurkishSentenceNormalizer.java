@@ -59,6 +59,7 @@ public class TurkishSentenceNormalizer {
   private ArrayListMultimap<String, String> lookupManual;
   private TurkishMorphology informalAsciiTolerantMorphology;
   private InformalAnalysisConverter analysisConverter;
+  private final InformalContractionExpander contractionExpander;
 
   private Map<String, String> commonSplits = new HashMap<>();
   private Map<String, String> replacements = new HashMap<>();
@@ -104,6 +105,8 @@ public class TurkishSentenceNormalizer {
     this.latticeDeasciifier =
         LatticeDeasciifier.createWithDefaults(
             this.morphology, this.informalAsciiTolerantMorphology);
+    this.contractionExpander = new InformalContractionExpander(
+        morphology, informalAsciiTolerantMorphology, analysisConverter);
 
     List<String> splitLines = Files.readAllLines(dataRoot.resolve("split"), Charsets.UTF_8);
     for (String splitLine : splitLines) {
@@ -634,8 +637,12 @@ public class TurkishSentenceNormalizer {
       return false;
     }
     int turkishSpecCount = 0;
+    int letterCount = 0;
     for (int i = 0; i < sentence.length(); i++) {
       char c = sentence.charAt(i);
+      if (Character.isLetter(c)) {
+        letterCount++;
+      }
       if (c == 'I') {
         continue;
       }
@@ -643,8 +650,11 @@ public class TurkishSentenceNormalizer {
         turkishSpecCount++;
       }
     }
-    double ratio = turkishSpecCount * 1d / sentence.length();
-    return ratio < 0.1;
+    if (letterCount == 0) {
+      return false;
+    }
+    double ratio = turkishSpecCount * 1d / letterCount;
+    return ratio < 0.05;
   }
 
   String combineNecessaryWords(List<Token> tokens) {
@@ -717,10 +727,17 @@ public class TurkishSentenceNormalizer {
   }
 
   String replaceCommon(List<Token> tokens) {
-    List<String> result = new ArrayList<>();
+    List<String> result = new ArrayList<>(tokens.size());
     for (Token token : tokens) {
       String text = token.getText();
-      result.add(replacements.getOrDefault(text, text));
+      String replacement = replacements.get(text);
+      if (replacement != null) {
+        result.add(replacement);
+      } else if (isWord(token)) {
+        result.add(contractionExpander.expandWord(text));
+      } else {
+        result.add(text);
+      }
     }
     return String.join(" ", result);
   }
