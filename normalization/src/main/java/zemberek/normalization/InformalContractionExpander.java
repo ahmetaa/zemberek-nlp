@@ -17,17 +17,7 @@ import zemberek.morphology.generator.WordGenerator.Result;
  */
 final class InformalContractionExpander {
 
-  private static final class PrefixRule {
-    final String sourcePrefix;
-    final String targetPrefix;
-    final String expectedLemma;
-
-    PrefixRule(String sourcePrefix, String targetPrefix, String expectedLemma) {
-      this.sourcePrefix = sourcePrefix;
-      this.targetPrefix = targetPrefix;
-      this.expectedLemma = expectedLemma;
-    }
-  }
+  private record PrefixRule(String sourcePrefix, String targetPrefix, String expectedLemma) {}
 
   // Ordered longest-prefix-first so -dan/-da prefixes do not shadow one another.
   private static final PrefixRule[] STEM_CONTRACTION_RULES = {
@@ -77,37 +67,36 @@ final class InformalContractionExpander {
       }
     }
 
-    if (!hasNonExtRegularAnalysisExcept(word, null)) {
-      String verbExpansion = expandNeVerbContraction(word);
-      if (verbExpansion != null) {
-        return verbExpansion;
-      }
-    }
-
-    return word;
+    String verbExpansion = expandNeVerbContraction(word);
+    return verbExpansion != null ? verbExpansion : word;
   }
 
   private String expandNeVerbContraction(String word) {
     if (word.length() < 5 || "nolu".equals(word)) {
       return null;
     }
+    String candidate;
+    String lemma;
     if (word.startsWith("nap")) {
-      String realized = realizeSingleWord("yap" + word.substring(3), "yapmak");
-      return realized != null ? "ne " + realized : null;
+      candidate = "yap" + word.substring(3);
+      lemma = "yapmak";
+    } else if (word.startsWith("n'ap") && word.length() >= 6) {
+      candidate = "yap" + word.substring(4);
+      lemma = "yapmak";
+    } else if (word.startsWith("nol")) {
+      candidate = "ol" + word.substring(3);
+      lemma = "olmak";
+    } else if (word.startsWith("n'ol") && word.length() >= 6) {
+      candidate = "ol" + word.substring(4);
+      lemma = "olmak";
+    } else {
+      return null;
     }
-    if (word.startsWith("n'ap") && word.length() >= 6) {
-      String realized = realizeSingleWord("yap" + word.substring(4), "yapmak");
-      return realized != null ? "ne " + realized : null;
+    if (hasNonExtRegularAnalysisExcept(word, null)) {
+      return null;
     }
-    if (word.startsWith("nol")) {
-      String realized = realizeSingleWord("ol" + word.substring(3), "olmak");
-      return realized != null ? "ne " + realized : null;
-    }
-    if (word.startsWith("n'ol") && word.length() >= 6) {
-      String realized = realizeSingleWord("ol" + word.substring(4), "olmak");
-      return realized != null ? "ne " + realized : null;
-    }
-    return null;
+    String realized = realizeSingleWord(candidate, lemma);
+    return realized != null ? "ne " + realized : null;
   }
 
   private boolean hasNonExtRegularAnalysisExcept(String word, String allowedColloquialLemma) {
@@ -180,12 +169,12 @@ final class InformalContractionExpander {
   }
 
   private static int diacriticMismatchCount(String a, String b) {
-    if (a.length() != b.length()) {
-      return Math.abs(a.length() - b.length()) + 10;
-    }
+    int limit = Math.min(a.length(), b.length());
     int diffs = 0;
-    for (int i = 0; i < a.length(); i++) {
-      if (a.charAt(i) != b.charAt(i)) {
+    for (int i = 0; i < limit; i++) {
+      char ca = a.charAt(i);
+      char cb = b.charAt(i);
+      if (ca != cb && TurkishAlphabet.INSTANCE.isAsciiEqual(ca, cb)) {
         diffs++;
       }
     }

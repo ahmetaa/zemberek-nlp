@@ -14,7 +14,8 @@ import java.util.regex.Pattern;
  */
 public final class ElongationNormalizer {
 
-  private static final Pattern ROMAN_NUMERAL_PATTERN = Pattern.compile("^[ivxlcdm]+$");
+  private static final Pattern ROMAN_NUMERAL_PATTERN =
+      Pattern.compile("^(?!$)m{0,3}(?:cm|cd|d?c{0,3})(?:xc|xl|l?x{0,3})(?:ix|iv|v?i{0,3})$");
   private static final int MAX_VARIABLE_RUNS = 4;
 
   private final Predicate<String> isValidWord;
@@ -27,26 +28,18 @@ public final class ElongationNormalizer {
     this.unigramScorer = Objects.requireNonNull(unigramScorer, "unigramScorer");
   }
 
-  private static final class CharRun {
-
-    final char ch;
-    final int count;
-    final boolean letter;
-
-    CharRun(char ch, int count, boolean letter) {
-      this.ch = ch;
-      this.count = count;
-      this.letter = letter;
-    }
-  }
+  private record CharRun(char ch, int count, boolean letter) {}
 
   /**
    * Returns an elongation-normalized version of {@code word}, or {@code word} unchanged if it is
    * already valid or has no reducible elongation.
    */
   public String normalizeWord(String word) {
-    if (word == null || word.length() < 3 || isValidWord.test(word)
-        || ROMAN_NUMERAL_PATTERN.matcher(word).matches()) {
+    if (word == null
+        || word.length() < 3
+        || !hasReducibleLetterRun(word)
+        || ROMAN_NUMERAL_PATTERN.matcher(word).matches()
+        || isValidWord.test(word)) {
       return word;
     }
 
@@ -157,6 +150,23 @@ public final class ElongationNormalizer {
       collectCandidates(runs, index + 1, searchRun, forceOne, prefix, out);
       prefix.setLength(savedLen);
     }
+  }
+
+  private static boolean hasReducibleLetterRun(String word) {
+    int len = word.length();
+    int run = 1;
+    for (int i = 1; i < len; i++) {
+      char ch = word.charAt(i);
+      if (ch == word.charAt(i - 1) && Character.isLetter(ch)) {
+        run++;
+        if (run >= 3 || i == len - 1) {
+          return true;
+        }
+      } else {
+        run = 1;
+      }
+    }
+    return false;
   }
 
   private static List<CharRun> splitRuns(String word) {

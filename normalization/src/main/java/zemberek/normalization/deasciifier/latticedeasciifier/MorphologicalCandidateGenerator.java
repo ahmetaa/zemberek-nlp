@@ -78,15 +78,14 @@ public final class MorphologicalCandidateGenerator {
   private final WordGenerator informalGenerator;
 
   /**
-   * Creates a self-contained generator with a small internal cache ({@code 1,024} entries, static
-   * cache disabled) and no ambiguity-resolver overhead.
+   * Creates a self-contained generator with a small internal cache ({@code 1,024} entries) and no
+   * ambiguity-resolver overhead.
    */
   public MorphologicalCandidateGenerator() {
     RootLexicon lexicon = RootLexicon.getDefault();
     AnalysisCache strictCache =
         AnalysisCache.builder()
             .dynamicCacheSize(256, INTERNAL_STRICT_CACHE_MAX)
-            .disableStaticCache()
             .build();
     this.strictMorphology =
         TurkishMorphology.builder()

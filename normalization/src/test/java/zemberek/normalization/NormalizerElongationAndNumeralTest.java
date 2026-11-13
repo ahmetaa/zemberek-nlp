@@ -31,7 +31,6 @@ public class NormalizerElongationAndNumeralTest {
     Files.createDirectories(dataRoot);
     Files.write(
         dataRoot.resolve("lookup-from-graph"), Collections.emptyList(), StandardCharsets.UTF_8);
-    Files.write(dataRoot.resolve("ascii-map"), Collections.emptyList(), StandardCharsets.UTF_8);
     Files.write(dataRoot.resolve("split"), Collections.emptyList(), StandardCharsets.UTF_8);
 
     Path arpaPath = tempDir.resolve("bigram.arpa");
@@ -89,6 +88,7 @@ public class NormalizerElongationAndNumeralTest {
             "ikinci [P:Num,Ord]",
             "üç [P:Num]",
             "dört [P:Num; A:Voicing]",
+            "dördüncü [P:Num,Ord]",
             "beş [P:Num]",
             "beşinci [P:Num,Ord]",
             "yedi [P:Num]",
@@ -102,6 +102,9 @@ public class NormalizerElongationAndNumeralTest {
             "ya [P:Conj]",
             "yaa [P:Interj]",
             "evet [P:Interj]",
+            "ciddi [P:Adj]",
+            "dil",
+            "mi [P:Ques]",
             "gelmek",
             "ile [P:Postp]",
             "ve [P:Conj]",
@@ -124,22 +127,32 @@ public class NormalizerElongationAndNumeralTest {
   }
 
   @Test
-  public void normalizesElongationsWhilePreservingGeminates() {
+  public void normalizesElongationsWhilePreservingGeminatesAndRomanNumerals() {
     Assert.assertEquals("çok güzel", normalizer.preProcess("çooook güzellll"));
     Assert.assertEquals("saat", normalizer.preProcess("saatttt"));
     Assert.assertEquals("affetti", normalizer.preProcess("affetttti"));
     Assert.assertEquals("ya", normalizer.preProcess("yaaaa"));
     Assert.assertEquals("evet", normalizer.preProcess("evett"));
+    // Words made of {c, d, i, l, m, v} must not be misclassified as Roman numerals.
+    Assert.assertEquals("ciddi", normalizer.preProcess("ciddiiii"));
+    Assert.assertEquals("dil", normalizer.preProcess("diiiiil"));
+    Assert.assertEquals("mi", normalizer.preProcess("miiii"));
+    // Genuine Roman numerals remain intact.
     Assert.assertEquals("iii", normalizer.preProcess("iii"));
+    Assert.assertEquals("xxiii", normalizer.preProcess("xxiii"));
   }
 
   @Test
-  public void attachesDetachedNumeralSuffixesSafely() {
+  public void attachesAndRepairsNumeralSuffixesSafely() {
     Assert.assertEquals("saat 3'te", normalizer.preProcess("saat 3 de"));
     Assert.assertEquals("2007'den", normalizer.preProcess("2007 den"));
     Assert.assertEquals("4'ten", normalizer.preProcess("4 den"));
     Assert.assertEquals("5'inci", normalizer.preProcess("5 inci"));
     Assert.assertEquals("2'nci", normalizer.preProcess("2 inci"));
+    Assert.assertEquals("4'üncü", normalizer.preProcess("4 ncü"));
+    Assert.assertEquals("4'üncü", normalizer.preProcess("4'ncü"));
+    Assert.assertEquals("2'nci", normalizer.preProcess("2'inci"));
+    Assert.assertEquals("4'te", normalizer.preProcess("4'de"));
   }
 
   @Test

@@ -28,7 +28,6 @@ public class InformalContractionAndDeasciifierGateTest {
     Files.createDirectories(dataRoot);
     Files.write(
         dataRoot.resolve("lookup-from-graph"), Collections.emptyList(), StandardCharsets.UTF_8);
-    Files.write(dataRoot.resolve("ascii-map"), Collections.emptyList(), StandardCharsets.UTF_8);
     Files.write(dataRoot.resolve("split"), Collections.emptyList(), StandardCharsets.UTF_8);
 
     Path arpaPath = tempDir.resolve("bigram.arpa");
@@ -152,5 +151,7 @@ public class InformalContractionAndDeasciifierGateTest {
             "2024 yılında 123, 456, 789 sayıları geldi!"));
     // Pure digits/symbols require no deasciification.
     Assert.assertFalse(TurkishSentenceNormalizer.probablyRequiresDeasciifier("12345 !!!"));
+    // Punctuated ASCII sentences normalize cleanly in preProcess.
+    Assert.assertEquals("şurada değil .", normalizer.preProcess("Surada degil."));
   }
 }

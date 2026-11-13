@@ -531,24 +531,49 @@ public class TurkishSentenceNormalizer {
     }
     sentence = sentence.toLowerCase(Turkish.LOCALE);
     List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
+    String initial = joinTokens(tokens);
+    String prev = initial;
     String s = replaceCommon(tokens);
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
+    tokens = reTokenizeIfChanged(prev, s, tokens);
+    prev = s;
     s = normalizeElongations(tokens);
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
+    tokens = reTokenizeIfChanged(prev, s, tokens);
+    prev = s;
     s = combineNecessaryWords(tokens);
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
+    String afterFirstCombine = s;
+    tokens = reTokenizeIfChanged(prev, s, tokens);
+    prev = s;
     s = splitNecessaryWords(tokens, false);
     if (requiresDeasciifier) {
       if (latticeDeasciifier == null) {
         s = deasciifyValidWords(s, preserveValidWords);
-      } else if (!s.equals(sentence)) {
+      } else if (!s.equals(initial)) {
         s = latticeDeasciifier.deasciifyKnownWords(s);
       }
     }
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    s = combineNecessaryWords(tokens);
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
+    tokens = reTokenizeIfChanged(prev, s, tokens);
+    if (!s.equals(afterFirstCombine)) {
+      prev = s;
+      s = combineNecessaryWords(tokens);
+      tokens = reTokenizeIfChanged(prev, s, tokens);
+    }
     return splitNecessaryWords(tokens, true);
+  }
+
+  private static String joinTokens(List<Token> tokens) {
+    if (tokens.isEmpty()) {
+      return "";
+    }
+    StringBuilder sb = new StringBuilder(tokens.size() * 6);
+    sb.append(tokens.get(0).getText());
+    for (int i = 1; i < tokens.size(); i++) {
+      sb.append(' ').append(tokens.get(i).getText());
+    }
+    return sb.toString();
+  }
+
+  private static List<Token> reTokenizeIfChanged(String prev, String next, List<Token> current) {
+    return next.equals(prev) ? current : TurkishTokenizer.DEFAULT.tokenize(next);
   }
 
   String deasciifyValidWords(String s) {
@@ -766,9 +791,32 @@ public class TurkishSentenceNormalizer {
     boolean allowed = UNAMBIGUOUS_NUMERAL_SUFFIXES.contains(suffix)
         || (NUMERAL_LOCATIVE_SUFFIXES.contains(suffix)
             && NUMERAL_LOCATIVE_ANCHORS.contains(prevWord));
-    if (!allowed) {
-      return "";
+    return allowed ? resolveNumeralSuffix(number, suffix) : "";
+  }
+
+  private String normalizeInflectedNumeral(String text) {
+    int apo = text.indexOf('\'');
+    if (apo < 0) {
+      apo = text.indexOf('’');
     }
+    if (apo <= 0 || apo == text.length() - 1) {
+      return text;
+    }
+    String number = text.substring(0, apo);
+    String suffix = text.substring(apo + 1);
+    if (!ASCII_DIGITS_PATTERN.matcher(number).matches()
+        || (!UNAMBIGUOUS_NUMERAL_SUFFIXES.contains(suffix)
+            && !NUMERAL_LOCATIVE_SUFFIXES.contains(suffix))) {
+      return text;
+    }
+    if (!tryNumeralAnalysis(number + "'" + suffix).isEmpty()) {
+      return text;
+    }
+    String resolved = resolveNumeralSuffix(number, suffix);
+    return resolved.isEmpty() ? text : resolved;
+  }
+
+  private String resolveNumeralSuffix(String number, String suffix) {
     String result = tryNumeralAnalysis(number + "'" + suffix);
     if (!result.isEmpty()) {
       return result;
@@ -783,12 +831,15 @@ public class TurkishSentenceNormalizer {
     }
     if ("inci".equals(suffix) || "ıncı".equals(suffix)
         || "uncu".equals(suffix) || "üncü".equals(suffix)) {
-      result = tryNumeralAnalysis(number + "'" + suffix.substring(1));
-      if (!result.isEmpty()) {
-        return result;
-      }
+      return tryNumeralAnalysis(number + "'" + suffix.substring(1));
     }
-    return "";
+    return switch (suffix) {
+      case "nci" -> tryNumeralAnalysis(number + "'inci");
+      case "ncı" -> tryNumeralAnalysis(number + "'ıncı");
+      case "ncu" -> tryNumeralAnalysis(number + "'uncu");
+      case "ncü" -> tryNumeralAnalysis(number + "'üncü");
+      default -> "";
+    };
   }
 
   private String tryNumeralAnalysis(String candidate) {
@@ -885,6 +936,8 @@ public class TurkishSentenceNormalizer {
         result.add(replacement);
       } else if (isWord(token)) {
         result.add(contractionExpander.expandWord(text));
+      } else if (token.getType() == Type.Number) {
+        result.add(normalizeInflectedNumeral(text));
       } else {
         result.add(text);
       }
