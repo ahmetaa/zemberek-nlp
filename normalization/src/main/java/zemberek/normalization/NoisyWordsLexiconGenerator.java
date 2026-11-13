@@ -364,17 +364,23 @@ public class NoisyWordsLexiconGenerator {
               }
             }
 
-            // calculate contextual similarity probabilities.
-            float totalAverageHittingTime = 0;
+            // Calculate contextual similarity probabilities via normalized inverse average hitting
+            // time (Hassan & Menezes, 2013). Closer nodes (lower hitting time) get higher scores,
+            // and a single-candidate hit receives 1.0 without dividing by zero.
+            double totalInverseHittingTime = 0;
             for (WalkScore score : scores.values()) {
-              totalAverageHittingTime += score.getAverageHittingTime();
+              float avg = score.getAverageHittingTime();
+              if (avg > 0) {
+                totalInverseHittingTime += 1.0 / avg;
+              }
             }
 
-            for (String s : scores.keySet()) {
-              WalkScore score = scores.get(s);
+            for (WalkScore score : scores.values()) {
+              float avg = score.getAverageHittingTime();
               score.contextualSimilarity =
-                  score.getAverageHittingTime() /
-                      (totalAverageHittingTime - score.getAverageHittingTime());
+                  (avg > 0 && totalInverseHittingTime > 0)
+                      ? (float) ((1.0 / avg) / totalInverseHittingTime)
+                      : 0f;
             }
 
             // calculate lexical similarity cost. This is slow for now.
@@ -423,12 +429,12 @@ public class NoisyWordsLexiconGenerator {
      * to the occurrence counts attached to the edges.
      */
     int selectFromDistribution(RandomWalkNode node) {
-      int dice = rnd.nextInt(node.totalCounts + 1);
+      int dice = rnd.nextInt(node.totalCounts);
       int accumulator = 0;
       int[] keysCounts = node.keysCounts;
       for (int i = 0; i < keysCounts.length; i += 2) {
         accumulator += keysCounts[i + 1];
-        if (accumulator >= dice) {
+        if (accumulator > dice) {
           return keysCounts[i];
         }
       }
@@ -709,8 +715,6 @@ public class NoisyWordsLexiconGenerator {
                 // update context -> word counts
                 IntIntMap wordCounts = localContextCounts.get(hash);
                 if (wordCounts != null) {
-                  wordCounts = new IntIntMap(1);
-                  localContextCounts.put(hash, wordCounts);
                   wordCounts.increment(wordIndex, 1);
                 } else {
                   localSingletons.put(hash, wordIndex);
