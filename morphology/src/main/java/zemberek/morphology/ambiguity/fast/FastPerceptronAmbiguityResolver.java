@@ -42,6 +42,22 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
   public static final DecodeMode DEFAULT_MODE = DecodeMode.VITERBI;
   public static final int DEFAULT_BEAM_SIZE = 8;
+  public static final String DEFAULT_MODEL_RESOURCE = "/tr/ambiguity/model_10k_argon_v24.bin";
+
+  private static final class DefaultModelHolder {
+    static final WeightLookup INSTANCE = loadDefaultModel();
+
+    private static WeightLookup loadDefaultModel() {
+      try {
+        return loadLookupFromResource(DEFAULT_MODEL_RESOURCE);
+      } catch (IOException e) {
+        throw new RuntimeException(
+            "Cannot initialize FastPerceptronAmbiguityResolver from resource "
+                + DEFAULT_MODEL_RESOURCE,
+            e);
+      }
+    }
+  }
 
   private final FastDecoder decoder;
 
@@ -55,6 +71,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     this(model, new FastFeatureExtractor(false));
   }
 
+  public static FastPerceptronAmbiguityResolver createDefault() {
+    return new FastPerceptronAmbiguityResolver(DefaultModelHolder.INSTANCE);
+  }
+
   public static FastPerceptronAmbiguityResolver fromModelFile(Path modelFile) throws IOException {
     WeightLookup weights = CompressedWeights.isCompressed(modelFile)
         ? CompressedWeights.deserialize(modelFile)
@@ -62,14 +82,17 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     return new FastPerceptronAmbiguityResolver(weights);
   }
 
+  private static WeightLookup loadLookupFromResource(String resourcePath) throws IOException {
+    return CompressedWeights.isCompressed(resourcePath)
+        ? CompressedWeights.deserialize(resourcePath)
+        : Weights.loadFromResource(resourcePath);
+  }
+
   public static FastPerceptronAmbiguityResolver fromResource(String resourcePath) throws IOException {
-    WeightLookup lookup;
-    if (CompressedWeights.isCompressed(resourcePath)) {
-      lookup = CompressedWeights.deserialize(resourcePath);
-    } else {
-      lookup = Weights.loadFromResource(resourcePath);
+    if (DEFAULT_MODEL_RESOURCE.equals(resourcePath)) {
+      return createDefault();
     }
-    return new FastPerceptronAmbiguityResolver(lookup);
+    return new FastPerceptronAmbiguityResolver(loadLookupFromResource(resourcePath));
   }
 
   public WeightLookup getModel() {
@@ -559,8 +582,9 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     private static final int L1_SCORED_SIZE = 1 << 15; // 32,768 slots
     private static final int L1_SCORED_MASK = L1_SCORED_SIZE - 1;
     private static final int MAX_SCORED_ENTRIES = 32_768;
-    private static final int TRANSITION_CACHE_BITS = 18;
-    private static final int TRANSITION_CACHE_SIZE = 1 << TRANSITION_CACHE_BITS; // 262,144 slots (12 MB total)
+    // 65,536 slots -> 512 KB long[] and 256 KB float[] arrays (~3 MB total per thread, below G1GC humongous threshold).
+    private static final int TRANSITION_CACHE_BITS = 16;
+    private static final int TRANSITION_CACHE_SIZE = 1 << TRANSITION_CACHE_BITS;
     private static final int TRANSITION_CACHE_MASK = TRANSITION_CACHE_SIZE - 1;
     private static final int TRANSITION_HASH_SHIFT = 64 - TRANSITION_CACHE_BITS;
 
@@ -606,7 +630,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         this.properWeight = model.get("P:PROPER");
         this.lowerProperWeight = model.get("P:LOWER_PROPER");
         this.endsVerbWeight = model.get("P:ENDSVERB");
-        this.scoredMap = new ConcurrentHashMap<>(32_768);
+        this.scoredMap = new ConcurrentHashMap<>(2_048);
         this.ownerThread = Thread.currentThread();
         this.mainCache = new DecoderCache();
         this.localCache = ThreadLocal.withInitial(DecoderCache::new);

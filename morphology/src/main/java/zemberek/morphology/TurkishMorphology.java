@@ -1,7 +1,6 @@
 package zemberek.morphology;
 
 import com.google.common.base.Stopwatch;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +41,7 @@ public class TurkishMorphology {
   private TurkishTokenizer tokenizer;
   private AnalysisCache cache;
   private TurkishMorphotactics morphotactics;
-  private AmbiguityResolver ambiguityResolver;
+  private volatile AmbiguityResolver ambiguityResolver;
 
   private boolean useUnidentifiedTokenAnalyzer;
   private boolean useCache;
@@ -75,22 +74,20 @@ public class TurkishMorphology {
     this.useCache = builder.useDynamicCache;
     this.useUnidentifiedTokenAnalyzer = builder.useUnidentifiedTokenAnalyzer;
 
-    if (builder.ambiguityResolver == null) {
-      String resourcePath = "/tr/ambiguity/model_10k_argon_v24.bin";
-      try {
-        this.ambiguityResolver =
-            FastPerceptronAmbiguityResolver.fromResource(resourcePath);
-      } catch (IOException e) {
-        throw new RuntimeException(
-            "Cannot initialize FastPerceptronAmbiguityResolver from resource " + resourcePath, e);
-      }
-    } else {
-      this.ambiguityResolver = builder.ambiguityResolver;
-    }
+    this.ambiguityResolver = builder.ambiguityResolver;
   }
 
   public AmbiguityResolver getAmbiguityResolver() {
-    return ambiguityResolver;
+    AmbiguityResolver resolver = this.ambiguityResolver;
+    if (resolver == null) {
+      synchronized (this) {
+        resolver = this.ambiguityResolver;
+        if (resolver == null) {
+          this.ambiguityResolver = resolver = FastPerceptronAmbiguityResolver.createDefault();
+        }
+      }
+    }
+    return resolver;
   }
 
   public RuleBasedAnalyzer getAnalyzer() {
@@ -265,7 +262,7 @@ public class TurkishMorphology {
   }
 
   public SentenceAnalysis disambiguate(String sentence, List<WordAnalysis> sentenceAnalysis) {
-    return ambiguityResolver.disambiguate(sentence, sentenceAnalysis);
+    return getAmbiguityResolver().disambiguate(sentence, sentenceAnalysis);
   }
 
   /**
