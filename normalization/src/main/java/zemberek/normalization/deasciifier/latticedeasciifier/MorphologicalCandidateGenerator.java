@@ -72,7 +72,6 @@ public final class MorphologicalCandidateGenerator {
   };
 
   private final TurkishMorphology strictMorphology;
-  private final RuleBasedAnalyzer strictInformalFallback;
   private final RuleBasedAnalyzer asciiInformalAnalyzer;
   private final WordGenerator formalGenerator;
   private final WordGenerator informalGenerator;
@@ -97,7 +96,6 @@ public final class MorphologicalCandidateGenerator {
             .setAmbiguityResolver(NOOP_AMBIGUITY_RESOLVER)
             .build();
     TurkishMorphotactics sharedInformal = this.strictMorphology.getMorphotactics();
-    this.strictInformalFallback = null;
     this.asciiInformalAnalyzer = RuleBasedAnalyzer.ignoreDiacriticsInstance(sharedInformal);
     this.formalGenerator = this.strictMorphology.getWordGenerator();
     this.informalGenerator = this.formalGenerator;
@@ -113,13 +111,11 @@ public final class MorphologicalCandidateGenerator {
     this.formalGenerator = injectedMorphology.getWordGenerator();
     TurkishMorphotactics tactics = injectedMorphology.getMorphotactics();
     if (tactics instanceof InformalTurkishMorphotactics) {
-      this.strictInformalFallback = null;
       this.asciiInformalAnalyzer = RuleBasedAnalyzer.ignoreDiacriticsInstance(tactics);
       this.informalGenerator = this.formalGenerator;
     } else {
       InformalTurkishMorphotactics informalTactics =
           new InformalTurkishMorphotactics(injectedMorphology.getLexicon());
-      this.strictInformalFallback = RuleBasedAnalyzer.instance(informalTactics);
       this.asciiInformalAnalyzer = RuleBasedAnalyzer.ignoreDiacriticsInstance(informalTactics);
       this.informalGenerator = new WordGenerator(informalTactics);
     }
@@ -137,11 +133,6 @@ public final class MorphologicalCandidateGenerator {
         asciiTolerantInformalMorphology, "asciiTolerantInformalMorphology must not be null");
     this.strictMorphology = strictMorphology;
     this.formalGenerator = strictMorphology.getWordGenerator();
-    TurkishMorphotactics informalTactics = asciiTolerantInformalMorphology.getMorphotactics();
-    this.strictInformalFallback =
-        strictMorphology.getMorphotactics() instanceof InformalTurkishMorphotactics
-            ? null
-            : RuleBasedAnalyzer.instance(informalTactics);
     this.asciiInformalAnalyzer = asciiTolerantInformalMorphology.getAnalyzer();
     this.informalGenerator = asciiTolerantInformalMorphology.getWordGenerator();
   }
@@ -377,6 +368,8 @@ public final class MorphologicalCandidateGenerator {
     return Collections.emptyList();
   }
 
+  private volatile RuleBasedAnalyzer strictInformalFallback;
+
   /** Returns the best strict lexicon analysis for offline corpus mining, or {@code null}. */
   public Candidate analyzeStrictBest(String lowerTurkishWord) {
     if (lowerTurkishWord == null || lowerTurkishWord.length() < 2) {
@@ -387,10 +380,16 @@ public final class MorphologicalCandidateGenerator {
         hasCircumflex ? TurkishTextCodec.stripCircumflex(lowerTurkishWord) : lowerTurkishWord;
     WordAnalysis wa = strictMorphology.analyze(query);
     SingleAnalysis best = selectBestLexiconAnalysis(wa, hasCircumflex);
-    if (best == null && strictInformalFallback != null) {
+    if (best == null
+        && !(strictMorphology.getMorphotactics() instanceof InformalTurkishMorphotactics)) {
       String norm = TurkishMorphology.normalizeForAnalysis(query);
       if (!norm.isEmpty()) {
-        for (SingleAnalysis sa : strictInformalFallback.analyze(norm)) {
+        RuleBasedAnalyzer fallback = strictInformalFallback;
+        if (fallback == null) {
+          fallback = RuleBasedAnalyzer.instance(asciiInformalAnalyzer.getMorphotactics());
+          strictInformalFallback = fallback;
+        }
+        for (SingleAnalysis sa : fallback.analyze(norm)) {
           if (isLexiconAnalysis(sa)
               && (best == null
                   || preferenceScore(sa, hasCircumflex) > preferenceScore(best, hasCircumflex))) {
