@@ -1,7 +1,9 @@
 package zemberek.morphology.morphotactics;
 
 import static zemberek.morphology.morphotactics.Conditions.notHave;
+import static zemberek.morphology.morphotactics.MorphemeState.builder;
 import static zemberek.morphology.morphotactics.MorphemeState.nonTerminal;
+import static zemberek.morphology.morphotactics.MorphemeState.nonTerminalDerivative;
 import static zemberek.morphology.morphotactics.MorphemeState.terminal;
 
 import zemberek.core.turkish.PhoneticAttribute;
@@ -51,13 +53,21 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
       Morpheme.builder("Opt_Informal", "Opt_Informal")
           .informal().mappedMorpheme(opt).build());
 
+  public static final Morpheme futPartInformal = addMorpheme(
+      Morpheme.builder("FutPart_Informal", "FutPart_Informal")
+          .derivational().informal().mappedMorpheme(futPart).build());
+
   MorphemeState vA1pl_ST_Inf = terminal("vA1pl_ST_Inf", a1plInformal);
   MorphemeState vA1sg_ST_Inf = terminal("vA1sg_ST_Inf", a1sgInformal);
   MorphemeState vProgYor_S_Inf = nonTerminal("vProgYor_S_Inf", prog1Informal);
+  MorphemeState vProgYor_S_Inf2 = nonTerminal("vProgYor_S_Inf2", prog1Informal);
 
   MorphemeState vFut_S_Inf = nonTerminal("vFut_S_Inf", futInformal);
   MorphemeState vFut_S_Inf2 = nonTerminal("vFut_S_Inf2", futInformal);
   MorphemeState vFut_S_Inf3 = nonTerminal("vFut_S_Inf3", futInformal);
+
+  MorphemeState vFutPart_S_Inf = nonTerminalDerivative("vFutPart_S_Inf", futPartInformal);
+  MorphemeState adjAfterVerb_S_Inf = builder("adjAfterVerb_S_Inf", adj).posRoot().build();
 
   MorphemeState vQues_S_Inf = nonTerminal("vQues_S_Inf", quesSuffixInformal);
 
@@ -70,10 +80,16 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
 
   void addGraph() {
 
-    // yap-ıyo
+    // yap-ıyo, yap-ıo, yap-ıor
 
-    verbRoot_S.add(vProgYor_S_Inf, "Iyo", notHave(PhoneticAttribute.LastLetterVowel));
-    verbRoot_VowelDrop_S.add(vProgYor_S_Inf, "Iyo");
+    verbRoot_S
+        .add(vProgYor_S_Inf, "Iyo", notHave(PhoneticAttribute.LastLetterVowel))
+        .add(vProgYor_S_Inf, "Io", notHave(PhoneticAttribute.LastLetterVowel))
+        .add(vProgYor_S_Inf2, "Ior", notHave(PhoneticAttribute.LastLetterVowel));
+    verbRoot_VowelDrop_S
+        .add(vProgYor_S_Inf, "Iyo")
+        .add(vProgYor_S_Inf, "Io")
+        .add(vProgYor_S_Inf2, "Ior");
     vProgYor_S_Inf
         .add(vA1sg_ST, "m")
         .add(vA2sg_ST, "sun")
@@ -89,12 +105,33 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
         .add(vCopBeforeA3pl_S, "dur")
         .add(vWhile_S, "ken");
 
-    vNegProg1_S.add(vProgYor_S_Inf, "Iyo");
-    vUnableProg1_S.add(vProgYor_S_Inf, "Iyo");
+    vProgYor_S_Inf2
+        .add(vA1sg_ST, "um")
+        .add(vA2sg_ST, "sun")
+        .addEmpty(vA3sg_ST)
+        .add(vA1pl_ST, "uz")
+        .add(vA2pl_ST, "sunuz")
+        .add(vA3pl_ST, "lar")
+        .add(vCond_S, "sa")
+        .add(vPastAfterTense_S, "du")
+        .add(vNarrAfterTense_S, "muş")
+        .add(vCopBeforeA3pl_S, "dur")
+        .add(vWhile_S, "ken");
+
+    vNegProg1_S
+        .add(vProgYor_S_Inf, "Iyo")
+        .add(vProgYor_S_Inf, "Io")
+        .add(vProgYor_S_Inf2, "Ior");
+    vUnableProg1_S
+        .add(vProgYor_S_Inf, "Iyo")
+        .add(vProgYor_S_Inf, "Io")
+        .add(vProgYor_S_Inf2, "Ior");
 
     RootSurfaceIsAny diYiCondition = new RootSurfaceIsAny("di", "yi");
     vDeYeRoot_S
-        .add(vProgYor_S_Inf, "yo", diYiCondition);
+        .add(vProgYor_S_Inf, "yo", diYiCondition)
+        .add(vProgYor_S_Inf, "o", diYiCondition)
+        .add(vProgYor_S_Inf2, "or", diYiCondition);
 
     // yap-a-k
 
@@ -155,6 +192,56 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
     vFut_S_Inf.add(vNarrAfterTense_S, "mIş");
     vFut_S_Inf.add(vCopBeforeA3pl_S, "tIr");
     vFut_S_Inf.add(vWhile_S, "ken");
+
+    // Future participle deformation: kalk-cağ-ı-nı, gid-iceğ-im, yap-mı-ycağ-ı-nı, di-yceğ-i
+    verbRoot_S
+        .add(vFutPart_S_Inf, "+ycA~k")
+        .add(vFutPart_S_Inf, "+ycA!ğ")
+        .add(vFutPart_S_Inf, "+yIcA~k", notHave(PhoneticAttribute.LastLetterVowel))
+        .add(vFutPart_S_Inf, "+yIcA!ğ", notHave(PhoneticAttribute.LastLetterVowel));
+
+    verbRoot_VowelDrop_S
+        .add(vFutPart_S_Inf, "IycA~k")
+        .add(vFutPart_S_Inf, "IycA!ğ")
+        .add(vFutPart_S_Inf, "IcA~k")
+        .add(vFutPart_S_Inf, "IcA!ğ");
+
+    vNeg_S_Inf
+        .add(vFutPart_S_Inf, "ycA~k")
+        .add(vFutPart_S_Inf, "ycA!ğ")
+        .add(vFutPart_S_Inf, "yAcA~k")
+        .add(vFutPart_S_Inf, "yAcA!ğ");
+
+    vUnable_S_Inf
+        .add(vFutPart_S_Inf, "ycA~k")
+        .add(vFutPart_S_Inf, "ycA!ğ")
+        .add(vFutPart_S_Inf, "yAcA~k")
+        .add(vFutPart_S_Inf, "yAcA!ğ");
+
+    vNeg_S
+        .add(vFutPart_S_Inf, "ycA~k")
+        .add(vFutPart_S_Inf, "ycA!ğ");
+
+    vUnable_S
+        .add(vFutPart_S_Inf, "ycA~k")
+        .add(vFutPart_S_Inf, "ycA!ğ");
+
+    vDeYeRoot_S
+        .add(vFutPart_S_Inf, "yce~k", diYiCondition)
+        .add(vFutPart_S_Inf, "yce!ğ", diYiCondition);
+
+    vFutPart_S_Inf.addEmpty(noun_S, Conditions.HAS_TAIL);
+    vFutPart_S_Inf.addEmpty(adjAfterVerb_S_Inf);
+
+    Condition cInfFutPart = new Conditions.PreviousMorphemeIs(futPartInformal);
+    adjAfterVerb_S_Inf
+        .addEmpty(aPnon_ST, cInfFutPart)
+        .add(aP1sg_ST, "Im", cInfFutPart)
+        .add(aP2sg_ST, "In", cInfFutPart)
+        .add(aP3sg_ST, "I", cInfFutPart)
+        .add(aP1pl_ST, "ImIz", cInfFutPart)
+        .add(aP2pl_ST, "InIz", cInfFutPart)
+        .add(aP3pl_ST, "lArI", cInfFutPart);
 
     // Handling of yapıyim, okuyim, bakıyim. TODO: not yet finished
 
