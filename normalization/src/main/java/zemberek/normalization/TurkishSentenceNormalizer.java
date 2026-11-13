@@ -2,7 +2,7 @@ package zemberek.normalization;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
-import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableListMultimap;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,7 +27,9 @@ import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.AnalysisCache;
 import zemberek.morphology.analysis.InformalAnalysisConverter;
+import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.generator.WordGenerator;
@@ -56,9 +58,9 @@ public class TurkishSentenceNormalizer {
   private SmoothLm lm;
   private TurkishSpellChecker spellChecker;
 
-  private ArrayListMultimap<String, String> lookupFromGraph;
-  private ArrayListMultimap<String, String> lookupFromAscii;
-  private ArrayListMultimap<String, String> lookupManual;
+  private ImmutableListMultimap<String, String> lookupFromGraph;
+  private ImmutableListMultimap<String, String> lookupFromAscii;
+  private ImmutableListMultimap<String, String> lookupManual;
   private TurkishMorphology informalAsciiTolerantMorphology;
   private InformalAnalysisConverter analysisConverter;
   private final InformalContractionExpander contractionExpander;
@@ -108,19 +110,19 @@ public class TurkishSentenceNormalizer {
         decoder,
         CharacterGraphDecoder.DIACRITICS_IGNORING_MATCHER);
 
-    this.lookupFromGraph = loadMultiMap(dataRoot.resolve("lookup-from-graph"));
-    this.lookupFromAscii = loadMultiMap(dataRoot.resolve("ascii-map"));
     List<String> manualLookup =
         TextIO.loadLinesFromResource("normalization/candidates-manual");
     this.lookupManual = loadMultiMap(manualLookup);
-
-    // remove words that exists in lookupManual from lookupFromGraph
-    lookupManual.keySet().forEach(s -> lookupFromGraph.removeAll(s));
+    this.lookupFromGraph =
+        loadMultiMap(dataRoot.resolve("lookup-from-graph"), lookupManual.keySet());
+    this.lookupFromAscii = loadMultiMap(dataRoot.resolve("ascii-map"), Collections.emptySet());
 
     this.informalAsciiTolerantMorphology = TurkishMorphology.builder()
         .setLexicon(morphology.getLexicon())
         .useInformalAnalysis()
         .ignoreDiacriticsInAnalysis()
+        .setCache(AnalysisCache.builder().dynamicCacheSize(1024, 8_192).build())
+        .setAmbiguityResolver((s, a) -> new SentenceAnalysis(s, Collections.emptyList()))
         .build();
     this.latticeDeasciifier =
         LatticeDeasciifier.createWithDefaults(
@@ -200,13 +202,20 @@ public class TurkishSentenceNormalizer {
   }
 
   // load data with line format: "key=val1,val2"
-  private ArrayListMultimap<String, String> loadMultiMap(Path path) throws IOException {
-    List<String> lines = TextIO.loadLines(path);
-    return loadMultiMap(lines);
+  private ImmutableListMultimap<String, String> loadMultiMap(
+      Path path, Set<String> excludedKeys) throws IOException {
+    return loadMultiMap(TextIO.loadLines(path), excludedKeys);
   }
 
-  private ArrayListMultimap<String, String> loadMultiMap(List<String> lines) {
-    ArrayListMultimap<String, String> result = ArrayListMultimap.create();
+  private ImmutableListMultimap<String, String> loadMultiMap(List<String> lines) {
+    return loadMultiMap(lines, Collections.emptySet());
+  }
+
+  private ImmutableListMultimap<String, String> loadMultiMap(
+      List<String> lines, Set<String> excludedKeys) {
+    ImmutableListMultimap.Builder<String, String> result =
+        ImmutableListMultimap.builderWithExpectedKeys(lines.size());
+    result.expectedValuesPerKey(1);
     for (String line : lines) {
       int index = line.indexOf("=");
       if (index < 0) {
@@ -214,6 +223,9 @@ public class TurkishSentenceNormalizer {
             line);
       }
       String key = line.substring(0, index).trim();
+      if (excludedKeys.contains(key)) {
+        continue;
+      }
       String value = line.substring(index + 1).trim();
       if (value.indexOf(',') >= 0) {
         for (String token : Splitter.on(",").trimResults().split(value)) {
@@ -223,7 +235,7 @@ public class TurkishSentenceNormalizer {
         result.put(key, value);
       }
     }
-    return result;
+    return result.build();
   }
 
   public String normalize(String sentence) {
