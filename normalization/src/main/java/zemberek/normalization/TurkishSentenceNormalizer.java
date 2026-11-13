@@ -230,6 +230,13 @@ public class TurkishSentenceNormalizer {
       // add matches from random walk
       candidates.addAll(lookupFromGraph.get(current));
 
+      boolean currentHasRegularAnalysis = hasRegularAnalysis(current);
+      if (currentHasRegularAnalysis
+          && (!lookupManual.containsKey(current) || lookupManual.get(current).contains(current))) {
+        // Place valid input ahead of ASCII/diacritic distractors so LM tie-breaking preserves it.
+        candidates.add(current);
+      }
+
       // add matches from ascii equivalents.
       // TODO: this may decrease accuracy. Also, this can be eliminated with ascii tolerant analyzer.
       candidates.addAll(lookupFromAscii.get(current));
@@ -252,6 +259,10 @@ public class TurkishSentenceNormalizer {
               TurkishMorphology.normalizeForAnalysis(current).replace("'", "");
           for (Result result : results) {
             if (TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(normalizedCurrent, result.surface)) {
+              if (currentHasRegularAnalysis
+                  && stripsExplicitTurkishDiacritic(normalizedCurrent, result.surface)) {
+                continue;
+              }
               candidates.add(result.surface);
             }
           }
@@ -478,6 +489,7 @@ public class TurkishSentenceNormalizer {
 
   String preProcess(String sentence) {
     boolean requiresDeasciifier = alwaysApplyDeasciifier || probablyRequiresDeasciifier(sentence);
+    boolean preserveValidWords = !alwaysApplyDeasciifier && hasTurkishSpecificChars(sentence);
     if (requiresDeasciifier && latticeDeasciifier != null) {
       // Deasciify before Turkish.LOCALE lowercasing so uppercase ASCII 'I' ("Istanbul", "Isik",
       // "TUIK", "BIOS") and TitleCase proper-noun cues are not destroyed into dotless 'ı'.
@@ -493,7 +505,7 @@ public class TurkishSentenceNormalizer {
     s = splitNecessaryWords(tokens, false);
     if (requiresDeasciifier) {
       if (latticeDeasciifier == null) {
-        s = deasciifyValidWords(s);
+        s = deasciifyValidWords(s, preserveValidWords);
       } else if (!s.equals(sentence)) {
         s = latticeDeasciifier.deasciifyKnownWords(s);
       }
@@ -505,6 +517,10 @@ public class TurkishSentenceNormalizer {
   }
 
   String deasciifyValidWords(String s) {
+    return deasciifyValidWords(s, false);
+  }
+
+  String deasciifyValidWords(String s, boolean preserveValidWords) {
     String deasciified = Deasciifier.deasciify(s);
     if (deasciified.equals(s) || deasciified.length() != s.length()) {
       return deasciified;
@@ -519,11 +535,42 @@ public class TurkishSentenceNormalizer {
       }
       String origWord = s.substring(start, end);
       String deascWord = deasciified.substring(start, end);
-      if (!origWord.equals(deascWord) && isWord(token) && morphology.analyze(deascWord).isCorrect()) {
+      if (!origWord.equals(deascWord)
+          && isWord(token)
+          && !(preserveValidWords && hasRegularAnalysis(origWord))
+          && morphology.analyze(deascWord).isCorrect()) {
         sb.replace(start, end, deascWord);
       }
     }
     return sb.toString();
+  }
+
+  static boolean hasTurkishSpecificChars(String sentence) {
+    for (int i = 0; i < sentence.length(); i++) {
+      char c = sentence.charAt(i);
+      if (c != 'I' && TurkishAlphabet.INSTANCE.isTurkishSpecific(c)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean stripsExplicitTurkishDiacritic(String src, String cand) {
+    if (src.length() != cand.length()) {
+      return false;
+    }
+    for (int i = 0; i < src.length(); i++) {
+      char s = src.charAt(i);
+      char c = cand.charAt(i);
+      if ((s == 'ç' && c == 'c')
+          || (s == 'ğ' && c == 'g')
+          || (s == 'ö' && c == 'o')
+          || (s == 'ş' && c == 's')
+          || (s == 'ü' && c == 'u')) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
