@@ -297,4 +297,44 @@ public class CharacterGraphDecoderTest {
     List<ScoredItem<String>> res = spellChecker.getSuggestionsWithScores("türkiyede");
     assertContainsAll(res, "türkiyede");
   }
+
+  @Test
+  public void diacriticsIgnoringMatcherMappingsTest() {
+    CharacterGraphDecoder.CharMatcher matcher = CharacterGraphDecoder.DIACRITICS_IGNORING_MATCHER;
+    Assert.assertEquals("iıî", new String(matcher.matches('i')));
+    Assert.assertEquals("ıiî", new String(matcher.matches('ı')));
+    Assert.assertEquals("uüû", new String(matcher.matches('u')));
+    Assert.assertEquals("İIÎ", new String(matcher.matches('İ')));
+    Assert.assertEquals("IİÎ", new String(matcher.matches('I')));
+    Assert.assertEquals("UÜÛ", new String(matcher.matches('U')));
+    Assert.assertEquals("SŞ", new String(matcher.matches('S')));
+    Assert.assertEquals("OÖ", new String(matcher.matches('O')));
+    // Verify Ö was not accidentally mapped to Ş.
+    Assert.assertEquals("Ö", new String(matcher.matches('Ö')));
+  }
+
+  @Test
+  public void diacriticsIgnoringMultiCharAndTypoTest() {
+    CharacterGraphDecoder decoder = new CharacterGraphDecoder(1);
+    decoder.addWords("sıkıntı", "güldüm", "kâğıt", "sükût", "şiî");
+    CharacterGraphDecoder.CharMatcher matcher = CharacterGraphDecoder.DIACRITICS_IGNORING_MATCHER;
+
+    assertContainsAll(decoder.getSuggestionsWithScores("sikinti", matcher), "sıkıntı");
+    assertContainsAll(decoder.getSuggestionsWithScores("sikint", matcher), "sıkıntı");
+    assertContainsAll(decoder.getSuggestionsWithScores("guldum", matcher), "güldüm");
+    assertContainsAll(decoder.getSuggestionsWithScores("guldm", matcher), "güldüm");
+    assertContainsAll(decoder.getSuggestionsWithScores("kagit", matcher), "kâğıt");
+    assertContainsAll(decoder.getSuggestionsWithScores("sukut", matcher), "sükût");
+    assertContainsAll(decoder.getSuggestionsWithScores("sii", matcher), "şiî");
+  }
+
+  @Test
+  public void processStripsApostropheAndPeriodTest() {
+    CharacterGraphDecoder decoder = new CharacterGraphDecoder(1);
+    decoder.addWords("ankara'da", "istanbul’da", "dr.");
+    Assert.assertTrue(decoder.decode("ankarada").contains("ankarada"));
+    Assert.assertTrue(decoder.decode("ankara'da").contains("ankarada"));
+    Assert.assertTrue(decoder.decode("istanbulda").contains("istanbulda"));
+    Assert.assertTrue(decoder.decode("dr").contains("dr"));
+  }
 }

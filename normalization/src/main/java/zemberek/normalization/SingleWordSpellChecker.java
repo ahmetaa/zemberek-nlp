@@ -118,7 +118,7 @@ public class SingleWordSpellChecker {
   }
 
   public String process(String str) {
-    return str.toLowerCase(tr).replace("['.]", "");
+    return CharacterGraphDecoder.removeIgnoredChars(str.toLowerCase(tr));
   }
 
   public void addWord(String word) {

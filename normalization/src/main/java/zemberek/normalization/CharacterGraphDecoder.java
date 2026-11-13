@@ -133,7 +133,24 @@ public class CharacterGraphDecoder {
   }
 
   private String process(String str) {
-    return str.toLowerCase(tr).replace("['.]", "");
+    return removeIgnoredChars(str.toLowerCase(tr));
+  }
+
+  static String removeIgnoredChars(String s) {
+    int len = s.length();
+    StringBuilder sb = null;
+    for (int i = 0; i < len; i++) {
+      char c = s.charAt(i);
+      if (c == '\'' || c == '’' || c == '.') {
+        if (sb == null) {
+          sb = new StringBuilder(len - 1);
+          sb.append(s, 0, i);
+        }
+      } else if (sb != null) {
+        sb.append(c);
+      }
+    }
+    return sb != null ? sb.toString() : s;
   }
 
   public void addWord(String word) {
@@ -354,26 +371,22 @@ public class CharacterGraphDecoder {
         map.put(c, ca);
       }
       // override some
+      map.put('a', new char[]{'a', 'â'});
       map.put('c', new char[]{'c', 'ç'});
       map.put('g', new char[]{'g', 'ğ'});
-      map.put('ı', new char[]{'ı', 'i'});
-      map.put('i', new char[]{'ı', 'i'});
+      map.put('ı', new char[]{'ı', 'i', 'î'});
+      map.put('i', new char[]{'i', 'ı', 'î'});
       map.put('o', new char[]{'o', 'ö'});
       map.put('s', new char[]{'s', 'ş'});
-      map.put('u', new char[]{'u', 'ü'});
-      map.put('a', new char[]{'a', 'â'});
-      map.put('i', new char[]{'i', 'î'});
-      map.put('u', new char[]{'u', 'û'});
+      map.put('u', new char[]{'u', 'ü', 'û'});
+      map.put('A', new char[]{'A', 'Â'});
       map.put('C', new char[]{'C', 'Ç'});
       map.put('G', new char[]{'G', 'Ğ'});
-      map.put('I', new char[]{'I', 'İ'});
-      map.put('İ', new char[]{'İ', 'I'});
+      map.put('I', new char[]{'I', 'İ', 'Î'});
+      map.put('İ', new char[]{'İ', 'I', 'Î'});
       map.put('O', new char[]{'O', 'Ö'});
-      map.put('Ö', new char[]{'Ö', 'Ş'});
-      map.put('U', new char[]{'U', 'Ü'});
-      map.put('A', new char[]{'A', 'Â'});
-      map.put('İ', new char[]{'İ', 'Î'});
-      map.put('U', new char[]{'U', 'Û'});
+      map.put('S', new char[]{'S', 'Ş'});
+      map.put('U', new char[]{'U', 'Ü', 'Û'});
     }
 
     @Override

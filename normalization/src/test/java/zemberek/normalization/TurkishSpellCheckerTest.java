@@ -143,6 +143,24 @@ public class TurkishSpellCheckerTest {
     Assert.assertTrue(spellChecker.check("okudum"));
   }
 
+  @Test
+  public void suggestWithDiacriticsIgnoringMatcherTest() {
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .setLexicon("sıkıntı", "gülmek")
+        .build();
+    List<String> endings = Lists.newArrayList("düm");
+    StemEndingGraph graph = new StemEndingGraph(morphology, endings);
+    TurkishSpellChecker spellChecker = new TurkishSpellChecker(
+        morphology,
+        new CharacterGraphDecoder(graph.stemGraph),
+        CharacterGraphDecoder.DIACRITICS_IGNORING_MATCHER);
+
+    Assert.assertTrue(spellChecker.suggestForWord("sikinti", null).contains("sıkıntı"));
+    Assert.assertTrue(spellChecker.suggestForWord("sikint", null).contains("sıkıntı"));
+    Assert.assertTrue(spellChecker.suggestForWord("guldum", null).contains("güldüm"));
+    Assert.assertTrue(spellChecker.suggestForWord("guldm", null).contains("güldüm"));
+  }
+
   private void check(TurkishSpellChecker spellChecker, NgramLanguageModel lm, String input,
       String expected) throws Exception {
     List<String> res = spellChecker.suggestForWord(input, lm);
