@@ -70,6 +70,14 @@ public class TurkishSentenceNormalizer {
       TurkishMorphology morphology,
       Path dataRoot,
       Path languageModelPath) throws IOException {
+    this(morphology, dataRoot, languageModelPath, new TurkishSpellChecker(morphology, true));
+  }
+
+  public TurkishSentenceNormalizer(
+      TurkishMorphology morphology,
+      Path dataRoot,
+      Path languageModelPath,
+      TurkishSpellChecker spellChecker) throws IOException {
 
     this.morphology = morphology;
     this.analysisConverter = new InformalAnalysisConverter(morphology.getWordGenerator());
@@ -77,13 +85,7 @@ public class TurkishSentenceNormalizer {
     Log.info("Language model = %s", languageModel.info());
     this.lm = languageModel;
 
-    // TODO: spell checker should be an external parameter.
-    StemEndingGraph graph = new StemEndingGraph(morphology);
-    CharacterGraphDecoder decoder = new CharacterGraphDecoder(graph.stemGraph);
-    this.spellChecker = new TurkishSpellChecker(
-        morphology,
-        decoder,
-        CharacterGraphDecoder.DIACRITICS_IGNORING_MATCHER);
+    this.spellChecker = spellChecker;
 
     this.lookupFromGraph = loadMultiMap(dataRoot.resolve("lookup-from-graph"));
     this.lookupFromAscii = loadMultiMap(dataRoot.resolve("ascii-map"));

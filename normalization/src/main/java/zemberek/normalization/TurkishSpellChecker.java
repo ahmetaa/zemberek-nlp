@@ -3,6 +3,7 @@ package zemberek.normalization;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,6 +33,7 @@ public class TurkishSpellChecker {
   TurkishMorphology morphology;
   WordAnalysisSurfaceFormatter formatter = new WordAnalysisSurfaceFormatter();
   CharacterGraphDecoder decoder;
+  CompactStemEndingSpellChecker compactSpellChecker;
   NgramLanguageModel unigramModel;
 
   // Null means exact matcher will be used.
@@ -45,11 +47,30 @@ public class TurkishSpellChecker {
   }
 
   public TurkishSpellChecker(TurkishMorphology morphology) throws IOException {
+    this(morphology, false);
+  }
+
+  public TurkishSpellChecker(TurkishMorphology morphology, boolean ignoreDiacritics)
+      throws IOException {
     this.morphology = morphology;
-    StemEndingGraph graph = new StemEndingGraph(morphology);
-    this.decoder = new CharacterGraphDecoder(graph.stemGraph);
+    this.compactSpellChecker = new CompactStemEndingSpellChecker(morphology, ignoreDiacritics);
+    if (ignoreDiacritics) {
+      this.charMatcher = CharacterGraphDecoder.DIACRITICS_IGNORING_MATCHER;
+    }
     try (InputStream is = Resources.getResource("lm-unigram.slm").openStream()) {
       unigramModel = SmoothLm.builder(is).build();
+    }
+  }
+
+  private TurkishSpellChecker(
+      TurkishMorphology morphology,
+      CompactStemEndingSpellChecker compactSpellChecker,
+      NgramLanguageModel unigramModel) {
+    this.morphology = morphology;
+    this.compactSpellChecker = compactSpellChecker;
+    this.unigramModel = unigramModel;
+    if (compactSpellChecker.isMatchDiacritics()) {
+      this.charMatcher = CharacterGraphDecoder.DIACRITICS_IGNORING_MATCHER;
     }
   }
 
@@ -67,9 +88,33 @@ public class TurkishSpellChecker {
     this.charMatcher = matcher;
   }
 
+  /**
+   * Returns a spell checker sharing the compact stem/ending tries with diacritics-ignoring
+   * matching enabled.
+   */
+  public TurkishSpellChecker withDiacriticsIgnoring() {
+    if (this.compactSpellChecker != null) {
+      return new TurkishSpellChecker(
+          this.morphology,
+          this.compactSpellChecker.withDiacriticsIgnoring(true),
+          this.unigramModel);
+    }
+    return new TurkishSpellChecker(
+        this.morphology,
+        getDecoder(),
+        CharacterGraphDecoder.DIACRITICS_IGNORING_MATCHER);
+  }
+
+  public CompactStemEndingSpellChecker getCompactSpellChecker() {
+    return compactSpellChecker;
+  }
+
   // TODO: this is a temporary hack.
   public void setAnalysisPredicate(Predicate<SingleAnalysis> analysisPredicate) {
     this.analysisPredicate = analysisPredicate;
+    if (this.compactSpellChecker != null) {
+      this.compactSpellChecker.clearCache();
+    }
   }
 
   //TODO: this does not cover all token types.
@@ -130,6 +175,15 @@ public class TurkishSpellChecker {
   }
 
   private List<String> getUnrankedSuggestions(String word) {
+    if (compactSpellChecker != null) {
+      List<CompactStemEndingSpellChecker.ScoredCandidate> scored =
+          compactSpellChecker.suggestScored(word, analysisPredicate);
+      List<String> results = new ArrayList<>(scored.size());
+      for (CompactStemEndingSpellChecker.ScoredCandidate candidate : scored) {
+        results.add(candidate.surface);
+      }
+      return results;
+    }
     String normalized = TurkishAlphabet.INSTANCE.normalize(word.replaceAll("['’]", ""));
     List<String> strings = decoder.getSuggestions(normalized, charMatcher);
 
@@ -212,7 +266,15 @@ public class TurkishSpellChecker {
     return suggestForWord(word, unigramModel);
   }
 
-  public CharacterGraphDecoder getDecoder() {
+  public synchronized CharacterGraphDecoder getDecoder() {
+    if (decoder == null) {
+      try {
+        StemEndingGraph graph = new StemEndingGraph(morphology);
+        decoder = new CharacterGraphDecoder(graph.stemGraph);
+      } catch (IOException e) {
+        throw new UncheckedIOException("Failed to initialize legacy StemEndingGraph.", e);
+      }
+    }
     return decoder;
   }
 
