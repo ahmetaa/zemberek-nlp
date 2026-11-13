@@ -59,7 +59,6 @@ public class TurkishSentenceNormalizer {
   private TurkishSpellChecker spellChecker;
 
   private ImmutableListMultimap<String, String> lookupFromGraph;
-  private ImmutableListMultimap<String, String> lookupFromAscii;
   private ImmutableListMultimap<String, String> lookupManual;
   private TurkishMorphology informalAsciiTolerantMorphology;
   private InformalAnalysisConverter analysisConverter;
@@ -115,13 +114,12 @@ public class TurkishSentenceNormalizer {
     this.lookupManual = loadMultiMap(manualLookup);
     this.lookupFromGraph =
         loadMultiMap(dataRoot.resolve("lookup-from-graph"), lookupManual.keySet());
-    this.lookupFromAscii = loadMultiMap(dataRoot.resolve("ascii-map"), Collections.emptySet());
 
     this.informalAsciiTolerantMorphology = TurkishMorphology.builder()
         .setLexicon(morphology.getLexicon())
         .useInformalAnalysis()
         .ignoreDiacriticsInAnalysis()
-        .setCache(AnalysisCache.builder().dynamicCacheSize(1024, 8_192).build())
+        .setCache(AnalysisCache.builder().dynamicCacheSize(256, 1_024).build())
         .setAmbiguityResolver((s, a) -> new SentenceAnalysis(s, Collections.emptyList()))
         .build();
     this.latticeDeasciifier =
@@ -275,10 +273,6 @@ public class TurkishSentenceNormalizer {
         // Place valid input ahead of ASCII/diacritic distractors so LM tie-breaking preserves it.
         candidates.add(current);
       }
-
-      // add matches from ascii equivalents.
-      // TODO: this may decrease accuracy. Also, this can be eliminated with ascii tolerant analyzer.
-      candidates.addAll(lookupFromAscii.get(current));
 
       // add matches from informal analysis to formal surface conversion.
 

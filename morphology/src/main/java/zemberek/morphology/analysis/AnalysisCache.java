@@ -11,8 +11,8 @@ import zemberek.tokenization.Token;
  */
 public class AnalysisCache {
 
-  private static final int DEFAULT_INITIAL_CACHE_CAPACITY = 4000;
-  private static final int DEFAULT_MAX_CACHE_CAPACITY = 50_000;
+  private static final int DEFAULT_INITIAL_CACHE_CAPACITY = 1024;
+  private static final int DEFAULT_MAX_CACHE_CAPACITY = 32_768;
   private static final int CACHE_CAPACITY_LIMIT = 1_000_000;
 
   private final Cache<String, WordAnalysis> cache;
