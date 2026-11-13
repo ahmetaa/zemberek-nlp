@@ -198,5 +198,12 @@ public class SingleWordSpellCheckerTest {
     return result;
   }
 
+  @Test
+  public void processStripsApostropheAndPeriodTest() {
+    SingleWordSpellChecker spellChecker = new SingleWordSpellChecker(1);
+    Assert.assertEquals("ankarada", spellChecker.process("Ankara'da"));
+    Assert.assertEquals("istanbulda", spellChecker.process("İstanbul’da"));
+    Assert.assertEquals("dr", spellChecker.process("Dr."));
+  }
 
 }
