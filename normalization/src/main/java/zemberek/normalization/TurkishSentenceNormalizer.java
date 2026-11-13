@@ -67,6 +67,8 @@ public class TurkishSentenceNormalizer {
   boolean alwaysApplyDeasciifier = false;
   private Boolean spellCheckCapitalizedWords = null;
   private LatticeDeasciifier latticeDeasciifier;
+  private boolean preserveCaseAndPunctuation = false;
+  private final NormalizationFormatProjector formatProjector;
 
   public TurkishSentenceNormalizer(
       TurkishMorphology morphology,
@@ -74,6 +76,7 @@ public class TurkishSentenceNormalizer {
       Path languageModelPath) throws IOException {
 
     this.morphology = morphology;
+    this.formatProjector = new NormalizationFormatProjector(morphology);
     this.analysisConverter = new InformalAnalysisConverter(morphology.getWordGenerator());
     SmoothLm languageModel = SmoothLm.builder(languageModelPath).logBase(Math.E).build();
     Log.info("Language model = %s", languageModel.info());
@@ -172,6 +175,21 @@ public class TurkishSentenceNormalizer {
     this.spellCheckCapitalizedWords = spellCheckCapitalizedWords;
   }
 
+  /**
+   * Configures whether {@link #normalize(String)} projects original casing, unambiguous proper
+   * noun capitalization, and punctuation spacing onto the normalized output. Defaults to {@code
+   * false} (legacy lowercase space-separated tokens).
+   */
+  public TurkishSentenceNormalizer setPreserveCaseAndPunctuation(
+      boolean preserveCaseAndPunctuation) {
+    this.preserveCaseAndPunctuation = preserveCaseAndPunctuation;
+    return this;
+  }
+
+  public boolean isPreserveCaseAndPunctuation() {
+    return preserveCaseAndPunctuation;
+  }
+
   // load data with line format: "key=val1,val2"
   private ArrayListMultimap<String, String> loadMultiMap(Path path) throws IOException {
     List<String> lines = TextIO.loadLines(path);
@@ -200,6 +218,24 @@ public class TurkishSentenceNormalizer {
   }
 
   public String normalize(String sentence) {
+    if (preserveCaseAndPunctuation) {
+      return normalizePreservingFormat(sentence);
+    }
+    return normalizeLower(sentence);
+  }
+
+  /**
+   * Normalizes {@code sentence} while projecting original casing, unambiguous proper noun
+   * title-casing, acronym casing, and punctuation attachment onto the output.
+   */
+  public String normalizePreservingFormat(String sentence) {
+    if (sentence == null || sentence.trim().length() == 0) {
+      return sentence;
+    }
+    return formatProjector.project(sentence, normalizeLower(sentence));
+  }
+
+  private String normalizeLower(String sentence) {
 
     if(sentence.trim().length() == 0) {
       return sentence;
