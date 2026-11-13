@@ -1,6 +1,8 @@
 package zemberek.morphology.analysis;
 
+import org.junit.Assert;
 import org.junit.Test;
+import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.morphology.lexicon.tr.TurkishDictionaryLoader;
 import zemberek.morphology.morphotactics.InformalTurkishMorphotactics;
@@ -161,6 +163,78 @@ public class InformalTurkishAnalysisTest extends AnalyzerTestBase {
     t = getTesterAscii("etmek [A:Voicing]");
     t.expectAny("edıcem", matchesTailLex("Verb + Fut_Informal + A1sg"));
 
+  }
+
+  @Test
+  public void testProgressiveYDropDeformation() {
+    AnalysisTester t = getTester("yazmak");
+    t.expectSingle("yazıom", matchesTailLex("Verb + Prog1_Informal + A1sg"));
+    t.expectSingle("yazıo", matchesTailLex("Verb + Prog1_Informal + A3sg"));
+    t.expectSingle("yazıorum", matchesTailLex("Verb + Prog1_Informal + A1sg"));
+
+    t = getTester("aramak");
+    t.expectSingle("aramıoz", matchesTailLex("Verb + Neg + Prog1_Informal + A1pl"));
+
+    t = getTester("affetmek [A:Voicing]");
+    t.expectSingle("affetmio", matchesTailLex("Verb + Neg + Prog1_Informal + A3sg"));
+
+    t = getTester("dinlemek", "dinlenmek");
+    t.expectAny("dinleniormuş", matchesTailLex("Verb + Prog1_Informal + Narr + A3sg"));
+
+    t = getTester("demek");
+    t.expectSingle("dio", matchesTailLex("Verb + Prog1_Informal + A3sg"));
+    t.expectSingle("dior", matchesTailLex("Verb + Prog1_Informal + A3sg"));
+  }
+
+  @Test
+  public void testFutureParticipleDeformation() {
+    AnalysisTester t = getTester("kalkmak", "buluşmak", "yapmak", "gitmek [A:Voicing]", "demek");
+    t.expectAny("kalkcağını",
+        matchesTailLex("Verb + FutPart_Informal + Noun + A3sg + P3sg + Acc"));
+    t.expectAny("buluşabilceğimiz",
+        matchesTailLex("Verb + Able + Verb + FutPart_Informal + Adj + P1pl"));
+    t.expectAny("yapmıycağını",
+        matchesTailLex("Verb + Neg_Informal + FutPart_Informal + Noun + A3sg + P3sg + Acc"));
+    t.expectAny("gidiceğim",
+        matchesTailLex("Verb + FutPart_Informal + Adj + P1sg"));
+    t.expectAny("diyceği",
+        matchesTailLex("Verb + FutPart_Informal + Adj + P3sg"));
+  }
+
+  @Test
+  public void testInformalSurfaceConversion() {
+    RootLexicon lexicon = TurkishDictionaryLoader.load(
+        "yazmak", "dinlenmek", "demek", "kalkmak", "buluşmak", "yapmak", "gitmek [A:Voicing]");
+    TurkishMorphology morphology = TurkishMorphology.builder(lexicon)
+        .disableUnidentifiedTokenAnalyzer()
+        .useInformalAnalysis()
+        .build();
+    InformalAnalysisConverter converter =
+        new InformalAnalysisConverter(morphology.getWordGenerator());
+
+    String[][] pairs = {
+        {"yazıom", "yazıyorum"},
+        {"dinleniormuş", "dinleniyormuş"},
+        {"dio", "diyor"},
+        {"kalkcağını", "kalkacağını"},
+        {"buluşabilceğimiz", "buluşabileceğimiz"},
+        {"yapmıycağını", "yapmayacağını"},
+        {"gidiceğim", "gideceğim"},
+        {"diyceği", "diyeceği"},
+    };
+    for (String[] pair : pairs) {
+      WordAnalysis analyses = morphology.analyze(pair[0]);
+      Assert.assertTrue("Expected analysis for " + pair[0], analyses.isCorrect());
+      boolean matched = false;
+      for (SingleAnalysis a : analyses) {
+        String surface = converter.convert(pair[0], a).surface;
+        if (pair[1].equals(surface)) {
+          matched = true;
+          break;
+        }
+      }
+      Assert.assertTrue("Expected " + pair[0] + " -> " + pair[1], matched);
+    }
   }
 
 
