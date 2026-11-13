@@ -4,9 +4,9 @@ import com.google.common.io.Resources;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import zemberek.core.ScoredItem;
@@ -26,6 +26,10 @@ import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.Token;
 
 public class TurkishSpellChecker {
+
+  private static final float EDIT_DISTANCE_WEIGHT = 2.4f;
+  private static final float DIACRITIC_DIFF_WEIGHT = 0.65f;
+  private static final float DIACRITIC_DIFF_WEIGHT_ASCII = 0.20f;
 
   private static final NgramLanguageModel DUMMY_LM = new DummyLanguageModel();
   private static final TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
@@ -124,23 +128,53 @@ public class TurkishSpellChecker {
     return null;
   }
 
-  public List<String> suggestForWord(String word, NgramLanguageModel lm) {
-    List<String> unRanked = getUnrankedSuggestions(word);
-    return rankWithUnigramProbability(unRanked, lm);
+  private record ScoredSuggestion(String surface, float editCost, int diacriticDiffs) {
+    float channelPenalty(float diacriticWeight) {
+      return EDIT_DISTANCE_WEIGHT * editCost + diacriticWeight * diacriticDiffs;
+    }
   }
 
-  private List<String> getUnrankedSuggestions(String word) {
-    String normalized = TurkishAlphabet.INSTANCE.normalize(word.replaceAll("['’]", ""));
-    List<String> strings = decoder.getSuggestions(normalized, charMatcher);
+  public List<String> suggestForWord(String word, NgramLanguageModel lm) {
+    List<ScoredSuggestion> scored = getScoredSuggestions(word);
+    if (lm == null) {
+      Log.warn("No language model provided. Returning unraked results.");
+      return toSurfaceList(scored);
+    }
+    LmVocabulary vocabulary = lm.getVocabulary();
+    float logScale = lmLogScale(lm);
+    List<ScoredItem<String>> results = new ArrayList<>(scored.size());
+    for (ScoredSuggestion suggestion : scored) {
+      int wordIndex = lmVocabularyIndex(suggestion.surface, vocabulary);
+      float score =
+          lm.getUnigramProbability(wordIndex)
+              - logScale * suggestion.channelPenalty(DIACRITIC_DIFF_WEIGHT);
+      results.add(new ScoredItem<>(suggestion.surface, score));
+    }
+    results.sort(ScoredItem.STRING_COMP_DESCENDING);
+    return results.stream().map(s -> s.item).collect(Collectors.toList());
+  }
+
+  private static List<String> toSurfaceList(List<ScoredSuggestion> scored) {
+    List<String> out = new ArrayList<>(scored.size());
+    for (ScoredSuggestion s : scored) {
+      out.add(s.surface);
+    }
+    return out;
+  }
+
+  private List<ScoredSuggestion> getScoredSuggestions(String word) {
+    String stripped = stripApostrophes(word);
+    String normalized = TurkishAlphabet.INSTANCE.normalize(stripped);
+    List<ScoredItem<String>> rawScored = decoder.getSuggestionsWithScores(normalized, charMatcher);
 
     WordAnalysisSurfaceFormatter.CaseType caseType = formatter.guessCase(word);
     if (caseType == WordAnalysisSurfaceFormatter.CaseType.MIXED_CASE ||
         caseType == WordAnalysisSurfaceFormatter.CaseType.LOWER_CASE) {
       caseType = WordAnalysisSurfaceFormatter.CaseType.DEFAULT_CASE;
     }
-    Set<String> results = new LinkedHashSet<>(strings.size());
-    for (String string : strings) {
-      WordAnalysis analyses = morphology.analyze(string);
+    Map<String, ScoredSuggestion> results = new LinkedHashMap<>(rawScored.size());
+    for (ScoredItem<String> raw : rawScored) {
+      WordAnalysis analyses = morphology.analyze(raw.item);
       for (SingleAnalysis analysis : analyses) {
         if (analysis.isUnknown()) {
           continue;
@@ -149,10 +183,20 @@ public class TurkishSpellChecker {
           continue;
         }
         String formatted = formatter.formatToCase(analysis, caseType, getApostrophe(word));
-        results.add(formatted);
+        int diacDiffs = countDiacriticDifferences(stripped, formatted);
+        float nonDiacriticEdits =
+            charMatcher == null ? Math.max(0f, raw.score - diacDiffs) : raw.score;
+        ScoredSuggestion candidate =
+            new ScoredSuggestion(formatted, nonDiacriticEdits, diacDiffs);
+        ScoredSuggestion existing = results.get(formatted);
+        if (existing == null
+            || candidate.channelPenalty(DIACRITIC_DIFF_WEIGHT)
+                < existing.channelPenalty(DIACRITIC_DIFF_WEIGHT)) {
+          results.put(formatted, candidate);
+        }
       }
     }
-    return new ArrayList<>(results);
+    return new ArrayList<>(results.values());
   }
 
   public List<String> suggestForWord(
@@ -160,10 +204,19 @@ public class TurkishSpellChecker {
       String leftContext,
       String rightContext,
       NgramLanguageModel lm) {
-    List<String> unRanked = getUnrankedSuggestions(word);
+    return suggestForWord(word, leftContext, rightContext, lm, false);
+  }
+
+  List<String> suggestForWord(
+      String word,
+      String leftContext,
+      String rightContext,
+      NgramLanguageModel lm,
+      boolean asciiContext) {
+    List<ScoredSuggestion> scored = getScoredSuggestions(word);
     if (lm == null) {
       Log.warn("No language model provided. Returning unraked results.");
-      return unRanked;
+      return toSurfaceList(scored);
     }
     if (lm.getOrder() < 2) {
       Log.warn("Language model order is 1. For context ranking it should be at least 2. " +
@@ -171,41 +224,126 @@ public class TurkishSpellChecker {
       return suggestForWord(word, lm);
     }
     LmVocabulary vocabulary = lm.getVocabulary();
-    List<ScoredItem<String>> results = new ArrayList<>(unRanked.size());
-    for (String str : unRanked) {
-      if (leftContext == null) {
-        leftContext = vocabulary.getSentenceStart();
-      } else {
-        leftContext = normalizeForLm(leftContext);
-      }
-      if (rightContext == null) {
-        rightContext = vocabulary.getSentenceEnd();
-      } else {
-        rightContext = normalizeForLm(rightContext);
-      }
-      String w = normalizeForLm(str);
-      int wordIndex = vocabulary.indexOf(w);
-      int leftIndex = vocabulary.indexOf(leftContext);
-      int rightIndex = vocabulary.indexOf(rightContext);
-      float score;
-      if (lm.getOrder() == 2) {
-        score = lm.getProbability(leftIndex, wordIndex) + lm.getProbability(wordIndex, rightIndex);
-      } else {
-        score = lm.getProbability(leftIndex, wordIndex, rightIndex);
-      }
-      results.add(new ScoredItem<>(str, score));
+    int leftIndex = leftContext == null
+        ? vocabulary.indexOf(vocabulary.getSentenceStart())
+        : lmVocabularyIndex(leftContext, vocabulary);
+    int rightIndex = rightContext == null
+        ? vocabulary.indexOf(vocabulary.getSentenceEnd())
+        : lmVocabularyIndex(rightContext, vocabulary);
+    float diacriticWeight = asciiContext ? DIACRITIC_DIFF_WEIGHT_ASCII : DIACRITIC_DIFF_WEIGHT;
+    float logScale = lmLogScale(lm);
+
+    List<ScoredItem<String>> results = new ArrayList<>(scored.size());
+    for (ScoredSuggestion suggestion : scored) {
+      int wordIndex = lmVocabularyIndex(suggestion.surface, vocabulary);
+      float lmScore = lm.getOrder() == 2
+          ? lm.getProbability(leftIndex, wordIndex) + lm.getProbability(wordIndex, rightIndex)
+          : lm.getProbability(leftIndex, wordIndex, rightIndex);
+      float score = lmScore - logScale * suggestion.channelPenalty(diacriticWeight);
+      results.add(new ScoredItem<>(suggestion.surface, score));
     }
     results.sort(ScoredItem.STRING_COMP_DESCENDING);
     return results.stream().map(s -> s.item).collect(Collectors.toList());
-
   }
 
-  private String normalizeForLm(String s) {
-    if (s.indexOf('\'') > 0) {
-      return Turkish.capitalize(s);
-    } else {
-      return s.toLowerCase(Turkish.LOCALE);
+  private static float lmLogScale(NgramLanguageModel lm) {
+    if (lm instanceof SmoothLm) {
+      double base = ((SmoothLm) lm).getLogBase();
+      if (base > 1.0001) {
+        return (float) (1.0 / Math.log(base));
+      }
     }
+    if (lm instanceof DummyLanguageModel) {
+      return 1.0f;
+    }
+    return (float) (1.0 / Math.log(10.0));
+  }
+
+  private static String stripApostrophes(String s) {
+    if (s.indexOf('\'') < 0 && s.indexOf('’') < 0) {
+      return s;
+    }
+    StringBuilder sb = new StringBuilder(s.length());
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (c != '\'' && c != '’') {
+        sb.append(c);
+      }
+    }
+    return sb.toString();
+  }
+
+  private static char toLowerTurkish(char c) {
+    if (c == 'I') {
+      return 'ı';
+    }
+    if (c == 'İ') {
+      return 'i';
+    }
+    return Character.toLowerCase(c);
+  }
+
+  static int countDiacriticDifferences(String source, String target) {
+    String a = stripApostrophes(source);
+    String b = stripApostrophes(target);
+    int n = a.length();
+    int m = b.length();
+    if (n == m) {
+      int diffs = 0;
+      for (int i = 0; i < n; i++) {
+        char la = toLowerTurkish(a.charAt(i));
+        char lb = toLowerTurkish(b.charAt(i));
+        if (la != lb
+            && TurkishAlphabet.INSTANCE.getAsciiEqual(la)
+                == TurkishAlphabet.INSTANCE.getAsciiEqual(lb)) {
+          diffs++;
+        }
+      }
+      return diffs;
+    }
+    int diffs = 0;
+    int left = 0;
+    int limit = Math.min(n, m);
+    while (left < limit) {
+      char la = toLowerTurkish(a.charAt(left));
+      char lb = toLowerTurkish(b.charAt(left));
+      if (TurkishAlphabet.INSTANCE.getAsciiEqual(la)
+          != TurkishAlphabet.INSTANCE.getAsciiEqual(lb)) {
+        break;
+      }
+      if (la != lb) {
+        diffs++;
+      }
+      left++;
+    }
+    int ra = n;
+    int rb = m;
+    while (ra > left && rb > left) {
+      char la = toLowerTurkish(a.charAt(ra - 1));
+      char lb = toLowerTurkish(b.charAt(rb - 1));
+      if (TurkishAlphabet.INSTANCE.getAsciiEqual(la)
+          != TurkishAlphabet.INSTANCE.getAsciiEqual(lb)) {
+        break;
+      }
+      if (la != lb) {
+        diffs++;
+      }
+      ra--;
+      rb--;
+    }
+    return diffs;
+  }
+
+  static int lmVocabularyIndex(String s, LmVocabulary vocabulary) {
+    String normalized = s.indexOf('’') >= 0 ? s.replace('’', '\'') : s;
+    String lower = normalized.toLowerCase(Turkish.LOCALE);
+    if (normalized.indexOf('\'') > 0) {
+      String cap = Turkish.capitalize(normalized);
+      if (vocabulary.contains(cap)) {
+        return vocabulary.indexOf(cap);
+      }
+    }
+    return vocabulary.indexOf(lower);
   }
 
   public List<String> suggestForWord(String word) {
@@ -221,10 +359,10 @@ public class TurkishSpellChecker {
       Log.warn("No language model provided. Returning unraked results.");
       return strings;
     }
+    LmVocabulary vocabulary = lm.getVocabulary();
     List<ScoredItem<String>> results = new ArrayList<>(strings.size());
     for (String string : strings) {
-      String w = normalizeForLm(string);
-      int wordIndex = lm.getVocabulary().indexOf(w);
+      int wordIndex = lmVocabularyIndex(string, vocabulary);
       results.add(new ScoredItem<>(string, lm.getUnigramProbability(wordIndex)));
     }
     results.sort(ScoredItem.STRING_COMP_DESCENDING);
