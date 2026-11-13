@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
+import zemberek.core.turkish.TurkishAlphabet;
 
 /**
  * Orthographic and tokenization utilities for Turkish deasciification.
@@ -132,11 +133,7 @@ public final class TurkishTextCodec {
   }
 
   public static boolean isPinnedTurkishDiacritic(char c) {
-    return switch (c) {
-      case 'ç', 'Ç', 'ğ', 'Ğ', 'ı', 'İ', 'ö', 'Ö', 'ş', 'Ş', 'ü', 'Ü',
-          'â', 'Â', 'î', 'Î', 'û', 'Û' -> true;
-      default -> false;
-    };
+    return TurkishAlphabet.INSTANCE.isTurkishSpecific(c);
   }
 
   public static boolean isNonDotlessTurkishDiacritic(char c) {
@@ -172,20 +169,7 @@ public final class TurkishTextCodec {
     if (c == 'İ') {
       return 'i';
     }
-    if (c >= 'A' && c <= 'Z') {
-      return (char) (c + 32);
-    }
-    return switch (c) {
-      case 'Ç' -> 'ç';
-      case 'Ğ' -> 'ğ';
-      case 'Ö' -> 'ö';
-      case 'Ş' -> 'ş';
-      case 'Ü' -> 'ü';
-      case 'Â' -> 'â';
-      case 'Î' -> 'î';
-      case 'Û' -> 'û';
-      default -> Character.toLowerCase(c);
-    };
+    return (c >= 'A' && c <= 'Z') ? (char) (c + 32) : Character.toLowerCase(c);
   }
 
   public static String toTurkishLower(String s) {
@@ -199,39 +183,21 @@ public final class TurkishTextCodec {
     if (c == 'ı') {
       return 'I';
     }
-    if (c >= 'a' && c <= 'z') {
-      return (char) (c - 32);
-    }
-    return switch (c) {
-      case 'ç' -> 'Ç';
-      case 'ğ' -> 'Ğ';
-      case 'ö' -> 'Ö';
-      case 'ş' -> 'Ş';
-      case 'ü' -> 'Ü';
-      case 'â' -> 'Â';
-      case 'î' -> 'Î';
-      case 'û' -> 'Û';
-      default -> Character.toUpperCase(c);
-    };
+    return (c >= 'a' && c <= 'z') ? (char) (c - 32) : Character.toUpperCase(c);
   }
 
   public static char toAsciiLower(char c) {
     if (c >= 'a' && c <= 'z') {
       return c;
     }
-    if (c >= 'A' && c <= 'Z') {
-      return (char) (c + 32);
+    char ascii = TurkishAlphabet.INSTANCE.getAsciiEqual(c);
+    if (ascii >= 'a' && ascii <= 'z') {
+      return ascii;
     }
-    return switch (c) {
-      case 'ç', 'Ç' -> 'c';
-      case 'ğ', 'Ğ' -> 'g';
-      case 'ı', 'İ', 'î', 'Î' -> 'i';
-      case 'ö', 'Ö' -> 'o';
-      case 'ş', 'Ş' -> 's';
-      case 'ü', 'Ü', 'û', 'Û' -> 'u';
-      case 'â', 'Â' -> 'a';
-      default -> isApostrophe(c) ? '\'' : Character.toLowerCase(c);
-    };
+    if (ascii >= 'A' && ascii <= 'Z') {
+      return (char) (ascii + 32);
+    }
+    return isApostrophe(ascii) ? '\'' : Character.toLowerCase(ascii);
   }
 
   public static String toAsciiLower(String s) {
@@ -239,23 +205,7 @@ public final class TurkishTextCodec {
   }
 
   public static char toAsciiPreserveCase(char c) {
-    return switch (c) {
-      case 'ç' -> 'c';
-      case 'Ç' -> 'C';
-      case 'ğ' -> 'g';
-      case 'Ğ' -> 'G';
-      case 'ı', 'î' -> 'i';
-      case 'İ', 'Î' -> 'I';
-      case 'ö' -> 'o';
-      case 'Ö' -> 'O';
-      case 'ş' -> 's';
-      case 'Ş' -> 'S';
-      case 'ü', 'û' -> 'u';
-      case 'Ü', 'Û' -> 'U';
-      case 'â' -> 'a';
-      case 'Â' -> 'A';
-      default -> c;
-    };
+    return TurkishAlphabet.INSTANCE.getAsciiEqual(c);
   }
 
   public static String asciify(String text) {
