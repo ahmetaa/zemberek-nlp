@@ -337,4 +337,26 @@ public class CharacterGraphDecoderTest {
     Assert.assertTrue(decoder.decode("istanbulda").contains("istanbulda"));
     Assert.assertTrue(decoder.decode("dr").contains("dr"));
   }
+
+  @Test
+  public void stemEndingBoundaryTranspositionTest() {
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .setLexicon("bakmak", "gelmek", "kitap", "görmek")
+        .build();
+    List<String> endings = Lists.newArrayList("acak", "ecek", "lar", "düm");
+    StemEndingGraph graph = new StemEndingGraph(morphology, endings);
+    CharacterGraphDecoder decoder = new CharacterGraphDecoder(graph.stemGraph);
+    CharacterGraphDecoder.CharMatcher matcher = CharacterGraphDecoder.DIACRITICS_IGNORING_MATCHER;
+
+    // Transposition right across the stem-ending epsilon boundary:
+    assertContainsAll(decoder.getSuggestionsWithScores("baakcak"), "bakacak");
+    assertContainsAll(decoder.getSuggestionsWithScores("geelcek"), "gelecek");
+    assertContainsAll(decoder.getSuggestionsWithScores("kitalpar"), "kitaplar");
+
+    // Same boundary transposition combined with diacritics-ignoring matching:
+    assertContainsAll(decoder.getSuggestionsWithScores("gorudm", matcher), "gördüm");
+
+    // Word-final transposition in stem+ending decoding:
+    assertContainsAll(decoder.getSuggestionsWithScores("bakacka"), "bakacak");
+  }
 }
