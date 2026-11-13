@@ -20,6 +20,7 @@ import zemberek.core.dynamic.ActiveList;
 import zemberek.core.dynamic.Scorable;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
+import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -30,6 +31,8 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.generator.WordGenerator;
 import zemberek.morphology.generator.WordGenerator.Result;
+import zemberek.morphology.morphotactics.Morpheme;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.Token;
@@ -56,6 +59,7 @@ public class TurkishSentenceNormalizer {
   private ArrayListMultimap<String, String> lookupFromGraph;
   private ArrayListMultimap<String, String> lookupFromAscii;
   private ArrayListMultimap<String, String> lookupManual;
+  private TurkishMorphology informalMorphology;
   private TurkishMorphology informalAsciiTolerantMorphology;
   private InformalAnalysisConverter analysisConverter;
 
@@ -93,6 +97,12 @@ public class TurkishSentenceNormalizer {
 
     // remove words that exists in lookupManual from lookupFromGraph
     lookupManual.keySet().forEach(s -> lookupFromGraph.removeAll(s));
+
+    this.informalMorphology = TurkishMorphology.builder()
+        .setLexicon(morphology.getLexicon())
+        .useInformalAnalysis()
+        .disableCache()
+        .build();
 
     this.informalAsciiTolerantMorphology = TurkishMorphology.builder()
         .setLexicon(morphology.getLexicon())
@@ -202,30 +212,34 @@ public class TurkishSentenceNormalizer {
       // add matches from informal analysis to formal surface conversion.
 
       WordAnalysis analyses = informalAsciiTolerantMorphology.analyze(current);
+      boolean weakAbbrOrShortProper = !protectedCapitalizedWords.contains(current)
+          && isOnlyUnapostrophizedAbbrOrShortProper(current, analyses);
 
-      for (SingleAnalysis analysis : analyses) {
-        if (analysis.containsInformalMorpheme()) {
-          WordGenerator.Result result = analysisConverter.convert(current, analysis);
-          if (result != null) {
-            candidates.add(result.surface);
-          }
-        } else {
-          List<WordGenerator.Result> results = morphology.getWordGenerator().generate(
-              analysis.getDictionaryItem(),
-              analysis.getMorphemes());
-          String normalizedCurrent =
-              TurkishMorphology.normalizeForAnalysis(current).replace("'", "");
-          for (Result result : results) {
-            if (TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(normalizedCurrent, result.surface)) {
+      if (!weakAbbrOrShortProper) {
+        for (SingleAnalysis analysis : analyses) {
+          if (analysis.containsInformalMorpheme()) {
+            WordGenerator.Result result = analysisConverter.convert(current, analysis);
+            if (result != null) {
               candidates.add(result.surface);
+            }
+          } else {
+            List<WordGenerator.Result> results = morphology.getWordGenerator().generate(
+                analysis.getDictionaryItem(),
+                analysis.getMorphemes());
+            String normalizedCurrent =
+                TurkishMorphology.normalizeForAnalysis(current).replace("'", "");
+            for (Result result : results) {
+              if (TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(normalizedCurrent, result.surface)) {
+                candidates.add(result.surface);
+              }
             }
           }
         }
       }
 
-      // if there is no formal analysis and length is larger than 3,
-      // get top 3 1-distance matches unless protected as a capitalized OOV word.
-      if ((analyses.analysisCount() == 0)
+      // if there is no formal analysis (or only an un-apostrophized abbreviation/short-proper false friend)
+      // and length is larger than 3, get top 3 1-distance matches unless protected as capitalized OOV.
+      if ((analyses.analysisCount() == 0 || weakAbbrOrShortProper)
           && current.length() > 3
           && !protectedCapitalizedWords.contains(current)) {
 
@@ -237,9 +251,17 @@ public class TurkishSentenceNormalizer {
         candidates.addAll(spellCandidates);
       }
 
-      // if still there is no match, add the word itself.
-      if (candidates.isEmpty() || morphology.analyze(current).isCorrect()) {
+      // Add the surface itself only if no candidate exists, or if strict analysis accepts it
+      // as a real word (rather than an un-apostrophized abbreviation or <=3-char proper noun).
+      if (candidates.isEmpty()) {
         candidates.add(current);
+      } else {
+        WordAnalysis strictAnalyses = morphology.analyze(current);
+        if (strictAnalyses.isCorrect()
+            && (protectedCapitalizedWords.contains(current)
+                || !isOnlyUnapostrophizedAbbrOrShortProper(current, strictAnalyses))) {
+          candidates.add(current);
+        }
       }
 
       Candidates result = new Candidates(
@@ -512,7 +534,7 @@ public class TurkishSentenceNormalizer {
   private static boolean isAlwaysSolidCompound(String i1, String i2) {
     return (("uluslar".equals(i1) || "milletler".equals(i1)) && i2.startsWith("arası"))
         || ("hiç".equals(i1) && i2.startsWith("bir"))
-        || ("bir".equals(i1) && i2.startsWith("kaç"))
+        || ("bir".equals(i1) && (i2.startsWith("kaç") || i2.startsWith("çok")))
         || ("her".equals(i1) && i2.startsWith("hangi"))
         || ("vaz".equals(i1) && i2.startsWith("geç"));
   }
@@ -527,6 +549,88 @@ public class TurkishSentenceNormalizer {
         k.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun &&
         k.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation
     );
+  }
+
+  private boolean hasInformalAnalysis(String s) {
+    WordAnalysis a = informalMorphology.analyze(s);
+    return a.stream().anyMatch(k -> !k.isUnknown() && !k.isRuntime() &&
+        k.containsInformalMorpheme() &&
+        k.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun &&
+        k.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation
+    );
+  }
+
+  private static boolean isOnlyUnapostrophizedAbbrOrShortProper(String word, WordAnalysis analyses) {
+    if (word.indexOf('\'') >= 0 || word.indexOf('’') >= 0 || analyses.analysisCount() == 0) {
+      return false;
+    }
+    boolean foundNonRuntime = false;
+    for (SingleAnalysis a : analyses) {
+      if (a.isUnknown() || a.isRuntime()) {
+        continue;
+      }
+      foundNonRuntime = true;
+      if (a.containsInformalMorpheme()) {
+        return false;
+      }
+      SecondaryPos sec = a.getDictionaryItem().secondaryPos;
+      boolean isWeakSec = sec == SecondaryPos.Abbreviation
+          || (sec == SecondaryPos.ProperNoun && a.getDictionaryItem().root.length() <= 3);
+      if (!isWeakSec || word.equals(a.getDictionaryItem().root)) {
+        return false;
+      }
+    }
+    return foundNonRuntime;
+  }
+
+  private static boolean isQuestionParticle(String s) {
+    return "mı".equals(s) || "mi".equals(s) || "mu".equals(s) || "mü".equals(s);
+  }
+
+  private boolean isFiniteVerbCompatibleWithQuestion(String head, String particle) {
+    char lastVowel = 0;
+    for (int i = head.length() - 1; i >= 0; i--) {
+      char c = head.charAt(i);
+      if (TurkishAlphabet.INSTANCE.isVowel(c)) {
+        lastVowel = c;
+        break;
+      }
+    }
+    String expected;
+    if (lastVowel == 'a' || lastVowel == 'ı') {
+      expected = "mı";
+    } else if (lastVowel == 'e' || lastVowel == 'i') {
+      expected = "mi";
+    } else if (lastVowel == 'o' || lastVowel == 'u') {
+      expected = "mu";
+    } else if (lastVowel == 'ö' || lastVowel == 'ü') {
+      expected = "mü";
+    } else {
+      return false;
+    }
+    if (!expected.equals(particle)) {
+      return false;
+    }
+    WordAnalysis a = morphology.analyze(head);
+    for (SingleAnalysis k : a) {
+      if (k.isUnknown() || k.isRuntime() || k.getPos() != PrimaryPos.Verb) {
+        continue;
+      }
+      for (Morpheme m : k.getMorphemes()) {
+        if (m.equals(TurkishMorphotactics.past)
+            || m.equals(TurkishMorphotactics.narr)
+            || m.equals(TurkishMorphotactics.prog1)
+            || m.equals(TurkishMorphotactics.prog2)
+            || m.equals(TurkishMorphotactics.fut)
+            || m.equals(TurkishMorphotactics.aor)
+            || m.equals(TurkishMorphotactics.neces)
+            || m.equals(TurkishMorphotactics.cond)
+            || m.equals(TurkishMorphotactics.opt)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /**
@@ -552,14 +656,16 @@ public class TurkishSentenceNormalizer {
         if (commonConnectedSuffixes.contains(tail)) {
           String head = input.substring(0, i);
           if (tail.length() < 3) {
-            if (!lm.ngramExists(lm.getVocabulary().toIndexes(head, tail))) {
-              return input;
+            boolean inLm = lm.ngramExists(lm.getVocabulary().toIndexes(head, tail));
+            if (!inLm && !(isQuestionParticle(tail)
+                && isFiniteVerbCompatibleWithQuestion(head, tail))) {
+              continue;
             }
           }
-          if (hasRegularAnalysis(head)) {
+          if (hasRegularAnalysis(head) || hasInformalAnalysis(head)) {
             return head + " " + tail;
           } else {
-            return input;
+            continue;
           }
         }
       }
