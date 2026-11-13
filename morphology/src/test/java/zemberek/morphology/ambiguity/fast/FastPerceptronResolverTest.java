@@ -387,4 +387,26 @@ public class FastPerceptronResolverTest {
           pass1.score, workerResult[0].score, 1e-5f);
     }
   }
+
+  @Test
+  public void testLazyDefaultResolverSharesModelWeights() {
+    TurkishMorphology first = TurkishMorphology.createWithDefaults();
+    TurkishMorphology second = TurkishMorphology.builder().setLexicon(first.getLexicon()).build();
+
+    FastPerceptronAmbiguityResolver r1 =
+        (FastPerceptronAmbiguityResolver) first.getAmbiguityResolver();
+    FastPerceptronAmbiguityResolver r2 =
+        (FastPerceptronAmbiguityResolver) second.getAmbiguityResolver();
+
+    Assert.assertNotNull(r1);
+    Assert.assertNotNull(r2);
+    Assert.assertNotSame(r1, r2);
+    Assert.assertSame(
+        "Default ambiguity model weights should be shared across morphology instances",
+        r1.getModel(),
+        r2.getModel());
+
+    r1.setGreedy(true);
+    Assert.assertFalse("Per-instance decoder state should remain independent", r2.isGreedy());
+  }
 }
