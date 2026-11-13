@@ -694,20 +694,6 @@ public class TurkishSentenceNormalizer {
     return input;
   }
 
-  String separateBrute(String input, int minSize) {
-    if (!hasRegularAnalysis(input)) {
-      for (int i = minSize; i < input.length() - minSize; i++) {
-        String head = input.substring(0, i);
-        String tail = input.substring(i);
-        if (hasRegularAnalysis(head) && hasRegularAnalysis(tail)) {
-          return head + " " + tail;
-        }
-      }
-    }
-    return input;
-  }
-
-
   /**
    * Makes a guess if input sentence requires deasciifier.
    */
@@ -749,7 +735,9 @@ public class TurkishSentenceNormalizer {
     WordAnalysis analysis = morphology.analyze(word);
     return analysis.stream().anyMatch(
         k -> !k.isUnknown() && !k.isRuntime()
-            && k.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation);
+            && k.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation
+            && !(k.getDictionaryItem().primaryPos == PrimaryPos.Interjection
+                && k.getDictionaryItem().hasAttribute(zemberek.core.turkish.RootAttribute.Ext)));
   }
 
   private double unigramScore(String word) {
@@ -863,19 +851,6 @@ public class TurkishSentenceNormalizer {
     return String.join(" ", result);
   }
 
-  String splitBruteForce(List<Token> tokens, int minSize) {
-    List<String> result = new ArrayList<>();
-    for (Token token : tokens) {
-      String text = token.getText();
-      if (isWord(token)) {
-        result.add(separateBrute(text, minSize));
-      } else {
-        result.add(text);
-      }
-    }
-    return String.join(" ", result);
-  }
-
   String replaceCommon(List<Token> tokens) {
     List<String> result = new ArrayList<>(tokens.size());
     for (Token token : tokens) {
@@ -902,7 +877,7 @@ public class TurkishSentenceNormalizer {
       for (Token token : rawTokens) {
         String text = token.getText();
         if (isWord(token) && !text.isEmpty() && Character.isUpperCase(text.charAt(0))) {
-          result.add(text.toLowerCase(Turkish.LOCALE));
+          addProtectedWordForms(result, text);
         }
       }
       return result;
@@ -923,8 +898,9 @@ public class TurkishSentenceNormalizer {
     for (Token token : rawTokens) {
       String text = token.getText();
       if (isWord(token) && !text.isEmpty()) {
-        if (!atSentenceStart && Character.isUpperCase(text.charAt(0))) {
-          result.add(text.toLowerCase(Turkish.LOCALE));
+        if ((!atSentenceStart && Character.isUpperCase(text.charAt(0)))
+            || isMultiLetterAllCapsWord(text)) {
+          addProtectedWordForms(result, text);
         }
         atSentenceStart = false;
       } else if (isSentenceBoundary(text)) {
@@ -932,6 +908,29 @@ public class TurkishSentenceNormalizer {
       }
     }
     return result;
+  }
+
+  private static void addProtectedWordForms(Set<String> out, String text) {
+    out.add(text.toLowerCase(Turkish.LOCALE));
+    if (text.indexOf('I') >= 0) {
+      out.add(text.replace('I', 'i').toLowerCase(Turkish.LOCALE));
+    }
+  }
+
+  private static boolean isMultiLetterAllCapsWord(String s) {
+    int letters = 0;
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (Character.isLetter(c)) {
+        if (!Character.isUpperCase(c)) {
+          return false;
+        }
+        letters++;
+      } else if (c == '\'' || c == '’') {
+        break;
+      }
+    }
+    return letters >= 2;
   }
 
   private static boolean containsLowercaseLetter(String s) {
