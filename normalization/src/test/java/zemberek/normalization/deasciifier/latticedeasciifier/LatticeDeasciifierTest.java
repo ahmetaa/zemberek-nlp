@@ -334,4 +334,14 @@ public class LatticeDeasciifierTest {
           defaultDeasciifier.deasciify("Rüzgârda kâgit ucusuyor.", mode));
     }
   }
+
+  @Test
+  public void preservesNonDiacriticCliticVowelsAndInverseHarmony() {
+    assertEquals("saatde", defaultDeasciifier.deasciifyKnownWords("saatde"));
+    assertEquals("harfde", defaultDeasciifier.deasciifyKnownWords("harfde"));
+    assertEquals("saatmi", defaultDeasciifier.deasciifyKnownWords("saatmi"));
+    assertEquals("oldumi", defaultDeasciifier.deasciifyKnownWords("oldumi"));
+    assertEquals("şefkatde", defaultDeasciifier.deasciifyKnownWords("sefkatde"));
+    assertEquals("başlasada", defaultDeasciifier.deasciifyKnownWords("baslasada"));
+  }
 }

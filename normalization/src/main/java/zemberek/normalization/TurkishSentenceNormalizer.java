@@ -86,6 +86,7 @@ public class TurkishSentenceNormalizer {
   private HashSet<String> commonConnectedSuffixes = new HashSet<>();
   private HashSet<String> noSplitWords = new HashSet<>();
   private final ElongationNormalizer elongationNormalizer;
+  private final CliticDeDaNormalizer cliticDeDaNormalizer;
   boolean alwaysApplyDeasciifier = false;
   private Boolean spellCheckCapitalizedWords = null;
   private LatticeDeasciifier latticeDeasciifier;
@@ -140,6 +141,7 @@ public class TurkishSentenceNormalizer {
 
     this.noSplitWords.addAll(TextIO.loadLinesFromResource(
         "normalization/no-split"));
+    this.cliticDeDaNormalizer = new CliticDeDaNormalizer(morphology, lm, noSplitWords);
 
     List<String> replaceLines = TextIO.loadLinesFromResource(
         "normalization/multi-word-replacements");
@@ -268,7 +270,9 @@ public class TurkishSentenceNormalizer {
       candidates.addAll(lookupFromGraph.get(current));
 
       boolean currentHasRegularAnalysis = hasRegularAnalysis(current);
-      if (currentHasRegularAnalysis
+      boolean currentHasProperApostrophe =
+          current.indexOf('\'') > 0 && hasProperNounOrAbbrvAnalysis(current);
+      if ((currentHasRegularAnalysis || currentHasProperApostrophe)
           && (!lookupManual.containsKey(current) || lookupManual.get(current).contains(current))) {
         // Place valid input ahead of ASCII/diacritic distractors so LM tie-breaking preserves it.
         candidates.add(current);
@@ -294,6 +298,9 @@ public class TurkishSentenceNormalizer {
             if (TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(normalizedCurrent, result.surface)) {
               if (currentHasRegularAnalysis
                   && stripsExplicitTurkishDiacritic(normalizedCurrent, result.surface)) {
+                continue;
+              }
+              if (currentHasProperApostrophe && !currentHasRegularAnalysis) {
                 continue;
               }
               candidates.add(result.surface);
@@ -332,7 +339,7 @@ public class TurkishSentenceNormalizer {
 
   }
 
-  private boolean hasAnalysis(WordAnalysis w) {
+  static boolean hasAnalysis(WordAnalysis w) {
     for (SingleAnalysis s : w) {
       if (!s.isRuntime() && !s.isUnknown()) {
         return true;
@@ -548,7 +555,8 @@ public class TurkishSentenceNormalizer {
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
     s = combineNecessaryWords(tokens);
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    return splitNecessaryWords(tokens, true);
+    s = splitNecessaryWords(tokens, true);
+    return cliticDeDaNormalizer.normalize(s);
   }
 
   String deasciifyValidWords(String s) {
@@ -627,13 +635,29 @@ public class TurkishSentenceNormalizer {
         return combined;
       }
     }
-    if (!hasRegularAnalysis(i2)) {
+    if (!hasRegularAnalysis(i2) && !hasProperNounOrAbbrvAnalysis(i2)) {
       WordAnalysis w = morphology.analyze(combined);
       if (hasAnalysis(w)) {
         return combined;
       }
     }
     return "";
+  }
+
+  boolean hasProperNounOrAbbrvAnalysis(String s) {
+    return hasProperNounOrAbbrvAnalysis(morphology, s);
+  }
+
+  static boolean hasProperNounOrAbbrvAnalysis(TurkishMorphology morphology, String s) {
+    for (SingleAnalysis k : morphology.analyze(s)) {
+      if (!k.isUnknown()
+          && !k.isRuntime()
+          && (k.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun
+              || k.getDictionaryItem().secondaryPos == SecondaryPos.Abbreviation)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static boolean isAlwaysSolidCompound(String i1, String i2) {
@@ -649,11 +673,20 @@ public class TurkishSentenceNormalizer {
    * not proper noun.
    */
   boolean hasRegularAnalysis(String s) {
-    WordAnalysis a = morphology.analyze(s);
-    return a.stream().anyMatch(k -> !k.isUnknown() && !k.isRuntime() &&
-        k.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun &&
-        k.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation
-    );
+    return hasRegularAnalysis(morphology, s);
+  }
+
+  static boolean hasRegularAnalysis(TurkishMorphology morphology, String s) {
+    for (SingleAnalysis k : morphology.analyze(s)) {
+      if (!k.isUnknown()
+          && !k.isRuntime()
+          && k.getDictionaryItem().primaryPos != PrimaryPos.Punctuation
+          && k.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun
+          && k.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

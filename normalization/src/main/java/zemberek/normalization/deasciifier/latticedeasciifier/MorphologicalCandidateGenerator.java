@@ -534,16 +534,20 @@ public final class MorphologicalCandidateGenerator {
       }
       String stemAscii = asciiLower.substring(0, asciiLower.length() - clitic.length());
       boolean added = false;
+      boolean isQuestion = clitic.startsWith("m");
       for (Candidate stemCand : analyzePlainAsciiUncached(stemAscii)) {
-        String proto = selectWordPrototypeNoun(stemCand.surface);
-        boolean front = isFrontVowelWord(proto);
-        boolean rounded = isRoundedVowelWord(proto);
-        String restoredClitic = harmonizeClitic(clitic, front, rounded);
+        String restoredClitic = clitic;
+        if (isQuestion) {
+          String proto = selectWordPrototypeNoun(stemCand.surface);
+          boolean front = isFrontVowelWord(proto) || isBareInverseHarmonyStem(stemCand);
+          restoredClitic = harmonizeClitic(clitic, front, isRoundedVowelWord(proto));
+        }
         String full = stemCand.surface + restoredClitic;
-        if ((originalForPins == null
+        if (TurkishTextCodec.toAsciiLower(full).equals(asciiLower)
+            && (originalForPins == null
                 || TurkishTextCodec.isCompatibleWithInput(originalForPins, full))
             && Candidate.addIfSurfaceAbsent(
-                out, copyWithSurface(stemCand, full, true, clitic.startsWith("m")))) {
+                out, copyWithSurface(stemCand, full, true, isQuestion))) {
           added = true;
         }
       }
@@ -551,6 +555,21 @@ public final class MorphologicalCandidateGenerator {
         return;
       }
     }
+  }
+
+  private boolean isBareInverseHarmonyStem(Candidate stemCand) {
+    if (stemCand.morphemeGroupCount > 1) {
+      return false;
+    }
+    for (SingleAnalysis sa : strictMorphology.analyze(stemCand.surface)) {
+      if (!sa.isUnknown()
+          && !sa.isRuntime()
+          && sa.getMorphemes().size() <= 2
+          && sa.getDictionaryItem().hasAttribute(RootAttribute.InverseHarmony)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private WordGenerator generatorFor(SingleAnalysis sa) {
@@ -577,11 +596,8 @@ public final class MorphologicalCandidateGenerator {
   }
 
   private static String harmonizeClitic(String asciiClitic, boolean front, boolean rounded) {
-    if (asciiClitic.equals("da")
-        || asciiClitic.equals("de")
-        || asciiClitic.equals("ta")
-        || asciiClitic.equals("te")) {
-      return "" + asciiClitic.charAt(0) + (front ? 'e' : 'a');
+    if (!asciiClitic.startsWith("m")) {
+      return asciiClitic;
     }
     char highVowel = TurkishTextCodec.highHarmonicVowel(front, rounded);
     StringBuilder sb = new StringBuilder(asciiClitic.length());
