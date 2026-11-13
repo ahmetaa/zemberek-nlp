@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -13,6 +12,7 @@ import java.util.stream.Collectors;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.IntMap;
+import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 
 public class CharacterGraphDecoder {
@@ -24,7 +24,6 @@ public class CharacterGraphDecoder {
   static final float SUBSTITUTION_PENALTY = 1;
   static final float NEAR_KEY_SUBSTITUTION_PENALTY = 0.5f;
   static final float TRANSPOSITION_PENALTY = 1;
-  private static final Locale tr = new Locale("tr");
   public static final DiacriticsIgnoringMatcher DIACRITICS_IGNORING_MATCHER =
       new DiacriticsIgnoringMatcher();
 
@@ -133,7 +132,7 @@ public class CharacterGraphDecoder {
   }
 
   private String process(String str) {
-    return removeIgnoredChars(str.toLowerCase(tr));
+    return removeIgnoredChars(str.toLowerCase(Turkish.LOCALE));
   }
 
   static String removeIgnoredChars(String s) {
@@ -550,54 +549,36 @@ public class CharacterGraphDecoder {
       }
 
       // transposition
-      // TODO: make length check parametric. Also eliminate gross code duplication
       if (input.length() > 2 && nextIndex < input.length() - 1) {
         char transpose = input.charAt(nextIndex + 1);
-        if (matcher != null) {
-          char[] tt = matcher.matches(transpose);
-          char[] cc = matcher.matches(nextChar);
-          for (char t : tt) {
-            List<Node> nextNodes = hypothesis.node.getChildList(t);
-            for (Node nextNode : nextNodes) {
-              for (char c : cc) {
-                if (hypothesis.node.hasChild(t) && nextNode.hasChild(c)) {
-                  for (Node n : nextNode.getChildList(c)) {
-                    Hypothesis h = hypothesis.getNew(
-                        n,
-                        TRANSPOSITION_PENALTY,
-                        nextIndex + 1,
-                        Operation.TRANSPOSITION);
-                    h.setWord(n);
-                    if (nextIndex == input.length() - 1) {
-                      if (h.node.word != null) {
-                        addHypothesis(h);
-                      }
-                    } else {
-                      newHypotheses.add(h);
-                    }
-                  }
-                }
-              }
-            }
-          }
-        } else {
-          List<Node> nextNodes = hypothesis.node.getChildList(transpose);
+        List<Node> nextNodes = matcher == null
+            ? hypothesis.node.getChildList(transpose)
+            : hypothesis.node.getChildList(matcher.matches(transpose));
+        if (!nextNodes.isEmpty()) {
+          char[] cc = matcher == null ? null : matcher.matches(nextChar);
           for (Node nextNode : nextNodes) {
-            if (hypothesis.node.hasChild(transpose) && nextNode.hasChild(nextChar)) {
-              for (Node n : nextNode.getChildList(nextChar)) {
-                Hypothesis h = hypothesis.getNew(
-                    n,
-                    TRANSPOSITION_PENALTY,
-                    nextIndex + 1,
-                    Operation.TRANSPOSITION);
-                h.setWord(n);
-                if (nextIndex == input.length() - 1) {
-                  if (h.node.word != null) {
-                    addHypothesis(h);
-                  }
-                } else {
+            List<Node> targetNodes = cc == null
+                ? nextNode.getChildList(nextChar)
+                : nextNode.getChildList(cc);
+            for (Node n : targetNodes) {
+              Hypothesis h = hypothesis.getNew(
+                  n,
+                  TRANSPOSITION_PENALTY,
+                  nextIndex + 1,
+                  Operation.TRANSPOSITION);
+              if (nextNode.getType() == Node.TYPE_WORD) {
+                h.setWord(nextNode);
+              }
+              h.setWord(n);
+              if (nextIndex + 1 == input.length() - 1) {
+                if (h.node.word != null) {
+                  addHypothesis(h);
+                }
+                if (h.penalty < maxPenalty) {
                   newHypotheses.add(h);
                 }
+              } else {
+                newHypotheses.add(h);
               }
             }
           }
