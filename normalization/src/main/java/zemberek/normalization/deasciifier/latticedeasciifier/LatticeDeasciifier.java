@@ -3,6 +3,7 @@ package zemberek.normalization.deasciifier.latticedeasciifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
@@ -33,6 +34,41 @@ import zemberek.normalization.deasciifier.latticedeasciifier.TurkishTextCodec.To
  * <p>Thread-safe after construction.
  */
 public final class LatticeDeasciifier {
+
+  /** Controls how circumflex vowels ({@code â, î, û}) are emitted during deasciification. */
+  public enum CircumflexMode {
+    /** Never inserts new circumflexes; preserves any circumflexes already present in the input. */
+    NONE,
+    /** Inserts circumflexes only on meaning-disambiguating minimal pairs (default). */
+    DISAMBIGUATION_ONLY,
+    /** Allows circumflexes on any lexicon/corpus entry supported by the model. */
+    FULL
+  }
+
+  public static final CircumflexMode DEFAULT_CIRCUMFLEX_MODE = CircumflexMode.DISAMBIGUATION_ONLY;
+
+  private static final Set<String> DISAMBIGUATING_CIRCUMFLEX_LEMMAS =
+      Set.of(
+          "kâr",
+          "hâlâ",
+          "âdet",
+          "âmâ",
+          "dâhi",
+          "dâhice",
+          "âşık",
+          "hâkim",
+          "âlem",
+          "yâr",
+          "şûra",
+          "tâbi",
+          "vâris",
+          "resmî",
+          "askerî",
+          "millî",
+          "tarihî",
+          "dinî",
+          "ilmî",
+          "edebî");
 
   public static final int DEFAULT_BEAM_WIDTH = 4;
   private static final int MAX_PLAIN_TOKEN_CACHE = 32_768;
@@ -66,8 +102,8 @@ public final class LatticeDeasciifier {
   private final DeasciifierModel model;
   private final MorphologicalCandidateGenerator morphGenerator;
   private final int beamWidth;
-  private final ConcurrentHashMap<String, CachedPlainToken> plainTokenCache =
-      new ConcurrentHashMap<>(4_096);
+  private final CircumflexMode circumflexMode;
+  private final ConcurrentHashMap<String, CachedPlainToken> plainTokenCache;
 
   /**
    * Creates a self-contained {@link LatticeDeasciifier} using the bundled default model resource
@@ -125,9 +161,32 @@ public final class LatticeDeasciifier {
 
   LatticeDeasciifier(
       DeasciifierModel model, MorphologicalCandidateGenerator morphGenerator, int beamWidth) {
+    this(model, morphGenerator, beamWidth, DEFAULT_CIRCUMFLEX_MODE, new ConcurrentHashMap<>(4_096));
+  }
+
+  private LatticeDeasciifier(
+      DeasciifierModel model,
+      MorphologicalCandidateGenerator morphGenerator,
+      int beamWidth,
+      CircumflexMode circumflexMode,
+      ConcurrentHashMap<String, CachedPlainToken> plainTokenCache) {
     this.model = Objects.requireNonNull(model, "model must not be null");
     this.morphGenerator = Objects.requireNonNull(morphGenerator, "morphGenerator must not be null");
     this.beamWidth = Math.max(1, beamWidth);
+    this.circumflexMode = Objects.requireNonNull(circumflexMode, "circumflexMode must not be null");
+    this.plainTokenCache = plainTokenCache;
+  }
+
+  public CircumflexMode circumflexMode() {
+    return circumflexMode;
+  }
+
+  /** Returns a lightweight view sharing model and caches with the given {@link CircumflexMode}. */
+  public LatticeDeasciifier withCircumflexMode(CircumflexMode mode) {
+    Objects.requireNonNull(mode, "mode must not be null");
+    return mode == this.circumflexMode
+        ? this
+        : new LatticeDeasciifier(model, morphGenerator, beamWidth, mode, plainTokenCache);
   }
 
   public int cachedTokenCount() {
@@ -136,7 +195,12 @@ public final class LatticeDeasciifier {
 
   /** Restores Turkish diacritics on {@code text} while preserving formatting and pinned chars. */
   public String deasciify(String text) {
-    return deasciify(text, true);
+    return deasciify(text, true, circumflexMode);
+  }
+
+  /** Restores Turkish diacritics on {@code text} using the specified {@link CircumflexMode}. */
+  public String deasciify(String text, CircumflexMode mode) {
+    return deasciify(text, true, Objects.requireNonNull(mode, "mode must not be null"));
   }
 
   /**
@@ -145,10 +209,18 @@ public final class LatticeDeasciifier {
    * recover typos and preserve foreign proper nouns.
    */
   public String deasciifyKnownWords(String text) {
-    return deasciify(text, false);
+    return deasciify(text, false, circumflexMode);
   }
 
-  private String deasciify(String text, boolean allowOovFallback) {
+  /**
+   * Restores Turkish diacritics on lexicon-backed tokens using the specified {@link
+   * CircumflexMode}.
+   */
+  public String deasciifyKnownWords(String text, CircumflexMode mode) {
+    return deasciify(text, false, Objects.requireNonNull(mode, "mode must not be null"));
+  }
+
+  private String deasciify(String text, boolean allowOovFallback, CircumflexMode mode) {
     if (text == null || text.isEmpty()) {
       return text;
     }
@@ -167,7 +239,9 @@ public final class LatticeDeasciifier {
       if (tok.immutable() || (!allowOovFallback && chosen[i].oovFallback)) {
         continue;
       }
-      String restored = TurkishTextCodec.applyCasingAndPins(tok, chosen[i]);
+      String surface = resolveCandidateSurface(chosen[i], mode);
+      String restored =
+          TurkishTextCodec.applyCasingAndPins(tok, surface, chosen[i].foreignStemLength);
       if (!restored.equals(tok.original())) {
         if (out == null) {
           out = new StringBuilder(text.length());
@@ -182,6 +256,17 @@ public final class LatticeDeasciifier {
     }
     out.append(text, cursor, text.length());
     return out.toString();
+  }
+
+  private static String resolveCandidateSurface(Candidate chosen, CircumflexMode mode) {
+    return switch (mode) {
+      case FULL -> chosen.surface;
+      case NONE -> TurkishTextCodec.stripCircumflex(chosen.surface);
+      case DISAMBIGUATION_ONLY ->
+          DISAMBIGUATING_CIRCUMFLEX_LEMMAS.contains(chosen.lemma)
+              ? chosen.surface
+              : TurkishTextCodec.stripCircumflex(chosen.surface);
+    };
   }
 
   TokenLattice[] buildSentenceLattice(String text, List<Token> tokens) {

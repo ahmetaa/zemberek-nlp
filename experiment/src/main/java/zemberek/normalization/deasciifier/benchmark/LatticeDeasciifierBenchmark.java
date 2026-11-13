@@ -38,10 +38,8 @@ public final class LatticeDeasciifierBenchmark {
       String systemName,
       int sentences,
       int exactNoCirc,
-      int exactStrict,
       long totalWords,
       long correctNoCirc,
-      long correctStrict,
       long diacriticWords,
       long correctDiacriticWords,
       long strippedPinnedChars,
@@ -51,16 +49,8 @@ public final class LatticeDeasciifierBenchmark {
       return 100.0 * exactNoCirc / Math.max(1, sentences);
     }
 
-    double sentAccStrict() {
-      return 100.0 * exactStrict / Math.max(1, sentences);
-    }
-
     double wordAccNoCirc() {
       return 100.0 * correctNoCirc / Math.max(1L, totalWords);
-    }
-
-    double wordAccStrict() {
-      return 100.0 * correctStrict / Math.max(1L, totalWords);
     }
 
     double diacWordAcc() {
@@ -400,34 +390,30 @@ public final class LatticeDeasciifierBenchmark {
   private static void printEvaluationTable(
       String title, List<DeasciifyFn> systems, List<String> inputs, List<String> goldSentences) {
     System.out.println(
-        "\n------------------------------------------------------------------------------------------------------------");
+        "\n------------------------------------------------------------------------------------");
     System.out.println("SUITE: " + title + " (" + goldSentences.size() + " sentences)");
     System.out.println(
-        "------------------------------------------------------------------------------------------------------------");
+        "------------------------------------------------------------------------------------");
     System.out.printf(
         Locale.ROOT,
-        "%-24s | %9s | %9s | %9s | %9s | %9s | %8s | %9s%n",
+        "%-24s | %9s | %9s | %9s | %8s | %9s%n",
         "System",
         "Sent(No^)",
-        "Sent(Str)",
         "Word(No^)",
-        "Word(Str)",
         "DiacWord",
         "Stripped",
         "Tok/sec");
     System.out.println(
-        "------------------------------------------------------------------------------------------------------------");
+        "------------------------------------------------------------------------------------");
 
     for (DeasciifyFn sys : systems) {
       Metrics m = evaluate(sys, inputs, goldSentences);
       System.out.printf(
           Locale.ROOT,
-          "%-24s | %8.2f%% | %8.2f%% | %8.2f%% | %8.2f%% | %8.2f%% | %8d | %9.0f%n",
+          "%-24s | %8.2f%% | %8.2f%% | %8.2f%% | %8d | %9.0f%n",
           m.systemName,
           m.sentAccNoCirc(),
-          m.sentAccStrict(),
           m.wordAccNoCirc(),
-          m.wordAccStrict(),
           m.diacWordAcc(),
           m.strippedPinnedChars,
           m.tokensPerSec());
@@ -448,10 +434,8 @@ public final class LatticeDeasciifierBenchmark {
     }
     double elapsedMs = (System.nanoTime() - t0) / 1_000_000.0;
 
-    int exactStrict = 0;
     int exactNoCirc = 0;
     long totalWords = 0;
-    long corrStrict = 0;
     long corrNoCirc = 0;
     long diacWords = 0;
     long corrDiac = 0;
@@ -461,9 +445,6 @@ public final class LatticeDeasciifierBenchmark {
       String g = gold.get(i);
       String p = preds[i];
       String in = inputs.get(i);
-      if (p.equals(g)) {
-        exactStrict++;
-      }
       if (TurkishTextCodec.stripCircumflex(p).equals(TurkishTextCodec.stripCircumflex(g))) {
         exactNoCirc++;
       }
@@ -486,13 +467,9 @@ public final class LatticeDeasciifierBenchmark {
         }
         totalWords++;
         String predSlice = (gt.end() <= p.length()) ? p.substring(gt.start(), gt.end()) : "";
-        boolean strictMatch = predSlice.equals(gt.original());
         boolean noCircMatch =
             TurkishTextCodec.stripCircumflex(predSlice)
                 .equals(TurkishTextCodec.stripCircumflex(gt.original()));
-        if (strictMatch) {
-          corrStrict++;
-        }
         if (noCircMatch) {
           corrNoCirc++;
         }
@@ -509,10 +486,8 @@ public final class LatticeDeasciifierBenchmark {
         sys.name(),
         n,
         exactNoCirc,
-        exactStrict,
         totalWords,
         corrNoCirc,
-        corrStrict,
         diacWords,
         corrDiac,
         stripped,

@@ -374,9 +374,13 @@ public final class TurkishTextCodec {
 
   /** Projects original uppercase/lowercase shape and pinned diacritics onto {@code chosen}. */
   public static String applyCasingAndPins(Token token, Candidate chosen) {
+    return applyCasingAndPins(token, chosen.surface, chosen.foreignStemLength);
+  }
+
+  /** Projects original uppercase/lowercase shape and pinned diacritics onto {@code candLower}. */
+  public static String applyCasingAndPins(Token token, String candLower, int foreignStemLength) {
     String orig = token.original;
-    String candLower = chosen.surface;
-    if (token.casing == Casing.LOWER && !token.hasPinnedTurkish && chosen.foreignStemLength == 0) {
+    if (token.casing == Casing.LOWER && !token.hasPinnedTurkish && foreignStemLength == 0) {
       return candLower;
     }
     if (orig.length() != candLower.length()) {
@@ -386,7 +390,7 @@ public final class TurkishTextCodec {
     for (int i = 0; i < orig.length(); i++) {
       char o = orig.charAt(i);
       boolean pinned = token.hasPinnedTurkish && isPinnedTurkishDiacritic(o);
-      if (isApostrophe(o) || !isLetter(o) || pinned || i < chosen.foreignStemLength) {
+      if (isApostrophe(o) || !isLetter(o) || pinned || i < foreignStemLength) {
         out[i] = o;
       } else {
         char cl = candLower.charAt(i);

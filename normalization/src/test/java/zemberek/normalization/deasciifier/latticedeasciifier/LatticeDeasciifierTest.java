@@ -74,7 +74,7 @@ public class LatticeDeasciifierTest {
         defaultDeasciifier.deasciify(
             "Sirketin yeni genel mudur yardimcisi bugun goreve basladi."));
     assertEquals(
-        "Rüzgâr sert esiyor ama hâlâ dışarıda yürüyüş yapan insanlar var.",
+        "Rüzgar sert esiyor ama hâlâ dışarıda yürüyüş yapan insanlar var.",
         defaultDeasciifier.deasciify(
             "Ruzgar sert esiyor ama hala disarida yuruyus yapan insanlar var."));
     assertEquals(
@@ -282,6 +282,56 @@ public class LatticeDeasciifierTest {
           mini.deasciify("Universite ogrencileri bilimsel arastirmalar icin kutuphanede bulustu."));
     } finally {
       Files.deleteIfExists(tempBin);
+    }
+  }
+
+  @Test
+  public void supportsCircumflexModesAndPreservesPinnedCircumflexes() {
+    assertEquals(
+        LatticeDeasciifier.CircumflexMode.DISAMBIGUATION_ONLY, defaultDeasciifier.circumflexMode());
+
+    assertEquals(
+        "Çocuklara güzel bir hikaye anlattı.",
+        defaultDeasciifier.deasciify("Cocuklara guzel bir hikaye anlatti."));
+    assertEquals(
+        "Çocuklara güzel bir hikâye anlattı.",
+        defaultDeasciifier.deasciify(
+            "Cocuklara guzel bir hikaye anlatti.", LatticeDeasciifier.CircumflexMode.FULL));
+    assertEquals(
+        "Eski dükkanın önünde kağıt topluyordu.",
+        defaultDeasciifier.deasciify("Eski dukkanin onunde kagit topluyordu."));
+    assertEquals(
+        "Eski dükkanın önünde kâğıt topluyordu.",
+        defaultDeasciifier.deasciify(
+            "Eski dukkanin onunde kagit topluyordu.", LatticeDeasciifier.CircumflexMode.FULL));
+    assertEquals(
+        "Bu yatırım şirket için oldukça kârlı görünüyor.",
+        defaultDeasciifier.deasciify("Bu yatirim sirket icin oldukca karli gorunuyor."));
+
+    LatticeDeasciifier noneMode =
+        defaultDeasciifier.withCircumflexMode(LatticeDeasciifier.CircumflexMode.NONE);
+    assertEquals(
+        "Rüzgar sert esiyor ama hala dışarıda yürüyüş yapan insanlar var.",
+        defaultDeasciifier.deasciify(
+            "Ruzgar sert esiyor ama hala disarida yuruyus yapan insanlar var.",
+            LatticeDeasciifier.CircumflexMode.NONE));
+    assertEquals(
+        "Rüzgar sert esiyor ama hala dışarıda yürüyüş yapan insanlar var.",
+        noneMode.deasciify("Ruzgar sert esiyor ama hala disarida yuruyus yapan insanlar var."));
+    assertEquals(
+        "Şirketin yıllık kar oranı beklentileri aştı.",
+        noneMode.deasciify("Sirketin yillik kar orani beklentileri asti."));
+
+    assertEquals(
+        "Rüzgâr sert esiyor ama hâlâ dışarıda yürüyüş yapan insanlar var.",
+        defaultDeasciifier.deasciify(
+            "Ruzgar sert esiyor ama hala disarida yuruyus yapan insanlar var.",
+            LatticeDeasciifier.CircumflexMode.FULL));
+
+    for (LatticeDeasciifier.CircumflexMode mode : LatticeDeasciifier.CircumflexMode.values()) {
+      assertEquals(
+          "Rüzgârda kâğıt uçuşuyor.",
+          defaultDeasciifier.deasciify("Rüzgârda kâgit ucusuyor.", mode));
     }
   }
 }
