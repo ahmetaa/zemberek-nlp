@@ -133,6 +133,17 @@ public class NormalizerManualCandidatesTest {
             "amin",
             "duymak",
             "sormak",
+            "olmak",
+            "sağ [P:Adj]",
+            "bir [P:Det]",
+            "de [P:Conj]",
+            "teşekkür",
+            "inşallah [P:Interj]",
+            "değil [P:Verb]",
+            "bayağı [P:Adv]",
+            "bay",
+            "demek [A:LastVowelDrop]",
+            "valla [P:Interj]",
             "sen [P:Pron,Pers]",
             "siz [P:Pron,Pers]",
             "şimdi [P:Adv]",
@@ -145,9 +156,19 @@ public class NormalizerManualCandidatesTest {
     Assert.assertEquals("amin", normalizer.normalize("amin"));
     Assert.assertEquals("duydum", normalizer.normalize("duydum"));
     Assert.assertEquals("sordu", normalizer.normalize("sordu"));
+    Assert.assertEquals("oldu", normalizer.normalize("oldu"));
+    Assert.assertEquals("oldum", normalizer.normalize("oldum"));
     Assert.assertEquals("sizi", normalizer.normalize("sizi"));
     Assert.assertEquals("şimdi", normalizer.normalize("simdi"));
     Assert.assertEquals("istanbul'a", normalizer.normalize("istanbula"));
     Assert.assertEquals("bugün", normalizer.normalize("bugun"));
+    Assert.assertEquals("teşekkürler", normalizer.normalize("tşkler"));
+    Assert.assertEquals("inşallah", normalizer.normalize("ins"));
+    Assert.assertEquals("değil", normalizer.normalize("diil"));
+    Assert.assertEquals("diyeyim", normalizer.normalize("diyim"));
+    Assert.assertEquals("valla", normalizer.normalize("walla"));
+    Assert.assertEquals("sağ ol", normalizer.normalize("saol"));
+    Assert.assertEquals("bir de", normalizer.normalize("bide"));
+    Assert.assertEquals("bayağı", normalizer.normalize("baya"));
   }
 }
