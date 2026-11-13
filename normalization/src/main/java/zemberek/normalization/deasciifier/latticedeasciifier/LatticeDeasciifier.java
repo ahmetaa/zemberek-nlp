@@ -71,7 +71,7 @@ public final class LatticeDeasciifier {
           "edebî");
 
   public static final int DEFAULT_BEAM_WIDTH = 4;
-  private static final int MAX_PLAIN_TOKEN_CACHE = 32_768;
+  private static final int MAX_PLAIN_TOKEN_CACHE = 8_192;
   private static final float[] SINGLE_ZERO_PRIOR = {0.0f};
 
   /** Lattice column for a single token in a sentence. */
@@ -161,7 +161,7 @@ public final class LatticeDeasciifier {
 
   LatticeDeasciifier(
       DeasciifierModel model, MorphologicalCandidateGenerator morphGenerator, int beamWidth) {
-    this(model, morphGenerator, beamWidth, DEFAULT_CIRCUMFLEX_MODE, new ConcurrentHashMap<>(4_096));
+    this(model, morphGenerator, beamWidth, DEFAULT_CIRCUMFLEX_MODE, new ConcurrentHashMap<>(1_024));
   }
 
   private LatticeDeasciifier(
