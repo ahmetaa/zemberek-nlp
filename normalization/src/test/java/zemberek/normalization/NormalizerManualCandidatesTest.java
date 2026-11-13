@@ -42,7 +42,7 @@ public class NormalizerManualCandidatesTest {
         arpaPath,
         Arrays.asList(
             "\\data\\",
-            "ngram 1=16",
+            "ngram 1=17",
             "ngram 2=5",
             "",
             "\\1-grams:",
@@ -62,6 +62,7 @@ public class NormalizerManualCandidatesTest {
             "-0.5000 okusana\t-0.1",
             "-1.5000 ne\t-0.1",
             "-1.5000 yaparsak\t-0.1",
+            "-1.5000 istanbul'a\t-0.1",
             "",
             "\\2-grams:",
             "-0.3000 arabayı göstersene",
@@ -123,5 +124,30 @@ public class NormalizerManualCandidatesTest {
     Assert.assertEquals("en ucuz yolu listele", normalizer.normalize("en ucuz yolu listele"));
     Assert.assertEquals("kitabı oku", normalizer.normalize("kitabı oku"));
     Assert.assertEquals("ne yaparsak", normalizer.normalize("naparsak"));
+  }
+
+  @Test
+  public void testCleanedManualEntriesPreserveValidInflections() throws IOException {
+    TurkishMorphology richMorphology = TurkishMorphology.builder()
+        .setLexicon(
+            "amin",
+            "duymak",
+            "sormak",
+            "sen [P:Pron,Pers]",
+            "siz [P:Pron,Pers]",
+            "şimdi [P:Adv]",
+            "İstanbul [P:Prop]",
+            "bugün [P:Adv]")
+        .disableCache()
+        .build();
+    TurkishSentenceNormalizer normalizer =
+        new TurkishSentenceNormalizer(richMorphology, dataRoot, lmPath);
+    Assert.assertEquals("amin", normalizer.normalize("amin"));
+    Assert.assertEquals("duydum", normalizer.normalize("duydum"));
+    Assert.assertEquals("sordu", normalizer.normalize("sordu"));
+    Assert.assertEquals("sizi", normalizer.normalize("sizi"));
+    Assert.assertEquals("şimdi", normalizer.normalize("simdi"));
+    Assert.assertEquals("istanbul'a", normalizer.normalize("istanbula"));
+    Assert.assertEquals("bugün", normalizer.normalize("bugun"));
   }
 }

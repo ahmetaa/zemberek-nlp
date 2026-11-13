@@ -117,4 +117,43 @@ public class NormalizerDeasciifierTest {
     // ASCII uppercase 'I' at start of ASCII text still deasciifies properly.
     Assert.assertEquals("ışık açık", normalizer.normalize("Isik acik"));
   }
+
+  @Test
+  public void testPreservesValidWordsAgainstOverDeasciificationAndDiacriticStripping()
+      throws IOException {
+    TurkishMorphology richMorphology = TurkishMorphology.builder()
+        .setLexicon(
+            "on [P:Num]",
+            "ön",
+            "madde",
+            "olmak",
+            "ölmek",
+            "kanı",
+            "eser",
+            "eş",
+            "konuşmak",
+            "toplantı")
+        .disableCache()
+        .build();
+    TurkishSentenceNormalizer normalizer =
+        new TurkishSentenceNormalizer(richMorphology, dataRoot, lmPath);
+
+    // "Toplantıda" contains Turkish 'ı', so valid "on" must not be over-deasciified into "ön".
+    Assert.assertEquals(
+        "toplantıda on madde konuşuldu .",
+        normalizer.normalize("Toplantıda on madde konuşuldu."));
+    // Valid words with explicit diacritics ("ölmüş", "kanıydı", "eseriniz") must not be corrupted.
+    Assert.assertEquals("ölmüş", normalizer.normalize("ölmüş"));
+    Assert.assertEquals("kanıydı", normalizer.normalize("kanıydı"));
+    Assert.assertEquals("eseriniz", normalizer.normalize("eseriniz"));
+
+    // Verify legacy pattern-table deasciifier path also preserves valid words with preserveValidWords.
+    normalizer.useLegacyDeasciifier();
+    Assert.assertEquals(
+        "toplantıda on madde konuşuldu .",
+        normalizer.normalize("Toplantıda on madde konuşuldu."));
+    Assert.assertEquals("ölmüş", normalizer.normalize("ölmüş"));
+    Assert.assertEquals("kanıydı", normalizer.normalize("kanıydı"));
+    Assert.assertEquals("eseriniz", normalizer.normalize("eseriniz"));
+  }
 }
