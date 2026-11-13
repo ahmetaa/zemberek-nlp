@@ -70,7 +70,7 @@ public final class LatticeDeasciifierBenchmark {
     Path modelPath =
         args.length > 2
             ? Paths.get(args[2])
-            : Paths.get("normalization/src/main/resources/deasciifier/lattice_deasciifier.bin");
+            : Paths.get("experiment/src/main/resources/deasciifier/lattice_deasciifier.bin");
     String modeArg = args.length > 3 ? args[3] : "train";
     boolean reuseExisting = "reuse".equalsIgnoreCase(modeArg);
 

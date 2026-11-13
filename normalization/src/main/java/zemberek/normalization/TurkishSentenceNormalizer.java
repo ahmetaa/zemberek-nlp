@@ -35,7 +35,6 @@ import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.generator.WordGenerator;
 import zemberek.morphology.generator.WordGenerator.Result;
 import zemberek.normalization.deasciifier.Deasciifier;
-import zemberek.normalization.deasciifier.latticedeasciifier.LatticeDeasciifier;
 import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.Token;
 import zemberek.tokenization.Token.Type;
@@ -89,7 +88,6 @@ public class TurkishSentenceNormalizer {
   private final ElongationNormalizer elongationNormalizer;
   boolean alwaysApplyDeasciifier = false;
   private Boolean spellCheckCapitalizedWords = null;
-  private LatticeDeasciifier latticeDeasciifier;
 
   public TurkishSentenceNormalizer(
       TurkishMorphology morphology,
@@ -124,9 +122,6 @@ public class TurkishSentenceNormalizer {
         .setCache(AnalysisCache.builder().dynamicCacheSize(1024, 8_192).build())
         .setAmbiguityResolver((s, a) -> new SentenceAnalysis(s, Collections.emptyList()))
         .build();
-    this.latticeDeasciifier =
-        LatticeDeasciifier.createWithDefaults(
-            this.morphology, this.informalAsciiTolerantMorphology);
     this.contractionExpander = new InformalContractionExpander(
         morphology, informalAsciiTolerantMorphology, analysisConverter);
 
@@ -157,36 +152,6 @@ public class TurkishSentenceNormalizer {
 
   public void setAlwaysApplyDeasciifier(boolean alwaysApplyDeasciifier) {
     this.alwaysApplyDeasciifier = alwaysApplyDeasciifier;
-  }
-
-  /**
-   * Enables {@link LatticeDeasciifier} (enabled by default) using its bundled default model while
-   * sharing this normalizer's formal and informal/diacritic-tolerant {@link TurkishMorphology}
-   * instances.
-   */
-  public TurkishSentenceNormalizer useLatticeDeasciifier() {
-    this.latticeDeasciifier =
-        LatticeDeasciifier.createWithDefaults(
-            this.morphology, this.informalAsciiTolerantMorphology);
-    return this;
-  }
-
-  /**
-   * Switches to the legacy pattern-table {@link Deasciifier} instead of the default {@link
-   * LatticeDeasciifier}.
-   */
-  public TurkishSentenceNormalizer useLegacyDeasciifier() {
-    this.latticeDeasciifier = null;
-    return this;
-  }
-
-  /**
-   * Configures a custom {@link LatticeDeasciifier} instance (or {@code null} to use the legacy
-   * pattern-table {@link Deasciifier}).
-   */
-  public TurkishSentenceNormalizer setLatticeDeasciifier(LatticeDeasciifier latticeDeasciifier) {
-    this.latticeDeasciifier = latticeDeasciifier;
-    return this;
   }
 
   /**
@@ -529,12 +494,6 @@ public class TurkishSentenceNormalizer {
   String preProcess(String sentence) {
     boolean requiresDeasciifier = alwaysApplyDeasciifier || probablyRequiresDeasciifier(sentence);
     boolean preserveValidWords = !alwaysApplyDeasciifier && hasTurkishSpecificChars(sentence);
-    if (requiresDeasciifier && latticeDeasciifier != null) {
-      // Deasciify before Turkish.LOCALE lowercasing so uppercase ASCII 'I' ("Istanbul", "Isik",
-      // "TUIK", "BIOS") and TitleCase proper-noun cues are not destroyed into dotless 'ı'.
-      // Known-word mode leaves OOV typos and foreign words untouched for downstream spell-checking.
-      sentence = latticeDeasciifier.deasciifyKnownWords(sentence);
-    }
     sentence = sentence.toLowerCase(Turkish.LOCALE);
     List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
     String s = replaceCommon(tokens);
@@ -545,11 +504,7 @@ public class TurkishSentenceNormalizer {
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
     s = splitNecessaryWords(tokens, false);
     if (requiresDeasciifier) {
-      if (latticeDeasciifier == null) {
-        s = deasciifyValidWords(s, preserveValidWords);
-      } else if (!s.equals(sentence)) {
-        s = latticeDeasciifier.deasciifyKnownWords(s);
-      }
+      s = deasciifyValidWords(s, preserveValidWords);
     }
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
     s = combineNecessaryWords(tokens);

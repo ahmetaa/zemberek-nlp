@@ -219,25 +219,19 @@ public class LatticeDeasciifierTest {
               .getLmDir(),
           new NgramDataBlock(8, 8, 8));
 
-      // LatticeDeasciifier is enabled by default in TurkishSentenceNormalizer:
       TurkishSentenceNormalizer normalizer =
           new TurkishSentenceNormalizer(sharedStrictMorph, tempRoot, lmPath);
       normalizer.setAlwaysApplyDeasciifier(true);
 
-      // Verifies uppercase 'I' -> 'ı' / 'İ' -> 'i' is preserved before normalizer lowercasing,
-      // informal future suffix ("gidicem" -> "gideceğim") is normalized, and glued question clitic splits:
-      String normalized =
-          normalizer.normalize(
+      // Composes explicit LatticeDeasciifier pre-pass before TurkishSentenceNormalizer so uppercase
+      // 'I' -> 'ı' / 'İ' -> 'i' is preserved before lowercasing, while normalizer still handles
+      // informal suffixes ("gidicem" -> "gideceğim") and glued question clitic splitting:
+      String preDeasciified =
+          dualInjectedDeasciifier.deasciifyKnownWords(
               "ISTANBUL'DA hava cok guzel yarin kutuphaneye gidicem gelecekmisiniz");
       assertEquals(
-          "istanbul'da hava çok güzel yarın kütüphaneye gideceğim gelecek misiniz", normalized);
-
-      // Callers can switch to legacy pattern-table Deasciifier and back if needed:
-      normalizer.useLegacyDeasciifier().useLatticeDeasciifier();
-      assertEquals(
           "istanbul'da hava çok güzel yarın kütüphaneye gideceğim gelecek misiniz",
-          normalizer.normalize(
-              "ISTANBUL'DA hava cok guzel yarin kutuphaneye gidicem gelecekmisiniz"));
+          normalizer.normalize(preDeasciified));
     } finally {
       try (var walk = Files.walk(tempRoot)) {
         walk.sorted(Comparator.reverseOrder())

@@ -146,14 +146,5 @@ public class NormalizerDeasciifierTest {
     Assert.assertEquals("ölmüş", normalizer.normalize("ölmüş"));
     Assert.assertEquals("kanıydı", normalizer.normalize("kanıydı"));
     Assert.assertEquals("eseriniz", normalizer.normalize("eseriniz"));
-
-    // Verify legacy pattern-table deasciifier path also preserves valid words with preserveValidWords.
-    normalizer.useLegacyDeasciifier();
-    Assert.assertEquals(
-        "toplantıda on madde konuşuldu .",
-        normalizer.normalize("Toplantıda on madde konuşuldu."));
-    Assert.assertEquals("ölmüş", normalizer.normalize("ölmüş"));
-    Assert.assertEquals("kanıydı", normalizer.normalize("kanıydı"));
-    Assert.assertEquals("eseriniz", normalizer.normalize("eseriniz"));
   }
 }
