@@ -15,11 +15,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import zemberek.core.dynamic.ActiveList;
 import zemberek.core.dynamic.Scorable;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
+import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -59,10 +61,28 @@ public class TurkishSentenceNormalizer {
   private TurkishMorphology informalAsciiTolerantMorphology;
   private InformalAnalysisConverter analysisConverter;
 
+  private static final Pattern ASCII_DIGITS_PATTERN = Pattern.compile("\\d{1,6}");
+
+  private static final Set<String> UNAMBIGUOUS_NUMERAL_SUFFIXES = new HashSet<>(Arrays.asList(
+      "te", "den", "dan", "ten", "tan",
+      "inci", "ıncı", "uncu", "üncü", "nci", "ncı", "ncu", "ncü",
+      "deki", "daki", "teki", "taki",
+      "leri", "ları", "lerde", "larda", "lerden", "lardan", "lerin", "ların",
+      "li", "lı", "lu", "lü", "lik", "lık", "luk", "lük",
+      "nin", "nın", "nun", "nün", "yle", "yla",
+      "sında", "sinde", "sından", "sinden", "sına", "sine", "sını", "sini"));
+
+  private static final Set<String> NUMERAL_LOCATIVE_SUFFIXES = new HashSet<>(Arrays.asList(
+      "de", "da", "ta"));
+
+  private static final Set<String> NUMERAL_LOCATIVE_ANCHORS = new HashSet<>(Arrays.asList(
+      "saat", "sayfa", "madde", "bölüm", "numara", "no", "kat", "kanal", "peron", "hat"));
+
   private Map<String, String> commonSplits = new HashMap<>();
   private Map<String, String> replacements = new HashMap<>();
   private HashSet<String> commonConnectedSuffixes = new HashSet<>();
   private HashSet<String> noSplitWords = new HashSet<>();
+  private final ElongationNormalizer elongationNormalizer;
   boolean alwaysApplyDeasciifier = false;
   private Boolean spellCheckCapitalizedWords = null;
 
@@ -119,6 +139,10 @@ public class TurkishSentenceNormalizer {
       String[] tokens = replaceLine.split("=");
       replacements.put(tokens[0].trim(), tokens[1].trim());
     }
+
+    this.elongationNormalizer = new ElongationNormalizer(
+        this::isValidLexicalWord,
+        this::unigramScore);
   }
 
   public void setAlwaysApplyDeasciifier(boolean alwaysApplyDeasciifier) {
@@ -447,6 +471,8 @@ public class TurkishSentenceNormalizer {
     List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
     String s = replaceCommon(tokens);
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
+    s = normalizeElongations(tokens);
+    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
     s = combineNecessaryWords(tokens);
     tokens = TurkishTokenizer.DEFAULT.tokenize(s);
     s = splitNecessaryWords(tokens, false);
@@ -602,6 +628,68 @@ public class TurkishSentenceNormalizer {
     return ratio < 0.1;
   }
 
+  String normalizeElongations(List<Token> tokens) {
+    List<String> result = new ArrayList<>(tokens.size());
+    for (Token token : tokens) {
+      String text = token.getText();
+      result.add(isWord(token) ? elongationNormalizer.normalizeWord(text) : text);
+    }
+    return String.join(" ", result);
+  }
+
+  private boolean isValidLexicalWord(String word) {
+    WordAnalysis analysis = morphology.analyze(word);
+    return analysis.stream().anyMatch(
+        k -> !k.isUnknown() && !k.isRuntime()
+            && k.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation);
+  }
+
+  private double unigramScore(String word) {
+    if (!lm.getVocabulary().contains(word)) {
+      return Double.NEGATIVE_INFINITY;
+    }
+    return lm.getUnigramProbability(lm.getVocabulary().indexOf(word));
+  }
+
+  String combineNumeralSuffix(String prevWord, String number, String suffix) {
+    if (suffix.length() < 2) {
+      return "";
+    }
+    boolean allowed = UNAMBIGUOUS_NUMERAL_SUFFIXES.contains(suffix)
+        || (NUMERAL_LOCATIVE_SUFFIXES.contains(suffix)
+            && NUMERAL_LOCATIVE_ANCHORS.contains(prevWord));
+    if (!allowed) {
+      return "";
+    }
+    String result = tryNumeralAnalysis(number + "'" + suffix);
+    if (!result.isEmpty()) {
+      return result;
+    }
+    char firstChar = suffix.charAt(0);
+    if (firstChar == 'd' || firstChar == 't') {
+      char toggled = (firstChar == 'd') ? 't' : 'd';
+      result = tryNumeralAnalysis(number + "'" + toggled + suffix.substring(1));
+      if (!result.isEmpty()) {
+        return result;
+      }
+    }
+    if ("inci".equals(suffix) || "ıncı".equals(suffix)
+        || "uncu".equals(suffix) || "üncü".equals(suffix)) {
+      result = tryNumeralAnalysis(number + "'" + suffix.substring(1));
+      if (!result.isEmpty()) {
+        return result;
+      }
+    }
+    return "";
+  }
+
+  private String tryNumeralAnalysis(String candidate) {
+    WordAnalysis analysis = morphology.analyze(candidate);
+    boolean validNumeral = analysis.stream().anyMatch(
+        k -> !k.isUnknown() && k.getDictionaryItem().primaryPos == PrimaryPos.Numeral);
+    return validNumeral ? candidate : "";
+  }
+
   String combineNecessaryWords(List<Token> tokens) {
     if (tokens.isEmpty()) {
       return "";
@@ -609,17 +697,27 @@ public class TurkishSentenceNormalizer {
     List<String> result = new ArrayList<>();
     boolean combined = false;
     for (int i = 0; i < tokens.size() - 1; i++) {
+      if (combined) {
+        combined = false;
+        continue;
+      }
       Token first = tokens.get(i);
       Token second = tokens.get(i + 1);
       String firstS = first.getText();
       String secondS = second.getText();
-      if (!isWord(first) || !isWord(second)) {
-        combined = false;
-        result.add(firstS);
-        continue;
+      if (first.getType() == Type.Number
+          && isWord(second)
+          && ASCII_DIGITS_PATTERN.matcher(firstS).matches()) {
+        String prevWord = i > 0 ? tokens.get(i - 1).getText() : "";
+        String combinedNum = combineNumeralSuffix(prevWord, firstS, secondS);
+        if (!combinedNum.isEmpty()) {
+          result.add(combinedNum);
+          combined = true;
+          continue;
+        }
       }
-      if (combined) {
-        combined = false;
+      if (!isWord(first) || !isWord(second)) {
+        result.add(firstS);
         continue;
       }
       String c = combineCommon(firstS, secondS);
@@ -627,8 +725,7 @@ public class TurkishSentenceNormalizer {
         result.add(c);
         combined = true;
       } else {
-        result.add(first.getText());
-        combined = false;
+        result.add(firstS);
       }
     }
     if (!combined) {
