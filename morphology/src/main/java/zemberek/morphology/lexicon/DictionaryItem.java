@@ -138,6 +138,18 @@ public class DictionaryItem {
     return this == UNKNOWN;
   }
 
+  public boolean isProperNoun() {
+    return secondaryPos == SecondaryPos.ProperNoun;
+  }
+
+  public boolean isAbbreviation() {
+    return secondaryPos == SecondaryPos.Abbreviation;
+  }
+
+  public boolean isExtended() {
+    return hasAttribute(RootAttribute.Ext);
+  }
+
   public boolean hasAttribute(RootAttribute attribute) {
     return attributes.contains(attribute);
   }

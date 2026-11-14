@@ -36,46 +36,45 @@ public class Token {
     return end;
   }
 
-  boolean isNumeral() {
-    return type == Type.Number ||
-        type == Type.RomanNumeral ||
-//        type == Type.CardinalNumber ||
-//        type == Type.RealNumber ||
-//        type == Type.Range ||
-//        type == Type.Ratio ||
-//        type == Type.Distribution ||
-//        type == Type.OrdinalNumber ||
-        type == Type.PercentNumeral;
+  public boolean isNumeral() {
+    return switch (type) {
+      case Number, RomanNumeral, PercentNumeral -> true;
+      default -> false;
+    };
   }
 
-  boolean isWhiteSpace() {
-    return type == Type.SpaceTab ||
-        type == Type.NewLine;
+  public boolean isWhiteSpace() {
+    return type == Type.SpaceTab || type == Type.NewLine;
   }
 
-  boolean isWebRelated() {
-    return
-        type == Type.HashTag ||
-            type == Type.Mention ||
-            type == Type.URL ||
-            type == Type.MetaTag ||
-            type == Type.Email;
+  public boolean isWebRelated() {
+    return switch (type) {
+      case HashTag, Mention, URL, MetaTag, Email -> true;
+      default -> false;
+    };
   }
 
   public String getText() {
     return content;
   }
 
-  boolean isEmoji() {
+  public boolean isEmoji() {
     return type == Type.Emoji || type == Type.Emoticon;
   }
 
-  boolean isUnidentified() {
+  public boolean isUnidentified() {
     return type == Type.Unknown || type == Type.UnknownWord;
   }
 
-  boolean isWord() {
+  public boolean isWord() {
     return type == Type.Word || type == Type.Abbreviation;
+  }
+
+  public boolean isWordLike() {
+    return switch (type) {
+      case Word, WordWithSymbol, WordAlphanumerical, UnknownWord -> true;
+      default -> false;
+    };
   }
 
   @Override

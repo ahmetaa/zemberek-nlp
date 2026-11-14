@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import zemberek.core.ScoredItem;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.Turkish;
@@ -22,8 +21,8 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.WordAnalysisSurfaceFormatter;
 import zemberek.normalization.CharacterGraphDecoder.CharMatcher;
-import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.Token;
+import zemberek.tokenization.TurkishTokenizer;
 
 public class TurkishSpellChecker {
 
@@ -31,7 +30,6 @@ public class TurkishSpellChecker {
   private static final float DIACRITIC_DIFF_WEIGHT = 0.65f;
   private static final float DIACRITIC_DIFF_WEIGHT_ASCII = 0.20f;
 
-  private static final NgramLanguageModel DUMMY_LM = new DummyLanguageModel();
   private static final TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;
   TurkishMorphology morphology;
   WordAnalysisSurfaceFormatter formatter = new WordAnalysisSurfaceFormatter();
@@ -71,28 +69,20 @@ public class TurkishSpellChecker {
     this.charMatcher = matcher;
   }
 
-  // TODO: this is a temporary hack.
   public void setAnalysisPredicate(Predicate<SingleAnalysis> analysisPredicate) {
     this.analysisPredicate = analysisPredicate;
   }
 
-  //TODO: this does not cover all token types.
   public static List<String> tokenizeForSpelling(String sentence) {
     List<Token> tokens = tokenizer.tokenize(sentence);
     List<String> result = new ArrayList<>(tokens.size());
     for (Token token : tokens) {
-      if (token.getType() == Token.Type.Unknown ||
-          token.getType() == Token.Type.UnknownWord ||
-          token.getType() == Token.Type.Punctuation) {
-        continue;
+      switch (token.getType()) {
+        case Unknown, UnknownWord, Punctuation -> {}
+        case Word -> result.add(token.getText().toLowerCase(Turkish.LOCALE));
+        case WordWithSymbol -> result.add(Turkish.capitalize(token.getText()));
+        default -> result.add(token.getText());
       }
-      String w = token.getText();
-      if (token.getType() == Token.Type.Word) {
-        w = w.toLowerCase(Turkish.LOCALE);
-      } else if (token.getType() == Token.Type.WordWithSymbol) {
-        w = Turkish.capitalize(w);
-      }
-      result.add(w);
     }
     return result;
   }
@@ -100,29 +90,29 @@ public class TurkishSpellChecker {
   public boolean check(String input) {
     WordAnalysis analyses = morphology.analyze(input);
     WordAnalysisSurfaceFormatter.CaseType caseType = formatter.guessCase(input);
+    String apostrophe = getApostrophe(input);
     for (SingleAnalysis analysis : analyses) {
-      if (analysis.isUnknown()) {
+      if (!isAllowedAnalysis(analysis)) {
         continue;
       }
-      if (analysisPredicate != null && !analysisPredicate.test(analysis)) {
-        continue;
-      }
-      String apostrophe = getApostrophe(input);
-
-      if (formatter.canBeFormatted(analysis, caseType)) {
-        String formatted = formatter.formatToCase(analysis, caseType, apostrophe);
-        if (input.equals(formatted)) {
-          return true;
-        }
+      if (formatter.canBeFormatted(analysis, caseType)
+          && input.equals(formatter.formatToCase(analysis, caseType, apostrophe))) {
+        return true;
       }
     }
     return false;
   }
 
-  private String getApostrophe(String input) {
+  private boolean isAllowedAnalysis(SingleAnalysis analysis) {
+    return !analysis.isUnknown()
+        && (analysisPredicate == null || analysisPredicate.test(analysis));
+  }
+
+  private static String getApostrophe(String input) {
     if (input.indexOf('’') > 0) {
       return "’";
-    } else if (input.indexOf('\'') > 0) {
+    }
+    if (input.indexOf('\'') > 0) {
       return "'";
     }
     return null;
@@ -144,56 +134,55 @@ public class TurkishSpellChecker {
     float logScale = lmLogScale(lm);
     List<ScoredItem<String>> results = new ArrayList<>(scored.size());
     for (ScoredSuggestion suggestion : scored) {
-      int wordIndex = lmVocabularyIndex(suggestion.surface, vocabulary);
+      int wordIndex = vocabulary.indexOfTurkishWord(suggestion.surface);
       float score =
           lm.getUnigramProbability(wordIndex)
               - logScale * suggestion.channelPenalty(DIACRITIC_DIFF_WEIGHT);
       results.add(new ScoredItem<>(suggestion.surface, score));
     }
-    results.sort(ScoredItem.STRING_COMP_DESCENDING);
-    return results.stream().map(s -> s.item).collect(Collectors.toList());
+    return sortAndExtractItems(results);
   }
 
   private static List<String> toSurfaceList(List<ScoredSuggestion> scored) {
-    List<String> out = new ArrayList<>(scored.size());
-    for (ScoredSuggestion s : scored) {
-      out.add(s.surface);
-    }
-    return out;
+    return scored.stream().map(ScoredSuggestion::surface).toList();
+  }
+
+  private static List<String> sortAndExtractItems(List<ScoredItem<String>> results) {
+    results.sort(ScoredItem.STRING_COMP_DESCENDING);
+    return results.stream().map(s -> s.item).toList();
   }
 
   private List<ScoredSuggestion> getScoredSuggestions(String word) {
-    String stripped = stripApostrophes(word);
+    String stripped = TurkishAlphabet.INSTANCE.stripApostrophes(word);
     String normalized = TurkishAlphabet.INSTANCE.normalize(stripped);
     List<ScoredItem<String>> rawScored = decoder.getSuggestionsWithScores(normalized, charMatcher);
 
     WordAnalysisSurfaceFormatter.CaseType caseType = formatter.guessCase(word);
-    if (caseType == WordAnalysisSurfaceFormatter.CaseType.MIXED_CASE ||
-        caseType == WordAnalysisSurfaceFormatter.CaseType.LOWER_CASE) {
+    if (caseType == WordAnalysisSurfaceFormatter.CaseType.MIXED_CASE
+        || caseType == WordAnalysisSurfaceFormatter.CaseType.LOWER_CASE) {
       caseType = WordAnalysisSurfaceFormatter.CaseType.DEFAULT_CASE;
     }
+    String apostrophe = getApostrophe(word);
     Map<String, ScoredSuggestion> results = new LinkedHashMap<>(rawScored.size());
     for (ScoredItem<String> raw : rawScored) {
-      WordAnalysis analyses = morphology.analyze(raw.item);
-      for (SingleAnalysis analysis : analyses) {
-        if (analysis.isUnknown()) {
+      for (SingleAnalysis analysis : morphology.analyze(raw.item)) {
+        if (!isAllowedAnalysis(analysis)) {
           continue;
         }
-        if (analysisPredicate != null && !analysisPredicate.test(analysis)) {
-          continue;
-        }
-        String formatted = formatter.formatToCase(analysis, caseType, getApostrophe(word));
+        String formatted = formatter.formatToCase(analysis, caseType, apostrophe);
         int diacDiffs = countDiacriticDifferences(stripped, formatted);
         float nonDiacriticEdits =
             charMatcher == null ? Math.max(0f, raw.score - diacDiffs) : raw.score;
         ScoredSuggestion candidate =
             new ScoredSuggestion(formatted, nonDiacriticEdits, diacDiffs);
-        ScoredSuggestion existing = results.get(formatted);
-        if (existing == null
-            || candidate.channelPenalty(DIACRITIC_DIFF_WEIGHT)
-                < existing.channelPenalty(DIACRITIC_DIFF_WEIGHT)) {
-          results.put(formatted, candidate);
-        }
+        results.merge(
+            formatted,
+            candidate,
+            (existing, next) ->
+                next.channelPenalty(DIACRITIC_DIFF_WEIGHT)
+                        < existing.channelPenalty(DIACRITIC_DIFF_WEIGHT)
+                    ? next
+                    : existing);
       }
     }
     return new ArrayList<>(results.values());
@@ -219,83 +208,53 @@ public class TurkishSpellChecker {
       return toSurfaceList(scored);
     }
     if (lm.getOrder() < 2) {
-      Log.warn("Language model order is 1. For context ranking it should be at least 2. " +
-          "Unigram ranking will be applied.");
+      Log.warn("Language model order is 1. For context ranking it should be at least 2. "
+          + "Unigram ranking will be applied.");
       return suggestForWord(word, lm);
     }
     LmVocabulary vocabulary = lm.getVocabulary();
     int leftIndex = leftContext == null
         ? vocabulary.indexOf(vocabulary.getSentenceStart())
-        : lmVocabularyIndex(leftContext, vocabulary);
+        : vocabulary.indexOfTurkishWord(leftContext);
     int rightIndex = rightContext == null
         ? vocabulary.indexOf(vocabulary.getSentenceEnd())
-        : lmVocabularyIndex(rightContext, vocabulary);
+        : vocabulary.indexOfTurkishWord(rightContext);
     float diacriticWeight = asciiContext ? DIACRITIC_DIFF_WEIGHT_ASCII : DIACRITIC_DIFF_WEIGHT;
     float logScale = lmLogScale(lm);
 
     List<ScoredItem<String>> results = new ArrayList<>(scored.size());
     for (ScoredSuggestion suggestion : scored) {
-      int wordIndex = lmVocabularyIndex(suggestion.surface, vocabulary);
+      int wordIndex = vocabulary.indexOfTurkishWord(suggestion.surface);
       float lmScore = lm.getOrder() == 2
           ? lm.getProbability(leftIndex, wordIndex) + lm.getProbability(wordIndex, rightIndex)
           : lm.getProbability(leftIndex, wordIndex, rightIndex);
       float score = lmScore - logScale * suggestion.channelPenalty(diacriticWeight);
       results.add(new ScoredItem<>(suggestion.surface, score));
     }
-    results.sort(ScoredItem.STRING_COMP_DESCENDING);
-    return results.stream().map(s -> s.item).collect(Collectors.toList());
+    return sortAndExtractItems(results);
   }
 
   private static float lmLogScale(NgramLanguageModel lm) {
-    if (lm instanceof SmoothLm) {
-      double base = ((SmoothLm) lm).getLogBase();
-      if (base > 1.0001) {
-        return (float) (1.0 / Math.log(base));
-      }
-    }
-    if (lm instanceof DummyLanguageModel) {
-      return 1.0f;
-    }
-    return (float) (1.0 / Math.log(10.0));
-  }
-
-  private static String stripApostrophes(String s) {
-    if (s.indexOf('\'') < 0 && s.indexOf('’') < 0) {
-      return s;
-    }
-    StringBuilder sb = new StringBuilder(s.length());
-    for (int i = 0; i < s.length(); i++) {
-      char c = s.charAt(i);
-      if (c != '\'' && c != '’') {
-        sb.append(c);
-      }
-    }
-    return sb.toString();
-  }
-
-  private static char toLowerTurkish(char c) {
-    if (c == 'I') {
-      return 'ı';
-    }
-    if (c == 'İ') {
-      return 'i';
-    }
-    return Character.toLowerCase(c);
+    return switch (lm) {
+      case SmoothLm smooth when smooth.getLogBase() > 1.0001 ->
+          (float) (1.0 / Math.log(smooth.getLogBase()));
+      case DummyLanguageModel ignored -> 1.0f;
+      default -> (float) (1.0 / Math.log(10.0));
+    };
   }
 
   static int countDiacriticDifferences(String source, String target) {
-    String a = stripApostrophes(source);
-    String b = stripApostrophes(target);
+    TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+    String a = alphabet.stripApostrophes(source);
+    String b = alphabet.stripApostrophes(target);
     int n = a.length();
     int m = b.length();
     if (n == m) {
       int diffs = 0;
       for (int i = 0; i < n; i++) {
-        char la = toLowerTurkish(a.charAt(i));
-        char lb = toLowerTurkish(b.charAt(i));
-        if (la != lb
-            && TurkishAlphabet.INSTANCE.getAsciiEqual(la)
-                == TurkishAlphabet.INSTANCE.getAsciiEqual(lb)) {
+        char la = Turkish.toLower(a.charAt(i));
+        char lb = Turkish.toLower(b.charAt(i));
+        if (la != lb && alphabet.getAsciiEqual(la) == alphabet.getAsciiEqual(lb)) {
           diffs++;
         }
       }
@@ -305,10 +264,9 @@ public class TurkishSpellChecker {
     int left = 0;
     int limit = Math.min(n, m);
     while (left < limit) {
-      char la = toLowerTurkish(a.charAt(left));
-      char lb = toLowerTurkish(b.charAt(left));
-      if (TurkishAlphabet.INSTANCE.getAsciiEqual(la)
-          != TurkishAlphabet.INSTANCE.getAsciiEqual(lb)) {
+      char la = Turkish.toLower(a.charAt(left));
+      char lb = Turkish.toLower(b.charAt(left));
+      if (alphabet.getAsciiEqual(la) != alphabet.getAsciiEqual(lb)) {
         break;
       }
       if (la != lb) {
@@ -319,10 +277,9 @@ public class TurkishSpellChecker {
     int ra = n;
     int rb = m;
     while (ra > left && rb > left) {
-      char la = toLowerTurkish(a.charAt(ra - 1));
-      char lb = toLowerTurkish(b.charAt(rb - 1));
-      if (TurkishAlphabet.INSTANCE.getAsciiEqual(la)
-          != TurkishAlphabet.INSTANCE.getAsciiEqual(lb)) {
+      char la = Turkish.toLower(a.charAt(ra - 1));
+      char lb = Turkish.toLower(b.charAt(rb - 1));
+      if (alphabet.getAsciiEqual(la) != alphabet.getAsciiEqual(lb)) {
         break;
       }
       if (la != lb) {
@@ -335,15 +292,7 @@ public class TurkishSpellChecker {
   }
 
   static int lmVocabularyIndex(String s, LmVocabulary vocabulary) {
-    String normalized = s.indexOf('’') >= 0 ? s.replace('’', '\'') : s;
-    String lower = normalized.toLowerCase(Turkish.LOCALE);
-    if (normalized.indexOf('\'') > 0) {
-      String cap = Turkish.capitalize(normalized);
-      if (vocabulary.contains(cap)) {
-        return vocabulary.indexOf(cap);
-      }
-    }
-    return vocabulary.indexOf(lower);
+    return vocabulary.indexOfTurkishWord(s);
   }
 
   public List<String> suggestForWord(String word) {
@@ -362,10 +311,9 @@ public class TurkishSpellChecker {
     LmVocabulary vocabulary = lm.getVocabulary();
     List<ScoredItem<String>> results = new ArrayList<>(strings.size());
     for (String string : strings) {
-      int wordIndex = lmVocabularyIndex(string, vocabulary);
+      int wordIndex = vocabulary.indexOfTurkishWord(string);
       results.add(new ScoredItem<>(string, lm.getUnigramProbability(wordIndex)));
     }
-    results.sort(ScoredItem.STRING_COMP_DESCENDING);
-    return results.stream().map(s -> s.item).collect(Collectors.toList());
+    return sortAndExtractItems(results);
   }
 }

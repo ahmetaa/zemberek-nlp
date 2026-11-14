@@ -58,10 +58,7 @@ public class NormalizationVocabularyGenerator {
     Files.createDirectories(outRoot);
 
     // create vocabularies
-    int threadCount = Runtime.getRuntime().availableProcessors() / 2;
-    if (threadCount > 22) {
-      threadCount = 22;
-    }
+    int threadCount = Math.clamp(Runtime.getRuntime().availableProcessors() / 2, 1, 22);
 
     generator.createVocabulary(
         corpusProvider,
@@ -211,25 +208,18 @@ public class NormalizationVocabularyGenerator {
             local.incorrect.add(s);
             continue;
           }
-          // TODO: fix below.
-          if (token.getType() == Type.URL ||
-              token.getType() == Type.Punctuation ||
-              token.getType() == Type.Email ||
-              token.getType() == Type.HashTag ||
-              token.getType() == Type.Mention ||
-              token.getType() == Type.Emoticon ||
-              token.getType() == Type.Unknown ||
-              local.ignored.contains(s) ||
-              globalVocabulary.ignored.contains(s) ||
-              TurkishAlphabet.INSTANCE.containsDigit(s) /*||
-              TurkishAlphabet.INSTANCE.containsApostrophe(s) ||
-              Character.isUpperCase(s.charAt(0))*/) {
+          if (token.isWebRelated()
+              || token.isEmoji()
+              || token.getType() == Type.Punctuation
+              || token.getType() == Type.Unknown
+              || local.ignored.contains(s)
+              || globalVocabulary.ignored.contains(s)
+              || TurkishAlphabet.INSTANCE.containsDigit(s)) {
             local.ignored.add(s);
             continue;
           }
           if (normalize) {
-            s = s.toLowerCase(Turkish.LOCALE);
-            s = s.replaceAll("'", "");
+            s = TurkishAlphabet.INSTANCE.stripApostrophes(s.toLowerCase(Turkish.LOCALE));
           }
           WordAnalysis results = morphology.analyze(s);
           if (results.analysisCount() == 0) {

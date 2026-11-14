@@ -6,13 +6,10 @@ import java.util.Set;
 import zemberek.core.collections.Histogram;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
-import zemberek.core.turkish.SecondaryPos;
-import zemberek.core.turkish.StemAndEnding;
 import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.StemTransitions;
-import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.morphotactics.StemTransition;
 
 /**
@@ -22,20 +19,12 @@ import zemberek.morphology.morphotactics.StemTransition;
  */
 public class StemEndingGraph {
 
-  CharacterGraph stemGraph;
-  private CharacterGraph endingGraph;
-
-  private TurkishMorphology morphology;
+  final CharacterGraph stemGraph;
+  private final CharacterGraph endingGraph;
+  private final TurkishMorphology morphology;
 
   public StemEndingGraph(TurkishMorphology morphology) throws IOException {
-    this.morphology = morphology;
-    List<String> endings = TextIO.loadLinesFromResource("endings");
-    this.endingGraph = generateEndingGraph(endings);
-    this.stemGraph = generateStemGraph();
-    Set<Node> stemWordNodes = stemGraph.getAllNodes(n -> n.word != null);
-    for (Node node : stemWordNodes) {
-      node.connectEpsilon(endingGraph.getRoot());
-    }
+    this(morphology, TextIO.loadLinesFromResource("endings"));
   }
 
   StemEndingGraph(TurkishMorphology morphology, List<String> endings) {
@@ -51,14 +40,13 @@ public class StemEndingGraph {
   List<String> getEndingsFromVocabulary(List<String> words) {
     Histogram<String> endings = new Histogram<>(words.size() / 10);
     for (String word : words) {
-      WordAnalysis analyses = morphology.analyze(word);
-      for (SingleAnalysis analysis : analyses) {
+      for (SingleAnalysis analysis : morphology.analyze(word)) {
         if (analysis.isUnknown()) {
           continue;
         }
-        StemAndEnding se = analysis.getStemAndEnding();
-        if (se.ending.length() > 0) {
-          endings.add(se.ending);
+        String ending = analysis.getEnding();
+        if (!ending.isEmpty()) {
+          endings.add(ending);
         }
       }
     }
@@ -74,16 +62,16 @@ public class StemEndingGraph {
   }
 
   private CharacterGraph generateStemGraph() {
-    CharacterGraph stemGraph = new CharacterGraph();
+    CharacterGraph graph = new CharacterGraph();
     StemTransitions stemTransitions = morphology.getMorphotactics().getStemTransitions();
     for (StemTransition transition : stemTransitions.getTransitions()) {
-      if (transition.surface.length() == 0
+      if (transition.surface.isEmpty()
           || transition.item.primaryPos == PrimaryPos.Punctuation
-          || transition.item.secondaryPos == SecondaryPos.Abbreviation) {
+          || transition.item.isAbbreviation()) {
         continue;
       }
-      stemGraph.addWord(transition.surface, Node.TYPE_WORD);
+      graph.addWord(transition.surface, Node.TYPE_WORD);
     }
-    return stemGraph;
+    return graph;
   }
 }

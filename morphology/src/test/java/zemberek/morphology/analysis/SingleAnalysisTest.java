@@ -142,5 +142,34 @@ public class SingleAnalysisTest extends AnalyzerTestBase {
     }
   }
 
+  @Test
+  public void regularWordAndEndingPredicatesTest() {
+    RuleBasedAnalyzer analyzer = getAnalyzer(
+        "kitap",
+        "Ankara [P:Noun, Prop]",
+        "vb [P:Noun, Abbrv]",
+        "falan [A:Ext]");
+
+    SingleAnalysis bareNoun = analyzer.analyze("kitap").get(0);
+    Assert.assertTrue(bareNoun.isKnownLexical());
+    Assert.assertTrue(bareNoun.isRegularWord());
+    Assert.assertFalse(bareNoun.hasEnding());
+
+    SingleAnalysis inflectedNoun = analyzer.analyze("kitaplarda").get(0);
+    Assert.assertTrue(inflectedNoun.isRegularWord());
+    Assert.assertTrue(inflectedNoun.hasEnding());
+
+    SingleAnalysis proper = analyzer.analyze("ankara").get(0);
+    Assert.assertTrue(proper.getDictionaryItem().isProperNoun());
+    Assert.assertFalse(proper.isRegularWord());
+
+    SingleAnalysis abbrv = analyzer.analyze("vb").get(0);
+    Assert.assertTrue(abbrv.getDictionaryItem().isAbbreviation());
+    Assert.assertFalse(abbrv.isRegularWord());
+
+    SingleAnalysis ext = analyzer.analyze("falan").get(0);
+    Assert.assertTrue(ext.getDictionaryItem().isExtended());
+    Assert.assertTrue(ext.isRegularWord());
+  }
 
 }
