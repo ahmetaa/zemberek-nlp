@@ -777,28 +777,87 @@ public class TurkishSentenceNormalizer {
    * </pre>
    */
   String combineCommon(String i1, String i2) {
+    String solidCompound = combineSolidCompound(i1, i2);
+    if (solidCompound != null) {
+      return solidCompound;
+    }
     String combined = i1 + i2;
-    if (i2.startsWith("'") || i2.startsWith("bil") || isAlwaysSolidCompound(i1, i2)) {
+    if (i2.startsWith("'") || i2.startsWith("bil")) {
       WordAnalysis w = morphology.analyze(combined);
       if (hasAnalysis(w)) {
         return combined;
       }
     }
-    if (!hasRegularAnalysis(i2)) {
-      WordAnalysis w = morphology.analyze(combined);
-      if (hasAnalysis(w)) {
-        return combined;
-      }
+    if (!hasRegularAnalysis(i2)
+        && !lookupManual.containsKey(i2)
+        && !hasAsciiRootWordAnalysis(i2)
+        && hasRegularAnalysis(combined)) {
+      return combined;
     }
     return "";
   }
 
-  private static boolean isAlwaysSolidCompound(String i1, String i2) {
-    return (("uluslar".equals(i1) || "milletler".equals(i1)) && i2.startsWith("arası"))
-        || ("hiç".equals(i1) && i2.startsWith("bir"))
-        || ("bir".equals(i1) && i2.startsWith("kaç"))
-        || ("her".equals(i1) && i2.startsWith("hangi"))
-        || ("vaz".equals(i1) && i2.startsWith("geç"));
+  private String combineSolidCompound(String i1, String i2) {
+    String candidate = null;
+    if (("uluslar".equals(i1) || "milletler".equals(i1))
+        && (i2.startsWith("arası") || i2.startsWith("arasi"))) {
+      candidate = i1 + i2;
+    } else if (("hiç".equals(i1) || "hic".equals(i1))
+        && (i2.startsWith("bir") || "bi".equals(i2) || "bı".equals(i2))) {
+      candidate = ("bi".equals(i2) || "bı".equals(i2)) ? "hiçbir" : "hiç" + i2;
+    } else if (("bir".equals(i1) || "bi".equals(i1) || "bı".equals(i1))
+        && (i2.startsWith("kaç") || i2.startsWith("kac")
+            || "çok".equals(i2) || "cok".equals(i2))) {
+      candidate = ("çok".equals(i2) || "cok".equals(i2)) ? "birçok" : "bir" + i2;
+    } else if ("her".equals(i1) && i2.startsWith("hangi")) {
+      candidate = i1 + i2;
+    } else if ("vaz".equals(i1) && (i2.startsWith("geç") || i2.startsWith("gec"))) {
+      candidate = i1 + i2;
+    }
+    if (candidate == null) {
+      return null;
+    }
+    if (hasRegularAnalysis(candidate)) {
+      return candidate;
+    }
+    for (SingleAnalysis a : informalAsciiTolerantMorphology.analyze(candidate)) {
+      if (a.isUnknown()
+          || a.isRuntime()
+          || a.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun
+          || a.getDictionaryItem().secondaryPos == SecondaryPos.Abbreviation) {
+        continue;
+      }
+      if (a.containsInformalMorpheme()) {
+        Result r = analysisConverter.convert(candidate, a);
+        if (r != null) {
+          return r.surface;
+        }
+      } else {
+        for (Result r : morphology.getWordGenerator().generate(
+            a.getDictionaryItem(), a.getMorphemes())) {
+          if (TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(candidate, r.surface)) {
+            return r.surface;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  private boolean hasAsciiRootWordAnalysis(String word) {
+    if (word.length() < 3) {
+      return false;
+    }
+    for (SingleAnalysis a : informalAsciiTolerantMorphology.analyze(word)) {
+      if (!a.isUnknown()
+          && !a.isRuntime()
+          && a.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun
+          && a.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation
+          && a.getEnding().isEmpty()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -1106,8 +1165,13 @@ public class TurkishSentenceNormalizer {
   private boolean isValidLexicalWord(String word) {
     WordAnalysis analysis = morphology.analyze(word);
     return analysis.stream().anyMatch(
-        k -> !k.isUnknown() && !k.isRuntime()
-            && k.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation);
+        k -> !k.isUnknown()
+            && !k.isRuntime()
+            && k.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation
+            && k.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun
+            && !(k.getDictionaryItem().primaryPos == PrimaryPos.Interjection
+                && k.getDictionaryItem().hasAttribute(
+                    zemberek.core.turkish.RootAttribute.Ext)));
   }
 
   private double unigramScore(String word) {
