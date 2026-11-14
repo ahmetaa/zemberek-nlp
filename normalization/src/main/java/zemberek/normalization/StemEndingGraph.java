@@ -6,6 +6,7 @@ import java.util.Set;
 import zemberek.core.collections.Histogram;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.StemAndEnding;
 import zemberek.core.turkish.Turkish;
 import zemberek.morphology.TurkishMorphology;
@@ -76,8 +77,9 @@ public class StemEndingGraph {
     CharacterGraph stemGraph = new CharacterGraph();
     StemTransitions stemTransitions = morphology.getMorphotactics().getStemTransitions();
     for (StemTransition transition : stemTransitions.getTransitions()) {
-      if (transition.surface.length() == 0 ||
-          transition.item.primaryPos == PrimaryPos.Punctuation) {
+      if (transition.surface.length() == 0
+          || transition.item.primaryPos == PrimaryPos.Punctuation
+          || transition.item.secondaryPos == SecondaryPos.Abbreviation) {
         continue;
       }
       stemGraph.addWord(transition.surface, Node.TYPE_WORD);

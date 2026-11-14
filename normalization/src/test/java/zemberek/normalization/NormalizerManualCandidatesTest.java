@@ -150,4 +150,30 @@ public class NormalizerManualCandidatesTest {
     Assert.assertEquals("istanbul'a", normalizer.normalize("istanbula"));
     Assert.assertEquals("bugün", normalizer.normalize("bugun"));
   }
+
+  @Test
+  public void testAbbreviationInflectionDoesNotBlockSpellCheckAndSlangVariants()
+      throws IOException {
+    TurkishMorphology abbrvMorphology = TurkishMorphology.builder()
+        .setLexicon(
+            "Sö [P:Abbrv]",
+            "Tüik [P:Abbrv]",
+            "söylemek",
+            "bir [P:Det]",
+            "teşekkür",
+            "değil [P:Verb]",
+            "mi [P:Ques]")
+        .disableCache()
+        .build();
+    TurkishSentenceNormalizer normalizer =
+        new TurkishSentenceNormalizer(abbrvMorphology, dataRoot, lmPath);
+
+    Assert.assertEquals("söyleriz", normalizer.normalize("solerız"));
+    Assert.assertEquals("söyleriz", normalizer.normalize("söleriz"));
+    Assert.assertEquals("tüik", normalizer.normalize("tuik"));
+    Assert.assertEquals("tüik'in", normalizer.normalize("tüik'in"));
+    Assert.assertEquals(
+        "bir teşekkürler teşekkürler değil mi",
+        normalizer.normalize("bı tşkler tşklr dımı"));
+  }
 }

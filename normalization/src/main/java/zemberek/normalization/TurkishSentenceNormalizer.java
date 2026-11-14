@@ -301,8 +301,14 @@ public class TurkishSentenceNormalizer {
       // Add matches from informal analysis and diacritic-tolerant formal morphology.
       WordAnalysis analyses = informalAsciiTolerantMorphology.analyze(current);
       String normalizedCurrent = null;
+      boolean currentHasApostrophe = hasApostrophe(current);
+      boolean hasUsableAnalysis = false;
 
       for (SingleAnalysis analysis : analyses) {
+        if (isUnapostrophizedInflectedAbbreviation(analysis, currentHasApostrophe)) {
+          continue;
+        }
+        hasUsableAnalysis = true;
         if (analysis.containsInformalMorpheme()) {
           WordGenerator.Result result = analysisConverter.convert(current, analysis);
           if (result != null) {
@@ -317,7 +323,7 @@ public class TurkishSentenceNormalizer {
               analysis.getDictionaryItem(),
               analysis.getMorphemes());
           for (Result result : results) {
-            if (hasApostrophe(current) && isFormallyValid && !hasApostrophe(result.surface)) {
+            if (currentHasApostrophe && isFormallyValid && !hasApostrophe(result.surface)) {
               continue;
             }
             if (TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(
@@ -340,7 +346,7 @@ public class TurkishSentenceNormalizer {
 
       // If there is no formal/informal analysis and length > 3, add top 3 spell suggestions
       // unless protected as a capitalized OOV word.
-      if (analyses.analysisCount() == 0
+      if (!hasUsableAnalysis
           && current.length() > 3
           && !protectedCapitalizedWords.contains(current)) {
         List<String> spellCandidates =
@@ -386,14 +392,23 @@ public class TurkishSentenceNormalizer {
     return s.indexOf('\'') > 0 || s.indexOf('’') > 0;
   }
 
+  private static boolean isUnapostrophizedInflectedAbbreviation(
+      SingleAnalysis analysis, boolean hasApostrophe) {
+    return !hasApostrophe
+        && analysis.getDictionaryItem().secondaryPos == SecondaryPos.Abbreviation
+        && !analysis.getEnding().isEmpty();
+  }
+
   private boolean isFormallyValidWord(String word) {
-    if (morphology.analyze(word).isCorrect()) {
-      return true;
+    boolean apostrophe = hasApostrophe(word);
+    for (SingleAnalysis a : morphology.analyze(word)) {
+      if (!a.isUnknown()
+          && !a.isRuntime()
+          && !isUnapostrophizedInflectedAbbreviation(a, apostrophe)) {
+        return true;
+      }
     }
-    if (hasApostrophe(word)) {
-      return morphology.analyze(Turkish.capitalize(word)).isCorrect();
-    }
-    return false;
+    return apostrophe && morphology.analyze(Turkish.capitalize(word)).isCorrect();
   }
 
   private boolean hasAnalysis(WordAnalysis w) {
