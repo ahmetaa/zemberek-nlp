@@ -1,27 +1,18 @@
 package zemberek.normalization;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableListMultimap;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
-import zemberek.core.dynamic.ActiveList;
-import zemberek.core.dynamic.Scorable;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
-import zemberek.core.turkish.PrimaryPos;
-import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -32,16 +23,13 @@ import zemberek.morphology.analysis.AnalysisCache;
 import zemberek.morphology.analysis.InformalAnalysisConverter;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
-import zemberek.morphology.analysis.WordAnalysis;
-import zemberek.morphology.generator.WordGenerator;
 import zemberek.morphology.generator.WordGenerator.Result;
-import zemberek.morphology.lexicon.DictionaryItem;
-import zemberek.morphology.morphotactics.TurkishMorphotactics;
+import zemberek.normalization.NgramSequenceDecoder.Candidate;
+import zemberek.normalization.NgramSequenceDecoder.Candidates;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.normalization.deasciifier.latticedeasciifier.LatticeDeasciifier;
-import zemberek.tokenization.TurkishTokenizer;
 import zemberek.tokenization.Token;
-import zemberek.tokenization.Token.Type;
+import zemberek.tokenization.TurkishTokenizer;
 
 /**
  * Tries to normalize a sentence by collecting candidate words from
@@ -57,33 +45,6 @@ import zemberek.tokenization.Token.Type;
  */
 public class TurkishSentenceNormalizer {
 
-  TurkishMorphology morphology;
-  private SmoothLm lm;
-  private TurkishSpellChecker spellChecker;
-
-  private ImmutableListMultimap<String, String> lookupFromGraph;
-  private ImmutableListMultimap<String, String> lookupManual;
-  private TurkishMorphology informalAsciiTolerantMorphology;
-  private InformalAnalysisConverter analysisConverter;
-  private final InformalContractionExpander contractionExpander;
-
-  private static final Pattern ASCII_DIGITS_PATTERN = Pattern.compile("\\d{1,6}");
-
-  private static final Set<String> UNAMBIGUOUS_NUMERAL_SUFFIXES = new HashSet<>(Arrays.asList(
-      "te", "den", "dan", "ten", "tan",
-      "inci", "ıncı", "uncu", "üncü", "nci", "ncı", "ncu", "ncü",
-      "deki", "daki", "teki", "taki",
-      "leri", "ları", "lerde", "larda", "lerden", "lardan", "lerin", "ların",
-      "li", "lı", "lu", "lü", "lik", "lık", "luk", "lük",
-      "nin", "nın", "nun", "nün", "yle", "yla",
-      "sında", "sinde", "sından", "sinden", "sına", "sine", "sını", "sini"));
-
-  private static final Set<String> NUMERAL_LOCATIVE_SUFFIXES = new HashSet<>(Arrays.asList(
-      "de", "da", "ta"));
-
-  private static final Set<String> NUMERAL_LOCATIVE_ANCHORS = new HashSet<>(Arrays.asList(
-      "saat", "sayfa", "madde", "bölüm", "numara", "no", "kat", "kanal", "peron", "hat"));
-
   private static final float CLEAN_IDENTITY_BONUS = 0.35f;
   private static final float CLEAN_OVERRIDE_PENALTY = -1.35f;
   private static final float DIACRITIC_PENALTY = -0.10f;
@@ -91,12 +52,18 @@ public class TurkishSentenceNormalizer {
   private static final float GRAPH_LOOKUP_PENALTY = -0.35f;
   private static final float SPELL_BASE_PENALTY = -1.55f;
   private static final float OOV_IDENTITY_PENALTY = -2.50f;
+  private static final Set<String> SENTENCE_BOUNDARIES = Set.of(".", "!", "?", "...");
 
-  private Map<String, String> commonSplits = new HashMap<>();
-  private Map<String, String> replacements = new HashMap<>();
-  private HashSet<String> commonConnectedSuffixes = new HashSet<>();
-  private HashSet<String> noSplitWords = new HashSet<>();
-  private final ElongationNormalizer elongationNormalizer;
+  TurkishMorphology morphology;
+  private final SmoothLm lm;
+  private final TurkishSpellChecker spellChecker;
+  private final ImmutableListMultimap<String, String> lookupFromGraph;
+  private final ImmutableListMultimap<String, String> lookupManual;
+  private final TurkishMorphology informalAsciiTolerantMorphology;
+  private final FormalSurfaceRealizer surfaceRealizer;
+  private final NormalizerPreprocessor preprocessor;
+  private final NgramSequenceDecoder sequenceDecoder;
+
   boolean alwaysApplyDeasciifier = false;
   private Boolean spellCheckCapitalizedWords = null;
   private LatticeDeasciifier latticeDeasciifier;
@@ -105,14 +72,13 @@ public class TurkishSentenceNormalizer {
       TurkishMorphology morphology,
       Path dataRoot,
       Path languageModelPath) throws IOException {
-
     this.morphology = morphology;
-    this.analysisConverter = new InformalAnalysisConverter(morphology.getWordGenerator());
-    SmoothLm languageModel = SmoothLm.builder(languageModelPath).logBase(Math.E).build();
-    Log.info("Language model = %s", languageModel.info());
-    this.lm = languageModel;
+    InformalAnalysisConverter analysisConverter =
+        new InformalAnalysisConverter(morphology.getWordGenerator());
+    this.lm = SmoothLm.builder(languageModelPath).logBase(Math.E).build();
+    Log.info("Language model = %s", lm.info());
+    this.sequenceDecoder = new NgramSequenceDecoder(lm);
 
-    // TODO: spell checker should be an external parameter.
     StemEndingGraph graph = new StemEndingGraph(morphology);
     CharacterGraphDecoder decoder = new CharacterGraphDecoder(graph.stemGraph);
     this.spellChecker = new TurkishSpellChecker(
@@ -120,11 +86,10 @@ public class TurkishSentenceNormalizer {
         decoder,
         CharacterGraphDecoder.DIACRITICS_IGNORING_MATCHER);
 
-    List<String> manualLookup =
-        TextIO.loadLinesFromResource("normalization/candidates-manual");
-    this.lookupManual = loadMultiMap(manualLookup);
+    this.lookupManual =
+        loadMultiMap(TextIO.loadLinesFromResource("normalization/candidates-manual"), Set.of());
     this.lookupFromGraph =
-        loadMultiMap(dataRoot.resolve("lookup-from-graph"), lookupManual.keySet());
+        loadMultiMap(TextIO.loadLines(dataRoot.resolve("lookup-from-graph")), lookupManual.keySet());
 
     this.informalAsciiTolerantMorphology = TurkishMorphology.builder()
         .setLexicon(morphology.getLexicon())
@@ -134,34 +99,11 @@ public class TurkishSentenceNormalizer {
         .setAmbiguityResolver((s, a) -> new SentenceAnalysis(s, Collections.emptyList()))
         .build();
     this.latticeDeasciifier =
-        LatticeDeasciifier.createWithDefaults(
-            this.morphology, this.informalAsciiTolerantMorphology);
-    this.contractionExpander = new InformalContractionExpander(
-        morphology, informalAsciiTolerantMorphology, analysisConverter);
-
-    List<String> splitLines = Files.readAllLines(dataRoot.resolve("split"), Charsets.UTF_8);
-    for (String splitLine : splitLines) {
-      String[] tokens = splitLine.split("=");
-      commonSplits.put(tokens[0].trim(), tokens[1].trim());
-    }
-
-    this.commonConnectedSuffixes.addAll(TextIO.loadLinesFromResource(
-        "normalization/question-suffixes"));
-    this.commonConnectedSuffixes.addAll(Arrays.asList("de", "da", "ki"));
-
-    this.noSplitWords.addAll(TextIO.loadLinesFromResource(
-        "normalization/no-split"));
-
-    List<String> replaceLines = TextIO.loadLinesFromResource(
-        "normalization/multi-word-replacements");
-    for (String replaceLine : replaceLines) {
-      String[] tokens = replaceLine.split("=");
-      replacements.put(tokens[0].trim(), tokens[1].trim());
-    }
-
-    this.elongationNormalizer = new ElongationNormalizer(
-        this::isValidLexicalWord,
-        this::unigramScore);
+        LatticeDeasciifier.createWithDefaults(morphology, informalAsciiTolerantMorphology);
+    this.surfaceRealizer =
+        new FormalSurfaceRealizer(morphology, informalAsciiTolerantMorphology, analysisConverter);
+    this.preprocessor =
+        new NormalizerPreprocessor(morphology, surfaceRealizer, lm, lookupManual, dataRoot);
   }
 
   public void setAlwaysApplyDeasciifier(boolean alwaysApplyDeasciifier) {
@@ -175,8 +117,7 @@ public class TurkishSentenceNormalizer {
    */
   public TurkishSentenceNormalizer useLatticeDeasciifier() {
     this.latticeDeasciifier =
-        LatticeDeasciifier.createWithDefaults(
-            this.morphology, this.informalAsciiTolerantMorphology);
+        LatticeDeasciifier.createWithDefaults(morphology, informalAsciiTolerantMorphology);
     return this;
   }
 
@@ -200,36 +141,22 @@ public class TurkishSentenceNormalizer {
 
   /**
    * Controls whether out-of-vocabulary capitalized words are passed to the edit-distance spell
-   * checker. When {@code false}, all capitalized OOV words in non-ALL-CAPS sentences are preserved
-   * without edit-distance replacement (useful for mixed-language text and foreign proper nouns).
-   * When {@code true}, all capitalized OOV words are spell-checked. When unset (default),
-   * non-sentence-initial capitalized OOV words in mixed-case sentences are preserved while
-   * sentence-initial words are still spell-checked.
+   * checker.
    */
   public void setSpellCheckCapitalizedWords(boolean spellCheckCapitalizedWords) {
     this.spellCheckCapitalizedWords = spellCheckCapitalizedWords;
   }
 
-  // load data with line format: "key=val1,val2"
-  private ImmutableListMultimap<String, String> loadMultiMap(
-      Path path, Set<String> excludedKeys) throws IOException {
-    return loadMultiMap(TextIO.loadLines(path), excludedKeys);
-  }
-
-  private ImmutableListMultimap<String, String> loadMultiMap(List<String> lines) {
-    return loadMultiMap(lines, Collections.emptySet());
-  }
-
-  private ImmutableListMultimap<String, String> loadMultiMap(
+  private static ImmutableListMultimap<String, String> loadMultiMap(
       List<String> lines, Set<String> excludedKeys) {
     ImmutableListMultimap.Builder<String, String> result =
         ImmutableListMultimap.builderWithExpectedKeys(lines.size());
     result.expectedValuesPerKey(1);
+    Splitter commaSplitter = Splitter.on(',').trimResults();
     for (String line : lines) {
-      int index = line.indexOf("=");
+      int index = line.indexOf('=');
       if (index < 0) {
-        throw new IllegalStateException("Line needs to have `=` symbol. But it is:" +
-            line);
+        throw new IllegalStateException("Line needs to have `=` symbol. But it is:" + line);
       }
       String key = line.substring(0, index).trim();
       if (excludedKeys.contains(key)) {
@@ -237,7 +164,7 @@ public class TurkishSentenceNormalizer {
       }
       String value = line.substring(index + 1).trim();
       if (value.indexOf(',') >= 0) {
-        for (String token : Splitter.on(",").trimResults().split(value)) {
+        for (String token : commaSplitter.split(value)) {
           result.put(key, token);
         }
       } else {
@@ -248,8 +175,7 @@ public class TurkishSentenceNormalizer {
   }
 
   public String normalize(String sentence) {
-
-    if(sentence.trim().length() == 0) {
+    if (sentence.trim().isEmpty()) {
       return sentence;
     }
 
@@ -261,165 +187,229 @@ public class TurkishSentenceNormalizer {
       return "";
     }
 
-    List<Candidates> candidatesList = new ArrayList<>();
     Set<String> protectedCapitalizedWords = collectProtectedCapitalizedWords(sentence);
-
+    List<Candidates> candidatesList = new ArrayList<>(tokens.size());
     for (int i = 0; i < tokens.size(); i++) {
-
-      Token currentToken = tokens.get(i);
-      String current = currentToken.getText();
-      String next = i == tokens.size() - 1 ? null : tokens.get(i + 1).getText();
+      String current = tokens.get(i).getText();
       String previous = i == 0 ? null : tokens.get(i - 1).getText();
-
-      boolean isFormallyValid = isFormallyValidWord(current);
-      boolean manualForcedOverride =
-          lookupManual.containsKey(current) && !lookupManual.get(current).contains(current);
-      boolean protectCleanForm = isFormallyValid && !asciiSentence && !manualForcedOverride;
-      LinkedHashMap<String, Float> candidateScores = new LinkedHashMap<>(4);
-
-      for (String cand : lookupManual.get(current)) {
-        float score = 0f;
-        if (!cand.equals(current)) {
-          int diffs = TurkishSpellChecker.countDiacriticDifferences(current, cand);
-          score = protectCleanForm
-              ? CLEAN_OVERRIDE_PENALTY * Math.max(1, diffs)
-              : (asciiSentence ? DIACRITIC_PENALTY * diffs : 0f);
-        }
-        putCandidateScore(candidateScores, cand, score);
-      }
-
-      for (String cand : lookupFromGraph.get(current)) {
-        float score = cand.equals(current)
-            ? 0f
-            : (protectCleanForm ? CLEAN_OVERRIDE_PENALTY : GRAPH_LOOKUP_PENALTY);
-        putCandidateScore(candidateScores, cand, score);
-      }
-
-      boolean currentHasRegularAnalysis = hasRegularAnalysis(current);
-      if (currentHasRegularAnalysis && !manualForcedOverride) {
-        // Place valid input ahead of ASCII/diacritic distractors so LM tie-breaking preserves it.
-        putCandidateScore(candidateScores, current, protectCleanForm ? CLEAN_IDENTITY_BONUS : 0f);
-      }
-
-      // Add matches from informal analysis and diacritic-tolerant formal morphology.
-      WordAnalysis analyses = informalAsciiTolerantMorphology.analyze(current);
-      String normalizedCurrent = null;
-      boolean currentHasApostrophe = hasApostrophe(current);
-      boolean hasUsableAnalysis = false;
-      boolean hasNonStrippingCandidate = false;
-      LinkedHashMap<String, Float> strippedCandidates = null;
-
-      for (SingleAnalysis analysis : analyses) {
-        if (isUnapostrophizedInflectedAbbreviation(analysis, currentHasApostrophe)) {
-          continue;
-        }
-        hasUsableAnalysis = true;
-        if (normalizedCurrent == null) {
-          normalizedCurrent =
-              TurkishMorphology.normalizeForAnalysis(current).replace("'", "");
-        }
-        if (analysis.containsInformalMorpheme()) {
-          WordGenerator.Result result = analysisConverter.convert(current, analysis);
-          if (result != null) {
-            int stemLen = Math.min(
-                normalizedCurrent.length(),
-                Math.min(analysis.getStem().length(), result.surface.length()));
-            if (!stripsExplicitTurkishDiacritic(
-                normalizedCurrent.substring(0, stemLen), result.surface.substring(0, stemLen))) {
-              hasNonStrippingCandidate = true;
-              putCandidateScore(candidateScores, result.surface, INFORMAL_PENALTY);
-            } else if (!currentHasRegularAnalysis) {
-              strippedCandidates =
-                  putFallbackCandidate(strippedCandidates, result.surface, INFORMAL_PENALTY);
-            }
-          }
-        } else {
-          List<WordGenerator.Result> results = morphology.getWordGenerator().generate(
-              analysis.getDictionaryItem(),
-              analysis.getMorphemes());
-          for (Result result : results) {
-            if (currentHasApostrophe && isFormallyValid && !hasApostrophe(result.surface)) {
-              continue;
-            }
-            if (TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(
-                normalizedCurrent, result.surface)) {
-              boolean stripsExplicit =
-                  stripsExplicitTurkishDiacritic(normalizedCurrent, result.surface);
-              if (currentHasRegularAnalysis && stripsExplicit) {
-                continue;
-              }
-              float score = 0f;
-              if (!result.surface.equals(current)) {
-                int diffs = Math.max(
-                    1, TurkishSpellChecker.countDiacriticDifferences(current, result.surface));
-                score = (protectCleanForm ? CLEAN_OVERRIDE_PENALTY : DIACRITIC_PENALTY) * diffs;
-              }
-              if (!stripsExplicit) {
-                hasNonStrippingCandidate = true;
-                putCandidateScore(candidateScores, result.surface, score);
-              } else {
-                strippedCandidates =
-                    putFallbackCandidate(strippedCandidates, result.surface, score);
-              }
-            }
-          }
-        }
-      }
-      if (!hasNonStrippingCandidate && strippedCandidates != null) {
-        strippedCandidates.forEach(
-            (surface, score) -> putCandidateScore(candidateScores, surface, score));
-      }
-
-      // If there is no formal/informal analysis and length > 3, add top 3 spell suggestions
-      // unless protected as a capitalized OOV word or containing digits.
-      if (!hasUsableAnalysis
-          && current.length() > 3
-          && !containsDigit(current)
-          && !protectedCapitalizedWords.contains(current)) {
-        List<String> spellCandidates =
-            spellChecker.suggestForWord(current, previous, next, lm, asciiSentence);
-        int added = 0;
-        for (String suggestion : spellCandidates) {
-          if (!isAcceptableSpellSuggestion(suggestion, currentHasApostrophe)) {
-            continue;
-          }
-          putCandidateScore(
-              candidateScores,
-              suggestion.toLowerCase(Turkish.LOCALE),
-              SPELL_BASE_PENALTY + GRAPH_LOOKUP_PENALTY * added);
-          added++;
-          if (added == 3) {
-            break;
-          }
-        }
-      }
-
-      // Retain formally valid input, sole fallback, or penalized OOV identity so valid 1-edit
-      // neighbors can win when both surface forms are missing from the LM.
-      if (isFormallyValid) {
-        putCandidateScore(candidateScores, current, protectCleanForm ? CLEAN_IDENTITY_BONUS : 0f);
-      } else {
-        putCandidateScore(
-            candidateScores, current, candidateScores.isEmpty() ? 0f : OOV_IDENTITY_PENALTY);
-      }
-
-      List<Candidate> scoredCandidates = new ArrayList<>(candidateScores.size());
-      for (Map.Entry<String, Float> entry : candidateScores.entrySet()) {
-        scoredCandidates.add(new Candidate(entry.getKey(), entry.getValue()));
-      }
-      candidatesList.add(new Candidates(currentToken.getText(), scoredCandidates));
+      String next = i == tokens.size() - 1 ? null : tokens.get(i + 1).getText();
+      candidatesList.add(collectTokenCandidates(
+          current, previous, next, asciiSentence, protectedCapitalizedWords));
     }
-    // Apply Viterbi decoding and return result.
-    return String.join(" ", decode(candidatesList));
-
+    return String.join(" ", sequenceDecoder.decode(candidatesList));
   }
 
-  private static void putCandidateScore(
-      Map<String, Float> scores, String surface, float score) {
-    Float existing = scores.get(surface);
-    if (existing == null || score > existing) {
-      scores.put(surface, score);
+  private Candidates collectTokenCandidates(
+      String current,
+      String previous,
+      String next,
+      boolean asciiSentence,
+      Set<String> protectedCapitalizedWords) {
+    boolean isFormallyValid = isFormallyValidWord(current);
+    boolean manualForcedOverride =
+        lookupManual.containsKey(current) && !lookupManual.get(current).contains(current);
+    boolean protectCleanForm = isFormallyValid && !asciiSentence && !manualForcedOverride;
+    Map<String, Float> candidateScores = new LinkedHashMap<>(4);
+
+    addLookupCandidates(current, protectCleanForm, asciiSentence, candidateScores);
+
+    boolean currentHasRegularAnalysis = surfaceRealizer.hasRegularAnalysis(current);
+    if (currentHasRegularAnalysis && !manualForcedOverride) {
+      // Place valid input ahead of ASCII/diacritic distractors so LM tie-breaking preserves it.
+      putScore(candidateScores, current, protectCleanForm ? CLEAN_IDENTITY_BONUS : 0f);
     }
+
+    boolean currentHasApostrophe = hasApostrophe(current);
+    boolean hasUsableAnalysis = addMorphologicalCandidates(
+        current,
+        isFormallyValid,
+        currentHasRegularAnalysis,
+        currentHasApostrophe,
+        protectCleanForm,
+        candidateScores);
+
+    if (!hasUsableAnalysis
+        && current.length() > 3
+        && !TurkishAlphabet.INSTANCE.containsDigit(current)
+        && !protectedCapitalizedWords.contains(current)) {
+      addSpellCandidates(
+          current, previous, next, asciiSentence, currentHasApostrophe, candidateScores);
+    }
+
+    addIdentityCandidate(current, isFormallyValid, protectCleanForm, candidateScores);
+
+    List<Candidate> scoredCandidates = new ArrayList<>(candidateScores.size());
+    for (Map.Entry<String, Float> entry : candidateScores.entrySet()) {
+      scoredCandidates.add(new Candidate(entry.getKey(), entry.getValue()));
+    }
+    return new Candidates(current, scoredCandidates);
+  }
+
+  private void addLookupCandidates(
+      String current,
+      boolean protectCleanForm,
+      boolean asciiSentence,
+      Map<String, Float> candidateScores) {
+    for (String cand : lookupManual.get(current)) {
+      float score = 0f;
+      if (!cand.equals(current)) {
+        int diffs = TurkishSpellChecker.countDiacriticDifferences(current, cand);
+        score = protectCleanForm
+            ? CLEAN_OVERRIDE_PENALTY * Math.max(1, diffs)
+            : (asciiSentence ? DIACRITIC_PENALTY * diffs : 0f);
+      }
+      putScore(candidateScores, cand, score);
+    }
+
+    for (String cand : lookupFromGraph.get(current)) {
+      float score = cand.equals(current)
+          ? 0f
+          : (protectCleanForm ? CLEAN_OVERRIDE_PENALTY : GRAPH_LOOKUP_PENALTY);
+      putScore(candidateScores, cand, score);
+    }
+  }
+
+  private boolean addMorphologicalCandidates(
+      String current,
+      boolean isFormallyValid,
+      boolean currentHasRegularAnalysis,
+      boolean currentHasApostrophe,
+      boolean protectCleanForm,
+      Map<String, Float> primaryScores) {
+    String normalizedCurrent = null;
+    boolean hasUsableAnalysis = false;
+    Map<String, Float> nonStrippingScores = new LinkedHashMap<>(4);
+    Map<String, Float> strippedFallbackScores = new LinkedHashMap<>(2);
+
+    for (SingleAnalysis analysis : informalAsciiTolerantMorphology.analyze(current)) {
+      if (isUnapostrophizedInflectedAbbreviation(analysis, currentHasApostrophe)) {
+        continue;
+      }
+      hasUsableAnalysis = true;
+      if (normalizedCurrent == null) {
+        normalizedCurrent = TurkishMorphology.normalizeForAnalysis(current).replace("'", "");
+      }
+      if (analysis.containsInformalMorpheme()) {
+        collectInformalCandidate(
+            current,
+            normalizedCurrent,
+            analysis,
+            currentHasRegularAnalysis,
+            nonStrippingScores,
+            strippedFallbackScores);
+      } else {
+        collectFormalCandidates(
+            current,
+            normalizedCurrent,
+            analysis,
+            isFormallyValid,
+            currentHasRegularAnalysis,
+            currentHasApostrophe,
+            protectCleanForm,
+            nonStrippingScores,
+            strippedFallbackScores);
+      }
+    }
+
+    Map<String, Float> chosen =
+        nonStrippingScores.isEmpty() ? strippedFallbackScores : nonStrippingScores;
+    chosen.forEach((surface, score) -> putScore(primaryScores, surface, score));
+    return hasUsableAnalysis;
+  }
+
+  private void collectInformalCandidate(
+      String current,
+      String normalizedCurrent,
+      SingleAnalysis analysis,
+      boolean currentHasRegularAnalysis,
+      Map<String, Float> nonStrippingScores,
+      Map<String, Float> strippedFallbackScores) {
+    Result result = surfaceRealizer.analysisConverter().convert(current, analysis);
+    if (result == null) {
+      return;
+    }
+    int stemLen = Math.min(
+        normalizedCurrent.length(),
+        Math.min(analysis.getStem().length(), result.surface.length()));
+    boolean stripsStemDiacritic = FormalSurfaceRealizer.stripsExplicitTurkishDiacritic(
+        normalizedCurrent.substring(0, stemLen), result.surface.substring(0, stemLen));
+    if (!stripsStemDiacritic) {
+      putScore(nonStrippingScores, result.surface, INFORMAL_PENALTY);
+    } else if (!currentHasRegularAnalysis) {
+      putScore(strippedFallbackScores, result.surface, INFORMAL_PENALTY);
+    }
+  }
+
+  private void collectFormalCandidates(
+      String current,
+      String normalizedCurrent,
+      SingleAnalysis analysis,
+      boolean isFormallyValid,
+      boolean currentHasRegularAnalysis,
+      boolean currentHasApostrophe,
+      boolean protectCleanForm,
+      Map<String, Float> nonStrippingScores,
+      Map<String, Float> strippedFallbackScores) {
+    for (Result result : surfaceRealizer.generateSurfaces(analysis)) {
+      if (currentHasApostrophe && isFormallyValid && !hasApostrophe(result.surface)) {
+        continue;
+      }
+      if (!TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(normalizedCurrent, result.surface)) {
+        continue;
+      }
+      boolean stripsExplicit =
+          FormalSurfaceRealizer.stripsExplicitTurkishDiacritic(normalizedCurrent, result.surface);
+      if (currentHasRegularAnalysis && stripsExplicit) {
+        continue;
+      }
+      float score = 0f;
+      if (!result.surface.equals(current)) {
+        int diffs = Math.max(
+            1, TurkishSpellChecker.countDiacriticDifferences(current, result.surface));
+        score = (protectCleanForm ? CLEAN_OVERRIDE_PENALTY : DIACRITIC_PENALTY) * diffs;
+      }
+      putScore(stripsExplicit ? strippedFallbackScores : nonStrippingScores, result.surface, score);
+    }
+  }
+
+  private void addSpellCandidates(
+      String current,
+      String previous,
+      String next,
+      boolean asciiSentence,
+      boolean currentHasApostrophe,
+      Map<String, Float> candidateScores) {
+    List<String> spellCandidates =
+        spellChecker.suggestForWord(current, previous, next, lm, asciiSentence);
+    int added = 0;
+    for (String suggestion : spellCandidates) {
+      if (!isAcceptableSpellSuggestion(suggestion, currentHasApostrophe)) {
+        continue;
+      }
+      putScore(
+          candidateScores,
+          suggestion.toLowerCase(Turkish.LOCALE),
+          SPELL_BASE_PENALTY + GRAPH_LOOKUP_PENALTY * added);
+      if (++added == 3) {
+        break;
+      }
+    }
+  }
+
+  private static void addIdentityCandidate(
+      String current,
+      boolean isFormallyValid,
+      boolean protectCleanForm,
+      Map<String, Float> candidateScores) {
+    if (isFormallyValid) {
+      putScore(candidateScores, current, protectCleanForm ? CLEAN_IDENTITY_BONUS : 0f);
+    } else {
+      putScore(candidateScores, current, candidateScores.isEmpty() ? 0f : OOV_IDENTITY_PENALTY);
+    }
+  }
+
+  private static void putScore(Map<String, Float> scores, String surface, float score) {
+    scores.merge(surface, score, Float::max);
   }
 
   private static boolean hasApostrophe(String s) {
@@ -433,15 +423,6 @@ public class TurkishSentenceNormalizer {
         && !analysis.getEnding().isEmpty();
   }
 
-  private static LinkedHashMap<String, Float> putFallbackCandidate(
-      LinkedHashMap<String, Float> fallback, String surface, float score) {
-    if (fallback == null) {
-      fallback = new LinkedHashMap<>(2);
-    }
-    putCandidateScore(fallback, surface, score);
-    return fallback;
-  }
-
   private boolean isAcceptableSpellSuggestion(String suggestion, boolean currentHasApostrophe) {
     if (suggestion.isEmpty() || !Character.isUpperCase(suggestion.charAt(0))) {
       return true;
@@ -453,20 +434,10 @@ public class TurkishSentenceNormalizer {
     return TurkishSpellChecker.lmVocabularyIndex(suggestion, vocab) != vocab.getUnknownWordIndex();
   }
 
-  private static boolean containsDigit(String s) {
-    for (int i = 0; i < s.length(); i++) {
-      if (Character.isDigit(s.charAt(i))) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   private boolean isFormallyValidWord(String word) {
     boolean apostrophe = hasApostrophe(word);
     for (SingleAnalysis a : morphology.analyze(word)) {
-      if (!a.isUnknown()
-          && !a.isRuntime()
+      if (FormalSurfaceRealizer.isKnownLexical(a)
           && !isUnapostrophizedInflectedAbbreviation(a, apostrophe)) {
         return true;
       }
@@ -474,888 +445,57 @@ public class TurkishSentenceNormalizer {
     return apostrophe && morphology.analyze(Turkish.capitalize(word)).isCorrect();
   }
 
-  private boolean hasAnalysis(WordAnalysis w) {
-    for (SingleAnalysis s : w) {
-      if (!s.isRuntime() && !s.isUnknown()) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static class Hypothesis implements Scorable {
-
-    // for a three gram model, holds the 2 history words.
-    Candidate[] history;
-    Candidate current;
-
-    // required for back tracking.
-    Hypothesis previous;
-
-    float score;
-
-    @Override
-    public float getScore() {
-      return score;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-
-      Hypothesis that = (Hypothesis) o;
-
-      if (!Arrays.equals(history, that.history)) {
-        return false;
-      }
-      return current.equals(that.current);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = Arrays.hashCode(history);
-      result = 31 * result + current.hashCode();
-      return result;
-    }
-
-    @Override
-    public String toString() {
-      return "Hypothesis{" +
-          "history=" + Arrays.toString(history) +
-          ", current=" + current +
-          ", score=" + score +
-          '}';
-    }
-  }
-
-  /**
-   * Represents a candidate word.
-   */
-  private static class Candidate {
-
-    final String content;
-    final float score;
-
-    Candidate(String content) {
-      this(content, 0f);
-    }
-
-    Candidate(String content, float score) {
-      this.content = content;
-      this.score = score;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-
-      Candidate candidate = (Candidate) o;
-
-      return content.equals(candidate.content);
-    }
-
-    @Override
-    public int hashCode() {
-      return content.hashCode();
-    }
-
-    @Override
-    public String toString() {
-      return "Candidate{" +
-          "content='" + content + '\'' +
-          ", score=" + score +
-          '}';
-    }
-  }
-
-  private static class Candidates {
-
-    String word;
-    List<Candidate> candidates;
-
-    Candidates(String word,
-        List<Candidate> candidates) {
-      this.word = word;
-      this.candidates = candidates;
-    }
-
-    @Override
-    public String toString() {
-      return "Candidates{" +
-          "word='" + word + '\'' +
-          ", candidates=" + candidates +
-          '}';
-    }
-
-  }
-
-  private static Candidate START = new Candidate("<s>");
-  private static Candidate END = new Candidate("</s>");
-  private static Candidates END_CANDIDATES =
-      new Candidates("</s>", Collections.singletonList(END));
-
-  private List<String> decode(List<Candidates> candidatesList) {
-
-    ActiveList<Hypothesis> current = new ActiveList<>();
-    ActiveList<Hypothesis> next = new ActiveList<>();
-
-    // Pad with END tokens.
-    candidatesList.add(END_CANDIDATES);
-
-    Hypothesis initial = new Hypothesis();
-    int lmOrder = lm.getOrder();
-    initial.history = new Candidate[lmOrder - 1];
-    Arrays.fill(initial.history, START);
-    initial.current = START;
-    initial.score = 0f;
-    current.add(initial);
-
-    for (Candidates candidates : candidatesList) {
-
-      for (Hypothesis h : current) {
-        for (Candidate c : candidates.candidates) {
-          Hypothesis newHyp = new Hypothesis();
-          Candidate[] hist = new Candidate[lmOrder - 1];
-          if (lmOrder > 2) {
-            System.arraycopy(h.history, 1, hist, 0, lmOrder - 2);
-          }
-          if (hist.length > 0) {
-            hist[hist.length - 1] = h.current;
-          }
-          newHyp.current = c;
-          newHyp.history = hist;
-          newHyp.previous = h;
-
-          // score calculation.
-          int[] indexes = new int[lmOrder];
-          for (int j = 0; j < lmOrder - 1; j++) {
-            indexes[j] = lmIndex(hist[j].content);
-          }
-          indexes[lmOrder - 1] = lmIndex(c.content);
-          float score = lm.getProbability(indexes);
-
-          newHyp.score = h.score + score + c.score;
-          next.add(newHyp);
-        }
-      }
-      current = next;
-      next = new ActiveList<>();
-    }
-
-    // back track to find best sequence.
-    Hypothesis best = current.getBest();
-    List<String> seq = new ArrayList<>();
-    Hypothesis h = best;
-    // skip </s>
-    h = h.previous;
-    while (h != null && h.current != START) {
-      seq.add(h.current.content);
-      h = h.previous;
-    }
-    Collections.reverse(seq);
-    return seq;
-  }
-
-  private int lmIndex(String word) {
-    LmVocabulary vocabulary = lm.getVocabulary();
-    String normalized = word.indexOf('’') >= 0 ? word.replace('’', '\'') : word;
-    int idx = vocabulary.indexOf(normalized);
-    if (idx == vocabulary.getUnknownWordIndex() && normalized.indexOf('\'') > 0) {
-      int capIdx = vocabulary.indexOf(Turkish.capitalize(normalized));
-      if (capIdx != vocabulary.getUnknownWordIndex()) {
-        return capIdx;
-      }
-    }
-    return idx;
-  }
-
   String preProcess(String sentence) {
-    boolean requiresDeasciifier = alwaysApplyDeasciifier || probablyRequiresDeasciifier(sentence);
-    boolean preserveValidWords = !alwaysApplyDeasciifier && hasTurkishSpecificChars(sentence);
-    if (requiresDeasciifier && latticeDeasciifier != null) {
-      // Deasciify before Turkish.LOCALE lowercasing so uppercase ASCII 'I' ("Istanbul", "Isik",
-      // "TUIK", "BIOS") and TitleCase proper-noun cues are not destroyed into dotless 'ı'.
-      // Known-word mode leaves OOV typos and foreign words untouched for downstream spell-checking.
-      sentence = latticeDeasciifier.deasciifyKnownWords(sentence);
-    }
-    sentence = sentence.toLowerCase(Turkish.LOCALE);
-    List<Token> tokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
-    String s = replaceCommon(tokens);
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    s = normalizeElongations(tokens);
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    s = combineNecessaryWords(tokens);
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    s = splitNecessaryWords(tokens, false);
-    if (requiresDeasciifier) {
-      if (latticeDeasciifier == null) {
-        s = deasciifyValidWords(s, preserveValidWords);
-      } else if (!s.equals(sentence)) {
-        s = latticeDeasciifier.deasciifyKnownWords(s);
-      }
-    }
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    s = combineNecessaryWords(tokens);
-    tokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    return splitNecessaryWords(tokens, true);
+    return preprocessor.preProcess(sentence, alwaysApplyDeasciifier, latticeDeasciifier);
   }
 
   String deasciifyValidWords(String s) {
-    return deasciifyValidWords(s, false);
+    return preprocessor.deasciifyValidWords(s, false);
   }
 
   String deasciifyValidWords(String s, boolean preserveValidWords) {
-    String deasciified = Deasciifier.deasciify(s);
-    if (deasciified.equals(s) || deasciified.length() != s.length()) {
-      return deasciified;
-    }
-    List<Token> origTokens = TurkishTokenizer.DEFAULT.tokenize(s);
-    StringBuilder sb = new StringBuilder(s);
-    for (Token token : origTokens) {
-      int start = token.getStart();
-      int end = token.getEnd() + 1;
-      if (start < 0 || end > deasciified.length()) {
-        continue;
-      }
-      String origWord = s.substring(start, end);
-      String deascWord = deasciified.substring(start, end);
-      if (!origWord.equals(deascWord)
-          && isWord(token)
-          && !(preserveValidWords && hasRegularAnalysis(origWord))
-          && morphology.analyze(deascWord).isCorrect()) {
-        sb.replace(start, end, deascWord);
-      }
-    }
-    return sb.toString();
+    return preprocessor.deasciifyValidWords(s, preserveValidWords);
   }
 
   static boolean hasTurkishSpecificChars(String sentence) {
-    for (int i = 0; i < sentence.length(); i++) {
-      char c = sentence.charAt(i);
-      if (c != 'I' && TurkishAlphabet.INSTANCE.isTurkishSpecific(c)) {
-        return true;
-      }
-    }
-    return false;
+    return NormalizerPreprocessor.hasTurkishSpecificChars(sentence);
   }
 
-  private static boolean stripsExplicitTurkishDiacritic(String src, String cand) {
-    if (src.length() != cand.length()) {
-      return false;
-    }
-    for (int i = 0; i < src.length(); i++) {
-      char s = src.charAt(i);
-      char c = cand.charAt(i);
-      if ((s == 'ç' && c == 'c')
-          || (s == 'ğ' && c == 'g')
-          || (s == 'ö' && c == 'o')
-          || (s == 'ş' && c == 's')
-          || (s == 'ü' && c == 'u')) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static final List<SolidCompoundRule> SOLID_COMPOUND_RULES = List.of(
-      SolidCompoundRule.prefix("uluslar", "arası"),
-      SolidCompoundRule.prefix("milletler", "arası"),
-      SolidCompoundRule.prefix("hiç", "bir"),
-      SolidCompoundRule.prefix("bir", "kaç"),
-      SolidCompoundRule.exact("bir", "çok"),
-      SolidCompoundRule.prefix("her", "hangi"),
-      SolidCompoundRule.prefix("vaz", "geç")
-  );
-
-  private record SolidCompoundRule(String first, String second, boolean prefixMatch) {
-    static SolidCompoundRule prefix(String first, String second) {
-      return new SolidCompoundRule(first, second, true);
-    }
-
-    static SolidCompoundRule exact(String first, String second) {
-      return new SolidCompoundRule(first, second, false);
-    }
-
-    String tryCombine(String left, String right) {
-      if (!matchesCanonicalOrAscii(left, first, false)
-          || !matchesCanonicalOrAscii(right, second, prefixMatch)) {
-        return null;
-      }
-      return first + second + right.substring(second.length());
-    }
-  }
-
-  /**
-   * Tries to combine words that are written separately using heuristics. If it cannot combine,
-   * returns empty string.
-   *
-   * Such as:
-   * <pre>
-   * göndere bilirler -> göndere bilirler
-   * elma lar -> elmalar
-   * ankara 'ya -> ankara'ya
-   * </pre>
-   */
-  String combineCommon(String i1, String i2) {
-    String solidCompound = combineSolidCompound(i1, i2);
-    if (solidCompound != null) {
-      return solidCompound;
-    }
-    String combined = i1 + i2;
-    if ((i2.startsWith("'") || i2.startsWith("bil"))
-        && hasAnalysis(morphology.analyze(combined))) {
-      return combined;
-    }
-    if (!isStandaloneToken(i2) && hasRegularAnalysis(combined)) {
-      return combined;
-    }
-    return "";
-  }
-
-  private String combineSolidCompound(String i1, String i2) {
-    String left = expandInformalBir(i1);
-    String right = expandInformalBir(i2);
-    for (SolidCompoundRule rule : SOLID_COMPOUND_RULES) {
-      String candidate = rule.tryCombine(left, right);
-      if (candidate != null) {
-        return resolveCompoundSurface(candidate);
-      }
-    }
-    return null;
-  }
-
-  private String resolveCompoundSurface(String candidate) {
-    if (hasRegularAnalysis(candidate)) {
-      return candidate;
-    }
-    for (SingleAnalysis a : informalAsciiTolerantMorphology.analyze(candidate)) {
-      if (!isRegularAnalysis(a)) {
-        continue;
-      }
-      String surface = toFormalSurface(candidate, a);
-      if (surface != null) {
-        return surface;
-      }
-    }
-    return null;
-  }
-
-  private String toFormalSurface(String candidate, SingleAnalysis analysis) {
-    if (analysis.containsInformalMorpheme()) {
-      Result converted = analysisConverter.convert(candidate, analysis);
-      return converted != null ? converted.surface : null;
-    }
-    for (Result r : morphology.getWordGenerator().generate(
-        analysis.getDictionaryItem(), analysis.getMorphemes())) {
-      if (TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(candidate, r.surface)) {
-        return r.surface;
-      }
-    }
-    return null;
-  }
-
-  private static String expandInformalBir(String token) {
-    return ("bi".equals(token) || "bı".equals(token)) ? "bir" : token;
-  }
-
-  private static boolean matchesCanonicalOrAscii(
-      String input, String canonical, boolean prefixMatch) {
-    boolean validLength = prefixMatch
-        ? input.length() >= canonical.length()
-        : input.length() == canonical.length();
-    if (!validLength) {
-      return false;
-    }
-    for (int i = 0; i < canonical.length(); i++) {
-      char in = input.charAt(i);
-      char target = canonical.charAt(i);
-      if (in != target && TurkishAlphabet.INSTANCE.getAsciiEqual(target) != in) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private boolean isStandaloneToken(String token) {
-    return hasRegularAnalysis(token)
-        || lookupManual.containsKey(token)
-        || hasAsciiRootWordAnalysis(token);
-  }
-
-  private boolean hasAsciiRootWordAnalysis(String word) {
-    return word.length() >= 3
-        && informalAsciiTolerantMorphology.analyze(word).stream()
-            .anyMatch(a -> isRegularAnalysis(a) && a.getEnding().isEmpty());
-  }
-
-  /**
-   * Returns true if only word is analysed with internal dictionary and analysis dictionary item is
-   * not proper noun.
-   */
-  boolean hasRegularAnalysis(String s) {
-    return morphology.analyze(s).stream().anyMatch(TurkishSentenceNormalizer::isRegularAnalysis);
-  }
-
-  private static boolean isRegularAnalysis(SingleAnalysis a) {
-    return !a.isUnknown()
-        && !a.isRuntime()
-        && a.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun
-        && a.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation;
-  }
-
-  private static final Set<String> GLUED_NUMBER_EXACT_UNITS = new HashSet<>(Arrays.asList(
-      "tl", "ytl", "lira", "kuruş", "kurus", "usd", "dolar", "euro", "cent",
-      "gb", "mb", "kb", "tb", "kg", "gr", "mg", "km", "cm", "mm", "lt", "ml",
-      "dk", "sn", "ay", "aylık", "aylik", "aydan", "aydır", "aydir", "ayda", "aya", "ayı", "ayi",
-      "kere", "kez", "adet", "buçuk", "bucuk", "bin", "milyon", "milyar"));
-
-  private static final String[] GLUED_NUMBER_UNIT_PREFIXES = {
-      "saat", "hafta", "gün", "gun", "yıl", "yil", "sene", "dakika", "saniye",
-      "yaş", "yas", "tane", "kişi", "kisi", "defa", "sefer", "numara", "puan",
-      "derece", "kat", "bölüm", "bolum", "sayfa"
-  };
-
-  private static final Set<String> GLUED_KI_HEAD_WORDS = new HashSet<>(Arrays.asList(
-      "var", "yok", "öyle", "oyle", "böyle", "boyle", "şöyle", "soyle", "iyi", "tabii", "tabi"));
-
-  private static final Set<String> GLUED_KI_TIME_STEMS = new HashSet<>(Arrays.asList(
-      "bugün", "bugun", "dün", "dun", "gün", "gun", "yarın", "yarin",
-      "şimdi", "simdi", "önce", "once", "sonra"));
-
-  /**
-   * Tries to separate glued number+unit quantities, question particles, and conjunctions by lookup
-   * or morphotactic heuristics. Such as:
-   * <pre>
-   * 5aydan -> 5 aydan
-   * gelecekmisin -> gelecek misin
-   * tutupda -> tutup da
-   * öyleki -> öyle ki
-   * </pre>
-   */
-  String separateCommon(String input, boolean useLookup) {
-    if (noSplitWords.contains(input)) {
-      return input;
-    }
-    if (useLookup && commonSplits.containsKey(input)) {
-      return commonSplits.get(input);
-    }
-    String unitSplit = separateGluedNumberUnit(input);
-    if (unitSplit != null) {
-      return unitSplit;
-    }
-    if (!hasRegularOrAsciiAnalysis(input)) {
-      for (int i = 1; i < input.length() - 1; i++) {
-        String tail = input.substring(i);
-        boolean isAsciiKi = "kı".equals(tail);
-        if (!commonConnectedSuffixes.contains(tail) && !isAsciiKi) {
-          continue;
-        }
-        String head = input.substring(0, i);
-        if (!isAsciiKi
-            && (tail.length() >= 3 || lm.ngramExists(lm.getVocabulary().toIndexes(head, tail)))
-            && hasRegularAnalysis(head)) {
-          return head + " " + tail;
-        }
-        int minHeadLen = tail.length() >= 3 ? 2 : 3;
-        if (head.length() < minHeadLen) {
-          continue;
-        }
-        if ("ki".equals(tail) || isAsciiKi) {
-          if (canTakeDetachedKi(head)) {
-            return head + " ki";
-          }
-        } else if ("de".equals(tail) || "da".equals(tail)) {
-          if (canTakeDetachedDeDa(head)) {
-            return head + " " + tail;
-          }
-        } else if (hasRegularOrAsciiAnalysis(head)) {
-          return head + " " + harmonizeQuestionClitic(head, tail);
-        }
-      }
-    }
-    return input;
-  }
-
-  private String separateGluedNumberUnit(String input) {
-    int digitCount = 0;
-    while (digitCount < input.length() && Character.isDigit(input.charAt(digitCount))) {
-      digitCount++;
-    }
-    if (digitCount == 0 || digitCount > 6) {
-      return null;
-    }
-    String unitPart = input.substring(digitCount);
-    if (unitPart.length() < 2
-        || UNAMBIGUOUS_NUMERAL_SUFFIXES.contains(unitPart)
-        || NUMERAL_LOCATIVE_SUFFIXES.contains(unitPart)) {
-      return null;
-    }
-    for (int i = 0; i < unitPart.length(); i++) {
-      if (!Character.isLetter(unitPart.charAt(i))) {
-        return null;
-      }
-    }
-    if (GLUED_NUMBER_EXACT_UNITS.contains(unitPart)) {
-      return input.substring(0, digitCount) + " " + unitPart;
-    }
-    for (String prefix : GLUED_NUMBER_UNIT_PREFIXES) {
-      if (unitPart.startsWith(prefix) && hasRegularOrAsciiAnalysis(unitPart)) {
-        return input.substring(0, digitCount) + " " + unitPart;
-      }
-    }
-    return null;
-  }
-
-  private boolean hasRegularOrAsciiAnalysis(String s) {
-    if (hasRegularAnalysis(s)) {
-      return true;
-    }
-    for (SingleAnalysis a : informalAsciiTolerantMorphology.analyze(s)) {
-      if (isRegularNonProperAnalysis(a)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static boolean isRegularNonProperAnalysis(SingleAnalysis a) {
-    return !a.isUnknown()
-        && !a.isRuntime()
-        && a.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun
-        && a.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation;
-  }
-
-  private boolean canTakeDetachedKi(String head) {
-    if (GLUED_KI_TIME_STEMS.contains(head)) {
-      return false;
-    }
-    if (GLUED_KI_HEAD_WORDS.contains(head)) {
-      return true;
-    }
-    for (SingleAnalysis a : informalAsciiTolerantMorphology.analyze(head)) {
-      if (!isRegularNonProperAnalysis(a)) {
-        continue;
-      }
-      if (a.getLastGroup().getPos() == PrimaryPos.Verb
-          || a.containsMorpheme(TurkishMorphotactics.inf1)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private boolean canTakeDetachedDeDa(String head) {
-    boolean endsVoiceless = endsWithVoicelessConsonant(head);
-    boolean hasUnambiguousHost = false;
-    boolean hasAmbiguousSingularP3sgNom = false;
-    for (SingleAnalysis a : informalAsciiTolerantMorphology.analyze(head)) {
-      if (!isRegularNonProperAnalysis(a)) {
-        continue;
-      }
-      boolean hasOvertCase = containsOvertCase(a);
-      if (!hasOvertCase
-          && a.containsMorpheme(TurkishMorphotactics.a3sg)
-          && a.containsMorpheme(TurkishMorphotactics.p3sg)) {
-        hasAmbiguousSingularP3sgNom = true;
-      }
-      if (a.containsMorpheme(TurkishMorphotactics.afterDoingSo)) {
-        hasUnambiguousHost = true;
-      } else if (!endsVoiceless) {
-        if (a.getLastGroup().getPos() == PrimaryPos.Verb
-            || a.containsMorpheme(TurkishMorphotactics.when)
-            || hasOvertCase
-            || (a.containsMorpheme(TurkishMorphotactics.a3pl)
-                && (a.containsMorpheme(TurkishMorphotactics.p3sg)
-                    || a.containsMorpheme(TurkishMorphotactics.p3pl)))) {
-          hasUnambiguousHost = true;
-        }
-      }
-    }
-    return hasUnambiguousHost && !hasAmbiguousSingularP3sgNom;
-  }
-
-  private static boolean containsOvertCase(SingleAnalysis a) {
-    return a.containsMorpheme(TurkishMorphotactics.acc)
-        || a.containsMorpheme(TurkishMorphotactics.dat)
-        || a.containsMorpheme(TurkishMorphotactics.abl)
-        || a.containsMorpheme(TurkishMorphotactics.ins)
-        || a.containsMorpheme(TurkishMorphotactics.gen)
-        || a.containsMorpheme(TurkishMorphotactics.loc);
-  }
-
-  private static boolean endsWithVoicelessConsonant(String s) {
-    if (s.isEmpty()) {
-      return false;
-    }
-    char c = s.charAt(s.length() - 1);
-    return c == 'f' || c == 's' || c == 't' || c == 'k'
-        || c == 'ç' || c == 'ş' || c == 'h' || c == 'p';
-  }
-
-  private String harmonizeQuestionClitic(String head, String tail) {
-    if (!"mı".equals(tail) && !"mu".equals(tail)) {
-      return tail;
-    }
-    String realized = realizeRegularHeadSurface(head);
-    char lastVowel = lastTurkishVowel(realized);
-    if ("mı".equals(tail) && (lastVowel == 'e' || lastVowel == 'i')) {
-      return "mi";
-    }
-    if ("mu".equals(tail) && (lastVowel == 'ö' || lastVowel == 'ü')) {
-      return "mü";
-    }
-    return tail;
-  }
-
-  private String realizeRegularHeadSurface(String head) {
-    if (hasRegularAnalysis(head)) {
-      return head;
-    }
-    for (SingleAnalysis a : informalAsciiTolerantMorphology.analyze(head)) {
-      if (!isRegularNonProperAnalysis(a)) {
-        continue;
-      }
-      if (a.containsInformalMorpheme()) {
-        Result r = analysisConverter.convert(head, a);
-        if (r != null) {
-          return r.surface;
-        }
-      } else {
-        for (Result r : morphology.getWordGenerator().generate(
-            a.getDictionaryItem(), a.getMorphemes())) {
-          if (TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(head, r.surface)) {
-            return r.surface;
-          }
-        }
-      }
-    }
-    return head;
-  }
-
-  private static char lastTurkishVowel(String s) {
-    for (int i = s.length() - 1; i >= 0; i--) {
-      char c = s.charAt(i);
-      if (TurkishAlphabet.INSTANCE.isVowel(c)) {
-        return c;
-      }
-    }
-    return 0;
-  }
-
-  String separateBrute(String input, int minSize) {
-    if (!hasRegularAnalysis(input)) {
-      for (int i = minSize; i < input.length() - minSize; i++) {
-        String head = input.substring(0, i);
-        String tail = input.substring(i);
-        if (hasRegularAnalysis(head) && hasRegularAnalysis(tail)) {
-          return head + " " + tail;
-        }
-      }
-    }
-    return input;
-  }
-
-
-  /**
-   * Makes a guess if input sentence requires deasciifier.
-   */
   static boolean probablyRequiresDeasciifier(String sentence) {
-    if (sentence.isEmpty()) {
-      return false;
-    }
-    int turkishSpecCount = 0;
-    int letterCount = 0;
-    for (int i = 0; i < sentence.length(); i++) {
-      char c = sentence.charAt(i);
-      if (Character.isLetter(c)) {
-        letterCount++;
-      }
-      if (c == 'I') {
-        continue;
-      }
-      if (TurkishAlphabet.INSTANCE.isTurkishSpecific(c)) {
-        turkishSpecCount++;
-      }
-    }
-    if (letterCount == 0) {
-      return false;
-    }
-    double ratio = turkishSpecCount * 1d / letterCount;
-    return ratio < 0.05;
-  }
-
-  String normalizeElongations(List<Token> tokens) {
-    List<String> result = new ArrayList<>(tokens.size());
-    for (Token token : tokens) {
-      String text = token.getText();
-      result.add(isWord(token) ? elongationNormalizer.normalizeWord(text) : text);
-    }
-    return String.join(" ", result);
-  }
-
-  private boolean isValidLexicalWord(String word) {
-    return morphology.analyze(word).stream()
-        .anyMatch(a -> isRegularAnalysis(a) && !isExtendedInterjection(a));
-  }
-
-  private static boolean isExtendedInterjection(SingleAnalysis a) {
-    DictionaryItem item = a.getDictionaryItem();
-    return item.primaryPos == PrimaryPos.Interjection && item.hasAttribute(RootAttribute.Ext);
-  }
-
-  private double unigramScore(String word) {
-    if (!lm.getVocabulary().contains(word)) {
-      return Double.NEGATIVE_INFINITY;
-    }
-    return lm.getUnigramProbability(lm.getVocabulary().indexOf(word));
-  }
-
-  String combineNumeralSuffix(String prevWord, String number, String suffix) {
-    if (suffix.length() < 2) {
-      return "";
-    }
-    boolean allowed = UNAMBIGUOUS_NUMERAL_SUFFIXES.contains(suffix)
-        || (NUMERAL_LOCATIVE_SUFFIXES.contains(suffix)
-            && NUMERAL_LOCATIVE_ANCHORS.contains(prevWord));
-    if (!allowed) {
-      return "";
-    }
-    String result = tryNumeralAnalysis(number + "'" + suffix);
-    if (!result.isEmpty()) {
-      return result;
-    }
-    char firstChar = suffix.charAt(0);
-    if (firstChar == 'd' || firstChar == 't') {
-      char toggled = (firstChar == 'd') ? 't' : 'd';
-      result = tryNumeralAnalysis(number + "'" + toggled + suffix.substring(1));
-      if (!result.isEmpty()) {
-        return result;
-      }
-    }
-    if ("inci".equals(suffix) || "ıncı".equals(suffix)
-        || "uncu".equals(suffix) || "üncü".equals(suffix)) {
-      result = tryNumeralAnalysis(number + "'" + suffix.substring(1));
-      if (!result.isEmpty()) {
-        return result;
-      }
-    }
-    return "";
-  }
-
-  private String tryNumeralAnalysis(String candidate) {
-    WordAnalysis analysis = morphology.analyze(candidate);
-    boolean validNumeral = analysis.stream().anyMatch(
-        k -> !k.isUnknown() && k.getDictionaryItem().primaryPos == PrimaryPos.Numeral);
-    return validNumeral ? candidate : "";
-  }
-
-  String combineNecessaryWords(List<Token> tokens) {
-    if (tokens.isEmpty()) {
-      return "";
-    }
-    List<String> result = new ArrayList<>();
-    boolean combined = false;
-    for (int i = 0; i < tokens.size() - 1; i++) {
-      if (combined) {
-        combined = false;
-        continue;
-      }
-      Token first = tokens.get(i);
-      Token second = tokens.get(i + 1);
-      String firstS = first.getText();
-      String secondS = second.getText();
-      if (first.getType() == Type.Number
-          && isWord(second)
-          && ASCII_DIGITS_PATTERN.matcher(firstS).matches()) {
-        String prevWord = i > 0 ? tokens.get(i - 1).getText() : "";
-        String combinedNum = combineNumeralSuffix(prevWord, firstS, secondS);
-        if (!combinedNum.isEmpty()) {
-          result.add(combinedNum);
-          combined = true;
-          continue;
-        }
-      }
-      if (!isWord(first) || !isWord(second)) {
-        result.add(firstS);
-        continue;
-      }
-      String c = combineCommon(firstS, secondS);
-      if (c.length() > 0) {
-        result.add(c);
-        combined = true;
-      } else {
-        result.add(firstS);
-      }
-    }
-    if (!combined) {
-      result.add(tokens.get(tokens.size() - 1).getText());
-    }
-    return String.join(" ", result);
+    return NormalizerPreprocessor.probablyRequiresDeasciifier(sentence);
   }
 
   static boolean isWord(Token token) {
-    Token.Type type = token.getType();
-    return type == Type.Word
-        || type == Type.WordWithSymbol
-        || type == Type.WordAlphanumerical
-        || type == Type.UnknownWord;
+    return NormalizerPreprocessor.isWord(token);
+  }
+
+  boolean hasRegularAnalysis(String s) {
+    return surfaceRealizer.hasRegularAnalysis(s);
+  }
+
+  String combineCommon(String i1, String i2) {
+    return preprocessor.combineCommon(i1, i2);
+  }
+
+  String separateCommon(String input, boolean useLookup) {
+    return preprocessor.separateCommon(input, useLookup);
+  }
+
+  String combineNumeralSuffix(String prevWord, String number, String suffix) {
+    return preprocessor.combineNumeralSuffix(prevWord, number, suffix);
+  }
+
+  String combineNecessaryWords(List<Token> tokens) {
+    return preprocessor.combineNecessaryWords(tokens);
   }
 
   String splitNecessaryWords(List<Token> tokens, boolean useLookup) {
-    List<String> result = new ArrayList<>();
-    for (Token token : tokens) {
-      String text = token.getText();
-      if (isWord(token)) {
-        result.add(separateCommon(text, useLookup));
-      } else {
-        result.add(text);
-      }
-    }
-    return String.join(" ", result);
-  }
-
-  String splitBruteForce(List<Token> tokens, int minSize) {
-    List<String> result = new ArrayList<>();
-    for (Token token : tokens) {
-      String text = token.getText();
-      if (isWord(token)) {
-        result.add(separateBrute(text, minSize));
-      } else {
-        result.add(text);
-      }
-    }
-    return String.join(" ", result);
-  }
-
-  String replaceCommon(List<Token> tokens) {
-    List<String> result = new ArrayList<>(tokens.size());
-    for (Token token : tokens) {
-      String text = token.getText();
-      String replacement = replacements.get(text);
-      if (replacement != null) {
-        result.add(replacement);
-      } else if (isWord(token)) {
-        result.add(contractionExpander.expandWord(text));
-      } else {
-        result.add(text);
-      }
-    }
-    return String.join(" ", result);
+    return preprocessor.splitNecessaryWords(tokens, useLookup);
   }
 
   private Set<String> collectProtectedCapitalizedWords(String sentence) {
     if (Boolean.TRUE.equals(spellCheckCapitalizedWords) || !containsLowercaseLetter(sentence)) {
-      return Collections.emptySet();
+      return Set.of();
     }
     List<Token> rawTokens = TurkishTokenizer.DEFAULT.tokenize(sentence);
     if (Boolean.FALSE.equals(spellCheckCapitalizedWords)) {
@@ -1368,16 +508,12 @@ public class TurkishSentenceNormalizer {
       }
       return result;
     }
-    boolean hasLowercaseInitialWord = false;
-    for (Token token : rawTokens) {
-      String text = token.getText();
-      if (isWord(token) && !text.isEmpty() && Character.isLowerCase(text.charAt(0))) {
-        hasLowercaseInitialWord = true;
-        break;
-      }
-    }
+    boolean hasLowercaseInitialWord = rawTokens.stream()
+        .filter(TurkishSentenceNormalizer::isWord)
+        .map(Token::getText)
+        .anyMatch(t -> !t.isEmpty() && Character.isLowerCase(t.charAt(0)));
     if (!hasLowercaseInitialWord) {
-      return Collections.emptySet();
+      return Set.of();
     }
     Set<String> result = new HashSet<>();
     boolean atSentenceStart = true;
@@ -1388,7 +524,7 @@ public class TurkishSentenceNormalizer {
           result.add(text.toLowerCase(Turkish.LOCALE));
         }
         atSentenceStart = false;
-      } else if (isSentenceBoundary(text)) {
+      } else if (SENTENCE_BOUNDARIES.contains(text)) {
         atSentenceStart = true;
       }
     }
@@ -1402,12 +538,5 @@ public class TurkishSentenceNormalizer {
       }
     }
     return false;
-  }
-
-  private static boolean isSentenceBoundary(String tokenText) {
-    return ".".equals(tokenText)
-        || "!".equals(tokenText)
-        || "?".equals(tokenText)
-        || "...".equals(tokenText);
   }
 }
