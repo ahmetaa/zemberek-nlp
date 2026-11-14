@@ -34,6 +34,7 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.generator.WordGenerator;
 import zemberek.morphology.generator.WordGenerator.Result;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.normalization.deasciifier.latticedeasciifier.LatticeDeasciifier;
 import zemberek.tokenization.TurkishTokenizer;
@@ -886,7 +887,7 @@ public class TurkishSentenceNormalizer {
         continue;
       }
       if (a.getLastGroup().getPos() == PrimaryPos.Verb
-          || a.containsMorpheme(zemberek.morphology.morphotactics.TurkishMorphotactics.inf1)) {
+          || a.containsMorpheme(TurkishMorphotactics.inf1)) {
         return true;
       }
     }
@@ -903,21 +904,19 @@ public class TurkishSentenceNormalizer {
       }
       boolean hasOvertCase = containsOvertCase(a);
       if (!hasOvertCase
-          && a.containsMorpheme(zemberek.morphology.morphotactics.TurkishMorphotactics.a3sg)
-          && a.containsMorpheme(zemberek.morphology.morphotactics.TurkishMorphotactics.p3sg)) {
+          && a.containsMorpheme(TurkishMorphotactics.a3sg)
+          && a.containsMorpheme(TurkishMorphotactics.p3sg)) {
         hasAmbiguousSingularP3sgNom = true;
       }
-      if (a.containsMorpheme(
-          zemberek.morphology.morphotactics.TurkishMorphotactics.afterDoingSo)) {
+      if (a.containsMorpheme(TurkishMorphotactics.afterDoingSo)) {
         hasUnambiguousHost = true;
       } else if (!endsVoiceless) {
         if (a.getLastGroup().getPos() == PrimaryPos.Verb
-            || a.containsMorpheme(zemberek.morphology.morphotactics.TurkishMorphotactics.when)
+            || a.containsMorpheme(TurkishMorphotactics.when)
             || hasOvertCase
-            || (a.containsMorpheme(zemberek.morphology.morphotactics.TurkishMorphotactics.a3pl)
-                && (a.containsMorpheme(zemberek.morphology.morphotactics.TurkishMorphotactics.p3sg)
-                    || a.containsMorpheme(
-                        zemberek.morphology.morphotactics.TurkishMorphotactics.p3pl)))) {
+            || (a.containsMorpheme(TurkishMorphotactics.a3pl)
+                && (a.containsMorpheme(TurkishMorphotactics.p3sg)
+                    || a.containsMorpheme(TurkishMorphotactics.p3pl)))) {
           hasUnambiguousHost = true;
         }
       }
@@ -926,12 +925,12 @@ public class TurkishSentenceNormalizer {
   }
 
   private static boolean containsOvertCase(SingleAnalysis a) {
-    return a.containsMorpheme(zemberek.morphology.morphotactics.TurkishMorphotactics.acc)
-        || a.containsMorpheme(zemberek.morphology.morphotactics.TurkishMorphotactics.dat)
-        || a.containsMorpheme(zemberek.morphology.morphotactics.TurkishMorphotactics.abl)
-        || a.containsMorpheme(zemberek.morphology.morphotactics.TurkishMorphotactics.ins)
-        || a.containsMorpheme(zemberek.morphology.morphotactics.TurkishMorphotactics.gen)
-        || a.containsMorpheme(zemberek.morphology.morphotactics.TurkishMorphotactics.loc);
+    return a.containsMorpheme(TurkishMorphotactics.acc)
+        || a.containsMorpheme(TurkishMorphotactics.dat)
+        || a.containsMorpheme(TurkishMorphotactics.abl)
+        || a.containsMorpheme(TurkishMorphotactics.ins)
+        || a.containsMorpheme(TurkishMorphotactics.gen)
+        || a.containsMorpheme(TurkishMorphotactics.loc);
   }
 
   private static boolean endsWithVoicelessConsonant(String s) {
@@ -940,7 +939,7 @@ public class TurkishSentenceNormalizer {
     }
     char c = s.charAt(s.length() - 1);
     return c == 'f' || c == 's' || c == 't' || c == 'k'
-        || c == 'ç' || c == 'c' || c == 'ş' || c == 'h' || c == 'p';
+        || c == 'ç' || c == 'ş' || c == 'h' || c == 'p';
   }
 
   private String harmonizeQuestionClitic(String head, String tail) {
