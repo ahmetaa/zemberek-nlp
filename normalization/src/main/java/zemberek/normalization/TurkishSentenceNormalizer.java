@@ -304,7 +304,7 @@ public class TurkishSentenceNormalizer {
       boolean currentHasApostrophe = hasApostrophe(current);
       boolean hasUsableAnalysis = false;
       boolean hasNonStrippingCandidate = false;
-      LinkedHashMap<String, Float> strippedDiacriticCandidates = null;
+      LinkedHashMap<String, Float> strippedCandidates = null;
 
       for (SingleAnalysis analysis : analyses) {
         if (isUnapostrophizedInflectedAbbreviation(analysis, currentHasApostrophe)) {
@@ -318,20 +318,16 @@ public class TurkishSentenceNormalizer {
         if (analysis.containsInformalMorpheme()) {
           WordGenerator.Result result = analysisConverter.convert(current, analysis);
           if (result != null) {
-            int stemCheckLen = Math.min(
+            int stemLen = Math.min(
                 normalizedCurrent.length(),
                 Math.min(analysis.getStem().length(), result.surface.length()));
-            if (stripsExplicitTurkishDiacriticRange(
-                normalizedCurrent, result.surface, stemCheckLen)) {
-              if (!currentHasRegularAnalysis) {
-                if (strippedDiacriticCandidates == null) {
-                  strippedDiacriticCandidates = new LinkedHashMap<>(2);
-                }
-                putCandidateScore(strippedDiacriticCandidates, result.surface, INFORMAL_PENALTY);
-              }
-            } else {
+            if (!stripsExplicitTurkishDiacritic(
+                normalizedCurrent.substring(0, stemLen), result.surface.substring(0, stemLen))) {
               hasNonStrippingCandidate = true;
               putCandidateScore(candidateScores, result.surface, INFORMAL_PENALTY);
+            } else if (!currentHasRegularAnalysis) {
+              strippedCandidates =
+                  putFallbackCandidate(strippedCandidates, result.surface, INFORMAL_PENALTY);
             }
           }
         } else {
@@ -355,23 +351,20 @@ public class TurkishSentenceNormalizer {
                     1, TurkishSpellChecker.countDiacriticDifferences(current, result.surface));
                 score = (protectCleanForm ? CLEAN_OVERRIDE_PENALTY : DIACRITIC_PENALTY) * diffs;
               }
-              if (stripsExplicit) {
-                if (strippedDiacriticCandidates == null) {
-                  strippedDiacriticCandidates = new LinkedHashMap<>(2);
-                }
-                putCandidateScore(strippedDiacriticCandidates, result.surface, score);
-              } else {
+              if (!stripsExplicit) {
                 hasNonStrippingCandidate = true;
                 putCandidateScore(candidateScores, result.surface, score);
+              } else {
+                strippedCandidates =
+                    putFallbackCandidate(strippedCandidates, result.surface, score);
               }
             }
           }
         }
       }
-      if (!hasNonStrippingCandidate && strippedDiacriticCandidates != null) {
-        for (Map.Entry<String, Float> entry : strippedDiacriticCandidates.entrySet()) {
-          putCandidateScore(candidateScores, entry.getKey(), entry.getValue());
-        }
+      if (!hasNonStrippingCandidate && strippedCandidates != null) {
+        strippedCandidates.forEach(
+            (surface, score) -> putCandidateScore(candidateScores, surface, score));
       }
 
       // If there is no formal/informal analysis and length > 3, add top 3 spell suggestions
@@ -437,6 +430,15 @@ public class TurkishSentenceNormalizer {
         && !analysis.getEnding().isEmpty();
   }
 
+  private static LinkedHashMap<String, Float> putFallbackCandidate(
+      LinkedHashMap<String, Float> fallback, String surface, float score) {
+    if (fallback == null) {
+      fallback = new LinkedHashMap<>(2);
+    }
+    putCandidateScore(fallback, surface, score);
+    return fallback;
+  }
+
   private boolean isAcceptableSpellSuggestion(String suggestion, boolean currentHasApostrophe) {
     if (suggestion.isEmpty() || !Character.isUpperCase(suggestion.charAt(0))) {
       return true;
@@ -451,21 +453,6 @@ public class TurkishSentenceNormalizer {
   private static boolean containsDigit(String s) {
     for (int i = 0; i < s.length(); i++) {
       if (Character.isDigit(s.charAt(i))) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static boolean stripsExplicitTurkishDiacriticRange(String src, String cand, int len) {
-    for (int i = 0; i < len; i++) {
-      char s = src.charAt(i);
-      char c = cand.charAt(i);
-      if ((s == 'ç' && c == 'c')
-          || (s == 'ğ' && c == 'g')
-          || (s == 'ö' && c == 'o')
-          || (s == 'ş' && c == 's')
-          || (s == 'ü' && c == 'u')) {
         return true;
       }
     }

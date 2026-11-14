@@ -43,7 +43,7 @@ public class NormalizerSpellCheckGuardsTest {
             "-5.0000 <unk>\t0.0",
             "-1.0000 </s>\t0.0",
             "-1.0000 <s>\t-0.1",
-            "-1.0000 aydan\t-0.1",
+            "-1.0000 evden\t-0.1",
             "-1.0000 side\t-0.1",
             "-1.0000 sonra\t-0.1",
             "-1.2000 mesajı\t-0.1",
@@ -61,7 +61,7 @@ public class NormalizerSpellCheckGuardsTest {
             "-1.2000 geldi\t-0.1",
             "",
             "\\2-grams:",
-            "-0.5000 aydan sonra",
+            "-0.5000 evden sonra",
             "-0.5000 kitabı oku",
             "",
             "\\end\\"),
@@ -81,7 +81,7 @@ public class NormalizerSpellCheckGuardsTest {
     TurkishMorphology morphology =
         TurkishMorphology.builder()
             .setLexicon(
-                "ay",
+                "ev",
                 "side",
                 "sonra [P:Adv]",
                 "mesaj",
@@ -115,7 +115,7 @@ public class NormalizerSpellCheckGuardsTest {
 
   @Test
   public void doesNotDeleteDigitsInGluedAlphanumericTokens() {
-    Assert.assertEquals("5aydan sonra", normalizer.normalize("5aydan sonra"));
+    Assert.assertEquals("5evden sonra", normalizer.normalize("5evden sonra"));
     Assert.assertEquals("2sıde geldi", normalizer.normalize("2sıde geldi"));
   }
 
