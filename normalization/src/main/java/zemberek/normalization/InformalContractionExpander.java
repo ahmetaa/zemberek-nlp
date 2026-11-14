@@ -44,6 +44,48 @@ final class InformalContractionExpander {
       new PrefixRule("orjinal", "orijinal", "orijinal")
   };
 
+  private static final class OpenCompoundRule {
+    final String sourcePrefix;
+    final String firstWord;
+    final String secondStem;
+    final String expectedLemma;
+    final int minSuffixLen;
+
+    OpenCompoundRule(
+        String sourcePrefix,
+        String firstWord,
+        String secondStem,
+        String expectedLemma,
+        int minSuffixLen) {
+      this.sourcePrefix = sourcePrefix;
+      this.firstWord = firstWord;
+      this.secondStem = secondStem;
+      this.expectedLemma = expectedLemma;
+      this.minSuffixLen = minSuffixLen;
+    }
+  }
+
+  private static final OpenCompoundRule[] OPEN_COMPOUND_RULES = {
+      new OpenCompoundRule("hiçbirşey", "hiçbir", "şey", "şey", 0),
+      new OpenCompoundRule("hiçbirsey", "hiçbir", "şey", "şey", 0),
+      new OpenCompoundRule("hicbirsey", "hiçbir", "şey", "şey", 0),
+      new OpenCompoundRule("hiçbişey", "hiçbir", "şey", "şey", 0),
+      new OpenCompoundRule("hiçbisey", "hiçbir", "şey", "şey", 0),
+      new OpenCompoundRule("hicbisey", "hiçbir", "şey", "şey", 0),
+      new OpenCompoundRule("birşey", "bir", "şey", "şey", 0),
+      new OpenCompoundRule("birsey", "bir", "şey", "şey", 0),
+      new OpenCompoundRule("bişey", "bir", "şey", "şey", 0),
+      new OpenCompoundRule("bisey", "bir", "şey", "şey", 0),
+      new OpenCompoundRule("herşey", "her", "şey", "şey", 0),
+      new OpenCompoundRule("hersey", "her", "şey", "şey", 0),
+      new OpenCompoundRule("heryer", "her", "yer", "yer", 0),
+      new OpenCompoundRule("hoşgel", "hoş", "gel", "gelmek", 2),
+      new OpenCompoundRule("hosgel", "hoş", "gel", "gelmek", 2),
+      new OpenCompoundRule("sağol", "sağ", "ol", "olmak", 0),
+      new OpenCompoundRule("sagol", "sağ", "ol", "olmak", 0),
+      new OpenCompoundRule("saol", "sağ", "ol", "olmak", 0)
+  };
+
   private final TurkishMorphology morphology;
   private final TurkishMorphology informalAsciiTolerantMorphology;
   private final InformalAnalysisConverter analysisConverter;
@@ -78,6 +120,10 @@ final class InformalContractionExpander {
     }
 
     if (!hasNonExtRegularAnalysisExcept(word, null)) {
+      String openCompound = expandOpenCompound(word);
+      if (openCompound != null) {
+        return openCompound;
+      }
       String verbExpansion = expandNeVerbContraction(word);
       if (verbExpansion != null) {
         return verbExpansion;
@@ -85,6 +131,20 @@ final class InformalContractionExpander {
     }
 
     return word;
+  }
+
+  private String expandOpenCompound(String word) {
+    for (OpenCompoundRule rule : OPEN_COMPOUND_RULES) {
+      if (word.startsWith(rule.sourcePrefix)
+          && word.length() - rule.sourcePrefix.length() >= rule.minSuffixLen) {
+        String suffix = word.substring(rule.sourcePrefix.length());
+        String realized = realizeSingleWord(rule.secondStem + suffix, rule.expectedLemma);
+        if (realized != null) {
+          return rule.firstWord + " " + realized;
+        }
+      }
+    }
+    return null;
   }
 
   private String expandNeVerbContraction(String word) {

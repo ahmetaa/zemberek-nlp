@@ -84,6 +84,22 @@ public class InformalContractionAndDeasciifierGateTest {
                 "orda [A:Ext]",
                 "şurda [A:Ext]",
                 "orjinal [A:Ext]",
+                "herşey [A:Ext]",
+                "birşey [A:Ext]",
+                "hiçbirşey [A:Ext]",
+                "heryer [A:Ext]",
+                "hoşgelmek [A:Ext]",
+                "sağolmak [A:Ext]",
+                "Hoşgeldi [P:Prop]",
+                "Sağol [P:Prop]",
+                "her [P:Det]",
+                "bir [P:Det]",
+                "hiçbir [P:Det]",
+                "şey",
+                "yer",
+                "hoş [P:Adj]",
+                "gelmek [A:Aorist_I]",
+                "sağ [P:Adj]",
                 "yapmak",
                 "olmak [A:Aorist_I]",
                 "napalm",
@@ -125,6 +141,12 @@ public class InformalContractionAndDeasciifierGateTest {
         "şurada şuradan nerede nereden neredesin",
         normalizer.normalize("şurda şurdan nerde nerden nerdesin"));
     Assert.assertEquals("orijinal orijinallik", normalizer.normalize("orjinal orjinallik"));
+    Assert.assertEquals(
+        "her şey her şeyim bir şeyler hiçbir şeyin",
+        normalizer.normalize("herşey herseyim bişeyler hicbirseyin"));
+    Assert.assertEquals(
+        "her yerde hoş geldiniz sağ olun sağ olasın",
+        normalizer.normalize("heryerde hosgeldiniz saolun sağolasın"));
   }
 
   @Test
