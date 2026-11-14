@@ -35,6 +35,7 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.generator.WordGenerator;
 import zemberek.morphology.generator.WordGenerator.Result;
+import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.normalization.deasciifier.latticedeasciifier.LatticeDeasciifier;
@@ -766,6 +767,34 @@ public class TurkishSentenceNormalizer {
     return false;
   }
 
+  private static final List<SolidCompoundRule> SOLID_COMPOUND_RULES = List.of(
+      SolidCompoundRule.prefix("uluslar", "arası"),
+      SolidCompoundRule.prefix("milletler", "arası"),
+      SolidCompoundRule.prefix("hiç", "bir"),
+      SolidCompoundRule.prefix("bir", "kaç"),
+      SolidCompoundRule.exact("bir", "çok"),
+      SolidCompoundRule.prefix("her", "hangi"),
+      SolidCompoundRule.prefix("vaz", "geç")
+  );
+
+  private record SolidCompoundRule(String first, String second, boolean prefixMatch) {
+    static SolidCompoundRule prefix(String first, String second) {
+      return new SolidCompoundRule(first, second, true);
+    }
+
+    static SolidCompoundRule exact(String first, String second) {
+      return new SolidCompoundRule(first, second, false);
+    }
+
+    String tryCombine(String left, String right) {
+      if (!matchesCanonicalOrAscii(left, first, false)
+          || !matchesCanonicalOrAscii(right, second, prefixMatch)) {
+        return null;
+      }
+      return first + second + right.substring(second.length());
+    }
+  }
+
   /**
    * Tries to combine words that are written separately using heuristics. If it cannot combine,
    * returns empty string.
@@ -783,82 +812,90 @@ public class TurkishSentenceNormalizer {
       return solidCompound;
     }
     String combined = i1 + i2;
-    if (i2.startsWith("'") || i2.startsWith("bil")) {
-      WordAnalysis w = morphology.analyze(combined);
-      if (hasAnalysis(w)) {
-        return combined;
-      }
+    if ((i2.startsWith("'") || i2.startsWith("bil"))
+        && hasAnalysis(morphology.analyze(combined))) {
+      return combined;
     }
-    if (!hasRegularAnalysis(i2)
-        && !lookupManual.containsKey(i2)
-        && !hasAsciiRootWordAnalysis(i2)
-        && hasRegularAnalysis(combined)) {
+    if (!isStandaloneToken(i2) && hasRegularAnalysis(combined)) {
       return combined;
     }
     return "";
   }
 
   private String combineSolidCompound(String i1, String i2) {
-    String candidate = null;
-    if (("uluslar".equals(i1) || "milletler".equals(i1))
-        && (i2.startsWith("arası") || i2.startsWith("arasi"))) {
-      candidate = i1 + i2;
-    } else if (("hiç".equals(i1) || "hic".equals(i1))
-        && (i2.startsWith("bir") || "bi".equals(i2) || "bı".equals(i2))) {
-      candidate = ("bi".equals(i2) || "bı".equals(i2)) ? "hiçbir" : "hiç" + i2;
-    } else if (("bir".equals(i1) || "bi".equals(i1) || "bı".equals(i1))
-        && (i2.startsWith("kaç") || i2.startsWith("kac")
-            || "çok".equals(i2) || "cok".equals(i2))) {
-      candidate = ("çok".equals(i2) || "cok".equals(i2)) ? "birçok" : "bir" + i2;
-    } else if ("her".equals(i1) && i2.startsWith("hangi")) {
-      candidate = i1 + i2;
-    } else if ("vaz".equals(i1) && (i2.startsWith("geç") || i2.startsWith("gec"))) {
-      candidate = i1 + i2;
-    }
-    if (candidate == null) {
-      return null;
-    }
-    if (hasRegularAnalysis(candidate)) {
-      return candidate;
-    }
-    for (SingleAnalysis a : informalAsciiTolerantMorphology.analyze(candidate)) {
-      if (a.isUnknown()
-          || a.isRuntime()
-          || a.getDictionaryItem().secondaryPos == SecondaryPos.ProperNoun
-          || a.getDictionaryItem().secondaryPos == SecondaryPos.Abbreviation) {
-        continue;
-      }
-      if (a.containsInformalMorpheme()) {
-        Result r = analysisConverter.convert(candidate, a);
-        if (r != null) {
-          return r.surface;
-        }
-      } else {
-        for (Result r : morphology.getWordGenerator().generate(
-            a.getDictionaryItem(), a.getMorphemes())) {
-          if (TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(candidate, r.surface)) {
-            return r.surface;
-          }
-        }
+    String left = expandInformalBir(i1);
+    String right = expandInformalBir(i2);
+    for (SolidCompoundRule rule : SOLID_COMPOUND_RULES) {
+      String candidate = rule.tryCombine(left, right);
+      if (candidate != null) {
+        return resolveCompoundSurface(candidate);
       }
     }
     return null;
   }
 
-  private boolean hasAsciiRootWordAnalysis(String word) {
-    if (word.length() < 3) {
-      return false;
+  private String resolveCompoundSurface(String candidate) {
+    if (hasRegularAnalysis(candidate)) {
+      return candidate;
     }
-    for (SingleAnalysis a : informalAsciiTolerantMorphology.analyze(word)) {
-      if (!a.isUnknown()
-          && !a.isRuntime()
-          && a.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun
-          && a.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation
-          && a.getEnding().isEmpty()) {
-        return true;
+    for (SingleAnalysis a : informalAsciiTolerantMorphology.analyze(candidate)) {
+      if (!isRegularAnalysis(a)) {
+        continue;
+      }
+      String surface = toFormalSurface(candidate, a);
+      if (surface != null) {
+        return surface;
       }
     }
-    return false;
+    return null;
+  }
+
+  private String toFormalSurface(String candidate, SingleAnalysis analysis) {
+    if (analysis.containsInformalMorpheme()) {
+      Result converted = analysisConverter.convert(candidate, analysis);
+      return converted != null ? converted.surface : null;
+    }
+    for (Result r : morphology.getWordGenerator().generate(
+        analysis.getDictionaryItem(), analysis.getMorphemes())) {
+      if (TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(candidate, r.surface)) {
+        return r.surface;
+      }
+    }
+    return null;
+  }
+
+  private static String expandInformalBir(String token) {
+    return ("bi".equals(token) || "bı".equals(token)) ? "bir" : token;
+  }
+
+  private static boolean matchesCanonicalOrAscii(
+      String input, String canonical, boolean prefixMatch) {
+    boolean validLength = prefixMatch
+        ? input.length() >= canonical.length()
+        : input.length() == canonical.length();
+    if (!validLength) {
+      return false;
+    }
+    for (int i = 0; i < canonical.length(); i++) {
+      char in = input.charAt(i);
+      char target = canonical.charAt(i);
+      if (in != target && TurkishAlphabet.INSTANCE.getAsciiEqual(target) != in) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean isStandaloneToken(String token) {
+    return hasRegularAnalysis(token)
+        || lookupManual.containsKey(token)
+        || hasAsciiRootWordAnalysis(token);
+  }
+
+  private boolean hasAsciiRootWordAnalysis(String word) {
+    return word.length() >= 3
+        && informalAsciiTolerantMorphology.analyze(word).stream()
+            .anyMatch(a -> isRegularAnalysis(a) && a.getEnding().isEmpty());
   }
 
   /**
@@ -866,11 +903,14 @@ public class TurkishSentenceNormalizer {
    * not proper noun.
    */
   boolean hasRegularAnalysis(String s) {
-    WordAnalysis a = morphology.analyze(s);
-    return a.stream().anyMatch(k -> !k.isUnknown() && !k.isRuntime() &&
-        k.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun &&
-        k.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation
-    );
+    return morphology.analyze(s).stream().anyMatch(TurkishSentenceNormalizer::isRegularAnalysis);
+  }
+
+  private static boolean isRegularAnalysis(SingleAnalysis a) {
+    return !a.isUnknown()
+        && !a.isRuntime()
+        && a.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun
+        && a.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation;
   }
 
   private static final Set<String> GLUED_NUMBER_EXACT_UNITS = new HashSet<>(Arrays.asList(
@@ -1164,14 +1204,13 @@ public class TurkishSentenceNormalizer {
   }
 
   private boolean isValidLexicalWord(String word) {
-    WordAnalysis analysis = morphology.analyze(word);
-    return analysis.stream().anyMatch(
-        k -> !k.isUnknown()
-            && !k.isRuntime()
-            && k.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation
-            && k.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun
-            && !(k.getDictionaryItem().primaryPos == PrimaryPos.Interjection
-                && k.getDictionaryItem().hasAttribute(RootAttribute.Ext)));
+    return morphology.analyze(word).stream()
+        .anyMatch(a -> isRegularAnalysis(a) && !isExtendedInterjection(a));
+  }
+
+  private static boolean isExtendedInterjection(SingleAnalysis a) {
+    DictionaryItem item = a.getDictionaryItem();
+    return item.primaryPos == PrimaryPos.Interjection && item.hasAttribute(RootAttribute.Ext);
   }
 
   private double unigramScore(String word) {

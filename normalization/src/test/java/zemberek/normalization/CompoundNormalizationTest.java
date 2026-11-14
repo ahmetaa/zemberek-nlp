@@ -144,6 +144,8 @@ public class CompoundNormalizationTest {
   public void testIssue245SolidCompoundsAreCombined() {
     Assert.assertEquals("uluslararası ilişkiler",
         normalizer.normalize("Uluslar arası ilişkiler"));
+    Assert.assertEquals("uluslararası ilişkiler",
+        normalizer.normalize("uluslar arasi ilişkiler"));
     Assert.assertEquals("milletlerarası anlaşma",
         normalizer.normalize("Milletler arası anlaşma"));
     Assert.assertEquals("birkaç kişi",
@@ -154,18 +156,24 @@ public class CompoundNormalizationTest {
         normalizer.normalize("bir çok kişi"));
     Assert.assertEquals("birçok kişi",
         normalizer.normalize("bi çok kişi"));
+    Assert.assertEquals("birçok kişi",
+        normalizer.normalize("bi cok kişi"));
     Assert.assertEquals("birkaç kişi",
         normalizer.normalize("bikaç kişi"));
     Assert.assertEquals("hiçbir şey",
         normalizer.normalize("hiç bir şey"));
     Assert.assertEquals("hiçbir şey",
         normalizer.normalize("hiç bi şey"));
+    Assert.assertEquals("hiçbir şey",
+        normalizer.normalize("hic bi şey"));
     Assert.assertEquals("hiçbiri",
         normalizer.normalize("hiç biri"));
     Assert.assertEquals("herhangi bir sorun",
         normalizer.normalize("her hangi bir sorun"));
     Assert.assertEquals("vazgeçti",
         normalizer.normalize("vaz geçti"));
+    Assert.assertEquals("vazgeçti",
+        normalizer.normalize("vaz gecti"));
   }
 
   @Test
