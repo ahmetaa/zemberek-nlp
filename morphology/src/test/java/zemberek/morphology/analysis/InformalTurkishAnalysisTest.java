@@ -204,10 +204,16 @@ public class InformalTurkishAnalysisTest extends AnalyzerTestBase {
   @Test
   public void testInformalSurfaceConversion() {
     RootLexicon lexicon = TurkishDictionaryLoader.load(
-        "yazmak", "dinlenmek", "demek", "kalkmak", "buluşmak", "yapmak", "gitmek [A:Voicing]");
+        "yazmak", "dinlenmek", "demek", "kalkmak", "buluşmak", "yapmak", "gitmek [A:Voicing]",
+        "olmak [A:Aorist_I]", "görmek [A:Aorist_I]", "izlemek", "beklemek");
     TurkishMorphology morphology = TurkishMorphology.builder(lexicon)
         .disableUnidentifiedTokenAnalyzer()
         .useInformalAnalysis()
+        .build();
+    TurkishMorphology asciiMorphology = TurkishMorphology.builder(lexicon)
+        .disableUnidentifiedTokenAnalyzer()
+        .useInformalAnalysis()
+        .ignoreDiacriticsInAnalysis()
         .build();
     InformalAnalysisConverter converter =
         new InformalAnalysisConverter(morphology.getWordGenerator());
@@ -219,12 +225,42 @@ public class InformalTurkishAnalysisTest extends AnalyzerTestBase {
         {"kalkcağını", "kalkacağını"},
         {"buluşabilceğimiz", "buluşabileceğimiz"},
         {"yapmıycağını", "yapmayacağını"},
+        {"olmucağını", "olmayacağını"},
         {"gidiceğim", "gideceğim"},
         {"diyceği", "diyeceği"},
+        {"olmucak", "olmayacak"},
+        {"olmıcak", "olmayacak"},
+        {"görmicek", "görmeyecek"},
+        {"görüceksin", "göreceksin"},
+        {"olucak", "olacak"},
+        {"izlemicek", "izlemeyecek"},
+        {"izlicek", "izleyecek"},
+        {"beklicem", "bekleyeceğim"},
+        {"yapmıcam", "yapmayacağım"},
+        {"yapamıcam", "yapamayacağım"},
     };
     for (String[] pair : pairs) {
       WordAnalysis analyses = morphology.analyze(pair[0]);
       Assert.assertTrue("Expected analysis for " + pair[0], analyses.isCorrect());
+      boolean matched = false;
+      for (SingleAnalysis a : analyses) {
+        String surface = converter.convert(pair[0], a).surface;
+        if (pair[1].equals(surface)) {
+          matched = true;
+          break;
+        }
+      }
+      Assert.assertTrue("Expected " + pair[0] + " -> " + pair[1], matched);
+    }
+
+    String[][] asciiPairs = {
+        {"olmucaksiniz", "olmayacaksınız"},
+        {"olmicak", "olmayacak"},
+        {"ızlemıcek", "izlemeyecek"},
+    };
+    for (String[] pair : asciiPairs) {
+      WordAnalysis analyses = asciiMorphology.analyze(pair[0]);
+      Assert.assertTrue("Expected ascii analysis for " + pair[0], analyses.isCorrect());
       boolean matched = false;
       for (SingleAnalysis a : analyses) {
         String surface = converter.convert(pair[0], a).surface;

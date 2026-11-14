@@ -141,29 +141,53 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
     // Future tense deformation
     // yap-ıca-m yap-aca-m yap-ca-m
 
-    verbRoot_S.add(vNeg_S_Inf, "mI");
+    Condition backRounded = Conditions.has(PhoneticAttribute.LastVowelBack)
+        .and(Conditions.has(PhoneticAttribute.LastVowelRounded));
+    Condition frontRounded = Conditions.has(PhoneticAttribute.LastVowelFrontal)
+        .and(Conditions.has(PhoneticAttribute.LastVowelRounded));
+
+    verbRoot_S
+        .add(vNeg_S_Inf, "mI")
+        .add(vNeg_S_Inf, "mı", backRounded)   // ol-mı-cak / ol-mi-cak
+        .add(vNeg_S_Inf, "mi", frontRounded); // gör-mi-cek
     verbRoot_S.add(vUnable_S_Inf, "+yAmI");
 
     verbRoot_S
-        .add(vFut_S_Inf, "+ycA~k")  // yap-cak-sın oku-ycak
-        .add(vFut_S_Inf, "+ycA!ğ")  // yap-cağ-ım
-        .add(vFut_S_Inf2, "+ycA")   // yap-ca-m oku-yca-m
-        .add(vFut_S_Inf2, "+yIcA")  // yap-ıca-m oku-yuca-m
+        .add(vFut_S_Inf, "+ycA~k")   // yap-cak-sın oku-ycak
+        .add(vFut_S_Inf, "+ycA!ğ")   // yap-cağ-ım
+        .add(vFut_S_Inf, "+yIcA~k")  // gör-ücek-sin ol-ucak
+        .add(vFut_S_Inf, "+yIcA!ğ")  // gid-iceğ-im
+        .add(vFut_S_Inf2, "+ycA")    // yap-ca-m oku-yca-m
+        .add(vFut_S_Inf2, "+yIcA")   // yap-ıca-m oku-yuca-m
         .add(vFut_S_Inf2, "+yAcA");  // yap-aca-m oku-yaca-m
 
+    verbRoot_VowelDrop_S
+        .add(vFut_S_Inf, "IycA~k")
+        .add(vFut_S_Inf, "IycA!ğ")
+        .add(vFut_S_Inf, "IcA~k")   // izl-icek ar-ıcak
+        .add(vFut_S_Inf, "IcA!ğ")
+        .add(vFut_S_Inf2, "IycA")
+        .add(vFut_S_Inf2, "IcA");   // bekl-ice-m anl-ıca-m
+
     vNeg_S_Inf
-        .add(vFut_S, "yAcA~k")  // yap-mı-yacak-sın
-        .add(vFut_S, "yAcA!ğ")  // yap-mı-yacağ-ım
-        .add(vFut_S_Inf, "ycA~k")   // yap-mı-ycağ-ım
-        .add(vFut_S_Inf, "ycA!ğ")   // yap-mı-ycak-sın
-        .add(vFut_S_Inf2, "ycA");   // yap-mı-ycak
+        .add(vFut_S, "yAcA~k")   // yap-mı-yacak-sın
+        .add(vFut_S, "yAcA!ğ")   // yap-mı-yacağ-ım
+        .add(vFut_S_Inf, "ycA~k")   // yap-mı-ycak-sın
+        .add(vFut_S_Inf, "ycA!ğ")   // yap-mı-ycağ-ım
+        .add(vFut_S_Inf, "cA~k")    // ol-mu-cak izle-mi-cek
+        .add(vFut_S_Inf, "cA!ğ")    // yap-mı-cağ-ım
+        .add(vFut_S_Inf2, "ycA")    // yap-mı-yca-m
+        .add(vFut_S_Inf2, "cA");    // yap-mı-ca-m
 
     vUnable_S_Inf
-        .add(vFut_S, "yAcA~k")  // yap-amı-yacak-sın
-        .add(vFut_S, "yAcA!ğ")  // yap-amı-yacağ-ım
-        .add(vFut_S_Inf, "ycA~k")   // yap-amı-ycağ-ım
-        .add(vFut_S_Inf, "ycA!ğ")   // yap-amı-ycak-sın
-        .add(vFut_S_Inf2, "ycA");   // yap-amı-ycak
+        .add(vFut_S, "yAcA~k")   // yap-amı-yacak-sın
+        .add(vFut_S, "yAcA!ğ")   // yap-amı-yacağ-ım
+        .add(vFut_S_Inf, "ycA~k")   // yap-amı-ycak-sın
+        .add(vFut_S_Inf, "ycA!ğ")   // yap-amı-ycağ-ım
+        .add(vFut_S_Inf, "cA~k")    // gel-emi-cek
+        .add(vFut_S_Inf, "cA!ğ")    // yap-amı-cağ-ım
+        .add(vFut_S_Inf2, "ycA")    // yap-amı-yca-m
+        .add(vFut_S_Inf2, "cA");    // yap-amı-ca-m
 
     vNeg_S
         .add(vFut_S_Inf, "yAcA")   // yap-ma-yaca-m
@@ -209,12 +233,16 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
     vNeg_S_Inf
         .add(vFutPart_S_Inf, "ycA~k")
         .add(vFutPart_S_Inf, "ycA!ğ")
+        .add(vFutPart_S_Inf, "cA~k")
+        .add(vFutPart_S_Inf, "cA!ğ")
         .add(vFutPart_S_Inf, "yAcA~k")
         .add(vFutPart_S_Inf, "yAcA!ğ");
 
     vUnable_S_Inf
         .add(vFutPart_S_Inf, "ycA~k")
         .add(vFutPart_S_Inf, "ycA!ğ")
+        .add(vFutPart_S_Inf, "cA~k")
+        .add(vFutPart_S_Inf, "cA!ğ")
         .add(vFutPart_S_Inf, "yAcA~k")
         .add(vFutPart_S_Inf, "yAcA!ğ");
 
