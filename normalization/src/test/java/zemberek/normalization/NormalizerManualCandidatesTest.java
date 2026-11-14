@@ -175,5 +175,11 @@ public class NormalizerManualCandidatesTest {
     Assert.assertEquals(
         "bir teşekkürler teşekkürler değil mi",
         normalizer.normalize("bı tşkler tşklr dımı"));
+    Assert.assertEquals(
+        "tabii ki tabii ki sağ ol sağ olun",
+        normalizer.normalize("tabıkı tabki saol saolun"));
+    Assert.assertEquals(
+        "inşallah valla ben benim kadar lütfen",
+        normalizer.normalize("ins walla bn bnm kdr ltn"));
   }
 }
