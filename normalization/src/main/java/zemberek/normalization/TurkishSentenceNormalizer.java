@@ -34,6 +34,7 @@ import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.generator.WordGenerator;
 import zemberek.morphology.generator.WordGenerator.Result;
+import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.normalization.deasciifier.latticedeasciifier.LatticeDeasciifier;
 import zemberek.tokenization.TurkishTokenizer;
@@ -812,14 +813,33 @@ public class TurkishSentenceNormalizer {
     );
   }
 
+  private static final Set<String> GLUED_NUMBER_EXACT_UNITS = new HashSet<>(Arrays.asList(
+      "tl", "ytl", "lira", "kuruş", "kurus", "usd", "dolar", "euro", "cent",
+      "gb", "mb", "kb", "tb", "kg", "gr", "mg", "km", "cm", "mm", "lt", "ml",
+      "dk", "sn", "ay", "aylık", "aylik", "aydan", "aydır", "aydir", "ayda", "aya", "ayı", "ayi",
+      "kere", "kez", "adet", "buçuk", "bucuk", "bin", "milyon", "milyar"));
+
+  private static final String[] GLUED_NUMBER_UNIT_PREFIXES = {
+      "saat", "hafta", "gün", "gun", "yıl", "yil", "sene", "dakika", "saniye",
+      "yaş", "yas", "tane", "kişi", "kisi", "defa", "sefer", "numara", "puan",
+      "derece", "kat", "bölüm", "bolum", "sayfa"
+  };
+
+  private static final Set<String> GLUED_KI_HEAD_WORDS = new HashSet<>(Arrays.asList(
+      "var", "yok", "öyle", "oyle", "böyle", "boyle", "şöyle", "soyle", "iyi", "tabii", "tabi"));
+
+  private static final Set<String> GLUED_KI_TIME_STEMS = new HashSet<>(Arrays.asList(
+      "bugün", "bugun", "dün", "dun", "gün", "gun", "yarın", "yarin",
+      "şimdi", "simdi", "önce", "once", "sonra"));
+
   /**
-   * Tries to separate question words, conjunctions and common mistakes by looking from a lookup or
-   * using heuristics. Such as:
+   * Tries to separate glued number+unit quantities, question particles, and conjunctions by lookup
+   * or morphotactic heuristics. Such as:
    * <pre>
+   * 5aydan -> 5 aydan
    * gelecekmisin -> gelecek misin
    * tutupda -> tutup da
    * öyleki -> öyle ki
-   * olurya -> olur ya
    * </pre>
    */
   String separateCommon(String input, boolean useLookup) {
@@ -829,25 +849,207 @@ public class TurkishSentenceNormalizer {
     if (useLookup && commonSplits.containsKey(input)) {
       return commonSplits.get(input);
     }
-    if (!hasRegularAnalysis(input)) {
+    String unitSplit = separateGluedNumberUnit(input);
+    if (unitSplit != null) {
+      return unitSplit;
+    }
+    if (!hasRegularOrAsciiAnalysis(input)) {
       for (int i = 1; i < input.length() - 1; i++) {
         String tail = input.substring(i);
-        if (commonConnectedSuffixes.contains(tail)) {
-          String head = input.substring(0, i);
-          if (tail.length() < 3) {
-            if (!lm.ngramExists(lm.getVocabulary().toIndexes(head, tail))) {
-              return input;
-            }
+        boolean isAsciiKi = "kı".equals(tail);
+        if (!commonConnectedSuffixes.contains(tail) && !isAsciiKi) {
+          continue;
+        }
+        String head = input.substring(0, i);
+        if (!isAsciiKi
+            && (tail.length() >= 3 || lm.ngramExists(lm.getVocabulary().toIndexes(head, tail)))
+            && hasRegularAnalysis(head)) {
+          return head + " " + tail;
+        }
+        int minHeadLen = tail.length() >= 3 ? 2 : 3;
+        if (head.length() < minHeadLen) {
+          continue;
+        }
+        if ("ki".equals(tail) || isAsciiKi) {
+          if (canTakeDetachedKi(head)) {
+            return head + " ki";
           }
-          if (hasRegularAnalysis(head)) {
+        } else if ("de".equals(tail) || "da".equals(tail)) {
+          if (canTakeDetachedDeDa(head)) {
             return head + " " + tail;
-          } else {
-            return input;
           }
+        } else if (hasRegularOrAsciiAnalysis(head)) {
+          return head + " " + harmonizeQuestionClitic(head, tail);
         }
       }
     }
     return input;
+  }
+
+  private String separateGluedNumberUnit(String input) {
+    int digitCount = 0;
+    while (digitCount < input.length() && Character.isDigit(input.charAt(digitCount))) {
+      digitCount++;
+    }
+    if (digitCount == 0 || digitCount > 6) {
+      return null;
+    }
+    String unitPart = input.substring(digitCount);
+    if (unitPart.length() < 2
+        || UNAMBIGUOUS_NUMERAL_SUFFIXES.contains(unitPart)
+        || NUMERAL_LOCATIVE_SUFFIXES.contains(unitPart)) {
+      return null;
+    }
+    for (int i = 0; i < unitPart.length(); i++) {
+      if (!Character.isLetter(unitPart.charAt(i))) {
+        return null;
+      }
+    }
+    if (GLUED_NUMBER_EXACT_UNITS.contains(unitPart)) {
+      return input.substring(0, digitCount) + " " + unitPart;
+    }
+    for (String prefix : GLUED_NUMBER_UNIT_PREFIXES) {
+      if (unitPart.startsWith(prefix) && hasRegularOrAsciiAnalysis(unitPart)) {
+        return input.substring(0, digitCount) + " " + unitPart;
+      }
+    }
+    return null;
+  }
+
+  private boolean hasRegularOrAsciiAnalysis(String s) {
+    if (hasRegularAnalysis(s)) {
+      return true;
+    }
+    for (SingleAnalysis a : informalAsciiTolerantMorphology.analyze(s)) {
+      if (isRegularNonProperAnalysis(a)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean isRegularNonProperAnalysis(SingleAnalysis a) {
+    return !a.isUnknown()
+        && !a.isRuntime()
+        && a.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun
+        && a.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation;
+  }
+
+  private boolean canTakeDetachedKi(String head) {
+    if (GLUED_KI_TIME_STEMS.contains(head)) {
+      return false;
+    }
+    if (GLUED_KI_HEAD_WORDS.contains(head)) {
+      return true;
+    }
+    for (SingleAnalysis a : informalAsciiTolerantMorphology.analyze(head)) {
+      if (!isRegularNonProperAnalysis(a)) {
+        continue;
+      }
+      if (a.getLastGroup().getPos() == PrimaryPos.Verb
+          || a.containsMorpheme(TurkishMorphotactics.inf1)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean canTakeDetachedDeDa(String head) {
+    boolean endsVoiceless = endsWithVoicelessConsonant(head);
+    boolean hasUnambiguousHost = false;
+    boolean hasAmbiguousSingularP3sgNom = false;
+    for (SingleAnalysis a : informalAsciiTolerantMorphology.analyze(head)) {
+      if (!isRegularNonProperAnalysis(a)) {
+        continue;
+      }
+      boolean hasOvertCase = containsOvertCase(a);
+      if (!hasOvertCase
+          && a.containsMorpheme(TurkishMorphotactics.a3sg)
+          && a.containsMorpheme(TurkishMorphotactics.p3sg)) {
+        hasAmbiguousSingularP3sgNom = true;
+      }
+      if (a.containsMorpheme(TurkishMorphotactics.afterDoingSo)) {
+        hasUnambiguousHost = true;
+      } else if (!endsVoiceless) {
+        if (a.getLastGroup().getPos() == PrimaryPos.Verb
+            || a.containsMorpheme(TurkishMorphotactics.when)
+            || hasOvertCase
+            || (a.containsMorpheme(TurkishMorphotactics.a3pl)
+                && (a.containsMorpheme(TurkishMorphotactics.p3sg)
+                    || a.containsMorpheme(TurkishMorphotactics.p3pl)))) {
+          hasUnambiguousHost = true;
+        }
+      }
+    }
+    return hasUnambiguousHost && !hasAmbiguousSingularP3sgNom;
+  }
+
+  private static boolean containsOvertCase(SingleAnalysis a) {
+    return a.containsMorpheme(TurkishMorphotactics.acc)
+        || a.containsMorpheme(TurkishMorphotactics.dat)
+        || a.containsMorpheme(TurkishMorphotactics.abl)
+        || a.containsMorpheme(TurkishMorphotactics.ins)
+        || a.containsMorpheme(TurkishMorphotactics.gen)
+        || a.containsMorpheme(TurkishMorphotactics.loc);
+  }
+
+  private static boolean endsWithVoicelessConsonant(String s) {
+    if (s.isEmpty()) {
+      return false;
+    }
+    char c = s.charAt(s.length() - 1);
+    return c == 'f' || c == 's' || c == 't' || c == 'k'
+        || c == 'ç' || c == 'ş' || c == 'h' || c == 'p';
+  }
+
+  private String harmonizeQuestionClitic(String head, String tail) {
+    if (!"mı".equals(tail) && !"mu".equals(tail)) {
+      return tail;
+    }
+    String realized = realizeRegularHeadSurface(head);
+    char lastVowel = lastTurkishVowel(realized);
+    if ("mı".equals(tail) && (lastVowel == 'e' || lastVowel == 'i')) {
+      return "mi";
+    }
+    if ("mu".equals(tail) && (lastVowel == 'ö' || lastVowel == 'ü')) {
+      return "mü";
+    }
+    return tail;
+  }
+
+  private String realizeRegularHeadSurface(String head) {
+    if (hasRegularAnalysis(head)) {
+      return head;
+    }
+    for (SingleAnalysis a : informalAsciiTolerantMorphology.analyze(head)) {
+      if (!isRegularNonProperAnalysis(a)) {
+        continue;
+      }
+      if (a.containsInformalMorpheme()) {
+        Result r = analysisConverter.convert(head, a);
+        if (r != null) {
+          return r.surface;
+        }
+      } else {
+        for (Result r : morphology.getWordGenerator().generate(
+            a.getDictionaryItem(), a.getMorphemes())) {
+          if (TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(head, r.surface)) {
+            return r.surface;
+          }
+        }
+      }
+    }
+    return head;
+  }
+
+  private static char lastTurkishVowel(String s) {
+    for (int i = s.length() - 1; i >= 0; i--) {
+      char c = s.charAt(i);
+      if (TurkishAlphabet.INSTANCE.isVowel(c)) {
+        return c;
+      }
+    }
+    return 0;
   }
 
   String separateBrute(String input, int minSize) {
