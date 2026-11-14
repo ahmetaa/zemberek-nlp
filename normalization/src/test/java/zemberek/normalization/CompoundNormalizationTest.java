@@ -25,8 +25,8 @@ public class CompoundNormalizationTest {
 
   private static final String TINY_ARPA = String.join("\n",
       "\\data\\",
-      "ngram 1=19",
-      "ngram 2=8",
+      "ngram 1=25",
+      "ngram 2=9",
       "",
       "\\1-grams:",
       "-5.0\t<unk>\t0.0",
@@ -37,6 +37,7 @@ public class CompoundNormalizationTest {
       "-1.5\tilişkiler\t-0.2",
       "-1.5\tanlaşma\t-0.2",
       "-1.5\tbirkaç\t-0.2",
+      "-1.5\tbirçok\t-0.2",
       "-1.5\tkişi\t-0.2",
       "-1.5\thiçbir\t-0.2",
       "-1.5\thiçbiri\t-0.2",
@@ -48,11 +49,17 @@ public class CompoundNormalizationTest {
       "-1.5\tdevletler\t-0.2",
       "-1.5\tarası\t-0.2",
       "-1.5\thafta\t-0.2",
+      "-1.5\tda\t-0.2",
+      "-1.5\tde\t-0.2",
+      "-1.5\tcanım\t-0.2",
+      "-1.5\tşimdi\t-0.2",
+      "-1.5\tdebi\t-0.2",
       "",
       "\\2-grams:",
       "-0.5\tuluslararası ilişkiler",
       "-0.5\tmilletlerarası anlaşma",
       "-0.5\tbirkaç kişi",
+      "-0.5\tbirçok kişi",
       "-0.5\thiçbir şey",
       "-0.5\therhangi bir",
       "-0.5\tbir sorun",
@@ -101,7 +108,9 @@ public class CompoundNormalizationTest {
             "anlaşma",
             "bir [P:Det]",
             "kaç [P:Adj]",
+            "çok [P:Adv]",
             "birkaç [P:Det]",
+            "birçok [P:Det]",
             "kişi",
             "hiç [P:Adv]",
             "hiçbir [P:Det]",
@@ -118,7 +127,13 @@ public class CompoundNormalizationTest {
             "deniz",
             "alt",
             "denizaltı",
-            "metre")
+            "metre",
+            "da [P:Conj]",
+            "de [P:Conj]",
+            "debi",
+            "Dabi [P:Prop]",
+            "can",
+            "şimdi [P:Adv]")
         .disableCache()
         .build();
 
@@ -129,20 +144,36 @@ public class CompoundNormalizationTest {
   public void testIssue245SolidCompoundsAreCombined() {
     Assert.assertEquals("uluslararası ilişkiler",
         normalizer.normalize("Uluslar arası ilişkiler"));
+    Assert.assertEquals("uluslararası ilişkiler",
+        normalizer.normalize("uluslar arasi ilişkiler"));
     Assert.assertEquals("milletlerarası anlaşma",
         normalizer.normalize("Milletler arası anlaşma"));
     Assert.assertEquals("birkaç kişi",
         normalizer.normalize("bir kaç kişi"));
     Assert.assertEquals("birkaç kişi",
+        normalizer.normalize("bi kaç kişi"));
+    Assert.assertEquals("birçok kişi",
+        normalizer.normalize("bir çok kişi"));
+    Assert.assertEquals("birçok kişi",
+        normalizer.normalize("bi çok kişi"));
+    Assert.assertEquals("birçok kişi",
+        normalizer.normalize("bi cok kişi"));
+    Assert.assertEquals("birkaç kişi",
         normalizer.normalize("bikaç kişi"));
     Assert.assertEquals("hiçbir şey",
         normalizer.normalize("hiç bir şey"));
+    Assert.assertEquals("hiçbir şey",
+        normalizer.normalize("hiç bi şey"));
+    Assert.assertEquals("hiçbir şey",
+        normalizer.normalize("hic bi şey"));
     Assert.assertEquals("hiçbiri",
         normalizer.normalize("hiç biri"));
     Assert.assertEquals("herhangi bir sorun",
         normalizer.normalize("her hangi bir sorun"));
     Assert.assertEquals("vazgeçti",
         normalizer.normalize("vaz geçti"));
+    Assert.assertEquals("vazgeçti",
+        normalizer.normalize("vaz gecti"));
   }
 
   @Test
@@ -151,5 +182,8 @@ public class CompoundNormalizationTest {
     Assert.assertEquals("hafta sonu", normalizer.normalize("hafta sonu"));
     Assert.assertEquals("devletler arası", normalizer.normalize("devletler arası"));
     Assert.assertEquals("deniz altı metre", normalizer.normalize("deniz altı metre"));
+    Assert.assertEquals("da bir sorun", normalizer.normalize("da bi sorun"));
+    Assert.assertEquals("de bir sorun", normalizer.normalize("de bi sorun"));
+    Assert.assertEquals("canım şimdi", normalizer.normalize("canım sımdı"));
   }
 }

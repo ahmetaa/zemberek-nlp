@@ -100,7 +100,10 @@ public class NormalizerElongationAndNumeralTest {
             "satmak",
             "affetmek [A:Voicing]",
             "ya [P:Conj]",
-            "yaa [P:Interj]",
+            "yaa [P:Interj; A:Ext]",
+            "yaaa [P:Interj; A:Ext]",
+            "Cook [P:Prop]",
+            "Yaaa [P:Prop]",
             "evet [P:Interj]",
             "gelmek",
             "ile [P:Postp]",
@@ -126,9 +129,12 @@ public class NormalizerElongationAndNumeralTest {
   @Test
   public void normalizesElongationsWhilePreservingGeminates() {
     Assert.assertEquals("çok güzel", normalizer.preProcess("çooook güzellll"));
+    Assert.assertEquals("çok güzel", normalizer.normalize("coook güzel"));
     Assert.assertEquals("saat", normalizer.preProcess("saatttt"));
     Assert.assertEquals("affetti", normalizer.preProcess("affetttti"));
     Assert.assertEquals("ya", normalizer.preProcess("yaaaa"));
+    Assert.assertEquals("ya", normalizer.preProcess("yaaa"));
+    Assert.assertEquals("ya", normalizer.preProcess("yaa"));
     Assert.assertEquals("evet", normalizer.preProcess("evett"));
     Assert.assertEquals("iii", normalizer.preProcess("iii"));
   }
