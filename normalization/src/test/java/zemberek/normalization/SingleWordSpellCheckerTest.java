@@ -204,6 +204,11 @@ public class SingleWordSpellCheckerTest {
     Assert.assertEquals("ankarada", spellChecker.process("Ankara'da"));
     Assert.assertEquals("istanbulda", spellChecker.process("İstanbul’da"));
     Assert.assertEquals("dr", spellChecker.process("Dr."));
+
+    spellChecker.addWords("Ankara'da", "Dr.");
+    Assert.assertTrue(spellChecker.decode("ankarada").contains("Ankara'da"));
+    Assert.assertTrue(spellChecker.decode("ankrada").contains("Ankara'da"));
+    Assert.assertTrue(spellChecker.decode("dr").contains("Dr."));
   }
 
 }

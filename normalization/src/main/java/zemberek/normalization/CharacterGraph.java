@@ -20,17 +20,23 @@ class CharacterGraph {
   }
 
   public Node addWord(String word, int type) {
-    return add(root, 0, word, type);
+    return addWord(word, type, word);
   }
 
-  private Node add(Node currentNode, int index, String word, int type) {
-    char c = word.charAt(index);
-    if (index == word.length() - 1) {
-      return currentNode.addChild(nodeIndexCounter.getAndIncrement(), c, type, word);
+  public Node addWord(String path, int type, String storedWord) {
+    if (path.isEmpty()) {
+      return root;
+    }
+    return add(root, 0, path, type, storedWord);
+  }
+
+  private Node add(Node currentNode, int index, String path, int type, String storedWord) {
+    char c = path.charAt(index);
+    if (index == path.length() - 1) {
+      return currentNode.addChild(nodeIndexCounter.getAndIncrement(), c, type, storedWord);
     }
     Node child = currentNode.addChild(nodeIndexCounter.getAndIncrement(), c, Node.TYPE_EMPTY);
-    index++;
-    return add(child, index, word, type);
+    return add(child, index + 1, path, type, storedWord);
   }
 
   public Set<Node> getAllNodes() {

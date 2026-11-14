@@ -1,6 +1,7 @@
 package zemberek.normalization;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -27,18 +28,7 @@ public final class ElongationNormalizer {
     this.unigramScorer = Objects.requireNonNull(unigramScorer, "unigramScorer");
   }
 
-  private static final class CharRun {
-
-    final char ch;
-    final int count;
-    final boolean letter;
-
-    CharRun(char ch, int count, boolean letter) {
-      this.ch = ch;
-      this.count = count;
-      this.letter = letter;
-    }
-  }
+  private record CharRun(char ch, int count, boolean letter) {}
 
   /**
    * Returns an elongation-normalized version of {@code word}, or {@code word} unchanged if it is
@@ -63,7 +53,7 @@ public final class ElongationNormalizer {
       return normalizeThreePlusRuns(runs, threePlusRuns);
     }
 
-    CharRun lastRun = runs.get(runs.size() - 1);
+    CharRun lastRun = runs.getLast();
     if (lastRun.letter && lastRun.count == 2) {
       String collapsed = word.substring(0, word.length() - 1);
       if (isValidWord.test(collapsed)) {
@@ -88,27 +78,18 @@ public final class ElongationNormalizer {
     }
 
     int lastIdx = runs.size() - 1;
-    CharRun lastRun = runs.get(lastIdx);
+    CharRun lastRun = runs.getLast();
     if (lastRun.letter && lastRun.count == 2 && variableCount < MAX_VARIABLE_RUNS) {
       searchRun[lastIdx] = true;
     }
 
     List<String> validCandidates = new ArrayList<>();
-    StringBuilder prefix = new StringBuilder();
-    collectCandidates(runs, 0, searchRun, forceOne, prefix, validCandidates);
+    collectCandidates(runs, 0, searchRun, forceOne, new StringBuilder(), validCandidates);
 
     if (!validCandidates.isEmpty()) {
-      String best = validCandidates.get(0);
-      double bestScore = unigramScorer.applyAsDouble(best);
-      for (int i = 1; i < validCandidates.size(); i++) {
-        String cand = validCandidates.get(i);
-        double score = unigramScorer.applyAsDouble(cand);
-        if (score > bestScore) {
-          best = cand;
-          bestScore = score;
-        }
-      }
-      return best;
+      return validCandidates.stream()
+          .max(Comparator.comparingDouble(unigramScorer))
+          .orElseThrow();
     }
 
     // Fallback when no candidate is morphologically valid (e.g. ASCII text prior to deasciifier or
@@ -117,7 +98,7 @@ public final class ElongationNormalizer {
     StringBuilder fallback = new StringBuilder();
     for (CharRun run : runs) {
       int emit = (run.letter && run.count >= 3) ? 1 : run.count;
-      appendRepeated(fallback, run.ch, emit);
+      fallback.repeat(run.ch, emit);
     }
     return fallback.toString();
   }
@@ -138,25 +119,29 @@ public final class ElongationNormalizer {
     }
 
     CharRun run = runs.get(index);
-    int savedLen = prefix.length();
     if (searchRun[index]) {
       // Search {2, 1} so valid geminates precede single-letter collapses on equal scores.
-      appendRepeated(prefix, run.ch, 2);
-      collectCandidates(runs, index + 1, searchRun, forceOne, prefix, out);
-      prefix.setLength(savedLen);
-
-      appendRepeated(prefix, run.ch, 1);
-      collectCandidates(runs, index + 1, searchRun, forceOne, prefix, out);
-      prefix.setLength(savedLen);
-    } else if (forceOne[index]) {
-      appendRepeated(prefix, run.ch, 1);
-      collectCandidates(runs, index + 1, searchRun, forceOne, prefix, out);
-      prefix.setLength(savedLen);
+      expandWithRepeat(runs, index, searchRun, forceOne, prefix, out, run.ch, 2);
+      expandWithRepeat(runs, index, searchRun, forceOne, prefix, out, run.ch, 1);
     } else {
-      appendRepeated(prefix, run.ch, run.count);
-      collectCandidates(runs, index + 1, searchRun, forceOne, prefix, out);
-      prefix.setLength(savedLen);
+      int repeat = forceOne[index] ? 1 : run.count;
+      expandWithRepeat(runs, index, searchRun, forceOne, prefix, out, run.ch, repeat);
     }
+  }
+
+  private void expandWithRepeat(
+      List<CharRun> runs,
+      int index,
+      boolean[] searchRun,
+      boolean[] forceOne,
+      StringBuilder prefix,
+      List<String> out,
+      char ch,
+      int repeat) {
+    int savedLen = prefix.length();
+    prefix.repeat(ch, repeat);
+    collectCandidates(runs, index + 1, searchRun, forceOne, prefix, out);
+    prefix.setLength(savedLen);
   }
 
   private static List<CharRun> splitRuns(String word) {
@@ -175,11 +160,5 @@ public final class ElongationNormalizer {
     }
     runs.add(new CharRun(current, count, Character.isLetter(current)));
     return runs;
-  }
-
-  private static void appendRepeated(StringBuilder sb, char ch, int count) {
-    for (int i = 0; i < count; i++) {
-      sb.append(ch);
-    }
   }
 }
