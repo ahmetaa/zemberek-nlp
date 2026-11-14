@@ -259,6 +259,23 @@ public class TurkishMorphologyFunctionalTests {
   }
 
   @Test
+  public void testEmoji() {
+    TurkishMorphology morphology = getMorphology("güzel [P:Adj]");
+    for (String emoji : new String[]{"🥰", "❤", "🇹🇷", "👨‍👩‍👧‍👦"}) {
+      WordAnalysis result = morphology.analyze(emoji);
+      Assert.assertEquals(1, result.analysisCount());
+      Assert.assertEquals(
+          SecondaryPos.Emoticon,
+          result.getAnalysisResults().get(0).getDictionaryItem().secondaryPos);
+    }
+    var sentence = morphology.analyzeAndDisambiguate("güzel 🥰");
+    Assert.assertEquals(2, sentence.size());
+    Assert.assertEquals(
+        SecondaryPos.Emoticon,
+        sentence.bestAnalysis().get(1).getDictionaryItem().secondaryPos);
+  }
+
+  @Test
   public void testForeingLocale() {
     TurkishMorphology morphology = getMorphology("UNICEF [A:LocaleEn]");
 

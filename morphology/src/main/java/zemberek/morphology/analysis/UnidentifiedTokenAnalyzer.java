@@ -103,6 +103,7 @@ public class UnidentifiedTokenAnalyzer {
         return SecondaryPos.HashTag;
       case Mention:
         return SecondaryPos.Mention;
+      case Emoji:
       case Emoticon:
         return SecondaryPos.Emoticon;
       case RomanNumeral:

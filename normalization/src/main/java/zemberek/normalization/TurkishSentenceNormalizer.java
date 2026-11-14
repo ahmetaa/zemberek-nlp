@@ -190,21 +190,25 @@ public class TurkishSentenceNormalizer {
     Set<String> protectedCapitalizedWords = collectProtectedCapitalizedWords(sentence);
     List<Candidates> candidatesList = new ArrayList<>(tokens.size());
     for (int i = 0; i < tokens.size(); i++) {
-      String current = tokens.get(i).getText();
+      Token token = tokens.get(i);
       String previous = i == 0 ? null : tokens.get(i - 1).getText();
       String next = i == tokens.size() - 1 ? null : tokens.get(i + 1).getText();
       candidatesList.add(collectTokenCandidates(
-          current, previous, next, asciiSentence, protectedCapitalizedWords));
+          token, previous, next, asciiSentence, protectedCapitalizedWords));
     }
     return String.join(" ", sequenceDecoder.decode(candidatesList));
   }
 
   private Candidates collectTokenCandidates(
-      String current,
+      Token token,
       String previous,
       String next,
       boolean asciiSentence,
       Set<String> protectedCapitalizedWords) {
+    String current = token.getText();
+    if (isImmutableToken(token)) {
+      return new Candidates(current, List.of(new Candidate(current, 0f)));
+    }
     boolean isFormallyValid = isFormallyValidWord(current);
     boolean manualForcedOverride =
         lookupManual.containsKey(current) && !lookupManual.get(current).contains(current);
@@ -230,7 +234,7 @@ public class TurkishSentenceNormalizer {
 
     if (!hasUsableAnalysis
         && current.length() > 3
-        && !TurkishAlphabet.INSTANCE.containsDigit(current)
+        && isSpellCheckableWord(current)
         && !protectedCapitalizedWords.contains(current)) {
       addSpellCandidates(
           current, previous, next, asciiSentence, currentHasApostrophe, candidateScores);
@@ -410,6 +414,35 @@ public class TurkishSentenceNormalizer {
 
   private static void putScore(Map<String, Float> scores, String surface, float score) {
     scores.merge(surface, score, Float::max);
+  }
+
+  private static boolean isImmutableToken(Token token) {
+    return switch (token.getType()) {
+      case Emoji, Emoticon, Punctuation, URL, Email, HashTag, Mention, MetaTag, Unknown -> true;
+      default -> false;
+    };
+  }
+
+  private static boolean isSpellCheckableWord(String s) {
+    boolean hasLetter = false;
+    for (int i = 0; i < s.length(); ) {
+      int cp = s.codePointAt(i);
+      if (Character.isLetter(cp)) {
+        hasLetter = true;
+      } else if (!isAllowedWordSeparatorOrMark(cp)) {
+        return false;
+      }
+      i += Character.charCount(cp);
+    }
+    return hasLetter;
+  }
+
+  private static boolean isAllowedWordSeparatorOrMark(int cp) {
+    if (cp == '\'' || cp == '’' || cp == '-') {
+      return true;
+    }
+    int type = Character.getType(cp);
+    return type == Character.NON_SPACING_MARK || type == Character.COMBINING_SPACING_MARK;
   }
 
   private static boolean hasApostrophe(String s) {

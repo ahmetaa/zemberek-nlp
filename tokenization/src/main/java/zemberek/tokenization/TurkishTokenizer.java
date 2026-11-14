@@ -137,6 +137,8 @@ public class TurkishTokenizer {
         return Type.Date;
       case TurkishLexer.Email:
         return Type.Email;
+      case TurkishLexer.Emoji:
+        return Type.Emoji;
       case TurkishLexer.Emoticon:
         return Type.Emoticon;
       case TurkishLexer.HashTag:
@@ -213,6 +215,7 @@ public class TurkishTokenizer {
     private int deferredType;
     private int deferredStart;
     private int deferredStop;
+    private int surrogateDelta;
     private Token nextToken;
 
     private TokenIterator(TurkishTokenizer tokenizer, TurkishLexer lexer) {
@@ -234,6 +237,9 @@ public class TurkishTokenizer {
             return ttype;
           }
         } catch (LexerNoViableAltException e) {
+          if (input.LA(1) > Character.MAX_VALUE) {
+            surrogateDelta++;
+          }
           lexer.recover(e);
         }
       }
@@ -274,7 +280,8 @@ public class TurkishTokenizer {
               if (tokenizer.typeIgnored(Type.Abbreviation)) {
                 continue;
               }
-              return new Token(abbrev, Type.Abbreviation, start, next2Stop);
+              return new Token(
+                  abbrev, Type.Abbreviation, start + surrogateDelta, next2Stop + surrogateDelta);
             }
           }
           deferredType = next2Type;
@@ -283,10 +290,26 @@ public class TurkishTokenizer {
         }
 
         Token.Type type = convertType(antlrType);
+        if (antlrType == TurkishLexer.Emoji
+            || antlrType == TurkishLexer.UnknownWord
+            || antlrType == TurkishLexer.Unknown) {
+          String text = input.getText(Interval.of(start, stop));
+          int charStart = start + surrogateDelta;
+          surrogateDelta += text.length() - (stop - start + 1);
+          if (tokenizer.typeIgnored(type)) {
+            continue;
+          }
+          return new Token(text, type, charStart, stop + surrogateDelta);
+        }
+
         if (tokenizer.typeIgnored(type)) {
           continue;
         }
-        return new Token(input.getText(Interval.of(start, stop)), type, start, stop);
+        return new Token(
+            input.getText(Interval.of(start, stop)),
+            type,
+            start + surrogateDelta,
+            stop + surrogateDelta);
       }
     }
 
