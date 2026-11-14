@@ -303,22 +303,34 @@ public class TurkishSentenceNormalizer {
       String normalizedCurrent = null;
       boolean currentHasApostrophe = hasApostrophe(current);
       boolean hasUsableAnalysis = false;
+      boolean hasNonStrippingCandidate = false;
+      LinkedHashMap<String, Float> strippedCandidates = null;
 
       for (SingleAnalysis analysis : analyses) {
         if (isUnapostrophizedInflectedAbbreviation(analysis, currentHasApostrophe)) {
           continue;
         }
         hasUsableAnalysis = true;
+        if (normalizedCurrent == null) {
+          normalizedCurrent =
+              TurkishMorphology.normalizeForAnalysis(current).replace("'", "");
+        }
         if (analysis.containsInformalMorpheme()) {
           WordGenerator.Result result = analysisConverter.convert(current, analysis);
           if (result != null) {
-            putCandidateScore(candidateScores, result.surface, INFORMAL_PENALTY);
+            int stemLen = Math.min(
+                normalizedCurrent.length(),
+                Math.min(analysis.getStem().length(), result.surface.length()));
+            if (!stripsExplicitTurkishDiacritic(
+                normalizedCurrent.substring(0, stemLen), result.surface.substring(0, stemLen))) {
+              hasNonStrippingCandidate = true;
+              putCandidateScore(candidateScores, result.surface, INFORMAL_PENALTY);
+            } else if (!currentHasRegularAnalysis) {
+              strippedCandidates =
+                  putFallbackCandidate(strippedCandidates, result.surface, INFORMAL_PENALTY);
+            }
           }
         } else {
-          if (normalizedCurrent == null) {
-            normalizedCurrent =
-                TurkishMorphology.normalizeForAnalysis(current).replace("'", "");
-          }
           List<WordGenerator.Result> results = morphology.getWordGenerator().generate(
               analysis.getDictionaryItem(),
               analysis.getMorphemes());
@@ -328,8 +340,9 @@ public class TurkishSentenceNormalizer {
             }
             if (TurkishAlphabet.INSTANCE.equalsIgnoreDiacritics(
                 normalizedCurrent, result.surface)) {
-              if (currentHasRegularAnalysis
-                  && stripsExplicitTurkishDiacritic(normalizedCurrent, result.surface)) {
+              boolean stripsExplicit =
+                  stripsExplicitTurkishDiacritic(normalizedCurrent, result.surface);
+              if (currentHasRegularAnalysis && stripsExplicit) {
                 continue;
               }
               float score = 0f;
@@ -338,25 +351,43 @@ public class TurkishSentenceNormalizer {
                     1, TurkishSpellChecker.countDiacriticDifferences(current, result.surface));
                 score = (protectCleanForm ? CLEAN_OVERRIDE_PENALTY : DIACRITIC_PENALTY) * diffs;
               }
-              putCandidateScore(candidateScores, result.surface, score);
+              if (!stripsExplicit) {
+                hasNonStrippingCandidate = true;
+                putCandidateScore(candidateScores, result.surface, score);
+              } else {
+                strippedCandidates =
+                    putFallbackCandidate(strippedCandidates, result.surface, score);
+              }
             }
           }
         }
       }
+      if (!hasNonStrippingCandidate && strippedCandidates != null) {
+        strippedCandidates.forEach(
+            (surface, score) -> putCandidateScore(candidateScores, surface, score));
+      }
 
       // If there is no formal/informal analysis and length > 3, add top 3 spell suggestions
-      // unless protected as a capitalized OOV word.
+      // unless protected as a capitalized OOV word or containing digits.
       if (!hasUsableAnalysis
           && current.length() > 3
+          && !containsDigit(current)
           && !protectedCapitalizedWords.contains(current)) {
         List<String> spellCandidates =
             spellChecker.suggestForWord(current, previous, next, lm, asciiSentence);
-        int limit = Math.min(3, spellCandidates.size());
-        for (int rank = 0; rank < limit; rank++) {
+        int added = 0;
+        for (String suggestion : spellCandidates) {
+          if (!isAcceptableSpellSuggestion(suggestion, currentHasApostrophe)) {
+            continue;
+          }
           putCandidateScore(
               candidateScores,
-              spellCandidates.get(rank),
-              SPELL_BASE_PENALTY + GRAPH_LOOKUP_PENALTY * rank);
+              suggestion.toLowerCase(Turkish.LOCALE),
+              SPELL_BASE_PENALTY + GRAPH_LOOKUP_PENALTY * added);
+          added++;
+          if (added == 3) {
+            break;
+          }
         }
       }
 
@@ -397,6 +428,35 @@ public class TurkishSentenceNormalizer {
     return !hasApostrophe
         && analysis.getDictionaryItem().secondaryPos == SecondaryPos.Abbreviation
         && !analysis.getEnding().isEmpty();
+  }
+
+  private static LinkedHashMap<String, Float> putFallbackCandidate(
+      LinkedHashMap<String, Float> fallback, String surface, float score) {
+    if (fallback == null) {
+      fallback = new LinkedHashMap<>(2);
+    }
+    putCandidateScore(fallback, surface, score);
+    return fallback;
+  }
+
+  private boolean isAcceptableSpellSuggestion(String suggestion, boolean currentHasApostrophe) {
+    if (suggestion.isEmpty() || !Character.isUpperCase(suggestion.charAt(0))) {
+      return true;
+    }
+    if (!currentHasApostrophe && hasApostrophe(suggestion)) {
+      return false;
+    }
+    LmVocabulary vocab = lm.getVocabulary();
+    return TurkishSpellChecker.lmVocabularyIndex(suggestion, vocab) != vocab.getUnknownWordIndex();
+  }
+
+  private static boolean containsDigit(String s) {
+    for (int i = 0; i < s.length(); i++) {
+      if (Character.isDigit(s.charAt(i))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private boolean isFormallyValidWord(String word) {
