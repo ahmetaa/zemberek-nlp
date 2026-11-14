@@ -21,6 +21,7 @@ import zemberek.core.dynamic.Scorable;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
@@ -1170,8 +1171,7 @@ public class TurkishSentenceNormalizer {
             && k.getDictionaryItem().secondaryPos != SecondaryPos.Abbreviation
             && k.getDictionaryItem().secondaryPos != SecondaryPos.ProperNoun
             && !(k.getDictionaryItem().primaryPos == PrimaryPos.Interjection
-                && k.getDictionaryItem().hasAttribute(
-                    zemberek.core.turkish.RootAttribute.Ext)));
+                && k.getDictionaryItem().hasAttribute(RootAttribute.Ext)));
   }
 
   private double unigramScore(String word) {
