@@ -1,14 +1,14 @@
 package zemberek.normalization;
 
+import static java.util.Map.entry;
+
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import zemberek.core.ScoredItem;
 import zemberek.core.collections.FloatValueMap;
 import zemberek.core.collections.IntMap;
@@ -17,8 +17,26 @@ import zemberek.core.turkish.TurkishAlphabet;
 
 public class CharacterGraphDecoder {
 
-  public static final Map<Character, String> TURKISH_FQ_NEAR_KEY_MAP = new HashMap<>();
-  public static final Map<Character, String> TURKISH_Q_NEAR_KEY_MAP = new HashMap<>();
+  public static final Map<Character, String> TURKISH_FQ_NEAR_KEY_MAP = Map.ofEntries(
+      entry('a', "eüs"), entry('b', "svn"), entry('c', "vçx"), entry('ç', "czö"),
+      entry('d', "orsf"), entry('e', "iawr"), entry('f', "gd"), entry('g', "fğh"),
+      entry('ğ', "gıpü"), entry('h', "npgj"), entry('ı', "ğou"), entry('i', "ueş"),
+      entry('j', "öhk"), entry('k', "tmjl"), entry('l', "mykş"), entry('m', "klnö"),
+      entry('n', "rhbm"), entry('o', "ıdp"), entry('ö', "jvmç"), entry('p', "hqoğ"),
+      entry('r', "dnet"), entry('s', "zbad"), entry('ş', "yli"), entry('t', "ükry"),
+      entry('u', "iyı"), entry('ü', "atğ"), entry('v', "öcb"), entry('y', "lştu"),
+      entry('z', "çsx"), entry('x', "wzc"), entry('q', "pqw"), entry('w', "qxe"));
+
+  public static final Map<Character, String> TURKISH_Q_NEAR_KEY_MAP = Map.ofEntries(
+      entry('a', "s"), entry('b', "vn"), entry('c', "vx"), entry('ç', "ö"),
+      entry('d', "sf"), entry('e', "wr"), entry('f', "gd"), entry('g', "fh"),
+      entry('ğ', "pü"), entry('h', "gj"), entry('ı', "ou"), entry('i', "ş"),
+      entry('j', "hk"), entry('k', "jl"), entry('l', "kş"), entry('m', "nö"),
+      entry('n', "bm"), entry('o', "ıp"), entry('ö', "mç"), entry('p', "oğ"),
+      entry('r', "et"), entry('s', "ad"), entry('ş', "li"), entry('t', "ry"),
+      entry('u', "yı"), entry('ü', "ğ"), entry('v', "cb"), entry('y', "tu"),
+      entry('z', "x"), entry('x', "zc"), entry('q', "w"), entry('w', "qe"));
+
   static final float INSERTION_PENALTY = 1;
   static final float DELETION_PENALTY = 1;
   static final float SUBSTITUTION_PENALTY = 1;
@@ -27,82 +45,9 @@ public class CharacterGraphDecoder {
   public static final DiacriticsIgnoringMatcher DIACRITICS_IGNORING_MATCHER =
       new DiacriticsIgnoringMatcher();
 
-  static {
-    Map<Character, String> map = TURKISH_FQ_NEAR_KEY_MAP;
-    map.put('a', "eüs");
-    map.put('b', "svn");
-    map.put('c', "vçx");
-    map.put('ç', "czö");
-    map.put('d', "orsf");
-    map.put('e', "iawr");
-    map.put('f', "gd");
-    map.put('g', "fğh");
-    map.put('ğ', "gıpü");
-    map.put('h', "npgj");
-    map.put('ı', "ğou");
-    map.put('i', "ueş");
-    map.put('j', "öhk");
-    map.put('k', "tmjl");
-    map.put('l', "mykş");
-    map.put('m', "klnö");
-    map.put('n', "rhbm");
-    map.put('o', "ıdp");
-    map.put('ö', "jvmç");
-    map.put('p', "hqoğ");
-    map.put('r', "dnet");
-    map.put('s', "zbad");
-    map.put('ş', "yli");
-    map.put('t', "ükry");
-    map.put('u', "iyı");
-    map.put('ü', "atğ");
-    map.put('v', "öcb");
-    map.put('y', "lştu");
-    map.put('z', "çsx");
-    map.put('x', "wzc");
-    map.put('q', "pqw");
-    map.put('w', "qxe");
-  }
-
-  static {
-    Map<Character, String> map = TURKISH_Q_NEAR_KEY_MAP;
-
-    map.put('a', "s");
-    map.put('b', "vn");
-    map.put('c', "vx");
-    map.put('ç', "ö");
-    map.put('d', "sf");
-    map.put('e', "wr");
-    map.put('f', "gd");
-    map.put('g', "fh");
-    map.put('ğ', "pü");
-    map.put('h', "gj");
-    map.put('ı', "ou");
-    map.put('i', "ş");
-    map.put('j', "hk");
-    map.put('k', "jl");
-    map.put('l', "kş");
-    map.put('m', "nö");
-    map.put('n', "bm");
-    map.put('o', "ıp");
-    map.put('ö', "mç");
-    map.put('p', "oğ");
-    map.put('r', "et");
-    map.put('s', "ad");
-    map.put('ş', "li");
-    map.put('t', "ry");
-    map.put('u', "yı");
-    map.put('ü', "ğ");
-    map.put('v', "cb");
-    map.put('y', "tu");
-    map.put('z', "x");
-    map.put('x', "zc");
-    map.put('q', "w");
-    map.put('w', "qe");
-  }
-
   public final float maxPenalty;
   public final boolean checkNearKeySubstitution;
-  public Map<Character, String> nearKeyMap = new HashMap<>();
+  public Map<Character, String> nearKeyMap = Map.of();
   private CharacterGraph graph = new CharacterGraph();
 
   public CharacterGraphDecoder(float maxPenalty) {
@@ -111,8 +56,7 @@ public class CharacterGraphDecoder {
   }
 
   public CharacterGraphDecoder() {
-    this.maxPenalty = 1;
-    this.checkNearKeySubstitution = false;
+    this(1);
   }
 
   public CharacterGraphDecoder(CharacterGraph graph) {
@@ -156,15 +100,19 @@ public class CharacterGraphDecoder {
     graph.addWord(process(word), Node.TYPE_WORD);
   }
 
+  void addWord(String indexKey, String storedWord) {
+    graph.addWord(indexKey, Node.TYPE_WORD, storedWord);
+  }
+
   public void addWords(String... words) {
     for (String word : words) {
-      graph.addWord(process(word), Node.TYPE_WORD);
+      addWord(word);
     }
   }
 
   public void addWords(List<String> vocabulary) {
-    for (String s : vocabulary) {
-      graph.addWord(process(s), Node.TYPE_WORD);
+    for (String word : vocabulary) {
+      addWord(word);
     }
   }
 
@@ -205,10 +153,9 @@ public class CharacterGraphDecoder {
   }
 
   public List<String> getSuggestionsSorted(String input) {
-    List<ScoredItem<String>> s = getSuggestionsWithScores(input);
-    List<String> result = new ArrayList<>(s.size());
-    result.addAll(s.stream().map(s1 -> s1.item).collect(Collectors.toList()));
-    return result;
+    return getSuggestionsWithScores(input).stream()
+        .map(s -> s.item)
+        .toList();
   }
 
   enum Operation {
@@ -409,182 +356,140 @@ public class CharacterGraphDecoder {
     }
 
     FloatValueMap<String> decode(String input) {
-      Hypothesis hyp = new Hypothesis(null, graph.getRoot(), 0, Operation.N_A, null, null);
-
-      Set<Hypothesis> next = expand(hyp, input);
-      while (true) {
-        HashSet<Hypothesis> newHyps = new HashSet<>();
-        for (Hypothesis hypothesis : next) {
-          Set<Hypothesis> expand = expand(hypothesis, input);
-          newHyps.addAll(expand);
+      Hypothesis rootHyp = new Hypothesis(null, graph.getRoot(), 0, Operation.N_A, null, null);
+      Set<Hypothesis> current = expand(rootHyp, input);
+      while (!current.isEmpty()) {
+        Set<Hypothesis> next = new HashSet<>();
+        for (Hypothesis hypothesis : current) {
+          next.addAll(expand(hypothesis, input));
         }
-        if (newHyps.size() == 0) {
-          break;
-        }
-        next = newHyps;
+        current = next;
       }
       return finished;
     }
 
     private Set<Hypothesis> expand(Hypothesis hypothesis, String input) {
-
-      Set<Hypothesis> newHypotheses = new HashSet<>();
-
-      // get next character for this hypothesis.
+      Set<Hypothesis> next = new HashSet<>();
       int nextIndex = hypothesis.charIndex + 1;
-      char nextChar = nextIndex < input.length() ? input.charAt(nextIndex) : 0;
+      boolean inBounds = nextIndex < input.length();
+      boolean atInputEnd = nextIndex == input.length() - 1;
 
-      // no-error. Hypothesis moves forward to the exact matching child nodes.
-      if (nextIndex < input.length()) {
-
-        // there can be more than one matching character, depending on the matcher.
-        char[] cc = matcher == null ? null : matcher.matches(nextChar);
-        // because there can be empty connections,
-        // there can be more than 1 matching child nodes per character.
-        if (hypothesis.node.hasEpsilonConnection()) {
-          List<Node> childList = cc == null ?
-              hypothesis.node.getChildList(nextChar) :
-              hypothesis.node.getChildList(cc);
-          for (Node child : childList) {
-            Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NO_ERROR);
-            h.setWord(child);
-            newHypotheses.add(h);
-            if (nextIndex >= input.length() - 1) {
-              if (h.node.word != null) {
-                addHypothesis(h);
-              }
-            }
-          }
-        } else {
-          if (cc == null) {
-            Node child = hypothesis.node.getImmediateChild(nextChar);
-            if (child != null) {
-              Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NO_ERROR);
-              h.setWord(child);
-              newHypotheses.add(h);
-              if (nextIndex >= input.length() - 1) {
-                if (h.node.word != null) {
-                  addHypothesis(h);
-                }
-              }
-            }
-          } else {
-            for (char c : cc) {
-              Node child = hypothesis.node.getImmediateChild(c);
-              if (child == null) {
-                continue;
-              }
-              Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NO_ERROR);
-              h.setWord(child);
-              newHypotheses.add(h);
-              if (nextIndex >= input.length() - 1) {
-                if (h.node.word != null) {
-                  addHypothesis(h);
-                }
-              }
-            }
-          }
-        }
+      if (inBounds) {
+        expandExactMatches(hypothesis, input.charAt(nextIndex), atInputEnd, next);
       } else if (hypothesis.node.word != null) {
         addHypothesis(hypothesis);
       }
 
-      // we don't need to explore further if we reached to max penalty
       if (hypothesis.penalty >= maxPenalty) {
-        return newHypotheses;
+        return next;
       }
 
-      // For reducing List creation. IF there is no epsilon connection, retrieve the
-      // internal data structure iterator.
-      Iterable<Node> allChildNodes = hypothesis.node.hasEpsilonConnection() ?
-          hypothesis.node.getAllChildNodes() : hypothesis.node.getImmediateChildNodeIterable();
+      Iterable<Node> allChildNodes = hypothesis.node.hasEpsilonConnection()
+          ? hypothesis.node.getAllChildNodes()
+          : hypothesis.node.getImmediateChildNodeIterable();
 
-      if (nextIndex < input.length()) {
-        // substitution
-        for (Node child : allChildNodes) {
-          float penalty = 0;
-          if (checkNearKeySubstitution) {
-            if (child.chr != nextChar) {
-              String nearCharactersString = nearKeyMap.get(child.chr);
-              if (nearCharactersString != null && nearCharactersString.indexOf(nextChar) >= 0) {
-                penalty = NEAR_KEY_SUBSTITUTION_PENALTY;
-              } else {
-                penalty = SUBSTITUTION_PENALTY;
-              }
-            }
-          } else {
-            penalty = SUBSTITUTION_PENALTY;
-          }
-
-          if (penalty > 0 && hypothesis.penalty + penalty <= maxPenalty) {
-            Hypothesis h = hypothesis.getNewMoveForward(
-                child,
-                penalty,
-                Operation.SUBSTITUTION);
-            h.setWord(child);
-            if (nextIndex == input.length() - 1) {
-              if (h.node.word != null) {
-                addHypothesis(h);
-              }
-            } else {
-              newHypotheses.add(h);
-            }
-          }
-        }
+      if (inBounds) {
+        expandSubstitutions(hypothesis, allChildNodes, input.charAt(nextIndex), atInputEnd, next);
       }
 
       if (hypothesis.penalty + DELETION_PENALTY > maxPenalty) {
-        return newHypotheses;
+        return next;
       }
 
-      // deletion
-      newHypotheses
-          .add(hypothesis.getNewMoveForward(hypothesis.node, DELETION_PENALTY, Operation.DELETION));
+      if (inBounds) {
+        next.add(
+            hypothesis.getNewMoveForward(hypothesis.node, DELETION_PENALTY, Operation.DELETION));
+      }
 
-      // insertion
       for (Node child : allChildNodes) {
         Hypothesis h = hypothesis.getNew(child, INSERTION_PENALTY, Operation.INSERTION);
         h.setWord(child);
-        newHypotheses.add(h);
+        next.add(h);
       }
 
-      // transposition
-      if (input.length() > 2 && nextIndex < input.length() - 1) {
-        char transpose = input.charAt(nextIndex + 1);
-        List<Node> nextNodes = matcher == null
-            ? hypothesis.node.getChildList(transpose)
-            : hypothesis.node.getChildList(matcher.matches(transpose));
-        if (!nextNodes.isEmpty()) {
-          char[] cc = matcher == null ? null : matcher.matches(nextChar);
-          for (Node nextNode : nextNodes) {
-            List<Node> targetNodes = cc == null
-                ? nextNode.getChildList(nextChar)
-                : nextNode.getChildList(cc);
-            for (Node n : targetNodes) {
-              Hypothesis h = hypothesis.getNew(
-                  n,
-                  TRANSPOSITION_PENALTY,
-                  nextIndex + 1,
-                  Operation.TRANSPOSITION);
-              if (nextNode.getType() == Node.TYPE_WORD) {
-                h.setWord(nextNode);
-              }
-              h.setWord(n);
-              if (nextIndex + 1 == input.length() - 1) {
-                if (h.node.word != null) {
-                  addHypothesis(h);
-                }
-                if (h.penalty < maxPenalty) {
-                  newHypotheses.add(h);
-                }
-              } else {
-                newHypotheses.add(h);
-              }
+      if (inBounds) {
+        expandTranspositions(hypothesis, input, nextIndex, next);
+      }
+      return next;
+    }
+
+    private void expandExactMatches(
+        Hypothesis hypothesis, char nextChar, boolean atInputEnd, Set<Hypothesis> next) {
+      for (Node child : hypothesis.node.getMatchingChildren(nextChar, matcher)) {
+        Hypothesis h = hypothesis.getNewMoveForward(child, 0, Operation.NO_ERROR);
+        h.setWord(child);
+        next.add(h);
+        if (atInputEnd && h.node.word != null) {
+          addHypothesis(h);
+        }
+      }
+    }
+
+    private void expandSubstitutions(
+        Hypothesis hypothesis,
+        Iterable<Node> allChildNodes,
+        char nextChar,
+        boolean atInputEnd,
+        Set<Hypothesis> next) {
+      for (Node child : allChildNodes) {
+        float penalty = substitutionPenalty(child.chr, nextChar);
+        if (penalty <= 0 || hypothesis.penalty + penalty > maxPenalty) {
+          continue;
+        }
+        Hypothesis h = hypothesis.getNewMoveForward(child, penalty, Operation.SUBSTITUTION);
+        h.setWord(child);
+        if (atInputEnd) {
+          if (h.node.word != null) {
+            addHypothesis(h);
+          }
+        } else {
+          next.add(h);
+        }
+      }
+    }
+
+    private float substitutionPenalty(char candidateChar, char inputChar) {
+      if (!checkNearKeySubstitution) {
+        return SUBSTITUTION_PENALTY;
+      }
+      if (candidateChar == inputChar) {
+        return 0;
+      }
+      String nearChars = nearKeyMap.get(candidateChar);
+      return (nearChars != null && nearChars.indexOf(inputChar) >= 0)
+          ? NEAR_KEY_SUBSTITUTION_PENALTY
+          : SUBSTITUTION_PENALTY;
+    }
+
+    private void expandTranspositions(
+        Hypothesis hypothesis, String input, int nextIndex, Set<Hypothesis> next) {
+      if (input.length() <= 2 || nextIndex >= input.length() - 1) {
+        return;
+      }
+      char currentChar = input.charAt(nextIndex);
+      char transposedChar = input.charAt(nextIndex + 1);
+      boolean atInputEnd = (nextIndex + 1 == input.length() - 1);
+
+      for (Node first : hypothesis.node.getMatchingChildren(transposedChar, matcher)) {
+        for (Node second : first.getMatchingChildren(currentChar, matcher)) {
+          Hypothesis h = hypothesis.getNew(
+              second, TRANSPOSITION_PENALTY, nextIndex + 1, Operation.TRANSPOSITION);
+          if (first.getType() == Node.TYPE_WORD) {
+            h.setWord(first);
+          }
+          h.setWord(second);
+          if (atInputEnd) {
+            if (h.node.word != null) {
+              addHypothesis(h);
             }
+            if (h.penalty < maxPenalty) {
+              next.add(h);
+            }
+          } else {
+            next.add(h);
           }
         }
       }
-      return newHypotheses;
     }
 
     private void addHypothesis(Hypothesis hypothesis) {

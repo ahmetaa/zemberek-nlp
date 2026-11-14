@@ -111,6 +111,17 @@ class Node {
     }
   }
 
+  List<Node> getMatchingChildren(char c, CharacterGraphDecoder.CharMatcher matcher) {
+    if (matcher != null) {
+      return getChildList(matcher.matches(c));
+    }
+    if (epsilonNodes == null) {
+      Node child = getImmediateChild(c);
+      return child == null ? List.of() : List.of(child);
+    }
+    return getChildList(c);
+  }
+
   List<Node> getChildList(char[] charArray) {
     List<Node> children = new ArrayList<>(charArray.length + 1);
     for (char c : charArray) {
