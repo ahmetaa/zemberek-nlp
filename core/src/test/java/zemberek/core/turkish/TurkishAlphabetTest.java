@@ -133,4 +133,32 @@ public class TurkishAlphabetTest {
     }
   }
 
+  @Test
+  public void turkishCharCaseConversionTest() {
+    Assert.assertEquals('ı', Turkish.toLower('I'));
+    Assert.assertEquals('i', Turkish.toLower('İ'));
+    Assert.assertEquals('ş', Turkish.toLower('Ş'));
+    Assert.assertEquals('İ', Turkish.toUpper('i'));
+    Assert.assertEquals('I', Turkish.toUpper('ı'));
+    Assert.assertEquals('Ğ', Turkish.toUpper('ğ'));
+  }
+
+  @Test
+  public void stripApostrophesAndCanonicalAsciiMatchTest() {
+    TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+    Assert.assertEquals("Ankarada", alphabet.stripApostrophes("Ankara'da"));
+    Assert.assertEquals("İstanbulda", alphabet.stripApostrophes("İstanbul’da"));
+    Assert.assertEquals("kitap", alphabet.stripApostrophes("kitap"));
+
+    Assert.assertTrue(alphabet.matchesCanonicalOrAscii("birkaç", "birkaç", false));
+    Assert.assertTrue(alphabet.matchesCanonicalOrAscii("birkac", "birkaç", false));
+    Assert.assertTrue(alphabet.matchesCanonicalOrAscii("birkacimiz", "birkaç", true));
+    // One-way only: diacritic in input must not match plain ASCII in canonical.
+    Assert.assertFalse(alphabet.matchesCanonicalOrAscii("bırkac", "birkaç", false));
+
+    Assert.assertTrue(alphabet.stripsExplicitTurkishDiacritic("göğüs", "gögüs"));
+    Assert.assertTrue(alphabet.stripsExplicitTurkishDiacritic("şeker", "seker"));
+    Assert.assertFalse(alphabet.stripsExplicitTurkishDiacritic("sıkıntı", "sikinti"));
+  }
+
 }

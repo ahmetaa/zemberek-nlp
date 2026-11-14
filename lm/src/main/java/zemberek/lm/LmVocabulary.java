@@ -23,6 +23,8 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import zemberek.core.io.SimpleTextReader;
 import zemberek.core.logging.Log;
+import zemberek.core.turkish.Turkish;
+import zemberek.core.turkish.TurkishAlphabet;
 
 public class LmVocabulary {
 
@@ -309,6 +311,22 @@ public class LmVocabulary {
   public int indexOf(String word) {
     Integer k = vocabularyIndexMap.get(word);
     return k == null ? unknownWordIndex : k;
+  }
+
+  /**
+   * Looks up a Turkish word in the vocabulary, normalizing curly apostrophes, checking the
+   * capitalized proper-noun form first when an apostrophe is present, and falling back to Turkish
+   * lowercase.
+   */
+  public int indexOfTurkishWord(String word) {
+    String normalized = TurkishAlphabet.INSTANCE.normalizeApostrophe(word);
+    if (normalized.indexOf('\'') > 0) {
+      Integer capIdx = vocabularyIndexMap.get(Turkish.capitalize(normalized));
+      if (capIdx != null) {
+        return capIdx;
+      }
+    }
+    return indexOf(normalized.toLowerCase(Turkish.LOCALE));
   }
 
   public int getSentenceStartIndex() {

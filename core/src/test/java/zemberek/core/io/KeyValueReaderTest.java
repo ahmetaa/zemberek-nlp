@@ -19,5 +19,9 @@ public class KeyValueReaderTest {
     Assert.assertEquals(map.size(), 4);
     Assert.assertTrue(TestUtil.containsAllKeys(map, "1", "2", "3", "4"));
     Assert.assertTrue(TestUtil.containsAllValues(map, "bir", "iki", "uc", "dort"));
+
+    Map<String, String> fromResource =
+        new KeyValueReader(":").loadFromResource("io/key-value-colon-separator.txt");
+    Assert.assertEquals(map, fromResource);
   }
 }

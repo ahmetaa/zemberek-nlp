@@ -129,6 +129,15 @@ public class SingleAnalysis {
    *
    * @return concatenated suffix surfaces.
    */
+  public boolean hasEnding() {
+    for (int i = 1; i < morphemeDataList.size(); i++) {
+      if (!morphemeDataList.get(i).surface.isEmpty()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public String getEnding() {
     StringBuilder sb = new StringBuilder();
     // skip the root.
@@ -190,6 +199,14 @@ public class SingleAnalysis {
 
   public boolean isRuntime() {
     return item.hasAttribute(RootAttribute.Runtime);
+  }
+
+  public boolean isKnownLexical() {
+    return !isUnknown() && !isRuntime();
+  }
+
+  public boolean isRegularWord() {
+    return isKnownLexical() && !item.isProperNoun() && !item.isAbbreviation();
   }
 
 

@@ -1,8 +1,10 @@
 package zemberek.core.io;
 
+import com.google.common.io.Resources;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,6 +29,16 @@ public class KeyValueReader {
     }
     this.separator = seperator;
     this.ignorePrefix = ignorePrefix;
+  }
+
+  public Map<String, String> loadFromPath(Path path) throws IOException {
+    return loadFromFile(path.toFile());
+  }
+
+  public Map<String, String> loadFromResource(String resource) throws IOException {
+    try (InputStream is = Resources.getResource(resource).openStream()) {
+      return loadFromStream(is);
+    }
   }
 
   public Map<String, String> loadFromFile(File file) throws IOException {

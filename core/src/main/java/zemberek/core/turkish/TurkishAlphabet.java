@@ -13,7 +13,7 @@ import zemberek.core.text.TextUtil;
 
 public class TurkishAlphabet {
 
-  public static final Locale TR = new Locale("tr");
+  public static final Locale TR = Locale.of("tr");
 
   private final String lowercase = "abcçdefgğhıijklmnoöprsştuüvyzxwqâîû";
   private final String uppercase = lowercase.toUpperCase(TR);
@@ -256,6 +256,10 @@ public class TurkishAlphabet {
     return lookup(turkishSpecificLookup, c);
   }
 
+  public boolean isApostrophe(char c) {
+    return lookup(apostropheLookup, c);
+  }
+
   public boolean containsApostrophe(String s) {
     return checkLookup(apostropheLookup, s);
   }
@@ -310,12 +314,22 @@ public class TurkishAlphabet {
     if (!containsApostrophe(s)) {
       return s;
     }
-    StringBuilder sb = new StringBuilder();
+    StringBuilder sb = new StringBuilder(s.length());
     for (int i = 0; i < s.length(); i++) {
       char c = s.charAt(i);
-      if (lookup(apostropheLookup, c)) {
-        sb.append('\'');
-      } else {
+      sb.append(lookup(apostropheLookup, c) ? '\'' : c);
+    }
+    return sb.toString();
+  }
+
+  public String stripApostrophes(String s) {
+    if (!containsApostrophe(s)) {
+      return s;
+    }
+    StringBuilder sb = new StringBuilder(s.length());
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (!lookup(apostropheLookup, c)) {
         sb.append(c);
       }
     }
@@ -607,6 +621,64 @@ public class TurkishAlphabet {
       }
     }
     return true;
+  }
+
+  /**
+   * One-way canonical-or-ASCII match: returns {@code true} if {@code input} equals {@code canonical}
+   * (or starts with it when {@code prefixMatch} is true) when each Turkish-specific character in
+   * {@code canonical} may appear either in its canonical form or its ASCII equivalent, without
+   * allowing reverse diacritization of plain ASCII characters in {@code canonical}.
+   */
+  public boolean matchesCanonicalOrAscii(String input, String canonical, boolean prefixMatch) {
+    if (input == null || canonical == null) {
+      return false;
+    }
+    boolean validLength = prefixMatch
+        ? input.length() >= canonical.length()
+        : input.length() == canonical.length();
+    if (!validLength) {
+      return false;
+    }
+    for (int i = 0; i < canonical.length(); i++) {
+      char in = input.charAt(i);
+      char target = canonical.charAt(i);
+      if (in != target && getAsciiEqual(target) != in) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Returns {@code true} if {@code source} and {@code candidate} have equal length and at least one
+   * explicit Turkish diacritic ({@code ç, ğ, ö, ş, ü}) in {@code source} is replaced by its plain
+   * ASCII counterpart in {@code candidate}.
+   */
+  public boolean stripsExplicitTurkishDiacritic(String source, String candidate) {
+    if (source == null || candidate == null || source.length() != candidate.length()) {
+      return false;
+    }
+    for (int i = 0; i < source.length(); i++) {
+      char s = source.charAt(i);
+      char c = candidate.charAt(i);
+      boolean stripped = switch (s) {
+        case 'ç' -> c == 'c';
+        case 'Ç' -> c == 'C';
+        case 'ğ' -> c == 'g';
+        case 'Ğ' -> c == 'G';
+        case 'ö' -> c == 'o';
+        case 'Ö' -> c == 'O';
+        case 'ş' -> c == 's';
+        case 'Ş' -> c == 'S';
+        case 'ü' -> c == 'u';
+        case 'Ü' -> c == 'U';
+        default -> false;
+      };
+      if (stripped) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }
