@@ -199,7 +199,7 @@ MetaTag: '<' AllTurkishAlphanumericalUnderscore+ '>';
 
 fragment RegionalIndicator: [\u{1F1E6}-\u{1F1FF}];
 fragment EmojiModifier: [\uFE0E\uFE0F\u{1F3FB}-\u{1F3FF}];
-fragment EmojiBase: [\p{Emoji_Presentation}\p{Extended_Pictographic}☀☹☺♥✌❣❤] EmojiModifier*;
+fragment EmojiBase: [\p{Emoji_Presentation}\p{Extended_Pictographic}☀☘☝☹☺♥♻✌✔❣❤➡] EmojiModifier*;
 
 Emoji
     : RegionalIndicator RegionalIndicator
@@ -247,7 +247,7 @@ Punctuation
 fragment UnknownWordPart
     : ~([ \t\u00a0\n\r<>‘…=.,!?%$&*+@:;®™©℠|~`°±×÷§–—₺€£¥\\\-()/[\]{}^]
     | '\'' | '’' | '"' | '”' | '“' | '»' | '«'
-    | [\p{Emoji_Presentation}\p{Extended_Pictographic}☀☹☺♥✌❣❤\uFE0E\uFE0F\u200D])+
+    | [\p{Emoji_Presentation}\p{Extended_Pictographic}☀☘☝☹☺♥♻✌✔❣❤➡])+
     ;
 
 UnknownWord

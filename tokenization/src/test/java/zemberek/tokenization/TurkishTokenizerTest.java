@@ -587,22 +587,25 @@ public class TurkishTokenizerTest {
     TurkishTokenizer t = TurkishTokenizer.DEFAULT;
 
     String[] standaloneEmojis = {
-        "😀", "🥰", "🫠", "🩷", "🫶", "❤", "❤️", "☺", "👍🏽", "🇹🇷", "👨‍👩‍👧‍👦", "🤦‍♀️"
+        "😀", "🥰", "🫠", "🩷", "🫶", "❤", "❤️", "☺", "☝️", "✔️", "👍🏽", "🇹🇷", "👨‍👩‍👧‍👦", "🤦‍♀️"
     };
     for (String emoji : standaloneEmojis) {
       matchToken(t, emoji, Type.Emoji, emoji);
       Assert.assertTrue(t.tokenize(emoji).get(0).isEmoji());
     }
 
-    // Bare digits and symbols must not be misclassified as Emoji.
+    // Bare digits, legal symbols, and unmapped symbols with variation selectors stay non-Emoji
+    // without splitting off dangling invisible variation selectors.
     matchToken(t, "1", Type.Number, "1");
     matchToken(t, "™", Type.Punctuation, "™");
     matchToken(t, "©", Type.Punctuation, "©");
+    matchToken(t, "▪\uFE0F", Type.UnknownWord, "▪\uFE0F");
 
     // Glued words + emojis split cleanly instead of merging into UnknownWord.
     matchSentences(t, "hediyye etdimm🥰", "hediyye etdimm 🥰");
     matchSentences(t, "iyi❤", "iyi ❤");
     matchSentences(t, "iyi❤️", "iyi ❤️");
+    matchSentences(t, "☝️☝️😊", "☝️ ☝️ 😊");
     matchSentences(t, "kötü😡ama ucuz", "kötü 😡 ama ucuz");
     matchSentences(t, "güzel👍teşekkürler🙏", "güzel 👍 teşekkürler 🙏");
     matchSentences(t, "😂😂😂 cok guzel", "😂 😂 😂 cok guzel");
