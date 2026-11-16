@@ -583,6 +583,55 @@ public class TurkishTokenizerTest {
   }
 
   @Test
+  public void testEmojiAndGluedWords() {
+    TurkishTokenizer t = TurkishTokenizer.DEFAULT;
+
+    String[] standaloneEmojis = {
+        "😀", "🥰", "🫠", "🩷", "🫶", "❤", "❤️", "☺", "☝️", "✔️", "👍🏽", "🇹🇷", "👨‍👩‍👧‍👦", "🤦‍♀️"
+    };
+    for (String emoji : standaloneEmojis) {
+      matchToken(t, emoji, Type.Emoji, emoji);
+      Assert.assertTrue(t.tokenize(emoji).get(0).isEmoji());
+    }
+
+    // Bare digits, legal symbols, and unmapped symbols with variation selectors stay non-Emoji
+    // without splitting off dangling invisible variation selectors.
+    matchToken(t, "1", Type.Number, "1");
+    matchToken(t, "™", Type.Punctuation, "™");
+    matchToken(t, "©", Type.Punctuation, "©");
+    matchToken(t, "▪\uFE0F", Type.UnknownWord, "▪\uFE0F");
+
+    // Glued words + emojis split cleanly instead of merging into UnknownWord.
+    matchSentences(t, "hediyye etdimm🥰", "hediyye etdimm 🥰");
+    matchSentences(t, "iyi❤", "iyi ❤");
+    matchSentences(t, "iyi❤️", "iyi ❤️");
+    matchSentences(t, "☝️☝️😊", "☝️ ☝️ 😊");
+    matchSentences(t, "kötü😡ama ucuz", "kötü 😡 ama ucuz");
+    matchSentences(t, "güzel👍teşekkürler🙏", "güzel 👍 teşekkürler 🙏");
+    matchSentences(t, "😂😂😂 cok guzel", "😂 😂 😂 cok guzel");
+  }
+
+  @Test
+  public void testSupplementaryEmojiUtf16Offsets() {
+    String input = "🥰 Dr. Ahmet çok ❤️ güzel. 👨‍👩‍👧‍👦!";
+    for (Token token : TurkishTokenizer.ALL.tokenize(input)) {
+      Assert.assertEquals(
+          token.getText(), input.substring(token.getStart(), token.getEnd() + 1));
+    }
+    for (Token token : TurkishTokenizer.DEFAULT.tokenize(input)) {
+      Assert.assertEquals(
+          token.getText(), input.substring(token.getStart(), token.getEnd() + 1));
+    }
+    TurkishTokenizer withoutEmojis =
+        TurkishTokenizer.builder().acceptAll().ignoreTypes(Type.SpaceTab, Type.Emoji).build();
+    for (Token token : withoutEmojis.tokenize(input)) {
+      Assert.assertFalse(token.isEmoji());
+      Assert.assertEquals(
+          token.getText(), input.substring(token.getStart(), token.getEnd() + 1));
+    }
+  }
+
+  @Test
   @Ignore("Not an actual test. Requires external data.")
   public void performance() throws IOException {
     TurkishTokenizer tokenizer = TurkishTokenizer.DEFAULT;

@@ -72,6 +72,19 @@ public class TurkishDetokenizerTest {
   }
 
   @Test
+  public void testEmojisWithPunctuationAndAllMode() {
+    assertRoundTrip("Harika olmuş 🥰, teşekkürler ❤️!");
+    String withSpaces = "iyi ❤️\ngüzel  👍";
+    Assert.assertEquals(
+        withSpaces, TurkishTokenizer.ALL.detokenizeTokens(TurkishTokenizer.ALL.tokenize(withSpaces)));
+    Assert.assertEquals(
+        "iyi ❤️\ngüzel 👍",
+        TurkishTokenizer.DEFAULT.detokenizeTokens(
+            TurkishTokenizer.builder().acceptAll().ignoreTypes(Type.SpaceTab).build()
+                .tokenize("iyi❤️\ngüzel👍")));
+  }
+
+  @Test
   public void testEmptyAndNullInputs() {
     Assert.assertEquals("", TurkishDetokenizer.DEFAULT.detokenize(null));
     Assert.assertEquals("", TurkishDetokenizer.DEFAULT.detokenize(Collections.emptyList()));
