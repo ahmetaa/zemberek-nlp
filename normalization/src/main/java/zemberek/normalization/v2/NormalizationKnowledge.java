@@ -12,66 +12,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import zemberek.core.turkish.SecondaryPos;
+import java.util.zip.GZIPInputStream;
+import zemberek.core.hash.MultiLevelMphf;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.morphotactics.TurkishMorphotactics;
 import zemberek.normalization.v2.NormV2Types.CasingShape;
 
 /**
- * Immutable runtime linguistic and empirical knowledge tables used by {@link
- * SpanCandidateGenerator} and {@link SpanLatticePerceptronNormalizer}.
- *
- * <p>Holds pre-mined {@code 1:1}/{@code 1:2} rewrite tables, {@code 2:1}/{@code 3:1} merge tables,
- * productive informal suffix rules, clean-corpus casing statistics, {@link CleanWordLm} (3-gram
- * clean Turkish LM), {@link CharPhonotacticModel} (character 4-gram model), and context-aware
- * deterministic Turkish truecasing — without carrying any offline corpus-mining dependencies.
+ * Runtime linguistic and empirical knowledge tables used by {@link SpanCandidateGenerator} and
+ * {@link SpanLatticePerceptronNormalizer}: {@code 1:1}/{@code 1:2} rewrites, {@code 2:1}/{@code 3:1}
+ * merges, productive suffix rules, clean-corpus casing statistics, {@link CleanWordLm}, {@link
+ * CharPhonotacticModel}, and context-aware Turkish truecasing.
  */
 public final class NormalizationKnowledge {
 
   static final int SNAPSHOT_MAGIC = 0x5A4E5632; // "ZNV2"
-  static final int SNAPSHOT_VERSION = 3;
+  static final int SNAPSHOT_VERSION_LEGACY = 3;
+  static final int SNAPSHOT_VERSION = 5;
+  static final String DEFAULT_RESOURCE = "/normalization/v2/knowledge.bin.gz";
 
-  // ===============================================================================================
-  // Contextual Truecasing Bitflags (B2 Layer 1 — zero lattice-arc duplication)
-  // ===============================================================================================
-
-  /** Sentence has noisy Title-Case-Every-Word style ({@code >=45%} of words capitalized). */
+  // Contextual Truecasing Bitflags
   public static final int CTX_SENT_TITLE_NOISY = 1 << 0;
-
-  /** Immediately adjacent to a calendar day number ({@code 15 Nisan}) or 4-digit year ({@code Mayıs 2024}). */
   public static final int CTX_ADJ_DATE_NUM = 1 << 1;
-
-  /** Immediately precedes a Gazetteer / Institutional / Street / Honorific head ({@code Konur Sokak'taki}). */
   public static final int CTX_BEFORE_GAZETTEER_OR_HONORIFIC = 1 << 2;
-
-  /** Immediately follows a numeric token ({@code 5000 mAh} vs {@code Yıldızevler Mah}). */
   public static final int CTX_AFTER_NUMBER = 1 << 3;
-
-  /** TDK two-word holiday, post-name honorific, or given-name before ProperNoun surname ({@code Sevgililer Günü}, {@code Lale Hanım}, {@code Ümit Özdağ}). */
   public static final int CTX_PROMOTE_PROPER_IN_CONTEXT = 1 << 4;
 
   private static final Set<String> TDK_MONTHS_AND_DAYS =
       Set.of(
-          "ocak",
-          "şubat",
-          "mart",
-          "nisan",
-          "mayıs",
-          "haziran",
-          "temmuz",
-          "ağustos",
-          "eylül",
-          "ekim",
-          "kasım",
-          "aralık",
-          "pazartesi",
-          "salı",
-          "çarşamba",
-          "perşembe",
-          "cuma",
-          "cumartesi",
-          "pazar");
+          "ocak", "şubat", "mart", "nisan", "mayıs", "haziran", "temmuz", "ağustos", "eylül",
+          "ekim", "kasım", "aralık", "pazartesi", "salı", "çarşamba", "perşembe", "cuma",
+          "cumartesi", "pazar");
 
   private static final Set<String> LOWERCASE_HEADLINE_BIAS_STOPWORDS =
       Set.of(
@@ -89,64 +61,70 @@ public final class NormalizationKnowledge {
   private static final Set<String> CANONICAL_UPPER_ACRONYM_STEMS =
       Set.of("seo", "php", "mp3", "mp4", "llm", "html", "sql", "smm", "asp", "iddk");
 
-  private static final Map<String, String> CANONICAL_DOTTED_ABBR = buildCanonicalDottedAbbr();
-  private static final Map<String, String> CANONICAL_TECH_TOKENS = buildCanonicalTechTokens();
+  private static final Set<String> TDK_HOLIDAY_MODIFIERS =
+      Set.of("sevgililer", "anneler", "babalar", "öğretmenler", "kadınlar");
 
-  private static Map<String, String> buildCanonicalDottedAbbr() {
-    Map<String, String> m = new HashMap<>(48);
-    m.put("vb.", "vb.");
-    m.put("vs.", "vs.");
-    m.put("dr.", "Dr.");
-    m.put("prof.", "Prof.");
-    m.put("doç.", "Doç.");
-    m.put("av.", "Av.");
-    m.put("org.", "Org.");
-    m.put("alb.", "Alb.");
-    m.put("yrd.", "Yrd.");
-    m.put("arş.", "Arş.");
-    m.put("gör.", "Gör.");
-    m.put("uzm.", "Uzm.");
-    m.put("ecz.", "Ecz.");
-    m.put("müh.", "Müh.");
-    m.put("mim.", "Mim.");
-    m.put("vet.", "Vet.");
-    m.put("hz.", "Hz.");
-    m.put("ltd.", "Ltd.");
-    m.put("tic.", "Tic.");
-    m.put("şti.", "Şti.");
-    m.put("san.", "San.");
-    m.put("mah.", "Mah.");
-    m.put("cad.", "Cad.");
-    m.put("sok.", "Sok.");
-    m.put("apt.", "Apt.");
-    m.put("no.", "No.");
-    m.put("tel.", "Tel.");
-    return Map.copyOf(m);
+  private static final Map<String, String> CANONICAL_DOTTED_ABBR =
+      Map.ofEntries(
+          Map.entry("vb.", "vb."),
+          Map.entry("vs.", "vs."),
+          Map.entry("dr.", "Dr."),
+          Map.entry("prof.", "Prof."),
+          Map.entry("doç.", "Doç."),
+          Map.entry("av.", "Av."),
+          Map.entry("org.", "Org."),
+          Map.entry("alb.", "Alb."),
+          Map.entry("yrd.", "Yrd."),
+          Map.entry("arş.", "Arş."),
+          Map.entry("gör.", "Gör."),
+          Map.entry("uzm.", "Uzm."),
+          Map.entry("ecz.", "Ecz."),
+          Map.entry("müh.", "Müh."),
+          Map.entry("mim.", "Mim."),
+          Map.entry("vet.", "Vet."),
+          Map.entry("hz.", "Hz."),
+          Map.entry("ltd.", "Ltd."),
+          Map.entry("tic.", "Tic."),
+          Map.entry("şti.", "Şti."),
+          Map.entry("san.", "San."),
+          Map.entry("mah.", "Mah."),
+          Map.entry("cad.", "Cad."),
+          Map.entry("sok.", "Sok."),
+          Map.entry("apt.", "Apt."),
+          Map.entry("no.", "No."),
+          Map.entry("tel.", "Tel."));
+
+  private static final Map<String, String> CANONICAL_TECH_TOKENS =
+      Map.ofEntries(
+          Map.entry("2k", "2K"),
+          Map.entry("4k", "4K"),
+          Map.entry("8k", "8K"),
+          Map.entry("i3", "i3"),
+          Map.entry("i5", "i5"),
+          Map.entry("i7", "i7"),
+          Map.entry("i9", "i9"),
+          Map.entry("ghz", "GHz"),
+          Map.entry("mhz", "MHz"),
+          Map.entry("mbps", "Mbps"),
+          Map.entry("gbps", "Gbps"),
+          Map.entry("mp3", "MP3"),
+          Map.entry("mp4", "MP4"),
+          Map.entry("seo", "SEO"),
+          Map.entry("php", "PHP"),
+          Map.entry("html", "HTML"),
+          Map.entry("sql", "SQL"));
+
+  private static final CasingCounts[] PURE_LOWER_CACHE = new CasingCounts[129];
+
+  static {
+    for (int i = 1; i < PURE_LOWER_CACHE.length; i++) {
+      CasingCounts cc = new CasingCounts();
+      cc.lower = i;
+      PURE_LOWER_CACHE[i] = cc;
+    }
   }
 
-  private static Map<String, String> buildCanonicalTechTokens() {
-    Map<String, String> m = new HashMap<>(32);
-    m.put("2k", "2K");
-    m.put("4k", "4K");
-    m.put("8k", "8K");
-    m.put("i3", "i3");
-    m.put("i5", "i5");
-    m.put("i7", "i7");
-    m.put("i9", "i9");
-    m.put("ghz", "GHz");
-    m.put("mhz", "MHz");
-    m.put("mbps", "Mbps");
-    m.put("gbps", "Gbps");
-    m.put("mp3", "MP3");
-    m.put("mp4", "MP4");
-    m.put("seo", "SEO");
-    m.put("php", "PHP");
-    m.put("html", "HTML");
-    m.put("sql", "SQL");
-    return Map.copyOf(m);
-  }
-
-  public record TargetCount(String normLower, String bestSurface, int count) {}
+  public record TargetCount(String normLower, int count) {}
 
   public record RewriteEntry(int totalCount, int keepCount, TargetCount[] targets) {
     public float keepProb() {
@@ -161,24 +139,15 @@ public final class NormalizationKnowledge {
       }
       return 0.0f;
     }
-
-    public int countOf(String normLower) {
-      for (TargetCount tc : targets) {
-        if (tc.normLower.equals(normLower)) {
-          return tc.count;
-        }
-      }
-      return 0;
-    }
   }
 
   public record MergeEntry(int cooccurCount, TargetCount[] mergedTargets) {
     public int totalMergedCount() {
-      int s = 0;
+      int sum = 0;
       for (TargetCount tc : mergedTargets) {
-        s += tc.count;
+        sum += tc.count;
       }
-      return s;
+      return sum;
     }
 
     public float mergeProb(TargetCount tc) {
@@ -186,8 +155,7 @@ public final class NormalizationKnowledge {
     }
   }
 
-  public record SuffixRule(
-      String rawSuffix, String normSuffix, int support, int totalRawSuffixSeen, float precision) {}
+  public record SuffixRule(String rawSuffix, String normSuffix, int support, float precision) {}
 
   public static final class CasingCounts {
     public int lower;
@@ -196,19 +164,25 @@ public final class NormalizationKnowledge {
     public int mixed;
     public int apostropheStem;
     public String bestMixedSurface;
-    public int bestMixedCount;
 
     public int total() {
       return lower + title + upper + mixed;
     }
   }
 
-  /** Fast primitive open-addressing {@code long -> int} hash table with zero object overhead. */
-  static final class OpenLongIntMap {
+  // =========================================================================
+  // Clean 3-Gram Language Model & Phonotactic Scorer
+  // =========================================================================
+
+  interface LongCountMap {
+    int get(long k);
+  }
+
+  /** Primitive open-addressing {@code long -> int} hash table (used by legacy v2/v3 snapshots). */
+  static final class OpenLongIntMap implements LongCountMap {
     private final long[] keys;
     private final int[] vals;
     private final int mask;
-    private int size;
 
     OpenLongIntMap(int initialPow2) {
       int cap = 1;
@@ -220,7 +194,8 @@ public final class NormalizationKnowledge {
       this.mask = cap - 1;
     }
 
-    int get(long k) {
+    @Override
+    public int get(long k) {
       if (k == 0L) {
         k = 1L;
       }
@@ -237,30 +212,23 @@ public final class NormalizationKnowledge {
       }
     }
 
-    int size() {
-      return size;
-    }
-
-    long estimatedBytes() {
-      return (long) keys.length * Long.BYTES + (long) vals.length * Integer.BYTES + 32L;
-    }
-
     static OpenLongIntMap deserialize(DataInputStream in) throws IOException {
       int cap = in.readInt();
       int count = in.readInt();
       OpenLongIntMap map = new OpenLongIntMap(cap);
       for (int i = 0; i < count; i++) {
-        long k = in.readLong();
-        int v = in.readInt();
-        int slot = slotOf(k) & map.mask;
-        while (map.keys[slot] != 0L) {
-          slot = (slot + 1) & map.mask;
-        }
-        map.keys[slot] = k;
-        map.vals[slot] = v;
+        map.putUnique(in.readLong(), in.readInt());
       }
-      map.size = count;
       return map;
+    }
+
+    private void putUnique(long k, int v) {
+      int slot = slotOf(k) & mask;
+      while (keys[slot] != 0L) {
+        slot = (slot + 1) & mask;
+      }
+      keys[slot] = k;
+      vals[slot] = v;
     }
 
     private static int slotOf(long k) {
@@ -271,23 +239,108 @@ public final class NormalizationKnowledge {
   }
 
   /**
-   * Lock-free primitive 64-bit hashed Unigram + Bigram + Trigram Turkish language model using
-   * Witten-Bell / Jelinek-Mercer normalized probability interpolation.
+   * Compact MPHF-backed {@code long -> int} count table using {@link MultiLevelMphf}, 8/12/16-bit
+   * collision fingerprints, and a 256-entry count codebook.
    */
+  static final class MphfCountMap implements LongCountMap {
+    private final MultiLevelMphf mphf;
+    private final int fpBits;
+    private final short[] fp16;
+    private final byte[] fpPacked;
+    private final byte[] codes;
+    private final int[] codebook;
+
+    MphfCountMap(
+        MultiLevelMphf mphf,
+        int fpBits,
+        short[] fp16,
+        byte[] fpPacked,
+        byte[] codes,
+        int[] codebook) {
+      this.mphf = mphf;
+      this.fpBits = fpBits;
+      this.fp16 = fp16;
+      this.fpPacked = fpPacked;
+      this.codes = codes;
+      this.codebook = codebook;
+    }
+
+    @Override
+    public int get(long k) {
+      if (mphf == null || codes.length == 0) {
+        return 0;
+      }
+      if (k == 0L) {
+        k = 1L;
+      }
+      int k0 = (int) k;
+      int k1 = (int) (k >>> 32);
+      int slot = mphf.get(k0, k1, MultiLevelMphf.hash(k0, k1, -1));
+      int wantFp = fingerprint(k, fpBits);
+      int gotFp =
+          switch (fpBits) {
+            case 16 -> fp16[slot] & 0xFFFF;
+            case 8 -> fpPacked[slot] & 0xFF;
+            default -> get12(fpPacked, slot);
+          };
+      return gotFp == wantFp ? codebook[codes[slot] & 0xFF] : 0;
+    }
+
+    static MphfCountMap deserialize(DataInputStream in) throws IOException {
+      int fpBits = in.readUnsignedByte();
+      int count = readVarInt(in);
+      if (count == 0) {
+        return new MphfCountMap(null, fpBits, new short[0], new byte[0], new byte[0], new int[256]);
+      }
+      MultiLevelMphf mphf = MultiLevelMphf.deserialize(in);
+      short[] fp16 = null;
+      byte[] fpPacked = null;
+      if (fpBits == 16) {
+        fp16 = new short[count];
+        for (int i = 0; i < count; i++) {
+          fp16[i] = in.readShort();
+        }
+      } else if (fpBits == 8) {
+        fpPacked = new byte[count];
+        in.readFully(fpPacked);
+      } else {
+        fpPacked = new byte[(count * 3 + 1) / 2];
+        in.readFully(fpPacked);
+      }
+      byte[] codes = new byte[count];
+      in.readFully(codes);
+      int[] codebook = new int[256];
+      for (int i = 0; i < 256; i++) {
+        codebook[i] = readVarInt(in);
+      }
+      return new MphfCountMap(mphf, fpBits, fp16, fpPacked, codes, codebook);
+    }
+
+    static int fingerprint(long k, int bits) {
+      long z = (k ^ (k >>> 23) ^ (k >>> 47)) * 0x9E3779B97F4A7C15L;
+      return ((int) (z >>> (64 - bits))) & ((1 << bits) - 1);
+    }
+
+    private static int get12(byte[] arr, int idx) {
+      int byteIdx = (idx * 3) >>> 1;
+      return (idx & 1) == 0
+          ? (((arr[byteIdx] & 0xFF) << 4) | ((arr[byteIdx + 1] & 0xF0) >>> 4))
+          : (((arr[byteIdx] & 0x0F) << 8) | (arr[byteIdx + 1] & 0xFF));
+    }
+  }
+
+  /** Lock-free 64-bit hashed Unigram + Bigram + Trigram Turkish language model. */
   public static final class CleanWordLm {
     static final long BOS_HASH = 0x517cc1b727220a95L;
     static final long EOS_HASH = 0x9e3779b97f4a7c15L;
 
-    private final OpenLongIntMap unigrams;
-    private final OpenLongIntMap bigrams;
-    private final OpenLongIntMap trigrams;
+    private final LongCountMap unigrams;
+    private final LongCountMap bigrams;
+    private final LongCountMap trigrams;
     private final double denomUnigram;
 
     CleanWordLm(
-        OpenLongIntMap unigrams,
-        OpenLongIntMap bigrams,
-        OpenLongIntMap trigrams,
-        double denomUnigram) {
+        LongCountMap unigrams, LongCountMap bigrams, LongCountMap trigrams, double denomUnigram) {
       this.unigrams = unigrams;
       this.bigrams = bigrams;
       this.trigrams = trigrams;
@@ -295,23 +348,28 @@ public final class NormalizationKnowledge {
     }
 
     public static CleanWordLm empty() {
-      return new CleanWordLm(
-          new OpenLongIntMap(16), new OpenLongIntMap(16), new OpenLongIntMap(16), 250_000.0);
+      LongCountMap empty = new OpenLongIntMap(16);
+      return new CleanWordLm(empty, empty, empty, 250_000.0);
     }
 
-    static CleanWordLm deserialize(DataInputStream in) throws IOException {
+    static CleanWordLm deserialize(DataInputStream in, boolean v5) throws IOException {
       double denom = in.readDouble();
-      OpenLongIntMap u = OpenLongIntMap.deserialize(in);
-      OpenLongIntMap b = OpenLongIntMap.deserialize(in);
-      OpenLongIntMap t = OpenLongIntMap.deserialize(in);
-      return new CleanWordLm(u, b, t, denom);
+      if (v5) {
+        return new CleanWordLm(
+            MphfCountMap.deserialize(in),
+            MphfCountMap.deserialize(in),
+            MphfCountMap.deserialize(in),
+            denom);
+      }
+      return new CleanWordLm(
+          OpenLongIntMap.deserialize(in),
+          OpenLongIntMap.deserialize(in),
+          OpenLongIntMap.deserialize(in),
+          denom);
     }
 
     public int unigramCount(String lowerWord) {
-      if (lowerWord == null || lowerWord.isEmpty()) {
-        return 0;
-      }
-      return unigrams.get(wordHash(lowerWord));
+      return lowerWord == null || lowerWord.isEmpty() ? 0 : unigrams.get(wordHash(lowerWord));
     }
 
     public int bigramCount(String prevLower, String curLower) {
@@ -342,8 +400,7 @@ public final class NormalizationKnowledge {
     }
 
     private double unigramProbByHash(long h) {
-      int c = unigrams.get(h);
-      return (c + 0.5) / denomUnigram;
+      return (unigrams.get(h) + 0.5) / denomUnigram;
     }
 
     private double bigramProbByHash(long hPrev, long hCur) {
@@ -357,8 +414,7 @@ public final class NormalizationKnowledge {
       if (cBi <= 0) {
         return (1.0 - lambda2) * p1;
       }
-      double mle2 = Math.min(1.0, cBi / (double) cPrev);
-      return lambda2 * mle2 + (1.0 - lambda2) * p1;
+      return lambda2 * Math.min(1.0, cBi / (double) cPrev) + (1.0 - lambda2) * p1;
     }
 
     private double trigramProbByHash(long hPrev2, long hPrev1, long hCur) {
@@ -372,12 +428,7 @@ public final class NormalizationKnowledge {
       if (cTri <= 0) {
         return (1.0 - lambda3) * p2;
       }
-      double mle3 = Math.min(1.0, cTri / (double) cBiHist);
-      return lambda3 * mle3 + (1.0 - lambda3) * p2;
-    }
-
-    public long estimatedBytes() {
-      return unigrams.estimatedBytes() + bigrams.estimatedBytes() + trigrams.estimatedBytes();
+      return lambda3 * Math.min(1.0, cTri / (double) cBiHist) + (1.0 - lambda3) * p2;
     }
 
     static long wordHash(String s) {
@@ -412,20 +463,19 @@ public final class NormalizationKnowledge {
     }
   }
 
-  /** Compact smoothed hashed character 4-gram Turkishness scorer (~512 KB). */
+  /** Smoothed hashed character 4-gram Turkishness scorer. */
   public static final class CharPhonotacticModel {
     private static final int TABLE_BITS = 16;
     private static final int TABLE_SIZE = 1 << TABLE_BITS;
     private static final int MASK = TABLE_SIZE - 1;
+    private static final float DEFAULT_LOG_PROB = -4.2f;
 
     private final int[] ngram4Counts;
     private final int[] prefix3Counts;
-    private final float defaultLogProb;
 
     CharPhonotacticModel(int[] ngram4Counts, int[] prefix3Counts) {
       this.ngram4Counts = ngram4Counts;
       this.prefix3Counts = prefix3Counts;
-      this.defaultLogProb = -4.2f;
     }
 
     public static CharPhonotacticModel empty() {
@@ -434,7 +484,7 @@ public final class NormalizationKnowledge {
 
     public float scoreWord(String lowerWord) {
       if (lowerWord == null || lowerWord.isEmpty()) {
-        return defaultLogProb;
+        return DEFAULT_LOG_PROB;
       }
       float penalty = 0.0f;
       for (int i = 0; i < lowerWord.length(); i++) {
@@ -450,24 +500,35 @@ public final class NormalizationKnowledge {
       float sum = 0.0f;
       int cnt = 0;
       for (int i = 0; i <= padded.length() - 4; i++) {
-        int slot4 = hashChars(padded, i, 4) & MASK;
-        int slot3 = hashChars(padded, i, 3) & MASK;
-        int c4 = ngram4Counts[slot4];
-        int c3 = Math.max(c4, prefix3Counts[slot3]);
-        sum += c4 > 0 ? (float) Math.log((c4 + 0.5) / (c3 + 29.0)) : defaultLogProb;
+        int c4 = ngram4Counts[hashChars(padded, i, 4) & MASK];
+        int c3 = Math.max(c4, prefix3Counts[hashChars(padded, i, 3) & MASK]);
+        sum += c4 > 0 ? (float) Math.log((c4 + 0.5) / (c3 + 29.0)) : DEFAULT_LOG_PROB;
         cnt++;
       }
       return (sum / Math.max(1, cnt)) + penalty;
     }
 
-    public long estimatedBytes() {
-      return (long) (ngram4Counts.length + prefix3Counts.length) * Integer.BYTES + 32L;
-    }
-
-    static CharPhonotacticModel deserialize(DataInputStream in) throws IOException {
-      int len = in.readInt();
+    static CharPhonotacticModel deserialize(DataInputStream in, boolean v5) throws IOException {
+      int len = v5 ? readVarInt(in) : in.readInt();
       int[] n4 = new int[len];
       int[] p3 = new int[len];
+      if (v5) {
+        byte[] q4 = new byte[len];
+        byte[] q3 = new byte[len];
+        in.readFully(q4);
+        in.readFully(q3);
+        int[] cb = new int[256];
+        for (int i = 0; i < 256; i++) {
+          cb[i] = readVarInt(in);
+        }
+        for (int i = 0; i < len; i++) {
+          int c4 = q4[i] & 0xFF;
+          int c3 = q3[i] & 0xFF;
+          if (c4 > 0) n4[i] = cb[c4 - 1];
+          if (c3 > 0) p3[i] = cb[c3 - 1];
+        }
+        return new CharPhonotacticModel(n4, p3);
+      }
       for (int i = 0; i < len; i++) {
         n4[i] = in.readInt();
       }
@@ -487,17 +548,18 @@ public final class NormalizationKnowledge {
     }
   }
 
+  // =========================================================================
+  // Fields, Factories & Binary Deserialization
+  // =========================================================================
+
   public final Map<String, RewriteEntry> parallel1ToN;
   public final Map<String, MergeEntry> parallel2To1;
   public final Map<String, MergeEntry> parallel3To1;
   public final Map<String, List<SuffixRule>> suffixRulesByLastChar;
   public final Map<String, CasingCounts> casingLexicon;
-  public final Map<String, Integer> cleanOpenBigrams;
-  public final Map<String, Integer> cleanClosedWords;
+  public final List<String> shorthandWords;
   public final CleanWordLm cleanLm;
   public final CharPhonotacticModel charPhonotactics;
-  public final int trainedSentenceCount;
-  public final int cleanSentenceCount;
 
   public NormalizationKnowledge(
       Map<String, RewriteEntry> parallel1ToN,
@@ -505,23 +567,17 @@ public final class NormalizationKnowledge {
       Map<String, MergeEntry> parallel3To1,
       Map<String, List<SuffixRule>> suffixRulesByLastChar,
       Map<String, CasingCounts> casingLexicon,
-      Map<String, Integer> cleanOpenBigrams,
-      Map<String, Integer> cleanClosedWords,
+      List<String> shorthandWords,
       CleanWordLm cleanLm,
-      CharPhonotacticModel charPhonotactics,
-      int trainedSentenceCount,
-      int cleanSentenceCount) {
+      CharPhonotacticModel charPhonotactics) {
     this.parallel1ToN = parallel1ToN;
     this.parallel2To1 = parallel2To1;
     this.parallel3To1 = parallel3To1;
     this.suffixRulesByLastChar = suffixRulesByLastChar;
     this.casingLexicon = casingLexicon;
-    this.cleanOpenBigrams = cleanOpenBigrams;
-    this.cleanClosedWords = cleanClosedWords;
+    this.shorthandWords = shorthandWords;
     this.cleanLm = cleanLm;
     this.charPhonotactics = charPhonotactics;
-    this.trainedSentenceCount = trainedSentenceCount;
-    this.cleanSentenceCount = cleanSentenceCount;
   }
 
   /** Creates an empty knowledge container (useful for morphology/spellcheck-only unit tests). */
@@ -532,62 +588,170 @@ public final class NormalizationKnowledge {
         Collections.emptyMap(),
         Collections.emptyMap(),
         Collections.emptyMap(),
-        Collections.emptyMap(),
-        Collections.emptyMap(),
+        List.of(),
         CleanWordLm.empty(),
-        CharPhonotacticModel.empty(),
-        0,
-        0);
+        CharPhonotacticModel.empty());
   }
 
-  /** Loads a binary knowledge snapshot ({@code mined_v23.bin}) from disk. */
+  /**
+   * Looks up empirical casing counts for {@code wordLower}, falling back to pure-lowercase clean
+   * unigram frequency when pure-lowercase entries were omitted from {@code casingLexicon}.
+   */
+  public CasingCounts lookupCasing(String wordLower) {
+    CasingCounts cc = casingLexicon.get(wordLower);
+    if (cc != null) {
+      return cc;
+    }
+    int u = cleanLm.unigramCount(wordLower);
+    if (u <= 0) {
+      return null;
+    }
+    if (u < PURE_LOWER_CACHE.length) {
+      return PURE_LOWER_CACHE[u];
+    }
+    CasingCounts syn = new CasingCounts();
+    syn.lower = u;
+    return syn;
+  }
+
+  /** Loads the bundled default knowledge snapshot ({@code /normalization/v2/knowledge.bin.gz}). */
+  public static NormalizationKnowledge loadDefault() throws IOException {
+    try (InputStream is = NormalizationKnowledge.class.getResourceAsStream(DEFAULT_RESOURCE)) {
+      if (is == null) {
+        throw new IOException("Missing classpath resource: " + DEFAULT_RESOURCE);
+      }
+      return load(is);
+    }
+  }
+
+  /** Loads a binary knowledge snapshot ({@code knowledge.bin.gz} or {@code knowledge.bin}) from disk. */
   public static NormalizationKnowledge load(Path path) throws IOException {
     try (InputStream fis = Files.newInputStream(path)) {
       return load(fis);
     }
   }
 
-  /** Loads a binary knowledge snapshot ({@code mined_v23.bin}) from an {@link InputStream}. */
+  static InputStream maybeUnzip(InputStream raw) throws IOException {
+    BufferedInputStream buf = new BufferedInputStream(raw, 1 << 16);
+    buf.mark(2);
+    int b0 = buf.read();
+    int b1 = buf.read();
+    buf.reset();
+    if (b0 == 0x1f && b1 == 0x8b) {
+      return new BufferedInputStream(new GZIPInputStream(buf, 1 << 16), 1 << 16);
+    }
+    return buf;
+  }
+
+  static int readVarInt(DataInputStream in) throws IOException {
+    int val = 0;
+    int shift = 0;
+    while (true) {
+      int b = in.readUnsignedByte();
+      val |= (b & 0x7F) << shift;
+      if ((b & 0x80) == 0) {
+        return val;
+      }
+      shift += 7;
+    }
+  }
+
+  /** Loads a binary knowledge snapshot from an {@link InputStream} (plain or gzip-compressed). */
   public static NormalizationKnowledge load(InputStream stream) throws IOException {
-    DataInputStream in = new DataInputStream(new BufferedInputStream(stream, 1 << 16));
+    DataInputStream in = new DataInputStream(maybeUnzip(stream));
     int magic = in.readInt();
     int ver = in.readInt();
-    if (magic != SNAPSHOT_MAGIC || (ver != 2 && ver != SNAPSHOT_VERSION)) {
+    if (magic != SNAPSHOT_MAGIC || ver < 2 || ver > SNAPSHOT_VERSION) {
       throw new IOException(
           "Unexpected NormalizationKnowledge header: magic="
               + Integer.toHexString(magic)
               + " ver="
               + ver);
     }
-    int trainedSents = in.readInt();
-    int cleanSents = in.readInt();
+    boolean v5 = ver >= SNAPSHOT_VERSION;
+    if (!v5) {
+      in.readInt(); // trainedSentenceCount
+      in.readInt(); // cleanSentenceCount
+    }
 
+    Map<String, RewriteEntry> p1 = readParallel1ToN(in, v5);
+    Map<String, MergeEntry> p2 = readMergeMap(in, v5);
+    Map<String, MergeEntry> p3 = readMergeMap(in, v5);
+    Map<String, List<SuffixRule>> sufMap = readSuffixRules(in, v5);
+    Map<String, CasingCounts> casing = readCasingLexicon(in, v5);
+
+    List<String> shorthandList;
+    if (v5) {
+      shorthandList = List.of(readFrontCodedStrings(in));
+    } else {
+      skipLegacyStrIntMap(in); // cleanOpenBigrams
+      skipLegacyStrIntMap(in); // cleanClosedWords
+      shorthandList = List.of();
+    }
+
+    CleanWordLm cleanLm = CleanWordLm.deserialize(in, v5);
+    CharPhonotacticModel phono = CharPhonotacticModel.deserialize(in, v5);
+    return new NormalizationKnowledge(p1, p2, p3, sufMap, casing, shorthandList, cleanLm, phono);
+  }
+
+  private static Map<String, RewriteEntry> readParallel1ToN(DataInputStream in, boolean v5)
+      throws IOException {
+    if (v5) {
+      String[] keys = readFrontCodedStrings(in);
+      Map<String, RewriteEntry> p1 = new HashMap<>(keys.length * 4 / 3 + 16);
+      for (String k : keys) {
+        p1.put(k, new RewriteEntry(readVarInt(in), readVarInt(in), readTargets(in, true)));
+      }
+      return p1;
+    }
     int n1 = in.readInt();
     Map<String, RewriteEntry> p1 = new HashMap<>(n1 * 4 / 3 + 16);
     for (int i = 0; i < n1; i++) {
-      String k = in.readUTF();
-      int tot = in.readInt();
-      int keep = in.readInt();
-      TargetCount[] targets = readTargets(in);
-      p1.put(k, new RewriteEntry(tot, keep, targets));
+      p1.put(in.readUTF(), new RewriteEntry(in.readInt(), in.readInt(), readTargets(in, false)));
     }
+    return p1;
+  }
 
-    Map<String, MergeEntry> p2 = readMergeMap(in);
-    Map<String, MergeEntry> p3 = readMergeMap(in);
-
-    int nSufKeys = in.readInt();
+  private static Map<String, List<SuffixRule>> readSuffixRules(DataInputStream in, boolean v5)
+      throws IOException {
+    int nSufKeys = v5 ? readVarInt(in) : in.readInt();
     Map<String, List<SuffixRule>> sufMap = new HashMap<>(nSufKeys * 4 / 3 + 16);
     for (int i = 0; i < nSufKeys; i++) {
       String chKey = in.readUTF();
-      int cnt = in.readInt();
+      int cnt = v5 ? readVarInt(in) : in.readInt();
       List<SuffixRule> rules = new ArrayList<>(cnt);
       for (int j = 0; j < cnt; j++) {
-        rules.add(
-            new SuffixRule(in.readUTF(), in.readUTF(), in.readInt(), in.readInt(), in.readFloat()));
+        String rawSuf = in.readUTF();
+        String normSuf = in.readUTF();
+        int support = v5 ? readVarInt(in) : in.readInt();
+        if (!v5) {
+          in.readInt(); // totalRawSuffixSeen
+        }
+        rules.add(new SuffixRule(rawSuf, normSuf, support, in.readFloat()));
       }
       sufMap.put(chKey, rules);
     }
+    return sufMap;
+  }
 
+  private static Map<String, CasingCounts> readCasingLexicon(DataInputStream in, boolean v5)
+      throws IOException {
+    if (v5) {
+      String[] cKeys = readFrontCodedStrings(in);
+      Map<String, CasingCounts> casing = new HashMap<>(cKeys.length * 4 / 3 + 16);
+      for (String w : cKeys) {
+        int flags = in.readUnsignedByte();
+        CasingCounts cc = new CasingCounts();
+        if ((flags & 1) != 0) cc.lower = readVarInt(in);
+        if ((flags & 2) != 0) cc.title = readVarInt(in);
+        if ((flags & 4) != 0) cc.upper = readVarInt(in);
+        if ((flags & 8) != 0) cc.mixed = readVarInt(in);
+        if ((flags & 16) != 0) cc.apostropheStem = readVarInt(in);
+        if ((flags & 32) != 0) cc.bestMixedSurface = in.readUTF();
+        casing.put(w, cc);
+      }
+      return casing;
+    }
     int nCase = in.readInt();
     Map<String, CasingCounts> casing = new HashMap<>(nCase * 4 / 3 + 16);
     for (int i = 0; i < nCase; i++) {
@@ -600,53 +764,70 @@ public final class NormalizationKnowledge {
       cc.apostropheStem = in.readInt();
       if (in.readBoolean()) {
         cc.bestMixedSurface = in.readUTF();
-        cc.bestMixedCount = in.readInt();
+        in.readInt(); // bestMixedCount
       }
       casing.put(w, cc);
     }
-
-    Map<String, Integer> openBg = readStrIntMap(in);
-    Map<String, Integer> closedW = readStrIntMap(in);
-    CleanWordLm cleanLm = CleanWordLm.deserialize(in);
-    CharPhonotacticModel phono = CharPhonotacticModel.deserialize(in);
-
-    return new NormalizationKnowledge(
-        p1, p2, p3, sufMap, casing, openBg, closedW, cleanLm, phono, trainedSents, cleanSents);
+    return casing;
   }
 
-  private static Map<String, MergeEntry> readMergeMap(DataInputStream in) throws IOException {
-    int sz = in.readInt();
-    Map<String, MergeEntry> out = new HashMap<>(sz * 4 / 3 + 16);
-    for (int i = 0; i < sz; i++) {
-      String k = in.readUTF();
-      int co = in.readInt();
-      out.put(k, new MergeEntry(co, readTargets(in)));
+  private static String[] readFrontCodedStrings(DataInputStream in) throws IOException {
+    int n = readVarInt(in);
+    String[] out = new String[n];
+    String prev = "";
+    for (int i = 0; i < n; i++) {
+      int shared = readVarInt(in);
+      String suffix = in.readUTF();
+      String cur = shared == 0 ? suffix : prev.substring(0, shared) + suffix;
+      out[i] = cur;
+      prev = cur;
     }
     return out;
   }
 
-  private static TargetCount[] readTargets(DataInputStream in) throws IOException {
-    int k = in.readInt();
+  private static Map<String, MergeEntry> readMergeMap(DataInputStream in, boolean v5)
+      throws IOException {
+    if (v5) {
+      String[] keys = readFrontCodedStrings(in);
+      Map<String, MergeEntry> out = new HashMap<>(keys.length * 4 / 3 + 16);
+      for (String k : keys) {
+        out.put(k, new MergeEntry(readVarInt(in), readTargets(in, true)));
+      }
+      return out;
+    }
+    int sz = in.readInt();
+    Map<String, MergeEntry> out = new HashMap<>(sz * 4 / 3 + 16);
+    for (int i = 0; i < sz; i++) {
+      out.put(in.readUTF(), new MergeEntry(in.readInt(), readTargets(in, false)));
+    }
+    return out;
+  }
+
+  private static TargetCount[] readTargets(DataInputStream in, boolean v5) throws IOException {
+    int k = v5 ? readVarInt(in) : in.readInt();
     TargetCount[] arr = new TargetCount[k];
     for (int i = 0; i < k; i++) {
-      arr[i] = new TargetCount(in.readUTF(), in.readUTF(), in.readInt());
+      String normLower = in.readUTF();
+      if (!v5) {
+        in.readUTF(); // legacy bestSurface
+      }
+      arr[i] = new TargetCount(normLower, v5 ? readVarInt(in) : in.readInt());
     }
     return arr;
   }
 
-  private static Map<String, Integer> readStrIntMap(DataInputStream in) throws IOException {
+  private static void skipLegacyStrIntMap(DataInputStream in) throws IOException {
     int sz = in.readInt();
-    Map<String, Integer> out = new HashMap<>(sz * 4 / 3 + 16);
     for (int i = 0; i < sz; i++) {
-      out.put(in.readUTF(), in.readInt());
+      in.readUTF();
+      in.readInt();
     }
-    return out;
   }
 
-  /**
-   * Restores natural Turkish casing (and stem capitalization before apostrophes) for a candidate
-   * lowercase string {@code normLower}.
-   */
+  // =========================================================================
+  // Context-Aware Deterministic Turkish Truecasing
+  // =========================================================================
+
   public String truecase(
       String normLower,
       CasingShape rawShape,
@@ -657,10 +838,7 @@ public final class NormalizationKnowledge {
     return truecase(normLower, rawShape, rawSurface, capitalizeStart, sentenceAllCaps, morphology, 0);
   }
 
-  /**
-   * Context-aware deterministic Turkish truecaser (<b>B2 Layer 1</b>: emits a single canonical
-   * surface string per candidate without duplicating lattice arcs).
-   */
+  /** Context-aware deterministic Turkish truecaser emitting one canonical surface per candidate. */
   public String truecase(
       String normLower,
       CasingShape rawShape,
@@ -672,52 +850,58 @@ public final class NormalizationKnowledge {
     if (normLower == null || normLower.isEmpty()) {
       return "";
     }
-    int sp = normLower.indexOf(' ');
-    if (sp > 0) {
-      String[] parts = normLower.split(" ");
-      int noisyFlag = casingCtx & CTX_SENT_TITLE_NOISY;
-      StringBuilder sb = new StringBuilder(normLower.length() + 2);
-      for (int i = 0; i < parts.length; i++) {
-        if (i > 0) {
-          sb.append(' ');
-        }
-        int partCtx =
-            i == 0
-                ? (casingCtx & (CTX_SENT_TITLE_NOISY | CTX_ADJ_DATE_NUM | CTX_AFTER_NUMBER))
-                : (i == parts.length - 1
-                    ? (noisyFlag | (casingCtx & CTX_BEFORE_GAZETTEER_OR_HONORIFIC))
-                    : noisyFlag);
-        if (parts.length == 2
-            && i == 0
-            && isTdkHolidayModifier(parts[0])
-            && parts[1].startsWith("günü")) {
-          partCtx |= CTX_PROMOTE_PROPER_IN_CONTEXT;
-        } else if (parts.length == 2
-            && i == 1
-            && isTdkHolidayModifier(parts[0])
-            && parts[1].startsWith("günü")) {
-          partCtx |= CTX_PROMOTE_PROPER_IN_CONTEXT;
-        }
-        sb.append(
-            truecaseSingleWord(
-                parts[i],
-                i == 0 ? rawShape : CasingShape.LOWER,
-                i == 0 ? rawSurface : parts[i],
-                i == 0 && capitalizeStart,
-                sentenceAllCaps,
-                morphology,
-                partCtx));
-      }
-      return sb.toString();
+    if (normLower.indexOf(' ') > 0) {
+      return truecaseMultiWordPhrase(
+          normLower, rawShape, rawSurface, capitalizeStart, sentenceAllCaps, morphology, casingCtx);
     }
     return truecaseSingleWord(
-        normLower,
-        rawShape,
-        rawSurface,
-        capitalizeStart,
-        sentenceAllCaps,
-        morphology,
-        casingCtx);
+        normLower, rawShape, rawSurface, capitalizeStart, sentenceAllCaps, morphology, casingCtx);
+  }
+
+  private String truecaseMultiWordPhrase(
+      String normLower,
+      CasingShape rawShape,
+      String rawSurface,
+      boolean capitalizeStart,
+      boolean sentenceAllCaps,
+      TurkishMorphology morphology,
+      int casingCtx) {
+    String[] parts = normLower.split(" ");
+    int noisyFlag = casingCtx & CTX_SENT_TITLE_NOISY;
+    boolean isTwoWordHoliday =
+        parts.length == 2
+            && TDK_HOLIDAY_MODIFIERS.contains(parts[0])
+            && parts[1].startsWith("günü");
+    StringBuilder sb = new StringBuilder(normLower.length() + 2);
+    for (int i = 0; i < parts.length; i++) {
+      if (i > 0) {
+        sb.append(' ');
+      }
+      int partCtx = multiWordPartContext(i, parts.length, casingCtx, noisyFlag, isTwoWordHoliday);
+      sb.append(
+          truecaseSingleWord(
+              parts[i],
+              i == 0 ? rawShape : CasingShape.LOWER,
+              i == 0 ? rawSurface : parts[i],
+              i == 0 && capitalizeStart,
+              sentenceAllCaps,
+              morphology,
+              partCtx));
+    }
+    return sb.toString();
+  }
+
+  private static int multiWordPartContext(
+      int index, int count, int casingCtx, int noisyFlag, boolean isTwoWordHoliday) {
+    int ctx;
+    if (index == 0) {
+      ctx = casingCtx & (CTX_SENT_TITLE_NOISY | CTX_ADJ_DATE_NUM | CTX_AFTER_NUMBER);
+    } else if (index == count - 1) {
+      ctx = noisyFlag | (casingCtx & CTX_BEFORE_GAZETTEER_OR_HONORIFIC);
+    } else {
+      ctx = noisyFlag;
+    }
+    return isTwoWordHoliday ? (ctx | CTX_PROMOTE_PROPER_IN_CONTEXT) : ctx;
   }
 
   private String truecaseSingleWord(
@@ -730,226 +914,312 @@ public final class NormalizationKnowledge {
       int casingCtx) {
     boolean noisyTitleSent = (casingCtx & CTX_SENT_TITLE_NOISY) != 0;
 
-    // 1. Canonical TDK dotted abbreviations ("DR."->"Dr.", "LTD."->"Ltd.", "VB."->"vb.") & personal initials
+    // 1. Canonical TDK dotted abbreviations & personal initials
+    String dottedOrInitial =
+        truecaseDottedOrInitialOrNull(
+            wordLower, rawShape, capitalizeStart, sentenceAllCaps, casingCtx);
+    if (dottedOrInitial != null) {
+      return dottedOrInitial;
+    }
+
+    // 2. Canonical tech tokens ("2K", "4K", "i7", "GHz", "SEO", "PHP") & "mAh" vs "Mah"
+    String canonTech = CANONICAL_TECH_TOKENS.get(wordLower);
+    if (canonTech != null) {
+      return canonTech;
+    }
+    if (wordLower.equals("mah")) {
+      return truecaseMahToken(rawShape, capitalizeStart, sentenceAllCaps, noisyTitleSent, casingCtx);
+    }
+
+    // 3. Alphanumeric hardware/spec shapes ("4070Ti", "5600X", "550W", "300Mbps")
+    if (NormV2Types.containsDigit(wordLower)) {
+      String alphaNum = truecaseAlphanumericOrNull(wordLower, rawSurface, sentenceAllCaps);
+      if (alphaNum != null) {
+        return alphaNum;
+      }
+    }
+
+    // 4. Apostrophized stems ("Türkiye'de", "TR'de", "WMAracı'nı" vs slang "entry'mde")
+    int ap = wordLower.indexOf('\'');
+    if (ap > 0) {
+      return truecaseApostrophizedWord(
+          wordLower.substring(0, ap),
+          wordLower.substring(ap),
+          rawShape,
+          rawSurface,
+          capitalizeStart,
+          sentenceAllCaps,
+          noisyTitleSent,
+          morphology);
+    }
+
+    // 5. Foreign ALL-CAPS ASCII 'I' names/brands ("DAVID" -> "David", "AIBA" -> "AIBA")
+    wordLower =
+        resolveForeignUpperAsciiI(wordLower, rawShape, rawSurface, sentenceAllCaps, morphology);
+
+    // 6. Contextual TDK promotion ("Sevgililer Günü", "Lale Hanım", "Ümit Özdağ")
+    if (!sentenceAllCaps && (casingCtx & CTX_PROMOTE_PROPER_IN_CONTEXT) != 0) {
+      return NormV2Types.trCapitalize(wordLower);
+    }
+
+    // 7. TDK Month & Day rule
+    if (TDK_MONTHS_AND_DAYS.contains(wordLower)) {
+      boolean dateOrGazCtx =
+          (casingCtx & (CTX_ADJ_DATE_NUM | CTX_BEFORE_GAZETTEER_OR_HONORIFIC)) != 0;
+      boolean explicitAuthorTitle =
+          !sentenceAllCaps && !noisyTitleSent && rawShape == CasingShape.TITLE;
+      return (capitalizeStart || dateOrGazCtx || explicitAuthorTitle)
+          ? NormV2Types.trCapitalize(wordLower)
+          : wordLower;
+    }
+
+    // 8. Clean-corpus casing lexicon & Zemberek lexicon fallback
+    CasingCounts cc = lookupCasing(wordLower);
+    String corpusCased = truecaseFromCorpusCountsOrNull(wordLower, rawShape, capitalizeStart, cc);
+    if (corpusCased != null) {
+      return corpusCased;
+    }
+    String lexiconCased = truecaseFromMorphLexiconOrNull(wordLower, cc, morphology);
+    if (lexiconCased != null) {
+      return lexiconCased;
+    }
+
+    // 9. Preserve explicit author CamelCase, mid-sentence TitleCase, or UPPER acronyms
+    String authorCased =
+        preserveAuthorCasingOrNull(
+            wordLower,
+            rawShape,
+            rawSurface,
+            capitalizeStart,
+            sentenceAllCaps,
+            noisyTitleSent,
+            casingCtx,
+            cc,
+            morphology);
+    if (authorCased != null) {
+      return authorCased;
+    }
+
+    return capitalizeStart ? NormV2Types.trCapitalize(wordLower) : wordLower;
+  }
+
+  private static String truecaseDottedOrInitialOrNull(
+      String wordLower,
+      CasingShape rawShape,
+      boolean capitalizeStart,
+      boolean sentenceAllCaps,
+      int casingCtx) {
     String dotted = CANONICAL_DOTTED_ABBR.get(wordLower);
     if (dotted != null) {
       return capitalizeStart && Character.isLowerCase(dotted.charAt(0))
           ? NormV2Types.trCapitalize(dotted)
           : dotted;
     }
-    if (wordLower.length() == 2
-        && wordLower.charAt(1) == '.'
-        && Character.isLetter(wordLower.charAt(0))) {
-      if ((casingCtx & CTX_PROMOTE_PROPER_IN_CONTEXT) != 0
-          || capitalizeStart
-          || (!sentenceAllCaps && rawShape == CasingShape.TITLE)) {
-        return NormV2Types.trUpper(wordLower);
-      }
-      return wordLower;
+    if (NormV2Types.isPersonalInitial(wordLower)) {
+      boolean upperInitial =
+          (casingCtx & CTX_PROMOTE_PROPER_IN_CONTEXT) != 0
+              || capitalizeStart
+              || (!sentenceAllCaps && rawShape == CasingShape.TITLE);
+      return upperInitial ? NormV2Types.trUpper(wordLower) : wordLower;
     }
+    return null;
+  }
 
-    // 2. Canonical tech tokens ("2k"->"2K", "4k"->"4K", "i7"->"i7", "ghz"->"GHz", "seo"->"SEO", "php"->"PHP")
-    String canonTech = CANONICAL_TECH_TOKENS.get(wordLower);
-    if (canonTech != null) {
-      return canonTech;
+  private static String truecaseMahToken(
+      CasingShape rawShape,
+      boolean capitalizeStart,
+      boolean sentenceAllCaps,
+      boolean noisyTitleSent,
+      int casingCtx) {
+    if ((casingCtx & CTX_AFTER_NUMBER) != 0) {
+      return "mAh";
     }
-    if (wordLower.equals("mah")) {
-      if ((casingCtx & CTX_AFTER_NUMBER) != 0) {
-        return "mAh";
-      }
-      if (!sentenceAllCaps
-          && !noisyTitleSent
-          && (rawShape == CasingShape.TITLE
-              || (casingCtx & CTX_BEFORE_GAZETTEER_OR_HONORIFIC) != 0)) {
-        return "Mah";
-      }
-      return capitalizeStart ? "Mah" : "mah";
-    }
-
-    // 3. Alphanumeric hardware/spec shapes ("4070Ti", "5600X", "13700HX", "550W", "3000-2450M", "10K'ya", "300Mbps")
-    if (containsDigit(wordLower)) {
-      String canonNumUnit = formatNumericTechSpecOrNull(wordLower);
-      if (canonNumUnit != null) {
-        return canonNumUnit;
-      }
-      if (!sentenceAllCaps && rawSurface != null) {
-        String rawNormAp = rawSurface.replace('’', '\'');
-        if (hasAnyUpperLetter(rawNormAp) && NormV2Types.trLower(rawNormAp).equals(wordLower)) {
-          return rawNormAp;
-        }
-        int apIdx = wordLower.indexOf('\'');
-        int rawApIdx = rawNormAp.indexOf('\'');
-        if (apIdx > 0
-            && rawApIdx == apIdx
-            && hasAnyUpperLetter(rawNormAp.substring(0, rawApIdx))
-            && NormV2Types.trLower(rawNormAp.substring(0, rawApIdx))
-                .equals(wordLower.substring(0, apIdx))) {
-          return rawNormAp.substring(0, rawApIdx) + wordLower.substring(apIdx);
-        }
-      }
-    }
-
-    // 4. Apostrophized stems ("Türkiye'de", "TR'de", "LLM'lerdeki", "SEO'ya", "WMAracı'nı" vs slang "entry'mde")
-    int ap = wordLower.indexOf('\'');
-    if (ap > 0) {
-      String stemLower = wordLower.substring(0, ap);
-      String tailLower = wordLower.substring(ap);
-      if (isDigitsOrPunctOnly(stemLower)) {
-        return stemLower + tailLower;
-      }
-      if (CANONICAL_UPPER_ACRONYM_STEMS.contains(stemLower)) {
-        return NormV2Types.trUpper(stemLower) + tailLower;
-      }
-      if (!sentenceAllCaps && rawSurface != null) {
-        String rawNormAp = rawSurface.replace('’', '\'');
-        int rawAp = rawNormAp.indexOf('\'');
-        String rawStem = rawAp > 0 ? rawNormAp.substring(0, rawAp) : rawNormAp;
-        CasingShape stemShape = NormV2Types.detectShape(rawStem);
-        if (stemShape == CasingShape.UPPER && stemLower.length() >= 2 && stemLower.length() <= 6) {
-          return NormV2Types.trUpper(stemLower) + tailLower;
-        }
-        if (stemShape == CasingShape.MIXED
-            && !noisyTitleSent
-            && NormV2Types.trLower(rawStem).equals(stemLower)
-            && !analyzeLexiconRole(stemLower, morphology).hasCommon()) {
-          return rawStem + tailLower;
-        }
-      }
-      CasingCounts stemCounts = casingLexicon.get(stemLower);
-      if (stemCounts != null
-          && stemCounts.bestMixedSurface != null
-          && stemCounts.mixed >= 4
-          && stemCounts.mixed > (stemCounts.lower + stemCounts.title)) {
-        return stemCounts.bestMixedSurface + tailLower;
-      }
-      if (stemCounts != null
-          && stemCounts.upper >= 5
-          && stemCounts.upper > (stemCounts.lower + stemCounts.title) * 2
-          && stemLower.length() >= 2
-          && stemLower.length() <= 6) {
-        return NormV2Types.trUpper(stemLower) + tailLower;
-      }
-      if (!sentenceAllCaps
-          && rawShape == CasingShape.UPPER
-          && stemLower.length() >= 2
-          && stemLower.length() <= 6) {
-        return NormV2Types.trUpper(stemLower) + tailLower;
-      }
-      if (!capitalizeStart && rawShape == CasingShape.LOWER) {
-        if (stemCounts != null
-            && stemCounts.lower >= 15
-            && stemCounts.lower
-                > (stemCounts.title + stemCounts.upper + stemCounts.apostropheStem) * 4) {
-          return stemLower + tailLower;
-        }
-        boolean rawHadApostrophe =
-            rawSurface != null
-                && (rawSurface.indexOf('\'') >= 0 || rawSurface.indexOf('’') >= 0);
-        if (rawHadApostrophe && LOWERCASE_APOSTROPHE_SLANG_STEMS.contains(stemLower)) {
-          return stemLower + tailLower;
-        }
-      }
-      return NormV2Types.trCapitalize(stemLower) + tailLower;
-    }
-
-    // 5. Foreign >5-char ALL-CAPS ASCII 'I' names/brands ("DAVID"->"David", "AIBA"->"AIBA")
-    if (!sentenceAllCaps
-        && rawShape == CasingShape.UPPER
-        && rawSurface != null
-        && rawSurface.indexOf('I') >= 0
-        && !NormV2Types.hasUpperTurkishDiacritics(rawSurface)
-        && wordLower.indexOf('ı') >= 0) {
-      CasingCounts curCc = casingLexicon.get(wordLower);
-      if ((curCc == null || curCc.total() < 3)
-          && !analyzeLexiconRole(wordLower, morphology).hasAny()) {
-        String iFolded = wordLower.replace('ı', 'i');
-        CasingCounts altCc = casingLexicon.get(iFolded);
-        if (altCc != null && altCc.total() >= 4) {
-          wordLower = iFolded;
-        }
-      }
-    }
-
-    // 6. Contextual TDK promotion ("Sevgililer Günü", "Lale Hanım", "Ümit Özdağ", "Mimar Sinan")
-    if (!sentenceAllCaps && (casingCtx & CTX_PROMOTE_PROPER_IN_CONTEXT) != 0) {
-      return NormV2Types.trCapitalize(wordLower);
-    }
-
-    // 7. TDK Month & Day rule: lowercase when raw is lowercase without adjacent date/gazetteer context
-    if (TDK_MONTHS_AND_DAYS.contains(wordLower)) {
-      boolean dateOrGazCtx =
-          (casingCtx & (CTX_ADJ_DATE_NUM | CTX_BEFORE_GAZETTEER_OR_HONORIFIC)) != 0;
-      boolean explicitAuthorTitle =
-          !sentenceAllCaps && !noisyTitleSent && rawShape == CasingShape.TITLE;
-      if (capitalizeStart || dateOrGazCtx || explicitAuthorTitle) {
-        return NormV2Types.trCapitalize(wordLower);
-      }
-      return wordLower;
-    }
-
-    // 8. Clean-corpus casing lexicon (guarded against headline Title-Case bias on common & English words)
-    CasingCounts cc = casingLexicon.get(wordLower);
-    if (cc != null) {
-      int tot = cc.total();
-      if (cc.bestMixedSurface != null
-          && cc.mixed >= 4
-          && cc.mixed > (cc.lower + cc.title + cc.upper)) {
-        return cc.bestMixedSurface;
-      }
-      if (cc.upper >= 8
-          && cc.upper > (cc.lower + cc.title) * 2
-          && wordLower.length() >= 2
-          && wordLower.length() <= 6) {
-        return NormV2Types.trUpper(wordLower);
-      }
-      if (tot >= 6 && cc.title > (cc.lower * 3) && cc.title >= 5) {
-        if (!capitalizeStart && rawShape == CasingShape.LOWER) {
-          if (!LOWERCASE_HEADLINE_BIAS_STOPWORDS.contains(wordLower)) {
-            return NormV2Types.trCapitalize(wordLower);
-          }
-        } else {
-          return NormV2Types.trCapitalize(wordLower);
-        }
-      }
-    }
-
-    // 9. Check Zemberek lexicon when unseen/rare in corpus casing table
-    if ((cc == null || (cc.total() < 5 && cc.lower < 2)) && wordLower.length() >= 2) {
-      LexiconRole role = analyzeLexiconRole(wordLower, morphology);
-      if (!role.hasCommon() && role.onlyBareAbbr() && wordLower.length() <= 5) {
-        return NormV2Types.trUpper(wordLower);
-      }
-      if (!role.hasCommon() && role.hasProperNoApostrophe()) {
-        return NormV2Types.trCapitalize(wordLower);
-      }
-    }
-
-    // 10. Preserve explicit author CamelCase / hyphenated compounds ("IPS-Level", "AtanamayanTarım", "YouTuberların")
     if (!sentenceAllCaps
         && !noisyTitleSent
-        && rawShape == CasingShape.MIXED
-        && rawSurface != null) {
-      String rawNorm = rawSurface.replace('’', '\'');
-      if (wordLower.indexOf('-') > 0 && NormV2Types.trLower(rawNorm).equals(wordLower)) {
-        return rawNorm;
+        && (rawShape == CasingShape.TITLE
+            || (casingCtx & CTX_BEFORE_GAZETTEER_OR_HONORIFIC) != 0)) {
+      return "Mah";
+    }
+    return capitalizeStart ? "Mah" : "mah";
+  }
+
+  private static String truecaseAlphanumericOrNull(
+      String wordLower, String rawSurface, boolean sentenceAllCaps) {
+    String canonNumUnit = formatNumericTechSpecOrNull(wordLower);
+    if (canonNumUnit != null) {
+      return canonNumUnit;
+    }
+    if (sentenceAllCaps || rawSurface == null) {
+      return null;
+    }
+    String rawNormAp = rawSurface.replace('’', '\'');
+    if (hasAnyUpperLetter(rawNormAp) && NormV2Types.trLower(rawNormAp).equals(wordLower)) {
+      return rawNormAp;
+    }
+    int apIdx = wordLower.indexOf('\'');
+    int rawApIdx = rawNormAp.indexOf('\'');
+    if (apIdx > 0
+        && rawApIdx == apIdx
+        && hasAnyUpperLetter(rawNormAp.substring(0, rawApIdx))
+        && NormV2Types.trLower(rawNormAp.substring(0, rawApIdx))
+            .equals(wordLower.substring(0, apIdx))) {
+      return rawNormAp.substring(0, rawApIdx) + wordLower.substring(apIdx);
+    }
+    return null;
+  }
+
+  private String truecaseApostrophizedWord(
+      String stemLower,
+      String tailLower,
+      CasingShape rawShape,
+      String rawSurface,
+      boolean capitalizeStart,
+      boolean sentenceAllCaps,
+      boolean noisyTitleSent,
+      TurkishMorphology morphology) {
+    if (NormV2Types.isDigitsOrPunctOnly(stemLower)) {
+      return stemLower + tailLower;
+    }
+    if (CANONICAL_UPPER_ACRONYM_STEMS.contains(stemLower)) {
+      return NormV2Types.trUpper(stemLower) + tailLower;
+    }
+    if (!sentenceAllCaps && rawSurface != null) {
+      String rawNormAp = rawSurface.replace('’', '\'');
+      int rawAp = rawNormAp.indexOf('\'');
+      String rawStem = rawAp > 0 ? rawNormAp.substring(0, rawAp) : rawNormAp;
+      CasingShape stemShape = NormV2Types.detectShape(rawStem);
+      if (stemShape == CasingShape.UPPER && stemLower.length() >= 2 && stemLower.length() <= 6) {
+        return NormV2Types.trUpper(stemLower) + tailLower;
       }
-      if ((cc == null || cc.lower < 5)
-          && !isShiftSlipPrefix(rawNorm)
-          && !analyzeLexiconRole(wordLower, morphology).hasCommon()) {
-        if (NormV2Types.trLower(rawNorm).equals(wordLower)) {
-          return rawNorm;
-        }
-        String rawLow = NormV2Types.trLower(rawNorm);
-        if (rawLow.length() >= 4
-            && wordLower.length() > rawLow.length()
-            && wordLower.startsWith(rawLow)) {
-          return rawNorm + wordLower.substring(rawNorm.length());
-        }
+      if (stemShape == CasingShape.MIXED
+          && !noisyTitleSent
+          && NormV2Types.trLower(rawStem).equals(stemLower)
+          && !analyzeLexiconRole(stemLower, morphology).hasCommon()) {
+        return rawStem + tailLower;
       }
     }
+    CasingCounts stemCounts = lookupCasing(stemLower);
+    if (stemCounts != null
+        && stemCounts.bestMixedSurface != null
+        && stemCounts.mixed >= 4
+        && stemCounts.mixed > (stemCounts.lower + stemCounts.title)) {
+      return stemCounts.bestMixedSurface + tailLower;
+    }
+    if (stemCounts != null
+        && stemCounts.upper >= 5
+        && stemCounts.upper > (stemCounts.lower + stemCounts.title) * 2
+        && stemLower.length() >= 2
+        && stemLower.length() <= 6) {
+      return NormV2Types.trUpper(stemLower) + tailLower;
+    }
+    if (!sentenceAllCaps
+        && rawShape == CasingShape.UPPER
+        && stemLower.length() >= 2
+        && stemLower.length() <= 6) {
+      return NormV2Types.trUpper(stemLower) + tailLower;
+    }
+    if (!capitalizeStart && rawShape == CasingShape.LOWER) {
+      if (stemCounts != null
+          && stemCounts.lower >= 15
+          && stemCounts.lower
+              > (stemCounts.title + stemCounts.upper + stemCounts.apostropheStem) * 4) {
+        return stemLower + tailLower;
+      }
+      boolean rawHadApostrophe =
+          rawSurface != null && (rawSurface.indexOf('\'') >= 0 || rawSurface.indexOf('’') >= 0);
+      if (rawHadApostrophe && LOWERCASE_APOSTROPHE_SLANG_STEMS.contains(stemLower)) {
+        return stemLower + tailLower;
+      }
+    }
+    return NormV2Types.trCapitalize(stemLower) + tailLower;
+  }
 
-    // 11. Preserve explicit mid-sentence TitleCase on OOV names/brands & Gazetteer modifiers (suppressed in noisy Every-Word-Title sentences)
-    if (!sentenceAllCaps && rawShape == CasingShape.TITLE && !capitalizeStart) {
+  private String resolveForeignUpperAsciiI(
+      String wordLower,
+      CasingShape rawShape,
+      String rawSurface,
+      boolean sentenceAllCaps,
+      TurkishMorphology morphology) {
+    if (sentenceAllCaps
+        || rawShape != CasingShape.UPPER
+        || rawSurface == null
+        || rawSurface.indexOf('I') < 0
+        || NormV2Types.hasUpperTurkishDiacritics(rawSurface)
+        || wordLower.indexOf('ı') < 0) {
+      return wordLower;
+    }
+    CasingCounts curCc = lookupCasing(wordLower);
+    if ((curCc == null || curCc.total() < 3) && !analyzeLexiconRole(wordLower, morphology).hasAny()) {
+      String iFolded = wordLower.replace('ı', 'i');
+      CasingCounts altCc = lookupCasing(iFolded);
+      if (altCc != null && altCc.total() >= 4) {
+        return iFolded;
+      }
+    }
+    return wordLower;
+  }
+
+  private static String truecaseFromCorpusCountsOrNull(
+      String wordLower, CasingShape rawShape, boolean capitalizeStart, CasingCounts cc) {
+    if (cc == null) {
+      return null;
+    }
+    if (cc.bestMixedSurface != null
+        && cc.mixed >= 4
+        && cc.mixed > (cc.lower + cc.title + cc.upper)) {
+      return cc.bestMixedSurface;
+    }
+    if (cc.upper >= 8
+        && cc.upper > (cc.lower + cc.title) * 2
+        && wordLower.length() >= 2
+        && wordLower.length() <= 6) {
+      return NormV2Types.trUpper(wordLower);
+    }
+    if (cc.total() >= 6 && cc.title > (cc.lower * 3) && cc.title >= 5) {
+      if (capitalizeStart
+          || rawShape != CasingShape.LOWER
+          || !LOWERCASE_HEADLINE_BIAS_STOPWORDS.contains(wordLower)) {
+        return NormV2Types.trCapitalize(wordLower);
+      }
+    }
+    return null;
+  }
+
+  private static String truecaseFromMorphLexiconOrNull(
+      String wordLower, CasingCounts cc, TurkishMorphology morphology) {
+    if ((cc != null && (cc.total() >= 5 || cc.lower >= 2)) || wordLower.length() < 2) {
+      return null;
+    }
+    LexiconRole role = analyzeLexiconRole(wordLower, morphology);
+    if (!role.hasCommon() && role.onlyBareAbbr() && wordLower.length() <= 5) {
+      return NormV2Types.trUpper(wordLower);
+    }
+    if (!role.hasCommon() && role.hasProperNoApostrophe()) {
+      return NormV2Types.trCapitalize(wordLower);
+    }
+    return null;
+  }
+
+  private static String preserveAuthorCasingOrNull(
+      String wordLower,
+      CasingShape rawShape,
+      String rawSurface,
+      boolean capitalizeStart,
+      boolean sentenceAllCaps,
+      boolean noisyTitleSent,
+      int casingCtx,
+      CasingCounts cc,
+      TurkishMorphology morphology) {
+    if (sentenceAllCaps) {
+      return null;
+    }
+    if (!noisyTitleSent && rawShape == CasingShape.MIXED && rawSurface != null) {
+      String mixed = preserveCamelOrHyphenCaseOrNull(wordLower, rawSurface, cc, morphology);
+      if (mixed != null) {
+        return mixed;
+      }
+    }
+    if (rawShape == CasingShape.TITLE && !capitalizeStart) {
       if (!noisyTitleSent) {
         if ((casingCtx & CTX_BEFORE_GAZETTEER_OR_HONORIFIC) != 0
             || cc == null
@@ -962,9 +1232,7 @@ public final class NormalizationKnowledge {
         return NormV2Types.trCapitalize(wordLower);
       }
     }
-
-    // 12. Preserve explicit mid-sentence UPPER acronyms & tech brands ("ATT", "RYZEN", "HÜDA", "AIBA")
-    if (!sentenceAllCaps && rawShape == CasingShape.UPPER && wordLower.length() >= 2) {
+    if (rawShape == CasingShape.UPPER && wordLower.length() >= 2) {
       if (wordLower.length() <= 5 && (cc == null || cc.lower < 15)) {
         return NormV2Types.trUpper(wordLower);
       }
@@ -975,21 +1243,35 @@ public final class NormalizationKnowledge {
         return NormV2Types.trUpper(wordLower);
       }
     }
+    return null;
+  }
 
-    if (capitalizeStart) {
-      return NormV2Types.trCapitalize(wordLower);
+  private static String preserveCamelOrHyphenCaseOrNull(
+      String wordLower, String rawSurface, CasingCounts cc, TurkishMorphology morphology) {
+    String rawNorm = rawSurface.replace('’', '\'');
+    if (wordLower.indexOf('-') > 0 && NormV2Types.trLower(rawNorm).equals(wordLower)) {
+      return rawNorm;
     }
-    return wordLower;
+    if ((cc == null || cc.lower < 5)
+        && !isShiftSlipPrefix(rawNorm)
+        && !analyzeLexiconRole(wordLower, morphology).hasCommon()) {
+      String rawLow = NormV2Types.trLower(rawNorm);
+      if (rawLow.equals(wordLower)) {
+        return rawNorm;
+      }
+      if (rawLow.length() >= 4
+          && wordLower.length() > rawLow.length()
+          && wordLower.startsWith(rawLow)) {
+        return rawNorm + wordLower.substring(rawNorm.length());
+      }
+    }
+    return null;
   }
 
   private record LexiconRole(
       boolean hasCommon, boolean onlyBareAbbr, boolean hasProperNoApostrophe, boolean hasAnyProper) {
-    boolean hasProperOrAbbr() {
-      return onlyBareAbbr || hasProperNoApostrophe || hasAnyProper;
-    }
-
     boolean hasAny() {
-      return hasCommon || hasProperOrAbbr();
+      return hasCommon || hasAnyProper;
     }
   }
 
@@ -1002,21 +1284,20 @@ public final class NormalizationKnowledge {
     boolean anyProper = false;
     boolean hasCommon = false;
     for (SingleAnalysis a : morphology.analyze(wordLower)) {
-      if (a.isUnknown() || a.isRuntime()) {
+      if (!a.isKnownLexical()) {
         continue;
       }
-      SecondaryPos sp = a.getDictionaryItem().secondaryPos;
-      if (sp == SecondaryPos.Abbreviation) {
+      var item = a.getDictionaryItem();
+      if (item.isAbbreviation()) {
         anyProper = true;
-        if (a.getEnding().isEmpty()) {
+        if (!a.hasEnding()) {
           onlyBareAbbr = true;
         }
-      } else if (sp == SecondaryPos.ProperNoun) {
+      } else if (item.isProperNoun()) {
         anyProper = true;
-        if (a.getEnding().isEmpty()) {
-          properNoAp = true;
-        } else if (!SpanCandidateGenerator.properNounTakesApostropheTDK(a)
-            && !a.getMorphemes().contains(TurkishMorphotactics.a3pl)) {
+        if (!a.hasEnding()
+            || (!LatticeMorphologySupport.properNounTakesApostropheTDK(a)
+                && !a.getMorphemes().contains(TurkishMorphotactics.a3pl))) {
           properNoAp = true;
         }
       } else {
@@ -1024,14 +1305,6 @@ public final class NormalizationKnowledge {
       }
     }
     return new LexiconRole(hasCommon, onlyBareAbbr, properNoAp, anyProper);
-  }
-
-  private static boolean isTdkHolidayModifier(String w) {
-    return w.equals("sevgililer")
-        || w.equals("anneler")
-        || w.equals("babalar")
-        || w.equals("öğretmenler")
-        || w.equals("kadınlar");
   }
 
   private static boolean hasAnyUpperLetter(String s) {
@@ -1068,8 +1341,7 @@ public final class NormalizationKnowledge {
       return null;
     }
     String digits = wordLower.substring(0, dEnd);
-    String unit = wordLower.substring(dEnd);
-    return switch (unit) {
+    return switch (wordLower.substring(dEnd)) {
       case "ghz" -> digits + "GHz";
       case "mhz" -> digits + "MHz";
       case "khz" -> digits + "kHz";
@@ -1083,7 +1355,7 @@ public final class NormalizationKnowledge {
   }
 
   public boolean isKnownProperOrAcronymStem(String stemLower) {
-    CasingCounts cc = casingLexicon.get(stemLower);
+    CasingCounts cc = lookupCasing(stemLower);
     if (cc == null || stemLower.length() < 2) {
       return false;
     }
@@ -1095,44 +1367,19 @@ public final class NormalizationKnowledge {
   }
 
   public boolean isKnownAcronymStem(String stemLower) {
-    CasingCounts cc = casingLexicon.get(stemLower);
-    if (cc == null || stemLower.length() < 2 || stemLower.length() > 6) {
-      return false;
-    }
-    return cc.upper >= 6 && cc.upper > (cc.lower + cc.title) * 2;
+    CasingCounts cc = lookupCasing(stemLower);
+    return cc != null
+        && stemLower.length() >= 2
+        && stemLower.length() <= 6
+        && cc.upper >= 6
+        && cc.upper > (cc.lower + cc.title) * 2;
   }
 
   public boolean isKnownBrandMixedCase(String wordLower) {
-    CasingCounts cc = casingLexicon.get(wordLower);
+    CasingCounts cc = lookupCasing(wordLower);
     return cc != null
         && cc.bestMixedSurface != null
         && cc.mixed >= 3
         && cc.mixed > (cc.lower + cc.title);
-  }
-
-  public long estimatedBytes() {
-    long bytes = cleanLm.estimatedBytes() + charPhonotactics.estimatedBytes();
-    bytes += (parallel1ToN.size() + parallel2To1.size() + parallel3To1.size()) * 96L;
-    bytes += casingLexicon.size() * 64L;
-    bytes += (cleanOpenBigrams.size() + cleanClosedWords.size()) * 48L;
-    return bytes;
-  }
-
-  private static boolean containsDigit(String s) {
-    for (int i = 0; i < s.length(); i++) {
-      if (Character.isDigit(s.charAt(i))) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static boolean isDigitsOrPunctOnly(String s) {
-    for (int i = 0; i < s.length(); i++) {
-      if (Character.isLetter(s.charAt(i))) {
-        return false;
-      }
-    }
-    return !s.isEmpty();
   }
 }

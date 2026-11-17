@@ -78,24 +78,20 @@
     "î": "i", "Î": "I",
     "û": "u", "Û": "U"
   };
+  const ASCII_FOLD_RE = /[çÇğĞıİöÖşŞüÜâÂîÎûÛ]/g;
 
   const CIRCUMFLEX_SET = new Set(["â", "Â", "î", "Î", "û", "Û"]);
   const TR_PIN_SET = new Set(["ç", "Ç", "ğ", "Ğ", "ı", "İ", "ö", "Ö", "ş", "Ş", "ü", "Ü", "â", "Â", "î", "Î", "û", "Û"]);
 
   const state = {
-    activeTab: "normalization",
-    engineMetaById: {},
     deascMetaById: {},
     lastResponse: null,
     lastDeascResponse: null,
     selectedLineIdx: 0,
     selectedTokenIdx: null,
-    selectedDeascTokenIdx: null,
-    normAbort: null,
-    deascAbort: null,
-    morphAbort: null,
-    tokAbort: null
+    selectedDeascTokenIdx: null
   };
+  const inflight = {};
 
   // Shared / Topbar DOM
   const serverStatusPill = document.getElementById("serverStatusPill");
@@ -104,7 +100,6 @@
   // Normalization DOM
   const engineSelect = document.getElementById("engineSelect");
   const presetButtons = document.getElementById("presetButtons");
-
   const normInput = document.getElementById("normInput");
   const normOutput = document.getElementById("normOutput");
   const inputCounter = document.getElementById("inputCounter");
@@ -115,23 +110,17 @@
   const clearInputBtn = document.getElementById("clearInputBtn");
   const copyOutputBtn = document.getElementById("copyOutputBtn");
   const sendToMorphBtn = document.getElementById("sendToMorphBtn");
-
   const comparisonPanel = document.getElementById("comparisonPanel");
   const comparisonBody = document.getElementById("comparisonBody");
   const inspectorPanel = document.getElementById("inspectorPanel");
   const latticeStrip = document.getElementById("latticeStrip");
-  const gateDetailBody = document.getElementById("gateDetailBody");
-  const rankDetailBody = document.getElementById("rankDetailBody");
+  const signalDetailBody = document.getElementById("signalDetailBody");
+  const arcDetailBody = document.getElementById("arcDetailBody");
 
   // Deasciifiers DOM
   const deascEngineSelect = document.getElementById("deascEngineSelect");
-  const deascStatRam = document.getElementById("deascStatRam");
-  const deascStatSent = document.getElementById("deascStatSent");
-  const deascStatWord = document.getElementById("deascStatWord");
-  const deascStatPin = document.getElementById("deascStatPin");
   const deascModeNote = document.getElementById("deascModeNote");
   const deascPresetButtons = document.getElementById("deascPresetButtons");
-
   const deascInput = document.getElementById("deascInput");
   const deascOutput = document.getElementById("deascOutput");
   const deascInputCounter = document.getElementById("deascInputCounter");
@@ -145,7 +134,6 @@
   const copyDeascBtn = document.getElementById("copyDeascBtn");
   const deascToNormBtn = document.getElementById("deascToNormBtn");
   const deascToMorphBtn = document.getElementById("deascToMorphBtn");
-
   const deascComparisonPanel = document.getElementById("deascComparisonPanel");
   const deascComparisonBody = document.getElementById("deascComparisonBody");
   const deascDisagreeBadge = document.getElementById("deascDisagreeBadge");
@@ -159,7 +147,6 @@
   const morphInput = document.getElementById("morphInput");
   const morphResults = document.getElementById("morphResults");
   const morphLatencyBadge = document.getElementById("morphLatencyBadge");
-
   const tokInput = document.getElementById("tokInput");
   const tokSentences = document.getElementById("tokSentences");
   const tokResults = document.getElementById("tokResults");
@@ -176,11 +163,69 @@
     localStorage.setItem("zemberek_demo_theme", cur);
   });
 
+  async function postJsonWithAbort(key, url, payload) {
+    if (inflight[key]) {
+      inflight[key].abort();
+    }
+    const ctrl = new AbortController();
+    inflight[key] = ctrl;
+    try {
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: ctrl.signal
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      return await resp.json();
+    } catch (err) {
+      if (err.name === "AbortError") return null;
+      serverStatusPill.textContent = "Request error";
+      return null;
+    }
+  }
+
+  function initPresets(presets, container, inputEl, onSelect) {
+    presets.forEach((p, idx) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "preset-chip";
+      btn.textContent = p.label;
+      btn.addEventListener("click", () => {
+        inputEl.value = p.text;
+        onSelect();
+        inputEl.focus();
+      });
+      container.appendChild(btn);
+      if (idx === 0) {
+        inputEl.value = p.text;
+      }
+    });
+  }
+
+  function bindCopyButton(btn, getText) {
+    btn.addEventListener("click", async () => {
+      const outText = getText();
+      if (!outText) return;
+      await navigator.clipboard.writeText(outText);
+      const orig = btn.textContent;
+      btn.textContent = "Copied!";
+      setTimeout(() => {
+        btn.textContent = orig;
+      }, 1100);
+    });
+  }
+
+  function openInMorphology(text) {
+    if (text) {
+      morphInput.value = text;
+    }
+    switchTab("morphology", true);
+  }
+
   // Module Tab Switching & URL Sync
   document.querySelectorAll(".tab-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      switchTab(btn.dataset.tab, true);
-    });
+    btn.addEventListener("click", () => switchTab(btn.dataset.tab, true));
   });
 
   function resolveInitialTab() {
@@ -194,7 +239,6 @@
   }
 
   function switchTab(tabName, updateUrl = false) {
-    state.activeTab = tabName;
     document.querySelectorAll(".tab-btn").forEach((b) => {
       const active = b.dataset.tab === tabName;
       b.classList.toggle("active", active);
@@ -204,54 +248,22 @@
       p.classList.toggle("active", p.id === `tab-${tabName}`);
     });
     if (updateUrl && window.history && window.history.replaceState) {
-      const targetPath = tabName === "normalization" ? "/" : `/${tabName}`;
-      window.history.replaceState(null, "", targetPath);
+      window.history.replaceState(null, "", tabName === "normalization" ? "/" : `/${tabName}`);
     }
-    if (tabName === "normalization") {
-      runNormalize();
-    } else if (tabName === "deasciifiers") {
-      runDeasciify();
-    } else if (tabName === "morphology") {
-      runMorphology();
-    } else if (tabName === "tokenization") {
-      runTokenize();
-    }
+    if (tabName === "normalization") runNormalize();
+    else if (tabName === "deasciifiers") runDeasciify();
+    else if (tabName === "morphology") runMorphology();
+    else if (tabName === "tokenization") runTokenize();
   }
 
-  // Normalization Preset Buttons
-  PRESETS.forEach((p, idx) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "preset-chip";
-    btn.textContent = p.label;
-    btn.addEventListener("click", () => {
-      normInput.value = p.text;
-      state.selectedTokenIdx = null;
-      runNormalize();
-      normInput.focus();
-    });
-    presetButtons.appendChild(btn);
-    if (idx === 0) {
-      normInput.value = p.text;
-    }
+  initPresets(PRESETS, presetButtons, normInput, () => {
+    state.selectedTokenIdx = null;
+    runNormalize();
   });
 
-  // Deasciifiers Preset Buttons
-  DEASC_PRESETS.forEach((p, idx) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "preset-chip";
-    btn.textContent = p.label;
-    btn.addEventListener("click", () => {
-      deascInput.value = p.text;
-      state.selectedDeascTokenIdx = null;
-      runDeasciify();
-      deascInput.focus();
-    });
-    deascPresetButtons.appendChild(btn);
-    if (idx === 0) {
-      deascInput.value = p.text;
-    }
+  initPresets(DEASC_PRESETS, deascPresetButtons, deascInput, () => {
+    state.selectedDeascTokenIdx = null;
+    runDeasciify();
   });
 
   // Load Server Info
@@ -260,9 +272,10 @@
       const r = await fetch("/api/info");
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const info = await r.json();
-      (info.engines || []).forEach((e) => {
-        state.engineMetaById[e.id] = e;
-      });
+      if (!info.hasZemberekHead) {
+        const headOpt = engineSelect.querySelector('option[value="zemberek_head"]');
+        if (headOpt) headOpt.remove();
+      }
       (info.deasciifiers || []).forEach((d) => {
         state.deascMetaById[d.id] = d;
       });
@@ -276,11 +289,7 @@
   function updateDeascStatsBar() {
     const meta = state.deascMetaById[deascEngineSelect.value];
     if (!meta) return;
-    deascStatRam.textContent = meta.ramLabel;
-    deascStatSent.textContent = meta.sentAccLabel;
-    deascStatWord.textContent = meta.wordAccLabel;
-    deascStatPin.textContent = meta.pinSafetyLabel;
-    deascModeNote.textContent = meta.modeNote;
+    deascModeNote.textContent = meta.description;
   }
 
   // ==================== TAB 1: NORMALIZATION ====================
@@ -295,43 +304,25 @@
       editCountBadge.textContent = "0 edits";
       comparisonPanel.classList.add("hidden");
       latticeStrip.innerHTML = `<span class="io-meta">Type a Turkish sentence above to inspect its candidate lattice.</span>`;
-      gateDetailBody.innerHTML = `<span class="io-meta">No token selected.</span>`;
-      rankDetailBody.innerHTML = `<span class="io-meta">No token selected.</span>`;
+      signalDetailBody.innerHTML = `<span class="io-meta">No token selected.</span>`;
+      arcDetailBody.innerHTML = `<span class="io-meta">No token selected.</span>`;
       return;
     }
 
-    if (state.normAbort) {
-      state.normAbort.abort();
-    }
-    const ctrl = new AbortController();
-    state.normAbort = ctrl;
-
-    try {
-      const resp = await fetch("/api/normalize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text,
-          engine: engineSelect.value,
-          inspect: true,
-          compareAll: compareAllToggle.checked
-        }),
-        signal: ctrl.signal
-      });
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const data = await resp.json();
-      state.lastResponse = data;
-      renderNormalizeResult(data);
-    } catch (err) {
-      if (err.name === "AbortError") return;
-      serverStatusPill.textContent = "Request error";
-    }
+    const data = await postJsonWithAbort("norm", "/api/normalize", {
+      text,
+      engine: engineSelect.value,
+      inspect: true,
+      compareAll: compareAllToggle.checked
+    });
+    if (!data) return;
+    state.lastResponse = data;
+    renderNormalizeResult(data);
   }
 
   function renderNormalizeResult(data) {
     normOutput.classList.remove("empty-placeholder");
-    const charLen = normInput.value.length;
-    inputCounter.textContent = `${charLen} chars · ${data.totalTokens} tokens`;
+    inputCounter.textContent = `${normInput.value.length} chars · ${data.totalTokens} tokens`;
     latencyBadge.textContent = `${data.latencyMs.toFixed(2)} ms`;
     editCountBadge.textContent = `${data.totalEditedSpans} ${data.totalEditedSpans === 1 ? "edit" : "edits"}`;
     serverStatusPill.textContent = `Live · ${data.latencyMs.toFixed(2)} ms`;
@@ -340,8 +331,7 @@
       normOutput.textContent = data.normalizedText;
     } else {
       normOutput.innerHTML = "";
-      const lines = data.lines || [];
-      lines.forEach((lt, lIdx) => {
+      (data.lines || []).forEach((lt, lIdx) => {
         if (lIdx > 0) {
           normOutput.appendChild(document.createTextNode("\n"));
         }
@@ -373,17 +363,17 @@
 
     if (compareAllToggle.checked && data.comparisons && data.comparisons.length > 0) {
       comparisonPanel.classList.remove("hidden");
-      comparisonBody.innerHTML = "";
-      data.comparisons.forEach((c) => {
-        const row = document.createElement("div");
-        row.className = "comp-row";
-        row.innerHTML = `
-          <div class="comp-engine">${escapeHtml(c.label)} <span class="comp-size">(${escapeHtml(c.sizeLabel)})</span></div>
-          <div class="comp-text">${escapeHtml(c.normalizedText)}</div>
-          <div class="comp-lat">${c.latencyMs.toFixed(2)} ms</div>
-        `;
-        comparisonBody.appendChild(row);
-      });
+      comparisonBody.innerHTML = data.comparisons
+        .map(
+          (c) => `
+            <div class="comp-row">
+              <div class="comp-engine">${escapeHtml(c.label)}</div>
+              <div class="comp-text">${escapeHtml(c.normalizedText)}</div>
+              <div class="comp-lat">${c.latencyMs.toFixed(2)} ms</div>
+            </div>
+          `
+        )
+        .join("");
     } else {
       comparisonPanel.classList.add("hidden");
     }
@@ -394,8 +384,8 @@
   function renderInspector(data) {
     if (engineSelect.value === "zemberek_head") {
       latticeStrip.innerHTML = `<span class="io-meta">Select Span-Lattice Perceptron (v2.4) above to inspect the Multi-Span Candidate Lattice and Semi-Markov Viterbi scores.</span>`;
-      gateDetailBody.innerHTML = `<span class="io-meta">Not applicable to Zemberek HEAD baseline.</span>`;
-      rankDetailBody.innerHTML = `<span class="io-meta">Not applicable to Zemberek HEAD baseline.</span>`;
+      signalDetailBody.innerHTML = `<span class="io-meta">Not applicable to Zemberek HEAD baseline.</span>`;
+      arcDetailBody.innerHTML = `<span class="io-meta">Not applicable to Zemberek HEAD baseline.</span>`;
       return;
     }
 
@@ -405,7 +395,8 @@
       return;
     }
 
-    let activeLine = nonEmptyLines.find((l) => l.lineIndex === state.selectedLineIdx) || nonEmptyLines[0];
+    const activeLine =
+      nonEmptyLines.find((l) => l.lineIndex === state.selectedLineIdx) || nonEmptyLines[0];
     state.selectedLineIdx = activeLine.lineIndex;
 
     const spans = activeLine.decodedSpans || [];
@@ -422,17 +413,17 @@
       (lineObj.decodedSpans || []).forEach((sp) => {
         const chip = document.createElement("button");
         chip.type = "button";
-        const isSel = lineObj.lineIndex === state.selectedLineIdx && sp.startIdx === state.selectedTokenIdx;
+        const isSel =
+          lineObj.lineIndex === state.selectedLineIdx && sp.startIdx === state.selectedTokenIdx;
         chip.className = `span-chip kind-${sp.changeKind}${isSel ? " selected" : ""}`;
 
         const topHtml = sp.changed
           ? `<span class="span-chip-raw">${escapeHtml(sp.rawSurface)}</span><span>${escapeHtml(sp.normSurface)}</span>`
           : `<span>${escapeHtml(sp.normSurface)}</span>`;
 
-        const spanRange = sp.endIdx - sp.startIdx > 1 ? `[${sp.startIdx}..${sp.endIdx}) merge` : `[${sp.startIdx}]`;
-        const modeTag = sp.gateSkipped
-          ? `Immutable`
-          : `P=${(sp.winningProb * 100).toFixed(0)}%`;
+        const spanRange =
+          sp.endIdx - sp.startIdx > 1 ? `[${sp.startIdx}..${sp.endIdx}) merge` : `[${sp.startIdx}]`;
+        const modeTag = sp.immutable ? "Immutable" : `P=${(sp.winningProb * 100).toFixed(0)}%`;
 
         chip.innerHTML = `
           <div class="span-chip-top">${topHtml}</div>
@@ -450,18 +441,16 @@
     const slot = slots.find((s) => s.tokenIdx === state.selectedTokenIdx) || slots[0];
     if (!slot) return;
 
-    renderGateCard(slot);
-    renderRankCard(slot);
+    renderSignalCard(slot);
+    renderArcCard(slot);
   }
 
-  function renderGateCard(slot) {
-    const pct = Math.min(100, Math.max(0, slot.gateProb * 100));
-    const thrPct = (slot.gateThreshold * 100).toFixed(1);
-    const sig = slot.gateSignals;
+  function renderSignalCard(slot) {
+    const pct = Math.min(100, Math.max(0, slot.editProb * 100));
+    const sig = slot.signals;
 
-    let signalsHtml = "";
-    if (sig) {
-      signalsHtml = `
+    const signalsHtml = sig
+      ? `
         <div class="signal-grid">
           <div class="signal-item"><span>Length</span><strong>${sig.wordLen}</strong></div>
           <div class="signal-item"><span>Strict Morph</span><strong>${sig.strictMorph ? "Yes" : "No"}</strong></div>
@@ -472,32 +461,32 @@
           <div class="signal-item"><span>Parallel Keep</span><strong>${(sig.parallelKeepProb * 100).toFixed(0)}%</strong></div>
           <div class="signal-item"><span>Char Phono</span><strong>${sig.charPhonotactics.toFixed(2)}</strong></div>
         </div>
-      `;
-    }
+      `
+      : "";
 
-    gateDetailBody.innerHTML = `
+    signalDetailBody.innerHTML = `
       <div class="gate-meter-row">
         <span>Token <code>${escapeHtml(slot.rawSurface)}</code> P(needs_edit)</span>
         <span class="gate-prob-big">${pct.toFixed(1)}%</span>
       </div>
-      <div class="gate-bar-track" title="Cutoff threshold: ${thrPct}%">
+      <div class="gate-bar-track">
         <div class="gate-bar-fill" style="width: ${Math.max(pct, 1.2)}%"></div>
       </div>
-      <div class="gate-note">${escapeHtml(slot.gateNote || "")} (edit log-odds: <code>${slot.gateLogit.toFixed(2)}</code>)</div>
+      <div class="gate-note">${escapeHtml(slot.note || "")} (edit log-odds: <code>${slot.editLogOdds.toFixed(2)}</code>)</div>
       ${signalsHtml}
     `;
   }
 
-  function renderRankCard(slot) {
+  function renderArcCard(slot) {
     const cands = slot.candidates || [];
     if (cands.length === 0) {
-      rankDetailBody.innerHTML = `<span class="io-meta">No candidate arcs at this position.</span>`;
+      arcDetailBody.innerHTML = `<span class="io-meta">No candidate arcs at this position.</span>`;
       return;
     }
 
     const rowsHtml = cands
       .map((c) => {
-        const pct = (c.memmProb * 100).toFixed(1);
+        const pct = (c.softmaxProb * 100).toFixed(1);
         const srcHtml = (c.sources || [])
           .map((s) => `<span class="src-badge">${escapeHtml(s)}</span>`)
           .join("");
@@ -508,11 +497,11 @@
             <td class="mono">[${c.startIdx},${c.endIdx}) ${escapeHtml(c.spanKind)}</td>
             <td class="prob-cell">
               <div class="prob-bar-wrap">
-                <div class="prob-mini-bar"><div class="prob-mini-fill" style="width:${Math.max(2, c.memmProb * 100)}%"></div></div>
+                <div class="prob-mini-bar"><div class="prob-mini-fill" style="width:${Math.max(2, c.softmaxProb * 100)}%"></div></div>
                 <span>${pct}%</span>
               </div>
             </td>
-            <td class="mono">${c.logit.toFixed(2)}</td>
+            <td class="mono">${c.arcScore.toFixed(2)}</td>
             <td class="mono">${formatSigned(c.cleanSpanLlr)}</td>
             <td class="mono">${formatSigned(c.cliticSkipLlr)}</td>
             <td class="mono">${c.editCost.toFixed(2)}</td>
@@ -522,7 +511,7 @@
       })
       .join("");
 
-    rankDetailBody.innerHTML = `
+    arcDetailBody.innerHTML = `
       <div class="cand-table-wrap">
         <table class="cand-table">
           <thead>
@@ -561,37 +550,33 @@
       return;
     }
 
-    if (state.deascAbort) {
-      state.deascAbort.abort();
-    }
-    const ctrl = new AbortController();
-    state.deascAbort = ctrl;
+    const data = await postJsonWithAbort("deasc", "/api/deasciify", {
+      text,
+      engine: deascEngineSelect.value,
+      compareAll: deascCompareToggle.checked
+    });
+    if (!data) return;
+    state.lastDeascResponse = data;
+    renderDeasciifyResult(data);
+  }
 
-    try {
-      const resp = await fetch("/api/deasciify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text,
-          engine: deascEngineSelect.value,
-          compareAll: deascCompareToggle.checked
-        }),
-        signal: ctrl.signal
-      });
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const data = await resp.json();
-      state.lastDeascResponse = data;
-      renderDeasciifyResult(data);
-    } catch (err) {
-      if (err.name === "AbortError") return;
-      serverStatusPill.textContent = "Request error";
+  function classifyCharDiff(r, o, sentenceHasOtherTr) {
+    if (r === o) return "same";
+    if (TR_PIN_SET.has(r) && !TR_PIN_SET.has(o) && !(r === "ı" && o === "i" && !sentenceHasOtherTr)) {
+      return "stripped";
     }
+    if (CIRCUMFLEX_SET.has(o) && !CIRCUMFLEX_SET.has(r)) {
+      return "circumflex";
+    }
+    return "diacritic";
   }
 
   function renderDeasciifyResult(data) {
     deascOutput.classList.remove("empty-placeholder");
     const rawText = data.inputText || "";
     const outText = data.deasciifiedText || "";
+    const sentenceHasOtherTr = hasNonDotlessTr(rawText);
+
     deascInputCounter.textContent = `${rawText.length} chars · ${data.totalTokens} tokens`;
     deascLatencyBadge.textContent = `${data.latencyMs.toFixed(2)} ms`;
     deascChangesBadge.textContent = `${data.changedWords} ${data.changedWords === 1 ? "word" : "words"} · ${data.changedChars} ${data.changedChars === 1 ? "char" : "chars"}`;
@@ -604,7 +589,6 @@
     }
     serverStatusPill.textContent = `Live · ${data.latencyMs.toFixed(2)} ms`;
 
-    // 1. Render Deasciified Output (with optional 1:1 character highlights)
     const tokens = data.tokens || [];
     if (!deascHighlightToggle.checked || !data.sameLength || tokens.length === 0) {
       deascOutput.textContent = outText;
@@ -617,16 +601,12 @@
         }
         const span = document.createElement("span");
         const classes = ["deasc-word"];
-        if (tok.changed) {
-          classes.push("changed", `kind-${tok.changeKind}`);
-        }
-        if (tok.engineDisagreement) {
-          classes.push("disagree");
-        }
+        if (tok.changed) classes.push("changed", `kind-${tok.changeKind}`);
+        if (tok.engineDisagreement) classes.push("disagree");
         span.className = classes.join(" ");
 
         if (tok.changed && tok.rawSurface.length === tok.restoredSurface.length) {
-          span.innerHTML = buildCharHighlightedHtml(tok.rawSurface, tok.restoredSurface, rawText);
+          span.innerHTML = buildCharHighlightedHtml(tok.rawSurface, tok.restoredSurface, sentenceHasOtherTr);
         } else {
           span.textContent = tok.restoredSurface;
         }
@@ -636,7 +616,7 @@
           span.title = `${tok.rawSurface} → ${tok.restoredSurface}${diffHint}`;
           span.addEventListener("click", () => {
             state.selectedDeascTokenIdx = tok.index;
-            renderDeascInspector(data);
+            renderDeascInspector(data, sentenceHasOtherTr);
             deascInspectorPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
           });
         }
@@ -648,7 +628,6 @@
       }
     }
 
-    // 2. Render Side-by-Side 5-Deasciifiers Comparison Card
     if (deascCompareToggle.checked && data.comparisons && data.comparisons.length > 0) {
       deascComparisonPanel.classList.remove("hidden");
       deascDisagreeBadge.textContent = `${data.disagreementCount} ${data.disagreementCount === 1 ? "word disagreement" : "word disagreements"}`;
@@ -658,7 +637,7 @@
         const isCurrent = comp.id === data.engine;
         const row = document.createElement("div");
         row.className = `deasc-comp-row${isCurrent ? " active-engine" : ""}`;
-        row.title = isCurrent ? "Currently active deasciifier" : `Click to switch primary output to ${comp.shortLabel}`;
+        row.title = isCurrent ? "Currently active deasciifier" : `Click to switch primary output to ${comp.name}`;
 
         const diffRenderedText = renderComparisonDiffHtml(comp.outputText, outText, tokens);
         const circNote = comp.circumflexCount > 0 ? ` · ${comp.circumflexCount}^` : "";
@@ -667,8 +646,7 @@
 
         row.innerHTML = `
           <div class="comp-engine">
-            ${escapeHtml(comp.shortLabel)}${activeBadge}
-            <div class="comp-size">${escapeHtml(comp.ramLabel)}</div>
+            ${escapeHtml(comp.name)}${activeBadge}
           </div>
           <div class="comp-text">${diffRenderedText}</div>
           <div class="deasc-comp-meta">
@@ -689,24 +667,20 @@
       deascComparisonPanel.classList.add("hidden");
     }
 
-    // 3. Render Token & Character Inspector
-    renderDeascInspector(data);
+    renderDeascInspector(data, sentenceHasOtherTr);
   }
 
-  function buildCharHighlightedHtml(rawWord, outWord, fullRawText) {
-    const sentenceHasOtherTr = hasNonDotlessTr(fullRawText);
+  function buildCharHighlightedHtml(rawWord, outWord, sentenceHasOtherTr) {
     let html = "";
     for (let i = 0; i < outWord.length; i++) {
-      const r = rawWord[i];
       const o = outWord[i];
-      if (r === o) {
+      const kind = classifyCharDiff(rawWord[i], o, sentenceHasOtherTr);
+      if (kind === "same") {
         html += escapeHtml(o);
-      } else if (TR_PIN_SET.has(r) && !TR_PIN_SET.has(o) && !(r === "ı" && o === "i" && !sentenceHasOtherTr)) {
-        html += `<mark class="deasc-char stripped">${escapeHtml(o)}</mark>`;
-      } else if (CIRCUMFLEX_SET.has(o) && !CIRCUMFLEX_SET.has(r)) {
-        html += `<mark class="deasc-char circumflex">${escapeHtml(o)}</mark>`;
-      } else {
+      } else if (kind === "diacritic") {
         html += `<mark class="deasc-char">${escapeHtml(o)}</mark>`;
+      } else {
+        html += `<mark class="deasc-char ${kind}">${escapeHtml(o)}</mark>`;
       }
     }
     return html;
@@ -737,7 +711,7 @@
     return html;
   }
 
-  function renderDeascInspector(data) {
+  function renderDeascInspector(data, sentenceHasOtherTr = hasNonDotlessTr(data.inputText || "")) {
     const allTokens = data.tokens || [];
     if (allTokens.length === 0) {
       deascTokenStrip.innerHTML = `<span class="io-meta">No tokens to inspect.</span>`;
@@ -754,9 +728,10 @@
       state.selectedDeascTokenIdx === null ||
       !allTokens.some((t) => t.index === state.selectedDeascTokenIdx)
     ) {
-      const firstDisagree = allTokens.find((t) => t.engineDisagreement);
-      const firstChanged = allTokens.find((t) => t.changed);
-      const pick = firstDisagree || firstChanged || allTokens[0];
+      const pick =
+        allTokens.find((t) => t.engineDisagreement) ||
+        allTokens.find((t) => t.changed) ||
+        allTokens[0];
       state.selectedDeascTokenIdx = pick.index;
     }
 
@@ -797,7 +772,7 @@
         `;
         chip.addEventListener("click", () => {
           state.selectedDeascTokenIdx = tok.index;
-          renderDeascInspector(data);
+          renderDeascInspector(data, sentenceHasOtherTr);
         });
         deascTokenStrip.appendChild(chip);
       });
@@ -805,30 +780,21 @@
 
     const selectedTok =
       allTokens.find((t) => t.index === state.selectedDeascTokenIdx) || allTokens[0];
-    renderDeascCharCard(selectedTok, data.inputText || "");
+    renderDeascCharCard(selectedTok, sentenceHasOtherTr);
     renderDeascVariantCard(selectedTok);
   }
 
-  function renderDeascCharCard(tok, fullRawText) {
+  function renderDeascCharCard(tok, sentenceHasOtherTr) {
     const raw = tok.rawSurface || "";
     const out = tok.restoredSurface || "";
-    const sentenceHasOtherTr = hasNonDotlessTr(fullRawText);
 
     let cellsHtml = "";
     if (raw.length === out.length) {
       for (let i = 0; i < raw.length; i++) {
         const r = raw[i];
         const o = out[i];
-        let cls = "char-cell";
-        if (r !== o) {
-          if (TR_PIN_SET.has(r) && !TR_PIN_SET.has(o) && !(r === "ı" && o === "i" && !sentenceHasOtherTr)) {
-            cls += " diff-stripped";
-          } else if (CIRCUMFLEX_SET.has(o) && !CIRCUMFLEX_SET.has(r)) {
-            cls += " diff-circumflex";
-          } else {
-            cls += " diff-diacritic";
-          }
-        }
+        const kind = classifyCharDiff(r, o, sentenceHasOtherTr);
+        const cls = kind === "same" ? "char-cell" : `char-cell diff-${kind}`;
         cellsHtml += `
           <div class="${cls}" title="Offset ${tok.start + i}: '${escapeHtml(r)}' → '${escapeHtml(o)}'">
             <span class="char-raw">${escapeHtml(r)}</span>
@@ -847,7 +813,7 @@
         <div class="signal-item"><span>Input Casing</span><strong>${escapeHtml(tok.casing)}</strong></div>
         <div class="signal-item"><span>Pinned TR Input</span><strong>${tok.hasPinnedTurkish ? "Yes" : "No"}</strong></div>
         <div class="signal-item"><span>Immutable Shield</span><strong>${tok.immutable ? "Yes (Protected)" : "No"}</strong></div>
-        <div class="signal-item"><span>5-Mode Agreement</span><strong>${tok.engineDisagreement ? "Disagrees" : "Unanimous"}</strong></div>
+        <div class="signal-item"><span>Engine Agreement</span><strong>${tok.engineDisagreement ? "Disagrees" : "Unanimous"}</strong></div>
       </div>
     `;
   }
@@ -906,7 +872,7 @@
         ${latticeHtml}
         <div style="margin-bottom:8px;">Selected output: <strong>${escapeHtml(tok.restoredSurface)}</strong></div>
         <div>${parsesHtml}</div>
-        <div class="io-meta" style="margin-top:8px;">Enable "Compare all 5" above to compare every deasciifier mode on this word.</div>
+        <div class="io-meta" style="margin-top:8px;">Enable "Compare both" above to compare Lattice and Legacy outputs on this word.</div>
       `;
       return;
     }
@@ -920,7 +886,7 @@
         const matchTag = v.matchesSelected ? "★ " : "";
         return `
           <tr class="${v.matchesSelected ? "winner-row" : ""}">
-            <td class="mono">${escapeHtml(v.shortLabel)}</td>
+            <td class="mono">${escapeHtml(v.name)}</td>
             <td class="cand-surf">${matchTag}${escapeHtml(v.surface)}</td>
             <td>${parses}</td>
           </tr>
@@ -930,12 +896,12 @@
 
     deascVariantDetailBody.innerHTML = `
       ${latticeHtml}
-      <div class="io-meta" style="margin-bottom:5px;"><strong>5-Mode Winning Outputs &amp; Morphological Parses:</strong></div>
+      <div class="io-meta" style="margin-bottom:5px;"><strong>Engine Outputs &amp; Morphological Parses:</strong></div>
       <div class="cand-table-wrap">
         <table class="cand-table">
           <thead>
             <tr>
-              <th>Deasciifier Mode</th>
+              <th>Deasciifier</th>
               <th>Restored Token</th>
               <th>Zemberek Morphological Analyses</th>
             </tr>
@@ -955,12 +921,7 @@
   }
 
   function foldTurkishToAscii(s) {
-    let out = "";
-    for (let i = 0; i < s.length; i++) {
-      const c = s[i];
-      out += ASCII_FOLD_MAP[c] || c;
-    }
-    return out;
+    return s.replace(ASCII_FOLD_RE, (c) => ASCII_FOLD_MAP[c]);
   }
 
   // ==================== TAB 3: MORPHOLOGY ====================
@@ -971,41 +932,26 @@
       morphLatencyBadge.textContent = "0.00 ms";
       return;
     }
-    if (state.morphAbort) state.morphAbort.abort();
-    const ctrl = new AbortController();
-    state.morphAbort = ctrl;
+    const data = await postJsonWithAbort("morph", "/api/morphology", { text });
+    if (!data) return;
 
-    try {
-      const resp = await fetch("/api/morphology", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-        signal: ctrl.signal
-      });
-      if (!resp.ok) return;
-      const data = await resp.json();
-      morphLatencyBadge.textContent = `${data.latencyMs.toFixed(2)} ms`;
-      morphResults.innerHTML = (data.words || [])
-        .map((w) => {
-          const alts = (w.candidates || [])
-            .filter((c) => !c.selected)
-            .map((c) => escapeHtml(c.formatted))
-            .join("  ·  ");
-          return `
-            <div class="morph-card">
-              <div class="morph-head">
-                <span class="morph-word">${escapeHtml(w.surface)}</span>
-                <span class="src-badge">${escapeHtml(w.bestPos)}</span>
-                <span class="morph-best">★ ${escapeHtml(w.bestFormatted)}</span>
-              </div>
-              ${alts ? `<div class="morph-alts">Other parses: ${alts}</div>` : ""}
+    morphLatencyBadge.textContent = `${data.latencyMs.toFixed(2)} ms`;
+    serverStatusPill.textContent = `Live · ${data.latencyMs.toFixed(2)} ms`;
+    morphResults.innerHTML = (data.words || [])
+      .map((w) => {
+        const alts = (w.altParses || []).map(escapeHtml).join("  ·  ");
+        return `
+          <div class="morph-card">
+            <div class="morph-head">
+              <span class="morph-word">${escapeHtml(w.surface)}</span>
+              <span class="src-badge">${escapeHtml(w.bestPos)}</span>
+              <span class="morph-best">★ ${escapeHtml(w.bestFormatted)}</span>
             </div>
-          `;
-        })
-        .join("");
-    } catch (e) {
-      if (e.name !== "AbortError") console.error(e);
-    }
+            ${alts ? `<div class="morph-alts">Other parses: ${alts}</div>` : ""}
+          </div>
+        `;
+      })
+      .join("");
   }
 
   // ==================== TAB 4: TOKENIZER ====================
@@ -1017,36 +963,24 @@
       tokLatencyBadge.textContent = "0.00 ms";
       return;
     }
-    if (state.tokAbort) state.tokAbort.abort();
-    const ctrl = new AbortController();
-    state.tokAbort = ctrl;
+    const data = await postJsonWithAbort("tok", "/api/tokenize", { text });
+    if (!data) return;
 
-    try {
-      const resp = await fetch("/api/tokenize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-        signal: ctrl.signal
-      });
-      if (!resp.ok) return;
-      const data = await resp.json();
-      tokLatencyBadge.textContent = `${data.latencyMs.toFixed(2)} ms`;
-      tokSentences.innerHTML = (data.sentences || [])
-        .map((s, idx) => `<div class="tok-sent-item"><strong>S${idx + 1}:</strong> ${escapeHtml(s)}</div>`)
-        .join("");
-      tokResults.innerHTML = (data.tokens || [])
-        .map(
-          (t) => `
-            <div class="tok-pill" title="Span [${t.start}..${t.end}]">
-              <span class="tok-pill-text">${escapeHtml(t.text)}</span>
-              <span class="tok-pill-type">${escapeHtml(t.type)}</span>
-            </div>
-          `
-        )
-        .join("");
-    } catch (e) {
-      if (e.name !== "AbortError") console.error(e);
-    }
+    tokLatencyBadge.textContent = `${data.latencyMs.toFixed(2)} ms`;
+    serverStatusPill.textContent = `Live · ${data.latencyMs.toFixed(2)} ms`;
+    tokSentences.innerHTML = (data.sentences || [])
+      .map((s, idx) => `<div class="tok-sent-item"><strong>S${idx + 1}:</strong> ${escapeHtml(s)}</div>`)
+      .join("");
+    tokResults.innerHTML = (data.tokens || [])
+      .map(
+        (t) => `
+          <div class="tok-pill" title="Span [${t.start}..${t.end}]">
+            <span class="tok-pill-text">${escapeHtml(t.text)}</span>
+            <span class="tok-pill-type">${escapeHtml(t.type)}</span>
+          </div>
+        `
+      )
+      .join("");
   }
 
   function formatSigned(v) {
@@ -1064,9 +998,7 @@
 
   // Normalization Event Listeners
   normInput.addEventListener("input", runNormalize);
-  engineSelect.addEventListener("change", () => {
-    runNormalize();
-  });
+  engineSelect.addEventListener("change", runNormalize);
   highlightToggle.addEventListener("change", () => {
     if (state.lastResponse) renderNormalizeResult(state.lastResponse);
   });
@@ -1079,23 +1011,10 @@
     normInput.focus();
   });
 
-  copyOutputBtn.addEventListener("click", async () => {
-    const outText = state.lastResponse ? state.lastResponse.normalizedText : "";
-    if (!outText) return;
-    await navigator.clipboard.writeText(outText);
-    const orig = copyOutputBtn.textContent;
-    copyOutputBtn.textContent = "Copied!";
-    setTimeout(() => {
-      copyOutputBtn.textContent = orig;
-    }, 1100);
-  });
-
-  sendToMorphBtn.addEventListener("click", () => {
-    if (state.lastResponse && state.lastResponse.normalizedText) {
-      morphInput.value = state.lastResponse.normalizedText;
-    }
-    switchTab("morphology", true);
-  });
+  bindCopyButton(copyOutputBtn, () => (state.lastResponse ? state.lastResponse.normalizedText : ""));
+  sendToMorphBtn.addEventListener("click", () =>
+    openInMorphology(state.lastResponse && state.lastResponse.normalizedText)
+  );
 
   // Deasciifiers Event Listeners
   deascInput.addEventListener("input", runDeasciify);
@@ -1126,16 +1045,10 @@
     deascInput.focus();
   });
 
-  copyDeascBtn.addEventListener("click", async () => {
-    const outText = state.lastDeascResponse ? state.lastDeascResponse.deasciifiedText : "";
-    if (!outText) return;
-    await navigator.clipboard.writeText(outText);
-    const orig = copyDeascBtn.textContent;
-    copyDeascBtn.textContent = "Copied!";
-    setTimeout(() => {
-      copyDeascBtn.textContent = orig;
-    }, 1100);
-  });
+  bindCopyButton(
+    copyDeascBtn,
+    () => (state.lastDeascResponse ? state.lastDeascResponse.deasciifiedText : "")
+  );
 
   deascToNormBtn.addEventListener("click", () => {
     if (deascInput.value.trim()) {
@@ -1145,12 +1058,9 @@
     switchTab("normalization", true);
   });
 
-  deascToMorphBtn.addEventListener("click", () => {
-    if (state.lastDeascResponse && state.lastDeascResponse.deasciifiedText) {
-      morphInput.value = state.lastDeascResponse.deasciifiedText;
-    }
-    switchTab("morphology", true);
-  });
+  deascToMorphBtn.addEventListener("click", () =>
+    openInMorphology(state.lastDeascResponse && state.lastDeascResponse.deasciifiedText)
+  );
 
   // Morphology & Tokenizer Event Listeners
   morphInput.addEventListener("input", runMorphology);
@@ -1158,7 +1068,5 @@
 
   // Boot
   const initialTab = resolveInitialTab();
-  loadServerInfo().then(() => {
-    switchTab(initialTab, false);
-  });
+  loadServerInfo().then(() => switchTab(initialTab, false));
 })();

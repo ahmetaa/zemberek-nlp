@@ -5,13 +5,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import zemberek.lm.compression.MultiFileUncompressedLm;
@@ -27,7 +24,6 @@ public class SpanLatticePerceptronNormalizerTest {
 
   private static Path tempDir;
   private static TurkishMorphology morphology;
-  private static SmoothLm tinyLm;
   private static SpanCandidateGenerator standaloneGenerator;
 
   @BeforeClass
@@ -38,7 +34,7 @@ public class SpanLatticePerceptronNormalizerTest {
     Path arpaPath = tempDir.resolve("tiny.arpa");
     Files.write(
         arpaPath,
-        Arrays.asList(
+        List.of(
             "\\data\\",
             "ngram 1=12",
             "ngram 2=4",
@@ -76,25 +72,22 @@ public class SpanLatticePerceptronNormalizerTest {
         new UncompressedToSmoothLmConverter(slmPath.toFile(), lmBuildDir.toFile());
     converter.convertSmall(
         uncompressedDir, new UncompressedToSmoothLmConverter.NgramDataBlock(16, 16, 16));
-    tinyLm = SmoothLm.builder(slmPath).logBase(Math.E).build();
+    SmoothLm tinyLm = SmoothLm.builder(slmPath).logBase(Math.E).build();
 
-    CompactStemEndingSpellChecker spellChecker = new CompactStemEndingSpellChecker(morphology, true);
     standaloneGenerator =
         new SpanCandidateGenerator(
             morphology,
-            spellChecker,
+            new CompactStemEndingSpellChecker(morphology),
             tinyLm,
-            NormalizationKnowledge.empty(),
-            SpanCandidateGenerator.Config.full());
+            NormalizationKnowledge.empty());
   }
 
   @AfterClass
   public static void tearDownClass() throws IOException {
     if (tempDir != null && Files.exists(tempDir)) {
-      Files.walk(tempDir)
-          .sorted(Comparator.reverseOrder())
-          .map(Path::toFile)
-          .forEach(File::delete);
+      try (var walk = Files.walk(tempDir)) {
+        walk.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+      }
     }
   }
 
@@ -110,7 +103,7 @@ public class SpanLatticePerceptronNormalizerTest {
         QuantizedWeightTable.build(new long[] {1L, 2L}, new float[] {0.1f, -0.1f}, 16);
 
     SpanLatticePerceptronNormalizer normalizer =
-        new SpanLatticePerceptronNormalizer("test-v2.4", standaloneGenerator, dense, sparse);
+        new SpanLatticePerceptronNormalizer(standaloneGenerator, dense, sparse);
 
     Assert.assertEquals("Selam bugün geliyor musun?", normalizer.normalize("Slm bugun geliyomusun?"));
     Assert.assertEquals("Bu sistem alınır mı?", normalizer.normalize("Bu sistem alınır mi?"));
@@ -139,7 +132,8 @@ public class SpanLatticePerceptronNormalizerTest {
     Assert.assertEquals(
         "nisan", k.truecase("nisan", CasingShape.LOWER, "nisan", false, false, morphology, 0));
 
-    SentenceLattice lat = standaloneGenerator.buildLattice("Çok güzel :D Sitedeki ürünler 16-18 mayıs");
+    SentenceLattice lat =
+        standaloneGenerator.buildLattice("Çok güzel :D Sitedeki ürünler 16-18 mayıs");
     boolean sawSitedekiCap = false;
     boolean sawMayisCap = false;
     for (List<SpanArc> slot : lat.outgoing()) {
@@ -157,30 +151,15 @@ public class SpanLatticePerceptronNormalizerTest {
   }
 
   @Test
-  public void snapshotDirectoryLoadMatchesProductionBitForBitWhenAvailable() throws IOException {
-    Path userHome = Paths.get(System.getProperty("user.home", "."));
-    List<Path> candidateModelDirs =
-        Arrays.asList(
-            userHome.resolve("data/turkish/normalization/norm_v2_models"),
-            Paths.get("../experiment/target/demo_models_v23"),
-            Paths.get("experiment/target/demo_models_v23"));
-    Path modelDir = null;
-    for (Path cand : candidateModelDirs) {
-      if (Files.isDirectory(cand)
-          && (Files.exists(cand.resolve("perceptron.bin"))
-              || Files.exists(cand.resolve("perceptron_v23.bin")))) {
-        modelDir = cand;
-        break;
-      }
-    }
-    Path lm2Gram = userHome.resolve("data/turkish/normalization/zemberek_norm_data/lm.2gram.slm");
-    Assume.assumeTrue(modelDir != null && Files.exists(lm2Gram));
-
+  public void bundledDefaultModelNormalizesNoisyTurkishOutOfTheBox() throws IOException {
     SpanLatticePerceptronNormalizer loaded =
-        SpanLatticePerceptronNormalizer.fromDirectory(morphology, modelDir, lm2Gram);
+        SpanLatticePerceptronNormalizer.createWithDefaults(morphology);
 
     Assert.assertTrue(loaded.activeSparseFeatureCount() > 100_000);
     Assert.assertEquals("Selam bugün geliyor musun :)", loaded.normalize("Slm bugun geliyomusun :)"));
     Assert.assertEquals("Bu sistem alınır mı?", loaded.normalize("Bu sistem alınır mi?"));
+    Assert.assertEquals(
+        "yarın ben de geleceğim ama saat 7'de orada olur musun bilmiyorum",
+        loaded.normalize("yarın bende gelicem ama saat 7 de orda olurmusun bilmiyom"));
   }
 }

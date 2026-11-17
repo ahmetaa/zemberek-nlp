@@ -18,12 +18,12 @@ public class StartWebDemo extends ConsoleApp {
   public String host = ZemberekDemoServer.DEFAULT_HOST;
 
   @Parameter(
-      names = {"--modelDir", "-m"},
+      names = {"--modelDir", "--model-dir", "-m"},
       description = "Directory containing knowledge.bin and perceptron.bin.")
   public Path modelDir;
 
   @Parameter(
-      names = {"--normRoot", "-n"},
+      names = {"--normRoot", "--norm-root", "-n"},
       description = "Zemberek normalization data root containing lm.2gram.slm and normalization/.")
   public Path normRoot;
 

@@ -1,6 +1,7 @@
 package zemberek.apps.demo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import zemberek.normalization.TurkishSentenceNormalizer;
@@ -28,46 +29,40 @@ public final class NormalizationInspector {
     this.zemberekHead = zemberekHead;
   }
 
+  public boolean hasZemberekHead() {
+    return zemberekHead != null;
+  }
+
   public record CandidateView(
       int startIdx,
       int endIdx,
       String normSurface,
       String spanKind,
-      int wordCount,
-      float logit,
-      float memmProb,
+      float arcScore,
+      float softmaxProb,
       float cleanSpanLlr,
-      float smoothSpanLlr,
       float cliticSkipLlr,
-      float parallelProb,
       float editCost,
-      boolean regularMorph,
       List<String> sources,
       boolean winner) {}
 
-  public record GateSignals(
+  public record TokenSignals(
       int wordLen,
       boolean hasTurkishDiacritics,
       boolean hasAsciiAmbiguous,
-      boolean hasRepeatedChars,
       boolean cliticTailHint,
       boolean nextMergeHint,
       boolean strictMorph,
       float charPhonotactics,
-      float parallelKeepProb,
-      float cleanUnigramLogProb) {}
+      float parallelKeepProb) {}
 
   public record SlotInspection(
       int tokenIdx,
       String rawSurface,
-      String tokenType,
-      boolean immutable,
-      float gateLogit,
-      float gateProb,
-      float gateThreshold,
-      boolean gateSkipped,
-      String gateNote,
-      GateSignals gateSignals,
+      float editLogOdds,
+      float editProb,
+      String note,
+      TokenSignals signals,
       List<CandidateView> candidates) {}
 
   public record DecodedSpanView(
@@ -77,32 +72,24 @@ public final class NormalizationInspector {
       String normSurface,
       boolean changed,
       String changeKind,
-      boolean attachToPrev,
       boolean spaceAfter,
-      float gateProb,
-      boolean gateSkipped,
-      float winningLogit,
+      boolean immutable,
       float winningProb,
       List<String> sources) {}
 
   public record LineTrace(
       int lineIndex,
-      String rawLine,
       String normalizedLine,
       int tokenCount,
       int editedSpanCount,
       List<DecodedSpanView> decodedSpans,
       List<SlotInspection> slots) {}
 
-  public record EngineComparison(
-      String engineId, String label, String sizeLabel, String normalizedText, double latencyMs) {}
+  public record EngineComparison(String label, String normalizedText, double latencyMs) {}
 
   public record NormalizeResponse(
-      String engineId,
-      String engineLabel,
       String normalizedText,
       double latencyMs,
-      double totalMs,
       int totalTokens,
       int totalEditedSpans,
       List<LineTrace> lines,
@@ -110,10 +97,11 @@ public final class NormalizationInspector {
 
   public NormalizeResponse normalizeAndInspect(
       String rawText, String engineId, boolean includeInspection, boolean compareAll) {
-    long tTotal0 = System.nanoTime();
-    String text = rawText == null ? "" : rawText;
+    String text = rawText == null ? "" : rawText.replace("\r\n", "\n").replace('\r', '\n');
     String eng =
-        "zemberek_head".equalsIgnoreCase(engineId) ? "zemberek_head" : "perceptron";
+        "zemberek_head".equalsIgnoreCase(engineId) && zemberekHead != null
+            ? "zemberek_head"
+            : "perceptron";
 
     String[] rawLines = text.split("\n", -1);
     StringBuilder fullOut = new StringBuilder(text.length() + 16);
@@ -122,9 +110,6 @@ public final class NormalizationInspector {
     String[] pureLinePreds = new String[rawLines.length];
     for (int i = 0; i < rawLines.length; i++) {
       String rl = rawLines[i];
-      if (rl.endsWith("\r")) {
-        rl = rl.substring(0, rl.length() - 1);
-      }
       if (rl.isBlank()) {
         pureLinePreds[i] = rl;
       } else {
@@ -142,73 +127,51 @@ public final class NormalizationInspector {
     int totalTokens = 0;
     int totalEdited = 0;
     for (int i = 0; i < rawLines.length; i++) {
-      String rl = rawLines[i];
-      if (rl.endsWith("\r")) {
-        rl = rl.substring(0, rl.length() - 1);
-      }
-      LineTrace lt = buildLineTrace(i, rl, pureLinePreds[i], eng, includeInspection);
+      LineTrace lt = buildLineTrace(i, rawLines[i], pureLinePreds[i], eng, includeInspection);
       totalTokens += lt.tokenCount();
       totalEdited += lt.editedSpanCount();
       lineTraces.add(lt);
     }
 
+    double inferMs = tInferNs / 1e6;
+    String normalizedFull = fullOut.toString();
+
     List<EngineComparison> comparisons = null;
     if (compareAll && !text.isBlank()) {
       comparisons = new ArrayList<>(2);
-      String percSize =
-          String.format(
-              java.util.Locale.US, "%.2f MB", perceptron.modelRamBytes() / (1024.0 * 1024.0));
       comparisons.add(
-          runComparison("perceptron", "Span-Lattice Perceptron (v2.4)", percSize, rawLines));
+          "perceptron".equals(eng)
+              ? new EngineComparison("Span-Lattice Perceptron (v2.4)", normalizedFull, inferMs)
+              : runComparison("perceptron", "Span-Lattice Perceptron (v2.4)", rawLines));
       if (zemberekHead != null) {
         comparisons.add(
-            runComparison("zemberek_head", "Zemberek HEAD", "Rule + 2-gram", rawLines));
+            "zemberek_head".equals(eng)
+                ? new EngineComparison("Zemberek HEAD", normalizedFull, inferMs)
+                : runComparison("zemberek_head", "Zemberek HEAD", rawLines));
       }
     }
 
-    double inferMs = tInferNs / 1e6;
-    double totalMs = (System.nanoTime() - tTotal0) / 1e6;
     return new NormalizeResponse(
-        eng,
-        engineLabel(eng),
-        fullOut.toString(),
-        inferMs,
-        totalMs,
-        totalTokens,
-        totalEdited,
-        lineTraces,
-        comparisons);
+        normalizedFull, inferMs, totalTokens, totalEdited, lineTraces, comparisons);
   }
 
-  private EngineComparison runComparison(
-      String engId, String label, String sizeLabel, String[] rawLines) {
+  private EngineComparison runComparison(String engId, String label, String[] rawLines) {
     StringBuilder sb = new StringBuilder();
     long t0 = System.nanoTime();
     for (int i = 0; i < rawLines.length; i++) {
-      String rl = rawLines[i];
-      if (rl.endsWith("\r")) {
-        rl = rl.substring(0, rl.length() - 1);
-      }
       if (i > 0) {
         sb.append('\n');
       }
+      String rl = rawLines[i];
       sb.append(rl.isBlank() ? rl : runSingleEngine(engId, rl));
     }
-    double ms = (System.nanoTime() - t0) / 1e6;
-    return new EngineComparison(engId, label, sizeLabel, sb.toString(), ms);
+    return new EngineComparison(label, sb.toString(), (System.nanoTime() - t0) / 1e6);
   }
 
   private String runSingleEngine(String engineId, String line) {
-    if ("zemberek_head".equals(engineId) && zemberekHead != null) {
-      return zemberekHead.normalize(line);
-    }
-    return perceptron.normalize(line);
-  }
-
-  private static String engineLabel(String engineId) {
-    return "zemberek_head".equals(engineId)
-        ? "Zemberek HEAD (Rule + SmoothLm)"
-        : "Span-Lattice Perceptron (v2.4 · 2.62 MB)";
+    return "zemberek_head".equals(engineId) && zemberekHead != null
+        ? zemberekHead.normalize(line)
+        : perceptron.normalize(line);
   }
 
   private LineTrace buildLineTrace(
@@ -218,11 +181,12 @@ public final class NormalizationInspector {
       String engineId,
       boolean includeInspection) {
     if (rawLine.isBlank()) {
-      return new LineTrace(lineIndex, rawLine, normalizedLine, 0, 0, List.of(), List.of());
+      return new LineTrace(lineIndex, normalizedLine, 0, 0, List.of(), List.of());
     }
 
     if ("zemberek_head".equals(engineId)) {
       List<SpanToken> rawToks = NormV2Types.spanTokenize(rawLine);
+      boolean changed = !rawLine.trim().equals(normalizedLine.trim());
       List<DecodedSpanView> single =
           List.of(
               new DecodedSpanView(
@@ -230,23 +194,14 @@ public final class NormalizationInspector {
                   rawToks.size(),
                   rawLine,
                   normalizedLine,
-                  !rawLine.trim().equals(normalizedLine.trim()),
-                  rawLine.trim().equals(normalizedLine.trim()) ? "keep" : "rewrite",
+                  changed,
+                  changed ? "rewrite" : "keep",
                   false,
                   false,
-                  0.0f,
-                  false,
-                  0.0f,
                   1.0f,
                   List.of("ZemberekHEAD")));
       return new LineTrace(
-          lineIndex,
-          rawLine,
-          normalizedLine,
-          rawToks.size(),
-          rawLine.trim().equals(normalizedLine.trim()) ? 0 : 1,
-          single,
-          List.of());
+          lineIndex, normalizedLine, rawToks.size(), changed ? 1 : 0, single, List.of());
     }
 
     SpanCandidateGenerator gen = perceptron.generator();
@@ -256,7 +211,7 @@ public final class NormalizationInspector {
     List<SpanToken> toks = lattice.tokens();
     int n = toks.size();
     if (n == 0) {
-      return new LineTrace(lineIndex, rawLine, normalizedLine, 0, 0, List.of(), List.of());
+      return new LineTrace(lineIndex, normalizedLine, 0, 0, List.of(), List.of());
     }
 
     List<SpanArc> decodedPath = perceptron.decodeLattice(lattice);
@@ -265,7 +220,7 @@ public final class NormalizationInspector {
     String[] prev2At = new String[n + 1];
     String[] prev1At = new String[n + 1];
     short[] prevMorphAt = new short[n + 1];
-    java.util.Arrays.fill(prevMorphAt, (short) -1);
+    Arrays.fill(prevMorphAt, (short) -1);
     String[] nextLex2 = new String[2];
     for (SpanArc wa : decodedPath) {
       if (wa.startIdx >= 0 && wa.startIdx < n) {
@@ -283,9 +238,7 @@ public final class NormalizationInspector {
       }
     }
 
-    float[][] arcLm6 = new float[32][6];
-    float[] slotEditProb = new float[n];
-    float[] winLogitByStart = new float[n];
+    float[] lmBuf = new float[6];
     float[] winProbByStart = new float[n];
     List<SlotInspection> slotList = includeInspection ? new ArrayList<>(n) : List.of();
 
@@ -305,15 +258,11 @@ public final class NormalizationInspector {
       winProbByStart[i] = 1.0f;
 
       if (!arcs.isEmpty()) {
-        if (arcLm6.length < arcs.size()) {
-          arcLm6 = new float[arcs.size() + 8][6];
-        }
         float[] scores = new float[arcs.size()];
         float maxScore = Float.NEGATIVE_INFINITY;
         for (int a = 0; a < arcs.size(); a++) {
-          SpanArc cand = arcs.get(a);
-          gen.computeSpanLmComparison(lattice, p2, p1, cand, arcLm6[a]);
-          float sc = arcs.size() == 1 ? 0.0f : perceptron.scoreArc(lattice, p2, p1, pMorph, cand);
+          float sc =
+              arcs.size() == 1 ? 0.0f : perceptron.scoreArc(lattice, p2, p1, pMorph, arcs.get(a));
           scores[a] = sc;
           if (sc > maxScore) {
             maxScore = sc;
@@ -338,12 +287,11 @@ public final class NormalizationInspector {
                   && cand.endIdx == winArc.endIdx
                   && cand.normSurface.equals(winArc.normSurface);
           if (isWin) {
-            winLogitByStart[i] = round3(scores[a]);
             winProbByStart[i] = round4(prob);
           }
           if (includeInspection) {
-            float sLlr = arcLm6[a][0] - arcLm6[a][1];
-            float cLlr = arcLm6[a][2] - arcLm6[a][3];
+            gen.computeSpanLmComparison(lattice, p2, p1, cand, lmBuf);
+            float cLlr = lmBuf[2] - lmBuf[3];
             float cliticSkip = gen.computeCliticTransparencyLlr(lattice, cand);
             cViews.add(
                 new CandidateView(
@@ -351,106 +299,87 @@ public final class NormalizationInspector {
                     cand.endIdx,
                     cand.normSurface,
                     describeSpanKind(cand),
-                    cand.wordCount,
                     round3(scores[a]),
                     round4(prob),
                     round3(cLlr),
-                    round3(sLlr),
                     round3(cliticSkip),
-                    round3(cand.parallelProb),
                     round3(cand.editCost),
-                    cand.isRegularMorph,
                     decodeSources(cand.sourceMask),
                     isWin));
           }
         }
 
-        float editProb = t.isImmutable() ? 0.0f : Math.max(0.0f, Math.min(1.0f, 1.0f - identityKeepMass));
-        float editLogit =
-            editProb <= 1e-4f
-                ? -9.2f
-                : (editProb >= 1.0f - 1e-4f
-                    ? 9.2f
-                    : (float) Math.log(editProb / (1.0f - editProb)));
-        slotEditProb[i] = round4(editProb);
-
         if (includeInspection) {
+          float editProb =
+              t.isImmutable() ? 0.0f : Math.max(0.0f, Math.min(1.0f, 1.0f - identityKeepMass));
+          float editLogOdds =
+              editProb <= 1e-4f
+                  ? -9.2f
+                  : editProb >= 1.0f - 1e-4f
+                      ? 9.2f
+                      : (float) Math.log(editProb / (1.0f - editProb));
+
           cViews.sort(
               Comparator.comparing(CandidateView::winner)
                   .reversed()
-                  .thenComparing(Comparator.comparingDouble(CandidateView::memmProb).reversed()));
+                  .thenComparing(
+                      Comparator.comparingDouble(CandidateView::softmaxProb).reversed()));
 
-          boolean immutable = t.isImmutable();
-          GateSignals gs = null;
+          TokenSignals signals = null;
           String slotNote;
-          if (immutable) {
+          if (t.isImmutable()) {
             slotNote = "Immutable token (" + t.type().name() + ")";
           } else {
             String low = t.lower();
             boolean strictMorph = gen.hasRegularStrictAnalysis(low);
-            boolean hasTrDiac = SpanCandidateGenerator.hasExplicitTurkishDiacritics(low);
-            boolean hasAscAmb = SpanCandidateGenerator.hasAsciiAmbiguousChars(low);
-            boolean hasRep = SpanCandidateGenerator.hasRepeatedLetters(low);
-            boolean cliticHint = hasCliticTailCue(low);
-            boolean mergeHint = hasNextMergeCue(toks, i, knowledge);
             RewriteEntry re = knowledge.parallel1ToN.get(low);
             float parKeep = re != null ? re.keepProb() : (strictMorph ? 0.90f : 0.50f);
-            float phono = knowledge.charPhonotactics.scoreWord(low);
-            float cleanUni = knowledge.cleanLm.unigramLogProb(low);
-            gs =
-                new GateSignals(
+            signals =
+                new TokenSignals(
                     low.length(),
-                    hasTrDiac,
-                    hasAscAmb,
-                    hasRep,
-                    cliticHint,
-                    mergeHint,
+                    SpanCandidateGenerator.hasExplicitTurkishDiacritics(low),
+                    SpanCandidateGenerator.hasAsciiAmbiguousChars(low),
+                    hasCliticTailCue(low),
+                    hasNextMergeCue(toks, i, knowledge),
                     strictMorph,
-                    round3(phono),
-                    round3(parKeep),
-                    round3(cleanUni));
-            slotNote =
-                arcs.size() + " candidate arc(s) scored in Semi-Markov Viterbi beam (B=4)";
+                    round3(knowledge.charPhonotactics.scoreWord(low)),
+                    round3(parKeep));
+            slotNote = arcs.size() + " candidate arc(s) scored in Semi-Markov Viterbi beam (B=4)";
           }
 
           slotList.add(
               new SlotInspection(
-                  i,
-                  t.surface(),
-                  t.type().name(),
-                  immutable,
-                  round3(editLogit),
-                  round4(editProb),
-                  0.50f,
-                  immutable,
-                  slotNote,
-                  gs,
-                  cViews));
+                  i, t.surface(), round3(editLogOdds), round4(editProb), slotNote, signals, cViews));
         }
 
         SpanArc stepArc = winArc != null ? winArc : arcs.get(0);
-        rollMorph =
-            SpanLatticePerceptronNormalizer.advanceLexMorphTag(lattice, pMorph, stepArc);
+        rollMorph = SpanLatticePerceptronNormalizer.advanceLexMorphTag(lattice, pMorph, stepArc);
         SpanCandidateGenerator.advanceLexicalHistory(lattice, p2, p1, stepArc, nextLex2);
         rollPrev2 = nextLex2[0];
         rollPrev1 = nextLex2[1];
       }
     }
 
+    String recon = NormV2Types.reconstructText(toks, decodedPath);
     List<DecodedSpanView> spanViews = new ArrayList<>(decodedPath.size());
     int editedCount = 0;
-    boolean[] spaceBefore = computeSpaceBeforeFlags(toks, decodedPath);
+    int pos = 0;
 
-    for (int pIdx = 0; pIdx < decodedPath.size(); pIdx++) {
-      SpanArc arc = decodedPath.get(pIdx);
+    for (SpanArc arc : decodedPath) {
       String rawSpan = rawSpanText(rawLine, toks, arc.startIdx, arc.endIdx);
       boolean changed = !rawSpan.equals(arc.normSurface);
       if (changed) {
         editedCount++;
       }
-      String changeKind = classifyChangeKind(toks, arc, rawSpan, changed);
-      boolean attachPrev = pIdx > 0 && !spaceBefore[pIdx];
-      boolean spAfter = (pIdx + 1 < decodedPath.size()) && spaceBefore[pIdx + 1];
+      String val = arc.normSurface;
+      boolean spAfter = false;
+      if (val != null && !val.isEmpty()) {
+        if (pos < recon.length() && recon.charAt(pos) == ' ') {
+          pos++;
+        }
+        pos += val.length();
+        spAfter = pos < recon.length() && recon.charAt(pos) == ' ';
+      }
       spanViews.add(
           new DecodedSpanView(
               arc.startIdx,
@@ -458,18 +387,14 @@ public final class NormalizationInspector {
               rawSpan,
               arc.normSurface,
               changed,
-              changeKind,
-              attachPrev,
+              classifyChangeKind(toks, arc, changed),
               spAfter,
-              slotEditProb[arc.startIdx],
               toks.get(arc.startIdx).isImmutable(),
-              winLogitByStart[arc.startIdx],
               winProbByStart[arc.startIdx],
               decodeSources(arc.sourceMask)));
     }
 
-    String recon = NormV2Types.reconstructText(toks, decodedPath);
-    return new LineTrace(lineIndex, rawLine, recon, n, editedCount, spanViews, slotList);
+    return new LineTrace(lineIndex, recon, n, editedCount, spanViews, slotList);
   }
 
   private static boolean hasCliticTailCue(String low) {
@@ -496,37 +421,20 @@ public final class NormalizationInspector {
       return false;
     }
     String nLow = toks.get(i + 1).lower();
-    if (nLow.equals("de")
+    return nLow.equals("de")
         || nLow.equals("da")
         || nLow.equals("te")
         || nLow.equals("ta")
         || nLow.equals("ki")
-        || nLow.equals("bir")) {
-      return true;
-    }
-    return knowledge.parallel2To1.containsKey(toks.get(i).lower() + "\t" + nLow);
-  }
-
-  private static boolean[] computeSpaceBeforeFlags(List<SpanToken> toks, List<SpanArc> path) {
-    boolean[] spaceBefore = new boolean[path.size()];
-    StringBuilder acc = new StringBuilder();
-    for (int k = 0; k < path.size(); k++) {
-      String partial = NormV2Types.reconstructText(toks, path.subList(0, k + 1));
-      spaceBefore[k] =
-          k > 0 && partial.length() > acc.length() && partial.charAt(acc.length()) == ' ';
-      acc.setLength(0);
-      acc.append(partial);
-    }
-    return spaceBefore;
+        || nLow.equals("bir")
+        || knowledge.parallel2To1.containsKey(toks.get(i).lower() + "\t" + nLow);
   }
 
   private static String rawSpanText(
       String rawLine, List<SpanToken> toks, int startIdx, int endIdx) {
     SpanToken first = toks.get(startIdx);
     SpanToken last = toks.get(Math.min(toks.size() - 1, endIdx - 1));
-    if (first.start() >= 0
-        && last.end() >= first.start()
-        && last.end() + 1 <= rawLine.length()) {
+    if (first.start() >= 0 && last.end() >= first.start() && last.end() + 1 <= rawLine.length()) {
       return rawLine.substring(first.start(), last.end() + 1);
     }
     StringBuilder sb = new StringBuilder();
@@ -550,8 +458,7 @@ public final class NormalizationInspector {
     return "1:1";
   }
 
-  private static String classifyChangeKind(
-      List<SpanToken> toks, SpanArc arc, String rawSpan, boolean changed) {
+  private static String classifyChangeKind(List<SpanToken> toks, SpanArc arc, boolean changed) {
     if (!changed) {
       return "keep";
     }
@@ -588,21 +495,15 @@ public final class NormalizationInspector {
     if ((mask & NormV2Types.SRC_CLITIC_SPLIT) != 0) out.add("Clitic/Compound Split");
     if ((mask & NormV2Types.SRC_COMPOUND_MERGE) != 0) out.add("Compound/Case Merge");
     if ((mask & NormV2Types.SRC_NUMERAL_JOIN) != 0) out.add("Numeral Join");
-    if ((mask & NormV2Types.SRC_SHORTHAND_ABJAD) != 0) out.add("Shorthand/Abjad");
+    if ((mask & NormV2Types.SRC_SHORTHAND) != 0) out.add("Shorthand");
     return out;
   }
 
   private static float round3(float v) {
-    if (Float.isNaN(v) || Float.isInfinite(v)) {
-      return 0.0f;
-    }
-    return Math.round(v * 1000.0f) / 1000.0f;
+    return Float.isNaN(v) || Float.isInfinite(v) ? 0.0f : Math.round(v * 1000.0f) / 1000.0f;
   }
 
   private static float round4(float v) {
-    if (Float.isNaN(v) || Float.isInfinite(v)) {
-      return 0.0f;
-    }
-    return Math.round(v * 10000.0f) / 10000.0f;
+    return Float.isNaN(v) || Float.isInfinite(v) ? 0.0f : Math.round(v * 10000.0f) / 10000.0f;
   }
 }

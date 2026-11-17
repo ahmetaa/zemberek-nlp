@@ -28,6 +28,7 @@ import zemberek.normalization.NgramSequenceDecoder.Candidate;
 import zemberek.normalization.NgramSequenceDecoder.Candidates;
 import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.normalization.deasciifier.latticedeasciifier.LatticeDeasciifier;
+import zemberek.normalization.v2.SpanLatticePerceptronNormalizer;
 import zemberek.tokenization.Token;
 import zemberek.tokenization.TurkishTokenizer;
 
@@ -68,14 +69,31 @@ public class TurkishSentenceNormalizer {
   private Boolean spellCheckCapitalizedWords = null;
   private LatticeDeasciifier latticeDeasciifier;
 
+  public static TurkishSentenceNormalizer createWithDefaults(TurkishMorphology morphology)
+      throws IOException {
+    return createWithDefaults(morphology, SpanLatticePerceptronNormalizer.loadDefaultSmoothLm());
+  }
+
+  public static TurkishSentenceNormalizer createWithDefaults(
+      TurkishMorphology morphology, SmoothLm lm) throws IOException {
+    return new TurkishSentenceNormalizer(morphology, null, lm);
+  }
+
   public TurkishSentenceNormalizer(
       TurkishMorphology morphology,
       Path dataRoot,
       Path languageModelPath) throws IOException {
+    this(morphology, dataRoot, SmoothLm.builder(languageModelPath).logBase(Math.E).build());
+  }
+
+  private TurkishSentenceNormalizer(
+      TurkishMorphology morphology,
+      Path dataRoot,
+      SmoothLm lm) throws IOException {
     this.morphology = morphology;
     InformalAnalysisConverter analysisConverter =
         new InformalAnalysisConverter(morphology.getWordGenerator());
-    this.lm = SmoothLm.builder(languageModelPath).logBase(Math.E).build();
+    this.lm = lm;
     Log.info("Language model = %s", lm.info());
     this.sequenceDecoder = new NgramSequenceDecoder(lm);
 
@@ -88,8 +106,11 @@ public class TurkishSentenceNormalizer {
 
     this.lookupManual =
         loadMultiMap(TextIO.loadLinesFromResource("normalization/candidates-manual"), Set.of());
-    this.lookupFromGraph =
-        loadMultiMap(TextIO.loadLines(dataRoot.resolve("lookup-from-graph")), lookupManual.keySet());
+    List<String> graphLines =
+        dataRoot != null
+            ? TextIO.loadLines(dataRoot.resolve("lookup-from-graph"))
+            : TextIO.loadLinesFromResource("normalization/lookup-from-graph");
+    this.lookupFromGraph = loadMultiMap(graphLines, lookupManual.keySet());
 
     this.informalAsciiTolerantMorphology = TurkishMorphology.builder()
         .setLexicon(morphology.getLexicon())
