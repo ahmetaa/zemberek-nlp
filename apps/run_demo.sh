@@ -21,7 +21,10 @@ fi
 
 mkdir -p "${CLASSES_DIR}"
 
+PROTO_GEN_DIR="${REPO_ROOT}/morphology/target/generated-sources/protobuf/java"
+
 if [[ ! -s "${DEPS_CP_FILE}" \
+   || ! -d "${PROTO_GEN_DIR}" \
    || "${REPO_ROOT}/pom.xml" -nt "${DEPS_CP_FILE}" \
    || "${REPO_ROOT}/apps/pom.xml" -nt "${DEPS_CP_FILE}" ]]; then
   echo "[run_demo.sh] Resolving third-party Maven dependencies for zemberek-apps..."
@@ -46,7 +49,7 @@ SRC_PATHS=(
   "${REPO_ROOT}/tokenization/src/main/java"
   "${REPO_ROOT}/lm/src/main/java"
   "${REPO_ROOT}/morphology/src/main/java"
-  "${REPO_ROOT}/morphology/src/main/generated/java"
+  "${PROTO_GEN_DIR}"
   "${REPO_ROOT}/normalization/src/main/java"
   "${REPO_ROOT}/apps/src/main/java/zemberek/apps/demo"
   "${REPO_ROOT}/apps/src/main/java/zemberek/apps/ConsoleApp.java"
