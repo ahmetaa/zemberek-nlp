@@ -2,8 +2,6 @@ package zemberek.apps.demo;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
@@ -19,7 +17,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executors;
-import zemberek.apps.demo.NormalizationInspector.NormalizeResponse;
+import java.util.function.Function;
+import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
@@ -36,8 +35,7 @@ import zemberek.tokenization.TurkishTokenizer;
  *   <li><b>Normalization</b>: {@link SpanLatticePerceptronNormalizer} ({@code v2.4}) alongside
  *       {@link TurkishSentenceNormalizer} ({@code Zemberek HEAD}) with interactive multi-span
  *       lattice inspection.
- *   <li><b>Deasciifiers</b>: {@code LatticeDeasciifier} ({@code DISAMBIGUATION_ONLY}, {@code NONE},
- *       {@code FULL}, {@code KnownWordsOnly}) vs. classic {@code Deasciifier}.
+ *   <li><b>Deasciifiers</b>: {@code LatticeDeasciifier} vs. classic {@code Deasciifier}.
  *   <li><b>Morphology &amp; Disambiguation</b>: {@link TurkishMorphology#analyzeAndDisambiguate}.
  *   <li><b>Tokenization &amp; Sentence Boundary Extraction</b>: {@link TurkishTokenizer} and
  *       {@link TurkishSentenceExtractor}.
@@ -50,90 +48,46 @@ public final class ZemberekDemoServer {
 
   private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
-  private static final Path USER_HOME = Paths.get(System.getProperty("user.home", "."));
-
-  private static final List<Path> CANDIDATE_MODEL_DIRS =
-      List.of(
-          USER_HOME.resolve("data/turkish/normalization/norm_v2_models"),
-          Paths.get("experiment/target/demo_models_v23"),
-          Paths.get("../experiment/target/demo_models_v23"));
-
-  private static final Path DEFAULT_ZEMBEREK_NORM_ROOT =
-      USER_HOME.resolve("data/turkish/normalization/zemberek_norm_data");
-
   private static final List<Path> DEV_STATIC_DIRS =
       List.of(
           Paths.get("apps/src/main/resources/webdemo"),
           Paths.get("src/main/resources/webdemo"));
 
   private final TurkishMorphology morphology;
-  private final SpanLatticePerceptronNormalizer perceptron;
-  private final TurkishSentenceNormalizer zemberekHead;
   private final NormalizationInspector normInspector;
   private final DeasciifierInspector deasciifierInspector;
-  private final double startupSeconds;
   private final Object engineLock = new Object();
 
   public ZemberekDemoServer(
       TurkishMorphology morphology,
       SpanLatticePerceptronNormalizer perceptron,
-      TurkishSentenceNormalizer zemberekHead,
-      double startupSeconds) {
+      TurkishSentenceNormalizer zemberekHead) {
     this.morphology = morphology;
-    this.perceptron = perceptron;
-    this.zemberekHead = zemberekHead;
-    this.startupSeconds = startupSeconds;
     this.normInspector = new NormalizationInspector(perceptron, zemberekHead);
     this.deasciifierInspector = new DeasciifierInspector(morphology);
   }
 
-  public record EngineMeta(
-      String id,
-      String label,
-      String ramLabel,
-      String testSliceErrPct,
-      String nasty5kErrPct,
-      String cleanFprPct,
-      String speedTokSec) {}
-
   public record ServerInfoResponse(
-      String appTitle,
       String version,
-      boolean loadedFromCache,
-      double startupSeconds,
-      List<String> modules,
-      List<EngineMeta> engines,
+      boolean hasZemberekHead,
       List<DeasciifierInspector.DeasciifierEngineMeta> deasciifiers) {}
 
-  public record MorphCandidateDto(
-      String formatted,
-      String lemma,
-      String stem,
-      String ending,
-      String primaryPos,
-      String secondaryPos,
-      boolean selected) {}
-
   public record MorphWordDto(
-      int index,
-      String surface,
-      boolean unknown,
-      String bestLemma,
-      String bestPos,
-      String bestFormatted,
-      List<MorphCandidateDto> candidates) {}
+      String surface, String bestPos, String bestFormatted, List<String> altParses) {}
 
-  public record MorphResponse(
-      String text, double latencyMs, int tokenCount, List<MorphWordDto> words) {}
+  public record MorphResponse(double latencyMs, List<MorphWordDto> words) {}
 
-  public record TokenDto(int index, String text, String type, int start, int end) {}
+  public record TokenDto(String text, String type, int start, int end) {}
 
   public record TokenizeResponse(
-      String text,
-      double latencyMs,
-      List<String> sentences,
-      int tokenCount,
-      List<TokenDto> tokens) {}
+      double latencyMs, List<String> sentences, List<TokenDto> tokens) {}
+
+  private record NormalizeRequest(
+      String text, String engine, Boolean inspect, Boolean compareAll) {}
+
+  private record DeasciifyRequest(String text, String engine, Boolean compareAll) {}
+
+  private record TextRequest(String text) {}
 
   public static ZemberekDemoServer create(Path modelDirOverride, Path zemberekNormRootOverride)
       throws IOException {
@@ -141,60 +95,48 @@ public final class ZemberekDemoServer {
     System.out.println("[ZemberekDemoServer] Initializing TurkishMorphology...");
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
-    String envNormRoot = System.getenv("ZEMBEREK_NORM_ROOT");
-    Path normRoot =
-        zemberekNormRootOverride != null
-            ? zemberekNormRootOverride
-            : (envNormRoot != null && !envNormRoot.isBlank()
-                ? Paths.get(envNormRoot)
-                : DEFAULT_ZEMBEREK_NORM_ROOT);
-    Path lm2GramPath = normRoot.resolve("lm.2gram.slm");
-    Path normDataDir = normRoot.resolve("normalization");
+    SpanLatticePerceptronNormalizer perceptron;
+    TurkishSentenceNormalizer zemberekHead;
 
-    String envModelDir = System.getenv("ZEMBEREK_NORM_MODELS");
-    Path effectiveModelDirOverride =
-        modelDirOverride != null
-            ? modelDirOverride
-            : (envModelDir != null && !envModelDir.isBlank() ? Paths.get(envModelDir) : null);
-    Path modelDir = resolveModelDir(effectiveModelDirOverride);
-    System.out.println(
-        "[ZemberekDemoServer] Loading SpanLatticePerceptronNormalizer (v2.4) from "
-            + modelDir.toAbsolutePath()
-            + " ...");
-    SpanLatticePerceptronNormalizer perceptron =
-        SpanLatticePerceptronNormalizer.fromDirectory(morphology, modelDir, lm2GramPath);
-
-    TurkishSentenceNormalizer zemberekHead = null;
-    if (Files.isDirectory(normDataDir) && Files.exists(lm2GramPath)) {
-      zemberekHead = new TurkishSentenceNormalizer(morphology, normDataDir, lm2GramPath);
+    if (modelDirOverride == null && zemberekNormRootOverride == null) {
+      System.out.println(
+          "[ZemberekDemoServer] Loading bundled normalization models from Zemberek resources...");
+      SmoothLm sharedLm = SpanLatticePerceptronNormalizer.loadDefaultSmoothLm();
+      perceptron = SpanLatticePerceptronNormalizer.createWithDefaults(morphology, sharedLm);
+      zemberekHead = TurkishSentenceNormalizer.createWithDefaults(morphology, sharedLm);
+    } else {
+      SmoothLm lm;
+      if (zemberekNormRootOverride != null) {
+        Path lmPath = zemberekNormRootOverride.resolve("lm.2gram.slm");
+        lm = SmoothLm.builder(lmPath).logBase(Math.E).build();
+        zemberekHead =
+            new TurkishSentenceNormalizer(
+                morphology, zemberekNormRootOverride.resolve("normalization"), lmPath);
+      } else {
+        lm = SpanLatticePerceptronNormalizer.loadDefaultSmoothLm();
+        zemberekHead = TurkishSentenceNormalizer.createWithDefaults(morphology, lm);
+      }
+      perceptron =
+          modelDirOverride != null
+              ? SpanLatticePerceptronNormalizer.load(
+                  morphology,
+                  lm,
+                  Files.exists(modelDirOverride.resolve("knowledge.bin.gz"))
+                      ? modelDirOverride.resolve("knowledge.bin.gz")
+                      : modelDirOverride.resolve("knowledge.bin"),
+                  Files.exists(modelDirOverride.resolve("perceptron.bin.gz"))
+                      ? modelDirOverride.resolve("perceptron.bin.gz")
+                      : modelDirOverride.resolve("perceptron.bin"))
+              : SpanLatticePerceptronNormalizer.createWithDefaults(morphology, lm);
     }
 
-    double sec = (System.nanoTime() - t0) / 1e9;
     System.out.printf(
         Locale.US,
         "[ZemberekDemoServer] Models loaded in %.2fs (Perceptron=%.2f MB, %,d sparse features)%n",
-        sec,
+        (System.nanoTime() - t0) / 1e9,
         perceptron.modelRamBytes() / (1024.0 * 1024.0),
         perceptron.activeSparseFeatureCount());
-    return new ZemberekDemoServer(morphology, perceptron, zemberekHead, sec);
-  }
-
-  private static Path resolveModelDir(Path override) throws IOException {
-    if (override != null) {
-      if (Files.isDirectory(override)) {
-        return override;
-      }
-      throw new IOException("Model directory does not exist: " + override);
-    }
-    for (Path cand : CANDIDATE_MODEL_DIRS) {
-      if (Files.isDirectory(cand)
-          && (Files.exists(cand.resolve("perceptron.bin"))
-              || Files.exists(cand.resolve("perceptron_v23.bin")))) {
-        return cand;
-      }
-    }
-    throw new IOException(
-        "Could not locate SpanLatticePerceptronNormalizer snapshot directory; pass --model-dir <dir>.");
+    return new ZemberekDemoServer(morphology, perceptron, zemberekHead);
   }
 
   public HttpServer start(String host, int port) throws IOException {
@@ -203,16 +145,21 @@ public final class ZemberekDemoServer {
     server.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
 
     server.createContext("/api/info", this::handleInfo);
-    server.createContext("/api/normalize", this::handleNormalize);
-    server.createContext("/api/deasciify", this::handleDeasciify);
-    server.createContext("/api/morphology", this::handleMorphology);
-    server.createContext("/api/tokenize", this::handleTokenize);
+    server.createContext(
+        "/api/normalize", ex -> handlePost(ex, NormalizeRequest.class, this::runNormalize));
+    server.createContext(
+        "/api/deasciify", ex -> handlePost(ex, DeasciifyRequest.class, this::runDeasciify));
+    server.createContext(
+        "/api/morphology", ex -> handlePost(ex, TextRequest.class, this::runMorphology));
+    server.createContext(
+        "/api/tokenize", ex -> handlePost(ex, TextRequest.class, this::runTokenize));
     server.createContext("/", this::handleStatic);
 
     server.start();
+    int boundPort = server.getAddress().getPort();
     System.out.println("========================================================================");
     System.out.printf(
-        Locale.US, "  Zemberek NLP Web Demo running at: http://%s:%d/%n", host, port);
+        Locale.US, "  Zemberek NLP Web Demo running at: http://%s:%d/%n", host, boundPort);
     System.out.println(
         "  Active modules : Normalization (v2.4), Deasciifiers, Morphology, Tokenization");
     System.out.println("  Press Ctrl+C to stop.");
@@ -220,27 +167,8 @@ public final class ZemberekDemoServer {
     return server;
   }
 
-  public static void main(String[] args) throws Exception {
-    int port = DEFAULT_PORT;
-    String host = DEFAULT_HOST;
-    Path modelDir = null;
-    Path normRoot = null;
-
-    for (int i = 0; i < args.length; i++) {
-      String a = args[i];
-      if (("--port".equals(a) || "-p".equals(a)) && i + 1 < args.length) {
-        port = Integer.parseInt(args[++i]);
-      } else if ("--host".equals(a) && i + 1 < args.length) {
-        host = args[++i];
-      } else if (("--model-dir".equals(a) || "--cache-dir".equals(a)) && i + 1 < args.length) {
-        modelDir = Paths.get(args[++i]);
-      } else if ("--norm-root".equals(a) && i + 1 < args.length) {
-        normRoot = Paths.get(args[++i]);
-      }
-    }
-
-    ZemberekDemoServer app = create(modelDir, normRoot);
-    app.start(host, port);
+  public static void main(String[] args) {
+    StartWebDemo.main(args);
   }
 
   public void warmup() {
@@ -257,198 +185,94 @@ public final class ZemberekDemoServer {
       sendJson(ex, 405, Map.of("error", "Method not allowed"));
       return;
     }
-    String percRam =
-        String.format(Locale.US, "%.2f MB", perceptron.modelRamBytes() / (1024.0 * 1024.0));
-
-    List<EngineMeta> engines = new ArrayList<>(2);
-    engines.add(
-        new EngineMeta(
-            "perceptron",
-            "Span-Lattice Perceptron (v2.4 · PA-I)",
-            percRam,
-            "80.79%",
-            "90.41%",
-            "1.55%",
-            "13,088 tok/s"));
-    if (zemberekHead != null) {
-      engines.add(
-          new EngineMeta(
-              "zemberek_head",
-              "Zemberek HEAD (Baseline)",
-              "Rule + SmoothLm",
-              "61.82%",
-              "80.98%",
-              "1.68%",
-              "11,550 tok/s"));
-    }
-
-    ServerInfoResponse resp =
+    sendJson(
+        ex,
+        200,
         new ServerInfoResponse(
-            "Zemberek NLP Demo",
-            "v2.4 (75K Multi-Regime)",
-            true,
-            Math.round(startupSeconds * 100.0) / 100.0,
-            List.of("normalization", "deasciifiers", "morphology", "tokenization"),
-            engines,
-            DeasciifierInspector.engineMetadata());
-    sendJson(ex, 200, resp);
+            "v2.4", normInspector.hasZemberekHead(), DeasciifierInspector.engineMetadata()));
   }
 
-  private void handleDeasciify(HttpExchange ex) throws IOException {
-    if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
-      sendJson(ex, 405, Map.of("error", "Method not allowed"));
-      return;
-    }
-    try {
-      JsonObject body = readJsonBody(ex);
-      String text =
-          body.has("text") && !body.get("text").isJsonNull() ? body.get("text").getAsString() : "";
-      if (text.length() > 20_000) {
-        text = text.substring(0, 20_000);
-      }
-      String engine =
-          body.has("engine") && !body.get("engine").isJsonNull()
-              ? body.get("engine").getAsString()
-              : "lattice_disambig";
-      boolean compareAll = !body.has("compareAll") || body.get("compareAll").getAsBoolean();
-
-      DeasciifierInspector.DeasciifyResponse res;
-      synchronized (engineLock) {
-        res = deasciifierInspector.deasciifyAndInspect(text, engine, compareAll);
-      }
-      sendJson(ex, 200, res);
-    } catch (Exception e) {
-      sendJson(
-          ex, 500, Map.of("error", e.getMessage() == null ? "Internal error" : e.getMessage()));
+  private Object runNormalize(NormalizeRequest req) {
+    String text = clampText(req.text(), 20_000);
+    String engine = req.engine() == null || req.engine().isBlank() ? "perceptron" : req.engine();
+    boolean inspect = req.inspect() == null || req.inspect();
+    boolean compareAll = Boolean.TRUE.equals(req.compareAll());
+    synchronized (engineLock) {
+      return normInspector.normalizeAndInspect(text, engine, inspect, compareAll);
     }
   }
 
-  private void handleNormalize(HttpExchange ex) throws IOException {
-    if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
-      sendJson(ex, 405, Map.of("error", "Method not allowed"));
-      return;
-    }
-    try {
-      JsonObject body = readJsonBody(ex);
-      String text =
-          body.has("text") && !body.get("text").isJsonNull() ? body.get("text").getAsString() : "";
-      if (text.length() > 20_000) {
-        text = text.substring(0, 20_000);
-      }
-      String engine =
-          body.has("engine") && !body.get("engine").isJsonNull()
-              ? body.get("engine").getAsString()
-              : "perceptron";
-      boolean inspect = !body.has("inspect") || body.get("inspect").getAsBoolean();
-      boolean compareAll = body.has("compareAll") && body.get("compareAll").getAsBoolean();
-
-      NormalizeResponse res;
-      synchronized (engineLock) {
-        res = normInspector.normalizeAndInspect(text, engine, inspect, compareAll);
-      }
-      sendJson(ex, 200, res);
-    } catch (Exception e) {
-      sendJson(
-          ex, 500, Map.of("error", e.getMessage() == null ? "Internal error" : e.getMessage()));
+  private Object runDeasciify(DeasciifyRequest req) {
+    String text = clampText(req.text(), 20_000);
+    String engine = req.engine() == null || req.engine().isBlank() ? "lattice" : req.engine();
+    boolean compareAll = req.compareAll() == null || req.compareAll();
+    synchronized (engineLock) {
+      return deasciifierInspector.deasciifyAndInspect(text, engine, compareAll);
     }
   }
 
-  private void handleMorphology(HttpExchange ex) throws IOException {
-    if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
-      sendJson(ex, 405, Map.of("error", "Method not allowed"));
-      return;
+  private MorphResponse runMorphology(TextRequest req) {
+    String text = clampText(req.text(), 5_000).trim();
+    if (text.isEmpty()) {
+      return new MorphResponse(0.0, List.of());
     }
-    try {
-      JsonObject body = readJsonBody(ex);
-      String text =
-          body.has("text") && !body.get("text").isJsonNull()
-              ? body.get("text").getAsString().trim()
-              : "";
-      if (text.length() > 5_000) {
-        text = text.substring(0, 5_000);
+    List<MorphWordDto> words = new ArrayList<>();
+    long t0 = System.nanoTime();
+    synchronized (engineLock) {
+      List<String> sents = TurkishSentenceExtractor.DEFAULT.fromParagraph(text);
+      if (sents.isEmpty()) {
+        sents = List.of(text);
       }
-      if (text.isEmpty()) {
-        sendJson(ex, 200, new MorphResponse("", 0.0, 0, List.of()));
-        return;
-      }
-
-      List<MorphWordDto> words = new ArrayList<>();
-      long t0 = System.nanoTime();
-      synchronized (engineLock) {
-        List<String> sents = TurkishSentenceExtractor.DEFAULT.fromParagraph(text);
-        if (sents.isEmpty()) {
-          sents = List.of(text);
+      for (String s : sents) {
+        if (s.isBlank()) {
+          continue;
         }
-        int idx = 0;
-        for (String s : sents) {
-          if (s.isBlank()) {
-            continue;
-          }
-          SentenceAnalysis sa = morphology.analyzeAndDisambiguate(s);
-          for (SentenceWordAnalysis swa : sa.getWordAnalyses()) {
-            SingleAnalysis best = swa.getBestAnalysis();
-            String input = swa.getWordAnalysis().getInput();
-            List<MorphCandidateDto> cands = new ArrayList<>();
-            for (SingleAnalysis ca : swa.getWordAnalysis()) {
-              cands.add(
-                  new MorphCandidateDto(
-                      ca.formatLong(),
-                      ca.getDictionaryItem().lemma,
-                      ca.getStem(),
-                      ca.getEnding(),
-                      ca.getPos().shortForm,
-                      ca.getDictionaryItem().secondaryPos.shortForm,
-                      ca.equals(best)));
+        SentenceAnalysis sa = morphology.analyzeAndDisambiguate(s);
+        for (SentenceWordAnalysis swa : sa.getWordAnalyses()) {
+          SingleAnalysis best = swa.getBestAnalysis();
+          List<String> altParses = new ArrayList<>();
+          for (SingleAnalysis ca : swa.getWordAnalysis()) {
+            if (!ca.equals(best)) {
+              altParses.add(ca.formatLong());
             }
-            words.add(
-                new MorphWordDto(
-                    idx++,
-                    input,
-                    best.isUnknown(),
-                    best.isUnknown() ? "?" : best.getDictionaryItem().lemma,
-                    best.getPos().shortForm,
-                    best.formatLong(),
-                    cands));
           }
+          words.add(
+              new MorphWordDto(
+                  swa.getWordAnalysis().getInput(),
+                  best.getPos().shortForm,
+                  best.formatLong(),
+                  altParses));
         }
       }
-      double ms = (System.nanoTime() - t0) / 1e6;
-      sendJson(
-          ex, 200, new MorphResponse(text, Math.round(ms * 1000.0) / 1000.0, words.size(), words));
-    } catch (Exception e) {
-      sendJson(
-          ex, 500, Map.of("error", e.getMessage() == null ? "Internal error" : e.getMessage()));
     }
+    return new MorphResponse(roundMs((System.nanoTime() - t0) / 1e6), words);
   }
 
-  private void handleTokenize(HttpExchange ex) throws IOException {
+  private TokenizeResponse runTokenize(TextRequest req) {
+    String text = clampText(req.text(), 10_000);
+    long t0 = System.nanoTime();
+    List<String> sents =
+        text.isBlank() ? List.of() : TurkishSentenceExtractor.DEFAULT.fromParagraph(text);
+    List<Token> rawToks = text.isEmpty() ? List.of() : TurkishTokenizer.DEFAULT.tokenize(text);
+    double ms = roundMs((System.nanoTime() - t0) / 1e6);
+
+    List<TokenDto> dtos = new ArrayList<>(rawToks.size());
+    for (Token t : rawToks) {
+      dtos.add(new TokenDto(t.getText(), t.getType().name(), t.getStart(), t.getEnd()));
+    }
+    return new TokenizeResponse(ms, sents, dtos);
+  }
+
+  private <R> void handlePost(
+      HttpExchange ex, Class<R> reqType, Function<R, Object> handler) throws IOException {
     if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
       sendJson(ex, 405, Map.of("error", "Method not allowed"));
       return;
     }
-    try {
-      JsonObject body = readJsonBody(ex);
-      String text =
-          body.has("text") && !body.get("text").isJsonNull() ? body.get("text").getAsString() : "";
-      if (text.length() > 10_000) {
-        text = text.substring(0, 10_000);
-      }
-      long t0 = System.nanoTime();
-      List<String> sents =
-          text.isBlank() ? List.of() : TurkishSentenceExtractor.DEFAULT.fromParagraph(text);
-      List<Token> rawToks = text.isEmpty() ? List.of() : TurkishTokenizer.DEFAULT.tokenize(text);
-      double ms = (System.nanoTime() - t0) / 1e6;
-
-      List<TokenDto> dtos = new ArrayList<>(rawToks.size());
-      for (int i = 0; i < rawToks.size(); i++) {
-        Token t = rawToks.get(i);
-        dtos.add(new TokenDto(i, t.getText(), t.getType().name(), t.getStart(), t.getEnd()));
-      }
-      sendJson(
-          ex,
-          200,
-          new TokenizeResponse(
-              text, Math.round(ms * 1000.0) / 1000.0, sents, dtos.size(), dtos));
+    try (InputStream is = ex.getRequestBody()) {
+      String raw = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+      R req = GSON.fromJson(raw.isBlank() ? "{}" : raw, reqType);
+      sendJson(ex, 200, handler.apply(req));
     } catch (Exception e) {
       sendJson(
           ex, 500, Map.of("error", e.getMessage() == null ? "Internal error" : e.getMessage()));
@@ -467,19 +291,21 @@ public final class ZemberekDemoServer {
               "/deasciifier",
               "/normalization",
               "/morphology",
-              "/tokenization" ->
+              "/tokenization",
+              "/tokenizer" ->
               "index.html";
           case "/styles.css" -> "styles.css";
           case "/app.js" -> "app.js";
           default -> null;
         };
     if (cleanName == null) {
-      byte[] msg = "Not Found".getBytes(StandardCharsets.UTF_8);
-      ex.getResponseHeaders().set("Content-Type", "text/plain; charset=utf-8");
-      ex.sendResponseHeaders(404, msg.length);
-      try (OutputStream os = ex.getResponseBody()) {
-        os.write(msg);
-      }
+      sendText(ex, 404, "Not Found");
+      return;
+    }
+
+    byte[] bytes = loadStaticAsset(cleanName);
+    if (bytes == null) {
+      sendText(ex, 500, "Missing static asset: " + cleanName);
       return;
     }
 
@@ -489,24 +315,7 @@ public final class ZemberekDemoServer {
           case "app.js" -> "application/javascript; charset=utf-8";
           default -> "text/html; charset=utf-8";
         };
-
-    byte[] bytes = loadStaticAsset(cleanName);
-    if (bytes == null) {
-      byte[] msg = ("Missing static asset: " + cleanName).getBytes(StandardCharsets.UTF_8);
-      ex.getResponseHeaders().set("Content-Type", "text/plain; charset=utf-8");
-      ex.sendResponseHeaders(500, msg.length);
-      try (OutputStream os = ex.getResponseBody()) {
-        os.write(msg);
-      }
-      return;
-    }
-
-    ex.getResponseHeaders().set("Content-Type", contentType);
-    ex.getResponseHeaders().set("Cache-Control", "no-store");
-    ex.sendResponseHeaders(200, bytes.length);
-    try (OutputStream os = ex.getResponseBody()) {
-      os.write(bytes);
-    }
+    sendBytes(ex, 200, contentType, bytes);
   }
 
   private static byte[] loadStaticAsset(String fileName) throws IOException {
@@ -521,19 +330,29 @@ public final class ZemberekDemoServer {
     }
   }
 
-  private static JsonObject readJsonBody(HttpExchange ex) throws IOException {
-    try (InputStream is = ex.getRequestBody()) {
-      String raw = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-      if (raw.isBlank()) {
-        return new JsonObject();
-      }
-      return JsonParser.parseString(raw).getAsJsonObject();
+  private static String clampText(String s, int maxLen) {
+    if (s == null) {
+      return "";
     }
+    return s.length() > maxLen ? s.substring(0, maxLen) : s;
+  }
+
+  private static double roundMs(double ms) {
+    return Math.round(ms * 1000.0) / 1000.0;
   }
 
   private static void sendJson(HttpExchange ex, int status, Object payload) throws IOException {
-    byte[] bytes = GSON.toJson(payload).getBytes(StandardCharsets.UTF_8);
-    ex.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
+    sendBytes(
+        ex, status, "application/json; charset=utf-8", GSON.toJson(payload).getBytes(StandardCharsets.UTF_8));
+  }
+
+  private static void sendText(HttpExchange ex, int status, String message) throws IOException {
+    sendBytes(ex, status, "text/plain; charset=utf-8", message.getBytes(StandardCharsets.UTF_8));
+  }
+
+  private static void sendBytes(HttpExchange ex, int status, String contentType, byte[] bytes)
+      throws IOException {
+    ex.getResponseHeaders().set("Content-Type", contentType);
     ex.getResponseHeaders().set("Cache-Control", "no-store");
     ex.sendResponseHeaders(status, bytes.length);
     try (OutputStream os = ex.getResponseBody()) {

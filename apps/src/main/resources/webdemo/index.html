@@ -11,9 +11,7 @@
     <div class="topbar-inner">
       <div class="brand">
         <span class="brand-mark">Z</span>
-        <div>
-          <div class="brand-title">Zemberek NLP <span class="brand-sub">Demo Studio</span></div>
-        </div>
+        <div class="brand-title">Zemberek NLP <span class="brand-sub">Demo Studio</span></div>
       </div>
 
       <nav class="module-tabs" role="tablist" aria-label="Zemberek Modules">
@@ -78,7 +76,7 @@
           ></textarea>
         </div>
 
-        <div class="io-card output-card">
+        <div class="io-card">
           <div class="io-card-header">
             <div class="io-title-wrap">
               <span class="io-title">Normalized Output</span>
@@ -104,7 +102,7 @@
         </div>
       </div>
 
-      <!-- Optional Side-by-Side 4-Engine Comparison Drawer -->
+      <!-- Optional Side-by-Side Engine Comparison Drawer -->
       <div id="comparisonPanel" class="panel-card hidden">
         <div class="panel-header">
           <h3 class="panel-title">Side-by-Side Engine Comparison</h3>
@@ -133,23 +131,21 @@
 
         <div id="latticeStrip" class="lattice-strip"></div>
 
-        <div id="slotDetailGrid" class="slot-detail-grid">
-          <!-- Token Signals Card -->
+        <div class="slot-detail-grid">
           <div class="subcard">
             <div class="subcard-header">
               <span class="stage-badge">Signals</span>
               <h4>Token Signals &amp; Edit Probability</h4>
             </div>
-            <div id="gateDetailBody" class="subcard-body"></div>
+            <div id="signalDetailBody" class="subcard-body"></div>
           </div>
 
-          <!-- Candidate Arcs & Viterbi Scores Card -->
           <div class="subcard">
             <div class="subcard-header">
               <span class="stage-badge stage-2">Lattice</span>
               <h4>Candidate Arcs &amp; Semi-Markov Viterbi Scores</h4>
             </div>
-            <div id="rankDetailBody" class="subcard-body"></div>
+            <div id="arcDetailBody" class="subcard-body"></div>
           </div>
         </div>
       </div>
@@ -161,24 +157,14 @@
         <div class="engine-group">
           <label for="deascEngineSelect" class="control-label">Deasciifier</label>
           <select id="deascEngineSelect" class="select-input">
-            <option value="lattice_disambig" selected>LatticeDeasciifier — Disambiguating â/î/û (Default · 3.58 MB)</option>
-            <option value="lattice_none">LatticeDeasciifier — Plain Diacritics (No Circumflex)</option>
-            <option value="lattice_full">LatticeDeasciifier — Full Circumflex (Lexicon â/î/û)</option>
-            <option value="lattice_known">LatticeDeasciifier — Known Words Only (OOV-Safe)</option>
-            <option value="legacy_pattern">Legacy Deasciifier (2006 Decision-List Pattern Table)</option>
+            <option value="lattice" selected>Lattice Deasciifier</option>
+            <option value="legacy">Legacy Deasciifier</option>
           </select>
-        </div>
-
-        <div id="deascStatsBar" class="engine-metrics">
-          <span class="metric-chip" title="Model memory footprint">RAM: <strong id="deascStatRam">3.58 MB</strong></span>
-          <span class="metric-chip" title="Sentence accuracy on Gemini-2500 gold benchmark (No^ / Strict)">Gemini-2500 Sent: <strong id="deascStatSent">94.88% / 89.80%</strong></span>
-          <span class="metric-chip" title="Word-level accuracy on Gemini-2500">Word Acc: <strong id="deascStatWord">99.57%</strong></span>
-          <span class="metric-chip" title="Preservation of existing Turkish diacritics on partial-ASCII inputs">Pin Safety: <strong id="deascStatPin">0 stripped</strong></span>
         </div>
       </div>
 
       <div id="deascModeNote" class="mode-note-bar">
-        Morphological lattice + structured margin perceptron; emits <code>â/î/û</code> on minimal pairs (<code>kâr/kar</code>, <code>hâlâ/hala</code>, <code>âdet</code>, <code>hâkim</code>, <code>resmî</code>) + OOV vowel harmony.
+        Morphological lattice + structured perceptron; restores Turkish diacritics, minimal-pair circumflexes (kâr/kar, hâlâ/hala), and OOV vowel harmony.
       </div>
 
       <div class="presets-row">
@@ -214,7 +200,7 @@
           ></textarea>
         </div>
 
-        <div class="io-card output-card">
+        <div class="io-card">
           <div class="io-card-header">
             <div class="io-title-wrap">
               <span class="io-title">Deasciified Output</span>
@@ -227,9 +213,9 @@
                 <input type="checkbox" id="deascHighlightToggle" checked />
                 <span>Highlight chars</span>
               </label>
-              <label class="toggle-chip" title="Compare all 5 Zemberek deasciifier modes side-by-side">
+              <label class="toggle-chip" title="Compare Lattice and Legacy deasciifiers side-by-side">
                 <input type="checkbox" id="deascCompareToggle" checked />
-                <span>Compare all 5</span>
+                <span>Compare both</span>
               </label>
               <button id="deascToNormBtn" class="btn-ghost" type="button" title="Send input to full Normalization tab">
                 Norm →
@@ -244,13 +230,13 @@
         </div>
       </div>
 
-      <!-- Side-by-Side All-Deasciifiers Comparison Card -->
+      <!-- Side-by-Side Deasciifiers Comparison Card -->
       <div id="deascComparisonPanel" class="panel-card">
         <div class="panel-header">
           <div>
             <h3 class="panel-title">Side-by-Side Deasciifiers Comparison</h3>
             <p class="panel-subtitle">
-              Comparing <code>LatticeDeasciifier</code> modes (<code>DISAMBIGUATION_ONLY</code>, <code>NONE</code>, <code>FULL</code>, <code>KnownWordsOnly</code>) against <code>Legacy Deasciifier</code>. Words underlined in amber differ from the selected engine; click any row to make it active.
+              Comparing <code>Lattice Deasciifier</code> against <code>Legacy Deasciifier</code>. Words underlined in amber differ from the selected engine; click any row to make it active.
             </p>
           </div>
           <span id="deascDisagreeBadge" class="disagree-pill">0 disagreements</span>
@@ -281,7 +267,7 @@
 
         <div id="deascTokenStrip" class="lattice-strip"></div>
 
-        <div id="deascDetailGrid" class="slot-detail-grid">
+        <div class="slot-detail-grid">
           <div class="subcard">
             <div class="subcard-header">
               <span class="stage-badge">1:1 Chars</span>
@@ -293,7 +279,7 @@
           <div class="subcard">
             <div class="subcard-header">
               <span class="stage-badge stage-2">Lattice</span>
-              <h4><code>LatticeDeasciifier</code> Candidates, Scores &amp; 5-Mode Outputs</h4>
+              <h4><code>LatticeDeasciifier</code> Candidates, Scores &amp; Engine Outputs</h4>
             </div>
             <div id="deascVariantDetailBody" class="subcard-body"></div>
           </div>
@@ -321,7 +307,7 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 3: TOKENIZATION ==================== -->
+    <!-- ==================== TAB 4: TOKENIZATION ==================== -->
     <section id="tab-tokenization" class="tab-panel">
       <div class="panel-card">
         <div class="panel-header">

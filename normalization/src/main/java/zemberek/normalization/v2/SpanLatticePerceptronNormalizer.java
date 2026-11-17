@@ -1,6 +1,5 @@
 package zemberek.normalization.v2;
 
-import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,41 +8,33 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.normalization.deasciifier.latticedeasciifier.QuantizedWeightTable;
 import zemberek.normalization.v2.NormV2Types.SentenceLattice;
 import zemberek.normalization.v2.NormV2Types.SpanArc;
 import zemberek.normalization.v2.NormV2Types.SpanToken;
-import zemberek.normalization.v2.NormV2Types.TextNormalizer;
 
 /**
- * Joint Semi-Markov Averaged Perceptron Turkish sentence normalizer ({@code v2.4}) operating over
- * a multi-span candidate DAG ({@link SentenceLattice}).
+ * Joint Semi-Markov Averaged Perceptron Turkish sentence normalizer operating over a multi-span
+ * candidate DAG ({@link SentenceLattice}).
  *
  * <p>Scores {@code 1:1} rewrites, {@code 1:2} clitic/compound splits, and {@code 2:1}/{@code 3:1}
- * merges jointly using {@code 20} calibrated continuous language-model/channel features and {@code
- * 31} hashed sparse feature templates stored in a quantized Minimal Perfect Hash Function ({@link
- * QuantizedWeightTable}, ~2.6 MB RAM) via beam-pruned Semi-Markov Viterbi search ({@code B = 4}).
- *
- * <p><b>Typical Usage:</b>
- *
- * <pre>{@code
- * TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
- * SpanLatticePerceptronNormalizer normalizer =
- *     SpanLatticePerceptronNormalizer.fromDirectory(morphology, modelDir, lm2GramPath);
- * String clean = normalizer.normalize("slm bugun geliyomusun :)");
- * }</pre>
+ * merges jointly using {@code 20} continuous language-model/channel features and {@code 30} hashed
+ * sparse feature templates stored in a {@link QuantizedWeightTable}, decoded via beam-pruned
+ * Semi-Markov Viterbi search ({@code B = 4}).
  */
-public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
+public final class SpanLatticePerceptronNormalizer {
 
-  /** Number of calibrated continuous features scored alongside sparse binary templates on every arc. */
+  /** Number of continuous features scored alongside sparse binary templates on every arc. */
   public static final int DENSE_DIM = 20;
 
-  // ===============================================================================================
-  // Continuous Feature Slots (0 .. DENSE_DIM - 1)
-  // ===============================================================================================
+  private static final int BEAM_WIDTH = 4;
+  private static final String DEFAULT_LM_RESOURCE = "/normalization/lm.2gram.slm.gz";
+  private static final String DEFAULT_MODEL_RESOURCE = "/normalization/v2/perceptron.bin.gz";
 
+  // Continuous feature indices
   private static final int F_SMOOTH_FWD2 = 0;
   private static final int F_SMOOTH_RIGHT2 = 1;
   private static final int F_SMOOTH_INTERNAL = 2;
@@ -59,16 +50,13 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
   private static final int F_IS_IDENTITY_LOWER = 12;
   private static final int F_IS_REGULAR_MORPH = 13;
   private static final int F_CHAR_PHONOTACTICS = 14;
-  private static final int F_EXTERNAL_ARC_SCORE = 15;
+  private static final int F_RESERVED_ZERO = 15;
   private static final int F_ASCII_SENT_RATIO = 16;
   private static final int F_INFORMAL_EXACT_VS_STRIP = 17;
   private static final int F_CLITIC_SKIP_LLR = 18;
   private static final int F_QUESTION_VOWEL_HARMONY = 19;
 
-  // ===============================================================================================
-  // Sparse 64-Bit Feature Template Namespace Salts (hashed via hash2 / hash3)
-  // ===============================================================================================
-
+  // Hashed sparse feature template IDs
   private static final int T_LEX_LOWER_PAIR = 1;
   private static final int T_LEX_SURF_PAIR = 2;
   private static final int T_ID_OOV_MORPH_SRC = 3;
@@ -100,13 +88,19 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
   private static final int T_TRANS_PRON_LOC_LEFT = 29;
   private static final int T_TRANS_QUESTION_HARMONY = 30;
 
-  private final String modelName;
+  private record BackPtr(
+      SpanArc arc,
+      BackPtr prev,
+      String prev2Lex,
+      String prev1Lex,
+      short prevMorphTag,
+      float score) {}
+
   private final SpanCandidateGenerator generator;
   private final float[] denseWeights;
   private final QuantizedWeightTable sparseWeights;
 
   public SpanLatticePerceptronNormalizer(
-      String modelName,
       SpanCandidateGenerator generator,
       float[] denseWeights,
       QuantizedWeightTable sparseWeights) {
@@ -114,66 +108,109 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
       throw new IllegalArgumentException(
           "Expected denseWeights of length " + DENSE_DIM + ", got " + denseWeights.length);
     }
-    this.modelName = modelName;
     this.generator = generator;
     this.denseWeights = denseWeights.clone();
     this.sparseWeights = sparseWeights;
   }
 
-  /**
-   * Loads a ready-to-use {@link SpanLatticePerceptronNormalizer} from a model directory containing
-   * {@code mined_v23.bin} (or {@code knowledge.bin}) and {@code perceptron_v23.bin} (or {@code
-   * perceptron.bin}), plus a 2-gram {@code SmoothLm} file ({@code lm.2gram.slm}).
-   */
-  public static SpanLatticePerceptronNormalizer fromDirectory(
-      TurkishMorphology morphology, Path modelDir, Path smoothLmPath) throws IOException {
-    SmoothLm smoothLm = SmoothLm.builder(smoothLmPath).logBase(Math.E).build();
-    Path knowledgeFile =
-        Files.exists(modelDir.resolve("knowledge.bin"))
-            ? modelDir.resolve("knowledge.bin")
-            : modelDir.resolve("mined_v23.bin");
-    Path perceptronFile =
-        Files.exists(modelDir.resolve("perceptron.bin"))
-            ? modelDir.resolve("perceptron.bin")
-            : modelDir.resolve("perceptron_v23.bin");
-    return load(morphology, smoothLm, knowledgeFile, perceptronFile);
+  // =========================================================================
+  // Model Loading & Factories
+  // =========================================================================
+
+  /** Loads the bundled default 2-gram {@link SmoothLm} ({@code /normalization/lm.2gram.slm.gz}). */
+  public static SmoothLm loadDefaultSmoothLm() throws IOException {
+    try (InputStream is =
+        SpanLatticePerceptronNormalizer.class.getResourceAsStream(DEFAULT_LM_RESOURCE)) {
+      if (is == null) {
+        throw new IOException("Missing classpath resource: " + DEFAULT_LM_RESOURCE);
+      }
+      return SmoothLm.builder(NormalizationKnowledge.maybeUnzip(is)).logBase(Math.E).build();
+    }
   }
 
   /**
-   * Loads a ready-to-use {@link SpanLatticePerceptronNormalizer} from explicit knowledge and model
-   * snapshot files.
+   * Creates a ready-to-use {@link SpanLatticePerceptronNormalizer} using Zemberek's bundled
+   * {@code knowledge.bin.gz}, {@code perceptron.bin.gz}, and {@code lm.2gram.slm.gz} resources.
    */
+  public static SpanLatticePerceptronNormalizer createWithDefaults(TurkishMorphology morphology)
+      throws IOException {
+    return createWithDefaults(morphology, loadDefaultSmoothLm());
+  }
+
+  /**
+   * Creates a ready-to-use {@link SpanLatticePerceptronNormalizer} using Zemberek's bundled
+   * {@code knowledge.bin.gz} and {@code perceptron.bin.gz} resources and a provided {@link SmoothLm}.
+   */
+  public static SpanLatticePerceptronNormalizer createWithDefaults(
+      TurkishMorphology morphology, SmoothLm smoothLm) throws IOException {
+    CompactStemEndingSpellChecker spellChecker = new CompactStemEndingSpellChecker(morphology);
+    NormalizationKnowledge knowledge = NormalizationKnowledge.loadDefault();
+    SpanCandidateGenerator generator =
+        new SpanCandidateGenerator(morphology, spellChecker, smoothLm, knowledge);
+    try (InputStream is =
+        SpanLatticePerceptronNormalizer.class.getResourceAsStream(DEFAULT_MODEL_RESOURCE)) {
+      if (is == null) {
+        throw new IOException("Missing classpath resource: " + DEFAULT_MODEL_RESOURCE);
+      }
+      return loadModel(is, generator);
+    }
+  }
+
+  /**
+   * Loads a {@link SpanLatticePerceptronNormalizer} from an external model directory containing
+   * {@code knowledge.bin[.gz]} and {@code perceptron.bin[.gz]}, plus a 2-gram {@code SmoothLm}.
+   */
+  public static SpanLatticePerceptronNormalizer fromDirectory(
+      TurkishMorphology morphology, Path modelDir, Path smoothLmPath) throws IOException {
+    SmoothLm smoothLm;
+    try (InputStream lmIn = Files.newInputStream(smoothLmPath)) {
+      smoothLm = SmoothLm.builder(NormalizationKnowledge.maybeUnzip(lmIn)).logBase(Math.E).build();
+    }
+    Path knowledgeFile =
+        firstExisting(modelDir, "knowledge.bin.gz", "knowledge.bin", "mined_v23.bin");
+    Path perceptronFile =
+        firstExisting(modelDir, "perceptron.bin.gz", "perceptron.bin", "perceptron_v23.bin");
+    return load(morphology, smoothLm, knowledgeFile, perceptronFile);
+  }
+
+  private static Path firstExisting(Path dir, String... names) {
+    for (String name : names) {
+      Path p = dir.resolve(name);
+      if (Files.exists(p)) {
+        return p;
+      }
+    }
+    return dir.resolve(names[0]);
+  }
+
   public static SpanLatticePerceptronNormalizer load(
       TurkishMorphology morphology,
       SmoothLm smoothLm,
       Path knowledgeFile,
       Path perceptronModelFile)
       throws IOException {
-    CompactStemEndingSpellChecker spellChecker =
-        new CompactStemEndingSpellChecker(morphology, true);
+    CompactStemEndingSpellChecker spellChecker = new CompactStemEndingSpellChecker(morphology);
     NormalizationKnowledge knowledge = NormalizationKnowledge.load(knowledgeFile);
     SpanCandidateGenerator generator =
-        new SpanCandidateGenerator(
-            morphology, spellChecker, smoothLm, knowledge, SpanCandidateGenerator.Config.full());
+        new SpanCandidateGenerator(morphology, spellChecker, smoothLm, knowledge);
     return loadModel(perceptronModelFile, generator);
   }
 
-  /** Loads serialized Perceptron weights from disk and binds them to {@code generator}. */
   public static SpanLatticePerceptronNormalizer loadModel(
       Path perceptronModelFile, SpanCandidateGenerator generator) throws IOException {
     try (InputStream fis = Files.newInputStream(perceptronModelFile)) {
-      return loadModel(fis, generator, "SpanLatticePerceptronNormalizer (v2.4)");
+      return loadModel(fis, generator);
     }
   }
 
-  /** Loads serialized Perceptron weights from an {@link InputStream} and binds them to {@code generator}. */
   public static SpanLatticePerceptronNormalizer loadModel(
-      InputStream stream, SpanCandidateGenerator generator, String modelName) throws IOException {
-    DataInputStream in = new DataInputStream(new BufferedInputStream(stream, 1 << 16));
+      InputStream stream, SpanCandidateGenerator generator) throws IOException {
+    DataInputStream in = new DataInputStream(NormalizationKnowledge.maybeUnzip(stream));
     int magic = in.readInt();
     int ver = in.readInt();
     if (magic != NormalizationKnowledge.SNAPSHOT_MAGIC
-        || ver != NormalizationKnowledge.SNAPSHOT_VERSION) {
+        || (ver != NormalizationKnowledge.SNAPSHOT_VERSION_LEGACY
+            && ver != NormalizationKnowledge.SNAPSHOT_VERSION)) {
       throw new IOException(
           "Unexpected SpanLatticePerceptronNormalizer header: magic="
               + Integer.toHexString(magic)
@@ -185,14 +222,12 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
     for (int i = 0; i < len; i++) {
       dw[i] = in.readFloat();
     }
-    QuantizedWeightTable sw = QuantizedWeightTable.deserialize(in);
-    return new SpanLatticePerceptronNormalizer(modelName, generator, dw, sw);
+    return new SpanLatticePerceptronNormalizer(generator, dw, QuantizedWeightTable.deserialize(in));
   }
 
-  @Override
-  public String name() {
-    return modelName;
-  }
+  // =========================================================================
+  // Public Inference API
+  // =========================================================================
 
   public SpanCandidateGenerator generator() {
     return generator;
@@ -206,17 +241,24 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
     return sparseWeights.size();
   }
 
-  public List<SpanArc> decodeLattice(SentenceLattice lattice) {
-    if (lattice.tokens().isEmpty()) {
-      return List.of();
+  public String normalize(String rawSentence) {
+    if (rawSentence == null || rawSentence.isEmpty()) {
+      return "";
     }
-    return decodeViterbi(lattice, generator, denseWeights, sparseWeights);
+    SentenceLattice lattice = generator.buildLattice(rawSentence);
+    if (lattice.tokens().isEmpty()) {
+      return rawSentence;
+    }
+    return NormV2Types.reconstructText(lattice.tokens(), decodeLattice(lattice));
   }
 
-  /**
-   * Computes the exact Perceptron transition + unary + dense score of {@code arc} given lexical
-   * history {@code (prev2Lex, prev1Lex, prevMorphTag)} (used by interactive lattice inspectors).
-   */
+  public List<SpanArc> decodeLattice(SentenceLattice lattice) {
+    return lattice.tokens().isEmpty()
+        ? List.of()
+        : decodeViterbi(lattice, generator, denseWeights, sparseWeights);
+  }
+
+  /** Computes the exact Perceptron score of {@code arc} given lexical history (used by inspectors). */
   public float scoreArc(
       SentenceLattice lattice,
       String prev2Lex,
@@ -227,62 +269,33 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
     float[] denseBuf = new float[DENSE_DIM];
     float[] lm6Buf = new float[6];
 
-    int nUnary = extractUnarySparseFeatures(lattice, generator, arc, featBuf);
-    float score = 0.0f;
-    for (int f = 0; f < nUnary; f++) {
-      score += sparseWeights.get(featBuf[f]);
-    }
+    float score =
+        dotSparse(sparseWeights, featBuf, extractUnarySparseFeatures(lattice, generator, arc, featBuf));
     extractDenseFeatures(lattice, prev2Lex, prev1Lex, arc, generator, lm6Buf, denseBuf);
-    for (int d = 0; d < DENSE_DIM; d++) {
-      score += denseWeights[d] * denseBuf[d];
-    }
-    int nTrans =
-        extractTransitionSparseFeatures(
-            lattice, generator, prev1Lex, prevMorphTag, arc, featBuf, 0);
-    for (int f = 0; f < nTrans; f++) {
-      score += sparseWeights.get(featBuf[f]);
-    }
+    score += dotDense(denseWeights, denseBuf);
+    score +=
+        dotSparse(
+            sparseWeights,
+            featBuf,
+            extractTransitionSparseFeatures(
+                lattice, generator, prev1Lex, prevMorphTag, arc, featBuf));
     return score;
   }
 
-  @Override
-  public String normalize(String rawSentence) {
-    if (rawSentence == null || rawSentence.isEmpty()) {
-      return "";
-    }
-    SentenceLattice lattice = generator.buildLattice(rawSentence);
-    if (lattice.tokens().isEmpty()) {
-      return rawSentence;
-    }
-    List<SpanArc> bestPath = decodeLattice(lattice);
-    return NormV2Types.reconstructText(lattice.tokens(), bestPath);
-  }
+  // =========================================================================
+  // Semi-Markov Beam Viterbi Decoder
+  // =========================================================================
 
-  public List<String> normalizeAll(List<String> sentences) {
-    List<String> result = new ArrayList<>(sentences.size());
-    for (String s : sentences) {
-      result.add(normalize(s));
-    }
-    return result;
-  }
-
-  /**
-   * Semi-Markov Viterbi over {@link SentenceLattice} tracking punctuation-bridging lexical history
-   * {@code (prev2Lex, prev1Lex, prevMorphTag)} pruned to top beam {@code B = 4} states per boundary.
-   */
   private static List<SpanArc> decodeViterbi(
       SentenceLattice lat,
       SpanCandidateGenerator generator,
       float[] wDense,
       QuantizedWeightTable evalSparse) {
-
     int n = lat.tokens().size();
-    final int beamK = 4;
-
     @SuppressWarnings({"unchecked", "rawtypes"})
     List<BackPtr>[] chart = new List[n + 1];
     for (int i = 0; i <= n; i++) {
-      chart[i] = new ArrayList<>(beamK + 1);
+      chart[i] = new ArrayList<>(BEAM_WIDTH + 1);
     }
     chart[0].add(new BackPtr(null, null, null, null, (short) -1, 0.0f));
 
@@ -296,55 +309,46 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
       if (incoming.isEmpty()) {
         continue;
       }
-      List<SpanArc> arcs = lat.outgoing()[i];
-      for (int aIdx = 0; aIdx < arcs.size(); aIdx++) {
-        SpanArc arc = arcs.get(aIdx);
+      for (SpanArc arc : lat.outgoing()[i]) {
+        float unarySparseScore =
+            dotSparse(evalSparse, featBuf, extractUnarySparseFeatures(lat, generator, arc, featBuf));
 
-        int nUnary = extractUnarySparseFeatures(lat, generator, arc, featBuf);
-        float unarySparseScore = 0.0f;
-        for (int f = 0; f < nUnary; f++) {
-          unarySparseScore += evalSparse.get(featBuf[f]);
-        }
+        BackPtr bestPrev = null;
+        float bestTotal = Float.NEGATIVE_INFINITY;
 
-        BackPtr bestPrevForArc = null;
-        float bestTotalForArc = Float.NEGATIVE_INFINITY;
-
-        for (int b = 0; b < incoming.size(); b++) {
-          BackPtr prevBp = incoming.get(b);
+        for (BackPtr prevBp : incoming) {
           extractDenseFeatures(
               lat, prevBp.prev2Lex, prevBp.prev1Lex, arc, generator, lm6Buf, denseBuf);
-          float denseScore = 0.0f;
-          for (int d = 0; d < DENSE_DIM; d++) {
-            denseScore += wDense[d] * denseBuf[d];
-          }
-          int nTrans =
-              extractTransitionSparseFeatures(
-                  lat, generator, prevBp.prev1Lex, prevBp.prevMorphTag, arc, featBuf, 0);
-          float transSparseScore = 0.0f;
-          for (int f = 0; f < nTrans; f++) {
-            transSparseScore += evalSparse.get(featBuf[f]);
-          }
+          float denseScore = dotDense(wDense, denseBuf);
+          float transSparseScore =
+              dotSparse(
+                  evalSparse,
+                  featBuf,
+                  extractTransitionSparseFeatures(
+                      lat, generator, prevBp.prev1Lex, prevBp.prevMorphTag, arc, featBuf));
           float candTotal = prevBp.score + unarySparseScore + denseScore + transSparseScore;
-          if (candTotal > bestTotalForArc) {
-            bestTotalForArc = candTotal;
-            bestPrevForArc = prevBp;
+          if (candTotal > bestTotal) {
+            bestTotal = candTotal;
+            bestPrev = prevBp;
           }
         }
 
-        if (bestPrevForArc != null && arc.endIdx <= n) {
-          short nextTag = advanceLexMorphTag(lat, bestPrevForArc.prevMorphTag, arc);
+        if (bestPrev != null && arc.endIdx <= n) {
+          short nextTag = advanceLexMorphTag(lat, bestPrev.prevMorphTag, arc);
           SpanCandidateGenerator.advanceLexicalHistory(
-              lat, bestPrevForArc.prev2Lex, bestPrevForArc.prev1Lex, arc, nextLex2);
+              lat, bestPrev.prev2Lex, bestPrev.prev1Lex, arc, nextLex2);
           insertTopK(
               chart[arc.endIdx],
-              new BackPtr(
-                  arc, bestPrevForArc, nextLex2[0], nextLex2[1], nextTag, bestTotalForArc),
-              beamK);
+              new BackPtr(arc, bestPrev, nextLex2[0], nextLex2[1], nextTag, bestTotal),
+              BEAM_WIDTH);
         }
       }
     }
+    return backtrackBestPath(lat, chart[n]);
+  }
 
-    List<BackPtr> finals = chart[n];
+  private static List<SpanArc> backtrackBestPath(SentenceLattice lat, List<BackPtr> finals) {
+    int n = lat.tokens().size();
     if (finals.isEmpty()) {
       List<SpanArc> fallback = new ArrayList<>(n);
       for (int i = 0; i < n; i++) {
@@ -352,19 +356,15 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
       }
       return fallback;
     }
-
     BackPtr best = finals.get(0);
     for (int i = 1; i < finals.size(); i++) {
       if (finals.get(i).score > best.score) {
         best = finals.get(i);
       }
     }
-
     List<SpanArc> out = new ArrayList<>(n);
-    BackPtr cur = best;
-    while (cur != null && cur.arc != null) {
+    for (BackPtr cur = best; cur != null && cur.arc != null; cur = cur.prev) {
       out.add(cur.arc);
-      cur = cur.prev;
     }
     Collections.reverse(out);
     return out;
@@ -384,8 +384,8 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
     for (int i = 0; i < list.size(); i++) {
       BackPtr ex = list.get(i);
       if (ex.prevMorphTag == item.prevMorphTag
-          && java.util.Objects.equals(ex.prev1Lex, item.prev1Lex)
-          && java.util.Objects.equals(ex.prev2Lex, item.prev2Lex)) {
+          && Objects.equals(ex.prev1Lex, item.prev1Lex)
+          && Objects.equals(ex.prev2Lex, item.prev2Lex)) {
         if (item.score > ex.score) {
           list.set(i, item);
         }
@@ -409,13 +409,25 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
     }
   }
 
-  private record BackPtr(
-      SpanArc arc,
-      BackPtr prev,
-      String prev2Lex,
-      String prev1Lex,
-      short prevMorphTag,
-      float score) {}
+  private static float dotSparse(QuantizedWeightTable table, long[] featBuf, int count) {
+    float sum = 0.0f;
+    for (int i = 0; i < count; i++) {
+      sum += table.get(featBuf[i]);
+    }
+    return sum;
+  }
+
+  private static float dotDense(float[] weights, float[] vals) {
+    float sum = 0.0f;
+    for (int i = 0; i < DENSE_DIM; i++) {
+      sum += weights[i] * vals[i];
+    }
+    return sum;
+  }
+
+  // =========================================================================
+  // Dense & Sparse Feature Extraction
+  // =========================================================================
 
   static void extractDenseFeatures(
       SentenceLattice lat,
@@ -431,10 +443,6 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
     float fwdSmooth2 = NormV2Types.clampLm(gen.lmBigram(prev1Lex, arc.firstWordLower));
     float rightSmooth2 = NormV2Types.clampLm(gen.lmBigram(arc.lastWordLower, nextLex));
     float intSmooth = arc.wordCount >= 2 ? NormV2Types.clampLm(arc.internalLmBonus) : 0.0f;
-    float smoothSpanLlr = lm6Buf[0] - lm6Buf[1];
-    float cleanFwd3 = lm6Buf[4];
-    float cleanRight3 = lm6Buf[5];
-    float cleanSpanLlr = lm6Buf[2] - lm6Buf[3];
     float cliticSkipLlr = gen.computeCliticTransparencyLlr(lat, arc);
 
     SpanToken rawTok = lat.tokens().get(arc.startIdx);
@@ -444,10 +452,10 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
     out[F_SMOOTH_FWD2] = fwdSmooth2 * 0.20f;
     out[F_SMOOTH_RIGHT2] = rightSmooth2 * 0.20f;
     out[F_SMOOTH_INTERNAL] = intSmooth * 0.20f;
-    out[F_SMOOTH_SPAN_LLR] = smoothSpanLlr * 0.20f;
-    out[F_CLEAN_FWD3] = cleanFwd3 * 0.20f;
-    out[F_CLEAN_RIGHT3] = cleanRight3 * 0.20f;
-    out[F_CLEAN_SPAN_LLR] = cleanSpanLlr * 0.20f;
+    out[F_SMOOTH_SPAN_LLR] = (lm6Buf[0] - lm6Buf[1]) * 0.20f;
+    out[F_CLEAN_FWD3] = lm6Buf[4] * 0.20f;
+    out[F_CLEAN_RIGHT3] = lm6Buf[5] * 0.20f;
+    out[F_CLEAN_SPAN_LLR] = (lm6Buf[2] - lm6Buf[3]) * 0.20f;
     out[F_PARALLEL_PROB] = arc.parallelProb;
     out[F_PARALLEL_LOG_CNT] = arc.parallelLogCount * 0.25f;
     out[F_SUFFIX_PRECISION] = arc.suffixPrecision;
@@ -456,25 +464,26 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
     out[F_IS_IDENTITY_LOWER] = isIdentityLower ? 1.0f : 0.0f;
     out[F_IS_REGULAR_MORPH] = arc.isRegularMorph ? 1.0f : 0.0f;
     out[F_CHAR_PHONOTACTICS] = clampPhono(arc.charPhonotacticScore) * 0.25f;
-    out[F_EXTERNAL_ARC_SCORE] = 0.0f;
+    out[F_RESERVED_ZERO] = 0.0f;
     out[F_ASCII_SENT_RATIO] =
         ((arc.sourceMask & (NormV2Types.SRC_DEASCIIFIER | NormV2Types.SRC_FORMAL_MORPH)) != 0
                 && arc.diacriticDiffs > 0)
             ? lat.sentenceAsciiRatio()
             : 0.0f;
-    out[F_INFORMAL_EXACT_VS_STRIP] =
-        (arc.sourceMask & NormV2Types.SRC_INFORMAL_EXACT) != 0
-            ? 1.0f
-            : (arc.stripsExplicitDiacritic ? -1.0f : 0.0f);
+    out[F_INFORMAL_EXACT_VS_STRIP] = informalExactVsStripFeature(arc);
     out[F_CLITIC_SKIP_LLR] = cliticSkipLlr * 0.20f;
     out[F_QUESTION_VOWEL_HARMONY] = gen.computeQuestionCliticHarmony(lat, prev1Lex, arc) * 1.5f;
   }
 
-  private static float clampPhono(float v) {
-    if (Float.isNaN(v) || Float.isInfinite(v)) {
-      return -4.5f;
+  private static float informalExactVsStripFeature(SpanArc arc) {
+    if ((arc.sourceMask & NormV2Types.SRC_INFORMAL_EXACT) != 0) {
+      return 1.0f;
     }
-    return Math.max(-6.0f, Math.min(0.0f, v));
+    return arc.stripsExplicitDiacritic ? -1.0f : 0.0f;
+  }
+
+  private static float clampPhono(float v) {
+    return Float.isNaN(v) || Float.isInfinite(v) ? -4.5f : Math.clamp(v, -6.0f, 0.0f);
   }
 
   private static int extractUnarySparseFeatures(
@@ -482,44 +491,17 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
     int p = 0;
     List<SpanToken> toks = lat.tokens();
     SpanToken t0 = toks.get(arc.startIdx);
-    String rawSpanLow =
-        arc.endIdx == arc.startIdx + 1
-            ? t0.lower()
-            : (arc.endIdx == arc.startIdx + 2
-                ? t0.lower() + "+" + toks.get(arc.startIdx + 1).lower()
-                : t0.lower() + "+3");
-
+    String rawSpanLow = rawSpanKey(toks, arc);
     String prevRaw = arc.startIdx > 0 ? toks.get(arc.startIdx - 1).lower() : "^";
     String nextLex = SpanCandidateGenerator.nextLexicalWordOrNull(toks, arc.endIdx);
     String nextLexKey = nextLex == null ? "$" : nextLex;
     boolean isIdLow = (arc.endIdx == arc.startIdx + 1) && arc.normLower.equals(t0.lower());
-    int asciiBkt =
-        lat.sentenceAsciiRatio() > 0.45f ? 2 : (lat.sentenceAsciiRatio() > 0.10f ? 1 : 0);
+    int asciiBkt = bucketAsciiRatio(lat.sentenceAsciiRatio());
 
-    // 1. Exact lexical rewrite pair (skip context-free vowel bias on standalone mI when left word determines harmony)
     if (arc.rawParallelTotal >= 3) {
-      boolean rawExplicitDotlessI = rawSpanLow.indexOf('ı') >= 0;
-      boolean prevPureAmbiguousAscii =
-          !SpanCandidateGenerator.hasExplicitTurkishDiacritics(prevRaw)
-              && SpanCandidateGenerator.hasAsciiAmbiguousChars(prevRaw);
-      boolean contextGovernedQuestionTwin =
-          arc.wordCount == 1
-              && arc.startIdx > 0
-              && !(rawExplicitDotlessI && prevPureAmbiguousAscii)
-              && SpanCandidateGenerator.isStandaloneQuestionClitic(rawSpanLow)
-              && SpanCandidateGenerator.isStandaloneQuestionClitic(arc.normLower)
-              && gen.computeQuestionCliticHarmony(lat, prevRaw, arc) != 0.0f;
-      if (!contextGovernedQuestionTwin) {
-        buf[p++] = hash2(T_LEX_LOWER_PAIR, strHash(rawSpanLow), strHash(arc.normLower));
-        buf[p++] = hash2(T_LEX_SURF_PAIR, strHash(t0.surface()), strHash(arc.normSurface));
-      }
-      buf[p++] =
-          hash3(T_LEX_PAIR_NEXT, strHash(rawSpanLow), strHash(arc.normLower), strHash(nextLexKey));
-      buf[p++] =
-          hash3(T_PREV_LEX_PAIR, strHash(prevRaw), strHash(rawSpanLow), strHash(arc.normLower));
+      p = emitParallelLexicalFeatures(lat, gen, arc, t0, rawSpanLow, prevRaw, nextLexKey, buf, p);
     }
 
-    // 2. Identity vs edit x raw-OOV-status x candidate morphological validity x full 17-bit source mask
     List<SpanArc> slotArcs = lat.outgoing()[arc.startIdx];
     boolean rawRegMorph = !slotArcs.isEmpty() && slotArcs.get(0).isRegularMorph;
     int compactSrc = arc.sourceMask & 0x1FFFF;
@@ -535,20 +517,95 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
             compactSrc,
             (asciiBkt << 1) | (rawRegMorph ? 1 : 0),
             arc.diacriticDiffs > 0 ? 1 : 0);
-
-    // 3. Right lexical context lookahead
     buf[p++] = hash2(T_RIGHT_LEX_BIGRAM, strHash(arc.lastWordLower), strHash(nextLexKey));
 
-    // 4. Split clitic features (de/da, mi, ki) x HEAD word POS/syntax x right context
+    p = emitSplitAndMergeFeatures(lat, arc, rawSpanLow, prevRaw, nextLexKey, compactSrc, buf, p);
+
+    if (lat.overtSubjectPerson() != 0 && arc.verbPerson != 0) {
+      buf[p++] =
+          hash3(T_SUBJ_VERB_AGREE, lat.overtSubjectPerson(), arc.verbPerson, isIdLow ? 1 : 0);
+    }
+
+    p = emitCasingAndApostropheFeatures(t0, arc, compactSrc, buf, p);
+
+    int nextShape = arc.endIdx < toks.size() ? toks.get(arc.endIdx).shape().ordinal() : 5;
+    buf[p++] = hash2(T_MORPH_NEXT_SHAPE, arc.coarseMorphTag, nextShape);
+
+    if (!isIdLow && (arc.rawNegVerbCue || arc.verbPolarity < 0)) {
+      buf[p++] =
+          hash3(T_POLARITY_MATCH, arc.rawNegVerbCue ? 1 : 0, arc.verbPolarity + 2, compactSrc);
+    }
+
+    if (arc.endIdx == arc.startIdx + 1) {
+      if (!isIdLow) {
+        p = emitSingleTokenBucketFeatures(t0, arc, compactSrc, buf, p);
+      }
+      p = emitLocativePronounRightFeature(t0, arc, buf, p);
+    }
+    return p;
+  }
+
+  private static String rawSpanKey(List<SpanToken> toks, SpanArc arc) {
+    SpanToken t0 = toks.get(arc.startIdx);
+    int spanLen = arc.endIdx - arc.startIdx;
+    if (spanLen == 1) {
+      return t0.lower();
+    }
+    if (spanLen == 2) {
+      return t0.lower() + "+" + toks.get(arc.startIdx + 1).lower();
+    }
+    return t0.lower() + "+3";
+  }
+
+  private static int emitParallelLexicalFeatures(
+      SentenceLattice lat,
+      SpanCandidateGenerator gen,
+      SpanArc arc,
+      SpanToken t0,
+      String rawSpanLow,
+      String prevRaw,
+      String nextLexKey,
+      long[] buf,
+      int p) {
+    boolean rawExplicitDotlessI = rawSpanLow.indexOf('ı') >= 0;
+    boolean prevPureAmbiguousAscii =
+        !SpanCandidateGenerator.hasExplicitTurkishDiacritics(prevRaw)
+            && SpanCandidateGenerator.hasAsciiAmbiguousChars(prevRaw);
+    boolean contextGovernedQuestionTwin =
+        arc.wordCount == 1
+            && arc.startIdx > 0
+            && !(rawExplicitDotlessI && prevPureAmbiguousAscii)
+            && SpanCandidateGenerator.isStandaloneQuestionClitic(rawSpanLow)
+            && SpanCandidateGenerator.isStandaloneQuestionClitic(arc.normLower)
+            && gen.computeQuestionCliticHarmony(lat, prevRaw, arc) != 0.0f;
+    if (!contextGovernedQuestionTwin) {
+      buf[p++] = hash2(T_LEX_LOWER_PAIR, strHash(rawSpanLow), strHash(arc.normLower));
+      buf[p++] = hash2(T_LEX_SURF_PAIR, strHash(t0.surface()), strHash(arc.normSurface));
+    }
+    buf[p++] =
+        hash3(T_LEX_PAIR_NEXT, strHash(rawSpanLow), strHash(arc.normLower), strHash(nextLexKey));
+    buf[p++] =
+        hash3(T_PREV_LEX_PAIR, strHash(prevRaw), strHash(rawSpanLow), strHash(arc.normLower));
+    return p;
+  }
+
+  private static int emitSplitAndMergeFeatures(
+      SentenceLattice lat,
+      SpanArc arc,
+      String rawSpanLow,
+      String prevRaw,
+      String nextLexKey,
+      int compactSrc,
+      long[] buf,
+      int p) {
     if (arc.wordCount >= 2) {
       int headState = ((arc.firstWordMorphTag & 0xFFFF) << 3) | (arc.headSyntaxClass & 0x7);
       buf[p++] =
           hash3(T_SPLIT_TAIL_HEAD_NEXT, strHash(arc.lastWordLower), headState, strHash(nextLexKey));
       buf[p++] = hash2(T_SPLIT_TAIL_HEAD, strHash(arc.lastWordLower), headState);
-      buf[p++] = hash2(T_SPLIT_TAIL_QMARK, strHash(arc.lastWordLower), lat.hasQuestionMark() ? 1 : 0);
+      buf[p++] =
+          hash2(T_SPLIT_TAIL_QMARK, strHash(arc.lastWordLower), lat.hasQuestionMark() ? 1 : 0);
     }
-
-    // 5. Merge features (2:1 / 3:1)
     if (arc.endIdx - arc.startIdx >= 2) {
       buf[p++] = hash2(T_MERGE_RAW_NEXT, strHash(rawSpanLow), strHash(nextLexKey));
       buf[p++] = hash2(T_MERGE_PREV_NORM, strHash(prevRaw), strHash(arc.normLower));
@@ -556,82 +613,99 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
       buf[p++] =
           hash3(T_MERGE_MORPH_NEXT, arc.coarseMorphTag & 0xFFFF, compactSrc, strHash(nextLexKey));
     }
-
-    // 6. Sentence-wide overt pronoun -> finite verb person agreement
-    if (lat.overtSubjectPerson() != 0 && arc.verbPerson != 0) {
-      buf[p++] = hash3(T_SUBJ_VERB_AGREE, lat.overtSubjectPerson(), arc.verbPerson, isIdLow ? 1 : 0);
-    }
-
-    // 7. Casing & TDK apostrophe addition / erroneous apostrophe removal features
-    if (arc.caseChanged
-        || arc.apostropheAdded
-        || arc.apostropheRemoved
-        || t0.shape() != NormV2Types.CasingShape.LOWER) {
-      buf[p++] =
-          hash3(
-              T_CASING_TRANSITION,
-              t0.shape().ordinal(),
-              arc.caseChanged ? 1 : 0,
-              (arc.startIdx == 0 ? 2 : 0) | (arc.isProperOrAbbr ? 1 : 0));
-      if (arc.apostropheAdded) {
-        buf[p++] = hash2(T_APOSTROPHE_ADD, arc.isProperOrAbbr ? 1 : 0, compactSrc);
-      }
-      if (arc.apostropheRemoved) {
-        buf[p++] = hash2(T_APOSTROPHE_DROP, arc.isProperOrAbbr ? 1 : 0, compactSrc);
-      }
-    }
-
-    // 8. Coarse morph tag + right token shape
-    int nextShape = arc.endIdx < toks.size() ? toks.get(arc.endIdx).shape().ordinal() : 5;
-    buf[p++] = hash2(T_MORPH_NEXT_SHAPE, arc.coarseMorphTag, nextShape);
-
-    // 9. Finite verb negation polarity match
-    if (!isIdLow && (arc.rawNegVerbCue || arc.verbPolarity < 0)) {
-      buf[p++] = hash3(T_POLARITY_MATCH, arc.rawNegVerbCue ? 1 : 0, arc.verbPolarity + 2, compactSrc);
-    }
-
-    // 10. Non-linear typo-confidence & clean-attestation interactions for unseen OOV 1:1 rewrites
-    if (arc.endIdx == arc.startIdx + 1 && !isIdLow) {
-      int lenBkt =
-          t0.lower().length() >= 8
-              ? 3
-              : (t0.lower().length() >= 6 ? 2 : (t0.lower().length() >= 5 ? 1 : 0));
-      int costBkt =
-          arc.editCost <= 0.35f
-              ? 0
-              : (arc.editCost <= 0.85f ? 1 : (arc.editCost <= 1.25f ? 2 : 3));
-      int gainBkt =
-          arc.unaryCleanGain >= 8.0f
-              ? 4
-              : (arc.unaryCleanGain >= 4.0f
-                  ? 3
-                  : (arc.unaryCleanGain >= 1.5f ? 2 : (arc.unaryCleanGain >= -0.5f ? 1 : 0)));
-      float phonoGain = arc.charPhonotacticScore - arc.rawCharPhono;
-      int phonoBkt =
-          phonoGain >= 1.0f ? 3 : (phonoGain >= 0.35f ? 2 : (phonoGain >= -0.15f ? 1 : 0));
-      int cleanCntBkt =
-          arc.rawCleanCount >= 80
-              ? 4
-              : (arc.rawCleanCount >= 20
-                  ? 3
-                  : (arc.rawCleanCount >= 5 ? 2 : (arc.rawCleanCount >= 1 ? 1 : 0)));
-      buf[p++] = hash3(T_SRC_LEN_COST_GAIN, compactSrc, (lenBkt << 3) | costBkt, gainBkt);
-      buf[p++] = hash3(T_SRC_PHONO_GAIN, compactSrc, lenBkt, phonoBkt);
-      buf[p++] = hash3(T_SRC_RAW_CLEAN_ATTEST, compactSrc, cleanCntBkt, t0.shape().ordinal());
-    }
-
-    // 11. Pronoun/nominal locative ("bende uyandırmıyor", "rekor bende.") vs. additive ("ben de geldim") syntax
-    if (arc.endIdx == arc.startIdx + 1) {
-      int pronCode = locativePronounCode(t0.lower());
-      if (pronCode != 0) {
-        buf[p++] = hash3(T_PRON_LOC_RIGHT, pronCode, arc.wordCount, arc.nextLexState);
-      } else if (arc.wordCount == 2
-          && ("de".equals(arc.lastWordLower) || "da".equals(arc.lastWordLower))) {
-        buf[p++] = hash3(T_PRON_LOC_RIGHT, 7, arc.headSyntaxClass, arc.nextLexState);
-      }
-    }
-
     return p;
+  }
+
+  private static int emitCasingAndApostropheFeatures(
+      SpanToken t0, SpanArc arc, int compactSrc, long[] buf, int p) {
+    if (!arc.caseChanged
+        && !arc.apostropheAdded
+        && !arc.apostropheRemoved
+        && t0.shape() == NormV2Types.CasingShape.LOWER) {
+      return p;
+    }
+    buf[p++] =
+        hash3(
+            T_CASING_TRANSITION,
+            t0.shape().ordinal(),
+            arc.caseChanged ? 1 : 0,
+            (arc.startIdx == 0 ? 2 : 0) | (arc.isProperOrAbbr ? 1 : 0));
+    if (arc.apostropheAdded) {
+      buf[p++] = hash2(T_APOSTROPHE_ADD, arc.isProperOrAbbr ? 1 : 0, compactSrc);
+    }
+    if (arc.apostropheRemoved) {
+      buf[p++] = hash2(T_APOSTROPHE_DROP, arc.isProperOrAbbr ? 1 : 0, compactSrc);
+    }
+    return p;
+  }
+
+  private static int emitSingleTokenBucketFeatures(
+      SpanToken t0, SpanArc arc, int compactSrc, long[] buf, int p) {
+    int lenBkt = bucketWordLength(t0.lower().length());
+    int costBkt = bucketEditCost(arc.editCost);
+    int gainBkt = bucketCleanGain(arc.unaryCleanGain);
+    int phonoBkt = bucketPhonoGain(arc.charPhonotacticScore - arc.rawCharPhono);
+    int cleanCntBkt = bucketCleanCount(arc.rawCleanCount);
+
+    buf[p++] = hash3(T_SRC_LEN_COST_GAIN, compactSrc, (lenBkt << 3) | costBkt, gainBkt);
+    buf[p++] = hash3(T_SRC_PHONO_GAIN, compactSrc, lenBkt, phonoBkt);
+    buf[p++] = hash3(T_SRC_RAW_CLEAN_ATTEST, compactSrc, cleanCntBkt, t0.shape().ordinal());
+    return p;
+  }
+
+  private static int emitLocativePronounRightFeature(
+      SpanToken t0, SpanArc arc, long[] buf, int p) {
+    int pronCode = locativePronounCode(t0.lower());
+    if (pronCode != 0) {
+      buf[p++] = hash3(T_PRON_LOC_RIGHT, pronCode, arc.wordCount, arc.nextLexState);
+    } else if (arc.wordCount == 2
+        && ("de".equals(arc.lastWordLower) || "da".equals(arc.lastWordLower))) {
+      buf[p++] = hash3(T_PRON_LOC_RIGHT, 7, arc.headSyntaxClass, arc.nextLexState);
+    }
+    return p;
+  }
+
+  private static int bucketAsciiRatio(float ratio) {
+    if (ratio > 0.45f) return 2;
+    if (ratio > 0.10f) return 1;
+    return 0;
+  }
+
+  private static int bucketWordLength(int length) {
+    if (length >= 8) return 3;
+    if (length >= 6) return 2;
+    if (length >= 5) return 1;
+    return 0;
+  }
+
+  private static int bucketEditCost(float cost) {
+    if (cost <= 0.35f) return 0;
+    if (cost <= 0.85f) return 1;
+    if (cost <= 1.25f) return 2;
+    return 3;
+  }
+
+  private static int bucketCleanGain(float gain) {
+    if (gain >= 8.0f) return 4;
+    if (gain >= 4.0f) return 3;
+    if (gain >= 1.5f) return 2;
+    if (gain >= -0.5f) return 1;
+    return 0;
+  }
+
+  private static int bucketPhonoGain(float phonoGain) {
+    if (phonoGain >= 1.0f) return 3;
+    if (phonoGain >= 0.35f) return 2;
+    if (phonoGain >= -0.15f) return 1;
+    return 0;
+  }
+
+  private static int bucketCleanCount(int count) {
+    if (count >= 80) return 4;
+    if (count >= 20) return 3;
+    if (count >= 5) return 2;
+    if (count >= 1) return 1;
+    return 0;
   }
 
   private static int locativePronounCode(String rawLow) {
@@ -651,9 +725,8 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
       String prev1Lex,
       short prevMorphTag,
       SpanArc arc,
-      long[] buf,
-      int offset) {
-    int p = offset;
+      long[] buf) {
+    int p = 0;
     long prevW = prev1Lex == null ? 0x1111L : strHash(prev1Lex);
     int prevTag = prevMorphTag;
 
@@ -661,22 +734,12 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
     buf[p++] = hash2(T_TRANS_MORPH_BIGRAM, prevTag, arc.firstWordMorphTag);
     buf[p++] = hash2(T_TRANS_WORD_TAG, prevW, arc.firstWordMorphTag);
     buf[p++] = hash2(T_TRANS_TAG_WORD, prevTag, strHash(arc.firstWordLower));
+
     if (arc.endIdx == arc.startIdx + 1) {
-      if (arc.nextLexState != 0) {
-        String rawLow = arc.normLower.length() <= 6 ? arc.firstWordLower : "";
-        if ("ben".equals(rawLow)
-            || "bende".equals(rawLow)
-            || "sen".equals(rawLow)
-            || "sende".equals(rawLow)
-            || "o".equals(rawLow)
-            || "onda".equals(rawLow)
-            || "oda".equals(rawLow)
-            || "biz".equals(rawLow)
-            || "bizde".equals(rawLow)
-            || "siz".equals(rawLow)
-            || "sizde".equals(rawLow)) {
-          buf[p++] = hash3(T_TRANS_PRON_LOC_LEFT, prevTag, arc.wordCount, arc.nextLexState);
-        }
+      if (arc.nextLexState != 0
+          && arc.normLower.length() <= 6
+          && isPronounOrLocativePronoun(arc.firstWordLower)) {
+        buf[p++] = hash3(T_TRANS_PRON_LOC_LEFT, prevTag, arc.wordCount, arc.nextLexState);
       }
       float qh = gen.computeQuestionCliticHarmony(lat, prev1Lex, arc);
       if (qh != 0.0f) {
@@ -684,7 +747,15 @@ public final class SpanLatticePerceptronNormalizer implements TextNormalizer {
         buf[p++] = hash2(T_TRANS_QUESTION_HARMONY, qh > 0.0f ? 1 : -1, isIdLow ? 1 : 0);
       }
     }
-    return p - offset;
+    return p;
+  }
+
+  private static boolean isPronounOrLocativePronoun(String wordLower) {
+    return switch (wordLower) {
+      case "ben", "bende", "sen", "sende", "o", "onda", "oda", "biz", "bizde", "siz", "sizde" ->
+          true;
+      default -> false;
+    };
   }
 
   private static long strHash(String s) {

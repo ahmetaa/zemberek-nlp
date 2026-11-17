@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,18 +17,27 @@ import zemberek.normalization.deasciifier.Deasciifier;
 import zemberek.normalization.deasciifier.latticedeasciifier.Candidate;
 import zemberek.normalization.deasciifier.latticedeasciifier.DeasciifierModel;
 import zemberek.normalization.deasciifier.latticedeasciifier.LatticeDeasciifier;
-import zemberek.normalization.deasciifier.latticedeasciifier.LatticeDeasciifier.CircumflexMode;
 import zemberek.normalization.deasciifier.latticedeasciifier.TurkishTextCodec;
 import zemberek.normalization.deasciifier.latticedeasciifier.TurkishTextCodec.Token;
 
 /**
- * Runs and inspects Zemberek's deasciifier engines and modes side-by-side for the Web Demo Studio
- * ({@code LatticeDeasciifier} across {@code DISAMBIGUATION_ONLY}, {@code NONE}, {@code FULL}, and
- * {@code KnownWordsOnly} modes, plus the classic {@code Deasciifier} decision-list pattern table).
+ * Runs and inspects Zemberek's default {@link LatticeDeasciifier} alongside the classic
+ * pattern-based {@link Deasciifier}.
  */
 public final class DeasciifierInspector {
 
   private static final int MAX_MORPH_INSPECT_TOKENS = 120;
+
+  private static final List<DeasciifierEngineMeta> ENGINE_METAS =
+      List.of(
+          new DeasciifierEngineMeta(
+              "lattice",
+              "Lattice Deasciifier",
+              "Morphological lattice + structured perceptron; restores Turkish diacritics, minimal-pair circumflexes (kâr/kar, hâlâ/hala), and OOV vowel harmony."),
+          new DeasciifierEngineMeta(
+              "legacy",
+              "Legacy Deasciifier",
+              "Classic character-context decision list without morphological analysis or foreign-stem shielding."));
 
   private final TurkishMorphology morphology;
   private final DeasciifierModel deasciifierModel;
@@ -41,15 +51,7 @@ public final class DeasciifierInspector {
     this.latticeReflection = LatticeReflection.tryInit();
   }
 
-  public record DeasciifierEngineMeta(
-      String id,
-      String label,
-      String shortLabel,
-      String ramLabel,
-      String sentAccLabel,
-      String wordAccLabel,
-      String pinSafetyLabel,
-      String modeNote) {}
+  public record DeasciifierEngineMeta(String id, String name, String description) {}
 
   public record LatticeCandidateDto(
       String surface,
@@ -59,15 +61,10 @@ public final class DeasciifierInspector {
       double charScore,
       double unaryScore,
       double seqScore,
-      boolean oovFallback,
       boolean winner) {}
 
   public record TokenEngineVariantDto(
-      String engineId,
-      String shortLabel,
-      String surface,
-      boolean matchesSelected,
-      List<String> morphParses) {}
+      String name, String surface, boolean matchesSelected, List<String> morphParses) {}
 
   public record DeasciifierTokenDto(
       int index,
@@ -88,16 +85,13 @@ public final class DeasciifierInspector {
 
   public record DeasciifierComparisonDto(
       String id,
-      String label,
-      String shortLabel,
-      String ramLabel,
+      String name,
       String outputText,
       double latencyMs,
       int changedWords,
       int changedChars,
       int circumflexCount,
-      int strippedPinCount,
-      boolean differsFromSelected) {}
+      int strippedPinCount) {}
 
   public record DeasciifyResponse(
       String inputText,
@@ -108,7 +102,6 @@ public final class DeasciifierInspector {
       int changedWords,
       int changedChars,
       int circumflexCount,
-      int strippedPinCount,
       int disagreementCount,
       boolean sameLength,
       List<DeasciifierTokenDto> tokens,
@@ -116,78 +109,31 @@ public final class DeasciifierInspector {
 
   private record EngineRunResult(DeasciifierEngineMeta meta, String output, double latencyMs) {}
 
+  private record CharStats(int changedChars, int circumflexCount, int strippedPinCount) {}
+
   public static List<DeasciifierEngineMeta> engineMetadata() {
-    return List.of(
-        new DeasciifierEngineMeta(
-            "lattice_disambig",
-            "LatticeDeasciifier — Disambiguating â/î/û (Default)",
-            "Lattice (Disambig â/î/û)",
-            "3.58 MB",
-            "94.88% / 89.80%",
-            "99.57%",
-            "0 stripped",
-            "Morphological lattice + structured margin perceptron; emits â/î/û on minimal pairs (kâr/kar, hâlâ/hala, âdet, hâkim, resmî) + OOV vowel harmony"),
-        new DeasciifierEngineMeta(
-            "lattice_none",
-            "LatticeDeasciifier — Plain Diacritics (No Circumflex)",
-            "Lattice (No â/î/û)",
-            "3.58 MB (shared)",
-            "94.88% (No^)",
-            "99.57%",
-            "0 stripped",
-            "Restores modern Turkish diacritics (ç, ğ, ı, İ, ö, ş, ü) only; never inserts new circumflexes"),
-        new DeasciifierEngineMeta(
-            "lattice_full",
-            "LatticeDeasciifier — Full Circumflex (Lexicon â/î/û)",
-            "Lattice (Full â/î/û)",
-            "3.58 MB (shared)",
-            "94.88% / 89.80%",
-            "99.57%",
-            "0 stripped",
-            "Emits circumflexes on all lexicon-supported words (e.g. rüzgâr, hikâye, dükkân, imkân) as well as minimal pairs"),
-        new DeasciifierEngineMeta(
-            "lattice_known",
-            "LatticeDeasciifier — Known Words Only (OOV-Safe)",
-            "Lattice (Known Only)",
-            "3.58 MB (shared)",
-            "OOV-Safe Mode",
-            "99.57% (in-vocab)",
-            "0 stripped · OOV kept",
-            "Restores lexicon, clitic, and numeral-backed tokens only; leaves OOV typos & unknown foreign words untouched"),
-        new DeasciifierEngineMeta(
-            "legacy_pattern",
-            "Legacy Deasciifier (2006 Decision-List Pattern Table)",
-            "Legacy Pattern (2006)",
-            "572 KB",
-            "83.76% / 77.16%",
-            "98.52%",
-            "12 stripped / 500",
-            "Classic character-context (±10 window) decision list; fast baseline without morphology, circumflexes, or foreign-stem shields"));
+    return ENGINE_METAS;
   }
 
   public void warmup() {
     String sample = "Bu yil sirketin net kar orani artti ama kar yagisi hala suruyor.";
-    latticeDefault.deasciify(sample, CircumflexMode.DISAMBIGUATION_ONLY);
-    latticeDefault.deasciify(sample, CircumflexMode.NONE);
-    latticeDefault.deasciify(sample, CircumflexMode.FULL);
-    latticeDefault.deasciifyKnownWords(sample, CircumflexMode.DISAMBIGUATION_ONLY);
+    latticeDefault.deasciify(sample);
     Deasciifier.deasciify(sample);
   }
 
   public DeasciifyResponse deasciifyAndInspect(
       String text, String requestedEngine, boolean compareAll) {
     String input = text == null ? "" : text;
-    List<DeasciifierEngineMeta> metas = engineMetadata();
     DeasciifierEngineMeta primaryMeta =
-        metas.stream()
+        ENGINE_METAS.stream()
             .filter(m -> m.id().equals(requestedEngine))
             .findFirst()
-            .orElse(metas.get(0));
+            .orElse(ENGINE_METAS.get(0));
     String selectedId = primaryMeta.id();
 
     if (input.isBlank()) {
       return new DeasciifyResponse(
-          input, selectedId, input, 0.0, 0, 0, 0, 0, 0, 0, true, List.of(), List.of());
+          input, selectedId, input, 0.0, 0, 0, 0, 0, 0, true, List.of(), List.of());
     }
 
     EngineRunResult primaryRun = runSingleEngine(primaryMeta, input);
@@ -197,12 +143,8 @@ public final class DeasciifierInspector {
 
     Map<String, EngineRunResult> allRuns = new LinkedHashMap<>();
     if (compareAll) {
-      for (DeasciifierEngineMeta m : metas) {
-        if (m.id().equals(selectedId)) {
-          allRuns.put(m.id(), primaryRun);
-        } else {
-          allRuns.put(m.id(), runSingleEngine(m, input));
-        }
+      for (DeasciifierEngineMeta m : ENGINE_METAS) {
+        allRuns.put(m.id(), m.id().equals(selectedId) ? primaryRun : runSingleEngine(m, input));
       }
     }
 
@@ -220,15 +162,19 @@ public final class DeasciifierInspector {
     for (int i = 0; i < codecTokens.size(); i++) {
       Token tok = codecTokens.get(i);
       String rawSurf = tok.original();
-      String restoredSurf =
-          sameLength ? primaryOut.substring(tok.start(), tok.end()) : rawSurf;
+      String restoredSurf = sameLength ? primaryOut.substring(tok.start(), tok.end()) : rawSurf;
       boolean changed = !rawSurf.equals(restoredSurf);
       if (changed) {
         changedWords++;
       }
 
-      int charDiffs = countCharDiffs(rawSurf, restoredSurf);
-      String changeKind = classifyTokenChange(rawSurf, restoredSurf, sentenceHasNonDotlessTr);
+      CharStats tokStats = computeCharStats(rawSurf, restoredSurf, sentenceHasNonDotlessTr);
+      String changeKind =
+          !changed
+              ? "unchanged"
+              : tokStats.strippedPinCount() > 0
+                  ? "stripped_pin"
+                  : tokStats.circumflexCount() > 0 ? "circumflex" : "diacritic";
 
       boolean inspectMorph = i < MAX_MORPH_INSPECT_TOKENS;
       List<String> selectedParses =
@@ -247,15 +193,10 @@ public final class DeasciifierInspector {
                   ? er.output().substring(tok.start(), tok.end())
                   : rawSurf;
           distinctSurfaces.add(vSurf);
-          List<String> vParses =
-              inspectMorph ? lookupMorphParses(vSurf, morphCache) : List.of();
+          List<String> vParses = inspectMorph ? lookupMorphParses(vSurf, morphCache) : List.of();
           vList.add(
               new TokenEngineVariantDto(
-                  er.meta().id(),
-                  er.meta().shortLabel(),
-                  vSurf,
-                  vSurf.equals(restoredSurf),
-                  vParses));
+                  er.meta().name(), vSurf, vSurf.equals(restoredSurf), vParses));
         }
         disagrees = distinctSurfaces.size() > 1;
         if (disagrees) {
@@ -273,7 +214,7 @@ public final class DeasciifierInspector {
               restoredSurf,
               changed,
               changeKind,
-              charDiffs,
+              tokStats.changedChars(),
               tok.immutable(),
               tok.hasPinnedTurkish(),
               tok.casing().name(),
@@ -284,27 +225,20 @@ public final class DeasciifierInspector {
     }
 
     CharStats primaryCharStats = computeCharStats(input, primaryOut, sentenceHasNonDotlessTr);
-
-    List<DeasciifierComparisonDto> compDtos = new ArrayList<>();
-    if (compareAll) {
-      for (EngineRunResult er : allRuns.values()) {
-        String out = er.output();
-        int cWords = countChangedTokens(codecTokens, input, out);
-        CharStats cs = computeCharStats(input, out, sentenceHasNonDotlessTr);
-        compDtos.add(
-            new DeasciifierComparisonDto(
-                er.meta().id(),
-                er.meta().label(),
-                er.meta().shortLabel(),
-                er.meta().ramLabel(),
-                out,
-                roundMs(er.latencyMs()),
-                cWords,
-                cs.changedChars(),
-                cs.circumflexCount(),
-                cs.strippedPinCount(),
-                !out.equals(primaryOut)));
-      }
+    List<DeasciifierComparisonDto> compDtos = new ArrayList<>(allRuns.size());
+    for (EngineRunResult er : allRuns.values()) {
+      String out = er.output();
+      CharStats cs = computeCharStats(input, out, sentenceHasNonDotlessTr);
+      compDtos.add(
+          new DeasciifierComparisonDto(
+              er.meta().id(),
+              er.meta().name(),
+              out,
+              roundMs(er.latencyMs()),
+              countChangedTokens(codecTokens, input, out),
+              cs.changedChars(),
+              cs.circumflexCount(),
+              cs.strippedPinCount()));
     }
 
     return new DeasciifyResponse(
@@ -316,7 +250,6 @@ public final class DeasciifierInspector {
         changedWords,
         primaryCharStats.changedChars(),
         primaryCharStats.circumflexCount(),
-        primaryCharStats.strippedPinCount(),
         disagreementCount,
         sameLength,
         tokenDtos,
@@ -326,18 +259,8 @@ public final class DeasciifierInspector {
   private EngineRunResult runSingleEngine(DeasciifierEngineMeta meta, String input) {
     long t0 = System.nanoTime();
     String out =
-        switch (meta.id()) {
-          case "lattice_disambig" ->
-              latticeDefault.deasciify(input, CircumflexMode.DISAMBIGUATION_ONLY);
-          case "lattice_none" -> latticeDefault.deasciify(input, CircumflexMode.NONE);
-          case "lattice_full" -> latticeDefault.deasciify(input, CircumflexMode.FULL);
-          case "lattice_known" ->
-              latticeDefault.deasciifyKnownWords(input, CircumflexMode.DISAMBIGUATION_ONLY);
-          case "legacy_pattern" -> Deasciifier.deasciify(input);
-          default -> latticeDefault.deasciify(input, CircumflexMode.DISAMBIGUATION_ONLY);
-        };
-    double ms = (System.nanoTime() - t0) / 1e6;
-    return new EngineRunResult(meta, out, ms);
+        "legacy".equals(meta.id()) ? Deasciifier.deasciify(input) : latticeDefault.deasciify(input);
+    return new EngineRunResult(meta, out, (System.nanoTime() - t0) / 1e6);
   }
 
   private List<String> lookupMorphParses(String surface, Map<String, List<String>> cache) {
@@ -366,8 +289,6 @@ public final class DeasciifierInspector {
     return res;
   }
 
-  private record CharStats(int changedChars, int circumflexCount, int strippedPinCount) {}
-
   private static CharStats computeCharStats(
       String input, String output, boolean sentenceHasNonDotlessTr) {
     int n = Math.min(input.length(), output.length());
@@ -381,17 +302,20 @@ public final class DeasciifierInspector {
         continue;
       }
       changed++;
-      if (isCircumflex(o) && !isCircumflex(r)) {
+      if (hasCircumflex(o) && !hasCircumflex(r)) {
         circ++;
       }
       if (TurkishTextCodec.isPinnedTurkishDiacritic(r)
-          && !TurkishTextCodec.isPinnedTurkishDiacritic(o)) {
-        if (!(r == 'ı' && o == 'i' && !sentenceHasNonDotlessTr)) {
-          stripped++;
-        }
+          && !TurkishTextCodec.isPinnedTurkishDiacritic(o)
+          && !(r == 'ı' && o == 'i' && !sentenceHasNonDotlessTr)) {
+        stripped++;
       }
     }
     return new CharStats(changed, circ, stripped);
+  }
+
+  private static boolean hasCircumflex(char c) {
+    return TurkishTextCodec.stripCircumflex(c) != c;
   }
 
   private static int countChangedTokens(List<Token> tokens, String input, String output) {
@@ -407,54 +331,6 @@ public final class DeasciifierInspector {
     return count;
   }
 
-  private static int countCharDiffs(String a, String b) {
-    int n = Math.min(a.length(), b.length());
-    int diffs = Math.abs(a.length() - b.length());
-    for (int i = 0; i < n; i++) {
-      if (a.charAt(i) != b.charAt(i)) {
-        diffs++;
-      }
-    }
-    return diffs;
-  }
-
-  private static String classifyTokenChange(
-      String raw, String restored, boolean sentenceHasNonDotlessTr) {
-    if (raw.equals(restored)) {
-      return "unchanged";
-    }
-    boolean strippedPin = false;
-    boolean addedCircumflex = false;
-    int n = Math.min(raw.length(), restored.length());
-    for (int i = 0; i < n; i++) {
-      char r = raw.charAt(i);
-      char o = restored.charAt(i);
-      if (r == o) {
-        continue;
-      }
-      if (TurkishTextCodec.isPinnedTurkishDiacritic(r)
-          && !TurkishTextCodec.isPinnedTurkishDiacritic(o)) {
-        if (!(r == 'ı' && o == 'i' && !sentenceHasNonDotlessTr)) {
-          strippedPin = true;
-        }
-      }
-      if (isCircumflex(o) && !isCircumflex(r)) {
-        addedCircumflex = true;
-      }
-    }
-    if (strippedPin) {
-      return "stripped_pin";
-    }
-    if (addedCircumflex) {
-      return "circumflex";
-    }
-    return "diacritic";
-  }
-
-  private static boolean isCircumflex(char c) {
-    return c == 'â' || c == 'Â' || c == 'î' || c == 'Î' || c == 'û' || c == 'Û';
-  }
-
   private static double roundMs(double ms) {
     return Math.round(ms * 1000.0) / 1000.0;
   }
@@ -463,64 +339,51 @@ public final class DeasciifierInspector {
     return Math.round(v * 100.0) / 100.0;
   }
 
-  private static final class LatticeReflection {
-    private final Method buildSentenceLattice;
-    private final Method computeAmbiguousUnaryScores;
-    private final Method decodeSentence;
-    private final Method scoreCandidateInSequence;
-    private final Field fCandidates;
-    private final Field fEmpPriors;
-    private final Field fCharScores;
-    private final Field fUnaryScores;
+  private record LatticeReflection(
+      Method buildSentenceLattice,
+      Method computeAmbiguousUnaryScores,
+      Method decodeSentence,
+      Method scoreCandidateInSequence,
+      Field fCandidates,
+      Field fEmpPriors,
+      Field fCharScores,
+      Field fUnaryScores) {
 
-    private LatticeReflection(
-        Method buildSentenceLattice,
-        Method computeAmbiguousUnaryScores,
-        Method decodeSentence,
-        Method scoreCandidateInSequence,
-        Field fCandidates,
-        Field fEmpPriors,
-        Field fCharScores,
-        Field fUnaryScores) {
-      this.buildSentenceLattice = buildSentenceLattice;
-      this.computeAmbiguousUnaryScores = computeAmbiguousUnaryScores;
-      this.decodeSentence = decodeSentence;
-      this.scoreCandidateInSequence = scoreCandidateInSequence;
-      this.fCandidates = fCandidates;
-      this.fEmpPriors = fEmpPriors;
-      this.fCharScores = fCharScores;
-      this.fUnaryScores = fUnaryScores;
+    private static Field accessibleField(Class<?> cls, String name) throws NoSuchFieldException {
+      Field f = cls.getDeclaredField(name);
+      f.setAccessible(true);
+      return f;
+    }
+
+    private static Method accessibleMethod(Class<?> cls, String name, Class<?>... params)
+        throws NoSuchMethodException {
+      Method m = cls.getDeclaredMethod(name, params);
+      m.setAccessible(true);
+      return m;
     }
 
     static LatticeReflection tryInit() {
       try {
-        Class<?> tlClass =
-            Class.forName(
-                "zemberek.normalization.deasciifier.latticedeasciifier.LatticeDeasciifier$TokenLattice");
+        String pkg = "zemberek.normalization.deasciifier.latticedeasciifier.";
+        Class<?> tlClass = Class.forName(pkg + "LatticeDeasciifier$TokenLattice");
         Class<?> tlArrayClass = Array.newInstance(tlClass, 0).getClass();
-        Class<?> wtClass =
-            Class.forName("zemberek.normalization.deasciifier.latticedeasciifier.WeightTable");
-        Class<?> scorerClass =
-            Class.forName(
-                "zemberek.normalization.deasciifier.latticedeasciifier.SentenceLatticeScorer");
+        Class<?> wtClass = Class.forName(pkg + "WeightTable");
+        Class<?> scorerClass = Class.forName(pkg + "SentenceLatticeScorer");
 
-        Method mBuild =
-            LatticeDeasciifier.class.getDeclaredMethod(
-                "buildSentenceLattice", String.class, List.class);
-        mBuild.setAccessible(true);
-
-        Method mUnary =
-            LatticeDeasciifier.class.getDeclaredMethod(
-                "computeAmbiguousUnaryScores", List.class, tlArrayClass, wtClass, long[].class);
-        mUnary.setAccessible(true);
-
-        Method mDecode =
-            LatticeDeasciifier.class.getDeclaredMethod(
-                "decodeSentence", List.class, tlArrayClass, wtClass);
-        mDecode.setAccessible(true);
-
-        Method mScoreSeq =
-            scorerClass.getDeclaredMethod(
+        return new LatticeReflection(
+            accessibleMethod(
+                LatticeDeasciifier.class, "buildSentenceLattice", String.class, List.class),
+            accessibleMethod(
+                LatticeDeasciifier.class,
+                "computeAmbiguousUnaryScores",
+                List.class,
+                tlArrayClass,
+                wtClass,
+                long[].class),
+            accessibleMethod(
+                LatticeDeasciifier.class, "decodeSentence", List.class, tlArrayClass, wtClass),
+            accessibleMethod(
+                scorerClass,
                 "scoreCandidateInSequence",
                 int.class,
                 Candidate[].class,
@@ -528,19 +391,11 @@ public final class DeasciifierInspector {
                 Candidate.class,
                 float.class,
                 wtClass,
-                long[].class);
-        mScoreSeq.setAccessible(true);
-
-        Field fc = tlClass.getDeclaredField("candidates");
-        fc.setAccessible(true);
-        Field fp = tlClass.getDeclaredField("empiricalLogPriors");
-        fp.setAccessible(true);
-        Field fch = tlClass.getDeclaredField("charRelativeScores");
-        fch.setAccessible(true);
-        Field fu = tlClass.getDeclaredField("unaryScores");
-        fu.setAccessible(true);
-
-        return new LatticeReflection(mBuild, mUnary, mDecode, mScoreSeq, fc, fp, fch, fu);
+                long[].class),
+            accessibleField(tlClass, "candidates"),
+            accessibleField(tlClass, "empiricalLogPriors"),
+            accessibleField(tlClass, "charRelativeScores"),
+            accessibleField(tlClass, "unaryScores"));
       } catch (Exception e) {
         return null;
       }
@@ -559,7 +414,8 @@ public final class DeasciifierInspector {
         long[] featBuf = new long[48];
         Object weights = model.sentenceWeights();
         computeAmbiguousUnaryScores.invoke(deasciifier, mutTokens, cols, weights, featBuf);
-        Candidate[] chosen = (Candidate[]) decodeSentence.invoke(deasciifier, mutTokens, cols, weights);
+        Candidate[] chosen =
+            (Candidate[]) decodeSentence.invoke(deasciifier, mutTokens, cols, weights);
 
         List<List<LatticeCandidateDto>> out = new ArrayList<>(n);
         for (int i = 0; i < n; i++) {
@@ -573,7 +429,6 @@ public final class DeasciifierInspector {
           List<LatticeCandidateDto> dtos = new ArrayList<>(cands.size());
           for (int k = 0; k < cands.size(); k++) {
             Candidate c = cands.get(k);
-            String casedSurf = TurkishTextCodec.applyCasingAndPins(tok, c);
             String morphSummary =
                 c.oovFallback
                     ? "OOV"
@@ -589,22 +444,20 @@ public final class DeasciifierInspector {
             float seq =
                 cands.size() >= 2
                     ? (float)
-                        scoreCandidateInSequence.invoke(
-                            null, i, chosen, n, c, u, weights, featBuf)
+                        scoreCandidateInSequence.invoke(null, i, chosen, n, c, u, weights, featBuf)
                     : u;
             dtos.add(
                 new LatticeCandidateDto(
-                    casedSurf,
+                    TurkishTextCodec.applyCasingAndPins(tok, c),
                     c.lemma,
                     morphSummary,
                     round2(k < priors.length ? priors[k] : 0.0),
                     round2(k < chars.length ? chars[k] : 0.0),
                     round2(u),
                     round2(seq),
-                    c.oovFallback,
                     c == chosen[i]));
           }
-          dtos.sort((a, b) -> Double.compare(b.seqScore(), a.seqScore()));
+          dtos.sort(Comparator.comparingDouble(LatticeCandidateDto::seqScore).reversed());
           out.add(dtos);
         }
         return out;

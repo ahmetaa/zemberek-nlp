@@ -4,49 +4,24 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import zemberek.core.ScoredItem;
-import zemberek.core.collections.FloatValueMap;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
-import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
-import zemberek.lm.LmVocabulary;
-import zemberek.lm.NgramLanguageModel;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SingleAnalysis;
-import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.analysis.WordAnalysisSurfaceFormatter;
 import zemberek.morphology.morphotactics.AttributeSet;
 import zemberek.morphology.morphotactics.StemTransition;
 
 /**
- * Experimental high-throughput, low-memory Turkish spell checker prototype.
- *
- * <p>Key architectural improvements over {@code StemEndingGraph} + {@code CharacterGraphDecoder} +
- * {@code TurkishSpellChecker}:
- * <ul>
- *   <li><b>Flat CSR Primitive Graph</b>: Compresses ~250K trie nodes into contiguous primitive
- *       arrays (~4-5 MB instead of ~40+ MB of {@code Node}/{@code UIntMap} objects).
- *   <li><b>Oflazer Cut-Off Length Bounds</b>: Precomputes exact {@code minRem}/{@code maxRem}
- *       remaining-character bounds per node to prune dead-end branches in O(1).
- *   <li><b>Zero-Allocation Tail Matching</b>: Once the 1-edit budget is consumed, remaining
- *       characters are matched via direct CSR edge lookup without allocating {@code Hypothesis} or
- *       {@code HashSet} objects.
- *   <li><b>Morphotactic Stem-Ending Compatibility</b>: Uses {@link PhoneticAttribute} flags
- *       ({@code CannotTerminate}, {@code ExpectsVowel}, {@code ExpectsConsonant},
- *       {@code LastLetterVowel}) to suppress impossible stem+ending concatenations before calling
- *       {@code morphology.analyze(...)}.
- *   <li><b>Fixed Diacritic + Weighted Keyboard/Phonetic Channel Model</b>: Fixes the overwritten
- *       {@code 'i'->'ı'}, {@code 'u'->'ü'}, and {@code 'S'->'Ş'} entries in
- *       {@code DiacriticsIgnoringMatcher} and preserves fine-grained edit + diacritic penalties for
- *       downstream LM/Viterbi ranking.
- *   <li><b>Bounded Thread-Safe Suggestion Cache</b>: Caches validated surface candidates + edit
- *       costs for frequent noisy tokens.
- * </ul>
+ * Low-memory Turkish stem+ending spell checker backed by flat CSR primitive tries, Oflazer
+ * remaining-length bounds, stem-ending harmony pruning, and weighted keyboard/diacritic edit costs.
  */
 public final class CompactStemEndingSpellChecker {
 
@@ -57,6 +32,10 @@ public final class CompactStemEndingSpellChecker {
   private static final byte FLAG_FRONT_HARMONY = 1 << 4;
   private static final byte FLAG_BACK_HARMONY = 1 << 5;
   private static final byte FLAG_ALLOWS_VOICED_D = 1 << 6;
+
+  private static final String[] INVARIANT_HARMONY_PREFIXES = {
+    "yor", "ken", "yken", "ki", "leyin", "gil", "mtırak", "daş", "taş"
+  };
 
   private static final int MAX_ASCII_TABLE = 512;
   private static final char[][] DIACRITIC_MATCHES = new char[MAX_ASCII_TABLE][];
@@ -70,7 +49,6 @@ public final class CompactStemEndingSpellChecker {
         DIACRITIC_MATCHES[c] = new char[] {c};
       }
     }
-    // Fixed diacritic equivalence table (preserving both Turkish and circumflex variants!)
     DIACRITIC_MATCHES['a'] = new char[] {'a', 'â'};
     DIACRITIC_MATCHES['c'] = new char[] {'c', 'ç'};
     DIACRITIC_MATCHES['g'] = new char[] {'g', 'ğ'};
@@ -89,7 +67,6 @@ public final class CompactStemEndingSpellChecker {
     DIACRITIC_MATCHES['S'] = new char[] {'S', 'Ş'};
     DIACRITIC_MATCHES['U'] = new char[] {'U', 'Ü', 'Û'};
 
-    // Turkish Q-keyboard adjacency + common Turkish phonetic confusions
     registerPairs('a', "s");
     registerPairs('b', "vnp");
     registerPairs('c', "vxçj");
@@ -131,19 +108,13 @@ public final class CompactStemEndingSpellChecker {
     }
   }
 
-  public static final class ScoredCandidate {
-    public final String surface;
-    public final float editCost;
-    public final int diacriticDiffs;
-
-    public ScoredCandidate(String surface, float editCost, int diacriticDiffs) {
-      this.surface = surface;
-      this.editCost = editCost;
-      this.diacriticDiffs = diacriticDiffs;
+  public record ScoredCandidate(String surface, float editCost, int diacriticDiffs) {
+    float rawRankScore() {
+      return editCost + 0.20f * diacriticDiffs;
     }
 
-    public float totalDistanceCost(boolean asciiContext) {
-      return editCost + (asciiContext ? 0.08f : 0.28f) * diacriticDiffs;
+    float totalDistanceCost() {
+      return editCost + 0.28f * diacriticDiffs;
     }
   }
 
@@ -175,56 +146,16 @@ public final class CompactStemEndingSpellChecker {
     }
   }
 
-  static final class FlatTrie {
-    final int[] edgeStart;
-    final short[] edgeCount;
-    final char[] edgeChars;
-    final int[] edgeTargets;
-    final int[] terminalId;
-    final byte[] flags;
-    final byte[] minRem;
-    final byte[] maxRem;
-    final String[] terminals;
-    final boolean[] terminalStartsWithVowel;
-
-    FlatTrie(
-        int[] edgeStart,
-        short[] edgeCount,
-        char[] edgeChars,
-        int[] edgeTargets,
-        int[] terminalId,
-        byte[] flags,
-        byte[] minRem,
-        byte[] maxRem,
-        String[] terminals,
-        boolean[] terminalStartsWithVowel) {
-      this.edgeStart = edgeStart;
-      this.edgeCount = edgeCount;
-      this.edgeChars = edgeChars;
-      this.edgeTargets = edgeTargets;
-      this.terminalId = terminalId;
-      this.flags = flags;
-      this.minRem = minRem;
-      this.maxRem = maxRem;
-      this.terminals = terminals;
-      this.terminalStartsWithVowel = terminalStartsWithVowel;
-    }
-
-    int nodeCount() {
-      return edgeStart.length;
-    }
-
-    int edgeTotal() {
-      return edgeChars.length;
-    }
-
-    long estimatedBytes() {
-      long bytes =
-          (long) edgeStart.length * (4 + 2 + 4 + 1 + 1 + 1)
-              + (long) edgeChars.length * (2 + 4)
-              + (long) terminals.length * 40L;
-      return bytes;
-    }
+  record FlatTrie(
+      int[] edgeStart,
+      short[] edgeCount,
+      char[] edgeChars,
+      int[] edgeTargets,
+      int[] terminalId,
+      byte[] flags,
+      byte[] minRem,
+      byte[] maxRem,
+      String[] terminals) {
 
     int findChild(int node, char c) {
       int start = edgeStart[node];
@@ -263,63 +194,33 @@ public final class CompactStemEndingSpellChecker {
   private final WordAnalysisSurfaceFormatter formatter = new WordAnalysisSurfaceFormatter();
   private final FlatTrie stemTrie;
   private final FlatTrie endingTrie;
-  private final boolean matchDiacritics;
   private final Map<String, List<ScoredCandidate>> suggestionCache;
-  private long rawGraphAnalysesCount = 0;
 
-  public CompactStemEndingSpellChecker(TurkishMorphology morphology, boolean matchDiacritics)
-      throws IOException {
-    this(morphology, TextIO.loadLinesFromResource("endings"), matchDiacritics, 16_384);
+  public CompactStemEndingSpellChecker(TurkishMorphology morphology) throws IOException {
+    this(morphology, TextIO.loadLinesFromResource("endings"), 16_384);
   }
 
   public CompactStemEndingSpellChecker(
-      TurkishMorphology morphology,
-      List<String> endings,
-      boolean matchDiacritics,
-      int maxCacheSize) {
+      TurkishMorphology morphology, List<String> endings, int maxCacheSize) {
     this.morphology = morphology;
-    this.matchDiacritics = matchDiacritics;
     this.endingTrie = buildEndingTrie(endings);
-    this.stemTrie = buildStemTrie(morphology, this.endingTrie.maxRem[0]);
-    if (maxCacheSize > 0) {
-      this.suggestionCache =
-          Collections.synchronizedMap(
-              new LinkedHashMap<>(1024, 0.75f, true) {
-                @Override
-                protected boolean removeEldestEntry(Map.Entry<String, List<ScoredCandidate>> eldest) {
-                  return size() > maxCacheSize;
-                }
-              });
-    } else {
-      this.suggestionCache = null;
-    }
+    this.stemTrie = buildStemTrie(morphology, this.endingTrie.maxRem()[0]);
+    this.suggestionCache =
+        maxCacheSize > 0
+            ? Collections.synchronizedMap(
+                new LinkedHashMap<>(1024, 0.75f, true) {
+                  @Override
+                  protected boolean removeEldestEntry(
+                      Map.Entry<String, List<ScoredCandidate>> eldest) {
+                    return size() > maxCacheSize;
+                  }
+                })
+            : null;
   }
 
-  public long estimatedGraphBytes() {
-    return stemTrie.estimatedBytes() + endingTrie.estimatedBytes();
-  }
-
-  public int totalNodeCount() {
-    return stemTrie.nodeCount() + endingTrie.nodeCount();
-  }
-
-  public int totalEdgeCount() {
-    return stemTrie.edgeTotal() + endingTrie.edgeTotal();
-  }
-
-  public long getRawGraphAnalysesCount() {
-    return rawGraphAnalysesCount;
-  }
-
-  public void resetCounters() {
-    rawGraphAnalysesCount = 0;
-  }
-
-  public void clearCache() {
-    if (suggestionCache != null) {
-      suggestionCache.clear();
-    }
-  }
+  // =========================================================================
+  // CSR Trie Construction
+  // =========================================================================
 
   private static FlatTrie buildEndingTrie(List<String> endings) {
     TempNode root = new TempNode();
@@ -328,10 +229,7 @@ public final class CompactStemEndingSpellChecker {
       if (ending.isEmpty()) {
         continue;
       }
-      TempNode cur = root;
-      for (int i = 0; i < ending.length(); i++) {
-        cur = cur.getOrAdd(ending.charAt(i));
-      }
+      TempNode cur = insertPath(root, ending);
       if (cur.terminalId < 0) {
         cur.terminalId = termList.size();
         termList.add(ending);
@@ -348,39 +246,48 @@ public final class CompactStemEndingSpellChecker {
       if (tr.surface.isEmpty() || tr.item.primaryPos == PrimaryPos.Punctuation) {
         continue;
       }
-      TempNode cur = root;
-      for (int i = 0; i < tr.surface.length(); i++) {
-        cur = cur.getOrAdd(tr.surface.charAt(i));
-      }
+      TempNode cur = insertPath(root, tr.surface);
       if (cur.terminalId < 0) {
         cur.terminalId = termList.size();
         termList.add(tr.surface);
       }
-      cur.flags |= FLAG_HAS_STEM;
-      AttributeSet<PhoneticAttribute> attrs = tr.getPhoneticAttributes();
-      if (!attrs.contains(PhoneticAttribute.CannotTerminate)) {
-        cur.flags |= FLAG_CAN_TERMINATE;
-      }
-      if (!attrs.contains(PhoneticAttribute.ExpectsConsonant)
-          && !attrs.contains(PhoneticAttribute.LastLetterVowel)) {
-        cur.flags |= FLAG_ALLOWS_VOWEL_ENDING;
-      }
-      if (!attrs.contains(PhoneticAttribute.ExpectsVowel)) {
-        cur.flags |= FLAG_ALLOWS_CONSONANT_ENDING;
-      }
-      if (attrs.contains(PhoneticAttribute.LastVowelFrontal)
-          || attrs.contains(PhoneticAttribute.HasNoVowel)) {
-        cur.flags |= FLAG_FRONT_HARMONY;
-      }
-      if (attrs.contains(PhoneticAttribute.LastVowelBack)
-          || attrs.contains(PhoneticAttribute.HasNoVowel)) {
-        cur.flags |= FLAG_BACK_HARMONY;
-      }
-      if (!attrs.contains(PhoneticAttribute.LastLetterVoiceless)) {
-        cur.flags |= FLAG_ALLOWS_VOICED_D;
-      }
+      cur.flags |= stemFlagsForTransition(tr.getPhoneticAttributes());
     }
     return freeze(root, termList, maxEndingLength);
+  }
+
+  private static TempNode insertPath(TempNode root, String surface) {
+    TempNode cur = root;
+    for (int i = 0; i < surface.length(); i++) {
+      cur = cur.getOrAdd(surface.charAt(i));
+    }
+    return cur;
+  }
+
+  private static byte stemFlagsForTransition(AttributeSet<PhoneticAttribute> attrs) {
+    byte flags = FLAG_HAS_STEM;
+    if (!attrs.contains(PhoneticAttribute.CannotTerminate)) {
+      flags |= FLAG_CAN_TERMINATE;
+    }
+    if (!attrs.contains(PhoneticAttribute.ExpectsConsonant)
+        && !attrs.contains(PhoneticAttribute.LastLetterVowel)) {
+      flags |= FLAG_ALLOWS_VOWEL_ENDING;
+    }
+    if (!attrs.contains(PhoneticAttribute.ExpectsVowel)) {
+      flags |= FLAG_ALLOWS_CONSONANT_ENDING;
+    }
+    if (attrs.contains(PhoneticAttribute.LastVowelFrontal)
+        || attrs.contains(PhoneticAttribute.HasNoVowel)) {
+      flags |= FLAG_FRONT_HARMONY;
+    }
+    if (attrs.contains(PhoneticAttribute.LastVowelBack)
+        || attrs.contains(PhoneticAttribute.HasNoVowel)) {
+      flags |= FLAG_BACK_HARMONY;
+    }
+    if (!attrs.contains(PhoneticAttribute.LastLetterVoiceless)) {
+      flags |= FLAG_ALLOWS_VOICED_D;
+    }
+    return flags;
   }
 
   private static FlatTrie freeze(TempNode root, List<String> termList, int maxEndingLength) {
@@ -388,13 +295,11 @@ public final class CompactStemEndingSpellChecker {
     collectPreOrder(root, order);
     int n = order.size();
     int totalEdges = 0;
-    for (TempNode node : order) {
-      totalEdges += node.childChars.length;
-    }
-
-    Map<TempNode, Integer> nodeToIdx = new java.util.IdentityHashMap<>(n);
+    Map<TempNode, Integer> nodeToIdx = new IdentityHashMap<>(n);
     for (int i = 0; i < n; i++) {
-      nodeToIdx.put(order.get(i), i);
+      TempNode node = order.get(i);
+      nodeToIdx.put(node, i);
+      totalEdges += node.childChars.length;
     }
 
     int[] edgeStart = new int[n];
@@ -403,8 +308,6 @@ public final class CompactStemEndingSpellChecker {
     int[] edgeTargets = new int[totalEdges];
     int[] terminalId = new int[n];
     byte[] flags = new byte[n];
-    int[] minRemInt = new int[n];
-    int[] maxRemInt = new int[n];
 
     int cursor = 0;
     for (int i = 0; i < n; i++) {
@@ -421,7 +324,29 @@ public final class CompactStemEndingSpellChecker {
       }
     }
 
-    // Bottom-up exact remaining length computation (reverse pre-order = post-order!)
+    byte[][] remBounds =
+        computeRemainingBounds(n, edgeStart, edgeCount, edgeTargets, flags, maxEndingLength);
+    return new FlatTrie(
+        edgeStart,
+        edgeCount,
+        edgeChars,
+        edgeTargets,
+        terminalId,
+        flags,
+        remBounds[0],
+        remBounds[1],
+        termList.toArray(new String[0]));
+  }
+
+  private static byte[][] computeRemainingBounds(
+      int n,
+      int[] edgeStart,
+      short[] edgeCount,
+      int[] edgeTargets,
+      byte[] flags,
+      int maxEndingLength) {
+    int[] minRemInt = new int[n];
+    int[] maxRemInt = new int[n];
     for (int i = n - 1; i >= 0; i--) {
       int minR = 127;
       int maxR = 0;
@@ -443,31 +368,13 @@ public final class CompactStemEndingSpellChecker {
       minRemInt[i] = Math.min(126, minR);
       maxRemInt[i] = Math.min(126, maxR);
     }
-
     byte[] minRem = new byte[n];
     byte[] maxRem = new byte[n];
     for (int i = 0; i < n; i++) {
       minRem[i] = (byte) minRemInt[i];
       maxRem[i] = (byte) maxRemInt[i];
     }
-
-    String[] terminals = termList.toArray(new String[0]);
-    boolean[] startsWithVowel = new boolean[terminals.length];
-    for (int i = 0; i < terminals.length; i++) {
-      String t = terminals[i];
-      startsWithVowel[i] = !t.isEmpty() && TurkishAlphabet.INSTANCE.isVowel(t.charAt(0));
-    }
-    return new FlatTrie(
-        edgeStart,
-        edgeCount,
-        edgeChars,
-        edgeTargets,
-        terminalId,
-        flags,
-        minRem,
-        maxRem,
-        terminals,
-        startsWithVowel);
+    return new byte[][] {minRem, maxRem};
   }
 
   private static void collectPreOrder(TempNode node, List<TempNode> out) {
@@ -476,6 +383,10 @@ public final class CompactStemEndingSpellChecker {
       collectPreOrder(child, out);
     }
   }
+
+  // =========================================================================
+  // Bounded Edit-Distance Stem + Ending Search
+  // =========================================================================
 
   /**
    * Returns morphologically valid, case-formatted candidate words together with their edit and
@@ -489,16 +400,23 @@ public final class CompactStemEndingSpellChecker {
       }
     }
 
-    String stripped = stripApostrophes(word);
-    String normalized = TurkishAlphabet.INSTANCE.normalize(stripped);
+    String normalized = TurkishAlphabet.INSTANCE.normalize(stripStandardApostrophes(word));
     if (normalized.isEmpty()) {
       return Collections.emptyList();
     }
 
-    // Packed score in FloatValueMap: integer part/1000 encodes min diacriticDiffs, fractional encodes editCost
     RawCandidateCollector rawCollector = new RawCandidateCollector();
     searchStem(0, normalized, 0, 0, 0f, 0, rawCollector);
+    List<ScoredCandidate> result = formatAndFilterCandidates(word, rawCollector.toSortedList());
 
+    if (suggestionCache != null) {
+      suggestionCache.put(word, result);
+    }
+    return result;
+  }
+
+  private List<ScoredCandidate> formatAndFilterCandidates(
+      String word, List<ScoredCandidate> rawList) {
     WordAnalysisSurfaceFormatter.CaseType caseType = formatter.guessCase(word);
     if (caseType == WordAnalysisSurfaceFormatter.CaseType.MIXED_CASE
         || caseType == WordAnalysisSurfaceFormatter.CaseType.LOWER_CASE) {
@@ -506,22 +424,16 @@ public final class CompactStemEndingSpellChecker {
     }
     String apostrophe = getApostrophe(word);
 
-    // Sort raw candidates by combined distance before morphological verification, with adaptive
-    // early stopping once enough valid low-edit candidates are confirmed.
-    List<ScoredCandidate> rawList = rawCollector.toSortedList();
     int limit = Math.min(rawList.size(), 120);
-
     Map<String, ScoredCandidate> validMap = new LinkedHashMap<>(16);
     float bestValidScore = Float.POSITIVE_INFINITY;
     for (int i = 0; i < limit; i++) {
       ScoredCandidate rc = rawList.get(i);
-      float rcScore = rc.editCost + 0.20f * rc.diacriticDiffs;
+      float rcScore = rc.rawRankScore();
       if (validMap.size() >= 18 && rcScore > 0.85f && rcScore > bestValidScore + 0.50f) {
         break;
       }
-      rawGraphAnalysesCount++;
-      WordAnalysis analyses = morphology.analyze(rc.surface);
-      for (SingleAnalysis analysis : analyses) {
+      for (SingleAnalysis analysis : morphology.analyze(rc.surface())) {
         if (analysis.isUnknown()) {
           continue;
         }
@@ -530,77 +442,12 @@ public final class CompactStemEndingSpellChecker {
           bestValidScore = rcScore;
         }
         ScoredCandidate existing = validMap.get(formatted);
-        if (existing == null
-            || rc.totalDistanceCost(false) < existing.totalDistanceCost(false)) {
-          validMap.put(formatted, new ScoredCandidate(formatted, rc.editCost, rc.diacriticDiffs));
+        if (existing == null || rc.totalDistanceCost() < existing.totalDistanceCost()) {
+          validMap.put(formatted, new ScoredCandidate(formatted, rc.editCost(), rc.diacriticDiffs()));
         }
       }
     }
-
-    List<ScoredCandidate> result = Collections.unmodifiableList(new ArrayList<>(validMap.values()));
-    if (suggestionCache != null) {
-      suggestionCache.put(word, result);
-    }
-    return result;
-  }
-
-  public List<String> suggestForWord(
-      String word, String leftContext, String rightContext, NgramLanguageModel lm) {
-    return suggestForWord(word, leftContext, rightContext, lm, false, 0.0f);
-  }
-
-  /**
-   * Context-ranked suggestions with optional noisy-channel edit penalty weight {@code editWeight}.
-   * Setting {@code editWeight = 0f} reproduces pure-LM ranking; {@code editWeight > 0f} prevents
-   * high-frequency neighbors from overriding closer edits.
-   */
-  public List<String> suggestForWord(
-      String word,
-      String leftContext,
-      String rightContext,
-      NgramLanguageModel lm,
-      boolean asciiContext,
-      float editWeight) {
-    List<ScoredCandidate> candidates = suggestScored(word);
-    if (candidates.isEmpty() || lm == null) {
-      List<String> out = new ArrayList<>(candidates.size());
-      for (ScoredCandidate c : candidates) {
-        out.add(c.surface);
-      }
-      return out;
-    }
-
-    LmVocabulary vocabulary = lm.getVocabulary();
-    int leftIdx =
-        leftContext == null
-            ? vocabulary.indexOf(vocabulary.getSentenceStart())
-            : vocabulary.indexOf(normalizeForLm(leftContext));
-    int rightIdx =
-        rightContext == null
-            ? vocabulary.indexOf(vocabulary.getSentenceEnd())
-            : vocabulary.indexOf(normalizeForLm(rightContext));
-
-    List<ScoredItem<String>> ranked = new ArrayList<>(candidates.size());
-    int order = lm.getOrder();
-    for (ScoredCandidate cand : candidates) {
-      int wIdx = vocabulary.indexOf(normalizeForLm(cand.surface));
-      float lmScore;
-      if (order < 2) {
-        lmScore = lm.getUnigramProbability(wIdx);
-      } else if (order == 2) {
-        lmScore = lm.getProbability(leftIdx, wIdx) + lm.getProbability(wIdx, rightIdx);
-      } else {
-        lmScore = lm.getProbability(leftIdx, wIdx, rightIdx);
-      }
-      float totalScore = lmScore - editWeight * cand.totalDistanceCost(asciiContext);
-      ranked.add(new ScoredItem<>(cand.surface, totalScore));
-    }
-    ranked.sort(ScoredItem.STRING_COMP_DESCENDING);
-    List<String> out = new ArrayList<>(ranked.size());
-    for (ScoredItem<String> item : ranked) {
-      out.add(item.item);
-    }
-    return out;
+    return Collections.unmodifiableList(new ArrayList<>(validMap.values()));
   }
 
   private void searchStem(
@@ -621,52 +468,30 @@ public final class CompactStemEndingSpellChecker {
     byte f = stemTrie.flags[node];
     int stemTermId = stemTrie.terminalId[node];
 
-    // If we completed the input at a terminable stem node
     if (pos == len && (f & FLAG_CAN_TERMINATE) != 0 && stemTermId >= 0) {
       out.record(stemTrie.terminals[stemTermId], cost, diacriticDiffs);
     }
-
-    // Epsilon bridge to endingTrie if this node is a valid stem transition surface
     if ((f & FLAG_HAS_STEM) != 0 && stemTermId >= 0) {
-      searchEndingFromRoot(f, stemTermId, input, pos, edits, cost, diacriticDiffs, out);
+      searchEnding(f, stemTermId, 0, input, pos, edits, cost, diacriticDiffs, out);
     }
 
     if (edits >= 1) {
-      // Fast zero-allocation exact/diacritic tail scan inside stemTrie
       if (pos < len) {
         char ch = input.charAt(pos);
-        char[] matches = getMatches(ch);
-        if (matches == null) {
-          int child = stemTrie.findChild(node, ch);
+        for (char mc : matchOrSelf(ch)) {
+          int child = stemTrie.findChild(node, mc);
           if (child >= 0) {
-            searchStem(child, input, pos + 1, 1, cost, diacriticDiffs, out);
-          }
-        } else {
-          for (char mc : matches) {
-            int child = stemTrie.findChild(node, mc);
-            if (child >= 0) {
-              searchStem(
-                  child,
-                  input,
-                  pos + 1,
-                  1,
-                  cost,
-                  diacriticDiffs + (mc == ch ? 0 : 1),
-                  out);
-            }
+            searchStem(child, input, pos + 1, 1, cost, diacriticDiffs + (mc == ch ? 0 : 1), out);
           }
         }
       }
       return;
     }
 
-    // edits == 0: explore 0-edit advance + 1-edit operations (Sub, Ins, Del, Trans)
     int start = stemTrie.edgeStart[node];
     int end = start + stemTrie.edgeCount[node];
-
     if (pos < len) {
       char ch = input.charAt(pos);
-      // 1) 0-edit (exact or diacritic match) + 1-edit substitution in a single scan over outgoing edges!
       for (int e = start; e < end; e++) {
         char ec = stemTrie.edgeChars[e];
         int child = stemTrie.edgeTargets[e];
@@ -675,29 +500,24 @@ public final class CompactStemEndingSpellChecker {
         } else if (isDiacriticMatch(ch, ec)) {
           searchStem(child, input, pos + 1, 0, cost, diacriticDiffs + 1, out);
         } else {
-          float subCost = substitutionCost(ch, ec);
-          searchStem(child, input, pos + 1, 1, cost + subCost, diacriticDiffs, out);
+          searchStem(child, input, pos + 1, 1, cost + substitutionCost(ch, ec), diacriticDiffs, out);
         }
       }
-
-      // 2) Deletion from input (user typed an extra character at input[pos])
-      float delCost = deletionFromInputCost(input, pos);
-      searchStem(node, input, pos + 1, 1, cost + delCost, diacriticDiffs, out);
-
-      // 3) Transposition (input[pos], input[pos+1] swapped)
-      if (len > 2 && pos + 1 < len) {
-        char nextCh = input.charAt(pos + 1);
-        if (ch != nextCh) {
-          exploreTranspositionInStem(node, ch, nextCh, input, pos, cost, diacriticDiffs, out);
-        }
+      searchStem(node, input, pos + 1, 1, cost + deletionFromInputCost(input, pos), diacriticDiffs, out);
+      if (len > 2 && pos + 1 < len && ch != input.charAt(pos + 1)) {
+        exploreTranspositionInStem(node, ch, input.charAt(pos + 1), input, pos, cost, diacriticDiffs, out);
       }
     }
 
-    // 4) Insertion into input (user omitted character ec present in graph)
     for (int e = start; e < end; e++) {
-      char ec = stemTrie.edgeChars[e];
-      int child = stemTrie.edgeTargets[e];
-      searchStem(child, input, pos, 1, cost + omittedCharCost(ec), diacriticDiffs, out);
+      searchStem(
+          stemTrie.edgeTargets[e],
+          input,
+          pos,
+          1,
+          cost + omittedCharCost(stemTrie.edgeChars[e]),
+          diacriticDiffs,
+          out);
     }
   }
 
@@ -710,137 +530,26 @@ public final class CompactStemEndingSpellChecker {
       float cost,
       int diacriticDiffs,
       RawCandidateCollector out) {
-    char[] m1 = getMatches(c1);
-    char[] m0 = getMatches(c0);
-    if (m1 == null && m0 == null) {
-      int mid = stemTrie.findChild(node, c1);
+    char[] a1 = matchOrSelf(c1);
+    char[] a0 = matchOrSelf(c0);
+    for (char x1 : a1) {
+      int d1 = x1 == c1 ? 0 : 1;
+      int mid = stemTrie.findChild(node, x1);
       if (mid >= 0) {
-        int dst = stemTrie.findChild(mid, c0);
-        if (dst >= 0) {
-          searchStem(dst, input, pos + 2, 1, cost + 0.70f, diacriticDiffs, out);
-        }
-        // Also check transposition straddling stem -> ending boundary!
-        byte mf = stemTrie.flags[mid];
-        int midTerm = stemTrie.terminalId[mid];
-        if ((mf & FLAG_HAS_STEM) != 0 && midTerm >= 0) {
-          stepEndingExact(mf, midTerm, 0, c0, 0, input, pos + 2, 1, cost + 0.70f, diacriticDiffs, out);
-        }
-      }
-    } else {
-      char[] a1 = m1 != null ? m1 : new char[] {c1};
-      char[] a0 = m0 != null ? m0 : new char[] {c0};
-      for (char x1 : a1) {
-        int d1 = (x1 == c1) ? 0 : 1;
-        int mid = stemTrie.findChild(node, x1);
-        if (mid >= 0) {
-          for (char x0 : a0) {
-            int d0 = (x0 == c0) ? 0 : 1;
-            int dst = stemTrie.findChild(mid, x0);
-            if (dst >= 0) {
-              searchStem(dst, input, pos + 2, 1, cost + 0.70f, diacriticDiffs + d1 + d0, out);
-            }
-            byte mf = stemTrie.flags[mid];
-            int midTerm = stemTrie.terminalId[mid];
-            if ((mf & FLAG_HAS_STEM) != 0 && midTerm >= 0) {
-              stepEndingExact(
-                  mf, midTerm, 0, x0, d1 + d0, input, pos + 2, 1, cost + 0.70f, diacriticDiffs, out);
-            }
+        for (char x0 : a0) {
+          int d0 = x0 == c0 ? 0 : 1;
+          int dst = stemTrie.findChild(mid, x0);
+          if (dst >= 0) {
+            searchStem(dst, input, pos + 2, 1, cost + 0.70f, diacriticDiffs + d1 + d0, out);
           }
-        }
-      }
-    }
-  }
-
-  private void searchEndingFromRoot(
-      byte stemFlags,
-      int stemTermId,
-      String input,
-      int pos,
-      int edits,
-      float cost,
-      int diacriticDiffs,
-      RawCandidateCollector out) {
-    int len = input.length();
-    int rem = len - pos;
-    int budget = 1 - edits;
-    if (rem < endingTrie.minRem[0] - budget || rem > endingTrie.maxRem[0] + budget) {
-      return;
-    }
-
-    boolean allowVowel = (stemFlags & FLAG_ALLOWS_VOWEL_ENDING) != 0;
-    boolean allowConsonant = (stemFlags & FLAG_ALLOWS_CONSONANT_ENDING) != 0;
-    if (!allowVowel && !allowConsonant) {
-      return;
-    }
-
-    int start = endingTrie.edgeStart[0];
-    int end = start + endingTrie.edgeCount[0];
-
-    if (edits >= 1) {
-      if (pos < len) {
-        char ch = input.charAt(pos);
-        char[] matches = getMatches(ch);
-        if (matches == null) {
-          stepEndingExact(stemFlags, stemTermId, 0, ch, 0, input, pos + 1, 1, cost, diacriticDiffs, out);
-        } else {
-          for (char mc : matches) {
+          byte mf = stemTrie.flags[mid];
+          int midTerm = stemTrie.terminalId[mid];
+          if ((mf & FLAG_HAS_STEM) != 0 && midTerm >= 0) {
             stepEndingExact(
-                stemFlags,
-                stemTermId,
-                0,
-                mc,
-                mc == ch ? 0 : 1,
-                input,
-                pos + 1,
-                1,
-                cost,
-                diacriticDiffs,
-                out);
+                mf, midTerm, 0, x0, d1 + d0, input, pos + 2, 1, cost + 0.70f, diacriticDiffs, out);
           }
         }
       }
-      return;
-    }
-
-    // edits == 0 at ending root: note we do NOT repeat input-deletion here because searchStem at
-    // the same (pos, edits=0) already explores deleting input[pos] before crossing epsilon!
-    if (pos < len) {
-      char ch = input.charAt(pos);
-      for (int e = start; e < end; e++) {
-        char ec = endingTrie.edgeChars[e];
-        if (!isFirstEndingCharCompatible(ec, stemFlags)) {
-          continue;
-        }
-        int child = endingTrie.edgeTargets[e];
-        if (ec == ch) {
-          searchEnding(stemFlags, stemTermId, child, input, pos + 1, 0, cost, diacriticDiffs, out);
-        } else if (isDiacriticMatch(ch, ec)) {
-          searchEnding(
-              stemFlags, stemTermId, child, input, pos + 1, 0, cost, diacriticDiffs + 1, out);
-        } else {
-          float subCost = substitutionCost(ch, ec);
-          searchEnding(
-              stemFlags, stemTermId, child, input, pos + 1, 1, cost + subCost, diacriticDiffs, out);
-        }
-      }
-
-      if (len > 2 && pos + 1 < len) {
-        char nextCh = input.charAt(pos + 1);
-        if (ch != nextCh) {
-          exploreTranspositionInEnding(
-              0, true, stemFlags, stemTermId, ch, nextCh, input, pos, cost, diacriticDiffs, out);
-        }
-      }
-    }
-
-    for (int e = start; e < end; e++) {
-      char ec = endingTrie.edgeChars[e];
-      if (!isFirstEndingCharCompatible(ec, stemFlags)) {
-        continue;
-      }
-      int child = endingTrie.edgeTargets[e];
-      searchEnding(
-          stemFlags, stemTermId, child, input, pos, 1, cost + omittedCharCost(ec), diacriticDiffs, out);
     }
   }
 
@@ -862,7 +571,15 @@ public final class CompactStemEndingSpellChecker {
     int child = endingTrie.findChild(endingNode, ec);
     if (child >= 0) {
       searchEnding(
-          stemFlags, stemTermId, child, input, nextPos, edits, cost, diacriticDiffs + extraDiacritic, out);
+          stemFlags,
+          stemTermId,
+          child,
+          input,
+          nextPos,
+          edits,
+          cost,
+          diacriticDiffs + extraDiacritic,
+          out);
     }
   }
 
@@ -876,6 +593,10 @@ public final class CompactStemEndingSpellChecker {
       float cost,
       int diacriticDiffs,
       RawCandidateCollector out) {
+    if (node == 0
+        && (stemFlags & (FLAG_ALLOWS_VOWEL_ENDING | FLAG_ALLOWS_CONSONANT_ENDING)) == 0) {
+      return;
+    }
     int len = input.length();
     int rem = len - pos;
     int budget = 1 - edits;
@@ -894,28 +615,19 @@ public final class CompactStemEndingSpellChecker {
     if (edits >= 1) {
       if (pos < len) {
         char ch = input.charAt(pos);
-        char[] matches = getMatches(ch);
-        if (matches == null) {
-          int child = endingTrie.findChild(node, ch);
-          if (child >= 0) {
-            searchEnding(stemFlags, stemTermId, child, input, pos + 1, 1, cost, diacriticDiffs, out);
-          }
-        } else {
-          for (char mc : matches) {
-            int child = endingTrie.findChild(node, mc);
-            if (child >= 0) {
-              searchEnding(
-                  stemFlags,
-                  stemTermId,
-                  child,
-                  input,
-                  pos + 1,
-                  1,
-                  cost,
-                  diacriticDiffs + (mc == ch ? 0 : 1),
-                  out);
-            }
-          }
+        for (char mc : matchOrSelf(ch)) {
+          stepEndingExact(
+              stemFlags,
+              stemTermId,
+              node,
+              mc,
+              mc == ch ? 0 : 1,
+              input,
+              pos + 1,
+              1,
+              cost,
+              diacriticDiffs,
+              out);
         }
       }
       return;
@@ -923,11 +635,13 @@ public final class CompactStemEndingSpellChecker {
 
     int start = endingTrie.edgeStart[node];
     int end = start + endingTrie.edgeCount[node];
-
     if (pos < len) {
       char ch = input.charAt(pos);
       for (int e = start; e < end; e++) {
         char ec = endingTrie.edgeChars[e];
+        if (node == 0 && !isFirstEndingCharCompatible(ec, stemFlags)) {
+          continue;
+        }
         int child = endingTrie.edgeTargets[e];
         if (ec == ch) {
           searchEnding(stemFlags, stemTermId, child, input, pos + 1, 0, cost, diacriticDiffs, out);
@@ -935,29 +649,61 @@ public final class CompactStemEndingSpellChecker {
           searchEnding(
               stemFlags, stemTermId, child, input, pos + 1, 0, cost, diacriticDiffs + 1, out);
         } else {
-          float subCost = substitutionCost(ch, ec);
           searchEnding(
-              stemFlags, stemTermId, child, input, pos + 1, 1, cost + subCost, diacriticDiffs, out);
+              stemFlags,
+              stemTermId,
+              child,
+              input,
+              pos + 1,
+              1,
+              cost + substitutionCost(ch, ec),
+              diacriticDiffs,
+              out);
         }
       }
-
-      float delCost = deletionFromInputCost(input, pos);
-      searchEnding(stemFlags, stemTermId, node, input, pos + 1, 1, cost + delCost, diacriticDiffs, out);
-
-      if (len > 2 && pos + 1 < len) {
-        char nextCh = input.charAt(pos + 1);
-        if (ch != nextCh) {
-          exploreTranspositionInEnding(
-              node, false, stemFlags, stemTermId, ch, nextCh, input, pos, cost, diacriticDiffs, out);
-        }
+      if (node != 0) {
+        searchEnding(
+            stemFlags,
+            stemTermId,
+            node,
+            input,
+            pos + 1,
+            1,
+            cost + deletionFromInputCost(input, pos),
+            diacriticDiffs,
+            out);
+      }
+      if (len > 2 && pos + 1 < len && ch != input.charAt(pos + 1)) {
+        exploreTranspositionInEnding(
+            node,
+            node == 0,
+            stemFlags,
+            stemTermId,
+            ch,
+            input.charAt(pos + 1),
+            input,
+            pos,
+            cost,
+            diacriticDiffs,
+            out);
       }
     }
 
     for (int e = start; e < end; e++) {
       char ec = endingTrie.edgeChars[e];
-      int child = endingTrie.edgeTargets[e];
+      if (node == 0 && !isFirstEndingCharCompatible(ec, stemFlags)) {
+        continue;
+      }
       searchEnding(
-          stemFlags, stemTermId, child, input, pos, 1, cost + omittedCharCost(ec), diacriticDiffs, out);
+          stemFlags,
+          stemTermId,
+          endingTrie.edgeTargets[e],
+          input,
+          pos,
+          1,
+          cost + omittedCharCost(ec),
+          diacriticDiffs,
+          out);
     }
   }
 
@@ -973,28 +719,38 @@ public final class CompactStemEndingSpellChecker {
       float cost,
       int diacriticDiffs,
       RawCandidateCollector out) {
-    char[] m1 = getMatches(c1);
-    char[] m0 = getMatches(c0);
-    char[] a1 = m1 != null ? m1 : new char[] {c1};
-    char[] a0 = m0 != null ? m0 : new char[] {c0};
+    char[] a1 = matchOrSelf(c1);
+    char[] a0 = matchOrSelf(c0);
     for (char x1 : a1) {
       if (atRoot && !isFirstEndingCharCompatible(x1, stemFlags)) {
         continue;
       }
-      int d1 = (x1 == c1) ? 0 : 1;
+      int d1 = x1 == c1 ? 0 : 1;
       int mid = endingTrie.findChild(node, x1);
       if (mid >= 0) {
         for (char x0 : a0) {
-          int d0 = (x0 == c0) ? 0 : 1;
+          int d0 = x0 == c0 ? 0 : 1;
           int dst = endingTrie.findChild(mid, x0);
           if (dst >= 0) {
             searchEnding(
-                stemFlags, stemTermId, dst, input, pos + 2, 1, cost + 0.70f, diacriticDiffs + d1 + d0, out);
+                stemFlags,
+                stemTermId,
+                dst,
+                input,
+                pos + 2,
+                1,
+                cost + 0.70f,
+                diacriticDiffs + d1 + d0,
+                out);
           }
         }
       }
     }
   }
+
+  // =========================================================================
+  // Morphotactic Harmony & Edit-Cost Helpers
+  // =========================================================================
 
   private static boolean isFirstEndingCharCompatible(char ec, byte stemFlags) {
     if (TurkishAlphabet.INSTANCE.isVowel(ec)) {
@@ -1009,26 +765,15 @@ public final class CompactStemEndingSpellChecker {
       }
       return true;
     }
-    if ((stemFlags & FLAG_ALLOWS_CONSONANT_ENDING) == 0) {
-      return false;
-    }
-    if (ec == 'd' && (stemFlags & FLAG_ALLOWS_VOICED_D) == 0) {
-      return false;
-    }
-    return true;
+    return (stemFlags & FLAG_ALLOWS_CONSONANT_ENDING) != 0
+        && (ec != 'd' || (stemFlags & FLAG_ALLOWS_VOICED_D) != 0);
   }
 
   private static boolean isEndingHarmoniousWithStem(byte stemFlags, String ending) {
-    if (ending.startsWith("yor")
-        || ending.startsWith("ken")
-        || ending.startsWith("yken")
-        || ending.startsWith("ki")
-        || ending.startsWith("leyin")
-        || ending.startsWith("gil")
-        || ending.startsWith("mtırak")
-        || ending.startsWith("daş")
-        || ending.startsWith("taş")) {
-      return true;
+    for (String prefix : INVARIANT_HARMONY_PREFIXES) {
+      if (ending.startsWith(prefix)) {
+        return true;
+      }
     }
     for (int i = 0; i < ending.length(); i++) {
       char c = ending.charAt(i);
@@ -1053,15 +798,13 @@ public final class CompactStemEndingSpellChecker {
     return c == 'a' || c == 'ı' || c == 'o' || c == 'u' || c == 'â' || c == 'û';
   }
 
-  private char[] getMatches(char c) {
-    if (!matchDiacritics) {
-      return null;
-    }
-    return c < MAX_ASCII_TABLE ? DIACRITIC_MATCHES[c] : null;
+  private static char[] matchOrSelf(char c) {
+    char[] matches = c < MAX_ASCII_TABLE ? DIACRITIC_MATCHES[c] : null;
+    return matches != null ? matches : new char[] {c};
   }
 
-  private boolean isDiacriticMatch(char inputChar, char edgeChar) {
-    if (!matchDiacritics || inputChar >= MAX_ASCII_TABLE) {
+  private static boolean isDiacriticMatch(char inputChar, char edgeChar) {
+    if (inputChar >= MAX_ASCII_TABLE) {
       return false;
     }
     char[] arr = DIACRITIC_MATCHES[inputChar];
@@ -1077,34 +820,31 @@ public final class CompactStemEndingSpellChecker {
   }
 
   private static float substitutionCost(char inputChar, char targetChar) {
-    if (inputChar < MAX_ASCII_TABLE
-        && targetChar < MAX_ASCII_TABLE
-        && NEAR_OR_PHONETIC[inputChar][targetChar]) {
-      return 0.55f;
-    }
-    return 1.0f;
+    return inputChar < MAX_ASCII_TABLE
+            && targetChar < MAX_ASCII_TABLE
+            && NEAR_OR_PHONETIC[inputChar][targetChar]
+        ? 0.55f
+        : 1.0f;
   }
 
   private static float omittedCharCost(char omittedTargetChar) {
-    if (TurkishAlphabet.INSTANCE.isVowel(omittedTargetChar)
-        || omittedTargetChar == 'ğ'
-        || omittedTargetChar == 'y'
-        || omittedTargetChar == 'h') {
-      return 0.75f;
-    }
-    return 1.0f;
+    return TurkishAlphabet.INSTANCE.isVowel(omittedTargetChar)
+            || omittedTargetChar == 'ğ'
+            || omittedTargetChar == 'y'
+            || omittedTargetChar == 'h'
+        ? 0.75f
+        : 1.0f;
   }
 
   private static float deletionFromInputCost(String input, int pos) {
     char c = input.charAt(pos);
-    if ((pos > 0 && input.charAt(pos - 1) == c)
-        || (pos + 1 < input.length() && input.charAt(pos + 1) == c)) {
-      return 0.65f;
-    }
-    return 1.0f;
+    return (pos > 0 && input.charAt(pos - 1) == c)
+            || (pos + 1 < input.length() && input.charAt(pos + 1) == c)
+        ? 0.65f
+        : 1.0f;
   }
 
-  private static String stripApostrophes(String s) {
+  private static String stripStandardApostrophes(String s) {
     if (s.indexOf('\'') < 0 && s.indexOf('’') < 0) {
       return s;
     }
@@ -1121,29 +861,18 @@ public final class CompactStemEndingSpellChecker {
   private static String getApostrophe(String input) {
     if (input.indexOf('’') > 0) {
       return "’";
-    } else if (input.indexOf('\'') > 0) {
-      return "'";
     }
-    return null;
-  }
-
-  private static String normalizeForLm(String s) {
-    if (s.indexOf('\'') > 0) {
-      return Turkish.capitalize(s);
-    } else {
-      return s.toLowerCase(Turkish.LOCALE);
-    }
+    return input.indexOf('\'') > 0 ? "'" : null;
   }
 
   private static final class RawCandidateCollector {
-    private final FloatValueMap<String> bestCombined = new FloatValueMap<>(16);
-    private final Map<String, ScoredCandidate> items = new java.util.HashMap<>(16);
+    private final Map<String, ScoredCandidate> items = new HashMap<>(16);
 
     void record(String word, float editCost, int diacriticDiffs) {
-      float combined = editCost + 0.20f * diacriticDiffs;
-      if (!bestCombined.contains(word) || combined < bestCombined.get(word)) {
-        bestCombined.set(word, combined);
-        items.put(word, new ScoredCandidate(word, editCost, diacriticDiffs));
+      ScoredCandidate cand = new ScoredCandidate(word, editCost, diacriticDiffs);
+      ScoredCandidate existing = items.get(word);
+      if (existing == null || cand.rawRankScore() < existing.rawRankScore()) {
+        items.put(word, cand);
       }
     }
 
@@ -1151,8 +880,8 @@ public final class CompactStemEndingSpellChecker {
       List<ScoredCandidate> list = new ArrayList<>(items.values());
       list.sort(
           (a, b) -> {
-            int cmp = Float.compare(a.editCost + 0.20f * a.diacriticDiffs, b.editCost + 0.20f * b.diacriticDiffs);
-            return cmp != 0 ? cmp : a.surface.compareTo(b.surface);
+            int cmp = Float.compare(a.rawRankScore(), b.rawRankScore());
+            return cmp != 0 ? cmp : a.surface().compareTo(b.surface());
           });
       return list;
     }

@@ -120,7 +120,13 @@ final class NormalizerPreprocessor {
     this.lookupManual = lookupManual;
 
     KeyValueReader kvReader = new KeyValueReader("=");
-    this.commonSplits = kvReader.loadFromFile(dataRoot.resolve("split").toFile());
+    if (dataRoot != null) {
+      this.commonSplits = kvReader.loadFromFile(dataRoot.resolve("split").toFile());
+    } else {
+      try (InputStream is = Resources.getResource("normalization/split").openStream()) {
+        this.commonSplits = kvReader.loadFromStream(is);
+      }
+    }
     try (InputStream is =
         Resources.getResource("normalization/multi-word-replacements").openStream()) {
       this.replacements = kvReader.loadFromStream(is);
