@@ -10,3 +10,4 @@ zemberek.apps.grpc.StartGrpcServer
 zemberek.apps.ner.EvaluateNer
 zemberek.apps.ner.TrainNerModel
 zemberek.apps.ner.FindNamedEntities
+zemberek.apps.demo.StartWebDemo

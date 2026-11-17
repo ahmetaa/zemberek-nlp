@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zemberek NLP — Local Demo Studio</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-mark">Z</span>
+        <div>
+          <div class="brand-title">Zemberek NLP <span class="brand-sub">Demo Studio</span></div>
+        </div>
+      </div>
+
+      <nav class="module-tabs" role="tablist" aria-label="Zemberek Modules">
+        <button class="tab-btn active" data-tab="normalization" role="tab" aria-selected="true">
+          Normalization
+        </button>
+        <button class="tab-btn" data-tab="deasciifiers" role="tab" aria-selected="false">
+          Deasciifiers
+        </button>
+        <button class="tab-btn" data-tab="morphology" role="tab" aria-selected="false">
+          Morphology &amp; Disambiguation
+        </button>
+        <button class="tab-btn" data-tab="tokenization" role="tab" aria-selected="false">
+          Tokenizer
+        </button>
+      </nav>
+
+      <div class="topbar-right">
+        <span id="serverStatusPill" class="status-pill">Connecting…</span>
+        <button id="themeToggleBtn" class="icon-btn" title="Toggle light/dark theme" aria-label="Toggle theme">
+          ◐
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- ==================== TAB 1: NORMALIZATION ==================== -->
+    <section id="tab-normalization" class="tab-panel active">
+      <div class="control-bar">
+        <div class="engine-group">
+          <label for="engineSelect" class="control-label">Engine</label>
+          <select id="engineSelect" class="select-input">
+            <option value="perceptron" selected>Span-Lattice Perceptron (v2.4)</option>
+            <option value="zemberek_head">Zemberek HEAD (Rule + SmoothLm)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="presets-row">
+        <span class="presets-label">Examples:</span>
+        <div id="presetButtons" class="preset-chips"></div>
+      </div>
+
+      <!-- Primary Two-Box Live Workspace -->
+      <div class="io-grid">
+        <div class="io-card">
+          <div class="io-card-header">
+            <div class="io-title-wrap">
+              <span class="io-title">Noisy Input</span>
+              <span id="inputCounter" class="io-meta">0 chars · 0 tokens</span>
+            </div>
+            <div class="io-actions">
+              <button id="clearInputBtn" class="btn-ghost" type="button">Clear</button>
+            </div>
+          </div>
+          <textarea
+            id="normInput"
+            class="io-textarea"
+            spellcheck="false"
+            placeholder="Type or paste noisy Turkish text here — normalized output updates live as you type..."
+          ></textarea>
+        </div>
+
+        <div class="io-card output-card">
+          <div class="io-card-header">
+            <div class="io-title-wrap">
+              <span class="io-title">Normalized Output</span>
+              <span id="latencyBadge" class="latency-pill">0.00 ms</span>
+              <span id="editCountBadge" class="edits-pill">0 edits</span>
+            </div>
+            <div class="io-actions">
+              <label class="toggle-chip" title="Highlight changed words/spans and click to inspect">
+                <input type="checkbox" id="highlightToggle" checked />
+                <span>Highlight edits</span>
+              </label>
+              <label class="toggle-chip" title="Compare normalizers side-by-side">
+                <input type="checkbox" id="compareAllToggle" />
+                <span>Compare all</span>
+              </label>
+              <button id="sendToMorphBtn" class="btn-ghost" type="button" title="Analyze normalized text in Morphology tab">
+                Morph →
+              </button>
+              <button id="copyOutputBtn" class="btn-primary-sm" type="button">Copy</button>
+            </div>
+          </div>
+          <div id="normOutput" class="io-output" tabindex="0" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <!-- Optional Side-by-Side 4-Engine Comparison Drawer -->
+      <div id="comparisonPanel" class="panel-card hidden">
+        <div class="panel-header">
+          <h3 class="panel-title">Side-by-Side Engine Comparison</h3>
+          <span class="panel-subtitle">Exact output &amp; single-thread server latency on current input</span>
+        </div>
+        <div id="comparisonBody" class="comparison-list"></div>
+      </div>
+
+      <!-- Live Multi-Span Lattice & Semi-Markov Perceptron Inspector -->
+      <div id="inspectorPanel" class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h3 class="panel-title">Live Multi-Span Lattice &amp; Semi-Markov Perceptron Inspector</h3>
+            <p class="panel-subtitle">
+              Click any token or span below to inspect lexical/morphological token signals, multi-span candidate generators, and Semi-Markov Passive-Aggressive Perceptron Viterbi arc scores.
+            </p>
+          </div>
+          <div class="legend-pills">
+            <span class="legend-dot kind-keep">Keep</span>
+            <span class="legend-dot kind-rewrite">1:1 Edit</span>
+            <span class="legend-dot kind-split">1:2 Split</span>
+            <span class="legend-dot kind-merge">2:1 Merge</span>
+            <span class="legend-dot kind-apostrophe">TDK / Case</span>
+          </div>
+        </div>
+
+        <div id="latticeStrip" class="lattice-strip"></div>
+
+        <div id="slotDetailGrid" class="slot-detail-grid">
+          <!-- Token Signals Card -->
+          <div class="subcard">
+            <div class="subcard-header">
+              <span class="stage-badge">Signals</span>
+              <h4>Token Signals &amp; Edit Probability</h4>
+            </div>
+            <div id="gateDetailBody" class="subcard-body"></div>
+          </div>
+
+          <!-- Candidate Arcs & Viterbi Scores Card -->
+          <div class="subcard">
+            <div class="subcard-header">
+              <span class="stage-badge stage-2">Lattice</span>
+              <h4>Candidate Arcs &amp; Semi-Markov Viterbi Scores</h4>
+            </div>
+            <div id="rankDetailBody" class="subcard-body"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: DEASCIIFIERS ==================== -->
+    <section id="tab-deasciifiers" class="tab-panel">
+      <div class="control-bar">
+        <div class="engine-group">
+          <label for="deascEngineSelect" class="control-label">Deasciifier</label>
+          <select id="deascEngineSelect" class="select-input">
+            <option value="lattice_disambig" selected>LatticeDeasciifier — Disambiguating â/î/û (Default · 3.58 MB)</option>
+            <option value="lattice_none">LatticeDeasciifier — Plain Diacritics (No Circumflex)</option>
+            <option value="lattice_full">LatticeDeasciifier — Full Circumflex (Lexicon â/î/û)</option>
+            <option value="lattice_known">LatticeDeasciifier — Known Words Only (OOV-Safe)</option>
+            <option value="legacy_pattern">Legacy Deasciifier (2006 Decision-List Pattern Table)</option>
+          </select>
+        </div>
+
+        <div id="deascStatsBar" class="engine-metrics">
+          <span class="metric-chip" title="Model memory footprint">RAM: <strong id="deascStatRam">3.58 MB</strong></span>
+          <span class="metric-chip" title="Sentence accuracy on Gemini-2500 gold benchmark (No^ / Strict)">Gemini-2500 Sent: <strong id="deascStatSent">94.88% / 89.80%</strong></span>
+          <span class="metric-chip" title="Word-level accuracy on Gemini-2500">Word Acc: <strong id="deascStatWord">99.57%</strong></span>
+          <span class="metric-chip" title="Preservation of existing Turkish diacritics on partial-ASCII inputs">Pin Safety: <strong id="deascStatPin">0 stripped</strong></span>
+        </div>
+      </div>
+
+      <div id="deascModeNote" class="mode-note-bar">
+        Morphological lattice + structured margin perceptron; emits <code>â/î/û</code> on minimal pairs (<code>kâr/kar</code>, <code>hâlâ/hala</code>, <code>âdet</code>, <code>hâkim</code>, <code>resmî</code>) + OOV vowel harmony.
+      </div>
+
+      <div class="presets-row">
+        <span class="presets-label">ASCII Presets:</span>
+        <div id="deascPresetButtons" class="preset-chips"></div>
+      </div>
+
+      <!-- Two-Box Live Deasciification Workspace -->
+      <div class="io-grid">
+        <div class="io-card">
+          <div class="io-card-header">
+            <div class="io-title-wrap">
+              <span class="io-title">ASCII / Mixed Turkish Input</span>
+              <span id="deascInputCounter" class="io-meta">0 chars · 0 tokens</span>
+            </div>
+            <div class="io-actions">
+              <button
+                id="asciifyInputBtn"
+                class="btn-ghost"
+                type="button"
+                title="Fold Turkish diacritics (ç,ğ,ı,İ,ö,ş,ü,â,î,û) to ASCII to test round-trip recovery"
+              >
+                Fold to ASCII
+              </button>
+              <button id="clearDeascBtn" class="btn-ghost" type="button">Clear</button>
+            </div>
+          </div>
+          <textarea
+            id="deascInput"
+            class="io-textarea"
+            spellcheck="false"
+            placeholder="Type or paste ASCII or partial-ASCII Turkish text here — diacritics restore live as you type..."
+          ></textarea>
+        </div>
+
+        <div class="io-card output-card">
+          <div class="io-card-header">
+            <div class="io-title-wrap">
+              <span class="io-title">Deasciified Output</span>
+              <span id="deascLatencyBadge" class="latency-pill">0.00 ms</span>
+              <span id="deascChangesBadge" class="edits-pill">0 words · 0 chars</span>
+              <span id="deascCircBadge" class="circ-pill hidden">0 â/î/û</span>
+            </div>
+            <div class="io-actions">
+              <label class="toggle-chip" title="Highlight restored diacritics and circumflex characters">
+                <input type="checkbox" id="deascHighlightToggle" checked />
+                <span>Highlight chars</span>
+              </label>
+              <label class="toggle-chip" title="Compare all 5 Zemberek deasciifier modes side-by-side">
+                <input type="checkbox" id="deascCompareToggle" checked />
+                <span>Compare all 5</span>
+              </label>
+              <button id="deascToNormBtn" class="btn-ghost" type="button" title="Send input to full Normalization tab">
+                Norm →
+              </button>
+              <button id="deascToMorphBtn" class="btn-ghost" type="button" title="Analyze deasciified text in Morphology tab">
+                Morph →
+              </button>
+              <button id="copyDeascBtn" class="btn-primary-sm" type="button">Copy</button>
+            </div>
+          </div>
+          <div id="deascOutput" class="io-output" tabindex="0" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <!-- Side-by-Side All-Deasciifiers Comparison Card -->
+      <div id="deascComparisonPanel" class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h3 class="panel-title">Side-by-Side Deasciifiers Comparison</h3>
+            <p class="panel-subtitle">
+              Comparing <code>LatticeDeasciifier</code> modes (<code>DISAMBIGUATION_ONLY</code>, <code>NONE</code>, <code>FULL</code>, <code>KnownWordsOnly</code>) against <code>Legacy Deasciifier</code>. Words underlined in amber differ from the selected engine; click any row to make it active.
+            </p>
+          </div>
+          <span id="deascDisagreeBadge" class="disagree-pill">0 disagreements</span>
+        </div>
+        <div id="deascComparisonBody" class="comparison-list"></div>
+      </div>
+
+      <!-- Token & Character Disambiguation Inspector -->
+      <div id="deascInspectorPanel" class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h3 class="panel-title">Token &amp; Character Disambiguation Inspector</h3>
+            <p class="panel-subtitle">
+              Click any word in the output or strip below to inspect its <code>1:1</code> character restoration map, cross-deasciifier agreement, and morphological parses.
+            </p>
+          </div>
+          <div class="legend-pills">
+            <label class="toggle-chip" title="Show only changed or disagreeing tokens in the strip">
+              <input type="checkbox" id="deascChangedOnlyToggle" />
+              <span>Changed / Disagreements only</span>
+            </label>
+            <span class="legend-dot kind-keep">Unchanged</span>
+            <span class="legend-dot kind-rewrite">ç ğ ı İ ö ş ü</span>
+            <span class="legend-dot kind-apostrophe">â î û</span>
+            <span class="legend-dot kind-split">Engine Diff</span>
+          </div>
+        </div>
+
+        <div id="deascTokenStrip" class="lattice-strip"></div>
+
+        <div id="deascDetailGrid" class="slot-detail-grid">
+          <div class="subcard">
+            <div class="subcard-header">
+              <span class="stage-badge">1:1 Chars</span>
+              <h4>Character Restoration &amp; Orthographic Guards</h4>
+            </div>
+            <div id="deascCharDetailBody" class="subcard-body"></div>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-header">
+              <span class="stage-badge stage-2">Lattice</span>
+              <h4><code>LatticeDeasciifier</code> Candidates, Scores &amp; 5-Mode Outputs</h4>
+            </div>
+            <div id="deascVariantDetailBody" class="subcard-body"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: MORPHOLOGY & DISAMBIGUATION ==================== -->
+    <section id="tab-morphology" class="tab-panel">
+      <div class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h3 class="panel-title">Turkish Morphological Analysis &amp; Ambiguity Resolution</h3>
+            <p class="panel-subtitle">Live sentence-level analysis via <code>TurkishMorphology.analyzeAndDisambiguate</code></p>
+          </div>
+          <span id="morphLatencyBadge" class="latency-pill">0.00 ms</span>
+        </div>
+        <textarea
+          id="morphInput"
+          class="single-textarea"
+          spellcheck="false"
+          placeholder="Type a Turkish sentence to inspect stems, lemmas, POS tags, and disambiguated vs. competing parses..."
+        >Yarın ben de geleceğim ama saat 7'de orada olur musun bilmiyorum.</textarea>
+        <div id="morphResults" class="morph-results"></div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: TOKENIZATION ==================== -->
+    <section id="tab-tokenization" class="tab-panel">
+      <div class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h3 class="panel-title">Turkish Sentence Extraction &amp; Tokenization</h3>
+            <p class="panel-subtitle">Live boundary detection via <code>TurkishSentenceExtractor</code> &amp; <code>TurkishTokenizer</code></p>
+          </div>
+          <span id="tokLatencyBadge" class="latency-pill">0.00 ms</span>
+        </div>
+        <textarea
+          id="tokInput"
+          class="single-textarea"
+          spellcheck="false"
+          placeholder="Type Turkish text with abbreviations, dates, URLs, mentions, or punctuation..."
+        >Prof. Dr. Ahmet Bey saat 14.30'da Türkiye'ye döndü! Detaylar https://zemberek.dev adresinde :)</textarea>
+        <div id="tokSentences" class="tok-sentences"></div>
+        <div id="tokResults" class="tok-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
