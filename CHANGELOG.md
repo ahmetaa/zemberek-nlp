@@ -1,6 +1,73 @@
 CHANGE LOG
 ==========
 
+## 0.19.0
+
+(November 18th 2026)
+
+Zemberek `0.19.0` introduces a new **Span-Lattice Perceptron Sentence Normalizer (`v2.4`)**, a **Morphological Candidate Lattice Deasciifier (`LatticeDeasciifier`)**, **bundled runtime normalization and deasciification models**, an **interactive Web Demo Studio (`StartWebDemo`)**, **detokenization and Unicode emoji support**, and a wide range of **morphological analysis, normalization, spell-checking, and gRPC server improvements**.
+
+### Highlights at a Glance
+
+- **Span-Lattice Perceptron Normalizer (`SpanLatticePerceptronNormalizer`)**: A new joint Semi-Markov Averaged Perceptron sentence normalizer operating over a multi-span candidate DAG (`1:1` rewrites, `1:2` clitic/compound splits, and `2:1`/`3:1` merges) with bundled models (`knowledge.bin.gz`, `perceptron.bin.gz`, `lm.2gram.slm.gz`).
+- **Lattice Deasciifier (`LatticeDeasciifier`)**: A new context-aware Turkish diacritic restoration engine combining a morphological candidate lattice, character harmony model, trigram Viterbi beam search, and bidirectional SOV refinement—now enabled by default in `TurkishSentenceNormalizer`.
+- **Zero-External-Setup Normalization**: `SpanLatticePerceptronNormalizer.createWithDefaults(...)`, `TurkishSentenceNormalizer.createWithDefaults(...)`, and `LatticeDeasciifier.createWithDefaults(...)` now work out of the box using classpath-bundled resources.
+- **Interactive Web Demo Studio (`StartWebDemo` / `ZemberekDemoServer`)**: A built-in local web UI (`http://127.0.0.1:8080`) for side-by-side inspection of sentence normalization lattices, deasciification candidates, morphological analysis & disambiguation, and tokenization.
+- **Turkish Detokenizer & Emoji Support**: Added `TurkishDetokenizer` (`TurkishTokenizer.detokenize(...)`) and full Unicode emoji tokenization/preservation across tokenization, morphology, and normalization.
+
+### What's New & Improved
+
+#### 1. Text Normalization & Deasciification
+- **New `SpanLatticePerceptronNormalizer` (`zemberek.normalization.v2`)** ([#381](https://github.com/ahmetaa/zemberek-nlp/pull/381), [#383](https://github.com/ahmetaa/zemberek-nlp/pull/383)):
+  - Scores `1:1` token rewrites, `1:2` clitic/number-unit/compound splits, and `2:1`/`3:1` open-compound/suffix merges jointly using 20 continuous language-model/channel features and 30 hashed sparse feature templates stored in a compact `QuantizedWeightTable`.
+  - Includes `CompactStemEndingSpellChecker`, `NormalizationKnowledge`, `ShorthandExpander`, `SingleTokenRewriteGenerator`, `SplitMergeSpanGenerator`, and contextual truecasing.
+  - Bundled runtime models (`knowledge.bin.gz`, `perceptron.bin.gz`, and `lm.2gram.slm.gz`) allow instant initialization via `SpanLatticePerceptronNormalizer.createWithDefaults(morphology)` without external model directories.
+- **New `LatticeDeasciifier` (`zemberek.normalization.deasciifier.latticedeasciifier`)** ([#345](https://github.com/ahmetaa/zemberek-nlp/pull/345), [#346](https://github.com/ahmetaa/zemberek-nlp/pull/346), [#367](https://github.com/ahmetaa/zemberek-nlp/pull/367)):
+  - Restores Turkish diacritics (`ç, ğ, ı, İ, ö, ş, ü` and circumflexes `â, î, û`) using a 3-stage pipeline: morphological/lexicon/character-harmony candidate generation, pass-1 trigram beam search with agglutinative stem lookahead, and pass-2 bidirectional refinement.
+  - Added `CircumflexMode` (`NONE`, `DISAMBIGUATION_ONLY` default for minimal pairs like *kâr/kar* and *hâlâ/hala*, and `FULL`).
+  - Enabled by default in `TurkishSentenceNormalizer` (configurable via `useLatticeDeasciifier()`, `useLegacyDeasciifier()`, or `setLatticeDeasciifier(...)`).
+- **Upgraded `TurkishSentenceNormalizer` & `TurkishSpellChecker`**:
+  - Decomposed `TurkishSentenceNormalizer` into focused pipeline components: `NormalizerPreprocessor`, `InformalContractionExpander`, `ElongationNormalizer`, `FormalSurfaceRealizer`, and `NgramSequenceDecoder` ([#377](https://github.com/ahmetaa/zemberek-nlp/pull/377), [#378](https://github.com/ahmetaa/zemberek-nlp/pull/378), [#379](https://github.com/ahmetaa/zemberek-nlp/pull/379)).
+  - Added noisy-channel edit-operation costs, keyboard adjacency priors, and diacritic penalties to `TurkishSpellChecker` and `TurkishSentenceNormalizer` ([#354](https://github.com/ahmetaa/zemberek-nlp/pull/354)).
+  - Added geminate-preserving elongation normalization (preserving valid double letters like *saat*, *hisse*, *madde* while collapsing *çoooook* → *çok*) and detached numeral suffix attachment ([#352](https://github.com/ahmetaa/zemberek-nlp/pull/352), [#374](https://github.com/ahmetaa/zemberek-nlp/pull/374)).
+  - Added colloquial vowel-drop, `ne`+verb contraction, and `[A:Ext]`-masked open-compound expansion ([#355](https://github.com/ahmetaa/zemberek-nlp/pull/355), [#375](https://github.com/ahmetaa/zemberek-nlp/pull/375), [#376](https://github.com/ahmetaa/zemberek-nlp/pull/376)).
+  - Added morphotactic splitting for glued number+unit tokens (`5kg` → `5 kg`, `100tl` → `100 tl`) and OOV clitics (`de/da`, `mi/mı/mu/mü`, `ki`) ([#373](https://github.com/ahmetaa/zemberek-nlp/pull/373)).
+  - Fixed solid TDK compound merging (e.g., *uluslar arası* → *uluslararası*) while preventing false word fusions ([#245](https://github.com/ahmetaa/zemberek-nlp/issues/245), [#333](https://github.com/ahmetaa/zemberek-nlp/pull/333), [#374](https://github.com/ahmetaa/zemberek-nlp/pull/374)).
+  - Guarded capitalized OOV words, valid Turkish words, abbreviations, and numbers from spell-check/deasciifier corruption ([#228](https://github.com/ahmetaa/zemberek-nlp/issues/228), [#233](https://github.com/ahmetaa/zemberek-nlp/issues/233), [#237](https://github.com/ahmetaa/zemberek-nlp/issues/237), [#309](https://github.com/ahmetaa/zemberek-nlp/issues/309), [#337](https://github.com/ahmetaa/zemberek-nlp/pull/337)–[#340](https://github.com/ahmetaa/zemberek-nlp/pull/340), [#347](https://github.com/ahmetaa/zemberek-nlp/pull/347)–[#349](https://github.com/ahmetaa/zemberek-nlp/pull/349), [#366](https://github.com/ahmetaa/zemberek-nlp/pull/366), [#370](https://github.com/ahmetaa/zemberek-nlp/pull/370), [#372](https://github.com/ahmetaa/zemberek-nlp/pull/372)).
+  - Replaced per-node `UIntMap` in `CharacterGraph` with compact binary-searched `Node[]` arrays and bounded normalizer caches for lower memory footprint ([#360](https://github.com/ahmetaa/zemberek-nlp/pull/360), [#361](https://github.com/ahmetaa/zemberek-nlp/pull/361), [#363](https://github.com/ahmetaa/zemberek-nlp/pull/363)).
+
+#### 2. Morphological Analysis & Morphotactics
+- **Informal Turkish Morphotactics (`InformalTurkishMorphotactics`)** ([#351](https://github.com/ahmetaa/zemberek-nlp/pull/351), [#371](https://github.com/ahmetaa/zemberek-nlp/pull/371)):
+  - Added support for progressive y-drop (`-Io`/`-Ior`, e.g., *gelio*, *gidiorum*), informal future participle (`FutPart_Informal`, e.g., *yapcakları*), y-less negative future (*yapmıcam*, *gelmicem*), and raised-vowel future forms (*gidiycem*, *okuycam*).
+- **Formal Morphotactics & Lexicon Fixes**:
+  - Enforced circumflex (`â, î, û`) matching in standard morphological analysis so circumflex inputs like `hâlâ` or `kâra` do not spuriously match non-circumflex roots (`hala`, `kar`, `kara`) while preserving full candidates when `ignoreDiacriticsInAnalysis` is enabled ([#111](https://github.com/ahmetaa/zemberek-nlp/issues/111), [#330](https://github.com/ahmetaa/zemberek-nlp/pull/330)).
+  - Deduplicated identical `SingleAnalysis` results and added native support for stems with optional `LastVowelDrop` without duplicate dictionary entries ([#81](https://github.com/ahmetaa/zemberek-nlp/issues/81), [#335](https://github.com/ahmetaa/zemberek-nlp/pull/335), [#342](https://github.com/ahmetaa/zemberek-nlp/pull/342)).
+  - Fixed verbal, copular, and participle morphotactic transitions: blocked spurious double `A3pl` across copula (*yazacaklardırlar*), duplicate `NarrPart` on `-mışken`, and invalid `FeelLike` transitions, while adding support for oblique plural predicates with `Past`/`Narr`/`Cond`/`While` (*evdelerdi*, *neredelermiş*) and negative aorist participle + ablative (*görmezden*, *bilmezden*) ([#328](https://github.com/ahmetaa/zemberek-nlp/pull/328)).
+  - Fixed pronoun morphotactics, `P2pl` on interrogative pronouns (*neyiniz*, *kiminiz*), genitive `-ki` (`benimki`, `benimkiler`), and pronoun lexicon entries (*falan*, *falanca*, *beriki*, and removed spurious adjective entries for *o*/*şu*) ([#140](https://github.com/ahmetaa/zemberek-nlp/issues/140), [#343](https://github.com/ahmetaa/zemberek-nlp/pull/343)).
+  - Fixed `CompoundP3sg` on *camii*/*sanayii*/*bayii*, `FamilyMember` attributes on kinship plurals ([#149](https://github.com/ahmetaa/zemberek-nlp/issues/149), [#344](https://github.com/ahmetaa/zemberek-nlp/pull/344)), removed the erroneous `Reciprocal` attribute from *karşılaşmak* ([#196](https://github.com/ahmetaa/zemberek-nlp/issues/196), [#334](https://github.com/ahmetaa/zemberek-nlp/pull/334)), and added proper-noun fallback analysis for capitalized apostrophe stems ([#309](https://github.com/ahmetaa/zemberek-nlp/issues/309), [#341](https://github.com/ahmetaa/zemberek-nlp/pull/341)).
+- **Memory & Startup Optimizations** ([#359](https://github.com/ahmetaa/zemberek-nlp/pull/359), [#363](https://github.com/ahmetaa/zemberek-nlp/pull/363)):
+  - Lazy-loaded the default `AmbiguityResolver` in `TurkishMorphology` (avoiding model load when only word analysis is used) and sized `FastPerceptronAmbiguityResolver` caches to avoid G1GC humongous allocations.
+- **Documentation** ([#281](https://github.com/ahmetaa/zemberek-nlp/issues/281), [#336](https://github.com/ahmetaa/zemberek-nlp/pull/336)):
+  - Documented all primary/secondary POS tags, inflectional morphemes, and derivational morphemes with examples in `morphology/README.md`.
+
+#### 3. Tokenization & Detokenization
+- **Turkish Detokenizer (`TurkishDetokenizer`)** ([#181](https://github.com/ahmetaa/zemberek-nlp/issues/181), [#331](https://github.com/ahmetaa/zemberek-nlp/pull/331)):
+  - Added `TurkishDetokenizer` (`TurkishDetokenizer.DEFAULT` and `TurkishTokenizer.detokenize(...)` / `detokenizeTokens(...)`) to reconstruct natural Turkish spacing around punctuation, quotes, brackets, currencies, percentages, slashes, and apostrophe suffixes after closing quotes/brackets (e.g., `"Soner"'e`, `(2020)'de`).
+- **Unicode Emoji Support** ([#380](https://github.com/ahmetaa/zemberek-nlp/pull/380)):
+  - Updated `TurkishLexer` and `TurkishTokenizer` to recognize Unicode emojis (including surrogate pairs, variation selectors, keycaps, regional indicator flags, and ZWJ sequences) as `Token.Type.Emoticon`, and ensured `UnidentifiedTokenAnalyzer` and `TurkishSentenceNormalizer` preserve them cleanly.
+
+#### 4. Applications, Web Demo Studio, gRPC & Core
+- **Interactive Web Demo Studio (`StartWebDemo`, `ZemberekDemoServer`)** ([#382](https://github.com/ahmetaa/zemberek-nlp/pull/382), [#383](https://github.com/ahmetaa/zemberek-nlp/pull/383)):
+  - Added `StartWebDemo` console application (`java -jar zemberek-full.jar StartWebDemo` or `./apps/run_demo.sh`) serving an interactive web interface at `http://127.0.0.1:8080` to test and inspect normalization lattices, deasciification candidates, morphological analysis/disambiguation, and tokenization.
+- **gRPC Server Configuration (`StartGrpcServer`, `ZemberekGrpcConfiguration`)** ([#190](https://github.com/ahmetaa/zemberek-nlp/issues/190), [#332](https://github.com/ahmetaa/zemberek-nlp/pull/332)):
+  - Added `--config` / `-c` configuration file support (`port`, `normalization.lm`, `normalization.dataRoot`, `morphology.extraDictionaries`, `morphology.ignoreDiacritics`) and fixed configuration directory validation.
+- **Core Utilities (`zemberek-core`)** ([#222](https://github.com/ahmetaa/zemberek-nlp/issues/222), [#329](https://github.com/ahmetaa/zemberek-nlp/pull/329), [#378](https://github.com/ahmetaa/zemberek-nlp/pull/378)):
+  - Improved `Log` shutdown hook management, handler reset behavior, and fast-path level checks.
+  - Added shared character, casing, and diacritic helpers in `TurkishAlphabet` and `Turkish`.
+
+*Assisted by Gemini and Antigravity*
+
+
 ## 0.18.0
 
 (November 10th 2026)
