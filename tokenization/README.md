@@ -1,6 +1,8 @@
 Turkish Tokenization and Sentence Extraction
 ============
 
+![Zemberek Web Demo — Sentence Extraction & Tokenization](../docs/demo-images/web-demo-tokenization.png)
+
 ## Sentence Boundary Detection
 
 ### Usage

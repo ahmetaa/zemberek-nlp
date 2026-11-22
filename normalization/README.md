@@ -80,6 +80,8 @@ If user provides a higher order language model (bi-gram models are sufficient) a
 
 ## Turkish Deasciifier (`LatticeDeasciifier`)
 
+![Zemberek Web Demo — Turkish Deasciifier](../docs/demo-images/web-demo-deasciifier.png)
+
 `LatticeDeasciifier` restores Turkish diacritics (`ç, ğ, ı, İ, ö, ş, ü` and circumflex vowels `â, î, û`) on ASCII-typed or partially diacritized Turkish text using a 3-stage pipeline:
 1. **Morphological Candidate Lattice**: Combines strict/informal/diacritic-tolerant morphological analysis, lexicon confusion priors, and a character harmony model.
 2. **Pass-1 Trigram Beam Search**: Left-to-right Viterbi beam search (`beamWidth = 4`) with agglutinative stem lookahead.
@@ -103,6 +105,8 @@ LatticeDeasciifier noCirc = deasciifier.withCircumflexMode(LatticeDeasciifier.Ci
 ```
 
 ## Noisy Text Normalization
+
+![Zemberek Web Demo — Noisy Text Normalization](../docs/demo-images/web-demo-normalization.png)
 
 Zemberek-NLP offers noisy text normalization for correcting misspelled words, ASCII-typed text, split/merged words, and informal speech in noisy Turkish texts. Some noisy text examples:
 
