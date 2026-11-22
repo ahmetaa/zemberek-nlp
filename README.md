@@ -5,7 +5,7 @@ Zemberek-NLP
 
 Zemberek-NLP provides Natural Language Processing tools for Turkish.
 
-Latest version is 0.18.0. [Change Log](CHANGELOG.md)
+Latest version is 0.19.0. [Change Log](CHANGELOG.md)
 
 Please read the [FAQ](https://github.com/ahmetaa/zemberek-nlp/wiki/FAQ) for common questions.
 
@@ -15,13 +15,13 @@ Please read the [FAQ](https://github.com/ahmetaa/zemberek-nlp/wiki/FAQ) for comm
 |------------|----------|---------|
 | [Core](core)                    | zemberek-core           | Special Collections, Hash functions and helpers. |
 | [Morphology](morphology)        | zemberek-morphology     | Turkish morphological analysis, disambiguation and word generation. |
-| [Tokenization](tokenization)    | zemberek-tokenization   | Turkish Tokenization and sentence boundary detection. |
-| [Normalization](normalization)  | zemberek-normalization  | Basic spell checker, word suggestion. Noisy text normalization. |
+| [Tokenization](tokenization)    | zemberek-tokenization   | Turkish tokenization, detokenization and sentence boundary detection. |
+| [Normalization](normalization)  | zemberek-normalization  | Spell checker, deasciifier (`LatticeDeasciifier`), and noisy text normalization. |
 | [NER](ner)                      | zemberek-ner            | Turkish Named Entity Recognition. |
 | [Classification](classification)| zemberek-classification | Text classification based on Java port of fastText project. |
 | [Language Identification](lang-id)| zemberek-lang-id      | Fast identification of text language. |
 | [Language Modeling](lm)         | zemberek-lm             | Provides a language model compression algorithm. |
-| [Applications](apps)            | zemberek-apps           | Console applications |
+| [Applications](apps)            | zemberek-apps           | Console applications and interactive Web Demo Studio (`StartWebDemo`). |
 | [gRPC Server](grpc)             | zemberek-grpc           | gRPC server for access from other languages. |
 | [Examples](examples)            | zemberek-examples       | Usage examples. |
 
@@ -48,7 +48,7 @@ And dependencies (For example morphology):
         <dependency>
             <groupId>zemberek-nlp</groupId>
             <artifactId>zemberek-morphology</artifactId>
-            <version>0.18.0</version>
+            <version>0.19.0</version>
         </dependency>
     </dependencies>
 ```

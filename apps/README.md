@@ -85,9 +85,19 @@ times smaller than the text model.
 FindNamedEntities
 -----------------
 Finds named entities from a Turkish text file.
+
+StartWebDemo
+------------
+Starts the interactive Zemberek NLP Web Demo Studio (default http://127.0.0.1:8080).
 ```
 
 For running any application, add the name to the previous command:
 
     java -jar zemberek-full.jar MorphologyConsole
+
+Or launch the interactive Web Demo Studio in your browser (`http://127.0.0.1:8080`):
+
+    java -jar zemberek-full.jar StartWebDemo
+    # or from the repository root:
+    ./apps/run_demo.sh
 
