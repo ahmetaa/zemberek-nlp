@@ -201,6 +201,54 @@ public class TurkishDictionaryLoaderTest {
     }
   }
 
+  @Test(expected = zemberek.morphology.lexicon.LexiconException.class)
+  public void duplicateMetadataKeyShouldFailTest() {
+    TurkishDictionaryLoader.loadFromString("aktrist [A:Ext; A:NoVoicing]");
+  }
+
+  @Test
+  public void defaultDictionariesMultiPosPhoneticConsistencyTest() throws IOException {
+    RootLexicon lexicon = TurkishDictionaryLoader.loadFromResources(
+        "tr/master-dictionary.dict",
+        "tr/non-tdk.dict"
+    );
+    EnumSet<RootAttribute> phoneticAttrs = EnumSet.of(
+        NoVoicing, Voicing, InverseHarmony, LastVowelDrop, Doubling
+    );
+    java.util.Set<String> intentionalExceptions = java.util.Set.of(
+        "kalp", "hasut", "nefis", "kadir"
+    );
+    java.util.Map<String, List<DictionaryItem>> byLemma = new java.util.HashMap<>();
+    for (DictionaryItem item : lexicon) {
+      if (item.index == 0
+          && item.getReferenceItem() == null
+          && !item.hasAttribute(RootAttribute.Dummy)
+          && (item.primaryPos == Noun || item.primaryPos == zemberek.core.turkish.PrimaryPos.Adjective)) {
+        byLemma.computeIfAbsent(item.lemma, k -> new java.util.ArrayList<>()).add(item);
+      }
+    }
+    for (java.util.Map.Entry<String, List<DictionaryItem>> entry : byLemma.entrySet()) {
+      String lemma = entry.getKey();
+      if (intentionalExceptions.contains(lemma)) {
+        continue;
+      }
+      List<DictionaryItem> items = entry.getValue();
+      if (items.size() > 1) {
+        EnumSet<RootAttribute> expected = EnumSet.copyOf(items.get(0).attributes);
+        expected.retainAll(phoneticAttrs);
+        for (int i = 1; i < items.size(); i++) {
+          EnumSet<RootAttribute> actual = EnumSet.copyOf(items.get(i).attributes);
+          actual.retainAll(phoneticAttrs);
+          Assert.assertEquals(
+              "Phonetic attribute mismatch between Noun and Adjective for lemma: " + lemma,
+              expected,
+              actual
+          );
+        }
+      }
+    }
+  }
+
   @Test
   @Ignore("Not a unit Test. Converts word histogram to word list")
   public void prepareWordListFromHistogram() throws IOException {

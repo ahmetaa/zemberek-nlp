@@ -182,6 +182,10 @@ public class TurkishDictionaryLoader {
           throw new LexiconException("Line " + line + " has malformed meta-data chunk" + chunk
               + " no chunk data available");
         }
+        if (metadataIds.containsKey(id)) {
+          throw new LexiconException(
+              "Line " + line + " has duplicate meta-data key " + tokenIdStr);
+        }
         metadataIds.put(id, chunkData);
       }
       return metadataIds;
