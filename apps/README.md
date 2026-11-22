@@ -101,3 +101,5 @@ Or launch the interactive Web Demo Studio in your browser (`http://127.0.0.1:808
     # or from the repository root:
     ./apps/run_demo.sh
 
+![Zemberek Web Demo — Noisy Text Normalization](../docs/demo-images/web-demo-normalization.png)
+

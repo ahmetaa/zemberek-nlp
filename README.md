@@ -25,6 +25,12 @@ Please read the [FAQ](https://github.com/ahmetaa/zemberek-nlp/wiki/FAQ) for comm
 | [gRPC Server](grpc)             | zemberek-grpc           | gRPC server for access from other languages. |
 | [Examples](examples)            | zemberek-examples       | Usage examples. |
 
+## Interactive Web Demo Studio
+
+You can explore morphological analysis, ambiguity resolution, noisy text normalization, deasciification, and tokenization interactively with `StartWebDemo` (`./apps/run_demo.sh`):
+
+![Zemberek Web Demo — Morphological Analysis & Disambiguation](docs/demo-images/web-demo-morphology.png)
+
 ## Usage
 
 ### Maven
