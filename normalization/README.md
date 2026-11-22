@@ -5,8 +5,10 @@ Turkish Text Normalization
   * [Turkish Spell Checker](#turkish-spell-checker)
   * [Spelling Suggestion](#spelling-suggestion)
     + [Limitations](#limitations)
+  * [Turkish Deasciifier (`LatticeDeasciifier`)](#turkish-deasciifier-latticedeasciifier)
   * [Noisy Text Normalization](#noisy-text-normalization)
-    + [Usage](#usage)
+    + [Usage (`SpanLatticePerceptronNormalizer` — Recommended)](#usage-spanlatticeperceptronnormalizer--recommended)
+    + [Usage (`TurkishSentenceNormalizer`)](#usage-turkishsentencenormalizer)
     + [Method](#method)
     + [Speed](#speed)
     + [Issues](#issues)
@@ -70,17 +72,39 @@ If user provides a higher order language model (bi-gram models are sufficient) a
 ### Limitations
 
  - It only may correct for 1 insertion, 1 deletion, 1 substitution and 1 transposition errors.
- - It ranks the results with an internal unigram language model.
- - There is no deasciifier.
+ - It ranks the results with an internal unigram language model (unless a context LM is supplied).
  - It does not correct numbers, dates and times.
  - There may be junk results.
  - For shorter words, there will be a lot of suggestions (sometimes >50 ).
  - Suggestion function is not so fast (Around 500-1000 words/second).
- 
- ## Noisy Text Normalization
- 
- Zemberek-NLP offers noisy text normalization function. This tool can be used correcting 
- words written incorrectly or informal speech from noisy texts. Some noisy text examples (most taken from actual text):
+
+## Turkish Deasciifier (`LatticeDeasciifier`)
+
+`LatticeDeasciifier` restores Turkish diacritics (`ç, ğ, ı, İ, ö, ş, ü` and circumflex vowels `â, î, û`) on ASCII-typed or partially diacritized Turkish text using a 3-stage pipeline:
+1. **Morphological Candidate Lattice**: Combines strict/informal/diacritic-tolerant morphological analysis, lexicon confusion priors, and a character harmony model.
+2. **Pass-1 Trigram Beam Search**: Left-to-right Viterbi beam search (`beamWidth = 4`) with agglutinative stem lookahead.
+3. **Pass-2 Bidirectional Refinement**: Right-to-left (head-final SOV) and left-to-right coordinate sweeps using wide content-word context.
+
+### Usage
+
+```java
+TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+LatticeDeasciifier deasciifier = LatticeDeasciifier.createWithDefaults(morphology);
+
+String input = "Ruzgar sert esiyor ama hala disarida yuruyus yapan insanlar var.";
+System.out.println(deasciifier.deasciify(input));
+// Output: Rüzgar sert esiyor ama hâlâ dışarıda yürüyüş yapan insanlar var.
+```
+
+Circumflex insertion behavior can be configured via `CircumflexMode` (`DISAMBIGUATION_ONLY` is the default, restoring circumflexes on minimal pairs such as *kâr/kar* and *hâlâ/hala*; `NONE` and `FULL` are also available):
+
+```java
+LatticeDeasciifier noCirc = deasciifier.withCircumflexMode(LatticeDeasciifier.CircumflexMode.NONE);
+```
+
+## Noisy Text Normalization
+
+Zemberek-NLP offers noisy text normalization for correcting misspelled words, ASCII-typed text, split/merged words, and informal speech in noisy Turkish texts. Some noisy text examples:
 
     Yrn okua gidicem
     Tmm, yarin havuza giricem ve aksama kadar yaticam :)    
@@ -90,43 +114,51 @@ If user provides a higher order language model (bi-gram models are sufficient) a
     yok hocam kesınlıkle oyle birşey yok
     herseyi soyle hayatında olmaması gerek bence boyle ınsanların falan baskı yapıyosa
     
-Some NLP tasks needs normalization as a pre-processing step before applying 
-actual algorithms to the text. Normalization especially helps improved results in areas like: 
+Some NLP tasks need normalization as a pre-processing step before applying downstream algorithms:
 
 - Social media and forum texts
-- Chat, messaging or bot applications  
-- Mobil phone keyboards with no or bad spell correction.
+- Chat, messaging or bot applications
+- Mobile phone keyboards with no or poor spell correction
 
-This tool may not be suitable when very high accuracy automatic correction is required.
+### Usage (`SpanLatticePerceptronNormalizer` — Recommended)
 
-### Usage
+As of `0.19.0`, all default normalization and language models (`knowledge.bin.gz`, `perceptron.bin.gz`, and `lm.2gram.slm.gz`) are bundled inside `zemberek-normalization` — no external files need to be downloaded.
 
-Text should be divided to sentences before normalization (see [tokenization] module).  
-To use text normalization, some lookup files and a language model is required. 
-In this [link](https://drive.google.com/drive/folders/1tztjRiUs9BOTH-tb1v7FWyixl-iUpydW)
-, there are two folders available for this. `lm` contains a compressed bi-gram language model, `normalization` 
-contains two lookup files. These model and lookup tables may not fit all scenarios but it can be
-used as a baseline. Usually domain specific normalization operations requires some degree of customization.  
+`SpanLatticePerceptronNormalizer` is a joint Semi-Markov Averaged Perceptron normalizer operating over a multi-span candidate DAG (`1:1` rewrites, `1:2` clitic/compound splits, and `2:1`/`3:1` merges) while preserving casing and punctuation:
 
-For testing, Download those folders (Caution: download size is around ~100 MB). Let's assume they are in 
-`/home/aaa/zemberek-data/lm` and `/home/aaa/zemberek-data/normalization`
+```java
+TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+SpanLatticePerceptronNormalizer normalizer =
+    SpanLatticePerceptronNormalizer.createWithDefaults(morphology);
 
-TurkishSentenceNormalizer class is initialized as:
+System.out.println(normalizer.normalize("Slm bugun geliyomusun?"));
+// Output: Selam bugün geliyor musun?
+```
 
-    Path lookupRoot = Paths.get("/home/aaa/zemberek-data/normalization")
-    Path lmFile = Paths.get("/home/aaa/zemberek-data/lm/lm.2gram.slm")
-    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-    TurkishSentenceNormalizer normalizer = new
-        TurkishSentenceNormalizer(morphology, lookupRoot, lmFile);
+### Usage (`TurkishSentenceNormalizer`)
 
-Then, for normalizing a sentence, `normalize` method is used.
+`TurkishSentenceNormalizer` can also be initialized directly using the bundled default models:
 
-    System.out.println(normalizer.normalize("Yrn okua gidicem"));
-    
-    Output:
-    > yarın okula gideceğim
+```java
+TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+TurkishSentenceNormalizer normalizer =
+    TurkishSentenceNormalizer.createWithDefaults(morphology);
 
-Results for the above sentences:
+System.out.println(normalizer.normalize("Yrn okua gidicem"));
+// Output: yarın okula gideceğim
+```
+
+If you want to use custom lookup directories and an external language model file instead of the bundled resources:
+
+```java
+Path lookupRoot = Paths.get("/home/aaa/zemberek-data/normalization");
+Path lmFile = Paths.get("/home/aaa/zemberek-data/lm/lm.2gram.slm");
+TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+TurkishSentenceNormalizer normalizer =
+    new TurkishSentenceNormalizer(morphology, lookupRoot, lmFile);
+```
+
+Results for the example sentences above:
 
     Yrn okua gidicem
     yarın okula gideceğim

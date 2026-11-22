@@ -27,7 +27,7 @@ Zemberek provides morphological analysis, morphological ambiguity resolution and
     <dependency>
         <groupId>zemberek-nlp</groupId>
         <artifactId>zemberek-morphology</artifactId>
-        <version>0.18.0</version>
+        <version>0.19.0</version>
     </dependency>
  
 
