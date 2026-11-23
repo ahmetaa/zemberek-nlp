@@ -156,7 +156,8 @@ Paranormal(0:2
 haseki(2
 	mikrogram(:2	
 ®a(2
-tesalüp(:2	
+tesalüp(:2
+sibergüvenlik(:2	
 remel(2
 Açılay(0:20
 Ispartasporıspartasporıspartaspor(0:2 
@@ -326,8 +327,8 @@ Livingston(0:2
 ihtisas(2
 
 Abdülvali(0:2
-murafaa(2
-kristal(2
+murafaa(2
+kristal(:2
 kristal(:2
 Asude(0:2
 Aptamil(0:2
@@ -354,7 +355,8 @@ Dışkapı(0:2
 	Gökkafes(0:2
 glikoprotein(:2)
 mantarlamakmantarlamantarla(:2
-Michiel(0:2
+Michiel(0:2
+kentseldönüşüm(2
 Kiprianu(0:2
 Abbot(0:2
 floş(:2
@@ -479,8 +481,8 @@ vakıfname(2
 
 şataf(2	
 sefir(2
-	müstakar(:	2
-	müstakar(2	
+	müstakar(:	2
+	müstakar(:	2	
 peyda(2
 Danon(0:2
 
@@ -749,8 +751,7 @@ Sultansuyu(0:2
 Federica(0:2
 Toralp(0:2
 tergal(:2
-
-tergal(2
+tergal(:2
 İyikiyikiyik(0:2
 Busiad(0:2
 Demiröz(0:2
@@ -848,8 +849,8 @@ Caravaggio(0:2
 armatür(2
 Yasef(0:2
 kraliçe(2
-Gabriela(0:2
-Gsyhgeseyehe(0:2
+Gabriela(0:2
+Gsyhgeseyehe(02
 Tüseb(0:2
 	Afrikalı(0:2
 Cavit(0:2
@@ -955,7 +956,8 @@ gözükara(:2
 Pabuçcu(0:2
 	Homeopati(0:2
 
-lüfer(2
+lüfer(2
+mikromobilite(2
 Zeyna(0:2
 kavurmakkavurkavur(:
 2
@@ -1012,8 +1014,8 @@ kırbaçla(:2
 Laos(0:2
 Melekper(0:2
 gerekmekgerekgerek(:2
-koral(:2	
-koral(2
+koral(:2
+koral(:2
 
 komün(2
 haşarat(:2
@@ -1031,7 +1033,7 @@ merbutiyet(:2
 Mebhur(0:2
 
 çitlembik(:2
-müteharrik(:2
+müteharrik(:2
 müteharrik(:2
 Abraham(0:2
 soyuntu(2
@@ -1074,7 +1076,8 @@ Saklıkent(0:2
 kortizon(2
 İzakizakizak(0:2
 
-temyiz(2
+temyiz(2
+kortizol(:2
 Aydınoğlu(0:2
 Aybastı(0:2
 Lehman(0:2
@@ -1326,11 +1329,13 @@ kadınbudu(2
 müeccel(2
 Ttıpteteıpe(0:2
 istikrah(2	
-korna(2
+korna(2+
+güvenoylama"güvenoylaması_Noun(:2
 Chez(0:2
 Uçhisar(0:2#
 altınsu"altınsuyu_Noun(:2
-Nikolai(0:2
+Nikolai(0:2
+evsahipliği(:2
 Fruit(0:2
 	Göklemez(0:2
 Pnin(0:2
@@ -1400,14 +1405,16 @@ Decepticon(0:2
 Geographic(0:2
 Mohikan(0:2	
 eyvan(2
-Yedikule(0:2
+Yedikule(0:2
+AIaıeyay(02
 İzolizolizol(0:2
 Dadaist(0:2
 Dadaist(0:2
 genelge(2
-şapır(2
-B1bebirr(02
-B2beiki(02
+şapır(2
+B1bebir(02
+B2beiki(02
+AReyar(02
 stor(:2
 stop(:2
 B6bealtı(02
@@ -1496,8 +1503,8 @@ Veliyullah(0:2
 Elkatmış(0:2
 Cuceu(0:2
 
-Powershift(0:2
-Cvceve(0:2
+Powershift(0:2
+Cvsivi(02
 kombine(2
 kombine(2
 Cyceye(0:2
@@ -1659,13 +1666,13 @@ teleskopik(:2
 Bilboard(0:2
 Ilılıle(0:2
 Inınıne(0:2
-Odeabank(0:2
-Ipıpıpe(0:2
+Odeabank(0:2
+Ipıpaypi(02
 Eryüz(0:2
 Iqıqayku(02
 Gekko(0:2
-Irırıre(0:2
-Itıtıte(0:2
+Irırıre(0:2
+Itıtayti(02
 antrok(:2
 naftalin(2
 Ivıvıve(0:2
@@ -1775,8 +1782,8 @@ otokontrol(:2
 Mnmene(0:2
 Mo(0:2
 Yazıhan(0:2
-Mpmepe(0:2
-Mrmere(0:2
+Mpmepe(0:2
+Mremar(02
 	kendinden(2
 Msmese(0:2
 Estergon(0:2
@@ -1855,8 +1862,8 @@ konformizm(2
 gayrikâfi	gayrikafi	gayrikafi(2
 Oo(0:2
 Opope(0:2
-Orore(0:2
-Osose(0:2
+Orore(0:2
+Osoes(02
 Bayça(0:2
 Q7kuyedi(02
 çapanoğlu(2
@@ -1871,8 +1878,8 @@ gayrikâfi	gayrikafi	gayrikafi(2
 filizlemekfilizlefilizle(:2
 düzbağırsak(:2
 Kureishi(0:2
-Pbpebe(0:2
-Pcpece(0:2
+Pbpebe(0:2
+Pcpisi(02
 Consumer(0:2
 Pdpede(0:2
 Guen(0:2
@@ -1884,8 +1891,9 @@ filizlemekfilizlefilizle(:2
 Pmpeme(0:2
 ergimekergiergi(:2
 Popeo(0:2
-Pppepe(0:2
-Prpere(0:2
+Pppepe(0:2
+QRkuyar(02
+Prpiyar(02
 Pspese(0:2
 Ptpete(0:2
 Pupeu(0:2
@@ -1934,7 +1942,7 @@ gresyağı(:2
 Nçneçe(0:2
 Rkreka(0:2
 meşrut(:2
-meşrut(:2
+meşrut(:2
 zinakar(:2
 Rnrene(0:2
 Roreo(0:2
@@ -2000,7 +2008,8 @@ sahnelemeksahnelesahnele(:2
 ihtilâsihtilasihtilas(2
 sufi(2
 Tgtege(0:2
-Thtehe(0:2
+Thtehe(0:2
+UIuıyuay(02
 Titei(0:2
 	ıztırar(2
 Battery(0:2
@@ -2008,7 +2017,8 @@ sahnelemeksahnelesahnele(:2
 ihtilâlihtilalihtilal(:2
 Tltele(02
 ihtilâmihtilamihtilam(2
-Tmteme(0:2
+Tmteme(0:2
+UNyuen(02
 Toteo(0:2
 Nakheel(0:2
 Tptepe(0:2
@@ -2020,15 +2030,16 @@ sahnelemeksahnelesahnele(:2
 Tuteu(0:2
 Tvteve(0:2
 V8vesekiz(02
-Kliçko(0:2
+Kliçko(0:2
+UXyueks(02
 	Hasgüler(0:2
 Tyteye(0:2
 ihtilâfihtilafihtilaf(2
 müzahrefat(:2
 Abdou(0:2
 Mşmeşe(0:2
-Uhuhe(0:2
-Ukuka(0:2
+Uhuhe(0:2
+Ukyukey(02
 
 tercih(2
 Picasso(0:2
@@ -2036,8 +2047,9 @@ sahnelemeksahnelesahnele(:2
 civelek(:2
 münhasıran(2
 Upupe(0:2
-	Öktüren(0:2
-Uvuve(0:2
+	Öktüren(0:2
+VRviyar(02
+Uvyuvi(02
 insanîinsaniinsani(2
 insanîinsaniinsani(2
 Eurochambres(0:2
@@ -2146,8 +2158,8 @@ Karolinska(0:2
 modül(2
 Jarmusch(0:2
 Uü(0:2
-sulp(:2
-sulp(:2
+sulp(:2
+sulp(:2
 	Gürcihan(0:2
 Ruhşen(0:2
 Yibk(0:2
@@ -2752,7 +2764,8 @@ sözgelimi(:2
 Eugenio(0:2
 Medvedev(0:2
 Siyamend(0:2
-Eastern(0:2
+Eastern(0:2
+METUmetü(02
 
 sözleşme(2
 riyazet(:2
@@ -2911,7 +2924,7 @@ dergilemekdergiledergile(:2
 istatistiki(2
 sezaryen(2
 
-uç(:2
+uç(:2
 
 uç(:2
 bertmekbertbert(:2
@@ -3138,7 +3151,8 @@ Türkegül(0:2
 
 Thüringen(0:2
 Erenay(0:2
-berhayat(:2
+berhayat(:2
+karekod(2
 Özkafa(0:2
 ölçmekölçölç(:2
 	parıltı(2
@@ -3198,7 +3212,7 @@ Karayiğit(0:2
 
 vaftiz(2
 manevîmanevimanevi(2
-musallat(:2
+musallat(:2
 musallat(:2
 Zarif(0:2$
 	sığamaksığasığa(:2
@@ -3397,8 +3411,7 @@ Abdülveli(0:2
 Savrun(0:2
 Uçak(0:2
 Olson(0:2
-Zimbabwe(0:2#
-	bacakbaş"bacabaşı_Noun(:2
+Zimbabwe(0:2
 
 sırıtkan(2
 	akrobatik(:2
@@ -3570,7 +3583,7 @@ dezavantaj(2
 Akbak(0:2
 Akbal(0:2
 tanjant(:2
-tanjant(:2
+tanjant(:2
 
 Bekiroğlu(0:2
 pastane(2
@@ -3599,7 +3612,8 @@ Bekiroğlu(0:2
 
 Mitsubishi(0:2
 Göran(0:2	
-yuvar(2
+yuvar(2
+koronavirüs(2
 Uçma(0:2#
 	zamklamakzamklazamkla(:2&
 
@@ -3666,13 +3680,15 @@ sarsılmaksarsılsarsıl(:2
 Tekden(0:2
 Lemi(0:2
 
-acente(2
+acente(2
+HTTPSeyçtitipies(02
 Olympos(0:2
 	Agnieszka(0:2
 Kenyon(0:2
 
 Şahıgül(0:2
-denence(:2
+denence(:2
+	macchiatomakyato(:2
 sabahtan(2
 Ferri(0:2
 Diakhate(0:2
@@ -3816,7 +3832,7 @@ müşebbeh(2
 düğün(2
 	Angelesta(0:2
 Kenichi(0:2
-kazulet(:2
+kazulet(:2
 kazulet(:2
 asbestos(:2
 
@@ -4034,7 +4050,7 @@ Zülfikâr	zülfikar	zülfikar(0:2
 Gracias(0:2
 Eamon(0:2
 Griffith(0:2
-	müstahak(:2
+	müstahak(:2
 	müstahak(:2
 Akaki(0:2
 Kesgin(0:2
@@ -4111,8 +4127,8 @@ cızırtı(2
 girişim(2
 Lockwood(0:2
 girişik(:2
-müncer(:	2
-müncer(2
+müncer(:	2
+müncer(:	2
 yedmekyedyed(:2
 Çatak(0:2
 ozokerit(:2
@@ -4216,7 +4232,7 @@ kaşkariko(2
 Çeliker(0:2
 altıpas(2
 	davetname(2
-menfaatperest(:2
+menfaatperest(:2
 menfaatperest(:2
 yalancıayak(:2
 Votta(0:2
@@ -4262,7 +4278,7 @@ afişlemekafişleafişle(:2
 pasta(2!
 	nazikânenazikanenazikane(2
 kaşalot(:2
-kaşalot(:2
+kaşalot(:2
 sönüm(2
 Şarık(0:2
 sönük(:2
@@ -4291,7 +4307,7 @@ sürfaktan(:2
 
 altınoluk(:2
 zendost(:2
-zendost(:2
+zendost(:2
 oluk(:2
 Atreides(0:2
 Dengiz(0:2
@@ -4505,7 +4521,7 @@ kıvracık(:2
 Patricio(0:2
 eltop"eltopu_Noun(:2
 	zikıymet(:2
-	zikıymet(:2&
+	zikıymet(:2&
 çıkartmakçıkartçıkart(:2
 Curitiba(0:2
 Kinder(0:2
@@ -4573,8 +4589,8 @@ Exhibition(0:2
 kaşmer(2
 Salabet(0:2
 onyıl(:2
-bezemekbezebeze(:2
-Lgbtlegebete(0:2
+bezemekbezebeze(:2
+Lgbtlecebete(02
 
 Perilikaya(0:2
 Başçarşı(0:2
@@ -4631,8 +4647,8 @@ litografya(2
 Manmohan(0:2
 	zülfaruz(2
 	bürokrat(:2
-	bürokrat(:2
-cennet(:2
+	bürokrat(:2
+cennet(:2
 cennet(:2*
 filârmonik
 filarmonik
@@ -4856,8 +4872,7 @@ istalaktit(:2
 yığım(:2
 yığın(2
 Labeouf(0:2
-Fahir(0:2#
-yanbaş"yanıbaşı_Noun(:2
+Fahir(0:2
 	Bonaparte(0:2
 	yakınsak(:2
 Sıyanet(0:2
@@ -5131,7 +5146,8 @@ Sayitoğlu(0:2
 
 beşer(2
 beşer(02
-öç(:2
+öç(:2
+galaksilerarası(2
 Miracle(0:2
 bileşikgiller(:2
 Gursky(0:2&
@@ -5453,7 +5469,9 @@ Yavuzdemir(0:2
 
 fileto(2!
 	talimgâhtalimgahtalimgah(2
-karekök(:2
+karekök(:2%
+
+denizkabuk"denizkabuğu_Noun(:2
 bayrak(:2
 	müsemmen(2
 	müsemmen(2
@@ -5595,7 +5613,8 @@ Halitpaşa(0:2
 sabahları(2
 yeşilsazan(2
 
-lombar(2
+lombar(2
+webtoonvebtun(:2
 Coen(0:2
 mecburi(2
 
@@ -5610,7 +5629,8 @@ kelebekler(:2
 anırtı(23
 yapılandırmakyapılandıryapılandır(:2
 Code(0:2
-Broggi(0:2
+Broggi(0:2
+	kompulsif(:2
 hermafrodit(:2
 aktinyum(2
 
@@ -5716,7 +5736,9 @@ solidarist(:2
 Darül(0:2
 Sehhare(0:2
 Mmeka(0:2
-Lido(0:2
+Lido(0:2%
+
+havvaanael"havvaanaeli_Noun(:2
 Antigua(0:2
 ampul(:2
 aksilik(:2
@@ -5774,7 +5796,8 @@ Babybjörn(0:2
 Kazanova(0:2
 Lavezzi(0:2
 	Taştekin(0:2
-ekşimtırak(:2
+ekşimtırak(:2
+muffinmafin(:2
 Colo(0:2
 Lies(0:2
 Yoko(0:2)
@@ -5839,8 +5862,8 @@ neofaşizm(2
 
 solidarizm(2
 Dervişoğlu(0:2
-Staples(0:2
-dadist(:2
+Staples(0:2
+dadist(:2
 Fadimana(0:2
 kadrat(:2
 Karakuzu(0:2
@@ -5999,7 +6022,7 @@ münasebat(:2
 rahat(2
 rahat(:2	
 rahat(2
-rahat(:2	
+rahat(:2	
 sabah(2
 sabah(02
 Martins(0:2
@@ -6080,6 +6103,7 @@ nakkarhane(2
 Litt(0:2
 
 toygar(2
+bitcoinbitkoin(:2
 Hacısüleyman(0:2
 Bilginur(0:2
 bovling(2
@@ -6140,7 +6164,7 @@ devedikeni(:2
 transeksüel(:2
 	Rundschau(0:2
 sabit(:2
-sabit(:2
+sabit(:2
 kromatografi(:2
 Resuli(0:2
 Torium(0:2	
@@ -6238,8 +6262,8 @@ Maaşallah(0:2
 nüans(2
 
 Şahinbaş(0:2
-hindiba(2
-spesiyal(2
+hindiba(2
+spesiyal(:2
 spesiyal(:2
 	Kapıköy(0:2
 Peymane(0:2
@@ -6257,8 +6281,8 @@ Maaşallah(0:2
 	ksiloloji(2
 ayinicem(2#
 
-berelenmekberelenberelen(:2
-muzmahil(2
+berelenmekberelenberelen(:2
+muzmahil(:	2
 muzmahil(:	2
 	peyderpey(2!
 	resmetmekresmetresmet(:2
@@ -6464,7 +6488,7 @@ Bavyeralı(0:2
 Esgin(0:2
 	Tokuztuğ(0:2
 Jameson(0:2
-rakik(:2
+rakik(:2
 rakik(:2
 
 tebellüğ(2
@@ -6577,7 +6601,7 @@ sinekkuşu(:2
 
 rehabilite(2
 cenabet(:2
-cenabet(:2
+cenabet(:2
 Hizan(0:2
 	aynabakar(2
 	kalandır(2
@@ -6718,8 +6742,8 @@ dersbaşı(2
 Moraes(0:2
 altküme(:2
 Akören(0:2
-marjinal(:2
-marjinal(2
+marjinal(:2
+marjinal(:2
 Queens(0:2
 
 Restaurant(0:2
@@ -6819,7 +6843,8 @@ iskorçina(2
 Tektaş(0:2
 Mayhew(0:2
 Skynet(0:2
-Uefa(0:2
+
+Uefa(02
 martini(2
 
 meğer(2
@@ -7035,7 +7060,8 @@ ferahlamakferahlaferahla(:2
 Teksas(0:2,
 haşırdamak	haşırda	haşırda(:2
 	muhassıl(2
-Paypass(0:2
+Paypass(0:2
+randomrendım(:2
 Soydemir(0:2
 Yayalp(0:2
 Weewell(0:2
@@ -7358,7 +7384,7 @@ Karaçoban(0:2
 
 danışman(2
 sepet(:2
-sepet(:2#
+sepet(:2#
 
 danışmakdanışdanış(:2
 Larkin(0:2"
@@ -7378,6 +7404,7 @@ danışmakdanışdanış(:2
 şansölye(2
 	küpleği(2
 Nevsal(0:2
+IBANıban(02
 Eurostat(0:2
 Uppsala(0:2
 Tolgahan(0:2
@@ -7569,7 +7596,8 @@ iskarpelâ	iskarpela	iskarpela(2
 ibriktar(2
 
 kıssa(2
-guguk(:2
+guguk(:2
+	americano	amerikano(:2
 Haccp(0:2
 dedüksiyon(2
 	amcaoğlu(:2
@@ -7944,7 +7972,8 @@ mikroyapı(:2
 Haas(0:2
 	Anjelique(0:2
 
-Yaşamboyu(0:2
+Yaşamboyu(0:2
+ramen(:2
 kapanık(:2
 Aurelio(0:2
 	Gürbilek(0:2
@@ -8014,7 +8043,7 @@ tornalamaktornalatornala(:2
 
 Çaykovski(0:2
 karşıt(:2
-karşıt(:2(
+karşıt(:2(
 yıldönüm"yıldönümü_Noun(:2
 
 tehiriicra(2
@@ -8225,7 +8254,8 @@ kafeslemekkafeslekafesle(:2
 kıyıdaş(2
 Solaris(0:2
 Taylor(0:2
-ümmîümmiümmi(2#
+ümmîümmiümmi(2
+tako(:2#
 	doğramakdoğradoğra(:2
 Trierweiler(0:2
 
@@ -8385,9 +8415,7 @@ kapakçık(:2
 kılış(2/
 buzağılamak
 buzağıla
-buzağıla(:2 
-elyaz"elyazması_Noun(:2
-elyaz"elyazması_Adj(:2
+buzağıla(:2
 Have(0:2
 Silopi(0:2
 Huzeyfe(0:2
@@ -8510,7 +8538,8 @@ Interferryınterferryınterferry(0:2
 	kokainman(2
 Semiha(0:2
 Sevcan(0:2
-Gülhane(0:2
+Gülhane(0:2
+İŞKURişkurişkur(02
 Mükrem(0:2 
 	yakınmakyakınyakın(:2
 
@@ -8825,12 +8854,13 @@ balyalamakbalyalabalyala(:2
 Akkoç(0:2
 Akkor(0:2
 	hodpesent(:2
-	hodpesent(:2$
+	hodpesent(:2$
 
 küheylân	küheylan	küheylan(2
 diklik(:2"
 	kartalmakkartalkartal(:25
-bağlantılamakbağlantılabağlantıla(:2
+bağlantılamakbağlantılabağlantıla(:2
+SİHAsihasiha(02
 Konfüçyüs(0:2
 Kocamustafapaşa(0:2
 Dinozzo(0:2
@@ -8872,7 +8902,7 @@ altprogram(:2
 şatır(2
 şatır(2
 mürtet(:2
-mürtet(:2
+mürtet(:2
 	Reşadiye(0:2
 Akkol(0:2)
 soğanlamaksoğanlasoğanla(:23
@@ -9003,13 +9033,13 @@ nazarında(2
 neşvünema(2
 mabeyin(:
 2
-münhal(:2
-münhal(2
+münhal(:2
+münhal(:2
 Vecibe(0:2
 sülâlesülalesülale(2	
 bidon(2
 altıparmak(:2
-münhat(:2
+münhat(:2
 münhat(:2#
 perimasa"perimasası_Noun(:2$
 
@@ -9385,8 +9415,8 @@ eşeksırt"eşeksırtı_Noun(:2
 
 bityeniği(2#
 	kurulamakkurulakurula(:2
-oval(:2
-oval(2
+oval(:2
+oval(:2
 mademki(2
 Rodman(0:2
 Tokgözoğlu(0:2
@@ -9413,7 +9443,9 @@ konglomera(2
 süttoz"süttozu_Noun(:2
 Viranşehir(0:2
 Indexındexındex(0:2
-Oakland(0:2	
+Oakland(0:2
+
+endemi(2	
 setre(2
 
 antropolog(:2
@@ -9433,7 +9465,8 @@ Sancaktepe(0:2
 seksen(0
 2
 seksek(:2
-Megadeth(0:2
+Megadeth(0:2
+smoothiesmuti(:2
 
 ayaküstü(2
 
@@ -10067,7 +10100,8 @@ tarihönce"tarihöncesi_Noun(:2*
 özemeközeöze(:2
 Stjepan(0:2
 Kısırkaya(0:2!
-	sedefkârsedefkarsedefkar(2
+	sedefkârsedefkarsedefkar(2
+SWIFTswıftsvift(0:2
 Pussy(0:2
 Barbour(0:2
 Belediyespor(0:2
@@ -10175,7 +10209,8 @@ Likholitov(0:2
 
 mürai(2$
 	sancakbey"sancakbeyi_Noun(:2
-Tonguç(0:2
+Tonguç(0:2
+yönetişim(2
 
 sesçi(2
 Ligtv(0:2
@@ -10218,7 +10253,7 @@ mevzu_Noun(:2
 Keane(0:2
 Aguirre(0:2
 sakat(:2
-sakat(:2
+sakat(:2
 taaddüt(:2
 savruntu(2
 mızıkçı(2
@@ -10544,8 +10579,8 @@ Dünyagöz(0:2
 Tüpraş(0:2
 test(:2
 Bilyoner(0:2
-	müessese(2
-ayakuç"ayakucu_Noun(:2
+	müessese(2
+ayakuç"ayakucu_Noun(:2
 	sertifika(2
 Harward(0:2
 Tayyip(0:2
@@ -10568,7 +10603,7 @@ University(0:2
 Sebahattin(0:2
 Peterson(0:2
 Öylek(0:2
-müdrik(:2
+müdrik(:2
 müdrik(:2
 Athos(0:2
 Vialand(0:2
@@ -10669,7 +10704,7 @@ Düzağaç(0:2
 Ulaç(0:2
 Lebbeyk(0:2
 muhakkik(:2
-muhakkik(:2
+muhakkik(:2
 Tüprag(0:2
 Uleb(0:2
 Yaprak(0:2
@@ -10717,7 +10752,7 @@ karaleylek(:2
 örtünmekörtünörtün(:2
 Botox(0:2
 Yolaç(0:2
-	putperest(:2
+	putperest(:2
 	putperest(:2	
 sevim(2
 kahkaha(2
@@ -11014,9 +11049,9 @@ vergilemekvergilevergile(:2
 düşlem(2
 tilkikuyruğu(:2
 kızak(:2	
-rasyo(2&
+rasyo(2%
 
-düşgüç"düşgücü_Noun(:2
+düşgüç"düşgücü_Noun(:2
 sınırdışı(:2
 sabahyıldızı(2
 yilbik(:2#
@@ -11176,8 +11211,8 @@ korelasyon(2
 başaktris(2
 Geraldo(0:2
 Graham(0:2
-keşide(2
-başuç"başucu_Noun(:2/
+keşide(2
+başuç"başucu_Noun(:2/
 Panislâmizmpanislamizmpanislamizm(0:2
 Atika(0:2
 çekinti(2
@@ -11263,7 +11298,8 @@ Mamülleri(0:2
 oyum(2
 oyun(2
 	Woodhouse(0:2
-Umke(0:2!
+
+Umke(02!
 	iltihabîiltihabiiltihabi(2
 sıfırıncı(0	2
 sıfırıncı(:2
@@ -11340,7 +11376,8 @@ tıpışla(:2
 Micro(0:2
 Rosneft(0:22
 İbrahimoğluibrahimoğluibrahimoğlu(0:2	
-saman(2
+saman(2
+müsli(:2
 Corriere(0:2
 geçgeç(:2	
 samba(2
@@ -11618,7 +11655,8 @@ bürokrasi(2
 garp(:2
 Erşahin(0:2
 Gökbel(0:2
-Gökben(0:2
+Gökben(0:2
+fajitafahita(:2
 
 militarizm(2
 yaratı(2
@@ -12098,7 +12136,8 @@ Altunbulak(0:2
 Serena(0:2
 Ulutaş(0:2	
 boğa(2
-çavuşüzümü(:2
+çavuşüzümü(:2
+nachosnaços(:2
 astkat(:2
 anakent(:2
 Vertigo(0:2
@@ -12209,7 +12248,8 @@ kataleptik(:2
 Tekerek(0:2
 Feldkamp(0:2
 Sudur(0:2
-bülbülkonağı(:2
+bülbülkonağı(:2
+büyükveri(2
 Hilfiger(0:2
 Lula(0:2
 Köken(0:2
@@ -12660,7 +12700,8 @@ Coşkunöz(0:2
 çaktırmadan(2
 Uğursay(0:2#
 arısüt"arısütü_Noun(:2
-artrit(:2
+artrit(:2
+kapsayıcı(2
 başakortçu(2
 Graeme(0:2
 peçete(2
@@ -12885,7 +12926,7 @@ Dikbıyık(0:2
 bihuş(2!
 	sabretmeksabretsabret(:2
 musibet(:2
-musibet(:2
+musibet(:2
 eşzamansız(:2!
 	siklâmensiklamensiklamen(2
 İkramikramikram(0:2&
@@ -12997,9 +13038,9 @@ yansıtaç(:2
 kalender(2
 Aybars(0:2
 
-mikrosefal(:2
+mikrosefal(:2
 
-mikrosefal(2
+mikrosefal(:2
 edinç(:2
 
 devlethane(2
@@ -13054,7 +13095,8 @@ Kralkatili(0:2
 vitrinlemekvitrinlevitrinle(:2
 Hakim(0:2
 Yuşa(0:2
-elöpen(2
+elöpen(2
+kıtalararası(2
 cicik(:2
 gezeğen(2
 Brewster(0:2
@@ -13207,7 +13249,7 @@ Oruçoğlu(0:2
 Horowitz(0:2
 Migem(0:2!
 infilâkinfilakinfilak(:2
-sakıt(:2
+sakıt(:2
 sakıt(:2
 
 sakız(2
@@ -13455,7 +13497,9 @@ Kürdoloji(0:2
 ağaç(:2
 	Karakelle(0:2
 	Manhattan(0:2
-Temizcan(0:2
+Temizcan(0:2
+
+demans(2
 
 Motörhead(0:2
 gelinboğan(2
@@ -13542,7 +13586,8 @@ Edirnespor(0:2
 takat(:2&
 borçlanmakborçlanborçlan(:2
 Yavuzeli(0:2
-Zübük(0:2
+Zübük(0:2
+bloggerblogır(:2
 Hanne(0:2
 Leave(0:2
 gemi(2
@@ -13674,7 +13719,7 @@ dövülgen(2
 geri(2
 Sokrat(0:2
 doğmakdoğdoğ(:2
-genç(:2
+genç(:2
 genç(:2
 Hansa(0:2
 Mormon(0:2
@@ -13684,7 +13729,8 @@ Kazablanka(0:2
 pokus(2
 salacak(:2
 Erdemalp(0:2
-menacer(:2
+menacer(:2
+	özçekim(2
 
 lisansiyer(2&
 
@@ -13709,7 +13755,7 @@ beyazlamakbeyazlabeyazla(:2
 kral(:2
 kral(:2
 illet(:2
-illet(:2
+illet(:2
 	Atromitos(0:2
 ayaktopu(:2
 Kitts(0:2
@@ -13792,7 +13838,7 @@ bestenigar(2
 Cosgrove(0:2
 
 ağrı(2
-mevsuk(:2
+mevsuk(:2
 mevsuk(:2
 Rules(0:2
 Haluk(0:2
@@ -13919,13 +13965,13 @@ tekerlemektekerletekerle(:2
 hoyrat(:2
 
 hoyrat(2
-hoyrat(:2
+hoyrat(:2
 Kalvenci(0:2
 Kalvenci(0:2)
 naylonlamaknaylonlanaylonla(:2#
 Mevlevîmevlevimevlevi(0:2
-koloidal(:2
-koloidal(2
+koloidal(:2
+koloidal(:2
 	Abdioğlu(0:2
 kreş(:2
 cumbadak(2
@@ -14024,7 +14070,8 @@ frezelemekfrezelefrezele(:2
 âlimalimalim(2
 Uruz(0:2
 kendiliğimizden(2
-	kanuniyet(:2
+	kanuniyet(:2
+	freelancefrilens(:2
 Muktefi(0:2
 
 hallihamur(2
@@ -14207,7 +14254,8 @@ kaynaşık(:2
 Hamra(0:2
 ırkîırkiırki(2
 	Cartagena(0:2
-fıskiye(2
+fıskiye(2
+barista(:2
 Ferençvaroş(0:2
 	Özzeybek(0:2
 Özkalfa(0:2
@@ -14421,8 +14469,8 @@ serpiştir(:2
 naylon(2
 Omiru(0:2
 Ulcay(0:2
-meşgul(:2
-meşgul(2
+meşgul(:2
+meşgul(:2
 Nicky(0:2
 Ulysses(0:2
 melamet(:2
@@ -14541,8 +14589,12 @@ Publishing(0:2
 yıkkın(2
 binit(:2
 Milorad(0:2#
-	çalkamakçalkaçalka(:2
-anneannenler(:2
+	çalkamakçalkaçalka(:2$
+
+triplenmektriplentriplen(:2
+anneannenler(:2&
+
+ghostlamakghostla	gostlamak(:2
 Büyüküstün(0:2
 kategori(2
 şırakkadak(2
@@ -14698,8 +14750,8 @@ kaynakhane(2#
 Happy(0:2
 
 center(2
-taahhüt(:2
-optometrist(:2
+taahhüt(:2
+optometrist(:2
 rasıt(:2
 	Duruoğlu(0:2
 Dale(0:2
@@ -14744,7 +14796,8 @@ Kumcuoğlu(0:2
 zincirlemekzincirlezincirle(:2
 Muhsin(0:2
 
-abajur(2
+abajur(2
+bebiş(:2
 konfigürasyon(2
 
 muştu(2
@@ -14828,7 +14881,7 @@ Française(0:2
 gırgır(2
 Yeşilgiresun(0:2
 pars(:2
-zihayat(:2
+zihayat(:2
 zihayat(:2
 Lippi(0:2
 Patiyo(0:2	
@@ -14871,7 +14924,7 @@ Ceyhanspor(0:2
 riyaset(:2
 Moghadam(0:2
 müştak(:2
-müştak(:2
+müştak(:2
 perimasası(:2
 Huduti(0:2*
 	Interview
@@ -14925,7 +14978,8 @@ tıpkısı(2
 Daye(0:2
 Dilderen(0:2
 Aspire(0:2
-Sahavet(0:2
+Sahavet(0:2
+devletlerarası(2
 Mumbai(0:2
 Şostakoviç(0:2
 Hanzo(0:2
@@ -15013,7 +15067,7 @@ düğümle
 düğümle(:2	
 humar(2
 kontrast(:2
-kontrast(:2
+kontrast(:2
 Bisfenol(0:2
 Egoyan(0:2
 Gremio(0:2
@@ -15267,8 +15321,8 @@ mağrurlan(:2
 Ahmedinejad(0:2
 
 dilbaz(2
-hiperboloidal(:2
-hiperboloidal(2
+hiperboloidal(:2
+hiperboloidal(:2
 hidrat(:2
 
 Geçitköy(0:2
@@ -15376,7 +15430,7 @@ sırretmeksırretsırret(:2
 armuz(2
 Scudo(0:2
 talik(:2
-talik(:2
+talik(:2
 Bilbao(0:2
 	Yılmazer(0:2	
 talil(2
@@ -15501,7 +15555,8 @@ eşekkulak"eşekkulağı_Noun(:2
 kuka(2
 kuka(2
 Uykan(0:2
-Grella(0:2
+Grella(0:2
+denizkabuğu(:2
 dalgündüz(2
 Sungate(0:2
 Uçkan(0:2
@@ -15594,7 +15649,7 @@ dörtlemekdörtledörtle(:2
 istinatgah
 istinatgah(2
 kurt(:2
-kurt(:2
+kurt(:2
 orijinalite(2
 Hood(0:2
 kuru(2
@@ -15622,7 +15677,8 @@ Yekçeşme(0:2
 Güntepe(0:2	
 didar(2
 Hopi(0:2
-Lantern(0:2
+Lantern(0:2
+arkayüz(:2
 Haris(0:2
 cızbız(2
 	kaydırak(:2
@@ -16092,7 +16148,8 @@ Köseoğlu(0:2
 Morrow(0:2
 günindi(2
 Anders(0:2
-Atsan(0:2
+Atsan(0:2
+avatar(:2
 Batıbay(0:2
 	alçacık(:2
 Mutlucan(0:2
@@ -16155,6 +16212,7 @@ Ecclestone(0:2
 terkibibent(:2
 Efrug(0:2
 	mefruşat(:2
+spekülasyon(2
 Haymana(0:2
 gradyan(:2
 Ardahan(0:2
@@ -16235,7 +16293,7 @@ Fisichella(0:2
 Ddr3
 dedereüç(02
 Gemicioğlu(0:2
-müşrik(:2
+müşrik(:2
 müşrik(:2
 Erbelgin(0:2
 tevhid"tevhit_Noun(:2
@@ -16286,8 +16344,8 @@ Essentials(0:2
 tango(2
 Solace(0:2
 makromoleküler(:2
-varagele(2
-pektoral(2
+varagele(2
+pektoral(:2
 pektoral(:2
 
 olumlu(2
@@ -16364,8 +16422,8 @@ Fassbender(0:2
 adabımuaşeret(:2 
 hamlamakhamlahamla(:2
 Mikel(0:2
-Heysel(0:2
-fastfoodfastfud(2
+Heysel(0:2
+fastfoodfestfud(:2
 Sernaz(0:2
 	Şemsifer(0:2
 Sernas(0:2
@@ -16568,8 +16626,8 @@ derinlemekderinlederinle(:2
 böleç(:2
 Deco(0:2
 Hatib(0:2
-Sergiy(0:2
-pastoral(2
+Sergiy(0:2
+pastoral(:2
 pastoral(:2
 ağırkanlı(2
 ağırkanlı(2)
@@ -16789,6 +16847,7 @@ ponzalamakponzalaponzala(:2
 Kenji(0:2
 piknik(:2
 peki(2
+ikonik(:2
 ikonik(:2(
 
 başörtü"başörtüsü_Noun(:@2
@@ -16977,7 +17036,8 @@ Bolivyalı(0:2
 
 rezerv(2
 	örüntü(2
-Portekiz(0:2&
+Portekiz(0:2'
+tavuskuyruk"tavuskuyruğu_Noun(:2&
 
 naniklemeknaniklenanikle(:2
 Şükür(0:2-
@@ -16987,7 +17047,9 @@ naniklemeknaniklenanikle(:2
 artist(:2
 konseptüalizm(2
 arasıra(:2
-Boğday(0:2
+Boğday(0:2
+
+NATO(02
 peygamberane(2
 hususîhususihususi(2
 yüzlük(:2
@@ -16998,7 +17060,9 @@ naniklemeknaniklenanikle(:2
 	şoklamakşoklaşokla(:2
 nefaset(:2
 	saklatım(:2 
-Abbasîabbasiabbasi(0:2
+Abbasîabbasiabbasi(0:2
+
+NASA(02
 Legends(0:2
 Marceau(0:2
 
@@ -17378,7 +17442,8 @@ emlak_Noun(:@2!
 sapık(:2
 metabolizma(2
 
-sapır(2
+sapır(2
+önyüz(2
 Oflazer(0:2
 Ötenazi(0:2
 	Michaella(0:2
@@ -17487,9 +17552,8 @@ Narlıdere(0:2
 büzgülemek	büzgüle	büzgüle(:2
 gusül(:
 2
-Zülal(0:2"
-acemlale"acemlale_Noun(:@2
-acemlale(:2
+Zülal(0:2
+acemlale(:2
 incelik(:2
 radyoizotop(:2
 Gazire(0:2
@@ -17543,7 +17607,8 @@ küstümot"küstümotu_Noun(:2
 bileşke(2)
 bilmezlemekbilmezlebilmezle(:2
 Zorro(0:2
-Kayseri(0:2)
+Kayseri(0:2
+pasolig(:2)
 salgılamaksalgılasalgıla(:2
 
 Solidworks(0:2
@@ -17582,7 +17647,7 @@ arapzamkı(:2
 Mchale(0:2
 artıkdeğer(:2
 Ecopolis(0:2
-	fizyokrat(:2
+	fizyokrat(:2
 	fizyokrat(:2
 Covent(0:2+
 haşhaşyağ"haşhaşyağı_Noun(:2
@@ -17710,8 +17775,8 @@ yürütmekyürütyürüt(:2
 monokültür(:2
 kelepser(2
 Maar(0:2
-Maas(0:2
-pediyatrist(:2
+Maas(0:2
+pediyatrist(:2
 Cordero(0:2	
 cebin(2	
 cebin(2
@@ -17764,7 +17829,8 @@ bahşolmakbahşolbahşol(:2
 Pierce(0:2
 Shiro(0:2
 Hüda(0:2
-	yüklenim(:2
+	yüklenim(:2
+spoilerspoylır(:2
 Mado(0:2
 Madi(0:2
 
@@ -17987,7 +18053,7 @@ soyağacı(:2
 yaka(2
 Malz(0:2
 mevkut(:2
-mevkut(:2
+mevkut(:2
 Tuvalu(0:2
 Ezheran(0:2
 Hüma(0:2
@@ -18061,7 +18127,8 @@ yanısıra(
 Mara(0:2
 
 Çağaptay(0:2#
-	berelemekbereleberele(:2
+	berelemekbereleberele(:2
+capskeps(:2
 Mari(0:2
 Marr(0:2
 Mars(0:2
@@ -18247,8 +18314,9 @@ Saruhanlı(0:2
 daktiloskopi(2
 Maye(0:2
 Simber(0:2
-alacamenekşe(2
-Htmlhetemele(0:2
+alacamenekşe(2
+Html
+eyçtiemel(02
 Mays(0:2
 mevkii"
 mevki_Noun(:2
@@ -18338,7 +18406,9 @@ başefendi(2
 argali(2 
 bizlemekbizlebizle(:2
 
-çalı(2
+çalı(2
+
+mezoterapi(2
 çark(:2,
 kompostlamak	kompostla	kompostla(:2	
 yatı(2$
@@ -18490,8 +18560,7 @@ ulusötesi(2
 hoppadak(:2
 
 Mimiroğlu(0:2
-karbit(:2$
-yabanas"yabanasması_Noun(:2
+karbit(:2
 Kabze(0:2
 Barack(0:2
 Zhou(0:2	
@@ -18622,7 +18691,8 @@ santilitre(2*
 Leigh(0:2
 Womens(0:2
 cankulağı(:2
-Dilsuz(0:2
+Dilsuz(0:2!
+darlamakdarladarla(:2
 Akdemir(0:2
 	Endülüs(0:2
 verit(:2
@@ -18673,8 +18743,7 @@ Transworld(0:2
 Taffarel(0:2
 Gönülçelen(0:2
 normal(:2
-
-normal(2
+normal(:2
 Yamaner(0:2
 
 kurnaz(2
@@ -18882,7 +18951,8 @@ mediyastin(2
 envaitürlü(2
 suzidil(2)
 neşrolunmak	neşrolun	neşrolun(:2,
-tapışlamak	tapışla	tapışla(:2
+tapışlamak	tapışla	tapışla(:2
+BİSTbistbist(0:2
 Dier(0:2
 Diet(0:2
 Keram(0:2
@@ -18905,7 +18975,7 @@ garsoniyer(2
 vıcırdamak	vıcırda	vıcırda(:2
 Castilla(0:2
 tunç(:2
-tunç(:2
+tunç(:2
 Orçun(0:2	
 tavla(2
 Kaftancıoğlu(0:2
@@ -18997,7 +19067,7 @@ meskûkâtmeskukatmeskukat(:2
 sarfiyat(:2
 	Hakimiyet(0:2
 	Güneşer(0:2
-girift(:2
+girift(:2
 girift(:2
 sardalya(2
 Azarenka(0:2
@@ -19157,16 +19227,16 @@ serinlemekserinleserinle(:2
 boşamakboşaboşa(:2
 Divx(0:2	
 dikey(2	
-dikey(2
-orijinal(2
+dikey(2
+orijinal(:2
 orijinal(:2
 Schaaf(0:2
 Astaldi(0:2
 Ziva(0:2
 Halebak(0:2
 Görele(0:2
-ikindiüzeri(2
-	narsisist(:2
+ikindiüzeri(2
+	narsisist(:2
 piti(2	
 diken(2
 
@@ -19250,8 +19320,8 @@ kuşüzüm"kuşüzümü_Noun(:2
 domestik(:2
 domestik(:2
 Susurluk(0:2
-	Bahaullah(0:2
-sadomazohist(:2
+	Bahaullah(0:2
+sadomazohist(:2
 
 Macpherson(0:2
 Yağtu(0:2
@@ -19270,7 +19340,8 @@ tutturgaç(:2
 	Kolombiya(0:2
 Gujarat(0:2
 bronşit(:2
-bölüt(:2
+bölüt(:2
+disiplinlerarası(2
 Kavuşum(0:2
 bölük(:2
 Lehçe(0:2
@@ -19486,7 +19557,9 @@ anıştır(:2
 Elhadef(0:2
 	götürü(2
 	götürü(2
-Esbank(0:2
+Esbank(0:2
+
+kompülsif(2
 maşerîmaşerimaşeri(2
 Burkhan(0:2
 çayırmelikesi(:2
@@ -19520,7 +19593,8 @@ Koyunoğlu(0:2
 Albarn(0:2
 donamakdonadona(:2
 kaloma(:2 
-	kınatmakkınatkınat(:2&
+	kınatmakkınatkınat(:2
+ethereumeteryum(:2&
 
 çabalamakçabalaçabala(:2
 Kızıltaş(0:2
@@ -19700,11 +19774,9 @@ Plevnespor(0:2
 Biutiful(0:2
 Dilsafa(0:2
 Feldman(0:2
-Şeyhmus(0:2&
+Şeyhmus(0:2$
 
-mahkumiyet"mahkûmiyet_Noun(:@2
-
-mahkumiyet(:2
+mahkumiyet"mahkûmiyet_Noun(:2
 Hidromek(0:2
 Jintao(0:2
 Airties(0:2
@@ -19718,7 +19790,8 @@ mahkumiyet(:2
 Acarkent(0:2
 Zambia(0:2
 tanık(:2
-tanık(:2
+tanık(:2
+regüle(2
 
 tanım(2
 Paulinho(0:2
@@ -19845,7 +19918,7 @@ geçişmekgeçişgeçiş(:2
 ıra(2
 kalpak(:2
 Akkaya(0:2
-iskelet(:2
+iskelet(:2
 iskelet(:2
 ırk(:2
 ipsiler(:2
@@ -19912,8 +19985,9 @@ Boğaziçi(0:2
 apsent(:2
 vahiy(:
 2 
-	dillenmekdillendillen(:2
-vahit(:2
+	dillenmekdillendillen(:2
+vahit(:
+2
 vahit(:
 2
 
@@ -19999,7 +20073,8 @@ Sarayönü(0:2
 Dkib(0:2
 elektrobiyolojik(:2#
 	ikizlemekikizleikizle(:2
-Julius(0:2
+Julius(0:2.
+güvenlikduvar"güvenlikduvarı_Noun(:2
 Mebs(0:2
 Takbis(0:2
 Özaltun(0:2
@@ -20044,7 +20119,7 @@ Kozinoğlu(0:2
 
 müşevvik(:2
 
-müşevvik(:2
+müşevvik(:2
 efemine(2
 Gohan(0:2
 Dknydekeneye(0:2
@@ -20388,7 +20463,8 @@ sıkılgan(2
 
 Karahayıt(0:2
 sfenks(:2
-	Fantastic(0:2
+	Fantastic(0:2
+MERNİSmernismernis(02
 sesyayar(2
 Mehir(0:2
 Selcen(0:2
@@ -20502,8 +20578,8 @@ kuşgözü(:2
 vandal(2#
 
 yakışmakyakışyakış(:2
-Mcclaren(0:2
-fizikoterapist(:2
+Mcclaren(0:2
+fizikoterapist(:2
 
 reasürans(2
 Yiğitoğlu(0:2
@@ -21116,7 +21192,7 @@ bağboğan(2
 Eşer(0:2
 Susic(0:2
 mühlik(:2
-mühlik(:2
+mühlik(:2
 tevşih(2
 Susie(0:2
 Achim(0:2
@@ -21485,7 +21561,8 @@ stenografi(2
 tiftiklenmek	tiftiklen	tiftiklen(:2
 
 çizburger(:2
-Vary(0:2
+Vary(0:2
+unicornyunikorn(:2
 Kılıçaslan(0:2
 Collina(0:2
 Tupac(0:2
@@ -21504,7 +21581,8 @@ ağılamakağılaağıla(:2
 Seccac(0:2
 Şaat(0:2
 Assange(0:2
-Eboue(0:2
+Eboue(0:2 
+YÖKDİLyökdilyökdil(02
 Yermuk(0:2
 
 sıcaklık(:2
@@ -21834,8 +21912,8 @@ mütecanis(2
 
 tasım(2
 Acker(0:2
-asitölçer(2
-Mhrsmeherese(0:2#
+asitölçer(2
+Mhrsmeherese(02#
 	ötelemeköteleötele(:2
 
 Göynücek(0:2
@@ -21913,6 +21991,9 @@ frenkincir"frenkinciri_Noun(:2
 Kickboks(0:2
 	tefeyyüz(2
 Bolton(0:2
+
+freelancer
+frilensır(:2
 İldemildemildem(0:2
 	Kozağaç(0:2
 Nikânnikannikan(0:2
@@ -22053,7 +22134,7 @@ diskografi(:2
 
 podösüet(:2
 
-podösüet(:2
+podösüet(:2
 
 bağlantı(2	
 dingi(2
@@ -22092,8 +22173,8 @@ ekzotermik(:2
 yirik(:2
 	mumaileyh(2
 Zoey(0:2
-Necat(0:2
-forklift(:2
+Necat(0:2
+forklift(:2
 Büyükerman(0:2
 tomurcuk(:2
 Dogg(0:2
@@ -22522,6 +22603,8 @@ Vanguardia(0:2
 alkolölçer(2
 
 silindirik(:2
+fotonik(:2
+fotonik(:2
 Hoffa(0:2	
 çile(2
 Melek(0:2
@@ -22613,7 +22696,7 @@ kızartmakkızartkızart(:2
 vahşîvahşivahşi(2
 Kalle(0:2
 meclup(:2
-meclup(:2
+meclup(:2
 Laodikya(0:2
 batmakbatbat(:2)
 tertiplemektertipletertiple(:2
@@ -22832,7 +22915,8 @@ Cevatpaşa(0:2
 peygamberdevesi(:2,
 tıraşlamak	tıraşla	tıraşla(:2
 talimat(:2
-Sarpkan(0:2
+Sarpkan(0:2!
+pinlemekpinlepinle(:2
 iskambil(2
 Givens(0:2
 Birkan(0:2
@@ -22932,7 +23016,8 @@ pikosaniye(:2
 Nazret(0:2
 içtimaiyat(:2
 	gazışı(2
-polonyum(2
+polonyum(2
+RTÜKrütük(02
 	müzakere(2
 
 Eisenhower(0:2
@@ -23368,7 +23453,8 @@ yürütüm(2
 Kanei(0:2
 cemal(:2
 
-amortisör(2
+amortisör(2 
+ŞÖNİMşönimşönim(02
 çakalboğan(2
 Umbrella(0:2	
 ceman(2
@@ -23400,11 +23486,12 @@ Kırşehir(0:2
 akbasmakakbasakbas(:2
 	yazıhane(2
 mümbit(:2
-mümbit(:2	
+mümbit(:2	
 varis(2
 varit(:
-2
-varit(:2	
+2
+varit(:
+2	
 evsaf(2	
 kulun(2,
 şüphelenmek
@@ -23651,9 +23738,9 @@ kocayemiş(:2
 Bağkur(0:2
 leva(2
 anasoylu(:2
-egsersiz(:2&
+egsersiz(:2%
 
-hayalgüç"hayalgücü_Noun(:2
+hayalgüç"hayalgücü_Noun(:2
 mahlûlmahlulmahlul(:2
 strüktüralist(:2
 ayniyet(:2
@@ -23709,8 +23796,7 @@ saçmalık(:2,
 ergen(2
 Tutku(0:2	
 uskur(2
-Selile(0:2(
-aşçıbaş"aşcıbaşı_Noun(:2
+Selile(0:2
 yananlam(:2
 	günlerce(2
 tsunami(2
@@ -23790,6 +23876,8 @@ rambursman(2
 Mensa(0:2
 
 etkileşim(2
+ponçik(:2
+ponçik(:2
 beyazımsı(2
 Samcro(0:2#
 	köhnemekköhneköhne(:2	
@@ -23861,7 +23949,9 @@ Macaristan(0:2
 Mensah(0:2
 katabolizma(2
 Airlines(0:2	
-yekta(2
+yekta(2
+
+cheesecakeçizkeyk(:2
 Sarısözen(0:2
 Tutsi(0:2
 	ürkünç(:2/
@@ -23972,7 +24062,7 @@ Providence(0:2
 Forster(0:2
 rezervasyon(2
 galaktik(:2
-gudubet(:2
+gudubet(:2
 gudubet(:2
 Terrace(0:2
 Mefruza(0:2
@@ -24136,7 +24226,7 @@ Tuttosport(0:2
 Rânâranarana(0:2
 Tomorrow(0:2
 mahkûkmahkukmahkuk(:2
-mahkûkmahkukmahkuk(:2
+mahkûkmahkukmahkuk(:2
 
 zinhar(2
 
@@ -24148,7 +24238,11 @@ Tuttosport(0:2
 Alpergun(0:2
 yegânyeganyegan(2
 
-Tayakadın(0:2
+Tayakadın(0:2
+
+prebiyotik(:2
+
+prebiyotik(:2
 Memet(0:2
 Nurkan(0:2
 Thornton(0:2
@@ -24201,8 +24295,8 @@ dilatasyon(:2
 Chambers(0:2
 ruzuşeb(2
 beserek(:2
-ideal(:2	
-ideal(2
+ideal(:2
+ideal(:2
 Alice(0:2
 ayırmakayırayır(:
 2
@@ -24270,12 +24364,12 @@ vejetarizm(2
 Reşad(0:2
 Nissa(0:2
 	kategorik(:2
-	kategorik(:2
+	kategorik(:2
 	kategorik(2
 Office(0:2
 Düzey(0:2
-Titanik(0:2
-Tusaş(0:2
+Titanik(0:2
+Tusaş(02
 Necâhnecahnecah(0:2
 
 benzin(2
@@ -24301,6 +24395,8 @@ vejetarizm(2
 hezliyat(:2
 Baturay(0:2
 Özger(0:2
+
+validatör(2
 
 mağrurane(2
 Sülvan(0:2
@@ -24400,7 +24496,8 @@ itimatname(:2
 Reşid(0:2
 AIHMaıhmaiheme(02
 gassal(:2
-	Gürbulak(0:2!
+	Gürbulak(0:2
+WIFIwıfıvayfay(02!
 	bezirgânbezirganbezirgan(2
 Kocaer(0:2
 mahalle(2
@@ -24444,7 +24541,9 @@ kapasitör(:2
 
 Talatpaşa(0:2
 	simsariye(2)
-sancılanmak	sancılan	sancılan(:2)
+sancılanmak	sancılan	sancılan(:2
+
+konfigüre(:2)
 çalkalamakçalkalaçalkala(:2
 fabrika(2
 Fadıloğlu(0:2	
@@ -24464,8 +24563,8 @@ Talatpaşa(0:2
 kaptan(2
 
 tezene(2
-meçhul(:2
-meçhul(2
+meçhul(:2
+meçhul(:2
 Gustav(0:2
 Kanak(0:2
 yıldızbilim(:2	
@@ -24572,7 +24671,8 @@ Göttingen(0:2
 
 neojen(2
 
-neojen(2
+neojen(2
+refinansman(2
 Wolverhampton(0:2
 Nurhak(0:2
 songu(:2
@@ -24607,9 +24707,10 @@ Murzioğlu(0:2
 Rengin(0:2
 Levon(0:2$
 
-öğürmeköğüröğür(:2
+öğürmeköğüröğür(:2
+şehirlerarası(2
 Çırağ(0:2
-mazbut(:2
+mazbut(:2
 mazbut(:2
 eloğul"eloğlu_Noun(:2!
 irtikâpirtikapirtikap(:2
@@ -24627,7 +24728,7 @@ dikbaşlı(:2
 Baturalp(0:2
 Çulhaoğlu(0:2
 	müttefik(:2
-	müttefik(:2
+	müttefik(:2
 
 kadirbilir(2
 Lowell(0:2
@@ -24874,7 +24975,8 @@ kıskanmakkıskankıskan(:2
 tecimevi(2	
 yöre(2!
 	kaydetmekkaydetkaydet(:2
-zoospor(2
+zoospor(2
+dronedron(:2
 Amauri(0:2	
 skala(2
 muvazaa(2
@@ -24985,7 +25087,7 @@ irsalullah
 irsalullah(0:2
 eloğlu(:2
 Kalenderiye(0:2
-romanesk(:2
+romanesk(:2
 romanesk(:2 
 dazlamakdazladazla(:2
 Nirvana(0:2
@@ -25176,7 +25278,8 @@ higrometre(2
 Azerîceazericeazerice(0:2
 Muhafız(0:2
 	şahmeran(2
-Dudu(0:2
+Dudu(0:2
+HAVELSAN(02
 Miletvekili(0:2
 Uluer(0:2
 Automobiles(0:2
@@ -25215,10 +25318,11 @@ müzaheret(:2
 anüri(2	
 beter(2
 somut(:2
-somut(:2
+somut(:2
 Yuvarlakçay(0:2
 Akbank(0:2
-	Yağbasan(0:2*
+	Yağbasan(0:2
+TİHAtihatiha(02*
 çobançanta"çobançantası_Noun(:2
 kolleksiyon(:2
 	otokritik(:2
@@ -25229,7 +25333,8 @@ müzaheret(:2
 Maktule(0:2
 dolantı(2
 	Karabucak(0:2
-flüorışı(2	
+flüorışı(2
+TİKAtikatika(02	
 muare(2	
 muare(2
 tümlev(:2
@@ -25347,8 +25452,7 @@ mübayenet(:2
 
 mahmuz(2
 mahmul(:2
-
-mahmul(2
+mahmul(:2
 pırtı(2
 Zune(0:2
 iyonik(:2
@@ -26035,7 +26139,7 @@ anıklamakanıklaanıkla(:2
 Select(0:2
 
 ünite(2
-pırpıt(:2
+pırpıt(:2
 pırpıt(:2
 ençok(:2
 Mirkan(0:2
@@ -26557,8 +26661,8 @@ insanoğul"insanoğlu_Noun(:2
 emzikli(2
 depasman(:2
 Ayaydın(0:2
-Yaşanur(0:2
-nominal(2
+Yaşanur(0:2
+nominal(:2
 nominal(:2
 Tirith(0:2
 Alataş(0:2
@@ -27268,7 +27372,8 @@ Kırımlı(0:2
 	Originals(0:2
 	Aydınlar(0:2
 sulanmaksulansulan(:2
-fetret(:2
+fetret(:2
+mezenformasyon(:2
 Serebral(0:2
 Nurkut(0:2
 
@@ -27293,7 +27398,8 @@ pirekıran(2
 Oğuzlar(0:2
 Rubber(0:2
 tatlılıkla(2
-anzak(:2
+anzak(:2
+scooterskutır(:2
 beyzîbeyzibeyzi(2
 konsomasyon(2
 camadan(2
@@ -27360,6 +27466,7 @@ Grancabrio(0:2
 mayonez(2
 Bettencourt(0:2
 Uzbay(0:2
+entübe(2
 balerin(2
 heykeltıraş(2
 
@@ -27406,7 +27513,8 @@ arttırmakarttırarttır(:2
 Nurhilal(0:2
 
 Schumpeter(0:2
-kalastra(2
+kalastra(2
+akıllısaat(:2
 Freiburg(0:2
 Lefkoşa(0:2
 
@@ -27567,7 +27675,9 @@ Beckinsale(0:2
 Gabriel(0:2
 Messi(0:2
 Miriam(0:2
-izlek(:2	
+izlek(:2%
+
+evsahiplik"evsahipliği_Noun(:2	
 izlem(2
 Balıkpazarı(0:2
 fetheyle(:2
@@ -27689,7 +27799,8 @@ Tahiroğlu(0:2
 havadan(2
 havadan(2
 göçer(2
-Gümrü(0:2
+Gümrü(0:2
+spekülatif(2
 	Bozüyük(0:2
 Görsev(0:26
 bölüntülemekbölüntülebölüntüle(:2
@@ -27859,7 +27970,8 @@ manifatura(2
 Akıncıoğlu(0:2
 Müge(0:2
 Rage(0:2
-hafi(2
+hafi(2
+spoyler(:2
 Basmane(0:2
 boruyolu(:2
 feminen(2
@@ -27876,7 +27988,8 @@ manifatura(2
 
 mecbur(2
 Rafa(0:2
-antrparantez(2
+antrparantez(2
+tokentokın(:2
 Rabbena(0:2
 kümülatif(2#
 İncesazincesazincesaz(0:2
@@ -27886,7 +27999,8 @@ manifatura(2
 Igmgıgmgıgmg(0:2	
 yüce(2
 Birant(0:2
-Igorıgorıgor(0:2
+Igorıgorıgor(0:23
+düşkırıklık"düşkırıklığı_Noun(:2
 Pekdemir(0:2
 Yoleri(0:2
 Summer(0:2
@@ -28046,7 +28160,8 @@ bağırsak(:2
 daüssıla(2)
 kayıtlamakkayıtlakayıtla(:2
 Grigoropulos(0:2
-	Desperate(0:2	
+	Desperate(0:2
+	haşimato(:2	
 yetke(2
 
 hunriz(2	
@@ -28117,8 +28232,7 @@ karbonifer(2
 Mirnur(0:2
 muhtaç(:2
 muhtel(:	2
-
-muhtel(2
+muhtel(:	2
 	Clijsters(0:2
 Falling(0:2
 Talayman(0:2
@@ -28179,7 +28293,7 @@ stereofoni(2
 Mystic(0:2&
 
 eklemlemekeklemleeklemle(:2
-mülhak(:2
+mülhak(:2
 mülhak(:2
 içermekiçeriçer(:2
 Bağcan(0:2
@@ -28287,8 +28401,8 @@ Hasanoğlu(0:2
 	likorinoz(2
 
 rütbe(2
-hemhâlhemhalhemhal(:2
-hemhâlhemhalhemhal(2
+hemhâlhemhalhemhal(:2
+hemhâlhemhalhemhal(:2
 	kondisyon(2
 
 varaka(2!
@@ -28306,7 +28420,8 @@ Hasanoğlu(0:2
 cevaz(2
 Coates(0:2
 Cavaco(0:2
-çapulcu(2
+çapulcu(2
+makaron(:2
 Katmandu(0:2%
 
 gündoğum"gündoğumu_Noun(:2
@@ -28402,14 +28517,14 @@ kozmolojik(:2
 stüdyo(2
 Kawhi(0:2	
 hicaz(2
-muhip(:	2
-muhip(:2
+muhip(:	2
+muhip(:	2
 Cacabey(0:2
-muhik(:	2
-muhik(:2
+muhik(:	2
+muhik(:	2
 nâzımnazımnazım(2
-nâzımnazımnazım(2	
-muhil(2
+nâzımnazımnazım(2
+muhil(:	2
 muhil(:	2&
 
 sendelemeksendelesendele(:2
@@ -28543,8 +28658,8 @@ Başdoğan(0:2
 Makal(0:2
 düğüncübaşı(2
 Makao(0:2
-Blitz(0:2
-	şovenist(:2	
+Blitz(0:2
+	şovenist(:2	
 toner(2
 Walters(0:2
 debdebe(2
@@ -28748,7 +28863,8 @@ sübjektif(2
 	nanıaziz(2
 Panküp(0:2
 Fozzie(0:2
-loca(2
+loca(2
+stalkstolk(:2
 Alkım(0:2
 Alkın(0:2
 Rodgers(0:2!
@@ -28886,8 +29002,8 @@ Saraçhane(0:2
 âcizaneacizaneacizane(2
 	tellaliye(2
 Mirmahmutoğulları(0:2
-Kalabak(0:2	
-muhal(2
+Kalabak(0:2
+muhal(:2
 muhal(:2
 
 Montevideo(0:2
@@ -29003,7 +29119,9 @@ Lumberjack(0:2
 şırıngalamakşırıngalaşırıngala(:2
 
 monizm(2
-Forbes(0:2
+Forbes(0:2'
+
+aşcıbaş"aşcıbaşı_Noun(:2
 heyamola(2
 	fıtraten(2
 ablanlar(:2
@@ -29204,8 +29322,8 @@ Giuseppina(0:2
 Emerald(0:2
 Tepeköy(0:2
 anasayfa(:2
-radikal(:2
-radikal(2
+radikal(:2
+radikal(:2
 Seyyaf(0:2
 Mevla(0:2
 telmihen(2
@@ -29326,7 +29444,9 @@ Kiziroğlu(0:2
 	Ertuğrul(0:2
 Malmö(0:2
 Pronet(0:2
-kındıraç(:2	
+kındıraç(:2'
+
+resetlemekresetleresetle(:2	
 hidra(2
 Cylon(0:2
 Ahfeş(0:2
@@ -29395,7 +29515,8 @@ Kiziroğlu(0:2
 	Erçelebi(0:2 
 gazlamakgazlagazla(:2&
 
-baltalamakbaltalabaltala(:2
+baltalamakbaltalabaltala(:2
+mRNAemrena(02
 
 kiklon(2
 Malta(0:2
@@ -29454,8 +29575,8 @@ Abdulsamet(0:2
 	Borbiconi(0:2
 Firefox(0:2
 sükûtsükutsükut(:2
-immoral(:2
-immoral(2
+immoral(:2
+immoral(:2
 Kayla(0:2$
 	trollemektrolletrolle(:2
 Ayrık(0:2
@@ -29951,8 +30072,8 @@ sabuklamaksabuklasabukla(:2
 	ayarlamakayarlaayarla(:2&
 
 viyaklamakviyaklaviyakla(:2
-dolikosefal(:2
-dolikosefal(2
+dolikosefal(:2
+dolikosefal(:2
 hiciv(:
 2
 	evveliyat(:2
@@ -30014,7 +30135,7 @@ müstehase(2
 jeopolitik(:2
 Reed(0:2
 şehvetperest(:2
-şehvetperest(:2
+şehvetperest(:2
 Channing(0:2
 Tiraspol(0:2	
 hidiv(2"
@@ -30053,7 +30174,7 @@ Muratpaşa(0:2
 
 göcen(2
 zabit(:2
-zabit(:2
+zabit(:2
 
 Wonderland(0:2
 	miskinane(2'
@@ -30128,7 +30249,8 @@ gırtlakla(:2
 	Turatekin(0:2)
 ağaçlamakağaçlaağaçla(:2&
 
-kümelemekkümelekümele(:2
+kümelemekkümelekümele(:2#
+	hacklemekhackleheklemek(:2
 kırkıntı(2
 Alaric(0:2&
 çiğnetmekçiğnetçiğnet(:2
@@ -30344,8 +30466,11 @@ vahşiyane(2
 spektroskop(:2
 Öztop(0:2
 Baskil(0:2
-Aycell(0:2
-	Anıtpark(0:2
+Aycell(0:2'
+
+linçlemeklinçlelinçle(:2
+	Anıtpark(0:2
+FASTfest(0:2
 Mirsad(0:2	
 camia(2
 fıstık(:2
@@ -30562,7 +30687,11 @@ müstahsil(2)
 	darbetmekdarbetdarbet(:2!
 	efsunkârefsunkarefsunkar(2
 
-topluiğne(:2
+topluiğne(:2
+
+probiyotik(:2
+
+probiyotik(:2
 Otokent(0:2	
 zafer(2
 önrapor(:2
@@ -30619,7 +30748,9 @@ ihtiyatkar(2
 Nahum(0:2'
 Işıkay	ışıkay	ışıkay(0:2	
 detay(2
-Minetti(0:2
+Minetti(0:2&
+
+tweetlemektweetle	tvitlemek(:2
 hacamat(:2
 sıçırgan(2
 Kerrubi(0:2
@@ -30634,8 +30765,8 @@ ihtiyatkar(2
 	frenlemekfrenlefrenle(:2
 işlek(:2
 sürat(:2
-işgüç(:2$
-işgüç"işgücü_Noun(:@2
+işgüç(:2#
+işgüç"işgücü_Noun(:@2
 
 işlem(2
 Enosis(0:2
@@ -30670,7 +30801,7 @@ umumiyetle(2
 Sibel(0:2&
 denizdantel"denizdanteli_Noun(:2	
 batar(2
-yakut(:2
+yakut(:2
 yakut(:2
 seyirci(2
 Lecter(0:2
@@ -30797,10 +30928,12 @@ Jüstinyen(0:2
 Dağlıoğlu(0:2
 batak(:2
 batak(:2
-Holokost(0:2
+Holokost(0:2,
+retweetlemek	retweetleritvitlemek(:2
 inşat(:2
 
-uçandaire(:2
+uçandaire(:2
+ventilatör(2
 inşaa(:2
 Callahan(0:2 
 Sârbansarbansarban(0:2
@@ -30823,7 +30956,8 @@ mütezayit(:2
 Altaş(0:2
 	Temellük(0:2
 mareşal(:2
-Ilyaılyaılya(0:2
+Ilyaılyaılya(0:2
+	yapayzeka(2
 
 sıvıyağ(:2	
 deste(2
@@ -30896,7 +31030,7 @@ fenomenizm(2
 Samiha(0:2
 Mccalebb(0:2
 lakayt(:2
-lakayt(:2
+lakayt(:2
 Alvin(0:2
 ulvîulviulvi(2
 suflör(2
@@ -31106,7 +31240,8 @@ mahkûkâtmahkukatmahkukat(:2
 hayalet(:2
 
 kılıbık(:2#
-	iliklemekilikleilikle(:2
+	iliklemekilikleilikle(:2
+satürasyon(2
 vesaitinakliye(2
 Riggs(0:2 
 sallamaksallasalla(:2
@@ -31355,7 +31490,8 @@ Bergeretti(0:2
 Kazuo(0:2
 Eagü(0:2
 röntgen(2
-Brazzaville(0:2
+Brazzaville(0:2
+tontiş(:2
 Ukrayna(0:2'
 Istanbul	ıstanbul	ıstanbul(0:2
 Lucrezia(0:2
@@ -31531,6 +31667,7 @@ demirkapan(2
 Building(0:2
 
 yangı(2
+JPEGcipek(02
 Germinal(0:2
 
 sütun(2
@@ -31583,8 +31720,7 @@ mehterhane(2
 Phaselis(0:2
 transvestit(:2
 Leisure(0:2
-nısfiye(2'
-hesekiküpe"hasekiküpesi_Noun(:2
+nısfiye(2
 Indyındyındy(0:2
 sındı(2
 Ingeıngeınge(0:2
@@ -31651,8 +31787,8 @@ Florentino(0:2
 kültürfizik(:2
 ahlamakahlaahla(:2
 göymekgöygöy(:2
-uçanbalık(:2
-taksonomist(:2
+uçanbalık(:2
+taksonomist(:2
 	Aydıntan(0:2
 Prohorov(0:2
 	onkolojik(:2
@@ -31766,14 +31902,13 @@ hakkaniyet(:2
 Eber(0:2
 Sherrie(0:2
 Tianjin(0:2
-otokrat(:2
+otokrat(:2
 otokrat(:2
 baykuş(2
 
 mineroloji(2
-oynatım(2$
-	acıyonca"acıyonca_Noun(:@2
-	acıyonca(:2
+oynatım(2
+	acıyonca(:2
 cadısüpürgesi(2
 Safinaz(0:2
 eniyi(:2
@@ -31788,7 +31923,8 @@ mineroloji(2
 
 barça(2
 yezit(:2
-yezit(:2
+yezit(:2
+volatil(:2
 pirogravür(2	
 devim(2
 Hoşköy(0:2
@@ -31827,7 +31963,7 @@ Miniatürk(0:2
 Stamford(0:2
 	Paşaköy(0:2
 	fantezist(:2
-	fantezist(:2	
+	fantezist(:2	
 devam(2	
 devam(2
 Parshan(0:2
@@ -32324,8 +32460,8 @@ leksikolog(:2
 Aragorn(0:2
 Voıp(0:2
 Naire(0:2
-total(:2	
-total(2
+total(:2
+total(:2
 Jonesy(0:2
 	Krasnodar(0:2"
 denizyol"denizyolu_Noun(:2
@@ -32431,7 +32567,7 @@ ağırlık(:2
 	hakşinas(2
 
 ispritizma(2
-soyut(:2
+soyut(:2
 soyut(:2
 Değirmencioğlu(0:2
 manganin(2
@@ -32476,7 +32612,8 @@ Britannica(0:2
 iktisadiyat(:2
 Runtalya(0:2
 kitabîkitabikitabi(2
-Risa(0:2$
+Risa(0:2
+kırsal(2$
 	köpekaya"köpekayası_Noun(:2
 manganez(2
 Çamköy(0:2
@@ -32491,8 +32628,8 @@ başkâtip	başkatip	başkatip(:2
 tutacak(:2
 ötleğengiller(:2
 Pentagon(0:2
-müteheyyiç(:2
-ortodontist(:2
+müteheyyiç(:2
+ortodontist(:2
 Heracles(0:2
 Başdenetçi(0:2
 Çakırcalı(0:2	
@@ -32754,7 +32891,8 @@ hidrografi(2&
 	yırtmaç(:2
 abstraksiyonizm(2
 	pragmatik(:2
-	metroloji(2
+	metroloji(2
+fasilitatör(:2
 Ülgür(0:2
 Guindos(0:2
 Zühdiye(0:2
@@ -32942,8 +33080,8 @@ vazgeçmekvazgeçvazgeç(:2
 
 fosgen(2
 	Kösoğlu(0:2
-Ipv4ıpv4aypivedört(02
-Iptvıptvıpeteve(0:2
+Ipv4ıpv4aypivedört(02
+Iptvıptvaypitivi(02
 
 parabellum(2
 Banyas(0:2
@@ -33044,8 +33182,7 @@ ağdırmakağdırağdır(:2
 
 sığa(2
 zevat(:2
-Edok(0:2'
-tavukkuyruk"tavuskuyruğu_Noun(:2
+Edok(0:2
 aramakaraara(:2
 Masia(0:2
 endokrinolog(:2
@@ -33307,7 +33444,8 @@ soluklamaksoluklasolukla(:2
 Pısa(0:2
 Ortaköylüoğlu(0:2
 	tekörnek(:2
-	Motlanthe(0:2
+	Motlanthe(0:2
+JSONceyson(02
 
 varide(2
 	Wijnaldum(0:2
@@ -33334,7 +33472,8 @@ kaçımsar(2
 çevri(2
 
 kurtboğan(2
-Güldane(0:2
+Güldane(0:2
+derinöğrenme(2
 
 çevre(2
 	Aşkıner(0:2
@@ -33670,10 +33809,9 @@ yanlışla(:2
 	affeyleme(2
 Orenault(0:2
 gedik(:2
-Jolly(0:2
-Ortabağ(0:2
-acıçiğdem(:2*
-acıçiğdem"acıçiğdem_Noun(:@2
+Jolly(0:2
+acıçiğdem(:2
+Ortabağ(0:2
 Mariç(0:2
 Monsters(0:2
 
@@ -33755,7 +33893,9 @@ Günyüzü(0:2
 İnhisarinhisarinhisar(0:2
 Piaggio(0:2
 Science(0:2
-edevat(:2
+edevat(:2
+
+transgenik(:2
 
 çakal(2
 
@@ -33795,8 +33935,8 @@ Doğanşar(0:2
 sündürmeksündürsündür(:2
 Penny(0:2	
 bazal(2
-olmakolol(:2
-kollektivist(:2
+olmakolol(:2
+kollektivist(:2
 
 yalım(2
 
@@ -34140,7 +34280,8 @@ milyonuncu(:2
 Cartman(0:2	
 gitar(2
 Makoun(0:2
-Moriarty(0:2
+Moriarty(0:2
+stalkerstolkır(:2
 uğrak(:2
 uğrak(:2
 Bozburun(0:2
@@ -34260,8 +34401,7 @@ boşvermekboşverboşver(:2,
 Sarıyer(0:2
 Local(0:2
 meyyal(:2
-
-meyyal(2
+meyyal(:2
 türlü(2
 türlü(2
 Isbnısbnısebene(0:2
@@ -34442,7 +34582,7 @@ filântrop	filantrop	filantrop(:2&
 
 rahatlamakrahatlarahatla(:2
 bayat(:2
-bayat(:2
+bayat(:2
 gölek(:2
 Isnaısnaısna(0:2
 derinlikölçer(2
@@ -34473,7 +34613,7 @@ Pendikspor(0:2
 Tattoo(0:2
 	Pritchard(0:2
 dehşet(:2
-dehşet(:2
+dehşet(:2
 dehşet(2
 maşlah(2
 uslu(2
@@ -34571,8 +34711,8 @@ sekseninci(:2
 sekseninci(0	2
 Hüveydi(0:2
 Kutbay(0:2
-hilat(:2
-Tmmob	tememeobe(0:2
+hilat(:2
+Tmmobtememob(02
 Proust(0:2
 Rmmorememeo(0:2
 Breivik(0:2
@@ -34595,8 +34735,7 @@ sekseninci(0	2
 Lazio(0:2
 Kırcami(0:2
 ilenmekilenilen(:2
-
-mitral(2
+mitral(:2
 mitral(:2
 cebriye(2
 felek(:2
@@ -34734,7 +34873,8 @@ tükürük(:2#
 	eğelemekeğeleeğele(:2
 Nagy(0:2)
 sakızkabak"sakızkabağı_Noun(:2
-Wenger(0:2
+Wenger(0:2
+youtuberyutubır(:2
 Matic(0:2
 Nahl(0:2
 şorolo(2
@@ -34776,7 +34916,8 @@ kükürtle(:2
 	Bayülken(0:2
 Egemenoğlu(0:2
 
-amorti(2
+amorti(2
+cupcakekapkeyk(:2
 beğence(2)
 gölbaş"Gölbaşı_Noun_Prop(0:2
 Tiago(0:2
@@ -34811,8 +34952,8 @@ kükürtle(:2
 oymabaskı(:2
 Sigma(0:2
 Nancy(0:2
-kanseroloji(2	
-vokal(2
+kanseroloji(2
+vokal(:2
 vokal(:2$
 Isofıxısofıxısofıx(0:2
 dank(:2
@@ -35322,7 +35463,8 @@ isemememeo(0:2
 	filoksera(2
 	Telegraph(0:2
 
-Kaypakkaya(0:2
+Kaypakkaya(0:2
+stagflasyon(2
 	Kocatürk(0:2
 Bottas(0:2
 	Ultrabook(0:2*
@@ -35385,7 +35527,7 @@ cilâlamakcilalacilala(:2
 çapak(:2
 varyemez(2
 
-etnografik(:2
+etnografik(:2
 
 etnografik(:2
 Pocius(0:2
@@ -35587,7 +35729,8 @@ Sarayburnu(0:2
 Kristina(0:2
 	ikizkenar(2
 Eppes(0:2&
-	İşisağişisağişisağ(0:2
+	İşisağişisağişisağ(0:2
+granola(:2
 paşaçadırı(:2
 Kenshin(0:2
 yirminci(0	2
@@ -35632,9 +35775,9 @@ etnografya(2'
 Oetker(0:2
 çivmekçivçiv(:2
 Roof(0:2 
-	dolaşmakdolaşdolaş(:2
+	dolaşmakdolaşdolaş(:2
 
-monetarist(:2
+monetarist(:2
 homo(:2
 amalgam(2	
 zamme(2
@@ -35667,7 +35810,8 @@ tümülüs(:2
 sabaha(2
 simüle(:2
 
-soysuz(2&
+soysuz(2
+konseptüel(:2&
 
 demirlemekdemirledemirle(:2
 nitelik(:2
@@ -35820,7 +35964,8 @@ Armonipark(0:2
 kaltak(:2
 	çökkün(2
 	çökkün(2
-şahane(2
+şahane(2
+bulutbilişim(2
 dalgır(2
 zaman(02
 varmakvarvar(:2
@@ -36008,8 +36153,8 @@ enküçük(:2
 epigram(2
 
 kahhar(2#
-İşçanişçanişçan(0:2
-Çed(0:2
+İşçanişçanişçan(0:2
+Çed(0:2
 Cafercan(0:2
 
 iştah(2
@@ -36400,7 +36545,8 @@ difenbahya(2
 tüvit(:2
 tüvit(:2
 Dietmar(0:2
-Karamanoğulları(0:2
+Karamanoğulları(0:2
+yoğunbakım(2
 tenasüh(2
 tenasül(2
 androit(:2#
@@ -36755,7 +36901,8 @@ levazımat(:2
 Butch(0:2
 hilâfhilafhilaf(2
 
-tecviz(2
+tecviz(2%
+	yanıbaş"yanıbaşı_Noun(:2
 Köktaş(0:2
 volânvolanvolan(2
 	Yalıköy(0:2
@@ -36788,7 +36935,8 @@ Temelkuran(0:2%
 Nemr(0:2
 
 kondor(2
-	Something(0:2
+	Something(0:2
+checkupçekap(:2
 Nemo(0:2
 
 kondom(2
@@ -36856,7 +37004,8 @@ kalbiselim(2
 ayaküst"ayaküstü_Noun(:2#
 
 tıklatmaktıklattıklat(:2
-	Hiroshima(0:2
+	Hiroshima(0:2
+APIapı(02
 Gourmet(0:2
 Mebbis(0:2
 	operasyon(2
@@ -36930,7 +37079,8 @@ imamkayık"imamkayığı_Noun(:2
 
 hidrofilik(:2
 Periz(0:2
-zekâzekazeka(2
+zekâzekazeka(2
+storystori(:2
 Mübine(0:2
 	Nevşehir(0:2!
 	geğirmekgeğirgeğir(:2
@@ -37030,6 +37180,7 @@ Semizoğlu(0:2
 tansiyometre(2
 zevk(:2
 Kolot(0:2
+AYTayete(02
 Snowden(0:2
 Amado(0:2
 	Endeavour(0:2
@@ -37126,7 +37277,9 @@ trikosefal(:2
 
 mahzar(2
 Bişar(0:2
-ağaçkesen(2
+ağaçkesen(2
+
+OHAL(02
 Permun(0:2
 Berire(0:2
 Ömür(0:2
@@ -37141,9 +37294,7 @@ trikosefal(:2
 
 temsiliyet(:2
 eyalet(:2
-Elie(0:2)
-
-güvenoyla"güvenoylaması_Noun(:2
+Elie(0:2
 	katakulli(2
 hissîhissihissi(2
 vikont(:2
@@ -37165,7 +37316,8 @@ Yeşilgöz(0:2
 Aaa(0:2#
 ayakbağ"ayakbağı_Noun(:2
 gündoğumu(:2
-Chiba(0:2
+Chiba(0:2
+fintek(:2
 Furnish(0:2
 Adige(0:2
 amentü(2
@@ -37193,16 +37345,14 @@ Yeşilgöz(0:2
 virtüoz(2
 Sinop(0:2
 musır(:	2
-
-musır(2
+musır(:	2
 	Kutbettin(0:2
 Ella(0:2
 
 Chromebook(0:2
 Tevile(0:2
 Babaeski(0:2
-meblâğmeblağmeblağ(2
-Ace(0:2
+meblâğmeblağmeblağ(2
 Supper(0:2-
 
 Ingolstadtıngolstadtıngolstadt(0:2
@@ -37220,8 +37370,7 @@ Bluemotion(0:2
 Zuhal(0:2$
 	dökümev"dökümevi_Noun(:2
 Elka(0:2
-davetiye(2
-Addadede(0:2
+davetiye(2
 kesmekkeskes(:2
 
 Yusufpaşa(0:2
@@ -37259,8 +37408,8 @@ Fevzipaşa(0:2
 Damato(0:2
 Kürkçüoğlu(0:2
 
-Çatalkaya(0:2(
-beygirgüç"beygirgücü_Noun(:2
+Çatalkaya(0:2'
+beygirgüç"beygirgücü_Noun(:2
 cuşuhuruş(2
 Sarıpınar(0:2
 Sanevber(0:2
@@ -37279,8 +37428,7 @@ Fevzipaşa(0:2
 kontrplâk	kontrplak	kontrplak(:2)
 kopçalamakkopçalakopçala(:2$
 Islandsıslandsıslands(0:2
-Agbagebe(0:2
-Age(0:2
+Agbagebe(0:2
 Vitrinel(0:2
 bizmut(:2
 Balkan(0:2
@@ -37288,8 +37436,8 @@ kontrplâk	kontrplak	kontrplak(:2)
 Balkar(0:2
 
 Özkaraman(0:2
-müstait(:	2
-müstait(:2
+müstait(:	2
+müstait(:	2
 Kamalak(0:2
 yarış(2
 	kumbaşı(:2
@@ -37318,9 +37466,9 @@ kontrplâk	kontrplak	kontrplak(:2)
 
 havalanmakhavalanhavalan(:2
 Gelemen(0:2
-Air(0:2
 kelepçe(2
 Yurter(0:2
+KOSGEB(02
 teessüf(2
 
 reform(2
@@ -37373,8 +37521,7 @@ pırıldak(:2
 rafinaj(2
 Jivkov(0:2	
 afsun(2
-triftong(2
-Allalele(0:2
+triftong(2
 
 derogasyon(2
 Alp(0:2
@@ -37412,13 +37559,11 @@ nicemlemeknicemlenicemle(:2
 Köktürkçe(0:2
 
 emboli(2
-Andanede(0:2
 Anfanefe(0:2
 çalışım(2
 Anganege(0:2+
 şaşakalmak	şaşakal	şaşakal(:2
-Ankaneka(0:2
-Annanene(0:2
+Ankaneka(0:2
 büryan(2
 
 resepsiyon(2
@@ -37481,8 +37626,7 @@ muntazaman(2
 çakırdoğan(2
 
 evrenbilim(:25
-İskenderpaşaiskenderpaşaiskenderpaşa(0:2
-Are(0:2
+İskenderpaşaiskenderpaşaiskenderpaşa(0:2
 Bellini(0:2
 Ari(0:2	
 bohem(2)
@@ -37771,8 +37915,7 @@ büküntü(2
 	vesselâmvesselamvesselam(2
 enfarkt(:2
 Bab(0:2
-sokmaksoksok(:2
-Bad(0:2
+sokmaksoksok(:2
 çatkı(2
 Tebşire(0:2
 Baf(0:2
@@ -37841,7 +37984,8 @@ kılıçla(:2
 Taşel(0:2
 Eynez(0:2
 Tigem(0:2
-yüzgörümlüğü(:2
+yüzgörümlüğü(:2
+CFOsiyefo(02
 Taşer(0:2
 Tiger(0:2'
 
@@ -37858,8 +38002,7 @@ kapasitans(:2
 Simms(0:2!
 davultoz"davultozu_Noun(:2
 	Lidington(0:2
-Uzsoy(0:2
-Bee(0:2
+Uzsoy(0:2
 altşube(:2)
 
 İpekoğlu	ipekoğlu	ipekoğlu(0:2
@@ -37924,7 +38067,6 @@ Pasqualino(0:2
 Simin(0:2
 helezon(2)
 kargılamakkargılakargıla(:2
-Big(0:2
 Bik(0:2
 Barnaby(0:2
 Yumlu(0:2
@@ -37952,10 +38094,12 @@ yönlenmekyönlenyönlen(:2
 Mustafakemalpaşa(0:2
 
 Galacticos(0:2
-insanüstü(2&
+insanüstü(2
+kurumlararası(2&
 
 tetiklemektetikletetikle(:2
-çağırtmaç(:2
+çağırtmaç(:2
+CMOsiyemo(02
 Bkmbekeme(0:2,
 İnşaullah
 inşaullah
@@ -38004,7 +38148,8 @@ Topaloğlu(0:2
 Birgitte(0:2
 Bmcbemece(0:2
 Nalezen(0:2
-Blaise(0:2
+Blaise(0:2
+COOsiyoo(02
 Petey(0:2
 istiane(2
 Rehman(0:2
@@ -38060,8 +38205,7 @@ Tekfenbank(0:2
 enformatik(:2
 tahşiye(2
 Chivu(0:2
-Bop(0:2
-Boo(0:2
+Bop(0:2
 Bor(0:2
 Türgev(0:2
 uzam(2
@@ -38094,7 +38238,8 @@ müteessir(2
 istiva(2
 Osama(0:2
 
-müteessif(2
+müteessif(2
+CRMsiarem(02
 Walk(0:2
 lümpen(2
 lümpen(2
@@ -38123,7 +38268,8 @@ eğreltiot"eğreltiotu_Noun(:2
 öksüz(2
 
 bozyürük(:2
-telefat(:2
+telefat(:2
+CSSsieses(02
 Izetızetızet(0:2
 Aang(0:2 
 	nemlenmeknemlennemlen(:2
@@ -38145,7 +38291,8 @@ Bağdagül(0:2
 stator(2
 	stokastik(:2
 Florian(0:2
-Track(0:2)
+Track(0:2
+CTOsiyto(02)
 yayıklamakyayıklayayıkla(:2
 	Karaduman(0:2
 olağanüstü(2
@@ -38457,8 +38604,7 @@ Kızkulesi(0:2
 Can(0:2
 Cap(0:2
 Cas(0:2
-titanyum(2
-Cat(0:2
+titanyum(2
 Eugene(0:2.
 ingilizanahtar"ingilizanahtarı_Noun(:2
 Kamiloba(0:2
@@ -38554,8 +38700,8 @@ laciverdî	laciverdi	laciverdi(2#
 Şereflikoçhisar(0:2
 Abat(0:2
 hindistancevizi(:2
-Abas(0:2
-Ceo(0:2
+Abas(0:2
+Ceosiyo(02
 Emerson(0:2
 Ces(0:2
 uzuv(:
@@ -38979,7 +39125,8 @@ dağılmakdağıldağıl(:2
 Cupra(0:2	
 irite(2
 	Şentürk(0:2
-Rekin(0:2
+Rekin(0:2$
+	postlamakpostlapostla(:2
 
 Beypazarı(0:2
 akustik(:2 
@@ -38989,7 +39136,8 @@ Beypazarı(0:2
 muvazzaf(2
 Benaglio(0:2
 	mizanpili(:2
-kefalgiller(:2)
+kefalgiller(:2	
+EBA(02)
 bitümlemekbitümlebitümle(:2
 dızdız(2
 barışgücü(:2
@@ -39084,7 +39232,9 @@ yedeklemekyedekleyedekle(:2
 	Kongurtay(0:2
 Ddydedeye(0:2
 
-kefere(2
+kefere(2
+pofuduk(:2
+pofuduk(:2
 Gonzalo(0:2
 Rusk(0:2
 yıldırım(2
@@ -39138,8 +39288,8 @@ yedeklemekyedekleyedekle(:2
 Cankatar(0:2
 Reims(0:2
 Ruth(0:2
-Millas(0:2
-Dgsdegese(0:2
+Millas(0:2
+Dgsdegese(02
 Millar(0:2	
 gabin(2
 huri(2#
@@ -39167,8 +39317,7 @@ kıvratmakkıvratkıvrat(:2
 Kızıltepe(0:2
 Niki(0:2
 Dia(0:2
-	alzheimer(:2
-Die(0:2
+	alzheimer(:2
 Marlin(0:2
 
 yapsatçı(2
@@ -39206,7 +39355,8 @@ bayındır(2
 Taşdöğen(0:2
 çaput(:2
 başmüsteşar(:2
-Buffalo(0:2
+Buffalo(0:2
+EMGemege(02
 âdemotuademotuademotu(2
 
 Hititoloji(0:2
@@ -39256,14 +39406,14 @@ karayosunu(:2
 yazar(2	
 genom(2
 Ruzi(0:2
-Şahintürk(0:2
-Dnadenea(0:2
+Şahintürk(0:2
+Dnadiena(02
 ızgın(2
 kibir(:
 2
 Whitaker(0:2
-Nino(0:2
-Dnsdenese(0:2
+Nino(0:2
+Dnsdienes(02
 Frankie(0:2
 
 Denizolgun(0:2
@@ -39278,7 +39428,6 @@ damızlık(:2
 damızlık(:2
 Doc(0:2
 zina(2
-Dog(0:2
 
 akbaş(2
 	tezcanlı(:2
@@ -39308,7 +39457,8 @@ tırtıkla(:2
 onikiparmakbağırsağı(:2
 Dudayev(0:2
 Giragos(0:2
-Veneto(0:2#
+Veneto(0:2
+ERPiarpi(02#
 	şutlamakşutlaşutla(:2
 Dptdepete(0:2
 
@@ -39330,7 +39480,8 @@ anabolizma(2
 Aclu(0:2
 tıngırtı(2
 Nish(0:2
-Taykurt(0:2
+Taykurt(0:2
+ESGiesci(02
 River(0:2
 geniz(:
 2
@@ -39345,7 +39496,8 @@ anabolizma(2
 
 Tülomsaş(0:2	
 zaten(2
-Temple(0:2
+Temple(0:2
+ETFitief(02
 
 Jirinovski(0:2
 Niro(0:2
@@ -39430,8 +39582,9 @@ liberasyon(2
 Charisteas(0:2
 haleldar(2
 January(0:2
-sterlin(2
-Dsödeseö(0:2
+sterlin(2
+EYTeyete(02
+Dsödeseö(02
 Kadraj(0:2
 
 Nogovitsin(0:2
@@ -39476,7 +39629,8 @@ tokgözlü(:2
 
 diye(
 052 
-	üstenmeküstenüsten(:2
+	üstenmeküstenüsten(:2$
+	spamlamakspamlaspamla(:2
 	şeşbeş(2
 Perçi(0:2
 Hawley(0:2$
@@ -39512,7 +39666,8 @@ kutlulamakkutlulakutlula(:2
 
 abaşo(2
 
-abaşo(2
+abaşo(2
+cringekrinç(:2
 	altyordam(:2
 
 Kazdağlı(0:2	
@@ -39540,7 +39695,8 @@ bibliyotek(:2
 eniştenler(:2
 Millie(0:2
 
-pentan(2
+pentan(2
+FBIfbıefbiay(02
 Aşdod(0:2
 Robbie(0:2
 Tijen(0:2
@@ -39549,7 +39705,8 @@ bibliyotek(:2
 	Stephanie(0:2
 	coğrafya(2
 Mistral(0:2
-OLED(0:2
+
+OLED(02
 pasifikasyon(2
 Mooreu(0:2
 	Odintsovo(0:2
@@ -39697,7 +39854,8 @@ katarlamakkatarlakatarla(:2
 Eib(0:2
 	Akçaabat(0:2
 sekunder(2
-bıçkı(2
+bıçkı(2
+browniebrauni(:2
 Ader(0:2
 Epps(0:2
 Eit(0:2
@@ -39727,8 +39885,8 @@ değnekçi(2
 	önlisans(:2
 Öktürk(0:2
 
-Multimedia(0:2
-Ekgekege(0:2
+Multimedia(0:2
+Ekgekage(02
 ölçer(2
 
 betonkarar(2
@@ -39750,7 +39908,8 @@ talanlamaktalanlatalanla(:2
 palaska(2
 pavurya(2
 Eugen(0:2	
-eseme(2
+eseme(2
+airfryereyırfrayır(:2
 Azdavay(0:2
 Sierra(0:2
 tıpış(2#
@@ -39781,8 +39940,7 @@ kaldıraç(:2
 Loman(0:2
 	Solotürk(0:2&
 
-palazlamakpalazlapalazla(:2
-Endenede(0:2
+palazlamakpalazlapalazla(:2
 Palta(0:2
 	Hindoloji(0:2
 
@@ -39854,7 +40012,8 @@ tepiklemektepikletepikle(:2
 hafakan(2
 
 lehtar(2
-Styles(0:2
+Styles(0:2
+FTPeftipi(02
 gürgen(2
 gürgen(2
 Mazgirt(0:2
@@ -39893,7 +40052,7 @@ patriarkal(2
 Arasıl(0:2
 Etsetese(0:2
 ibaret(:2
-ibaret(:2
+ibaret(:2
 	öğrenci(2
 Angelov(0:2
 prehistorya(2
@@ -39910,8 +40069,8 @@ Güzelyurt(0:2
 Hansen(0:2
 çakıltaşı(:2
 Hansel(0:2
-Mogan(0:2
-Eur(0:2
+Mogan(0:2
+Eureuro(02
 Somers(0:2
 kilovat(:2
 
@@ -40072,7 +40231,8 @@ işmerkezi(:2
 
 bohça(2
 
-metalurjik(:2
+metalurjik(:2
+GBPcibipi(02
 permiyen(2
 Hürmüz(0:2
 Bankpozitif(0:2
@@ -40092,7 +40252,6 @@ metalurjik(:2
 Mamadou(0:2
 Fao(0:2
 Moggi(0:2
-Fat(0:2
 Fas(0:2
 işhanı(:2
 kankırmızı(2
@@ -40132,8 +40291,8 @@ Tosunoğlu(0:2
 Blerim(0:2
 Puşkaş(0:2
 Rolandis(0:2
-	nevraljik(:2
-Fdafedea(0:2
+	nevraljik(:2
+Fdaefdiey(02
 kırıkkırak(:2
 denizminaresi(:2
 Glass(0:2
@@ -40154,8 +40313,8 @@ yüpürmekyüpüryüpür(:2
 Fdtfedete(0:2
 kardiyoskleroz(2
 müphem(2
-müphem(2
-Fed(0:2
+müphem(2
+Fed(0:2
 
 Souleymane(0:2
 anasınıfı(:2
@@ -40201,7 +40360,8 @@ kılâptan	kılaptan	kılaptan(2
 	Özkaynak(0:2
 Kürşat(0:2
 Emenike(0:2
-Yezdan(0:2
+Yezdan(0:2
+GIFgıf(0:2
 Vicenza(0:2
 	delişmen(2
 Kocabıyık(0:2
@@ -40267,7 +40427,7 @@ kılkuyruk(:2
 	dışarı(
 072
 	dışarı(:2
-hudayinabit(:2
+hudayinabit(:2
 hudayinabit(:2
 Bçgbeçege(0:2!
 	savaşmaksavaşsavaş(:2
@@ -40292,8 +40452,7 @@ denizaltı(2
 Döngeloğlu(0:2
 Flofeleo(0:2
 Koral(0:2
-makyöz(2
-Flyfeleye(0:2
+makyöz(2
 	Junichiro(0:2
 Trefl(0:2
 Bengisu(0:2
@@ -40309,7 +40468,7 @@ aykırıla(:2
 
 ehvenişer(2
 	Mitroviç(0:2
-	mizantrop(:2
+	mizantrop(:2
 	mizantrop(:2
 talkın(2
 talkım(2
@@ -40345,8 +40504,7 @@ konservele(:2
 dielektrik(:2
 	Çeviköz(0:2
 Trees(0:2
-Kureyş(0:2
-For(0:2
+Kureyş(0:2
 vıcık(:2
 gadir(:
 2
@@ -40576,7 +40734,8 @@ semerlemeksemerlesemerle(:2
 Abasıyanık(0:2
 Razvan(0:2
 Korra(0:2
-Erge(0:2
+Erge(0:2!
+loglamakloglalogla(:2
 apokrif(2
 	portmanto(2
 Zyxel(0:2
@@ -40621,7 +40780,8 @@ Ortakudaş(0:2
 Lovato(0:2
 	bulaşkan(2
 Erik(0:2
-Sıralp(0:2
+Sıralp(0:2
+streamerstrimır(:2
 	mütemmim(2
 	mütemmim(2
 Florent(0:2
@@ -40700,8 +40860,8 @@ uçuklamakuçuklauçukla(:2
 	anchorman(2
 Eriç(0:2
 sazende(2
-Çalıkoğlu(0:2
-Gdogedeo(0:23
+Çalıkoğlu(0:2
+Gdogedeo(023
 	lûnaparklunaparklunapark"lunapark_Noun(:2
 çıtırbom(2
 müdüriyet(:2
@@ -40714,10 +40874,10 @@ methüsena(2
 
 Veziristan(0:2
 Belçika(0:2
-Tümkurt(0:2
-Ges(0:2
-Get(0:2
-Afad(0:2
+Tümkurt(0:2
+Ges(0:2
+
+Afad(02
 S2000seikibin(022
 şıngırdamakşıngırdaşıngırda(:2
 Valikonağı(0:2
@@ -40752,7 +40912,8 @@ endotermik(:2
 
 asyön(2
 
-transparan(2
+transparan(2
+HIVhıv(0:2
 
 enberi(2
 Tibetçe(0:2
@@ -40806,7 +40967,8 @@ randevuevi(:2
 Cermen(0:2
 Oceanic(0:2
 
-dirhem(2
+dirhem(2!
+ziplemekzipleziple(:2
 Palme(0:2
 Backup(0:2
 ergenlik(:2
@@ -40894,10 +41056,10 @@ prefabrike(2
 şerîşerişeri(2
 Narendra(0:2
 
-Halisdemir(0:2
-Gpsgepese(0:2
-kardiyografi(2
-Gpugepeu(0:2
+Halisdemir(0:2
+Gpscipies(02
+kardiyografi(2
+Gpucipiyu(02
 
 kirloz(2
 Teber(0:2
@@ -40913,7 +41075,8 @@ Halisdemir(0:2
 dışık(:2
 toynaklılar(:2
 Maroni(0:2
-Peyker(0:2
+Peyker(0:2
+HSKheseka(02
 Raider(0:2
 
 Abdulgafur(0:2
@@ -41050,7 +41213,8 @@ Yalıkavak(0:2
 
 meşru(2
 irmik(:2
-beygirgücü(:2
+beygirgücü(:2
+manipülasyon(2
 
 jambon(2
 debagat(:2
@@ -41071,7 +41235,10 @@ Yalıkavak(0:2
 hakimane(2
 
 Baçeoğlu(0:2'
-süregitmeksüregitsüregit(:2
+süregitmeksüregitsüregit(:2'
+
+stalklamakstalkla
+stolklamak(:2
 
 meşum(2
 Nabucco(0:2
@@ -41080,7 +41247,9 @@ Baçeoğlu(0:2'
 belladon(:2*
 çöküşmek	çöküş	çöküş(:2
 Canyon(0:2
-Afuv(0:2
+Afuv(0:2
+vizyoner(2
+vizyoner(2
 Cihanfer(0:2
 gözgü(2
 Hilbert(0:2
@@ -41238,8 +41407,8 @@ Kralkızı(0:2
 
 İslamabad	islamabad	islamabad(0:2
 	Henrietta(0:2
-Esme(0:2
-Hddhedede(0:2
+Esme(0:2
+Hddeyçdidi(02
 
 Yosipoviç(0:2
 Kükçe(0:2
@@ -41264,8 +41433,9 @@ Yosipoviç(0:2
 Yanıker(0:2
 Hee(0:2
 inanç(:2
-Gümüşsuyu(0:2
-Hes(0:2
+Gümüşsuyu(0:2
+hypehayp(:2
+Hes(0:2
 moralman(2
 periskop(:2
 Karaşar(0:2
@@ -41426,13 +41596,14 @@ sallamamaksallamasallama(:2
 taraklamaktaraklatarakla(:2
 Agid(0:2
 yekpare(2
-yekpare(2
-	piramidal(2
+yekpare(2
+	piramidal(:2
 	piramidal(:2
 Hnihenei(0:2
 Dickens(0:2
 Pepper(0:2
-Kazdağları(0:2
+Kazdağları(0:2
+IPOıpoaypio(02
 Nazir(0:2
 ötürü(
 072
@@ -41459,10 +41630,8 @@ metropolis(:2
 vaat(:2
 Skipper(0:2
 	Purgatory(0:2
-Remus(0:2
-Hot(0:2
-Özilhan(0:2
-Howhov(0:2
+Remus(0:2
+Özilhan(0:2
 Gönültaş(0:2
 istirham(2
 Jade(0:2
@@ -41478,8 +41647,8 @@ Türkistan(0:2
 maksure(2
 fundagiller(:2
 nalbant(:2
-Abdünnasır(0:2
-Hpvhepeve(0:2
+Abdünnasır(0:2
+Hpvhepeve(02
 	Spaceback(0:2 
 	barınmakbarınbarın(:2
 Abdülcanbaz(0:2	
@@ -41498,7 +41667,8 @@ Türkistan(0:2
 Hotamışlıgil(0:2
 Stojakoviç(0:2
 iyonosferik(:2
-haploit(:2
+haploit(:2
+BIOSbıosbayos(02
 eşit(:2
 teminen(:2
 Oates(0:2
@@ -41576,7 +41746,8 @@ Rutherford(0:2
 Kiyaset(0:2
 
 akarca(2
-Timmy(0:2*
+Timmy(0:2
+BISTbıst(0:2*
 sitayişkârsitayişkarsitayişkar(2
 tatbikîtatbikitatbiki(2
 elektrodinamik(:2
@@ -41640,7 +41811,8 @@ betonlamakbetonlabetonla(:2
 vali(2
 Borges(0:2#
 	hintincir"hintinciri_Noun(:2
-vaks(:2
+vaks(:2 
+MÜSİADmüsiadmüsiad(02
 
 kremşanti(:2
 dayak(:2
@@ -41726,8 +41898,8 @@ Terzioğlu(0:2
 Özay(0:2
 maddiyat(:2
 	istimzaç(:2
-guarani(2
-spiritualist(:2
+guarani(2
+spiritualist(:2
 Exodus(0:2
 aksatmakaksataksat(:2
 karanfil(2
@@ -41736,7 +41908,8 @@ Terzioğlu(0:2
 Etik(0:2
 Muratbey(0:2	
 eşya(2
-Dalayer(0:2
+Dalayer(0:2
+OPECopek(02
 Bekmez(0:2
 	Superbike(0:2
 Dilkeste(0:2
@@ -41780,8 +41953,7 @@ Heerenveen(0:2
 Iccıccıcece(0:2
 cezaevi(:2
 kırbaç(:2
-Javi(0:2
-Iceıceıce(0:2
+Javi(0:2
 	takılgan(2
 Doğanay(0:2
 Özer(0:2
@@ -41986,7 +42158,8 @@ bitkibilim(:2
 Ahid(0:2 
 terlemekterleterle(:2
 Yurdalan(0:2
-Incıncınece(0:2
+Incıncınece(0:2
+JPGcipek(02
 bermuda(2
 Donner(0:2
 Ingıngınege(0:2
@@ -41998,7 +42171,8 @@ vahdaniyet(:2
 Rabbi(0:2
 Kurhan(0:2
 Rizzo(0:2
-Türabı(0:2
+Türabı(0:2
+IoTıotayoti(02
 Gestaş(0:2
 Tarsim(0:2
 Amine(0:2	
@@ -42070,8 +42244,8 @@ süpernova(:2
 Ağbaba(0:2
 Öndeş(0:2
 Mustang(0:2
-Manion(0:2
-Isoısoıso(0:2
+Manion(0:2
+Isoıso(02
 Fournier(0:2
 preparat(:2
 
@@ -42086,8 +42260,7 @@ kemikbilim(:2
 Jeffery(0:2+
 menekşegül"menekşegülü_Noun(:2!
 	yalvarmakyalvaryalvar(:2
-Döncem(0:2
-Itsıtsıtese(0:2
+Döncem(0:2
 Bayrualp(0:2
 Rooney(0:2
 Balboa(0:2
@@ -42269,7 +42442,8 @@ Yeşiltaş(0:2'
 	litografi(2)
 yeğnisemekyeğniseyeğnise(:2
 	semiyotik(:2
-	semiyotik(:2
+	semiyotik(:2
+KAP(0:2
 Erçelik(0:2
 	Muştubey(0:2
 Letizia(0:2
@@ -42317,7 +42491,8 @@ arzeylemekarzeylearzeyle(:2
 Jay(0:2
 ziyadar(2
 
-mefsuh(2
+mefsuh(2
+KDKkedeka(02
 Vechiye(0:2&
 yırtınmakyırtınyırtın(:2
 	kesimhane(2
@@ -42360,10 +42535,12 @@ Morgenpost(0:2
 Sokullu(0:2
 Heidfeld(0:2
 	Stratford(0:2
-	Chocolate(0:2'
+	Chocolate(0:2
+KGFkegefe(02'
 
 tarihdış"tarihdışı_Noun(:2
-Noel(0:2
+Noel(0:2
+empatik(:2
 
 Gazeteport(0:2
 Typhoon(0:2
@@ -42519,7 +42696,8 @@ yongalamakyongalayongala(:2
 Nevizade(0:2
 
 aleksi(2
-Tuğba(0:2
+Tuğba(0:2
+KPIkpıkeypiay(02
 
 Sabetayist(0:2
 zonk(:2
@@ -42546,8 +42724,7 @@ Sabetayist(0:2
 	müderris(2)
 montajlamakmontajlamontajla(:2
 
-Kordonboyu(0:2
-Joy(0:2
+Kordonboyu(0:2
 Unaids(0:2
 
 kesene(2
@@ -42817,7 +42994,8 @@ bakakalmakbakakalbakakal(:2
 	usturuplu(2
 	usturuplu(2
 	Pendragon(0:2
-	Yiğitalp(0:2
+	Yiğitalp(0:2
+LAN(0:2
 Sheehan(0:2
 
 Müteahhit(0:2/
@@ -42825,8 +43003,7 @@ Müteahhit(0:2/
 küçümse
 küçümse(:2
 Çayyolu(0:2
-yazıt(:2/
-düşkırık"düşkırıklığı_Noun(:2	
+yazıt(:2	
 şifa(2
 süreölçer(2
 	anaerobik(:2	
@@ -42918,8 +43095,8 @@ tamamlamaktamamlatamamla(:2
 Kdpkedepe(0:2
 	senkronik(:2
 Çelikoğlu(0:2
-	Senirkent(0:2
-Kdvkedeve(0:2
+	Senirkent(0:2
+Kdvkadeve(02
 Lagina(0:2
 
 makyaj(2
@@ -42939,7 +43116,8 @@ basklarnet(:2#
 Jenson(0:2
 	çocukça(2
 	çocukça(2
-	hayatiyet(:2
+	hayatiyet(:2
+LGSlegese(02
 	Abdülhak(0:2
 	şahsiyet(:2
 Aktuna(0:2
@@ -42947,8 +43125,7 @@ basklarnet(:2#
 
 Şimşeker(0:2
 Lemaitre(0:2
-Durak(0:2
-Key(0:2
+Durak(0:2
 Muscat(0:2
 Dasidef(0:2
 Mihrali(0:2
@@ -43002,8 +43179,7 @@ mancınık(:2
 popülarite(2
 Saygun(0:2
 	şahsiyat(:2
-Algida(0:2
-Kid(0:2
+Algida(0:2
 Kaş(0:2
 Saygur(0:2
 multivizyon(2
@@ -43032,7 +43208,8 @@ madiklemekmadiklemadikle(:2
 
 Normandiya(0:2
 	Abdülhey(0:2
-Phillips(0:2
+Phillips(0:2
+LLMelelem(02
 kişilikdışı(:2
 Gennady(0:2
 şeytanfeneri(:2
@@ -43090,7 +43267,8 @@ Asarağaç(0:2
 abone(2
 Gatlin(0:2
 	teyzenler(:2
-	böcekler(:2"
+	böcekler(:2
+biyoteknolojik(:2"
 şilebez"şilebezi_Noun(:2
 Tedes(0:2
 Vidal(0:2
@@ -43111,8 +43289,8 @@ Asarağaç(0:2
 Efadil(0:2)
 çuvallamakçuvallaçuvalla(:2	
 libas(2
-federal(:2
-federal(2
+federal(:2
+federal(:2
 	traverten(2
 
 desikatör(2
@@ -43131,8 +43309,7 @@ desikatör(2
 Trophy(0:2
 	ahestelik(:2)
 kementlemekkementlekementle(:2
-Bükreş(0:2
-üstde"üstderi_Noun(:2
+Bükreş(0:2
 
 oyuntu(2
 edibane(2
@@ -43405,8 +43582,7 @@ tasdikname(2
 	Cleopatra(0:2
 Volley(0:2
 
-suçlu(2
-Lawlov(0:2
+suçlu(2
 Feyyaz(0:2
 Laz(0:2
 elektronvolt(:2
@@ -43432,7 +43608,8 @@ kabuklular(:2
 moralist(:2
 Yunnan(0:2
 Köklükaya(0:2
-kruasan(:2
+kruasan(:2
+arkaalan(:2
 Lcdelsidi(02
 
 ebebulguru(2
@@ -43464,7 +43641,8 @@ tepetaklak(2
 vikontes(2
 Ldlledele(0:2
 Peyote(0:2
-Sherman(0:2
+Sherman(0:2$
+	linklemeklinklelinkle(:2
 zevzek(:2
 Akat(0:2
 aslında(2
@@ -43472,8 +43650,8 @@ tepetaklak(2
 senkronize(:2
 Bitcoin(0:2
 pitikare(2
-Akal(0:2
-Led(0:2
+Akal(0:2
+Led(0:2
 gökşin(2
 gökşin(2
 Leeli(0:2	
@@ -43570,8 +43748,8 @@ elibelinde(2
 Çekoslovak(0:2
 Hermes(0:2
 	ornitolog(:2
-Aker(0:2
-Tömer(0:2	
+Aker(0:2
+Tömer(02	
 kına(2
 Akel(0:2
 Atakum(0:2,
@@ -43648,8 +43826,8 @@ yağmurluk(:2
 kafakol(2
 kırt(:2
 çatır(2
-çançiçeği(:2
-aromaterapist(:2
+çançiçeği(:2
+aromaterapist(:2
 Herman(0:2
 Vidinli(0:2&
 
@@ -43691,8 +43869,8 @@ Epikürcü(0:2
 Atomstroyexport(0:2
 çavlan(2
 Bernanke(0:2
-Jedi(0:2
-Lnglenege(0:2
+Jedi(0:2
+Lngelenci(02
 dalgakıran(2
 Politico(0:2
 	Champagne(0:2
@@ -43736,8 +43914,8 @@ sularında(2,
 denizayısı(2
 Sixsmith(0:2
 Akka(0:2
-Gençlerbirliği(0:2
-Lpglepege(0:2
+Gençlerbirliği(0:2
+Lpglepege(02
 göyük(:2
 göyük(:2
 	biyokimya(2
@@ -43812,8 +43990,8 @@ petrolojik(:2
 Akon(0:2
 Akom(0:2&
 
-yârenbaş"yârenbaşı_Noun(:2
-Lteletee(0:2
+yârenbaş"yârenbaşı_Noun(:2
+Lteelti(02
 Ltdletede(0:2
 
 faraş(2
@@ -43844,7 +44022,8 @@ Işıkkentışıkkentışıkkent(0:2
 probabilizm(2
 atfen(
 022
-Boynuyoğun(0:2
+Boynuyoğun(0:2
+MSÜmeseü(02
 Politics(0:2
 Kobani(0:2
 Akiş(0:2
@@ -44017,7 +44196,6 @@ kaçıngan(2
 dilinim(2
 Panço(0:2
 Mae(0:2
-Mad(0:2
 Mag(0:2!
 yayınev"yayınevi_Noun(:2
 	Çamsarı(0:2
@@ -44031,8 +44209,7 @@ kaçıngan(2
 Pianigiani(0:2
 Tires(0:2
 Mao(0:2
-teganni(2
-Man(0:2
+teganni(2
 Parks(0:2
 Eurochallenge(0:2
 Tripadvisor(0:2
@@ -44041,8 +44218,7 @@ Pianigiani(0:2
 Parma(0:2
 Lorna(0:2
 Musavi(0:2
-Vieri(0:2
-May(0:2
+Vieri(0:2
 seksapel(2
 Maxmaks(0:2
 	Karatekin(0:2
@@ -44097,15 +44273,17 @@ Barışcan(0:2
 Tuğra(0:2
 dren(:2
 meteorolojik(:2
-Azbazdar(0:2
+Azbazdar(0:2
+NFTenefti(02
+webinar(:2
 Alat(0:2
 Alas(0:2
 Tuskon(0:2
 Cantez(0:2
 Alak(0:2	
 hadde(2
-Jazeera(0:2
-Meb(0:2
+Jazeera(0:2
+Meb(0:2
 abramakabraabra(:2
 	başvekil(2
 Alai(0:2
@@ -44193,7 +44371,8 @@ Cihantimur(0:2
 Alev(0:2
 Mia(0:2
 Selis(0:2
-Ales(0:2
+
+Ales(02
 Marmaris(0:2
 Tergan(0:2
 Lorraine(0:2
@@ -44222,7 +44401,8 @@ Proğramı(0:2
 	entomolog(:2-
 
 akşamüst"akşamüstü_Noun_Time(0:2
-Party(0:2
+Party(0:2
+NLPenelpi(02
 parttaym(:2
 Rafer(0:2
 Rafet(0:2
@@ -44233,8 +44413,8 @@ akşamüst"akşamüstü_Noun_Time(0:2
 Emreciksin(0:2
 Medula(0:2
 Gülçiçek(0:2
-Sekine(0:2
-Mkemekee(0:2
+Sekine(0:2
+Mkemeke(02
 elastik(:2
 
 geveze(2
@@ -44291,7 +44471,8 @@ darağacı(:2
 namalum(:2
 Alia(0:2
 güzelim(2
-Karasu(0:2
+Karasu(0:2
+dron(:2
 	yayıntı(2
 Mngmenege(0:2
 drog(:2
@@ -44393,8 +44574,8 @@ radyofonik(:2
 sultanîsultanisultani(2
 Karain(0:2
 Mtsmetese(0:2
-Karaim(0:2
-Mtvmeteve(0:2
+Karaim(0:2
+Mtvmeteve(02
 Şiö(0:2
 Alpu(0:2
 Magırus(0:2
@@ -44404,7 +44585,8 @@ radyofonik(:2
 	otugiller(:2
 turnike(2
 Selmi(0:2$
-	tonbalık"tonbalığı_Noun(:2
+	tonbalık"tonbalığı_Noun(:2
+GİBgibgib(0:2
 
 Demirkubuz(0:2
 ekşimsi(2
@@ -44520,10 +44702,8 @@ Cevizoğlu(0:2
 emülsiyon(:2
 Özür(0:2
 serhat(:	2"
-özekdok"özekdoku_Noun(:2,
-büyükşehir"büyükşehir_Noun(:
-@2
-büyükşehir(:2
+özekdok"özekdoku_Noun(:2
+büyükşehir(2
 korindon(2
 tuzlak(:2
 Amour(0:2
@@ -44690,13 +44870,12 @@ Abdulhakim(0:2
 Bekdil(0:2)
 geçerlemekgeçerlegeçerle(:2
 
-santim(2
-Newnev(0:2
+santim(2
 esenlik(:2
 Ruijten(0:2
 Marifed(0:2
-Eyof(0:2
-Nfcnefece(0:2
+Eyof(0:2
+Nfcenefsi(02
 baklagil(2
 Moose(0:2
 Moore(0:2
@@ -44812,8 +44991,8 @@ bibliyoman(2
 realist(:2
 şef(:2
 Hasife(0:2
-şer(:	2
-şer(:2
+şer(:	2
+şer(:	2
 şet(:	2	
 meşe(2	
 meşe(2
@@ -44896,8 +45075,7 @@ Abdülgani(0:2
 	örneğin(2
 Terazi(0:2
 Nou(0:2
-meşk(:2
-Nownov(0:2
+meşk(:2
 şif(:2
 Fakılı(0:2
 	askıntı(2
@@ -44928,7 +45106,8 @@ Cassavetes(0:2
 iptizal(:2
 Heroes(0:2
 
-Engintalay(0:2
+Engintalay(0:2
+oltalama(2
 Kippur(0:2
 
 hamdüsena(2
@@ -44970,6 +45149,8 @@ pişmaniye(2
 öğretmenevi(:2
 Ezelhan(0:2
 Leonie(0:2
+
+SaaS(02
 Saab(0:2
 gamaglobülin(2
 	örümcek(:2
@@ -45253,7 +45434,8 @@ evinlenmekevinlenevinlen(:2
 tanyeli(:2
 çedene(2
 giyecek(:2
-Patch(0:2
+Patch(0:2
+PCRpisiyar(02
 
 gıcırtı(2
 Dnipropetrovsk(0:2
@@ -45307,8 +45489,7 @@ Peküstün(0:2
 	tradisyon(2
 	Christoph(0:2
 Nakajima(0:2
-Saro(0:2
-Oddodede(0:2
+Saro(0:2
 Lotto(0:2 
 	hislenmekhislenhislen(:2
 	baştarde(:2
@@ -45357,8 +45538,7 @@ kolombiyum(2
 kararmakkararkarar(:2
 gedilmekgedilgedil(:2
 Volkan(0:2
-Sato(0:2
-Offofefe(0:2
+Sato(0:2
 	tipolojik(:2
 Azofeifa(0:2
 Monje(0:2
@@ -45379,7 +45559,8 @@ biyosentez(:2
 Cosette(0:2
 Raikes(0:2
 Saso(0:2
-Oggogege(0:2	
+Oggogege(0:2
+PINpın(0:2	
 akmaz(2
 polarmakpolarpolar(:2	
 akman(2#
@@ -45429,10 +45610,9 @@ elbirliği(:2
 
 enfiye(2
 Estrada(0:2
-hertz(:2
-Oil(0:2
+hertz(:2
 Senay(0:2
-transit(:2
+transit(:2
 transit(2
 transit(:2
 beşibirarada(2
@@ -45490,9 +45670,9 @@ Kartalcell(0:2
 
 mönü(2
 ananevi(2
-Elvis(0:2
-Oldolede(0:2
+Elvis(0:2
 Elvir(0:2
+PNGpienci(02
 
 kristalize(:2
 Premio(0:2
@@ -45517,7 +45697,8 @@ heterodoks(2
 Anil(0:2$
 Ibrahimıbrahimıbrahim(0:2
 
-Soundtrack(0:2
+Soundtrack(0:2
+POS(0:2
 Anif(0:2!
 	çalarmakçalarçalar(:2
 
@@ -45528,8 +45709,7 @@ Soundtrack(0:2
 	mütercem(2#
 
 yerleşmekyerleşyerleş(:2
-	muslihane(2
-One(0:2
+	muslihane(2
 	migrasyon(:2	
 agami(2
 Lynette(0:2
@@ -45566,7 +45746,8 @@ yerleşmekyerleşyerleş(:2
 Zekire(0:2
 	obabaşı(2
 Karakılıç(0:2
-Bogdanov(0:2
+Bogdanov(0:2
+	oksimetre(2
 konjonktürel(:2
 Opropere(0:2
 Ntsbnetesebe(0:2
@@ -45608,8 +45789,7 @@ Abdulhaluk(0:2
 karyola(2
 Tanman(0:2
 Anne(0:2
-
-maktul(2
+maktul(:2
 maktul(:2
 Patty(0:2
 Anna(0:2
@@ -45617,7 +45797,8 @@ Abdulhaluk(0:2
 Osdosede(0:2
 yapıtaşı(:2
 
-uskuru(2
+uskuru(2
+PUK(0:2
 meşepalamutu(:2
 Bintuğ(0:2
 Brutus(0:2
@@ -45631,12 +45812,12 @@ Abdulhaluk(0:2
 açınsamakaçınsaaçınsa(:2
 Öndül(0:2
 bayramüzeri(2
-Ginger(0:2
+Ginger(0:2
+gamergeymır(:2
 gamet(:2
 Humayun(0:2
 Duval(0:2
-	Ağırman(0:2
-Out(0:2
+	Ağırman(0:2
 Düzcük(0:2	
 fason(2
 oftalmik(:2
@@ -45732,7 +45913,8 @@ kısacası(2
 Şakrak(0:2
 şönt(:2
 Saber(0:2
-Floor(0:2
+Floor(0:2!
+dilmodel"dilmodeli_Noun(:2
 
 karyokinez(2
 Rahmi(0:2
@@ -45864,8 +46046,8 @@ Avustralya(0:2
 	Broadwell(0:2
 
 adamkökü(:2
-Sadri(0:2
-Pdfpedefe(0:2)
+Sadri(0:2
+Pdfpidief(02)
 
 Âdemcilik	ademcilik	ademcilik(0:2
 Higuain(0:2
@@ -45881,8 +46063,7 @@ adamkökü(:2
 maktel(2
 	Bütüner(0:2	
 espas(2
-	Wolverine(0:2
-Pen(0:2
+	Wolverine(0:2
 tokurtu(2
 Pep(0:2
 Per(0:2
@@ -45946,8 +46127,8 @@ Nazaroğlu(0:2
 evleklemekevlekleevlekle(:2
 Boğazköprü(0:2
 	çapaçul(2
-yaylak(:2
-müzikal(2
+yaylak(:2
+müzikal(:2
 müzikal(:2
 	Romanolog(0:2
 mode(:2
@@ -46001,7 +46182,7 @@ tırışka(2
 Udinese(0:2
 	Kalebodur(0:2
 muhrik(:2
-muhrik(:2
+muhrik(:2
 muhrip(:2
 
 pinhan(2
@@ -46009,7 +46190,8 @@ tırışka(2
 Seagate(0:2
 
 düden(2
-dalgacı(2
+dalgacı(2
+vibevayb(:2
 ziyafet(:2
 Antara(0:2
 
@@ -46047,7 +46229,8 @@ Kırmançi(0:2!
 moka(2
 Borçka(0:2 
 beslemekbeslebesle(:2
-Nurs(0:2
+Nurs(0:2
+kuşaklararası(2
 imajinasyon(2
 Gazetta(0:2
 Wolf(0:2
@@ -46112,8 +46295,8 @@ Suhanserâ	suhansera	suhansera(0:2
 Nuvo(0:2 
 	uylaşmakuylaşuylaş(:2
 Berkhof(0:2
-	Bleeckere(0:2
-Pttpetete(0:2,
+	Bleeckere(0:2
+Pttpetete(02,
 fıkırdamak	fıkırda	fıkırda(:2
 çingenepalamudu(:2 
 bezlemekbezlebezle(:2
@@ -46170,6 +46353,7 @@ flüoresan(2
 
 paldırtı(2#
 İzelmanizelmanizelman(0:2
+espor(:2
 okuldaş(2 
 mumlamakmumlamumla(:2
 Rakun(0:2
@@ -46270,7 +46454,9 @@ kılavuzla(:2
 Güçlükonak(0:2
 Tekeş(0:2
 	Ermertcan(0:2
-Springs(0:2
+Springs(0:2
+
+TEMA(02
 Aarhus(0:2
 Erkutay(0:2
 Morel(0:2
@@ -46289,7 +46475,8 @@ Kodachrome(0:2
 garnizon(2
 Zarkavi(0:2
 Stiglitz(0:2
-Jiro(0:2
+Jiro(0:2
+RAMrem(0:2
 kalibre(2
 
 köhne(2
@@ -46377,8 +46564,8 @@ ihsanoğlu(0:2
 
 Germanofil(0:2
 ruhanîruhaniruhani(2
-Nunnally(0:2
-Unesco(0:2
+Nunnally(0:2
+Unescounesko(02
 Randolph(0:2#
 	zulalamakzulalazulala(:2
 	Desdemona(0:2
@@ -46394,7 +46581,8 @@ meslektaş(2
 
 Torbaoğlu(0:2	
 yonca(2
-Akbıyıkoğlu(0:2
+Akbıyıkoğlu(0:2
+RGBarcibi(02
 
 pıtırtı(2&
 gereksinmekgereksingereksin(:2
@@ -46456,7 +46644,8 @@ Eyyüpkoca(0:2
 
 mesrur(2
 Bagram(0:2
-Kamerun(0:2
+Kamerun(0:2
+modülasyon(2
 	Secaattin(0:2
 Haftanin(0:2
 Kareem(0:2
@@ -46501,7 +46690,7 @@ yerkabuğu(:2
 Apex(0:2	
 kebze(2
 	hakperest(:2
-	hakperest(:2
+	hakperest(:2
 önyargısal(:2
 Reviş(0:2
 	dörtnala(2
@@ -46522,8 +46711,8 @@ infeksiyon(0:2
 Şirvan(0:2
 
 dübel(2
-Alberta(0:2
-RNArenea(0:2
+Alberta(0:2
+RNArena(02
 haysiyet(:2
 silsileimeratip(:2
 hanuman(2
@@ -46536,7 +46725,7 @@ neoplâzma	neoplazma	neoplazma(2
 	yıkanmakyıkanyıkan(:2
 şort(:2
 layemut(:2
-layemut(:2
+layemut(:2
 ölçüt(:2
 
 Strawberry(0:2
@@ -46549,9 +46738,11 @@ Dadaşkent(0:2
 diyastol(2
 Tunceli(0:2
 Bamberg(0:2$
-Islamicıslamicıslamic(0:2
+Islamicıslamicıslamic(0:2
+ROIroı(02
 Çayıroğlu(0:2
-ortasıklet(:2
+ortasıklet(:2
+ROM(0:2
 koloit(:2
 tahmini(2
 Gliese(0:2
@@ -46576,7 +46767,8 @@ faktöryel(:2
 partilerüstü(2
 entomolojik(:2
 Colgate(0:2
-Özyazanlar(0:2
+Özyazanlar(0:2 
+ULAKBİMulakbimulakbim(02
 Muarra(0:2
 Alço(0:2
 Çivril(0:2
@@ -46613,12 +46805,12 @@ faktöryel(:2
 
 tahkim(2
 feodal(:2
-
-feodal(2
+feodal(:2
+RSSareses(02
 	Dımışk(0:2
 artağan(2
 maceraperest(:2
-maceraperest(:2	
+maceraperest(:2	
 suare(2
 
 Pazartekke(0:2
@@ -46667,7 +46859,8 @@ ispatlamakispatlaispatla(:2
 tüketim(2
 Tushad(0:2
 
-Nimetullah(0:2
+Nimetullah(0:2
+KİKkikkik(0:2
 Odette(0:2
 İmretimretimret(0:2
 karbonmonoksit(:2
@@ -46681,7 +46874,8 @@ Nimetullah(0:2
 suskun(2
 	Çanakcı(0:2
 idam(2
-Kendrick(0:2
+Kendrick(0:2	
+kinoa(2
 stajyer(2
 	ehlivukuf(2
 	muaşeret(:2
@@ -46823,6 +47017,8 @@ gözyaşı(:2)
 Roberts(0:2
 Sampras(0:2
 Roberto(0:2
+
+OYAK(02
 	pirometre(2
 hanımböceği(:2
 	pirometri(2
@@ -46896,7 +47092,8 @@ Chromecast(0:2
 yakmakyakyak(:2)
 
 İnamullah	inamullah	inamullah(0:2	
-kiraz(2
+kiraz(2
+SDKesdikey(02
 Kuşcu(0:2
 bızbız(2
 Mühür(0:2
@@ -46960,8 +47157,8 @@ ontolojizm(2
 akbaba(2
 
 akbaba(2
-	konferans(2
-Res(0:2
+	konferans(2
+Res(0:2
 Rexreks(0:2
 atlet(:2
 dolap(:2	
@@ -46997,6 +47194,7 @@ otoplâsti	otoplasti	otoplasti(2)
 Çetiner(0:2
 korozyon(2
 Gerhard(0:2
+SIMsım(0:2
 	Carpenter(0:2
 
 anamal(2
@@ -47051,8 +47249,9 @@ yalınayak(:2)
 
 gurbetzede(2
 Hubert(0:2
-Randle(0:2
-teorist(:2
+Randle(0:2
+SLAeseley(02
+teorist(:2
 
 Hallelujah(0:2
 Rasputin(0:2
@@ -47170,7 +47369,8 @@ mersiyehan(2
 
 yeğen(2
 Türkeli(0:2
-Roj(0:2
+Roj(0:2
+SQLesküel(02
 Ron(0:2
 Aykanat(0:2
 	mühimmat(:2
@@ -47211,7 +47411,9 @@ Yağınalp(0:2
 Yarkent(0:2
 Hersek(0:2	
 kefen(2
-Tevzii(0:2
+Tevzii(0:2
+SSHesesej(02
+SSLesesel(02
 proleter(2
 Necdet(0:2
 	kilohertz(2
@@ -47288,7 +47490,9 @@ Afrodisias(0:2
 Düzkan(0:2
 Düzgünman(0:2
 Masimov(0:2*
-düzgelemekdüzgeledüzgele(:2
+düzgelemekdüzgeledüzgele(:2
+mikroplastik(:2
+mikroplastik(:2
 
 maltoz(2
 haliç(:2
@@ -47343,7 +47547,7 @@ paralojizm(2
 bekitmekbekitbekit(:2
 Türkevi(0:2
 muhtelit(:2
-muhtelit(:2
+muhtelit(:2
 Eyül(0:2
 
 miftah(2
@@ -47399,7 +47603,8 @@ aksülamel(2
 dolma(2	
 dolma(2
 akındırık(:2
-Duygu(0:2
+Duygu(0:2"
+elbirlik"elbirliği_Noun(:2
 Mihran(0:2
 
 Saraybosna(0:2
@@ -47492,15 +47697,15 @@ Friendfeed(0:2
 Semo(0:2
 	müdevven(2,
 kösteklemek	köstekle	köstekle(:2
-Abercrombie(0:2
-Sad(0:2
+Abercrombie(0:2
 adamcağız(2
 Öngün(0:2
 Öngüt(0:2
 Öngür(0:2
 Elyan(0:2
 Gözmen(0:2
-Sao(0:2
+Sao(0:2
+TCPtisipi(02
 yedigen(2
 yedigen(2
 Sas(0:2
@@ -47578,16 +47783,15 @@ Hantuchova(0:2
 sürçülisan(2
 Arac(0:2
 Amude(0:2
-Arab(0:2
-Sea(0:2
+Arab(0:2
 hattıhareket(:2,
 fıçılamak	fıçıla	fıçıla(:2
 Serez(0:2
 Velayet(0:2
 oturgan(:2
 
-Karatoprak(0:2
-Seo(0:2
+Karatoprak(0:2
+Seosiyo(02
 Bismarck(0:2
 Kıraç(0:2
 Saçı(0:2
@@ -47609,7 +47813,8 @@ Karatoprak(0:2
 Arar(0:2
 	müneccim(2
 Arap(0:2
-Arap(0:2
+Arap(0:2
+deflasyonist(:2
 Arco(0:2
 Hastürk(0:2
 Arch(0:2
@@ -47681,17 +47886,14 @@ enjeksiyon(2
 fildişi(:2
 Area(0:2
 Columbia(0:2
-Mebruke(0:2(
-
-şöylemes"şöylemesine_Noun(:2
+Mebruke(0:2
 Binevler(0:2
 perlit(:2
 Seray(0:2
 Kıral(0:2
 Seva(0:2
 Kırak(0:2
-Krasic(0:2
-Sir(0:2
+Krasic(0:2
 bıdık(:2
 	cırboğa(2
 
@@ -47709,27 +47911,29 @@ enjeksiyon(2
 delimsirek(:2
 trityum(2
 Zekeriyaköy(0:2
-yönetim(2
+yönetim(2
+filtrekahve(:2
 Sexy(0:2
 masturbasyon(:2
 haletmekhalethalet(:2
 Seyf(0:2
 	şimdilik(2
 
-tatula(2
+tatula(2
+akıllıtelefon(:2
 Aret(0:2
 Emreddin(0:2
 	topçeker(2
 	topçeker(2
 Marsilya(0:2
 Kırca(0:2
+konfirme(:2
 Ümera(0:2
 yönetke(:2*
 helallaşmak	helallaş	helallaş(:2
 Kışlaoğlu(0:2
 	Hamsiköy(0:2
-Mitchel(0:2
-Skysekeye(0:2
+Mitchel(0:2
 Kargid(0:2
 
 tekbir(2$
@@ -47772,8 +47976,8 @@ dırıltı(2)
 anadenizbilim(:2
 
 Böhürler(0:2
-Krasiç(0:2
-Smssemese(0:2
+Krasiç(0:2
+Smsesemes(02
 Columbus(0:2
 U17uonyedi(02
 U19uondokuz(02
@@ -47792,7 +47996,8 @@ Böhürler(0:2
 denktaş(2,
 mızıklanmak
 mızıklan
-mızıklan(:2
+mızıklan(:2
+antidamping(:2
 	Alaşehir(0:2
 belirsiz(2
 rıhtım(2	
@@ -47870,8 +48075,8 @@ uygulayım(2
 kelebek(:2
 Brighton(0:2
 Hopson(0:2
-Kifayet(0:2
-Ssdsesede(0:2
+Kifayet(0:2
+Ssdesesdi(02
 Arow(0:2
 Feridüddin(0:2
 beynelmilel(2
@@ -47914,11 +48119,12 @@ uygulayım(2
 Kutalmış(0:2
 Payas(0:2&
 
-bulgulamakbulgulabulgula(:2"
+bulgulamakbulgulabulgula(:2
+MİTmitmit(0:2"
 	kahrolmakkahrolkahrol(:2
 Sur(0:2
-Suu(0:2
-Suv(0:2
+Suu(0:2
+Suv(0:2
 Ariş(0:2'
 nikâhlamaknikahlanikahla(:2
 Mansur(0:2)
@@ -47957,7 +48163,8 @@ kıskaçla(:2
 Safih(0:2
 Classic(0:2
 termiye(2!
-	topyekûntopyekuntopyekun(2
+	topyekûntopyekuntopyekun(2
+TYTteyete(02
 Tello(0:2
 Mıt(0:2
 	Silvestre(0:2
@@ -47980,7 +48187,8 @@ Wolfensohn(0:2
 Arto(0:2
 Qarth(0:2
 Symbian(0:2
-Üfe(0:2
+
+Üfe(02
 	birdirbir(2
 Telia(0:2
 bağkur(:2
@@ -48046,7 +48254,8 @@ Aydoğmuş(0:2
 iskelekuşu(:2
 	Buğrahan(0:2
 Florence(0:2
-Reyes(0:2
+Reyes(0:2
+kombuchakombuça(:2
 
 kotonperle(2
 	Güldemir(0:2
@@ -48073,7 +48282,8 @@ oybirliği(:2
 ifil(2
 Üke(0:2
 Edano(0:2
-	Öncübay(0:2
+	Öncübay(0:2
+vlog(:2
 elektropozitif(2
 Cordelia(0:2
 Develioğlu(0:2,
@@ -48120,13 +48330,14 @@ lüpletmeklüpletlüplet(:22
 düşgücü(:2
 Kılıç(0:2
 Üni(0:2/
-tomurcuklanmaktomurcuklantomurcuklan(:2
-Tbbtebebe(0:2
+tomurcuklanmaktomurcuklantomurcuklan(:2
+Tbbtebebe(02
 Piglet(0:2
 Tbftebefe(0:2
 ısırgangiller(:2
 Balanlı(0:2 
-TDÇİtdçitedeçei(0:2
+TDÇİtdçitedeçei(0:2
+UDPyudipi(02
 ifna(2
 Espinosa(0:2&
 
@@ -48200,8 +48411,7 @@ kompresör(2
 Çarşıbaşı(0:2
 
 teftih(2
-Teb(0:2
-Tea(0:2
+Teb(0:2
 Ted(0:2
 Kırmızıtaş(0:2
 bakteriyoskopi(2
@@ -48216,8 +48426,8 @@ kompresör(2
 maşuk(:2#
 İslovenislovenisloven(0:2#
 	okeylemekokeyleokeyle(:2
-Moura(0:2
-Tfftefefe(0:2
+Moura(0:2
+Tfftefefe(02
 Bianet(0:2
 Asat(0:2
 Gesiad(0:2
@@ -48248,8 +48458,7 @@ Budivelnik(0:2!
 	Taşlıca(0:2
 fenomenolog(:2
 Machine(0:2
-Noohi(0:2
-Thetehee(0:2
+Noohi(0:2
 minibüs(2
 Akkuyu(0:2
 Spormax(0:2
@@ -48262,8 +48471,8 @@ Budivelnik(0:2!
 pıyrım(2
 Thstehese(0:2
 Baybek(0:2)
-firavunincir"firavuninciri_Noun(:2
-Thyteheye(0:2
+firavunincir"firavuninciri_Noun(:2
+Thyteheye(02
 Asel(0:2	
 hanay(2
 Asef(0:2
@@ -48271,8 +48480,7 @@ Budivelnik(0:2!
 Coşkunoğlu(0:2	
 kitin(2
 Akkuzu(0:2
-Tic(0:2
-Tie(0:2
+Tic(0:2
 kargatulumba(2
 kargatulumba(:2
 günöte(2
@@ -48366,8 +48574,8 @@ kurgulamakkurgulakurgula(:2
 Asia(0:2
 Binbirdirek(0:2
 tebligat(:2
-Musica(0:2
-Tmotemeo(0:2
+Musica(0:2
+Tmotemeo(02
 kilogrammetre(2
 	doğrudan(2
 	doğrudan(2
@@ -48445,7 +48653,8 @@ menüsküs(2
 lavantin(2
 	usulünce(2	
 hezel(2
-estet(:2
+estet(:2
+	milkshake	milkşeyk(:2
 Kızıltoprak(0:2
 zanaat(:2
 zanaat"zanaat_Noun(:@2	
@@ -48468,8 +48677,8 @@ Enterprise(0:2
 çember(2!
 yargıev"yargıevi_Noun(:2
 Ahtamar(0:2
-Dragons(0:2
-Trtterete(0:2
+Dragons(0:2
+Trtterete(02
 Asna(0:2
 didaktik(:2
 didaktik(:2	
@@ -48477,8 +48686,8 @@ Enterprise(0:2
 Guiza(0:2
 Biltekin(0:2
 savmaksavsav(:2
-Oaxaca(0:2
-Tsetesee(0:2
+Oaxaca(0:2
+Tsetese(02
 Asos(0:2	
 yosun(2
 Tsitesei(0:2
@@ -48492,7 +48701,8 @@ Enterprise(0:2
 Trump(0:2
 
 Karaböcek(0:2
-Tsoteseo(0:2
+Tsoteseo(0:2
+KOBİkobikobi(02
 
 mahfil(2
 
@@ -48504,8 +48714,8 @@ operakomik(:2
 Beşköprü(0:2
 Gülcan(0:2
 Şibli(0:2
-	Frankfurt(0:2
-Ttbtetebe(0:2$
+	Frankfurt(0:2
+Ttbtetebe(02$
 	tavukgöt"tavukgötü_Noun(:2
 Ttkteteka(02
 	çıkkın(2
@@ -48575,8 +48785,7 @@ doğrudaş(:2
 Raoul(0:2
 Sgdpsegedepe(0:2
 	Derinkuyu(0:2
-eliböğründe(2
-Twotedabılyuo(0:2!
+eliböğründe(2!
 	leffetmekleffetleffet(:2
 
 Resulullah(0:2
@@ -48849,8 +49058,8 @@ Hamzaçebi(0:2
 Atacan(0:2
 yalıçapkınıgiller(:2
 mülk(:2
-Atar(0:2
-Ufo(0:2
+Atar(0:2	
+Ufo(02
 müştereken(2!
 	iltisakîiltisakiiltisaki(2
 raks(:2
@@ -49018,7 +49227,8 @@ kardeşkan"kardeşkanı_Noun(:2
 özcesi(2
 Number(0:2
 rate(2
-rate(2
+rate(2
+VPNvipien(02
 Uno(0:2"
 alınter"alınteri_Noun(:2
 Anğı(0:2
@@ -49052,7 +49262,8 @@ Dadaloğlu(0:2
 Faye(0:2
 Yeşim(0:2
 	Gülbahar(0:2
-karoten(:2
+karoten(:20
+merkezileşmekmerkezileşmerkezileş(:2
 Bidil(0:2$
 
 mahkûmane	mahkumane	mahkumane(2
@@ -49099,8 +49310,8 @@ kırmızı(2
 Ersezgin(0:2
 Shaw(0:2
 Vinci(0:2 
-yivlemekyivleyivle(:2
-Urlurele(0:2
+yivlemekyivleyivle(:2
+Urlyuerel(02
 Dorner(0:2
 
 hafız(2
@@ -49116,9 +49327,9 @@ bükülgen(2
 Hayaloğlu(0:2
 	Tatlıses(0:2
 Sahel(0:2
-Fritzl(0:2
-Usbusebe(0:2
-Usdusede(0:2
+Fritzl(0:2
+Usbyuesbi(02
+Usdyuesdi(02
 Atos(0:2	
 yorum(2
 Sanborn(0:2
@@ -49136,7 +49347,7 @@ hektolitre(2
 gufran(2
 Rüştü(0:2
 haluk(:2
-haluk(:2
+haluk(:2
 Mücahid(0:2
 Biden(0:2
 
@@ -49174,7 +49385,8 @@ muvakkaten(2
 atmakatat(:2)
 
 İngiltere	ingiltere	ingiltere(0:2
-Önkol(0:2
+Önkol(0:2
+tatlış(:2
 Globo(0:2
 Dayton(0:2
 	Konguralp(0:2	
@@ -49312,8 +49524,9 @@ züccaciye(2
 
 züccaciye(2
 vâkıfvakıfvakıf(:
-2
-vâkıfvakıfvakıf(2
+2
+vâkıfvakıfvakıf(:
+2
 Lgbtt
 legebetete(0:2
 	Giyimkent(0:2
@@ -49434,7 +49647,8 @@ histerezis(2
 Kolcuoğlu(0:2
 Atabay(0:2
 Gakgoş(0:2
-Gangnam(0:2
+Gangnam(0:2
+WHOdabılyuayço(02
 Tolstoy(0:2
 öbek(:2
 
@@ -49498,8 +49712,8 @@ saçalamaksaçalasaçala(:2
 tabaklamaktabaklatabakla(:2
 
 şüyu(2
-Robson(0:2
-Vip(0:2
+Robson(0:2
+Vipviaypi(02
 muaf(2
 sezinmeksezinsezin(:2
 
@@ -49567,7 +49781,8 @@ Madranspor(0:2
 Robles(0:2
 Tanver(0:2
 	uzlaşmaz(2
-Saleem(0:2
+Saleem(0:2!
+heklemekheklehekle(:2
 	Sofuoğlu(0:2
 Joao(0:2
 
@@ -49767,7 +49982,7 @@ Rummenigge(0:2
 Maksume(0:2
 didingen(2
 	Şefaatli(0:2
-mukayyet(:2
+mukayyet(:2
 mukayyet(:2
 Meriva(0:2
 gevişgetirenler(:2
@@ -49919,14 +50134,13 @@ klinometre(2
 uzgören(2
 Redbull(0:2
 Walval(0:2
-samyeli(:2
-Wanvan(0:2
-küffar(2
-Warvar(0:2
+samyeli(:2
+Wanvan(0:2
+küffar(2!
+elyazma"elyazması_Noun(:2
 Okçun(0:2
 pitoresk(:2
-pitoresk(:2
-Wayvay(0:2
+pitoresk(:2
 
 kolesistit(:2
 zühul(:2
@@ -49973,7 +50187,8 @@ Tunçbilek(0:2
 Siro(0:2
 	Başhukuk(0:2
 Karmen(0:2
-Karmel(0:2
+Karmel(0:2
+phishingfişing(:2
 
 mucize(2
 
@@ -50046,8 +50261,7 @@ Repubblica(0:2
 Carrey(0:2
 kuymak(:2
 Avcu(0:2
-Memphis(0:2
-Whodabılyuheo(0:2
+Memphis(0:2
 Aveo(0:2
 	Baştakar(0:2
 hematit(:2
@@ -50069,8 +50283,7 @@ müşküle(2
 majüskül(2
 
 mekanistik(:2
-Şervan(0:2
-Winvin(0:2
+Şervan(0:2
 Forumotomobil(0:2'
 aslankuyruk"aslankuyruğu_Noun(:2
 	Unchained(0:2
@@ -50086,13 +50299,13 @@ mekanistik(:2
 Aves(0:2
 	Kürboğa(0:2
 sosyal(:2
-
-sosyal(2
+sosyal(:2
 kuyrukyağı(:2
 sterol(:2
 hapis(:
-2	
-hapis(2
+2
+hapis(:
+2
 Avgi(0:2
 
 mahcur(2
@@ -50101,7 +50314,8 @@ mekanistik(:2
 mahcup(2 
 ürümekürüürü(:2
 
-mahcuz(2
+mahcuz(2
+XMLiksemel(02
 Düzova(0:2
 	hektogram(2!
 	doldurmakdoldurdoldur(:2#
@@ -50161,8 +50375,7 @@ pozitonyum(2
 Tabakoğlu(0:2
 çokça(2
 	Curiosity(0:2
-Woovoo(0:2
-Wonvon(0:2
+Woovoo(0:2
 Pacquiao(0:2
 Abdülmuttalib(0:2
 Wowvov(0:2
@@ -50179,7 +50392,8 @@ Tabakoğlu(0:2
 ışkın(2
 ışkın(2
 Saylon(0:2
-Güldaş(0:2
+Güldaş(0:2
+wafflevafıl(:2
 
 pusval(2
 
@@ -50187,7 +50401,7 @@ Tabakoğlu(0:2
 
 tekfur(2
 tendürüst(:2
-tendürüst(:2
+tendürüst(:2
 Sevil(0:2
 Sevik(0:2-
 ahlâtıerbaaahlatıerbaaahlatıerbaa(2
@@ -50383,8 +50597,7 @@ Montessori(0:2
 tebliğ(2
 Fighting(0:2
 
-Çayağzı(0:2&
-güneyfener"güveyfeneri_Noun(:2
+Çayağzı(0:2
 Erboğa(0:2#
 	şarlamakşarlaşarla(:2	
 kehle(2
@@ -50550,7 +50763,8 @@ pompalamakpompalapompala(:2
 Kemalist(0:2
 Kemalist(0:2
 	Asselborn(0:2
-Kemaliye(0:2
+Kemaliye(0:2
+YKSyekase(02
 	desimetre(2
 teorik(:2
 
@@ -50730,8 +50944,8 @@ etraflıca(2
 mektup(:2
 Argus(0:2
 Brant(0:2
-lakrimal(:2
-lakrimal(2
+lakrimal(:2
+lakrimal(:2
 Brann(0:2
 
 Filipinler(0:2
@@ -50838,8 +51052,7 @@ Fortisbank(0:2
 Smeltz(0:2
 	antrenör(2
 mebzul(:2
-
-mebzul(2
+mebzul(:2
 
 mahbes(24
 kitlemekkitlekitle"kilitlemek_Verb(:@2
@@ -50911,7 +51124,7 @@ Meşhedani(0:2
 
 merkezkaç(:2
 
-merkezkaç(:2
+merkezkaç(:2
 Dorian(0:2
 	jeotermik(:2
 
@@ -50976,7 +51189,7 @@ Akıntürk(0:2
 Feet(0:2
 Bakırcıoğlu(0:2
 Laleruh(0:2
-kardiyak(:2
+kardiyak(:2
 kardiyak(:2
 Hassun(0:2
 sefalet(:2
@@ -51096,8 +51309,8 @@ Valladolid(0:2
 reis(2
 
 tecelliyat(:2
-Futuh(0:2
-Ydsyedese(0:2
+Futuh(0:2
+Ydsyedese(02
 eğretileme(:2
 mektep(:2 
 	keskenmekkeskenkesken(:2
@@ -51120,8 +51333,7 @@ röportör(2
 	Aştiyani(0:2
 Başar(0:2
 Sterling(0:2
-yülük(:2
-Yes(0:2
+yülük(:2
 Başay(0:2
 	gazyağı(:2
 Tagid(0:2
@@ -51308,7 +51520,6 @@ Altındere(0:2
 yarımküre(:2
 Erköse(0:2
 olanak(:2
-You(0:2
 akyel(:2
 Edemen(0:2
 yaprakkurusu(2
@@ -51532,7 +51743,7 @@ feleyenene(0:2
 İradeiiradeiiradei(0:2
 
 Müstenire(0:2
-buklet(:2
+buklet(:2
 buklet(:2
 debbağ(2
 
@@ -51856,7 +52067,8 @@ Fitoterapi(0:2
 ebedîebediebedi(2
 kronaksi(2
 değin(
-022
+022
+COVIDcovıdkovid(02
 
 değim(2
 değil(:2
@@ -51868,7 +52080,8 @@ Fitoterapi(0:2
 süzmeksüzsüz(:2
 düşkırıklığı(:2
 
-Hüdaverdi(0:2
+Hüdaverdi(0:2
+TOBBtob(0:2
 pamukotu(:2
 Binnur(0:2
 Bratz(0:2
@@ -51913,7 +52126,8 @@ winotuziki(02
 çünki(:2
 Yıldırımer(0:2,
 ıslıklamak	ıslıkla	ıslıkla(:2	
-muço(2
+muço(2
+blokzinciri(:2
 Yarımel(0:2
 reeskont(:2
 süpermarket(:2
@@ -51961,7 +52175,8 @@ Hiristiyan(0:2)
 Özaytekin(0:2
 Verdasco(0:2
 	sarıasma(2
-Nurbanu(0:2
+Nurbanu(0:2
+TİMtimtim(0:2
 elektrometalürji(2
 Kızılcahamam(0:2
 Taibe(0:2
@@ -52008,7 +52223,8 @@ Celaleddin(0:2
 kumanya(2,
 gönüllenmek
 gönüllen
-gönüllen(:2
+gönüllen(:2
+TOGGtog(0:2
 baskül(2
 zangoç(:2
 
@@ -52126,7 +52342,8 @@ mukaddesat(:2
 
 resmen(2
 Arabayatağı(0:2
-Yukarıgöz(0:2
+Yukarıgöz(0:2
+modüle(2
 Eskimoca(0:2
 Eskimoca(0:2
 soluğan(2
@@ -52209,7 +52426,8 @@ filtrasyon(:2
 altkıta(:2
 Azad(0:2	
 tugay(2
-	Türköne(0:2
+	Türköne(0:2
+TOKİtokitoki(02
 
 dünya(2
 imlâimlaimla(2
@@ -52426,7 +52644,8 @@ Tuzcuoğlu(0:2
 
 fikrisabit(:2
 envaiçeşit(:2#
-	kalgımakkalgıkalgı(:2
+	kalgımakkalgıkalgı(:2
+TPAOtepao(02
 Beverly(0:2
 yağmurkuşu(:2
 yılkı(2	
@@ -52440,8 +52659,8 @@ fikrisabit(:2
 	ehemmiyet(:2
 Arias(0:2
 Handler(0:2
-Azmi(0:2
-illegal(2
+Azmi(0:2
+illegal(:2
 illegal(:2	
 hatta(2	
 hatta(2
@@ -52507,7 +52726,8 @@ eniyilemekeniyileeniyile(:2
 inan(2
 Arkas(0:2
 bıçkıevi(:2
-Ospina(0:2
+Ospina(0:2
+KVKKkavekaka(02
 inat(:2
 inat(:2
 eğmekeğeğ(:2
@@ -52566,8 +52786,8 @@ Türközü(0:2
 Rapçi(0:2
 esaret(:2
 Bombay(0:2
-legal(:2	
-legal(2
+legal(:2
+legal(:2
 Ratko(0:2
 Dedegil(0:2	
 kemha(2
@@ -52604,7 +52824,8 @@ Dersimspor(0:2
 alarga(2
 
 alarga(2
-cazgır(2
+cazgır(2
+podcastpodkest(:2
 Sanem(0:2
 
 fotomorfoz(2
@@ -52672,7 +52893,8 @@ Nottingham(0:2
 haset(:2
 haset(:2
 leksikografi(2 
-kotlamakkotlakotla(:2
+kotlamakkotlakotla(:2
+vloggervlogır(:2
 Canada(0:2
 alotropi(2
 ineç(:2
@@ -52836,9 +53058,9 @@ katibiadil(:
 monarşi(2
 	Şişecam(0:2
 
-gayrimakul(:2
+gayrimakul(:2
 
-gayrimakul(2
+gayrimakul(:2
 hristiyanlık(:2
 Tahoe(0:2	
 gazel(2!
@@ -52863,7 +53085,8 @@ kırdılı(2
 Neymar(0:2
 Cidde(0:2
 
-Mıhellemi(0:2
+Mıhellemi(0:2
+tiktoker	tiktokır(:2
 Santo(0:2
 arakesit(:2
 Toyoda(0:2#
@@ -52909,7 +53132,8 @@ tartılmaktartıltartıl(:2
 Juba(0:2
 Speedy(0:2#
 İltemiriltemiriltemir(0:2
-	Adriyatik(0:2
+	Adriyatik(0:2
+geriplan(:2
 Sanve(0:2
 Merğube(0:2
 gazal(:2
@@ -53022,7 +53246,8 @@ ayrıyeten(2
 
 cüsse(2	
 hasse(2
-Eryavuz(0:2
+Eryavuz(0:2
+ateşölçer(:2
 ebru(2	
 hassa(2
 Belgrat(0:2
@@ -53117,7 +53342,7 @@ kadastrola
 kadastrola(:2
 Juke(0:2
 mutavaat(:2
-mutavaat(:2
+mutavaat(:2
 Keleştemur(0:2
 Maariv(0:2
 	şiiriyet(:2
@@ -53187,7 +53412,8 @@ müzekkere(2
 
 avuntu(2
 Schiavo(0:2
-Vermont(0:2
+Vermont(0:2
+ASELSAN(02
 Brest(0:2
 Juri(0:2
 Fifi(0:2
@@ -53206,7 +53432,8 @@ müzekkere(2
 kadeh(2
 rica(2
 Brett(0:2	
-kadem(2	
+kadem(2
+DİSKdiskdisk(0:2	
 kader(2
 
 hüvelbaki(2
@@ -53411,7 +53638,8 @@ Bilaloğlu(0:2
 oymabask"oymabaskı_Noun(:2
 tumşuk(:2
 Soul(0:2
-	Kurtoğlu(0:2
+	Kurtoğlu(0:2
+okullararası(2
 Candar(0:2
 başmühendis(2
 Candan(0:2
@@ -53422,7 +53650,7 @@ Bilaloğlu(0:2
 Kangoo(0:2
 Sarar(0:2
 yeknesak(:2
-yeknesak(:2
+yeknesak(:2
 Hulki(0:2
 Saral(0:2
 Yümniye(0:2
@@ -53490,7 +53718,9 @@ anjanbuman(2
 Fisu(0:2
 Kurkova(0:2
 Sülasi(0:2	
-livar(2
+livar(2
+
+kriptopara(2
 	Mükremin(0:2
 zıbın(2
 cürüm(:
@@ -53729,12 +53959,13 @@ astbaşkan(:2
 	telörgü(:2
 
 Ömeroğlu(0:2
-Spin(0:2
+Spin(0:2+
+renderlamakrenderlarendırlamak(:2
 Spil(0:2
 Ustabaş(0:2
 Şahdane(0:2
-Okdağ(0:2
-Yök(0:2
+Okdağ(0:2
+Yök(0:2
 yalamuk(:2
 duyarlı(2
 Mbamba(0:2
@@ -53778,11 +54009,11 @@ kriyoskopi(2
 Aisha(0:2
 Avandia(0:2
 
-müteallik(:2
+müteallik(:2
 
 müteallik(:2
 	teknokrat(:2
-	teknokrat(:2!
+	teknokrat(:2!
 elyazı"elyazısı_Noun(:2
 kacak(:2
 mecelle(2
@@ -53865,7 +54096,7 @@ makferlân	makferlan	makferlan(2
 Songur(0:2
 Grosser(0:2
 despot(:2
-despot(:2
+despot(:2
 fonolit(:2
 büyükhanım(:2	
 mecaz(2	
@@ -53999,9 +54230,9 @@ gazölçer(2
 
 baygıntı(2
 psikoterapi(2
-keçiboynuzu(:2
+keçiboynuzu(:2
 ipuç"
-ipucu_Noun(:2
+ipucu_Noun(:2
 Oğuralp(0:2
 Morelli(0:2
 Rengidil(0:2
@@ -54160,8 +54391,8 @@ Berezovski(0:2
 Hamamözü(0:2
 Rasulayn(0:2
 sürahi(2
-Çerçioğlu(0:2
-Odtü(0:2
+Çerçioğlu(0:2
+Odtü(02
 hazarîhazarihazari(2
 Youssef(0:2
 Bilen(0:2
@@ -54380,8 +54611,8 @@ Aslanoğlu(0:2)
 Tamer(0:2
 Hunan(0:2
 	geçişim(2
-biyomedikal(:2
-biyomedikal(2
+biyomedikal(:2
+biyomedikal(:2
 Arnas(0:2
 Tamaç(0:2
 Tamek(0:2
@@ -54389,8 +54620,8 @@ Aslanoğlu(0:2)
 
 pılı(2
 methal(:2
-	müzebzep(:2
-Oecdoecede(0:2
+	müzebzep(:2
+Oecdoisidi(02
 folik(:2	
 pırt(2
 Şensal(0:2
@@ -54660,7 +54891,8 @@ diyalektik(:2
 dilsever(2
 Müzik(0:2
 menhiyat(:2
-Dmitry(0:2
+Dmitry(0:2
+KADES(02
 	monografi(2
 Dmitri(0:2
 Mununga(0:2
@@ -54942,7 +55174,8 @@ halkalamakhalkalahalkala(:2
 Şehitkâmilşehitkamilşehitkamil(0:2
 Wired(0:2
 dikdörtgen(2
-dikdörtgen(2
+dikdörtgen(2
+dopamin(2
 Flip(0:2
 Baggins(0:2 
 İnançinançinanç(0:2#
@@ -55027,7 +55260,8 @@ göztaşı(:2
 dolomit(:2!
 aşlamakaşlaaşla(:2
 Velma(0:2
-	kibarzade(2
+	kibarzade(2%
+	yabanasma"yabanasması_Noun(:2
 spesiyalite(2
 Seferov(0:2
 sansargiller(:2
@@ -55200,7 +55434,8 @@ bıçkıev"bıçkıevi_Noun(:2
 izdüşüren(2
 Mertan(0:2
 
-abdesthane(2
+abdesthane(2
+efso(:2
 Talut(0:2
 Bebek(0:2
 Vakkas(0:2
@@ -55417,7 +55652,8 @@ selfservis(2#
 ürolog(:2
 levüloz(2
 	Muhyettin(0:2
-Melling(0:2
+Melling(0:2(
+merdivenalt"merdivenaltı_Noun(:2
 çoğunlukla(2
 agresif(2
 dâhildahildahil(2
@@ -55607,7 +55843,8 @@ merkeziyet(:2
 Pavlyuchenkova(0:2
 Savas(0:2
 Baez(0:2
-önsoruşturma(:2
+önsoruşturma(:2
+fondü(:2
 ait(
 02:2
 
@@ -55756,7 +55993,8 @@ Winterkorn(0:2
 Balk(0:2!
 günbal"günbalı_Noun(:2
 Judas(0:2
-	alessabah(2
+	alessabah(2
+	narsistik(:2
 Bali(0:2
 
 Psychology(0:2
@@ -55790,7 +56028,8 @@ Psychology(0:2
 senkretizm(2/
 küşümlenmekküşümlenküşümlen(:2
 Weise(0:2
-Ryanair(0:2
+Ryanair(0:2
+	carpaccio	karpaçyo(:2
 Tapas(0:2
 Albion(0:2
 Sprint(0:2	
@@ -55867,7 +56106,8 @@ yoğrulmakyoğrulyoğrul(:2
 ast(:2
 Curtis(0:2
 Biota(0:2
-sarsmaksarssars(:2
+sarsmaksarssars(:2
+nano(:2
 	Bekleviç(0:2
 çektiri(2
 Balâbalabala(0:2
@@ -56020,7 +56260,8 @@ Hargreaves(0:2
 ayn(:2
 
 Yeonpyeong(0:2
-Sağıroğlu(0:2
+Sağıroğlu(0:2
+bankalararası(2
 
 kefiye(2
 	Kuzguncuk(0:2
@@ -56321,7 +56562,7 @@ kefenlemekkefenlekefenle(:2
 
 kozmopolit(:2
 
-kozmopolit(:2
+kozmopolit(:2
 baş(:2
 palanka(2
 Birsev(0:2
@@ -56442,9 +56683,8 @@ Hatinoğlu(0:2
 Tandoruk(0:2
 	Mccartney(0:2*
 mıknatısîmıknatısimıknatısi(2
-bol(:2
-
-bol(:2
+bol(:2
+bol(:2
 
 bok(:2
 
@@ -56623,8 +56863,8 @@ Yeşilçay(0:2
 Venus(0:2
 antropomorfik(:2
 Pippin(0:2
-meful(:2	
-meful(2 
+meful(:2
+meful(:2 
 	tersinmektersintersin(:2
 Liberty(0:2
 Zıvalıoğlu(0:2#
@@ -56777,7 +57017,7 @@ Kopenhagta(0:2
 Arendt(0:2
 Fogh(0:2
 cuşiş(2
-	hazırlop(:2
+	hazırlop(:2
 	hazırlop(:2
 Nadime(0:2
 Suma(0:2
@@ -57061,7 +57301,8 @@ Yetimoğlu(0:2
 
 Bayraktepe(0:2
 Şekercioğlu(0:2
-gıllügiş(2
+gıllügiş(2
+falafel(:2
 Şöför(0:2
 dürmekdürdür(:2
 	pnömokok(:2
@@ -57457,7 +57698,8 @@ Millennium(0:2
 yasmık(:2
 Fermas(0:2
 Gillian(0:2
-dağ(:2
+dağ(:2"
+bacabaş"bacabaşı_Noun(:2
 
 Cardfinans(0:2
 Dilrah(0:2
@@ -57483,8 +57725,8 @@ oksitlemekoksitleoksitle(:2
 günbalığı(:2
 Arcade(0:2
 
-hipokratik(:2
-Bddkbededeka(0:2
+hipokratik(:2
+Bddkbededeka(02
 Azamet(0:2
 Dereiçi(0:2	
 ekili(2
@@ -57629,7 +57871,8 @@ Sarıgerme(0:2
 Baştepe(0:2
 hoşbeş(2
 Lavinia(0:2
-	Tatlıdil(0:2
+	Tatlıdil(0:2
+CİMERcimercimer(02
 Splash(0:2!
 	halletmekhallethallet(:2
 diş(:2
@@ -57656,7 +57899,8 @@ vekâleten	vekaleten	vekaleten(2
 Arsel(0:2
 Aldıkaçtı(0:2
 Galindo(0:2
-Arsen(0:2
+Arsen(0:2
+İLKSANilksanilksan(02
 
 suyılanı(:2
 Paşatarlası(0:2
@@ -57887,7 +58131,7 @@ Automobile(0:2
 tefcir(2
 
 Eisenstein(0:2
-kadük(:2
+kadük(:2
 kadük(:2
 
 postmodern(23
@@ -57949,14 +58193,15 @@ iskenderun(0:2
 Cilic(0:2
 Chanel(0:2
 eda(2
-dokuzar(02
+dokuzar(02
+GSMHgesemehe(02
 ede(2
 vazııkanun(2
 edi(2
 
 takiye(2
-Temuçin(0:2
-sinüzoidal(2
+Temuçin(0:2
+sinüzoidal(:2
 sinüzoidal(:2
 Ciliv(0:2
 
@@ -58052,7 +58297,8 @@ camgüzeli(2
 Vllaznia(0:2
 Kurutuz(0:2
 Radoslav(0:2
-	müptezel(2	
+	müptezel(2
+pankek(:2	
 nefes(2
 
 meleş(2	
@@ -59012,7 +59258,7 @@ anestezist(:2
 
 zıpka(2
 Artunç(0:2
-nüdist(:2
+nüdist(:2
 nüdist(:2
 sadist(:2
 Sayda(0:2
@@ -59142,13 +59388,14 @@ başyapıt(:2
 Uluocak(0:2
 Kaynak(0:2
 Atasagun(0:2
-çağdışı(:2
+çağdışı(:2
+TÜİKtüiktüik(02
 Nuşat(0:2
 Varide(0:2
 trinketa(2!
 	güllâbigüllabigüllabi(2
-izlence(2
-psikoterapist(:2
+izlence(2
+psikoterapist(:2
 ayaksızlar(:2
 Comedy(0:2
 bön(:2
@@ -59158,8 +59405,8 @@ oligoklâz	oligoklaz	oligoklaz(2!
 baştaç"baştacı_Noun(:2
 Kapucu(0:2
 adamotu(:2
-oryantal(:2
-oryantal(2
+oryantal(:2
+oryantal(:2
 
 Suyabatmaz(0:2
 Tasha(0:2
@@ -59250,8 +59497,7 @@ tersevirme(:2
 çapraz(2
 çapraz(2
 çapraz(2
-Please(0:2+
-borazanbaş"borazancıbaşı_Noun(:2
+Please(0:2
 çetene(2
 
 tatava(2
@@ -59304,7 +59550,8 @@ müşahede(2
 	şerefiye(2
 dalkavukça(2
 dalkavukça(2
-çınar(2
+çınar(2
+emar(:2
 eylemekeyleeyle(:2
 kredibilite(2
 	Sturridge(0:2
@@ -59557,9 +59804,9 @@ Kargınalp(0:2
 Mccoy(0:2
 Varela(0:2
 
-üniversal(:2
+üniversal(:2
 
-üniversal(2
+üniversal(:2
 gol(:2
 	maşallah(2
 dilbilim(:2
@@ -59843,7 +60090,8 @@ beşikdüz"Beşikdüzü_Noun_Prop(0:2
 
 kuskus(2
 
-reşme(2
+reşme(2
+hashtagheşteg(:2
 Katz(0:2
 Kudeb(0:2
 
@@ -59887,9 +60135,8 @@ Giorgianni(0:2%
 hal(:@2
 hal(:	2
 hal(:@2
-yumurcak(:2
-
-hak(:2
+yumurcak(:2
+hak(:	2
 hak(:	2
 hak(:	@2
 
@@ -60008,7 +60255,8 @@ kırınım(2
 Mecnur(0:2
 
 yazıbilim(:2
-Rojin(0:2)
+Rojin(0:2
+kanki(:2)
 dirseklemekdirsekledirsekle(:2
 enez(2
 Cebelibereket(0:2
@@ -60161,7 +60409,7 @@ voltametre(2
 Dream(0:2
 onarmakonaronar(:2
 bilgiç(:2
-bilgiç(:2,
+bilgiç(:2,
 bütünlemek	bütünle	bütünle(:2
 
 mastor(2
@@ -60330,8 +60578,8 @@ hulûskârhuluskarhuluskar(2"
 hulûskârhuluskarhuluskar(2
 
 hum(:2
-memul(:2	
-memul(2
+memul(:2
+memul(:2
 Lasalle(0:2
 hur(:2
 Juice(0:2
@@ -60349,8 +60597,8 @@ hulûskârhuluskarhuluskar(2
 	acımtrak(:2
 Muntari(0:2
 
-boruhattı(:2
-üstderi(:2
+boruhattı(:2
+üstderi(:2
 abis(2$
 	akınkaya"akınkayası_Noun(:2
 	Petroleum(0:2
@@ -60435,7 +60683,7 @@ karışmakkarışkarış(:2
 
 bakterisit(:2
 
-bakterisit(:2
+bakterisit(:2
 huğ(:2
 mizaç(:2
 Fuck(0:2
@@ -60466,8 +60714,8 @@ samimi_Adj(2
 epistemolojik(:2
 hayıt(:2
 Şikayet(0:2
-
-hayır(2
+hayır(:
+2
 
 hayır(2
 
@@ -60488,7 +60736,8 @@ meşruiyet(:2!
 huş(:2
 ruba(2
 Cadbury(0:2
-Fuel(0:2
+Fuel(0:2
+üniversitelerarası(2
 hercaimenekşe(:2
 Erkilet(0:2
 Usbey(0:2
@@ -60500,7 +60749,7 @@ meşruiyet(:2!
 armağan(2
 	despotizm(2
 
-hoşsohbet(:2
+hoşsohbet(:2
 
 hoşsohbet(:2
 bızır(2
@@ -60609,7 +60858,8 @@ mezhebiiş(2
 Çaykara(0:2'
 eleştirmekeleştireleştir(:2
 Sarajevo(0:2
-denetmen(2)
+denetmen(2
+TEİAŞteiaşteiaş(02)
 yangılanmak	yangılan	yangılan(:2
 düzgü(2
 
@@ -60699,9 +60949,9 @@ ishakpaşa(0:2
 bolalmakbolalbolal(:2
 atlatmakatlatatlat(:2
 Society(0:2
-ruhîruhiruhi(2
+ruhîruhiruhi(2
 
-ampirisist(:2
+ampirisist(:2
 düş(:2
 rupi(2
 Schengen(0:2
@@ -60725,7 +60975,8 @@ ampirisist(:2
 Petrolspor(0:2
 mısırözü(:2
 Fashion(0:2
-Şovalye(0:2
+Şovalye(0:2
+gnocchinyokki(:2
 nice(2
 nice(2
 
@@ -61057,7 +61308,7 @@ Prontotour(0:26
 bektaşîkavuğubektaşikavuğubektaşikavuğu(2
 özenç(:2
 özerk(:2
-özerk(:2
+özerk(:2
 Teleüt(0:2
 fülüs(2#
 	yuvalamakyuvalayuvala(:2
@@ -61229,7 +61480,8 @@ mecefeleye(0:2
 göğüs(:
 2
 
-jet(:2
+jet(:2/
+makineöğrenme"makineöğrenmesi_Noun(:2
 Alassane(0:2
 
 kalça(2
@@ -61257,8 +61509,8 @@ kuşlokumu(:2
 Balkarca(0:2!
 	gadretmekgadretgadret(:2,
 şapırdamak	şapırda	şapırda(:2
-Zilan(0:2
-şöylemesine(:2
+Zilan(0:2
+şöylemesine(:2
 
 bezgin(2
 
@@ -61330,7 +61582,8 @@ Congresium(0:2
 büyükbaş(2!
 	itaatkâritaatkaritaatkar(2
 flüoresans(2
-Samanuğrusu(0:2
+Samanuğrusu(0:2
+makineöğrenmesi(:2
 Reggie(0:2
 Vardar(0:2	
 elçi(2
@@ -61398,7 +61651,7 @@ aglütinin(2
 Patton(0:2
 Oppo(0:2
 	Kudbettin(0:2
-kaput(:2
+kaput(:2
 kaput(:2
 Vardem(0:2
 Pekart(0:2
@@ -61618,8 +61871,7 @@ anemometre(2
 kanola(:2
 	Feyzullah(0:2
 menkul(:2
-
-menkul(2
+menkul(:2
 cangüvenliği(:2
 Dimas(0:2
 Dimar(0:2
@@ -61643,7 +61895,7 @@ Disneyland(0:2
 antikite(2
 elverişsiz(2
 meymenet(:2
-meymenet(:2
+meymenet(:2
 çığa(2
 Ferizli(0:2
 Marlboro(0:2
@@ -61783,7 +62035,7 @@ bilimkurgu(:2
 
 örüm(2
 	reformist(:2
-	reformist(:2
+	reformist(:2
 
 kez(:2
 	hırçın(2
@@ -61866,7 +62118,9 @@ salatalık(:2
 
 kit(:2
 bilfiil(2
-güdüm(2
+güdüm(2
+
+quesadillakesadiya(:2
 Janice(0:2
 
 defterhane(2
@@ -61874,9 +62128,9 @@ defterhane(2
 	gülünç(:2
 Okdemir(0:2
 
-gramatikal(:2
+gramatikal(:2
 
-gramatikal(2
+gramatikal(:2
 mekânmekanmekan(2
 	üstbilgi(:2
 Fletcher(0:2
@@ -61979,7 +62233,8 @@ kartografi(2
 	çerçeve(2
 Draxler(0:2
 	ontogenez(2
-	yatırım(2
+	yatırım(2
+burrito(:2
 vinyet(:2
 Canipek(0:2
 haftabaşı(:2
@@ -61992,7 +62247,8 @@ diyakronik(:2
 Auckland(0:2
 
 beşparmak(:2
-mağdur(2
+mağdur(2
+	metaverse	metavörs(:2
 birebir(2
 Dilma(0:2
 
@@ -62063,7 +62319,7 @@ büyüteç(:2
 kalıç(:2
 tatbikat(:2
 gelgeç(:2
-gelgeç(:2
+gelgeç(:2
 Eğil(0:2
 Opare(0:2"
 	parketmekparketparket(:2
@@ -62189,7 +62445,7 @@ mütenasip(:2
 gön(:2
 Lynch
 leyenecehe(0:2
-pilot(:2
+pilot(:2
 pilot(:2
 göt(:2
 Benetton(0:2	
@@ -62197,9 +62453,9 @@ leyenecehe(0:2
 Harald(0:2
 göz(:2
 
-makrosefal(:2
+makrosefal(:2
 
-makrosefal(2
+makrosefal(:2
 Bengü(0:2)
 çobantuzluk"çobantuzluğu_Noun(:2
 Cehdi(0:2
@@ -62311,9 +62567,8 @@ estetisyen(:2
 Boromir(0:2
 burger(:2
 gül(:2
-lal(:2
-
-lal(:2
+lal(:2
+lal(:2
 
 lak(:2
 gün(0:2
@@ -62398,7 +62653,7 @@ bizcileyin(2
 leh(:2
 Sanford(0:2
 Varlık(0:2
-güç(:2	
+güç(:2	
 güç(2
 güç(:2
 Mehpare(0:2
@@ -62417,16 +62672,17 @@ bizcileyin(2
 Ronin(0:2
 Keyf(0:2
 
-afacan(2
+afacan(2
+ETBİSetbisetbis(02
 meret(:2
 meret(:2
 Orff(0:2	
 meres(2
 	asılzade(:2
 
-hidrosefal(:2
+hidrosefal(:2
 
-hidrosefal(2
+hidrosefal(:2
 merek(:2
 Silivri(0:2
 Roswell(0:2
@@ -62651,9 +62907,11 @@ Sunderland(0:2
 Bizde(0:2
 
 Yeşilkaya(0:2
-Sabuncubeli(0:2
+Sabuncubeli(0:2
+hükümetlerarası(2
 Okyanus(0:2
-Usher(0:2
+Usher(0:2
+firewall	fayırvol(:2
 	etimoloji(2
 
 mitralyöz(2
@@ -62809,14 +63067,15 @@ gibisinden(2
 Oruç(0:2
 Tayar(0:2
 yeşilimtırak(:2
-	otodidakt(:2
+	otodidakt(:2
 	otodidakt(:2	
 ekran(2
 kakıç(:2
 Drift(0:2
 öglenagiller(:2
 kafeşantan(2
-sürnatüralizm(2
+sürnatüralizm(2.
+borazancıbaş"borazancıbaşı_Noun(:2
 Bacca(0:2
 akşamsefası(:2
 
@@ -62853,7 +63112,9 @@ alındıla(:2
 	hiperlink(:2
 Sofie(0:2
 Harbor(0:2
-Sofia(0:2
+Sofia(0:2
+
+nörobilim(2
 Döger(0:2
 sirayet(:2
 Duruer(0:2
@@ -62946,7 +63207,9 @@ keşfolmakkeşfolkeşfol(:2
 
 Piriştina(0:2
 esas(2
-esas(2
+esas(2
+gaslighting
+geslayting(:2
 Bruno(0:2
 Medicalpark(0:2
 Pekarik(0:2
@@ -63008,7 +63271,7 @@ buracıkta(2
 Zilha(0:2*
 ateşçiçek"ateşçiçeği_Noun(:2
 	debimetre(2
-pirüpak(:2
+pirüpak(:2
 pirüpak(:2
 Oset(0:2#
 	fönlemekfönlefönle(:2
@@ -63490,14 +63753,16 @@ Harrington(0:2
 Çaybaşı(0:2	
 mahra(2
 
-başhostes(2
+başhostes(2
+
+fitoterapi(2
 kamineto(2
 
 menhus(2
 
-matriarkal(:2
+matriarkal(:2
 
-matriarkal(2
+matriarkal(:2
 
 pansiyoner(2
 muş(:2
@@ -63528,7 +63793,7 @@ Ekmeleddin(0:2
 mırmırık(:2	
 mahur(2
 	röportaj(2
-mahut(:2
+mahut(:2
 mahut(:2
 	Hendricks(0:2
 Tale(0:2)
@@ -63710,7 +63975,9 @@ Marchionne(0:2
 çakaralmaz(2
 	Kandoğan(0:2
 Otis(0:2#
-	eteklemeketekleetekle(:2
+	eteklemeketekleetekle(:2
+
+influencerinflüensır(:2
 
 boşaltım(2
 Menevşe(0:2
@@ -63767,7 +64034,7 @@ delilenmekdelilendelilen(:2,
 Erdur(0:2
 malvarlığı(:2
 	antisemit(:2
-lanet(:2
+lanet(:2
 lanet(:2	
 lanet(2
 	Wiltshire(0:2
@@ -64134,8 +64401,8 @@ cırlayık(:2
 Erkiner(0:2
 berhava(2
 Ronnie(0:2
-Ünsa(0:2
-Tbmmtebememe(0:2
+Ünsa(0:2
+Tbmmtebememe(02
 Platonik(0:2
 Ünsi(0:2	
 homur(2
@@ -64205,8 +64472,8 @@ benibeşer(2
 kankan(2&
 düşünmekdüşündüşün(:2	
 metan(2
-metal(:2	
-metal(2
+metal(:2
+metal(:2
 sürekli(2
 sürekli(2
 
@@ -64396,7 +64663,8 @@ figüratif(2
 tombik(:2,
 baharatlamak	baharatla	baharatla(:2
 Diderot(0:2
-coşuntu(2
+coşuntu(2
+	TEKNOFEST(02
 vibriyon(2
 Akamaru(0:2
 Kasımi(0:2"
@@ -64583,7 +64851,9 @@ nişangâh	nişangah	nişangah(2
 nebatat(:2
 Tcddtecedede(0:2
 Özener(0:2
-Zoltan(0:2
+Zoltan(0:2
+
+bruschetta	brusketta(:2
 Gardens(0:2	
 ibare(2
 Hickey(0:2
@@ -64620,8 +64890,9 @@ Teşerrüf(0:2
 Metodist(0:2
 mesut(:2
 Kind(0:2
-Kino(0:2	
-mesul(2
+Kino(0:2'
+hasekiküpe"hasekiküpesi_Noun(:2
+mesul(:2
 mesul(:2
 Bosh(0:2
 Nakiye(0:2
@@ -64715,8 +64986,8 @@ Ferahengiz(0:2
 manolya(2
 dökümhane(2
 Raskolnikov(0:2
-diyagram(2
-Tcmbtecemebe(0:2
+diyagram(2
+Tcmbtecemebe(02
 
 şanzıman(2
 Sulukule(0:2
@@ -64879,7 +65150,8 @@ pıhtılan(:2
 	Levallois(0:2
 
 pey(:2
-Berry(0:2
+Berry(0:2
+UETSuetese(02
 Edirnekapı(0:2
 hesabîhesabihesabi(2
 
@@ -64935,7 +65207,8 @@ endoskopik(:2
 Nahçıvan(0:2
 Muazzez(0:2
 
-abıkevser(2
+abıkevser(2
+gezegenlerarası(2
 Bowman(0:2
 Kocabay(0:2
 Neşever(0:2
@@ -64985,7 +65258,7 @@ füsunkâr	füsunkar	füsunkar(2
 Turcan(0:2
 filvaki(2
 	Butterfly(0:2
-maslup(:2
+maslup(:2
 maslup(:2
 Bedirhanoğlu(0:2
 
@@ -65020,7 +65293,8 @@ fırıldak(:2
 
 cebeci(2
 makat(:2 
-	sakınmaksakınsakın(:2
+	sakınmaksakınsakın(:2
+sekülerizm(2
 makak(:2
 monogami(2
 
@@ -65119,7 +65393,11 @@ akçıllan(:2
 seribaş"seribaşı_Adj(:2
 sedimantoloji(:2
 kavut(:2
-Elitok(0:2
+Elitok(0:2
+
+blokzincir(2&
+
+blokzincir"blokzinciri_Noun(:@2
 Pekgöz(0:2
 Brosnan(0:2
 nihayet(2
@@ -65189,9 +65467,9 @@ patlıcani(2!
 Fannie(0:2
 Tdcitedecei(0:2
 mevut(:2
-mevut(:2
-minimal(:2
-minimal(2
+mevut(:2
+minimal(:2
+minimal(:2
 zuhurat(:2
 Zarakolu(0:2
 	barbaşı(:2
@@ -65312,7 +65590,8 @@ floroskopi(:2
 Deeks(0:2	
 mevzi(2	
 peder(2
-	özkaynak(:2
+	özkaynak(:2
+workshop	vörkşop(:2
 löp(:2
 lös(:2
 Karolina(0:2
@@ -65528,7 +65807,9 @@ gayrikabil(2
 geştalt(:2
 savlet(:2'
 Islahiye	ıslahiye	ıslahiye(0:2
-Faryab(0:2
+Faryab(0:2
+
+intolerans(2
 
 Aleksander(0:2
 dinamik(:2
@@ -65581,7 +65862,7 @@ antikçağ(:2
 çakozlamakçakozlaçakozla(:2
 Iıhsııhsııhs(0:2
 Madrid(0:2
-dinamit(:2
+dinamit(:2
 dinamit(:2
 yöntembilim(:2
 Özegen(0:2
@@ -65654,7 +65935,9 @@ Malmström(0:2
 
 mıknatıs(2
 Cardoso(0:2
-Karakaş(0:2
+Karakaş(0:2
+
+aktüatör(2
 münzevi(2
 İdizidizidiz(0:2
 Çalenç(0:2
@@ -65718,8 +66001,7 @@ kaşıntı(2
 Beyazıd(0:2
 Cemal(0:2
 global(:2
-
-global(2
+global(:2
 
 Yalazangil(0:2
 	Kevorkian(0:2
@@ -66354,7 +66636,8 @@ Gözbaşı(0:2
 Trayvon(0:2
 Bahai(0:2
 	Remington(0:2
-Anton(0:2
+Anton(0:2
+	dilmodeli(:2
 sarıasmagiller(:2
 Einar(0:2
 karık(:2
@@ -66619,15 +66902,14 @@ haincesine(2
 
 bakteriyel(2
 merkûpmerkupmerkup(:2
-merkûpmerkupmerkup(:2
+merkûpmerkupmerkup(:2
 Baransel(0:2$
 Idıkutıdıkutıdıkut(0:2
 
 Hertürlü(0:2
 Missing(0:2
 	eleştiri(2
-Gültaşlı(0:2#
-hayvanel"havvaanaeli_Noun(:2
+Gültaşlı(0:2
 tekâputekaputekapu(2
 maranta(2
 kaydi(:2
@@ -66640,8 +66922,8 @@ Hertürlü(0:2
 Mighty(0:2
 Villar(0:2
 Tavgaç(0:2
-malul(:2	
-malul(2	
+malul(:2
+malul(:2	
 etüv(2
 fânifanifani(2
 fânifanifani(2%
@@ -66834,9 +67116,10 @@ gözbağı(:2
 hakaretamiz(2
 gümül(2
 muharrir(2
-Hakalmaz(0:2
+Hakalmaz(0:2
+güvenlikduvarı(:2
 muharrik(:2
-muharrik(:2
+muharrik(:2
 zihniyet(:2
 Hakkasan(0:2
 karsak(:2
@@ -66880,14 +67163,12 @@ yarıfinal(:2
 Pütün(0:2"
 kurtayak"kurtayağı_Noun(:2
 şefik(:2
-şefik(:2
+şefik(:2
 Onursan(0:2	
 siz(02
-Onursal(0:2&
+Onursal(0:2%
 
-ortaparmak"ortaparmak_Verb(:@2&
-
-ortaparmakortaparortapar(:2
+ortaparmakortaparortapar(:2
 Onursay(0:2
 bozarık(:2
 Lugar(0:2
@@ -67030,7 +67311,7 @@ Pittsburgh(0:2
 amca(2
 amca(2
 müfrit(:2
-müfrit(:2
+müfrit(:2
 akselerometre(2
 tefecik(:2
 	Karacagil(0:2
@@ -67556,8 +67837,7 @@ fingirdeş(:2
 zatülcenp(:2
 Ganz(0:2
 spiral(:2
-
-spiral(2
+spiral(:2
 kuintet(:2
 
 metabolize(:2
@@ -67862,7 +68142,7 @@ raporlamakraporlaraporla(:2-
 
 tun(:2
 	müstefit(:2
-	müstefit(:2
+	müstefit(:2
 
 Altayoğlu(0:2-
 antepfıstık"antepfıstığı_Noun(:2
@@ -67898,9 +68178,11 @@ Samandıra(0:2
 çelikçomak	çelikço	çelikço(:2
 Bursaray(0:2
 Caribou(0:2
-püriten(2
+püriten(2
+latte(:2
 deteryum(:2
-Btsobeteseo(0:2
+Btsobeteseo(0:2
+İZBANizbanizban(02
 bağrıkara(2
 Colter(0:2
 Erkel(0:2
@@ -68057,6 +68339,8 @@ Küçüker(0:2
 
 müslüman"Müslüman_Noun_Prop(:2
 Göçek(0:2
+
+veribilimi(:2
 Hongkong(0:2
 	Auschwitz(0:2
 mahıv(:
@@ -68142,7 +68426,9 @@ Pellegrini(0:2
 rölâtiviterölativiterölativite(2
 Beyhan(0:2
 Sheldon(0:2
-Beyhak(0:2
+Beyhak(0:2
+süperiletken(:2
+süperiletken(:2
 udîudiudi(2 
 	benzetmekbenzetbenzet(:2
 Maviye(0:2
@@ -68226,7 +68512,8 @@ sinemaskop(:2
 Evvah(0:2
 karaltı(2
 Keyder(0:2
-ortopedi(2	
+ortopedi(2
+	relansman(:2	
 ortay(2&
 yüksünmekyüksünyüksün(:2
 ulu(2
@@ -68431,7 +68718,7 @@ karbonatla(:2
 mezra(2,
 cırıldamak	cırılda	cırılda(:2
 güvenç(:2
-nahak(:2
+nahak(:2
 nahak(:2
 Mezopotamya(0:2
 Koko(0:2
@@ -68653,13 +68940,13 @@ haşmetlû	haşmetlu	haşmetlu(2*
 
 yerine(2
 meskûnmeskunmeskun(2
-Tiny(0:2
-aktrist(:2
+Tiny(0:2
+aktrist(:2
 Allende(0:2
 Mucur(0:2	
 kazaz(2
 meskûtmeskutmeskut(:2
-meskûtmeskutmeskut(:2
+meskûtmeskutmeskut(:2
 Kova(0:2&
 
 hayallemekhayallehayalle(:2
@@ -68699,7 +68986,8 @@ stratejist(:2
 	karapazı(:2
 Etibank(0:2
 Sinoloji(0:2
-Yabuz(0:2
+Yabuz(0:2
+TÜRKPATENT(02
 mortgage(2	
 ongen(2
 giymekgiygiy(:2
@@ -68745,8 +69033,8 @@ mikrofiber(:2
 mamur(2
 Körmükçü(0:2
 
-füzen(2	
-mamul(2
+füzen(2
+mamul(:2
 mamul(:2
 Radife(0:2-
 gayrikıyasîgayrikıyasigayrikıyasi(2
@@ -69015,8 +69303,8 @@ vejetasyon(2
 
 müstensih(2
 
-taşıntı(2
-santimantal(2
+taşıntı(2
+santimantal(:2
 santimantal(:2	
 ahşa(2
 Ermal(0:2
@@ -69041,8 +69329,8 @@ taşıntı(2
 mutasyonist(:2
 Boysanoğlu(0:2
 buhurumeryem(2
-Kapalıçarşı(0:2
-dualist(:2
+Kapalıçarşı(0:2
+dualist(:2
 
 Karateğin(0:2
 Panamera(0:2
@@ -69081,7 +69369,8 @@ Güherpare(0:2
 
 kazkanadı(:2
 
-viskonsül(2
+viskonsül(2
+cosplaykospley(:2
 Delhi(0:2
 Balki(0:2
 beraberinde(2
@@ -69214,7 +69503,8 @@ deniziğne"deniziğnesi_Noun(:2
 	tanrıça(2#
 
 sıvaşmaksıvaşsıvaş(:2
-tallahi(2
+tallahi(2#
+	TÜBİTAKtübitaktübitak(02
 altanlam(:2
 Willard(0:2
 dışbeslenen(2
@@ -69226,7 +69516,7 @@ sıvaşmaksıvaşsıvaş(:2
 laflamaklaflalafla(:2
 Delal(0:2
 hayalperest(:2
-hayalperest(:2#
+hayalperest(:2#
 	tıklamaktıklatıkla(:2
 Candaner(0:2
 
@@ -69309,7 +69599,7 @@ esnasında(2
 Söylemezoğlu(0:2
 Servinaz(0:2
 Mclaren(0:2
-pürsıhhat(:2
+pürsıhhat(:2
 pürsıhhat(:2
 
 Litvinenko(0:2
@@ -69474,7 +69764,8 @@ Hoşnudiye(0:2
 Sıdkı(0:2
 etnoğrafya(:2
 Morsümbül(0:2#
-kulakzar"kulakzarı_Noun(:2
+kulakzar"kulakzarı_Noun(:2
+startupstartap(:2
 yetinmekyetinyetin(:2
 güveç(:2
 ordonat(:2
@@ -70068,8 +70359,9 @@ ayaklanmakayaklanayaklan(:2,
 kayın(:
 @2	
 masif(2
-Stasi(0:2
-kayıp(:2
+Stasi(0:2
+kayıp(:
+2
 kayıp(:
 2
 
@@ -70532,7 +70824,10 @@ bayramlaş(:2
 Skydrive(0:2
 varoluşçu(2
 	ıstavroz(:2
-	tıknefes(2
+	tıknefes(2,
+ticarileşmek
+ticarileş
+ticarileş(:2
 
 Akçatekir(0:2
 Bezos(0:2
@@ -70683,7 +70978,7 @@ karaağaç(:2
 yok(:@2
 yok(2
 
-yok(:2
+yok(:2
 
 yok(:2)
 zanneylemekzanneylezanneyle(:2
@@ -70736,7 +71031,7 @@ Sinanoğlu(0:2
 ehlibeyt(:2
 kesekağıdı(:2
 sermest(:2
-sermest(:2
+sermest(:2
 yerdeş(2
 Asiye(0:2
 Casual(0:2
@@ -70803,7 +71098,9 @@ tanılamaktanılatanıla(:2
 Şebhan(0:2
 yoğ(:2
 yuf(2
-Galibe(0:2
+Galibe(0:2
+
+bulaş(2
 yuh(2
 müşteşrik(:2
 safahat(:2
@@ -71081,8 +71378,8 @@ zımbırda(:2
 
 altbölüm(:2
 Ulrike(0:2
-Castro(0:2
-Unicef(0:2
+Castro(0:2
+Unicefyunisef(02
 Barbaros(0:2
 Belluci(0:2
 Eduardo(0:2
@@ -71464,7 +71761,9 @@ yoğunlaç(:2
 okmeydan"okmeydanı_Noun(:2
 Paul(0:2*
 çobanlamakçobanlaçobanla(:2
-Topel(0:2
+Topel(0:2
+merdivenaltı(2
+merdivenaltı(:2
 Bazaar(0:2
 stratigrafi(2
 
@@ -71587,7 +71886,7 @@ lisanıhal(2
 
 pürhiddet(:2
 
-pürhiddet(:2	
+pürhiddet(:2	
 ateş(2 
 	kirletmekkirletkirlet(:2
 kırlent(:2!
@@ -71692,7 +71991,8 @@ Güzeldere(0:2
 cemadat(:2
 aksülümen(:2
 
-finans(2
+finans(2
+MASAK(02
 Umuttepe(0:2
 Depot(0:2
 	Akçeşme(0:2
@@ -71783,7 +72083,7 @@ neptünyum(2
 
 federalizm(2
 
-kristaloit(:2
+kristaloit(:2
 
 kristaloit(:2
 	müntahip(:2
@@ -72436,15 +72736,14 @@ Seyşeller(0:2
 Lancelot(0:2
 Urumçi(0:2
 	istihbari(2
-Gist(0:2 
-elbir"elbirliği_Noun(:2
+Gist(0:2
 	Cassandra(0:2
 	kreşendo(2
 	defalarca(2
 Gita(0:2
 Fedex(0:2
 müteferrik(:2
-müteferrik(:2
+müteferrik(:2
 Toys(0:2
 	havaküre(:2
 
@@ -72482,8 +72781,8 @@ Compostela(0:2
 avam(2
 akşamleyin(2
 akşamleyin(2
-aval(:2
-aval(2	
+aval(:2
+aval(:2	
 lazer(2
 arıbeyi(:2
 Give(0:2 
@@ -72687,7 +72986,7 @@ Copacabana(0:2
 cemilenmekcemilencemilen(:2
 Yalap(0:2
 koket(:2
-koket(:2
+koket(:2
 Torje(0:2
 birikmekbirikbirik(:23
 Independenceındependenceındependence(0:2
@@ -72730,7 +73029,8 @@ müterakim(2
 
 törebilim(:2
 Ateşyan(0:2
-Bettina(0:2
+Bettina(0:2
+semptomatik(:2
 
 doğan(2
 Delphine(0:2
@@ -72868,7 +73168,8 @@ Gençtürk(0:2
 Sellers(0:2
 Kalkandelen(0:2
 
-tirfil(2	
+tirfil(2
+altcoinaltkoin(:2	
 kokoz(2
 Sutton(0:2!
 muğlâkmuğlakmuğlak(:2
@@ -72978,7 +73279,7 @@ Malüliyet(0:2
 Bülend(0:2
 Tweety(0:2
 mukaffa(2
-	mültefit(:2
+	mültefit(:2
 	mültefit(:2
 Ersun(0:2
 	tekgövde(2
@@ -73199,7 +73500,8 @@ Abdulkerim(0:2
 temellenmektemellentemellen(:2'
 efkârlanmakefkarlanefkarlan(:2
 Derby(0:2
-kokak(:2!
+kokak(:2
+ghostinggosting(:2!
 İncilâincilaincila(0:2
 Greipel(0:2
 
@@ -73315,7 +73617,8 @@ Köstendil(0:2
 Kitchenette(0:2
 
 örcin(2
-	ortografi(:2	
+	ortografi(:2 
+TÜSİADtüsiadtüsiad(02	
 mavna(2
 huldur(:2
 
@@ -74370,8 +74673,8 @@ Kavasoğlu(0:2
 Oconner(0:2
 Collison(0:2
 Kyle(0:2
-Cezri(0:2*
-barışgüç"barışgücü_Noun(:2
+Cezri(0:2)
+barışgüç"barışgücü_Noun(:2
 Zielona(0:2
 Hacıalioğlu(0:2
 Bonham(0:2
@@ -74389,7 +74692,8 @@ Kavasoğlu(0:2
 Zebari(0:2
 Mahsusa(0:2'
 küsüşmekküsüşküsüş(:2
-muktedir(2&
+muktedir(2
+mentör(:2&
 
 sezinlemeksezinlesezinle(:2
 Maşuka(0:2
@@ -74483,7 +74787,7 @@ biberlemekbiberlebiberle(:2
 Aspen(0:2
 Glaber(0:2
 kıpkıp(:2
-kıpkıp(:2
+kıpkıp(:2
 Hrant(0:2
 iskonto(2
 Budget(0:2
@@ -74591,11 +74895,12 @@ Obradoviç(0:2
 Private(0:2
 Birdman(0:2
 ibret(:2
-ibret(:2
+ibret(:2
 Versace(0:2
 asıl(:
+2
+asıl(:
 2	
-asıl(2	
 asıl(2	
 permi(2
 asık(:2
@@ -74604,7 +74909,8 @@ Obradoviç(0:2
 intizar(2
 İsisisisisis(0:2	
 eylem(2	
-perma(2
+perma(2"
+	veribilim"veribilimi_Noun(:2
 Tihame(0:2
 Baver(0:2
 	Nesligül(0:2
@@ -74622,7 +74928,9 @@ Yandımata(0:2*
 güzün(2
 seyrüsefer(2
 Schwartz(0:2
-Tüba(0:2
+
+validasyon(2
+Tüba(02
 Cabo(0:2
 cilbent(:2
 Solution(0:2
@@ -74685,8 +74993,8 @@ Budakoğlu(0:2
 Canales(0:2
 parazitoloji(2
 Tsydteseyede(0:2
-Nazarov(0:2
-Tüfe(0:2
+Nazarov(0:2
+Tüfe(02
 Durbaş(0:2
 Cafu(0:2
 nitrit(:2
@@ -74844,8 +75152,8 @@ Aynıhayat(0:2
 Zagor(0:2
 	biyolojik(:2
 Constantine(0:2
-Yang(0:2"
-	Tüvtürkteüveteüreka(0:2
+Yang(0:2
+	Tüvtürk(02
 kefaller(:2
 Durant(0:2
 
@@ -74943,7 +75251,7 @@ Varoufakis(0:2
 Vogts(0:2
 başteknisyen(2
 muvaffak(:2
-muvaffak(:2
+muvaffak(:2
 Türk(0:2
 Cash(0:2
 Mereviş(0:2
@@ -75047,7 +75355,8 @@ Taşyürek(0:2
 Nuhbe(0:2
 Söyler(0:2
 Çang(0:2
-drosera(2	
+drosera(2
+reelsrils(:2	
 kolcu(2
 
 Gökçebay(0:2
@@ -75124,8 +75433,10 @@ belkemiği(:22
 sağgörü(2
 Onyewu(0:2
 cihanşinas(2
-	Kocaömer(0:2
+	Kocaömer(0:2
+immünoterapi(2
 sulfata(2
+chillçil(:2
 karinalılar(:2
 Şaner(0:2
 
@@ -75137,7 +75448,8 @@ sağgörü(2
 Itzhakıtzhakıtzhak(0:2
 şorolop(:2
 şorolop(2
-Şabanözü(0:2%
+Şabanözü(0:2
+selfieselfi(:2%
 
 balçiçek"balçiçeği_Noun(:2
 Turtle(0:2
@@ -75254,13 +75566,14 @@ Azarbeycan(0:2
 Mariko(0:2
 Galaxy(0:2
 İspirispirispir(0:2
-Carioca(0:2
+Carioca(0:2
+mochamoka(:2
 Enjoy(0:2
 	limnoloji(2)
 
 Bâtıniye	batıniye	batıniye(0:2
-derbeder(2
-mineral(2
+derbeder(2
+mineral(:2
 mineral(:2
 eşadlı(:2
 eşadlı(:2
@@ -75443,7 +75756,8 @@ inciraltı(0:2
 eksper(2
 Getafe(0:2
 Gomidas(0:2
-Redevco(0:2
+Redevco(0:2
+yıldızlararası(2
 program(2
 Goal(0:2
 Kelley(0:2
@@ -75542,8 +75856,7 @@ Fıprescı(0:2
 Aspir(0:2
 nasyonalist(:2
 general(:2
-Gogo(0:2&
-sözvar"sözvarlığı_Noun(:2
+Gogo(0:2
 Mesrure(0:2
 alabacak(:2
 hipoalerjik(:2
@@ -75672,7 +75985,7 @@ kruvaziyer(2
 Gone(0:2
 Tusk(0:2
 jorjet(:2
-jorjet(:2
+jorjet(:2
 	kentsoylu(:2
 Nurseren(0:2
 
@@ -75834,8 +76147,8 @@ besekeyebe(0:2
 ihrakiye(2
 Toptepe(0:2
 Aktemür(0:2
-Alexiou(0:2
-infinitezimal(2
+Alexiou(0:2
+infinitezimal(:2
 infinitezimal(:2
 gönenç(:2
 teamül(2
@@ -75870,11 +76183,11 @@ besekeyebe(0:2
 
 bandaj(2
 kafala(:2
-açıkağız(2
+açıkağız(2
 
-elyazması(:2
+elyazması(:2
 
-elyazması(:2
+elyazması(:2
 Arseven(0:2
 Robredo(0:2
 leylek(:2
@@ -75929,7 +76242,8 @@ ağaçsıl(:2
 halellenmekhalellenhalellen(:2
 Musavat(0:2
 Zaime(0:2
-mazak(:2
+mazak(:2
+pesto(:2
 
 gehgeh(2
 
@@ -76083,7 +76397,8 @@ Taşbaşı(0:2
 Reysaş(0:2
 üremeküreüre(:2
 sakuleta(2
-bakterigiller(:2
+bakterigiller(:2)
+sözvarlık"sözvarlığı_Noun(:2
 hamakat(:2
 Baytal(0:2
 
@@ -76245,7 +76560,7 @@ vakayiname(2
 antropoitler(:2
 gülbank(:2
 paket(:2
-paket(:2
+paket(:2
 Femen(0:2
 bilemekbilebile(:2
 Altınyayla(0:2
@@ -76288,7 +76603,8 @@ Horozoğlu(0:2
 
 çiviyazı"çiviyazısı_Noun(:2
 
-parfümeri(2
+parfümeri(2
+sosyalmedya(:2
 Avakov(0:2
 amelîameliameli(2
 Deyip(0:2
@@ -76353,8 +76669,8 @@ aklıselim(2
 
 tirhos(2
 
-ülser(2
-	talkşist(:2
+ülser(2
+	talkşist(:2
 Türek(0:2
 Optima(0:2
 
@@ -76428,7 +76744,9 @@ günbatım"günbatımı_Noun(:2
 Valerio(0:2
 
 şapşalak(:2
-kantaron(2
+kantaron(2
+
+UYAP(02
 müesses(2
 Valerie(0:2
 Avtovaz(0:2
@@ -76488,15 +76806,15 @@ kaymaktaş"kaymaktaşı_Noun(:2
 
 sudoku(2
 makbul(:2
-
-makbul(2
+makbul(:2
 Murray(0:2	
 ikrah(2
 kampana(2
 Kozbeyli(0:2
 lahuraki(2
 Heads(0:2
-	Köktürk(0:2
+	Köktürk(0:2&
+güveyfener"güveyfeneri_Noun(:2
 Lüleburgazspor(0:2
 Rehber(0:2
 
@@ -76632,8 +76950,8 @@ tanışmaktanıştanış(:2
 Keşif(0:2
 Healy(0:2
 kurumakkurukuru(:2
-lokal(:2	
-lokal(2
+lokal(:2
+lokal(:2
 Efsane(0:2
 	fotometre(2,
 güdümlemek	güdümle	güdümle(:2
@@ -76719,7 +77037,7 @@ küçükle(:2
 takbih(2
 Porter(0:2
 	naçizane(2
-muttarit(:2
+muttarit(:2
 muttarit(:2
 Katalan(0:2
 Zodiac(0:2
@@ -76748,7 +77066,8 @@ küçükle(:2
 kedigiller(:2
 
 bednam(2
-Singer(0:2
+Singer(0:2
+mentor(:2
 Shaggy(0:2
 Aston(0:2
 Astor(0:2
@@ -76940,7 +77259,8 @@ paraflamakparaflaparafla(:2
 Abdülvekil(0:2
 Aster(0:2
 Catch(0:2
-Aykutalp(0:2
+Aykutalp(0:2
+noodlenudıl(:2
 şamaroğlanı(2
 mendebur(2
 Felix(0:2&
@@ -77119,7 +77439,8 @@ kutupaltı(:2
 Hilmi(0:2
 israiloğlu(:2
 Akoğlu(0:2
-antropolojik(:2
+antropolojik(:2
+proaktif(2
 Packard(0:2&
 
 hesaplamakhesaplahesapla(:2
@@ -77188,7 +77509,8 @@ biyoenerji(2,
 
 Tavşanlı(0:2
 Gren(0:2,
-kuzgunkılıç"kuzgunkılıcı_Noun(:2
+kuzgunkılıç"kuzgunkılıcı_Noun(:2
+ROKETSAN(02
 Feyziye(0:2
 İbadiibadiibadi(0:2
 Jessica(0:2#
@@ -77296,7 +77618,8 @@ Beşiktaş(0:2
 davetsiz(2
 davetsiz(2
 	muhassala(2
-Hilye(0:2
+Hilye(0:2
+	izolasyon(2
 Ayedaş(0:2
 Unıversıade(0:2
 Paşakapısı(0:2"
@@ -77318,7 +77641,7 @@ bezeklemekbezeklebezekle(:2
 çoprabalığı(:2
 	Blackwell(0:2
 Şebnem(0:2
-müebbet(:2
+müebbet(:2
 müebbet(:2
 Assos(0:2$
 
