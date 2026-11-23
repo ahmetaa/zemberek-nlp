@@ -93,6 +93,7 @@ public class PronunciationGuesser {
           break;
         case 'x':
           sb.append("ks");
+          break;
         case '-':
         case '\'':
           break;

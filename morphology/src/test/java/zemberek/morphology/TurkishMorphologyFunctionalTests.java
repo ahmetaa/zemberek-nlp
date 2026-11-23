@@ -327,9 +327,21 @@ public class TurkishMorphologyFunctionalTests {
 
   @Test
   public void testAbbreviationWithAndWithoutDerivations() {
-    TurkishMorphology morphology = getMorphology("ABD [P:Abbrv; Pr:abede]");
+    TurkishMorphology morphology = getMorphology(
+        "ABD [P:Abbrv; Pr:abede]",
+        "TL [P:Abbrv; Pr:tele]",
+        "km [P:Abbrv; Pr:keme]",
+        "CEO [P:Abbrv; Pr:siyo]",
+        "GSYH [P:Abbrv; Pr:geseyehe]");
     Assert.assertEquals(1, morphology.analyze("ABD'li").analysisCount());
     Assert.assertEquals(1, morphology.analyze("ABD'siz").analysisCount());
+    Assert.assertTrue(morphology.analyze("TL'lik").stream().anyMatch(a -> !a.isRuntime()));
+    Assert.assertTrue(morphology.analyze("km'lik").stream().anyMatch(a -> !a.isRuntime()));
+    Assert.assertTrue(morphology.analyze("CEO'su").stream().anyMatch(a -> !a.isRuntime()));
+    Assert.assertTrue(morphology.analyze("CEO'sunun").stream().anyMatch(a -> !a.isRuntime()));
+    Assert.assertTrue(morphology.analyze("CEO'ları").stream().anyMatch(a -> !a.isRuntime()));
+    Assert.assertTrue(morphology.analyze("GSYH'si").stream().anyMatch(a -> !a.isRuntime()));
+    Assert.assertTrue(morphology.analyze("CEO'm").stream().noneMatch(a -> !a.isRuntime()));
   }
 
   @Test
@@ -431,6 +443,78 @@ public class TurkishMorphologyFunctionalTests {
     Assert.assertTrue(containsAllDictionaryLemma(result, "kazan"));
     result = analyzer.analyze("ınsanların");
     Assert.assertTrue(containsAllDictionaryLemma(result, "insan"));
+  }
+
+  @Test
+  public void testLexiconEngineAndPhoneticFixes() throws Exception {
+    TurkishMorphology morphology = getMorphology(
+        "API [Pr:api; P:Abbrv; A:LocaleEn]",
+        "FBI [Pr:efbiay; P:Abbrv; A:LocaleEn]",
+        "UNICEF [A:LocaleEn]",
+        "LinkedIn [Pr:linktin; A:LocaleEn]",
+        "IDEAL [A:LocaleEn, InverseHarmony]",
+        "TOGG [Pr:tog; P:Abbrv]",
+        "Netflix",
+        "e-posta",
+        "Hint-Avrupa",
+        "Alm. [Pr:almanca; P:Abbrv]",
+        "alver",
+        "sıfır [P:Num]",
+        "dört [P:Num; A:Voicing]",
+        "beş [P:Num]",
+        "yirmi [P:Num]"
+    );
+
+    // 1. LocaleEn uppercase 'I', lowercase 'i', mixed/ALL-CAPS Turkish apostrophe suffixes (+ serializer round-trip)
+    java.nio.file.Path tmpBin = java.nio.file.Files.createTempFile("lexicon-test-", ".bin");
+    try {
+      zemberek.morphology.lexicon.DictionarySerializer.save(morphology.getLexicon(), tmpBin);
+      TurkishMorphology reloaded = TurkishMorphology.builder()
+          .setLexicon(zemberek.morphology.lexicon.DictionarySerializer.load(tmpBin))
+          .build();
+      for (String form : new String[]{
+          "API", "api", "API'ye", "api'ye", "API'NİN",
+          "FBI", "FBI'ın", "FBI'IN", "FBI'DAN",
+          "UNICEF", "UNICEF'te", "UNICEF'İN", "UNICEF’İN", "Unicefte",
+          "LinkedIn", "LinkedIn'de", "LINKEDIN'DE", "linkedin'de",
+          "IDEAL", "IDEAL'de", "IDEAL'İN", "ideal'de"
+      }) {
+        Assert.assertTrue(
+            "Expected lexical analysis for " + form,
+            reloaded.analyze(form).stream().anyMatch(a -> !a.isRuntime()));
+      }
+      Assert.assertTrue(reloaded.analyze("API'ya").stream().noneMatch(a -> !a.isRuntime()));
+      Assert.assertTrue(reloaded.analyze("FBI'in").stream().noneMatch(a -> !a.isRuntime()));
+
+      // 2. -og abbreviation must not voice to *toğ
+      Assert.assertTrue(reloaded.analyze("TOGG'un").analysisCount() > 0);
+      Assert.assertTrue(reloaded.analyze("TOGG'a").analysisCount() > 0);
+
+      // 3. -x -> -ks voiceless suffix harmony (both known dictionary item and unknown proper noun)
+      Assert.assertTrue(reloaded.analyze("Netflix'te").analysisCount() > 0);
+      Assert.assertTrue(reloaded.analyze("Netflix'ten").analysisCount() > 0);
+      Assert.assertTrue(reloaded.analyze("SpaceX'te").analysisCount() > 0);
+
+      // 4. Hyphenated and dotted lemmas preserve '-' in stem & generation without merging unhyphenated lemmas
+      Assert.assertTrue(reloaded.analyze("e-posta").analysisCount() > 0);
+      Assert.assertEquals("e-posta", reloaded.analyze("e-postaya").getAnalysisResults().get(0).getStem());
+      Assert.assertEquals(
+          java.util.List.of("e-postaya"),
+          reloaded.getWordGenerator()
+              .generate(reloaded.getLexicon().getItemById("e-posta_Noun"), "A3sg", "Pnon", "Dat")
+              .stream().map(r -> r.surface).toList());
+      Assert.assertTrue(reloaded.analyze("Hint-Avrupa").analysisCount() > 0);
+      Assert.assertTrue(reloaded.analyze("Alm.").analysisCount() > 0);
+      Assert.assertEquals(0, reloaded.analyze("al-ver").analysisCount());
+
+      // 5. .00 clock times follow hour harmony (TDK rule: 20.00'de, 15.00'te, 04.00'e, 00.00'da)
+      Assert.assertTrue(reloaded.analyze("20.00'de").analysisCount() > 0);
+      Assert.assertTrue(reloaded.analyze("15.00'te").analysisCount() > 0);
+      Assert.assertTrue(reloaded.analyze("04.00'e").analysisCount() > 0);
+      Assert.assertTrue(reloaded.analyze("00.00'da").analysisCount() > 0);
+    } finally {
+      java.nio.file.Files.deleteIfExists(tmpBin);
+    }
   }
 
   private boolean containsAllDictionaryLemma(List<SingleAnalysis> analyses, String... item) {

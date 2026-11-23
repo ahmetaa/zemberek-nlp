@@ -488,10 +488,12 @@ public class TurkishMorphotactics {
     // ------
 
 
-    // do not allow possessive suffixes for abbreviations or words like "annemler"
+    // do not allow 1st/2nd person possessive suffixes for abbreviations or words like "annemler",
+    // while allowing 3rd person possessive (CEO'su, CEO'ları, GSYH'si, DNA'sı).
     Condition rootIsAbbrv = new SecondaryPosIs(SecondaryPos.Abbreviation);
 
-    Condition possessionCond = notHave(RootAttribute.FamilyMember)
+    Condition p3PossessionCond = notHave(RootAttribute.FamilyMember);
+    Condition possessionCond = p3PossessionCond
         .andNot(rootIsAbbrv);
 
     a3sg_S
@@ -499,13 +501,13 @@ public class TurkishMorphotactics {
         .add(p1sg_S, "Im", possessionCond)       // evim
         .add(p2sg_S, "In", possessionCond
             .andNot(new Conditions.PreviousGroupContainsMorpheme(justLike)))  // evin
-        .add(p3sg_S, "+sI", possessionCond)      // evi, odası
+        .add(p3sg_S, "+sI", p3PossessionCond)    // evi, odası, CEO'su
         .addEmpty(p3sg_S,
             has(RootAttribute.CompoundP3sg))  // "zeytinyağı" has two analyses. Pnon and P3sg.
         .add(p1pl_S, "ImIz", possessionCond)     // evimiz
         .add(p2pl_S, "InIz", possessionCond
             .andNot(new Conditions.PreviousGroupContainsMorpheme(justLike)))  // eviniz
-        .add(p3pl_S, "lArI", possessionCond);    // evleri
+        .add(p3pl_S, "lArI", p3PossessionCond);  // evleri, CEO'ları
 
     // ev-ler-ε-?
     a3pl_S.addEmpty(pnon_S, notHave(RootAttribute.FamilyMember));
@@ -516,10 +518,10 @@ public class TurkishMorphotactics {
         .add(p2sg_S, "In", possessionCond)
         .addEmpty(p1sg_S, has(RootAttribute.ImplicitP1sg)) // for words like "annemler"
         .addEmpty(p2sg_S, has(RootAttribute.ImplicitP2sg)) // for words like "annenler"
-        .add(p3sg_S, "I", possessionCond)
+        .add(p3sg_S, "I", p3PossessionCond)
         .add(p1pl_S, "ImIz", possessionCond)
         .add(p2pl_S, "InIz", possessionCond)
-        .add(p3pl_S, "I", possessionCond);
+        .add(p3pl_S, "I", p3PossessionCond);
 
     // --- handle su - akarsu roots. ----
     nounSuRoot_S.addEmpty(a3sgSu_S);
@@ -643,13 +645,11 @@ public class TurkishMorphotactics {
     nom_ST.add(ness_S, "lI~k",
         Conditions.CURRENT_GROUP_EMPTY
             .andNot(containsNess)
-            .andNot(emptyAdjNounSeq)
-            .andNot(rootIsAbbrv));
+            .andNot(emptyAdjNounSeq));
     nom_ST.add(ness_S, "lI!ğ",
         Conditions.CURRENT_GROUP_EMPTY
             .andNot(containsNess)
-            .andNot(emptyAdjNounSeq)
-            .andNot(rootIsAbbrv));
+            .andNot(emptyAdjNounSeq));
 
     // connect `ness` to the noun root.
     ness_S.addEmpty(noun_S);

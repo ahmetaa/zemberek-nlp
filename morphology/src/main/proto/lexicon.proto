@@ -92,6 +92,7 @@ enum RootAttribute {
   FamilyMember = 26;
   PronunciationGuessed = 27;
   Informal = 28;
+  LocaleEn = 30;
 }
 
 message DictionaryItem {

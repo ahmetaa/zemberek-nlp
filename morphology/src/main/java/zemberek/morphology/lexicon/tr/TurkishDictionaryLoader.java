@@ -43,7 +43,7 @@ public class TurkishDictionaryLoader {
       "tr/abbreviations.dict",
       "tr/person-names.dict"
   );
-  static final Pattern DASH_QUOTE_MATCHER = Pattern.compile("[\\-']");
+  static final Pattern DASH_QUOTE_MATCHER = Pattern.compile("['.]");
   private static final Splitter METADATA_SPLITTER = Splitter.on(";").trimResults()
       .omitEmptyStrings();
   private static final Splitter POS_SPLITTER = Splitter.on(",").trimResults();
@@ -330,12 +330,18 @@ public class TurkishDictionaryLoader {
         if (posInfo.primaryPos == PrimaryPos.Punctuation) {
           //TODO: what to do with pronunciations of punctuations? For now we give them a generic one.
           pronunciation = "a";
-        } else if (secondaryPos == SecondaryPos.Abbreviation) {
-          pronunciation = pronunciationGuesser.guessForAbbreviation(cleanWord);
-        } else if (alphabet.containsVowel(cleanWord)) {
-          pronunciation = cleanWord;
         } else {
-          pronunciation = pronunciationGuesser.toTurkishLetterPronunciations(cleanWord);
+          String pronSource = cleanWord.indexOf('-') >= 0 ? cleanWord.replace("-", "") : cleanWord;
+          if (pronSource.isEmpty()) {
+            pronSource = cleanWord;
+          }
+          if (secondaryPos == SecondaryPos.Abbreviation) {
+            pronunciation = pronunciationGuesser.guessForAbbreviation(pronSource);
+          } else if (alphabet.containsVowel(pronSource)) {
+            pronunciation = pronunciationGuesser.replaceEnglishSpecificChars(pronSource);
+          } else {
+            pronunciation = pronunciationGuesser.toTurkishLetterPronunciations(pronSource);
+          }
         }
       } else {
         pronunciation = pronunciation.toLowerCase(locale);
@@ -527,7 +533,8 @@ public class TurkishDictionaryLoader {
           }
           if (word.endsWith("nk") || word.endsWith("og")) {
             if (!attributes.contains(RootAttribute.NoVoicing)
-                && posData.secondaryPos != SecondaryPos.ProperNoun) {
+                && posData.secondaryPos != SecondaryPos.ProperNoun
+                && posData.secondaryPos != SecondaryPos.Abbreviation) {
               attributes.add(RootAttribute.Voicing);
             }
           } else if (vowelCount < 2 && !attributes.contains(RootAttribute.Voicing)) {
