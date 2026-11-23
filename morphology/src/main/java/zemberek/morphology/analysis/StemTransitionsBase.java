@@ -8,8 +8,6 @@ import static zemberek.core.turkish.RootAttribute.LastVowelDrop;
 import static zemberek.core.turkish.RootAttribute.ProgressiveVowelDrop;
 import static zemberek.core.turkish.RootAttribute.Voicing;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -29,11 +27,9 @@ import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
 abstract class StemTransitionsBase {
 
-  TurkishMorphotactics morphotactics;
-  private TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
-  RootLexicon lexicon;
+  private static final TurkishAlphabet ALPHABET = TurkishAlphabet.INSTANCE;
 
-  private EnumSet<RootAttribute> modifiers = EnumSet.of(
+  private static final EnumSet<RootAttribute> MODIFIERS = EnumSet.of(
       Doubling,
       LastVowelDrop,
       ProgressiveVowelDrop,
@@ -43,61 +39,62 @@ abstract class StemTransitionsBase {
       CompoundP3sgRoot
   );
 
+  private static final Set<String> SPECIAL_ROOTS = Set.of(
+      "içeri_Noun", "içeri_Adj",
+      "dışarı_Noun", "dışarı_Adj", "dışarı_Postp",
+      "yukarı_Noun", "yukarı_Adj",
+      "ileri_Noun",
+      "şura_Noun", "bura_Noun", "ora_Noun",
+      "ben_Pron_Pers", "sen_Pron_Pers",
+      "demek_Verb", "yemek_Verb", "imek_Verb",
+      "birbiri_Pron_Quant", "çoğu_Pron_Quant", "öbürü_Pron_Quant", "birçoğu_Pron_Quant"
+  );
+
+  TurkishMorphotactics morphotactics;
+  RootLexicon lexicon;
+
   /**
-   * Generates StemTransition objects from the dictionary item. <p>Most of the time a single
-   * StemNode is generated.
-   *
-   * @param item DictionaryItem
-   * @return one or more StemTransition objects.
+   * Generates StemTransition objects from the dictionary item. Most of the time a single StemNode
+   * is generated.
    */
   public List<StemTransition> generate(DictionaryItem item) {
-    if (specialRoots.contains(item.id)) {
+    if (SPECIAL_ROOTS.contains(item.id)) {
       return handleSpecialRoots(item);
     }
-    if (hasModifierAttribute(item)) {
+    if (!Collections.disjoint(item.attributes, MODIFIERS)) {
       return generateModifiedRootNodes(item);
-    } else {
-      AttributeSet<PhoneticAttribute> phoneticAttributes = calculateAttributes(item.pronunciation);
-      if (isNonDroppedLastVowelDropVariant(item)) {
-        phoneticAttributes.add(PhoneticAttribute.ExpectsVowel);
-        phoneticAttributes.add(PhoneticAttribute.CannotTerminate);
-      }
-      StemTransition transition = new StemTransition(
-          item.root,
-          item,
-          phoneticAttributes,
-          morphotactics.getRootState(item, phoneticAttributes)
-      );
-
-      return Lists.newArrayList(transition);
     }
+    AttributeSet<PhoneticAttribute> phoneticAttributes = calculateAttributes(item.pronunciation);
+    if (isNonDroppedLastVowelDropVariant(item)) {
+      phoneticAttributes.add(PhoneticAttribute.ExpectsVowel);
+      phoneticAttributes.add(PhoneticAttribute.CannotTerminate);
+    }
+    return List.of(stemTransition(item.root, item, phoneticAttributes, null));
   }
 
   private boolean isNonDroppedLastVowelDropVariant(DictionaryItem item) {
     DictionaryItem ref = item.getReferenceItem();
     return ref != null
-        && ref.hasAttribute(RootAttribute.LastVowelDrop)
-        && !item.hasAttribute(RootAttribute.LastVowelDrop)
+        && ref.hasAttribute(LastVowelDrop)
+        && !item.hasAttribute(LastVowelDrop)
         && item.root.equals(ref.root);
-  }
-
-  private boolean hasModifierAttribute(DictionaryItem item) {
-    for (RootAttribute attr : modifiers) {
-      if (item.attributes.contains(attr)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private AttributeSet<PhoneticAttribute> calculateAttributes(CharSequence input) {
     return AttributesHelper.getMorphemicAttributes(input);
   }
 
+  private StemTransition stemTransition(
+      String surface,
+      DictionaryItem item,
+      AttributeSet<PhoneticAttribute> attrs,
+      MorphemeState state) {
+    MorphemeState target = state != null ? state : morphotactics.getRootState(item, attrs);
+    return new StemTransition(surface, item, attrs, target);
+  }
+
   private List<StemTransition> generateModifiedRootNodes(DictionaryItem dicItem) {
-
     StringBuilder modifiedSeq = new StringBuilder(dicItem.pronunciation);
-
     AttributeSet<PhoneticAttribute> originalAttrs = calculateAttributes(dicItem.pronunciation);
     AttributeSet<PhoneticAttribute> modifiedAttrs = originalAttrs.copy();
 
@@ -105,12 +102,10 @@ abstract class StemTransitionsBase {
     MorphemeState unmodifiedRootState = null;
 
     for (RootAttribute attribute : dicItem.attributes) {
-
-      // generate other boundary attributes and modified root state.
       switch (attribute) {
-        case Voicing:
-          char last = alphabet.lastChar(modifiedSeq);
-          char voiced = alphabet.voice(last);
+        case Voicing -> {
+          char last = ALPHABET.lastChar(modifiedSeq);
+          char voiced = ALPHABET.voice(last);
           if (last == voiced) {
             throw new LexiconException("Voicing letter is not proper in:" + dicItem);
           }
@@ -121,192 +116,130 @@ abstract class StemTransitionsBase {
           modifiedAttrs.remove(PhoneticAttribute.LastLetterVoicelessStop);
           originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
           modifiedAttrs.add(PhoneticAttribute.ExpectsVowel);
-          // TODO: find a better way for this.
           modifiedAttrs.add(PhoneticAttribute.CannotTerminate);
-          break;
-        case Doubling:
-          modifiedSeq.append(alphabet.lastChar(modifiedSeq));
+        }
+        case Doubling -> {
+          modifiedSeq.append(ALPHABET.lastChar(modifiedSeq));
           originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
           modifiedAttrs.add(PhoneticAttribute.ExpectsVowel);
           modifiedAttrs.add(PhoneticAttribute.CannotTerminate);
-          break;
-        case LastVowelDrop:
-          TurkicLetter lastLetter = alphabet.getLastLetter(modifiedSeq);
+        }
+        case LastVowelDrop -> {
+          TurkicLetter lastLetter = ALPHABET.getLastLetter(modifiedSeq);
           if (lastLetter.isVowel()) {
             modifiedSeq.deleteCharAt(modifiedSeq.length() - 1);
             modifiedAttrs.add(PhoneticAttribute.ExpectsConsonant);
             modifiedAttrs.add(PhoneticAttribute.CannotTerminate);
           } else {
             modifiedSeq.deleteCharAt(modifiedSeq.length() - 2);
-            if (!dicItem.primaryPos.equals(PrimaryPos.Verb)) {
-              originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
-            } else {
+            if (dicItem.primaryPos == PrimaryPos.Verb) {
               unmodifiedRootState = morphotactics.verbLastVowelDropUnmodRoot_S;
               modifiedRootState = morphotactics.verbLastVowelDropModRoot_S;
+            } else {
+              originalAttrs.add(PhoneticAttribute.ExpectsConsonant);
             }
             modifiedAttrs.add(PhoneticAttribute.ExpectsVowel);
             modifiedAttrs.add(PhoneticAttribute.CannotTerminate);
           }
-          break;
-        case InverseHarmony:
+        }
+        case InverseHarmony -> {
           originalAttrs.add(PhoneticAttribute.LastVowelFrontal);
           originalAttrs.remove(PhoneticAttribute.LastVowelBack);
           modifiedAttrs.add(PhoneticAttribute.LastVowelFrontal);
           modifiedAttrs.remove(PhoneticAttribute.LastVowelBack);
-          break;
-        case ProgressiveVowelDrop:
+        }
+        case ProgressiveVowelDrop -> {
           if (modifiedSeq.length() > 1) {
             modifiedSeq.deleteCharAt(modifiedSeq.length() - 1);
-            if (alphabet.containsVowel(modifiedSeq)) {
+            if (ALPHABET.containsVowel(modifiedSeq)) {
               modifiedAttrs = calculateAttributes(modifiedSeq);
             }
             modifiedAttrs.add(PhoneticAttribute.LastLetterDropped);
           }
-          break;
-        default:
-          break;
+        }
+        default -> {
+        }
       }
     }
 
-    if (unmodifiedRootState == null) {
-      unmodifiedRootState = morphotactics.getRootState(dicItem, originalAttrs);
-    }
-    StemTransition original = new StemTransition(
-        dicItem.root,
-        dicItem,
-        originalAttrs,
-        unmodifiedRootState);
-
-    // if modified root state is not defined in the switch block, get it from morphotactics.
-    if (modifiedRootState == null) {
-      modifiedRootState = morphotactics.getRootState(dicItem, modifiedAttrs);
-    }
-
-    StemTransition modified = new StemTransition(
-        modifiedSeq.toString(),
-        dicItem,
-        modifiedAttrs,
-        modifiedRootState);
+    StemTransition original =
+        stemTransition(dicItem.root, dicItem, originalAttrs, unmodifiedRootState);
+    StemTransition modified =
+        stemTransition(modifiedSeq.toString(), dicItem, modifiedAttrs, modifiedRootState);
 
     if (original.equals(modified)) {
-      return Collections.singletonList(original);
+      return List.of(original);
     }
-    if (isNonDroppedLastVowelDropVariant(dicItem) && dicItem.hasAttribute(RootAttribute.Voicing)) {
-      return Collections.singletonList(modified);
+    if (isNonDroppedLastVowelDropVariant(dicItem) && dicItem.hasAttribute(Voicing)) {
+      return List.of(modified);
     }
-    return Lists.newArrayList(original, modified);
+    return List.of(original, modified);
   }
-
-  Set<String> specialRoots = Sets.newHashSet(
-      "içeri_Noun", "içeri_Adj", "dışarı_Adj", "şura_Noun", "bura_Noun", "ora_Noun",
-      "dışarı_Noun", "dışarı_Postp", "yukarı_Noun", "yukarı_Adj", "ileri_Noun",
-      "ben_Pron_Pers", "sen_Pron_Pers", "demek_Verb", "yemek_Verb", "imek_Verb",
-      "birbiri_Pron_Quant", "çoğu_Pron_Quant", "öbürü_Pron_Quant", "birçoğu_Pron_Quant"
-  );
 
   private List<StemTransition> handleSpecialRoots(DictionaryItem item) {
-
-    String id = item.getId();
     AttributeSet<PhoneticAttribute> originalAttrs = calculateAttributes(item.pronunciation);
-    StemTransition original, modified;
-    MorphemeState unmodifiedRootState = morphotactics.getRootState(item, originalAttrs);
-
-    switch (id) {
-      case "içeri_Noun":
-      case "içeri_Adj":
-      case "dışarı_Adj":
-      case "dışarı_Noun":
-      case "dışarı_Postp":
-      case "yukarı_Noun":
-      case "ileri_Noun":
-      case "yukarı_Adj":
-      case "şura_Noun":
-      case "bura_Noun":
-      case "ora_Noun":
-        original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
-
-        MorphemeState rootForModified;
-        switch (item.primaryPos) {
-          case Noun:
-            rootForModified = morphotactics.nounLastVowelDropRoot_S;
-            break;
-          case Adjective:
-            rootForModified = morphotactics.adjLastVowelDropRoot_S;
-            break;
-          // TODO: check postpositive case. Maybe it is not required.
-          case PostPositive:
-            rootForModified = morphotactics.adjLastVowelDropRoot_S;
-            break;
-          default:
-            throw new IllegalStateException("No root morpheme state found for " + item);
-        }
-        String m = item.root.substring(0, item.root.length() - 1);
-        modified = new StemTransition(m, item, calculateAttributes(m), rootForModified);
-        modified.getPhoneticAttributes().add(PhoneticAttribute.ExpectsConsonant);
-        modified.getPhoneticAttributes().add(PhoneticAttribute.CannotTerminate);
-        return Lists.newArrayList(original, modified);
-
-      case "ben_Pron_Pers":
-      case "sen_Pron_Pers":
-        original = new StemTransition(item.root, item, originalAttrs, unmodifiedRootState);
-        if (item.lemma.equals("ben")) {
-          modified = new StemTransition("ban", item, calculateAttributes("ban"),
+    return switch (item.getId()) {
+      case "içeri_Noun", "içeri_Adj", "dışarı_Adj", "dışarı_Noun", "dışarı_Postp",
+           "yukarı_Noun", "yukarı_Adj", "ileri_Noun", "şura_Noun", "bura_Noun", "ora_Noun" -> {
+        MorphemeState rootForModified = switch (item.primaryPos) {
+          case Noun -> morphotactics.nounLastVowelDropRoot_S;
+          case Adjective, PostPositive -> morphotactics.adjLastVowelDropRoot_S;
+          default -> throw new IllegalStateException("No root morpheme state found for " + item);
+        };
+        String truncated = item.root.substring(0, item.root.length() - 1);
+        AttributeSet<PhoneticAttribute> modAttrs = calculateAttributes(truncated);
+        modAttrs.add(PhoneticAttribute.ExpectsConsonant);
+        modAttrs.add(PhoneticAttribute.CannotTerminate);
+        yield List.of(
+            stemTransition(item.root, item, originalAttrs, null),
+            new StemTransition(truncated, item, modAttrs, rootForModified));
+      }
+      case "ben_Pron_Pers", "sen_Pron_Pers" ->
+          pronounTransitions(
+              item,
+              originalAttrs,
+              null,
+              item.lemma.equals("ben") ? "ban" : "san",
               morphotactics.pronPers_Mod_S);
-        } else {
-          modified = new StemTransition("san", item, calculateAttributes("san"),
-              morphotactics.pronPers_Mod_S);
-        }
-        original.getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
-        modified.getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
-        return Lists.newArrayList(original, modified);
-      case "demek_Verb":
-      case "yemek_Verb":
-        original = new StemTransition(item.root, item, originalAttrs, morphotactics.vDeYeRoot_S);
-        switch (item.lemma) {
-          case "demek":
-            modified = new StemTransition("di", item, calculateAttributes("di"),
-                morphotactics.vDeYeRoot_S);
-            break;
-          default:
-            modified = new StemTransition("yi", item, calculateAttributes("yi"),
-                morphotactics.vDeYeRoot_S);
-        }
-        return Lists.newArrayList(original, modified);
-      case "imek_Verb":
-        original = new StemTransition(item.root, item, originalAttrs, morphotactics.imekRoot_S);
-        return Lists.newArrayList(original);
-      case "birbiri_Pron_Quant":
-      case "çoğu_Pron_Quant":
-      case "öbürü_Pron_Quant":
-      case "birçoğu_Pron_Quant":
-        original = new StemTransition(item.root, item, originalAttrs, morphotactics.pronQuant_S);
-
-        switch (item.lemma) {
-          case "birbiri":
-            modified = new StemTransition("birbir", item, calculateAttributes("birbir"),
-                morphotactics.pronQuantModified_S);
-            break;
-          case "çoğu":
-            modified = new StemTransition("çok", item, calculateAttributes("çok"),
-                morphotactics.pronQuantModified_S);
-            break;
-          case "öbürü":
-            modified = new StemTransition("öbür", item, calculateAttributes("öbür"),
-                morphotactics.pronQuantModified_S);
-            break;
-          default:
-            modified = new StemTransition("birçok", item, calculateAttributes("birçok"),
-                morphotactics.pronQuantModified_S);
-            break;
-        }
-        original.getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
-        modified.getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
-        return Lists.newArrayList(original, modified);
-      default:
-        throw new IllegalArgumentException(
-            "Lexicon Item with special stem change cannot be handled:" + item);
-    }
-
+      case "demek_Verb", "yemek_Verb" -> {
+        String alt = item.lemma.equals("demek") ? "di" : "yi";
+        yield List.of(
+            new StemTransition(item.root, item, originalAttrs, morphotactics.vDeYeRoot_S),
+            new StemTransition(alt, item, calculateAttributes(alt), morphotactics.vDeYeRoot_S));
+      }
+      case "imek_Verb" ->
+          List.of(new StemTransition(item.root, item, originalAttrs, morphotactics.imekRoot_S));
+      case "birbiri_Pron_Quant", "çoğu_Pron_Quant", "öbürü_Pron_Quant", "birçoğu_Pron_Quant" -> {
+        String modStem = switch (item.lemma) {
+          case "birbiri" -> "birbir";
+          case "çoğu" -> "çok";
+          case "öbürü" -> "öbür";
+          default -> "birçok";
+        };
+        yield pronounTransitions(
+            item,
+            originalAttrs,
+            morphotactics.pronQuant_S,
+            modStem,
+            morphotactics.pronQuantModified_S);
+      }
+      default ->
+          throw new IllegalArgumentException(
+              "Lexicon Item with special stem change cannot be handled:" + item);
+    };
   }
 
+  private List<StemTransition> pronounTransitions(
+      DictionaryItem item,
+      AttributeSet<PhoneticAttribute> originalAttrs,
+      MorphemeState unmodState,
+      String modifiedStem,
+      MorphemeState modState) {
+    StemTransition original = stemTransition(item.root, item, originalAttrs, unmodState);
+    StemTransition modified =
+        new StemTransition(modifiedStem, item, calculateAttributes(modifiedStem), modState);
+    original.getPhoneticAttributes().add(PhoneticAttribute.UnModifiedPronoun);
+    modified.getPhoneticAttributes().add(PhoneticAttribute.ModifiedPronoun);
+    return List.of(original, modified);
+  }
 }
