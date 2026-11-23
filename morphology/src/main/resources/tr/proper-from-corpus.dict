@@ -174,7 +174,7 @@ Abyan
 Abye
 Abyei
 Academic
-Academy
+Academy [Pr:akademi]
 Acapulco
 Acarer
 Acargün
@@ -255,7 +255,7 @@ Adebayor
 Adedy
 Adel
 Adelaide
-Adele
+Adele [Pr:adel]
 Aden
 Adenauer
 Ader
@@ -443,11 +443,11 @@ Airbus
 Aircraft
 Aires
 Airfel
-Airlines
+Airlines [Pr:erlayns]
 Airport
 Airports
 Airties
-Airways
+Airways [Pr:erveys]
 Aisha
 Aissati
 Aişe
@@ -819,7 +819,7 @@ Alessandro
 Alevcan
 Alex
 Alexa
-Alexander
+Alexander [Pr:alekzandır]
 Alexandr
 Alexandra
 Alexandre
@@ -862,7 +862,7 @@ Alibeyoğlu
 Aliboğazı
 Alican
 Alicante
-Alice
+Alice [Pr:elis]
 Alicia
 Aliço
 Aliefendioğlu
@@ -922,7 +922,7 @@ Allavi
 Alleben
 Allegra
 Allegri
-Allen
+Allen [Pr:elın]
 Allenby
 Allende
 Alley
@@ -1094,7 +1094,7 @@ Alya
 Alyanak
 Alys
 Alyssa
-Alzheimer
+Alzheimer [Pr:alzaymır]
 Amadeus
 Amado
 Amador
@@ -1216,7 +1216,7 @@ Ander
 Anderlecht
 Anders
 Andersen
-Anderson
+Anderson [Pr:endırsın]
 Andersson
 Andıç
 Andi
@@ -1241,7 +1241,7 @@ Andrej
 Andreotti
 Andres
 Andreu
-Andrew
+Andrew [Pr:endru]
 Andrews
 Andrey
 Andriake
@@ -1259,15 +1259,13 @@ Anelka
 Anemas
 Anet
 Anfaş
-Anfield
+Anfield [Pr:enfild]
 Angara
 Ange
-Angel
+Angel [Pr:eyncıl]
 Angela
-Angeles
+Angeles [Pr:encılıs]
 Angelesı
-Angelesın
-Angelesta
 Angelica
 Angelika
 Angelina
@@ -1317,7 +1315,7 @@ Annabel
 Annabelle
 Annabeth
 Annapolis
-Anne
+Anne [Pr:en,anne]
 Annette
 Anni
 Annie
@@ -1348,7 +1346,7 @@ Antepfıstığı
 Antepia
 Antepspor
 Anter
-Anthony
+Anthony [Pr:entoni]
 Antic
 Antiç
 Antigone
@@ -1407,7 +1405,7 @@ Apostolos
 Apoyevmatini
 Appathurai
 Appiah
-Apple
+Apple [Pr:epıl]
 Application
 Applications
 Apps
@@ -1598,7 +1596,7 @@ Arroyo
 Arryn
 Arsel
 Arsen
-Arsenal [A:InverseHarmony]
+Arsenal [Pr:arsenel,arsenal]
 Arsene
 Arseniy
 Arseven
@@ -1734,7 +1732,7 @@ Asphalt
 Aspir
 Aspire
 Assaidi
-Assange
+Assange [Pr:asanj]
 Assassins
 Asseco
 Asselborn
@@ -2000,7 +1998,7 @@ Avva
 Avvio
 Awacs
 Award
-Awards
+Awards [Pr:evords]
 Away
 Axel
 Axelrod
@@ -2315,7 +2313,7 @@ Bakanndan
 Bakay
 Bakaye
 Bakbak
-Baker
+Baker [Pr:beykır]
 Bakersfield
 Bakırcıoğlu
 Bakırçay
@@ -2399,7 +2397,7 @@ Baltasar
 Baltaş
 Baltazar
 Balthazar
-Baltimore
+Baltimore [Pr:baltimor]
 Baluken
 Balveren
 Balzac
@@ -2438,7 +2436,7 @@ Bankia
 Banking
 Bankpozitif
 Banks
-Banksy
+Banksy [Pr:benksi]
 Banner
 Bannister
 Banon
@@ -2707,7 +2705,7 @@ Bauman
 Baumann
 Baumax
 Baumbach
-Baumgartner
+Baumgartner [Pr:baumgartnır]
 Bausch
 Bautista
 Baver
@@ -2772,7 +2770,7 @@ Bazaar
 Bazan
 Bazar
 Bdortmund
-Beach
+Beach [Pr:biç]
 Beacon
 Beagle
 Beah
@@ -2784,12 +2782,12 @@ Bear
 Beard
 Bears
 Beasley
-Beast
+Beast [Pr:bist]
 Beasts
 Beat
 Beate
 Beatie
-Beatles
+Beatles [Pr:bitıls]
 Beatrice
 Beatrix
 Beatriz
@@ -2851,7 +2849,7 @@ Bedük
 Beecher
 Beer
 Beers
-Beethoven
+Beethoven [Pr:bethovın,bethoven]
 Beetle
 Before
 Begic
@@ -2990,7 +2988,7 @@ Benelüks
 Bener
 Benetton
 Benfica
-Bengal
+Bengal [A:InverseHarmony]
 Bengier
 Bengisu
 Bengt
@@ -3240,9 +3238,7 @@ Bhutan
 Bhuvan
 Bıçakcı
 Bıçakçıoğlu
-Bıos
 Bırak
-Bıst
 Bıyıklıoğlu
 Bıyıktay
 Bianca
@@ -3258,9 +3254,9 @@ Bibrzycka
 Bican
 Bico
 Biçer
-Biden
+Biden [Pr:baydın]
 Bidzina
-Bieber
+Bieber [Pr:bibır]
 Biegler
 Biel
 Bielefeld
@@ -3280,7 +3276,7 @@ Biji
 Biket
 Bikoko
 Bilahara
-Bilal
+Bilal [A:InverseHarmony]
 Bilali
 Bilaloğlu
 Bilbao
@@ -3424,7 +3420,6 @@ Bismillahirrahmanirrahim
 Bison
 Biss
 Bissau
-Bist
 Bişar
 Bişkin
 Bişr
@@ -3451,7 +3446,7 @@ Bjorn
 Björk
 Björn
 Bkar
-Black
+Black [Pr:blek]
 Blackberry
 Blackburn
 Blackhawk
@@ -3466,7 +3461,7 @@ Blagojevich
 Blaine
 Blair
 Blaise
-Blake
+Blake [Pr:bleyk]
 Blakely
 Blanc
 Blanchard
@@ -3480,7 +3475,7 @@ Blatt
 Blatter
 Blaze
 Blazer
-Blazers
+Blazers [Pr:bleyzırs]
 Bleach
 Bled
 Bleda
@@ -3599,7 +3594,7 @@ Boloğlu
 Bolonya
 Bolşoy
 Bolt
-Bolton
+Bolton [Pr:boltın]
 Boluğur
 Boluspor
 Bomb
@@ -3649,7 +3644,7 @@ Boratav
 Boray
 Borbiconi
 Borçelik
-Bordeaux
+Bordeaux [Pr:bordo]
 Bordello
 Borden
 Borders
@@ -3812,7 +3807,7 @@ Braddock
 Bradford
 Bradley
 Bradshaw
-Brady
+Brady [Pr:breydi]
 Braga
 Bragg
 Brahimi
@@ -3904,7 +3899,6 @@ Bretton
 Brewer
 Brewster
 Brıc
-Brıcs
 Brian
 Briatore
 Brice
@@ -3919,7 +3913,7 @@ Briegel
 Briggs
 Brigham
 Bright
-Brighton
+Brighton [Pr:braytın]
 Brigitte
 Brijeg
 Brill
@@ -3948,7 +3942,7 @@ Broad
 Broadbent
 Broadcast
 Broadcasting
-Broadway
+Broadway [Pr:brodvey]
 Broadwell
 Brock
 Brod
@@ -3972,7 +3966,7 @@ Bronx
 Brook
 Brooke
 Brookings
-Brooklyn
+Brooklyn [Pr:bruklin]
 Brooks
 Broomhilda
 Broos
@@ -3981,8 +3975,8 @@ Brose
 Brosnan
 Bross
 Brother
-Brothers
-Brown
+Brothers [Pr:bradırs]
+Brown [Pr:braun]
 Browne
 Browning
 Browns
@@ -3990,11 +3984,11 @@ Browser
 Broyles
 Broz
 Brozek
-Bruce
+Bruce [Pr:brus]
 Bruckheimer
 Bruckner
 Bruges
-Brugge
+Brugge [Pr:brüj]
 Bruma
 Brun
 Brunch
@@ -4031,7 +4025,7 @@ Buckingham
 Buckley
 Buckman
 Buckner
-Bucks
+Bucks [Pr:baks]
 Bucky
 Budak
 Budakoğlu
@@ -4054,7 +4048,7 @@ Buffalo
 Buffet
 Buffett
 Buffon
-Buffy
+Buffy [Pr:bafi]
 Buford
 Bufsad
 Bugatti
@@ -4141,7 +4135,7 @@ Burnett
 Burnham
 Burning
 Burnley
-Burns
+Burns [Pr:börns]
 Burr
 Burrell
 Burroughs
@@ -4152,7 +4146,7 @@ Bursaray
 Bursaspor
 Bursastore
 Burt
-Burton
+Burton [Pr:börtın]
 Burucerdi
 Buruciye
 Buruk
@@ -4166,7 +4160,7 @@ Busch
 Bush
 Bushnell
 Busiad
-Business
+Business [Pr:biznıs]
 Businessweek
 Buski
 Busmek
@@ -4181,7 +4175,7 @@ Butaris
 Butch
 Buteflika
 Buti
-Butler
+Butler [Pr:batlır]
 Butragueno
 Butt
 Buttenheim
@@ -4324,7 +4318,7 @@ Caferağa
 Cafercan
 Caffrey
 Cafu
-Cage
+Cage [Pr:keyc]
 Cagliari
 Cağaloğlu
 Cahan
@@ -4380,7 +4374,7 @@ Camden
 Camel
 Camelot
 Camera
-Cameron
+Cameron [Pr:kemırın]
 Camialtı
 Camiel
 Camikebir
@@ -4459,7 +4453,7 @@ Cankuş
 Cankut
 Cann
 Cannavaro
-Cannes
+Cannes [Pr:kan]
 Canning
 Cannon
 Cano
@@ -4494,7 +4488,7 @@ Cape
 Capel
 Capello
 Capi
-Capital
+Capital [Pr:kepital; A:InverseHarmony]
 Capitol
 Capone
 Capote
@@ -4536,7 +4530,7 @@ Care
 Carell
 Carens
 Carew
-Carey
+Carey [Pr:keri]
 Carfagna
 Cargill
 Cargo
@@ -4603,7 +4597,7 @@ Carstens
 Cartagena
 Carte
 Cartel
-Carter
+Carter [Pr:kartır]
 Cartier
 Cartman
 Cartoon
@@ -4667,7 +4661,7 @@ Catering
 Caterpillar
 Cathay
 Catherina
-Catherine
+Catherine [Pr:ketrin]
 Cathy
 Cato
 Cats
@@ -4676,7 +4670,7 @@ Cava
 Cavaco
 Cavadzade
 Cavalier
-Cavaliers
+Cavaliers [Pr:kavalirs]
 Cavalli
 Cavallo
 Cavanaugh
@@ -4766,7 +4760,7 @@ Cent
 Centauri
 Centcom
 Centel
-Center
+Center [Pr:sentır]
 Cento
 Centone
 Central
@@ -4841,7 +4835,7 @@ Chai
 Chain
 Chaka
 Challange
-Challenge
+Challenge [Pr:çelınc]
 Challenger
 Chalmers
 Chalon
@@ -4862,12 +4856,12 @@ Chandler
 Chandra
 Chanel
 Chaney
-Chang
+Chang [Pr:çeng]
 Changa
 Change
 Changi
 Chani
-Channel
+Channel [Pr:çenıl]
 Channing
 Chantal
 Chao
@@ -4879,14 +4873,14 @@ Char
 Chardonnay
 Charger
 Charisteas
-Charlene
+Charlene [Pr:şarlin]
 Charleroi
-Charles
+Charles [Pr:çarls]
 Charleston
 Charley
 Charlie
 Charlize
-Charlotte
+Charlotte [Pr:şarlot]
 Charlton
 Charly
 Charmaine
@@ -4894,7 +4888,7 @@ Charming
 Charter
 Chartered
 Chas
-Chase
+Chase [Pr:çeys]
 Chastain
 Chat
 Chateau
@@ -4914,7 +4908,7 @@ Cheever
 Chef
 Chefs
 Chekov
-Chelsea
+Chelsea [Pr:çelsi]
 Chelseali
 Chemical
 Cheney
@@ -4927,7 +4921,7 @@ Cher
 Cherie
 Cherokee
 Cherry
-Chery
+Chery [Pr:çeri]
 Cheryl
 Chesapeake
 Cheshire
@@ -4944,8 +4938,6 @@ Chewie
 Cheyenne
 Chez
 Chhibber
-Chıcago
-Chıp
 Chi [Pr:çi]
 Chia
 Chiang
@@ -4955,7 +4947,7 @@ Chiba
 Chibs
 Chibuike
 Chic
-Chicago
+Chicago [Pr:şikago]
 Chicco
 Chick
 Chicken
@@ -4979,7 +4971,7 @@ Chinese
 Ching
 Chino
 Chinook
-Chip
+Chip [Pr:çip]
 Chirac
 Chiu
 Chivas
@@ -5021,7 +5013,7 @@ Christophe
 Christopher
 Christos
 Christy
-Chrome
+Chrome [Pr:krom]
 Chromebook
 Chromecast
 Chromium
@@ -5042,7 +5034,6 @@ Cıcom
 Cıngı
 Cıngıllıoğlu
 Cıtaro
-Cıty
 Cıvaoğlu
 Ciabao
 Ciampi
@@ -5123,7 +5114,7 @@ Citizen
 Citroen
 Citron
 Cittaslow
-City
+City [Pr:siti]
 Citylife
 Cityliner
 Citys
@@ -5184,7 +5175,7 @@ Cler
 Clermont
 Cleveland
 Cleyton
-Clınton
+Clinton [Pr:klintın]
 Clichy
 Click
 Client
@@ -5200,9 +5191,8 @@ Clinic
 Clinical
 Clinique
 Clint
-Clinton
 Clio
-Clippers
+Clippers [Pr:klipırs]
 Clive
 Clock
 Clooney
@@ -5213,7 +5203,7 @@ Cloud
 Clouseau
 Clover
 Clovis
-Club
+Club [Pr:klab]
 Cluj
 Clup
 Cluzel
@@ -5263,7 +5253,7 @@ Colby
 Cold
 Coldplay
 Coldwell
-Cole
+Cole [Pr:kol]
 Coleen
 Coleman
 Colette
@@ -5273,7 +5263,7 @@ Colins
 Collar
 Collection
 Colleen
-College
+College [Pr:kolıc,kolej]
 Collette
 Collezione
 Collier
@@ -5333,7 +5323,7 @@ Community
 Como
 Comodo
 Compact
-Company
+Company [Pr:kampani]
 Compaq
 Compass
 Competition
@@ -5421,7 +5411,7 @@ Cool
 Cooley
 Cooney
 Coop
-Cooper
+Cooper [Pr:kupır]
 Cooperation
 Coopers
 Copacabana
@@ -5437,7 +5427,7 @@ Coral
 Coraline
 Corbett
 Corbusier
-Corbyn
+Corbyn [Pr:korbin]
 Cordelia
 Cordero
 Cordoba
@@ -5473,7 +5463,7 @@ Corolla
 Corona
 Corp
 Corporate
-Corporation
+Corporation [Pr:korporeyşın]
 Corpus
 Correa
 Correia
@@ -5504,7 +5494,7 @@ Costa
 Costas
 Costco
 Costello
-Costner
+Costner [Pr:kostnır]
 Costolo
 Cosworth
 Coşar
@@ -5538,7 +5528,7 @@ Count
 Counter
 Country
 Countryman
-County
+County [Pr:kaunti]
 Coup
 Coupe
 Courier
@@ -5627,7 +5617,7 @@ Crowe
 Crowley
 Crown
 Crowne
-Cruise
+Cruise [Pr:kruz]
 Cruiser
 Cruises
 Crush
@@ -5690,7 +5680,7 @@ Curoğlu
 Curran
 Current
 Curri
-Curry
+Curry [Pr:köri]
 Curtis
 Curve
 Curzon
@@ -6124,7 +6114,7 @@ Dani
 Daniel
 Daniela
 Daniella
-Daniels
+Daniels [Pr:denyıls]
 Danilo
 Danis
 Daniş
@@ -6238,14 +6228,14 @@ Dawkins
 Dawn
 Dawson
 Daxgx
-Day
+Day [Pr:dey]
 Daye
 Days
 Dayton
 Deacon
 Dead
 Deal
-Dean
+Dean [Pr:din]
 Deandre
 Deane
 Deanna
@@ -6456,7 +6446,7 @@ Dent
 Dentinho
 Denton
 Dentur
-Denver
+Denver [Pr:denvır]
 Denys
 Denzel
 Deok
@@ -6542,7 +6532,7 @@ Devlethastanesi
 Devon
 Dewey
 Dexia
-Dexter
+Dexter [Pr:dekstır]
 Deyince
 Deyip
 Deyr
@@ -6551,7 +6541,7 @@ Deyruz
 Dfif
 Dhabi
 Dharma
-Dıgıturk
+Digiturk [Pr:dicitürk]
 Dınkırcı
 Dıranas
 Dışbank
@@ -6625,7 +6615,6 @@ Digg
 Digiad
 Digicom
 Digital
-Digiturk
 Digitürk
 Diha
 Dijon
@@ -6971,7 +6960,7 @@ Dragicevic
 Drago
 Dragons
 Dragos
-Drake
+Drake [Pr:dreyk]
 Drakula
 Draper
 Draxler
@@ -7056,7 +7045,7 @@ Dulles
 Dumankaya
 Dumanoğlu
 Dumas
-Dumbledore
+Dumbledore [Pr:dambıldor]
 Dumont
 Dumrul
 Dunaway
@@ -7271,7 +7260,7 @@ Ediboğlu
 Edie
 Ediger
 Edinburg
-Edinburgh
+Edinburgh [Pr:edinburg]
 Edincik
 Edinho
 Edinson
@@ -7352,8 +7341,8 @@ Eiffel
 Eight
 Eileen
 Einar
-Eindhoven
-Einstein
+Eindhoven [Pr:ayndhovın]
+Einstein [Pr:aynştayn]
 Eintracht
 Eiriksson
 Eisenberg
@@ -7597,7 +7586,7 @@ Enerem
 Energaz
 Energia
 Energie
-Energy
+Energy [Pr:enerci]
 Enerjisa
 Enes
 Enfal
@@ -7644,7 +7633,7 @@ Entelköy
 Enter
 Enterprise
 Enterprises
-Entertainment
+Entertainment [Pr:entırteynmınt]
 Enuygun
 Enver
 Enveriye
@@ -7662,7 +7651,7 @@ Epözdemir
 Eppes
 Epps
 Epson
-Epstein
+Epstein [Pr:epstin,epstayn]
 Epureanu
 Equipment
 Equity
@@ -8101,7 +8090,7 @@ Eurocup
 Eurodolar
 Eurofighter
 Eurogroup
-Euroleague
+EuroLeague [Pr:yörolig]
 Eurolig
 Euromed
 Euromoney
@@ -8109,7 +8098,7 @@ Euroncap
 Euronews
 Euronext
 Europa
-Europe
+Europe [Pr:yurop]
 European
 Europol
 Eurosport
@@ -8140,7 +8129,7 @@ Everett
 Evergrande
 Evernote
 Evers
-Everton
+Everton [Pr:evırtın]
 Every
 Everybody
 Everything
@@ -8316,7 +8305,7 @@ Fallout
 Falls
 Faltay
 Famagusta
-Fame
+Fame [Pr:feym]
 Famila
 Familia
 Family
@@ -8720,7 +8709,7 @@ Floyd
 Fluence
 Fluminense
 Flying
-Flynn
+Flynn [Pr:flin]
 Focan
 Focker
 Focus
@@ -8743,15 +8732,14 @@ Food
 Foods
 Foot
 Football
-Forbes
-Forbesun
+Forbes [Pr:forbs]
 Force
 Ford
 Fordo
 Foreign
 Foreks
 Foreman
-Forest
+Forest [Pr:forıst]
 Foresta
 Forester
 Forever
@@ -8782,7 +8770,7 @@ Forza
 Fosforoğlu
 Fossati
 Fossett
-Foster
+Foster [Pr:fostır]
 Fotis
 Fotofest
 Fotoğrafevi
@@ -8809,7 +8797,7 @@ Frame
 Framework
 Fran
 Franc
-France
+France [Pr:frans]
 Frances
 Francesca
 Franceschi
@@ -8827,7 +8815,7 @@ Française
 François
 Frangipane
 Frangoulis
-Frank
+Frank [Pr:frenk,frank]
 Franke
 Frankenstein
 Frankeştayn
@@ -8835,7 +8823,6 @@ Frankfurt
 Frankfurter
 Franki
 Frankie
-Frankin
 Frankle
 Franklin
 Franko
@@ -8964,7 +8951,7 @@ Fursenko
 Furstenberg
 Furtun
 Furun
-Fury
+Fury [Pr:füri]
 Fusco
 Fusion
 Futacs
@@ -9074,7 +9061,7 @@ Gambari
 Gambia
 Gambiya
 Gamble
-Game
+Game [Pr:geym]
 Gameboy
 Gameiro
 Games
@@ -9110,7 +9097,7 @@ Garbis
 Garbo
 Garcia
 Garde
-Garden
+Garden [Pr:gardın]
 Gardens
 Gardiner
 Gardner
@@ -9127,7 +9114,7 @@ Garip
 Garipoğlu
 Garland
 Garmin
-Garner
+Garner [Pr:garnır]
 Garnett
 Garnier
 Garo
@@ -9171,7 +9158,7 @@ Gatwick
 Gauck
 Gaudi
 Gauguin
-Gaulle
+Gaulle [Pr:göl]
 Gaultier
 Gautier
 Gaün
@@ -9312,7 +9299,7 @@ Geoffrey
 Geographic
 Geordi
 Georg
-George
+George [Pr:corc]
 Georges
 Georgetown
 Georgi
@@ -9615,8 +9602,7 @@ Goodspeed
 Goodwin
 Goody
 Goodyear
-Google
-Googleın
+Google [Pr:gugıl]
 Goose
 Gopaşa
 Gora
@@ -9781,7 +9767,7 @@ Gözüaçık
 Gözübüyük
 Gözütok
 Graafschap
-Grace
+Grace [Pr:greys]
 Gracei
 Graceland
 Gracias
@@ -9800,7 +9786,7 @@ Graham
 Grajciar
 Grameen
 Grammer
-Grammy
+Grammy [Pr:gremi]
 Gramsci
 Gran
 Granada
@@ -9828,7 +9814,7 @@ Grave
 Graves
 Gravesen
 Gravity
-Gray
+Gray [Pr:grey]
 Grayson
 Graz
 Grazia
@@ -9845,7 +9831,7 @@ Greenberg
 Greendale
 Greene
 Greengrass
-Greenpeace
+Greenpeace [Pr:grinpis]
 Greenspan
 Greentree
 Greenwald
@@ -10478,7 +10464,7 @@ Halkevi
 Halkevleri
 Halki
 Halkkart
-Hall
+Hall [Pr:hol,höl]
 Hallelujah
 Halley
 Halliburton
@@ -10511,7 +10497,7 @@ Hamid
 Hamidiye
 Hamido
 Hamidou
-Hamilton
+Hamilton [Pr:hemiltın]
 Hamis
 Hamish
 Hamit
@@ -10528,7 +10514,7 @@ Hammond
 Hammurabi
 Hamo
 Hamoğlu
-Hampshire
+Hampshire [Pr:hempşır]
 Hampton
 Hamptons
 Hamra
@@ -10567,7 +10553,7 @@ Hanioğlu
 Hank
 Hanke
 Hankin
-Hanks
+Hanks [Pr:henks]
 Hanna
 Hannah
 Hannay
@@ -10616,7 +10602,7 @@ Harding
 Hardison
 Hardman
 Hardt
-Hardy
+Hardy [Pr:hardi]
 Harel
 Haremlique
 Haremüşşerif
@@ -10643,10 +10629,10 @@ Harrelson
 Harriet
 Harrington
 Harris
-Harrison
+Harrison [Pr:herisın]
 Harrods
 Harrow
-Harry
+Harry [Pr:heri]
 Harşit
 Hartford
 Hartley
@@ -10836,14 +10822,14 @@ Haznedaroğlu
 Hbos
 Head
 Heads
-Health
+Health [Pr:helt]
 Healthcare
 Healy
-Heard
+Heard [Pr:hörd]
 Hearst
 Heart
 Hearts
-Heat
+Heat [Pr:hit]
 Heath
 Heathcliff
 Heather
@@ -10911,7 +10897,7 @@ Helton
 Helu
 Helvacıoğlu
 Hema
-Hemingway
+Hemingway [Pr:hemingvey]
 Hemite
 Hemofarm
 Hemoroid
@@ -10934,7 +10920,7 @@ Henri
 Henrietta
 Henrik
 Henrique
-Henry
+Henry [Pr:henri]
 Henson
 Heon
 Hepar
@@ -11162,7 +11148,7 @@ Hodorkovski
 Hoeness
 Hoff
 Hoffa
-Hoffenheim
+Hoffenheim [Pr:hofınhaym]
 Hoffman
 Hoffmann
 Hofmann
@@ -11196,7 +11182,7 @@ Hollywood
 Holm
 Holman
 Holmen
-Holmes
+Holmes [Pr:holms]
 Holocaust
 Holoğlu
 Holokost
@@ -11210,7 +11196,7 @@ Home
 Homeland
 Homend
 Homeopati
-Homer
+Homer [Pr:homır]
 Homeros
 Homie
 Homme
@@ -11300,10 +11286,10 @@ Houdini
 Houllier
 Hour
 Hours
-House
+House [Pr:haus]
 Houses
 Housewives
-Houston
+Houston [Pr:hyustın]
 Houyan
 Hovhannisyan
 Howard
@@ -11326,7 +11312,7 @@ Hristos
 Hrvoje
 Hsiao
 Huang
-Huawei
+Huawei [Pr:huavey,huavei]
 Huban
 Hubbard
 Hubble
@@ -11347,7 +11333,7 @@ Huggel
 Huggies
 Huggins
 Hugh
-Hughes
+Hughes [Pr:hyuz]
 Hugo
 Hula
 Hule
@@ -11378,9 +11364,9 @@ Hunat
 Hung
 Hungaroring
 Hunger
-Hunt
+Hunt [Pr:hant]
 Huntelaar
-Hunter
+Hunter [Pr:hantır]
 Hunting
 Huntington
 Huntsman
@@ -11519,7 +11505,7 @@ Iliç
 Ilie
 Ilievski
 Ilithyia
-Illinois
+Illinois [Pr:ilinoiz,ilinois; A:LocaleEn]
 Illuminati
 Illustrated
 Ilves
@@ -11550,7 +11536,7 @@ Incal
 Inception
 Incheon
 Independence
-Independent
+Independent [Pr:indipendınt; A:LocaleEn]
 Independenta
 Independiente
 Indesit
@@ -11593,7 +11579,7 @@ Innsbruck
 Inoue
 Insee
 Inside
-Insider
+Insider [Pr:insaydır; A:LocaleEn]
 Insight
 Insignia
 Instagram
@@ -11622,7 +11608,7 @@ International
 Internationale
 Internazionale
 Internet
-Interpol
+Interpol [Pr:interpöl; A:LocaleEn]
 Interpolü
 Interpress
 Intersport
@@ -11701,8 +11687,7 @@ Ismael
 Isna
 Isner
 Isobel
-Isofıx
-Isofix
+Isofix [Pr:izofiks; A:LocaleEn]
 Ispartakule
 Ispartaspor
 Israel
@@ -11857,7 +11842,6 @@ Izzy
 İlkhaber
 İlknur
 İlksan
-İllinois
 İlluminati
 İlmen
 İlseven
@@ -11918,7 +11902,6 @@ Izzy
 İncetahtacı
 İncilipınar
 İnciraltı
-İndependent
 İnder
 İndiana
 İndigo
@@ -11957,7 +11940,6 @@ Izzy
 İnterfax
 İnternational
 İnternethaber
-İnterpol
 İnterpolü
 İntertoto
 İntes
@@ -12028,7 +12010,6 @@ Izzy
 İsmetpaşa
 İsmihan
 İsna
-İsofix
 İsot
 İspark
 İspiroğlu
@@ -12154,11 +12135,11 @@ Jaber
 Jabi
 Jabulani
 Jacek
-Jack
+Jack [Pr:cek]
 Jacket
 Jackie
 Jackman
-Jackson
+Jackson [Pr:ceksın]
 Jacksonville
 Jacky
 Jacob
@@ -12206,7 +12187,7 @@ Jammer
 Jamon
 Jamont
 Janata
-Jane
+Jane [Pr:ceyn]
 Janeiro
 Janek
 Janelle
@@ -12264,7 +12245,7 @@ Jaxx
 Jaycee
 Jaye
 Jayne
-Jazeera
+Jazeera [Pr:cezire,cezira]
 Jaziri
 Jazz
 Jbıc
@@ -12292,7 +12273,7 @@ Jelly
 Jena
 Jenkins
 Jenna
-Jenner
+Jenner [Pr:cenır]
 Jennifer
 Jennings
 Jenny
@@ -12395,7 +12376,7 @@ Johnnie
 Johnny
 Johns
 Johnsen
-Johnson
+Johnson [Pr:cansın]
 Johnsons
 Johnston
 Johnstone
@@ -12411,7 +12392,7 @@ Jolly
 Jonah
 Jonas
 Jonathan
-Jones
+Jones [Pr:cons]
 Jonesy
 Jong
 Joni
@@ -12458,7 +12439,7 @@ Jovetic
 Jovi
 Jovo
 Jovovich
-Joyce
+Joyce [Pr:coys]
 Jozef
 Jozsef
 Jozy
@@ -12716,7 +12697,7 @@ Kandinsky
 Kandiye
 Kandoğan
 Kandur
-Kane
+Kane [Pr:keyn]
 Kaneda
 Kanei
 Kaner
@@ -13037,7 +13018,7 @@ Kaspar
 Kasparov
 Kaspars
 Kasper
-Kaspersky
+Kaspersky [Pr:kasperski]
 Kasr
 Kasrik
 Kassai
@@ -13069,7 +13050,7 @@ Katalonya
 Katalunya
 Katamaran
 Katarina
-Kate
+Kate [Pr:keyt]
 Katerina
 Katharina
 Katharine
@@ -13123,7 +13104,7 @@ Kavuşak
 Kawa
 Kawasaki
 Kawhi
-Kayaalp
+Kayaalp [A:InverseHarmony]
 Kayabağ
 Kayabaş
 Kayabaşı
@@ -13239,7 +13220,7 @@ Keller
 Kellerman
 Kelley
 Kellogg
-Kelly
+Kelly [Pr:keli]
 Kelsey
 Kelso
 Kelt
@@ -13266,7 +13247,7 @@ Kendrick
 Keneş
 Kenichi
 Kenji
-Kennedy
+Kennedy [Pr:kenedi]
 Kennerman
 Kenneth
 Kenney
@@ -13283,7 +13264,7 @@ Kentmen
 Kenton
 Kentpark
 Kentplus
-Kentucky
+Kentucky [Pr:kentaki]
 Kenwood
 Kenyatta
 Kenyon
@@ -13578,7 +13559,7 @@ Kipros
 Kiptaş
 Kirazlıdere
 Kirazoğlu
-Kirby
+Kirby [Pr:körbi]
 Kirchner
 Kireçburnu
 Kireçtepe
@@ -13588,7 +13569,7 @@ Kirilenko
 Kirill
 Kirişci
 Kirita
-Kirk
+Kirk [Pr:körk]
 Kirkland
 Kirkor
 Kirman
@@ -13657,7 +13638,7 @@ Kmerler
 Knesset
 Knicks
 Knidos
-Knight
+Knight [Pr:nayt]
 Knightley
 Knights
 Knope
@@ -13820,7 +13801,6 @@ Kool
 Koons
 Kopatchinskaja
 Kopenhag
-Kopenhagta
 Koper
 Kopernik
 Koptaş
@@ -14331,12 +14311,12 @@ Laço
 Ladies
 Ladino
 Lado
-Lady
+Lady [Pr:leydi]
 Laeken
-Lafarge
+Lafarge [Pr:lafarj]
 Lafayette
 Lafferty
-Lagarde
+Lagarde [Pr:lagard]
 Lagendijk
 Lagerblom
 Lagerfeld
@@ -14353,7 +14333,7 @@ Laik
 Laila
 Lajos
 Lake
-Lakers
+Lakers [Pr:leykırs]
 Laki
 Lakovic
 Lakshmi
@@ -14498,7 +14478,7 @@ Lawal
 Lawless
 Lawn
 Lawrance
-Lawrence
+Lawrence [Pr:lorıns]
 Laws
 Lawson
 Lawton
@@ -14516,7 +14496,7 @@ Lazistan
 Lazkiye
 Leadership
 Leaf
-League
+League [Pr:lig]
 Leah
 Leahy
 Leandro
@@ -14567,7 +14547,7 @@ Leia
 Leibniz
 Leibovitz
 Leica
-Leicester
+Leicester [Pr:lestır]
 Leiden
 Leif
 Leigh
@@ -14599,7 +14579,7 @@ Leningrad
 Lenkeran
 Lennart
 Lennie
-Lennon
+Lennon [Pr:lenın]
 Lennox
 Lenny
 Leno
@@ -14666,7 +14646,7 @@ Levis
 Levitt
 Levon
 Levski
-Levy
+Levy [Pr:levi]
 Levyy
 Lewandowski
 Lewicki
@@ -14685,7 +14665,6 @@ Lezgi
 Lezita
 Lhasa
 Lıbor
-Lıverpool
 Liam
 Liana
 Liang
@@ -14741,7 +14720,7 @@ Lilian
 Liliane
 Lilith
 Lillard
-Lille
+Lille [Pr:lil]
 Lillian
 Lillikas
 Lilly
@@ -14761,7 +14740,7 @@ Limontepe
 Limter
 Lina
 Linas
-Lincoln
+Lincoln [Pr:linköln]
 Lincolne
 Lind
 Linda
@@ -14779,8 +14758,7 @@ Lineker
 Linens
 Lines
 Ling
-Linkedın
-Linkedin
+LinkedIn [Pr:linktin; A:LocaleEn]
 Linklater
 Linn
 Linnes
@@ -14816,9 +14794,9 @@ Litvinenko
 Liuzzi
 Livaneli
 Livaze
-Live
-Lively
-Liverpool
+Live [Pr:layv]
+Lively [Pr:layvli]
+Liverpool [Pr:livırpul]
 Lives
 Livia
 Living
@@ -14850,7 +14828,7 @@ Locarno
 Loch
 Lochte
 Lock
-Locke
+Locke [Pr:lok]
 Locker
 Lockerbie
 Lockett
@@ -14940,16 +14918,16 @@ Louai
 Louboutin
 Loud
 Louie
-Louis
+Louis [Pr:lui,luis]
 Louisa
 Louise
 Louisiana
 Louisville
 Lounge
 Lourdes
-Louvre
+Louvre [Pr:luvr]
 Lovato
-Love
+Love [Pr:lav]
 Lovegrove
 Lovelace
 Lovelet
@@ -14994,7 +14972,7 @@ Luck
 Lucky
 Lucretia
 Lucrezia
-Lucy
+Lucy [Pr:lusi]
 Ludmila
 Ludo
 Ludogorets
@@ -15023,7 +15001,7 @@ Lukas
 Lukasz
 Lukaşenko
 Lukaşeviç
-Luke
+Luke [Pr:luk]
 Lukic
 Lukoil
 Luksa
@@ -15084,7 +15062,7 @@ Lykia
 Lyla
 Lyle
 Lyme
-Lynch
+Lynch [Pr:linç]
 Lyndon
 Lyndsey
 Lynette
@@ -15376,9 +15354,7 @@ Manavgatspor
 Manavkuyu
 Mance
 Mancha
-Manchester
-Manchesterı
-Manchesterın
+Manchester [Pr:mançestır]
 Mancini
 Manço
 Mançurya
@@ -15422,7 +15398,7 @@ Mans
 Mansell
 Mansfield
 Mansimov
-Manson
+Manson [Pr:mensın]
 Mansour
 Mansur
 Mansuriye
@@ -15532,7 +15508,7 @@ Marisa
 Marisol
 Marissa
 Maritime
-Mariupol
+Mariupol [Pr:mariupöl,mariupol]
 Marius
 Mariya
 Mariza
@@ -15620,8 +15596,8 @@ Marvin
 Marwan
 Marwijk
 Marx
-Mary
-Maryland
+Mary [Pr:meri]
+Maryland [Pr:merilend]
 Marys
 Marzuk
 Marzuki
@@ -15652,8 +15628,7 @@ Massimo
 Massive
 Master
 Mastercard
-Masterındex
-Masters
+Masters [Pr:mastırs]
 Mastroianni
 Masuka
 Masur
@@ -15798,7 +15773,7 @@ Mccain
 Mccalebb
 Mccall
 Mccann
-Mccarthy
+McCarthy [Pr:mekkarti]
 Mccartney
 Mcchrystal
 Mcclane
@@ -15968,7 +15943,7 @@ Melandri
 Melanie
 Melanom
 Melatonin
-Melbourne
+Melbourne [Pr:melbörn,melburn]
 Melda
 Mele
 Melek
@@ -16027,7 +16002,7 @@ Mendez
 Mendi
 Mendonça
 Mendoza
-Mendy
+Mendy [Pr:mendi]
 Menelaus
 Menendez
 Menevşe
@@ -16067,7 +16042,7 @@ Mercimek
 Merck
 Mercosur
 Mercure
-Mercury
+Mercury [Pr:mörküri]
 Mercümek
 Mercy
 Merçil
@@ -16210,8 +16185,6 @@ Mezoterapi
 Mezzaluna
 Mgane
 Mgladbach
-Mıcex
-Mıchael
 Mıgırdiç
 Mıhellemi
 Mılf
@@ -16229,7 +16202,7 @@ Mica
 Micah
 Mican
 Micha
-Michael
+Michael [Pr:maykıl]
 Michaela
 Michaella
 Michaels
@@ -16260,7 +16233,7 @@ Miçooğulları
 Midas
 Middle
 Middlesbrough
-Middleton
+Middleton [Pr:midıltın]
 Midhat
 Midland
 Midnight
@@ -16305,7 +16278,7 @@ Mikati
 Mikatur
 Mikdad
 Mikdat
-Mike
+Mike [Pr:mayk]
 Mikel
 Mikela
 Mikey
@@ -16351,7 +16324,7 @@ Millas
 Millenicom
 Millenium
 Millennium
-Miller
+Miller [Pr:milır]
 Milletmeclisi
 Millie
 Millieğitim
@@ -16594,7 +16567,7 @@ Monaco
 Monaghan
 Monako
 Monchengladbach
-Monde
+Monde [Pr:mond]
 Mondeo
 Mondi
 Mondial
@@ -16619,7 +16592,7 @@ Monnet
 Mono
 Monocle
 Monopoly
-Monroe
+Monroe [Pr:monro]
 Mons
 Monsanto
 Monsieur
@@ -16660,7 +16633,7 @@ Moodys
 Moon
 Mooney
 Moonlight
-Moore
+Moore [Pr:mur]
 Moorea
 Mooreu
 Moose
@@ -16752,7 +16725,7 @@ Motion
 Motlanthe
 Moto
 Moto2 [Pr:motoiki]
-Motogp
+MotoGP [Pr:motocipi]
 Motokros
 Motorola
 Motors
@@ -16893,8 +16866,8 @@ Murmansk
 Murnau
 Muro
 Murph
-Murphy
-Murray
+Murphy [Pr:mörfi]
+Murray [Pr:mari,mörey]
 Mursal
 Mursi
 Murtaza
@@ -16913,11 +16886,11 @@ Muscat
 Muse
 Museum
 Museveni
-Music
+Music [Pr:müzik]
 Musica
 Musical
 Musil
-Musk
+Musk [Pr:mask]
 Muskat
 Muslera
 Muslihi
@@ -17127,7 +17100,7 @@ Nanking
 Nanna
 Nanni
 Nanterre
-Nantes
+Nantes [Pr:nant]
 Naoko
 Naomi
 Naoto
@@ -17209,7 +17182,7 @@ Natoyolu
 Natsu
 Natura
 Natural
-Nature
+Nature [Pr:neyçır]
 Naturel
 Naum
 Naumoski
@@ -17370,7 +17343,7 @@ Neto
 Nets
 Netscape
 Netsitesini
-Network
+Network [Pr:netvörk]
 Networks
 Networkü
 Neuchatel
@@ -17407,7 +17380,7 @@ Nevval
 Nevvar
 Nevzad
 Newark
-Newcastle
+Newcastle [Pr:nyukasıl]
 Newell
 Newells
 Newfoundland
@@ -17415,11 +17388,11 @@ Newley
 Newman
 Newport
 Newroz
-News
+News [Pr:nivs,nyuvs]
 Newsnight
 Newsweek
 Newt
-Newton
+Newton [Pr:nivtın,nivton]
 Newtown
 Newyork
 Next
@@ -17477,7 +17450,7 @@ Nights
 Nigris
 Niğbolu
 Nihad
-Nihal
+Nihal [A:InverseHarmony]
 Nihali
 Nihan
 Nihat
@@ -17543,7 +17516,7 @@ Nişantaşı
 Nişanyan
 Nitro
 Nivea
-Nixon
+Nixon [Pr:niksın]
 Niyazi
 Niyazii
 Niyazov
@@ -17649,7 +17622,7 @@ Nuçe
 Nuevo
 Nufus
 Nugent
-Nuggets
+Nuggets [Pr:nagıts]
 Nuhiu
 Nuhoğlu
 Nukan
@@ -17772,7 +17745,7 @@ Oculus
 Odabaş
 Odaköy
 Odakule
-Odatv
+Odatv [Pr:odativi]
 Odayeri
 Odeabank
 Odell
@@ -17829,7 +17802,6 @@ Oğuzalp [A:InverseHarmony]
 Oğuzhan
 Oğuzman
 Oğuztan
-Ohal
 Ohannes
 Ohare
 Ohio
@@ -17904,7 +17876,7 @@ Olimpos
 Olin
 Olive
 Oliveira
-Oliver
+Oliver [Pr:olivır]
 Olivera
 Olivia
 Olivier
@@ -17959,7 +17931,7 @@ Ongan
 Onikişubat
 Onişenko
 Onizuka
-Online
+Online [Pr:onlayn]
 Only
 Onno
 Ontario
@@ -17976,7 +17948,7 @@ Opcw
 Opdr
 Opec
 Opel
-Open
+Open [Pr:opın]
 Openoffice
 Oper
 Operation
@@ -17984,7 +17956,7 @@ Opet
 Ophelia
 Opie
 Oppa
-Oppenheimer
+Oppenheimer [Pr:opınhaymır]
 Oppo
 Opportunity
 Oprah
@@ -18086,7 +18058,7 @@ Osama
 Osasuna
 Osborn
 Osborne
-Osbourne
+Osbourne [Pr:ozborn]
 Osbük
 Oscar
 Oscorp
@@ -18561,7 +18533,7 @@ Pablo
 Pabuçcu
 Pabuçdere
 Pace
-Pacers
+Pacers [Pr:peysırs]
 Pacheco
 Pachulia
 Paciencia
@@ -18606,7 +18578,7 @@ Paktika
 Paktuna
 Pakyürek
 Palabıyık
-Palace
+Palace [Pr:palıs]
 Palacio
 Palacios
 Palahniuk
@@ -18736,7 +18708,7 @@ Paris
 Parish
 Parisien
 Park
-Parker
+Parker [Pr:parkır]
 Parkinson
 Parkorman
 Parks
@@ -18755,7 +18727,7 @@ Parsadan
 Parseker
 Parsons
 Part
-Partners
+Partners [Pr:partnırs]
 Party
 Pasadena
 Pasalic
@@ -18772,7 +18744,7 @@ Pasok
 Pasolini
 Pasquale
 Pasqualino
-Pass
+Pass [Pr:pes]
 Passage
 Passat
 Passion
@@ -18826,7 +18798,7 @@ Patti
 Pattinson
 Patton
 Patty
-Paul
+Paul [Pr:pol,pöl]
 Paula
 Paule
 Pauleta
@@ -18854,7 +18826,7 @@ Pawnee
 Paxton
 Payas
 Payaz
-Payne
+Payne [Pr:peyn]
 Paypal
 Paypass
 Payzın
@@ -19002,7 +18974,7 @@ Perperoglou
 Perran
 Perrier
 Perrin
-Perry
+Perry [Pr:peri]
 Pers
 Persephone
 Persepolis
@@ -19039,7 +19011,7 @@ Petder
 Pete
 Petek
 Petekkaya
-Peter
+Peter [Pr:pitır]
 Peters
 Petersburg
 Peterson
@@ -19081,7 +19053,7 @@ Peyman
 Peyote
 Peyton
 Pfeiffer
-Pfizer
+Pfizer [Pr:fayzır,fayzer]
 Phantom
 Pharma
 Pharrell
@@ -19098,7 +19070,7 @@ Philedelphia
 Philip
 Philipp
 Philippa
-Philippe
+Philippe [Pr:filip]
 Philips
 Phillip
 Phillippe
@@ -19143,7 +19115,7 @@ Pick
 Pickering
 Pico
 Picture
-Pictures
+Pictures [Pr:pikçırs]
 Piebalgs
 Piece
 Piemonte
@@ -19152,7 +19124,7 @@ Pier
 Pierce
 Pierluigi
 Piero
-Pierre
+Pierre [Pr:piyer]
 Pierson
 Piet
 Pieter
@@ -19256,13 +19228,13 @@ Plantoys
 Plassnik
 Plastic
 Plata
-Plate
+Plate [Pr:pleyt]
 Plath
 Platini
 Platinum
 Platt
 Platz
-Play
+Play [Pr:pley]
 Playbook
 Playboy
 Player
@@ -19285,7 +19257,7 @@ Plouffe
 Plovdiv
 Plug
 Plummer
-Plus
+Plus [Pr:plas]
 Pluto
 Pluton
 Plymouth
@@ -19413,7 +19385,7 @@ Potoçari
 Potomac
 Potro
 Potsdam
-Potter
+Potter [Pr:potır]
 Potts
 Potuk
 Poul
@@ -19466,7 +19438,7 @@ Prentiss
 Prescott
 Present
 President
-Presley
+Presley [Pr:presli,presley]
 Press
 Prestige
 Pretoria
@@ -19476,7 +19448,7 @@ Prevention
 Preveze
 Preview
 Preziosi
-Price
+Price [Pr:prays]
 Pricewaterhousecoopers
 Pride
 Priene
@@ -19507,7 +19479,7 @@ Pritzker
 Prius
 Private
 Privy
-Prix
+Prix [Pr:pri,priks]
 Priya
 Prizren
 Prkacin
@@ -19701,7 +19673,7 @@ Race
 Racer
 Rach
 Rachael
-Rachel
+Rachel [Pr:reyçıl]
 Rachid
 Rachida
 Racing
@@ -19835,7 +19807,7 @@ Randy
 Range
 Rangelov
 Ranger
-Rangers
+Rangers [Pr:reyncırs]
 Rangnick
 Rango
 Rani
@@ -19926,7 +19898,7 @@ Readers
 Reading
 Ready
 Reagan
-Real
+Real [A:InverseHarmony]
 Reale
 Reali
 Reality
@@ -20008,7 +19980,7 @@ Rehhagel
 Rehman
 Rehn
 Reıdın
-Reich
+Reich [Pr:rayh]
 Reichstag
 Reid
 Reiki
@@ -20051,7 +20023,7 @@ Renata
 Renate
 Renato
 Renaud
-Renault
+Renault [Pr:reno,renolt]
 Renç
 Rençber
 Renda
@@ -20061,7 +20033,7 @@ Renegade
 Renly
 Renna
 Renner
-Rennes
+Rennes [Pr:ren]
 Rennie
 Renny
 Reno
@@ -20073,7 +20045,7 @@ Renzi
 Renzo
 Replikas
 Report
-Reporter
+Reporter [Pr:riportır]
 Reports
 Repsol
 Repubblica
@@ -20081,7 +20053,7 @@ Republic
 Republica
 Requiem
 Rescue
-Research
+Research [Pr:risörç]
 Reserve
 Reset
 Residance
@@ -20120,7 +20092,7 @@ Reuben
 Reunion
 Reus
 Reuter
-Reuters
+Reuters [Pr:roytırs,roytirs]
 Reuven
 Revenge
 Review
@@ -20282,10 +20254,10 @@ Robbie
 Robbins
 Robby
 Rober
-Robert
+Robert [Pr:robırt]
 Roberta
 Roberto
-Roberts
+Roberts [Pr:robırts]
 Robertson
 Robespierre
 Robin
@@ -20310,13 +20282,13 @@ Rochester
 Rock
 Rockefeller
 Rocket
-Rockets
+Rockets [Pr:rokıts]
 Rockn
 Rocknroll
 Rocks
 Rockstar
 Rockwell
-Rocky
+Rocky [Pr:roki]
 Rod
 Roddick
 Roddy
@@ -20423,7 +20395,7 @@ Rosario
 Rosatom
 Rosberg
 Roscoe
-Rose
+Rose [Pr:roz]
 Roseanna
 Rosell
 Rosemary
@@ -20479,7 +20451,7 @@ Router
 Roux
 Rove
 Rover
-Rovers
+Rovers [Pr:rovırs]
 Rovio
 Rowan
 Rowe
@@ -20513,7 +20485,7 @@ Rubin
 Rubina
 Rubinstein
 Rubio
-Ruby
+Ruby [Pr:rubi]
 Rudaw
 Rudd
 Rudeyna
@@ -20558,7 +20530,7 @@ Rushdie
 Rusk
 Russ
 Russel
-Russell
+Russell [Pr:rasıl]
 Russia
 Russo
 Rustam
@@ -20786,7 +20758,7 @@ Salisbury
 Salk
 Sallallahu
 Salle
-Sally
+Sally [Pr:seli]
 Salmon
 Salmond
 Salmons
@@ -20870,7 +20842,7 @@ Sand
 Sandberg
 Sander
 Sandero
-Sanders
+Sanders [Pr:sendırs]
 Sanderson
 Sandıkçıoğlu
 Sandıklıspor
@@ -20944,7 +20916,7 @@ Saraç
 Saraçoğlu
 Sarafin
 Sarafyan
-Sarah
+Sarah [Pr:sera]
 Sarai
 Sarajevo
 Saral
@@ -21202,7 +21174,7 @@ Schwarzer
 Schwarzkopf
 Schweinsteiger
 Schweitzer
-Science
+Science [Pr:sayıns]
 Sciences
 Scientific
 Scientist
@@ -21221,7 +21193,7 @@ Scorsese
 Scotch
 Scotia
 Scotland
-Scott
+Scott [Pr:skat]
 Scottie
 Scotty
 Scout
@@ -21250,7 +21222,7 @@ Seas
 Season
 Seasons
 Seat
-Seattle
+Seattle [Pr:siyatıl]
 Seba
 Sebah
 Sebahat
@@ -21519,7 +21491,7 @@ Setra
 Settar
 Settings
 Setur
-Seul
+Seul [Pr:seül]
 Seung
 Sevag
 Sevahir
@@ -21614,7 +21586,7 @@ Shah
 Shahar
 Shake
 Shakes
-Shakespeare
+Shakespeare [Pr:şekspir]
 Shakhtar
 Shakira
 Shaktar
@@ -21623,7 +21595,7 @@ Shalini
 Shaman
 Shan
 Shandong
-Shane
+Shane [Pr:şeyn]
 Shang
 Shangai
 Shanghai
@@ -21693,9 +21665,8 @@ Sherwood
 Sheryl
 Sheva
 Shevchenko
-Shıeld
 Shia
-Shield
+Shield [Pr:şild; A:LocaleEn]
 Shields
 Shift
 Shiftdelete
@@ -21856,7 +21827,7 @@ Simonyi
 Simoviç
 Simple
 Simply
-Simpson
+Simpson [Pr:simpsın]
 Simpsons
 Simran
 Sims
@@ -21892,7 +21863,7 @@ Singapur
 Singer
 Singh
 Singham
-Single
+Single [Pr:singıl]
 Sinirlioğlu
 Sinisa
 Sinn
@@ -21983,7 +21954,7 @@ Skytürk
 Skywalker
 Slade
 Sladziç
-Slam
+Slam [Pr:slem]
 Slash
 Slate
 Slater
@@ -22032,7 +22003,7 @@ Smolensk
 Smooth
 Smyrna
 Snake
-Snapchat
+Snapchat [Pr:snepçet]
 Snapdragon
 Snape
 Sneijder
@@ -22053,7 +22024,7 @@ Sochi
 Social
 Sociedad
 Societe
-Society
+Society [Pr:sosayti]
 Socrates
 Soçi
 Sodep
@@ -22177,7 +22148,7 @@ Sorak
 Soral
 Sorani
 Soraya
-Sorbonne
+Sorbonne [Pr:sorbon]
 Sordo
 Soren
 Sorento
@@ -22208,7 +22179,7 @@ Sousa
 Soussa
 Souter
 South
-Southampton
+Southampton [Pr:sauthemptın]
 Southern
 Southgate
 Southjet
@@ -22285,13 +22256,13 @@ Speed
 Speedy
 Speer
 Spence
-Spencer
+Spencer [Pr:spensır]
 Spice
 Spider
 Spiderman
 Spiegel
 Spielberg
-Spike
+Spike [Pr:spayk]
 Spil
 Spin
 Spinal
@@ -22318,8 +22289,8 @@ Sportbild
 Sporting
 Sportoto
 Sports
-Sporx
-Spotify
+Sporx [Pr:sporiks]
+Spotify [Pr:spotifay]
 Spradon
 Spray
 Spring
@@ -22330,7 +22301,7 @@ Springsteen
 Sprint
 Sprinter
 Spurling
-Spurs
+Spurs [Pr:spörs]
 Sputnik
 Spyder
 Spyker
@@ -22388,7 +22359,7 @@ Stansted
 Stanton
 Staples
 Starbuck
-Starbucks
+Starbucks [Pr:starbaks]
 Starcity
 Starck
 Starcraft
@@ -22418,7 +22389,7 @@ Stavros
 Stay
 Steadman
 Steak
-Steam
+Steam [Pr:stim]
 Stearns
 Steau
 Steaua
@@ -22498,7 +22469,7 @@ Stirling
 Stjepan
 Stoch
 Stock
-Stockholm
+Stockholm [Pr:stokhölm]
 Stockton
 Stockwell
 Stoiber
@@ -22507,13 +22478,13 @@ Stojakoviç
 Stoke
 Stoker
 Stokes
-Stokholm
+Stokholm [Pr:stokhölm]
 Stoltenberg
-Stone
+Stone [Pr:ston]
 Stonehenge
 Stoner
-Stones
-Store
+Stones [Pr:stons]
+Store [Pr:stor]
 Storelar
 Stories
 Stork
@@ -22577,7 +22548,7 @@ Stutgart
 Stuttgart
 Stuxnet
 Style
-Styles
+Styles [Pr:stayls]
 Suad
 Suada
 Suadiye
@@ -22611,7 +22582,7 @@ Suha
 Suharto
 Suicide
 Suiçmez
-Suisse
+Suisse [Pr:suis]
 Suites
 Sukap
 Sukhoi
@@ -22652,7 +22623,7 @@ Sunbae
 Sundance
 Sunday
 Sunder
-Sunderland
+Sunderland [Pr:sandırlend]
 Suner
 Sunexpress
 Sung
@@ -22664,7 +22635,7 @@ Sunni
 Sunny
 Sunrise
 Sunroof
-Suns
+Suns [Pr:sans]
 Sunset
 Sunshine
 Sunter
@@ -22674,7 +22645,7 @@ Superbike
 Superfin
 Superga
 Superior
-Superman
+Superman [Pr:süpırmen]
 Supernatural
 Superonline
 Supersonics
@@ -22811,8 +22782,7 @@ Swedish
 Sweeney
 Sweet
 Sweets
-Swıft
-Swift
+Swift [A:LocaleEn]
 Swing
 Swinton
 Swiss
@@ -23435,7 +23405,7 @@ Tatari
 Tataroğlu
 Tataş
 Tatavla
-Tate
+Tate [Pr:teyt]
 Tatış
 Tati
 Tatiana
@@ -23478,7 +23448,7 @@ Tayfur
 Taygun
 Taylan
 Tayland
-Taylor
+Taylor [Pr:teylır]
 Taymaz
 Taysad
 Tayshaun
@@ -23506,7 +23476,7 @@ Tech
 Techcrunch
 Techno
 Technologies
-Technology
+Technology [Pr:teknoloci]
 Tecimer
 Teda
 Tedak
@@ -23748,10 +23718,10 @@ Thaksin
 Thales
 Thames
 Thani
-Thatcher
+Thatcher [Pr:teçır]
 Thea
 Theater
-Theatre
+Theatre [Pr:tiyatır]
 Theft
 Thein
 Theis
@@ -23792,7 +23762,7 @@ This
 Thoden
 Thom
 Thomas
-Thompson
+Thompson [Pr:tampsın]
 Thomsen
 Thomson
 Thor
@@ -23808,11 +23778,11 @@ Thorsten
 Thrace
 Three
 Thriller
-Thrones
+Thrones [Pr:trons]
 Through
 Thule
 Thun
-Thunder
+Thunder [Pr:tandır]
 Thundera
 Thunderbird
 Thunderbolt
@@ -23869,12 +23839,12 @@ Tilly
 Tilmaç
 Tilman
 Timaş
-Timberlake
+Timberlake [Pr:timbırleyk]
 Timberland
-Timberwolves
+Timberwolves [Pr:timbırvulfs]
 Timbuktu
-Time
-Times
+Time [Pr:taym]
+Times [Pr:tayms]
 Timmermans
 Timmy
 Timo
@@ -23939,7 +23909,7 @@ Toby
 Toçev
 Toçoğlu
 Todaie
-Today
+Today [Pr:tudey]
 Todays
 Todd
 Todizoo
@@ -24011,7 +23981,7 @@ Tomislav
 Tomlinson
 Tommaso
 Tommiks
-Tommy
+Tommy [Pr:tomi]
 Tomorrow
 Tomris
 Toms
@@ -24028,7 +23998,7 @@ Tonguç
 Tongüç
 Toni
 Tonight
-Tony
+Tony [Pr:toni]
 Tonyukuk
 Took
 Tool
@@ -24116,7 +24086,7 @@ Touch
 Touchwiz
 Toulalan
 Toulon
-Toulouse
+Toulouse [Pr:tuluz]
 Tour
 Touraine
 Touran
@@ -24128,7 +24098,7 @@ Tourismo
 Tourliner
 Tourneo
 Tours
-Tower
+Tower [Pr:tavır]
 Towerland
 Towers
 Town
@@ -24226,7 +24196,7 @@ Trenton
 Treviso
 Trevor
 Trey
-Trezeguet
+Trezeguet [Pr:trezege,trezeget]
 Triad
 Triano
 Triatlon
@@ -24292,7 +24262,7 @@ Trujillo
 Trukid
 Trulli
 Truman
-Trump
+Trump [Pr:tramp]
 Trust
 Truth
 Truva
@@ -24427,7 +24397,7 @@ Turmepa
 Turn
 Turnagöl
 Turnbull
-Turner
+Turner [Pr:törnır]
 Turob
 Turow
 Turquality
@@ -24593,7 +24563,7 @@ Tyreke
 Tyrell
 Tyrion
 Tyrone
-Tyson
+Tyson [Pr:taysın]
 Tywin
 Tzipi
 Tzob
@@ -24734,8 +24704,6 @@ Underground
 Underwood
 Unger
 Unhcr
-Unıfıl
-Unıversıade
 Unicaja
 Unicredit
 Unicredito
@@ -24744,12 +24712,12 @@ Unilever
 Union
 Unirea
 Unit
-United
+United [Pr:yunaytıd]
 Unity
 Universal
 Universe
 Universiad
-Universiade
+Universiade [Pr:üniversiyad; A:LocaleEn]
 University
 Unix
 Unkapanı
@@ -24789,7 +24757,6 @@ Urumçi
 Urumiye
 Uruzgan
 Urziceni
-Usaıd
 Usain
 Usak
 Usame
@@ -24945,7 +24912,7 @@ Uzunyol
 Vaaay
 Vaart
 Vaclav
-Vader
+Vader [Pr:veydır]
 Vadistanbul
 Vaditepe
 Vaduz
@@ -25016,8 +24983,8 @@ Valverde
 Vamık
 Vamos
 Vanackere
-Vance
-Vancouver
+Vance [Pr:vens]
+Vancouver [Pr:venkuvır]
 Vançelik
 Vanden
 Vandenberg
@@ -25054,7 +25021,7 @@ Varela
 Varga
 Vargas
 Variant
-Variety
+Variety [Pr:verayti]
 Varikosel
 Varin
 Varinius
@@ -25188,7 +25155,7 @@ Vermeer
 Vermont
 Vern
 Verna
-Verne
+Verne [Pr:vern]
 Vernon
 Vero
 Veron
@@ -25293,7 +25260,7 @@ Villakent
 Villanueva
 Villar
 Villareal
-Villarreal
+Villarreal [A:InverseHarmony]
 Villas
 Ville
 Villeneuve
@@ -25386,7 +25353,7 @@ Vodka
 Vogel
 Vogt
 Vogts
-Vogue
+Vogue [Pr:vog]
 Voıp
 Voice
 Voight
@@ -25408,7 +25375,7 @@ Volley
 Volm
 Volos
 Volou
-Voltaire
+Voltaire [Pr:volter]
 Voltran
 Volume
 Volvo
@@ -25474,11 +25441,11 @@ Wales
 Walesa
 Walk
 Walken
-Walker
+Walker [Pr:volkır]
 Walking
 Walkman
 Wall
-Wallace
+Wallace [Pr:volıs]
 Wallerstein
 Wallis
 Wallpaper
@@ -25487,7 +25454,7 @@ Walmart
 Walser
 Walsh
 Walt
-Walter
+Walter [Pr:voltır]
 Walters
 Walton
 Waltz
@@ -25507,10 +25474,10 @@ Warlow
 Warm
 Warner
 Warp
-Warren
+Warren [Pr:vorın]
 Warrick
 Warrior
-Warriors
+Warriors [Pr:voriyırs]
 Wars
 Warsi
 Warwick
@@ -25523,10 +25490,10 @@ Water
 Watergate
 Waterloo
 Waterman
-Waters
+Waters [Pr:votırs]
 Watford
 Watkins
-Watson
+Watson [Pr:vatsın]
 Watsons
 Watt
 Watts
@@ -25535,7 +25502,7 @@ Wauters
 Wave
 Waverly
 Wawrinka
-Wayne
+Wayne [Pr:veyn]
 Wbush
 Wealth
 Wear
@@ -25565,7 +25532,7 @@ Weil
 Weill
 Weimar
 Weiner
-Weinstein
+Weinstein [Pr:vaynştayn,vaynstin]
 Weir
 Weis
 Weise
@@ -25638,7 +25605,7 @@ Whiskey
 Whistler
 Whit
 Whitaker
-White
+White [Pr:vayt]
 Whitehead
 Whitesnake
 Whitey
@@ -25652,7 +25619,6 @@ Whoo
 Whoopi
 Whos
 Whyte
-Wıpo
 Wichita
 Wick
 Wickham
@@ -25678,7 +25644,7 @@ Wilbur
 Wilco
 Wilcox
 Wild
-Wilde
+Wilde [Pr:vayld]
 Wilder
 Wilders
 Wiley
@@ -25707,7 +25673,7 @@ Willy
 Wilma
 Wilmington
 Wilshere
-Wilson
+Wilson [Pr:vilsın]
 Wilt
 Wilton
 Wiltshire
@@ -25805,7 +25771,7 @@ Wook
 Woolf
 Woolwich
 Woong
-Word
+Word [Pr:vörd]
 Wordpress
 Words
 Worf
@@ -25813,7 +25779,7 @@ Work
 Working
 Works
 Workshop
-World
+World [Pr:vörld]
 Worldcard
 Worldpuan
 Worlds
@@ -25829,7 +25795,7 @@ Wozniak
 Wrangler
 Wren
 Wrestler
-Wright
+Wright [Pr:rayt]
 Wroclaw
 Wuhan
 Wulff
@@ -25846,7 +25812,7 @@ Xabi
 Xamax
 Xanadu
 Xanax
-Xander
+Xander [Pr:zendır]
 Xani
 Xanthi
 Xanthos
@@ -26056,7 +26022,7 @@ Yeldeğirmeni
 Yelena
 Yeliz
 Yelki
-Yellen
+Yellen [Pr:yelın,yelen]
 Yellow
 Yellowstone
 Yeloğlu
@@ -26236,7 +26202,7 @@ Yorgos
 York
 Yorke
 Yorker
-Yorkshire
+Yorkshire [Pr:yorkşır]
 Yoros
 Yosef
 Yosemite
@@ -26251,11 +26217,11 @@ Yota
 Yougov
 Youla
 Younes
-Young
+Young [Pr:yang]
 Yourself
 Youssef
 Youth
-Youtube
+YouTube [Pr:yutub]
 Youzhny
 Yovanovitch
 Yoyo
@@ -26551,7 +26517,7 @@ Ziad
 Ziani
 Zico
 Zidan
-Zidane
+Zidane [Pr:zidan]
 Ziegfeld
 Ziegler
 Zielona
@@ -26644,7 +26610,7 @@ Zubizarreta
 Zubkov
 Zuccotti
 Zuckerberg
-Zuhal
+Zuhal [A:InverseHarmony]
 Zuhri
 Zuhuratbaba
 Zulu
