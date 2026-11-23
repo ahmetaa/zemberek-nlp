@@ -8,6 +8,7 @@ import static zemberek.core.turkish.RootAttribute.LastVowelDrop;
 import static zemberek.core.turkish.RootAttribute.ProgressiveVowelDrop;
 import static zemberek.core.turkish.RootAttribute.Voicing;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.TurkicLetter;
+import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.LexiconException;
@@ -61,15 +63,35 @@ abstract class StemTransitionsBase {
     if (SPECIAL_ROOTS.contains(item.id)) {
       return handleSpecialRoots(item);
     }
+    List<StemTransition> transitions;
     if (!Collections.disjoint(item.attributes, MODIFIERS)) {
-      return generateModifiedRootNodes(item);
+      transitions = generateModifiedRootNodes(item);
+    } else {
+      AttributeSet<PhoneticAttribute> phoneticAttributes = calculateAttributes(item.pronunciation);
+      if (isNonDroppedLastVowelDropVariant(item)) {
+        phoneticAttributes.add(PhoneticAttribute.ExpectsVowel);
+        phoneticAttributes.add(PhoneticAttribute.CannotTerminate);
+      }
+      transitions = List.of(stemTransition(item.root, item, phoneticAttributes, null));
     }
-    AttributeSet<PhoneticAttribute> phoneticAttributes = calculateAttributes(item.pronunciation);
-    if (isNonDroppedLastVowelDropVariant(item)) {
-      phoneticAttributes.add(PhoneticAttribute.ExpectsVowel);
-      phoneticAttributes.add(PhoneticAttribute.CannotTerminate);
+    if (!item.hasAttribute(RootAttribute.LocaleEn)) {
+      return transitions;
     }
-    return List.of(stemTransition(item.root, item, phoneticAttributes, null));
+    List<StemTransition> withLocaleEn = new ArrayList<>(transitions.size() + 2);
+    withLocaleEn.addAll(transitions);
+    StemTransition base = transitions.get(0);
+    String trStem = ALPHABET.normalizeCircumflex(item.lemma.toLowerCase(Turkish.LOCALE))
+        .replace("'", "").replace(".", "");
+    if (trStem.length() == base.surface.length() && !trStem.equals(base.surface)) {
+      withLocaleEn.add(new StemTransition(trStem, item, base.getPhoneticAttributes(), base.to));
+    }
+    for (StemTransition st : transitions) {
+      String dotless = st.surface.replace('i', 'ı');
+      if (!dotless.equals(st.surface) && !dotless.equals(trStem)) {
+        withLocaleEn.add(new StemTransition(dotless, item, st.getPhoneticAttributes(), st.to));
+      }
+    }
+    return withLocaleEn;
   }
 
   private boolean isNonDroppedLastVowelDropVariant(DictionaryItem item) {

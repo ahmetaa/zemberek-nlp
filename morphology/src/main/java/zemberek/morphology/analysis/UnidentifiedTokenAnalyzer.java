@@ -244,7 +244,7 @@ public class UnidentifiedTokenAnalyzer {
     if (!Turkish.Alphabet.containsVowel(stem)) {
       return guesser.toTurkishLetterPronunciations(stem);
     } else {
-      return stem;
+      return guesser.replaceEnglishSpecificChars(stem);
     }
   }
 
@@ -372,12 +372,16 @@ public class UnidentifiedTokenAnalyzer {
     for (Numerals numerals : Numerals.values()) {
       Matcher m = numerals.pattern.matcher(se.stem);
       if (m.find()) {
+        String effectiveLemma =
+            (numerals == Numerals.TIME && se.stem.endsWith("00") && se.stem.length() >= 4)
+                ? numeralEndingMachine.find(se.stem.substring(0, se.stem.length() - 3))
+                : lemma;
         String toParse;
-        if (se.ending.length() > 0 && lemma.equals("dört") &&
+        if (se.ending.length() > 0 && effectiveLemma.equals("dört") &&
             ALPHABET.isVowel(se.ending.charAt(0))) {
           toParse = "dörd" + se.ending;
         } else {
-          toParse = lemma + se.ending;
+          toParse = effectiveLemma + se.ending;
         }
         List<SingleAnalysis> res = analyzer.analyze(toParse);
         for (SingleAnalysis re : res) {
@@ -387,7 +391,7 @@ public class UnidentifiedTokenAnalyzer {
           DictionaryItem runTimeItem = new DictionaryItem(
               se.stem,
               se.stem,
-              s + lemma,
+              s + effectiveLemma,
               PrimaryPos.Numeral,
               numerals.secondaryPos);
           runTimeItem.attributes.add(RootAttribute.Runtime);
