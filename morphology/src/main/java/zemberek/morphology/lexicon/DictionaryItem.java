@@ -1,6 +1,7 @@
 package zemberek.morphology.lexicon;
 
 import java.util.EnumSet;
+import java.util.List;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.SecondaryPos;
@@ -36,9 +37,14 @@ public class DictionaryItem {
    */
   public final EnumSet<RootAttribute> attributes;
   /**
-   * Pronunciations of the item. TODO: This should be converted to an actual 'Pronunciation' item
+   * Primary pronunciation of the item.
    */
   public final String pronunciation;
+
+  /**
+   * Optional secondary pronunciations for items with multiple accepted suffix harmonies.
+   */
+  public final List<String> alternativePronunciations;
 
   /**
    * This is the unique ID of the item. It is generated from Pos and lemma. If there are multiple
@@ -57,14 +63,7 @@ public class DictionaryItem {
       PrimaryPos primaryPos,
       SecondaryPos secondaryPos,
       EnumSet<RootAttribute> attributes) {
-    this.pronunciation = pronunciation;
-    this.lemma = lemma;
-    this.primaryPos = primaryPos;
-    this.secondaryPos = secondaryPos;
-    this.attributes = attributes;
-    this.root = root;
-    this.index = 0;
-    this.id = generateId(lemma, primaryPos, secondaryPos, 0);
+    this(lemma, root, pronunciation, primaryPos, secondaryPos, attributes, 0, List.of());
   }
 
   public DictionaryItem(
@@ -75,6 +74,18 @@ public class DictionaryItem {
       SecondaryPos secondaryPos,
       EnumSet<RootAttribute> attributes,
       int index) {
+    this(lemma, root, pronunciation, primaryPos, secondaryPos, attributes, index, List.of());
+  }
+
+  public DictionaryItem(
+      String lemma,
+      String root,
+      String pronunciation,
+      PrimaryPos primaryPos,
+      SecondaryPos secondaryPos,
+      EnumSet<RootAttribute> attributes,
+      int index,
+      List<String> alternativePronunciations) {
     this.pronunciation = pronunciation;
     this.lemma = lemma;
     this.primaryPos = primaryPos;
@@ -82,6 +93,10 @@ public class DictionaryItem {
     this.attributes = attributes;
     this.root = root;
     this.index = index;
+    this.alternativePronunciations =
+        alternativePronunciations == null || alternativePronunciations.isEmpty()
+            ? List.of()
+            : List.copyOf(alternativePronunciations);
     this.id = generateId(lemma, primaryPos, secondaryPos, index);
   }
 
@@ -90,14 +105,7 @@ public class DictionaryItem {
       PrimaryPos primaryPos,
       SecondaryPos secondaryPos,
       EnumSet<RootAttribute> attributes) {
-    this.lemma = lemma;
-    this.pronunciation = root;
-    this.primaryPos = primaryPos;
-    this.secondaryPos = secondaryPos;
-    this.attributes = attributes;
-    this.root = root;
-    this.index = 0;
-    this.id = generateId(lemma, primaryPos, secondaryPos, 0);
+    this(lemma, root, root, primaryPos, secondaryPos, attributes, 0, List.of());
   }
 
   public DictionaryItem(String lemma,
@@ -105,14 +113,7 @@ public class DictionaryItem {
       String pronunciation,
       PrimaryPos primaryPos,
       SecondaryPos secondaryPos) {
-    this.lemma = lemma;
-    this.pronunciation = pronunciation;
-    this.primaryPos = primaryPos;
-    this.secondaryPos = secondaryPos;
-    this.attributes = EnumSet.noneOf(RootAttribute.class);
-    this.root = root;
-    this.index = 0;
-    this.id = generateId(lemma, primaryPos, secondaryPos, 0);
+    this(lemma, root, pronunciation, primaryPos, secondaryPos, EnumSet.noneOf(RootAttribute.class), 0, List.of());
   }
 
   public static String generateId(String lemma, PrimaryPos pos, SecondaryPos spos, int index) {

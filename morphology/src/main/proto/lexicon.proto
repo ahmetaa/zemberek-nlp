@@ -104,6 +104,7 @@ message DictionaryItem {
   SecondaryPos secondary_pos = 6;
   repeated RootAttribute root_attributes = 7;
   int32 index = 8;
+  repeated string alternative_pronunciations = 9;
 }
 
 message Dictionary {
