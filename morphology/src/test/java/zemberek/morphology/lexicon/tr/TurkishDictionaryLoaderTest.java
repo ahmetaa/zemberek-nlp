@@ -216,7 +216,7 @@ public class TurkishDictionaryLoaderTest {
         NoVoicing, Voicing, InverseHarmony, LastVowelDrop, Doubling
     );
     java.util.Set<String> intentionalExceptions = java.util.Set.of(
-        "kalp", "hasut", "nefis", "kadir"
+        "bol", "kalp", "nefis", "kadir"
     );
     java.util.Map<String, List<DictionaryItem>> byLemma = new java.util.HashMap<>();
     for (DictionaryItem item : lexicon) {
