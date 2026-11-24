@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import zemberek.core.io.IOs;
 import zemberek.core.io.KeyValueReader;
 import zemberek.core.io.Strings;
@@ -390,6 +391,10 @@ public class TurkishNumbers {
     return true;
   }
 
+  private static final Pattern ROMAN_NUMERAL_PATTERN =
+      Pattern.compile("^(M{0,3})(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$",
+          Pattern.CASE_INSENSITIVE);
+
   /**
    * Converts a canonical Roman numeral (1..3999, case-insensitive) to a decimal integer.
    *
@@ -397,86 +402,26 @@ public class TurkishNumbers {
    * @return decimal equivalent, or -1 if invalid.
    */
   public static int romanToDecimal(String s) {
-    if (s == null || s.isEmpty()) {
+    if (s == null || s.isEmpty() || !ROMAN_NUMERAL_PATTERN.matcher(s).matches()) {
       return -1;
     }
-    int len = s.length();
-    int i = 0;
     int result = 0;
-
-    // Thousands: M{0,3}
-    int mCount = 0;
-    while (i < len && toUpperAscii(s.charAt(i)) == 'M') {
-      if (++mCount > 3) {
-        return -1;
-      }
-      result += 1000;
-      i++;
+    int prev = 0;
+    for (int i = s.length() - 1; i >= 0; i--) {
+      int val = switch (Character.toUpperCase(s.charAt(i))) {
+        case 'I' -> 1;
+        case 'V' -> 5;
+        case 'X' -> 10;
+        case 'L' -> 50;
+        case 'C' -> 100;
+        case 'D' -> 500;
+        case 'M' -> 1000;
+        default -> 0;
+      };
+      result += (val < prev) ? -val : val;
+      prev = val;
     }
-
-    // Hundreds: CM | CD | D?C{0,3}
-    int h = parseRomanPlace(s, i, len, 'C', 'D', 'M');
-    if (h < 0) {
-      return -1;
-    }
-    result += (h >>> 4) * 100;
-    i += (h & 0xF);
-
-    // Tens: XC | XL | L?X{0,3}
-    int t = parseRomanPlace(s, i, len, 'X', 'L', 'C');
-    if (t < 0) {
-      return -1;
-    }
-    result += (t >>> 4) * 10;
-    i += (t & 0xF);
-
-    // Ones: IX | IV | V?I{0,3}
-    int o = parseRomanPlace(s, i, len, 'I', 'V', 'X');
-    if (o < 0) {
-      return -1;
-    }
-    result += (o >>> 4);
-    i += (o & 0xF);
-
-    return i == len ? result : -1;
-  }
-
-  // Parses one Roman numeral decimal place (e.g., CM|CD|D?C{0,3}), returning (digit << 4) | consumed,
-  // or -1 on invalid repetition (>3).
-  private static int parseRomanPlace(
-      String s, int start, int len, char one, char five, char ten) {
-    if (start >= len) {
-      return 0;
-    }
-    char c0 = toUpperAscii(s.charAt(start));
-    if (c0 == one) {
-      if (start + 1 < len) {
-        char c1 = toUpperAscii(s.charAt(start + 1));
-        if (c1 == ten) {
-          return (9 << 4) | 2;
-        }
-        if (c1 == five) {
-          return (4 << 4) | 2;
-        }
-      }
-      int cnt = 1;
-      while (start + cnt < len && toUpperAscii(s.charAt(start + cnt)) == one) {
-        if (++cnt > 3) {
-          return -1;
-        }
-      }
-      return (cnt << 4) | cnt;
-    }
-    if (c0 == five) {
-      int cnt = 0;
-      while (start + 1 + cnt < len && toUpperAscii(s.charAt(start + 1 + cnt)) == one) {
-        if (++cnt > 3) {
-          return -1;
-        }
-      }
-      return ((5 + cnt) << 4) | (1 + cnt);
-    }
-    return 0;
+    return result;
   }
 
   private static List<String> splitBySpaces(String text) {
@@ -500,10 +445,6 @@ public class TurkishNumbers {
 
   private static boolean isAsciiDigit(char c) {
     return c >= '0' && c <= '9';
-  }
-
-  private static char toUpperAscii(char c) {
-    return (c >= 'a' && c <= 'z') ? (char) (c - 32) : c;
   }
 
 }
