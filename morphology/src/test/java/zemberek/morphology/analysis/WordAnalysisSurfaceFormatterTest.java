@@ -186,4 +186,18 @@ public class WordAnalysisSurfaceFormatterTest {
     }
   }
 
+  @Test
+  public void formatToCaseEdgeCases() {
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .disableCache()
+        .setLexicon("Ankara")
+        .build();
+    WordAnalysisSurfaceFormatter formatter = new WordAnalysisSurfaceFormatter();
+    SingleAnalysis analysis = morphology.analyze("ankarada").getAnalysisResults().get(0);
+
+    Assert.assertEquals("", formatter.formatToCase(analysis, MIXED_CASE));
+    Assert.assertEquals("ANKARA’da",
+        formatter.formatToCase(analysis, UPPER_CASE_ROOT_LOWER_CASE_ENDING, "’"));
+  }
+
 }

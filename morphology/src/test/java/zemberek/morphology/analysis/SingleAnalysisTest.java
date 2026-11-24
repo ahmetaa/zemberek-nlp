@@ -172,4 +172,27 @@ public class SingleAnalysisTest extends AnalyzerTestBase {
     Assert.assertTrue(ext.isRegularWord());
   }
 
+  @Test
+  public void endingSurfaceAndHashCodeTest() {
+    RuleBasedAnalyzer analyzer = getAnalyzer("kitap");
+    SingleAnalysis bare = analyzer.analyze("kitap").get(0);
+    Assert.assertEquals("", bare.getEnding());
+    Assert.assertEquals("kitap", bare.surfaceForm());
+    Assert.assertFalse(bare.containsInformalMorpheme());
+
+    SingleAnalysis oneSuffix = analyzer.analyze("kitaplar").get(0);
+    Assert.assertEquals("lar", oneSuffix.getEnding());
+    Assert.assertEquals("kitaplar", oneSuffix.surfaceForm());
+
+    SingleAnalysis multiSuffix = analyzer.analyze("kitaplarda").get(0);
+    Assert.assertEquals("larda", multiSuffix.getEnding());
+    Assert.assertEquals("kitaplarda", multiSuffix.surfaceForm());
+    Assert.assertEquals(multiSuffix.getMorphemeDataList().size(), multiSuffix.getMorphemes().size());
+
+    SingleAnalysis copy = analyzer.analyze("kitaplarda").get(0);
+    Assert.assertEquals(multiSuffix, copy);
+    Assert.assertEquals(multiSuffix.hashCode(), copy.hashCode());
+    Assert.assertNotEquals(oneSuffix, multiSuffix);
+  }
+
 }
