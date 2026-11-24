@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
@@ -33,16 +31,12 @@ public class UnidentifiedTokenAnalyzer {
 
   private RuleBasedAnalyzer analyzer;
   private RootLexicon lexicon;
-  private TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
   private TurkishNumeralEndingMachine numeralEndingMachine = new TurkishNumeralEndingMachine();
 
   public UnidentifiedTokenAnalyzer(RuleBasedAnalyzer analyzer) {
     this.analyzer = analyzer;
     this.lexicon = analyzer.getLexicon();
   }
-
-  public static final Pattern nonLettersPattern =
-      Pattern.compile("[^" + TurkishAlphabet.INSTANCE.getAllLetters() + "]");
 
   public synchronized List<SingleAnalysis> analyze(Token token) {
     SecondaryPos sPos = guessSecondaryPosType(token);
@@ -53,7 +47,7 @@ public class UnidentifiedTokenAnalyzer {
       if (word.contains("?")) {
         return Collections.emptyList();
       }
-      if (alphabet.containsDigit(word)) {
+      if (ALPHABET.containsDigit(word)) {
         List<SingleAnalysis> numeralAnalyses = tryNumeral(token);
         if (!numeralAnalyses.isEmpty()) {
           return numeralAnalyses;
@@ -70,16 +64,16 @@ public class UnidentifiedTokenAnalyzer {
       return tryNumeral(token);
     }
 
-    //TODO: consider returning analysis results without interfering with analyzer.
-    String normalized = nonLettersPattern.matcher(word).replaceAll("");
-    DictionaryItem item = new DictionaryItem(word, word, normalized, PrimaryPos.Noun, sPos);
-
     if (sPos == SecondaryPos.HashTag ||
         sPos == SecondaryPos.Email ||
         sPos == SecondaryPos.Url ||
         sPos == SecondaryPos.Mention) {
       return analyzeWord(word, sPos);
     }
+
+    //TODO: consider returning analysis results without interfering with analyzer.
+    String normalized = stripNonLetters(word);
+    DictionaryItem item = new DictionaryItem(word, word, normalized, PrimaryPos.Noun, sPos);
 
     boolean itemDoesNotExist = !lexicon.containsItem(item);
     if (itemDoesNotExist) {
@@ -91,6 +85,17 @@ public class UnidentifiedTokenAnalyzer {
       analyzer.getStemTransitions().removeDictionaryItem(item);
     }
     return results;
+  }
+
+  private static String stripNonLetters(String word) {
+    StringBuilder sb = new StringBuilder(word.length());
+    for (int i = 0; i < word.length(); i++) {
+      char c = word.charAt(i);
+      if (ALPHABET.isDictionaryLetter(c)) {
+        sb.append(c);
+      }
+    }
+    return sb.toString();
   }
 
   private SecondaryPos guessSecondaryPosType(Token token) {
@@ -137,19 +142,18 @@ public class UnidentifiedTokenAnalyzer {
 
   private List<SingleAnalysis> tryWithoutApostrophe(String word, SecondaryPos secondaryPos) {
     String normalized = null;
-    TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
-    if (alphabet.containsForeignDiacritics(word)) {
-      normalized = alphabet.foreignDiacriticsToTurkish(word);
+    if (ALPHABET.containsForeignDiacritics(word)) {
+      normalized = ALPHABET.foreignDiacriticsToTurkish(word);
     }
     normalized = normalized == null ?
-        alphabet.normalize(word) :
-        alphabet.normalize(normalized);
+        ALPHABET.normalize(word) :
+        ALPHABET.normalize(normalized);
 
     boolean capitalize = secondaryPos == SecondaryPos.ProperNoun ||
         secondaryPos == SecondaryPos.Abbreviation;
 
     //TODO: should we remove dots with normalization?
-    String pronunciation = guessPronunciation(normalized.replaceAll("[.]", ""));
+    String pronunciation = guessPronunciation(normalized.replace(".", ""));
 
     DictionaryItem item = new DictionaryItem(
         capitalize ? Turkish.capitalize(normalized) : normalized,
@@ -158,7 +162,7 @@ public class UnidentifiedTokenAnalyzer {
         PrimaryPos.Noun,
         secondaryPos);
 
-    if (!alphabet.containsVowel(pronunciation)) {
+    if (!ALPHABET.containsVowel(pronunciation)) {
       List<SingleAnalysis> result = new ArrayList<>(1);
       result.add(SingleAnalysis.dummy(word, item));
       return result;
@@ -178,7 +182,7 @@ public class UnidentifiedTokenAnalyzer {
   }
 
   private List<SingleAnalysis> tryWordWithApostrophe(String word, SecondaryPos secondaryPos) {
-    String normalized = TurkishAlphabet.INSTANCE.normalizeApostrophe(word);
+    String normalized = ALPHABET.normalizeApostrophe(word);
 
     int index = normalized.lastIndexOf('\'');
     if (index <= 0 || index == normalized.length() - 1) {
@@ -193,17 +197,17 @@ public class UnidentifiedTokenAnalyzer {
     String cleanStem = se.stem.replace("'", "");
     boolean alphanumericStem =
         (secondaryPos == SecondaryPos.ProperNoun || secondaryPos == SecondaryPos.Abbreviation)
-            && alphabet.containsDigit(cleanStem);
+            && ALPHABET.containsDigit(cleanStem);
     String stemNormalized = alphanumericStem
-        ? alphabet.normalizeCircumflex(cleanStem.toLowerCase(Turkish.LOCALE)).replaceAll("[.]", "")
-        : TurkishAlphabet.INSTANCE.normalize(cleanStem).replaceAll("[.]", "");
-    String endingNormalized = TurkishAlphabet.INSTANCE.normalize(se.ending);
+        ? ALPHABET.normalizeCircumflex(cleanStem.toLowerCase(Turkish.LOCALE)).replace(".", "")
+        : ALPHABET.normalize(cleanStem).replace(".", "");
+    String endingNormalized = ALPHABET.normalize(se.ending);
     String pronunciation = guessStemPronunciation(cleanStem, stemNormalized, secondaryPos);
 
     boolean capitalize = secondaryPos == SecondaryPos.ProperNoun ||
         secondaryPos == SecondaryPos.Abbreviation;
 
-    boolean pronunciationPossible = alphabet.containsVowel(pronunciation);
+    boolean pronunciationPossible = ALPHABET.containsVowel(pronunciation);
 
     DictionaryItem item = new DictionaryItem(
         capitalize ? Turkish.capitalize(stem) : (pronunciationPossible ? stem : word),
@@ -241,7 +245,7 @@ public class UnidentifiedTokenAnalyzer {
   PronunciationGuesser guesser = new PronunciationGuesser();
 
   private String guessPronunciation(String stem) {
-    if (!Turkish.Alphabet.containsVowel(stem)) {
+    if (!ALPHABET.containsVowel(stem)) {
       return guesser.toTurkishLetterPronunciations(stem);
     } else {
       return guesser.replaceEnglishSpecificChars(stem);
@@ -263,16 +267,15 @@ public class UnidentifiedTokenAnalyzer {
   private String guessStemPronunciation(
       String rawStem, String stemNormalized, SecondaryPos secondaryPos) {
     if ((secondaryPos == SecondaryPos.ProperNoun || secondaryPos == SecondaryPos.Abbreviation)
-        && alphabet.containsDigit(rawStem)) {
+        && ALPHABET.containsDigit(rawStem)) {
       return guesser.toTurkishLetterPronunciations(
-          rawStem.toLowerCase(Turkish.LOCALE).replaceAll("[.]", ""));
+          rawStem.toLowerCase(Turkish.LOCALE).replace(".", ""));
     }
     int lastDot = rawStem.lastIndexOf('.');
     if (lastDot >= 0 && lastDot < rawStem.length() - 1) {
-      String lastSegment = TurkishAlphabet.INSTANCE.normalize(rawStem.substring(lastDot + 1));
-      if (!lastSegment.isEmpty() && !alphabet.containsVowel(lastSegment)) {
-        String prefix = TurkishAlphabet.INSTANCE.normalize(rawStem.substring(0, lastDot))
-            .replaceAll("[.]", "");
+      String lastSegment = ALPHABET.normalize(rawStem.substring(lastDot + 1));
+      if (!lastSegment.isEmpty() && !ALPHABET.containsVowel(lastSegment)) {
+        String prefix = ALPHABET.normalize(rawStem.substring(0, lastDot)).replace(".", "");
         return prefix + guesser.toTurkishLetterPronunciations(lastSegment);
       }
     }
@@ -322,22 +325,15 @@ public class UnidentifiedTokenAnalyzer {
       return new ArrayList<>(0);
     }
 
-    String lemma;
+    String lemma = numeralEndingMachine.find(String.valueOf(decimal));
     if (se.stem.endsWith(".")) {
-      lemma = numeralEndingMachine.find(String.valueOf(decimal));
       lemma = ordinalMap.get(lemma);
-    } else {
-      lemma = numeralEndingMachine.find(String.valueOf(decimal));
+    }
+    if (lemma == null || lemma.isEmpty()) {
+      return Collections.emptyList();
     }
     List<SingleAnalysis> results = Lists.newArrayListWithCapacity(1);
-    String toParse;
-    if (se.ending.length() > 0 && lemma.equals("dört") &&
-        ALPHABET.isVowel(se.ending.charAt(0))) {
-      toParse = "dörd" + se.ending;
-    } else {
-      toParse = lemma + se.ending;
-    }
-    List<SingleAnalysis> res = analyzer.analyze(toParse);
+    List<SingleAnalysis> res = analyzeNumeralLemma(lemma, se.ending);
     for (SingleAnalysis re : res) {
       if (re.getDictionaryItem().primaryPos != PrimaryPos.Numeral) {
         continue;
@@ -355,75 +351,224 @@ public class UnidentifiedTokenAnalyzer {
   }
 
   private List<SingleAnalysis> tryNumeral(Token token) {
-    String s = token.getText();
-    s = s.toLowerCase(TurkishAlphabet.TR);
+    String s = token.getText().toLowerCase(TurkishAlphabet.TR);
     StemAndEnding se = getFromNumeral(s);
+    List<SecondaryPos> secondaryPosList = classifyNumeral(se.stem);
+    if (secondaryPosList.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     String lemma;
     if (se.stem.endsWith(".")) {
       String ss = se.stem.substring(0, se.stem.length() - 1);
-      lemma = numeralEndingMachine.find(ss);
-      lemma = ordinalMap.get(lemma);
+      lemma = ordinalMap.get(numeralEndingMachine.find(ss));
     } else {
       lemma = numeralEndingMachine.find(se.stem);
     }
+    if (lemma == null || lemma.isEmpty()) {
+      return Collections.emptyList();
+    }
 
-    List<SingleAnalysis> results = Lists.newArrayListWithCapacity(1);
+    List<SingleAnalysis> results = Lists.newArrayListWithCapacity(secondaryPosList.size());
+    List<SingleAnalysis> defaultAnalyses = null;
 
-    for (Numerals numerals : Numerals.values()) {
-      Matcher m = numerals.pattern.matcher(se.stem);
-      if (m.find()) {
-        String effectiveLemma =
-            (numerals == Numerals.TIME && se.stem.endsWith("00") && se.stem.length() >= 4)
-                ? numeralEndingMachine.find(se.stem.substring(0, se.stem.length() - 3))
-                : lemma;
-        String toParse;
-        if (se.ending.length() > 0 && effectiveLemma.equals("dört") &&
-            ALPHABET.isVowel(se.ending.charAt(0))) {
-          toParse = "dörd" + se.ending;
-        } else {
-          toParse = effectiveLemma + se.ending;
+    for (SecondaryPos secondaryPos : secondaryPosList) {
+      String effectiveLemma = lemma;
+      List<SingleAnalysis> res;
+      if (secondaryPos == SecondaryPos.Clock
+          && se.stem.endsWith("00")
+          && se.stem.length() >= 4
+          && se.stem.length() <= 5) {
+        effectiveLemma = numeralEndingMachine.find(se.stem.substring(0, se.stem.length() - 3));
+        res = analyzeNumeralLemma(effectiveLemma, se.ending);
+      } else {
+        if (defaultAnalyses == null) {
+          defaultAnalyses = analyzeNumeralLemma(lemma, se.ending);
         }
-        List<SingleAnalysis> res = analyzer.analyze(toParse);
-        for (SingleAnalysis re : res) {
-          if (re.getDictionaryItem().primaryPos != PrimaryPos.Numeral) {
-            continue;
-          }
-          DictionaryItem runTimeItem = new DictionaryItem(
-              se.stem,
-              se.stem,
-              s + effectiveLemma,
-              PrimaryPos.Numeral,
-              numerals.secondaryPos);
-          runTimeItem.attributes.add(RootAttribute.Runtime);
-          results.add(re.copyFor(runTimeItem, se.stem));
+        res = defaultAnalyses;
+      }
+      for (SingleAnalysis re : res) {
+        if (re.getDictionaryItem().primaryPos != PrimaryPos.Numeral) {
+          continue;
         }
+        DictionaryItem runTimeItem = new DictionaryItem(
+            se.stem,
+            se.stem,
+            s + effectiveLemma,
+            PrimaryPos.Numeral,
+            secondaryPos);
+        runTimeItem.attributes.add(RootAttribute.Runtime);
+        results.add(re.copyFor(runTimeItem, se.stem));
       }
     }
     return results;
   }
 
-  // TODO: move this functionality to Lexer.
-  public enum Numerals {
-    CARDINAL("#", "^[+\\-]?\\d+$", SecondaryPos.Cardinal),
-    ORDINAL("#.", "^[+\\-]?[0-9]+[.]$", SecondaryPos.Ordinal),
-    RANGE("#-#", "^[+\\-]?[0-9]+-[0-9]+$", SecondaryPos.Range),
-    RATIO("#/#", "^[+\\-]?[0-9]+/[0-9]+$", SecondaryPos.Ratio),
-    REAL("#,#", "^[+\\-]?[0-9]+[,][0-9]+$|^[+\\-]?[0-9]+[.][0-9]+$", SecondaryPos.Real),
-    DISTRIB("#DIS", "^\\d+[^0-9]+$", SecondaryPos.Distribution),
-    PERCENTAGE_BEFORE("%#", "(^|[+\\-])(%)(\\d+)((([.]|[,])(\\d+))|)$", SecondaryPos.Percentage),
-    TIME("#:#", "^([012][0-9]|[1-9])([.]|[:])([0-5][0-9])$", SecondaryPos.Clock),
-    DATE("##.##.####", "^([0-3][0-9]|[1-9])([.]|[/])([01][0-9]|[1-9])([.]|[/])(\\d{4})$",
-        SecondaryPos.Date);
+  private List<SingleAnalysis> analyzeNumeralLemma(String lemma, String ending) {
+    String toParse =
+        (!ending.isEmpty() && lemma.equals("dört") && ALPHABET.isVowel(ending.charAt(0)))
+            ? "dörd" + ending
+            : lemma + ending;
+    return analyzer.analyze(toParse);
+  }
 
-    public String lemma;
-    public Pattern pattern;
-    public SecondaryPos secondaryPos;
-
-    Numerals(String lemma, String patternStr, SecondaryPos secondaryPos) {
-      this.lemma = lemma;
-      this.pattern = Pattern.compile(patternStr);
-      this.secondaryPos = secondaryPos;
+  /**
+   * Classifies a numeric stem into matching {@link SecondaryPos} types in a single linear pass
+   * without regular expressions.
+   */
+  static List<SecondaryPos> classifyNumeral(String stem) {
+    int len = stem.length();
+    if (len == 0) {
+      return Collections.emptyList();
     }
+
+    int i = 0;
+    boolean hasSign = false;
+    char first = stem.charAt(0);
+    if (first == '+' || first == '-') {
+      hasSign = true;
+      i = 1;
+      if (i == len) {
+        return Collections.emptyList();
+      }
+    }
+
+    if (stem.charAt(i) == '%') {
+      return isValidPercentageBody(stem, i + 1)
+          ? List.of(SecondaryPos.Percentage)
+          : Collections.emptyList();
+    }
+
+    int segCount = 0;
+    int sepCount = 0;
+    char sep1 = 0;
+    char sep2 = 0;
+    int seg0Len = 0, seg1Len = 0, seg2Len = 0;
+    int seg0Val = 0, seg1Val = 0, seg2Val = 0;
+
+    while (i < len) {
+      int segStart = i;
+      int val = 0;
+      while (i < len && isAsciiDigit(stem.charAt(i))) {
+        if (val < 10000) {
+          val = val * 10 + (stem.charAt(i) - '0');
+        }
+        i++;
+      }
+      int segLen = i - segStart;
+      if (segLen == 0) {
+        return Collections.emptyList();
+      }
+      if (segCount == 0) {
+        seg0Len = segLen;
+        seg0Val = val;
+      } else if (segCount == 1) {
+        seg1Len = segLen;
+        seg1Val = val;
+      } else if (segCount == 2) {
+        seg2Len = segLen;
+        seg2Val = val;
+      } else {
+        return Collections.emptyList();
+      }
+      segCount++;
+
+      if (i == len) {
+        break;
+      }
+
+      char c = stem.charAt(i++);
+      if (c == '.' && i == len && segCount == 1) {
+        return List.of(SecondaryPos.Ordinal);
+      }
+      if (i == len) {
+        return Collections.emptyList();
+      }
+      if (sepCount == 0) {
+        sep1 = c;
+      } else if (sepCount == 1) {
+        sep2 = c;
+      } else {
+        return Collections.emptyList();
+      }
+      sepCount++;
+    }
+
+    if (segCount == 1) {
+      return List.of(SecondaryPos.Cardinal);
+    }
+
+    if (segCount == 2) {
+      return switch (sep1) {
+        case '-' -> List.of(SecondaryPos.Range);
+        case '/' -> List.of(SecondaryPos.Ratio);
+        case ',' -> List.of(SecondaryPos.Real);
+        case ':' -> (!hasSign && isValidClock(seg0Len, seg0Val, seg1Len, seg1Val, true))
+            ? List.of(SecondaryPos.Clock)
+            : Collections.emptyList();
+        case '.' -> (!hasSign && isValidClock(seg0Len, seg0Val, seg1Len, seg1Val, false))
+            ? List.of(SecondaryPos.Real, SecondaryPos.Clock)
+            : List.of(SecondaryPos.Real);
+        default -> Collections.emptyList();
+      };
+    }
+
+    // segCount == 3
+    if (hasSign || sep1 != sep2) {
+      return Collections.emptyList();
+    }
+    if (sep1 == ':') {
+      if (isValidClock(seg0Len, seg0Val, seg1Len, seg1Val, true)
+          && seg2Len == 2 && seg2Val <= 59) {
+        return List.of(SecondaryPos.Clock);
+      }
+      return Collections.emptyList();
+    }
+    if (sep1 == '.' || sep1 == '/') {
+      if (seg0Len <= 2 && seg0Val >= 1 && seg0Val <= 31
+          && seg1Len <= 2 && seg1Val >= 1 && seg1Val <= 12
+          && (seg2Len == 4 || seg2Len == 2)) {
+        return List.of(SecondaryPos.Date);
+      }
+    }
+    return Collections.emptyList();
+  }
+
+  private static boolean isValidPercentageBody(String s, int start) {
+    int len = s.length();
+    int i = start;
+    while (i < len && isAsciiDigit(s.charAt(i))) {
+      i++;
+    }
+    if (i == start) {
+      return false;
+    }
+    if (i == len) {
+      return true;
+    }
+    char sep = s.charAt(i++);
+    if ((sep != '.' && sep != ',') || i == len) {
+      return false;
+    }
+    while (i < len && isAsciiDigit(s.charAt(i))) {
+      i++;
+    }
+    return i == len;
+  }
+
+  private static boolean isValidClock(
+      int hourLen, int hour, int minLen, int min, boolean allowSingleZeroHour) {
+    if (hourLen > 2 || minLen != 2 || min > 59) {
+      return false;
+    }
+    if (hourLen == 1) {
+      return allowSingleZeroHour ? hour <= 9 : (hour >= 1 && hour <= 9);
+    }
+    return hour <= 23;
+  }
+
+  private static boolean isAsciiDigit(char c) {
+    return c >= '0' && c <= '9';
   }
 
 }
