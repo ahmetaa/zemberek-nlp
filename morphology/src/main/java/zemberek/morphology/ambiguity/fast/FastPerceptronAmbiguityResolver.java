@@ -42,7 +42,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
   public static final DecodeMode DEFAULT_MODE = DecodeMode.VITERBI;
   public static final int DEFAULT_BEAM_SIZE = 8;
-  public static final String DEFAULT_MODEL_RESOURCE = "/tr/ambiguity/model_10k_argon_v24.bin";
+  public static final String DEFAULT_MODEL_RESOURCE = "/tr/ambiguity/model_15k_v25.bin";
 
   private static final class DefaultModelHolder {
     static final WeightLookup INSTANCE = loadDefaultModel();
