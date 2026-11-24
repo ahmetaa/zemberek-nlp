@@ -3,24 +3,23 @@ package zemberek.morphology.analysis.tr;
 import static java.lang.String.valueOf;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import zemberek.core.io.IOs;
 import zemberek.core.io.KeyValueReader;
 import zemberek.core.io.Strings;
-import zemberek.core.text.Regexps;
 
 public class TurkishNumbers {
 
   public static final long MAX_NUMBER = 999999999999999999L;
   public static final long MIN_NUMBER = -999999999999999999L;
-  private static Map<String, Long> stringToNumber = new HashMap<>();
-  private static Map<Long, String> NUMBER_TABLE = new HashMap<>();
-  private static Map<String, String> ordinalMap = new HashMap<>();
+  private static final Map<String, Long> stringToNumber = new HashMap<>();
+  private static final Map<Long, String> NUMBER_TABLE = new HashMap<>();
+  private static final Map<String, String> ordinalMap;
 
   // fill the NUMBER_TABLE and stringToNumber map.
   static {
@@ -50,31 +49,28 @@ public class TurkishNumbers {
     add(1000000000000L, "trilyon");
     add(1000000000000000L, "katrilyon");
 
-    for (Long s : NUMBER_TABLE.keySet()) {
-      stringToNumber.put(NUMBER_TABLE.get(s), s);
-      // TODO: we should not assume "atmış" -> "altmış"
-      stringToNumber.put("atmış", 60L);
+    for (Map.Entry<Long, String> entry : NUMBER_TABLE.entrySet()) {
+      stringToNumber.put(entry.getValue(), entry.getKey());
     }
+    // TODO: we should not assume "atmış" -> "altmış"
+    stringToNumber.put("atmış", 60L);
 
     // read ordinal readings.
     try {
       KeyValueReader reader = new KeyValueReader(":", "#");
-      ordinalMap = reader
-          .loadFromStream(
-              IOs.getClassPathResourceAsStream("/tr/turkish-ordinal-numbers.txt"), "utf-8");
+      ordinalMap = reader.loadFromStream(
+          IOs.getClassPathResourceAsStream("/tr/turkish-ordinal-numbers.txt"), "utf-8");
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new UncheckedIOException("Failed to load /tr/turkish-ordinal-numbers.txt", e);
     }
   }
 
-  private static String singleDigitNumbers[] = {"", "bir", "iki", "üç", "dört", "beş", "altı",
-      "yedi", "sekiz", "dokuz"};
-  private static String tenToNinety[] = {"", "on", "yirmi", "otuz", "kırk", "elli", "altmış",
-      "yetmiş", "seksen", "doksan"};
-  private static String thousands[] = {"", "bin", "milyon", "milyar", "trilyon", "katrilyon"};
-  private static Pattern NUMBER_SEPARATION = Pattern.compile("[0-9]+|[^0-9 ]+");
-  private static Pattern NOT_NUMBER = Pattern.compile("[^0-9]");
-  private static Pattern NUMBER = Pattern.compile("[0-9]");
+  private static final String[] singleDigitNumbers = {
+      "", "bir", "iki", "üç", "dört", "beş", "altı", "yedi", "sekiz", "dokuz"};
+  private static final String[] tenToNinety = {
+      "", "on", "yirmi", "otuz", "kırk", "elli", "altmış", "yetmiş", "seksen", "doksan"};
+  private static final String[] thousands = {
+      "", "bin", "milyon", "milyar", "trilyon", "katrilyon"};
 
   private static void add(long number, String string) {
     NUMBER_TABLE.put(number, string);
@@ -83,23 +79,34 @@ public class TurkishNumbers {
   /**
    * converts a given three digit number.
    *
-   * @param threeDigitNumber: a three digit number.
+   * @param threeDigitNumber a three digit number.
    * @return turkish string representation of the input number.
    */
   private static String convertThreeDigit(int threeDigitNumber) {
-    String sonuc = "";
     int hundreds = threeDigitNumber / 100;
     int tens = threeDigitNumber / 10 % 10;
     int singleDigit = threeDigitNumber % 10;
 
-    if (hundreds != 0) {
-      sonuc = "yüz";
-    }
+    StringBuilder sb = new StringBuilder(24);
     if (hundreds > 1) {
-      sonuc = singleDigitNumbers[hundreds] + " " + sonuc;
+      sb.append(singleDigitNumbers[hundreds]).append(' ');
     }
-    sonuc = sonuc + " " + tenToNinety[tens] + " " + singleDigitNumbers[singleDigit];
-    return sonuc.trim();
+    if (hundreds != 0) {
+      sb.append("yüz");
+    }
+    if (tens != 0) {
+      if (sb.length() > 0) {
+        sb.append(' ');
+      }
+      sb.append(tenToNinety[tens]);
+    }
+    if (singleDigit != 0) {
+      if (sb.length() > 0) {
+        sb.append(' ');
+      }
+      sb.append(singleDigitNumbers[singleDigit]);
+    }
+    return sb.toString();
   }
 
   public static Map<String, String> getOrdinalMap() {
@@ -109,7 +116,7 @@ public class TurkishNumbers {
   /**
    * returns the Turkish representation of the input. if negative "eksi" string is prepended.
    *
-   * @param input: input. must be between (including both) -999999999999999999L to
+   * @param input input. must be between (including both) -999999999999999999L to
    * 999999999999999999L
    * @return Turkish representation of the input. if negative "eksi" string is prepended.
    * @throws IllegalArgumentException if input value is too low or high.
@@ -127,21 +134,19 @@ public class TurkishNumbers {
     while (girisPos > 0) {
       int uclu = (int) (girisPos % 1000);
       if (uclu != 0) {
+        String part;
         if (uclu == 1 && sayac == 1) {
-          result = thousands[sayac] + " " + result;
+          part = thousands[sayac];
         } else {
-          result = convertThreeDigit(uclu) + " " + thousands[sayac] + " " + result;
+          String digits = convertThreeDigit(uclu);
+          part = thousands[sayac].isEmpty() ? digits : digits + " " + thousands[sayac];
         }
+        result = result.isEmpty() ? part : part + " " + result;
       }
       sayac++;
       girisPos /= 1000;
     }
-    if (input < 0) {
-      return "eksi " + result.trim();
-    } else {
-      return result.trim();
-    }
-
+    return input < 0 ? "eksi " + result : result;
   }
 
   /**
@@ -161,10 +166,9 @@ public class TurkishNumbers {
       }
     }
     String rest = input.substring(i);
-    if (rest.length() > 0) {
+    if (!rest.isEmpty()) {
       sb.add(convertToString(Long.parseLong(rest)));
     }
-
     return String.join(" ", sb);
   }
 
@@ -173,14 +177,19 @@ public class TurkishNumbers {
    * contain any spaces and must be in lowercase.
    *
    * @param word the Turkish representation of a single key number string.
-   * @return the
+   * @return the numeric value.
    * @throws IllegalArgumentException if word is not a number.
    */
   public static long singleWordNumberValue(String word) {
-    if (!stringToNumber.containsKey(word)) {
+    Long val = stringToNumber.get(word);
+    if (val == null) {
       throw new IllegalArgumentException(
           "this is not a valid number string (check case and spaces.): " + word);
     }
+    return val;
+  }
+
+  static Long singleWordNumberValueOrNull(String word) {
     return stringToNumber.get(word);
   }
 
@@ -196,11 +205,8 @@ public class TurkishNumbers {
   public static List<String> replaceNumberStrings(List<String> inputSequence) {
     List<String> output = new ArrayList<>(inputSequence.size());
     for (String s : inputSequence) {
-      if (stringToNumber.containsKey(s)) {
-        output.add(valueOf(stringToNumber.get(s)));
-      } else {
-        output.add(s);
-      }
+      Long val = stringToNumber.get(s);
+      output.add(val != null ? valueOf(val) : s);
     }
     return output;
   }
@@ -217,8 +223,9 @@ public class TurkishNumbers {
   public static List<String> seperateConnectedNumbers(List<String> inputSequence) {
     List<String> output = new ArrayList<>(inputSequence.size());
     for (String s : inputSequence) {
-      if (stringToNumber.containsKey(s)) {
-        output.add(valueOf(stringToNumber.get(s)));
+      Long val = stringToNumber.get(s);
+      if (val != null) {
+        output.add(valueOf(val));
         continue;
       }
       output.addAll(seperateConnectedNumbers(s));
@@ -239,11 +246,12 @@ public class TurkishNumbers {
     StringBuilder str = new StringBuilder();
     List<String> words = new ArrayList<>(2);
     boolean numberFound = false;
-    for (int i = 0; i < input.toCharArray().length; i++) {
-      str.append(input.toCharArray()[i]);
-      if (stringToNumber.containsKey(str.toString())) {
-        words.add(str.toString());
-        str.delete(0, str.length());
+    for (int i = 0, n = input.length(); i < n; i++) {
+      str.append(input.charAt(i));
+      String current = str.toString();
+      if (stringToNumber.containsKey(current)) {
+        words.add(current);
+        str.setLength(0);
         numberFound = true;
       } else {
         numberFound = false;
@@ -256,7 +264,8 @@ public class TurkishNumbers {
     return words;
   }
 
-  private static TurkishTextToNumberConverter textToNumber = new TurkishTextToNumberConverter();
+  private static final TurkishTextToNumberConverter textToNumber =
+      new TurkishTextToNumberConverter();
 
   /**
    * Converts an array of number strings to number, if possible. Returns -1 if conversion is not possible.
@@ -285,7 +294,10 @@ public class TurkishNumbers {
    * @return number representation of input string, or -1 if not possible to convert.
    */
   public static long convertToNumber(String text) {
-    return textToNumber.convert(text.split("[ ]+"));
+    if (text == null) {
+      return -1;
+    }
+    return textToNumber.convert(splitBySpaces(text));
   }
 
   public static String convertOrdinalNumberString(String input) {
@@ -296,20 +308,19 @@ public class TurkishNumbers {
 
     long number = Long.parseLong(numberPart);
     String text = convertToString(number);
-    String[] words = text.trim().split("[ ]+");
-    String lastNumber = words[words.length - 1];
+    List<String> words = splitBySpaces(text);
+    String lastNumber = words.get(words.size() - 1);
 
-    if (ordinalMap.containsKey(lastNumber)) {
-      lastNumber = ordinalMap.get(lastNumber);
-    } else {
+    String ordinal = ordinalMap.get(lastNumber);
+    if (ordinal == null) {
       throw new RuntimeException("Cannot find ordinal reading for:" + lastNumber);
     }
 
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < words.length - 1; i++) {
-      sb.append(words[i]).append(" ");
+    StringBuilder sb = new StringBuilder(text.length() + 4);
+    for (int i = 0; i < words.size() - 1; i++) {
+      sb.append(words.get(i)).append(' ');
     }
-    sb.append(lastNumber);
+    sb.append(ordinal);
     return sb.toString();
   }
 
@@ -324,7 +335,34 @@ public class TurkishNumbers {
    * @return separated list of numerical and non numerical tokens.
    */
   public static List<String> separateNumbers(String s) {
-    return Regexps.allMatches(NUMBER_SEPARATION, s);
+    List<String> result = new ArrayList<>(4);
+    int len = s.length();
+    int i = 0;
+    while (i < len) {
+      char c = s.charAt(i);
+      if (c == ' ') {
+        i++;
+        continue;
+      }
+      int start = i;
+      if (isAsciiDigit(c)) {
+        i++;
+        while (i < len && isAsciiDigit(s.charAt(i))) {
+          i++;
+        }
+      } else {
+        i++;
+        while (i < len) {
+          char ch = s.charAt(i);
+          if (ch == ' ' || isAsciiDigit(ch)) {
+            break;
+          }
+          i++;
+        }
+      }
+      result.add(s.substring(start, i));
+    }
+    return result;
   }
 
   public static String getOrdinal(String input) {
@@ -332,47 +370,81 @@ public class TurkishNumbers {
   }
 
   public static boolean hasNumber(String s) {
-    return NUMBER.matcher(s).find();
+    for (int i = 0, n = s.length(); i < n; i++) {
+      if (isAsciiDigit(s.charAt(i))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public static boolean hasOnlyNumber(String s) {
-    return !NOT_NUMBER.matcher(s).find();
+    int n = s.length();
+    if (n == 0) {
+      return false;
+    }
+    for (int i = 0; i < n; i++) {
+      if (!isAsciiDigit(s.charAt(i))) {
+        return false;
+      }
+    }
+    return true;
   }
 
-
-  static final Pattern romanNumeralPattern =
+  private static final Pattern ROMAN_NUMERAL_PATTERN =
       Pattern.compile("^(M{0,3})(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$",
           Pattern.CASE_INSENSITIVE);
 
   /**
-   * Convert a roman numeral to decimal numbers. Copied from public domain source
-   * (https://stackoverflow.com/a/19392801).
+   * Converts a canonical Roman numeral (1..3999, case-insensitive) to a decimal integer.
    *
    * @param s roman numeral
-   * @return decimal equivalent. if it cannot be converted, -1.
+   * @return decimal equivalent, or -1 if invalid.
    */
   public static int romanToDecimal(String s) {
-    if (s == null ||
-        s.isEmpty() ||
-        !romanNumeralPattern.matcher(s).matches()) {
+    if (s == null || s.isEmpty() || !ROMAN_NUMERAL_PATTERN.matcher(s).matches()) {
       return -1;
     }
-
-    final Matcher matcher = Pattern.compile("M|CM|D|CD|C|XC|L|XL|X|IX|V|IV|I").matcher(s);
-    final int[] decimalValues = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
-    final String[] romanNumerals = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V",
-        "IV", "I"};
     int result = 0;
+    int prev = 0;
+    for (int i = s.length() - 1; i >= 0; i--) {
+      int val = switch (Character.toUpperCase(s.charAt(i))) {
+        case 'I' -> 1;
+        case 'V' -> 5;
+        case 'X' -> 10;
+        case 'L' -> 50;
+        case 'C' -> 100;
+        case 'D' -> 500;
+        case 'M' -> 1000;
+        default -> 0;
+      };
+      result += (val < prev) ? -val : val;
+      prev = val;
+    }
+    return result;
+  }
 
-    while (matcher.find()) {
-      for (int i = 0; i < romanNumerals.length; i++) {
-        if (romanNumerals[i].equals(matcher.group(0))) {
-          result += decimalValues[i];
-        }
+  private static List<String> splitBySpaces(String text) {
+    List<String> parts = new ArrayList<>(4);
+    int len = text.length();
+    int i = 0;
+    while (i < len) {
+      while (i < len && text.charAt(i) == ' ') {
+        i++;
+      }
+      int start = i;
+      while (i < len && text.charAt(i) != ' ') {
+        i++;
+      }
+      if (i > start) {
+        parts.add(text.substring(start, i));
       }
     }
+    return parts;
+  }
 
-    return result;
+  private static boolean isAsciiDigit(char c) {
+    return c >= '0' && c <= '9';
   }
 
 }

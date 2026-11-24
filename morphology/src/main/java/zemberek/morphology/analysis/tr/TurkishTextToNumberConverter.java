@@ -24,10 +24,17 @@ public class TurkishTextToNumberConverter {
   }
 
   public long convert(Collection<String> words) {
+    if (words == null || words.isEmpty()) {
+      return -1;
+    }
     Context context = new Context();
     State state = State.START;
     for (String word : words) {
-      state = context.acceptTransition(state, new Transition(word));
+      Long val = TurkishNumbers.singleWordNumberValueOrNull(word);
+      if (val == null) {
+        return -1;
+      }
+      state = context.acceptTransition(state, new Transition(val));
       if (state == State.ERROR) {
         return -1;
       }
@@ -39,7 +46,7 @@ public class TurkishTextToNumberConverter {
 
     private long total;
     private long valueToAdd;
-    private Transition previousMil = new Transition("sıfır");
+    private Transition previousMil = new Transition(0L);
 
     private State acceptTransition(State currentState, Transition transition) {
 
@@ -252,8 +259,8 @@ public class TurkishTextToNumberConverter {
     final long value;
     final TransitionType type;
 
-    Transition(String str) {
-      this.value = TurkishNumbers.singleWordNumberValue(str);
+    Transition(long value) {
+      this.value = value;
       this.type = TransitionType.getTypeByValue(this.value);
     }
 
