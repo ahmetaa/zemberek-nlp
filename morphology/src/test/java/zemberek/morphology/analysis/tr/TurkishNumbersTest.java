@@ -21,6 +21,9 @@ public class TurkishNumbersTest {
         "bir milyar iki yüz otuz dört milyon beş yüz altmış yedi bin sekiz yüz doksan",
         TurkishNumbers.convertToString(1_234_567_890));
 
+    Assert.assertEquals("yüz bir", TurkishNumbers.convertToString(101));
+    Assert.assertEquals("bin bir", TurkishNumbers.convertToString(1001));
+    Assert.assertEquals("eksi yüz beş", TurkishNumbers.convertToString(-105));
   }
 
   @Test
@@ -43,42 +46,70 @@ public class TurkishNumbersTest {
   public void ordinalTest() {
     Assert.assertEquals("sıfırıncı",
         TurkishNumbers.convertOrdinalNumberString("0."));
+    Assert.assertEquals("yüz birinci",
+        TurkishNumbers.convertOrdinalNumberString("101."));
   }
 
   @Test
   public void separateNumbersTest() {
-    Assert.assertEquals(Lists.newArrayList("H", "12", "A", "5")
-        , TurkishNumbers.separateNumbers("H12A5"));
-    Assert.assertEquals(Lists.newArrayList("F", "16", "'ya")
-        , TurkishNumbers.separateNumbers("F16'ya"));
+    Assert.assertEquals(Lists.newArrayList("H", "12", "A", "5"),
+        TurkishNumbers.separateNumbers("H12A5"));
+    Assert.assertEquals(Lists.newArrayList("F", "16", "'ya"),
+        TurkishNumbers.separateNumbers("F16'ya"));
+    Assert.assertEquals(Lists.newArrayList("a", "12", "b"),
+        TurkishNumbers.separateNumbers("  a 12 b "));
   }
 
   @Test
   public void separateConnectedNumbersTest() {
-    Assert.assertEquals(Lists.newArrayList("on")
-        , TurkishNumbers.seperateConnectedNumbers("on"));
-    Assert.assertEquals(Lists.newArrayList("on", "iki", "bin", "altı", "yüz")
-        , TurkishNumbers.seperateConnectedNumbers("onikibinaltıyüz"));
-    Assert.assertEquals(Lists.newArrayList("bir", "iki", "üç")
-        , TurkishNumbers.seperateConnectedNumbers("birikiüç"));
+    Assert.assertEquals(Lists.newArrayList("on"),
+        TurkishNumbers.seperateConnectedNumbers("on"));
+    Assert.assertEquals(Lists.newArrayList("on", "iki", "bin", "altı", "yüz"),
+        TurkishNumbers.seperateConnectedNumbers("onikibinaltıyüz"));
+    Assert.assertEquals(Lists.newArrayList("bir", "iki", "üç"),
+        TurkishNumbers.seperateConnectedNumbers("birikiüç"));
   }
 
   @Test
   public void testTextToNumber1() {
     Assert.assertEquals(11, TurkishNumbers.convertToNumber("on bir"));
+    Assert.assertEquals(11, TurkishNumbers.convertToNumber("  on   bir  "));
     Assert.assertEquals(111, TurkishNumbers.convertToNumber("yüz on bir"));
     Assert.assertEquals(101, TurkishNumbers.convertToNumber("yüz bir"));
     Assert.assertEquals(1000_000, TurkishNumbers.convertToNumber("bir milyon"));
     Assert.assertEquals(-1, TurkishNumbers.convertToNumber("bir bin"));
+    Assert.assertEquals(-1, TurkishNumbers.convertToNumber("bir armut"));
+    Assert.assertEquals(-1, TurkishNumbers.convertToNumber(""));
+    Assert.assertEquals(-1, TurkishNumbers.convertToNumber("   "));
+    Assert.assertEquals(-1, TurkishNumbers.convertToNumber((String) null));
+  }
+
+  @Test
+  public void hasNumberAndHasOnlyNumberTest() {
+    Assert.assertFalse(TurkishNumbers.hasNumber(""));
+    Assert.assertFalse(TurkishNumbers.hasNumber("abc"));
+    Assert.assertTrue(TurkishNumbers.hasNumber("a1b"));
+
+    Assert.assertFalse(TurkishNumbers.hasOnlyNumber(""));
+    Assert.assertFalse(TurkishNumbers.hasOnlyNumber("12a"));
+    Assert.assertTrue(TurkishNumbers.hasOnlyNumber("0123456789"));
   }
 
   @Test
   public void romanNumberTest() {
-    Assert.assertEquals(-1,
-        TurkishNumbers.romanToDecimal("foo"));
-    Assert.assertEquals(-1,
-        TurkishNumbers.romanToDecimal("IIIIIII"));
-    Assert.assertEquals(1987,
-        TurkishNumbers.romanToDecimal("MCMLXXXVII"));
+    Assert.assertEquals(-1, TurkishNumbers.romanToDecimal(null));
+    Assert.assertEquals(-1, TurkishNumbers.romanToDecimal(""));
+    Assert.assertEquals(-1, TurkishNumbers.romanToDecimal("foo"));
+    Assert.assertEquals(-1, TurkishNumbers.romanToDecimal("IIIIIII"));
+    Assert.assertEquals(-1, TurkishNumbers.romanToDecimal("IIII"));
+    Assert.assertEquals(-1, TurkishNumbers.romanToDecimal("VV"));
+    Assert.assertEquals(-1, TurkishNumbers.romanToDecimal("VX"));
+    Assert.assertEquals(-1, TurkishNumbers.romanToDecimal("MMMM"));
+    Assert.assertEquals(4, TurkishNumbers.romanToDecimal("IV"));
+    Assert.assertEquals(4, TurkishNumbers.romanToDecimal("iv"));
+    Assert.assertEquals(24, TurkishNumbers.romanToDecimal("xxiv"));
+    Assert.assertEquals(1987, TurkishNumbers.romanToDecimal("MCMLXXXVII"));
+    Assert.assertEquals(1987, TurkishNumbers.romanToDecimal("mcmlxxxvii"));
+    Assert.assertEquals(3999, TurkishNumbers.romanToDecimal("MMMCMXCIX"));
   }
 }
