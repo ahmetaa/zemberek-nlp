@@ -223,6 +223,7 @@ ademiyet [A:NoVoicing]
 âdemoğlu [A:CompoundP3sg; Roots:âdem-oğul]
 âdemotu
 adenit [A:NoVoicing]
+adenovirüs
 adese
 adet
 âdet [A:NoVoicing]
@@ -271,11 +272,13 @@ affolmak
 afi
 afif [P:Adj]
 afife [P:Adj]
+afinite
 afis
 afiş
 afişe [P:Adj]
 afişlemek
 afiyet [A:NoVoicing]
+aflatoksin
 afoni
 aforizm
 aforizma
@@ -304,6 +307,7 @@ agnosi
 agnostik [P:Adj]
 agnostisizm
 agnozi
+agonist [A:NoVoicing]
 agora
 agorafobi
 agraf
@@ -313,6 +317,7 @@ agrandisör
 agrega
 agreman
 agresif [P:Adj]
+agresyon
 agronomi
 agu
 agucuk [P:Interj]
@@ -623,7 +628,8 @@ aktinoloji
 aktinolojik [P:Adj]
 aktinyum
 aktivasyon
-aktivist
+aktivist [A:NoVoicing]
+aktivist [P:Adj; A:NoVoicing]
 aktivite
 aktivizm
 aktör
@@ -810,6 +816,7 @@ alize
 alkali
 alkalik [P:Adj]
 alkalimetre
+alkaloid
 alkaloit [A:NoVoicing]
 alkalölçer
 alkan
@@ -839,6 +846,7 @@ almaşık [P:Adj]
 alnaç
 alo [P:Interj]
 alogami
+alopesi
 alotropi
 alp [P:Adj]
 alpaka
@@ -876,6 +884,7 @@ altlamak
 altmışar [P:Adj]
 altmışlık [P:Adj]
 alto
+altsoy
 altuni
 altuni [P:Adj]
 altüst [P:Adj; A:NoVoicing]
@@ -946,6 +955,7 @@ amfiteatr
 amfizem
 amfor
 amfora
+amigdala
 amigo
 amil
 amilaz
@@ -1177,6 +1187,8 @@ antiemperyalist [P:Adj; A:NoVoicing]
 antiemperyalizm
 antifriz
 antihijyenik [P:Adj]
+antihistaminik
+antihistaminik [P:Adj]
 antijen
 antik [P:Adj]
 antika
@@ -1198,6 +1210,8 @@ antipatik [P:Adj]
 antipersonel [P:Adj]
 antiplak
 antipropaganda
+antipsikotik
+antipsikotik [P:Adj]
 antisemit [P:Adj; A:NoVoicing]
 antisemitik [P:Adj]
 antisemitist [P:Adj; A:NoVoicing]
@@ -1215,6 +1229,7 @@ antlaşma
 antlaşmak
 antoloji
 antolojik [P:Adj]
+antosiyanin
 antrakt [A:NoVoicing]
 antrasit
 antre
@@ -1269,6 +1284,7 @@ apiko [P:Adj]
 aplik
 aplikasyon
 aplike
+apne
 apokaliptik [P:Adj]
 apokrif
 apolet [A:NoVoicing]
@@ -1439,6 +1455,7 @@ arnika
 aroma
 aromaterapi
 aromatik [P:Adj]
+aronya
 arozöz
 arp
 arpa
@@ -1544,6 +1561,7 @@ asır [A:LastVowelDrop]
 asi [P:Adj]
 aside
 asidimetre
+asidite
 asil [P:Adj]
 asilzade [P:Adj]
 asimetri
@@ -1584,6 +1602,7 @@ asortik [P:Adj]
 asosyal [P:Adj; A:InverseHarmony]
 asparagas
 aspidistra
+aspirasyon
 aspiratör
 aspirin
 aspur
@@ -1650,6 +1669,8 @@ aşır [A:LastVowelDrop]
 aşıramento
 aşırı [P:Adj]
 aşırı [P:Adv]
+aşırılıkçı
+aşırılıkçı [P:Adj]
 aşırıntı
 aşırmak
 aşırmasyon
@@ -1696,6 +1717,7 @@ ate [P:Adj]
 ateh
 ateist [P:Adj; A:NoVoicing]
 ateizm
+atel
 atelye
 aterina
 ateş
@@ -1774,6 +1796,8 @@ avdetî [P:Adj]
 averaj
 avgın
 avisto
+aviyonik
+aviyonik [P:Adj]
 avize
 avlak
 avlamak
@@ -2775,6 +2799,7 @@ benlik
 benmari
 benmerkezci [P:Adj]
 bent [A:Voicing]
+bentonit [A:NoVoicing]
 benzemek
 benzen
 benzer
@@ -2787,6 +2812,7 @@ benzeşmek
 benzeti
 benzetim
 benzin
+benzodiazepin
 benzol [A:InverseHarmony]
 beraat [A:NoVoicing, InverseHarmony]
 beraatızimmet [A:NoVoicing]
@@ -2862,7 +2888,7 @@ beste
 bestekâr
 bestelemek
 bestenigâr
-bestseller [P:Adj]
+bestseller [P:Adj; Pr:bestselır]
 beşamel
 beşaret [A:NoVoicing]
 beşbıyık
@@ -2930,6 +2956,7 @@ beylik [P:Adj]
 beynamaz [P:Adj]
 beynelmilel [P:Adj]
 beyninde [P:Adv]
+beyran
 beysbol
 beytülmal [A:InverseHarmony]
 beyyine
@@ -3071,6 +3098,7 @@ bileşim
 bileşke
 bileşmek
 bilet [A:NoVoicing]
+biletleme
 bilezik
 bilfarz [P:Adv]
 bilfiil [P:Adv]
@@ -3090,6 +3118,7 @@ bilinç
 bilinçaltı [A:CompoundP3sg; Roots:bilinç-alt]
 bilindik [P:Adj]
 bilirkişi
+bilirubin
 bilistifade [P:Adv]
 biliş
 bilişim
@@ -3133,6 +3162,7 @@ binnetice [P:Adv]
 binyaprak
 binyıl [P:Adv, Time]
 binyıl [P:Noun, Time]
+biotin
 biperva [P:Adv]
 bir [P:Adj]
 bir [P:Adv]
@@ -3225,6 +3255,7 @@ bivefa [P:Adj]
 biyaprak
 biye
 biyel
+biyobelirteç
 biyoçeşitlilik
 biyodizel
 biyoelektrik
@@ -3248,10 +3279,12 @@ biyometeoroloji
 biyometeorolojik [P:Adj]
 biyonik [P:Adj]
 biyopsi
+biyosensör
 biyosfer
 biyoşimi
 biyotit [A:NoVoicing]
 biyotop [A:NoVoicing]
+biyoyakıt [A:NoVoicing]
 biz
 biz [P:Pron,Pers]
 bizar [P:Adv]
@@ -3263,11 +3296,12 @@ bizmut [A:NoVoicing]
 bizon
 bizzat [P:Adv]
 blastula
-blender
+blender [Pr:blendır]
 blok [A:NoVoicing]
 blok [P:Adj;A:NoVoicing]
 blokaj
 bloke [P:Adj]
+bloker
 bloklamak
 bloknot [A:NoVoicing]
 blöf
@@ -3506,6 +3540,7 @@ branş
 bravo [P:Interj]
 bre [P:Conj]
 bre [P:Interj]
+brendi
 breş
 brezil
 brıçka
@@ -4010,7 +4045,7 @@ cezp [A:Voicing]
 cezrî [P:Adj]
 cezve
 change
-charter
+charter [Pr:çartır]
 chat
 cıbıl [P:Adj]
 cıbıldak [P:Adj]
@@ -4562,6 +4597,7 @@ cüzzam
 çelişken [P:Adj]
 çelişki
 çelişmek
+çellist [A:NoVoicing]
 çello
 çelme
 çelmek
@@ -5303,6 +5339,7 @@ defakto [P:Adj]
 defans
 defansif [P:Adj]
 defaten [P:Adv]
+defekt [A:NoVoicing]
 defetmek [A:Voicing, Aorist_A]
 defibratör
 defile
@@ -5318,6 +5355,7 @@ defo
 defolmak
 deformasyon
 deforme [P:Adj]
+deformite
 defroster
 defter
 defterdar
@@ -5369,6 +5407,8 @@ deha
 dehalet [A:NoVoicing]
 dehdeh
 dehhaş [P:Adj]
+dehidrasyon
+dehidratasyon
 dehlemek
 dehliz
 dehşet [A:NoVoicing]
@@ -5660,6 +5700,7 @@ determinant [A:NoVoicing]
 determinasyon
 determinist [P:Adj; A:NoVoicing]
 determinizm
+detoksifikasyon
 detone [P:Adj]
 dev
 dev [P:Adj]
@@ -5906,6 +5947,7 @@ diplomasi
 diplomat [A:NoVoicing]
 diplomatik [P:Adj]
 dipnot [A:NoVoicing]
+dipol [A:InverseHarmony]
 dirayet [A:NoVoicing]
 direk
 direksiyon
@@ -5935,6 +5977,8 @@ dirim
 dirlik
 dirsek
 dirseklemek
+diseksiyon
+disfonksiyon
 disimilasyon
 disiplin
 disipline [P:Adj; A:NoSuffix]
@@ -5948,8 +5992,11 @@ diskotek
 diskur
 dispanser
 dispeç
+displazi
 disponibilite
 disprosyum
+distilasyon
+distopya
 distribütör
 diş
 dişbudak
@@ -5967,6 +6014,8 @@ dişli
 dişli [P:Adj]
 ditiramp
 ditmek [A:Voicing]
+diüretik
+diüretik [P:Adj]
 diva
 dival
 divan
@@ -6192,6 +6241,7 @@ doping
 dopinglemek
 dore
 dore [P:Adj]
+dorsal [P:Adj; A:InverseHarmony]
 dorse
 doru [P:Adj]
 doruk
@@ -6704,6 +6754,7 @@ ekecek
 ekenek
 ekili [P:Adj]
 ekim
+ekimoz
 ekin
 ekinokok [A:NoVoicing]
 ekinoks
@@ -6723,6 +6774,7 @@ ekli [P:Adj]
 ekmek
 ekmek [P:Noun]
 eko
+ekokardiyografi
 ekol [A:InverseHarmony]
 ekolog
 ekoloji
@@ -6767,9 +6819,12 @@ ekspresyonizm
 ekstra [P:Adj]
 ekstra [P:Adv]
 ekstrafor
+ekstraksiyon
+ekstrakt [A:NoVoicing]
 ekstrasistol
 ekstre
 ekstrem [P:Adj]
+ekstremite
 ekşi
 ekşi [P:Adj]
 ekşikulak
@@ -6791,6 +6846,7 @@ elan [P:Adv]
 elastik [P:Adj]
 elastiki [P:Adj]
 elastikiyet [A:NoVoicing]
+elastin
 elbet [P:Adv]
 elbette [P:Adv]
 elbise
@@ -6886,6 +6942,8 @@ eliptik [P:Adj]
 elit [P:Adj; A:NoVoicing]
 eliyle [P:Adv]
 elkızı
+elleçleme
+elleçlemek
 ellemek
 ellik
 elma
@@ -6953,9 +7011,11 @@ emmeç
 emmek
 emmi
 emniyet [A:NoVoicing]
+emoji
 empati
 empermeabl
 empermeabl [P:Adj]
+emperyal [P:Adj; A:InverseHarmony]
 emperyalist [P:Adj; A:NoVoicing]
 emperyalizm
 empoze [P:Adj; A:NoSuffix]
@@ -6995,15 +7055,18 @@ endemik [P:Adj]
 ender [P:Adj]
 ender [P:Adv]
 enderun
+endikasyon
 endirekt [P:Adj]
 endişe
 endoderm
 endogami
 endokrin
 endokrinoloji
+endometriozis
 endoskop [A:NoVoicing]
 endoskopi
 endoskopik [P:Adj]
+endotel
 endotermik [P:Adj]
 endüksiyon
 endüstri
@@ -7050,8 +7113,10 @@ enlemesine [P:Adv]
 enöte
 ensar
 ense
+ensefalit [A:NoVoicing]
 enselemek
 ensest [A:NoVoicing]
+enstalasyon
 enstantane
 enstantane [P:Adj]
 enstitü
@@ -7061,6 +7126,7 @@ enstrümantalizm
 ensülin
 entari
 entegrasyon
+entegratör
 entegre [P:Adj]
 entel
 entel [P:Adj]
@@ -7077,12 +7143,14 @@ enterne [P:Adj]
 entertip [A:NoVoicing]
 entimem
 entipüften [P:Adj]
+entite
 entomolog
 entomoloji
 entomolojik [P:Adj]
 entomolojist [A:NoVoicing]
 entrika
 entropi
+entübasyon
 enva
 envaiçeşit [P:Adj]
 envaitürlü [P:Adj]
@@ -7101,11 +7169,14 @@ epidemiyoloji
 epidemiyolojik [P:Adj]
 epiderm
 epifit [A:NoVoicing]
+epigenetik
+epigenetik [P:Adj]
 epigenez
 epigrafi
 epigram
 epik [P:Adj]
 epikerem
+epikriz
 epilasyon
 epilepsi
 epileptik [P:Adj]
@@ -7361,6 +7432,7 @@ etolojik [P:Adj]
 etraf
 etraflı [P:Adj]
 etraflı [P:Adv]
+etriye
 ettirgen [P:Adj]
 ettoprak
 etüt
@@ -7548,6 +7620,7 @@ fantom
 fanus
 fanya
 fanyol
+fanzin
 far
 faraş
 faraza [P:Adv]
@@ -7668,11 +7741,13 @@ felsefî [P:Adj]
 feminen [P:Adj]
 feminist [A:NoVoicing]
 feminizm
+femur
 fen [A:Doubling]
 fena [P:Adj]
 fenafillâh
 fener
 fenik
+fenilketonüri
 fennî [P:Adj]
 fenol [A:InverseHarmony]
 fenoloji
@@ -7681,6 +7756,7 @@ fenomenal [P:Adj]
 fenomenizm
 fenomenoloji
 fent [A:Voicing]
+fentanil
 feodal [A:InverseHarmony]
 feodal [P:Adj; A:InverseHarmony]
 feodalite
@@ -7715,9 +7791,12 @@ fermantasyon
 fermejüp [A:NoVoicing]
 fermene
 ferment [A:NoVoicing]
+fermentasyon
+fermiyon
 fermiyum
 fermuar
 fernez
+feromon
 fersah
 fersude [P:Adj]
 fert [A:Voicing]
@@ -7836,8 +7915,11 @@ fıtriye
 fıttırmak
 fiber
 fiberglas
+fibrilasyon
 fibrin
 fibrinojen
+fibrozis
+fibula
 fidan
 fide
 fideizm
@@ -7850,6 +7932,7 @@ figür
 figüran
 figürasyon
 figüratif [P:Adj]
+figürin
 fiğ
 fihrist [A:NoVoicing]
 fihristlemek
@@ -7899,7 +7982,10 @@ filizkıran
 filizlemek
 filkulağı [A:CompoundP3sg; Roots:fil-kulak]
 film
+filmografi
 filo
+filogenetik
+filogenetik [P:Adj]
 filojenez
 filoksera
 filolog
@@ -7913,6 +7999,7 @@ filtre
 filtrelemek
 filum
 filvaki [P:Adv]
+filyasyon
 final [A:InverseHarmony]
 finalist [P:Adj;A:NoVoicing]
 finalizm
@@ -7970,8 +8057,11 @@ fitne
 fitne [P:Adj]
 fitnelemek
 fitness
+fitokimyasal
+fitokimyasal [P:Adj]
 fitopatoloji
 fitopatolojik [P:Adj]
+fitoplankton
 fitre
 fiyaka
 fiyasko
@@ -7993,13 +8083,15 @@ fizyolojist [A:NoVoicing]
 fizyonomi
 fizyoterapi
 fizyoterapist [A:NoVoicing]
+flakon
 flâma
 flâmingo
 flândra
 flânel
-flashback
+flashback [A:NoVoicing; Pr:fleşbek]
 flâş
 flâşör
+flavonoid
 flâvta
 flebit [A:NoVoicing]
 flegmon
@@ -8043,6 +8135,7 @@ fokurdamak
 fokurtu
 fokus
 fol
+folat [A:NoVoicing]
 folk
 folklor
 folklorik [P:Adj]
@@ -8104,6 +8197,8 @@ fos [P:Adj]
 foseptik
 fosfat [A:NoVoicing]
 fosfatlamak
+fosfin
+fosfit [A:NoVoicing]
 fosfor
 fosforışı
 fosforışıl [P:Adj]
@@ -8128,6 +8223,7 @@ fotoğrafik [P:Adj]
 fotoğraflamak
 fotojen [P:Adj]
 fotojenik [P:Adj]
+fotokapan
 fotokimya
 fotokinezi
 fotokopi
@@ -8138,6 +8234,7 @@ fotometri
 fotomodel
 fotomontaj
 fotomorfoz
+foton
 fotoroman
 fotosentez
 fotosfer
@@ -8186,6 +8283,7 @@ fritöz
 friz
 fruktoz
 früktoz
+ftalat [A:NoVoicing]
 fuar
 fuaye
 fuel-oil
@@ -8312,6 +8410,7 @@ gammazlamak
 gamsele
 gamze
 gang
+ganglion
 gangliyon
 gangster
 gani [P:Adj]
@@ -8361,6 +8460,7 @@ gasbetmek [A:Voicing, Aorist_A]
 gasp [A:Voicing]
 gassal [A:InverseHarmony]
 gastrit [A:NoVoicing]
+gastroenterit [A:NoVoicing]
 gastroenterolog
 gastroenteroloji
 gastronom
@@ -8498,6 +8598,7 @@ geçinmek
 geçirgen [P:Adj]
 geçirim
 geçişim
+geçişkenlik
 geçişmek
 geçit
 geçkin [P:Adj]
@@ -8713,6 +8814,8 @@ gidi [P:Interj]
 gidişat [A:NoVoicing]
 gidişmek
 gidon
+gigabayt [A:NoVoicing]
+gigavat [A:NoVoicing]
 gilâburu
 gine [P:Adv]
 ginseng
@@ -8761,17 +8864,21 @@ glasnost
 glâsyolog
 glâsyoloji
 glâyöl
+glifosat [A:NoVoicing]
 glikojen
 glikol [A:InverseHarmony]
 glikoz
 glikozit
 glikozüri
 gliserin
+gliserol [A:InverseHarmony]
 global [A:InverseHarmony]
 global [P:Adj; A:InverseHarmony]
 globülin
 glokom
 glokoni
+glukoz
+glutatyon
 glüten
 gnays
 goblen
@@ -8988,6 +9095,7 @@ granülit [A:NoVoicing]
 gravite
 gravür
 gravyer
+greft [A:NoVoicing]
 grekoromen
 gren
 grena
@@ -9247,7 +9355,7 @@ hacıyolu [A:CompoundP3sg; Roots:hacı-yol]
 hacim [A:LastVowelDrop]
 hacir [A:LastVowelDrop]
 haciz [A:LastVowelDrop]
-hacker
+hacker [Pr:heykır]
 haczetmek [A:Voicing, Aorist_A]
 haç
 haçlamak
@@ -9798,6 +9906,7 @@ hedik
 hediye
 hedonist [P:Adj;A:NoVoicing]
 hedonizm
+hegemon
 hegemonya
 hekim
 hekimbaşı
@@ -9875,7 +9984,9 @@ hepten [P:Adv]
 hepyek [A:NoVoicing]
 her [P:Adj]
 her [P:Det]
+herbaryum
 herbiri [P:Pron,Quant]
+herbisit [A:NoVoicing]
 hercaî
 hercümerç [P:Adj]
 herek
@@ -9982,6 +10093,7 @@ hızla [P:Adv]
 hızlı [P:Adj]
 hızölçer
 hibe
+hibiskus
 hibrit [P:Adj]
 hicap
 hicaz
@@ -10005,6 +10117,7 @@ hiddet [A:NoVoicing]
 hidiv
 hidra
 hidrasit
+hidrasyon
 hidrat [A:NoVoicing]
 hidrobiyoloji
 hidrobiyolojik [P:Adj]
@@ -10024,6 +10137,7 @@ hidrokarbon
 hidrokarbonat [A:NoVoicing]
 hidrokarbür
 hidroklorik
+hidroksiklorokin
 hidroksil
 hidroksit
 hidrolik
@@ -10095,12 +10209,15 @@ hiperboloit [P:Adj]
 hipermarket [A:NoVoicing]
 hipermetrop [P:Adj]
 hipertansiyon
+hipertiroidi
 hipnotize [P:Adj]
 hipnoz
 hipoderm
 hipodrom
 hipofiz
 hipoglisemi
+hipoksi
+hipoplazi
 hipopotam
 hiposantır
 hipostaz
@@ -10162,6 +10279,7 @@ holding
 holigan
 holmiyum
 holosen
+hominin
 homojen [P:Adj]
 homolog [P:Adj]
 homonim [P:Adj]
@@ -10549,7 +10667,7 @@ icazetname
 icbar
 icmal [A:InverseHarmony]
 icra
-icraat [A:NoVoicing, ImplicitPlural]
+icraat [A:NoVoicing]
 iç
 iç [P:Adj]
 içbükey [P:Adj]
@@ -10843,6 +10961,7 @@ illet [P:Adj; A:NoVoicing]
 illî [P:Adj]
 illiyet [A:NoVoicing]
 illüstrasyon
+illüstratör
 illüzyon
 illüzyonist [A:NoVoicing]
 illüzyonizm
@@ -10911,7 +11030,8 @@ immünoloji
 immünolojik [P:Adj]
 imparator
 imparatoriçe
-implant
+implant [A:NoVoicing]
+implantasyon
 imrahor
 imren
 imrenmek
@@ -10985,7 +11105,10 @@ infinitezimal [P:Adj; A:InverseHarmony]
 infirak [A:NoVoicing]
 infirat
 infisah
+inflamasyon
+infografik
 informatik
+infüzyon
 ingin
 ingin [P:Adj]
 inha
@@ -11033,6 +11156,7 @@ insanoğlu [A:CompoundP3sg; Roots:insan-oğul]
 insanüstü [P:Adj]
 insektaryum
 insicam
+insidans
 insiraf
 insirafî
 insiyak [A:NoVoicing]
@@ -11076,6 +11200,7 @@ intisap
 intişar
 intizam
 intizar
+intörn
 intranet
 inzal [A:InverseHarmony]
 inzibat [A:NoVoicing]
@@ -11101,6 +11226,7 @@ ipnotizma
 ipnoz
 ipotek
 ipoteklemek
+ippon
 ipsiz [P:Adj]
 iptal [A:InverseHarmony]
 iptida
@@ -11577,6 +11703,7 @@ jön
 jön [P:Adj]
 jönprömiye
 judo
+judoka
 jul [A:InverseHarmony]
 jurnal [A:InverseHarmony]
 jurnallemek [A:InverseHarmony]
@@ -11825,6 +11952,7 @@ kalburüstü [P:Adj]
 kalça
 kalçete
 kalçın
+kaldera
 kaldıraç
 kaldırım
 kaldırmak
@@ -12009,6 +12137,7 @@ kankırmızı [P:Adj]
 kankurutan
 kanlamak
 kanmak
+kannabinoid
 kano
 kanon
 kanotiye
@@ -12096,6 +12225,7 @@ kapora
 kaporta
 kapriçyo
 kapris
+kapsaisin
 kapsam
 kapsamak
 kapsül
@@ -12336,6 +12466,8 @@ karni
 karnivor [P:Adj]
 karo
 karoser
+karot [A:NoVoicing]
+karotenoid
 karpit [A:NoVoicing]
 karpuz
 karsak
@@ -12586,6 +12718,7 @@ kayabaşı
 kayaç
 kayağan [P:Adj]
 kayak
+kayaksever
 kayan
 kayar
 kayarlamak
@@ -12813,6 +12946,7 @@ kendi [P:Pron, Reflex]
 kendigelen [P:Adj]
 kendiliğinden [P:Adj]
 kendiliğinden [P:Adv]
+kendilik
 kendince [P:Adv]
 kendinden [P:Adv]
 kendir
@@ -12951,6 +13085,7 @@ keşmekeş
 keşşaf
 ket
 ketal [A:InverseHarmony]
+ketamin
 ketçap
 kete
 keten
@@ -13303,7 +13438,7 @@ kilometrekare
 kilosikl
 kiloton
 kilovat [A:NoVoicing]
-kilovatsaat [A:InverseHarmony]
+kilovatsaat [A:NoVoicing, InverseHarmony]
 kilovolt [A:NoVoicing]
 kils
 kilüs
@@ -13326,6 +13461,7 @@ kimyon
 kimyonî
 kin
 kinaye
+kinaz
 kindar [P:Adj]
 kinematik
 kinestezi
@@ -13394,6 +13530,7 @@ kivi
 kiyanus
 kiyaset [A:NoVoicing]
 kizir
+klad
 klâkson
 klân
 klâpa
@@ -13415,6 +13552,7 @@ klimatolog
 klimatoloji
 klinik
 klinik [P:Adj]
+klinisyen
 klinker
 klinometre
 klip [A:Voicing]
@@ -13432,6 +13570,7 @@ klorik
 klorlamak
 klorofil
 kloroform
+klorokin
 klorometri
 kloroplâst [A:NoVoicing]
 kloroz
@@ -13475,6 +13614,7 @@ kodeks
 kodes
 kodifikasyon
 kodlamak
+kodon
 kodoş
 kof [P:Adj]
 kofa
@@ -13493,11 +13633,12 @@ kokainman
 kokainomani
 kokak [P:Adj]
 kokarca
-kokart
+kokart [A:NoVoicing]
 koket [A:NoVoicing]
 koket [P:Adj; A:NoVoicing]
 koketri
 kokimbit [A:NoVoicing]
+kokina
 koklamak
 kokmak
 kokona
@@ -13546,6 +13687,7 @@ kolibasil
 kolibri
 kolik
 kolit [A:NoVoicing]
+kollajen
 kollamak
 kolluk
 kolodyum
@@ -13561,6 +13703,7 @@ kolonya
 kolonyal [P:Adj]
 kolonyalamak
 kolonyalist [A:NoVoicing]
+kolonyalizm
 kolordu
 koloridye
 kolorimetre
@@ -13580,10 +13723,12 @@ komanditer
 komando
 komar
 kombi
+kombin
 kombina
 kombinasyon
 kombine [P:Adj]
 kombinezon
+kombinlemek
 kombiyum
 komedi
 komedya
@@ -13609,6 +13754,7 @@ komplikasyon
 komplike [P:Adj]
 kompliman
 komplo
+komponent [A:NoVoicing]
 kompost
 komposto
 kompoze [P:Adj]
@@ -13676,6 +13822,7 @@ konkret [A:NoVoicing]
 konkur
 konkurhipik
 konmak
+konnektör
 konsa
 konsantrasyon
 konsantre [P:Adj]
@@ -13690,6 +13837,7 @@ konserve
 konserve [P:Adj]
 konservelemek
 konsey
+konsil
 konsol
 konsolidasyon
 konsolide [P:Adj]
@@ -13709,6 +13857,7 @@ konsültasyon
 konşimento
 kont
 kontak
+kontaminasyon
 kontekst [A:NoVoicing]
 kontenjan
 kontes
@@ -13797,6 +13946,7 @@ korgeneral [A:InverseHarmony]
 korida
 koridor
 korindon
+korist [A:NoVoicing]
 korkak [P:Adj]
 korkalamak
 korkmak
@@ -13821,6 +13971,7 @@ kort
 korte
 kortej
 korteks
+kortikosteroid
 kortizon
 koru
 korugan
@@ -14095,7 +14246,9 @@ ksilofon
 ksiloloji
 kuaför
 kuantum
+kuark [A:NoVoicing]
 kuartet [A:NoVoicing]
+kuasar
 kubarmak
 kubaşmak
 kubat [P:Adj; A:NoVoicing]
@@ -14220,6 +14373,7 @@ kurgan
 kurgu
 kurgulamak
 kurk
+kurkumin
 kurlağan
 kurmak
 kurmay [P:Adj]
@@ -14347,6 +14501,7 @@ kuzukulağı [A:CompoundP3sg; Roots:kuzu-kulak]
 kuzulamak
 kübik [P:Adj]
 kübist [A:NoVoicing]
+kübit [A:NoVoicing]
 kübizm
 küçücük [P:Adj]
 küçük [P:Adj]
@@ -14621,6 +14776,7 @@ laşe
 lata
 latanya
 lateks
+lateral [P:Adj; A:InverseHarmony]
 laterit [A:NoVoicing]
 laterna
 lateşbih
@@ -14660,7 +14816,7 @@ lazım [P:Adj]
 lazımlık
 lazut [A:NoVoicing]
 le
-leasing
+leasing [Pr:lizing]
 leb
 lebalep [P:Adv]
 lebbeyk [P:Interj]
@@ -14695,6 +14851,7 @@ leksikolog
 leksikoloji
 lektör
 lemis [A:LastVowelDrop]
+lemur
 lenduha [P:Adj]
 lenf
 lenfa
@@ -14757,10 +14914,13 @@ liberalist [P:Adj; A:NoVoicing]
 liberalizm
 liberasyon
 libero
+liberteryen
+liberteryen [P:Adj]
 libido
 liboş
 libre
 libretto
+liç [A:NoVoicing]
 lider [P:Adj]
 liet
 lif
@@ -14803,8 +14963,10 @@ linotip [A:NoVoicing]
 linyit [A:NoVoicing]
 lipari
 liparit [A:NoVoicing]
+lipaz
 lipit
 lipom
+lipoprotein
 liposuction
 lipsos
 lir
@@ -14841,12 +15003,14 @@ livata
 liyakat [A:InverseHarmony]
 lizol
 lizöz
+lob
 lobelya
 lobi
 lobut [A:NoVoicing]
 loca
 loça
 loda
+loder
 lodos
 lodoslamak
 logaritma
@@ -14972,7 +15136,7 @@ madde
 maddeten [P:Adv]
 maddî [P:Adj]
 maddiyat [A:NoVoicing, ImplicitPlural]
-maddiyet
+maddiyet [A:NoVoicing]
 madem [P:Conj]
 mademki [P:Conj]
 maden
@@ -15141,6 +15305,8 @@ makosen
 makro [P:Adj]
 makroekonomi
 makroekonomik [P:Adj]
+makrofaj
+makrome
 makrosefal [A:InverseHarmony]
 makrosefal [P:Adj; A:InverseHarmony]
 maksat
@@ -15174,6 +15340,7 @@ malayani [P:Adj]
 malaz
 malç
 malen [P:Adv]
+malformasyon
 malgama
 malî [P:Adj]
 malihulya
@@ -15185,6 +15352,7 @@ maliye
 maliyet [A:NoVoicing]
 malkıran
 malkoç [A:NoVoicing]
+malpraktis
 malt
 maltız
 maltoz
@@ -15242,6 +15410,7 @@ manganin
 mangır
 mangiz
 mango
+mangrov
 mani
 mâni
 mânia
@@ -15281,6 +15450,7 @@ mantinota
 mantis
 manto
 mantolamak
+mantra
 manuel
 manuel [P:Adj]
 manüel
@@ -15364,6 +15534,7 @@ marufiyet [A:NoVoicing]
 marul
 maruz [P:Adj]
 maruzat [A:NoVoicing]
+maruziyet [A:NoVoicing]
 marya
 mas [A:Doubling]
 masa
@@ -15491,6 +15662,7 @@ maymun
 mayna
 mayo
 mayonez
+mayoz
 mayşor
 maytap
 mazak
@@ -15555,6 +15727,11 @@ mecnunane [P:Adv]
 mecra
 mecruh [P:Adj]
 meczup
+megavatsaat [A:NoVoicing, InverseHarmony]
+metabolit [A:NoVoicing]
+metanfetamin
+metanol [A:InverseHarmony]
+metilasyon
 mezcetmek [A:Voicing, Aorist_A]
 meç
 meçhul [P:Adj; A:InverseHarmony]
@@ -15987,7 +16164,7 @@ mevut [P:Adj; A:NoVoicing]
 mevzi
 mevziî [P:Adj]
 mevzu
-mevzuat [A:NoVoicing, ImplicitPlural]
+mevzuat [A:NoVoicing]
 mevzubahis [P:Adj]
 mevzun [P:Adj]
 mevzuubahis [A:LastVowelDrop]
@@ -16121,11 +16298,15 @@ mikaşist [A:NoVoicing]
 mikoloji
 mikoz
 mikro [P:Adj]
+mikroalg [A:InverseHarmony]
 mikroamper
 mikrobik [P:Adj]
+mikrobiyalit [A:NoVoicing]
 mikrobiyolog
 mikrobiyoloji
 mikrobiyolojik [P:Adj]
+mikrobiyom
+mikrobiyota
 mikrocerrahi
 mikrodalga
 mikroekonomi
@@ -16279,9 +16460,12 @@ miyar
 miyav
 miyavlamak
 miyaz
+miyelin
+miyokardit [A:NoVoicing]
 miyokart
 miyom
 miyop [P:Adj]
+miyopi
 miyosen
 miyosen [P:Adj]
 miza
@@ -16300,6 +16484,7 @@ mobbing
 mobil
 mobil [P:Adj]
 mobilet [A:NoVoicing]
+mobilizasyon
 mobilize [P:Adj]
 mobilya
 moda
@@ -16310,9 +16495,11 @@ modelâj
 modelist [A:NoVoicing]
 modellemek
 modem
+moderasyon
 moderato
 modern [P:Adj]
 modernist [A:NoVoicing]
+modernite
 modernizasyon
 modernize [P:Adj]
 modernizm
@@ -16352,7 +16539,9 @@ monogam [P:Adj]
 monogami
 monografi
 monokl [A:InverseHarmony]
+monolit [A:NoVoicing]
 monolog
+monomer
 monopol [A:InverseHarmony]
 monoray
 monoteist [A:NoVoicing]
@@ -16391,6 +16580,7 @@ morötesi
 mors
 morsalkım
 mortadella
+mortalite
 mortgage
 mortlamak
 morto
@@ -16407,14 +16597,17 @@ motif
 motivasyon
 motive
 motokros
+motokurye
 motopomp [A:NoVoicing]
 motor
 motorbot [A:NoVoicing]
 motorin
 motorize [P:Adj]
+motoryat [A:NoVoicing]
 motosiklet [A:NoVoicing]
 mototren
 motris
+motto
 mouse
 mozaik
 mozaik [P:Adj]
@@ -16642,6 +16835,7 @@ mulâj
 multimedya
 multimilyoner [P:Adj]
 multipleks [P:Adj]
+multivitamin
 multivizyon
 mum
 mumaileyh
@@ -16898,7 +17092,7 @@ mühendishane
 müheyya [P:Adj]
 müheyyiç [P:Adj]
 mühim [P:Adj]
-mühimmat [A:NoVoicing, ImplicitPlural]
+mühimmat [A:NoVoicing]
 mühimsemek
 mühlet [A:NoVoicing]
 mühlik [A:NoVoicing]
@@ -17092,6 +17286,7 @@ müsemmen
 müsemmen [P:Adj]
 müsevvit
 müshil
+müsilaj
 müskirat [A:NoVoicing, ImplicitPlural]
 müsmir [P:Adj]
 müspet [P:Adj; A:NoVoicing]
@@ -17420,6 +17615,9 @@ nanıaziz
 nanik
 naniklemek
 nankör [P:Adj]
+nanometre
+nanoparçacık
+nanopartikül
 nanoteknoloji
 nanoteknolojik [P:Adj]
 nansuk
@@ -17560,6 +17758,7 @@ nekbet [A:NoVoicing]
 nekes [P:Adj]
 nekre [P:Adj]
 nekroloji
+nekropol [A:InverseHarmony]
 nekrotik [P:Adj]
 nekrofil [P:Adj]
 nekroz
@@ -17581,6 +17780,8 @@ neofaşizm
 neojen
 neojen [P:Adj]
 neoklasik [P:Adj]
+neoliberal [P:Adj; A:InverseHarmony]
+neoliberalizm
 neolitik [P:Adj]
 neolojizm
 neon
@@ -17779,7 +17980,7 @@ nota
 notalamak
 notam
 notasyon
-notebook
+notebook [A:NoVoicing; Pr:notbuk]
 noter
 nova
 nöbet [A:NoVoicing]
@@ -17792,9 +17993,11 @@ nöroşirürji
 nöroşirürjiyen
 nörotik
 nörotik [P:Adj]
+nörotransmitter
 nötr [P:Adj]
 nötralizasyon
 nötrlemek
+nötrofil
 nötron
 nuhuset [A:NoVoicing]
 nukut
@@ -17821,6 +18024,7 @@ nühüft [A:NoVoicing]
 nükleer [P:Adj]
 nükleon
 nükleoprotein
+nükleotit
 nüks
 nüksetmek [A:Voicing, Aorist_A]
 nükte
@@ -17850,11 +18054,13 @@ objektif [P:Adj]
 objektivist [P:Adj;A:NoVoicing]
 objektivite
 objektivizm
+oblast [A:NoVoicing]
 obruk
 obruk [P:Adj]
 observatuvar
 obsesif [P:Adj]
 obsesyon
+obsidiyen
 obskürantizm
 obstrüksiyon
 obua
@@ -17960,6 +18166,7 @@ oleometre
 oley [P:Interj]
 olgu
 olgun [P:Adj]
+oligark [A:NoVoicing]
 oligarşi
 oligoklâz
 oligopol
@@ -17996,6 +18203,7 @@ omurilik
 omuz [A:LastVowelDrop]
 omuzdaş
 omuzlamak
+onam
 onamak
 onanizm
 onarım
@@ -18009,6 +18217,8 @@ onbiraylık
 onca [P:Adj]
 onca [P:Adv]
 onculayın [P:Adv]
+ondalık
+ondalık [P:Adj]
 ondüle [P:Adj]
 onejit
 ongen
@@ -18042,6 +18252,7 @@ operasyonel [P:Adj]
 operatör
 operatris
 operet [A:NoVoicing]
+opioid
 oportünist [A:NoVoicing]
 oportünizm
 opsiyon
@@ -18055,6 +18266,7 @@ optimist [P:Adj;A:NoVoicing]
 optimizasyon
 optimizm
 optimum [P:Adj]
+optisyen
 opus
 ora
 oracıkta [P:Adv]
@@ -18189,7 +18401,9 @@ otobüs
 otodidakt [A:NoVoicing]
 otodidakt [P:Adj; A:NoVoicing]
 otoerotizm
+otofaji
 otogar
+otogaz
 otograf [P:Adj]
 otografi
 otojestiyon
@@ -18216,6 +18430,7 @@ otonomi
 otopark [A:NoVoicing]
 otoplâsti
 otopomp [A:NoVoicing]
+otoportre
 otoprodüktör
 otopsi
 otoray
@@ -18272,6 +18487,7 @@ oyun
 oyunbaz [P:Adj]
 oyunbozan [P:Adj]
 oyuncak
+oyunsever
 oyuntu
 ozalit [A:NoVoicing]
 ozan
@@ -18336,6 +18552,7 @@ ozuga
 öğütlü
 öğütmek
 öhö [P:Interj]
+ökaryot [A:NoVoicing]
 ökçe
 öke
 ökse
@@ -18453,6 +18670,7 @@ ozuga
 öte [A:ImplicitDative]
 öte [P:Postp,PCAbl]
 öteberi
+ötegezegen
 öteki [P:Adj]
 öteki [P:Pron]
 ötelemek
@@ -18524,6 +18742,7 @@ ozuga
 özlenti
 özne
 öznel [P:Adj]
+özofagus
 özsever [P:Adj]
 özümlemek
 özümsemek
@@ -18612,6 +18831,8 @@ pandomima
 pandül
 panel
 panelist [A:NoVoicing]
+panelvan
+pangolin
 panik
 panikatak
 paniklemek
@@ -18619,6 +18840,7 @@ panjur
 pankart [A:NoVoicing]
 pankras
 pankreas
+pankreatit [A:NoVoicing]
 pano
 panorama
 panoramik [P:Adj]
@@ -18684,9 +18906,11 @@ paralelkenar
 paralizi
 paralojik [P:Adj]
 paralojizm
+paramedik
 parametre
 parametrelemek
 parametrik [P:Adj]
+paramotor
 paramparça [P:Adj]
 parankima
 paranoya
@@ -18696,6 +18920,7 @@ parapet [A:NoVoicing]
 parapsikoloji
 parapsikolojik [P:Adj]
 parasempatik [P:Adj]
+parasetamol [A:InverseHarmony]
 paraşüt [A:NoVoicing]
 paratoner
 paratüberküloz
@@ -18877,6 +19102,7 @@ peçe
 peçelemek
 peçete
 peçiç
+ped
 pedagog
 pedagoji
 pedagojik [P:Adj]
@@ -18894,7 +19120,7 @@ pedofil
 pedolog
 pedoloji
 pedometre
-peeling
+peeling [Pr:piling]
 peganit
 pegmatit
 pehlivan
@@ -18926,10 +19152,12 @@ peleng
 pelenk
 pelerin
 pelesenk
+pelet [A:NoVoicing]
 pelikan
 pelikül
 pelin
 pelit
+peloton
 pelte
 peltek [P:Adj]
 peltek [P:Adv]
@@ -18971,6 +19199,7 @@ pepe [P:Adj]
 pepelemek
 pepeme [P:Adj]
 pepsin
+peptit
 pepton
 per
 perakende [P:Adj]
@@ -19017,6 +19246,7 @@ perküsyon
 perlit
 perlon
 perma
+permafrost [A:NoVoicing]
 permanant [A:NoVoicing]
 permanganat [A:NoVoicing]
 permeçe
@@ -19279,11 +19509,12 @@ platika
 platin
 plato
 platonik [P:Adj]
-playback
+playback [A:NoVoicing; Pr:pleybek]
 plaza
 plazma
 plebisit
 pleistosen
+plent [A:NoVoicing]
 plevra
 pleybek
 pli
@@ -19295,6 +19526,7 @@ plüralizm
 plütokrasi
 plütonyum
 plüviyometre
+pnömoni
 podösüet [A:NoVoicing]
 podösüet [P:Adj; A:NoVoicing]
 podyum
@@ -19327,6 +19559,7 @@ poliandri
 poliasit
 poliçe
 polietilen
+polifenol [A:InverseHarmony]
 polifoni
 polifonik [P:Adj]
 poligam [P:Adj]
@@ -19336,11 +19569,15 @@ polijini
 poliklinik
 polim
 polimer [P:Adj]
+polimeraz
 polimeri
+polimerizasyon
 polinom [P:Adj]
 polip
+polipropilen
 polis
 polisaj
+polisakkarit [A:NoVoicing]
 polisevi [A:CompoundP3sg; Roots:polis-ev]
 polisiye [P:Adj]
 politeist [P:Adj;A:NoVoicing]
@@ -19390,6 +19627,7 @@ portatif [P:Adj]
 portbagaj
 portbebe
 porte
+portfolyo
 portföy
 portmanto
 portmone
@@ -19473,6 +19711,7 @@ prediksiyon
 prefabrik [P:Adj]
 prefabrikasyon
 prefabrike
+prefektörlük
 prehistorik [P:Adj]
 prehistorya
 prekambriyen
@@ -19491,6 +19730,7 @@ preslemek
 prestij
 presto
 presto [P:Adv]
+prevalans
 prevantoryum
 prezantabl [P:Adj]
 prezantasyon
@@ -19506,6 +19746,7 @@ print
 printer
 priz
 prizma
+prob
 probabilizm
 problem
 problem [P:Adj]
@@ -19518,11 +19759,13 @@ profesyonel [P:Adj]
 profil
 profiterol [A:InverseHarmony]
 proforma
+prognoz
 program
 programlamak
 proje
 projeksiyon
 projektör
+prokaryot [A:NoVoicing]
 proletarya
 proleter
 prolog
@@ -19532,6 +19775,7 @@ promosyon
 promönat
 propaganda
 propagandist [A:NoVoicing]
+propolis
 prosedür
 proses
 prospektüs
@@ -19559,6 +19803,7 @@ pruva
 psikanalist [A:NoVoicing]
 psikanaliz
 psikasteni
+psikedelik [P:Adj]
 psikiyatr
 psikiyatri
 psikiyatrist [A:NoVoicing]
@@ -19616,7 +19861,7 @@ put
 putperest [A:NoVoicing]
 putperest [P:Adj; A:NoVoicing]
 putrel
-puzzle
+puzzle [Pr:pazıl]
 püf
 püfkürmek
 püflemek
@@ -19709,6 +19954,7 @@ radyum
 raf
 rafadan [P:Adj]
 rafinaj
+rafinasyon
 rafinatör
 rafine [P:Adj]
 rafineri
@@ -19899,10 +20145,12 @@ rektör
 rektum
 rekzetmek [A:Voicing, Aorist_A]
 rembetiko
+remdesivir
 remel
 remi
 remiks
 remil [A:LastVowelDrop]
+remisyon
 remiz [A:LastVowelDrop]
 rencide [P:Adj]
 rençper
@@ -19922,7 +20170,10 @@ reomür
 reorganizasyon
 reosta
 repertuvar
+repesaj
 replik
+replika
+replikasyon
 repo
 reprodüksiyon
 resen [P:Adv]
@@ -19945,6 +20196,7 @@ rest
 restitüsyon
 restoran
 restorasyon
+restoratör
 restore [P:Adj]
 resul [A:InverseHarmony]
 resülmal [A:InverseHarmony]
@@ -19952,6 +20204,8 @@ reşit [P:Adj]
 reşme
 ret [A:Voicing, Doubling]
 retina
+retinol [A:InverseHarmony]
+retinopati
 retorik
 retrospektif [P:Adv]
 reva [P:Adj]
@@ -20014,6 +20268,9 @@ rindane [P:Adj]
 rindane [P:Adv]
 ring
 ringa
+rinit [A:NoVoicing]
+rinoplasti
+rinovirüs
 rint [A:Voicing]
 risale
 risk
@@ -20040,6 +20297,7 @@ riziko
 roaming
 roba
 robot [A:NoVoicing]
+robotaksi
 robotik
 roda
 rodaj
@@ -20067,6 +20325,7 @@ rot
 rota
 rotasyon
 rotatif
+rotavirüs
 rotil
 rotor
 roza
@@ -20669,6 +20928,7 @@ satrap
 satsuma
 satvet [A:NoVoicing]
 sauna
+sauropod
 sav
 sava
 savak
@@ -20752,6 +21012,7 @@ sebep
 sebil
 sebilhane
 sebkihindî
+sebum
 sebze
 sebzevat [A:NoVoicing]
 seccade
@@ -20768,10 +21029,12 @@ seçkin [P:Adj]
 seçmek
 seçmen
 seda
+sedasyon
 sedef
 sedef [P:Adj]
 sedefkâr
 sedimantasyon
+sediment [A:NoVoicing]
 sedir
 sedye
 sefa
@@ -20822,6 +21085,7 @@ seklem
 sekmek
 sekmen
 sekoya
+sekresyon
 sekretarya
 sekreter
 sekreterya
@@ -20977,6 +21241,7 @@ sepetlemek
 sepi
 sepilemek
 sepken
+sepsis
 septik [P:Adj]
 septisemi
 septisizm
@@ -21037,6 +21302,7 @@ sermestane [P:Adv]
 sermestî
 sermuharrir
 sermürettip
+serotip [A:NoVoicing]
 serpantin
 serpelemek
 serpinti
@@ -21055,7 +21321,7 @@ sertifikasyon
 serum
 serüven
 servant [A:NoVoicing]
-server
+server [Pr:sörvır]
 servet [A:NoVoicing]
 servi
 servis
@@ -21351,6 +21617,7 @@ silgi
 silgiç
 silik [P:Adj]
 silik [P:Adv]
+silika
 silikat [A:NoVoicing]
 silikatlamak
 silikon
@@ -21430,7 +21697,7 @@ sinerjik [P:Adj]
 sineroman
 sinestezi
 singin [P:Adj]
-single
+single [Pr:singıl]
 sini
 sinik [P:Adj]
 sinir
@@ -21495,9 +21762,11 @@ site
 sitem
 sitemkâr [P:Adj]
 sitil
+sitokin
 sitoloji
 sitoplâzma
 sitotoksik [P:Adj]
+sitrat [A:NoVoicing]
 sitrik
 sitteisevir [A:LastVowelDrop]
 sittinsene [P:Adv]
@@ -21517,6 +21786,7 @@ siyahî [P:Adj]
 siyak
 siyakat [A:InverseHarmony]
 siyakusibak
+siyanobakteri
 siyanojen
 siyanür
 siyanürik
@@ -21532,11 +21802,13 @@ siyatik
 siyek
 siyenit
 siyer
+siyez
 siymek
 siyonist [P:Adj;A:NoVoicing]
 siyonizm
 siz [P:Pron, Pers]
 skala
+skaler [P:Adj]
 skandal
 skandiyum
 skavut
@@ -21842,6 +22114,7 @@ start
 stat [A:Voicing]
 statik
 statik [P:Adj]
+statin
 statolit
 stator
 statosist [A:NoVoicing]
@@ -21849,6 +22122,7 @@ statü
 statüko
 stearik
 stearin
+stel
 sten
 steno
 stenograf
@@ -21876,19 +22150,21 @@ sterlin
 sterol [A:InverseHarmony]
 stetoskop
 steyşın
-sticker
+sticker [Pr:stikır]
 stil
 stilist [A:NoVoicing]
 stilistik
 stilistik [P:Adj]
 stilizasyon
 stilo
+stimülasyon
 stok [A:Voicing]
 stoklamak
 stop
 stopaj
 stoper
 stor
+strafor
 stratej
 strateji
 stratejik [P:Adj]
@@ -21921,6 +22197,7 @@ subjektivite
 subjektivizm
 subra
 subret [A:NoVoicing]
+substrat [A:NoVoicing]
 subuk
 subye
 sucuk
@@ -21946,6 +22223,7 @@ suikast [A:NoVoicing]
 suiniyet [A:NoVoicing]
 suistimal [A:InverseHarmony]
 suizan [A:Doubling]
+sukulent [A:NoVoicing]
 sukut
 sukutuhayal [A:InverseHarmony]
 sulak
@@ -22099,6 +22377,7 @@ sünnetlemek
 süper [P:Adj]
 süpermarket [A:NoVoicing]
 süperstar
+süpervizör
 süprüntü
 süpürge
 süpürmek
@@ -22161,6 +22440,7 @@ sürümek
 sürünceme
 sürüngen [P:Adj]
 sürünmek
+sürüntü
 sürveyan
 süs
 süsen
@@ -22687,6 +22967,7 @@ süzüntü
 şurup
 şut
 şutlamak
+şutör
 şuur
 şuuraltı [A:CompoundP3sg; Roots:şuur-alt]
 şüheda
@@ -22930,6 +23211,7 @@ taksir
 taksirat [A:NoVoicing]
 taksit [A:NoVoicing]
 taksitlemek
+takson
 taksonomi
 takt
 takti
@@ -23186,6 +23468,7 @@ taşmak
 taşra
 taşsarımsağı
 tat [A:Voicing]
+tatami
 tatar
 tatarı [P:Adj]
 tatava
@@ -23256,6 +23539,7 @@ taygeldi
 tayın
 tayin
 tayip
+taykonot [A:NoVoicing]
 taylak
 taylamak
 tayt
@@ -23309,6 +23593,7 @@ tebeşir
 tebeyyün
 tebligat [A:NoVoicing]
 tebliğ
+tebliğname
 tebrik
 tebriye
 tebşir
@@ -23576,6 +23861,7 @@ tellemek
 tellür
 telmih
 telmihen [P:Adv]
+telomer
 telsiz
 teltik
 telve
@@ -23618,6 +23904,7 @@ temin
 teminat [A:NoVoicing]
 temiz [P:Adj]
 temizlemek
+temizlikçi
 temkin
 temlik [A:NoVoicing]
 temlikname
@@ -23669,6 +23956,7 @@ tensik
 tensikat [A:NoVoicing]
 tensil
 tensip
+tensör
 tente
 tentene
 tentür
@@ -23723,9 +24011,12 @@ teraküm
 terane
 terapi
 terapist [A:NoVoicing]
+terapötik
+terapötik [P:Adj]
 teras
 terasa
 teraslamak
+teravatsaat [A:NoVoicing, InverseHarmony]
 teravi
 teravih
 terazi
@@ -23799,6 +24090,7 @@ termos
 termosfer
 termosifon
 termostat [A:NoVoicing]
+teropod
 terör
 terörist [A:NoVoicing]
 terörizm
@@ -24072,6 +24364,7 @@ tıs
 tıslamak
 tıynet [A:NoVoicing]
 ti
+tibia
 ticaret [A:NoVoicing]
 ticaretgâh
 ticarethane
@@ -24132,6 +24425,7 @@ tirit [P:Adj]
 tiriz
 tirle
 tirlin
+tiroidit [A:NoVoicing]
 tiroit
 tirokalsitonin
 tiroksin
@@ -24153,6 +24447,7 @@ titremlemek
 titreşim
 titreşmek
 tiyatro
+tiyatrosever
 tiz [P:Adj]
 tofu
 toht
@@ -24291,6 +24586,7 @@ torpido
 torpidobot [A:NoVoicing]
 torpil
 torpillemek
+tortilla
 tortop [P:Adj]
 tortu
 tortul [P:Adj]
@@ -24360,6 +24656,7 @@ trakit
 traksiyon
 traktör
 trakunya
+trambolin
 trampa
 trampet [A:NoVoicing]
 tramplen
@@ -24419,15 +24716,18 @@ trikosefal [A:InverseHarmony]
 trikotaj
 triloji
 trilyoner
+trimester
 trinketa
 trio [P:Adj]
 tripleks [P:Adj]
 tripoli
 triportör
 triptik
+triptofan
 trişin
 triton
 trityum
+triyaj
 triyas
 trok
 trol [A:InverseHarmony]
@@ -24501,6 +24801,9 @@ turaç
 turalamak
 turba
 turbo [P:Adj]
+turbofan
+turbojet [A:NoVoicing]
+turboprop [A:NoVoicing]
 turfa [P:Adj]
 turfalamak
 turfanda [P:Adj]
@@ -25008,6 +25311,7 @@ uzviyet [A:NoVoicing]
 üstenmek
 üstlenim
 üstlenmek
+üstsoy
 üstsubay
 üstten [P:Adv]
 üstübeç
@@ -25180,6 +25484,7 @@ varyasyon
 varyemez [P:Adj]
 varyete
 varyos
+vasal
 vasat [A:NoVoicing]
 vasat [P:Adj; A:NoVoicing]
 vasatî [P:Adj]
@@ -25274,7 +25579,9 @@ velûr
 velût
 velut [P:Adj]
 velvele
+ven
 vena
+ventrikül
 venüsçarığı [A:CompoundP3sg; Roots:venüs-çarık]
 veranda
 veraset [A:NoVoicing]
@@ -25438,6 +25745,7 @@ volfram
 voli
 volkan
 volkanik [P:Adj]
+volkanizma
 volontarizm
 volt
 volta
@@ -25445,6 +25753,7 @@ voltaj
 voltametre
 voltamper
 voltmetre
+volüm
 vombat [A:NoVoicing]
 vonoz
 votka
@@ -25640,6 +25949,7 @@ yandaş
 yandık
 yangı
 yangın
+yangınzede
 yanık
 yanık [P:Adj]
 yanıkara
@@ -26199,6 +26509,7 @@ yönelteç
 yöneltim
 yönerge
 yönetim
+yönetişim
 yönetmek
 yönetmelik
 yönetmen
@@ -26628,6 +26939,7 @@ zonklamak
 zoolog
 zooloji
 zoolojik [P:Adj]
+zoonoz
 zoospor
 zootekni
 zor [P:Adj]
@@ -28972,4 +29284,3 @@ ventilatör
 vizyoner
 vizyoner [P:Adj]
 volatil [P:Adj; A:InverseHarmony]
-yönetişim
