@@ -38,6 +38,7 @@ Ahi
 Ahilik [A:Voicing]
 Ahlat [A:NoVoicing]
 Ahmetli
+AJet [Pr:acet]
 Akçaabat [A:NoVoicing]
 Akçadağ
 Akçakale
@@ -68,6 +69,7 @@ Aladağ
 Alanya
 Alaplı
 Alaşehir
+Albanese [Pr:albanizi]
 Alevi
 Alevî
 Aliağa
@@ -81,6 +83,7 @@ Almancı
 Almanya
 Almatı
 Almus
+Alphabet [Pr:alfabet]
 Alpler
 Alpu
 Altay
@@ -146,6 +149,7 @@ Arasat [A:NoQuote]
 Arda
 Ardahan
 Ardanuç
+Ardern
 Ardeşen
 Arguvan
 Arhavi
@@ -173,6 +177,7 @@ Aşkabat [A:NoVoicing]
 Aşkale
 At
 Atabey
+Atalanta
 Atatürk
 Atatürkçü [A:NoQuote]
 Atatürkçü [P:Adj]
@@ -212,6 +217,7 @@ Babai
 Babaî
 Babıâli
 Babi
+Baerbock [Pr:berbok]
 Bafra
 Bağcılar
 Bahai
@@ -219,6 +225,7 @@ Bahaî [A:NoQuote]
 Bahçe
 Bahçelievler
 Bahçesaray
+Bahmut
 Bahşili
 Bakırköy
 Baklan
@@ -264,6 +271,7 @@ Bayburt
 Bayındır
 Baykan
 Bayrami
+Bayramov
 Bayramören
 Bayrampaşa
 Beberuhi
@@ -294,11 +302,14 @@ Beytüşşebap
 Biga
 Bigadiç
 Bilecik
+Binance [Pr:baynens,baynans]
 Bingöl
+BioNTech [Pr:biyontek]
 Birecik
 Bismil
 Bişkek
 Bitlis
+Blinken [Pr:blinkın,blinken]
 Bodrum
 Boğa
 Boğaziçi [P:Noun, Prop; A:NounConsInsert_n]
@@ -308,6 +319,7 @@ Boğazköy
 Boğazlıyan
 Bolivya
 Bolivyalı
+Bolsonaro
 Bolşevik
 Bolşevizm
 Bolu
@@ -316,6 +328,7 @@ Bor
 Borçka
 Bornova
 Bosna
+Bosna-Hersek
 Bosnalı
 Boşnak
 Boşnakça
@@ -332,17 +345,21 @@ Bozyazı
 Brahma
 Brahman
 Brahmanizm
+Brentford
+Brexit
 Brezilya
 Brezilyalı
 Brüksel
 Buca
 Bucak
+Buça
 Buda
 Budist [A:NoVoicing]
 Budizm
 Buğdan
 Buhara
 Buharkent
+Bukele
 Bulancak
 Bulanık
 Buldan
@@ -360,8 +377,10 @@ Bügdüz
 Bünyan
 Büyükayı
 Büyükorhan
+ByteDance [Pr:baytdens,baytdans]
 Caferi
 Caferî
+Caparov
 Cebbar
 Cebeci
 Cebelibereket [A:NoVoicing]
@@ -379,12 +398,14 @@ Cevza
 Ceyhan
 Ceylânpınar
 Cezayir
+ChatGPT [Pr:çetcepiti]
 Cibril
 Cide
 Cihanbeyli
 Cihangir
 Cizre
 Cizvit
+Covid [Pr:kovid]
 Cumayeri [P:Noun, Prop; A:NounConsInsert_n]
 Çağatay
 Çağatayca
@@ -520,16 +541,20 @@ Derepazarı [P:Noun, Prop; A:NounConsInsert_n]
 Derik
 Derinkuyu
 Dernekpazarı [P:Noun, Prop; A:NounConsInsert_n]
+DeSantis
 Develi
 Devrek
 Devrekâni
+Deyrizor
 Dımışk
+Dibeybe
 Dicle
 Digor
 Dikili
 Dikmen
 Dimyat [A:NoVoicing]
 Dinar
+Discord [Pr:diskord]
 Divanhane
 Divanıhümayun
 Divanımuhasebat [A:NoVoicing]
@@ -537,6 +562,7 @@ Divriği
 Diyadin
 Diyarbakır
 Dodurga
+Dogecoin [Pr:dojkoin]
 Doğanhisar
 Doğankent
 Doğanşar
@@ -547,9 +573,11 @@ Doğu
 Doğu [P:Adj]
 Doğubayazıt
 Domaniç
+Donbas
 Döger
 Dörtdivan
 Dörtyol
+Duda
 Duma
 Dumlupınar
 Durağan
@@ -606,6 +634,7 @@ Ereğli
 Erendiz
 Erfelek
 Ergani
+Erhürman
 Ermenek
 Ermeni
 Ermenice
@@ -632,6 +661,7 @@ Etiyopya
 Etiyopyalı
 Evciler
 Evren
+Exxen [Pr:eksen]
 Eynesil
 Eyüp
 Ezine
@@ -646,6 +676,7 @@ Fatımî
 Fatımiye
 Fatih
 Fatsa
+Fauci [Pr:fauçi]
 Feke
 Felâhiye
 Felemenk
@@ -689,6 +720,7 @@ Gagavuz
 Gagavuzca
 Gagavuzca [P:Adj]
 Galatasaray
+Gallant
 Gana
 Ganalı
 Garp
@@ -714,6 +746,7 @@ Germencik
 Gerze
 Gevaş
 Geyve
+Ghebreyesus
 Gine
 Gineli
 Giresun
@@ -722,6 +755,7 @@ Got
 Gotça
 Gotça [P:Adj]
 Gotlar
+Gökbey
 Gökçeada
 Gökçebey
 Göksu
@@ -747,6 +781,8 @@ Göynük
 Grek
 Grekçe
 Grekçe [P:Adj]
+Grok
+Grossi
 Guatemalâ
 Guatemalâlı
 Güce
@@ -778,6 +814,8 @@ Gürsu
 Gürün
 Güzelbahçe
 Güzelyurt
+Haaland [Pr:haland]
+Habeck [Pr:habek]
 Habeş
 Habeşî
 Habeşistan
@@ -788,6 +826,7 @@ Haçlı
 Hadım
 Hadim
 Hafik
+Hafter
 Hak [A:NoQuote,Doubling]
 Hakas
 Hakasça
@@ -816,6 +855,8 @@ Hanönü [P:Noun, Prop; A:NounConsInsert_n]
 Hanya
 Haremeyn
 Harezmî
+Harkiv
+Harkov
 Harmancık
 Harran
 Hasankeyf
@@ -835,6 +876,7 @@ Hazar
 Hazarca
 Hazarca [P:Adj]
 Hazro
+Hegseth [Pr:hegset]
 Hekimhan
 Helen [A:NoQuote]
 Helenist [A:NoQuote]
@@ -843,6 +885,8 @@ Helenistik [P:Adj]
 Helenizm [A:NoQuote]
 Hemşin
 Hendek
+Heniyye
+Herson
 Hınıs
 Hırvat
 Hırvatça
@@ -871,18 +915,22 @@ Hocalar
 Hollânda
 Holywood
 Honaz
+Honda
 Honduras
 Hopa
 Horasan
 Hotanto
 Hozat
 Hristiyan
+Hristodulidis
 Huda
 Hurufi
 Hurufî
 Hut
+Hürjet
 Hürmüz
 Hüyük
+Icardi [Pr:ikardi; A:LocaleEn]
 Iğdır
 Ilgaz
 Ilgın
@@ -924,6 +972,9 @@ Isparta
 İnhisar
 İnönü [P:Noun, Prop; A:NounConsInsert_n]
 İnternet [A:NoVoicing]
+iOS [Pr:ayos]
+iPad [Pr:ayped]
+iPhone [Pr:ayfon]
 İpsala
 İran
 İranist
@@ -997,6 +1048,7 @@ Kafkas
 Kafkasya
 Kâğıthane
 Kağızman
+Kahramankazan
 Kahramanmaraş
 Kâhta
 Kalaba
@@ -1006,6 +1058,7 @@ Kale
 Kalecik
 Kalenderiye
 Kalkandere
+Kallas
 Kalvenci [A:NoQuote]
 Kalvenci [P:Adj]
 Kalvenizm [A:NoQuote]
@@ -1080,6 +1133,7 @@ Keçiborlu
 Keçiören
 Kehkeşan
 Kelâmıkadim
+Kelbecer
 Keles
 Kelkit
 Keloğlan
@@ -1134,6 +1188,7 @@ Kiğı
 Kilis
 Kilizman
 Kiraz
+Kişida
 Kocaali
 Kocaeli [P:Noun, Prop; A:NounConsInsert_n]
 Kocaköy
@@ -1155,6 +1210,7 @@ Korkut
 Korkuteli [P:Noun, Prop; A:NounConsInsert_n]
 Kova
 Kovancılar
+Kovid
 Koyulhisar
 Kozaklı
 Kozan
@@ -1168,8 +1224,10 @@ Köroğlu
 Köse
 Köşk
 Köyceğiz
+Kristersson [Pr:kristersın]
 Kubbealtı [P:Noun, Prop; A:NounConsInsert_n]
 Kula
+Kuleba
 Kulp
 Kulu
 Kuluncak
@@ -1188,8 +1246,10 @@ Kuranıkerim
 Kurşunlu
 Kurt
 Kurtalan
+Kurti
 Kurtköy
 Kurucaşile
+Kushner [Pr:kuşner,kuşnır]
 Kuşadası [P:Noun, Prop; A:NounConsInsert_n]
 Kuveyt
 Kuyucak
@@ -1207,6 +1267,7 @@ Laçin
 Lâçin
 Ladik
 Lalapaşa
+LaLiga
 Lamaist [A:NoQuote]
 Lamaizm [A:NoQuote]
 Lapon
@@ -1220,6 +1281,7 @@ Latince [P:Adj]
 Laz
 Lazca
 Lazca [P:Adj]
+Leclerc [Pr:löklerk]
 Lefkoşa
 Leh
 Lehçe
@@ -1231,11 +1293,13 @@ Letçe
 Levanten
 Libya
 Lice
+Lipa
+Lombardiya
 Lübnan
 Lüleburgaz
 Lüterci [A:NoQuote]
 Lüterci [P:Adj]
-Lviv
+Lviv [Pr:lviv]
 Macar
 Macarca
 Macarca [P:Adj]
@@ -1277,6 +1341,7 @@ Manihaizm
 Manisa
 Manyas
 Mardin
+Markle [Pr:markıl]
 Marksçı [A:NoQuote]
 Marksçı [P:Adj]
 Marksist [A:NoQuote,NoVoicing]
@@ -1287,17 +1352,21 @@ Marmaris
 Mars
 Maruni
 Marunî
+MasterChef [Pr:mastırşef]
 Mazgirt
 Mazıdağı [P:Noun, Prop; A:NounConsInsert_n]
+Mbappe [Pr:embape]
 Mecidiyeköy
 Mecitözü [P:Noun, Prop; A:NounConsInsert_n]
 Mecus
 Mecusî
 Mecusi [P:Adj]
+Meghan [Pr:megın]
 Mehmetçik [A:NoQuote]
 Meksika
 Melami
 Melikgazi
+Meloni
 Menderes
 Menemen
 Mengen
@@ -1318,14 +1387,18 @@ Mevlevî
 Mevlevîhane
 Mezopotamya
 Mısır
+Miçotakis
 Midilli
 Midyat
 Mihalgazi
 Mihalıççık
 Milâs
+Milei [Pr:mileyi]
 Miraç
+Mirziyoyev
 Mn
 Mo
+Moderna
 Moğol
 Moğolca
 Moğolca [P:Adj]
@@ -1334,6 +1407,7 @@ Molotof
 Mondros
 Mongolist [A:NoQuote]
 Mongolistik [A:NoQuote]
+Montella
 Moritanya
 Mors
 Moskof
@@ -1353,6 +1427,7 @@ Mushaf
 Muş
 Mut
 Mutki
+Münbiç
 Müslim [A:NoQuote]
 Müslüman [A:NoQuote]
 Müşteri
@@ -1363,6 +1438,8 @@ Namibya
 Narlıdere
 Narman
 Nasranî [A:NoQuote]
+Navalni
+Navalny [Pr:navalni]
 Nazımiye
 Nazi [A:NoQuote]
 Nazilli
@@ -1374,6 +1451,7 @@ Neptün
 Nesturî [A:NoQuote]
 Nevruz
 Nevşehir
+Nice [Pr:nis]
 Niğde
 Nijerya
 Nikaragua
@@ -1384,6 +1462,7 @@ Noel [A:NoQuote]
 Nogay
 Nogayca
 Nogayca [P:Adj]
+Nolan [Pr:nolın]
 Norveç
 Norveççe
 Norveççe [P:Adj]
@@ -1392,6 +1471,7 @@ Nurdağı [P:Noun, Prop; A:NounConsInsert_n]
 Nurhak
 Nusaybin
 Nusayrî [A:NoQuote]
+Obrador
 Of
 Oğan
 Oğlak
@@ -1403,7 +1483,9 @@ Oğuzlar
 Okyanusya
 Oltu
 Olur
+Omicron [Pr:omikron]
 Ondokuzmayıs
+OpenAI [Pr:opınayi,opıneyay; A:LocaleEn]
 Ordu
 Orhaneli [P:Noun, Prop; A:NounConsInsert_n]
 Orhangazi
@@ -1412,6 +1494,7 @@ Ortaca
 Ortaköy
 Ortodoks
 Ortodoks [P:Adj]
+Osimhen [Pr:osimen]
 Osmancık
 Osmaneli [P:Noun, Prop; A:NounConsInsert_n]
 Osmangazi
@@ -1444,6 +1527,7 @@ Panturanizm
 Pantürkizm
 Paraguay
 Pasinler
+Paşinyan
 Patnos
 Pazar
 Pazarcık
@@ -1454,6 +1538,7 @@ Peçenek
 Peçenekçe
 Peçenekçe [P:Adj]
 Pehlivanköy
+Pence [Pr:pens]
 Pendik
 Pentagon
 Perşembe
@@ -1479,11 +1564,13 @@ Polonya
 Pomak
 Pomakça
 Pomakça [P:Adj]
+Pompeo
 Portekiz
 Portekizce
 Portekizce [P:Adj]
 Posof
 Pozantı
+Prigojin
 Protestan
 Prusya
 Pülümür
@@ -1527,6 +1614,7 @@ Safranbolu
 Saha
 Sahaca
 Saimbeyli
+Saint-Germain [Pr:senjermen]
 Sakarya
 Sakıt
 Sakız
@@ -1534,6 +1622,7 @@ Salacak
 Salıpazarı [P:Noun, Prop; A:NounConsInsert_n]
 Salihli
 Salur
+Sam [Pr:sem,sam]
 Samandağ
 Samanuğrusu
 Samanyolu
@@ -1606,6 +1695,8 @@ Sincik
 Sinolog [A:NoQuote]
 Sinoloji [A:NoQuote]
 Sinop
+Sinovac [Pr:sinovak]
+Sinvar
 Sivas
 Siverek
 Sivrice
@@ -1621,6 +1712,7 @@ Sloven
 Slovence
 Slovence [P:Adj]
 Slovenya
+Smotrich [Pr:smotriç]
 Soğdca
 Soğdca [P:Adj]
 Solhan
@@ -1629,7 +1721,12 @@ Somali
 Sorgun
 Söğüt
 Söke
+Starlink
+Starmer [Pr:starmır,starmer]
+Starship [Pr:starşip]
+Stellantis [Pr:stelantis]
 Sudan
+Sudani
 Sulakyurt
 Sultanbeyli
 Sultandağı [P:Noun, Prop; A:NounConsInsert_n]
@@ -1697,10 +1794,12 @@ Sütçüler
 Şor
 Şuhut
 Şûrayıdevlet [A:NoVoicing]
+Şuşa
 Tacik
 Tacikçe
 Tacikçe [P:Adj]
 Tacikistan
+Tahran
 Talas
 Tanrı [A:NoQuote]
 Tanzanya
@@ -1722,10 +1821,12 @@ Tavşanlı
 Taylorcu [A:NoQuote]
 Taylorcu [P:Adj]
 Tayvan
+Tebbun
 Tefenni
 Tekirdağ
 Tekkeköy
 Tekman
+Telegram
 Teleüt
 Tepebaşı
 Terazi
@@ -1734,11 +1835,15 @@ Termal
 Terme
 Teşkilâtıesasiye
 Tevrat [A:NoQuote]
+Threads [Pr:treds]
+Thunberg [Pr:tunberg]
 Tibet [A:NoVoicing]
 Tibetçe
 Tibetçe [P:Adj]
 Ticani
 Ticanî [A:NoQuote]
+Tigray
+TikTok
 Tire
 Tirebolu
 Togo
@@ -1746,6 +1851,7 @@ Tohar
 Toharca
 Toharca [P:Adj]
 Tokat [A:NoVoicing]
+Tokayev
 Tomarza
 Tonya
 Tophane
@@ -1755,6 +1861,7 @@ Torul
 Tosya
 Trabzon
 Trakya
+Truss [Pr:tras]
 Tuba
 Tufanbeyli
 Tunceli
@@ -1767,6 +1874,7 @@ Turani
 Turanî [A:NoQuote]
 Turgutlu
 Turhal
+TURKOVAC [Pr:turkovak]
 Tut
 Tutak
 Tuva
@@ -1831,13 +1939,17 @@ Vakfıkebir
 Van
 Vandal
 Varto
-Venezuelâ
+Venezuela
 Venüs
+Verstappen
 Vezirköprü
 Vietnam
 Viranşehir
 Vize
+Vucic [Pr:vuçiç]
+Vuhan
 Washington
+Witkoff [Pr:vitkof]
 Yağlıdere
 Yahşihan
 Yahudi
@@ -1905,10 +2017,15 @@ Yüregir
 Yüreğir
 Zaire
 Zambiya
+Zaporijya
 Zara
 Zatülkürsi
 Zatülkürsî
 Zebur
+Zelenski
+Zelenskiy [Pr:zelenski,zelenskiy]
+Zelensky [Pr:zelenski]
+Zengezur
 Zerdüşt
 Zeytinburnu [P:Noun, Prop; A:NounConsInsert_n]
 Zile
