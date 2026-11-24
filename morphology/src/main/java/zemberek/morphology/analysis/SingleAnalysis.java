@@ -1,11 +1,9 @@
 package zemberek.morphology.analysis;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.StemAndEnding;
@@ -19,19 +17,19 @@ import zemberek.morphology.morphotactics.TurkishMorphotactics;
 public class SingleAnalysis {
 
   // Dictionary Item of the analysis.
-  private DictionaryItem item;
+  private final DictionaryItem item;
 
   // Contains Morphemes and their surface form (actual appearance in the normalized input)
   // List also contain the root (unchanged or modified) of the Dictionary item.
   // For example, for normalized input "kedilere"
   // This list may contain "kedi:Noun, ler:A3pl , e:Dat" information.
-  private List<MorphemeData> morphemeDataList;
+  private final List<MorphemeData> morphemeDataList;
 
   // groupBoundaries holds the index values of morphemes.
-  private int[] groupBoundaries;
+  private final int[] groupBoundaries;
 
   // cached hash value.
-  private int hash;
+  private final int hash;
 
   public SingleAnalysis(
       DictionaryItem item,
@@ -40,7 +38,7 @@ public class SingleAnalysis {
     this.item = item;
     this.morphemeDataList = morphemeDataList;
     this.groupBoundaries = groupBoundaries;
-    this.hash = hashCode();
+    this.hash = 31 * item.hashCode() + morphemeDataList.hashCode();
   }
 
   public static SingleAnalysis unknown(String input) {
@@ -57,7 +55,8 @@ public class SingleAnalysis {
   }
 
   public String surfaceForm() {
-    return getStem() + getEnding();
+    String ending = getEnding();
+    return ending.isEmpty() ? getStem() : getStem() + ending;
   }
 
   public static class MorphemeGroup {
@@ -111,7 +110,12 @@ public class SingleAnalysis {
   }
 
   public boolean containsInformalMorpheme() {
-    return getMorphemes().stream().anyMatch(m -> m.informal);
+    for (MorphemeData data : morphemeDataList) {
+      if (data.morpheme.informal) {
+        return true;
+      }
+    }
+    return false;
   }
 
   int getMorphemeGroupCount() {
@@ -139,13 +143,27 @@ public class SingleAnalysis {
   }
 
   public String getEnding() {
-    StringBuilder sb = new StringBuilder();
+    String single = null;
+    StringBuilder sb = null;
     // skip the root.
     for (int i = 1; i < morphemeDataList.size(); i++) {
-      MorphemeData mSurface = morphemeDataList.get(i);
-      sb.append(mSurface.surface);
+      String surface = morphemeDataList.get(i).surface;
+      if (surface.isEmpty()) {
+        continue;
+      }
+      if (sb != null) {
+        sb.append(surface);
+      } else if (single == null) {
+        single = surface;
+      } else {
+        sb = new StringBuilder(single.length() + surface.length() + 4);
+        sb.append(single).append(surface);
+      }
     }
-    return sb.toString();
+    if (sb != null) {
+      return sb.toString();
+    }
+    return single != null ? single : "";
   }
 
   /**
@@ -215,7 +233,11 @@ public class SingleAnalysis {
   }
 
   public List<Morpheme> getMorphemes() {
-    return morphemeDataList.stream().map(s -> s.morpheme).collect(Collectors.toList());
+    List<Morpheme> morphemes = new ArrayList<>(morphemeDataList.size());
+    for (MorphemeData data : morphemeDataList) {
+      morphemes.add(data.morpheme);
+    }
+    return morphemes;
   }
 
   public MorphemeGroup getGroup(int groupIndex) {
@@ -315,12 +337,8 @@ public class SingleAnalysis {
 
       // if empty, use the cache.
       if (transition.surface.isEmpty()) {
-        MorphemeData morphemeData = emptyMorphemeCache.get(morpheme);
-        if (morphemeData == null) {
-          morphemeData = new MorphemeData(morpheme, "");
-          emptyMorphemeCache.put(morpheme, morphemeData);
-        }
-        morphemes.add(morphemeData);
+        morphemes.add(
+            emptyMorphemeCache.computeIfAbsent(morpheme, m -> new MorphemeData(m, "")));
         continue;
       }
 
@@ -385,10 +403,10 @@ public class SingleAnalysis {
    * </pre>
    */
   public List<String> getStems() {
-    List<String> stems = Lists.newArrayListWithCapacity(2);
+    List<String> stems = new ArrayList<>(groupBoundaries.length);
     stems.add(getStem());
-    String previousStem = getGroup(0).surfaceForm();
     if (groupBoundaries.length > 1) {
+      String previousStem = getGroup(0).surfaceForm();
       for (int i = 1; i < groupBoundaries.length; i++) {
         MorphemeGroup ig = getGroup(i);
         MorphemeData suffixData = ig.morphemes.get(0);
@@ -398,7 +416,9 @@ public class SingleAnalysis {
         if (!stems.contains(stem)) {
           stems.add(stem);
         }
-        previousStem = previousStem + ig.surfaceForm();
+        if (i + 1 < groupBoundaries.length) {
+          previousStem = previousStem + ig.surfaceForm();
+        }
       }
     }
     return stems;
@@ -416,17 +436,15 @@ public class SingleAnalysis {
    * </pre>
    */
   public List<String> getLemmas() {
-    List<String> lemmas = Lists.newArrayListWithCapacity(2);
+    List<String> lemmas = new ArrayList<>(groupBoundaries.length);
     lemmas.add(item.root);
 
-    String previousStem = getGroup(0).surfaceForm();
-    if (!previousStem.equals(item.root)) {
-      if (previousStem.endsWith("ğ")) {
+    if (groupBoundaries.length > 1) {
+      String previousStem = getGroup(0).surfaceForm();
+      if (!previousStem.equals(item.root) && previousStem.endsWith("ğ")) {
         previousStem = previousStem.substring(0, previousStem.length() - 1) + "k";
       }
-    }
 
-    if (groupBoundaries.length > 1) {
       for (int i = 1; i < groupBoundaries.length; i++) {
         MorphemeGroup ig = getGroup(i);
         MorphemeData suffixData = ig.morphemes.get(0);
@@ -439,7 +457,9 @@ public class SingleAnalysis {
         if (!lemmas.contains(stem)) {
           lemmas.add(stem);
         }
-        previousStem = previousStem + ig.surfaceForm();
+        if (i + 1 < groupBoundaries.length) {
+          previousStem = previousStem + ig.surfaceForm();
+        }
       }
     }
     return lemmas;
@@ -497,12 +517,6 @@ public class SingleAnalysis {
 
   @Override
   public int hashCode() {
-    if (hash != 0) {
-      return hash;
-    }
-    int result = item.hashCode();
-    result = 31 * result + morphemeDataList.hashCode();
-    result = 31 * result + hash;
-    return result;
+    return hash;
   }
 }

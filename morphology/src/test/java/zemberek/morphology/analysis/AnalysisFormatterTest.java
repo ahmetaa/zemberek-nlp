@@ -105,4 +105,29 @@ public class AnalysisFormatterTest {
         AnalysisFormatters.SURFACE_SEQUENCE.format(analysis));
   }
 
+  @Test
+  public void sequenceFormattersTest() {
+    RuleBasedAnalyzer analyzer = getAnalyzer("kitap");
+    SingleAnalysis analysis = analyzer.analyze("kitaba").get(0);
+
+    Assert.assertEquals("Noun + A3sg + Dat",
+        AnalysisFormatters.LEXICAL_SEQUENCE.format(analysis));
+    Assert.assertEquals("kitab:Noun + A3sg + a:Dat",
+        AnalysisFormatters.SURFACE_AND_LEXICAL_SEQUENCE.format(analysis));
+  }
+
+  @Test
+  public void oflazerTrailingDerivationalDoesNotThrow() {
+    RuleBasedAnalyzer analyzer = getAnalyzer("kitap");
+    SingleAnalysis base = analyzer.analyze("kitapsız").get(0);
+    // Construct a synthetic analysis truncated right on the derivational morpheme.
+    java.util.List<SingleAnalysis.MorphemeData> truncated =
+        base.getMorphemeDataList().subList(0, base.getMorphemeDataList().size() - 1);
+    SingleAnalysis malformed =
+        new SingleAnalysis(base.getDictionaryItem(), truncated, new int[]{0, truncated.size() - 1});
+
+    Assert.assertEquals("kitap+Noun+A3sg^DB+Without",
+        AnalysisFormatters.OFLAZER_STYLE.format(malformed));
+  }
+
 }

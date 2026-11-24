@@ -32,7 +32,7 @@ public class AnalysisDebugData {
     List<String> l = new ArrayList<>();
     l.add("----------------------");
     l.add("Debug data for input = " + input);
-    if (candidateStemTransitions.size() == 0) {
+    if (candidateStemTransitions.isEmpty()) {
       l.add("No Stem Candidates. Analysis Failed.");
     }
     l.add("Stem Candidate Transitions: ");
@@ -61,7 +61,7 @@ public class AnalysisDebugData {
     }
     l.add("Analyses [" + input + "] (Surface + Morpheme):");
     for (SingleAnalysis result : results) {
-      l.add("  " + AnalysisFormatters.surfaceSequenceFormatter().format(result));
+      l.add("  " + AnalysisFormatters.SURFACE_AND_LEXICAL_SEQUENCE.format(result));
     }
     return l;
   }

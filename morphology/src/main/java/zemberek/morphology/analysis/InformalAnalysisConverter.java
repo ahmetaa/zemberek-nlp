@@ -2,7 +2,7 @@ package zemberek.morphology.analysis;
 
 import java.util.ArrayList;
 import java.util.List;
-import zemberek.morphology.TurkishMorphology;
+import zemberek.morphology.analysis.SingleAnalysis.MorphemeData;
 import zemberek.morphology.generator.WordGenerator;
 import zemberek.morphology.generator.WordGenerator.Result;
 import zemberek.morphology.morphotactics.Morpheme;
@@ -13,7 +13,7 @@ import zemberek.morphology.morphotactics.Morpheme;
  */
 public class InformalAnalysisConverter {
 
-  private WordGenerator generator;
+  private final WordGenerator generator;
 
   public InformalAnalysisConverter(WordGenerator generator) {
     this.generator = generator;
@@ -34,7 +34,7 @@ public class InformalAnalysisConverter {
     List<Morpheme> formalMorphemes = toFormalMorphemeNames(a);
     List<WordGenerator.Result> generations =
         generator.generate(a.getDictionaryItem(), formalMorphemes);
-    if (generations.size() > 0) {
+    if (!generations.isEmpty()) {
       return generations.get(0);
     } else {
       return null;
@@ -45,8 +45,10 @@ public class InformalAnalysisConverter {
    * Converts informal morphemes to formal morphemes.
    */
   public static List<Morpheme> toFormalMorphemeNames(SingleAnalysis a) {
-    List<Morpheme> transform = new ArrayList<>();
-    for (Morpheme m : a.getMorphemes()) {
+    List<MorphemeData> morphemeDataList = a.getMorphemeDataList();
+    List<Morpheme> transform = new ArrayList<>(morphemeDataList.size());
+    for (MorphemeData data : morphemeDataList) {
+      Morpheme m = data.morpheme;
       if (m.informal && m.mappedMorpheme != null) {
         transform.add(m.mappedMorpheme);
       } else {

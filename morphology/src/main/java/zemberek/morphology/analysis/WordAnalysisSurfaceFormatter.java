@@ -61,22 +61,21 @@ public class WordAnalysisSurfaceFormatter {
    * @return formatted result or empty string.
    */
   public String formatToCase(SingleAnalysis analysis, CaseType type, String apostrophe) {
-    String formatted = format(analysis, apostrophe);
     Locale locale = analysis.getDictionaryItem().hasAttribute(RootAttribute.LocaleEn) ?
         Locale.ENGLISH : Turkish.LOCALE;
     switch (type) {
       case DEFAULT_CASE:
-        return formatted;
+        return format(analysis, apostrophe);
       case LOWER_CASE:
-        return formatted.toLowerCase(locale);
+        return format(analysis, apostrophe).toLowerCase(locale);
       case UPPER_CASE:
-        return formatted.toUpperCase(locale);
+        return format(analysis, apostrophe).toUpperCase(locale);
       case TITLE_CASE:
-        return Turkish.capitalize(formatted);
+        return Turkish.capitalize(format(analysis, apostrophe));
       case UPPER_CASE_ROOT_LOWER_CASE_ENDING:
         String ending = analysis.getEnding();
         String lemmaUpper = analysis.getDictionaryItem().normalizedLemma().toUpperCase(locale);
-        if (ending.length() == 0) {
+        if (ending.isEmpty()) {
           return lemmaUpper;
         }
         if (apostrophe != null || apostropheRequired(analysis)) {
@@ -170,7 +169,7 @@ public class WordAnalysisSurfaceFormatter {
       return CaseType.UPPER_CASE;
     }
     if (firstLetterUpperCase && letterCount == lowerCaseCount + 1) {
-      return letterCount == 1 ? CaseType.UPPER_CASE : CaseType.TITLE_CASE;
+      return CaseType.TITLE_CASE;
     }
     int apostropheIndex = input.indexOf('\'');
     if (apostropheIndex > 0 && apostropheIndex < input.length() - 1) {

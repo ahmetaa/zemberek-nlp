@@ -20,7 +20,7 @@ public class AnalysisFormatters {
    * okut -> [okumak:Verb] oku:Verb|t:Caus→Verb+Imp+A2sg
    * </pre>
    */
-  public static AnalysisFormatter DEFAULT = DefaultFormatter.surfaceAndLexical();
+  public static final AnalysisFormatter DEFAULT = DefaultFormatter.surfaceAndLexical();
 
   /**
    * Default lexical morphological analysis formatter.
@@ -30,7 +30,7 @@ public class AnalysisFormatters {
    * okut -> [okumak:Verb] Verb|Caus→Verb+Imp+A2sg
    * </pre>
    */
-  public static AnalysisFormatter DEFAULT_LEXICAL = DefaultFormatter.onlyLexical();
+  public static final AnalysisFormatter DEFAULT_LEXICAL = DefaultFormatter.onlyLexical();
 
   /**
    * Default lexical morphological analysis formatter. But it will not contain Dictionary item
@@ -41,7 +41,8 @@ public class AnalysisFormatters {
    * okut -> Verb|Caus→Verb+Imp+A2sg
    * </pre>
    */
-  public static AnalysisFormatter DEFAULT_LEXICAL_ONLY_MORPHEMES = MorphemesFormatter.lexical();
+  public static final AnalysisFormatter DEFAULT_LEXICAL_ONLY_MORPHEMES =
+      MorphemesFormatter.lexical();
 
   /**
    * Format's analysis result similar to tools developed by Kemal Oflazer. However, this does not
@@ -53,7 +54,7 @@ public class AnalysisFormatters {
    *   kitaplardaymış -> kitap+Noun+A3pl+Loc^DB+Verb+Zero+Narr+A3sg
    * </pre>
    */
-  public static AnalysisFormatter OFLAZER_STYLE = new OflazerStyleFormatter();
+  public static final AnalysisFormatter OFLAZER_STYLE = new OflazerStyleFormatter();
 
   /**
    * Generates " + " separated Morpheme ids. Such as:
@@ -63,7 +64,7 @@ public class AnalysisFormatters {
    *   kitapçığa -> Noun + A3sg + Dim + Noun + A3sg + Dat
    * </pre>
    */
-  public static AnalysisFormatter LEXICAL_SEQUENCE = lexicalSequenceFormatter();
+  public static final AnalysisFormatter LEXICAL_SEQUENCE = lexicalSequenceFormatter();
 
   /**
    * Generates " + " separated Surface forms and Morpheme ids:
@@ -73,7 +74,7 @@ public class AnalysisFormatters {
    *   kitapçığa -> kitap:Noun + A3sg + çığ:Dim + Noun + A3sg + a:Dat
    * </pre>
    */
-  public static AnalysisFormatter SURFACE_AND_LEXICAL_SEQUENCE = surfaceSequenceFormatter();
+  public static final AnalysisFormatter SURFACE_AND_LEXICAL_SEQUENCE = surfaceSequenceFormatter();
 
   /**
    * Generates space separated surface forms. Such as:
@@ -83,7 +84,7 @@ public class AnalysisFormatters {
    *   kitabımızdan -> kitab ımız dan
    * </pre>
    */
-  public static AnalysisFormatter SURFACE_SEQUENCE = new OnlySurfaceFormatter();
+  public static final AnalysisFormatter SURFACE_SEQUENCE = new OnlySurfaceFormatter();
 
   static AnalysisFormatter lexicalSequenceFormatter() {
     return analysis -> analysis.getMorphemeDataList().stream()
@@ -100,9 +101,10 @@ public class AnalysisFormatters {
 
   public static class OflazerStyleFormatter implements AnalysisFormatter {
 
-    private boolean useRoot = false;
+    private final boolean useRoot;
 
     public OflazerStyleFormatter() {
+      this(false);
     }
 
     private OflazerStyleFormatter(boolean useRoot) {
@@ -133,22 +135,24 @@ public class AnalysisFormatters {
         sb.append('+').append(item.secondaryPos.shortForm);
       }
       if (surfaces.size() > 1 && !surfaces.get(1).morpheme.derivational) {
-        sb.append("+");
+        sb.append('+');
       }
 
       for (int i = 1; i < surfaces.size(); i++) {
         MorphemeData s = surfaces.get(i);
         if (s.morpheme.derivational) {
           sb.append("^DB+");
-          sb.append(surfaces.get(i + 1).morpheme.id)
-              .append("+"); // Oflazer first puts the derivation result morpheme.
+          if (i + 1 < surfaces.size()) {
+            // Oflazer first puts the derivation result morpheme.
+            sb.append(surfaces.get(i + 1).morpheme.id).append('+');
+            i++;
+          }
           sb.append(s.morpheme.id);
-          i++;
         } else {
           sb.append(s.morpheme.id);
         }
         if (i < surfaces.size() - 1 && !surfaces.get(i + 1).morpheme.derivational) {
-          sb.append("+");
+          sb.append('+');
         }
 
       }
@@ -158,7 +162,7 @@ public class AnalysisFormatters {
 
   static class MorphemesFormatter implements AnalysisFormatter {
 
-    boolean addSurface;
+    final boolean addSurface;
 
     static MorphemesFormatter lexical() {
       return new MorphemesFormatter(false);
@@ -184,7 +188,7 @@ public class AnalysisFormatters {
       }
       sb.append(surfaces.get(0).morpheme.id);
       if (surfaces.size() > 1 && !surfaces.get(1).morpheme.derivational) {
-        sb.append("+");
+        sb.append('+');
       }
       for (int i = 1; i < surfaces.size(); i++) {
         MorphemeData s = surfaces.get(i);
@@ -192,11 +196,11 @@ public class AnalysisFormatters {
         if (morpheme.derivational) {
           sb.append('|');
         }
-        if (addSurface && s.surface.length() > 0) {
+        if (addSurface && !s.surface.isEmpty()) {
           sb.append(s.surface).append(':');
         }
-        sb.append(s.morpheme.id);
-        if (s.morpheme.derivational) {
+        sb.append(morpheme.id);
+        if (morpheme.derivational) {
           sb.append('→');
         } else if (i < surfaces.size() - 1 && !surfaces.get(i + 1).morpheme.derivational) {
           sb.append('+');
@@ -208,8 +212,7 @@ public class AnalysisFormatters {
 
   static class DefaultFormatter implements AnalysisFormatter {
 
-    boolean addSurface;
-    MorphemesFormatter morphemesFormatter;
+    final MorphemesFormatter morphemesFormatter;
 
     static DefaultFormatter onlyLexical() {
       return new DefaultFormatter(false);
@@ -220,7 +223,6 @@ public class AnalysisFormatters {
     }
 
     DefaultFormatter(boolean addSurface) {
-      this.addSurface = addSurface;
       morphemesFormatter = addSurface ? MorphemesFormatter.surface() :
           MorphemesFormatter.lexical();
     }
@@ -253,7 +255,7 @@ public class AnalysisFormatters {
       List<String> tokens = new ArrayList<>(3);
 
       for (MorphemeData mSurface : analysis.getMorphemeDataList()) {
-        if (mSurface.surface.length() > 0) {
+        if (!mSurface.surface.isEmpty()) {
           tokens.add(mSurface.surface);
         }
       }

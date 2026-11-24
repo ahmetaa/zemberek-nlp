@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
  */
 public class SentenceAnalysis implements Iterable<SentenceWordAnalysis> {
 
-  private String sentence;
-  private List<SentenceWordAnalysis> wordAnalyses;
+  private final String sentence;
+  private final List<SentenceWordAnalysis> wordAnalyses;
 
   public SentenceAnalysis(
       String sentence,
@@ -50,6 +50,7 @@ public class SentenceAnalysis implements Iterable<SentenceWordAnalysis> {
    * @return SentenceWordAnalysis list.
    * @deprecated Use {@link #getWordAnalyses()}. This will be removed in 0.16.0
    */
+  @Deprecated
   public List<SentenceWordAnalysis> parseEntries() {
     return wordAnalyses;
   }
@@ -73,6 +74,7 @@ public class SentenceAnalysis implements Iterable<SentenceWordAnalysis> {
    * Returns all analyses of all words as a list.
    * @deprecated Use {@link #ambiguousAnalysis()}. This will be removed in 0.16.0
    */
+  @Deprecated
   public List<WordAnalysis> allAnalyses() {
     return wordAnalyses.stream().map(s -> s.wordAnalysis).collect(Collectors.toList());
   }

@@ -12,11 +12,11 @@ public class WordAnalysis implements Iterable<SingleAnalysis> {
       new WordAnalysis("", Collections.emptyList());
 
   //this is actual input.
-  String input;
+  final String input;
   // this is the input that is prepared for analysis.
-  String normalizedInput;
+  final String normalizedInput;
 
-  List<SingleAnalysis> analysisResults;
+  final List<SingleAnalysis> analysisResults;
 
   public WordAnalysis(String input, List<SingleAnalysis> analysisResults) {
     this.input = input;
