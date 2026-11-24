@@ -79,80 +79,76 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
   MorphemeState vOpt_S_Empty_Inf2 = nonTerminal("vOpt_S_Empty_Inf2", optInformal);
 
   void addGraph() {
+    MorphotacticStates s = this.states;
 
     // yap-ıyo, yap-ıo, yap-ıor
-
-    verbRoot_S
+    s.verbRoot_S
         .add(vProgYor_S_Inf, "Iyo", notHave(PhoneticAttribute.LastLetterVowel))
         .add(vProgYor_S_Inf, "Io", notHave(PhoneticAttribute.LastLetterVowel))
         .add(vProgYor_S_Inf2, "Ior", notHave(PhoneticAttribute.LastLetterVowel));
-    verbRoot_VowelDrop_S
+    s.verbRoot_VowelDrop_S
         .add(vProgYor_S_Inf, "Iyo")
         .add(vProgYor_S_Inf, "Io")
         .add(vProgYor_S_Inf2, "Ior");
     vProgYor_S_Inf
-        .add(vA1sg_ST, "m")
-        .add(vA2sg_ST, "sun")
-        .add(vA2sg_ST, "n")
-        .addEmpty(vA3sg_ST)
-        .add(vA1pl_ST, "z")
-        .add(vA2pl_ST, "sunuz")
-        .add(vA2pl_ST, "nuz")
-        .add(vA3pl_ST, "lar")
-        .add(vCond_S, "sa")
-        .add(vPastAfterTense_S, "du")
-        .add(vNarrAfterTense_S, "muş")
-        .add(vCopBeforeA3pl_S, "dur")
-        .add(vWhile_S, "ken");
+        .add(s.vA1sg_ST, "m")
+        .add(s.vA2sg_ST, "sun")
+        .add(s.vA2sg_ST, "n")
+        .addEmpty(s.vA3sg_ST)
+        .add(s.vA1pl_ST, "z")
+        .add(s.vA2pl_ST, "sunuz")
+        .add(s.vA2pl_ST, "nuz")
+        .add(s.vA3pl_ST, "lar")
+        .add(s.vCond_S, "sa")
+        .add(s.vPastAfterTense_S, "du")
+        .add(s.vNarrAfterTense_S, "muş")
+        .add(s.vCopBeforeA3pl_S, "dur")
+        .add(s.vWhile_S, "ken");
 
     vProgYor_S_Inf2
-        .add(vA1sg_ST, "um")
-        .add(vA2sg_ST, "sun")
-        .addEmpty(vA3sg_ST)
-        .add(vA1pl_ST, "uz")
-        .add(vA2pl_ST, "sunuz")
-        .add(vA3pl_ST, "lar")
-        .add(vCond_S, "sa")
-        .add(vPastAfterTense_S, "du")
-        .add(vNarrAfterTense_S, "muş")
-        .add(vCopBeforeA3pl_S, "dur")
-        .add(vWhile_S, "ken");
+        .add(s.vA1sg_ST, "um")
+        .add(s.vA2sg_ST, "sun")
+        .addEmpty(s.vA3sg_ST)
+        .add(s.vA1pl_ST, "uz")
+        .add(s.vA2pl_ST, "sunuz")
+        .add(s.vA3pl_ST, "lar")
+        .add(s.vCond_S, "sa")
+        .add(s.vPastAfterTense_S, "du")
+        .add(s.vNarrAfterTense_S, "muş")
+        .add(s.vCopBeforeA3pl_S, "dur")
+        .add(s.vWhile_S, "ken");
 
-    vNegProg1_S
+    s.vNegProg1_S
         .add(vProgYor_S_Inf, "Iyo")
         .add(vProgYor_S_Inf, "Io")
         .add(vProgYor_S_Inf2, "Ior");
-    vUnableProg1_S
+    s.vUnableProg1_S
         .add(vProgYor_S_Inf, "Iyo")
         .add(vProgYor_S_Inf, "Io")
         .add(vProgYor_S_Inf2, "Ior");
 
     RootSurfaceIsAny diYiCondition = new RootSurfaceIsAny("di", "yi");
-    vDeYeRoot_S
+    s.vDeYeRoot_S
         .add(vProgYor_S_Inf, "yo", diYiCondition)
         .add(vProgYor_S_Inf, "o", diYiCondition)
         .add(vProgYor_S_Inf2, "or", diYiCondition);
 
     // yap-a-k
+    s.vOpt_S.add(vA1pl_ST_Inf, "k");
 
-    vOpt_S
-        .add(vA1pl_ST_Inf, "k");
-
-    // Future tense deformation
-    // yap-ıca-m yap-aca-m yap-ca-m
-
+    // Future tense deformation: yap-ıca-m yap-aca-m yap-ca-m
     Condition backRounded = Conditions.has(PhoneticAttribute.LastVowelBack)
         .and(Conditions.has(PhoneticAttribute.LastVowelRounded));
     Condition frontRounded = Conditions.has(PhoneticAttribute.LastVowelFrontal)
         .and(Conditions.has(PhoneticAttribute.LastVowelRounded));
 
-    verbRoot_S
+    s.verbRoot_S
         .add(vNeg_S_Inf, "mI")
         .add(vNeg_S_Inf, "mı", backRounded)   // ol-mı-cak / ol-mi-cak
         .add(vNeg_S_Inf, "mi", frontRounded); // gör-mi-cek
-    verbRoot_S.add(vUnable_S_Inf, "+yAmI");
+    s.verbRoot_S.add(vUnable_S_Inf, "+yAmI");
 
-    verbRoot_S
+    s.verbRoot_S
         .add(vFut_S_Inf, "+ycA~k")   // yap-cak-sın oku-ycak
         .add(vFut_S_Inf, "+ycA!ğ")   // yap-cağ-ım
         .add(vFut_S_Inf, "+yIcA~k")  // gör-ücek-sin ol-ucak
@@ -161,7 +157,7 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
         .add(vFut_S_Inf2, "+yIcA")   // yap-ıca-m oku-yuca-m
         .add(vFut_S_Inf2, "+yAcA");  // yap-aca-m oku-yaca-m
 
-    verbRoot_VowelDrop_S
+    s.verbRoot_VowelDrop_S
         .add(vFut_S_Inf, "IycA~k")
         .add(vFut_S_Inf, "IycA!ğ")
         .add(vFut_S_Inf, "IcA~k")   // izl-icek ar-ıcak
@@ -170,8 +166,8 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
         .add(vFut_S_Inf2, "IcA");   // bekl-ice-m anl-ıca-m
 
     vNeg_S_Inf
-        .add(vFut_S, "yAcA~k")   // yap-mı-yacak-sın
-        .add(vFut_S, "yAcA!ğ")   // yap-mı-yacağ-ım
+        .add(s.vFut_S, "yAcA~k")    // yap-mı-yacak-sın
+        .add(s.vFut_S, "yAcA!ğ")    // yap-mı-yacağ-ım
         .add(vFut_S_Inf, "ycA~k")   // yap-mı-ycak-sın
         .add(vFut_S_Inf, "ycA!ğ")   // yap-mı-ycağ-ım
         .add(vFut_S_Inf, "cA~k")    // ol-mu-cak izle-mi-cek
@@ -180,8 +176,8 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
         .add(vFut_S_Inf2, "cA");    // yap-mı-ca-m
 
     vUnable_S_Inf
-        .add(vFut_S, "yAcA~k")   // yap-amı-yacak-sın
-        .add(vFut_S, "yAcA!ğ")   // yap-amı-yacağ-ım
+        .add(s.vFut_S, "yAcA~k")    // yap-amı-yacak-sın
+        .add(s.vFut_S, "yAcA!ğ")    // yap-amı-yacağ-ım
         .add(vFut_S_Inf, "ycA~k")   // yap-amı-ycak-sın
         .add(vFut_S_Inf, "ycA!ğ")   // yap-amı-ycağ-ım
         .add(vFut_S_Inf, "cA~k")    // gel-emi-cek
@@ -189,42 +185,42 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
         .add(vFut_S_Inf2, "ycA")    // yap-amı-yca-m
         .add(vFut_S_Inf2, "cA");    // yap-amı-ca-m
 
-    vNeg_S
+    s.vNeg_S
         .add(vFut_S_Inf, "yAcA")   // yap-ma-yaca-m
-        .add(vFut_S_Inf, "yAcAk");   // yap-ma-yacak-(A3sg|A3pl)
+        .add(vFut_S_Inf, "yAcAk"); // yap-ma-yacak-(A3sg|A3pl)
 
-    vUnable_S
+    s.vUnable_S
         .add(vFut_S_Inf, "yAcA")   // yap-ama-yaca-m
-        .add(vFut_S_Inf, "yAcAk");   // yap-ama-yacak-(A3sg|A3pl)
+        .add(vFut_S_Inf, "yAcAk"); // yap-ama-yacak-(A3sg|A3pl)
 
     vFut_S_Inf
-        .add(vA1sg_ST, "+Im")
-        .add(vA2sg_ST, "sIn")
-        .addEmpty(vA3sg_ST)
-        .add(vA1pl_ST, "Iz")
-        .add(vA2pl_ST, "sInIz")
-        .add(vA3pl_ST, "lAr");
+        .add(s.vA1sg_ST, "+Im")
+        .add(s.vA2sg_ST, "sIn")
+        .addEmpty(s.vA3sg_ST)
+        .add(s.vA1pl_ST, "Iz")
+        .add(s.vA2pl_ST, "sInIz")
+        .add(s.vA3pl_ST, "lAr");
 
     vFut_S_Inf2
-        .add(vA1sg_ST, "m") // yap-ca-m
-        .add(vA2sg_ST, "n") // yap-ca-n
-        .add(vA1pl_ST, "z") // yap-ca-z
-        .add(vA2pl_ST, "nIz"); // yap-ca-nız
+        .add(s.vA1sg_ST, "m")   // yap-ca-m
+        .add(s.vA2sg_ST, "n")   // yap-ca-n
+        .add(s.vA1pl_ST, "z")   // yap-ca-z
+        .add(s.vA2pl_ST, "nIz"); // yap-ca-nız
 
-    vFut_S_Inf.add(vCond_S, "sA");
-    vFut_S_Inf.add(vPastAfterTense_S, "tI");
-    vFut_S_Inf.add(vNarrAfterTense_S, "mIş");
-    vFut_S_Inf.add(vCopBeforeA3pl_S, "tIr");
-    vFut_S_Inf.add(vWhile_S, "ken");
+    vFut_S_Inf.add(s.vCond_S, "sA");
+    vFut_S_Inf.add(s.vPastAfterTense_S, "tI");
+    vFut_S_Inf.add(s.vNarrAfterTense_S, "mIş");
+    vFut_S_Inf.add(s.vCopBeforeA3pl_S, "tIr");
+    vFut_S_Inf.add(s.vWhile_S, "ken");
 
     // Future participle deformation: kalk-cağ-ı-nı, gid-iceğ-im, yap-mı-ycağ-ı-nı, di-yceğ-i
-    verbRoot_S
+    s.verbRoot_S
         .add(vFutPart_S_Inf, "+ycA~k")
         .add(vFutPart_S_Inf, "+ycA!ğ")
         .add(vFutPart_S_Inf, "+yIcA~k", notHave(PhoneticAttribute.LastLetterVowel))
         .add(vFutPart_S_Inf, "+yIcA!ğ", notHave(PhoneticAttribute.LastLetterVowel));
 
-    verbRoot_VowelDrop_S
+    s.verbRoot_VowelDrop_S
         .add(vFutPart_S_Inf, "IycA~k")
         .add(vFutPart_S_Inf, "IycA!ğ")
         .add(vFutPart_S_Inf, "IcA~k")
@@ -246,54 +242,40 @@ public class InformalTurkishMorphotactics extends TurkishMorphotactics {
         .add(vFutPart_S_Inf, "yAcA~k")
         .add(vFutPart_S_Inf, "yAcA!ğ");
 
-    vNeg_S
+    s.vNeg_S
         .add(vFutPart_S_Inf, "ycA~k")
         .add(vFutPart_S_Inf, "ycA!ğ");
 
-    vUnable_S
+    s.vUnable_S
         .add(vFutPart_S_Inf, "ycA~k")
         .add(vFutPart_S_Inf, "ycA!ğ");
 
-    vDeYeRoot_S
+    s.vDeYeRoot_S
         .add(vFutPart_S_Inf, "yce~k", diYiCondition)
         .add(vFutPart_S_Inf, "yce!ğ", diYiCondition);
 
-    vFutPart_S_Inf.addEmpty(noun_S, Conditions.HAS_TAIL);
+    vFutPart_S_Inf.addEmpty(s.noun_S, Conditions.HAS_TAIL);
     vFutPart_S_Inf.addEmpty(adjAfterVerb_S_Inf);
 
     Condition cInfFutPart = new Conditions.PreviousMorphemeIs(futPartInformal);
     adjAfterVerb_S_Inf
-        .addEmpty(aPnon_ST, cInfFutPart)
-        .add(aP1sg_ST, "Im", cInfFutPart)
-        .add(aP2sg_ST, "In", cInfFutPart)
-        .add(aP3sg_ST, "I", cInfFutPart)
-        .add(aP1pl_ST, "ImIz", cInfFutPart)
-        .add(aP2pl_ST, "InIz", cInfFutPart)
-        .add(aP3pl_ST, "lArI", cInfFutPart);
+        .addEmpty(s.aPnon_ST, cInfFutPart)
+        .add(s.aP1sg_ST, "Im", cInfFutPart)
+        .add(s.aP2sg_ST, "In", cInfFutPart)
+        .add(s.aP3sg_ST, "I", cInfFutPart)
+        .add(s.aP1pl_ST, "ImIz", cInfFutPart)
+        .add(s.aP2pl_ST, "InIz", cInfFutPart)
+        .add(s.aP3pl_ST, "lArI", cInfFutPart);
 
     // Handling of yapıyim, okuyim, bakıyim. TODO: not yet finished
-
-    verbRoot_S.add(vOpt_S_Inf, "I", Conditions.has(PhoneticAttribute.LastLetterConsonant));
-
+    s.verbRoot_S.add(vOpt_S_Inf, "I", Conditions.has(PhoneticAttribute.LastLetterConsonant));
     // for handling "arıyim, okuyim"
-    verbRoot_VowelDrop_S.add(vOpt_S_Inf, "I");
-
-    verbRoot_S.addEmpty(vOpt_S_Empty_Inf, Conditions.has(PhoneticAttribute.LastLetterVowel));
+    s.verbRoot_VowelDrop_S.add(vOpt_S_Inf, "I");
+    s.verbRoot_S.addEmpty(vOpt_S_Empty_Inf, Conditions.has(PhoneticAttribute.LastLetterVowel));
 
     vOpt_S_Inf.add(vA1sg_ST_Inf, "+yIm");
     vOpt_S_Inf.add(vA1sg_ST_Inf, "+yim");
     vOpt_S_Empty_Inf.add(vA1sg_ST_Inf, "+yim");
-
-    // handling of 'babacım, kuzucum' or 'babacıım, kuzucuum'
-
-    // handling of 'abim-gil' 'Ahmet'gil'
-
-    // yap-tı-mı Connected Question word.
-    // After past and narrative, a person suffix is required.
-    // yap-tı-m-mı
-    // After progressive, future, question can come before.
-    // yap-ıyor-mu-yum yap-acak-mı-yız
-
   }
 
 }
