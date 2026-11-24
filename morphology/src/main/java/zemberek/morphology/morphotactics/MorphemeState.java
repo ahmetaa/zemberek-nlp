@@ -12,6 +12,7 @@ public class MorphemeState {
   public final String id;
   public final Morpheme morpheme;
   private List<MorphemeTransition> outgoing = new ArrayList<>(2);
+  private List<SuffixTransition> outgoingEmpty = new ArrayList<>(2);
   private List<MorphemeTransition> incoming = new ArrayList<>(2);
   public final boolean terminal;
   public final boolean derivative;
@@ -92,6 +93,9 @@ public class MorphemeState {
         Log.warn("Outgoing transition %s already exist in %s", suffixTransition, this);
       }
       outgoing.add(suffixTransition);
+      if (suffixTransition instanceof SuffixTransition st && !st.hasSurfaceForm()) {
+        outgoingEmpty.add(st);
+      }
     }
     return this;
   }
@@ -153,6 +157,10 @@ public class MorphemeState {
     return outgoing;
   }
 
+  public List<SuffixTransition> getOutgoingEmpty() {
+    return outgoingEmpty;
+  }
+
   public List<MorphemeTransition> getIncoming() {
     return incoming;
   }
@@ -173,6 +181,7 @@ public class MorphemeState {
       }
     }
     outgoing.removeAll(transitions);
+    outgoingEmpty.removeAll(transitions);
   }
 
   public void removeTransitionsTo(Morpheme morpheme) {
@@ -183,6 +192,7 @@ public class MorphemeState {
       }
     }
     outgoing.removeAll(transitions);
+    outgoingEmpty.removeAll(transitions);
   }
 
   public void removeTransitionsTo(MorphemeState... state) {

@@ -1,17 +1,14 @@
 package zemberek.morphology.analysis;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import zemberek.core.collections.IntValueMap;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.analysis.AnalysisDebugData.RejectedTransition;
-import zemberek.morphology.analysis.SurfaceTransition.SuffixTemplateToken;
 import zemberek.morphology.analysis.SurfaceTransition.TemplateTokenType;
 import zemberek.morphology.lexicon.DictionaryItem;
 import zemberek.morphology.lexicon.RootLexicon;
@@ -31,17 +28,22 @@ public class RuleBasedAnalyzer {
 
   private static final int MAX_REPEATING_SUFFIX_TYPE_COUNT = 3;
 
-  private RootLexicon lexicon;
-  private StemTransitions stemTransitions;
-  private boolean debugMode = false;
+  private final RootLexicon lexicon;
+  private final StemTransitions stemTransitions;
+  private final boolean debugMode;
   private AnalysisDebugData debugData;
-  private boolean asciiTolerant = false;
-  private TurkishMorphotactics morphotactics;
+  private final boolean asciiTolerant;
+  private final TurkishMorphotactics morphotactics;
 
-  private RuleBasedAnalyzer(TurkishMorphotactics morphotactics) {
+  private RuleBasedAnalyzer(
+      TurkishMorphotactics morphotactics,
+      boolean debugMode,
+      boolean asciiTolerant) {
     this.lexicon = morphotactics.getRootLexicon();
     this.stemTransitions = morphotactics.getStemTransitions();
     this.morphotactics = morphotactics;
+    this.debugMode = debugMode;
+    this.asciiTolerant = asciiTolerant;
   }
 
   public TurkishMorphotactics getMorphotactics() {
@@ -49,7 +51,7 @@ public class RuleBasedAnalyzer {
   }
 
   public static RuleBasedAnalyzer instance(TurkishMorphotactics morphotactics) {
-    return new RuleBasedAnalyzer(morphotactics);
+    return new RuleBasedAnalyzer(morphotactics, false, false);
   }
 
   /**
@@ -58,9 +60,7 @@ public class RuleBasedAnalyzer {
    */
   public static RuleBasedAnalyzer ignoreDiacriticsInstance(
       TurkishMorphotactics morphotactics) {
-    RuleBasedAnalyzer analyzer = RuleBasedAnalyzer.instance(morphotactics);
-    analyzer.asciiTolerant = true;
-    return analyzer;
+    return new RuleBasedAnalyzer(morphotactics, false, true);
   }
 
   /**
@@ -69,19 +69,13 @@ public class RuleBasedAnalyzer {
    * retrieved with getDebugData method.
    */
   public static RuleBasedAnalyzer forDebug(TurkishMorphotactics morphotactics) {
-    RuleBasedAnalyzer analyzer = RuleBasedAnalyzer.instance(morphotactics);
-    analyzer.debugMode = true;
-    return analyzer;
+    return new RuleBasedAnalyzer(morphotactics, true, false);
   }
 
   public static RuleBasedAnalyzer forDebug(
       TurkishMorphotactics morphotactics,
       boolean asciiTolerant) {
-    RuleBasedAnalyzer analyzer = RuleBasedAnalyzer
-        .instance(morphotactics);
-    analyzer.debugMode = true;
-    analyzer.asciiTolerant = asciiTolerant;
-    return analyzer;
+    return new RuleBasedAnalyzer(morphotactics, true, asciiTolerant);
   }
 
   public StemTransitions getStemTransitions() {
@@ -105,6 +99,7 @@ public class RuleBasedAnalyzer {
       String input, String searchInput, boolean hasCircumflex) {
     if (debugMode) {
       debugData = new AnalysisDebugData();
+      debugData.input = input;
     }
 
     // get stem candidates.
@@ -118,14 +113,18 @@ public class RuleBasedAnalyzer {
       }
     }
 
+    if (candidates.isEmpty()) {
+      return new ArrayList<>(0);
+    }
+
     if (debugMode) {
-      debugData.input = input;
       debugData.candidateStemTransitions.addAll(candidates);
     }
 
     // generate initial search paths.
     List<SearchPath> paths = new ArrayList<>(candidates.size());
-    for (StemTransition candidate : candidates) {
+    for (int i = 0, n = candidates.size(); i < n; i++) {
+      StemTransition candidate = candidates.get(i);
       int length = candidate.surface.length();
       String tail = searchInput.substring(length);
       paths.add(SearchPath.initialPath(candidate, tail));
@@ -136,7 +135,8 @@ public class RuleBasedAnalyzer {
 
     // generate results from successful paths.
     List<SingleAnalysis> result = new ArrayList<>(resultPaths.size());
-    for (SearchPath path : resultPaths) {
+    for (int i = 0, n = resultPaths.size(); i < n; i++) {
+      SearchPath path = resultPaths.get(i);
       if (checkCircumflex && !matchesCircumflex(path, input)) {
         continue;
       }
@@ -201,21 +201,23 @@ public class RuleBasedAnalyzer {
   // searches through morphotactics graph.
   private List<SearchPath> search(List<SearchPath> currentPaths) {
 
-    if (currentPaths.size() > 30) {
-      currentPaths = pruneCyclicPaths(currentPaths);
-    }
-
     List<SearchPath> result = new ArrayList<>(3);
+    List<SearchPath> nextPaths = new ArrayList<>(currentPaths.size() * 2 + 4);
     // new Paths are generated with matching transitions.
-    while (currentPaths.size() > 0) {
+    while (!currentPaths.isEmpty()) {
 
-      List<SearchPath> allNewPaths = Lists.newArrayList();
+      if (currentPaths.size() > 30) {
+        pruneCyclicPathsInPlace(currentPaths);
+      }
 
-      for (SearchPath path : currentPaths) {
+      nextPaths.clear();
+
+      for (int i = 0, n = currentPaths.size(); i < n; i++) {
+        SearchPath path = currentPaths.get(i);
 
         // if there are no more letters to consume and path can be terminated, we accept this
         // path as a correct result.
-        if (path.tail.length() == 0) {
+        if (path.tail.isEmpty()) {
           if (path.isTerminal() &&
               !path.containsPhoneticAttribute(PhoneticAttribute.CannotTerminate)) {
             result.add(path);
@@ -226,24 +228,29 @@ public class RuleBasedAnalyzer {
           }
           if (debugMode) {
             debugData.failedPaths.put(path, "Finished but Path not terminal");
+          } else {
+            advanceEmpty(path, nextPaths);
+            continue;
           }
         }
 
         // Creates new paths with outgoing and matching transitions.
-        // In non-debug mode, append directly to allNewPaths to avoid per-path list allocations.
+        // In non-debug mode, append directly to nextPaths to avoid per-path list allocations.
         if (debugMode) {
           List<SearchPath> newPaths = new ArrayList<>(2);
           advance(path, newPaths);
-          allNewPaths.addAll(newPaths);
+          nextPaths.addAll(newPaths);
           if (newPaths.isEmpty()) {
             debugData.failedPaths.put(path, "No Transition");
           }
           debugData.paths.addAll(newPaths);
         } else {
-          advance(path, allNewPaths);
+          advance(path, nextPaths);
         }
       }
-      currentPaths = allNewPaths;
+      List<SearchPath> swap = currentPaths;
+      currentPaths = nextPaths;
+      nextPaths = swap;
     }
 
     if (debugMode) {
@@ -253,15 +260,30 @@ public class RuleBasedAnalyzer {
     return result;
   }
 
+  // Fast-path when tail is already empty (non-debug): only epsilon transitions can match.
+  private static void advanceEmpty(SearchPath path, List<SearchPath> newPaths) {
+    List<SuffixTransition> emptyTransitions = path.currentState.getOutgoingEmpty();
+    for (int i = 0, n = emptyTransitions.size(); i < n; i++) {
+      SuffixTransition suffixTransition = emptyTransitions.get(i);
+      if (suffixTransition.canPass(path)) {
+        newPaths.add(path.getCopy(
+            suffixTransition.getEmptySurfaceTransition(),
+            path.phoneticAttributes));
+      }
+    }
+  }
+
   // for all allowed matching outgoing transitions, new paths are generated.
   // Transition `conditions` are used for checking if a `search path`
   // is allowed to pass a transition.
   private void advance(SearchPath path, List<SearchPath> newPaths) {
 
     // for all outgoing transitions.
-    for (MorphemeTransition transition : path.currentState.getOutgoing()) {
+    List<MorphemeTransition> outgoing = path.currentState.getOutgoing();
+    int tailLen = path.tail.length();
+    for (int i = 0, n = outgoing.size(); i < n; i++) {
 
-      SuffixTransition suffixTransition = (SuffixTransition) transition;
+      SuffixTransition suffixTransition = (SuffixTransition) outgoing.get(i);
 
       // Fast-path epsilon (empty) transitions: skip surface generation and prefix matching.
       if (!suffixTransition.hasSurfaceForm()) {
@@ -269,13 +291,13 @@ public class RuleBasedAnalyzer {
           continue;
         }
         newPaths.add(path.getCopy(
-            new SurfaceTransition("", suffixTransition),
+            suffixTransition.getEmptySurfaceTransition(),
             path.phoneticAttributes));
         continue;
       }
 
       // if tail is empty and this transitions surface is not empty, no need to check.
-      if (path.tail.isEmpty()) {
+      if (tailLen == 0) {
         if (debugMode) {
           debugData.rejectedTransitions.put(
               path,
@@ -289,12 +311,14 @@ public class RuleBasedAnalyzer {
           path.phoneticAttributes);
 
       // no need to go further if generated surface form is not a prefix of the paths's tail.
-      // Check first char before calling startsWith to avoid ArraysSupport.mismatch overhead.
-      boolean tailStartsWith =
-          asciiTolerant ?
-              TurkishAlphabet.INSTANCE.startsWithIgnoreDiacritics(path.tail, surface) :
-              (surface.isEmpty()
-                  || (path.tail.charAt(0) == surface.charAt(0) && path.tail.startsWith(surface)));
+      // Check length and first char before calling startsWith to avoid mismatch overhead.
+      int surfLen = surface.length();
+      boolean tailStartsWith = asciiTolerant
+          ? TurkishAlphabet.INSTANCE.startsWithIgnoreDiacritics(path.tail, surface)
+          : (surfLen == 0
+              || (surfLen <= tailLen
+                  && path.tail.charAt(0) == surface.charAt(0)
+                  && (surfLen == 1 || path.tail.startsWith(surface))));
       if (!tailStartsWith) {
         if (debugMode) {
           debugData.rejectedTransitions.put(
@@ -311,70 +335,90 @@ public class RuleBasedAnalyzer {
 
       SurfaceTransition surfaceTransition = new SurfaceTransition(surface, suffixTransition);
 
-      //if tail is equal to surface, no need to calculate phonetic attributes.
-      // Since tailStartsWith is already true, equality holds iff lengths match.
-      boolean tailEqualsSurface = path.tail.length() == surface.length();
-      AttributeSet<PhoneticAttribute> attributes = tailEqualsSurface ?
-          path.phoneticAttributes.copy() :
-          AttributesHelper.getMorphemicAttributes(surface, path.phoneticAttributes);
+      // If tail equals surface, no need to recalculate phonetic attributes.
+      // Reuse path.phoneticAttributes directly when no attribute flag changes.
+      TemplateTokenType lastTokenType = suffixTransition.getLastTemplateToken().type;
+      AttributeSet<PhoneticAttribute> attributes;
+      if (tailLen == surfLen) {
+        boolean needsChange = path.phoneticAttributes.contains(PhoneticAttribute.CannotTerminate)
+            || lastTokenType == TemplateTokenType.LAST_VOICED
+            || lastTokenType == TemplateTokenType.LAST_NOT_VOICED;
+        attributes = needsChange ? path.phoneticAttributes.copy() : path.phoneticAttributes;
+      } else {
+        attributes = AttributesHelper.getMorphemicAttributes(surface, path.phoneticAttributes);
+      }
 
       // This is required for suffixes like `cik` and `ciğ`
       // an extra attribute is added if "cik" or "ciğ" is generated and matches the tail.
       // if "cik" is generated, ExpectsConsonant attribute is added, so only a consonant starting
       // suffix can follow. Likewise, if "ciğ" is produced, a vowel starting suffix is allowed.
-      attributes.remove(PhoneticAttribute.CannotTerminate);
-      SuffixTemplateToken lastToken = suffixTransition.getLastTemplateToken();
-      if (lastToken.type == TemplateTokenType.LAST_VOICED) {
-        attributes.add(PhoneticAttribute.ExpectsConsonant);
-      } else if (lastToken.type == TemplateTokenType.LAST_NOT_VOICED) {
-        attributes.add(PhoneticAttribute.ExpectsVowel);
-        attributes.add(PhoneticAttribute.CannotTerminate);
+      if (attributes != path.phoneticAttributes) {
+        attributes.remove(PhoneticAttribute.CannotTerminate);
+        if (lastTokenType == TemplateTokenType.LAST_VOICED) {
+          attributes.add(PhoneticAttribute.ExpectsConsonant);
+        } else if (lastTokenType == TemplateTokenType.LAST_NOT_VOICED) {
+          attributes.add(PhoneticAttribute.ExpectsVowel);
+          attributes.add(PhoneticAttribute.CannotTerminate);
+        }
       }
 
-      SearchPath p = path.getCopy(
-          surfaceTransition,
-          attributes);
-      newPaths.add(p);
+      newPaths.add(path.getCopy(surfaceTransition, attributes));
     }
   }
 
   // if transition condition fails, add it to debug data.
   private boolean checkDebugCondition(SearchPath path, SuffixTransition suffixTransition) {
-    if (suffixTransition.getCondition() != null) {
-      Condition condition = suffixTransition.getCondition();
-      Condition failed;
-      if (condition instanceof CombinedCondition) {
-        failed = ((CombinedCondition) condition).getFailingCondition(path);
-      } else {
-        failed = condition.accept(path) ? null : condition;
-      }
-      if (failed != null) {
-        debugData.rejectedTransitions.put(
-            path,
-            new RejectedTransition(suffixTransition, "Condition → " + failed.toString()));
-      }
+    Condition condition = suffixTransition.getCondition();
+    if (condition == null) {
+      return true;
     }
-    return suffixTransition.canPass(path);
+    Condition failed = (condition instanceof CombinedCondition)
+        ? ((CombinedCondition) condition).getFailingCondition(path)
+        : (condition.accept(path) ? null : condition);
+    if (failed != null) {
+      debugData.rejectedTransitions.put(
+          path,
+          new RejectedTransition(suffixTransition, "Condition → " + failed.toString()));
+      return false;
+    }
+    return true;
   }
 
-  // for preventing excessive branching during search, we remove paths that has more than
-  // MAX_REPEATING_SUFFIX_TYPE_COUNT morpheme-state types.
-  private List<SearchPath> pruneCyclicPaths(List<SearchPath> tokens) {
-    List<SearchPath> result = new ArrayList<>();
-    for (SearchPath token : tokens) {
-      boolean remove = false;
-      IntValueMap<String> typeCounts = new IntValueMap<>(10);
-      for (SurfaceTransition node : token.transitions) {
-        if (typeCounts.addOrIncrement(node.getState().id) > MAX_REPEATING_SUFFIX_TYPE_COUNT) {
-          remove = true;
-          break;
+  // for preventing excessive branching during search, we remove paths that have more than
+  // MAX_REPEATING_SUFFIX_TYPE_COUNT identical morpheme states.
+  private static void pruneCyclicPathsInPlace(List<SearchPath> paths) {
+    int write = 0;
+    for (int i = 0, n = paths.size(); i < n; i++) {
+      SearchPath path = paths.get(i);
+      if (!hasExcessiveCycle(path.transitions)) {
+        if (write != i) {
+          paths.set(write, path);
         }
-      }
-      if (!remove) {
-        result.add(token);
+        write++;
       }
     }
-    return result;
+    if (write < paths.size()) {
+      paths.subList(write, paths.size()).clear();
+    }
+  }
+
+  private static boolean hasExcessiveCycle(List<SurfaceTransition> transitions) {
+    int n = transitions.size();
+    if (n <= MAX_REPEATING_SUFFIX_TYPE_COUNT) {
+      return false;
+    }
+    for (int i = 0; i < n - MAX_REPEATING_SUFFIX_TYPE_COUNT; i++) {
+      String id = transitions.get(i).getState().id;
+      int count = 1;
+      for (int j = i + 1; j < n; j++) {
+        if (id.equals(transitions.get(j).getState().id)) {
+          if (++count > MAX_REPEATING_SUFFIX_TYPE_COUNT) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   private static void deduplicateAnalyses(List<SingleAnalysis> analyses) {

@@ -8,6 +8,7 @@ import java.util.Objects;
 import zemberek.core.logging.Log;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.TurkishAlphabet;
+import zemberek.morphology.analysis.SurfaceTransition;
 import zemberek.morphology.analysis.SurfaceTransition.SuffixTemplateToken;
 import zemberek.morphology.analysis.SurfaceTransition.SuffixTemplateTokenizer;
 import zemberek.morphology.analysis.SearchPath;
@@ -19,6 +20,10 @@ public class SuffixTransition extends MorphemeTransition {
   private final String surfaceTemplate;
 
   private List<SuffixTemplateToken> tokenList;
+
+  private SuffixTemplateToken lastTemplateToken;
+
+  private SurfaceTransition emptySurfaceTransition;
 
   private AttributeToSurfaceCache surfaceCache;
 
@@ -41,6 +46,8 @@ public class SuffixTransition extends MorphemeTransition {
     conditionsFromTemplate(this.surfaceTemplate);
     this.tokenList = Lists
         .newArrayList(new SuffixTemplateTokenizer(this.surfaceTemplate));
+    this.lastTemplateToken = tokenList.isEmpty() ? null : tokenList.get(tokenList.size() - 1);
+    this.emptySurfaceTransition = tokenList.isEmpty() ? new SurfaceTransition("", this) : null;
     this.conditionCount = countConditions();
     this.surfaceCache = new AttributeToSurfaceCache();
   }
@@ -66,6 +73,8 @@ public class SuffixTransition extends MorphemeTransition {
     st.to = to;
     st.condition = condition;
     st.tokenList = new ArrayList<>(tokenList);
+    st.lastTemplateToken = lastTemplateToken;
+    st.emptySurfaceTransition = st.tokenList.isEmpty() ? new SurfaceTransition("", st) : null;
     st.surfaceCache = this.surfaceCache;
     return st;
   }
@@ -177,15 +186,15 @@ public class SuffixTransition extends MorphemeTransition {
   }
 
   public boolean hasSurfaceForm() {
-    return tokenList.size() > 0;
+    return lastTemplateToken != null;
   }
 
   public SuffixTemplateToken getLastTemplateToken() {
-    if (tokenList.size() == 0) {
-      return null;
-    } else {
-      return tokenList.get(tokenList.size() - 1);
-    }
+    return lastTemplateToken;
+  }
+
+  public SurfaceTransition getEmptySurfaceTransition() {
+    return emptySurfaceTransition;
   }
 
   @Override
