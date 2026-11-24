@@ -148,6 +148,9 @@ public class DictionarySerializer {
     if (item.pronunciation != null && !item.pronunciation.equals(lowercaseLemma)) {
       builder.setPronunciation(item.pronunciation);
     }
+    if (!item.alternativePronunciations.isEmpty()) {
+      builder.addAllAlternativePronunciations(item.alternativePronunciations);
+    }
     if (item.secondaryPos != null && item.secondaryPos != SecondaryPos.None) {
       builder.setSecondaryPos(secondaryPosConverter.convertTo(
           item.secondaryPos, LexiconProto.SecondaryPos.SecondaryPos_Unknown));
@@ -182,7 +185,8 @@ public class DictionarySerializer {
             ? SecondaryPos.None
             : secondaryPosConverter.convertBack(item.getSecondaryPos(), SecondaryPos.UnknownSec),
         attributes,
-        item.getIndex());
+        item.getIndex(),
+        item.getAlternativePronunciationsList());
   }
 
 }

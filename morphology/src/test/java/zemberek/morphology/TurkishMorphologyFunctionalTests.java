@@ -535,4 +535,58 @@ public class TurkishMorphologyFunctionalTests {
     return true;
   }
 
+
+  @Test
+  public void alternativePronunciationsSingleItemTest() throws Exception {
+    TurkishMorphology morph = TurkishMorphology.builder()
+        .setLexicon(
+            "Btk [Pr:beteka,beteke; P:Abbrv]",
+            "CIA [Pr:siayey,sia,siaye; P:Abbrv; A:LocaleEn]",
+            "Arsenal [Pr:arsenel,arsenal]")
+        .disableUnidentifiedTokenAnalyzer()
+        .build();
+
+    Assert.assertEquals(3, morph.getLexicon().size());
+
+    // Bare forms must produce strictly 1 analysis (CannotTerminate blocks secondary transitions)
+    Assert.assertEquals(1, morph.analyze("BTK").analysisCount());
+    Assert.assertEquals(1, morph.analyze("CIA").analysisCount());
+    Assert.assertEquals(1, morph.analyze("cia").analysisCount());
+    Assert.assertEquals(1, morph.analyze("Arsenal").analysisCount());
+
+    // Both suffix harmonies parse as the exact same single DictionaryItem
+    Assert.assertEquals(1, morph.analyze("BTK'nın").analysisCount());
+    Assert.assertEquals(1, morph.analyze("BTK'nin").analysisCount());
+    Assert.assertEquals(
+        morph.analyze("BTK'nın").getAnalysisResults().get(0).getDictionaryItem(),
+        morph.analyze("BTK'nin").getAnalysisResults().get(0).getDictionaryItem());
+
+    // LocaleEn + multiple pronunciations (including overlapping locative -de deduplication)
+    Assert.assertEquals(1, morph.analyze("CIA'in").analysisCount());
+    Assert.assertEquals(1, morph.analyze("CIA'nın").analysisCount());
+    Assert.assertEquals(1, morph.analyze("CIA'nin").analysisCount());
+    Assert.assertEquals(1, morph.analyze("CIA'de").analysisCount());
+    Assert.assertEquals(1, morph.analyze("Arsenal'de").analysisCount());
+    Assert.assertEquals(1, morph.analyze("Arsenal'da").analysisCount());
+
+    // Protobuf serializer round-trip preserves alternativePronunciations
+    java.nio.file.Path tmp = java.nio.file.Files.createTempFile("alt-pron-", ".bin");
+    try {
+      zemberek.morphology.lexicon.DictionarySerializer.save(morph.getLexicon(), tmp);
+      TurkishMorphology reloaded = TurkishMorphology.builder()
+          .setLexicon(zemberek.morphology.lexicon.DictionarySerializer.load(tmp))
+          .disableUnidentifiedTokenAnalyzer()
+          .build();
+      Assert.assertEquals(
+          java.util.List.of("beteke"),
+          reloaded.getLexicon().getItemById("Btk_Noun_Abbrv").alternativePronunciations);
+      Assert.assertEquals(1, reloaded.analyze("BTK").analysisCount());
+      Assert.assertEquals(1, reloaded.analyze("BTK'nın").analysisCount());
+      Assert.assertEquals(1, reloaded.analyze("BTK'nin").analysisCount());
+      Assert.assertEquals(1, reloaded.analyze("CIA'da").analysisCount());
+      Assert.assertEquals(1, reloaded.analyze("CIA'nin").analysisCount());
+    } finally {
+      java.nio.file.Files.deleteIfExists(tmp);
+    }
+  }
 }

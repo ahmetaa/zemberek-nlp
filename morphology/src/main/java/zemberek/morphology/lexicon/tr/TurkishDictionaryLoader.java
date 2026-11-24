@@ -323,6 +323,7 @@ public class TurkishDictionaryLoader {
       }
 
       String pronunciation = data.getMetaData(MetaDataId.PRONUNCIATION);
+      List<String> alternativePronunciations = List.of();
       boolean pronunciationGuessed = false;
       SecondaryPos secondaryPos = posInfo.secondaryPos;
       if (pronunciation == null) {
@@ -343,6 +344,14 @@ public class TurkishDictionaryLoader {
             pronunciation = pronunciationGuesser.toTurkishLetterPronunciations(pronSource);
           }
         }
+      } else if (pronunciation.indexOf(',') >= 0) {
+        List<String> parts = ATTRIBUTE_SPLITTER.omitEmptyStrings()
+            .splitToList(pronunciation.toLowerCase(locale));
+        if (parts.isEmpty()) {
+          throw new LexiconException("Empty pronunciation in: " + data.word);
+        }
+        pronunciation = parts.get(0);
+        alternativePronunciations = parts.subList(1, parts.size());
       } else {
         pronunciation = pronunciation.toLowerCase(locale);
       }
@@ -381,7 +390,8 @@ public class TurkishDictionaryLoader {
           posInfo.primaryPos,
           secondaryPos,
           attributes,
-          index);
+          index,
+          alternativePronunciations);
     }
 
     String generateRoot(String word, PosInfo posInfo, Locale locale) {
