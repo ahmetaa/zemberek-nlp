@@ -42,9 +42,9 @@ public class AttributesHelper {
       return predecessorAttrs.copy();
     }
     AttributeSet<PhoneticAttribute> attrs = new AttributeSet<>();
+    TurkicLetter last = alphabet.getLastLetter(seq);
     if (alphabet.containsVowel(seq)) {
 
-      TurkicLetter last = alphabet.getLastLetter(seq);
       if (last.isVowel()) {
         attrs.add(LastLetterVowel);
       } else {
@@ -76,8 +76,6 @@ public class AttributesHelper {
       attrs.remove(LastLetterVowel);
       attrs.remove(ExpectsConsonant);
     }
-
-    TurkicLetter last = alphabet.getLastLetter(seq);
 
     if (last.isVoiceless()) {
       attrs.add(LastLetterVoiceless);
