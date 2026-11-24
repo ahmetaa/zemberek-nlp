@@ -1,6 +1,8 @@
 package zemberek.morphology.analysis;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.SecondaryPos;
 import zemberek.morphology.analysis.SingleAnalysis.MorphemeData;
@@ -85,35 +87,16 @@ public class AnalysisFormatters {
   public static final AnalysisFormatter SURFACE_SEQUENCE = new OnlySurfaceFormatter();
 
   static AnalysisFormatter lexicalSequenceFormatter() {
-    return analysis -> {
-      List<MorphemeData> list = analysis.getMorphemeDataList();
-      StringBuilder sb = new StringBuilder(list.size() * 6);
-      for (int i = 0; i < list.size(); i++) {
-        if (i > 0) {
-          sb.append(" + ");
-        }
-        sb.append(list.get(i).morpheme.id);
-      }
-      return sb.toString();
-    };
+    return analysis -> analysis.getMorphemeDataList().stream()
+        .map(s -> s.morpheme.id)
+        .collect(Collectors.joining(" + "));
   }
 
   static AnalysisFormatter surfaceSequenceFormatter() {
-    return analysis -> {
-      List<MorphemeData> list = analysis.getMorphemeDataList();
-      StringBuilder sb = new StringBuilder(list.size() * 8);
-      for (int i = 0; i < list.size(); i++) {
-        if (i > 0) {
-          sb.append(" + ");
-        }
-        MorphemeData data = list.get(i);
-        if (!data.surface.isEmpty()) {
-          sb.append(data.surface).append(':');
-        }
-        sb.append(data.morpheme.id);
-      }
-      return sb.toString();
-    };
+    return analysis ->
+        analysis.getMorphemeDataList().stream()
+            .map(MorphemeData::toMorphemeString)
+            .collect(Collectors.joining(" + "));
   }
 
   public static class OflazerStyleFormatter implements AnalysisFormatter {
@@ -196,13 +179,8 @@ public class AnalysisFormatters {
     @Override
     public String format(SingleAnalysis analysis) {
       List<MorphemeData> surfaces = analysis.getMorphemeDataList();
-      StringBuilder sb = new StringBuilder(surfaces.size() * 6);
-      formatTo(analysis, sb);
-      return sb.toString();
-    }
 
-    void formatTo(SingleAnalysis analysis, StringBuilder sb) {
-      List<MorphemeData> surfaces = analysis.getMorphemeDataList();
+      StringBuilder sb = new StringBuilder(surfaces.size() * 4);
 
       // root and suffix formatting
       if (addSurface) {
@@ -228,6 +206,7 @@ public class AnalysisFormatters {
           sb.append('+');
         }
       }
+      return sb.toString();
     }
   }
 
@@ -252,7 +231,7 @@ public class AnalysisFormatters {
     public String format(SingleAnalysis analysis) {
       List<MorphemeData> surfaces = analysis.getMorphemeDataList();
 
-      StringBuilder sb = new StringBuilder(surfaces.size() * 8 + 16);
+      StringBuilder sb = new StringBuilder(surfaces.size() * 5);
 
       // dictionary item formatting
       sb.append('[');
@@ -264,7 +243,7 @@ public class AnalysisFormatters {
       sb.append("] ");
 
       // root and suffix formatting
-      morphemesFormatter.formatTo(analysis, sb);
+      sb.append(morphemesFormatter.format(analysis));
       return sb.toString();
     }
   }
@@ -273,17 +252,14 @@ public class AnalysisFormatters {
 
     @Override
     public String format(SingleAnalysis analysis) {
-      List<MorphemeData> list = analysis.getMorphemeDataList();
-      StringBuilder sb = new StringBuilder(list.size() * 4);
-      for (MorphemeData mSurface : list) {
+      List<String> tokens = new ArrayList<>(3);
+
+      for (MorphemeData mSurface : analysis.getMorphemeDataList()) {
         if (!mSurface.surface.isEmpty()) {
-          if (sb.length() > 0) {
-            sb.append(' ');
-          }
-          sb.append(mSurface.surface);
+          tokens.add(mSurface.surface);
         }
       }
-      return sb.toString();
+      return String.join(" ", tokens);
     }
   }
 
