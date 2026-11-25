@@ -8,6 +8,10 @@ public interface WeightLookup {
     return get(prefix + suffix);
   }
 
+  default float get(String p1, String p2, String p3) {
+    return get(p1 + p2 + p3);
+  }
+
   int size();
 
 }

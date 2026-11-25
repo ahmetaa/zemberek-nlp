@@ -18,6 +18,14 @@ public interface Mphf {
 
   int get(String key, int hash);
 
+  default int get(String p1, String p2) {
+    return get(p1 + p2);
+  }
+
+  default int get(String p1, String p2, String p3) {
+    return get(p1 + p2 + p3);
+  }
+
   int get(int[] ngram, int begin, int end, int hash);
 
   void serialize(File file) throws IOException;
