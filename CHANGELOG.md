@@ -1,6 +1,62 @@
 CHANGE LOG
 ==========
 
+## 0.20.0
+
+(November 25th 2026)
+
+Zemberek `0.20.0` focuses on **morphological analysis quality, coverage, speed, and maintainability**—introducing an upgraded default **disambiguation model (`model_15k_v25.bin`)**, a comprehensive **lexicon audit with 2020–2026 Turkish vocabulary and entities**, **multiple alternative pronunciations per dictionary item**, a **modularized `TurkishMorphotactics` architecture**, and **faster, thread-safe stem lookup and search**.
+
+### Analysis Pipeline Comparison (`0.19.0` → `0.20.0`)
+
+| Metric | `0.19.0` | `0.20.0` | Change |
+| :--- | :---: | :---: | :--- |
+| **End-to-End Pipeline (Cold Cache)** *(segment → tokenize → analyze → disambiguate)* | ~37.1k tok/s | **~39.4k tok/s** | **+6%** faster |
+| **End-to-End Pipeline (Warm Cache)** *(segment → tokenize → analyze → disambiguate)* | ~65.7k tok/s | **~67.4k tok/s** | **+3%** faster *(with 30% larger disambiguation model)* |
+| **End-to-End Pipeline (Uncached Analysis)** | ~28.6k tok/s | **~29.9k tok/s** | **+5%** faster |
+| **Morphological Analysis Only (Uncached)** | ~43.0k tok/s | **~51.2k tok/s** | **+19%** faster (`~1.19x`) |
+| **Benchmark Corpus Parse Coverage** (`172,792` tokens) | 99.09% (`1,565` UNK) | **99.16%** (`1,443` UNK) | **-7.8%** fewer unparsed `UNK` tokens |
+| **Disambiguation Accuracy** *(Ambiguous Words, 1,991 held-out sents)* | 91.68% | **92.67%** | **+0.99%** (**-11.8%** fewer errors) |
+| **Disambiguation Sentence Exact Match** *(1,991 held-out sents)* | 59.67% | **63.13%** | **+3.46%** (+69 sentences) |
+
+> **Benchmark Setup:** Throughput and coverage measured single-threaded on Intel Xeon @ 2.30 GHz (Linux, OpenJDK 21, `-Xmx4g`, median of multi-pass alternating runs) over the bundled Turkish prose corpus (`Sentence-Boundary-Train.txt` + `Sentence-Boundary-Test.txt`: 2,071 paragraphs, 10,404 sentences, 172,792 tokens, 41,315 unique types). Disambiguation accuracy evaluated on two held-out sets totaling 1,991 sentences / 23,200 tokens / 13,102 ambiguous words ([#401](https://github.com/ahmetaa/zemberek-nlp/pull/401)).
+
+### What's New & Improved
+
+#### 1. Morphological Disambiguation
+- **Upgraded Default Model (`model_15k_v25.bin`)** ([#401](https://github.com/ahmetaa/zemberek-nlp/pull/401)):
+  - Replaced `model_10k_argon_v24.bin` (`2.16 MB`, 270k features) with `model_15k_v25.bin` (`2.80 MB`, 350k features), trained on `14,935` sentences (`9,935` refreshed + `5,000` modern 2020–2026 sentences) aligned with all updated lexicon and morphotactics candidates.
+  - Improves pooled ambiguous-word accuracy from **91.68% to 92.67%** (**-11.8% errors**) and sentence exact match from **59.67% to 63.13%**.
+
+#### 2. Lexicon, Pronunciations & Phonetics
+- **Lexicon Audit & 2020–2026 Vocabulary Expansion** ([#386](https://github.com/ahmetaa/zemberek-nlp/pull/386), [#390](https://github.com/ahmetaa/zemberek-nlp/pull/390), [#391](https://github.com/ahmetaa/zemberek-nlp/pull/391), [#393](https://github.com/ahmetaa/zemberek-nlp/pull/393), [#394](https://github.com/ahmetaa/zemberek-nlp/pull/394)):
+  - Audited dictionary metadata and multi-POS phonetic attributes across `master-dictionary.dict`, `non-tdk.dict`, `abbreviations.dict`, `proper.dict`, `person-names.dict`, and `proper-from-corpus.dict` (removing corpus ghost entries and adding `LexiconIntegrityTest`).
+  - Added modern 2020–2026 common Turkish stems, foreign proper-noun pronunciations, entities, acronyms, and Tier-A names.
+- **Alternative Pronunciations per `DictionaryItem`** ([#391](https://github.com/ahmetaa/zemberek-nlp/pull/391), [#392](https://github.com/ahmetaa/zemberek-nlp/pull/392)):
+  - Added support for comma-separated alternative pronunciations in dictionary entries (e.g., acronyms and foreign names with multiple valid Turkish readings).
+- **Phonetic & Stem Transition Fixes** ([#389](https://github.com/ahmetaa/zemberek-nlp/pull/389)):
+  - Fixed `LocaleEn` stem transitions and protobuf serialization, hyphen/dot lemmas, `-x`/`-og` phonetics, `.00` clock vowel harmony, and `Abbrv` `-lIk`/`P3` transitions.
+
+#### 3. Morphological Analysis Performance & Fixes
+- **Faster Morphotactic Search (`RuleBasedAnalyzer`)** ([#396](https://github.com/ahmetaa/zemberek-nlp/pull/396)):
+  - Moved cycle pruning inside the BFS loop with zero-allocation in-place pruning, double-buffered BFS frontiers, tracked `outgoingEmpty` transitions on `MorphemeState`, and cached immutable empty `SurfaceTransition` instances.
+- **Faster & Thread-Safe Stem Lookups (`StemTransitionsMapBased`)** ([#398](https://github.com/ahmetaa/zemberek-nlp/pull/398)):
+  - Replaced nested lock acquisitions, double probes, and temporary list/set allocations in `getPrefixMatches()` with single-lock `HashMap` lookups capped at `maxStemLength` and hoisted ASCII normalization.
+  - Fixed `asciiKeys` thread-safety (safe publication and add/remove synchronization) and removed the unused `StemTransitionsTrieBased` implementation.
+- **Numeral, Pronunciation & Model Fixes** ([#395](https://github.com/ahmetaa/zemberek-nlp/pull/395), [#399](https://github.com/ahmetaa/zemberek-nlp/pull/399), [#400](https://github.com/ahmetaa/zemberek-nlp/pull/400), [#402](https://github.com/ahmetaa/zemberek-nlp/pull/402)):
+  - Fixed `UnidentifiedTokenAnalyzer` numeral patterns (eliminated ordinal/distribution overlap, anchored percentage matching, added proper clock/date validation) and reused analyses on ambiguous dot times.
+  - Fixed `TurkishNumbers` (`romanToDecimal` lowercase handling, `hasOnlyNumber("")`, `convertThreeDigit` double spaces, `O(n²)` char-array copying), `TurkishTextToNumberConverter` (`-1` on empty/unknown inputs), and `PronunciationGuesser` (>18-digit overflow guard and removal of unused startup file loads).
+  - Reduced allocations in `SingleAnalysis` (`containsInformalMorpheme`, `getStems`, `getLemmas`, `getEnding`), made `SingleAnalysis`/`WordAnalysis`/`SentenceAnalysis` fields and `AnalysisFormatters` constants `final`, and added bounds guarding in `OflazerStyleFormatter`.
+
+#### 4. Architecture & Documentation
+- **Modularized `TurkishMorphotactics`** ([#397](https://github.com/ahmetaa/zemberek-nlp/pull/397)):
+  - Split the 2,607-line `TurkishMorphotactics` class into focused domain modules (`MorphotacticStates`, `RootStateResolver`, `NominalMorphotactics`, `VerbMorphotactics`, `PronounMorphotactics`, `CopulaMorphotactics`, `MinorPosMorphotactics`) while keeping `TurkishMorphotactics` as a backwards-compatible facade.
+- **Simplified `StemTransitionsBase` & Docs** ([#387](https://github.com/ahmetaa/zemberek-nlp/pull/387), [#388](https://github.com/ahmetaa/zemberek-nlp/pull/388)):
+  - Modernized `StemTransitionsBase` with Java 21 switch expressions and immutable sets, and added Web Demo Studio screenshots to README files.
+
+*Assisted by Gemini and Antigravity*
+
+
 ## 0.19.0
 
 (November 18th 2026)
