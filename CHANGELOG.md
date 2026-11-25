@@ -17,16 +17,22 @@ Zemberek `0.20.0` focuses on **morphological analysis quality, coverage, speed, 
 | **Morphological Analysis Only (Uncached)** | ~43.0k tok/s | **~51.2k tok/s** | **+19%** faster (`~1.19x`) |
 | **Benchmark Corpus Parse Coverage** (`172,792` tokens) | 99.09% (`1,565` UNK) | **99.16%** (`1,443` UNK) | **-7.8%** fewer unparsed `UNK` tokens |
 | **Disambiguation Accuracy** *(Ambiguous Words, 1,991 held-out sents)* | 91.68% | **92.67%** | **+0.99%** (**-11.8%** fewer errors) |
+| **Disambiguation Accuracy** *(All Tokens, 23,200 tokens)* | 95.30% | **95.86%** | **+0.56%** (+129 tokens) |
 | **Disambiguation Sentence Exact Match** *(1,991 held-out sents)* | 59.67% | **63.13%** | **+3.46%** (+69 sentences) |
 
-> **Benchmark Setup:** Throughput and coverage measured single-threaded on Intel Xeon @ 2.30 GHz (Linux, OpenJDK 21, `-Xmx4g`, median of multi-pass alternating runs) over the bundled Turkish prose corpus (`Sentence-Boundary-Train.txt` + `Sentence-Boundary-Test.txt`: 2,071 paragraphs, 10,404 sentences, 172,792 tokens, 41,315 unique types). Disambiguation accuracy evaluated on two held-out sets totaling 1,991 sentences / 23,200 tokens / 13,102 ambiguous words ([#401](https://github.com/ahmetaa/zemberek-nlp/pull/401)).
+> **Benchmark Setup:** Throughput and coverage measured single-threaded on Intel Xeon @ 2.30 GHz (Linux, OpenJDK 21, `-Xmx4g`, median of multi-pass alternating runs) over the bundled Turkish prose corpus (`Sentence-Boundary-Train.txt` + `Sentence-Boundary-Test.txt`: 2,071 paragraphs, 10,404 sentences, 172,792 tokens, 41,315 unique types). Disambiguation accuracy evaluated on two held-out test sets totaling 1,991 sentences / 23,200 tokens / 13,102 ambiguous words ([#401](https://github.com/ahmetaa/zemberek-nlp/pull/401)).
 
 ### What's New & Improved
 
 #### 1. Morphological Disambiguation
 - **Upgraded Default Model (`model_15k_v25.bin`)** ([#401](https://github.com/ahmetaa/zemberek-nlp/pull/401)):
-  - Replaced `model_10k_argon_v24.bin` (`2.16 MB`, 270k features) with `model_15k_v25.bin` (`2.80 MB`, 350k features), trained on `14,935` sentences (`9,935` refreshed + `5,000` modern 2020–2026 sentences) aligned with all updated lexicon and morphotactics candidates.
-  - Improves pooled ambiguous-word accuracy from **91.68% to 92.67%** (**-11.8% errors**) and sentence exact match from **59.67% to 63.13%**.
+  - Replaced the `0.19.0` default model (`model_10k_argon_v24.bin`, `2.16 MB`, `270k` active features) with `model_15k_v25.bin` (`2.80 MB`, `350k` active features), trained on `14,935` sentences (`9,935` refreshed + `5,000` modern 2020–2026 sentences) aligned with all updated lexicon and morphotactics candidates:
+
+  | Evaluation Set | Metric | `0.19.0` | `0.20.0` | Delta |
+  | :--- | :--- | :---: | :---: | :--- |
+  | Modern Turkish (1,000 sents) | Ambiguous / All Tokens / Exact Sent | 91.96% / 95.44% / 60.70% | **92.73% / 95.88% / 63.20%** | **+0.77% / +0.44% / +2.50%** |
+  | General Turkish (991 sents) | Ambiguous / All Tokens / Exact Sent | 91.39% / 95.16% / 58.63% | **92.60% / 95.84% / 63.07%** | **+1.21% / +0.68% / +4.44%** |
+  | **Pooled (1,991 sents)** | **Ambiguous / All Tokens / Exact Sent** | 91.68% / 95.30% / 59.67% | **92.67% / 95.86% / 63.13%** | **+0.99% / +0.56% / +3.46%** |
 
 #### 2. Lexicon, Pronunciations & Phonetics
 - **Lexicon Audit & 2020–2026 Vocabulary Expansion** ([#386](https://github.com/ahmetaa/zemberek-nlp/pull/386), [#390](https://github.com/ahmetaa/zemberek-nlp/pull/390), [#391](https://github.com/ahmetaa/zemberek-nlp/pull/391), [#393](https://github.com/ahmetaa/zemberek-nlp/pull/393), [#394](https://github.com/ahmetaa/zemberek-nlp/pull/394)):
