@@ -36,12 +36,13 @@ Zemberek `0.20.0` focuses on **morphological analysis quality, coverage, speed, 
 
 #### 2. Lexicon, Pronunciations & Phonetics
 - **Lexicon Audit & 2020–2026 Vocabulary Expansion** ([#386](https://github.com/ahmetaa/zemberek-nlp/pull/386), [#390](https://github.com/ahmetaa/zemberek-nlp/pull/390), [#391](https://github.com/ahmetaa/zemberek-nlp/pull/391), [#393](https://github.com/ahmetaa/zemberek-nlp/pull/393), [#394](https://github.com/ahmetaa/zemberek-nlp/pull/394)):
-  - Audited dictionary metadata and multi-POS phonetic attributes across `master-dictionary.dict`, `non-tdk.dict`, `abbreviations.dict`, `proper.dict`, `person-names.dict`, and `proper-from-corpus.dict` (removing corpus ghost entries and adding `LexiconIntegrityTest`).
-  - Added modern 2020–2026 common Turkish stems, foreign proper-noun pronunciations, entities, acronyms, and Tier-A names.
+  - Audited dictionary metadata and multi-POS phonetic attributes (voicing, inverse harmony, vowel drop, e.g., *genç*, *federal*, *hapis*) across `master-dictionary.dict`, `non-tdk.dict`, `abbreviations.dict`, `proper.dict`, `person-names.dict`, and `proper-from-corpus.dict`, removing corpus ghost entries and adding `LexiconIntegrityTest`.
+  - Added modern 2020–2026 common Turkish stems (e.g., *drone*, *biyoyakıt*, *biyobelirteç*, *yönetişim*, *yangınzede*, *aktivist*, *blockchain*, *chatbot*, *fintech*, *powerbank*, *sitcom*).
+  - Added contemporary entities, foreign proper nouns with pronunciations, acronyms, and names (e.g., *ChatGPT*, *BioNTech*, *Covid*, *Discord*, *Brexit*, *Gökbey*, *AJet*, *Exxen*, *KOBİ*, *AİHM*, *Ar-Ge*, *ENAG*, *KKM*, *NAVTEX*).
 - **Alternative Pronunciations per `DictionaryItem`** ([#391](https://github.com/ahmetaa/zemberek-nlp/pull/391), [#392](https://github.com/ahmetaa/zemberek-nlp/pull/392)):
-  - Added support for comma-separated alternative pronunciations in dictionary entries (e.g., acronyms and foreign names with multiple valid Turkish readings).
+  - Added support for comma-separated alternative pronunciations in dictionary entries so words and acronyms with multiple Turkish readings accept both suffix harmonies (e.g., `Tdk [Pr:tedeka,tedeke]` for *TDK'ya* / *TDK'ye*, `CIA [Pr:siayey,sia,siaye]`, `Gb [Pr:gigabayt,gebe]`, `Binance [Pr:baynens,baynans]`).
 - **Phonetic & Stem Transition Fixes** ([#389](https://github.com/ahmetaa/zemberek-nlp/pull/389)):
-  - Fixed `LocaleEn` stem transitions and protobuf serialization, hyphen/dot lemmas, `-x`/`-og` phonetics, `.00` clock vowel harmony, and `Abbrv` `-lIk`/`P3` transitions.
+  - Fixed `LocaleEn` stem transitions and protobuf serialization (e.g., *CIA'in*, *IDF'in*), hyphen/dot lemmas (e.g., *Ar-Ge*, *Bosna-Hersek*), `-x`/`-og` phonetics, `.00` clock vowel harmony (e.g., *14.00'te*), and `Abbrv` `-lIk`/`P3` transitions.
 
 #### 3. Morphological Analysis Performance & Fixes
 - **Faster Morphotactic Search (`RuleBasedAnalyzer`)** ([#396](https://github.com/ahmetaa/zemberek-nlp/pull/396)):
