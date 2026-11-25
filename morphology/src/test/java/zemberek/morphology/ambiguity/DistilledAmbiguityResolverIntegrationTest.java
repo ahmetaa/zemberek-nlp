@@ -55,4 +55,18 @@ public class DistilledAmbiguityResolverIntegrationTest {
     Assert.assertTrue("Head of 'çocuk tacı' must carry 3rd person possessive (P3sg)",
         taciWord.getBestAnalysis().formatLong().contains("P3sg"));
   }
+
+  @Test
+  public void testModernLexiconAndProperAbbreviationDisambiguation() {
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    String sentence =
+        "Anayasa'nın ilgili maddesi uyarınca KOBİ'lerin kırsalında drone teslimatı başladı.";
+    List<SentenceWordAnalysis> analyses =
+        morphology.analyzeAndDisambiguate(sentence).getWordAnalyses();
+
+    Assert.assertTrue(analyses.get(0).getBestAnalysis().formatLong().startsWith("[Anayasa:Noun,Prop]"));
+    Assert.assertTrue(analyses.get(4).getBestAnalysis().formatLong().startsWith("[KOBİ:Noun,Abbrv]"));
+    Assert.assertTrue(analyses.get(5).getBestAnalysis().formatLong().startsWith("[kırsal:Adj]"));
+    Assert.assertTrue(analyses.get(6).getBestAnalysis().formatLong().startsWith("[drone:Noun]"));
+  }
 }
