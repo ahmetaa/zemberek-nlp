@@ -161,4 +161,14 @@ public class TurkishAlphabetTest {
     Assert.assertFalse(alphabet.stripsExplicitTurkishDiacritic("sıkıntı", "sikinti"));
   }
 
+  @Test
+  public void startsWithIgnoreDiacriticsWithOffsetTest() {
+    TurkishAlphabet alphabet = TurkishAlphabet.INSTANCE;
+    Assert.assertTrue(alphabet.startsWithIgnoreDiacritics("kitapçığa", 5, "ciga"));
+    Assert.assertTrue(alphabet.startsWithIgnoreDiacritics("kitapçığa", 5, "çığ"));
+    Assert.assertFalse(alphabet.startsWithIgnoreDiacritics("kitapçığa", 5, "çığax"));
+    Assert.assertTrue(alphabet.startsWithIgnoreDiacritics("kitap", 5, ""));
+    Assert.assertFalse(alphabet.startsWithIgnoreDiacritics("kitap", 5, "a"));
+  }
+
 }

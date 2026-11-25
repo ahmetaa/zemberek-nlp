@@ -317,18 +317,24 @@ public class SingleAnalysis {
 
   // Here we generate a SingleAnalysis from a search path.
   public static SingleAnalysis fromSearchPath(SearchPath searchPath) {
+    int len = searchPath.getLength();
+    SearchPath[] chain = new SearchPath[len];
+    int idx = len - 1;
+    for (SearchPath p = searchPath; p != null; p = p.previous) {
+      chain[idx--] = p;
+    }
 
-    List<MorphemeData> morphemes = new ArrayList<>(searchPath.transitions.size());
-
+    List<MorphemeData> morphemes = new ArrayList<>(len);
     int derivationCount = 0;
 
-    for (SurfaceTransition transition : searchPath.getTransitions()) {
+    for (int i = 0; i < len; i++) {
+      SearchPath node = chain[i];
 
-      if (transition.isDerivative()) {
+      if (node.currentState.derivative) {
         derivationCount++;
       }
 
-      Morpheme morpheme = transition.getMorpheme();
+      Morpheme morpheme = node.currentState.morpheme;
 
       // we skip these two morphemes as they create visual noise and does not carry much information.
       if (morpheme == TurkishMorphotactics.nom || morpheme == TurkishMorphotactics.pnon) {
@@ -336,14 +342,13 @@ public class SingleAnalysis {
       }
 
       // if empty, use the cache.
-      if (transition.surface.isEmpty()) {
+      if (node.surface.isEmpty()) {
         morphemes.add(
             emptyMorphemeCache.computeIfAbsent(morpheme, m -> new MorphemeData(m, "")));
         continue;
       }
 
-      MorphemeData suffixSurface = new MorphemeData(morpheme, transition.surface);
-      morphemes.add(suffixSurface);
+      morphemes.add(new MorphemeData(morpheme, node.surface));
     }
 
     int[] groupBoundaries = new int[derivationCount + 1];
