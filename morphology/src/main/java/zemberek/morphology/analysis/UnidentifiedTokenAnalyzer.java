@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.core.turkish.RootAttribute;
@@ -412,163 +413,39 @@ public class UnidentifiedTokenAnalyzer {
     return analyzer.analyze(toParse);
   }
 
-  /**
-   * Classifies a numeric stem into matching {@link SecondaryPos} types in a single linear pass
-   * without regular expressions.
-   */
+  public enum Numerals {
+    CARDINAL("#", "^[+\\-]?\\d+$", SecondaryPos.Cardinal),
+    ORDINAL("#.", "^[+\\-]?\\d+\\.$", SecondaryPos.Ordinal),
+    RANGE("#-#", "^[+\\-]?\\d+-\\d+$", SecondaryPos.Range),
+    RATIO("#/#", "^[+\\-]?\\d+/\\d+$", SecondaryPos.Ratio),
+    REAL("#,#", "^[+\\-]?\\d+[.,]\\d+$", SecondaryPos.Real),
+    PERCENTAGE_BEFORE("%#", "^[+\\-]?%\\d+(?:[.,]\\d+)?$", SecondaryPos.Percentage),
+    TIME("#:#",
+        "^(?:(?:[01]?\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d)?|(?:[01]\\d|2[0-3]|[1-9])\\.[0-5]\\d)$",
+        SecondaryPos.Clock),
+    DATE("##.##.####",
+        "^(?:0?[1-9]|[12]\\d|3[01])([./])(?:0?[1-9]|1[0-2])\\1(?:\\d{4}|\\d{2})$",
+        SecondaryPos.Date);
+
+    public final String lemma;
+    public final Pattern pattern;
+    public final SecondaryPos secondaryPos;
+
+    Numerals(String lemma, String patternStr, SecondaryPos secondaryPos) {
+      this.lemma = lemma;
+      this.pattern = Pattern.compile(patternStr);
+      this.secondaryPos = secondaryPos;
+    }
+  }
+
   static List<SecondaryPos> classifyNumeral(String stem) {
-    int len = stem.length();
-    if (len == 0) {
-      return Collections.emptyList();
-    }
-
-    int i = 0;
-    boolean hasSign = false;
-    char first = stem.charAt(0);
-    if (first == '+' || first == '-') {
-      hasSign = true;
-      i = 1;
-      if (i == len) {
-        return Collections.emptyList();
+    List<SecondaryPos> matches = new ArrayList<>(2);
+    for (Numerals n : Numerals.values()) {
+      if (n.pattern.matcher(stem).matches()) {
+        matches.add(n.secondaryPos);
       }
     }
-
-    if (stem.charAt(i) == '%') {
-      return isValidPercentageBody(stem, i + 1)
-          ? List.of(SecondaryPos.Percentage)
-          : Collections.emptyList();
-    }
-
-    int segCount = 0;
-    int sepCount = 0;
-    char sep1 = 0;
-    char sep2 = 0;
-    int seg0Len = 0, seg1Len = 0, seg2Len = 0;
-    int seg0Val = 0, seg1Val = 0, seg2Val = 0;
-
-    while (i < len) {
-      int segStart = i;
-      int val = 0;
-      while (i < len && isAsciiDigit(stem.charAt(i))) {
-        if (val < 10000) {
-          val = val * 10 + (stem.charAt(i) - '0');
-        }
-        i++;
-      }
-      int segLen = i - segStart;
-      if (segLen == 0) {
-        return Collections.emptyList();
-      }
-      if (segCount == 0) {
-        seg0Len = segLen;
-        seg0Val = val;
-      } else if (segCount == 1) {
-        seg1Len = segLen;
-        seg1Val = val;
-      } else if (segCount == 2) {
-        seg2Len = segLen;
-        seg2Val = val;
-      } else {
-        return Collections.emptyList();
-      }
-      segCount++;
-
-      if (i == len) {
-        break;
-      }
-
-      char c = stem.charAt(i++);
-      if (c == '.' && i == len && segCount == 1) {
-        return List.of(SecondaryPos.Ordinal);
-      }
-      if (i == len) {
-        return Collections.emptyList();
-      }
-      if (sepCount == 0) {
-        sep1 = c;
-      } else if (sepCount == 1) {
-        sep2 = c;
-      } else {
-        return Collections.emptyList();
-      }
-      sepCount++;
-    }
-
-    if (segCount == 1) {
-      return List.of(SecondaryPos.Cardinal);
-    }
-
-    if (segCount == 2) {
-      return switch (sep1) {
-        case '-' -> List.of(SecondaryPos.Range);
-        case '/' -> List.of(SecondaryPos.Ratio);
-        case ',' -> List.of(SecondaryPos.Real);
-        case ':' -> (!hasSign && isValidClock(seg0Len, seg0Val, seg1Len, seg1Val, true))
-            ? List.of(SecondaryPos.Clock)
-            : Collections.emptyList();
-        case '.' -> (!hasSign && isValidClock(seg0Len, seg0Val, seg1Len, seg1Val, false))
-            ? List.of(SecondaryPos.Real, SecondaryPos.Clock)
-            : List.of(SecondaryPos.Real);
-        default -> Collections.emptyList();
-      };
-    }
-
-    // segCount == 3
-    if (hasSign || sep1 != sep2) {
-      return Collections.emptyList();
-    }
-    if (sep1 == ':') {
-      if (isValidClock(seg0Len, seg0Val, seg1Len, seg1Val, true)
-          && seg2Len == 2 && seg2Val <= 59) {
-        return List.of(SecondaryPos.Clock);
-      }
-      return Collections.emptyList();
-    }
-    if (sep1 == '.' || sep1 == '/') {
-      if (seg0Len <= 2 && seg0Val >= 1 && seg0Val <= 31
-          && seg1Len <= 2 && seg1Val >= 1 && seg1Val <= 12
-          && (seg2Len == 4 || seg2Len == 2)) {
-        return List.of(SecondaryPos.Date);
-      }
-    }
-    return Collections.emptyList();
-  }
-
-  private static boolean isValidPercentageBody(String s, int start) {
-    int len = s.length();
-    int i = start;
-    while (i < len && isAsciiDigit(s.charAt(i))) {
-      i++;
-    }
-    if (i == start) {
-      return false;
-    }
-    if (i == len) {
-      return true;
-    }
-    char sep = s.charAt(i++);
-    if ((sep != '.' && sep != ',') || i == len) {
-      return false;
-    }
-    while (i < len && isAsciiDigit(s.charAt(i))) {
-      i++;
-    }
-    return i == len;
-  }
-
-  private static boolean isValidClock(
-      int hourLen, int hour, int minLen, int min, boolean allowSingleZeroHour) {
-    if (hourLen > 2 || minLen != 2 || min > 59) {
-      return false;
-    }
-    if (hourLen == 1) {
-      return allowSingleZeroHour ? hour <= 9 : (hour >= 1 && hour <= 9);
-    }
-    return hour <= 23;
-  }
-
-  private static boolean isAsciiDigit(char c) {
-    return c >= '0' && c <= '9';
+    return matches;
   }
 
 }
