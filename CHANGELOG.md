@@ -5,22 +5,24 @@ CHANGE LOG
 
 (November 25th 2026)
 
-Zemberek `0.20.0` focuses on **morphological analysis quality, coverage, speed, and maintainability**—introducing an upgraded default **disambiguation model (`model_15k_v25.bin`)**, a comprehensive **lexicon audit with 2020–2026 Turkish vocabulary and entities**, **multiple alternative pronunciations per dictionary item**, a **modularized `TurkishMorphotactics` architecture**, and **faster, thread-safe stem lookup and search**.
+Zemberek `0.20.0` delivers **~1.4x–1.6x faster end-to-end analysis** with **~60% lower heap allocations**, alongside an upgraded default **disambiguation model (`model_15k_v25.bin`)**, a comprehensive **lexicon audit with 2020–2026 Turkish vocabulary and entities**, **multiple alternative pronunciations per dictionary item**, and a **modularized `TurkishMorphotactics` architecture**.
 
 ### Analysis Pipeline Comparison (`0.19.0` → `0.20.0`)
 
 | Metric | `0.19.0` | `0.20.0` | Change |
 | :--- | :---: | :---: | :--- |
-| **End-to-End Pipeline (Cold Cache)** *(segment → tokenize → analyze → disambiguate)* | ~37.1k tok/s | **~39.4k tok/s** | **+6%** faster |
-| **End-to-End Pipeline (Warm Cache)** *(segment → tokenize → analyze → disambiguate)* | ~65.7k tok/s | **~67.4k tok/s** | **+3%** faster *(with 30% larger disambiguation model)* |
-| **End-to-End Pipeline (Uncached Analysis)** | ~28.6k tok/s | **~29.9k tok/s** | **+5%** faster |
-| **Morphological Analysis Only (Uncached)** | ~43.0k tok/s | **~51.2k tok/s** | **+19%** faster (`~1.19x`) |
+| **End-to-End Pipeline (Cold Cache)** *(segment → tokenize → analyze → disambiguate)* | ~40.3k tok/s · `899 MB` (`5.3 KB/tok`) | **~55.4k tok/s · `363 MB` (`2.1 KB/tok`)** | **+37% faster (`~1.37x`) · -60% allocs** (`1` → **`0` GC pauses**) |
+| **End-to-End Pipeline (Warm Cache)** *(segment → tokenize → analyze → disambiguate)* | ~61.1k tok/s · `550 MB` (`3.3 KB/tok`) | **~95.1k tok/s · `214 MB` (`1.3 KB/tok`)** | **+56% faster (`~1.56x`) · -61% allocs** |
+| **End-to-End Pipeline (Uncached Analysis)** | ~29.1k tok/s · `1,899 MB` (`11.3 KB/tok`) | **~44.5k tok/s · `755 MB` (`4.5 KB/tok`)** | **+53% faster (`~1.53x`) · -60% allocs** (`47 ms` → **`8 ms` GC**) |
+| **Morphological Analysis Only (Uncached)** | ~48.1k tok/s · `1,497 MB` (`8.9 KB/tok`) | **~71.2k tok/s · `606 MB` (`3.6 KB/tok`)** | **+48% faster (`~1.48x`) · -60% allocs** (`2` → **`0` GC pauses**) |
+| **Disambiguation Only (Warm Resolver)** | ~134.3k tok/s · `318 MB` (`1.9 KB/tok`) | **~191.1k tok/s · `98 MB` (`0.6 KB/tok`)** | **+42% faster (`~1.42x`) · -69% allocs** *(30% larger model)* |
+| **Retained Live Heap (Idle / Warm Caches)** | `54.1 MB` / `122.0 MB` | **`56.2 MB` / `155.6 MB`** | `+2.1 MB` idle *(larger model/lexicon)*; `+33.6 MB` warm *(larger L1 caches)* |
 | **Benchmark Corpus Parse Coverage** (`172,792` tokens) | 99.09% (`1,565` UNK) | **99.16%** (`1,443` UNK) | **-7.8%** fewer unparsed `UNK` tokens |
 | **Disambiguation Accuracy** *(Ambiguous Words, 1,991 held-out sents)* | 91.68% | **92.67%** | **+0.99%** (**-11.8%** fewer errors) |
 | **Disambiguation Accuracy** *(All Tokens, 23,200 tokens)* | 95.30% | **95.86%** | **+0.56%** (+129 tokens) |
 | **Disambiguation Sentence Exact Match** *(1,991 held-out sents)* | 59.67% | **63.13%** | **+3.46%** (+69 sentences) |
 
-> **Benchmark Setup:** Throughput and coverage measured single-threaded on Intel Xeon @ 2.30 GHz (Linux, OpenJDK 21, `-Xmx4g`, median of multi-pass alternating runs) over the bundled Turkish prose corpus (`Sentence-Boundary-Train.txt` + `Sentence-Boundary-Test.txt`: 2,071 paragraphs, 10,404 sentences, 172,792 tokens, 41,315 unique types). Disambiguation accuracy evaluated on two held-out test sets totaling 1,991 sentences / 23,200 tokens / 13,102 ambiguous words ([#401](https://github.com/ahmetaa/zemberek-nlp/pull/401)).
+> **Benchmark Setup:** Throughput, cumulative per-pass heap allocations (`ThreadMXBean.getThreadAllocatedBytes`), GC pauses (`GarbageCollectorMXBean`), post-GC retained live heap, and coverage measured single-threaded on Intel Xeon @ 2.30 GHz (Linux, OpenJDK 21, `-Xms1g -Xmx1g`, median of 3 alternating multi-pass runs) over the bundled Turkish prose corpus (`Sentence-Boundary-Train.txt` + `Sentence-Boundary-Test.txt`: 2,071 paragraphs, 10,404 sentences, 172,792 tokens, 41,315 unique types). Disambiguation accuracy evaluated on two held-out test sets totaling 1,991 sentences / 23,200 tokens / 13,102 ambiguous words ([#401](https://github.com/ahmetaa/zemberek-nlp/pull/401)).
 
 ### What's New & Improved
 
@@ -33,6 +35,8 @@ Zemberek `0.20.0` focuses on **morphological analysis quality, coverage, speed, 
   | Modern Turkish (1,000 sents) | Ambiguous / All Tokens / Exact Sent | 91.96% / 95.44% / 60.70% | **92.73% / 95.88% / 63.20%** | **+0.77% / +0.44% / +2.50%** |
   | General Turkish (991 sents) | Ambiguous / All Tokens / Exact Sent | 91.39% / 95.16% / 58.63% | **92.60% / 95.84% / 63.07%** | **+1.21% / +0.68% / +4.44%** |
   | **Pooled (1,991 sents)** | **Ambiguous / All Tokens / Exact Sent** | 91.68% / 95.30% / 59.67% | **92.67% / 95.86% / 63.13%** | **+0.99% / +0.56% / +3.46%** |
+- **Zero-Allocation Feature Hashing & Simplified Viterbi Decoder** ([#405](https://github.com/ahmetaa/zemberek-nlp/pull/405)):
+  - Added zero-allocation 2-part and 3-part MPHF/weight lookups in `LossyIntLookup` and `MultiLevelMphf`, upgraded `FastPerceptronAmbiguityResolver` L1 caches to 2-way associative (`32k` templates / `64k` scored contexts), and removed the 3D `f15Scores` precomputation array in `FastDecoder.bestPath` (calling `getCachedF15` directly and using flat 1D score/parent grids) — cutting warm disambiguation allocations by **-69%** and speeding it up by **+42%**.
 
 #### 2. Lexicon, Pronunciations & Phonetics
 - **Lexicon Audit & 2020–2026 Vocabulary Expansion** ([#386](https://github.com/ahmetaa/zemberek-nlp/pull/386), [#390](https://github.com/ahmetaa/zemberek-nlp/pull/390), [#391](https://github.com/ahmetaa/zemberek-nlp/pull/391), [#393](https://github.com/ahmetaa/zemberek-nlp/pull/393), [#394](https://github.com/ahmetaa/zemberek-nlp/pull/394)):
@@ -45,11 +49,13 @@ Zemberek `0.20.0` focuses on **morphological analysis quality, coverage, speed, 
   - Fixed `LocaleEn` stem transitions and protobuf serialization (e.g., *CIA'in*, *IDF'in*), hyphen/dot lemmas (e.g., *Ar-Ge*, *Bosna-Hersek*), `-x`/`-og` phonetics, `.00` clock vowel harmony (e.g., *14.00'te*), and `Abbrv` `-lIk`/`P3` transitions.
 
 #### 3. Morphological Analysis Performance & Fixes
-- **Faster Morphotactic Search (`RuleBasedAnalyzer`)** ([#396](https://github.com/ahmetaa/zemberek-nlp/pull/396)):
-  - Moved cycle pruning inside the BFS loop with zero-allocation in-place pruning, double-buffered BFS frontiers, tracked `outgoingEmpty` transitions on `MorphemeState`, and cached immutable empty `SurfaceTransition` instances.
-- **Faster & Thread-Safe Stem Lookups (`StemTransitionsMapBased`)** ([#398](https://github.com/ahmetaa/zemberek-nlp/pull/398)):
-  - Replaced nested lock acquisitions, double probes, and temporary list/set allocations in `getPrefixMatches()` with single-lock `HashMap` lookups capped at `maxStemLength` and hoisted ASCII normalization.
-  - Fixed `asciiKeys` thread-safety (safe publication and add/remove synchronization) and removed the unused `StemTransitionsTrieBased` implementation.
+- **Faster, Lower-Allocation Morphotactic Search (`RuleBasedAnalyzer` & `SearchPath`)** ([#396](https://github.com/ahmetaa/zemberek-nlp/pull/396), [#406](https://github.com/ahmetaa/zemberek-nlp/pull/406)):
+  - Replaced per-step `ArrayList<SurfaceTransition>` copying and `tail.substring(...)` slicing with an immutable parent-linked `SearchPath` using `(word, tailIndex)` offset slicing, direct `getPrevious()` history walks in `Conditions`, and in-place suffix matching.
+  - Moved cycle pruning inside the BFS loop with double-buffered frontiers and tracked `outgoingEmpty` transitions on `MorphemeState`, cutting uncached analysis allocations by **-60%** (`~1.48x` faster).
+- **Zero-Allocation Quote & Apostrophe Normalization (`TextUtil`)** ([#404](https://github.com/ahmetaa/zemberek-nlp/pull/404)):
+  - Replaced chained regex `String.replaceAll(...)` calls in `TextUtil.normalizeQuotesHyphens` and `TextUtil.normalizeApostrophes` with single-pass zero-allocation fast-path scans.
+- **Faster & Thread-Safe Stem Lookups (`StemTransitionsMapBased`)** ([#398](https://github.com/ahmetaa/zemberek-nlp/pull/398), [#407](https://github.com/ahmetaa/zemberek-nlp/pull/407)):
+  - Unified `singleStems` and `multiStems` into a single map (halving probes on non-matching prefixes), replaced nested lock acquisitions with single-lock lookups capped at `maxStemLength`, fixed `asciiKeys` thread-safety, and removed the unused `StemTransitionsTrieBased` implementation.
 - **Numeral, Pronunciation & Model Fixes** ([#395](https://github.com/ahmetaa/zemberek-nlp/pull/395), [#399](https://github.com/ahmetaa/zemberek-nlp/pull/399), [#400](https://github.com/ahmetaa/zemberek-nlp/pull/400), [#402](https://github.com/ahmetaa/zemberek-nlp/pull/402)):
   - Fixed `UnidentifiedTokenAnalyzer` numeral patterns (eliminated ordinal/distribution overlap, anchored percentage matching, added proper clock/date validation) and reused analyses on ambiguous dot times.
   - Fixed `TurkishNumbers` (`romanToDecimal` lowercase handling, `hasOnlyNumber("")`, `convertThreeDigit` double spaces, `O(n²)` char-array copying), `TurkishTextToNumberConverter` (`-1` on empty/unknown inputs), and `PronunciationGuesser` (>18-digit overflow guard and removal of unused startup file loads).
