@@ -20,8 +20,8 @@ import zemberek.morphology.morphotactics.TurkishMorphotactics;
 
 public class StemTransitionsMapBased extends StemTransitionsBase implements StemTransitions {
 
-  private final Map<String, StemTransition> singleStems;
-  private final Map<String, List<StemTransition>> multiStems;
+  // Maps stem surface form to either a single StemTransition or a List<StemTransition>.
+  private final Map<String, Object> stems;
   private volatile Map<String, Set<String>> asciiKeys = null;
 
   // Holds dictionary items that have multiple or different-than-item.root stem surface forms.
@@ -34,8 +34,7 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
     this.lexicon = lexicon;
     this.morphotactics = morphotactics;
     int initialCapacity = Math.max(64, lexicon.size() * 2);
-    this.singleStems = new HashMap<>(initialCapacity);
-    this.multiStems = new HashMap<>(Math.max(16, lexicon.size() / 8));
+    this.stems = new HashMap<>(initialCapacity);
     this.differentStemItems = new HashMap<>(Math.max(16, lexicon.size() / 8));
     lexicon.forEach(this::addDictionaryItem);
   }
@@ -46,11 +45,8 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
       if (asciiKeys != null) {
         return;
       }
-      Map<String, Set<String>> map = new HashMap<>(Math.max(64, singleStems.size() / 2));
-      for (String s : singleStems.keySet()) {
-        addAsciiKey(map, s);
-      }
-      for (String s : multiStems.keySet()) {
+      Map<String, Set<String>> map = new HashMap<>(Math.max(64, stems.size() / 2));
+      for (String s : stems.keySet()) {
         addAsciiKey(map, s);
       }
       this.asciiKeys = map;
@@ -79,14 +75,22 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
     }
   }
 
+  @SuppressWarnings("unchecked")
+  private static void addEntry(Object entry, Collection<StemTransition> out) {
+    if (entry instanceof StemTransition) {
+      out.add((StemTransition) entry);
+    } else if (entry != null) {
+      out.addAll((List<StemTransition>) entry);
+    }
+  }
+
   @Override
   public Set<StemTransition> getTransitions() {
     lock.readLock().lock();
     try {
-      HashSet<StemTransition> result = new HashSet<>(singleStems.size() + multiStems.size() * 2);
-      result.addAll(singleStems.values());
-      for (List<StemTransition> list : multiStems.values()) {
-        result.addAll(list);
+      HashSet<StemTransition> result = new HashSet<>(stems.size() * 2);
+      for (Object entry : stems.values()) {
+        addEntry(entry, result);
       }
       return result;
     } finally {
@@ -99,25 +103,22 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
     return lexicon;
   }
 
+  @SuppressWarnings("unchecked")
   private void addStemTransition(StemTransition stemTransition) {
     final String surfaceForm = stemTransition.surface;
     if (surfaceForm.length() > maxStemLength) {
       maxStemLength = surfaceForm.length();
     }
-    List<StemTransition> multi = multiStems.get(surfaceForm);
-    if (multi != null) {
-      multi.add(stemTransition);
+    Object existing = stems.get(surfaceForm);
+    if (existing == null) {
+      stems.put(surfaceForm, stemTransition);
+    } else if (existing instanceof StemTransition) {
+      List<StemTransition> list = new ArrayList<>(2);
+      list.add((StemTransition) existing);
+      list.add(stemTransition);
+      stems.put(surfaceForm, list);
     } else {
-      StemTransition existing = singleStems.get(surfaceForm);
-      if (existing != null) {
-        singleStems.remove(surfaceForm);
-        List<StemTransition> list = new ArrayList<>(2);
-        list.add(existing);
-        list.add(stemTransition);
-        multiStems.put(surfaceForm, list);
-      } else {
-        singleStems.put(surfaceForm, stemTransition);
-      }
+      ((List<StemTransition>) existing).add(stemTransition);
     }
     Map<String, Set<String>> ascii = this.asciiKeys;
     if (ascii != null) {
@@ -125,26 +126,26 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
     }
   }
 
+  @SuppressWarnings("unchecked")
   private void removeStemNode(StemTransition stemTransition) {
     final String surfaceForm = stemTransition.surface;
     boolean stillPresent = false;
-    List<StemTransition> multi = multiStems.get(surfaceForm);
-    if (multi != null) {
-      multi.remove(stemTransition);
-      if (multi.isEmpty()) {
-        multiStems.remove(surfaceForm);
-      } else if (multi.size() == 1) {
-        multiStems.remove(surfaceForm);
-        singleStems.put(surfaceForm, multi.get(0));
-        stillPresent = true;
+    Object existing = stems.get(surfaceForm);
+    if (existing instanceof StemTransition) {
+      if (((StemTransition) existing).item.equals(stemTransition.item)) {
+        stems.remove(surfaceForm);
       } else {
         stillPresent = true;
       }
-    } else {
-      StemTransition existing = singleStems.get(surfaceForm);
-      if (existing != null && existing.item.equals(stemTransition.item)) {
-        singleStems.remove(surfaceForm);
-      } else if (existing != null) {
+    } else if (existing != null) {
+      List<StemTransition> multi = (List<StemTransition>) existing;
+      multi.remove(stemTransition);
+      if (multi.isEmpty()) {
+        stems.remove(surfaceForm);
+      } else if (multi.size() == 1) {
+        stems.put(surfaceForm, multi.get(0));
+        stillPresent = true;
+      } else {
         stillPresent = true;
       }
     }
@@ -162,15 +163,7 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
   }
 
   private void addDirect(String stem, Collection<StemTransition> out) {
-    StemTransition single = singleStems.get(stem);
-    if (single != null) {
-      out.add(single);
-      return;
-    }
-    List<StemTransition> multi = multiStems.get(stem);
-    if (multi != null) {
-      out.addAll(multi);
-    }
+    addEntry(stems.get(stem), out);
   }
 
   @Override
@@ -187,15 +180,9 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
       List<StemTransition> matches = new ArrayList<>(4);
       if (!asciiTolerant) {
         for (int i = 1; i <= limit; i++) {
-          String stem = input.substring(0, i);
-          StemTransition single = singleStems.get(stem);
-          if (single != null) {
-            matches.add(single);
-          } else {
-            List<StemTransition> multi = multiStems.get(stem);
-            if (multi != null) {
-              matches.addAll(multi);
-            }
+          Object entry = stems.get(input.substring(0, i));
+          if (entry != null) {
+            addEntry(entry, matches);
           }
         }
       } else {
@@ -229,6 +216,7 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public List<StemTransition> getTransitions(DictionaryItem item) {
     lock.readLock().lock();
     try {
@@ -236,14 +224,15 @@ public class StemTransitionsMapBased extends StemTransitionsBase implements Stem
       if (diff != null) {
         return new ArrayList<>(diff);
       }
-      StemTransition single = singleStems.get(item.root);
-      if (single != null) {
-        return single.item.equals(item) ? List.of(single) : Collections.emptyList();
-      }
-      List<StemTransition> multi = multiStems.get(item.root);
-      if (multi == null) {
+      Object entry = stems.get(item.root);
+      if (entry == null) {
         return Collections.emptyList();
       }
+      if (entry instanceof StemTransition) {
+        StemTransition single = (StemTransition) entry;
+        return single.item.equals(item) ? List.of(single) : Collections.emptyList();
+      }
+      List<StemTransition> multi = (List<StemTransition>) entry;
       List<StemTransition> result = new ArrayList<>(2);
       for (int i = 0, n = multi.size(); i < n; i++) {
         StemTransition st = multi.get(i);

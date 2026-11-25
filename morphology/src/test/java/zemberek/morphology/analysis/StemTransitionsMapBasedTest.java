@@ -74,12 +74,15 @@ public class StemTransitionsMapBasedTest {
     Assert.assertTrue(afterAdd.stream().anyMatch(s -> s.item.equals(runtimeItem)));
 
     // Add a colliding runtime item on existing single stem "kapak" and then remove it
+    int countBefore = t.getTransitions().size();
     DictionaryItem colliding = new DictionaryItem(
         "Kapak", "kapak", "kapak", PrimaryPos.Noun, SecondaryPos.ProperNoun);
     t.addDictionaryItem(colliding);
     Assert.assertEquals(2, t.getPrefixMatches("kapak", false).size());
+    Assert.assertEquals(countBefore + 1, t.getTransitions().size());
     t.removeDictionaryItem(colliding);
     Assert.assertEquals(1, t.getPrefixMatches("kapak", false).size());
+    Assert.assertEquals(countBefore, t.getTransitions().size());
 
     // Remove runtime Turkish item and verify asciiKeys stays in sync
     t.removeDictionaryItem(runtimeItem);
