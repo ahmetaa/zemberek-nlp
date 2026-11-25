@@ -141,11 +141,43 @@ public class TextUtil {
    * @return clened input string.
    */
   public static String normalizeQuotesHyphens(String input) {
-    // rdquo, ldquo, laquo, raquo, Prime sybols in unicode.
-    return input
-        .replaceAll("[\u201C\u201D\u00BB\u00AB\u2033\u0093\u0094]|''", "\"")
-        .replaceAll("[\u0091\u0092\u2032´`’‘]", "'")
-        .replaceAll("[\u0096\u0097–]", "-");
+    // rdquo, ldquo, laquo, raquo, Prime symbols in unicode.
+    int len = input.length();
+    StringBuilder sb = null;
+    for (int i = 0; i < len; i++) {
+      char c = input.charAt(i);
+      if (c < '\u0091' && c != '\'' && c != '`') {
+        if (sb != null) {
+          sb.append(c);
+        }
+        continue;
+      }
+      if (c == '\'' && i + 1 < len && input.charAt(i + 1) == '\'') {
+        if (sb == null) {
+          sb = new StringBuilder(len);
+          sb.append(input, 0, i);
+        }
+        sb.append('"');
+        i++;
+        continue;
+      }
+      char replacement = switch (c) {
+        case '\u201C', '\u201D', '\u00BB', '\u00AB', '\u2033', '\u0093', '\u0094' -> '"';
+        case '\u0091', '\u0092', '\u2032', '\u00B4', '`', '\u2019', '\u2018' -> '\'';
+        case '\u0096', '\u0097', '\u2013' -> '-';
+        default -> 0;
+      };
+      if (replacement != 0) {
+        if (sb == null) {
+          sb = new StringBuilder(len);
+          sb.append(input, 0, i);
+        }
+        sb.append(replacement);
+      } else if (sb != null) {
+        sb.append(c);
+      }
+    }
+    return sb == null ? input : sb.toString();
   }
 
   /**
@@ -155,8 +187,28 @@ public class TextUtil {
    * @return cleaned input string.
    */
   public static String normalizeApostrophes(String input) {
-    // rdquo, ldquo, laquo, raquo, Prime sybols in unicode.
-    return input.replaceAll("[\u0091\u0092\u2032´`’‘]", "'");
+    int len = input.length();
+    StringBuilder sb = null;
+    for (int i = 0; i < len; i++) {
+      char c = input.charAt(i);
+      if (isNonStandardApostrophe(c)) {
+        if (sb == null) {
+          sb = new StringBuilder(len);
+          sb.append(input, 0, i);
+        }
+        sb.append('\'');
+      } else if (sb != null) {
+        sb.append(c);
+      }
+    }
+    return sb == null ? input : sb.toString();
+  }
+
+  private static boolean isNonStandardApostrophe(char c) {
+    return c == '`' || (c >= '\u0091' && switch (c) {
+      case '\u0091', '\u0092', '\u00B4', '\u2018', '\u2019', '\u2032' -> true;
+      default -> false;
+    });
   }
 
   public static int countChars(String s, char c) {
