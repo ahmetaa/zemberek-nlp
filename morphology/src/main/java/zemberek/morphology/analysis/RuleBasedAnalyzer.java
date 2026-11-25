@@ -125,9 +125,7 @@ public class RuleBasedAnalyzer {
     List<SearchPath> paths = new ArrayList<>(candidates.size());
     for (int i = 0, n = candidates.size(); i < n; i++) {
       StemTransition candidate = candidates.get(i);
-      int length = candidate.surface.length();
-      String tail = searchInput.substring(length);
-      paths.add(SearchPath.initialPath(candidate, tail));
+      paths.add(SearchPath.initialPath(candidate, searchInput, candidate.surface.length()));
     }
 
     // search graph.
@@ -217,7 +215,7 @@ public class RuleBasedAnalyzer {
 
         // if there are no more letters to consume and path can be terminated, we accept this
         // path as a correct result.
-        if (path.tail.isEmpty()) {
+        if (path.hasEmptyTail()) {
           if (path.isTerminal() &&
               !path.containsPhoneticAttribute(PhoneticAttribute.CannotTerminate)) {
             result.add(path);
@@ -266,9 +264,7 @@ public class RuleBasedAnalyzer {
     for (int i = 0, n = emptyTransitions.size(); i < n; i++) {
       SuffixTransition suffixTransition = emptyTransitions.get(i);
       if (suffixTransition.canPass(path)) {
-        newPaths.add(path.getCopy(
-            suffixTransition.getEmptySurfaceTransition(),
-            path.phoneticAttributes));
+        newPaths.add(path.advanceEmpty(suffixTransition, path.phoneticAttributes));
       }
     }
   }
@@ -280,7 +276,10 @@ public class RuleBasedAnalyzer {
 
     // for all outgoing transitions.
     List<MorphemeTransition> outgoing = path.currentState.getOutgoing();
-    int tailLen = path.tail.length();
+    String word = path.word;
+    int tailIdx = path.tailIndex;
+    int tailLen = word.length() - tailIdx;
+    char firstTailChar = tailLen > 0 ? word.charAt(tailIdx) : 0;
     for (int i = 0, n = outgoing.size(); i < n; i++) {
 
       SuffixTransition suffixTransition = (SuffixTransition) outgoing.get(i);
@@ -290,9 +289,7 @@ public class RuleBasedAnalyzer {
         if (!debugMode ? !suffixTransition.canPass(path) : !checkDebugCondition(path, suffixTransition)) {
           continue;
         }
-        newPaths.add(path.getCopy(
-            suffixTransition.getEmptySurfaceTransition(),
-            path.phoneticAttributes));
+        newPaths.add(path.advanceEmpty(suffixTransition, path.phoneticAttributes));
         continue;
       }
 
@@ -314,11 +311,11 @@ public class RuleBasedAnalyzer {
       // Check length and first char before calling startsWith to avoid mismatch overhead.
       int surfLen = surface.length();
       boolean tailStartsWith = asciiTolerant
-          ? TurkishAlphabet.INSTANCE.startsWithIgnoreDiacritics(path.tail, surface)
+          ? TurkishAlphabet.INSTANCE.startsWithIgnoreDiacritics(word, tailIdx, surface)
           : (surfLen == 0
               || (surfLen <= tailLen
-                  && path.tail.charAt(0) == surface.charAt(0)
-                  && (surfLen == 1 || path.tail.startsWith(surface))));
+                  && firstTailChar == surface.charAt(0)
+                  && (surfLen == 1 || word.startsWith(surface, tailIdx))));
       if (!tailStartsWith) {
         if (debugMode) {
           debugData.rejectedTransitions.put(
@@ -332,8 +329,6 @@ public class RuleBasedAnalyzer {
       if (!debugMode ? !suffixTransition.canPass(path) : !checkDebugCondition(path, suffixTransition)) {
         continue;
       }
-
-      SurfaceTransition surfaceTransition = new SurfaceTransition(surface, suffixTransition);
 
       // If tail equals surface, no need to recalculate phonetic attributes.
       // Reuse path.phoneticAttributes directly when no attribute flag changes.
@@ -362,7 +357,7 @@ public class RuleBasedAnalyzer {
         }
       }
 
-      newPaths.add(path.getCopy(surfaceTransition, attributes));
+      newPaths.add(path.advance(surface, suffixTransition, attributes));
     }
   }
 
@@ -390,7 +385,7 @@ public class RuleBasedAnalyzer {
     int write = 0;
     for (int i = 0, n = paths.size(); i < n; i++) {
       SearchPath path = paths.get(i);
-      if (!hasExcessiveCycle(path.transitions)) {
+      if (!hasExcessiveCycle(path)) {
         if (write != i) {
           paths.set(write, path);
         }
@@ -402,16 +397,15 @@ public class RuleBasedAnalyzer {
     }
   }
 
-  private static boolean hasExcessiveCycle(List<SurfaceTransition> transitions) {
-    int n = transitions.size();
-    if (n <= MAX_REPEATING_SUFFIX_TYPE_COUNT) {
+  private static boolean hasExcessiveCycle(SearchPath path) {
+    if (path.getLength() <= MAX_REPEATING_SUFFIX_TYPE_COUNT) {
       return false;
     }
-    for (int i = 0; i < n - MAX_REPEATING_SUFFIX_TYPE_COUNT; i++) {
-      String id = transitions.get(i).getState().id;
+    for (SearchPath outer = path; outer != null; outer = outer.previous) {
+      String id = outer.currentState.id;
       int count = 1;
-      for (int j = i + 1; j < n; j++) {
-        if (id.equals(transitions.get(j).getState().id)) {
+      for (SearchPath inner = outer.previous; inner != null; inner = inner.previous) {
+        if (id.equals(inner.currentState.id)) {
           if (++count > MAX_REPEATING_SUFFIX_TYPE_COUNT) {
             return true;
           }

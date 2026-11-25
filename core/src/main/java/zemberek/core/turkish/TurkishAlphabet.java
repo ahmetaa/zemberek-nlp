@@ -607,14 +607,19 @@ public class TurkishAlphabet {
    * </pre>
    */
   public boolean startsWithIgnoreDiacritics(String s1, String s2) {
+    return startsWithIgnoreDiacritics(s1, 0, s2);
+  }
+
+  public boolean startsWithIgnoreDiacritics(String s1, int offset, String s2) {
     if (s1 == null || s2 == null) {
       return false;
     }
-    if (s1.length() < s2.length()) {
+    int len2 = s2.length();
+    if (s1.length() - offset < len2) {
       return false;
     }
-    for (int i = 0; i < s2.length(); i++) {
-      char c1 = s1.charAt(i);
+    for (int i = 0; i < len2; i++) {
+      char c1 = s1.charAt(offset + i);
       char c2 = s2.charAt(i);
       if (!isAsciiEqual(c1, c2)) {
         return false;
