@@ -160,7 +160,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
    * cached per decoder without retaining transient unigram feature strings.
    */
   static final class AnalysisTemplate {
-    private static final int L1_SIZE = 1 << 12; // 4,096 slots
+    private static final int L1_SIZE = 1 << 15; // 32,768 slots (2-way associative)
     private static final int L1_MASK = L1_SIZE - 1;
     private static final int MAX_ID_ENTRIES = 16_384;
     private static final AnalysisTemplate[] L1_CACHE = new AnalysisTemplate[L1_SIZE];
@@ -219,6 +219,8 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     final String f3Prefix;
     final String f9Prefix;
     final String f17Prefix;
+    final String f15Part1;
+    final String f15Part2;
 
     private AnalysisTemplate(SingleAnalysis sa) {
       this.sa = sa;
@@ -291,6 +293,8 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       this.f3Prefix = "3:" + this.rIg + "-";
       this.f9Prefix = "9:" + this.lemma + "-";
       this.f17Prefix = "17:" + this.lastGroup + "-";
+      this.f15Part1 = "15:" + this.lastGroup + "-";
+      this.f15Part2 = this.lastGroup + "-";
     }
 
     static AnalysisTemplate get(SingleAnalysis sa) {
@@ -300,12 +304,18 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       if (sa == sentenceEnd) {
         return END_TEMPLATE;
       }
-      int slot = (int) ((sa.hashCode() * 0x9E3779B97F4A7C15L) >>> 52) & L1_MASK;
+      int slot = (int) ((sa.hashCode() * 0x9E3779B97F4A7C15L) >>> 49) & L1_MASK;
       AnalysisTemplate l1 = L1_CACHE[slot];
       if (l1 != null && (l1.sa == sa || l1.sa.equals(sa))) {
         return l1;
       }
+      int slot2 = (slot + 1) & L1_MASK;
+      AnalysisTemplate l2 = L1_CACHE[slot2];
+      if (l2 != null && (l2.sa == sa || l2.sa.equals(sa))) {
+        return l2;
+      }
       AnalysisTemplate created = new AnalysisTemplate(sa);
+      L1_CACHE[slot2] = l1;
       L1_CACHE[slot] = created;
       return created;
     }
@@ -476,6 +486,8 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     public final String f3Prefix;
     public final String f9Prefix;
     public final String f17Prefix;
+    final String f15Part1;
+    final String f15Part2;
 
     final String[] igsArray;
     final boolean isNonBeginVerb;
@@ -571,6 +583,8 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       this.f3Prefix = t.f3Prefix;
       this.f9Prefix = t.f9Prefix;
       this.f17Prefix = t.f17Prefix;
+      this.f15Part1 = t.f15Part1;
+      this.f15Part2 = t.f15Part2;
       this.uniScore = uniScore;
       this.c10bScore = c10bScore;
       this.c10cScore = c10cScore;
@@ -579,9 +593,9 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
   }
 
   public static class FastDecoder {
-    private static final int L1_SCORED_SIZE = 1 << 15; // 32,768 slots
+    private static final int L1_SCORED_SIZE = 1 << 15; // 32,768 slots (2-way associative)
     private static final int L1_SCORED_MASK = L1_SCORED_SIZE - 1;
-    private static final int MAX_SCORED_ENTRIES = 32_768;
+    private static final int MAX_SCORED_ENTRIES = 65_536;
     // 65,536 slots -> 512 KB long[] and 256 KB float[] arrays (~3 MB total per thread, below G1GC humongous threshold).
     private static final int TRANSITION_CACHE_BITS = 16;
     private static final int TRANSITION_CACHE_SIZE = 1 << TRANSITION_CACHE_BITS;
@@ -630,7 +644,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         this.properWeight = model.get("P:PROPER");
         this.lowerProperWeight = model.get("P:LOWER_PROPER");
         this.endsVerbWeight = model.get("P:ENDSVERB");
-        this.scoredMap = new ConcurrentHashMap<>(2_048);
+        this.scoredMap = new ConcurrentHashMap<>(4_096);
         this.ownerThread = Thread.currentThread();
         this.mainCache = new DecoderCache();
         this.localCache = ThreadLocal.withInitial(DecoderCache::new);
@@ -667,21 +681,28 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       if (cache != null) {
         int slot = (int) ((sa.hashCode() * 0x9E3779B97F4A7C15L) >>> 49) & L1_SCORED_MASK;
         CandidateContext sc = cache.l1Scored[slot];
-        if (sc == null || (sc.sa != sa && !sc.sa.equals(sa))) {
-          sc = scoredMap.get(sa);
-          if (sc == null) {
-            sc = CandidateContext.createCached(
-                AnalysisTemplate.get(sa), model, properWeight, lowerProperWeight);
-            if (scoredMap.size() < MAX_SCORED_ENTRIES) {
-              CandidateContext prev = scoredMap.putIfAbsent(sa, sc);
-              if (prev != null) {
-                sc = prev;
-              }
+        if (sc != null && (sc.sa == sa || sc.sa.equals(sa))) {
+          return isSentenceInitial ? sc.initialVariant : sc;
+        }
+        int slot2 = (slot + 1) & L1_SCORED_MASK;
+        CandidateContext sc2 = cache.l1Scored[slot2];
+        if (sc2 != null && (sc2.sa == sa || sc2.sa.equals(sa))) {
+          return isSentenceInitial ? sc2.initialVariant : sc2;
+        }
+        CandidateContext loaded = scoredMap.get(sa);
+        if (loaded == null) {
+          loaded = CandidateContext.createCached(
+              AnalysisTemplate.get(sa), model, properWeight, lowerProperWeight);
+          if (scoredMap.size() < MAX_SCORED_ENTRIES) {
+            CandidateContext prev = scoredMap.putIfAbsent(sa, loaded);
+            if (prev != null) {
+              loaded = prev;
             }
           }
-          cache.l1Scored[slot] = sc;
         }
-        return isSentenceInitial ? sc.initialVariant : sc;
+        cache.l1Scored[slot2] = sc;
+        cache.l1Scored[slot] = loaded;
+        return isSentenceInitial ? loaded.initialVariant : loaded;
       }
       return new CandidateContext(AnalysisTemplate.get(sa), model, isSentenceInitial, index);
     }
@@ -773,11 +794,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         CandidateContext w2,
         CandidateContext w3) {
       if (cache == null || ((w1.lastGroupId | w2.lastGroupId | w3.igJoinedId) >>> 21) != 0) {
-        String prefix = "15:" + w1.lastGroup + "-" + w2.lastGroup + "-";
         float score = 0f;
         String[] igs = w3.igsArray;
         for (int i = 0; i < igs.length; i++) {
-          score += model.get(prefix, igs[i]);
+          score += model.get(w1.f15Part1, w2.f15Part2, igs[i]);
         }
         return score;
       }
@@ -794,11 +814,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       if (keys[slot2] == key) {
         return vals[slot2];
       }
-      String prefix = "15:" + w1.lastGroup + "-" + w2.lastGroup + "-";
       float score = 0f;
       String[] igs = w3.igsArray;
       for (int i = 0; i < igs.length; i++) {
-        score += model.get(prefix, igs[i]);
+        score += model.get(w1.f15Part1, w2.f15Part2, igs[i]);
       }
       keys[slot2] = keys[slot];
       vals[slot2] = vals[slot];
@@ -859,13 +878,13 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     }
 
     public float computeBigramScore(CandidateContext w2, CandidateContext w3) {
-      float score = model.get(w2.f3Prefix + w3.rIg)
-          + model.get(w2.f9Prefix + w3.lemma)
+      float score = model.get(w2.f3Prefix, w3.rIg)
+          + model.get(w2.f9Prefix, w3.lemma)
           + w2.c10bScore;
       String f17 = w2.f17Prefix;
       String[] w3Igs = w3.igsArray;
       for (int i = 0; i < w3Igs.length; i++) {
-        score += model.get(f17 + w3Igs[i]);
+        score += model.get(f17, w3Igs[i]);
       }
 
       if (w3.isEndOrDot && w2.isNonBeginVerb) {
@@ -875,11 +894,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     }
 
     public float computeTrigramScore(CandidateContext w1, CandidateContext w2, CandidateContext w3) {
-      float score = model.get(w1.f2Prefix + w3.rIg) + w1.c10cScore;
-      String prefix = "15:" + w1.lastGroup + "-" + w2.lastGroup + "-";
+      float score = model.get(w1.f2Prefix, w3.rIg) + w1.c10cScore;
       String[] w3Igs = w3.igsArray;
       for (int i = 0; i < w3Igs.length; i++) {
-        score += model.get(prefix + w3Igs[i]);
+        score += model.get(w1.f15Part1, w2.f15Part2, w3Igs[i]);
       }
       return score;
     }
@@ -1069,93 +1087,45 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
           f2Scores[pp] = row;
         }
 
-        // Precompute Feature 15 (trigram morpheme transition) scores with 3-level ID deduplication
-        float[][][] f15Scores = new float[PP][][];
-        for (int pp = 0; pp < PP; pp++) {
-          CandidateContext prevPrev = prevPrevCandidates[pp];
-          int w1LastId = prevPrev.lastGroupId;
-          int samePp = -1;
-          for (int pp0 = 0; pp0 < pp; pp0++) {
-            if (prevPrevCandidates[pp0].lastGroupId == w1LastId) {
-              samePp = pp0;
-              break;
-            }
-          }
-          if (samePp >= 0) {
-            f15Scores[pp] = f15Scores[samePp];
-            continue;
-          }
-
-          float[][] slice = new float[P][];
-          for (int p = 0; p < P; p++) {
-            CandidateContext prev = prevCandidates[p];
-            int w2LastId = prev.lastGroupId;
-            int sameP = -1;
-            for (int p0 = 0; p0 < p; p0++) {
-              if (prevCandidates[p0].lastGroupId == w2LastId) {
-                sameP = p0;
-                break;
-              }
-            }
-            if (sameP >= 0) {
-              slice[p] = slice[sameP];
-              continue;
-            }
-
-            float[] row = new float[K];
-            for (int k = 0; k < K; k++) {
-              CandidateContext cand = candidates[k];
-              int cIgId = cand.igJoinedId;
-              int sameK = -1;
-              for (int k0 = 0; k0 < k; k0++) {
-                if (candidates[k0].igJoinedId == cIgId) {
-                  sameK = k0;
-                  break;
-                }
-              }
-              row[k] = (sameK >= 0) ? row[sameK] : getCachedF15(cache, prevPrev, prev, cand);
-            }
-            slice[p] = row;
-          }
-          f15Scores[pp] = slice;
-        }
-
         // 2nd-order Markov grid recombination: state is (candidate at t-1, candidate at t)
-        float[][] bestScoreGrid = new float[P][K];
-        FastHypothesis[][] bestParentGrid = new FastHypothesis[P][K];
-        for (int j = 0; j < P; j++) {
-          Arrays.fill(bestScoreGrid[j], -Float.MAX_VALUE);
-        }
+        int pk = P * K;
+        float[] bestScoreGrid = new float[pk];
+        FastHypothesis[] bestParentGrid = new FastHypothesis[pk];
+        Arrays.fill(bestScoreGrid, -Float.MAX_VALUE);
 
         for (int hIdx = 0; hIdx < currentSize; hIdx++) {
           FastHypothesis h = currentList[hIdx];
           int prevIdx = h.currIdx;
           int ppIdx = h.prevIdx;
           float hScore = h.score;
+          CandidateContext w1 = h.prevCtx;
+          CandidateContext w2 = h.currCtx;
           float[] biRow = biScores[prevIdx];
           float[] f2Row = f2Scores[ppIdx];
-          float[] f15Row = f15Scores[ppIdx][prevIdx];
-          float[] bestScoreRow = bestScoreGrid[prevIdx];
-          FastHypothesis[] bestParentRow = bestParentGrid[prevIdx];
+          int gridOff = prevIdx * K;
 
           for (int k = 0; k < K; k++) {
-            float totalScore = hScore + candidates[k].uniScore + biRow[k] + f2Row[k] + f15Row[k];
-            if (totalScore > bestScoreRow[k]) {
-              bestScoreRow[k] = totalScore;
-              bestParentRow[k] = h;
+            CandidateContext cand = candidates[k];
+            float totalScore = hScore + cand.uniScore + biRow[k] + f2Row[k]
+                + getCachedF15(cache, w1, w2, cand);
+            int idx = gridOff + k;
+            if (totalScore > bestScoreGrid[idx]) {
+              bestScoreGrid[idx] = totalScore;
+              bestParentGrid[idx] = h;
             }
           }
         }
 
-        FastHypothesis[] nextList = new FastHypothesis[P * K];
+        FastHypothesis[] nextList = new FastHypothesis[pk];
         int nextSize = 0;
         for (int j = 0; j < P; j++) {
-          FastHypothesis[] parentRow = bestParentGrid[j];
-          float[] scoreRow = bestScoreGrid[j];
+          int gridOff = j * K;
           for (int k = 0; k < K; k++) {
-            FastHypothesis parent = parentRow[k];
+            int idx = gridOff + k;
+            FastHypothesis parent = bestParentGrid[idx];
             if (parent != null) {
-              nextList[nextSize++] = new FastHypothesis(parent.currCtx, candidates[k], parent, scoreRow[k], j, k);
+              nextList[nextSize++] =
+                  new FastHypothesis(parent.currCtx, candidates[k], parent, bestScoreGrid[idx], j, k);
             }
           }
         }
@@ -1215,42 +1185,12 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
           endF2Scores[pp] = (samePp >= 0) ? endF2Scores[samePp] : getCachedF2(cache, prevPrev, endContext);
         }
 
-        float[][] endF15Scores = new float[PP][];
-        for (int pp = 0; pp < PP; pp++) {
-          CandidateContext prevPrev = prevPrevCandidates[pp];
-          int w1LastId = prevPrev.lastGroupId;
-          int samePp = -1;
-          for (int pp0 = 0; pp0 < pp; pp0++) {
-            if (prevPrevCandidates[pp0].lastGroupId == w1LastId) {
-              samePp = pp0;
-              break;
-            }
-          }
-          if (samePp >= 0) {
-            endF15Scores[pp] = endF15Scores[samePp];
-            continue;
-          }
-          float[] row = new float[P];
-          for (int p = 0; p < P; p++) {
-            CandidateContext prev = prevCandidates[p];
-            int w2LastId = prev.lastGroupId;
-            int sameP = -1;
-            for (int p0 = 0; p0 < p; p0++) {
-              if (prevCandidates[p0].lastGroupId == w2LastId) {
-                sameP = p0;
-                break;
-              }
-            }
-            row[p] = (sameP >= 0) ? row[sameP] : getCachedF15(cache, prevPrev, prev, endContext);
-          }
-          endF15Scores[pp] = row;
-        }
-
         for (int hIdx = 0; hIdx < currentSize; hIdx++) {
           FastHypothesis h = currentList[hIdx];
-          int prevIdx = h.currIdx;
-          int ppIdx = h.prevIdx;
-          h.score += endUni + endBiScores[prevIdx] + endF2Scores[ppIdx] + endF15Scores[ppIdx][prevIdx];
+          h.score += endUni
+              + endBiScores[h.currIdx]
+              + endF2Scores[h.prevIdx]
+              + getCachedF15(cache, h.prevCtx, h.currCtx, endContext);
           if (best == null || h.score > best.score) {
             best = h;
           }

@@ -70,18 +70,39 @@ public class LossyIntLookup {
   }
 
   /**
-   * Evaluates {@code getAsFloat(prefix + suffix)}, using the 24-bit fingerprint bitmap and
-   * polynomial string hash to reject absent keys without allocating the concatenated string.
+   * Evaluates {@code getAsFloat(prefix + suffix)} without allocating the concatenated string.
    */
   public float getAsFloat(String prefix, String suffix) {
     int sLen = suffix.length();
     if (sLen < POW31.length) {
-      int b = (prefix.hashCode() * POW31[sLen] + suffix.hashCode()) & BITMAP_MASK;
+      int fingerprint = (prefix.hashCode() * POW31[sLen] + suffix.hashCode()) & 0x7ffffff;
+      int b = fingerprint & BITMAP_MASK;
       if ((fingerprintBitmap[b >>> 6] & (1L << b)) == 0L) {
         return 0f;
       }
+      int index = mphf.get(prefix, suffix) * 2;
+      return fingerprint == data[index] ? Float.intBitsToFloat(data[index + 1]) : 0f;
     }
     return Float.intBitsToFloat(get(prefix + suffix));
+  }
+
+  /**
+   * Evaluates {@code getAsFloat(p1 + p2 + p3)} without allocating the concatenated string.
+   */
+  public float getAsFloat(String p1, String p2, String p3) {
+    int len2 = p2.length();
+    int len3 = p3.length();
+    if (len2 < POW31.length && len3 < POW31.length) {
+      int h = (p1.hashCode() * POW31[len2] + p2.hashCode()) * POW31[len3] + p3.hashCode();
+      int fingerprint = h & 0x7ffffff;
+      int b = fingerprint & BITMAP_MASK;
+      if ((fingerprintBitmap[b >>> 6] & (1L << b)) == 0L) {
+        return 0f;
+      }
+      int index = mphf.get(p1, p2, p3) * 2;
+      return fingerprint == data[index] ? Float.intBitsToFloat(data[index + 1]) : 0f;
+    }
+    return Float.intBitsToFloat(get(p1 + p2 + p3));
   }
 
   private static int getFingerprint(String s) {
