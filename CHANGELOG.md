@@ -34,9 +34,9 @@ Zemberek `0.20.0` features a **comprehensive Turkish lexicon audit and 2020–20
   - Added modern 2020–2026 common Turkish stems (e.g., *drone*, *biyoyakıt*, *biyobelirteç*, *yönetişim*, *yangınzede*, *aktivist*, *blockchain*, *chatbot*, *fintech*, *powerbank*, *sitcom*).
   - Added contemporary entities, foreign proper nouns with pronunciations, acronyms, and names (e.g., *ChatGPT*, *BioNTech*, *Covid*, *Discord*, *Brexit*, *Gökbey*, *AJet*, *Exxen*, *KOBİ*, *AİHM*, *Ar-Ge*, *ENAG*, *KKM*, *NAVTEX*).
 - **Alternative Pronunciations per `DictionaryItem`** ([#391](https://github.com/ahmetaa/zemberek-nlp/pull/391), [#392](https://github.com/ahmetaa/zemberek-nlp/pull/392)):
-  - Added support for comma-separated alternative pronunciations so words and acronyms with multiple Turkish readings accept both suffix harmonies (e.g., `Tdk [Pr:tedeka,tedeke]` for *TDK'ya* / *TDK'ye*, `CIA [Pr:siayey,sia,siaye]`, `Gb [Pr:gigabayt,gebe]`, `Binance [Pr:baynens,baynans]`).
+  - Added support for comma-separated alternative pronunciations so words and acronyms with multiple Turkish readings accept both suffix harmonies (e.g., `Tdk [Pr:tedeka,tedeke]` for *TDK'ya* / *TDK'ye*, `Sgk [Pr:segeka,segeke]`, `Gb [Pr:gigabayt,gebe]`, `Mw [Pr:megavat,meve]`).
 - **Phonetic & Stem Transition Fixes** ([#389](https://github.com/ahmetaa/zemberek-nlp/pull/389)):
-  - Fixed English-locale stem transitions (e.g., *CIA'in*, *IDF'in*), hyphen/dot lemmas (e.g., *Ar-Ge*, *Bosna-Hersek*), `-x`/`-og` phonetics, `.00` clock vowel harmony (e.g., *14.00'te*), and `Abbrv` `-lIk`/`P3` transitions.
+  - Fixed English-locale stem transitions (e.g., *API'nin*, *UNICEF'in*), hyphen/dot lemmas (e.g., *Ar-Ge*, *Bosna-Hersek*), `-x`/`-og` phonetics, `.00` clock vowel harmony (e.g., *14.00'te*), and `Abbrv` `-lIk`/`P3` transitions.
 
 #### 2. Morphological Disambiguation
 - **Upgraded Default Model (`model_15k_v25.bin`)** ([#401](https://github.com/ahmetaa/zemberek-nlp/pull/401)):
