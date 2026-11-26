@@ -135,6 +135,13 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     return decoder.isGreedy();
   }
 
+  /**
+   * Clears internal candidate and transition score caches to release retained memory.
+   */
+  public void clearCache() {
+    decoder.clearCache();
+  }
+
   @Override
   public SentenceAnalysis disambiguate(String sentence, List<WordAnalysis> allAnalyses) {
     if (allAnalyses == null || allAnalyses.isEmpty()) {
@@ -156,21 +163,44 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
   /**
    * Immutable, model-independent structural representation of a {@link SingleAnalysis}.
-   * Cached in a compact L1 reference table; pre-scored {@link CandidateContext} instances are
-   * cached per decoder without retaining transient unigram feature strings.
+   * Canonicalizes inflectional group strings and single-group arrays across analyses, and avoids
+   * retaining concatenated feature prefix strings by relying on multi-part MPHF lookups.
    */
   static final class AnalysisTemplate {
-    private static final int L1_SIZE = 1 << 15; // 32,768 slots (2-way associative)
+    private static final int L1_SIZE = 1 << 12; // 4,096 slots (2-way associative)
     private static final int L1_MASK = L1_SIZE - 1;
     private static final int MAX_ID_ENTRIES = 16_384;
     private static final AnalysisTemplate[] L1_CACHE = new AnalysisTemplate[L1_SIZE];
 
-    private static final ConcurrentHashMap<String, Integer> LAST_GROUP_IDS = new ConcurrentHashMap<>(4_096);
-    private static final ConcurrentHashMap<String, Integer> IG_JOINED_IDS = new ConcurrentHashMap<>(8_192);
-    private static final ConcurrentHashMap<String, Integer> RIG_IDS = new ConcurrentHashMap<>(16_384);
+    private static final class GroupEntry {
+      final String ig;
+      final String igDash;
+      final String[] singleArray;
+      final int id;
 
-    private static final AtomicInteger NEXT_LAST_GROUP_ID = new AtomicInteger(1);
-    private static final AtomicInteger NEXT_IG_JOINED_ID = new AtomicInteger(1);
+      GroupEntry(String ig, int id) {
+        this.ig = ig;
+        this.igDash = ig + "-";
+        this.singleArray = new String[]{ig};
+        this.id = id;
+      }
+    }
+
+    private static final class RigEntry {
+      final String rIg;
+      final int id;
+
+      RigEntry(String rIg, int id) {
+        this.rIg = rIg;
+        this.id = id;
+      }
+    }
+
+    private static final ConcurrentHashMap<String, GroupEntry> GROUP_ENTRIES = new ConcurrentHashMap<>(4_096);
+    private static final ConcurrentHashMap<String, Integer> MULTI_IG_IDS = new ConcurrentHashMap<>(4_096);
+    private static final ConcurrentHashMap<String, RigEntry> RIG_ENTRIES = new ConcurrentHashMap<>(16_384);
+
+    private static final AtomicInteger NEXT_GROUP_ID = new AtomicInteger(1);
     private static final AtomicInteger NEXT_RIG_ID = new AtomicInteger(1);
 
     static final String[] F20_PREFIXES = new String[16];
@@ -186,24 +216,41 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     static final AnalysisTemplate BEGIN_TEMPLATE = new AnalysisTemplate(sentenceBegin);
     static final AnalysisTemplate END_TEMPLATE = new AnalysisTemplate(sentenceEnd);
 
-    private static int assignId(ConcurrentHashMap<String, Integer> map, AtomicInteger counter, String key) {
-      Integer existing = map.get(key);
+    private static GroupEntry internGroup(String ig) {
+      GroupEntry existing = GROUP_ENTRIES.get(ig);
       if (existing != null) {
         return existing;
       }
-      if (map.size() < MAX_ID_ENTRIES) {
-        int created = counter.getAndIncrement();
-        Integer prev = map.putIfAbsent(key, created);
+      if (GROUP_ENTRIES.size() < MAX_ID_ENTRIES) {
+        GroupEntry created = new GroupEntry(ig, NEXT_GROUP_ID.getAndIncrement());
+        GroupEntry prev = GROUP_ENTRIES.putIfAbsent(ig, created);
+        return prev != null ? prev : created;
+      }
+      return new GroupEntry(ig, (ig.hashCode() & 0x0FFFFF) | 0x100000);
+    }
+
+    private static int assignMultiIgId(String key) {
+      Integer existing = MULTI_IG_IDS.get(key);
+      if (existing != null) {
+        return existing;
+      }
+      if (MULTI_IG_IDS.size() < MAX_ID_ENTRIES) {
+        int created = NEXT_GROUP_ID.getAndIncrement();
+        Integer prev = MULTI_IG_IDS.putIfAbsent(key, created);
         return prev != null ? prev : created;
       }
       return (key.hashCode() & 0x0FFFFF) | 0x100000;
+    }
+
+    static void clearCache() {
+      Arrays.fill(L1_CACHE, null);
     }
 
     final SingleAnalysis sa;
     final String lemma;
     final String[] igsArray;
     final String rIg;
-    final String lastGroup;
+    final String lastGroupDash;
     final boolean isVerb;
     final boolean isNonBeginVerb;
     final boolean isEndOrDot;
@@ -215,32 +262,29 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     final int rIgId;
     final int biStateId;
 
-    final String f2Prefix;
-    final String f3Prefix;
-    final String f9Prefix;
-    final String f17Prefix;
-    final String f15Part1;
-    final String f15Part2;
-
-    private AnalysisTemplate(SingleAnalysis sa) {
+    AnalysisTemplate(SingleAnalysis sa) {
       this.sa = sa;
       String igJoined;
       String surface;
       boolean isSpecial;
       if (sa == sentenceBegin) {
         this.lemma = "<s>";
-        this.igsArray = new String[]{this.lemma};
-        igJoined = this.lemma;
-        this.rIg = "<s>+<s>";
-        this.lastGroup = this.lemma;
+        GroupEntry g = internGroup("<s>");
+        this.igsArray = g.singleArray;
+        igJoined = g.ig;
+        this.igJoinedId = g.id;
+        this.lastGroupDash = g.igDash;
+        this.lastGroupId = g.id;
         surface = "<s>";
         isSpecial = true;
       } else if (sa == sentenceEnd) {
         this.lemma = "</s>";
-        this.igsArray = new String[]{this.lemma};
-        igJoined = this.lemma;
-        this.rIg = "</s>+</s>";
-        this.lastGroup = this.lemma;
+        GroupEntry g = internGroup("</s>");
+        this.igsArray = g.singleArray;
+        igJoined = g.ig;
+        this.igJoinedId = g.id;
+        this.lastGroupDash = g.igDash;
+        this.lastGroupId = g.id;
         surface = "</s>";
         isSpecial = true;
       } else {
@@ -250,20 +294,60 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         String sp = secPos == SecondaryPos.None ? "" : secPos.name();
 
         int groupCount = sa.groupCount();
-        String[] arr = new String[groupCount];
-        for (int i = 0; i < groupCount; i++) {
-          String s = sa.getGroup(i).lexicalForm();
-          if (i == 0 && !sp.isEmpty()) {
+        if (groupCount == 1) {
+          String s = sa.getGroup(0).lexicalForm();
+          if (!sp.isEmpty()) {
             s = sp + s;
           }
-          arr[i] = s;
+          GroupEntry g = internGroup(s);
+          this.igsArray = g.singleArray;
+          igJoined = g.ig;
+          this.igJoinedId = g.id;
+          this.lastGroupDash = g.igDash;
+          this.lastGroupId = g.id;
+        } else if (groupCount > 1) {
+          String[] arr = new String[groupCount];
+          GroupEntry last = null;
+          for (int i = 0; i < groupCount; i++) {
+            String s = sa.getGroup(i).lexicalForm();
+            if (i == 0 && !sp.isEmpty()) {
+              s = sp + s;
+            }
+            last = internGroup(s);
+            arr[i] = last.ig;
+          }
+          this.igsArray = arr;
+          igJoined = String.join("+", arr);
+          this.igJoinedId = assignMultiIgId(igJoined);
+          this.lastGroupDash = last.igDash;
+          this.lastGroupId = last.id;
+        } else {
+          GroupEntry empty = internGroup("");
+          this.igsArray = new String[0];
+          igJoined = "";
+          this.igJoinedId = empty.id;
+          this.lastGroupDash = empty.igDash;
+          this.lastGroupId = empty.id;
         }
-        this.igsArray = arr;
-        igJoined = (groupCount == 1 ? arr[0] : String.join("+", arr));
-        this.rIg = this.lemma + "+" + igJoined;
-        this.lastGroup = (groupCount > 0 ? arr[groupCount - 1] : "");
         surface = sa.surfaceForm();
         isSpecial = (surface != null && surface.startsWith("<"));
+      }
+
+      String rawRig = (sa == sentenceBegin)
+          ? "<s>+<s>"
+          : (sa == sentenceEnd ? "</s>+</s>" : this.lemma + "+" + igJoined);
+      RigEntry rigEntry = RIG_ENTRIES.get(rawRig);
+      if (rigEntry == null && RIG_ENTRIES.size() < MAX_ID_ENTRIES) {
+        RigEntry created = new RigEntry(rawRig, NEXT_RIG_ID.getAndIncrement());
+        RigEntry prev = RIG_ENTRIES.putIfAbsent(rawRig, created);
+        rigEntry = prev != null ? prev : created;
+      }
+      if (rigEntry != null) {
+        this.rIg = rigEntry.rIg;
+        this.rIgId = rigEntry.id;
+      } else {
+        this.rIg = rawRig;
+        this.rIgId = (rawRig.hashCode() & 0x0FFFFF) | 0x100000;
       }
 
       boolean isProperNoun = (!isSpecial
@@ -284,17 +368,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         this.firstCharLowerProper = false;
       }
 
-      this.lastGroupId = assignId(LAST_GROUP_IDS, NEXT_LAST_GROUP_ID, this.lastGroup);
-      this.igJoinedId = assignId(IG_JOINED_IDS, NEXT_IG_JOINED_ID, igJoined);
-      this.rIgId = assignId(RIG_IDS, NEXT_RIG_ID, this.rIg);
       this.biStateId = (this.rIgId << 2) | (this.isNonBeginVerb ? 2 : 0) | (this.isEndOrDot ? 1 : 0);
-
-      this.f2Prefix = "2:" + this.rIg + "-";
-      this.f3Prefix = "3:" + this.rIg + "-";
-      this.f9Prefix = "9:" + this.lemma + "-";
-      this.f17Prefix = "17:" + this.lastGroup + "-";
-      this.f15Part1 = "15:" + this.lastGroup + "-";
-      this.f15Part2 = this.lastGroup + "-";
     }
 
     static AnalysisTemplate get(SingleAnalysis sa) {
@@ -304,7 +378,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       if (sa == sentenceEnd) {
         return END_TEMPLATE;
       }
-      int slot = (int) ((sa.hashCode() * 0x9E3779B97F4A7C15L) >>> 49) & L1_MASK;
+      int slot = (int) ((sa.hashCode() * 0x9E3779B97F4A7C15L) >>> 52) & L1_MASK;
       AnalysisTemplate l1 = L1_CACHE[slot];
       if (l1 != null && (l1.sa == sa || l1.sa.equals(sa))) {
         return l1;
@@ -419,16 +493,16 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       AnalysisTemplate t3 = AnalysisTemplate.get(trigram[2]);
 
       // Baseline Perceptron features
-      feats.addOrIncrement(t1.f2Prefix + t3.rIg);
-      feats.addOrIncrement(t2.f3Prefix + t3.rIg);
+      feats.addOrIncrement("2:" + t1.rIg + "-" + t3.rIg);
+      feats.addOrIncrement("3:" + t2.rIg + "-" + t3.rIg);
       feats.addOrIncrement("4:" + t3.rIg);
-      feats.addOrIncrement(t2.f9Prefix + t3.lemma);
+      feats.addOrIncrement("9:" + t2.lemma + "-" + t3.lemma);
       feats.addOrIncrement("10:" + t3.lemma);
       feats.addOrIncrement("10b:" + t2.lemma);
       feats.addOrIncrement("10c:" + t1.lemma);
 
-      String f15Prefix = "15:" + t1.lastGroup + "-" + t2.lastGroup + "-";
-      String f17Prefix = t2.f17Prefix;
+      String f15Prefix = "15:" + t1.lastGroupDash + t2.lastGroupDash;
+      String f17Prefix = "17:" + t2.lastGroupDash;
       String[] w3Igs = t3.igsArray;
       for (int i = 0; i < w3Igs.length; i++) {
         String ig = w3Igs[i];
@@ -473,29 +547,11 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
   public static class CandidateContext {
     public final SingleAnalysis sa;
-    public final String lemma;
-    public final List<String> igs;
-    public final String rIg;
-    public final String lastGroup;
-    public final boolean isVerb;
+    final AnalysisTemplate t;
     public final float uniScore;
     public final float c10bScore;
     public final float c10cScore;
     public final int index;
-    public final String f2Prefix;
-    public final String f3Prefix;
-    public final String f9Prefix;
-    public final String f17Prefix;
-    final String f15Part1;
-    final String f15Part2;
-
-    final String[] igsArray;
-    final boolean isNonBeginVerb;
-    final boolean isEndOrDot;
-    final int lastGroupId;
-    final int igJoinedId;
-    final int rIgId;
-    final int biStateId;
     final CandidateContext initialVariant;
 
     public CandidateContext(SingleAnalysis sa, WeightLookup model, boolean isSentenceInitial, int index) {
@@ -509,7 +565,6 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
           model.get("10b:", t.lemma),
           model.get("10c:", t.lemma),
           index,
-          Arrays.asList(t.igsArray),
           null);
     }
 
@@ -550,11 +605,11 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       if (t.firstCharUpperProper) {
         float uniInit = base + model.get("P:INIT_PROPER:", t.lemma);
         float uniNonInit = base + properWeight + model.get("P:PROPER:", t.lemma);
-        CandidateContext initCtx = new CandidateContext(t, uniInit, c10b, c10c, 0, null, null);
-        return new CandidateContext(t, uniNonInit, c10b, c10c, 0, null, initCtx);
+        CandidateContext initCtx = new CandidateContext(t, uniInit, c10b, c10c, 0, null);
+        return new CandidateContext(t, uniNonInit, c10b, c10c, 0, initCtx);
       }
       float uni = t.firstCharLowerProper ? (base + lowerProperWeight) : base;
-      return new CandidateContext(t, uni, c10b, c10c, 0, null, null);
+      return new CandidateContext(t, uni, c10b, c10c, 0, null);
     }
 
     private CandidateContext(
@@ -563,28 +618,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         float c10bScore,
         float c10cScore,
         int index,
-        List<String> igs,
         CandidateContext initialVariant) {
       this.sa = t.sa;
+      this.t = t;
       this.index = index;
-      this.lemma = t.lemma;
-      this.igs = igs;
-      this.igsArray = t.igsArray;
-      this.rIg = t.rIg;
-      this.lastGroup = t.lastGroup;
-      this.isVerb = t.isVerb;
-      this.isNonBeginVerb = t.isNonBeginVerb;
-      this.isEndOrDot = t.isEndOrDot;
-      this.lastGroupId = t.lastGroupId;
-      this.igJoinedId = t.igJoinedId;
-      this.rIgId = t.rIgId;
-      this.biStateId = t.biStateId;
-      this.f2Prefix = t.f2Prefix;
-      this.f3Prefix = t.f3Prefix;
-      this.f9Prefix = t.f9Prefix;
-      this.f17Prefix = t.f17Prefix;
-      this.f15Part1 = t.f15Part1;
-      this.f15Part2 = t.f15Part2;
       this.uniScore = uniScore;
       this.c10bScore = c10bScore;
       this.c10cScore = c10cScore;
@@ -593,9 +630,11 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
   }
 
   public static class FastDecoder {
-    private static final int L1_SCORED_SIZE = 1 << 15; // 32,768 slots (2-way associative)
-    private static final int L1_SCORED_MASK = L1_SCORED_SIZE - 1;
-    private static final int MAX_SCORED_ENTRIES = 65_536;
+    // 131,072 reference slots (~512 KB under compressed OOPs), 4-way associative LRU.
+    private static final int L1_SCORED_BITS = 17;
+    private static final int L1_SCORED_SIZE = 1 << L1_SCORED_BITS;
+    private static final int L1_SCORED_MASK = L1_SCORED_SIZE - 4;
+    private static final int L1_SCORED_SHIFT = 64 - L1_SCORED_BITS;
     // 65,536 slots -> 512 KB long[] and 256 KB float[] arrays (~3 MB total per thread, below G1GC humongous threshold).
     private static final int TRANSITION_CACHE_BITS = 16;
     private static final int TRANSITION_CACHE_SIZE = 1 << TRANSITION_CACHE_BITS;
@@ -618,6 +657,18 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       final float[] f15Vals = new float[TRANSITION_CACHE_SIZE];
       final long[] f17Keys = new long[TRANSITION_CACHE_SIZE];
       final float[] f17Vals = new float[TRANSITION_CACHE_SIZE];
+
+      void clear() {
+        Arrays.fill(l1Scored, null);
+        Arrays.fill(biKeys, 0L);
+        Arrays.fill(biVals, 0f);
+        Arrays.fill(f2Keys, 0L);
+        Arrays.fill(f2Vals, 0f);
+        Arrays.fill(f15Keys, 0L);
+        Arrays.fill(f15Vals, 0f);
+        Arrays.fill(f17Keys, 0L);
+        Arrays.fill(f17Vals, 0f);
+      }
     }
 
     public final WeightLookup model;
@@ -626,10 +677,9 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     private final float properWeight;
     private final float lowerProperWeight;
     private final float endsVerbWeight;
-    private final ConcurrentHashMap<SingleAnalysis, CandidateContext> scoredMap;
     private final Thread ownerThread;
     private final DecoderCache mainCache;
-    private final ThreadLocal<DecoderCache> localCache;
+    private volatile ThreadLocal<DecoderCache> localCache;
     private final CandidateContext beginContext;
     private final CandidateContext endContext;
     private final CandidateContext[] beginCandidates;
@@ -644,7 +694,6 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         this.properWeight = model.get("P:PROPER");
         this.lowerProperWeight = model.get("P:LOWER_PROPER");
         this.endsVerbWeight = model.get("P:ENDSVERB");
-        this.scoredMap = new ConcurrentHashMap<>(4_096);
         this.ownerThread = Thread.currentThread();
         this.mainCache = new DecoderCache();
         this.localCache = ThreadLocal.withInitial(DecoderCache::new);
@@ -652,7 +701,6 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         this.properWeight = 0f;
         this.lowerProperWeight = 0f;
         this.endsVerbWeight = 0f;
-        this.scoredMap = null;
         this.ownerThread = null;
         this.mainCache = null;
         this.localCache = null;
@@ -664,6 +712,14 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
     public FastDecoder(WeightLookup model) {
       this(model, new FastFeatureExtractor(false));
+    }
+
+    public void clearCache() {
+      if (immutableModel) {
+        mainCache.clear();
+        localCache = ThreadLocal.withInitial(DecoderCache::new);
+      }
+      AnalysisTemplate.clearCache();
     }
 
     private DecoderCache currentCache() {
@@ -679,29 +735,39 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         boolean isSentenceInitial,
         int index) {
       if (cache != null) {
-        int slot = (int) ((sa.hashCode() * 0x9E3779B97F4A7C15L) >>> 49) & L1_SCORED_MASK;
-        CandidateContext sc = cache.l1Scored[slot];
-        if (sc != null && (sc.sa == sa || sc.sa.equals(sa))) {
-          return isSentenceInitial ? sc.initialVariant : sc;
+        CandidateContext[] table = cache.l1Scored;
+        int base = (int) ((sa.hashCode() * 0x9E3779B97F4A7C15L) >>> L1_SCORED_SHIFT) & L1_SCORED_MASK;
+        CandidateContext sc0 = table[base];
+        if (sc0 != null && (sc0.sa == sa || sc0.sa.equals(sa))) {
+          return isSentenceInitial ? sc0.initialVariant : sc0;
         }
-        int slot2 = (slot + 1) & L1_SCORED_MASK;
-        CandidateContext sc2 = cache.l1Scored[slot2];
+        CandidateContext sc1 = table[base + 1];
+        if (sc1 != null && (sc1.sa == sa || sc1.sa.equals(sa))) {
+          table[base + 1] = sc0;
+          table[base] = sc1;
+          return isSentenceInitial ? sc1.initialVariant : sc1;
+        }
+        CandidateContext sc2 = table[base + 2];
         if (sc2 != null && (sc2.sa == sa || sc2.sa.equals(sa))) {
+          table[base + 2] = sc1;
+          table[base + 1] = sc0;
+          table[base] = sc2;
           return isSentenceInitial ? sc2.initialVariant : sc2;
         }
-        CandidateContext loaded = scoredMap.get(sa);
-        if (loaded == null) {
-          loaded = CandidateContext.createCached(
-              AnalysisTemplate.get(sa), model, properWeight, lowerProperWeight);
-          if (scoredMap.size() < MAX_SCORED_ENTRIES) {
-            CandidateContext prev = scoredMap.putIfAbsent(sa, loaded);
-            if (prev != null) {
-              loaded = prev;
-            }
-          }
+        CandidateContext sc3 = table[base + 3];
+        if (sc3 != null && (sc3.sa == sa || sc3.sa.equals(sa))) {
+          table[base + 3] = sc2;
+          table[base + 2] = sc1;
+          table[base + 1] = sc0;
+          table[base] = sc3;
+          return isSentenceInitial ? sc3.initialVariant : sc3;
         }
-        cache.l1Scored[slot2] = sc;
-        cache.l1Scored[slot] = loaded;
+        CandidateContext loaded = CandidateContext.createCached(
+            AnalysisTemplate.get(sa), model, properWeight, lowerProperWeight);
+        table[base + 3] = sc2;
+        table[base + 2] = sc1;
+        table[base + 1] = sc0;
+        table[base] = loaded;
         return isSentenceInitial ? loaded.initialVariant : loaded;
       }
       return new CandidateContext(AnalysisTemplate.get(sa), model, isSentenceInitial, index);
@@ -712,7 +778,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     }
 
     private float getCachedF17(DecoderCache cache, CandidateContext w2, CandidateContext w3) {
-      long key = (((long) w2.lastGroupId) << 32) | (w3.igJoinedId & 0xFFFFFFFFL);
+      long key = (((long) w2.t.lastGroupId) << 32) | (w3.t.igJoinedId & 0xFFFFFFFFL);
       long[] keys = cache.f17Keys;
       float[] vals = cache.f17Vals;
       int slot = mixSlot(key);
@@ -724,10 +790,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         return vals[slot2];
       }
       float s17 = 0f;
-      String f17Prefix = w2.f17Prefix;
-      String[] w3Igs = w3.igsArray;
+      String w2LastDash = w2.t.lastGroupDash;
+      String[] w3Igs = w3.t.igsArray;
       for (int i = 0; i < w3Igs.length; i++) {
-        s17 += model.get(f17Prefix, w3Igs[i]);
+        s17 += model.get("17:", w2LastDash, w3Igs[i]);
       }
       keys[slot2] = keys[slot];
       vals[slot2] = vals[slot];
@@ -740,7 +806,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       if (cache == null) {
         return computeBigramScore(w2, w3);
       }
-      long key = (((long) w2.biStateId) << 32) | (w3.biStateId & 0xFFFFFFFFL);
+      long key = (((long) w2.t.biStateId) << 32) | (w3.t.biStateId & 0xFFFFFFFFL);
       long[] keys = cache.biKeys;
       float[] vals = cache.biVals;
       int slot = mixSlot(key);
@@ -751,11 +817,11 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       if (keys[slot2] == key) {
         return vals[slot2];
       }
-      float score = model.get(w2.f3Prefix, w3.rIg)
-          + model.get(w2.f9Prefix, w3.lemma)
+      float score = model.get("3:", w2.t.rIg, "-", w3.t.rIg)
+          + model.get("9:", w2.t.lemma, "-", w3.t.lemma)
           + w2.c10bScore
           + getCachedF17(cache, w2, w3);
-      if (w3.isEndOrDot && w2.isNonBeginVerb) {
+      if (w3.t.isEndOrDot && w2.t.isNonBeginVerb) {
         score += endsVerbWeight;
       }
       keys[slot2] = keys[slot];
@@ -767,9 +833,9 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
     private float getCachedF2(DecoderCache cache, CandidateContext w1, CandidateContext w3) {
       if (cache == null) {
-        return model.get(w1.f2Prefix, w3.rIg) + w1.c10cScore;
+        return model.get("2:", w1.t.rIg, "-", w3.t.rIg) + w1.c10cScore;
       }
-      long key = (((long) w1.rIgId) << 32) | (w3.rIgId & 0xFFFFFFFFL);
+      long key = (((long) w1.t.rIgId) << 32) | (w3.t.rIgId & 0xFFFFFFFFL);
       long[] keys = cache.f2Keys;
       float[] vals = cache.f2Vals;
       int slot = mixSlot(key);
@@ -780,7 +846,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       if (keys[slot2] == key) {
         return vals[slot2];
       }
-      float score = model.get(w1.f2Prefix, w3.rIg) + w1.c10cScore;
+      float score = model.get("2:", w1.t.rIg, "-", w3.t.rIg) + w1.c10cScore;
       keys[slot2] = keys[slot];
       vals[slot2] = vals[slot];
       keys[slot] = key;
@@ -793,17 +859,19 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         CandidateContext w1,
         CandidateContext w2,
         CandidateContext w3) {
-      if (cache == null || ((w1.lastGroupId | w2.lastGroupId | w3.igJoinedId) >>> 21) != 0) {
+      if (cache == null || ((w1.t.lastGroupId | w2.t.lastGroupId | w3.t.igJoinedId) >>> 21) != 0) {
         float score = 0f;
-        String[] igs = w3.igsArray;
+        String d1 = w1.t.lastGroupDash;
+        String d2 = w2.t.lastGroupDash;
+        String[] igs = w3.t.igsArray;
         for (int i = 0; i < igs.length; i++) {
-          score += model.get(w1.f15Part1, w2.f15Part2, igs[i]);
+          score += model.get("15:", d1, d2, igs[i]);
         }
         return score;
       }
-      long key = (((long) w1.lastGroupId) << 42)
-          | (((long) w2.lastGroupId) << 21)
-          | (w3.igJoinedId & 0x1FFFFFL);
+      long key = (((long) w1.t.lastGroupId) << 42)
+          | (((long) w2.t.lastGroupId) << 21)
+          | (w3.t.igJoinedId & 0x1FFFFFL);
       long[] keys = cache.f15Keys;
       float[] vals = cache.f15Vals;
       int slot = mixSlot(key);
@@ -815,9 +883,11 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         return vals[slot2];
       }
       float score = 0f;
-      String[] igs = w3.igsArray;
+      String d1 = w1.t.lastGroupDash;
+      String d2 = w2.t.lastGroupDash;
+      String[] igs = w3.t.igsArray;
       for (int i = 0; i < igs.length; i++) {
-        score += model.get(w1.f15Part1, w2.f15Part2, igs[i]);
+        score += model.get("15:", d1, d2, igs[i]);
       }
       keys[slot2] = keys[slot];
       vals[slot2] = vals[slot];
@@ -878,42 +948,45 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     }
 
     public float computeBigramScore(CandidateContext w2, CandidateContext w3) {
-      float score = model.get(w2.f3Prefix, w3.rIg)
-          + model.get(w2.f9Prefix, w3.lemma)
+      float score = model.get("3:", w2.t.rIg, "-", w3.t.rIg)
+          + model.get("9:", w2.t.lemma, "-", w3.t.lemma)
           + w2.c10bScore;
-      String f17 = w2.f17Prefix;
-      String[] w3Igs = w3.igsArray;
+      String w2LastDash = w2.t.lastGroupDash;
+      String[] w3Igs = w3.t.igsArray;
       for (int i = 0; i < w3Igs.length; i++) {
-        score += model.get(f17, w3Igs[i]);
+        score += model.get("17:", w2LastDash, w3Igs[i]);
       }
 
-      if (w3.isEndOrDot && w2.isNonBeginVerb) {
+      if (w3.t.isEndOrDot && w2.t.isNonBeginVerb) {
         score += getEndsVerbWeight();
       }
       return score;
     }
 
     public float computeTrigramScore(CandidateContext w1, CandidateContext w2, CandidateContext w3) {
-      float score = model.get(w1.f2Prefix, w3.rIg) + w1.c10cScore;
-      String[] w3Igs = w3.igsArray;
+      float score = model.get("2:", w1.t.rIg, "-", w3.t.rIg) + w1.c10cScore;
+      String d1 = w1.t.lastGroupDash;
+      String d2 = w2.t.lastGroupDash;
+      String[] w3Igs = w3.t.igsArray;
       for (int i = 0; i < w3Igs.length; i++) {
-        score += model.get(w1.f15Part1, w2.f15Part2, w3Igs[i]);
+        score += model.get("15:", d1, d2, w3Igs[i]);
       }
       return score;
     }
 
     public float computeTrigramScore(FastHypothesis h, CandidateContext w3, float f2Score) {
       float score = f2Score;
-      String prefix = h.getF15Prefix();
-      String[] w3Igs = w3.igsArray;
+      String d1 = h.prevCtx.t.lastGroupDash;
+      String d2 = h.currCtx.t.lastGroupDash;
+      String[] w3Igs = w3.t.igsArray;
       for (int i = 0; i < w3Igs.length; i++) {
-        score += model.get(prefix + w3Igs[i]);
+        score += model.get("15:", d1, d2, w3Igs[i]);
       }
       return score;
     }
 
     public float computeTrigramScore(FastHypothesis h, CandidateContext w3) {
-      float f2 = model.get(h.prevCtx.f2Prefix + w3.rIg) + h.prevCtx.c10cScore;
+      float f2 = model.get("2:", h.prevCtx.t.rIg, "-", w3.t.rIg) + h.prevCtx.c10cScore;
       return computeTrigramScore(h, w3, f2);
     }
 
@@ -1026,10 +1099,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         float[][] biScores = new float[P][];
         for (int j = 0; j < P; j++) {
           CandidateContext p = prevCandidates[j];
-          int pBiId = p.biStateId;
+          int pBiId = p.t.biStateId;
           int sameJ = -1;
           for (int j0 = 0; j0 < j; j0++) {
-            if (prevCandidates[j0].biStateId == pBiId) {
+            if (prevCandidates[j0].t.biStateId == pBiId) {
               sameJ = j0;
               break;
             }
@@ -1042,10 +1115,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
           float[] biRow = new float[K];
           for (int k = 0; k < K; k++) {
             CandidateContext cand = candidates[k];
-            int cBiId = cand.biStateId;
+            int cBiId = cand.t.biStateId;
             int sameK = -1;
             for (int k0 = 0; k0 < k; k0++) {
-              if (candidates[k0].biStateId == cBiId) {
+              if (candidates[k0].t.biStateId == cBiId) {
                 sameK = k0;
                 break;
               }
@@ -1059,10 +1132,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         float[][] f2Scores = new float[PP][];
         for (int pp = 0; pp < PP; pp++) {
           CandidateContext prevPrev = prevPrevCandidates[pp];
-          int ppRigId = prevPrev.rIgId;
+          int ppRigId = prevPrev.t.rIgId;
           int samePp = -1;
           for (int pp0 = 0; pp0 < pp; pp0++) {
-            if (prevPrevCandidates[pp0].rIgId == ppRigId) {
+            if (prevPrevCandidates[pp0].t.rIgId == ppRigId) {
               samePp = pp0;
               break;
             }
@@ -1074,10 +1147,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
           float[] row = new float[K];
           for (int k = 0; k < K; k++) {
             CandidateContext cand = candidates[k];
-            int cRigId = cand.rIgId;
+            int cRigId = cand.t.rIgId;
             int sameK = -1;
             for (int k0 = 0; k0 < k; k0++) {
-              if (candidates[k0].rIgId == cRigId) {
+              if (candidates[k0].t.rIgId == cRigId) {
                 sameK = k0;
                 break;
               }
@@ -1160,10 +1233,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         float[] endBiScores = new float[P];
         for (int j = 0; j < P; j++) {
           CandidateContext p = prevCandidates[j];
-          int pBiId = p.biStateId;
+          int pBiId = p.t.biStateId;
           int sameJ = -1;
           for (int j0 = 0; j0 < j; j0++) {
-            if (prevCandidates[j0].biStateId == pBiId) {
+            if (prevCandidates[j0].t.biStateId == pBiId) {
               sameJ = j0;
               break;
             }
@@ -1174,10 +1247,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         float[] endF2Scores = new float[PP];
         for (int pp = 0; pp < PP; pp++) {
           CandidateContext prevPrev = prevPrevCandidates[pp];
-          int ppRigId = prevPrev.rIgId;
+          int ppRigId = prevPrev.t.rIgId;
           int samePp = -1;
           for (int pp0 = 0; pp0 < pp; pp0++) {
-            if (prevPrevCandidates[pp0].rIgId == ppRigId) {
+            if (prevPrevCandidates[pp0].t.rIgId == ppRigId) {
               samePp = pp0;
               break;
             }
@@ -1278,9 +1351,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     public final FastHypothesis previous;
     final int prevIdx;
     final int currIdx;
-    private String f15Prefix;
     public float score;
-    private int hash;
 
     public FastHypothesis(
         CandidateContext prevCtx,
@@ -1308,12 +1379,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     }
 
     public String getF15Prefix() {
-      String p = this.f15Prefix;
-      if (p == null) {
-        p = "15:" + prevCtx.lastGroup + "-" + currCtx.lastGroup + "-";
-        this.f15Prefix = p;
-      }
-      return p;
+      return "15:" + prevCtx.t.lastGroupDash + currCtx.t.lastGroupDash;
     }
 
     @Override
@@ -1326,12 +1392,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
     @Override
     public int hashCode() {
-      int h = this.hash;
-      if (h == 0) {
-        h = 31 * this.prev.hashCode() + this.current.hashCode();
-        this.hash = h;
-      }
-      return h;
+      return 31 * this.prev.hashCode() + this.current.hashCode();
     }
 
     @Override

@@ -128,6 +128,23 @@ public class MultiLevelMphf implements Mphf {
     return d & 0x7fffffff;
   }
 
+  public static int hash(String p1, String p2, String p3, String p4, int seed) {
+    int d = seed > 0 ? seed : INITIAL_HASH_SEED;
+    for (int i = 0, n = p1.length(); i < n; i++) {
+      d = (d ^ p1.charAt(i)) * HASH_MULTIPLIER;
+    }
+    for (int i = 0, n = p2.length(); i < n; i++) {
+      d = (d ^ p2.charAt(i)) * HASH_MULTIPLIER;
+    }
+    for (int i = 0, n = p3.length(); i < n; i++) {
+      d = (d ^ p3.charAt(i)) * HASH_MULTIPLIER;
+    }
+    for (int i = 0, n = p4.length(); i < n; i++) {
+      d = (d ^ p4.charAt(i)) * HASH_MULTIPLIER;
+    }
+    return d & 0x7fffffff;
+  }
+
   /**
    * This hash assumes that a trigram or bigram value is embedded into a 64 bit long value.
    * Structure for order=3: [1bit empty][gram-3][gram-2][gram-1] Structure for order=2: [22bit
@@ -367,6 +384,23 @@ public class MultiLevelMphf implements Mphf {
         } else {
           return hashLevelData[i - 1].failedIndexes[
               hash(p1, p2, p3, seed) % hashLevelData[i].keyAmount];
+        }
+      }
+    }
+    throw new IllegalStateException("Cannot be here.");
+  }
+
+  @Override
+  public int get(String p1, String p2, String p3, String p4) {
+    int initialHash = hash(p1, p2, p3, p4, -1);
+    for (int i = 0; i < hashLevelData.length; i++) {
+      final int seed = hashLevelData[i].getSeed(initialHash);
+      if (seed != 0) {
+        if (i == 0) {
+          return hash(p1, p2, p3, p4, seed) % hashLevelData[0].keyAmount;
+        } else {
+          return hashLevelData[i - 1].failedIndexes[
+              hash(p1, p2, p3, p4, seed) % hashLevelData[i].keyAmount];
         }
       }
     }

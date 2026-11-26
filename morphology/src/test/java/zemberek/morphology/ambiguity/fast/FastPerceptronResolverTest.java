@@ -409,4 +409,16 @@ public class FastPerceptronResolverTest {
     r1.setGreedy(true);
     Assert.assertFalse("Per-instance decoder state should remain independent", r2.isGreedy());
   }
+
+  @Test
+  public void testInvalidateCacheClearsResolverCacheWithExactParity() {
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    String sentence = "Türkiye Büyük Millet Meclisi bugün önemli bir karar aldı.";
+
+    SentenceAnalysis before = morphology.analyzeAndDisambiguate(sentence);
+    morphology.invalidateCache();
+    SentenceAnalysis after = morphology.analyzeAndDisambiguate(sentence);
+
+    Assert.assertEquals(before.bestAnalysis(), after.bestAnalysis());
+  }
 }
