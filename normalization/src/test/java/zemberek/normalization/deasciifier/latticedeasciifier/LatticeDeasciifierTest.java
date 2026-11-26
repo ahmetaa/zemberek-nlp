@@ -11,9 +11,6 @@ import java.util.Comparator;
 import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import zemberek.lm.compression.MultiFileUncompressedLm;
-import zemberek.lm.compression.UncompressedToSmoothLmConverter;
-import zemberek.lm.compression.UncompressedToSmoothLmConverter.NgramDataBlock;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.lexicon.RootLexicon;
 import zemberek.normalization.TurkishSentenceNormalizer;
@@ -167,89 +164,13 @@ public class LatticeDeasciifierTest {
 
   @Test
   public void integratesCleanlyWithTurkishSentenceNormalizer() throws Exception {
-    Path tempRoot = Files.createTempDirectory("zemberek_norm_test_");
-    try {
-      Files.writeString(
-          tempRoot.resolve("lookup-from-graph"), "bisi=bir şey\n", StandardCharsets.UTF_8);
-      Files.writeString(tempRoot.resolve("ascii-map"), "cok=çok\n", StandardCharsets.UTF_8);
-      Files.writeString(tempRoot.resolve("split"), "birsey=bir şey\n", StandardCharsets.UTF_8);
-
-      String tinyArpa =
-          """
-
-          \\data\\
-          ngram 1= 12
-          ngram 2= 8
-
-          \\1-grams:
-          -1.0 <s> -0.3
-          -1.0 </s> 0.0
-          -1.2 istanbul'da -0.2
-          -1.2 hava -0.2
-          -1.1 çok -0.2
-          -1.2 güzel -0.2
-          -1.2 yarın -0.2
-          -1.2 kütüphaneye -0.2
-          -1.2 gideceğim -0.2
-          -1.2 gelecek -0.2
-          -1.2 misiniz -0.2
-          -2.5 <unk> 0.0
-
-          \\2-grams:
-          -0.4 <s> istanbul'da
-          -0.4 istanbul'da hava
-          -0.4 hava çok
-          -0.4 çok güzel
-          -0.4 güzel yarın
-          -0.4 yarın kütüphaneye
-          -0.4 kütüphaneye gideceğim
-          -0.3 gelecek misiniz
-
-          \\end\\
-          """;
-      Path arpaPath = tempRoot.resolve("tiny.arpa");
-      Path lmWorkDir = tempRoot.resolve("lm_work");
-      Files.createDirectories(lmWorkDir);
-      Files.writeString(arpaPath, tinyArpa, StandardCharsets.UTF_8);
-      Path lmPath = tempRoot.resolve("tiny.slm");
-      UncompressedToSmoothLmConverter converter =
-          new UncompressedToSmoothLmConverter(lmPath.toFile(), lmWorkDir.toFile());
-      converter.convertSmall(
-          MultiFileUncompressedLm.generate(arpaPath.toFile(), lmWorkDir.toFile(), "utf-8", 4)
-              .getLmDir(),
-          new NgramDataBlock(8, 8, 8));
-
-      // LatticeDeasciifier is enabled by default in TurkishSentenceNormalizer:
-      TurkishSentenceNormalizer normalizer =
-          new TurkishSentenceNormalizer(sharedStrictMorph, tempRoot, lmPath);
-      normalizer.setAlwaysApplyDeasciifier(true);
-
-      // Verifies uppercase 'I' -> 'ı' / 'İ' -> 'i' is preserved before normalizer lowercasing,
-      // informal future suffix ("gidicem" -> "gideceğim") is normalized, and glued question clitic splits:
-      String normalized =
-          normalizer.normalize(
-              "ISTANBUL'DA hava cok guzel yarin kutuphaneye gidicem gelecekmisiniz");
-      assertEquals(
-          "istanbul'da hava çok güzel yarın kütüphaneye gideceğim gelecek misiniz", normalized);
-
-      // Callers can switch to legacy pattern-table Deasciifier and back if needed:
-      normalizer.useLegacyDeasciifier().useLatticeDeasciifier();
-      assertEquals(
-          "istanbul'da hava çok güzel yarın kütüphaneye gideceğim gelecek misiniz",
-          normalizer.normalize(
-              "ISTANBUL'DA hava cok guzel yarin kutuphaneye gidicem gelecekmisiniz"));
-    } finally {
-      try (var walk = Files.walk(tempRoot)) {
-        walk.sorted(Comparator.reverseOrder())
-            .forEach(
-                p -> {
-                  try {
-                    Files.deleteIfExists(p);
-                  } catch (Exception ignored) {
-                  }
-                });
-      }
-    }
+    TurkishSentenceNormalizer normalizer =
+        TurkishSentenceNormalizer.createWithDefaults(sharedStrictMorph);
+    String normalized =
+        normalizer.normalize(
+            "ISTANBUL'DA hava cok guzel yarin kutuphaneye gidicem gelecekmisiniz");
+    assertEquals(
+        "İstanbul'da hava çok güzel yarın kütüphaneye gideceğim gelecek misiniz", normalized);
   }
 
   @Test

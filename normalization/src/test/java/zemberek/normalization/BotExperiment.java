@@ -35,7 +35,7 @@ public class BotExperiment {
 
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
     TurkishSentenceNormalizer normalizer =
-        new TurkishSentenceNormalizer(morphology, dataRoot, lmPath);
+        TurkishSentenceNormalizer.createWithDefaults(morphology);
 
     preprocess(rawLines, nodup, sentencesNodup, sentencesNodupTokenized);
 

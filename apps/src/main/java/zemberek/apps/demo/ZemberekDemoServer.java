@@ -23,7 +23,6 @@ import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
-import zemberek.normalization.TurkishSentenceNormalizer;
 import zemberek.normalization.v2.SpanLatticePerceptronNormalizer;
 import zemberek.tokenization.Token;
 import zemberek.tokenization.TurkishSentenceExtractor;
@@ -32,9 +31,8 @@ import zemberek.tokenization.TurkishTokenizer;
 /**
  * Local interactive HTTP server ({@code jdk.httpserver} + {@code Gson}) for Zemberek NLP:
  * <ul>
- *   <li><b>Normalization</b>: {@link SpanLatticePerceptronNormalizer} ({@code v2.4}) alongside
- *       {@link TurkishSentenceNormalizer} ({@code Zemberek HEAD}) with interactive multi-span
- *       lattice inspection.
+ *   <li><b>Normalization</b>: {@link SpanLatticePerceptronNormalizer} ({@code v2.4}) with
+ *       interactive multi-span lattice inspection.
  *   <li><b>Deasciifiers</b>: {@code LatticeDeasciifier} vs. classic {@code Deasciifier}.
  *   <li><b>Morphology &amp; Disambiguation</b>: {@link TurkishMorphology#analyzeAndDisambiguate}.
  *   <li><b>Tokenization &amp; Sentence Boundary Extraction</b>: {@link TurkishTokenizer} and
@@ -59,11 +57,9 @@ public final class ZemberekDemoServer {
   private final Object engineLock = new Object();
 
   public ZemberekDemoServer(
-      TurkishMorphology morphology,
-      SpanLatticePerceptronNormalizer perceptron,
-      TurkishSentenceNormalizer zemberekHead) {
+      TurkishMorphology morphology, SpanLatticePerceptronNormalizer perceptron) {
     this.morphology = morphology;
-    this.normInspector = new NormalizationInspector(perceptron, zemberekHead);
+    this.normInspector = new NormalizationInspector(perceptron);
     this.deasciifierInspector = new DeasciifierInspector(morphology);
   }
 
@@ -96,26 +92,18 @@ public final class ZemberekDemoServer {
     TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 
     SpanLatticePerceptronNormalizer perceptron;
-    TurkishSentenceNormalizer zemberekHead;
-
     if (modelDirOverride == null && zemberekNormRootOverride == null) {
       System.out.println(
           "[ZemberekDemoServer] Loading bundled normalization models from Zemberek resources...");
       SmoothLm sharedLm = SpanLatticePerceptronNormalizer.loadDefaultSmoothLm();
       perceptron = SpanLatticePerceptronNormalizer.createWithDefaults(morphology, sharedLm);
-      zemberekHead = TurkishSentenceNormalizer.createWithDefaults(morphology, sharedLm);
     } else {
-      SmoothLm lm;
-      if (zemberekNormRootOverride != null) {
-        Path lmPath = zemberekNormRootOverride.resolve("lm.2gram.slm");
-        lm = SmoothLm.builder(lmPath).logBase(Math.E).build();
-        zemberekHead =
-            new TurkishSentenceNormalizer(
-                morphology, zemberekNormRootOverride.resolve("normalization"), lmPath);
-      } else {
-        lm = SpanLatticePerceptronNormalizer.loadDefaultSmoothLm();
-        zemberekHead = TurkishSentenceNormalizer.createWithDefaults(morphology, lm);
-      }
+      SmoothLm lm =
+          zemberekNormRootOverride != null
+              ? SmoothLm.builder(zemberekNormRootOverride.resolve("lm.2gram.slm"))
+                  .logBase(Math.E)
+                  .build()
+              : SpanLatticePerceptronNormalizer.loadDefaultSmoothLm();
       perceptron =
           modelDirOverride != null
               ? SpanLatticePerceptronNormalizer.load(
@@ -136,7 +124,7 @@ public final class ZemberekDemoServer {
         (System.nanoTime() - t0) / 1e9,
         perceptron.modelRamBytes() / (1024.0 * 1024.0),
         perceptron.activeSparseFeatureCount());
-    return new ZemberekDemoServer(morphology, perceptron, zemberekHead);
+    return new ZemberekDemoServer(morphology, perceptron);
   }
 
   public HttpServer start(String host, int port) throws IOException {

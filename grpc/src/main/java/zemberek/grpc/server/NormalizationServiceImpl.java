@@ -17,12 +17,12 @@ public class NormalizationServiceImpl extends NormalizationServiceImplBase {
   public NormalizationServiceImpl(ZemberekContext context) throws IOException {
     this.context = context;
     if (context.configuration != null && context.configuration.normalizationPathsAvailable()) {
-      sentenceNormalizer = new TurkishSentenceNormalizer(
+      sentenceNormalizer = TurkishSentenceNormalizer.fromDirectory(
           context.morphology,
           context.configuration.normalizationDataRoot,
           context.configuration.normalizationLmPath);
     } else {
-      Log.warn("Normalization paths are not available. Normalization service is down.");
+      sentenceNormalizer = TurkishSentenceNormalizer.createWithDefaults(context.morphology);
     }
   }
 

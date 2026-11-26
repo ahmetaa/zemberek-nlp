@@ -35,12 +35,7 @@ public class ClassificationExperiment extends ClassificationExampleBase {
         .setLexicon(RootLexicon.getDefault())
         .build();
 
-    Path dataRoot = Paths.get("/home/aaa/zemberek-data");
-    normalizer = new TurkishSentenceNormalizer(
-        morphology,
-        dataRoot.resolve("normalization"),
-        dataRoot.resolve("lm/lm.2gram.slm"));
-    normalizer.setAlwaysApplyDeasciifier(true);
+    normalizer = TurkishSentenceNormalizer.createWithDefaults(morphology);
 
     experiment.generateData(200);
 
