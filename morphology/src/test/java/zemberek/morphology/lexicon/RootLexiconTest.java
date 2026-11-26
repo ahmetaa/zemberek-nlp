@@ -5,8 +5,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import zemberek.core.turkish.PrimaryPos;
-import zemberek.core.turkish.RootAttribute;
-import zemberek.core.turkish.Turkish;
 
 public class RootLexiconTest {
 
@@ -62,39 +60,12 @@ public class RootLexiconTest {
   }
 
   @Test
-  public void insertionOrderAndLowercaseStringSharing() {
+  public void preservesInsertionOrder() {
     RootLexicon ordered = RootLexicon.fromLines("zebra", "armut", "kalem");
     List<String> lemmas = new ArrayList<>();
     for (DictionaryItem item : ordered) {
       lemmas.add(item.lemma);
     }
     Assert.assertEquals(List.of("zebra", "armut", "kalem"), lemmas);
-
-    RootLexicon def = RootLexicon.getDefault();
-    int eligibleLemmaRoot = 0;
-    int sharedLemmaRoot = 0;
-    int eligibleRootPron = 0;
-    int sharedRootPron = 0;
-    for (DictionaryItem item : def) {
-      var locale =
-          item.hasAttribute(RootAttribute.LocaleEn) ? java.util.Locale.ENGLISH : Turkish.LOCALE;
-      String expectedLower = item.lemma.toLowerCase(locale);
-      if (item.lemma.equals(expectedLower) && item.root.equals(item.lemma)) {
-        eligibleLemmaRoot++;
-        if (item.root == item.lemma) {
-          sharedLemmaRoot++;
-        }
-      }
-      if (item.pronunciation.equals(item.root)) {
-        eligibleRootPron++;
-        if (item.pronunciation == item.root) {
-          sharedRootPron++;
-        }
-      }
-    }
-    Assert.assertTrue(eligibleLemmaRoot > 20_000);
-    Assert.assertEquals(eligibleLemmaRoot, sharedLemmaRoot);
-    Assert.assertTrue(eligibleRootPron > 50_000);
-    Assert.assertEquals(eligibleRootPron, sharedRootPron);
   }
 }

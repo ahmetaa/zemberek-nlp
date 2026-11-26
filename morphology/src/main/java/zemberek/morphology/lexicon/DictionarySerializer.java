@@ -169,35 +169,17 @@ public class DictionarySerializer {
     return builder.build();
   }
 
-  private static boolean needsLowerCase(String s) {
-    for (int i = 0, n = s.length(); i < n; i++) {
-      char c = s.charAt(i);
-      if (Character.isUpperCase(c) || Character.isTitleCase(c) || c == '\u0307') {
-        return true;
-      }
-    }
-    return false;
-  }
-
   private static DictionaryItem convertToDictionaryItem(LexiconProto.DictionaryItem item) {
     EnumSet<RootAttribute> attributes = EnumSet.noneOf(RootAttribute.class);
     for (LexiconProto.RootAttribute rootAttribute : item.getRootAttributesList()) {
       attributes.add(rootAttributeConverter.convertBack(rootAttribute, RootAttribute.Unknown));
     }
     Locale locale = attributes.contains(RootAttribute.LocaleEn) ? Locale.ENGLISH : Turkish.LOCALE;
-    String lemma = item.getLemma();
-    String lowercaseLemma = needsLowerCase(lemma) ? lemma.toLowerCase(locale) : lemma;
-    String rawRoot = item.getRoot();
-    String root = rawRoot.isEmpty() || rawRoot.equals(lowercaseLemma) ? lowercaseLemma : rawRoot;
-    String rawPron = item.getPronunciation();
-    String pron =
-        rawPron.isEmpty() || rawPron.equals(root)
-            ? root
-            : (rawPron.equals(lowercaseLemma) ? lowercaseLemma : rawPron);
+    String lowercaseLemma = item.getLemma().toLowerCase(locale);
     return new DictionaryItem(
-        lemma,
-        root,
-        pron,
+        item.getLemma(),
+        item.getRoot().isEmpty() ? lowercaseLemma : item.getRoot(),
+        item.getPronunciation().isEmpty() ? lowercaseLemma : item.getPronunciation(),
         primaryPosConverter.convertBack(item.getPrimaryPos(), PrimaryPos.Unknown),
         item.getSecondaryPos() == LexiconProto.SecondaryPos.SecondaryPos_Unknown
             ? SecondaryPos.None
