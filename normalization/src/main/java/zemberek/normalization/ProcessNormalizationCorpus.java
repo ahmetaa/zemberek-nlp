@@ -30,14 +30,10 @@ public class ProcessNormalizationCorpus {
   public static void main(String[] args) throws Exception {
     TurkishMorphology morphology = getTurkishMorphology();
 
-    Path normalizationDataRoot = Paths.get("/home/aaa/data/normalization/test-large");
-    Path lmPath = Paths.get("/home/aaa/data/normalization/lm.slm");
+    TurkishSentenceNormalizer normalizer =
+        TurkishSentenceNormalizer.createWithDefaults(morphology);
 
-    TurkishSentenceNormalizer normalizationPreprocessor =
-        new TurkishSentenceNormalizer(morphology, normalizationDataRoot, lmPath);
-
-    ProcessNormalizationCorpus processor =
-        new ProcessNormalizationCorpus(normalizationPreprocessor);
+    ProcessNormalizationCorpus processor = new ProcessNormalizationCorpus(normalizer);
 
     Path corporaRoot = Paths.get("/home/aaa/data/corpora");
     Path outRoot = Paths.get("/home/aaa/data/normalization/corpus/clean");
@@ -63,7 +59,7 @@ public class ProcessNormalizationCorpus {
     for (TextChunk chunk : corpusProvider) {
       service.submit(() -> {
         List<String> sentences = TextCleaner.cleanAndExtractSentences(chunk.getData()).stream()
-            .map(normalizer::preProcess)
+            .map(normalizer::normalize)
             .toList();
         Path p = outRoot.resolve(String.valueOf(c.getAndIncrement()));
         try {

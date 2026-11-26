@@ -21,13 +21,13 @@ For starting the gRPC server, use zemberek-full.jar and run:
 
 By default, it will start serving via port 6789. User can change the port with `--port` parameter.
 
-For some functions like normalization, model files may be necessary. For this, user should provide
-data root directory with `--dataRoot` parameter. For example, if data folder is 
-`/home/aaa/zemberek-data` user should run the server with:
+Normalization works out of the box using the bundled default models. If you want to override them
+with custom external model files, you can optionally pass `--dataRoot` (containing `normalization/`
+and `lm/lm.2gram.slm`):
 
     java -jar zemberek-full.jar StartGrpcServer --dataRoot /home/aaa/zemberek-data
 
-Alternatively, server port, data/model paths, and morphology parameters can be passed via a
+Alternatively, server port, optional custom model paths, and morphology parameters can be passed via a
 `key=value` configuration file (`--config` or `-c`):
 
     java -jar zemberek-full.jar StartGrpcServer --config server.conf
@@ -35,8 +35,9 @@ Alternatively, server port, data/model paths, and morphology parameters can be p
 Example `server.conf`:
 
     port = 6789
-    normalization.lm = /home/aaa/zemberek-data/lm/lm.2gram.slm
-    normalization.dataRoot = /home/aaa/zemberek-data/normalization
+    # Optional custom normalization model overrides (bundled defaults are used if omitted):
+    # normalization.lm = /home/aaa/zemberek-data/lm/lm.2gram.slm
+    # normalization.dataRoot = /home/aaa/zemberek-data/normalization
     # Optional custom dictionaries and diacritics flag:
     # morphology.extraDictionaries = /home/aaa/custom.dict
     # morphology.ignoreDiacritics = false

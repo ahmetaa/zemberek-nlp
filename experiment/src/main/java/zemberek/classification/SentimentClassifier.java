@@ -31,11 +31,7 @@ public class SentimentClassifier extends ClassificationExampleBase {
         .setLexicon(RootLexicon.getDefault())
         .build();
 
-    Path dataRoot = Paths.get("/home/aaa/zemberek-data");
-    normalizer = new TurkishSentenceNormalizer(
-        morphology,
-        dataRoot.resolve("normalization"),
-        dataRoot.resolve("lm/lm.2gram.slm"));
+    normalizer = TurkishSentenceNormalizer.createWithDefaults(morphology);
 
     experiment.generateData();
 
@@ -90,7 +86,6 @@ public class SentimentClassifier extends ClassificationExampleBase {
         continue;
       }
       String content = line.substring(0, i).trim();
-      normalizer.setAlwaysApplyDeasciifier(true);
       content = normalizer.normalize(content);
       String label = "__label__" + line.substring(i).trim();
       result.add(label + " " + content);

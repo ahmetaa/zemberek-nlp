@@ -467,8 +467,7 @@ public class NormalizationScripts {
         // to prevent this, if language is identified as jv or id, we skip.
         // to remove this hack we need a better language identification model for Turkish
         // that is trained with also noisy text.
-        if (!lang.equals("jv") && !lang.equals("id") &&
-            TurkishSentenceNormalizer.probablyRequiresDeasciifier(join)) {
+        if (!lang.equals("jv") && !lang.equals("id") && probablyRequiresDeasciifier(join)) {
           String k = Deasciifier.deasciify(join);
           // identify and check morphology to be sure.
           String l = lid.identify(join);
@@ -763,5 +762,20 @@ public class NormalizationScripts {
     }
   }
 
+
+  private static boolean probablyRequiresDeasciifier(String sentence) {
+    int turkishSpecCount = 0;
+    int letterCount = 0;
+    for (int i = 0; i < sentence.length(); i++) {
+      char c = sentence.charAt(i);
+      if (TurkishAlphabet.INSTANCE.isTurkishSpecific(c)) {
+        turkishSpecCount++;
+        letterCount++;
+      } else if (Character.isLetter(c)) {
+        letterCount++;
+      }
+    }
+    return letterCount > 0 && (turkishSpecCount * 1.0 / letterCount) <= 0.1;
+  }
 
 }

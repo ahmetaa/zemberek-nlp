@@ -7,11 +7,9 @@ Turkish Text Normalization
     + [Limitations](#limitations)
   * [Turkish Deasciifier (`LatticeDeasciifier`)](#turkish-deasciifier-latticedeasciifier)
   * [Noisy Text Normalization](#noisy-text-normalization)
-    + [Usage (`SpanLatticePerceptronNormalizer` — Recommended)](#usage-spanlatticeperceptronnormalizer--recommended)
     + [Usage (`TurkishSentenceNormalizer`)](#usage-turkishsentencenormalizer)
-    + [Method](#method)
     + [Speed](#speed)
-    + [Issues](#issues)
+    + [Limitations](#limitations-1)
 
 ## Turkish Spell Checker
 
@@ -124,103 +122,55 @@ Some NLP tasks need normalization as a pre-processing step before applying downs
 - Chat, messaging or bot applications
 - Mobile phone keyboards with no or poor spell correction
 
-### Usage (`SpanLatticePerceptronNormalizer` — Recommended)
-
-As of `0.19.0`, all default normalization and language models (`knowledge.bin.gz`, `perceptron.bin.gz`, and `lm.2gram.slm.gz`) are bundled inside `zemberek-normalization` — no external files need to be downloaded.
-
-`SpanLatticePerceptronNormalizer` is a joint Semi-Markov Averaged Perceptron normalizer operating over a multi-span candidate DAG (`1:1` rewrites, `1:2` clitic/compound splits, and `2:1`/`3:1` merges) while preserving casing and punctuation:
-
-```java
-TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
-SpanLatticePerceptronNormalizer normalizer =
-    SpanLatticePerceptronNormalizer.createWithDefaults(morphology);
-
-System.out.println(normalizer.normalize("Slm bugun geliyomusun?"));
-// Output: Selam bugün geliyor musun?
-```
-
 ### Usage (`TurkishSentenceNormalizer`)
 
-`TurkishSentenceNormalizer` can also be initialized directly using the bundled default models:
+All default normalization and language models (`knowledge.bin.gz`, `perceptron.bin.gz`, and `lm.2gram.slm.gz`) are bundled inside `zemberek-normalization` — no external files need to be downloaded.
+
+`TurkishSentenceNormalizer` is backed by `SpanLatticePerceptronNormalizer`, a joint Semi-Markov Averaged Perceptron normalizer operating over a multi-span candidate DAG (`1:1` rewrites, `1:2` clitic/compound splits, and `2:1`/`3:1` merges) while preserving casing and punctuation:
 
 ```java
 TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 TurkishSentenceNormalizer normalizer =
     TurkishSentenceNormalizer.createWithDefaults(morphology);
 
-System.out.println(normalizer.normalize("Yrn okua gidicem"));
-// Output: yarın okula gideceğim
+System.out.println(normalizer.normalize("Slm bugun geliyomusun?"));
+// Output: Selam bugün geliyor musun?
 ```
 
-If you want to use custom lookup directories and an external language model file instead of the bundled resources:
+If you want to load custom external model files (`knowledge.bin(.gz)`, `perceptron.bin(.gz)`, and `lm.2gram.slm`) instead of the bundled resources:
 
 ```java
-Path lookupRoot = Paths.get("/home/aaa/zemberek-data/normalization");
-Path lmFile = Paths.get("/home/aaa/zemberek-data/lm/lm.2gram.slm");
+Path modelDir = Paths.get("/path/to/v2-models");
+Path lmFile = Paths.get("/path/to/lm.2gram.slm");
 TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 TurkishSentenceNormalizer normalizer =
-    new TurkishSentenceNormalizer(morphology, lookupRoot, lmFile);
+    TurkishSentenceNormalizer.fromDirectory(morphology, modelDir, lmFile);
 ```
+
+`SpanLatticePerceptronNormalizer` can also be used directly when you need access to the underlying lattice and arc scores (`SpanLatticePerceptronNormalizer.createWithDefaults(morphology)`).
 
 Results for the example sentences above:
 
-    Yrn okua gidicem
-    yarın okula gideceğim
-    
     Tmm, yarin havuza giricem ve aksama kadar yaticam :)
-    tamam , yarın havuza gireceğim ve akşama kadar yatacağım :)
-    
-    ah aynen ya annemde fark ettı siz evinizden cıkmayın diyo
+    Tamam, yarın havuza gireceğim ve akşama kadar yatacağım :)
+
+    ah aynen ya annemde fark etti siz evinizden çıkmayın diyo
     ah aynen ya annemde fark etti siz evinizden çıkmayın diyor
-    
+
     gercek mı bu? Yuh! Artık unutulması bile beklenmiyo
-    gerçek mi bu ? yuh ! artık unutulması bile beklenmiyor
-    
-    Hayır hayat telaşm olmasa alacam buraları gökdelen dikicem.
-    hayır hayat telaşı olmasa alacağım buraları gökdelen dikeceğim .
-    
+    gerçek mi bu? Yuh! Artık unutulması bile beklenmiyor
+
     yok hocam kesınlıkle oyle birşey yok
     yok hocam kesinlikle öyle bir şey yok
-    
-    herseyi soyle hayatında olmaması gerek bence boyle ınsanların falan baskı yapıyosa
-    herşeyi söyle hayatında olmaması gerek bence böyle insanların falan baskı yapıyorsa
-
-As it is seen, some words were not corrected and output is all lower case.
-We are aware of the sources of some of the problems. 
-Normalization hopefully work better in later releases. 
-
-### Method
-
-Zemberek uses several heuristics, lookup tables and language models for text normalization.
-Some of the work:
-- From clean and noisy corpora, vocabularies are created using morphological analysis.
-- With some heuristics and language models, words that should be split to two are found.
-- From corpora, correct, incorrect and possibly-incorrect sets are created.
-- For pre-processing, deasciifier, split and combine heuristics are applied. 
-- Using those sets and large corpora, a noisy to clean word lookup is 
-  generated using a modified version of Hassan and Menezes 2013 work [1]. 
-- For a sentence, for every noisy word, candidates are collected from lookup tables, 
-informal and ascii-matching morphological analysis and spell checker.
-- Most likely correct sequence is found running Viterbi algorithm on candidate words with language model scoring.
-
-[1] Hany Hassan and Arul Menezes. 2013. Social text normalization using contextual graph random walks. 
-In Proceedings of the 51st Annual Meeting of the Association for Computational Linguistics, 
-pages 1577–1586.
 
 ### Speed
 
-According to our measurements speed is about 10 thousand tokens/second (with punctuations) using 
-a single core. Later versions may work slower due to additional heuristics.
+Single-threaded throughput is approximately **13,000 tokens/second** with a `2.62 MB` quantized perceptron feature table.
 
-Test System: AMD FX-8320 3.5Ghz 
+### Limitations
 
-### Issues
+Normalization is statistical and context-dependent:
+- It may occasionally alter rare out-of-vocabulary words or domain-specific slang.
+- Severe multi-edit typos outside the candidate lattice may remain uncorrected.
 
-This work is the result of our initial exploration on the subject, expect many errors. 
-Therefore, normalization operation:
-
-- may change correct words,
-- may change formatting and casing or remove punctuations,
-- may not work well for some cases,
-- may generate profanity words
  

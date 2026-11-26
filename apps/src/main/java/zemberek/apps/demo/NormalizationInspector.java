@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import zemberek.normalization.TurkishSentenceNormalizer;
 import zemberek.normalization.v2.NormV2Types;
 import zemberek.normalization.v2.NormV2Types.SentenceLattice;
 import zemberek.normalization.v2.NormV2Types.SpanArc;
@@ -15,22 +14,18 @@ import zemberek.normalization.v2.SpanCandidateGenerator;
 import zemberek.normalization.v2.SpanLatticePerceptronNormalizer;
 
 /**
- * Live normalization and multi-span lattice inspector for {@link SpanLatticePerceptronNormalizer}
- * ({@code v2.4}) alongside {@code Zemberek HEAD} ({@link TurkishSentenceNormalizer}).
+ * Live normalization and multi-span lattice inspector for {@link SpanLatticePerceptronNormalizer}.
  */
 public final class NormalizationInspector {
 
   private final SpanLatticePerceptronNormalizer perceptron;
-  private final TurkishSentenceNormalizer zemberekHead;
 
-  public NormalizationInspector(
-      SpanLatticePerceptronNormalizer perceptron, TurkishSentenceNormalizer zemberekHead) {
+  public NormalizationInspector(SpanLatticePerceptronNormalizer perceptron) {
     this.perceptron = perceptron;
-    this.zemberekHead = zemberekHead;
   }
 
   public boolean hasZemberekHead() {
-    return zemberekHead != null;
+    return false;
   }
 
   public record CandidateView(
@@ -98,10 +93,6 @@ public final class NormalizationInspector {
   public NormalizeResponse normalizeAndInspect(
       String rawText, String engineId, boolean includeInspection, boolean compareAll) {
     String text = rawText == null ? "" : rawText.replace("\r\n", "\n").replace('\r', '\n');
-    String eng =
-        "zemberek_head".equalsIgnoreCase(engineId) && zemberekHead != null
-            ? "zemberek_head"
-            : "perceptron";
 
     String[] rawLines = text.split("\n", -1);
     StringBuilder fullOut = new StringBuilder(text.length() + 16);
@@ -114,7 +105,7 @@ public final class NormalizationInspector {
         pureLinePreds[i] = rl;
       } else {
         long t0 = System.nanoTime();
-        pureLinePreds[i] = runSingleEngine(eng, rl);
+        pureLinePreds[i] = perceptron.normalize(rl);
         tInferNs += (System.nanoTime() - t0);
       }
       if (i > 0) {
@@ -127,7 +118,7 @@ public final class NormalizationInspector {
     int totalTokens = 0;
     int totalEdited = 0;
     for (int i = 0; i < rawLines.length; i++) {
-      LineTrace lt = buildLineTrace(i, rawLines[i], pureLinePreds[i], eng, includeInspection);
+      LineTrace lt = buildLineTrace(i, rawLines[i], pureLinePreds[i], includeInspection);
       totalTokens += lt.tokenCount();
       totalEdited += lt.editedSpanCount();
       lineTraces.add(lt);
@@ -136,72 +127,23 @@ public final class NormalizationInspector {
     double inferMs = tInferNs / 1e6;
     String normalizedFull = fullOut.toString();
 
-    List<EngineComparison> comparisons = null;
-    if (compareAll && !text.isBlank()) {
-      comparisons = new ArrayList<>(2);
-      comparisons.add(
-          "perceptron".equals(eng)
-              ? new EngineComparison("Span-Lattice Perceptron (v2.4)", normalizedFull, inferMs)
-              : runComparison("perceptron", "Span-Lattice Perceptron (v2.4)", rawLines));
-      if (zemberekHead != null) {
-        comparisons.add(
-            "zemberek_head".equals(eng)
-                ? new EngineComparison("Zemberek HEAD", normalizedFull, inferMs)
-                : runComparison("zemberek_head", "Zemberek HEAD", rawLines));
-      }
-    }
+    List<EngineComparison> comparisons =
+        compareAll && !text.isBlank()
+            ? List.of(
+                new EngineComparison("Span-Lattice Perceptron (v2.4)", normalizedFull, inferMs))
+            : null;
 
     return new NormalizeResponse(
         normalizedFull, inferMs, totalTokens, totalEdited, lineTraces, comparisons);
-  }
-
-  private EngineComparison runComparison(String engId, String label, String[] rawLines) {
-    StringBuilder sb = new StringBuilder();
-    long t0 = System.nanoTime();
-    for (int i = 0; i < rawLines.length; i++) {
-      if (i > 0) {
-        sb.append('\n');
-      }
-      String rl = rawLines[i];
-      sb.append(rl.isBlank() ? rl : runSingleEngine(engId, rl));
-    }
-    return new EngineComparison(label, sb.toString(), (System.nanoTime() - t0) / 1e6);
-  }
-
-  private String runSingleEngine(String engineId, String line) {
-    return "zemberek_head".equals(engineId) && zemberekHead != null
-        ? zemberekHead.normalize(line)
-        : perceptron.normalize(line);
   }
 
   private LineTrace buildLineTrace(
       int lineIndex,
       String rawLine,
       String normalizedLine,
-      String engineId,
       boolean includeInspection) {
     if (rawLine.isBlank()) {
       return new LineTrace(lineIndex, normalizedLine, 0, 0, List.of(), List.of());
-    }
-
-    if ("zemberek_head".equals(engineId)) {
-      List<SpanToken> rawToks = NormV2Types.spanTokenize(rawLine);
-      boolean changed = !rawLine.trim().equals(normalizedLine.trim());
-      List<DecodedSpanView> single =
-          List.of(
-              new DecodedSpanView(
-                  0,
-                  rawToks.size(),
-                  rawLine,
-                  normalizedLine,
-                  changed,
-                  changed ? "rewrite" : "keep",
-                  false,
-                  false,
-                  1.0f,
-                  List.of("ZemberekHEAD")));
-      return new LineTrace(
-          lineIndex, normalizedLine, rawToks.size(), changed ? 1 : 0, single, List.of());
     }
 
     SpanCandidateGenerator gen = perceptron.generator();
