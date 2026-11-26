@@ -129,10 +129,6 @@ public class TurkishMorphology {
     if (useCache) {
       cache.invalidateDynamicCache();
     }
-    AmbiguityResolver resolver = this.ambiguityResolver;
-    if (resolver instanceof FastPerceptronAmbiguityResolver fastResolver) {
-      fastResolver.clearCache();
-    }
   }
 
   public RootLexicon getLexicon() {

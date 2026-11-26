@@ -136,13 +136,6 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     return decoder.isGreedy();
   }
 
-  /**
-   * Clears internal candidate and transition score caches to release retained memory.
-   */
-  public void clearCache() {
-    decoder.clearCache();
-  }
-
   @Override
   public SentenceAnalysis disambiguate(String sentence, List<WordAnalysis> allAnalyses) {
     if (allAnalyses == null || allAnalyses.isEmpty()) {
@@ -173,33 +166,15 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     private static final int MAX_ID_ENTRIES = 16_384;
     private static final AnalysisTemplate[] L1_CACHE = new AnalysisTemplate[L1_SIZE];
 
-    private static final class GroupEntry {
-      final String ig;
-      final String igDash;
-      final String[] singleArray;
-      final int id;
-
+    private record GroupEntry(String ig, String igDash, String[] singleArray, int id) {
       GroupEntry(String ig, int id) {
-        this.ig = ig;
-        this.igDash = ig + "-";
-        this.singleArray = new String[]{ig};
-        this.id = id;
-      }
-    }
-
-    private static final class RigEntry {
-      final String rIg;
-      final int id;
-
-      RigEntry(String rIg, int id) {
-        this.rIg = rIg;
-        this.id = id;
+        this(ig, ig + "-", new String[]{ig}, id);
       }
     }
 
     private static final ConcurrentHashMap<String, GroupEntry> GROUP_ENTRIES = new ConcurrentHashMap<>(4_096);
-    private static final ConcurrentHashMap<String, Integer> MULTI_IG_IDS = new ConcurrentHashMap<>(4_096);
-    private static final ConcurrentHashMap<String, RigEntry> RIG_ENTRIES = new ConcurrentHashMap<>(16_384);
+    private static final ConcurrentHashMap<String, Integer> IG_JOINED_IDS = new ConcurrentHashMap<>(4_096);
+    private static final ConcurrentHashMap<String, Integer> RIG_IDS = new ConcurrentHashMap<>(16_384);
 
     private static final AtomicInteger NEXT_GROUP_ID = new AtomicInteger(1);
     private static final AtomicInteger NEXT_RIG_ID = new AtomicInteger(1);
@@ -230,14 +205,14 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       return new GroupEntry(ig, (ig.hashCode() & 0x0FFFFF) | 0x100000);
     }
 
-    private static int assignMultiIgId(String key) {
-      Integer existing = MULTI_IG_IDS.get(key);
+    private static int assignId(ConcurrentHashMap<String, Integer> map, AtomicInteger counter, String key) {
+      Integer existing = map.get(key);
       if (existing != null) {
         return existing;
       }
-      if (MULTI_IG_IDS.size() < MAX_ID_ENTRIES) {
-        int created = NEXT_GROUP_ID.getAndIncrement();
-        Integer prev = MULTI_IG_IDS.putIfAbsent(key, created);
+      if (map.size() < MAX_ID_ENTRIES) {
+        int created = counter.getAndIncrement();
+        Integer prev = map.putIfAbsent(key, created);
         return prev != null ? prev : created;
       }
       return (key.hashCode() & 0x0FFFFF) | 0x100000;
@@ -259,30 +234,21 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     final int rIgId;
     final int biStateId;
 
-    AnalysisTemplate(SingleAnalysis sa) {
+    private AnalysisTemplate(SingleAnalysis sa) {
       this.sa = sa;
       String igJoined;
       String surface;
       boolean isSpecial;
-      if (sa == sentenceBegin) {
-        this.lemma = "<s>";
-        GroupEntry g = internGroup("<s>");
+      if (sa == sentenceBegin || sa == sentenceEnd) {
+        String tok = (sa == sentenceBegin) ? "<s>" : "</s>";
+        GroupEntry g = internGroup(tok);
+        this.lemma = tok;
         this.igsArray = g.singleArray;
         igJoined = g.ig;
-        this.igJoinedId = g.id;
+        this.rIg = tok + "+" + tok;
         this.lastGroupDash = g.igDash;
         this.lastGroupId = g.id;
-        surface = "<s>";
-        isSpecial = true;
-      } else if (sa == sentenceEnd) {
-        this.lemma = "</s>";
-        GroupEntry g = internGroup("</s>");
-        this.igsArray = g.singleArray;
-        igJoined = g.ig;
-        this.igJoinedId = g.id;
-        this.lastGroupDash = g.igDash;
-        this.lastGroupId = g.id;
-        surface = "</s>";
+        surface = tok;
         isSpecial = true;
       } else {
         String rawLemma = sa.getDictionaryItem().lemma;
@@ -293,59 +259,33 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         int groupCount = sa.groupCount();
         if (groupCount == 1) {
           String s = sa.getGroup(0).lexicalForm();
-          if (!sp.isEmpty()) {
-            s = sp + s;
-          }
-          GroupEntry g = internGroup(s);
+          GroupEntry g = internGroup(sp.isEmpty() ? s : sp + s);
           this.igsArray = g.singleArray;
           igJoined = g.ig;
-          this.igJoinedId = g.id;
           this.lastGroupDash = g.igDash;
           this.lastGroupId = g.id;
-        } else if (groupCount > 1) {
+        } else {
           String[] arr = new String[groupCount];
-          GroupEntry last = null;
+          GroupEntry last = internGroup("");
           for (int i = 0; i < groupCount; i++) {
             String s = sa.getGroup(i).lexicalForm();
-            if (i == 0 && !sp.isEmpty()) {
-              s = sp + s;
-            }
-            last = internGroup(s);
+            last = internGroup(i == 0 && !sp.isEmpty() ? sp + s : s);
             arr[i] = last.ig;
           }
           this.igsArray = arr;
-          igJoined = String.join("+", arr);
-          this.igJoinedId = assignMultiIgId(igJoined);
+          igJoined = groupCount == 0 ? "" : String.join("+", arr);
           this.lastGroupDash = last.igDash;
           this.lastGroupId = last.id;
-        } else {
-          GroupEntry empty = internGroup("");
-          this.igsArray = new String[0];
-          igJoined = "";
-          this.igJoinedId = empty.id;
-          this.lastGroupDash = empty.igDash;
-          this.lastGroupId = empty.id;
         }
+        this.rIg = this.lemma + "+" + igJoined;
         surface = sa.surfaceForm();
         isSpecial = (surface != null && surface.startsWith("<"));
       }
 
-      String rawRig = (sa == sentenceBegin)
-          ? "<s>+<s>"
-          : (sa == sentenceEnd ? "</s>+</s>" : this.lemma + "+" + igJoined);
-      RigEntry rigEntry = RIG_ENTRIES.get(rawRig);
-      if (rigEntry == null && RIG_ENTRIES.size() < MAX_ID_ENTRIES) {
-        RigEntry created = new RigEntry(rawRig, NEXT_RIG_ID.getAndIncrement());
-        RigEntry prev = RIG_ENTRIES.putIfAbsent(rawRig, created);
-        rigEntry = prev != null ? prev : created;
-      }
-      if (rigEntry != null) {
-        this.rIg = rigEntry.rIg;
-        this.rIgId = rigEntry.id;
-      } else {
-        this.rIg = rawRig;
-        this.rIgId = (rawRig.hashCode() & 0x0FFFFF) | 0x100000;
-      }
+      this.igJoinedId = (this.igsArray.length == 1)
+          ? this.lastGroupId
+          : assignId(IG_JOINED_IDS, NEXT_GROUP_ID, igJoined);
+      this.rIgId = assignId(RIG_IDS, NEXT_RIG_ID, this.rIg);
 
       boolean isProperNoun = (!isSpecial
           && sa.getDictionaryItem() != null
@@ -669,17 +609,6 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       DecoderCache(int homeSlot) {
         this.homeSlot = homeSlot;
       }
-
-      void clear() {
-        Arrays.fill(biKeys, 0L);
-        Arrays.fill(biVals, 0f);
-        Arrays.fill(f2Keys, 0L);
-        Arrays.fill(f2Vals, 0f);
-        Arrays.fill(f15Keys, 0L);
-        Arrays.fill(f15Vals, 0f);
-        Arrays.fill(f17Keys, 0L);
-        Arrays.fill(f17Vals, 0f);
-      }
     }
 
     public final WeightLookup model;
@@ -729,17 +658,6 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
     public FastDecoder(WeightLookup model) {
       this(model, new FastFeatureExtractor(false));
-    }
-
-    public void clearCache() {
-      if (immutableModel) {
-        Arrays.fill(l1Scored, null);
-        mainCache.clear();
-        allocatedCaches.set(0);
-        for (int i = 0; i < CACHE_POOL_SIZE; i++) {
-          cachePool.set(i, null);
-        }
-      }
     }
 
     private DecoderCache acquireCache() {
@@ -1408,6 +1326,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     final int prevIdx;
     final int currIdx;
     public float score;
+    private int hash;
 
     public FastHypothesis(
         CandidateContext prevCtx,
@@ -1448,7 +1367,12 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
     @Override
     public int hashCode() {
-      return 31 * this.prev.hashCode() + this.current.hashCode();
+      int h = this.hash;
+      if (h == 0) {
+        h = 31 * this.prev.hashCode() + this.current.hashCode();
+        this.hash = h;
+      }
+      return h;
     }
 
     @Override
