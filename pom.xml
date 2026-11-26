@@ -108,7 +108,6 @@
             <include>tr/proper.dict</include>
             <include>tr/proper-from-corpus.dict</include>
             <include>tr/abbreviations.dict</include>
-            <include>tr/ambiguity/model</include>
           </excludes>
         </configuration>
       </plugin>
