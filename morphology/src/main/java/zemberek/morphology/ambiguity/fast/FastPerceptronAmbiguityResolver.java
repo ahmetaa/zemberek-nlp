@@ -549,6 +549,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     public final float c10bScore;
     public final float c10cScore;
     public final int index;
+    final int lastGroupId;
+    final int igJoinedId;
+    final int rIgId;
+    final int biStateId;
     final CandidateContext initialVariant;
 
     public CandidateContext(SingleAnalysis sa, WeightLookup model, boolean isSentenceInitial, int index) {
@@ -622,6 +626,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       this.uniScore = uniScore;
       this.c10bScore = c10bScore;
       this.c10cScore = c10cScore;
+      this.lastGroupId = t.lastGroupId;
+      this.igJoinedId = t.igJoinedId;
+      this.rIgId = t.rIgId;
+      this.biStateId = t.biStateId;
       this.initialVariant = initialVariant != null ? initialVariant : this;
     }
   }
@@ -633,7 +641,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     private static final int L1_SCORED_SIZE = 1 << L1_SCORED_BITS;
     private static final int L1_SCORED_MASK = L1_SCORED_SIZE - 4;
     private static final int L1_SCORED_SHIFT = 64 - L1_SCORED_BITS;
-    // Bounded pool of 3 MB primitive transition caches (avoids unbounded ThreadLocal growth on large pools / virtual threads).
+    // Bounded pool of 3 MB primitive transition caches for worker/virtual threads (ownerThread uses mainCache with zero CAS).
     private static final int CACHE_POOL_SIZE = 8;
     private static final int CACHE_POOL_MASK = CACHE_POOL_SIZE - 1;
     private static final int TRANSITION_CACHE_BITS = 16;
@@ -661,6 +669,17 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       DecoderCache(int homeSlot) {
         this.homeSlot = homeSlot;
       }
+
+      void clear() {
+        Arrays.fill(biKeys, 0L);
+        Arrays.fill(biVals, 0f);
+        Arrays.fill(f2Keys, 0L);
+        Arrays.fill(f2Vals, 0f);
+        Arrays.fill(f15Keys, 0L);
+        Arrays.fill(f15Vals, 0f);
+        Arrays.fill(f17Keys, 0L);
+        Arrays.fill(f17Vals, 0f);
+      }
     }
 
     public final WeightLookup model;
@@ -669,6 +688,8 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     private final float properWeight;
     private final float lowerProperWeight;
     private final float endsVerbWeight;
+    private final Thread ownerThread;
+    private final DecoderCache mainCache;
     private final CandidateContext[] l1Scored;
     private final AtomicReferenceArray<DecoderCache> cachePool;
     private final AtomicInteger allocatedCaches;
@@ -686,15 +707,17 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         this.properWeight = model.get("P:PROPER");
         this.lowerProperWeight = model.get("P:LOWER_PROPER");
         this.endsVerbWeight = model.get("P:ENDSVERB");
+        this.ownerThread = Thread.currentThread();
+        this.mainCache = new DecoderCache(-1);
         this.l1Scored = new CandidateContext[L1_SCORED_SIZE];
         this.cachePool = new AtomicReferenceArray<>(CACHE_POOL_SIZE);
-        int initSlot = ((int) Thread.currentThread().threadId()) & CACHE_POOL_MASK;
-        this.cachePool.set(initSlot, new DecoderCache(initSlot));
-        this.allocatedCaches = new AtomicInteger(1);
+        this.allocatedCaches = new AtomicInteger(0);
       } else {
         this.properWeight = 0f;
         this.lowerProperWeight = 0f;
         this.endsVerbWeight = 0f;
+        this.ownerThread = null;
+        this.mainCache = null;
         this.l1Scored = null;
         this.cachePool = null;
         this.allocatedCaches = null;
@@ -711,6 +734,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     public void clearCache() {
       if (immutableModel) {
         Arrays.fill(l1Scored, null);
+        mainCache.clear();
         allocatedCaches.set(0);
         for (int i = 0; i < CACHE_POOL_SIZE; i++) {
           cachePool.set(i, null);
@@ -722,7 +746,11 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       if (!immutableModel) {
         return null;
       }
-      int pref = ((int) Thread.currentThread().threadId()) & CACHE_POOL_MASK;
+      Thread current = Thread.currentThread();
+      if (current == ownerThread) {
+        return mainCache;
+      }
+      int pref = ((int) current.threadId()) & CACHE_POOL_MASK;
       DecoderCache c = cachePool.getAndSet(pref, null);
       if (c != null) {
         return c;
@@ -733,15 +761,15 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
           return c;
         }
       }
-      if (allocatedCaches.get() < CACHE_POOL_SIZE
-          && allocatedCaches.getAndIncrement() < CACHE_POOL_SIZE) {
+      if (allocatedCaches.get() < CACHE_POOL_SIZE - 1
+          && allocatedCaches.getAndIncrement() < CACHE_POOL_SIZE - 1) {
         return new DecoderCache(pref);
       }
       return null;
     }
 
     private void releaseCache(DecoderCache c) {
-      if (c == null) {
+      if (c == null || c == mainCache) {
         return;
       }
       if (cachePool.compareAndSet(c.homeSlot, null, c)) {
@@ -771,10 +799,15 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         }
         CandidateContext sc2 = table[base + 2];
         if (sc2 != null && (sc2.sa == sa || sc2.sa.equals(sa))) {
+          table[base + 2] = sc0;
+          table[base] = sc2;
           return isSentenceInitial ? sc2.initialVariant : sc2;
         }
         CandidateContext sc3 = table[base + 3];
         if (sc3 != null && (sc3.sa == sa || sc3.sa.equals(sa))) {
+          table[base + 3] = sc1;
+          table[base + 1] = sc0;
+          table[base] = sc3;
           return isSentenceInitial ? sc3.initialVariant : sc3;
         }
         CandidateContext loaded = CandidateContext.createCached(
@@ -793,7 +826,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     }
 
     private float getCachedF17(DecoderCache cache, CandidateContext w2, CandidateContext w3) {
-      long key = (((long) w2.t.lastGroupId) << 32) | (w3.t.igJoinedId & 0xFFFFFFFFL);
+      long key = (((long) w2.lastGroupId) << 32) | (w3.igJoinedId & 0xFFFFFFFFL);
       long[] keys = cache.f17Keys;
       float[] vals = cache.f17Vals;
       int slot = mixSlot(key);
@@ -821,7 +854,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       if (cache == null) {
         return computeBigramScore(w2, w3);
       }
-      long key = (((long) w2.t.biStateId) << 32) | (w3.t.biStateId & 0xFFFFFFFFL);
+      long key = (((long) w2.biStateId) << 32) | (w3.biStateId & 0xFFFFFFFFL);
       long[] keys = cache.biKeys;
       float[] vals = cache.biVals;
       int slot = mixSlot(key);
@@ -850,7 +883,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       if (cache == null) {
         return model.get("2:", w1.t.rIg, "-", w3.t.rIg) + w1.c10cScore;
       }
-      long key = (((long) w1.t.rIgId) << 32) | (w3.t.rIgId & 0xFFFFFFFFL);
+      long key = (((long) w1.rIgId) << 32) | (w3.rIgId & 0xFFFFFFFFL);
       long[] keys = cache.f2Keys;
       float[] vals = cache.f2Vals;
       int slot = mixSlot(key);
@@ -874,7 +907,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         CandidateContext w1,
         CandidateContext w2,
         CandidateContext w3) {
-      if (cache == null || ((w1.t.lastGroupId | w2.t.lastGroupId | w3.t.igJoinedId) >>> 21) != 0) {
+      if (cache == null || ((w1.lastGroupId | w2.lastGroupId | w3.igJoinedId) >>> 21) != 0) {
         float score = 0f;
         String d1 = w1.t.lastGroupDash;
         String d2 = w2.t.lastGroupDash;
@@ -884,9 +917,9 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         }
         return score;
       }
-      long key = (((long) w1.t.lastGroupId) << 42)
-          | (((long) w2.t.lastGroupId) << 21)
-          | (w3.t.igJoinedId & 0x1FFFFFL);
+      long key = (((long) w1.lastGroupId) << 42)
+          | (((long) w2.lastGroupId) << 21)
+          | (w3.igJoinedId & 0x1FFFFFL);
       long[] keys = cache.f15Keys;
       float[] vals = cache.f15Vals;
       int slot = mixSlot(key);
@@ -1115,10 +1148,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         float[][] biScores = new float[P][];
         for (int j = 0; j < P; j++) {
           CandidateContext p = prevCandidates[j];
-          int pBiId = p.t.biStateId;
+          int pBiId = p.biStateId;
           int sameJ = -1;
           for (int j0 = 0; j0 < j; j0++) {
-            if (prevCandidates[j0].t.biStateId == pBiId) {
+            if (prevCandidates[j0].biStateId == pBiId) {
               sameJ = j0;
               break;
             }
@@ -1131,10 +1164,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
           float[] biRow = new float[K];
           for (int k = 0; k < K; k++) {
             CandidateContext cand = candidates[k];
-            int cBiId = cand.t.biStateId;
+            int cBiId = cand.biStateId;
             int sameK = -1;
             for (int k0 = 0; k0 < k; k0++) {
-              if (candidates[k0].t.biStateId == cBiId) {
+              if (candidates[k0].biStateId == cBiId) {
                 sameK = k0;
                 break;
               }
@@ -1148,10 +1181,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         float[][] f2Scores = new float[PP][];
         for (int pp = 0; pp < PP; pp++) {
           CandidateContext prevPrev = prevPrevCandidates[pp];
-          int ppRigId = prevPrev.t.rIgId;
+          int ppRigId = prevPrev.rIgId;
           int samePp = -1;
           for (int pp0 = 0; pp0 < pp; pp0++) {
-            if (prevPrevCandidates[pp0].t.rIgId == ppRigId) {
+            if (prevPrevCandidates[pp0].rIgId == ppRigId) {
               samePp = pp0;
               break;
             }
@@ -1163,10 +1196,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
           float[] row = new float[K];
           for (int k = 0; k < K; k++) {
             CandidateContext cand = candidates[k];
-            int cRigId = cand.t.rIgId;
+            int cRigId = cand.rIgId;
             int sameK = -1;
             for (int k0 = 0; k0 < k; k0++) {
-              if (candidates[k0].t.rIgId == cRigId) {
+              if (candidates[k0].rIgId == cRigId) {
                 sameK = k0;
                 break;
               }
@@ -1249,10 +1282,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         float[] endBiScores = new float[P];
         for (int j = 0; j < P; j++) {
           CandidateContext p = prevCandidates[j];
-          int pBiId = p.t.biStateId;
+          int pBiId = p.biStateId;
           int sameJ = -1;
           for (int j0 = 0; j0 < j; j0++) {
-            if (prevCandidates[j0].t.biStateId == pBiId) {
+            if (prevCandidates[j0].biStateId == pBiId) {
               sameJ = j0;
               break;
             }
@@ -1263,10 +1296,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         float[] endF2Scores = new float[PP];
         for (int pp = 0; pp < PP; pp++) {
           CandidateContext prevPrev = prevPrevCandidates[pp];
-          int ppRigId = prevPrev.t.rIgId;
+          int ppRigId = prevPrev.rIgId;
           int samePp = -1;
           for (int pp0 = 0; pp0 < pp; pp0++) {
-            if (prevPrevCandidates[pp0].t.rIgId == ppRigId) {
+            if (prevPrevCandidates[pp0].rIgId == ppRigId) {
               samePp = pp0;
               break;
             }
