@@ -421,4 +421,49 @@ public class FastPerceptronResolverTest {
 
     Assert.assertEquals(before.bestAnalysis(), after.bestAnalysis());
   }
+
+  @Test
+  public void testConcurrentPlatformAndVirtualThreadParity() throws Exception {
+    TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
+    String[] sentences = {
+        "Türkiye Büyük Millet Meclisi bugün önemli bir karar aldı.",
+        "Küçük çocuk bahçedeki elmaları topladı ve eve koştu.",
+        "Yarın sabah erken kalkıp işe gideceğim.",
+        "Gözlerinden akan yaşları silerek pencereden dışarı baktı."
+    };
+    java.util.List<java.util.List<SingleAnalysis>> expected = new java.util.ArrayList<>();
+    for (String s : sentences) {
+      expected.add(morphology.analyzeAndDisambiguate(s).bestAnalysis());
+    }
+
+    // 16 concurrent platform threads (> CACHE_POOL_SIZE = 8, exercising both pooled & fallback paths)
+    try (var pool = java.util.concurrent.Executors.newFixedThreadPool(16)) {
+      java.util.List<java.util.concurrent.Future<?>> futures = new java.util.ArrayList<>();
+      for (int t = 0; t < 64; t++) {
+        final int idx = t % sentences.length;
+        futures.add(pool.submit(() -> {
+          SentenceAnalysis res = morphology.analyzeAndDisambiguate(sentences[idx]);
+          Assert.assertEquals(expected.get(idx), res.bestAnalysis());
+        }));
+      }
+      for (var f : futures) {
+        f.get();
+      }
+    }
+
+    // Virtual threads exercising zero-ThreadLocal shared cache path
+    try (var vpool = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+      java.util.List<java.util.concurrent.Future<?>> futures = new java.util.ArrayList<>();
+      for (int t = 0; t < 100; t++) {
+        final int idx = t % sentences.length;
+        futures.add(vpool.submit(() -> {
+          SentenceAnalysis res = morphology.analyzeAndDisambiguate(sentences[idx]);
+          Assert.assertEquals(expected.get(idx), res.bestAnalysis());
+        }));
+      }
+      for (var f : futures) {
+        f.get();
+      }
+    }
+  }
 }

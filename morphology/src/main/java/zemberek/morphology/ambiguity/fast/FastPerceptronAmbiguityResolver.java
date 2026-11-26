@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import zemberek.core.collections.IntValueMap;
 import zemberek.core.data.CompressedWeights;
 import zemberek.core.data.WeightLookup;
@@ -240,10 +241,6 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         return prev != null ? prev : created;
       }
       return (key.hashCode() & 0x0FFFFF) | 0x100000;
-    }
-
-    static void clearCache() {
-      Arrays.fill(L1_CACHE, null);
     }
 
     final SingleAnalysis sa;
@@ -630,12 +627,15 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
   }
 
   public static class FastDecoder {
-    // 131,072 reference slots (~512 KB under compressed OOPs), 4-way associative LRU.
+    // Shared across threads: CandidateContext & AnalysisTemplate fields are all final (JLS 17.5 safe publication).
+    // 131,072 reference slots (~512 KB total per resolver, shared across all threads), 4-way associative.
     private static final int L1_SCORED_BITS = 17;
     private static final int L1_SCORED_SIZE = 1 << L1_SCORED_BITS;
     private static final int L1_SCORED_MASK = L1_SCORED_SIZE - 4;
     private static final int L1_SCORED_SHIFT = 64 - L1_SCORED_BITS;
-    // 65,536 slots -> 512 KB long[] and 256 KB float[] arrays (~3 MB total per thread, below G1GC humongous threshold).
+    // Bounded pool of 3 MB primitive transition caches (avoids unbounded ThreadLocal growth on large pools / virtual threads).
+    private static final int CACHE_POOL_SIZE = 8;
+    private static final int CACHE_POOL_MASK = CACHE_POOL_SIZE - 1;
     private static final int TRANSITION_CACHE_BITS = 16;
     private static final int TRANSITION_CACHE_SIZE = 1 << TRANSITION_CACHE_BITS;
     private static final int TRANSITION_CACHE_MASK = TRANSITION_CACHE_SIZE - 1;
@@ -648,7 +648,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     }
 
     private static final class DecoderCache {
-      final CandidateContext[] l1Scored = new CandidateContext[L1_SCORED_SIZE];
+      final int homeSlot;
       final long[] biKeys = new long[TRANSITION_CACHE_SIZE];
       final float[] biVals = new float[TRANSITION_CACHE_SIZE];
       final long[] f2Keys = new long[TRANSITION_CACHE_SIZE];
@@ -658,16 +658,8 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       final long[] f17Keys = new long[TRANSITION_CACHE_SIZE];
       final float[] f17Vals = new float[TRANSITION_CACHE_SIZE];
 
-      void clear() {
-        Arrays.fill(l1Scored, null);
-        Arrays.fill(biKeys, 0L);
-        Arrays.fill(biVals, 0f);
-        Arrays.fill(f2Keys, 0L);
-        Arrays.fill(f2Vals, 0f);
-        Arrays.fill(f15Keys, 0L);
-        Arrays.fill(f15Vals, 0f);
-        Arrays.fill(f17Keys, 0L);
-        Arrays.fill(f17Vals, 0f);
+      DecoderCache(int homeSlot) {
+        this.homeSlot = homeSlot;
       }
     }
 
@@ -677,9 +669,9 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
     private final float properWeight;
     private final float lowerProperWeight;
     private final float endsVerbWeight;
-    private final Thread ownerThread;
-    private final DecoderCache mainCache;
-    private volatile ThreadLocal<DecoderCache> localCache;
+    private final CandidateContext[] l1Scored;
+    private final AtomicReferenceArray<DecoderCache> cachePool;
+    private final AtomicInteger allocatedCaches;
     private final CandidateContext beginContext;
     private final CandidateContext endContext;
     private final CandidateContext[] beginCandidates;
@@ -694,16 +686,18 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         this.properWeight = model.get("P:PROPER");
         this.lowerProperWeight = model.get("P:LOWER_PROPER");
         this.endsVerbWeight = model.get("P:ENDSVERB");
-        this.ownerThread = Thread.currentThread();
-        this.mainCache = new DecoderCache();
-        this.localCache = ThreadLocal.withInitial(DecoderCache::new);
+        this.l1Scored = new CandidateContext[L1_SCORED_SIZE];
+        this.cachePool = new AtomicReferenceArray<>(CACHE_POOL_SIZE);
+        int initSlot = ((int) Thread.currentThread().threadId()) & CACHE_POOL_MASK;
+        this.cachePool.set(initSlot, new DecoderCache(initSlot));
+        this.allocatedCaches = new AtomicInteger(1);
       } else {
         this.properWeight = 0f;
         this.lowerProperWeight = 0f;
         this.endsVerbWeight = 0f;
-        this.ownerThread = null;
-        this.mainCache = null;
-        this.localCache = null;
+        this.l1Scored = null;
+        this.cachePool = null;
+        this.allocatedCaches = null;
       }
       this.beginContext = new CandidateContext(AnalysisTemplate.BEGIN_TEMPLATE, model, false, 0);
       this.endContext = new CandidateContext(AnalysisTemplate.END_TEMPLATE, model, false, 0);
@@ -716,26 +710,56 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
 
     public void clearCache() {
       if (immutableModel) {
-        mainCache.clear();
-        localCache = ThreadLocal.withInitial(DecoderCache::new);
+        Arrays.fill(l1Scored, null);
+        allocatedCaches.set(0);
+        for (int i = 0; i < CACHE_POOL_SIZE; i++) {
+          cachePool.set(i, null);
+        }
       }
-      AnalysisTemplate.clearCache();
     }
 
-    private DecoderCache currentCache() {
+    private DecoderCache acquireCache() {
       if (!immutableModel) {
         return null;
       }
-      return (Thread.currentThread() == ownerThread) ? mainCache : localCache.get();
+      int pref = ((int) Thread.currentThread().threadId()) & CACHE_POOL_MASK;
+      DecoderCache c = cachePool.getAndSet(pref, null);
+      if (c != null) {
+        return c;
+      }
+      for (int i = 1; i < CACHE_POOL_SIZE; i++) {
+        c = cachePool.getAndSet((pref + i) & CACHE_POOL_MASK, null);
+        if (c != null) {
+          return c;
+        }
+      }
+      if (allocatedCaches.get() < CACHE_POOL_SIZE
+          && allocatedCaches.getAndIncrement() < CACHE_POOL_SIZE) {
+        return new DecoderCache(pref);
+      }
+      return null;
+    }
+
+    private void releaseCache(DecoderCache c) {
+      if (c == null) {
+        return;
+      }
+      if (cachePool.compareAndSet(c.homeSlot, null, c)) {
+        return;
+      }
+      for (int i = 1; i < CACHE_POOL_SIZE; i++) {
+        if (cachePool.compareAndSet((c.homeSlot + i) & CACHE_POOL_MASK, null, c)) {
+          return;
+        }
+      }
     }
 
     private CandidateContext getCandidateContext(
-        DecoderCache cache,
         SingleAnalysis sa,
         boolean isSentenceInitial,
         int index) {
-      if (cache != null) {
-        CandidateContext[] table = cache.l1Scored;
+      CandidateContext[] table = this.l1Scored;
+      if (table != null) {
         int base = (int) ((sa.hashCode() * 0x9E3779B97F4A7C15L) >>> L1_SCORED_SHIFT) & L1_SCORED_MASK;
         CandidateContext sc0 = table[base];
         if (sc0 != null && (sc0.sa == sa || sc0.sa.equals(sa))) {
@@ -743,23 +767,14 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         }
         CandidateContext sc1 = table[base + 1];
         if (sc1 != null && (sc1.sa == sa || sc1.sa.equals(sa))) {
-          table[base + 1] = sc0;
-          table[base] = sc1;
           return isSentenceInitial ? sc1.initialVariant : sc1;
         }
         CandidateContext sc2 = table[base + 2];
         if (sc2 != null && (sc2.sa == sa || sc2.sa.equals(sa))) {
-          table[base + 2] = sc1;
-          table[base + 1] = sc0;
-          table[base] = sc2;
           return isSentenceInitial ? sc2.initialVariant : sc2;
         }
         CandidateContext sc3 = table[base + 3];
         if (sc3 != null && (sc3.sa == sa || sc3.sa.equals(sa))) {
-          table[base + 3] = sc2;
-          table[base + 2] = sc1;
-          table[base + 1] = sc0;
-          table[base] = sc3;
           return isSentenceInitial ? sc3.initialVariant : sc3;
         }
         CandidateContext loaded = CandidateContext.createCached(
@@ -996,33 +1011,34 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         throw new IllegalArgumentException("bestPath cannot be called with empty sentence.");
       }
 
-      final DecoderCache cache = currentCache();
-      FastHypothesis[] currentList = new FastHypothesis[]{
-          new FastHypothesis(beginContext, beginContext, null, 0f)
-      };
-      int currentSize = 1;
+      final DecoderCache cache = acquireCache();
+      try {
+        FastHypothesis[] currentList = new FastHypothesis[]{
+            new FastHypothesis(beginContext, beginContext, null, 0f)
+        };
+        int currentSize = 1;
 
-      CandidateContext[] prevPrevCandidates = beginCandidates;
-      CandidateContext[] prevCandidates = beginCandidates;
-      boolean isBeam = (mode == DecodeMode.BEAM && beamSize > 0);
+        CandidateContext[] prevPrevCandidates = beginCandidates;
+        CandidateContext[] prevCandidates = beginCandidates;
+        boolean isBeam = (mode == DecodeMode.BEAM && beamSize > 0);
 
-      for (int wordIdx = 0; wordIdx < sentenceSize; wordIdx++) {
-        WordAnalysis analysisData = sentence.get(wordIdx);
-        List<SingleAnalysis> analyses = analysisData.getAnalysisResults();
-        int K = analyses.size();
-        boolean isSentenceInitial = (wordIdx == 0);
-        CandidateContext[] candidates;
-        if (K == 0) {
-          K = 1;
-          candidates = new CandidateContext[]{
-              getCandidateContext(cache, SingleAnalysis.unknown(analysisData.getInput()), isSentenceInitial, 0)
-          };
-        } else {
-          candidates = new CandidateContext[K];
-          for (int i = 0; i < K; i++) {
-            candidates[i] = getCandidateContext(cache, analyses.get(i), isSentenceInitial, i);
+        for (int wordIdx = 0; wordIdx < sentenceSize; wordIdx++) {
+          WordAnalysis analysisData = sentence.get(wordIdx);
+          List<SingleAnalysis> analyses = analysisData.getAnalysisResults();
+          int K = analyses.size();
+          boolean isSentenceInitial = (wordIdx == 0);
+          CandidateContext[] candidates;
+          if (K == 0) {
+            K = 1;
+            candidates = new CandidateContext[]{
+                getCandidateContext(SingleAnalysis.unknown(analysisData.getInput()), isSentenceInitial, 0)
+            };
+          } else {
+            candidates = new CandidateContext[K];
+            for (int i = 0; i < K; i++) {
+              candidates[i] = getCandidateContext(analyses.get(i), isSentenceInitial, i);
+            }
           }
-        }
 
         // Fast path when there is only 1 active parent hypothesis (always true at wordIdx == 0
         // and immediately after any pair of unambiguous tokens)
@@ -1279,6 +1295,9 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       }
 
       return new FastDecodeResult(Arrays.asList(parsed), bestScore);
+      } finally {
+        releaseCache(cache);
+      }
     }
 
     public FastDecodeResult bestPathGreedy(List<WordAnalysis> sentence) {
@@ -1286,50 +1305,54 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
         throw new IllegalArgumentException("bestPath cannot be called with empty sentence.");
       }
 
-      final DecoderCache cache = currentCache();
-      CandidateContext prevPrev = beginContext;
-      CandidateContext prev = beginContext;
-      float totalScore = 0;
-      List<SingleAnalysis> result = new ArrayList<>(sentence.size());
+      final DecoderCache cache = acquireCache();
+      try {
+        CandidateContext prevPrev = beginContext;
+        CandidateContext prev = beginContext;
+        float totalScore = 0;
+        List<SingleAnalysis> result = new ArrayList<>(sentence.size());
 
-      for (int wordIdx = 0; wordIdx < sentence.size(); wordIdx++) {
-        WordAnalysis analysisData = sentence.get(wordIdx);
-        List<SingleAnalysis> analyses = analysisData.getAnalysisResults();
-        if (analyses.isEmpty()) {
-          analyses = Collections.singletonList(SingleAnalysis.unknown(analysisData.getInput()));
-        }
-
-        boolean isSentenceInitial = (wordIdx == 0);
-        CandidateContext bestCandidate = null;
-        float bestStepScore = -Float.MAX_VALUE;
-
-        for (int i = 0; i < analyses.size(); i++) {
-          SingleAnalysis sa = analyses.get(i);
-          CandidateContext cand = getCandidateContext(cache, sa, isSentenceInitial, i);
-          float stepScore = cand.uniScore
-              + getCachedBigram(cache, prev, cand)
-              + getCachedF2(cache, prevPrev, cand)
-              + getCachedF15(cache, prevPrev, prev, cand);
-          if (stepScore > bestStepScore || bestCandidate == null) {
-            bestStepScore = stepScore;
-            bestCandidate = cand;
+        for (int wordIdx = 0; wordIdx < sentence.size(); wordIdx++) {
+          WordAnalysis analysisData = sentence.get(wordIdx);
+          List<SingleAnalysis> analyses = analysisData.getAnalysisResults();
+          if (analyses.isEmpty()) {
+            analyses = Collections.singletonList(SingleAnalysis.unknown(analysisData.getInput()));
           }
+
+          boolean isSentenceInitial = (wordIdx == 0);
+          CandidateContext bestCandidate = null;
+          float bestStepScore = -Float.MAX_VALUE;
+
+          for (int i = 0; i < analyses.size(); i++) {
+            SingleAnalysis sa = analyses.get(i);
+            CandidateContext cand = getCandidateContext(sa, isSentenceInitial, i);
+            float stepScore = cand.uniScore
+                + getCachedBigram(cache, prev, cand)
+                + getCachedF2(cache, prevPrev, cand)
+                + getCachedF15(cache, prevPrev, prev, cand);
+            if (stepScore > bestStepScore || bestCandidate == null) {
+              bestStepScore = stepScore;
+              bestCandidate = cand;
+            }
+          }
+
+          totalScore += bestStepScore;
+          result.add(bestCandidate.sa);
+          prevPrev = prev;
+          prev = bestCandidate;
         }
 
-        totalScore += bestStepScore;
-        result.add(bestCandidate.sa);
-        prevPrev = prev;
-        prev = bestCandidate;
+        // Sentence end scoring
+        float endStepScore = endContext.uniScore
+            + getCachedBigram(cache, prev, endContext)
+            + getCachedF2(cache, prevPrev, endContext)
+            + getCachedF15(cache, prevPrev, prev, endContext);
+        totalScore += endStepScore;
+
+        return new FastDecodeResult(result, totalScore);
+      } finally {
+        releaseCache(cache);
       }
-
-      // Sentence end scoring
-      float endStepScore = endContext.uniScore
-          + getCachedBigram(cache, prev, endContext)
-          + getCachedF2(cache, prevPrev, endContext)
-          + getCachedF15(cache, prevPrev, prev, endContext);
-      totalScore += endStepScore;
-
-      return new FastDecodeResult(result, totalScore);
     }
   }
 
