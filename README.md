@@ -5,7 +5,7 @@ Zemberek-NLP
 
 Zemberek-NLP provides Natural Language Processing tools for Turkish.
 
-Latest version is 0.20.0. [Change Log](CHANGELOG.md)
+Latest version is 0.20.1. [Change Log](CHANGELOG.md)
 
 Please read the [FAQ](https://github.com/ahmetaa/zemberek-nlp/wiki/FAQ) for common questions.
 
@@ -54,7 +54,7 @@ And dependencies (For example morphology):
         <dependency>
             <groupId>zemberek-nlp</groupId>
             <artifactId>zemberek-morphology</artifactId>
-            <version>0.20.0</version>
+            <version>0.20.1</version>
         </dependency>
     </dependencies>
 ```

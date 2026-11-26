@@ -1,6 +1,24 @@
 CHANGE LOG
 ==========
 
+## 0.20.1
+
+(November 26th 2026)
+
+Zemberek `0.20.1` switches `TurkishSentenceNormalizer` to `SpanLatticePerceptronNormalizer` by default, removes the deprecated legacy normalizer and legacy disambiguator implementations (`-6,026` net lines), and upgrades Guava to patch a deserialization advisory.
+
+### Changes
+
+- **Span-Lattice Normalizer as Default & Legacy Normalizer Removal** ([#409](https://github.com/ahmetaa/zemberek-nlp/pull/409)):
+  - Made `TurkishSentenceNormalizer` a lightweight facade over `SpanLatticePerceptronNormalizer` (zero-setup `TurkishSentenceNormalizer.createWithDefaults(morphology)` and `fromDirectory(morphology, modelDir, lmFile)`).
+  - Removed the legacy lookup-table sentence normalizer, legacy lookup tables (`lookup-from-graph`, `ascii-map`, `split`, `no-split`), and legacy normalizer tests.
+  - Enabled zero-setup normalization out of the box in the gRPC server (`NormalizationServiceImpl`) and streamlined the Web Demo normalization inspector and documentation (`normalization/README.md`, `grpc/README.md`).
+- **Legacy Disambiguator Removal** ([#412](https://github.com/ahmetaa/zemberek-nlp/pull/412)):
+  - Removed the legacy `PerceptronAmbiguityResolver`, `PerceptronAmbiguityResolverTrainer`, and `PerceptronAmbiguityResolverEvaluation`, leaving `FastPerceptronAmbiguityResolver` / `FastPerceptronAmbiguityResolverTrainer` as the sole disambiguator implementation.
+  - Relocated `DataSet` into `FastPerceptronAmbiguityResolverTrainer` and updated training tools, tests, `pom.xml`, and `morphology/README.md`.
+- **Dependency Security Update** ([#413](https://github.com/ahmetaa/zemberek-nlp/pull/413)):
+  - Upgraded `com.google.guava:guava` from `33.7.1-jre` to `33.7.2-jre` (patches `CompactHashMap` / `CompactHashSet` / `MapMakerInternalMap` native deserialization uncontrolled memory allocation).
+
 ## 0.20.0
 
 (November 25th 2026)
