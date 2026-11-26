@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
-import zemberek.morphology.ambiguity.PerceptronAmbiguityResolverTrainer.DataSet;
 
 /**
  * Command-line entry point and training utility for {@link FastPerceptronAmbiguityResolver}.

@@ -385,8 +385,8 @@ Note that same output will be generated for inputs "kısı, kışi, kişi, kış
 
 ## Ambiguity Resolution
 
-Turkish is a highly ambiguous language. As shown in the example below, Word `yarın` has 9 morphological
-analyses. Zemberek uses an Averaged Perceptron based mechanism to resolve ambiguity. 
+Turkish is a highly ambiguous language. As shown in the example below, word `yarın` has 9 morphological
+analyses. Zemberek uses `FastPerceptronAmbiguityResolver` (an exact Viterbi Averaged Perceptron model bundled with the module) to resolve ambiguity. 
 
 ### Example
 
@@ -438,13 +438,6 @@ Output:
     [kar:Noun] kar:Noun+A3sg
     [yağmak:Verb] yağ:Verb+acak:Fut+A3sg
     [.:Punc] .:Punc
-
-### Known Issues
-
-As of version 0.12, ambiguity resolution mechanism is trained with automatically generated training data. 
-In later versions, manually
-generated data will be added to improve the accuracy. Previous language model based system is 
-retired for the time being.    
 
 ## Word Generation
 

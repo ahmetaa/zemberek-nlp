@@ -10,7 +10,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import zemberek.morphology.TurkishMorphology;
-import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver;
+import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolver;
 import zemberek.morphology.ambiguity.dataset.TrainAmbiguityModel.Config;
 import zemberek.morphology.ambiguity.dataset.TrainAmbiguityModel.TrainingResult;
 import zemberek.morphology.analysis.SentenceAnalysis;
@@ -45,7 +45,6 @@ public class TrainAmbiguityModelTest {
             + "[yok:Conj] yok:Conj\n"
             + "[yok:Adj] yok:Adj*\n"
             + "[yok:Adv] yok:Adv\n"
-            + "[yok:Adj] yok:Adj\n"
             + "[yok:Noun] yok:Noun+A3sg\n"
             + ".\n"
             + "[.:Punc] .:Punc*\n";
@@ -67,8 +66,8 @@ public class TrainAmbiguityModelTest {
     Assert.assertTrue("Output text model must exist", Files.exists(config.getTextWeightsPath()));
 
     // Load the saved binary model using Zemberek's public factory
-    PerceptronAmbiguityResolver loadedResolver =
-        PerceptronAmbiguityResolver.fromModelFile(outputModel);
+    FastPerceptronAmbiguityResolver loadedResolver =
+        FastPerceptronAmbiguityResolver.fromModelFile(outputModel);
     Assert.assertNotNull("Loaded resolver must not be null", loadedResolver);
 
     // Verify disambiguation using the trained model
@@ -127,8 +126,8 @@ public class TrainAmbiguityModelTest {
     Assert.assertTrue("Feature count must be greater than 0", result.featureCount > 0);
     Assert.assertTrue("Output binary model must exist", Files.exists(outputModel));
 
-    PerceptronAmbiguityResolver loadedResolver =
-        PerceptronAmbiguityResolver.fromModelFile(outputModel);
+    FastPerceptronAmbiguityResolver loadedResolver =
+        FastPerceptronAmbiguityResolver.fromModelFile(outputModel);
     Assert.assertNotNull(loadedResolver);
 
     TurkishMorphology morphology = TurkishMorphology.builder()

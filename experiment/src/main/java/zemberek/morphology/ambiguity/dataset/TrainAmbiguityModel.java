@@ -17,9 +17,9 @@ import zemberek.core.data.WeightLookup;
 import zemberek.core.data.Weights;
 import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
-import zemberek.morphology.ambiguity.PerceptronAmbiguityResolver;
-import zemberek.morphology.ambiguity.PerceptronAmbiguityResolverTrainer;
-import zemberek.morphology.ambiguity.PerceptronAmbiguityResolverTrainer.DataSet;
+import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolver;
+import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolverTrainer;
+import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolverTrainer.DataSet;
 import zemberek.morphology.ambiguity.dataset.DisambiguationCandidateExtractor.CandidateRecord;
 import zemberek.morphology.ambiguity.dataset.DisambiguationCandidateExtractor.SentenceRecord;
 import zemberek.morphology.ambiguity.dataset.DisambiguationCandidateExtractor.TokenRecord;
@@ -113,11 +113,11 @@ public class TrainAmbiguityModel extends ConsoleApp {
     DataSet devSet = loadDataSet(dev, morphology, config.filterUnreachable);
     devSet.info();
 
-    PerceptronAmbiguityResolverTrainer trainer =
-        new PerceptronAmbiguityResolverTrainer(morphology, config.pruneWeight);
+    FastPerceptronAmbiguityResolverTrainer trainer =
+        new FastPerceptronAmbiguityResolverTrainer(config.pruneWeight);
 
     Log.info("Starting perceptron training with %d iterations...", config.iterationCount);
-    PerceptronAmbiguityResolver resolver = trainer.train(trainingSet, devSet, config.iterationCount);
+    FastPerceptronAmbiguityResolver resolver = trainer.train(trainingSet, devSet, config.iterationCount);
 
     if (config.outputPath.getParent() != null) {
       Files.createDirectories(config.outputPath.getParent());
@@ -140,7 +140,7 @@ public class TrainAmbiguityModel extends ConsoleApp {
 
     // Run final evaluation on dev set
     Log.info("Final evaluation on development set:");
-    PerceptronAmbiguityResolverTrainer.test(devSet, resolver);
+    FastPerceptronAmbiguityResolverTrainer.evaluateAccuracy(devSet, resolver);
 
     return new TrainingResult(resolver, featureCount, config.outputPath);
   }
@@ -448,11 +448,11 @@ public class TrainAmbiguityModel extends ConsoleApp {
   }
 
   public static class TrainingResult {
-    public final PerceptronAmbiguityResolver resolver;
+    public final FastPerceptronAmbiguityResolver resolver;
     public final int featureCount;
     public final Path modelPath;
 
-    public TrainingResult(PerceptronAmbiguityResolver resolver, int featureCount, Path modelPath) {
+    public TrainingResult(FastPerceptronAmbiguityResolver resolver, int featureCount, Path modelPath) {
       this.resolver = resolver;
       this.featureCount = featureCount;
       this.modelPath = modelPath;

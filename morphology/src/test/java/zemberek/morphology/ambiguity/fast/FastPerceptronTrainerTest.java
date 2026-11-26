@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import zemberek.core.data.Weights;
 import zemberek.morphology.TurkishMorphology;
-import zemberek.morphology.ambiguity.PerceptronAmbiguityResolverTrainer.DataSet;
+import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolverTrainer.DataSet;
 import zemberek.morphology.analysis.SentenceAnalysis;
 import zemberek.morphology.analysis.SentenceWordAnalysis;
 import zemberek.morphology.analysis.SingleAnalysis;
