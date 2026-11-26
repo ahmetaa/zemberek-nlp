@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import zemberek.apps.ConsoleApp;
 import zemberek.core.logging.Log;
 import zemberek.morphology.TurkishMorphology;
-import zemberek.morphology.ambiguity.PerceptronAmbiguityResolverTrainer.DataSet;
+import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolverTrainer.DataSet;
 import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolver;
 import zemberek.morphology.ambiguity.fast.FastPerceptronAmbiguityResolverTrainer;
 
