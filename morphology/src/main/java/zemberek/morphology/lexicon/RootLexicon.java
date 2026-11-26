@@ -36,8 +36,12 @@ public class RootLexicon implements Iterable<DictionaryItem> {
     return Singleton.Instance.defaultLexicon;
   }
 
-  // Stores DictionaryItem directly for single-sense lemmas (~97%) and DictionaryItem[] otherwise.
-  private final Map<String, Object> lemmaMap;
+  // Stores DictionaryItem directly for single-sense lemmas (~97%) and MultiItems otherwise.
+  sealed interface LemmaEntry permits DictionaryItem, MultiItems {}
+
+  record MultiItems(DictionaryItem[] items) implements LemmaEntry {}
+
+  private final Map<String, LemmaEntry> lemmaMap;
   // DictionaryItem equality is defined by item.id; LinkedHashMap preserves insertion order without a duplicate Set.
   private final Map<String, DictionaryItem> idMap;
 
@@ -64,16 +68,15 @@ public class RootLexicon implements Iterable<DictionaryItem> {
       return;
     }
     idMap.put(item.id, item);
-    Object existing = lemmaMap.get(item.lemma);
-    if (existing == null) {
-      lemmaMap.put(item.lemma, item);
-    } else if (existing instanceof DictionaryItem single) {
-      lemmaMap.put(item.lemma, new DictionaryItem[] {single, item});
-    } else {
-      DictionaryItem[] arr = (DictionaryItem[]) existing;
-      DictionaryItem[] next = Arrays.copyOf(arr, arr.length + 1);
-      next[arr.length] = item;
-      lemmaMap.put(item.lemma, next);
+    switch (lemmaMap.get(item.lemma)) {
+      case null -> lemmaMap.put(item.lemma, item);
+      case DictionaryItem single ->
+          lemmaMap.put(item.lemma, new MultiItems(new DictionaryItem[] {single, item}));
+      case MultiItems(DictionaryItem[] arr) -> {
+        DictionaryItem[] next = Arrays.copyOf(arr, arr.length + 1);
+        next[arr.length] = item;
+        lemmaMap.put(item.lemma, new MultiItems(next));
+      }
     }
   }
 
@@ -88,46 +91,49 @@ public class RootLexicon implements Iterable<DictionaryItem> {
   }
 
   public List<DictionaryItem> getMatchingItems(String lemma) {
-    Object existing = lemmaMap.get(lemma);
-    if (existing == null) {
-      return new ArrayList<>(0);
-    }
-    if (existing instanceof DictionaryItem single) {
-      List<DictionaryItem> list = new ArrayList<>(1);
-      list.add(single);
-      return list;
-    }
-    DictionaryItem[] arr = (DictionaryItem[]) existing;
-    List<DictionaryItem> list = new ArrayList<>(arr.length);
-    Collections.addAll(list, arr);
-    return list;
+    return switch (lemmaMap.get(lemma)) {
+      case null -> new ArrayList<>(0);
+      case DictionaryItem single -> {
+        List<DictionaryItem> list = new ArrayList<>(1);
+        list.add(single);
+        yield list;
+      }
+      case MultiItems(DictionaryItem[] arr) -> {
+        List<DictionaryItem> list = new ArrayList<>(arr.length);
+        Collections.addAll(list, arr);
+        yield list;
+      }
+    };
   }
 
   public void remove(DictionaryItem item) {
     if (item == null || idMap.remove(item.id) == null) {
       return;
     }
-    Object existing = lemmaMap.get(item.lemma);
-    if (existing instanceof DictionaryItem single) {
-      if (single.equals(item)) {
-        lemmaMap.remove(item.lemma);
-      }
-    } else if (existing instanceof DictionaryItem[] arr) {
-      int idx = -1;
-      for (int i = 0; i < arr.length; i++) {
-        if (arr[i].equals(item)) {
-          idx = i;
-          break;
+    switch (lemmaMap.get(item.lemma)) {
+      case null -> {}
+      case DictionaryItem single -> {
+        if (single.equals(item)) {
+          lemmaMap.remove(item.lemma);
         }
       }
-      if (idx >= 0) {
-        if (arr.length == 2) {
-          lemmaMap.put(item.lemma, arr[1 - idx]);
-        } else {
-          DictionaryItem[] next = new DictionaryItem[arr.length - 1];
-          System.arraycopy(arr, 0, next, 0, idx);
-          System.arraycopy(arr, idx + 1, next, idx, arr.length - idx - 1);
-          lemmaMap.put(item.lemma, next);
+      case MultiItems(DictionaryItem[] arr) -> {
+        int idx = -1;
+        for (int i = 0; i < arr.length; i++) {
+          if (arr[i].equals(item)) {
+            idx = i;
+            break;
+          }
+        }
+        if (idx >= 0) {
+          if (arr.length == 2) {
+            lemmaMap.put(item.lemma, arr[1 - idx]);
+          } else {
+            DictionaryItem[] next = new DictionaryItem[arr.length - 1];
+            System.arraycopy(arr, 0, next, 0, idx);
+            System.arraycopy(arr, idx + 1, next, idx, arr.length - idx - 1);
+            lemmaMap.put(item.lemma, new MultiItems(next));
+          }
         }
       }
     }
@@ -160,23 +166,25 @@ public class RootLexicon implements Iterable<DictionaryItem> {
   }
 
   public List<DictionaryItem> getMatchingItems(String lemma, PrimaryPos pos) {
-    Object existing = lemmaMap.get(lemma);
-    if (existing == null) {
-      return new ArrayList<>(0);
-    }
-    List<DictionaryItem> matches = new ArrayList<>(1);
-    if (existing instanceof DictionaryItem single) {
-      if (single.primaryPos == pos) {
-        matches.add(single);
+    return switch (lemmaMap.get(lemma)) {
+      case null -> new ArrayList<>(0);
+      case DictionaryItem single -> {
+        List<DictionaryItem> matches = new ArrayList<>(1);
+        if (single.primaryPos == pos) {
+          matches.add(single);
+        }
+        yield matches;
       }
-      return matches;
-    }
-    for (DictionaryItem item : (DictionaryItem[]) existing) {
-      if (item.primaryPos == pos) {
-        matches.add(item);
+      case MultiItems(DictionaryItem[] arr) -> {
+        List<DictionaryItem> matches = new ArrayList<>(1);
+        for (DictionaryItem item : arr) {
+          if (item.primaryPos == pos) {
+            matches.add(item);
+          }
+        }
+        yield matches;
       }
-    }
-    return matches;
+    };
   }
 
   public static RootLexicon fromLines(String... lines) {
