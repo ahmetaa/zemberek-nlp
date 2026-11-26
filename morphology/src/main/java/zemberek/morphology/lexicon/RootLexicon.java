@@ -1,11 +1,6 @@
 package zemberek.morphology.lexicon;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,10 +11,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
@@ -42,31 +36,45 @@ public class RootLexicon implements Iterable<DictionaryItem> {
     return Singleton.Instance.defaultLexicon;
   }
 
-  private Multimap<String, DictionaryItem> itemMap = HashMultimap.create(INITIAL_CAPACITY, 1);
-  private Map<String, DictionaryItem> idMap = new HashMap<>(INITIAL_CAPACITY);
-  private Set<DictionaryItem> itemSet = new LinkedHashSet<>(INITIAL_CAPACITY);
+  // Stores DictionaryItem directly for single-sense lemmas (~97%) and DictionaryItem[] otherwise.
+  private final Map<String, Object> lemmaMap;
+  // DictionaryItem equality is defined by item.id; LinkedHashMap preserves insertion order without a duplicate Set.
+  private final Map<String, DictionaryItem> idMap;
 
   public RootLexicon(List<DictionaryItem> dictionaryItems) {
+    this(dictionaryItems.size());
     for (DictionaryItem dictionaryItem : dictionaryItems) {
       add(dictionaryItem);
     }
   }
 
+  public RootLexicon(int expectedSize) {
+    int mapCapacity = Math.max(16, (int) (expectedSize / 0.75f) + 1);
+    this.lemmaMap = new HashMap<>(mapCapacity);
+    this.idMap = new LinkedHashMap<>(mapCapacity);
+  }
+
   public RootLexicon() {
+    this(INITIAL_CAPACITY);
   }
 
   public void add(DictionaryItem item) {
-    if (itemSet.contains(item)) {
-      Log.warn("Duplicated item:" + item);
-      return;
-    }
     if (idMap.containsKey(item.id)) {
-      Log.warn("Duplicated item id of:" + item + " with " + idMap.get(item.id));
+      Log.warn("Duplicated item:" + item + " with " + idMap.get(item.id));
       return;
     }
-    this.itemSet.add(item);
     idMap.put(item.id, item);
-    itemMap.put(item.lemma, item);
+    Object existing = lemmaMap.get(item.lemma);
+    if (existing == null) {
+      lemmaMap.put(item.lemma, item);
+    } else if (existing instanceof DictionaryItem single) {
+      lemmaMap.put(item.lemma, new DictionaryItem[] {single, item});
+    } else {
+      DictionaryItem[] arr = (DictionaryItem[]) existing;
+      DictionaryItem[] next = Arrays.copyOf(arr, arr.length + 1);
+      next[arr.length] = item;
+      lemmaMap.put(item.lemma, next);
+    }
   }
 
   public void addAll(Iterable<DictionaryItem> items) {
@@ -76,22 +84,53 @@ public class RootLexicon implements Iterable<DictionaryItem> {
   }
 
   public Collection<DictionaryItem> getAllItems() {
-    return itemMap.values();
+    return Collections.unmodifiableCollection(idMap.values());
   }
 
   public List<DictionaryItem> getMatchingItems(String lemma) {
-    Collection<DictionaryItem> items = itemMap.get(lemma);
-    if (items == null) {
-      return Collections.emptyList();
-    } else {
-      return Lists.newArrayList(items);
+    Object existing = lemmaMap.get(lemma);
+    if (existing == null) {
+      return new ArrayList<>(0);
     }
+    if (existing instanceof DictionaryItem single) {
+      List<DictionaryItem> list = new ArrayList<>(1);
+      list.add(single);
+      return list;
+    }
+    DictionaryItem[] arr = (DictionaryItem[]) existing;
+    List<DictionaryItem> list = new ArrayList<>(arr.length);
+    Collections.addAll(list, arr);
+    return list;
   }
 
   public void remove(DictionaryItem item) {
-    itemMap.get(item.lemma).remove(item);
-    idMap.remove(item.id);
-    itemSet.remove(item);
+    if (item == null || idMap.remove(item.id) == null) {
+      return;
+    }
+    Object existing = lemmaMap.get(item.lemma);
+    if (existing instanceof DictionaryItem single) {
+      if (single.equals(item)) {
+        lemmaMap.remove(item.lemma);
+      }
+    } else if (existing instanceof DictionaryItem[] arr) {
+      int idx = -1;
+      for (int i = 0; i < arr.length; i++) {
+        if (arr[i].equals(item)) {
+          idx = i;
+          break;
+        }
+      }
+      if (idx >= 0) {
+        if (arr.length == 2) {
+          lemmaMap.put(item.lemma, arr[1 - idx]);
+        } else {
+          DictionaryItem[] next = new DictionaryItem[arr.length - 1];
+          System.arraycopy(arr, 0, next, 0, idx);
+          System.arraycopy(arr, idx + 1, next, idx, arr.length - idx - 1);
+          lemmaMap.put(item.lemma, next);
+        }
+      }
+    }
   }
 
   public void removeAllLemmas(String lemma) {
@@ -113,7 +152,7 @@ public class RootLexicon implements Iterable<DictionaryItem> {
   }
 
   public boolean containsItem(DictionaryItem item) {
-    return itemSet.contains(item);
+    return item != null && idMap.containsKey(item.id);
   }
 
   public DictionaryItem getItemById(String id) {
@@ -121,12 +160,18 @@ public class RootLexicon implements Iterable<DictionaryItem> {
   }
 
   public List<DictionaryItem> getMatchingItems(String lemma, PrimaryPos pos) {
-    Collection<DictionaryItem> items = itemMap.get(lemma);
-    if (items == null) {
-      return Collections.emptyList();
+    Object existing = lemmaMap.get(lemma);
+    if (existing == null) {
+      return new ArrayList<>(0);
     }
-    List<DictionaryItem> matches = Lists.newArrayListWithCapacity(1);
-    for (DictionaryItem item : items) {
+    List<DictionaryItem> matches = new ArrayList<>(1);
+    if (existing instanceof DictionaryItem single) {
+      if (single.primaryPos == pos) {
+        matches.add(single);
+      }
+      return matches;
+    }
+    for (DictionaryItem item : (DictionaryItem[]) existing) {
       if (item.primaryPos == pos) {
         matches.add(item);
       }
@@ -147,16 +192,16 @@ public class RootLexicon implements Iterable<DictionaryItem> {
   }
 
   public boolean isEmpty() {
-    return itemSet.isEmpty();
+    return idMap.isEmpty();
   }
 
   public int size() {
-    return itemSet.size();
+    return idMap.size();
   }
 
   @Override
   public Iterator<DictionaryItem> iterator() {
-    return itemSet.iterator();
+    return idMap.values().iterator();
   }
 
   public static Builder builder() {

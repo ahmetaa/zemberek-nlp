@@ -57,7 +57,7 @@ public class DictionarySerializer {
       throws IOException {
     long start = System.currentTimeMillis();
     Dictionary readDictionary = Dictionary.parseFrom(bytes);
-    RootLexicon loadedLexicon = new RootLexicon();
+    RootLexicon loadedLexicon = new RootLexicon(readDictionary.getItemsCount());
     // some items contains references to other items. We need to apply this
     // link after creating the lexicon.
     Map<String, String> referenceItemIdMap = new HashMap<>();
@@ -124,7 +124,7 @@ public class DictionarySerializer {
     System.out.println("Total size of read dictionary: " + readDictionary.getSerializedSize());
 
     start = System.currentTimeMillis();
-    RootLexicon loadedLexicon = new RootLexicon();
+    RootLexicon loadedLexicon = new RootLexicon(readDictionary.getItemsCount());
     for (LexiconProto.DictionaryItem item : readDictionary.getItemsList()) {
       loadedLexicon.add(convertToDictionaryItem(item));
     }
@@ -169,17 +169,35 @@ public class DictionarySerializer {
     return builder.build();
   }
 
+  private static boolean needsLowerCase(String s) {
+    for (int i = 0, n = s.length(); i < n; i++) {
+      char c = s.charAt(i);
+      if (Character.isUpperCase(c) || Character.isTitleCase(c) || c == '\u0307') {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private static DictionaryItem convertToDictionaryItem(LexiconProto.DictionaryItem item) {
     EnumSet<RootAttribute> attributes = EnumSet.noneOf(RootAttribute.class);
     for (LexiconProto.RootAttribute rootAttribute : item.getRootAttributesList()) {
       attributes.add(rootAttributeConverter.convertBack(rootAttribute, RootAttribute.Unknown));
     }
     Locale locale = attributes.contains(RootAttribute.LocaleEn) ? Locale.ENGLISH : Turkish.LOCALE;
-    String lowercaseLemma = item.getLemma().toLowerCase(locale);
+    String lemma = item.getLemma();
+    String lowercaseLemma = needsLowerCase(lemma) ? lemma.toLowerCase(locale) : lemma;
+    String rawRoot = item.getRoot();
+    String root = rawRoot.isEmpty() || rawRoot.equals(lowercaseLemma) ? lowercaseLemma : rawRoot;
+    String rawPron = item.getPronunciation();
+    String pron =
+        rawPron.isEmpty() || rawPron.equals(root)
+            ? root
+            : (rawPron.equals(lowercaseLemma) ? lowercaseLemma : rawPron);
     return new DictionaryItem(
-        item.getLemma(),
-        item.getRoot().isEmpty() ? lowercaseLemma : item.getRoot(),
-        item.getPronunciation().isEmpty() ? lowercaseLemma : item.getPronunciation(),
+        lemma,
+        root,
+        pron,
         primaryPosConverter.convertBack(item.getPrimaryPos(), PrimaryPos.Unknown),
         item.getSecondaryPos() == LexiconProto.SecondaryPos.SecondaryPos_Unknown
             ? SecondaryPos.None
