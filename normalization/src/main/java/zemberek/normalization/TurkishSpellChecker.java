@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import zemberek.core.ScoredItem;
 import zemberek.core.logging.Log;
+import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.lm.DummyLanguageModel;
@@ -166,7 +167,8 @@ public class TurkishSpellChecker {
     Map<String, ScoredSuggestion> results = new LinkedHashMap<>(rawScored.size());
     for (ScoredItem<String> raw : rawScored) {
       for (SingleAnalysis analysis : morphology.analyze(raw.item)) {
-        if (!isAllowedAnalysis(analysis)) {
+        if (!isAllowedAnalysis(analysis)
+            || analysis.getDictionaryItem().hasAttribute(RootAttribute.Vulgar)) {
           continue;
         }
         String formatted = formatter.formatToCase(analysis, caseType, apostrophe);

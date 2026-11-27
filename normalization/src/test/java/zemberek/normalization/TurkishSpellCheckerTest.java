@@ -19,9 +19,11 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import zemberek.core.logging.Log;
 import zemberek.core.text.TextIO;
+import zemberek.core.turkish.RootAttribute;
 import zemberek.lm.NgramLanguageModel;
 import zemberek.lm.compression.SmoothLm;
 import zemberek.morphology.TurkishMorphology;
+import zemberek.normalization.v2.CompactStemEndingSpellChecker;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class TurkishSpellCheckerTest {
@@ -159,6 +161,70 @@ public class TurkishSpellCheckerTest {
     Assert.assertTrue(spellChecker.suggestForWord("sikint", null).contains("sıkıntı"));
     Assert.assertTrue(spellChecker.suggestForWord("guldum", null).contains("güldüm"));
     Assert.assertTrue(spellChecker.suggestForWord("guldm", null).contains("güldüm"));
+  }
+
+  @Test
+  public void vulgarWordsAreAcceptedInCheckButNeverSuggestedTest() {
+    TurkishMorphology morphology = TurkishMorphology.builder()
+        .disableCache()
+        .setLexicon(
+            "sık [P:Adj]",
+            "sıkılmak",
+            "sik [A:Vulgar]",
+            "sikmek [A:Vulgar]",
+            "siktir [P:Interj; A:Ext, Vulgar]",
+            "yaprak",
+            "yarak [A:Vulgar]",
+            "yarrak [A:Ext, Vulgar]",
+            "boks",
+            "bok [A:Vulgar]",
+            "boktan [P:Adj; A:Vulgar]",
+            "hiç [P:Adv]",
+            "piç [A:Vulgar]",
+            "iş",
+            "işemek [A:Vulgar]")
+        .build();
+
+    List<String> endings = Lists.newArrayList("", "ı", "i", "u", "te", "ta", "ıldı", "ildi", "iyor");
+    StemEndingGraph graph = new StemEndingGraph(morphology, endings);
+    TurkishSpellChecker exactChecker = new TurkishSpellChecker(morphology, graph.stemGraph);
+    TurkishSpellChecker asciiChecker = new TurkishSpellChecker(
+        morphology,
+        new CharacterGraphDecoder(graph.stemGraph),
+        CharacterGraphDecoder.DIACRITICS_IGNORING_MATCHER);
+    CompactStemEndingSpellChecker compactChecker =
+        new CompactStemEndingSpellChecker(morphology, endings, 0);
+
+    // Parseable vulgar words and their inflections must pass check()
+    for (String validVulgar : new String[] {"bok", "boktan", "siktir", "sikildi", "yarrağı", "işiyor"}) {
+      Assert.assertTrue("Expected check() true for " + validVulgar, exactChecker.check(validVulgar));
+    }
+
+    // Near-miss typos must suggest clean words and never return any Vulgar surface
+    Assert.assertTrue(exactChecker.suggestForWord("yaprk", null).contains("yaprak"));
+    Assert.assertTrue(asciiChecker.suggestForWord("sikildi", null).contains("sıkıldı"));
+    Assert.assertTrue(exactChecker.suggestForWord("bokx", null).contains("boks"));
+    Assert.assertTrue(exactChecker.suggestForWord("hiçx", null).contains("hiç"));
+    Assert.assertTrue(exactChecker.suggestForWord("iştx", null).contains("işte"));
+
+    String[] typos = {"yaprk", "yarrk", "sikx", "sikldi", "sıkldı", "bokx", "hiçx", "iştx", "işiyox"};
+    for (String typo : typos) {
+      for (String s : exactChecker.suggestForWord(typo, null)) {
+        assertNotExclusivelyVulgar(morphology, s);
+      }
+      for (String s : asciiChecker.suggestForWord(typo, null)) {
+        assertNotExclusivelyVulgar(morphology, s);
+      }
+      for (CompactStemEndingSpellChecker.ScoredCandidate sc : compactChecker.suggestScored(typo)) {
+        assertNotExclusivelyVulgar(morphology, sc.surface());
+      }
+    }
+  }
+
+  private static void assertNotExclusivelyVulgar(TurkishMorphology morphology, String surface) {
+    boolean hasCleanAnalysis = morphology.analyze(surface).getAnalysisResults().stream()
+        .anyMatch(a -> !a.isUnknown() && !a.getDictionaryItem().hasAttribute(RootAttribute.Vulgar));
+    Assert.assertTrue("Vulgar word leaked into suggestions: " + surface, hasCleanAnalysis);
   }
 
   private void check(TurkishSpellChecker spellChecker, NgramLanguageModel lm, String input,

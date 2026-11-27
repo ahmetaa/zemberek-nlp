@@ -12,6 +12,7 @@ import java.util.Map;
 import zemberek.core.text.TextIO;
 import zemberek.core.turkish.PhoneticAttribute;
 import zemberek.core.turkish.PrimaryPos;
+import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SingleAnalysis;
@@ -434,7 +435,8 @@ public final class CompactStemEndingSpellChecker {
         break;
       }
       for (SingleAnalysis analysis : morphology.analyze(rc.surface())) {
-        if (analysis.isUnknown()) {
+        if (analysis.isUnknown()
+            || analysis.getDictionaryItem().hasAttribute(RootAttribute.Vulgar)) {
           continue;
         }
         String formatted = formatter.formatToCase(analysis, caseType, apostrophe);

@@ -279,6 +279,9 @@ public class TurkishDictionaryLoader {
           if (item.attributes.contains(RootAttribute.Ext)) {
             attrSet.add(RootAttribute.Ext);
           }
+          if (item.attributes.contains(RootAttribute.Vulgar)) {
+            attrSet.add(RootAttribute.Vulgar);
+          }
 
           int index = 0;
           if (rootLexicon.getItemById(root + "_" + item.primaryPos.shortForm) != null) {

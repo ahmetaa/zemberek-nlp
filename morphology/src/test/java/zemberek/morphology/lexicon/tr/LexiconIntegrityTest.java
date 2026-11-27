@@ -150,4 +150,45 @@ public class LexiconIntegrityTest {
       Assert.assertEquals("Expected single lexical analysis for bare " + singleItem, 1L, lexicalCount);
     }
   }
+
+  @Test
+  public void vulgarAttributeAndProfanityLexiconEntriesShouldHold() {
+    TurkishMorphology morph = TurkishMorphology.createWithDefaults();
+
+    String[] vulgarForms = {
+        "bok", "boktan", "sikildi", "siktir", "hasiktir", "hassiktir",
+        "sikişiyor", "siktirdi", "sikik", "yarak", "yarrağı", "amcığı",
+        "taşşağı", "gavatı", "pezevengin", "orospular", "götverenler", "köpekoğlu"
+    };
+    for (String form : vulgarForms) {
+      WordAnalysis wa = morph.analyze(form);
+      Assert.assertTrue(
+          "Expected lexical analysis with Vulgar attribute for: " + form,
+          wa.getAnalysisResults().stream()
+              .anyMatch(a -> !a.isUnknown()
+                  && !a.isRuntime()
+                  && a.getDictionaryItem().hasAttribute(RootAttribute.Vulgar)));
+    }
+
+    String[] removedCorpusGhosts = {"Hasiktir", "Hassiktir", "Siker", "Sikik", "Ssik"};
+    for (String ghost : removedCorpusGhosts) {
+      Assert.assertFalse(
+          "Profanity ghost should not exist as ProperNoun in lexicon: " + ghost,
+          morph.getLexicon().getMatchingItems(ghost.toLowerCase(zemberek.core.turkish.Turkish.LOCALE)).stream()
+              .anyMatch(i -> i.secondaryPos == zemberek.core.turkish.SecondaryPos.ProperNoun
+                  && i.lemma.equalsIgnoreCase(ghost)));
+    }
+
+    String[] nonVulgarNeighbors = {
+        "iş", "işte", "sık", "sıkıldı", "yaprak", "boks", "sikke", "fahiş", "sıçan", "yavşan"
+    };
+    for (String clean : nonVulgarNeighbors) {
+      Assert.assertTrue(
+          "Expected non-vulgar lexical analysis for: " + clean,
+          morph.analyze(clean).getAnalysisResults().stream()
+              .anyMatch(a -> !a.isUnknown()
+                  && !a.isRuntime()
+                  && !a.getDictionaryItem().hasAttribute(RootAttribute.Vulgar)));
+    }
+  }
 }
