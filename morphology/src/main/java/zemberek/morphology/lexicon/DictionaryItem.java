@@ -10,7 +10,7 @@ import zemberek.core.turkish.Turkish;
 /**
  * DictionaryItem represents an entity from a dictionary.
  */
-public class DictionaryItem {
+public non-sealed class DictionaryItem implements RootLexicon.LemmaEntry {
 
   public static final DictionaryItem UNKNOWN = new DictionaryItem("UNK", "UNK", "UNK",
       PrimaryPos.Unknown, SecondaryPos.UnknownSec);

@@ -57,7 +57,7 @@ public class DictionarySerializer {
       throws IOException {
     long start = System.currentTimeMillis();
     Dictionary readDictionary = Dictionary.parseFrom(bytes);
-    RootLexicon loadedLexicon = new RootLexicon();
+    RootLexicon loadedLexicon = new RootLexicon(readDictionary.getItemsCount());
     // some items contains references to other items. We need to apply this
     // link after creating the lexicon.
     Map<String, String> referenceItemIdMap = new HashMap<>();
@@ -124,7 +124,7 @@ public class DictionarySerializer {
     System.out.println("Total size of read dictionary: " + readDictionary.getSerializedSize());
 
     start = System.currentTimeMillis();
-    RootLexicon loadedLexicon = new RootLexicon();
+    RootLexicon loadedLexicon = new RootLexicon(readDictionary.getItemsCount());
     for (LexiconProto.DictionaryItem item : readDictionary.getItemsList()) {
       loadedLexicon.add(convertToDictionaryItem(item));
     }
