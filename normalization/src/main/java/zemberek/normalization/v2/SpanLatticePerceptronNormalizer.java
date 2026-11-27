@@ -138,8 +138,19 @@ public final class SpanLatticePerceptronNormalizer {
   }
 
   /**
+   * Creates a {@code SmoothLm}-free {@link SpanLatticePerceptronNormalizer} backed solely by {@code
+   * knowledge.bin.gz} ({@link NormalizationKnowledge.CleanWordLm}) and {@code perceptron.bin.gz},
+   * eliminating the legacy {@code 4.73 MiB} {@code lm.2gram.slm.gz} resource.
+   */
+  public static SpanLatticePerceptronNormalizer createWithoutSmoothLm(TurkishMorphology morphology)
+      throws IOException {
+    return createWithDefaults(morphology, null);
+  }
+
+  /**
    * Creates a ready-to-use {@link SpanLatticePerceptronNormalizer} using Zemberek's bundled
-   * {@code knowledge.bin.gz} and {@code perceptron.bin.gz} resources and a provided {@link SmoothLm}.
+   * {@code knowledge.bin.gz} and {@code perceptron.bin.gz} resources and an optional {@link
+   * SmoothLm} ({@code null} falls back to the embedded {@link NormalizationKnowledge.CleanWordLm}).
    */
   public static SpanLatticePerceptronNormalizer createWithDefaults(
       TurkishMorphology morphology, SmoothLm smoothLm) throws IOException {
@@ -158,13 +169,16 @@ public final class SpanLatticePerceptronNormalizer {
 
   /**
    * Loads a {@link SpanLatticePerceptronNormalizer} from an external model directory containing
-   * {@code knowledge.bin[.gz]} and {@code perceptron.bin[.gz]}, plus a 2-gram {@code SmoothLm}.
+   * {@code knowledge.bin[.gz]} and {@code perceptron.bin[.gz]}, plus an optional 2-gram {@code
+   * SmoothLm} ({@code smoothLmPath} may be {@code null}).
    */
   public static SpanLatticePerceptronNormalizer fromDirectory(
       TurkishMorphology morphology, Path modelDir, Path smoothLmPath) throws IOException {
-    SmoothLm smoothLm;
-    try (InputStream lmIn = Files.newInputStream(smoothLmPath)) {
-      smoothLm = SmoothLm.builder(NormalizationKnowledge.maybeUnzip(lmIn)).logBase(Math.E).build();
+    SmoothLm smoothLm = null;
+    if (smoothLmPath != null) {
+      try (InputStream lmIn = Files.newInputStream(smoothLmPath)) {
+        smoothLm = SmoothLm.builder(NormalizationKnowledge.maybeUnzip(lmIn)).logBase(Math.E).build();
+      }
     }
     Path knowledgeFile =
         firstExisting(modelDir, "knowledge.bin.gz", "knowledge.bin", "mined_v23.bin");
