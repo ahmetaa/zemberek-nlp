@@ -7,6 +7,7 @@ Turkish Morphology
     + [Single word morphological analysis](#single-word-morphological-analysis)
     + [Examples](#examples)
     + [Reading Analysis Output & Morpheme Abbreviations](#reading-analysis-output--morpheme-abbreviations)
+    + [Standard & Research Output Formats (Oflazer, CoNLL-U, Apertium, UniMorph)](docs/output-formats.md)
     + [Stemming and Lemmatization Example](#stemming-and-lemmatization-example)
     + [Known Issues](#known-issues)
     + [Informal Turkish Words Analysis](#informal-turkish-words-analysis)
@@ -137,6 +138,8 @@ Finds all morphological analyses of word "kalemin"
 - `:` pairs an actual surface segment with its morpheme ID (e.g. `in:Gen`); morphemes with empty surface form omit the prefix (e.g. `A3sg`). Note that `Nom` (Nominative) and `Pnon` (No possessive) are omitted from `SingleAnalysis` output to reduce visual noise.
 - `+` separates inflectional morphemes within an inflectional group (IG).
 - `|` marks a derivational boundary, and `→` separates the derivational morpheme from the resulting part of speech (e.g. `kitab:Noun+A3sg+ımız:P1pl|Zero→Verb+sa:Cond+A3sg`).
+
+For exporting morphological and sentence analyses into external research standards — including strict **Oflazer / METU-Sabancı / Sak / Starlang (KeNet)**, **Universal Dependencies v2 `CoNLL-U`**, **Apertium Turkic**, **UniMorph**, **canonical stem segmentation**, and **Leipzig interlinear glossing** — see [docs/output-formats.md](docs/output-formats.md).
 
 #### Primary POS (Part-of-Speech) Tags
 

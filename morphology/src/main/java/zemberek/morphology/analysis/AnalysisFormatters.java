@@ -104,6 +104,34 @@ public class AnalysisFormatters {
    */
   public static final AnalysisFormatter SURFACE_SEQUENCE = new OnlySurfaceFormatter();
 
+  /**
+   * Apertium Turkic tagset formatter ({@code kitap<n><pl><px1pl><abl>}). See
+   * {@link zemberek.morphology.analysis.format.ApertiumFormatter} for lexical stream formatting.
+   */
+  public static final AnalysisFormatter APERTIUM_TURKIC =
+      zemberek.morphology.analysis.format.ApertiumFormatter.INSTANCE;
+
+  /**
+   * Universal Morphology ({@code UniMorph} / SIGMORPHON) 3-column TSV formatter
+   * ({@code kitap\tkitaplarımızdan\tN;ABL;PL;PSS1P}).
+   */
+  public static final AnalysisFormatter UNIMORPH =
+      zemberek.morphology.analysis.format.UniMorphFormatter.TAB_ROW;
+
+  /**
+   * De-mutated canonical stem + surface suffix allomorph sequence ({@code kitap ımız dan},
+   * {@code git iyor}) for subword/LLM pre-tokenization.
+   */
+  public static final AnalysisFormatter CANONICAL_SURFACE_SEQUENCE =
+      zemberek.morphology.analysis.format.SegmentedSurfaceFormatter.CANONICAL_SPACE;
+
+  /**
+   * Leipzig Glossing Rules two-tier tab-separated interlinear gloss
+   * ({@code kitab-ımız-dan\tkitap-POSS.1PL-ABL}).
+   */
+  public static final AnalysisFormatter LEIPZIG_INTERLINEAR =
+      zemberek.morphology.analysis.format.SegmentedSurfaceFormatter.LEIPZIG;
+
   static AnalysisFormatter lexicalSequenceFormatter() {
     return analysis -> analysis.getMorphemeDataList().stream()
         .map(s -> s.morpheme.id)
