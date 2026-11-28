@@ -83,7 +83,7 @@ public class TurkishSentenceNormalizerTest {
     Assert.assertEquals("döküyorsunuz", normalizer.normalize("dökuyorsunuz"));
     Assert.assertEquals("söküyor", normalizer.normalize("söküooo"));
     Assert.assertEquals(
-        "gerçek mi bu? Yuh! Artık unutulması bile beklenmiyor",
+        "Gerçek mi bu? Yuh! Artık unutulması bile beklenmiyor",
         normalizer.normalize("gercek mı bu? Yuh! Artık unutulması bile beklenmiyo"));
     Assert.assertEquals(
         "yok hocam kesinlikle öyle bir şey yok",

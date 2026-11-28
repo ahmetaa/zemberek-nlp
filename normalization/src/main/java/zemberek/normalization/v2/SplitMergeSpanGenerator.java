@@ -735,7 +735,7 @@ final class SplitMergeSpanGenerator {
   private boolean isAttestedFallbackHead(String queryHead) {
     return queryHead.length() >= 3
         && ((knowledge.cleanLm != null && knowledge.cleanLm.unigramCount(queryHead) >= 4)
-            || lmVocab.contains(queryHead)
+            || (lmVocab != null && lmVocab.contains(queryHead))
             || knowledge.isKnownProperOrAcronymStem(queryHead));
   }
 
@@ -771,7 +771,7 @@ final class SplitMergeSpanGenerator {
     }
     if (rawHead.length() >= 3
         && ((knowledge.cleanLm != null && knowledge.cleanLm.unigramCount(rawHead) >= 4)
-            || lmVocab.contains(rawHead))) {
+            || (lmVocab != null && lmVocab.contains(rawHead)))) {
       return rawHead;
     }
     return null;

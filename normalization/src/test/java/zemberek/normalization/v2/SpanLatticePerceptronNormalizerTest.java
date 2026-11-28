@@ -161,5 +161,11 @@ public class SpanLatticePerceptronNormalizerTest {
     Assert.assertEquals(
         "yarın ben de geleceğim ama saat 7'de orada olur musun bilmiyorum",
         loaded.normalize("yarın bende gelicem ama saat 7 de orda olurmusun bilmiyom"));
+    Assert.assertEquals(
+        "Selam bugün geliyor musun? Yarın 14'te görüşürüz.",
+        loaded.normalize("Slm bugun geliyomusun? yarin 14te gorusuruz."));
+    Assert.assertEquals(
+        "Ürün harika. Çok beğendim.",
+        loaded.normalize("urun harika. cok begendim."));
   }
 }

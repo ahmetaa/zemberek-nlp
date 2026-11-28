@@ -330,7 +330,7 @@ public final class SpanCandidateGenerator {
             .withCircumflexMode(CircumflexMode.NONE);
     this.spellChecker = spellChecker;
     this.lm = lm;
-    this.lmVocab = lm.getVocabulary();
+    this.lmVocab = lm != null ? lm.getVocabulary() : null;
     this.mined = mined;
     this.singleRewriter = new SingleTokenRewriteGenerator(mined, morph, spellChecker);
     this.shorthandExpander = new ShorthandExpander(mined, morph);
@@ -1125,6 +1125,11 @@ public final class SpanCandidateGenerator {
   }
 
   public float lmBigram(String prevWordLower, String curWordLower) {
+    if (lm == null) {
+      return mined.cleanLm != null
+          ? mined.cleanLm.bigramLogProb(prevWordLower, curWordLower)
+          : 0.0f;
+    }
     int prevIdx =
         prevWordLower == null
             ? lmVocab.getSentenceStartIndex()
@@ -1211,6 +1216,128 @@ public final class SpanCandidateGenerator {
   // Sentence-Boundary & Contextual Truecasing Signals
   // =========================================================================
 
+  private static final Set<String> NON_SENT_END_ABBREVS =
+      Set.of(
+          "vs", "vb", "mah", "cad", "sok", "sk", "apt", "no", "blv", "dr", "prof",
+          "doç", "doc", "op", "uzm", "av", "arb", "hz", "bkz", "bknz", "yy", "kr",
+          "tl", "dk", "sn", "st", "gr", "kg", "cm", "mm", "km", "lt", "ltd", "şti",
+          "sti", "inc", "co", "mr", "mrs", "ms", "inş", "ins", "ör", "örn", "yak",
+          "ort", "maks", "min", "tel", "faks", "fax", "cep", "www", "http", "https",
+          "alb", "yb", "gn", "yd", "yrd", "ogr", "öğr", "gör", "gor", "arş", "ars",
+          "vet", "ecz", "dt", "mim", "müh", "muh");
+
+  private static final Set<String> DOMAIN_OR_FILE_EXTS =
+      Set.of(
+          "com", "net", "org", "tr", "gov", "edu", "io", "co", "uk", "de", "ru",
+          "nl", "fr", "it", "info", "biz", "php", "html", "htm", "asp", "aspx",
+          "jsp", "js", "css", "pdf", "jpg", "jpeg", "png", "gif", "mp3", "mp4",
+          "exe", "zip", "rar", "txt");
+
+  private static final Set<String> QUOTED_DETACHED_SUFFIXES =
+      Set.of(
+          "ler", "lar", "da", "de", "ta", "te", "dan", "den", "tan", "ten",
+          "nin", "nın", "nun", "nün", "in", "ın", "un", "ün", "ye", "ya",
+          "yi", "yı", "yu", "yü", "le", "la", "li", "lı", "lu", "lü");
+
+  private static boolean isDotOrEllipsisSurface(String s) {
+    return s.equals(".") || s.equals("..") || s.equals("...") || s.equals("…");
+  }
+
+  private static boolean isClosingQuoteOrBracket(String s) {
+    return s.equals("\"")
+        || s.equals("'")
+        || s.equals("”")
+        || s.equals("’")
+        || s.equals(")")
+        || s.equals("]");
+  }
+
+  private static boolean isTrueInternalSentenceBoundary(List<SpanToken> tokens, int i) {
+    int n = tokens.size();
+    String s = tokens.get(i).surface();
+    if (!s.equals(".") && !s.equals("!") && !s.equals("?")) {
+      return false;
+    }
+    if (i == 0) {
+      return false;
+    }
+    if (s.equals(".")) {
+      if (isDotOrEllipsisSurface(tokens.get(i - 1).surface())
+          || (i + 1 < n && isDotOrEllipsisSurface(tokens.get(i + 1).surface()))) {
+        return false;
+      }
+    } else if (i + 1 < n) {
+      String ns = tokens.get(i + 1).surface();
+      if (ns.equals("!") || ns.equals("?")) {
+        return false;
+      }
+    }
+
+    SpanToken prev = tokens.get(i - 1);
+    if (s.equals(".")) {
+      String ps = prev.surface();
+      String pl = prev.lower();
+      if (prev.type() == Token.Type.Number
+          || prev.type() == Token.Type.URL
+          || prev.type() == Token.Type.Email
+          || prev.type() == Token.Type.Mention
+          || prev.type() == Token.Type.Date
+          || prev.type() == Token.Type.Time
+          || prev.type() == Token.Type.RomanNumeral
+          || prev.containsDigit()
+          || ps.indexOf('/') >= 0
+          || ps.indexOf(':') >= 0) {
+        return false;
+      }
+      if ((pl.length() == 1 && Character.isLetter(pl.charAt(0)))
+          || NON_SENT_END_ABBREVS.contains(pl)) {
+        return false;
+      }
+    }
+
+    int j = i + 1;
+    boolean hadQuote = false;
+    while (j < n && isClosingQuoteOrBracket(tokens.get(j).surface())) {
+      hadQuote = true;
+      j++;
+    }
+    if (j >= n) {
+      return false;
+    }
+    SpanToken nxt = tokens.get(j);
+    if (nxt.isImmutable() || nxt.type() == Token.Type.Number || nxt.containsDigit()) {
+      return false;
+    }
+    String nl = nxt.lower();
+    boolean hasAlpha = false;
+    for (int k = 0; k < nl.length(); k++) {
+      if (Character.isLetter(nl.charAt(k))) {
+        hasAlpha = true;
+        break;
+      }
+    }
+    if (!hasAlpha) {
+      return false;
+    }
+    if (s.equals(".") && DOMAIN_OR_FILE_EXTS.contains(nl)) {
+      return false;
+    }
+    if (j + 2 < n
+        && tokens.get(j + 1).surface().equals(".")
+        && DOMAIN_OR_FILE_EXTS.contains(tokens.get(j + 2).lower())) {
+      return false;
+    }
+    if (j + 1 < n
+        && (tokens.get(j + 1).type() == Token.Type.Mention
+            || tokens.get(j + 1).type() == Token.Type.Email)) {
+      return false;
+    }
+    if (hadQuote && QUOTED_DETACHED_SUFFIXES.contains(nl)) {
+      return false;
+    }
+    return true;
+  }
+
   private static boolean[] computeSentenceStarts(
       List<SpanToken> tokens,
       boolean startsCap,
@@ -1218,7 +1345,36 @@ public final class SpanCandidateGenerator {
       boolean sentenceTitleNoisy) {
     int n = tokens.size();
     boolean[] out = new boolean[n];
+
+    int firstTrueBound = -1;
+    for (int i = 0; i < n - 1; i++) {
+      if (tokens.get(i).type() == Token.Type.Punctuation
+          && isTrueInternalSentenceBoundary(tokens, i)) {
+        firstTrueBound = i;
+        break;
+      }
+    }
+
     boolean pendingStart = startsCap;
+    if (!pendingStart && firstTrueBound > 0) {
+      int idx0 = 0;
+      while (idx0 < firstTrueBound
+          && (tokens.get(idx0).type() == Token.Type.Mention
+              || tokens.get(idx0).type() == Token.Type.Emoji
+              || tokens.get(idx0).type() == Token.Type.Emoticon)) {
+        idx0++;
+      }
+      if (idx0 < firstTrueBound) {
+        SpanToken firstTok = tokens.get(idx0);
+        if (!firstTok.isImmutable()
+            && firstTok.type() != Token.Type.Number
+            && !firstTok.containsDigit()) {
+          pendingStart = true;
+        }
+      }
+    }
+
+    boolean afterTrueEndPunct = false;
     boolean afterEndPunct = false;
     boolean softBoundary = false;
 
@@ -1227,25 +1383,49 @@ public final class SpanCandidateGenerator {
       if (t.type() == Token.Type.Punctuation) {
         String s = t.surface();
         if (HARD_END_PUNCT.contains(s)) {
-          afterEndPunct = true;
+          if (isTrueInternalSentenceBoundary(tokens, i)) {
+            afterTrueEndPunct = true;
+            afterEndPunct = false;
+          } else {
+            afterEndPunct = true;
+          }
         } else if (SOFT_BOUNDARY_PUNCT.contains(s)) {
           softBoundary = true;
         }
         continue;
       }
       if (t.type() == Token.Type.Emoji || t.type() == Token.Type.Emoticon) {
-        if (!pendingStart) {
+        if (!pendingStart && !afterTrueEndPunct) {
           softBoundary = true;
         }
         continue;
       }
       if (t.isImmutable()) {
+        if (t.type() == Token.Type.URL
+            || t.type() == Token.Type.Email
+            || t.type() == Token.Type.Date
+            || t.type() == Token.Type.Time
+            || t.type() == Token.Type.PercentNumeral) {
+          pendingStart = false;
+          afterTrueEndPunct = false;
+          afterEndPunct = false;
+          softBoundary = false;
+        }
+        continue;
+      }
+      if (t.type() == Token.Type.Number || t.containsDigit()) {
+        pendingStart = false;
+        afterTrueEndPunct = false;
+        afterEndPunct = false;
+        softBoundary = false;
         continue;
       }
       boolean startsUpper = !t.surface().isEmpty() && Character.isUpperCase(t.surface().charAt(0));
       if (pendingStart) {
         out[i] = true;
         pendingStart = false;
+      } else if (afterTrueEndPunct) {
+        out[i] = true;
       } else if (afterEndPunct) {
         if (sentenceAllCaps || startsUpper) {
           out[i] = true;
@@ -1253,6 +1433,7 @@ public final class SpanCandidateGenerator {
       } else if (softBoundary && !sentenceAllCaps && !sentenceTitleNoisy && startsUpper) {
         out[i] = true;
       }
+      afterTrueEndPunct = false;
       afterEndPunct = false;
       softBoundary = false;
     }
