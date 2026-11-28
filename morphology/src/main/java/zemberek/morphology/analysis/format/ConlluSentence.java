@@ -144,9 +144,16 @@ public record ConlluSentence(
     return sb.toString();
   }
 
-  /** Parses all sentences from a UTF-8 CoNLL-U file. */
+  /** Parses all sentences from a UTF-8 CoNLL-U file by streaming line-by-line. */
   public static List<ConlluSentence> parseFile(Path path) throws IOException {
-    return parseAll(Files.readAllLines(path, StandardCharsets.UTF_8));
+    LineParser parser = new LineParser();
+    try (java.io.BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        parser.accept(line);
+      }
+    }
+    return parser.finish();
   }
 
   /** Parses all sentences from a CoNLL-U formatted string. */
@@ -164,37 +171,36 @@ public record ConlluSentence(
    * lines ({@code i-j}). Enhanced-dependency empty nodes ({@code i.1}) are ignored.
    */
   public static List<ConlluSentence> parseAll(List<String> lines) {
-    List<ConlluSentence> result = new ArrayList<>();
-    String sentId = null;
-    String text = null;
-    List<ConlluToken> tokens = new ArrayList<>();
-    List<ConlluMwtSpan> mwtSpans = new ArrayList<>();
-    int sourceWordIdx = 0;
-    int activeMwtEnd = -1;
-    int activeMwtWordIdx = -1;
-
+    LineParser parser = new LineParser();
     for (String rawLine : lines) {
-      String line = rawLine.trim();
-      if (line.isEmpty()) {
-        if (!tokens.isEmpty()) {
-          result.add(new ConlluSentence(sentId, text, tokens, mwtSpans));
-          sentId = null;
-          text = null;
-          tokens = new ArrayList<>();
-          mwtSpans = new ArrayList<>();
-          sourceWordIdx = 0;
-          activeMwtEnd = -1;
-          activeMwtWordIdx = -1;
-        }
-        continue;
+      parser.accept(rawLine);
+    }
+    return parser.finish();
+  }
+
+  private static final class LineParser {
+    private final List<ConlluSentence> result = new ArrayList<>();
+    private String sentId;
+    private String text;
+    private List<ConlluToken> tokens = new ArrayList<>();
+    private List<ConlluMwtSpan> mwtSpans = new ArrayList<>();
+    private int sourceWordIdx;
+    private int activeMwtEnd = -1;
+    private int activeMwtWordIdx = -1;
+
+    void accept(String rawLine) {
+      if (rawLine.isBlank()) {
+        flushSentence();
+        return;
       }
+      String line = stripLineEnding(rawLine);
       if (line.startsWith("#")) {
         if (line.startsWith("# sent_id =")) {
           sentId = line.substring("# sent_id =".length()).trim();
         } else if (line.startsWith("# text =")) {
           text = line.substring("# text =".length()).trim();
         }
-        continue;
+        return;
       }
 
       String[] cols = line.split("\t", -1);
@@ -205,7 +211,7 @@ public record ConlluSentence(
       String idField = cols[0];
       if (idField.indexOf('.') >= 0) {
         // Skip empty nodes (e.g. "5.1") used only in enhanced UD graphs.
-        continue;
+        return;
       }
       int dashIdx = idField.indexOf('-');
       if (dashIdx > 0) {
@@ -215,25 +221,41 @@ public record ConlluSentence(
         mwtSpans.add(new ConlluMwtSpan(start, end, cols[1], cols[9], wordIdx));
         activeMwtEnd = end;
         activeMwtWordIdx = wordIdx;
-        continue;
+        return;
       }
 
       int id = Integer.parseInt(idField);
       int head = "_".equals(cols[6]) ? ConlluToken.UNASSIGNED_HEAD : Integer.parseInt(cols[6]);
-      int wordIdx;
-      if (id <= activeMwtEnd) {
-        wordIdx = activeMwtWordIdx;
-      } else {
-        wordIdx = sourceWordIdx++;
-      }
+      int wordIdx = (id <= activeMwtEnd) ? activeMwtWordIdx : sourceWordIdx++;
       tokens.add(new ConlluToken(
           id, cols[1], cols[2], cols[3], cols[4], cols[5], head, cols[7], cols[8], cols[9],
           wordIdx));
     }
 
-    if (!tokens.isEmpty()) {
-      result.add(new ConlluSentence(sentId, text, tokens, mwtSpans));
+    List<ConlluSentence> finish() {
+      flushSentence();
+      return result;
     }
-    return result;
+
+    private void flushSentence() {
+      if (!tokens.isEmpty()) {
+        result.add(new ConlluSentence(sentId, text, tokens, mwtSpans));
+        sentId = null;
+        text = null;
+        tokens = new ArrayList<>();
+        mwtSpans = new ArrayList<>();
+        sourceWordIdx = 0;
+        activeMwtEnd = -1;
+        activeMwtWordIdx = -1;
+      }
+    }
+
+    private static String stripLineEnding(String s) {
+      int end = s.length();
+      while (end > 0 && (s.charAt(end - 1) == '\r' || s.charAt(end - 1) == '\n')) {
+        end--;
+      }
+      return end == s.length() ? s : s.substring(0, end);
+    }
   }
 }

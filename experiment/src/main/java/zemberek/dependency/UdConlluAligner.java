@@ -216,7 +216,8 @@ public final class UdConlluAligner {
             uposConfusions.merge(gTok.upos() + " -> " + pTok.upos(), 1, Integer::sum);
           }
 
-          if (gTok.lemma().equalsIgnoreCase(pTok.lemma())) {
+          if (gTok.lemma().toLowerCase(zemberek.core.turkish.Turkish.LOCALE)
+              .equals(pTok.lemma().toLowerCase(zemberek.core.turkish.Turkish.LOCALE))) {
             lemmaMatches++;
           }
 
@@ -343,8 +344,20 @@ public final class UdConlluAligner {
         joined.append(' ');
       }
       String form = goldSubtokens.get(i).form();
-      joined.append(form);
-      subAnalyses.add(morphology.analyze(form));
+      WordAnalysis wa = morphology.analyze(form);
+      String queryForm = form;
+      if (i > 0 && isAllUnknown(wa)) {
+        String normalized = normalizeBoundCopulaEnclitic(form);
+        if (normalized != null) {
+          WordAnalysis rescued = morphology.analyze(normalized);
+          if (!isAllUnknown(rescued)) {
+            wa = rescued;
+            queryForm = normalized;
+          }
+        }
+      }
+      joined.append(queryForm);
+      subAnalyses.add(wa);
     }
     SentenceAnalysis disamb = morphology.disambiguate(joined.toString(), subAnalyses);
     List<ConlluToken> projected = new ArrayList<>(goldSubtokens.size());
@@ -354,6 +367,81 @@ public final class UdConlluAligner {
       projected.add(formatter.projectSingle(gTok.id(), gTok.form(), best));
     }
     return projected;
+  }
+
+  private static boolean isAllUnknown(WordAnalysis wa) {
+    if (wa == null || wa.analysisCount() == 0) {
+      return true;
+    }
+    for (SingleAnalysis sa : wa) {
+      if (!sa.isUnknown()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Maps common Turkish bound copular enclitics split in UD MWTs (e.g. {@code ydi}, {@code ydık},
+   * {@code ymış}, {@code ysa}, {@code yken}, {@code tılar}) to their free {@code imek} forms
+   * ({@code idi}, {@code idik}, {@code imiş}, {@code ise}, {@code iken}, {@code idiler}) so
+   * Zemberek can analyze them as {@code AUX} instead of {@code X} during non-strict fallback.
+   */
+  static String normalizeBoundCopulaEnclitic(String subForm) {
+    if (subForm == null || subForm.isEmpty()) {
+      return null;
+    }
+    String s = subForm.toLowerCase(zemberek.core.turkish.Turkish.LOCALE);
+    if (s.startsWith("y") && s.length() >= 3) {
+      s = s.substring(1);
+    }
+    if ("ken".equals(s)) {
+      return "iken";
+    }
+    // Past copula: [dt][ıiuü] + optional person suffix
+    if (s.length() >= 2 && (s.charAt(0) == 'd' || s.charAt(0) == 't') && isHighVowel(s.charAt(1))) {
+      String tail = s.substring(2);
+      return switch (tail) {
+        case "" -> "idi";
+        case "m" -> "idim";
+        case "n" -> "idin";
+        case "k" -> "idik";
+        case "nız", "niz", "nuz", "nüz" -> "idiniz";
+        case "lar", "ler" -> "idiler";
+        default -> null;
+      };
+    }
+    // Evidential/narrative copula: m[ıiuü]ş + optional person suffix
+    if (s.length() >= 3 && s.charAt(0) == 'm' && isHighVowel(s.charAt(1)) && s.charAt(2) == 'ş') {
+      String tail = s.substring(3);
+      return switch (tail) {
+        case "" -> "imiş";
+        case "ım", "im", "um", "üm" -> "imişim";
+        case "sın", "sin", "sun", "sün" -> "imişsin";
+        case "ız", "iz", "uz", "üz" -> "imişiz";
+        case "sınız", "siniz", "sunuz", "sünüz" -> "imişsiniz";
+        case "lar", "ler" -> "imişler";
+        default -> null;
+      };
+    }
+    // Conditional copula: s[ae] + optional person suffix
+    if (s.length() >= 2 && s.charAt(0) == 's' && (s.charAt(1) == 'a' || s.charAt(1) == 'e')) {
+      String tail = s.substring(2);
+      return switch (tail) {
+        case "" -> "ise";
+        case "m" -> "isem";
+        case "n" -> "isen";
+        case "k" -> "isek";
+        case "nız", "niz" -> "iseniz";
+        case "lar", "ler" -> "iseler";
+        default -> null;
+      };
+    }
+    return null;
+  }
+
+  private static boolean isHighVowel(char c) {
+    return c == 'ı' || c == 'i' || c == 'u' || c == 'ü';
   }
 
   private static Map<Integer, List<ConlluToken>> groupBySourceWord(List<ConlluToken> tokens) {

@@ -112,4 +112,39 @@ public class UdConlluAlignerTest {
     }
     Assert.assertFalse(parsed.get(1).mwtSpans().isEmpty());
   }
+
+  @Test
+  public void rescuesBoundCopulaEncliticsAndUsesTurkishLocaleForLemmas() {
+    // 1. Direct enclitic normalizer checks
+    Assert.assertEquals("idi", UdConlluAligner.normalizeBoundCopulaEnclitic("ydi"));
+    Assert.assertEquals("idik", UdConlluAligner.normalizeBoundCopulaEnclitic("ydık"));
+    Assert.assertEquals("imiş", UdConlluAligner.normalizeBoundCopulaEnclitic("ymış"));
+    Assert.assertEquals("ise", UdConlluAligner.normalizeBoundCopulaEnclitic("ysa"));
+    Assert.assertEquals("iken", UdConlluAligner.normalizeBoundCopulaEnclitic("yken"));
+
+    // 2. When MwtMode.NONE leaves "Evdeydi" unsplit while gold splits "Evde + ydi",
+    //    fallback should rescue "ydi" -> AUX (lemma "i") instead of Unknown (X).
+    UdConlluAligner noMwtAligner = new UdConlluAligner(morphology, ConlluFormatter.singleToken());
+    String goldSplit =
+        "# sent_id = enc_1\n"
+            + "# text = Evdeydi.\n"
+            + "1-2\tEvdeydi\t_\t_\t_\t_\t_\t_\t_\tSpaceAfter=No\n"
+            + "1\tEvde\tev\tNOUN\t_\tCase=Loc|Number=Sing|Person=3\t0\troot\t_\t_\n"
+            + "2\tydi\ti\tAUX\tZero\tAspect=Perf|Evident=Fh|Number=Sing|Person=3|Polarity=Pos|Tense=Past\t1\tcop\t_\t_\n"
+            + "3\t.\t.\tPUNCT\tPunc\t_\t1\tpunct\t_\t_\n";
+    AlignmentResult res = noMwtAligner.alignTreebank(ConlluSentence.parseAll(goldSplit), false);
+    ConlluToken rescuedCop = res.alignedSentences().getFirst().tokenById(2);
+    Assert.assertEquals("AUX", rescuedCop.upos());
+    Assert.assertEquals("i", rescuedCop.lemma());
+
+    // 3. Turkish ı/i distinction: gold lemma "kir" must NOT match Zemberek lemma "kır"
+    String dotlessI =
+        "# sent_id = tr_i\n"
+            + "# text = Kır.\n"
+            + "1\tKır\tkir\tNOUN\t_\tCase=Nom|Number=Sing|Person=3\t0\troot\t_\tSpaceAfter=No\n"
+            + "2\t.\t.\tPUNCT\tPunc\t_\t1\tpunct\t_\t_\n";
+    AlignmentResult trRes = aligner.alignTreebank(ConlluSentence.parseAll(dotlessI), false);
+    // Token 1 is "kır" (not "kir"), token 2 is "." (matches ".") -> only 1 of 2 lemmas matches
+    Assert.assertEquals(1, trRes.stats().lemmaMatches());
+  }
 }
