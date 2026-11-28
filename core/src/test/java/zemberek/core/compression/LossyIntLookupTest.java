@@ -22,6 +22,11 @@ public class LossyIntLookupTest {
             Assert.assertEquals(
                 MultiLevelMphf.hash(p1 + p2 + p3, seed),
                 MultiLevelMphf.hash(p1, p2, p3, seed));
+            for (String p4 : parts) {
+              Assert.assertEquals(
+                  MultiLevelMphf.hash(p1 + p2 + p3 + p4, seed),
+                  MultiLevelMphf.hash(p1, p2, p3, p4, seed));
+            }
           }
         }
       }
@@ -45,6 +50,13 @@ public class LossyIntLookupTest {
         {"15:Verb-", "", "</s>"},
         {"15:long-", longSuffix, "-end"}
     };
+    String[][] fourPart = {
+        {"15:", "Noun+A3sg-", "Adj-", "Verb+Past"},
+        {"2:", "kitap+Noun+A3sg+Pnon+Acc", "-", "okumak+Verb+Past+A3sg"},
+        {"9:", "kitap", "-", "okumak"},
+        {"3:", "", "-", ""},
+        {"15:", "Noun-", longSuffix, "-end"}
+    };
 
     float v = 1.25f;
     for (String[] kv : twoPart) {
@@ -53,6 +65,10 @@ public class LossyIntLookupTest {
     }
     for (String[] kv : threePart) {
       map.set(kv[0] + kv[1] + kv[2], v);
+      v += 0.5f;
+    }
+    for (String[] kv : fourPart) {
+      map.set(kv[0] + kv[1] + kv[2] + kv[3], v);
       v += 0.5f;
     }
 
@@ -69,9 +85,15 @@ public class LossyIntLookupTest {
       Assert.assertEquals(expected, lookup.getAsFloat(kv[0], kv[1], kv[2]), 0f);
       Assert.assertEquals(expected, weights.get(kv[0], kv[1], kv[2]), 0f);
     }
+    for (String[] kv : fourPart) {
+      float expected = lookup.getAsFloat(kv[0] + kv[1] + kv[2] + kv[3]);
+      Assert.assertEquals(expected, lookup.getAsFloat(kv[0], kv[1], kv[2], kv[3]), 0f);
+      Assert.assertEquals(expected, weights.get(kv[0], kv[1], kv[2], kv[3]), 0f);
+    }
 
     // Absent keys should match single-string lookup (0f)
     Assert.assertEquals(0f, weights.get("4:", "nonexistent_key_12345"), 0f);
     Assert.assertEquals(0f, weights.get("15:absent1-", "absent2-", "absent3"), 0f);
+    Assert.assertEquals(0f, weights.get("15:", "absent1-", "absent2-", "absent3"), 0f);
   }
 }

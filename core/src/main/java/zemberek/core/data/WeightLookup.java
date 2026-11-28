@@ -12,6 +12,10 @@ public interface WeightLookup {
     return get(p1 + p2 + p3);
   }
 
+  default float get(String p1, String p2, String p3, String p4) {
+    return get(p1 + p2 + p3 + p4);
+  }
+
   int size();
 
 }

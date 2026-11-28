@@ -105,6 +105,28 @@ public class LossyIntLookup {
     return Float.intBitsToFloat(get(p1 + p2 + p3));
   }
 
+  /**
+   * Evaluates {@code getAsFloat(p1 + p2 + p3 + p4)} without allocating the concatenated string.
+   */
+  public float getAsFloat(String p1, String p2, String p3, String p4) {
+    int len2 = p2.length();
+    int len3 = p3.length();
+    int len4 = p4.length();
+    if (len2 < POW31.length && len3 < POW31.length && len4 < POW31.length) {
+      int h = p1.hashCode() * POW31[len2] + p2.hashCode();
+      h = h * POW31[len3] + p3.hashCode();
+      h = h * POW31[len4] + p4.hashCode();
+      int fingerprint = h & 0x7ffffff;
+      int b = fingerprint & BITMAP_MASK;
+      if ((fingerprintBitmap[b >>> 6] & (1L << b)) == 0L) {
+        return 0f;
+      }
+      int index = mphf.get(p1, p2, p3, p4) * 2;
+      return fingerprint == data[index] ? Float.intBitsToFloat(data[index + 1]) : 0f;
+    }
+    return Float.intBitsToFloat(get(p1 + p2 + p3 + p4));
+  }
+
   private static int getFingerprint(String s) {
     return s.hashCode() & 0x7ffffff;
   }
