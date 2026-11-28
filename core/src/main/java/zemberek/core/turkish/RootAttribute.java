@@ -167,6 +167,11 @@ public enum RootAttribute implements StringEnum {
   // This way, words like "UNICEF" will be lowercased as "unicef", not "unıcef"
   LocaleEn,
 
+  // Marks vulgar, profane, or obscene words and severe slurs.
+  // Morphological analysis and spell-check validation accept them, while spell-checkers
+  // exclude them from correction suggestions.
+  Vulgar,
+
   // This is used for temporary DictionaryItems created for words that cannot be analyzed.
   Unknown;
 

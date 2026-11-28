@@ -901,7 +901,7 @@ alyans
 alyon [P:Adj]
 alyuvar
 alzaymır
-am
+am [A:Vulgar]
 âmâ [P:Adj]
 ama [P:Conj]
 amabile [P:Adv]
@@ -3345,13 +3345,13 @@ bohça
 bohçalamak
 bohem [P:Adj]
 bohriyum
-bok
-bok [P:Adj]
-boklamak
+bok [A:Vulgar]
+bok [P:Adj; A:Vulgar]
+boklamak [A:Vulgar]
 boks
 boksit [A:NoVoicing]
 boksör
-boktan [P:Adj]
+boktan [P:Adj; A:Vulgar]
 bol [A:InverseHarmony]
 bol [P:Adj]
 bolalmak
@@ -5057,7 +5057,7 @@ cüzzam
 çuval
 çuvaldız
 çuvallamak
-çük
+çük [A:Vulgar]
 çükündür
 çükür
 çünkü [P:Conj]
@@ -5162,7 +5162,7 @@ daluyku
 dalya
 dalya [P:Interj]
 dalyan
-dalyarak [P:Adj]
+dalyarak [P:Adj; A:Vulgar]
 dalyasan
 dam
 dama
@@ -5759,7 +5759,7 @@ deyi
 deyi [P:Dup; A:NoSuffix]
 deyim
 deyiş
-deyyus [P:Adj]
+deyyus [P:Adj; A:Vulgar]
 dezavantaj
 dezenfeksiyon
 dezenfektan [P:Adj]
@@ -6205,7 +6205,7 @@ dolunay
 dolusu [P:Adj]
 doluşmak
 domalan
-domalmak
+domalmak [A:Vulgar]
 domates
 dombay
 domdom
@@ -9021,8 +9021,8 @@ gösterim
 gösteriş
 göstermek
 göstermelik [P:Adj]
-göt
-götün [P:Dup]
+göt [A:Vulgar]
+götün [P:Dup; A:Vulgar]
 götürmek
 götürü [P:Adj]
 götürü [P:Adv]
@@ -10641,7 +10641,7 @@ ibiş [P:Adj]
 iblâğ
 iblis
 iblisane [P:Adj]
-ibne
+ibne [A:Vulgar]
 ibra
 ibraname
 ibraz
@@ -11544,7 +11544,7 @@ itlenmek
 itmam
 itmek
 itminan
-itoğluit [P:Interj]
+itoğluit [P:Interj; A:Vulgar]
 itriyum
 ittifak [A:NoVoicing]
 ittihat
@@ -12028,8 +12028,8 @@ kalsemi
 kalsifikasyon
 kalsit [A:NoVoicing]
 kalsiyum
-kaltaban [P:Adj]
-kaltak
+kaltaban [P:Adj; A:Vulgar]
+kaltak [A:Vulgar]
 kalubelâ
 kalya
 kalyon
@@ -12672,7 +12672,7 @@ kavanoz
 kavara
 kavas
 kavasya
-kavat [A:NoVoicing]
+kavat [A:NoVoicing, Vulgar]
 kavata
 kavelâ
 kavga
@@ -12994,7 +12994,7 @@ kerevides
 kerevit [A:NoVoicing]
 kereviz
 kerh
-kerhane
+kerhane [A:Vulgar]
 kerhen [P:Adv]
 kerih [P:Adj]
 kerim [P:Adj]
@@ -13615,7 +13615,7 @@ kodes
 kodifikasyon
 kodlamak
 kodon
-kodoş
+kodoş [A:Vulgar]
 kof [P:Adj]
 kofa
 kofana
@@ -14290,7 +14290,7 @@ kulak
 kulakçık
 kulaktan [P:Adv]
 kulaktozu [A:CompoundP3sg; Roots:kulak-toz]
-kulampara
+kulampara [A:Vulgar]
 kule
 kulis
 kullanım
@@ -18323,7 +18323,7 @@ ornitoloji
 ornitorenk
 orografya
 orojeni
-orospu
+orospu [A:Vulgar]
 orostopol
 orsa
 orsalamak
@@ -19317,8 +19317,8 @@ peynir
 peynirhane
 peyrev
 peyzaj
-pezevenk
-pezo
+pezevenk [A:Vulgar]
+pezo [A:Vulgar]
 pH
 pıhtı
 pılı [P:Dup]
@@ -19856,7 +19856,7 @@ pusu
 pusula
 pusulamak
 pusval
-puşt [P:Adj]
+puşt [P:Adj; A:Vulgar]
 put
 putperest [A:NoVoicing]
 putperest [P:Adj; A:NoVoicing]
@@ -21419,8 +21419,8 @@ sıçandişi [A:CompoundP3sg; Roots:sıçan-diş]
 sıçankulağı [A:CompoundP3sg; Roots:sıçan-kulak]
 sıçankuyruğu [A:CompoundP3sg; Roots:sıçan-kuyruk]
 sıçanotu
-sıçırgan [P:Adj]
-sıçmak
+sıçırgan [P:Adj; A:Vulgar]
+sıçmak [A:Vulgar]
 sıçramak
 sıdk
 sıfat [A:NoVoicing]
@@ -21593,16 +21593,16 @@ sigortalamak
 siğil
 sihir [A:LastVowelDrop]
 sihirbaz
-sik
+sik [A:Vulgar]
 sika
 sikatif
 sikatif [P:Adj]
 sikke
 sikkelemek
 siklâmen
-siklemek
+siklemek [A:Vulgar]
 siklon
-sikmek
+sikmek [A:Vulgar]
 silâh
 silâhaltı [A:CompoundP3sg; Roots:silâh-alt]
 silâhendaz
@@ -22426,7 +22426,7 @@ sürrealizm
 sürsat [A:NoVoicing]
 sürşarj
 sürtmek
-sürtük
+sürtük [A:Vulgar]
 sürtünmek
 sürtüşmek [A:Reciprocal]
 sürur
@@ -22799,7 +22799,7 @@ süzüntü
 şıkırtı
 şıkşık
 şıldır [P:Dup]
-şıllık [P:Adj]
+şıllık [P:Adj; A:Vulgar]
 şımarık [P:Adj]
 şımarmak
 şınav
@@ -22821,7 +22821,7 @@ süzüntü
 şırak
 şırakkadak [P:Adv]
 şıraölçer
-şırfıntı [P:Adj]
+şırfıntı [P:Adj; A:Vulgar]
 şırıl [P:Dup]
 şırıldamak
 şırıltı
@@ -23449,7 +23449,7 @@ tasvir
 tasvirî [P:Adj]
 taş
 taş [P:Adj]
-taşak
+taşak [A:Vulgar]
 taşçıl [P:Adj]
 taşemen
 taşeron
@@ -26016,7 +26016,7 @@ yara
 yarabbi
 yaradılış
 yaradılıştan [P:Adv]
-yarak
+yarak [A:Vulgar]
 yaralamak
 yaramak
 yaramaz [P:Adj]
@@ -26130,7 +26130,7 @@ yavrucak
 yavrukurt
 yavrulamak
 yavsı
-yavşak
+yavşak [A:Vulgar]
 yavşan
 yavuklamak
 yavuklu
@@ -27512,7 +27512,7 @@ nüdist [A:NoVoicing]
 ölü
 ortanca
 paşa
-puşt
+puşt [A:Vulgar]
 rahmetlik
 rahvan
 sabi
@@ -27522,7 +27522,7 @@ sanatkâr
 seferî
 serçin
 sermayedar
-şıllık
+şıllık [A:Vulgar]
 sonsuz
 şopar
 sözlü
@@ -29000,9 +29000,9 @@ dede [P:Interj]
 dehşet [P:Interj]
 delikanlı [P:Interj]
 devam [P:Interj]
-deyyus [P:Interj]
+deyyus [P:Interj; A:Vulgar]
 dikkat [P:Interj]
-dürzü [P:Interj]
+dürzü [P:Interj; A:Vulgar]
 efendi [P:Interj]
 evet [P:Interj]
 fayrap [P:Interj]
@@ -29017,7 +29017,7 @@ hayır [P:Interj]
 hayret [P:Interj]
 hazret [P:Interj]
 hücum [P:Interj]
-ibne [P:Interj]
+ibne [P:Interj; A:Vulgar]
 ileri [P:Interj]
 imdat [P:Interj]
 insaf [P:Interj]
@@ -29057,9 +29057,9 @@ oy [P:Interj]
 öyle [P:Interj]
 pas [P:Interj]
 paydos [P:Interj]
-pezevenk [P:Interj]
+pezevenk [P:Interj; A:Vulgar]
 puf [P:Interj]
-puşt [P:Interj]
+puşt [P:Interj; A:Vulgar]
 rahat [P:Interj]
 tamam [P:Interj]
 teslim [P:Interj]

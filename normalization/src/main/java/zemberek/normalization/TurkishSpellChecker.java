@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import zemberek.core.ScoredItem;
 import zemberek.core.logging.Log;
+import zemberek.core.turkish.RootAttribute;
 import zemberek.core.turkish.Turkish;
 import zemberek.core.turkish.TurkishAlphabet;
 import zemberek.lm.DummyLanguageModel;
@@ -108,6 +109,18 @@ public class TurkishSpellChecker {
         && (analysisPredicate == null || analysisPredicate.test(analysis));
   }
 
+  private static boolean isVulgarAnalysis(SingleAnalysis analysis) {
+    var item = analysis.getDictionaryItem();
+    if (item == null) {
+      return false;
+    }
+    if (item.hasAttribute(RootAttribute.Vulgar)) {
+      return true;
+    }
+    var ref = item.getReferenceItem();
+    return ref != null && ref.hasAttribute(RootAttribute.Vulgar);
+  }
+
   private static String getApostrophe(String input) {
     if (input.indexOf('’') > 0) {
       return "’";
@@ -166,7 +179,7 @@ public class TurkishSpellChecker {
     Map<String, ScoredSuggestion> results = new LinkedHashMap<>(rawScored.size());
     for (ScoredItem<String> raw : rawScored) {
       for (SingleAnalysis analysis : morphology.analyze(raw.item)) {
-        if (!isAllowedAnalysis(analysis)) {
+        if (!isAllowedAnalysis(analysis) || isVulgarAnalysis(analysis)) {
           continue;
         }
         String formatted = formatter.formatToCase(analysis, caseType, apostrophe);

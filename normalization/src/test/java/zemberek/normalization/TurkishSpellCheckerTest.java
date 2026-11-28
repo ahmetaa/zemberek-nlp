@@ -161,6 +161,41 @@ public class TurkishSpellCheckerTest {
     Assert.assertTrue(spellChecker.suggestForWord("guldm", null).contains("güldüm"));
   }
 
+  @Test
+  public void vulgarWordsAcceptedByCheckButExcludedFromSuggestions() throws IOException {
+    TurkishMorphology syntheticMorph =
+        TurkishMorphology.builder().setLexicon("kitap", "kulp [A:Vulgar]").build();
+    TurkishSpellChecker syntheticChecker = new TurkishSpellChecker(syntheticMorph);
+    zemberek.normalization.v2.CompactStemEndingSpellChecker syntheticCompact =
+        new zemberek.normalization.v2.CompactStemEndingSpellChecker(syntheticMorph);
+
+    Assert.assertTrue(syntheticChecker.check("kulp"));
+    Assert.assertFalse(syntheticChecker.suggestForWord("kulb", null).contains("kulp"));
+    Assert.assertTrue(
+        syntheticCompact.suggestScored("kulb").stream()
+            .noneMatch(c -> c.surface().equals("kulp")));
+    Assert.assertTrue(syntheticChecker.suggestForWord("kitab", null).contains("kitap"));
+
+    TurkishMorphology defaultMorph = TurkishMorphology.createWithDefaults();
+    Assert.assertTrue(
+        defaultMorph.getLexicon().getAllItems().stream()
+            .anyMatch(i -> i.hasAttribute(zemberek.core.turkish.RootAttribute.Vulgar)));
+    TurkishSpellChecker defaultChecker = new TurkishSpellChecker(defaultMorph);
+    zemberek.normalization.v2.CompactStemEndingSpellChecker defaultCompact =
+        new zemberek.normalization.v2.CompactStemEndingSpellChecker(defaultMorph);
+    Assert.assertTrue(defaultChecker.check("bok"));
+    Assert.assertFalse(defaultChecker.suggestForWord("boktn").contains("boktan"));
+    Assert.assertTrue(
+        defaultCompact.suggestScored("boktn").stream()
+            .noneMatch(c -> c.surface().equals("boktan")));
+    Assert.assertTrue(
+        defaultCompact.suggestScored("sokuk").stream()
+            .anyMatch(c -> c.surface().equals("sökük")));
+    Assert.assertTrue(
+        defaultCompact.suggestScored("kic").stream()
+            .anyMatch(c -> c.surface().equals("kıç")));
+  }
+
   private void check(TurkishSpellChecker spellChecker, NgramLanguageModel lm, String input,
       String expected) throws Exception {
     List<String> res = spellChecker.suggestForWord(input, lm);
