@@ -45,6 +45,11 @@
     </dependency>
     <dependency>
       <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-dependency</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>zemberek-nlp</groupId>
       <artifactId>zemberek-normalization</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
