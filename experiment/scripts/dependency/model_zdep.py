@@ -205,7 +205,7 @@ def _cle_arborescence(scores: np.ndarray) -> np.ndarray:
             comp[v] = cycle_id
 
     m = next_id
-    c_scores = np.full((m, m), -1e18, dtype=np.float64)
+    c_scores = np.full((m, m), -np.inf, dtype=np.float64)
     best_orig_h = np.full((m, m), -1, dtype=np.int64)
     best_orig_d = np.full((m, m), -1, dtype=np.int64)
 
@@ -218,9 +218,9 @@ def _cle_arborescence(scores: np.ndarray) -> np.ndarray:
             if ch == cd:
                 continue
             w = float(scores[dep, head])
-            if in_cycle[dep]:
+            if in_cycle[dep] and np.isfinite(w) and np.isfinite(scores[dep, best_head[dep]]):
                 w -= float(scores[dep, best_head[dep]])
-            if w > c_scores[cd, ch]:
+            if w > c_scores[cd, ch] or best_orig_h[cd, ch] == -1:
                 c_scores[cd, ch] = w
                 best_orig_h[cd, ch] = head
                 best_orig_d[cd, ch] = dep
@@ -254,7 +254,7 @@ def decode_single_root_mst(scores: np.ndarray) -> np.ndarray:
     if int(np.sum(unconstrained[1:] == 0)) == 1:
         return unconstrained
 
-    best_total = -1e30
+    best_total = -np.inf
     best_heads = unconstrained
     for r in range(1, n):
         constrained = scores.copy()
@@ -262,7 +262,7 @@ def decode_single_root_mst(scores: np.ndarray) -> np.ndarray:
         constrained[r, :] = -1e18
         constrained[r, 0] = scores[r, 0]
         cand = _cle_arborescence(constrained)
-        total = sum(float(scores[d, cand[d]]) for d in range(1, n))
+        total = sum(float(constrained[d, cand[d]]) for d in range(1, n))
         if total > best_total:
             best_total = total
             best_heads = cand
@@ -455,28 +455,6 @@ class ZdepBiaffineParser(nn.Module):
                 emb.weight[0].zero_()
         nn.init.xavier_uniform_(self.arc_biaffine)
         nn.init.xavier_uniform_(self.rel_biaffine)
-
-    def _encode_chars(self, char_ids: torch.Tensor, char_valid_mask: torch.Tensor) -> torch.Tensor:
-        """
-        char_ids: [B, T, C_max]
-        char_valid_mask: [B, T] bool (False for <ROOT> and padded token positions)
-        Returns: [B, T, len(kernels) * char_num_filters]
-        """
-        B, T, C = char_ids.shape
-        flat = char_ids.view(B * T, C)
-        emb = self.char_emb(flat).transpose(1, 2)  # [B*T, D_c, C]
-        pooled_parts = []
-        for conv in self.char_convs:
-            k = conv.kernel_size[0]
-            x = emb
-            if C < k:
-                x = F.pad(x, (0, k - C), value=0.0)
-            c_out = F.relu(conv(x))  # [B*T, F, C-k+1]
-            # Mask windows that start beyond actual word length? In Java we run up to max(len, k)
-            # where trailing PADs are zeros; we mirror exact per-token char_lens in collate!
-            pooled_parts.append(c_out.max(dim=-1).values)
-        out = torch.cat(pooled_parts, dim=-1).view(B, T, -1)
-        return out * char_valid_mask.unsqueeze(-1).to(out.dtype)
 
     def forward(
         self,

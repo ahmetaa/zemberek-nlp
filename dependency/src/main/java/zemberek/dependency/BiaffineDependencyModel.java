@@ -614,67 +614,90 @@ public final class BiaffineDependencyModel {
       throw new IOException("Unsupported ZDEP model version: " + version);
     }
 
-    int lemmaDim = in.readInt();
-    int charEmbDim = in.readInt();
-    int numKernels = in.readInt();
+    int lemmaDim = readPositiveInt(in, "lemmaDim");
+    int charEmbDim = readNonNegativeInt(in, "charEmbDim");
+    int numKernels = readNonNegativeInt(in, "numKernels");
     int[] charKernelSizes = new int[numKernels];
     for (int i = 0; i < numKernels; i++) {
-      charKernelSizes[i] = in.readInt();
+      charKernelSizes[i] = readPositiveInt(in, "charKernelSizes[" + i + "]");
     }
-    int charNumFilters = in.readInt();
-    int uposDim = in.readInt();
-    int xposDim = in.readInt();
-    int featDim = in.readInt();
-    int inputProjDim = in.readInt();
-    int gruLayers = in.readInt();
-    int gruHidden = in.readInt();
-    int arcMlpDim = in.readInt();
-    int relMlpDim = in.readInt();
+    int charNumFilters = readNonNegativeInt(in, "charNumFilters");
+    int uposDim = readPositiveInt(in, "uposDim");
+    int xposDim = readPositiveInt(in, "xposDim");
+    int featDim = readPositiveInt(in, "featDim");
+    int inputProjDim = readPositiveInt(in, "inputProjDim");
+    int gruLayers = readPositiveInt(in, "gruLayers");
+    int gruHidden = readPositiveInt(in, "gruHidden");
+    int arcMlpDim = readPositiveInt(in, "arcMlpDim");
+    int relMlpDim = readPositiveInt(in, "relMlpDim");
 
-    String[] lemmaVocab = readStringArray(in);
-    String[] charVocab = readStringArray(in);
-    String[] uposVocab = readStringArray(in);
-    String[] xposVocab = readStringArray(in);
-    String[] featVocab = readStringArray(in);
-    String[] labelVocab = readStringArray(in);
+    int charOutDim;
+    int rawInputDim;
+    int encOutDim;
+    int gruGateDim;
+    try {
+      charOutDim = Math.multiplyExact(numKernels, charNumFilters);
+      rawInputDim = Math.addExact(
+          Math.addExact(Math.addExact(lemmaDim, charOutDim), Math.addExact(uposDim, xposDim)),
+          featDim);
+      encOutDim = Math.multiplyExact(2, gruHidden);
+      gruGateDim = Math.multiplyExact(3, gruHidden);
+    } catch (ArithmeticException e) {
+      throw new IOException("ZDEP header dimension overflow", e);
+    }
 
-    QuantizedMatrix lemmaEmb = QuantizedMatrix.read(in);
-    QuantizedMatrix charEmb = QuantizedMatrix.read(in);
+    String[] lemmaVocab = readStringArray(in, 3, "lemmaVocab");
+    String[] charVocab = readStringArray(in, 4, "charVocab");
+    String[] uposVocab = readStringArray(in, 3, "uposVocab");
+    String[] xposVocab = readStringArray(in, 3, "xposVocab");
+    String[] featVocab = readStringArray(in, 2, "featVocab");
+    String[] labelVocab = readStringArray(in, 1, "labelVocab");
+
+    QuantizedMatrix lemmaEmb = checkShape(QuantizedMatrix.read(in), lemmaVocab.length, lemmaDim, "lemmaEmb");
+    QuantizedMatrix charEmb = checkShape(QuantizedMatrix.read(in), charVocab.length, charEmbDim, "charEmb");
     QuantizedMatrix[] charConvW = new QuantizedMatrix[numKernels];
     float[][] charConvB = new float[numKernels][];
     for (int i = 0; i < numKernels; i++) {
-      charConvW[i] = QuantizedMatrix.read(in);
-      charConvB[i] = readFloatArray(in);
+      int kWidth;
+      try {
+        kWidth = Math.multiplyExact(charKernelSizes[i], charEmbDim);
+      } catch (ArithmeticException e) {
+        throw new IOException("CharCNN kernel width overflow at index " + i, e);
+      }
+      charConvW[i] = checkShape(QuantizedMatrix.read(in), charNumFilters, kWidth, "charConvW[" + i + "]");
+      charConvB[i] = checkLen(readFloatArray(in), charNumFilters, "charConvB[" + i + "]");
     }
-    QuantizedMatrix uposEmb = QuantizedMatrix.read(in);
-    QuantizedMatrix xposEmb = QuantizedMatrix.read(in);
-    QuantizedMatrix featEmb = QuantizedMatrix.read(in);
+    QuantizedMatrix uposEmb = checkShape(QuantizedMatrix.read(in), uposVocab.length, uposDim, "uposEmb");
+    QuantizedMatrix xposEmb = checkShape(QuantizedMatrix.read(in), xposVocab.length, xposDim, "xposEmb");
+    QuantizedMatrix featEmb = checkShape(QuantizedMatrix.read(in), featVocab.length, featDim, "featEmb");
 
-    QuantizedMatrix inputProjW = QuantizedMatrix.read(in);
-    float[] inputProjB = readFloatArray(in);
-    float[] inputLnGamma = readFloatArray(in);
-    float[] inputLnBeta = readFloatArray(in);
+    QuantizedMatrix inputProjW = checkShape(QuantizedMatrix.read(in), inputProjDim, rawInputDim, "inputProjW");
+    float[] inputProjB = checkLen(readFloatArray(in), inputProjDim, "inputProjB");
+    float[] inputLnGamma = checkLen(readFloatArray(in), inputProjDim, "inputLnGamma");
+    float[] inputLnBeta = checkLen(readFloatArray(in), inputProjDim, "inputLnBeta");
 
     GruDirectionWeights[] gruFwd = new GruDirectionWeights[gruLayers];
     GruDirectionWeights[] gruBwd = new GruDirectionWeights[gruLayers];
     for (int l = 0; l < gruLayers; l++) {
-      gruFwd[l] = GruDirectionWeights.read(in);
-      gruBwd[l] = GruDirectionWeights.read(in);
+      int layerInDim = (l == 0) ? inputProjDim : encOutDim;
+      gruFwd[l] = validateGruWeights(GruDirectionWeights.read(in), gruGateDim, layerInDim, gruHidden, "gruFwd[" + l + "]");
+      gruBwd[l] = validateGruWeights(GruDirectionWeights.read(in), gruGateDim, layerInDim, gruHidden, "gruBwd[" + l + "]");
     }
 
-    QuantizedMatrix arcDepW = QuantizedMatrix.read(in);
-    float[] arcDepB = readFloatArray(in);
-    QuantizedMatrix arcHeadW = QuantizedMatrix.read(in);
-    float[] arcHeadB = readFloatArray(in);
-    QuantizedMatrix arcBiaffine = QuantizedMatrix.read(in);
+    QuantizedMatrix arcDepW = checkShape(QuantizedMatrix.read(in), arcMlpDim, encOutDim, "arcDepW");
+    float[] arcDepB = checkLen(readFloatArray(in), arcMlpDim, "arcDepB");
+    QuantizedMatrix arcHeadW = checkShape(QuantizedMatrix.read(in), arcMlpDim, encOutDim, "arcHeadW");
+    float[] arcHeadB = checkLen(readFloatArray(in), arcMlpDim, "arcHeadB");
+    QuantizedMatrix arcBiaffine = checkShape(QuantizedMatrix.read(in), arcMlpDim + 1, arcMlpDim + 1, "arcBiaffine");
 
-    QuantizedMatrix relDepW = QuantizedMatrix.read(in);
-    float[] relDepB = readFloatArray(in);
-    QuantizedMatrix relHeadW = QuantizedMatrix.read(in);
-    float[] relHeadB = readFloatArray(in);
+    QuantizedMatrix relDepW = checkShape(QuantizedMatrix.read(in), relMlpDim, encOutDim, "relDepW");
+    float[] relDepB = checkLen(readFloatArray(in), relMlpDim, "relDepB");
+    QuantizedMatrix relHeadW = checkShape(QuantizedMatrix.read(in), relMlpDim, encOutDim, "relHeadW");
+    float[] relHeadB = checkLen(readFloatArray(in), relMlpDim, "relHeadB");
     QuantizedMatrix[] relBiaffine = new QuantizedMatrix[labelVocab.length];
     for (int c = 0; c < labelVocab.length; c++) {
-      relBiaffine[c] = QuantizedMatrix.read(in);
+      relBiaffine[c] = checkShape(
+          QuantizedMatrix.read(in), relMlpDim + 1, relMlpDim + 1, "relBiaffine[" + c + "]");
     }
 
     return new BiaffineDependencyModel(
@@ -759,6 +782,9 @@ public final class BiaffineDependencyModel {
 
   private static float[] readFloatArray(DataInputStream in) throws IOException {
     int len = in.readInt();
+    if (len < 0) {
+      throw new IOException("Negative float array length: " + len);
+    }
     float[] arr = new float[len];
     for (int i = 0; i < len; i++) {
       arr[i] = in.readFloat();
@@ -775,16 +801,68 @@ public final class BiaffineDependencyModel {
     }
   }
 
-  private static String[] readStringArray(DataInputStream in) throws IOException {
+  private static String[] readStringArray(DataInputStream in, int minLen, String name)
+      throws IOException {
     int len = in.readInt();
+    if (len < minLen) {
+      throw new IOException(
+          "Invalid ZDEP " + name + " length: " + len + " (expected >= " + minLen + ")");
+    }
     String[] arr = new String[len];
     for (int i = 0; i < len; i++) {
       int byteLen = in.readInt();
+      if (byteLen < 0) {
+        throw new IOException("Negative UTF-8 string length in " + name + "[" + i + "]: " + byteLen);
+      }
       byte[] bytes = new byte[byteLen];
       in.readFully(bytes);
       arr[i] = new String(bytes, StandardCharsets.UTF_8);
     }
     return arr;
+  }
+
+  private static int readPositiveInt(DataInputStream in, String name) throws IOException {
+    int val = in.readInt();
+    if (val <= 0) {
+      throw new IOException("Invalid ZDEP header " + name + ": " + val + " (expected > 0)");
+    }
+    return val;
+  }
+
+  private static int readNonNegativeInt(DataInputStream in, String name) throws IOException {
+    int val = in.readInt();
+    if (val < 0) {
+      throw new IOException("Invalid ZDEP header " + name + ": " + val + " (expected >= 0)");
+    }
+    return val;
+  }
+
+  private static QuantizedMatrix checkShape(
+      QuantizedMatrix m, int expectedRows, int expectedCols, String name) throws IOException {
+    if (m.rows != expectedRows || m.cols != expectedCols) {
+      throw new IOException(
+          "Invalid ZDEP matrix shape for " + name + ": got " + m.rows + "x" + m.cols
+              + ", expected " + expectedRows + "x" + expectedCols);
+    }
+    return m;
+  }
+
+  private static float[] checkLen(float[] arr, int expectedLen, String name) throws IOException {
+    if (arr.length != expectedLen) {
+      throw new IOException(
+          "Invalid ZDEP vector length for " + name + ": got " + arr.length
+              + ", expected " + expectedLen);
+    }
+    return arr;
+  }
+
+  private static GruDirectionWeights validateGruWeights(
+      GruDirectionWeights w, int gateDim, int inDim, int hidden, String name) throws IOException {
+    checkShape(w.weightIh, gateDim, inDim, name + ".weightIh");
+    checkLen(w.biasIh, gateDim, name + ".biasIh");
+    checkShape(w.weightHh, gateDim, hidden, name + ".weightHh");
+    checkLen(w.biasHh, gateDim, name + ".biasHh");
+    return w;
   }
 
   /** Reusable per-thread scratch buffers to keep per-sentence heap allocation minimal. */

@@ -233,4 +233,39 @@ public class BiaffineDependencyModelTest {
       pool.shutdownNow();
     }
   }
+
+  @Test
+  public void rejectsCorruptModelHeadersAndInvalidSubtreeIds() throws IOException {
+    // 1. Corrupt header with negative lemmaDim must fail fast with IOException
+    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    try (DataOutputStream out = new DataOutputStream(baos)) {
+      out.writeInt(BiaffineDependencyModel.MAGIC);
+      out.writeInt(BiaffineDependencyModel.FORMAT_VERSION);
+      out.writeInt(-5); // invalid lemmaDim
+    }
+    try {
+      BiaffineDependencyModel.load(new java.io.ByteArrayInputStream(baos.toByteArray()));
+      Assert.fail("Expected IOException for negative header dimension");
+    } catch (IOException expected) {
+      Assert.assertTrue(expected.getMessage().contains("lemmaDim"));
+    }
+
+    // 2. DependencyTree.getSubtree must throw IllegalArgumentException on out-of-range id
+    BiaffineDependencyModel model = buildTinyModel(55L, true);
+    TurkishDependencyParser parser =
+        new TurkishDependencyParser(morphology, model, ConlluFormatter.bounDefault());
+    DependencyTree tree = parser.parse("Yarın kar yağacak.");
+    try {
+      tree.getSubtree(0);
+      Assert.fail("Expected IllegalArgumentException for rootId=0");
+    } catch (IllegalArgumentException expected) {
+      // expected
+    }
+    try {
+      tree.getSubtree(tree.size() + 1);
+      Assert.fail("Expected IllegalArgumentException for rootId > size");
+    } catch (IllegalArgumentException expected) {
+      // expected
+    }
+  }
 }

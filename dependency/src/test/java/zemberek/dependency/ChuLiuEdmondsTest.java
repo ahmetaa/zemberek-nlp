@@ -91,6 +91,30 @@ public class ChuLiuEdmondsTest {
     assertValidSingleRootTree(heads);
   }
 
+  @Test
+  public void handlesSentinelAndInfiniteMaskedEdgesWithoutCycles() {
+    // Regression case: cycle (1 <-> 2) with -1e18 masked incoming arcs from node 3.
+    double[][] scores = {
+        {0.0, 0.0, 0.0, 0.0},
+        {10.0, -1e9, 5.0, -1e18},
+        {10.0, 5.0, -1e9, -1e18},
+        {100.0, 2.0, 2.0, -1e9}
+    };
+    int[] heads = ChuLiuEdmonds.decodeSingleRoot(scores);
+    assertValidSingleRootTree(heads);
+    Assert.assertEquals(bruteForceBestSingleRoot(scores, 3), treeScore(scores, heads), 1e-6);
+
+    // Same graph with Double.NEGATIVE_INFINITY masked incoming arcs must not produce NaN.
+    double[][] infScores = {
+        {0.0, 0.0, 0.0, 0.0},
+        {10.0, Double.NEGATIVE_INFINITY, 5.0, Double.NEGATIVE_INFINITY},
+        {10.0, 5.0, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY},
+        {100.0, 2.0, 2.0, Double.NEGATIVE_INFINITY}
+    };
+    int[] infHeads = ChuLiuEdmonds.decodeSingleRoot(infScores);
+    assertValidSingleRootTree(infHeads);
+  }
+
   private static void assertValidSingleRootTree(int[] heads) {
     int n = heads.length - 1;
     Assert.assertEquals(-1, heads[0]);

@@ -1,5 +1,7 @@
 package zemberek.dependency;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import zemberek.morphology.analysis.format.ConlluToken;
 
@@ -43,7 +45,9 @@ public record DependencyNode(
 
   /** Returns the individual {@code Key=Value} UD morphological feature strings. */
   public List<String> featPairs() {
-    return ConlluToken.ofMorphology(id, form, lemma, upos, xpos, feats, misc, sourceWordIndex)
-        .featPairs();
+    if (feats == null || feats.isEmpty() || "_".equals(feats)) {
+      return Collections.emptyList();
+    }
+    return Arrays.asList(feats.split("\\|"));
   }
 }

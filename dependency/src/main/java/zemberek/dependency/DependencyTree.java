@@ -107,6 +107,7 @@ public final class DependencyTree {
 
   /** Returns the full syntactic subtree rooted at {@code rootId} (inclusive), ordered by token id. */
   public List<DependencyNode> getSubtree(int rootId) {
+    nodeById(rootId);
     List<DependencyNode> subtree = new ArrayList<>();
     boolean[] visited = new boolean[nodes.size() + 1];
     Deque<Integer> queue = new ArrayDeque<>();

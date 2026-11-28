@@ -248,8 +248,17 @@ final class QuantizedMatrix {
     byte dtype = in.readByte();
     int rows = in.readInt();
     int cols = in.readInt();
+    if (rows < 0 || cols < 0) {
+      throw new IOException("Negative QuantizedMatrix dimensions: " + rows + "x" + cols);
+    }
+    final int total;
+    try {
+      total = Math.multiplyExact(rows, cols);
+    } catch (ArithmeticException e) {
+      throw new IOException("QuantizedMatrix dimensions overflow: " + rows + "x" + cols, e);
+    }
     if (dtype == DTYPE_FP32) {
-      float[] f = new float[rows * cols];
+      float[] f = new float[total];
       for (int i = 0; i < f.length; i++) {
         f[i] = in.readFloat();
       }
@@ -259,7 +268,7 @@ final class QuantizedMatrix {
       for (int i = 0; i < rows; i++) {
         sc[i] = in.readFloat();
       }
-      byte[] q = new byte[rows * cols];
+      byte[] q = new byte[total];
       in.readFully(q);
       return new QuantizedMatrix(rows, cols, DTYPE_INT8, null, q, sc);
     } else {

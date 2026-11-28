@@ -41,7 +41,13 @@ public final class TurkishDependencyParser implements DependencyParser {
     this.formatter = Objects.requireNonNull(formatter, "formatter");
   }
 
-  /** Creates a parser backed by the bundled default {@code UD_Turkish-BOUN} model. */
+  /**
+   * Creates a parser backed by the bundled default {@code UD_Turkish-BOUN} model at
+   * {@link #DEFAULT_MODEL_RESOURCE}.
+   *
+   * <p>Note: the default binary model is not yet bundled in the JAR until Phase 4 training
+   * completes; until then, load a trained model via {@link #fromModelFile(TurkishMorphology, Path)}.
+   */
   public static TurkishDependencyParser createWithDefaults(TurkishMorphology morphology)
       throws IOException {
     return fromResource(morphology, DEFAULT_MODEL_RESOURCE);

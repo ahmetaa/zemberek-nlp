@@ -80,23 +80,22 @@ class TransformerBiaffineTeacher(nn.Module):
         idx = word_first_subword.clamp(min=0, max=sub_h.shape[1] - 1).unsqueeze(-1).expand(B, T, H)
         word_h = self.drop(torch.gather(sub_h, dim=1, index=idx))  # [B, T, H]
 
-        ones = torch.ones((B, T, 1), device=word_h.device, dtype=word_h.dtype)
         arc_dep = self.drop(F.leaky_relu(self.arc_dep_mlp(word_h), negative_slope=0.1))
         arc_head = self.drop(F.leaky_relu(self.arc_head_mlp(word_h), negative_slope=0.1))
-        arc_scores = torch.einsum(
-            "bix,xy,bjy->bij",
-            torch.cat([arc_dep, ones], dim=-1),
-            self.arc_biaffine,
-            torch.cat([arc_head, ones], dim=-1),
-        )
-
         rel_dep = self.drop(F.leaky_relu(self.rel_dep_mlp(word_h), negative_slope=0.1))
         rel_head = self.drop(F.leaky_relu(self.rel_head_mlp(word_h), negative_slope=0.1))
-        return (
-            arc_scores,
-            torch.cat([rel_dep, ones], dim=-1),
-            torch.cat([rel_head, ones], dim=-1),
-        )
+
+        # Run Biaffine einsums in FP32 to prevent FP16 overflow (max 65,504) on T4 GPUs.
+        with torch.amp.autocast("cuda", enabled=False):
+            ones_f = torch.ones((B, T, 1), device=word_h.device, dtype=torch.float32)
+            arc_dep_b = torch.cat([arc_dep.float(), ones_f], dim=-1)
+            arc_head_b = torch.cat([arc_head.float(), ones_f], dim=-1)
+            arc_scores = torch.einsum(
+                "bix,xy,bjy->bij", arc_dep_b, self.arc_biaffine.float(), arc_head_b
+            )
+            rel_dep_b = torch.cat([rel_dep.float(), ones_f], dim=-1)
+            rel_head_b = torch.cat([rel_head.float(), ones_f], dim=-1)
+        return arc_scores, rel_dep_b, rel_head_b
 
     def score_labels(
         self, rel_dep_b: torch.Tensor, rel_head_b: torch.Tensor, heads: torch.Tensor
@@ -104,7 +103,10 @@ class TransformerBiaffineTeacher(nn.Module):
         B, T, D = rel_head_b.shape
         safe = heads.clamp(min=0, max=T - 1).unsqueeze(-1).expand(B, T, D)
         gathered = torch.gather(rel_head_b, dim=1, index=safe)
-        return torch.einsum("bix,cxy,biy->bic", rel_dep_b, self.rel_biaffine, gathered)
+        with torch.amp.autocast("cuda", enabled=False):
+            return torch.einsum(
+                "bix,cxy,biy->bic", rel_dep_b.float(), self.rel_biaffine.float(), gathered.float()
+            )
 
 
 def tokenize_batch(

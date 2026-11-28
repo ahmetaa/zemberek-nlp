@@ -67,7 +67,7 @@ public final class ChuLiuEdmonds {
       int[] candidate = decodeArborescence(constrained);
       double total = 0.0;
       for (int dep = 1; dep < size; dep++) {
-        total += scores[dep][candidate[dep]];
+        total += constrained[dep][candidate[dep]];
       }
       if (bestHeads == null || total > bestTotal) {
         bestTotal = total;
@@ -89,7 +89,7 @@ public final class ChuLiuEdmonds {
     // 1. Greedy highest-scoring incoming edge for every non-root node.
     for (int dep = 1; dep < n; dep++) {
       int argmax = 0;
-      double maxScore = NEG_INF * 2.0;
+      double maxScore = Double.NEGATIVE_INFINITY;
       double[] row = scores[dep];
       for (int head = 0; head < n; head++) {
         if (head == dep) {
@@ -181,11 +181,11 @@ public final class ChuLiuEdmonds {
           continue;
         }
         double w = scores[dep][head];
-        if (inCycle[dep]) {
+        if (inCycle[dep] && Double.isFinite(w) && Double.isFinite(scores[dep][bestHead[dep]])) {
           // Replacing dep's cycle-internal parent bestHead[dep] with external head.
           w -= scores[dep][bestHead[dep]];
         }
-        if (w > cScores[cd][ch]) {
+        if (w > cScores[cd][ch] || bestOrigHead[cd][ch] == -1) {
           cScores[cd][ch] = w;
           bestOrigHead[cd][ch] = head;
           bestOrigDep[cd][ch] = dep;

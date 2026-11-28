@@ -186,6 +186,7 @@ def evaluate(
 def compute_loss(
     model: ZdepBiaffineParser,
     batch: Dict[str, torch.Tensor],
+    sample_weights: torch.Tensor,
     label_smoothing: float = 0.05,
 ) -> torch.Tensor:
     arc_scores, rel_dep_b, rel_head_b = model(
@@ -211,17 +212,28 @@ def compute_loss(
 
     gold_heads = batch["heads"]  # [B, T], -1 for ROOT & padded
     gold_rels = batch["rels"]
+    tok_weights = sample_weights.unsqueeze(1).expand(B, T)
 
     arc_mask = gold_heads >= 0
-    arc_loss = F.cross_entropy(
-        arc_scores[arc_mask], gold_heads[arc_mask], label_smoothing=label_smoothing
+    arc_losses = F.cross_entropy(
+        arc_scores[arc_mask],
+        gold_heads[arc_mask],
+        label_smoothing=label_smoothing,
+        reduction="none",
     )
+    arc_w = tok_weights[arc_mask]
+    arc_loss = (arc_losses * arc_w).sum() / arc_w.sum().clamp(min=1e-6)
 
     rel_logits = model.score_labels_for_heads(rel_dep_b, rel_head_b, gold_heads)
     rel_mask = gold_rels >= 0
-    rel_loss = F.cross_entropy(
-        rel_logits[rel_mask], gold_rels[rel_mask], label_smoothing=label_smoothing
+    rel_losses = F.cross_entropy(
+        rel_logits[rel_mask],
+        gold_rels[rel_mask],
+        label_smoothing=label_smoothing,
+        reduction="none",
     )
+    rel_w = tok_weights[rel_mask]
+    rel_loss = (rel_losses * rel_w).sum() / rel_w.sum().clamp(min=1e-6)
     return arc_loss + rel_loss
 
 
@@ -320,12 +332,14 @@ def main() -> None:
         for start in range(0, len(train_pool), args.batch_size):
             slice_pool = train_pool[start : start + args.batch_size]
             items = [p[0] for p in slice_pool]
-            batch_weight = float(np.mean([p[1] for p in slice_pool]))
+            sample_weights = torch.tensor(
+                [p[1] for p in slice_pool], dtype=torch.float32, device=device
+            )
             batch = collate_batch(items, max_kernel=max_k, word_dropout=cfg.word_dropout, training=True)
             batch = {k: v.to(device) for k, v in batch.items()}
 
             optimizer.zero_grad(set_to_none=True)
-            loss = compute_loss(model, batch) * batch_weight
+            loss = compute_loss(model, batch, sample_weights)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)
             optimizer.step()
