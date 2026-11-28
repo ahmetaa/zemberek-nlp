@@ -46,7 +46,12 @@ TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
 SentenceAnalysis sa = morphology.analyzeAndDisambiguate(
     "Fakülteyi bitirenler göreve başlıyorlarmış.");
 
+// Format directly as 10-column CoNLL-U text:
 String conllu = ConlluFormatter.bounDefault().formatSentence("1", sa);
+
+// Or obtain structured records (ConlluSentence / ConlluToken / ConlluMwtSpan)
+// for downstream dependency parsing or programmatic CoNLL-U I/O:
+ConlluSentence sentence = ConlluFormatter.bounDefault().projectSentence("1", sa);
 ```
 
 Key behaviors aligned with `UD_Turkish-BOUN` and the **UD Turkic Harmonization** guidelines:

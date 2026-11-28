@@ -294,4 +294,75 @@ public class ConlluFormatterTest {
     }
     return null;
   }
+
+  @Test
+  public void structuredProjectionMatchesFormatSentenceAndRoundTripsWithDependencies() {
+    ConlluFormatter boun = ConlluFormatter.bounDefault();
+    String text = "Evdeki çocuklar İstanbul'daydı.";
+    SentenceAnalysis sa = defaultMorphology.analyzeAndDisambiguate(text);
+
+    ConlluSentence projected = boun.projectSentence("s-1", sa);
+    Assert.assertEquals("s-1", projected.sentId());
+    Assert.assertEquals(text, projected.text());
+    Assert.assertEquals(boun.formatSentence("s-1", sa), projected.toConllu());
+
+    // Both "Evdeki" (evde + ki) and "İstanbul'daydı" (İstanbul'da + ydı) produce MWT spans
+    Assert.assertFalse("Expected MWT spans for bound -ki and copula", projected.mwtSpans().isEmpty());
+    Assert.assertEquals(
+        List.of("Evdeki", "çocuklar", "İstanbul'daydı", "."),
+        projected.surfaceForms());
+
+    // All projected tokens start with unassigned head
+    for (ConlluToken tok : projected.tokens()) {
+      Assert.assertFalse(tok.hasHead());
+      Assert.assertEquals(ConlluToken.UNASSIGNED_HEAD, tok.head());
+      Assert.assertEquals("_", tok.deprel());
+    }
+
+    // Attach synthetic dependency heads/relations and verify round-trip parse
+    int n = projected.size();
+    int[] heads = new int[n];
+    String[] deprels = new String[n];
+    for (int i = 0; i < n; i++) {
+      heads[i] = (i == n - 2) ? 0 : (n - 1);
+      deprels[i] = (i == n - 2) ? "root" : "dep";
+    }
+    ConlluSentence parsedDeps = projected.withDependencies(heads, deprels);
+    String serialized = parsedDeps.toConllu();
+    List<ConlluSentence> reparsed = ConlluSentence.parseAll(serialized);
+    Assert.assertEquals(1, reparsed.size());
+    Assert.assertEquals(serialized, reparsed.getFirst().toConllu());
+    Assert.assertEquals(parsedDeps.tokens().size(), reparsed.getFirst().tokens().size());
+    Assert.assertEquals(parsedDeps.mwtSpans().size(), reparsed.getFirst().mwtSpans().size());
+    Assert.assertTrue(reparsed.getFirst().tokenById(1).hasHead());
+    Assert.assertFalse(reparsed.getFirst().tokenById(1).featPairs().isEmpty());
+  }
+
+  @Test
+  public void conlluParserHandlesCommentsMwtAndSkipsEmptyNodes() {
+    String sample =
+        "# sent_id = boun_1\n"
+            + "# text = Evdeydi.\n"
+            + "1-2\tEvdeydi\t_\t_\t_\t_\t_\t_\t_\tSpaceAfter=No\n"
+            + "1\tEvde\tev\tNOUN\t_\tCase=Loc|Number=Sing|Person=3\t0\troot\t_\t_\n"
+            + "2\tydi\ti\tAUX\tZero\tAspect=Perf|Evident=Fh|Number=Sing|Person=3|Polarity=Pos|Tense=Past\t1\tcop\t_\t_\n"
+            + "2.1\t_\tol\tVERB\t_\t_\t_\t_\t0:root\t_\n"
+            + "3\t.\t.\tPUNCT\tPunc\t_\t1\tpunct\t_\t_\n";
+
+    List<ConlluSentence> parsed = ConlluSentence.parseAll(sample);
+    Assert.assertEquals(1, parsed.size());
+    ConlluSentence s = parsed.getFirst();
+    Assert.assertEquals("boun_1", s.sentId());
+    Assert.assertEquals("Evdeydi.", s.text());
+    Assert.assertEquals(3, s.size());
+    Assert.assertEquals(1, s.mwtSpans().size());
+    Assert.assertEquals(1, s.mwtSpans().getFirst().startId());
+    Assert.assertEquals(2, s.mwtSpans().getFirst().endId());
+    Assert.assertEquals(0, s.tokenById(1).head());
+    Assert.assertEquals("root", s.tokenById(1).deprel());
+    Assert.assertEquals(1, s.tokenById(2).head());
+    Assert.assertEquals("cop", s.tokenById(2).deprel());
+    Assert.assertEquals(List.of("Case=Loc", "Number=Sing", "Person=3"), s.tokenById(1).featPairs());
+    Assert.assertEquals(List.of("Evdeydi", "."), s.surfaceForms());
+  }
 }
