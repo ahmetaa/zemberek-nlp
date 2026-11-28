@@ -122,22 +122,42 @@ public final class ConlluFormatter implements AnalysisFormatter {
     return p.lemma() + "\t" + p.upos() + "\t" + p.xpos() + "\t" + p.feats();
   }
 
-  public String formatSentence(SentenceAnalysis sentenceAnalysis) {
-    return formatSentence(null, sentenceAnalysis);
+  /**
+   * Projects a single disambiguated {@link SingleAnalysis} into a structured {@link ConlluToken}
+   * without MWT splitting.
+   */
+  public ConlluToken projectSingle(int id, String surface, SingleAnalysis analysis) {
+    UdFeatureMapper.ProjectedToken proj = UdFeatureMapper.projectFull(analysis, surface, dialect);
+    return ConlluToken.ofMorphology(
+        id,
+        surface,
+        proj.lemma(),
+        proj.upos(),
+        proj.xpos(),
+        proj.feats(),
+        buildMisc(proj.derivedFrom(), false, analysis),
+        -1);
   }
 
-  public String formatSentence(String sentId, SentenceAnalysis sentenceAnalysis) {
-    StringBuilder sb = new StringBuilder(sentenceAnalysis.size() * 64 + 64);
-    if (sentId != null && !sentId.isEmpty()) {
-      sb.append("# sent_id = ").append(sentId).append('\n');
-    }
-    String rawSentence = sentenceAnalysis.getSentence() != null ? sentenceAnalysis.getSentence() : "";
-    if (!rawSentence.isEmpty()) {
-      sb.append("# text = ").append(rawSentence).append('\n');
-    }
+  /**
+   * Projects a disambiguated {@link SentenceAnalysis} into a structured {@link ConlluSentence}
+   * (including any Multi-Word Token splits) with unassigned syntactic dependency columns.
+   */
+  public ConlluSentence projectSentence(SentenceAnalysis sentenceAnalysis) {
+    return projectSentence(null, sentenceAnalysis);
+  }
 
+  /**
+   * Projects a disambiguated {@link SentenceAnalysis} into a structured {@link ConlluSentence}
+   * with the given optional {@code sentId}.
+   */
+  public ConlluSentence projectSentence(String sentId, SentenceAnalysis sentenceAnalysis) {
+    String rawSentence = sentenceAnalysis.getSentence() != null ? sentenceAnalysis.getSentence() : "";
     List<SentenceWordAnalysis> words = sentenceAnalysis.getWordAnalyses();
     boolean[] spaceAfterNo = computeSpaceAfterNo(rawSentence, words);
+
+    List<ConlluToken> tokens = new ArrayList<>(words.size() + 2);
+    List<ConlluMwtSpan> mwtSpans = new ArrayList<>();
 
     int syntacticId = 1;
     for (int i = 0; i < words.size(); i++) {
@@ -153,20 +173,30 @@ public final class ConlluFormatter implements AnalysisFormatter {
       if (split != null) {
         int id1 = syntacticId++;
         int id2 = syntacticId++;
-        appendRow(sb, id1 + "-" + id2, form, "_", "_", "_", "_",
-            buildMisc(split.derivedFrom(), noSpace, best));
-        appendRow(sb, String.valueOf(id1), split.form1(),
-            split.part1().lemma(), split.part1().upos(), split.part1().xpos(), split.part1().feats(), "_");
-        appendRow(sb, String.valueOf(id2), split.form2(),
-            split.part2().lemma(), split.part2().upos(), split.part2().xpos(), split.part2().feats(), "_");
+        mwtSpans.add(new ConlluMwtSpan(
+            id1, id2, form, buildMisc(split.derivedFrom(), noSpace, best), i));
+        tokens.add(ConlluToken.ofMorphology(
+            id1, split.form1(), split.part1().lemma(), split.part1().upos(),
+            split.part1().xpos(), split.part1().feats(), "_", i));
+        tokens.add(ConlluToken.ofMorphology(
+            id2, split.form2(), split.part2().lemma(), split.part2().upos(),
+            split.part2().xpos(), split.part2().feats(), "_", i));
       } else {
         UdFeatureMapper.ProjectedToken proj = UdFeatureMapper.projectFull(best, form, dialect);
-        appendRow(sb, String.valueOf(syntacticId++), form,
-            proj.lemma(), proj.upos(), proj.xpos(), proj.feats(),
-            buildMisc(proj.derivedFrom(), noSpace, best));
+        tokens.add(ConlluToken.ofMorphology(
+            syntacticId++, form, proj.lemma(), proj.upos(), proj.xpos(), proj.feats(),
+            buildMisc(proj.derivedFrom(), noSpace, best), i));
       }
     }
-    return sb.toString();
+    return new ConlluSentence(sentId, rawSentence, tokens, mwtSpans);
+  }
+
+  public String formatSentence(SentenceAnalysis sentenceAnalysis) {
+    return formatSentence(null, sentenceAnalysis);
+  }
+
+  public String formatSentence(String sentId, SentenceAnalysis sentenceAnalysis) {
+    return projectSentence(sentId, sentenceAnalysis).toConllu();
   }
 
   public String formatSentences(List<SentenceAnalysis> sentences) {
@@ -408,25 +438,5 @@ public final class ConlluFormatter implements AnalysisFormatter {
     return token.indexOf('\'') >= 0
         ? sentence.indexOf(token.replace('\'', '’'), cursor)
         : -1;
-  }
-
-  private static void appendRow(
-      StringBuilder sb,
-      String id,
-      String form,
-      String lemma,
-      String upos,
-      String xpos,
-      String feats,
-      String misc) {
-    sb.append(id).append('\t')
-        .append(form.isEmpty() ? "_" : form).append('\t')
-        .append(lemma.isEmpty() ? "_" : lemma).append('\t')
-        .append(upos).append('\t')
-        .append(xpos).append('\t')
-        .append(feats).append('\t')
-        .append("_\t_\t_\t")
-        .append(misc)
-        .append('\n');
   }
 }
