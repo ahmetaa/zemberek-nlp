@@ -110,7 +110,7 @@ public class LexiconIntegrityTest {
         "Zelenskiy'nin", "Zelenskiy'in", "Blinken'ın", "Blinken'in", "Starmer'ın", "Meloni'nin",
         "AİHM'in", "AİHM'nin", "GSYİH'nın", "GSYİH'nin", "AKTS'lik", "DW'ye", "AfD'nin",
         "Bosna-Hersek'te", "Hakkari'de", "Tahran'da", "Venezuela'nın", "Kahramankazan'da",
-        "Salih'in", "Ecrin'in", "Elif'in", "Kerem'in"
+        "Ali", "Ali'ye", "Ali'nin", "Salih'in", "Ecrin'in", "Elif'in", "Kerem'in"
     };
     for (String form : mustParseLexically) {
       Assert.assertTrue(
@@ -137,6 +137,12 @@ public class LexiconIntegrityTest {
               .anyMatch(a -> a.getDictionaryItem().secondaryPos == zemberek.core.turkish.SecondaryPos.RomanNumeral));
     }
     Assert.assertEquals("bosna-hersek", morph.analyze("Bosna-Hersek'te").getAnalysisResults().get(0).getStem());
+    Assert.assertTrue(
+        "Expected non-runtime ProperNoun analysis for bare Ali",
+        morph.analyze("Ali").stream()
+            .anyMatch(a -> !a.isRuntime()
+                && a.getDictionaryItem().lemma.equals("Ali")
+                && a.getDictionaryItem().secondaryPos == zemberek.core.turkish.SecondaryPos.ProperNoun));
     Assert.assertEquals(1, morph.analyze("Hakkari'de").analysisCount());
     Assert.assertEquals(1, morph.analyze("BİST'te").analysisCount());
     Assert.assertTrue(morph.analyze("MİT'ten").stream().anyMatch(

@@ -120,6 +120,16 @@ public class PronounMorphotacticsAndLexiconTest extends AnalyzerTestBase {
             defaultMorphology.analyze("benimkiler"),
             "ben",
             "Pron + A1sg + Gen + Rel + Pron + A3pl"));
+
+    List<SingleAnalysis> simdikiler = defaultMorphology.analyze("şimdikiler").getAnalysisResults();
+    Assert.assertTrue(
+        "şimdikiler should not have a redundant lexicalized noun lemma",
+        simdikiler.stream().noneMatch(a -> a.getDictionaryItem().lemma.equals("şimdikiler")));
+    Assert.assertTrue(
+        hasMatch(
+            defaultMorphology.analyze("şimdikiler"),
+            "şimdi",
+            "Noun + A3sg + Rel + Adj + Zero + Noun + A3pl"));
   }
 
   private boolean hasMatch(WordAnalysis analysis, String lemma, String lexicalTail) {
