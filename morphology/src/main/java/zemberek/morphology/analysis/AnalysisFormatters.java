@@ -57,6 +57,15 @@ public class AnalysisFormatters {
   public static final AnalysisFormatter OFLAZER_STYLE = new OflazerStyleFormatter();
 
   /**
+   * Strict Kemal Oflazer / METU-Sabancı morphological formatter reconstructing unmutated dictionary
+   * lemmas, zero-surface nominal {@code +Pnon}/{@code +Nom} slots, verbal {@code +Pos} polarity,
+   * {@code +Unable -> ^DB+Verb+Able+Neg} expansion, and secondary POS mappings.
+   * See {@link zemberek.morphology.analysis.format.OflazerFormatter} for dialect profiles.
+   */
+  public static final AnalysisFormatter OFLAZER_STRICT =
+      zemberek.morphology.analysis.format.OflazerFormatter.metuSabanci();
+
+  /**
    * Generates " + " separated Morpheme ids. Such as:
    * <pre>
    *   kitap -> Noun + A3sg
