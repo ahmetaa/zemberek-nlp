@@ -161,8 +161,10 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
    * retaining concatenated feature prefix strings by relying on multi-part MPHF lookups.
    */
   static final class AnalysisTemplate {
-    private static final int L1_SIZE = 1 << 12; // 4,096 slots (2-way associative)
+    private static final int L1_BITS = 13;
+    private static final int L1_SIZE = 1 << L1_BITS; // 8,192 slots (2-way associative)
     private static final int L1_MASK = L1_SIZE - 1;
+    private static final int L1_SHIFT = 64 - L1_BITS;
     private static final int MAX_ID_ENTRIES = 16_384;
     private static final AnalysisTemplate[] L1_CACHE = new AnalysisTemplate[L1_SIZE];
 
@@ -315,7 +317,7 @@ public class FastPerceptronAmbiguityResolver implements AmbiguityResolver {
       if (sa == sentenceEnd) {
         return END_TEMPLATE;
       }
-      int slot = (int) ((sa.hashCode() * 0x9E3779B97F4A7C15L) >>> 52) & L1_MASK;
+      int slot = (int) ((sa.hashCode() * 0x9E3779B97F4A7C15L) >>> L1_SHIFT) & L1_MASK;
       AnalysisTemplate l1 = L1_CACHE[slot];
       if (l1 != null && (l1.sa == sa || l1.sa.equals(sa))) {
         return l1;
