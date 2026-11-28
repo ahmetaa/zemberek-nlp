@@ -45,6 +45,15 @@ public class AnalysisFormatters {
       MorphemesFormatter.lexical();
 
   /**
+   * Universal Dependencies v2 ({@code UD_Turkish-BOUN} / UD Turkic Harmonized) single-token
+   * formatter ({@code LEMMA\tUPOS\tXPOS\tFEATS}). For full 10-column sentence {@code CoNLL-U}
+   * export with autonomous Multi-Word Token splitting, use
+   * {@link zemberek.morphology.analysis.format.ConlluFormatter}.
+   */
+  public static final AnalysisFormatter CONLLU_TOKEN =
+      zemberek.morphology.analysis.format.ConlluFormatter.bounDefault();
+
+  /**
    * Format's analysis result similar to tools developed by Kemal Oflazer. However, this does not
    * generate exactly same outputs as morpheme names and morphotactics are slightly different. For
    * example output will not contain "Pnon" or "Nom" morphemes.
