@@ -101,6 +101,11 @@
     </dependency>
     <dependency>
       <groupId>zemberek-nlp</groupId>
+      <artifactId>zemberek-dependency</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>zemberek-nlp</groupId>
       <artifactId>zemberek-lang-id</artifactId>
       <version>${project.parent.version}</version>
     </dependency>

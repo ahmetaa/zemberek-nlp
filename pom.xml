@@ -22,6 +22,7 @@
     <module>normalization</module>
     <module>examples</module>
     <module>ner</module>
+    <module>dependency</module>
     <module>apps</module>
     <module>classification</module>
   </modules>
