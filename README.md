@@ -70,6 +70,30 @@ When it is run directly with
 
 It will list available console applications.  
 
+### Docker
+
+A `Dockerfile` is provided that builds `zemberek-full.jar` from source and packages it in a
+Java 21 runtime image:
+
+    docker build -t zemberek .
+
+By default the container starts the [gRPC server](grpc) on port 6789:
+
+    docker run -p 6789:6789 zemberek
+
+Any other console application can be run by passing its name and parameters. For example, the
+web demo (open http://localhost:8080) or the interactive morphology console:
+
+    docker run -p 8080:8080 zemberek StartWebDemo --host 0.0.0.0
+    docker run -it zemberek MorphologyConsole
+
+To list available applications:
+
+    docker run --rm --entrypoint java zemberek -jar /app/zemberek-full.jar
+
+The JVM heap defaults to 75% of the container memory limit. It can be changed through
+`JAVA_TOOL_OPTIONS`, e.g. `docker run -e JAVA_TOOL_OPTIONS="-Xmx2g" ...`.
+
 ### For Developers 
 
 [Here](https://github.com/ahmetaa/zemberek-nlp/wiki/Zemberek-For-Developers) information about 

@@ -1,0 +1,9 @@
+.git
+.github
+.idea
+**/*.iml
+**/target/
+**/src/main/generated/
+dependencies/
+Dockerfile
+.dockerignore

@@ -43,6 +43,10 @@
                 <relocation>
                   <pattern>com</pattern>
                   <shadedPattern>_zem.com</shadedPattern>
+                  <excludes>
+                    <!-- JDK built-in packages (e.g. com.sun.net.httpserver used by the web demo) -->
+                    <exclude>com.sun.**</exclude>
+                  </excludes>
                 </relocation>
                 <relocation>
                   <pattern>afu</pattern>
